@@ -1,0 +1,4400 @@
+{
+  "_doc": "bull_gate_f5class_requal_2026_08_01 -- block_elite_bull re-qualification on the f5=require (ribbon BULL-stacked) subclass. EVIDENCE for Safe's scheduled forward re-eval trigger ONLY -- does not flip Safe's gate. ANALYSIS ONLY.",
+  "generated_at": "2026-08-01T12:29:15.960724",
+  "preregistration_file": "analysis/recommendations/bull-gate-f5class-requal-prereg-2026-08-01.json",
+  "smoke": false,
+  "cell_A_window": [
+    "2025-01-02",
+    "2026-07-31"
+  ],
+  "cell_A_n_sessions_population": 391,
+  "cell_A_recent_25_start": "2026-06-26",
+  "cell_B_window": [
+    "2026-07-28",
+    "2026-07-31"
+  ],
+  "cell_B_source": "analysis/recommendations/elite-bull-requal-2026-07-31.json",
+  "strike_offset": 0,
+  "exit_shape_used": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "base_trade_count": 215,
+  "unblock_elite_trade_count": 318,
+  "elite_added_raw_n": 107,
+  "cell_A_postfix_overlap_n_require": 4,
+  "n_floor": 20,
+  "bh_fdr_family": [
+    "cell_A_full391_f5_require",
+    "cell_A_full391_f5_drop",
+    "cell_B_postfix_f5_require_qty3",
+    "cell_B_postfix_f5_drop_qty3"
+  ],
+  "cells": {
+    "cell_A_full391_f5_require": {
+      "n": 103,
+      "n_missing_bars": 1,
+      "win_rate": 0.1845,
+      "total_pnl": -4550.7,
+      "expectancy_per_trade": -44.18,
+      "p_value_raw": 0.08409,
+      "day_majority": {
+        "win_days": 15,
+        "days": 85,
+        "is_majority": false
+      },
+      "drop_best": {
+        "remainder": -5428.7,
+        "still_positive": false
+      },
+      "recent_25": {
+        "start": "2026-06-26",
+        "n": 11,
+        "total_pnl": -74.45,
+        "collapsed_whole_cell": false
+      },
+      "concentration_top_day_share": -0.29,
+      "by_day_pnl": {
+        "2025-01-03": 387.6,
+        "2025-01-23": -310.0,
+        "2025-01-24": -45.0,
+        "2025-01-30": -189.0,
+        "2025-02-04": -90.0,
+        "2025-02-12": -190.0,
+        "2025-02-13": 1320.0,
+        "2025-02-14": -168.0,
+        "2025-02-19": 461.6,
+        "2025-05-16": 441.0,
+        "2025-06-03": -32.0,
+        "2025-06-09": -230.0,
+        "2025-06-11": -240.0,
+        "2025-06-25": -156.0,
+        "2025-06-30": -54.0,
+        "2025-07-01": -394.0,
+        "2025-07-02": -190.0,
+        "2025-07-09": -147.0,
+        "2025-07-10": -126.0,
+        "2025-07-14": -130.0,
+        "2025-07-16": -102.0,
+        "2025-07-18": -148.0,
+        "2025-07-23": -165.0,
+        "2025-07-24": -252.0,
+        "2025-07-25": 424.6,
+        "2025-07-29": -135.0,
+        "2025-07-30": -232.0,
+        "2025-08-06": -144.0,
+        "2025-08-07": -220.0,
+        "2025-08-14": -110.0,
+        "2025-08-27": -94.0,
+        "2025-09-04": 658.0,
+        "2025-09-09": -20.0,
+        "2025-09-12": -110.0,
+        "2025-09-16": -162.0,
+        "2025-09-22": 544.2,
+        "2025-09-23": -65.0,
+        "2025-09-26": -244.0,
+        "2025-09-30": -40.0,
+        "2025-10-01": -116.0,
+        "2025-10-02": -148.0,
+        "2025-10-03": -212.0,
+        "2025-10-07": -168.0,
+        "2025-10-08": -298.0,
+        "2025-10-23": -294.0,
+        "2025-10-28": -235.0,
+        "2025-11-11": 200.0,
+        "2025-11-12": -60.0,
+        "2025-12-01": -280.0,
+        "2025-12-03": 0.0,
+        "2025-12-10": -390.0,
+        "2025-12-11": 92.0,
+        "2025-12-19": -210.0,
+        "2025-12-26": -84.0,
+        "2026-01-05": -526.5,
+        "2026-01-09": -30.0,
+        "2026-01-12": -210.0,
+        "2026-01-15": -181.0,
+        "2026-02-02": 45.0,
+        "2026-02-20": 49.0,
+        "2026-04-10": -324.0,
+        "2026-04-15": 379.95,
+        "2026-04-22": -84.0,
+        "2026-04-27": -89.0,
+        "2026-04-30": -63.0,
+        "2026-05-13": 1278.8,
+        "2026-05-19": -230.0,
+        "2026-05-20": -78.0,
+        "2026-05-27": -369.0,
+        "2026-05-29": -195.0,
+        "2026-06-01": -100.0,
+        "2026-06-04": 0.0,
+        "2026-06-12": -406.5,
+        "2026-06-16": -236.0,
+        "2026-06-22": -207.0,
+        "2026-06-29": 878.0,
+        "2026-07-02": -156.0,
+        "2026-07-07": -119.0,
+        "2026-07-09": -237.0,
+        "2026-07-14": -60.0,
+        "2026-07-20": -216.0,
+        "2026-07-21": -247.5,
+        "2026-07-29": -267.0,
+        "2026-07-30": -36.0,
+        "2026-07-31": 386.05
+      },
+      "trades": [
+        {
+          "date": "2025-01-03",
+          "entry_ts_et": "2025-01-03T10:30:00",
+          "strike": 589,
+          "entry_premium": 1.11,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "sequence_reclaim"
+          ],
+          "trigger_level": 587.54,
+          "pnl": 387.6,
+          "exit_reason": "runner_stop @ 1.94",
+          "exit_time_et": "2025-01-03T12:15:00",
+          "hold_minutes": 105,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-01-23",
+          "entry_ts_et": "2025-01-23T13:15:00",
+          "strike": 608,
+          "entry_premium": 0.52,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 607.82,
+          "pnl": -310.0,
+          "exit_reason": "structure_stop @ 607.82",
+          "exit_time_et": "2025-01-23T14:00:00",
+          "hold_minutes": 45,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-01-24",
+          "entry_ts_et": "2025-01-24T10:30:00",
+          "strike": 610,
+          "entry_premium": 0.58,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 609.63,
+          "pnl": -45.0,
+          "exit_reason": "structure_stop @ 609.63",
+          "exit_time_et": "2025-01-24T10:35:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-01-30",
+          "entry_ts_et": "2025-01-30T10:35:00",
+          "strike": 603,
+          "entry_premium": 1.41,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 602.2733652555071,
+          "pnl": -189.0,
+          "exit_reason": "structure_stop @ 602.2733652555071",
+          "exit_time_et": "2025-01-30T10:55:00",
+          "hold_minutes": 20,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-04",
+          "entry_ts_et": "2025-02-04T14:45:00",
+          "strike": 602,
+          "entry_premium": 0.89,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 601.92,
+          "pnl": -90.0,
+          "exit_reason": "structure_stop @ 601.92",
+          "exit_time_et": "2025-02-04T14:50:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-12",
+          "entry_ts_et": "2025-02-12T12:55:00",
+          "strike": 604,
+          "entry_premium": 0.91,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 603.8725535946754,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 603.8725535946754",
+          "exit_time_et": "2025-02-12T13:10:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-13",
+          "entry_ts_et": "2025-02-13T10:30:00",
+          "strike": 604,
+          "entry_premium": 2.56,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 604.0,
+          "pnl": 758.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2025-02-13T15:40:00",
+          "hold_minutes": 310,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-13",
+          "entry_ts_et": "2025-02-13T14:15:00",
+          "strike": 608,
+          "entry_premium": 0.6,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 608.095,
+          "pnl": 562.0,
+          "exit_reason": "runner_stop @ 1.1",
+          "exit_time_et": "2025-02-13T15:00:00",
+          "hold_minutes": 45,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-14",
+          "entry_ts_et": "2025-02-14T10:30:00",
+          "strike": 610,
+          "entry_premium": 1.23,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 609.93,
+          "pnl": -168.0,
+          "exit_reason": "structure_stop @ 609.93",
+          "exit_time_et": "2025-02-14T11:20:00",
+          "hold_minutes": 50,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-19",
+          "entry_ts_et": "2025-02-19T13:20:00",
+          "strike": 611,
+          "entry_premium": 0.91,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 611.36,
+          "pnl": 461.6,
+          "exit_reason": "runner_stop @ 1.85",
+          "exit_time_et": "2025-02-19T15:10:00",
+          "hold_minutes": 110,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-05-16",
+          "entry_ts_et": "2025-05-16T12:05:00",
+          "strike": 592,
+          "entry_premium": 0.76,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 591.16,
+          "pnl": 441.0,
+          "exit_reason": "runner_stop @ 1.45",
+          "exit_time_et": "2025-05-16T13:45:00",
+          "hold_minutes": 100,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-03",
+          "entry_ts_et": "2025-06-03T10:05:00",
+          "strike": 593,
+          "entry_premium": 1.24,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 592.79,
+          "pnl": -32.0,
+          "exit_reason": "structure_stop @ 592.79",
+          "exit_time_et": "2025-06-03T10:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-09",
+          "entry_ts_et": "2025-06-09T12:55:00",
+          "strike": 601,
+          "entry_premium": 0.85,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 600.82,
+          "pnl": -78.0,
+          "exit_reason": "structure_stop @ 600.82",
+          "exit_time_et": "2025-06-09T13:00:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-09",
+          "entry_ts_et": "2025-06-09T14:10:00",
+          "strike": 601,
+          "entry_premium": 0.59,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 600.82,
+          "pnl": -152.0,
+          "exit_reason": "structure_stop @ 600.82",
+          "exit_time_et": "2025-06-09T14:40:00",
+          "hold_minutes": 30,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-11",
+          "entry_ts_et": "2025-06-11T09:40:00",
+          "strike": 603,
+          "entry_premium": 1.64,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 603.0,
+          "pnl": -240.0,
+          "exit_reason": "structure_stop @ 603.0",
+          "exit_time_et": "2025-06-11T12:15:00",
+          "hold_minutes": 155,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-25",
+          "entry_ts_et": "2025-06-25T10:00:00",
+          "strike": 608,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 607.76,
+          "pnl": -156.0,
+          "exit_reason": "structure_stop @ 607.76",
+          "exit_time_et": "2025-06-25T10:15:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-30",
+          "entry_ts_et": "2025-06-30T13:10:00",
+          "strike": 617,
+          "entry_premium": 0.75,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 616.39,
+          "pnl": -54.0,
+          "exit_reason": "structure_stop @ 616.39",
+          "exit_time_et": "2025-06-30T13:25:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-01",
+          "entry_ts_et": "2025-07-01T12:50:00",
+          "strike": 618,
+          "entry_premium": 0.61,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 617.2660203525558,
+          "pnl": -136.0,
+          "exit_reason": "structure_stop @ 617.2660203525558",
+          "exit_time_et": "2025-07-01T13:00:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-01",
+          "entry_ts_et": "2025-07-01T14:35:00",
+          "strike": 618,
+          "entry_premium": 0.78,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 618.2,
+          "pnl": -258.0,
+          "exit_reason": "structure_stop @ 618.2",
+          "exit_time_et": "2025-07-01T15:00:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-02",
+          "entry_ts_et": "2025-07-02T13:25:00",
+          "strike": 620,
+          "entry_premium": 0.42,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 619.2,
+          "pnl": -190.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-07-02T15:40:00",
+          "hold_minutes": 135,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-09",
+          "entry_ts_et": "2025-07-09T15:00:00",
+          "strike": 623,
+          "entry_premium": 0.67,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 623.33,
+          "pnl": -147.0,
+          "exit_reason": "structure_stop @ 623.33",
+          "exit_time_et": "2025-07-09T15:10:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-10",
+          "entry_ts_et": "2025-07-10T13:35:00",
+          "strike": 626,
+          "entry_premium": 0.75,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 626.26,
+          "pnl": -126.0,
+          "exit_reason": "structure_stop @ 626.26",
+          "exit_time_et": "2025-07-10T14:55:00",
+          "hold_minutes": 80,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-14",
+          "entry_ts_et": "2025-07-14T13:20:00",
+          "strike": 625,
+          "entry_premium": 0.47,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 624.85,
+          "pnl": -130.0,
+          "exit_reason": "structure_stop @ 624.85",
+          "exit_time_et": "2025-07-14T13:25:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-16",
+          "entry_ts_et": "2025-07-16T14:05:00",
+          "strike": 623,
+          "entry_premium": 0.73,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 623.0,
+          "pnl": -102.0,
+          "exit_reason": "structure_stop @ 623.0",
+          "exit_time_et": "2025-07-16T14:20:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-18",
+          "entry_ts_et": "2025-07-18T09:50:00",
+          "strike": 629,
+          "entry_premium": 1.05,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 628.66,
+          "pnl": -148.0,
+          "exit_reason": "structure_stop @ 628.66",
+          "exit_time_et": "2025-07-18T10:00:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-23",
+          "entry_ts_et": "2025-07-23T09:40:00",
+          "strike": 631,
+          "entry_premium": 1.37,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 631.31,
+          "pnl": -165.0,
+          "exit_reason": "structure_stop @ 631.31",
+          "exit_time_et": "2025-07-23T09:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-24",
+          "entry_ts_et": "2025-07-24T09:45:00",
+          "strike": 635,
+          "entry_premium": 0.78,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 634.09,
+          "pnl": -252.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-07-24T15:40:00",
+          "hold_minutes": 355,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-25",
+          "entry_ts_et": "2025-07-25T12:15:00",
+          "strike": 636,
+          "entry_premium": 0.78,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 636.105,
+          "pnl": 424.6,
+          "exit_reason": "runner_stop @ 1.34",
+          "exit_time_et": "2025-07-25T15:35:00",
+          "hold_minutes": 200,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-29",
+          "entry_ts_et": "2025-07-29T10:40:00",
+          "strike": 638,
+          "entry_premium": 0.51,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 637.465,
+          "pnl": -135.0,
+          "exit_reason": "structure_stop @ 637.465",
+          "exit_time_et": "2025-07-29T10:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-30",
+          "entry_ts_et": "2025-07-30T14:35:00",
+          "strike": 637,
+          "entry_premium": 1.27,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 637.02,
+          "pnl": -232.0,
+          "exit_reason": "structure_stop @ 637.02",
+          "exit_time_et": "2025-07-30T14:40:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-06",
+          "entry_ts_et": "2025-08-06T12:05:00",
+          "strike": 633,
+          "entry_premium": 0.66,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 632.6,
+          "pnl": -84.0,
+          "exit_reason": "structure_stop @ 632.6",
+          "exit_time_et": "2025-08-06T12:15:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-06",
+          "entry_ts_et": "2025-08-06T14:05:00",
+          "strike": 633,
+          "entry_premium": 0.35,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 632.6,
+          "pnl": -60.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-08-06T15:40:00",
+          "hold_minutes": 95,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-07",
+          "entry_ts_et": "2025-08-07T10:30:00",
+          "strike": 634,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 633.19378832276,
+          "pnl": -220.0,
+          "exit_reason": "structure_stop @ 633.19378832276",
+          "exit_time_et": "2025-08-07T10:55:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-14",
+          "entry_ts_et": "2025-08-14T13:55:00",
+          "strike": 645,
+          "entry_premium": 0.33,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 644.3208094385044,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 644.3208094385044",
+          "exit_time_et": "2025-08-14T14:15:00",
+          "hold_minutes": 20,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-27",
+          "entry_ts_et": "2025-08-27T09:40:00",
+          "strike": 645,
+          "entry_premium": 1.69,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 645.0,
+          "pnl": -3.0,
+          "exit_reason": "structure_stop @ 645.0",
+          "exit_time_et": "2025-08-27T09:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-27",
+          "entry_ts_et": "2025-08-27T12:10:00",
+          "strike": 647,
+          "entry_premium": 1.03,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 646.49,
+          "pnl": -56.0,
+          "exit_reason": "structure_stop @ 646.49",
+          "exit_time_et": "2025-08-27T12:15:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-27",
+          "entry_ts_et": "2025-08-27T13:15:00",
+          "strike": 647,
+          "entry_premium": 0.95,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 646.49,
+          "pnl": -35.0,
+          "exit_reason": "structure_stop @ 646.49",
+          "exit_time_et": "2025-08-27T13:20:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-04",
+          "entry_ts_et": "2025-09-04T10:35:00",
+          "strike": 645,
+          "entry_premium": 1.04,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 645.0,
+          "pnl": 658.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2025-09-04T15:40:00",
+          "hold_minutes": 305,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-09",
+          "entry_ts_et": "2025-09-09T13:55:00",
+          "strike": 650,
+          "entry_premium": 0.38,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 649.815,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 649.815",
+          "exit_time_et": "2025-09-09T14:00:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-12",
+          "entry_ts_et": "2025-09-12T11:00:00",
+          "strike": 658,
+          "entry_premium": 0.88,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 658.32,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 658.32",
+          "exit_time_et": "2025-09-12T11:05:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-16",
+          "entry_ts_et": "2025-09-16T09:50:00",
+          "strike": 661,
+          "entry_premium": 0.83,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 660.6,
+          "pnl": -162.0,
+          "exit_reason": "structure_stop @ 660.6",
+          "exit_time_et": "2025-09-16T09:55:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-22",
+          "entry_ts_et": "2025-09-22T12:10:00",
+          "strike": 665,
+          "entry_premium": 0.63,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 664.88,
+          "pnl": 544.2,
+          "exit_reason": "runner_stop @ 1.39",
+          "exit_time_et": "2025-09-22T13:20:00",
+          "hold_minutes": 70,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-23",
+          "entry_ts_et": "2025-09-23T09:40:00",
+          "strike": 667,
+          "entry_premium": 1.01,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 666.864279493517,
+          "pnl": -65.0,
+          "exit_reason": "structure_stop @ 666.864279493517",
+          "exit_time_et": "2025-09-23T09:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-26",
+          "entry_ts_et": "2025-09-26T10:20:00",
+          "strike": 660,
+          "entry_premium": 1.21,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 659.39,
+          "pnl": -144.0,
+          "exit_reason": "structure_stop @ 659.39",
+          "exit_time_et": "2025-09-26T10:25:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-26",
+          "entry_ts_et": "2025-09-26T14:40:00",
+          "strike": 662,
+          "entry_premium": 0.49,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 662.0,
+          "pnl": -100.0,
+          "exit_reason": "structure_stop @ 662.0",
+          "exit_time_et": "2025-09-26T14:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-30",
+          "entry_ts_et": "2025-09-30T14:50:00",
+          "strike": 665,
+          "entry_premium": 0.46,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 664.375,
+          "pnl": -40.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-09-30T15:40:00",
+          "hold_minutes": 50,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-01",
+          "entry_ts_et": "2025-10-01T09:40:00",
+          "strike": 665,
+          "entry_premium": 1.4,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 664.3648851536693,
+          "pnl": -186.0,
+          "exit_reason": "structure_stop @ 664.3648851536693",
+          "exit_time_et": "2025-10-01T09:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-01",
+          "entry_ts_et": "2025-10-01T12:50:00",
+          "strike": 667,
+          "entry_premium": 0.5,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 666.65,
+          "pnl": 70.0,
+          "exit_reason": "structure_stop @ 666.65",
+          "exit_time_et": "2025-10-01T12:55:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-02",
+          "entry_ts_et": "2025-10-02T09:50:00",
+          "strike": 669,
+          "entry_premium": 1.13,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 668.9629001565401,
+          "pnl": -148.0,
+          "exit_reason": "structure_stop @ 668.9629001565401",
+          "exit_time_et": "2025-10-02T10:15:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-03",
+          "entry_ts_et": "2025-10-03T09:40:00",
+          "strike": 671,
+          "entry_premium": 1.26,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 670.55,
+          "pnl": -212.0,
+          "exit_reason": "structure_stop @ 670.55",
+          "exit_time_et": "2025-10-03T10:05:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-07",
+          "entry_ts_et": "2025-10-07T09:55:00",
+          "strike": 672,
+          "entry_premium": 1.16,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 672.27,
+          "pnl": -168.0,
+          "exit_reason": "structure_stop @ 672.27",
+          "exit_time_et": "2025-10-07T10:00:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-08",
+          "entry_ts_et": "2025-10-08T12:20:00",
+          "strike": 673,
+          "entry_premium": 0.57,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 672.99,
+          "pnl": -128.0,
+          "exit_reason": "structure_stop @ 672.99",
+          "exit_time_et": "2025-10-08T12:25:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-08",
+          "entry_ts_et": "2025-10-08T14:20:00",
+          "strike": 673,
+          "entry_premium": 0.44,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 672.99,
+          "pnl": -170.0,
+          "exit_reason": "structure_stop @ 672.99",
+          "exit_time_et": "2025-10-08T14:30:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-23",
+          "entry_ts_et": "2025-10-23T13:40:00",
+          "strike": 672,
+          "entry_premium": 0.69,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 671.8,
+          "pnl": -294.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-10-23T15:40:00",
+          "hold_minutes": 120,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-28",
+          "entry_ts_et": "2025-10-28T10:00:00",
+          "strike": 686,
+          "entry_premium": 0.95,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 685.54,
+          "pnl": -235.0,
+          "exit_reason": "structure_stop @ 685.54",
+          "exit_time_et": "2025-10-28T11:30:00",
+          "hold_minutes": 90,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-11-11",
+          "entry_ts_et": "2025-11-11T13:05:00",
+          "strike": 682,
+          "entry_premium": 0.94,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 682.17,
+          "pnl": 200.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-11-11T15:40:00",
+          "hold_minutes": 155,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-11-12",
+          "entry_ts_et": "2025-11-12T13:05:00",
+          "strike": 684,
+          "entry_premium": 0.82,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 683.56,
+          "pnl": -60.0,
+          "exit_reason": "structure_stop @ 683.56",
+          "exit_time_et": "2025-11-12T13:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-01",
+          "entry_ts_et": "2025-12-01T13:15:00",
+          "strike": 683,
+          "entry_premium": 0.47,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 682.3929915173262,
+          "pnl": -280.0,
+          "exit_reason": "structure_stop @ 682.3929915173262",
+          "exit_time_et": "2025-12-01T14:05:00",
+          "hold_minutes": 50,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-03",
+          "entry_ts_et": "2025-12-03T13:30:00",
+          "strike": 684,
+          "entry_premium": 0.56,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 683.69,
+          "pnl": -0.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-12-03T15:40:00",
+          "hold_minutes": 130,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-10",
+          "entry_ts_et": "2025-12-10T14:35:00",
+          "strike": 686,
+          "entry_premium": 1.62,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 685.37,
+          "pnl": -390.0,
+          "exit_reason": "structure_stop @ 685.37",
+          "exit_time_et": "2025-12-10T14:45:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-11",
+          "entry_ts_et": "2025-12-11T13:05:00",
+          "strike": 688,
+          "entry_premium": 0.83,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 687.59,
+          "pnl": 180.0,
+          "exit_reason": "structure_stop @ 687.59",
+          "exit_time_et": "2025-12-11T13:35:00",
+          "hold_minutes": 30,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-11",
+          "entry_ts_et": "2025-12-11T14:45:00",
+          "strike": 689,
+          "entry_premium": 0.8,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 688.96,
+          "pnl": -88.0,
+          "exit_reason": "structure_stop @ 688.96",
+          "exit_time_et": "2025-12-11T14:55:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-19",
+          "entry_ts_et": "2025-12-19T12:25:00",
+          "strike": 681,
+          "entry_premium": 0.66,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 680.7,
+          "pnl": -170.0,
+          "exit_reason": "structure_stop @ 680.7",
+          "exit_time_et": "2025-12-19T12:30:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-19",
+          "entry_ts_et": "2025-12-19T14:25:00",
+          "strike": 681,
+          "entry_premium": 0.36,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 680.7,
+          "pnl": -40.0,
+          "exit_reason": "structure_stop @ 680.7",
+          "exit_time_et": "2025-12-19T14:30:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-26",
+          "entry_ts_et": "2025-12-26T10:35:00",
+          "strike": 691,
+          "entry_premium": 0.69,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 690.82,
+          "pnl": -84.0,
+          "exit_reason": "structure_stop @ 690.82",
+          "exit_time_et": "2025-12-26T10:45:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-05",
+          "entry_ts_et": "2026-01-05T10:30:00",
+          "strike": 688,
+          "entry_premium": 1.17,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 686.87,
+          "pnl": -526.5,
+          "exit_reason": "premium_stop @ 0.58",
+          "exit_time_et": "2026-01-05T13:20:00",
+          "hold_minutes": 170,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-09",
+          "entry_ts_et": "2026-01-09T12:05:00",
+          "strike": 694,
+          "entry_premium": 0.86,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 693.95,
+          "pnl": -30.0,
+          "exit_reason": "structure_stop @ 693.95",
+          "exit_time_et": "2026-01-09T12:20:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-12",
+          "entry_ts_et": "2026-01-12T12:15:00",
+          "strike": 695,
+          "entry_premium": 0.36,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 694.4525483743133,
+          "pnl": -90.0,
+          "exit_reason": "structure_stop @ 694.4525483743133",
+          "exit_time_et": "2026-01-12T12:20:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-12",
+          "entry_ts_et": "2026-01-12T14:20:00",
+          "strike": 695,
+          "entry_premium": 0.58,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 695.295,
+          "pnl": -120.0,
+          "exit_reason": "structure_stop @ 695.295",
+          "exit_time_et": "2026-01-12T15:25:00",
+          "hold_minutes": 65,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-15",
+          "entry_ts_et": "2026-01-15T10:30:00",
+          "strike": 694,
+          "entry_premium": 0.99,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 693.93,
+          "pnl": -81.0,
+          "exit_reason": "structure_stop @ 693.93",
+          "exit_time_et": "2026-01-15T10:45:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-15",
+          "entry_ts_et": "2026-01-15T13:05:00",
+          "strike": 695,
+          "entry_premium": 0.4,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 693.93,
+          "pnl": -100.0,
+          "exit_reason": "premium_stop @ 0.2",
+          "exit_time_et": "2026-01-15T14:20:00",
+          "hold_minutes": 75,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-02-02",
+          "entry_ts_et": "2026-02-02T10:30:00",
+          "strike": 693,
+          "entry_premium": 2.4,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 691.8,
+          "pnl": 45.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-02-02T15:40:00",
+          "hold_minutes": 310,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-02-20",
+          "entry_ts_et": "2026-02-20T10:30:00",
+          "strike": 687,
+          "entry_premium": 1.77,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 686.135,
+          "pnl": 49.0,
+          "exit_reason": "structure_stop @ 686.135",
+          "exit_time_et": "2026-02-20T10:35:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-10",
+          "entry_ts_et": "2026-04-10T10:15:00",
+          "strike": 681,
+          "entry_premium": 1.27,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 680.15,
+          "pnl": -324.0,
+          "exit_reason": "structure_stop @ 680.15",
+          "exit_time_et": "2026-04-10T11:55:00",
+          "hold_minutes": 100,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-15",
+          "entry_ts_et": "2026-04-15T09:50:00",
+          "strike": 695,
+          "entry_premium": 1.36,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 694.39501953125,
+          "pnl": 379.95,
+          "exit_reason": "runner_stop @ 2.44",
+          "exit_time_et": "2026-04-15T12:45:00",
+          "hold_minutes": 175,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-22",
+          "entry_ts_et": "2026-04-22T14:05:00",
+          "strike": 710,
+          "entry_premium": 0.7,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 710.0499877929688,
+          "pnl": -84.0,
+          "exit_reason": "structure_stop @ 710.0499877929688",
+          "exit_time_et": "2026-04-22T14:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-27",
+          "entry_ts_et": "2026-04-27T09:40:00",
+          "strike": 714,
+          "entry_premium": 1.52,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 713.7,
+          "pnl": -81.0,
+          "exit_reason": "structure_stop @ 713.7",
+          "exit_time_et": "2026-04-27T09:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-27",
+          "entry_ts_et": "2026-04-27T13:30:00",
+          "strike": 715,
+          "entry_premium": 0.57,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 714.3599853515625,
+          "pnl": -8.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-04-27T15:40:00",
+          "hold_minutes": 130,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-30",
+          "entry_ts_et": "2026-04-30T10:05:00",
+          "strike": 712,
+          "entry_premium": 1.86,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 711.4685015561257,
+          "pnl": -63.0,
+          "exit_reason": "structure_stop @ 711.4685015561257",
+          "exit_time_et": "2026-04-30T10:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-13",
+          "entry_ts_et": "2026-05-13T09:45:00",
+          "strike": 737,
+          "entry_premium": 1.43,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 736.6699829101562,
+          "pnl": 15.0,
+          "exit_reason": "structure_stop @ 736.6699829101562",
+          "exit_time_et": "2026-05-13T09:50:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-13",
+          "entry_ts_et": "2026-05-13T10:55:00",
+          "strike": 739,
+          "entry_premium": 1.05,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 738.469970703125,
+          "pnl": 795.6,
+          "exit_reason": "runner_stop @ 3.98",
+          "exit_time_et": "2026-05-13T14:45:00",
+          "hold_minutes": 230,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-13",
+          "entry_ts_et": "2026-05-13T12:25:00",
+          "strike": 742,
+          "entry_premium": 0.76,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 740.73,
+          "pnl": 468.2,
+          "exit_reason": "runner_stop @ 1.58",
+          "exit_time_et": "2026-05-13T14:35:00",
+          "hold_minutes": 130,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-19",
+          "entry_ts_et": "2026-05-19T14:00:00",
+          "strike": 737,
+          "entry_premium": 0.87,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 736.4,
+          "pnl": -230.0,
+          "exit_reason": "structure_stop @ 736.4",
+          "exit_time_et": "2026-05-19T14:25:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-20",
+          "entry_ts_et": "2026-05-20T12:45:00",
+          "strike": 740,
+          "entry_premium": 1.64,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 739.0800170898438,
+          "pnl": -78.0,
+          "exit_reason": "structure_stop @ 739.0800170898438",
+          "exit_time_et": "2026-05-20T13:10:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T10:00:00",
+          "strike": 750,
+          "entry_premium": 1.73,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.9341974590301,
+          "pnl": -189.0,
+          "exit_reason": "structure_stop @ 749.9341974590301",
+          "exit_time_et": "2026-05-27T11:00:00",
+          "hold_minutes": 60,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T14:40:00",
+          "strike": 751,
+          "entry_premium": 0.49,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 750.49,
+          "pnl": -180.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-05-27T15:40:00",
+          "hold_minutes": 60,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-29",
+          "entry_ts_et": "2026-05-29T10:55:00",
+          "strike": 756,
+          "entry_premium": 1.3,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 754.9094652037161,
+          "pnl": -195.0,
+          "exit_reason": "premium_stop @ 0.65",
+          "exit_time_et": "2026-05-29T14:55:00",
+          "hold_minutes": 240,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-01",
+          "entry_ts_et": "2026-06-01T13:30:00",
+          "strike": 759,
+          "entry_premium": 0.43,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 758.05,
+          "pnl": -100.0,
+          "exit_reason": "structure_stop @ 758.05",
+          "exit_time_et": "2026-06-01T13:35:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-04",
+          "entry_ts_et": "2026-06-04T12:25:00",
+          "strike": 757,
+          "entry_premium": 0.61,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 756.4,
+          "pnl": 0.0,
+          "exit_reason": "structure_stop @ 756.4",
+          "exit_time_et": "2026-06-04T12:35:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-12",
+          "entry_ts_et": "2026-06-12T10:55:00",
+          "strike": 742,
+          "entry_premium": 2.71,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 737.4566363784633,
+          "pnl": -406.5,
+          "exit_reason": "premium_stop @ 1.35",
+          "exit_time_et": "2026-06-12T12:00:00",
+          "hold_minutes": 65,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-16",
+          "entry_ts_et": "2026-06-16T10:10:00",
+          "strike": 755,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 754.2085702967246,
+          "pnl": -236.0,
+          "exit_reason": "structure_stop @ 754.2085702967246",
+          "exit_time_et": "2026-06-16T10:20:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-22",
+          "entry_ts_et": "2026-06-22T09:40:00",
+          "strike": 750,
+          "entry_premium": 1.38,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 748.2000122070312,
+          "pnl": -207.0,
+          "exit_reason": "premium_stop @ 0.69",
+          "exit_time_et": "2026-06-22T10:20:00",
+          "hold_minutes": 40,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-29",
+          "entry_ts_et": "2026-06-29T10:25:00",
+          "strike": 734,
+          "entry_premium": 2.17,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 733.5713704313238,
+          "pnl": 878.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2026-06-29T15:40:00",
+          "hold_minutes": 315,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-02",
+          "entry_ts_et": "2026-07-02T10:35:00",
+          "strike": 748,
+          "entry_premium": 1.82,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.75,
+          "pnl": -156.0,
+          "exit_reason": "structure_stop @ 747.75",
+          "exit_time_et": "2026-07-02T10:45:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-07",
+          "entry_ts_et": "2026-07-07T13:40:00",
+          "strike": 749,
+          "entry_premium": 0.72,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.0,
+          "pnl": -119.0,
+          "exit_reason": "structure_stop @ 749.0",
+          "exit_time_et": "2026-07-07T13:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:45:00",
+          "strike": 748,
+          "entry_premium": 1.82,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.5,
+          "pnl": -237.0,
+          "exit_reason": "structure_stop @ 747.5",
+          "exit_time_et": "2026-07-09T10:20:00",
+          "hold_minutes": 35,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-14",
+          "entry_ts_et": "2026-07-14T14:15:00",
+          "strike": 753,
+          "entry_premium": 0.32,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 752.469970703125,
+          "pnl": -60.0,
+          "exit_reason": "structure_stop @ 752.469970703125",
+          "exit_time_et": "2026-07-14T14:25:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-20",
+          "entry_ts_et": "2026-07-20T12:10:00",
+          "strike": 747,
+          "entry_premium": 0.82,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 746.6,
+          "pnl": -216.0,
+          "exit_reason": "structure_stop @ 746.6",
+          "exit_time_et": "2026-07-20T12:30:00",
+          "hold_minutes": 20,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-21",
+          "entry_ts_et": "2026-07-21T12:05:00",
+          "strike": 748,
+          "entry_premium": 0.99,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.75,
+          "pnl": -247.5,
+          "exit_reason": "premium_stop @ 0.49",
+          "exit_time_et": "2026-07-21T15:35:00",
+          "hold_minutes": 210,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:45:00",
+          "strike": 741,
+          "entry_premium": 1.51,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 739.0,
+          "pnl": -267.0,
+          "exit_reason": "structure_stop @ 739.0",
+          "exit_time_et": "2026-07-29T15:10:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-30",
+          "entry_ts_et": "2026-07-30T12:15:00",
+          "strike": 739,
+          "entry_premium": 1.41,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 738.85,
+          "pnl": -36.0,
+          "exit_reason": "structure_stop @ 738.85",
+          "exit_time_et": "2026-07-30T12:25:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:35:00",
+          "strike": 745,
+          "entry_premium": 1.08,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 744.68,
+          "pnl": -120.0,
+          "exit_reason": "structure_stop @ 744.68",
+          "exit_time_et": "2026-07-31T12:40:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:05:00",
+          "strike": 746,
+          "entry_premium": 0.7,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 745.53,
+          "pnl": 506.05,
+          "exit_reason": "runner_stop @ 1.45",
+          "exit_time_et": "2026-07-31T15:35:00",
+          "hold_minutes": 90,
+          "f5_bull": true
+        }
+      ],
+      "bh_fdr_significant_q10": false
+    },
+    "cell_A_full391_f5_drop": {
+      "n": 106,
+      "n_missing_bars": 1,
+      "win_rate": 0.1887,
+      "total_pnl": -4624.7,
+      "expectancy_per_trade": -43.63,
+      "p_value_raw": 0.07989,
+      "day_majority": {
+        "win_days": 16,
+        "days": 88,
+        "is_majority": false
+      },
+      "drop_best": {
+        "remainder": -5502.7,
+        "still_positive": false
+      },
+      "recent_25": {
+        "start": "2026-06-26",
+        "n": 12,
+        "total_pnl": -238.45,
+        "collapsed_whole_cell": false
+      },
+      "concentration_top_day_share": -0.285,
+      "by_day_pnl": {
+        "2025-01-03": 387.6,
+        "2025-01-23": -310.0,
+        "2025-01-24": -45.0,
+        "2025-01-30": -189.0,
+        "2025-02-04": -90.0,
+        "2025-02-07": -3.0,
+        "2025-02-12": -190.0,
+        "2025-02-13": 1320.0,
+        "2025-02-14": -168.0,
+        "2025-02-19": 461.6,
+        "2025-05-16": 441.0,
+        "2025-06-03": -32.0,
+        "2025-06-09": -230.0,
+        "2025-06-11": -240.0,
+        "2025-06-25": -156.0,
+        "2025-06-30": -54.0,
+        "2025-07-01": -394.0,
+        "2025-07-02": -190.0,
+        "2025-07-09": -147.0,
+        "2025-07-10": -126.0,
+        "2025-07-14": -130.0,
+        "2025-07-16": -102.0,
+        "2025-07-18": -148.0,
+        "2025-07-23": -165.0,
+        "2025-07-24": -252.0,
+        "2025-07-25": 424.6,
+        "2025-07-29": -135.0,
+        "2025-07-30": -232.0,
+        "2025-08-06": -144.0,
+        "2025-08-07": -220.0,
+        "2025-08-14": -110.0,
+        "2025-08-27": -94.0,
+        "2025-09-04": 658.0,
+        "2025-09-09": -20.0,
+        "2025-09-12": -110.0,
+        "2025-09-16": -162.0,
+        "2025-09-22": 544.2,
+        "2025-09-23": -65.0,
+        "2025-09-26": -244.0,
+        "2025-09-30": -40.0,
+        "2025-10-01": -116.0,
+        "2025-10-02": -148.0,
+        "2025-10-03": -212.0,
+        "2025-10-07": -168.0,
+        "2025-10-08": -298.0,
+        "2025-10-23": -294.0,
+        "2025-10-28": -235.0,
+        "2025-11-11": 200.0,
+        "2025-11-12": -60.0,
+        "2025-12-01": -280.0,
+        "2025-12-03": 0.0,
+        "2025-12-04": 93.0,
+        "2025-12-10": -390.0,
+        "2025-12-11": 92.0,
+        "2025-12-19": -210.0,
+        "2025-12-26": -84.0,
+        "2026-01-05": -526.5,
+        "2026-01-09": -30.0,
+        "2026-01-12": -210.0,
+        "2026-01-15": -181.0,
+        "2026-02-02": 45.0,
+        "2026-02-20": 49.0,
+        "2026-04-10": -324.0,
+        "2026-04-15": 379.95,
+        "2026-04-22": -84.0,
+        "2026-04-27": -89.0,
+        "2026-04-30": -63.0,
+        "2026-05-13": 1278.8,
+        "2026-05-19": -230.0,
+        "2026-05-20": -78.0,
+        "2026-05-27": -369.0,
+        "2026-05-29": -195.0,
+        "2026-06-01": -100.0,
+        "2026-06-04": 0.0,
+        "2026-06-12": -406.5,
+        "2026-06-16": -236.0,
+        "2026-06-22": -207.0,
+        "2026-06-29": 878.0,
+        "2026-07-02": -156.0,
+        "2026-07-07": -119.0,
+        "2026-07-09": -237.0,
+        "2026-07-14": -60.0,
+        "2026-07-20": -216.0,
+        "2026-07-21": -247.5,
+        "2026-07-22": -164.0,
+        "2026-07-29": -267.0,
+        "2026-07-30": -36.0,
+        "2026-07-31": 386.05
+      },
+      "trades": [
+        {
+          "date": "2025-01-03",
+          "entry_ts_et": "2025-01-03T10:30:00",
+          "strike": 589,
+          "entry_premium": 1.11,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "sequence_reclaim"
+          ],
+          "trigger_level": 587.54,
+          "pnl": 387.6,
+          "exit_reason": "runner_stop @ 1.94",
+          "exit_time_et": "2025-01-03T12:15:00",
+          "hold_minutes": 105,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-01-23",
+          "entry_ts_et": "2025-01-23T13:15:00",
+          "strike": 608,
+          "entry_premium": 0.52,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 607.82,
+          "pnl": -310.0,
+          "exit_reason": "structure_stop @ 607.82",
+          "exit_time_et": "2025-01-23T14:00:00",
+          "hold_minutes": 45,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-01-24",
+          "entry_ts_et": "2025-01-24T10:30:00",
+          "strike": 610,
+          "entry_premium": 0.58,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 609.63,
+          "pnl": -45.0,
+          "exit_reason": "structure_stop @ 609.63",
+          "exit_time_et": "2025-01-24T10:35:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-01-30",
+          "entry_ts_et": "2025-01-30T10:35:00",
+          "strike": 603,
+          "entry_premium": 1.41,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 602.2733652555071,
+          "pnl": -189.0,
+          "exit_reason": "structure_stop @ 602.2733652555071",
+          "exit_time_et": "2025-01-30T10:55:00",
+          "hold_minutes": 20,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-04",
+          "entry_ts_et": "2025-02-04T14:45:00",
+          "strike": 602,
+          "entry_premium": 0.89,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 601.92,
+          "pnl": -90.0,
+          "exit_reason": "structure_stop @ 601.92",
+          "exit_time_et": "2025-02-04T14:50:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-07",
+          "entry_ts_et": "2025-02-07T10:30:00",
+          "strike": 606,
+          "entry_premium": 0.79,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 605.4517078920693,
+          "pnl": -3.0,
+          "exit_reason": "structure_stop @ 605.4517078920693",
+          "exit_time_et": "2025-02-07T10:35:00",
+          "hold_minutes": 5,
+          "f5_bull": false
+        },
+        {
+          "date": "2025-02-12",
+          "entry_ts_et": "2025-02-12T12:55:00",
+          "strike": 604,
+          "entry_premium": 0.91,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 603.8725535946754,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 603.8725535946754",
+          "exit_time_et": "2025-02-12T13:10:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-13",
+          "entry_ts_et": "2025-02-13T10:30:00",
+          "strike": 604,
+          "entry_premium": 2.56,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 604.0,
+          "pnl": 758.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2025-02-13T15:40:00",
+          "hold_minutes": 310,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-13",
+          "entry_ts_et": "2025-02-13T14:15:00",
+          "strike": 608,
+          "entry_premium": 0.6,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 608.095,
+          "pnl": 562.0,
+          "exit_reason": "runner_stop @ 1.1",
+          "exit_time_et": "2025-02-13T15:00:00",
+          "hold_minutes": 45,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-14",
+          "entry_ts_et": "2025-02-14T10:30:00",
+          "strike": 610,
+          "entry_premium": 1.23,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 609.93,
+          "pnl": -168.0,
+          "exit_reason": "structure_stop @ 609.93",
+          "exit_time_et": "2025-02-14T11:20:00",
+          "hold_minutes": 50,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-02-19",
+          "entry_ts_et": "2025-02-19T13:20:00",
+          "strike": 611,
+          "entry_premium": 0.91,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 611.36,
+          "pnl": 461.6,
+          "exit_reason": "runner_stop @ 1.85",
+          "exit_time_et": "2025-02-19T15:10:00",
+          "hold_minutes": 110,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-05-16",
+          "entry_ts_et": "2025-05-16T12:05:00",
+          "strike": 592,
+          "entry_premium": 0.76,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 591.16,
+          "pnl": 441.0,
+          "exit_reason": "runner_stop @ 1.45",
+          "exit_time_et": "2025-05-16T13:45:00",
+          "hold_minutes": 100,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-03",
+          "entry_ts_et": "2025-06-03T10:05:00",
+          "strike": 593,
+          "entry_premium": 1.24,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 592.79,
+          "pnl": -32.0,
+          "exit_reason": "structure_stop @ 592.79",
+          "exit_time_et": "2025-06-03T10:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-09",
+          "entry_ts_et": "2025-06-09T12:55:00",
+          "strike": 601,
+          "entry_premium": 0.85,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 600.82,
+          "pnl": -78.0,
+          "exit_reason": "structure_stop @ 600.82",
+          "exit_time_et": "2025-06-09T13:00:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-09",
+          "entry_ts_et": "2025-06-09T14:10:00",
+          "strike": 601,
+          "entry_premium": 0.59,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 600.82,
+          "pnl": -152.0,
+          "exit_reason": "structure_stop @ 600.82",
+          "exit_time_et": "2025-06-09T14:40:00",
+          "hold_minutes": 30,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-11",
+          "entry_ts_et": "2025-06-11T09:40:00",
+          "strike": 603,
+          "entry_premium": 1.64,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 603.0,
+          "pnl": -240.0,
+          "exit_reason": "structure_stop @ 603.0",
+          "exit_time_et": "2025-06-11T12:15:00",
+          "hold_minutes": 155,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-25",
+          "entry_ts_et": "2025-06-25T10:00:00",
+          "strike": 608,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 607.76,
+          "pnl": -156.0,
+          "exit_reason": "structure_stop @ 607.76",
+          "exit_time_et": "2025-06-25T10:15:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-06-30",
+          "entry_ts_et": "2025-06-30T13:10:00",
+          "strike": 617,
+          "entry_premium": 0.75,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 616.39,
+          "pnl": -54.0,
+          "exit_reason": "structure_stop @ 616.39",
+          "exit_time_et": "2025-06-30T13:25:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-01",
+          "entry_ts_et": "2025-07-01T12:50:00",
+          "strike": 618,
+          "entry_premium": 0.61,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 617.2660203525558,
+          "pnl": -136.0,
+          "exit_reason": "structure_stop @ 617.2660203525558",
+          "exit_time_et": "2025-07-01T13:00:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-01",
+          "entry_ts_et": "2025-07-01T14:35:00",
+          "strike": 618,
+          "entry_premium": 0.78,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 618.2,
+          "pnl": -258.0,
+          "exit_reason": "structure_stop @ 618.2",
+          "exit_time_et": "2025-07-01T15:00:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-02",
+          "entry_ts_et": "2025-07-02T13:25:00",
+          "strike": 620,
+          "entry_premium": 0.42,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 619.2,
+          "pnl": -190.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-07-02T15:40:00",
+          "hold_minutes": 135,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-09",
+          "entry_ts_et": "2025-07-09T15:00:00",
+          "strike": 623,
+          "entry_premium": 0.67,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 623.33,
+          "pnl": -147.0,
+          "exit_reason": "structure_stop @ 623.33",
+          "exit_time_et": "2025-07-09T15:10:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-10",
+          "entry_ts_et": "2025-07-10T13:35:00",
+          "strike": 626,
+          "entry_premium": 0.75,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 626.26,
+          "pnl": -126.0,
+          "exit_reason": "structure_stop @ 626.26",
+          "exit_time_et": "2025-07-10T14:55:00",
+          "hold_minutes": 80,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-14",
+          "entry_ts_et": "2025-07-14T13:20:00",
+          "strike": 625,
+          "entry_premium": 0.47,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 624.85,
+          "pnl": -130.0,
+          "exit_reason": "structure_stop @ 624.85",
+          "exit_time_et": "2025-07-14T13:25:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-16",
+          "entry_ts_et": "2025-07-16T14:05:00",
+          "strike": 623,
+          "entry_premium": 0.73,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 623.0,
+          "pnl": -102.0,
+          "exit_reason": "structure_stop @ 623.0",
+          "exit_time_et": "2025-07-16T14:20:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-18",
+          "entry_ts_et": "2025-07-18T09:50:00",
+          "strike": 629,
+          "entry_premium": 1.05,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 628.66,
+          "pnl": -148.0,
+          "exit_reason": "structure_stop @ 628.66",
+          "exit_time_et": "2025-07-18T10:00:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-23",
+          "entry_ts_et": "2025-07-23T09:40:00",
+          "strike": 631,
+          "entry_premium": 1.37,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 631.31,
+          "pnl": -165.0,
+          "exit_reason": "structure_stop @ 631.31",
+          "exit_time_et": "2025-07-23T09:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-24",
+          "entry_ts_et": "2025-07-24T09:45:00",
+          "strike": 635,
+          "entry_premium": 0.78,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 634.09,
+          "pnl": -252.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-07-24T15:40:00",
+          "hold_minutes": 355,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-25",
+          "entry_ts_et": "2025-07-25T12:15:00",
+          "strike": 636,
+          "entry_premium": 0.78,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 636.105,
+          "pnl": 424.6,
+          "exit_reason": "runner_stop @ 1.34",
+          "exit_time_et": "2025-07-25T15:35:00",
+          "hold_minutes": 200,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-29",
+          "entry_ts_et": "2025-07-29T10:40:00",
+          "strike": 638,
+          "entry_premium": 0.51,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 637.465,
+          "pnl": -135.0,
+          "exit_reason": "structure_stop @ 637.465",
+          "exit_time_et": "2025-07-29T10:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-07-30",
+          "entry_ts_et": "2025-07-30T14:35:00",
+          "strike": 637,
+          "entry_premium": 1.27,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 637.02,
+          "pnl": -232.0,
+          "exit_reason": "structure_stop @ 637.02",
+          "exit_time_et": "2025-07-30T14:40:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-06",
+          "entry_ts_et": "2025-08-06T12:05:00",
+          "strike": 633,
+          "entry_premium": 0.66,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 632.6,
+          "pnl": -84.0,
+          "exit_reason": "structure_stop @ 632.6",
+          "exit_time_et": "2025-08-06T12:15:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-06",
+          "entry_ts_et": "2025-08-06T14:05:00",
+          "strike": 633,
+          "entry_premium": 0.35,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 632.6,
+          "pnl": -60.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-08-06T15:40:00",
+          "hold_minutes": 95,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-07",
+          "entry_ts_et": "2025-08-07T10:30:00",
+          "strike": 634,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 633.19378832276,
+          "pnl": -220.0,
+          "exit_reason": "structure_stop @ 633.19378832276",
+          "exit_time_et": "2025-08-07T10:55:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-14",
+          "entry_ts_et": "2025-08-14T13:55:00",
+          "strike": 645,
+          "entry_premium": 0.33,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 644.3208094385044,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 644.3208094385044",
+          "exit_time_et": "2025-08-14T14:15:00",
+          "hold_minutes": 20,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-27",
+          "entry_ts_et": "2025-08-27T09:40:00",
+          "strike": 645,
+          "entry_premium": 1.69,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 645.0,
+          "pnl": -3.0,
+          "exit_reason": "structure_stop @ 645.0",
+          "exit_time_et": "2025-08-27T09:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-27",
+          "entry_ts_et": "2025-08-27T12:10:00",
+          "strike": 647,
+          "entry_premium": 1.03,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 646.49,
+          "pnl": -56.0,
+          "exit_reason": "structure_stop @ 646.49",
+          "exit_time_et": "2025-08-27T12:15:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-08-27",
+          "entry_ts_et": "2025-08-27T13:15:00",
+          "strike": 647,
+          "entry_premium": 0.95,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 646.49,
+          "pnl": -35.0,
+          "exit_reason": "structure_stop @ 646.49",
+          "exit_time_et": "2025-08-27T13:20:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-04",
+          "entry_ts_et": "2025-09-04T10:35:00",
+          "strike": 645,
+          "entry_premium": 1.04,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 645.0,
+          "pnl": 658.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2025-09-04T15:40:00",
+          "hold_minutes": 305,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-09",
+          "entry_ts_et": "2025-09-09T13:55:00",
+          "strike": 650,
+          "entry_premium": 0.38,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 649.815,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 649.815",
+          "exit_time_et": "2025-09-09T14:00:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-12",
+          "entry_ts_et": "2025-09-12T11:00:00",
+          "strike": 658,
+          "entry_premium": 0.88,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 658.32,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 658.32",
+          "exit_time_et": "2025-09-12T11:05:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-16",
+          "entry_ts_et": "2025-09-16T09:50:00",
+          "strike": 661,
+          "entry_premium": 0.83,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 660.6,
+          "pnl": -162.0,
+          "exit_reason": "structure_stop @ 660.6",
+          "exit_time_et": "2025-09-16T09:55:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-22",
+          "entry_ts_et": "2025-09-22T12:10:00",
+          "strike": 665,
+          "entry_premium": 0.63,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 664.88,
+          "pnl": 544.2,
+          "exit_reason": "runner_stop @ 1.39",
+          "exit_time_et": "2025-09-22T13:20:00",
+          "hold_minutes": 70,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-23",
+          "entry_ts_et": "2025-09-23T09:40:00",
+          "strike": 667,
+          "entry_premium": 1.01,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 666.864279493517,
+          "pnl": -65.0,
+          "exit_reason": "structure_stop @ 666.864279493517",
+          "exit_time_et": "2025-09-23T09:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-26",
+          "entry_ts_et": "2025-09-26T10:20:00",
+          "strike": 660,
+          "entry_premium": 1.21,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 659.39,
+          "pnl": -144.0,
+          "exit_reason": "structure_stop @ 659.39",
+          "exit_time_et": "2025-09-26T10:25:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-26",
+          "entry_ts_et": "2025-09-26T14:40:00",
+          "strike": 662,
+          "entry_premium": 0.49,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 662.0,
+          "pnl": -100.0,
+          "exit_reason": "structure_stop @ 662.0",
+          "exit_time_et": "2025-09-26T14:45:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-09-30",
+          "entry_ts_et": "2025-09-30T14:50:00",
+          "strike": 665,
+          "entry_premium": 0.46,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 664.375,
+          "pnl": -40.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-09-30T15:40:00",
+          "hold_minutes": 50,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-01",
+          "entry_ts_et": "2025-10-01T09:40:00",
+          "strike": 665,
+          "entry_premium": 1.4,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 664.3648851536693,
+          "pnl": -186.0,
+          "exit_reason": "structure_stop @ 664.3648851536693",
+          "exit_time_et": "2025-10-01T09:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-01",
+          "entry_ts_et": "2025-10-01T12:50:00",
+          "strike": 667,
+          "entry_premium": 0.5,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 666.65,
+          "pnl": 70.0,
+          "exit_reason": "structure_stop @ 666.65",
+          "exit_time_et": "2025-10-01T12:55:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-02",
+          "entry_ts_et": "2025-10-02T09:50:00",
+          "strike": 669,
+          "entry_premium": 1.13,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 668.9629001565401,
+          "pnl": -148.0,
+          "exit_reason": "structure_stop @ 668.9629001565401",
+          "exit_time_et": "2025-10-02T10:15:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-03",
+          "entry_ts_et": "2025-10-03T09:40:00",
+          "strike": 671,
+          "entry_premium": 1.26,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 670.55,
+          "pnl": -212.0,
+          "exit_reason": "structure_stop @ 670.55",
+          "exit_time_et": "2025-10-03T10:05:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-07",
+          "entry_ts_et": "2025-10-07T09:55:00",
+          "strike": 672,
+          "entry_premium": 1.16,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 672.27,
+          "pnl": -168.0,
+          "exit_reason": "structure_stop @ 672.27",
+          "exit_time_et": "2025-10-07T10:00:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-08",
+          "entry_ts_et": "2025-10-08T12:20:00",
+          "strike": 673,
+          "entry_premium": 0.57,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 672.99,
+          "pnl": -128.0,
+          "exit_reason": "structure_stop @ 672.99",
+          "exit_time_et": "2025-10-08T12:25:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-08",
+          "entry_ts_et": "2025-10-08T14:20:00",
+          "strike": 673,
+          "entry_premium": 0.44,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 672.99,
+          "pnl": -170.0,
+          "exit_reason": "structure_stop @ 672.99",
+          "exit_time_et": "2025-10-08T14:30:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-23",
+          "entry_ts_et": "2025-10-23T13:40:00",
+          "strike": 672,
+          "entry_premium": 0.69,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 671.8,
+          "pnl": -294.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-10-23T15:40:00",
+          "hold_minutes": 120,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-10-28",
+          "entry_ts_et": "2025-10-28T10:00:00",
+          "strike": 686,
+          "entry_premium": 0.95,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 685.54,
+          "pnl": -235.0,
+          "exit_reason": "structure_stop @ 685.54",
+          "exit_time_et": "2025-10-28T11:30:00",
+          "hold_minutes": 90,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-11-11",
+          "entry_ts_et": "2025-11-11T13:05:00",
+          "strike": 682,
+          "entry_premium": 0.94,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 682.17,
+          "pnl": 200.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-11-11T15:40:00",
+          "hold_minutes": 155,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-11-12",
+          "entry_ts_et": "2025-11-12T13:05:00",
+          "strike": 684,
+          "entry_premium": 0.82,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 683.56,
+          "pnl": -60.0,
+          "exit_reason": "structure_stop @ 683.56",
+          "exit_time_et": "2025-11-12T13:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-01",
+          "entry_ts_et": "2025-12-01T13:15:00",
+          "strike": 683,
+          "entry_premium": 0.47,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 682.3929915173262,
+          "pnl": -280.0,
+          "exit_reason": "structure_stop @ 682.3929915173262",
+          "exit_time_et": "2025-12-01T14:05:00",
+          "hold_minutes": 50,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-03",
+          "entry_ts_et": "2025-12-03T13:30:00",
+          "strike": 684,
+          "entry_premium": 0.56,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 683.69,
+          "pnl": -0.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2025-12-03T15:40:00",
+          "hold_minutes": 130,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-04",
+          "entry_ts_et": "2025-12-04T10:30:00",
+          "strike": 684,
+          "entry_premium": 1.17,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 683.99,
+          "pnl": 93.0,
+          "exit_reason": "structure_stop @ 683.99",
+          "exit_time_et": "2025-12-04T10:35:00",
+          "hold_minutes": 5,
+          "f5_bull": false
+        },
+        {
+          "date": "2025-12-10",
+          "entry_ts_et": "2025-12-10T14:35:00",
+          "strike": 686,
+          "entry_premium": 1.62,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 685.37,
+          "pnl": -390.0,
+          "exit_reason": "structure_stop @ 685.37",
+          "exit_time_et": "2025-12-10T14:45:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-11",
+          "entry_ts_et": "2025-12-11T13:05:00",
+          "strike": 688,
+          "entry_premium": 0.83,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 687.59,
+          "pnl": 180.0,
+          "exit_reason": "structure_stop @ 687.59",
+          "exit_time_et": "2025-12-11T13:35:00",
+          "hold_minutes": 30,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-11",
+          "entry_ts_et": "2025-12-11T14:45:00",
+          "strike": 689,
+          "entry_premium": 0.8,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 688.96,
+          "pnl": -88.0,
+          "exit_reason": "structure_stop @ 688.96",
+          "exit_time_et": "2025-12-11T14:55:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-19",
+          "entry_ts_et": "2025-12-19T12:25:00",
+          "strike": 681,
+          "entry_premium": 0.66,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 680.7,
+          "pnl": -170.0,
+          "exit_reason": "structure_stop @ 680.7",
+          "exit_time_et": "2025-12-19T12:30:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-19",
+          "entry_ts_et": "2025-12-19T14:25:00",
+          "strike": 681,
+          "entry_premium": 0.36,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 680.7,
+          "pnl": -40.0,
+          "exit_reason": "structure_stop @ 680.7",
+          "exit_time_et": "2025-12-19T14:30:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2025-12-26",
+          "entry_ts_et": "2025-12-26T10:35:00",
+          "strike": 691,
+          "entry_premium": 0.69,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 690.82,
+          "pnl": -84.0,
+          "exit_reason": "structure_stop @ 690.82",
+          "exit_time_et": "2025-12-26T10:45:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-05",
+          "entry_ts_et": "2026-01-05T10:30:00",
+          "strike": 688,
+          "entry_premium": 1.17,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 686.87,
+          "pnl": -526.5,
+          "exit_reason": "premium_stop @ 0.58",
+          "exit_time_et": "2026-01-05T13:20:00",
+          "hold_minutes": 170,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-09",
+          "entry_ts_et": "2026-01-09T12:05:00",
+          "strike": 694,
+          "entry_premium": 0.86,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 693.95,
+          "pnl": -30.0,
+          "exit_reason": "structure_stop @ 693.95",
+          "exit_time_et": "2026-01-09T12:20:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-12",
+          "entry_ts_et": "2026-01-12T12:15:00",
+          "strike": 695,
+          "entry_premium": 0.36,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 694.4525483743133,
+          "pnl": -90.0,
+          "exit_reason": "structure_stop @ 694.4525483743133",
+          "exit_time_et": "2026-01-12T12:20:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-12",
+          "entry_ts_et": "2026-01-12T14:20:00",
+          "strike": 695,
+          "entry_premium": 0.58,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 695.295,
+          "pnl": -120.0,
+          "exit_reason": "structure_stop @ 695.295",
+          "exit_time_et": "2026-01-12T15:25:00",
+          "hold_minutes": 65,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-15",
+          "entry_ts_et": "2026-01-15T10:30:00",
+          "strike": 694,
+          "entry_premium": 0.99,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 693.93,
+          "pnl": -81.0,
+          "exit_reason": "structure_stop @ 693.93",
+          "exit_time_et": "2026-01-15T10:45:00",
+          "hold_minutes": 15,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-01-15",
+          "entry_ts_et": "2026-01-15T13:05:00",
+          "strike": 695,
+          "entry_premium": 0.4,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 693.93,
+          "pnl": -100.0,
+          "exit_reason": "premium_stop @ 0.2",
+          "exit_time_et": "2026-01-15T14:20:00",
+          "hold_minutes": 75,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-02-02",
+          "entry_ts_et": "2026-02-02T10:30:00",
+          "strike": 693,
+          "entry_premium": 2.4,
+          "qty": 9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 691.8,
+          "pnl": 45.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-02-02T15:40:00",
+          "hold_minutes": 310,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-02-20",
+          "entry_ts_et": "2026-02-20T10:30:00",
+          "strike": 687,
+          "entry_premium": 1.77,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 686.135,
+          "pnl": 49.0,
+          "exit_reason": "structure_stop @ 686.135",
+          "exit_time_et": "2026-02-20T10:35:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-10",
+          "entry_ts_et": "2026-04-10T10:15:00",
+          "strike": 681,
+          "entry_premium": 1.27,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 680.15,
+          "pnl": -324.0,
+          "exit_reason": "structure_stop @ 680.15",
+          "exit_time_et": "2026-04-10T11:55:00",
+          "hold_minutes": 100,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-15",
+          "entry_ts_et": "2026-04-15T09:50:00",
+          "strike": 695,
+          "entry_premium": 1.36,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 694.39501953125,
+          "pnl": 379.95,
+          "exit_reason": "runner_stop @ 2.44",
+          "exit_time_et": "2026-04-15T12:45:00",
+          "hold_minutes": 175,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-22",
+          "entry_ts_et": "2026-04-22T14:05:00",
+          "strike": 710,
+          "entry_premium": 0.7,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 710.0499877929688,
+          "pnl": -84.0,
+          "exit_reason": "structure_stop @ 710.0499877929688",
+          "exit_time_et": "2026-04-22T14:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-27",
+          "entry_ts_et": "2026-04-27T09:40:00",
+          "strike": 714,
+          "entry_premium": 1.52,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 713.7,
+          "pnl": -81.0,
+          "exit_reason": "structure_stop @ 713.7",
+          "exit_time_et": "2026-04-27T09:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-27",
+          "entry_ts_et": "2026-04-27T13:30:00",
+          "strike": 715,
+          "entry_premium": 0.57,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 714.3599853515625,
+          "pnl": -8.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-04-27T15:40:00",
+          "hold_minutes": 130,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-04-30",
+          "entry_ts_et": "2026-04-30T10:05:00",
+          "strike": 712,
+          "entry_premium": 1.86,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 711.4685015561257,
+          "pnl": -63.0,
+          "exit_reason": "structure_stop @ 711.4685015561257",
+          "exit_time_et": "2026-04-30T10:10:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-13",
+          "entry_ts_et": "2026-05-13T09:45:00",
+          "strike": 737,
+          "entry_premium": 1.43,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 736.6699829101562,
+          "pnl": 15.0,
+          "exit_reason": "structure_stop @ 736.6699829101562",
+          "exit_time_et": "2026-05-13T09:50:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-13",
+          "entry_ts_et": "2026-05-13T10:55:00",
+          "strike": 739,
+          "entry_premium": 1.05,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 738.469970703125,
+          "pnl": 795.6,
+          "exit_reason": "runner_stop @ 3.98",
+          "exit_time_et": "2026-05-13T14:45:00",
+          "hold_minutes": 230,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-13",
+          "entry_ts_et": "2026-05-13T12:25:00",
+          "strike": 742,
+          "entry_premium": 0.76,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 740.73,
+          "pnl": 468.2,
+          "exit_reason": "runner_stop @ 1.58",
+          "exit_time_et": "2026-05-13T14:35:00",
+          "hold_minutes": 130,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-19",
+          "entry_ts_et": "2026-05-19T14:00:00",
+          "strike": 737,
+          "entry_premium": 0.87,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 736.4,
+          "pnl": -230.0,
+          "exit_reason": "structure_stop @ 736.4",
+          "exit_time_et": "2026-05-19T14:25:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-20",
+          "entry_ts_et": "2026-05-20T12:45:00",
+          "strike": 740,
+          "entry_premium": 1.64,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 739.0800170898438,
+          "pnl": -78.0,
+          "exit_reason": "structure_stop @ 739.0800170898438",
+          "exit_time_et": "2026-05-20T13:10:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T10:00:00",
+          "strike": 750,
+          "entry_premium": 1.73,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.9341974590301,
+          "pnl": -189.0,
+          "exit_reason": "structure_stop @ 749.9341974590301",
+          "exit_time_et": "2026-05-27T11:00:00",
+          "hold_minutes": 60,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T14:40:00",
+          "strike": 751,
+          "entry_premium": 0.49,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 750.49,
+          "pnl": -180.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-05-27T15:40:00",
+          "hold_minutes": 60,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-05-29",
+          "entry_ts_et": "2026-05-29T10:55:00",
+          "strike": 756,
+          "entry_premium": 1.3,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 754.9094652037161,
+          "pnl": -195.0,
+          "exit_reason": "premium_stop @ 0.65",
+          "exit_time_et": "2026-05-29T14:55:00",
+          "hold_minutes": 240,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-01",
+          "entry_ts_et": "2026-06-01T13:30:00",
+          "strike": 759,
+          "entry_premium": 0.43,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 758.05,
+          "pnl": -100.0,
+          "exit_reason": "structure_stop @ 758.05",
+          "exit_time_et": "2026-06-01T13:35:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-04",
+          "entry_ts_et": "2026-06-04T12:25:00",
+          "strike": 757,
+          "entry_premium": 0.61,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 756.4,
+          "pnl": 0.0,
+          "exit_reason": "structure_stop @ 756.4",
+          "exit_time_et": "2026-06-04T12:35:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-12",
+          "entry_ts_et": "2026-06-12T10:55:00",
+          "strike": 742,
+          "entry_premium": 2.71,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 737.4566363784633,
+          "pnl": -406.5,
+          "exit_reason": "premium_stop @ 1.35",
+          "exit_time_et": "2026-06-12T12:00:00",
+          "hold_minutes": 65,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-16",
+          "entry_ts_et": "2026-06-16T10:10:00",
+          "strike": 755,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 754.2085702967246,
+          "pnl": -236.0,
+          "exit_reason": "structure_stop @ 754.2085702967246",
+          "exit_time_et": "2026-06-16T10:20:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-22",
+          "entry_ts_et": "2026-06-22T09:40:00",
+          "strike": 750,
+          "entry_premium": 1.38,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 748.2000122070312,
+          "pnl": -207.0,
+          "exit_reason": "premium_stop @ 0.69",
+          "exit_time_et": "2026-06-22T10:20:00",
+          "hold_minutes": 40,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-06-29",
+          "entry_ts_et": "2026-06-29T10:25:00",
+          "strike": 734,
+          "entry_premium": 2.17,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 733.5713704313238,
+          "pnl": 878.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2026-06-29T15:40:00",
+          "hold_minutes": 315,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-02",
+          "entry_ts_et": "2026-07-02T10:35:00",
+          "strike": 748,
+          "entry_premium": 1.82,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.75,
+          "pnl": -156.0,
+          "exit_reason": "structure_stop @ 747.75",
+          "exit_time_et": "2026-07-02T10:45:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-07",
+          "entry_ts_et": "2026-07-07T13:40:00",
+          "strike": 749,
+          "entry_premium": 0.72,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.0,
+          "pnl": -119.0,
+          "exit_reason": "structure_stop @ 749.0",
+          "exit_time_et": "2026-07-07T13:50:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:45:00",
+          "strike": 748,
+          "entry_premium": 1.82,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.5,
+          "pnl": -237.0,
+          "exit_reason": "structure_stop @ 747.5",
+          "exit_time_et": "2026-07-09T10:20:00",
+          "hold_minutes": 35,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-14",
+          "entry_ts_et": "2026-07-14T14:15:00",
+          "strike": 753,
+          "entry_premium": 0.32,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 752.469970703125,
+          "pnl": -60.0,
+          "exit_reason": "structure_stop @ 752.469970703125",
+          "exit_time_et": "2026-07-14T14:25:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-20",
+          "entry_ts_et": "2026-07-20T12:10:00",
+          "strike": 747,
+          "entry_premium": 0.82,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 746.6,
+          "pnl": -216.0,
+          "exit_reason": "structure_stop @ 746.6",
+          "exit_time_et": "2026-07-20T12:30:00",
+          "hold_minutes": 20,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-21",
+          "entry_ts_et": "2026-07-21T12:05:00",
+          "strike": 748,
+          "entry_premium": 0.99,
+          "qty": 5,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.75,
+          "pnl": -247.5,
+          "exit_reason": "premium_stop @ 0.49",
+          "exit_time_et": "2026-07-21T15:35:00",
+          "hold_minutes": 210,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-22",
+          "entry_ts_et": "2026-07-22T13:40:00",
+          "strike": 749,
+          "entry_premium": 1.19,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.04,
+          "pnl": -164.0,
+          "exit_reason": "structure_stop @ 749.04",
+          "exit_time_et": "2026-07-22T13:55:00",
+          "hold_minutes": 15,
+          "f5_bull": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:45:00",
+          "strike": 741,
+          "entry_premium": 1.51,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 739.0,
+          "pnl": -267.0,
+          "exit_reason": "structure_stop @ 739.0",
+          "exit_time_et": "2026-07-29T15:10:00",
+          "hold_minutes": 25,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-30",
+          "entry_ts_et": "2026-07-30T12:15:00",
+          "strike": 739,
+          "entry_premium": 1.41,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 738.85,
+          "pnl": -36.0,
+          "exit_reason": "structure_stop @ 738.85",
+          "exit_time_et": "2026-07-30T12:25:00",
+          "hold_minutes": 10,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:35:00",
+          "strike": 745,
+          "entry_premium": 1.08,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 744.68,
+          "pnl": -120.0,
+          "exit_reason": "structure_stop @ 744.68",
+          "exit_time_et": "2026-07-31T12:40:00",
+          "hold_minutes": 5,
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:05:00",
+          "strike": 746,
+          "entry_premium": 0.7,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 745.53,
+          "pnl": 506.05,
+          "exit_reason": "runner_stop @ 1.45",
+          "exit_time_et": "2026-07-31T15:35:00",
+          "hold_minutes": 90,
+          "f5_bull": true
+        }
+      ],
+      "bh_fdr_significant_q10": false
+    },
+    "cell_B_postfix_f5_require_qty3": {
+      "n": 10,
+      "n_missing_bars": 0,
+      "win_rate": 0.4,
+      "total_pnl": 882.0,
+      "expectancy_per_trade": 88.2,
+      "p_value_raw": 0.41889,
+      "day_majority": {
+        "win_days": 2,
+        "days": 3,
+        "is_majority": true
+      },
+      "drop_best": {
+        "remainder": 192.4,
+        "still_positive": true
+      },
+      "recent_25": {
+        "start": null,
+        "n": 10,
+        "total_pnl": 882.0,
+        "collapsed_whole_cell": true
+      },
+      "concentration_top_day_share": 0.895,
+      "by_day_pnl": {
+        "2026-07-28": -159.0,
+        "2026-07-29": 251.6,
+        "2026-07-31": 789.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "entry_premium": 2.1,
+          "qty": 3,
+          "pnl": -102.0,
+          "exit_reason": "time_stop_15:50",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:03",
+          "strike": 742,
+          "entry_premium": 0.58,
+          "qty": 3,
+          "pnl": -57.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "entry_premium": 2.0,
+          "qty": 3,
+          "pnl": 689.6,
+          "exit_reason": "runner_stop @ 4.9",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:52:46",
+          "strike": 742,
+          "entry_premium": 1.82,
+          "qty": 3,
+          "pnl": -438.0,
+          "exit_reason": "structure_stop @ 741.6",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "entry_premium": 0.94,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:02",
+          "strike": 744,
+          "entry_premium": 1.46,
+          "qty": 3,
+          "pnl": 597.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "entry_premium": 1.57,
+          "qty": 3,
+          "pnl": -96.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:02",
+          "strike": 746,
+          "entry_premium": 0.83,
+          "qty": 3,
+          "pnl": 9.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "entry_premium": 0.77,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "entry_premium": 0.84,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        }
+      ],
+      "bh_fdr_significant_q10": false
+    },
+    "cell_B_postfix_f5_drop_qty3": {
+      "n": 10,
+      "n_missing_bars": 0,
+      "win_rate": 0.4,
+      "total_pnl": 882.0,
+      "expectancy_per_trade": 88.2,
+      "p_value_raw": 0.41889,
+      "day_majority": {
+        "win_days": 2,
+        "days": 3,
+        "is_majority": true
+      },
+      "drop_best": {
+        "remainder": 192.4,
+        "still_positive": true
+      },
+      "recent_25": {
+        "start": null,
+        "n": 10,
+        "total_pnl": 882.0,
+        "collapsed_whole_cell": true
+      },
+      "concentration_top_day_share": 0.895,
+      "by_day_pnl": {
+        "2026-07-28": -159.0,
+        "2026-07-29": 251.6,
+        "2026-07-31": 789.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "entry_premium": 2.1,
+          "qty": 3,
+          "pnl": -102.0,
+          "exit_reason": "time_stop_15:50",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:03",
+          "strike": 742,
+          "entry_premium": 0.58,
+          "qty": 3,
+          "pnl": -57.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "entry_premium": 2.0,
+          "qty": 3,
+          "pnl": 689.6,
+          "exit_reason": "runner_stop @ 4.9",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:52:46",
+          "strike": 742,
+          "entry_premium": 1.82,
+          "qty": 3,
+          "pnl": -438.0,
+          "exit_reason": "structure_stop @ 741.6",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "entry_premium": 0.94,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:02",
+          "strike": 744,
+          "entry_premium": 1.46,
+          "qty": 3,
+          "pnl": 597.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "entry_premium": 1.57,
+          "qty": 3,
+          "pnl": -96.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:02",
+          "strike": 746,
+          "entry_premium": 0.83,
+          "qty": 3,
+          "pnl": 9.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "entry_premium": 0.77,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "entry_premium": 0.84,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        }
+      ],
+      "bh_fdr_significant_q10": false
+    },
+    "cell_B_postfix_f5_require_qty10": {
+      "n": 10,
+      "n_missing_bars": 0,
+      "win_rate": 0.4,
+      "total_pnl": 3130.0,
+      "expectancy_per_trade": 313.0,
+      "p_value_raw": 0.40198,
+      "day_majority": {
+        "win_days": 2,
+        "days": 3,
+        "is_majority": true
+      },
+      "drop_best": {
+        "remainder": 771.6,
+        "still_positive": true
+      },
+      "recent_25": {
+        "start": null,
+        "n": 10,
+        "total_pnl": 3130.0,
+        "collapsed_whole_cell": true
+      },
+      "concentration_top_day_share": 0.882,
+      "by_day_pnl": {
+        "2026-07-28": -530.0,
+        "2026-07-29": 898.4,
+        "2026-07-31": 2761.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "entry_premium": 2.1,
+          "qty": 10,
+          "pnl": -340.0,
+          "exit_reason": "time_stop_15:50",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:03",
+          "strike": 742,
+          "entry_premium": 0.58,
+          "qty": 10,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "entry_premium": 2.0,
+          "qty": 10,
+          "pnl": 2358.4,
+          "exit_reason": "runner_stop @ 4.9",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:52:46",
+          "strike": 742,
+          "entry_premium": 1.82,
+          "qty": 10,
+          "pnl": -1460.0,
+          "exit_reason": "structure_stop @ 741.6",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "entry_premium": 0.94,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:02",
+          "strike": 744,
+          "entry_premium": 1.46,
+          "qty": 10,
+          "pnl": 2096.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "entry_premium": 1.57,
+          "qty": 10,
+          "pnl": -320.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:02",
+          "strike": 746,
+          "entry_premium": 0.83,
+          "qty": 10,
+          "pnl": 30.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "entry_premium": 0.77,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "entry_premium": 0.84,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        }
+      ],
+      "bh_fdr_significant_q10": null
+    },
+    "cell_B_postfix_f5_drop_qty10": {
+      "n": 10,
+      "n_missing_bars": 0,
+      "win_rate": 0.4,
+      "total_pnl": 3130.0,
+      "expectancy_per_trade": 313.0,
+      "p_value_raw": 0.40198,
+      "day_majority": {
+        "win_days": 2,
+        "days": 3,
+        "is_majority": true
+      },
+      "drop_best": {
+        "remainder": 771.6,
+        "still_positive": true
+      },
+      "recent_25": {
+        "start": null,
+        "n": 10,
+        "total_pnl": 3130.0,
+        "collapsed_whole_cell": true
+      },
+      "concentration_top_day_share": 0.882,
+      "by_day_pnl": {
+        "2026-07-28": -530.0,
+        "2026-07-29": 898.4,
+        "2026-07-31": 2761.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "entry_premium": 2.1,
+          "qty": 10,
+          "pnl": -340.0,
+          "exit_reason": "time_stop_15:50",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:03",
+          "strike": 742,
+          "entry_premium": 0.58,
+          "qty": 10,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "entry_premium": 2.0,
+          "qty": 10,
+          "pnl": 2358.4,
+          "exit_reason": "runner_stop @ 4.9",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:52:46",
+          "strike": 742,
+          "entry_premium": 1.82,
+          "qty": 10,
+          "pnl": -1460.0,
+          "exit_reason": "structure_stop @ 741.6",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "entry_premium": 0.94,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:02",
+          "strike": 744,
+          "entry_premium": 1.46,
+          "qty": 10,
+          "pnl": 2096.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "entry_premium": 1.57,
+          "qty": 10,
+          "pnl": -320.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:02",
+          "strike": 746,
+          "entry_premium": 0.83,
+          "qty": 10,
+          "pnl": 30.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "entry_premium": 0.77,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "entry_premium": 0.84,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "f5_bull": true
+        }
+      ],
+      "bh_fdr_significant_q10": null
+    }
+  },
+  "grades": {
+    "cell_A_full391_f5_require": {
+      "tier": "EVIDENCE_AGAINST",
+      "n": 103,
+      "n_floor": 20,
+      "g1_positive_aggregate": false,
+      "g2_day_majority": false,
+      "g3_drop_best": false,
+      "g4_recent25_first_class": false
+    },
+    "cell_A_full391_f5_drop": {
+      "tier": "EVIDENCE_AGAINST",
+      "n": 106,
+      "n_floor": 20,
+      "g1_positive_aggregate": false,
+      "g2_day_majority": false,
+      "g3_drop_best": false,
+      "g4_recent25_first_class": false
+    },
+    "cell_B_postfix_f5_require_qty3": {
+      "tier": "UNDERPOWERED",
+      "n": 10,
+      "n_floor": 20,
+      "note": "n=10 < floor=20: reported, not verdict-bearing."
+    },
+    "cell_B_postfix_f5_drop_qty3": {
+      "tier": "UNDERPOWERED",
+      "n": 10,
+      "n_floor": 20,
+      "note": "n=10 < floor=20: reported, not verdict-bearing."
+    },
+    "cell_B_postfix_f5_require_qty10": {
+      "tier": "UNDERPOWERED",
+      "n": 10,
+      "n_floor": 20,
+      "note": "n=10 < floor=20: reported, not verdict-bearing."
+    },
+    "cell_B_postfix_f5_drop_qty10": {
+      "tier": "UNDERPOWERED",
+      "n": 10,
+      "n_floor": 20,
+      "note": "n=10 < floor=20: reported, not verdict-bearing."
+    }
+  },
+  "runtime_seconds": 189.2
+}
