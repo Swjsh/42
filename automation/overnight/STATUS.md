@@ -1,4 +1,4 @@
-## [2026-08-01 05:10 ET] OK -- conductor (WEEKEND): G2-TRENDLINE-BYPASS-INVERTS-PRIORITY decided (NEITHER arm ships, stays default), commit pending
+## [2026-08-01 05:10 ET] OK -- conductor (WEEKEND): G2-TRENDLINE-BYPASS-INVERTS-PRIORITY decided (NEITHER arm ships, stays default), commit `dbd35729`
 
 **Signal J wakes to (OP-25).** Budget gate PASS ($1.44 of $30, 3/4 fires used before this one),
 market-hours gate PASS (Saturday, weekend mode). `TWIN-DOCTRINE-FIRST-DEPLOY` still pending
