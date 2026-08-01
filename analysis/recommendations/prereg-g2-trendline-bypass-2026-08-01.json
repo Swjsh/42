@@ -1,0 +1,106 @@
+{
+  "prereg_id": "G2-TRENDLINE-BYPASS-INVERTS-PRIORITY-2026-08-01",
+  "frozen_at_et": "2026-08-01 04:15 Saturday EDT",
+  "frozen_at_et_source": "backtest/.venv/Scripts/python.exe setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
+  "frozen_before_any_run": true,
+  "author_lane": "G2-TRENDLINE-BYPASS-INVERTS-PRIORITY (queue.md, filed 2026-07-27, CRITICAL/engine-edge)",
+
+  "motivating_finding": {
+    "filed": "2026-07-27",
+    "mechanism": "filters.py ~1603-1634: the 2026-05-09 TRENDLINE-CHOP-ZONE relaxation strips blockers 5 (ribbon), 8 (VIX) and 9 (volume) -- replacing each with a -1 score demerit -- ONLY when trendline_rejection fires AS THE SOLE level-tied trigger. A level_rejection / confluence / sequence_rejection setup (objectively STRONGER evidence than a trendline alone) gets ZERO relief and must clear the full filter set. Detecting a real level rejection makes the engine STRICTER, not looser.",
+    "measured_frequency": "33 sessions (2026-06-25..2026-07-27): 233 trendline-only bear ENTER verdicts vs 28 level-based -- 89% of every bear entry this engine has ever produced came through the bypass.",
+    "live_example": "2026-07-27: 12:10 level_rejection+confluence+trendline -> blockers [8,9] -> HOLD; 12:15 trendline ONLY -> blockers [] -> passed. The 13:25 trendline-only entry filled and lost $162.",
+    "decision_requested": "Decide deliberately: extend the relaxation to level-tied triggers (ARM_EXTEND), or remove it (ARM_REMOVE). Pre-registered A/B either way -- this file."
+  },
+
+  "flag_added_this_session": {
+    "file": "backtest/lib/filters.py",
+    "param": "trendline_bypass_scope: str = 'trendline_only'",
+    "values": {
+      "trendline_only": "DEFAULT, byte-identical to pre-flag production behavior.",
+      "all_level_tied": "ARM_EXTEND -- relief extends to ANY level-tied trigger (level_rejection | confluence | sequence_rejection | trendline_rejection), never a subtraction from trendline-only's existing relief.",
+      "none": "ARM_REMOVE -- the trendline-only bypass is deleted outright; trendline_rejection then requires full filter compliance, same as pre-2026-05-09."
+    },
+    "guard_test": "backtest/tests/test_g2_trendline_bypass_scope.py -- RED-proofed (2/6 assertions fail when the branch is reverted to the old unconditional trendline_only_setup computation; default-scope cases pass either way, confirming the test isolates the NEW branch)."
+  },
+
+  "hypothesis": "H1: the trendline-only-scoped relaxation is net-negative relative to at least one alternative scope, once measured over the real book (not the n=1 07-27 anecdote). Either extending relief to level-tied triggers (stronger signal, same relief) or removing the relaxation altogether (no free pass for the weakest trigger) beats the current asymmetric scoping.",
+
+  "arms_frozen": {
+    "CONTROL": "run_backtest(**SAFE_BASE_LIVE) -- live production config, trendline_bypass_scope='trendline_only' (the default, unchanged).",
+    "ARM_EXTEND": "CONTROL + trendline_bypass_scope='all_level_tied'.",
+    "ARM_REMOVE": "CONTROL + trendline_bypass_scope='none'."
+  },
+
+  "population": {
+    "window_start": "2025-01-02",
+    "window_end": "2026-07-31",
+    "spy_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv (thru 2026-07-22) + strictly-later tail of spy_5m_2026-05-19_2026-07-31.csv",
+    "vix_source": "backtest/data/vix_5m_2025-01-01_2026-07-22.csv + strictly-later tail of vix_5m_2026-05-19_2026-07-31.csv",
+    "vix_parse_rule": "vix timestamp_et stays a RAW STRING column (run_backtest parses internally); pre-parsing it breaks across the DST seam (structure_shift_cascade_ab.py lines 286-297 scar). Do not 'fix' it.",
+    "pnl_rule": "REAL OPRA cached contracts ONLY (lib/option_pricing_real.load_contract_bars). Any trade whose contract has no cached CSV is EXCLUDED and COUNTED, never silently dropped, never BS-synthesized into the totals.",
+    "exit_rule": "backtest/lib/exit_manager_walk.walk_exit_manager -- the REAL live exit_manager.plan_exit_actions decision core, RIBBON_RIDE registry exit shape, structure_stop enabled, time_stop 15:40 ET. NEVER simulate_trade_real (known-divergent, 2026-07-09 sim-parity scar).",
+    "entry_convention": "entry+1 -- walk_exit_manager begins at the first bar STRICTLY AFTER the entry timestamp (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md). Enforced by the harness, not by hand.",
+    "scope_restriction": "BEAR side only -- trendline_bypass_scope is a parameter of evaluate_bearish_setup exclusively; the bull path (evaluate_bullish_setup) has no analogous flag and is untouched by any arm here."
+  },
+
+  "known_data_gap_disclosed_before_running": {
+    "finding": "filter5-ribbon-2026-07-31.json (yesterday's fire, same population/harness) already documented an OPRA cache coverage collapse in the exact recent window this study's PRIMARY gate weights hardest: 2026-07-24, 2026-07-27 and 2026-07-30 have ZERO cached contracts; 2026-07-23/28/29/31 are single-digit-collapsed (3-4 contracts vs the ~22-30/day baseline through 2026-07-22).",
+    "consequence": "G1 (recent-window gate, below) is LIKELY to be UNDETERMINED rather than cleanly signed, exactly as it was for the filter5 study's ARM_A/ARM_B. This is disclosed BEFORE running, not discovered after and rationalized. If G1 comes back UNDETERMINED, the ship rule below treats it as a non-PASS (same as filter5-ribbon-2026-07-31's precedent) -- it does not silently default to PASS.",
+    "not_in_scope_this_fire": "an OPRA cache backfill for the missing days is flagged as a separate, higher-leverage follow-up (already named out-of-lane in filter5-ribbon-2026-07-31's own pre-reg); this study does not attempt it."
+  },
+
+  "recent_window": {
+    "definition": "the newest 25 distinct trading dates present in the population frame, ending 2026-07-31",
+    "n_trading_days": 25,
+    "convention_source": "backtest/autoresearch/recency_check.py RECENCY_LOOKBACK_TRADING_DAYS = 25"
+  },
+
+  "cohort_definitions": {
+    "changed_cohort": "every bear trade whose entered/not-entered status OR triggers_fired differs between CONTROL and the arm at the SAME bar -- captured via a pure pass-through monkeypatch of evaluate_bearish_setup during each arm's run (mirrors filter5_ribbon_fate_2026_07_31.py's Blockers5Capture technique; originals restored in finally; zero behavior change to CONTROL)."
+  },
+
+  "gates_frozen": [
+    {
+      "id": "G1_recent_window_positive",
+      "primary": true,
+      "rule": "delta_total (arm minus CONTROL) over the RECENT 25-trading-day window must be > 0. UNDETERMINED (per the disclosed OPRA gap above) counts as NOT PASS.",
+      "rationale": "J's dynamic-market directive (2026-07-31: recency over aggregate). This is the PRIMARY gate, not the aggregate."
+    },
+    {
+      "id": "G2_day_majority_recent",
+      "rule": "among RECENT-window days whose book changed, n_improved > n_worsened"
+    },
+    {
+      "id": "G3_survives_drop_best_recent",
+      "rule": "RECENT-window delta minus the single best-contributing changed trade must remain > 0"
+    },
+    {
+      "id": "G4_runner_anchor_no_regression",
+      "rule": "in the treatment arm, both the COUNT and the TOTAL P&L of runner-cohort exits (exit_reason containing 'runner' or 'trail') must be >= 95% of CONTROL's, over the full population",
+      "rationale": "the book's profit engine must not degrade regardless of headline delta."
+    },
+    {
+      "id": "G5_fire_count_L243",
+      "rule": "the arm must produce a NON-ZERO changed cohort over the full population AND the recent window (ARM_REMOVE necessarily changes many bars given the trendline-only cohort is 89% of bear entries; ARM_EXTEND's changed cohort is bounded by how many level-tied non-trendline-only bars existed under chop conditions -- floor is descriptive, not a hard n>=10, given the a-priori-known asymmetry in cohort sizes between the two arms)."
+    }
+  ],
+
+  "advisory_not_gating": {
+    "full_population_delta": "reported for every arm; informative but explicitly NOT the ship criterion (see G1 rationale)",
+    "bh_fdr": "Benjamini-Hochberg across the 2 live arms (EXTEND, REMOVE) at alpha=0.10, one-sided on per-changed-trade mean > 0. Advisory.",
+    "exit_reason_mix": "reported for the changed cohort per arm, same disclosure shape as filter5-ribbon-2026-07-31.json's artifact hunt (ribbon_flip_back redundancy check) -- if the trendline-only cohort primarily round-trips on ribbon_flip_back the same way filter5's added cohort did, that is reported explicitly."
+  },
+
+  "ship_rule": "An arm SHIPS only if G1 AND G2 AND G3 AND G4 AND G5 all pass. If BOTH arms pass, ship the one with the higher RECENT-window delta. If NEITHER arm passes, trendline_bypass_scope stays at the CONTROL default ('trendline_only') -- the finding is CONFIRMED as a real asymmetry but NOT ACTED ON without evidence clearing the bar, and the null goes in the graveyard verbatim (including the case where an arm looks good on the aggregate but fails the recent window).",
+
+  "reporting_rule": "ALL cells reported -- every arm, both windows, pass or fail, including the changed cohort's raw n / total / WR / per-trade / drop-best. No cherry-picking. Synthetic (Black-Scholes fallback) P&L is disclosed AND excluded from every total.",
+
+  "no_new_knobs": "This study introduces exactly ONE new string flag (trendline_bypass_scope), 3 fixed values, default unchanged. No thresholds, no sweeps, no tuning. If either arm needs a threshold to work, it fails.",
+
+  "out_of_lane_do_not_touch": [
+    "OPRA cache backfill for the missing 2026-07-23..07-31 days (named as a separate follow-up, not this fire's scope)",
+    "the bull-side filter set (no analogous flag exists; untouched)",
+    "filter 5's own provenance/fate (already litigated 2026-07-31, filter5-ribbon-2026-07-31.json -- disjoint question, reused as context only)"
+  ]
+}

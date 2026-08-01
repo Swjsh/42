@@ -1,3 +1,65 @@
+## [2026-08-01 05:10 ET] OK -- conductor (WEEKEND): G2-TRENDLINE-BYPASS-INVERTS-PRIORITY decided (NEITHER arm ships, stays default), commit pending
+
+**Signal J wakes to (OP-25).** Budget gate PASS ($1.44 of $30, 3/4 fires used before this one),
+market-hours gate PASS (Saturday, weekend mode). `TWIN-DOCTRINE-FIRST-DEPLOY` still pending
+J's Discord reply on `gp-2026-07-23-twin-doctrine-001` -- nothing new to do there.
+`task_scorer.py`'s own priority regex doesn't recognize the `CRITICAL` tag (falls back to LOW
+base) so `G2-TRENDLINE-BYPASS-INVERTS-PRIORITY` didn't surface via `--top`, but reading
+`queue.md` directly found it: CRITICAL/engine-edge, filed 2026-07-27, a real structural finding
+about the live entry gate -- picked it over the scorer's own ranking.
+
+**The finding:** filters.py's 2026-05-09 TRENDLINE-CHOP-ZONE relaxation strips filters
+5(ribbon)/8(VIX)/9(volume) ONLY when trendline_rejection fires as the SOLE level-tied trigger --
+so a level_rejection/confluence setup (stronger evidence) gets held to the FULL filter set while
+the weakest trigger class gets a free pass. Measured 89% of every bear ENTER over 33 sessions
+came through this bypass; a live 07-27 example lost $162 on a trendline-only entry that would
+have HELD as level_rejection+trendline together.
+
+**What shipped:** pre-registered A/B (`prereg-g2-trendline-bypass-2026-08-01.json`, frozen
+BEFORE running) testing 3 scopes via a new `trendline_bypass_scope` flag on
+`evaluate_bearish_setup` (filters.py) -- `trendline_only` (default, byte-identical),
+`all_level_tied` (ARM_EXTEND -- relief extends to level-tied triggers), `none` (ARM_REMOVE --
+bypass deleted). Full-history real-OPRA-fills replay via the real exit_manager
+(`backtest/tools/g2_trendline_bypass_ab_2026_08_01.py`, 2025-01-02..2026-07-31, reusing
+yesterday's filter5-ribbon-2026-07-31.json scaffold). **Verdict: NEITHER arm clears all 5
+frozen gates -- `trendline_bypass_scope` stays at the CONTROL default.** ARM_EXTEND: recent25
+delta +$1,616.15 but G1 UNDETERMINED (8/26 recent added entries have no cached OPRA contract --
+per the frozen pre-reg, UNDETERMINED = NOT PASS). ARM_REMOVE: recent25 +$279.60 but fails G4
+(runner-cohort anchor regression) outright. The asymmetry is CONFIRMED real (verified in the new
+guard test's own assertions) but NOT actionable without more OPRA coverage in the exact window
+that matters -- same coverage gap `filter5-ribbon-2026-07-31.json` flagged the prior night.
+
+**Process catch (OP-33, disclosed not swept under the rug):** the study's FIRST run scored
+ARM_EXTEND as `SHIP_CANDIDATE` -- a bug in `relabel_g1_measurability` changed the G1 STATUS
+LABEL to "UNDETERMINED" without forcing the underlying `pass` boolean to False, so the raw
+measured-sign delta (positive) let it clear `all_gates_pass` despite the frozen pre-reg
+explicitly saying UNDETERMINED=NOT-PASS. Caught before any downstream action (re-reading the
+pre-reg's own ship-rule text against the printed gate table), fixed same-session, re-derived
+from the SAME already-computed per-trade JSON (no re-run of the ~3.5min backtest) -- final
+verdict flipped `ARM_EXTEND_SHIPS` -> `NEITHER_SHIPS_STAYS_TRENDLINE_ONLY`. Lesson filed:
+`strategy/candidates/_lesson-inbox/2026-08-01-gate-status-label-vs-boolean-drift.md`.
+
+**Validated:** new guard test `backtest/tests/test_g2_trendline_bypass_scope.py` (6/6 green),
+RED-proofed (2/6 fail when the filters.py branch is reverted to the old unconditional
+computation, confirming they exercise the new logic, not just the untouched default path).
+Wider regression: 158/158 related tests green (trendline/filter5/entry_floor/engine_score_parity
+subset, zero new failures). Scorecard: `analysis/recommendations/g2-trendline-bypass-2026-08-01.{json,md}`.
+
+**Rail-4 N/A** -- the new `trendline_bypass_scope` flag stays at its inert default
+(`'trendline_only'`, byte-identical to pre-fire production); zero live behavior change. Ships
+as ordinary engine-benefit research (analysis + a default-inert flag + guard test + graveyard
+scorecard), no J ratification needed. Revert: `git revert <this commit>` (additive-only -- new
+flag param defaults unchanged, new test/tool/scorecard/lesson files, nothing else depends on
+them; `queue.md`'s checkbox flip is the only edit to a pre-existing file besides `filters.py`
+itself).
+
+**Not yet resolved / follow-up (out of THIS fire's lane, named in the pre-reg):** an OPRA cache
+backfill for 2026-07-23..07-31 is the single highest-leverage next input to re-deciding BOTH
+this study and filter5-ribbon-2026-07-31.json -- neither can get a clean recent-window signal
+without it.
+
+---
+
 ## [2026-08-01 02:20 ET] OK -- conductor (WEEKEND): FLEET-PARITY-TESTS-READ-LIVE-STATE closed, commit `dea5b2e2`
 
 **Signal J wakes to (OP-25).** Budget gate PASS ($0.33/$30, 2/4 fires used before this one),
@@ -587,45 +649,6 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 
 ---
 
-## [2026-07-28 ~20:30 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
-
-> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `7 fires today >= max_fires 4`.
-> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
-> This is the FOURTH QUIET-EXHAUSTED fire today (03:30 at 4/4, 08:42 at 5/4, 18:12 at 6/4, now 20:30
-> at 7/4). The counter keeps climbing well past the documented 3-fire/night AFTERHOURS cadence
-> (20:30/01:00/05:30 ET) -- something is waking `conductor` extra times on 2026-07-28. Worth a
-> FABLE-ESCALATION next non-exhausted fire: audit Task Scheduler history for `Gamma_Conductor*`
-> triggers today and confirm whether extra manual/interactive invocations (like this one) or a
-> duplicate/misconfigured scheduled trigger is the source -- 7 fires in one day is nearly double
-> the 4/day cap and burns through budget before the after-hours cadence gets a real turn.
-
-## [2026-07-28 ~18:12 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
-
-> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `6 fires today >= max_fires 4`.
-> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
-> This is the THIRD QUIET-EXHAUSTED fire today (03:30 ET at 4/4, ~08:42 ET at 5/4, now ~18:12 ET
-> at 6/4) -- the daily counter is climbing past `max_fires` across multiple wake sources on the
-> same calendar day (2026-07-28), not resetting between them as the ~08:42 note assumed it would
-> after midnight. Worth a look next non-exhausted fire: confirm which scheduled tasks are firing
-> conductor beyond the documented 20:30/01:00/05:30 ET cadence (6 fires by 18:12 ET implies extra
-> wakes, possibly manual/interactive invocations like this one, which still correctly count
-> against the shared daily cap). Next fire after local midnight resets the counter.
-
-## [2026-07-28 ~08:42 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
-
-> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `5 fires today >= max_fires 4`.
-> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
-> Note: this is the SECOND QUIET-EXHAUSTED fire today (was 4/4 at ~03:30 ET, now 5/4) --
-> the counter did not reset overnight as the prior entry assumed; it resets at local midnight,
-> and this fire landed on the same calendar day. Next fire (20:30 / 01:00 / 05:30 ET cadence)
-> should land after local midnight and reset.
-
-## [2026-07-28 ~03:30 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
-
-> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `4 fires today >= max_fires 4`.
-> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
-> Next fire (per cadence: 20:30 / 01:00 / 05:30 ET) resets the daily counter at local midnight.
-
 
 ## Kitchen
-Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 35 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

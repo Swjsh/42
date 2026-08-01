@@ -1410,6 +1410,22 @@ def evaluate_bearish_setup(
     # backtest/lib/structure_shift.py#detect_structure_shift_bear.
     structure_shift_confirmation: bool = False,
     structure_shift_k: int = STRUCTURE_SHIFT_K_DEFAULT,
+    # --- G2-TRENDLINE-BYPASS-INVERTS-PRIORITY (filed 2026-07-27, resolved 2026-08-01) ---
+    # Scope of the 2026-05-09 TRENDLINE-CHOP-ZONE relaxation (filters 5/8/9 -> demerit).
+    # "trendline_only" (DEFAULT, byte-identical to pre-flag behavior): the relaxation fires
+    # ONLY when trendline_rejection is the SOLE level-tied trigger -- a level_rejection /
+    # confluence / sequence_rejection setup (STRONGER evidence) gets the FULL filter set,
+    # while the weakest trigger class gets the free pass. Measured 2026-07-27..08-01: 89%
+    # of all bear ENTER verdicts over 33 sessions came through this bypass alone.
+    # "all_level_tied" (ARM_EXTEND): the SAME relaxation extends to ANY level-tied trigger
+    # (level_rejection | confluence | sequence_rejection | trendline_rejection) -- removes
+    # the inverted-priority by giving the stronger triggers AT LEAST as much relief as the
+    # weakest one, never less.
+    # "none" (ARM_REMOVE): deletes the trendline-only bypass entirely; trendline_rejection
+    # then requires full filter compliance like every other trigger, same as pre-2026-05-09.
+    # Frozen pre-reg: analysis/recommendations/prereg-g2-trendline-bypass-2026-08-01.json.
+    # Guard: backtest/tests/test_g2_trendline_bypass_scope.py (RED-proofed, default inert).
+    trendline_bypass_scope: str = "trendline_only",
 ) -> SetupResult:
     """Run all 10 bearish filters + trigger checks. Return SetupResult.
 
@@ -1606,12 +1622,26 @@ def evaluate_bearish_setup(
     # filters 5 (ribbon BEAR) and 8 (VIX) from the blocker list when ONLY trendline
     # fires, replacing each with a -1 score demerit. Other level-tied triggers
     # (level_rejection, confluence, sequence_rejection) still require full ribbon+VIX.
-    trendline_only_setup = (
+    _trendline_only_shape = (
         "trendline_rejection" in triggers and
         "level_rejection" not in triggers and
         "confluence" not in triggers and
         "sequence_rejection" not in triggers
     )
+    if trendline_bypass_scope == "all_level_tied":
+        # ARM_EXTEND (G2): relief extends to ANY level-tied trigger, not just the
+        # trendline-only shape -- level_rejection/confluence/sequence_rejection now get
+        # the SAME filters-5/8/9 relaxation trendline-only already had.
+        trendline_only_setup = any(
+            t in triggers for t in
+            ("level_rejection", "confluence", "sequence_rejection", "trendline_rejection")
+        )
+    elif trendline_bypass_scope == "none":
+        # ARM_REMOVE (G2): the trendline-only bypass is deleted outright.
+        trendline_only_setup = False
+    else:
+        # "trendline_only" (default) -- byte-identical to pre-flag behavior.
+        trendline_only_setup = _trendline_only_shape
     # 2026-05-10: wick-only chop relaxation TRIED + REVERTED.
     # Result: caused engine to take J's loser on 5/05 + dragged 5/01 deeper
     # negative. 4/29 already wins via 12:25 close-below level_rejection so
