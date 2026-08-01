@@ -1,0 +1,15 @@
+{
+  "job": "opra_backfill_2024_01_18_2024_12_31",
+  "total_contracts": 5302,
+  "already_cached_before": 0,
+  "to_fetch": 5302,
+  "fetched_this_run": 5258,
+  "empty_this_run": 44,
+  "errors_count": 0,
+  "errors_sample": [],
+  "elapsed_seconds": 2348,
+  "eta_seconds_remaining": 0,
+  "current_index": 5302,
+  "last_update": "2026-07-31T21:59:39.399561+00:00",
+  "status": "completed"
+}

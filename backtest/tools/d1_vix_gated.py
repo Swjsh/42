@@ -43,7 +43,7 @@ def get_is_fill_days():
 def get_oos_fill_days():
     c = Counter(f.name[3:9] for f in (DATA / "options").glob("SPY*.csv"))
     fill_days = sorted({dt.datetime.strptime(k, "%y%m%d").date() for k, v in c.items() if v >= 8})
-    spy_path = sorted(DATA.glob("spy_5m_*.csv"), key=lambda p: p.stat().st_size, reverse=True)[0]
+    spy_path = sorted(DATA.glob("spy_5m_2025-01-01_*.csv"), key=lambda p: p.stat().st_size, reverse=True)[0]
     spy_dates = set(SM._to_et(pd.read_csv(spy_path)["timestamp_et"]).dt.date)
     oos = [d for d in fill_days if d >= dt.date(2026, 2, 27) and d in spy_dates and d not in MDATES_SET]
     return sorted(oos)[-60:]
@@ -133,7 +133,13 @@ def main():
     print(f"\nIS: {len(is_days)} fill days | OOS: {len(oos_days)} fill days")
 
     # Load IS and OOS data
-    spy_path = sorted(DATA.glob("spy_5m_*.csv"), key=lambda p: p.stat().st_size, reverse=True)[0]
+    # ANCHORED 2026-08-02 (OPRA-BACKFILL-2026-07-31): the bare "spy_5m_*.csv" glob
+    # used to resolve here silently started matching the new 2024-inclusive
+    # spy_5m_2024-01-18_2026-07-22.csv once it existed (now the largest spy_5m_*.csv
+    # file on disk), which has NO same-named vix_5m_2024-01-18_2026-07-22.csv sibling
+    # -- the next line's read would have raised FileNotFoundError. Anchoring restores
+    # this script's original, intended 2025-01-01-population behavior.
+    spy_path = sorted(DATA.glob("spy_5m_2025-01-01_*.csv"), key=lambda p: p.stat().st_size, reverse=True)[0]
     vix_path = DATA / spy_path.name.replace("spy_5m", "vix_5m")
     print(f"SPY: {spy_path.name}")
 

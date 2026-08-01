@@ -139,6 +139,17 @@ regression instead of a human re-discovering it walks later.
                                                              -$16->-$23, top5-day-OOS 120-228%). ADDITIVE; small-n<=5
                                                              unevaluable=skip; missing value fails OPEN, never blesses)
 
+  test_opra_2024_backfill_verified_floor_*            -> OPRA-BACKFILL-2026-07-31 (2026-08-02: population-boundary
+                                                             gate for the 2024 OPRA extension. Floor=2024-01-18 pinned;
+                                                             2025+ SPY master hash-pinned unmutated; resolve_spy_master()
+                                                             glob pinned to the 2025-01-01 prefix; the NEW
+                                                             2024-12-23 SPY-bar gap this verification found (11/78
+                                                             bars, live-reconfirmed against Alpaca -- genuine IEX
+                                                             single-venue thinness, not a fetcher bug) pinned so a
+                                                             future silent cache change doesn't leave the doc's
+                                                             239-usable-day figure stale; doc-discloses-required-facts
+                                                             checked against analysis/deep-research/OPRA-BACKFILL-2026-07-31.md)
+
 Run:  cd backtest && python -m pytest tests/test_graduated_guards.py -v
 """
 
@@ -3993,3 +4004,156 @@ def test_no_monitor_trusts_lasttaskresult_as_authoritative() -> None:
             "explicitly documents the value as UNTRUSTED and cross-checks via log-tail -- "
             "that disclaimer text is gone, so the exemption is no longer earned."
         )
+
+
+def test_opra_2024_backfill_verified_floor_2024_01_18() -> None:
+    """OPRA-BACKFILL-2026-07-31: 2024-01-18 is the verified true floor of Alpaca's SPY
+    0DTE option-bar history (binary search via _probe_opra_floor.py). No real (non-empty-
+    sentinel) contract file should exist for 2024-01-16 or 2024-01-17 -- if one appears,
+    either the floor claim was wrong or a later run fetched pre-floor data that needs its
+    own disclosure. At least one real file must exist for 2024-01-18 itself."""
+    opt_dir = DATA / "options"
+    if not opt_dir.exists() or not any(opt_dir.glob("SPY24*.csv")):
+        pytest.skip("backtest/data/options 2024 cache not present (fresh checkout / worktree)")
+
+    def real_files_for(yymmdd: str) -> list[str]:
+        return [
+            p.name for p in opt_dir.glob(f"SPY{yymmdd}*.csv")
+            if not p.name.endswith(".empty") and p.stat().st_size > 100
+        ]
+
+    pre_floor_16 = real_files_for("240116")
+    pre_floor_17 = real_files_for("240117")
+    floor_18 = real_files_for("240118")
+    assert not pre_floor_16, (
+        f"real (non-empty) contract files found for 2024-01-16, BEFORE the verified floor: "
+        f"{pre_floor_16[:5]} -- either the 2024-01-18 floor claim in "
+        f"analysis/deep-research/OPRA-BACKFILL-2026-07-31.md is now wrong, or these were "
+        f"fetched by a later run that needs its own disclosure."
+    )
+    assert not pre_floor_17, (
+        f"real (non-empty) contract files found for 2024-01-17, BEFORE the verified floor: "
+        f"{pre_floor_17[:5]}"
+    )
+    assert floor_18, (
+        "no real contract files found for 2024-01-18 (the verified floor date itself) -- "
+        "the floor claim requires data to START here, not just stop being present earlier."
+    )
+
+
+def test_opra_2025_spy_master_unmutated_by_2024_backfill() -> None:
+    """OPRA-BACKFILL-2026-07-31 Sec 6: the pre-existing spy_5m_2025-01-01_2026-07-22.csv
+    master must be byte-identical to its state before the 2024 backfill ran (2026-07-31).
+    Hash pinned from a verification pass that also confirmed unchanged mtime (2026-07-22,
+    9 days before the backfill) and exact row-for-row equality against the >=2025-01-01
+    slice of the new merged spy_5m_2024-01-18_2026-07-22.csv. A future script that merges,
+    re-sorts, or dedupes this file in place would silently rewrite a shared master every
+    hardcoded-filename consumer in backtest/*.py still reads -- this must go RED immediately
+    if that happens."""
+    import hashlib
+
+    target = DATA / "spy_5m_2025-01-01_2026-07-22.csv"
+    if not target.exists():
+        pytest.skip("spy_5m_2025-01-01_2026-07-22.csv not present (fresh checkout / worktree, "
+                    "or superseded by a later dated master -- not itself a failure)")
+    EXPECTED_SHA256 = "70be577fb3bd769b2e0cc26bd4a3e56281c054f53e13842d81a475f2ed01b289"
+    actual = hashlib.sha256(target.read_bytes()).hexdigest()
+    assert actual == EXPECTED_SHA256, (
+        f"spy_5m_2025-01-01_2026-07-22.csv hash changed ({actual}, expected {EXPECTED_SHA256}) "
+        f"-- this file was verified UNMUTATED by the 2024 OPRA backfill "
+        f"(analysis/deep-research/OPRA-BACKFILL-2026-07-31.md Sec 6). Every hardcoded-filename "
+        f"consumer across backtest/*.py reads this exact file; an in-place rewrite silently "
+        f"changes every study that depends on it. If this change is intentional, re-verify row "
+        f"count + spot-check content, update the pinned hash here, and note the change in the doc."
+    )
+
+
+def test_opra_cache_resolver_still_anchors_2025_population() -> None:
+    """OPRA-BACKFILL-2026-07-31 Sec 6/7: expand_opra_cache.py's resolve_spy_master() glob
+    must keep resolving the spy_5m_2025-01-01_* lineage, NOT the new 2024-dated master --
+    the entire "the 2024 stratum requires explicit opt-in" safety claim in the backfill doc
+    rests on this glob staying narrow. If someone widens it (e.g. to spy_5m_2024* or a bare
+    spy_5m_*), every existing consumer of expand_opra_cache.py silently starts centering
+    option strikes on the 2024 population without anyone deciding that on purpose."""
+    import importlib
+    import sys as _sys
+
+    tools_dir = str(BACKTEST / "tools")
+    if tools_dir not in _sys.path:
+        _sys.path.insert(0, tools_dir)
+    if not list(DATA.glob("spy_5m_2025-01-01_*.csv")):
+        pytest.skip("no spy_5m_2025-01-01_* master present (fresh checkout / worktree)")
+    eoc = importlib.import_module("expand_opra_cache")
+    resolved = eoc.resolve_spy_master()
+    assert resolved.name.startswith("spy_5m_2025-01-01_"), (
+        f"resolve_spy_master() resolved {resolved.name!r}, expected a spy_5m_2025-01-01_* "
+        f"file -- the OPRA cache resolver's population anchor has moved. If this is "
+        f"intentional (deliberately unlocking 2024 for this resolver's consumers), update "
+        f"analysis/deep-research/OPRA-BACKFILL-2026-07-31.md Sec 7's convention-not-gate "
+        f"finding, since it no longer describes reality."
+    )
+
+
+def test_opra_2024_spy_bar_severe_gap_2024_12_23() -> None:
+    """OPRA-BACKFILL-2026-07-31 Sec 4: 2024-12-23 is a NEW finding from this verification
+    (not present in the original backfill's own logs) -- spy_5m_2024-01-18_2024-12-31.csv
+    has only 11 of an expected 78 bars for this date (session cuts off at 10:20 ET), live-
+    reconfirmed against Alpaca as a genuine IEX single-venue gap, not a fetcher bug. The
+    doc's 239-usable-day figure (241 targeted minus this day and 2024-02-02) depends on this
+    day staying excluded. Pinned so a future cache refresh that silently fixes (or worsens)
+    this day doesn't leave the doc's headline number stale without forcing a re-check."""
+    target = DATA / "spy_5m_2024-01-18_2024-12-31.csv"
+    if not target.exists():
+        pytest.skip("spy_5m_2024-01-18_2024-12-31.csv not present (fresh checkout / worktree)")
+    import pandas as _pd
+
+    df = _pd.read_csv(target)
+    ts = _pd.to_datetime(df["timestamp_et"], utc=True).dt.tz_convert("America/New_York")
+    df["_date"] = ts.dt.date
+    counts = df.groupby("_date").size()
+    d_1223 = dt.date(2024, 12, 23)
+    d_1220 = dt.date(2024, 12, 20)  # neighboring trading day, must NOT show the same gap
+    n_1223 = int(counts.get(d_1223, -1))
+    assert n_1223 != -1, "2024-12-23 has zero rows at all -- expected a partial 11-bar day, not none"
+    assert n_1223 < 20, (
+        f"2024-12-23 now has {n_1223} SPY bars (was 11 when this doc was written) -- if this "
+        f"cache was refreshed and the gap is now filled, that's GOOD, but "
+        f"analysis/deep-research/OPRA-BACKFILL-2026-07-31.md's 239-usable-day figure and its "
+        f"2024-12-23 exclusion are now stale and must be updated (re-run "
+        f"tools/_verify_opra_backfill_2024.py and rewrite Sec 3/4/10 accordingly)."
+    )
+    n_1220 = int(counts.get(d_1220, 0))
+    assert n_1220 > 60, (
+        f"neighboring trading day 2024-12-20 only has {n_1220} bars -- expected the gap to be "
+        f"isolated to 2024-12-23, not a broader truncation of the surrounding week."
+    )
+
+
+def test_opra_backfill_doc_discloses_required_facts() -> None:
+    """OPRA-BACKFILL-2026-07-31: the completeness/provenance doc must exist and state its
+    load-bearing facts in plain text -- floor date, both excluded days, the verified-usable
+    count, the VIX granularity caveat, and the no-auto-extend warning. This is the doc that
+    unlocks the 2024 stratum for future studies; a version that silently loses one of these
+    facts (e.g. someone "cleans up" the doc and drops the 2024-12-23 caveat) must go RED, not
+    quietly ship a less-honest gate."""
+    doc = REPO / "analysis" / "deep-research" / "OPRA-BACKFILL-2026-07-31.md"
+    assert doc.exists(), (
+        "analysis/deep-research/OPRA-BACKFILL-2026-07-31.md is missing -- the 2024 OPRA "
+        "stratum has no completeness/provenance gate. Every study must keep treating the "
+        "391-day population (2025-01-02..2026-07-31) as the only verified frame until this "
+        "doc exists again."
+    )
+    text = doc.read_text(encoding="utf-8")
+    required = [
+        "2024-01-18",       # verified floor date
+        "2024-02-02",       # excluded: options gap
+        "2024-12-23",       # excluded: SPY-bar gap (this verification's new finding)
+        "239",               # verified-usable-day count studies should cite
+        "vix_daily_proxy",  # VIX granularity caveat
+        "does NOT automatically extend",  # the no-auto-extend warning
+    ]
+    missing = [r for r in required if r not in text]
+    assert not missing, (
+        f"OPRA-BACKFILL-2026-07-31.md is missing required disclosure(s): {missing} -- "
+        f"a future edit dropped load-bearing content from the population-boundary gate doc."
+    )
