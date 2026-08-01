@@ -1,0 +1,2112 @@
+{
+ "generated_at": "2026-08-01T14:47:16.259348",
+ "tool": "backtest/tools/regime_participation_study.py",
+ "sources": {
+  "performance_trade_log": "analysis\\recommendations\\engine-fullhist-replay-2026-07-23.json",
+  "regime_library": "analysis\\regime-library\\day-archetypes.json",
+  "core_decisions_live": "automation\\state\\core-decisions.jsonl",
+  "full_population_replay": "analysis\\regime-library\\participation-replay-fullhist-2026-08-02.json"
+ },
+ "performance": {
+  "full_population": {
+   "window": [
+    "2025-01-06",
+    "2026-07-21"
+   ],
+   "n_trades": 191,
+   "by_archetype": {
+    "inverted-V": {
+     "n_trades": 2,
+     "n_days": 2,
+     "total_pnl": 156.25,
+     "mean_trade_pnl": 78.12,
+     "mean_day_pnl": 78.12,
+     "win_rate": 0.5,
+     "top_day": {
+      "date": "2025-01-06",
+      "total": 180.25
+     },
+     "top_day_share_of_total": 1.1536,
+     "drop_best_day_total": -24.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2025-01-06",
+      "dollar_pnl": 180.25
+     },
+     "drop_best_trade_total": -24.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "gap-fade": {
+     "n_trades": 30,
+     "n_days": 20,
+     "total_pnl": -884.35,
+     "mean_trade_pnl": -29.48,
+     "mean_day_pnl": -44.22,
+     "win_rate": 0.2667,
+     "top_day": {
+      "date": "2025-12-11",
+      "total": 486.2
+     },
+     "top_day_share_of_total": -0.5498,
+     "drop_best_day_total": -1370.55,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-01-02",
+      "dollar_pnl": 502.6
+     },
+     "drop_best_trade_total": -1386.95,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": false
+    },
+    "V-reversal": {
+     "n_trades": 11,
+     "n_days": 8,
+     "total_pnl": 602.5,
+     "mean_trade_pnl": 54.77,
+     "mean_day_pnl": 75.31,
+     "win_rate": 0.3636,
+     "top_day": {
+      "date": "2026-01-29",
+      "total": 656.85
+     },
+     "top_day_share_of_total": 1.0902,
+     "drop_best_day_total": -54.35,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-01-29",
+      "dollar_pnl": 656.85
+     },
+     "drop_best_trade_total": -54.35,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "gap-go": {
+     "n_trades": 37,
+     "n_days": 29,
+     "total_pnl": 2911.1,
+     "mean_trade_pnl": 78.68,
+     "mean_day_pnl": 100.38,
+     "win_rate": 0.3243,
+     "top_day": {
+      "date": "2025-08-22",
+      "total": 841.35
+     },
+     "top_day_share_of_total": 0.289,
+     "drop_best_day_total": 2069.75,
+     "drop_best_day_still_positive": true,
+     "top_trade": {
+      "date": "2025-08-22",
+      "dollar_pnl": 859.95
+     },
+     "drop_best_trade_total": 2051.15,
+     "drop_best_trade_still_positive": true,
+     "underpowered_n_lt_15": false
+    },
+    "range-chop": {
+     "n_trades": 86,
+     "n_days": 65,
+     "total_pnl": 1396.4,
+     "mean_trade_pnl": 16.24,
+     "mean_day_pnl": 21.48,
+     "win_rate": 0.2907,
+     "top_day": {
+      "date": "2026-05-18",
+      "total": 1465.1
+     },
+     "top_day_share_of_total": 1.0492,
+     "drop_best_day_total": -68.7,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-02-26",
+      "dollar_pnl": 636.05
+     },
+     "drop_best_trade_total": 760.35,
+     "drop_best_trade_still_positive": true,
+     "underpowered_n_lt_15": false
+    },
+    "trend-down": {
+     "n_trades": 13,
+     "n_days": 8,
+     "total_pnl": 811.05,
+     "mean_trade_pnl": 62.39,
+     "mean_day_pnl": 101.38,
+     "win_rate": 0.3077,
+     "top_day": {
+      "date": "2025-02-21",
+      "total": 616.0
+     },
+     "top_day_share_of_total": 0.7595,
+     "drop_best_day_total": 195.05,
+     "drop_best_day_still_positive": true,
+     "top_trade": {
+      "date": "2025-02-21",
+      "dollar_pnl": 616.0
+     },
+     "drop_best_trade_total": 195.05,
+     "drop_best_trade_still_positive": true,
+     "underpowered_n_lt_15": true
+    },
+    "trend-up": {
+     "n_trades": 5,
+     "n_days": 4,
+     "total_pnl": 180.6,
+     "mean_trade_pnl": 36.12,
+     "mean_day_pnl": 45.15,
+     "win_rate": 0.2,
+     "top_day": {
+      "date": "2026-06-11",
+      "total": 752.0
+     },
+     "top_day_share_of_total": 4.1639,
+     "drop_best_day_total": -571.4,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-06-11",
+      "dollar_pnl": 752.0
+     },
+     "drop_best_trade_total": -571.4,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "pin-day": {
+     "n_trades": 6,
+     "n_days": 4,
+     "total_pnl": -430.8,
+     "mean_trade_pnl": -71.8,
+     "mean_day_pnl": -107.7,
+     "win_rate": 0.0,
+     "top_day": {
+      "date": "2025-10-06",
+      "total": -51.0
+     },
+     "top_day_share_of_total": 0.1184,
+     "drop_best_day_total": -379.8,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2025-02-14",
+      "dollar_pnl": -40.8
+     },
+     "drop_best_trade_total": -390.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "data-incomplete": {
+     "n_trades": 1,
+     "n_days": 1,
+     "total_pnl": 66.0,
+     "mean_trade_pnl": 66.0,
+     "mean_day_pnl": 66.0,
+     "win_rate": 1.0,
+     "top_day": {
+      "date": "2026-06-15",
+      "total": 66.0
+     },
+     "top_day_share_of_total": 1.0,
+     "drop_best_day_total": 0.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-06-15",
+      "dollar_pnl": 66.0
+     },
+     "drop_best_trade_total": 0.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    }
+   }
+  },
+  "recent_window": {
+   "window": [
+    "2026-05-28",
+    "2026-07-21"
+   ],
+   "n_trading_days": 25,
+   "n_trades": 33,
+   "by_archetype": {
+    "range-chop": {
+     "n_trades": 15,
+     "n_days": 12,
+     "total_pnl": 988.7,
+     "mean_trade_pnl": 65.91,
+     "mean_day_pnl": 82.39,
+     "win_rate": 0.4,
+     "top_day": {
+      "date": "2026-06-08",
+      "total": 971.9
+     },
+     "top_day_share_of_total": 0.983,
+     "drop_best_day_total": 16.8,
+     "drop_best_day_still_positive": true,
+     "top_trade": {
+      "date": "2026-06-08",
+      "dollar_pnl": 532.0
+     },
+     "drop_best_trade_total": 456.7,
+     "drop_best_trade_still_positive": true,
+     "underpowered_n_lt_15": false
+    },
+    "gap-fade": {
+     "n_trades": 7,
+     "n_days": 4,
+     "total_pnl": -1618.6,
+     "mean_trade_pnl": -231.23,
+     "mean_day_pnl": -404.65,
+     "win_rate": 0.1429,
+     "top_day": {
+      "date": "2026-07-20",
+      "total": 304.4
+     },
+     "top_day_share_of_total": -0.1881,
+     "drop_best_day_total": -1923.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-07-20",
+      "dollar_pnl": 489.4
+     },
+     "drop_best_trade_total": -2108.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "trend-up": {
+     "n_trades": 1,
+     "n_days": 1,
+     "total_pnl": 752.0,
+     "mean_trade_pnl": 752.0,
+     "mean_day_pnl": 752.0,
+     "win_rate": 1.0,
+     "top_day": {
+      "date": "2026-06-11",
+      "total": 752.0
+     },
+     "top_day_share_of_total": 1.0,
+     "drop_best_day_total": 0.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-06-11",
+      "dollar_pnl": 752.0
+     },
+     "drop_best_trade_total": 0.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "V-reversal": {
+     "n_trades": 4,
+     "n_days": 3,
+     "total_pnl": -133.0,
+     "mean_trade_pnl": -33.25,
+     "mean_day_pnl": -44.33,
+     "win_rate": 0.5,
+     "top_day": {
+      "date": "2026-06-12",
+      "total": 162.0
+     },
+     "top_day_share_of_total": -1.218,
+     "drop_best_day_total": -295.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-06-12",
+      "dollar_pnl": 162.0
+     },
+     "drop_best_trade_total": -295.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "data-incomplete": {
+     "n_trades": 1,
+     "n_days": 1,
+     "total_pnl": 66.0,
+     "mean_trade_pnl": 66.0,
+     "mean_day_pnl": 66.0,
+     "win_rate": 1.0,
+     "top_day": {
+      "date": "2026-06-15",
+      "total": 66.0
+     },
+     "top_day_share_of_total": 1.0,
+     "drop_best_day_total": 0.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-06-15",
+      "dollar_pnl": 66.0
+     },
+     "drop_best_trade_total": 0.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "trend-down": {
+     "n_trades": 1,
+     "n_days": 1,
+     "total_pnl": -355.5,
+     "mean_trade_pnl": -355.5,
+     "mean_day_pnl": -355.5,
+     "win_rate": 0.0,
+     "top_day": {
+      "date": "2026-06-17",
+      "total": -355.5
+     },
+     "top_day_share_of_total": 1.0,
+     "drop_best_day_total": 0.0,
+     "drop_best_day_still_positive": false,
+     "top_trade": {
+      "date": "2026-06-17",
+      "dollar_pnl": -355.5
+     },
+     "drop_best_trade_total": 0.0,
+     "drop_best_trade_still_positive": false,
+     "underpowered_n_lt_15": true
+    },
+    "gap-go": {
+     "n_trades": 4,
+     "n_days": 3,
+     "total_pnl": 615.65,
+     "mean_trade_pnl": 153.91,
+     "mean_day_pnl": 205.22,
+     "win_rate": 0.5,
+     "top_day": {
+      "date": "2026-06-23",
+      "total": 338.05
+     },
+     "top_day_share_of_total": 0.5491,
+     "drop_best_day_total": 277.6,
+     "drop_best_day_still_positive": true,
+     "top_trade": {
+      "date": "2026-07-06",
+      "dollar_pnl": 421.6
+     },
+     "drop_best_trade_total": 194.05,
+     "drop_best_trade_still_positive": true,
+     "underpowered_n_lt_15": true
+    }
+   }
+  }
+ },
+ "participation_live_window": {
+  "window_observed": [
+   "2026-06-25",
+   "2026-07-31"
+  ],
+  "note": "LIVE core-decisions.jsonl, armed==True only, safe+bold accounts, deduped via participation_cascade.build_events. This is the ONLY source in this study with risk-gate (SIZING_REFUSED-equivalent = RISK_GATE_DENY) visibility and the ONLY source covering BOTH sides (bull+bear), but over a short live window.",
+  "by_account": {
+   "safe": {
+    "gap-fade": {
+     "n_days_observed": 5,
+     "dates": [
+      "2026-06-25",
+      "2026-06-26",
+      "2026-07-01",
+      "2026-07-20",
+      "2026-07-27"
+     ],
+     "n_events": 42,
+     "by_stage": {
+      "NO_SIGNAL": 21,
+      "NO_DATA": 2,
+      "GATE_BLOCK": 7,
+      "PLACED": 1,
+      "PLACE_FAIL": 1,
+      "STALE_TRIGGER": 1,
+      "FILLED": 2,
+      "RISK_GATE_DENY": 2,
+      "STRUCTURE_VETO": 4,
+      "WINDOW_BLOCK": 1
+     },
+     "n_entered": 3,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "min_ribbon_momentum_cents",
+       "n": 4
+      },
+      {
+       "category": "veto",
+       "blocker": "structure_veto",
+       "n": 4
+      },
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "not_flat_rule4",
+       "n": 2
+      },
+      {
+       "category": "execution",
+       "blocker": "broker_reject",
+       "n": 1
+      },
+      {
+       "category": "execution",
+       "blocker": "stale_trigger_bar",
+       "n": 1
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 1
+      },
+      {
+       "category": "gate",
+       "blocker": "entry_bar_body_pct_min",
+       "n": 1
+      }
+     ]
+    },
+    "range-chop": {
+     "n_days_observed": 9,
+     "dates": [
+      "2026-06-29",
+      "2026-07-02",
+      "2026-07-07",
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-14",
+      "2026-07-16",
+      "2026-07-17",
+      "2026-07-28"
+     ],
+     "n_events": 131,
+     "by_stage": {
+      "NO_SIGNAL": 65,
+      "GATE_BLOCK": 29,
+      "FILLED": 6,
+      "RISK_GATE_DENY": 12,
+      "STRUCTURE_VETO": 4,
+      "WINDOW_BLOCK": 8,
+      "STALE_TRIGGER": 2,
+      "OTHER_BLOCK": 5
+     },
+     "n_entered": 6,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 22
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "not_flat_rule4",
+       "n": 8
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 6
+      },
+      {
+       "category": "gate",
+       "blocker": "vetoed_by_models",
+       "n": 5
+      },
+      {
+       "category": "gate",
+       "blocker": "entry_bar_body_pct_min",
+       "n": 4
+      },
+      {
+       "category": "veto",
+       "blocker": "structure_veto",
+       "n": 4
+      },
+      {
+       "category": "gate",
+       "blocker": "min_ribbon_momentum_cents",
+       "n": 3
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "quality_lock",
+       "n": 2
+      },
+      {
+       "category": "execution",
+       "blocker": "stale_trigger_bar",
+       "n": 2
+      },
+      {
+       "category": "window",
+       "blocker": "block_bull_1100_1200",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_pdt",
+       "n": 2
+      }
+     ]
+    },
+    "trend-up": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-06-30"
+     ],
+     "n_events": 13,
+     "by_stage": {
+      "NO_SIGNAL": 7,
+      "GATE_BLOCK": 6
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 6
+      }
+     ]
+    },
+    "UNTAGGED": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-07-03"
+     ],
+     "n_events": 1,
+     "by_stage": {
+      "NO_SIGNAL": 1
+     },
+     "n_entered": 0,
+     "top_blockers": []
+    },
+    "gap-go": {
+     "n_days_observed": 5,
+     "dates": [
+      "2026-07-06",
+      "2026-07-13",
+      "2026-07-21",
+      "2026-07-23",
+      "2026-07-30"
+     ],
+     "n_events": 59,
+     "by_stage": {
+      "NO_SIGNAL": 28,
+      "GATE_BLOCK": 12,
+      "STRUCTURE_VETO": 2,
+      "FILLED": 2,
+      "RISK_GATE_DENY": 5,
+      "WINDOW_BLOCK": 7,
+      "OTHER_BLOCK": 3
+     },
+     "n_entered": 2,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 8
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 7
+      },
+      {
+       "category": "gate",
+       "blocker": "entry_bar_body_pct_min",
+       "n": 3
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_risk_cap",
+       "n": 3
+      },
+      {
+       "category": "veto",
+       "blocker": "structure_veto",
+       "n": 2
+      },
+      {
+       "category": "gate",
+       "blocker": "vetoed_by_models",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "not_flat_rule4",
+       "n": 1
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_pdt",
+       "n": 1
+      },
+      {
+       "category": "gate",
+       "blocker": "block_level_rejection",
+       "n": 1
+      },
+      {
+       "category": "gate",
+       "blocker": "skip_stale_sight",
+       "n": 1
+      }
+     ]
+    },
+    "V-reversal": {
+     "n_days_observed": 3,
+     "dates": [
+      "2026-07-08",
+      "2026-07-15",
+      "2026-07-31"
+     ],
+     "n_events": 56,
+     "by_stage": {
+      "NO_SIGNAL": 25,
+      "RISK_GATE_DENY": 6,
+      "GATE_BLOCK": 15,
+      "FILLED": 1,
+      "OTHER_BLOCK": 6,
+      "STRUCTURE_VETO": 2,
+      "STALE_TRIGGER": 1
+     },
+     "n_entered": 1,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 15
+      },
+      {
+       "category": "gate",
+       "blocker": "vetoed_by_models",
+       "n": 6
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_pdt",
+       "n": 3
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "not_flat_rule4",
+       "n": 3
+      },
+      {
+       "category": "veto",
+       "blocker": "structure_veto",
+       "n": 2
+      },
+      {
+       "category": "execution",
+       "blocker": "stale_trigger_bar",
+       "n": 1
+      }
+     ]
+    },
+    "pin-day": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-07-22"
+     ],
+     "n_events": 9,
+     "by_stage": {
+      "NO_SIGNAL": 5,
+      "GATE_BLOCK": 4
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 4
+      }
+     ]
+    },
+    "trend-down": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-07-29"
+     ],
+     "n_events": 17,
+     "by_stage": {
+      "NO_SIGNAL": 9,
+      "RISK_GATE_DENY": 3,
+      "OTHER_BLOCK": 1,
+      "GATE_BLOCK": 2,
+      "STRUCTURE_VETO": 2
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_risk_cap",
+       "n": 3
+      },
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 2
+      },
+      {
+       "category": "veto",
+       "blocker": "structure_veto",
+       "n": 2
+      },
+      {
+       "category": "gate",
+       "blocker": "vetoed_by_models",
+       "n": 1
+      }
+     ]
+    }
+   },
+   "bold": {
+    "gap-fade": {
+     "n_days_observed": 5,
+     "dates": [
+      "2026-06-25",
+      "2026-06-26",
+      "2026-07-01",
+      "2026-07-20",
+      "2026-07-27"
+     ],
+     "n_events": 46,
+     "by_stage": {
+      "NO_SIGNAL": 21,
+      "NO_DATA": 2,
+      "GATE_BLOCK": 13,
+      "PLACE_FAIL": 3,
+      "FILLED": 2,
+      "RISK_GATE_DENY": 3,
+      "STALE_TRIGGER": 1,
+      "WINDOW_BLOCK": 1
+     },
+     "n_entered": 2,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "require_bearish_fill_bar",
+       "n": 11
+      },
+      {
+       "category": "execution",
+       "blocker": "broker_reject",
+       "n": 3
+      },
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "not_flat_rule4",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "quality_lock",
+       "n": 1
+      },
+      {
+       "category": "execution",
+       "blocker": "stale_trigger_bar",
+       "n": 1
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 1
+      }
+     ]
+    },
+    "range-chop": {
+     "n_days_observed": 9,
+     "dates": [
+      "2026-06-29",
+      "2026-07-02",
+      "2026-07-07",
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-14",
+      "2026-07-16",
+      "2026-07-17",
+      "2026-07-28"
+     ],
+     "n_events": 144,
+     "by_stage": {
+      "NO_SIGNAL": 65,
+      "GATE_BLOCK": 46,
+      "FILLED": 4,
+      "RISK_GATE_DENY": 14,
+      "WINDOW_BLOCK": 7,
+      "OTHER_BLOCK": 7,
+      "STALE_TRIGGER": 1
+     },
+     "n_entered": 4,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "require_bearish_fill_bar",
+       "n": 26
+      },
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 20
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "not_flat_rule4",
+       "n": 7
+      },
+      {
+       "category": "gate",
+       "blocker": "vetoed_by_models",
+       "n": 7
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 5
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "min_premium_floor",
+       "n": 4
+      },
+      {
+       "category": "window",
+       "blocker": "block_conf_lvl_rec_afternoon",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_risk_cap",
+       "n": 2
+      },
+      {
+       "category": "execution",
+       "blocker": "stale_trigger_bar",
+       "n": 1
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_pdt",
+       "n": 1
+      }
+     ]
+    },
+    "trend-up": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-06-30"
+     ],
+     "n_events": 13,
+     "by_stage": {
+      "NO_SIGNAL": 7,
+      "GATE_BLOCK": 6
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 6
+      }
+     ]
+    },
+    "UNTAGGED": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-07-03"
+     ],
+     "n_events": 3,
+     "by_stage": {
+      "NO_SIGNAL": 2,
+      "NO_DATA": 1
+     },
+     "n_entered": 0,
+     "top_blockers": []
+    },
+    "gap-go": {
+     "n_days_observed": 5,
+     "dates": [
+      "2026-07-06",
+      "2026-07-13",
+      "2026-07-21",
+      "2026-07-23",
+      "2026-07-30"
+     ],
+     "n_events": 56,
+     "by_stage": {
+      "NO_SIGNAL": 28,
+      "GATE_BLOCK": 18,
+      "WINDOW_BLOCK": 8,
+      "FILLED": 1,
+      "RISK_GATE_DENY": 1
+     },
+     "n_entered": 1,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 9
+      },
+      {
+       "category": "gate",
+       "blocker": "require_bearish_fill_bar",
+       "n": 9
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 5
+      },
+      {
+       "category": "window",
+       "blocker": "block_conf_lvl_rec_afternoon",
+       "n": 3
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_pdt",
+       "n": 1
+      }
+     ]
+    },
+    "V-reversal": {
+     "n_days_observed": 3,
+     "dates": [
+      "2026-07-08",
+      "2026-07-15",
+      "2026-07-31"
+     ],
+     "n_events": 51,
+     "by_stage": {
+      "NO_SIGNAL": 25,
+      "RISK_GATE_DENY": 3,
+      "GATE_BLOCK": 21,
+      "OTHER_BLOCK": 1,
+      "STALE_TRIGGER": 1
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 18
+      },
+      {
+       "category": "gate",
+       "blocker": "require_bearish_fill_bar",
+       "n": 3
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "risk_deny_pdt",
+       "n": 2
+      },
+      {
+       "category": "risk_gate",
+       "blocker": "min_premium_floor",
+       "n": 1
+      },
+      {
+       "category": "gate",
+       "blocker": "vetoed_by_models",
+       "n": 1
+      },
+      {
+       "category": "execution",
+       "blocker": "stale_trigger_bar",
+       "n": 1
+      }
+     ]
+    },
+    "pin-day": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-07-22"
+     ],
+     "n_events": 9,
+     "by_stage": {
+      "NO_SIGNAL": 5,
+      "GATE_BLOCK": 4
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 4
+      }
+     ]
+    },
+    "trend-down": {
+     "n_days_observed": 1,
+     "dates": [
+      "2026-07-29"
+     ],
+     "n_events": 13,
+     "by_stage": {
+      "NO_SIGNAL": 6,
+      "GATE_BLOCK": 3,
+      "WINDOW_BLOCK": 4
+     },
+     "n_entered": 0,
+     "top_blockers": [
+      {
+       "category": "gate",
+       "blocker": "require_bearish_fill_bar",
+       "n": 2
+      },
+      {
+       "category": "window",
+       "blocker": "block_conf_lvl_rec_afternoon",
+       "n": 2
+      },
+      {
+       "category": "window",
+       "blocker": "entry_ceiling_15:00",
+       "n": 2
+      },
+      {
+       "category": "gate",
+       "blocker": "block_elite_bull",
+       "n": 1
+      }
+     ]
+    }
+   }
+  }
+ },
+ "participation_full_population_replay": {
+  "window": {
+   "start": "2025-01-02",
+   "end": "2026-07-27",
+   "n_days": 390
+  },
+  "anchor_crosscheck": {
+   "all_pass": false,
+   "baseline_n_trades": {
+    "got": 194,
+    "expected": 191,
+    "pass": false
+   },
+   "baseline_total_pnl": {
+    "got": 4723.95,
+    "expected": 5306.95,
+    "pass": false
+   },
+   "candidates_at_floor8": {
+    "got": 2306,
+    "expected": 2308,
+    "pass": false
+   },
+   "source": "analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.json (same anchors day_report_card.py checks)"
+  },
+  "note": "bear-side RIDE_THE_RIBBON candidate/gate trace, backtest/tools/regime_participation_replay.py. See that script's SCOPE DISCLOSURE for limits (bear-only, no risk-gate visibility, small anchor drift vs the 2026-07-27 LADDER-FULLHIST pin -- disclosed, does not affect candidate/blocker COUNTS).",
+  "by_archetype": {
+   "V-reversal": {
+    "n_days": 11,
+    "n_days_entered": 8,
+    "participation_rate": 0.7273,
+    "n_days_gate_blocked": 3,
+    "n_days_correctly_flat_subqualifying_trigger": 0,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 3,
+      "total_dollars": 1477.5,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-05-30",
+       "2025-07-16",
+       "2025-07-22"
+      ],
+      "avg_dollars_per_day": 492.5
+     },
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 3,
+      "total_dollars": 1364.5,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-08",
+       "2026-01-29",
+       "2026-06-12"
+      ],
+      "avg_dollars_per_day": 454.83
+     },
+     {
+      "cause_key": "EXIT_TOO_LATE",
+      "cause": "EXIT_TOO_LATE",
+      "n_days": 2,
+      "total_dollars": 893.6,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-08-20",
+       "2026-07-15"
+      ],
+      "avg_dollars_per_day": 446.8
+     },
+     {
+      "cause_key": "SHOULD_NOT_HAVE_TRADED",
+      "cause": "SHOULD_NOT_HAVE_TRADED",
+      "n_days": 3,
+      "total_dollars": -414.4,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-20",
+       "2026-04-08",
+       "2026-07-08"
+      ],
+      "avg_dollars_per_day": -138.13
+     }
+    ]
+   },
+   "data-incomplete": {
+    "n_days": 1,
+    "n_days_entered": 1,
+    "participation_rate": 1.0,
+    "n_days_gate_blocked": 0,
+    "n_days_correctly_flat_subqualifying_trigger": 0,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 1,
+      "total_dollars": 549.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-06-15"
+      ],
+      "avg_dollars_per_day": 549.0
+     }
+    ]
+   },
+   "gap-fade": {
+    "n_days": 62,
+    "n_days_entered": 21,
+    "participation_rate": 0.3387,
+    "n_days_gate_blocked": 34,
+    "n_days_correctly_flat_subqualifying_trigger": 7,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 33,
+      "total_dollars": 4700.1,
+      "n_days_dollars_unknown": 5,
+      "dates": [
+       "2025-01-14",
+       "2025-01-31",
+       "2025-02-11",
+       "2025-02-27",
+       "2025-03-07",
+       "2025-03-12",
+       "2025-03-31",
+       "2025-04-01",
+       "2025-04-07",
+       "2025-04-08",
+       "2025-04-09",
+       "2025-04-14",
+       "2025-04-17",
+       "2025-04-30",
+       "2025-05-05",
+       "2025-05-15",
+       "2025-05-29",
+       "2025-07-31",
+       "2025-08-14",
+       "2025-09-05",
+       "2025-10-14",
+       "2025-10-31",
+       "2025-11-03",
+       "2025-11-07",
+       "2025-11-14",
+       "2025-11-20",
+       "2026-02-11",
+       "2026-03-09",
+       "2026-03-13",
+       "2026-03-19",
+       "2026-03-24",
+       "2026-03-30",
+       "2026-04-07"
+      ],
+      "avg_dollars_per_day": 167.86
+     },
+     {
+      "cause_key": "EXIT_TOO_LATE",
+      "cause": "EXIT_TOO_LATE",
+      "n_days": 8,
+      "total_dollars": 3731.4,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-13",
+       "2025-02-24",
+       "2025-03-20",
+       "2025-07-15",
+       "2025-08-07",
+       "2026-02-12",
+       "2026-06-25",
+       "2026-07-27"
+      ],
+      "avg_dollars_per_day": 466.43
+     },
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 1,
+      "total_dollars": 3336.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-06-09"
+      ],
+      "avg_dollars_per_day": 3336.0
+     },
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 6,
+      "total_dollars": 2343.85,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-10-15",
+       "2025-12-11",
+       "2026-01-02",
+       "2026-02-20",
+       "2026-05-21",
+       "2026-07-20"
+      ],
+      "avg_dollars_per_day": 390.64
+     },
+     {
+      "cause_key": "SHOULD_NOT_HAVE_TRADED",
+      "cause": "SHOULD_NOT_HAVE_TRADED",
+      "n_days": 6,
+      "total_dollars": -1354.8,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-07",
+       "2025-03-03",
+       "2025-04-02",
+       "2025-12-15",
+       "2026-03-02",
+       "2026-06-26"
+      ],
+      "avg_dollars_per_day": -225.8
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_9]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 1,
+      "total_dollars": -84.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-04-02"
+      ],
+      "avg_dollars_per_day": -84.0
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 7,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-04-11",
+       "2025-04-29",
+       "2025-05-19",
+       "2025-10-01",
+       "2026-01-12",
+       "2026-02-02",
+       "2026-07-01"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   },
+   "gap-go": {
+    "n_days": 86,
+    "n_days_entered": 30,
+    "participation_rate": 0.3488,
+    "n_days_gate_blocked": 33,
+    "n_days_correctly_flat_subqualifying_trigger": 22,
+    "n_days_no_vocabulary_zero_triggers": 1,
+    "cause_histogram": [
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 21,
+      "total_dollars": 8889.85,
+      "n_days_dollars_unknown": 5,
+      "dates": [
+       "2025-03-06",
+       "2025-03-11",
+       "2025-04-03",
+       "2025-04-04",
+       "2025-04-16",
+       "2025-04-21",
+       "2025-05-21",
+       "2025-10-13",
+       "2025-10-30",
+       "2025-11-13",
+       "2025-11-18",
+       "2026-01-20",
+       "2026-03-06",
+       "2026-03-12",
+       "2026-03-18",
+       "2026-03-20",
+       "2026-03-26",
+       "2026-03-27",
+       "2026-06-05",
+       "2026-06-18",
+       "2026-07-13"
+      ],
+      "avg_dollars_per_day": 555.62
+     },
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 12,
+      "total_dollars": 5067.7,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-10",
+       "2025-06-13",
+       "2025-08-12",
+       "2025-08-22",
+       "2025-09-03",
+       "2025-09-11",
+       "2025-09-25",
+       "2025-11-04",
+       "2026-04-28",
+       "2026-05-08",
+       "2026-06-23",
+       "2026-07-06"
+      ],
+      "avg_dollars_per_day": 422.31
+     },
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 5,
+      "total_dollars": 1724.4,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-08-13",
+       "2025-10-24",
+       "2025-10-27",
+       "2025-11-10",
+       "2026-02-05"
+      ],
+      "avg_dollars_per_day": 344.88
+     },
+     {
+      "cause_key": "EXIT_TOO_LATE",
+      "cause": "EXIT_TOO_LATE",
+      "n_days": 5,
+      "total_dollars": 1361.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-03-18",
+       "2025-06-17",
+       "2025-08-01",
+       "2026-04-17",
+       "2026-05-26"
+      ],
+      "avg_dollars_per_day": 272.2
+     },
+     {
+      "cause_key": "SHOULD_NOT_HAVE_TRADED",
+      "cause": "SHOULD_NOT_HAVE_TRADED",
+      "n_days": 8,
+      "total_dollars": -829.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-05-12",
+       "2025-07-09",
+       "2025-09-18",
+       "2026-01-14",
+       "2026-05-15",
+       "2026-05-19",
+       "2026-07-21",
+       "2026-07-23"
+      ],
+      "avg_dollars_per_day": -103.62
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_5]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 12,
+      "total_dollars": -237.0,
+      "n_days_dollars_unknown": 1,
+      "dates": [
+       "2025-01-03",
+       "2025-02-10",
+       "2025-03-14",
+       "2025-03-19",
+       "2025-05-27",
+       "2025-06-16",
+       "2026-01-05",
+       "2026-03-16",
+       "2026-03-31",
+       "2026-04-01",
+       "2026-04-24",
+       "2026-05-05"
+      ],
+      "avg_dollars_per_day": -21.55
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 22,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-15",
+       "2025-01-17",
+       "2025-01-21",
+       "2025-01-22",
+       "2025-03-24",
+       "2025-04-10",
+       "2025-04-22",
+       "2025-05-02",
+       "2025-06-06",
+       "2025-06-24",
+       "2025-06-30",
+       "2025-07-03",
+       "2025-07-23",
+       "2025-09-15",
+       "2025-10-20",
+       "2025-11-24",
+       "2025-11-26",
+       "2025-12-22",
+       "2026-02-06",
+       "2026-02-25",
+       "2026-04-22",
+       "2026-05-06"
+      ],
+      "avg_dollars_per_day": 0.0
+     },
+     {
+      "cause_key": "NO_VOCABULARY",
+      "cause": "NO_VOCABULARY",
+      "n_days": 1,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-08-04"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   },
+   "inverted-V": {
+    "n_days": 9,
+    "n_days_entered": 2,
+    "participation_rate": 0.2222,
+    "n_days_gate_blocked": 6,
+    "n_days_correctly_flat_subqualifying_trigger": 1,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 1,
+      "total_dollars": 417.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-05-01"
+      ],
+      "avg_dollars_per_day": 417.0
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 4,
+      "total_dollars": 258.35,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-04-15",
+       "2025-05-06",
+       "2025-06-18",
+       "2025-10-03"
+      ],
+      "avg_dollars_per_day": 64.59
+     },
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 1,
+      "total_dollars": 180.25,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-06"
+      ],
+      "avg_dollars_per_day": 180.25
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_5]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 2,
+      "total_dollars": -9.0,
+      "n_days_dollars_unknown": 1,
+      "dates": [
+       "2025-05-01",
+       "2026-07-24"
+      ],
+      "avg_dollars_per_day": -9.0
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 1,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-12-05"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   },
+   "pin-day": {
+    "n_days": 21,
+    "n_days_entered": 4,
+    "participation_rate": 0.1905,
+    "n_days_gate_blocked": 6,
+    "n_days_correctly_flat_subqualifying_trigger": 11,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "EXIT_TOO_LATE",
+      "cause": "EXIT_TOO_LATE",
+      "n_days": 1,
+      "total_dollars": 369.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-12-29"
+      ],
+      "avg_dollars_per_day": 369.0
+     },
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 1,
+      "total_dollars": 169.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-14"
+      ],
+      "avg_dollars_per_day": 169.0
+     },
+     {
+      "cause_key": "SHOULD_NOT_HAVE_TRADED",
+      "cause": "SHOULD_NOT_HAVE_TRADED",
+      "n_days": 2,
+      "total_dollars": -135.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-10-06",
+       "2025-12-09"
+      ],
+      "avg_dollars_per_day": -67.5
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_6]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 2,
+      "total_dollars": -114.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-07-28",
+       "2025-12-30"
+      ],
+      "avg_dollars_per_day": -57.0
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 3,
+      "total_dollars": -30.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-08-18",
+       "2026-01-08",
+       "2026-05-27"
+      ],
+      "avg_dollars_per_day": -10.0
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_1]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 1,
+      "total_dollars": 9.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-07-22"
+      ],
+      "avg_dollars_per_day": 9.0
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 11,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-18",
+       "2025-03-25",
+       "2025-06-09",
+       "2025-06-25",
+       "2025-07-24",
+       "2025-09-08",
+       "2025-09-12",
+       "2025-09-29",
+       "2025-10-21",
+       "2025-12-26",
+       "2026-05-29"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   },
+   "range-chop": {
+    "n_days": 158,
+    "n_days_entered": 65,
+    "participation_rate": 0.4114,
+    "n_days_gate_blocked": 64,
+    "n_days_correctly_flat_subqualifying_trigger": 29,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 22,
+      "total_dollars": 13807.7,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-06",
+       "2025-05-20",
+       "2025-06-26",
+       "2025-08-11",
+       "2025-08-15",
+       "2025-09-17",
+       "2025-09-23",
+       "2025-10-09",
+       "2025-10-28",
+       "2025-11-12",
+       "2025-12-08",
+       "2025-12-12",
+       "2026-01-26",
+       "2026-01-28",
+       "2026-02-04",
+       "2026-02-17",
+       "2026-02-19",
+       "2026-05-04",
+       "2026-05-22",
+       "2026-06-16",
+       "2026-06-22",
+       "2026-06-29"
+      ],
+      "avg_dollars_per_day": 627.62
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 43,
+      "total_dollars": 9521.7,
+      "n_days_dollars_unknown": 1,
+      "dates": [
+       "2025-01-02",
+       "2025-01-24",
+       "2025-02-03",
+       "2025-02-05",
+       "2025-02-26",
+       "2025-03-04",
+       "2025-03-27",
+       "2025-05-07",
+       "2025-05-14",
+       "2025-05-22",
+       "2025-05-23",
+       "2025-06-11",
+       "2025-06-27",
+       "2025-07-11",
+       "2025-07-14",
+       "2025-07-30",
+       "2025-08-21",
+       "2025-08-25",
+       "2025-08-26",
+       "2025-09-02",
+       "2025-09-19",
+       "2025-09-24",
+       "2025-10-16",
+       "2025-10-22",
+       "2025-11-05",
+       "2025-11-17",
+       "2025-11-19",
+       "2025-11-21",
+       "2025-12-01",
+       "2025-12-04",
+       "2026-01-13",
+       "2026-01-16",
+       "2026-01-21",
+       "2026-01-23",
+       "2026-01-30",
+       "2026-02-10",
+       "2026-02-13",
+       "2026-03-03",
+       "2026-03-11",
+       "2026-04-20",
+       "2026-04-23",
+       "2026-05-12",
+       "2026-07-16"
+      ],
+      "avg_dollars_per_day": 226.71
+     },
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 17,
+      "total_dollars": 6955.5,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-07-07",
+       "2025-07-17",
+       "2025-07-21",
+       "2025-07-29",
+       "2025-08-08",
+       "2025-08-19",
+       "2025-09-10",
+       "2025-10-29",
+       "2026-01-27",
+       "2026-02-03",
+       "2026-02-26",
+       "2026-05-07",
+       "2026-05-18",
+       "2026-05-28",
+       "2026-06-08",
+       "2026-06-24",
+       "2026-07-17"
+      ],
+      "avg_dollars_per_day": 409.15
+     },
+     {
+      "cause_key": "EXIT_TOO_LATE",
+      "cause": "EXIT_TOO_LATE",
+      "n_days": 12,
+      "total_dollars": 4867.4,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-29",
+       "2025-01-30",
+       "2025-02-25",
+       "2025-05-09",
+       "2025-06-05",
+       "2025-09-26",
+       "2025-10-07",
+       "2025-12-16",
+       "2026-01-06",
+       "2026-03-05",
+       "2026-04-29",
+       "2026-05-14"
+      ],
+      "avg_dollars_per_day": 405.62
+     },
+     {
+      "cause_key": "SHOULD_NOT_HAVE_TRADED",
+      "cause": "SHOULD_NOT_HAVE_TRADED",
+      "n_days": 14,
+      "total_dollars": -1193.4,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-01-16",
+       "2025-07-18",
+       "2025-08-05",
+       "2025-08-29",
+       "2025-10-02",
+       "2025-12-02",
+       "2026-02-27",
+       "2026-03-17",
+       "2026-04-10",
+       "2026-06-02",
+       "2026-06-03",
+       "2026-07-02",
+       "2026-07-07",
+       "2026-07-14"
+      ],
+      "avg_dollars_per_day": -85.24
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_5]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 17,
+      "total_dollars": 189.0,
+      "n_days_dollars_unknown": 1,
+      "dates": [
+       "2025-01-28",
+       "2025-05-08",
+       "2025-07-08",
+       "2025-10-23",
+       "2025-11-11",
+       "2025-12-18",
+       "2026-01-09",
+       "2026-01-15",
+       "2026-02-18",
+       "2026-03-04",
+       "2026-03-23",
+       "2026-03-25",
+       "2026-04-06",
+       "2026-04-16",
+       "2026-04-30",
+       "2026-05-13",
+       "2026-07-09"
+      ],
+      "avg_dollars_per_day": 11.81
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_6]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 4,
+      "total_dollars": 111.4,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-09-30",
+       "2025-12-03",
+       "2025-12-31",
+       "2026-06-01"
+      ],
+      "avg_dollars_per_day": 27.85
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 29,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-19",
+       "2025-03-17",
+       "2025-04-23",
+       "2025-04-25",
+       "2025-04-28",
+       "2025-05-13",
+       "2025-05-16",
+       "2025-06-04",
+       "2025-06-10",
+       "2025-07-01",
+       "2025-07-02",
+       "2025-07-10",
+       "2025-07-25",
+       "2025-08-06",
+       "2025-08-27",
+       "2025-08-28",
+       "2025-09-09",
+       "2025-09-16",
+       "2025-10-08",
+       "2025-11-28",
+       "2025-12-19",
+       "2025-12-23",
+       "2025-12-24",
+       "2026-01-07",
+       "2026-01-22",
+       "2026-03-10",
+       "2026-04-27",
+       "2026-05-11",
+       "2026-07-10"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   },
+   "trend-down": {
+    "n_days": 14,
+    "n_days_entered": 8,
+    "participation_rate": 0.5714,
+    "n_days_gate_blocked": 5,
+    "n_days_correctly_flat_subqualifying_trigger": 1,
+    "n_days_no_vocabulary_zero_triggers": 0,
+    "cause_histogram": [
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 3,
+      "total_dollars": 2399.3,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-07",
+       "2025-12-17",
+       "2026-06-17"
+      ],
+      "avg_dollars_per_day": 799.77
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 4,
+      "total_dollars": 1951.5,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-03-13",
+       "2025-03-26",
+       "2025-03-28",
+       "2025-10-10"
+      ],
+      "avg_dollars_per_day": 487.88
+     },
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 4,
+      "total_dollars": 1783.95,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-21",
+       "2025-06-20",
+       "2026-02-23",
+       "2026-04-21"
+      ],
+      "avg_dollars_per_day": 445.99
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_9]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 1,
+      "total_dollars": -258.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-06-10"
+      ],
+      "avg_dollars_per_day": -258.0
+     },
+     {
+      "cause_key": "EXIT_TOO_LATE",
+      "cause": "EXIT_TOO_LATE",
+      "n_days": 1,
+      "total_dollars": 231.6,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-11-06"
+      ],
+      "avg_dollars_per_day": 231.6
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 1,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-05-28"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   },
+   "trend-up": {
+    "n_days": 28,
+    "n_days_entered": 4,
+    "participation_rate": 0.1429,
+    "n_days_gate_blocked": 14,
+    "n_days_correctly_flat_subqualifying_trigger": 9,
+    "n_days_no_vocabulary_zero_triggers": 1,
+    "cause_histogram": [
+     {
+      "cause_key": "GREEN",
+      "cause": "GREEN",
+      "n_days": 1,
+      "total_dollars": 752.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-06-11"
+      ],
+      "avg_dollars_per_day": 752.0
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_5]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 4,
+      "total_dollars": 295.95,
+      "n_days_dollars_unknown": 1,
+      "dates": [
+       "2025-02-04",
+       "2025-06-02",
+       "2026-02-24",
+       "2026-04-15"
+      ],
+      "avg_dollars_per_day": 98.65
+     },
+     {
+      "cause_key": "SHOULD_NOT_HAVE_TRADED",
+      "cause": "SHOULD_NOT_HAVE_TRADED",
+      "n_days": 2,
+      "total_dollars": -290.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-12",
+       "2025-06-12"
+      ],
+      "avg_dollars_per_day": -145.0
+     },
+     {
+      "cause_key": "GATE_BLOCKED[filter_8]",
+      "cause": "GATE_BLOCKED",
+      "n_days": 10,
+      "total_dollars": -222.0,
+      "n_days_dollars_unknown": 2,
+      "dates": [
+       "2025-01-23",
+       "2025-01-27",
+       "2025-02-28",
+       "2025-03-05",
+       "2025-03-21",
+       "2025-06-23",
+       "2025-10-17",
+       "2026-04-13",
+       "2026-05-20",
+       "2026-06-04"
+      ],
+      "avg_dollars_per_day": -27.75
+     },
+     {
+      "cause_key": "EXIT_LEFT_MONEY",
+      "cause": "EXIT_LEFT_MONEY",
+      "n_days": 1,
+      "total_dollars": 216.6,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-12-10"
+      ],
+      "avg_dollars_per_day": 216.6
+     },
+     {
+      "cause_key": "CORRECTLY_FLAT",
+      "cause": "CORRECTLY_FLAT",
+      "n_days": 9,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2025-02-13",
+       "2025-04-24",
+       "2025-06-03",
+       "2025-09-04",
+       "2025-09-22",
+       "2025-11-25",
+       "2026-02-09",
+       "2026-04-09",
+       "2026-06-30"
+      ],
+      "avg_dollars_per_day": 0.0
+     },
+     {
+      "cause_key": "NO_VOCABULARY",
+      "cause": "NO_VOCABULARY",
+      "n_days": 1,
+      "total_dollars": 0.0,
+      "n_days_dollars_unknown": 0,
+      "dates": [
+       "2026-04-14"
+      ],
+      "avg_dollars_per_day": 0.0
+     }
+    ]
+   }
+  }
+ }
+}
