@@ -39,6 +39,17 @@ def test_shared_defines_invoke_level_refresh_safe():
     assert "refresh_levels_intraday.py" in src
     assert "run-level-refresh.ps1" in src
     assert "Stop-ProcessTree" in src.split("function Invoke-LevelRefreshSafe", 1)[1]
+    # WATCHDOG-TEST-LOCK-RACE de-flake (2026-08-01, chip task_a85b1cb3): the function must
+    # accept a -LockFile override so tests (and any other future caller) can point it at an
+    # isolated path instead of racing the shared production lock file. Default must still
+    # resolve to the unchanged production path -- see the two asserts below.
+    fn_body = src.split("function Invoke-LevelRefreshSafe", 1)[1]
+    assert re.search(r"\[string\]\$LockFile\s*=", fn_body), (
+        "Invoke-LevelRefreshSafe must accept an optional -LockFile override "
+        "(else every caller -- including tests -- shares one repo-wide lock file)")
+    assert '$LockFile = (Join-Path $WorkDir "automation\\state\\level-refresh-watchdog.lock")' in fn_body, (
+        "the -LockFile default must still resolve to the original production path -- "
+        "production callers that omit -LockFile must be byte-identical to before this fix")
 
 
 def test_watchdog_wires_the_self_heal():
@@ -83,50 +94,104 @@ def test_level_refresh_script_unchanged_by_this_fix():
     assert "refresh_levels_intraday.py" in src
 
 
-def _run_invoke_level_refresh_safe(dummy_script: Path, log_file: Path) -> str:
+# --- WATCHDOG-TEST-LOCK-RACE de-flake (2026-08-01, chip task_a85b1cb3) -----------------
+# DIAGNOSIS (fable-differential, evidence not guess): the two live-subprocess tests below
+# used to point Invoke-LevelRefreshSafe at LOCK_FILE -- the REAL production lock path
+# (automation/state/level-refresh-watchdog.lock), the SAME file real Gamma_TvWatchdog fires
+# AND any other concurrent pytest invocation of THIS test module use. Signature matched the
+# textbook shared-mutable-resource race, not a fetch/logic bug: "passes standalone
+# repeatedly, fails ~50% in paired runs, identical on unmodified code" (STATUS-archive-
+# 2026-08-01 log) -- works alone, breaks under concurrency = contention on shared state, per
+# this repo's own debugging doctrine. One process's New-Item/Remove-Item on the shared lock
+# stomps the other's in-flight subprocess, so the captured stdout/stderr comes back empty --
+# no exception to catch, just silence, exactly matching the observed symptom.
+# FIX: isolate the resource instead of retrying/sleeping around the contention (a sleep or
+# retry would still race, just less often -- banned fake-fix per this repo's doctrine).
+# Invoke-LevelRefreshSafe gained an optional -LockFile override (_shared.ps1, default
+# unchanged -- zero behavior change for the one real production caller, run-tv-watchdog.ps1,
+# which never passes it). Every test below now uses a tmp_path-scoped lock file, which is
+# inherently unique per test invocation AND per concurrent pytest process (pytest's own
+# tmp_path allocator is itself safe under concurrent sessions) -- so two unrelated callers
+# can never again collide on this file, matching how test_lock_blocks_a_concurrent_refresh
+# already proves in-process contention is handled CORRECTLY (that's the lock's actual job);
+# the bug was an out-of-process caller stepping on an unrelated test's lock.
+
+def _run_invoke_level_refresh_safe(dummy_script: Path, log_file: Path, lock_file: Path):
+    """Launch (don't wait). Callers either .communicate() one at a time (serial use) or
+    start two of these back-to-back before communicating either, to genuinely overlap them
+    in wall-clock time (the concurrency proof below)."""
     ps_cmd = (
         f". '{SHARED}'; "
-        f"$r = Invoke-LevelRefreshSafe -Script '{dummy_script}' -LogFile '{log_file}'; "
+        f"$r = Invoke-LevelRefreshSafe -Script '{dummy_script}' -LogFile '{log_file}' "
+        f"-LockFile '{lock_file}'; "
         f"Write-Output \"SKIPPED=$($r.skipped)\""
     )
-    out = subprocess.run(
+    return subprocess.Popen(
         ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", ps_cmd],
-        capture_output=True, text=True, timeout=30,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
-    return out.stdout + out.stderr
+
+
+def _run_and_wait(dummy_script: Path, log_file: Path, lock_file: Path, timeout: int = 30) -> str:
+    proc = _run_invoke_level_refresh_safe(dummy_script, log_file, lock_file)
+    out, err = proc.communicate(timeout=timeout)
+    return out + err
 
 
 def test_lock_blocks_a_concurrent_refresh(tmp_path):
     """Non-vacuous bite: a FRESH lock file must make the function skip WITHOUT invoking the
-    refresh script at all. Uses a harmless dummy .ps1, never the real level refresher."""
+    refresh script at all. Uses a harmless dummy .ps1, never the real level refresher. Lock
+    file lives under tmp_path -- isolated, no longer the shared production path."""
     dummy_script = tmp_path / "dummy_refresh.ps1"
     dummy_script.write_text("Write-Output 'dummy-refresh-ran'\n", encoding="utf-8")
     log_file = tmp_path / "dummy.log"
+    lock_file = tmp_path / "level-refresh-watchdog.lock"
 
-    LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
-    LOCK_FILE.write_text("held", encoding="utf-8")
-    try:
-        result = _run_invoke_level_refresh_safe(dummy_script, log_file)
-        assert "SKIPPED=True" in result, result
-        assert not log_file.exists(), "dummy refresh must NOT run while the lock is fresh"
-    finally:
-        LOCK_FILE.unlink(missing_ok=True)
+    lock_file.write_text("held", encoding="utf-8")
+    result = _run_and_wait(dummy_script, log_file, lock_file)
+    assert "SKIPPED=True" in result, result
+    assert not log_file.exists(), "dummy refresh must NOT run while the lock is fresh"
 
 
 def test_no_lock_allows_refresh_and_cleans_up(tmp_path):
     """Non-vacuous bite: with no lock present, the function must proceed, actually invoke
-    the refresh script, and clean up the lock file afterward."""
+    the refresh script, and clean up the lock file afterward. tmp_path is fresh per test
+    invocation, so the lock is guaranteed absent going in -- no manual unlink needed."""
     dummy_script = tmp_path / "dummy_refresh.ps1"
     dummy_script.write_text("Write-Output 'dummy-refresh-ran'\n", encoding="utf-8")
     log_file = tmp_path / "dummy.log"
+    lock_file = tmp_path / "level-refresh-watchdog.lock"
 
-    LOCK_FILE.unlink(missing_ok=True)
-    try:
-        result = _run_invoke_level_refresh_safe(dummy_script, log_file)
-        assert "SKIPPED=False" in result, result
-        assert log_file.exists()
-        assert "dummy-refresh-ran" in log_file.read_text(encoding="utf-8")
-        assert not LOCK_FILE.exists(), "lock file must be cleaned up after a completed call"
-    finally:
-        LOCK_FILE.unlink(missing_ok=True)
-        log_file.unlink(missing_ok=True)
+    assert not lock_file.exists()
+    result = _run_and_wait(dummy_script, log_file, lock_file)
+    assert "SKIPPED=False" in result, result
+    assert log_file.exists()
+    assert "dummy-refresh-ran" in log_file.read_text(encoding="utf-8")
+    assert not lock_file.exists(), "lock file must be cleaned up after a completed call"
+
+
+def test_bite_concurrent_unrelated_callers_do_not_race_on_isolated_locks(tmp_path):
+    """The actual de-flake proof: TWO calls launched genuinely concurrently (Popen started
+    back-to-back, waited on afterward -- both processes overlap in wall-clock time, the
+    exact 'paired runs' shape that flaked before), each with its OWN isolated lock file
+    (simulating two unrelated concurrent test/watchdog invocations). Both must succeed
+    independently -- neither may see the other's lock or clobber the other's output. Before
+    the fix (both pointed at one shared LOCK_FILE) this is precisely the scenario that
+    produced empty captured subprocess output ~50% of the time."""
+    scripts = []
+    for i in range(2):
+        d = tmp_path / f"lane{i}"
+        d.mkdir()
+        dummy_script = d / "dummy_refresh.ps1"
+        dummy_script.write_text(f"Write-Output 'dummy-refresh-ran-{i}'\n", encoding="utf-8")
+        scripts.append((dummy_script, d / "dummy.log", d / "level-refresh-watchdog.lock"))
+
+    procs = [_run_invoke_level_refresh_safe(s, log, lock) for s, log, lock in scripts]
+    results = [proc.communicate(timeout=30) for proc in procs]
+
+    for i, ((out, err), (dummy_script, log_file, lock_file)) in enumerate(zip(results, scripts)):
+        combined = out + err
+        assert "SKIPPED=False" in combined, f"lane {i}: {combined!r}"
+        assert log_file.exists(), f"lane {i} dummy refresh never ran: {combined!r}"
+        assert f"dummy-refresh-ran-{i}" in log_file.read_text(encoding="utf-8")
+        assert not lock_file.exists(), f"lane {i} lock not cleaned up"

@@ -890,11 +890,20 @@ function Invoke-LevelRefreshSafe {
     # not 30s) because a real refresh_levels_intraday.py run can legitimately take up to
     # the task's own PT3M ExecutionTimeLimit before Task Scheduler itself would kill it --
     # a shorter lock would let the watchdog's OWN relaunch look "stale" and double-fire.
+    #
+    # -LockFile (2026-08-01, WATCHDOG-TEST-LOCK-RACE de-flake, chip task_a85b1cb3): optional
+    # override, defaulting to the UNCHANGED production path so every existing caller (just
+    # run-tv-watchdog.ps1 today) behaves byte-identically. Added because the test suite was
+    # calling this function against the real production lock path -- a shared-mutable-file
+    # race against ANY other concurrent invocation (a paired/parallel test run, another
+    # worktree's pytest, or the live watchdog itself), not a fetch/logic bug. See
+    # test_level_refresh_watchdog_2026_07_30.py for the isolated-tmp_path caller.
     param(
         [Parameter(Mandatory)][string]$Script,
-        [Parameter(Mandatory)][string]$LogFile
+        [Parameter(Mandatory)][string]$LogFile,
+        [string]$LockFile = (Join-Path $WorkDir "automation\state\level-refresh-watchdog.lock")
     )
-    $lockFile = Join-Path $WorkDir "automation\state\level-refresh-watchdog.lock"
+    $lockFile = $LockFile
     if (Test-Path $lockFile) {
         $ageSec = ((Get-Date) - (Get-Item $lockFile).LastWriteTime).TotalSeconds
         if ($ageSec -lt 200) {
