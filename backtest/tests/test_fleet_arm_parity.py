@@ -17,9 +17,14 @@ KEY CONTRACTS PROVED
 1. PERCEPTION-SOURCE ROUTING: safe arms read signal['safe']; risky/bold arms read
    signal['bold']. A bold pass that the SAFE account's ledger didn't match → risky ENTERs,
    safe HOLDs.
-2. PER-ARM GATE: safe-3 / risky-1 (tight, require_confluence_or_sequence) HOLD on non-elite
-   signals and ENTER on elite ones. safe-1 / risky-3 (loose, min_triggers=1) ENTER on any
-   single-trigger pass.
+2. PER-ARM GATE: safe-3 (tight, require_confluence_or_sequence) HOLDs on non-elite signals
+   and ENTERs on elite ones. safe-1 / risky-3 (loose, min_triggers=1) ENTER on any
+   single-trigger pass. risky-1 (RISKY_TIGHT below — name predates the 2026-07-31 FULL-SEND
+   conversion, commit e28d210c) no longer carries min_triggers/require_confluence at all
+   (gate_override is now {"full_send": true}) — its NORMAL lane is therefore UNGATED, same as
+   risky-3, and ENTERs on any single-trigger pass at normal (not min) sizing; the separate
+   full-send MIN-SIZE rescue lane (_full_send_plan, only for producer-cohort-vetoed ticks) is
+   a plan_all-level concern covered by test_full_send_arm.py, not by this fast plan_entry file.
 3. SIZING: safe-1 / safe-3 use SAFE params (base_qty=5 at $2K–10K); risky-1 / risky-3 use
    BOLD params (base_qty=8 at $2K–10K). The _base_params_for routing is the only source of
    this difference.
@@ -40,6 +45,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 _REPO = Path(__file__).resolve().parents[2]
 _FLEET = _REPO / "automation" / "state" / "fleet"
 for _p in (str(_FLEET), str(_REPO / "setup" / "scripts")):
@@ -47,6 +54,24 @@ for _p in (str(_FLEET), str(_REPO / "setup" / "scripts")):
         sys.path.insert(0, _p)
 
 import fleet_executor as fx  # noqa: E402
+
+
+# --- FLEET-PARITY-TESTS-READ-LIVE-STATE (filed 2026-07-27, fixed 2026-08-01) -------
+# _apply_recency_min_sizing (called inside plan_entry) reads the LIVE
+# recency-confirmation.json verdict via fx._recency_verdict(). Every test in this file
+# EXCEPT the ones in section 7 below is testing perception-routing/gating/sizing/strike
+# logic, NOT the recency-clamp feature — so they must run against a FIXED, non-live
+# verdict, or they silently start failing/passing depending on the rig's live P&L state
+# (a guard whose verdict depends on live state is not a guard, C7/C14). Default here is
+# "GREEN" (byte-identical passthrough, matching _apply_recency_min_sizing's own YELLOW/
+# GREEN no-op branches) so every OTHER test in this file exercises un-clamped qty math,
+# same as before the 2026-07-10 recency-sizing feature ever shipped. Section 7 overrides
+# this per-test via monkeypatch to exercise BOTH the RED-clamped and GREEN-unclamped
+# branches explicitly (vary-and-assert, C14) instead of relying on whatever the live file
+# happens to say tonight.
+@pytest.fixture(autouse=True)
+def _fixed_recency_verdict(monkeypatch):
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "GREEN")
 
 # --- Load real arm configs from accounts.json (read-only) -------------------------
 _ACCOUNTS = json.loads((_REPO / "automation" / "state" / "fleet" / "accounts.json").read_text(encoding="utf-8"))
@@ -61,6 +86,19 @@ SPY_SPOT   = 600.0
 EQUITY_2K  = 2000.0  # real starting equity for risky arms; also tests safe arms at $2K
 
 # --- Signal construction helpers ---------------------------------------------------
+# NOTE (FLEET-PARITY-TESTS-READ-LIVE-STATE, fixed 2026-08-01): build_shared_signal.py's
+# GATE-TIERS-IMPLEMENT (2026-07-23) made "score_peak_passed"/"hard_skip_action" ride
+# ALONGSIDE the unchanged "passed" field (see build_shared_signal.py:383-388) so
+# fleet_executor._effective_passed() can rescue a hard-skip-only block for an arm whose
+# gate_params.hard_skip_verdicts opts out (risky-3/RISKY_LOOSE, the only arm with an
+# empty hard_skip_verdicts list today). score_peak_passed is a SUPERSET of passed (true
+# whenever passed is true, plus hard-skip-only cases); these synthetic fixtures never
+# simulate a hard-skip scenario, so score_peak_passed mirrors passed exactly and
+# hard_skip_action is always None. Without this field these blocks were a STALE fixture
+# against the real producer contract — RISKY_LOOSE could never pass _effective_passed's
+# score_peak_passed branch and every RISKY_LOOSE test silently HELD regardless of the
+# signal shape (a producer/consumer contract drift, C7/C14 — caught while fixing the
+# separate live-recency-state issue in the same suite).
 def _bear_block(passed: bool, *, confluence: bool = False, n_triggers: int = 1) -> dict:
     trigs = ["level_reject"] * n_triggers
     if confluence:
@@ -68,6 +106,8 @@ def _bear_block(passed: bool, *, confluence: bool = False, n_triggers: int = 1) 
     return {
         "passed": passed,
         "score": 9 if passed else 3,
+        "score_peak_passed": passed,
+        "hard_skip_action": None,
         "triggers_fired": trigs if passed else [],
         "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON" if passed else None,
         "confluence": confluence and passed,
@@ -81,6 +121,8 @@ def _bull_block(passed: bool, *, confluence: bool = False, n_triggers: int = 1) 
     return {
         "passed": passed,
         "score": 9 if passed else 3,
+        "score_peak_passed": passed,
+        "hard_skip_action": None,
         "triggers_fired": trigs if passed else [],
         "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON" if passed else None,
         "confluence": confluence and passed,
@@ -193,13 +235,18 @@ def test_safe_tight_enters_on_elite_safe_bear():
 # 3. RISKY ARM GATE (reads signal['bold'])
 # =============================================================================
 
-def test_risky_tight_holds_on_non_elite_bold_bear():
-    """RISKY_TIGHT (min_triggers=2, require_confluence): bold bear pass but non-elite → HOLD."""
+def test_risky_tight_enters_on_non_elite_bold_bear_since_fullsend_conversion():
+    """RISKY_TIGHT (risky-1) lost its min_triggers/require_confluence gate on 2026-07-31
+    (FULL-SEND conversion, commit e28d210c: gate_override -> {"full_send": true}). Its
+    NORMAL lane (this test calls plan_entry directly, not the plan_all rescue lane) is now
+    UNGATED — a non-elite bold bear pass ENTERs at BASE quality, same shape as RISKY_LOOSE.
+    This is a DELIBERATE behavior change, not a bug — pinned here so a future accounts.json
+    edit that silently re-tightens (or a revert per the commit's own REVOKE line) is visible
+    as an intentional test change, not a mystery regression."""
     sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=False)
     plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
-    assert plan.action == "HOLD"
-    reason = plan.reason.lower()
-    assert "confluence" in reason or "elite" in reason, plan.reason
+    assert plan.action == "ENTER", plan.reason
+    assert plan.quality == "BASE"
 
 
 def test_risky_tight_enters_on_elite_bold_bear():
@@ -343,6 +390,65 @@ def test_safe_perception_missing_bold_sub_block_falls_back_BITE():
         f"risky arm without signal['bold'] must fall back to HOLD, got {plan.reason}"
 
 
+# =============================================================================
+# 7. RECENCY-CONDITIONED MIN-SIZING — both branches exercised explicitly against a
+#    MOCKED verdict (never the live recency-confirmation.json), per FLEET-PARITY-
+#    TESTS-READ-LIVE-STATE (filed 2026-07-27). ribbon_ride ONLY (C29 scope); RED clamps
+#    qty down to min_contracts, GREEN/YELLOW pass through byte-identical.
+# =============================================================================
+
+def test_recency_red_clamps_risky_elite_qty(monkeypatch):
+    """RED verdict clamps risky-1's elite ribbon_ride qty 12->min_contracts (5)."""
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
+    plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
+    assert plan.action == "ENTER"
+    assert plan.qty == 5, f"RED verdict should clamp risky-1 elite qty to min_contracts, got {plan.qty}"
+    assert "recency red" in plan.reason.lower(), plan.reason
+
+
+def test_recency_red_clamps_safe_elite_qty(monkeypatch):
+    """RED verdict clamps safe-3's elite ribbon_ride qty 8->min_contracts (3)."""
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
+    sig = _dual_signal(safe_bear_passed=True, n_triggers=2, confluence=True)
+    plan = fx.plan_entry(SAFE_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(SAFE_TIGHT))
+    assert plan.action == "ENTER"
+    assert plan.qty == 3, f"RED verdict should clamp safe-3 elite qty to min_contracts, got {plan.qty}"
+    assert "recency red" in plan.reason.lower(), plan.reason
+
+
+def test_recency_green_does_not_clamp_risky_elite_qty(monkeypatch):
+    """GREEN verdict is a no-op: risky-1 elite qty stays at the full 12 (unclamped branch,
+    explicit — not just relying on the autouse fixture default)."""
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "GREEN")
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
+    plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
+    assert plan.action == "ENTER"
+    assert plan.qty == 12, f"GREEN verdict must not clamp risky-1 elite qty, got {plan.qty}"
+    assert "recency" not in plan.reason.lower(), plan.reason
+
+
+def test_recency_yellow_does_not_clamp_risky_elite_qty(monkeypatch):
+    """YELLOW (not-yet-confirmed) is also a no-op per the shipped design — only RED clamps."""
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "YELLOW")
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
+    plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
+    assert plan.action == "ENTER"
+    assert plan.qty == 12, f"YELLOW verdict must not clamp risky-1 elite qty, got {plan.qty}"
+
+
+def test_recency_red_clamps_base_tier_ribbon_ride_too(monkeypatch):
+    """RED clamps by STRATEGY (ribbon_ride, C29), not by quality tier — RISKY_LOOSE's
+    non-elite BASE-tier entry is the same strategy and gets clamped too: base qty 8 ->
+    min_contracts 5 (risky-3's floor). Confirms the clamp scope is strategy-wide, not
+    elite-only."""
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=1, confluence=False)
+    plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
+    assert plan.action == "ENTER"
+    assert plan.qty == 5, f"base qty (8) should clamp to risky-3's min_contracts (5), got {plan.qty}"
+    assert "recency red" in plan.reason.lower(), plan.reason
+
+
 if __name__ == "__main__":
-    import pytest
     pytest.main([__file__, "-v"])
