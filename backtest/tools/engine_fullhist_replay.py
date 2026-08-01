@@ -87,6 +87,7 @@ from lib.orchestrator import run_backtest  # noqa: E402
 from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
 from lib.option_pricing_real import load_contract_bars, option_symbol  # noqa: E402
 from lib.ribbon import compute_ribbon  # noqa: E402
+from lib.regime_slice import per_archetype_rows, archetype_of, ARCHETYPES, UNTAGGED  # noqa: E402 -- WS6
 
 DATA = REPO / "data"
 SPY_FILE = DATA / "spy_5m_2025-01-01_2026-07-22.csv"
@@ -126,6 +127,13 @@ ANCHOR_DAY_TOL = 60.0
 ANCHOR_QUIET_DAY = dt.date(2026, 7, 21)
 ANCHOR_QUIET_DAY_EXPECT_ENTRIES = [("14:58", 748, "P", "TRENDLINE", 0.0)]
 ANCHOR_ZERO_DAY = dt.date(2026, 7, 22)
+
+# Per-archetype breakdown (WS6 regime library first real consumer, 2026-08-01): a cell with
+# fewer than this many observations is flagged UNDERPOWERED rather than silently trusted --
+# same n>=15 evidence floor CLAUDE.md OP-11 already treats as the "advisory" line for any
+# evidence_n cited toward a ratification decision, reused here so the bar is not invented
+# fresh for this one report.
+EVIDENCE_FLOOR_N = 15
 
 
 def log(msg: str) -> None:
@@ -307,6 +315,41 @@ def main() -> int:
     return 0
 
 
+def build_per_archetype_days(day_series: pd.Series, evidence_floor: int = EVIDENCE_FLOOR_N) -> dict:
+    """DAY-LEVEL per-archetype split (WS6 regime library, first real consumer -- 2026-08-01):
+    every calendar RTH day in the window (day_series is already 0-filled on no-trade days) --
+    directly comparable to the headline's dollar_per_calendar_day_avg, sliced by archetype
+    instead of aggregated over the whole window. Pure function of a {date-like: float} series
+    (or anything .to_dict()-able the same way) so it is unit-testable without the merged
+    SPY/VIX data files or an OPRA fetch -- see test_engine_fullhist_replay.py.
+
+    Returns {archetype: {"archetype", "n", "total", "mean", "underpowered"}} keyed exactly
+    like lib.regime_slice.per_archetype_rows's own rows, plus one boolean flag."""
+    rows = per_archetype_rows(day_series.to_dict())
+    return {r["archetype"]: {**r, "underpowered": r["n"] < evidence_floor} for r in rows}
+
+
+def build_per_archetype_trades(df: pd.DataFrame, evidence_floor: int = EVIDENCE_FLOOR_N) -> dict:
+    """TRADE-LEVEL per-archetype split: n_trades/win_rate/total_pnl/avg_trade per archetype,
+    matching per_setup/per_side/per_tier's own shape. Day-level $/day (build_per_archetype_days)
+    cannot show whether WIN RATE differs by archetype -- a day with zero trades contributes $0
+    either way, diluting that signal; this cut answers it directly. Mutates df in place by
+    adding an 'archetype' column (matches this module's existing per_regime/per_setup style,
+    which also mutate df) -- pure with respect to everything else (no I/O)."""
+    df["archetype"] = df["date"].apply(lambda d: archetype_of(d) or UNTAGGED)
+    out = {}
+    for arch, g in df.groupby("archetype"):
+        wins = g[g["dollar_pnl"] > 0]
+        n = len(g)
+        out[arch] = {
+            "n_trades": n, "total_pnl": round(g["dollar_pnl"].sum(), 2),
+            "win_rate": round(len(wins) / n, 4) if n else None,
+            "avg_trade": round(g["dollar_pnl"].mean(), 2) if n else None,
+            "underpowered": n < evidence_floor,
+        }
+    return out
+
+
 def write_scorecard(rows, r, n_no_opra, n_no_spy_day, spy_df, entry_elapsed, exit_elapsed, total_elapsed) -> None:
     df = pd.DataFrame(rows)
     df["dollar_pnl"] = df["dollar_pnl"].astype(float)
@@ -364,6 +407,15 @@ def write_scorecard(rows, r, n_no_opra, n_no_spy_day, spy_df, entry_elapsed, exi
             "win_rate": round(len(reg_wins) / len(g), 4) if len(g) else None,
             "avg_trade": round(g["dollar_pnl"].mean(), 2) if len(g) else None,
         }
+
+    # --- per-archetype split (WS6 regime library, first real consumer -- 2026-08-01) -------
+    # `per_regime` above is a crude calendar-half proxy for "does performance differ by
+    # market condition" -- this is the same question answered with the actual deterministic
+    # day-shape taxonomy instead of a wall-clock date range. See build_per_archetype_days /
+    # build_per_archetype_trades docstrings for the two cuts' rationale.
+    per_archetype_days = build_per_archetype_days(day_series)
+    per_archetype_trades = build_per_archetype_trades(df)
+    n_untagged_trades = per_archetype_trades.get(UNTAGGED, {}).get("n_trades", 0)
 
     # --- per-setup / per-direction / per-tier attribution ---
     per_setup = {}
@@ -459,6 +511,18 @@ def write_scorecard(rows, r, n_no_opra, n_no_spy_day, spy_df, entry_elapsed, exi
         },
         "j_framing": j_framing,
         "per_regime": per_regime,
+        "per_archetype_days": per_archetype_days,
+        "per_archetype_trades": per_archetype_trades,
+        "per_archetype_note": (
+            "WS6 regime library (analysis/regime-library/day-archetypes.json), first real "
+            "consumer via lib/regime_slice.py. 'days' = every calendar RTH day in window, "
+            "0-filled on no-trade days (comparable to headline dollar_per_calendar_day_avg); "
+            "'trades' = per-trade attribution matching per_setup/per_side/per_tier's shape. "
+            f"underpowered = n < {EVIDENCE_FLOOR_N} (CLAUDE.md OP-11's evidence_n advisory "
+            f"floor, reused). n_untagged_trades={n_untagged_trades} (dates outside the "
+            "library's window would land here, loudly, never silently folded into a real "
+            "archetype -- see regime_slice.UNTAGGED)."
+        ),
         "per_setup": per_setup,
         "per_side": per_side,
         "per_tier": per_tier,
@@ -597,6 +661,39 @@ def write_markdown(out: dict) -> None:
         v = out["per_regime"].get(reg, {})
         if v:
             L.append(f"| {reg} | {v['n_trades']} | ${v['total_pnl']:+,.2f} | {v['win_rate']} | ${v['avg_trade']:+.2f} |")
+    L += [
+        "",
+        "## Per-archetype (WS6 regime library -- first real consumer)",
+        "",
+        out["per_archetype_note"],
+        "",
+        "### Day-level (all calendar days, 0-filled on no-trade days -- comparable to the "
+        "$/calendar-day headline)",
+        "",
+        "| Archetype | N days | Total P&L | $/day (mean) | Underpowered? |",
+        "|---|---:|---:|---:|:---:|",
+    ]
+    for arch in list(ARCHETYPES) + ["data-incomplete", "UNTAGGED", "ALL"]:
+        v = out["per_archetype_days"].get(arch)
+        if not v:
+            continue
+        flag = "**yes**" if v["underpowered"] else "no"
+        L.append(f"| {arch} | {v['n']} | ${v['total']:+,.2f} | ${v['mean']:+.2f} | {flag} |")
+    L += [
+        "",
+        "### Trade-level (n_trades / win rate / total P&L per archetype -- matches the "
+        "per-setup table's shape)",
+        "",
+        "| Archetype | N trades | Total P&L | WR | Avg/trade | Underpowered? |",
+        "|---|---:|---:|---:|---:|:---:|",
+    ]
+    for arch in list(ARCHETYPES) + ["data-incomplete", "UNTAGGED"]:
+        v = out["per_archetype_trades"].get(arch)
+        if not v:
+            continue
+        flag = "**yes**" if v["underpowered"] else "no"
+        L.append(f"| {arch} | {v['n_trades']} | ${v['total_pnl']:+,.2f} | {v['win_rate']} | "
+                 f"${v['avg_trade']:+.2f} | {flag} |")
     L += ["", "## Per-setup / per-side / per-tier", "",
           "| Setup | N | Total P&L | WR |", "|---|---|---|---|"]
     for k, v in out["per_setup"].items():

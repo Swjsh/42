@@ -1,6 +1,6 @@
 {
   "_doc": "engine_fullhist_replay.py -- FULL-HISTORY production-parity replay of the CURRENT LIVE\ncore-Safe engine, ordered by J 2026-07-23 (\"every day we have needs a walkthrough on the\nengine -- max days of data and testing\"). Scorecard: analysis/recommendations/\nengine-fullhist-replay-2026-07-23.{json,md}.\n\nTWO-LAYER DESIGN (the SIM-EXIT-SHAPE-PARITY trap, see queue.md + regime_readjudication_\ncorrectexit.py 2026-07-17, applies here exactly and is deliberately routed around):\n\n  ENTRY layer: backtest/lib/orchestrator.py#run_backtest(**SAFE_BASE_LIVE) -- the\n    engine_cli-equivalent score+gate+filter cascade (markdown/specs/BACKTEST-AS-HEARTBEAT-\n    DESIGN.md). SAFE_BASE_LIVE is elite_bear_level_reject_gate_ab.py's SAFE_BASE (itself a\n    hand-built, field-cited translation of automation/state/params.json), re-verified field-\n    by-field against TODAY's (2026-07-22) params.json before this run -- zero drift found in\n    any of: strike tier (ATM, V15_SAFE_TIERS <$10K), premium catastrophe caps (-50%/-50%),\n    tp1 (0.5/0.8), runner (2.5x), chart-stop buffer (0.5), time-stop (15:40 ET), f9_vol_mult\n    (0.7), min_triggers (1 bear/2 bull), entry window (09:35-15:00 ET), block_level_rejection,\n    block_elite_bull (VIX[0,25)), entry_bar_body_pct_min (0.2), block_bull_1100_1200,\n    midday_trendline_gate (off), ribbon momentum/duration gates (both off, L107), vix_bear_\n    hard_cap (23.0), per_trade_risk_cap_pct (0.30, Rule 6 Safe), enable_bullish (true, OP-16),\n    min_entry_premium (0.3). Only initial_equity is bumped from the study's $1,724.53\n    (2026-07-17 live-verified) to $1,746.75 (2026-07-11 CLAUDE.md live-verified figure, the\n    most current on record) -- both static (this repo's established full-window-study\n    convention; NOT a compounding account curve, disclosed in the scorecard).\n\n  EXIT layer: backtest/lib/exit_manager_walk.py#walk_exit_manager, driving the REAL\n    automation/state/fleet/exit_manager.py#plan_exit_actions decision core under the REAL\n    automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict() shape -- NOT\n    simulate_trade_real's dollar_pnl, which sources exit knobs from params.json's TOP-LEVEL\n    keys (profit_lock_mode=\"fixed\", tp1_premium_pct=0.5, runner_max_premium_pct=2.5) and is\n    KNOWN-DIVERGENT from the live shape (profit_lock_mode=\"trailing\" chandelier arm+5%/\n    trail15%, tp1_premium_pct=1.0, runner_target_pct=99.0, stop_mode=\"structure\"). Every raw\n    TradeFill.dollar_pnl from run_backtest is DISCARDED; only entry metadata (time, side,\n    strike, qty, entry_premium, trigger_level, triggers_fired) survives into the exit re-\n    derivation. This is the SAME pattern regime_readjudication_correctexit.py shipped\n    2026-07-17 (16-trade cohort), extended here to the FULL population of ribbon_ride entries\n    across the full 18-month OPRA-covered window.\n\nFIDELITY IMPROVEMENT over the 2026-07-17 precedent: that script passed ribbon_tick_df=None\n(ribbon_flip_back exits never fire in its replay) because its 16-trade cohort didn't warrant\nbuilding the alignment. This script builds ribbon_tick_df PROPERLY: computes the ribbon once\nover the FULL continuous RTH close series (identical to what run_backtest computes internally\nfor scoring -- same warmup, same continuity across days), then for each trade does a backward\n(no-lookahead) merge_asof onto that trade's OWN option-contract bar timestamps, so\nribbon_flip_back exits are modeled instead of silently disabled.\n\nSCOPE DISCLOSURE (OP-20): orchestrator.run_backtest only models the RIDE_THE_RIBBON family\n(BEARISH_REJECTION_RIDE_THE_RIBBON / BULLISH_RECLAIM_RIDE_THE_RIBBON) -- the two setups in\nparams.json's setups_allowed. It does NOT model the \"extra setups\" dispatched via\nsetup_dispatch.py (bollinger_squeeze, vwap_continuation, vwap_reclaim_failed_break,\nvix_regime_dayside, double_bottom_base_quiet, gap_and_go) -- each of those places real Safe-\npaper orders live today but has no production-parity FULL-HISTORY batch-replay harness in\nthis codebase as of this run (exit_manager_replay.py's own scope is single-day/today-only).\nThis scorecard is therefore the CORE ribbon_ride path's honest full-history number -- it\nUNDERSTATES total Safe-account P&L by omitting the extra-setup contribution, and is silent on\nBold/aggressive entirely (Safe-account params + strike tier only, per the task's brief).\n\nReal OPRA fills only: any trade whose contract CSV is not locally cached (backtest/data/\noptions/{symbol}.csv, populated by tools/fetch_option_data.py) is EXCLUDED and counted, never\nsynthesized via Black-Scholes -- run_backtest(use_real_fills=True) itself already returns None\n(no trade) from simulate_trade_real for any entry whose contract isn't cached (lib/\nsimulator_real.py:420-422), so the raw TradeFill population is already real-fills-only at\nentry; this script's own OPRA lookup for the EXIT re-derivation is a second, independent check\n(n_no_opra_for_exit, should be ~0 given the entry already required the same cache).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/engine_fullhist_replay.py\n",
-  "generated_at": "2026-07-22T20:52:52.372265",
+  "generated_at": "2026-08-01T13:10:30.446508",
   "window": {
     "start": "2025-01-02",
     "end": "2026-07-22",
@@ -57,23 +57,23 @@
     "structure_stop_enabled": true
   },
   "data_quality": {
-    "n_raw_entries_from_orchestrator": 206,
-    "n_replayed": 190,
+    "n_raw_entries_from_orchestrator": 207,
+    "n_replayed": 191,
     "n_excluded_no_opra_cache": 16,
     "n_excluded_no_spy_day": 0,
     "note": "run_backtest(use_real_fills=True) itself already refuses (returns no trade) any entry whose OPRA contract isn't cached (simulator_real.py:420-422) -- the raw entry population is already real-fills-only. n_excluded_* here is this script's OWN independent re-check during the exit re-derivation pass."
   },
   "headline": {
-    "total_pnl": 5064.75,
-    "n_trades": 190,
-    "win_rate": 0.2947,
-    "profit_factor": 1.333,
-    "avg_pnl_per_trade": 26.66,
-    "max_drawdown": -2233.4,
+    "total_pnl": 4808.75,
+    "n_trades": 191,
+    "win_rate": 0.2932,
+    "profit_factor": 1.311,
+    "avg_pnl_per_trade": 25.18,
+    "max_drawdown": -2489.4,
     "max_drawdown_date": "2025-06-12",
-    "dollar_per_calendar_day_avg": 13.09,
+    "dollar_per_calendar_day_avg": 12.43,
     "dollar_per_calendar_day_median": 0.0,
-    "dollar_per_trading_day_avg": 35.92,
+    "dollar_per_trading_day_avg": 34.1,
     "dollar_per_trading_day_median": -63.0,
     "n_trading_days": 141,
     "n_calendar_days": 387,
@@ -83,18 +83,18 @@
     "goal_dollar_per_day_low": 100,
     "goal_dollar_per_day_high": 200,
     "goal_basis": "FOCUS-DOCTRINE $100-200/day at $2K account (per task brief)",
-    "actual_dollar_per_calendar_day_avg": 13.09,
-    "actual_dollar_per_trading_day_avg": 35.92,
+    "actual_dollar_per_calendar_day_avg": 12.43,
+    "actual_dollar_per_trading_day_avg": 34.1,
     "pct_days_traded": 36.4,
     "meets_goal_on_calendar_day_basis": "False",
     "meets_goal_on_trading_day_basis": "False"
   },
   "per_regime": {
     "2025H1": {
-      "n_trades": 38,
-      "total_pnl": -55.55,
-      "win_rate": 0.2368,
-      "avg_trade": -1.46
+      "n_trades": 39,
+      "total_pnl": -311.55,
+      "win_rate": 0.2308,
+      "avg_trade": -7.99
     },
     "2025H2": {
       "n_trades": 72,
@@ -109,6 +109,144 @@
       "avg_trade": 43.58
     }
   },
+  "per_archetype_days": {
+    "trend-up": {
+      "archetype": "trend-up",
+      "n": 28,
+      "total": 180.6,
+      "mean": 6.45,
+      "underpowered": false
+    },
+    "trend-down": {
+      "archetype": "trend-down",
+      "n": 14,
+      "total": 811.05,
+      "mean": 57.9321,
+      "underpowered": true
+    },
+    "V-reversal": {
+      "archetype": "V-reversal",
+      "n": 11,
+      "total": 602.5,
+      "mean": 54.7727,
+      "underpowered": true
+    },
+    "inverted-V": {
+      "archetype": "inverted-V",
+      "n": 8,
+      "total": 156.25,
+      "mean": 19.5312,
+      "underpowered": true
+    },
+    "range-chop": {
+      "archetype": "range-chop",
+      "n": 158,
+      "total": 1396.4,
+      "mean": 8.838,
+      "underpowered": false
+    },
+    "pin-day": {
+      "archetype": "pin-day",
+      "n": 21,
+      "total": -430.8,
+      "mean": -20.5143,
+      "underpowered": false
+    },
+    "gap-go": {
+      "archetype": "gap-go",
+      "n": 85,
+      "total": 2911.1,
+      "mean": 34.2482,
+      "underpowered": false
+    },
+    "gap-fade": {
+      "archetype": "gap-fade",
+      "n": 61,
+      "total": -884.35,
+      "mean": -14.4975,
+      "underpowered": false
+    },
+    "data-incomplete": {
+      "archetype": "data-incomplete",
+      "n": 1,
+      "total": 66.0,
+      "mean": 66.0,
+      "underpowered": true
+    },
+    "ALL": {
+      "archetype": "ALL",
+      "n": 387,
+      "total": 4808.75,
+      "mean": 12.4257,
+      "underpowered": false
+    }
+  },
+  "per_archetype_trades": {
+    "V-reversal": {
+      "n_trades": 11,
+      "total_pnl": 602.5,
+      "win_rate": 0.3636,
+      "avg_trade": 54.77,
+      "underpowered": true
+    },
+    "data-incomplete": {
+      "n_trades": 1,
+      "total_pnl": 66.0,
+      "win_rate": 1.0,
+      "avg_trade": 66.0,
+      "underpowered": true
+    },
+    "gap-fade": {
+      "n_trades": 30,
+      "total_pnl": -884.35,
+      "win_rate": 0.2667,
+      "avg_trade": -29.48,
+      "underpowered": false
+    },
+    "gap-go": {
+      "n_trades": 37,
+      "total_pnl": 2911.1,
+      "win_rate": 0.3243,
+      "avg_trade": 78.68,
+      "underpowered": false
+    },
+    "inverted-V": {
+      "n_trades": 2,
+      "total_pnl": 156.25,
+      "win_rate": 0.5,
+      "avg_trade": 78.12,
+      "underpowered": true
+    },
+    "pin-day": {
+      "n_trades": 6,
+      "total_pnl": -430.8,
+      "win_rate": 0.0,
+      "avg_trade": -71.8,
+      "underpowered": true
+    },
+    "range-chop": {
+      "n_trades": 86,
+      "total_pnl": 1396.4,
+      "win_rate": 0.2907,
+      "avg_trade": 16.24,
+      "underpowered": false
+    },
+    "trend-down": {
+      "n_trades": 13,
+      "total_pnl": 811.05,
+      "win_rate": 0.3077,
+      "avg_trade": 62.39,
+      "underpowered": true
+    },
+    "trend-up": {
+      "n_trades": 5,
+      "total_pnl": 180.6,
+      "win_rate": 0.2,
+      "avg_trade": 36.12,
+      "underpowered": true
+    }
+  },
+  "per_archetype_note": "WS6 regime library (analysis/regime-library/day-archetypes.json), first real consumer via lib/regime_slice.py. 'days' = every calendar RTH day in window, 0-filled on no-trade days (comparable to headline dollar_per_calendar_day_avg); 'trades' = per-trade attribution matching per_setup/per_side/per_tier's shape. underpowered = n < 15 (CLAUDE.md OP-11's evidence_n advisory floor, reused). n_untagged_trades=0 (dates outside the library's window would land here, loudly, never silently folded into a real archetype -- see regime_slice.UNTAGGED).",
   "per_setup": {
     "BEARISH_REJECTION_RIDE_THE_RIBBON": {
       "n_trades": 151,
@@ -116,16 +254,16 @@
       "win_rate": 0.2649
     },
     "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
-      "n_trades": 39,
-      "total_pnl": 2335.4,
-      "win_rate": 0.4103
+      "n_trades": 40,
+      "total_pnl": 2079.4,
+      "win_rate": 0.4
     }
   },
   "per_side": {
     "C": {
-      "n_trades": 39,
-      "total_pnl": 2335.4,
-      "win_rate": 0.4103
+      "n_trades": 40,
+      "total_pnl": 2079.4,
+      "win_rate": 0.4
     },
     "P": {
       "n_trades": 151,
@@ -140,9 +278,9 @@
       "win_rate": 0.7273
     },
     "LEVEL": {
-      "n_trades": 18,
-      "total_pnl": -990.45,
-      "win_rate": 0.2778
+      "n_trades": 19,
+      "total_pnl": -1246.45,
+      "win_rate": 0.2632
     },
     "SUPER": {
       "n_trades": 37,
@@ -544,6 +682,10 @@
       "n_trades": 1,
       "total_pnl": -159.0
     },
+    "structure_stop @ 607.445": {
+      "n_trades": 1,
+      "total_pnl": -256.0
+    },
     "structure_stop @ 609.0": {
       "n_trades": 1,
       "total_pnl": -128.0
@@ -656,11 +798,11 @@
       "n_trades": 1,
       "total_pnl": -153.0
     },
-    "time_stop_15:50": {
+    "time_stop_15:40": {
       "n_trades": 6,
       "total_pnl": 280.0
     },
-    "time_stop_15:50 (runner)": {
+    "time_stop_15:40 (runner)": {
       "n_trades": 4,
       "total_pnl": 2556.0
     }
@@ -717,6 +859,10 @@
       "pnl": -708.0
     },
     {
+      "date": "2025-02-07",
+      "pnl": -444.0
+    },
+    {
       "date": "2025-01-29",
       "pnl": -420.6
     },
@@ -743,10 +889,6 @@
     {
       "date": "2025-09-17",
       "pnl": -298.2
-    },
-    {
-      "date": "2026-06-22",
-      "pnl": -292.0
     }
   ],
   "equity_curve": [
@@ -872,1818 +1014,1818 @@
     },
     {
       "date": "2025-02-07",
-      "day_pnl": -188.0,
-      "cum_pnl": 227.45
+      "day_pnl": -444.0,
+      "cum_pnl": -28.55
     },
     {
       "date": "2025-02-10",
       "day_pnl": 0.0,
-      "cum_pnl": 227.45
+      "cum_pnl": -28.55
     },
     {
       "date": "2025-02-11",
       "day_pnl": 0.0,
-      "cum_pnl": 227.45
+      "cum_pnl": -28.55
     },
     {
       "date": "2025-02-12",
       "day_pnl": -230.0,
-      "cum_pnl": -2.55
+      "cum_pnl": -258.55
     },
     {
       "date": "2025-02-13",
       "day_pnl": 0.0,
-      "cum_pnl": -2.55
+      "cum_pnl": -258.55
     },
     {
       "date": "2025-02-14",
       "day_pnl": -157.8,
-      "cum_pnl": -160.35
+      "cum_pnl": -416.35
     },
     {
       "date": "2025-02-18",
       "day_pnl": 0.0,
-      "cum_pnl": -160.35
+      "cum_pnl": -416.35
     },
     {
       "date": "2025-02-19",
       "day_pnl": 0.0,
-      "cum_pnl": -160.35
+      "cum_pnl": -416.35
     },
     {
       "date": "2025-02-20",
       "day_pnl": -169.2,
-      "cum_pnl": -329.55
+      "cum_pnl": -585.55
     },
     {
       "date": "2025-02-21",
       "day_pnl": 616.0,
-      "cum_pnl": 286.45
+      "cum_pnl": 30.45
     },
     {
       "date": "2025-02-24",
       "day_pnl": -26.8,
-      "cum_pnl": 259.65
+      "cum_pnl": 3.65
     },
     {
       "date": "2025-02-25",
       "day_pnl": -70.2,
-      "cum_pnl": 189.45
+      "cum_pnl": -66.55
     },
     {
       "date": "2025-02-26",
       "day_pnl": 0.0,
-      "cum_pnl": 189.45
+      "cum_pnl": -66.55
     },
     {
       "date": "2025-02-27",
       "day_pnl": 0.0,
-      "cum_pnl": 189.45
+      "cum_pnl": -66.55
     },
     {
       "date": "2025-02-28",
       "day_pnl": 0.0,
-      "cum_pnl": 189.45
+      "cum_pnl": -66.55
     },
     {
       "date": "2025-03-03",
       "day_pnl": -249.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-04",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-05",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-06",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-07",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-11",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-12",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-13",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-14",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-17",
       "day_pnl": 0.0,
-      "cum_pnl": -59.55
+      "cum_pnl": -315.55
     },
     {
       "date": "2025-03-18",
       "day_pnl": -113.4,
-      "cum_pnl": -172.95
+      "cum_pnl": -428.95
     },
     {
       "date": "2025-03-19",
       "day_pnl": 0.0,
-      "cum_pnl": -172.95
+      "cum_pnl": -428.95
     },
     {
       "date": "2025-03-20",
       "day_pnl": -82.8,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-21",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-24",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-25",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-26",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-27",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-28",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-03-31",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-04-01",
       "day_pnl": 0.0,
-      "cum_pnl": -255.75
+      "cum_pnl": -511.75
     },
     {
       "date": "2025-04-02",
       "day_pnl": -121.8,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-03",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-04",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-07",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-08",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-09",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-10",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-11",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-14",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-15",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-16",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-17",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-21",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-22",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-23",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-24",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-25",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-28",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-29",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-04-30",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-01",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-02",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-05",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-06",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-07",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-08",
       "day_pnl": 0.0,
-      "cum_pnl": -377.55
+      "cum_pnl": -633.55
     },
     {
       "date": "2025-05-09",
       "day_pnl": -71.4,
-      "cum_pnl": -448.95
+      "cum_pnl": -704.95
     },
     {
       "date": "2025-05-12",
       "day_pnl": -51.0,
-      "cum_pnl": -499.95
+      "cum_pnl": -755.95
     },
     {
       "date": "2025-05-13",
       "day_pnl": 0.0,
-      "cum_pnl": -499.95
+      "cum_pnl": -755.95
     },
     {
       "date": "2025-05-14",
       "day_pnl": 0.0,
-      "cum_pnl": -499.95
+      "cum_pnl": -755.95
     },
     {
       "date": "2025-05-15",
       "day_pnl": 0.0,
-      "cum_pnl": -499.95
+      "cum_pnl": -755.95
     },
     {
       "date": "2025-05-16",
       "day_pnl": 0.0,
-      "cum_pnl": -499.95
+      "cum_pnl": -755.95
     },
     {
       "date": "2025-05-19",
       "day_pnl": 0.0,
-      "cum_pnl": -499.95
+      "cum_pnl": -755.95
     },
     {
       "date": "2025-05-20",
       "day_pnl": -76.2,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-21",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-22",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-23",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-27",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-28",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-29",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-05-30",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-06-02",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-06-03",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-06-04",
       "day_pnl": 0.0,
-      "cum_pnl": -576.15
+      "cum_pnl": -832.15
     },
     {
       "date": "2025-06-05",
       "day_pnl": -230.0,
-      "cum_pnl": -806.15
+      "cum_pnl": -1062.15
     },
     {
       "date": "2025-06-06",
       "day_pnl": 0.0,
-      "cum_pnl": -806.15
+      "cum_pnl": -1062.15
     },
     {
       "date": "2025-06-09",
       "day_pnl": 0.0,
-      "cum_pnl": -806.15
+      "cum_pnl": -1062.15
     },
     {
       "date": "2025-06-10",
       "day_pnl": 0.0,
-      "cum_pnl": -806.15
+      "cum_pnl": -1062.15
     },
     {
       "date": "2025-06-11",
       "day_pnl": 0.0,
-      "cum_pnl": -806.15
+      "cum_pnl": -1062.15
     },
     {
       "date": "2025-06-12",
       "day_pnl": -60.0,
-      "cum_pnl": -866.15
+      "cum_pnl": -1122.15
     },
     {
       "date": "2025-06-13",
       "day_pnl": 656.0,
-      "cum_pnl": -210.15
+      "cum_pnl": -466.15
     },
     {
       "date": "2025-06-16",
       "day_pnl": 0.0,
-      "cum_pnl": -210.15
+      "cum_pnl": -466.15
     },
     {
       "date": "2025-06-17",
       "day_pnl": -55.8,
-      "cum_pnl": -265.95
+      "cum_pnl": -521.95
     },
     {
       "date": "2025-06-18",
       "day_pnl": 0.0,
-      "cum_pnl": -265.95
+      "cum_pnl": -521.95
     },
     {
       "date": "2025-06-20",
       "day_pnl": 338.4,
-      "cum_pnl": 72.45
+      "cum_pnl": -183.55
     },
     {
       "date": "2025-06-23",
       "day_pnl": 0.0,
-      "cum_pnl": 72.45
+      "cum_pnl": -183.55
     },
     {
       "date": "2025-06-24",
       "day_pnl": 0.0,
-      "cum_pnl": 72.45
+      "cum_pnl": -183.55
     },
     {
       "date": "2025-06-25",
       "day_pnl": 0.0,
-      "cum_pnl": 72.45
+      "cum_pnl": -183.55
     },
     {
       "date": "2025-06-26",
       "day_pnl": -128.0,
-      "cum_pnl": -55.55
+      "cum_pnl": -311.55
     },
     {
       "date": "2025-06-27",
       "day_pnl": 0.0,
-      "cum_pnl": -55.55
+      "cum_pnl": -311.55
     },
     {
       "date": "2025-06-30",
       "day_pnl": 0.0,
-      "cum_pnl": -55.55
+      "cum_pnl": -311.55
     },
     {
       "date": "2025-07-01",
       "day_pnl": 0.0,
-      "cum_pnl": -55.55
+      "cum_pnl": -311.55
     },
     {
       "date": "2025-07-02",
       "day_pnl": 0.0,
-      "cum_pnl": -55.55
+      "cum_pnl": -311.55
     },
     {
       "date": "2025-07-03",
       "day_pnl": 0.0,
-      "cum_pnl": -55.55
+      "cum_pnl": -311.55
     },
     {
       "date": "2025-07-07",
       "day_pnl": 177.3,
-      "cum_pnl": 121.75
+      "cum_pnl": -134.25
     },
     {
       "date": "2025-07-08",
       "day_pnl": 0.0,
-      "cum_pnl": 121.75
+      "cum_pnl": -134.25
     },
     {
       "date": "2025-07-09",
       "day_pnl": -252.0,
-      "cum_pnl": -130.25
+      "cum_pnl": -386.25
     },
     {
       "date": "2025-07-10",
       "day_pnl": 0.0,
-      "cum_pnl": -130.25
+      "cum_pnl": -386.25
     },
     {
       "date": "2025-07-11",
       "day_pnl": 0.0,
-      "cum_pnl": -130.25
+      "cum_pnl": -386.25
     },
     {
       "date": "2025-07-14",
       "day_pnl": 0.0,
-      "cum_pnl": -130.25
+      "cum_pnl": -386.25
     },
     {
       "date": "2025-07-15",
       "day_pnl": -100.2,
-      "cum_pnl": -230.45
+      "cum_pnl": -486.45
     },
     {
       "date": "2025-07-16",
       "day_pnl": 0.0,
-      "cum_pnl": -230.45
+      "cum_pnl": -486.45
     },
     {
       "date": "2025-07-17",
       "day_pnl": 541.0,
-      "cum_pnl": 310.55
+      "cum_pnl": 54.55
     },
     {
       "date": "2025-07-18",
       "day_pnl": -55.8,
-      "cum_pnl": 254.75
+      "cum_pnl": -1.25
     },
     {
       "date": "2025-07-21",
       "day_pnl": 418.2,
-      "cum_pnl": 672.95
+      "cum_pnl": 416.95
     },
     {
       "date": "2025-07-22",
       "day_pnl": 0.0,
-      "cum_pnl": 672.95
+      "cum_pnl": 416.95
     },
     {
       "date": "2025-07-23",
       "day_pnl": 0.0,
-      "cum_pnl": 672.95
+      "cum_pnl": 416.95
     },
     {
       "date": "2025-07-24",
       "day_pnl": 0.0,
-      "cum_pnl": 672.95
+      "cum_pnl": 416.95
     },
     {
       "date": "2025-07-25",
       "day_pnl": 0.0,
-      "cum_pnl": 672.95
+      "cum_pnl": 416.95
     },
     {
       "date": "2025-07-28",
       "day_pnl": 0.0,
-      "cum_pnl": 672.95
+      "cum_pnl": 416.95
     },
     {
       "date": "2025-07-29",
       "day_pnl": 192.0,
-      "cum_pnl": 864.95
+      "cum_pnl": 608.95
     },
     {
       "date": "2025-07-30",
       "day_pnl": 0.0,
-      "cum_pnl": 864.95
+      "cum_pnl": 608.95
     },
     {
       "date": "2025-07-31",
       "day_pnl": 0.0,
-      "cum_pnl": 864.95
+      "cum_pnl": 608.95
     },
     {
       "date": "2025-08-01",
       "day_pnl": -81.0,
-      "cum_pnl": 783.95
+      "cum_pnl": 527.95
     },
     {
       "date": "2025-08-04",
       "day_pnl": 0.0,
-      "cum_pnl": 783.95
+      "cum_pnl": 527.95
     },
     {
       "date": "2025-08-05",
       "day_pnl": -83.4,
-      "cum_pnl": 700.55
+      "cum_pnl": 444.55
     },
     {
       "date": "2025-08-06",
       "day_pnl": 0.0,
-      "cum_pnl": 700.55
+      "cum_pnl": 444.55
     },
     {
       "date": "2025-08-07",
       "day_pnl": -242.8,
-      "cum_pnl": 457.75
+      "cum_pnl": 201.75
     },
     {
       "date": "2025-08-08",
       "day_pnl": 412.2,
-      "cum_pnl": 869.95
+      "cum_pnl": 613.95
     },
     {
       "date": "2025-08-11",
       "day_pnl": -331.8,
-      "cum_pnl": 538.15
+      "cum_pnl": 282.15
     },
     {
       "date": "2025-08-12",
       "day_pnl": 572.0,
-      "cum_pnl": 1110.15
+      "cum_pnl": 854.15
     },
     {
       "date": "2025-08-13",
       "day_pnl": -59.4,
-      "cum_pnl": 1050.75
+      "cum_pnl": 794.75
     },
     {
       "date": "2025-08-14",
       "day_pnl": 0.0,
-      "cum_pnl": 1050.75
+      "cum_pnl": 794.75
     },
     {
       "date": "2025-08-15",
       "day_pnl": -46.2,
-      "cum_pnl": 1004.55
+      "cum_pnl": 748.55
     },
     {
       "date": "2025-08-18",
       "day_pnl": 0.0,
-      "cum_pnl": 1004.55
+      "cum_pnl": 748.55
     },
     {
       "date": "2025-08-19",
       "day_pnl": 166.8,
-      "cum_pnl": 1171.35
+      "cum_pnl": 915.35
     },
     {
       "date": "2025-08-20",
       "day_pnl": -212.6,
-      "cum_pnl": 958.75
+      "cum_pnl": 702.75
     },
     {
       "date": "2025-08-21",
       "day_pnl": 0.0,
-      "cum_pnl": 958.75
+      "cum_pnl": 702.75
     },
     {
       "date": "2025-08-22",
       "day_pnl": 841.35,
-      "cum_pnl": 1800.1
+      "cum_pnl": 1544.1
     },
     {
       "date": "2025-08-25",
       "day_pnl": 0.0,
-      "cum_pnl": 1800.1
+      "cum_pnl": 1544.1
     },
     {
       "date": "2025-08-26",
       "day_pnl": 0.0,
-      "cum_pnl": 1800.1
+      "cum_pnl": 1544.1
     },
     {
       "date": "2025-08-27",
       "day_pnl": 0.0,
-      "cum_pnl": 1800.1
+      "cum_pnl": 1544.1
     },
     {
       "date": "2025-08-28",
       "day_pnl": 0.0,
-      "cum_pnl": 1800.1
+      "cum_pnl": 1544.1
     },
     {
       "date": "2025-08-29",
       "day_pnl": -63.0,
-      "cum_pnl": 1737.1
+      "cum_pnl": 1481.1
     },
     {
       "date": "2025-09-02",
       "day_pnl": 0.0,
-      "cum_pnl": 1737.1
+      "cum_pnl": 1481.1
     },
     {
       "date": "2025-09-03",
       "day_pnl": 168.6,
-      "cum_pnl": 1905.7
+      "cum_pnl": 1649.7
     },
     {
       "date": "2025-09-04",
       "day_pnl": 0.0,
-      "cum_pnl": 1905.7
+      "cum_pnl": 1649.7
     },
     {
       "date": "2025-09-05",
       "day_pnl": 0.0,
-      "cum_pnl": 1905.7
+      "cum_pnl": 1649.7
     },
     {
       "date": "2025-09-08",
       "day_pnl": 0.0,
-      "cum_pnl": 1905.7
+      "cum_pnl": 1649.7
     },
     {
       "date": "2025-09-09",
       "day_pnl": 0.0,
-      "cum_pnl": 1905.7
+      "cum_pnl": 1649.7
     },
     {
       "date": "2025-09-10",
       "day_pnl": 136.55,
-      "cum_pnl": 2042.25
+      "cum_pnl": 1786.25
     },
     {
       "date": "2025-09-11",
       "day_pnl": 425.35,
-      "cum_pnl": 2467.6
+      "cum_pnl": 2211.6
     },
     {
       "date": "2025-09-12",
       "day_pnl": 0.0,
-      "cum_pnl": 2467.6
+      "cum_pnl": 2211.6
     },
     {
       "date": "2025-09-15",
       "day_pnl": 0.0,
-      "cum_pnl": 2467.6
+      "cum_pnl": 2211.6
     },
     {
       "date": "2025-09-16",
       "day_pnl": 0.0,
-      "cum_pnl": 2467.6
+      "cum_pnl": 2211.6
     },
     {
       "date": "2025-09-17",
       "day_pnl": -298.2,
-      "cum_pnl": 2169.4
+      "cum_pnl": 1913.4
     },
     {
       "date": "2025-09-18",
       "day_pnl": -40.8,
-      "cum_pnl": 2128.6
+      "cum_pnl": 1872.6
     },
     {
       "date": "2025-09-19",
       "day_pnl": 0.0,
-      "cum_pnl": 2128.6
+      "cum_pnl": 1872.6
     },
     {
       "date": "2025-09-22",
       "day_pnl": 0.0,
-      "cum_pnl": 2128.6
+      "cum_pnl": 1872.6
     },
     {
       "date": "2025-09-23",
       "day_pnl": -173.0,
-      "cum_pnl": 1955.6
+      "cum_pnl": 1699.6
     },
     {
       "date": "2025-09-24",
       "day_pnl": 0.0,
-      "cum_pnl": 1955.6
+      "cum_pnl": 1699.6
     },
     {
       "date": "2025-09-25",
       "day_pnl": 430.2,
-      "cum_pnl": 2385.8
+      "cum_pnl": 2129.8
     },
     {
       "date": "2025-09-26",
       "day_pnl": -308.0,
-      "cum_pnl": 2077.8
+      "cum_pnl": 1821.8
     },
     {
       "date": "2025-09-29",
       "day_pnl": 0.0,
-      "cum_pnl": 2077.8
+      "cum_pnl": 1821.8
     },
     {
       "date": "2025-09-30",
       "day_pnl": 0.0,
-      "cum_pnl": 2077.8
+      "cum_pnl": 1821.8
     },
     {
       "date": "2025-10-01",
       "day_pnl": 0.0,
-      "cum_pnl": 2077.8
+      "cum_pnl": 1821.8
     },
     {
       "date": "2025-10-02",
       "day_pnl": -228.8,
-      "cum_pnl": 1849.0
+      "cum_pnl": 1593.0
     },
     {
       "date": "2025-10-03",
       "day_pnl": 0.0,
-      "cum_pnl": 1849.0
+      "cum_pnl": 1593.0
     },
     {
       "date": "2025-10-06",
       "day_pnl": -51.0,
-      "cum_pnl": 1798.0
+      "cum_pnl": 1542.0
     },
     {
       "date": "2025-10-07",
       "day_pnl": -79.8,
-      "cum_pnl": 1718.2
+      "cum_pnl": 1462.2
     },
     {
       "date": "2025-10-08",
       "day_pnl": 0.0,
-      "cum_pnl": 1718.2
+      "cum_pnl": 1462.2
     },
     {
       "date": "2025-10-09",
       "day_pnl": 98.1,
-      "cum_pnl": 1816.3
+      "cum_pnl": 1560.3
     },
     {
       "date": "2025-10-10",
       "day_pnl": 0.0,
-      "cum_pnl": 1816.3
+      "cum_pnl": 1560.3
     },
     {
       "date": "2025-10-13",
       "day_pnl": 0.0,
-      "cum_pnl": 1816.3
+      "cum_pnl": 1560.3
     },
     {
       "date": "2025-10-14",
       "day_pnl": 0.0,
-      "cum_pnl": 1816.3
+      "cum_pnl": 1560.3
     },
     {
       "date": "2025-10-15",
       "day_pnl": 483.55,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-16",
       "day_pnl": 0.0,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-17",
       "day_pnl": 0.0,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-20",
       "day_pnl": 0.0,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-21",
       "day_pnl": 0.0,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-22",
       "day_pnl": 0.0,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-23",
       "day_pnl": 0.0,
-      "cum_pnl": 2299.85
+      "cum_pnl": 2043.85
     },
     {
       "date": "2025-10-24",
       "day_pnl": -78.0,
-      "cum_pnl": 2221.85
+      "cum_pnl": 1965.85
     },
     {
       "date": "2025-10-27",
       "day_pnl": -30.0,
-      "cum_pnl": 2191.85
+      "cum_pnl": 1935.85
     },
     {
       "date": "2025-10-28",
       "day_pnl": -84.0,
-      "cum_pnl": 2107.85
+      "cum_pnl": 1851.85
     },
     {
       "date": "2025-10-29",
       "day_pnl": 21.0,
-      "cum_pnl": 2128.85
+      "cum_pnl": 1872.85
     },
     {
       "date": "2025-10-30",
       "day_pnl": 0.0,
-      "cum_pnl": 2128.85
+      "cum_pnl": 1872.85
     },
     {
       "date": "2025-10-31",
       "day_pnl": 0.0,
-      "cum_pnl": 2128.85
+      "cum_pnl": 1872.85
     },
     {
       "date": "2025-11-03",
       "day_pnl": 0.0,
-      "cum_pnl": 2128.85
+      "cum_pnl": 1872.85
     },
     {
       "date": "2025-11-04",
       "day_pnl": 220.6,
-      "cum_pnl": 2349.45
+      "cum_pnl": 2093.45
     },
     {
       "date": "2025-11-05",
       "day_pnl": 0.0,
-      "cum_pnl": 2349.45
+      "cum_pnl": 2093.45
     },
     {
       "date": "2025-11-06",
       "day_pnl": -72.6,
-      "cum_pnl": 2276.85
+      "cum_pnl": 2020.85
     },
     {
       "date": "2025-11-07",
       "day_pnl": 0.0,
-      "cum_pnl": 2276.85
+      "cum_pnl": 2020.85
     },
     {
       "date": "2025-11-10",
       "day_pnl": -90.0,
-      "cum_pnl": 2186.85
+      "cum_pnl": 1930.85
     },
     {
       "date": "2025-11-11",
       "day_pnl": 0.0,
-      "cum_pnl": 2186.85
+      "cum_pnl": 1930.85
     },
     {
       "date": "2025-11-12",
       "day_pnl": -36.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-13",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-14",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-17",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-18",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-19",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-20",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-21",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-24",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-25",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-26",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-11-28",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-12-01",
       "day_pnl": 0.0,
-      "cum_pnl": 2150.85
+      "cum_pnl": 1894.85
     },
     {
       "date": "2025-12-02",
       "day_pnl": -41.4,
-      "cum_pnl": 2109.45
+      "cum_pnl": 1853.45
     },
     {
       "date": "2025-12-03",
       "day_pnl": 0.0,
-      "cum_pnl": 2109.45
+      "cum_pnl": 1853.45
     },
     {
       "date": "2025-12-04",
       "day_pnl": 0.0,
-      "cum_pnl": 2109.45
+      "cum_pnl": 1853.45
     },
     {
       "date": "2025-12-05",
       "day_pnl": 0.0,
-      "cum_pnl": 2109.45
+      "cum_pnl": 1853.45
     },
     {
       "date": "2025-12-08",
       "day_pnl": -67.8,
-      "cum_pnl": 2041.65
+      "cum_pnl": 1785.65
     },
     {
       "date": "2025-12-09",
       "day_pnl": -84.0,
-      "cum_pnl": 1957.65
+      "cum_pnl": 1701.65
     },
     {
       "date": "2025-12-10",
       "day_pnl": -281.4,
-      "cum_pnl": 1676.25
+      "cum_pnl": 1420.25
     },
     {
       "date": "2025-12-11",
       "day_pnl": 486.2,
-      "cum_pnl": 2162.45
+      "cum_pnl": 1906.45
     },
     {
       "date": "2025-12-12",
       "day_pnl": -211.2,
-      "cum_pnl": 1951.25
+      "cum_pnl": 1695.25
     },
     {
       "date": "2025-12-15",
       "day_pnl": -55.8,
-      "cum_pnl": 1895.45
+      "cum_pnl": 1639.45
     },
     {
       "date": "2025-12-16",
       "day_pnl": -78.6,
-      "cum_pnl": 1816.85
+      "cum_pnl": 1560.85
     },
     {
       "date": "2025-12-17",
       "day_pnl": -100.8,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-18",
       "day_pnl": 0.0,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-19",
       "day_pnl": 0.0,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-22",
       "day_pnl": 0.0,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-23",
       "day_pnl": 0.0,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-24",
       "day_pnl": 0.0,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-26",
       "day_pnl": 0.0,
-      "cum_pnl": 1716.05
+      "cum_pnl": 1460.05
     },
     {
       "date": "2025-12-29",
       "day_pnl": -138.0,
-      "cum_pnl": 1578.05
+      "cum_pnl": 1322.05
     },
     {
       "date": "2025-12-30",
       "day_pnl": 0.0,
-      "cum_pnl": 1578.05
+      "cum_pnl": 1322.05
     },
     {
       "date": "2025-12-31",
       "day_pnl": 0.0,
-      "cum_pnl": 1578.05
+      "cum_pnl": 1322.05
     },
     {
       "date": "2026-01-02",
       "day_pnl": 446.8,
-      "cum_pnl": 2024.85
+      "cum_pnl": 1768.85
     },
     {
       "date": "2026-01-05",
       "day_pnl": 0.0,
-      "cum_pnl": 2024.85
+      "cum_pnl": 1768.85
     },
     {
       "date": "2026-01-06",
       "day_pnl": -252.0,
-      "cum_pnl": 1772.85
+      "cum_pnl": 1516.85
     },
     {
       "date": "2026-01-07",
       "day_pnl": 0.0,
-      "cum_pnl": 1772.85
+      "cum_pnl": 1516.85
     },
     {
       "date": "2026-01-08",
       "day_pnl": 0.0,
-      "cum_pnl": 1772.85
+      "cum_pnl": 1516.85
     },
     {
       "date": "2026-01-09",
       "day_pnl": 0.0,
-      "cum_pnl": 1772.85
+      "cum_pnl": 1516.85
     },
     {
       "date": "2026-01-12",
       "day_pnl": 0.0,
-      "cum_pnl": 1772.85
+      "cum_pnl": 1516.85
     },
     {
       "date": "2026-01-13",
       "day_pnl": 0.0,
-      "cum_pnl": 1772.85
+      "cum_pnl": 1516.85
     },
     {
       "date": "2026-01-14",
       "day_pnl": -45.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-15",
       "day_pnl": 0.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-16",
       "day_pnl": 0.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-20",
       "day_pnl": 0.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-21",
       "day_pnl": 0.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-22",
       "day_pnl": 0.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-23",
       "day_pnl": 0.0,
-      "cum_pnl": 1727.85
+      "cum_pnl": 1471.85
     },
     {
       "date": "2026-01-26",
       "day_pnl": 24.0,
-      "cum_pnl": 1751.85
+      "cum_pnl": 1495.85
     },
     {
       "date": "2026-01-27",
       "day_pnl": 442.0,
-      "cum_pnl": 2193.85
+      "cum_pnl": 1937.85
     },
     {
       "date": "2026-01-28",
       "day_pnl": -113.4,
-      "cum_pnl": 2080.45
+      "cum_pnl": 1824.45
     },
     {
       "date": "2026-01-29",
       "day_pnl": 656.85,
-      "cum_pnl": 2737.3
+      "cum_pnl": 2481.3
     },
     {
       "date": "2026-01-30",
       "day_pnl": 0.0,
-      "cum_pnl": 2737.3
+      "cum_pnl": 2481.3
     },
     {
       "date": "2026-02-02",
       "day_pnl": 0.0,
-      "cum_pnl": 2737.3
+      "cum_pnl": 2481.3
     },
     {
       "date": "2026-02-03",
       "day_pnl": 300.2,
-      "cum_pnl": 3037.5
+      "cum_pnl": 2781.5
     },
     {
       "date": "2026-02-04",
       "day_pnl": 6.0,
-      "cum_pnl": 3043.5
+      "cum_pnl": 2787.5
     },
     {
       "date": "2026-02-05",
       "day_pnl": -150.0,
-      "cum_pnl": 2893.5
+      "cum_pnl": 2637.5
     },
     {
       "date": "2026-02-06",
       "day_pnl": 0.0,
-      "cum_pnl": 2893.5
+      "cum_pnl": 2637.5
     },
     {
       "date": "2026-02-09",
       "day_pnl": 0.0,
-      "cum_pnl": 2893.5
+      "cum_pnl": 2637.5
     },
     {
       "date": "2026-02-10",
       "day_pnl": 0.0,
-      "cum_pnl": 2893.5
+      "cum_pnl": 2637.5
     },
     {
       "date": "2026-02-11",
       "day_pnl": 0.0,
-      "cum_pnl": 2893.5
+      "cum_pnl": 2637.5
     },
     {
       "date": "2026-02-12",
       "day_pnl": -114.6,
-      "cum_pnl": 2778.9
+      "cum_pnl": 2522.9
     },
     {
       "date": "2026-02-13",
       "day_pnl": 0.0,
-      "cum_pnl": 2778.9
+      "cum_pnl": 2522.9
     },
     {
       "date": "2026-02-17",
       "day_pnl": -81.6,
-      "cum_pnl": 2697.3
+      "cum_pnl": 2441.3
     },
     {
       "date": "2026-02-18",
       "day_pnl": 0.0,
-      "cum_pnl": 2697.3
+      "cum_pnl": 2441.3
     },
     {
       "date": "2026-02-19",
       "day_pnl": -105.6,
-      "cum_pnl": 2591.7
+      "cum_pnl": 2335.7
     },
     {
       "date": "2026-02-20",
       "day_pnl": 324.0,
-      "cum_pnl": 2915.7
+      "cum_pnl": 2659.7
     },
     {
       "date": "2026-02-23",
       "day_pnl": 546.4,
-      "cum_pnl": 3462.1
+      "cum_pnl": 3206.1
     },
     {
       "date": "2026-02-24",
       "day_pnl": 0.0,
-      "cum_pnl": 3462.1
+      "cum_pnl": 3206.1
     },
     {
       "date": "2026-02-25",
       "day_pnl": 0.0,
-      "cum_pnl": 3462.1
+      "cum_pnl": 3206.1
     },
     {
       "date": "2026-02-26",
       "day_pnl": 636.05,
-      "cum_pnl": 4098.15
+      "cum_pnl": 3842.15
     },
     {
       "date": "2026-02-27",
       "day_pnl": -89.4,
-      "cum_pnl": 4008.75
+      "cum_pnl": 3752.75
     },
     {
       "date": "2026-03-02",
       "day_pnl": -144.0,
-      "cum_pnl": 3864.75
+      "cum_pnl": 3608.75
     },
     {
       "date": "2026-03-03",
       "day_pnl": 0.0,
-      "cum_pnl": 3864.75
+      "cum_pnl": 3608.75
     },
     {
       "date": "2026-03-04",
       "day_pnl": 0.0,
-      "cum_pnl": 3864.75
+      "cum_pnl": 3608.75
     },
     {
       "date": "2026-03-05",
       "day_pnl": -106.2,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-06",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-09",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-10",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-11",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-12",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-13",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-16",
       "day_pnl": 0.0,
-      "cum_pnl": 3758.55
+      "cum_pnl": 3502.55
     },
     {
       "date": "2026-03-17",
       "day_pnl": -81.6,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-18",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-19",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-20",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-23",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-24",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-25",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-26",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-27",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-30",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-03-31",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-04-01",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-04-02",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-04-06",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-04-07",
       "day_pnl": 0.0,
-      "cum_pnl": 3676.95
+      "cum_pnl": 3420.95
     },
     {
       "date": "2026-04-08",
       "day_pnl": -85.2,
-      "cum_pnl": 3591.75
+      "cum_pnl": 3335.75
     },
     {
       "date": "2026-04-09",
       "day_pnl": 0.0,
-      "cum_pnl": 3591.75
+      "cum_pnl": 3335.75
     },
     {
       "date": "2026-04-10",
       "day_pnl": -44.4,
-      "cum_pnl": 3547.35
+      "cum_pnl": 3291.35
     },
     {
       "date": "2026-04-13",
       "day_pnl": 0.0,
-      "cum_pnl": 3547.35
+      "cum_pnl": 3291.35
     },
     {
       "date": "2026-04-14",
       "day_pnl": 0.0,
-      "cum_pnl": 3547.35
+      "cum_pnl": 3291.35
     },
     {
       "date": "2026-04-15",
       "day_pnl": 0.0,
-      "cum_pnl": 3547.35
+      "cum_pnl": 3291.35
     },
     {
       "date": "2026-04-16",
       "day_pnl": 0.0,
-      "cum_pnl": 3547.35
+      "cum_pnl": 3291.35
     },
     {
       "date": "2026-04-17",
       "day_pnl": -40.8,
-      "cum_pnl": 3506.55
+      "cum_pnl": 3250.55
     },
     {
       "date": "2026-04-20",
       "day_pnl": 0.0,
-      "cum_pnl": 3506.55
+      "cum_pnl": 3250.55
     },
     {
       "date": "2026-04-21",
       "day_pnl": 283.15,
-      "cum_pnl": 3789.7
+      "cum_pnl": 3533.7
     },
     {
       "date": "2026-04-22",
       "day_pnl": 0.0,
-      "cum_pnl": 3789.7
+      "cum_pnl": 3533.7
     },
     {
       "date": "2026-04-23",
       "day_pnl": 0.0,
-      "cum_pnl": 3789.7
+      "cum_pnl": 3533.7
     },
     {
       "date": "2026-04-24",
       "day_pnl": 0.0,
-      "cum_pnl": 3789.7
+      "cum_pnl": 3533.7
     },
     {
       "date": "2026-04-27",
       "day_pnl": 0.0,
-      "cum_pnl": 3789.7
+      "cum_pnl": 3533.7
     },
     {
       "date": "2026-04-28",
       "day_pnl": -75.6,
-      "cum_pnl": 3714.1
+      "cum_pnl": 3458.1
     },
     {
       "date": "2026-04-29",
       "day_pnl": -125.4,
-      "cum_pnl": 3588.7
+      "cum_pnl": 3332.7
     },
     {
       "date": "2026-04-30",
       "day_pnl": 0.0,
-      "cum_pnl": 3588.7
+      "cum_pnl": 3332.7
     },
     {
       "date": "2026-05-01",
       "day_pnl": -24.0,
-      "cum_pnl": 3564.7
+      "cum_pnl": 3308.7
     },
     {
       "date": "2026-05-04",
       "day_pnl": -81.0,
-      "cum_pnl": 3483.7
+      "cum_pnl": 3227.7
     },
     {
       "date": "2026-05-05",
       "day_pnl": 0.0,
-      "cum_pnl": 3483.7
+      "cum_pnl": 3227.7
     },
     {
       "date": "2026-05-06",
       "day_pnl": 0.0,
-      "cum_pnl": 3483.7
+      "cum_pnl": 3227.7
     },
     {
       "date": "2026-05-07",
       "day_pnl": 189.8,
-      "cum_pnl": 3673.5
+      "cum_pnl": 3417.5
     },
     {
       "date": "2026-05-08",
       "day_pnl": 32.0,
-      "cum_pnl": 3705.5
+      "cum_pnl": 3449.5
     },
     {
       "date": "2026-05-11",
       "day_pnl": 0.0,
-      "cum_pnl": 3705.5
+      "cum_pnl": 3449.5
     },
     {
       "date": "2026-05-12",
       "day_pnl": 0.0,
-      "cum_pnl": 3705.5
+      "cum_pnl": 3449.5
     },
     {
       "date": "2026-05-13",
       "day_pnl": 0.0,
-      "cum_pnl": 3705.5
+      "cum_pnl": 3449.5
     },
     {
       "date": "2026-05-14",
       "day_pnl": -58.2,
-      "cum_pnl": 3647.3
+      "cum_pnl": 3391.3
     },
     {
       "date": "2026-05-15",
       "day_pnl": -89.4,
-      "cum_pnl": 3557.9
+      "cum_pnl": 3301.9
     },
     {
       "date": "2026-05-18",
       "day_pnl": 1465.1,
-      "cum_pnl": 5023.0
+      "cum_pnl": 4767.0
     },
     {
       "date": "2026-05-19",
       "day_pnl": -280.0,
-      "cum_pnl": 4743.0
+      "cum_pnl": 4487.0
     },
     {
       "date": "2026-05-20",
       "day_pnl": 0.0,
-      "cum_pnl": 4743.0
+      "cum_pnl": 4487.0
     },
     {
       "date": "2026-05-21",
       "day_pnl": 298.9,
-      "cum_pnl": 5041.9
+      "cum_pnl": 4785.9
     },
     {
       "date": "2026-05-22",
       "day_pnl": -56.4,
-      "cum_pnl": 4985.5
+      "cum_pnl": 4729.5
     },
     {
       "date": "2026-05-26",
       "day_pnl": -236.0,
-      "cum_pnl": 4749.5
+      "cum_pnl": 4493.5
     },
     {
       "date": "2026-05-27",
       "day_pnl": 0.0,
-      "cum_pnl": 4749.5
+      "cum_pnl": 4493.5
     },
     {
       "date": "2026-05-28",
       "day_pnl": 172.0,
-      "cum_pnl": 4921.5
+      "cum_pnl": 4665.5
     },
     {
       "date": "2026-05-29",
       "day_pnl": 0.0,
-      "cum_pnl": 4921.5
+      "cum_pnl": 4665.5
     },
     {
       "date": "2026-06-01",
       "day_pnl": 0.0,
-      "cum_pnl": 4921.5
+      "cum_pnl": 4665.5
     },
     {
       "date": "2026-06-02",
       "day_pnl": -45.0,
-      "cum_pnl": 4876.5
+      "cum_pnl": 4620.5
     },
     {
       "date": "2026-06-03",
       "day_pnl": -69.6,
-      "cum_pnl": 4806.9
+      "cum_pnl": 4550.9
     },
     {
       "date": "2026-06-04",
       "day_pnl": 0.0,
-      "cum_pnl": 4806.9
+      "cum_pnl": 4550.9
     },
     {
       "date": "2026-06-05",
       "day_pnl": 0.0,
-      "cum_pnl": 4806.9
+      "cum_pnl": 4550.9
     },
     {
       "date": "2026-06-08",
       "day_pnl": 971.9,
-      "cum_pnl": 5778.8
+      "cum_pnl": 5522.8
     },
     {
       "date": "2026-06-09",
       "day_pnl": -390.0,
-      "cum_pnl": 5388.8
+      "cum_pnl": 5132.8
     },
     {
       "date": "2026-06-10",
       "day_pnl": 0.0,
-      "cum_pnl": 5388.8
+      "cum_pnl": 5132.8
     },
     {
       "date": "2026-06-11",
       "day_pnl": 752.0,
-      "cum_pnl": 6140.8
+      "cum_pnl": 5884.8
     },
     {
       "date": "2026-06-12",
       "day_pnl": 162.0,
-      "cum_pnl": 6302.8
+      "cum_pnl": 6046.8
     },
     {
       "date": "2026-06-15",
       "day_pnl": 66.0,
-      "cum_pnl": 6368.8
+      "cum_pnl": 6112.8
     },
     {
       "date": "2026-06-16",
       "day_pnl": 93.0,
-      "cum_pnl": 6461.8
+      "cum_pnl": 6205.8
     },
     {
       "date": "2026-06-17",
       "day_pnl": -355.5,
-      "cum_pnl": 6106.3
+      "cum_pnl": 5850.3
     },
     {
       "date": "2026-06-18",
       "day_pnl": 0.0,
-      "cum_pnl": 6106.3
+      "cum_pnl": 5850.3
     },
     {
       "date": "2026-06-22",
       "day_pnl": -292.0,
-      "cum_pnl": 5814.3
+      "cum_pnl": 5558.3
     },
     {
       "date": "2026-06-23",
       "day_pnl": 338.05,
-      "cum_pnl": 6152.35
+      "cum_pnl": 5896.35
     },
     {
       "date": "2026-06-24",
       "day_pnl": 309.0,
-      "cum_pnl": 6461.35
+      "cum_pnl": 6205.35
     },
     {
       "date": "2026-06-25",
       "day_pnl": -825.0,
-      "cum_pnl": 5636.35
+      "cum_pnl": 5380.35
     },
     {
       "date": "2026-06-26",
       "day_pnl": -708.0,
-      "cum_pnl": 4928.35
+      "cum_pnl": 4672.35
     },
     {
       "date": "2026-06-29",
       "day_pnl": -324.0,
-      "cum_pnl": 4604.35
+      "cum_pnl": 4348.35
     },
     {
       "date": "2026-06-30",
       "day_pnl": 0.0,
-      "cum_pnl": 4604.35
+      "cum_pnl": 4348.35
     },
     {
       "date": "2026-07-01",
       "day_pnl": 0.0,
-      "cum_pnl": 4604.35
+      "cum_pnl": 4348.35
     },
     {
       "date": "2026-07-02",
       "day_pnl": -88.8,
-      "cum_pnl": 4515.55
+      "cum_pnl": 4259.55
     },
     {
       "date": "2026-07-06",
       "day_pnl": 289.6,
-      "cum_pnl": 4805.15
+      "cum_pnl": 4549.15
     },
     {
       "date": "2026-07-07",
       "day_pnl": -88.2,
-      "cum_pnl": 4716.95
+      "cum_pnl": 4460.95
     },
     {
       "date": "2026-07-08",
       "day_pnl": -160.0,
-      "cum_pnl": 4556.95
+      "cum_pnl": 4300.95
     },
     {
       "date": "2026-07-09",
       "day_pnl": 0.0,
-      "cum_pnl": 4556.95
+      "cum_pnl": 4300.95
     },
     {
       "date": "2026-07-10",
       "day_pnl": 0.0,
-      "cum_pnl": 4556.95
+      "cum_pnl": 4300.95
     },
     {
       "date": "2026-07-13",
       "day_pnl": 0.0,
-      "cum_pnl": 4556.95
+      "cum_pnl": 4300.95
     },
     {
       "date": "2026-07-14",
       "day_pnl": -54.0,
-      "cum_pnl": 4502.95
+      "cum_pnl": 4246.95
     },
     {
       "date": "2026-07-15",
       "day_pnl": -135.0,
-      "cum_pnl": 4367.95
+      "cum_pnl": 4111.95
     },
     {
       "date": "2026-07-16",
       "day_pnl": 0.0,
-      "cum_pnl": 4367.95
+      "cum_pnl": 4111.95
     },
     {
       "date": "2026-07-17",
       "day_pnl": 404.4,
-      "cum_pnl": 4772.35
+      "cum_pnl": 4516.35
     },
     {
       "date": "2026-07-20",
       "day_pnl": 304.4,
-      "cum_pnl": 5076.75
+      "cum_pnl": 4820.75
     },
     {
       "date": "2026-07-21",
       "day_pnl": -12.0,
-      "cum_pnl": 5064.75
+      "cum_pnl": 4808.75
     },
     {
       "date": "2026-07-22",
       "day_pnl": 0.0,
-      "cum_pnl": 5064.75
+      "cum_pnl": 4808.75
     }
   ],
   "sanity_anchors": {
@@ -2695,69 +2837,6 @@
       "pnl_sum_pass": false
     },
     "2026-07-17_core_safe_TRADE_LEVEL_match": {
-      "n_expected": 4,
-      "n_matched_by_strike_side": 2,
-      "matched": [
-        {
-          "expected_time": "11:40",
-          "expected_tier": "ELITE",
-          "expected_pnl": -102.0,
-          "replay_time": "13:55",
-          "replay_tier": "SUPER",
-          "replay_pnl": 459.0
-        },
-        {
-          "expected_time": "13:01",
-          "expected_tier": "TRENDLINE",
-          "expected_pnl": 241.0,
-          "replay_time": "13:15",
-          "replay_tier": "TRENDLINE",
-          "replay_pnl": -54.6
-        }
-      ],
-      "unmatched_expected_live_entries": [
-        {
-          "expected_time": "11:06",
-          "strike": 744,
-          "side": "P",
-          "tier": "ELITE",
-          "live_pnl": -37.0
-        },
-        {
-          "expected_time": "14:49",
-          "strike": 743,
-          "side": "P",
-          "tier": "TRENDLINE",
-          "live_pnl": -56.0
-        }
-      ],
-      "extra_replay_entries_not_in_live": []
-    },
-    "2026-07-17_trade_level_pass": false,
-    "2026-07-21_quiet_day_TRADE_LEVEL_match": {
-      "n_expected": 1,
-      "n_matched_by_strike_side": 1,
-      "matched": [
-        {
-          "expected_time": "14:58",
-          "expected_tier": "TRENDLINE",
-          "expected_pnl": 0.0,
-          "replay_time": "14:50",
-          "replay_tier": "TRENDLINE",
-          "replay_pnl": -12.0
-        }
-      ],
-      "unmatched_expected_live_entries": [],
-      "extra_replay_entries_not_in_live": []
-    },
-    "2026-07-21_trade_level_pass": true,
-    "2026-07-22_expect_zero_entries": {
-      "n_entries": 0,
-      "pass": true
-    },
-    "all_anchors_trade_level_pass": false,
-    "_corrected_2026_07_25": "CORRECTED via ZERO-FOR-TWELVE-POSTMORTEM follow-up (conductor, AFTERHOURS/weekend): the original 2026-07-23 matcher paired on strike+side ALONE with no time bound, and silently reported the 11:40 live fill as \"matched\" to a 13:55 replay entry -- 2h15m apart, a genuinely different signal. Re-run with match_entries_by_strike_side_time (20min bound, closest-in-time tiebreak, guard-tested: backtest/tests/test_engine_fullhist_replay.py). TRUE trade-level fidelity on the 07-17 anchor day is 1/4 (only 13:01->13:15, 14min), not 2/4 as originally reported. This does NOT change the known root cause already disclosed in this script's own test docstring (live sources levels from a curated + multi-day memory-merged key-levels.json feed; orchestrator.run_backtest recomputes levels from bars only) -- it corrects how badly that gap actually bites: 3 of 4 live entries have literally no batch counterpart, not 2 of 4.",
-    "2026-07-17_core_safe_TRADE_LEVEL_match_CORRECTED": {
       "n_expected": 4,
       "n_matched_by_strike_side": 1,
       "matched": [
@@ -2797,6 +2876,7 @@
       "extra_replay_entries_not_in_live": [
         {
           "time_et": "13:55",
+          "strike": null,
           "side": "P",
           "tier": "SUPER",
           "symbol": "SPY260717P00745000",
@@ -2804,8 +2884,8 @@
         }
       ]
     },
-    "2026-07-17_trade_level_pass_CORRECTED": false,
-    "2026-07-21_quiet_day_TRADE_LEVEL_match_CORRECTED": {
+    "2026-07-17_trade_level_pass": false,
+    "2026-07-21_quiet_day_TRADE_LEVEL_match": {
       "n_expected": 1,
       "n_matched_by_strike_side": 1,
       "matched": [
@@ -2822,12 +2902,17 @@
       "unmatched_expected_live_entries": [],
       "extra_replay_entries_not_in_live": []
     },
-    "2026-07-21_trade_level_pass_CORRECTED": true
+    "2026-07-21_trade_level_pass": true,
+    "2026-07-22_expect_zero_entries": {
+      "n_entries": 0,
+      "pass": true
+    },
+    "all_anchors_trade_level_pass": false
   },
   "runtime_seconds": {
-    "entry_layer": 113.1,
+    "entry_layer": 101.0,
     "exit_layer": 2.5,
-    "total": 115.9
+    "total": 103.7
   },
   "trades": [
     {
@@ -3017,7 +3102,7 @@
       "trigger_level": null,
       "wrong_exit_pnl_discarded": 182.4,
       "dollar_pnl": -306.0,
-      "exit_reason": "time_stop_15:50",
+      "exit_reason": "time_stop_15:40",
       "resolved_stop_mode": "premium",
       "hold_minutes": 45,
       "n_ticks_walked": 9,
@@ -3085,6 +3170,28 @@
       "resolved_stop_mode": "premium",
       "hold_minutes": 5,
       "n_ticks_walked": 1,
+      "resolved": true
+    },
+    {
+      "date": "2025-02-07",
+      "entry_time_et": "2025-02-07T10:45:00",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "side": "C",
+      "tier": "LEVEL",
+      "symbol": "SPY250207C00608000",
+      "qty": 4,
+      "entry_premium": 1.1,
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip"
+      ],
+      "trigger_level": 607.445,
+      "wrong_exit_pnl_discarded": 0.0,
+      "dollar_pnl": -256.0,
+      "exit_reason": "structure_stop @ 607.445",
+      "resolved_stop_mode": "structure",
+      "hold_minutes": 20,
+      "n_ticks_walked": 4,
       "resolved": true
     },
     {
@@ -3253,7 +3360,7 @@
       "trigger_level": 603.6,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 616.0,
-      "exit_reason": "time_stop_15:50 (runner)",
+      "exit_reason": "time_stop_15:40 (runner)",
       "resolved_stop_mode": "structure",
       "hold_minutes": 95,
       "n_ticks_walked": 19,
@@ -3832,7 +3939,7 @@
       "trigger_level": null,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 192.0,
-      "exit_reason": "time_stop_15:50",
+      "exit_reason": "time_stop_15:40",
       "resolved_stop_mode": "premium",
       "hold_minutes": 55,
       "n_ticks_walked": 11,
@@ -4026,7 +4133,7 @@
       "trigger_level": 637.26,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 572.0,
-      "exit_reason": "time_stop_15:50 (runner)",
+      "exit_reason": "time_stop_15:40 (runner)",
       "resolved_stop_mode": "structure",
       "hold_minutes": 345,
       "n_ticks_walked": 69,
@@ -4516,7 +4623,7 @@
       "trigger_level": 660.38,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": -119.0,
-      "exit_reason": "time_stop_15:50",
+      "exit_reason": "time_stop_15:40",
       "resolved_stop_mode": "structure",
       "hold_minutes": 195,
       "n_ticks_walked": 39,
@@ -5585,7 +5692,7 @@
       "trigger_level": null,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 616.0,
-      "exit_reason": "time_stop_15:50 (runner)",
+      "exit_reason": "time_stop_15:40 (runner)",
       "resolved_stop_mode": "premium",
       "hold_minutes": 55,
       "n_ticks_walked": 11,
@@ -5967,7 +6074,7 @@
       "trigger_level": 735.45,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 32.0,
-      "exit_reason": "time_stop_15:50",
+      "exit_reason": "time_stop_15:40",
       "resolved_stop_mode": "structure",
       "hold_minutes": 350,
       "n_ticks_walked": 70,
@@ -6211,7 +6318,7 @@
       "trigger_level": 750.2376720496296,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 172.0,
-      "exit_reason": "time_stop_15:50",
+      "exit_reason": "time_stop_15:40",
       "resolved_stop_mode": "structure",
       "hold_minutes": 325,
       "n_ticks_walked": 65,
@@ -6345,7 +6452,7 @@
       "trigger_level": 732.5,
       "wrong_exit_pnl_discarded": 0.0,
       "dollar_pnl": 752.0,
-      "exit_reason": "time_stop_15:50 (runner)",
+      "exit_reason": "time_stop_15:40 (runner)",
       "resolved_stop_mode": "structure",
       "hold_minutes": 125,
       "n_ticks_walked": 25,
@@ -6524,7 +6631,7 @@
       "trigger_level": 735.15,
       "wrong_exit_pnl_discarded": 242.4,
       "dollar_pnl": 309.0,
-      "exit_reason": "time_stop_15:50",
+      "exit_reason": "time_stop_15:40",
       "resolved_stop_mode": "structure",
       "hold_minutes": 140,
       "n_ticks_walked": 28,

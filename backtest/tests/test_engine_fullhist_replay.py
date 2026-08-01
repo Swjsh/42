@@ -135,6 +135,67 @@ def test_match_entries_still_matches_exact_same_bar():
     assert out["unmatched_expected_live_entries"] == []
 
 
+def test_per_archetype_days_matches_headline_and_flags_underpowered():
+    """WS6 regime library first-consumer wiring (2026-08-01): build_per_archetype_days must
+    (a) reconcile exactly to the input series' own n/sum (no day dropped or double-counted),
+    (b) use the real committed library (known dates: 2026-07-31=V-reversal, 2025-04-03=
+    gap-go -- see test_regime_library_guards.py's landmark pins), and (c) flag a thin
+    archetype as underpowered using the OP-11 evidence_n floor, not silently pass it off as
+    equally reliable as a well-populated one."""
+    day_series = pd.Series({
+        "2026-07-31": 145.0,     # V-reversal
+        "2025-04-03": -60.0,     # gap-go
+        "2025-04-04": 10.0,      # gap-go (2nd day, same archetype)
+    })
+    out = efr.build_per_archetype_days(day_series, evidence_floor=2)
+    assert out["V-reversal"]["n"] == 1
+    assert out["V-reversal"]["total"] == 145.0
+    assert out["V-reversal"]["underpowered"] is True     # n=1 < floor=2
+    assert out["gap-go"]["n"] == 2
+    assert out["gap-go"]["total"] == pytest.approx(-50.0)
+    assert out["gap-go"]["underpowered"] is False         # n=2 >= floor=2
+    # reconciliation: the "ALL" summary row (per_archetype_rows' own convention) must equal
+    # the input series' own n/sum exactly -- no day silently dropped or double-counted.
+    assert out["ALL"]["n"] == len(day_series)
+    assert out["ALL"]["total"] == pytest.approx(float(day_series.sum()))
+    non_all = [v for k, v in out.items() if k != "ALL"]
+    assert sum(v["n"] for v in non_all) == len(day_series)
+    assert sum(v["total"] for v in non_all) == pytest.approx(float(day_series.sum()))
+
+
+def test_per_archetype_days_untagged_date_is_loud_not_dropped():
+    """A date the regime library has never heard of (outside its window) must land in the
+    explicit UNTAGGED bucket -- never silently absorbed into a real archetype and never
+    silently dropped from the total (C7)."""
+    day_series = pd.Series({"2026-07-31": 100.0, "1999-01-04": -25.0})
+    out = efr.build_per_archetype_days(day_series)
+    assert out[efr.UNTAGGED]["n"] == 1
+    assert out[efr.UNTAGGED]["total"] == -25.0
+    assert out["ALL"]["n"] == 2
+
+
+def test_per_archetype_trades_reconciles_to_full_population_and_flags_thin_cells():
+    """TRADE-level cut: n_trades/total_pnl must sum EXACTLY back to the full trades frame
+    (every trade attributed to exactly one archetype bucket), win_rate is per-bucket (not
+    globally diluted), and a 1-trade archetype is flagged underpowered."""
+    df = pd.DataFrame({
+        "date": ["2026-07-31", "2025-04-03", "2025-04-04", "2025-04-04"],
+        "dollar_pnl": [145.0, -60.0, 10.0, 30.0],
+    })
+    out = efr.build_per_archetype_trades(df, evidence_floor=2)
+    assert out["V-reversal"]["n_trades"] == 1
+    assert out["V-reversal"]["win_rate"] == 1.0
+    assert out["V-reversal"]["underpowered"] is True
+    assert out["gap-go"]["n_trades"] == 3
+    assert out["gap-go"]["total_pnl"] == pytest.approx(-20.0)
+    assert out["gap-go"]["win_rate"] == pytest.approx(2 / 3, abs=1e-4)
+    assert out["gap-go"]["underpowered"] is False
+    assert sum(v["n_trades"] for v in out.values()) == len(df)
+    assert sum(v["total_pnl"] for v in out.values()) == pytest.approx(float(df["dollar_pnl"].sum()))
+    # the function must tag df in place with an 'archetype' column (documented behavior)
+    assert "archetype" in df.columns
+
+
 @pytest.mark.slow
 def test_anchor_2026_07_21_quiet_day_reproduces_at_trade_level():
     """Single-day run (fast, ~seconds) -- the one anchor day that passed full-history trade-

@@ -222,12 +222,76 @@ def test_artifact_landmark_days(artifact):
     assert days["2025-12-24"]["session"] == "half-day"
 
 
-def test_artifact_spec_and_thresholds_frozen(artifact):
-    assert artifact["spec_version"] == "1.0.0"
+# All 15 constants in build_day_archetypes.py's `thresholds` block (build_artifact()) --
+# spelled out explicitly (not derived from the artifact itself, which would be circular: a
+# check that only compares the artifact to its own keys can never catch a key that should
+# exist but doesn't). Adversarial review (2026-08-01) found the pre-fix guard checked only
+# GAP_SIG_PCT + TREND_BODY_PCT (2 of 15) -- mutating V_CLOSE_LOC in the live module left the
+# WHOLE suite green, because nothing compared it. This list is the fix's single source of
+# truth: every name here is compared artifact-vs-live-module, and the RED-proof below mutates
+# each one in turn to prove the comparison actually catches drift instead of just existing.
+ALL_THRESHOLD_NAMES = (
+    "GAP_SIG_PCT", "SHAPE_MIN_RANGE_PCT", "V_DEPTH_FRAC", "V_CLOSE_LOC",
+    "IV_CLOSE_LOC", "V_TIME_FRAC", "TREND_BODY_PCT", "TREND_CLOSE_LOC",
+    "TREND_OPEN_LOC", "PIN_RANGE_PCT", "PIN_BODY_PCT", "MIN_BARS_ASSIGNABLE",
+    "HALF_DAY_MAX_BARS", "FULL_SESSION_BARS", "RECENT_N",
+)
+
+
+def _threshold_mismatches(artifact: dict, module) -> list[str]:
+    """Every way the on-disk artifact's `thresholds` block can have drifted from the live
+    module: a value that no longer matches (artifact frozen at build time, module mutated
+    since), or the key SET itself growing/shrinking without this guard's list being updated
+    to match. Empty list == frozen, no drift."""
     th = artifact["thresholds"]
-    assert th["GAP_SIG_PCT"] == bda.GAP_SIG_PCT
-    assert th["TREND_BODY_PCT"] == bda.TREND_BODY_PCT
+    problems = []
+    artifact_keys = set(th.keys())
+    expected_keys = set(ALL_THRESHOLD_NAMES)
+    if artifact_keys != expected_keys:
+        problems.append(
+            f"threshold key set drift: artifact-only={sorted(artifact_keys - expected_keys)} "
+            f"guard-only={sorted(expected_keys - artifact_keys)}"
+        )
+    for name in ALL_THRESHOLD_NAMES:
+        if name not in th:
+            continue  # already reported above -- don't double-count a missing key
+        live = getattr(module, name)
+        if th[name] != live:
+            problems.append(f"{name}: artifact={th[name]!r} != live module={live!r}")
+    return problems
+
+
+def test_artifact_all_thresholds_frozen(artifact):
+    """ALL 15 spec constants (not just GAP_SIG_PCT/TREND_BODY_PCT) must match the live
+    module -- see ALL_THRESHOLD_NAMES docstring for the gap this closes."""
+    assert artifact["spec_version"] == "1.0.0"
+    mismatches = _threshold_mismatches(artifact, bda)
+    assert not mismatches, "threshold drift vs live module:\n" + "\n".join(mismatches)
     assert list(artifact["precedence"]) == list(bda.PRECEDENCE)
+
+
+@pytest.mark.parametrize("const_name", ALL_THRESHOLD_NAMES)
+def test_threshold_freeze_guard_redproofed(artifact, monkeypatch, const_name):
+    """MUTATION RED-PROOF (the task this guard exists to do): bump ONE constant in the live
+    module -- the on-disk artifact stays exactly as committed, unrebuilt, exactly mirroring
+    what happens when someone edits a threshold in build_day_archetypes.py without also
+    rebuilding day-archetypes.json -- and confirm _threshold_mismatches (and therefore
+    test_artifact_all_thresholds_frozen) goes RED for that specific constant.
+
+    Runs once per entry in ALL_THRESHOLD_NAMES (15 total, including V_CLOSE_LOC, the
+    adversarial reviewer's specific finding) so EVERY pinned constant is proven caught, not
+    just a sample of 2-3. monkeypatch reverts automatically at teardown -- this never touches
+    the real file on disk, so it is safe to run against the shared checkout."""
+    assert not _threshold_mismatches(artifact, bda), (
+        "baseline must be clean before mutating -- if this fails, there is REAL drift, "
+        "fix that first")
+    original = getattr(bda, const_name)
+    mutated = original + 1 if isinstance(original, int) else original + 0.05
+    monkeypatch.setattr(bda, const_name, mutated)
+    mismatches = _threshold_mismatches(artifact, bda)
+    assert any(m.startswith(const_name + ":") for m in mismatches), (
+        f"freeze guard failed to catch a live drift in {const_name} "
+        f"(original={original!r} mutated={mutated!r}); mismatches={mismatches}")
 
 
 # ---------------------------------------------------------------------------
