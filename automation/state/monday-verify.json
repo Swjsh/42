@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "checker": "monday_verify.py (WEEKEND-TWELVE Next-Twelve #6)",
+  "generated_at_et": "2026-08-01T15:14:40",
+  "check_date": "2026-08-01",
+  "overall": "NOT_EXERCISED",
+  "never_blocks_never_kills": true,
+  "checks": [
+    {
+      "id": "ws7_live_watch",
+      "name": "WS7 live watch",
+      "verdict": "NOT_EXERCISED",
+      "expected": "Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null.",
+      "observed": "no core-decisions.jsonl ticks dated 2026-08-01 -- no RTH session evidence (non-trading day or engine idle).",
+      "detail": {
+        "entries": []
+      }
+    },
+    {
+      "id": "ws6_regime_stamp",
+      "name": "WS6 regime stamp",
+      "verdict": "NOT_EXERCISED",
+      "expected": "Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re-test.",
+      "observed": "2026-08-01 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends.",
+      "detail": {}
+    },
+    {
+      "id": "ws3_level_hysteresis",
+      "name": "WS3 level hysteresis",
+      "verdict": "NOT_EXERCISED",
+      "expected": "Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever a level would otherwise have vanished-and-returned within 5 refresh windows.",
+      "observed": "no core-decisions.jsonl ticks dated 2026-08-01.",
+      "detail": {}
+    },
+    {
+      "id": "ws11_core_recency",
+      "name": "WS11 core recency",
+      "verdict": "NOT_EXERCISED",
+      "expected": "Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31.",
+      "observed": "run_date=2026-08-01 window_end=2026-07-31 (baseline window_end=2026-07-31, advanced=False). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True.",
+      "detail": {
+        "baseline": {
+          "run_date": "2026-08-01",
+          "window_end": "2026-07-31",
+          "bear": {
+            "verdict": "RED",
+            "n": 10,
+            "exp_per_trade": -60.9
+          },
+          "bull": {
+            "verdict": "UNDERPOWERED",
+            "n": 1,
+            "exp_per_trade": -295.0
+          }
+        },
+        "current_verdicts": {
+          "bear": {
+            "verdict": "RED",
+            "n": 10,
+            "exp_per_trade": -60.9,
+            "reason": "real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window",
+            "headline": "bear RED n=10"
+          },
+          "bull": {
+            "verdict": "UNDERPOWERED",
+            "n": 1,
+            "exp_per_trade": -295.0,
+            "reason": "n=1 < floor 10 on real fills (negative $-295.0/tr) -- no verdict manufactured; see replay supplement",
+            "headline": "bull UNDERPOWERED n=1"
+          }
+        },
+        "window_end": "2026-07-31",
+        "window_advanced": false,
+        "n_delta_bear": 0,
+        "verdict_moved_bear": false,
+        "refresh": {
+          "attempted": true,
+          "ok": true,
+          "returncode": 0,
+          "tail": [
+            "",
+            "=== CORE-STRATEGY RECENCY ===",
+            "core strategy recency: bear RED n=10, bull UNDERPOWERED n=1 (floor 10, 25d to 2026-07-31)",
+            "  bear  -> RED          real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window",
+            "  bull  -> UNDERPOWERED n=1 < floor 10 on real fills (negative $-295.0/tr) -- no verdict manufactured; see replay supplement"
+          ]
+        },
+        "run_date": "2026-08-01"
+      }
+    },
+    {
+      "id": "theta_cockpit",
+      "name": "Theta cockpit",
+      "verdict": "NOT_EXERCISED",
+      "expected": "Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STILL true on any real fill dated 2026-08-01, or whether it finally flips to 'broker_snapshot'.",
+      "observed": "no core-decisions.jsonl ticks dated 2026-08-01 -- non-trading day.",
+      "detail": {
+        "entries": []
+      }
+    },
+    {
+      "id": "ws1_preview_diff",
+      "name": "WS1 preview diff",
+      "verdict": "NOT_EXERCISED",
+      "expected": "MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_core ATM tier); risky-3 ~2 fills. risky-1 SoD equity ~$1,756.87 (ATM tier applies) UNLESS the WS12 $2,500/arm reset ran, which flips every arm's normal lane back to OTM-2.",
+      "observed": "this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-01 -- diff not applicable.",
+      "detail": {
+        "target_date": "2026-08-03"
+      }
+    }
+  ]
+}

@@ -1,3 +1,20 @@
+## [2026-08-01T15:14:40 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-01 -- 0 GREEN / 0 YELLOW / 0 RED / 6 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-01 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-01 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-01. |
+| WS11 core recency | NOT_EXERCISED | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-01 window_end=2026-07-31 (baseline window_end=2026-07-31, advanced=False). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-01 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-01 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-01`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-01 14:43 ET] NULL (deliverable) -- WEEKEND-TWELVE Next-Twelve #7: shelf bistability SOURCE-FIX A/B -- hysteresis-only STANDS
 
 **All 3 source-fix arms unanimously FAIL the pre-registered steady-state-fidelity gate; WS3's
