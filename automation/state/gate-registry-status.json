@@ -1,6 +1,6 @@
 {
   "checker": "gate-expiry instrument (J directive 2026-07-31)",
-  "run_date": "2026-07-31",
+  "run_date": "2026-08-01",
   "recent_window": "2026-06-26..2026-07-31",
   "opra_cache_last": "2026-07-31",
   "confirm_n_floor": 10,
@@ -11,7 +11,7 @@
     "block_level_rejection": {
       "id": "block_level_rejection",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 45,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -72,7 +72,7 @@
     "block_elite_bull": {
       "id": "block_elite_bull",
       "category": "core_gate_order",
-      "evidence_age_days": 21,
+      "evidence_age_days": 22,
       "revalidation_interval_days": 14,
       "evidence_stale": true,
       "pnl_check": {
@@ -153,7 +153,7 @@
     "block_bull_1100_1200": {
       "id": "block_bull_1100_1200",
       "category": "core_gate_order",
-      "evidence_age_days": 43,
+      "evidence_age_days": 44,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -202,7 +202,7 @@
     "block_bull_morning_agg": {
       "id": "block_bull_morning_agg",
       "category": "core_gate_order",
-      "evidence_age_days": 37,
+      "evidence_age_days": 38,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -214,7 +214,7 @@
     "require_bearish_fill_bar": {
       "id": "require_bearish_fill_bar",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 45,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -264,7 +264,7 @@
     "min_ribbon_momentum_cents": {
       "id": "min_ribbon_momentum_cents",
       "category": "core_gate_order",
-      "evidence_age_days": 23,
+      "evidence_age_days": 24,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -276,7 +276,7 @@
     "max_ribbon_duration_bars": {
       "id": "max_ribbon_duration_bars",
       "category": "core_gate_order",
-      "evidence_age_days": 45,
+      "evidence_age_days": 46,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -299,7 +299,7 @@
     "midday_trendline_gate": {
       "id": "midday_trendline_gate",
       "category": "core_gate_order",
-      "evidence_age_days": 43,
+      "evidence_age_days": 44,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -311,7 +311,7 @@
     "block_conf_lvl_rej_midday_afternoon": {
       "id": "block_conf_lvl_rej_midday_afternoon",
       "category": "core_gate_order",
-      "evidence_age_days": 43,
+      "evidence_age_days": 44,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -323,7 +323,7 @@
     "block_conf_lvl_rec_afternoon": {
       "id": "block_conf_lvl_rec_afternoon",
       "category": "core_gate_order",
-      "evidence_age_days": 43,
+      "evidence_age_days": 44,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -372,7 +372,7 @@
     "entry_bar_body_pct_min": {
       "id": "entry_bar_body_pct_min",
       "category": "core_gate_order",
-      "evidence_age_days": 43,
+      "evidence_age_days": 44,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -434,7 +434,7 @@
     "vix_bear_hard_cap": {
       "id": "vix_bear_hard_cap",
       "category": "core_gate_order",
-      "evidence_age_days": 43,
+      "evidence_age_days": 44,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -457,7 +457,7 @@
     "structure_veto_enabled": {
       "id": "structure_veto_enabled",
       "category": "non_gate_order_veto",
-      "evidence_age_days": 35,
+      "evidence_age_days": 36,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -507,7 +507,7 @@
     "free_model_veto": {
       "id": "free_model_veto",
       "category": "non_gate_order_veto",
-      "evidence_age_days": 22,
+      "evidence_age_days": 23,
       "revalidation_interval_days": 30,
       "evidence_stale": false,
       "pnl_check": {
@@ -560,7 +560,7 @@
     "fleet_score_ladder_floor": {
       "id": "fleet_score_ladder_floor",
       "category": "fleet_config",
-      "evidence_age_days": 4,
+      "evidence_age_days": 5,
       "revalidation_interval_days": 14,
       "evidence_stale": false,
       "pnl_check": {
@@ -572,7 +572,7 @@
     "fleet_hard_skip_verdicts_override": {
       "id": "fleet_hard_skip_verdicts_override",
       "category": "fleet_config",
-      "evidence_age_days": 8,
+      "evidence_age_days": 9,
       "revalidation_interval_days": 21,
       "evidence_stale": false,
       "pnl_check": {
@@ -580,6 +580,84 @@
         "reason": "fleet-scoped; not yet wired to this checker's core-decisions.jsonl miner (future extension)"
       },
       "overall": "GREEN"
+    },
+    "core_strategy_bear": {
+      "id": "core_strategy_bear",
+      "category": "core_strategy",
+      "evidence_age_days": 0,
+      "revalidation_interval_days": 14,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "RED",
+        "core_strategy_verdict": "RED",
+        "reason": "CORE STRATEGY BEAR recency RED: real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=12 exp=$-23.58/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
+        "headline": "bear RED n=10",
+        "window": {
+          "start": "2026-06-26",
+          "end": "2026-07-31",
+          "n_trading_days": 25,
+          "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
+        },
+        "broker_core": {
+          "n": 10,
+          "total_dollar": -609.0,
+          "exp_per_trade": -60.9,
+          "wr_pct": 20.0,
+          "n_days": 5,
+          "first_fill": "2026-07-17",
+          "last_fill": "2026-07-27"
+        },
+        "replay_supplement": {
+          "n": 12,
+          "total_dollar": -283.0,
+          "exp_per_trade": -23.58,
+          "wr_pct": 25.0,
+          "n_days": 9,
+          "first_fill": "2026-06-26",
+          "last_fill": "2026-07-23"
+        },
+        "detail": "automation\\state\\core-strategy-recency.json"
+      },
+      "overall": "RED"
+    },
+    "core_strategy_bull": {
+      "id": "core_strategy_bull",
+      "category": "core_strategy",
+      "evidence_age_days": 0,
+      "revalidation_interval_days": 14,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "YELLOW",
+        "core_strategy_verdict": "UNDERPOWERED",
+        "reason": "CORE STRATEGY BULL recency UNDERPOWERED: n=1 < floor 10 on real fills (negative $-295.0/tr) -- no verdict manufactured; see replay supplement; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=5 exp=$-69.48/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
+        "headline": "bull UNDERPOWERED n=1",
+        "window": {
+          "start": "2026-06-26",
+          "end": "2026-07-31",
+          "n_trading_days": 25,
+          "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
+        },
+        "broker_core": {
+          "n": 1,
+          "total_dollar": -295.0,
+          "exp_per_trade": -295.0,
+          "wr_pct": 0.0,
+          "n_days": 1,
+          "first_fill": "2026-07-28",
+          "last_fill": "2026-07-28"
+        },
+        "replay_supplement": {
+          "n": 5,
+          "total_dollar": -347.4,
+          "exp_per_trade": -69.48,
+          "wr_pct": 20.0,
+          "n_days": 4,
+          "first_fill": "2026-06-29",
+          "last_fill": "2026-07-15"
+        },
+        "detail": "automation\\state\\core-strategy-recency.json"
+      },
+      "overall": "YELLOW"
     }
   }
 }

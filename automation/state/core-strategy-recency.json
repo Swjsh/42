@@ -1,0 +1,183 @@
+{
+  "instrument": "CORE-STRATEGY RECENCY (WS11 2026-08-01) -- the revalidation clock for the strategy itself, per J's 2026-07-31 recency rule",
+  "run_date": "2026-08-01",
+  "window": {
+    "start": "2026-06-26",
+    "end": "2026-07-31",
+    "n_trading_days": 25,
+    "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
+  },
+  "lookback_trading_days": 25,
+  "confirm_n_floor": 10,
+  "strategy_family": [
+    "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+  ],
+  "verdict_rules": {
+    "GREEN": "broker-core exp/tr > 0 AND n >= floor",
+    "RED": "broker-core exp/tr <= 0 AND n >= floor",
+    "UNDERPOWERED": "0 < n < floor (no verdict manufactured; supplement quoted)",
+    "NO_FILLS": "n == 0",
+    "authority": "broker_core stratum ONLY -- fleet context and replay supplement are disclosed alongside, never blended into n"
+  },
+  "verdicts": {
+    "bear": {
+      "verdict": "RED",
+      "n": 10,
+      "exp_per_trade": -60.9,
+      "reason": "real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=12 exp=$-23.58/tr recent",
+      "headline": "bear RED n=10"
+    },
+    "bull": {
+      "verdict": "UNDERPOWERED",
+      "n": 1,
+      "exp_per_trade": -295.0,
+      "reason": "n=1 < floor 10 on real fills (negative $-295.0/tr) -- no verdict manufactured; see replay supplement; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=5 exp=$-69.48/tr recent",
+      "headline": "bull UNDERPOWERED n=1"
+    }
+  },
+  "headline": "core strategy recency: bear RED n=10, bull UNDERPOWERED n=1 (floor 10, 25d to 2026-07-31)",
+  "strata": {
+    "broker_core": {
+      "bear": {
+        "n": 10,
+        "total_dollar": -609.0,
+        "exp_per_trade": -60.9,
+        "wr_pct": 20.0,
+        "n_days": 5,
+        "first_fill": "2026-07-17",
+        "last_fill": "2026-07-27"
+      },
+      "bull": {
+        "n": 1,
+        "total_dollar": -295.0,
+        "exp_per_trade": -295.0,
+        "wr_pct": 0.0,
+        "n_days": 1,
+        "first_fill": "2026-07-28",
+        "last_fill": "2026-07-28"
+      },
+      "by_account": {
+        "core Safe/bear": {
+          "n": 7,
+          "total_dollar": -140.0,
+          "exp_per_trade": -20.0,
+          "wr_pct": 14.3,
+          "n_days": 4,
+          "first_fill": "2026-07-17",
+          "last_fill": "2026-07-27"
+        },
+        "core Safe/bull": {
+          "n": 0
+        },
+        "core Bold/bear": {
+          "n": 3,
+          "total_dollar": -469.0,
+          "exp_per_trade": -156.33,
+          "wr_pct": 33.3,
+          "n_days": 3,
+          "first_fill": "2026-07-17",
+          "last_fill": "2026-07-27"
+        },
+        "core Bold/bull": {
+          "n": 1,
+          "total_dollar": -295.0,
+          "exp_per_trade": -295.0,
+          "wr_pct": 0.0,
+          "n_days": 1,
+          "first_fill": "2026-07-28",
+          "last_fill": "2026-07-28"
+        }
+      }
+    },
+    "broker_fleet_context": {
+      "bear": {
+        "n": 32,
+        "total_dollar": -103.0,
+        "exp_per_trade": -3.22,
+        "wr_pct": 18.8,
+        "n_days": 8,
+        "first_fill": "2026-07-02",
+        "last_fill": "2026-07-30"
+      },
+      "bull": {
+        "n": 83,
+        "total_dollar": -243.0,
+        "exp_per_trade": -2.93,
+        "wr_pct": 8.4,
+        "n_days": 11,
+        "first_fill": "2026-06-29",
+        "last_fill": "2026-07-31"
+      },
+      "note": "same RIDE_THE_RIBBON family on the fleet arms (roster-driven ids) -- real fills, different risk shells; CONTEXT only, not verdict"
+    },
+    "replay_supplement_safe_shape": {
+      "frame": "2025-01-02..2026-07-31",
+      "recent_window": "2026-06-26..2026-07-31",
+      "n_frame_trading_days": 394,
+      "excluded": {
+        "no_opra": 0,
+        "no_spy_day": 0
+      },
+      "shape": "core Safe (SAFE_BASE_LIVE) -- no production-parity Bold replay harness exists (engine_fullhist_replay.py scope disclosure)",
+      "basis": "engine-sim (orchestrator entry + walk_exit_manager exit, real OPRA only) -- NEVER blended into broker-fills n",
+      "runtime_seconds": 130.7,
+      "recent": {
+        "bear": {
+          "n": 12,
+          "total_dollar": -283.0,
+          "exp_per_trade": -23.58,
+          "wr_pct": 25.0,
+          "n_days": 9,
+          "first_fill": "2026-06-26",
+          "last_fill": "2026-07-23"
+        },
+        "bull": {
+          "n": 5,
+          "total_dollar": -347.4,
+          "exp_per_trade": -69.48,
+          "wr_pct": 20.0,
+          "n_days": 4,
+          "first_fill": "2026-06-29",
+          "last_fill": "2026-07-15"
+        }
+      },
+      "full": {
+        "bear": {
+          "n": 152,
+          "total_dollar": 2670.55,
+          "exp_per_trade": 17.57,
+          "wr_pct": 26.3,
+          "n_days": 114,
+          "first_fill": "2025-01-06",
+          "last_fill": "2026-07-23"
+        },
+        "bull": {
+          "n": 39,
+          "total_dollar": 2335.4,
+          "exp_per_trade": 59.88,
+          "wr_pct": 41.0,
+          "n_days": 37,
+          "first_fill": "2025-01-16",
+          "last_fill": "2026-07-15"
+        }
+      }
+    }
+  },
+  "exclusions": {
+    "bad_date": 0,
+    "outside_window": 15,
+    "non_family": 37,
+    "bad_side": 0,
+    "bad_pnl": 0,
+    "unattributed_account": 2,
+    "side_setup_mismatch": 0
+  },
+  "DISCLOSURE": {
+    "authority": "real broker fills (C1); per-trade expectancy, legs grouped per entry",
+    "outage_context": "recent window includes the level-feed-outage stretch (~2026-07-25..07-30, repaired ~07-31); those fills are real and included, read RED in context",
+    "small_n": "window n is small by design; UNDERPOWERED is reported as such, never dressed as a verdict",
+    "no_bold_replay": "replay supplement is Safe-shape only (no Bold harness exists)",
+    "report_only": "no order, no arming, no param edit"
+  }
+}
