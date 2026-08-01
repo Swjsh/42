@@ -1,0 +1,6 @@
+# Byte-identity protection for deterministic artifacts (WS6 regime library,
+# 2026-08-01). The builder promises byte-identical re-runs (LF, sha256-verifiable
+# via --check); without this rule core.autocrlf would rewrite the file to CRLF on
+# the next checkout and turn --check into a false alarm.
+# Scoped narrowly on purpose -- repo-wide EOL policy is NOT this file's job.
+analysis/regime-library/day-archetypes.json -text
