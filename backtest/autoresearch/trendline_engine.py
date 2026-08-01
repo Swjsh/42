@@ -517,6 +517,14 @@ def main(n_days: int = N_DAYS, write_log: bool = True, as_json: bool = False) ->
     if write_log:
         log_lines(lines, day)
         write_live_state(lines, day)   # V4: shadow state for the engine/dashboard/self-check
+        # WS8 (2026-08-01): refresh the consumer-facing watch surface (trendline-watch.json --
+        # active lines + last break/retest events + premarket one-liner). FAIL-OPEN by
+        # doctrine (C7): visibility must NEVER break the 5-min production fire.
+        try:
+            import trendline_watch
+            trendline_watch.refresh()
+        except Exception as exc:  # noqa: BLE001 -- deliberate fail-open, logged not raised
+            print(f"trendline_watch refresh failed (non-fatal): {exc}")
     if as_json:
         # T14: for the visibility bridge (trendline-draw skill) -- full anchor coords, NO log
         # side-effect required (write_log=False is the normal pairing with --json so an

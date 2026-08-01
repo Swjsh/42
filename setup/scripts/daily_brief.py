@@ -54,6 +54,7 @@ BOLD_BREAKER_PATH = AGG / "circuit-breaker.json"
 STATUS_MD_PATH = REPO / "automation" / "overnight" / "STATUS.md"
 QUEUE_MD_PATH = REPO / "automation" / "overnight" / "queue.md"
 TRADE_TODAY_PATH = STATE / "trade-today.json"
+TRENDLINE_WATCH_PATH = STATE / "trendline-watch.json"  # WS8 2026-08-01 (trendline_watch.py)
 CORE_DECISIONS_PATH = STATE / "core-decisions.jsonl"
 FLEET_DIR = STATE / "fleet"
 DOJO_BRIEFS_DIR = STATE / "dojo" / "session-briefs"
@@ -346,6 +347,24 @@ def _crypto_overnight_line() -> str:
         return "Crypto twin P&L unavailable this morning -- worth a look."
 
 
+def _trendline_morning_line() -> str:
+    """WS8 (2026-08-01): ONE lean spoken sentence from the trendline watch surface
+    (automation/state/trendline-watch.json, producer backtest/autoresearch/
+    trendline_watch.py -- "N active trendlines, nearest at X" + last break).
+    The producer fires RTH-only (Gamma_Trendlines), so at 08:45 the line carries
+    its own as-of stamp from yesterday's close -- honest, never implied-fresh.
+    Fail-open (C7): a missing/garbled watch file degrades to explicit no-data
+    phrasing, never a crash."""
+    try:
+        d = _read_json(TRENDLINE_WATCH_PATH)
+        line = (d or {}).get("premarket_line")
+        if isinstance(line, str) and line.strip():
+            return line.strip()
+        return "Trendlines: no watch surface on file yet."
+    except Exception:  # noqa: BLE001 -- never let a telemetry read break the brief
+        return "Trendlines: watch surface unreadable this morning."
+
+
 def compose_morning_text(facts: dict) -> str:
     lines = [f"Gamma here. Morning brief, {facts['day']}."]
     # LEADS with the readiness verdict (WS2, 2026-07-27): "ready to trade?" must never again
@@ -358,6 +377,7 @@ def compose_morning_text(facts: dict) -> str:
         lines.append(f"Nearest levels: {lvl_txt}.")
     else:
         lines.append("No fresh key levels on file.")
+    lines.append(_trendline_morning_line())
     lines.append(f"Kill switches: Safe {facts['safe_breaker']}, Bold {facts['bold_breaker']}.")
     lines.append(_crypto_overnight_line())
     overnight = facts.get("overnight_headers") or []

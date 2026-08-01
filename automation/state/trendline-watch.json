@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "ts_et": "2026-08-01T12:52:04",
+  "source": {
+    "live_state": "automation/state/trendlines-live.json",
+    "log": "analysis/trendlines/trendline-log.jsonl",
+    "producer": "backtest/autoresearch/trendline_watch.py (fed by trendline_engine.main, 5-min Gamma_Trendlines RTH)"
+  },
+  "live_state_ts_et": "2026-07-31T16:00:03",
+  "live_state_date_et": "2026-07-31",
+  "n_total": 4,
+  "n_active": 2,
+  "last_close": 746.79,
+  "active_lines": [
+    {
+      "kind": "support",
+      "flavor": "wick",
+      "tier": "primary",
+      "status": "TESTING",
+      "current_value": 746.71,
+      "break_level": 746.71,
+      "respect_count": 33,
+      "violations": 0,
+      "slope_per_bar": 0.092,
+      "summary": "SUPPORT [WICK] 07-31 12:05@742.50 -> 07-31 15:05@745.79 slope +0.09/bar | line now 746.71 (close 746.79) | respected x33 | TESTING | BREAK = 5m close below ~746.71"
+    },
+    {
+      "kind": "support",
+      "flavor": "body",
+      "tier": "primary",
+      "status": "TESTING",
+      "current_value": 746.79,
+      "break_level": 746.79,
+      "respect_count": 38,
+      "violations": 0,
+      "slope_per_bar": 0.082,
+      "summary": "SUPPORT [BODY] 07-31 12:05@743.04 -> 07-31 15:00@745.89 slope +0.08/bar | line now 746.79 (close 746.79) | respected x38 | TESTING | BREAK = 5m close below ~746.79"
+    }
+  ],
+  "all_lines": [
+    {
+      "kind": "support",
+      "flavor": "wick",
+      "tier": "primary",
+      "status": "TESTING",
+      "current_value": 746.71,
+      "break_level": 746.71,
+      "respect_count": 33,
+      "violations": 0,
+      "slope_per_bar": 0.092,
+      "summary": "SUPPORT [WICK] 07-31 12:05@742.50 -> 07-31 15:05@745.79 slope +0.09/bar | line now 746.71 (close 746.79) | respected x33 | TESTING | BREAK = 5m close below ~746.71"
+    },
+    {
+      "kind": "resistance",
+      "flavor": "wick",
+      "tier": "primary",
+      "status": "BROKEN",
+      "current_value": 746.37,
+      "break_level": 746.37,
+      "respect_count": 20,
+      "violations": 9,
+      "slope_per_bar": -0.003,
+      "summary": "RESISTANCE [WICK] 07-31 13:35@746.46 -> 07-31 14:20@746.43 slope -0.00/bar | line now 746.37 (close 746.79) | respected x20 | BROKEN | BREAK = 5m close above ~746.37"
+    },
+    {
+      "kind": "support",
+      "flavor": "body",
+      "tier": "primary",
+      "status": "TESTING",
+      "current_value": 746.79,
+      "break_level": 746.79,
+      "respect_count": 38,
+      "violations": 0,
+      "slope_per_bar": 0.082,
+      "summary": "SUPPORT [BODY] 07-31 12:05@743.04 -> 07-31 15:00@745.89 slope +0.08/bar | line now 746.79 (close 746.79) | respected x38 | TESTING | BREAK = 5m close below ~746.79"
+    },
+    {
+      "kind": "resistance",
+      "flavor": "body",
+      "tier": "primary",
+      "status": "BROKEN",
+      "current_value": 746.33,
+      "break_level": 746.33,
+      "respect_count": 21,
+      "violations": 9,
+      "slope_per_bar": -0.001,
+      "summary": "RESISTANCE [BODY] 07-31 13:30@746.37 -> 07-31 14:45@746.35 slope -0.00/bar | line now 746.33 (close 746.79) | respected x21 | BROKEN | BREAK = 5m close above ~746.33"
+    }
+  ],
+  "nearest_active": {
+    "kind": "support",
+    "flavor": "body",
+    "tier": "primary",
+    "status": "TESTING",
+    "current_value": 746.79,
+    "distance_dollars": 0.0,
+    "side": "below",
+    "vs_close": 746.79
+  },
+  "last_break": {
+    "type": "break",
+    "ts_et": "2026-07-31T15:20:03",
+    "date_et": "2026-07-31",
+    "kind": "resistance",
+    "flavor": "body",
+    "tier": "same_day",
+    "level": 746.34,
+    "summary": ""
+  },
+  "last_retest": {
+    "type": "retest",
+    "ts_et": "2026-07-31T16:00:03",
+    "date_et": "2026-07-31",
+    "kind": "support",
+    "flavor": "body",
+    "tier": "primary",
+    "level": 746.79,
+    "summary": ""
+  },
+  "recent_events": [
+    {
+      "type": "break",
+      "ts_et": "2026-07-31T15:20:03",
+      "date_et": "2026-07-31",
+      "kind": "resistance",
+      "flavor": "body",
+      "tier": "primary",
+      "level": 746.33,
+      "summary": ""
+    },
+    {
+      "type": "break",
+      "ts_et": "2026-07-31T15:20:03",
+      "date_et": "2026-07-31",
+      "kind": "resistance",
+      "flavor": "wick",
+      "tier": "same_day",
+      "level": 746.39,
+      "summary": ""
+    },
+    {
+      "type": "break",
+      "ts_et": "2026-07-31T15:20:03",
+      "date_et": "2026-07-31",
+      "kind": "resistance",
+      "flavor": "body",
+      "tier": "same_day",
+      "level": 746.34,
+      "summary": ""
+    },
+    {
+      "type": "retest",
+      "ts_et": "2026-07-31T16:00:03",
+      "date_et": "2026-07-31",
+      "kind": "support",
+      "flavor": "wick",
+      "tier": "primary",
+      "level": 746.71,
+      "summary": ""
+    },
+    {
+      "type": "retest",
+      "ts_et": "2026-07-31T16:00:03",
+      "date_et": "2026-07-31",
+      "kind": "support",
+      "flavor": "body",
+      "tier": "primary",
+      "level": 746.79,
+      "summary": ""
+    }
+  ],
+  "_merge_note": "WS7 live-watch.json integration: READ this file and embed this payload under an additive 'trendlines' key. One writer per state file -- this producer never writes live-watch.json.",
+  "premarket_line": "Trendlines: 2 active as of 07-31 16:00, nearest body support at 746.79, 0.00 below close; last break body resistance 746.34 at 07-31 15:20."
+}
