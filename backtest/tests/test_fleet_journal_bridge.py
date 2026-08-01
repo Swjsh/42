@@ -72,7 +72,11 @@ def test_build_row_has_exactly_the_canonical_columns():
     row = fjb.build_row(_round_trip(), _entry_dec(), _exit_info(), _ARM_META, fjb.PRIMARY_SOURCE_LABEL)
     assert row is not None
     assert set(row.keys()) == set(fjb.SCHEMA)
-    assert len(fjb.SCHEMA) == 43
+    # THETA-COCKPIT (2026-08-01): 43 -> 44, `theta_at_entry` appended at the END of SCHEMA
+    # (never inserted mid-schema -- see SCHEMA's own comment on why that ordering is load-
+    # bearing for every existing by-name CSV reader).
+    assert len(fjb.SCHEMA) == 44
+    assert fjb.SCHEMA[-1] == "theta_at_entry"
 
 
 def test_build_row_field_values():
@@ -531,3 +535,160 @@ def test_end_to_end_core_bridge_writes_row_with_correct_account_id_and_setup(tmp
         parsed = list(csv.DictReader(fh))
     assert len(parsed) == 1
     assert parsed[0]["account_id"] == "safe"
+
+
+# --------------------------------------------------------------------------- #
+# THETA-COCKPIT (2026-08-01): delta/iv/theta_at_entry sourcing + schema migration
+# --------------------------------------------------------------------------- #
+def test_greeks_at_entry_prefers_broker_snapshot_over_fallback():
+    entry_dec = {"greeks": {"delta": -0.42, "iv": 0.187, "theta": -0.55}}
+    fallback = {"entry_delta": -0.99, "entry_iv": 0.99, "entry_theta": -0.99}
+    out = fjb._greeks_at_entry(entry_dec, fallback)
+    assert out["delta_at_entry"] == -0.42
+    assert out["iv_at_entry"] == 0.187
+    assert out["theta_at_entry"] == -0.55
+    assert out["_sources"]["delta"].startswith("broker_snapshot")
+
+
+def test_greeks_at_entry_falls_back_to_theta_clock_when_broker_greeks_empty():
+    """The empirically-common case (G8's own capture returned {} on 29/29 real entries
+    checked before this build) -- must fall back cleanly, not blank out."""
+    entry_dec = {"greeks": {}}
+    fallback = {"entry_delta": -0.35, "entry_iv": 0.21, "entry_theta": -0.44}
+    out = fjb._greeks_at_entry(entry_dec, fallback)
+    assert out["delta_at_entry"] == -0.35
+    assert out["iv_at_entry"] == 0.21
+    assert out["theta_at_entry"] == -0.44
+    assert out["_sources"]["delta"] == "theta_clock_first_observation (~1min-of-fill fallback)"
+
+
+def test_greeks_at_entry_blank_when_neither_source_has_data():
+    """NEVER fabricates -- both sources missing means every field stays the SAME blank ""
+    every other unpopulated cell in this schema already uses."""
+    out = fjb._greeks_at_entry({}, None)
+    assert out["delta_at_entry"] == "" and out["iv_at_entry"] == "" and out["theta_at_entry"] == ""
+
+
+def test_greeks_at_entry_per_field_independent_fallback():
+    """Mixed case: broker snapshot has delta but not theta -- each field resolves
+    independently, not all-or-nothing."""
+    entry_dec = {"greeks": {"delta": -0.40}}
+    fallback = {"entry_delta": -0.99, "entry_theta": -0.50}
+    out = fjb._greeks_at_entry(entry_dec, fallback)
+    assert out["delta_at_entry"] == -0.40  # broker wins
+    assert out["theta_at_entry"] == -0.50  # falls back per-field
+    assert out["iv_at_entry"] == ""        # neither source has it
+
+
+def test_build_row_wires_theta_clock_entry_through():
+    row = fjb.build_row(_round_trip(), _entry_dec(), _exit_info(), _ARM_META,
+                         fjb.PRIMARY_SOURCE_LABEL,
+                         theta_clock_entry={"entry_delta": 0.55, "entry_iv": 0.19, "entry_theta": -0.61})
+    assert row["delta_at_entry"] == 0.55
+    assert row["iv_at_entry"] == 0.19
+    assert row["theta_at_entry"] == -0.61
+
+
+def test_build_row_theta_clock_entry_defaults_none_byte_identical(tmp_path):
+    """Every PRE-EXISTING call site (no theta_clock_entry kwarg) must render byte-identical
+    to before this change -- default-None is truly inert when the fallback isn't supplied."""
+    row = fjb.build_row(_round_trip(), _entry_dec(), _exit_info(), _ARM_META, fjb.PRIMARY_SOURCE_LABEL)
+    assert row["delta_at_entry"] == "" and row["iv_at_entry"] == "" and row["theta_at_entry"] == ""
+
+
+# --------------------------------------------------------------------------- #
+# schema header migration
+# --------------------------------------------------------------------------- #
+def test_ensure_schema_header_migrates_old_43col_file(tmp_path):
+    csv_path = tmp_path / "trades.csv"
+    old_schema = fjb.SCHEMA[:-1]  # everything except the new theta_at_entry column
+    old_row = ["x"] * len(old_schema)
+    csv_path.write_text(",".join(old_schema) + "\n" + ",".join(old_row) + "\n", encoding="utf-8-sig")
+
+    changed = fjb._ensure_schema_header(csv_path)
+    assert changed is True
+
+    with csv_path.open(encoding="utf-8-sig", newline="") as fh:
+        lines = fh.readlines()
+    new_header = next(csv.reader([lines[0]]))
+    assert new_header == fjb.SCHEMA
+    # the OLD data row is untouched byte-for-byte (still 43 raw values on that line) --
+    # DictReader fills the new trailing column with None for it, never misaligns.
+    assert lines[1].strip() == ",".join(old_row)
+    with csv_path.open(encoding="utf-8-sig", newline="") as fh:
+        parsed = list(csv.DictReader(fh))
+    assert parsed[0]["theta_at_entry"] is None
+    assert parsed[0]["date"] == "x"  # first column still aligned correctly
+
+
+def test_ensure_schema_header_idempotent_second_call_is_noop(tmp_path):
+    csv_path = tmp_path / "trades.csv"
+    old_schema = fjb.SCHEMA[:-1]
+    csv_path.write_text(",".join(old_schema) + "\n" + ",".join(["x"] * len(old_schema)) + "\n",
+                         encoding="utf-8-sig")
+    assert fjb._ensure_schema_header(csv_path) is True
+    before = csv_path.read_bytes()
+    assert fjb._ensure_schema_header(csv_path) is False  # already migrated -> no-op
+    assert csv_path.read_bytes() == before  # byte-identical, no needless rewrite
+
+
+def test_ensure_schema_header_noop_on_missing_or_empty_file(tmp_path):
+    missing = tmp_path / "does-not-exist.csv"
+    assert fjb._ensure_schema_header(missing) is False
+    empty = tmp_path / "empty.csv"
+    empty.write_text("", encoding="utf-8")
+    assert fjb._ensure_schema_header(empty) is False
+
+
+def test_ensure_schema_header_already_current_is_noop(tmp_path):
+    csv_path = tmp_path / "trades.csv"
+    csv_path.write_text(",".join(fjb.SCHEMA) + "\n" + ",".join(["x"] * len(fjb.SCHEMA)) + "\n",
+                         encoding="utf-8-sig")
+    assert fjb._ensure_schema_header(csv_path) is False
+
+
+def test_run_bridge_end_to_end_falls_back_to_theta_clock_position_state(tmp_path):
+    """Full wiring proof: a fleet_rest arm (no G8 greeks path at all) picks up its
+    delta/iv/theta_at_entry from a synthetic theta-clock position-state.json fixture, and the
+    value survives all the way into the written trades.csv row."""
+    state = tmp_path / "state"
+    journal = tmp_path / "journal"
+    state.mkdir()
+    journal.mkdir()
+    (state / "fleet").mkdir()
+    (state / "fleet" / "safe-3").mkdir()
+
+    (state / "pnl-statement.json").write_text(json.dumps({"round_trips": [_round_trip()]}), encoding="utf-8")
+    (state / "fills-ledger.jsonl").write_text(
+        json.dumps({"arm": "safe-1_unused", "activity_id": "x", "order_id": "y"}) + "\n", encoding="utf-8")
+    (state / "fleet" / "accounts.json").write_text(json.dumps({"arms": []}), encoding="utf-8")
+    (state / "fleet" / "safe-3" / "decisions.jsonl").write_text("", encoding="utf-8")
+    (state / "theta-clock").mkdir()
+    (state / "theta-clock" / "position-state.json").write_text(json.dumps({
+        "positions": {
+            "risky-1::SPY260709C00750000": {
+                "entry_delta": 0.61, "entry_iv": 0.205, "entry_theta": -0.72,
+            }
+        }
+    }), encoding="utf-8")
+
+    summary = fjb.run_bridge(
+        pnl_statement_path=state / "pnl-statement.json",
+        fills_ledger_path=state / "fills-ledger.jsonl",
+        fleet_dir=state / "fleet",
+        accounts_json_path=state / "fleet" / "accounts.json",
+        core_decisions_path=state / "core-decisions.jsonl",
+        trades_csv_path=journal / "trades.csv",
+        watermark_path=state / ".fleet-journal-watermark.json",
+        theta_clock_position_state_path=state / "theta-clock" / "position-state.json",
+        arms=("risky-1",),
+    )
+    assert summary["n_written"] == 1
+    row = summary["rows"][0]
+    assert row["delta_at_entry"] == 0.61
+    assert row["iv_at_entry"] == 0.205
+    assert row["theta_at_entry"] == -0.72
+
+    with (journal / "trades.csv").open(encoding="utf-8-sig", newline="") as fh:
+        parsed = list(csv.DictReader(fh))
+    assert parsed[0]["theta_at_entry"] == "-0.72"

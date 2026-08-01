@@ -87,6 +87,10 @@ ACCOUNTS_JSON = FLEET_DIR / "accounts.json"
 CORE_DECISIONS = STATE / "core-decisions.jsonl"
 TRADES_CSV = REPO / "journal" / "trades.csv"
 WATERMARK = STATE / ".fleet-journal-watermark.json"
+# THETA-COCKPIT (2026-08-01): theta_clock.py's per-position first-observation snapshot --
+# read-only fallback source for delta_at_entry/iv_at_entry/theta_at_entry. See
+# _greeks_at_entry()'s docstring for the precedence rule.
+THETA_CLOCK_POSITION_STATE = STATE / "theta-clock" / "position-state.json"
 
 # The 3 fleet_rest arms (execution=fleet_rest -> 100% engine per broker_fills.py's
 # attribution rule). Intentionally re-declared here (not imported from broker_fills)
@@ -106,10 +110,22 @@ CORE_ARMS: dict[str, str] = {"safe-2": "safe", "bold-2": "bold"}
 # Everything this bridge journals by default: 3 fleet_rest arms + 2 core arms.
 ALL_BRIDGE_ARMS: tuple[str, ...] = FLEET_REST_ARMS + tuple(CORE_ARMS)
 
-# Canonical trades.csv schema (43 columns). Source of truth: journal/trades.csv header.
-# Identical to backtest/autoresearch/webull_winner_journal.py's SCHEMA (the codebase's
-# other trades.csv-shaped bridge) -- kept independent (different subsystem/venv) but
-# byte-for-byte matched to the live header.
+# Canonical trades.csv schema. Source of truth: journal/trades.csv header.
+# Similar in spirit to backtest/autoresearch/webull_winner_journal.py's SCHEMA (that module
+# writes a DIFFERENT file, journal/j-real-winners.csv -- already independently ~41 columns,
+# pre-existing drift this change does not touch) -- kept independent (different subsystem/
+# venv) but byte-for-byte matched to journal/trades.csv's OWN live header.
+#
+# THETA-COCKPIT EXTENSION (2026-08-01): added `theta_at_entry` at the END of the schema
+# (44th column, was 43). Appending at the end (never inserting mid-schema) is deliberate --
+# every real consumer greppable in this repo reads trades.csv by COLUMN NAME (csv.DictReader
+# or manual header-zip), never positional index, so an end-appended column cannot misalign any
+# existing reader. The on-disk header line itself is migrated exactly once by
+# `_ensure_schema_header()` below (idempotent, called at the top of run_bridge()) BEFORE any
+# new row is appended -- migrating the header first, before ever writing a 44-value row under
+# it, is the one ordering constraint that keeps the file rectangular: old data rows keep their
+# original 43 values (csv.DictReader fills a too-short trailing row with None for the new
+# column -- fine, they genuinely have no theta_at_entry), while new rows get all 44.
 SCHEMA: list[str] = [
     "date", "time_entry", "time_exit", "setup", "contract", "dte", "strike",
     "c_or_p", "qty", "entry_px", "exit_px", "premium_paid", "premium_received",
@@ -120,7 +136,7 @@ SCHEMA: list[str] = [
     "iv_regime", "slippage_cents", "exit_slippage_cents", "tod_bucket",
     "bars_after_trigger", "entry_relative_to_bar", "hold_quality_pct",
     "cf_time_stop_pnl", "cf_high_water_pnl", "archetype_match_json",
-    "tape_assistance", "notes_short", "account_id",
+    "tape_assistance", "notes_short", "account_id", "theta_at_entry",
 ]
 
 _OCC_RE = re.compile(r"^([A-Z]+)(\d{2})(\d{2})(\d{2})([CP])(\d{8})$")
@@ -324,6 +340,13 @@ def _build_core_decision_index(core_decisions_path: Path, account: str) -> tuple
                 "equity": ex.get("equity"),
                 "_order_id": oid,
                 "_via_extra_exec": is_extra,
+                # THETA-COCKPIT (2026-08-01): pass through the G8 per-entry greeks capture
+                # (heartbeat_core._capture_greeks -> plan["greeks"] -> this row's exec.greeks),
+                # PRIMARY source for delta_at_entry/iv_at_entry/theta_at_entry in build_row().
+                # Empirically {} on every real entry checked so far (see theta_clock.py's
+                # module docstring) -- build_row() falls back to theta_clock's own
+                # first-observation snapshot when this is empty, never fabricates a value.
+                "greeks": ex.get("greeks"),
             }
             by_order_entry.setdefault(oid, entry_dec)
 
@@ -337,6 +360,18 @@ def _build_core_decision_index(core_decisions_path: Path, account: str) -> tuple
                         "kind": act.get("kind", ""), "_order_id": eoid,
                     })
     return by_order_entry, by_order_exit
+
+
+def _load_theta_clock_positions(path: Path) -> dict[str, dict]:
+    """Fail-open read of theta_clock.py's position-state.json -> {"{arm}::{symbol}": entry
+    snapshot dict}. Missing/corrupt/not-yet-run (e.g. a fresh clone before Gamma_ThetaClock has
+    ever fired) -> {} -- delta/iv/theta_at_entry just stay blank, exactly like today, never a
+    crash in the journaling path over an unrelated instrument's file."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data.get("positions") or {}
 
 
 def _load_watermark(path: Path) -> dict:
@@ -451,14 +486,55 @@ def _fallback_round_trips(fleet_dir: Path, arms: tuple[str, ...],
     return out
 
 
+def _greeks_at_entry(entry_dec: dict, theta_clock_entry: Optional[dict]) -> dict:
+    """PURE: resolve delta_at_entry/iv_at_entry/theta_at_entry with an explicit precedence --
+    PRIMARY = the G8 per-entry broker-greeks capture already threaded onto entry_dec["greeks"]
+    (decisions.jsonl exec.greeks, core arms only today); FALLBACK = theta_clock.py's own
+    first-observation snapshot (automation/state/theta-clock/position-state.json, keyed
+    "{arm}::{symbol}", within ~1 min of fill -- covers fleet_rest arms, which have no G8 path
+    at all, AND covers core arms on the (empirically common) tick where G8's own capture came
+    back empty). Returns "" (matching every other still-unpopulated cell in this schema) for
+    any field neither source has -- NEVER fabricates a number into a column named as if it
+    were real broker data (a downstream consumer -- perps leverage calibration -- was cited as
+    blocked on this column meaning real greeks)."""
+    primary = entry_dec.get("greeks") or {}
+    if not isinstance(primary, dict):
+        primary = {}
+    fallback = theta_clock_entry or {}
+
+    def _pick(primary_key: str, fallback_key: str):
+        v = primary.get(primary_key)
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return v, "broker_snapshot_at_entry (decisions.jsonl exec.greeks)"
+        v = fallback.get(fallback_key)
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return v, "theta_clock_first_observation (~1min-of-fill fallback)"
+        return None, None
+
+    delta, delta_src = _pick("delta", "entry_delta")
+    iv, iv_src = _pick("iv", "entry_iv")
+    theta, theta_src = _pick("theta", "entry_theta")
+    return {
+        "delta_at_entry": "" if delta is None else delta,
+        "iv_at_entry": "" if iv is None else iv,
+        "theta_at_entry": "" if theta is None else theta,
+        "_sources": {"delta": delta_src, "iv": iv_src, "theta": theta_src},
+    }
+
+
 # --------------------------------------------------------------------------- #
 # row assembly
 # --------------------------------------------------------------------------- #
 def build_row(rt: dict, entry_dec: Optional[dict], exit_info: Optional[dict],
-              arm_meta: dict, source_label: str) -> Optional[dict[str, str]]:
+              arm_meta: dict, source_label: str,
+              theta_clock_entry: Optional[dict] = None) -> Optional[dict[str, str]]:
     """One round trip + joined decision context -> one canonical trades.csv row.
     Returns None only if the symbol itself isn't a parseable SPY option (defensive;
-    callers already filter to _is_option before reaching here)."""
+    callers already filter to _is_option before reaching here).
+
+    `theta_clock_entry` (2026-08-01, optional, defaults None -- every pre-existing call site
+    stays byte-for-byte unaffected) is the FALLBACK source for delta/iv/theta_at_entry -- see
+    `_greeks_at_entry`'s docstring."""
     parsed = _parse_occ_symbol(rt.get("symbol", ""))
     if not parsed:
         return None
@@ -478,6 +554,7 @@ def build_row(rt: dict, entry_dec: Optional[dict], exit_info: Optional[dict],
     entry_dec = entry_dec or {}
     exit_info = exit_info or {}
     placement = entry_dec.get("placement") or {}
+    greeks_at_entry = _greeks_at_entry(entry_dec, theta_clock_entry)
 
     setup_name = entry_dec.get("setup_name") or "UNKNOWN_FLEET_FILL"
     quality = entry_dec.get("quality", "")
@@ -582,8 +659,8 @@ def build_row(rt: dict, entry_dec: Optional[dict], exit_info: Optional[dict],
         "hold_minutes": _hold_minutes(entry_ts, exit_ts),
         "trade_grade": "",
         "trade_grade_score": "",
-        "delta_at_entry": "",
-        "iv_at_entry": "",
+        "delta_at_entry": greeks_at_entry["delta_at_entry"],
+        "iv_at_entry": greeks_at_entry["iv_at_entry"],
         "iv_regime": "",
         "slippage_cents": slippage_cents,
         "exit_slippage_cents": "",
@@ -597,7 +674,46 @@ def build_row(rt: dict, entry_dec: Optional[dict], exit_info: Optional[dict],
         "tape_assistance": "",
         "notes_short": notes,
         "account_id": account_id,
+        "theta_at_entry": greeks_at_entry["theta_at_entry"],
     }
+
+
+def _ensure_schema_header(trades_csv_path: Path) -> bool:
+    """ONE-TIME, IDEMPOTENT migration: if the on-disk header is missing the current SCHEMA's
+    trailing column(s) (today: just `theta_at_entry`), rewrite ONLY the header line -- every
+    existing data row is left byte-for-byte untouched. Safe because every column added by this
+    migration is appended at the END of SCHEMA (see SCHEMA's own docstring comment) and every
+    real consumer reads by column name, not position.
+
+    Returns True if a migration was performed (for the caller's log line), False if the header
+    already matches (the common case on every run after the first) or the file doesn't exist
+    yet (a fresh file gets the full header on first write via `_append_rows`, nothing to do
+    here). Fail-open in the sense that any read/parse problem is treated as "nothing to
+    migrate" -- this must never be the reason a journaling run fails."""
+    if not trades_csv_path.exists() or trades_csv_path.stat().st_size == 0:
+        return False
+    try:
+        with trades_csv_path.open("r", newline="", encoding="utf-8-sig") as fh:
+            lines = fh.readlines()
+    except OSError:
+        return False
+    if not lines:
+        return False
+    current_header = next(csv.reader([lines[0]]), [])
+    if list(current_header) == SCHEMA:
+        return False  # already migrated
+    missing = [c for c in SCHEMA if c not in current_header]
+    if not missing:
+        return False  # header has every SCHEMA column already (e.g. reordered by hand) -- leave it
+    # Only ever append missing trailing columns -- never touch/reorder an existing column name,
+    # never drop one. This keeps the migration a pure additive, reversible (git-revertible) op.
+    new_header_line = ",".join(current_header + missing) + "\n"
+    lines[0] = new_header_line
+    tmp = trades_csv_path.with_suffix(trades_csv_path.suffix + ".tmp")
+    with tmp.open("w", newline="", encoding="utf-8-sig") as fh:
+        fh.writelines(lines)
+    tmp.replace(trades_csv_path)
+    return True
 
 
 def _append_rows(trades_csv_path: Path, rows: list[dict]) -> None:
@@ -618,11 +734,19 @@ def run_bridge(*, pnl_statement_path: Path = PNL_STATEMENT, fills_ledger_path: P
                fleet_dir: Path = FLEET_DIR, accounts_json_path: Path = ACCOUNTS_JSON,
                core_decisions_path: Path = CORE_DECISIONS,
                trades_csv_path: Path = TRADES_CSV, watermark_path: Path = WATERMARK,
+               theta_clock_position_state_path: Path = THETA_CLOCK_POSITION_STATE,
                date_filter: Optional[str] = None, dry_run: bool = False,
                arms: tuple[str, ...] = FLEET_REST_ARMS) -> dict:
     arm_meta_all = _load_accounts_meta(accounts_json_path)
     watermark = _load_watermark(watermark_path)
     processed: dict = watermark.get("processed", {})
+    theta_clock_positions = _load_theta_clock_positions(theta_clock_position_state_path)
+
+    # THETA-COCKPIT schema migration (2026-08-01): idempotent, additive-only, skipped on a
+    # dry run (dry_run means "compute + report, write nothing" -- the header migration IS a
+    # write). Must happen BEFORE any new row is appended below -- see SCHEMA's own comment.
+    if not dry_run:
+        _ensure_schema_header(trades_csv_path)
 
     primary = _primary_round_trips(pnl_statement_path, arms, date_filter)
     activity_to_order = _build_activity_to_order(fills_ledger_path, arms) if primary else {}
@@ -665,7 +789,9 @@ def run_bridge(*, pnl_statement_path: Path = PNL_STATEMENT, fills_ledger_path: P
             skipped_existing += 1
             continue
         arm_meta = arm_meta_all.get(rt["arm"], {})
-        row = build_row(rt, entry_dec, exit_info, arm_meta, label)
+        tc_key = f"{rt['arm']}::{rt.get('symbol', '')}"
+        row = build_row(rt, entry_dec, exit_info, arm_meta, label,
+                         theta_clock_entry=theta_clock_positions.get(tc_key))
         if row is None:
             skipped_unparsed += 1
             continue

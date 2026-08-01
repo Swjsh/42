@@ -1,3 +1,117 @@
+## [2026-08-01 12:37 ET] OK -- theta_clock (WEEKEND): THETA COCKPIT built (J directive, verbatim tonight), commit TBD (filled in next commit)
+
+**Signal J wakes to (OP-25).** Built the in-trade Greeks visibility instrument J ordered:
+"We can't just be getting in options trades and have Theta kick our ass without us knowing."
+VISIBILITY ONLY -- no exit-rule change, no new gate. `heartbeat_core.py` is byte-for-byte
+untouched; zero new network calls on the 1-min trading hot path.
+
+**What shipped:**
+1. `setup/scripts/theta_clock.py` -- standalone watcher, registered as `Gamma_ThetaClock`
+   (every 1 min, 09:30-16:00 ET weekdays, `wscript -> run_exe_hidden.vbs -> backtest-venv
+   pythonw`, OP-27 headless stdio redirect, no lock file -- Task Scheduler's own
+   `-MultipleInstances IgnoreNew` is the sole overlap guard). Reads open SPY option
+   positions for all 5 active accounts (core safe-2/bold-2 + fleet safe-3/risky-1/risky-3)
+   via `automation/state/fleet/fleet_broker.py` -- the SAME credential-loading + REST module
+   `heartbeat_core.py` itself already depends on (read-only: get_positions,
+   get_option_greeks). Writes `automation/state/theta-clock.json` (current snapshot) +
+   `automation/state/theta-clock/theta-clock-YYYY-MM-DD.jsonl` (daily time series) +
+   `automation/state/theta-clock/position-state.json` (per-position frozen entry snapshot).
+   ALERT: when estimated theta burn over the last 15 min exceeds estimated delta gain by
+   more than $5, ONE line fires to STATUS.md's NEW "## Live watch" section (created on
+   first use -- deliberately not "## Known broken", a stall isn't a breakage), latched
+   per-position forever (never repeats). NEVER auto-exits anything.
+
+2. **Empirical finding that changed the design.** Grepped `core-decisions.jsonl` before
+   building: the EXISTING G8 per-entry greeks capture (`heartbeat_core._capture_greeks`,
+   live since 2026-07-07) has returned `"greeks": {}` on **29/29 real ENTER rows checked,
+   zero exceptions**. Its snapshots endpoint is documented as "UNVERIFIED" in
+   `fleet_broker.py` and, per this evidence, still is. Rather than build the alert on a feed
+   with a 0/29 track record, the headline numbers run on a documented closed-form ESTIMATE
+   (model-free intrinsic-value delta component + a textbook sqrt(time-remaining)
+   extrinsic-decay heuristic for theta, both labeled `_est` with a `basis` string) computed
+   from sources already PROVEN live: the `/v2/positions` payload itself, plus the same
+   `/v1beta1/options/quotes/latest` endpoint the live placement path already prices real
+   fills with. Real broker greeks are still attempted every tick and preferred when present
+   -- zero code change needed the day Alpaca's feed starts returning data.
+
+3. **delta_at_entry / iv_at_entry / theta_at_entry backfill (GO-FORWARD only, as scoped).**
+   `fleet_journal_bridge.py` (the `journal/trades.csv` writer, confirmed via grep -- the
+   OTHER live writer, `j_intent_journal.py`, already reads the header dynamically and needed
+   no change) now populates these three cells at journal-write time: PRIMARY = the G8
+   broker-greeks capture threaded through `core-decisions.jsonl`'s `exec.greeks` (for the day
+   it's ever non-empty), FALLBACK = `theta_clock.py`'s own first-observation snapshot (within
+   ~1 min of fill, per the brief's documented convention). `theta_at_entry` is a NEW 44th
+   column (SCHEMA was 43) appended at the END (never inserted mid-schema -- every real
+   consumer greps by column NAME, never position) via a one-time, idempotent header-only
+   migration (`_ensure_schema_header`); verified old rows keep their original 43 raw values
+   and `csv.DictReader` fills the new trailing cell with `None` for them, no misalignment.
+   Neither field is ever fabricated -- both stay blank (unchanged from today) when neither
+   source has data, rather than writing a model estimate into a column named as if it were
+   real broker data (the cited downstream blocker, perps leverage calibration, expects real
+   greeks there).
+
+**Weekend limitation handled honestly (market closed, cannot verify against a live
+position):**
+  (a) 22 guard tests in `backtest/tests/test_theta_clock.py` + 11 new tests in
+      `test_fleet_journal_bridge.py` + 6 in the new `test_firm_brief_theta_clock_section.py`
+      -- 282/282 green across the full blast-radius set (every test file importing
+      `fleet_journal_bridge`/`firm_brief`/`theta_clock`), plus a 6063-test full-repo
+      collection-only pass confirms zero NEW import breakage (the 3 pre-existing collection
+      errors are unrelated archived/missing-data tests). RED-proofed twice: the alert
+      spam-latch (disabled -> fires 8x instead of 1x over the same fixture) and the
+      greeks-fallback precedence (disabled -> 4 tests correctly fail).
+  (b) A full OFFLINE dry-run against a SYNTHETIC injected position (16+5 simulated 1-min
+      ticks, flat underlying) proved the entire pipeline end-to-end: entry snapshot frozen
+      on tick 1, 21 daily-JSONL rows written, exactly ONE "THETA STALL" STATUS.md line fired
+      (at t+8min, theta burn -$5.60 vs delta gain +$0.00) and never repeated across 12 more
+      ticks. Math cross-checked by hand (residual_est = real premium change - delta_est -
+      theta_est, verified exact).
+  (c) `Gamma_ThetaClock` registered for REAL via `install-theta-clock.ps1` (not just
+      written) -- `Get-ScheduledTask`: `State=Ready`, real trigger (`DaysOfWeek=62` =
+      Mon-Fri, `Repetition Interval=PT1M Duration=PT6H30M`), action chain verified.
+      Smoke-fired via `Start-ScheduledTask` for real -- `LastTaskResult=0`, AND (wscript
+      fire-and-forget masks the child's true exit code per the `Gamma_EodFlattenCore`
+      lesson, so this alone is never trusted) independently confirmed via the REAL written
+      `automation/state/theta-clock.json`: `accounts_checked=[safe-3,safe-2,risky-1,
+      bold-2,risky-3]` (all 5 LIVE Alpaca paper accounts queried successfully),
+      `accounts_failed=[]`, `n_positions=0` (correct -- market closed), `spot_source=
+      sight_beacon` (746.79). stderr log empty.
+  (d) MONDAY-VERIFY (checklist, not a hope):
+      [ ] `Get-ScheduledTaskInfo Gamma_ThetaClock` shows real fires through the 09:30 ET
+          open (`LastRunTime` advancing every ~1 min).
+      [ ] `automation/state/theta-clock.json` updates every ~1 min once a real position is
+          open, and its `positions[].qty`/`entry_premium` match the broker fill.
+      [ ] Confirm whether the Alpaca options-snapshots greeks feed is STILL empty on a real
+          fill, or -- if it finally returns data -- confirm
+          `theta_per_contract_per_day_source` flips to `broker_snapshot` and
+          `journal/trades.csv`'s `delta_at_entry`/`iv_at_entry` populate from the PRIMARY
+          path on the next `fleet_journal_bridge.py` run (fires via `firm_brief.py`, twice
+          daily).
+      [ ] If a real trade genuinely stalls, eyeball the STATUS.md "## Live watch" line for
+          sanity (does the $ magnitude look right for the real qty/premium) and confirm it
+          fired once, not repeatedly.
+
+**Rail-4 note:** visibility-only. `heartbeat_core.py` is byte-for-byte unchanged -- no
+network call added to the hot path, no new gate, no exit-rule change. A theta-based EXIT
+class remains a separate, un-built, pre-registered study per J's explicit instruction not to
+build one here. Revert: `git revert <this commit>` (additive-only: new script, new
+scheduled task, new STATUS.md section; `fleet_journal_bridge.py`'s SCHEMA/`build_row` change
+is also additive/backward-compatible -- reverting just stops populating the 3 new-ish cells,
+never un-migrates the header, which is harmless since no reader ever depended on column
+count).
+
+---
+
+## [2026-08-01 12:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (8/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
+
+## [2026-08-01 10:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (7/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
+
+## [2026-08-01 08:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (6/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
+
+## [2026-08-01 06:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (5/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
+
+## [2026-08-01 05:30 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (4/4 fires used today), zero model work this fire per rail-0. Next fire: 07:30 ET or later once budget window resets.
+
 ## [2026-08-01 05:10 ET] OK -- conductor (WEEKEND): G2-TRENDLINE-BYPASS-INVERTS-PRIORITY decided (NEITHER arm ships, stays default), commit `dbd35729`
 
 **Signal J wakes to (OP-25).** Budget gate PASS ($1.44 of $30, 3/4 fires used before this one),
@@ -597,58 +711,12 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 
 ---
 
-## [2026-07-29 ~20:30-21:05 ET] OK -- conductor (AFTERHOURS): CONDUCTOR-BUDGET-CROSS-MIDNIGHT-BUG closed, commit `631798f0`
-
-> **STAGE 0/1:** ET confirmed 20:30 Wednesday (market closed). Budget gate PROCEED ($0.04/$30,
-> 2/4 fires reported -- see finding below, that count was itself wrong). `engine-health.json`
-> GREEN/YELLOW (14 checks, 0 RED, gex_archive 1-day interior-gap YELLOW non-critical).
-> `self-check-last.json` DEGRADED (rule-enforcement-working fill-funnel blocks, PDT-blocked bold,
-> LLM-narrative-fallback premarket, trendline-draw not marked -- none a bug). Priority-3 self-audit
-> gap won the pick: `analysis/self-audit/new-gaps-flagged.md` flagged "conductor firing far more
-> than max_fires (4/day)" on THREE consecutive nights (07-27/07-28/07-29 17:31 entries), matching
-> the prior 07-28 QUIET-EXHAUSTED entries below that speculated about duplicate scheduled triggers.
-
-> **ROOT CAUSE, verified live (OP-33, not guessed):** Task Scheduler triggers for the whole
-> `Gamma_Conductor*` family are exactly the documented cadence (3x/day for `Gamma_Conductor`,
-> confirmed via `Get-ScheduledTask` -- no duplicate/rogue trigger). The real bug was in
-> `setup/scripts/conductor_budget.py`'s own `spend_today()`: it matched a `conductor-outcomes.jsonl`
-> row to an ET calendar day by SUBSTRING-searching the day string against the row's raw `fired_at`
-> (UTC ISO) field. ET is UTC-4 in July, so the scheduled 20:30 ET evening fire on day D writes
-> `fired_at` with a UTC calendar date of D+1 (20:30 ET + 4h = 00:30 UTC next day) -- so that
-> fire's row leaked forward into day D+1's own budget check the next morning, silently starting
-> every ET day at "1 fire already spent" (compounding with late-night fires). Live-verified the
-> real bite: THIS fire's own STAGE-0 check read "2/4 fires" for 2026-07-29 before the fix; after
-> the fix, `spend_today('2026-07-29')` correctly reads 0 (those 2 were 07-28's own evening/
-> late-night fires that had leaked across midnight). The Task Scheduler Operational event log
-> needed for direct forensics was DISABLED (`IsEnabled=False`) -- a genuine but secondary gap,
-> not required for this fix, left as a follow-up if J wants that visibility restored.
-
-> **Fix:** `_stamp_to_et_date()` converts an aware/UTC `fired_at` to its true ET calendar date via
-> `et_clock.et_now(now_utc=...)` before comparing, falling back to the old substring match only
-> when a stamp fails to parse (fail-open, C7). `ts_et` (already ET-local, naive) stamps pass
-> through unconverted. **Bonus find:** the project's OWN existing test fixtures had independently
-> fallen into the identical trap (`f"{DAY}T02:00:00+00:00"` is actually 22:00 ET the PREVIOUS
-> day) -- corrected to `T16:00:00+00:00` (genuinely mid-day ET) so the fixtures test what they
-> claim to. 3 new regression tests pin the exact incident shape, RED-proofed via `git stash`
-> (all 3 failed pre-fix with the predicted mis-count, 13 pre-existing tests unaffected, 16/16
-> green post-fix). Curated safety gate 59/59 PASS. Post-commit `git show 631798f0 --stat
-> --name-status` confirms exactly the 2 intended files (L247 discipline).
-
-> **Scope + revert:** 2 files (`setup/scripts/conductor_budget.py`,
-> `backtest/tests/test_conductor_budget.py`) -- pure conductor-scheduling infra, zero trading-path
-> touched (no params/heartbeat_core/filters/placement/exit/CLAUDE.md). Revert: `git revert 631798f0`.
-> Lesson filed: `strategy/candidates/_lesson-inbox/ET-UTC-midnight-boundary-fire-miscounting.md`
-> (generalizable rule: bucketing a UTC-stamped event by ET calendar date needs a real conversion,
-> never a substring/prefix match against the raw UTC string).
-
-> **NOTE on the 07-28 QUIET-EXHAUSTED entries below:** those are the STALE evidence this exact
-> bug produced (the "5/4, 6/4, 7/4 fires" readings were themselves inflated by the leak) -- left
-> in place per OP-22 (preserve the original disclosure) rather than rewritten; this entry is the
-> correction. The self-audit swarm re-flagged them 3 nights running partly because they were still
-> sitting fresh in this file; now resolved with a code fix, not just a note.
-
----
-
 
 ## Kitchen
-Kitchen: alive, queue 35 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+
+- [2026-08-01 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-08-01 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-08-01 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-01.md

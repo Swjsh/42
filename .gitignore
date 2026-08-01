@@ -181,6 +181,8 @@ automation/state/key-levels.json
 automation/state/key-levels-history/
 automation/state/daily-context.json
 automation/state/sight-beacon.json
+automation/state/theta-clock.json
+automation/state/theta-clock/
 automation/state/fleet/shared-signal.json
 automation/state/futures/mirror-shadow-state.json
 automation/state/futures/mirror-positions.json

@@ -553,6 +553,35 @@ def render_futures_shadow_lines(data: dict) -> list[str]:
            f"@ {updated}."]
 
 
+def render_theta_clock_lines(snapshot: dict, position_state: Optional[dict] = None) -> list[str]:
+    """PURE: render the THETA COCKPIT (J directive 2026-08-01, verbatim: "we can't just be
+    getting in options trades and have Theta kick our ass without us knowing") section body
+    from theta_clock.py's last-tick snapshot (automation/state/theta-clock.json) plus its
+    position-state.json (the snapshot alone only reflects the SINGLE most recent tick, not a
+    daily total -- position_state.json's `alerted` flags are the only place a same-day alert
+    COUNT can be recovered without re-scanning the whole daily JSONL). Mirrors
+    render_futures_shadow_lines' fail-open shape immediately above it in build_brief().
+    VISIBILITY ONLY -- deliberately never reports P&L or ties to any exit decision, matching
+    the instrument's own scope. Guard: test_firm_brief_theta_clock_section.py."""
+    if not snapshot or not snapshot.get("ts_et"):
+        return ["- no reading yet (Gamma_ThetaClock fires every 1 min, 09:30-16:00 ET weekdays)."]
+    if snapshot.get("error"):
+        return [f"- theta-clock FAILED ({str(snapshot['error'])[:100]}) -- fix me."]
+    ts_et = snapshot.get("ts_et", "?")
+    n_pos = snapshot.get("n_positions", 0)
+    n_checked = len(snapshot.get("accounts_checked") or [])
+    n_failed = len(snapshot.get("accounts_failed") or [])
+    today = str(ts_et)[:10]
+    n_alerts_today = sum(
+        1 for rec in (position_state or {}).get("positions", {}).values()
+        if rec.get("alerted") and str(rec.get("first_seen_et", ""))[:10] == today
+    )
+    fail_s = f", {n_failed} account read failure(s)" if n_failed else ""
+    return [f"- last reading {ts_et}: {n_pos} open SPY option position(s) across "
+            f"{n_checked} account(s) checked{fail_s}, {n_alerts_today} theta-stall alert(s) "
+            f"today -- visibility only, never auto-exits (automation/state/theta-clock.json)."]
+
+
 def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) -> str:
     per_day = statement.get("per_day") or {}
     round_trips = statement.get("round_trips") or []
@@ -668,11 +697,21 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     lines.extend(render_futures_shadow_lines(futures_shadow))
     lines.append("")
 
+    # Theta Cockpit -- in-trade Greeks VISIBILITY instrument (J directive 2026-08-01: "we
+    # can't just be getting in options trades and have Theta kick our ass without us
+    # knowing"). One line; full time series in automation/state/theta-clock/. Fail-open,
+    # same shape as the futures-shadow/prospector/twin sections above.
+    theta_snapshot = load_json(STATE / "theta-clock.json")
+    theta_position_state = load_json(STATE / "theta-clock" / "position-state.json")
+    lines.append("## Theta Cockpit (in-trade Greeks visibility)")
+    lines.extend(render_theta_clock_lines(theta_snapshot, theta_position_state))
+    lines.append("")
+
     lines.append("---")
     lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | "
                  f"prospector-last.json | twin-health.json | crypto-twin/path-coverage.json | "
                  f"crypto-twin/gauntlet-last.json | futures/shadow-progress.json | "
-                 f"{HANDOFF_NAME}")
+                 f"theta-clock.json | {HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
 
 

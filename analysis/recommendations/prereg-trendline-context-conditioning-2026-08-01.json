@@ -1,0 +1,77 @@
+{
+  "rule_id": "trendline_context_conditioning_2026_08_01",
+  "lane": "WS8 TRENDLINE CONSUMER (weekend grind 2026-08-01)",
+  "frozen_at_et": "2026-08-01 12:43:51 EDT (setup/scripts/et_clock.py; market closed, Saturday)",
+  "freeze_order_proof": "This prereg is committed BEFORE backtest/tools/trendline_context_conditioning_2026_08_01.py exists. Verify: the commit introducing this file predates the commit introducing the runner (git log --follow on both paths).",
+  "question": "Does multi-day trendline CONTEXT (backtest/autoresearch/trendline_engine.py lines, wick+body families) CHANGE the per-trade expectancy of the engine's PROFITABLE level-anchored entry cohort? Conditioning only -- re-slices existing real-OPRA trades; invents NO new entries.",
+  "graveyard_compliance": "trendline_reclaim / wick_reclaim as STANDALONE triggers are graveyard (n=27, -$40.64/tr, day-level p=0.0007) and are NOT retested here. This tests the one untested form: trendline events as CONTEXT/score-contributor input on level-anchored setups (C15: gates interact multiplicatively).",
+  "population": {
+    "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json -> trades[] where resolved_stop_mode == 'structure'",
+    "expected_n": 66,
+    "expected_total_pnl": 6894.85,
+    "anchor_check": "Runner MUST reproduce n=66 and sum(dollar_pnl)=+$6,894.85 to the cent before any cell is computed; mismatch = abort.",
+    "provenance": "Real-OPRA replay P&L only (use_real_fills=True; 16 no-OPRA-cache entries were already excluded by the replay itself, disclosed there). Zero synthetic P&L anywhere in this study. Replay window 2025-01-02..2026-07-22 is a subset of the VERIFIED 391-day population (2025-01-02..2026-07-31). The 2024 OPRA backfill range is NOT touched (analysis/deep-research/OPRA-BACKFILL-2026-07-31.md absent = backfill not declared complete).",
+    "no_regression_note": "This study modifies nothing; the sacred runner cohort (35 winners +$15,774) is untouched by construction (read-only re-slice)."
+  },
+  "context_computation": {
+    "detector": "trendline_engine.detect(bars, families=('wick','body'), include_same_day_tier=True) -- SAME code path as production Gamma_Trendlines main(); zoom_class irrelevant (not requested).",
+    "bars_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv -- the replay's OWN bar file (SPY_FILE in engine_fullhist_replay.py), so trade timestamps and bar timestamps share one frame by construction.",
+    "frame_discipline": "File stores fixed -04:00 labels (wall-v1, backtest/lib/et_frame.py doctrine). entry_time_et in the replay JSON is naive wall-v1 from the same producer. ALL comparisons are naive label-vs-label within this single frame -- no cross-frame join, no et-v2 mixing (DST-frame artifact C6/L14 compliance).",
+    "rth_filter": "Per-date RTH window in wall-v1 labels: [10:30,17:00) on EST dates, [09:30,16:00) on EDT dates, offset per setup/scripts/et_clock.et_offset_hours (the one DST authority). This drops premarket bars present in the cache for later dates.",
+    "lookback": "For each trade: all RTH bars of the 5 trading days strictly before entry date (trading days = dates present in the bar file), PLUS same-day RTH bars with bar_start_label < entry_time_et. The last bar in the window is the trigger/decision bar (closed at fill per entry+1, ENTRY-BAR-CONVENTION-RULING-2026-07-25). NO bar at-or-after entry_time_et is ever passed to the detector (no look-ahead).",
+    "lookback_truncation_disclosure": "Entries within the first 5 trading days of the file (which starts 2025-01-02) get a truncated lookback; the runner reports how many trades have <5 prior days. We do NOT reach into 2024 bar files (frame seam at the 2024/2025 file boundary is a known corruption source).",
+    "reference_price": "ref = close of the trigger bar (last bar of the lookback window). Runner also records trade trigger_level for descriptive comparison.",
+    "active_line": "A detected line counts as ACTIVE iff status in {INTACT, TESTING} evaluated on the lookback window (status is computed by _fit on the window's last bar). BROKEN lines are excluded from alignment/opposition (a broken line is no longer standing structure).",
+    "live_parity_caveat": "Live engine refits every 5 min on a rolling window ending now (IEX feed); study refits at trigger-bar close on the SIP/IEX cache patchwork (DATA-PROVENANCE.md). Same detector code, same N_DAYS=5, same families. Feed seams disclosed, not resolved here."
+  },
+  "cell_definitions": {
+    "TOL": 0.10,
+    "bands_dollars": {"primary": 1.0, "sensitivity": [0.5, 2.0], "existence": "ANY (no distance cap, same-side existence)"},
+    "band_provenance": "Primary $1.00 = the standing carry-proximity doctrine distance ('within $1 of a Carry level'); NOT hand-fit to this data. $0.50/$2.00 are halving/doubling sensitivity cells declared up front. ANY-distance is the no-knob existence variant.",
+    "aligned": {
+      "bull_C": "exists ACTIVE support line with ref - B <= current_value <= ref + TOL (support at/below price within band)",
+      "bear_P": "exists ACTIVE resistance line with ref - TOL <= current_value <= ref + B (rail at/above price within band)"
+    },
+    "opposing": {
+      "bull_C": "exists ACTIVE resistance line with ref - TOL <= current_value <= ref + B (overhead rail the trade buys into)",
+      "bear_P": "exists ACTIVE support line with ref - B <= current_value <= ref + TOL (defended floor the trade shorts into)"
+    },
+    "mutually_exclusive_cells_reported": ["ALIGNED_ONLY", "OPPOSING_ONLY", "BOTH_SIDES", "NO_LINE"],
+    "per_cell_reporting": "n, total $, $/trade, WR, plus overlap count with the intraday 'trendline_rejection' trigger tag (7/66 trades carry it -- a DIFFERENT single-day detector; disclosed per cell so the two mechanisms are never conflated)."
+  },
+  "contrasts_and_stats": {
+    "contrasts": [
+      "C1: any-ALIGNED vs not-ALIGNED (binary over cohort)",
+      "C2: any-OPPOSING vs not-OPPOSING (binary over cohort)"
+    ],
+    "strata": ["FULL (all 66)", "R2026 (trades dated >= 2026-01-01; recent window FIRST-CLASS, expected n~35)"],
+    "band_variants": ["B=1.00 (primary)", "B=0.50", "B=2.00", "ANY-distance"],
+    "test_count": "2 contrasts x 2 strata x 4 band variants = 16 tests",
+    "statistic": "difference in mean dollar_pnl per trade (cell minus complement)",
+    "test": "two-sided permutation test, 20000 permutations, python random.Random(seed=42), label-shuffle within the stratum; p = (1 + #{|perm_diff| >= |obs_diff|}) / (1 + 20000)",
+    "degenerate_cells": "cell n < 3 or complement n < 3 => p not computed (reported as NaN, excluded from the BH set, disclosed with m)",
+    "multiplicity": "Benjamini-Hochberg FDR across ALL non-degenerate p-values of the 16, q* = 0.10. ALL cells and ALL p-values reported regardless of outcome.",
+    "day_level_robustness": "For each surviving contrast: day-summed P&L version reported (trades aggregated per day, same permutation scheme on days). Robustness disclosure only, not a gate.",
+    "wr_reported": "Win rates per cell reported descriptively; NOT tested (avoids doubling the test count)."
+  },
+  "decision_rule_frozen": {
+    "SIGNAL": "At least one of the 16 tests survives BH-FDR at q*=0.10 AND that contrast's effect sign is the SAME in the R2026 stratum (point estimate direction match; R2026 significance not required) AND the smaller side of the surviving contrast has n >= 10.",
+    "on_SIGNAL": "PROPOSE (never arm) a score-contributor wiring: write a follow-up prereg spec for trendline-context as a score term on level-anchored setups. No engine/params/gate change ships from THIS study.",
+    "on_NULL": "Declare the trendline program VISIBILITY-ONLY (the WS8 visibility surface ships regardless) and stop -- no further trendline-entry research without new evidence class.",
+    "no_third_option": "Cherry-picking a non-surviving cell for a 'soft propose' is forbidden."
+  },
+  "disclosures_frozen_up_front": [
+    "n=66 is small; cells will be smaller. This is a conditioning read on an already-selected profitable cohort -- selection into the cohort (structure-stop resolution) is upstream of and independent from the trendline context being tested, but ANY finding is hypothesis-generating for wiring, never arming evidence.",
+    "The cohort is 100% structure-stop trades; premium-stop (TL_only, -$1,830/124tr) trades are OUT of population by design -- this study cannot say anything about them.",
+    "7/66 trades already carry the intraday trendline_rejection trigger tag; overlap reported per cell.",
+    "Multi-day engine lines did not EXIST as a live surface for most of the replay window (engine built 2026-06-26, multi-day 2026-07-08) -- context is computed retrospectively by running today's detector code on historical bars. This is exactly what a score-contributor would do at decision time with the same bars, so the retrospective computation is mechanism-faithful (same code, same no-look-ahead window).",
+    "Bar cache is a SIP/IEX patchwork (DATA-PROVENANCE.md); trendline geometry from cached bars may differ marginally from what the live IEX-fed engine would have drawn on those days.",
+    "entry_time_et for 4 trades on 2026-07-17 was anchor-verified against live journal fills by the replay itself (sanity_anchors); no independent re-anchoring here."
+  ],
+  "runner": "backtest/tools/trendline_context_conditioning_2026_08_01.py (WRITTEN AFTER THIS PREREG COMMITS)",
+  "outputs": [
+    "analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.json",
+    "analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.md"
+  ],
+  "sibling_deliverable_not_gated_by_this_study": "WS8 visibility: automation/state/trendline-watch.json producer + one premarket brief line. Ships regardless of study outcome."
+}
