@@ -1,0 +1,26 @@
+{
+  "rule_id": "fleet-strike-tier-atm-extension",
+  "frozen_at_et": "2026-08-01T01:04:04-04:00",
+  "queue_item": "FLEET-STRIKE-TIER-ATM-EXTENSION",
+  "prereg_before_evaluation": true,
+  "hypothesis": "Repointing risky-1 and risky-3 (fleet_rest, paper, real_fills) from V15_BOLD_TIERS (OTM-2/OTM-3 under $2K) to V15_BOLD_CORE_TIERS (ATM under $2K -- the SAME table core Bold was wired to 2026-07-17/18) increases the fraction of named-setup ticks that clear the $0.30 min_entry_premium floor, without a corresponding P&L or risk regression on those two arms.",
+  "mechanism": "V15_BOLD_TIERS prices the $0-2K bracket at strike_offset=-3 (OTM-3), which the 2026-07-15 study (bold-strike-axis-2026-07-15.json) measured clearing the floor on only 33.76% of afternoon signals vs ATM's 96.88%. The 2026-07-31 gate-provenance audit (min-entry-premium-2026-07-31.json) confirmed risky-1 alone lost 15/16 named-setup ticks to this exact floor collision on a single day. V15_BOLD_CORE_TIERS is not new/unvalidated machinery -- it is the identical table already live on core Bold (heartbeat_core.py, j_intent_executor.py) since 2026-07-17/18, extended here to two more consumers of the SAME shared function (_tiers_for_arm).",
+  "scope": {
+    "arms_changed": ["risky-1", "risky-3"],
+    "arms_explicitly_excluded": ["safe-3"],
+    "exclusion_reason": "safe-3's OTM strike_tier_table='bold' choice is documented-deliberate (params_patch note: 'to fit the $600 notional cap at $2K equity') and needs its own sizing-compatibility review before any change -- not bundled here."
+  },
+  "mechanism_of_arming": "fleet_executor._tiers_for_arm gains a third table string 'bold_core' -> strike_selection.V15_BOLD_CORE_TIERS (previously only 'safe'/anything-else->'bold'). accounts.json sets params_patch.strike_tier_table='bold_core' on risky-1 and risky-3 only. safe-3's params_patch.strike_tier_table stays 'bold' (V15_BOLD_TIERS), byte-identical.",
+  "gates_frozen_before_arming": {
+    "sample_floor": "n>=20 live fleet fills (real_fills, real OPRA broker fills) across risky-1+risky-3 combined, dated on/after this arming",
+    "oos_positive": "aggregate P&L on the n>=20 cohort must be positive (not the pre-existing historical population -- this is a genuinely forward/paper cohort, so 'OOS' here means post-arming, not held-out-in-time)",
+    "walk_forward_or_disclosed_null": "WF>=0.70 across the accumulated sessions, OR an explicit disclosed-null verdict if WF cannot be meaningfully computed at this n (same escape hatch used by the 2026-07-15 core-Bold wiring's own near-miss disclosure)",
+    "sub_window_stable": "no single session/day accounts for >50% of the cohort's total P&L (concentration check, C4 doctrine)",
+    "anchor_no_regression": "the pre-existing floor-collision-cost cohort (the 15/16 named-setup ticks class documented in min-entry-premium-2026-07-31.json) must show materially fewer SKIP_MIN_PREMIUM_FLOOR refusals post-arming, re-measured via the funnel/decisions ledger",
+    "premium_floor_clearance": "informational, not a hard gate: track the realized floor-clearance rate on risky-1/risky-3 ticks post-arming against the 33.76%(OTM-3)->96.88%(ATM) study baseline"
+  },
+  "auto_ratify_note": "This is a PAPER trading-path change on fleet_rest arms (rail-4 carve-out, J ratified 2026-07-01) -- ships now with guard test + git-revert path + REVOKE report. The GATES above govern whether the change is KEPT after evidence accrues, not whether it may be armed to start collecting evidence (TRADE-TO-LEARN: validated machinery may arm on paper before recency/eval gates clear).",
+  "revert": "One line per arm: delete 'strike_tier_table': 'bold_core' from risky-1/risky-3's params_patch in automation/state/fleet/accounts.json (or set it back to absent/'bold'). fleet_executor.py's _tiers_for_arm change is additive (new branch only) and does not need reverting for the revert to take effect.",
+  "evaluation_script_todo": "Follow-up queue item: once n>=20 fills accumulate, re-run min_entry_premium_blocked_replay_2026_07_31.py-style funnel audit scoped to risky-1/risky-3 post-arming dates, and score the gates above explicitly in a scorecard at analysis/recommendations/fleet-strike-tier-atm-extension-2026-XX-XX.json.",
+  "status": "armed_paper_collecting_evidence"
+}

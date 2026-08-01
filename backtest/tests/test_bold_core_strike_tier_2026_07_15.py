@@ -146,7 +146,13 @@ def test_fleet_arms_resolve_otm3_under_2k_via_shared_table():
     """The task's critical regression guard, scoped to the ACTUAL <$2K/OTM-3 boundary
     this study concerns (test_fleet_arm_parity.py's own existing
     test_all_arms_bold_strike_tiers_at_2k checks equity==2000.0 exactly, which is
-    already inside the OTM-2 bracket -- it does not cover this tier)."""
+    already inside the OTM-2 bracket -- it does not cover this tier).
+
+    UPDATED 2026-08-01 (FLEET-STRIKE-TIER-ATM-EXTENSION): risky-1/risky-3 were
+    pre-registered + repointed to 'bold_core' (V15_BOLD_CORE_TIERS, ATM under $2K) --
+    see analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json.
+    safe-3 is EXPLICITLY EXCLUDED (documented $600-notional-cap reason) and must still
+    resolve the OTM V15_BOLD_TIERS table, byte-identical to before."""
     import fleet_executor as fx
     import json as _json
 
@@ -159,22 +165,50 @@ def test_fleet_arms_resolve_otm3_under_2k_via_shared_table():
     # though both load the same source. Identity checks against the shared table must
     # therefore go through fx.strike_selection.* (same convention test_fleet_arm_parity.py's
     # existing test_all_arms_bold_strike_tiers_at_2k already uses), not this file's import.
-    for arm_id in ("safe-3", "risky-1", "risky-3"):
+    arm = arm_map["safe-3"]
+    tiers = fx._tiers_for_arm(arm)
+    assert tiers is fx.strike_selection.V15_BOLD_TIERS, \
+        "safe-3 must still resolve the SHARED V15_BOLD_TIERS object, got a different table"
+    assert tiers is not fx.strike_selection.V15_BOLD_CORE_TIERS, \
+        "safe-3 must NOT have been silently repointed at the new core-only table"
+
+    tier = pick_tier(1_000.0, tiers)
+    assert tier.strike_offset == -3 and tier.label == "OTM-3", (
+        f"safe-3 at $1K equity must still resolve OTM-3, got {tier.label} "
+        f"(offset={tier.strike_offset}) -- fleet sizing/affordability logic depends on this"
+    )
+
+    put_strike = fx.strike_selection.pick_strike(SPOT, 1_000.0, "P", tiers)
+    assert put_strike == 737, f"safe-3 PUT strike at $1K should still be 737 (OTM-3), got {put_strike}"
+
+
+def test_fleet_arms_risky_1_3_resolve_atm_under_2k_via_bold_core_table():
+    """FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01): risky-1/risky-3 now resolve
+    V15_BOLD_CORE_TIERS (ATM under $2K) via params_patch.strike_tier_table='bold_core',
+    NOT the shared V15_BOLD_TIERS object safe-3 still uses. This is the exact change the
+    pre-reg + queue item proposed -- pinned so a future silent revert (or an accidental
+    drift back to the old default) is caught."""
+    import fleet_executor as fx
+    import json as _json
+
+    accounts = _json.loads((_FLEET / "accounts.json").read_text(encoding="utf-8"))
+    arm_map = {a["id"]: a for a in accounts["arms"]}
+
+    for arm_id in ("risky-1", "risky-3"):
         arm = arm_map[arm_id]
         tiers = fx._tiers_for_arm(arm)
-        assert tiers is fx.strike_selection.V15_BOLD_TIERS, \
-            f"{arm_id} must still resolve the SHARED V15_BOLD_TIERS object, got a different table"
-        assert tiers is not fx.strike_selection.V15_BOLD_CORE_TIERS, \
-            f"{arm_id} must NOT have been silently repointed at the new core-only table"
+        assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
+            f"{arm_id} must resolve V15_BOLD_CORE_TIERS via 'bold_core', got a different table"
+        assert tiers is not fx.strike_selection.V15_BOLD_TIERS, \
+            f"{arm_id} must NOT still resolve the old shared OTM-3 table"
 
         tier = pick_tier(1_000.0, tiers)
-        assert tier.strike_offset == -3 and tier.label == "OTM-3", (
-            f"{arm_id} at $1K equity must still resolve OTM-3, got {tier.label} "
-            f"(offset={tier.strike_offset}) -- fleet sizing/affordability logic depends on this"
+        assert tier.strike_offset == 0 and tier.label == "ATM", (
+            f"{arm_id} at $1K equity must resolve ATM, got {tier.label} (offset={tier.strike_offset})"
         )
 
         put_strike = fx.strike_selection.pick_strike(SPOT, 1_000.0, "P", tiers)
-        assert put_strike == 737, f"{arm_id} PUT strike at $1K should still be 737 (OTM-3), got {put_strike}"
+        assert put_strike == 740, f"{arm_id} PUT strike at $1K should be 740 (ATM), got {put_strike}"
 
 
 # =============================================================================

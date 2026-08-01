@@ -19,6 +19,13 @@ and quantified 2026-07-15 (analysis/recommendations/bold-strike-axis-2026-07-15.
 clears the floor 33.76% of afternoon signals vs ATM's 96.88%) -- STILL true today, three
 weeks later, for the fleet lane specifically.
 
+UPDATE 2026-08-01 (FLEET-STRIKE-TIER-ATM-EXTENSION, queue item this file's own docstring
+named as the proposed fix candidate): risky-1/risky-3 are now REPOINTED to 'bold_core'
+(V15_BOLD_CORE_TIERS) after a pre-registration frozen BEFORE arming
+(analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json, n>=20-fill
+gates). safe-3 is UNCHANGED (own documented notional-cap reason, out of scope). Part 1's
+parametrization below now reflects that split, not the pre-fix state.
+
 WHY THIS GUARD EXISTS (not a code change -- a documentation pin): C14 doctrine says a
 diagnosed-but-unfixed mechanism is exactly the kind of thing that silently rots. This test
 RED-PROOFS the finding two ways: (1) proves TODAY's fleet arms really do resolve to the OTM
@@ -66,20 +73,36 @@ def ss(fx):
 
 
 # =============================================================================
-# PART 1 -- today's floor-colliding arms really do resolve to the OTM table.
+# PART 1 -- safe-3 still resolves to the OTM table (unchanged, own documented reason);
+# risky-1/risky-3 now resolve to the ATM-at-low-equity table (2026-08-01 fix, armed).
 # =============================================================================
-@pytest.mark.parametrize("arm_id", ["risky-1", "risky-3", "safe-3"])
-def test_floor_colliding_arms_resolve_to_bold_otm_tiers(fx, ss, arm_id):
-    """risky-1/risky-3 (id-prefix default) and safe-3 (explicit params_patch override, for
-    its own documented $600-notional-at-$2K-equity reason) all resolve to V15_BOLD_TIERS
-    today -- the OTM-2/OTM-3 table, NOT the ATM-at-low-equity V15_BOLD_CORE_TIERS table core
-    Bold uses. This is the mechanism, not the floor -- see this file's module docstring."""
-    tiers = fx._tiers_for_arm(ARMS_BY_ID[arm_id])
+def test_safe3_still_resolves_to_bold_otm_tiers(fx, ss):
+    """safe-3 (explicit params_patch override, for its own documented
+    $600-notional-at-$2K-equity reason) still resolves V15_BOLD_TIERS -- the OTM-2/OTM-3
+    table, NOT the ATM-at-low-equity V15_BOLD_CORE_TIERS table core Bold uses. Deliberately
+    OUT OF SCOPE for the 2026-08-01 extension -- see this file's module docstring."""
+    tiers = fx._tiers_for_arm(ARMS_BY_ID["safe-3"])
     assert tiers is ss.V15_BOLD_TIERS, (
-        f"{arm_id} no longer resolves to V15_BOLD_TIERS -- if this changed intentionally, "
-        f"fold the outcome back into analysis/recommendations/min-entry-premium-2026-07-31"
-        f".json (this was the pre-registered fix candidate, PROPOSED not armed)."
+        "safe-3 no longer resolves to V15_BOLD_TIERS -- if this changed intentionally, "
+        "fold the outcome back into analysis/recommendations/min-entry-premium-2026-07-31.json "
+        "(safe-3 was explicitly excluded from the 2026-08-01 fleet-strike-tier-atm-extension)."
     )
+
+
+@pytest.mark.parametrize("arm_id", ["risky-1", "risky-3"])
+def test_risky_arms_now_resolve_to_bold_core_atm_tiers(fx, ss, arm_id):
+    """FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01, pre-registered before arming --
+    analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json):
+    risky-1/risky-3 now resolve V15_BOLD_CORE_TIERS via params_patch.strike_tier_table=
+    'bold_core', clearing the min_entry_premium floor far more often at low equity (the
+    mechanism this file's module docstring names)."""
+    tiers = fx._tiers_for_arm(ARMS_BY_ID[arm_id])
+    assert tiers is ss.V15_BOLD_CORE_TIERS, (
+        f"{arm_id} no longer resolves to V15_BOLD_CORE_TIERS -- if this changed intentionally, "
+        f"fold the outcome back into analysis/recommendations/fleet-strike-tier-atm-extension-"
+        f"prereg-2026-08-01.json."
+    )
+    assert tiers is not ss.V15_BOLD_TIERS, f"{arm_id} must not have reverted to the old OTM table"
 
 
 def test_core_bold_arms_are_NOT_in_this_collision(fx, ss):
@@ -93,15 +116,15 @@ def test_core_bold_arms_are_NOT_in_this_collision(fx, ss):
 
 # =============================================================================
 # PART 2 -- the already-validated alternative table really does clear nearer-the-money,
-# pinning the PROPOSED (not armed) fix's expected effect at low equity.
+# pinning the fix's expected effect at low equity (WIRED 2026-08-01 for risky-1/risky-3;
+# see PART 1 above for the live-wiring pins).
 # =============================================================================
 def test_v15_bold_core_tiers_prices_nearer_atm_at_low_equity(ss):
     """V15_BOLD_CORE_TIERS (validated bold-strike-axis-2026-07-15.json, wired for core Bold
-    2026-07-17 only) gives strike_offset=0 (ATM) at the $0-2K tier where V15_BOLD_TIERS gives
-    -3 (OTM-3, the deepest/cheapest/most floor-colliding tier). This is the exact lever this
-    session's provenance audit proposes extending to the fleet lane -- pinned here, NOT
-    wired into fleet_executor._tiers_for_arm this session (safe-3 has an undocumented-until-
-    now notional-cap trade-off that needs its own review first; see the scorecard)."""
+    2026-07-17, extended to fleet risky-1/risky-3 2026-08-01) gives strike_offset=0 (ATM) at
+    the $0-2K tier where V15_BOLD_TIERS gives -3 (OTM-3, the deepest/cheapest/most
+    floor-colliding tier). safe-3 stays on V15_BOLD_TIERS -- it has an own documented
+    notional-cap trade-off that needs its own review first; see the scorecard."""
     otm_tier = ss.pick_tier(1_750.0, ss.V15_BOLD_TIERS)
     atm_tier = ss.pick_tier(1_750.0, ss.V15_BOLD_CORE_TIERS)
     assert otm_tier.strike_offset == -3

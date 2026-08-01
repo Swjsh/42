@@ -202,7 +202,18 @@ def _tiers_for_arm(arm: Mapping[str, Any]):
     if not table:
         table = "safe" if str(arm["id"]).startswith("safe") else "bold"
     table = str(table).lower()
-    return strike_selection.V15_SAFE_TIERS if table == "safe" else strike_selection.V15_BOLD_TIERS
+    if table == "safe":
+        return strike_selection.V15_SAFE_TIERS
+    if table == "bold_core":
+        # FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01, pre-registered): risky-1/risky-3 only
+        # (never safe-3 -- its OTM choice is documented-deliberate for the $600 notional cap
+        # at $2K equity). Repoints the $0-2K bracket from OTM-3 to ATM, the SAME table core
+        # Bold was wired to 2026-07-17-18 (V15_BOLD_CORE_TIERS is a validated, guard-tested,
+        # already-live table -- see crypto/lib/strike_selection.py). Falsification rail +
+        # pre-registered gates: analysis/recommendations/fleet-strike-tier-atm-extension-
+        # prereg-2026-08-01.json, frozen BEFORE this arming.
+        return strike_selection.V15_BOLD_CORE_TIERS
+    return strike_selection.V15_BOLD_TIERS
 
 
 def _qty_for(tiers: Any, equity: float, elite: bool) -> Optional[int]:
