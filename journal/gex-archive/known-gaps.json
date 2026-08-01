@@ -1,0 +1,18 @@
+{
+  "2026-07-24": {
+    "reason": "Whole-machine outage: core-decisions.jsonl has ZERO rows for the full 09:30-15:55 ET RTH window that day (both accounts never ticked once) -- the host never woke for its scheduled tasks, so Gamma_CboeOiBank (fires 13:55 MT = 15:55 ET) never launched at all. Documented incident: automation/overnight/STATUS-archive-2026-07.md 'ENGINE DARK ALL DAY (RED)'.",
+    "mechanism": "scheduled_task_did_not_fire",
+    "backfillable": false,
+    "backfill_reason": "cboe_oi_bank.py pulls the CBOE CDN current-day snapshot only (module docstring: 'Current-day snapshot ONLY -- no historical URL'); a day once passed cannot be re-fetched without a new paid historical-options vendor (against standing cost discipline -- no net-new paid vendors without J's explicit OK).",
+    "logged_at_et": "2026-08-01T14:52:02",
+    "logged_by": "small-fix-bundle-2026-08-01 (WEEKEND-TWELVE Next-Twelve #11)"
+  },
+  "2026-07-30": {
+    "reason": "Partial producer blackout, NOT a whole-machine outage: the core heartbeat ticked normally that day (770 core-decisions.jsonl rows, both accounts) but several OTHER EOD/state producers silently stopped writing the same day per the self-check log (Gamma_ParticipationDaily stale, trendline-draw Step 5c never marked, state_freshness RED on ema-snapshot.json/trade-today.json/pnl-statement.json). Gamma_CboeOiBank was an unwatched additional victim of that same disruption -- automation/state/logs/cboe-oi-bank.stdout.log has no OK/SKIP/FAILSAFE line at all for 2026-07-30 (jumps 07-29 13:55 -> 07-31 13:55), proving the process never launched rather than launching and hitting an empty-chain fail-safe. Documented incident: automation/overnight/STATUS-archive-2026-07.md self-check 'BROKEN' entries dated 2026-07-30 (levels_blind + state_freshness RED).",
+    "mechanism": "scheduled_task_did_not_fire",
+    "backfillable": false,
+    "backfill_reason": "same as 2026-07-24 -- CBOE CDN is current-day-only, no historical replay route.",
+    "logged_at_et": "2026-08-01T14:52:02",
+    "logged_by": "small-fix-bundle-2026-08-01 (WEEKEND-TWELVE Next-Twelve #11)"
+  }
+}

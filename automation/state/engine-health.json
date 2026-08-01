@@ -1,31 +1,55 @@
 {
-  "checked_at_et": "2026-07-14 16:02:25",
-  "checked_at_utc": "2026-07-14T20:02:25Z",
+  "checked_at_et": "2026-08-01 14:57:02",
+  "checked_at_utc": "2026-08-01T18:57:02Z",
   "verdict": "GREEN",
   "market_open": false,
   "checks": [
     {
+      "name": "session_ran",
+      "status": "GREEN",
+      "detail": "2026-08-01 is a weekend -- no session expected",
+      "critical": false
+    },
+    {
+      "name": "levels_blind",
+      "status": "GREEN",
+      "detail": "2026-08-01 is a weekend -- no session expected",
+      "critical": false
+    },
+    {
+      "name": "levels_file_stale",
+      "status": "GREEN",
+      "detail": "weekend -- level refresh idle (file dated 2026-08-01)",
+      "critical": false
+    },
+    {
+      "name": "fleet_ticked",
+      "status": "GREEN",
+      "detail": "2026-08-01 is a weekend -- no session expected",
+      "critical": false
+    },
+    {
       "name": "heartbeat_safe",
       "status": "GREEN",
-      "detail": "last safe tick 7.4m ago (15:55:03) (market closed -- quiet OK)",
+      "detail": "last safe tick 28.4m ago (14:28:41) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "heartbeat_bold",
       "status": "GREEN",
-      "detail": "last bold tick 7.4m ago (15:55:04) (market closed -- quiet OK)",
+      "detail": "last bold tick 1382.0m ago (15:55:04) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "sight_beacon",
       "status": "GREEN",
-      "detail": "eye 0.4m old; spy=751.94 ribbon=BULL src=alpaca_rest_iex (market closed -- quiet OK)",
+      "detail": "eye 1.0m old; spy=746.79 ribbon=BULL src=alpaca_rest_iex (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "watcher_feed",
       "status": "GREEN",
-      "detail": "newest bar 2026-07-14 (market closed -- quiet OK)",
+      "detail": "newest bar 2026-07-31 (market closed -- quiet OK)",
       "critical": true
     },
     {
@@ -43,13 +67,13 @@
     {
       "name": "breaker_rearm_safe",
       "status": "GREEN",
-      "detail": "last_reset=2026-07-14 (market closed -- quiet OK)",
+      "detail": "last_reset=2026-07-31 (market closed -- quiet OK)",
       "critical": false
     },
     {
       "name": "breaker_rearm_bold",
       "status": "GREEN",
-      "detail": "session_id=2026-07-14 (market closed -- quiet OK)",
+      "detail": "session_id=2026-07-31 (market closed -- quiet OK)",
       "critical": false
     },
     {
@@ -67,19 +91,25 @@
     {
       "name": "gex_archive",
       "status": "GREEN",
-      "detail": "accrual healthy: 18 sessions, latest 2026-07-14 == owed 2026-07-13, no gaps (18 sessions, latest 2026-07-14)",
+      "detail": "accrual healthy: 29 sessions, latest 2026-07-31 == owed 2026-07-31, no unexplained gaps (2 known gap(s) ['2026-07-24', '2026-07-30'], explained) (29 sessions, latest 2026-07-31)",
       "critical": false
     },
     {
       "name": "level_feed",
       "status": "GREEN",
-      "detail": "as_of 15:58:36 (3.8m old) (market closed -- refresh idle, quiet OK)",
+      "detail": "as_of 14:53:36 (3.4m old) (market closed -- refresh idle, quiet OK)",
       "critical": true
     },
     {
       "name": "dispatch_health",
       "status": "GREEN",
-      "detail": "dispatch live: safe 386/386",
+      "detail": "dispatch live: safe(6t<30)",
+      "critical": false
+    },
+    {
+      "name": "state_freshness",
+      "status": "GREEN",
+      "detail": "17 live-path state files fresh",
       "critical": false
     }
   ],

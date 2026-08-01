@@ -790,8 +790,18 @@ def check_gex_archive(et: datetime) -> dict:
     degrades to YELLOW at most, and a genuine multi-day stall returns RED *status* so the
     transition-only alerter pings J once. Fail-open: any import/read error is a benign
     YELLOW (never crashes the beacon, never pings). as_of = the ET date (rig is MT, so the
-    naive ET date, NOT the system-local date, defines 'owed'); expect_today=False so a
-    not-yet-captured today is never falsely flagged."""
+    naive ET date, NOT the system-local date, defines 'owed').
+
+    expect_today is TIME-GATED (2026-08-01, G-ARCHIVE-GAP-LOUD fix), same "ask about the
+    day, not the moment" discipline as check_session_ran/check_fleet_ticked above: before
+    the ~15:55 ET capture window (et.hour < 16) today's snapshot is not yet owed, so we
+    never falsely flag a not-yet-captured today (expect_today=False). From 16:00 ET a
+    weekday capture IS owed, so expect_today=True -- this is what makes a same-day miss
+    show up in engine-health.json THAT EVENING instead of sitting silent until some LATER
+    fire happens to run an interior-gap scan (the exact mechanism that let the
+    2026-07-24 / 2026-07-30 gaps go undiscovered for days: the prior hardcoded
+    expect_today=False meant a missing today was invisible to this check until it became
+    someone else's yesterday). Still NEVER trade-halts, still fails open."""
     name = "gex_archive"
     try:
         if str(REPO_ROOT) not in sys.path:
@@ -799,8 +809,9 @@ def check_gex_archive(et: datetime) -> dict:
         from backtest.tools.gex_archive_health import assess_archive_continuity
     except Exception as e:  # noqa: BLE001 -- never let a research checker break the beacon
         return _chk(name, "YELLOW", f"continuity checker unavailable ({type(e).__name__})", critical=False)
+    expect_today = et.weekday() < 5 and et.hour >= 16
     try:
-        r = assess_archive_continuity(as_of=et.date(), expect_today=False)
+        r = assess_archive_continuity(as_of=et.date(), expect_today=expect_today)
     except Exception as e:  # noqa: BLE001
         return _chk(name, "YELLOW", f"continuity assess failed ({type(e).__name__})", critical=False)
     status = r.get("status", "YELLOW")

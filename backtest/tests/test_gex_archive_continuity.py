@@ -11,6 +11,7 @@ regress. All cases are deterministic and pass on a clean checkout / CI.
 from __future__ import annotations
 
 import datetime as dt
+import json
 
 import pytest
 
@@ -133,7 +134,96 @@ def test_live_archive_verdict_is_structured_and_safe():
     v = gh.assess_archive_continuity(as_of=_d("2026-06-29"))
     assert v["status"] in ("GREEN", "YELLOW", "RED")
     assert set(v) >= {"status", "reason", "latest_session", "days_accrued",
-                      "staleness_trading_days", "interior_gaps"}
+                      "staleness_trading_days", "interior_gaps", "known_gaps"}
+
+
+# ── known gaps: KNOWN_GAP vs SILENT_LOSS (2026-08-01, C7 closure) ──────────────
+# journal/gex-archive/known-gaps.json explains the two real 2026-07 interior gaps
+# (whole-machine outage 07-24, producer blackout 07-30). These tests pin the
+# mechanism on SYNTHETIC dates (no live-archive dependence) plus one live check.
+
+def test_known_gap_excluded_from_interior_gaps_downgrades_to_green():
+    # Same shape as test_yellow_on_single_interior_gap, but 06-24 is declared a KNOWN
+    # gap -> the UNEXPLAINED interior_gaps list empties out -> GREEN, not YELLOW.
+    present = [_d("2026-06-22"), _d("2026-06-23"),
+               _d("2026-06-25"), _d("2026-06-26")]
+    v = gh.assess_archive_continuity(
+        as_of=_d("2026-06-29"), present_dates=present, known_gaps=[_d("2026-06-24")])
+    assert v["status"] == "GREEN", v
+    assert v["interior_gaps"] == []
+    assert v["known_gaps"] == ["2026-06-24"]
+
+
+def test_known_gap_never_inflates_days_accrued():
+    # An explained absence is still an absence, not data -- days_accrued must NOT count it.
+    present = [_d("2026-06-22"), _d("2026-06-23"),
+               _d("2026-06-25"), _d("2026-06-26")]
+    v = gh.assess_archive_continuity(
+        as_of=_d("2026-06-29"), present_dates=present, known_gaps=[_d("2026-06-24")])
+    assert v["days_accrued"] == 4, "a known gap must not inflate days_accrued"
+
+
+def test_bite_unknown_new_gap_still_reds_even_with_a_known_gaps_list():
+    # RED-PROOF: a known-gaps list must not silently launder a DIFFERENT, real, new gap.
+    # 06-23 and 06-25 are both missing; only 06-23 is declared known -> 06-25 must still
+    # count as an unexplained interior gap and still degrade the verdict.
+    present = [_d("2026-06-22"), _d("2026-06-24"), _d("2026-06-26")]
+    v = gh.assess_archive_continuity(
+        as_of=_d("2026-06-29"), present_dates=present, known_gaps=[_d("2026-06-23")])
+    assert v["interior_gaps"] == ["2026-06-25"], v
+    assert v["known_gaps"] == ["2026-06-23"], v
+    assert v["status"] == "YELLOW", v  # 1 unexplained gap -> YELLOW, not GREEN (not laundered)
+
+
+def test_bite_both_gaps_unknown_still_reds_two_interior_gaps():
+    # RED-PROOF companion: with NO known_gaps at all, the original two-gap RED behavior
+    # (test_red_on_multiple_interior_gaps) must be completely unchanged.
+    present = [_d("2026-06-22"), _d("2026-06-24"), _d("2026-06-26")]
+    v = gh.assess_archive_continuity(as_of=_d("2026-06-29"), present_dates=present, known_gaps=[])
+    assert v["status"] == "RED", v
+    assert v["interior_gaps"] == ["2026-06-23", "2026-06-25"]
+    assert v["known_gaps"] == []
+
+
+def test_parse_known_gaps_missing_file_is_empty(tmp_path):
+    assert gh.parse_known_gaps(tmp_path) == {}
+
+
+def test_parse_known_gaps_garbled_file_is_empty_fail_open(tmp_path):
+    (tmp_path / gh.KNOWN_GAPS_FILENAME).write_text("{not json", encoding="utf-8")
+    assert gh.parse_known_gaps(tmp_path) == {}
+
+
+def test_parse_known_gaps_non_dict_payload_is_empty_fail_open(tmp_path):
+    (tmp_path / gh.KNOWN_GAPS_FILENAME).write_text("[1, 2, 3]", encoding="utf-8")
+    assert gh.parse_known_gaps(tmp_path) == {}
+
+
+def test_parse_known_gaps_reads_valid_manifest(tmp_path):
+    (tmp_path / gh.KNOWN_GAPS_FILENAME).write_text(
+        json.dumps({"2026-07-24": {"reason": "outage"}, "2026-07-30": {"reason": "blackout"}}),
+        encoding="utf-8")
+    gaps = gh.parse_known_gaps(tmp_path)
+    assert set(gaps) == {_d("2026-07-24"), _d("2026-07-30")}
+    assert gaps[_d("2026-07-24")]["reason"] == "outage"
+
+
+def test_parse_known_gaps_skips_unparseable_keys(tmp_path):
+    (tmp_path / gh.KNOWN_GAPS_FILENAME).write_text(
+        json.dumps({"not-a-date": {"reason": "x"}, "2026-07-24": {"reason": "ok"}}),
+        encoding="utf-8")
+    gaps = gh.parse_known_gaps(tmp_path)
+    assert set(gaps) == {_d("2026-07-24")}
+
+
+def test_live_archive_known_gaps_resolve_the_two_2026_07_gaps():
+    # The actual repo manifest must explain BOTH real interior gaps found on this
+    # checkout -- the live fix this guard exists to pin (2026-08-01 engine-health RED
+    # closure: 'gex_archive RED -- 2 interior trading-day gaps [2026-07-24, 2026-07-30]').
+    v = gh.assess_archive_continuity(as_of=_d("2026-08-01"))
+    assert v["interior_gaps"] == [], v  # no UNEXPLAINED gaps remain
+    assert set(v["known_gaps"]) >= {"2026-07-24", "2026-07-30"}, v
+    assert v["status"] in ("GREEN", "YELLOW"), v  # never RED once both gaps are explained
 
 
 if __name__ == "__main__":

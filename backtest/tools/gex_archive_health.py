@@ -29,17 +29,33 @@ A "trading day" is modelled as a weekday (Mon-Fri). US market holidays are NOT e
 tolerances below absorb as YELLOW (never a false RED on a holiday).
 
   * RED    : archive empty, OR staleness > ``max_stale_trading_days`` (default 2),
-             OR more than one interior gap (a real multi-day stall).
-  * YELLOW : staleness 1-2 trading days, OR exactly one interior gap (mild / holiday-ish).
-  * GREEN  : latest snapshot == the most-recent expected trading day, no interior gaps.
+             OR more than one UNEXPLAINED interior gap (a real multi-day stall).
+  * YELLOW : staleness 1-2 trading days, OR exactly one UNEXPLAINED interior gap.
+  * GREEN  : latest snapshot == the most-recent expected trading day, no UNEXPLAINED gaps
+             (a KNOWN, explained gap does not block GREEN -- see below).
 
 ``expect_today`` defaults False (the capture fires at 15:55 ET; before then today's
 session is not yet "owed", so we never flag a missing today pre-close).
+
+KNOWN_GAP vs SILENT_LOSS (2026-08-01)
+--------------------------------------
+An interior gap can be EXPLAINED: ``{archive_dir}/known-gaps.json`` (read by
+``parse_known_gaps``, or injected via the ``known_gaps`` test seam) is a registry of
+dates the accrual is known to have missed and WHY (e.g. a documented whole-machine
+outage, or a producer blackout where the day's window has closed and both bankers'
+current-day-only CDN sources make it permanently unfetchable). A date in that registry
+is subtracted from ``interior_gaps`` (so it stops degrading the verdict) but is NEVER
+added to ``days_accrued`` -- an explained absence is still an absence, not data. This is
+what lets a RED caused by two long-explained historical gaps resolve back to GREEN/YELLOW
+without silently pretending the missing days were captured, and keeps a genuinely NEW,
+unexplained gap RED exactly as before (a known-gaps entry only suppresses the SPECIFIC
+dates it names).
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import json
 import re
 from pathlib import Path
 from typing import Iterable, Optional
@@ -50,6 +66,11 @@ DEFAULT_ARCHIVE_DIR = _REPO / "journal" / "gex-archive"
 
 # Matches both banker schemas: "2026-06-26.json" (Alpaca) and "2026-06-26-cboe.json" (CBOE).
 _DATE_FILE_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})(?:-[a-z0-9]+)?\.json$", re.IGNORECASE)
+
+# Explicit KNOWN_GAP registry (2026-08-01, C7 fix): {archive_dir}/known-gaps.json.
+# Filename deliberately does NOT match _DATE_FILE_RE (no leading YYYY-MM-DD), so it is
+# never mistaken for a captured snapshot / never counted toward days_accrued.
+KNOWN_GAPS_FILENAME = "known-gaps.json"
 
 # Default tolerances.
 MAX_STALE_TRADING_DAYS = 2          # latest may lag the owed day by this many before RED.
@@ -102,6 +123,37 @@ def parse_archive_dates(archive_dir: Path) -> list[dt.date]:
     return sorted(dates)
 
 
+def parse_known_gaps(archive_dir: Path) -> dict[dt.date, dict]:
+    """Read ``{archive_dir}/known-gaps.json`` -- an explicit registry of trading days the
+    accrual is KNOWN to have missed, and WHY, so the continuity verdict can distinguish an
+    EXPLAINED absence (machine outage, producer blackout -- genuinely unfetchable after the
+    fact because both bankers are current-day-only sources) from an unexplained SILENT_LOSS
+    that still needs chasing (2026-08-01, C7 silent-failure class).
+
+    Schema: ``{"YYYY-MM-DD": {"reason": str, ...}, ...}``. Fail-open, matching every other
+    reader in this module: a missing file, garbled JSON, or a non-dict payload all return
+    ``{}`` (never raises, never blocks the reporter). Malformed individual keys/values are
+    skipped rather than failing the whole read.
+    """
+    path = archive_dir / KNOWN_GAPS_FILENAME
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 -- fail-open reporter, never raise
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[dt.date, dict] = {}
+    for k, v in raw.items():
+        try:
+            d = dt.date.fromisoformat(str(k))
+        except ValueError:
+            continue
+        out[d] = v if isinstance(v, dict) else {"reason": str(v)}
+    return out
+
+
 def assess_archive_continuity(
     archive_dir: Optional[Path] = None,
     as_of: Optional[dt.date] = None,
@@ -109,6 +161,7 @@ def assess_archive_continuity(
     expect_today: bool = False,
     max_stale_trading_days: int = MAX_STALE_TRADING_DAYS,
     present_dates: Optional[Iterable[dt.date]] = None,
+    known_gaps: Optional[Iterable[dt.date]] = None,
 ) -> dict:
     """Pure continuity verdict for the GEX OI archive. Never raises, never mutates.
 
@@ -128,18 +181,31 @@ def assess_archive_continuity(
         before the verdict is RED. 1-2 is YELLOW.
     present_dates:
         Explicit set of session dates (test seam). When given, ``archive_dir`` is not read.
+    known_gaps:
+        Explicit set of EXPLAINED-absence dates (test seam), e.g. a documented whole-machine
+        outage or producer blackout where both bankers' current-day-only sources make the
+        day permanently unfetchable. When given, ``archive_dir``'s ``known-gaps.json`` is not
+        read. When omitted, read via ``parse_known_gaps(archive_dir)``. A known gap is
+        EXCLUDED from ``interior_gaps`` (so it no longer degrades the verdict) but is NEVER
+        counted toward ``days_accrued`` (an explained absence is still an absence, not data)
+        -- this is what lets the checker distinguish KNOWN_GAP from SILENT_LOSS instead of
+        just laundering the hole.
 
     Returns
     -------
     dict with: ``status`` (GREEN/YELLOW/RED), ``reason``, ``latest_session``,
     ``days_accrued``, ``most_recent_expected``, ``staleness_trading_days``,
-    ``interior_gaps`` (list of ISO dates), ``expect_today``.
+    ``interior_gaps`` (list of ISO dates, UNEXPLAINED only), ``known_gaps`` (list of ISO
+    dates excluded from ``interior_gaps`` because ``known-gaps.json`` explains them),
+    ``expect_today``.
     """
     as_of = as_of or dt.date.today()
     archive_dir = archive_dir or DEFAULT_ARCHIVE_DIR
 
     dates = (sorted(set(present_dates)) if present_dates is not None
              else parse_archive_dates(archive_dir))
+    known_gap_set = (set(known_gaps) if known_gaps is not None
+                      else set(parse_known_gaps(archive_dir)))
 
     def _result(status: str, reason: str, **extra) -> dict:
         base = {
@@ -156,7 +222,7 @@ def assess_archive_continuity(
     if not dates:
         return _result("RED", "no GEX OI snapshots in archive — accrual not running",
                        most_recent_expected=None, staleness_trading_days=None,
-                       interior_gaps=[])
+                       interior_gaps=[], known_gaps=[])
 
     latest = dates[-1]
     earliest = dates[0]
@@ -183,16 +249,24 @@ def assess_archive_continuity(
         staleness = len(_weekdays_between(latest, most_recent_expected))
 
     # Interior gaps: weekdays inside [earliest, latest] with no snapshot (the stall signal).
+    # Split into UNEXPLAINED (still degrade the verdict) vs KNOWN (explained by
+    # known-gaps.json -- e.g. a documented outage on a current-day-only source that can
+    # never be backfilled) -- a known gap is excluded from the severity math below but
+    # reported separately so KNOWN_GAP stays visibly distinct from SILENT_LOSS.
     present_set = set(dates)
     interior_expected = [earliest] + _weekdays_between(earliest, latest)
-    interior_gaps = [d for d in interior_expected
-                     if d not in present_set and _is_weekday(d)]
+    all_interior_gaps = [d for d in interior_expected
+                         if d not in present_set and _is_weekday(d)]
+    known_interior_gaps = [d for d in all_interior_gaps if d in known_gap_set]
+    interior_gaps = [d for d in all_interior_gaps if d not in known_gap_set]
     interior_gaps_iso = [d.isoformat() for d in interior_gaps]
+    known_gaps_iso = [d.isoformat() for d in known_interior_gaps]
 
     common = dict(
         most_recent_expected=most_recent_expected.isoformat(),
         staleness_trading_days=staleness,
         interior_gaps=interior_gaps_iso,
+        known_gaps=known_gaps_iso,
     )
 
     if staleness > max_stale_trading_days:
@@ -211,9 +285,12 @@ def assess_archive_continuity(
         if len(interior_gaps) == 1:
             bits.append(f"1 interior gap {interior_gaps_iso}")
         return _result("YELLOW", "; ".join(bits) + " — watch the accrual", **common)
+    known_suffix = (f" ({len(known_interior_gaps)} known gap(s) {known_gaps_iso}, explained)"
+                    if known_interior_gaps else "")
     return _result("GREEN",
                    f"accrual healthy: {len(dates)} sessions, latest {latest.isoformat()} "
-                   f"== owed {most_recent_expected.isoformat()}, no gaps", **common)
+                   f"== owed {most_recent_expected.isoformat()}, no unexplained gaps"
+                   f"{known_suffix}", **common)
 
 
 def main() -> int:
