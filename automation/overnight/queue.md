@@ -65,7 +65,22 @@
 > from risky-1/risky-3's `params_patch` in `accounts.json` (one line each, byte-identical).
 > Follow-up evaluation item filed: `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`.
 
-- [ ] FLEET-PARITY-TESTS-READ-LIVE-STATE (MED, test-integrity) :: Filed 2026-07-27 during the score-ladder ship. 9 of test_fleet_arm_parity.py's cases fail tonight because _apply_recency_min_sizing reads the LIVE recency verdict from disk, which is genuinely RED after the 07-23/07-27 losses -- the tests assert unclamped elite sizing (e.g. qty 12) and get the RED-floor clamp (qty 5, 'qty clamped 12->5: recency RED'). A guard whose verdict depends on the rig's live P&L state is not a guard (same class as PYTEST-CROSS-SUITE-SYSPATH-POLLUTION): it cries wolf when cold and would mask a real sizing regression when hot. Fix: monkeypatch/fixture _recency_verdict in the parity suite (both clamped and unclamped branches tested explicitly, vary-and-assert per C14). Structural innocence of the same-day ladder commit verified: deb781ea is pure insertions in plan_all's probe region; the clamp fires in plan_entry, untouched. :: depends:none :: status:pending
+- [x] FLEET-PARITY-TESTS-READ-LIVE-STATE (MED, test-integrity, **CLOSED 2026-08-01 ~02:00-02:20 ET conductor-weekend, commit `dea5b2e2`**) :: Filed 2026-07-27 during the score-ladder ship. 9 of test_fleet_arm_parity.py's cases fail tonight because _apply_recency_min_sizing reads the LIVE recency verdict from disk, which is genuinely RED after the 07-23/07-27 losses -- the tests assert unclamped elite sizing (e.g. qty 12) and get the RED-floor clamp (qty 5, 'qty clamped 12->5: recency RED'). A guard whose verdict depends on the rig's live P&L state is not a guard (same class as PYTEST-CROSS-SUITE-SYSPATH-POLLUTION): it cries wolf when cold and would mask a real sizing regression when hot. Fix: monkeypatch/fixture _recency_verdict in the parity suite (both clamped and unclamped branches tested explicitly, vary-and-assert per C14). Structural innocence of the same-day ladder commit verified: deb781ea is pure insertions in plan_all's probe region; the clamp fires in plan_entry, untouched.
+  **SHIPPED: 3 independent fixes needed, not 1.** (1) autouse fixture pins `_recency_verdict`
+  to GREEN for every test except a new section 7 (RED/GREEN/YELLOW/base-tier branches
+  monkeypatched explicitly). (2) STALE FIXTURE found mid-fix: GATE-TIERS-IMPLEMENT
+  (2026-07-23) made the producer emit `score_peak_passed`/`hard_skip_action` alongside
+  `passed`; this file's synthetic blocks never carried them, so risky-3/RISKY_LOOSE (the
+  only arm with an empty `hard_skip_verdicts` list) silently HELD on every test regardless
+  of signal shape -- fixed by mirroring `score_peak_passed=passed`. (3) STALE ASSERTION
+  found while getting to green: risky-1 was converted to the FULL-SEND learning arm
+  2026-07-31 (commit e28d210c, `gate_override={"full_send":true}`, no more min_triggers/
+  require_confluence) -- its normal lane is now UNGATED same as risky-3; rewrote the one
+  test that still asserted the pre-conversion HOLD-on-non-elite behavior. **25/25 green**
+  (was 15/25). RED-proofed via `git checkout HEAD --` baseline (reproduces the exact
+  original 10 failures) + restore, never `git stash` (C34/L214/L228/L238). Wider suite
+  (fleet_executor + full_send_arm) 80/80 green. Curated safety gate 59/59 PASS. Test-only,
+  zero trading-path touched. Revert: `git revert dea5b2e2`. :: depends:none :: status:done
 
 - [ ] BOLD-LOOP-STATE-SCHEMA-VIOLATION (LOW, state-integrity) :: Filed 2026-07-27 (WS1 flagged in passing, pre-existing): test_state_contracts.py::test_live_json_file_validates fails on automation/state/aggressive/loop-state.json -- a `ribbon` field schema violation written by live Bold-side automation. Find the writer, decide schema-vs-writer, fix whichever is wrong (C7: a contract test failing on live state is a real signal, not noise). :: depends:none :: status:pending
 

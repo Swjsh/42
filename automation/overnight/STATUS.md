@@ -1,3 +1,49 @@
+## [2026-08-01 02:20 ET] OK -- conductor (WEEKEND): FLEET-PARITY-TESTS-READ-LIVE-STATE closed, commit `dea5b2e2`
+
+**Signal J wakes to (OP-25).** Budget gate PASS ($0.33/$30, 2/4 fires used before this one),
+market-hours gate PASS (Saturday, weekend mode). `task_scorer.py` top item
+(`TWIN-DOCTRINE-FIRST-DEPLOY`) is still pending J's Discord reply on `gp-2026-07-23-twin-
+doctrine-001` -- nothing new to do there. Picked the next-ranked ready MED item:
+`FLEET-PARITY-TESTS-READ-LIVE-STATE` (filed 2026-07-27, a live-state test-integrity flake
+this same fire's predecessor's own commit message referenced twice tonight).
+
+**What shipped:** de-flaked `test_fleet_arm_parity.py` -- was 15/25 green, now 25/25.
+Investigating "9 fail because of the live recency verdict" (the ticket's own diagnosis)
+surfaced it was actually **3 independent bugs in the same 10 failures**: (1) the diagnosed
+live-recency-read (fixed with an autouse fixture pinning the verdict to GREEN + a new
+section explicitly exercising RED/GREEN/YELLOW branches via monkeypatch); (2) a STALE
+FIXTURE the ticket didn't mention -- GATE-TIERS-IMPLEMENT (2026-07-23) added
+`score_peak_passed`/`hard_skip_action` fields the test's synthetic signal blocks never
+populated, silently HOLD-ing risky-3/RISKY_LOOSE on every test regardless of signal shape;
+(3) a STALE ASSERTION against a deliberate redesign -- risky-1 became the FULL-SEND
+learning arm 2026-07-31 (J directive, commit e28d210c), so its old "requires confluence,
+HOLDs on non-elite" test was asserting retired behavior; rewrote it to document + assert
+the current ungated reality instead.
+
+**Validated:** RED-proofed via `git checkout HEAD --` baseline (reproduces the exact
+original 10 failures) + restore -- never `git stash` in this repo (C34/L214/L228/L238).
+Wider related suite (fleet_executor.py + full_send_arm.py) 80/80 green, zero regressions.
+Curated safety gate 59/59 PASS.
+
+**Rail-4 N/A** -- test-only change, zero production/trading-path code touched. Revert:
+`git revert dea5b2e2` (additive/test-only, nothing else depends on this file).
+
+**Lesson (not filed separately -- same class already indexed):** a queue ticket's own
+diagnosis of "why N tests fail" can itself be stale/incomplete by the time it's picked
+up -- always re-diagnose from the actual pytest output before applying the filed fix,
+even when the filed fix sounds plausible and partially correct (this is C7/C14's
+existing shape, no new L# needed).
+
+**Autonomy metric:** `conductor_outcome.py metric` reports `trend: regressing`
+(net_improvement 13/20 fires, cost/drained $2.08). This is driven by the tracked
+`function_score_avg` (trading-function proxy: enters/orders/fills on the last trading
+day, 2026-07-31 -- 3 enters, 3 accepted, 5 fills, 1 distinct setup), NOT by this fire's
+own work (this fire closed a loop, 0 regressions, +5 net test count). Next AFTERHOURS/
+WEEKEND fire should prefer another loop-closing item (per the standing instruction) over
+a fresh artifact until the trend recovers.
+
+---
+
 ## [2026-08-01 01:13 ET] OK -- conductor (AFTERHOURS): FLEET-STRIKE-TIER-ATM-EXTENSION armed on paper (pre-registered), commit `43bb979d`
 
 **Signal J wakes to (OP-25).** Budget gate PASS ($0.33 of $30, 1/4 fires), market-hours gate
@@ -580,139 +626,6 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 > Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
 > Next fire (per cadence: 20:30 / 01:00 / 05:30 ET) resets the daily counter at local midnight.
 
-## [2026-07-28 ~01:16-01:30 ET] OK -- conductor (AFTERHOURS): DRESS-REHEARSAL-NARROW-STRIKE-BAND closed, commit `96cf82b4`
 
-> **STAGE 0/1:** ET confirmed 01:16 Tuesday (market closed). Budget gate PROCEED
-> ($0.60/$30, 3/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, gex_archive
-> 1-day interior-gap YELLOW non-critical). Ran `self_check.py` per STAGE-1 priority-1
-> (function-first) and it reported **BROKEN**: `DRESS-REHEARSAL RED` off the real
-> 2026-07-27T20:45:01 nightly artifact -- `check1_options_{safe,bold}` both RED. This
-> outranked `task_scorer.py --top`'s `TWIN-DOCTRINE-FIRST-DEPLOY` (still J's REVOKE
-> surface, correctly skipped again) and every queue item -- an active self-check BROKEN
-> flag on the "are we good for tomorrow" probe is priority-2 CRITICAL.
-
-> **Root cause, verified against the REAL Alpaca chain (spot 738.85):**
-> `_pick_deep_otm_put` searched a fixed $10-wide strike window below the 5%-OTM target;
-> SPY's far-OTM chain there is only 3 strikes (695/700/701, not $1-spaced), all pricing
-> $0.06-$0.08 -- above the $0.05 ceiling -- so the probe never reached order placement on
-> EITHER account, every night this happens to be the shape of the chain. Fixed: escalating
-> `STRIKE_SEARCH_BANDS = (10, 30, 60, 100)`; live-verified band=30 immediately surfaces
-> strike 690 @ $0.05. **Second bug found while verifying live:** `_next_trading_day`
-> guessed via `calendar?start=today+1` -- correct only when called after today's close.
-> My own off-schedule verification run (01:xx ET, before today's open) skipped today and
-> disagreed with `check3_sanity`'s own `/v2/clock` read, false-RED-ing the very rehearsal
-> I'd just fixed. Fixed by deriving `next_day` from the broker's own `clock.next_open`
-> (C11: broker is the source of truth), calendar endpoint kept only as a fallback --
-> this was going to leave a MISLEADING RED artifact sitting on disk for the ~8h until
-> today's real open if left unfixed (self_check has no time-gate on `overall=="RED"`).
-
-> **Verified this fire (OP-33), not claimed:** 6 new guard tests, RED-proofed via scoped
-> `git stash -- setup/scripts/dress_rehearsal.py` (all 6 failed against pre-fix code with
-> the exact expected pre-fix behavior/AttributeError, popped clean, 40/40 green post-fix).
-> **Live end-to-end re-verification, not just unit tests:** re-ran `dress_rehearsal.py`
-> for real -> `overall=GREEN` (was RED), both `check1_options` GREEN with a genuine
-> ACCEPTED+CANCELED probe order on each account (order ids in the artifact); re-ran
-> `self_check.py` -> `GREEN, 0 problem(s)` (was BROKEN). Curated safety gate 59/59 PASS
-> both before and after the commit. Post-commit `git show 96cf82b4 --stat --name-status`
-> confirms exactly the 2 intended files (L247 discipline).
-
-> **Scope + revert:** 2 files (`setup/scripts/dress_rehearsal.py`,
-> `backtest/tests/test_dress_rehearsal.py`). Zero trading-path touched (no params/
-> heartbeat_core/filters/placement/exit/CLAUDE.md) -- this is the nightly rehearsal
-> PROBE script, not the live entry path. Revert: `git revert 96cf82b4`.
-
----
-
-## [2026-07-28 ~01:00-01:15 ET] OK -- conductor (AFTERHOURS): SAFETY-GATE-MISSES-PARITY-SUITE closed, commit `b0129034`
-
-> **STAGE 0/1:** ET confirmed 01:00 Monday->Tuesday rollover (market closed). Budget gate
-> PROCEED ($0/$30, 2/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED,
-> gex_archive 1-day-interior-gap YELLOW non-critical). Self-audit gaps: newest two batches
-> (2026-07-26T17:32 4-line, 2026-07-27T17:31 12-line) are scaffold/perspective-header noise
-> with no new concrete action beyond what's already tracked (budget-governor distortion
-> already fixed via SELF_REPORT_CORRECTION=2.2; off-box deadman + zero-for-twelve postmortem
-> already queued) -- left un-triaged rather than spending the fire on noise-disposition,
-> picked the concrete HIGH item instead. `task_scorer.py --top` named
-> `TWIN-DOCTRINE-FIRST-DEPLOY` (still J's REVOKE surface, propose-only, correctly skipped
-> per multiple prior fires) -- next-highest ready HIGH item was `SAFETY-GATE-MISSES-PARITY-
-> SUITE` (filed 2026-07-27: commit 3ced7457 broke 16 engine_cli parity cases and still
-> PASSED the pre-commit gate because the suite wasn't wired in + a lying exit-code was
-> trusted). Picked it -- process-integrity gap on the exact contract this whole autonomous
-> loop depends on to ship safely.
-
-> **What I built:** `backtest/tests/run_safety_gate.py` -- added `test_engine_cli_parity.py`
-> to `GATE_TESTS` (curated gate 5->6 suites, still ~5s). New `_parse_pytest_counts()` parses
-> pytest's summary line out of captured stdout+stderr; `run()` now FAILS if the subprocess
-> exit code is 0 but the parsed summary shows `failed`/`error` > 0 (C7: audit outputs, not
-> exit codes -- directly the failure mode that let the exit-0-but-17-failed incident happen).
-> 10 new guard tests (`test_run_safety_gate.py`): GATE_TESTS membership, `_parse_pytest_counts`
-> unit coverage (passed/failed/error/errors/no-summary), and 3 `run()`-level RED-proofs via
-> `monkeypatch.setattr(gate_mod.subprocess, "run", ...)` feeding a fake `CompletedProcess`
-> with `returncode=0` + a `"1 failed"` summary -- confirms `run()` returns non-zero, not 0.
-
-> **Verified this fire (OP-33), not claimed:** RED-proofed via scoped
-> `git stash -- backtest/tests/run_safety_gate.py` (single pathspec, not tree-wide): 6 of the
-> 10 new tests failed against pre-fix code with the exact expected
-> `AttributeError: module 'run_safety_gate' has no attribute '_parse_pytest_counts'` /
-> `AssertionError: run() returned 0 (PASS) even though...` -- `git stash pop` restored
-> cleanly, re-verified 10/10 green. Live curated gate re-run post-fix: `59 passed` (was
-> the prior-fires' "31+5" baseline -- now includes the parity suite's 28 + this fire's own
-> 10, net of the 5 originally-curated suites' counts). Post-commit
-> `git show b0129034 --stat --name-status` confirms exactly the 2 intended files
-> (`run_safety_gate.py` modified, `test_run_safety_gate.py` added) -- L247 discipline.
-
-> **Scope + revert:** 2 files. Zero trading-path touched (no params/heartbeat_core/
-> filters/placement/exit/CLAUDE.md) -- pure process-integrity tooling that protects every
-> future autonomous commit through this same gate. Revert: `git revert b0129034`.
-
-[2026-07-27T23:40 ET] fable-session: LADDER DISARMED ON EVIDENCE -- the fast loop worked. The 390-day replay J demanded ("prove it, don't wait for tomorrow's tape") came back an honest NULL: floor 7 = -$31,015 (1,538 tr), floor 8 = -$16,642 (725 tr), floor 9 = -$10,903 (332 tr) vs binary-engine baseline +$5,307; similar WR, much worse loss/win magnitude; day-majority + drop-best FAIL on all lanes; baseline parity byte-identical to the published scorecard. All 5 floors REMOVED (fleet accounts.json x3 + params.json + aggressive/params.json) ~6h after arming, BEFORE the open -- the machinery/guards stay intact and inert, the why-not provenance rows are the $0 forward shadow, and the crypto twin's ladder-variant SIM lane keeps accruing its own mechanism evidence 24/7. Pre-registered narrow hypothesis (score>=9 + confluence + htf BEAR -- frozen BEFORE slicing) queued as LADDER-SUBSET-PREREG. RE-ARM = restore the keys (docs at each site carry the numbers). This is process>P&L: we armed on n=10, the n=1,538 answer arrived 6 hours later, and we acted on it the same night instead of discovering it live over two weeks.
-[2026-07-27T21:22 ET] fable-session: SHIPPED + ARMED overnight (J directive "stop making me prompt") -- REVOKE surface:
-  1. SCORE LADDER LIVE (deb781ea): risky-3 (paper, $1,852) enters MIN-SIZE at bear_score>=7 on scoring-failed ticks w/ raw level-tied trigger + level (the 07-27 bear-9 class). BEAR only. REVOKE: delete score_ladder_floor from risky-3's gate_override in fleet/accounts.json -- next tick reverts. Evidence: analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md (n=10 anchors, SMALL -- the fleet paper ledger is the forward A/B). Other arms UNARMED pending J's table look (proposed 8/8/9/9).
-  2. WHY-NOT provenance (3ced7457+79fafbe0): every tick now logs raw detections + blockers + levels + raw rejection level. "Zero triggers" can never lie again.
-  3. Premarket readiness gate (98dd919a, WS2): Gamma_PremarketReadiness 09:00 ET -- fleet+MCP+levels+bias+TV+engine+task, ONE verdict, leads the morning brief.
-  4. Escalation cord (36e78164, WS4): Gamma_EntryBlockWatch every 2min RTH -- bear>=8/bull>=9 + raw trigger + no entry -> ONE voice alert per episode, max 3/day. J hears the block AT the moment.
-  5. Premarket level-compiler v2 (7b4aa3f4, WS1): LANDED -- SIP premarket (66 bars/744k shares vs IEX's 1 bar/80 shares on 07-27), degeneracy guard (an 80-share print can never be PMH again), 3-above+3-below directional balance, weight+zone_width on every level, daily_context.py (gap/shelf/backside-retest -- calibrated on real 07-27: gap +0.81% filled, shelf [744.18,745.78] 10 touches broken 07-23, backside_retest=true). 141 tests green, SIP-feed guard RED-proofed live.
-  Trading path deltas: ladder lane only. Losses today -$571.64 (Safe -$216.44 / Bold -$355.20) -- root-caused (filter 5 structural ribbon gate; ruling + teardown in queue.md + ENTRY-BAR + G1/G2/PMH items). Kill switches never tripped.
-[2026-07-27T01:00 ET] conductor: QUIET — nightly budget exhausted (5 fires today >= max_fires 4) — zero model work, rail-0 gate
-[2026-07-27T01:12 ET] conductor: QUIET — nightly budget exhausted (6 fires today >= max_fires 4) — zero model work, rail-0 gate
-[2026-07-27T05:30 ET] conductor: QUIET — nightly budget exhausted (7 fires today >= max_fires 4) — zero model work, rail-0 gate
-[2026-07-27T06:12 ET] conductor: QUIET — nightly budget exhausted (8 fires today >= max_fires 4) — zero model work, rail-0 gate
-[2026-07-27T09:12 ET] conductor: QUIET — nightly budget exhausted (9 fires today >= max_fires 4) — zero model work, rail-0 gate
-[2026-07-27T18:42 ET] conductor: QUIET — nightly budget exhausted (10 fires today >= max_fires 4) — zero model work, rail-0 gate
-[2026-07-27T20:30 ET] conductor: QUIET — nightly budget exhausted (11 fires today >= max_fires 4) — zero model work, rail-0 gate
-
-
-### DEGRADED: self-check 2026-07-31T20:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-31T21:09:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-31T21:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-31T22:09:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-31T22:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-31T23:09:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-01T03:30:11+00:00
-- date_et: 2026-07-31
-- total: $125.97 (threshold $30.00)
-- claude: $125.93  minimax: $0.05
-- claude_sessions: 13
-
-### DEGRADED: self-check 2026-07-31T23:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+## Kitchen
+Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=grinder-python
