@@ -1,0 +1,93 @@
+{
+  "prereg_id": "BULL-VIX-SOFT-MODE-SOLE-BLOCKER-2026-08-03",
+  "frozen_at_et": "2026-08-02 11:58:55 Sunday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
+  "frozen_before_any_run": true,
+  "author_lane": "FREQUENCY-CEILING-2026-08-03 (full gate-cascade joint-blocker study, both sides + trendline-only bear)",
+  "status": "NOT IMPLEMENTED -- this prereg specs a NEW code path (see arms_frozen). Nothing armed. Nothing run. This is ARM_C from the ALREADY-FROZEN prereg-vix-regime-gate-archetype-2026-08-02.json, explicitly deferred there: \"A bull-side soft-mode would require a genuinely NEW code path... If ARM_A/ARM_B's results suggest the bull side specifically is where the value is, a follow-up prereg should scope that new flag on its own, gated by this study's findings, not bundled in blind.\" This IS that follow-up.",
+
+  "relationship_to_existing_prereg": {
+    "existing": "analysis/recommendations/prereg-vix-regime-gate-archetype-2026-08-02.json -- frozen 2026-08-01 16:53:48 ET, NOT YET RUN (per REGIME-PARTICIPATION-2026-08-02.md: \"Not run. Not armed. The study executes clean later, against this frozen spec.\"). Its ARM_A (bear-only soft-mode) and ARM_B (symmetric disable_filters=[8], both sides) are the RIGHT next executions for filter_8 generally and should run BEFORE or ALONGSIDE this one -- this prereg does not replace them, it adds the ONE arm they explicitly declined to scope (a genuinely bull-side-only soft demerit rather than an outright bull-side delete).",
+    "why_not_duplicate": "ARM_B_delete in the existing prereg already tests symmetric disable_filters=[8] (which touches bull too, as a full DELETE not a soft demerit). This prereg is narrower and different in kind: a SOFT bull-side demerit (mirroring how vix_soft_mode already works for bear), which requires a new parameter that does not exist yet on evaluate_bullish_setup. If ARM_B passes its gates outright, this prereg becomes moot -- reported as a decision point in G0 below, not silently ignored."
+  },
+
+  "motivating_finding": {
+    "source": "analysis/deep-research/FREQUENCY-CEILING-2026-08-03.md (this study), sole-blocker cohort `bull:filter_8`",
+    "method": "Full-population (2025-01-02..2026-07-27, 390 RTH days) joint-blocker-set replay: for every bull qualifying candidate (score>=8, level-tied trigger, valid level) whose FULL filter-layer blocker set equals {filter_8} EXACTLY (i.e., filter_8 is the ONLY reason this candidate failed evaluate_bullish_setup -- every other one of the 8 bull filters independently passed), the candidate was priced via the SAME real-OPRA + real exit_manager pipeline (backtest/lib/exit_manager_walk.walk_exit_manager, structure-stop enabled, RIBBON_RIDE exit shape, entry+1-at-OPEN, min 3 contracts, ATM strike) every trusted study in this repo uses.",
+    "result": "n=183 sole-blocked candidates across 78 distinct trading days; 177 priced (6 BS-synthetic-excluded, disclosed not blended); total +$8,738.00; per-trade +$49.37; win rate 36.7%; per-DAY-that-fires +$112.03 (total / 78 distinct days, the right denominator for a frequency question). Survives Benjamini-Hochberg at q=0.10 across the 12 sole-blocker cohorts tested this session (one of only 3 that do, alongside bear:filter_8 [negative] and quality_lock [negative] -- both of which REINFORCE existing doctrine rather than proposing a change).",
+    "days_would_be_net_new": "69 of the 78 days (88.5%) currently have ZERO entries at all -- this is not cannibalizing an existing trading day, it is filling an empty one. Only 9 of 78 already had a same-day entry from elsewhere in the book (would become a 2nd position, subject to the existing one-position-at-a-time constraint -- see caveats).",
+    "oracle_caveat": "ORACLE, HINDSIGHT, NOT ACHIEVABLE AS STATED -- every candidate priced independently, no one-position-at-a-time sequencing applied (matching day_report_card.py's own oracle-walk convention exactly). A live gate cannot see 177 independent outcomes in advance; this number is the UPPER BOUND the gate is currently leaving on the table conditional on filter_8 alone, not a forecast."
+  },
+
+  "filter_8_bull_definition_as_read": {
+    "source": "backtest/lib/filters.py, evaluate_bullish_setup, ~line 1190-1195 (verified this build)",
+    "rule": "vd = vix_direction(vix_now, vix_prior); vix_pass = vix_now < 17.20 (VIX_BULL_LOW_THRESHOLD) or vd == 'falling'; if not vix_pass: blockers.append(8).",
+    "hard_block_today": "UNCONDITIONAL. evaluate_bullish_setup's signature has NO vix_soft_mode parameter at all (confirmed by reading the full signature, filters.py:1109-1128) -- unlike bear's filter 8, which already has a working vix_soft_mode escape valve (-1 score demerit instead of a hard block), bull has ZERO soft-mode path today. This asymmetry is exactly what this prereg proposes to close.",
+    "what_the_sole_blocker_cohort_is": "bull reclaim setups where VIX was NOT below 17.20 AND NOT falling -- i.e. VIX elevated-or-rising, but still under bull filter 9's separate HARD cap of 22.0 (a candidate blocked by BOTH filter_8 and filter_9 would show up in the 2+ overlap buckets, not this sole-blocker cohort). This is a moderately-elevated-VIX band, not a panic regime."
+  },
+
+  "hypothesis": "H1: bull-side filter 8 (VIX-low-or-falling requirement) is, like its already-suspect bear-side counterpart, a lagging/miscalibrated veto for the specific sole-blocker population, and adding a bull-side soft-mode (demerit instead of hard block) recovers a materially positive, still-significant slice of that population once walked at REAL entry timing (not the oracle's independent-candidate convention) and gated by the SAME 5-gate discipline the sibling filter_8 prereg uses. H0 (null): the oracle bound does not survive contact with real sequential entry (one-position-at-a-time, quality-lock, the OTHER 14 named gates now also exposed to bull candidates that used to be filtered out earlier), or fails the recent-window / drop-best / runner-anchor gates the way most single-gate relaxations in this codebase have (WEEKEND-TWELVE: 11 of 12 weekend lanes NULLed; filter 5 NULL, shadow signals NULL, shelf-hold-reclaim NULL).",
+
+  "arms_frozen": {
+    "CONTROL": "run_backtest(**SAFE_BASE_LIVE) -- live production config, unchanged.",
+    "ARM_C_bull_soft_new_flag": "NEW CODE REQUIRED (not yet written): add `vix_soft_mode_bull: bool = False` to evaluate_bullish_setup's signature, mirroring bear's existing pattern exactly -- when True and vix_pass is False, set a `vix_soft_demerit_bull = True` flag (-1 to bull_score, matching bear's `vix_soft_demerit` mechanism at filters.py ~1524-1526) INSTEAD OF `blockers.append(8)`. Byte-identical to current behavior when the flag is False (default) -- same discipline as every other flag-gated addition in this file (structure_shift_confirmation, bearish_reversal_bypass, trendline_bypass_scope all follow this exact pattern). Implementation is OUT OF SCOPE for this prereg -- specified here so a later session can build it against a frozen spec, not improvise one.",
+    "not_attempted": "A bull-side disable_filters=[8]-equivalent full delete is ALREADY covered by the existing prereg-vix-regime-gate-archetype-2026-08-02.json's ARM_B (symmetric across both sides) -- not duplicated here."
+  },
+
+  "population": {
+    "window_start": "2025-01-02",
+    "window_end": "2026-07-27",
+    "note_vs_sibling_prereg": "the sibling prereg's population extends 4 days further (window_end 2026-07-31, matching a later data pull). Re-running this arm against the sibling's exact data files at execution time is preferred for consistency; the 4-day difference is not expected to change either study's directional finding but should be reconciled, not silently ignored, when both run.",
+    "spy_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv (thru 2026-07-22) + strictly-later tail of spy_5m_2026-05-19_2026-07-27.csv -- identical merge to ladder_fullhist_replay.py/day_report_card.py (this study's own data-loading path)",
+    "pnl_rule": "REAL OPRA cached contracts ONLY (lib/option_pricing_real.load_contract_bars). BS-synthetic excluded from every $ figure, disclosed as a count.",
+    "exit_rule": "backtest/lib/exit_manager_walk.walk_exit_manager -- structure_stop enabled, RIBBON_RIDE exit shape, time_stop 15:40 ET. NEVER run_backtest's own raw trade.dollar_pnl (KNOWN-DIVERGENT, see the sibling prereg's provenance section for why).",
+    "entry_convention": "entry+1 (next option bar's OPEN)",
+    "sequencing": "UNLIKE this prereg's own motivating oracle number, the ACTUAL A/B run must walk ARM_C sequentially with the existing one-position-at-a-time discipline (NOT_FLAT check) -- the 88.5%-net-new-day estimate above is a raw upper bound; the real run will show the true achievable delta once the other 13 named gates and quality-lock are ALSO exposed to newly-passing bull candidates (a bull candidate that clears filter_8 via the new soft demerit still has to clear block_elite_bull, block_bull_1100_1200, block_bull_morning_agg, quality_lock, etc. -- this prereg's motivating number is filter-layer-only and does NOT net those out; the real run is what nets them out)."
+  },
+
+  "recent_window": {
+    "definition": "the newest 25 distinct trading dates present in the population frame",
+    "convention_source": "backtest/autoresearch/recency_check.py RECENCY_LOOKBACK_TRADING_DAYS = 25, matching the sibling prereg + prereg-filter5-ribbon-2026-07-31.json"
+  },
+
+  "cohort_definitions": {
+    "A_blocked_by_filter_8_alone_bull": "every bull-side scored bar whose blockers == [8] EXACTLY -- filter 8 the ONLY thing standing between the bull setup and a pass. Captured via a pure pass-through monkeypatch of evaluate_bullish_setup during the CONTROL run (same technique this study, prereg-filter5-ribbon-2026-07-31.json, and structure_shift_cascade_ab.py all use; restores the original in `finally`; zero behavior change to CONTROL).",
+    "B_allowed_by_filter_8_bull": "CONTROL's own entered bull book -- every bull trade the engine actually took with filter 8 satisfied naturally."
+  },
+
+  "gates_frozen": [
+    {"id": "G1_recent_window_positive", "primary": true,
+     "rule": "delta_total (ARM_C minus CONTROL) over the RECENT 25-trading-day window must be > 0",
+     "rationale": "J's dynamic-market directive (memory: feedback_dynamic_market_recency_over_aggregate_2026_07_31). PRIMARY gate, not the aggregate."},
+    {"id": "G2_day_majority_recent",
+     "rule": "among RECENT-window days whose book changed, n_improved > n_worsened"},
+    {"id": "G3_survives_drop_best_recent",
+     "rule": "RECENT-window delta minus the single best-contributing changed trade must remain > 0"},
+    {"id": "G4_runner_anchor_no_regression",
+     "rule": "in ARM_C, both the COUNT and the TOTAL P&L of runner-cohort exits (exit_reason containing 'runner' or 'trail') must be >= 95% of CONTROL's, over the full population",
+     "rationale": "the runner cohort is this book's profit engine -- zero tolerance, matches the sibling prereg's G4 verbatim"},
+    {"id": "G5_fire_count_L243",
+     "rule": "ARM_C must ADD >= 10 new entries over the full population AND >= 2 over the RECENT window",
+     "rationale": "L243 guard against a fix too narrow to ever fire"}
+  ],
+
+  "reported_not_gating": {
+    "G0_arm_b_supersession_check": "if the sibling prereg's ARM_B_delete (symmetric full delete, already frozen, not yet run) independently clears ITS OWN gates first, report whether ARM_C (the softer demerit version) still adds anything beyond ARM_B, or is superseded by it -- avoid shipping two mechanisms that do the same job.",
+    "full_population_delta": "reported for every arm; informative but NOT the ship criterion",
+    "bh_fdr": "Benjamini-Hochberg at alpha=0.10 on the real, sequenced ARM_C trade population (NOT a re-quote of this prereg's own oracle sole-blocker number, which used an unsequenced population) -- advisory",
+    "sole_blocker_oracle_number_status": "the +$8,738.00 / +$112.03-per-day figure in motivating_finding is PRE-REGISTRATION EVIDENCE FOR RUNNING THIS STUDY, not itself a result to report as if it were the A/B outcome. The real run's ARM_C numbers are the only numbers that may ship."
+  },
+
+  "ship_rule": "ARM_C SHIPS only if G1 AND G2 AND G3 AND G4 AND G5 all pass. If it fails, the null goes in the graveyard verbatim, INCLUDING the case where the sole-blocker oracle number looked this good and the real run still didn't hold (the majority outcome for single-gate relaxations in this codebase's own recent history -- WEEKEND-TWELVE: 11/12 lanes NULLed, 3/4 of FIND-THE-MONEY's independently-reviewed lanes NULLed or need-J). Paper-only; no J needed to run or graveyard this. Live-money arming of bull entries specifically already needs J per OP-16 regardless of this prereg's outcome.",
+
+  "reporting_rule": "ALL cells reported -- CONTROL and ARM_C, both windows, pass or fail, full G0-G5 table, synthetic-excluded counts. No cherry-picking.",
+
+  "no_new_knobs_disclosure": "This prereg DOES require one new parameter (vix_soft_mode_bull) unlike the sibling prereg's zero-new-code arms -- disclosed prominently, not buried. The parameter is a direct structural mirror of bear's already-shipped, already-tested vix_soft_mode; it is not a novel mechanism.",
+
+  "out_of_lane_do_not_touch": [
+    "filter 5 (ribbon direction) -- already has its own frozen/NULLed prereg (prereg-filter5-ribbon-2026-07-31.json), closed both ways.",
+    "block_elite_bull -- another agent's active lane (FRIDAY-DIAL-IN-2026-07-31.md Lane 1, a live trial already running on bold-2 with its own kill criterion). This study's OWN full-population block_elite_bull sole-blocker measurement (-$2,168.10/172/87 days) is 100% PRE-levels-v2-fix data (dates 2025-01-16..2026-07-22, zero overlap with the active trial's post-fix 07-28..07-31 window) -- reported in FREQUENCY-CEILING-2026-08-03.md as CONTEXT for that trial's kill-criterion tracker, explicitly NOT a contradiction of it and NOT a basis for touching that lane.",
+    "quality_lock -- this study's sole-blocker measurement (-$6,404.20/115/52 days, BH-significant) REINFORCES the existing escalation-lock design rationale (OP-17 GRIND, anti-churn). Not a candidate for relaxation; reported as confirmatory evidence, not flagged for a prereg.",
+    "bear filter_8 -- covered by the sibling prereg's ARM_A/ARM_B already; this study's bear-side sole-blocker measurement (-$19,712.30/556/159 days, BH-significant NEGATIVE) is additional evidence AGAINST relaxing the bear side specifically, reported to that sibling prereg's future execution, not re-litigated here."
+  ]
+}
