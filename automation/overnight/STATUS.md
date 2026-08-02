@@ -1,3 +1,106 @@
+## [2026-08-02T13:46:42 ET] session: OK -- FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3 + FLEET-SHRINK-NOT-DENY -- commits `9b6a3e35`, `c2cb9f72`
+
+**Signal J wakes to (OP-25).** ET verified via `et_clock.py` before touching anything
+(Sunday 13:24-13:46, market_hours=False -- the task brief's own "Monday pre-dawn" framing was
+WRONG against the real clock; flagged, not acted on, since Sunday afternoon is not a
+market-hours weekday violation either way). Read `analysis/deep-research/ARM-PARTICIPATION-
+AND-GROWTH-2026-08-03.md` (commit `642ce211`) per the brief; shipped the two cheap, already-
+half-built fixes it named as the engine's own next actions. Both PAPER, both guarded,
+both RED-proofed, zero live-arming action.
+
+**FIX 1 -- safe-3 ATM strike-tier extension (commit `9b6a3e35`).**
+Routing verified BY EXECUTION before touching anything: `fleet_executor._tiers_for_arm(safe-3)`
+resolved `V15_BOLD_TIERS` (OTM-3, confirmed via `accounts.json`'s explicit
+`params_patch.strike_tier_table="bold"`), exactly as the brief said. Repointed to
+`"bold_core"` -> `V15_BOLD_CORE_TIERS` (ATM under $2K), mirroring risky-1/risky-3's
+2026-08-01 extension. AFTER, re-verified by execution: safe-3 -> `V15_BOLD_CORE_TIERS`
+(ATM, offset=0 @ safe-3's live equity $1,967.81); risky-1/risky-3 unaffected (still
+`bold_core`); safe-1 (retired) unaffected (still `bold`/OTM-3, preserved as the shared
+table's live regression witness).
+**HONEST FRAMING (verbatim, not oversold):** PARTICIPATION/machinery fix, not a validated
+P&L edge -- `bold-strike-axis-2026-07-15.json` verdicts ALL 6 strike cells including ATM
+`ship_ready:false` / "WATCH -- NOT ship-ready" (fails the walk-forward gate, structurally
+null for this cohort). risky-1/risky-3's own fix landed **2026-08-01, a Saturday** -- 2026-07-31
+is the last real trading day in the participation study's dataset, so there are **ZERO LIVE
+TRADING DAYS OF EVIDENCE** on that precedent as of this ship, let alone on safe-3's own copy.
+Pre-registered before arming: `analysis/recommendations/fleet-strike-tier-atm-extension-safe3-
+prereg-2026-08-03.json` (n>=20-fill gates, mirrors the risky-1/risky-3 prereg, discloses the
+UNTESTED $600-notional-cap tension this fix could trade one blocker for another).
+**Blast radius:** grepped every `safe-3` + strike-tier hit across `backtest/tests/`, found and
+updated 4 guard files that pinned safe-3 to the old OTM table (`test_bold_core_strike_tier_
+2026_07_15.py`, `test_fleet_strike_tier_floor_collision_2026_07_31.py`, `test_fleet_arm_parity.py`,
+`test_fleet_arm_replay.py`) plus one stale comment (`test_reset_plan_tier_boundaries_2026_08_01.py`).
+**RED-proofed:** reverted `accounts.json` to `"bold"`, ran the 4 files -- exactly 4 tests failed
+(the ones asserting safe-3 resolves `bold_core`), 59 others stayed green; restored, 63/63 green.
+**Revert:** delete/set-back `params_patch.strike_tier_table` to `"bold"` on safe-3 in
+`accounts.json` (byte-identical, no code change -- the `bold_core` branch already existed).
+**Kill criterion:** first 10-15 real sessions must show a material drop in safe-3's
+`SKIP_MIN_PREMIUM_FLOOR` rate (baseline ~1.9/day) without net real-fill P&L reading worse than
+the pre-fix -$22/13-day baseline, else revert.
+
+**FIX 2 -- shrink-not-deny in fleet_executor's qty resolution (commit `c2cb9f72`).**
+Real function name confirmed to be `_qty_for` exactly as the brief named it -- but it is a
+phase-A pure-gating function (runs before any premium is resolved), so the shrink cannot live
+inside it. Added `_shrink_qty_to_affordable`, wired into `finalize()` (phase B) immediately
+before `risk_gate.check_order` -- the first point in the call chain where a tiered qty and a
+resolved premium both exist. Shrinks a too-big qty DOWN to `risk_gate.max_affordable_qty`
+(the exact cap math `check_order` itself uses) instead of letting `check_order` deny the
+full tiered qty outright. Floor is structurally immovable: `max_affordable_qty` only ever
+returns 0 (genuine deadlock, passes through unshrunk, still denies -- no regression) or a
+value `>= min_contracts` (Rule 6's floor, J's rule).
+**DEFECT FIX, NOT NEW ARMING:** `position_sizing_tiers` already drives every fleet_rest order
+today (live since inception per `accounts.json`'s own `grid.sizing_profiles` doc) -- this only
+changes deny-on-breach to shrink-on-breach for an ALREADY-ARMED mechanism. Whether to EVER wire
+CORE (safe-2/bold-2) onto `position_sizing_tiers` is untouched and remains explicitly J's call
+(`SIZING-SCALING-DECISION-2026-08-03.md`'s own recommendation #2).
+**Verified by execution at risky-3's REAL live equity** ($2,121.61, fetched fresh this session
+via `fleet_broker.get_account`, read-only `GET /v2/account`, matched `accounts.json`'s account
+number `PA31WIU8X15Q` to the penny): qty=8 @ premium $1.50 --
+  BEFORE (`risk_gate.check_order` on the unshrunk qty, byte-identical to pre-fix `finalize()`):
+  `allowed=False code=RISK_CAP reason='risky-3-TEST: notional $1,200 exceeds per-trade cap
+  $1,061 (50% of $2,122)'`
+  AFTER (the real, current `fleet_executor.finalize()`):
+  `action=ENTER_BEAR risk_code=ALLOW reason='clean P entry (BASE); qty shrunk 8->7: RISK_CAP
+  shrink-not-deny (was DENY pre-2026-08-03)'`
+A genuine-deadlock case (elite qty=12 @ $3.00, even min_contracts=5 doesn't fit) HOLDs both
+before and after (`action=HOLD risk_code=RISK_CAP`) -- proves no risk loosening. A parallel
+Safe-side proof at the $2,000 boundary confirms the fix isn't Bold-only.
+**RED-proofed:** reverted the `finalize()` wiring to a no-op passthrough (`_qty, _shrink_note =
+plan.qty, None`), ran the new suite -- exactly the 3 finalize()-dependent tests failed (the 8
+pure-function tests on `_shrink_qty_to_affordable` stayed green, correctly, since that function
+itself was untouched by the mutation); restored, 40/40 green (11 new + 29 existing
+`test_fleet_executor.py`, unchanged -- vary-and-assert that the existing risk-cap-denies test
+still denies when the shrink is a no-op).
+**Revert (one line, byte-identical):** in `finalize()`, change
+`_qty, _shrink_note = _shrink_qty_to_affordable(plan.qty, equity, premium, _fleet_params)`
+back to `_qty, _shrink_note = plan.qty, None`.
+**Kill criterion:** over the first n>=10 real fleet fills whose `decisions.jsonl` reason
+carries a shrink note, or 10 trading sessions post-ship (whichever first), if that shrunk-qty
+cohort's realized net P&L reads negative, revert per above.
+
+**Suite counts (both fixes together):** curated safety gate (`run_safety_gate.py`) 6 suites,
+**59/59 PASS**. Full `automation/state/fleet/` suite (pytest, includes both new/updated files):
+**348/348 PASS**. The 5 strike-tier-specific `backtest/tests/` files together: **73/73 PASS**.
+
+**What evidence exists vs does not, stated plainly:** BOTH fixes are unit/integration-tested
+and execution-verified against real current equity/params -- that is real, fresh evidence this
+session. NEITHER fix has ANY live P&L evidence yet (zero fills have occurred under either
+change as of this commit) -- the kill criteria above are the forward gates, not yet cleared or
+failed. Fix 1's underlying strike table (ATM) additionally has NO validated P&L edge at all,
+on ANY population, per bold-strike-axis-2026-07-15.json's own disclosed WF-gate failure --
+this was true before this ship and remains true after it.
+
+Artifacts: `analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json`.
+`automation/state/fleet/test_shrink_not_deny_2026_08_03.py`.
+
+---
+
+## [2026-08-02T12:00:04 ET] conductor: QUIET -- nightly budget EXHAUSTED (8 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
+
+## [2026-08-02T10:00:04 ET] conductor: QUIET -- nightly budget EXHAUSTED (7 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
+
+## [2026-08-02T08:00:06 ET] conductor: QUIET -- nightly budget EXHAUSTED (6 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
+
 ## [2026-08-02T04:16:33 ET] conductor: OK -- EXIT-HYBRID-PRETP1-FLOOR iteration 4 -- ARM_NOTHING, but the profit-lock-mechanism axis is now CLOSED (4/4 iterations tested)
 
 **Signal J wakes to (OP-25).** Budget PASS ($8.80/$30, 3/4 fires before this one), market-hours
@@ -524,68 +627,12 @@ Nothing ships, nothing arms; graveyard entry filed in the results doc.
   SCHEDULED-TASKS stated-count 99->100 reconciled in passing (gate fix-forward). Runner-cohort
   untouched by construction (entry-additive; registry exit shape byte-asserted). $0 LLM.
 
-## [2026-08-01 12:57 ET] OK -- WS7 (WEEKEND): LIVE WATCH shipped -- the "are we in a trade / what's it doing" surface
 
-**One canonical state surface + two renderers, registered and smoke-fired.** J never has
-to ask again: `automation/state/live-watch.json` (rewritten every 1 min, 09:25-16:10 ET
-wd) carries, per arm across all 5 active SPY accounts: position (symbol/qty/entry/current
-mid), unrealized P&L $ + %, distance to stop AND to the current TP target (from the
-engine's own `exit-state.json` -- TP1 flips to runner target after `tp1_filled`),
-high-water mark + profit-lock flag, time in trade, last decision verdict+reason+age,
-kill-switch state (all 3 breaker vocabularies normalized -- C9), and a READ-ONLY
-`theta-clock.json` link-in (the theta lane owns that file; guard asserts mtime untouched).
+[2026-08-02 05:30 ET] conductor: QUIET — nightly budget spent (4/4 fires used)
 
-- **Watcher:** `setup/scripts/live_watch.py` -- standalone, fail-open (raising broker ->
-  arm `degraded:`, crashed build -> loud `errors[]`, ALWAYS exit 0), atomic writes,
-  market-closed = ONE `state=CLOSED` marker then silence (no-spam RED-proofed live:
-  2nd run printed `snapshot already CLOSED -- no write`).
-- **Task:** `Gamma_LiveWatch` registered (install-live-watch.ps1): `State=Ready`, weekly
-  Mon-Fri trigger + real `PT1M` repetition x6h45m, NextRun 2026-08-03 09:25 ET.
-  Smoke-fired through the REAL wscript->pythonw chain, verified by OUTPUT artifact
-  (stdout log 0->67 bytes, correct no-spam line), not by `LastTaskResult`.
-- **Renderers:** dashboard **Live Watch panel** (`LiveWatchPanel.tsx` + `/api/live-watch`,
-  SWR 5s, STALE>3min flag) -- BOTH branches verified rendering in the running dashboard
-  (CLOSED live; IN-TRADE via the labeled synthetic snapshot, then restored + re-verified
-  CLOSED); `tsc --noEmit` clean. Plus `live_watch.py --brief` compact text for
-  Discord/brief use.
-- **Proof:** `--dry-run-synthetic` PASS -- all 18 required fields populate on both the
-  direct view AND the full assemble_arm path. Guards `backtest/tests/test_live_watch.py`
-  23/23 green; 3 RED-proofs executed (CLOSED no-spam, C9 aggressive-breaker mapping,
-  broker fail-open: mutate -> FAIL -> revert -> green).
-- **MONDAY-VERIFY (2026-08-03):** during the first RTH session with a REAL open position,
-  confirm live-watch.json shows non-null mid/uPnL/dist-to-stop/dist-to-TP/HWM/
-  time-in-trade for that arm within 2 min of fill, dashboard panel flips to IN TRADE, and
-  `--brief` renders the row; if `entry time unknown` appears in arm status, the orders
-  lookup needs the fix. $0, no LLM, places nothing.
-
-## [2026-08-01 13:0x ET] NEEDS-J (one click only) -- WS12 (WEEKEND): RESET PREP + TIER NORMALIZATION complete; recommendation = $2,500/arm
-
-**Everything except the dashboard click landed tonight.** The Alpaca paper reset is
-dashboard-only (no API); J signs in, the `alpaca-paper-reset` skill drives the clicks.
-
-- **Brief + runbook:** `analysis/deep-research/RESET-PLAN-2026-08-01.md` — live REST
-  equities of all 6 accounts (12:35-12:47 ET: safe-2 $1,160.30 / safe-3 $1,967.81 /
-  bold-2 $1,197.52 / risky-1 $1,756.87 / risky-3 $2,121.61 / twin $9,826.97, all SPY arms
-  FLAT), per-arm tier + floor-clearance + ceiling tables, and the post-reset runbook with
-  EVERY verification command dry-run tonight (accounts_status, sizing_deadlock_diag live +
-  `--equity 2000/2500`, daily_loss_guard `--rearm --dry-run` both accounts, forced-rearm
-  mechanics proven on breaker COPIES).
-- **Recommendation: $2,500 per SPY arm, NOT the $2,000 default** — $2,000.00 sits EXACTLY
-  ON the half-open [$2K,$10K) tier boundary ($1,999.99 vs $2,000.00 flips ATM→OTM-2 on
-  bold_core) and its $2.00 ceiling refuses the $2.01-2.50 top of the typical ATM band;
-  $2,500 = every arm cleanly inside [2K,10K), ceiling $2.50, $500 tier-flap buffer.
-  Crypto twin NOT reset (evidence continuity + concurrent latency-drill lane).
-- **Disclosures (in the brief):** ATM-under-$2K prereg evidence clocks PAUSE (nothing
-  waived); full-send fill-rate covariate shifts (annotate reset date); broker-side history
-  destroyed per account (local ledgers are the record); kill-switch $ anchors roughly
-  double with the fresh SoD; bold-2 multiplier reads 1 again (reconcile pdt_gate_mode
-  post-reset, runbook step 5).
-- **Guard:** `backtest/tests/test_reset_plan_tier_boundaries_2026_08_01.py` — 10/10 green;
-  RED-proofed (mutated the 2K boundary → 3 fails → byte-identical restore → green). A
-  future tier edit invalidates the plan loudly.
-- **Skill updated** with the chosen targets + runbook pointer.
-- **BLOCKED-ON-J:** the dashboard reset click itself, nothing else. Runbook §7 step 1.
+### DEGRADED: self-check 2026-08-02T05:39:56
+- CANDIDATES-UNTRACKED: 31 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
 
 
 ## Kitchen
-Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=grinder-python
