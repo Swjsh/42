@@ -1,3 +1,127 @@
+## [2026-08-02T03:52:00 ET] conductor: OK -- ENTRY-CROSS-BUFFER-REDUCTION-SHIP -- commit pending
+
+**Signal J wakes to (OP-25).** Shipped the validated `entry_cross_buffer` reduction (0.03 ->
+0.015) that `analysis/deep-research/ENTRY-EXECUTION-COST-2026-08-02.md` measured and
+pre-registered (`analysis/recommendations/entry-buffer-reduction-prereg-2026-08-02.json`,
+commit `78979314`, git-provably predates its own runner commit `cb30dcd2`) but could not
+apply -- that lane's own DO-NOT-TOUCH scope explicitly excluded `params.json` /
+`aggressive/params.json`. This lane owned exactly the ship: inheritance trace, the 2-file
+edit, guard + RED-proof, execution verification, and a real display bug the ship's own
+regeneration caught and fixed en route.
+
+**Inheritance trace (traced by reading the actual code, not assumed -- this was the whole
+reason this was its own separate task):** core safe-2/bold-2 load params RAW off disk
+(`heartbeat_core.py:1143-1144`, `json.loads(cfg["params"].read_text())`, NO merge layer) --
+safe-2 reads `automation/state/params.json`, bold-2 reads
+`automation/state/aggressive/params.json`. Fleet arms (safe-3/risky-1/risky-3) resolve via
+`fleet_executor._params_for(arm)` = the SAME two base files (`_base_params_for`, routed by
+id prefix: `bold`/`risky*` -> aggressive params, else -> safe params) with the arm's own
+`accounts.json` `params_patch` shallow-merged on top -- confirmed programmatically that NONE
+of the 6 arms' `params_patch` blocks set `entry_cross_buffer`, so every arm inherits the base
+file unpatched. `build_shared_signal.py` does NOT read this key (grepped clean across the
+whole repo -- it's a signal PRODUCER, never a price consumer; `entry_manager.py` mentions the
+mechanism in its own docstring but is SHADOW-ONLY, not imported by either live placement
+path). Net: exactly 2 files cover all 6 arms (5 active + retired safe-1) -- matching the
+research lane's own stated recommendation, now confirmed correct by tracing every hop.
+
+**Shipped:** `entry_cross_buffer: 0.015` + a full-provenance `_entry_cross_buffer_doc`
+sibling (prior-value history, measured $1,422 cost, every A/B gate, why 0.01 was tested and
+rejected, frozen kill criterion, one-line revert) into BOTH `automation/state/params.json`
+and `automation/state/aggressive/params.json`.
+
+**Verified BY EXECUTION, not assertion** -- loaded every active arm's REAL resolved params
+through the REAL production functions and fed the REAL `fleet_broker.marketable_limit_price`
+(only the network boundary stubbed):
+
+| arm | execution | source | buffer | entry_px (ask=$1.00) |
+|---|---|---|--:|--:|
+| safe-2 | mcp_heartbeat | params.json | 0.015 | 1.01 |
+| bold-2 | mcp_heartbeat | aggressive/params.json | 0.015 | 1.01 |
+| safe-3 | fleet_rest | fleet_executor._params_for | 0.015 | 1.01 |
+| risky-1 | fleet_rest | fleet_executor._params_for | 0.015 | 1.01 |
+| risky-3 | fleet_rest | fleet_executor._params_for | 0.015 | 1.01 |
+
+All 5 active arms confirmed shipped; retired safe-1 also resolves 0.015 (informational only
+-- `status=retired` gates it out of live dispatch everywhere). ZERO arms still resolve the
+stale bare 0.03 default.
+
+**Bug found and fixed en route (OP-0 -- fix then report, don't ask):** the FIRST
+`engine-contract.md` regeneration rendered `entry_cross_buffer ($0.01)` -- wrong. Root cause
+in one sentence: `f"{0.015:.2f}"` formats off the binary float's TRUE value (0.015's nearest
+IEEE-754 double is ~0.01499999999999999944, a hair under 0.015), so naive 2-decimal
+formatting rounds DOWN to "$0.01," silently understating a genuine half-cent buffer by a full
+cent on the one human-facing "what is the engine actually doing" card. Verified this is
+COSMETIC ONLY, not a pricing bug: spot-checked all 4 real 0.015-buffer `candidate_limit`
+values (plus all 13 real 0.01-buffer ones) in `entry-buffer-reduction-results-2026-08-02.json`
+against `round(ask_decision + buffer, 2)` -- 17/17 exact matches, proving production's
+`marketable_limit_price` uses the IDENTICAL `round()` idiom as the pre-registered study, so
+the measured $853/$678 evidence already reflects this exact rounding behavior; nothing about
+the shipped economics changed. Fix: added `engine_contract._money()` (builds a `Decimal` from
+`str(x)`, sidestepping the binary-float artifact) and repointed the one call site that renders
+this key (`setup/scripts/engine_contract.py`). 2 new guard tests pin it.
+
+**Guard + RED-proof:** new `backtest/tests/test_entry_cross_buffer_shipped_2026_08_02.py`
+(10 tests) -- pins 0.015 in both files, asserts the doc siblings exist with before/after
+values + an explicit revert instruction, asserts 0.01 is NOT shipped (tested and rejected --
+would have missed the 2026-07-31 anchor trade), asserts no arm's `params_patch` silently
+overrides the key, the per-arm execution-mechanism proof above, the absent-key-falls-back-
+to-0.03 one-line-revert contract, the `build_shared_signal` non-consumer check, and the 2
+`engine_contract._money()` formatting-bug tests. RED-PROOFED BY HAND (never `git stash` --
+L238): reverted both keys via Edit back to their exact pre-ship bytes, re-ran the suite --
+**4/8 failed with the exact expected mechanism-level errors** (e.g. `bold-2:
+marketable_limit_price returned 1.03, expected 1.01 ... Resolved buffer for this arm was
+0.03`), re-applied the edits, back to green (now 10/10 with the 2 formatting tests added).
+
+**Suites run:**
+- Curated safety gate (`backtest/tests/run_safety_gate.py`): **59/59 PASS**.
+- `test_params_consumer_reconciliation.py`: 3/4 PASS. The 1 failure
+  (`test_known_dead_allowlist_shrinks_only`, re: an UNRELATED key `bid_ask_spread_max_cents`)
+  is PRE-EXISTING and NOT caused by this ship -- traced directly to `setup/scripts/
+  heartbeat_core.py` sitting dirty with a DIFFERENT concurrent lane's uncommitted 156-line
+  WIP (confirmed via `git diff --stat`, and explicitly this lane's own DO-NOT-TOUCH file).
+  `test_no_new_dead_params_knob` -- the specific sub-test that would catch MY key if it were
+  a new dead knob -- **PASSED**. Not fixed here: not mine to fix, belongs to whichever lane
+  owns that WIP when it commits. Flagged below, not silently swallowed.
+- `test_engine_contract_drift.py`: 5/5 PASS after regeneration (the regen also silently
+  absorbed an UNRELATED pre-existing drift -- `accounts.json`'s risky-1 `gate_override`
+  changed to `full_send` on 2026-07-31 without a card regen since; both fixed by the same
+  deterministic regenerate, verified neither touches the dirty `heartbeat_core.py`'s WIP --
+  only its untouched `_SETUP_EXIT_OVERRIDES` constant is read, confirmed via diff).
+- `test_entry_execution_cost_2026_08_02.py` + `test_entry_buffer_reduction_ab_2026_08_02.py`
+  (the research lane's own 38 guards), `test_money_path_2026_07_01.py`,
+  `test_min_entry_premium_floor.py`: all PASS, zero regressions.
+- `test_nbbo_capture_2026_07_20.py`: 2 tests broke on first run (hardcoded the bare 0.03
+  default via a module-level params load, computed BEFORE this ship existed) -- fixed by
+  pinning those 2 tests to an explicit local `entry_cross_buffer=0.03` override, matching the
+  file's own established pattern (`test_nbbo_respects_custom_entry_cross_buffer`). 5/5 PASS
+  after the fix.
+- Full `automation/state/fleet/` test directory: **330/330 PASS**, zero regressions.
+- Full `backtest/tests/` (minus 5 pre-existing collection errors traced to a DIFFERENT
+  concurrent lane's dirty `backtest/lib/option_pricing_real.py` + `exit_manager_walk.py` --
+  both also DO-NOT-TOUCH): kicked off as bonus due diligence beyond this task's explicit
+  ask, running in the background: will fold in a follow-up note if it surfaces anything the
+  targeted sweeps above missed (unlikely given the scope of this change).
+
+**Kill criterion (frozen in the doc siblings):** over the next n>=10 real fills OR 10 trading
+sessions post-ship, if the buffer's realized net P&L reads worse than the 0.03 baseline,
+REVERT.
+
+**Revert (one line, byte-identical):** delete `entry_cross_buffer` + `_entry_cross_buffer_doc`
+from both params files -- `params.get()`'s bare code default (0.03) takes over immediately,
+next tick, no restart needed.
+
+**Out of scope, correctly left alone:** `setup/scripts/heartbeat_core.py`,
+`backtest/lib/option_pricing_real.py`, `backtest/lib/exit_manager_walk.py` -- all 3 carry a
+DIFFERENT concurrent lane's uncommitted WIP; touching any would clobber that lane's work.
+`exit_manager.py`, `exit_actuator.py`, `crypto/lib/strike_selection.py`,
+`backtest/lib/filters.py`, `journal/gex-archive/` -- untouched per this task's own
+DO-NOT-TOUCH list (none are consumers of this key anyway, confirmed by grep). `entry_manager.py`
+read-only (shadow-only tool, not a live consumer).
+
+**Validation:** `git status --porcelain` on the touched set shows exactly 6 files: 2 params
+JSON, 1 regenerated doc, 1 renderer fix, 1 existing test file fixed, 1 new guard test file.
+Revert: `git revert <this commit>` (single pathspec commit).
+
 ## [2026-08-02T02:05:14 ET] conductor: OK -- WF-GATE-QUEUE-CLOSURE-AND-ESCALATION -- commit pending
 
 **Signal J wakes to (OP-25).** Budget PASS ($8.03/$30, 2/4 fires before this one), market-hours

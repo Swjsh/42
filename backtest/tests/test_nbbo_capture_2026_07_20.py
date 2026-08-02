@@ -60,6 +60,13 @@ def _wire_common_broker(hc, monkeypatch, *, mid: float, entry_px: float):
     monkeypatch.setattr(fb, "marketable_limit_price",
                         lambda c, s, side="buy", buffer=0.03: entry_px)
     monkeypatch.setattr(fb, "open_buy_orders", lambda c, s: [])
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02): this file is about NBBO capture, not the
+    # guard -- stub its two broker primitives to "confirmed clear" (see
+    # test_core_entry_idempotency_guard_2026_08_02.py for the guard's own dedicated
+    # coverage). hc.STATE is already sandboxed to tmp_path below, which is where the guard's
+    # claim file lives too -- no extra wiring needed.
+    monkeypatch.setattr(fb, "open_buy_orders_checked", lambda c, s: ([], True))
+    monkeypatch.setattr(fb, "symbol_position_qty_checked", lambda c, s: (0, True))
     monkeypatch.setattr(fb, "cancel_order", lambda *a, **k: {})
     monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 20, 10, 55))
 
@@ -72,10 +79,16 @@ def _wire_common_broker(hc, monkeypatch, *, mid: float, entry_px: float):
 
 
 def test_dry_plan_carries_reconstructed_nbbo(hc, monkeypatch):
-    """dry=True (WOULD_PLACE) path: mid=1.00, entry_px=1.08, buffer=0.03 (default) ->
+    """dry=True (WOULD_PLACE) path: mid=1.00, entry_px=1.08, buffer=0.03 (explicit local pin,
+    independent of whatever automation/state/params.json's live entry_cross_buffer default
+    is today -- 2026-08-02 ship changed the live default to 0.015; this test's whole point is
+    the bit-exact NBBO INVERSION arithmetic, not the live buffer value, so it pins its own
+    buffer rather than silently drifting whenever that default is retuned, mirroring
+    test_nbbo_respects_custom_entry_cross_buffer's own explicit-override pattern below) ->
     ask=entry_px-buffer=1.05, bid=2*mid-ask=0.95, spread=0.10. Bit-exact reconstruction."""
     _wire_common_broker(hc, monkeypatch, mid=1.00, entry_px=1.08)
-    plan = hc._execute("safe", _verdict(), _payload(), SAFE_PARAMS, dry=True)
+    params = dict(SAFE_PARAMS, entry_cross_buffer=0.03)
+    plan = hc._execute("safe", _verdict(), _payload(), params, dry=True)
     assert plan["status"] == "WOULD_PLACE"
     assert plan["nbbo"] == {"bid": 0.95, "ask": 1.05, "mid": 1.00, "spread": 0.10}
 
@@ -108,7 +121,11 @@ def test_nbbo_reconstruction_uses_zero_new_network_calls(hc, monkeypatch):
 
 def test_placed_entry_carries_nbbo_into_the_persisted_broker_row(hc, monkeypatch, tmp_path):
     """End-to-end (dry=False, PLACED): plan['nbbo'] survives into the row that would be
-    logged to core-decisions.jsonl -- the exact surface run_account persists via rec['exec']."""
+    logged to core-decisions.jsonl -- the exact surface run_account persists via rec['exec'].
+    Pins an explicit local entry_cross_buffer=0.03 (see test_dry_plan_carries_reconstructed_
+    nbbo's docstring above -- decoupled from the live params.json default, which the
+    2026-08-02 ship changed to 0.015) so this test keeps proving the persistence path, not
+    re-deriving the live buffer value."""
     import fleet_broker as fb
     seq = {"n": 0}
 
@@ -134,7 +151,8 @@ def test_placed_entry_carries_nbbo_into_the_persisted_broker_row(hc, monkeypatch
     monkeypatch.setitem(sys.modules, "strategies",
                         types.SimpleNamespace(by_name=lambda n: None))
 
-    plan = hc._reconcile_exec(hc._execute("safe", _verdict(), _payload(), SAFE_PARAMS, dry=False))
+    params = dict(SAFE_PARAMS, entry_cross_buffer=0.03)
+    plan = hc._reconcile_exec(hc._execute("safe", _verdict(), _payload(), params, dry=False))
     assert plan["status"] == "PLACED"
     assert plan["nbbo"] == {"bid": 0.95, "ask": 1.05, "mid": 1.00, "spread": 0.10}
     # JSON-native (the persisted-row constraint _reconcile_exec's own docstring calls out).

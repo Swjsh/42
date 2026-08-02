@@ -13,7 +13,7 @@ Every validated strategy in §2 runs on EVERY active arm via `fleet_executor.pla
 | `safe-3` | safe x tight | fleet_rest | ✅ | min_triggers=2, confluence/sequence | bold tier table (patch) | active |
 | `safe-2` **(CONTROL)** | safe x base (CONTROL) | mcp_heartbeat | ✅ | base (production default) | safe params.json v15 tier | active |
 | `safe-1` | safe x loose | fleet_rest | — | min_triggers=1 | bold tier table (patch) | retired |
-| `risky-1` | risky x tight | fleet_rest | ✅ | min_triggers=2, confluence/sequence | inherit bold | active |
+| `risky-1` | risky x FULL-SEND | fleet_rest | ✅ | {"full_send": true} | inherit bold | active |
 | `bold-2` **(CONTROL)** | risky x base (CONTROL) | mcp_heartbeat | ✅ | base (production default) | bold params.json | active |
 | `risky-3` | risky x loose | fleet_rest | ✅ | min_triggers=1 | inherit bold | active |
 
@@ -56,6 +56,7 @@ Options can't bracket at Alpaca → entries are SIMPLE limits with **no broker-s
 | `vix_regime_dayside` | -8% | +30% | — |
 | `double_bottom_base_quiet` | -99% | +30% | runner |
 | `bollinger_squeeze` | -8% | +30% | tq, plmode, trail |
+| `gap_and_go` | -50% | +30% | — |
 
 - **params.json bracket values** (plan/log reference only — shown so drift is visible):
 
@@ -66,7 +67,7 @@ Options can't bracket at Alpaca → entries are SIMPLE limits with **no broker-s
 
 ## 3b. Entry policy (all arms — the current order type)
 
-- **Marketable simple limit: `ask + entry_cross_buffer` ($0.03)** — `fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the spread to fill NOW (pays up into the signal bar).
+- **Marketable simple limit: `ask + entry_cross_buffer` ($0.015)** — `fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the spread to fill NOW (pays up into the signal bar).
 - **Premium floor `min_entry_premium`: safe $0.30 · bold $0.30** — plan-time strategy admission in BOTH lanes (`heartbeat_core._execute` post-NO_PREMIUM; `fleet_executor.finalize` pre-check_order, shared by fleet_live decide_arm + run_dry). A sub-floor premium is a logged `SKIP_MIN_PREMIUM_FLOOR` row, never an order. Evidence: entry-exit-matrix-2026-07-09.md (T3 n=157; anchor −$72.50 vs −$757.10). 0/absent = OFF.
 - **No passive/patience logic** — no limit-below-signal, no cancel/convert window. (The T3 entry-matrix studies exactly this axis; nothing is wired yet.)
 - Stale un-crossed BUY limits from a prior tick are cancel-replaced each tick.

@@ -117,6 +117,37 @@ def _g(d: dict, key: str, default: str = "—") -> Any:
     return default if v is None else v
 
 
+def _money(x: Any) -> str:
+    """Render a $ amount from its EXACT decimal text, not the binary float's true value.
+
+    ENTRY-CROSS-BUFFER SHIP BUG (found 2026-08-02, caught by this ship's own regeneration):
+    naive `f"{x:.2f}"` formats off the float's REAL binary value, which for 0.015 is a hair
+    UNDER the true decimal (0.01499999999999999944...) -- so `f"{0.015:.2f}"` renders
+    "0.01", silently understating a genuine half-cent buffer by 1 full cent on the ONE
+    human-facing card this repo has for "what is the engine actually doing." Building the
+    Decimal from `str(x)` instead uses Python's own shortest-round-trip text repr (which IS
+    "0.015" for this float -- verified: `repr(0.015) == '0.015'`), sidestepping the binary
+    artifact entirely. Shows 2 decimals for whole-cent values (unchanged from before:
+    0.03 -> "$0.03"), more only when the value genuinely needs it (0.015 -> "$0.015").
+    Does NOT affect actual order pricing -- `fleet_broker.marketable_limit_price`'s
+    `round(ask + buffer, 2)` is unrelated arithmetic, verified independently to match this
+    ship's own pre-registered study's `candidate_limit` values row-for-row."""
+    from decimal import Decimal
+    try:
+        d = Decimal(str(float(x))).normalize()
+    except (TypeError, ValueError, ArithmeticError):
+        return str(x)
+    s = format(d, "f")
+    if "." not in s:
+        s += ".00"
+    else:
+        whole, frac = s.split(".")
+        if len(frac) < 2:
+            frac = frac.ljust(2, "0")
+        s = f"{whole}.{frac}"
+    return f"${s}"
+
+
 def _pct(x: Any) -> str:
     try:
         return f"{float(x) * 100:.0f}%"
@@ -334,7 +365,7 @@ def render_contract() -> str:
     L.append("## 3b. Entry policy (all arms — the current order type)")
     L.append("")
     buf = safe.get("entry_cross_buffer", 0.03)
-    L.append(f"- **Marketable simple limit: `ask + entry_cross_buffer` (${float(buf):.2f})** — "
+    L.append(f"- **Marketable simple limit: `ask + entry_cross_buffer` ({_money(buf)})** — "
              f"`fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the "
              f"spread to fill NOW (pays up into the signal bar).")
     # ENTRY-1 floor (2026-07-09, STOP-B ship 1) — rendered FROM params (never re-typed) so a
