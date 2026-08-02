@@ -381,11 +381,23 @@ def test_effective_arm_reflects_overrides_not_disk():
 #    as not covering its OWN unchanged current tier).
 # ---------------------------------------------------------------------------------------- #
 def test_atm_coverage_heuristic_uses_real_history_not_id_prefix_guess():
-    safe3_cfg = far.ArmReplayConfig.for_arm("safe-3")  # table='bold', unchanged since 06-25
-    assert safe3_cfg.strike_tiers_label == "bold"
-    assert far._tier_predates_or_matches_anchor_history(safe3_cfg) is True, (
-        "safe-3's real fills have ALWAYS been priced under 'bold' (its own current table) -- "
-        "must be reported as covered, not falsely flagged via a safe-prefix id guess")
+    """UPDATED 2026-08-03 (FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3): safe-3's LIVE
+    accounts.json config flipped 'bold'->'bold_core' this session. ArmReplayConfig.for_arm
+    reads accounts.json fresh (see its own docstring: "reproduces `arm_id` exactly as
+    accounts.json has it TODAY"), so safe3_cfg now reports 'bold_core' too -- and
+    PRE_BOLD_CORE_HISTORICAL_TABLE (the FROZEN record of what every real fill was actually
+    priced under, deliberately NOT auto-updated when accounts.json changes -- see that
+    dict's own module comment) still says safe-3's history is 'bold'/OTM-3. At safe-3's
+    live equity (<$2K) the two now disagree, so this MUST flip to the same 'NOT covered'
+    shape risky-1 already demonstrates below -- this is the exact mechanism this test
+    exists to prove works correctly across an arm's config changing over time, not just a
+    point-in-time snapshot. Was `assert ... is True` before this session."""
+    safe3_cfg = far.ArmReplayConfig.for_arm("safe-3")  # table='bold_core' as of 2026-08-03
+    assert safe3_cfg.strike_tiers_label == "bold_core"
+    assert far._tier_predates_or_matches_anchor_history(safe3_cfg) is False, (
+        "safe-3's real fills were priced under 'bold' (OTM-3 under $2K) before the "
+        "2026-08-03 bold_core ship -- at its live equity (<$2K) this MUST be reported as "
+        "NOT covered, mirroring risky-1/risky-3's own 2026-08-01 transition")
 
     risky1_cfg = far.ArmReplayConfig.for_arm("risky-1")  # table='bold_core' (ATM under $2K)
     assert far._tier_predates_or_matches_anchor_history(risky1_cfg) is False, (

@@ -151,8 +151,18 @@ def test_fleet_arms_resolve_otm3_under_2k_via_shared_table():
     UPDATED 2026-08-01 (FLEET-STRIKE-TIER-ATM-EXTENSION): risky-1/risky-3 were
     pre-registered + repointed to 'bold_core' (V15_BOLD_CORE_TIERS, ATM under $2K) --
     see analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json.
-    safe-3 is EXPLICITLY EXCLUDED (documented $600-notional-cap reason) and must still
-    resolve the OTM V15_BOLD_TIERS table, byte-identical to before."""
+
+    UPDATED 2026-08-03 (FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3,
+    analysis/deep-research/ARM-PARTICIPATION-AND-GROWTH-2026-08-03.md #1): safe-3 was
+    ALSO repointed to 'bold_core' (see
+    analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json)
+    -- it is no longer a subject of this OTM-3 guard. The subject moved to safe-1
+    (retired/inactive, but its accounts.json row still carries the explicit
+    params_patch.strike_tier_table='bold' from the pre-2026-07-11 grid, untouched by
+    either extension) so this guard still has a REAL, on-disk arm proving V15_BOLD_TIERS
+    itself remains reachable/correct, byte-identical, through the shared _tiers_for_arm
+    path -- not just via the raw-table-object check test_v15_bold_tiers_unchanged_under_
+    2k_RED_PROOF already does below."""
     import fleet_executor as fx
     import json as _json
 
@@ -165,36 +175,42 @@ def test_fleet_arms_resolve_otm3_under_2k_via_shared_table():
     # though both load the same source. Identity checks against the shared table must
     # therefore go through fx.strike_selection.* (same convention test_fleet_arm_parity.py's
     # existing test_all_arms_bold_strike_tiers_at_2k already uses), not this file's import.
-    arm = arm_map["safe-3"]
+    arm = arm_map["safe-1"]
+    assert arm.get("status") == "retired", (
+        "safe-1 is expected to be the retired/inactive OTM-3 witness arm -- if it is "
+        "active again, re-pick a different still-'bold' arm for this guard's subject"
+    )
     tiers = fx._tiers_for_arm(arm)
     assert tiers is fx.strike_selection.V15_BOLD_TIERS, \
-        "safe-3 must still resolve the SHARED V15_BOLD_TIERS object, got a different table"
+        "safe-1 must still resolve the SHARED V15_BOLD_TIERS object, got a different table"
     assert tiers is not fx.strike_selection.V15_BOLD_CORE_TIERS, \
-        "safe-3 must NOT have been silently repointed at the new core-only table"
+        "safe-1 must NOT have been silently repointed at the new core-only table"
 
     tier = pick_tier(1_000.0, tiers)
     assert tier.strike_offset == -3 and tier.label == "OTM-3", (
-        f"safe-3 at $1K equity must still resolve OTM-3, got {tier.label} "
+        f"safe-1 at $1K equity must still resolve OTM-3, got {tier.label} "
         f"(offset={tier.strike_offset}) -- fleet sizing/affordability logic depends on this"
     )
 
     put_strike = fx.strike_selection.pick_strike(SPOT, 1_000.0, "P", tiers)
-    assert put_strike == 737, f"safe-3 PUT strike at $1K should still be 737 (OTM-3), got {put_strike}"
+    assert put_strike == 737, f"safe-1 PUT strike at $1K should still be 737 (OTM-3), got {put_strike}"
 
 
-def test_fleet_arms_risky_1_3_resolve_atm_under_2k_via_bold_core_table():
-    """FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01): risky-1/risky-3 now resolve
-    V15_BOLD_CORE_TIERS (ATM under $2K) via params_patch.strike_tier_table='bold_core',
-    NOT the shared V15_BOLD_TIERS object safe-3 still uses. This is the exact change the
-    pre-reg + queue item proposed -- pinned so a future silent revert (or an accidental
-    drift back to the old default) is caught."""
+def test_fleet_arms_safe3_risky_1_3_resolve_atm_under_2k_via_bold_core_table():
+    """FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01, risky-1/risky-3) + FLEET-STRIKE-TIER-
+    ATM-EXTENSION-SAFE3 (2026-08-03, safe-3): all three ACTIVE fleet_rest arms now resolve
+    V15_BOLD_CORE_TIERS (ATM under $2K) via params_patch.strike_tier_table='bold_core', NOT
+    the shared V15_BOLD_TIERS object (that table's own live witness is now safe-1, retired
+    -- see test_fleet_arms_resolve_otm3_under_2k_via_shared_table above). This is the exact
+    change each pre-reg proposed -- pinned so a future silent revert (or an accidental drift
+    back to the old default) is caught."""
     import fleet_executor as fx
     import json as _json
 
     accounts = _json.loads((_FLEET / "accounts.json").read_text(encoding="utf-8"))
     arm_map = {a["id"]: a for a in accounts["arms"]}
 
-    for arm_id in ("risky-1", "risky-3"):
+    for arm_id in ("safe-3", "risky-1", "risky-3"):
         arm = arm_map[arm_id]
         tiers = fx._tiers_for_arm(arm)
         assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \

@@ -93,8 +93,8 @@ def test_target_2500_resolves_the_planned_strikes():
     import fleet_executor as fx
 
     assert ss.pick_tier(TARGET, ss.V15_SAFE_TIERS).label == "ATM"          # safe-2
-    assert ss.pick_tier(TARGET, ss.V15_BOLD_TIERS).label == "OTM-2"        # safe-3
-    assert ss.pick_tier(TARGET, ss.V15_BOLD_CORE_TIERS).label == "OTM-2"  # bold-2/r1/r3
+    assert ss.pick_tier(TARGET, ss.V15_BOLD_TIERS).label == "OTM-2"        # safe-1 (retired)
+    assert ss.pick_tier(TARGET, ss.V15_BOLD_CORE_TIERS).label == "OTM-2"  # bold-2/safe-3/r1/r3 (safe-3 joined 2026-08-03 -- same OTM-2 value at this target either way, both tables agree >= $2K)
     assert ss.pick_tier(TARGET, fx.PROBE_STRIKE_TIERS).label == "ATM"      # full-send/ladder
 
 

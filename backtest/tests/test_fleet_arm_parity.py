@@ -277,20 +277,24 @@ def test_risky_loose_both_directions():
 
 
 # =============================================================================
-# 4. STRIKE TIER — safe-1/safe-3 use BOLD(OTM) tiers; risky-1/risky-3 use BOLD_CORE
-#    (ATM) tiers at $2K equity (FLEET-STRIKE-TIER-ATM-EXTENSION, 2026-08-01, pre-
-#    registered: analysis/recommendations/fleet-strike-tier-atm-extension-prereg-
-#    2026-08-01.json). safe-1/safe-3 UNCHANGED (own documented notional-cap reason).
+# 4. STRIKE TIER — safe-1 (retired) uses BOLD(OTM) tiers; safe-3/risky-1/risky-3 use
+#    BOLD_CORE (ATM) tiers at $2K equity (FLEET-STRIKE-TIER-ATM-EXTENSION, 2026-08-01,
+#    pre-registered: analysis/recommendations/fleet-strike-tier-atm-extension-prereg-
+#    2026-08-01.json, for risky-1/risky-3; FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3,
+#    2026-08-03, analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prereg-
+#    2026-08-03.json, for safe-3). safe-1 UNCHANGED (retired, predates either extension).
 # =============================================================================
 
-def test_safe_arms_use_bold_otm_strike_tiers_at_2k():
-    """safe-1 (retired fixture)/safe-3 keep the OTM V15_BOLD_TIERS table, unchanged by
-    the 2026-08-01 extension. BOLD tiers at $2K: $2K–10K bracket → OTM-2 (offset=-2).
-    On SPY=600: PUT->598, CALL->602."""
-    for arm in (SAFE_LOOSE, SAFE_TIGHT):
-        tiers = fx._tiers_for_arm(arm)
-        assert tiers is fx.strike_selection.V15_BOLD_TIERS, \
-            f"{arm['id']} should use BOLD(OTM) tiers, got a different table"
+def test_safe_loose_uses_bold_otm_strike_tiers_at_2k():
+    """safe-1 (retired fixture) keeps the OTM V15_BOLD_TIERS table, unchanged by either
+    ATM extension -- it is inactive and was never in scope for them. BOLD tiers at $2K:
+    $2K-10K bracket -> OTM-2 (offset=-2). On SPY=600: PUT->598, CALL->602. Was
+    test_safe_arms_use_bold_otm_strike_tiers_at_2k (looped safe-1 AND safe-3) before
+    2026-08-03: safe-3 moved to the bold_core bucket that session -- see
+    test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k below."""
+    tiers = fx._tiers_for_arm(SAFE_LOOSE)
+    assert tiers is fx.strike_selection.V15_BOLD_TIERS, \
+        f"{SAFE_LOOSE['id']} should use BOLD(OTM) tiers, got a different table"
 
     put_strike  = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "P", fx.strike_selection.V15_BOLD_TIERS)
     call_strike = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "C", fx.strike_selection.V15_BOLD_TIERS)
@@ -298,16 +302,17 @@ def test_safe_arms_use_bold_otm_strike_tiers_at_2k():
     assert call_strike == 602, f"OTM-2 CALL strike should be 602, got {call_strike}"
 
 
-def test_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
-    """risky-1/risky-3 now resolve V15_BOLD_CORE_TIERS (ATM at $2K-10K, unchanged
-    above $2K) via params_patch.strike_tier_table='bold_core' -- the 2026-08-01
-    extension of the table core Bold already used since 2026-07-17/18. At $2K-10K:
-    strike_offset=-2 (same as before, this bracket is untouched -- ONLY the $0-2K
-    bracket differs, and EQUITY_2K==2000.0 sits exactly at the $2K-10K boundary, so
-    this test still reads OTM-2 math, matching the safe test above by design; the
-    ATM behavior lives at equity < 2000, covered by test_fleet_strike_tier_floor_
-    collision_2026_07_31.py and test_bold_core_strike_tier_2026_07_15.py)."""
-    for arm in (RISKY_TIGHT, RISKY_LOOSE):
+def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
+    """safe-3/risky-1/risky-3 all resolve V15_BOLD_CORE_TIERS (ATM at $2K-10K, unchanged
+    above $2K) via params_patch.strike_tier_table='bold_core' -- the 2026-08-01 extension
+    (risky-1/risky-3) plus its 2026-08-03 safe-3 follow-on, both repointing to the table
+    core Bold already used since 2026-07-17/18. At $2K-10K: strike_offset=-2 (same as
+    before, this bracket is untouched -- ONLY the $0-2K bracket differs, and
+    EQUITY_2K==2000.0 sits exactly at the $2K-10K boundary, so this test still reads OTM-2
+    math, matching the safe-1 test above by design; the ATM behavior lives at equity <
+    2000, covered by test_fleet_strike_tier_floor_collision_2026_07_31.py and
+    test_bold_core_strike_tier_2026_07_15.py)."""
+    for arm in (SAFE_TIGHT, RISKY_TIGHT, RISKY_LOOSE):
         tiers = fx._tiers_for_arm(arm)
         assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
             f"{arm['id']} should use BOLD_CORE tiers, got a different table"
