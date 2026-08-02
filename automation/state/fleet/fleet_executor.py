@@ -228,6 +228,15 @@ def _qty_for(tiers: Any, equity: float, elite: bool) -> Optional[int]:
     return None
 
 
+# SHRINK-NOT-DENY (2026-08-03, SIZING-SCALING-DECISION-2026-08-03.md + ARM-PARTICIPATION-
+# AND-GROWTH-2026-08-03.md #2): _qty_for itself CANNOT do the shrink -- it is a phase-A pure
+# gating function (see the "phase A: pure gating" banner below) called from plan_entry /
+# _plan_from_strategies / plan_all BEFORE any live premium is resolved, and the shrink math
+# needs premium (notional = premium * qty * 100). The earliest point in this file's own call
+# chain where a tiered qty and a resolved premium both exist is finalize() (phase B, the risk
+# gate wrapper) -- see _shrink_qty_to_affordable below and its call site inside finalize().
+
+
 # --- recency-conditioned min-sizing (2026-07-10 ship, A/B: analysis/recommendations/ -------
 # recency-sizing-ab.json -- policy_dominates=true on 8 real fleet-fill days, -$1,274 ->
 # -$793, worst day -$388 -> -$297. Staged mechanism: analysis/recommendations/
@@ -332,6 +341,68 @@ def _apply_recency_min_sizing(
     note = f"qty clamped {qty}->{clamped}: recency RED"
     print(f"[fleet_executor] {note} (strategy={strategy_name})", flush=True)
     return clamped, note
+
+
+# SHRINK-NOT-DENY (2026-08-03 ship, DEFECT FIX -- not an arming of new scaling).
+# SIZING-SCALING-DECISION-2026-08-03.md proved fleet_executor's position_sizing_tiers
+# mechanism (_qty_for, already LIVE for safe-3/risky-1/risky-3 since inception -- see
+# accounts.json grid.sizing_profiles) is DENY-not-shrink: finalize() historically passed the
+# full tiered qty straight to risk_gate.check_order with no affordability pre-check, so a
+# qty that doesn't fit the per-trade cap gets refused WHOLESALE instead of sized down. That
+# document measured this costs 96% of a controlled Safe-equivalent population's total P&L
+# right at the $2,000 tier boundary ($207.90 vs a $4,820.40 baseline) -- because the tier's
+# own qty jump (e.g. 5->8 for Bold) TIGHTENS the per-contract premium ceiling under the SAME
+# fixed dollar cap, pricing itself out of most of its own opportunity set. ARM-PARTICIPATION-
+# AND-GROWTH-2026-08-03.md #2 confirmed this is not hypothetical for the fleet: risky-3's own
+# equity has round-tripped the $2,000 line at least twice this month and sits at $2,121.61
+# (live-verified) as of this ship -- inside the affected band right now.
+#
+# THE FIX mirrors setup/scripts/heartbeat_core.py's OWN already-proven clamp shape
+# (heartbeat_core.py:1964-1967 -- read-only reference, that file is out of scope for this
+# change and was NOT edited): shrink a too-big qty DOWN to the largest size risk_gate will
+# actually allow, using risk_gate.max_affordable_qty -- the EXACT SAME cap math check_order
+# itself uses (C14: no re-typed literals, the two can never silently diverge). This is a
+# DEFECT FIX to a sizing mechanism that is ALREADY ARMED AND LIVE on the fleet, not a new
+# arming decision -- unlike core (which has never been wired to position_sizing_tiers at
+# all, per SIZING-SCALING-DECISION's own §5), the fleet's tiers already drive every fleet_rest
+# order today. Whether to EVER arm scaled sizing on CORE is explicitly J's call and untouched
+# here.
+#
+# THE FLOOR IS IMMOVABLE: max_affordable_qty's own contract (backtest/lib/risk_gate.py:613-
+# 641) guarantees its return value is always EITHER 0 (a genuine deadlock -- not even
+# min_contracts, Rule 6's floor, fits under the cap) OR >= min_contracts. This function can
+# therefore never shrink a qty below Rule 6's floor -- it can only pick a legal size in
+# [min_contracts, original_qty), or leave a genuine deadlock exactly as denied as before.
+def _shrink_qty_to_affordable(
+    qty: Optional[int], equity: float, premium: Optional[float], params: Mapping[str, Any],
+) -> "tuple[Optional[int], Optional[str]]":
+    """Shrink a too-big tiered qty DOWN to risk_gate's own max_affordable_qty when doing so
+    would turn a would-be RISK_CAP/MAX_PREMIUM_TIER deny into a legal, smaller ALLOW.
+
+    qty=None (no sizing tier covered equity) or premium=None (not yet resolved -- e.g. a
+    caller that hasn't priced the option yet) pass through byte-identical -- this only ever
+    fires once a real qty AND a real premium both exist. A deadlock (max_affordable_qty==0,
+    i.e. not even min_contracts is affordable) also passes through unchanged -- there is no
+    legal size to shrink to, so the caller's existing risk_gate.check_order call denies it
+    exactly as it did before this fix (no regression versus baseline). Any exception from the
+    affordability math (malformed params, etc.) fails OPEN to the ORIGINAL qty -- this
+    function only ever narrows an outcome that check_order would otherwise decide; it must
+    never itself become a new reason a legal order fails to place.
+
+    Returns (qty, shrink_note) -- shrink_note is the placement-log line when the shrink
+    actually fired (qty strictly decreased), else None. Matches the existing
+    _apply_recency_min_sizing / _apply_full_send_min_sizing note contract.
+    """
+    if qty is None or premium is None:
+        return qty, None
+    try:
+        afford = risk_gate.max_affordable_qty(equity=equity, premium=premium, params=params)
+    except Exception:  # noqa: BLE001 -- telemetry-adjacent math must never block a legal order
+        return qty, None
+    qty_i = int(qty)
+    if not afford or afford >= qty_i:
+        return qty, None
+    return afford, f"qty shrunk {qty_i}->{afford}: RISK_CAP shrink-not-deny (was DENY pre-2026-08-03)"
 
 
 def _hold(arm_id, side, setup, reason, strike=None, qty=None, quality=None) -> EntryPlan:
@@ -982,11 +1053,18 @@ def finalize(
     # its own settlement-ledger wiring (queued, not part of this change).
     _fleet_params = dict(params)
     _fleet_params["pdt_gate_mode"] = "margin_pdt"
+    # SHRINK-NOT-DENY (2026-08-03) -- see _shrink_qty_to_affordable's own module comment for
+    # the full mechanism/evidence. Fires here, immediately before check_order, because this
+    # is the first point in the call chain where plan.qty (phase A, tiered) and premium
+    # (resolved by the caller just above) both exist. A no-op (qty unchanged) on every plan
+    # that already fits, on every HOLD (returned above before this line), and whenever
+    # max_affordable_qty reports a genuine deadlock (0) -- those still deny exactly as before.
+    _qty, _shrink_note = _shrink_qty_to_affordable(plan.qty, equity, premium, _fleet_params)
     decision = risk_gate.check_order(
         account_label,
         equity=equity,
         start_of_day_equity=start_of_day_equity,
-        proposed_qty=plan.qty,
+        proposed_qty=_qty,
         premium=premium,
         setup_name=plan.setup_name,
         current_position_status=current_position_status,
@@ -1001,15 +1079,16 @@ def finalize(
         # (no legal qty at this premium). FAILS OPEN: telemetry never breaks a decision.
         try:
             _binding = risk_gate.explain_block(equity=equity, premium=premium,
-                                               params=_fleet_params, proposed_qty=plan.qty)
+                                               params=_fleet_params, proposed_qty=_qty)
         except Exception:  # noqa: BLE001
             _binding = None
         return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
-                           plan.qty, premium, plan.quality, decision.code,
+                           _qty, premium, plan.quality, decision.code,
                            f"risk_gate denied: {decision.reason}", binding=_binding)
     action = "ENTER_BEAR" if plan.side == "P" else "ENTER_BULL"
+    _reason = plan.reason if not _shrink_note else f"{plan.reason}; {_shrink_note}"
     return ArmDecision(plan.arm_id, action, plan.side, plan.setup_name, plan.strike,
-                       plan.qty, premium, plan.quality, "ALLOW", plan.reason,
+                       _qty, premium, plan.quality, "ALLOW", _reason,
                        trigger_level=plan.trigger_level)
 
 
