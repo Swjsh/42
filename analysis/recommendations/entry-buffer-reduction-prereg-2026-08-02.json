@@ -9,7 +9,11 @@
     },
     "method": {
       "population": "The 105 real filled entries scored by backtest/tools/entry_execution_cost_2026_08_02.py (analysis/recommendations/entry-execution-cost-2026-08-02.json) -- both core (safe-2/bold-2) and fleet (safe-1/safe-3/risky-1/risky-3) lanes, all 6 arms, 17 real trading days (2026-07-01..2026-07-31; the marketable-limit-plus-buffer mechanism itself did not exist before 2026-06-30, so there is no earlier population this candidate could apply to).",
-      "candidates": [0.01, 0.015, 0.02],
+      "candidates": [
+        0.01,
+        0.015,
+        0.02
+      ],
       "still_fills_test": "fill_price <= ask_decision + candidate_buffer. DISCLOSED ASSUMPTION: realized execution price is treated as buffer-independent as long as the tighter limit still clears it -- a standard limit-order-microstructure assumption (the limit is a ceiling, not a target), NOT independently verified against Alpaca's specific price-improvement/routing internals for options. If this assumption is wrong in either direction the true effect could differ from what this replay reports; this is the single largest source of model uncertainty in this test and is disclosed as such in the write-up, not hidden.",
       "filled_row_delta": "delta_pnl = (0.03 - candidate_buffer) * qty * 100, added identically to EVERY trades.csv leg sharing that entry's order_id (TP1 and runner legs shift by the same per-contract amount -- they share one cost basis).",
       "missed_row_delta": "delta_pnl = -(sum of that entry's real realized dollar_pnl across all legs) -- the ENTIRE trade is modeled as foregone, per the mission's explicit instruction that a non-crossing limit is a missed trade, not a free option. No synthetic backfill price is substituted.",
@@ -24,5 +28,55 @@
     ],
     "kill_criterion": "Any gate failing on a given candidate kills that candidate outright -- no band-moving, no re-running with a friendlier threshold. If every candidate fails, entry_cross_buffer stays 0.03 and this ships as a documented null, same standing as the sibling min-entry-premium-2026-07-31.json KEEP verdict.",
     "not_in_scope": "This test does NOT touch min_entry_premium (reused from analysis/recommendations/min-entry-premium-2026-07-31.json, untouched), does NOT test a passive-limit-below-mid redesign (already STOP-A'd by T3 against the live exit shape), and does NOT change qty/sizing/exit rules (mechanically impossible for a buffer-only change, since those read `mid`, not `entry_px`)."
+  },
+  "results": {
+    "ran_after_prereg_commit": "78979314",
+    "full_output": "analysis/recommendations/entry-buffer-reduction-results-2026-08-02.json",
+    "any_candidate_passes_all_gates": true,
+    "disposition": "SHIP the smallest candidate that passes every gate",
+    "per_candidate_headline": [
+      {
+        "candidate": 0.01,
+        "verdict": "FAIL",
+        "total_delta_pnl": 865.0,
+        "fill_rate_pct": 81.0,
+        "n_missed": 20,
+        "n_runner_cohort_missed": 2,
+        "gates": {
+          "primary_aggregate_positive": true,
+          "day_majority": true,
+          "drop_best_still_positive": true,
+          "runner_cohort_zero_tolerance": false
+        }
+      },
+      {
+        "candidate": 0.015,
+        "verdict": "PASS_ALL_GATES",
+        "total_delta_pnl": 853.0,
+        "fill_rate_pct": 94.3,
+        "n_missed": 6,
+        "n_runner_cohort_missed": 0,
+        "gates": {
+          "primary_aggregate_positive": true,
+          "day_majority": true,
+          "drop_best_still_positive": true,
+          "runner_cohort_zero_tolerance": true
+        }
+      },
+      {
+        "candidate": 0.02,
+        "verdict": "PASS_ALL_GATES",
+        "total_delta_pnl": 516.0,
+        "fill_rate_pct": 98.1,
+        "n_missed": 2,
+        "n_runner_cohort_missed": 0,
+        "gates": {
+          "primary_aggregate_positive": true,
+          "day_majority": true,
+          "drop_best_still_positive": true,
+          "runner_cohort_zero_tolerance": true
+        }
+      }
+    ]
   }
 }

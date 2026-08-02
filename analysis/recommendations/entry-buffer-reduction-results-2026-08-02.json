@@ -1,0 +1,445 @@
+{
+  "generated_at_note": "run via setup/scripts/et_clock.py at report time, see markdown artifact",
+  "baseline_buffer": 0.03,
+  "n_priced_entries": 105,
+  "candidates": [
+    {
+      "candidate_buffer": 0.01,
+      "n_priced": 105,
+      "n_filled": 85,
+      "n_missed": 20,
+      "fill_rate_pct": 81.0,
+      "total_delta_pnl": 865.0,
+      "n_trading_days": 17,
+      "n_days_nonneg_delta": 16,
+      "day_majority_threshold": 9,
+      "drop_best_day": "2026-07-06",
+      "drop_best_day_delta": 244.0,
+      "total_delta_pnl_drop_best": 621.0,
+      "n_runner_cohort_in_population": 10,
+      "n_runner_cohort_missed": 2,
+      "runner_cohort_misses": [
+        {
+          "order_id": "f36f386c-802d-405b-a63b-5828aa20a3a4",
+          "arm": "risky-3",
+          "symbol": "SPY260731C00746000",
+          "date_et": "2026-07-31",
+          "fill_price": 0.33,
+          "ask_decision": 0.31,
+          "candidate_limit": 0.32,
+          "real_pnl_foregone": 126.0
+        },
+        {
+          "order_id": "b0f0fb56-2588-4686-939d-13e0a6d7fc12",
+          "arm": "safe-3",
+          "symbol": "SPY260731C00747000",
+          "date_et": "2026-07-31",
+          "fill_price": 0.3,
+          "ask_decision": 0.28,
+          "candidate_limit": 0.29,
+          "real_pnl_foregone": 75.0
+        }
+      ],
+      "all_misses": [
+        {
+          "order_id": "9a80d6ba-a2e3-4b6e-ae40-40b12717ced1",
+          "arm": "safe-1",
+          "symbol": "SPY260702P00743000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.48,
+          "ask_decision": 0.46,
+          "candidate_limit": 0.47,
+          "real_pnl_foregone": -45.0
+        },
+        {
+          "order_id": "2a47d88f-5855-429d-b0db-491c9492d521",
+          "arm": "safe-1",
+          "symbol": "SPY260702C00754000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.19,
+          "ask_decision": 0.17,
+          "candidate_limit": 0.18,
+          "real_pnl_foregone": -15.0
+        },
+        {
+          "order_id": "803b79eb-da03-4193-87d7-d44b495db017",
+          "arm": "safe-1",
+          "symbol": "SPY260706C00753000",
+          "date_et": "2026-07-06",
+          "fill_price": 0.06,
+          "ask_decision": 0.04,
+          "candidate_limit": 0.05,
+          "real_pnl_foregone": -8.0
+        },
+        {
+          "order_id": "43f9a3f2-70dc-4cca-9d61-e970bb2ef759",
+          "arm": "safe-1",
+          "symbol": "SPY260708C00749000",
+          "date_et": "2026-07-08",
+          "fill_price": 0.13,
+          "ask_decision": 0.11,
+          "candidate_limit": 0.12,
+          "real_pnl_foregone": -12.0
+        },
+        {
+          "order_id": "530b94d4-87b7-4d4b-a705-f1b139130c08",
+          "arm": "bold-2",
+          "symbol": "SPY260702P00743000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.48,
+          "ask_decision": 0.46,
+          "candidate_limit": 0.47,
+          "real_pnl_foregone": null
+        },
+        {
+          "order_id": "f19231dc-988f-4340-9b9f-7396a68623f9",
+          "arm": "bold-2",
+          "symbol": "SPY260702P00740000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.42,
+          "ask_decision": 0.4,
+          "candidate_limit": 0.41,
+          "real_pnl_foregone": null
+        },
+        {
+          "order_id": "b3052fb3-9e65-4b61-a72e-6f5feaf7bd22",
+          "arm": "safe-3",
+          "symbol": "SPY260706C00754000",
+          "date_et": "2026-07-06",
+          "fill_price": 0.04,
+          "ask_decision": 0.02,
+          "candidate_limit": 0.03,
+          "real_pnl_foregone": -6.0
+        },
+        {
+          "order_id": "bfaf2b3b-dbff-478b-8437-b4030a102097",
+          "arm": "safe-3",
+          "symbol": "SPY260706C00754000",
+          "date_et": "2026-07-06",
+          "fill_price": 0.04,
+          "ask_decision": 0.02,
+          "candidate_limit": 0.03,
+          "real_pnl_foregone": 0.0
+        },
+        {
+          "order_id": "e49e29c0-22c8-474b-97c4-21ad50eb2531",
+          "arm": "risky-1",
+          "symbol": "SPY260701C00751000",
+          "date_et": "2026-07-01",
+          "fill_price": 0.26,
+          "ask_decision": 0.24,
+          "candidate_limit": 0.25,
+          "real_pnl_foregone": -20.0
+        },
+        {
+          "order_id": "8f51e61a-df12-4bdd-b7d8-0de2e8ead50a",
+          "arm": "risky-1",
+          "symbol": "SPY260708C00748000",
+          "date_et": "2026-07-08",
+          "fill_price": 0.1,
+          "ask_decision": 0.08,
+          "candidate_limit": 0.09,
+          "real_pnl_foregone": -20.0
+        },
+        {
+          "order_id": "48669221-a57f-4778-bb0b-32968270f43b",
+          "arm": "risky-3",
+          "symbol": "SPY260702C00754000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.19,
+          "ask_decision": 0.17,
+          "candidate_limit": 0.18,
+          "real_pnl_foregone": -25.0
+        },
+        {
+          "order_id": "a74572e9-02c9-429d-a95d-a5a01d09cf3e",
+          "arm": "risky-3",
+          "symbol": "SPY260707P00746000",
+          "date_et": "2026-07-07",
+          "fill_price": 0.1,
+          "ask_decision": 0.08,
+          "candidate_limit": 0.09,
+          "real_pnl_foregone": -10.0
+        },
+        {
+          "order_id": "11be7ef8-194b-4297-9514-faad843f9ec5",
+          "arm": "safe-3",
+          "symbol": "SPY260709C00751000",
+          "date_et": "2026-07-09",
+          "fill_price": 0.51,
+          "ask_decision": 0.48,
+          "candidate_limit": 0.49,
+          "real_pnl_foregone": -48.0
+        },
+        {
+          "order_id": "c0723126-1a12-41d6-be27-d0ae492d22ce",
+          "arm": "risky-1",
+          "symbol": "SPY260709C00751000",
+          "date_et": "2026-07-09",
+          "fill_price": 0.5,
+          "ask_decision": 0.48,
+          "candidate_limit": 0.49,
+          "real_pnl_foregone": -75.0
+        },
+        {
+          "order_id": "8670654d-2af0-45c1-9746-52fb85c08f6a",
+          "arm": "safe-3",
+          "symbol": "SPY260717P00741000",
+          "date_et": "2026-07-17",
+          "fill_price": 0.48,
+          "ask_decision": 0.45,
+          "candidate_limit": 0.46,
+          "real_pnl_foregone": 0.0
+        },
+        {
+          "order_id": "284317b1-7437-4ac9-955d-a193d4314ad6",
+          "arm": "safe-3",
+          "symbol": "SPY260717P00742000",
+          "date_et": "2026-07-17",
+          "fill_price": 0.33,
+          "ask_decision": 0.31,
+          "candidate_limit": 0.32,
+          "real_pnl_foregone": 0.0
+        },
+        {
+          "order_id": "d7fd23e7-4b3e-41be-870a-c200f99f716f",
+          "arm": "risky-1",
+          "symbol": "SPY260717P00742000",
+          "date_et": "2026-07-17",
+          "fill_price": 0.33,
+          "ask_decision": 0.31,
+          "candidate_limit": 0.32,
+          "real_pnl_foregone": 0.0
+        },
+        {
+          "order_id": "cb09ed74-19cf-451b-854f-88f9fefd72f5",
+          "arm": "safe-2",
+          "symbol": "SPY260721P00748000",
+          "date_et": "2026-07-21",
+          "fill_price": 0.33,
+          "ask_decision": 0.31,
+          "candidate_limit": 0.32,
+          "real_pnl_foregone": 0.0
+        },
+        {
+          "order_id": "f36f386c-802d-405b-a63b-5828aa20a3a4",
+          "arm": "risky-3",
+          "symbol": "SPY260731C00746000",
+          "date_et": "2026-07-31",
+          "fill_price": 0.33,
+          "ask_decision": 0.31,
+          "candidate_limit": 0.32,
+          "real_pnl_foregone": 126.0
+        },
+        {
+          "order_id": "b0f0fb56-2588-4686-939d-13e0a6d7fc12",
+          "arm": "safe-3",
+          "symbol": "SPY260731C00747000",
+          "date_et": "2026-07-31",
+          "fill_price": 0.3,
+          "ask_decision": 0.28,
+          "candidate_limit": 0.29,
+          "real_pnl_foregone": 75.0
+        }
+      ],
+      "gates": {
+        "primary_aggregate_positive": true,
+        "day_majority": true,
+        "drop_best_still_positive": true,
+        "runner_cohort_zero_tolerance": false
+      },
+      "verdict": "FAIL",
+      "per_day_delta": {
+        "2026-07-01": 42.0,
+        "2026-07-02": 165.0,
+        "2026-07-06": 244.0,
+        "2026-07-07": 48.0,
+        "2026-07-08": 128.0,
+        "2026-07-09": 187.0,
+        "2026-07-13": 10.0,
+        "2026-07-15": 32.0,
+        "2026-07-17": 64.0,
+        "2026-07-20": 6.0,
+        "2026-07-21": 0.0,
+        "2026-07-23": 10.0,
+        "2026-07-27": 42.0,
+        "2026-07-28": 16.0,
+        "2026-07-29": 42.0,
+        "2026-07-30": 20.0,
+        "2026-07-31": -191.0
+      }
+    },
+    {
+      "candidate_buffer": 0.015,
+      "n_priced": 105,
+      "n_filled": 99,
+      "n_missed": 6,
+      "fill_rate_pct": 94.3,
+      "total_delta_pnl": 853.0,
+      "n_trading_days": 17,
+      "n_days_nonneg_delta": 17,
+      "day_majority_threshold": 9,
+      "drop_best_day": "2026-07-06",
+      "drop_best_day_delta": 193.5,
+      "total_delta_pnl_drop_best": 659.5,
+      "n_runner_cohort_in_population": 10,
+      "n_runner_cohort_missed": 0,
+      "runner_cohort_misses": [],
+      "all_misses": [
+        {
+          "order_id": "2a47d88f-5855-429d-b0db-491c9492d521",
+          "arm": "safe-1",
+          "symbol": "SPY260702C00754000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.19,
+          "ask_decision": 0.17,
+          "candidate_limit": 0.18,
+          "real_pnl_foregone": -15.0
+        },
+        {
+          "order_id": "43f9a3f2-70dc-4cca-9d61-e970bb2ef759",
+          "arm": "safe-1",
+          "symbol": "SPY260708C00749000",
+          "date_et": "2026-07-08",
+          "fill_price": 0.13,
+          "ask_decision": 0.11,
+          "candidate_limit": 0.12,
+          "real_pnl_foregone": -12.0
+        },
+        {
+          "order_id": "48669221-a57f-4778-bb0b-32968270f43b",
+          "arm": "risky-3",
+          "symbol": "SPY260702C00754000",
+          "date_et": "2026-07-02",
+          "fill_price": 0.19,
+          "ask_decision": 0.17,
+          "candidate_limit": 0.18,
+          "real_pnl_foregone": -25.0
+        },
+        {
+          "order_id": "11be7ef8-194b-4297-9514-faad843f9ec5",
+          "arm": "safe-3",
+          "symbol": "SPY260709C00751000",
+          "date_et": "2026-07-09",
+          "fill_price": 0.51,
+          "ask_decision": 0.48,
+          "candidate_limit": 0.49,
+          "real_pnl_foregone": -48.0
+        },
+        {
+          "order_id": "c0723126-1a12-41d6-be27-d0ae492d22ce",
+          "arm": "risky-1",
+          "symbol": "SPY260709C00751000",
+          "date_et": "2026-07-09",
+          "fill_price": 0.5,
+          "ask_decision": 0.48,
+          "candidate_limit": 0.49,
+          "real_pnl_foregone": -75.0
+        },
+        {
+          "order_id": "8670654d-2af0-45c1-9746-52fb85c08f6a",
+          "arm": "safe-3",
+          "symbol": "SPY260717P00741000",
+          "date_et": "2026-07-17",
+          "fill_price": 0.48,
+          "ask_decision": 0.45,
+          "candidate_limit": 0.47,
+          "real_pnl_foregone": 0.0
+        }
+      ],
+      "gates": {
+        "primary_aggregate_positive": true,
+        "day_majority": true,
+        "drop_best_still_positive": true,
+        "runner_cohort_zero_tolerance": true
+      },
+      "verdict": "PASS_ALL_GATES",
+      "per_day_delta": {
+        "2026-07-01": 24.0,
+        "2026-07-02": 119.5,
+        "2026-07-06": 193.5,
+        "2026-07-07": 36.0,
+        "2026-07-08": 91.5,
+        "2026-07-09": 171.0,
+        "2026-07-13": 7.5,
+        "2026-07-15": 24.0,
+        "2026-07-17": 60.0,
+        "2026-07-20": 4.5,
+        "2026-07-21": 4.5,
+        "2026-07-23": 7.5,
+        "2026-07-27": 31.5,
+        "2026-07-28": 12.0,
+        "2026-07-29": 31.5,
+        "2026-07-30": 15.0,
+        "2026-07-31": 19.5
+      }
+    },
+    {
+      "candidate_buffer": 0.02,
+      "n_priced": 105,
+      "n_filled": 103,
+      "n_missed": 2,
+      "fill_rate_pct": 98.1,
+      "total_delta_pnl": 516.0,
+      "n_trading_days": 17,
+      "n_days_nonneg_delta": 17,
+      "day_majority_threshold": 9,
+      "drop_best_day": "2026-07-06",
+      "drop_best_day_delta": 129.0,
+      "total_delta_pnl_drop_best": 387.0,
+      "n_runner_cohort_in_population": 10,
+      "n_runner_cohort_missed": 0,
+      "runner_cohort_misses": [],
+      "all_misses": [
+        {
+          "order_id": "11be7ef8-194b-4297-9514-faad843f9ec5",
+          "arm": "safe-3",
+          "symbol": "SPY260709C00751000",
+          "date_et": "2026-07-09",
+          "fill_price": 0.51,
+          "ask_decision": 0.48,
+          "candidate_limit": 0.5,
+          "real_pnl_foregone": -48.0
+        },
+        {
+          "order_id": "8670654d-2af0-45c1-9746-52fb85c08f6a",
+          "arm": "safe-3",
+          "symbol": "SPY260717P00741000",
+          "date_et": "2026-07-17",
+          "fill_price": 0.48,
+          "ask_decision": 0.45,
+          "candidate_limit": 0.47,
+          "real_pnl_foregone": 0.0
+        }
+      ],
+      "gates": {
+        "primary_aggregate_positive": true,
+        "day_majority": true,
+        "drop_best_still_positive": true,
+        "runner_cohort_zero_tolerance": true
+      },
+      "verdict": "PASS_ALL_GATES",
+      "per_day_delta": {
+        "2026-07-01": 16.0,
+        "2026-07-02": 61.0,
+        "2026-07-06": 129.0,
+        "2026-07-07": 24.0,
+        "2026-07-08": 56.0,
+        "2026-07-09": 85.0,
+        "2026-07-13": 5.0,
+        "2026-07-15": 16.0,
+        "2026-07-17": 40.0,
+        "2026-07-20": 3.0,
+        "2026-07-21": 3.0,
+        "2026-07-23": 5.0,
+        "2026-07-27": 21.0,
+        "2026-07-28": 8.0,
+        "2026-07-29": 21.0,
+        "2026-07-30": 10.0,
+        "2026-07-31": 13.0
+      }
+    }
+  ],
+  "any_candidate_passes_all_gates": true,
+  "disposition": "SHIP the smallest candidate that passes every gate"
+}
