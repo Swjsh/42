@@ -94,6 +94,12 @@ def _consult(persp_bodies):
     return {"perspectives": [{"content": b} for b in persp_bodies], "synthesis": {"content": ""}}
 
 
+def _synth_consult(synth_body):
+    """Build a consult dict with the bullet(s) in the SYNTHESIS section (the
+    unbolded-whole-line harvest path), not the perspective bold-lead-in path."""
+    return {"perspectives": [], "synthesis": {"content": synth_body}}
+
+
 def test_scaffold_does_not_crowd_out_real_gaps():
     """THE load-bearing regression: scaffold in an EARLY perspective must not consume
     the [:12] budget before real gaps in a LATER perspective are reached (the exact
@@ -127,6 +133,56 @@ def test_pilot_heartbeat_fused_token_rejected():
     """`Pilot/Heartbeat` normalizes to a fused token 'pilotheartbeat'; the multi-word
     prefix matcher must still reject it (this one leaked on the first fix pass)."""
     assert self_audit._is_real_gap("Impact on Pilot/Heartbeat") is False
+
+
+def test_synthesis_bullet_soft_truncates_at_word_boundary():
+    """2026-08-02: the raw [:120] slice cut mid-word (real observed fragment from the
+    2026-08-01 batch: '...they provide a concrete, testable failure mode, '). The fix
+    must never end a truncated gap mid-word, and must mark it as truncated."""
+    long_sentence = (
+        "The most rigorous perspectives are 3 and 5 (near-identical) because they "
+        "provide a concrete, testable failure mode, quantified dollar impact, and a "
+        "specific remediation step that the conductor can action without further "
+        "research, discussion, escalation, or any additional human-in-the-loop "
+        "clarification before the next scheduled fire begins its own bounded work."
+    )
+    body = f"- {long_sentence}"
+    gaps = self_audit._extract_gaps(_synth_consult(body))
+    assert gaps, "real long gap should survive extraction"
+    g = gaps[0]
+    assert len(g) <= self_audit._SYNTH_BULLET_LIMIT + len(" [...]")
+    assert g.endswith(" [...]"), f"truncated gap must be marked, got {g!r}"
+    # never cut mid-word: the char immediately before ' [...]' must not be followed
+    # by more letters in the source (i.e. the kept prefix is a real word boundary)
+    kept = g[: -len(" [...]")]
+    assert long_sentence.startswith(kept)
+    next_char_idx = len(kept)
+    assert long_sentence[next_char_idx] == " ", "truncation did not land on a word boundary"
+
+
+def test_bold_label_prefix_stripped_from_synthesis_bullet():
+    """2026-08-02: real observed noise -- '**Most rigorous view:** Perspective 2
+    provides the most end-to-end causal chain ...' flagged the LABEL, not the gap
+    (this exact case is a 'Perspective N ...' cross-ref, itself correctly rejected
+    by the existing _PERSPECTIVE_REF_RE filter once the label is stripped -- so this
+    test uses a label prefix whose remainder IS a genuine, actionable gap statement).
+    The label must be dropped, keeping only the substantive gap statement."""
+    body = (
+        "- **Key risk:** The recency-confirmation gate never re-validates after a "
+        "live flip, letting stale evidence block trades indefinitely"
+    )
+    gaps = self_audit._extract_gaps(_synth_consult(body))
+    assert gaps
+    assert not gaps[0].lower().startswith("key risk")
+    assert gaps[0].startswith("The recency-confirmation gate")
+
+
+def test_bullet_with_no_bold_label_unaffected():
+    """A synthesis bullet with no bold-label lead-in must pass through unchanged
+    (short of the soft-truncate cap) -- the strip must not eat real gap text."""
+    body = "- Real-time OPRA data-health gate is missing from the premarket sequence"
+    gaps = self_audit._extract_gaps(_synth_consult(body))
+    assert gaps == ["Real-time OPRA data-health gate is missing from the premarket sequence"]
 
 
 def test_real_fixture_06_29_surfaces_real_gaps():

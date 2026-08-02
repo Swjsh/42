@@ -88,6 +88,43 @@ def _norm(s: str) -> str:
     return re.sub(r"[^a-z0-9 ]", "", s.lower()).strip()[:90]
 
 
+# 2026-08-02: the synthesis-bullet harvest (unlike the perspective bold-lead-in harvest)
+# grabbed the WHOLE bullet line verbatim, including markdown bold LABEL prefixes like
+# "**Most rigorous view:** Perspective 2 provides ..." (the label, not the gap itself),
+# then hard-truncated at 120 chars with a raw slice -- cutting mid-word/mid-sentence
+# ("...they provide a concrete, testable failure mode, "). Two batches (2026-07-31,
+# 2026-08-01) landed in new-gaps-flagged.md as unreadable, unactionable fragments --
+# a self-audit organ producing noise instead of signal is exactly the C7 class this
+# organ exists to prevent. Fixed here: strip a leading bold LABEL (text before the
+# colon inside **...**), and soft-truncate at a word boundary instead of a raw slice.
+_BOLD_LABEL_PREFIX_RE = re.compile(r"^\*\*([^*]+?)\*\*:?\s*(.+)$")
+_SYNTH_BULLET_LIMIT = 240
+
+
+def _strip_bold_label(line: str) -> str:
+    """Drop a leading '**Label:**' markdown lead-in, keeping only what follows.
+
+    'Most rigorous view:** Perspective 2 provides ...' -> 'Perspective 2 provides ...'
+    A bullet with NO bold label (the common case) passes through unchanged.
+    """
+    m = _BOLD_LABEL_PREFIX_RE.match(line.strip())
+    return m.group(2).strip() if m else line.strip()
+
+
+def _soft_truncate(s: str, limit: int = _SYNTH_BULLET_LIMIT) -> str:
+    """Truncate at the last word boundary <= limit, never mid-word. Adds an
+    ellipsis marker so a still-truncated gap is visibly incomplete, not silently
+    chopped mid-sentence (readers can tell to go re-read the source consult)."""
+    s = s.strip()
+    if len(s) <= limit:
+        return s
+    cut = s[:limit]
+    sp = cut.rfind(" ")
+    if sp > limit * 0.5:
+        cut = cut[:sp]
+    return cut.rstrip() + " [...]"
+
+
 def _known_gap_keys() -> set[str]:
     if not LOG.exists():
         return set()
@@ -198,7 +235,7 @@ def _extract_gaps(consult_json: dict) -> list[str]:
     synth = consult_json.get("synthesis", {})
     sbody = synth.get("content") if isinstance(synth, dict) else str(synth)
     for m in re.findall(r"(?m)^\s*[-*]\s+(.+)$", sbody or ""):
-        out.append(m.strip()[:120])
+        out.append(_soft_truncate(_strip_bold_label(m)))
     # filter scaffold/headers, then dedupe preserving order (filter BEFORE the [:12]
     # cap so real gaps in later perspectives aren't crowded out by early scaffold)
     seen, ded = set(), []
