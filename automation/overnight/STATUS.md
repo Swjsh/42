@@ -1,3 +1,41 @@
+## [2026-08-02T01:07:00 ET] conductor: OK -- SELF-AUDIT-GAP-EXTRACTION-TRUNCATION-FIX -- commit `5e4cd6e2`
+
+**Signal J wakes to (OP-25).** Budget gate PASS ($0.77/$30, 1/4 fires used before this one),
+market-hours gate PASS (Sunday 01:07 ET). Engine health GREEN (all critical checks green,
+weekend-quiet as expected). Priority order: fill-funnel check clean (self-check-last.json
+GREEN, no session expected), no Engine RED, checked self-audit gaps next (priority-3) --
+found the organ itself was broken.
+
+**Root cause named in one sentence:** `self_audit.py`'s SYNTHESIS-bullet harvest (unlike
+the perspective bold-lead-in harvest) grabbed the whole bullet line verbatim -- including
+markdown bold LABEL prefixes like `**Most rigorous view:**` -- then hard-truncated at a raw
+`[:120]` character slice, cutting mid-word/mid-sentence. The last two self-audit batches
+(2026-07-31, 2026-08-01, both un-triaged) landed in `new-gaps-flagged.md` as unreadable
+fragments ("Dashboard WS8 trendline data", "No alert fires", synthesis bullets cut off
+mid-sentence) -- exactly the C7 silent-noise-in-a-self-improvement-loop class this organ
+exists to prevent.
+
+**Fix:** strip a leading bold-label prefix (`_strip_bold_label`) and soft-truncate at the
+last word boundary <=240 chars with an explicit `[...]` marker (`_soft_truncate`), replacing
+the raw mid-word 120-char slice. 3 new guard tests in `test_self_audit_extract.py` reproduce
+the exact observed fragments; RED-proofed by temporarily stashing the fix (both new tests
+fail without it, confirmed via `git stash`/`pop` on just that file) -- 63/63 green with the
+fix applied. Zero trading-path files touched (pure tooling fix to the gap-finder script).
+
+**Disposition of the 2 stale un-triaged batches:** both (2026-07-31 6 gaps, 2026-08-01 7
+gaps) are now understood as a MIX of genuinely terse-but-real perspective gaps (survive
+unaffected -- e.g. "OPRA backfill completeness", "FleetExecutor idempotency guard") and
+truncation artifacts from the now-fixed synthesis path (no action needed on the historical
+lines themselves -- they're already logged/deduped by hash in `gap-log.jsonl`; the fix only
+prevents recurrence on the NEXT self-audit run). No further action needed this fire on those
+two specific batches -- marked triaged below in `new-gaps-flagged.md`.
+
+Committed via `commit_scoped.py` (pathspec-scoped: `setup/scripts/self_audit.py` +
+`backtest/tests/test_self_audit_extract.py` only -- did NOT touch the large set of unrelated
+already-modified state/analysis files sitting dirty in the tree from other autonomous
+processes). Revert: `git revert 5e4cd6e2` (additive-only fix + tests, nothing else depends
+on the changed truncation/label behavior).
+
 ## [2026-08-02T00:08:02 ET] conductor: OK -- ZERO-FOR-TWELVE-POSTMORTEM -- closed the historical-OOS(2026) day-cluster half. Re-ran vwap_continuation + vix_regime_dayside's own byte-identical detectors over the 2026 OOS window (through 2026-07-22, detection-only, $0, 1.8s): vix_regime_dayside's 34 OOS signals are 94.1% (32/34) the SAME (date,side) as vwap_continuation's 61 OOS signals -- confirms + quantifies a caveat already on record (vix_regime_dayside.json "L174 NOT INDEPENDENT ... subset of vwap_continuation") but never measured until now. Pooling by (date,side) collapses the naive 95-signal sum to 63 distinct trials (-33.7%). Reframes (does not reverse) the 07-25 disarm: the live 0-for-12 was never 12 independent trials, at BOTH the live-sample layer (closed 07-25, 4 distinct day+side buckets) and now the OOS-validation layer. Artifacts: `backtest/tools/zero_for_twelve_oos_day_cluster_2026_08_02.py` + `analysis/recommendations/zero-for-twelve-oos-day-cluster-2026-08-02.json` + guard `backtest/tests/test_zero_for_twelve_oos_day_cluster.py` (3/3 green, golden-pinned). Lesson filed: `_lesson-inbox/2026-08-02-oos-signal-populations-can-silently-overlap-across-setups.md` (candidate graduation: canonical `pooled_distinct_trials` helper next to probe_stats.py, flagged not built). Zero trading-path touched. Curated safety gate 59/59 PASS. Revert: `git revert <this commit>`. **Autonomy metric: trend=regressing** (function_score_avg 23.7 over 20 fires -- `enters_last_trading_day`/`fills`/`orders_accepted` all 0 on 2026-08-01, a Saturday with no session; the metric's own `function_latest` is date-anchored to the last CALENDAR day not the last TRADING day, so a weekend read always looks regressed -- next weekday fire should confirm whether this is a metric-scope artifact or a real funnel gap (STAGE 1 fill-funnel check takes priority next fire either way).
 ## [2026-08-01] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
 
@@ -527,71 +565,6 @@ a fresh artifact until the trend recovers.
 
 ---
 
-## [2026-08-01 01:13 ET] OK -- conductor (AFTERHOURS): FLEET-STRIKE-TIER-ATM-EXTENSION armed on paper (pre-registered), commit `43bb979d`
+## Known broken
 
-**Signal J wakes to (OP-25).** Budget gate PASS ($0.33 of $30, 1/4 fires), market-hours gate
-PASS (Saturday). `task_scorer.py --top` surfaced `TWIN-DOCTRINE-FIRST-DEPLOY` (still pending J's
-Discord reply on `gp-2026-07-23-twin-doctrine-001`, nothing new to do there), so picked the
-next-ranked ready HIGH item: `FLEET-STRIKE-TIER-ATM-EXTENSION`.
-
-**What shipped:** risky-1/risky-3 (fleet_rest, PAPER, real_fills) repointed from
-`V15_BOLD_TIERS` (OTM-2/OTM-3 under $2K) to `V15_BOLD_CORE_TIERS` (ATM under $2K) -- the SAME
-table core Bold was validated+wired to on 2026-07-17/18. Mechanism: risky-1 alone lost 15 of
-16 named-setup ticks to the $0.30 `min_entry_premium` floor on 2026-07-31 (2026-07-15 study:
-OTM-3 clears that floor on only 33.76% of afternoon signals vs ATM's 96.88%). The queue item
-explicitly said "pre-register, do NOT hand-wire" -- so pre-registered the n>=20-fill gates
-BEFORE arming: `analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json`
-(OOS_positive, WF>=0.70-or-disclosed-null, sub_window_stable, anchor_no_regression, all frozen
-before any evidence exists). safe-3 explicitly EXCLUDED -- its OTM choice has its own documented
-$600-notional-cap reason, out of scope.
-
-**Mechanism:** `fleet_executor._tiers_for_arm` gained a third table string `'bold_core'` ->
-`strike_selection.V15_BOLD_CORE_TIERS` (previously only `'safe'`/anything-else->`'bold'`).
-`accounts.json` sets `params_patch.strike_tier_table='bold_core'` on risky-1 and risky-3 only.
-Both arms' rescue lanes (`_full_send_plan`/`_ladder_plan`) price via `PROBE_STRIKE_TIERS`
-directly and never call `_tiers_for_arm`, so this only affects each arm's NORMAL (gated) lane --
-documented explicitly in each arm's new `strike_tier_table_doc` field.
-
-**Validated + RED-proofed:** updated/added guard tests across 3 files
-(`test_bold_core_strike_tier_2026_07_15.py`, `test_fleet_strike_tier_floor_collision_2026_07_31.py`,
-`test_fleet_arm_parity.py`). Confirmed the fix introduces ZERO new failures: backed up all 4
-touched files, `git checkout HEAD --` to get pristine baseline copies, ran the full targeted
-suite (10 pre-existing failures -- `FLEET-PARITY-TESTS-READ-LIVE-STATE`, filed 2026-07-27, live
-recency-state test rot, unrelated to this change), restored my edits, re-ran -- identical 10
-failures, 99 additional passes including the new pins. Curated safety gate 59/59 PASS.
-
-**Process note (honest disclosure):** an initial `git stash` attempt during the RED-proof step
-got interrupted by a chained `&&` short-circuiting on pytest's nonzero exit code, leaving my
-edits stashed while unrelated live-daemon-written files (gym log, prospector ledger, twin
-journal, etc.) had moved on underneath. Recovered cleanly via `git stash pop` (partial apply,
-my 4 files restored) + `git stash drop` (the conflicting daemon files were correctly left at
-their newer state, never regressed) -- verified `STATUS.md`/`queue.md` content matched HEAD
-before and after, no data lost. Switched to backup+checkout+restore for the rest of the
-RED-proof, per C34/L214/L228/L238 (never bare `git stash` in this repo). Noted for the record,
-not swept under the rug (OP-33). Two PRE-EXISTING unrelated stashes (`stash@{0}`, `stash@{1}`,
-predating this fire) were left untouched -- out of scope, risk of harm from touching someone
-else's WIP exceeds the benefit of tidying them this fire.
-
-**Rail-4 (PAPER trading-path, guard+revert+REVOKE, J ratified 2026-07-01):** ships now, no J
-pre-approval needed. Revert: delete `'strike_tier_table':'bold_core'` from risky-1/risky-3's
-`params_patch` in `automation/state/fleet/accounts.json` (one line each, byte-identical) --
-or `git revert 43bb979d`.
-
-**Not yet resolved:** the change needs n>=20 real fleet fills to accumulate (next trading week,
-market is closed this weekend) before the pre-registered gates can be scored. Follow-up item
-queued: `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01` (blocked on fill count, not time).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-[2026-08-01 20:00:24 Saturday EDT
-market_hours=False] conductor-weekend: QUIET — nightly budget spent (12 fires today >= max_fires 4)
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-02T03:30:10+00:00
-- date_et: 2026-08-01
-- total: $266.03 (threshold $30.00)
-- claude: $266.03  minimax: $0.00
-- claude_sessions: 19
+- [2026-08-01T23:01:55] GATE-EXPIRY RED :: structure_veto_enabled :: refused cohort would have EARNED $6.26/tr, n=10 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate structure_veto_enabled

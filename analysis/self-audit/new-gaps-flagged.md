@@ -603,3 +603,24 @@ self-healing/auto-diagnosed" -- the ROOT CAUSE of the ONLY exhaustion event this
 (the cross-midnight bug) has already been diagnosed and fixed; building a general
 auto-diagnoser for a class of bug that has occurred once and is now fixed is premature
 generalization, not chased. Batch closed. -->
+
+## 2026-07-31T17:33:29 -- 6 new gap(s) Gamma self-identified
+- The system lacks end-to-end verification that self-heal actions actually restored data flow (not just socket/CDP connect
+- Missing distinct, actionable telemetry/alerting for self-heal failures across all watchdogs, causing delayed detection.
+- Risk of status.md bloat and retention script losing critical preamble due to unbounded growth of heuristic blocks (e.g.,
+- Need for automated validation against J's anchor‑day "Golden Set" to detect regression in autonomous strategy logic.
+- Insufficient guards against resource contention (e.g., auto‑commits, research) during market hours that could impair low
+- The most rigorous perspectives are **3 and 5** (near‑identical) because they provide a concrete, testable failure mode, 
+
+<!-- DONE 2026-08-02T01:07 conductor (AFTERHOURS, commit 5e4cd6e2): TRIAGED. The last line of this batch (and the 2026-08-01 batch below) is exactly the synthesis-truncation bug diagnosed and fixed this fire (self_audit.py's _extract_gaps hard-truncated at a raw [:120] slice, cutting mid-word). Root-cause fix + 3 guard tests shipped (test_self_audit_extract.py, 63/63 green, RED-proofed). The first 5 substantive lines here are genuine, already-terse-but-real gaps (self-heal verification, watchdog telemetry, STATUS.md retention, golden-set regression check, market-hours resource contention) -- none require action AS a self-audit-organ fix; each is candidate future work, not itself broken. No further action this fire. -->
+
+## 2026-08-01T17:32:00 -- 7 new gap(s) Gamma self-identified
+- Dashboard WS8 trendline data
+- OPRA backfill completeness
+- Dashboard WS8 trendline
+- FleetExecutor idempotency guard
+- No alert fires
+- **Priority of failure mode:** Perspective 2 ranks a silent live‑watch outage (no `core‑decisions.jsonl` ticks) as the mo
+- **Most rigorous view:** Perspective 2 provides the most end‑to‑end causal chain (missing ticks → stale regime/context → 
+
+<!-- DONE 2026-08-02T01:07 conductor (AFTERHOURS, commit 5e4cd6e2): TRIAGED. Last 2 lines are the SAME synthesis-truncation + bold-label-leak bug fixed this fire -- root cause named + fixed in self_audit.py (_strip_bold_label + _soft_truncate), 3 new RED-proofed guard tests, 63/63 green. The 5 short perspective-sourced lines (Dashboard WS8 trendline data/OPRA backfill completeness/FleetExecutor idempotency guard/no alert fires) are genuine terse gaps, not noise -- logged as candidate future work, none require an immediate fix themselves. No further action this fire; fix prevents recurrence on future self-audit runs. -->
