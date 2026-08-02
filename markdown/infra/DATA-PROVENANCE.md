@@ -88,10 +88,56 @@ same files**, so any study spanning an EST month needs BOTH disclosures.
 
 **2026-08-02 finding:** the fix shipped 2026-07-02 as an opt-in library
 (`et_frame.parse_timestamp_et`), not enforced at the shared OPRA loader
-(`backtest/lib/option_pricing_real.py::load_contract_bars`, which still returns raw,
+(`backtest/lib/option_pricing_real.py::load_contract_bars`, which still returned raw,
 un-normalized, tz-aware fixed-offset data). Full re-audit, quantified delta on a real
-consumer, and the guard shipped to stop a 4th occurrence:
+consumer, and a detection guard shipped to stop a 4th occurrence:
 `analysis/deep-research/DST-FRAME-BLAST-RADIUS-2026-08-02.md`.
+
+**2026-08-02 ROOT FIX LANDED (same day, follow-up lane):** `load_contract_bars()` gained a
+keyword-only `frame: Optional[str] = None` parameter (`None` = unchanged raw tz-aware output,
+byte-identical for every pre-existing caller; `"wall-v1"`/`"et-v2"` return an
+already-normalized naive column via `et_frame.parse_timestamp_et`). `exit_manager_walk.
+walk_exit_manager`, `simulator_credit.simulate_credit_trade`, and `simulator_debit.
+simulate_debit_trade` all gained a `frame: str = "wall-v1"` parameter, replacing their prior
+unconditional bare `.tz_localize(None)` strips — default reproduces every one of their
+combined 90+ pre-existing call sites byte-for-byte (pinned:
+`test_dst_frame_fix_walk_exit_manager_frame_kwarg_diverges_on_winter`'s own
+`res_default == res_wall` assertion). Winter canary (`SPY250102C00580000`, true-ET 13:00)
+now resolves to **$2.44** via `frame="et-v2"` through the real production functions (was
+$8.25 via `frame="wall-v1"`, unchanged/reproduced); summer control shows 0-minute/$0.00
+delta. `bold_fullhist_replay.py`'s two `walk_exit_manager` call sites (`run_anchor_
+validation` + the elite-bull-requal qty5-rescale closure) and `test_bold_fullhist_replay.py`'s
+own inline anchor test now explicitly pass `frame="et-v2"` — zero behavior change today
+(every populated date is summer/EDT), closes the gap before a winter date is ever added.
+
+**A SECOND, subtler bug found+fixed while wiring this in:** `et_frame.parse_timestamp_et`'s
+`et-v2` branch does not honor its own documented "naive input passes through unchanged"
+contract (only its `wall-v1` branch does) — it unconditionally reinterprets already-naive
+digits as UTC and shifts them by the zone offset. This corrupted `walk_exit_manager`'s
+handling of a `five_min_spy_df` that a caller (`bold_fullhist_replay.run_anchor_validation`)
+had already pre-parsed to naive et-v2 upstream — caught live by
+`test_bold_fullhist_replay.py` failing with a wrong-direction P&L on a real anchor the moment
+`frame="et-v2"` was wired in, not shipped silently. Fixed LOCALLY in
+`exit_manager_walk._reframe_series` / `simulator_credit._reframe_series` (deliberately NOT by
+modifying `et_frame.py` itself — out of scope, heavily used, heavily guarded elsewhere).
+Guard: `test_dst_frame_fix_reframe_series_passes_through_already_naive_input`.
+
+**Live-knob re-verification (task requirement, done 2026-08-02):** both v15.3
+CHART-STOP-PRIMARY (`structure_stop_study.py` SS-B) and the ATM-over-OTM-2 strike knob
+(`ribbon_ride_strike_exit_ab.py` axis 1, incl. the ITM-2 rejection) were traced end-to-end —
+NEITHER actually routes through `exit_manager_walk.walk_exit_manager` or the buggy
+`load_contract_bars` join path exposed to cross-frame mixing. Both tool families run their
+OWN independent walk (`plan_exit_actions` called directly via `t4_exit_matrix.replay()` /
+`ribbon_ride_strike_exit_ab.fetch_entry_and_bars()`), and every timestamp in that chain
+(`_signal_cache.py` → `orchestrator.run_backtest(use_real_fills=True)` → `simulate_trade_real`'s
+`frame="wall-v1"` default, through `tw8_level_context.py`) is wall-v1-consistent — confirmed
+both by reading every file in the chain (zero `et-v2`/`tz_convert("America/New_York")` markers
+anywhere in it) AND empirically (the actual `signal-set.json` 250-signal population's earliest
+WINTER entry is 10:30 ET, the wall-v1 clipped-open signature — true et-v2 would show ~09:30-
+09:40 matching summer). **Verdict: both knobs STILL-CONFIRMED — not a re-run producing the
+same number, but proof neither was ever on the affected path.** structure_stop_study.py's
+Layer B (real-fills anchor) is doubly unaffected — it never touches the buggy CSV cache at
+all, using `exit_shape_parity_study.fetch_option_bars` (live REST) instead.
 
 **Affected artifacts (disclose when citing):**
 - `analysis/recommendations/PIVOT-PREMIUM-SELLING-SCORECARD.md` — the LEAD IC cell's
@@ -102,24 +148,41 @@ consumer, and the guard shipped to stop a 4th occurrence:
   new work; the scorecard file itself stays as the historical record of what wall-frame
   measurement originally showed (same "wall-frame scorecard stays citable for wall-frame
   comparisons" convention as the 2026-07-02 audit).
-- `backtest/tools/bold_fullhist_replay.py::run_anchor_validation` — mechanism confirmed
-  live (real-fills-ledger true-ET entry times joined against raw unstripped OPRA via
-  `exit_manager_walk.walk_exit_manager`), but the CURRENT `ANCHOR_FILLS` population (7
-  trades, 2026-06-26..2026-07-28) is 0/7 winter-dated, so today's quoted 83-89% pass-rates
-  are not currently corrupted. Re-check the first time a winter (Nov+) real fill is added
-  to that list.
-- Any consumer of `backtest/lib/simulator_credit.py` / `simulator_debit.py` (no `frame`
-  parameter; unconditional bare OPRA tz-strip) or `backtest/lib/exit_manager_walk.py::
-  walk_exit_manager` (same gap) whose caller derives its entry time via an et-v2-style
-  parse (`utc=True` + `tz_convert("America/New_York")`) rather than a plain/wall-v1 parse.
-  Full inventory (SAFE / AFFECTED / UNCLEAR) in the blast-radius doc above.
+- `backtest/tools/bold_fullhist_replay.py::run_anchor_validation` — **FIXED 2026-08-02**
+  (now passes `frame="et-v2"`); was zero-exposure at the time it was found (`ANCHOR_FILLS`
+  0/7 winter) and stays that way going forward.
+- `backtest/tools/elite_bull_postfix_requal_2026_07_31.py` — AFFECTED (et-v2 SPY vs
+  bare-stripped OPRA reaching `walk_exit_manager`, no `tz_convert` step; found in the
+  2026-08-02 16-file sweep). Its output `elite-bull-requal-2026-07-31.json` was cited in
+  `analysis/deep-research/FRIDAY-DIAL-IN-2026-07-31.md` to justify a `block_elite_bull:
+  false` lift trial on bold-2 — **verified 2026-08-02: that trial was independently armed
+  2026-08-01 then REVERTED SAME SESSION** for unrelated reasons (a misattributed basis +
+  properly-powered contrary evidence, see `automation/state/aggressive/params.json`'s
+  `_block_elite_bull_trial_doc`) — `block_elite_bull` is currently `true` (armed/blocking) on
+  both accounts, so there is no CURRENT live exposure from this citation. The file's own
+  DST-frame mismatch is still real and should be fixed before it is ever cited again.
+- `backtest/autoresearch/rrw_bull_veto_study.py` — AFFECTED (its own direct OPRA-vs-bear-event
+  join was correctly frame-matched, but the UPSTREAM `entry_time_et` it trusts as et-v2 —
+  from `orchestrator.run_backtest(use_real_fills=True)` — is actually still wall-v1-labeled
+  at the source, despite the study's own commit note claiming the DST-frame fix was applied).
+  Cited in `automation/overnight/queue.md` (RRW-AS-VETO-STUDY) as a `done-failed-both-
+  overlays-honest-kill` — **zero live exposure**: no params/trading-path file was ever
+  touched by this study regardless of verdict (its own stated policy), so a soft small-n
+  count does not change anything armed.
+- Any OTHER consumer of `backtest/lib/simulator_credit.py` / `simulator_debit.py` /
+  `backtest/lib/exit_manager_walk.py::walk_exit_manager` whose caller derives its entry time
+  via an et-v2-style parse but doesn't explicitly pass `frame="et-v2"` into these functions
+  (now that they support it) — full inventory (SAFE / AFFECTED / UNCLEAR) in the blast-radius
+  doc above and its `test_graduated_guards.py::_DST_FRAME_PATTERN_ALLOWLIST` companion.
 
 **Rule:** any study joining SPY/underlying timestamps to OPRA option timestamps must verify
 BOTH sides were parsed with the SAME `et_frame` convention — never trust a docstring or an
-`import et_frame` line alone; verify the actual call. Guards:
-`backtest/tests/test_et_frame_guards.py` (library correctness) +
-`backtest/tests/test_graduated_guards.py::test_dst_frame_*` (adoption / new-consumer scan,
-added 2026-08-02).
+`import et_frame` line alone; verify the actual call. As of 2026-08-02, `load_contract_bars`,
+`walk_exit_manager`, `simulate_credit_trade`, and `simulate_debit_trade` all accept an
+explicit `frame=` to do this correctly in one call — prefer that over a hand-rolled
+`.tz_localize(None)`/`tz_convert` sequence. Guards: `backtest/tests/test_et_frame_guards.py`
+(library correctness) + `backtest/tests/test_graduated_guards.py::test_dst_frame_*` (bug
+pinning + new-consumer scan) + `test_dst_frame_fix_*` (the root-fix proof, added 2026-08-02).
 
 ## Rules
 
