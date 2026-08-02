@@ -77,6 +77,50 @@ theoretically miss a premarket extreme that fell inside that exact 3-bar window 
 research-only, and moot now the cache is repaired. Not investigated further; flag here if a
 specific day's PMH/PML research result ever looks suspicious.
 
+## Winter-frame (DST) join caveat — 2026-08-02 recurrence
+
+`backtest/data/spy_5m_*.csv` AND `backtest/data/options/*.csv` share the same fixed
+`-04:00` offset-label writer bug (root cause + fix: `backtest/lib/et_frame.py`,
+`markdown/audits/DST-FRAME-AUDIT-2026-07-02.md`). The UTC instant of every row is correct;
+the offset LABEL is wrong for EST months (Nov–Mar). **This is orthogonal to the volume
+strata above (a timestamp-parsing issue, not a source/feed issue) but interacts with the
+same files**, so any study spanning an EST month needs BOTH disclosures.
+
+**2026-08-02 finding:** the fix shipped 2026-07-02 as an opt-in library
+(`et_frame.parse_timestamp_et`), not enforced at the shared OPRA loader
+(`backtest/lib/option_pricing_real.py::load_contract_bars`, which still returns raw,
+un-normalized, tz-aware fixed-offset data). Full re-audit, quantified delta on a real
+consumer, and the guard shipped to stop a 4th occurrence:
+`analysis/deep-research/DST-FRAME-BLAST-RADIUS-2026-08-02.md`.
+
+**Affected artifacts (disclose when citing):**
+- `analysis/recommendations/PIVOT-PREMIUM-SELLING-SCORECARD.md` — the LEAD IC cell's
+  published OOS expectancy (**+$23.03/tr**) is overstated vs the frame-consistent re-run
+  (**+$15.30/tr, −33.6%**). The scorecard's own verdict (LEAD-not-EDGE, NOT shippable) does
+  **not** change — a lower true expectancy sits further from beating the random-strike null
+  the scorecard already failed on, not closer. Cite the corrected +$15.30/tr number for any
+  new work; the scorecard file itself stays as the historical record of what wall-frame
+  measurement originally showed (same "wall-frame scorecard stays citable for wall-frame
+  comparisons" convention as the 2026-07-02 audit).
+- `backtest/tools/bold_fullhist_replay.py::run_anchor_validation` — mechanism confirmed
+  live (real-fills-ledger true-ET entry times joined against raw unstripped OPRA via
+  `exit_manager_walk.walk_exit_manager`), but the CURRENT `ANCHOR_FILLS` population (7
+  trades, 2026-06-26..2026-07-28) is 0/7 winter-dated, so today's quoted 83-89% pass-rates
+  are not currently corrupted. Re-check the first time a winter (Nov+) real fill is added
+  to that list.
+- Any consumer of `backtest/lib/simulator_credit.py` / `simulator_debit.py` (no `frame`
+  parameter; unconditional bare OPRA tz-strip) or `backtest/lib/exit_manager_walk.py::
+  walk_exit_manager` (same gap) whose caller derives its entry time via an et-v2-style
+  parse (`utc=True` + `tz_convert("America/New_York")`) rather than a plain/wall-v1 parse.
+  Full inventory (SAFE / AFFECTED / UNCLEAR) in the blast-radius doc above.
+
+**Rule:** any study joining SPY/underlying timestamps to OPRA option timestamps must verify
+BOTH sides were parsed with the SAME `et_frame` convention — never trust a docstring or an
+`import et_frame` line alone; verify the actual call. Guards:
+`backtest/tests/test_et_frame_guards.py` (library correctness) +
+`backtest/tests/test_graduated_guards.py::test_dst_frame_*` (adoption / new-consumer scan,
+added 2026-08-02).
+
 ## Rules
 
 1. **Canonical chain appends = Alpaca SIP only.** Never IEX for anything volume-bearing;
@@ -85,3 +129,6 @@ specific day's PMH/PML research result ever looks suspicious.
    RTH seams (~7% Yahoo-vs-SIP level shift), or touches the IEX masters.
 3. **New bar producers register here** (file pattern, feed, window, volume semantics)
    before their output is consumed.
+4. **New OPRA/SPY join consumers** must route both sides through `lib.et_frame.
+   parse_timestamp_et` with the SAME `frame`, never a bare `.tz_localize(None)` strip on
+   one side only — see the winter-frame caveat above.

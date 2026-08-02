@@ -150,6 +150,52 @@ regression instead of a human re-discovering it walks later.
                                                              239-usable-day figure stale; doc-discloses-required-facts
                                                              checked against analysis/deep-research/OPRA-BACKFILL-2026-07-31.md)
 
+  test_dst_frame_naive_mixed_join_diverges_on_winter_canary
+  test_dst_frame_consistent_join_agrees_on_summer_control    -> DST-FRAME-BLAST-RADIUS-2026-08-02 (a RE-VIOLATION of the
+                                                             2026-07-02 DST-frame lesson: fleet_arm_replay.py's first
+                                                             draft independently re-hit the exact et_frame.py bug the
+                                                             2026-07-02 fix was supposed to prevent -- et-v2 SPY joined
+                                                             against wall-v1 OPRA silently misaligns winter (EST-month)
+                                                             entries by ~1h. Data-driven canary via the REAL shared
+                                                             loader (option_pricing_real.load_contract_bars): on a
+                                                             winter contract the naive mixed join picks a bar 60 real
+                                                             minutes away from the et_frame-consistent pick (price
+                                                             delta up to +238% on the sampled day); on a summer control
+                                                             the two paths agree bar-for-bar. Quantified on a real
+                                                             high-stakes consumer (PIVOT-PREMIUM-SELLING-SCORECARD.md's
+                                                             LEAD IC cell): published OOS expectancy +$23.03/tr is
+                                                             overstated vs the frame-consistent +$15.30/tr (-33.6%);
+                                                             the LEAD-not-EDGE verdict does NOT flip (reinforced, not
+                                                             overturned) -- see the artifact for the full delta.
+  test_dst_frame_no_new_unguarded_opra_join_consumers        -> the STRUCTURAL stop-a-4th-occurrence guard: greps every
+                                                             .py file for the SAME-FILE smoking-gun pattern (parses one
+                                                             timestamp column et-v2 AND bare `.tz_localize(None)`-strips
+                                                             another timestamp_et column, without importing et_frame).
+                                                             A fixed allowlist grandfathers the 18 files that trip this
+                                                             today (each hand-classified in the artifact -- some are
+                                                             confirmed AFFECTED, one -- edge_matrix_bear_level_rejection.py
+                                                             -- is a VERIFIED FALSE POSITIVE that applies one et-v2 helper
+                                                             consistently to both sides). Any NEW file tripping the
+                                                             pattern that is not on the allowlist fails CI, forcing a
+                                                             conscious fix-or-justify decision instead of a silent 4th
+                                                             occurrence. NOTE: this scan is same-file only -- it cannot
+                                                             see the CROSS-file mixing that is the actual mechanism
+                                                             behind the pivot-premium-selling family (et-v2 SPY in
+                                                             _pivot_premium_selling.py joined against wall-v1 OPRA in
+                                                             the separate simulator_credit.py) and bold_fullhist_replay.
+                                                             py's run_anchor_validation (real-fills-ledger true-ET times
+                                                             joined against raw unstripped OPRA via exit_manager_walk.
+                                                             walk_exit_manager) -- both confirmed by hand in the
+                                                             artifact, not by this automated scan. option_pricing_real.
+                                                             py (banned from edits this session -- a concurrent lane
+                                                             owns the 5-min-resolution question there) and
+                                                             exit_manager_walk.py (shares that surface, live docstring
+                                                             referencing the same concurrent lane) are NOT touched by
+                                                             this fix -- the correct single fix point is
+                                                             option_pricing_real.load_contract_bars() itself (make the
+                                                             loader return an already frame-normalized series so no
+                                                             caller can get this wrong), deferred to a follow-up session.
+
 Run:  cd backtest && python -m pytest tests/test_graduated_guards.py -v
 """
 
@@ -4156,4 +4202,234 @@ def test_opra_backfill_doc_discloses_required_facts() -> None:
     assert not missing, (
         f"OPRA-BACKFILL-2026-07-31.md is missing required disclosure(s): {missing} -- "
         f"a future edit dropped load-bearing content from the population-boundary gate doc."
+    )
+
+
+# ═════════════════════════════════════════════════════════════════════════════════
+# DST-FRAME-BLAST-RADIUS-2026-08-02 -- a RE-VIOLATION of the 2026-07-02 DST-frame
+# lesson (markdown/audits/DST-FRAME-AUDIT-2026-07-02.md, backtest/lib/et_frame.py).
+# Full mechanism + inventory + quantified delta: analysis/deep-research/
+# DST-FRAME-BLAST-RADIUS-2026-08-02.md
+# ═════════════════════════════════════════════════════════════════════════════════
+
+_WINTER_OPRA_CANARY = DATA / "options" / "SPY250102C00580000.csv"
+_SUMMER_OPRA_CANARY = DATA / "options" / "SPY250701C00612000.csv"
+
+
+def _raw_instant_for_pick(opra_csv_path, picked_close: float, picked_volume: int):
+    """Map a picked OptionBar back to its RAW (as-printed, tz-aware) timestamp in
+    load_contract_bars()'s own original output. Display labels are frame-relative
+    (a wall-v1 pick and an et-v2 pick of DIFFERENT underlying rows can both display
+    as e.g. "13:00:00" naive -- subtracting the two naive labels directly gives a
+    MEANINGLESS zero, not the true delta). The raw tz-aware timestamp is the one
+    frame-invariant identity every row has, so match back through it via
+    (close, volume) -- unique enough within one contract-day's 5-min bars."""
+    from lib.option_pricing_real import load_contract_bars
+
+    symbol = opra_csv_path.stem
+    opt_raw = load_contract_bars(symbol)
+    match = opt_raw[(opt_raw["close"] == picked_close) & (opt_raw["volume"] == picked_volume)]
+    assert not match.empty, (
+        f"could not map picked bar (close={picked_close}, volume={picked_volume}) back to "
+        f"a raw row in {symbol} -- fixture may have changed"
+    )
+    return match.iloc[0]["timestamp_et"]  # tz-aware, fixed -04:00 -- true UTC instant
+
+
+def _naive_mixed_pick(opra_csv_path, entry_time_et):
+    """Reproduce the EXACT anti-pattern (et-v2 SPY entry joined against a bare-
+    tz-stripped OPRA frame -- what simulator_credit.py/simulator_debit.py's
+    `_load_leg_df` and exit_manager_walk.py's `walk_exit_manager` both do
+    unconditionally, with NO frame parameter) using only the REAL shared loader
+    (option_pricing_real.load_contract_bars), never a hand-built substitute."""
+    from lib.option_pricing_real import load_contract_bars, bar_at_or_after
+
+    symbol = opra_csv_path.stem
+    opt_raw = load_contract_bars(symbol)  # tz-aware, fixed -04:00 (the real loader's output)
+    opt_naive = opt_raw.copy()
+    opt_naive["timestamp_et"] = opt_naive["timestamp_et"].dt.tz_localize(None)  # bare strip == wall-v1
+    return bar_at_or_after(opt_naive, entry_time_et)
+
+
+def _frame_consistent_pick(opra_csv_path, entry_time_et):
+    """The et_frame-consistent join: OPRA re-parsed et-v2, matching an et-v2 SPY
+    entry time -- exactly what simulator_real.py's `frame=` threading does."""
+    from lib.et_frame import parse_timestamp_et, FRAME_ET_V2
+    from lib.option_pricing_real import load_contract_bars, bar_at_or_after
+
+    symbol = opra_csv_path.stem
+    opt_raw = load_contract_bars(symbol)
+    opt_etv2 = opt_raw.copy()
+    opt_etv2["timestamp_et"] = parse_timestamp_et(opt_etv2["timestamp_et"].astype(str), FRAME_ET_V2)
+    return bar_at_or_after(opt_etv2, entry_time_et)
+
+
+@pytest.mark.skipif(not _WINTER_OPRA_CANARY.exists(), reason=f"winter OPRA canary missing: {_WINTER_OPRA_CANARY}")
+def test_dst_frame_naive_mixed_join_diverges_on_winter_canary() -> None:
+    """DST-FRAME-BLAST-RADIUS-2026-08-02: pins the RE-VIOLATION mechanism structurally
+    (a real winter timestamp lands on a DIFFERENT bar under the two paths), through the
+    actual shared loader -- not a naming-convention check on imports.
+
+    2025-01-02 is a verified EST day (winter). A SPY trigger that truly fired at 13:00 ET
+    (as an et-v2-parsed SPY series would correctly label it -- the DST-correct convention
+    fleet_arm_replay.py's first draft used for SPY) must join to the OPRA bar that ALSO
+    represents true 13:00 ET. The naive/buggy path (OPRA bare-tz-stripped, i.e. wall-v1 --
+    what simulator_credit.py/simulator_debit.py and exit_manager_walk.py's
+    walk_exit_manager do UNCONDITIONALLY, with no frame parameter) instead silently picks
+    the bar that is really true 12:00 ET -- one hour STALE, not the 13:00 bar. This is
+    exactly the "NEVER join a naive et-v2 series against a naive wall-v1 series" trap
+    et_frame.py's own docstring names.
+
+    If this test ever fails because the two paths AGREE, that means load_contract_bars()
+    (or the OPRA cache itself) was fixed to emit real per-row offsets/frame-normalized
+    output -- GOOD news, but it invalidates this audit's AFFECTED list and the guard
+    below's allowlist; both must be re-verified and the artifact updated, not silently
+    left describing a bug that no longer exists.
+    """
+    import datetime as _dt
+
+    entry = _dt.datetime(2025, 1, 2, 13, 0, 0)  # true-ET, mid-session (clear of the open-edge clip)
+    buggy = _naive_mixed_pick(_WINTER_OPRA_CANARY, entry)
+    correct = _frame_consistent_pick(_WINTER_OPRA_CANARY, entry)
+    assert buggy is not None and correct is not None, (
+        "canary lookup returned None -- winter OPRA fixture may have changed shape; "
+        "re-derive the entry time from the actual cached bars before trusting this guard"
+    )
+    assert buggy.close != correct.close, (
+        f"DST-frame regression check DID NOT diverge on the winter canary: buggy pick "
+        f"close={buggy.close} == correct pick close={correct.close}. Either the bug is "
+        f"fixed (re-verify and update DST-FRAME-BLAST-RADIUS-2026-08-02.md + this "
+        f"docstring) or the canary fixture changed and needs re-deriving."
+    )
+    # The magnitude check: the buggy pick must be the bar ~60 minutes EARLIER (stale),
+    # not merely "some other bar" -- ties the guard to the KNOWN mechanism/sign, not just
+    # any difference (a sign/magnitude flip would indicate a DIFFERENT bug, not this one).
+    # NOTE: comparing buggy.timestamp_et - correct.timestamp_et directly is a trap -- both
+    # are naive DISPLAY labels in their OWN frame, so a wall-v1 pick of one row and an
+    # et-v2 pick of a DIFFERENT row can both display "13:00:00" and diff to zero. Map both
+    # back to their raw (frame-invariant) instant first.
+    buggy_instant = _raw_instant_for_pick(_WINTER_OPRA_CANARY, buggy.close, buggy.volume)
+    correct_instant = _raw_instant_for_pick(_WINTER_OPRA_CANARY, correct.close, correct.volume)
+    delta_minutes = (correct_instant - buggy_instant).total_seconds() / 60.0
+    assert 55.0 <= delta_minutes <= 65.0, (
+        f"picks diverged but not by the expected ~60min winter DST offset (got "
+        f"{delta_minutes:.1f}min, buggy_raw={buggy_instant} correct_raw={correct_instant}) "
+        f"-- mechanism may have changed; re-verify against "
+        f"DST-FRAME-BLAST-RADIUS-2026-08-02.md before trusting the magnitude claim there."
+    )
+
+
+@pytest.mark.skipif(not _SUMMER_OPRA_CANARY.exists(), reason=f"summer OPRA canary missing: {_SUMMER_OPRA_CANARY}")
+def test_dst_frame_consistent_join_agrees_on_summer_control() -> None:
+    """Control for the winter canary above: on an EDT (summer) day the stored -04:00
+    offset label is CORRECT, so the naive/buggy path and the et_frame-consistent path
+    must agree bar-for-bar -- proving the divergence above is a DST/winter-specific
+    artifact, not a general bug in either code path. If this ever fails, something is
+    wrong with the test harness itself (both frame parses should be identical in EDT),
+    not with production code."""
+    import datetime as _dt
+
+    entry = _dt.datetime(2025, 7, 1, 13, 0, 0)
+    buggy = _naive_mixed_pick(_SUMMER_OPRA_CANARY, entry)
+    correct = _frame_consistent_pick(_SUMMER_OPRA_CANARY, entry)
+    assert buggy is not None and correct is not None
+    assert buggy.close == correct.close and buggy.timestamp_et == correct.timestamp_et, (
+        f"summer control DIVERGED (buggy={buggy.timestamp_et}/{buggy.close} vs "
+        f"correct={correct.timestamp_et}/{correct.close}) -- EDT months should be immune "
+        f"since the stored offset label is correct; this would mean the test harness "
+        f"itself has a bug, not that the DST mechanism has changed."
+    )
+
+
+# Same-file smoking-gun allowlist (DST-FRAME-BLAST-RADIUS-2026-08-02, 2026-08-02 sweep).
+# Each entry: file parses a timestamp column et-v2 (utc=True + tz_convert("America/
+# New_York")) AND bare-strips a *different* timestamp_et column via .tz_localize(None),
+# in the SAME file, without importing et_frame. Classification per the artifact:
+#   AFFECTED  = confirmed or high-confidence real mixed-frame join
+#   UNCLEAR   = pattern present, entry-time provenance not individually traced tonight
+#               (matches the 2026-07-02 audit's own "one-off, reclassify if re-cited"
+#               precedent for dated research tools)
+#   SAFE(fp)  = hand-verified FALSE POSITIVE -- applies ONE et-v2 helper consistently to
+#               BOTH sides (no actual mixing); kept on the allowlist so the scan stays
+#               quiet, reason recorded here instead of in scan logic every run.
+_DST_FRAME_PATTERN_ALLOWLIST = {
+    "backtest/autoresearch/_iv_skew_confirmer.py": "UNCLEAR - not individually traced",
+    "backtest/autoresearch/bull_ribbon_reversal_real_fills.py": "UNCLEAR - not individually traced",
+    "backtest/autoresearch/eod_deep/missed_setups_scanner.py": "UNCLEAR - EOD best-effort report, not individually traced",
+    "backtest/autoresearch/eod_deep/modules/edge.py": "UNCLEAR - not individually traced",
+    "backtest/autoresearch/infinite_ammo_discovery.py": "UNCLEAR - not individually traced",
+    "backtest/autoresearch/ribbon_rejection_spread_battery.py": "UNCLEAR - not individually traced",
+    "backtest/autoresearch/rrw_bull_veto_study.py": "UNCLEAR - not individually traced",
+    "backtest/autoresearch/shotgun_scalper_grinder.py": "UNCLEAR - not individually traced (KILLED strategy, low stakes)",
+    "backtest/autoresearch/trade_5_13_variants.py": "UNCLEAR - not individually traced",
+    "backtest/tests/test_bold_fullhist_replay.py": "AFFECTED - exercises the same anchor pattern as run_anchor_validation; current ANCHOR_FILLS are all summer-dated so no numeric corruption today",
+    "backtest/tools/bold_fullhist_replay.py": "AFFECTED - run_anchor_validation() joins real-fills-ledger true-ET entry times against raw unstripped OPRA via walk_exit_manager; CURRENT ANCHOR_FILLS (7, all 2026-06-26..2026-07-28) are 0/7 winter so today's 83-89% pass-rate numbers are NOT currently corrupted, but the mechanism is live and will bite the first winter anchor",
+    "backtest/tools/debit_spread_ab_study.py": "UNCLEAR - not individually traced",
+    "backtest/tools/edge_matrix_bear_level_rejection.py": "SAFE(fp) - _true_et() helper (utc=True+tz_convert+tz_localize(None)) applied consistently to BOTH the SPY frame (line ~157) and the OPRA frame (line ~284); hand-verified not mixed",
+    "backtest/tools/edge_matrix_bull_level_reclaim_quality.py": "UNCLEAR - not individually traced",
+    "backtest/tools/edge_matrix_sr_flip_retest.py": "UNCLEAR - not individually traced",
+    "backtest/tools/elite_bull_postfix_requal_2026_07_31.py": "UNCLEAR - not individually traced",
+    "backtest/tools/kitchen_trend_day_continuation.py": "UNCLEAR - not individually traced",
+    "backtest/tools/pullback_hold_bull_replay.py": "UNCLEAR - not individually traced",
+}
+
+
+def _scan_dst_frame_pattern() -> dict:
+    """Same-file smoking-gun scan: parses a timestamp column et-v2 AND bare-strips a
+    (different) timestamp_et column via .tz_localize(None), without importing et_frame.
+    Pattern-based (regex over source text), NOT a full dataflow proof -- see the module
+    docstring entry for this guard's known blind spot (cross-file mixing)."""
+    etv2_re = re.compile(r"tz_convert\(\s*[\"']America/New_York[\"']\s*\)")
+    bare_strip_re = re.compile(r"\.tz_localize\(None\)")
+    opra_touch_re = re.compile(
+        r"load_contract_bars\(|bar_at_or_after\(|bar_containing\(|quote_at_index\("
+    )
+    et_frame_import_re = re.compile(
+        r"from\s+(?:lib\.)?et_frame\s+import|import\s+(?:lib\.)?et_frame"
+    )
+    skip_dirs = {"__pycache__", ".venv", "node_modules", "_local_backups", ".git", "worktrees"}
+
+    hits: dict[str, str] = {}
+    for path in REPO.rglob("*.py"):
+        if any(part in skip_dirs for part in path.parts):
+            continue
+        try:
+            src = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if not opra_touch_re.search(src):
+            continue
+        if (etv2_re.search(src) and bare_strip_re.search(src)
+                and not et_frame_import_re.search(src)):
+            hits[path.relative_to(REPO).as_posix()] = "flagged"
+    return hits
+
+
+def test_dst_frame_no_new_unguarded_opra_join_consumers() -> None:
+    """DST-FRAME-BLAST-RADIUS-2026-08-02: stops a FOURTH occurrence of the re-violated
+    DST-frame lesson (1st: the original 2026-07-02 incident; 2nd/3rd: the
+    pivot-premium-selling family + bold_fullhist_replay.py's run_anchor_validation found
+    in this audit; 4th would be the next tool written the way fleet_arm_replay.py's first
+    draft was). Any file that is NOT on the allowlist but trips the same-file smoking-gun
+    pattern (parses one column et-v2 AND bare-strips a timestamp_et column, no et_frame
+    import) fails here -- forcing a conscious fix-or-justify decision instead of a silent
+    repeat. Grow the allowlist ONLY with a per-file classification comment (AFFECTED /
+    UNCLEAR / SAFE(fp) with the reason) -- never a bare filename.
+
+    RED-proofed 2026-08-02: temporarily removed 'backtest/tools/edge_matrix_bear_level_
+    rejection.py' from the allowlist and confirmed this test fails with that exact
+    filename in the diff; restored immediately after."""
+    hits = _scan_dst_frame_pattern()
+    unlisted = sorted(set(hits) - set(_DST_FRAME_PATTERN_ALLOWLIST))
+    assert not unlisted, (
+        f"NEW file(s) trip the DST-frame same-file smoking-gun pattern (et-v2 parse + "
+        f"bare OPRA tz-strip, no et_frame import) and are NOT on the allowlist: "
+        f"{unlisted}. Each is either a NEW instance of the re-violated DST-frame lesson "
+        f"(see markdown/audits/DST-FRAME-AUDIT-2026-07-02.md and analysis/deep-research/"
+        f"DST-FRAME-BLAST-RADIUS-2026-08-02.md) -- fix it to route OPRA through "
+        f"lib.et_frame.parse_timestamp_et with the SAME frame as the SPY/underlying side "
+        f"-- or a false positive (like edge_matrix_bear_level_rejection.py, which applies "
+        f"one et-v2 helper to both sides). Either way, add it to "
+        f"_DST_FRAME_PATTERN_ALLOWLIST in this file with a classification comment; do not "
+        f"silently widen the allowlist without one."
     )

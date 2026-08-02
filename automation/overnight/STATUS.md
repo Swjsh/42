@@ -1,3 +1,7 @@
+## Known broken
+
+- [2026-08-02T03:58:00 ET] DST-FRAME-AUDIT YELLOW :: re-violated 2026-07-02 DST-frame lesson found (fleet_arm_replay.py's first draft independently re-hit it, self-fixed before commit `151123a2`); shared OPRA loader still un-normalized, several consumers (simulator_credit.py/simulator_debit.py/exit_manager_walk.py, no `frame` param) trust callers blindly. PIVOT-PREMIUM-SELLING-SCORECARD.md LEAD-cell OOS expectancy overstated +$23.03 vs corrected +$15.30/tr (-33.6%) -- verdict unchanged (already DEAD/LEAD-not-EDGE, reinforced not flipped). bold_fullhist_replay.py anchor validation mechanism confirmed live but 0/7 current anchors are winter-dated (no numeric corruption today; will bite the first winter real fill). No live knob touched. Guard shipped + RED-proofed (3 new tests, test_graduated_guards.py). Full detail: analysis/deep-research/DST-FRAME-BLAST-RADIUS-2026-08-02.md :: re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -k dst_frame -v
+
 ## [2026-08-02T03:52:00 ET] conductor: OK -- ENTRY-CROSS-BUFFER-REDUCTION-SHIP -- commit `415c2f9a`
 
 **Signal J wakes to (OP-25).** Shipped the validated `entry_cross_buffer` reduction (0.03 ->
