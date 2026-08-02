@@ -1,0 +1,112 @@
+{
+  "prereg_id": "REGIME-STANDDOWN-EARLY-CLASSIFIER-2026-08-02",
+  "frozen_at_et": "2026-08-02 02:16:24 Sunday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
+  "frozen_before_any_run": true,
+  "frozen_before_runner_exists": "backtest/tools/regime_standdown_study.py does not exist on disk as of this commit -- git-provable freeze order per task brief. This file's own commit sha must predate the runner script's first commit.",
+  "author_lane": "REGIME-EARLY-CLASSIFIER-2026-08-02 task: does the engine know EARLY (~09:45-10:00 ET) that today is a reliably-losing day-type (pin-day/gap-fade, per 2026-08-01's regime-library finding) well enough to skip entries, without gutting gap-go (60.5% of ALL P&L)?",
+
+  "classifier_feasibility_verdict_as_of_freeze": {
+    "source": "analysis/regime-library/early-classifier-2026-08-02.json, backtest/tools/build_regime_early_classifier.py, commit 76857479 (this session, frozen BEFORE this prereg)",
+    "headline": "WEAK, on the edge of usable, with ONE dominant failure mechanism identified before any P&L was touched: gap-go and gap-fade share the same early signature (a significant overnight gap that has not yet resolved by the cutoff) and are NOT separable that early. A standdown rule tuned to catch pin-day/gap-fade unavoidably catches a large share of true gap-go days too.",
+    "eightway_accuracy": {"09:45": 0.2092, "10:00": 0.1662,
+      "majority_baseline": 0.3908, "persistence_baseline": 0.2462,
+      "note": "the FULL 8-way taxonomy classifier is worse than a majority-class baseline at both cutoffs -- several archetypes (trend-up/down, V-reversal, inverted-V) are DEFINED by where the close lands relative to the FULL day's eventual range, not knowable at 09:45 by construction. This is expected and reported for completeness; the operationally relevant metric is the binary standdown flag below."},
+    "binary_standdown_direct_precision_recall": {
+      "09:45": {"precision": 0.2683, "recall": 0.7097, "base_rate": 0.1908, "n_predicted_positive_of_325_test_days": 164},
+      "10:00": {"precision": 0.2685, "recall": 0.4677, "base_rate": 0.1908, "n_predicted_positive_of_325_test_days": 108},
+      "note": "beats naive baselines (persistence 14.3%, majority 16.9% precision -- both WORSE than random, i.e. pin-day/gap-fade show NO positive day-to-day persistence) by a real margin, but absolute precision ~27% means roughly 3 of every 4 'skip' calls are wrong."
+    },
+    "gap_go_cannibalization_pre_measured": {
+      "09:45": {"true_gap_go_days_in_test": 71, "wrongly_flagged_skip": 46, "pct": 64.8},
+      "10:00": {"true_gap_go_days_in_test": 71, "wrongly_flagged_skip": 24, "pct": 33.8},
+      "note": "computed directly from the classifier's own out-of-fold predictions, before this prereg was written. This is the single most load-bearing number behind why this prereg's prior is negative: THE FINDING (2026-08-01, commit df0348d9) is that gap-go alone is 60.5% of the book's ENTIRE P&L and survives drop-best; a standdown gate that torches a third to two-thirds of gap-go's occurrences is targeting the wrong archetype by mechanism, not by bad luck."
+    },
+    "prior_stated_before_running_the_arm_study": "H0 (the null: standdown does not help, or actively hurts by cannibalizing gap-go) is favored BEFORE this study runs. This prereg exists to put a dollar figure on that prior, not because the classifier evidence is ambiguous -- it exists so the eventual verdict is checked against a real gate battery (G1-G5 below) instead of resting on a precision-metric argument alone. If the arm study surprises this prior (clears every gate), that is reported exactly as measured, no matter how unexpected -- see reporting_rule."
+  },
+
+  "hypothesis": "H1: skipping entries on days the classifier flags 'standdown' (pin-day/gap-fade predicted) improves the recent-window book without materially degrading the runner-cohort profit engine. H0 (favored per the pre-measured gap-go cannibalization above): the classifier's false positives are concentrated enough in gap-go that ARM_1 removes real winners at a rate that erases or reverses any benefit from correctly-skipped pin-day/gap-fade days, OR the benefit is too small/inconsistent to clear the recent-window and runner-cohort gates.",
+
+  "arms_frozen": {
+    "ARM_2_CONTROL": "the unmodified engine-fullhist-replay-2026-07-23.json trade log (191 real-OPRA, real-exit-walk trades, 2025-01-06..2026-07-21), restricted to the in-scope population (see `population` below). This is the SAME real-fills, real-exit-walk trade log THE FINDING itself was measured from -- no re-simulation, no new entry/exit logic, zero risk of introducing a second, drifted replay pipeline (a known past failure mode in this exact lane -- see the sibling VIX-gate prereg's provenance section).",
+    "ARM_1_STANDDOWN_10AM": "ARM_2_CONTROL minus every trade whose entry date's `pred_standdown_direct` (10:00 ET cutoff, out-of-fold walk-forward prediction) is True. PRIMARY arm -- the 10:00 cutoff has materially lower gap-go collateral damage than 09:45 (33.8% vs 64.8%), so this gives the standdown concept its fairest honest shot.",
+    "ARM_1B_STANDDOWN_0945_SECONDARY": "same construction, 09:45 ET cutoff classifier. Reported alongside ARM_1 for completeness and cutoff-sensitivity, NOT the primary ship candidate (materially worse gap-go cannibalization, disclosed above) -- if ARM_1 (10:00) fails the gates, ARM_1B is expected to fail worse and is reported to confirm that direction, not cherry-picked if it happens to look better.",
+    "ARM_3_note": "the task brief invites 'consider an ARM_3 that only stands down and never sizes up.' Not separately implemented: neither ARM_1 nor ARM_1B changes sizing in any way (both are pure trade-removal, zero new entries, zero qty/tier changes) -- ARM_3's stated constraint is already satisfied by construction in ARM_1/ARM_1B, so a separate arm would be a duplicate of ARM_1 under a different name. Sizing changes (Rule 6) remain untouched and out of scope per the task brief and CLAUDE.md DO-NOT-TOUCH list (params.json / aggressive/params.json sizing keys)."
+  },
+
+  "classifier_provenance": {
+    "source": "analysis/regime-library/early-classifier-2026-08-02.json (commit 76857479, frozen before this prereg)",
+    "oof_prediction_field_used": "oof_predictions_by_date[date]['pred_standdown_direct'] -- the DIRECT binary tree (trained specifically on y=archetype in {pin-day,gap-fade}), NOT the 8-way-derived flag (measured strictly worse precision in every comparison -- see the classifier artifact's binary_standdown_pin_gapfade.derived_from_eightway block).",
+    "walk_forward_honesty": "every prediction used here is OUT-OF-FOLD (TimeSeriesSplit expanding window) -- no trade's own date ever contributed to the model that predicted it. The walk-forward 'seed' window (dates before 2025-04-14, 30 of 191 trades / 21 distinct dates) has no honest out-of-fold prediction and is EXCLUDED from both arms (see population below), not defaulted to either 'always trade' or 'always skip'."
+  },
+
+  "population": {
+    "source_trade_log": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (191 trades, 2025-01-06..2026-07-21)",
+    "in_scope_trades": "161 of 191 -- restricted to trade dates present in the classifier's out-of-fold prediction set (walk_forward.tested_date_range = 2025-04-14..2026-07-31 at both cutoffs; the trade log's own last date 2026-07-21 bounds the effective end)",
+    "excluded_no_honest_oof_prediction": "30 trades / 21 distinct dates, all in the walk-forward seed window (2025-01-06..2025-04-11-ish, exact list in the runner's output) -- EXCLUDED from BOTH arms identically, not counted toward either arm's total, disclosed as a scoping loss rather than silently dropped (C7).",
+    "note_on_391_day_population": "THE FINDING and this prereg's trade log both run through 2026-07-21/22, a handful of trading days short of the standing 391-day population's nominal end (2026-07-31) -- disclosed, not silently reconciled. See 2024_stratum_decision below for why this study does not extend the trade population further."
+  },
+
+  "recent_window": {
+    "definition": "the newest 25 distinct trading dates in the in-scope population (calendar/session-date convention, matching prereg-vix-regime-gate-archetype-2026-08-02.json's recent_window -- the same-night sibling study on this exact dataset -- NOT the alternate 'last 25 dates that had >=1 trade' convention used ad hoc in REGIME-PARTICIPATION-2026-08-02.md sec 1b; both conventions exist in this codebase, this prereg picks the doctrine-anchored one and states so to avoid ambiguity)",
+    "convention_source": "backtest/autoresearch/recency_check.py RECENCY_LOOKBACK_TRADING_DAYS = 25"
+  },
+
+  "cohort_definitions": {
+    "removed_trades": "ARM_2_CONTROL trades whose date is NOT in ARM_1's surviving set -- the trades stand-down would have skipped.",
+    "kept_trades": "ARM_2_CONTROL trades whose date IS in ARM_1's surviving set -- unaffected by the arm.",
+    "runner_cohort": "trades whose exit_reason startswith 'runner_stop' (exact string match verified against engine-fullhist-replay-2026-07-23.json to reproduce the task brief's own cited anchor: n=35, total=+$15,774.05 -- confirmed exactly via direct computation before this prereg was written). NOTE this is NARROWER than the sibling VIX-gate prereg's G4 definition ('runner' OR 'trail' substring, n=39/$18,330.05) -- deliberately matched to the task brief's own cited figure instead, disclosed to avoid silent ambiguity between the two conventions."
+  },
+
+  "gates_frozen": [
+    {
+      "id": "G1_recent_window_positive",
+      "primary": true,
+      "rule": "delta_total (ARM_1 minus ARM_2_CONTROL) over the recent-25-trading-day window must be > 0",
+      "rationale": "J's dynamic-market directive. For a pure trade-REMOVAL arm, this can only pass if the trades removed in the recent window were, on net, losers."
+    },
+    {
+      "id": "G2_day_majority_recent",
+      "rule": "among recent-window days with >=1 removed trade, n_days_improved (day P&L increased by the removal) must be > n_days_worsened"
+    },
+    {
+      "id": "G3_survives_worst_single_removal_recent",
+      "rule": "recent-window delta minus the single MOST-NEGATIVE removed trade's contribution (i.e. the one worst loser dodged) must remain > 0 -- the drop-best check adapted for a subtractive arm: the improvement can't be entirely one dodged catastrophe."
+    },
+    {
+      "id": "G4_runner_anchor_no_regression",
+      "rule": "ARM_1's runner-cohort (see cohort_definitions) COUNT and TOTAL, over the FULL in-scope population, must be >= 95% of ARM_2_CONTROL's -- ZERO TOLERANCE per task brief, this is the book's whole profit engine (35 winners / +$15,774.05)",
+      "rationale": "A subtractive arm can only ever hold this gate steady or violate it (it cannot improve it, since it only removes trades). Given the pre-measured gap-go cannibalization, this is the gate this prereg's prior expects to fail or come closest to failing."
+    },
+    {
+      "id": "G5_meaningful_participation_change",
+      "rule": "ARM_1 must remove >= 5 trades over the full in-scope population (a standdown so narrow it almost never fires is a non-result in either direction -- L243 spirit, adapted: here the concern is an inconclusive near-no-op, not a fix too narrow to fire)"
+    }
+  ],
+
+  "reported_not_gating": {
+    "per_archetype_removed_breakdown": "for each arm, the TRUE archetype (hindsight label, from day-archetypes.json) of every removed trade/day -- directly answers 'how much of what got skipped was actually gap-go' (the single most important descriptive number this study produces, already partially previewed in classifier_feasibility_verdict_as_of_freeze above from the classifier's own predictions; this reports it at the TRADE-DOLLAR level instead of the day-count level)",
+    "full_population_delta": "reported for both arms; informative but NOT the ship criterion (see G1 rationale)",
+    "bh_fdr": "Benjamini-Hochberg across ARM_1 and ARM_1B's removed-trade-sample one-sample test (H0: mean removed-trade $ == 0, one-sided alternative mean < 0, i.e. removed trades were net losers) at alpha=0.10. Advisory, matches backtest/autoresearch/dynamic_stop_ab.py's bh_fdr() convention (independently reimplemented here as a small pure function -- same standard BH procedure, not imported, to avoid dragging that script's unrelated module-level state into this runner).",
+    "drop_best_day_full_population": "does ARM_1's full-population delta over CONTROL survive removing the single best-contributing (worst-dodged) day, mirroring THE FINDING's own drop-best convention exactly",
+    "cutoff_sensitivity": "ARM_1 (10:00) vs ARM_1B (09:45) side by side -- does the verdict direction agree across both reasonable cutoffs, or flip (a flip would itself be evidence the signal is not robust)"
+  },
+
+  "2024_stratum_decision": {
+    "considered": true,
+    "decision": "NOT extended this session.",
+    "reasoning": "Tagging 2024 days into the archetype library alone would be cheap (build_day_archetypes.py is deterministic pure-Python) but is not the binding constraint here -- there is no 2024 engine-fullhist-replay (real-OPRA, real-exit-walk trade log) to test a standdown filter against, and building one from scratch is a separate, non-trivial infra task (explicitly flagged as out-of-lane in the sibling VIX-gate prereg's own out_of_lane list for the identical reason). More fundamentally, the classifier's shortfall identified above is a FEATURE-IDENTIFIABILITY problem, not a sample-size problem: gap-go and gap-fade are defined by literally the same early precursor (a significant gap that has not yet resolved) and diverge only on information (does it fill before 16:00) that does not exist yet at the cutoff, in 2024 or any other year. Doubling the training population would sharpen the tree's other splits marginally but cannot manufacture information about the future. Flagged as a legitimate fast-follow if a future session builds a 2024 full-engine replay for other reasons, not attempted here."
+  },
+
+  "ship_rule": "ARM_1 (or ARM_1B) SHIPS (i.e. proceeds to an arming plan for J's REVOKE surface) only if G1 AND G2 AND G3 AND G4 AND G5 ALL pass. If BOTH arms pass, prefer the one with the higher recent-window delta AND lower gap-go cannibalization. If NO arm passes, the verdict is: regime-based participation stand-down is NOT LIVE-EXECUTABLE with the current early-classifier methodology -- filed as a real, dated, publishable null result (per the task brief's own framing), not treated as a failure. This prereg's stated PRIOR is that this is the expected outcome; the study runs anyway to attach a measured dollar figure and a full gate-by-gate record to that prior instead of leaving it as an unmeasured hunch.",
+
+  "reporting_rule": "ALL cells reported -- both arms, full population AND recent window, pass or fail per gate, including the full per-archetype removed-trade breakdown and the runner-cohort count/$ for every arm. No cherry-picking, no stopping early because the prior already looks confirmed. Synthetic (Black-Scholes) P&L does not apply here (this study reuses ONLY the already-real-fills-only engine-fullhist-replay-2026-07-23.json trade log, zero new simulation).",
+
+  "no_new_knobs": "This IS new infrastructure (the early classifier + a day-level standdown filter did not exist before this session) -- unlike the sibling VIX-gate prereg, there is no pre-existing toggle to flip. The runner script (backtest/tools/regime_standdown_study.py, to be created AFTER this prereg is committed) performs pure post-hoc trade-list filtering against the ALREADY-COMMITTED, ALREADY-FROZEN classifier's out-of-fold predictions -- it cannot retroactively change which days the classifier flagged, since those predictions are already written to disk in early-classifier-2026-08-02.json (commit 76857479) before this prereg exists.",
+
+  "out_of_lane_do_not_touch": [
+    "heartbeat_core.py, fleet_live.py, fleet_broker.py, fleet_executor.py, crypto/lib/strike_selection.py, backtest/lib/filters.py, params.json / aggressive/params.json sizing keys, journal/gex-archive/ -- per this session's task brief DO-NOT-TOUCH list. This study reads and post-hoc-filters an existing trade log; it does not execute, does not touch any live/production path, and does not modify any file in this list.",
+    "filter_8 (VIX regime gate) relaxation -- already has its own frozen, EXECUTED prereg (prereg-vix-regime-gate-archetype-2026-08-02.json, commit 822ffa8c, both arms NULL). Unrelated mechanism (a gate on individual candidate scoring vs this study's whole-day participation stand-down) but flagged to avoid any appearance of re-litigating a closed lane.",
+    "sizing / Rule 6 changes of any kind -- explicitly out of scope per the task brief (ARM_3 note above)."
+  ]
+}
