@@ -1,3 +1,44 @@
+## [2026-08-02T02:05:14 ET] conductor: OK -- WF-GATE-QUEUE-CLOSURE-AND-ESCALATION -- commit pending
+
+**Signal J wakes to (OP-25).** Budget PASS ($8.03/$30, 2/4 fires before this one), market-hours
+gate PASS (Sunday 02:05 ET). Engine health GREEN (all critical checks green, weekend-quiet).
+Self-check GREEN 0 problems. Self-audit gaps: nothing new since 2026-08-01 batch (already
+fully triaged by the 01:07 ET fire). Priority-4 queue scan found two stale HIGH items.
+
+**Found:** `WF-GATE-STRUCTURALLY-NULL` (filed 2026-07-15) and `WF-GATE-REDESIGN-METHODOLOGY`
+(filed same week) were both fully **shipped the SAME NIGHT they were filed** (2026-07-16 --
+`WF-GATE-METHODOLOGY-2026-07-16.md`, the Option-B A/B-delta-WF methodology note, plus both
+named retro-application consumers run that night: Bold ATM strike cell and risky-3 nearer
+strike table, both `bold-strike-axis-deltawf-readjudication-2026-07-16.{json,md}`) but were
+**never marked done in queue.md** -- same "shipped but the ticket stayed open" class as prior
+J-INTENT-EXECUTOR / TRENDLINE-FIXES closures, and a lesson (`2026-07-23-stale-queue-checkbox-
+work-done-ticket-open.md`) already exists for this pattern. Closed both with evidence-quoted
+`CLOSED ... status:done, superseded by WF-GATE-METHODOLOGY-2026-07-16.md` notes (verified the
+artifacts exist and reproduce, not re-derived) rather than leaving them to keep re-surfacing
+as "not started."
+
+**Also found, while closing the loop:** a genuine still-open item underneath these two --
+`WEEKEND-METHODOLOGY-REVIEW` (filed 2026-07-17, "regime-matched vs calendar-year IS window for
+delta-WF", explicitly flagged by its own filing as needing adversarial review to avoid
+methodology-shopping) sat **16 days unactioned and un-escalated**. Per this prompt's own rule
+("hard calls escalate, they don't get guessed") this should never have been left as a plain
+bullet for a Sonnet-tier fire to quietly decide or ignore. Filed it properly as
+`## FABLE-ESCALATION: WF-GATE-REGIME-MATCHED-IS-WINDOW` in queue.md with the full carried-
+forward evidence (the 3 same-shape INSUFFICIENT_REGIME_SHIFT parks, the methodology note's own
+"folds too thin" rejection of rolling-origin at the time, and the specific ruling question) so
+the next top-tier/interactive session has a running start, not a blank page. Cross-referenced
+the stale `BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL` item's now-dangling "still-open WF-GATE-
+STRUCTURALLY-NULL" citation to point at the correct current artifact instead.
+
+**Validation:** zero trading-path files touched (pure `automation/overnight/queue.md` prose
+edits + this STATUS.md entry). Ran the queue-parser guard suite
+(`test_task_scorer.py` + `test_task_scorer_multiline_status.py`, 20/20 green) and
+`task_scorer.py --top` live against the edited file to confirm the multi-paragraph edits
+don't trip the known multiline-status/paren-drop parser foot-guns (L245/L246) -- parses clean,
+top pick unchanged (`TWIN-DOCTRINE-FIRST-DEPLOY`, a separate pending-J CLAUDE.md doctrine
+proposal, untouched this fire). Revert: `git revert <this commit>` (additive prose only,
+nothing depends on the new closure/escalation text).
+
 ## [2026-08-02T01:07:00 ET] conductor: OK -- SELF-AUDIT-GAP-EXTRACTION-TRUNCATION-FIX -- commit `5e4cd6e2`
 
 **Signal J wakes to (OP-25).** Budget gate PASS ($0.77/$30, 1/4 fires used before this one),
@@ -519,52 +560,3 @@ without it.
 
 ---
 
-## [2026-08-01 02:20 ET] OK -- conductor (WEEKEND): FLEET-PARITY-TESTS-READ-LIVE-STATE closed, commit `dea5b2e2`
-
-**Signal J wakes to (OP-25).** Budget gate PASS ($0.33/$30, 2/4 fires used before this one),
-market-hours gate PASS (Saturday, weekend mode). `task_scorer.py` top item
-(`TWIN-DOCTRINE-FIRST-DEPLOY`) is still pending J's Discord reply on `gp-2026-07-23-twin-
-doctrine-001` -- nothing new to do there. Picked the next-ranked ready MED item:
-`FLEET-PARITY-TESTS-READ-LIVE-STATE` (filed 2026-07-27, a live-state test-integrity flake
-this same fire's predecessor's own commit message referenced twice tonight).
-
-**What shipped:** de-flaked `test_fleet_arm_parity.py` -- was 15/25 green, now 25/25.
-Investigating "9 fail because of the live recency verdict" (the ticket's own diagnosis)
-surfaced it was actually **3 independent bugs in the same 10 failures**: (1) the diagnosed
-live-recency-read (fixed with an autouse fixture pinning the verdict to GREEN + a new
-section explicitly exercising RED/GREEN/YELLOW branches via monkeypatch); (2) a STALE
-FIXTURE the ticket didn't mention -- GATE-TIERS-IMPLEMENT (2026-07-23) added
-`score_peak_passed`/`hard_skip_action` fields the test's synthetic signal blocks never
-populated, silently HOLD-ing risky-3/RISKY_LOOSE on every test regardless of signal shape;
-(3) a STALE ASSERTION against a deliberate redesign -- risky-1 became the FULL-SEND
-learning arm 2026-07-31 (J directive, commit e28d210c), so its old "requires confluence,
-HOLDs on non-elite" test was asserting retired behavior; rewrote it to document + assert
-the current ungated reality instead.
-
-**Validated:** RED-proofed via `git checkout HEAD --` baseline (reproduces the exact
-original 10 failures) + restore -- never `git stash` in this repo (C34/L214/L228/L238).
-Wider related suite (fleet_executor.py + full_send_arm.py) 80/80 green, zero regressions.
-Curated safety gate 59/59 PASS.
-
-**Rail-4 N/A** -- test-only change, zero production/trading-path code touched. Revert:
-`git revert dea5b2e2` (additive/test-only, nothing else depends on this file).
-
-**Lesson (not filed separately -- same class already indexed):** a queue ticket's own
-diagnosis of "why N tests fail" can itself be stale/incomplete by the time it's picked
-up -- always re-diagnose from the actual pytest output before applying the filed fix,
-even when the filed fix sounds plausible and partially correct (this is C7/C14's
-existing shape, no new L# needed).
-
-**Autonomy metric:** `conductor_outcome.py metric` reports `trend: regressing`
-(net_improvement 13/20 fires, cost/drained $2.08). This is driven by the tracked
-`function_score_avg` (trading-function proxy: enters/orders/fills on the last trading
-day, 2026-07-31 -- 3 enters, 3 accepted, 5 fills, 1 distinct setup), NOT by this fire's
-own work (this fire closed a loop, 0 regressions, +5 net test count). Next AFTERHOURS/
-WEEKEND fire should prefer another loop-closing item (per the standing instruction) over
-a fresh artifact until the trend recovers.
-
----
-
-## Known broken
-
-- [2026-08-01T23:01:55] GATE-EXPIRY RED :: structure_veto_enabled :: refused cohort would have EARNED $6.26/tr, n=10 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate structure_veto_enabled
