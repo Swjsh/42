@@ -156,20 +156,24 @@ class DebitFill:
     intrabar_stop_would_hit: bool = False
 
 
-def _load_leg_df(date: dt.date, leg: Leg) -> Optional[pd.DataFrame]:
-    """Load a leg's OPRA bars (tz-naive). None if not cached (caller SKIPS).
+def _load_leg_df(date: dt.date, leg: Leg, frame: str = _sc.FRAME_WALL_V1) -> Optional[pd.DataFrame]:
+    """Load a leg's OPRA bars, normalized to tz-naive in the requested et_frame. None if not
+    cached (caller SKIPS).
 
     Reuses simulator_credit.option_symbol + load_contract_bars (the same loader
     simulator_real uses), so the test monkeypatch point (sc.load_contract_bars) and
-    the in-RAM contract cache are shared -- zero drift (C9/C14).
+    the in-RAM contract cache are shared -- zero drift (C9/C14). Also reuses
+    simulator_credit's `parse_timestamp_et`/`FRAME_WALL_V1` re-export (added 2026-08-02,
+    DST-FRAME-BLAST-RADIUS-2026-08-02 -- root fix) rather than importing et_frame directly,
+    for the same zero-drift reason: default "wall-v1" reproduces the PRIOR unconditional
+    bare-`.dt.tz_localize(None)` strip byte-for-byte.
     """
     sym = _sc.option_symbol(date, leg.strike, leg.side)
     df = _sc.load_contract_bars(sym)
     if df is None or df.empty:
         return None
     df = df.copy()
-    if df["timestamp_et"].dt.tz is not None:
-        df["timestamp_et"] = df["timestamp_et"].dt.tz_localize(None)
+    df["timestamp_et"] = _sc._reframe_series(df["timestamp_et"], frame)
     return df
 
 
@@ -189,6 +193,10 @@ def simulate_debit_trade(
     exit_slippage: float = DEFAULT_EXIT_SLIPPAGE,
     commission_per_contract: float = DEFAULT_COMMISSION,
     time_stop_et: dt.time = TIME_STOP_ET,
+    # DST FRAME (2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 -- root fix): same knob,
+    # same default, same rationale as simulator_credit.simulate_credit_trade's `frame` param
+    # (this module deliberately mirrors that file byte-for-byte -- see module docstring).
+    frame: str = _sc.FRAME_WALL_V1,
 ) -> DebitFill:
     """Combine per-leg OPRA 5m fills into a DEBIT-vertical P&L path.
 
@@ -198,8 +206,10 @@ def simulate_debit_trade(
     and entry fills strictly on the bar AFTER the decision time. The intraday open_pnl
     math is byte-identical to the credit sim (sign-agnostic).
     """
+    if frame not in (_sc.FRAME_WALL_V1, _sc.FRAME_ET_V2):
+        raise ValueError(f"unknown timestamp frame {frame!r}; expected 'wall-v1' or 'et-v2'")
     date_str = date.strftime("%Y-%m-%d")
-    entry_time_et = _sc._normalize_naive(entry_time_et)
+    entry_time_et = _sc._normalize_naive(entry_time_et, frame)
     fill = DebitFill(date=date_str, structure=structure_name, width=width,
                      contracts=contracts, entry_spot=spot,
                      entry_time_et=entry_time_et)
@@ -207,7 +217,7 @@ def simulate_debit_trade(
     # 1) Load every leg; SKIP if any missing (band/liquidity artifact).
     leg_dfs: list[pd.DataFrame] = []
     for leg in legs:
-        ldf = _load_leg_df(date, leg)
+        ldf = _load_leg_df(date, leg, frame)
         if ldf is None:
             fill.skipped = True
             fill.skip_reason = f"missing_cache:{leg.side}{leg.strike}"

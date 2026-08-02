@@ -59,11 +59,44 @@ import exit_manager as em  # noqa: E402
 # option_pricing_real.py sits in the same already-on-sys.path directory).
 try:
     from .option_pricing_real import assert_intraday_stop_fidelity  # noqa: E402
+    from .et_frame import ET_TZ, FRAME_ET_V2, FRAME_WALL_V1, parse_timestamp_et  # noqa: E402
 except ImportError:
     from option_pricing_real import assert_intraday_stop_fidelity  # noqa: E402
+    from et_frame import ET_TZ, FRAME_ET_V2, FRAME_WALL_V1, parse_timestamp_et  # noqa: E402
 
 DEFAULT_EXIT_SLIPPAGE = 0.02
 _MARKET_STAGES = frozenset({"time_stop", "ribbon_flip", "structure_stop"})
+
+
+def _reframe_series(series: pd.Series, frame: str) -> pd.Series:
+    """Frame-normalize a `timestamp_et` SERIES, safely handling ALREADY-NAIVE input.
+
+    Found + fixed same-session (2026-08-02) via the regression suite, not assumed:
+    `et_frame.parse_timestamp_et`'s docstring claims "naive input is returned as-is under
+    BOTH frames", and its wall-v1 branch honors that (only strips tz if actually present) --
+    but its et-v2 branch does NOT: it unconditionally calls `pd.to_datetime(series,
+    utc=True)`, which on an ALREADY-NAIVE series REINTERPRETS the wall-clock digits as UTC
+    and shifts them by the zone offset (confirmed live: an already-naive true-ET
+    "2026-07-27 12:55:00" became "08:55:00" -- a 4-HOUR corruption, not a pass-through).
+    This bit `walk_exit_manager` here specifically via `five_min_spy_df`: several confirmed
+    callers (e.g. bold_fullhist_replay.py's run_anchor_validation) pre-parse+strip their SPY
+    frame to already-naive et-v2 UPSTREAM before calling this module, so blindly routing that
+    already-correct series back through `parse_timestamp_et(..., "et-v2")` here corrupted it
+    a second time -- caught by test_bold_fullhist_replay.py failing loudly (wrong-direction
+    P&L on a real anchor), not shipped silently.
+
+    This helper is NOT a workaround for `et_frame.py` (that file is out of scope -- heavily
+    used, heavily guarded by test_et_frame_guards.py, and changing its documented contract is
+    a bigger, riskier change than this fix needs). It applies the SAME discipline
+    simulator_real._naive_in_frame / simulator_credit._normalize_naive already use for SCALAR
+    timestamps (only reframe if actually tz-aware; naive input is trusted as already being in
+    the caller's stated frame) at the SERIES level, which `parse_timestamp_et` itself does not
+    uniformly provide."""
+    if not pd.api.types.is_datetime64_any_dtype(series):
+        series = pd.to_datetime(series)
+    if getattr(series.dt, "tz", None) is None:
+        return series  # already naive -- trust it's already in the caller's stated frame
+    return parse_timestamp_et(series, frame)
 
 
 @dataclass(frozen=True)
@@ -94,19 +127,29 @@ class WalkResult:
     trigger_level: Optional[float] = None
 
 
-def last_closed_bar_close_at(five_min_df: pd.DataFrame, as_of_ts) -> Optional[float]:
+def last_closed_bar_close_at(
+    five_min_df: pd.DataFrame, as_of_ts, frame: str = FRAME_WALL_V1
+) -> Optional[float]:
     """Latest 5-min SPY bar whose START + 5min <= as_of_ts (fully closed by then). Mirrors
     heartbeat_core.py's `bc["bar"]["close"]` (trig_idx=n-2) convention: when the walk ITSELF
     runs at 5-min cadence, this naturally resolves to the previous row; when the walk runs at
     1-min cadence (today), this independently re-derives the correct 5-min-native closed bar
     rather than approximating it from 1-min data (structure_stop is inherently 5-min-native
-    per v15.3 chart-stop-primary doctrine)."""
+    per v15.3 chart-stop-primary doctrine).
+
+    `frame` (added 2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02): the et_frame convention
+    BOTH `as_of_ts` (if tz-aware) and `five_min_df["timestamp_et"]` are parsed/reframed into,
+    via `et_frame.parse_timestamp_et`, instead of an unconditional bare `.dt.tz_localize(None)`
+    strip — so a tz-aware `five_min_df` (e.g. straight off a raw CSV read) is compared in the
+    SAME frame as `as_of_ts` rather than silently forced to wall-v1 regardless of what frame
+    the caller's pipeline actually uses. Default "wall-v1" reproduces the prior bare-strip
+    behavior byte-for-byte."""
     ts = pd.Timestamp(as_of_ts)
     if ts.tzinfo is not None:
+        if frame == FRAME_ET_V2:
+            ts = ts.tz_convert(ET_TZ)
         ts = ts.tz_localize(None)
-    ts_col = five_min_df["timestamp_et"]
-    if getattr(ts_col.dt, "tz", None) is not None:
-        ts_col = ts_col.dt.tz_localize(None)
+    ts_col = _reframe_series(five_min_df["timestamp_et"], frame)
     closes_at = ts_col + pd.Timedelta(minutes=5)
     eligible = five_min_df.loc[closes_at <= ts]
     if eligible.empty:
@@ -154,6 +197,7 @@ def walk_exit_manager(
     opt_df: pd.DataFrame, ribbon_tick_df: Optional[pd.DataFrame],
     five_min_spy_df: pd.DataFrame,
     opt_df_resolution: Optional[str] = None, allow_5min: bool = True,
+    frame: str = FRAME_WALL_V1,
 ) -> WalkResult:
     """Walk ONE position from entry through resolution via the REAL exit_manager decision
     core. `opt_df` (columns: timestamp_et, open/high/low/close) and `ribbon_tick_df` (same
@@ -171,24 +215,46 @@ def walk_exit_manager(
     of a silent under-detection of intra-bar stop/TP touches -- see
     option_pricing_real.assert_intraday_stop_fidelity for the mechanism and the measured
     magnitude ($1,821.75 aggregate swing, one-directional, on the real-fills population).
+
+    `frame` (added 2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 -- the root-fix threading for
+    this file, confirmed as THE KEYSTONE consumer: every one of this function's 80+ call
+    sites used to get `opt_df["timestamp_et"]` UNCONDITIONALLY bare-tz-stripped -- byte-
+    identical to "wall-v1" -- regardless of what frame `entry_time_et` / `five_min_spy_df`
+    actually carry; see that artifact's section 2a). States the et_frame convention
+    ("wall-v1" default | "et-v2") that `entry_time_et` and any ALREADY-NAIVE timestamp inside
+    `five_min_spy_df` / `opt_df` are asserted to already be in. `opt_df["timestamp_et"]` and
+    `five_min_spy_df["timestamp_et"]` (via last_closed_bar_close_at) are now parsed through
+    `et_frame.parse_timestamp_et(..., frame)` instead of an unconditional bare
+    `.dt.tz_localize(None)` -- so a tz-aware `opt_df` (e.g. straight from
+    `option_pricing_real.load_contract_bars(symbol)`, the common case across every confirmed
+    call site) is joined CONSISTENTLY with `entry_time_et`'s frame instead of being silently
+    forced to wall-v1 no matter what `entry_time_et` actually is.
+
+    Default "wall-v1" reproduces the PRIOR unconditional-bare-strip behavior byte-for-byte for
+    every pre-2026-08-02 call site (all confirmed wall-v1-consistent today, per that audit's
+    section 2c) -- a true no-op for them. A caller whose `entry_time_et` is true-ET (et-v2) --
+    e.g. a real broker-fill timestamp, or a SPY series built via `build_rth(frame="et-v2")` --
+    MUST pass `frame="et-v2"` explicitly, or risk exactly the ~60-minute winter misjoin this
+    fix exists to close (see `bold_fullhist_replay.py`'s `ANCHOR_FILLS` / `run_anchor_
+    validation`, which now passes `frame="et-v2"` -- that mechanism was live but zero-exposure
+    on 2026-08-02 per that audit's section 3b, since every anchor fill was summer-dated).
     """
     if opt_df_resolution is not None:
         assert_intraday_stop_fidelity(opt_df_resolution, allow_5min=allow_5min)
+    if frame not in (FRAME_WALL_V1, FRAME_ET_V2):
+        raise ValueError(f"unknown timestamp frame {frame!r}; expected 'wall-v1' or 'et-v2'")
     state = em.ExitState.from_entry(
         symbol=symbol, side=side, entry_premium=entry_premium, qty=qty,
         exit_shape=exit_shape, strategy=strategy, trigger_level=trigger_level,
         structure_stop_enabled=structure_stop_enabled)
 
     opt_df = opt_df.reset_index(drop=True)
-    ts_col = opt_df["timestamp_et"]
-    if not pd.api.types.is_datetime64_any_dtype(ts_col):
-        ts_col = pd.to_datetime(ts_col)
-    if getattr(ts_col.dt, "tz", None) is not None:
-        ts_col = ts_col.dt.tz_localize(None)
-    opt_df = opt_df.assign(timestamp_et=ts_col)
+    opt_df = opt_df.assign(timestamp_et=_reframe_series(opt_df["timestamp_et"], frame))
 
     entry_ts = pd.Timestamp(entry_time_et)
     if entry_ts.tzinfo is not None:
+        if frame == FRAME_ET_V2:
+            entry_ts = entry_ts.tz_convert(ET_TZ)
         entry_ts = entry_ts.tz_localize(None)
 
     after = opt_df.index[opt_df["timestamp_et"] > entry_ts]
@@ -229,7 +295,7 @@ def walk_exit_manager(
             if stack in ("BULL", "BEAR"):
                 flip = (stack == "BULL") if side == "P" else (stack == "BEAR")
 
-        closed5 = last_closed_bar_close_at(five_min_spy_df, ts)
+        closed5 = last_closed_bar_close_at(five_min_spy_df, ts, frame=frame)
 
         state_in = state
         dec = em.plan_exit_actions(

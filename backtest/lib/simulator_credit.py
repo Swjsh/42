@@ -63,6 +63,7 @@ from .option_pricing_real import (
     option_symbol,
     quote_at_index,
 )
+from .et_frame import ET_TZ, FRAME_ET_V2, FRAME_WALL_V1, parse_timestamp_et
 from .multileg_structures import Leg, max_loss_per_contract
 from .simulator import TIME_STOP_ET  # reuse the canonical 15:50 ET hard stop
 
@@ -112,25 +113,71 @@ class CreditFill:
     intrabar_stop_would_hit: bool = False
 
 
-def _normalize_naive(ts) -> dt.datetime:
-    if hasattr(ts, "tz_localize"):
+def _normalize_naive(ts, frame: str = FRAME_WALL_V1) -> dt.datetime:
+    """Scalar timestamp -> tz-naive Python datetime in the requested et_frame.
+
+    Mirrors simulator_real._naive_in_frame (added 2026-08-02, DST-FRAME-BLAST-RADIUS-
+    2026-08-02 -- root fix threading: previously this bare-stripped tz-aware input to
+    wall-v1-equivalent digits with NO way to request et-v2, while `_load_leg_df` below was
+    ALSO unconditionally forced to wall-v1 -- so an et-v2 entry_time_et and a wall-v1 opt_df
+    could silently mismatch by ~1h on winter days; see that artifact's section 2a/2b).
+    wall-v1: strip the attached offset in place (legacy wall time). et-v2: convert to
+    America/New_York first, then strip (true ET). Naive input passes through under BOTH
+    frames (already normalized upstream -- the frame distinction only exists while a tz is
+    still attached). Default "wall-v1" reproduces the PRIOR bare-strip behavior byte-for-byte."""
+    if hasattr(ts, "tz_localize"):  # pandas Timestamp
         if ts.tz is not None:
+            if frame == FRAME_ET_V2:
+                ts = ts.tz_convert(ET_TZ)
             ts = ts.tz_localize(None)
         return ts.to_pydatetime()
-    if hasattr(ts, "tzinfo") and ts.tzinfo is not None:
+    if hasattr(ts, "tzinfo") and ts.tzinfo is not None:  # stdlib datetime
+        if frame == FRAME_ET_V2:
+            from zoneinfo import ZoneInfo
+            ts = ts.astimezone(ZoneInfo(ET_TZ))
         return ts.replace(tzinfo=None)
     return ts
 
 
-def _load_leg_df(date: dt.date, leg: Leg) -> Optional[pd.DataFrame]:
-    """Load a leg's OPRA bars (tz-naive). None if not cached (caller SKIPS)."""
+def _reframe_series(series: pd.Series, frame: str) -> pd.Series:
+    """Frame-normalize a `timestamp_et` SERIES, safely handling ALREADY-NAIVE input.
+
+    Found + fixed same-session (2026-08-02) while wiring this same fix into
+    exit_manager_walk.py: `et_frame.parse_timestamp_et`'s docstring claims "naive input is
+    returned as-is under BOTH frames", and its wall-v1 branch honors that -- but its et-v2
+    branch does NOT (it unconditionally calls `pd.to_datetime(series, utc=True)`, which on
+    an ALREADY-NAIVE series reinterprets the wall-clock digits as UTC and shifts them by the
+    zone offset instead of passing them through; live-confirmed: a naive true-ET
+    "12:55:00" became "08:55:00"). `load_contract_bars(sym)` (called below with no `frame=`
+    kwarg) is always tz-aware today, so this file has not hit the bug in practice -- this
+    guard makes `_load_leg_df` correct-by-construction rather than "happens to work for the
+    one caller shape observed so far," mirroring exit_manager_walk._reframe_series exactly
+    (duplicated locally rather than centralized in et_frame.py, which is out of scope --
+    heavily used, heavily guarded by test_et_frame_guards.py)."""
+    if not pd.api.types.is_datetime64_any_dtype(series):
+        series = pd.to_datetime(series)
+    if getattr(series.dt, "tz", None) is None:
+        return series  # already naive -- trust it's already in the caller's stated frame
+    return parse_timestamp_et(series, frame)
+
+
+def _load_leg_df(date: dt.date, leg: Leg, frame: str = FRAME_WALL_V1) -> Optional[pd.DataFrame]:
+    """Load a leg's OPRA bars, normalized to tz-naive in the requested et_frame (added
+    2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 -- root fix: routes through the SAME
+    `et_frame.parse_timestamp_et` simulator_real.py already uses, instead of an unconditional
+    bare `.dt.tz_localize(None)` strip -- default "wall-v1" reproduces that prior behavior
+    byte-for-byte). None if not cached (caller SKIPS). Deliberately still calls
+    `load_contract_bars(sym)` with NO `frame=` kwarg (positional-symbol-only) so the existing
+    `monkeypatch.setattr(sc, "load_contract_bars", fake_load)` test-double convention (single-
+    arg callable, test_simulator_credit.py / test_simulator_debit.py) keeps working unchanged
+    -- the frame normalization happens here, after the (possibly-faked) load, same as
+    simulator_real.py's own pattern."""
     sym = option_symbol(date, leg.strike, leg.side)
     df = load_contract_bars(sym)
     if df is None or df.empty:
         return None
     df = df.copy()
-    if df["timestamp_et"].dt.tz is not None:
-        df["timestamp_et"] = df["timestamp_et"].dt.tz_localize(None)
+    df["timestamp_et"] = _reframe_series(df["timestamp_et"], frame)
     return df
 
 
@@ -150,6 +197,18 @@ def simulate_credit_trade(
     exit_slippage: float = DEFAULT_EXIT_SLIPPAGE,
     commission_per_contract: float = DEFAULT_COMMISSION,
     time_stop_et: dt.time = TIME_STOP_ET,
+    # --- DST FRAME (2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 -- root fix) ---
+    # et_frame convention `entry_time_et` (and any already-naive timestamp reaching this
+    # function) is asserted to already be in. Threaded to `_load_leg_df`/`_normalize_naive`
+    # so the OPRA join stays frame-consistent instead of `entry_time_et` and the per-leg OPRA
+    # bars silently landing in DIFFERENT frames (the confirmed AFFECTED mechanism -- see the
+    # artifact's section 2a: "no frame parameter at all" was the root gap here). Default
+    # "wall-v1" reproduces PRIOR behavior byte-for-byte for every existing caller (this
+    # function never had a frame concept before tonight, so every caller today is implicitly
+    # wall-v1-consistent-or-not depending on what it happened to pass -- callers whose
+    # entry_time_et is true-ET (et-v2, e.g. from an et-v2-parsed SPY master) MUST now pass
+    # frame="et-v2" explicitly to get a correct join).
+    frame: str = FRAME_WALL_V1,
 ) -> CreditFill:
     """Combine per-leg OPRA 5m fills into a credit-structure P&L path.
 
@@ -159,8 +218,10 @@ def simulate_credit_trade(
     timestamp <= the current walk bar, and entry fills strictly on the bar AFTER the
     decision time.
     """
+    if frame not in (FRAME_WALL_V1, FRAME_ET_V2):
+        raise ValueError(f"unknown timestamp frame {frame!r}; expected 'wall-v1' or 'et-v2'")
     date_str = date.strftime("%Y-%m-%d")
-    entry_time_et = _normalize_naive(entry_time_et)
+    entry_time_et = _normalize_naive(entry_time_et, frame)
     fill = CreditFill(date=date_str, structure=structure_name, wing_width=wing_width,
                       contracts=contracts, entry_spot=spot,
                       entry_time_et=entry_time_et)
@@ -168,7 +229,7 @@ def simulate_credit_trade(
     # 1) Load every leg; SKIP if any missing (band/liquidity artifact).
     leg_dfs: list[pd.DataFrame] = []
     for leg in legs:
-        ldf = _load_leg_df(date, leg)
+        ldf = _load_leg_df(date, leg, frame)
         if ldf is None:
             fill.skipped = True
             fill.skip_reason = f"missing_cache:{leg.side}{leg.strike}"

@@ -171,7 +171,7 @@ regression instead of a human re-discovering it walks later.
                                                              .py file for the SAME-FILE smoking-gun pattern (parses one
                                                              timestamp column et-v2 AND bare `.tz_localize(None)`-strips
                                                              another timestamp_et column, without importing et_frame).
-                                                             A fixed allowlist grandfathers the 18 files that trip this
+                                                             A fixed allowlist grandfathers the files that trip this
                                                              today (each hand-classified in the artifact -- some are
                                                              confirmed AFFECTED, one -- edge_matrix_bear_level_rejection.py
                                                              -- is a VERIFIED FALSE POSITIVE that applies one et-v2 helper
@@ -183,18 +183,37 @@ regression instead of a human re-discovering it walks later.
                                                              behind the pivot-premium-selling family (et-v2 SPY in
                                                              _pivot_premium_selling.py joined against wall-v1 OPRA in
                                                              the separate simulator_credit.py) and bold_fullhist_replay.
-                                                             py's run_anchor_validation (real-fills-ledger true-ET times
-                                                             joined against raw unstripped OPRA via exit_manager_walk.
-                                                             walk_exit_manager) -- both confirmed by hand in the
-                                                             artifact, not by this automated scan. option_pricing_real.
-                                                             py (banned from edits this session -- a concurrent lane
-                                                             owns the 5-min-resolution question there) and
-                                                             exit_manager_walk.py (shares that surface, live docstring
-                                                             referencing the same concurrent lane) are NOT touched by
-                                                             this fix -- the correct single fix point is
-                                                             option_pricing_real.load_contract_bars() itself (make the
-                                                             loader return an already frame-normalized series so no
-                                                             caller can get this wrong), deferred to a follow-up session.
+                                                             py's run_anchor_validation -- both confirmed by hand in the
+                                                             artifact, not by this automated scan; both files still trip
+                                                             the same-file pattern (their OWN et-v2 recipe text is
+                                                             unchanged) even after the root fix below, so they STAY on
+                                                             the allowlist -- see its per-entry comments for the
+                                                             now-fixed-vs-still-needs-fixing status of each.
+
+  ── THE ROOT FIX (landed same day, 2026-08-02, follow-up lane) ──────────────────────────
+  The section above pinned the BUG and explicitly deferred the fix ("option_pricing_real.py
+  banned from edits this session... exit_manager_walk.py... NOT touched by this fix...
+  deferred to a follow-up session"). That follow-up is THIS lane: `option_pricing_real.
+  load_contract_bars()` gained an explicit, keyword-only `frame: Optional[str] = None`
+  parameter (default None = the exact prior raw tz-aware output, byte-identical for every
+  SAFE caller that already re-parses it itself; "wall-v1"/"et-v2" return an
+  already-normalized naive column). `exit_manager_walk.walk_exit_manager`,
+  `simulator_credit.simulate_credit_trade`, and `simulator_debit.simulate_debit_trade` all
+  gained a `frame: str = "wall-v1"` parameter threaded to `et_frame.parse_timestamp_et`,
+  replacing their prior unconditional bare `.tz_localize(None)` strips -- default "wall-v1"
+  reproduces every one of their combined 90+ pre-2026-08-02 call sites byte-for-byte (proven
+  below, not assumed). `bold_fullhist_replay.py`'s two AFFECTED call sites (run_
+  anchor_validation + the qty5-rescale closure) and test_bold_fullhist_replay.py's own
+  anchor-pattern test now explicitly pass frame="et-v2" (zero behavior change today -- every
+  populated date is summer/EDT -- but closes the gap before the first winter date is ever
+  added). New tests below (test_dst_frame_fix_*) exercise the REAL production `frame=`
+  kwargs end-to-end, not a hand-rolled reproduction like the bug-pinning tests above --
+  including a regression guard for a SECOND, subtler bug found+fixed while wiring this in:
+  `et_frame.parse_timestamp_et`'s et-v2 branch does not honor its own documented
+  already-naive-passes-through contract (only its wall-v1 branch does), which corrupted
+  `walk_exit_manager`'s handling of a pre-stripped `five_min_spy_df` by a full zone-offset
+  shift until `_reframe_series` (local to exit_manager_walk.py / simulator_credit.py, NOT a
+  change to et_frame.py itself) added the missing guard.
 
 Run:  cd backtest && python -m pytest tests/test_graduated_guards.py -v
 """
@@ -4238,10 +4257,17 @@ def _raw_instant_for_pick(opra_csv_path, picked_close: float, picked_volume: int
 
 def _naive_mixed_pick(opra_csv_path, entry_time_et):
     """Reproduce the EXACT anti-pattern (et-v2 SPY entry joined against a bare-
-    tz-stripped OPRA frame -- what simulator_credit.py/simulator_debit.py's
-    `_load_leg_df` and exit_manager_walk.py's `walk_exit_manager` both do
-    unconditionally, with NO frame parameter) using only the REAL shared loader
-    (option_pricing_real.load_contract_bars), never a hand-built substitute."""
+    tz-stripped OPRA frame) using only the REAL shared loader
+    (option_pricing_real.load_contract_bars), never a hand-built substitute.
+
+    STATUS (updated 2026-08-02, same-day follow-up lane): simulator_credit.py/
+    simulator_debit.py's `_load_leg_df` and exit_manager_walk.py's `walk_exit_manager` now
+    all take an explicit `frame` parameter (default "wall-v1") -- this helper still
+    reproduces exactly what a caller gets when it does NOT pass `frame="et-v2"` (i.e. the
+    default, or any caller that never opts in), which is intentionally still the
+    bare-tz-stripped/wall-v1 shape -- the fix is opt-in-correct, not a silent default swap
+    (see this file's "THE ROOT FIX" docstring section above and test_dst_frame_fix_* below,
+    which exercise the actual frame= kwargs directly)."""
     from lib.option_pricing_real import load_contract_bars, bar_at_or_after
 
     symbol = opra_csv_path.stem
@@ -4353,24 +4379,27 @@ def test_dst_frame_consistent_join_agrees_on_summer_control() -> None:
 #               BOTH sides (no actual mixing); kept on the allowlist so the scan stays
 #               quiet, reason recorded here instead of in scan logic every run.
 _DST_FRAME_PATTERN_ALLOWLIST = {
-    "backtest/autoresearch/_iv_skew_confirmer.py": "UNCLEAR - not individually traced",
-    "backtest/autoresearch/bull_ribbon_reversal_real_fills.py": "UNCLEAR - not individually traced",
-    "backtest/autoresearch/eod_deep/missed_setups_scanner.py": "UNCLEAR - EOD best-effort report, not individually traced",
-    "backtest/autoresearch/eod_deep/modules/edge.py": "UNCLEAR - not individually traced",
-    "backtest/autoresearch/infinite_ammo_discovery.py": "UNCLEAR - not individually traced",
-    "backtest/autoresearch/ribbon_rejection_spread_battery.py": "UNCLEAR - not individually traced",
-    "backtest/autoresearch/rrw_bull_veto_study.py": "UNCLEAR - not individually traced",
-    "backtest/autoresearch/shotgun_scalper_grinder.py": "UNCLEAR - not individually traced (KILLED strategy, low stakes)",
-    "backtest/autoresearch/trade_5_13_variants.py": "UNCLEAR - not individually traced",
-    "backtest/tests/test_bold_fullhist_replay.py": "AFFECTED - exercises the same anchor pattern as run_anchor_validation; current ANCHOR_FILLS are all summer-dated so no numeric corruption today",
-    "backtest/tools/bold_fullhist_replay.py": "AFFECTED - run_anchor_validation() joins real-fills-ledger true-ET entry times against raw unstripped OPRA via walk_exit_manager; CURRENT ANCHOR_FILLS (7, all 2026-06-26..2026-07-28) are 0/7 winter so today's 83-89% pass-rate numbers are NOT currently corrupted, but the mechanism is live and will bite the first winter anchor",
-    "backtest/tools/debit_spread_ab_study.py": "UNCLEAR - not individually traced",
+    # --- traced 2026-08-02 (root-fix follow-up lane): all 16 former "UNCLEAR" entries below
+    # were individually reclassified by reading the actual join code (never a docstring --
+    # several files' own comments claim DST-safety the code doesn't deliver, L249). ---
+    "backtest/autoresearch/_iv_skew_confirmer.py": "SAFE(fp) - _option_close_at() tz_convert+strips OPRA to true-ET, matching _normalize_spy()'s identical et-v2 conversion on the SPY side",
+    "backtest/autoresearch/bull_ribbon_reversal_real_fills.py": "AFFECTED - _load_and_prep_spy et-v2-converts spy_df, but run_signal's simulate_trade_real call passes no frame= (defaults wall-v1) -- entry_time reaches the walk as et-v2 while opt_df is parsed wall-v1 internally; no cited live number found downstream",
+    "backtest/autoresearch/eod_deep/missed_setups_scanner.py": "SAFE(fp) - _entry_premium's bar_at_or_after compares tz-aware raw OPRA vs naive et-v2 bar_ts, which raises TypeError caught by its own try/except, ALWAYS falling back to a synthetic BS estimate -- no real join ever completes (separate dead-path bug, adjacent to but not the DST bug)",
+    "backtest/autoresearch/eod_deep/modules/edge.py": "SAFE(fp) - _query_opra_peak_premium explicitly tz_convert+strips OPRA to true-ET before the fill-window filter, matching the real (true-ET) fill timestamps",
+    "backtest/autoresearch/infinite_ammo_discovery.py": "AFFECTED - load_spy() et-v2-converts spy_df; simulate_signals' simulate_trade_real call passes no frame= -- same internal wall-v1-default mismatch as bull_ribbon_reversal_real_fills.py; no cited live number found downstream",
+    "backtest/autoresearch/ribbon_rejection_spread_battery.py": "AFFECTED - load_smoke_master et-v2-converts spy; _leg_premium_at/_leg_bar_close feed et-v2 timestamps through an imported _normalize_ts helper that only matches tz-AWARENESS (not tz_convert), relabeling true-ET digits under OPRA's raw wall-v1 offset; no cited live number found downstream",
+    "backtest/autoresearch/rrw_bull_veto_study.py": "AFFECTED (two-layer, zero live exposure) - own direct OPRA-vs-bear-event join IS correctly et-v2-matched, but the UPSTREAM entry_time_et it trusts as et-v2 (from orchestrator.run_backtest(use_real_fills=True) -> internal simulate_trade_real, no frame=) is actually still wall-v1-labeled at the source -- contradicts the study's own commit-message claim that the DST-frame fix was applied. Cited in queue.md RRW-AS-VETO-STUDY as done-failed-both-overlays-honest-kill -- ZERO live exposure: no params/trading-path file was ever touched by this study regardless of verdict (its own stated policy)",
+    "backtest/autoresearch/shotgun_scalper_grinder.py": "AFFECTED - KILLED strategy, low stakes. et-v2 spy vs the same _normalize_ts-mediated OPRA reinterpretation bug ribbon_rejection_spread_battery.py has",
+    "backtest/autoresearch/trade_5_13_variants.py": "AFFECTED - et-v2 SPY vs bare .tz_localize(None) OPRA (no tz_convert); TRADE_DATE hardcoded 2026-05-13 (EDT) -- zero numeric impact today, structurally can't hit a winter date",
+    "backtest/tests/test_bold_fullhist_replay.py": "FIXED 2026-08-02 - now passes frame=FRAME_ET_V2 to walk_exit_manager (matching its own et-v2-parsed spy_df + real fill entry_time_et), mirroring run_anchor_validation's fix; still trips this same-file scan because its own et-v2 recipe text (lines ~parsing spy5) is unchanged and it has no et_frame import -- the SCAN's blind spot (same-file text pattern) does not know about the cross-file frame= kwarg fix, so it stays allowlisted, but the underlying join is no longer mixed",
+    "backtest/tools/bold_fullhist_replay.py": "FIXED 2026-08-02 - both call sites (run_anchor_validation + the qty5-rescale closure in the elite-bull-requal rescoring helper) now pass frame=FRAME_ET_V2 to walk_exit_manager, matching their own et-v2-parsed spy_df + real fill entry_time_et. Zero behavior change today (ANCHOR_FILLS 0/7 winter; the rescale closure's source spy5_path spans only 2026-05-19..2026-07-31, structurally all-summer) -- this closes the gap before either population ever includes a winter date. Still trips this same-file scan (its own et-v2 recipe text is unchanged, no et_frame import) -- the scan cannot see that the cross-file join it can't observe is now fixed, so it stays allowlisted; a THIRD walk_exit_manager call site in replay_population() (line ~407) was left at the frame='wall-v1' default -- its entry-time provenance (efr.naive_dt + run_backtest's internal engine frame) was not traced this session, out of this fix's explicit scope",
+    "backtest/tools/debit_spread_ab_study.py": "SAFE(fp) - OPRA bare-stripped wall-v1, but entry_ts (from _signal_cache.py) is itself wall-v1 (traced through orchestrator.run_backtest(use_real_fills=True) -> simulate_trade_real, which sets entry_time_et from the OPRA-side bar under the wall-v1 default) -- both sides accidentally-but-verifiably consistent",
     "backtest/tools/edge_matrix_bear_level_rejection.py": "SAFE(fp) - _true_et() helper (utc=True+tz_convert+tz_localize(None)) applied consistently to BOTH the SPY frame (line ~157) and the OPRA frame (line ~284); hand-verified not mixed",
-    "backtest/tools/edge_matrix_bull_level_reclaim_quality.py": "UNCLEAR - not individually traced",
-    "backtest/tools/edge_matrix_sr_flip_retest.py": "UNCLEAR - not individually traced",
-    "backtest/tools/elite_bull_postfix_requal_2026_07_31.py": "UNCLEAR - not individually traced",
-    "backtest/tools/kitchen_trend_day_continuation.py": "UNCLEAR - not individually traced",
-    "backtest/tools/pullback_hold_bull_replay.py": "UNCLEAR - not individually traced",
+    "backtest/tools/edge_matrix_bull_level_reclaim_quality.py": "SAFE(fp) - both sides explicitly et-v2-converted before walk_exit_manager",
+    "backtest/tools/edge_matrix_sr_flip_retest.py": "SAFE(fp) - load_frame + inline OPRA convert + day_naive strip all resolve to naive et-v2 before the walk_exit_manager call",
+    "backtest/tools/elite_bull_postfix_requal_2026_07_31.py": "AFFECTED - spy_5m() et-v2-converts; replay_event's opt_df is bare-stripped with NO tz_convert step -- genuine mismatch reaching walk_exit_manager. HIGH PRIORITY CITATION: elite-bull-requal-2026-07-31.json (this file's output) was cited in FRIDAY-DIAL-IN-2026-07-31.md to justify a block_elite_bull:false lift trial on bold-2 -- verified 2026-08-02 that trial was independently armed-then-REVERTED the SAME session (2026-08-01, see aggressive/params.json's _block_elite_bull_trial_doc: misattributed basis + contrary properly-powered evidence) -- block_elite_bull is currently true (armed) on both accounts, so there is NO current live exposure from this citation, but the file's own join should be fixed before it is ever cited again",
+    "backtest/tools/kitchen_trend_day_continuation.py": "SAFE(fp) - single shared _true_et() (byte-identical to edge_matrix_bear_level_rejection.py's confirmed-safe helper) applied to both SPY and OPRA",
+    "backtest/tools/pullback_hold_bull_replay.py": "SAFE(fp) - real-fills path uses dojo sim_executor._load_spy_5m_for_date/_load_option_series, both routed through the same shared _to_naive_et_series helper",
 }
 
 
@@ -4433,3 +4462,215 @@ def test_dst_frame_no_new_unguarded_opra_join_consumers() -> None:
         f"_DST_FRAME_PATTERN_ALLOWLIST in this file with a classification comment; do not "
         f"silently widen the allowlist without one."
     )
+
+
+# ═════════════════════════════════════════════════════════════════════════════════
+# DST-FRAME-BLAST-RADIUS-2026-08-02 -- THE ROOT FIX, verified directly (2026-08-02, same
+# day, follow-up lane). The section above pins the BUG via a hand-rolled reproduction
+# (_naive_mixed_pick / _frame_consistent_pick) and explicitly deferred the real fix. These
+# tests exercise the ACTUAL production `frame=` kwargs on load_contract_bars /
+# walk_exit_manager directly -- a future edit that breaks the real fix (not just the
+# bug-reproduction harness above) fails here specifically.
+# ═════════════════════════════════════════════════════════════════════════════════
+
+def test_dst_frame_fix_load_contract_bars_frame_kwarg_winter_canary() -> None:
+    """THE canary from the task brief, through the production frame= kwarg directly:
+    SPY250102C00580000 at true-ET 13:00 must resolve to $2.44 via frame="et-v2", and the
+    documented OLD buggy value $8.25 via frame="wall-v1" (proving the opt-out/default path
+    still reproduces prior behavior byte-for-byte -- nobody's wall-v1 pipeline silently
+    changed underneath them)."""
+    if not _WINTER_OPRA_CANARY.exists():
+        pytest.skip(f"winter OPRA canary missing: {_WINTER_OPRA_CANARY}")
+    from lib.option_pricing_real import load_contract_bars, bar_at_or_after
+    from lib.et_frame import FRAME_ET_V2, FRAME_WALL_V1
+
+    symbol = _WINTER_OPRA_CANARY.stem
+    entry = dt.datetime(2025, 1, 2, 13, 0, 0)
+
+    wall_pick = bar_at_or_after(load_contract_bars(symbol, frame=FRAME_WALL_V1), entry)
+    etv2_pick = bar_at_or_after(load_contract_bars(symbol, frame=FRAME_ET_V2), entry)
+
+    assert wall_pick.close == 8.25, (
+        f"frame='wall-v1' pick changed from the documented buggy value $8.25 to "
+        f"${wall_pick.close} -- either the fixture changed or wall-v1 is no longer "
+        f"byte-reproducible; re-verify against DST-FRAME-BLAST-RADIUS-2026-08-02.md")
+    assert etv2_pick.close == 2.44, (
+        f"frame='et-v2' pick did NOT resolve to the correct $2.44 -- got ${etv2_pick.close}. "
+        f"THE ROOT FIX is broken: load_contract_bars(frame='et-v2') must return the "
+        f"DST-correct bar.")
+
+
+def test_dst_frame_fix_load_contract_bars_frame_kwarg_summer_control() -> None:
+    """Summer control through the production frame= kwarg: both frames must agree
+    bar-for-bar (0-minute / $0.00 delta) -- proves the divergence above is DST-specific,
+    not a general effect of passing frame= at all."""
+    if not _SUMMER_OPRA_CANARY.exists():
+        pytest.skip(f"summer OPRA canary missing: {_SUMMER_OPRA_CANARY}")
+    from lib.option_pricing_real import load_contract_bars, bar_at_or_after
+    from lib.et_frame import FRAME_ET_V2, FRAME_WALL_V1
+
+    symbol = _SUMMER_OPRA_CANARY.stem
+    entry = dt.datetime(2025, 7, 1, 13, 0, 0)
+    wall_pick = bar_at_or_after(load_contract_bars(symbol, frame=FRAME_WALL_V1), entry)
+    etv2_pick = bar_at_or_after(load_contract_bars(symbol, frame=FRAME_ET_V2), entry)
+    assert wall_pick.close == etv2_pick.close
+    assert wall_pick.timestamp_et == etv2_pick.timestamp_et
+
+
+def test_dst_frame_fix_load_contract_bars_frame_none_default_unchanged() -> None:
+    """frame=None (the default -- every pre-2026-08-02 caller, positionally or by keyword)
+    must return the exact RAW tz-aware column, byte-identical to calling
+    load_contract_bars(symbol) with no frame kwarg at all -- the root-fix kwarg must be a
+    true no-op for every existing caller unless it explicitly opts in. Reuses the resolution
+    guards' own known-present fixture (SPY260709C00750000)."""
+    from lib.option_pricing_real import load_contract_bars
+    import pandas as pd
+
+    symbol = "SPY260709C00750000"
+    path = DATA / "options" / f"{symbol}.csv"
+    if not path.exists():
+        pytest.skip(f"fixture missing: {path}")
+    bare = load_contract_bars(symbol)
+    explicit_none = load_contract_bars(symbol, frame=None)
+    pd.testing.assert_frame_equal(bare, explicit_none)
+    assert str(bare["timestamp_et"].dtype).startswith("datetime64[ns,"), (
+        "frame=None must still return the RAW tz-AWARE column -- if this is now tz-naive, "
+        "the root fix silently changed the default shape every SAFE caller "
+        "(simulator_real.py) depends on")
+
+
+def test_dst_frame_fix_load_contract_bars_rejects_bad_frame_value() -> None:
+    """An unrecognized frame string must fail loudly, not silently fall through to some
+    unintended default."""
+    from lib.option_pricing_real import load_contract_bars
+
+    symbol = "SPY260709C00750000"
+    path = DATA / "options" / f"{symbol}.csv"
+    if not path.exists():
+        pytest.skip(f"fixture missing: {path}")
+    with pytest.raises(ValueError, match="wall-v1"):
+        load_contract_bars(symbol, frame="not-a-real-frame")
+
+
+@pytest.mark.skipif(not _WINTER_OPRA_CANARY.exists(), reason=f"winter OPRA canary missing: {_WINTER_OPRA_CANARY}")
+def test_dst_frame_fix_walk_exit_manager_frame_kwarg_diverges_on_winter() -> None:
+    """The KEYSTONE consumer's frame= kwarg, exercised end-to-end through the real
+    production function (not a hand-rolled reproduction): the SAME entry/opt_df/exit_shape
+    walked twice, ONLY frame= differs, must produce a DIFFERENT dollar_pnl on the winter
+    contract -- proving frame= actually changes which OPRA bars the walk sees. Also proves
+    the omitted-frame default is byte-identical to explicit frame="wall-v1" (backward
+    compat for every one of this function's 80+ pre-2026-08-02 call sites)."""
+    import pandas as pd
+    from lib.option_pricing_real import load_contract_bars
+    from lib.et_frame import FRAME_ET_V2, FRAME_WALL_V1
+    from lib.exit_manager_walk import walk_exit_manager
+
+    symbol = _WINTER_OPRA_CANARY.stem
+    entry = dt.datetime(2025, 1, 2, 13, 0, 0)
+    opt_df = load_contract_bars(symbol)  # raw tz-aware -- exactly what every real caller passes
+    spy_times = pd.date_range("2025-01-02 09:30", "2025-01-02 15:55", freq="5min")
+    five_min_spy_df = pd.DataFrame({
+        "timestamp_et": spy_times, "open": 580.0, "high": 581.0, "low": 579.0, "close": 580.0,
+    })
+    shape = {"premium_stop_pct": -0.99, "tp1_premium_pct": 99.0, "tp1_qty_fraction": 0.667,
+             "profit_lock_mode": "fixed", "runner_target_pct": 99.0}
+    common = dict(symbol=symbol, side="C", entry_time_et=entry, entry_premium=1.0, qty=1,
+                  exit_shape=shape, structure_stop_enabled=False, trigger_level=None,
+                  strategy="test", time_stop_et=dt.time(15, 50), opt_df=opt_df,
+                  ribbon_tick_df=None, five_min_spy_df=five_min_spy_df)
+
+    res_wall = walk_exit_manager(frame=FRAME_WALL_V1, **common)
+    res_etv2 = walk_exit_manager(frame=FRAME_ET_V2, **common)
+    res_default = walk_exit_manager(**common)  # frame= omitted entirely
+
+    assert res_wall.dollar_pnl != res_etv2.dollar_pnl, (
+        f"walk_exit_manager(frame='wall-v1') and frame='et-v2') produced the SAME "
+        f"dollar_pnl (${res_wall.dollar_pnl}) on a winter contract -- the frame kwarg is "
+        f"not actually changing which OPRA bars the walk sees; THE ROOT FIX is broken")
+    assert res_default.dollar_pnl == res_wall.dollar_pnl, (
+        "omitting frame= entirely must be byte-identical to frame='wall-v1'")
+    assert res_default.exit_reason == res_wall.exit_reason
+    assert res_default.n_ticks_walked == res_wall.n_ticks_walked
+
+
+@pytest.mark.skipif(not _SUMMER_OPRA_CANARY.exists(), reason=f"summer OPRA canary missing: {_SUMMER_OPRA_CANARY}")
+def test_dst_frame_fix_walk_exit_manager_frame_kwarg_agrees_on_summer() -> None:
+    """Summer control for the keystone consumer: frame='wall-v1' and frame='et-v2' must
+    produce IDENTICAL results end-to-end -- proving the divergence above is DST-specific,
+    not a general side-effect of passing frame= at all."""
+    import pandas as pd
+    from lib.option_pricing_real import load_contract_bars
+    from lib.et_frame import FRAME_ET_V2, FRAME_WALL_V1
+    from lib.exit_manager_walk import walk_exit_manager
+
+    symbol = _SUMMER_OPRA_CANARY.stem
+    entry = dt.datetime(2025, 7, 1, 13, 0, 0)
+    opt_df = load_contract_bars(symbol)
+    spy_times = pd.date_range("2025-07-01 09:30", "2025-07-01 15:55", freq="5min")
+    five_min_spy_df = pd.DataFrame({
+        "timestamp_et": spy_times, "open": 612.0, "high": 613.0, "low": 611.0, "close": 612.0,
+    })
+    shape = {"premium_stop_pct": -0.99, "tp1_premium_pct": 99.0, "tp1_qty_fraction": 0.667,
+             "profit_lock_mode": "fixed", "runner_target_pct": 99.0}
+    common = dict(symbol=symbol, side="C", entry_time_et=entry, entry_premium=1.0, qty=1,
+                  exit_shape=shape, structure_stop_enabled=False, trigger_level=None,
+                  strategy="test", time_stop_et=dt.time(15, 50), opt_df=opt_df,
+                  ribbon_tick_df=None, five_min_spy_df=five_min_spy_df)
+
+    res_wall = walk_exit_manager(frame=FRAME_WALL_V1, **common)
+    res_etv2 = walk_exit_manager(frame=FRAME_ET_V2, **common)
+    assert res_wall.dollar_pnl == res_etv2.dollar_pnl
+    assert res_wall.exit_reason == res_etv2.exit_reason
+    assert res_wall.n_ticks_walked == res_etv2.n_ticks_walked
+
+
+def test_dst_frame_fix_reframe_series_passes_through_already_naive_input() -> None:
+    """REGRESSION GUARD for a SECOND, subtler bug found+fixed WHILE building this fix
+    (2026-08-02, same session): et_frame.parse_timestamp_et's et-v2 branch does NOT guard
+    already-naive input the way its wall-v1 branch does -- it unconditionally calls
+    pd.to_datetime(series, utc=True), which on an ALREADY-NAIVE series reinterprets the
+    wall-clock digits as UTC and shifts them by the zone offset instead of passing them
+    through (contradicting parse_timestamp_et's own docstring: "naive input is returned
+    as-is under BOTH frames").
+
+    This bit walk_exit_manager's handling of five_min_spy_df specifically:
+    bold_fullhist_replay.py's run_anchor_validation pre-parses its SPY frame to
+    already-naive et-v2 UPSTREAM before calling walk_exit_manager, so routing that through
+    parse_timestamp_et(..., frame="et-v2") a SECOND time inside last_closed_bar_close_at
+    corrupted it by exactly the EDT/EST zone offset -- caught live by
+    test_bold_fullhist_replay.py::test_mistranslated_qty_fails_the_anchor_where_correct_
+    qty_passes failing with a WRONG-DIRECTION replayed P&L on a real anchor (+$205 replay
+    vs -$355 real), not a subtle drift, the moment frame="et-v2" was wired into that call
+    site. exit_manager_walk._reframe_series / simulator_credit._reframe_series fix this
+    LOCALLY (deliberately NOT by modifying et_frame.parse_timestamp_et itself, which is
+    out of scope this session -- heavily used, heavily guarded by test_et_frame_guards.py,
+    and changing its documented contract is a bigger, separate, riskier change) by only
+    routing ACTUALLY tz-aware series through frame conversion; already-naive series pass
+    through unchanged under BOTH frames, matching simulator_real._naive_in_frame's
+    established scalar-level discipline applied at the series level."""
+    import pandas as pd
+    from lib.exit_manager_walk import _reframe_series as emw_reframe
+    from lib.simulator_credit import _reframe_series as sc_reframe
+    from lib.et_frame import FRAME_ET_V2, FRAME_WALL_V1
+
+    already_naive = pd.Series(pd.to_datetime(["2026-07-27 12:55:00", "2026-07-27 13:00:00"]))
+    for reframe in (emw_reframe, sc_reframe):
+        for frame in (FRAME_WALL_V1, FRAME_ET_V2):
+            out = reframe(already_naive, frame)
+            assert list(out) == list(already_naive), (
+                f"{reframe.__module__}.{reframe.__name__}(frame={frame!r}) corrupted "
+                f"ALREADY-NAIVE input instead of passing it through: "
+                f"in={list(already_naive)} out={list(out)}")
+
+    # Positive case: an ACTUALLY tz-aware series must still be correctly reframed -- this
+    # guard must not degenerate into "never reframe anything."
+    tz_aware = pd.Series(pd.to_datetime(["2026-01-02T13:00:00-04:00"]))
+    reframed = emw_reframe(tz_aware, FRAME_ET_V2)
+    assert reframed.iloc[0] == pd.Timestamp("2026-01-02 12:00:00"), (
+        "a genuinely tz-aware winter input must still be correctly converted to et-v2 -- "
+        f"got {reframed.iloc[0]}, expected 2026-01-02 12:00:00 (true ET, one hour earlier "
+        "than the wall-v1-equivalent digits in the -04:00-labeled winter string)")
+    reframed_wall = emw_reframe(tz_aware, FRAME_WALL_V1)
+    assert reframed_wall.iloc[0] == pd.Timestamp("2026-01-02 13:00:00"), (
+        "a genuinely tz-aware input under wall-v1 must keep the as-printed wall-clock "
+        f"digits -- got {reframed_wall.iloc[0]}, expected 2026-01-02 13:00:00")

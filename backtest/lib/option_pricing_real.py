@@ -47,6 +47,21 @@ from typing import Optional
 
 import pandas as pd
 
+# Dual-import fallback (added 2026-08-02 alongside the `frame` kwarg below): this module is
+# reachable via THREE different import forms across the codebase -- package-qualified
+# (`from lib import option_pricing_real`, common) and bare top-level (`import
+# option_pricing_real` / `from option_pricing_real import X`, exercised when
+# exit_manager_walk.py's own bare-top-level fallback pulls this module in with
+# backtest/lib on sys.path -- see e.g. backtest/tests/test_exit_manager_walk_entry_bar_
+# convention.py). A plain relative import here would break that bare-top-level form exactly
+# the way exit_manager_walk.py's own option_pricing_real import broke earlier this session
+# (see that file's docstring) -- so this uses the same try-relative-then-bare-absolute
+# fallback, verified against the full regression sweep before being reported done.
+try:
+    from .et_frame import FRAME_ET_V2, FRAME_WALL_V1, parse_timestamp_et
+except ImportError:
+    from et_frame import FRAME_ET_V2, FRAME_WALL_V1, parse_timestamp_et
+
 logger = logging.getLogger(__name__)
 
 CACHE_DIR = Path(__file__).resolve().parents[1] / "data" / "options"
@@ -118,7 +133,9 @@ def option_symbol(trade_date: dt.date, strike: int, side: str) -> str:
     return f"SPY{yymmdd}{s}{int(round(strike)) * 1000:08d}"
 
 
-def load_contract_bars(symbol: str, *, resolution: str = NATIVE_RESOLUTION) -> Optional[pd.DataFrame]:
+def load_contract_bars(
+    symbol: str, *, resolution: str = NATIVE_RESOLUTION, frame: Optional[str] = None
+) -> Optional[pd.DataFrame]:
     """Load cached bars for a contract. Returns None if not cached.
 
     Results are stored in _CONTRACT_BAR_CACHE for the lifetime of the worker
@@ -134,6 +151,40 @@ def load_contract_bars(symbol: str, *, resolution: str = NATIVE_RESOLUTION) -> O
     genuine 1-minute fidelity must fetch it itself (see
     backtest/tools/_option_bars_1min_cache.fetch_1min_cached) rather than receive a silent,
     wrong answer from here.
+
+    `frame` (added 2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 — THE ROOT FIX deferred by
+    that audit and completed here): controls the convention of the returned `timestamp_et`
+    column.
+      - frame=None (DEFAULT, UNCHANGED): returns the RAW tz-AWARE, fixed-offset column exactly
+        as `pd.to_datetime` parses the CSV's embedded "-04:00" strings (the OPRA cache's actual
+        on-disk convention — see et_frame.py's module docstring for why that offset label is
+        wrong for EST months). Every pre-2026-08-02 SAFE caller (simulator_real.py,
+        simulator_real_trailing.py) re-parses this tz-aware column itself via
+        `et_frame.parse_timestamp_et(df["timestamp_et"], frame)` to get EITHER frame
+        explicitly — frame=None preserves that contract byte-for-byte, zero behavior change,
+        the same backward-compat precedent the `resolution` kwarg above already set.
+      - frame="wall-v1" / frame="et-v2": returns an ALREADY-NORMALIZED, tz-NAIVE column in the
+        stated et_frame convention (via et_frame.parse_timestamp_et), so a caller that wants a
+        correct, unambiguous, EXPLICITLY-STATED result — rather than hand-rolling its own tz
+        handling — gets one and cannot silently mis-join two frames. This is the actual
+        mechanism DST-FRAME-BLAST-RADIUS-2026-08-02 found: a bare `.dt.tz_localize(None)` on
+        this function's raw output is byte-identical to frame="wall-v1", but gives the caller
+        no signal that it just made a frame CHOICE (silently, with no cross-check against
+        whatever frame its OTHER timestamp series — e.g. the SPY entry time — is already in)
+        rather than receiving "the" answer. New callers wanting a one-call, no-extra-import
+        path to a correct join should pass this explicitly; exit_manager_walk.py /
+        simulator_credit.py / simulator_debit.py route through `et_frame.parse_timestamp_et`
+        directly instead (their existing call-site convention — see each file's own docstring)
+        but both paths resolve through the SAME `et_frame.parse_timestamp_et`, never a second
+        ad hoc implementation.
+
+    Cache safety: the process-level _CONTRACT_BAR_CACHE always stores the RAW tz-aware parse
+    (the frame=None shape) regardless of what `frame` any given call requests — frame
+    normalization happens on a FRESH COPY after every cache hit/miss, never by mutating the
+    cached object in place. Two callers requesting different frames for the same symbol in the
+    same worker process therefore never see each other's shape (no cache poisoning), and the
+    cache key stays `symbol` alone, matching every existing caller's assumption that
+    load_contract_bars(symbol) alone determines the cache slot.
     """
     global _disclosed_default_resolution
     if resolution != NATIVE_RESOLUTION:
@@ -155,15 +206,26 @@ def load_contract_bars(symbol: str, *, resolution: str = NATIVE_RESOLUTION) -> O
         )
         _disclosed_default_resolution = True
     if symbol in _CONTRACT_BAR_CACHE:
-        return _CONTRACT_BAR_CACHE[symbol]
-    path = CACHE_DIR / f"{symbol}.csv"
-    if not path.exists():
-        _CONTRACT_BAR_CACHE[symbol] = None
-        return None
-    df = pd.read_csv(path)
-    df["timestamp_et"] = pd.to_datetime(df["timestamp_et"])
-    _CONTRACT_BAR_CACHE[symbol] = df
-    return df
+        df = _CONTRACT_BAR_CACHE[symbol]
+    else:
+        path = CACHE_DIR / f"{symbol}.csv"
+        if not path.exists():
+            _CONTRACT_BAR_CACHE[symbol] = None
+            df = None
+        else:
+            df = pd.read_csv(path)
+            df["timestamp_et"] = pd.to_datetime(df["timestamp_et"])
+            _CONTRACT_BAR_CACHE[symbol] = df
+    if df is None or frame is None:
+        return df
+    if frame not in (FRAME_WALL_V1, FRAME_ET_V2):
+        raise ValueError(
+            f"unknown timestamp frame {frame!r}; expected 'wall-v1' or 'et-v2' (or omit "
+            f"frame entirely for the raw tz-aware column — see load_contract_bars' docstring)"
+        )
+    out = df.copy()
+    out["timestamp_et"] = parse_timestamp_et(out["timestamp_et"], frame)
+    return out
 
 
 def bar_at_or_after(df: pd.DataFrame, when_et: dt.datetime) -> Optional[OptionBar]:
