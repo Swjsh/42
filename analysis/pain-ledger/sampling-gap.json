@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generated_at_et": "2026-08-02T00:08:33.840172",
+    "generated_at_et": "2026-08-02T01:06:22.110036",
     "builder": "setup/scripts/sampling_gap_ledger.py",
     "descriptive_only": true,
     "scope_note": "Only stage in {premium_stop, profit_lock_floor, trail, be_stop} (the worst_premium<=runner_stop family) is scored. structure_stop / tp1 / runner_target / time_stop / ribbon_flip are counted, never scored, for the reasons in the module docstring.",

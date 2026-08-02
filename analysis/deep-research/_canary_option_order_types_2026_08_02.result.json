@@ -1,0 +1,192 @@
+{
+  "arm": "safe-1",
+  "symbol": "SPY260803P00650000",
+  "results": [
+    {
+      "label": "BUY type=stop",
+      "http_status": 200,
+      "response": {
+        "id": "a6d4d03b-d778-4145-acaa-e1b0f4892df9",
+        "client_order_id": "17db6074-19fd-4549-b621-730b2e9fc516",
+        "created_at": "2026-08-02T07:10:19.124905834Z",
+        "updated_at": "2026-08-02T07:10:19.124905834Z",
+        "submitted_at": "2026-08-02T07:10:19.123492774Z",
+        "filled_at": null,
+        "expired_at": null,
+        "canceled_at": null,
+        "failed_at": null,
+        "replaced_at": null,
+        "replaced_by": null,
+        "replaces": null,
+        "asset_id": "8c21adc1-21ad-4f3c-b985-63213a404731",
+        "symbol": "SPY260803P00650000",
+        "asset_class": "us_option",
+        "notional": null,
+        "qty": "1",
+        "filled_qty": "0",
+        "filled_avg_price": null,
+        "order_class": "simple",
+        "order_type": "stop",
+        "type": "stop",
+        "side": "buy",
+        "position_intent": "buy_to_open",
+        "time_in_force": "day",
+        "limit_price": null,
+        "stop_price": "0.02",
+        "status": "accepted",
+        "extended_hours": false,
+        "legs": null,
+        "trail_percent": null,
+        "trail_price": null,
+        "hwm": null,
+        "subtag": null,
+        "source": null,
+        "expires_at": "2026-08-03T20:15:00Z"
+      },
+      "accepted": true,
+      "order_id": "a6d4d03b-d778-4145-acaa-e1b0f4892df9"
+    },
+    {
+      "label": "BUY type=stop_limit",
+      "http_status": 200,
+      "response": {
+        "id": "42ea839e-f8bf-4e00-83c8-e2273bf7370e",
+        "client_order_id": "75c4387f-75ea-4883-9622-2bcf6729bf66",
+        "created_at": "2026-08-02T07:10:19.37492968Z",
+        "updated_at": "2026-08-02T07:10:19.37492968Z",
+        "submitted_at": "2026-08-02T07:10:19.37351972Z",
+        "filled_at": null,
+        "expired_at": null,
+        "canceled_at": null,
+        "failed_at": null,
+        "replaced_at": null,
+        "replaced_by": null,
+        "replaces": null,
+        "asset_id": "8c21adc1-21ad-4f3c-b985-63213a404731",
+        "symbol": "SPY260803P00650000",
+        "asset_class": "us_option",
+        "notional": null,
+        "qty": "1",
+        "filled_qty": "0",
+        "filled_avg_price": null,
+        "order_class": "simple",
+        "order_type": "stop_limit",
+        "type": "stop_limit",
+        "side": "buy",
+        "position_intent": "buy_to_open",
+        "time_in_force": "day",
+        "limit_price": "0.03",
+        "stop_price": "0.02",
+        "status": "accepted",
+        "extended_hours": false,
+        "legs": null,
+        "trail_percent": null,
+        "trail_price": null,
+        "hwm": null,
+        "subtag": null,
+        "source": null,
+        "expires_at": "2026-08-03T20:15:00Z"
+      },
+      "accepted": true,
+      "order_id": "42ea839e-f8bf-4e00-83c8-e2273bf7370e"
+    },
+    {
+      "label": "BUY type=trailing_stop (trail_price)",
+      "http_status": 422,
+      "response": {
+        "code": 42210000,
+        "message": "invalid order type for options trading"
+      },
+      "accepted": false,
+      "order_id": null
+    },
+    {
+      "label": "BUY type=trailing_stop (trail_percent)",
+      "http_status": 422,
+      "response": {
+        "code": 42210000,
+        "message": "invalid order type for options trading"
+      },
+      "accepted": false,
+      "order_id": null
+    },
+    {
+      "label": "BUY type=limit (positive control)",
+      "http_status": 200,
+      "response": {
+        "id": "3db74dcb-d1c7-47d6-9d5e-37743b890340",
+        "client_order_id": "6dee6f01-e359-4a19-abce-7b704c7319ea",
+        "created_at": "2026-08-02T07:10:19.891136232Z",
+        "updated_at": "2026-08-02T07:10:19.891136232Z",
+        "submitted_at": "2026-08-02T07:10:19.890051872Z",
+        "filled_at": null,
+        "expired_at": null,
+        "canceled_at": null,
+        "failed_at": null,
+        "replaced_at": null,
+        "replaced_by": null,
+        "replaces": null,
+        "asset_id": "8c21adc1-21ad-4f3c-b985-63213a404731",
+        "symbol": "SPY260803P00650000",
+        "asset_class": "us_option",
+        "notional": null,
+        "qty": "1",
+        "filled_qty": "0",
+        "filled_avg_price": null,
+        "order_class": "simple",
+        "order_type": "limit",
+        "type": "limit",
+        "side": "buy",
+        "position_intent": "buy_to_open",
+        "time_in_force": "day",
+        "limit_price": "0.01",
+        "stop_price": null,
+        "status": "accepted",
+        "extended_hours": false,
+        "legs": null,
+        "trail_percent": null,
+        "trail_price": null,
+        "hwm": null,
+        "subtag": null,
+        "source": null,
+        "expires_at": "2026-08-03T20:15:00Z"
+      },
+      "accepted": true,
+      "order_id": "3db74dcb-d1c7-47d6-9d5e-37743b890340"
+    },
+    {
+      "label": "SELL-to-open type=stop (differential probe)",
+      "http_status": 500,
+      "response": {
+        "code": 50010000,
+        "message": "internal server error occurred"
+      },
+      "accepted": false,
+      "order_id": null
+    },
+    {
+      "label": "SELL-to-open type=stop_limit (differential probe)",
+      "http_status": 403,
+      "response": {
+        "code": 40310000,
+        "message": "insufficient options buying power for cash-secured put (required: 64996.92, available: 1160.24)",
+        "options_buying_power": "1160.24",
+        "required_options_buying_power": "64996.92"
+      },
+      "accepted": false,
+      "order_id": null
+    },
+    {
+      "label": "SELL-to-open type=trailing_stop (differential probe)",
+      "http_status": 422,
+      "response": {
+        "code": 42210000,
+        "message": "invalid order type for options trading"
+      },
+      "accepted": false,
+      "order_id": null
+    }
+  ],
+  "final_open_orders_for_symbol": [],
+  "final_position_for_symbol": []
+}
