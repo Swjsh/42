@@ -180,6 +180,16 @@ class ExitState:
     catastrophe_stop_pct: float = CATASTROPHE_STOP_PCT  # the cap structure mode falls back to
     # PROFIT-LOCK ARM SCOPE (2026-07-09, appended last for positional compatibility):
     profit_lock_arm_scope: str = ARM_SCOPE_POST_TP1  # "post_tp1" (today) | "full" (sim parity)
+    # ISOLATED PRE-TP1 BE FLOOR (2026-08-02, EXIT-HYBRID-PRETP1-FLOOR iteration 4 -- appended
+    # last for positional compatibility). Independent of profit_lock_arm_scope/profit_lock_mode
+    # entirely: arms a BREAKEVEN-ONLY floor pre-TP1 (never trails pre-TP1) without touching
+    # profit_lock_armed, so the post-TP1 chandelier ride (profit_lock_mode="trailing", the
+    # +$15,774/35-for-35 runner engine) is BYTE-IDENTICAL regardless of this knob -- unlike
+    # profit_lock_mode="fixed" (iteration 3), which is read by both the pre-TP1 AND post-TP1
+    # branches and silently disables post-TP1 trailing for any trade reaching TP1. None (the
+    # default) is fully inert -- this is a NEW additive knob, no existing persisted
+    # exit-state.json record or ExitShape declares it.
+    pre_tp1_be_floor_arm_pct: Optional[float] = None
 
     @staticmethod
     def from_entry(*, symbol: str, side: str, entry_premium: float, qty: int,
@@ -240,6 +250,9 @@ class ExitState:
             catastrophe_stop_pct=cat_pct,
             profit_lock_arm_scope=_norm_arm_scope(
                 exit_shape.get("profit_lock_arm_scope", ARM_SCOPE_POST_TP1)),
+            pre_tp1_be_floor_arm_pct=(
+                None if exit_shape.get("pre_tp1_be_floor_arm_pct") is None
+                else float(exit_shape["pre_tp1_be_floor_arm_pct"])),
         )
 
     def to_dict(self) -> dict:
@@ -255,6 +268,7 @@ class ExitState:
             "stop_mode": self.stop_mode, "trigger_level": self.trigger_level,
             "catastrophe_stop_pct": self.catastrophe_stop_pct,
             "profit_lock_arm_scope": self.profit_lock_arm_scope,
+            "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
         }
 
     @staticmethod
@@ -282,6 +296,10 @@ class ExitState:
             # absent on any pre-2026-07-09 record -> "post_tp1", the exact legacy behavior
             profit_lock_arm_scope=_norm_arm_scope(d.get("profit_lock_arm_scope",
                                                         ARM_SCOPE_POST_TP1)),
+            # absent on any pre-2026-08-02 record -> None, the exact legacy (inert) behavior
+            pre_tp1_be_floor_arm_pct=(
+                None if d.get("pre_tp1_be_floor_arm_pct") is None
+                else float(d["pre_tp1_be_floor_arm_pct"])),
         )
 
 
@@ -375,8 +393,18 @@ def plan_exit_actions(
                 runner_stop = max(runner_stop, entry)  # BE floor (simulator parity)
             if profit_lock_armed and state.profit_lock_mode == "trailing":
                 runner_stop = max(runner_stop, hwm * (1.0 - state.trail_pct))
+        # ISOLATED PRE-TP1 BE FLOOR (2026-08-02, EXIT-HYBRID-PRETP1-FLOOR iteration 4):
+        # completely independent of profit_lock_arm_scope/profit_lock_mode/profit_lock_armed --
+        # arms a BE floor ONLY (never trails further pre-TP1) the first tick best_premium
+        # clears entry*(1+pre_tp1_be_floor_arm_pct). Deliberately does NOT set
+        # profit_lock_armed=True (TP1 fill unconditionally sets it True itself at line ~456
+        # regardless of this branch), so the post-TP1 chandelier ride is byte-identical to
+        # CONTROL whether or not this knob is set. Inert (no-op) when None, the default.
+        if (state.pre_tp1_be_floor_arm_pct is not None
+                and best_premium >= entry * (1.0 + state.pre_tp1_be_floor_arm_pct)):
+            runner_stop = max(runner_stop, entry)
         lock_ratcheted = round(runner_stop, 4) > round(orig_stop, 4)
-        if state.profit_lock_arm_scope == ARM_SCOPE_FULL:
+        if state.profit_lock_arm_scope == ARM_SCOPE_FULL or state.pre_tp1_be_floor_arm_pct is not None:
             pre_state = replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,
                                 runner_stop_premium=round(runner_stop, 4))
         else:
@@ -410,9 +438,17 @@ def plan_exit_actions(
         # scope=="full" + armed: runner_stop may now BE the profit-lock floor -- the reason
         # string discloses which stop actually fired).
         if worst_premium <= runner_stop:
-            floor_active = (profit_lock_armed
-                            and state.profit_lock_arm_scope == ARM_SCOPE_FULL
-                            and runner_stop > entry * (1.0 + state.premium_stop_pct) + 1e-9)
+            floor_active = (
+                (profit_lock_armed and state.profit_lock_arm_scope == ARM_SCOPE_FULL
+                 and runner_stop > entry * (1.0 + state.premium_stop_pct) + 1e-9)
+                # ISOLATED PRE-TP1 BE FLOOR (2026-08-02): label this exit as a profit-lock
+                # floor too, not the static catastrophe cap, when the isolated knob is the
+                # reason runner_stop moved above the raw premium stop -- keeps mechanism
+                # analytics (e.g. exit_manager_walk's reached_tp1/runner_mechanism helpers)
+                # correct for this new knob exactly as they already are for arm_scope="full".
+                or (state.pre_tp1_be_floor_arm_pct is not None
+                    and runner_stop > entry * (1.0 + state.premium_stop_pct) + 1e-9)
+            )
             # EXITMGR-STAGE-LABEL-CONFLATION fix (2026-07-23): stage now matches reason --
             # this was previously hardcoded "premium_stop" even when floor_active, silently
             # conflating the static -50% catastrophe cap with a pre-TP1 profit-lock-floor

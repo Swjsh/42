@@ -742,6 +742,119 @@ def test_pre_tp1_lock_scope_survives_dict_roundtrip_and_legacy_defaults():
     ).profit_lock_arm_scope == "post_tp1"
 
 
+# --- ISOLATED PRE-TP1 BE FLOOR (2026-08-02, EXIT-HYBRID-PRETP1-FLOOR iteration 4) --------
+# Iteration 3 (profit_lock_mode="fixed" + arm_scope="full") proved CONFOUNDED: "fixed" mode
+# is read by BOTH the pre-TP1 arm branch AND the post-TP1 runner branch, so it silently
+# disables the post-TP1 15%-trailing chandelier for any trade reaching TP1 -- 25 of 27
+# degraded trades in that study were THAT mechanism, not the pre-TP1 whipsaw the hypothesis
+# targeted. `pre_tp1_be_floor_arm_pct` is a NEW, fully independent knob: arms a BE-floor-only
+# scratch pre-TP1 without ever touching profit_lock_mode/profit_lock_armed, so post-TP1 stays
+# governed purely by profit_lock_mode (still "trailing" in every test below) -- the 4th
+# candidate this queue item calls for.
+ISO_FLOOR_SHAPE = dict(TRAIL_SHAPE, pre_tp1_be_floor_arm_pct=0.05)  # -8%/+30%/0.667/trailing
+
+
+def test_pre_tp1_isolated_floor_arms_then_scratches_at_be():
+    """+5% touch arms the BE-only floor pre-TP1; the pullback through entry exits ALL at the
+    floor (a scratch), not at the -8% premium stop -- and profit_lock_armed stays FALSE
+    (unlike arm_scope='full', which sets it True -- see next test)."""
+    decs, _ = _walk(ISO_FLOOR_SHAPE, [(1.05, 1.01), (1.01, 0.99)])
+    d1 = decs[0]
+    assert d1.state.runner_stop_premium == 1.00      # BE floor, not a trail
+    assert any(a.kind == "RATCHET_STOP" and a.new_stop_premium == 1.00 for a in d1.actions)
+    assert not d1.closes_position
+    d2 = decs[1]
+    assert d2.closes_position
+    a = d2.actions[0]
+    assert a.kind == "SELL_ALL" and a.stage == "profit_lock_floor"
+    assert "profit_lock_floor" in a.reason
+
+
+def test_pre_tp1_isolated_floor_never_sets_profit_lock_armed():
+    """The defining difference from arm_scope='full': this knob must NEVER flip
+    profit_lock_armed, because that flag also gates post-TP1 mechanics. A regression that
+    reuses profit_lock_armed for this knob would silently change post-TP1 behavior too."""
+    decs, _ = _walk(ISO_FLOOR_SHAPE, [(1.05, 1.02), (1.02, 0.99)])
+    assert decs[0].state.profit_lock_armed is False
+    assert decs[1].state.profit_lock_armed is False
+
+
+def test_pre_tp1_isolated_floor_does_not_trail_pre_tp1_unlike_arm_scope_full():
+    """Contrast with test_pre_tp1_lock_full_trailing_trails_hwm_before_tp1: even with
+    profit_lock_mode='trailing', the isolated floor NEVER ratchets past entry pre-TP1 (no
+    trailing pre-TP1 -- that is the whole point of the 4th candidate, discriminating a BE
+    scratch from the whipsaw a full pre-TP1 trail causes). tp1_premium_pct=9.9 (unreachable)
+    isolates the pre-TP1 mechanism, same convention as
+    test_pre_tp1_lock_full_trailing_trails_hwm_before_tp1."""
+    shape = dict(ISO_FLOOR_SHAPE, tp1_premium_pct=9.9)
+    decs, _ = _walk(shape, [(2.00, 1.80), (1.90, 1.70)])
+    # armed at tick 1 (best 2.00 >= 1.05), floor = entry (1.00), NOT hwm*(1-trail) (2.00*0.875=1.75)
+    assert decs[0].state.runner_stop_premium == 1.00
+    assert not decs[0].closes_position   # worst 1.80 > 1.00, still open
+    # tick 2: still no exit (worst 1.70 > 1.00) and floor is STILL just BE, no further ratchet
+    assert not decs[1].closes_position
+    assert decs[1].state.runner_stop_premium == 1.00
+
+
+def test_pre_tp1_isolated_floor_post_tp1_trailing_byte_identical_to_control():
+    """The headline safety property: a full walk through TP1 and into the post-TP1 chandelier
+    must be BYTE-IDENTICAL whether or not the isolated pre-TP1 floor is set, because TP1 fill
+    unconditionally sets profit_lock_armed=True itself (line ~456) regardless of this knob.
+    This is what makes the +$15,774/35-for-35 runner engine provably untouched."""
+    ticks = [(1.20, 1.10), (1.45, 1.30), (1.90, 1.60), (1.60, 1.35)]
+    decs_ctl, books_ctl = _walk(TRAIL_SHAPE, ticks)
+    decs_iso, books_iso = _walk(ISO_FLOOR_SHAPE, ticks)
+    # the walk really exercised TP1 (tick 2, TRAIL_SHAPE tp1 @ +30% = 1.30) then post-TP1 trail
+    assert decs_ctl[1].actions and decs_ctl[1].actions[0].stage == "tp1"
+    # books = (action kinds/stages/qtys, runner_stop, armed) -- the MECHANISM, byte-identical
+    # from TP1 onward regardless of the isolated pre-TP1 knob (tick 0 legitimately differs:
+    # the isolated floor arms pre-TP1, control does not -- that's the tested mechanism, not
+    # a bug). Full ExitState equality is intentionally NOT asserted here: the two states
+    # legitimately differ in the static pre_tp1_be_floor_arm_pct config field itself.
+    assert books_ctl[1:] == books_iso[1:]
+    same_fields = ("tp1_filled", "runner_stop_premium", "hwm_premium", "profit_lock_armed")
+    for f in same_fields:
+        assert [getattr(d.state, f) for d in decs_ctl[1:]] == [getattr(d.state, f) for d in decs_iso[1:]]
+
+
+def test_pre_tp1_isolated_floor_inert_when_none():
+    """Vary-and-assert twin (C14): the default (key absent -> None) must be byte-identical to
+    TRAIL_SHAPE with no isolated floor at all -- this is a NEW additive knob, never a silent
+    default-on."""
+    ticks = [(1.05, 1.01), (1.01, 0.99), (0.95, 0.90)]
+    decs_default, books_default = _walk(TRAIL_SHAPE, ticks)
+    decs_none, books_none = _walk(dict(TRAIL_SHAPE, pre_tp1_be_floor_arm_pct=None), ticks)
+    assert books_default == books_none
+    assert [d.state for d in decs_default] == [d.state for d in decs_none]
+    # and the books DIFFER from the armed cell above (dead-knob guard)
+    _, books_armed = _walk(ISO_FLOOR_SHAPE, ticks)
+    assert books_default != books_armed
+
+
+def test_pre_tp1_isolated_floor_coexists_independent_of_arm_scope_full():
+    """Can be combined with (or exist entirely apart from) profit_lock_arm_scope='full' --
+    the two mechanisms are orthogonal (different fields, both additive)."""
+    combo = dict(ISO_FLOOR_SHAPE, profit_lock_arm_scope="full")
+    s = _state(combo)
+    assert s.pre_tp1_be_floor_arm_pct == 0.05
+    assert s.profit_lock_arm_scope == "full"
+
+
+def test_pre_tp1_isolated_floor_survives_dict_roundtrip_and_legacy_default():
+    s = _state(ISO_FLOOR_SHAPE)
+    assert s.pre_tp1_be_floor_arm_pct == 0.05
+    s2 = em.ExitState.from_dict(s.to_dict())
+    assert s2 == s and s2.pre_tp1_be_floor_arm_pct == 0.05
+    # legacy persisted record (key absent) -> None, the exact pre-2026-08-02 behavior
+    d = s.to_dict()
+    del d["pre_tp1_be_floor_arm_pct"]
+    assert em.ExitState.from_dict(d).pre_tp1_be_floor_arm_pct is None
+    # and a fresh from_entry() with no key in the exit_shape also defaults to None
+    assert em.ExitState.from_entry(
+        symbol="x", side="P", entry_premium=1.0, qty=3, exit_shape=TRAIL_SHAPE,
+    ).pre_tp1_be_floor_arm_pct is None
+
+
 if __name__ == "__main__":
     import sys
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
