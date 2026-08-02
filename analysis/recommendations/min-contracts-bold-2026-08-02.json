@@ -1,0 +1,365 @@
+{
+  "_doc": "min_contracts_bold_ab_2026_08_02.py -- pre-registered A/B: does lowering bold-2's\naccount-wide min_contracts floor from 5 to 3 (still >= Rule 6's non-negotiable 3-contract\nfloor) materially increase PARTICIPATION (the share of ATM 0DTE SPY premiums bold-2 can\nlegally place an order at) without degrading P&L or clipping bold-2's own runner cohort?\n\nPrereg (frozen BEFORE this runner executed, commit 11d405f0):\n    analysis/recommendations/prereg-min-contracts-bold-2026-08-02.json\n\nBACKGROUND: setup/scripts/sizing_deadlock_diag.py measured bold-2's premium ceiling\n(the highest per-contract premium at which it can place its SMALLEST legal order) at\n$1.19 given equity $1,197.52 x per_trade_risk_cap_pct 0.50 / (min_contracts 5 x 100).\nATM 0DTE SPY typically prices $1.30-$2.50 -- bold-2 is structurally unable to place most\nsignals, not gated by selectivity. min_contracts=5 traces to the ORIGINAL creation commit\nof aggressive/params.json (an unexamined initial default, alongside position_sizing_tiers'\nmatching base_qty=5 for the $0-2K tier) -- never independently A/B-validated, absent from\nparam-provenance.json (which only scans Safe's params.json), no scorecard citation\nanywhere in the repo. Rule 6's floor is 3 (2 TP + 1 runner); Bold's 5 sits ABOVE that floor\nas a config choice, not the rule itself.\n\nMETHOD: backtest/tools/bold_fullhist_replay.py's replay_population(), run TWICE over the\nidentical 2025-01-02..2026-07-22 window at the identical CURRENT-live gate state\n(block_elite_bull=True) and CURRENT-live equity ($1,197.52, live-verified 2026-08-02) --\nthe ONLY variable is min_contracts (5 = CONTROL/current-live, 3 = VARIANT). This isolates\nthe sizing-floor question from every other confound. resolve_bold_qty() (the faithful live\nsizing formula: qty = min_contracts, clamped to None/excluded if even the floor is\nunaffordable -- NEVER auto-shrunk) is the same function heartbeat_core.py's real order path\nmirrors, confirmed against 7/7 real bold-2 fills (BOLD-HARNESS-2026-08-01.md).\n\nSCOPE DISCLOSURE (prereg's own scope_disclosure section): this measures bold-2 (the core\nmcp_heartbeat lane, setup/scripts/heartbeat_core.py:1964) ONLY. risky-1/risky-3 (the fleet\narms that \"inherit bold\") size via position_sizing_tiers in fleet_executor.py, NOT\nmin_contracts directly -- they are NOT measured or changed by this study.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/min_contracts_bold_ab_2026_08_02.py\n",
+  "generated_at": "2026-08-02T00:20:21.397125",
+  "prereg": "analysis\\recommendations\\prereg-min-contracts-bold-2026-08-02.json",
+  "prereg_registered_at_et": "2026-08-02T02:06:26-04:00",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-07-22"
+  },
+  "account": "core_bold (Gamma-Bold-2, PA33W2KUAT40)",
+  "live_equity_used": 1197.52,
+  "gate_state_held_fixed": {
+    "block_elite_bull": true
+  },
+  "control": {
+    "min_contracts": 5,
+    "label": "CONTROL_min_contracts_5",
+    "n": 156,
+    "total_pnl": 7448.4,
+    "win_rate": 0.3333,
+    "avg_pnl_per_trade": 47.75,
+    "drop_best": {
+      "best_trade_pnl": 995.0,
+      "remainder": 6453.4,
+      "still_positive": true
+    },
+    "recent_25": {
+      "n": 25,
+      "total_pnl": 2864.4,
+      "win_rate": 0.44,
+      "start_date": "2026-05-07",
+      "end_date": "2026-07-21"
+    },
+    "notional": {
+      "avg": 428.85,
+      "max": 595.0,
+      "min": 160.0
+    },
+    "n_raw_entries": 334,
+    "n_excluded_risk_cap_deadlock": 160,
+    "n_excluded_no_opra_cache": 18,
+    "n_excluded_no_spy_day": 0
+  },
+  "variant": {
+    "min_contracts": 3,
+    "label": "VARIANT_min_contracts_3",
+    "n": 286,
+    "total_pnl": 7367.4,
+    "win_rate": 0.3287,
+    "avg_pnl_per_trade": 25.76,
+    "drop_best": {
+      "best_trade_pnl": 759.0,
+      "remainder": 6608.4,
+      "still_positive": true
+    },
+    "recent_25": {
+      "n": 25,
+      "total_pnl": -105.75,
+      "win_rate": 0.28,
+      "start_date": "2026-06-22",
+      "end_date": "2026-07-21"
+    },
+    "notional": {
+      "avg": 345.63,
+      "max": 591.0,
+      "min": 96.0
+    },
+    "n_raw_entries": 334,
+    "n_excluded_risk_cap_deadlock": 30,
+    "n_excluded_no_opra_cache": 18,
+    "n_excluded_no_spy_day": 0
+  },
+  "participation": {
+    "n_raw_entries": 334,
+    "control_n_excluded_risk_cap_deadlock": 160,
+    "variant_n_excluded_risk_cap_deadlock": 30,
+    "control_n_replayed": 156,
+    "variant_n_replayed": 286,
+    "delta_n_replayed": 130,
+    "pct_increase": 83.3
+  },
+  "exploratory_adaptive_not_shipped": {
+    "_doc": "try min_contracts=5 first, fall back to 3 only when 5 is unaffordable. Exact recombination of control_rows + (variant-only new rows), not a third backtest walk -- see code comment. NOT SHIPPED tonight: requires a heartbeat_core.py sizing-logic change (DO-NOT-TOUCH, concurrent lane).",
+    "label": "EXPLORATORY_adaptive_try5_fallback3",
+    "n": 286,
+    "total_pnl": 10528.6,
+    "win_rate": 0.3287,
+    "avg_pnl_per_trade": 36.81,
+    "drop_best": {
+      "best_trade_pnl": 995.0,
+      "remainder": 9533.6,
+      "still_positive": true
+    },
+    "recent_25": {
+      "n": 25,
+      "total_pnl": 470.25,
+      "win_rate": 0.28,
+      "start_date": "2026-06-22",
+      "end_date": "2026-07-21"
+    },
+    "notional": {
+      "avg": 439.2,
+      "max": 595.0,
+      "min": 160.0
+    },
+    "blocked_by": "setup/scripts/heartbeat_core.py:1964 is on tonight's DO-NOT-TOUCH list"
+  },
+  "monotonic_superset_check": {
+    "is_strict_superset": true,
+    "n_control_trades_missing_from_variant": 0
+  },
+  "bold_own_runner_cohort": {
+    "n": 32,
+    "control_pnl_sum": 14539.4,
+    "variant_pnl_sum": 8630.2,
+    "delta": -5909.2,
+    "n_missing_in_variant": 0,
+    "n_winner_to_loser_flips": 0,
+    "pass": false,
+    "trades": [
+      {
+        "date": "2025-01-06",
+        "symbol": "SPY250106P00596000",
+        "side": "P",
+        "control_pnl": 303.5,
+        "variant_pnl": 180.25
+      },
+      {
+        "date": "2025-01-24",
+        "symbol": "SPY250124P00609000",
+        "side": "P",
+        "control_pnl": 391.4,
+        "variant_pnl": 219.7
+      },
+      {
+        "date": "2025-05-21",
+        "symbol": "SPY250521P00584000",
+        "side": "P",
+        "control_pnl": 436.0,
+        "variant_pnl": 266.0
+      },
+      {
+        "date": "2025-05-27",
+        "symbol": "SPY250527C00587000",
+        "side": "C",
+        "control_pnl": 835.4,
+        "variant_pnl": 476.7
+      },
+      {
+        "date": "2025-06-13",
+        "symbol": "SPY250613P00599000",
+        "side": "P",
+        "control_pnl": 656.0,
+        "variant_pnl": 375.5
+      },
+      {
+        "date": "2025-06-27",
+        "symbol": "SPY250627C00614000",
+        "side": "C",
+        "control_pnl": 398.4,
+        "variant_pnl": 243.7
+      },
+      {
+        "date": "2025-07-03",
+        "symbol": "SPY250703C00624000",
+        "side": "C",
+        "control_pnl": 409.0,
+        "variant_pnl": 247.5
+      },
+      {
+        "date": "2025-07-07",
+        "symbol": "SPY250707P00622000",
+        "side": "P",
+        "control_pnl": 461.6,
+        "variant_pnl": 276.3
+      },
+      {
+        "date": "2025-07-10",
+        "symbol": "SPY250710C00625000",
+        "side": "C",
+        "control_pnl": 396.9,
+        "variant_pnl": 237.95
+      },
+      {
+        "date": "2025-07-21",
+        "symbol": "SPY250721C00629000",
+        "side": "C",
+        "control_pnl": 531.2,
+        "variant_pnl": 322.1
+      },
+      {
+        "date": "2025-08-19",
+        "symbol": "SPY250819P00641000",
+        "side": "P",
+        "control_pnl": 451.4,
+        "variant_pnl": 271.2
+      },
+      {
+        "date": "2025-09-03",
+        "symbol": "SPY250903P00642000",
+        "side": "P",
+        "control_pnl": 284.2,
+        "variant_pnl": 168.6
+      },
+      {
+        "date": "2025-09-10",
+        "symbol": "SPY250910P00653000",
+        "side": "P",
+        "control_pnl": 224.1,
+        "variant_pnl": 136.55
+      },
+      {
+        "date": "2025-09-23",
+        "symbol": "SPY250923P00665000",
+        "side": "P",
+        "control_pnl": 518.4,
+        "variant_pnl": 304.2
+      },
+      {
+        "date": "2025-09-25",
+        "symbol": "SPY250925P00659000",
+        "side": "P",
+        "control_pnl": 522.0,
+        "variant_pnl": 309.5
+      },
+      {
+        "date": "2025-10-09",
+        "symbol": "SPY251009P00671000",
+        "side": "P",
+        "control_pnl": 329.8,
+        "variant_pnl": 198.9
+      },
+      {
+        "date": "2025-10-28",
+        "symbol": "SPY251028C00687000",
+        "side": "C",
+        "control_pnl": 322.6,
+        "variant_pnl": 196.8
+      },
+      {
+        "date": "2025-11-04",
+        "symbol": "SPY251104P00679000",
+        "side": "P",
+        "control_pnl": 664.5,
+        "variant_pnl": 388.25
+      },
+      {
+        "date": "2025-12-11",
+        "symbol": "SPY251211C00686000",
+        "side": "C",
+        "control_pnl": 486.2,
+        "variant_pnl": 294.1
+      },
+      {
+        "date": "2025-12-24",
+        "symbol": "SPY251224C00688000",
+        "side": "C",
+        "control_pnl": 539.0,
+        "variant_pnl": 309.5
+      },
+      {
+        "date": "2026-01-02",
+        "symbol": "SPY260102P00682000",
+        "side": "P",
+        "control_pnl": 419.6,
+        "variant_pnl": 251.3
+      },
+      {
+        "date": "2026-01-07",
+        "symbol": "SPY260107C00692000",
+        "side": "C",
+        "control_pnl": 432.0,
+        "variant_pnl": 262.0
+      },
+      {
+        "date": "2026-03-30",
+        "symbol": "SPY260330P00632000",
+        "side": "P",
+        "control_pnl": 496.0,
+        "variant_pnl": 283.5
+      },
+      {
+        "date": "2026-05-01",
+        "symbol": "SPY260501P00722000",
+        "side": "P",
+        "control_pnl": 251.8,
+        "variant_pnl": 146.4
+      },
+      {
+        "date": "2026-05-13",
+        "symbol": "SPY260513C00742000",
+        "side": "C",
+        "control_pnl": 394.2,
+        "variant_pnl": 236.1
+      },
+      {
+        "date": "2026-05-18",
+        "symbol": "SPY260518P00736000",
+        "side": "P",
+        "control_pnl": 514.4,
+        "variant_pnl": 308.7
+      },
+      {
+        "date": "2026-06-01",
+        "symbol": "SPY260601C00757000",
+        "side": "C",
+        "control_pnl": 365.0,
+        "variant_pnl": 220.5
+      },
+      {
+        "date": "2026-06-08",
+        "symbol": "SPY260608P00741000",
+        "side": "P",
+        "control_pnl": 532.0,
+        "variant_pnl": 311.0
+      },
+      {
+        "date": "2026-06-23",
+        "symbol": "SPY260623P00735000",
+        "side": "P",
+        "control_pnl": 373.8,
+        "variant_pnl": 225.9
+      },
+      {
+        "date": "2026-07-06",
+        "symbol": "SPY260706C00749000",
+        "side": "C",
+        "control_pnl": 538.6,
+        "variant_pnl": 327.8
+      },
+      {
+        "date": "2026-07-17",
+        "symbol": "SPY260717P00745000",
+        "side": "P",
+        "control_pnl": 571.0,
+        "variant_pnl": 341.5
+      },
+      {
+        "date": "2026-07-20",
+        "symbol": "SPY260720P00744000",
+        "side": "P",
+        "control_pnl": 489.4,
+        "variant_pnl": 292.2
+      }
+    ]
+  },
+  "safe_side_anchor_disclosure": {
+    "task_cited_figure": "35 winners / +$15,774",
+    "actual_source": "exit_armscope_ab_2026_07_28.py ANCHOR_RUNNER_N=35 / ANCHOR_RUNNER_PNL=15774.05 -- SAFE's ribbon_ride runner cohort (automation/state/params.json population)",
+    "reachable_by_this_change": false,
+    "reason": "this study edits ONLY automation/state/aggressive/params.json; Safe's params.json / engine / fills are structurally untouched",
+    "safe_anchor_n": 35,
+    "safe_anchor_pnl": 15774.05
+  },
+  "gates": {
+    "G1_participation_up_ge_15pct": true,
+    "G2_pnl_not_degraded": false,
+    "G3_runner_cohort_zero_tolerance": false,
+    "G4_rule6_floor_respected": true,
+    "G5_risk_reduced": true,
+    "G6_kill_switch_cap_guard_present": true
+  },
+  "verdict": "NULL",
+  "runtime_seconds": 141.1
+}

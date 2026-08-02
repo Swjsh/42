@@ -299,19 +299,28 @@ def _load_spy_vix() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def replay_population(
     spy_df: pd.DataFrame, vix_df: pd.DataFrame, ribbon_lookup: pd.DataFrame,
-    block_elite_bull: bool,
+    block_elite_bull: bool, min_contracts: int = BOLD_MIN_CONTRACTS,
 ) -> dict:
     """ENTRY via run_backtest(**bold_base_live(block_elite_bull)); EXIT via
     walk_exit_manager driving strategies.RIBBON_RIDE.exit.to_dict() (finding #3); qty via
     resolve_bold_qty (finding #1), NOT the raw TradeFill.qty. Returns a dict with rows +
     exclusion counters (mirrors engine_fullhist_replay.py's main()/write_scorecard split,
-    collapsed to one function since this tool runs it twice, once per gate state)."""
+    collapsed to one function since this tool runs it twice, once per gate state).
+
+    min_contracts (2026-08-02, MIN-CONTRACTS-BOLD-2026-08-02 A/B): threaded through to
+    resolve_bold_qty exactly like block_elite_bull above -- an INPUT, not a hardcoded
+    constant, "so studies can run pre/post-trial counterfactuals" (same task requirement
+    block_elite_bull was built to satisfy 2026-08-01). Default is BOLD_MIN_CONTRACTS (5,
+    the CURRENT live floor), so every pre-existing call site that does not pass this
+    argument is byte-identical to before this change (parity guard:
+    test_min_contracts_bold_2026_08_02.py::test_replay_population_default_min_contracts_
+    matches_bold_min_contracts_constant)."""
     base = bold_base_live(block_elite_bull)
     t0 = time.time()
     r = run_backtest(spy_df, vix_df, start_date=FULL_START, end_date=FULL_END, **base)
     entry_elapsed = time.time() - t0
-    log(f"  [gate block_elite_bull={block_elite_bull}] run_backtest done in "
-        f"{entry_elapsed:.1f}s -- {len(r.trades)} raw entries")
+    log(f"  [gate block_elite_bull={block_elite_bull} min_contracts={min_contracts}] "
+        f"run_backtest done in {entry_elapsed:.1f}s -- {len(r.trades)} raw entries")
 
     correct_shape = fleet_strategies.by_name("ribbon_ride").exit.to_dict()
 
@@ -334,7 +343,7 @@ def replay_population(
 
         entry_time_et = efr.naive_dt(t.entry_time_et)
         entry_premium = float(t.entry_premium)
-        qty = resolve_bold_qty(entry_premium)
+        qty = resolve_bold_qty(entry_premium, min_contracts=min_contracts)
         if qty is None:
             n_excluded_sizing += 1
             continue
@@ -358,12 +367,14 @@ def replay_population(
             "n_ticks_walked": res.n_ticks_walked, "resolved": res.resolved,
         })
     exit_elapsed = time.time() - t1
-    log(f"  [gate block_elite_bull={block_elite_bull}] exit re-derivation done in "
-        f"{exit_elapsed:.1f}s -- n_replayed={len(rows)} n_no_opra_excluded={n_no_opra} "
-        f"n_no_spy_day_excluded={n_no_spy_day} n_excluded_risk_cap_deadlock={n_excluded_sizing}")
+    log(f"  [gate block_elite_bull={block_elite_bull} min_contracts={min_contracts}] "
+        f"exit re-derivation done in {exit_elapsed:.1f}s -- n_replayed={len(rows)} "
+        f"n_no_opra_excluded={n_no_opra} n_no_spy_day_excluded={n_no_spy_day} "
+        f"n_excluded_risk_cap_deadlock={n_excluded_sizing}")
 
     return {
         "block_elite_bull": block_elite_bull,
+        "min_contracts": min_contracts,
         "rows": rows,
         "n_raw_entries": len(r.trades),
         "n_excluded_no_opra_cache": n_no_opra,
