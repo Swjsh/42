@@ -43,6 +43,22 @@ Karpathy: "you can't claim improvement without measuring against an unchanged ba
 
 This directory will accumulate one `R-NNNN.json` per ratified or declined recommendation. Audit history lives in `analysis/recommendations-log.jsonl` (the lifecycle log) — this folder holds the evidence each recommendation rests on.
 
+> 🚨 **DISCLOSURE (OPTION-BAR-RESOLUTION-BIAS, 2026-08-02):** any scorecard in this folder dated
+> **before 2026-08-02** whose exit walk sourced option premium bars from
+> `backtest/lib/option_pricing_real.load_contract_bars` (directly, or transitively via
+> `simulator_real.py`, `t4_exit_matrix._load_bars`, or any `exit_manager_walk.walk_exit_manager`
+> call fed from that cache) ran on **5-minute** OPRA bars and **may under-detect intra-bar stop
+> hits that breach and recover within a bar** — measured, one-directional (5-min flatters P&L,
+> never the reverse), $1,821.75 aggregate swing on a 123-position real-fills sample. Full
+> measurement + methodology: `analysis/deep-research/OPTION-BAR-RESOLUTION-BIAS-2026-08-02.md`.
+> The two highest-stakes consumers (`structure_stop_study.py` → live v15.3 CHART-STOP-PRIMARY;
+> `ribbon_ride_strike_exit_ab.py` → live ATM strike tier) were re-verified at 1-minute
+> resolution the same night — **both CONFIRMED**, no live knob changed. `option_pricing_real.py`
+> now takes an explicit, logged `resolution` kwarg instead of a silent 5-min default (backward-
+> compatible; see `markdown/infra/DATA-PROVENANCE.md`). This is a single, standing disclosure —
+> individual scorecards below are **not** being rewritten; treat any pre-2026-08-02 stop/TP
+> timing number here as resolution-disclosed, not resolution-blind.
+
 ## Lifecycle states
 
 ```
