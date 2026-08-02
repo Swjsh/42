@@ -1,0 +1,354 @@
+{
+ "_doc": "regime_standdown_study.py -- executes prereg-regime-standdown-2026-08-02.json\n(REGIME-STANDDOWN-EARLY-CLASSIFIER-2026-08-02, 2026-08-02).\n\nCreated AFTER the prereg was committed (60e1dcc8) -- git-provable freeze order, no\nexceptions, per the task brief. Does NOT re-simulate anything: pure post-hoc filtering of\nthe already-real-fills, already-real-exit-walked engine-fullhist-replay-2026-07-23.json\ntrade log against the already-committed, already-frozen early classifier's out-of-fold\npredictions (early-classifier-2026-08-02.json, commit 76857479). Zero new entry/exit logic,\nzero new simulation -- if this script disagrees with THE FINDING's own numbers on the\nCONTROL arm, that is a bug in this script, not a second measurement of the engine.\n\nArms (frozen in the prereg, reproduced here verbatim, not re-derived):\n    ARM_2_CONTROL         -- unmodified in-scope trade population\n    ARM_1_STANDDOWN_10AM  -- CONTROL minus trades on days classifier[10:00].pred_standdown_direct==True (PRIMARY)\n    ARM_1B_STANDDOWN_0945 -- CONTROL minus trades on days classifier[09:45].pred_standdown_direct==True (secondary)\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/regime_standdown_study.py\n",
+ "generated_at": "2026-08-02T00:21:05.565066",
+ "prereg": "analysis/recommendations/prereg-regime-standdown-2026-08-02.json (commit 60e1dcc8)",
+ "sources": {
+  "trades": "analysis\\recommendations\\engine-fullhist-replay-2026-07-23.json",
+  "classifier": "analysis\\regime-library\\early-classifier-2026-08-02.json",
+  "regime_library": "analysis\\regime-library\\day-archetypes.json"
+ },
+ "scope": {
+  "n_total_trades": 191,
+  "n_in_scope_trades": 161,
+  "n_excluded_trades": 30,
+  "n_excluded_dates": 21,
+  "excluded_dates": [
+   "2025-01-06",
+   "2025-01-07",
+   "2025-01-08",
+   "2025-01-10",
+   "2025-01-13",
+   "2025-01-16",
+   "2025-01-29",
+   "2025-01-30",
+   "2025-02-06",
+   "2025-02-07",
+   "2025-02-12",
+   "2025-02-14",
+   "2025-02-20",
+   "2025-02-21",
+   "2025-02-24",
+   "2025-02-25",
+   "2025-03-03",
+   "2025-03-18",
+   "2025-03-20",
+   "2025-04-02",
+   "2026-06-15"
+  ],
+  "note": "excluded = trade dates in the classifier's walk-forward SEED window (no honest out-of-fold prediction exists) -- dropped from BOTH arms identically, per the prereg."
+ },
+ "arm_ARM_1_STANDDOWN_10AM_primary": {
+  "arm": "ARM_1_STANDDOWN_10AM",
+  "n_control_trades": 161,
+  "n_kept_trades": 109,
+  "n_removed_trades": 52,
+  "n_removed_days": 39,
+  "removed_dates": [
+   "2025-05-20",
+   "2025-06-17",
+   "2025-07-15",
+   "2025-07-18",
+   "2025-07-29",
+   "2025-08-01",
+   "2025-08-15",
+   "2025-09-10",
+   "2025-10-02",
+   "2025-10-06",
+   "2025-10-09",
+   "2025-10-27",
+   "2025-10-28",
+   "2025-11-04",
+   "2025-11-12",
+   "2025-12-12",
+   "2025-12-15",
+   "2026-01-02",
+   "2026-01-06",
+   "2026-02-05",
+   "2026-02-12",
+   "2026-02-19",
+   "2026-02-20",
+   "2026-02-27",
+   "2026-03-05",
+   "2026-04-08",
+   "2026-04-28",
+   "2026-05-19",
+   "2026-05-21",
+   "2026-05-28",
+   "2026-06-08",
+   "2026-06-12",
+   "2026-06-23",
+   "2026-06-25",
+   "2026-06-26",
+   "2026-07-06",
+   "2026-07-08",
+   "2026-07-17",
+   "2026-07-21"
+  ],
+  "control_total_pnl": 5376.3,
+  "kept_total_pnl": 5397.0,
+  "removed_total_pnl": -20.7,
+  "full_population_delta": 20.7,
+  "drop_best_day_full_population": {
+   "best_kept_day": "2026-05-18",
+   "best_kept_day_pnl": 1465.1,
+   "kept_total_minus_best_day": 3931.9,
+   "still_positive_after_drop_best": true
+  },
+  "recent_window": {
+   "window_dates": [
+    "2026-05-26",
+    "2026-07-21"
+   ],
+   "control_total": 13.25,
+   "kept_total": -619.7,
+   "removed_total": 632.95,
+   "delta": -632.95
+  },
+  "removed_by_true_archetype": {
+   "range-chop": {
+    "n_trades": 22,
+    "total_pnl": 683.55,
+    "n_days": 17
+   },
+   "gap-go": {
+    "n_trades": 13,
+    "total_pnl": 163.85,
+    "n_days": 10
+   },
+   "gap-fade": {
+    "n_trades": 13,
+    "total_pnl": -733.9,
+    "n_days": 8
+   },
+   "pin-day": {
+    "n_trades": 1,
+    "total_pnl": -51.0,
+    "n_days": 1
+   },
+   "V-reversal": {
+    "n_trades": 3,
+    "total_pnl": -83.2,
+    "n_days": 3
+   }
+  },
+  "gap_go_removed": {
+   "n_trades": 13,
+   "total_pnl": 163.85,
+   "n_days": 10
+  },
+  "pin_gapfade_removed": {
+   "n_trades": 14,
+   "total_pnl": -784.9,
+   "note": "the archetypes this arm was SUPPOSED to catch"
+  },
+  "removed_trades_one_sided_pvalue_mean_below_zero": 0.4953,
+  "gates": {
+   "G1_recent_window_positive": {
+    "pass": false,
+    "value": -632.95
+   },
+   "G2_day_majority_recent": {
+    "pass": false,
+    "n_improved": 4,
+    "n_worsened": 6,
+    "n_neutral": 0
+   },
+   "G3_survives_worst_single_dodge_recent": {
+    "pass": false,
+    "value": -1211.95,
+    "worst_single_removed_trade_recent": -579.0
+   },
+   "G4_runner_anchor_no_regression": {
+    "pass": false,
+    "runner_count_control": 32,
+    "runner_count_kept": 22,
+    "runner_count_pct_of_control": 0.6875,
+    "runner_total_control": 14342.6,
+    "runner_total_kept": 10407.9,
+    "runner_total_pct_of_control": 0.7257,
+    "n_runner_trades_removed": 10,
+    "total_runner_pnl_removed": 3934.7
+   },
+   "G5_meaningful_participation_change": {
+    "pass": true,
+    "n_removed_trades": 52,
+    "n_removed_days": 39
+   }
+  },
+  "ships": false
+ },
+ "arm_ARM_1B_STANDDOWN_0945_secondary": {
+  "arm": "ARM_1B_STANDDOWN_0945",
+  "n_control_trades": 161,
+  "n_kept_trades": 79,
+  "n_removed_trades": 82,
+  "n_removed_days": 57,
+  "removed_dates": [
+   "2025-05-12",
+   "2025-05-20",
+   "2025-06-17",
+   "2025-07-15",
+   "2025-07-29",
+   "2025-08-01",
+   "2025-08-05",
+   "2025-08-07",
+   "2025-08-08",
+   "2025-08-11",
+   "2025-08-12",
+   "2025-08-13",
+   "2025-08-15",
+   "2025-08-19",
+   "2025-08-20",
+   "2025-08-22",
+   "2025-08-29",
+   "2025-09-03",
+   "2025-09-10",
+   "2025-09-11",
+   "2025-09-17",
+   "2025-09-18",
+   "2025-09-23",
+   "2025-09-25",
+   "2025-09-26",
+   "2025-10-02",
+   "2025-10-06",
+   "2025-10-07",
+   "2025-10-09",
+   "2025-10-15",
+   "2025-10-27",
+   "2025-10-28",
+   "2025-11-04",
+   "2025-12-11",
+   "2025-12-12",
+   "2025-12-15",
+   "2025-12-29",
+   "2026-01-02",
+   "2026-01-06",
+   "2026-01-14",
+   "2026-02-05",
+   "2026-02-12",
+   "2026-02-19",
+   "2026-02-20",
+   "2026-03-02",
+   "2026-03-05",
+   "2026-04-08",
+   "2026-05-08",
+   "2026-05-21",
+   "2026-05-26",
+   "2026-06-08",
+   "2026-06-11",
+   "2026-06-12",
+   "2026-06-25",
+   "2026-07-06",
+   "2026-07-15",
+   "2026-07-21"
+  ],
+  "control_total_pnl": 5376.3,
+  "kept_total_pnl": 2778.2,
+  "removed_total_pnl": 2598.1,
+  "full_population_delta": -2598.1,
+  "drop_best_day_full_population": {
+   "best_kept_day": "2026-05-18",
+   "best_kept_day_pnl": 1465.1,
+   "kept_total_minus_best_day": 1313.1,
+   "still_positive_after_drop_best": true
+  },
+  "recent_window": {
+   "window_dates": [
+    "2026-05-26",
+    "2026-07-21"
+   ],
+   "control_total": 13.25,
+   "kept_total": -954.25,
+   "removed_total": 967.5,
+   "delta": -967.5
+  },
+  "removed_by_true_archetype": {
+   "gap-go": {
+    "n_trades": 24,
+    "total_pnl": 2218.7,
+    "n_days": 18
+   },
+   "range-chop": {
+    "n_trades": 31,
+    "total_pnl": -469.85,
+    "n_days": 21
+   },
+   "gap-fade": {
+    "n_trades": 17,
+    "total_pnl": 557.05,
+    "n_days": 11
+   },
+   "V-reversal": {
+    "n_trades": 6,
+    "total_pnl": -270.8,
+    "n_days": 4
+   },
+   "pin-day": {
+    "n_trades": 3,
+    "total_pnl": -189.0,
+    "n_days": 2
+   },
+   "trend-up": {
+    "n_trades": 1,
+    "total_pnl": 752.0,
+    "n_days": 1
+   }
+  },
+  "gap_go_removed": {
+   "n_trades": 24,
+   "total_pnl": 2218.7,
+   "n_days": 18
+  },
+  "pin_gapfade_removed": {
+   "n_trades": 20,
+   "total_pnl": 368.05,
+   "note": "the archetypes this arm was SUPPOSED to catch"
+  },
+  "removed_trades_one_sided_pvalue_mean_below_zero": 0.8648,
+  "gates": {
+   "G1_recent_window_positive": {
+    "pass": false,
+    "value": -967.5
+   },
+   "G2_day_majority_recent": {
+    "pass": false,
+    "n_improved": 4,
+    "n_worsened": 4,
+    "n_neutral": 0
+   },
+   "G3_survives_worst_single_dodge_recent": {
+    "pass": false,
+    "value": -1546.5,
+    "worst_single_removed_trade_recent": -579.0
+   },
+   "G4_runner_anchor_no_regression": {
+    "pass": false,
+    "runner_count_control": 32,
+    "runner_count_kept": 16,
+    "runner_count_pct_of_control": 0.5,
+    "runner_total_control": 14342.6,
+    "runner_total_kept": 7542.9,
+    "runner_total_pct_of_control": 0.5259,
+    "n_runner_trades_removed": 16,
+    "total_runner_pnl_removed": 6799.7
+   },
+   "G5_meaningful_participation_change": {
+    "pass": true,
+    "n_removed_trades": 82,
+    "n_removed_days": 57
+   }
+  },
+  "ships": false
+ },
+ "bh_fdr_removed_trade_means": {
+  "alpha": 0.1,
+  "n_cells": 2,
+  "survivors": []
+ },
+ "verdict": {
+  "any_arm_ships": false,
+  "arm_10_ships": false,
+  "arm_09_ships": false,
+  "conclusion": "NOT LIVE-EXECUTABLE with the current early-classifier methodology -- confirms the prereg's stated prior. Filed as a real, dated null result."
+ }
+}

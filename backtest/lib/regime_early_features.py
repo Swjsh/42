@@ -40,6 +40,14 @@ import pandas as pd
 CUTOFFS: dict[str, dt.time] = {
     "09:45": dt.time(9, 45),
     "10:00": dt.time(10, 0),
+    # EXPLORATORY ONLY (added post-hoc, 2026-08-02, after 09:45/10:00 were the pre-registered
+    # arms in prereg-regime-standdown-2026-08-02.json): cheap sweep to characterize the
+    # accuracy/lateness tradeoff for the write-up's "what would it take" section. NOT part of
+    # the frozen prereg, NOT fed into regime_standdown_study.py's arms -- descriptive only,
+    # never gates anything (same discipline as G6 in the sibling VIX-gate prereg).
+    "10:15": dt.time(10, 15),
+    "10:30": dt.time(10, 30),
+    "11:00": dt.time(11, 0),
 }
 
 # Bars required for a cutoff to be meaningful at all (a session with fewer RTH bars than this
