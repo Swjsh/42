@@ -1,0 +1,697 @@
+{
+  "_doc": "bull_vix_soft_mode_2026_08_03.py -- REAL SEQUENTIAL A/B for `vix_soft_mode_bull` (ARM_C).\n\nExecutes analysis/recommendations/prereg-bull-vix-soft-mode-2026-08-03.json's ARM_C EXACTLY as\nfrozen. This prereg specified a NEW code path (filters.py#evaluate_bullish_setup's\n`vix_soft_mode_bull` parameter, orchestrator.py#run_backtest's matching kwarg) that did not\nexist when the prereg was written -- that code was built and guard-tested THIS session\n(backtest/tests/test_bull_vix_soft_mode_2026_08_03.py, vary-and-assert + RED-proof) before this\nrunner was written. This file is the \"real run\" the prereg's own text repeatedly points to.\n\nWHY SEQUENTIAL RE-ADMISSION IS NECESSARY (not just reading run_backtest(...).trades directly):\nrun_backtest()'s own bar-walk loop IS already single-position-sequential (it skips the bar\npointer forward past an assumed exit before considering a new entry -- orchestrator.py's own\nmodule docstring, point 5: \"After exit, jump bar pointer past the exit bar (no re-entry until\nflat)\"), BUT that skip-forward decision uses run_backtest's OWN internal exit simulation, which\nthis repo's own established doctrine treats as KNOWN-DIVERGENT from the correct exit (every\ncited full-population study -- engine_fullhist_replay.py, ladder_fullhist_replay.py,\nbull_gate_f5class_requal_2026_08_01.py -- discards `t.dollar_pnl`/`t.exit_time_et`'s implicit\ntiming and re-derives the TRUE exit via `lib.exit_manager_walk.walk_exit_manager`). Once the\nTRUE exit times are known, TWO INDEPENDENT run_backtest() calls (CONTROL vs ARM_C) can each have\nadmitted a candidate whose TRUE exit overlaps a later admitted candidate -- exactly the\nmechanism `backtest/tools/bold_adaptive_sizing_2026_08_02.py` discovered and fixed via\n`_sequential_admit` (re-walk one-position-at-a-time using the CORRECTED exit_time_et). That\nfunction is REUSED here verbatim (imported, not reimplemented) per the task's explicit\ninstruction.\n\nMETHOD:\n  ENTRY layer   run_backtest(**engine_fullhist_replay.SAFE_BASE_LIVE) -- CONTROL (unchanged) and\n                ARM_C (+ vix_soft_mode_bull=True). Byte-identical Safe production config\n                otherwise (elite_bear_level_reject_gate_ab.SAFE_BASE, field-reconciled prod\n                config, initial_equity refreshed to $1,746.75 -- this repo's established\n                convention, see engine_fullhist_replay.py's own docstring).\n  EXIT layer    lib.exit_manager_walk.walk_exit_manager, RIBBON_RIDE exit shape,\n                structure_stop_enabled=True, time_stop 15:40 ET -- the SAME re-derivation every\n                cited full-population study in this repo uses. run_backtest's own\n                dollar_pnl/exit_time_et are DISCARDED; only entry metadata survives.\n  SEQUENCING    `_sequential_admit` (bold_adaptive_sizing_2026_08_02, imported) applied\n                INDEPENDENTLY to CONTROL's and ARM_C's candidate rows -> CONTROL_SEQUENTIAL /\n                ARM_C_SEQUENTIAL -- the TRUE, honestly-replayed populations.\n  DECOMPOSITION ADDED cohort (ARM_C_SEQUENTIAL rows whose (symbol, entry_time_et) key never\n                appears in CONTROL's own CANDIDATE pool at all -- only possible via the new\n                soft-demerit path) vs PRE-EMPTED cohort (CONTROL_SEQUENTIAL rows absent from\n                ARM_C_SEQUENTIAL, displaced by an earlier ARM_C-only trade occupying the slot).\n                Mirrors bold_adaptive_sizing_2026_08_02.decompose()'s method exactly (built\n                fresh here, not imported, since this study's day-level delta gates (G1-G3) are\n                DEFINED DIFFERENTLY in this prereg than in that one -- see gates below).\n\nGATES (frozen in the prereg, reproduced here verbatim, not reinterpreted):\n  G1 (PRIMARY)  recent-25-trading-day delta (ARM_C_SEQUENTIAL total - CONTROL_SEQUENTIAL total,\n                both restricted to the 25 newest trading dates in the population frame) > 0.\n  G2            among recent-window days whose book changed (CONTROL day-total != ARM_C\n                day-total), n_improved > n_worsened.\n  G3            recent-window delta minus the SINGLE best-contributing changed trade (added:\n                +pnl: pre-empted: -pnl) remains > 0.\n  G4            in ARM_C, both COUNT and TOTAL P&L of runner-cohort exits (exit_reason\n                containing \"runner\" or \"trail\", case-insensitive) must be >= 95% of CONTROL's,\n                over the FULL population. Zero tolerance. This is a SAFE-only study (CONTROL is\n                literally SAFE_BASE_LIVE, not Bold) -- the runner-cohort anchor used is THIS\n                STUDY's own freshly-computed CONTROL_SEQUENTIAL runner cohort, never Bold's\n                separate n=32/$14,539.40 anchor (that anchor belongs to a DIFFERENT study, a\n                DIFFERENT account, and is not cited anywhere in this file).\n  G5            ARM_C must ADD >= 10 new entries over the full population AND >= 2 over the\n                recent window (L243 fire-count floor).\n  Ship rule     G1 AND G2 AND G3 AND G4 AND G5, all-or-nothing, exactly as frozen.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/bull_vix_soft_mode_2026_08_03.py\n",
+  "generated_at": "2026-08-02T10:35:52.571707",
+  "prereg": "analysis/recommendations/prereg-bull-vix-soft-mode-2026-08-03.json",
+  "prereg_frozen_at_et": "2026-08-02 11:58:55 Sunday EDT",
+  "account_scope": "SAFE ONLY (CONTROL = SAFE_BASE_LIVE, elite_bear_level_reject_gate_ab.SAFE_BASE + initial_equity=1746.75). No Bold cell computed -- the frozen prereg's CONTROL is SAFE_BASE_LIVE verbatim, not a Bold config, so Bold's separate n=32/$14,539.40 runner anchor is inapplicable here and is not cited anywhere in this file.",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-07-27",
+    "n_trading_days": 390,
+    "n_trading_days_crosscheck_source": "FREQUENCY-CEILING-2026-08-03.md (same end date)",
+    "n_trading_days_crosscheck_value": 390
+  },
+  "recent_window": {
+    "n": 25,
+    "start": "2026-06-22",
+    "end": "2026-07-27"
+  },
+  "raw_entries": {
+    "control": 210,
+    "arm_c": 237
+  },
+  "candidate_rows": {
+    "control": {
+      "n": 194,
+      "n_excluded_no_opra": 16,
+      "n_excluded_no_spy_day": 0,
+      "n_excluded_unwalkable": 0
+    },
+    "arm_c": {
+      "n": 221,
+      "n_excluded_no_opra": 16,
+      "n_excluded_no_spy_day": 0,
+      "n_excluded_unwalkable": 0
+    }
+  },
+  "sequential_admission": {
+    "control": {
+      "candidates": 194,
+      "sequential": 187,
+      "self_preempted": 7
+    },
+    "arm_c": {
+      "candidates": 221,
+      "sequential": 212,
+      "preempted": 9
+    }
+  },
+  "control_sequential": {
+    "n": 187,
+    "total_pnl": 4230.35,
+    "win_rate": 0.2941,
+    "avg_pnl_per_trade": 22.62,
+    "drop_best": {
+      "remainder": 3370.4,
+      "still_positive": true
+    },
+    "recent_25": {
+      "n": 25,
+      "total_pnl": -1427.35
+    }
+  },
+  "arm_c_sequential": {
+    "n": 212,
+    "total_pnl": 5716.65,
+    "win_rate": 0.3066,
+    "avg_pnl_per_trade": 26.97,
+    "drop_best": {
+      "remainder": 4791.65,
+      "still_positive": true
+    },
+    "recent_25": {
+      "n": 25,
+      "total_pnl": -1427.35
+    }
+  },
+  "day_level": {
+    "recent_control_total": -1427.35,
+    "recent_armc_total": -1427.35,
+    "recent_delta": 0.0,
+    "changed_days": [],
+    "n_improved": 0,
+    "n_worsened": 0
+  },
+  "drop_best_on_delta": {
+    "recent_delta": 0.0,
+    "best_single_contribution": 0.0,
+    "remainder": 0.0,
+    "still_positive": false
+  },
+  "decomposition": {
+    "_doc": "gain_over_control == added_total - preempted_total (accounting identity, verified below).",
+    "added_cohort": {
+      "n": 26,
+      "total_pnl": 1206.3,
+      "trades": [
+        {
+          "date": "2025-01-03",
+          "entry_time_et": "2025-01-03T11:00:00",
+          "exit_time_et": "2025-01-03T15:00:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250103C00588000",
+          "qty": 3,
+          "entry_premium": 1.77,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 587.54,
+          "dollar_pnl": 503.4,
+          "exit_reason": "runner_stop @ 3.26",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 240
+        },
+        {
+          "date": "2025-01-14",
+          "entry_time_et": "2025-01-14T14:40:00",
+          "exit_time_et": "2025-01-14T15:40:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250114C00582000",
+          "qty": 4,
+          "entry_premium": 1.26,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 582.11,
+          "dollar_pnl": 52.0,
+          "exit_reason": "time_stop_15:40",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 60
+        },
+        {
+          "date": "2025-02-26",
+          "entry_time_et": "2025-02-26T10:40:00",
+          "exit_time_et": "2025-02-26T14:05:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250226C00596000",
+          "qty": 3,
+          "entry_premium": 2.64,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 595.105,
+          "dollar_pnl": -333.0,
+          "exit_reason": "ribbon_flip_back",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 205
+        },
+        {
+          "date": "2025-03-19",
+          "entry_time_et": "2025-03-19T09:50:00",
+          "exit_time_et": "2025-03-19T15:20:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250319C00563000",
+          "qty": 3,
+          "entry_premium": 2.79,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 562.0,
+          "dollar_pnl": 925.0,
+          "exit_reason": "runner_stop @ 6.46",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 330
+        },
+        {
+          "date": "2025-04-01",
+          "entry_time_et": "2025-04-01T11:00:00",
+          "exit_time_et": "2025-04-01T12:30:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250401C00560000",
+          "qty": 3,
+          "entry_premium": 1.54,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 558.9748888357211,
+          "dollar_pnl": 418.35,
+          "exit_reason": "runner_stop @ 2.64",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 90
+        },
+        {
+          "date": "2025-05-12",
+          "entry_time_et": "2025-05-12T09:40:00",
+          "exit_time_et": "2025-05-12T09:45:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250512C00579000",
+          "qty": 3,
+          "entry_premium": 2.27,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 579.0,
+          "dollar_pnl": -57.0,
+          "exit_reason": "structure_stop @ 579.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 5
+        },
+        {
+          "date": "2025-05-28",
+          "entry_time_et": "2025-05-28T09:40:00",
+          "exit_time_et": "2025-05-28T09:50:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250528C00593000",
+          "qty": 3,
+          "entry_premium": 1.71,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 592.0,
+          "dollar_pnl": -198.0,
+          "exit_reason": "structure_stop @ 592.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 10
+        },
+        {
+          "date": "2025-05-29",
+          "entry_time_et": "2025-05-29T09:55:00",
+          "exit_time_et": "2025-05-29T10:05:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250529C00592000",
+          "qty": 3,
+          "entry_premium": 1.84,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 591.0,
+          "dollar_pnl": -312.0,
+          "exit_reason": "structure_stop @ 591.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 10
+        },
+        {
+          "date": "2025-06-06",
+          "entry_time_et": "2025-06-06T10:00:00",
+          "exit_time_et": "2025-06-06T10:05:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250606C00600000",
+          "qty": 3,
+          "entry_premium": 1.59,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 599.755,
+          "dollar_pnl": -69.0,
+          "exit_reason": "structure_stop @ 599.755",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 5
+        },
+        {
+          "date": "2025-06-16",
+          "entry_time_et": "2025-06-16T09:55:00",
+          "exit_time_et": "2025-06-16T13:55:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250616C00603000",
+          "qty": 4,
+          "entry_premium": 1.12,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 602.0,
+          "dollar_pnl": -224.0,
+          "exit_reason": "premium_stop @ 0.56",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 240
+        },
+        {
+          "date": "2025-06-24",
+          "entry_time_et": "2025-06-24T09:40:00",
+          "exit_time_et": "2025-06-24T10:00:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250624C00605000",
+          "qty": 4,
+          "entry_premium": 1.24,
+          "triggers": [
+            "level_reclaim",
+            "confluence",
+            "sequence_reclaim"
+          ],
+          "trigger_level": 604.45,
+          "dollar_pnl": -140.0,
+          "exit_reason": "structure_stop @ 604.45",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 20
+        },
+        {
+          "date": "2025-06-30",
+          "entry_time_et": "2025-06-30T09:55:00",
+          "exit_time_et": "2025-06-30T10:40:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250630C00616000",
+          "qty": 3,
+          "entry_premium": 1.57,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 616.2,
+          "dollar_pnl": -123.0,
+          "exit_reason": "structure_stop @ 616.2",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 45
+        },
+        {
+          "date": "2025-07-16",
+          "entry_time_et": "2025-07-16T13:40:00",
+          "exit_time_et": "2025-07-16T13:55:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY250716C00623000",
+          "qty": 6,
+          "entry_premium": 0.77,
+          "triggers": [
+            "level_reclaim",
+            "confluence",
+            "sequence_reclaim"
+          ],
+          "trigger_level": 623.13,
+          "dollar_pnl": -108.0,
+          "exit_reason": "structure_stop @ 623.13",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 15
+        },
+        {
+          "date": "2025-08-04",
+          "entry_time_et": "2025-08-04T09:40:00",
+          "exit_time_et": "2025-08-04T13:50:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY250804C00627000",
+          "qty": 3,
+          "entry_premium": 1.61,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 627.0,
+          "dollar_pnl": 462.75,
+          "exit_reason": "runner_stop @ 3.02",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 250
+        },
+        {
+          "date": "2025-10-15",
+          "entry_time_et": "2025-10-15T09:45:00",
+          "exit_time_et": "2025-10-15T09:50:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY251015C00667000",
+          "qty": 3,
+          "entry_premium": 1.78,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 666.77,
+          "dollar_pnl": 60.0,
+          "exit_reason": "structure_stop @ 666.77",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 5
+        },
+        {
+          "date": "2025-10-23",
+          "entry_time_et": "2025-10-23T09:40:00",
+          "exit_time_et": "2025-10-23T10:20:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY251023C00669000",
+          "qty": 3,
+          "entry_premium": 1.52,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 669.0,
+          "dollar_pnl": 36.0,
+          "exit_reason": "structure_stop @ 669.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 40
+        },
+        {
+          "date": "2025-11-14",
+          "entry_time_et": "2025-11-14T12:25:00",
+          "exit_time_et": "2025-11-14T14:05:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY251114C00674000",
+          "qty": 3,
+          "entry_premium": 1.75,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 673.1402665238274,
+          "dollar_pnl": -195.0,
+          "exit_reason": "structure_stop @ 673.1402665238274",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 100
+        },
+        {
+          "date": "2026-02-06",
+          "entry_time_et": "2026-02-06T10:35:00",
+          "exit_time_et": "2026-02-06T15:40:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY260206C00684000",
+          "qty": 3,
+          "entry_premium": 2.52,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 682.0,
+          "dollar_pnl": 751.0,
+          "exit_reason": "time_stop_15:40 (runner)",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 305
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T14:40:00",
+          "exit_time_et": "2026-02-17T15:40:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY260217C00683000",
+          "qty": 3,
+          "entry_premium": 1.36,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 682.41,
+          "dollar_pnl": 168.0,
+          "exit_reason": "time_stop_15:40",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 60
+        },
+        {
+          "date": "2026-02-18",
+          "entry_time_et": "2026-02-18T10:55:00",
+          "exit_time_et": "2026-02-18T15:30:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY260218C00685000",
+          "qty": 3,
+          "entry_premium": 2.22,
+          "triggers": [
+            "level_reclaim",
+            "confluence",
+            "sequence_reclaim"
+          ],
+          "trigger_level": 683.83,
+          "dollar_pnl": -267.0,
+          "exit_reason": "ribbon_flip_back",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 275
+        },
+        {
+          "date": "2026-04-09",
+          "entry_time_et": "2026-04-09T11:00:00",
+          "exit_time_et": "2026-04-09T11:05:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY260409C00675000",
+          "qty": 4,
+          "entry_premium": 1.27,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 675.0,
+          "dollar_pnl": -72.0,
+          "exit_reason": "structure_stop @ 675.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 5
+        },
+        {
+          "date": "2026-04-16",
+          "entry_time_et": "2026-04-16T10:55:00",
+          "exit_time_et": "2026-04-16T12:25:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY260416C00700000",
+          "qty": 4,
+          "entry_premium": 1.26,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 699.81,
+          "dollar_pnl": 499.8,
+          "exit_reason": "runner_stop @ 2.5",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 90
+        },
+        {
+          "date": "2026-04-22",
+          "entry_time_et": "2026-04-22T13:25:00",
+          "exit_time_et": "2026-04-22T14:20:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY260422C00710000",
+          "qty": 5,
+          "entry_premium": 0.9,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 709.74,
+          "dollar_pnl": -240.0,
+          "exit_reason": "structure_stop @ 709.74",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 55
+        },
+        {
+          "date": "2026-04-22",
+          "entry_time_et": "2026-04-22T14:25:00",
+          "exit_time_et": "2026-04-22T14:35:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260422P00710000",
+          "qty": 3,
+          "entry_premium": 0.94,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "trigger_level": null,
+          "dollar_pnl": -90.0,
+          "exit_reason": "ribbon_flip_back",
+          "resolved_stop_mode": "premium",
+          "hold_minutes": 10
+        },
+        {
+          "date": "2026-05-12",
+          "entry_time_et": "2026-05-12T14:30:00",
+          "exit_time_et": "2026-05-12T15:00:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "LEVEL",
+          "symbol": "SPY260512C00736000",
+          "qty": 6,
+          "entry_premium": 0.82,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip"
+          ],
+          "trigger_level": 736.0,
+          "dollar_pnl": -90.0,
+          "exit_reason": "structure_stop @ 736.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 30
+        },
+        {
+          "date": "2026-05-19",
+          "entry_time_et": "2026-05-19T13:00:00",
+          "exit_time_et": "2026-05-19T14:30:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY260519C00736000",
+          "qty": 4,
+          "entry_premium": 1.26,
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 736.0,
+          "dollar_pnl": -152.0,
+          "exit_reason": "structure_stop @ 736.0",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 90
+        }
+      ]
+    },
+    "preempted_cohort": {
+      "n": 1,
+      "total_pnl": -280.0,
+      "trades": [
+        {
+          "date": "2026-05-19",
+          "entry_time_et": "2026-05-19T14:10:00",
+          "exit_time_et": "2026-05-19T14:25:00",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "side": "C",
+          "tier": "SUPER",
+          "symbol": "SPY260519C00737000",
+          "qty": 5,
+          "entry_premium": 0.97,
+          "triggers": [
+            "level_reclaim",
+            "confluence",
+            "sequence_reclaim"
+          ],
+          "trigger_level": 736.6849381647099,
+          "dollar_pnl": -280.0,
+          "exit_reason": "structure_stop @ 736.6849381647099",
+          "resolved_stop_mode": "structure",
+          "hold_minutes": 15
+        }
+      ]
+    },
+    "gain_over_control_sequential": 1486.3,
+    "identity_check_added_minus_preempted": 1486.3,
+    "identity_holds": true
+  },
+  "runner_cohort": {
+    "control": {
+      "n": 38,
+      "total_pnl": 17660.05
+    },
+    "arm_c": {
+      "n": 44,
+      "total_pnl": 21220.35
+    },
+    "count_ok_ge_95pct": true,
+    "pnl_ok_ge_95pct": true
+  },
+  "fire_count": {
+    "n_added_full_population": 26,
+    "n_added_recent_window": 0,
+    "floor_full": 10,
+    "floor_recent": 2
+  },
+  "advisory_bh_fdr": {
+    "population": "added_cohort",
+    "n": 26,
+    "p_value": 0.48391,
+    "alpha": 0.1,
+    "significant": false,
+    "gates": false
+  },
+  "gates": {
+    "G1_recent_window_positive_PRIMARY": false,
+    "G2_day_majority_recent": false,
+    "G3_survives_drop_best_recent": false,
+    "G4_runner_anchor_no_regression": true,
+    "G5_fire_count_L243": false
+  },
+  "verdict": "NULL",
+  "runtime_seconds": 140.5
+}

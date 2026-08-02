@@ -1126,6 +1126,23 @@ def evaluate_bullish_setup(
     # FALSE, byte-identical when off (see the bull_score block below).
     structure_shift_confirmation: bool = False,
     structure_shift_k: int = STRUCTURE_SHIFT_K_DEFAULT,
+    # --- BULL-VIX-SOFT-MODE-SOLE-BLOCKER-2026-08-03 ---
+    # Structural mirror of evaluate_bearish_setup's `vix_soft_mode` (filters.py ~1374,
+    # ~1509-1528): when True and filter 8's VIX condition fails, the bar takes a -1 score
+    # demerit (`vix_soft_demerit_bull`) INSTEAD OF a hard block. FLAG-GATED, DEFAULT FALSE --
+    # byte-identical to pre-flag behavior when off (blockers.append(8) fires exactly as
+    # before; the `if vix_soft_mode_bull` branch is simply never taken). Pre-reg:
+    # analysis/recommendations/prereg-bull-vix-soft-mode-2026-08-03.json (arms_frozen.
+    # ARM_C_bull_soft_new_flag). Motivating evidence: analysis/deep-research/
+    # FREQUENCY-CEILING-2026-08-03.md sec 4 -- bull:filter_8 sole-blocker cohort, oracle
+    # +$112.03/day-that-fires across 78 days (69 currently zero-entry), BH-significant.
+    # Unlike bear's vix_soft_mode, this is NOT yet threaded into heartbeat_core.py's
+    # score_params.bull_kwargs construction (setup/scripts/heartbeat_core.py ~line 654) --
+    # that file is out of scope for this change; the flag is live in every backtest/
+    # research call path (run_backtest -> orchestrator -> here, and the generic
+    # score.py#score_bull(**bull_kwargs) passthrough) but inert in production until a
+    # dedicated follow-up wires heartbeat_core.py.
+    vix_soft_mode_bull: bool = False,
 ) -> BullishSetupResult:
     """Run all 11 bullish filters + trigger checks. Mirror of evaluate_bearish_setup
     with the v11-ratified parameters.
@@ -1138,7 +1155,8 @@ def evaluate_bullish_setup(
       5.  ribbon BULL-stacked Fast>Pivot>Slow
       6.  spread>=30c
       7.  NOT volume_divergence_failed (mirror of bearish)
-      8.  VIX<17.20 OR vix_falling
+      8.  VIX<17.20 OR vix_falling (soft-demerit instead of hard block when
+          vix_soft_mode_bull=True -- mirrors bear's vix_soft_mode)
       9.  VIX<22 (HARD)
       10. buyer pressure: close>open AND vol>=0.7x 20-bar avg (RATIFIED v11)
       11. ≥min_triggers of {level_reclaim / ribbon_flip / multi_day_confluence /
@@ -1188,11 +1206,17 @@ def evaluate_bullish_setup(
             blockers.append(7)
 
     # Filter 8: VIX < 17.20 OR falling
+    # vix_soft_mode_bull: become a score modifier instead of hard blocker (mirror of
+    # evaluate_bearish_setup's vix_soft_mode / vix_soft_demerit at filters.py ~1509-1528).
+    vix_soft_demerit_bull = False
     if 8 not in disable:
         vd = vix_direction(ctx.vix_now, ctx.vix_prior)
         vix_pass = ctx.vix_now < VIX_BULL_LOW_THRESHOLD or vd == "falling"
         if not vix_pass:
-            blockers.append(8)
+            if vix_soft_mode_bull:
+                vix_soft_demerit_bull = True   # -1 score modifier; doesn't block
+            else:
+                blockers.append(8)
 
     # Filter 9: VIX < 22 HARD
     if 9 not in disable:
@@ -1281,6 +1305,10 @@ def evaluate_bullish_setup(
         )
         if structure_shift_bull is None:
             bull_score = max(0, bull_score - 1)
+
+    # VIX soft-mode demerit (mirror of bear's vix_soft_demerit handling, filters.py ~1755)
+    if vix_soft_demerit_bull:
+        bull_score = max(0, bull_score - 1)
 
     # ── SHADOW-LOGGED bull trigger mirrors (2026-07-15 fix-ship-repeat root-cause task) ──
     # markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md §4 "New-trigger work

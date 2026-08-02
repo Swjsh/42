@@ -503,6 +503,13 @@ def run_backtest(
     # None = disabled. Ratify via params.json "max_ribbon_duration_bars": 20 (Rule 9).
     max_ribbon_duration_bars: Optional[int] = None,
     vix_soft_mode: bool = False,
+    # --- BULL-VIX-SOFT-MODE-SOLE-BLOCKER-2026-08-03 ---
+    # Structural mirror of vix_soft_mode above, bull-side only (evaluate_bullish_setup has
+    # no equivalent of its own before this change). See filters.py's signature docstring
+    # block for the full pre-reg citation. Default False = byte-identical to pre-flag
+    # behavior (evaluate_bullish_setup is never called with this kwarg True unless a caller
+    # opts in).
+    vix_soft_mode_bull: bool = False,
     allow_one_blocker: bool = False,
     allow_one_blocker_min_spread_cents: int = 0,
     premium_stop_pct: float = -0.08,  # legacy / fallback when asymmetric not provided
@@ -1026,6 +1033,7 @@ def run_backtest(
                 sweep_min_close_back_pct=sweep_min_close_back_pct,
                 sweep_block_window_bars=sweep_block_window_bars,
                 sweep_clean_prior_bars=sweep_clean_prior_bars,
+                vix_soft_mode_bull=vix_soft_mode_bull,
             )
 
         # ── ENGINE-SCORE ASSERT-AGREE (Phase 1, 2026-06-18) ──
@@ -1070,6 +1078,7 @@ def run_backtest(
                     sweep_min_close_back_pct=sweep_min_close_back_pct,
                     sweep_block_window_bars=sweep_block_window_bars,
                     sweep_clean_prior_bars=sweep_clean_prior_bars,
+                    vix_soft_mode_bull=vix_soft_mode_bull,
                 ),
             )
             assert (
