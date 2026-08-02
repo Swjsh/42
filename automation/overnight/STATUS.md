@@ -1,3 +1,77 @@
+## [2026-08-02T04:16:33 ET] conductor: OK -- EXIT-HYBRID-PRETP1-FLOOR iteration 4 -- ARM_NOTHING, but the profit-lock-mechanism axis is now CLOSED (4/4 iterations tested)
+
+**Signal J wakes to (OP-25).** Budget PASS ($8.80/$30, 3/4 fires before this one), market-hours
+gate PASS (Sunday 04:00 ET). Engine health GREEN. Self-audit gaps: nothing new since 2026-08-01
+(already fully triaged). Priority scan (task_scorer.py) surfaced TWIN-DOCTRINE-FIRST-DEPLOY as
+top-ranked but it is already DRAFTED + proposed to J (gp-2026-07-23-twin-doctrine-001, pending
+J's `ship`/`shelve` reply) -- nothing autonomous left to do there. Picked the queue's other
+CRITICAL item instead: **EXIT-HYBRID-PRETP1-FLOOR**, the isolated 4th candidate on the exit-leak
+arm axis (filed 2026-07-29, 3 prior nulls).
+
+**Built exactly what the item specced:** a NEW, structurally independent knob
+(`pre_tp1_be_floor_arm_pct` on `exit_manager.ExitState`/`plan_exit_actions`, commit `ad675965`)
+that arms a BE-floor-ONLY scratch pre-TP1 -- never trails, never sets `profit_lock_armed` --
+while `profit_lock_mode` stays `"trailing"` throughout, so the post-TP1 chandelier (the
++$15,774.05/35-for-35 runner engine) is provably untouched. This fixes iteration 3's confound:
+`profit_lock_mode="fixed"` was read by BOTH the pre-TP1 AND post-TP1 branches, so 25 of 27
+iteration-3 "degraded" trades were actually the post-TP1 trailing protection silently
+disappearing, not the pre-TP1 whipsaw the hypothesis targeted.
+
+**Froze a pre-reg BEFORE building the runner** (`prereg-pretp1-be-floor-isolated-2026-08-02.json`,
+commit `5dda3acf`, git-provably predates the runner commit `6ae876bc`) with 3 cells
+(P1=0.30/P2=0.50/P3=0.70 arm_pct, ascending, each a ONE-key change vs CONTROL -- cleaner than
+iteration 3's 3-key cells) and ran it on the SAME frozen 191-trade population, entries UNCHANGED,
+exits re-derived through the REAL `exit_manager.plan_exit_actions` core (never
+`simulate_trade_real`, 2026-07-09 sim-parity scar). CONTROL reconciled byte-for-byte (0
+mismatches vs source), runner-cohort anchor matched exactly (n=35, $15,774.05).
+
+**RESULT: ARM_NOTHING (G4 runner-cohort veto fails uniformly), but the confound-fix is
+empirically VALIDATED -- zero knob-isolation violations across all 191 trades x 3 cells.** Every
+degraded runner-cohort trade was mechanism (a) pretp1_roundtrip_to_entry (the hypothesis's own
+predicted failure mode); ZERO were mechanism (b) post-TP1 lost-trailing-protection -- proving
+this knob genuinely cannot leak into post-TP1, unlike iteration 3. Damage is far smaller than
+every prior iteration and dose-response is cleanly monotonic-improving: P1(0.30)=-$3,650.45,
+**P2(0.50, the named prediction-to-beat cell)=-$905.45** (much closer to neutral than every prior
+cell, but the "roughly NEUTRAL-to-positive" prediction was NOT met -- still a real loss),
+P3(0.70)=-$459.00. G6 (today's 2026-07-28 Bold incident trade) PASSES for P1/P2 (+$305 swing,
+scratch at $0 vs the real -$305 loss) but FAILS for P3 (that trade's +56.5% HWM never reached the
+0.70 arm level). G1 aggregate stays negative at every threshold tested.
+
+**This closes the profit-lock-mechanism axis for good, per the pre-reg's own arming_rule.** Four
+iterations (1-2 trailing-mode, 3 confounded-fixed-mode, 4 cleanly-isolated-BE-floor) have now
+tested every meaningful pre-TP1 profit-lock shape and all four fail the runner-cohort veto at
+every threshold tried. The queue item's own fallback fires: **next candidate is
+THETA-NOT-GIVEBACK** (hold-time/underlying-stall class, already filed alongside this item) -- a
+premium-space mechanism cannot beat theta decay on a still-live 0DTE thesis; the next axis must
+be TIME-space or UNDERLYING-space, not another profit-lock variant.
+
+**Guard + RED-proof:** 8 new tests in `automation/state/fleet/test_exit_manager.py` (RED-proofed
+by hand -- temp-disabled the mechanism with a literal `False and`, 3 tests failed with the exact
+expected assertion, restored, 63/63 green). 21 new tests in
+`backtest/tests/test_pretp1_be_floor_isolated_ab_2026_08_02.py`, including a hard
+`total_knob_isolation_violations == 0` RED-proof pinned directly against the shipped scorecard.
+Full regression sweep (`test_be_floor_ab_2026_07_29.py` + `test_exit_armscope_ab.py` +
+`test_exit_manager_replay.py` + `test_exit_manager_walk_stage_labels.py` +
+`test_exit_manager_walk_entry_bar_convention.py` + the new file): 98/98 PASS. Curated safety gate
+(`run_safety_gate.py`): 59/59 PASS post-ship.
+
+**Zero live-arming action taken.** `pre_tp1_be_floor_arm_pct` stays undeclared in
+`strategies.py`'s `RIBBON_RIDE` shape -- fully inert on the live path (same posture as
+`profit_lock_arm_scope="full"` before it: expressible, never armed, per the pre-reg's own
+arming_rule since no cell cleared G4). Zero `params.json`/`heartbeat_core.py`/`filters.py`/
+`strategies.py`/placement edits.
+
+**Commits:** `ad675965` (mechanism + guards), `5dda3acf` (frozen prereg), `6ae876bc` (runner +
+guards + scorecard). **Revert (mechanism, if ever wanted):** `git revert ad675965` -- the knob
+is purely additive and unreferenced by any live ExitShape, so reverting is a no-op removal, not
+a behavior change.
+
+Artifacts: `analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.{json,md}`. Full
+narrative + prior-iteration history: `automation/overnight/queue.md`
+EXIT-HYBRID-PRETP1-FLOOR entry (closed this fire).
+
+---
+
 ## Known broken
 
 - [2026-08-02T03:58:00 ET] DST-FRAME-AUDIT YELLOW :: re-violated 2026-07-02 DST-frame lesson found (fleet_arm_replay.py's first draft independently re-hit it, self-fixed before commit `151123a2`); shared OPRA loader still un-normalized, several consumers (simulator_credit.py/simulator_debit.py/exit_manager_walk.py, no `frame` param) trust callers blindly. PIVOT-PREMIUM-SELLING-SCORECARD.md LEAD-cell OOS expectancy overstated +$23.03 vs corrected +$15.30/tr (-33.6%) -- verdict unchanged (already DEAD/LEAD-not-EDGE, reinforced not flipped). bold_fullhist_replay.py anchor validation mechanism confirmed live but 0/7 current anchors are winter-dated (no numeric corruption today; will bite the first winter real fill). No live knob touched. Guard shipped + RED-proofed (3 new tests, test_graduated_guards.py). Full detail: analysis/deep-research/DST-FRAME-BLAST-RADIUS-2026-08-02.md :: re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -k dst_frame -v
@@ -512,179 +586,6 @@ dashboard-only (no API); J signs in, the `alpaca-paper-reset` skill drives the c
 - **Skill updated** with the chosen targets + runbook pointer.
 - **BLOCKED-ON-J:** the dashboard reset click itself, nothing else. Runbook §7 step 1.
 
-## [2026-08-01 12:37 ET] OK -- theta_clock (WEEKEND): THETA COCKPIT built (J directive, verbatim tonight), commit `a363bd5f`
 
-**Signal J wakes to (OP-25).** Built the in-trade Greeks visibility instrument J ordered:
-"We can't just be getting in options trades and have Theta kick our ass without us knowing."
-VISIBILITY ONLY -- no exit-rule change, no new gate. `heartbeat_core.py` is byte-for-byte
-untouched; zero new network calls on the 1-min trading hot path.
-
-**What shipped:**
-1. `setup/scripts/theta_clock.py` -- standalone watcher, registered as `Gamma_ThetaClock`
-   (every 1 min, 09:30-16:00 ET weekdays, `wscript -> run_exe_hidden.vbs -> backtest-venv
-   pythonw`, OP-27 headless stdio redirect, no lock file -- Task Scheduler's own
-   `-MultipleInstances IgnoreNew` is the sole overlap guard). Reads open SPY option
-   positions for all 5 active accounts (core safe-2/bold-2 + fleet safe-3/risky-1/risky-3)
-   via `automation/state/fleet/fleet_broker.py` -- the SAME credential-loading + REST module
-   `heartbeat_core.py` itself already depends on (read-only: get_positions,
-   get_option_greeks). Writes `automation/state/theta-clock.json` (current snapshot) +
-   `automation/state/theta-clock/theta-clock-YYYY-MM-DD.jsonl` (daily time series) +
-   `automation/state/theta-clock/position-state.json` (per-position frozen entry snapshot).
-   ALERT: when estimated theta burn over the last 15 min exceeds estimated delta gain by
-   more than $5, ONE line fires to STATUS.md's NEW "## Live watch" section (created on
-   first use -- deliberately not "## Known broken", a stall isn't a breakage), latched
-   per-position forever (never repeats). NEVER auto-exits anything.
-
-2. **Empirical finding that changed the design.** Grepped `core-decisions.jsonl` before
-   building: the EXISTING G8 per-entry greeks capture (`heartbeat_core._capture_greeks`,
-   live since 2026-07-07) has returned `"greeks": {}` on **29/29 real ENTER rows checked,
-   zero exceptions**. Its snapshots endpoint is documented as "UNVERIFIED" in
-   `fleet_broker.py` and, per this evidence, still is. Rather than build the alert on a feed
-   with a 0/29 track record, the headline numbers run on a documented closed-form ESTIMATE
-   (model-free intrinsic-value delta component + a textbook sqrt(time-remaining)
-   extrinsic-decay heuristic for theta, both labeled `_est` with a `basis` string) computed
-   from sources already PROVEN live: the `/v2/positions` payload itself, plus the same
-   `/v1beta1/options/quotes/latest` endpoint the live placement path already prices real
-   fills with. Real broker greeks are still attempted every tick and preferred when present
-   -- zero code change needed the day Alpaca's feed starts returning data.
-
-3. **delta_at_entry / iv_at_entry / theta_at_entry backfill (GO-FORWARD only, as scoped).**
-   `fleet_journal_bridge.py` (the `journal/trades.csv` writer, confirmed via grep -- the
-   OTHER live writer, `j_intent_journal.py`, already reads the header dynamically and needed
-   no change) now populates these three cells at journal-write time: PRIMARY = the G8
-   broker-greeks capture threaded through `core-decisions.jsonl`'s `exec.greeks` (for the day
-   it's ever non-empty), FALLBACK = `theta_clock.py`'s own first-observation snapshot (within
-   ~1 min of fill, per the brief's documented convention). `theta_at_entry` is a NEW 44th
-   column (SCHEMA was 43) appended at the END (never inserted mid-schema -- every real
-   consumer greps by column NAME, never position) via a one-time, idempotent header-only
-   migration (`_ensure_schema_header`); verified old rows keep their original 43 raw values
-   and `csv.DictReader` fills the new trailing cell with `None` for them, no misalignment.
-   Neither field is ever fabricated -- both stay blank (unchanged from today) when neither
-   source has data, rather than writing a model estimate into a column named as if it were
-   real broker data (the cited downstream blocker, perps leverage calibration, expects real
-   greeks there).
-
-**Weekend limitation handled honestly (market closed, cannot verify against a live
-position):**
-  (a) 22 guard tests in `backtest/tests/test_theta_clock.py` + 11 new tests in
-      `test_fleet_journal_bridge.py` + 6 in the new `test_firm_brief_theta_clock_section.py`
-      -- 282/282 green across the full blast-radius set (every test file importing
-      `fleet_journal_bridge`/`firm_brief`/`theta_clock`), plus a 6063-test full-repo
-      collection-only pass confirms zero NEW import breakage (the 3 pre-existing collection
-      errors are unrelated archived/missing-data tests). RED-proofed twice: the alert
-      spam-latch (disabled -> fires 8x instead of 1x over the same fixture) and the
-      greeks-fallback precedence (disabled -> 4 tests correctly fail).
-  (b) A full OFFLINE dry-run against a SYNTHETIC injected position (16+5 simulated 1-min
-      ticks, flat underlying) proved the entire pipeline end-to-end: entry snapshot frozen
-      on tick 1, 21 daily-JSONL rows written, exactly ONE "THETA STALL" STATUS.md line fired
-      (at t+8min, theta burn -$5.60 vs delta gain +$0.00) and never repeated across 12 more
-      ticks. Math cross-checked by hand (residual_est = real premium change - delta_est -
-      theta_est, verified exact).
-  (c) `Gamma_ThetaClock` registered for REAL via `install-theta-clock.ps1` (not just
-      written) -- `Get-ScheduledTask`: `State=Ready`, real trigger (`DaysOfWeek=62` =
-      Mon-Fri, `Repetition Interval=PT1M Duration=PT6H30M`), action chain verified.
-      Smoke-fired via `Start-ScheduledTask` for real -- `LastTaskResult=0`, AND (wscript
-      fire-and-forget masks the child's true exit code per the `Gamma_EodFlattenCore`
-      lesson, so this alone is never trusted) independently confirmed via the REAL written
-      `automation/state/theta-clock.json`: `accounts_checked=[safe-3,safe-2,risky-1,
-      bold-2,risky-3]` (all 5 LIVE Alpaca paper accounts queried successfully),
-      `accounts_failed=[]`, `n_positions=0` (correct -- market closed), `spot_source=
-      sight_beacon` (746.79). stderr log empty.
-  (d) MONDAY-VERIFY (checklist, not a hope):
-      [ ] `Get-ScheduledTaskInfo Gamma_ThetaClock` shows real fires through the 09:30 ET
-          open (`LastRunTime` advancing every ~1 min).
-      [ ] `automation/state/theta-clock.json` updates every ~1 min once a real position is
-          open, and its `positions[].qty`/`entry_premium` match the broker fill.
-      [ ] Confirm whether the Alpaca options-snapshots greeks feed is STILL empty on a real
-          fill, or -- if it finally returns data -- confirm
-          `theta_per_contract_per_day_source` flips to `broker_snapshot` and
-          `journal/trades.csv`'s `delta_at_entry`/`iv_at_entry` populate from the PRIMARY
-          path on the next `fleet_journal_bridge.py` run (fires via `firm_brief.py`, twice
-          daily).
-      [ ] If a real trade genuinely stalls, eyeball the STATUS.md "## Live watch" line for
-          sanity (does the $ magnitude look right for the real qty/premium) and confirm it
-          fired once, not repeatedly.
-
-**Rail-4 note:** visibility-only. `heartbeat_core.py` is byte-for-byte unchanged -- no
-network call added to the hot path, no new gate, no exit-rule change. A theta-based EXIT
-class remains a separate, un-built, pre-registered study per J's explicit instruction not to
-build one here. Revert: `git revert <this commit>` (additive-only: new script, new
-scheduled task, new STATUS.md section; `fleet_journal_bridge.py`'s SCHEMA/`build_row` change
-is also additive/backward-compatible -- reverting just stops populating the 3 new-ish cells,
-never un-migrates the header, which is harmless since no reader ever depended on column
-count).
-
----
-
-## [2026-08-01 12:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (8/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
-
-## [2026-08-01 10:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (7/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
-
-## [2026-08-01 08:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (6/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
-
-## [2026-08-01 06:00 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (5/4 fires used today), zero model work this fire per rail-0. Next fire: whenever the daily counter resets.
-
-## [2026-08-01 05:30 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (4/4 fires used today), zero model work this fire per rail-0. Next fire: 07:30 ET or later once budget window resets.
-
-## [2026-08-01 05:10 ET] OK -- conductor (WEEKEND): G2-TRENDLINE-BYPASS-INVERTS-PRIORITY decided (NEITHER arm ships, stays default), commit `dbd35729`
-
-**Signal J wakes to (OP-25).** Budget gate PASS ($1.44 of $30, 3/4 fires used before this one),
-market-hours gate PASS (Saturday, weekend mode). `TWIN-DOCTRINE-FIRST-DEPLOY` still pending
-J's Discord reply on `gp-2026-07-23-twin-doctrine-001` -- nothing new to do there.
-`task_scorer.py`'s own priority regex doesn't recognize the `CRITICAL` tag (falls back to LOW
-base) so `G2-TRENDLINE-BYPASS-INVERTS-PRIORITY` didn't surface via `--top`, but reading
-`queue.md` directly found it: CRITICAL/engine-edge, filed 2026-07-27, a real structural finding
-about the live entry gate -- picked it over the scorer's own ranking.
-
-**The finding:** filters.py's 2026-05-09 TRENDLINE-CHOP-ZONE relaxation strips filters
-5(ribbon)/8(VIX)/9(volume) ONLY when trendline_rejection fires as the SOLE level-tied trigger --
-so a level_rejection/confluence setup (stronger evidence) gets held to the FULL filter set while
-the weakest trigger class gets a free pass. Measured 89% of every bear ENTER over 33 sessions
-came through this bypass; a live 07-27 example lost $162 on a trendline-only entry that would
-have HELD as level_rejection+trendline together.
-
-**What shipped:** pre-registered A/B (`prereg-g2-trendline-bypass-2026-08-01.json`, frozen
-BEFORE running) testing 3 scopes via a new `trendline_bypass_scope` flag on
-`evaluate_bearish_setup` (filters.py) -- `trendline_only` (default, byte-identical),
-`all_level_tied` (ARM_EXTEND -- relief extends to level-tied triggers), `none` (ARM_REMOVE --
-bypass deleted). Full-history real-OPRA-fills replay via the real exit_manager
-(`backtest/tools/g2_trendline_bypass_ab_2026_08_01.py`, 2025-01-02..2026-07-31, reusing
-yesterday's filter5-ribbon-2026-07-31.json scaffold). **Verdict: NEITHER arm clears all 5
-frozen gates -- `trendline_bypass_scope` stays at the CONTROL default.** ARM_EXTEND: recent25
-delta +$1,616.15 but G1 UNDETERMINED (8/26 recent added entries have no cached OPRA contract --
-per the frozen pre-reg, UNDETERMINED = NOT PASS). ARM_REMOVE: recent25 +$279.60 but fails G4
-(runner-cohort anchor regression) outright. The asymmetry is CONFIRMED real (verified in the new
-guard test's own assertions) but NOT actionable without more OPRA coverage in the exact window
-that matters -- same coverage gap `filter5-ribbon-2026-07-31.json` flagged the prior night.
-
-**Process catch (OP-33, disclosed not swept under the rug):** the study's FIRST run scored
-ARM_EXTEND as `SHIP_CANDIDATE` -- a bug in `relabel_g1_measurability` changed the G1 STATUS
-LABEL to "UNDETERMINED" without forcing the underlying `pass` boolean to False, so the raw
-measured-sign delta (positive) let it clear `all_gates_pass` despite the frozen pre-reg
-explicitly saying UNDETERMINED=NOT-PASS. Caught before any downstream action (re-reading the
-pre-reg's own ship-rule text against the printed gate table), fixed same-session, re-derived
-from the SAME already-computed per-trade JSON (no re-run of the ~3.5min backtest) -- final
-verdict flipped `ARM_EXTEND_SHIPS` -> `NEITHER_SHIPS_STAYS_TRENDLINE_ONLY`. Lesson filed:
-`strategy/candidates/_lesson-inbox/2026-08-01-gate-status-label-vs-boolean-drift.md`.
-
-**Validated:** new guard test `backtest/tests/test_g2_trendline_bypass_scope.py` (6/6 green),
-RED-proofed (2/6 fail when the filters.py branch is reverted to the old unconditional
-computation, confirming they exercise the new logic, not just the untouched default path).
-Wider regression: 158/158 related tests green (trendline/filter5/entry_floor/engine_score_parity
-subset, zero new failures). Scorecard: `analysis/recommendations/g2-trendline-bypass-2026-08-01.{json,md}`.
-
-**Rail-4 N/A** -- the new `trendline_bypass_scope` flag stays at its inert default
-(`'trendline_only'`, byte-identical to pre-fire production); zero live behavior change. Ships
-as ordinary engine-benefit research (analysis + a default-inert flag + guard test + graveyard
-scorecard), no J ratification needed. Revert: `git revert <this commit>` (additive-only -- new
-flag param defaults unchanged, new test/tool/scorecard/lesson files, nothing else depends on
-them; `queue.md`'s checkbox flip is the only edit to a pre-existing file besides `filters.py`
-itself).
-
-**Not yet resolved / follow-up (out of THIS fire's lane, named in the pre-reg):** an OPRA cache
-backfill for 2026-07-23..07-31 is the single highest-leverage next input to re-deciding BOTH
-this study and filter5-ribbon-2026-07-31.json -- neither can get a clean recent-window signal
-without it.
-
----
-
+## Kitchen
+Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=grinder-python

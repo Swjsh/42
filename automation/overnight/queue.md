@@ -139,7 +139,54 @@
 
 - [ ] THETA-NOT-GIVEBACK: 0DTE HOLD-TIME IS THE EXIT LEAK (CRITICAL, engine-edge, reframe) :: Filed 2026-07-28 ~20:0x ET after TWO pre-registered nulls on the trailing-lock axis. THE REFRAME, proven on today's live trade: Bold 741C entered 11:28 @ SPY 741.33 / premium 1.38; peaked 12:57 @ SPY 742.56 / premium 2.16 (+56%); EXITED 15:55 @ SPY 741.09 / premium 0.795 (-42%). SPY finished 0.24 pts from entry -- essentially FLAT -- and at 15:30 SPY was 741.81, ABOVE our entry, with the premium already destroyed. The loss was THETA on a 4.5-hour 0DTE hold, NOT a giveback of an underlying move. CONSEQUENCE: every trailing/BE mechanism tested (arm_scope full at arm_pct 0.05/0.20/0.30/0.40 -- exit-armscope-tp1-ab + exit-armpct-ab, 4-point monotone curve, runner cohort NEGATIVE at every point) is a PREMIUM-space instrument aimed at a TIME-space problem, which is exactly why it clipped the runner cohort: on 0DTE a premium pullback is often theta, not reversal, so a premium-based floor exits winners whose UNDERLYING is still fine. NEW MECHANISM CLASS to pre-register (one at a time, G4 runner-veto still mandatory): (a) UNDERLYING-STALL exit -- if the underlying has not made a new favorable extreme within N bars of entry, exit while premium is intact (discriminates theta-decay from a live thesis, which no premium-space rule can); (b) hold-time cap for 0DTE conditioned on entry hour (an 11:28 entry has 4.5h of decay ahead; a 14:30 entry does not) -- note time_stop_et=15:40 exists on BOTH accounts but is a wall-clock backstop, not a decay budget, and today's exit came at 15:55 via structure_stop, so ALSO audit why the 15:40 time stop did not fire first; (c) theta-aware sizing/strike (out of scope for the exit question, note only). EVIDENCE ALREADY ON FILE: EXIT-LEAK-2026-07-28 found 33 losers touched >=+30% MFE and round-tripped for -$3,829.60 -- re-examine that cohort for the same flat-underlying signature (if most are theta round-trips rather than underlying reversals, this reframe explains the whole leak). DISCIPLINE: ~191 cumulative exit cells this week, 0 ships -- the value of the two nulls is that they NARROWED the mechanism class, and the next pre-reg must test the time/underlying axis, NOT another premium threshold. :: depends:none :: status:pending
 
-- [ ] EXIT-HYBRID-PRETP1-FLOOR (CRITICAL, engine-edge, the isolated 4th candidate) :: Filed 2026-07-29 ~11:0x ET after THREE pre-registered nulls on the exit-arm axis. WHY THE FIRST THREE FAILED, in order: (1) trailing lock armed pre-TP1 at the shipped +5% -> whipsaws winners out in their first minute, runner cohort -$7,759 (exit-armscope-tp1-ab-2026-07-28); (2) same trailing lock at arm_pct 0.20/0.30/0.40 -> monotone improvement but NEVER positive, -$6,701/-$4,889/-$3,898 (exit-armpct-ab-2026-07-28); (3) profit_lock_mode='fixed' (BE floor) at arm_pct 0.20/0.30/0.50 -> runner -$7,805/-$5,965/-$3,208 (be-floor-ab-2026-07-29, ff3929b3). ITERATION 3'S REAL FINDING -- the tests were CONFOUNDED: 'fixed' mode is read by BOTH the pre-TP1 arm branch AND the post-TP1 runner branch (exit_manager.py:442-444, 465-468), so selecting it silently DISABLES post-TP1 ratcheting. At arm=0.50 only 2 of 27 degraded trades were the pre-TP1 whipsaw the hypothesis targeted; 25 of 27 (-$3,226) were post-TP1 loss-of-trailing-protection. So the pre-TP1 floor hypothesis has NEVER been cleanly tested -- ExitShape cannot currently express it. THE 4TH CANDIDATE: add a NEW knob (e.g. pre_tp1_be_floor_arm_pct, default None = byte-identical inert) that arms a BREAKEVEN floor ONLY in the pre-TP1 branch while profit_lock_mode stays 'trailing' so the post-TP1 chandelier -- the +$15,774 / 35-for-35 runner engine -- is untouched. Requires a small additive change to exit_manager.py (live file: flag-gated, inertness guard-tested, RED-proofed) plus a pre-reg with the SAME G1-G6 gates incl. the runner veto. PREDICTION TO BEAT: if the pre-TP1 whipsaw really is only ~2/27 of the damage at a high arm threshold, an isolated pre-TP1-only floor at arm_pct 0.50 should be roughly NEUTRAL-to-positive on the runner cohort while still converting round-trips (2026-07-28's +56%-to--42% shape, +$305 under every cell tested so far) into scratches. If THAT fails, the exit leak is not addressable via any profit-lock mechanism and the axis closes for good -- move to the THETA-NOT-GIVEBACK hold-time/underlying-stall class instead. :: depends:none :: status:pending
+- [ ] EXIT-HYBRID-PRETP1-FLOOR (CRITICAL, engine-edge, the isolated 4th candidate) :: Filed 2026-07-29 ~11:0x ET after THREE pre-registered nulls on the exit-arm axis. WHY THE FIRST THREE FAILED, in order: (1) trailing lock armed pre-TP1 at the shipped +5% -> whipsaws winners out in their first minute, runner cohort -$7,759 (exit-armscope-tp1-ab-2026-07-28); (2) same trailing lock at arm_pct 0.20/0.30/0.40 -> monotone improvement but NEVER positive, -$6,701/-$4,889/-$3,898 (exit-armpct-ab-2026-07-28); (3) profit_lock_mode='fixed' (BE floor) at arm_pct 0.20/0.30/0.50 -> runner -$7,805/-$5,965/-$3,208 (be-floor-ab-2026-07-29, ff3929b3). ITERATION 3'S REAL FINDING -- the tests were CONFOUNDED: 'fixed' mode is read by BOTH the pre-TP1 arm branch AND the post-TP1 runner branch (exit_manager.py:442-444, 465-468), so selecting it silently DISABLES post-TP1 ratcheting. At arm=0.50 only 2 of 27 degraded trades were the pre-TP1 whipsaw the hypothesis targeted; 25 of 27 (-$3,226) were post-TP1 loss-of-trailing-protection. So the pre-TP1 floor hypothesis has NEVER been cleanly tested -- ExitShape cannot currently express it. THE 4TH CANDIDATE: add a NEW knob (e.g. pre_tp1_be_floor_arm_pct, default None = byte-identical inert) that arms a BREAKEVEN floor ONLY in the pre-TP1 branch while profit_lock_mode stays 'trailing' so the post-TP1 chandelier -- the +$15,774 / 35-for-35 runner engine -- is untouched. Requires a small additive change to exit_manager.py (live file: flag-gated, inertness guard-tested, RED-proofed) plus a pre-reg with the SAME G1-G6 gates incl. the runner veto. PREDICTION TO BEAT: if the pre-TP1 whipsaw really is only ~2/27 of the damage at a high arm threshold, an isolated pre-TP1-only floor at arm_pct 0.50 should be roughly NEUTRAL-to-positive on the runner cohort while still converting round-trips (2026-07-28's +56%-to--42% shape, +$305 under every cell tested so far) into scratches. If THAT fails, the exit leak is not addressable via any profit-lock mechanism and the axis closes for good -- move to the THETA-NOT-GIVEBACK hold-time/underlying-stall class instead. :: depends:none :: status:CLOSED (2026-08-02, conductor/WEEKEND -- see PROGRESS note below: 4th candidate built + tested, ARM_NOTHING, axis now exhausted, THETA-NOT-GIVEBACK is next)
+
+> **PROGRESS 2026-08-02 ~04:10-04:45 ET (conductor, WEEKEND).** Built the 4th candidate exactly
+> as specced: `pre_tp1_be_floor_arm_pct` on `exit_manager.ExitState`/`plan_exit_actions`
+> (commit `ad675965`) -- a NEW, structurally independent knob that arms a BE-floor-ONLY scratch
+> pre-TP1 (never trails, never sets `profit_lock_armed`) while `profit_lock_mode` stays
+> `"trailing"` throughout, so post-TP1 is provably untouched. 8 new guard tests in
+> `test_exit_manager.py` (RED-proofed by hand: temp-disabled the mechanism, 3 tests failed with
+> the exact expected assertion, restored, 63/63 green). Curated safety gate 59/59 PASS.
+>
+> Froze `prereg-pretp1-be-floor-isolated-2026-08-02.json` (commit `5dda3acf`, predates the
+> runner) with 3 cells (P1=0.30/P2=0.50/P3=0.70, ascending, ONE key changed vs iteration 3's
+> confounded 3-key cells) and ran `pretp1_be_floor_isolated_ab_2026_08_02.py` (extends `ab1`
+> verbatim, gate pattern reused from iteration 3) on the SAME frozen 191-trade population.
+> CONTROL reconciled byte-for-byte (0 mismatches), runner-cohort anchor matched exactly
+> (n=35, $15,774.05).
+>
+> **RESULT: ARM_NOTHING (G4 fails uniformly), but the confound-fix is empirically VALIDATED --
+> zero knob-isolation violations across all 191 trades x 3 cells** (every degraded runner-cohort
+> trade classified as mechanism (a) pretp1_roundtrip_to_entry, ZERO as mechanism (b) -- proving
+> this knob really cannot leak into post-TP1, unlike iteration 3's `profit_lock_mode="fixed"`).
+> Damage is dramatically smaller than every prior iteration and dose-response is CLEANLY
+> monotonic-improving: P1(0.30)=-$3,650.45, P2(0.50)=-$905.45 (the named prediction-to-beat
+> cell -- much closer to neutral than predicted but still negative, so the prediction was NOT
+> met), P3(0.70)=-$459.00. G6 (today's 2026-07-28 Bold trade) PASSES for P1/P2 (+$305 swing,
+> scratch at 0 vs -$305 control) but FAILS for P3 (arm level 0.70 never reached by that trade's
+> +56.5% HWM). G1 aggregate negative at every threshold.
+>
+> **This closes the profit-lock-mechanism axis for good, per the pre-reg's own arming_rule** --
+> 4 iterations (iterations 1-2 trailing, iteration 3 confounded fixed, iteration 4 cleanly
+> isolated) have now tested every meaningful shape of a pre-TP1 profit-lock and all four fail
+> the runner-cohort veto at every threshold tried. The queue item's own fallback fires: move to
+> **THETA-NOT-GIVEBACK** (hold-time/underlying-stall class, filed alongside this item) as the
+> next candidate -- a premium-space mechanism (any pre-TP1 floor/trail) cannot beat theta decay
+> on a still-live 0DTE thesis; the next axis must be TIME-space or UNDERLYING-space.
+>
+> 21 new guard tests in `test_pretp1_be_floor_isolated_ab_2026_08_02.py` (including a hard
+> `total_knob_isolation_violations == 0` RED-proof on the shipped scorecard itself). Full sweep:
+> `test_be_floor_ab_2026_07_29.py` + `test_exit_armscope_ab.py` + `test_exit_manager_replay.py`
+> + `test_exit_manager_walk_stage_labels.py` + `test_exit_manager_walk_entry_bar_convention.py`
+> + this file, 98/98 PASS; `automation/state/fleet/test_exit_manager.py` standalone suite 63/63
+> PASS. Curated safety gate (`run_safety_gate.py`) 59/59 PASS post-ship. Zero live-arming
+> action taken -- `pre_tp1_be_floor_arm_pct` stays undeclared in `strategies.py`'s `RIBBON_RIDE`
+> shape (fully inert on the live path, same as `profit_lock_arm_scope="full"` before it).
+> Artifacts: `analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.{json,md}`.
+> Commits: `ad675965` (mechanism+guards), `5dda3acf` (prereg), `6ae876bc` (runner+guards+
+> scorecard). Revert (mechanism, if ever needed): `git revert ad675965` -- the knob is additive
+> and unreferenced by any live ExitShape, so reverting is a pure no-op removal.
 
 ### ZERO-FOR-TWELVE-POSTMORTEM (HIGH, filed 2026-07-25 with the disarm)
 
