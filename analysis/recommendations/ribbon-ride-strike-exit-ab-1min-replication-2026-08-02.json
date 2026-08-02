@@ -1,0 +1,1060 @@
+{
+  "_doc": "STEP 2b of OPTION-BAR-RESOLUTION-BIAS-2026-08-02: ribbon_ride_strike_exit_ab.py's AXIS 1 (strike) and AXIS 2 (exit shape) REPLICATED at 1-minute option-bar resolution, on the SAME n=250 signal cohort and the SAME frozen cells (no new hypotheses, no threshold sweeping). Null-baseline/BH-FDR scope-reduced (see module docstring) -- not part of the OP-11 auto-ratify decision.",
+  "generated_at": "2026-08-02T01:42:49.651999",
+  "original_scorecard": "analysis/recommendations/ribbon-ride-strike-exit-ab.json",
+  "signal_cohort": {
+    "source": "_signal_cache.load_or_build_signals() via rrse.load_cohort()",
+    "n_raw": 250
+  },
+  "axis1_strike": {
+    "control": "OTM-2",
+    "winner": "ITM-2",
+    "cells": {
+      "OTM-2": {
+        "cell_id": "OTM-2/SS-B",
+        "strike_label": "OTM-2",
+        "so_simulator_convention": 2,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 0,
+        "bar_sources": {
+          "rest_fetch": 227,
+          "cache_hit": 23
+        },
+        "metrics": {
+          "n": 250,
+          "total": 312.6,
+          "expectancy": 1.25,
+          "wr": 0.308,
+          "edge_capture_rel": -262.4,
+          "oos_total": 863.2,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -17.17,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -613.2,
+          "max_dd": -4882.6,
+          "n_stopped": 0,
+          "top3_day_share": 14.457,
+          "sub_window_stable": false,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 1926.6
+            },
+            "second": {
+              "n": 125,
+              "total": -1614.0
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 1.24,
+          "wr": 0.308,
+          "oos_total": 863.2,
+          "oos_positive": true,
+          "wf": null,
+          "edge_capture_rel": -262.4
+        },
+        "null": null,
+        "null_gate": null,
+        "p_null": null,
+        "scope_reduction_note": "null-baseline/BH-FDR NOT recomputed at 1-min -- see module docstring SCOPE REDUCTION; not part of OP-11 auto-ratify."
+      },
+      "OTM-1": {
+        "cell_id": "OTM-1/SS-B",
+        "strike_label": "OTM-1",
+        "so_simulator_convention": 1,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 0,
+        "bar_sources": {
+          "rest_fetch": 215,
+          "cache_hit": 35
+        },
+        "metrics": {
+          "n": 250,
+          "total": 5522.2,
+          "expectancy": 22.09,
+          "wr": 0.336,
+          "edge_capture_rel": -193.0,
+          "oos_total": 4607.0,
+          "oos_positive": true,
+          "wf": 8.949,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": -0.8,
+          "worst_trade": -1095.0,
+          "worst_decile_mean": -772.8,
+          "max_dd": -5403.2,
+          "n_stopped": 0,
+          "top3_day_share": 1.108,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 2740.4
+            },
+            "second": {
+              "n": 125,
+              "total": 2781.8
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 22.03,
+          "wr": 0.336,
+          "oos_total": 4607.0,
+          "oos_positive": true,
+          "wf": 9.084,
+          "edge_capture_rel": -193.0
+        },
+        "null": null,
+        "null_gate": null,
+        "p_null": null,
+        "scope_reduction_note": "null-baseline/BH-FDR NOT recomputed at 1-min -- see module docstring SCOPE REDUCTION; not part of OP-11 auto-ratify."
+      },
+      "ATM": {
+        "cell_id": "ATM/SS-B",
+        "strike_label": "ATM",
+        "so_simulator_convention": 0,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 0,
+        "bar_sources": {
+          "rest_fetch": 211,
+          "cache_hit": 39
+        },
+        "metrics": {
+          "n": 250,
+          "total": 17265.6,
+          "expectancy": 69.06,
+          "wr": 0.356,
+          "edge_capture_rel": 103.0,
+          "oos_total": 9968.4,
+          "oos_positive": true,
+          "wf": 2.429,
+          "wf_ge_070": true,
+          "qpf": 0.833,
+          "exp_drop_top3": 40.86,
+          "worst_trade": -1290.0,
+          "worst_decile_mean": -962.4,
+          "max_dd": -6478.8,
+          "n_stopped": 0,
+          "top3_day_share": 0.496,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 7852.2
+            },
+            "second": {
+              "n": 125,
+              "total": 9413.4
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 72.19,
+          "wr": 0.36,
+          "oos_total": 9968.4,
+          "oos_positive": true,
+          "wf": 2.193,
+          "edge_capture_rel": 103.0
+        },
+        "null": null,
+        "null_gate": null,
+        "p_null": null,
+        "scope_reduction_note": "null-baseline/BH-FDR NOT recomputed at 1-min -- see module docstring SCOPE REDUCTION; not part of OP-11 auto-ratify."
+      },
+      "ITM-2": {
+        "cell_id": "ITM-2/SS-B",
+        "strike_label": "ITM-2",
+        "so_simulator_convention": -2,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 0,
+        "bar_sources": {
+          "rest_fetch": 218,
+          "cache_hit": 32
+        },
+        "metrics": {
+          "n": 250,
+          "total": 28812.4,
+          "expectancy": 115.25,
+          "wr": 0.38,
+          "edge_capture_rel": 809.0,
+          "oos_total": 22705.4,
+          "oos_positive": true,
+          "wf": 6.61,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 76.23,
+          "worst_trade": -1800.0,
+          "worst_decile_mean": -1476.2,
+          "max_dd": -12491.0,
+          "n_stopped": 0,
+          "top3_day_share": 0.535,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 11443.6
+            },
+            "second": {
+              "n": 125,
+              "total": 17368.8
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 115.09,
+          "wr": 0.38,
+          "oos_total": 22695.4,
+          "oos_positive": true,
+          "wf": 6.639,
+          "edge_capture_rel": 809.0
+        },
+        "null": null,
+        "null_gate": null,
+        "p_null": null,
+        "scope_reduction_note": "null-baseline/BH-FDR NOT recomputed at 1-min -- see module docstring SCOPE REDUCTION; not part of OP-11 auto-ratify."
+      }
+    },
+    "comparisons": {
+      "OTM-1": {
+        "label": "OTM-1 vs OTM-2 (SS-B fixed, 1-min)",
+        "candidate": "OTM-1/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 20.84,
+        "delta_oos_total": 3743.8,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 20.79,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": -193.0,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      "ATM": {
+        "label": "ATM vs OTM-2 (SS-B fixed, 1-min)",
+        "candidate": "ATM/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 67.81,
+        "delta_oos_total": 9105.2,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 70.95,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 103.0,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      "ITM-2": {
+        "label": "ITM-2 vs OTM-2 (SS-B fixed, 1-min)",
+        "candidate": "ITM-2/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 114.0,
+        "delta_oos_total": 21842.2,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 113.85,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 809.0,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      }
+    }
+  },
+  "axis1_strike_original_5min": {
+    "control": "OTM-2",
+    "winner": "ITM-2",
+    "selection_rule": "max OOS total pnl among candidates, tie-break full-sample expectancy",
+    "cells": {
+      "OTM-2": {
+        "cell_id": "OTM-2/SS-B",
+        "strike_label": "OTM-2",
+        "so_simulator_convention": 2,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 0,
+        "metrics": {
+          "n": 250,
+          "total": 4465.6,
+          "expectancy": 17.86,
+          "wr": 0.308,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": 2.876,
+          "wf_ge_070": true,
+          "qpf": 0.5,
+          "exp_drop_top3": -2.13,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -613.2,
+          "max_dd": -4797.6,
+          "n_stopped": 0,
+          "top3_day_share": 1.188,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 4343.0
+            },
+            "second": {
+              "n": 125,
+              "total": 122.6
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 17.37,
+          "wr": 0.308,
+          "oos_total": 2672.2,
+          "oos_positive": true,
+          "wf": 2.845,
+          "edge_capture_rel": -24.4
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 250,
+          "per_trade_mean": -27.51,
+          "per_trade_max": 30.47
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 45.37,
+          "null_pass": false
+        },
+        "p_null": 0.1429,
+        "bh_fdr_survivor": false,
+        "bh_rank": 6
+      },
+      "OTM-1": {
+        "cell_id": "OTM-1/SS-B",
+        "strike_label": "OTM-1",
+        "so_simulator_convention": 1,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 1,
+        "metrics": {
+          "n": 249,
+          "total": 9209.2,
+          "expectancy": 36.98,
+          "wr": 0.333,
+          "edge_capture_rel": 92.6,
+          "oos_total": 6753.4,
+          "oos_positive": true,
+          "wf": 4.858,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 12.72,
+          "worst_trade": -1095.0,
+          "worst_decile_mean": -782.92,
+          "max_dd": -5581.0,
+          "n_stopped": 0,
+          "top3_day_share": 0.728,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 124,
+              "total": 4372.0
+            },
+            "second": {
+              "n": 125,
+              "total": 4837.2
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 249,
+          "n_no_local_bars": 1,
+          "expectancy": 40.14,
+          "wr": 0.337,
+          "oos_total": 7012.6,
+          "oos_positive": true,
+          "wf": 4.155,
+          "edge_capture_rel": 92.6
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 249,
+          "per_trade_mean": -51.01,
+          "per_trade_max": 53.4
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 87.99,
+          "null_pass": false
+        },
+        "p_null": 0.0952,
+        "bh_fdr_survivor": false,
+        "bh_rank": 4
+      },
+      "ATM": {
+        "cell_id": "ATM/SS-B",
+        "strike_label": "ATM",
+        "so_simulator_convention": 0,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 6,
+        "metrics": {
+          "n": 244,
+          "total": 16061.0,
+          "expectancy": 65.82,
+          "wr": 0.357,
+          "edge_capture_rel": 361.4,
+          "oos_total": 11333.4,
+          "oos_positive": true,
+          "wf": 4.25,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 36.64,
+          "worst_trade": -1290.0,
+          "worst_decile_mean": -966.04,
+          "max_dd": -7707.0,
+          "n_stopped": 0,
+          "top3_day_share": 0.572,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 122,
+              "total": 6551.2
+            },
+            "second": {
+              "n": 122,
+              "total": 9509.8
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 244,
+          "n_no_local_bars": 6,
+          "expectancy": 69.69,
+          "wr": 0.361,
+          "oos_total": 11323.4,
+          "oos_positive": true,
+          "wf": 3.534,
+          "edge_capture_rel": 361.4
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 244,
+          "per_trade_mean": -79.48,
+          "per_trade_max": 19.77
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": true,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 145.3,
+          "null_pass": true
+        },
+        "p_null": 0.0476,
+        "bh_fdr_survivor": true,
+        "bh_rank": 1
+      },
+      "ITM-2": {
+        "cell_id": "ITM-2/SS-B",
+        "strike_label": "ITM-2",
+        "so_simulator_convention": -2,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 19,
+        "metrics": {
+          "n": 231,
+          "total": 2560.6,
+          "expectancy": 11.08,
+          "wr": 0.346,
+          "edge_capture_rel": 1149.0,
+          "oos_total": 19554.4,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -30.19,
+          "worst_trade": -1800.0,
+          "worst_decile_mean": -1470.65,
+          "max_dd": -20843.8,
+          "n_stopped": 0,
+          "top3_day_share": 5.538,
+          "sub_window_stable": false,
+          "both_halves": {
+            "first": {
+              "n": 115,
+              "total": -9230.2
+            },
+            "second": {
+              "n": 116,
+              "total": 11790.8
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 231,
+          "n_no_local_bars": 19,
+          "expectancy": 11.47,
+          "wr": 0.346,
+          "oos_total": 19534.4,
+          "oos_positive": true,
+          "wf": null,
+          "edge_capture_rel": 1149.0
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 231,
+          "per_trade_mean": -215.85,
+          "per_trade_max": -77.79
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": true,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 226.93,
+          "null_pass": true
+        },
+        "p_null": 0.0476,
+        "bh_fdr_survivor": true,
+        "bh_rank": 2
+      }
+    },
+    "comparisons": {
+      "OTM-1": {
+        "label": "OTM-1 vs OTM-2 (SS-B fixed)",
+        "candidate": "OTM-1/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 19.12,
+        "delta_oos_total": 3993.6,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 22.77,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 92.6,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      "ATM": {
+        "label": "ATM vs OTM-2 (SS-B fixed)",
+        "candidate": "ATM/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 47.96,
+        "delta_oos_total": 8573.6,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 52.32,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 361.4,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      "ITM-2": {
+        "label": "ITM-2 vs OTM-2 (SS-B fixed)",
+        "candidate": "ITM-2/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": -6.78,
+        "delta_oos_total": 16794.6,
+        "candidate_beats_control": false,
+        "sensitivity_delta_expectancy_old_convention": -5.9,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 1149.0,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": false,
+          "sub_window_stable": false
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    }
+  },
+  "axis2_exit": {
+    "strikes_tested": [
+      "OTM-2",
+      "ITM-2"
+    ],
+    "cells": {
+      "OTM-2": {
+        "cell_id": "OTM-2/P5-CHALLENGER",
+        "strike_label": "OTM-2",
+        "so_simulator_convention": 2,
+        "exit_label": "P5-CHALLENGER",
+        "n_no_local_bars": 0,
+        "bar_sources": {
+          "cache_hit": 250
+        },
+        "metrics": {
+          "n": 250,
+          "total": 4929.65,
+          "expectancy": 19.72,
+          "wr": 0.256,
+          "edge_capture_rel": -275.2,
+          "oos_total": 3964.65,
+          "oos_positive": true,
+          "wf": 7.304,
+          "wf_ge_070": true,
+          "qpf": 0.833,
+          "exp_drop_top3": 13.19,
+          "worst_trade": -183.2,
+          "worst_decile_mean": -100.83,
+          "max_dd": -680.7,
+          "n_stopped": 0,
+          "top3_day_share": 0.369,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 1140.8
+            },
+            "second": {
+              "n": 125,
+              "total": 3788.85
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 11.24,
+          "wr": 0.216,
+          "oos_total": 2689.7,
+          "oos_positive": true,
+          "wf": 39.518,
+          "edge_capture_rel": -275.2
+        },
+        "null": null,
+        "null_gate": null,
+        "p_null": null,
+        "scope_reduction_note": "null-baseline/BH-FDR NOT recomputed at 1-min -- see module docstring SCOPE REDUCTION; not part of OP-11 auto-ratify."
+      },
+      "ITM-2": {
+        "cell_id": "ITM-2/P5-CHALLENGER",
+        "strike_label": "ITM-2",
+        "so_simulator_convention": -2,
+        "exit_label": "P5-CHALLENGER",
+        "n_no_local_bars": 0,
+        "bar_sources": {
+          "cache_hit": 250
+        },
+        "metrics": {
+          "n": 250,
+          "total": 11973.95,
+          "expectancy": 47.9,
+          "wr": 0.252,
+          "edge_capture_rel": 368.85,
+          "oos_total": 10063.95,
+          "oos_positive": true,
+          "wf": 9.367,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 25.21,
+          "worst_trade": -332.0,
+          "worst_decile_mean": -259.52,
+          "max_dd": -4213.6,
+          "n_stopped": 0,
+          "top3_day_share": 0.469,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 4601.3
+            },
+            "second": {
+              "n": 125,
+              "total": 7372.65
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 38.8,
+          "wr": 0.24,
+          "oos_total": 8719.25,
+          "oos_positive": true,
+          "wf": 15.816,
+          "edge_capture_rel": -1029.6
+        },
+        "null": null,
+        "null_gate": null,
+        "p_null": null,
+        "scope_reduction_note": "null-baseline/BH-FDR NOT recomputed at 1-min -- see module docstring SCOPE REDUCTION; not part of OP-11 auto-ratify."
+      }
+    },
+    "comparisons": {
+      "OTM-2": {
+        "label": "P5-CHALLENGER vs SS-B (at OTM-2, 1-min)",
+        "candidate": "OTM-2/P5-CHALLENGER",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 18.47,
+        "delta_oos_total": 3101.45,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 10.0,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": -275.2,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      },
+      "ITM-2": {
+        "label": "P5-CHALLENGER vs SS-B (at ITM-2, 1-min)",
+        "candidate": "ITM-2/P5-CHALLENGER",
+        "control": "ITM-2/SS-B",
+        "delta_expectancy": -67.35,
+        "delta_oos_total": -12641.45,
+        "candidate_beats_control": false,
+        "sensitivity_delta_expectancy_old_convention": -76.29,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": 368.85,
+        "control_edge_capture_rel": 809.0,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    }
+  },
+  "axis2_exit_original_5min": {
+    "strikes_tested": [
+      "OTM-2",
+      "ITM-2"
+    ],
+    "cells": {
+      "OTM-2": {
+        "cell_id": "OTM-2/P5-CHALLENGER",
+        "strike_label": "OTM-2",
+        "so_simulator_convention": 2,
+        "exit_label": "P5-CHALLENGER",
+        "n_no_local_bars": 0,
+        "metrics": {
+          "n": 250,
+          "total": 9224.45,
+          "expectancy": 36.9,
+          "wr": 0.276,
+          "edge_capture_rel": 479.6,
+          "oos_total": 5029.55,
+          "oos_positive": true,
+          "wf": 2.131,
+          "wf_ge_070": true,
+          "qpf": 0.833,
+          "exp_drop_top3": 26.87,
+          "worst_trade": -183.2,
+          "worst_decile_mean": -103.26,
+          "max_dd": -687.2,
+          "n_stopped": 0,
+          "top3_day_share": 0.3,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 4197.4
+            },
+            "second": {
+              "n": 125,
+              "total": 5027.05
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 7.92,
+          "wr": 0.18,
+          "oos_total": 1598.95,
+          "oos_positive": true,
+          "wf": 7.483,
+          "edge_capture_rel": -275.2
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 250,
+          "per_trade_mean": 11.44,
+          "per_trade_max": 29.6
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": true,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 25.46,
+          "null_pass": true
+        },
+        "p_null": 0.0476,
+        "bh_fdr_survivor": true,
+        "bh_rank": 3
+      },
+      "ITM-2": {
+        "cell_id": "ITM-2/P5-CHALLENGER",
+        "strike_label": "ITM-2",
+        "so_simulator_convention": -2,
+        "exit_label": "P5-CHALLENGER",
+        "n_no_local_bars": 19,
+        "metrics": {
+          "n": 231,
+          "total": 16036.6,
+          "expectancy": 69.42,
+          "wr": 0.286,
+          "edge_capture_rel": 576.05,
+          "oos_total": 13303.95,
+          "oos_positive": true,
+          "wf": 8.681,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 49.94,
+          "worst_trade": -288.8,
+          "worst_decile_mean": -249.43,
+          "max_dd": -3646.65,
+          "n_stopped": 0,
+          "top3_day_share": 0.323,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 115,
+              "total": 6190.5
+            },
+            "second": {
+              "n": 116,
+              "total": 9846.1
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 231,
+          "n_no_local_bars": 19,
+          "expectancy": 14.04,
+          "wr": 0.221,
+          "oos_total": 7028.6,
+          "oos_positive": true,
+          "wf": null,
+          "edge_capture_rel": -1029.6
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 231,
+          "per_trade_mean": 26.51,
+          "per_trade_max": 75.7
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 42.91,
+          "null_pass": false
+        },
+        "p_null": 0.0952,
+        "bh_fdr_survivor": false,
+        "bh_rank": 5
+      }
+    },
+    "comparisons": {
+      "OTM-2": {
+        "label": "P5-CHALLENGER vs SS-B (at OTM-2)",
+        "candidate": "OTM-2/P5-CHALLENGER",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 19.04,
+        "delta_oos_total": 2269.75,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": -9.45,
+        "unstable_on_open_audit": true,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 479.6,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_OPEN_AUDIT_CHIPS"
+      },
+      "ITM-2": {
+        "label": "P5-CHALLENGER vs SS-B (at ITM-2)",
+        "candidate": "ITM-2/P5-CHALLENGER",
+        "control": "ITM-2/SS-B",
+        "delta_expectancy": 58.34,
+        "delta_oos_total": -6250.45,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 2.57,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": 576.05,
+        "control_edge_capture_rel": 1149.0,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    },
+    "note": "P5-CHALLENGER shape parameters held FIXED across strikes (only the underlying strike/contract varies) -- an isolated-variable exit-axis test, mirroring axis 1's own isolated-variable strike test."
+  },
+  "ship_vs_wait": {
+    "ship_per_op11_auto_ratify": [
+      {
+        "label": "OTM-1 vs OTM-2 (SS-B fixed, 1-min)",
+        "candidate": "OTM-1/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 20.84,
+        "delta_oos_total": 3743.8,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 20.79,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": -193.0,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      {
+        "label": "ATM vs OTM-2 (SS-B fixed, 1-min)",
+        "candidate": "ATM/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 67.81,
+        "delta_oos_total": 9105.2,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 70.95,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 103.0,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      {
+        "label": "ITM-2 vs OTM-2 (SS-B fixed, 1-min)",
+        "candidate": "ITM-2/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 114.0,
+        "delta_oos_total": 21842.2,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 113.85,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 809.0,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      }
+    ],
+    "wait_on_open_audit_chips": [],
+    "wait_more_evidence": [
+      {
+        "label": "P5-CHALLENGER vs SS-B (at OTM-2, 1-min)",
+        "candidate": "OTM-2/P5-CHALLENGER",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 18.47,
+        "delta_oos_total": 3101.45,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 10.0,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": -275.2,
+        "control_edge_capture_rel": -262.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      },
+      {
+        "label": "P5-CHALLENGER vs SS-B (at ITM-2, 1-min)",
+        "candidate": "ITM-2/P5-CHALLENGER",
+        "control": "ITM-2/SS-B",
+        "delta_expectancy": -67.35,
+        "delta_oos_total": -12641.45,
+        "candidate_beats_control": false,
+        "sensitivity_delta_expectancy_old_convention": -76.29,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": 368.85,
+        "control_edge_capture_rel": 809.0,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    ]
+  },
+  "runtime_seconds": 297.5,
+  "disclosures": [
+    "Bar source is the ONLY variable changed vs the original study: lib.option_pricing_real.load_contract_bars (5-min disk cache) -> exit_shape_parity_study.fetch_option_bars (1-min live REST, shared helper _option_bars_1min_cache.fetch_1min_cached). Signal cohort, strike-offset convention (strike_for), fill-bar '>' convention (old_semantics=False primary, '>=' old_semantics=True sensitivity), shapes (SS-B/P5-CHALLENGER), trigger-level recovery, QTY=10, and TIME_STOP_LAYER (15:50 ET) are IDENTICAL to the original.",
+    "SCOPE REDUCTION: random-entry null (20 seeds/cell) and BH-FDR are NOT recomputed at 1-min resolution -- see module docstring. null/p_null/bh_fdr_survivor fields are None in every cell here; SHIP/WAIT verdicts below do not depend on them (verified against ribbon_ride_strike_exit_ab.compare()'s own source, which reads only metrics + sensitivity_old_fillbar_convention).",
+    "This is a REPLICATION, not a new search: STRIKE_CELLS, SHAPES, and the winner-selection rule are byte-identical to the original. Any verdict change traces ONLY to the resolution swap."
+  ]
+}

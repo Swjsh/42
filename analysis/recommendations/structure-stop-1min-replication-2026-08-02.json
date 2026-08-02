@@ -1,0 +1,312 @@
+{
+  "_doc": "STEP 2a of OPTION-BAR-RESOLUTION-BIAS-2026-08-02: structure_stop_study.py's Layer A (fresh-slice) rebuilt at 1-minute option-bar resolution, REPLICATING the ORIGINAL frozen cells (no new hypotheses, no threshold sweeping). Layer B was ALREADY 1-min in the original study (re-run here unchanged as a live reproducibility check).",
+  "generated_at": "2026-08-02T01:34:23.743797",
+  "original_scorecard": "analysis/recommendations/structure-stop-2026-07-09.json",
+  "preflight": {
+    "fresh_slice_sha256_16": "d10e1a3a51cbf155",
+    "fresh_slice_hash_ok": true,
+    "anchor_population_sha256_16": "4561797465ebf837",
+    "anchor_population_hash_ok": true,
+    "preregistration_version": 1,
+    "preregistration_version_ok": true
+  },
+  "layer_a_1min": {
+    "n_signals": 18,
+    "n_recoverable_trigger_level": 14,
+    "n_fallback": 4,
+    "candidates": {
+      "CONTROL": {
+        "n": 18,
+        "total": -1812.0,
+        "expectancy": -100.67,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -1812.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -138.8,
+        "worst_trade": -386.0,
+        "worst_decile_mean": -386.0,
+        "max_dd": -1812.0,
+        "n_stopped": 0,
+        "n_structure_fired": 0
+      },
+      "SS-A": {
+        "n": 18,
+        "total": -4340.0,
+        "expectancy": -241.11,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -4340.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -306.33,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -4340.0,
+        "n_stopped": 0,
+        "n_structure_fired": 4
+      },
+      "SS-B": {
+        "n": 18,
+        "total": -951.4,
+        "expectancy": -52.86,
+        "wr": 0.222,
+        "edge_capture_rel": 0.0,
+        "oos_total": -951.4,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -218.4,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -2233.0,
+        "n_stopped": 0,
+        "n_structure_fired": 4
+      },
+      "SS-C": {
+        "n": 18,
+        "total": -4350.0,
+        "expectancy": -241.67,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -4350.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -307.0,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -4350.0,
+        "n_stopped": 0,
+        "n_structure_fired": 4
+      }
+    },
+    "n_missing_bars": 0,
+    "bar_sources": {
+      "rest_fetch": 11,
+      "cache_hit": 7
+    }
+  },
+  "layer_a_original_5min": {
+    "n_signals": 18,
+    "n_recoverable_trigger_level": 14,
+    "n_fallback": 4,
+    "candidates": {
+      "CONTROL": {
+        "n": 18,
+        "total": -1812.0,
+        "expectancy": -100.67,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -1812.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -138.8,
+        "worst_trade": -386.0,
+        "worst_decile_mean": -386.0,
+        "max_dd": -1812.0,
+        "n_stopped": 0,
+        "n_structure_fired": 0
+      },
+      "SS-A": {
+        "n": 18,
+        "total": -4240.8,
+        "expectancy": -235.6,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -4240.8,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -302.67,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -4240.8,
+        "n_stopped": 0,
+        "n_structure_fired": 5
+      },
+      "SS-B": {
+        "n": 18,
+        "total": -852.2,
+        "expectancy": -47.34,
+        "wr": 0.222,
+        "edge_capture_rel": 0.0,
+        "oos_total": -852.2,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -211.79,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -2178.0,
+        "n_stopped": 0,
+        "n_structure_fired": 5
+      },
+      "SS-C": {
+        "n": 18,
+        "total": -4250.8,
+        "expectancy": -236.16,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -4250.8,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -303.33,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -4250.8,
+        "n_stopped": 0,
+        "n_structure_fired": 5
+      }
+    },
+    "n_missing_bars": 0
+  },
+  "layer_b_1min_rerun": {
+    "n_positions_total": 79,
+    "n_positions_with_bars": 79,
+    "n_no_option_bars": 0,
+    "n_recoverable_trigger_level": 48,
+    "n_fallback": 31,
+    "recovery_status_counts": {
+      "no_trigger_bar_in_lookback": 31,
+      "ok": 48
+    },
+    "n_unique_signals": 17,
+    "n_trading_days": 7,
+    "date_span": "2026-06-29..2026-07-08",
+    "actual_realized_total": -893.0,
+    "candidates": {
+      "CONTROL": {
+        "anchor_total": -757.1,
+        "n_valid": 79,
+        "n_structure_fired": 0
+      },
+      "SS-A": {
+        "anchor_total": -61.1,
+        "n_valid": 79,
+        "n_structure_fired": 22
+      },
+      "SS-B": {
+        "anchor_total": -604.7,
+        "n_valid": 79,
+        "n_structure_fired": 22
+      },
+      "SS-C": {
+        "anchor_total": 1799.9,
+        "n_valid": 79,
+        "n_structure_fired": 16
+      }
+    }
+  },
+  "layer_b_original": {
+    "n_positions_total": 79,
+    "n_positions_with_bars": 79,
+    "n_no_option_bars": 0,
+    "n_recoverable_trigger_level": 48,
+    "n_fallback": 31,
+    "recovery_status_counts": {
+      "no_trigger_bar_in_lookback": 31,
+      "ok": 48
+    },
+    "n_unique_signals": 17,
+    "n_trading_days": 7,
+    "date_span": "2026-06-29..2026-07-08",
+    "actual_realized_total": -893.0,
+    "candidates": {
+      "CONTROL": {
+        "anchor_total": -757.1,
+        "n_valid": 79,
+        "n_structure_fired": 0
+      },
+      "SS-A": {
+        "anchor_total": -61.1,
+        "n_valid": 79,
+        "n_structure_fired": 22
+      },
+      "SS-B": {
+        "anchor_total": -604.7,
+        "n_valid": 79,
+        "n_structure_fired": 22
+      },
+      "SS-C": {
+        "anchor_total": 1799.9,
+        "n_valid": 79,
+        "n_structure_fired": 16
+      }
+    }
+  },
+  "layer_b_reproducibility_check": {
+    "matches_original": true,
+    "note": "Layer B was already 1-min-sourced in the original study; this re-run should reproduce it near-exactly on immutable historical bars -- a drift here would indicate a live-data/methodology inconsistency, not a resolution effect."
+  },
+  "verdicts_1min": {
+    "SS-A": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": false,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "FAIL",
+      "reason": "layer(a) exp $-241.11 vs control $-100.67 (FAIL); layer(b) anchor $-61.1 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    },
+    "SS-B": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": true,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "PASS",
+      "reason": "layer(a) exp $-52.86 vs control $-100.67 (PASS); layer(b) anchor $-604.7 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    },
+    "SS-C": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": false,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "FAIL",
+      "reason": "layer(a) exp $-241.67 vs control $-100.67 (FAIL); layer(b) anchor $1799.9 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    }
+  },
+  "verdicts_original": {
+    "SS-A": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": false,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "FAIL",
+      "reason": "layer(a) exp $-235.6 vs control $-100.67 (FAIL); layer(b) anchor $-61.1 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    },
+    "SS-B": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": true,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "PASS",
+      "reason": "layer(a) exp $-47.34 vs control $-100.67 (PASS); layer(b) anchor $-604.7 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    },
+    "SS-C": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": false,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "FAIL",
+      "reason": "layer(a) exp $-236.16 vs control $-100.67 (FAIL); layer(b) anchor $1799.9 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    }
+  },
+  "verdict_flags": {
+    "SS-A": "CONFIRMED_FAIL",
+    "SS-B": "CONFIRMED",
+    "SS-C": "CONFIRMED_FAIL"
+  },
+  "disclosures": [
+    "Layer A rebuild changes ONLY the option-bar source (t4_exit_matrix._load_bars' 5-min disk cache -> live 1-min REST via exit_shape_parity_study.fetch_option_bars, shared helper _option_bars_1min_cache.fetch_1min_cached) -- strike selection (OTM-2, t4's own convention), fill-bar inclusion ('>=' entry_ts), C6 close-based structure-stop detection (unchanged, reads 5-min SPY closes -- structure_stop is 5-min-native by v15.3 design, not part of the resolution variable under test), shapes, buffers, and time_stop (15:40 ET, TIME_STOP_LAYER_A) are IDENTICAL to the original.",
+    "Layer B is UNCHANGED code (sss.run_layer_b), re-run live -- reproducibility, not a resolution fix (it was already 1-min-sourced in the original study).",
+    "This is a REPLICATION, not a new search: no cell, shape, buffer, or gate was added, removed, or re-picked. Any verdict change traces ONLY to the resolution swap.",
+    "The 2026-07-09 TODAY EXHIBIT (excluded from all pass/fail layers in the original study by its own design) is NOT re-run here -- it was never a gating cell."
+  ]
+}

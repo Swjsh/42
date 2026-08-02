@@ -1,0 +1,3940 @@
+{
+  "_doc": "STEP 1 of OPTION-BAR-RESOLUTION-BIAS-2026-08-02: quantifies the 5-min-vs-1-min option-bar resolution bias on the canonical real-fills population, walked through the SAME production exit_manager decision core both times (only resolution varies).",
+  "generated_at": "2026-08-02T01:32:03.835622",
+  "population_source": "level_target_exit_study.build_population() (REUSED unchanged, OP-22)",
+  "n_positions_total": 129,
+  "n_positions_both_resolutions": 123,
+  "n_5min_missing": 6,
+  "n_1min_missing": 0,
+  "stop_stages_definition": [
+    "premium_stop",
+    "profit_lock_floor",
+    "structure_stop"
+  ],
+  "n_stop_only_at_1min": 4,
+  "n_stop_only_at_5min": 0,
+  "aggregate_pnl_5min": 2569.56,
+  "aggregate_pnl_1min": 747.81,
+  "actual_real_fills_total": -932.99,
+  "gap_5min_minus_1min": 1821.75,
+  "direction": "5-min FLATTERS (overstates P&L vs honest 1-min)",
+  "stop_only_at_1min_detail": [
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "pnl_5min": 215.0,
+      "pnl_1min": -17.4,
+      "delta_5min_minus_1min": 232.4,
+      "stages_5min": [
+        "time_stop",
+        "tp1"
+      ],
+      "stages_1min": [
+        "premium_stop"
+      ]
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "pnl_5min": 213.0,
+      "pnl_1min": -16.8,
+      "delta_5min_minus_1min": 229.8,
+      "stages_5min": [
+        "time_stop",
+        "tp1"
+      ],
+      "stages_1min": [
+        "premium_stop"
+      ]
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "pnl_5min": 387.0,
+      "pnl_1min": -29.0,
+      "delta_5min_minus_1min": 416.0,
+      "stages_5min": [
+        "time_stop",
+        "tp1"
+      ],
+      "stages_1min": [
+        "premium_stop"
+      ]
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "pnl_5min": 392.0,
+      "pnl_1min": -24.0,
+      "delta_5min_minus_1min": 416.0,
+      "stages_5min": [
+        "time_stop",
+        "tp1"
+      ],
+      "stages_1min": [
+        "premium_stop"
+      ]
+    }
+  ],
+  "stop_only_at_5min_detail": [],
+  "all_rows": [
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260629C00743000",
+      "date_et": "2026-06-29",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": -32.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -22.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -22.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260630C00746000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -36.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -36.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.49",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -36.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.49",
+        "resolved": true,
+        "n_ticks": 57
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -9.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -7.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.1",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -7.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.1",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260701C00751000",
+      "date_et": "2026-07-01",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -12.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -3.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -3.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 12
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702P00743000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -45.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -26.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.39",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -26.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.39",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702C00754000",
+      "date_et": "2026-07-02",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -15.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": null,
+      "walk_1min": {
+        "pnl": -9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.16",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702P00742000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 306.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 168.0,
+        "stages": [
+          "be_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.53",
+        "resolved": true,
+        "n_ticks": 35
+      },
+      "walk_1min": {
+        "pnl": 168.0,
+        "stages": [
+          "be_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.53",
+        "resolved": true,
+        "n_ticks": 163
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702P00739000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -95.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": null,
+      "walk_1min": {
+        "pnl": -25.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.4",
+        "resolved": true,
+        "n_ticks": 11
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": -16.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 19.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.1",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 19.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.1",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": -8.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -3.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -3.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 2
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": 8.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.12",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.12",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": -8.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 14.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.13",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 14.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.13",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": -16.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 24.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 24.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260707P00743000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -39.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -14.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.39",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -14.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.39",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260707P00746000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -15.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 0.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 0.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260707P00746000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -9.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 5.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.13",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 5.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.13",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -54.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -36.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.84",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -36.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.84",
+        "resolved": true,
+        "n_ticks": 6
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -0.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -0.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 11
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708C00749000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -12.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -5.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -5.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708C00748000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -12.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 3.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 3.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260626P00729000",
+      "date_et": "2026-06-26",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -15.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -21.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -21.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 14
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260702P00743000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -60.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -60.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.36",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -60.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.36",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260702P00740000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 290.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 218.8,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.88",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": 218.8,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.88",
+        "resolved": true,
+        "n_ticks": 16
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260629C00743000",
+      "date_et": "2026-06-29",
+      "side": "C",
+      "qty": 8,
+      "actual_exit_pnl": -8.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -17.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -17.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260630C00746000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -33.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -36.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.49",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -36.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.49",
+        "resolved": true,
+        "n_ticks": 57
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -3.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -6.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -4.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -4.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -6.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -4.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 8
+      },
+      "walk_1min": {
+        "pnl": -4.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 35
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260630C00751000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -6.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -1.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.02",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -1.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.02",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260701C00751000",
+      "date_et": "2026-07-01",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -12.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -3.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -3.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 12
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260702C00754000",
+      "date_et": "2026-07-02",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -15.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": null,
+      "walk_1min": {
+        "pnl": 0.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.19",
+        "resolved": true,
+        "n_ticks": 2
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -6.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -4.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -4.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 5
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -3.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 10.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 10.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -3.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -4.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -4.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 13
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260706C00755000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -3.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.04",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.04",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -69.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -55.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.82",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -55.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.82",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260708C00749000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -6.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 4.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.14",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 4.2,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.14",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260708C00748000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -9.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 6.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 6.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260629C00743000",
+      "date_et": "2026-06-29",
+      "side": "C",
+      "qty": 12,
+      "actual_exit_pnl": -48.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -33.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -33.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260630C00746000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -80.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -58.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.46",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -58.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.46",
+        "resolved": true,
+        "n_ticks": 57
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -10.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -10.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -18.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260630C00751000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -3.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.02",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -3.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.02",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260701C00751000",
+      "date_et": "2026-07-01",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -20.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -22.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.22",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -22.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.22",
+        "resolved": true,
+        "n_ticks": 13
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260702C00754000",
+      "date_et": "2026-07-02",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -25.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": null,
+      "walk_1min": {
+        "pnl": 1.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.19",
+        "resolved": true,
+        "n_ticks": 2
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -5.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -2.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -2.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 2
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -5.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 15.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 15.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260706C00755000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -5.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 2.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 2.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.03",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -80.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -66.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.81",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -66.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.81",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260708C00749000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.14",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.14",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260708C00748000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -20.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260629C00743000",
+      "date_et": "2026-06-29",
+      "side": "C",
+      "qty": 12,
+      "actual_exit_pnl": -48.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -33.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -33.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.11",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260630C00746000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -60.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -60.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.48",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -60.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.48",
+        "resolved": true,
+        "n_ticks": 57
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -5.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -10.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -10.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.08",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -8.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -8.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -5.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -9.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 9
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260630C00751000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -15.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -5.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.04",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -5.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.04",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260701C00751000",
+      "date_et": "2026-07-01",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -20.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "resolved": true,
+        "n_ticks": 12
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260702P00743000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -80.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -34.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.43",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -34.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.43",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260702C00754000",
+      "date_et": "2026-07-02",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -25.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": null,
+      "walk_1min": {
+        "pnl": -15.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.16",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260702P00742000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 491.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 360.0,
+        "stages": [
+          "be_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.55",
+        "resolved": true,
+        "n_ticks": 34
+      },
+      "walk_1min": {
+        "pnl": 360.0,
+        "stages": [
+          "be_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.55",
+        "resolved": true,
+        "n_ticks": 162
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260702P00739000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 8,
+      "actual_exit_pnl": -152.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": null,
+      "walk_1min": {
+        "pnl": -40.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.4",
+        "resolved": true,
+        "n_ticks": 11
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 12,
+      "actual_exit_pnl": -24.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 28.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.1",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 28.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.1",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 12,
+      "actual_exit_pnl": -12.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 33.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 33.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 12,
+      "actual_exit_pnl": -24.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 24.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.12",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 24.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.12",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 16.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.07",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260706C00755000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -5.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 18.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 18.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.06",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260707P00743000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -25.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -25.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.4",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -25.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.4",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260707P00746000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -25.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -4.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.23",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -4.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.23",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260707P00746000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -6.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.09",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -80.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -74.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.79",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -74.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.79",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -5.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -5.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 11
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260708C00749000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -10.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.14",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 7.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.14",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260708C00748000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -20.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 10.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.12",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": 10.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.12",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260626P00732000",
+      "date_et": "2026-06-26",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -58.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.78",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -58.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.78",
+        "resolved": true,
+        "n_ticks": 15
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260702P00746000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -66.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -71.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.03",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -71.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.03",
+        "resolved": true,
+        "n_ticks": 2
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260702P00743000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -69.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 378.5,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.46",
+        "resolved": true,
+        "n_ticks": 15
+      },
+      "walk_1min": {
+        "pnl": 376.8,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.45",
+        "resolved": true,
+        "n_ticks": 64
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260706C00751000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -39.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -50.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.63",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -50.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.63",
+        "resolved": true,
+        "n_ticks": 14
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -24.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -18.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.44",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -18.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.44",
+        "resolved": true,
+        "n_ticks": 6
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -57.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -22.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.46",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -22.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.46",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -48.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -30.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.41",
+        "resolved": true,
+        "n_ticks": 6
+      },
+      "walk_1min": {
+        "pnl": -30.6,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.41",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -75.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -46.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.41",
+        "resolved": true,
+        "n_ticks": 6
+      },
+      "walk_1min": {
+        "pnl": -46.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.41",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -35.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -25.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.44",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -25.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.44",
+        "resolved": true,
+        "n_ticks": 6
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -30.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -29.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.47",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -29.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.47",
+        "resolved": true,
+        "n_ticks": 8
+      }
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -24.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 215.0,
+        "stages": [
+          "time_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "time_stop_15:50 (runner)",
+        "resolved": true,
+        "n_ticks": 65
+      },
+      "walk_1min": {
+        "pnl": -17.4,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.43",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -18.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 213.0,
+        "stages": [
+          "time_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "time_stop_15:50 (runner)",
+        "resolved": true,
+        "n_ticks": 65
+      },
+      "walk_1min": {
+        "pnl": -16.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.42",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -35.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 387.0,
+        "stages": [
+          "time_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "time_stop_15:50 (runner)",
+        "resolved": true,
+        "n_ticks": 65
+      },
+      "walk_1min": {
+        "pnl": -29.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.43",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -35.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 392.0,
+        "stages": [
+          "time_stop",
+          "tp1"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "time_stop_15:50 (runner)",
+        "resolved": true,
+        "n_ticks": 65
+      },
+      "walk_1min": {
+        "pnl": -24.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.43",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260713P00747000",
+      "date_et": "2026-07-13",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -25.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -25.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 750.3",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -60.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 750.3",
+        "resolved": true,
+        "n_ticks": 5
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260715C00757000",
+      "date_et": "2026-07-15",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -42.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -37.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 8
+      },
+      "walk_1min": {
+        "pnl": -37.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 25
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260715C00757000",
+      "date_et": "2026-07-15",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -75.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -65.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.18",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -65.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.18",
+        "resolved": true,
+        "n_ticks": 23
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260715C00757000",
+      "date_et": "2026-07-15",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -75.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -65.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.18",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -65.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.18",
+        "resolved": true,
+        "n_ticks": 23
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260715C00754000",
+      "date_et": "2026-07-15",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -117.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -52.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.62",
+        "resolved": true,
+        "n_ticks": 10
+      },
+      "walk_1min": {
+        "pnl": -52.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.62",
+        "resolved": true,
+        "n_ticks": 49
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260717P00741000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -3.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 744.82",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -9.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 744.82",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260717P00741000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -5.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 744.82",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -15.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 744.82",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260717P00741000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 15.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 5.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 744.82",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -5.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 744.82",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260717P00744000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -36.99,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -83.19,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.14",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -83.19,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.14",
+        "resolved": true,
+        "n_ticks": 3
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260717P00745000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -102.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -67.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.86",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -67.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.86",
+        "resolved": true,
+        "n_ticks": 16
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260717P00746000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 241.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 319.65,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.46",
+        "resolved": true,
+        "n_ticks": 22
+      },
+      "walk_1min": {
+        "pnl": 242.3,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 1.68",
+        "resolved": true,
+        "n_ticks": 62
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260717P00743000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 191.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 189.4,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.7",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": 189.4,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.7",
+        "resolved": true,
+        "n_ticks": 39
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260717P00742000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -48.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 13
+      },
+      "walk_1min": {
+        "pnl": -48.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 60
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260717P00742000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -80.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 13
+      },
+      "walk_1min": {
+        "pnl": -80.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.17",
+        "resolved": true,
+        "n_ticks": 60
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260717P00743000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 233.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 241.8,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.86",
+        "resolved": true,
+        "n_ticks": 20
+      },
+      "walk_1min": {
+        "pnl": 232.2,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.82",
+        "resolved": true,
+        "n_ticks": 88
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260717P00743000",
+      "date_et": "2026-07-17",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -56.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -27.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.44",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -27.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.44",
+        "resolved": true,
+        "n_ticks": 5
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260720P00745000",
+      "date_et": "2026-07-20",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -24.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -46.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.62",
+        "resolved": true,
+        "n_ticks": 4
+      },
+      "walk_1min": {
+        "pnl": -46.8,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.62",
+        "resolved": true,
+        "n_ticks": 17
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260721P00748000",
+      "date_et": "2026-07-21",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 0.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -27.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -27.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 19
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260723P00735000",
+      "date_et": "2026-07-23",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -305.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -124.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.03",
+        "resolved": true,
+        "n_ticks": 3
+      },
+      "walk_1min": {
+        "pnl": -124.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.03",
+        "resolved": true,
+        "n_ticks": 7
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260727P00737000",
+      "date_et": "2026-07-27",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -355.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -145.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.08",
+        "resolved": true,
+        "n_ticks": 8
+      },
+      "walk_1min": {
+        "pnl": -145.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.08",
+        "resolved": true,
+        "n_ticks": 38
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260727P00734000",
+      "date_et": "2026-07-27",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -87.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -58.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -58.5,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 55
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260727P00734000",
+      "date_et": "2026-07-27",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -85.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -95.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -95.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 55
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260727P00734000",
+      "date_et": "2026-07-27",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -85.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -95.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 12
+      },
+      "walk_1min": {
+        "pnl": -95.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "resolved": true,
+        "n_ticks": 55
+      }
+    },
+    {
+      "arm": "safe-2",
+      "symbol": "SPY260727P00736000",
+      "date_et": "2026-07-27",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": -162.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -57.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.8",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -57.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.8",
+        "resolved": true,
+        "n_ticks": 2
+      }
+    },
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260728C00741000",
+      "date_et": "2026-07-28",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -295.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -138.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.1",
+        "resolved": true,
+        "n_ticks": 25
+      },
+      "walk_1min": {
+        "pnl": -138.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 1.1",
+        "resolved": true,
+        "n_ticks": 63
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260728C00744000",
+      "date_et": "2026-07-28",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": -33.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -39.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.18",
+        "resolved": true,
+        "n_ticks": 13
+      },
+      "walk_1min": {
+        "pnl": -39.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.18",
+        "resolved": true,
+        "n_ticks": 62
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260729P00734000",
+      "date_et": "2026-07-29",
+      "side": "P",
+      "qty": 3,
+      "actual_exit_pnl": 72.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 81.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 737.57",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -27.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 737.57",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260729P00734000",
+      "date_et": "2026-07-29",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": 115.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 135.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 737.57",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -45.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 737.57",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260729C00740000",
+      "date_et": "2026-07-29",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": 265.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 373.0,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.72",
+        "resolved": true,
+        "n_ticks": 6
+      },
+      "walk_1min": {
+        "pnl": 373.0,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.72",
+        "resolved": true,
+        "n_ticks": 23
+      }
+    },
+    {
+      "arm": "risky-1",
+      "symbol": "SPY260729C00740000",
+      "date_et": "2026-07-29",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": 418.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 529.0,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.72",
+        "resolved": true,
+        "n_ticks": 6
+      },
+      "walk_1min": {
+        "pnl": 529.0,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.72",
+        "resolved": true,
+        "n_ticks": 23
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260729C00740000",
+      "date_et": "2026-07-29",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": 471.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 625.0,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.56",
+        "resolved": true,
+        "n_ticks": 7
+      },
+      "walk_1min": {
+        "pnl": 625.0,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 2.56",
+        "resolved": true,
+        "n_ticks": 27
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260730P00733000",
+      "date_et": "2026-07-30",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -165.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -96.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.97",
+        "resolved": true,
+        "n_ticks": 1
+      },
+      "walk_1min": {
+        "pnl": -96.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.97",
+        "resolved": true,
+        "n_ticks": 1
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260730P00734000",
+      "date_et": "2026-07-30",
+      "side": "P",
+      "qty": 5,
+      "actual_exit_pnl": -110.0,
+      "structure_stop_enabled": false,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -84.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.87",
+        "resolved": true,
+        "n_ticks": 2
+      },
+      "walk_1min": {
+        "pnl": -84.0,
+        "stages": [
+          "premium_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "premium_stop @ 0.87",
+        "resolved": true,
+        "n_ticks": 4
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260731C00746000",
+      "date_et": "2026-07-31",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": 126.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 229.4,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.95",
+        "resolved": true,
+        "n_ticks": 17
+      },
+      "walk_1min": {
+        "pnl": 147.8,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.54",
+        "resolved": true,
+        "n_ticks": 20
+      }
+    },
+    {
+      "arm": "safe-3",
+      "symbol": "SPY260731C00747000",
+      "date_et": "2026-07-31",
+      "side": "C",
+      "qty": 3,
+      "actual_exit_pnl": 75.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": 91.8,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.58",
+        "resolved": true,
+        "n_ticks": 14
+      },
+      "walk_1min": {
+        "pnl": 93.5,
+        "stages": [
+          "tp1",
+          "trail"
+        ],
+        "classification": "non_stop",
+        "exit_reason": "runner_stop @ 0.59",
+        "resolved": true,
+        "n_ticks": 68
+      }
+    },
+    {
+      "arm": "risky-3",
+      "symbol": "SPY260731C00747000",
+      "date_et": "2026-07-31",
+      "side": "C",
+      "qty": 5,
+      "actual_exit_pnl": -80.0,
+      "structure_stop_enabled": true,
+      "resolution_1min_source": "cache_hit",
+      "walk_5min": {
+        "pnl": -100.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 745.31",
+        "resolved": true,
+        "n_ticks": 5
+      },
+      "walk_1min": {
+        "pnl": -110.0,
+        "stages": [
+          "structure_stop"
+        ],
+        "classification": "stop",
+        "exit_reason": "structure_stop @ 745.31",
+        "resolved": true,
+        "n_ticks": 25
+      }
+    }
+  ],
+  "disclosures": [
+    "Population = level_target_exit_study.build_population() UNCHANGED (129 real-fills positions, ALL_LIVE_ARMS, each joined to its own REAL fired exit_shape/stop_mode/trigger_level) -- the canonical real-fills population several other studies in this codebase already reuse (OP-22, not re-derived here).",
+    "Both walks use exit_manager_walk.walk_exit_manager (the production decision core) UNCHANGED -- entry price (REGISTERED, from the real decision log), exit shape, trigger level, stop mode, qty, strategy, and time_stop_et (15:50 ET, exit_manager.TIME_STOP_ET) are IDENTICAL between the two walks. The ONLY variable is the option-bar resolution fed as opt_df.",
+    "5-min bars: lib.option_pricing_real.load_contract_bars(symbol) -- the exact function named in the defect (backtest/data/options/*.csv, silently 5-minute).",
+    "1-min bars: exit_shape_parity_study.fetch_option_bars(symbol, date_et) -- live REST, the SAME path the level-target-exit lane (2026-08-02) proved out on this exact population tonight; persisted to backtest/data/highres/ (existing naming convention) so a re-run of this script does not re-fetch.",
+    "stop_stages = {structure_stop, premium_stop, profit_lock_floor} -- the loss/protective-stop-realizing exit_manager stages (v15.3 CHART-STOP-PRIMARY doctrine's own 'chart-level stop / premium catastrophe cap' vocabulary); tp1/runner_target/trail/be_stop/time_stop/ribbon_flip are profit-taking or rule-exits, not counted as stops for this classification -- a disclosed, not silently picked, definition.",
+    "SPY 5-min series (structure_stop's last_closed_5m_close input) is IDENTICAL in both walks -- structure_stop is 5-min-native by v15.3 design (exit_manager_walk.py's own documented convention), not part of the resolution variable under test here; only the OPTION premium bar resolution varies.",
+    "n_5min_missing / n_1min_missing positions are EXCLUDED from the aggregate (never imputed) -- both counts disclosed, not silently dropped (C7).",
+    "actual_real_fills_total is reported for context only (same real-fills anchor number other studies in this codebase cite) -- this script's own comparison is 5-min-walk vs 1-min-walk, not walk-vs-actual (that parity question is level_target_exit_study's G8, already answered tonight: gap shrank $3,637.85 -> $1,920.40 swapping resolution)."
+  ]
+}

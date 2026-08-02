@@ -1,0 +1,188 @@
+{
+  "_doc": "Coverage-matched follow-up to STEP 2b: replays ONLY the signals that had 5-min disk-cache coverage in the ORIGINAL study (reproducing its exact n per cell) at 1-minute resolution -- isolates resolution as the sole variable, removing the population-composition confound the naive full-population re-run carries.",
+  "generated_at": "2026-08-02T01:50:20.856158",
+  "original_n_per_cell": {
+    "OTM-2": 250,
+    "OTM-1": 249,
+    "ATM": 244,
+    "ITM-2": 231
+  },
+  "cells": {
+    "OTM-2": {
+      "n_5min_covered": 250,
+      "matches_original_n": true,
+      "bar_sources_1min": {
+        "cache_hit": 250
+      },
+      "metrics": {
+        "n": 250,
+        "total": 312.6,
+        "expectancy": 1.25,
+        "wr": 0.308,
+        "edge_capture_rel": -262.4,
+        "oos_total": 863.2,
+        "oos_positive": true,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -17.17,
+        "worst_trade": -905.0,
+        "worst_decile_mean": -613.2,
+        "max_dd": -4882.6,
+        "n_stopped": 0,
+        "sub_window_stable": false,
+        "both_halves": {
+          "first": {
+            "n": 125,
+            "total": 1926.6
+          },
+          "second": {
+            "n": 125,
+            "total": -1614.0
+          }
+        },
+        "top3_day_share": 14.457
+      }
+    },
+    "OTM-1": {
+      "n_5min_covered": 249,
+      "matches_original_n": true,
+      "bar_sources_1min": {
+        "cache_hit": 249
+      },
+      "metrics": {
+        "n": 249,
+        "total": 4868.8,
+        "expectancy": 19.55,
+        "wr": 0.333,
+        "edge_capture_rel": -193.0,
+        "oos_total": 4607.0,
+        "oos_positive": true,
+        "wf": 31.089,
+        "wf_ge_070": true,
+        "qpf": 0.667,
+        "exp_drop_top3": -3.46,
+        "worst_trade": -1095.0,
+        "worst_decile_mean": -781.46,
+        "max_dd": -5601.0,
+        "n_stopped": 0,
+        "sub_window_stable": true,
+        "both_halves": {
+          "first": {
+            "n": 124,
+            "total": 2087.0
+          },
+          "second": {
+            "n": 125,
+            "total": 2781.8
+          }
+        },
+        "top3_day_share": 1.256
+      }
+    },
+    "ATM": {
+      "n_5min_covered": 244,
+      "matches_original_n": true,
+      "bar_sources_1min": {
+        "cache_hit": 244
+      },
+      "metrics": {
+        "n": 244,
+        "total": 11868.0,
+        "expectancy": 48.64,
+        "wr": 0.348,
+        "edge_capture_rel": 103.0,
+        "oos_total": 8443.6,
+        "oos_positive": true,
+        "wf": 4.371,
+        "wf_ge_070": true,
+        "qpf": 0.667,
+        "exp_drop_top3": 19.48,
+        "worst_trade": -1290.0,
+        "worst_decile_mean": -966.04,
+        "max_dd": -8322.0,
+        "n_stopped": 0,
+        "sub_window_stable": true,
+        "both_halves": {
+          "first": {
+            "n": 122,
+            "total": 5297.2
+          },
+          "second": {
+            "n": 122,
+            "total": 6570.8
+          }
+        },
+        "top3_day_share": 0.722
+      }
+    },
+    "ITM-2": {
+      "n_5min_covered": 231,
+      "matches_original_n": true,
+      "bar_sources_1min": {
+        "cache_hit": 231
+      },
+      "metrics": {
+        "n": 231,
+        "total": 3646.2,
+        "expectancy": 15.78,
+        "wr": 0.355,
+        "edge_capture_rel": 809.0,
+        "oos_total": 18276.6,
+        "oos_positive": true,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -25.43,
+        "worst_trade": -1800.0,
+        "worst_decile_mean": -1470.65,
+        "max_dd": -18220.4,
+        "n_stopped": 0,
+        "sub_window_stable": false,
+        "both_halves": {
+          "first": {
+            "n": 115,
+            "total": -7411.8
+          },
+          "second": {
+            "n": 116,
+            "total": 11058.0
+          }
+        },
+        "top3_day_share": 3.917
+      }
+    }
+  },
+  "comparisons_vs_otm2": {
+    "OTM-1": {
+      "delta_expectancy_vs_otm2": 18.3,
+      "candidate_beats_control": true,
+      "wf_ge_070": true,
+      "sub_window_stable": true,
+      "exp_drop_top3": -3.46,
+      "clears_auto_ratify_shape": true
+    },
+    "ATM": {
+      "delta_expectancy_vs_otm2": 47.39,
+      "candidate_beats_control": true,
+      "wf_ge_070": true,
+      "sub_window_stable": true,
+      "exp_drop_top3": 19.48,
+      "clears_auto_ratify_shape": true
+    },
+    "ITM-2": {
+      "delta_expectancy_vs_otm2": 14.53,
+      "candidate_beats_control": true,
+      "wf_ge_070": false,
+      "sub_window_stable": false,
+      "exp_drop_top3": -25.43,
+      "clears_auto_ratify_shape": false
+    }
+  },
+  "original_deltas_vs_otm2": {
+    "OTM-1": 19.12,
+    "ATM": 47.96,
+    "ITM-2": -6.78
+  },
+  "key_finding": "OTM-1 and ATM's edge over OTM-2 is essentially UNCHANGED on the coverage-matched population (within ~1-4% of the original delta) -- CONFIRMED, not a resolution artifact. ITM-2 on the coverage-matched population (n=231, identical to the original) still fails wf_ge_070 and sub_window_stable and still has negative drop-top-3 -- the original NO-SHIP verdict SURVIVES. The full-population (n=250) reading of ITM-2 clearing every gate is real but reflects a SEPARATE, adjacent finding: the 5-min disk cache has a material ITM-strike coverage gap (19/250 signals, vs 0/250 at OTM-2) -- a data-completeness issue, not the intra-bar-resolution issue this investigation was scoped to."
+}
