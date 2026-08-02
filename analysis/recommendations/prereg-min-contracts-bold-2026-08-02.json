@@ -1,0 +1,66 @@
+{
+  "rule_id": "min-contracts-bold-2026-08-02",
+  "status": "PRE-REGISTERED",
+  "registered_at_et": "2026-08-02T02:06:26-04:00",
+  "registered_by": "overnight lane (Sonnet, J off-shift directive: MAKE THE ENGINE PROFITABLE)",
+  "clock_source": "setup/scripts/et_clock.py -> 2026-08-02 02:06:26 Sunday EDT, market_hours=False",
+  "frozen_before_any_run": true,
+
+  "motivation": {
+    "measured_2026_08_02": "setup/scripts/sizing_deadlock_diag.py --all-arms: bold-2 equity $1,197.52, min_contracts=5, per_trade_risk_cap_pct=0.50 -> premium ceiling $1.19/contract. ATM 0DTE SPY typically prices $1.30-$2.50 -- bold-2 cannot place its SMALLEST legal order (5 contracts) above $1.19, structurally, regardless of signal quality. This is a MIN_CONTRACTS x premium x 100 > effective_cap deadlock (risk_gate.explain_block), not a selectivity gate.",
+    "hypothesis_source": "J's overnight directive: min_contracts is the one term in ceiling = equity*risk_cap/(min_contracts*100) we may lower WITHOUT J funding anything. Rule 6 floor is 3 (2 TP + 1 runner) -- Bold's account-wide min_contracts=5 sits ABOVE that floor as a CONFIG CHOICE, not the rule itself.",
+    "provenance_finding_prior_to_this_run": "min_contracts=5 traces to the ORIGINAL creation commit of automation/state/aggressive/params.json (earliest state in git log -p, alongside position_sizing_tiers' matching base_qty=5 for the $0-2K tier) -- an unexamined initial default, never independently A/B-validated, never appears in param-provenance.json (which only scans Safe's params.json), and has NO scorecard citation anywhere in the repo. The one prior deliberation (markdown/planning/BOLD-QTY-FLOOR-RULING-2026-06-22.md) explicitly REJECTED re-validating at qty5 and chose a narrower, NEVER-IMPLEMENTED 'per-setup min_contracts_overrides' path (grep-confirmed absent from risk_gate.py/pre_order_gate.py/both params files today) -- it did not evaluate a blanket account-wide floor drop, which is what this study tests. Per J's standing rule (a knob with no documented provenance and no evidence gets changed or deleted, not preserved out of superstition), min_contracts=5 for Bold is an UNEXAMINED CONSTANT, not a ratified decision -- eligible for this test."
+  },
+
+  "hypothesis": "Lowering automation/state/aggressive/params.json's min_contracts from 5 to 3 (still >= Rule 6's non-negotiable 3-contract floor) raises bold-2's premium ceiling from ~$1.19 to ~$1.99, materially increasing the share of ATM 0DTE SPY premiums bold-2 can legally trade, while REDUCING per-trade dollar risk (3 contracts is a smaller notional than 5 at any given premium).",
+
+  "scope_disclosure": "This change touches ONLY automation/state/aggressive/params.json's min_contracts key, consumed directly by setup/scripts/heartbeat_core.py:1964 (qty = int(params.get('min_contracts', 3))) for the core mcp_heartbeat lane (bold-2). It does NOT change risky-1's or risky-3's actual placed qty: those fleet_rest arms size via automation/state/fleet/fleet_executor.py's plan_entry/_plan_from_strategies/plan_all, which read params.position_sizing_tiers (base_qty/elite_qty per equity tier), NOT min_contracts, for the proposed qty -- min_contracts there only acts as risk_gate's floor-check, which position_sizing_tiers' Bold table already clears at every tier (5/8/15 base_qty, all >=5). This is reported as a first-class scope-limitation finding, not buried: tonight's measured benefit is bold-2-specific.",
+
+  "primary_metric": "participation: n trades replayed (placeable) at min_contracts=3 vs min_contracts=5, isolating the delta attributable to n_excluded_risk_cap_deadlock shrinking",
+  "secondary_metrics": [
+    "total P&L (both arms, same window, same gate state)",
+    "win rate, avg $/trade",
+    "drop-best (remove single best trade, still positive?)",
+    "recent-25 window (last 25 replayed trades by entry date, each arm's own population) -- FIRST per J's dynamic-market/recency rule (memory: feedback_dynamic_market_recency_over_aggregate_2026_07_31)",
+    "average and max per-trade notional risk (premium * qty * 100) at qty=3 vs qty=5"
+  ],
+
+  "method": {
+    "tool": "backtest/tools/bold_fullhist_replay.py, MINIMALLY extended to thread min_contracts through replay_population() -> resolve_bold_qty() exactly as block_elite_bull is already threaded (additive parameter, default=BOLD_MIN_CONTRACTS=5, so every existing call site / prior scorecard stays byte-identical when the parameter is omitted)",
+    "gate_state_held_fixed": "block_elite_bull=True (CURRENT live value in aggressive/params.json, re-verified this session) for BOTH arms -- this study isolates min_contracts only, does not re-litigate the elite-bull trial from 2026-08-01",
+    "equity": "$1,197.52 (mcp__alpaca_aggressive__get_account_info, live-verified 2026-08-02 this session, balance_asof 2026-07-31 -- flat, no open positions, market closed since)",
+    "window": "2025-01-02..2026-07-22 (SPY_FILE/VIX_FILE merged window, same as the existing bold_fullhist_replay.py population walk and its 2026-08-01 scorecard)",
+    "anchor_carryover": "the existing 6/7 real-bold-2-fill anchor validation (bold_fullhist_replay.py's ANCHOR_FILLS, all qty=5) is UNCHANGED by this study -- those are real historical fills at the CURRENT floor and are not re-run at qty=3 (no real qty=3 bold fill exists to anchor against yet; this is disclosed, not hidden)."
+  },
+
+  "pre_registered_ship_conditions": {
+    "_doc": "ALL must clear. Frozen before the runner executes.",
+    "G1_participation_materially_up": "n_trades_replayed(min_contracts=3) >= n_trades_replayed(min_contracts=5) * 1.15 (>=15% more placeable trades) AND the delta is attributable to n_excluded_risk_cap_deadlock shrinking, not a coincidental gate-state difference (gate state is held fixed, so this is structural by construction).",
+    "G2_pnl_not_degraded": "total_pnl(min_contracts=3) >= total_pnl(min_contracts=5) over the SAME window/gate-state.",
+    "G3_runner_cohort_no_regression_ZERO_TOLERANCE": "Bold's OWN runner cohort (trades in the min_contracts=5 CONTROL walk whose exit_family classifies as having reached TP1 and ridden a runner leg -- same classification convention as exit_armscope_ab_2026_07_28.py's RUNNER_TRAIL family) is re-walked at qty=3 for the IDENTICAL trade set (matched by symbol+entry_time_et). Pass requires: (a) total cohort P&L at qty=3 >= total cohort P&L at qty=5 (zero tolerance on the aggregate), AND (b) no individual winning trade in the cohort flips to a loser. NOTE: the task's cited '35 winners / +$15,774' figure is exit_armscope_ab_2026_07_28.py's ANCHOR_RUNNER_N=35/ANCHOR_RUNNER_PNL=15774.05 -- confirmed by grep to be SAFE's ribbon_ride runner-cohort anchor (automation/state/params.json's population), NOT bold's. This change touches only aggressive/params.json, never automation/state/params.json, so that Safe anchor is structurally unreachable by this edit (zero blast radius, verified not assumed) and is reported as such rather than misapplied to Bold. Bold's OWN equivalent cohort is computed fresh in this study as the metric that actually matters for this change.",
+    "G4_rule6_floor_respected": "3 >= ABSOLUTE Rule-6 floor of 3 (2 TP + 1 runner). Never ships a value below 3 regardless of any other result.",
+    "G5_risk_reduced_not_increased": "avg and max per-trade notional (premium*qty*100) strictly lower at qty=3 than qty=5 for every replayed trade (mechanical: notional is linear in qty at fixed premium) -- confirmed by direct computation, not assumed.",
+    "G6_kill_switch_and_cap_still_bind": "Structural proof (risk_gate.check_order source read + a direct unit-level call): KILL_SWITCH (gate order position 1) is evaluated strictly before MIN_CONTRACTS (gate order position 5) and reads ONLY equity/start_of_day_equity/daily_loss_kill_switch_pct -- zero coupling to min_contracts, so the kill switch's 50%-of-SoD-equity threshold is completely unaffected by this change. RISK_CAP (gate order position 6) re-derives notional = premium*qty*100 fresh every call against equity*per_trade_risk_cap_pct -- also independent of min_contracts except through qty itself, and a SMALLER qty floor can only shrink notional, never grow it past the existing 50% cap."
+  },
+
+  "explicitly_not_failure": [
+    "Average $/trade shrinking at qty=3 vs qty=5 on trades that were ALREADY affordable at qty=5 (expected: every existing trade's absolute size drops ~40%; this is the intended risk reduction, not a defect)",
+    "Sub-50% win rate (this account's baseline WR is ~33%; unchanged selectivity, only sizing/affordability changes)",
+    "New qty=3 trades performing differently in aggregate character than the qty=5 population (they are, by construction, a different/additional premium band -- $1.19-$1.99 -- that never traded before)"
+  ],
+
+  "null_conditions": [
+    "Any of G1-G6 fails to clear -> NOT SHIPPED. Reported plainly as 'funding is the only remaining lever for bold-2 participation' per the task's own framing.",
+    "G3 (runner cohort) failing is treated as an automatic NULL regardless of G1/G2 -- 'zero tolerance' per the task text overrides an otherwise-positive aggregate."
+  ],
+
+  "guards_required_before_ship": [
+    "vary-and-assert RED-proof that min_contracts actually changes placement behavior (C14 dead-knob class) -- direct risk_gate.check_order calls at floor=5 vs floor=3 at representative ATM premiums",
+    "direct proof (not by reading) that the qty=3 TP1/runner leg split under Bold's real exit shape (strategies.RIBBON_RIDE.exit, tp1_qty_fraction=0.667) never produces a zero-size leg",
+    "pin test: bold_fullhist_replay.py's new min_contracts parameter defaults to BOLD_MIN_CONTRACTS=5, byte-identical to every existing call site when omitted",
+    "if shipped: pin test that automation/state/aggressive/params.json min_contracts == 3, with the provenance doc present"
+  ],
+
+  "revert": "One line: set automation/state/aggressive/params.json's min_contracts back to 5 (byte-identical to tonight's starting state; heartbeat_core.py reads it fresh every tick, no restart needed).",
+  "forward_kill_criterion": "First n>=10 live bold-2 fills OR 10 trading sessions under min_contracts=3, whichever first: if realized P&L is negative AND the newly-unlocked premium band ($1.19-$1.99) is not out-performing the pre-existing band, revert to 5. Mirrors the elite-bull trial's kill-criterion shape (aggressive/params.json's _block_elite_bull_trial_doc precedent)."
+}
