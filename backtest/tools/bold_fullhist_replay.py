@@ -129,6 +129,7 @@ import strike_selection as ss  # noqa: E402  -- crypto/lib/strike_selection.py
 from lib.orchestrator import run_backtest  # noqa: E402
 from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
 from lib.option_pricing_real import load_contract_bars, option_symbol  # noqa: E402
+from lib.et_frame import FRAME_ET_V2  # noqa: E402
 
 DATA = REPO / "data"
 # SAME merged window as engine_fullhist_replay.py -- apples-to-apples Safe-vs-Bold comparison.
@@ -478,12 +479,20 @@ def run_anchor_validation() -> dict:
         entry_time_et = dt.datetime.fromisoformat(a["entry_ts_et"])
         rtd = efr.ribbon_tick_df_for(opt_df, ribbon_lookup)
         trigger_level = trigger_levels.get((symbol, a["entry_ts_et"]))
+        # frame="et-v2" (added 2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 -- root fix
+        # applied here): spy_df above (line ~460) is parsed et-v2 (utc=True + tz_convert +
+        # tz_localize(None)) and entry_time_et is a real broker-fill ISO timestamp (true-ET,
+        # et-v2-equivalent) -- opt_df was previously joined against it UNCONDITIONALLY
+        # bare-tz-stripped to wall-v1 inside walk_exit_manager, a confirmed mixed-frame join
+        # (see that artifact's section 3b: live mechanism, zero exposure on 2026-08-02 only
+        # because every ANCHOR_FILLS date happens to be summer -- this closes the gap before
+        # the first winter anchor is ever added, rather than leaving it a ticking time bomb).
         res = walk_exit_manager(
             symbol=symbol, side=a["side"], entry_time_et=entry_time_et,
             entry_premium=a["entry_premium"], qty=a["qty"], exit_shape=correct_shape,
             structure_stop_enabled=True, trigger_level=trigger_level, strategy="ribbon_ride",
             time_stop_et=TIME_STOP_ET, opt_df=opt_df, ribbon_tick_df=rtd,
-            five_min_spy_df=day_spy,
+            five_min_spy_df=day_spy, frame=FRAME_ET_V2,
         )
         real_pnl = a["real_pnl"]
         replay_pnl = res.dollar_pnl
@@ -608,12 +617,20 @@ def run_first_consumer_elite_bull_delta() -> dict:
                 edate = dt.date.fromisoformat(tr["date"])
                 day_spy = spy_df.loc[spy_df["timestamp_et"].dt.date == edate].reset_index(drop=True)
                 if not day_spy.empty:
+                    # frame="et-v2" (2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02 -- same
+                    # fix, same reasoning as run_anchor_validation above): spy_df (line ~596)
+                    # is et-v2-parsed and entry_ts_et is a real fill ISO timestamp. This
+                    # source population (spy5_path spans 2026-05-19..2026-07-31, entirely
+                    # EDT/summer by construction) has zero possible winter exposure today,
+                    # so this is a zero-behavior-change fix, closing the gap before this
+                    # tool is ever pointed at a population spanning EST months.
                     res = walk_exit_manager(
                         symbol=symbol, side="C", entry_time_et=dt.datetime.fromisoformat(tr["entry_ts_et"]),
                         entry_premium=tr["entry_premium"], qty=5, exit_shape=correct_shape,
                         structure_stop_enabled=True, trigger_level=tr.get("trigger_level"),
                         strategy="ribbon_ride", time_stop_et=dt.time(15, 50),
                         opt_df=opt_df, ribbon_tick_df=None, five_min_spy_df=day_spy,
+                        frame=FRAME_ET_V2,
                     )
                     replay_pnl = res.dollar_pnl
             # AUTHORITATIVE pnl = independent replay when available (accounts for the

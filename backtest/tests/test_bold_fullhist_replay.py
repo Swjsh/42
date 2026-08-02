@@ -54,6 +54,7 @@ import bold_fullhist_replay as bfr  # noqa: E402
 import strategies as fleet_strategies  # noqa: E402
 from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
 from lib.option_pricing_real import load_contract_bars  # noqa: E402
+from lib.et_frame import FRAME_ET_V2  # noqa: E402
 
 AGGRESSIVE_PARAMS = REPO / "automation" / "state" / "aggressive" / "params.json"
 SAFE_PARAMS = REPO / "automation" / "state" / "params.json"
@@ -116,12 +117,17 @@ def test_mistranslated_qty_fails_the_anchor_where_correct_qty_passes():
     trigger_level = trigger_levels.get((anchor["symbol"], anchor["entry_ts_et"]))
 
     def replay_at(qty: int) -> float:
+        # frame="et-v2" (2026-08-02, DST-FRAME-BLAST-RADIUS-2026-08-02): spy_df above is
+        # et-v2-parsed and entry_time_et is a real fill ISO timestamp (true-ET) -- matches
+        # bold_fullhist_replay.py's own run_anchor_validation() fix. 2026-07-27 is summer
+        # (EDT), so this is byte-identical to the prior default either way; kept
+        # frame-consistent with production so this test never models the pre-fix mismatch.
         res = walk_exit_manager(
             symbol=anchor["symbol"], side=anchor["side"], entry_time_et=entry_time_et,
             entry_premium=anchor["entry_premium"], qty=qty, exit_shape=shape,
             structure_stop_enabled=True, trigger_level=trigger_level, strategy="ribbon_ride",
             time_stop_et=bfr.TIME_STOP_ET, opt_df=opt_df, ribbon_tick_df=None,
-            five_min_spy_df=day_spy,
+            five_min_spy_df=day_spy, frame=FRAME_ET_V2,
         )
         return res.dollar_pnl
 
