@@ -191,6 +191,38 @@ def resolve_bold_qty(
     return min_contracts
 
 
+BOLD_MIN_CONTRACTS_PREFERRED = 5   # try this first (== current live BOLD_MIN_CONTRACTS)
+BOLD_MIN_CONTRACTS_FALLBACK = 3    # Rule 6's absolute floor (2 TP + 1 runner) -- never lower
+
+
+def resolve_bold_qty_adaptive(
+    entry_premium: float, equity: float = BOLD_LIVE_EQUITY,
+    per_trade_risk_cap_pct: float = BOLD_PER_TRADE_RISK_CAP_PCT,
+    min_contracts_preferred: int = BOLD_MIN_CONTRACTS_PREFERRED,
+    min_contracts_floor: int = BOLD_MIN_CONTRACTS_FALLBACK,
+) -> Optional[int]:
+    """BOLD-ADAPTIVE-SIZING-TRY5-FALLBACK3 (2026-08-02): try `min_contracts_preferred`
+    first (identical affordability check to resolve_bold_qty); if THAT is RISK_CAP-denied,
+    fall back to `min_contracts_floor` ONLY (never any intermediate value -- a strict
+    two-tier selector, not a max-affordable-qty search). Returns None when even the floor
+    is unaffordable (same fail-closed convention as resolve_bold_qty -- never silently
+    downsized to some other quantity). min_contracts_floor must never be set below Rule 6's
+    absolute 3-contract floor (2 TP + 1 runner) -- enforced by
+    test_bold_adaptive_sizing_2026_08_02.py, not just by convention here."""
+    if min_contracts_floor < 3:
+        raise ValueError(
+            f"min_contracts_floor={min_contracts_floor} violates Rule 6's absolute floor "
+            "of 3 (2 TP + 1 runner) -- refusing to resolve a qty below it")
+    preferred = resolve_bold_qty(
+        entry_premium, equity=equity, per_trade_risk_cap_pct=per_trade_risk_cap_pct,
+        min_contracts=min_contracts_preferred)
+    if preferred is not None:
+        return preferred
+    return resolve_bold_qty(
+        entry_premium, equity=equity, per_trade_risk_cap_pct=per_trade_risk_cap_pct,
+        min_contracts=min_contracts_floor)
+
+
 def bold_base_live(block_elite_bull: bool) -> dict:
     """Hand-built translation of automation/state/aggressive/params.json (read 2026-08-01),
     mirroring elite_bear_level_reject_gate_ab.py's SAFE_BASE / engine_fullhist_replay.py's
@@ -300,6 +332,9 @@ def _load_spy_vix() -> tuple[pd.DataFrame, pd.DataFrame]:
 def replay_population(
     spy_df: pd.DataFrame, vix_df: pd.DataFrame, ribbon_lookup: pd.DataFrame,
     block_elite_bull: bool, min_contracts: int = BOLD_MIN_CONTRACTS,
+    qty_mode: str = "fixed",
+    min_contracts_preferred: int = BOLD_MIN_CONTRACTS_PREFERRED,
+    min_contracts_floor: int = BOLD_MIN_CONTRACTS_FALLBACK,
 ) -> dict:
     """ENTRY via run_backtest(**bold_base_live(block_elite_bull)); EXIT via
     walk_exit_manager driving strategies.RIBBON_RIDE.exit.to_dict() (finding #3); qty via
@@ -314,7 +349,20 @@ def replay_population(
     the CURRENT live floor), so every pre-existing call site that does not pass this
     argument is byte-identical to before this change (parity guard:
     test_min_contracts_bold_2026_08_02.py::test_replay_population_default_min_contracts_
-    matches_bold_min_contracts_constant)."""
+    matches_bold_min_contracts_constant).
+
+    qty_mode (2026-08-02, BOLD-ADAPTIVE-SIZING-TRY5-FALLBACK3): 'fixed' (DEFAULT, byte-
+    identical to every pre-existing call site -- uses resolve_bold_qty(min_contracts)
+    exactly as before, min_contracts_preferred/min_contracts_floor are UNUSED in this
+    mode) or 'adaptive' (uses resolve_bold_qty_adaptive(min_contracts_preferred,
+    min_contracts_floor) instead, min_contracts is UNUSED in this mode). Each row's output
+    dict now also carries exit_time_et (previously computed by walk_exit_manager as
+    WalkResult.exit_time_et but discarded before this change -- only hold_minutes survived
+    into the row). This is a PURE ADDITIVE field: existing consumers that don't read the
+    new key are unaffected; test_bold_adaptive_sizing_2026_08_02.py pins both the qty_mode
+    default and the new field's presence."""
+    if qty_mode not in ("fixed", "adaptive"):
+        raise ValueError(f"qty_mode must be 'fixed' or 'adaptive', got {qty_mode!r}")
     base = bold_base_live(block_elite_bull)
     t0 = time.time()
     r = run_backtest(spy_df, vix_df, start_date=FULL_START, end_date=FULL_END, **base)
@@ -343,7 +391,12 @@ def replay_population(
 
         entry_time_et = efr.naive_dt(t.entry_time_et)
         entry_premium = float(t.entry_premium)
-        qty = resolve_bold_qty(entry_premium, min_contracts=min_contracts)
+        if qty_mode == "adaptive":
+            qty = resolve_bold_qty_adaptive(
+                entry_premium, min_contracts_preferred=min_contracts_preferred,
+                min_contracts_floor=min_contracts_floor)
+        else:
+            qty = resolve_bold_qty(entry_premium, min_contracts=min_contracts)
         if qty is None:
             n_excluded_sizing += 1
             continue
@@ -365,6 +418,7 @@ def replay_population(
             "dollar_pnl": res.dollar_pnl, "exit_reason": res.exit_reason,
             "resolved_stop_mode": res.stop_mode, "hold_minutes": res.hold_minutes,
             "n_ticks_walked": res.n_ticks_walked, "resolved": res.resolved,
+            "exit_time_et": res.exit_time_et.isoformat() if res.exit_time_et else None,
         })
     exit_elapsed = time.time() - t1
     log(f"  [gate block_elite_bull={block_elite_bull} min_contracts={min_contracts}] "
@@ -375,6 +429,9 @@ def replay_population(
     return {
         "block_elite_bull": block_elite_bull,
         "min_contracts": min_contracts,
+        "qty_mode": qty_mode,
+        "min_contracts_preferred": min_contracts_preferred,
+        "min_contracts_floor": min_contracts_floor,
         "rows": rows,
         "n_raw_entries": len(r.trades),
         "n_excluded_no_opra_cache": n_no_opra,
