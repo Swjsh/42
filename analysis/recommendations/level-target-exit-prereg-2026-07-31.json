@@ -1,7 +1,7 @@
 {
   "rule_id": "level-target-exit",
   "title": "Is a KEY LEVEL a better take-profit target than a fixed premium percentage?",
-  "status": "PRE-REGISTERED -- NOT RUN. No study has been executed against this spec.",
+  "status": "RUN 2026-08-02. VERDICT: KILL (0/144 cells clear all gates; over-determined by G4 runner-cohort no-regression 0/144, G7 level-fired-rate 0/144 best 27.1%, G6 BH-FDR 0/144, independent of the also-failing G8 parity gate). Path A admissibility (the 6-date blocker) was proven ADMISSIBLE first (backtest/lib/reconstruct_levels_asof.py). Full results: analysis/recommendations/level-target-exit-2026-08-02.json + -summary.md. Recorded DEAD in the exit graveyard per kill_criterion.on_kill -- no band value may be moved and re-run.",
   "frozen_at_et": "2026-07-31T17:49:07-04:00",
   "frozen_at_provenance": "setup/scripts/et_clock.py (DST-aware). Box runs Mountain time; bash TZ is unusable here.",
   "frozen_at_git_sha": "a965c8499efacf38fed741c9d7c96abce24eb721",
