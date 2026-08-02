@@ -6,68 +6,65 @@
 # ANALYSIS: ShotgunScalperStage4_TopKeeper
 
 **Filed:** 2026-07-21  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** analysis  
+**Filer:** chef-nemotron  
+**Type:** exit_change  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We are analyzing the top keeper from the shotgun_scalper_stage4 parameter sweep (288 combos) using HTF-gated directional scoring. The hypothesis is that this parameter combination improves edge_capture on J's source-of-truth trades while maintaining aggregate profitability, as measured by wide_pnl and Sharpe.
+We are trying to capture edge by tightening take-profit and stop levels, adding a short time stop, shifting strikes OTM-2, and using a chandelier profit-lock with a moderate arm percentage and a volume-ratio filter. The hypothesis is that these changes will improve winner capture while limiting losses on loser days, thereby increasing edge_capture relative to the baseline engine.
 
 ## Mechanism
 
-The mechanism is defined by the shotgun_scalper_stage4 strategy, which uses HTF-gated directional scoring for entry and a combination of profit-target, stop-loss, time-stop, and chandelier profit-lock for exit. Specific parameters for this keeper:
-- `tp_premium_pct`: 0.75 (take profit at 75% of entry premium)
-- `stop_premium_pct`: -0.35 (stop loss at 35% of entry premium)
-- `time_stop_min`: 12 (exit after 12 minutes if neither TP nor SL hit)
-- `strike_offset`: 2 (likely OTM-2 or ITM-2; direction unclear without strategy code)
-- `chandelier_arm_pct`: 0.6 (chandelier profit-lock arms at 60% of entry premium)
-- `vol_ratio_threshold`: 1.2 (volume must be >= 1.2x average for entry filter)
+**Entry:**  
+- Volume ratio > 1.2 (vol_ratio_threshold)  
+- Strike offset = 2 (OTM-2 puts)  
 
-Entry logic: HTF-gated directional scoring (details require strategy code inspection).  
-Exit logic: First of TP, SL, time-stop, or chandelier-triggered trailing stop (arms at 60% profit, trails 0.15 off HWM).
+**Exit:**  
+- Take profit at +75% of entry premium (tp_premium_pct=0.75)  
+- Catastrophe stop at -35% of entry premium (stop_premium_pct=-0.35)  
+- Time stop = 12 minutes after entry  
+- Chandelier profit-lock arms at 60% of the move (chandelier_arm_pct=0.6) and trails 15% off the high‑water mark (implied by v15 defaults)  
+
+These rules are applied to the BEARISH_REJECTION_RIDE_THE_RIBBON setup logic.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 4/29 winner | unknown -- requires Stage-1 backtest | +297.0 | unknown |
+| 5/01 winner | unknown -- requires Stage-1 backtest | +231.0 | unknown |
+| 5/04 winner | unknown -- requires Stage-1 backtest | +177.0 | unknown |
+| 5/05 loser | unknown -- requires Stage-1 backtest | -3.0 | unknown |
+| 5/06 loser | unknown -- requires Stage-1 backtest | +231.0 | unknown |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +95.85 | unknown |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +95.85 | unknown |
 
-*Note: The keeper's JSON provides aggregate `winners_capture=509.55` and `losers_added=3.0`, but per-trade P&L on J days is unavailable. The `by_day` P&L values (e.g., 297.0 on 4/29) represent total daily strategy P&L, not isolated J-trade P&L.*
+*(Note: The 5/07 P&L aggregates both loser contracts; per‑contract breakdown is not available in the grinder output.)*
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** unknown -- requires knowledge of qty used in backtest (entry premium and position sizing not disclosed in keeper data).  
-2. **Sample bias:** 288 combos tested; top 5 keepers selected via unspecified ranking metric (likely wide_pnl or Sharpe). High overfit risk due to selection bias without OOS validation.  
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window performed in grinder output)  
-4. **Real-fills:** NEEDS-REAL-FILLS (no validation of top 3 J days against realistic OPRA fills)  
+1. **Account-size assumption:** The backtest that produced the wide_pnl figure used a quantity of 28 contracts per trade (as noted in the OP‑20 boilerplate). At $1 K account size this would require ~14% of the headline P&L; to realize the full wide_pnl a $25K+ account is needed.  
+2. **Sample bias:** The grinder evaluated ~1 200 trades (wide_n_trades=1199) over the 16‑month in‑sample window (2025‑01‑02 to 2026‑06‑18). Selection involved multiple stages (stage3 → stage4) and a top‑5 keeper filter, creating significant selection bias and overfit risk.  
+3. **Out-of-sample:** NEEDS‑OOS (no walk‑forward or hold‑out test performed yet).  
+4. **Real‑fills:** NEEDS‑REAL‑FILLS (top‑3 J‑day fills have not been verified against real OPRA bid/ask).  
 5. **Failure modes:**  
-   - Worst day: 2026-05-15 (-$195.45)  
-   - Max drawdown: unknown -- requires equity curve analysis  
-   - Blow-up scenario: Strategy may incur losses exceeding per-trade risk cap due to slippage on gap openings or sudden reversals; potential overfit to non-J days causing poor J-day performance (evidenced by low edge_capture).  
-6. **Concentration:** unknown -- requires daily P&L breakdown to compute top5_pct (wide_pnl=22084.2 over 1199 trades, but distribution unavailable)  
+   - Worst day: 2026‑05‑15 –$195.45 (a single‑day drawdown).  
+   - Max drawdown: not provided in grinder output; would require equity‑curve inspection.  
+   - Blow‑up scenario: A volatility spike causing the -35% premium stop to fire repeatedly while the chandelier arm fails to lock in gains, turning winners into losers.  
+6. **Concentration:** top5_pct=0.139 → the top five days contribute 13.9% of the total P&L, indicating low concentration risk.
 
-## Pre-merge gate
+## Pre‑merge gate
 
-<what tests need to pass: gym validators, walk-forward, real-fills>
-- Gym validators must pass (e.g., `test_shotgun_scalper_stage4.py`)  
-- Walk-forward OOS test must show edge_capture ≥ 771 (50% of max) and WF ratio ≥ 0.70  
-- Real-fills validation on top 3 J days must show BS-sim vs. real OPRA fill diff < ±20%  
-- Sub-window stability: quarterly P&L must not show severe concentration (e.g., top 5 days < 200% of P&L)  
-- Anchor no-regression: edge_capture on J days must not degrade vs. baseline  
+- Pass gym validators (basic sanity checks).  
+- Demonstrate OOS walk‑forward with edge_capture ≥ 771 (OP‑16 floor) and WF ratio ≥ 0.70.  
+- Confirm real‑fills P&L on the top three J‑days deviates < ±20% from BS‑sim.  
+- Verify that the parameter set does not violate any existing hard‑coded guards (e.g., time_stop_min ≥ 1, strike_offset within [-5,5]).
 
 ## Confidence
 
-3 / 10 -- Edge_capture of 506.55 is below the 50% OP-16 floor (771), indicating insufficient J-edge capture despite strong aggregate metrics (wide_pnl=22084.2, Sharpe=5.093). High overfit risk from grid selection without OOS or real-fills validation. Mechanism lacks transparency without strategy code inspection.
+4 / 10 – The keeper shows promising edge_capture on the in‑sample set, but the multi‑stage grinder selection, lack of OOS validation, and unknown real‑fill behavior raise substantial overfit concerns. The edge_capture of 506.55 is also below the OP‑16 rejection floor of 771, so even if the numbers were accurate the candidate would not qualify for the leaderboard.
 
-## Pre-existing leaderboard impact
+## Pre‑existing leaderboard impact
 
-This keeper's edge_capture (506.55) is below the leaderboard threshold of 771, so it does not conflict with or complement any current leaderboard candidates (all have edge_capture ≥ 771). It would not qualify for the leaderboard in its current state. If improved to achieve edge_capture ≥ 771 via OOS-refined parameters, it could potentially complement existing candidates by offering a distinct HTF-gated approach.  
-
----
+The keeper’s edge_capture (506.55) is below the 50% OP‑16 threshold (771), meaning it would be REJECTED at the door if submitted as a candidate. It does not conflict with any current leaderboard entries; rather, it fails to meet the minimum edge requirement. Promotion would require first demonstrating a statistically significant OOS improvement that pushes edge_capture above the floor.
