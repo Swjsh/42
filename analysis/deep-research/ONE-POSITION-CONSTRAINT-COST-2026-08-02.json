@@ -1,0 +1,639 @@
+{
+  "_doc": "one_position_constraint_cost_2026_08_02.py -- MEASUREMENT ONLY. Quantifies what the\nengine's one-position-at-a-time constraint (`fb.is_flat_spy_options(creds)` gate,\nsetup/scripts/heartbeat_core.py ~line 1895, \"Any open SPY-option position still BLOCKS a\n2nd (stacked) entry\") costs in refused opportunity, and what relaxing it to 2 or 3\nconcurrent slots would cost in risk. SHIPS NOTHING, ARMS NOTHING -- concurrency is J's\ncall (Rule 6 per-trade cap + Rule 5 daily kill switch, both risk-POSTURE rules); this\ntool produces the number and the risk analysis, never a recommendation to act.\n\nPrereg (frozen BEFORE this runner executed):\n    analysis/deep-research/PREREG-ONE-POSITION-CONSTRAINT-COST-2026-08-02.md\n\nWHY THIS LANE EXISTS: the just-concluded three-iteration Bold sizing lane (min-contracts,\nadaptive-sizing, selective-fallback -- all NULL) found that adaptive sizing gained\n+$2,894.80 in aggregate but was killed because 2 of Bold's 32 runner-cohort trades were\npre-empted, and quality-based selectivity could NOT fix it because the two blocking trades\nwere themselves SUPER/ELITE tier AND level-anchored. The blocker is a slot being OCCUPIED,\nnot something unworthy occupying it. That points one level up the stack, at the constraint\nthose three iterations never questioned: the engine holds exactly ONE position at a time.\nNobody has ever measured what THAT constraint costs. This tool does.\n\nMETHOD (two-layer, matching this repo's established convention -- see\nbold_fullhist_replay.py / engine_fullhist_replay.py's own \"TWO-LAYER DESIGN\" docstrings):\n  1. BOLD candidate population: `bold_fullhist_replay.replay_population(qty_mode=\"fixed\",\n     min_contracts=5, block_elite_bull=True)` -- the CURRENT LIVE core-Bold shape, reused\n     verbatim (import, zero modification to that already-shipped/anchored file). Already\n     carries exit_time_et (added 2026-08-02 for the adaptive-sizing lane).\n  2. SAFE candidate population: `_replay_safe_population()` below -- a hand-built loop that\n     reuses engine_fullhist_replay.py's SAFE_BASE_LIVE / build_ribbon_lookup /\n     ribbon_tick_df_for / naive_dt VERBATIM (import only, that file is NOT modified by this\n     measurement-only lane) and adds the one field it discards today: exit_time_et\n     (WalkResult already computes it). Parity-checked below against the already-shipped\n     n=191/$4,808.75 headline (engine-fullhist-replay-2026-07-23.json) before being trusted.\n  3. `_sequential_admit_concurrent(rows, K)`: generalizes bold_adaptive_sizing_2026_08_02.py's\n     `_sequential_admit` (K=1 is byte-parity-checked against that already-shipped function's\n     own output) to K simultaneous slots -- a signal is admitted iff fewer than K\n     previously-admitted positions are still open at its arrival. PROVEN monotonic\n     (admitted(K) is a strict superset of admitted(K-1)) via an independently-coded\n     \"cascading servers\" cross-check on the REAL population, in the guard file -- not just a\n     synthetic fixture, because this property is load-bearing for the entire \"gained cohort\n     per concurrency step\" framing.\n  4. Risk side, symmetric weight: peak simultaneous notional/count, day-level realized P&L,\n     kill-switch breach counting (disclosed as a LOWER BOUND on true intraday risk -- see\n     prereg), at each concurrency level.\n  5. Slot-turnover: for the refused-at-K=1 cohort, how much earlier would the occupying\n     trade have needed to exit -- cross-referenced descriptively (not row-joined) against\n     analysis/pain-ledger/mae-mfe.json's real-fills MAE/MFE timing.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/one_position_constraint_cost_2026_08_02.py\n",
+  "generated_at": "2026-08-02T01:43:06.560920",
+  "prereg": "analysis\\deep-research\\PREREG-ONE-POSITION-CONSTRAINT-COST-2026-08-02.md",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-07-22"
+  },
+  "parity": {
+    "bold_k1_vs_shipped_control_sequential": {
+      "n": 153,
+      "total_pnl": 7578.4,
+      "expected_n": 153,
+      "expected_pnl": 7578.4,
+      "ok": true
+    },
+    "safe_unsequenced_vs_shipped_headline": {
+      "n": 191,
+      "total_pnl": 4808.75,
+      "expected_n": 191,
+      "expected_pnl": 4808.75,
+      "ok": true
+    },
+    "cascading_servers_crosscheck_real_population": {
+      "bold_K1": true,
+      "bold_K2": true,
+      "bold_K3": true,
+      "safe_K1": true,
+      "safe_K2": true,
+      "safe_K3": true
+    },
+    "all_crosschecks_pass": true
+  },
+  "safe_side_finding_never_sequenced_before": {
+    "shipped_headline_n": 191,
+    "shipped_headline_pnl": 4808.75,
+    "true_k1_sequential_n": 184,
+    "true_k1_sequential_pnl": 4315.15,
+    "n_self_preempted": 7,
+    "note": "Safe's already-shipped headline (engine-fullhist-replay-2026-07-23.json) was never checked for position-sequencing validity before this study. Flagged here per OP-33 visibility discipline -- NOT re-shipped or corrected (out of scope for this measurement-only lane)."
+  },
+  "population": {
+    "bold": {
+      "n_raw_entries": 334,
+      "n_excluded_no_opra_cache": 18,
+      "n_excluded_no_spy_day": 0,
+      "n_excluded_risk_cap_deadlock": 160,
+      "n_candidate": 156
+    },
+    "safe": {
+      "n_raw_entries": 207,
+      "n_excluded_no_opra_cache": 16,
+      "n_excluded_no_spy_day": 0,
+      "n_excluded_risk_cap_deadlock": "NOT_MODELED (disclosed, inherited gap)",
+      "n_candidate": 191
+    }
+  },
+  "results": {
+    "bold": {
+      "equity": 1197.52,
+      "per_trade_risk_cap_pct": 0.5,
+      "daily_loss_kill_switch_pct": 0.5,
+      "levels": {
+        "1": {
+          "admitted": {
+            "label": "bold_K1",
+            "n": 153,
+            "total_pnl": 7578.4,
+            "win_rate": 0.3399,
+            "avg_pnl_per_trade": 49.53,
+            "drop_best": {
+              "best_trade_pnl": 995.0,
+              "remainder": 6583.4,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": 2841.4,
+              "win_rate": 0.44,
+              "start_date": "2026-05-07",
+              "end_date": "2026-07-21"
+            }
+          },
+          "gained_vs_prior_level": {
+            "label": "bold_gained_at_K1",
+            "n": 153,
+            "total_pnl": 7578.4,
+            "win_rate": 0.3399,
+            "avg_pnl_per_trade": 49.53,
+            "drop_best": {
+              "best_trade_pnl": 995.0,
+              "remainder": 6583.4,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": 2841.4,
+              "win_rate": 0.44,
+              "start_date": "2026-05-07",
+              "end_date": "2026-07-21"
+            }
+          },
+          "day_pnl_n_days_traded": 117,
+          "kill_switch": {
+            "threshold_dollars": -598.76,
+            "n_breach_days": 1,
+            "breach_days": [
+              {
+                "date": "2025-06-06",
+                "day_pnl": -605.0
+              }
+            ],
+            "worst_day": {
+              "date": "2025-06-06",
+              "day_pnl": -605.0
+            }
+          },
+          "notional": {
+            "peak_notional_dollars": 595.0,
+            "peak_concurrent_count": 1,
+            "peak_at": "2025-05-09T12:25:00"
+          },
+          "monotonic_superset_ok": true
+        },
+        "2": {
+          "admitted": {
+            "label": "bold_K2",
+            "n": 156,
+            "total_pnl": 7448.4,
+            "win_rate": 0.3333,
+            "avg_pnl_per_trade": 47.75,
+            "drop_best": {
+              "best_trade_pnl": 995.0,
+              "remainder": 6453.4,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": 2864.4,
+              "win_rate": 0.44,
+              "start_date": "2026-05-07",
+              "end_date": "2026-07-21"
+            }
+          },
+          "gained_vs_prior_level": {
+            "label": "bold_gained_at_K2",
+            "n": 3,
+            "total_pnl": -130.0,
+            "win_rate": 0.0,
+            "avg_pnl_per_trade": -43.33,
+            "drop_best": {
+              "best_trade_pnl": -15.0,
+              "remainder": -115.0,
+              "still_positive": false
+            },
+            "recent_25": {
+              "n": 3,
+              "total_pnl": -130.0,
+              "win_rate": 0.0,
+              "start_date": "2025-10-06",
+              "end_date": "2026-07-14"
+            }
+          },
+          "day_pnl_n_days_traded": 117,
+          "kill_switch": {
+            "threshold_dollars": -598.76,
+            "n_breach_days": 1,
+            "breach_days": [
+              {
+                "date": "2025-06-06",
+                "day_pnl": -605.0
+              }
+            ],
+            "worst_day": {
+              "date": "2025-06-06",
+              "day_pnl": -605.0
+            }
+          },
+          "notional": {
+            "peak_notional_dollars": 765.0,
+            "peak_concurrent_count": 2,
+            "peak_at": "2025-10-24T14:45:00"
+          },
+          "monotonic_superset_ok": true
+        },
+        "3": {
+          "admitted": {
+            "label": "bold_K3",
+            "n": 156,
+            "total_pnl": 7448.4,
+            "win_rate": 0.3333,
+            "avg_pnl_per_trade": 47.75,
+            "drop_best": {
+              "best_trade_pnl": 995.0,
+              "remainder": 6453.4,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": 2864.4,
+              "win_rate": 0.44,
+              "start_date": "2026-05-07",
+              "end_date": "2026-07-21"
+            }
+          },
+          "gained_vs_prior_level": {
+            "label": "bold_gained_at_K3",
+            "n": 0,
+            "total_pnl": 0,
+            "win_rate": null,
+            "avg_pnl_per_trade": null,
+            "drop_best": {
+              "best_trade_pnl": 0.0,
+              "remainder": 0.0,
+              "still_positive": false
+            },
+            "recent_25": {
+              "n": 0,
+              "total_pnl": 0,
+              "win_rate": null,
+              "start_date": null,
+              "end_date": null
+            }
+          },
+          "day_pnl_n_days_traded": 117,
+          "kill_switch": {
+            "threshold_dollars": -598.76,
+            "n_breach_days": 1,
+            "breach_days": [
+              {
+                "date": "2025-06-06",
+                "day_pnl": -605.0
+              }
+            ],
+            "worst_day": {
+              "date": "2025-06-06",
+              "day_pnl": -605.0
+            }
+          },
+          "notional": {
+            "peak_notional_dollars": 765.0,
+            "peak_concurrent_count": 2,
+            "peak_at": "2025-10-24T14:45:00"
+          },
+          "monotonic_superset_ok": true
+        }
+      },
+      "refused_at_concurrency_1": {
+        "label": "bold_refused_at_K1",
+        "n": 3,
+        "total_pnl": -130.0,
+        "win_rate": 0.0,
+        "avg_pnl_per_trade": -43.33,
+        "drop_best": {
+          "best_trade_pnl": -15.0,
+          "remainder": -115.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "n": 3,
+          "total_pnl": -130.0,
+          "win_rate": 0.0,
+          "start_date": "2025-10-06",
+          "end_date": "2026-07-14"
+        }
+      },
+      "slot_turnover": {
+        "n_refused_explained": 3,
+        "n_unexplained": 0,
+        "gap_minutes_needed": {
+          "median": 55.0,
+          "p25": 5.0,
+          "p75": 170.0,
+          "mean": 76.7
+        },
+        "gap_as_pct_of_occupant_hold": {
+          "median": 20.4,
+          "p25": 7.1,
+          "p75": 68.0,
+          "mean": 31.8
+        },
+        "detail_rows": [
+          {
+            "refused_symbol": "SPY251006C00672000",
+            "refused_entry": "2025-10-06T12:50:00",
+            "occupant_symbol": "SPY251006C00671000",
+            "occupant_entry": "2025-10-06T11:30:00",
+            "occupant_exit_reason": "time_stop_15:40",
+            "gap_minutes_needed": 170.0,
+            "occupant_hold_minutes": 250,
+            "gap_as_pct_of_occupant_hold": 68.0
+          },
+          {
+            "refused_symbol": "SPY251024P00678000",
+            "refused_entry": "2025-10-24T14:45:00",
+            "occupant_symbol": "SPY251024C00677000",
+            "occupant_entry": "2025-10-24T11:10:00",
+            "occupant_exit_reason": "time_stop_15:40",
+            "gap_minutes_needed": 55.0,
+            "occupant_hold_minutes": 270,
+            "gap_as_pct_of_occupant_hold": 20.4
+          },
+          {
+            "refused_symbol": "SPY260714P00752000",
+            "refused_entry": "2026-07-14T14:45:00",
+            "occupant_symbol": "SPY260714C00752000",
+            "occupant_entry": "2026-07-14T13:40:00",
+            "occupant_exit_reason": "structure_stop @ 752.0",
+            "gap_minutes_needed": 5.0,
+            "occupant_hold_minutes": 70,
+            "gap_as_pct_of_occupant_hold": 7.1
+          }
+        ]
+      }
+    },
+    "safe": {
+      "equity": 1746.75,
+      "per_trade_risk_cap_pct": 0.3,
+      "daily_loss_kill_switch_pct": 0.3,
+      "levels": {
+        "1": {
+          "admitted": {
+            "label": "safe_K1",
+            "n": 184,
+            "total_pnl": 4315.15,
+            "win_rate": 0.2935,
+            "avg_pnl_per_trade": 23.45,
+            "drop_best": {
+              "best_trade_pnl": 859.95,
+              "remainder": 3455.2,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": -1238.05,
+              "win_rate": 0.32,
+              "start_date": "2026-06-15",
+              "end_date": "2026-07-21"
+            }
+          },
+          "gained_vs_prior_level": {
+            "label": "safe_gained_at_K1",
+            "n": 184,
+            "total_pnl": 4315.15,
+            "win_rate": 0.2935,
+            "avg_pnl_per_trade": 23.45,
+            "drop_best": {
+              "best_trade_pnl": 859.95,
+              "remainder": 3455.2,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": -1238.05,
+              "win_rate": 0.32,
+              "start_date": "2026-06-15",
+              "end_date": "2026-07-21"
+            }
+          },
+          "day_pnl_n_days_traded": 141,
+          "kill_switch": {
+            "threshold_dollars": -524.02,
+            "n_breach_days": 2,
+            "breach_days": [
+              {
+                "date": "2026-06-25",
+                "day_pnl": -825.0
+              },
+              {
+                "date": "2026-06-26",
+                "day_pnl": -708.0
+              }
+            ],
+            "worst_day": {
+              "date": "2026-06-25",
+              "day_pnl": -825.0
+            }
+          },
+          "notional": {
+            "peak_notional_dollars": 840.0,
+            "peak_concurrent_count": 1,
+            "peak_at": "2026-06-25T10:00:00"
+          },
+          "monotonic_superset_ok": true
+        },
+        "2": {
+          "admitted": {
+            "label": "safe_K2",
+            "n": 191,
+            "total_pnl": 4808.75,
+            "win_rate": 0.2932,
+            "avg_pnl_per_trade": 25.18,
+            "drop_best": {
+              "best_trade_pnl": 859.95,
+              "remainder": 3948.8,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": -1238.05,
+              "win_rate": 0.32,
+              "start_date": "2026-06-15",
+              "end_date": "2026-07-21"
+            }
+          },
+          "gained_vs_prior_level": {
+            "label": "safe_gained_at_K2",
+            "n": 7,
+            "total_pnl": 493.6,
+            "win_rate": 0.2857,
+            "avg_pnl_per_trade": 70.51,
+            "drop_best": {
+              "best_trade_pnl": 532.0,
+              "remainder": -38.4,
+              "still_positive": false
+            },
+            "recent_25": {
+              "n": 7,
+              "total_pnl": 493.6,
+              "win_rate": 0.2857,
+              "start_date": "2025-08-19",
+              "end_date": "2026-06-08"
+            }
+          },
+          "day_pnl_n_days_traded": 141,
+          "kill_switch": {
+            "threshold_dollars": -524.02,
+            "n_breach_days": 2,
+            "breach_days": [
+              {
+                "date": "2026-06-25",
+                "day_pnl": -825.0
+              },
+              {
+                "date": "2026-06-26",
+                "day_pnl": -708.0
+              }
+            ],
+            "worst_day": {
+              "date": "2026-06-25",
+              "day_pnl": -825.0
+            }
+          },
+          "notional": {
+            "peak_notional_dollars": 1491.0,
+            "peak_concurrent_count": 2,
+            "peak_at": "2025-09-17T13:20:00"
+          },
+          "monotonic_superset_ok": true
+        },
+        "3": {
+          "admitted": {
+            "label": "safe_K3",
+            "n": 191,
+            "total_pnl": 4808.75,
+            "win_rate": 0.2932,
+            "avg_pnl_per_trade": 25.18,
+            "drop_best": {
+              "best_trade_pnl": 859.95,
+              "remainder": 3948.8,
+              "still_positive": true
+            },
+            "recent_25": {
+              "n": 25,
+              "total_pnl": -1238.05,
+              "win_rate": 0.32,
+              "start_date": "2026-06-15",
+              "end_date": "2026-07-21"
+            }
+          },
+          "gained_vs_prior_level": {
+            "label": "safe_gained_at_K3",
+            "n": 0,
+            "total_pnl": 0,
+            "win_rate": null,
+            "avg_pnl_per_trade": null,
+            "drop_best": {
+              "best_trade_pnl": 0.0,
+              "remainder": 0.0,
+              "still_positive": false
+            },
+            "recent_25": {
+              "n": 0,
+              "total_pnl": 0,
+              "win_rate": null,
+              "start_date": null,
+              "end_date": null
+            }
+          },
+          "day_pnl_n_days_traded": 141,
+          "kill_switch": {
+            "threshold_dollars": -524.02,
+            "n_breach_days": 2,
+            "breach_days": [
+              {
+                "date": "2026-06-25",
+                "day_pnl": -825.0
+              },
+              {
+                "date": "2026-06-26",
+                "day_pnl": -708.0
+              }
+            ],
+            "worst_day": {
+              "date": "2026-06-25",
+              "day_pnl": -825.0
+            }
+          },
+          "notional": {
+            "peak_notional_dollars": 1491.0,
+            "peak_concurrent_count": 2,
+            "peak_at": "2025-09-17T13:20:00"
+          },
+          "monotonic_superset_ok": true
+        }
+      },
+      "refused_at_concurrency_1": {
+        "label": "safe_refused_at_K1",
+        "n": 7,
+        "total_pnl": 493.6,
+        "win_rate": 0.2857,
+        "avg_pnl_per_trade": 70.51,
+        "drop_best": {
+          "best_trade_pnl": 532.0,
+          "remainder": -38.4,
+          "still_positive": false
+        },
+        "recent_25": {
+          "n": 7,
+          "total_pnl": 493.6,
+          "win_rate": 0.2857,
+          "start_date": "2025-08-19",
+          "end_date": "2026-06-08"
+        }
+      },
+      "slot_turnover": {
+        "n_refused_explained": 7,
+        "n_unexplained": 0,
+        "gap_minutes_needed": {
+          "median": 45.0,
+          "p25": 15.0,
+          "p75": 50.0,
+          "mean": 37.9
+        },
+        "gap_as_pct_of_occupant_hold": {
+          "median": 25.0,
+          "p25": 20.0,
+          "p75": 34.6,
+          "mean": 28.4
+        },
+        "detail_rows": [
+          {
+            "refused_symbol": "SPY250819P00639000",
+            "refused_entry": "2025-08-19T13:10:00",
+            "occupant_symbol": "SPY250819P00641000",
+            "occupant_entry": "2025-08-19T11:55:00",
+            "occupant_exit_reason": "runner_stop @ 1.8",
+            "gap_minutes_needed": 5.0,
+            "occupant_hold_minutes": 80,
+            "gap_as_pct_of_occupant_hold": 6.2
+          },
+          {
+            "refused_symbol": "SPY250917P00659000",
+            "refused_entry": "2025-09-17T13:20:00",
+            "occupant_symbol": "SPY250917P00659000",
+            "occupant_entry": "2025-09-17T11:55:00",
+            "occupant_exit_reason": "premium_stop @ 1.92",
+            "gap_minutes_needed": 45.0,
+            "occupant_hold_minutes": 130,
+            "gap_as_pct_of_occupant_hold": 34.6
+          },
+          {
+            "refused_symbol": "SPY260421P00705000",
+            "refused_entry": "2026-04-21T13:15:00",
+            "occupant_symbol": "SPY260421P00707000",
+            "occupant_entry": "2026-04-21T12:15:00",
+            "occupant_exit_reason": "runner_stop @ 2.68",
+            "gap_minutes_needed": 15.0,
+            "occupant_hold_minutes": 75,
+            "gap_as_pct_of_occupant_hold": 20.0
+          },
+          {
+            "refused_symbol": "SPY260507P00731000",
+            "refused_entry": "2026-05-07T13:45:00",
+            "occupant_symbol": "SPY260507P00733000",
+            "occupant_entry": "2026-05-07T12:50:00",
+            "occupant_exit_reason": "runner_stop @ 2.41",
+            "gap_minutes_needed": 75.0,
+            "occupant_hold_minutes": 130,
+            "gap_as_pct_of_occupant_hold": 57.7
+          },
+          {
+            "refused_symbol": "SPY260507P00730000",
+            "refused_entry": "2026-05-07T14:45:00",
+            "occupant_symbol": "SPY260507P00733000",
+            "occupant_entry": "2026-05-07T12:50:00",
+            "occupant_exit_reason": "runner_stop @ 2.41",
+            "gap_minutes_needed": 15.0,
+            "occupant_hold_minutes": 130,
+            "gap_as_pct_of_occupant_hold": 11.5
+          },
+          {
+            "refused_symbol": "SPY260518P00736000",
+            "refused_entry": "2026-05-18T14:05:00",
+            "occupant_symbol": "SPY260518P00737000",
+            "occupant_entry": "2026-05-18T11:05:00",
+            "occupant_exit_reason": "runner_stop @ 2.86",
+            "gap_minutes_needed": 60.0,
+            "occupant_hold_minutes": 240,
+            "gap_as_pct_of_occupant_hold": 25.0
+          },
+          {
+            "refused_symbol": "SPY260608P00741000",
+            "refused_entry": "2026-06-08T14:40:00",
+            "occupant_symbol": "SPY260608P00742000",
+            "occupant_entry": "2026-06-08T13:35:00",
+            "occupant_exit_reason": "runner_stop @ 3.01",
+            "gap_minutes_needed": 50.0,
+            "occupant_hold_minutes": 115,
+            "gap_as_pct_of_occupant_hold": 43.5
+          }
+        ]
+      }
+    }
+  },
+  "pain_ledger_context": {
+    "available": true,
+    "n_winners_with_mfe_timing": 21,
+    "n_total_trades_in_ledger": 160,
+    "pct_of_hold_after_mfe_peak": {
+      "median": 7.7,
+      "mean": 17.4,
+      "p25": 0.0,
+      "p75": 33.3
+    },
+    "source": "analysis/pain-ledger/mae-mfe.json (REAL fills, 22 distinct dates 2026-06-26..2026-07-31, ALL arms combined -- descriptive corroboration only, NOT row-joined against this study's 386-day synthetic population)"
+  },
+  "runtime_seconds": 142.7
+}
