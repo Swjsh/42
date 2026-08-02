@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-08-01T22:06:36",
+  "purpose": "Quantify the 'day+side selection / L174 NOT INDEPENDENT' caveat at the OOS(2026) VALIDATION level (the historical half of the 2026-07-25 postmortem thread; the LIVE-sample half was already closed same day via trade_to_learn_digest.py n_distinct_days).",
+  "data_window": {
+    "start": "2025-01-01",
+    "end": "2026-07-22",
+    "note": "master file coverage as of this run; does not include 2026-07-23..07-31 (separate rolling window file, not merged into the 2025-01-01-start master yet) -- OOS population below is therefore a subset of the full 2026 OOS window used at arm-time (n=42/n=21 in params.json), not a mismatch, just an earlier cutoff."
+  },
+  "live_armed_cell": {
+    "vix_regime_dayside": {
+      "low_margin": 0.25,
+      "slope_rule": "not_rising",
+      "strike_offset": "ATM(0)"
+    },
+    "vwap_continuation": {
+      "strike_offset": "ATM(0)"
+    }
+  },
+  "l174_caveat_on_record": "L174 NOT INDEPENDENT of #1: 100% same-side subset of vwap_continuation (VIX-gated re-cut). Net incremental value over already-live #1 is UNPROVEN here ('#4 VIX-favorable sub-pool vs the rest of #1' comparison not run). Treat as a VIX-overlay refinement of #1, not a parallel independent allocation.",
+  "vwap_continuation": {
+    "n_oos_signals": 61,
+    "distinct_days": 61,
+    "distinct_day_side_buckets": 61,
+    "multi_side_days": {},
+    "by_quarter": {
+      "2026Q1": 27,
+      "2026Q2": 28,
+      "2026Q3": 6
+    },
+    "n_is_signals": 115
+  },
+  "vix_regime_dayside": {
+    "n_oos_signals": 34,
+    "distinct_days": 34,
+    "distinct_day_side_buckets": 34,
+    "multi_side_days": {},
+    "by_quarter": {
+      "2026Q1": 13,
+      "2026Q2": 13,
+      "2026Q3": 8
+    },
+    "n_is_signals": 60
+  },
+  "overlap_2026_oos": {
+    "vwap_continuation_oos_day_side_n": 61,
+    "vix_regime_dayside_oos_day_side_n": 34,
+    "shared_day_side_n": 32,
+    "vix_regime_dayside_subset_fraction_of_itself_found_in_vwap_continuation": 0.9412,
+    "vix_regime_dayside_day_side_NOT_in_vwap_continuation": [
+      [
+        "C",
+        "2026-07-20"
+      ],
+      [
+        "P",
+        "2026-07-01"
+      ]
+    ],
+    "pooled_distinct_day_side_n": 63,
+    "pooled_distinct_days_n": 63
+  },
+  "verdict": "CONFIRMED at the OOS-validation level (subset_fraction=0.9412, 32/34 of vix_regime_dayside's OOS day+side signals also fired as vwap_continuation OOS signals): vix_regime_dayside's OOS(2026, through 2026-07-22) signal population is ALMOST ENTIRELY a same-day/same-side sub-selection of vwap_continuation's own OOS population, matching the L174 caveat that was already on record at arm-time (analysis/recommendations/vix_regime_dayside.json) but never quantified until this run. Within THIS window (through 2026-07-22, earlier cutoff than the {n=42,n=21} arm-time figures in params.json, which used data through ~2026-05-15/07): naive sum of the two setups' own OOS signal counts is 95 (61+34), but pooling by (date,side) collapses that to only 63 distinct trials on 63 distinct days -- a 33.7% reduction once the overlap is removed. A live 0-for-12 spanning BOTH setups is therefore closer to a 0-for-N run on N << 12 independent day-outcomes (matching the LIVE-sample finding already closed 2026-07-25 21:12-21:50 ET: the 12 live CSV rows were only 4 distinct day+side buckets, with 2026-07-21 firing BOTH setups on the same PUT call). This REFRAMES (does not reverse) the disarm decision: the correct read of the evidence that triggered the disarm was never 'p<1% across 12 independent trials' -- it was a much smaller, correlated sample all along, at BOTH the live-sample and the OOS-validation layer. Recommendation: any re-arm decision for either setup should score n by DISTINCT DAYS TOUCHED (or pooled distinct day+side buckets across BOTH setups), not raw trade-row counts, and should NOT treat vix_regime_dayside as adding independent coverage beyond vwap_continuation -- it is a VIX-favorable subset of the same edge, per the setup's own doc."
+}
