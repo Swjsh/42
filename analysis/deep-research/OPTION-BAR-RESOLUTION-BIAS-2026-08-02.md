@@ -298,4 +298,13 @@ investigation scripts so a re-run never re-fetches.
 
 ## 7. Commit shas
 
-Filled in after commit — see the session's final report.
+- `01640055` — fix(backtest): explicit/logged option-bar resolution + exit-walk guard
+  (`option_pricing_real.py`, `exit_manager_walk.py`, guard tests)
+- `41ccfeb4` — research(exit): quantify + re-verify 5-min option-bar resolution bias
+  (investigation scripts, JSON outputs, this artifact)
+- `f61ec781` — docs: OPTION-BAR-RESOLUTION-BIAS disclosure (`DATA-PROVENANCE.md`,
+  `analysis/recommendations/README.md`, `queue.md`)
+
+No live knob, `params.json`/`aggressive/params.json`, `heartbeat_core.py`, `exit_manager.py`,
+`exit_actuator.py`, or `crypto/lib/strike_selection.py` was touched by any commit above —
+verified via `git show --stat` on all three shas before writing this line.
