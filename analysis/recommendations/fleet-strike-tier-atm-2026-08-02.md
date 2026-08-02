@@ -163,6 +163,63 @@ cohort fails OOS-positive, or the anchor-collision cohort doesn't show materiall
 `SKIP_MIN_PREMIUM_FLOOR` refusals. Revert = delete `'strike_tier_table': 'bold_core'` from
 risky-1/risky-3's `params_patch` in `accounts.json` (one line each, byte-identical).
 
+## 9. Correction (Sonnet, 2026-08-02, later same night -- instrumented dry-run + git-blame)
+
+**§3 above is WRONG on one factual claim.** It describes risky-1's normal lane as
+"tight-gated (min_triggers=2 + confluence/sequence required)". That is false on the current
+`accounts.json`: commit `43bb979d` was preceded, the SAME night, by `e28d210c` (2026-07-31
+16:21, the FULL-SEND ship), which **replaced** risky-1's `gate_override` with
+`{"full_send": true}` wholesale -- it deleted `min_triggers`/`require_confluence_or_sequence`
+rather than layering full-send under them (`git show e28d210c -- accounts.json`). This was
+already independently found and fixed the same night, hours before this audit: `queue.md`'s
+`FLEET-PARITY-TESTS-READ-LIVE-STATE` entry (commit `dea5b2e2`) rewrote a stale test with the
+explicit note "risky-1 ... its normal lane is now UNGATED same as risky-3." Likely proximate
+cause of this audit's error: `accounts.json`'s `grid.map` metadata still read
+`"risky-1": "risky x tight"` (never updated in the full-send commit, even though the arm's
+own `cell` field already said `"risky x FULL-SEND"`) -- fixed this session, `grid.map_doc`
+added to prevent recurrence.
+
+**Corrected composition** (proven by instrumented dry-run against the REAL
+`fleet_executor.plan_all` + `build_shared_signal.build_from_rows`, not code-reading --
+`setup/scripts/risky1_lane_composition_check.py`, guards in
+`automation/state/fleet/test_risky1_lane_composition_check.py`, 9/9 green): risky-1's normal
+lane is UNGATED and now prices ATM via `bold_core` for *any* passing signal -- the same
+population class as risky-3/bold-2's own entries, not a narrow ELITE-only subset. At
+risky-1's current equity (<$2K) this happens to numerically coincide with the FULL-SEND
+lane's own `PROBE_STRIKE_TIERS` pricing (both ATM) -- verified **equity-contingent, not
+structural**: the two tables diverge at/above $2,000 (`bold_core`\-\>OTM-2,
+`PROBE_STRIKE_TIERS`\-\>stays ATM to $10K). The two lanes remain population-disjoint
+(full-send requires an `action` on its own 5-verdict allowlist, mutually exclusive with a
+normally-passing tick) and separately tagged (`EntryPlan.reason` `"FULL_SEND ..."` vs
+`"{strategy} {side} ({quality})"`), so **per-fill attribution between the two 07-31
+experiments is intact** despite this error -- what was actually missing was that this
+prereg's own evaluation methodology never said to keep the two cohorts separate. Fixed: a
+`lane_scoping_addendum` filed on `fleet-strike-tier-atm-extension-prereg-2026-08-01.json`
+(frozen while n=0, before any fills exist) requiring risky-1's future bold_core scorecard to
+exclude `reason`-tagged `FULL_SEND` fills from its own n>=20 cohort (bold_core is provably
+inert on those fills -- `_full_send_plan` never calls `_tiers_for_arm`).
+
+**Does this change the verdict? No.** KEEP AS SHIPPED still stands -- routing is still
+correct, guards are still green, the change is still paper/one-line-revertible. What changes
+is the *description* of how large a population risky-1's normal lane now touches (larger
+than "tight-gated" implied), and the disclosure that full-send and bold_core are two
+different-but-currently-coincident mechanisms on one arm, not that one silently substitutes
+the other.
+
+**Additional finding, flagged not fixed (out of scope tonight):** the same instrumented
+check surfaced that risky-3's own `gate_params.hard_skip_verdicts: []` rescue (built
+2026-07-23, "GATE-TIERS-IMPLEMENT", specifically so risky-3 could trade through
+`require_bearish_fill_bar`) is empirically **dead on the live path** -- `fleet_live.py` calls
+only `plan_all`/`_plan_from_strategies`, which never calls `_effective_passed` (the only
+function that reads `hard_skip_verdicts`). Confirmed: a `SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY`
+tick at a score above risky-3's own peak still HOLDS on risky-3, while risky-1's full-send
+lane enters the identical tick. This makes risky-1's full-send lane the *only* fleet
+mechanism currently capable of trading a cohort-vetoed tick, on *any* arm -- independent
+confirmation it is not redundant "learning rate" cosmetics. Pinned by
+`test_risky3_hard_skip_override_is_currently_not_consulted_by_plan_all`; a follow-up task to
+wire `_effective_passed` into `_plan_from_strategies` should be spawned separately rather
+than rushed into this fire.
+
 ---
 _Source: independent audit, 2026-08-02. Raw JSON:
 [`fleet-strike-tier-atm-2026-08-02.json`](fleet-strike-tier-atm-2026-08-02.json)._
