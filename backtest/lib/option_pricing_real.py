@@ -1,7 +1,8 @@
 """Real OPRA option contract bar lookup — replaces Black-Scholes with actual fills.
 
 Reads cached CSVs from `backtest/data/options/{symbol}.csv` (populated by
-`tools/fetch_option_data.py`). Returns OHLCV+VWAP for any (symbol, time_et).
+`tools/fetch_option_data.py`, which hardcodes `timeframe="5Min"`). Returns OHLCV+VWAP
+for any (symbol, time_et).
 
 Fill model (when used by simulator_real.py):
   - Entry: next 5-min bar's VWAP after the trigger bar (proxy for an intra-bar fill)
@@ -12,19 +13,53 @@ Fill model (when used by simulator_real.py):
 Note: for a PUT, premium moves INVERSE to spot. The Alpaca bars give us the option's
 own OHLCV — `high` is the put's highest premium during the bar, `low` is the lowest.
 We don't need to invert anything; we just use the bar's own high/low.
+
+RESOLUTION DISCLOSURE (added 2026-08-02, OPTION-BAR-RESOLUTION-BIAS-2026-08-02 --
+`analysis/deep-research/OPTION-BAR-RESOLUTION-BIAS-2026-08-02.md`): this file's ONLY data
+source is the 5-MINUTE OPRA cache described above. A stop that is breached and recovers
+INSIDE a 5-minute bar is invisible at this resolution — no stop hit is recorded where a real
+1-minute tick (and the live engine) would have taken one. Measured on the canonical
+real-fills population (123 positions, all 6 arms): 4 positions' exits flip from non-stop to
+stop-ONLY-at-1-minute, 0 the other way (the bias is one-directional — 5-min never invents a
+phantom stop, it only misses real ones), aggregate P&L swing $1,821.75, always in the
+direction of 5-min FLATTERING P&L (see the artifact + `analysis/recommendations/
+option-bar-resolution-bias-2026-08-02.json`). `load_contract_bars` now takes an explicit,
+logged `resolution` kwarg (default `"5min"`, unchanged behavior for all ~250 existing
+callers) instead of a silent default, per that finding's remediation. Callers that need
+honest intra-bar stop/TP fidelity should use live 1-minute REST bars instead — see
+`backtest/tools/_option_bars_1min_cache.fetch_1min_cached` (wraps
+`exit_shape_parity_study.fetch_option_bars`) — this file does not fetch or cache 1-minute
+data itself (scope discipline: touching this file's actual data path for ~250 importers in
+one session was judged unsafe; see the artifact's "what shipped vs what was deferred"
+section). `assert_intraday_stop_fidelity()` below is an opt-in guard any exit-walk consumer
+can call to fail loudly on an unacknowledged 5-min request — see
+`backtest/lib/exit_manager_walk.walk_exit_manager`'s `opt_df_resolution`/`allow_5min` kwargs
+for the wired example.
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
 
+logger = logging.getLogger(__name__)
 
 CACHE_DIR = Path(__file__).resolve().parents[1] / "data" / "options"
+
+# The ONLY resolution this file's disk cache serves. Not a runtime choice — documents what
+# "5min" means when passed to load_contract_bars(resolution=...) / assert_intraday_stop_fidelity.
+NATIVE_RESOLUTION = "5min"
+
+# Emit the disclosure log line at most once per process (250+ importers can call
+# load_contract_bars thousands of times per run -- a per-call log would drown stdout without
+# adding information after the first line). Emitted on the first DEFAULT (unstated-resolution)
+# call only, matching the "silent default" this exists to surface.
+_disclosed_default_resolution = False
 
 # Process-level in-memory cache for loaded contract bars.
 # Populated lazily by load_contract_bars(); persists for the lifetime of the
@@ -37,9 +72,34 @@ CACHE_DIR = Path(__file__).resolve().parents[1] / "data" / "options"
 _CONTRACT_BAR_CACHE: dict[str, Optional[pd.DataFrame]] = {}
 
 
+def assert_intraday_stop_fidelity(resolution: str, *, allow_5min: bool = True) -> None:
+    """Opt-in guard for exit-walk consumers: raises ValueError if `resolution` is the 5-min
+    native resolution (which under-detects intra-bar stop/TP touches — see module docstring's
+    RESOLUTION DISCLOSURE) and the caller has not explicitly set `allow_5min=True`.
+
+    Backward-compatible by construction: nothing calls this unless it opts in (see
+    exit_manager_walk.walk_exit_manager's opt_df_resolution kwarg, default None = never
+    called). Not wired into load_contract_bars itself — that function's own `resolution`
+    kwarg validation (raises on anything but "5min") is the load-bearing guard for ITS
+    callers; this one is for callers a step removed, who receive an already-loaded opt_df
+    and only know its resolution if they ask for it explicitly.
+    """
+    if resolution == NATIVE_RESOLUTION and not allow_5min:
+        raise ValueError(
+            f"resolution={resolution!r} requested without allow_5min=True: 5-minute option "
+            "bars under-detect intra-bar stop/TP touches (OPTION-BAR-RESOLUTION-BIAS-2026-08-02, "
+            "measured $1,821.75 aggregate swing on the real-fills population, one-directional). "
+            "Pass allow_5min=True to proceed anyway (e.g. a study that has already disclosed "
+            "this gap), or source 1-minute bars via "
+            "backtest/tools/_option_bars_1min_cache.fetch_1min_cached."
+        )
+
+
 @dataclass(frozen=True)
 class OptionBar:
-    """One 5-min bar from the option chain."""
+    """One option bar. Every CURRENT caller of load_contract_bars() gets 5-minute bars (this
+    file's only data source — see module docstring's RESOLUTION DISCLOSURE); the field shape
+    itself does not encode resolution."""
     timestamp_et: dt.datetime
     open: float
     high: float
@@ -58,13 +118,42 @@ def option_symbol(trade_date: dt.date, strike: int, side: str) -> str:
     return f"SPY{yymmdd}{s}{int(round(strike)) * 1000:08d}"
 
 
-def load_contract_bars(symbol: str) -> Optional[pd.DataFrame]:
+def load_contract_bars(symbol: str, *, resolution: str = NATIVE_RESOLUTION) -> Optional[pd.DataFrame]:
     """Load cached bars for a contract. Returns None if not cached.
 
     Results are stored in _CONTRACT_BAR_CACHE for the lifetime of the worker
     process — subsequent calls for the same symbol return the cached DataFrame
     without touching disk.
+
+    `resolution` (added 2026-08-02, backward-compatible): EXPLICIT, LOGGED input instead of a
+    silent default — see module docstring's RESOLUTION DISCLOSURE. Every existing call site
+    (~250 across this codebase) calls this positionally with just `symbol`, which resolves to
+    the SAME default ("5min") and the SAME on-disk data this function has always served — zero
+    behavior change. Passing any value other than "5min" raises NotImplementedError: this
+    function's cache is 5-minute-only and has never served another resolution; a caller wanting
+    genuine 1-minute fidelity must fetch it itself (see
+    backtest/tools/_option_bars_1min_cache.fetch_1min_cached) rather than receive a silent,
+    wrong answer from here.
     """
+    global _disclosed_default_resolution
+    if resolution != NATIVE_RESOLUTION:
+        raise NotImplementedError(
+            f"load_contract_bars only ever serves resolution={NATIVE_RESOLUTION!r} "
+            f"(backtest/data/options/*.csv, populated by fetch_option_data.py's hardcoded "
+            f"timeframe='5Min') — got resolution={resolution!r}. This function does not fetch "
+            f"or convert resolutions; use backtest/tools/_option_bars_1min_cache."
+            f"fetch_1min_cached for 1-minute bars."
+        )
+    if not _disclosed_default_resolution:
+        logger.info(
+            "load_contract_bars: serving %s OPRA bars (the only resolution this cache holds) — "
+            "intra-bar stop/TP touches that breach-and-recover within a bar are NOT resolved "
+            "at this resolution (OPTION-BAR-RESOLUTION-BIAS-2026-08-02, measured $1,821.75 "
+            "aggregate swing, one-directional, on the real-fills population). "
+            "See markdown/infra/DATA-PROVENANCE.md. (Logged once per process.)",
+            NATIVE_RESOLUTION,
+        )
+        _disclosed_default_resolution = True
     if symbol in _CONTRACT_BAR_CACHE:
         return _CONTRACT_BAR_CACHE[symbol]
     path = CACHE_DIR / f"{symbol}.csv"

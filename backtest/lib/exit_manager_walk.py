@@ -48,6 +48,20 @@ if str(_FLEET_DIR) not in sys.path:
     sys.path.insert(0, str(_FLEET_DIR))
 import exit_manager as em  # noqa: E402
 
+# This module is imported THREE different ways across the codebase (bare top-level
+# `import exit_manager_walk` with backtest/lib directly on sys.path -- e.g. every test in
+# backtest/tests/test_exit_manager_walk_*.py and backtest/tools/level_target_exit_study.py;
+# `from lib import exit_manager_walk`; and `from backtest.lib.exit_manager_walk import ...`).
+# A plain relative import breaks the first (bare top-level) form with "attempted relative
+# import with no known parent package" -- found + fixed this session (2026-08-02) via the
+# regression suite, not assumed. Try relative first (correct for the package-qualified forms),
+# fall back to a bare absolute import (correct for the bare top-level form, where
+# option_pricing_real.py sits in the same already-on-sys.path directory).
+try:
+    from .option_pricing_real import assert_intraday_stop_fidelity  # noqa: E402
+except ImportError:
+    from option_pricing_real import assert_intraday_stop_fidelity  # noqa: E402
+
 DEFAULT_EXIT_SLIPPAGE = 0.02
 _MARKET_STAGES = frozenset({"time_stop", "ribbon_flip", "structure_stop"})
 
@@ -139,6 +153,7 @@ def walk_exit_manager(
     strategy: str, time_stop_et: dt.time,
     opt_df: pd.DataFrame, ribbon_tick_df: Optional[pd.DataFrame],
     five_min_spy_df: pd.DataFrame,
+    opt_df_resolution: Optional[str] = None, allow_5min: bool = True,
 ) -> WalkResult:
     """Walk ONE position from entry through resolution via the REAL exit_manager decision
     core. `opt_df` (columns: timestamp_et, open/high/low/close) and `ribbon_tick_df` (same
@@ -146,7 +161,19 @@ def walk_exit_manager(
     5-min); `five_min_spy_df` is ALWAYS the 5-minute SPY series regardless of that interval
     (structure_stop is 5-min-native -- see last_closed_bar_close_at). Pure function: no I/O,
     no mutation of inputs.
+
+    `opt_df_resolution` / `allow_5min` (added 2026-08-02, OPTION-BAR-RESOLUTION-BIAS-2026-08-02
+    -- see option_pricing_real.py's RESOLUTION DISCLOSURE): OPTIONAL, backward-compatible
+    disclosure+guard. Every pre-existing call site leaves `opt_df_resolution=None` (the
+    default) -- this is a NO-OP for them, byte-identical behavior. A caller that knows and
+    states `opt_df`'s resolution (e.g. `opt_df_resolution="5min"`) can also pass
+    `allow_5min=False` to turn an unacknowledged 5-minute walk into a loud ValueError instead
+    of a silent under-detection of intra-bar stop/TP touches -- see
+    option_pricing_real.assert_intraday_stop_fidelity for the mechanism and the measured
+    magnitude ($1,821.75 aggregate swing, one-directional, on the real-fills population).
     """
+    if opt_df_resolution is not None:
+        assert_intraday_stop_fidelity(opt_df_resolution, allow_5min=allow_5min)
     state = em.ExitState.from_entry(
         symbol=symbol, side=side, entry_premium=entry_premium, qty=qty,
         exit_shape=exit_shape, strategy=strategy, trigger_level=trigger_level,
