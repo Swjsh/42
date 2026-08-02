@@ -1,0 +1,2017 @@
+{
+  "_doc": "bold_selective_fallback_2026_08_02.py -- ITERATION 3 of the bold-2 sizing lane.\n\nIteration 1 (min-contracts-bold-2026-08-02): blanket min_contracts 5->3. NULL (runner\ncohort -$5,909.20, recent-25 flipped negative).\nIteration 2 (bold-adaptive-sizing-2026-08-02): unconditional try-5-fallback-3. NULL --\nthe TRUE sequential replay (_sequential_admit) held up in aggregate ($+10,473.20 vs the\nnaive $+10,528.60 union, only a 0.5% gap) but 2 of Bold's own 32-trade runner cohort were\nindividually PRE-EMPTED by an earlier qty=3 fallback trade occupying the single position\nslot, failing G5's zero-tolerance bar ($14,539.40 -> $13,493.00).\n\nTHIS ITERATION's hypothesis: the failure mechanism is SLOT CONTENTION, not exit\ndegradation. Fix: make the qty=3 fallback SELECTIVE -- only spend the scarce\none-position-at-a-time slot at reduced size when the setup clears an additional quality\nbar, instead of firing on every floor-5-unaffordable signal unconditionally.\n\nPrereg (frozen BEFORE this runner existed, commit 79563308):\n    analysis/recommendations/prereg-bold-selective-fallback-2026-08-02.json\n\nREUSED, NOT REBUILT (task instruction, verified by an identity-import guard test):\n    bold_adaptive_sizing_2026_08_02._sequential_admit   -- the one-position-at-a-time walk\n    bold_adaptive_sizing_2026_08_02._stats              -- per-population stats block\n    bold_adaptive_sizing_2026_08_02._day_majority       -- G2 novel-term classifier\n    bold_adaptive_sizing_2026_08_02._runner_cohort      -- Bold's own n=32 cohort extractor\n    bold_adaptive_sizing_2026_08_02._key                -- (symbol, entry_time_et) row key\n    bold_adaptive_sizing_2026_08_02.decompose           -- added-vs-preempted attribution\n    bold_fullhist_replay.replay_population(qty_mode='adaptive')  -- UNMODIFIED, zero new kwargs\n\nTHREE CANDIDATE RULES (frozen in the prereg, chosen on MECHANISM, not a threshold sweep --\nsee prereg candidate_rules block for the full justification of each):\n    A. tier bar:      fallback only when row.tier in {SUPER, ELITE}\n    B. time cutoff:   fallback only when entry_time_et >= 12:00:00 ET\n    C. level-anchored: fallback only when triggers_fired intersects the level_tied_triggers\n                       vocabulary already defined in PNL-ATTRIBUTION-2026-07-28.json\n\nFor each cell: selective_candidates = every preferred-tier (qty=5) row UNCONDITIONALLY\n(never filtered -- identical to CONTROL) UNION every fallback-tier (qty=3) row whose\npredicate is True. _sequential_admit is then applied exactly as iteration 2 applied it to\nthe unconditional 286-row set.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/bold_selective_fallback_2026_08_02.py\n",
+  "generated_at": "2026-08-02T01:17:56.459540",
+  "prereg": "analysis\\recommendations\\prereg-bold-selective-fallback-2026-08-02.json",
+  "prereg_registered_at_et": "2026-08-02T03:15:00-04:00",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-07-22"
+  },
+  "account": "core_bold (Gamma-Bold-2, PA33W2KUAT40)",
+  "live_equity_used": 1197.52,
+  "gate_state_held_fixed": {
+    "block_elite_bull": true
+  },
+  "parity_guards": {
+    "unsequenced_union_vs_iter2": {
+      "expected_n": 286,
+      "expected_total": 10528.6,
+      "reproduced": {
+        "label": "ADAPTIVE_CANDIDATE_unsequenced",
+        "n": 286,
+        "total_pnl": 10528.6,
+        "win_rate": 0.3287,
+        "avg_pnl_per_trade": 36.81,
+        "drop_best": {
+          "best_trade_pnl": 995.0,
+          "remainder": 9533.6,
+          "still_positive": true
+        },
+        "recent_25": {
+          "n": 25,
+          "total_pnl": 470.25,
+          "win_rate": 0.28,
+          "start_date": "2026-06-22",
+          "end_date": "2026-07-21"
+        },
+        "notional": {
+          "avg": 439.2,
+          "max": 595.0,
+          "min": 160.0
+        }
+      },
+      "ok": true
+    },
+    "control_sequential_vs_iter2": {
+      "expected_n": 153,
+      "expected_total": 7578.4,
+      "reproduced": {
+        "label": "CONTROL_SEQUENTIAL",
+        "n": 153,
+        "total_pnl": 7578.4,
+        "win_rate": 0.3399,
+        "avg_pnl_per_trade": 49.53,
+        "drop_best": {
+          "best_trade_pnl": 995.0,
+          "remainder": 6583.4,
+          "still_positive": true
+        },
+        "recent_25": {
+          "n": 25,
+          "total_pnl": 2841.4,
+          "win_rate": 0.44,
+          "start_date": "2026-05-07",
+          "end_date": "2026-07-21"
+        },
+        "notional": {
+          "avg": 432.97,
+          "max": 595.0,
+          "min": 160.0
+        }
+      },
+      "ok": true
+    },
+    "runner_cohort_crosscheck": {
+      "expected_n": 32,
+      "expected_total": 14539.4,
+      "n": 32,
+      "total": 14539.4,
+      "ok": true
+    }
+  },
+  "control_raw_baseline": {
+    "total_pnl": 7448.4
+  },
+  "control_sequential": {
+    "label": "CONTROL_SEQUENTIAL",
+    "n": 153,
+    "total_pnl": 7578.4,
+    "win_rate": 0.3399,
+    "avg_pnl_per_trade": 49.53,
+    "drop_best": {
+      "best_trade_pnl": 995.0,
+      "remainder": 6583.4,
+      "still_positive": true
+    },
+    "recent_25": {
+      "n": 25,
+      "total_pnl": 2841.4,
+      "win_rate": 0.44,
+      "start_date": "2026-05-07",
+      "end_date": "2026-07-21"
+    },
+    "notional": {
+      "avg": 432.97,
+      "max": 595.0,
+      "min": 160.0
+    }
+  },
+  "cells": {
+    "A_tier_bar": {
+      "label": "tier in {SUPER, ELITE}",
+      "fire_counts": {
+        "n_fallback_candidate_before_filter": 130,
+        "n_fallback_candidate_after_filter": 28,
+        "n_fallback_actually_placed": 28
+      },
+      "selective_sequential_stats": {
+        "label": "A_tier_bar",
+        "n": 179,
+        "total_pnl": 10006.2,
+        "win_rate": 0.3575,
+        "avg_pnl_per_trade": 55.9,
+        "drop_best": {
+          "best_trade_pnl": 995.0,
+          "remainder": 9011.2,
+          "still_positive": true
+        },
+        "recent_25": {
+          "n": 25,
+          "total_pnl": 1688.7,
+          "win_rate": 0.4,
+          "start_date": "2026-05-26",
+          "end_date": "2026-07-21"
+        },
+        "notional": {
+          "avg": 433.29,
+          "max": 595.0,
+          "min": 160.0
+        }
+      },
+      "day_majority": {
+        "n_days": 134,
+        "up_days": 59,
+        "down_days": 75,
+        "neutral_days": 0,
+        "pass": false,
+        "by_day_pnl": {
+          "2025-01-03": 498.0,
+          "2025-01-06": 303.5,
+          "2025-01-10": 12.0,
+          "2025-01-15": 40.0,
+          "2025-01-16": -111.0,
+          "2025-01-22": 125.0,
+          "2025-01-23": -270.0,
+          "2025-01-24": 146.4,
+          "2025-02-06": -35.0,
+          "2025-02-07": -265.0,
+          "2025-02-10": -189.0,
+          "2025-02-12": -115.0,
+          "2025-02-14": -495.0,
+          "2025-02-20": -90.0,
+          "2025-02-21": 734.0,
+          "2025-02-24": -98.0,
+          "2025-02-25": -117.0,
+          "2025-03-26": -113.0,
+          "2025-05-09": -119.0,
+          "2025-05-21": 436.0,
+          "2025-05-27": 835.4,
+          "2025-06-03": -30.0,
+          "2025-06-05": -395.0,
+          "2025-06-06": -605.0,
+          "2025-06-11": -180.0,
+          "2025-06-12": -100.0,
+          "2025-06-13": 656.0,
+          "2025-06-16": 140.0,
+          "2025-06-17": -93.0,
+          "2025-06-26": 165.0,
+          "2025-06-27": 398.4,
+          "2025-06-30": -120.0,
+          "2025-07-03": 409.0,
+          "2025-07-07": 362.6,
+          "2025-07-09": -355.0,
+          "2025-07-10": 396.9,
+          "2025-07-11": -193.0,
+          "2025-07-15": -83.0,
+          "2025-07-16": -15.0,
+          "2025-07-21": 531.2,
+          "2025-07-22": -150.0,
+          "2025-07-23": -120.0,
+          "2025-07-24": -320.0,
+          "2025-07-28": -75.0,
+          "2025-07-29": 235.0,
+          "2025-08-07": -343.0,
+          "2025-08-11": -235.0,
+          "2025-08-12": 572.0,
+          "2025-08-13": -111.0,
+          "2025-08-14": -65.0,
+          "2025-08-15": -83.0,
+          "2025-08-19": 451.4,
+          "2025-08-27": -54.0,
+          "2025-08-28": -70.0,
+          "2025-09-03": 99.2,
+          "2025-09-05": -185.0,
+          "2025-09-08": -120.0,
+          "2025-09-10": 159.1,
+          "2025-09-11": -30.0,
+          "2025-09-12": -120.0,
+          "2025-09-15": -220.0,
+          "2025-09-18": -68.0,
+          "2025-09-23": 425.4,
+          "2025-09-24": -94.0,
+          "2025-09-25": 522.0,
+          "2025-09-26": -155.0,
+          "2025-10-02": -231.0,
+          "2025-10-03": -170.0,
+          "2025-10-06": 45.0,
+          "2025-10-07": -105.0,
+          "2025-10-08": 290.0,
+          "2025-10-09": 245.8,
+          "2025-10-15": 483.55,
+          "2025-10-24": -165.0,
+          "2025-10-27": 355.0,
+          "2025-10-28": 262.6,
+          "2025-11-03": -35.0,
+          "2025-11-04": 664.5,
+          "2025-11-12": -60.0,
+          "2025-12-03": 110.0,
+          "2025-12-09": -225.0,
+          "2025-12-11": 486.2,
+          "2025-12-15": -83.0,
+          "2025-12-22": -54.0,
+          "2025-12-23": 641.0,
+          "2025-12-24": 539.0,
+          "2025-12-26": -350.0,
+          "2025-12-29": -154.0,
+          "2026-01-02": 326.6,
+          "2026-01-05": -39.0,
+          "2026-01-06": -180.0,
+          "2026-01-07": 432.0,
+          "2026-01-09": 347.45,
+          "2026-01-13": -102.0,
+          "2026-01-15": -105.0,
+          "2026-01-22": -265.0,
+          "2026-01-23": -115.0,
+          "2026-01-27": 349.0,
+          "2026-01-29": 656.85,
+          "2026-02-23": 419.0,
+          "2026-02-26": 636.05,
+          "2026-03-16": -275.0,
+          "2026-03-30": 496.0,
+          "2026-04-10": -74.0,
+          "2026-04-17": -68.0,
+          "2026-04-22": 25.0,
+          "2026-04-30": 995.0,
+          "2026-05-01": 76.8,
+          "2026-05-06": -280.0,
+          "2026-05-07": -186.0,
+          "2026-05-13": 403.2,
+          "2026-05-14": -97.0,
+          "2026-05-18": 446.45,
+          "2026-05-21": 363.95,
+          "2026-05-22": -210.0,
+          "2026-05-26": -105.0,
+          "2026-05-28": 129.0,
+          "2026-06-01": 365.0,
+          "2026-06-02": -47.0,
+          "2026-06-08": 241.9,
+          "2026-06-16": 155.0,
+          "2026-06-22": -89.0,
+          "2026-06-23": 373.8,
+          "2026-06-24": 189.0,
+          "2026-06-25": -612.0,
+          "2026-06-26": -240.0,
+          "2026-07-06": 428.6,
+          "2026-07-08": -106.0,
+          "2026-07-10": 489.0,
+          "2026-07-14": -95.0,
+          "2026-07-15": -153.0,
+          "2026-07-17": 480.0,
+          "2026-07-20": 304.4,
+          "2026-07-21": -20.0
+        }
+      },
+      "runner_cohort_g5": {
+        "n_cohort": 32,
+        "control_sum": 14539.4,
+        "selective_sum": 13493.0,
+        "n_missing": 2,
+        "n_flips": 0,
+        "pass": false
+      },
+      "decomposition": {
+        "_doc": "delta_over_control == added_total - preempted_total (accounting identity, verified below).",
+        "added_cohort": {
+          "n": 28,
+          "total_pnl": 3474.2,
+          "trades": [
+            {
+              "date": "2025-01-03",
+              "symbol": "SPY250103C00589000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 498.0
+            },
+            {
+              "date": "2025-01-10",
+              "symbol": "SPY250110P00580000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 12.0
+            },
+            {
+              "date": "2025-01-16",
+              "symbol": "SPY250116C00593000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -111.0
+            },
+            {
+              "date": "2025-02-10",
+              "symbol": "SPY250210C00604000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -189.0
+            },
+            {
+              "date": "2025-06-03",
+              "symbol": "SPY250603C00593000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -30.0
+            },
+            {
+              "date": "2025-06-05",
+              "symbol": "SPY250605C00598000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -165.0
+            },
+            {
+              "date": "2025-08-12",
+              "symbol": "SPY250812C00638000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 572.0
+            },
+            {
+              "date": "2025-08-27",
+              "symbol": "SPY250827C00645000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -9.0
+            },
+            {
+              "date": "2025-08-27",
+              "symbol": "SPY250827C00646000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -0.0
+            },
+            {
+              "date": "2025-10-02",
+              "symbol": "SPY251002C00669000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -123.0
+            },
+            {
+              "date": "2025-10-15",
+              "symbol": "SPY251015P00663000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 483.55
+            },
+            {
+              "date": "2025-12-22",
+              "symbol": "SPY251222C00683000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -54.0
+            },
+            {
+              "date": "2026-01-05",
+              "symbol": "SPY260105C00687000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -39.0
+            },
+            {
+              "date": "2026-01-09",
+              "symbol": "SPY260109C00691000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 372.45
+            },
+            {
+              "date": "2026-01-27",
+              "symbol": "SPY260127C00694000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 349.0
+            },
+            {
+              "date": "2026-01-29",
+              "symbol": "SPY260129P00690000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 656.85
+            },
+            {
+              "date": "2026-02-26",
+              "symbol": "SPY260226P00690000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 636.05
+            },
+            {
+              "date": "2026-05-13",
+              "symbol": "SPY260513C00737000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 9.0
+            },
+            {
+              "date": "2026-05-18",
+              "symbol": "SPY260518P00737000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 446.45
+            },
+            {
+              "date": "2026-05-21",
+              "symbol": "SPY260521C00742000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 363.95
+            },
+            {
+              "date": "2026-05-28",
+              "symbol": "SPY260528C00753000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 129.0
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608C00744000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -198.0
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608P00742000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 439.9
+            },
+            {
+              "date": "2026-06-24",
+              "symbol": "SPY260624C00740000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -120.0
+            },
+            {
+              "date": "2026-06-24",
+              "symbol": "SPY260624P00734000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 309.0
+            },
+            {
+              "date": "2026-06-25",
+              "symbol": "SPY260625C00734000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -321.0
+            },
+            {
+              "date": "2026-06-25",
+              "symbol": "SPY260625P00733000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -291.0
+            },
+            {
+              "date": "2026-07-15",
+              "symbol": "SPY260715C00754000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -153.0
+            }
+          ]
+        },
+        "preempted_cohort": {
+          "n": 2,
+          "total_pnl": 1046.4,
+          "trades": [
+            {
+              "date": "2026-05-18",
+              "symbol": "SPY260518P00736000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 514.4
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608P00741000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 532.0
+            }
+          ]
+        },
+        "gain_over_control_sequential": 2427.8,
+        "identity_check_added_minus_preempted": 2427.8,
+        "identity_holds": true,
+        "pct_of_gain_from_preemption": -43.1
+      },
+      "gates": {
+        "G1_recent25_positive_PRIMARY": true,
+        "G2_day_majority": false,
+        "G3_drop_best_still_positive": true,
+        "G4_pnl_not_degraded_vs_both_baselines": true,
+        "G5_runner_cohort_ZERO_TOLERANCE": false,
+        "G6_rule6_floor_respected": true,
+        "G7_kill_switch_and_risk_cap_bind_at_both_tiers": true,
+        "G8_not_a_dead_knob_C14": true,
+        "G9_gain_is_not_mostly_preemption": true,
+        "G10_material_fallback_fires_NEW": true
+      },
+      "ship": false
+    },
+    "B_time_of_day_cutoff": {
+      "label": "entry_time_et >= 12:00 ET",
+      "fire_counts": {
+        "n_fallback_candidate_before_filter": 130,
+        "n_fallback_candidate_after_filter": 41,
+        "n_fallback_actually_placed": 41
+      },
+      "selective_sequential_stats": {
+        "label": "B_time_of_day_cutoff",
+        "n": 188,
+        "total_pnl": 10549.4,
+        "win_rate": 0.3457,
+        "avg_pnl_per_trade": 56.11,
+        "drop_best": {
+          "best_trade_pnl": 995.0,
+          "remainder": 9554.4,
+          "still_positive": true
+        },
+        "recent_25": {
+          "n": 25,
+          "total_pnl": 3364.3,
+          "win_rate": 0.48,
+          "start_date": "2026-05-18",
+          "end_date": "2026-07-21"
+        },
+        "notional": {
+          "avg": 434.37,
+          "max": 595.0,
+          "min": 160.0
+        }
+      },
+      "day_majority": {
+        "n_days": 150,
+        "up_days": 61,
+        "down_days": 89,
+        "neutral_days": 0,
+        "pass": false,
+        "by_day_pnl": {
+          "2025-01-06": 303.5,
+          "2025-01-10": 12.0,
+          "2025-01-13": -91.2,
+          "2025-01-15": 40.0,
+          "2025-01-22": 125.0,
+          "2025-01-23": -270.0,
+          "2025-01-24": 146.4,
+          "2025-01-29": -114.6,
+          "2025-02-03": -115.8,
+          "2025-02-06": -156.0,
+          "2025-02-07": -358.0,
+          "2025-02-12": -115.0,
+          "2025-02-14": -495.0,
+          "2025-02-20": -90.0,
+          "2025-02-21": 734.0,
+          "2025-02-24": -98.0,
+          "2025-02-25": -117.0,
+          "2025-03-20": -75.6,
+          "2025-03-26": -113.0,
+          "2025-04-23": -75.0,
+          "2025-05-09": -119.0,
+          "2025-05-20": -76.2,
+          "2025-05-21": 436.0,
+          "2025-05-27": 835.4,
+          "2025-06-05": -230.0,
+          "2025-06-06": -605.0,
+          "2025-06-11": -180.0,
+          "2025-06-12": -100.0,
+          "2025-06-13": 656.0,
+          "2025-06-16": 140.0,
+          "2025-06-17": -93.0,
+          "2025-06-26": 165.0,
+          "2025-06-27": 398.4,
+          "2025-06-30": -120.0,
+          "2025-07-03": 409.0,
+          "2025-07-07": 362.6,
+          "2025-07-09": -355.0,
+          "2025-07-10": 396.9,
+          "2025-07-11": -193.0,
+          "2025-07-15": -83.0,
+          "2025-07-16": -15.0,
+          "2025-07-21": 531.2,
+          "2025-07-22": -150.0,
+          "2025-07-23": -120.0,
+          "2025-07-24": -320.0,
+          "2025-07-28": -75.0,
+          "2025-07-29": 235.0,
+          "2025-08-01": -81.0,
+          "2025-08-07": -343.0,
+          "2025-08-11": -235.0,
+          "2025-08-13": -111.0,
+          "2025-08-14": -65.0,
+          "2025-08-15": -83.0,
+          "2025-08-19": 451.4,
+          "2025-08-27": -45.0,
+          "2025-08-28": -70.0,
+          "2025-09-03": 99.2,
+          "2025-09-05": -185.0,
+          "2025-09-08": -120.0,
+          "2025-09-10": 159.1,
+          "2025-09-11": -30.0,
+          "2025-09-12": -120.0,
+          "2025-09-15": -220.0,
+          "2025-09-18": -68.0,
+          "2025-09-23": 425.4,
+          "2025-09-24": -94.0,
+          "2025-09-25": 522.0,
+          "2025-09-26": -155.0,
+          "2025-10-02": -108.0,
+          "2025-10-03": -170.0,
+          "2025-10-06": 45.0,
+          "2025-10-07": -105.0,
+          "2025-10-08": 290.0,
+          "2025-10-09": 245.8,
+          "2025-10-15": 483.55,
+          "2025-10-16": 652.9,
+          "2025-10-24": -165.0,
+          "2025-10-27": 355.0,
+          "2025-10-28": 262.6,
+          "2025-10-29": 3.0,
+          "2025-11-03": -35.0,
+          "2025-11-04": 664.5,
+          "2025-11-06": -72.6,
+          "2025-11-10": -90.0,
+          "2025-11-12": -60.0,
+          "2025-12-03": 110.0,
+          "2025-12-09": -225.0,
+          "2025-12-11": 486.2,
+          "2025-12-12": -103.2,
+          "2025-12-15": -83.0,
+          "2025-12-16": -78.6,
+          "2025-12-17": -94.8,
+          "2025-12-23": 641.0,
+          "2025-12-24": 539.0,
+          "2025-12-26": -350.0,
+          "2025-12-29": -154.0,
+          "2026-01-02": 326.6,
+          "2026-01-06": -180.0,
+          "2026-01-07": 432.0,
+          "2026-01-09": -25.0,
+          "2026-01-13": -102.0,
+          "2026-01-15": -105.0,
+          "2026-01-22": -87.0,
+          "2026-01-23": -115.0,
+          "2026-02-03": 981.25,
+          "2026-02-12": -114.6,
+          "2026-02-17": 42.0,
+          "2026-02-19": -201.0,
+          "2026-02-20": 324.0,
+          "2026-02-23": 419.0,
+          "2026-02-27": -89.4,
+          "2026-03-05": -106.2,
+          "2026-03-11": -91.8,
+          "2026-03-12": -96.0,
+          "2026-03-16": -275.0,
+          "2026-03-18": 501.0,
+          "2026-03-27": 759.0,
+          "2026-03-30": 496.0,
+          "2026-04-08": -108.0,
+          "2026-04-10": -74.0,
+          "2026-04-17": -68.0,
+          "2026-04-21": -78.6,
+          "2026-04-22": 25.0,
+          "2026-04-30": 995.0,
+          "2026-05-01": 76.8,
+          "2026-05-06": -280.0,
+          "2026-05-07": 382.4,
+          "2026-05-13": 394.2,
+          "2026-05-14": -97.0,
+          "2026-05-18": 514.4,
+          "2026-05-21": 363.95,
+          "2026-05-22": -369.0,
+          "2026-05-26": -105.0,
+          "2026-06-01": 365.0,
+          "2026-06-02": -47.0,
+          "2026-06-05": 503.25,
+          "2026-06-08": 439.9,
+          "2026-06-16": 155.0,
+          "2026-06-22": -89.0,
+          "2026-06-23": 373.8,
+          "2026-06-24": 309.0,
+          "2026-06-25": -291.0,
+          "2026-06-26": -240.0,
+          "2026-07-06": 428.6,
+          "2026-07-08": -106.0,
+          "2026-07-10": 489.0,
+          "2026-07-14": -95.0,
+          "2026-07-17": 480.0,
+          "2026-07-20": 304.4,
+          "2026-07-21": -20.0
+        }
+      },
+      "runner_cohort_g5": {
+        "n_cohort": 32,
+        "control_sum": 14539.4,
+        "selective_sum": 14007.4,
+        "n_missing": 1,
+        "n_flips": 0,
+        "pass": false
+      },
+      "decomposition": {
+        "_doc": "delta_over_control == added_total - preempted_total (accounting identity, verified below).",
+        "added_cohort": {
+          "n": 41,
+          "total_pnl": 3092.0,
+          "trades": [
+            {
+              "date": "2025-01-10",
+              "symbol": "SPY250110P00580000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 12.0
+            },
+            {
+              "date": "2025-01-13",
+              "symbol": "SPY250113P00578000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -91.2
+            },
+            {
+              "date": "2025-01-29",
+              "symbol": "SPY250129P00601000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -114.6
+            },
+            {
+              "date": "2025-02-03",
+              "symbol": "SPY250203P00599000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -115.8
+            },
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206C00605000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -93.0
+            },
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206C00605000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -63.0
+            },
+            {
+              "date": "2025-02-07",
+              "symbol": "SPY250207P00602000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -93.0
+            },
+            {
+              "date": "2025-03-20",
+              "symbol": "SPY250320P00566000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -75.6
+            },
+            {
+              "date": "2025-04-23",
+              "symbol": "SPY250423P00538000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -75.0
+            },
+            {
+              "date": "2025-05-20",
+              "symbol": "SPY250520P00593000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -76.2
+            },
+            {
+              "date": "2025-08-01",
+              "symbol": "SPY250801P00621000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -81.0
+            },
+            {
+              "date": "2025-10-15",
+              "symbol": "SPY251015P00663000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 483.55
+            },
+            {
+              "date": "2025-10-16",
+              "symbol": "SPY251016P00663000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 652.9
+            },
+            {
+              "date": "2025-10-29",
+              "symbol": "SPY251029P00686000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 3.0
+            },
+            {
+              "date": "2025-11-06",
+              "symbol": "SPY251106P00670000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -72.6
+            },
+            {
+              "date": "2025-11-10",
+              "symbol": "SPY251110C00677000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -90.0
+            },
+            {
+              "date": "2025-12-12",
+              "symbol": "SPY251212P00680000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -103.2
+            },
+            {
+              "date": "2025-12-16",
+              "symbol": "SPY251216P00678000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -78.6
+            },
+            {
+              "date": "2025-12-17",
+              "symbol": "SPY251217P00674000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -94.8
+            },
+            {
+              "date": "2026-01-22",
+              "symbol": "SPY260122C00689000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -87.0
+            },
+            {
+              "date": "2026-02-03",
+              "symbol": "SPY260203P00692000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 411.55
+            },
+            {
+              "date": "2026-02-03",
+              "symbol": "SPY260203P00689000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 569.7
+            },
+            {
+              "date": "2026-02-12",
+              "symbol": "SPY260212P00685000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -114.6
+            },
+            {
+              "date": "2026-02-17",
+              "symbol": "SPY260217P00682000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 42.0
+            },
+            {
+              "date": "2026-02-19",
+              "symbol": "SPY260219P00683000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -201.0
+            },
+            {
+              "date": "2026-02-20",
+              "symbol": "SPY260220P00689000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 324.0
+            },
+            {
+              "date": "2026-02-27",
+              "symbol": "SPY260227P00684000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -89.4
+            },
+            {
+              "date": "2026-03-05",
+              "symbol": "SPY260305P00682000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -106.2
+            },
+            {
+              "date": "2026-03-11",
+              "symbol": "SPY260311P00676000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -91.8
+            },
+            {
+              "date": "2026-03-12",
+              "symbol": "SPY260312P00669000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -96.0
+            },
+            {
+              "date": "2026-03-18",
+              "symbol": "SPY260318P00665000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 501.0
+            },
+            {
+              "date": "2026-03-27",
+              "symbol": "SPY260327P00640000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 759.0
+            },
+            {
+              "date": "2026-04-08",
+              "symbol": "SPY260408C00675000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -108.0
+            },
+            {
+              "date": "2026-04-21",
+              "symbol": "SPY260421P00707000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -78.6
+            },
+            {
+              "date": "2026-05-07",
+              "symbol": "SPY260507P00733000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 382.4
+            },
+            {
+              "date": "2026-05-21",
+              "symbol": "SPY260521C00742000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 363.95
+            },
+            {
+              "date": "2026-05-22",
+              "symbol": "SPY260522C00747000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -84.0
+            },
+            {
+              "date": "2026-06-05",
+              "symbol": "SPY260605P00740000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 503.25
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608P00742000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 439.9
+            },
+            {
+              "date": "2026-06-24",
+              "symbol": "SPY260624P00734000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 309.0
+            },
+            {
+              "date": "2026-06-25",
+              "symbol": "SPY260625P00733000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -291.0
+            }
+          ]
+        },
+        "preempted_cohort": {
+          "n": 6,
+          "total_pnl": 121.0,
+          "trades": [
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206P00605000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": -35.0
+            },
+            {
+              "date": "2026-01-22",
+              "symbol": "SPY260122C00690000",
+              "side": "C",
+              "qty": 5,
+              "dollar_pnl": -265.0
+            },
+            {
+              "date": "2026-05-07",
+              "symbol": "SPY260507P00731000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": -113.0
+            },
+            {
+              "date": "2026-05-07",
+              "symbol": "SPY260507P00730000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": -73.0
+            },
+            {
+              "date": "2026-05-22",
+              "symbol": "SPY260522P00748000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 75.0
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608P00741000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 532.0
+            }
+          ]
+        },
+        "gain_over_control_sequential": 2971.0,
+        "identity_check_added_minus_preempted": 2971.0,
+        "identity_holds": true,
+        "pct_of_gain_from_preemption": -4.1
+      },
+      "gates": {
+        "G1_recent25_positive_PRIMARY": true,
+        "G2_day_majority": false,
+        "G3_drop_best_still_positive": true,
+        "G4_pnl_not_degraded_vs_both_baselines": true,
+        "G5_runner_cohort_ZERO_TOLERANCE": false,
+        "G6_rule6_floor_respected": true,
+        "G7_kill_switch_and_risk_cap_bind_at_both_tiers": true,
+        "G8_not_a_dead_knob_C14": true,
+        "G9_gain_is_not_mostly_preemption": true,
+        "G10_material_fallback_fires_NEW": true
+      },
+      "ship": false
+    },
+    "C_level_anchored": {
+      "label": "has >=1 level-tied trigger",
+      "fire_counts": {
+        "n_fallback_candidate_before_filter": 130,
+        "n_fallback_candidate_after_filter": 88,
+        "n_fallback_actually_placed": 88
+      },
+      "selective_sequential_stats": {
+        "label": "C_level_anchored",
+        "n": 233,
+        "total_pnl": 9264.75,
+        "win_rate": 0.3433,
+        "avg_pnl_per_trade": 39.76,
+        "drop_best": {
+          "best_trade_pnl": 995.0,
+          "remainder": 8269.75,
+          "still_positive": true
+        },
+        "recent_25": {
+          "n": 25,
+          "total_pnl": 1416.15,
+          "win_rate": 0.4,
+          "start_date": "2026-06-08",
+          "end_date": "2026-07-21"
+        },
+        "notional": {
+          "avg": 434.95,
+          "max": 595.0,
+          "min": 160.0
+        }
+      },
+      "day_majority": {
+        "n_days": 165,
+        "up_days": 73,
+        "down_days": 92,
+        "neutral_days": 0,
+        "pass": false,
+        "by_day_pnl": {
+          "2025-01-03": 498.0,
+          "2025-01-06": 673.25,
+          "2025-01-08": -372.0,
+          "2025-01-10": 12.0,
+          "2025-01-14": -177.0,
+          "2025-01-15": -230.0,
+          "2025-01-16": -111.0,
+          "2025-01-17": -24.0,
+          "2025-01-21": -81.0,
+          "2025-01-22": 125.0,
+          "2025-01-23": -270.0,
+          "2025-01-24": 146.4,
+          "2025-01-30": -159.0,
+          "2025-02-05": -135.0,
+          "2025-02-06": -234.0,
+          "2025-02-07": -265.0,
+          "2025-02-10": -189.0,
+          "2025-02-12": -115.0,
+          "2025-02-13": 9.0,
+          "2025-02-14": -491.0,
+          "2025-02-20": -90.0,
+          "2025-02-21": 734.0,
+          "2025-02-24": -98.0,
+          "2025-02-25": -117.0,
+          "2025-03-03": -249.0,
+          "2025-03-26": -113.0,
+          "2025-05-09": -119.0,
+          "2025-05-21": 436.0,
+          "2025-05-27": 835.4,
+          "2025-06-03": -30.0,
+          "2025-06-05": -395.0,
+          "2025-06-06": -605.0,
+          "2025-06-11": -180.0,
+          "2025-06-12": -100.0,
+          "2025-06-13": 656.0,
+          "2025-06-16": 140.0,
+          "2025-06-17": -93.0,
+          "2025-06-24": 431.2,
+          "2025-06-26": 69.0,
+          "2025-06-27": 398.4,
+          "2025-06-30": -201.0,
+          "2025-07-03": 409.0,
+          "2025-07-07": 362.6,
+          "2025-07-09": -355.0,
+          "2025-07-10": 396.9,
+          "2025-07-11": -193.0,
+          "2025-07-15": -137.0,
+          "2025-07-16": -15.0,
+          "2025-07-21": 531.2,
+          "2025-07-22": -150.0,
+          "2025-07-23": 234.05,
+          "2025-07-24": -320.0,
+          "2025-07-28": -75.0,
+          "2025-07-29": 235.0,
+          "2025-08-07": -343.0,
+          "2025-08-08": 412.2,
+          "2025-08-11": -235.0,
+          "2025-08-12": 572.0,
+          "2025-08-13": -303.0,
+          "2025-08-14": -65.0,
+          "2025-08-15": -83.0,
+          "2025-08-19": 451.4,
+          "2025-08-27": -54.0,
+          "2025-08-28": -70.0,
+          "2025-09-03": 99.2,
+          "2025-09-05": -185.0,
+          "2025-09-08": -120.0,
+          "2025-09-10": 159.1,
+          "2025-09-11": 428.35,
+          "2025-09-12": -120.0,
+          "2025-09-15": -220.0,
+          "2025-09-18": 414.75,
+          "2025-09-23": 425.4,
+          "2025-09-24": -94.0,
+          "2025-09-25": 522.0,
+          "2025-09-26": -344.0,
+          "2025-09-29": -204.0,
+          "2025-10-02": -231.0,
+          "2025-10-03": -335.0,
+          "2025-10-06": 45.0,
+          "2025-10-07": -105.0,
+          "2025-10-08": 290.0,
+          "2025-10-09": 245.8,
+          "2025-10-15": 483.55,
+          "2025-10-20": 415.7,
+          "2025-10-24": -234.0,
+          "2025-10-27": 355.0,
+          "2025-10-28": 262.6,
+          "2025-11-03": -35.0,
+          "2025-11-04": 664.5,
+          "2025-11-10": -90.0,
+          "2025-11-12": -60.0,
+          "2025-11-26": 451.5,
+          "2025-11-28": 162.0,
+          "2025-12-03": 110.0,
+          "2025-12-05": -255.0,
+          "2025-12-09": -225.0,
+          "2025-12-11": 261.2,
+          "2025-12-15": -83.0,
+          "2025-12-18": -336.0,
+          "2025-12-22": -54.0,
+          "2025-12-23": 641.0,
+          "2025-12-24": 539.0,
+          "2025-12-26": -350.0,
+          "2025-12-29": -154.0,
+          "2026-01-02": 326.6,
+          "2026-01-05": -39.0,
+          "2026-01-06": -180.0,
+          "2026-01-07": 432.0,
+          "2026-01-09": 254.45,
+          "2026-01-13": -102.0,
+          "2026-01-15": -216.0,
+          "2026-01-22": -285.0,
+          "2026-01-23": -115.0,
+          "2026-01-26": 18.0,
+          "2026-01-27": 349.0,
+          "2026-01-28": -129.0,
+          "2026-01-29": 656.85,
+          "2026-01-30": -213.0,
+          "2026-02-19": -201.0,
+          "2026-02-23": 419.0,
+          "2026-02-26": 636.05,
+          "2026-03-16": -275.0,
+          "2026-03-27": 759.0,
+          "2026-03-30": 496.0,
+          "2026-04-08": -108.0,
+          "2026-04-10": -74.0,
+          "2026-04-17": 312.1,
+          "2026-04-22": 25.0,
+          "2026-04-30": 995.0,
+          "2026-05-01": -110.7,
+          "2026-05-06": 338.0,
+          "2026-05-07": -186.0,
+          "2026-05-08": 24.0,
+          "2026-05-13": 403.2,
+          "2026-05-14": -97.0,
+          "2026-05-18": 446.45,
+          "2026-05-19": -285.0,
+          "2026-05-21": 363.95,
+          "2026-05-22": -600.0,
+          "2026-05-26": -177.0,
+          "2026-05-27": -216.0,
+          "2026-05-28": 129.0,
+          "2026-05-29": -315.0,
+          "2026-06-01": 365.0,
+          "2026-06-02": -47.0,
+          "2026-06-08": 241.9,
+          "2026-06-15": 66.0,
+          "2026-06-16": 155.0,
+          "2026-06-22": -89.0,
+          "2026-06-23": 373.8,
+          "2026-06-24": 189.0,
+          "2026-06-25": -612.0,
+          "2026-06-26": -240.0,
+          "2026-06-29": -324.0,
+          "2026-06-30": 588.45,
+          "2026-07-06": 428.6,
+          "2026-07-08": -106.0,
+          "2026-07-09": -222.0,
+          "2026-07-10": 489.0,
+          "2026-07-14": -332.0,
+          "2026-07-15": -153.0,
+          "2026-07-17": 480.0,
+          "2026-07-20": 304.4,
+          "2026-07-21": -20.0
+        }
+      },
+      "runner_cohort_g5": {
+        "n_cohort": 32,
+        "control_sum": 14539.4,
+        "selective_sum": 13493.0,
+        "n_missing": 2,
+        "n_flips": 0,
+        "pass": false
+      },
+      "decomposition": {
+        "_doc": "delta_over_control == added_total - preempted_total (accounting identity, verified below).",
+        "added_cohort": {
+          "n": 88,
+          "total_pnl": 2057.75,
+          "trades": [
+            {
+              "date": "2025-01-03",
+              "symbol": "SPY250103C00589000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 498.0
+            },
+            {
+              "date": "2025-01-06",
+              "symbol": "SPY250106C00597000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 369.75
+            },
+            {
+              "date": "2025-01-08",
+              "symbol": "SPY250108P00588000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -372.0
+            },
+            {
+              "date": "2025-01-10",
+              "symbol": "SPY250110P00580000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 12.0
+            },
+            {
+              "date": "2025-01-14",
+              "symbol": "SPY250114C00583000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -177.0
+            },
+            {
+              "date": "2025-01-15",
+              "symbol": "SPY250115C00591000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -270.0
+            },
+            {
+              "date": "2025-01-16",
+              "symbol": "SPY250116C00593000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -111.0
+            },
+            {
+              "date": "2025-01-17",
+              "symbol": "SPY250117C00597000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -24.0
+            },
+            {
+              "date": "2025-01-21",
+              "symbol": "SPY250121C00600000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -81.0
+            },
+            {
+              "date": "2025-01-30",
+              "symbol": "SPY250130C00604000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -159.0
+            },
+            {
+              "date": "2025-02-05",
+              "symbol": "SPY250205C00601000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -135.0
+            },
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206C00606000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -78.0
+            },
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206C00605000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -93.0
+            },
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206C00605000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -63.0
+            },
+            {
+              "date": "2025-02-10",
+              "symbol": "SPY250210C00604000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -189.0
+            },
+            {
+              "date": "2025-02-13",
+              "symbol": "SPY250213C00605000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 9.0
+            },
+            {
+              "date": "2025-02-14",
+              "symbol": "SPY250214C00610000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -171.0
+            },
+            {
+              "date": "2025-03-03",
+              "symbol": "SPY250303C00597000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -249.0
+            },
+            {
+              "date": "2025-06-03",
+              "symbol": "SPY250603C00593000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -30.0
+            },
+            {
+              "date": "2025-06-05",
+              "symbol": "SPY250605C00598000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -165.0
+            },
+            {
+              "date": "2025-06-24",
+              "symbol": "SPY250624C00604000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 431.2
+            },
+            {
+              "date": "2025-06-26",
+              "symbol": "SPY250626C00609000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -96.0
+            },
+            {
+              "date": "2025-06-30",
+              "symbol": "SPY250630C00616000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -81.0
+            },
+            {
+              "date": "2025-07-15",
+              "symbol": "SPY250715C00626000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -54.0
+            },
+            {
+              "date": "2025-07-23",
+              "symbol": "SPY250723C00630000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 354.05
+            },
+            {
+              "date": "2025-08-08",
+              "symbol": "SPY250808C00634000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 412.2
+            },
+            {
+              "date": "2025-08-12",
+              "symbol": "SPY250812C00638000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 572.0
+            },
+            {
+              "date": "2025-08-13",
+              "symbol": "SPY250813C00645000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -192.0
+            },
+            {
+              "date": "2025-08-27",
+              "symbol": "SPY250827C00645000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -9.0
+            },
+            {
+              "date": "2025-08-27",
+              "symbol": "SPY250827C00646000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -0.0
+            },
+            {
+              "date": "2025-09-11",
+              "symbol": "SPY250911C00654000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 458.35
+            },
+            {
+              "date": "2025-09-18",
+              "symbol": "SPY250918C00661000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 482.75
+            },
+            {
+              "date": "2025-09-26",
+              "symbol": "SPY250926C00661000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -189.0
+            },
+            {
+              "date": "2025-09-29",
+              "symbol": "SPY250929C00664000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -204.0
+            },
+            {
+              "date": "2025-10-02",
+              "symbol": "SPY251002C00669000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -123.0
+            },
+            {
+              "date": "2025-10-03",
+              "symbol": "SPY251003C00671000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -165.0
+            },
+            {
+              "date": "2025-10-15",
+              "symbol": "SPY251015P00663000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 483.55
+            },
+            {
+              "date": "2025-10-20",
+              "symbol": "SPY251020C00669000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 415.7
+            },
+            {
+              "date": "2025-10-24",
+              "symbol": "SPY251024C00677000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -69.0
+            },
+            {
+              "date": "2025-11-10",
+              "symbol": "SPY251110C00677000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -90.0
+            },
+            {
+              "date": "2025-11-26",
+              "symbol": "SPY251126C00678000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 451.5
+            },
+            {
+              "date": "2025-11-28",
+              "symbol": "SPY251128C00681000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 162.0
+            },
+            {
+              "date": "2025-12-05",
+              "symbol": "SPY251205C00686000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -255.0
+            },
+            {
+              "date": "2025-12-11",
+              "symbol": "SPY251211C00686000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -225.0
+            },
+            {
+              "date": "2025-12-18",
+              "symbol": "SPY251218C00678000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -336.0
+            },
+            {
+              "date": "2025-12-22",
+              "symbol": "SPY251222C00683000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -54.0
+            },
+            {
+              "date": "2026-01-05",
+              "symbol": "SPY260105C00687000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -39.0
+            },
+            {
+              "date": "2026-01-09",
+              "symbol": "SPY260109C00692000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -93.0
+            },
+            {
+              "date": "2026-01-09",
+              "symbol": "SPY260109C00691000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 372.45
+            },
+            {
+              "date": "2026-01-15",
+              "symbol": "SPY260115C00694000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -111.0
+            },
+            {
+              "date": "2026-01-22",
+              "symbol": "SPY260122C00690000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -198.0
+            },
+            {
+              "date": "2026-01-22",
+              "symbol": "SPY260122C00689000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -87.0
+            },
+            {
+              "date": "2026-01-26",
+              "symbol": "SPY260126C00692000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 18.0
+            },
+            {
+              "date": "2026-01-27",
+              "symbol": "SPY260127C00694000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 349.0
+            },
+            {
+              "date": "2026-01-28",
+              "symbol": "SPY260128C00697000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -129.0
+            },
+            {
+              "date": "2026-01-29",
+              "symbol": "SPY260129P00690000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 656.85
+            },
+            {
+              "date": "2026-01-30",
+              "symbol": "SPY260130C00693000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -213.0
+            },
+            {
+              "date": "2026-02-19",
+              "symbol": "SPY260219P00683000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -201.0
+            },
+            {
+              "date": "2026-02-26",
+              "symbol": "SPY260226P00690000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 636.05
+            },
+            {
+              "date": "2026-03-27",
+              "symbol": "SPY260327P00640000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 759.0
+            },
+            {
+              "date": "2026-04-08",
+              "symbol": "SPY260408C00675000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -108.0
+            },
+            {
+              "date": "2026-04-17",
+              "symbol": "SPY260417C00709000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 380.1
+            },
+            {
+              "date": "2026-05-01",
+              "symbol": "SPY260501C00724000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -187.5
+            },
+            {
+              "date": "2026-05-06",
+              "symbol": "SPY260506C00729000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 448.0
+            },
+            {
+              "date": "2026-05-08",
+              "symbol": "SPY260508C00736000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 24.0
+            },
+            {
+              "date": "2026-05-13",
+              "symbol": "SPY260513C00737000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 9.0
+            },
+            {
+              "date": "2026-05-18",
+              "symbol": "SPY260518P00737000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 446.45
+            },
+            {
+              "date": "2026-05-19",
+              "symbol": "SPY260519P00735000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -285.0
+            },
+            {
+              "date": "2026-05-21",
+              "symbol": "SPY260521C00742000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 363.95
+            },
+            {
+              "date": "2026-05-22",
+              "symbol": "SPY260522C00748000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -231.0
+            },
+            {
+              "date": "2026-05-22",
+              "symbol": "SPY260522C00747000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -84.0
+            },
+            {
+              "date": "2026-05-26",
+              "symbol": "SPY260526C00751000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -177.0
+            },
+            {
+              "date": "2026-05-27",
+              "symbol": "SPY260527C00750000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -216.0
+            },
+            {
+              "date": "2026-05-28",
+              "symbol": "SPY260528C00753000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 129.0
+            },
+            {
+              "date": "2026-05-29",
+              "symbol": "SPY260529C00757000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -189.0
+            },
+            {
+              "date": "2026-05-29",
+              "symbol": "SPY260529C00757000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -126.0
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608C00744000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -198.0
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608P00742000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 439.9
+            },
+            {
+              "date": "2026-06-15",
+              "symbol": "SPY260615C00753000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 66.0
+            },
+            {
+              "date": "2026-06-24",
+              "symbol": "SPY260624C00740000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -120.0
+            },
+            {
+              "date": "2026-06-24",
+              "symbol": "SPY260624P00734000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": 309.0
+            },
+            {
+              "date": "2026-06-25",
+              "symbol": "SPY260625C00734000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -321.0
+            },
+            {
+              "date": "2026-06-25",
+              "symbol": "SPY260625P00733000",
+              "side": "P",
+              "qty": 3,
+              "dollar_pnl": -291.0
+            },
+            {
+              "date": "2026-06-29",
+              "symbol": "SPY260629C00739000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -324.0
+            },
+            {
+              "date": "2026-06-30",
+              "symbol": "SPY260630C00743000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": 588.45
+            },
+            {
+              "date": "2026-07-09",
+              "symbol": "SPY260709C00748000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -222.0
+            },
+            {
+              "date": "2026-07-14",
+              "symbol": "SPY260714C00752000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -237.0
+            },
+            {
+              "date": "2026-07-15",
+              "symbol": "SPY260715C00754000",
+              "side": "C",
+              "qty": 3,
+              "dollar_pnl": -153.0
+            }
+          ]
+        },
+        "preempted_cohort": {
+          "n": 8,
+          "total_pnl": 371.4,
+          "trades": [
+            {
+              "date": "2025-02-06",
+              "symbol": "SPY250206P00605000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": -35.0
+            },
+            {
+              "date": "2025-02-14",
+              "symbol": "SPY250214C00611000",
+              "side": "C",
+              "qty": 5,
+              "dollar_pnl": -175.0
+            },
+            {
+              "date": "2026-01-22",
+              "symbol": "SPY260122C00690000",
+              "side": "C",
+              "qty": 5,
+              "dollar_pnl": -265.0
+            },
+            {
+              "date": "2026-05-06",
+              "symbol": "SPY260506C00732000",
+              "side": "C",
+              "qty": 5,
+              "dollar_pnl": -170.0
+            },
+            {
+              "date": "2026-05-18",
+              "symbol": "SPY260518P00736000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 514.4
+            },
+            {
+              "date": "2026-05-22",
+              "symbol": "SPY260522P00748000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 75.0
+            },
+            {
+              "date": "2026-05-26",
+              "symbol": "SPY260526C00752000",
+              "side": "C",
+              "qty": 5,
+              "dollar_pnl": -105.0
+            },
+            {
+              "date": "2026-06-08",
+              "symbol": "SPY260608P00741000",
+              "side": "P",
+              "qty": 5,
+              "dollar_pnl": 532.0
+            }
+          ]
+        },
+        "gain_over_control_sequential": 1686.35,
+        "identity_check_added_minus_preempted": 1686.35,
+        "identity_holds": true,
+        "pct_of_gain_from_preemption": -22.0
+      },
+      "gates": {
+        "G1_recent25_positive_PRIMARY": true,
+        "G2_day_majority": false,
+        "G3_drop_best_still_positive": true,
+        "G4_pnl_not_degraded_vs_both_baselines": true,
+        "G5_runner_cohort_ZERO_TOLERANCE": false,
+        "G6_rule6_floor_respected": true,
+        "G7_kill_switch_and_risk_cap_bind_at_both_tiers": true,
+        "G8_not_a_dead_knob_C14": true,
+        "G9_gain_is_not_mostly_preemption": true,
+        "G10_material_fallback_fires_NEW": true
+      },
+      "ship": false
+    }
+  },
+  "ship_cells": [],
+  "verdict": "NULL",
+  "runtime_seconds": 145.2
+}
