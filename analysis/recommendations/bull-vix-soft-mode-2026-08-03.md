@@ -5,6 +5,8 @@ Prereg (frozen first): `analysis/recommendations/prereg-bull-vix-soft-mode-2026-
 Scope: SAFE ONLY (CONTROL = SAFE_BASE_LIVE, elite_bear_level_reject_gate_ab.SAFE_BASE + initial_equity=1746.75). No Bold cell computed -- the frozen prereg's CONTROL is SAFE_BASE_LIVE verbatim, not a Bold config, so Bold's separate n=32/$14,539.40 runner anchor is inapplicable here and is not cited anywhere in this file.
 Window: 2025-01-02..2026-07-27 (390 RTH trading days; cross-check vs FREQUENCY-CEILING-2026-08-03.md (same end date): 390).
 Recent-25 window: 2026-06-22..2026-07-27.
+Implementation + guard + this scorecard: commit `15a2289e` (filters.py/orchestrator.py wiring,
+test_bull_vix_soft_mode_2026_08_03.py, bull_vix_soft_mode_2026_08_03.py, this file + JSON).
 
 ## VERDICT: NULL
 
