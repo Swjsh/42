@@ -1,0 +1,552 @@
+{
+  "_doc": "Capital-efficiency / honest-capital-curve instrument. MEASUREMENT + ARITHMETIC ONLY -- zero trading-path edits. See module docstring for the qty-correction (#0) and liquidity-data-gap findings.",
+  "generated_at": "2026-08-02T11:41:23.468164-04:00",
+  "source_safe_replay": "analysis\\recommendations\\engine-fullhist-replay-2026-07-23.json",
+  "source_safe_replay_window": {
+    "start": "2025-01-02",
+    "end": "2026-07-22",
+    "n_calendar_rth_days": 387
+  },
+  "qty_correction_finding": {
+    "n_trades": 191,
+    "n_trades_qty_above_min_contracts_floor": 61,
+    "published_headline_total_pnl": 4808.75,
+    "qty_rescaled_to_min_contracts_total_pnl": 3845.77,
+    "pct_of_headline_after_qty_rescale": 80.0,
+    "fully_live_faithful_total_pnl_at_baseline_equity": 5302.47,
+    "fully_live_faithful_n_included": 159,
+    "fully_live_faithful_n_blocked_deadlock": 32,
+    "pct_of_headline_fully_live_faithful": 110.3,
+    "baseline_equity_used": 1746.75,
+    "mechanism": "orchestrator.py:1194-1226 assigns a vestigial v13 'quality-tiered' starting qty (SUPER=15/ELITE=10/LEVEL=22/TRENDLINE_LEG2=20/BASE=3) per trade, then scales DOWN only if unaffordable at a static equity (orchestrator.py:1917-1932) -- never up-CLAMPED to match the real live formula (heartbeat_core.py:1964: qty is unconditionally params['min_contracts'], never scaled by tier)."
+  },
+  "pct_return_distribution": {
+    "note": "% return is QTY-INVARIANT under the linear-P&L-in-qty property (module docstring) -- this section is UNAFFECTED by the qty_correction finding and uses the population's raw historical rows directly.",
+    "all": {
+      "n": 191,
+      "mean": 0.064377,
+      "median": -0.2,
+      "p10": -0.402174,
+      "p25": -0.2,
+      "p75": 0.108948,
+      "p90": 1.030316,
+      "min": -0.689286,
+      "max": 1.381053
+    },
+    "winners": {
+      "n": 56,
+      "mean": 0.824488,
+      "median": 0.964167,
+      "p10": 0.071075,
+      "p25": 0.727435,
+      "p75": 1.070383,
+      "p90": 1.187937,
+      "min": 0.009217,
+      "max": 1.381053
+    },
+    "losers": {
+      "n": 135,
+      "mean": -0.250928,
+      "median": -0.2,
+      "p10": -0.490323,
+      "p25": -0.218883,
+      "p75": -0.2,
+      "p90": -0.2,
+      "min": -0.689286,
+      "max": -0.058824
+    },
+    "n_winners": 56,
+    "n_losers": 135,
+    "n_flat": 0,
+    "win_rate": 0.2932
+  },
+  "liquidity": {
+    "data_gap_disclosure": "NBBO SIZE (bid_size/ask_size) is not cached anywhere in this repo, historical or live -- see module docstring's LIQUIDITY DATA GAP section. This section uses 5-min TRADE VOLUME in each trade's own entry bar as a trade-flow proxy, NOT a displayed-depth proxy.",
+    "n_trades": 191,
+    "n_no_bar_data": 0,
+    "n_assessable": 191,
+    "min_contracts_today": 3,
+    "by_hypothetical_qty": {
+      "3": {
+        "hypothetical_qty": 3,
+        "ratio_distribution": {
+          "n": 191,
+          "mean": 0.000494,
+          "median": 0.000361,
+          "p10": 0.000175,
+          "p25": 0.000233,
+          "p75": 0.000536,
+          "p90": 0.00083,
+          "min": 0.000102,
+          "max": 0.004237
+        },
+        "knee": {
+          "n_assessable": 191,
+          "by_threshold": {
+            "gt_5pct": 0.0,
+            "gt_10pct": 0.0,
+            "gt_25pct": 0.0,
+            "gt_50pct": 0.0
+          }
+        }
+      },
+      "10": {
+        "hypothetical_qty": 10,
+        "ratio_distribution": {
+          "n": 191,
+          "mean": 0.001646,
+          "median": 0.001203,
+          "p10": 0.000584,
+          "p25": 0.000778,
+          "p75": 0.001788,
+          "p90": 0.002765,
+          "min": 0.00034,
+          "max": 0.014124
+        },
+        "knee": {
+          "n_assessable": 191,
+          "by_threshold": {
+            "gt_5pct": 0.0,
+            "gt_10pct": 0.0,
+            "gt_25pct": 0.0,
+            "gt_50pct": 0.0
+          }
+        }
+      },
+      "30": {
+        "hypothetical_qty": 30,
+        "ratio_distribution": {
+          "n": 191,
+          "mean": 0.004939,
+          "median": 0.003609,
+          "p10": 0.001752,
+          "p25": 0.002334,
+          "p75": 0.005364,
+          "p90": 0.008296,
+          "min": 0.00102,
+          "max": 0.042373
+        },
+        "knee": {
+          "n_assessable": 191,
+          "by_threshold": {
+            "gt_5pct": 0.0,
+            "gt_10pct": 0.0,
+            "gt_25pct": 0.0,
+            "gt_50pct": 0.0
+          }
+        }
+      },
+      "100": {
+        "hypothetical_qty": 100,
+        "ratio_distribution": {
+          "n": 191,
+          "mean": 0.016464,
+          "median": 0.012029,
+          "p10": 0.005841,
+          "p25": 0.007779,
+          "p75": 0.01788,
+          "p90": 0.027655,
+          "min": 0.003399,
+          "max": 0.141243
+        },
+        "knee": {
+          "n_assessable": 191,
+          "by_threshold": {
+            "gt_5pct": 3.7,
+            "gt_10pct": 1.0,
+            "gt_25pct": 0.0,
+            "gt_50pct": 0.0
+          }
+        }
+      }
+    }
+  },
+  "capital_curve": {
+    "safe": {
+      "account": "safe (Gamma-Safe-2 shape: per_trade_risk_cap_pct=0.30, min_contracts=3, V15_SAFE_TIERS strike ladder)",
+      "representative_premium_used_for_binding_constraint": 1.17,
+      "caveat": "Premium/strike is held FIXED at the population's real ATM prices for every row. V15_SAFE_TIERS stays ATM through equity<$10,000 (both the $2,000 and $5,000 rows are genuinely ATM, no caveat) but flips to Slight-ITM at $10,000 and ITM-2 at $25,000+ -- those two rows' real premiums would differ from what is used here (flagged per-row via strike_tier_matches_population=False), not re-priced (would require a fresh option-chain re-fetch + re-walk, out of this measurement-only lane).",
+      "rows": [
+        {
+          "equity": 2000.0,
+          "min_contracts": 3,
+          "n_total_priced_candidates": 191,
+          "n_included": 172,
+          "n_blocked_deadlock": 19,
+          "pct_blocked": 9.9,
+          "total_pnl": 4844.18,
+          "avg_pnl_per_trade": 28.16,
+          "n_distinct_days_included": 130,
+          "strike_tier_at_this_equity": "ATM",
+          "strike_tier_matches_population": true,
+          "binding_constraint": {
+            "available": true,
+            "min_contracts": 3,
+            "risk_cap_pct": 0.3,
+            "risk_cap_dollars": 600.0,
+            "tier_pct": 0.3,
+            "tier_cap_dollars": 600.0,
+            "effective_cap_dollars": 600.0,
+            "binding_cap": "risk_cap",
+            "max_affordable_qty": 5,
+            "premium_ceiling": 2.0,
+            "premium_ceiling_cents": 2.0,
+            "deadlock": false,
+            "headline": "SIZING: up to 5 contracts fit under the $600 cap (risk_cap) at $1.17.",
+            "proposed_qty": 3,
+            "proposed_notional": 351.0
+          },
+          "n_trading_days_in_population": 141,
+          "dollars_per_trading_day": 34.36
+        },
+        {
+          "equity": 5000.0,
+          "min_contracts": 3,
+          "n_total_priced_candidates": 191,
+          "n_included": 191,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 3845.77,
+          "avg_pnl_per_trade": 20.13,
+          "n_distinct_days_included": 141,
+          "strike_tier_at_this_equity": "ATM",
+          "strike_tier_matches_population": true,
+          "binding_constraint": {
+            "available": true,
+            "min_contracts": 3,
+            "risk_cap_pct": 0.3,
+            "risk_cap_dollars": 1500.0,
+            "tier_pct": 0.3,
+            "tier_cap_dollars": 1500.0,
+            "effective_cap_dollars": 1500.0,
+            "binding_cap": "risk_cap",
+            "max_affordable_qty": 12,
+            "premium_ceiling": 5.0,
+            "premium_ceiling_cents": 5.0,
+            "deadlock": false,
+            "headline": "SIZING: up to 12 contracts fit under the $1,500 cap (risk_cap) at $1.17.",
+            "proposed_qty": 3,
+            "proposed_notional": 351.0
+          },
+          "n_trading_days_in_population": 141,
+          "dollars_per_trading_day": 27.27
+        },
+        {
+          "equity": 10000.0,
+          "min_contracts": 3,
+          "n_total_priced_candidates": 191,
+          "n_included": 191,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 3845.77,
+          "avg_pnl_per_trade": 20.13,
+          "n_distinct_days_included": 141,
+          "strike_tier_at_this_equity": "Slight ITM",
+          "strike_tier_matches_population": false,
+          "binding_constraint": {
+            "available": true,
+            "min_contracts": 3,
+            "risk_cap_pct": 0.3,
+            "risk_cap_dollars": 3000.0,
+            "tier_pct": 0.25,
+            "tier_cap_dollars": 2500.0,
+            "effective_cap_dollars": 2500.0,
+            "binding_cap": "max_premium_tier",
+            "max_affordable_qty": 21,
+            "premium_ceiling": 8.3333,
+            "premium_ceiling_cents": 8.33,
+            "deadlock": false,
+            "headline": "SIZING: up to 21 contracts fit under the $2,500 cap (max_premium_tier) at $1.17.",
+            "proposed_qty": 3,
+            "proposed_notional": 351.0
+          },
+          "n_trading_days_in_population": 141,
+          "dollars_per_trading_day": 27.27
+        },
+        {
+          "equity": 25000.0,
+          "min_contracts": 3,
+          "n_total_priced_candidates": 191,
+          "n_included": 191,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 3845.77,
+          "avg_pnl_per_trade": 20.13,
+          "n_distinct_days_included": 141,
+          "strike_tier_at_this_equity": "ITM-2",
+          "strike_tier_matches_population": false,
+          "binding_constraint": {
+            "available": true,
+            "min_contracts": 3,
+            "risk_cap_pct": 0.3,
+            "risk_cap_dollars": 7500.0,
+            "tier_pct": 0.2,
+            "tier_cap_dollars": 5000.0,
+            "effective_cap_dollars": 5000.0,
+            "binding_cap": "max_premium_tier",
+            "max_affordable_qty": 42,
+            "premium_ceiling": 16.6667,
+            "premium_ceiling_cents": 16.66,
+            "deadlock": false,
+            "headline": "SIZING: up to 42 contracts fit under the $5,000 cap (max_premium_tier) at $1.17.",
+            "proposed_qty": 3,
+            "proposed_notional": 351.0
+          },
+          "n_trading_days_in_population": 141,
+          "dollars_per_trading_day": 27.27
+        },
+        {
+          "equity": 50000.0,
+          "min_contracts": 3,
+          "n_total_priced_candidates": 191,
+          "n_included": 191,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 3845.77,
+          "avg_pnl_per_trade": 20.13,
+          "n_distinct_days_included": 141,
+          "strike_tier_at_this_equity": "ITM-2",
+          "strike_tier_matches_population": false,
+          "binding_constraint": {
+            "available": true,
+            "min_contracts": 3,
+            "risk_cap_pct": 0.3,
+            "risk_cap_dollars": 15000.0,
+            "tier_pct": 0.2,
+            "tier_cap_dollars": 10000.0,
+            "effective_cap_dollars": 10000.0,
+            "binding_cap": "max_premium_tier",
+            "max_affordable_qty": 85,
+            "premium_ceiling": 33.3333,
+            "premium_ceiling_cents": 33.33,
+            "deadlock": false,
+            "headline": "SIZING: up to 85 contracts fit under the $10,000 cap (max_premium_tier) at $1.17.",
+            "proposed_qty": 3,
+            "proposed_notional": 351.0
+          },
+          "n_trading_days_in_population": 141,
+          "dollars_per_trading_day": 27.27
+        }
+      ]
+    },
+    "bold": {
+      "account": "bold (Gamma-Bold-2 shape: per_trade_risk_cap_pct=0.50, min_contracts=5, V15_BOLD_CORE_TIERS strike ladder, NO v15_max_premium_pct_of_account tier)",
+      "population_source": "fresh replay_population() re-run this session, block_elite_bull=True (current live), min_contracts=5, ATM strike (Bold's real live equity $1,197.52 < $2,000 tier boundary)",
+      "representative_premium_used": 0.89,
+      "caveat": "V15_BOLD_CORE_TIERS leaves ATM ONLY below $2,000 -- EVERY row in this table ($2,000 through $50,000) actually falls in a DIFFERENT strike tier (OTM-2/OTM-1/ITM-2) than the ATM population being resized here. This table is therefore a SIZING-ONLY counterfactual ('if Bold's real min_contracts/ risk-cap formula were applied to today's ATM premiums at higher equity'), NOT a strike-tier-aware forecast -- flagged per-row via strike_tier_matches_population=False on every single row.",
+      "rows": [
+        {
+          "equity": 2000.0,
+          "min_contracts": 5,
+          "n_total_priced_candidates": 156,
+          "n_included": 156,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 7448.4,
+          "avg_pnl_per_trade": 47.75,
+          "n_distinct_days_included": 117,
+          "strike_tier_at_this_equity": "OTM-2",
+          "strike_tier_matches_population": false,
+          "n_trading_days_in_population": 117,
+          "dollars_per_trading_day": 63.66
+        },
+        {
+          "equity": 5000.0,
+          "min_contracts": 5,
+          "n_total_priced_candidates": 156,
+          "n_included": 156,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 7448.4,
+          "avg_pnl_per_trade": 47.75,
+          "n_distinct_days_included": 117,
+          "strike_tier_at_this_equity": "OTM-2",
+          "strike_tier_matches_population": false,
+          "n_trading_days_in_population": 117,
+          "dollars_per_trading_day": 63.66
+        },
+        {
+          "equity": 10000.0,
+          "min_contracts": 5,
+          "n_total_priced_candidates": 156,
+          "n_included": 156,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 7448.4,
+          "avg_pnl_per_trade": 47.75,
+          "n_distinct_days_included": 117,
+          "strike_tier_at_this_equity": "OTM-1",
+          "strike_tier_matches_population": false,
+          "n_trading_days_in_population": 117,
+          "dollars_per_trading_day": 63.66
+        },
+        {
+          "equity": 25000.0,
+          "min_contracts": 5,
+          "n_total_priced_candidates": 156,
+          "n_included": 156,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 7448.4,
+          "avg_pnl_per_trade": 47.75,
+          "n_distinct_days_included": 117,
+          "strike_tier_at_this_equity": "ITM-2",
+          "strike_tier_matches_population": false,
+          "n_trading_days_in_population": 117,
+          "dollars_per_trading_day": 63.66
+        },
+        {
+          "equity": 50000.0,
+          "min_contracts": 5,
+          "n_total_priced_candidates": 156,
+          "n_included": 156,
+          "n_blocked_deadlock": 0,
+          "pct_blocked": 0.0,
+          "total_pnl": 7448.4,
+          "avg_pnl_per_trade": 47.75,
+          "n_distinct_days_included": 117,
+          "strike_tier_at_this_equity": "ITM-2",
+          "strike_tier_matches_population": false,
+          "n_trading_days_in_population": 117,
+          "dollars_per_trading_day": 63.66
+        }
+      ]
+    }
+  },
+  "frequency": {
+    "rows": {
+      "2000.0": {
+        "avg_pnl_per_trade": 28.16,
+        "trades_per_day_needed": {
+          "$100/day": 3.551,
+          "$150/day": 5.327,
+          "$200/day": 7.102
+        },
+        "actual_trades_per_trading_day_in_population": 1.22
+      },
+      "5000.0": {
+        "avg_pnl_per_trade": 20.13,
+        "trades_per_day_needed": {
+          "$100/day": 4.968,
+          "$150/day": 7.452,
+          "$200/day": 9.935
+        },
+        "actual_trades_per_trading_day_in_population": 1.355
+      },
+      "10000.0": {
+        "avg_pnl_per_trade": 20.13,
+        "trades_per_day_needed": {
+          "$100/day": 4.968,
+          "$150/day": 7.452,
+          "$200/day": 9.935
+        },
+        "actual_trades_per_trading_day_in_population": 1.355
+      },
+      "25000.0": {
+        "avg_pnl_per_trade": 20.13,
+        "trades_per_day_needed": {
+          "$100/day": 4.968,
+          "$150/day": 7.452,
+          "$200/day": 9.935
+        },
+        "actual_trades_per_trading_day_in_population": 1.355
+      },
+      "50000.0": {
+        "avg_pnl_per_trade": 20.13,
+        "trades_per_day_needed": {
+          "$100/day": 4.968,
+          "$150/day": 7.452,
+          "$200/day": 9.935
+        },
+        "actual_trades_per_trading_day_in_population": 1.355
+      }
+    },
+    "regime_participation_cross_reference": "analysis/deep-research/REGIME-PARTICIPATION-2026-08-02.md: of 389 full-population days, only 36.5% see an entry at all; 42.4% are GATE_BLOCKED (a named filter fired on a real trigger), 20.6% are CORRECTLY_FLAT (a trigger fired but never reached the score>=8 bar), and only 0.5% (2 days) are genuine NO_VOCABULARY (zero triggers all session). Raising trades/day therefore competes directly with SELECTION quality (relaxing a gate or a score threshold), which this weekend's 12 pre-registered attempts already tried and nulled -- frequency is not a free lever."
+  },
+  "recency_check_recent_25_trading_days": {
+    "window": {
+      "n_trades": 33,
+      "n_distinct_dates": 25,
+      "start": "2026-05-28",
+      "end": "2026-07-21"
+    },
+    "pct_return_distribution_recent": {
+      "n": 33,
+      "mean": 0.052039,
+      "median": -0.2,
+      "p10": -0.599504,
+      "p25": -0.402174,
+      "p75": 0.534653,
+      "p90": 1.029163,
+      "min": -0.689286,
+      "max": 1.193651
+    },
+    "pct_return_distribution_full_history": {
+      "n": 191,
+      "mean": 0.064377,
+      "median": -0.2,
+      "p10": -0.402174,
+      "p25": -0.2,
+      "p75": 0.108948,
+      "p90": 1.030316,
+      "min": -0.689286,
+      "max": 1.381053
+    },
+    "live_faithful_capital_curve_recent_at_baseline_equity": {
+      "equity": 1746.75,
+      "min_contracts": 3,
+      "n_total_priced_candidates": 33,
+      "n_included": 27,
+      "n_blocked_deadlock": 6,
+      "pct_blocked": 18.2,
+      "total_pnl": 1352.54,
+      "avg_pnl_per_trade": 50.09,
+      "n_distinct_days_included": 21
+    },
+    "live_faithful_capital_curve_full_history_at_baseline_equity": {
+      "equity": 1746.75,
+      "min_contracts": 3,
+      "n_total_priced_candidates": 191,
+      "n_included": 159,
+      "n_blocked_deadlock": 32,
+      "pct_blocked": 16.8,
+      "total_pnl": 5302.47,
+      "avg_pnl_per_trade": 33.35,
+      "n_distinct_days_included": 120
+    },
+    "dollars_per_trading_day_recent": 64.41,
+    "dollars_per_trading_day_full_history": 44.19
+  },
+  "real_fills_cross_check": {
+    "disclosure": "journal/trades.csv account_id=='safe' -- REAL broker fills, core account only. Small-n (real trading only began recently vs the 18-month simulated window) -- reported as a directional cross-check, not a replacement for the simulated population.",
+    "n_real_fills": 38,
+    "real_fills_pct_return_distribution": {
+      "n": 38,
+      "mean": 0.015668,
+      "median": -0.090219,
+      "p10": -0.345283,
+      "p25": -0.156522,
+      "p75": 0.055836,
+      "p90": 0.763801,
+      "min": -0.9375,
+      "max": 1.089744
+    },
+    "simulated_population_pct_return_distribution": {
+      "n": 191,
+      "mean": 0.064377,
+      "median": -0.2,
+      "p10": -0.402174,
+      "p25": -0.2,
+      "p75": 0.108948,
+      "p90": 1.030316,
+      "min": -0.689286,
+      "max": 1.381053
+    },
+    "real_fills_total_pnl": 1228.0,
+    "real_fills_date_range": {
+      "start": "2026-04-29",
+      "end": "2026-07-28"
+    }
+  },
+  "bold_population_n": 156
+}
