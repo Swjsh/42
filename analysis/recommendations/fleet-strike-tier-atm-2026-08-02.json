@@ -1,0 +1,119 @@
+{
+  "_doc": "FLEET-STRIKE-TIER-ATM-EXTENSION -- day+1 independent audit (2026-08-02, Sonnet). NOT a fills-based A/B (none exist yet -- see disclosure below). This is a verification pass on an ALREADY-SHIPPED change: routing correctness, guard-test health, evidence synthesis, and a ship-or-revert verdict on the evidence available today. Original ship: commit 43bb979d (Fri 2026-07-31 23:13:13 -0600 / ~01:13 ET Sat). Pre-reg: analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json.",
+  "audited_at_et": "2026-08-02T01:53:20-04:00",
+  "audit_type": "day_plus_1_verification_no_new_fills",
+
+  "framing_correction": {
+    "claim_in_the_brief": "This is an extension of an already-VALIDATED change (core Bold, 2026-07-17).",
+    "finding": "OVERSTATED. Verified against primary sources. V15_BOLD_CORE_TIERS (the table both core Bold and now risky-1/risky-3 use) was wired for core Bold on 2026-07-17/18 on a PARTICIPATION-ONLY justification, not full P&L validation.",
+    "evidence": [
+      "crypto/lib/strike_selection.py's own V15_BOLD_CORE_TIERS docstring: 'this was a PARTICIPATION fix... not a claim that the P&L evidence cleared all 5 auto-ratify gates; that regime-parked evidence is unchanged and still honestly disclosed as such.'",
+      "analysis/recommendations/bold-strike-axis-2026-07-15.json (the underlying study, re-read in full this session): ALL 6 strike cells (OTM-3..ITM-2) show ship_ready=false. ATM fails only wf_ge_070, but that gate is STRUCTURALLY UNREACHABLE for this entire cohort+shape (near_miss_diagnostic.wf_gate_structural_finding: every cell's IS-half mean is negative under this convention, so wf=oos_mean/is_mean is undefined by construction -- not unique to ATM). The study's own verdict label for ATM: 'WATCH -- NOT ship-ready... a near-miss worth a human/Fable look, not a same-night or same-morning auto-ship.' 'not_applied: NOT edited in this session.'",
+      "The actual 2026-07-17/18 core-Bold ship required J's EXPLICIT in-chat authorization ('Yes -- wire Bold to ATM') specifically because the P&L gates hadn't cleared -- confirmed by strike_selection.py's docstring citing that authorization as what superseded the 'WF-gate-pending hold'."
+    ],
+    "corrected_framing": "V15_BOLD_CORE_TIERS is VALIDATED MACHINERY (guard-tested, live-run since 07-17/18, no incidents) but its underlying P&L CASE never cleared full auto-ratify validation -- it shipped, and now extends, on the TRADE-TO-LEARN doctrine (paper, guarded, one-line-revertible, forward-evidence-pending), which is a legitimate and precedented pattern in this repo (score-ladder, full-send both shipped the same way) -- but must be reported as what it is, not oversold as a validated P&L edge."
+  },
+
+  "routing_verification": {
+    "method": "Direct read of automation/state/fleet/fleet_executor.py::_tiers_for_arm and automation/state/fleet/accounts.json, cross-checked against 3 guard test files. NOT taken from the commit message.",
+    "before_min_entry_premium_2026_07_31_audit": {
+      "risky-1": "id-prefix default -> V15_BOLD_TIERS",
+      "risky-3": "id-prefix default -> V15_BOLD_TIERS",
+      "safe-3": "explicit params_patch.strike_tier_table='bold' -> V15_BOLD_TIERS"
+    },
+    "after_commit_43bb979d_current_state": {
+      "risky-1": "params_patch.strike_tier_table='bold_core' -> V15_BOLD_CORE_TIERS",
+      "risky-3": "params_patch.strike_tier_table='bold_core' -> V15_BOLD_CORE_TIERS",
+      "safe-3": "params_patch.strike_tier_table='bold' -- UNCHANGED, byte-identical -> V15_BOLD_TIERS"
+    },
+    "tier_tables": {
+      "V15_BOLD_TIERS": [
+        {"equity": "$0-2K", "offset": -3, "label": "OTM-3"},
+        {"equity": "$2K-10K", "offset": -2, "label": "OTM-2"},
+        {"equity": "$10K-25K", "offset": -1, "label": "OTM-1"},
+        {"equity": "$25K+", "offset": 2, "label": "ITM-2"}
+      ],
+      "V15_BOLD_CORE_TIERS": [
+        {"equity": "$0-2K", "offset": 0, "label": "ATM"},
+        {"equity": "$2K-10K", "offset": -2, "label": "OTM-2"},
+        {"equity": "$10K-25K", "offset": -1, "label": "OTM-1"},
+        {"equity": "$25K+", "offset": 2, "label": "ITM-2"}
+      ],
+      "note": "The two tables are IDENTICAL except the $0-2K bracket. Only an arm currently priced in that bracket sees any behavior change."
+    },
+    "safe_3_exclusion_confirmed_correct": "fleet_executor.py's own _tiers_for_arm docstring and the prereg both state safe-3 is deliberately excluded ('its OTM choice is documented-deliberate for the $600 notional cap at $2K equity'). Confirmed in accounts.json: safe-3's params_patch.strike_tier_table is still 'bold', unedited by commit 43bb979d (diff confirms only risky-1/risky-3 params_patch lines touched)."
+  },
+
+  "live_equity_reverified_this_session": {
+    "source": "setup/scripts/accounts_status.py, live Alpaca REST, run fresh this session -- not trusted from the task brief",
+    "safe-3": {"account": "PA32RD49OB0Q", "equity": 1967.81, "vs_2k": -32.19, "resolved_tier_now": "OTM-3 (V15_BOLD_TIERS, unchanged)"},
+    "risky-1": {"account": "PA3W17FD8G19", "equity": 1756.87, "vs_2k": -243.13, "resolved_tier_now": "ATM (V15_BOLD_CORE_TIERS) -- WAS OTM-3 pre-ship"},
+    "risky-3": {"account": "PA31WIU8X15Q", "equity": 2121.61, "vs_2k": 121.61, "resolved_tier_now": "OTM-2 -- SAME under both tables at this equity, NO-OP today"}
+  },
+
+  "which_arms_actually_change": {
+    "risky-1": "CHANGES TODAY, and is the primary/first-evaluated beneficiary. Correction to an earlier working assumption: risky-1's gate_override.full_send lane is a FALLBACK, not the primary path -- fleet_executor.plan_all() evaluates the NORMAL (tight-gated) lane FIRST via _tiers_for_arm/bold_core on every tick; probe/ladder/full_send only fire when the normal lane produces zero ENTER. So risky-1's tight-gated entries (min_triggers=2 + confluence/sequence required) now price ATM at its $1,756.87 equity on the FIRST pass, not just via the rescue lane.",
+    "risky-3": "NO-OP today. Equity ($2,121.61) is already in the $2K-10K bracket, which resolves OTM-2 under BOTH V15_BOLD_TIERS and V15_BOLD_CORE_TIERS -- byte-identical strike selection right now. Only matters if equity drops back under $2K.",
+    "safe-3": "UNTOUCHED, confirmed correctly excluded. Still routes to V15_BOLD_TIERS unconditionally."
+  },
+
+  "guard_test_reverification": {
+    "method": "Re-ran fresh this session, not trusted from the commit message.",
+    "command": "backtest/.venv/Scripts/python.exe -m pytest backtest/tests/test_bold_core_strike_tier_2026_07_15.py backtest/tests/test_fleet_strike_tier_floor_collision_2026_07_31.py backtest/tests/test_fleet_arm_parity.py -q",
+    "result": "42 passed in 0.30s",
+    "vary_and_assert_confirmed": "Read test_bold_core_strike_tier_2026_07_15.py:145-208 directly. test_fleet_arms_resolve_otm3_under_2k_via_shared_table asserts safe-3's tiers `is` V15_BOLD_TIERS AND `is not` V15_BOLD_CORE_TIERS. test_fleet_arms_risky_1_3_resolve_atm_under_2k_via_bold_core_table asserts risky-1/risky-3's tiers `is` V15_BOLD_CORE_TIERS AND `is not` V15_BOLD_TIERS. This is genuine bidirectional vary-and-assert coverage (catches both a silent non-route AND a silent over-route onto safe-3) -- the exact C14 dead-knob guard the task required, already present, independently confirmed by direct read."
+  },
+
+  "re_measurement_attempt": {
+    "instructed_tool": "backtest/tools/bold_fullhist_replay.py",
+    "finding": "TOOL-POPULATION MISMATCH -- disclosed, not used as the primary instrument for this question.",
+    "detail": "Read the tool's full source. It hardcodes core-Bold's OWN gate profile from aggressive/params.json inside bold_base_live() (min_triggers_bear=1/min_triggers_bull=1, no confluence requirement, block_bull_1100_1200=False, entry_bar_body_pct_min=0.0, require_bearish_fill_bar=True) and only equity is exposed as an overridable parameter (via resolve_bold_strike_offset/resolve_bold_qty). None of risky-1's TIGHT gate_override (min_triggers=2 + require_confluence_or_sequence) or risky-3's LOOSE gate_override (min_triggers=1 + gate_params.hard_skip_verdicts=[], which additionally makes risky-3 IGNORE require_bearish_fill_bar -- looser than core Bold's own gate) is modeled. It also only re-derives exit P&L for the ribbon_ride strategy, not vwap_continuation (which both fleet arms also trade per strategies.py REGISTRY). Running it with equity overridden to $1,756.87 or $2,121.61 would answer 'what would core Bold's OWN population look like at a fleet arm's equity' -- a different and less useful question than 'what does risky-1/risky-3's OWN gated population look like' -- and risks the exact OP-16 sim-accuracy failure mode this repo's own doctrine warns against (cites the BS-sim-ignored-strike-offset incident that 'invalidated a weekend of research'). Ran --anchor-only as a tool-health sanity check only (6/7 real bold-2 fills reproduce within tolerance, all_pass=false on the 07-28 case -- consistent with the tool's own documented tolerance framework, not evidence about the fleet-arm question).",
+    "correct_tool_identified_but_not_extended": "backtest/replay_fleet_arms.py already exists and DOES faithfully construct each arm's own gated entry population (injects min_triggers_bear/bull from the arm's gate_override, applies direction_lock/confluence filters, routes SAFE vs BOLD base params exactly like fleet_executor._base_params_for) -- but its own docstring states strike/qty are explicitly OUT of scope ('a separate parity check, not the gate'); it only validates ENTRY TIMING fidelity, never re-derives exit P&L by strike tier. Extending it with an exit-P&L layer (borrowing bold_fullhist_replay.py's walk_exit_manager pattern) would be the correct purpose-built tool for this exact question. NOT built this session -- see recommended_followup below for why, and a spawned task for the build itself.",
+    "why_not_built_this_session": "Any such backtest would be fundamentally UNANCHORED at the ATM strike specifically, because zero real fleet fills exist at ATM pricing for these arms (that is the entire reason this is a forward paper experiment). This is the same limitation this repo's own full-send-arm-2026-07-31.md already established in near-identical language: 'the incremental trades this arm adds have NO valid measurement at their actual strike. Its forward paper ledger is the evidence, and nothing else here is.' Building elaborate new machinery under time pressure to produce a number that can't be anchor-validated at the strike in question would add false precision, not real evidence -- and this repo's culture has been burned by exactly that shape of mistake twice already this same week (the elite-bull-requal mislabeled-cohort correction, the full-send biased-ratio-estimator correction), both found only via adversarial re-review AFTER initial shipping."
+  },
+
+  "existing_relevant_evidence_synthesized": {
+    "bold_strike_axis_2026_07_15": {
+      "population": "Core Bold's OWN gate profile (Gamma-Risky-2 / bold-2), NOT any fleet arm's -- confirmed via the study's own header: 'Gamma-Risky-2's <$2K tier'.",
+      "finding": "ATM: OOS +$28.77/tr, floor-clearance 96.88% afternoon vs OTM-3's 33.76%, sub_window_stable=true, BH-FDR survivor. Fails only the structurally-unreachable WF gate. ship_ready=false, verdict WATCH not auto-ship."
+    },
+    "min_entry_premium_2026_07_31": {
+      "population": "The ACTUAL fleet-arm-specific cohort -- every SKIP_MIN_PREMIUM_FLOOR row on safe-3/risky-1/risky-3, 2026-07-28..07-31, replayed via real OPRA quotes + the real exit_manager, AT EACH ARM'S OWN EXISTING (OTM) STRIKE -- i.e. the counterfactual 'what if the floor hadn't blocked these, still priced OTM' not 'what if these were priced ATM'.",
+      "finding": "n=25 cells, total -$145.20, -$5.81/tr, still negative on drop-best (-$9.59/tr). By arm: safe-3 n=8 +$27.40 WR=0.50; risky-1 n=10 -$92.10 WR=0.40; risky-3 n=7 -$80.50 WR=0.1429. Disclosed as small-n anecdote, not auto-ratify-eligible.",
+      "caveat": "This measures the blocked cohort at the OLD (OTM) strike, not the NEW (ATM) strike the ship actually prices. Directionally relevant (same underlying signals were mildly negative even before repricing) but not a direct measurement of the shipped change."
+    },
+    "full_send_arm_2026_07_31_counter_precedent": {
+      "population": "A related but DISTINCT mechanism -- risky-1's full-send lane, a min-size cohort-BYPASS population (5 explicit vetoed-cohort allowlist), priced OTM-2 vs ATM. Not the same population as the bold_core NORMAL-lane change, but the closest real, on-strike, real-OPRA-fills precedent in this repo for 'push a fleet arm's marginal cohort's strike toward ATM'.",
+      "finding": "Full population (387 sessions): OTM-2 +$3,430 -> ATM -$5,110 (327 trades, near-flat vs 332). Recent 25 (51 sessions): OTM-2 +$118 -> ATM -$1,088 (79 trades vs 78). Near-identical trade counts, dramatically worse P&L at the nearer strike.",
+      "why_it_does_not_directly_contradict_the_bold_core_case": "The full-send cohort is EXPLICITLY the lower-conviction, cohort-vetoed population (signals the engine's own quality gates rejected). risky-1's bold_core NORMAL lane is the OPPOSITE selectivity direction -- TIGHTER than core Bold's own gate (min_triggers=2+confluence required, vs Bold's min_triggers=1 no confluence). Higher-conviction populations are the ones bold-strike-axis-2026-07-15 found ATM favorable for; this precedent is closer to the ATM-hurts-marginal-cohorts mechanism, which argues MORE for risky-3's loose/hard-skip-bypassed population (a genuinely closer analog to the vetoed cohort) than for risky-1's tight one -- but risky-3 is currently a no-op, so this risk is not live today.",
+      "why_it_still_matters": "It is direct, on-the-record, real-OPRA-fills evidence in THIS repo that 'nearer strike -> more participation' does not reliably mean 'better P&L' once a cohort is marginal/low-conviction. Should sharpen vigilance on the forward evaluation, not be dismissed."
+    }
+  },
+
+  "forward_evidence_status": {
+    "ship_timestamp": "2026-07-31 23:13:13 -0600 (commit 43bb979d, Fri night after close)",
+    "audit_timestamp": "2026-08-02 01:53 EDT Sunday",
+    "trading_sessions_elapsed_since_ship": 0,
+    "real_fills_under_bold_core": 0,
+    "reason": "Ship landed after Friday's close; Saturday/Sunday are non-trading. The prereg's own n>=20-fill gate cannot have any evidence yet -- confirmed by simple calendar arithmetic, not assumed.",
+    "eval_queue_item": "FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01 (automation/overnight/queue.md), correctly still status:pending -- NOT closed by this audit, since closing it would fabricate a fills-based evaluation that cannot exist yet."
+  },
+
+  "verdict": {
+    "decision": "KEEP AS SHIPPED. NO REVERT. NO CODE CHANGE.",
+    "rationale": [
+      "Mechanically correct: routing verified via direct source read, matches the pre-reg's stated scope exactly (risky-1/risky-3 only, safe-3 explicitly excluded), guard-tested with genuine bidirectional vary-and-assert coverage, re-confirmed green (42/42) fresh this session.",
+      "Paper-only, one-line-revertible (delete 'strike_tier_table':'bold_core' from risky-1/risky-3's params_patch), every downstream risk guard (kill switch, per-trade cap, PDT, one-position, EOD flatten, floor) untouched and independently guard-tested.",
+      "Consistent with this repo's own established TRADE-TO-LEARN doctrine: validated machinery (V15_BOLD_CORE_TIERS itself has been live on core Bold since 07-17/18 with no incidents) may arm on paper before its own P&L case fully clears, to collect forward evidence -- the same pattern already used for score-ladder and full-send.",
+      "No NEW evidence has emerged (zero fills, zero trading sessions) that would justify reverting a harmless, bounded, already-armed experiment before it has even had a chance to run.",
+      "The full-send counter-precedent is real and disclosed, but it is evidence about a DIFFERENT (cohort-vetoed, lower-conviction) population, not a direct measurement of risky-1's tight-gated normal lane -- it argues for vigilance in the forward evaluation, not for an immediate revert on a population it didn't actually measure."
+    ],
+    "per_arm": {
+      "risky-1": "LIVE CHANGE as of this ship, first-evaluated path. Primary subject of the forward evaluation.",
+      "risky-3": "NO-OP today (equity >$2K). Re-audit if/when equity drops back under $2K -- the routing will silently activate at that point with no further code change, so this is worth a calendar/equity-watch note, not a code gate.",
+      "safe-3": "Correctly untouched. No action."
+    },
+    "forward_kill_criterion_reconfirmed": "Unchanged from the frozen pre-reg: de-arm if the n>=20-fill cohort (risky-1+risky-3 combined, dated on/after 2026-08-01) fails OOS_positive, or the anchor-collision cohort (the 15/16-tick class) doesn't show materially fewer SKIP_MIN_PREMIUM_FLOOR refusals. Revert is one line per arm in accounts.json.",
+    "recommendation_not_applied_this_session": "Add an n>=5 EARLY-WARNING read (not a decision gate -- the frozen pre-reg's gates are not reopened by this audit) that specifically checks for a full-send-shaped result (P&L sharply negative despite fill count up) before waiting for the full n>=20. This is a monitoring enhancement suggestion, not a code change, and is not applied here -- flagged for whoever scores the eventual n>=20 evaluation."
+  }
+}
