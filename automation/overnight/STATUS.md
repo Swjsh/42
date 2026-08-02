@@ -1,4 +1,4 @@
-## [2026-08-02T03:52:00 ET] conductor: OK -- ENTRY-CROSS-BUFFER-REDUCTION-SHIP -- commit pending
+## [2026-08-02T03:52:00 ET] conductor: OK -- ENTRY-CROSS-BUFFER-REDUCTION-SHIP -- commit `415c2f9a`
 
 **Signal J wakes to (OP-25).** Shipped the validated `entry_cross_buffer` reduction (0.03 ->
 0.015) that `analysis/deep-research/ENTRY-EXECUTION-COST-2026-08-02.md` measured and
