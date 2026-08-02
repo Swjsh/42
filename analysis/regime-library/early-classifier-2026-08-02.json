@@ -1,0 +1,5120 @@
+{
+ "_doc": "build_regime_early_classifier.py -- FEASIBILITY GATE for a live-executable regime\nstand-down (REGIME-EARLY-CLASSIFIER-2026-08-02).\n\nTHE QUESTION: analysis/regime-library/day-archetypes.json labels every day's archetype from\nthe FULL session's OHLC -- hindsight, by its own README's admission. To gate live\nparticipation (\"skip entries on days that look like pin-day/gap-fade\") the archetype must be\nguessable EARLY, from data available by ~09:45-10:00 ET. This script builds that early\nclassifier, evaluates it HONESTLY (walk-forward, never trained on a day it is then scored\nagainst), and reports a confusion matrix against the ground-truth labels -- brutally, per the\ntask brief: \"if gap-go cannot be identified early with useful precision, SAY SO.\"\n\nTWO CLASSIFIERS, deliberately not conflated:\n  1. EIGHT-WAY  -- the full archetype taxonomy, DecisionTreeClassifier(class_weight=\n     \"balanced\"). This is the literal ask (\"how accurately can you predict the full-day\n     archetype... report a confusion matrix\"), and it is expected to be HARD: several\n     archetypes (trend-up/down, V-reversal, inverted-V) are DEFINED by where the close lands\n     relative to the FULL day's eventual range -- a quantity that is definitionally not\n     knowable at 09:45. Reported in full regardless of how it lands (C7 -- no silent papering).\n  2. STANDDOWN-DIRECT -- a separate binary tree trained specifically on\n     y = archetype in {pin-day, gap-fade} (the task's named reliably-losing set). This is the\n     operationally-relevant question for ARM_1 and is expected to be an easier, better-posed\n     problem than the full 8-way split (it doesn't need to distinguish trend-up from\n     V-reversal, only \"reliably-losing\" from \"not\"). Both are reported; ARM_1 (if the study\n     proceeds) uses classifier #2's out-of-fold prediction, disclosed explicitly.\n\nHONESTY DISCIPLINE (this is the part that makes the accuracy number trustworthy, not just\noptimistic): every reported metric comes from OUT-OF-FOLD predictions under an EXPANDING-\nWINDOW walk-forward split (sklearn.model_selection.TimeSeriesSplit over the chronologically-\nsorted population, never shuffled) -- a day's own outcome NEVER appears in the training fold\nused to predict it. This catches two distinct leakage risks: (a) SAME-DAY lookahead (bars\nafter the cutoff -- guarded structurally, see lib/regime_early_features.py + its test file),\nand (b) ACROSS-DAY lookahead (fitting one set of thresholds on the WHOLE population, including\nthe very days being scored -- a real form of hindsight bias this task's brief does not name\nexplicitly but which the C6 \"no lookahead\" discipline covers in spirit: a threshold chosen by\npeeking at a day's own outcome is exactly as invalid as a threshold chosen by peeking at that\nday's own afternoon bars). The unavoidable cost: the first ~1/6 of the population (the\nwalk-forward \"seed\" window) is used only for training, never scored -- a smaller, honestly\ndisclosed test population, not a padded one.\n\nNO NEW sklearn DEPENDENCY RISK: pip-installed into backtest/.venv this session (free, local,\nOSS, same category as the already-installed pandas/scipy/numpy -- not a new paid vendor/API).\nChosen over a hand-rolled tree to minimize implementation-bug surface on a decision that\ncarries real money if it ships; DecisionTreeClassifier's split logic is well-tested elsewhere,\nthis file's own job is the FEATURE ENGINEERING (lookahead-safety) and the EVALUATION PROTOCOL\n(walk-forward honesty), not reinventing CART.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/build_regime_early_classifier.py\n",
+ "generated_at": "2026-08-02T00:13:10.281444",
+ "standdown_archetypes": [
+  "pin-day",
+  "gap-fade"
+ ],
+ "leanin_archetype": "gap-go",
+ "evidence_floor_n": 15,
+ "tree_params": {
+  "max_depth": 4,
+  "min_samples_leaf": 10,
+  "class_weight": "balanced",
+  "random_state": 42
+ },
+ "per_cutoff": {
+  "09:45": {
+   "cutoff": "09:45",
+   "meta": {
+    "cutoff": "09:45",
+    "n_total_days_seen": 394,
+    "n_data_incomplete_excluded": 1,
+    "n_insufficient_early_bars_excluded": 0,
+    "n_no_prior_day_excluded": 1,
+    "n_usable": 392,
+    "date_range": [
+     "2025-01-03",
+     "2026-07-31"
+    ],
+    "feature_columns": [
+     "gap_pct",
+     "gap_dir",
+     "gap_filled_by_cutoff",
+     "early_range_pct",
+     "early_body_pct",
+     "early_close_loc",
+     "early_open_loc",
+     "atr14_prior_pct",
+     "vix_open",
+     "vix_5d_ma_prior",
+     "vix_20d_ma_prior",
+     "vix_declining_prior",
+     "dow_Fri",
+     "dow_Mon",
+     "dow_Thu",
+     "dow_Tue",
+     "dow_Wed",
+     "prior_arch_V-reversal",
+     "prior_arch_data-incomplete",
+     "prior_arch_gap-fade",
+     "prior_arch_gap-go",
+     "prior_arch_inverted-V",
+     "prior_arch_pin-day",
+     "prior_arch_range-chop",
+     "prior_arch_trend-down",
+     "prior_arch_trend-up"
+    ]
+   },
+   "walk_forward": {
+    "n_splits": 5,
+    "folds": [
+     {
+      "train_n": 67,
+      "test_n": 65,
+      "test_date_range": [
+       "2025-04-14",
+       "2025-07-17"
+      ]
+     },
+     {
+      "train_n": 132,
+      "test_n": 65,
+      "test_date_range": [
+       "2025-07-18",
+       "2025-10-17"
+      ]
+     },
+     {
+      "train_n": 197,
+      "test_n": 65,
+      "test_date_range": [
+       "2025-10-20",
+       "2026-01-22"
+      ]
+     },
+     {
+      "train_n": 262,
+      "test_n": 65,
+      "test_date_range": [
+       "2026-01-23",
+       "2026-04-27"
+      ]
+     },
+     {
+      "train_n": 327,
+      "test_n": 65,
+      "test_date_range": [
+       "2026-04-28",
+       "2026-07-31"
+      ]
+     }
+    ],
+    "n_tested_total": 325,
+    "tested_date_range": [
+     "2025-04-14",
+     "2026-07-31"
+    ]
+   },
+   "eightway": {
+    "labels": [
+     "V-reversal",
+     "gap-fade",
+     "gap-go",
+     "inverted-V",
+     "pin-day",
+     "range-chop",
+     "trend-down",
+     "trend-up"
+    ],
+    "confusion_matrix": [
+     [
+      3,
+      2,
+      0,
+      1,
+      2,
+      0,
+      2,
+      0
+     ],
+     [
+      4,
+      16,
+      10,
+      3,
+      1,
+      0,
+      5,
+      5
+     ],
+     [
+      5,
+      18,
+      22,
+      12,
+      6,
+      0,
+      7,
+      1
+     ],
+     [
+      0,
+      0,
+      1,
+      1,
+      3,
+      0,
+      2,
+      1
+     ],
+     [
+      3,
+      1,
+      1,
+      0,
+      7,
+      1,
+      4,
+      1
+     ],
+     [
+      20,
+      10,
+      4,
+      6,
+      32,
+      6,
+      41,
+      25
+     ],
+     [
+      1,
+      1,
+      0,
+      0,
+      3,
+      0,
+      3,
+      2
+     ],
+     [
+      1,
+      1,
+      0,
+      0,
+      3,
+      0,
+      5,
+      10
+     ]
+    ],
+    "support_per_class_in_test": {
+     "V-reversal": 10,
+     "gap-fade": 44,
+     "gap-go": 71,
+     "inverted-V": 8,
+     "pin-day": 18,
+     "range-chop": 144,
+     "trend-down": 10,
+     "trend-up": 20
+    },
+    "underpowered_classes_n_lt_15": [
+     "V-reversal",
+     "inverted-V",
+     "trend-down"
+    ],
+    "accuracy": 0.2092,
+    "balanced_accuracy": 0.2911,
+    "baseline_majority_accuracy": 0.3908,
+    "baseline_persistence_accuracy": 0.2462,
+    "feature_importances": {
+     "gap_pct": 0.3605,
+     "early_body_pct": 0.2599,
+     "early_range_pct": 0.1566,
+     "atr14_prior_pct": 0.0724,
+     "early_open_loc": 0.0681,
+     "early_close_loc": 0.0518,
+     "vix_open": 0.0308
+    }
+   },
+   "binary_standdown_pin_gapfade": {
+    "direct_classifier": {
+     "precision": 0.2683,
+     "recall": 0.7097,
+     "f1": 0.3894,
+     "n_predicted_positive": 164,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "derived_from_eightway": {
+     "precision": 0.2358,
+     "recall": 0.4032,
+     "f1": 0.2976,
+     "n_predicted_positive": 106,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "baseline_persistence": {
+     "precision": 0.1429,
+     "recall": 0.1452,
+     "f1": 0.144,
+     "n_predicted_positive": 63,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "baseline_majority": {
+     "precision": 0.1692,
+     "recall": 0.1774,
+     "f1": 0.1732,
+     "n_predicted_positive": 65,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "feature_importances_direct": {
+     "gap_pct": 0.4287,
+     "early_body_pct": 0.2625,
+     "prior_arch_gap-go": 0.1291,
+     "vix_open": 0.1229,
+     "early_range_pct": 0.0481,
+     "vix_20d_ma_prior": 0.0087
+    },
+    "tree_rules_direct_text": "|--- gap_pct <= -0.31\n|   |--- gap_pct <= -0.40\n|   |   |--- prior_arch_gap-go <= 0.50\n|   |   |   |--- early_body_pct <= 0.23\n|   |   |   |   |--- class: False\n|   |   |   |--- early_body_pct >  0.23\n|   |   |   |   |--- class: True\n|   |   |--- prior_arch_gap-go >  0.50\n|   |   |   |--- class: True\n|   |--- gap_pct >  -0.40\n|   |   |--- class: True\n|--- gap_pct >  -0.31\n|   |--- gap_pct <= 0.32\n|   |   |--- vix_open <= 15.76\n|   |   |   |--- early_range_pct <= 0.15\n|   |   |   |   |--- class: True\n|   |   |   |--- early_range_pct >  0.15\n|   |   |   |   |--- class: False\n|   |   |--- vix_open >  15.76\n|   |   |   |--- prior_arch_gap-go <= 0.50\n|   |   |   |   |--- class: False\n|   |   |   |--- prior_arch_gap-go >  0.50\n|   |   |   |   |--- class: False\n|   |--- gap_pct >  0.32\n|   |   |--- early_body_pct <= 0.10\n|   |   |   |--- early_body_pct <= -0.19\n|   |   |   |   |--- class: True\n|   |   |   |--- early_body_pct >  -0.19\n|   |   |   |   |--- class: True\n|   |   |--- early_body_pct >  0.10\n|   |   |   |--- vix_20d_ma_prior <= 19.27\n|   |   |   |   |--- class: False\n|   |   |   |--- vix_20d_ma_prior >  19.27\n|   |   |   |   |--- class: False\n"
+   },
+   "binary_leanin_gap_go_DESCRIPTIVE_ONLY": {
+    "derived_from_eightway": {
+     "precision": 0.5789,
+     "recall": 0.3099,
+     "f1": 0.4037,
+     "n_predicted_positive": 38,
+     "n_true_positive_in_test_set": 71,
+     "n_test": 325,
+     "base_rate": 0.2185
+    },
+    "note": "NOT a ship gate this session (sizing/lean-in changes are out of scope per the task brief's ARM_3 note) -- reported for completeness only."
+   },
+   "oof_predictions_by_date": {
+    "2025-04-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-15": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-16": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-17": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-21": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-24": {
+     "true_archetype": "trend-up",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-29": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-30": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-01": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-02": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-05": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-06": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-12": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-19": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-20": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-21": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-27": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-28": {
+     "true_archetype": "trend-down",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-29": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-30": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-02": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-03": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-09": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-12": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-16": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-17": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-18": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-20": {
+     "true_archetype": "trend-down",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-23": {
+     "true_archetype": "trend-up",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-25": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-30": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-01": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-03": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-09": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-16": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-22": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-23": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-07-24": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-28": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-31": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-01": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-04": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-08-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-06": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-07": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-08-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-12": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-08-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-15": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-18": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-20": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-08-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-03": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-09-04": {
+     "true_archetype": "trend-up",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-05": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-09-08": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-09-11": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-12": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-15": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-22": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-24": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-25": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-29": {
+     "true_archetype": "pin-day",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-09-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-01": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-03": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-06": {
+     "true_archetype": "pin-day",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-10": {
+     "true_archetype": "trend-down",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-10-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-10-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-17": {
+     "true_archetype": "trend-up",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-20": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-10-21": {
+     "true_archetype": "pin-day",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-10-27": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-30": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-31": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-03": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-04": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-06": {
+     "true_archetype": "trend-down",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-07": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-10": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-11-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-12": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-20": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-11-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-25": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-26": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-01": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-05": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-09": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-10": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-11": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-12": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-17": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-24": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-26": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-29": {
+     "true_archetype": "pin-day",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-30": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-31": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-01-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-01-06": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-08": {
+     "true_archetype": "pin-day",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-12": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-14": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-15": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-20": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-01-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-29": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-09": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-11": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-12": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-20": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-23": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-24": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-25": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-03-09": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-12": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-13": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-16": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-19": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-03-20": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-03-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-24": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-26": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-27": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-30": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-31": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-01": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-06": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-07": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-08": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-09": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-13": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-14": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-15": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-17": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-20": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-21": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-04-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-04-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-28": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-01": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-08": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-12": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-15": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-19": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-20": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-21": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-26": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-27": {
+     "true_archetype": "pin-day",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-29": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-01": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-04": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-09": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-10": {
+     "true_archetype": "trend-down",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-11": {
+     "true_archetype": "trend-up",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-12": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-17": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-23": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-24": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-25": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-26": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-30": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-01": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-08": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-15": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-20": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-21": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-22": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-23": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-24": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-27": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-29": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-30": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-31": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    }
+   },
+   "runtime_seconds": 0.59
+  },
+  "10:00": {
+   "cutoff": "10:00",
+   "meta": {
+    "cutoff": "10:00",
+    "n_total_days_seen": 394,
+    "n_data_incomplete_excluded": 1,
+    "n_insufficient_early_bars_excluded": 0,
+    "n_no_prior_day_excluded": 1,
+    "n_usable": 392,
+    "date_range": [
+     "2025-01-03",
+     "2026-07-31"
+    ],
+    "feature_columns": [
+     "gap_pct",
+     "gap_dir",
+     "gap_filled_by_cutoff",
+     "early_range_pct",
+     "early_body_pct",
+     "early_close_loc",
+     "early_open_loc",
+     "atr14_prior_pct",
+     "vix_open",
+     "vix_5d_ma_prior",
+     "vix_20d_ma_prior",
+     "vix_declining_prior",
+     "dow_Fri",
+     "dow_Mon",
+     "dow_Thu",
+     "dow_Tue",
+     "dow_Wed",
+     "prior_arch_V-reversal",
+     "prior_arch_data-incomplete",
+     "prior_arch_gap-fade",
+     "prior_arch_gap-go",
+     "prior_arch_inverted-V",
+     "prior_arch_pin-day",
+     "prior_arch_range-chop",
+     "prior_arch_trend-down",
+     "prior_arch_trend-up"
+    ]
+   },
+   "walk_forward": {
+    "n_splits": 5,
+    "folds": [
+     {
+      "train_n": 67,
+      "test_n": 65,
+      "test_date_range": [
+       "2025-04-14",
+       "2025-07-17"
+      ]
+     },
+     {
+      "train_n": 132,
+      "test_n": 65,
+      "test_date_range": [
+       "2025-07-18",
+       "2025-10-17"
+      ]
+     },
+     {
+      "train_n": 197,
+      "test_n": 65,
+      "test_date_range": [
+       "2025-10-20",
+       "2026-01-22"
+      ]
+     },
+     {
+      "train_n": 262,
+      "test_n": 65,
+      "test_date_range": [
+       "2026-01-23",
+       "2026-04-27"
+      ]
+     },
+     {
+      "train_n": 327,
+      "test_n": 65,
+      "test_date_range": [
+       "2026-04-28",
+       "2026-07-31"
+      ]
+     }
+    ],
+    "n_tested_total": 325,
+    "tested_date_range": [
+     "2025-04-14",
+     "2026-07-31"
+    ]
+   },
+   "eightway": {
+    "labels": [
+     "V-reversal",
+     "gap-fade",
+     "gap-go",
+     "inverted-V",
+     "pin-day",
+     "range-chop",
+     "trend-down",
+     "trend-up"
+    ],
+    "confusion_matrix": [
+     [
+      5,
+      2,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      8,
+      7,
+      6,
+      4,
+      4,
+      0,
+      1,
+      14
+     ],
+     [
+      11,
+      8,
+      13,
+      16,
+      7,
+      0,
+      2,
+      14
+     ],
+     [
+      0,
+      2,
+      1,
+      1,
+      1,
+      0,
+      1,
+      2
+     ],
+     [
+      0,
+      1,
+      1,
+      0,
+      6,
+      2,
+      2,
+      6
+     ],
+     [
+      15,
+      5,
+      10,
+      6,
+      34,
+      9,
+      15,
+      50
+     ],
+     [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      3,
+      4
+     ],
+     [
+      0,
+      2,
+      2,
+      0,
+      3,
+      1,
+      2,
+      10
+     ]
+    ],
+    "support_per_class_in_test": {
+     "V-reversal": 10,
+     "gap-fade": 44,
+     "gap-go": 71,
+     "inverted-V": 8,
+     "pin-day": 18,
+     "range-chop": 144,
+     "trend-down": 10,
+     "trend-up": 20
+    },
+    "underpowered_classes_n_lt_15": [
+     "V-reversal",
+     "inverted-V",
+     "trend-down"
+    ],
+    "accuracy": 0.1662,
+    "balanced_accuracy": 0.2704,
+    "baseline_majority_accuracy": 0.3908,
+    "baseline_persistence_accuracy": 0.2462,
+    "feature_importances": {
+     "gap_pct": 0.3996,
+     "early_range_pct": 0.2325,
+     "early_open_loc": 0.2209,
+     "vix_open": 0.1248,
+     "early_close_loc": 0.0223
+    }
+   },
+   "binary_standdown_pin_gapfade": {
+    "direct_classifier": {
+     "precision": 0.2685,
+     "recall": 0.4677,
+     "f1": 0.3412,
+     "n_predicted_positive": 108,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "derived_from_eightway": {
+     "precision": 0.2169,
+     "recall": 0.2903,
+     "f1": 0.2483,
+     "n_predicted_positive": 83,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "baseline_persistence": {
+     "precision": 0.1429,
+     "recall": 0.1452,
+     "f1": 0.144,
+     "n_predicted_positive": 63,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "baseline_majority": {
+     "precision": 0.1692,
+     "recall": 0.1774,
+     "f1": 0.1732,
+     "n_predicted_positive": 65,
+     "n_true_positive_in_test_set": 62,
+     "n_test": 325,
+     "base_rate": 0.1908
+    },
+    "feature_importances_direct": {
+     "gap_pct": 0.4235,
+     "early_range_pct": 0.2353,
+     "early_open_loc": 0.1504,
+     "vix_open": 0.0928,
+     "early_close_loc": 0.0665,
+     "early_body_pct": 0.0315
+    },
+    "tree_rules_direct_text": "|--- gap_pct <= -0.31\n|   |--- early_close_loc <= 0.42\n|   |   |--- gap_pct <= -0.53\n|   |   |   |--- class: False\n|   |   |--- gap_pct >  -0.53\n|   |   |   |--- class: True\n|   |--- early_close_loc >  0.42\n|   |   |--- vix_open <= 21.65\n|   |   |   |--- early_open_loc <= 0.13\n|   |   |   |   |--- class: True\n|   |   |   |--- early_open_loc >  0.13\n|   |   |   |   |--- class: True\n|   |   |--- vix_open >  21.65\n|   |   |   |--- class: True\n|--- gap_pct >  -0.31\n|   |--- gap_pct <= 0.32\n|   |   |--- early_range_pct <= 0.28\n|   |   |   |--- vix_open <= 15.82\n|   |   |   |   |--- class: True\n|   |   |   |--- vix_open >  15.82\n|   |   |   |   |--- class: False\n|   |   |--- early_range_pct >  0.28\n|   |   |   |--- class: False\n|   |--- gap_pct >  0.32\n|   |   |--- early_open_loc <= 0.51\n|   |   |   |--- early_body_pct <= 0.30\n|   |   |   |   |--- class: False\n|   |   |   |--- early_body_pct >  0.30\n|   |   |   |   |--- class: False\n|   |   |--- early_open_loc >  0.51\n|   |   |   |--- early_range_pct <= 0.25\n|   |   |   |   |--- class: False\n|   |   |   |--- early_range_pct >  0.25\n|   |   |   |   |--- class: True\n"
+   },
+   "binary_leanin_gap_go_DESCRIPTIVE_ONLY": {
+    "derived_from_eightway": {
+     "precision": 0.3714,
+     "recall": 0.1831,
+     "f1": 0.2453,
+     "n_predicted_positive": 35,
+     "n_true_positive_in_test_set": 71,
+     "n_test": 325,
+     "base_rate": 0.2185
+    },
+    "note": "NOT a ship gate this session (sizing/lean-in changes are out of scope per the task brief's ARM_3 note) -- reported for completeness only."
+   },
+   "oof_predictions_by_date": {
+    "2025-04-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-15": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-16": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-17": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-21": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-24": {
+     "true_archetype": "trend-up",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-29": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-04-30": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-01": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-02": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-05": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-06": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-12": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-19": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-20": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-21": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-27": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-28": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-29": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-05-30": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-02": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-03": {
+     "true_archetype": "trend-up",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-09": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-12": {
+     "true_archetype": "trend-up",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-16": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-17": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-18": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-20": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-23": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-25": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-06-30": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-01": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-03": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-09": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-16": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-22": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-23": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-24": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-28": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-07-31": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-01": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-04": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-06": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-07": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-12": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-15": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-18": {
+     "true_archetype": "pin-day",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-20": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-08-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-03": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-04": {
+     "true_archetype": "trend-up",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-05": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-08": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-11": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-12": {
+     "true_archetype": "pin-day",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-15": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-22": {
+     "true_archetype": "trend-up",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-24": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-25": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-29": {
+     "true_archetype": "pin-day",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-09-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "range-chop",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-01": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-03": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-06": {
+     "true_archetype": "pin-day",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-10": {
+     "true_archetype": "trend-down",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-17": {
+     "true_archetype": "trend-up",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-20": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-10-21": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-10-27": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-30": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-10-31": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-03": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-04": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-06": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-07": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-10": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-11-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-12": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-14": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-20": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-11-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-25": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-26": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-11-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-01": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-05": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-09": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-10": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-11": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-12": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-15": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-17": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-12-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2025-12-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-24": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-26": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-29": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-30": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2025-12-31": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-01-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-01-06": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-08": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-12": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-14": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-15": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-20": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-21": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-01-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-29": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-01-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-09": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-11": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-12": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-19": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-20": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-23": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-24": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-25": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-02-26": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-02-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-05": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-09": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-12": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-13": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-16": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-19": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-20": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-24": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-25": {
+     "true_archetype": "range-chop",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-26": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-27": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-30": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-03-31": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-01": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-02": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-06": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-07": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-08": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-09": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-13": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-14": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-15": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-17": {
+     "true_archetype": "gap-go",
+     "pred_8way": "inverted-V",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-20": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-21": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-22": {
+     "true_archetype": "gap-go",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-23": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-24": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-04-27": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-28": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-04-30": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-01": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-04": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-08": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-11": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-12": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-13": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-15": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-18": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-19": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-20": {
+     "true_archetype": "trend-up",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-21": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-26": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-05-27": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-05-29": {
+     "true_archetype": "pin-day",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-01": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-up",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-03": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-04": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-05": {
+     "true_archetype": "gap-go",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-08": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-09": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-10": {
+     "true_archetype": "trend-down",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-11": {
+     "true_archetype": "trend-up",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-12": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-17": {
+     "true_archetype": "trend-down",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-18": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-22": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-23": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-24": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-25": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-26": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-06-29": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-06-30": {
+     "true_archetype": "trend-up",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-01": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-02": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-06": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-07": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-08": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-09": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-10": {
+     "true_archetype": "range-chop",
+     "pred_8way": "pin-day",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-13": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-14": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-15": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-16": {
+     "true_archetype": "range-chop",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-17": {
+     "true_archetype": "range-chop",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-20": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-21": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-22": {
+     "true_archetype": "pin-day",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-23": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-24": {
+     "true_archetype": "inverted-V",
+     "pred_8way": "trend-down",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-27": {
+     "true_archetype": "gap-fade",
+     "pred_8way": "gap-fade",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": true,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-28": {
+     "true_archetype": "range-chop",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-29": {
+     "true_archetype": "trend-down",
+     "pred_8way": "V-reversal",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": false
+    },
+    "2026-07-30": {
+     "true_archetype": "gap-go",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": false,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    },
+    "2026-07-31": {
+     "true_archetype": "V-reversal",
+     "pred_8way": "gap-go",
+     "pred_standdown_direct": true,
+     "pred_standdown_derived8": false,
+     "pred_leanin_gapgo_derived8": true
+    }
+   },
+   "runtime_seconds": 0.52
+  }
+ }
+}
