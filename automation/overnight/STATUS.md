@@ -1,4 +1,24 @@
-[2026-08-03T01:14:33 ET] conductor: OK -- CATASTROPHE-CAP-WIDEN-WATCH accrual -- shipped
+[2026-08-03T05:43:02 ET] conductor: OK -- OPTION-CACHE-ITM-COVERAGE-GAP -- shipped
+`backtest/lib/coverage_parity.py#check_coverage_parity` (reusable $0 pure-Python guard,
+9/9 new tests green, RED-proofed by reverting the 2-line wiring -- exactly the 3
+wiring-dependent tests failed, restored 9/9 green), wired into
+`ribbon_ride_strike_exit_ab.py#compare()`, commit `e5f2f71b`. Root cause read from code
+(not guessed): `expand_opra_cache.py` already fetches a symmetric +/-5 strike window
+daily -- the ITM under-coverage (0/250 OTM-2 vs 19/250 ITM-2 missing bars) is REAL Alpaca
+OPRA illiquidity on far-ITM 0DTE strikes, not a fetch bug. A coverage-mismatched
+candidate/control pair now forces `ship_or_wait="WAIT_COVERAGE_GAP"` regardless of every
+other auto-ratify flag passing -- closes the "could silently distort a future strike
+study" risk this item flagged 2026-08-02. Curated safety gate 59/59 PASS at commit.
+Research-tool-only (no trading-path/params/doctrine/live order touched) -- ships per
+OP-22/OP-26 engine-benefit authoring, no J ratification needed.
+Next fire: TWIN-DOCTRINE-FIRST-DEPLOY (gp-2026-07-23-twin-doctrine-001) is STILL pending
+J on Discord/wrist (11 days, no reply in the digest) -- top of task_scorer's ranking but
+genuinely blocked, not re-pingable-yet-again without spamming; next queue item by score is
+FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01 or OFF-BOX-DEADMAN-SWITCH. Filed the
+blocked-vs-ready scorer gap as a queue amendment under TASK-SCORER-STATUS-VOCAB-GAP
+(candidate fix: `status:awaiting-j` distinct from bare `pending`).
+Autonomy metric: net_improvement=5, cost/drained=$3.35, trend=`regressing` (window=20) --
+next fire should prefer a loop-CLOSING item (drain/promote/prune) over a new artifact.
 `catastrophe_cap_shadow_ledger.py` (17/17 new guards, 115/115 autopsy-family suite), folded
 into the existing `Gamma_WinnerAutopsy` fire (no new task), commit `5ca0e058`. First live run:
 n=7 catastrophe-cap fires already accrued since 2026-07-23 across 5 arms both directions,
@@ -487,50 +507,3 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-01 14:43 ET] NULL (deliverable) -- WEEKEND-TWELVE Next-Twelve #7: shelf bistability SOURCE-FIX A/B -- hysteresis-only STANDS
-
-**All 3 source-fix arms unanimously FAIL the pre-registered steady-state-fidelity gate; WS3's
-hysteresis (`114a7a6b`) is not just a stopgap -- on this evidence it is currently BETTER
-calibrated than any of the three natural source-level alternatives.** `daily_context.py` /
-`refresh_levels_intraday.py` untouched (git diff empty, guard-pinned).
-
-- **Mechanism named + reproduced:** `daily_context._merge_shelf_candidates` re-derives shelf
-  zones every 5-min refresh with today's still-forming daily bar as both seed and
-  touch-counter; concrete flip quoted (2026-07-31 09:43->09:48 ET, forming-bar low
-  $742.79->$741.98, ONE ordinary 5m bar, no level broken) with exact candidate touch counts,
-  validated 81.8% (63/77 fires) against the real observed production A/B sequence.
-- **Prereg-first, git-provable:** prereg `07697c7d` (et_clock 14:23:21, BEFORE runner) ->
-  runner `52a26e91`. Full 391-day population, real SIP daily bars (fetched fresh) + real
-  5m SPY/OPRA, 77 simulated fires/day, REAL unmodified `_hysteresis_carry` driven over each
-  arm. $0, pure Python, 63.5s runtime.
-- **All 3 arms (ARM_A incumbent-tie-break, ARM_B exclude-forming-bar, ARM_AB both) cut
-  flicker hard** (written flips -25% to -83% full-pop, -41% to -91% recent-25) **and improve
-  proxy entry-population real-OPRA P&L** (+$1,438 to +$4,442 full-pop, all positive
-  recent-25) **-- but ALL THREE fail steady-state fidelity:** 198-276/391 days (51-71%) show a
-  level whose end-of-session identity permanently differs from baseline, median $0.52-0.58.
-  By 15:53 ET today's forming bar is real, completed price action -- baseline legitimately
-  uses it as a tie-break; every tested arm's "stability" mechanism resolves the same contested
-  regions toward a DIFFERENT stable point instead. Structural trade-off, not a single-arm bug.
-- **Guard suite (6 tests, RED-proofed) caught a real bug before any number was trusted:**
-  ARM_A's first-draft incumbent match used band-overlap (too loose in a contested region --
-  every candidate overlaps every other there by definition), silently defeating the tie-break;
-  fixed to mid-within-$0.10 identity (reuses `HYSTERESIS_MATCH_EPS`, zero new magic numbers),
-  full population re-run post-fix.
-- Artifacts: `analysis/recommendations/shelf-bistability-2026-08-01.{md,json}` + prereg.
-  Runner: `backtest/tools/shelf_bistability_source_fix_2026_08_01.py`. Guards:
-  `backtest/tests/test_shelf_bistability_2026_08_01.py` (6/6 green).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 28 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-[2026-08-02 20:30:31 EDT] conductor: QUIET — nightly budget exhausted (14 fires today >= max 4). Zero model work this fire per rail-0. 14 fires is expected on a Sunday (conductor-weekend fires every 2h all day + this AFTERHOURS slot, all sharing one daily counter) — not an anomaly. Next fire (01:00 or 05:30 ET) re-checks the gate. Autonomy metric trend=REGRESSING (net_improvement 4/window20, cost_per_drained $3.15, function_score_avg 7.5, 0 enters last trading day) — next fire with budget headroom should prefer a loop-closing item (drain queue/inbox) over a new artifact.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-03T03:30:11+00:00
-- date_et: 2026-08-02
-- total: $277.25 (threshold $30.00)
-- claude: $277.25  minimax: $0.00
-- claude_sessions: 28
