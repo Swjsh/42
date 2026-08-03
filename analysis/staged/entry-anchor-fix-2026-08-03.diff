@@ -1,0 +1,222 @@
+--- a/automation/state/fleet/exit_actuator.py
++++ b/automation/state/fleet/exit_actuator.py
+@@ -24,6 +24,7 @@
+ 
+ import json
+ import sys
++from dataclasses import replace
+ from datetime import datetime, timedelta, timezone
+ from pathlib import Path
+ from typing import Optional
+@@ -143,6 +144,88 @@
+     states[symbol] = st
+     save_states(arm_id, states)
+     return st
++
++
++def reanchor_entry(arm_id: str, *, symbol: str, true_entry_premium: Optional[float],
++                   reason: str = "fill_reconcile") -> "Optional[em.ExitState]":
++    """ENTRY-ANCHOR-TO-FILL FIX (2026-08-03). register_entry (above) necessarily seeds
++    entry_premium from the PRE-FILL marketable-limit price (entry_px = ask + buffer,
++    fleet_broker.marketable_limit_price) -- the true fill is not known until the broker
++    confirms it, which happens strictly AFTER registration in both live callers
++    (fleet_live.py#_place_live places the order then registers synchronously; heartbeat_
++    core.py#_execute registers synchronously, then the CALLER polls via _reconcile_exec).
++    Whenever the fill prices BETTER than the limit -- the common case, confirmed against
++    real broker fills 2026-08-03 (safe-3 limit 0.42/fill 0.37, risky-1 limit 0.41/fill
++    0.37) and against the 105-fill population in
++    analysis/recommendations/entry-execution-cost-2026-08-02.json (98.1% of real fills,
++    avg 4.11c/contract) -- every threshold DERIVED from entry_premium is anchored HIGH:
++    TP1 needs MORE favorable movement than it should before the partial take-profit (and
++    the post-TP1 profit-lock arm, profit_lock_arm_scope="post_tp1") engages, leaving MORE
++    size exposed to the catastrophe stop for LONGER than the validated exit shape intends.
++    This is the exact mechanism behind J's stated #1 fear ("when it crashes, we end up
++    selling the trade and not making any money") -- see analysis/staged/
++    entry-anchor-fix-2026-08-03.diff's cover doc for the live worked example
++    (safe-3, 2026-08-03: TP1 sat at $0.84 instead of the true $0.74 while price traded
++    above $0.74 for several minutes with zero trail armed).
++
++    This function re-anchors ONCE, immediately after the fill is confirmed, correcting
++    entry_premium plus every price DERIVED from it via the EXACT SAME formula
++    ExitState.from_entry already uses (`runner_stop_premium = entry_premium * (1 +
++    premium_stop_pct)`) -- it never re-resolves stop_mode/trigger_level/premium_stop_pct
++    themselves (those stay frozen-once per from_entry's own "never flaps mid-trade"
++    contract; only the PRICE they are anchored to moves).
++
++    CONSERVATIVE BY DESIGN -- returns None (caller logs loudly, keeps the limit anchor)
++    whenever:
++      * no persisted ExitState exists for `symbol` under `arm_id` (registration itself
++        failed/raced -- nothing to re-anchor)
++      * true_entry_premium is None or <= 0 (fill unknown/unparseable after polling --
++        NEVER guess; the limit-anchored state from register_entry stands as-is, which is
++        exactly today's pre-fix behavior, not a regression)
++      * st.tp1_filled is already True, OR st.profit_lock_armed is already True -- a REAL
++        tick already took a scale-out/lock action against the old anchor; retroactively
++        moving entry_premium underneath an already-executed partial sell would desync the
++        broker's actual proceeds from this ledger's bookkeeping. The trade rides out under
++        its original (limit) anchor rather than risk corrupting an in-flight managed
++        position. In practice this is a non-issue: re-anchoring happens within the same
++        tick / immediately after the fill poll, long before either could plausibly have
++        advanced (manage_tick only runs at the START of the NEXT tick -- see fleet_live.
++        run()'s exit-management-pass-runs-first ordering).
++
++    hwm_premium (the high-water mark used to arm the profit lock) is raised/lowered to
++    true_entry_premium ONLY when it has not yet moved past the OLD (wrong) entry_premium
++    -- i.e. no real tick has advanced it since registration. If a real tick already
++    pushed hwm_premium above the old anchor, it is left untouched (never regressed --
++    lowering an already-achieved high-water mark could incorrectly un-arm a legitimately
++    armed profit lock).
++
++    Immutable per coding-style: builds a NEW ExitState via dataclasses.replace, never
++    mutates `st` in place.
++    Guard: backtest/tests/test_entry_anchor_to_fill_2026_08_03.py.
++    """
++    if true_entry_premium is None:
++        return None
++    try:
++        true_entry_premium = float(true_entry_premium)
++    except (TypeError, ValueError):
++        return None
++    if true_entry_premium <= 0:
++        return None
++    states = load_states(arm_id)
++    st = states.get(symbol)
++    if st is None:
++        return None
++    if st.tp1_filled or st.profit_lock_armed:
++        return None
++    old_entry = st.entry_premium
++    new_hwm = (true_entry_premium if (st.hwm_premium is None or st.hwm_premium <= old_entry)
++              else st.hwm_premium)
++    new_runner_stop = round(true_entry_premium * (1.0 + st.premium_stop_pct), 4)
++    new_st = replace(st, entry_premium=true_entry_premium,
++                     runner_stop_premium=new_runner_stop, hwm_premium=new_hwm)
++    states[symbol] = new_st
++    save_states(arm_id, states)
++    return new_st
+ 
+ 
+ def _now_et() -> datetime:
+--- a/automation/state/fleet/fleet_live.py
++++ b/automation/state/fleet/fleet_live.py
+@@ -500,6 +500,44 @@
+                 structure_stop_enabled=bool(params.get("structure_stop_enabled", False)))
+         except Exception:  # never let exit-state bookkeeping fail an accepted entry
+             _exit_state = None
++    # ENTRY-ANCHOR-TO-FILL FIX (2026-08-03): register_entry above necessarily seeds
++    # entry_premium from entry_px (the PRE-FILL marketable-limit price) -- fleet_live had
++    # NO fill-poll anywhere on the entry path before this fix (confirmed: 0 of 240 broker
++    # sub-objects across every fleet arm's decisions.jsonl history ever recorded a non-null
++    # filled_avg_price). Poll now, bounded (mirrors heartbeat_core._reconcile_fill's own
++    # cap so a slow poll can never stall the per-minute tick materially), and re-anchor the
++    # just-registered ExitState to the TRUE fill via exit_actuator.reanchor_entry -- see
++    # that function's docstring for the full mechanism + the conservative refuse-and-log
++    # cases (fill unknown, or a real tick already advanced the position past this poll).
++    # Guard: backtest/tests/test_entry_anchor_to_fill_2026_08_03.py.
++    if placed and _exit_state is not None:
++        _fill_info = None
++        try:
++            _order_id = res.get("id") if isinstance(res, dict) else None
++            if _order_id:
++                _fill_info = fb.poll_fill(creds, _order_id, attempts=4, sleep_sec=0.6)
++        except Exception as _e:  # noqa: BLE001 -- a poll failure must never abort the entry
++            print(f"[reanchor] poll_fill FAILED for {symbol}: {type(_e).__name__}: {_e}",
++                 file=sys.stderr)
++            _fill_info = None
++        _true_fill = (_fill_info.get("filled_avg_price")
++                     if isinstance(_fill_info, dict) and _fill_info.get("filled") else None)
++        if _true_fill is not None:
++            try:
++                _reanchored = ea.reanchor_entry(arm["id"], symbol=symbol,
++                                                true_entry_premium=_true_fill)
++                if _reanchored is not None:
++                    _exit_state = _reanchored
++                else:
++                    print(f"[reanchor] SKIPPED {symbol}: no eligible ExitState to re-anchor "
++                         f"(already tp1_filled/profit_lock_armed, or registration missing) "
++                         f"-- riding out on the limit anchor {entry_px}", file=sys.stderr)
++            except Exception as _e:  # noqa: BLE001 -- never let reanchoring break the tick
++                print(f"[reanchor] FAILED for {symbol}: {type(_e).__name__}: {_e} "
++                     f"-- riding out on the limit anchor {entry_px}", file=sys.stderr)
++        else:
++            print(f"[reanchor] fill unknown for {symbol} after poll (fill_info={_fill_info}) "
++                 f"-- keeping the limit anchor {entry_px}, never guessing", file=sys.stderr)
+     # VISIBILITY (2026-07-09, render-only; OP-33c/STOP-B ship-1 known-cosmetic-bug fix): the
+     # plan-log "stop" text must show the TRUTH this position is actually managed under. When
+     # register_entry above resolved STRUCTURE mode, the premium-mode stop_price/stop_pct
+--- a/setup/scripts/heartbeat_core.py
++++ b/setup/scripts/heartbeat_core.py
+@@ -1424,7 +1424,8 @@
+             # WHO places migrates. DEFAULT (CORE_PLACES_ORDERS=True) never reaches this branch.
+             rec["action"] = "PERCEPTION_ONLY"
+         else:
+-            rec["exec"] = _reconcile_exec(_execute(account, verdict, payload, params, dry=not ARMED))
++            rec["exec"] = _reanchor_after_reconcile(
++                account, _reconcile_exec(_execute(account, verdict, payload, params, dry=not ARMED)))
+             rec["action"] = rec["exec"].get("status")
+             # BULL-WIRING REGRESSION GUARD (2026-06-28, swarm-recommended): an ENTER_BULL
+             # verdict MUST reach _execute exactly like ENTER_BEAR. If a future change ever
+@@ -1597,6 +1598,53 @@
+     except Exception as e:  # noqa: BLE001 — reconciliation must never break the ledger write
+         exec_row["fill"] = {"reconcile_status": "RECONCILE_PENDING",
+                             "reconcile_error": f"{type(e).__name__}: {e}"}
++    return exec_row
++
++
++def _reanchor_after_reconcile(account: str, exec_row: "dict | None") -> "dict | None":
++    """ENTRY-ANCHOR-TO-FILL FIX (2026-08-03), FIX3's missing other half. _reconcile_exec
++    (above) already polls the real fill and writes it into exec_row["fill"]["filled_avg_
++    price"] -- but that reconciled value was NEVER fed back into the ExitState that
++    _execute's register_entry call already persisted (using entry_px, the PRE-FILL
++    marketable-limit price). Every derived exit threshold (TP1 target, runner_stop_
++    premium, hwm_premium) stayed anchored to the wrong, higher number for the position's
++    entire life. This is J's #1 stated fear's mechanism: TP1/the post-TP1 profit-lock arm
++    both need MORE favorable movement than they should, leaving more size exposed to the
++    catastrophe stop for longer. See exit_actuator.reanchor_entry's own docstring for the
++    full mechanism, the conservative refuse-and-log cases, and the live worked example
++    (safe-3, 2026-08-03). Called ONCE, right after _reconcile_exec, at BOTH call sites
++    (the primary ribbon path and _route_extra_setups) -- kept as a single shared helper so
++    the two paths cannot drift (Operating Principle #4 / gamma-sync doctrine).
++
++    No-op (returns exec_row unchanged) whenever: exec_row isn't a dict placed this tick
++    (no "symbol"/no exit_managed), or the reconciled fill has no usable filled_avg_price
++    (RECONCILE_PENDING / poll never resolved -- keep the limit anchor, never guess).
++    Never raises -- a reanchor failure must never break the tick's ledger write. Writes a
++    `exec_row["reanchor"]` visibility marker either way (loud, never silent).
++    Guard: backtest/tests/test_entry_anchor_to_fill_2026_08_03.py."""
++    if not isinstance(exec_row, dict) or not exec_row.get("exit_managed"):
++        return exec_row
++    symbol = exec_row.get("symbol")
++    fill = exec_row.get("fill") or {}
++    true_fill = fill.get("filled_avg_price")
++    if not symbol or true_fill in (None, ""):
++        exec_row["reanchor"] = {"applied": False, "reason": "fill_unknown_kept_limit_anchor"}
++        return exec_row
++    try:
++        arm_id = ACCOUNTS[account]["fleet_arm"]
++        import exit_actuator as _ea  # noqa: PLC0415
++        new_state = _ea.reanchor_entry(arm_id, symbol=symbol, true_entry_premium=true_fill)
++        if new_state is not None:
++            exec_row["reanchor"] = {"applied": True, "true_entry_premium": new_state.entry_premium,
++                                    "runner_stop_premium": new_state.runner_stop_premium}
++        else:
++            exec_row["reanchor"] = {"applied": False,
++                                    "reason": "no_eligible_exitstate_kept_limit_anchor"}
++            logger.warning(f"[reanchor] SKIPPED {symbol} ({account}): no eligible ExitState "
++                           f"-- riding out on the limit anchor")
++    except Exception as e:  # noqa: BLE001 — reanchoring must never break the ledger write
++        exec_row["reanchor"] = {"applied": False, "reason": f"{type(e).__name__}: {e}"}
++        logger.warning(f"[reanchor] FAILED for {symbol} ({account}): {type(e).__name__}: {e}")
+     return exec_row
+ 
+ 
+@@ -2352,7 +2400,8 @@
+             if not CORE_PLACES_ORDERS:
+                 out.append({"setup": setup, "action": "PERCEPTION_ONLY"})
+                 continue
+-            ex = _reconcile_exec(_execute(account, sv, payload, params, dry=not ARMED))
++            ex = _reanchor_after_reconcile(
++                account, _reconcile_exec(_execute(account, sv, payload, params, dry=not ARMED)))
+             out.append({"setup": setup, "action": ex.get("status"), "exec": ex, "sight_check": _sight})
+             if ex.get("status") in _TAKEN:
+                 placed_this_tick = True
