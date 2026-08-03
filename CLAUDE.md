@@ -218,7 +218,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.** I COMPOUND (curate, prune, ratify), not accumulate. Guards MUST fail open — never kill/block J's interactive session (OP-32 scar: market-hours firewall locked J out 2026-05-22). **Required:** (a) Empty queue → BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `mistakes.md` + latest trades → ship 3+ tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md/automation → fold L# into Lessons index. **Silent failure is the only true failure** — every fire ships work OR a flagged failure to `STATUS.md ## Known broken`; J always wakes to a SIGNAL.
 
-    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L249). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L252). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -227,7 +227,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) | L58,74,100,101,112,136,148,149,172,177,183,184,188 |
     | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178,192 |
     | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
-    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars (L235: a warmup/context frame != an iteration frame — re-slice to caller's own scope) | L14,34,57,61,94,161,165,166,191,212,218,235 |
+    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars (L235: a warmup/context frame != an iteration frame — re-slice to caller's own scope; L251: two replay engines silently disagreed on entry-bar eligibility — diff parity gaps PER-TRADE by terminal stage, not aggregate $/tr) | L14,34,57,61,94,161,165,166,191,212,218,235,251 |
     | C7 | Silent success is failure — audit outputs, not exit codes (L241: a bare `except: return None` fetcher masks a CDN 403-block as "no data"; L244: a fill-funnel monitor blind to a 2nd execution path reported a real trading day IDLE to J; L249: a stub's docstring cited a never-built dependency script, unchecked across 3+ fires) | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236,240,241,242,244,249 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81,210,229 |
     | C9 | Anchor paths to __file__ | L21,42,49,56,60 |
@@ -248,14 +248,14 @@ These are non-negotiable, second only to the 10 rules above.
     | C24 | Anchor trades are one-off exceptional setups — general population of same pattern class may be losers | L140,158 |
     | C25 | Level score formula must be validated for direction: high touch_count drives both stars AND eventual breaks (inverse correlation) | L142 |
     | C26 | Level ROLE determines correct metric: reaction-predictor → DM-null lift | L143,L144 |
-    | C27 | Pattern detectors firing >80% of days measure noise not signal | L145 |
+    | C27 | Pattern detectors firing >80% of days measure noise not signal (L250: anchor-verify and C27 prescreen test independent properties — passing the named-exhibit check doesn't imply passing the frequency check) | L145,250 |
     | C28 | Ribbon flip is a lagging exit (L243: entry-side sibling — a confirmation qualifier built to fix a late ENTRY trigger was itself too lagging, AND-gating the new trigger to zero fires) | L139,141,156,157,175,243 |
     | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
     | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L24,148,176 |
     | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se. **Attribution correction (L203):** no-add alone recovers only ~$794 of the scaled-in cohort's -$9,281 at fixed exits — the real recoverable money is the no-add + -50%-catastrophe-cap PACKAGE (+$3,428 bound on scaled-in, +$6,176 bound book-wide); scale-in is the highest-signal MARKER of a trade managed by hope, not a standalone lever. The no-add guard itself is already structural/unconditional (`fb.is_flat_spy_options`, no bypass path) — pinned by `test_never_average_down_2026_07_20.py` | L168,203 |
     | C32 | Capability+data+idle compute != insight unless a fire's job is "generate the hypothesis" | L208 |
     | C33 | Shared gateway/router wires at automation's OWN launch point, never a global default interactive tools inherit | L213 |
-    | C34 | Tree-wide git ops in the shared checkout revert live state BACKWARD — untrack decision-gating state; verify via `git ls-tree HEAD` (L238: never `git stash` in this repo, rename-and-restore instead; L242: 1,176 `strategy/candidates/` files sat `git add`-less for weeks) | L214,228,233,238,242 |
+    | C34 | Tree-wide git ops in the shared checkout revert live state BACKWARD — untrack decision-gating state; verify via `git ls-tree HEAD` (L238: never `git stash` in this repo, rename-and-restore instead; L242: 1,176 `strategy/candidates/` files sat `git add`-less for weeks; L252: L242's own detector re-DEGRADED within 24h — a detector without an automatic remediator re-violates on its own schedule, fixed via `auto_commit_candidates.py`) | L214,228,233,238,242,252 |
     | C35 | Built+tested+RED-proofed != shipped until committed + on J's REVOKE surface (L239: a multi-path `git add` fails ATOMICALLY if any pathspec is stale; L247: a pre-commit `--cached` check != a post-commit `git show <sha> --stat` — a git-mv's delete-half sat staged 2h+ until an unrelated commit absorbed it) | L221,231,239,247 |
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
