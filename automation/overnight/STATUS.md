@@ -1,3 +1,20 @@
+## [2026-08-03T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-03 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 41 tick(s) showed in_trade>0. 3 real fill(s) dated 2026-08-03: safe-3@09:42, risky-1@09:42, risky-3@09:42. Field-level population NOT re-verifiable post-close (live-watch.json holds only the latest snapshot, no historical archive) -- corrobor… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-03, generated_at_et=2026-08-03T08:22:03-04:00 (hhmm=08:22, in 08:15-08:40 window=True). today-bias.json date=2026-08-03, regime_context.stamp_date=2026-08-03 (present=True, dates_match=True). one_liner='Yesterday 2026-07-31 (Fri) = V-reversal (range 1.51%, gap +0.40%,… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 61 distinct near-price levels. Worst: 743.25 flipped 5x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 80 time(s) across 17 distinct level(s). |
+| WS11 core recency | NOT_EXERCISED | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-03 window_end=2026-07-31 (baseline window_end=2026-07-31, advanced=False). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-03T16:00:04 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 86 theta-clock row(s) dated 2026-08-03 across 2 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=86, unavailable=0. still… |
+| WS1 preview diff | GREEN | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | block_elite_bull now=True (preview predicted UNAPPLIED=true -> cores stay at 0 elite-bull entries). Reset: NO (equity still near Friday's levels -- risky-1 ATM tier applies). Actual entries 2026-08-03: safe-2=0, bold-2=0, safe-3=1, risky-1=1, risky-3=1. Predicted tradeable episodes (Friday-tape rep… |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-03`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 [2026-08-03T05:43:02 ET] conductor: OK -- OPTION-CACHE-ITM-COVERAGE-GAP -- shipped
 `backtest/lib/coverage_parity.py#check_coverage_parity` (reusable $0 pure-Python guard,
 9/9 new tests green, RED-proofed by reverting the 2-line wiring -- exactly the 3
@@ -256,6 +273,23 @@ EXIT-HYBRID-PRETP1-FLOOR entry (closed this fire).
 
 ---
 
+## 2026-08-03 evening -- AFTER-CLOSE PACKAGE APPLIED (SHIPs A/B/C) + fleet suite repairs
+
+**All three ships live for Tuesday 08-04, paper only, one-line reverts, J's lever is REVOKE:**
+- **SHIP A** exit anchors -> REAL FILL (was: limit price, 240/240 legs wrong since inception).
+  Revert: `git revert` the SHIP A commit.
+- **SHIP B** block_elite_bull LIFTED on BOTH cores (trade-to-learn trial 2; Fri+Mon real fleet
+  fills on the refused class vs the negative 391-day aggregate -- recency directive). Kill:
+  per arm n>=10 elite-bull fills or 10 sessions, net<0 -> re-block same day (Gamma_GateExpiryCheck
+  tracks). Revert: one key per params file -> true.
+- **SHIP C** risky-3 qty 10 when premium < $0.50 (J verbatim directive; max 9.8% of equity;
+  Rule 6 authoritative via shrink+risk_gate AFTER the boost). Kill: n>=10 boosted fills or 10
+  sessions, net<0. Revert: delete the two params_patch keys.
+Also: SHIP A's fleet-side test regressions repaired (5 tests -- the staged regression net had
+missed fleet suites); $5K-rebuild registry pins + live-verified fixture refreshed BY LIVE PROBE.
+Fleet suite 348/348. Day: +$533.22 realized, 4 arms green, full EOD in
+analysis/deep-research/EOD-2026-08-03-FULL-REVIEW.md.
+
 ## Known broken
 
 - [2026-08-02T23:01:56] GATE-EXPIRY RED :: require_bearish_fill_bar :: refused cohort would have EARNED $0.44/tr, n=34 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate require_bearish_fill_bar
@@ -507,3 +541,94 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
+
+- [2026-08-03 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-08-03 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-08-03 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-03.md
+
+## Kitchen
+Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-08-03T09:09:57
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T09:39:57
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T10:09:57
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T10:39:57
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T11:09:57
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T11:39:57
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T12:09:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T12:39:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T13:09:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T13:39:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T14:09:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T14:39:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T15:09:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T15:39:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-08-03T20:00:24+00:00
+- task: eod-summary
+- date_et: 2026-08-03
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-08-03T16:09:56
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T16:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-08-03T20:45:45+00:00
+- task: analyst
+- date_et: 2026-08-03
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-08-03 21:00:02] gym-session (2026-08-03) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-03.json`
+### DEGRADED: self-check 2026-08-03T17:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-08-03T21:30:19+00:00
+- task: manager
+- date_et: 2026-08-03
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-08-03T17:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
