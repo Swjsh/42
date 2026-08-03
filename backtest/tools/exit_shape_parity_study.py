@@ -155,12 +155,43 @@ def reconstruct_positions(fills: list[dict]) -> list[dict]:
     return positions
 
 
+_DATA_CREDS_CACHE: "dict | None" = None  # None = unprobed; {} = probed, no live key found
+
+
+def _live_data_creds() -> "dict | None":
+    """First arm credential set that authenticates against the broker RIGHT NOW (probed once
+    per process via a cheap read-only GET /v2/account, then cached).
+
+    Replaces the old hardcoded safe-1 dict-pick (L234 scar, caught 2026-08-03):
+    safe-1 was retired in the 2026-08-02 full account rebuild, its key started 401-ing, and
+    because this fetcher fails open to [] the 401 surfaced only as '0 bars (attempt N)' --
+    the nightly Gamma_WinnerAutopsy fire (winner_autopsy -> pain_ledger -> fill_latency fold)
+    hung in its 20/40/80s retry ladder and silently wrote NOTHING for the whole cycle. Any
+    live arm's key works for market data; which arm is alive is a runtime fact, never a
+    constant."""
+    global _DATA_CREDS_CACHE
+    if _DATA_CREDS_CACHE is not None:
+        return _DATA_CREDS_CACHE or None
+    try:
+        creds_all = fb.load_creds()
+    except Exception:  # noqa: BLE001 -- missing secrets file == no creds, caller fails open
+        _DATA_CREDS_CACHE = {}
+        return None
+    for arm in sorted(creds_all):
+        c = creds_all[arm]
+        acct = fb.get_account(c)
+        if isinstance(acct, dict) and acct and not acct.get("_error"):
+            _DATA_CREDS_CACHE = c
+            return c
+    _DATA_CREDS_CACHE = {}
+    return None
+
+
 def fetch_option_bars(symbol: str, date_et: str, start_hhmm: str = "09:29") -> list[dict]:
     """1-min option bars for `symbol` from start_hhmm ET on date_et through 16:05 ET (covers
     the 15:50 time stop with margin). REAL Alpaca OPRA data (confirmed live, not synthetic).
     Fail-open -> []."""
-    creds_all = fb.load_creds()
-    creds = creds_all.get("safe-1")  # any account's key works for market data
+    creds = _live_data_creds()  # first LIVE arm key, never a hardcoded retired arm (L234)
     if not creds:
         return []
     y, m, d = date_et.split("-")

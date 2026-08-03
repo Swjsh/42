@@ -72,7 +72,7 @@ for _p in (FLEET_DIR, REPO / "setup" / "scripts"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from et_clock import et_now  # noqa: E402
+from et_clock import ET_TZ, et_now  # noqa: E402
 
 CORE_DECISIONS = REPO / "automation" / "state" / "core-decisions.jsonl"
 FILLS_LEDGER = REPO / "automation" / "state" / "fills-ledger.jsonl"
@@ -88,7 +88,14 @@ MIN_RESOLVABLE_STAGES = 2  # below this a row is excluded-and-counted, never par
 def _parse_iso(ts: "str | None") -> "float | None":
     """ISO8601 -> epoch seconds, tolerant of a trailing 'Z' and missing/naive tzinfo (treated
     as ET, matching every producer in this pipeline). None on anything unparsable -- never
-    raises, never guesses a value."""
+    raises, never guesses a value.
+
+    TZ FIX (2026-08-03 EOD process audit): naive stamps were previously fed to .timestamp()
+    bare, which resolves them in the BOX's local zone (Mountain, ET-2 -- the L-series et_clock
+    scar), so every hop mixing a naive stage (core-decisions ts_et) with an aware stage
+    (bar_close/signal_written) came out off by exactly +/-7200s (first live rows, 2026-08-03:
+    bar_close->verdict = 7563.0s, verdict->signal = -7141.0s). Naive now gets ET_TZ attached
+    BEFORE epoch conversion, making the docstring's 'treated as ET' claim actually true."""
     if not isinstance(ts, str) or not ts:
         return None
     s = ts.replace("Z", "+00:00")
@@ -97,6 +104,8 @@ def _parse_iso(ts: "str | None") -> "float | None":
         dt = datetime.fromisoformat(s)
     except ValueError:
         return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=ET_TZ)
     return dt.timestamp()
 
 

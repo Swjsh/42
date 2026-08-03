@@ -268,8 +268,15 @@ class _FakeBroker:
         return {}
 
     def request(self, creds, endpoint, method="GET", data=None, timeout=15):
+        # DE-FLAKED 2026-08-03 (EOD process audit): was a hardcoded "2026-08-03T15:00:00.5Z",
+        # but _place_live stamps submit_ts from the REAL wall clock, so the ordering
+        # assertion below only held when the suite ran before 11:00 ET (nightly 00:30 ET
+        # runs passed; any afternoon run failed). The broker's server-side stamp is now
+        # derived from real now + 500ms, making the our-clock-precedes-broker-clock
+        # assertion structural instead of time-of-day-dependent.
+        broker_now = datetime.now(timezone.utc) + timedelta(milliseconds=500)
         return {"id": "fake-order", "status": "accepted",
-               "submitted_at": "2026-08-03T15:00:00.500000Z"}
+               "submitted_at": broker_now.isoformat().replace("+00:00", "Z")}
 
 
 def test_place_live_returns_submit_ts_before_the_broker_post(monkeypatch, tmp_path):
