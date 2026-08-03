@@ -1,0 +1,1518 @@
+{
+ "artifact": "EOD-2026-08-03-PARTICIPATION",
+ "lens": "LENS 2 -- why every arm didn't trade + the 09:25 candle",
+ "written_at_et": "2026-08-03T17:05 (post-close, et_clock-verified 16:52:09 EDT market_hours=False)",
+ "data_provenance": {
+  "spy_bars": "Alpaca data v2, feed=sip (granted; no IEX fallback needed), pulled this session via fleet_broker creds",
+  "option_bars": "Alpaca v1beta1 options 1-min bars (OPRA-derived), 9 contracts, pulled this session",
+  "decisions": [
+   "automation/state/core-decisions.jsonl (386 armed rows/account today)",
+   "automation/state/fleet/{safe-3,risky-1,risky-3}/decisions.jsonl (384 rows/arm today)"
+  ],
+  "pnl_authority": "broker fills only (fills-ledger.jsonl / trade-today.json); all replay numbers are SIM and labeled"
+ },
+ "funnel_today": {
+  "safe-2": {
+   "ticks": 386,
+   "mechanisms": {
+    "GATE_BLOCKED(stale_trigger_bar; verdict was elite-blocked too)": 1,
+    "GATE_BLOCKED(stale_trigger_bar)": 5,
+    "NO_TRIGGER (no setup passed scoring)": 329,
+    "GATE_BLOCKED(block_elite_bull)": 51
+   },
+   "extra_route_exists": true,
+   "extra_fired": {
+    "gap_and_go": 5,
+    "vwap_continuation": 40,
+    "vix_regime_dayside": 3,
+    "bollinger_squeeze": 5
+   },
+   "extra_exec": {
+    "gap_and_go|WATCH_NOT_ARMED": 5,
+    "vwap_continuation|WATCH_NOT_ARMED": 40,
+    "vix_regime_dayside|WATCH_NOT_ARMED": 3,
+    "bollinger_squeeze|PLACED": 1,
+    "bollinger_squeeze|SKIP_COOLDOWN_SAME_BAR": 4
+   },
+   "exit_management_ticks": 19,
+   "ribbon": {
+    "BULL": 386
+   },
+   "vix_range": [
+    15.54,
+    16.3
+   ]
+  },
+  "bold-2": {
+   "ticks": 386,
+   "mechanisms": {
+    "GATE_BLOCKED(stale_trigger_bar; verdict was elite-blocked too)": 1,
+    "GATE_BLOCKED(stale_trigger_bar)": 5,
+    "NO_TRIGGER (no setup passed scoring)": 329,
+    "GATE_BLOCKED(block_elite_bull)": 51
+   },
+   "extra_route_exists": false,
+   "extra_fired": {},
+   "extra_exec": {},
+   "exit_management_ticks": 0,
+   "ribbon": {
+    "BULL": 386
+   },
+   "vix_range": [
+    15.54,
+    16.3
+   ]
+  },
+  "safe-3": {
+   "ticks": 384,
+   "mechanisms": {
+    "GATE_BLOCKED(entry_window_09:35)": 1,
+    "NO_TRIGGER (no strategy fired)": 317,
+    "ENTER (placed+filled)": 1,
+    "NOT_FLAT (one-position rule)": 14,
+    "NO_TRIGGER (no live signal / feed gap)": 18,
+    "SIZING (min_premium_floor $0.30)": 33
+   },
+   "enters": [
+    {
+     "ts_et": "2026-08-03T09:31:03.587966-04:00",
+     "strike": 751,
+     "qty": 3,
+     "premium": 0.98,
+     "placement_reason": "SKIP_EARLY_ENTRY",
+     "tp": null,
+     "stop": null,
+     "entry_px": null,
+     "trigger_level": 748.5,
+     "filled": false
+    },
+    {
+     "ts_et": "2026-08-03T09:42:03.585911-04:00",
+     "strike": 754,
+     "qty": 3,
+     "premium": 0.39,
+     "placement_reason": null,
+     "tp": 0.82,
+     "stop": 0.21,
+     "entry_px": 0.42,
+     "trigger_level": 750.98,
+     "filled": true
+    }
+   ]
+  },
+  "risky-1": {
+   "ticks": 384,
+   "mechanisms": {
+    "GATE_BLOCKED(entry_window_09:35)": 1,
+    "NO_TRIGGER (no strategy fired)": 317,
+    "ENTER (placed+filled)": 1,
+    "SIZING (min_premium_floor $0.30)": 35,
+    "NOT_FLAT (one-position rule)": 12,
+    "NO_TRIGGER (no live signal / feed gap)": 18
+   },
+   "enters": [
+    {
+     "ts_et": "2026-08-03T09:31:03.587966-04:00",
+     "strike": 751,
+     "qty": 5,
+     "premium": 0.98,
+     "placement_reason": "SKIP_EARLY_ENTRY",
+     "tp": null,
+     "stop": null,
+     "entry_px": null,
+     "trigger_level": 748.5,
+     "filled": false
+    },
+    {
+     "ts_et": "2026-08-03T09:42:03.585911-04:00",
+     "strike": 754,
+     "qty": 5,
+     "premium": 0.36,
+     "placement_reason": null,
+     "tp": 0.54,
+     "stop": 0.205,
+     "entry_px": 0.41,
+     "trigger_level": 750.98,
+     "filled": true
+    }
+   ]
+  },
+  "risky-3": {
+   "ticks": 384,
+   "mechanisms": {
+    "GATE_BLOCKED(entry_window_09:35)": 1,
+    "NO_TRIGGER (no strategy fired)": 317,
+    "ENTER (placed+filled)": 1,
+    "NOT_FLAT (one-position rule)": 12,
+    "SIZING (min_premium_floor $0.30)": 35,
+    "NO_TRIGGER (no live signal / feed gap)": 18
+   },
+   "enters": [
+    {
+     "ts_et": "2026-08-03T09:31:03.587966-04:00",
+     "strike": 751,
+     "qty": 5,
+     "premium": 0.99,
+     "placement_reason": "SKIP_EARLY_ENTRY",
+     "tp": null,
+     "stop": null,
+     "entry_px": null,
+     "trigger_level": 748.5,
+     "filled": false
+    },
+    {
+     "ts_et": "2026-08-03T09:42:03.585911-04:00",
+     "strike": 754,
+     "qty": 5,
+     "premium": 0.35,
+     "placement_reason": null,
+     "tp": 0.7,
+     "stop": 0.19,
+     "entry_px": 0.38,
+     "trigger_level": 750.98,
+     "filled": true
+    }
+   ]
+  }
+ },
+ "bold_2_door_proof": {
+  "verdicts": {
+   "SKIP_ELITE_BULL_LEVEL_RECLAIM": 52,
+   "HOLD": 334
+  },
+  "bear_blocker_sets": {
+   "[5, 8, 9, 10]": 154,
+   "[5, 7, 8, 9, 10]": 80,
+   "[5, 8, 10]": 43,
+   "[5, 8]": 42,
+   "[5, 8, 9]": 32,
+   "[5, 7, 8, 9]": 20,
+   "[5, 7, 8, 10]": 10,
+   "[1, 5, 8, 9]": 5
+  },
+  "third_path_keys_present": [],
+  "ribbon_all_bull": true,
+  "n_rows": 386,
+  "bear_score_max": 7,
+  "bull_raw_trigger_ticks": 125,
+  "note": "verdicts: 52 elite-blocked bull signal ticks + 334 no-setup HOLDs = 386; bear blocker #8 (VIX floor 17.3; VIX 15.56-16.03 all day) and #5 (ribbon/structure never BEAR; ribbon BULL on all 386 ticks) present on every tick; third_path_keys_present=[] proves no extra/probe/ladder/full-send lane exists on core bold -- no tick had a third door"
+ },
+ "full_send_shadowing_finding": {
+  "finding": "risky-1 full-send lane fired 0x today despite SKIP_ELITE_BULL_LEVEL_RECLAIM being allowlisted and FULL_SEND_LIVE=True",
+  "mechanism": "fleet_executor.plan_all checks `if not any(p.action=='ENTER' for p in plans)` BEFORE finalize(); the min_entry_premium floor lives IN finalize() -- a floor-doomed OTM ENTER plan suppresses the full-send rescue, then dies, netting HOLD",
+  "evidence": "risky-1 35 SIZING floor HOLDs today at premiums 0.06-0.29 matching OTM-2 758/759/760C bar opens; full-send would have priced ATM 757C ~0.50+ (clears floor)",
+  "status": "FLAGGED for after-hours fix + vary-and-assert guard; NOT fixed this session (read-only during market hours; deserves its own guard)"
+ },
+ "atm_tier_regression_finding": {
+  "finding": "the $5,000 account rebuild moved every bold-tier arm from the ATM participation fix back to OTM-2",
+  "mechanism": "bold_core strike table's ATM row covers $0-$2K only; $2K-$10K tier = OTM-2; all ATM extensions (core Bold 2026-07-17, fleet 2026-08-01/03) were scoped to the $0-2K tier",
+  "evidence_today": "afternoon elite clusters priced 758/759/760C at $0.06-$0.18 < $0.30 floor: safe-3 33, risky-1 35, risky-3 35 floor-blocked ticks; core-bold replay 28/50 blocked",
+  "action": "prereg ATM extension for the $2K-$10K tier (n>=20-fill gates); NOT armed tonight"
+ },
+ "forensic_0925": {
+  "spy_1min_0920_0936": [
+   {
+    "et": "09:20",
+    "o": 751.34,
+    "h": 751.36,
+    "l": 751.2832,
+    "c": 751.32,
+    "v": 5034
+   },
+   {
+    "et": "09:21",
+    "o": 751.3,
+    "h": 751.34,
+    "l": 751.2977,
+    "c": 751.2977,
+    "v": 3947
+   },
+   {
+    "et": "09:22",
+    "o": 751.3,
+    "h": 751.33,
+    "l": 751.25,
+    "c": 751.25,
+    "v": 2651
+   },
+   {
+    "et": "09:23",
+    "o": 751.28,
+    "h": 751.29,
+    "l": 751.1,
+    "c": 751.12,
+    "v": 3090
+   },
+   {
+    "et": "09:24",
+    "o": 751.14,
+    "h": 751.25,
+    "l": 751.1,
+    "c": 751.25,
+    "v": 10947
+   },
+   {
+    "et": "09:25",
+    "o": 751.16,
+    "h": 751.16,
+    "l": 750.64,
+    "c": 750.66,
+    "v": 32571
+   },
+   {
+    "et": "09:26",
+    "o": 750.69,
+    "h": 750.69,
+    "l": 750.49,
+    "c": 750.53,
+    "v": 26964
+   },
+   {
+    "et": "09:27",
+    "o": 750.51,
+    "h": 750.57,
+    "l": 750.25,
+    "c": 750.38,
+    "v": 84262
+   },
+   {
+    "et": "09:28",
+    "o": 750.38,
+    "h": 750.64,
+    "l": 750,
+    "c": 750.09,
+    "v": 77160
+   },
+   {
+    "et": "09:29",
+    "o": 750.1,
+    "h": 750.15,
+    "l": 749.33,
+    "c": 749.39,
+    "v": 62480
+   },
+   {
+    "et": "09:30",
+    "o": 749.44,
+    "h": 750.3,
+    "l": 748.8,
+    "c": 749.75,
+    "v": 658397
+   },
+   {
+    "et": "09:31",
+    "o": 749.75,
+    "h": 749.99,
+    "l": 749.59,
+    "c": 749.95,
+    "v": 213388
+   },
+   {
+    "et": "09:32",
+    "o": 749.95,
+    "h": 750.41,
+    "l": 749.69,
+    "c": 750.23,
+    "v": 149526
+   },
+   {
+    "et": "09:33",
+    "o": 750.23,
+    "h": 750.77,
+    "l": 750.06,
+    "c": 750.72,
+    "v": 207038
+   },
+   {
+    "et": "09:34",
+    "o": 750.7,
+    "h": 751.32,
+    "l": 750.61,
+    "c": 750.74,
+    "v": 286687
+   },
+   {
+    "et": "09:35",
+    "o": 750.76,
+    "h": 751.47,
+    "l": 750.74,
+    "c": 751.25,
+    "v": 310646
+   },
+   {
+    "et": "09:36",
+    "o": 751.245,
+    "h": 751.75,
+    "l": 751.245,
+    "c": 751.7,
+    "v": 229480
+   }
+  ],
+  "spy_5min_0915_0940": [
+   {
+    "et": "09:15",
+    "o": 751.09,
+    "h": 751.37,
+    "l": 751.09,
+    "c": 751.35,
+    "v": 45682
+   },
+   {
+    "et": "09:20",
+    "o": 751.34,
+    "h": 751.36,
+    "l": 751.1,
+    "c": 751.25,
+    "v": 25669
+   },
+   {
+    "et": "09:25",
+    "o": 751.16,
+    "h": 751.16,
+    "l": 749.33,
+    "c": 749.39,
+    "v": 283437
+   },
+   {
+    "et": "09:30",
+    "o": 749.44,
+    "h": 751.32,
+    "l": 748.8,
+    "c": 750.74,
+    "v": 1515036
+   },
+   {
+    "et": "09:35",
+    "o": 750.76,
+    "h": 751.94,
+    "l": 750.74,
+    "c": 751.72,
+    "v": 1182294
+   },
+   {
+    "et": "09:40",
+    "o": 751.7,
+    "h": 751.83,
+    "l": 750.97,
+    "c": 751.58,
+    "v": 780792
+   }
+  ],
+  "premarket_low": {
+   "price": 749.33,
+   "time_et": "09:29",
+   "volume": 62480,
+   "note": "tape-exact match to today-bias.json support 749.33; J recalled 749.53 (2 ticks high)"
+  },
+  "session_flush": {
+   "price": 748.8,
+   "time_et": "09:30 minute",
+   "note": "undercut of premarket low tagging 748.8 bias support; opening 5m bar closed 750.74 on 1,515,036 shares (undercut-and-reclaim)"
+  },
+  "dump_volume_multiple_vs_premarket_baseline": "5x-14x (premarket 1-min mean 6,230 shares)",
+  "engine_view": {
+   "safe_0930_0946": [
+    {
+     "ts_et": "2026-08-03T09:30:04",
+     "action": "SKIP_STALE_TRIGGER",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "spy": 748.57,
+     "trigger_bar_et": "2026-07-31T15:50:00-04:00",
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 748.5,
+     "bull_blockers": [],
+     "bull_score": 11,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:31:03",
+     "action": "SKIP_STALE_TRIGGER",
+     "verdict": "HOLD",
+     "spy": 746.79,
+     "trigger_bar_et": "2026-07-31T15:55:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [],
+     "bull_reclaim_level_raw": null,
+     "bull_blockers": [
+      7,
+      10,
+      11
+     ],
+     "bull_score": 8,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:32:03",
+     "action": "SKIP_STALE_TRIGGER",
+     "verdict": "HOLD",
+     "spy": 746.79,
+     "trigger_bar_et": "2026-07-31T15:55:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [],
+     "bull_reclaim_level_raw": null,
+     "bull_blockers": [
+      7,
+      10,
+      11
+     ],
+     "bull_score": 8,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:33:03",
+     "action": "SKIP_STALE_TRIGGER",
+     "verdict": "HOLD",
+     "spy": 746.79,
+     "trigger_bar_et": "2026-07-31T15:55:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [],
+     "bull_reclaim_level_raw": null,
+     "bull_blockers": [
+      7,
+      10,
+      11
+     ],
+     "bull_score": 8,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:34:03",
+     "action": "SKIP_STALE_TRIGGER",
+     "verdict": "HOLD",
+     "spy": 746.79,
+     "trigger_bar_et": "2026-07-31T15:55:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [],
+     "bull_reclaim_level_raw": null,
+     "bull_blockers": [
+      7,
+      10,
+      11
+     ],
+     "bull_score": 8,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:35:03",
+     "action": "SKIP_STALE_TRIGGER",
+     "verdict": "HOLD",
+     "spy": 746.79,
+     "trigger_bar_et": "2026-07-31T15:55:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [],
+     "bull_reclaim_level_raw": null,
+     "bull_blockers": [
+      7,
+      10,
+      11
+     ],
+     "bull_score": 8,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:36:03",
+     "action": "HOLD",
+     "verdict": "HOLD",
+     "spy": 750.7,
+     "trigger_bar_et": "2026-08-03T09:30:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 749.46,
+     "bull_blockers": [
+      1,
+      7
+     ],
+     "bull_score": 9,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:37:03",
+     "action": "HOLD",
+     "verdict": "HOLD",
+     "spy": 750.7,
+     "trigger_bar_et": "2026-08-03T09:30:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 749.46,
+     "bull_blockers": [
+      1,
+      7
+     ],
+     "bull_score": 9,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:38:03",
+     "action": "HOLD",
+     "verdict": "HOLD",
+     "spy": 750.7,
+     "trigger_bar_et": "2026-08-03T09:30:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 749.46,
+     "bull_blockers": [
+      1,
+      7
+     ],
+     "bull_score": 9,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:39:03",
+     "action": "HOLD",
+     "verdict": "HOLD",
+     "spy": 750.7,
+     "trigger_bar_et": "2026-08-03T09:30:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 749.46,
+     "bull_blockers": [
+      1,
+      7
+     ],
+     "bull_score": 9,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:40:03",
+     "action": "HOLD",
+     "verdict": "HOLD",
+     "spy": 750.7,
+     "trigger_bar_et": "2026-08-03T09:30:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 749.46,
+     "bull_blockers": [
+      1,
+      7
+     ],
+     "bull_score": 9,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:41:03",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "spy": 751.86,
+     "trigger_bar_et": "2026-08-03T09:35:00-04:00",
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 750.98,
+     "bull_blockers": [],
+     "bull_score": 11,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:42:03",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "spy": 751.86,
+     "trigger_bar_et": "2026-08-03T09:35:00-04:00",
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 750.98,
+     "bull_blockers": [],
+     "bull_score": 11,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:43:03",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "spy": 751.86,
+     "trigger_bar_et": "2026-08-03T09:35:00-04:00",
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 750.98,
+     "bull_blockers": [],
+     "bull_score": 11,
+     "levels_active_has_74933": false
+    },
+    {
+     "ts_et": "2026-08-03T09:44:03",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "spy": 751.86,
+     "trigger_bar_et": "2026-08-03T09:35:00-04:00",
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 750.98,
+     "bull_blockers": [],
+     "bull_score": 11,
+     "levels_active_has_74933": true
+    },
+    {
+     "ts_et": "2026-08-03T09:45:03",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "spy": 751.86,
+     "trigger_bar_et": "2026-08-03T09:35:00-04:00",
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 750.98,
+     "bull_blockers": [],
+     "bull_score": 11,
+     "levels_active_has_74933": true
+    },
+    {
+     "ts_et": "2026-08-03T09:46:03",
+     "action": "HOLD",
+     "verdict": "HOLD",
+     "spy": 751.58,
+     "trigger_bar_et": "2026-08-03T09:40:00-04:00",
+     "triggers": [],
+     "bull_triggers_raw": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "bull_reclaim_level_raw": 751.13,
+     "bull_blockers": [
+      10
+     ],
+     "bull_score": 10,
+     "levels_active_has_74933": true
+    }
+   ],
+   "first_tick_with_74933_in_levels_active": "2026-08-03T09:44:03"
+  },
+  "verdict": "(i) pre-window AND pre-frame: premarket bars are structurally outside the RTH-5m trigger frame; 09:30-09:35 ticks were stale-Friday-bar SKIPs; the opening bar's RAW level_reclaim DID fire at the 09:36 tick but filter 1 (bar_time 09:30 < 09:35) + filter 7 (bullish vol-divergence) stripped it; first actionable expression = 09:41 tick (ELITE 750.98 reclaim), fleet filled 09:42. 749.33 entered levels_active only at 09:44:03 -- 15 min after the tape respected it."
+ },
+ "entry_window_history": {
+  "safe-3": {
+   "2026-07-10": 1,
+   "2026-08-03": 1
+  },
+  "risky-1": {
+   "2026-07-10": 1,
+   "2026-08-03": 1
+  },
+  "risky-3": {
+   "2026-07-10": 1,
+   "2026-08-03": 1
+  },
+  "core_stale_with_elite_verdict": {
+   "2026-07-16": 4,
+   "2026-07-31": 10,
+   "2026-08-03": 2
+  }
+ },
+ "prereg_entry_window_ab": {
+  "_frozen_at": "2026-08-03T17:05 ET, BEFORE any runner exists -- this block is the pre-registration",
+  "hypothesis": "Admitting earlier trigger bars adds net positive expectancy on first-15-minute signals",
+  "arms": [
+   {
+    "id": "W1_window_0931",
+    "change": "entry_no_trade_before_et 09:35 -> 09:31 (filter-1 floor 09:30 bar admitted once CLOSED at 09:35... i.e. trigger-bar time floor 09:35 -> 09:30)"
+   },
+   {
+    "id": "W2_premarket_frame",
+    "change": "premarket 5m bars admitted to the trigger frame (frame change, not window change)"
+   }
+  ],
+  "population": "every ledger day with >=1 raw first-15-min trigger (bull_triggers_raw or bear_triggers_raw non-empty on any 09:30-09:45 tick) -- known qualifying sessions so far: 2026-07-10, 2026-07-16, 2026-07-31, 2026-08-03",
+  "method": "replay each arm vs control through the real engine path on real OPRA bars, sequential one-position, per-account tier/exit shapes; cluster dedup 15-min gap",
+  "gates_frozen": {
+   "n_min_events": 20,
+   "oos_positive": true,
+   "sub_window_stable": true,
+   "drop_best_no_worse": true
+  },
+  "kill": "negative expectancy at n>=20 events -> dead, do not slice",
+  "status": "PREREG ONLY -- runner not built, nothing armed (per lens directive)",
+  "caveat": "today's opening-bar reclaim was ALSO filter-7 (vol-divergence) blocked -- the window is not the sole binding constraint; the A/B must not credit the window arm with trades filter 7 would still refuse"
+ },
+ "replay_tomorrow_engine": {
+  "method": "sequential one-position walk per core account over the 51 armed elite ticks; entry = tick-minute option bar OPEN; exits mirror exit_manager.plan_exit_actions ordering exactly (structure -> catastrophe -50% -> time 15:40 -> TP1 +100% sell int(qty*0.667); post-TP1: BE + trail 15% off HWM, runner target 99x=never); exit fills at triggering minute CLOSE; strikes: safe ATM / bold OTM-2 at $5K (live tier tables); floors: $0.30 premium, 15:00 entry ceiling, PDT<=3 strict, one-position",
+  "walker_parity_vs_todays_real_fleet_trades": {
+   "safe-3": {
+    "sim_legs": [
+     [
+      "10:02",
+      0.91,
+      2,
+      "tp1"
+     ],
+     [
+      "10:03",
+      0.84,
+      1,
+      "runner_trail_stop"
+     ]
+    ],
+    "sim_exit_detail": "trail@10:03",
+    "sim_pnl_on_true_cost": 155.0,
+    "actual_legs": [
+     [
+      "10:03",
+      0.92,
+      2,
+      "tp1"
+     ],
+     [
+      "10:05",
+      0.72,
+      1,
+      "runner"
+     ]
+    ],
+    "actual_pnl": 144.85,
+    "err": 10.15
+   },
+   "risky-1": {
+    "sim_legs": [
+     [
+      "09:53",
+      0.61,
+      3,
+      "tp1"
+     ],
+     [
+      "09:54",
+      0.57,
+      2,
+      "runner_trail_stop"
+     ]
+    ],
+    "sim_exit_detail": "trail@09:54",
+    "sim_pnl_on_true_cost": 112.0,
+    "actual_legs": [
+     [
+      "09:54",
+      0.6,
+      3,
+      "tp1"
+     ],
+     [
+      "10:04",
+      0.75,
+      2,
+      "runner"
+     ]
+    ],
+    "actual_pnl": 144.76,
+    "err": -32.76
+   },
+   "risky-3": {
+    "sim_legs": [
+     [
+      "09:58",
+      0.73,
+      3,
+      "tp1"
+     ],
+     [
+      "10:00",
+      0.73,
+      2,
+      "runner_trail_stop"
+     ]
+    ],
+    "sim_exit_detail": "trail@10:00",
+    "sim_pnl_on_true_cost": 175.0,
+    "actual_legs": [
+     [
+      "10:01",
+      0.73,
+      3,
+      "tp1"
+     ],
+     [
+      "10:05",
+      0.735,
+      2,
+      "runner"
+     ]
+    ],
+    "actual_pnl": 175.76,
+    "err": -0.76
+   }
+  },
+  "parity_note": "risky-3 err -$0.76, safe-3 +$10.15, risky-1 -$32.76; live exit manager samples point quotes 1x/min vs walker bar ranges -- treat per-trade sim as +/-$35",
+  "core_sequential": {
+   "safe-2": {
+    "admitted": [
+     {
+      "tick": "09:41",
+      "sym": "SPY260803C00752000",
+      "entry": 1.18,
+      "qty": 3,
+      "trigger_level": 750.98,
+      "legs": [
+       [
+        "10:03",
+        2.16,
+        2,
+        "tp1"
+       ],
+       [
+        "10:04",
+        2.03,
+        1,
+        "runner_trail_stop"
+       ]
+      ],
+      "exit_detail": "trail@10:04",
+      "pnl": 281.0
+     },
+     {
+      "tick": "11:51",
+      "sym": "SPY260803C00756000",
+      "entry": 0.77,
+      "qty": 3,
+      "trigger_level": 755.7,
+      "legs": [
+       [
+        "13:34",
+        1.61,
+        2,
+        "tp1"
+       ],
+       [
+        "13:38",
+        1.49,
+        1,
+        "runner_trail_stop"
+       ]
+      ],
+      "exit_detail": "trail@13:38",
+      "pnl": 240.0
+     },
+     {
+      "tick": "13:51",
+      "sym": "SPY260803C00757000",
+      "entry": 0.95,
+      "qty": 3,
+      "trigger_level": 757.36,
+      "legs": [
+       [
+        "15:40",
+        1.24,
+        3,
+        "time_stop"
+       ]
+      ],
+      "exit_detail": "time@15:40",
+      "pnl": 87.0
+     }
+    ],
+    "preempted_not_flat": [
+     {
+      "tick": "09:42",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:43",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:44",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:45",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:51",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:52",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:53",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:54",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:55",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:56",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:57",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:58",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:59",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "10:00",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "11:52",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "11:53",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "11:54",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "11:55",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "12:31",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "12:32",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "12:33",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "12:34",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "12:35",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:16",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:17",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:18",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:19",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:20",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:21",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:22",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:23",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:24",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:25",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:52",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:53",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:56",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:57",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:58",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "13:59",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "14:00",
+      "why": "NOT_FLAT (position open)"
+     }
+    ],
+    "blocked": [
+     {
+      "tick": "15:06",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:07",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:08",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:09",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:10",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:21",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:22",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:23",
+      "why": "entry_ceiling_15:00"
+     }
+    ],
+    "n_admitted": 3,
+    "n_preempted": 40,
+    "n_blocked": 8,
+    "day_pnl": 608.0
+   },
+   "bold-2": {
+    "admitted": [
+     {
+      "tick": "09:41",
+      "sym": "SPY260803C00754000",
+      "entry": 0.39,
+      "qty": 5,
+      "trigger_level": 750.98,
+      "legs": [
+       [
+        "09:59",
+        0.81,
+        3,
+        "tp1"
+       ],
+       [
+        "10:00",
+        0.73,
+        2,
+        "runner_trail_stop"
+       ]
+      ],
+      "exit_detail": "trail@10:00",
+      "pnl": 194.0
+     }
+    ],
+    "preempted_not_flat": [
+     {
+      "tick": "09:42",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:43",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:44",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:45",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:51",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:52",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:53",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:54",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:55",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:56",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:57",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:58",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "09:59",
+      "why": "NOT_FLAT (position open)"
+     },
+     {
+      "tick": "10:00",
+      "why": "NOT_FLAT (position open)"
+     }
+    ],
+    "blocked": [
+     {
+      "tick": "11:51",
+      "why": "SIZING min_premium: SPY260803C00758000 open 0.14 < 0.30"
+     },
+     {
+      "tick": "11:52",
+      "why": "SIZING min_premium: SPY260803C00758000 open 0.14 < 0.30"
+     },
+     {
+      "tick": "11:53",
+      "why": "SIZING min_premium: SPY260803C00758000 open 0.13 < 0.30"
+     },
+     {
+      "tick": "11:54",
+      "why": "SIZING min_premium: SPY260803C00758000 open 0.15 < 0.30"
+     },
+     {
+      "tick": "11:55",
+      "why": "SIZING min_premium: SPY260803C00758000 open 0.15 < 0.30"
+     },
+     {
+      "tick": "12:31",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.06 < 0.30"
+     },
+     {
+      "tick": "12:32",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.06 < 0.30"
+     },
+     {
+      "tick": "12:33",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "12:34",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.06 < 0.30"
+     },
+     {
+      "tick": "12:35",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.06 < 0.30"
+     },
+     {
+      "tick": "13:16",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "13:17",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "13:18",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "13:19",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "13:20",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "13:21",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.08 < 0.30"
+     },
+     {
+      "tick": "13:22",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.07 < 0.30"
+     },
+     {
+      "tick": "13:23",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.09 < 0.30"
+     },
+     {
+      "tick": "13:24",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.08 < 0.30"
+     },
+     {
+      "tick": "13:25",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.09 < 0.30"
+     },
+     {
+      "tick": "13:51",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.16 < 0.30"
+     },
+     {
+      "tick": "13:52",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.17 < 0.30"
+     },
+     {
+      "tick": "13:53",
+      "why": "SIZING min_premium: SPY260803C00759000 open 0.18 < 0.30"
+     },
+     {
+      "tick": "13:56",
+      "why": "SIZING min_premium: SPY260803C00760000 open 0.1 < 0.30"
+     },
+     {
+      "tick": "13:57",
+      "why": "SIZING min_premium: SPY260803C00760000 open 0.1 < 0.30"
+     },
+     {
+      "tick": "13:58",
+      "why": "SIZING min_premium: SPY260803C00760000 open 0.11 < 0.30"
+     },
+     {
+      "tick": "13:59",
+      "why": "SIZING min_premium: SPY260803C00760000 open 0.13 < 0.30"
+     },
+     {
+      "tick": "14:00",
+      "why": "SIZING min_premium: SPY260803C00760000 open 0.12 < 0.30"
+     },
+     {
+      "tick": "15:06",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:07",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:08",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:09",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:10",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:21",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:22",
+      "why": "entry_ceiling_15:00"
+     },
+     {
+      "tick": "15:23",
+      "why": "entry_ceiling_15:00"
+     }
+    ],
+    "n_admitted": 1,
+    "n_preempted": 14,
+    "n_blocked": 36,
+    "day_pnl": 194.0
+   }
+  },
+  "fleet_ship_a_sim": {
+   "safe-3": {
+    "anchor": 0.37,
+    "qty": 3,
+    "note": "",
+    "legs": [
+     [
+      "09:58",
+      0.73,
+      2,
+      "tp1"
+     ],
+     [
+      "09:59",
+      0.81,
+      1,
+      "runner_trail_stop"
+     ]
+    ],
+    "exit_detail": "trail@09:59",
+    "pnl": 116.0,
+    "delta_vs_actual": -28.85
+   },
+   "risky-1": {
+    "anchor": 0.37,
+    "qty": 5,
+    "note": "",
+    "legs": [
+     [
+      "09:53",
+      0.61,
+      3,
+      "tp1"
+     ],
+     [
+      "09:54",
+      0.57,
+      2,
+      "runner_trail_stop"
+     ]
+    ],
+    "exit_detail": "trail@09:54",
+    "pnl": 112.0,
+    "delta_vs_actual": -32.76
+   },
+   "risky-3": {
+    "anchor": 0.38,
+    "qty": 10,
+    "note": "SHIP C qty 5->10 (premium < $0.50)",
+    "legs": [
+     [
+      "09:58",
+      0.73,
+      6,
+      "tp1"
+     ],
+     [
+      "10:00",
+      0.73,
+      4,
+      "runner_trail_stop"
+     ]
+    ],
+    "exit_detail": "trail@10:00",
+    "pnl": 350.0,
+    "delta_vs_actual": 174.24
+   }
+  },
+  "ship_deltas_today_sim": {
+   "SHIP_A_fleet": {
+    "safe-3": -39.0,
+    "risky-1": 0.0,
+    "risky-3": 0.0,
+    "framing": "protection cost on a spike day (limit-anchor TP1 lucked into the 0.92 spike); consistent with the package's tail-risk-not-P&L framing"
+   },
+   "SHIP_B_cores": {
+    "safe-2_sim": 608.0,
+    "safe-2_actual_replaced": 67.85,
+    "bold-2_sim": 194.0,
+    "label": "ANECDOTE -- n=4 entries, one bull-trend day; 391-day aggregate for unblocking remains negative; trade-to-learn with frozen kill criterion"
+   },
+   "SHIP_C_risky3": {
+    "delta_exact_2x_of_real_fills": 175.76,
+    "day": 351.52,
+    "label": "ANECDOTE n=1 signal"
+   }
+  },
+  "elite_cluster_accounting": {
+   "clusters": 11,
+   "stale_excluded": 1,
+   "safe": {
+    "admitted": 3,
+    "preempted_not_flat": 40,
+    "blocked_ceiling_1500": 8
+   },
+   "bold": {
+    "admitted": 1,
+    "preempted_not_flat": 14,
+    "blocked_floor": 28,
+    "blocked_ceiling_1500": 8
+   }
+  }
+ },
+ "scoreboard": {
+  "actual_real_fills": {
+   "safe-3": 144.85,
+   "risky-1": 144.76,
+   "risky-3": 175.76,
+   "safe-2": 67.85,
+   "bold-2": 0.0,
+   "total": 533.22
+  },
+  "tomorrow_engine_sim_ANECDOTE": {
+   "safe-3": 116.0,
+   "risky-1": 112.0,
+   "risky-3": 351.52,
+   "safe-2": 608.0,
+   "bold-2": 194.0,
+   "total_approx": 1381.5
+  }
+ },
+ "caveats": [
+  "ALL replay numbers are SIM on real OPRA-derived minute bars -- not broker fills; broker fills remain the only P&L authority",
+  "n=4 newly-admitted core entries = ANECDOTE by standing discipline; one trending bull day",
+  "walker parity band +/-$35/trade observed on today's 3 real round-trips (point-quote vs bar-range sampling)",
+  "entry fills approximated at tick-minute bar OPEN (real fills today landed 1-3s after tick; bold sim 0.39 vs fleet real 0.37/0.38 at the same signal)",
+  "safe-2's real bollinger trade (+$67.85) is PRE-EMPTED in the replay world (position open at 13:21) -- the +$608 replaces, not adds to, +$67.85",
+  "SHIP A safe-3 -$39 today is the honest cost of protection on a day the wrong anchor got lucky (0.92 spike); the fix's case is the 105-fill tail-risk replay, not today",
+  "sequential admission re-enters the minute after flat; the live engine's cooldown may differ slightly (same-bar cooldown observed on the bollinger lane)",
+  "PDT modeled at the strict 3-round-trips/day reading; params carry pdt_gate_mode=cash_settlement/max_same_day_roundtrips=5 -- the walk never needed >3 so the readings do not diverge today"
+ ]
+}
