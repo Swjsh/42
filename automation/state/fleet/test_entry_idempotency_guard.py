@@ -97,6 +97,13 @@ class _FakeBroker:
         self.symbol_position_qty_checked_calls += 1
         return self._post_cancel_qty, self._post_cancel_qty_ok
 
+    def order_posts(self):
+        """Only actual order-placement POSTs. SHIP A (2026-08-03, entry-anchor-to-fill)
+        added a fill POLL (GET orders/<id>) immediately after placement, so raw
+        self.posts now records placement + polls. These tests exist to count
+        PLACEMENTS -- filtering preserves their protective intent exactly."""
+        return [r for r in self.posts if r["method"] == "POST" and r["endpoint"] == "orders"]
+
     def request(self, creds, endpoint, method="GET", data=None, timeout=15):
         rec = {"endpoint": endpoint, "method": method, "data": data}
         self.posts.append(rec)
@@ -160,14 +167,14 @@ def test_two_ticks_same_window_only_first_places(monkeypatch, tmp_path):
 
     res1 = fl._place_live({}, ARM, _decision(), EXIT_SHAPE, {}, {}, _NOW)
     assert res1["placed"] is True
-    assert len(fake.posts) == 1
+    assert len(fake.order_posts()) == 1
     calls_after_first = fake.open_buy_orders_checked_calls
 
     tick2_now = _NOW + timedelta(seconds=30)  # well inside ENTRY_CLAIM_TTL_SEC (180s)
     res2 = fl._place_live({}, ARM, _decision(), EXIT_SHAPE, {}, {}, tick2_now)
     assert res2["placed"] is False
     assert res2["reason"] == "SKIP_DUPLICATE_CLAIM"
-    assert len(fake.posts) == 1, "tick N+1 must NOT place a second order"
+    assert len(fake.order_posts()) == 1, "tick N+1 must NOT place a second order"
     assert fake.open_buy_orders_checked_calls == calls_after_first, \
         "the claim must short-circuit BEFORE any broker call on the second tick"
 
@@ -183,7 +190,7 @@ def test_claim_expires_after_ttl_and_a_fresh_entry_is_allowed(monkeypatch, tmp_p
     later = _NOW + timedelta(seconds=fl.ENTRY_CLAIM_TTL_SEC + 1)
     res2 = fl._place_live({}, ARM, _decision(), EXIT_SHAPE, {}, {}, later)
     assert res2["placed"] is True, "an expired claim must not block a later, distinct tick"
-    assert len(fake.posts) == 2
+    assert len(fake.order_posts()) == 2
 
 
 # --- (d) normal clean path -> places exactly once (no regression) --------------------------
@@ -194,8 +201,8 @@ def test_clean_path_places_exactly_once(monkeypatch, tmp_path):
     _wire(monkeypatch, fake, tmp_path)
     res = fl._place_live({}, ARM, _decision(), EXIT_SHAPE, {}, {}, _NOW)
     assert res["placed"] is True
-    assert len(fake.posts) == 1
-    order = fake.posts[0]
+    assert len(fake.order_posts()) == 1
+    order = fake.order_posts()[0]
     assert order["endpoint"] == "orders" and order["method"] == "POST"
     assert order["data"]["side"] == "buy" and order["data"]["type"] == "limit"
     assert fake.cancel_calls == [], "nothing to cancel on the clean path"

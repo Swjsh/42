@@ -143,7 +143,12 @@ def test_safe1_is_retired_not_dispatched():
     """
     safe1 = next(a for a in ACCOUNTS["arms"] if a["id"] == "safe-1")
     assert safe1["status"] == "retired", "safe-1 must be present but retired, not deleted"
-    assert safe1["account_number"] == "PA3DHPT7KIQE"
+    # 2026-08-03 (J's full account wipe + $5K rebuild): the shared core-Safe account is now
+    # PA3POKNV46VG (the old PA3DHPT7KIQE was deleted at the broker). The guard's INTENT is
+    # unchanged and still pinned: safe-1 exists, is retired, and shares core Safe's CURRENT
+    # account rather than carrying a live one of its own.
+    safe2 = next(a for a in ACCOUNTS["arms"] if a["id"] == "safe-2")
+    assert safe1["account_number"] == safe2["account_number"] == "PA3POKNV46VG"
 
     fleet_rest_active = {a["id"] for a in ACCOUNTS["arms"]
                           if a.get("status") == "active" and a.get("execution") == "fleet_rest"}

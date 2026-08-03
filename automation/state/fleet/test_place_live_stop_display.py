@@ -40,7 +40,12 @@ class _FakeBroker:
         return {}
 
     def request(self, creds, endpoint, method="GET", data=None, timeout=15):
-        self.captured = {"endpoint": endpoint, "method": method, "data": data}
+        # SHIP A (2026-08-03): _place_live now polls the fill (GET orders/<id>) right after
+        # placement, so "last request" is no longer the placement. `captured` exists so these
+        # tests can assert the ORDER POST's shape -- keep it pinned to the placement POST and
+        # ignore the poll GETs, preserving the assertions' original protective intent.
+        if method == "POST" and endpoint == "orders":
+            self.captured = {"endpoint": endpoint, "method": method, "data": data}
         return {"id": "fake-order", "status": "accepted"}
 
 
