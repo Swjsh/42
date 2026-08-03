@@ -406,7 +406,26 @@
   decayed on theta, holding would have lost more (-\$615 vs -\$305) -- the cap was correct today.
   This is the FIRST study to touch catastrophe_stop_pct itself (trail-width + structure-ref both
   held it at -0.50). ACCRUE: shadow-log every future catastrophe-cap fire + its held-to-EOD
-  counterfactual until n>=10, then a pre-registered decision. Do NOT widen on n=4. depends:none :: status:pending
+  counterfactual until n>=10, then a pre-registered decision. Do NOT widen on n=4.
+  **ACCRUAL MECHANISM SHIPPED 2026-08-03 (conductor, AFTERHOURS), commit pending** --
+  `setup/scripts/catastrophe_cap_shadow_ledger.py`: descriptive-only, extends
+  `trade_autopsy`/`winner_autopsy`/`pain_ledger`'s existing loaders (one definition each of "a
+  position" / "the configured stop" / "which stage closed a fill" -- no re-derivation), folded
+  into the existing `Gamma_WinnerAutopsy` 16:25 ET fire (no new scheduled task, fail-open, runs
+  last, same contract as the WS9 pain-ledger fold). Fire = stop_basis=='structure_catastrophe_cap'
+  AND closing stage=='premium_stop' (unambiguous per pain_ledger's own EXITMGR-STAGE-LABEL-
+  CONFLATION note). Ledger: `analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl`
+  (append-only, dedup date+arm+symbol). Summary: `automation/state/catastrophe-cap-shadow-
+  summary.json`. 17/17 new guards (`backtest/tests/test_catastrophe_cap_shadow_ledger.py`), 115/115
+  across the whole autopsy-family suite after the fold. **REAL SMOKE RESULT (first live run,
+  2026-08-03):** n=7 fires already accrued since 2026-07-23 (across bold-2/safe-2/safe-3/risky-1/
+  risky-3, both directions -- NOT bear-only like the original n=4 study) -- aggregate actual
+  $-1,004 vs aggregate held-to-EOD counterfactual $-2,248, **0/7 would have been better held**
+  (opposite direction from the original n=4's 4/4-shakeout finding; DESCRIPTIVE ONLY, not a
+  verdict, n<10 still). Idempotency verified (0 new on immediate re-run). STATUS.md
+  `## Known broken` gets ONE transition-only line the moment n first reaches 10 -- naming this
+  item as ready for its own future pre-registered decision study, never auto-deciding.
+  depends:none :: status:pending (accruing; not yet ready for the n>=10 decision)
 
 ### ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, THE build -- 3 live exhibits, mirror-symmetric, untested by the 181-cell matrix)
 
@@ -2798,21 +2817,21 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-RSIEXTREME-20260802-100133 (MED) :: BTC v03_indicators rsi_14=19.48 (oversold) at last_close=62871.01 bin=2026-08-01T16:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-01T16:20:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100134 (MED) :: BTC v03_indicators rsi_14=18.57 (oversold) at last_close=62450.79 bin=2026-08-01T18:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-01T18:25:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100135 (MED) :: BTC v03_indicators rsi_14=84.44 (overbought) at last_close=63328.64 bin=2026-08-02T02:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T02:10:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100136 (MED) :: BTC v03_indicators rsi_14=85.73 (overbought) at last_close=63385.44 bin=2026-08-02T02:15:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T02:15:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100137 (MED) :: BTC v03_indicators rsi_14=85.27 (overbought) at last_close=63382.01 bin=2026-08-02T02:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T02:20:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100138 (MED) :: BTC v03_indicators rsi_14=85.92 (overbought) at last_close=63458.53 bin=2026-08-02T02:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T02:25:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100139 (MED) :: BTC v03_indicators rsi_14=19.87 (oversold) at last_close=63158.5 bin=2026-08-02T08:45:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T08:45:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100140 (MED) :: BTC v03_indicators rsi_14=19.80 (oversold) at last_close=63149.23 bin=2026-08-02T08:55:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T08:55:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100141 (MED) :: BTC v03_indicators rsi_14=18.69 (oversold) at last_close=63130.04 bin=2026-08-02T09:00:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T09:00:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260802-100142 (MED) :: BTC v03_indicators rsi_14=14.48 (oversold) at last_close=63038.01 bin=2026-08-02T09:05:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-02T09:05:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260802-100143 (MED) :: v14_sweep liquidity-grab at level=63000 dir=up bar_idx=95 | wick_excess=0.0333% close_back=0.1043% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-02T09:57:03.074350+00:00:63000:up:95 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260801-100122 (LOW) :: v09_regime TREND_DOWN dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=59 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-31T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260801-100123 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=CHOP atr_14=57 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-31T11:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260801-100124 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=55 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-31T12:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260801-100125 (LOW) :: v09_regime TREND_DOWN dominant: 63/81 bars (78%) | last_regime=TREND_DOWN atr_14=62 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-31T13:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100126 (MED) :: BTC v03_indicators rsi_14=19.84 (oversold) at last_close=63207.47 bin=2026-07-31T13:55:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T13:55:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260801-100127 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=BREAKOUT atr_14=105 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-31T14:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100128 (MED) :: BTC v03_indicators rsi_14=19.43 (oversold) at last_close=63193.69 bin=2026-07-31T14:00:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:00:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100129 (MED) :: BTC v03_indicators rsi_14=18.15 (oversold) at last_close=63148.71 bin=2026-07-31T14:05:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:05:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100130 (MED) :: BTC v03_indicators rsi_14=9.78 (oversold) at last_close=62590.71 bin=2026-07-31T14:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:10:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100131 (MED) :: BTC v03_indicators rsi_14=18.30 (oversold) at last_close=62691.41 bin=2026-07-31T14:15:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:15:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100132 (MED) :: BTC v03_indicators rsi_14=10.48 (oversold) at last_close=62472.06 bin=2026-07-31T14:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:20:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100133 (MED) :: BTC v03_indicators rsi_14=10.55 (oversold) at last_close=62482.32 bin=2026-07-31T14:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:25:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100134 (MED) :: BTC v03_indicators rsi_14=12.82 (oversold) at last_close=62522.1 bin=2026-07-31T14:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:30:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260801-100135 (MED) :: BTC v03_indicators rsi_14=17.12 (oversold) at last_close=62573.16 bin=2026-07-31T14:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-31T14:35:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260801-100136 (MED) :: v14_sweep liquidity-grab at level=63000 dir=up bar_idx=48 | wick_excess=0.0406% close_back=0.0897% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-01T09:57:03.068195+00:00:63000:up:48 :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 

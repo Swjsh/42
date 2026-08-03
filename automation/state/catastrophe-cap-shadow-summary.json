@@ -1,0 +1,14 @@
+{
+ "n_fires": 7,
+ "n_counterfactual_scored": 7,
+ "aggregate_actual_pnl": -1004.0,
+ "aggregate_held_to_eod_counterfactual_pnl": -2248.0,
+ "n_would_have_been_better_held": 0,
+ "rate_would_have_been_better_held": 0.0,
+ "decision_n": 10,
+ "ready_for_decision": false,
+ "descriptive_only": true,
+ "note": "n < decision_n: DO NOT widen catastrophe_stop_pct on this evidence -- accrual continues. File a fresh pre-registered A/B (mirroring catastrophe_stop_shakeout_ab.py's 4-gate methodology) once ready.",
+ "generated_at_et": "2026-08-03T01:11:44.830805",
+ "n_new_this_run": 0
+}

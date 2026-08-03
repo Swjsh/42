@@ -991,6 +991,7 @@ def main() -> int:
             "winners_only_sample": True,  # consumers MUST NOT read this as a policy comparison
             "pain_ledger": None,  # WS9 fold fills this below; None on scoped fires / if killed
             "fill_latency": None,  # Next-Twelve #5 fold fills this below; same fold contract
+            "catastrophe_cap_shadow": None,  # 2026-08-03 fold fills this below; same contract
             "md": f"analysis/winner-autopsies/{base}.md",
         }
         LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
@@ -1018,6 +1019,16 @@ def main() -> int:
                 last_payload["fill_latency"] = fill_latency.build_ledger()
             except Exception as le:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["fill_latency"] = {"error": f"{type(le).__name__}: {le}"[:200]}
+            # --- CATASTROPHE-CAP-WIDEN-WATCH accrual (2026-08-03) rides this SAME nightly
+            # fire, SAME fold contract as pain_ledger/fill_latency above (no new scheduled
+            # task, fail-open, population-product only, runs last). ACCRUAL ONLY -- shadow-
+            # logs real catastrophe-cap fires + held-to-EOD counterfactual toward the n>=10
+            # bar queue.md's CATASTROPHE-CAP-WIDEN-WATCH item requires before any decision.
+            try:
+                import catastrophe_cap_shadow_ledger as ccs
+                last_payload["catastrophe_cap_shadow"] = ccs.run()
+            except Exception as ce:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["catastrophe_cap_shadow"] = {"error": f"{type(ce).__name__}: {ce}"[:200]}
             LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
 
         print(f"[winner-autopsy] {scope}: {len(winners)} winners found, {len(rows)} autopsied, "
