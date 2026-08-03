@@ -1424,7 +1424,8 @@ def run_account(account: str, core_tick_id: str | None = None) -> dict:
             # WHO places migrates. DEFAULT (CORE_PLACES_ORDERS=True) never reaches this branch.
             rec["action"] = "PERCEPTION_ONLY"
         else:
-            rec["exec"] = _reconcile_exec(_execute(account, verdict, payload, params, dry=not ARMED))
+            rec["exec"] = _reanchor_after_reconcile(
+                account, _reconcile_exec(_execute(account, verdict, payload, params, dry=not ARMED)))
             rec["action"] = rec["exec"].get("status")
             # BULL-WIRING REGRESSION GUARD (2026-06-28, swarm-recommended): an ENTER_BULL
             # verdict MUST reach _execute exactly like ENTER_BEAR. If a future change ever
@@ -1597,6 +1598,53 @@ def _reconcile_exec(exec_row: "dict | None") -> "dict | None":
     except Exception as e:  # noqa: BLE001 — reconciliation must never break the ledger write
         exec_row["fill"] = {"reconcile_status": "RECONCILE_PENDING",
                             "reconcile_error": f"{type(e).__name__}: {e}"}
+    return exec_row
+
+
+def _reanchor_after_reconcile(account: str, exec_row: "dict | None") -> "dict | None":
+    """ENTRY-ANCHOR-TO-FILL FIX (2026-08-03), FIX3's missing other half. _reconcile_exec
+    (above) already polls the real fill and writes it into exec_row["fill"]["filled_avg_
+    price"] -- but that reconciled value was NEVER fed back into the ExitState that
+    _execute's register_entry call already persisted (using entry_px, the PRE-FILL
+    marketable-limit price). Every derived exit threshold (TP1 target, runner_stop_
+    premium, hwm_premium) stayed anchored to the wrong, higher number for the position's
+    entire life. This is J's #1 stated fear's mechanism: TP1/the post-TP1 profit-lock arm
+    both need MORE favorable movement than they should, leaving more size exposed to the
+    catastrophe stop for longer. See exit_actuator.reanchor_entry's own docstring for the
+    full mechanism, the conservative refuse-and-log cases, and the live worked example
+    (safe-3, 2026-08-03). Called ONCE, right after _reconcile_exec, at BOTH call sites
+    (the primary ribbon path and _route_extra_setups) -- kept as a single shared helper so
+    the two paths cannot drift (Operating Principle #4 / gamma-sync doctrine).
+
+    No-op (returns exec_row unchanged) whenever: exec_row isn't a dict placed this tick
+    (no "symbol"/no exit_managed), or the reconciled fill has no usable filled_avg_price
+    (RECONCILE_PENDING / poll never resolved -- keep the limit anchor, never guess).
+    Never raises -- a reanchor failure must never break the tick's ledger write. Writes a
+    `exec_row["reanchor"]` visibility marker either way (loud, never silent).
+    Guard: backtest/tests/test_entry_anchor_to_fill_2026_08_03.py."""
+    if not isinstance(exec_row, dict) or not exec_row.get("exit_managed"):
+        return exec_row
+    symbol = exec_row.get("symbol")
+    fill = exec_row.get("fill") or {}
+    true_fill = fill.get("filled_avg_price")
+    if not symbol or true_fill in (None, ""):
+        exec_row["reanchor"] = {"applied": False, "reason": "fill_unknown_kept_limit_anchor"}
+        return exec_row
+    try:
+        arm_id = ACCOUNTS[account]["fleet_arm"]
+        import exit_actuator as _ea  # noqa: PLC0415
+        new_state = _ea.reanchor_entry(arm_id, symbol=symbol, true_entry_premium=true_fill)
+        if new_state is not None:
+            exec_row["reanchor"] = {"applied": True, "true_entry_premium": new_state.entry_premium,
+                                    "runner_stop_premium": new_state.runner_stop_premium}
+        else:
+            exec_row["reanchor"] = {"applied": False,
+                                    "reason": "no_eligible_exitstate_kept_limit_anchor"}
+            logger.warning(f"[reanchor] SKIPPED {symbol} ({account}): no eligible ExitState "
+                           f"-- riding out on the limit anchor")
+    except Exception as e:  # noqa: BLE001 — reanchoring must never break the ledger write
+        exec_row["reanchor"] = {"applied": False, "reason": f"{type(e).__name__}: {e}"}
+        logger.warning(f"[reanchor] FAILED for {symbol} ({account}): {type(e).__name__}: {e}")
     return exec_row
 
 
@@ -2352,7 +2400,8 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
             if not CORE_PLACES_ORDERS:
                 out.append({"setup": setup, "action": "PERCEPTION_ONLY"})
                 continue
-            ex = _reconcile_exec(_execute(account, sv, payload, params, dry=not ARMED))
+            ex = _reanchor_after_reconcile(
+                account, _reconcile_exec(_execute(account, sv, payload, params, dry=not ARMED)))
             out.append({"setup": setup, "action": ex.get("status"), "exec": ex, "sight_check": _sight})
             if ex.get("status") in _TAKEN:
                 placed_this_tick = True

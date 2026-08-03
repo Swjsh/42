@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -143,6 +144,88 @@ def register_entry(arm_id: str, *, symbol: str, side: str, entry_premium: float,
     states[symbol] = st
     save_states(arm_id, states)
     return st
+
+
+def reanchor_entry(arm_id: str, *, symbol: str, true_entry_premium: Optional[float],
+                   reason: str = "fill_reconcile") -> "Optional[em.ExitState]":
+    """ENTRY-ANCHOR-TO-FILL FIX (2026-08-03). register_entry (above) necessarily seeds
+    entry_premium from the PRE-FILL marketable-limit price (entry_px = ask + buffer,
+    fleet_broker.marketable_limit_price) -- the true fill is not known until the broker
+    confirms it, which happens strictly AFTER registration in both live callers
+    (fleet_live.py#_place_live places the order then registers synchronously; heartbeat_
+    core.py#_execute registers synchronously, then the CALLER polls via _reconcile_exec).
+    Whenever the fill prices BETTER than the limit -- the common case, confirmed against
+    real broker fills 2026-08-03 (safe-3 limit 0.42/fill 0.37, risky-1 limit 0.41/fill
+    0.37) and against the 105-fill population in
+    analysis/recommendations/entry-execution-cost-2026-08-02.json (98.1% of real fills,
+    avg 4.11c/contract) -- every threshold DERIVED from entry_premium is anchored HIGH:
+    TP1 needs MORE favorable movement than it should before the partial take-profit (and
+    the post-TP1 profit-lock arm, profit_lock_arm_scope="post_tp1") engages, leaving MORE
+    size exposed to the catastrophe stop for LONGER than the validated exit shape intends.
+    This is the exact mechanism behind J's stated #1 fear ("when it crashes, we end up
+    selling the trade and not making any money") -- see analysis/staged/
+    entry-anchor-fix-2026-08-03.diff's cover doc for the live worked example
+    (safe-3, 2026-08-03: TP1 sat at $0.84 instead of the true $0.74 while price traded
+    above $0.74 for several minutes with zero trail armed).
+
+    This function re-anchors ONCE, immediately after the fill is confirmed, correcting
+    entry_premium plus every price DERIVED from it via the EXACT SAME formula
+    ExitState.from_entry already uses (`runner_stop_premium = entry_premium * (1 +
+    premium_stop_pct)`) -- it never re-resolves stop_mode/trigger_level/premium_stop_pct
+    themselves (those stay frozen-once per from_entry's own "never flaps mid-trade"
+    contract; only the PRICE they are anchored to moves).
+
+    CONSERVATIVE BY DESIGN -- returns None (caller logs loudly, keeps the limit anchor)
+    whenever:
+      * no persisted ExitState exists for `symbol` under `arm_id` (registration itself
+        failed/raced -- nothing to re-anchor)
+      * true_entry_premium is None or <= 0 (fill unknown/unparseable after polling --
+        NEVER guess; the limit-anchored state from register_entry stands as-is, which is
+        exactly today's pre-fix behavior, not a regression)
+      * st.tp1_filled is already True, OR st.profit_lock_armed is already True -- a REAL
+        tick already took a scale-out/lock action against the old anchor; retroactively
+        moving entry_premium underneath an already-executed partial sell would desync the
+        broker's actual proceeds from this ledger's bookkeeping. The trade rides out under
+        its original (limit) anchor rather than risk corrupting an in-flight managed
+        position. In practice this is a non-issue: re-anchoring happens within the same
+        tick / immediately after the fill poll, long before either could plausibly have
+        advanced (manage_tick only runs at the START of the NEXT tick -- see fleet_live.
+        run()'s exit-management-pass-runs-first ordering).
+
+    hwm_premium (the high-water mark used to arm the profit lock) is raised/lowered to
+    true_entry_premium ONLY when it has not yet moved past the OLD (wrong) entry_premium
+    -- i.e. no real tick has advanced it since registration. If a real tick already
+    pushed hwm_premium above the old anchor, it is left untouched (never regressed --
+    lowering an already-achieved high-water mark could incorrectly un-arm a legitimately
+    armed profit lock).
+
+    Immutable per coding-style: builds a NEW ExitState via dataclasses.replace, never
+    mutates `st` in place.
+    Guard: backtest/tests/test_entry_anchor_to_fill_2026_08_03.py.
+    """
+    if true_entry_premium is None:
+        return None
+    try:
+        true_entry_premium = float(true_entry_premium)
+    except (TypeError, ValueError):
+        return None
+    if true_entry_premium <= 0:
+        return None
+    states = load_states(arm_id)
+    st = states.get(symbol)
+    if st is None:
+        return None
+    if st.tp1_filled or st.profit_lock_armed:
+        return None
+    old_entry = st.entry_premium
+    new_hwm = (true_entry_premium if (st.hwm_premium is None or st.hwm_premium <= old_entry)
+              else st.hwm_premium)
+    new_runner_stop = round(true_entry_premium * (1.0 + st.premium_stop_pct), 4)
+    new_st = replace(st, entry_premium=true_entry_premium,
+                     runner_stop_premium=new_runner_stop, hwm_premium=new_hwm)
+    states[symbol] = new_st
+    save_states(arm_id, states)
+    return new_st
 
 
 def _now_et() -> datetime:

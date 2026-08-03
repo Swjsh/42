@@ -500,6 +500,44 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
                 structure_stop_enabled=bool(params.get("structure_stop_enabled", False)))
         except Exception:  # never let exit-state bookkeeping fail an accepted entry
             _exit_state = None
+    # ENTRY-ANCHOR-TO-FILL FIX (2026-08-03): register_entry above necessarily seeds
+    # entry_premium from entry_px (the PRE-FILL marketable-limit price) -- fleet_live had
+    # NO fill-poll anywhere on the entry path before this fix (confirmed: 0 of 240 broker
+    # sub-objects across every fleet arm's decisions.jsonl history ever recorded a non-null
+    # filled_avg_price). Poll now, bounded (mirrors heartbeat_core._reconcile_fill's own
+    # cap so a slow poll can never stall the per-minute tick materially), and re-anchor the
+    # just-registered ExitState to the TRUE fill via exit_actuator.reanchor_entry -- see
+    # that function's docstring for the full mechanism + the conservative refuse-and-log
+    # cases (fill unknown, or a real tick already advanced the position past this poll).
+    # Guard: backtest/tests/test_entry_anchor_to_fill_2026_08_03.py.
+    if placed and _exit_state is not None:
+        _fill_info = None
+        try:
+            _order_id = res.get("id") if isinstance(res, dict) else None
+            if _order_id:
+                _fill_info = fb.poll_fill(creds, _order_id, attempts=4, sleep_sec=0.6)
+        except Exception as _e:  # noqa: BLE001 -- a poll failure must never abort the entry
+            print(f"[reanchor] poll_fill FAILED for {symbol}: {type(_e).__name__}: {_e}",
+                 file=sys.stderr)
+            _fill_info = None
+        _true_fill = (_fill_info.get("filled_avg_price")
+                     if isinstance(_fill_info, dict) and _fill_info.get("filled") else None)
+        if _true_fill is not None:
+            try:
+                _reanchored = ea.reanchor_entry(arm["id"], symbol=symbol,
+                                                true_entry_premium=_true_fill)
+                if _reanchored is not None:
+                    _exit_state = _reanchored
+                else:
+                    print(f"[reanchor] SKIPPED {symbol}: no eligible ExitState to re-anchor "
+                         f"(already tp1_filled/profit_lock_armed, or registration missing) "
+                         f"-- riding out on the limit anchor {entry_px}", file=sys.stderr)
+            except Exception as _e:  # noqa: BLE001 -- never let reanchoring break the tick
+                print(f"[reanchor] FAILED for {symbol}: {type(_e).__name__}: {_e} "
+                     f"-- riding out on the limit anchor {entry_px}", file=sys.stderr)
+        else:
+            print(f"[reanchor] fill unknown for {symbol} after poll (fill_info={_fill_info}) "
+                 f"-- keeping the limit anchor {entry_px}, never guessing", file=sys.stderr)
     # VISIBILITY (2026-07-09, render-only; OP-33c/STOP-B ship-1 known-cosmetic-bug fix): the
     # plan-log "stop" text must show the TRUTH this position is actually managed under. When
     # register_entry above resolved STRUCTURE mode, the premium-mode stop_price/stop_pct
