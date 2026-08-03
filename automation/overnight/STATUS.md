@@ -1,3 +1,64 @@
+[2026-08-03T01:14:33 ET] conductor: OK -- CATASTROPHE-CAP-WIDEN-WATCH accrual -- shipped
+`catastrophe_cap_shadow_ledger.py` (17/17 new guards, 115/115 autopsy-family suite), folded
+into the existing `Gamma_WinnerAutopsy` fire (no new task), commit `5ca0e058`. First live run:
+n=7 catastrophe-cap fires already accrued since 2026-07-23 across 5 arms both directions,
+aggregate actual $-1,004 vs held-to-EOD counterfactual $-2,248, 0/7 would-have-been-better-held
+(descriptive only, n<10, opposite direction from the original n=4 sample -- no knob touched).
+Next fire: nothing to do here until n reaches 10 (auto-flags STATUS.md on that transition) or
+pick the next queue item. Autonomy metric trend=`regressing` (net_improvement=4, cost/drained
+$3.275, window=20) -- next fire should prefer a loop-CLOSING item (drain/promote/prune) over a
+new artifact.
+
+---
+
+## [2026-08-02] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 32d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-08-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-26..2026-07-31), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-31). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-370.08); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+[2026-08-02T22:00:05 ET] conductor: QUIET — nightly budget spent (15 fires today >= max_fires 4)
+[2026-08-02T20:00:04 ET] conductor: QUIET — nightly budget spent (13 fires today >= max_fires 4)
+[2026-08-02T18:37:22 ET] conductor: QUIET — nightly budget spent (12 fires today >= max_fires 4)
+## [2026-08-02T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-02 -- 0 GREEN / 0 YELLOW / 0 RED / 6 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-02 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-02 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-02. |
+| WS11 core recency | NOT_EXERCISED | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-02 window_end=2026-07-31 (baseline window_end=2026-07-31, advanced=False). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-02 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-02 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-02`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## [2026-08-02T18:00:06 ET] conductor: QUIET -- nightly budget EXHAUSTED (11 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
+
+## [2026-08-02T16:00:05 ET] conductor: QUIET -- nightly budget EXHAUSTED (10 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
+
+## [2026-08-02T14:00:31 ET] conductor: QUIET -- nightly budget EXHAUSTED (9 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
+
 ## [2026-08-02T13:46:42 ET] session: OK -- FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3 + FLEET-SHRINK-NOT-DENY -- commits `9b6a3e35`, `c2cb9f72`
 
 **Signal J wakes to (OP-25).** ET verified via `et_clock.py` before touching anything
@@ -176,6 +237,9 @@ EXIT-HYBRID-PRETP1-FLOOR entry (closed this fire).
 ---
 
 ## Known broken
+
+- [2026-08-02T23:01:56] GATE-EXPIRY RED :: require_bearish_fill_bar :: refused cohort would have EARNED $0.44/tr, n=34 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate require_bearish_fill_bar
+[2026-08-02T18:34:00.147036-04:00] MCP_AUDIT_RED: MCP weekly audit FAILED — Alpaca Safe/Bold unreachable, TradingView relaunch ineffective
 
 - [2026-08-02T03:58:00 ET] DST-FRAME-AUDIT YELLOW :: re-violated 2026-07-02 DST-frame lesson found (fleet_arm_replay.py's first draft independently re-hit it, self-fixed before commit `151123a2`); shared OPRA loader still un-normalized, several consumers (simulator_credit.py/simulator_debit.py/exit_manager_walk.py, no `frame` param) trust callers blindly. PIVOT-PREMIUM-SELLING-SCORECARD.md LEAD-cell OOS expectancy overstated +$23.03 vs corrected +$15.30/tr (-33.6%) -- verdict unchanged (already DEAD/LEAD-not-EDGE, reinforced not flipped). bold_fullhist_replay.py anchor validation mechanism confirmed live but 0/7 current anchors are winter-dated (no numeric corruption today; will bite the first winter real fill). No live knob touched. Guard shipped + RED-proofed (3 new tests, test_graduated_guards.py). Full detail: analysis/deep-research/DST-FRAME-BLAST-RADIUS-2026-08-02.md :: re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -k dst_frame -v
 
@@ -383,28 +447,6 @@ processes). Revert: `git revert 5e4cd6e2` (additive-only fix + tests, nothing el
 on the changed truncation/label behavior).
 
 ## [2026-08-02T00:08:02 ET] conductor: OK -- ZERO-FOR-TWELVE-POSTMORTEM -- closed the historical-OOS(2026) day-cluster half. Re-ran vwap_continuation + vix_regime_dayside's own byte-identical detectors over the 2026 OOS window (through 2026-07-22, detection-only, $0, 1.8s): vix_regime_dayside's 34 OOS signals are 94.1% (32/34) the SAME (date,side) as vwap_continuation's 61 OOS signals -- confirms + quantifies a caveat already on record (vix_regime_dayside.json "L174 NOT INDEPENDENT ... subset of vwap_continuation") but never measured until now. Pooling by (date,side) collapses the naive 95-signal sum to 63 distinct trials (-33.7%). Reframes (does not reverse) the 07-25 disarm: the live 0-for-12 was never 12 independent trials, at BOTH the live-sample layer (closed 07-25, 4 distinct day+side buckets) and now the OOS-validation layer. Artifacts: `backtest/tools/zero_for_twelve_oos_day_cluster_2026_08_02.py` + `analysis/recommendations/zero-for-twelve-oos-day-cluster-2026-08-02.json` + guard `backtest/tests/test_zero_for_twelve_oos_day_cluster.py` (3/3 green, golden-pinned). Lesson filed: `_lesson-inbox/2026-08-02-oos-signal-populations-can-silently-overlap-across-setups.md` (candidate graduation: canonical `pooled_distinct_trials` helper next to probe_stats.py, flagged not built). Zero trading-path touched. Curated safety gate 59/59 PASS. Revert: `git revert <this commit>`. **Autonomy metric: trend=regressing** (function_score_avg 23.7 over 20 fires -- `enters_last_trading_day`/`fills`/`orders_accepted` all 0 on 2026-08-01, a Saturday with no session; the metric's own `function_latest` is date-anchored to the last CALENDAR day not the last TRADING day, so a weekend read always looks regressed -- next weekday fire should confirm whether this is a metric-scope artifact or a real funnel gap (STAGE 1 fill-funnel check takes priority next fire either way).
-## [2026-08-01] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 31d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-08-01] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-26..2026-07-31), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-31). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-370.08); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## [2026-08-01T22:00:28 ET] conductor: QUIET -- nightly budget spent (13 fires today >= max_fires 4, conductor_budget.py exit 3). Zero model work this fire per rail-0. Next fire (per schedule) resumes normally once the daily counter resets.
 
 ## [2026-08-01T20:30:43 ET] conductor: QUIET -- nightly budget spent (12 fires today >= max_fires 4, conductor_budget.py exit 3). Zero model work this fire per rail-0. Next fire (per schedule) resumes normally once the daily counter resets.
@@ -480,159 +522,15 @@ calibrated than any of the three natural source-level alternatives.** `daily_con
 
 ---
 
-## [2026-08-01 14:32 ET] SHIPPED -- WEEKEND-TWELVE Next-Twelve #3: shared-index absorption guard + 2 WS4 lessons (Next-Twelve #12 lesson half)
-
-**Guard shipped, not just proposed.** 5 confirmed shared-index-absorption incidents in one
-night (`482a662a`, `da18da34`, `a363bd5f`, `be9c1b58`, `90fd1e40` -- full per-incident detail
-in `strategy/candidates/_lesson-inbox/2026-08-01-shared-index-absorption-between-parallel-lanes.md`)
-close with a helper + a fail-open hook tripwire, both guard-tested and RED-proofed.
-
-- **`setup/scripts/commit_scoped.py "<message>" <path> [<path>...]`** -- pathspec-scoped
-  add+commit (`git add -- <paths>` then `git commit -m <msg> -- <paths>`). Empirically
-  VERIFIED, not assumed: `git commit -- <paths>` makes git build a TEMPORARY, pathspec-scoped
-  index for the duration of the commit (hooks included -- confirmed by inspecting
-  `GIT_INDEX_FILE` in an isolated sandbox repo: it points at a `.git/next-index-*.lock`
-  file, and `git diff --cached` inside the hook sees ONLY the named paths), so a foreign
-  staged file is structurally invisible to a scoped commit, not just conventionally
-  excluded. A bare `git commit` has no such scoping -- confirmed the same sandbox reproduces
-  the absorption bug on demand when no pathspec is given.
-- **`setup/git-hooks/pre-commit` extended** (found via `setup/install-git-hooks.ps1` +
-  `backtest/tests/run_safety_gate.py` -- did NOT replace either), new WARN-ONLY, fail-open
-  tripwire: if the staged set at commit time spans more than one top-level directory group,
-  print a loud stderr warning pointing at `commit_scoped.py` and append a line to
-  `automation/state/commit-scope-warnings.jsonl`. Never blocks -- verified exit 0 in every
-  tested scenario. Adds negligible time (pure shell/git-plumbing, no python startup); full
-  curated gate re-measured 7.3-8.8s before and after this addition, consistent with normal
-  run-to-run noise.
-- **Guard test `backtest/tests/test_commit_scoped.py`** -- 9 tests, real throwaway-git-repo
-  fixtures (same pattern as `test_verify_committed.py`). RED-proofed by hand: temporarily
-  reverted the helper's commit step to a bare `git commit` -- 5/9 tests failed with the
-  foreign file visibly swept into the commit (the exact bug, reproduced on demand);
-  restored, 9/9 green. **Deliberately excluded from the curated per-commit gate** (measured
-  cost across 2 A/B runs: 7.3-8.5s -> 12.6-13.1s with it added, +4.5-5s -- breaks the gate's
-  own "keep FAST, every commit" contract even though it is the same shape as the
-  already-curated `test_verify_committed.py`). Still runs under `--full` / CI. Documented
-  inline in `run_safety_gate.py` with the measured numbers so a future session doesn't add
-  it reflexively without re-measuring.
-- **Real bug caught mid-build, before it ever touched the live repo:** the hook's first
-  draft used a shell variable literally named `GROUPS` for the top-level-directory count --
-  collides with bash's special read-only `GROUPS` builtin (the current user's Unix group-id
-  list). Assignments to it silently no-op per the bash manual, so the count always read back
-  as a constant (197609 on this box, the real GID) regardless of actual input, which would
-  have made the tripwire fire on EVERY commit unconditionally -- noise indistinguishable
-  from signal, worse than not shipping it. Caught via isolated sandbox-repo testing (4
-  scenarios: bare 1-dir no-warn, bare 2-dir warn, pathspec-scoped multi-dir
-  warn-but-no-foreign-sweep, live absorption repro) before touching the real hook; fixed by
-  renaming to `N_TOPDIRS` and switching to pure `set --`/`$#` shell builtins (no `wc` /
-  second `sort` at all), re-verified correct across all 4 scenarios against the actual
-  installed hook.
-- **3 lesson-inbox items filed:**
-  `2026-08-01-shared-index-absorption-between-parallel-lanes.md` extended from its original
-  1 incident to all 5 + the shipped fix (was "candidate for a graduated guard," now built);
-  plus WS4's 2 lessons named in the WEEKEND-TWELVE synthesis (Next-Twelve #12) --
-  `2026-08-01-filters-py-demerit-vanishes-under-raw-disable-filters.md` (`filters.py:1653-1664`'s
-  trendline demerit only charges `if 5 in blockers`, so a raw `disable_filters=[5]` silently
-  un-demerits a trendline-only setup -- disclosed in WS4's own output, verdict unaffected)
-  and `2026-08-01-frozen-cache-view-required-during-concurrent-backfill.md` (WS4's
-  `freeze_contract_cache` fix for a concurrent OPRA backfill mutating the shared contract
-  cache mid-study -- same shared-mutable-state-race family as the git absorption bug, one
-  layer down the stack).
-- **Known limitation, disclosed not hidden:** incident 4 (`be9c1b58`) is a same-FILE
-  concurrent-edit case (two lanes editing different lines of `SCHEDULED-TASKS.md` inside the
-  same commit) -- pathspec-scoped commit does NOT fully close this sub-case, since the
-  working-tree file itself may already carry both edits before either session stages it.
-  Documented as an open gap in the extended lesson item, not oversold as solved.
-- **Doctrine pointer added:** `markdown/doctrine/fable-judgment/03-EXECUTION.md` E3 (already
-  named this class of bug from an earlier collision, pointed only at a bare
-  `git commit --only` flag with no standing tooling behind it -- now points at the concrete
-  helper + hook).
-
-Zero trading-path files touched. Rail: doctrine/tooling only (a git hook + a repo-ops
-script + its guard test + 3 lesson-inbox docs + one markdown doctrine pointer) -- no
-`params.json` / `heartbeat_core.py` / `filters.py` production semantics changed (the
-filters.py demerit finding is DISCLOSED-ONLY per WS4's own already-NULL verdict, nothing
-touched here). Revert: `git revert <this commit>` (single pathspec commit, made via
-`commit_scoped.py` itself as this fire's own smoke test).
-
-## [2026-08-01 13:21 ET] NULL (deliverable) -- WS4 (WEEKEND): PAIRED RIBBON A/B -- the ribbon question is now CLOSED BOTH WAYS
-
-**The only honest "loosen the ribbon" left -- relax filter 5 at ENTRY + suppress ribbon_flip_back
-at EXIT for level-anchored setups, ONE paired pre-registered change -- is NULL.** Prereg frozen
-12:43 ET + committed `e5e323f2` BEFORE the runner existed (git-provable); runner `4814e6bb`;
-results `96ae89bb`. Population 394 frame dates (= 391 full sessions + 3 half days, disclosed),
-real OPRA only, entry+1, real exit_manager walks.
-
-- **Gates:** G1 recent25 **+$57.00 PASS-but-UNDETERMINED** (4 of 7 recent added entries
-  unpriceable -- sign not fully measured) | **G2 FAIL** (recent 1 improved/1 worsened; full-window
-  7/14 -- the majority of changed days get WORSE) | **G3 FAIL** (recent delta minus best single
-  contribution = **-$498.50**; the entire recent positive is ONE +$555.50 trade) | G4 PASS
-  (runner cohort 42/$20,184 vs control 39/$18,330 -- grew, zero-tolerance met) | G5 PASS
-  (23 added, 3 recent, **16 exit-lever fires** -- both levers fired; L243 satisfied).
-- **The mechanism answer (the real payload):** the filter-5 block-set **loses money even under
-  its best-shot exit regime** -- added cohort n=23, WR 26.1%, -$21.30/trade (-$489.85 total).
-  The suppression itself nets **-$109.45 over its 16 fires**: 11 freed trades die BIGGER at the
-  structure stop (-$982) vs 3 that become runners (+$1,339). The +$500.65 full-window delta is
-  pre-emption luck again (unlocked entries occupy the slot and skip -$990.50 of control losers)
-  -- same artifact shape as 07-31. p one-sided: 0.39 full / 0.50 recent.
-- **GRAVEYARD (both ways, do NOT retest):** entry-only filter-5 deletion NULL (07-31, round-
-  tripped by the ribbon exit) + paired relax-entry-AND-suppress-exit NULL (08-01, the blocked
-  cohort is genuinely bad). **Filter 5 -- provenance-free until 07-31 -- now EARNS its keep on a
-  two-study evidence trail.** No further ribbon-loosening variants without genuinely NEW
-  information (regime break or a structural change to the exit stack).
-- **By-catch (disclosed in the JSON):** (a) prereg's primary entry mechanism tripped its own
-  HARD INVARIANT twice -> pre-registered fallback (scoped per-bar bypass) engaged; the repro
-  under pure production semantics PROVED the invariant-breaker was a sequencing KNOCK-ON
-  (2 trendline-only entries reachable only because the book upstream changed), not a gate leak.
-  (b) filters.py:1654-57 really does un-demerit trendline-only setups under raw
-  disable_filters=[5] -- a crack in the 07-31 ARM_A==ARM_B narrative (verdict unaffected).
-  (c) the concurrent OPRA backfill grew the cache 14225->14400 MID-SESSION and use_real_fills
-  reads cached premiums at ENTRY (simulator_real:420) -- control drifted 211->212 raw entries
-  from coverage alone; fixed with a process-wide frozen cache view so both arms share one truth.
-  Guards: `backtest/tests/test_paired_ribbon_suppression_2026_08_01.py` 4/4 green, RED-proofed
-  (mutant A exit-core `if True`, mutant B trendline-in-cohort).
-
-## [2026-08-01 13:15 ET] NULL (deliverable) -- WS5 (WEEKEND MAIN EVENT): SHELF_HOLD_RECLAIM full-population study -- "enter on the defense" CLOSED with numbers
-
-**All 4 admission geometries NULL over the verified 391-day population; 0 of 96 cells survive
-BH-FDR q=0.10. J's question is answered: entering the DEFENDED TOUCH of a w5 shelf early does
-NOT beat the late close-cross, and the dose-response is INVERTED** (exp: C_cross +$0.47 >=
-A_wick +$0.29 >> B_hold -$14.79/tr; the grid's strongest raw p, 0.045, belongs to B's LOSS).
-Nothing ships, nothing arms; graveyard entry filed in the results doc.
-
-- **Prereg-first, git-provable:** prereg `96a85efc` (et_clock 12:45:56, BEFORE runner) ->
-  runner `21b6ba99` -> results. Real OPRA only, entry+1, qty=3, structure stop at zone floor,
-  CONTROL(registry byte-asserted)-vs-ZONE-RIDE paired lanes. Frame: et-v2 opt-in (wall-v1
-  would inject winter VIX look-ahead + clip the last true hour on 129 EST days; decided
-  pre-run, disclosed).
-- **Harness fidelity proven, so the NULL is believable:** 3/3 tape anchors live-fire at J's
-  exact Friday moments; e1 re-walks to the PENNY vs the broker-validated n=4 tool
-  (+$550.75, runner_stop 3.53); on 07-31 itself the lane made +$1,175 -- Friday was real,
-  the population says it is not a standing edge.
-- **Data completed mid-study:** 117 missing OPRA contracts (30% of July-2026 signals!)
-  backfilled via canonical fetch conventions -> re-ran on ZERO exclusions. Pass-1 preserved
-  (`.pass1-precache.json`); verdicts identical, but pass-1's recent-25 was materially
-  distorted (A: -$137 -> +$1,035) -- the missing contracts were exactly J's called-day class.
-- **The one real structure (post-hoc, NOT shipped):** F5 ribbon-stack -- the filter the spec
-  demoted -- is the strongest separator, monotone drop<htf<require for A/C
-  (C|require: +$5,447/168tr, positive in held-out AND recent-25, p=0.187, BH x). That cell IS
-  the `block_elite_bull`-refused ELITE class -> converges with WS1's gap finding: the money
-  lane is the GATE RE-QUAL (`bull_gate_atm_ssb_requalification.py`), not a new detector.
-  B_hold is negative under every filter mode (mechanism: buys chop at zone floors, theta
-  bleeds into ribbon_flip_back exits ~63%).
-- **ZONE-RIDE (trail .20) loses to CONTROL (trail .15) on every primary combo** (-$380..-$550)
-  -- the n=4 anecdote's ZONE-RIDE edge does not generalize.
-- Artifacts: `analysis/recommendations/shelf-hold-reclaim-2026-08-01.{md,json,pass1-precache.json}`
-  + prereg. Side-finds: `exit_manager.py` hardcodes label `time_stop_15:50` while enforcing the
-  configured 15:40 (mechanism verified; label-only; chip task_30a7b291 filed);
-  SCHEDULED-TASKS stated-count 99->100 reconciled in passing (gate fix-forward). Runner-cohort
-  untouched by construction (entry-additive; registry exit shape byte-asserted). $0 LLM.
-
-
-[2026-08-02 05:30 ET] conductor: QUIET — nightly budget spent (4/4 fires used)
-
-### DEGRADED: self-check 2026-08-02T05:39:56
-- CANDIDATES-UNTRACKED: 31 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-
 
 ## Kitchen
-Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 28 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+[2026-08-02 20:30:31 EDT] conductor: QUIET — nightly budget exhausted (14 fires today >= max 4). Zero model work this fire per rail-0. 14 fires is expected on a Sunday (conductor-weekend fires every 2h all day + this AFTERHOURS slot, all sharing one daily counter) — not an anomaly. Next fire (01:00 or 05:30 ET) re-checks the gate. Autonomy metric trend=REGRESSING (net_improvement 4/window20, cost_per_drained $3.15, function_score_avg 7.5, 0 enters last trading day) — next fire with budget headroom should prefer a loop-closing item (drain queue/inbox) over a new artifact.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-08-03T03:30:11+00:00
+- date_et: 2026-08-02
+- total: $277.25 (threshold $30.00)
+- claude: $277.25  minimax: $0.00
+- claude_sessions: 28
