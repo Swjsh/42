@@ -1724,6 +1724,92 @@ def _capture_greeks(creds: dict, symbol: str, *, fetch=None) -> dict:
         return {}
 
 
+# --- ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02) -------------------------------------------
+# Ports the fleet lane's fix (commit 71cce7ac, analysis/deep-research/FLEET-RACE-AND-LATENCY-
+# 2026-08-01.md section 3) to safe-2/bold-2's OWN placement path in _execute() below. That
+# session named this file's cancel-replace loop as having the IDENTICAL shape and explicitly
+# left it out of scope ("a small, mechanical, testable addition... flagged as a follow-on, not
+# attempted here"). This matters MORE here than it did for the fleet lane: Gamma_HeartbeatCore
+# ticks every 60s in production (Interval PT1M) -- Gamma_FleetExecutor was still at PT3M when
+# ITS version of this gap was closed the same session (commit 87620376 only tightened fleet's
+# cadence to PT1M AFTER 71cce7ac shipped the guard fleet-side).
+#
+# THE GAP (pre-fix, identical mechanism to the fleet finding): the ONLY guard against a
+# double-entry was fb.is_flat_spy_options(creds) a few dozen lines into _execute -- a broker
+# POSITIONS query, blind to a still-WORKING order, read ONCE, before the equity/day-trades/
+# settlement-ledger fetches and the option-quote round-trips that follow it -- real wall-clock
+# time elapses before the placement point below. The cancel-replace loop immediately before
+# the broker POST placed a fresh order unconditionally afterward, even when its own cancel
+# raced a fill at the broker.
+#
+# TWO LAYERS, deliberately mirroring fleet_live.py::_place_live's shipped design -- same TTL
+# value, same per-(arm,symbol) claim-file shape/contract, same fail-open-on-read-error rule,
+# same fleet_broker.open_buy_orders_checked/symbol_position_qty_checked authority (reused
+# verbatim, not reinvented), same SKIP_* vocabulary -- one mental model covers both lanes;
+# grep either symbol name and find both implementations side by side. This is a SEPARATE
+# small implementation of the claim-file half (not a cross-import of fleet_live's own
+# module-private _claim_active/_write_claim): fleet_broker.py's two checked primitives are
+# the genuinely shared/public layer both lanes call into; the claim file is per-caller local
+# state, and each lane owns its own copy the same way exit_actuator.py owns its own
+# (differently-scoped) same_bar_cooldown_active claim file rather than a caller reaching into
+# another module's private helpers.
+#
+# Claim file: STATE/fleet/{arm}/entry-claim.json. STATE is referenced fresh on every call
+# (never cached into a module-level constant computed at import time) so a test's
+# monkeypatch.setattr(hc, "STATE", tmp_path) sandboxes this exactly like it already sandboxes
+# cb_path a few lines into _execute -- zero extra test wiring needed. automation/state/fleet/
+# {safe-2,bold-2}/ already exist (exit_actuator's own exit-state.json lives there), and
+# "safe-2"/"bold-2" never collide with any fleet-lane arm id (safe-1/3, risky-1/3 -- see
+# automation/state/fleet/accounts.json), so this shares fleet_live's directory CONVENTION
+# without ever sharing a FILE with it.
+ENTRY_CLAIM_TTL_SEC = 180  # identical value to fleet_live.ENTRY_CLAIM_TTL_SEC, same rationale:
+                           # >= several ticks at this file's 60s cadence; real fills resolve in
+                           # ~0.1-0.2s measured (FLEET-RACE-AND-LATENCY-2026-08-01.md section 2)
+                           # so this only bridges broker propagation lag, never blocks a
+                           # legitimate re-entry minutes later (which requires a fresh trigger).
+
+
+def _claim_path(arm_id: str) -> Path:
+    d = STATE / "fleet" / arm_id
+    d.mkdir(parents=True, exist_ok=True)  # parents=True: STATE may be a bare tmp_path in tests
+    return d / "entry-claim.json"
+
+
+def _claim_active(arm_id: str, symbol: str, now: datetime,
+                  ttl_sec: float = ENTRY_CLAIM_TTL_SEC) -> bool:
+    """True iff an unexpired entry claim already exists for this EXACT (arm, symbol) -- the
+    FAST, local, broker-independent half of the guard (catches two ticks landing inside one
+    short signal window without waiting on broker propagation). Fail-OPEN (False) on any
+    missing/corrupt file or unparseable timestamp -- a claim-file problem must never itself
+    block a legitimate entry; the broker-side query in _execute is the fail-CLOSED authority."""
+    path = _claim_path(arm_id)
+    if not path.exists():
+        return False
+    try:
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        if str(rec.get("symbol")) != symbol:
+            return False
+        claimed_at = datetime.fromisoformat(str(rec["claimed_at_et"]))
+        if claimed_at.tzinfo is None:
+            claimed_at = claimed_at.replace(tzinfo=now.tzinfo)  # match `now`'s awareness, never a hardcoded offset
+        age = (now - claimed_at).total_seconds()
+        return 0 <= age < ttl_sec
+    except (OSError, json.JSONDecodeError, KeyError, ValueError, TypeError):
+        return False
+
+
+def _write_claim(arm_id: str, symbol: str, now: datetime) -> None:
+    """Reserve the entry claim BEFORE the broker POST. Best-effort/fail-safe: a write error
+    here must never abort an otherwise-clean entry -- the broker-side open-orders check on
+    the NEXT tick remains the backstop if this local marker is lost."""
+    try:
+        _claim_path(arm_id).write_text(
+            json.dumps({"symbol": symbol, "claimed_at_et": now.isoformat()}),
+            encoding="utf-8")
+    except OSError:
+        pass
+
+
 def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: bool) -> dict:
     """SIZE + PLACE a 0DTE entry via the TESTED fleet_broker + risk_gate primitives.
     dry=True computes everything and returns the plan WITHOUT placing (shadow / self-test)."""
@@ -1923,10 +2009,6 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     if dry:
         plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only (no fill in dry mode)
         return plan
-    # CANCEL-REPLACE (#15): clear any stale never-crossed BUY limit on this symbol from a prior tick.
-    for _o in fb.open_buy_orders(creds, symbol):
-        if _o.get("id"):
-            fb.cancel_order(creds, _o["id"], live=True)
     # FIX2 (2026-07-01): Alpaca NEVER accepts bracket/oto for options (code 42210000) — the
     # old place_bracket(simple_fallback=...) ladder ate 2 guaranteed 422s (bracket_err +
     # oto_err) on EVERY entry before the simple attempt (2026-06-30 exec.broker rows). Go
@@ -1934,12 +2016,82 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     # C2 preserved: a simple entry has NO broker-side stop, so it is ONLY placed when the
     # engine manages exits (CORE_MANAGES_EXITS=1 -> exit_manager owns TP/stop); otherwise
     # refuse — the same safe PLACE_FAIL no-op the old path terminated in.
+    #
+    # ORDERING (2026-08-02, moved AHEAD of the idempotency guard below -- was AFTER the old
+    # unconditional cancel-replace loop): this gate is checked FIRST so the guard's broker
+    # calls (open_buy_orders_checked / cancel / re-verify) and its claim WRITE never fire on a
+    # tick that cannot place regardless -- a claim written for a tick that structurally can't
+    # submit would be a false 180s block on a hypothetical later legitimate entry, and the
+    # extra broker round-trips would be pure waste. In production this branch is inert
+    # (CORE_MANAGES_EXITS is doctrine-mandated ON, set once by the conductor at process start
+    # -- see markdown/doctrine memory project_p0_g1_manages_exits_guard.md), so this reorder
+    # changes zero live behavior; it only stops a WATCH/debug run with exits unmanaged from
+    # doing pointless broker work. Verified against every existing test that exercises this
+    # branch (test_money_path_2026_07_01.py::test_execute_refuses_simple_when_exits_unmanaged
+    # asserts PLACE_FAIL + posts == [] only -- it does not assert cancel/open-orders call
+    # counts, so this reorder is byte-identical from that test's perspective).
     if not CORE_MANAGES_EXITS:
         plan["status"] = "PLACE_FAIL"
         plan["broker"] = {"_refused": ("options need a simple entry (no broker bracket, 42210000) "
                                        "but exits are not engine-managed -- set GAMMA_CORE_MANAGES_EXITS=1")}
         plan["entry_px"] = entry_px
         return plan
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02) -- see the module comment above this
+    # function's helpers (ENTRY_CLAIM_TTL_SEC / _claim_path / _claim_active / _write_claim)
+    # for the full design rationale. Every return below is a SKIP row: this block is reached
+    # only on the ENTRY path (both the primary ribbon ENTER_* branch and the G4 extra-setup
+    # route funnel through this SAME _execute -- see run_account/_route_extra_setups), never
+    # on an exit, the kill-switch, the EOD flatten, or _adopt_untracked_positions (all of
+    # those run earlier in run_account, BEFORE any verdict reaches _execute at all -- proven
+    # by test_core_entry_idempotency_guard_2026_08_02.py::test_guard_never_blocks_exit_pass,
+    # which drives the real run_account() loop, not an assertion from reading the source).
+    #   LAYER 1 -- claim file (local, no network): an unexpired claim for this EXACT
+    #     (arm, symbol) refuses outright before ever reaching the broker.
+    if _claim_active(arm, symbol, _now_exec):
+        plan["status"] = "SKIP_DUPLICATE_CLAIM"
+        plan["detail"] = f"entry claim already active for {symbol}"
+        return plan
+    #   LAYER 2 -- broker open-orders query (authoritative). A query FAILURE refuses too
+    #     (uncertain state -> no placement -- a missed entry is cheap, a double entry is
+    #     not). open_buy_orders_checked / symbol_position_qty_checked are the SAME
+    #     fleet_broker primitives fleet_live's own guard uses (fail CLOSED on query error) --
+    #     DISTINCT from open_buy_orders / is_flat_spy_options used elsewhere in this file
+    #     (those fail OPEN to []/True, correct for their read-only/maintenance uses, wrong
+    #     for a placement gate).
+    pending, ok = fb.open_buy_orders_checked(creds, symbol)
+    if not ok:
+        plan["status"] = "SKIP_ORDER_QUERY_ERROR"
+        plan["detail"] = f"could not confirm no pending BUY order for {symbol}"
+        return plan
+    if pending:
+        # CANCEL-REPLACE (#15, hardened 2026-08-02): clear stale never-crossed BUY limit(s)
+        # on this symbol, but RE-VERIFY before proceeding -- a blind cancel-then-place was
+        # the exact cancel-vs-fill race this guard exists to close (a cancel that raced a
+        # fill must refuse here, never stack a second order on top of the fill).
+        for _o in pending:
+            if _o.get("id"):
+                fb.cancel_order(creds, _o["id"], live=True)
+        still_open, ok2 = fb.open_buy_orders_checked(creds, symbol)
+        if not ok2:
+            plan["status"] = "SKIP_POST_CANCEL_QUERY_ERROR"
+            plan["detail"] = f"could not re-verify {symbol} after cancel"
+            return plan
+        if still_open:
+            plan["status"] = "SKIP_ORDER_STILL_OPEN_AFTER_CANCEL"
+            plan["detail"] = f"{len(still_open)} BUY order(s) survived the cancel attempt"
+            return plan
+        held_qty, ok3 = fb.symbol_position_qty_checked(creds, symbol)
+        if not ok3:
+            plan["status"] = "SKIP_POST_CANCEL_POSITION_QUERY_ERROR"
+            plan["detail"] = f"could not confirm flat on {symbol} after cancel"
+            return plan
+        if held_qty > 0:
+            plan["status"] = "SKIP_CANCEL_RACED_FILL"
+            plan["detail"] = f"{symbol} shows {held_qty} filled contract(s) -- cancel raced a fill"
+            return plan
+    # Reserve the claim BEFORE the broker POST (defense in depth, independent of the
+    # broker's own propagation timing -- see LAYER 1 above).
+    _write_claim(arm, symbol, _now_exec)
     res = _place_simple_entry(creds, symbol=symbol, qty=qty, limit_price=entry_px)
     plan["status"] = "PLACED" if not res.get("_error") and not res.get("_refused") else "PLACE_FAIL"
     plan["broker"] = res
