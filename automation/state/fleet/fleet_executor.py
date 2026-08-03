@@ -1059,7 +1059,32 @@ def finalize(
     # (resolved by the caller just above) both exist. A no-op (qty unchanged) on every plan
     # that already fits, on every HOLD (returned above before this line), and whenever
     # max_affordable_qty reports a genuine deadlock (0) -- those still deny exactly as before.
-    _qty, _shrink_note = _shrink_qty_to_affordable(plan.qty, equity, premium, _fleet_params)
+    #
+    # CHEAP-CONTRACT QTY BOOST (SHIP C, 2026-08-03, J verbatim: "if it's under point five o
+    # for a contract, let's buy ten of them... let's just do that for risky three").
+    # Params-driven, per-arm: fires ONLY when the arm's params_patch carries
+    # cheap_contract_qty_boost = {"premium_below": <x>, "qty": <n>} AND the resolved premium
+    # is strictly below the threshold AND the boost RAISES qty (never shrinks a larger plan).
+    # Placement is deliberate: AFTER the min-premium floor (a floor-refused plan never gets
+    # here) and BEFORE _shrink_qty_to_affordable + risk_gate.check_order, so Rule 6 remains
+    # fully authoritative over the boosted size -- shrink can cut it back down and the risk
+    # gate can still HOLD it. Absent key / malformed values = byte-identical no-op (C14:
+    # guarded by a vary-and-assert in test_cheap_contract_qty_boost_2026_08_03.py).
+    # TRADE-TO-LEARN single-arm A/B (risky-3 only via accounts.json params_patch); kill
+    # criterion n>=10 boosted fills or 10 sessions, net<0 -> revert (delete the patch key).
+    _boosted_qty = plan.qty
+    _boost_cfg = params.get("cheap_contract_qty_boost")
+    if isinstance(_boost_cfg, Mapping) and premium is not None:
+        try:
+            _b_below = float(_boost_cfg.get("premium_below"))
+            _b_qty = int(_boost_cfg.get("qty"))
+            _prem_f = float(premium)
+        except (TypeError, ValueError):
+            _b_below, _b_qty, _prem_f = None, None, None
+        if (_b_below is not None and _b_qty is not None and _prem_f is not None
+                and _prem_f < _b_below and _b_qty > _boosted_qty):
+            _boosted_qty = _b_qty
+    _qty, _shrink_note = _shrink_qty_to_affordable(_boosted_qty, equity, premium, _fleet_params)
     decision = risk_gate.check_order(
         account_label,
         equity=equity,
