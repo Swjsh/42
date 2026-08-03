@@ -200,3 +200,26 @@ That one `M` is **pre-existing, unrelated work already in the tree before this s
 | `analysis/staged/AFTER-CLOSE-PACKAGE-2026-08-03.md` | This document |
 
 Nothing else in the repo was modified by this session. Both diffs independently `git apply --check`-clean against current HEAD as of this writing.
+
+---
+
+## SHIP C (added 14:45 ET, J verbatim directive): risky-3 cheap-contract sizing
+
+> "if it's under point five o for a contract, let's buy ten of them... let's just do that for
+> risky three... so then next time it happens, we can see our risk tolerance, our trade
+> management, and stuff like that."
+
+- **Rule:** risky-3 ONLY — when selected contract premium < $0.50, qty = 10 (else unchanged).
+- **Rule-6 check:** 10 x $0.49 x 100 = $490 max notional = 9.8% of $5,000 equity, far inside the
+  50% cap. Composes with shrink-not-deny (equity drop -> shrink applies first). Never below
+  min_contracts. PDT unaffected (qty doesn't change day-trade count).
+- **Framing:** TRADE-TO-LEARN, single-arm A/B vs the other arms' min-size on identical signals —
+  exactly the champion/challenger design. Kill criterion: n>=10 cheap-contract fills or 10
+  sessions; if risky-3's per-signal P&L materially underperforms its min-size siblings on the
+  SAME signals, revert.
+- **Implementation at 16:00:** risky-3 `params_patch` qty rule in accounts.json via whatever
+  mechanism fleet_executor actually supports (verify `_qty_for`/`position_sizing_tiers` first —
+  do NOT invent a dead knob, C14); vary-and-assert guard proving a $0.38 premium plans qty=10 on
+  risky-3 and qty=5 everywhere else; RED-proof; one-line revert.
+- Today's counterfactual, stated honestly as hindsight: risky-3's 5 @ $0.38 -> +$175.76 would
+  have been ~+$351 at qty 10. That is an anecdote, not evidence; the A/B is the evidence.
