@@ -1,3 +1,43 @@
+[2026-08-03T18:46:02 ET] conductor: OK -- LESSON-INBOX-DRAIN -- commit `b514323e`
+Budget gate PASSED ($9.13/$30, 2/4 fires used pre-fire). Engine health GREEN, market
+closed -- proceeded past STAGE 0. No Agent/Task tool was exposed to this fire's tool
+list, so the lesson-author routine was executed directly (mechanical encoding) rather
+than fanned out. Drained the 3 OLDEST of 27 backlogged `_lesson-inbox/` items (oldest
+dated 2026-07-23, 11 days stale) into `LESSONS-LEARNED.md`: **L250** (C27 -- anchor-
+verified pattern composition can still be noise; anchor-verify and frequency-prescreen
+test independent properties), **L251** (C6 -- two replay engines silently disagreed on
+entry-bar eligibility for same-bar stop/TP1, diagnosed via targeted per-trade ablation
+closing 91.1% of a $39.71/tr parity gap; the convention pick itself stays an open
+FABLE-ESCALATION item, not resolved here), **L252** (C34 -- L242's own untracked-
+candidates detector re-DEGRADED within 24h; a detector without an automatic remediator
+re-violates on its own schedule -- already fixed via `auto_commit_candidates.py`,
+this just encodes the lesson). Guards verified fresh this fire: `test_op25_index_
+reconciliation.py` + `test_inbox_done_suffix.py` + `test_truncation_guard.py` 25/25
+PASS; curated safety gate 59/59 PASS at commit; `git show b514323e --stat` confirms
+exactly the 5 intended files (no shared-index absorption). Zero trading-path/params/
+live-order code touched -- pure doctrine authoring, ships per OP-22/OP-26 (no J
+ratification needed). Revert: `git revert b514323e`.
+**STOPPED at 3 (not all 27) -- real constraint hit, not laziness:** each L#
+addition to CLAUDE.md's Lessons index table costs real tokens against the
+context-leanness budget. Pre-fire it was YELLOW 8848/9000 (98%); after 3 L#s it is
+YELLOW 8955/9000 (100% of the soft cap, still below the ~10.5K hard RED ceiling).
+Continuing to drain the remaining 24 items one-CLAUDE.md-row-at-a-time would push
+past the soft cap this same fire -- deferred rather than pushed into RED.
+**Next fire should NOT just keep draining 1-3 at a time forever (24 left, ~11
+still 2026-07-23-dated):** the real fix is a CLAUDE.md Lessons-index consolidation
+pass (fold verbose per-L parentheticals for old/settled classes into terser rows,
+freeing budget for new L#s) OR accept that per-fire drain rate is now budget-
+capped at ~3/fire and plan the backlog accordingly. Filed as queue item
+`LESSON-INDEX-CONTEXT-BUDGET-COLLISION` below.
+**Also noted, not actioned this fire:** the `Agent`/`Task` tool was absent from
+this fire's tool list (only Read/Edit/Write/Bash/Grep/Glob/Alpaca-read-only were
+exposed) -- STAGE 2's "fan out via the Agent tool" instruction could not be
+followed literally; worked around by executing the specialist's own routine
+directly. If this is systemic (not a one-off), it changes STAGE 2's guidance for
+every future conductor fire, not just this one -- worth a FABLE-level check.
+
+---
+
 ## [2026-08-03T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-03 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
 
 **Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
@@ -292,6 +332,7 @@ analysis/deep-research/EOD-2026-08-03-FULL-REVIEW.md.
 
 ## Known broken
 
+- [2026-08-03T18:30:04] MCP_AUDIT_RED: Alpaca MCP servers offline — heartbeat cannot execute orders or read account state. TradingView healthy.
 - [2026-08-02T23:01:56] GATE-EXPIRY RED :: require_bearish_fill_bar :: refused cohort would have EARNED $0.44/tr, n=34 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate require_bearish_fill_bar
 [2026-08-02T18:34:00.147036-04:00] MCP_AUDIT_RED: MCP weekly audit FAILED — Alpaca Safe/Bold unreachable, TradingView relaunch ineffective
 
@@ -501,134 +542,10 @@ processes). Revert: `git revert 5e4cd6e2` (additive-only fix + tests, nothing el
 on the changed truncation/label behavior).
 
 ## [2026-08-02T00:08:02 ET] conductor: OK -- ZERO-FOR-TWELVE-POSTMORTEM -- closed the historical-OOS(2026) day-cluster half. Re-ran vwap_continuation + vix_regime_dayside's own byte-identical detectors over the 2026 OOS window (through 2026-07-22, detection-only, $0, 1.8s): vix_regime_dayside's 34 OOS signals are 94.1% (32/34) the SAME (date,side) as vwap_continuation's 61 OOS signals -- confirms + quantifies a caveat already on record (vix_regime_dayside.json "L174 NOT INDEPENDENT ... subset of vwap_continuation") but never measured until now. Pooling by (date,side) collapses the naive 95-signal sum to 63 distinct trials (-33.7%). Reframes (does not reverse) the 07-25 disarm: the live 0-for-12 was never 12 independent trials, at BOTH the live-sample layer (closed 07-25, 4 distinct day+side buckets) and now the OOS-validation layer. Artifacts: `backtest/tools/zero_for_twelve_oos_day_cluster_2026_08_02.py` + `analysis/recommendations/zero-for-twelve-oos-day-cluster-2026-08-02.json` + guard `backtest/tests/test_zero_for_twelve_oos_day_cluster.py` (3/3 green, golden-pinned). Lesson filed: `_lesson-inbox/2026-08-02-oos-signal-populations-can-silently-overlap-across-setups.md` (candidate graduation: canonical `pooled_distinct_trials` helper next to probe_stats.py, flagged not built). Zero trading-path touched. Curated safety gate 59/59 PASS. Revert: `git revert <this commit>`. **Autonomy metric: trend=regressing** (function_score_avg 23.7 over 20 fires -- `enters_last_trading_day`/`fills`/`orders_accepted` all 0 on 2026-08-01, a Saturday with no session; the metric's own `function_latest` is date-anchored to the last CALENDAR day not the last TRADING day, so a weekend read always looks regressed -- next weekday fire should confirm whether this is a metric-scope artifact or a real funnel gap (STAGE 1 fill-funnel check takes priority next fire either way).
-## [2026-08-01T22:00:28 ET] conductor: QUIET -- nightly budget spent (13 fires today >= max_fires 4, conductor_budget.py exit 3). Zero model work this fire per rail-0. Next fire (per schedule) resumes normally once the daily counter resets.
 
-## [2026-08-01T20:30:43 ET] conductor: QUIET -- nightly budget spent (12 fires today >= max_fires 4, conductor_budget.py exit 3). Zero model work this fire per rail-0. Next fire (per schedule) resumes normally once the daily counter resets.
-
-## [2026-08-01T18:00:05 ET] conductor: QUIET -- nightly budget spent (11 fires today >= max_fires 4, conductor_budget.py exit 3). Zero model work this fire per rail-0. Next fire (per schedule) resumes normally once the daily counter resets.
-
-## [2026-08-01T16:15:02 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-01 -- 0 GREEN / 0 YELLOW / 0 RED / 6 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-01 -- no RTH session evidence (non-trading day or engine idle). |
-| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-01 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
-| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-01. |
-| WS11 core recency | NOT_EXERCISED | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-01 window_end=2026-07-31 (baseline window_end=2026-07-31, advanced=False). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-01 -- non-trading day. |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-01 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-01`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-01T15:14:40 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-01 -- 0 GREEN / 0 YELLOW / 0 RED / 6 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-01 -- no RTH session evidence (non-trading day or engine idle). |
-| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-01 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
-| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-01. |
-| WS11 core recency | NOT_EXERCISED | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-01 window_end=2026-07-31 (baseline window_end=2026-07-31, advanced=False). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-01 -- non-trading day. |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-01 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-01`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-
-- [2026-08-03 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-08-03 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-08-03 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-03.md
+### DEGRADED: self-check 2026-08-03T18:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ## Kitchen
-Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-08-03T09:09:57
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T09:39:57
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T10:09:57
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T10:39:57
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T11:09:57
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T11:39:57
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T12:09:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T12:39:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T13:09:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T13:39:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T14:09:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T14:39:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T15:09:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T15:39:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-08-03T20:00:24+00:00
-- task: eod-summary
-- date_et: 2026-08-03
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-08-03T16:09:56
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-03T16:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-08-03T20:45:45+00:00
-- task: analyst
-- date_et: 2026-08-03
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-08-03 21:00:02] gym-session (2026-08-03) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-03.json`
-### DEGRADED: self-check 2026-08-03T17:09:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-08-03T21:30:19+00:00
-- task: manager
-- date_et: 2026-08-03
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-08-03T17:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=scorecard-python
