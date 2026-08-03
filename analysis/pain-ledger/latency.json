@@ -1,0 +1,135 @@
+{
+  "_doc": "Fill-pipeline latency decomposition (WEEKEND-TWELVE #5). INSTRUMENT ONLY -- descriptive, never load-bearing for any trading/gate decision. Rows before this session's fix (2026-08-01) carry no core_tick_id/plan_ts/submit_ts and are excluded-and-counted, never fabricated.",
+  "date_et": "2026-08-03",
+  "generated_at": "2026-08-03T17:05:44.299329",
+  "n_entry_fills": 3,
+  "n_excluded_no_decision_row": 0,
+  "n_excluded_missing_instrumentation": 0,
+  "scope_arms": [
+    "safe-3",
+    "risky-1",
+    "risky-3"
+  ],
+  "rows": [
+    {
+      "date_et": "2026-08-03",
+      "arm": "safe-3",
+      "symbol": "SPY260803C00754000",
+      "order_id": "6e24c3bc-e304-47c9-b651-98cdff9ec69c",
+      "core_tick_id": "2026-08-03T09:41:02.470826",
+      "stages": {
+        "bar_close_ts": "2026-08-03T09:35:00-04:00",
+        "core_verdict_ts": "2026-08-03T09:41:03",
+        "signal_written_ts": "2026-08-03T09:42:02-0400",
+        "plan_ts": "2026-08-03T09:42:04.033570-04:00",
+        "submit_ts": "2026-08-03T09:42:04.555666-04:00",
+        "broker_submitted_ts": "2026-08-03T13:42:04.638997838Z",
+        "fill_ts": "2026-08-03T13:42:04.755794Z"
+      },
+      "bar_close_ts_to_core_verdict_ts_s": 363.0,
+      "core_verdict_ts_to_signal_written_ts_s": 59.0,
+      "signal_written_ts_to_plan_ts_s": 2.034,
+      "plan_ts_to_submit_ts_s": 0.522,
+      "submit_ts_to_broker_submitted_ts_s": 0.083,
+      "broker_submitted_ts_to_fill_ts_s": 0.117,
+      "total_s": 424.756,
+      "n_resolvable_stages": 7
+    },
+    {
+      "date_et": "2026-08-03",
+      "arm": "risky-1",
+      "symbol": "SPY260803C00754000",
+      "order_id": "9962cab2-0cb4-4913-955f-6ecfdc4e2798",
+      "core_tick_id": "2026-08-03T09:41:02.470826",
+      "stages": {
+        "bar_close_ts": "2026-08-03T09:35:00-04:00",
+        "core_verdict_ts": "2026-08-03T09:41:03",
+        "signal_written_ts": "2026-08-03T09:42:02-0400",
+        "plan_ts": "2026-08-03T09:42:05.154324-04:00",
+        "submit_ts": "2026-08-03T09:42:05.641468-04:00",
+        "broker_submitted_ts": "2026-08-03T13:42:05.739735488Z",
+        "fill_ts": "2026-08-03T13:42:05.916475Z"
+      },
+      "bar_close_ts_to_core_verdict_ts_s": 363.0,
+      "core_verdict_ts_to_signal_written_ts_s": 59.0,
+      "signal_written_ts_to_plan_ts_s": 3.154,
+      "plan_ts_to_submit_ts_s": 0.487,
+      "submit_ts_to_broker_submitted_ts_s": 0.098,
+      "broker_submitted_ts_to_fill_ts_s": 0.177,
+      "total_s": 425.916,
+      "n_resolvable_stages": 7
+    },
+    {
+      "date_et": "2026-08-03",
+      "arm": "risky-3",
+      "symbol": "SPY260803C00754000",
+      "order_id": "449a08f0-5c72-4309-8e62-31e99e0e8a41",
+      "core_tick_id": "2026-08-03T09:41:02.470826",
+      "stages": {
+        "bar_close_ts": "2026-08-03T09:35:00-04:00",
+        "core_verdict_ts": "2026-08-03T09:41:03",
+        "signal_written_ts": "2026-08-03T09:42:02-0400",
+        "plan_ts": "2026-08-03T09:42:06.215611-04:00",
+        "submit_ts": "2026-08-03T09:42:06.615248-04:00",
+        "broker_submitted_ts": "2026-08-03T13:42:06.715144435Z",
+        "fill_ts": "2026-08-03T13:42:06.837759Z"
+      },
+      "bar_close_ts_to_core_verdict_ts_s": 363.0,
+      "core_verdict_ts_to_signal_written_ts_s": 59.0,
+      "signal_written_ts_to_plan_ts_s": 4.216,
+      "plan_ts_to_submit_ts_s": 0.4,
+      "submit_ts_to_broker_submitted_ts_s": 0.1,
+      "broker_submitted_ts_to_fill_ts_s": 0.123,
+      "total_s": 426.838,
+      "n_resolvable_stages": 7
+    }
+  ],
+  "summary": {
+    "n_scored": 3,
+    "small_n": true,
+    "hops": {
+      "bar_close_ts_to_core_verdict_ts_s": {
+        "n": 3,
+        "median_s": 363.0,
+        "p90_s": 363.0,
+        "max_s": 363.0
+      },
+      "core_verdict_ts_to_signal_written_ts_s": {
+        "n": 3,
+        "median_s": 59.0,
+        "p90_s": 59.0,
+        "max_s": 59.0
+      },
+      "signal_written_ts_to_plan_ts_s": {
+        "n": 3,
+        "median_s": 3.154,
+        "p90_s": 4.216,
+        "max_s": 4.216
+      },
+      "plan_ts_to_submit_ts_s": {
+        "n": 3,
+        "median_s": 0.487,
+        "p90_s": 0.522,
+        "max_s": 0.522
+      },
+      "submit_ts_to_broker_submitted_ts_s": {
+        "n": 3,
+        "median_s": 0.098,
+        "p90_s": 0.1,
+        "max_s": 0.1
+      },
+      "broker_submitted_ts_to_fill_ts_s": {
+        "n": 3,
+        "median_s": 0.123,
+        "p90_s": 0.177,
+        "max_s": 0.177
+      },
+      "total_s": {
+        "n": 3,
+        "median_s": 425.916,
+        "p90_s": 426.838,
+        "max_s": 426.838
+      }
+    }
+  }
+}
