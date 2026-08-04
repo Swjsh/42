@@ -1,3 +1,46 @@
+[2026-08-03T20:38:16 ET] conductor: OK -- REGIME-STAMP-DAILY-DRIFT-DETECTOR -- commit `c45e691b`
+Budget gate PASSED ($9.90/$30, 3/4 fires used pre-fire). Engine health GREEN, market
+closed -- proceeded past STAGE 0. Picked the self-audit-gap lane (STAGE-1 priority-3,
+outranks queue HIGH items): two consecutive un-triaged batches (2026-08-02, 2026-08-03)
+both independently flagged the SAME gap -- "regime-stamp drift detection... to avoid
+stale bias" / "a real-time drift detector that compares regime-stamp.json and
+today-bias.json timestamps... flags mismatches" -- a 2-day recurrence is the OP-25/C7
+graduation signal (re-surfaced finding -> code, not another triage note).
+Root cause verified from code, not guessed: Gamma_RegimeStamp (08:22 ET) writes
+regime-stamp.json then patches today-bias.json#regime_context; Gamma_Premarket
+(08:30 ET, LLM-authored) is supposed to re-lift the same stamp when it regenerates
+today-bias.json fresh. The ONLY existing verification of that handoff was
+monday_verify.py's WS6 check -- which runs ONCE A WEEK (Monday only). A Tue-Fri
+silent drift had zero daily detector.
+SHIPPED: `self_check.check_regime_stamp_daily()` (setup/scripts/self_check.py),
+reusing WS6's proven dates_match logic generalized to every weekday via the existing
+Gamma_SelfCheck 30-min cadence ($0, pure-Python, fail-open). DEGRADED-not-BROKEN
+classification (regime_context is explicitly non-load-bearing per regime_stamp.py's
+own docstring: "never a live entry input"). 9 new guard tests
+(backtest/tests/test_self_check_regime_stamp_drift.py), RED-proofed via `git stash`
+(all 9 correctly failed with AttributeError/missing-wiring before the change, restored
+106/106 green after). Curated safety gate 59/59 PASS at commit; `git show c45e691b
+--stat` confirms exactly the 2 intended files (no shared-index absorption). Live-
+verified against today's real state: `[]` (no drift) -- matches WS6's independent
+GREEN verdict for 2026-08-03.
+Also disposed (no new build needed, verified live): "Implement live position
+reconciliation/watchdog" (08-02 batch) -- ALREADY BUILT (Gamma_GhostOrderReconciler,
+registered + Ready, 1-min cadence 09:30-15:55 ET, confirmed via
+Get-ScheduledTask + SCHEDULED-TASKS.md). "Off-box freshness watchdog" (08-03 batch) --
+same ask as tracked queue item OFF-BOX-DEADMAN-SWITCH (MED, pending), not new.
+"Twin Doctrine shadow/sandbox ratification" (08-03 batch) overlaps
+TWIN-DOCTRINE-FIRST-DEPLOY (gp-2026-07-23-twin-doctrine-001), still pending J 12 days,
+not re-pinged (spam avoidance). Both batches' remaining lines (Alpaca fallback,
+synthetic-theta replacement, budget market-close-reset, strike-tier size guard,
+centralized param promotion, shrink-not-deny telemetry, live-watch.json archive) are
+real but not actioned this fire (scope discipline) -- named future work.
+Zero trading-path/params/live-order code touched (self_check.py is a VISIBILITY-only
+observer). Ships per OP-22/OP-26 engine-benefit authoring, no J ratification needed.
+Revert: `git revert c45e691b`.
+Autonomy metric to be refreshed by conductor_outcome.py this same fire.
+
+---
+
 [2026-08-03T18:46:02 ET] conductor: OK -- LESSON-INBOX-DRAIN -- commit `b514323e`
 Budget gate PASSED ($9.13/$30, 2/4 fires used pre-fire). Engine health GREEN, market
 closed -- proceeded past STAGE 0. No Agent/Task tool was exposed to this fire's tool
@@ -541,11 +584,3 @@ already-modified state/analysis files sitting dirty in the tree from other auton
 processes). Revert: `git revert 5e4cd6e2` (additive-only fix + tests, nothing else depends
 on the changed truncation/label behavior).
 
-## [2026-08-02T00:08:02 ET] conductor: OK -- ZERO-FOR-TWELVE-POSTMORTEM -- closed the historical-OOS(2026) day-cluster half. Re-ran vwap_continuation + vix_regime_dayside's own byte-identical detectors over the 2026 OOS window (through 2026-07-22, detection-only, $0, 1.8s): vix_regime_dayside's 34 OOS signals are 94.1% (32/34) the SAME (date,side) as vwap_continuation's 61 OOS signals -- confirms + quantifies a caveat already on record (vix_regime_dayside.json "L174 NOT INDEPENDENT ... subset of vwap_continuation") but never measured until now. Pooling by (date,side) collapses the naive 95-signal sum to 63 distinct trials (-33.7%). Reframes (does not reverse) the 07-25 disarm: the live 0-for-12 was never 12 independent trials, at BOTH the live-sample layer (closed 07-25, 4 distinct day+side buckets) and now the OOS-validation layer. Artifacts: `backtest/tools/zero_for_twelve_oos_day_cluster_2026_08_02.py` + `analysis/recommendations/zero-for-twelve-oos-day-cluster-2026-08-02.json` + guard `backtest/tests/test_zero_for_twelve_oos_day_cluster.py` (3/3 green, golden-pinned). Lesson filed: `_lesson-inbox/2026-08-02-oos-signal-populations-can-silently-overlap-across-setups.md` (candidate graduation: canonical `pooled_distinct_trials` helper next to probe_stats.py, flagged not built). Zero trading-path touched. Curated safety gate 59/59 PASS. Revert: `git revert <this commit>`. **Autonomy metric: trend=regressing** (function_score_avg 23.7 over 20 fires -- `enters_last_trading_day`/`fills`/`orders_accepted` all 0 on 2026-08-01, a Saturday with no session; the metric's own `function_latest` is date-anchored to the last CALENDAR day not the last TRADING day, so a weekend read always looks regressed -- next weekday fire should confirm whether this is a metric-scope artifact or a real funnel gap (STAGE 1 fill-funnel check takes priority next fire either way).
-
-### DEGRADED: self-check 2026-08-03T18:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
-- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=scorecard-python

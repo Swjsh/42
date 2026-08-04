@@ -624,3 +624,51 @@ generalization, not chased. Batch closed. -->
 - **Most rigorous view:** Perspective 2 provides the most end‑to‑end causal chain (missing ticks → stale regime/context → 
 
 <!-- DONE 2026-08-02T01:07 conductor (AFTERHOURS, commit 5e4cd6e2): TRIAGED. Last 2 lines are the SAME synthesis-truncation + bold-label-leak bug fixed this fire -- root cause named + fixed in self_audit.py (_strip_bold_label + _soft_truncate), 3 new RED-proofed guard tests, 63/63 green. The 5 short perspective-sourced lines (Dashboard WS8 trendline data/OPRA backfill completeness/FleetExecutor idempotency guard/no alert fires) are genuine terse gaps, not noise -- logged as candidate future work, none require an immediate fix themselves. No further action this fire; fix prevents recurrence on future self-audit runs. -->
+
+## 2026-08-02T17:32:13 -- 8 new gap(s) Gamma self-identified
+- Alpaca API fallback
+- Replace the synthetic theta/Greeks model with a market‑derived fallback (real‑time options‑chain data).
+- Implement live position reconciliation/watchdog to detect and correct mismatches between internal state and broker positions during market hours.
+- Improve conductor budget logic: automatic reset at market close and safeguards against weekend/test exhaustion.
+- Add regime‑stamp drift detection and ensure timely pre‑market generation to avoid stale bias.
+- Insert a pre‑trade guard that validates position size against the active strike‑tier table (size/tier consistency).
+- Move to centralized, version‑controlled parameter promotion with weekend‑only ratification to enforce Rule 9.
+- Add telemetry and unit‑test coverage for shrink‑not‑deny logic to measure its impact.
+
+## 2026-08-03T17:32:04 -- 7 new gap(s) Gamma self-identified
+- Spam‑free but urgent
+- Potential manual override
+- – the system needs a historical archive/rolling snapshot of `live-watch.json` (or equivalent) so that post‑trade field validation, latency analysis, and audit trails are possible.
+- – a lightweight, off‑box process (cron, GitHub Action, or separate host) must regularly verify the freshness of key Gamma files (e.g., `live-watch.json`, `regime-stamp.json`) and trigger a silent alert or safe‑shutdown if heartbeats lapse.
+- – when Alpaca OPRA or Greeks endpoints return empty/sparse data, the system should automatically fall back to a secondary source (local model, alternative broker, or cached values) rather than halting or proceeding with stale data.
+- – the “Twin Doctrine” (or any staged update) should be run in a shadow/sandbox mode that generates an automated ratification report, reducing reliance on manual J approval.
+- – a real‑time drift detector that compares `regime-stamp.json` and `today‑bias.json` timestamps (or a hash of the content) and flags mismatches before they corrupt entry logic.
+
+<!-- DONE 2026-08-03T20:xx ET conductor (AFTERHOURS, commit c45e691b) :: ACTIONED the
+"Add regime-stamp drift detection" gap from the 2026-08-02T17:32:13 batch above, AND its
+independent 2nd-day re-flag in THIS 2026-08-03 batch ("real-time drift detector that
+compares regime-stamp.json and today-bias.json timestamps ... flags mismatches") -- a
+2-consecutive-day self-flagged recurrence is the OP-25/C7 graduation signal (re-surfaced
+finding -> code, not another triage note). Built self_check.check_regime_stamp_daily(), a
+$0 pure-Python daily verifier of the Gamma_RegimeStamp (08:22 ET) -> Gamma_Premarket
+(08:30 ET) handoff, reusing monday_verify.py's WS6 dates_match logic (previously the ONLY
+check, and only weekly -- a Tue-Fri silent drift had zero daily detector) generalized to
+every weekday via the existing Gamma_SelfCheck 30-min cadence. 9 new guard tests
+(backtest/tests/test_self_check_regime_stamp_drift.py), RED-proofed via git stash (all 9
+correctly fail before the change, restored 106/106 green after), curated safety gate
+59/59 PASS, live-verified against today's real state ([] -- no drift, matching WS6's
+independent GREEN verdict for 2026-08-03 in STATUS.md). Full REVOKE report in STATUS.md.
+"Implement live position reconciliation/watchdog" (08-02 batch) -- ALREADY BUILT, verified
+live this fire: Gamma_GhostOrderReconciler is registered + Ready (every 1 min,
+09:30-15:55 ET), comparing decisions.jsonl ENTERs against the Alpaca order book, plus
+heartbeat_core's pre-entry is_flat_spy_options broker-truth check (C11) -- not a new gap.
+"Off-box freshness watchdog / silent-alert-or-safe-shutdown on heartbeat lapse" (08-03
+batch) is the SAME ask as the already-tracked queue item OFF-BOX-DEADMAN-SWITCH (MED,
+status:pending) -- not a new gap. "Twin Doctrine shadow/sandbox ratification report"
+(08-03 batch) overlaps TWIN-DOCTRINE-FIRST-DEPLOY (gp-2026-07-23-twin-doctrine-001),
+still pending J on Discord/wrist (12 days) -- not re-pinged again this fire to avoid spam.
+Remaining lines (Alpaca API fallback / synthetic theta model / conductor budget
+market-close-reset / strike-tier pre-trade size guard / centralized param promotion /
+shrink-not-deny telemetry / live-watch.json historical archive / OPRA-Greeks fallback
+source) are real but NOT actioned this fire (scope discipline, one bounded item) -- named
+as candidate future work, not chased. -->
