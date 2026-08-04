@@ -31,6 +31,22 @@ Three things matter out of everything below:
    reconstruction, not a clean baseline. On genuinely post-fix data both lanes flip
    negative. Small-n, but the number I shipped was overstated and is now labelled as such.
 
+**Two more that deserve J's eye:**
+
+- ✅ **The IEX tail worked.** `intraday_rth_high` level coverage went **28.6% → 75.0%** with
+  median latency **9.1 min → 0.0 min** — the exact source it was built to fix. One session
+  each side, so directional, not validated (§2.3).
+- 🚩 **A second armed setup has never traded, for a completely different reason.**
+  `double_bottom_base_quiet` — armed 34 days, 0 fills. Its detector is *alive* (10 fires in
+  one session); **every fire was killed downstream** by the free-model veto (6) and the risk
+  cap (4). That is not evidence against the setup — it is evidence nothing has ever let it
+  try (§3.4).
+
+**Two self-corrections inside this report, both caught before it shipped:** I nearly
+reported WinnerAutopsy as broken (it is healthy — I had read its same-day probe, not its
+population run, §2.2), and I first mis-described `double_bottom_base_quiet` as a dead
+emitter (it is a blocked one, §3.4).
+
 ---
 
 ## 1. The twin (arm #6) — full day
@@ -212,7 +228,7 @@ still unfired at write time is labelled.
 | `Gamma_EodBrief` | ✅ 16:20 ET | rc=0 | GREEN |
 | `Gamma_WinnerAutopsy` | ✅ 16:25 ET | creds fix **PROVEN**; population run 35/35 scored, `sufficient_n` TRUE; pain-ledger + fill-latency chained clean | GREEN — only the *same-day probe* is bar-starved; see below |
 | `Gamma_GateExpiryCheck` | ✅ overnight 01:00 ET | rc=0, 23 gates scored | GREEN (findings are gate-level, not instrument-level) |
-| `Gamma_ViolinMetric` | ❌ **not yet** — fires 17:35 ET | last fire 00:39 ET covered the **08-03** session | post-IEX-tail question **cannot be answered yet** — see below |
+| `Gamma_ViolinMetric` | ❌ **not yet** — fires 17:35 ET | last scheduled fire 00:39 ET covered the **08-03** session | answered read-only instead: `intraday_rth_high` **28.6% → 75.0%**, latency **9.1 m → 0.0 m** — see below |
 | `Gamma_RiskyDivergenceWeekly` | n/a — not due | **State=Ready**, next **Sun 2026-08-09 17:00 ET**, rc=267011 (*never run*) | ✅ **registered correctly** |
 
 ### 2.1 ThetaClock — greeks still 0%, and the denominator it prints is stale
@@ -294,18 +310,34 @@ have **not** verified what the intended entry-bar convention is, so this is not 
 called a defect; it is handed to whoever owns the fill pipeline as a number worth
 explaining.
 
-### 2.3 ViolinMetric — the post-IEX-tail question is not yet answerable
+### 2.3 ViolinMetric — coverage DID move, and it moved exactly where the IEX tail aimed
 
-Last fire **00:39 ET today**, covering the **2026-08-03** session — which ran mostly
-*before* the IEX tail shipped on 08-03 evening. The **17:35 ET fire tonight** will be the
-first measurement of a fully post-IEX-tail session. Baseline to beat, from 08-03:
+**Fire status:** the scheduled organic fire is **17:35 ET and had NOT run at write time**
+(last scheduled fire 00:39 ET, covering the 08-03 session, which ran mostly *before* the
+IEX tail shipped on 08-03 evening). Rather than stall the report, I computed today's
+session **read-only** (`violin_metric.py --dates 2026-08-04`, no `--write`, so tonight's
+scheduled artifact is untouched). Tonight's fire should reproduce these numbers.
 
-- overall coverage **75.0%** (21/28 respected levels covered)
-- worst source `intraday_rth_high` **28.6%** (2/7) — 5 misses, latencies 9–34 min
-- `premarket_low` 50.0%, `intraday_swing_high` 75.0%; three sources at 100%
+| source | 08-03 (pre-tail) | **08-04 (post-tail)** |
+|---|---|---|
+| **`intraday_rth_high`** | **28.6%** (2/7), median latency **9.1 m** | **75.0%** (6/8), median latency **0.0 m** |
+| `intraday_swing_high` | 75.0% (3/4) | 83.3% (5/6) |
+| `intraday_swing_low` | 100% (5/5) | 83.3% (5/6) |
+| `intraday_rth_low` | — (not present) | 0.0% (0/1), latency 19.1 m |
+| overall | 75.0% (21/28) | 76.2% (16/21) |
 
-**Do not report a coverage delta until tonight's fire lands.** `intraday_rth_high` at 28.6%
-is the specific number to watch.
+**Verdict: yes, on the metric that mattered.** `intraday_rth_high` was the worst source in
+the pre-tail session (28.6%, 5 misses at 9–34 min latency) and is the one the IEX tail was
+built to fix. It went **28.6% → 75.0% with median latency 9.1 m → 0.0 m** — misses now
+land at the tick, not ten minutes late.
+
+⚠ **Read the headline number with care, and do not quote the overall delta.** Overall
+coverage barely moved (75.0% → 76.2%) and that comparison is **apples-to-oranges**: the
+08-03 session included `premarket_high`, `premarket_low` and `daily_context_shelf` levels
+that are absent today, so the source mix differs. The like-for-like per-source
+`intraday_rth_high` row is the honest evidence. Both sides are **a single session each** —
+this is one clean directional datapoint, not a validated improvement. `intraday_rth_low`
+at 0/1 is n=1 noise, worth watching, not worth acting on.
 
 ### 2.4 Nothing failed silently
 
@@ -412,19 +444,49 @@ arming key in `automation/state/params.json`.
 | `vix_regime_dayside` | ❌ false | 5 legs, -$153 | disarmed 07-25 |
 
 **`double_bottom_base_quiet` has been `exec_armed=true` since the 2026-07-01 trade-to-learn
-batch — 34 days — and has produced zero live fills.** It appears in exactly one artifact in
-that entire span (`fill-funnel-2026-07-30.json`), i.e. it has fired at most once as a signal
-and never converted. This is **the same class as vwap_continuation**: armed, believed live,
-never exercised — and it would not have been visible without this sweep.
+batch — 34 days — and has produced zero live fills.**
 
-**Recommend:** treat it as UNPROVEN-PATH, not as an armed strategy, until someone verifies
-the emitter is actually reachable. It is the exact profile that hid an import-dead emitter
-for six weeks.
+⚠ *Second self-correction: my first pass called it "fired at most once and never converted."
+That was wrong, and the true mechanism is more interesting.* Sweeping
+`extra_setup_placed` across every `fill-funnel-*.json`:
+
+| armed extra setup | dispatch outcomes | days fired | PLACED | why it died |
+|---|---:|---:|---:|---|
+| `bollinger_squeeze` | 60 | 9 | **20** | healthy — SKIP_LATE_ENTRY 22, VETOED_BY_MODELS 8 |
+| `vwap_continuation` | 133 | 5 | 3 | WATCH_NOT_ARMED 93 (core disarmed 07-25) |
+| `vwap_reclaim_failed_break` | 10 | 2 | 1 | STALE_SIGHT 4, COOLDOWN 4, veto 1 |
+| **`double_bottom_base_quiet`** | **10** | **1** (07-30) | **0** | **VETOED_BY_MODELS 6 · RISK_DENY_RISK_CAP 4** |
+| `gap_and_go` | 20 | 4 | 0 | WATCH_NOT_ARMED 20 ✅ *by design* |
+| `level_break_first_strike` | 15 | 2 | 0 | WATCH_NOT_ARMED 15 ✅ *by design* |
+
+**The corrected diagnosis: the detector is ALIVE, not import-dead.** It fired **10 times in
+one session** (2026-07-30) and **every single fire was killed downstream** — 6 by the
+free-model veto, 4 by the risk cap. It has not fired on any other funnel-covered day.
+
+So this is *not* the vwap_continuation failure mode (dead emitter, zero signals). It is a
+distinct one: **a rare detector whose only firing day was 100% blocked by gates.** Same
+end-state (armed, never exercised), completely different fix. Two things are worth pulling
+on, neither of which I can settle here:
+
+- **The risk-cap half is probably the known sizing deadlock, not this setup's fault.** The
+  same funnel is full of `safe: notional $XXX exceeds per-trade cap $348 (30% of $1,160)`
+  on that date — the account was small enough that most things were sized out. All five
+  arms are now $5K-class, so this half may already be resolved.
+- **The model-veto half deserves a look on its own.** 6 of 10 fires vetoed on this setup,
+  plus 8 of 60 on `bollinger_squeeze`. Per OP-32's free-model trust gate, a veto lane that
+  is the sole reason a validated setup has never traded is exactly what
+  `free_model_audit.py` exists to grade.
+
+**Recommend:** re-classify `double_bottom_base_quiet` from "armed strategy" to
+**ARMED-BUT-NEVER-EXERCISED**, and route it to the free-model audit rather than disarming
+it — 0 fills across 34 days is not evidence against the setup, it is evidence that nothing
+downstream has ever let it try.
 
 Correctly handled by contrast, and worth stating so the sweep isn't misread: `gap_and_go`
 (`gap_and_go_enabled=true`) and `level_break_first_strike` (`j_lbfs_enabled=true`) both have
-their exec-arm key **deliberately ABSENT** → `WATCH_NOT_ARMED` / `SHADOW-LOGGED`, documented
-in `setup/scripts/setup_dispatch.py`. Those are documented shadows, not silent gaps.
+their exec-arm key **deliberately ABSENT** → 100% `WATCH_NOT_ARMED` across 20 and 15
+dispatches respectively, documented in `setup/scripts/setup_dispatch.py`. Those are
+documented shadows behaving exactly as specified, not silent gaps.
 
 ---
 
@@ -499,12 +561,12 @@ file instead of discarding), `_pytest_guards2.txt`, and editor dirs `.claudian/`
 | 2 | `ENTRY_MAX_HOLD` live path still unexercised — next natural exercise is tonight's forced sweep (~20:07 ET); verify a `max_hold` `EXIT_FILLED` with `entry_price` appears | next session |
 | 3 | Coverage battery grades preemption as GREEN — tighten `_ALWAYS_ACCEPTABLE_STAGES`, or report designed-stage-hit-rate alongside GREEN | build |
 | 4 | Re-simulate the ladder's affected span under fixed code instead of filtering `time_stop` rows out | build |
-| 5 | `double_bottom_base_quiet`: armed 34 days, 0 fills — verify emitter reachable or disarm | build |
+| 5 | `double_bottom_base_quiet`: armed 34 days, 0 fills — detector ALIVE (10 fires, 1 day), 100% killed downstream (6 model-veto + 4 risk-cap). Re-classify ARMED-BUT-NEVER-EXERCISED; route the veto half to `free_model_audit.py`, re-check the risk-cap half now arms are $5K-class | build |
 | 6 | ThetaClock: 49/49 empty greeks; make the counter live or rename source to `closed_form_est` | build |
 | 7 | Confirm tomorrow that today's 9 unscored winners get absorbed once OPRA bars cache; if not, add a next-day backfill pass | next session |
 | 7b | Runner cohort (n=35 population): 13 of 21 runners finished BELOW TP1, median giveback 21.3%, best fixed policy `trail_only_no_tp1` — feed to the exits lens as population-level input to J's "longer vs better exits" question | exits lens |
 | 7c | Explain ~486–670 s bar-close→fill latency (all upstream of broker); verify against intended entry-bar convention | fill-pipeline owner |
-| 8 | ViolinMetric 17:35 ET fire = first post-IEX-tail session; baseline `intraday_rth_high` 28.6% | tonight |
+| 8 | Confirm tonight's 17:35 ET ViolinMetric fire reproduces the read-only numbers (`intraday_rth_high` 75.0%, latency 0.0 m); accumulate more sessions before calling the IEX tail validated | tonight / next session |
 | 9 | Extend L242 remediator to `analysis/manager/` (550 files, 39 days) | build |
 | 10 | Perps question: recommend CLOSED as not-worth-pursuing (no gross edge in discarded bear signals) | J / doctrine |
 
