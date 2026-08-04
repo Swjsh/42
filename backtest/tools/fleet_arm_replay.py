@@ -173,6 +173,7 @@ import pandas as pd  # noqa: E402
 import replay_fleet_arms as rfa            # noqa: E402 -- population/gate reuse
 import engine_fullhist_replay as efr        # noqa: E402 -- ribbon/alignment/matcher reuse
 import fleet_executor as fx                 # noqa: E402 -- sizing/exit-shape reuse
+import fills_fifo as _fills_fifo            # noqa: E402 -- the ONE FIFO round-trip miner (extracted 2026-08-04)
 import strategies as fleet_strategies       # noqa: E402  -- automation/state/fleet/strategies.py
 import strike_selection as ss               # noqa: E402  -- crypto/lib/strike_selection.py
 from lib.orchestrator import run_backtest, _params_to_kwargs  # noqa: E402
@@ -573,93 +574,17 @@ def mine_real_arm_fills(arm_id: str, ledger_path: Path = FILLS_LEDGER_PATH) -> l
     """FIFO-reconstruct CLOSED round trips for `arm_id` from fills-ledger.jsonl,
     `attribution=='engine'` rows only (never J's manual fills -- same discipline
     bold_fullhist_replay.ANCHOR_FILLS's own hand-mining used, here automated and exhaustive
-    instead of a hand-picked sample). Partial exits (TP1 + runner, 2 sell legs) are summed
-    into ONE round trip per (symbol) -- a symbol is date-scoped by construction (OCC symbols
-    encode expiry), so no cross-day collision risk. Returns bold_fullhist_replay.ANCHOR_
-    FILLS-shaped dicts: date/symbol/side/entry_ts_et/entry_premium/exit_ts_et/exit_premium/
-    qty/real_pnl. `exit_premium` is None (and a `_note` explains) whenever >1 sell leg
-    resolved the position -- real_pnl (the FIFO net) is still exact regardless."""
-    if not ledger_path.exists():
-        return []
-    by_symbol: dict[str, list[dict]] = {}
-    with ledger_path.open(encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if row.get("arm") != arm_id or row.get("attribution") != "engine":
-                continue
-            by_symbol.setdefault(row["symbol"], []).append(row)
+    instead of a hand-picked sample). Returns bold_fullhist_replay.ANCHOR_FILLS-shaped
+    dicts: date/symbol/side/entry_ts_et/entry_premium/exit_ts_et/exit_premium/qty/real_pnl.
 
-    # OCC symbols are date-scoped (they encode expiry), but they are NOT ROUND-TRIP-scoped --
-    # the SAME symbol can be bought, fully sold, and bought AGAIN later the same day (a
-    # re-entry). BUG FOUND BUILDING THIS TOOL (2026-08-02, caught by an anchor replay that
-    # came back off by $685 on one risky-3 trade): the first draft of this function tracked
-    # ONE running (buy_notional, buy_qty, sell_legs) accumulator per SYMBOL for its entire
-    # leg history, keyed only on a `started` flag that never reset -- so risky-3's real
-    # 2026-07-08 SPY260708P00741000 (TWO separate round trips: 09:52 BUY 5@0.94 / 10:01 SELL
-    # 5@0.78 = -$80, THEN 13:07 BUY 5@0.25 / 13:16 SELL 5@0.25 = $0) got BLENDED into one
-    # fictional qty=10 anchor with entry_ts=09:52 and a WEIGHTED-AVERAGE entry_premium=0.595
-    # that never existed as a real fill -- replaying that fiction produced +$605 against a
-    # real -$80, which is what a genuine bug looks like, not "sim vs real slippage" (the
-    # aggregate net FIFO pnl still summed correctly, -$80, which is exactly why this class of
-    # bug is easy to miss on a quick eyeball of just the totals). FIX: flush and reset the
-    # accumulator the INSTANT open_qty returns to zero, so any later buy on the same symbol
-    # starts a brand-new round trip instead of continuing to accumulate into the old one.
-    out: list[dict] = []
-    for symbol, legs in by_symbol.items():
-        legs = sorted(legs, key=lambda r: r["ts_et"])
-        side_p_or_c = symbol[-9]
-        if side_p_or_c not in ("C", "P"):
-            continue  # defensive: malformed symbol, skip rather than fabricate a side
-        open_qty = 0.0
-        buy_notional = 0.0
-        buy_qty = 0.0
-        sell_legs: list[dict] = []
-        entry_ts = None
-        for leg in legs:
-            side = leg.get("side")
-            q = float(leg.get("qty") or 0.0)
-            px = float(leg.get("price") or 0.0)
-            if side == "buy":
-                if open_qty <= 1e-9:
-                    # starting a FRESH round trip -- either the very first buy on this
-                    # symbol, or a re-entry after a prior one fully closed (reset below).
-                    entry_ts = leg["ts_et"]
-                    buy_notional = 0.0
-                    buy_qty = 0.0
-                    sell_legs = []
-                open_qty += q
-                buy_notional += q * px
-                buy_qty += q
-            elif side == "sell":
-                if open_qty <= 1e-9:
-                    continue  # a sell with nothing open -- data anomaly, skip defensively rather than fabricate a short position
-                open_qty -= q
-                sell_legs.append(leg)
-                if abs(open_qty) > 1e-6:
-                    continue  # still open (a partial exit) -- keep accumulating this SAME round trip
-                # ROUND TRIP CLOSED -- flush exactly this one, then the loop naturally starts
-                # a fresh accumulator if another buy on this symbol follows later.
-                sell_notional = sum(float(s["qty"]) * float(s["price"]) for s in sell_legs)
-                sell_qty = sum(float(s["qty"]) for s in sell_legs)
-                real_pnl = round((sell_notional - buy_notional) * 100.0, 2)
-                entry_premium = round(buy_notional / buy_qty, 4) if buy_qty else None
-                out.append({
-                    "date": legs[0]["date_et"], "symbol": symbol, "side": side_p_or_c,
-                    "entry_ts_et": entry_ts, "entry_premium": entry_premium,
-                    "exit_ts_et": sell_legs[-1]["ts_et"],
-                    "exit_premium": (round(sell_notional / sell_qty, 4) if len(sell_legs) == 1 else None),
-                    "qty": int(round(buy_qty)), "real_pnl": real_pnl,
-                    "_note": (f"{len(sell_legs)}-leg exit" if len(sell_legs) > 1 else None),
-                })
-        # any leftover open position (open_qty > 0 at end of this symbol's legs) is simply
-        # never flushed -- correctly excluded as "still open / unresolved", same as before.
-    return sorted(out, key=lambda r: r["entry_ts_et"])
+    BODY EXTRACTED VERBATIM (2026-08-04) to `automation/state/fleet/fills_fifo.py` so the
+    stdlib-only weekly divergence instrument (`setup/scripts/full_send_vs_gated.py`) shares
+    the SAME implementation instead of drifting a second FIFO copy (C14). The same-day
+    re-entry flush fix (2026-08-02: one risky-3 anchor blended to +$605 vs real -$80 --
+    see the git history of THIS file for the full narrative) lives there now; this
+    re-export keeps every existing caller and test (`test_fleet_arm_replay.py`) exercising
+    that one body through the original name + signature."""
+    return _fills_fifo.mine_real_arm_fills(arm_id, ledger_path=ledger_path)
 
 
 def _load_arm_trigger_levels(arm_id: str) -> dict:
