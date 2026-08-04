@@ -90,8 +90,17 @@ rapid re-entry after a stop-out, and on this instrument it is a **pure bleed fun
 each cycle pays the round-trip spread (median **0.33%** round-trip, §1.5) to re-acquire a
 position that the structure stop then removes again.
 
-This is directly relevant to the SPY open question (risky-3, seven `ENTER_BULL` in eleven
-minutes, no re-entry lock since the 2026-07-02 deletion). The twin cannot price the SPY
+This is directly relevant to the SPY open question — risky-3's repeat entries in eleven
+minutes, with no re-entry lock since the 2026-07-02 deletion.
+
+> ⚠ **Deferring to the re-entry lens on the SPY facts.** That lens has since established
+> that only **FOUR of the seven `ENTER_BULL` decision rows were actually PLACED** —
+> 09:48/09:49/09:53 carry `placement.placed=false, reason=SKIP_DUPLICATE_CLAIM`, so
+> counting `action` rows overstates entries by 75%. **`analysis/deep-research/EOD-2026-08-04-REENTRY.md`
+> is authoritative on the SPY side; this section is not.** Nothing below depends on the
+> SPY entry count.
+
+The twin cannot price the SPY
 question — twin P&L is never SPY evidence — but it is the designated place to ask whether
 a *mechanism* is sound, and today the mechanism "re-enter immediately after a structure
 stop, with only flat-verify and risk_gate between fires" produced 10 consecutive losses on
@@ -360,8 +369,16 @@ commit from this morning, and it is the most serious.**
 
 I called a shipped setup "a defect losing money" on **11 minutes of intra-session realized
 P&L** and said I would stage `RUN_VWAP=False`. The full day: `VWAP_CONTINUATION` finished
-**10 legs, +$721.00**. The fifth fire of the very cluster I was alarmed about became the
-trade of the day.
+**10 legs / 7 round trips, +$721.00**. The **4th placed entry** of the very cluster I was
+alarmed about (09:57 @ 1.40) became the trade of the day at **+$524.00**; the three placed
+round trips before it lost -$288.00 combined.
+
+**A second error, found by the re-entry lens and folded back into the lesson file:** I
+described the cluster as *seven* entries. Only **four were placed** — 09:48/09:49/09:53
+carry `placement.placed=false, reason=SKIP_DUPLICATE_CLAIM` in the *same JSON object* as
+`action`. I counted `action` rows and overstated entries by **75%**. That was not a
+judgment failure; it was a field I never read. The alarm was raised on a number I had not
+checked.
 
 **Root cause of the bad call:** an 11-minute realized-P&L window is not a small sample, it
 is a **censored** one — and the censoring correlates with sign, because losers resolve fast
