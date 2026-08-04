@@ -263,6 +263,63 @@ def test_bias_freshness_fresh_is_green():
 
 
 # --------------------------------------------------------------------------- #
+# assess_trendline_watch -- check 8 (LANE-4 2026-08-03), carried-overnight visibility.
+# VISIBILITY-ONLY: advisory (never RED, never critical) -- the trendline entry-signal
+# form is graveyarded; this row only makes the overnight carry VISIBLE at 09:00.
+# --------------------------------------------------------------------------- #
+
+_TL_WATCH = {
+    "live_state_date_et": "2026-08-03",
+    "active_lines": [{"kind": "support", "flavor": "wick", "status": "TESTING",
+                      "current_value": 757.58, "respect_count": 60}],
+    "nearest_active": {"kind": "support", "flavor": "wick", "status": "TESTING",
+                       "current_value": 757.58},
+}
+
+
+def test_trendline_watch_carried_overnight_is_green_and_names_the_line():
+    """Tuesday 09:00 reading Monday's carry: GREEN, detail carries the line essence."""
+    check = pr.assess_trendline_watch(_TL_WATCH, _et("2026-08-04 09:00:00"))
+    assert check["status"] == "GREEN"
+    assert check["critical"] is False
+    assert "1 line(s) carried from 2026-08-03" in check["detail"]
+    assert "757.58" in check["detail"]
+    assert "resumes 09:30 ET" in check["detail"]
+
+
+def test_trendline_watch_missing_is_yellow_never_red():
+    check = pr.assess_trendline_watch(None, _et("2026-08-04 09:00:00"))
+    assert check["status"] == "YELLOW"
+    assert check["critical"] is False
+
+
+def test_trendline_watch_week_stale_is_yellow_dead_producer():
+    stale = dict(_TL_WATCH, live_state_date_et="2026-07-27")
+    check = pr.assess_trendline_watch(stale, _et("2026-08-04 09:00:00"))
+    assert check["status"] == "YELLOW"
+    assert "STALE" in check["detail"]
+
+
+def test_trendline_watch_weekend_carry_is_green():
+    """Monday reading Friday's state (3 calendar days) is normal carry, not staleness."""
+    fri = dict(_TL_WATCH, live_state_date_et="2026-07-31")
+    check = pr.assess_trendline_watch(fri, _et("2026-08-03 09:00:00"))
+    assert check["status"] == "GREEN"
+
+
+def test_trendline_watch_can_never_red_the_gate():
+    """RED-proof of the visibility-only contract: even a maximally-broken watch payload
+    fused with all-GREEN critical checks can only ever YELLOW the verdict."""
+    broken = pr.assess_trendline_watch({"live_state_date_et": "garbage"}, _et("2026-08-04 09:00:00"))
+    assert broken["status"] in ("YELLOW", "GREEN")
+    fused = pr.fuse([
+        {"name": "fleet:x", "status": "GREEN", "detail": "", "critical": True},
+        broken,
+    ])
+    assert fused != "RED"
+
+
+# --------------------------------------------------------------------------- #
 # assess_tv_cdp -- check 5, the "down -> YELLOW never RED" guard.
 # --------------------------------------------------------------------------- #
 

@@ -44,6 +44,12 @@ RED = any CRITICAL check (1, 2, 3, 6, 7) is RED. Checks 4/5 are advisory-only --
 the overall verdict to YELLOW but never RED (TV down with everything else GREEN reads YELLOW,
 never RED -- exactly the guard this build is proofed against).
 
+  8. trendline_watch   -- LANE-4 (2026-08-03): carried-overnight trendline visibility.
+                          Gamma_Trendlines fires 09:30-16:00 ET only, so at 09:00 the watch
+                          file holds the PRIOR session's lines -- this row makes that carry
+                          VISIBLE on the readiness gate (advisory-only, YELLOW ceiling;
+                          visibility, never an entry signal -- that form is graveyarded).
+
 FAIL-OPEN EVERYWHERE (rail-2 + OP-25): every fetcher degrades to an empty/None default on any
 IO error; every assessor is wrapped by `_safe_checks()` so a checker that raises internally
 degrades to a single UNKNOWN row (never crashes the whole gate, never blocks the morning). This
@@ -78,6 +84,7 @@ FLEET_DIR = STATE / "fleet"
 ACCOUNTS_PATH = FLEET_DIR / "accounts.json"
 KEY_LEVELS_PATH = STATE / "key-levels.json"
 TODAY_BIAS_PATH = STATE / "today-bias.json"
+TRENDLINE_WATCH_PATH = STATE / "trendline-watch.json"  # LANE-4 2026-08-03 (carry-over visibility)
 CORE_DECISIONS_PATH = STATE / "core-decisions.jsonl"
 MCP_JSON_PATH = REPO_ROOT / ".mcp.json"
 OUT_PATH = STATE / "premarket-readiness.json"
@@ -256,6 +263,15 @@ def fetch_key_levels() -> Optional[dict]:
 
 def fetch_today_bias() -> Optional[dict]:
     return _read_json_or_none(TODAY_BIAS_PATH)
+
+
+def fetch_trendline_watch() -> Optional[dict]:
+    """LANE-4 (2026-08-03): the trendline watch surface (trendline-watch.json, WS8's
+    producer). Gamma_Trendlines only fires 09:30-16:00 ET, so at the 09:00 readiness gate
+    this file always holds the PRIOR session's carried-overnight lines — exactly the state
+    J needs visible before the open (today's live case: a x60-respected wick support
+    carried TESTING into the close)."""
+    return _read_json_or_none(TRENDLINE_WATCH_PATH)
 
 
 def fetch_mcp_servers_present() -> dict:
@@ -581,6 +597,46 @@ def assess_bias_freshness(data: Optional[dict], et: datetime) -> dict:
     return _chk(name, "GREEN", f"today-bias.json dated today, bias={data.get('bias', 'unknown')}", False)
 
 
+def assess_trendline_watch(data: Optional[dict], et: datetime) -> dict:
+    """Check 8 (LANE-4, 2026-08-03). VISIBILITY-ONLY + NON-CRITICAL by design: the
+    trendline engine's 5-min task starts at 09:30 ET sharp, so a line that carried
+    overnight (e.g. 08-03's x60-respected wick support, TESTING at the close) was
+    INVISIBLE to every morning surface except the 08:45 voice brief. This row puts the
+    carried state on the 09:00 readiness gate. It can never RED (fuse's advisory
+    ceiling) and never gates trading — the graveyarded trendline entry-signal form
+    stays dead; this is eyes, not hands.
+
+    GREEN  = watch file readable, carried lines enumerated (even 0 — a lineless carry
+             is a fact, not a failure), producer state dated within 5 calendar days.
+    YELLOW = file missing/unreadable, or produced >5 calendar days ago (dead producer —
+             a Tuesday reading Friday's state is normal carry; a week-old file is not)."""
+    name = "trendline_watch"
+    if not data:
+        return _chk(name, "YELLOW",
+                    "trendline-watch.json missing/unreadable -- carried-overnight lines "
+                    "invisible (producer: Gamma_Trendlines, resumes 09:30 ET)", False)
+    state_date = str(data.get("live_state_date_et") or data.get("ts_et") or "")[:10]
+    age_days = None
+    try:
+        age_days = (et.date() - datetime.strptime(state_date, "%Y-%m-%d").date()).days
+    except (TypeError, ValueError):
+        pass
+    active = data.get("active_lines") or []
+    nearest = data.get("nearest_active") or {}
+    near_txt = ""
+    if nearest.get("current_value") is not None:
+        near_txt = (f"; nearest {nearest.get('kind', '?')} [{str(nearest.get('flavor', '?')).upper()}] "
+                    f"{nearest.get('current_value')} ({nearest.get('status', '?')})")
+    detail = (f"{len(active)} line(s) carried from {state_date or 'unknown date'}"
+              f"{near_txt}; producer resumes 09:30 ET")
+    if age_days is None:
+        return _chk(name, "YELLOW", f"trendline-watch.json state date unparseable -- {detail}", False)
+    if age_days > 5:
+        return _chk(name, "YELLOW", f"trendline watch STALE ({age_days}d old) -- {detail} "
+                                    "(Gamma_Trendlines likely dead)", False)
+    return _chk(name, "GREEN", detail, False)
+
+
 def assess_tv_cdp(info: dict) -> dict:
     """Check 5. NON-CRITICAL by design: the engine trades headless via sight_beacon even with
     TV/CDP down -- YELLOW, never RED, so a dead visual surface can never fake-block a live
@@ -658,6 +714,7 @@ def build_report() -> dict:
     decision_counts = _f(fetch_decision_counts, {}, arms, et) if after_open else {}
     key_levels = _f(fetch_key_levels, None)
     today_bias = _f(fetch_today_bias, None)
+    trendline_watch = _f(fetch_trendline_watch, None)
     servers_present = _f(fetch_mcp_servers_present, {n: False for n in CORE_MCP_MAP})
     cdp_info = _f(fetch_tv_cdp, {"reachable": False, "detail": "fetch_tv_cdp crashed"})
     eh_report = _f(fetch_engine_health, None)
@@ -669,6 +726,7 @@ def build_report() -> dict:
     checks += _safe_checks("core_mcp", True, assess_core_mcp, snapshots, servers_present)
     checks += _safe_checks("levels_sanity", True, assess_levels_sanity, key_levels, et)
     checks += _safe_checks("bias_freshness", False, assess_bias_freshness, today_bias, et)
+    checks += _safe_checks("trendline_watch", False, assess_trendline_watch, trendline_watch, et)
     checks += _safe_checks("tv_cdp", False, assess_tv_cdp, cdp_info)
     checks += _safe_checks("engine_health", True, assess_engine_health, eh_report)
     checks += _safe_checks("heartbeat_task", True, assess_heartbeat_task, hb_state)
@@ -686,7 +744,8 @@ def build_report() -> dict:
         "red_checks": reds,  # idempotency key for maybe_alert (transition-only)
         "note": "read-only/notify-only morning readiness gate; NEVER trade-halts. Critical "
                 "checks (RED-capable): fleet_liveness, core_mcp, levels_sanity, engine_health, "
-                "heartbeat_task. Advisory-only (YELLOW ceiling): bias_freshness, tv_cdp.",
+                "heartbeat_task. Advisory-only (YELLOW ceiling): bias_freshness, "
+                "trendline_watch, tv_cdp.",
     }
 
 
