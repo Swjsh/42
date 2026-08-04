@@ -408,6 +408,50 @@ def test_entries_for_date_honors_monkeypatched_core_decisions(tmp_path, monkeypa
     assert entries[0]["side"] == "P"
 
 
+def test_entries_for_date_finds_extra_exec_placed_entry(tmp_path, monkeypatch):
+    """THE 2026-08-03 blind spot, live: safe placed a REAL +$67.85 bollinger_squeeze fill
+    (SPY260803C00757000, side C, qty 3) via heartbeat_core.py's _route_extra_setups lane at
+    13:21:03 ET while the row's TOP-LEVEL verdict/action was the unrelated primary-path
+    SKIP_ELITE_BULL_LEVEL_RECLAIM -- verdict is not ENTER_BEAR/ENTER_BULL, so the pre-fix
+    branch (and its ENTER-only condition) never sees this row at all. The real fill sits
+    ONLY inside extra_exec (a LIST). Essential real fields hardcoded from the actual
+    automation/state/core-decisions.jsonl row (grep 2026-08-03T13:21:03 + bollinger_squeeze)."""
+    mv = _mv()
+    core = tmp_path / "core-decisions.jsonl"
+    _write_jsonl(core, [
+        {"ts_et": "2026-08-03T13:21:03", "account": "safe", "armed": True,
+         "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+         "side": "C", "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+         "reason": "blocked by entry gate block_elite_bull",
+         "extra_exec": [
+             {"setup": "bollinger_squeeze", "action": "PLACED",
+              "exec": {"status": "PLACED", "symbol": "SPY260803C00757000", "side": "C",
+                        "strike": 757, "qty": 3, "premium": 0.55}},
+         ]},
+    ])
+    fleet_dir = tmp_path / "fleet"
+    for arm in mv.FLEET_ARM_IDS:
+        (fleet_dir / arm).mkdir(parents=True, exist_ok=True)
+        (fleet_dir / arm / "decisions.jsonl").write_text("", encoding="utf-8")
+    monkeypatch.setattr(mv, "CORE_DECISIONS", core)
+    monkeypatch.setattr(mv, "FLEET_DIR", fleet_dir)
+    entries, core_rows = mv._entries_for_date("2026-08-03")
+    assert len(core_rows) == 1
+    extra = [e for e in entries if e["lane"] == "core_extra_exec"]
+    assert len(extra) == 1, f"pre-fix this list was empty -- the real fill was invisible: {entries}"
+    e = extra[0]
+    assert e["arm"] == "safe-2"
+    assert e["account"] == "safe"
+    assert e["side"] == "C"
+    assert e["setup"] == "bollinger_squeeze"
+    assert e["ts_et"] == "2026-08-03T13:21:03"
+    assert e["strike"] == 757 and e["qty"] == 3
+    # this row's own verdict was a SKIP (not ENTER_*), so the pre-existing "core" lane branch
+    # contributes nothing for it either way -- the ONLY entry for this date comes from the
+    # new additive extra_exec pass.
+    assert len(entries) == 1
+
+
 # --------------------------------------------------------------------------- #
 # 4. _scan_live_watch_log day-boundary heuristic
 # --------------------------------------------------------------------------- #

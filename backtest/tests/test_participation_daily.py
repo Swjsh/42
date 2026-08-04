@@ -194,6 +194,62 @@ class TestComputeDailyOnRealTape:
 
 
 # ---------------------------------------------------------------------------
+# extra_exec lane fill flows through to the goal-layer instrument (2026-08-04)
+# ---------------------------------------------------------------------------
+
+class TestExtraExecFillFlowsThroughToParticipationDaily:
+    """Closes the participation-daily leg of the 2026-08-03 safe/bollinger_squeeze incident:
+    proves participation_cascade.build_events's new extra_exec event (see
+    test_participation_cascade.py::TestExtraExecEvents) flows all the way through to this
+    module's account_stats() output, not just to the underlying cascade module. Built via the
+    REAL build_events() call (not a hand-fabricated event dict) on the real 08-03 fixture rows.
+
+    This is ALSO the fix for self_check.py's check_participation_daily: that function is a
+    PURE READER of automation/state/participation-daily.json with no independent
+    core-decisions.jsonl parsing of its own (confirmed by reading setup/scripts/self_check.py
+    -- it only loads the JSON artifact this module writes). Once compute_daily/account_stats
+    here report the fill correctly, check_participation_daily inherits the fix for free --
+    no code change there, and test_self_check_participation_daily.py's existing suite
+    (synthetic participation-daily.json fixtures, unrelated to core-decisions.jsonl shape)
+    needs no new test to prove it."""
+
+    _PRIMARY_ROW = {
+        "ts_et": "2026-08-03T13:21:03", "account": "safe", "armed": True,
+        "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "side": "C", "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "reason": "blocked by entry gate block_elite_bull",
+        "extra_exec": [
+            {"setup": "bollinger_squeeze", "action": "PLACED",
+             "exec": {"status": "PLACED", "symbol": "SPY260803C00757000", "side": "C",
+                       "strike": 757, "qty": 3, "premium": 0.55}},
+        ],
+    }
+    _EXIT_PASS_ROW = {
+        "ts_et": "2026-08-03T13:22:04", "account": "safe", "armed": True, "verdict": "HOLD",
+        "reason": "no setup passed scoring (neither bear nor bull)",
+        "exit_pass": [{"symbol": "SPY260803C00757000", "open_qty": 3}],
+    }
+
+    def test_safe_account_fills_go_from_zero_to_one(self):
+        events = pc.build_events([self._PRIMARY_ROW, self._EXIT_PASS_ROW], "safe-2", "core")
+        cascade_day = {"date": "2026-08-03", "events": events}
+        stats = pdaily.account_stats(cascade_day, "safe-2")
+        assert stats["fills"] == 1, (
+            f"pre-fix this was 0 -- the real extra_exec fill was invisible to build_events: {events}")
+        assert stats["enter_verdicts"] >= 1
+
+    def test_red_proof_pre_fix_shape_would_have_shown_zero_fills(self):
+        """RED-PROOF: strip the extra_exec-derived event out (simulating pre-fix
+        build_events output, which never emitted it) and confirm fills reverts to 0 -- proves
+        the assertion above genuinely exercises the fix rather than being a tautology."""
+        events = pc.build_events([self._PRIMARY_ROW, self._EXIT_PASS_ROW], "safe-2", "core")
+        pre_fix_events = [e for e in events if e.get("setup") != "bollinger_squeeze"]
+        cascade_day = {"date": "2026-08-03", "events": pre_fix_events}
+        stats = pdaily.account_stats(cascade_day, "safe-2")
+        assert stats["fills"] == 0
+
+
+# ---------------------------------------------------------------------------
 # discord alert de-dup
 # ---------------------------------------------------------------------------
 

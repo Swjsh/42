@@ -337,7 +337,21 @@ def _entries_for_date(date_str: str) -> tuple[list[dict], list[dict]]:
     """(entries, core_rows). entries = every REAL placed ENTER across all 5 active SPY arms
     dated date_str (core: verdict in ENTER_*, armed True; fleet: action in ENTER_*,
     placement.placed True) -- the shared "was there a real fill" signal WS7/WS1/Theta all
-    need. core_rows = every core row that date (also the "did the market trade" proxy)."""
+    need. core_rows = every core row that date (also the "did the market trade" proxy).
+
+    ADDITIVE (2026-08-04, real 2026-08-03T13:21:03 safe/bollinger_squeeze incident): a core
+    row's TOP-LEVEL verdict/action is the PRIMARY-setup path only -- heartbeat_core.py's
+    _route_extra_setups lane can place a REAL order for a totally different setup on the SAME
+    row while that row's own verdict/action records an unrelated primary-path SKIP (here:
+    verdict/action=SKIP_ELITE_BULL_LEVEL_RECLAIM while extra_exec placed a real +$67.85
+    bollinger_squeeze fill, SPY260803C00757000 side C qty 3). That real entry lives ONLY
+    inside extra_exec (a LIST of dicts), so the branch above -- which only ever fires on an
+    ENTER_BEAR/ENTER_BULL verdict -- never sees it. The loop below scans extra_exec on EVERY
+    row in addition to (never instead of) the existing branch, so a row can contribute to
+    BOTH lanes; this row only qualifies for the new one since its own verdict is a SKIP. Same
+    reuse pattern as the proven fix in full_send_vs_gated.py::load_core_safe_entry_minutes;
+    mirrored fix on the participation_cascade.py side: build_events/_extra_exec_events. Guard:
+    test_monday_verify_2026_08_01.py::test_entries_for_date_finds_extra_exec_placed_entry."""
     core_rows = _load_core_rows_for_date(date_str)
     entries = []
     for r in core_rows:
@@ -346,6 +360,17 @@ def _entries_for_date(date_str: str) -> tuple[list[dict], list[dict]]:
             entries.append({
                 "lane": "core", "arm": CORE_ACCOUNT_TO_ARM.get(acct, acct), "account": acct,
                 "side": r.get("side"), "setup": r.get("setup"), "ts_et": r.get("ts_et"),
+            })
+        for xe in (r.get("extra_exec") or []):
+            if not isinstance(xe, dict) or xe.get("action") != "PLACED":
+                continue
+            exec_ = xe.get("exec") or {}
+            acct = r.get("account")
+            entries.append({
+                "lane": "core_extra_exec", "arm": CORE_ACCOUNT_TO_ARM.get(acct, acct),
+                "account": acct, "side": exec_.get("side"), "setup": xe.get("setup"),
+                "ts_et": r.get("ts_et"), "strike": exec_.get("strike"),
+                "qty": exec_.get("qty"), "premium": exec_.get("premium"),
             })
     for arm_id in FLEET_ARM_IDS:
         for r in _load_fleet_rows_for_date(arm_id, date_str):
