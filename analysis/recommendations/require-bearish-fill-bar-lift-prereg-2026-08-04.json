@@ -1,0 +1,27 @@
+{
+  "rule_id": "require-bearish-fill-bar-lift-trial",
+  "frozen_at_et": "2026-08-04T01:50:00-04:00",
+  "prereg_before_evaluation": true,
+  "status": "PREREG ONLY -- NOT armed tonight (tonight's arming is frozen to the staged package + ATM-TIER-EXTENSION; and two lift trials must not stack their kill windows on the same sessions as block_elite_bull trial 2).",
+  "origin": "Nightly gate-expiry refresh (this session, window 2026-06-29..2026-08-03, OPRA through 08-03): require_bearish_fill_bar (GATE_ORDER #7, Bold core) refused cohort +$20.61/tr, n=33 >= floor 10, total +$680.10 -- moved from flat ($0.44/tr on the 08-02 run) to RED once the post-level-feed-fix sessions entered the window. Ratifying evidence is 2026-06-17 (IS +$363 / OOS +$1,153), 47 days stale, and BOTH exit-shape changes (06-18 chart-stop-primary, 07-09 SS-B) postdate it -- the exact staleness shape that motivated the whole instrument (block_elite_bull's 6.9x case).",
+  "hypothesis": "The fill-bar quality gate on Bold BEAR entries is refusing more winners than losers under the current exit shape and fixed level feed.",
+  "look_ahead_disclosure": "gates.py's own docstring: the backtest form reads the idx+1 fill bar (unknown at signal time) -- 'backtest upper-bound only'. The instrument's refused-cohort replay inherits that flavor for this gate; the live trial (real fills) is the honest resolver, which is exactly why this routes to a trade-to-learn trial rather than another backtest.",
+  "blast_radius_MUST_READ": {
+    "core": "aggressive/params.json require_bearish_fill_bar -> false (single key) lifts Bold core.",
+    "fleet_inheritance": "build_shared_signal._HARD_SKIP_VERDICTS globally hard-skips SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY for every fleet arm except risky-3 (opted out 2026-07-23). If Bold core stops emitting that verdict, safe-3/risky-1 stop inheriting the block on the shared-signal path -- the lift is NOT core-scoped by default. The arming session must either (a) accept and count fleet deltas inside the same trial cohort, or (b) decouple first (per-arm hard_skip override), and must state which in the arming note.",
+    "guard": "test suites pin the current wiring (fill-bar-gate-sweep evidence + _HARD_SKIP_VERDICTS tests) -- grep before arming."
+  },
+  "trial_shape_frozen": {
+    "arming_mechanism": "automation/state/aggressive/params.json require_bearish_fill_bar -> false (one key)",
+    "kill_criterion": "n>=10 Bold bear fills the gate would have refused (shadow-countable: the gate function still evaluates and logs without blocking -- BUILD THE SHADOW LOG FIRST if absent) OR 10 sessions; net realized < 0 -> re-arm same day",
+    "revert": "aggressive/params.json require_bearish_fill_bar -> true (byte-identical)",
+    "tracking": "Gamma_GateExpiryCheck nightly + this artifact"
+  },
+  "against_case_carried": "Original ratification was J-approved ('i apprve to ad d this', 2026-06-17) with OOS +$1,153 WF 18.5 -- the strongest-provenance gate among the bear set; and the 2026-07-02 audit's scenario #3 (3 blocked bear signals, all would-have-won, same session) was judged 'correct call per the standing scorecard, wrong day'. The refreshed RED could still be two-recovery-days inflation: Friday 07-31's refused bear entries during the 737.68 flush likely dominate the +$680. The trial's forward kill criterion is the honest resolver; sub-window concentration must be checked at verdict time.",
+  "sources": [
+    "automation/state/gate-registry-status.json (refreshed this session: RED n=33 +$20.61/tr)",
+    "automation/state/gate-registry.json (provenance row, gate_order_rank 7)",
+    "analysis/recommendations/fill-bar-gate-sweep.json (ratifying evidence 2026-06-17)",
+    "backtest/lib/engine/gates.py:305-318 (look-ahead docstring)"
+  ]
+}

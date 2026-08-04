@@ -1,8 +1,8 @@
 {
   "checker": "gate-expiry instrument (J directive 2026-07-31)",
-  "run_date": "2026-08-01",
-  "recent_window": "2026-06-26..2026-07-31",
-  "opra_cache_last": "2026-07-31",
+  "run_date": "2026-08-03",
+  "recent_window": "2026-06-29..2026-08-03",
+  "opra_cache_last": "2026-08-03",
   "confirm_n_floor": 10,
   "lookback_trading_days": 25,
   "event_cluster_gap_minutes": 15,
@@ -11,7 +11,7 @@
     "block_level_rejection": {
       "id": "block_level_rejection",
       "category": "core_gate_order",
-      "evidence_age_days": 45,
+      "evidence_age_days": 47,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -22,7 +22,7 @@
             "status_counts": {
               "ok": 1
             },
-            "window": "2026-06-26..2026-07-31",
+            "window": "2026-06-29..2026-08-03",
             "n": 1,
             "n_days": 1,
             "wr_pct": 0.0,
@@ -38,7 +38,7 @@
           }
         },
         "combined": {
-          "window": "2026-06-26..2026-07-31",
+          "window": "2026-06-29..2026-08-03",
           "n": 1,
           "n_days": 1,
           "wr_pct": 0.0,
@@ -72,71 +72,14 @@
     "block_elite_bull": {
       "id": "block_elite_bull",
       "category": "core_gate_order",
-      "evidence_age_days": 22,
+      "evidence_age_days": 0,
       "revalidation_interval_days": 14,
-      "evidence_stale": true,
+      "evidence_stale": false,
       "pnl_check": {
-        "by_account": {
-          "safe": {
-            "n_raw_fires": 293,
-            "n_events": 49,
-            "status_counts": {
-              "ok": 49
-            },
-            "window": "2026-06-26..2026-07-31",
-            "n": 49,
-            "n_days": 17,
-            "wr_pct": 18.4,
-            "exp_per_trade": 9.93,
-            "total_dollar": 486.56,
-            "sign": "POSITIVE",
-            "best_day": 511.88,
-            "worst_day": -137.16,
-            "win_days": 6,
-            "loss_days": 11,
-            "first_fill": "2026-06-29",
-            "last_fill": "2026-07-31"
-          },
-          "bold": {
-            "n_raw_fires": 290,
-            "n_events": 48,
-            "status_counts": {
-              "ok": 48
-            },
-            "window": "2026-06-26..2026-07-31",
-            "n": 48,
-            "n_days": 17,
-            "wr_pct": 16.7,
-            "exp_per_trade": 16.44,
-            "total_dollar": 789.3,
-            "sign": "POSITIVE",
-            "best_day": 943.8,
-            "worst_day": -233.9,
-            "win_days": 5,
-            "loss_days": 12,
-            "first_fill": "2026-06-29",
-            "last_fill": "2026-07-31"
-          }
-        },
-        "combined": {
-          "window": "2026-06-26..2026-07-31",
-          "n": 97,
-          "n_days": 17,
-          "wr_pct": 17.5,
-          "exp_per_trade": 13.15,
-          "total_dollar": 1275.86,
-          "sign": "POSITIVE",
-          "best_day": 1455.68,
-          "worst_day": -371.06,
-          "win_days": 6,
-          "loss_days": 11,
-          "first_fill": "2026-06-29",
-          "last_fill": "2026-07-31"
-        },
-        "verdict": "RED",
-        "reason": "refused cohort would have EARNED $13.15/tr, n=97 >= floor 10 -- COSTING money"
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
       },
-      "overall": "RED"
+      "overall": "GREEN"
     },
     "block_bull_ribbon_flip": {
       "id": "block_bull_ribbon_flip",
@@ -153,7 +96,7 @@
     "block_bull_1100_1200": {
       "id": "block_bull_1100_1200",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 46,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -164,7 +107,7 @@
             "status_counts": {
               "ok": 1
             },
-            "window": "2026-06-26..2026-07-31",
+            "window": "2026-06-29..2026-08-03",
             "n": 1,
             "n_days": 1,
             "wr_pct": 0.0,
@@ -180,7 +123,7 @@
           }
         },
         "combined": {
-          "window": "2026-06-26..2026-07-31",
+          "window": "2026-06-29..2026-08-03",
           "n": 1,
           "n_days": 1,
           "wr_pct": 0.0,
@@ -202,7 +145,7 @@
     "block_bull_morning_agg": {
       "id": "block_bull_morning_agg",
       "category": "core_gate_order",
-      "evidence_age_days": 38,
+      "evidence_age_days": 40,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -214,57 +157,56 @@
     "require_bearish_fill_bar": {
       "id": "require_bearish_fill_bar",
       "category": "core_gate_order",
-      "evidence_age_days": 45,
+      "evidence_age_days": 47,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
         "by_account": {
           "bold": {
-            "n_raw_fires": 160,
-            "n_events": 34,
+            "n_raw_fires": 159,
+            "n_events": 33,
             "status_counts": {
-              "ok": 29,
-              "no_contract": 5
+              "ok": 33
             },
-            "window": "2026-06-26..2026-07-31",
-            "n": 29,
-            "n_days": 11,
-            "wr_pct": 24.1,
-            "exp_per_trade": -20.46,
-            "total_dollar": -593.3,
-            "sign": "NEGATIVE",
-            "best_day": 467.1,
-            "worst_day": -665.0,
-            "win_days": 4,
-            "loss_days": 7,
-            "first_fill": "2026-06-26",
-            "last_fill": "2026-07-23"
+            "window": "2026-06-29..2026-08-03",
+            "n": 33,
+            "n_days": 13,
+            "wr_pct": 27.3,
+            "exp_per_trade": 20.61,
+            "total_dollar": 680.1,
+            "sign": "POSITIVE",
+            "best_day": 746.8,
+            "worst_day": -201.2,
+            "win_days": 5,
+            "loss_days": 8,
+            "first_fill": "2026-07-02",
+            "last_fill": "2026-07-30"
           }
         },
         "combined": {
-          "window": "2026-06-26..2026-07-31",
-          "n": 29,
-          "n_days": 11,
-          "wr_pct": 24.1,
-          "exp_per_trade": -20.46,
-          "total_dollar": -593.3,
-          "sign": "NEGATIVE",
-          "best_day": 467.1,
-          "worst_day": -665.0,
-          "win_days": 4,
-          "loss_days": 7,
-          "first_fill": "2026-06-26",
-          "last_fill": "2026-07-23"
+          "window": "2026-06-29..2026-08-03",
+          "n": 33,
+          "n_days": 13,
+          "wr_pct": 27.3,
+          "exp_per_trade": 20.61,
+          "total_dollar": 680.1,
+          "sign": "POSITIVE",
+          "best_day": 746.8,
+          "worst_day": -201.2,
+          "win_days": 5,
+          "loss_days": 8,
+          "first_fill": "2026-07-02",
+          "last_fill": "2026-07-30"
         },
-        "verdict": "GREEN",
-        "reason": "refused cohort would have LOST $-20.46/tr, n=29 -- still justified on recent data"
+        "verdict": "RED",
+        "reason": "refused cohort would have EARNED $20.61/tr, n=33 >= floor 10 -- COSTING money"
       },
-      "overall": "GREEN"
+      "overall": "RED"
     },
     "min_ribbon_momentum_cents": {
       "id": "min_ribbon_momentum_cents",
       "category": "core_gate_order",
-      "evidence_age_days": 24,
+      "evidence_age_days": 26,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -276,7 +218,7 @@
     "max_ribbon_duration_bars": {
       "id": "max_ribbon_duration_bars",
       "category": "core_gate_order",
-      "evidence_age_days": 46,
+      "evidence_age_days": 48,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -299,7 +241,7 @@
     "midday_trendline_gate": {
       "id": "midday_trendline_gate",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 46,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -311,7 +253,7 @@
     "block_conf_lvl_rej_midday_afternoon": {
       "id": "block_conf_lvl_rej_midday_afternoon",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 46,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -323,7 +265,7 @@
     "block_conf_lvl_rec_afternoon": {
       "id": "block_conf_lvl_rec_afternoon",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 46,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -334,7 +276,7 @@
             "status_counts": {
               "ok": 7
             },
-            "window": "2026-06-26..2026-07-31",
+            "window": "2026-06-29..2026-08-03",
             "n": 7,
             "n_days": 5,
             "wr_pct": 14.3,
@@ -350,7 +292,7 @@
           }
         },
         "combined": {
-          "window": "2026-06-26..2026-07-31",
+          "window": "2026-06-29..2026-08-03",
           "n": 7,
           "n_days": 5,
           "wr_pct": 14.3,
@@ -372,7 +314,7 @@
     "entry_bar_body_pct_min": {
       "id": "entry_bar_body_pct_min",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 46,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -381,41 +323,40 @@
             "n_raw_fires": 29,
             "n_events": 7,
             "status_counts": {
-              "ok": 6,
-              "no_contract": 1
+              "ok": 7
             },
-            "window": "2026-06-26..2026-07-31",
-            "n": 6,
-            "n_days": 5,
-            "wr_pct": 33.3,
-            "exp_per_trade": 6.86,
-            "total_dollar": 41.16,
+            "window": "2026-06-29..2026-08-03",
+            "n": 7,
+            "n_days": 6,
+            "wr_pct": 28.6,
+            "exp_per_trade": 2.18,
+            "total_dollar": 15.24,
             "sign": "POSITIVE",
             "best_day": 72.0,
-            "worst_day": -25.44,
+            "worst_day": -25.92,
             "win_days": 2,
-            "loss_days": 3,
+            "loss_days": 4,
             "first_fill": "2026-07-02",
-            "last_fill": "2026-07-23"
+            "last_fill": "2026-07-27"
           }
         },
         "combined": {
-          "window": "2026-06-26..2026-07-31",
-          "n": 6,
-          "n_days": 5,
-          "wr_pct": 33.3,
-          "exp_per_trade": 6.86,
-          "total_dollar": 41.16,
+          "window": "2026-06-29..2026-08-03",
+          "n": 7,
+          "n_days": 6,
+          "wr_pct": 28.6,
+          "exp_per_trade": 2.18,
+          "total_dollar": 15.24,
           "sign": "POSITIVE",
           "best_day": 72.0,
-          "worst_day": -25.44,
+          "worst_day": -25.92,
           "win_days": 2,
-          "loss_days": 3,
+          "loss_days": 4,
           "first_fill": "2026-07-02",
-          "last_fill": "2026-07-23"
+          "last_fill": "2026-07-27"
         },
         "verdict": "YELLOW",
-        "reason": "refused cohort positive ($6.86/tr) but n=6 < floor 10 -- watch, not yet actionable"
+        "reason": "refused cohort positive ($2.18/tr) but n=7 < floor 10 -- watch, not yet actionable"
       },
       "overall": "YELLOW"
     },
@@ -434,7 +375,7 @@
     "vix_bear_hard_cap": {
       "id": "vix_bear_hard_cap",
       "category": "core_gate_order",
-      "evidence_age_days": 44,
+      "evidence_age_days": 46,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -457,7 +398,7 @@
     "structure_veto_enabled": {
       "id": "structure_veto_enabled",
       "category": "non_gate_order_veto",
-      "evidence_age_days": 36,
+      "evidence_age_days": 38,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -466,48 +407,47 @@
             "n_raw_fires": 75,
             "n_events": 11,
             "status_counts": {
-              "ok": 9,
-              "no_contract": 2
+              "ok": 11
             },
-            "window": "2026-06-26..2026-07-31",
-            "n": 9,
-            "n_days": 7,
-            "wr_pct": 22.2,
-            "exp_per_trade": -3.65,
-            "total_dollar": -32.88,
-            "sign": "NEGATIVE",
-            "best_day": 93.6,
+            "window": "2026-06-29..2026-08-03",
+            "n": 11,
+            "n_days": 9,
+            "wr_pct": 36.4,
+            "exp_per_trade": 38.97,
+            "total_dollar": 428.64,
+            "sign": "POSITIVE",
+            "best_day": 366.0,
             "worst_day": -58.32,
-            "win_days": 2,
+            "win_days": 4,
             "loss_days": 5,
             "first_fill": "2026-07-06",
-            "last_fill": "2026-07-28"
+            "last_fill": "2026-07-29"
           }
         },
         "combined": {
-          "window": "2026-06-26..2026-07-31",
-          "n": 9,
-          "n_days": 7,
-          "wr_pct": 22.2,
-          "exp_per_trade": -3.65,
-          "total_dollar": -32.88,
-          "sign": "NEGATIVE",
-          "best_day": 93.6,
+          "window": "2026-06-29..2026-08-03",
+          "n": 11,
+          "n_days": 9,
+          "wr_pct": 36.4,
+          "exp_per_trade": 38.97,
+          "total_dollar": 428.64,
+          "sign": "POSITIVE",
+          "best_day": 366.0,
           "worst_day": -58.32,
-          "win_days": 2,
+          "win_days": 4,
           "loss_days": 5,
           "first_fill": "2026-07-06",
-          "last_fill": "2026-07-28"
+          "last_fill": "2026-07-29"
         },
-        "verdict": "GREEN",
-        "reason": "refused cohort would have LOST $-3.65/tr, n=9 -- still justified on recent data"
+        "verdict": "RED",
+        "reason": "refused cohort would have EARNED $38.97/tr, n=11 >= floor 10 -- COSTING money"
       },
-      "overall": "GREEN"
+      "overall": "RED"
     },
     "free_model_veto": {
       "id": "free_model_veto",
       "category": "non_gate_order_veto",
-      "evidence_age_days": 23,
+      "evidence_age_days": 25,
       "revalidation_interval_days": 30,
       "evidence_stale": false,
       "pnl_check": {
@@ -560,7 +500,7 @@
     "fleet_score_ladder_floor": {
       "id": "fleet_score_ladder_floor",
       "category": "fleet_config",
-      "evidence_age_days": 5,
+      "evidence_age_days": 7,
       "revalidation_interval_days": 14,
       "evidence_stale": false,
       "pnl_check": {
@@ -572,7 +512,7 @@
     "fleet_hard_skip_verdicts_override": {
       "id": "fleet_hard_skip_verdicts_override",
       "category": "fleet_config",
-      "evidence_age_days": 9,
+      "evidence_age_days": 11,
       "revalidation_interval_days": 21,
       "evidence_stale": false,
       "pnl_check": {
@@ -584,17 +524,17 @@
     "core_strategy_bear": {
       "id": "core_strategy_bear",
       "category": "core_strategy",
-      "evidence_age_days": 0,
+      "evidence_age_days": 2,
       "revalidation_interval_days": 14,
       "evidence_stale": false,
       "pnl_check": {
         "verdict": "RED",
         "core_strategy_verdict": "RED",
-        "reason": "CORE STRATEGY BEAR recency RED: real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=12 exp=$-23.58/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
+        "reason": "CORE STRATEGY BEAR recency RED: real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=12 exp=$8.17/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
         "headline": "bear RED n=10",
         "window": {
-          "start": "2026-06-26",
-          "end": "2026-07-31",
+          "start": "2026-06-29",
+          "end": "2026-08-03",
           "n_trading_days": 25,
           "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
         },
@@ -609,12 +549,12 @@
         },
         "replay_supplement": {
           "n": 12,
-          "total_dollar": -283.0,
-          "exp_per_trade": -23.58,
+          "total_dollar": 98.0,
+          "exp_per_trade": 8.17,
           "wr_pct": 25.0,
           "n_days": 9,
-          "first_fill": "2026-06-26",
-          "last_fill": "2026-07-23"
+          "first_fill": "2026-07-02",
+          "last_fill": "2026-07-27"
         },
         "detail": "automation\\state\\core-strategy-recency.json"
       },
@@ -623,7 +563,7 @@
     "core_strategy_bull": {
       "id": "core_strategy_bull",
       "category": "core_strategy",
-      "evidence_age_days": 0,
+      "evidence_age_days": 2,
       "revalidation_interval_days": 14,
       "evidence_stale": false,
       "pnl_check": {
@@ -632,8 +572,8 @@
         "reason": "CORE STRATEGY BULL recency UNDERPOWERED: n=1 < floor 10 on real fills (negative $-295.0/tr) -- no verdict manufactured; see replay supplement; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=5 exp=$-69.48/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
         "headline": "bull UNDERPOWERED n=1",
         "window": {
-          "start": "2026-06-26",
-          "end": "2026-07-31",
+          "start": "2026-06-29",
+          "end": "2026-08-03",
           "n_trading_days": 25,
           "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
         },
