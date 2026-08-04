@@ -1,0 +1,46 @@
+{
+  "rule_id": "atm-tier-extension-2k10k",
+  "frozen_at_et": "2026-08-04T00:25:00-04:00",
+  "queue_item": "ATM-TIER-EXTENSION-2K-10K (EOD-2026-08-03-FULL-REVIEW.md section 4, structural wall #1)",
+  "prereg_before_evaluation": true,
+  "prereg_committed_before_code_change": true,
+  "hypothesis": "Extending V15_BOLD_CORE_TIERS' ATM row from [$0,$2K) to [$0,$10K) (i.e. the $2K-$10K bracket moves OTM-2 -> ATM, matching V15_SAFE_TIERS' existing ATM-through-$10K band) restores premium-floor participation for every bold-tier arm at the new $5,000 equity level, without a corresponding P&L or risk regression on those arms.",
+  "mechanism": "REGRESSION (C14/L234 family, found EOD 2026-08-03): the 2026-07-17/18 core-Bold ATM fix and its 2026-08-01/08-02 fleet extensions all rode V15_BOLD_CORE_TIERS' ATM row, which covers $0-$2K ONLY. J's full $5,000 wipe+rebuild (2026-08-02/03) silently moved every bold_core consumer (core bold-2 via heartbeat_core.py, safe-3/risky-1/risky-3 via fleet_executor._tiers_for_arm) into the $2K-$10K bracket = OTM-2, resurrecting the exact $0.30 min_entry_premium floor collision the original fix killed. Ledger-verified refusals (SKIP_MIN_PREMIUM_FLOOR rows, automation/state/fleet/<arm>/decisions.jsonl): 2026-08-03 = 33 (safe-3) / 35 (risky-1) / 35 (risky-3); 2026-07-31 (old 'bold' table era, same collision class at OTM-3) = 17/18/11. Monday's six elite clusters 11:51-14:00 priced OTM-2 at $0.06-$0.18, ALL under the floor; the entire afternoon was structurally untradeable for every bold-tier arm while safe-2 (V15_SAFE_TIERS, ATM through $10K) monetized the same signal class. The 2026-07-15 strike-axis study (bold-strike-axis-2026-07-15.json) measured afternoon floor clearance: OTM-3 0.3376 vs ATM 0.9688 / 0.9795 overall; ATM was the only cell positive OOS (+$28.77/tr).",
+  "scope": {
+    "surface_changed": "crypto/lib/strike_selection.py V15_BOLD_CORE_TIERS row 2: StrikeTier(2_000.0, 10_000.0, -2, 'OTM-2') -> StrikeTier(2_000.0, 10_000.0, 0, 'ATM')",
+    "consumers_affected": [
+      "setup/scripts/heartbeat_core.py bold branch (core bold-2, $5,000 equity)",
+      "setup/scripts/j_intent_executor.py bold branch (J-called conditional trades on bold; same policy continuation as the 2026-07-18 wiring decision)",
+      "automation/state/fleet/fleet_executor.py _tiers_for_arm 'bold_core' -> safe-3, risky-1, risky-3 (all at $5,000)",
+      "sim/replay tools that read the table live (fleet_arm_replay.py, arm_score_ladder_replay.py, bold_fullhist_replay.py, capital_efficiency_2026_08_03.py) -- these now reflect the new live truth automatically"
+    ],
+    "surfaces_deliberately_NOT_changed": [
+      "V15_BOLD_TIERS (byte-identical; still the 'bold' string + sim-lane params.json#v15_strike_offset_per_tier mirror)",
+      "V15_SAFE_TIERS (safe-2 already ATM through $10K -- unchanged)",
+      "min_entry_premium 0.30 floor itself (KEEP: validated 2026-07-09, T3 n=157 anchor -$72.50 vs -$757.10 -- the floor refused the toxic sub-$0.20 cohort; the fix is tier participation, never floor removal)",
+      "tiers above $10K (OTM-1 / ITM-2 rows untouched both tables)"
+    ]
+  },
+  "gates_frozen_before_arming": {
+    "sample_floor": "n>=10 fills per arm at the new ATM tier OR 10 sessions, whichever first (same bar as SHIP B/C 2026-08-03)",
+    "kill_criterion": "per-arm net realized P&L on the new-tier cohort < 0 at the sample floor -> revert that arm's participation same day (one-line revert below). Identical trade-to-learn shape as block_elite_bull trial 2 and risky-3 qty-10.",
+    "oos_positive": "aggregate P&L on the post-arming cohort must be positive for KEEP (this is a forward/paper cohort; 'OOS' = post-arming)",
+    "sub_window_stable": "no single session > 50% of cohort total P&L (C4)",
+    "anchor_no_regression": "SKIP_MIN_PREMIUM_FLOOR refusal counts on bold-tier arms must drop materially vs the 2026-08-03 baseline (33/35/35), re-measured from the same per-arm decisions ledgers",
+    "floor_clearance_informational": "track realized floor-clearance rate vs the 0.9688 ATM study baseline"
+  },
+  "kill_reverts": {
+    "one_line_revert": "crypto/lib/strike_selection.py V15_BOLD_CORE_TIERS row 2 back to StrikeTier(2_000.0, 10_000.0, -2, 'OTM-2') (single line, byte-identical restore)",
+    "no_state_migration_needed": "strike selection is computed per-tick from equity; no persisted state depends on the tier table"
+  },
+  "honest_framing": "PARTICIPATION/machinery fix, not a validated P&L edge claim -- same framing as the 2026-08-01/08-02 sibling ships (43bb979d, 9b6a3e35). The 391-day bold-strike-axis evidence has ALL cells ship_ready:false (WF-gate structurally null); the ATM cell is the only OOS-positive one and is the live core-Bold + fleet policy since 2026-07-17/18. What is new tonight is ONLY the equity bracket the same policy applies to, after the $5K rebuild moved every arm out of the fixed bracket. Ships under TRADE-TO-LEARN (paper, guarded, one-line revert, REVOKE logging) per J's 2026-07-31 recency-over-aggregate directive and the standing week directive: 'if this is happening, we need to be able to get in still.'",
+  "prediction_committed_in_advance": "Tomorrow's first afternoon elite cluster (if any) should show bold-tier arms planning ATM strikes with premiums comparable to safe-2's (>= $0.30 typical), floor refusals near zero for the cluster, instead of 28-35 SKIP_MIN_PREMIUM_FLOOR rows per arm.",
+  "evidence_artifacts": [
+    "analysis/deep-research/EOD-2026-08-03-FULL-REVIEW.md (section 4: regression discovery, funnel counts, cluster pricing $0.06-$0.18)",
+    "automation/state/fleet/safe-3|risky-1|risky-3/decisions.jsonl (SKIP_MIN_PREMIUM_FLOOR rows, re-mined this session: 33/35/35 on 2026-08-03, 17/18/11 on 2026-07-31)",
+    "analysis/recommendations/bold-strike-axis-2026-07-15.json (floor-clearance 0.3376 OTM-3 vs 0.9688 ATM afternoon; ATM +$28.77/tr OOS)",
+    "analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json (sibling prereg this one mirrors)",
+    "commits 43bb979d (risky-1/risky-3 extension) + 9b6a3e35 (safe-3 extension) -- the template ships"
+  ],
+  "results_artifact_planned": "analysis/recommendations/atm-tier-extension-2k10k.json (written when the sample floor is reached; per-arm cohort P&L, floor-refusal delta, verdict KEEP/REVERT)"
+}
