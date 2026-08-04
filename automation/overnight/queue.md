@@ -2256,6 +2256,22 @@
   > `awaiting-j` as NOT ready (excluded from `--top`) unless its proposal's `created_at` is >14d
   > stale, in which case it resurfaces as a "flag for J again" item rather than a "do this" item.
 
+  > **SHIPPED 2026-08-04 ~05:35 ET (conductor, AFTERHOURS), commit `5f79e3c9`.** Implemented the
+  > candidate fix named above, but via item-block/proposal-id cross-reference instead of a new
+  > `status:awaiting-j` queue vocab token (no queue.md rewrite needed, no risk of mis-tagging an
+  > item by hand): `task_scorer.py` now loads `conductor-proposals.jsonl`, finds any `gp-...` id
+  > named inside a queue item's own block text, and treats a `status:pending`/no-`eval_bar_cleared`
+  > match as J-gated -- suppressed from `ready` while <=14d old, resurfaces past 14d as an explicit
+  > "RE-PING J" task (never "implement this"). Live-verified: `--top` now returns
+  > `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, not `TWIN-DOCTRINE-FIRST-DEPLOY`; `--all`
+  > still surfaces `TWIN-DOCTRINE-FIRST-DEPLOY` with `ready:false` + the awaiting-j reason string.
+  > 10 new guard tests (`test_task_scorer_awaiting_j.py`), RED-proofed via `git stash` (10/10 failed
+  > pre-fix with the exact expected `AttributeError`). Full `task_scorer*` suite 73/73 PASS. Curated
+  > safety gate 59/59 PASS. **Revert:** `git revert 5f79e3c9` (2 files, fully additive except one
+  > new call site in `parse_queue`). The broader `TASK-SCORER-STATUS-VOCAB-GAP` item (the OPPOSITE
+  > failure mode -- `status:todo` not in `READY_STATUSES`) is unaffected by this fix and remains
+  > open.
+
 
 
 > Ranked by leverage. Most of the deepest work is tracked in the live TaskList + `cook-queue.jsonl` (see `automation/state/cook-queue-summary.md`); items here are the conductor-visible ones that need a human-or-Claude decision or are not yet owned by another loop.
