@@ -43,12 +43,16 @@ def _real_accounts() -> dict:
 class TestDisplayNameForArmId:
     def test_known_arms_resolve_to_their_pinned_display_names(self):
         expected = {
-            "safe-2": "CORE-SAFE (KIQE)",
-            "bold-2": "CORE-BOLD (AT40)",
-            "safe-3": "FLEET-TIGHT-S (OB0Q)",
-            "risky-1": "FLEET-FULLSEND-R (8G19)",  # renamed 2026-07-31 (full-send arm, e28d210c)
-            "risky-3": "FLEET-LOOSE-R (X15Q)",
-            "safe-1": "RETIRED (=CORE-SAFE acct KIQE)",
+            # last4s refreshed 2026-08-03/04: J deleted+rebuilt every paper account at
+            # $5,000, so the old KIQE/AT40/OB0Q/8G19/X15Q accounts no longer exist. Names
+            # are last4-of-live-account by construction (ARM-DISPLAY-NAMES.md); the pins
+            # follow accounts.json, which was live-probe verified per arm.
+            "safe-2": "CORE-SAFE (46VG)",
+            "bold-2": "CORE-BOLD (U67N)",
+            "safe-3": "FLEET-TIGHT-S (T20H)",
+            "risky-1": "FLEET-FULLSEND-R (V0A4)",  # renamed 2026-07-31 (full-send arm, e28d210c)
+            "risky-3": "FLEET-LOOSE-R (5H6Z)",
+            "safe-1": "RETIRED (=CORE-SAFE acct 46VG)",
             "mes-mnq-div-futures": "FUTURES-DIV (dormant, 3759)",
         }
         ad._arms(refresh=True)
@@ -75,19 +79,19 @@ class TestDisplayNameForArmId:
 class TestDisplayNameForLabel:
     def test_core_short_labels(self):
         ad._arms(refresh=True)
-        assert ad.display_name_for_label("safe") == "CORE-SAFE (KIQE)"
-        assert ad.display_name_for_label("bold") == "CORE-BOLD (AT40)"
+        assert ad.display_name_for_label("safe") == "CORE-SAFE (46VG)"
+        assert ad.display_name_for_label("bold") == "CORE-BOLD (U67N)"
 
     def test_core_prefixed_labels_from_fill_funnel(self):
-        assert ad.display_name_for_label("core:safe") == "CORE-SAFE (KIQE)"
-        assert ad.display_name_for_label("core:bold") == "CORE-BOLD (AT40)"
+        assert ad.display_name_for_label("core:safe") == "CORE-SAFE (46VG)"
+        assert ad.display_name_for_label("core:bold") == "CORE-BOLD (U67N)"
 
     def test_fleet_prefixed_labels_from_fill_funnel(self):
-        assert ad.display_name_for_label("fleet:safe-3") == "FLEET-TIGHT-S (OB0Q)"
-        assert ad.display_name_for_label("fleet:risky-1") == "FLEET-FULLSEND-R (8G19)"
+        assert ad.display_name_for_label("fleet:safe-3") == "FLEET-TIGHT-S (T20H)"
+        assert ad.display_name_for_label("fleet:risky-1") == "FLEET-FULLSEND-R (V0A4)"
 
     def test_bare_arm_id_passthrough(self):
-        assert ad.display_name_for_label("safe-2") == "CORE-SAFE (KIQE)"
+        assert ad.display_name_for_label("safe-2") == "CORE-SAFE (46VG)"
 
     def test_crypto_twin_labels(self):
         assert ad.display_name_for_label("crypto-twin") == "CRYPTO-TWIN"
