@@ -1,0 +1,900 @@
+{
+ "artifact": "EOD-2026-08-04-REPEATABILITY",
+ "lens": "LENS 4 -- MAKE SURE WE CAN DO IT AGAIN",
+ "generated_et": "2026-08-04 after close (market_hours=False verified via setup/scripts/et_clock.py)",
+ "ground_truth": {
+  "day_total_broker_fifo": 3624.0,
+  "note": "FIFO round trips from automation/state/fills-ledger.jsonl, attribution=engine. The brief's $3,617.19 is the equity-delta figure; the $6.81 gap is per-contract regulatory fees, which the FIFO premium math does not carry. Both are correct for what they measure.",
+  "per_arm": {
+   "safe-2": 662.0,
+   "bold-2": 479.0,
+   "safe-3": 637.0,
+   "risky-1": 1041.0,
+   "risky-3": 805.0,
+   "TOTAL": 3624.0
+  }
+ },
+ "part1_classify": {
+  "archetype": "gap-go",
+  "same_as_monday": true,
+  "features": {
+   "archetype": "gap-go",
+   "atr14_prior_pct": 1.1978,
+   "body_pct": 1.3975,
+   "close": 771.25,
+   "close_loc": 0.8324,
+   "dow": "Tue",
+   "gap_pct": 0.3894,
+   "high": 773.41,
+   "low": 760.52,
+   "n_bars": 78,
+   "open": 760.62,
+   "open_loc": 0.0078,
+   "prior_close": 757.67,
+   "range_dollars": 12.89,
+   "range_pct": 1.6947,
+   "session": "full",
+   "t_high": 0.974,
+   "t_low": 0.0,
+   "vix_close": 16.42,
+   "vix_open": 15.57
+  },
+  "population_N_assignable": 395,
+  "nested_frequency": {
+   "T1_gap_go": {
+    "n": 89,
+    "pct": 22.53,
+    "dates": [
+     "2025-01-03",
+     "2025-01-10",
+     "2025-01-15",
+     "2025-01-17",
+     "2025-01-21",
+     "2025-01-22",
+     "2025-02-10",
+     "2025-03-06",
+     "2025-03-11",
+     "2025-03-14",
+     "2025-03-18",
+     "2025-03-19",
+     "2025-03-24",
+     "2025-04-03",
+     "2025-04-04",
+     "2025-04-10",
+     "2025-04-16",
+     "2025-04-21",
+     "2025-04-22",
+     "2025-05-02",
+     "2025-05-12",
+     "2025-05-21",
+     "2025-05-27",
+     "2025-06-06",
+     "2025-06-13",
+     "2025-06-16",
+     "2025-06-17",
+     "2025-06-24",
+     "2025-06-30",
+     "2025-07-03",
+     "2025-07-09",
+     "2025-07-23",
+     "2025-08-01",
+     "2025-08-04",
+     "2025-08-12",
+     "2025-08-13",
+     "2025-08-22",
+     "2025-09-03",
+     "2025-09-11",
+     "2025-09-15",
+     "2025-09-18",
+     "2025-09-25",
+     "2025-10-13",
+     "2025-10-20",
+     "2025-10-24",
+     "2025-10-27",
+     "2025-10-30",
+     "2025-11-04",
+     "2025-11-10",
+     "2025-11-13",
+     "2025-11-18",
+     "2025-11-24",
+     "2025-11-26",
+     "2025-12-22",
+     "2026-01-05",
+     "2026-01-14",
+     "2026-01-20",
+     "2026-02-05",
+     "2026-02-06",
+     "2026-02-25",
+     "2026-03-06",
+     "2026-03-12",
+     "2026-03-16",
+     "2026-03-18",
+     "2026-03-20",
+     "2026-03-26",
+     "2026-03-27",
+     "2026-03-31",
+     "2026-04-01",
+     "2026-04-17",
+     "2026-04-22",
+     "2026-04-24",
+     "2026-04-28",
+     "2026-05-05",
+     "2026-05-06",
+     "2026-05-08",
+     "2026-05-15",
+     "2026-05-19",
+     "2026-05-26",
+     "2026-06-05",
+     "2026-06-18",
+     "2026-06-23",
+     "2026-07-06",
+     "2026-07-13",
+     "2026-07-21",
+     "2026-07-23",
+     "2026-07-30",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   "T2_bullish_gap_go": {
+    "n": 55,
+    "pct": 13.92,
+    "dates": [
+     "2025-01-03",
+     "2025-01-15",
+     "2025-01-17",
+     "2025-01-21",
+     "2025-01-22",
+     "2025-02-10",
+     "2025-03-14",
+     "2025-03-19",
+     "2025-03-24",
+     "2025-04-22",
+     "2025-05-02",
+     "2025-05-12",
+     "2025-05-27",
+     "2025-06-06",
+     "2025-06-16",
+     "2025-06-24",
+     "2025-06-30",
+     "2025-07-03",
+     "2025-07-09",
+     "2025-07-23",
+     "2025-08-04",
+     "2025-08-12",
+     "2025-08-13",
+     "2025-08-22",
+     "2025-09-03",
+     "2025-09-11",
+     "2025-09-15",
+     "2025-09-18",
+     "2025-10-13",
+     "2025-10-20",
+     "2025-10-24",
+     "2025-10-27",
+     "2025-11-10",
+     "2025-11-24",
+     "2025-11-26",
+     "2025-12-22",
+     "2026-01-05",
+     "2026-02-06",
+     "2026-02-25",
+     "2026-03-16",
+     "2026-03-31",
+     "2026-04-01",
+     "2026-04-17",
+     "2026-04-22",
+     "2026-04-24",
+     "2026-05-05",
+     "2026-05-06",
+     "2026-05-08",
+     "2026-05-26",
+     "2026-06-18",
+     "2026-07-06",
+     "2026-07-21",
+     "2026-07-30",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   "T3_one_way_bullish_gap_go": {
+    "n": 20,
+    "pct": 5.06,
+    "dates": [
+     "2025-01-03",
+     "2025-03-14",
+     "2025-03-24",
+     "2025-04-22",
+     "2025-06-24",
+     "2025-08-04",
+     "2025-08-22",
+     "2025-09-11",
+     "2025-09-15",
+     "2025-10-20",
+     "2025-10-27",
+     "2025-11-24",
+     "2026-02-06",
+     "2026-02-25",
+     "2026-03-31",
+     "2026-05-06",
+     "2026-05-08",
+     "2026-07-30",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   "T4_plus_big_body": {
+    "n": 7,
+    "pct": 1.77,
+    "dates": [
+     "2025-03-14",
+     "2025-04-22",
+     "2025-08-22",
+     "2026-02-06",
+     "2026-03-31",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   "T5_plus_big_range": {
+    "n": 4,
+    "pct": 1.01,
+    "dates": [
+     "2025-04-22",
+     "2026-02-06",
+     "2026-03-31",
+     "2026-08-04"
+    ]
+   }
+  },
+  "headline": "today's exact character (one-way bullish gap-go) is 5.06% of 395 days = 1 in 20",
+  "clustering_note": "2026-08-03 and 2026-08-04 are BOTH T4 (7 of 395 days ever). Back-to-back is a cluster, not a new regime.",
+  "live_record": {
+   "n_days": 24,
+   "total": 2494.0,
+   "total_ex_today": -1130.0,
+   "mean_per_day_ex_today": -49.13,
+   "caveat": "MIXED SIZING -- arms were ~$1.7K until the 2026-08-02/03 $5K rebuild. Cross-era dollars are not comparable; the ex-today number is an honest floor, not a like-for-like rate."
+  },
+  "per_archetype_live": [
+   {
+    "archetype": "trend-up",
+    "n": 1,
+    "total": -325.0,
+    "mean": -325.0
+   },
+   {
+    "archetype": "trend-down",
+    "n": 1,
+    "total": 1341.0,
+    "mean": 1341.0
+   },
+   {
+    "archetype": "V-reversal",
+    "n": 3,
+    "total": -492.0,
+    "mean": -164.0
+   },
+   {
+    "archetype": "range-chop",
+    "n": 7,
+    "total": -186.0,
+    "mean": -26.5714
+   },
+   {
+    "archetype": "pin-day",
+    "n": 1,
+    "total": -108.0,
+    "mean": -108.0
+   },
+   {
+    "archetype": "gap-go",
+    "n": 7,
+    "total": 3300.0,
+    "mean": 471.4286
+   },
+   {
+    "archetype": "gap-fade",
+    "n": 4,
+    "total": -1036.0,
+    "mean": -259.0
+   },
+   {
+    "archetype": "ALL",
+    "n": 24,
+    "total": 2494.0,
+    "mean": 103.9167
+   }
+  ],
+  "per_archetype_live_ex_today": [
+   {
+    "archetype": "trend-up",
+    "n": 1,
+    "total": -325.0,
+    "mean": -325.0
+   },
+   {
+    "archetype": "trend-down",
+    "n": 1,
+    "total": 1341.0,
+    "mean": 1341.0
+   },
+   {
+    "archetype": "V-reversal",
+    "n": 3,
+    "total": -492.0,
+    "mean": -164.0
+   },
+   {
+    "archetype": "range-chop",
+    "n": 7,
+    "total": -186.0,
+    "mean": -26.5714
+   },
+   {
+    "archetype": "pin-day",
+    "n": 1,
+    "total": -108.0,
+    "mean": -108.0
+   },
+   {
+    "archetype": "gap-go",
+    "n": 6,
+    "total": -324.0,
+    "mean": -54.0
+   },
+   {
+    "archetype": "gap-fade",
+    "n": 4,
+    "total": -1036.0,
+    "mean": -259.0
+   },
+   {
+    "archetype": "ALL",
+    "n": 23,
+    "total": -1130.0,
+    "mean": -49.1304
+   }
+  ],
+  "expected_value_scenarios": {
+   "p_t3": 0.0506,
+   "optimistic_live_baseline_todays_payoff": 136.85,
+   "baseline_scaled_2_9x_to_5k_sizing": 48.23,
+   "t3_payoff_halved": 45.1,
+   "both_pessimistic": -43.52,
+   "instrument_mix_ev": 73.71,
+   "reading": "a +$3,617 day is NOT a weekly baseline. The honest expected day is $45-$137, straddling J's $100-200/day target, and the whole spread is driven by n=1 on the T3 payoff term."
+  }
+ },
+ "part2_decompose": {
+  "parity": {
+   "per_arm": {
+    "safe-2": {
+     "real": 662.0,
+     "hybrid": 662.0,
+     "hybrid_err": 0.0,
+     "sim_pure": 875.9,
+     "sim_pure_err": 213.9,
+     "sim_pure_pct_err": 32.3,
+     "n_real": 3,
+     "n_sim_pure": 2
+    },
+    "bold-2": {
+     "real": 479.0,
+     "hybrid": 479.0,
+     "hybrid_err": 0.0,
+     "sim_pure": 482.8,
+     "sim_pure_err": 3.8,
+     "sim_pure_pct_err": 0.8,
+     "n_real": 3,
+     "n_sim_pure": 3
+    },
+    "safe-3": {
+     "real": 637.0,
+     "hybrid": 637.0,
+     "hybrid_err": 0.0,
+     "sim_pure": 1036.38,
+     "sim_pure_err": 399.38,
+     "sim_pure_pct_err": 62.7,
+     "n_real": 6,
+     "n_sim_pure": 5
+    },
+    "risky-1": {
+     "real": 1041.0,
+     "hybrid": 1041.0,
+     "hybrid_err": 0.0,
+     "sim_pure": 1242.66,
+     "sim_pure_err": 201.66,
+     "sim_pure_pct_err": 19.4,
+     "n_real": 5,
+     "n_sim_pure": 6
+    },
+    "risky-3": {
+     "real": 805.0,
+     "hybrid": 805.0,
+     "hybrid_err": 0.0,
+     "sim_pure": 1050.34,
+     "sim_pure_err": 245.34,
+     "sim_pure_pct_err": 30.5,
+     "n_real": 8,
+     "n_sim_pure": 8
+    }
+   },
+   "total_real": 3624.0,
+   "total_hybrid": 3624.0,
+   "total_sim_pure": 4688.08,
+   "hybrid_abs_err": 0.0,
+   "sim_pure_abs_err": 1064.08,
+   "sim_pure_pct_err": 29.36,
+   "gate": "PASS",
+   "known_residual": "walk_exit_manager point-samples 1-min OPRA CLOSES; the live exit_actuator samples the running quote, so live can trip a stop/trail on an intra-minute print the closes never show. Confirmed on 2026-08-04: the pure walk holds risky-3's 09:50 763C to 09:56 (live 09:52) and safe-2's 12:28 769C to 13:51 (live 13:23) -- each a freed tick the flat-state machine then spends on an extra entry the live engine never made. This is exactly why counterfactual lanes are hybrid and why sim_pure_pct_err is the error bar on the rows that cannot be."
+  },
+  "lanes": {
+   "SIM_PURE_TODAY": {
+    "total": 4688.08,
+    "delta_vs_today": 1064.08,
+    "per_arm": {
+     "safe-2": {
+      "net": 875.9,
+      "n": 2
+     },
+     "bold-2": {
+      "net": 482.8,
+      "n": 3
+     },
+     "safe-3": {
+      "net": 1036.38,
+      "n": 5
+     },
+     "risky-1": {
+      "net": 1242.66,
+      "n": 6
+     },
+     "risky-3": {
+      "net": 1050.34,
+      "n": 8
+     }
+    },
+    "config": {
+     "vwap_emission": true,
+     "bold_core_offset": 0,
+     "block_elite_bull": false,
+     "anchor_to_fill": true
+    },
+    "note": "all-simulated parity probe -- measures the exit-walk's own error vs broker"
+   },
+   "TODAY": {
+    "total": 3624.0,
+    "delta_vs_today": 0.0,
+    "per_arm": {
+     "safe-2": {
+      "net": 662.0,
+      "n": 3
+     },
+     "bold-2": {
+      "net": 479.0,
+      "n": 3
+     },
+     "safe-3": {
+      "net": 637.0,
+      "n": 6
+     },
+     "risky-1": {
+      "net": 1041.0,
+      "n": 5
+     },
+     "risky-3": {
+      "net": 805.0,
+      "n": 8
+     }
+    },
+    "config": {
+     "vwap_emission": true,
+     "bold_core_offset": 0,
+     "block_elite_bull": false,
+     "anchor_to_fill": true
+    },
+    "note": "baseline: today's config (hybrid -- reproduces the broker day)"
+   },
+   "REV_ELITE_GATE": {
+    "total": 2483.0,
+    "delta_vs_today": -1141.0,
+    "per_arm": {
+     "safe-2": {
+      "net": 0,
+      "n": 0
+     },
+     "bold-2": {
+      "net": 0,
+      "n": 0
+     },
+     "safe-3": {
+      "net": 637.0,
+      "n": 6
+     },
+     "risky-1": {
+      "net": 1041.0,
+      "n": 5
+     },
+     "risky-3": {
+      "net": 805.0,
+      "n": 8
+     }
+    },
+    "config": {
+     "vwap_emission": true,
+     "bold_core_offset": 0,
+     "block_elite_bull": true,
+     "anchor_to_fill": true
+    },
+    "note": "leave-one-out: SHIP B reverted"
+   },
+   "REV_ATM_TIER": {
+    "total": 2639.61,
+    "delta_vs_today": -984.39,
+    "per_arm": {
+     "safe-2": {
+      "net": 662.0,
+      "n": 3
+     },
+     "bold-2": {
+      "net": 257.3,
+      "n": 3
+     },
+     "safe-3": {
+      "net": 505.75,
+      "n": 5
+     },
+     "risky-1": {
+      "net": 613.44,
+      "n": 6
+     },
+     "risky-3": {
+      "net": 601.12,
+      "n": 10
+     }
+    },
+    "config": {
+     "vwap_emission": true,
+     "bold_core_offset": -2,
+     "block_elite_bull": false,
+     "anchor_to_fill": true
+    },
+    "note": "leave-one-out: ATM-TIER-EXTENSION reverted"
+   },
+   "REV_VWAP_FIX": {
+    "total": 3871.5,
+    "delta_vs_today": 247.5,
+    "per_arm": {
+     "safe-2": {
+      "net": 662.0,
+      "n": 3
+     },
+     "bold-2": {
+      "net": 479.0,
+      "n": 3
+     },
+     "safe-3": {
+      "net": 637.0,
+      "n": 6
+     },
+     "risky-1": {
+      "net": 920.5,
+      "n": 4
+     },
+     "risky-3": {
+      "net": 1173.0,
+      "n": 4
+     }
+    },
+    "config": {
+     "vwap_emission": false,
+     "bold_core_offset": 0,
+     "block_elite_bull": false,
+     "anchor_to_fill": true
+    },
+    "note": "leave-one-out: FIX2 vwap emission reverted"
+   },
+   "SIM_PURE_REV_SHIP_A": {
+    "total": 4835.34,
+    "delta_vs_today": 1211.34,
+    "per_arm": {
+     "safe-2": {
+      "net": 875.9,
+      "n": 2
+     },
+     "bold-2": {
+      "net": 482.8,
+      "n": 3
+     },
+     "safe-3": {
+      "net": 1068.38,
+      "n": 5
+     },
+     "risky-1": {
+      "net": 1279.76,
+      "n": 6
+     },
+     "risky-3": {
+      "net": 1128.5,
+      "n": 8
+     }
+    },
+    "config": {
+     "vwap_emission": true,
+     "bold_core_offset": 0,
+     "block_elite_bull": false,
+     "anchor_to_fill": false
+    },
+    "note": "pair with SIM_PURE_TODAY -- the ONLY frame that can price SHIP A"
+   },
+   "YESTERDAY": {
+    "total": 2061.25,
+    "delta_vs_today": -1562.75,
+    "per_arm": {
+     "safe-2": {
+      "net": 0,
+      "n": 0
+     },
+     "bold-2": {
+      "net": 0,
+      "n": 0
+     },
+     "safe-3": {
+      "net": 537.75,
+      "n": 5
+     },
+     "risky-1": {
+      "net": 621.0,
+      "n": 5
+     },
+     "risky-3": {
+      "net": 902.5,
+      "n": 5
+     }
+    },
+    "config": {
+     "vwap_emission": false,
+     "bold_core_offset": -2,
+     "block_elite_bull": true,
+     "anchor_to_fill": false
+    },
+    "note": "all four reverted -- the config that was live 2026-08-03"
+   }
+  },
+  "attribution": {
+   "tape_would_have_paid_anyway": 2061.25,
+   "tape_share_pct": 56.9,
+   "shipped_last_night_bought": 1562.75,
+   "config_share_pct": 43.1,
+   "deflated_bound": {
+    "note": "simulated rows carry the pure-walk's measured +29.4% optimism; deflating the YESTERDAY lane by it bounds the config contribution",
+    "yesterday_lane_deflated": 1592.93,
+    "config_bought_upper": 2031.07,
+    "config_bought_range": [
+     1562.75,
+     2031.07
+    ]
+   },
+   "leave_one_out": {
+    "REV_ELITE_GATE": -1141.0,
+    "REV_ATM_TIER": -984.39,
+    "REV_VWAP_FIX": 247.5,
+    "SHIP_A": 147.26
+   },
+   "loo_sum": -1730.63,
+   "joint": -1562.75,
+   "overlap": 167.88,
+   "overlap_note": "the ships are NOT additive -- they partly substitute (the ATM tier and the vwap fix both act on the same morning cluster)."
+  },
+  "concentration_by_signal_cluster": {
+   "09:46-09:50 vwap": {
+    "net": 421.0,
+    "n_roundtrips": 4
+   },
+   "09:54-09:58 763C": {
+    "net": 1750.0,
+    "n_roundtrips": 5
+   },
+   "10:35 vwap": {
+    "net": -80.0,
+    "n_roundtrips": 1
+   },
+   "11:26-11:27 768C": {
+    "net": -193.0,
+    "n_roundtrips": 4
+   },
+   "11:51-11:52 769C": {
+    "net": -361.0,
+    "n_roundtrips": 4
+   },
+   "12:28 769C": {
+    "net": 2192.0,
+    "n_roundtrips": 4
+   },
+   "13:23-13:24 771C": {
+    "net": 9.0,
+    "n_roundtrips": 1
+   },
+   "13:41-13:42 772C": {
+    "net": -114.0,
+    "n_roundtrips": 2
+   }
+  },
+  "concentration_headline": {
+   "gross_positive": 4372.0,
+   "top2_cluster_share_pct": 90.2,
+   "top2": [
+    2192.0,
+    1750.0
+   ],
+   "all_other_clusters_combined": -318.0,
+   "reading": "TWO signal clusters (the 09:54-09:58 763C ribbon and the 12:28 769C ribbon) produced $3,942 of $4,372 gross-positive. The other six clusters together LOST $318. This was a two-trade day."
+  }
+ },
+ "part3_hard_day_test": {
+  "method": "REAL broker round trips at the strike actually traded (ATM) -- no sim | same trades re-struck OTM-2, real 1-min OPRA through the real exit core (SIM)",
+  "selection_rule": "three most hostile-character days in the live-ledger window, one per hostile mode, chosen on regime-library FEATURES not on P&L: pin-day/lowest range (2026-07-22), gap-fade with lowest close_loc (2026-07-20), gap-fade with real range (2026-07-27). Two V-reversal days (07-08, 07-15) added as a fourth mode. DISCLOSED: 2026-07-27 is also the worst live P&L day -- selected on character, but the overlap is stated.",
+  "per_day": {
+   "2026-07-20": {
+    "date_et": "2026-07-20",
+    "archetype": "gap-fade",
+    "n_roundtrips": 5,
+    "n_priced": 5,
+    "n_no_opra_excluded": 0,
+    "n_otm2_floor_blocked": 4,
+    "atm_total_REAL": -141.0,
+    "otm2_total_SIM": -21.6,
+    "atm_minus_otm2": -119.4,
+    "premium_ratio_median": 3.139
+   },
+   "2026-07-22": {
+    "date_et": "2026-07-22",
+    "archetype": "pin-day",
+    "n_roundtrips": 3,
+    "n_priced": 3,
+    "n_no_opra_excluded": 0,
+    "n_otm2_floor_blocked": 0,
+    "atm_total_REAL": -108.0,
+    "otm2_total_SIM": -99.0,
+    "atm_minus_otm2": -9.0,
+    "premium_ratio_median": 2.411
+   },
+   "2026-07-27": {
+    "date_et": "2026-07-27",
+    "archetype": "gap-fade",
+    "n_roundtrips": 6,
+    "n_priced": 6,
+    "n_no_opra_excluded": 0,
+    "n_otm2_floor_blocked": 3,
+    "atm_total_REAL": -828.0,
+    "otm2_total_SIM": -123.0,
+    "atm_minus_otm2": -705.0,
+    "premium_ratio_median": 2.13
+   },
+   "2026-07-08": {
+    "date_et": "2026-07-08",
+    "archetype": "V-reversal",
+    "n_roundtrips": 10,
+    "n_priced": 10,
+    "n_no_opra_excluded": 0,
+    "n_otm2_floor_blocked": 7,
+    "atm_total_REAL": -304.0,
+    "otm2_total_SIM": -142.8,
+    "atm_minus_otm2": -161.2,
+    "premium_ratio_median": 1.741
+   },
+   "2026-07-15": {
+    "date_et": "2026-07-15",
+    "archetype": "V-reversal",
+    "n_roundtrips": 4,
+    "n_priced": 4,
+    "n_no_opra_excluded": 0,
+    "n_otm2_floor_blocked": 4,
+    "atm_total_REAL": -309.0,
+    "otm2_total_SIM": 0.0,
+    "atm_minus_otm2": -309.0,
+    "premium_ratio_median": null
+   },
+   "2026-08-04": {
+    "date_et": "2026-08-04",
+    "archetype": "gap-go",
+    "n_roundtrips": 25,
+    "n_priced": 25,
+    "n_no_opra_excluded": 0,
+    "n_otm2_floor_blocked": 0,
+    "atm_total_REAL": 3624.0,
+    "otm2_total_SIM": 1388.13,
+    "atm_minus_otm2": 2235.87,
+    "premium_ratio_median": 2.373
+   }
+  },
+  "verdict": "YES -- the current stack bleeds MORE on hard days, and the responsible change is ATM-TIER-EXTENSION-2K-10K.",
+  "hard_day_totals": {
+   "n_days": 5,
+   "atm_real": -1690.0,
+   "otm2_sim": -386.4,
+   "atm_minus_otm2": -1303.6
+  },
+  "mechanism_split": {
+   "participation_floor_blocked": {
+    "delta": -737.0,
+    "meaning": "trades OTM-2's $0.30 min_entry_premium floor would have REFUSED outright. Every one a loser on those days. This is the participation the ATM extension was shipped to buy."
+   },
+   "same_trade_bigger_notional": {
+    "delta": -566.6,
+    "meaning": "identical trades at ~2.1-3.1x premium per contract at unchanged qty."
+   }
+  },
+  "trend_day_mirror": {
+   "date": "2026-08-04",
+   "atm_minus_otm2": 2235.87,
+   "floor_blocked_delta": 0.0,
+   "meaning": "on the trending tape ZERO contracts were floor-blocked and the entire +$2,236 came from notional. The knob is symmetric leverage."
+  },
+  "net_over_6_days": 932.27,
+  "reading": "ONE trend day (+$2,236) pays for FIVE hostile days (-$1,304). Whether ATM-TIER-EXTENSION is a keep depends entirely on the archetype mix ahead, and range-chop + gap-fade + pin-day + inverted-V are 63.6% of the population vs 5.1% for today's shape."
+ },
+ "part4_scorecard": {
+  "controllable_vs_tape": {
+   "tape": 2061.25,
+   "config": 1562.75,
+   "config_pct": 43.1
+  },
+  "controllable_breakdown": {
+   "SHIP_B_elite_gate_lift": {
+    "usd": 1141.0,
+    "basis": "EXACT -- no simulation. Every core ENTER_BULL on 2026-08-04 (82 of 82) was ELITE + level_reclaim, exactly what gates.py #3 refuses, and fleet_rest arms never enforced GATE_ORDER. Re-arming the gate zeroes safe-2 and bold-2 and touches nothing else."
+   },
+   "ATM_TIER_EXTENSION": {
+    "usd": 984.39,
+    "basis": "SIM on 4 arms",
+    "warning": "symmetric leverage -- costs $1,303.60 across the 5 hard days tested"
+   },
+   "FIX2_vwap_emission": {
+    "usd": -247.5,
+    "basis": "SIM on 2 arms",
+    "warning": "NEGATIVE contribution -- reverting it IMPROVES the day"
+   },
+   "SHIP_A_anchor_to_fill": {
+    "usd": -147.26,
+    "basis": "pure-sim paired lane only (the hybrid lane is structurally blind to it)",
+    "warning": "cost money today by design; its own commit message predicted this ('TODAY the bug PAID +$62.85 ... SHIP A buys the other tail')"
+   },
+   "UNMODELLED": [
+    "IEX-tail level-refresher fix (the counterfactual reuses the live trigger_levels, so this ship is not isolated)",
+    "SHIP C risky-3 qty10 under $0.50 -- never fired, every contract >$0.50",
+    "equity-driven re-sizing under a cheaper OTM-2 contract (qty held at live values)"
+   ]
+  },
+  "instrument_shipped": {
+   "path": "setup/scripts/regime_attribution.py",
+   "task": "Gamma_RegimeAttribution (daily 15:45 MT = 17:45 ET)",
+   "writes": [
+    "automation/state/regime-attribution.json",
+    "analysis/regime-library/attribution-history.jsonl"
+   ],
+   "answers_going_forward": "archetype + population share + strictly-prior archetype mean + regime_lift + mix_ev + top-1/top-2 concentration, every night, $0, stdlib-only, fail-open."
+  }
+ },
+ "open_defect_found": {
+  "id": "FLEET-PDT-GATE-READS-ZERO",
+  "severity": "HIGH -- real trading-path risk, NOT fixed in this lens",
+  "evidence": [
+   "automation/state/fleet/fleet_live.py:660 -- day_trades = int(acct.get('daytrade_count', 0) or 0)",
+   "fb.get_account() on all 5 arms returns NO daytrade_count and NO pattern_day_trader key (37 keys verified 2026-08-04 after close) -> the gate is permanently fed 0",
+   "every one of today's 384 ticks/arm on safe-3 / risky-1 / risky-3 logged day_trades: 0 while those arms took 6 / 5 / 8 day trades",
+   "core bold-2 runs a DIFFERENT path (heartbeat_core) whose counter DID move: 3/3 by 11:26 ET, 21 ENTERs correctly PDT-refused (automation/overnight/STATUS.md)"
+  ],
+  "why_it_matters": "all five arms are $5K-class with multiplier=4 -> REAL PDT (3 day-trades / 5 business days). The three fleet arms have no working PDT gate.",
+  "why_not_fixed_here": "trading-path guard; making it fail-CLOSED could block every fleet entry tomorrow. Needs its own blast-radius pass + prereg. Filed as the top OPEN item.",
+  "shape": "C7/C14 -- a fail-open default masking an ABSENT field (same family as L241)."
+ },
+ "caveats": [
+  "The YESTERDAY lane's fleet-arm rows are SIMULATED (different strikes have no broker answer). The pure-walk's measured error on today is +29.4%; the config-contribution range [$1,563, $2,031] carries that.",
+  "Hard-day n is TINY: 5 days, 28 round trips, 1-2 days per archetype. Directionally clear, statistically an ANECDOTE.",
+  "The vwap verdict rests on n=2 arms on one day and splits (risky-3 +$368 without it, risky-1 -$125). Directional, not ratified.",
+  "The live record spans two sizing eras (~$1.7K then $5K). Every cross-era dollar comparison is labelled.",
+  "Archetype labels are POST-HOC (whole-session) by construction and must never feed a same-day live entry -- slicing and attribution only."
+ ]
+}

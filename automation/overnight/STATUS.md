@@ -471,3 +471,40 @@ Artifacts: `analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prere
 - FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
 - TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-04T16:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-08-04T20:46:29+00:00
+- task: analyst
+- date_et: 2026-08-04
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### REVOKE SURFACE: LENS 4 REPEATABILITY (2026-08-04, after close)
+
+**Shipped:** `Gamma_RegimeAttribution` nightly instrument (17:45 ET daily, $0, stdlib-only, fail-open, places nothing).
+Revert (one line): `Unregister-ScheduledTask -TaskName Gamma_RegimeAttribution -Confirm:$false`.
+Everything else in this lens is read-only research tooling; no trading-path file was touched.
+
+**Headline findings** (full report `analysis/deep-research/EOD-2026-08-04-REPEATABILITY.md`):
+- 2026-08-04 = `gap-go`; its exact one-way character is **5.1% of 395 days (1 in 20)**. Mon+Tue are both the 1.8% variant -- a cluster, not a regime.
+- **57% of the day ($2,061) would have happened under yesterday's config; 43% ($1,563-$2,031) is what last night bought.** Parity gate PASS (hybrid lane reproduces the broker day to $0.00).
+- **Two signal clusters = 90.2% of gross-positive P&L.** The other six clusters combined LOST $318.
+- **SHIP B (elite-bull lift) = +$1,141, EXACT, no simulation** -- all 82 core ENTER_BULL verdicts were ELITE+level_reclaim; re-arming the gate zeroes safe-2 and bold-2.
+- **FIX2 vwap emission was NET NEGATIVE (-$247.50).** Reverting it improves the day: with vwap dead, risky-1/risky-3 take the 09:58 ELITE ribbon they were offered and refused with "position already open". The 09:57 alarm was right; the retraction was wrong. n=2 arms, 1 day -- directional, NOT ratified, no action taken.
+- **HARD-DAY TEST FAILED for ATM-TIER-EXTENSION-2K-10K:** -$1,303.60 across the 5 most hostile-character live days vs +$2,235.87 on 08-04. It is symmetric leverage (~2.2x notional at fixed qty), not a strike edge. Split: -$737 from trades the $0.30 floor would have refused, -$567 from bigger notional on identical trades. ANECDOTE (n=5 days); its own pre-registered kill criterion (n>=10 fills/arm or 10 sessions, net<0) is the authority and is NOT yet met -- no revert taken.
+- Honest EV/day: **$45-$137** depending on sizing-era and payoff-decay assumptions; instrument's own `mix_ev` = **$73.71/day**.
+
+### KNOWN BROKEN: FLEET-PDT-GATE-READS-ZERO (HIGH, found 2026-08-04, NOT fixed)
+
+`automation/state/fleet/fleet_live.py:660` -- `day_trades = int(acct.get("daytrade_count", 0) or 0)`.
+`fb.get_account()` on all 5 arms returns **no `daytrade_count` and no `pattern_day_trader` key** (37 keys verified live after the close), so the fleet PDT gate is **permanently fed 0**. Every one of 2026-08-04's 384 ticks/arm on safe-3 / risky-1 / risky-3 logged `day_trades: 0` while those arms took 6 / 5 / 8 day trades. Core bold-2 (different path, `heartbeat_core`) DID track: 3/3 by 11:26 ET, 21 ENTERs correctly refused.
+All five arms are $5K-class at multiplier 4 -> real PDT (3 day-trades / 5 business days) binds. Shape: C7/C14, a fail-open default masking an ABSENT field (L241 family).
+NOT fixed here on purpose: trading-path guard; fail-CLOSED could block every fleet entry. Needs its own blast-radius pass + prereg.
+
+- [2026-08-04 21:00:01] gym-session (2026-08-04) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-04.json`

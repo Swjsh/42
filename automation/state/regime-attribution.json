@@ -1,0 +1,44 @@
+{
+ "archetype": "gap-go",
+ "archetype_mean_prior": -54.0,
+ "archetype_n_prior": 6,
+ "archetype_share": 0.2253,
+ "concentration": {
+  "gross_negative": -1111.0,
+  "gross_positive": 4735.0,
+  "n_roundtrips": 25,
+  "top1_share": 0.1664,
+  "top2_share": 0.3039
+ },
+ "date_et": "2026-08-04",
+ "day_features": {
+  "body_pct": 1.3975,
+  "close_loc": 0.8324,
+  "gap_pct": 0.3894,
+  "open_loc": 0.0078,
+  "range_pct": 1.6947,
+  "t_high": 0.974,
+  "t_low": 0.0,
+  "vix_close": 16.42
+ },
+ "day_pnl": 3624.0,
+ "defn_version": "v1-2026-08-04",
+ "generated_date_et": "2026-08-04",
+ "live_record": {
+  "n_days": 24,
+  "total": 2494.0,
+  "total_ex_today": -1130.0
+ },
+ "mix_ev": 73.71,
+ "mix_ev_coverage": 0.9773,
+ "per_arm": {
+  "bold-2": 479.0,
+  "risky-1": 1041.0,
+  "risky-3": 805.0,
+  "safe-2": 662.0,
+  "safe-3": 637.0
+ },
+ "regime_lift": 3678.0,
+ "status": "OK",
+ "verdict": "a day of this shape is 22.5% of the population (1 in 4); prior days of this shape averaged $-54.00; today is $+3,678.00 vs that."
+}
