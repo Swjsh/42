@@ -999,6 +999,52 @@ def _ladder_plan(
                      trigger_level=float(level))
 
 
+# --- FLOOR-RESCUE eligibility (2026-08-03, L246-class ORDERING FIX) -----------------------
+# THE DEFECT (EOD-2026-08-03-FULL-REVIEW.md section 4.2, "0 fires EVER vs 35 floor-blocks
+# today"): plan_all's full-send precondition ("no ENTER in plans") runs at PLAN time, but the
+# min_entry_premium floor that kills a doomed OTM plan runs LATER, in finalize(), once a real
+# premium exists. On a cohort-vetoed tick whose score clears the scoring peak, the NORMAL lane
+# produces an ENTER plan at the arm's own OTM tier; that plan dies at the $0.30 floor -- and
+# the full-send lane, checked earlier, is shadowed by the corpse. This function is the PURE
+# eligibility half of the fix; the caller (fleet_live.decide_arm) re-finalizes the rescue at
+# its OWN strike's REAL premium, so every risk guard -- the floor included -- binds verbatim.
+# The floor is re-asked at an ATM-class strike that can honestly clear it, never bypassed.
+def floor_rescue_plan(
+    arm: Mapping[str, Any],
+    signal: Mapping[str, Any],
+    equity: float,
+    params: Mapping[str, Any],
+    killed_plan: Optional[EntryPlan],
+    decision: "Optional[ArmDecision]",
+) -> Optional[EntryPlan]:
+    """The full-send plan plan_all suppressed, iff the selected plan just died at the
+    min_entry_premium floor. None in every other case -- the caller's verdict then stands.
+
+    Eligibility (ALL required, fail-closed):
+      * decision.risk_code == "SKIP_MIN_PREMIUM_FLOOR" -- ONLY the floor un-shadows the
+        rescue. Any other deny (NOT_FLAT/KILL_SWITCH/PDT/RISK_CAP/...) is a real risk
+        refusal that would bind on the rescue identically; re-planning it would be noise.
+      * the killed plan was a NORMAL-lane ENTER -- a floor-killed FULL_SEND/PROBE_ARM/
+        SCORE_LADDER plan is terminal (no self-rescue loop; those lanes already price the
+        ATM/PROBE table, so a floor kill there means the tick is genuinely untradeable).
+      * the arm carries gate_override.full_send (risky-1 only at ship).
+      * _full_send_plan finds an available, allowlisted, level-anchored block to rescue.
+    Guard: test_floor_rescue_2026_08_03.py (RED-proofed against the pre-fix code)."""
+    if decision is None or decision.risk_code != "SKIP_MIN_PREMIUM_FLOOR":
+        return None
+    if killed_plan is None or killed_plan.action != "ENTER":
+        return None
+    if str(killed_plan.reason or "").startswith(("FULL_SEND", "PROBE_ARM", "SCORE_LADDER")):
+        return None
+    if not _is_full_send(arm):
+        return None
+    rescue = _full_send_plan(arm, signal, equity, params, str(arm.get("id", "?")),
+                             signal.get("spot"))
+    if rescue is None or rescue.action != "ENTER":
+        return None
+    return rescue
+
+
 # --- phase B: risk gate (reuses the single authority) ------------------------
 def finalize(
     plan: EntryPlan,

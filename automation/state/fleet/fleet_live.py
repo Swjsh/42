@@ -244,7 +244,8 @@ _select_plan = fx.select_plan  # canonical one-position selection (REGISTRY-prio
 def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
                day_trades: int, killed: bool, sod_equity: float,
                prior_stops: list[str], params: dict, premium_override: float | None = None,
-               probe_cfg: dict | None = None, probe_entries_today: int = 0):
+               probe_cfg: dict | None = None, probe_entries_today: int = 0,
+               rescue_premium_fetch=None):
     """Multi-strategy decision: every fired strategy is gated+sized by plan_all, ONE is
     selected (REGISTRY priority, one-position rule), then the shared risk gate runs. No
     I/O, no placement. Returns (ArmDecision, exit_shape) so the caller can build the
@@ -258,6 +259,15 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
     default None/0 is an inert no-op for every arm except the one probe_cfg names (see
     fleet_executor._is_probe_active). This function stays I/O-free; the caller (run()) owns
     reading accounts.json's probe_arm block and the persisted daily counter.
+
+    rescue_premium_fetch (2026-08-03, L246 ORDERING FIX): optional (side, strike) -> mid
+    callback used ONLY when the selected plan dies at the min_entry_premium floor and
+    fleet_executor.floor_rescue_plan finds a full-send plan that plan_all's "no ENTER in
+    plans" precondition shadowed (the 0-fires-EVER defect: the doomed OTM plan blocked the
+    lane built to rescue it). The rescue is re-finalized at ITS OWN (ATM-class) strike's
+    real premium -- so the floor and every downstream risk guard bind on it verbatim. None
+    (every pre-existing caller) => the rescue finalizes with premium=None and risk_gate
+    fails CLOSED (UNREADABLE_INPUT): the lane never trades blind. I/O stays in the caller.
     """
     if signal is None:
         return (fx.ArmDecision(arm["id"], "HOLD", None, None, None, None, None, None,
@@ -302,6 +312,41 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
         prior_stops_today=prior_stops, params=params,
         account_label=str(arm.get("account_number") or arm["id"]),
     )
+    # L246 ORDERING FIX (2026-08-03): when the floor kills the selected plan, the full-send
+    # rescue lane that plan_all's "no ENTER in plans" precondition shadowed gets its turn --
+    # re-finalized at ITS OWN (ATM-class) strike's real premium, so the floor and every
+    # downstream risk guard (NOT_FLAT / KILL_SWITCH / PDT / RISK_CAP / the floor itself)
+    # bind on the rescue verbatim. Fires ONLY on SKIP_MIN_PREMIUM_FLOOR (see
+    # fx.floor_rescue_plan's fail-closed eligibility). A denied rescue keeps the original
+    # floor verdict, annotated for the audit trail. Guard: test_floor_rescue_2026_08_03.py.
+    if decision.risk_code == "SKIP_MIN_PREMIUM_FLOOR":
+        rescue = fx.floor_rescue_plan(arm, signal, equity, params, plan, decision)
+        if rescue is not None:
+            r_premium = None
+            if rescue_premium_fetch is not None and rescue.side and rescue.strike:
+                try:
+                    r_premium = rescue_premium_fetch(rescue.side, int(rescue.strike))
+                except Exception:  # noqa: BLE001 -- a quote failure fails CLOSED below
+                    r_premium = None
+            r_decision = fx.finalize(
+                rescue, equity=equity, start_of_day_equity=sod_equity, premium=r_premium,
+                current_position_status=(None if flat else "open"),
+                day_trades_used_5d=day_trades, kill_switch_tripped=killed,
+                prior_stops_today=prior_stops, params=params,
+                account_label=str(arm.get("account_number") or arm["id"]),
+            )
+            if r_decision.risk_code == "ALLOW" and r_decision.action in ("ENTER_BEAR",
+                                                                         "ENTER_BULL"):
+                r_decision = replace(
+                    r_decision,
+                    reason=(f"{r_decision.reason}; floor_rescue after "
+                            f"SKIP_MIN_PREMIUM_FLOOR (normal plan strike={plan.strike} "
+                            f"prem={premium})"))
+                return (r_decision, rescue.exit_shape)
+            decision = replace(
+                decision,
+                reason=(f"{decision.reason}; FULL_SEND floor_rescue denied: "
+                        f"{r_decision.risk_code}"))
     return (decision, exit_shape)
 
 
@@ -678,7 +723,13 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
                                           prior_stops=prior_stops, params=params,
                                           premium_override=premium_override,
                                           probe_cfg=probe_cfg,
-                                          probe_entries_today=probe_entries_today)
+                                          probe_entries_today=probe_entries_today,
+                                          # L246 ORDERING FIX: real-quote pricing for a
+                                          # floor-rescue's OWN strike (read-only GET; only
+                                          # consulted on a SKIP_MIN_PREMIUM_FLOOR verdict).
+                                          rescue_premium_fetch=(
+                                              lambda side, strike:
+                                              fb.get_option_mid(creds, _occ_symbol(side, strike, now))))
 
         # PROBE ARM: the cap counts DECIDED (risk_gate-ALLOWED) probe entries, not merely
         # attempted plans -- increments regardless of WATCH/LIVE mode (a WATCH-mode "would
