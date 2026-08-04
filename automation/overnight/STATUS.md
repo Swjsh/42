@@ -1,3 +1,35 @@
+## [2026-08-04 ~01:45 ET] PIPELINE-CHAIN-WALK (Lane 2) — L246 full-send rescue SHIPPED + liveness content alarms SHIPPED (REVOKE surface)
+
+> **Signal J wakes to (OP-25).** The if-this-then-that chain walk is done: every link of both pipelines (core x2, fleet x3) mapped from code with per-link failure behavior, conjunction kills named, SPOF map + open items in `analysis/deep-research/PIPELINE-CHAIN-MAP-2026-08-03.md`.
+> - **SHIP ① `5fa89536` (paper, live Tuesday): risky-1's full-send rescue un-shadowed.** The lane had fired 0 times EVER (vs 35 floor-blocks today alone) — plan_all's "no ENTER" precondition ran before the $0.30 floor killed the doomed OTM plan. Now a floor-killed plan re-asks the rescue at its OWN ATM strike's real quote; floor + NOT_FLAT + kill-switch + PDT + Rule 6 all re-bind on the rescue (guards prove each). RED-proofed (16 fail → 17 pass), fleet suite **365/365**. **REVOKE: `git revert 5fa89536`.**
+> - **SHIP ② `9fd87d85`: both liveness watchers grew content alarms** (feed-dead-inside-running-engine / blind / VIX-feed-dead / broker-infra on core; stale-signal-wall / **FLOOR_WALL** / arm-errors on fleet). Additive + fail-open (status/exit codes untouched); alarms ride the existing `reason` string into engine_health + daily_brief. **Organic proof on today's real ledgers: FLOOR_WALL 33/35/35 (safe-3/risky-1/risky-3) — the exact wall the EOD found by hand now alarms same-day, and doubles as the ATM-TIER-EXTENSION prereg baseline.** REVOKE: `git revert 9fd87d85`.
+> - **OPEN (named, not silent):** O1 fail-open flat read on both placement paths (positions-outage → Rule-4 stack window; precise spec + proposed fail-closed variant in the map §6 — deliberately not shipped mid-parallel-lane); O2 probe/ladder share the L246 shadowing shape (extend rescue behind its own vary-and-assert); O5 vix=0.0 *behavior* (alarm shipped, gate-flip behavior needs its own prereg). Ladder-inert question RESOLVED: deliberately disarmed 07-27 on 390-day evidence (docs inline; risky-3's doc string stale).
+> - Files: `analysis/deep-research/PIPELINE-CHAIN-MAP-2026-08-03.md` · `automation/state/fleet/{fleet_executor,fleet_live,test_floor_rescue_2026_08_03}.py` · `setup/scripts/{engine_liveness_check,fleet_liveness_check}.py` · `backtest/tests/test_liveness_content_alarms_2026_08_03.py`.
+
+---
+
+## [2026-08-03] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 8tr $+104.00 ($+13.00/tr, 62.5% WR) [5d/5 day+side buckets -- 8 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 33d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-08-03] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-26..2026-07-31), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-31). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-370.08); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 [2026-08-03T20:38:16 ET] conductor: OK -- REGIME-STAMP-DAILY-DRIFT-DETECTOR -- commit `c45e691b`
 Budget gate PASSED ($9.90/$30, 3/4 fires used pre-fire). Engine health GREEN, market
 closed -- proceeded past STAGE 0. Picked the self-audit-gap lane (STAGE-1 priority-3,
@@ -128,28 +160,6 @@ Next fire: nothing to do here until n reaches 10 (auto-flags STATUS.md on that t
 pick the next queue item. Autonomy metric trend=`regressing` (net_improvement=4, cost/drained
 $3.275, window=20) -- next fire should prefer a loop-CLOSING item (drain/promote/prune) over a
 new artifact.
-
----
-
-## [2026-08-02] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 32d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-08-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-26..2026-07-31), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-31). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-370.08); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -584,3 +594,38 @@ already-modified state/analysis files sitting dirty in the tree from other auton
 processes). Revert: `git revert 5e4cd6e2` (additive-only fix + tests, nothing else depends
 on the changed truncation/label behavior).
 
+
+### DEGRADED: self-check 2026-08-03T20:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T21:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T21:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T22:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T22:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-03T23:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-08-04T03:30:10+00:00
+- date_et: 2026-08-03
+- total: $187.37 (threshold $30.00)
+- claude: $187.33  minimax: $0.04
+- claude_sessions: 11
+
+### DEGRADED: self-check 2026-08-03T23:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-08-03) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
