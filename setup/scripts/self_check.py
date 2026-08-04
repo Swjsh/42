@@ -638,6 +638,95 @@ def check_macro_calendar_freshness(now, news_path=None) -> list:
             f"`schtasks /query /tn Gamma_MacroCalendar /v`."]
 
 
+# ---- PRIOR-TRADING-DAY DARK (2026-07-24) -----------------------------------------------
+# The 2026-07-15 scar (see _calendar_staleness above) was diagnosed as ONE producer
+# (Gamma_MacroCalendar) missing its fire because an overnight event left no interactive
+# logon session through the trigger window -- LogonType=Interactive being this repo's
+# universal task-registration convention, and StartWhenAvailable=True NOT retroactively
+# catching a missed Interactive-logon task even once the session resumes (a documented Task
+# Scheduler limitation, per that scar's own writeup).
+#
+# 2026-07-24 repeated the SAME mechanism at a MUCH larger scope: the machine entered sleep
+# at 2026-07-23 21:48 MT (Kernel-Power evt id 42) and did not wake until 2026-07-25 09:12 MT
+# (Saturday) -- a ~35.4h gap spanning the ENTIRE Friday 2026-07-24 trading session.
+# core-decisions.jsonl has ZERO rows dated 2026-07-24 (confirmed both accounts); every
+# scheduled task from Gamma_LaunchTV (06:00 MT) through Gamma_EodFlatten (15:55 ET) simply
+# never fired -- three of those tasks (Premarket/LaunchTV/EodFlatten) already had
+# WakeToRun=True set, yet none of them woke the box (powercfg /lastwake: "Wake Source
+# Count - 0" for the eventual Saturday wake), so wake-timers alone are NOT a reliable fix.
+# No position was open at sleep-onset (engine-health confirmed flat both accounts), so this
+# was a missed-opportunity day, not a stuck-position risk -- but it is a full engine-dark
+# trading day that went COMPLETELY undetected until this fire, purely as a side-effect of
+# check_macro_calendar_freshness ALSO being stale that same window. Every other per-producer
+# staleness check in this file is scoped to "today, weekday, after some time" and therefore
+# self-heals invisibly once Monday's fresh ticks arrive -- so a fully-dark PAST trading day
+# discovered on a weekend read (like this one) had no dedicated first-class check of its own.
+#
+# This is a RE-VIOLATED lesson (same mechanism, 2nd occurrence, much larger blast radius) --
+# OP-25's "a re-violated lesson MUST become a test" applies: this check looks BACKWARD at the
+# most recently COMPLETED trading day (not "today"), runs on ANY day of the week (including
+# weekends), and persists the flag until that specific date's ledger shows real RTH activity
+# -- so the NEXT occurrence (any cause: sleep, reboot, disabled task, crashed process) cannot
+# self-heal out of visibility before a human sees it.
+DECISIONS_RTH_START = "09:30"
+DECISIONS_RTH_END = "15:55"
+
+
+def _last_completed_trading_day(now, holidays: set) -> str:
+    """The most recent weekday, non-holiday date strictly before `now`'s own calendar date
+    (i.e. a day that has fully closed -- never judges a day still in progress)."""
+    d = now.date() - dt.timedelta(days=1)
+    while d.weekday() >= 5 or d.strftime("%Y-%m-%d") in holidays:
+        d -= dt.timedelta(days=1)
+    return d.strftime("%Y-%m-%d")
+
+
+def check_prior_trading_day_dark(now, core_path=None, calendar_path=None) -> list:
+    """BROKEN iff the most recently COMPLETED trading day has ZERO core-decisions.jsonl rows
+    inside the 09:30-15:55 ET RTH window -- i.e. the entire engine (both accounts) never
+    ticked once on a real trading day. Runs unconditionally (any weekday, including
+    weekends) so the flag can't quietly expire before J sees it. Fail-open: any read/parse
+    error returns [] (uninformative, never a false BROKEN) -- this check only asserts on
+    POSITIVE evidence of a populated-but-empty ledger window, never on "file missing"."""
+    try:
+        cal = json.loads((calendar_path or (STATE / "calendar.json")).read_text(encoding="utf-8-sig"))
+        holidays = set(cal.get("holidays", []))
+    except Exception:  # noqa: BLE001
+        holidays = set()
+    target = _last_completed_trading_day(now, holidays)
+    p = core_path or (STATE / "core-decisions.jsonl")
+    try:
+        text = p.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []  # ledger unreadable -- other checks (fill-funnel, engine-health) own that fault
+    rth_rows = 0
+    if target in text:  # cheap pre-filter: only line-scan+JSON-parse if the date appears at all
+        for ln in text.splitlines():
+            if target not in ln:
+                continue
+            try:
+                o = json.loads(ln)
+            except Exception:  # noqa: BLE001
+                continue
+            ts = str(o.get("ts_et", ""))
+            if not ts.startswith(target):
+                continue
+            hm = ts[11:16]
+            if DECISIONS_RTH_START <= hm <= DECISIONS_RTH_END:
+                rth_rows += 1
+    if rth_rows > 0:
+        return []
+    return [f"ENGINE DARK ALL DAY (RED): {target} was a trading day with ZERO core-decisions.jsonl "
+            f"rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never "
+            f"ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never "
+            f"woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power "
+            f"id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently "
+            f"dropping every task through the gap (WakeToRun=True alone did NOT fix this in the "
+            f"2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or "
+            f"Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day "
+            f"(engine-health.json position_safe/position_bold) before treating this as cosmetic."]
+
+
 TRENDLINE_DRAW_STATE = STATE / "trendline-draw-state.json"
 
 
@@ -678,6 +767,60 @@ def check_trendline_draw_freshness(now, path=None) -> list:
         reason = last_run.get("reason") or "no reason recorded"
         return [f"TRENDLINE-DRAW SKIPPED today ({today}): {reason}. Non-load-bearing (visibility "
                 f"only); run the trendline-draw skill by hand if J wants the chart populated."]
+    return []
+
+
+REGIME_STAMP_JSON = STATE / "regime-stamp.json"
+
+
+def check_regime_stamp_daily(now, stamp_path=None, bias_path=None) -> list:
+    """DAILY drift detector for regime-stamp.json <-> today-bias.json#regime_context
+    (self-audit gap, flagged 2026-08-02 AND independently re-flagged 2026-08-03 -- a
+    2-batch recurrence is the graduation signal per OP-25/C7). Gamma_RegimeStamp (08:22
+    ET) writes regime-stamp.json then patches today-bias.json#regime_context; Gamma_
+    Premarket (08:30 ET, LLM-authored) is supposed to re-lift the same stamp when it
+    regenerates today-bias.json fresh for the day. Until this check, the ONLY verification
+    of that handoff was monday_verify.py's WS6 check -- which runs ONCE A WEEK. A Tue-Fri
+    silent drift (Premarket's LLM step failing to lift the stamp, or overwriting
+    regime_context with a stale/missing value) had no daily detector at all.
+
+    DESCRIPTIVE ONLY, DEGRADED not BROKEN (regime_context is explicitly non-load-bearing --
+    "never a live entry input", per regime_stamp.py's own docstring) -- mirrors the
+    trendline-draw-freshness pattern immediately above: a real, non-silent flag, but not a
+    trading halt. Reuses the exact drift logic monday_verify.py's WS6 check already proved
+    correct (dates_match: regime-stamp.json#date == today AND
+    today-bias.json#regime_context.stamp_date == today) rather than re-deriving it."""
+    if now.weekday() >= 5:
+        return []  # no Gamma_RegimeStamp/Gamma_Premarket fire on weekends
+    if now.strftime("%H:%M") < "09:00":
+        return []  # give the 08:22/08:30 ET fires their window before judging today stale
+    today = now.strftime("%Y-%m-%d")
+    sp = stamp_path or REGIME_STAMP_JSON
+    bp = bias_path or (STATE / "today-bias.json")
+    try:
+        stamp = json.loads(sp.read_text(encoding="utf-8")) if sp.exists() else None
+    except Exception:  # noqa: BLE001
+        stamp = None
+    try:
+        bias = json.loads(bp.read_text(encoding="utf-8")) if bp.exists() else None
+    except Exception:  # noqa: BLE001
+        bias = None
+    if stamp is None or bias is None:
+        return [f"REGIME-STAMP DEGRADED: {'regime-stamp.json' if stamp is None else 'today-bias.json'} "
+                f"missing/unreadable today ({today}) -- Gamma_RegimeStamp/Gamma_Premarket handoff "
+                f"unverifiable. Non-load-bearing (visibility only)."]
+    rc = bias.get("regime_context") if isinstance(bias, dict) else None
+    stamp_date = stamp.get("date") if isinstance(stamp, dict) else None
+    rc_stamp_date = (rc or {}).get("stamp_date") if isinstance(rc, dict) else None
+    if not rc:
+        return [f"REGIME-STAMP DRIFT: today-bias.json ({today}) has no regime_context -- "
+                f"Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing "
+                f"(visibility only); regime_stamp.py --run to catch up."]
+    if stamp_date != today or rc_stamp_date != today:
+        return [f"REGIME-STAMP DRIFT: regime-stamp.json date={stamp_date}, today-bias.json "
+                f"regime_context.stamp_date={rc_stamp_date}, today={today} -- stale handoff between "
+                f"Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); "
+                f"regime_stamp.py --run to catch up."]
     return []
 
 
@@ -754,9 +897,14 @@ def check_candidates_untracked_backlog(run_git=None) -> list:
     not an engine-tradeability one. $0, fail-open: any git-invocation error returns []
     rather than raising (rail-2 -- this must never be able to interrupt the scheduler)."""
     import subprocess
+    # OP-27 L41: bare subprocess.run from headless pythonw flashes a conhost window on
+    # Win11 -- and this observer runs every ~7 min, straight into J's face. Flagged RED by
+    # audit_window_leak_compliance since at least 2026-07-29T13:48Z; drained 2026-07-29.
+    _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
     probe = run_git or (lambda: subprocess.run(
         ["git", "status", "--porcelain=v1", "--", "strategy/candidates/"],
-        cwd=str(REPO), capture_output=True, text=True, timeout=15))
+        cwd=str(REPO), capture_output=True, text=True, timeout=15,
+        creationflags=_CREATE_NO_WINDOW))
     try:
         proc = probe()
         lines = [ln for ln in proc.stdout.splitlines() if ln.startswith("??")]
@@ -920,9 +1068,19 @@ def run() -> dict:
     # Standing instrument now, so a future miss (any cause) can't rot silently either.
     problems.extend(check_macro_calendar_freshness(now))
 
+    # 12b. PRIOR-TRADING-DAY DARK -- the 2026-07-24 scar: unlike every other check above
+    # (scoped to "today"), this looks BACKWARD at the most recently completed trading day so
+    # a fully-dark engine day can't self-heal invisibly over a weekend before J sees it.
+    problems.extend(check_prior_trading_day_dark(now))
+
     # 13. TRENDLINE-DRAW FRESHNESS -- the 2026-07-16/17 scar: 2 budget-skips of premarket
     # Step 5c in 2 days went to journal only, invisible to J until he noticed a bare chart.
     problems.extend(check_trendline_draw_freshness(now))
+
+    # 13b. REGIME-STAMP DRIFT -- the 2026-08-02/08-03 self-audit recurrence: only
+    # monday_verify.py's WS6 check verified the Gamma_RegimeStamp -> Gamma_Premarket
+    # handoff, and only once a week. This closes the Tue-Fri gap ($0, fail-open, DEGRADED).
+    problems.extend(check_regime_stamp_daily(now))
 
     # 14. TV-CDP LIVENESS -- the 2026-07-07/09 scar (D1 audit Finding #1/#3): a 41+ hour
     # TradingView CDP outage degraded premarket bias to real 'no-trade-tv-fail' framing and
