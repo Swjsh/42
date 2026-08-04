@@ -44,12 +44,45 @@ J_ANCHOR_DAYS = {"2026-04-29", "2026-05-01", "2026-05-04",
 MOTIVATING_CASE = "2026-05-15"
 
 
-def _find_spy_csv() -> Path:
-    data_dir = ROOT / "backtest" / "data"
-    candidates = sorted(data_dir.glob("spy_5m_*.csv"), key=lambda p: p.stat().st_size, reverse=True)
-    if not candidates:
-        raise FileNotFoundError("No SPY 5m CSV found")
-    return candidates[0]
+# Canonical full-window SPY 5m master start date. Matches
+# tools/expand_opra_cache.py#resolve_spy_master() and the OPRA-BACKFILL-2026-07-31
+# floor doc. Anchoring the glob to this EXPLICIT prefix (not sorting every
+# spy_5m_*.csv by byte size) stops a wider-window backfill -- e.g. the
+# 2024-01-18 OPRA extension that landed 2026-07-31 -- from silently outranking
+# the in-window master just because it produced a bigger file. This scan's own
+# docstring says "full 16-month SPY 5m data"; 2025-01-01 onward is that window.
+SPY_MASTER_START = "2025-01-01"
+
+
+def _find_spy_csv(data_dir: Path | None = None) -> Path:
+    """Resolve the canonical full-window SPY 5m master (2025-01-01 start).
+
+    Filters candidates to the EXPLICIT `spy_5m_{SPY_MASTER_START}_*.csv`
+    prefix (skipping `_merged` / other suffixed variants whose tail isn't a
+    plain ISO end-date), then picks the newest by parsed end-date -- never by
+    file size. Mirrors tools/expand_opra_cache.py#resolve_spy_master() so a
+    future backfill that widens coverage further into the past can extend
+    this scan's data forward (rolling append) without ever pulling in an
+    out-of-window start.
+    """
+    if data_dir is None:
+        data_dir = ROOT / "backtest" / "data"
+    candidates = sorted(data_dir.glob(f"spy_5m_{SPY_MASTER_START}_*.csv"))
+    dated: list[tuple[str, Path]] = []
+    for p in candidates:
+        tail = p.stem.rsplit("_", 1)[-1]  # last token after final underscore
+        try:
+            dt.date.fromisoformat(tail)
+        except ValueError:
+            continue  # not a plain end-dated master (e.g. "_merged") -- skip
+        dated.append((tail, p))
+    if not dated:
+        raise FileNotFoundError(
+            f"No full-window SPY 5m master (spy_5m_{SPY_MASTER_START}_YYYY-MM-DD.csv) "
+            f"found in {data_dir}"
+        )
+    dated.sort(key=lambda t: t[0])
+    return dated[-1][1]
 
 
 def load_spy(spy_path: Path) -> pd.DataFrame:

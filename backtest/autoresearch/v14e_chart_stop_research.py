@@ -48,12 +48,42 @@ log = logging.getLogger(__name__)
 OBS_LOG = ROOT / "automation" / "state" / "watcher-observations.jsonl"
 OUT_JSON = ROOT / "analysis" / "recommendations" / "v14e-chart-stop-research.json"
 
-# Find the SPY CSV (rolling append pattern)
-def _find_spy_csv() -> Optional[Path]:
-    data_dir = REPO / "data"
-    # Prefer the largest file (most historical coverage)
-    candidates = sorted(data_dir.glob("spy_5m_*.csv"), key=lambda p: p.stat().st_size, reverse=True)
-    return candidates[0] if candidates else None
+# Canonical full-window SPY 5m master start date. Matches
+# tools/expand_opra_cache.py#resolve_spy_master() and pml_scan.py -- same fix
+# for the same bug class. Anchoring the glob to this EXPLICIT prefix (not
+# sorting every spy_5m_*.csv by byte size) stops a wider-window backfill --
+# e.g. the 2024-01-18 OPRA extension that landed 2026-07-31 -- from silently
+# outranking the in-window master just because it produced a bigger file.
+SPY_MASTER_START = "2025-01-01"
+
+
+# Find the SPY CSV (rolling append pattern: same start, growing end-date)
+def _find_spy_csv(data_dir: Optional[Path] = None) -> Optional[Path]:
+    """Resolve the canonical full-window SPY 5m master (2025-01-01 start).
+
+    Filters candidates to the EXPLICIT `spy_5m_{SPY_MASTER_START}_*.csv`
+    prefix (skipping `_merged` / other suffixed variants whose tail isn't a
+    plain ISO end-date), then picks the newest by parsed end-date -- never by
+    file size. Before this fix, "prefer the largest file" silently selected
+    the 2024-01-18 OPRA-backfill master (bigger file, ~1 extra year of
+    history) the moment it landed, pulling out-of-window SPY bars into every
+    ribbon-warmup / simulate_trade_real run without an error.
+    """
+    if data_dir is None:
+        data_dir = REPO / "data"
+    candidates = sorted(data_dir.glob(f"spy_5m_{SPY_MASTER_START}_*.csv"))
+    dated: list[tuple[str, Path]] = []
+    for p in candidates:
+        tail = p.stem.rsplit("_", 1)[-1]  # last token after final underscore
+        try:
+            dt.date.fromisoformat(tail)
+        except ValueError:
+            continue  # not a plain end-dated master (e.g. "_merged") -- skip
+        dated.append((tail, p))
+    if not dated:
+        return None
+    dated.sort(key=lambda t: t[0])
+    return dated[-1][1]
 
 STRIKE_OFFSET = 2   # OTM-2 puts: for puts, strike = ATM - offset = OTM-2
 QTY = 3
