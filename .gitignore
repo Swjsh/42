@@ -192,3 +192,25 @@ automation/state/j-intents.json
 
 # Crypto twin signal-backtest bar cache (3.9MB, regenerable from Alpaca)
 analysis/crypto-twin/btc_5m_cache.json
+
+# === Added 2026-08-04: gex-archive daily CBOE snapshots — public-repo bloat, not needed
+# tracked (data-hygiene sweep) ===
+# backtest/tools/cboe_oi_bank.py writes journal/gex-archive/{date}-cboe.json every trading
+# day (~12-13MB each, full SPY+SPX option chain). 29 had accrued (~365MB) with only the
+# first 5 dated ones + known-gaps.json ever committed -- committing the rest (and every
+# future day forever) would be permanent, un-rewritable bloat in this PUBLIC repo.
+# Verified before ignoring (don't guess): every consumer --
+# backtest/tools/gex_archive_health.py#parse_archive_dates, setup/scripts/engine_health.py
+# #check_gex_archive, backtest/autoresearch/_b4_gamma_wall_interaction.py#_gex_archive_days,
+# and automation's Gamma_CboeOiBank scheduler itself -- reads the archive DIRECTORY LISTING
+# straight off disk (Path.iterdir()/glob()); none of them read git history or care whether
+# a file is tracked. gitignoring does not delete anything or touch the 7 already-tracked
+# legacy files (2026-06-19.json, 2026-06-22..26-cboe.json, known-gaps.json stay tracked --
+# .gitignore never untracks a file already in the index). known-gaps.json's KNOWN_GAP
+# registry (2026-08-01, commit 731aae42) already exists precisely to let the continuity
+# checker tolerate an EXPLAINED absence gracefully -- confirming this archive's consumers
+# are designed around "some days may be missing," which is the same shape as "some days
+# aren't git-tracked" from every consumer's point of view (both just mean the file isn't on
+# disk / isn't read; neither is a correctness regression on this machine). Going forward,
+# new daily snapshots stay on disk (fully readable by every consumer above) but out of git.
+journal/gex-archive/*-cboe.json
