@@ -1,0 +1,112 @@
+{
+ "ok": true,
+ "computed_at_et": "2026-08-04T00:39:10",
+ "defn_version": "v1-2026-08-03",
+ "sessions": [
+  {
+   "date": "2026-08-03",
+   "defn_version": "v1-2026-08-03",
+   "engine_ticks_seen": 764,
+   "respected_total": 28,
+   "covered_total": 21,
+   "coverage_pct": 75.0,
+   "per_source": {
+    "premarket_high": {
+     "respected": 1,
+     "covered": 1,
+     "misses": [],
+     "median_latency_min": 110.1,
+     "coverage_pct": 100.0
+    },
+    "premarket_low": {
+     "respected": 2,
+     "covered": 1,
+     "misses": [
+      {
+       "price": 749.33,
+       "hm": "09:30",
+       "side": "support",
+       "first_active_ts": "2026-08-03T09:44:03",
+       "latency_min": 9.1
+      }
+     ],
+     "median_latency_min": 9.1,
+     "coverage_pct": 50.0
+    },
+    "daily_context_shelf": {
+     "respected": 9,
+     "covered": 9,
+     "misses": [],
+     "median_latency_min": 105.1,
+     "coverage_pct": 100.0
+    },
+    "intraday_swing_low": {
+     "respected": 5,
+     "covered": 5,
+     "misses": [],
+     "median_latency_min": 0.0,
+     "coverage_pct": 100.0
+    },
+    "intraday_swing_high": {
+     "respected": 4,
+     "covered": 3,
+     "misses": [
+      {
+       "price": 755.7,
+       "hm": "11:20",
+       "side": "resistance",
+       "first_active_ts": "2026-08-03T11:39:03",
+       "latency_min": 14.1
+      }
+     ],
+     "median_latency_min": 0.0,
+     "coverage_pct": 75.0
+    },
+    "intraday_rth_high": {
+     "respected": 7,
+     "covered": 2,
+     "misses": [
+      {
+       "price": 755.83,
+       "hm": "11:20",
+       "side": "resistance",
+       "first_active_ts": "2026-08-03T11:59:03",
+       "latency_min": 34.0
+      },
+      {
+       "price": 751.94,
+       "hm": "09:40",
+       "side": "resistance",
+       "first_active_ts": "2026-08-03T09:59:03",
+       "latency_min": 14.1
+      },
+      {
+       "price": 755.41,
+       "hm": "11:00",
+       "side": "resistance",
+       "first_active_ts": "2026-08-03T11:14:03",
+       "latency_min": 9.1
+      },
+      {
+       "price": 755.69,
+       "hm": "11:25",
+       "side": "resistance",
+       "first_active_ts": "2026-08-03T11:39:03",
+       "latency_min": 9.1
+      },
+      {
+       "price": 758.32,
+       "hm": "14:10",
+       "side": "resistance",
+       "first_active_ts": "2026-08-03T14:24:03",
+       "latency_min": 9.1
+      }
+     ],
+     "median_latency_min": 9.1,
+     "coverage_pct": 28.6
+    }
+   }
+  }
+ ],
+ "trendline_note": "trendlines (sloped, excluded from coverage math): 3 active, 149 engine-counted respects, state 2026-08-03"
+}
