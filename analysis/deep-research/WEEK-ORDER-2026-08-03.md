@@ -10,7 +10,7 @@
 ## 1. The mission
 
 **Every wall that stopped us trading a real signal in the post-fix era is now down or measured:
-the elite-bull gate is lifted on both cores (it refused +$3,577 across 26 events), the OTM-2
+the elite-bull gate is lifted on both cores (it refused +$1,861 across 24 events ex-stale; the raw +$3,577/26 double-counts 13 distinct signals across two accounts), the OTM-2
 floor-wall that killed 4 of 5 arms all Monday afternoon is dead (bold_core is ATM through $10K),
 and the one remaining door — the bear VIX floor — was priced at $0 sole-blocked and exonerated.
 The week is measured in real fills, not in what we shipped.**
@@ -72,7 +72,7 @@ Priced on real OPRA over 07-31 + 08-03 (n-small, both trend-recovery days — la
 
 | Gate | Post-fix refusal value | Verdict |
 |---|---|---|
-| `block_elite_bull` | **+$3,577 / 26 ev** (ex-stale: +$1,861 / 24 ev) | **LIFTED** — trial 2 live |
+| `block_elite_bull` | **+$1,861 / 24 ev ex-stale** (raw +$3,577/26 double-counts 13 cross-account clusters) | **LIFTED** — trial 2 live |
 | OTM-2 tier → floor collision | 28–35 floor rows/arm on Monday's afternoon cluster | **FIXED** — ATM through $10K |
 | `structure_veto` | +$38.97/tr, n=11 | prereg frozen, **not armed** |
 | `require_bearish_fill_bar` | +$20.61/tr, n=33 | prereg frozen, **not armed** (blast radius: `_HARD_SKIP_VERDICTS` propagates a Bold lift to safe-3/risky-1) |
@@ -154,6 +154,10 @@ trial 2's live kill window).
   running now, including a plain yes/no on whether the extension is safe to have live today.
 - One stale display-name pin (`test_arm_display.py`) fixed this morning — my own regression from
   Sunday's account rebuild.
+- **Verifier caught my own overstatement**: this doc's first draft quoted the elite-bull refusal
+  as +$3,577/26ev. That figure double-counts — 13 distinct signals priced once per account — and
+  excludes the same-night stale-0930 correction. Corrected above to +$1,861/24ev. The lift
+  decision does not change; the number I sell it with does.
 - 37 commits unpushed pending audit.
 
 ---
