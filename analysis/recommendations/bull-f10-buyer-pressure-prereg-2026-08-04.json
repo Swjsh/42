@@ -1,0 +1,32 @@
+{
+  "rule_id": "bull-f10-buyer-pressure-relax",
+  "frozen_at_et": "2026-08-04T01:25:00-04:00",
+  "prereg_before_evaluation": true,
+  "status": "PREREG ONLY -- runner NOT executed, nothing armed. Committed before any full-population evidence exists (git-provable ordering).",
+  "origin": "Lane 1 post-fix gate costing (2026-08-04): bull filter 10 (buyer-pressure volume, f10_vol_mult default 0.7 -- params key absent both accounts, so live = signature default) was the LARGEST unlifted sole-blocker cost in the post-fix window: sole-[10] refusals n=11 events/account over 2 sessions, real-OPRA replay +$1,594.24 (safe qty-scale) / +$2,940.80 (bold qty-scale). Also the top bull cascade member (combos 10|11 x276 rows, 7|10|11 x254, 10 x155).",
+  "honest_context_against": "Two sessions, both trend days -- volume filters always look wrong when everything goes up. n=11/account is far below any decision floor. The filter's own provenance (buyer-pressure requirement on reclaims) has not been re-derived here. This prereg exists precisely so the decision is made on the FULL population, not on two hot days.",
+  "hypothesis": "Relaxing (or removing) the bull-side buyer-pressure volume requirement admits reclaim entries whose full-history expectancy is non-negative, i.e. the filter is refusing more winners than losers at the current 0.7 threshold.",
+  "cells_frozen": [
+    {"cell": "baseline", "f10_vol_mult": 0.7, "note": "current live behavior (params key absent -> default)"},
+    {"cell": "relax_50", "f10_vol_mult": 0.5},
+    {"cell": "relax_35", "f10_vol_mult": 0.35},
+    {"cell": "off", "f10_vol_mult": 0.0, "note": "filter effectively disabled for bull"}
+  ],
+  "population": "Full 391-day real-OPRA population via the standing fullhist/orchestrator machinery (same battery as bull-gate-f5class-requal-2026-08-01.json), BOTH core shapes, bull side only. Filter-10-refused cohort delta per cell.",
+  "gates_frozen_before_any_runner": {
+    "oos_positive": "added cohort (trades admitted by the relax that baseline refuses) must be OOS-positive",
+    "wf_or_disclosed_null": "WF >= 0.70 or explicit disclosed-null (standing WF-gate escape hatch)",
+    "sub_window_stable": "no single month > 50% of added-cohort P&L (C4)",
+    "anchor_no_regression": "baseline anchor trades must not degrade",
+    "drop_best": "added cohort must survive drop-best-day",
+    "decision_floor": "added-cohort n >= 20; below floor = NO verdict, stays unarmed"
+  },
+  "explicitly_not_tonight": "No params change, no arming, no runner execution in this session (EOD 2026-08-03 section 7: nothing armed beyond the staged package). Runner routes to the overnight swarm / a future after-hours fire.",
+  "kill_rule_if_ever_armed": "n>=10 fills per account or 10 sessions, net added-cohort < 0 -> restore f10_vol_mult to 0.7 (single key, both params files if by then present).",
+  "rule2_firewall": "Filter 11 (trigger requirement, level-tied) is NOT part of this prereg and may never be relaxed by it -- sole-[11] refusals also priced positive post-fix (+$1,091/+$2,168) but that cohort is J's Rule 2 (bias != trigger) by construction; reported for honesty, not liftable.",
+  "sources": [
+    "analysis/recommendations/gate-postfix-costing-2026-08-03.json (part_b bull_filter10 cells + combo census)",
+    "backtest/lib/filters.py evaluate_bullish_setup filter 10 (f10_vol_mult)",
+    "analysis/recommendations/bull-gate-f5class-requal-2026-08-01.json (the battery template)"
+  ]
+}

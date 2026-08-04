@@ -1,0 +1,739 @@
+{
+ "_doc": "postfix_gate_costing.py -- window-scoped refusal costing for EVERY entry gate/filter.\n\nBorn Lane 1, 2026-08-04 (\"make sure nothing is gated that actually works\", J week\ndirective): the nightly gate-expiry instrument mines only SKIP_* verdicts, so the\n10/11-filter checklist (which refuses via HOLD rows with per-door blocker lists, not SKIP\nverdicts) had NO refusal-costing instrument at all. This tool closes that gap for any\nwindow (default: the post-level-feed-fix era 2026-07-31..2026-08-03).\n\nReuses gate_expiry_check's machinery byte-for-bit (armed=True rows, 15-min event\nclustering, stale-bar drop, ATM real-OPRA replay, premium_stop -8%, recency exit shape).\nParts:\n  A. core SKIP-verdict gates (whatever fired in the window, regardless of current armed\n     flag -- unlike the nightly, which INERTs a now-disarmed gate and loses its history)\n  B. filter sole-blocker cohorts from HOLD rows, per door (bear/bull) x filter 1..11:\n     rows where the checklist failed on EXACTLY ONE filter -- the honest per-filter\n     binding cohort (multi-blocker rows are cascade cohorts, C15: no single filter may\n     claim them; census reported separately, the bear [5,8] both-lifted cell priced as\n     ORACLE only)\n  C. fleet SKIP_MIN_PREMIUM_FLOOR events priced at the counterfactual ATM strike (what\n     ATM-TIER-EXTENSION-2K-10K plans) -- SIM label, per-event independent (no\n     NOT_FLAT sequencing), refused OTM quote recorded alongside.\n\nOutput: analysis/recommendations/gate-postfix-costing-<end>.json (or --out).\nNever blocks, never kills, never edits params -- a report, same doctrine as the nightly.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/postfix_gate_costing.py\n     [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--out PATH]\n",
+ "generated_at": "2026-08-03T23:01:03.800944",
+ "window": "2026-07-31..2026-08-03",
+ "conventions": {
+  "miner": "gate_expiry_check machinery (armed=True, 15-min clustering, stale-bar drop)",
+  "pricing": "real OPRA 5m cache, ATM strike, premium_stop -8%, recency exit shape (shared with the nightly instrument)",
+  "resolution_bias": "5-min bars under-detect intra-bar stops (one-directional, flattering) -- OPTION-BAR-RESOLUTION-BIAS-2026-08-02",
+  "per_account_double_count": "safe+bold rows at the same tick are the same door signal logged per account (instrument-consistent; door-level distinct clusters reported separately)",
+  "part_c_label": "SIM counterfactual (ATM strike under ATM-TIER-EXTENSION-2K-10K), NOT broker fills; per-event independent; overlaps Part A's elite cohort (same door) -- never sum A+C"
+ },
+ "verdict_counts_in_window": {
+  "bold|HOLD": 664,
+  "bold|SKIP_ELITE_BULL_LEVEL_RECLAIM": 108,
+  "safe|HOLD": 665,
+  "safe|SKIP_ELITE_BULL_LEVEL_RECLAIM": 107
+ },
+ "part_a_skip_gates": {
+  "SKIP_ELITE_BULL_LEVEL_RECLAIM": {
+   "per_account": {
+    "safe": {
+     "n_raw_fires": 107,
+     "n_events": 13,
+     "status_counts": {
+      "ok": 13
+     },
+     "window": "2026-07-31..2026-08-03",
+     "n": 13,
+     "n_days": 2,
+     "wr_pct": 38.5,
+     "exp_per_trade": 96.99,
+     "total_dollar": 1260.92,
+     "sign": "POSITIVE",
+     "best_day": 671.64,
+     "worst_day": 589.28,
+     "win_days": 2,
+     "loss_days": 0,
+     "first_fill": "2026-07-31",
+     "last_fill": "2026-08-03"
+    },
+    "bold": {
+     "n_raw_fires": 108,
+     "n_events": 13,
+     "status_counts": {
+      "ok": 13
+     },
+     "window": "2026-07-31..2026-08-03",
+     "n": 13,
+     "n_days": 2,
+     "wr_pct": 38.5,
+     "exp_per_trade": 178.15,
+     "total_dollar": 2316.0,
+     "sign": "POSITIVE",
+     "best_day": 1166.6,
+     "worst_day": 1149.4,
+     "win_days": 2,
+     "loss_days": 0,
+     "first_fill": "2026-07-31",
+     "last_fill": "2026-08-03"
+    }
+   },
+   "combined": {
+    "window": "2026-07-31..2026-08-03",
+    "n": 26,
+    "n_days": 2,
+    "wr_pct": 38.5,
+    "exp_per_trade": 137.57,
+    "total_dollar": 3576.92,
+    "sign": "POSITIVE",
+    "best_day": 1838.24,
+    "worst_day": 1738.68,
+    "win_days": 2,
+    "loss_days": 0,
+    "first_fill": "2026-07-31",
+    "last_fill": "2026-08-03"
+   },
+   "door_level_distinct_clusters_across_accounts": 13,
+   "events_at_or_after_1500_et": 6,
+   "pnl_at_or_after_1500_et": 542.8
+  }
+ },
+ "part_b_filter_sole_blockers": {
+  "bear_filter5_safe": {
+   "n_raw_sole_blocker_rows": 17,
+   "n_events": 2,
+   "status_counts": {
+    "ok": 2
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 2,
+   "n_days": 1,
+   "wr_pct": 50.0,
+   "exp_per_trade": 41.76,
+   "total_dollar": 83.52,
+   "sign": "POSITIVE",
+   "best_day": 83.52,
+   "worst_day": 83.52,
+   "win_days": 1,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    17.35,
+    17.51
+   ]
+  },
+  "bear_filter5_bold": {
+   "n_raw_sole_blocker_rows": 14,
+   "n_events": 2,
+   "status_counts": {
+    "ok": 2
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 2,
+   "n_days": 1,
+   "wr_pct": 50.0,
+   "exp_per_trade": 59.2,
+   "total_dollar": 118.4,
+   "sign": "POSITIVE",
+   "best_day": 118.4,
+   "worst_day": 118.4,
+   "win_days": 1,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    17.35,
+    17.51
+   ]
+  },
+  "bull_filter1_safe": {
+   "n_raw_sole_blocker_rows": 5,
+   "n_events": 1,
+   "status_counts": {
+    "ok": 1
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 1,
+   "n_days": 1,
+   "wr_pct": 0.0,
+   "exp_per_trade": -50.16,
+   "total_dollar": -50.16,
+   "sign": "NEGATIVE",
+   "best_day": -50.16,
+   "worst_day": -50.16,
+   "win_days": 0,
+   "loss_days": 1,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    17.03
+   ]
+  },
+  "bull_filter5_safe": {
+   "n_raw_sole_blocker_rows": 5,
+   "n_events": 1,
+   "status_counts": {
+    "ok": 1
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 1,
+   "n_days": 1,
+   "wr_pct": 100.0,
+   "exp_per_trade": 87.0,
+   "total_dollar": 87.0,
+   "sign": "POSITIVE",
+   "best_day": 87.0,
+   "worst_day": 87.0,
+   "win_days": 1,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    18.57
+   ]
+  },
+  "bull_filter8_safe": {
+   "n_raw_sole_blocker_rows": 10,
+   "n_events": 2,
+   "status_counts": {
+    "ok": 2
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 2,
+   "n_days": 1,
+   "wr_pct": 0.0,
+   "exp_per_trade": -35.64,
+   "total_dollar": -71.28,
+   "sign": "NEGATIVE",
+   "best_day": -71.28,
+   "worst_day": -71.28,
+   "win_days": 0,
+   "loss_days": 1,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    17.4,
+    17.23
+   ]
+  },
+  "bull_filter10_safe": {
+   "n_raw_sole_blocker_rows": 77,
+   "n_events": 11,
+   "status_counts": {
+    "ok": 11
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 11,
+   "n_days": 2,
+   "wr_pct": 54.5,
+   "exp_per_trade": 144.93,
+   "total_dollar": 1594.24,
+   "sign": "POSITIVE",
+   "best_day": 832.72,
+   "worst_day": 761.52,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "vix_at_events": [
+    17.29,
+    17.81,
+    17.25,
+    16.84,
+    16.56,
+    16.26,
+    16.07,
+    15.8,
+    15.77,
+    15.6,
+    15.56
+   ]
+  },
+  "bull_filter11_safe": {
+   "n_raw_sole_blocker_rows": 119,
+   "n_events": 13,
+   "status_counts": {
+    "ok": 13
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 13,
+   "n_days": 2,
+   "wr_pct": 30.8,
+   "exp_per_trade": 83.94,
+   "total_dollar": 1091.28,
+   "sign": "POSITIVE",
+   "best_day": 678.08,
+   "worst_day": 413.2,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "vix_at_events": [
+    17.2,
+    17.18,
+    16.74,
+    16.68,
+    16.42,
+    16.25,
+    15.97,
+    15.71,
+    15.61,
+    15.57,
+    15.72,
+    15.78
+   ]
+  },
+  "bull_filter1_bold": {
+   "n_raw_sole_blocker_rows": 5,
+   "n_events": 1,
+   "status_counts": {
+    "ok": 1
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 1,
+   "n_days": 1,
+   "wr_pct": 0.0,
+   "exp_per_trade": -83.6,
+   "total_dollar": -83.6,
+   "sign": "NEGATIVE",
+   "best_day": -83.6,
+   "worst_day": -83.6,
+   "win_days": 0,
+   "loss_days": 1,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    17.03
+   ]
+  },
+  "bull_filter5_bold": {
+   "n_raw_sole_blocker_rows": 5,
+   "n_events": 1,
+   "status_counts": {
+    "ok": 1
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 1,
+   "n_days": 1,
+   "wr_pct": 100.0,
+   "exp_per_trade": 145.0,
+   "total_dollar": 145.0,
+   "sign": "POSITIVE",
+   "best_day": 145.0,
+   "worst_day": 145.0,
+   "win_days": 1,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    18.52
+   ]
+  },
+  "bull_filter8_bold": {
+   "n_raw_sole_blocker_rows": 9,
+   "n_events": 2,
+   "status_counts": {
+    "ok": 2
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 2,
+   "n_days": 1,
+   "wr_pct": 0.0,
+   "exp_per_trade": -59.4,
+   "total_dollar": -118.8,
+   "sign": "NEGATIVE",
+   "best_day": -118.8,
+   "worst_day": -118.8,
+   "win_days": 0,
+   "loss_days": 1,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-07-31",
+   "vix_at_events": [
+    17.4,
+    17.23
+   ]
+  },
+  "bull_filter10_bold": {
+   "n_raw_sole_blocker_rows": 78,
+   "n_events": 11,
+   "status_counts": {
+    "ok": 11
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 11,
+   "n_days": 2,
+   "wr_pct": 54.5,
+   "exp_per_trade": 267.35,
+   "total_dollar": 2940.8,
+   "sign": "POSITIVE",
+   "best_day": 1584.0,
+   "worst_day": 1356.8,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "vix_at_events": [
+    17.3,
+    17.81,
+    17.25,
+    16.84,
+    16.55,
+    16.26,
+    16.07,
+    15.8,
+    15.77,
+    15.62,
+    15.56
+   ]
+  },
+  "bull_filter11_bold": {
+   "n_raw_sole_blocker_rows": 119,
+   "n_events": 13,
+   "status_counts": {
+    "ok": 13
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 13,
+   "n_days": 2,
+   "wr_pct": 30.8,
+   "exp_per_trade": 166.78,
+   "total_dollar": 2168.1,
+   "sign": "POSITIVE",
+   "best_day": 1361.1,
+   "worst_day": 807.0,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "vix_at_events": [
+    17.21,
+    17.12,
+    16.75,
+    16.68,
+    16.42,
+    16.25,
+    15.97,
+    15.71,
+    15.61,
+    15.56,
+    15.72,
+    15.78
+   ]
+  }
+ },
+ "blocker_combo_census_hold_rows": {
+  "bear": {
+   "5|8|9|10": 447,
+   "5|8": 221,
+   "5|7|8|9|10": 190,
+   "5|8|9": 157,
+   "5|8|10": 120,
+   "5|7|8|9": 60,
+   "5": 31,
+   "5|7|8|10": 30,
+   "5|9": 21,
+   "5|7|9|10": 21,
+   "5|9|10": 11,
+   "1|5|7|8|9|10": 10
+  },
+  "bull": {
+   "10|11": 276,
+   "7|10|11": 254,
+   "11": 238,
+   "10": 155,
+   "7|11": 80,
+   "8|10": 61,
+   "7|10": 55,
+   "8|10|11": 38,
+   "5|8": 30,
+   "7|8|10": 23,
+   "5|10": 20,
+   "7|8|10|11": 20
+  }
+ },
+ "oracle_bear_5_8_both_lifted": {
+  "label": "ORACLE -- lifting filter 8 alone admits none of these (ribbon filter 5 still blocks; filter-5 deletion is graveyarded); both-lifted upper bound only",
+  "safe": {
+   "n_rows": 109,
+   "n_events": 13,
+   "status_counts": {
+    "ok": 13
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 13,
+   "n_days": 2,
+   "wr_pct": 23.1,
+   "exp_per_trade": 30.9,
+   "total_dollar": 401.76,
+   "sign": "POSITIVE",
+   "best_day": 475.08,
+   "worst_day": -73.32,
+   "win_days": 1,
+   "loss_days": 1,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03"
+  },
+  "bold": {
+   "n_rows": 112,
+   "n_events": 13,
+   "status_counts": {
+    "ok": 13
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 13,
+   "n_days": 2,
+   "wr_pct": 23.1,
+   "exp_per_trade": 51.51,
+   "total_dollar": 669.6,
+   "sign": "POSITIVE",
+   "best_day": 791.8,
+   "worst_day": -122.2,
+   "win_days": 1,
+   "loss_days": 1,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03"
+  }
+ },
+ "part_c_fleet_floor_atm_counterfactual": {
+  "safe-3": {
+   "n_raw_floor_rows": 50,
+   "n_events": 11,
+   "status_counts": {
+    "ok": 11
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 11,
+   "n_days": 2,
+   "wr_pct": 36.4,
+   "exp_per_trade": 60.84,
+   "total_dollar": 669.2,
+   "sign": "POSITIVE",
+   "best_day": 624.56,
+   "worst_day": 44.64,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "by_day": {
+    "2026-07-31": 624.56,
+    "2026-08-03": 44.64
+   },
+   "refused_quotes_sample": [
+    {
+     "ts": "2026-07-31T12:19",
+     "planned_strike": 747,
+     "refused_premium": 0.15,
+     "qty": 3
+    },
+    {
+     "ts": "2026-07-31T13:25",
+     "planned_strike": 748,
+     "refused_premium": 0.23,
+     "qty": 3
+    },
+    {
+     "ts": "2026-07-31T14:28",
+     "planned_strike": 749,
+     "refused_premium": 0.08,
+     "qty": 3
+    },
+    {
+     "ts": "2026-07-31T14:52",
+     "planned_strike": 749,
+     "refused_premium": 0.11,
+     "qty": 3
+    },
+    {
+     "ts": "2026-07-31T15:13",
+     "planned_strike": 749,
+     "refused_premium": 0.08,
+     "qty": 3
+    },
+    {
+     "ts": "2026-07-31T15:49",
+     "planned_strike": 751,
+     "refused_premium": 0.03,
+     "qty": 3
+    },
+    {
+     "ts": "2026-08-03T11:52",
+     "planned_strike": 758,
+     "refused_premium": 0.15,
+     "qty": 3
+    },
+    {
+     "ts": "2026-08-03T12:32",
+     "planned_strike": 759,
+     "refused_premium": 0.07,
+     "qty": 3
+    },
+    {
+     "ts": "2026-08-03T13:17",
+     "planned_strike": 759,
+     "refused_premium": 0.08,
+     "qty": 3
+    },
+    {
+     "ts": "2026-08-03T13:52",
+     "planned_strike": 759,
+     "refused_premium": 0.2,
+     "qty": 3
+    }
+   ]
+  },
+  "risky-1": {
+   "n_raw_floor_rows": 53,
+   "n_events": 13,
+   "status_counts": {
+    "ok": 13
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 13,
+   "n_days": 2,
+   "wr_pct": 38.5,
+   "exp_per_trade": 166.48,
+   "total_dollar": 2164.2,
+   "sign": "POSITIVE",
+   "best_day": 1208.2,
+   "worst_day": 956.0,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "by_day": {
+    "2026-07-31": 1208.2,
+    "2026-08-03": 956.0
+   },
+   "refused_quotes_sample": [
+    {
+     "ts": "2026-07-31T12:19",
+     "planned_strike": 747,
+     "refused_premium": 0.15,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T13:25",
+     "planned_strike": 748,
+     "refused_premium": 0.23,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T14:28",
+     "planned_strike": 749,
+     "refused_premium": 0.08,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T14:52",
+     "planned_strike": 749,
+     "refused_premium": 0.11,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T15:13",
+     "planned_strike": 749,
+     "refused_premium": 0.08,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T15:49",
+     "planned_strike": 751,
+     "refused_premium": 0.03,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T09:43",
+     "planned_strike": 754,
+     "refused_premium": 0.29,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T09:58",
+     "planned_strike": 755,
+     "refused_premium": 0.29,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T11:52",
+     "planned_strike": 758,
+     "refused_premium": 0.15,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T12:32",
+     "planned_strike": 759,
+     "refused_premium": 0.07,
+     "qty": 5
+    }
+   ]
+  },
+  "risky-3": {
+   "n_raw_floor_rows": 46,
+   "n_events": 11,
+   "status_counts": {
+    "ok": 11
+   },
+   "window": "2026-07-31..2026-08-03",
+   "n": 11,
+   "n_days": 2,
+   "wr_pct": 27.3,
+   "exp_per_trade": 29.93,
+   "total_dollar": 329.2,
+   "sign": "POSITIVE",
+   "best_day": 284.4,
+   "worst_day": 44.8,
+   "win_days": 2,
+   "loss_days": 0,
+   "first_fill": "2026-07-31",
+   "last_fill": "2026-08-03",
+   "by_day": {
+    "2026-07-31": 284.4,
+    "2026-08-03": 44.8
+   },
+   "refused_quotes_sample": [
+    {
+     "ts": "2026-07-31T13:40",
+     "planned_strike": 748,
+     "refused_premium": 0.21,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T14:28",
+     "planned_strike": 748,
+     "refused_premium": 0.15,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T14:52",
+     "planned_strike": 748,
+     "refused_premium": 0.21,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T15:13",
+     "planned_strike": 748,
+     "refused_premium": 0.17,
+     "qty": 5
+    },
+    {
+     "ts": "2026-07-31T15:49",
+     "planned_strike": 750,
+     "refused_premium": 0.07,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T09:57",
+     "planned_strike": 755,
+     "refused_premium": 0.29,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T11:52",
+     "planned_strike": 758,
+     "refused_premium": 0.15,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T12:32",
+     "planned_strike": 759,
+     "refused_premium": 0.07,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T13:17",
+     "planned_strike": 759,
+     "refused_premium": 0.07,
+     "qty": 5
+    },
+    {
+     "ts": "2026-08-03T13:52",
+     "planned_strike": 759,
+     "refused_premium": 0.17,
+     "qty": 5
+    }
+   ]
+  }
+ }
+}

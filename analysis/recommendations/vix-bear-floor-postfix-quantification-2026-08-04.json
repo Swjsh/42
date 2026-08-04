@@ -1,0 +1,29 @@
+{
+  "rule_id": "vix-bear-floor-17.3-postfix-quantification",
+  "generated_at_et": "2026-08-04T01:20:00-04:00",
+  "question": "J week directive: 'if SPY breaks down Tuesday with VIX at 16, NO arm can short' -- quantify what the shut bear door (filter 8: VIX > 17.30 AND vix_rising) cost in the post-level-feed-fix era (2026-07-31 + 2026-08-03), prereg the A/B only if the number is real. Graveyard already holds 'filter-8 relax (both arms)' -- this is a post-fix-era re-quantification, not a retest.",
+  "method": "backtest/tools/postfix_gate_costing.py (gate_expiry_check machinery: armed rows, 15-min clustering, real-OPRA ATM replay, premium_stop -8%, recency exit shape). Sole-blocker mining: a filter's true binding cohort = HOLD rows where it is the ONLY failed filter (C15: multi-blocker rows are cascade cohorts, no single filter may claim them).",
+  "findings": {
+    "sole_blocker_8_bear_events": 0,
+    "sole_blocker_8_bear_dollar": 0.0,
+    "meaning": "In the whole post-fix window there was not one tick where the VIX floor was the only thing between the engine and a bear entry. Lifting/lowering 17.3 alone would have admitted ZERO additional bear trades.",
+    "cascade_membership": "8 appears only in multi-blocker combos, dominated by ribbon-BULL co-blocks: bear combos 5|8|9|10 x447 rows, 5|8 x221, 5|7|8|9|10 x190, 5|8|9 x157 (per-account HOLD rows, both cores). The bear door on these two sessions was shut by market STRUCTURE (ribbon/breakdown-bar/HTF), with VIX merely co-signing.",
+    "oracle_5_8_both_lifted": {
+      "label": "ORACLE (upper bound; requires ALSO deleting filter 5 ribbon-stack -- which is GRAVEYARDED, tested-dead) ",
+      "safe": {"n_events": 13, "total_dollar": 401.76},
+      "bold": {"n_events": 13, "total_dollar": 669.6},
+      "note": "The only bear money in the window lives behind the ribbon filter, not the VIX floor. Unreachable by any filter-8 change alone."
+    },
+    "floor_self_opening_evidence": "Friday 2026-07-31's real morning breakdown (RTH low 737.68) RAISED VIX above the floor (17.35-17.68 readings in the refused-rows record) -- the floor OPENED exactly when the breakdown was real. Bear sole-blocker rows during that stretch were [5] (ribbon), n=2 events/account, priced +$83.52 safe / +$118.40 bold (n=2, NOISE-LEVEL, disclosed not headline). The feared scenario (breakdown with VIX pinned under 17.3) did not occur in the post-fix era.",
+    "second_reason_not_to_widen": "core_strategy_bear recency is RED on the standing instrument (real fills exp -$60.90/tr, n=10, window 2026-06-26..2026-07-31) -- the bear strategy is losing on the freshest window even when its door IS open. Widening the door has no evidentiary support tonight."
+  },
+  "verdict": "NO PREREG FILED -- the number is not real. Post-fix cost of the 17.3 floor alone = $0 (zero sole-blocked events). The graveyard verdict on filter-8 relax stands unchallenged by post-fix data.",
+  "standing_watch_condition": "First session that produces bear sole-blocker [8] events (a breakdown day with VIX < 17.3) -> rerun backtest/tools/postfix_gate_costing.py --start <that-date> and revisit. Until that cohort exists there is nothing to A/B. Queue item filed to extend the nightly gate-expiry instrument with this sole-blocker miner so the watch is mechanical, not remembered.",
+  "n_small_disclosure": "Two sessions, both with morning-selloff-then-bull-recovery character; every cell here is n-small and disclosed as such. This artifact quantifies a door's binding frequency, not an edge.",
+  "sources": [
+    "analysis/recommendations/gate-postfix-costing-2026-08-03.json (the measured cells)",
+    "automation/state/gate-registry-status.json (core_strategy_bear RED read)",
+    "backtest/lib/filters.py (filter 8 definition, VIX_BEAR_THRESHOLD=17.30)",
+    "GRAVEYARD list (orchestrator brief 2026-08-03): filter-8 relax (both arms) -- do not retest"
+  ]
+}

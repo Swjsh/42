@@ -1,0 +1,24 @@
+{
+  "rule_id": "structure-veto-lift-trial",
+  "frozen_at_et": "2026-08-04T01:30:00-04:00",
+  "prereg_before_evaluation": true,
+  "status": "PREREG ONLY -- NOT armed tonight (EOD 2026-08-03 section 7 froze tonight's arming to the staged package; this trial is ready for the next after-hours arming decision).",
+  "origin": "Gate-expiry instrument reads structure_veto_enabled (Safe core only) RED: refused cohort would have EARNED +$38.97/tr, n=11 events >= floor 10, window 2026-06-26..2026-07-31 (automation/state/gate-registry-status.json). Its ratifying evidence is 2026-06-26 (n=2 wrong-way losers, OOS delta $0, all effect IS/2025Q1) -- 39 days old, past its 21-day revalidation interval, and the 07-09/07-10 audits found its only observed fires were off-hours diagnostics. Post-fix window (07-31 + 08-03): 0 fires (SKIP_STRUCTURE_VETO absent from the ledger both sessions).",
+  "hypothesis": "The wrong-way structure veto (engine_cli SKIP_STRUCTURE_VETO, Safe core) is refusing more winners than losers under the current exit shape and level feed -- same stale-verdict shape as block_elite_bull (whose lift is running as trial 2).",
+  "trial_shape_frozen": {
+    "scope": "Safe core only (the only lane where it is armed; Bold never had it)",
+    "arming_mechanism": "automation/state/params.json structure_veto_enabled -> false (single key)",
+    "kill_criterion": "n>=10 fills on entries the veto would have refused (veto-shadow-counted via the decisions ledger) OR 10 sessions, net realized < 0 -> re-arm same day (identical bar to block_elite_bull trial 2)",
+    "revert": "params.json structure_veto_enabled -> true (one key, byte-identical)",
+    "tracking": "Gamma_GateExpiryCheck nightly + this artifact",
+    "shadow_requirement": "While lifted, every would-have-vetoed entry must remain identifiable (the veto function still evaluates and logs its verdict without blocking) so the kill criterion is countable -- if that logging path does not exist at arming time, BUILD IT FIRST; arming without it is arming blind."
+  },
+  "against_case_carried": "The veto was born from a real -$237 wrong-way incident (2026-06-26) and removed 2 losers / 0 winners on its ratifying study. It also gates the extra-setup dispatch path (scope its original evidence never covered) -- lifting it widens bollinger_squeeze-class entries too; the trial verdict must count those fills in the same cohort.",
+  "why_not_armed_tonight": "One gate-lift trial (block_elite_bull trial 2) is already running; tonight's EOD froze arming to the staged package. Stacking a second veto-lift the same night would confound both kill criteria on the same sessions.",
+  "sources": [
+    "automation/state/gate-registry-status.json (structure_veto_enabled RED, n=11 +$38.97/tr)",
+    "automation/state/gate-registry.json (provenance row, 2026-06-26 evidence)",
+    "analysis/recommendations/structure-veto-ab-2026-06-26.json (ratifying study)",
+    "analysis/recommendations/gate-postfix-costing-2026-08-03.json (0 post-fix fires)"
+  ]
+}
