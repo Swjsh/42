@@ -79,9 +79,19 @@ _TODAY_ET = datetime(2026, 7, 27, 21, 15, 0)
 # =====================================================================================
 
 def test_refresh_levels_intraday_uses_sip_feed():
+    """Updated 2026-08-03 (LANE-4 IEX-tail fix): the frame's SPINE stays SIP (the 07-27
+    consolidated-tape fix), but a REAL-TIME IEX *tail* is now allowed — bars strictly newer
+    than the delayed SIP tip, per-bar volume-floored (TAIL_MIN_BAR_VOLUME) so the 07-27
+    single-print class still cannot set a level. The old blanket 'no feed=iex anywhere'
+    assertion is superseded by shape-pinning both fetches: SIP = 7-day spine, IEX = 1-day
+    tail-only supplement. Behavior guard: test_level_refresh_iex_tail_2026_08_03.py."""
     src = Path(REPO / "setup" / "scripts" / "refresh_levels_intraday.py").read_text(encoding="utf-8")
-    assert "feed=sip" in src
-    assert "feed=iex" not in src, "refresh_levels_intraday.py must not fall back to IEX anywhere"
+    assert '_fetch_bars_rest(feed="sip", days_back=7, limit=1500)' in src, \
+        "the frame's spine must remain the 7-day SIP consolidated tape"
+    assert '_fetch_bars_rest(feed="iex", days_back=1, limit=IEX_TAIL_LIMIT)' in src, \
+        "the real-time IEX supplement must stay a 1-day TAIL fetch, never the spine"
+    assert "TAIL_MIN_BAR_VOLUME" in src and "_merge_iex_tail" in src, \
+        "the IEX tail must flow through the volume-floored merge (07-27 wound stays closed)"
 
 
 def test_heartbeat_core_live_tick_fetch_untouched_iex():

@@ -36,6 +36,26 @@ HYSTERESIS_MISS_N consecutive refreshes (or its session expiry passes), never in
 a level that never qualified. Evidence + replay: analysis/deep-research/
 LEVEL-FLICKER-FIX-2026-08-01.md; guard: backtest/tests/test_level_hysteresis_2026_08_01.py.
 
+WS-VIOLIN IEX-TAIL FIX (2026-08-03 EOD, LANE 4 latency audit): the SIP historical bars
+this script pulls are served ~15 MINUTES DELAYED on this key's data plan (free tier:
+real-time IEX + delayed SIP). Proven from the 08-03 tape three independent ways: (a) the
+09:33:36 and 09:38:36 fires still wrote INTRADAY_PML=749.65 while the tape's final
+premarket low 749.33 had printed at ~09:29 — the flip landed only at the 09:43:36 fire
+(engine levels_active 09:44:03, the "15 minutes late" violin embarrassment); (b) each
+fire's `spot` equals the close of a bar ~15 min old (09:43:36 fire → spot 749.39 = the
+09:25 premarket bar's close); (c) the 09:48:36 fire saw exactly ONE RTH bar (09:30) and
+refused RTH H/L "only 1 bar(s)" — impossible on a live feed 18 min into the session.
+Consequence: EVERY intraday level family here (PMH/PML finals, RTH H/L, swings) was born
+15-20 min after the tape made it (feed delay + 5-min cadence + <=1-min engine read).
+Fix: _merge_iex_tail below — the delayed-SIP spine is supplemented with a REAL-TIME IEX
+tail (bars strictly newer than the last SIP bar; IEX is verified real-time on this key —
+the engine's own 09:36 tick carried the completed 09:30 IEX bar). The 07-27 single-print
+wound stays closed: a tail bar may only enter the frame carrying at least
+TAIL_MIN_BAR_VOLUME shares (derived from the ratified degeneracy constants, not
+hand-picked) — the 80-share poison print class is structurally excluded, and a thin tail
+degrades to the exact pre-fix SIP-only behavior (never worse than today). Fail-open: any
+IEX fetch/merge error returns the SIP frame untouched.
+
 WHAT THIS DOES (purely ADDITIVE + idempotent — never deletes premarket/structural levels):
   * Fetch today's SPY 5m bars via the SAME direct Alpaca REST path the engine uses
     (TV-independent — the TV crashes that corrupted the premarket draw don't touch this),
@@ -95,6 +115,14 @@ MEMORY_MERGE_CAP_PER_SIDE = 3
 DEGENERACY_MIN_BARS = 3
 DEGENERACY_MIN_VOLUME = 10_000.0  # shares, summed across the source subset
 
+# WS-VIOLIN (2026-08-03): real-time IEX tail supplement for the ~15-min-delayed SIP spine
+# (see module docstring). A tail bar must alone carry the per-bar share of the ratified
+# subset-level degeneracy floor (DEGENERACY_MIN_VOLUME / DEGENERACY_MIN_BARS — DERIVED, not
+# hand-picked) to enter the frame, so the 07-27 80-share single-print class can never set a
+# level through the tail. A too-thin tail degrades to the exact pre-fix SIP-only frame.
+TAIL_MIN_BAR_VOLUME = DEGENERACY_MIN_VOLUME / DEGENERACY_MIN_BARS
+IEX_TAIL_LIMIT = 300  # 1 day of 5m IEX bars is ~80; generous headroom
+
 # Weight scale (2026-07-27, J doctrine 2026-07-17 "levels are ZONES"): every level this
 # script writes gets a weight (1-5) and a $ zone_width. 5 = multi-week shelf / daily-close
 # cluster (daily_context.py); 3 = prior-day H/L/C; 2 = this script's own intraday computed
@@ -145,12 +173,32 @@ def _spy_bars() -> pd.DataFrame:
     silently stopped reaching TODAY once >=4 sessions of SIP data existed in the window —
     exactly the kind of blind spot this whole change exists to remove. 1500 covers a full
     7-calendar-day (~6 trading-day) SIP window with headroom."""
+    df, _meta = _spy_bars_with_meta()
+    return df
+
+
+def _spy_bars_with_meta() -> tuple[pd.DataFrame, dict]:
+    """SIP spine + WS-VIOLIN real-time IEX tail (2026-08-03), with merge meta for the run
+    output. Fail-open: ANY failure in the IEX fetch or merge returns the SIP frame untouched
+    (exact pre-fix behavior) — the tail is an upgrade, never a new single point of failure."""
+    sip = _fetch_bars_rest(feed="sip", days_back=7, limit=1500)
+    try:
+        iex = _fetch_bars_rest(feed="iex", days_back=1, limit=IEX_TAIL_LIMIT)
+        return _merge_iex_tail(sip, iex)
+    except Exception as exc:  # noqa: BLE001 — tail supplement must never break the level refresh
+        return sip, {"tail_used": 0, "tail_dropped_thin": 0,
+                     "tail_error": f"{type(exc).__name__}: {exc}"}
+
+
+def _fetch_bars_rest(feed: str, days_back: int, limit: int) -> pd.DataFrame:
+    """One SPY 5m bars REST pull on the given feed -> normalized frame (t/ohlcv/ts/date/hm).
+    Shared by the SIP spine and the WS-VIOLIN IEX tail (2026-08-03)."""
     m = json.loads((REPO / ".mcp.json").read_text(encoding="utf-8"))
     env = m["mcpServers"]["alpaca"]["env"]
     key, sec = env["ALPACA_API_KEY"], env["ALPACA_SECRET_KEY"]
-    start = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    start = (datetime.now(timezone.utc) - timedelta(days=days_back)).strftime("%Y-%m-%dT%H:%M:%SZ")
     url = (f"https://data.alpaca.markets/v2/stocks/SPY/bars?timeframe=5Min&start={start}"
-           f"&limit=1500&feed=sip&adjustment=raw&sort=asc")
+           f"&limit={limit}&feed={feed}&adjustment=raw&sort=asc")
     req = urllib.request.Request(url, headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": sec})
     with urllib.request.urlopen(req, timeout=15) as r:
         bars = json.loads(r.read()).get("bars", [])
@@ -158,10 +206,64 @@ def _spy_bars() -> pd.DataFrame:
         return pd.DataFrame()
     df = pd.DataFrame([{"t": b["t"], "open": b["o"], "high": b["h"], "low": b["l"],
                         "close": b["c"], "volume": b["v"]} for b in bars])
+    return _decorate_frame(df)
+
+
+def _decorate_frame(df: pd.DataFrame) -> pd.DataFrame:
+    """Attach the derived ts/date/hm columns every consumer of the frame relies on."""
+    df = df.copy()
     df["ts"] = pd.to_datetime(df["t"], utc=True).dt.tz_convert("America/New_York")
     df["date"] = df["ts"].dt.strftime("%Y-%m-%d")
     df["hm"] = df["ts"].dt.strftime("%H:%M")
     return df.reset_index(drop=True)
+
+
+def _merge_iex_tail(sip: pd.DataFrame, iex: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """WS-VIOLIN (2026-08-03): append REAL-TIME IEX bars strictly newer than the last SIP bar
+    onto the ~15-min-delayed SIP spine, so intraday levels stop being born 15-20 min late
+    (the 08-03 749.33 case: final premarket low printed ~09:29, reached levels_active
+    09:44:03 — one full feed-delay later).
+
+    PURE + conservative by construction:
+      * ADDITIVE ONLY — no SIP row is ever replaced/edited; an empty/failed IEX frame or an
+        IEX frame with nothing newer returns the SIP frame byte-identical (no-op), so on a
+        plan with real-time SIP this merge vanishes.
+      * SIP-empty passes through untouched — the caller's existing "no bars" failure signal
+        is preserved (an outage must stay loud, not silently switch the file to sparse IEX).
+      * SINGLE-PRINT WOUND STAYS CLOSED (2026-07-27, PMH=744.90 off an 80-share print): a
+        tail bar enters only with volume >= TAIL_MIN_BAR_VOLUME (derived from the ratified
+        degeneracy constants). Thin tail bars are counted in meta, never merged — degrading
+        to the exact pre-fix SIP-only behavior, never worse than today.
+      * Tail rows carry iex_tail=True (SIP rows False) so level provenance can disclose
+        "sip+iex_tail" on any level whose source subset includes tail data (C7 visibility).
+
+    Returns (merged_frame, meta) — meta: {tail_used, tail_dropped_thin, sip_last_t,
+    tail_last_t}. Guard: backtest/tests/test_level_refresh_iex_tail_2026_08_03.py."""
+    meta = {"tail_used": 0, "tail_dropped_thin": 0, "sip_last_t": None, "tail_last_t": None}
+    if sip is None or len(sip) == 0:
+        return sip, meta
+    sip = sip.copy()
+    sip["iex_tail"] = False
+    meta["sip_last_t"] = str(sip["t"].iloc[-1])
+    if iex is None or len(iex) == 0:
+        return sip.reset_index(drop=True), meta
+    sip_last_ts = pd.to_datetime(sip["t"], utc=True).max()
+    iex_ts = pd.to_datetime(iex["t"], utc=True)
+    newer = iex[iex_ts > sip_last_ts]
+    if len(newer) == 0:
+        return sip.reset_index(drop=True), meta
+    vols = pd.to_numeric(newer["volume"], errors="coerce").fillna(0.0)
+    thick = newer[vols >= TAIL_MIN_BAR_VOLUME]
+    meta["tail_dropped_thin"] = int(len(newer) - len(thick))
+    if len(thick) == 0:
+        return sip.reset_index(drop=True), meta
+    tail = thick.copy()
+    tail["iex_tail"] = True
+    merged = pd.concat([sip, tail], ignore_index=True)
+    merged = _decorate_frame(merged[["t", "open", "high", "low", "close", "volume", "iex_tail"]])
+    meta["tail_used"] = int(len(tail))
+    meta["tail_last_t"] = str(tail["t"].iloc[-1])
+    return merged, meta
 
 
 def _degeneracy_reason(sub: pd.DataFrame) -> str | None:
@@ -484,9 +586,22 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     now_iso = now.strftime("%Y-%m-%dT%H:%M:%S-04:00")
     today = now.strftime("%Y-%m-%d")
     # df injectable for tests/replay (G6 seam pattern); default = live REST, byte-identical.
-    df = _spy_bars() if df is None else df
+    tail_meta: dict = {"tail_used": 0, "tail_dropped_thin": 0}
+    if df is None:
+        df, tail_meta = _spy_bars_with_meta()
     if df.empty:
         return {"ok": False, "error": "no bars"}
+
+    def _subset_feed(sub: pd.DataFrame) -> str:
+        """Provenance for a computed level's source subset: 'sip+iex_tail' when any
+        WS-VIOLIN real-time tail bar is inside it (C7 — the upgrade must be visible in the
+        FILE), else 'sip'. Injected frames without the column read as pure sip."""
+        try:
+            if "iex_tail" in sub.columns and bool(sub["iex_tail"].any()):
+                return "sip+iex_tail"
+        except Exception:  # noqa: BLE001 — provenance must never break the refresh
+            pass
+        return "sip"
 
     today_df = df[df["date"] == today]
     rth = today_df[(today_df["hm"] >= "09:30") & (today_df["hm"] <= "16:00")]
@@ -506,7 +621,8 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
                             "n_bars": len(sub),
                             "volume": float(sub["volume"].sum()) if len(sub) else 0.0})
             return
-        computed.append((label, price, source, len(sub), float(sub["volume"].sum())))
+        computed.append((label, price, source, len(sub), float(sub["volume"].sum()),
+                         _subset_feed(sub)))
 
     if len(rth):
         _try_add("INTRADAY_RTH_HIGH", float(rth["high"].max()), "intraday_rth_high", rth)
@@ -533,9 +649,9 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     levels = [lv for lv in (kl.get("levels") or []) if not str(lv.get("label", "")).startswith("INTRADAY_")]
 
     added = []
-    for label, price, source, n_bars, volume in computed:
+    for label, price, source, n_bars, volume, feed in computed:
         lvl = _level(price, spot, f"{label}_{today}", source, now_iso,
-                     source_feed="sip", n_bars=n_bars, volume=volume, weight=LEVEL_WEIGHT_INTRADAY)
+                     source_feed=feed, n_bars=n_bars, volume=volume, weight=LEVEL_WEIGHT_INTRADAY)
         levels.append(lvl)
         added.append((lvl["label"], lvl["price"], lvl["role"]))
 
@@ -670,6 +786,9 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     active = sorted({lv["price"] for lv in levels if abs(lv["price"] - spot) <= ACTIVE_BAND})
     return {"ok": True, "ts_et": now_iso, "spot": round(spot, 2), "added": added,
             "refused": refused, "shelf_upserted": shelf_upserted,
+            # WS-VIOLIN (2026-08-03): real-time IEX tail visibility — how many fresh bars
+            # supplemented the delayed-SIP spine this run (0 = pure-SIP, pre-fix behavior).
+            "iex_tail": tail_meta,
             "memory_merged": memory_merged, "engine_active_levels": active, "ema": ema_patch,
             # WS3 (2026-08-01): held-by-hysteresis visibility (C7 — a carry must be loud in
             # the run output, not silently indistinguishable from a fresh qualification).
