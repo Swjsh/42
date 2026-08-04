@@ -331,26 +331,6 @@ def detect_candlestick_pattern_bearish(
     return None
 
 
-def detect_candlestick_pattern_bullish(
-    bar: pd.Series,
-    bar_prev: Optional[pd.Series],
-    levels_active: list[float],
-    bar_close_price: float,
-    proximity: float = 0.30,
-) -> Optional[str]:
-    """Mirror of bearish version."""
-    if is_bullish_marubozu(bar):
-        return "bullish_marubozu"
-    near_support = any(abs(bar_close_price - L) <= proximity for L in levels_active)
-    if not near_support:
-        return None
-    if is_hammer(bar):
-        return "hammer"
-    if bar_prev is not None and is_bullish_engulfing(bar_prev, bar):
-        return "bullish_engulfing"
-    return None
-
-
 def _detect_sweep_at_level(
     prior_bars: pd.DataFrame,
     bar_idx: int,
