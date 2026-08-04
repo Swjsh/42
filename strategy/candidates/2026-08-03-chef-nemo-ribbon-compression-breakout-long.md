@@ -12,20 +12,11 @@
 
 ## Hypothesis
 
-A tightly contracted EMA ribbon (9,20,50) indicates compressed volatility and low market noise. When price breaks above the ribbon with a volume surge, it often signals the start of an expansion move that can be captured with a trend-following long position. This setup aims to exploit the transition from low-volatility compression to directional expansion.
+A tightly contracted EMA ribbon (8,13,21) signals low volatility and compression. A breakout above the highest EMA with expanding volume captures the ensuing impulsive move. This edge exists because low volatility periods are often followed by volatility expansion, and the ribbon compression is a leading indicator of such a breakout.
 
 ## Mechanism
 
-**Entry:**  
-- Calculate the 9‑period, 20‑period, and 50‑period EMA ribbon width (highest EMA minus lowest EMA) on the 5‑min chart.  
-- Require the ribbon width to be less than 0.2 × ATR(14) for two consecutive 5‑min bars (compression condition).  
-- On the second bar, if the close crosses above the highest EMA of the ribbon **and** volume > 1.5 × the average volume of the prior 20 bars, go long at the close.  
-
-**Exit:**  
-- Initial stop placed at the lowest EMA of the ribbon at the time of entry.  
-- Profit target set at 1.5 × risk (R).  
-- If price reaches 1 × R, move the stop to break‑even (entry price).  
-- Thereafter, trail the stop using a 10‑period chandelier exit (ATR‑based) to capture extended moves while protecting gains.
+Entry rule: Define ribbon width as (highest EMA of 8,13,21 - lowest EMA of same). When ribbon width < 0.5*ATR for three consecutive bars, then price closes above the highest EMA with volume > 1.5*average volume of the prior 20 bars, enter long at the close of that breakout bar. Exit shape: Stop at the lowest low of the compression zone (chart-stop), TP1 at 2R, runner trail using a chandelier exit (ATR*3) or 15% off the high-water mark. Regime hint: Works when VIX < 20 and the higher‑timeframe (15‑min) EMA slope is upward, favoring the first two hours after open (09:30–11:30 ET).
 
 ## Expected impact on OP-16 anchors
 
@@ -41,24 +32,24 @@ A tightly contracted EMA ribbon (9,20,50) indicates compressed volatility and lo
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The strategy targets a quantity of 28 contracts (based on a $2.50 entry premium and 50% risk per trade). This requires a $25K+ account to size appropriately; a $1K paper account would realize roughly 14% of the headline P&L due to position‑size scaling.  
-2. **Sample bias:** No historical backtest has been performed; sample size is zero. The proposal is based purely on a conceptual hypothesis, so over‑fit risk is high until empirical validation.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test performed).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA slippage or bid‑ask validation).  
-5. **Failure modes:**  
-   - Worst day: a false breakout in low‑volatility chop could trigger entry followed by immediate reversal, hitting the initial stop repeatedly.  
-   - Max drawdown: a series of whipsaw breakouts during sideways markets could produce consecutive small losses; without a filter, drawdown could exceed 20% of equity in a single week.  
-   - Blow‑up scenario: entering on a breakout that fails during a sudden volatility expansion (e.g., news spike) could cause the price to reverse sharply past the initial stop, leading to losses larger than 1R if gaps occur.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to determine what percentage of P&L comes from the top‑5 days.
+1. **Account-size assumption:** The strategy is designed for a $25K+ account to allow for full position sizing as per risk-rules.md. At a $1K paper account, the headline P&L would be approximately 14% of the $25K+ result due to position sizing constraints (qty=28 requires $25K+; $1K paper ~= 14% headline).
+2. **Sample bias:** No historical sample has been tested; this is a pure proposal. High overfit risk until Stage-1 backtest is performed.
+3. **Out-of-sample:** NEEDS-OOS
+4. **Real-fills:** NEEDS-REAL-FILLS
+5. **Failure modes:** 
+   - Worst day: False breakouts in low volatility environments that fail to expand, triggering stops.
+   - Max drawdown: Unknown without backtest; could be significant if multiple false breakouts occur in choppy markets.
+   - Blow-up scenario: Persistent low volatility with no breakouts (e.g., summer chop) leading to multiple small losses, or a breakout that fails quickly and triggers stop, followed by a reversal triggering another loss.
+6. **Concentration:** Unknown -- requires Stage-1 backtest to determine what percentage of P&L comes from the top-5 days.
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification. The backtest must verify compression‑breakout logic, volume filter, and exit rules on 5‑min SPY data, and produce OP‑16 anchor‑day estimates.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
 
 ## Confidence
 
-4 / 10 -- The hypothesis is grounded in volatility‑compression theory, but without any empirical validation (no backtest, no OOS, no real‑fills) the confidence remains modest. The idea is novel relative to existing ribbon‑based strategies, which trade reversals/reclaims rather than breakout‑from‑compression.
+3 / 10 -- The hypothesis is sound but untested. The mechanism is concrete but requires validation on historical data. No edge capture or Sharpe estimates exist yet.
 
 ## Pre-existing leaderboard impact
 
-This candidate does not conflict with any of the current top‑9 entries in _LEADERBOARD.md_. It introduces a new trigger type (volatility‑compression breakout) distinct from the existing reversal/reclaim‑based ribbon strategies, VWAP continuation, gap‑and‑go, and watcher‑only proposals. Therefore it can be evaluated independently without interfering with existing approved logic.
+This candidate does not conflict with any existing candidates in the leaderboard. It complements by providing a long-trigger mechanism based on ribbon compression, which is distinct from existing ribbon-ride strategies (which are bearish and require an expanded ribbon). No overlap in trigger logic with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND).
