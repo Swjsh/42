@@ -504,7 +504,10 @@ def bold_capital_curve_section(bold_trades: list[dict], agg_params: dict) -> dic
                               "bull=True (current live), min_contracts=5, ATM strike (Bold's "
                               "real live equity $1,197.52 < $2,000 tier boundary)"),
         "representative_premium_used": representative_premium,
-        "caveat": ("V15_BOLD_CORE_TIERS leaves ATM ONLY below $2,000 -- EVERY row in this "
+        "caveat": ("[table shape as of the 2026-08-03 study; superseded 2026-08-04 by "
+                  "ATM-TIER-EXTENSION-2K-10K -- ATM now spans $0-$10K, so the per-row "
+                  "strike_tier_matches_population flag, computed live, is the authority] "
+                  "V15_BOLD_CORE_TIERS leaves ATM ONLY below $2,000 -- EVERY row in this "
                   "table ($2,000 through $50,000) actually falls in a DIFFERENT strike tier "
                   "(OTM-2/OTM-1/ITM-2) than the ATM population being resized here. This table "
                   "is therefore a SIZING-ONLY counterfactual ('if Bold's real min_contracts/ "

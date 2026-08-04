@@ -83,26 +83,35 @@ SPOT = 740.0  # matches v20_strike_selection.py's human-checkable convention
 
 
 # =============================================================================
-# 1. V15_BOLD_CORE_TIERS: new table resolves ATM under $2K, matches Bold above $2K
+# 1. V15_BOLD_CORE_TIERS: table resolves ATM under $10K, matches Bold at/above $10K
+#    ($0-2K ATM: 2026-07-15 candidate wired 07-17/18. $2K-10K ATM: ATM-TIER-
+#    EXTENSION-2K-10K 2026-08-04, prereg atm-tier-extension-2k10k-prereg-2026-08-03.json
+#    -- the $5K rebuild had moved every bold_core consumer into the then-OTM-2 bracket,
+#    resurrecting the $0.30 floor collision: 33/35/35 SKIP_MIN_PREMIUM_FLOOR/arm on
+#    2026-08-03.)
 # =============================================================================
 
-def test_core_tiers_resolve_atm_under_2k():
-    for equity in (0.0, 1.0, 999.0, 1500.0, 1999.99):
+def test_core_tiers_resolve_atm_under_10k():
+    """RED-proof of the 2026-08-04 extension: any equity in [$0, $10K) must be ATM.
+    The 5_000.0 case is the live $5K-rebuild equity that regressed to OTM-2."""
+    for equity in (0.0, 1.0, 999.0, 1500.0, 1999.99, 2_000.0, 5_000.0, 9_999.99):
         tier = pick_tier(equity, V15_BOLD_CORE_TIERS)
         assert tier.strike_offset == 0 and tier.label == "ATM", \
             f"equity={equity} should resolve ATM, got offset={tier.strike_offset} label={tier.label}"
 
 
-def test_core_tiers_strike_math_atm_under_2k():
-    call = pick_strike(SPOT, 1_000, "C", V15_BOLD_CORE_TIERS)
-    put = pick_strike(SPOT, 1_000, "P", V15_BOLD_CORE_TIERS)
-    assert call == 740, f"ATM bull call should be 740, got {call}"
-    assert put == 740, f"ATM bear put should be 740, got {put}"
+def test_core_tiers_strike_math_atm_under_10k():
+    for equity in (1_000, 5_000):
+        call = pick_strike(SPOT, equity, "C", V15_BOLD_CORE_TIERS)
+        put = pick_strike(SPOT, equity, "P", V15_BOLD_CORE_TIERS)
+        assert call == 740, f"ATM bull call at equity={equity} should be 740, got {call}"
+        assert put == 740, f"ATM bear put at equity={equity} should be 740, got {put}"
 
 
-def test_core_tiers_match_bold_tiers_above_2k():
-    """Only the $0-2K tier differs; every other bracket must be identical."""
-    for equity in (2_000.0, 5_000.0, 9_999.0, 10_000.0, 24_999.0, 25_000.0, 100_000.0):
+def test_core_tiers_match_bold_tiers_at_and_above_10k():
+    """The $0-10K band diverges (ATM vs OTM-3/OTM-2); every bracket at/above $10K must
+    be identical to V15_BOLD_TIERS."""
+    for equity in (10_000.0, 24_999.0, 25_000.0, 100_000.0):
         core_tier = pick_tier(equity, V15_BOLD_CORE_TIERS)
         bold_tier = pick_tier(equity, V15_BOLD_TIERS)
         assert core_tier.strike_offset == bold_tier.strike_offset, (
@@ -111,6 +120,16 @@ def test_core_tiers_match_bold_tiers_above_2k():
         assert core_tier.label == bold_tier.label
         assert core_tier.equity_min == bold_tier.equity_min
         assert core_tier.equity_max == bold_tier.equity_max
+
+
+def test_core_tiers_diverge_from_bold_in_2k_10k_bracket():
+    """Vary-and-assert on the 2026-08-04 extension itself (C14): the $2K-$10K bracket is
+    the ONE row this ship changed -- core must be ATM/0 where bold stays OTM-2/-2."""
+    for equity in (2_000.0, 5_000.0, 9_999.99):
+        core_tier = pick_tier(equity, V15_BOLD_CORE_TIERS)
+        bold_tier = pick_tier(equity, V15_BOLD_TIERS)
+        assert core_tier.strike_offset == 0 and core_tier.label == "ATM"
+        assert bold_tier.strike_offset == -2 and bold_tier.label == "OTM-2"
 
 
 # =============================================================================
@@ -227,6 +246,33 @@ def test_fleet_arms_safe3_risky_1_3_resolve_atm_under_2k_via_bold_core_table():
         assert put_strike == 740, f"{arm_id} PUT strike at $1K should be 740 (ATM), got {put_strike}"
 
 
+def test_fleet_arms_resolve_atm_at_5k_equity_post_rebuild():
+    """ATM-TIER-EXTENSION-2K-10K (2026-08-04): the $5,000 rebuild moved every live arm into
+    the $2K-$10K bracket, which regressed to OTM-2 and floor-walled the whole 2026-08-03
+    afternoon (33/35/35 SKIP_MIN_PREMIUM_FLOOR rows). Pin the fix AT the live equity regime:
+    all three fleet_rest arms at $5K must price ATM (strike == round(spot)), not OTM-2.
+    Prereg: analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json."""
+    import fleet_executor as fx
+    import json as _json
+
+    accounts = _json.loads((_FLEET / "accounts.json").read_text(encoding="utf-8"))
+    arm_map = {a["id"]: a for a in accounts["arms"]}
+
+    for arm_id in ("safe-3", "risky-1", "risky-3"):
+        tiers = fx._tiers_for_arm(arm_map[arm_id])
+        tier = pick_tier(5_000.0, tiers)
+        assert tier.strike_offset == 0 and tier.label == "ATM", (
+            f"{arm_id} at $5K equity must resolve ATM (2026-08-04 extension), "
+            f"got {tier.label} (offset={tier.strike_offset})"
+        )
+        put_strike = fx.strike_selection.pick_strike(SPOT, 5_000.0, "P", tiers)
+        call_strike = fx.strike_selection.pick_strike(SPOT, 5_000.0, "C", tiers)
+        assert put_strike == 740 and call_strike == 740, (
+            f"{arm_id} at $5K should price ATM 740/740, got P={put_strike} C={call_strike} "
+            "(738/742 would mean the OTM-2 regression is back)"
+        )
+
+
 # =============================================================================
 # 4. SECOND CONSUMER -- j_intent_executor.py's bold branch (independently found,
 #    NOT named in the original naive-fix investigation).
@@ -244,6 +290,9 @@ def test_j_intent_executor_bold_resolves_atm_under_2k():
     occ = jie.resolve_symbol({"account": "bold", "side": "P"}, SPOT, 1_000.0)
     # OCC put symbol embeds the strike as an 8-digit (price*1000) field; 740 -> "00740000".
     assert "00740000" in occ, f"j_intent_executor bold PUT at $1K should embed strike 740 (ATM), got {occ}"
+    # ATM-TIER-EXTENSION-2K-10K (2026-08-04): same policy at the live $5K equity regime.
+    occ_5k = jie.resolve_symbol({"account": "bold", "side": "P"}, SPOT, 5_000.0)
+    assert "00740000" in occ_5k, f"j_intent_executor bold PUT at $5K should embed strike 740 (ATM), got {occ_5k}"
 
 
 # =============================================================================

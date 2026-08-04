@@ -160,16 +160,20 @@ def test_resolve_bold_strike_offset_matches_v15_bold_core_tiers_negated():
     offset, label = bfr.resolve_bold_strike_offset(equity=1_197.52)
     assert label == "ATM"
     assert offset == 0   # ATM is sign-invariant -- the trap doesn't bite at THIS equity
-    # at a higher tier the negation is load-bearing: live OTM-2 (-2) must arrive at the
-    # simulator as +2, NOT -2 (a non-negated / mistranslated offset).
-    offset_2to10k, label_2to10k = bfr.resolve_bold_strike_offset(equity=5_000.0)
-    assert label_2to10k == "OTM-2"
-    live_tier = ss.pick_tier(5_000.0, ss.V15_BOLD_CORE_TIERS)
-    assert live_tier.strike_offset == -2                 # live convention: OTM-2 = -2
-    assert offset_2to10k == 2                             # sim convention (negated): +2
-    assert offset_2to10k != live_tier.strike_offset, (
+    # ATM-TIER-EXTENSION-2K-10K (2026-08-04): $5K now resolves ATM (0) too -- sign-invariant.
+    offset_5k, label_5k = bfr.resolve_bold_strike_offset(equity=5_000.0)
+    assert label_5k == "ATM" and offset_5k == 0
+    # at a higher tier the negation is load-bearing: live OTM-1 (-1) must arrive at the
+    # simulator as +1, NOT -1 (a non-negated / mistranslated offset). The negation witness
+    # moved from the $2K-10K bracket (OTM-2, ATM'd 2026-08-04) to $10K-25K (OTM-1).
+    offset_10to25k, label_10to25k = bfr.resolve_bold_strike_offset(equity=15_000.0)
+    assert label_10to25k == "OTM-1"
+    live_tier = ss.pick_tier(15_000.0, ss.V15_BOLD_CORE_TIERS)
+    assert live_tier.strike_offset == -1                 # live convention: OTM-1 = -1
+    assert offset_10to25k == 1                            # sim convention (negated): +1
+    assert offset_10to25k != live_tier.strike_offset, (
         "a mistranslated (non-negated) strike offset would silently pass the live table's "
-        "-2 straight into run_backtest's inverted-sign kwarg, flipping OTM-2 into ITM-2")
+        "-1 straight into run_backtest's inverted-sign kwarg, flipping OTM-1 into ITM-1")
 
 
 # ---------------------------------------------------------------------------------------- #

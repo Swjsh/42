@@ -303,15 +303,15 @@ def test_safe_loose_uses_bold_otm_strike_tiers_at_2k():
 
 
 def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
-    """safe-3/risky-1/risky-3 all resolve V15_BOLD_CORE_TIERS (ATM at $2K-10K, unchanged
-    above $2K) via params_patch.strike_tier_table='bold_core' -- the 2026-08-01 extension
-    (risky-1/risky-3) plus its 2026-08-03 safe-3 follow-on, both repointing to the table
-    core Bold already used since 2026-07-17/18. At $2K-10K: strike_offset=-2 (same as
-    before, this bracket is untouched -- ONLY the $0-2K bracket differs, and
-    EQUITY_2K==2000.0 sits exactly at the $2K-10K boundary, so this test still reads OTM-2
-    math, matching the safe-1 test above by design; the ATM behavior lives at equity <
-    2000, covered by test_fleet_strike_tier_floor_collision_2026_07_31.py and
-    test_bold_core_strike_tier_2026_07_15.py)."""
+    """safe-3/risky-1/risky-3 all resolve V15_BOLD_CORE_TIERS via params_patch.
+    strike_tier_table='bold_core' -- the 2026-08-01 extension (risky-1/risky-3) plus its
+    2026-08-03 safe-3 follow-on, both repointing to the table core Bold already used since
+    2026-07-17/18. UPDATED 2026-08-04 (ATM-TIER-EXTENSION-2K-10K, prereg
+    analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json): the
+    $2K-$10K bracket is now ALSO ATM (was OTM-2) after the $5K rebuild resurrected the
+    $0.30 floor collision -- so EQUITY_2K==2000.0, sitting at the [2K,10K) boundary, now
+    reads ATM math (600/600), diverging from the safe-1/V15_BOLD_TIERS test above (598/602)
+    BY DESIGN."""
     for arm in (SAFE_TIGHT, RISKY_TIGHT, RISKY_LOOSE):
         tiers = fx._tiers_for_arm(arm)
         assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
@@ -321,16 +321,17 @@ def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
 
     put_strike  = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "P", fx.strike_selection.V15_BOLD_CORE_TIERS)
     call_strike = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "C", fx.strike_selection.V15_BOLD_CORE_TIERS)
-    assert put_strike  == 598, f"OTM-2 PUT strike at $2K should still be 598, got {put_strike}"
-    assert call_strike == 602, f"OTM-2 CALL strike at $2K should still be 602, got {call_strike}"
+    assert put_strike  == 600, f"ATM PUT strike at $2K should be 600 (2026-08-04 extension), got {put_strike}"
+    assert call_strike == 600, f"ATM CALL strike at $2K should be 600 (2026-08-04 extension), got {call_strike}"
 
 
-def test_arm_plan_carries_otm2_strike():
-    """An ENTERING risky arm at $2K on SPY=600 gets OTM-2 strike in the plan."""
+def test_arm_plan_carries_atm_strike():
+    """An ENTERING risky arm at $2K on SPY=600 gets the ATM strike in the plan
+    (was OTM-2/598 before ATM-TIER-EXTENSION-2K-10K, 2026-08-04)."""
     sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan.action == "ENTER"
-    assert plan.strike == 598, f"PUT OTM-2 should be 598, got {plan.strike}"
+    assert plan.strike == 600, f"PUT ATM should be 600, got {plan.strike}"
 
 
 # =============================================================================

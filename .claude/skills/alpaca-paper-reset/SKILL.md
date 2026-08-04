@@ -42,7 +42,7 @@ anything — account churn is expensive and often not the actual constraint.
    - `V15_SAFE_TIERS` is **ATM on both sides of $2,000** → for an arm on this table the $2K boundary
      is a **no-op** and funding changes nothing about strike choice.
    - `V15_BOLD_TIERS` is OTM-3 below $2K, OTM-2 above → the boundary is real here.
-   - `V15_BOLD_CORE_TIERS` is **ATM below $2K** — strictly better for floor clearance.
+   - `V15_BOLD_CORE_TIERS` is **ATM below $10K** (ATM-TIER-EXTENSION-2K-10K 2026-08-04; was $2K) — strictly better for floor clearance.
    - Fleet arms resolve via `fleet_executor._tiers_for_arm`: risky-* by id-prefix and safe-3 by an
      explicit `params_patch.strike_tier_table="bold"` all land on the BOLD table. Evidence
      (`analysis/recommendations/bold-strike-axis-2026-07-15.json`): OTM-3 clears the $0.30

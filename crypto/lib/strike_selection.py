@@ -66,8 +66,21 @@ V15_SAFE_TIERS: tuple[StrikeTier, ...] = (
 )
 
 # --- V15_BOLD_CORE_TIERS -----------------------------------------------------------
-# Core-Bold-ONLY candidate tier table. Identical to V15_BOLD_TIERS except the $0-$2K
-# tier is ATM (strike_offset=0) instead of OTM-3. Source: the frozen strike-axis A/B,
+# Core-Bold-ONLY candidate tier table. Identical to V15_BOLD_TIERS except the $0-$10K
+# band is ATM (strike_offset=0) instead of OTM-3/OTM-2.
+#   - $0-$2K ATM: original 2026-07-15 candidate, wired 2026-07-17/18 (see below).
+#   - $2K-$10K ATM: ATM-TIER-EXTENSION-2K-10K, shipped 2026-08-04 after the $5,000
+#     account rebuild (2026-08-02/03) silently moved EVERY bold_core consumer into the
+#     then-OTM-2 $2K-$10K bracket, resurrecting the $0.30 min_entry_premium floor
+#     collision this table exists to kill (EOD-2026-08-03-FULL-REVIEW.md section 4
+#     structural wall #1: six elite clusters 11:51-14:00 priced $0.06-$0.18 OTM-2, ALL
+#     floor-blocked, 33/35/35 SKIP_MIN_PREMIUM_FLOOR rows per fleet arm; safe-2 on
+#     V15_SAFE_TIERS' ATM-through-$10K was the only account able to trade the afternoon).
+#     Pre-registered BEFORE the code change (git-provable ordering):
+#     analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json --
+#     kill criterion n>=10 fills/arm or 10 sessions, net<0 -> one-line revert of the
+#     $2K-$10K row back to StrikeTier(2_000.0, 10_000.0, -2, "OTM-2").
+# Original $0-$2K source: the frozen strike-axis A/B,
 # analysis/recommendations/bold-strike-axis-2026-07-15.json -- OTM-3 at this tier shows
 # a structural floor-collision (afternoon premium-floor clearance 0.3376, i.e. ~66% of
 # afternoon signals never clear min_entry_premium and are silently skipped) and
@@ -139,7 +152,7 @@ V15_SAFE_TIERS: tuple[StrikeTier, ...] = (
 # j_intent_executor.py's bold branch should move too).
 V15_BOLD_CORE_TIERS: tuple[StrikeTier, ...] = (
     StrikeTier(0.0,        2_000.0,     0, "ATM"),
-    StrikeTier(2_000.0,    10_000.0,    -2, "OTM-2"),
+    StrikeTier(2_000.0,    10_000.0,    0, "ATM"),  # ATM-TIER-EXTENSION-2K-10K 2026-08-04 (was -2 OTM-2; revert = restore that one value)
     StrikeTier(10_000.0,   25_000.0,    -1, "OTM-1"),
     StrikeTier(25_000.0,   999_999_999.0, +2, "ITM-2"),
 )

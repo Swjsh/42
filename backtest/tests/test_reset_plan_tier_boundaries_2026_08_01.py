@@ -56,8 +56,10 @@ def test_bold_table_boundaries_and_offsets():
 
 
 def test_bold_core_table_boundaries_and_offsets():
+    # (0, 0, -1, 2) since ATM-TIER-EXTENSION-2K-10K 2026-08-04 (was (0, -2, -1, 2);
+    # prereg analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json).
     assert _table_boundaries(ss.V15_BOLD_CORE_TIERS) == BOUNDARIES
-    assert _offsets(ss.V15_BOLD_CORE_TIERS) == (0, -2, -1, 2)
+    assert _offsets(ss.V15_BOLD_CORE_TIERS) == (0, 0, -1, 2)
 
 
 def test_probe_table_boundaries_and_offsets():
@@ -78,12 +80,17 @@ def test_2000_exactly_lands_in_the_upper_bracket():
 
 
 def test_one_cent_below_2000_lands_in_the_lower_bracket():
-    """$1,999.99 vs $2,000.00 flips the strike class on the bold tables."""
+    """$1,999.99 vs $2,000.00: since ATM-TIER-EXTENSION-2K-10K (2026-08-04) the boundary
+    no longer flips the strike class on bold_core (ATM both sides of $2K; the class flip
+    moved to $10K) -- the V15_BOLD_TIERS witness still flips OTM-3 -> OTM-2 here."""
     below = ss.pick_tier(1_999.99, ss.V15_BOLD_CORE_TIERS)
     at = ss.pick_tier(2_000.00, ss.V15_BOLD_CORE_TIERS)
     assert below.strike_offset == 0 and below.label == "ATM"
-    assert at.strike_offset == -2 and at.label == "OTM-2"
+    assert at.strike_offset == 0 and at.label == "ATM"   # was -2/OTM-2 pre-2026-08-04
+    assert ss.pick_tier(9_999.99, ss.V15_BOLD_CORE_TIERS).strike_offset == 0
+    assert ss.pick_tier(10_000.00, ss.V15_BOLD_CORE_TIERS).strike_offset == -1  # the flip now lives at $10K
     assert ss.pick_tier(1_999.99, ss.V15_BOLD_TIERS).strike_offset == -3  # OTM-3
+    assert ss.pick_tier(2_000.00, ss.V15_BOLD_TIERS).strike_offset == -2  # OTM-2 (bold table still flips)
 
 
 # ------------------------------------------------- what the $2,500 target resolves
@@ -94,7 +101,7 @@ def test_target_2500_resolves_the_planned_strikes():
 
     assert ss.pick_tier(TARGET, ss.V15_SAFE_TIERS).label == "ATM"          # safe-2
     assert ss.pick_tier(TARGET, ss.V15_BOLD_TIERS).label == "OTM-2"        # safe-1 (retired)
-    assert ss.pick_tier(TARGET, ss.V15_BOLD_CORE_TIERS).label == "OTM-2"  # bold-2/safe-3/r1/r3 (safe-3 joined 2026-08-03 -- same OTM-2 value at this target either way, both tables agree >= $2K)
+    assert ss.pick_tier(TARGET, ss.V15_BOLD_CORE_TIERS).label == "ATM"     # bold-2/safe-3/r1/r3 (ATM-TIER-EXTENSION-2K-10K 2026-08-04; was OTM-2)
     assert ss.pick_tier(TARGET, fx.PROBE_STRIKE_TIERS).label == "ATM"      # full-send/ladder
 
 

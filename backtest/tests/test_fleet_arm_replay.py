@@ -405,7 +405,17 @@ def test_atm_coverage_heuristic_uses_real_history_not_id_prefix_guess():
         "2026-08-01 bold_core ship -- at its live equity (<$2K) this MUST be reported as "
         "NOT covered")
 
-    risky3_at_above_2k = dataclasses.replace(
-        far.ArmReplayConfig.for_arm("risky-3"), equity=2_500.0)  # $2K-10K bracket: both tables agree (OTM-2)
-    assert far._tier_predates_or_matches_anchor_history(risky3_at_above_2k) is True, (
-        "at equity >= $2K, bold and bold_core agree (both OTM-2) -- must be covered")
+    # UPDATED 2026-08-04 (ATM-TIER-EXTENSION-2K-10K, prereg atm-tier-extension-2k10k-
+    # prereg-2026-08-03.json): the $2K-$10K bracket moved OTM-2 -> ATM, so bold_core now
+    # DISAGREES with the frozen historical table there too -- an ATM-cell replay at $2.5K
+    # (or the live $5K) is NOT anchor-covered anymore, and the heuristic must say so.
+    risky3_at_2_5k = dataclasses.replace(
+        far.ArmReplayConfig.for_arm("risky-3"), equity=2_500.0)  # $2K-10K: bold_core=ATM vs history=OTM-2
+    assert far._tier_predates_or_matches_anchor_history(risky3_at_2_5k) is False, (
+        "post-2026-08-04, bold_core is ATM in the $2K-10K bracket while every real fill "
+        "to date was priced OTM-2/OTM-3 there -- must be reported NOT covered")
+
+    risky3_at_15k = dataclasses.replace(
+        far.ArmReplayConfig.for_arm("risky-3"), equity=15_000.0)  # $10K-25K: both tables agree (OTM-1)
+    assert far._tier_predates_or_matches_anchor_history(risky3_at_15k) is True, (
+        "at equity in [$10K,$25K), bold and bold_core still agree (both OTM-1) -- must be covered")
