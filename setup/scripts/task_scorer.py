@@ -31,6 +31,7 @@ import argparse
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import NamedTuple
 
@@ -50,6 +51,23 @@ RECENCY_STATE = REPO_ROOT / "automation" / "state" / "recency-confirmation.json"
 # case-insensitive). PROMOTE-KEEPER ranks HIGH on every fire but is unshippable
 # while recency is RED — the actuator + contender_oos_check both block it.
 RECENCY_GATED_ID_MARKER = "PROMOTE-KEEPER"
+
+# Companion proposal ledger (Discord/wrist approve-or-reject bus). A queue item
+# that names one of these proposal ids in its own block text (the filing fire
+# always writes the id inline, e.g. "Filed conductor-proposals.jsonl id
+# gp-2026-07-23-twin-doctrine-001") is J-GATED: it is a DOCTRINE/live-money/
+# secret/irreversible change already sitting on Discord awaiting J's reply, not
+# a task a conductor fire can DO. Re-surfacing it as the #1 ready pick just
+# burns a fire re-discovering "nothing to do here but re-ping" — confirmed live
+# 2026-08-03 (TWIN-DOCTRINE-FIRST-DEPLOY ranked #1 while its proposal sat
+# status:pending for 11 days) and again by the task_scorer's OWN prior-fire
+# author, who named this exact fix as the candidate remedy (queue.md
+# TASK-SCORER-STATUS-VOCAB-GAP, "New instance found 2026-08-03" addendum).
+PROPOSALS_STATE = REPO_ROOT / "automation" / "state" / "conductor-proposals.jsonl"
+# A J-gated proposal older than this many days resurfaces as ready — but as a
+# "re-ping J" task (see reason string), not an "implement this" task. Below the
+# threshold it is suppressed entirely (spam avoidance on a fresh ask).
+PROPOSAL_STALE_DAYS = 14.0
 
 # ---------------------------------------------------------------------------
 # Section parsing markers.
@@ -226,6 +244,70 @@ def _recency_explicitly_red(path: Path | None = None) -> bool:
         )
     except Exception:
         return False
+
+
+PROPOSAL_ID_RE = re.compile(r"\bgp-\d{4}-\d{2}-\d{2}-[a-z0-9-]+\b")
+
+
+def _load_proposals(path: Path | None = None) -> dict:
+    """Best-effort id -> latest-row map from conductor-proposals.jsonl.
+
+    JSONL is append-only; a proposal can accumulate more than one row (e.g. a
+    status flip) so the LAST row for a given id wins (most current). Never
+    raises — missing/garbled file or line yields {} / skips that line.
+    """
+    p = path or PROPOSALS_STATE
+    out: dict = {}
+    try:
+        for raw in p.read_text(encoding="utf-8").splitlines():
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                row = json.loads(raw)
+            except Exception:
+                continue
+            pid = row.get("proposal_id") if isinstance(row, dict) else None
+            if pid:
+                out[pid] = row
+    except Exception:
+        return {}
+    return out
+
+
+def _proposal_age_days(row: dict) -> float | None:
+    """Days since a proposal's created_at (UTC). None on missing/garbled."""
+    created = row.get("created_at") if isinstance(row, dict) else None
+    if not isinstance(created, str):
+        return None
+    try:
+        ts = datetime.fromisoformat(created.replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - ts).total_seconds() / 86400.0
+    except Exception:
+        return None
+
+
+def _j_gated_proposal(block_text: str, proposals: dict) -> dict | None:
+    """The proposal row a queue item block names, IF it is genuinely J-gated
+    (status pending/awaiting reply, no eval_bar_cleared — i.e. never auto-ships;
+    only a human reply or staleness changes anything). Returns None when the
+    item names no proposal, the proposal is missing/garbled (fail-open toward
+    surfacing — never hide work on uncertainty), or the proposal already
+    resolved (approved/shipped/shelved — status no longer 'pending').
+    """
+    ids = PROPOSAL_ID_RE.findall(block_text)
+    for pid in ids:
+        row = proposals.get(pid)
+        if not row:
+            continue
+        if row.get("status") != "pending":
+            continue
+        if row.get("eval_bar_cleared"):
+            continue  # auto-ratifiable edge, not a human-reply-only gate
+        return row
+    return None
 
 
 # Statuses that mean a DEPENDENCY item is still genuinely OPEN (blocks its
@@ -452,6 +534,7 @@ def parse_queue(text: str) -> list[Task]:
     active = _active_lines(text)
     # First pass: which item ids are genuinely OPEN (for dependency resolution).
     open_ids = _open_item_ids(active)
+    proposals = _load_proposals()
     for block in _item_blocks(active):
         line = block[0]
         block_text = "\n".join(block)
@@ -519,6 +602,32 @@ def parse_queue(text: str) -> list[Task]:
                     "; blocked: confirm-before-capital recency RED "
                     "(no shippable contender)"
                 )
+
+            # J-gated proposal (Discord/wrist approve-bus): a doctrine/live-
+            # money/secret/irreversible change already staged and awaiting a
+            # human reply is not conductor WORK — surfacing it as ready just
+            # burns a fire re-discovering "nothing to do but re-ping". Suppress
+            # while fresh; resurface past PROPOSAL_STALE_DAYS as a re-ping task
+            # (never as an "implement this" task).
+            gated = _j_gated_proposal(block_text, proposals) if ready else None
+            if gated is not None:
+                age = _proposal_age_days(gated)
+                if age is None or age <= PROPOSAL_STALE_DAYS:
+                    ready = False
+                    reason += (
+                        f"; awaiting-j: proposal {gated.get('proposal_id')} "
+                        "status:pending, no eval_bar_cleared -- J-gated "
+                        "(doctrine/live-money/secret/irreversible), not a "
+                        "conductor task until J replies or it goes stale "
+                        f"(>{PROPOSAL_STALE_DAYS:g}d)"
+                    )
+                else:
+                    reason += (
+                        f"; STALE J-PING ({age:.0f}d): proposal "
+                        f"{gated.get('proposal_id')} unanswered -- task is "
+                        "RE-PING J, not implementation"
+                    )
+
             tasks.append(
                 Task(
                     id=task_id,
