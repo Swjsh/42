@@ -1,0 +1,32 @@
+{
+  "rule_id": "FLEET-VWAP-RECLAIM-EXTENSION-RISKY3",
+  "registered_at_et": "2026-08-04T00:45:00-04:00",
+  "frozen_before_arming": true,
+  "lane": "RISKY3-SPECULATIVE (J week directive 2026-08-03: 'risky-3 is getting in speculative trades that safe-1 and safe-2 are not getting in -- that's the entire point of the risky account')",
+  "hypothesis": "Emitting the ALREADY-VALIDATED vwap_reclaim_failed_break setup into the fleet producer's strategies[] stream lets the risk-tier arms (risky-3 at tiered qty, risky-1 at full-send min-size) trade a validated edge the tight safe arm (safe-3) structurally gates out (its require_confluence_or_sequence gate blocks the setup's 3 non-confluence triggers) -- genuine SELECTIVITY differentiation per the arms-are-risk-profiles doctrine, from the validated menu, with zero graveyard overlap.",
+  "mechanism": {
+    "producer": "automation/state/fleet/fleet_market.py#vwap_reclaim_strategy_block (new; mirrors vwap_strategy_block's un-blockable REST fetch + fail-safe None) appended in build_shared_signal._strategies_block behind module flag RUN_VWAP_RECLAIM_FB",
+    "detector": "backtest/lib/watchers/vwap_reclaim_failed_break_watcher.py (byte-for-byte port of the validated autoresearch detector; one-causal-entry/day; <=10:30 ET; chart stop = failed-break excursion extreme)",
+    "consumer": "existing fleet_executor._plan_from_strategies -- each arm's OWN gate/sizing applies; NO per-arm strategy silo (doctrine: strategies shared, arms differ by gates/sizing/exit)",
+    "strike_routing": "per-setup: vwap_reclaim_failed_break entries price fleet_executor.PROBE_STRIKE_TIERS (ATM-class) via new STRATEGY_STRIKE_TIERS map, NEVER the arm's bold/OTM table -- the validated cells are ATM (Safe-2, armed live) and ITM-2 (Bold); OTM-2 measured FAILING (theta/delta, C29). Same precedented pattern as probe/ladder/full-send lanes.",
+    "exit_shape": "strategies.py ExitShape port of the Safe-2 ARMED ATM cell: premium_stop_pct=-0.08, tp1_premium_pct=0.30, tp1_qty_fraction=0.8, profit_lock_mode='fixed' -- same port pattern + C29 disclosure as the existing VWAP_CONTINUATION fleet entry. Per-arm exit_patch overlays apply on top by existing design (risky-3: structure/trailing 0.20; risky-1: tp1 0.5)."
+  },
+  "validation_basis": {
+    "edge": "8/8 anti-cherry-pick gates on real OPRA fills (analysis/recommendations/sub-struct_vwap_reclaim_failed_break.json + rescue-otm2.json; SUBTRACTIVE-SELECTION-SCORECARD.md + RECLAIM-RESCUE-SCORECARD.md); OOS +$72/tr at ITM-2; ATM = the rescue cell Safe-2 ships",
+    "live_standing": "ARMED live on core Safe-2 (params.json extra_setup_exec_armed.vwap_reclaim_failed_break=true) with a real PLACED engine fill 2026-07-28 10:36 ET (SPY260728P00737000 q3 @ 1.12)",
+    "honest_caveats": [
+      "C29: the fleet arms' fills will be at PROBE ATM-class strikes on BOLD-tier accounts -- a cell combination with NO dedicated real-fill history; the forward paper ledger is the evidence",
+      "n-SMALL by construction at first; nothing here is a P&L-validated fleet edge claim -- it is a validated-EDGE + machinery-participation claim under TRADE-TO-LEARN standing (same standing as the 2026-08-01 strike-tier extension)",
+      "one-entry/day state is in-process; the producer runs fresh per tick, so the day-guard is enforced by the watcher's trigger-bar==current-bar staleness check + NOT_FLAT + PDT downstream (same envelope as the live vwap_continuation emission since 2026-06-25)"
+    ]
+  },
+  "expected_divergence": "safe-3 HOLDs every such entry (gate: requires confluence/sequence -- 3 triggers pass min_triggers=2 but none is confluence/sequence); risky-3 ENTERs at its sizing-tier qty (recency clamp does NOT apply -- it is ribbon_ride-scoped); risky-1 ENTERs at full-send min-size. Core safe-2/bold-2 unaffected (separate mcp_heartbeat path).",
+  "kill_criteria_frozen": {
+    "window": "n >= 10 risky-3 vwap_reclaim_failed_break real fills OR 10 trading sessions from arming, whichever first",
+    "kill_if": "cohort net real-fill P&L < 0 at checkpoint -> revert (flag off), matching SHIP-C's kill shape",
+    "instant_deficiency_kill": "any duplicate same-day double-entry attributable to the restart-state hole -> revert immediately and rebuild with persisted day-state before re-arming"
+  },
+  "revert": "ONE LINE: build_shared_signal.RUN_VWAP_RECLAIM_FB = False (producer stops emitting; consumers go inert; byte-identical signal). Registry/routing code may stay dormant.",
+  "guards": "backtest/tests/test_vwap_reclaim_fleet_extension_2026_08_04.py -- vary-and-assert: (1) risky-3 ENTERs / safe-3 HOLDs on the same real-shaped signal (divergence proof), (2) strike routing provably diverges from the arm table at an equity where they differ (C14 live-knob proof), (3) exit-shape port exact, (4) flag-off byte-identical revert, (5) full-send clamp on risky-1",
+  "measurement_context": "Committed alongside RISKY3-DIVERGENCE-2026-08-03 measurement: last 5 sessions risky-3 marginal cohort vs both safes = n=4 closed -$229 real (2 BASE-quality bears -$275, 2 premium-floor/strike-tier bulls +$46); all 39 all-time risky-3 placed entries lane=normal (probe/ladder/full-send: 0 fires ever)."
+}
