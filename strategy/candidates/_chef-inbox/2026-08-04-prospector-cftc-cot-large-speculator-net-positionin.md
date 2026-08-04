@@ -1,0 +1,23 @@
+# Chef Inbox — CFTC COT large-speculator net positioning for E-mini S&P 500 (ES) futu
+
+**Routed by:** Gamma_Prospector 2026-08-04
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:nvidia/nemotron-3-super-120b-a12b:free
+
+## The Finding
+Prospector beat `futures_positioning` surfaced: CFTC COT large-speculator net positioning for E-mini S&P 500 (ES) futures -- Extreme net long/short positions often precede mean-reverting swings in the front-month contract, providing a contrarian signal for intraday/short-term moves. Data source: CFTC Commitments of Traders weekly report, free download at https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm. Cost: $0. Instrument fit: mes.
+
+## Research Question for Chef
+CFTC COT large-speculator net positioning for E-mini S&P 500 (ES) futures -- this carries a testable directional/timing edge for mes.
+
+## Backtest Request
+Data: CFTC Commitments of Traders weekly report, free download at https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:cftc-cot-large-speculator-net-positionin) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none
