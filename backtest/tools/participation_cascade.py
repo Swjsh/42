@@ -77,6 +77,17 @@ hookup (mirrors self_check.py's existing check_fill_funnel):
         f = pc.compute_cascade_day(now.strftime("%Y-%m-%d"), now=now)
         return [f"PARTICIPATION-HOLE {f['blocker_summary']}"] if f["verdict"] == "PARTICIPATION_HOLE" else []
 
+EXTRA-SETUPS LANE (2026-08-04, real 2026-08-03T13:21:03 safe incident): classify_core_row
+only ever reads a row's TOP-LEVEL verdict/action -- but heartbeat_core.py's
+_route_extra_setups lane can place a REAL order for a totally different setup on the SAME
+row while that top-level verdict/action records an unrelated primary-path SKIP (confirmed
+live: safe placed a real +$67.85 bollinger_squeeze fill, SPY260803C00757000 side C qty 3,
+while the row's own verdict/action was SKIP_ELITE_BULL_LEVEL_RECLAIM). build_events (CORE
+only) now additionally emits one event per extra_exec element with action=='PLACED' via
+_extra_exec_events -- additive, so the row's own primary classification is untouched and
+both coexist in the returned, re-sorted event list. See build_events + _extra_exec_events;
+guard: test_participation_cascade.py::TestExtraExecEvents.
+
 CLI:  backtest/.venv/Scripts/python.exe backtest/tools/participation_cascade.py
       [--date YYYY-MM-DD] [--sessions N] [--write] [--markdown] [--report PATH]
 """
@@ -470,9 +481,47 @@ def _filled_symbols(rows: list[dict]) -> set[str]:
 # per-arm event construction (the dedup rule, applied uniformly)
 # ---------------------------------------------------------------------------
 
+def _extra_exec_events(rows_sorted: list[dict], arm: str, filled_syms: set[str]) -> list[dict]:
+    """CORE-only, additive: one event per extra_exec list element with action=='PLACED'
+    (heartbeat_core.py's _route_extra_setups lane). classify_core_row never looks at
+    extra_exec -- it only reads a row's TOP-LEVEL verdict/action -- so a row whose own
+    primary path SKIPped (e.g. SKIP_ELITE_BULL_LEVEL_RECLAIM) can still carry a REAL fill
+    for a totally different setup here; that fill must not be silently dropped just because
+    it rode in on an otherwise-skipped row. No SUPER/ELITE/TRENDLINE tier vocabulary applies
+    to the extra-setups family (tier=None). Not run-length-encoded like the primary stream
+    (see build_events) -- each qualifying element is its own singleton event, which is
+    correct for the real tape (one PLACED extra_exec element per entry tick, never a
+    multi-tick burst). Confirmed live 2026-08-03 13:21:03: safe/bollinger_squeeze,
+    SPY260803C00757000, side C, qty 3, +$67.85 -- see module docstring "EXTRA-SETUPS LANE".
+    Guard: test_participation_cascade.py::TestExtraExecEvents."""
+    events: list[dict] = []
+    for row in rows_sorted:
+        ts = str(row.get("ts_et") or "")
+        for xe in (row.get("extra_exec") or []):
+            if not isinstance(xe, dict) or xe.get("action") != "PLACED":
+                continue
+            exec_ = xe.get("exec") or {}
+            side = exec_.get("side")
+            setup = xe.get("setup")
+            sym = exec_.get("symbol")
+            stage = "FILLED" if sym and sym in filled_syms else "PLACED"
+            c = _stage(side, setup, None, stage, CAT_SUCCESS, None, f"extra_exec:{setup}")
+            identity = (c["side"], c["setup"], c["stage"], c["blocker"])
+            events.append({"arm": arm, "ts_start": ts, "ts_end": ts, "n_ticks": 1,
+                           "identity": identity, **c})
+    return events
+
+
 def build_events(rows: list[dict], arm: str, kind: str) -> list[dict]:
     """Time-sort + classify + run-length-encode into events. See module
-    docstring "SIGNAL EVENT dedup rule" for the exact collapse condition."""
+    docstring "SIGNAL EVENT dedup rule" for the exact collapse condition.
+
+    CORE only: after the primary run-length-encoded stream, also appends one event per
+    extra_exec PLACED element via _extra_exec_events (see module docstring "EXTRA-SETUPS
+    LANE") -- additive, so the row's own primary event is untouched and both coexist. The
+    combined list is re-sorted by ts_start (stable sort -- ties keep their relative order) so
+    the "time-sorted" claim above stays literally true. Fleet rows carry no extra_exec lane,
+    so kind=='fleet' is unaffected."""
     rows_sorted = sorted(rows, key=lambda r: str(r.get("ts_et") or ""))
     classify = classify_core_row if kind == "core" else classify_fleet_row
     filled_syms = _filled_symbols(rows_sorted)
@@ -497,6 +546,9 @@ def build_events(rows: list[dict], arm: str, kind: str) -> list[dict]:
                    "identity": identity, **c}
     if cur is not None:
         events.append(cur)
+    if kind == "core":
+        events.extend(_extra_exec_events(rows_sorted, arm, filled_syms))
+        events.sort(key=lambda e: e["ts_start"])
     return events
 
 

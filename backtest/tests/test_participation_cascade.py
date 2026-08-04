@@ -476,6 +476,91 @@ class TestDedup:
 
 
 # ---------------------------------------------------------------------------
+# extra_exec lane -- heartbeat_core.py's _route_extra_setups (2026-08-04)
+# ---------------------------------------------------------------------------
+
+class TestExtraExecEvents:
+    """THE 2026-08-03 blind spot, live: safe placed a real +$67.85 bollinger_squeeze fill
+    (SPY260803C00757000, side C, qty 3) via the extra-setups lane at 13:21:03 ET while the
+    row's OWN top-level verdict/action was the unrelated primary-path
+    SKIP_ELITE_BULL_LEVEL_RECLAIM (blocked by entry gate block_elite_bull). classify_core_row
+    never looks at extra_exec, so pre-fix build_events emitted only the GATE_BLOCK event and
+    the real fill was invisible to this instrument (and everything downstream of it --
+    participation_daily.py / self_check.py's check_participation_daily). Essential real
+    fields hardcoded from automation/state/core-decisions.jsonl (grep 2026-08-03T13:21:03 +
+    bollinger_squeeze)."""
+
+    _PRIMARY_ROW = {
+        "ts_et": "2026-08-03T13:21:03", "account": "safe", "armed": True,
+        "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "side": "C", "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "reason": "blocked by entry gate block_elite_bull",
+        "extra_exec": [
+            {"setup": "bollinger_squeeze", "action": "PLACED",
+             "exec": {"status": "PLACED", "symbol": "SPY260803C00757000", "side": "C",
+                       "strike": 757, "qty": 3, "premium": 0.55}},
+        ],
+    }
+    # Real same-day follow-on tick (13:22:04 ET) -- the earliest exit_pass evidence that the
+    # extra_exec fill actually opened a broker position (open_qty=3). The PRIMARY row's own
+    # exit_pass is [] (empty) -- the fill evidence only shows up on a LATER row that day.
+    _EXIT_PASS_ROW = {
+        "ts_et": "2026-08-03T13:22:04", "account": "safe", "armed": True, "verdict": "HOLD",
+        "reason": "no setup passed scoring (neither bear nor bull)",
+        "exit_pass": [{"symbol": "SPY260803C00757000", "open_qty": 3}],
+    }
+
+    def test_extra_exec_placed_promotes_to_filled_on_same_day_exit_pass_evidence(self):
+        """Honesty check (per task spec): don't assume PLACED vs FILLED -- read
+        _filled_symbols and the real tape. The PRIMARY row's own exit_pass is empty; the
+        promotion evidence comes from the LATER same-day row, exactly mirroring the existing
+        primary-stream promotion in TestDedup. The real ledger (checked live during this fix)
+        confirms this symbol picks up open_qty=3 same-day, so FILLED is the honest answer."""
+        events = pc.build_events([self._PRIMARY_ROW, self._EXIT_PASS_ROW], "safe-2", "core")
+        extra = [e for e in events if e["setup"] == "bollinger_squeeze"]
+        assert len(extra) == 1, f"extra_exec PLACED event missing or duplicated: {events}"
+        e = extra[0]
+        assert e["side"] == "C"
+        assert e["stage"] == "FILLED"
+        assert e["category"] == pc.CAT_SUCCESS
+        assert e["arm"] == "safe-2"
+        assert e["ts_start"] == "2026-08-03T13:21:03"
+
+    def test_primary_gate_block_classification_is_preserved_alongside(self):
+        """Additive, not a replacement: the row's own primary SKIP_ELITE_BULL_LEVEL_RECLAIM
+        classification (GATE_BLOCK / block_elite_bull) must still appear as its own event --
+        this fix must never suppress or overwrite the row's existing classification. Both
+        events coexist against the same 2 input rows (the HOLD row contributes its own
+        NO_SIGNAL event too -- 3 events total, all independently visible)."""
+        events = pc.build_events([self._PRIMARY_ROW, self._EXIT_PASS_ROW], "safe-2", "core")
+        primary = [e for e in events if e["setup"] == "BULLISH_RECLAIM_RIDE_THE_RIBBON"]
+        assert len(primary) == 1, f"primary classification lost or duplicated: {events}"
+        assert primary[0]["stage"] == "GATE_BLOCK"
+        assert primary[0]["blocker"] == "block_elite_bull"
+        assert sorted(e["stage"] for e in events) == ["FILLED", "GATE_BLOCK", "NO_SIGNAL"]
+
+    def test_extra_exec_without_fill_evidence_stays_placed(self):
+        """Isolation / non-regression: WITHOUT the follow-on exit_pass row, the same
+        extra_exec element classifies as PLACED, not FILLED -- proves the promotion above is
+        genuinely evidence-driven, not a hardcoded FILLED default."""
+        events = pc.build_events([self._PRIMARY_ROW], "safe-2", "core")
+        extra = [e for e in events if e["setup"] == "bollinger_squeeze"]
+        assert len(extra) == 1
+        assert extra[0]["stage"] == "PLACED"
+
+    def test_fleet_rows_are_unaffected_no_extra_exec_lane(self):
+        """kind=='fleet' rows never carry an extra_exec field in production -- confirms the
+        CORE-only guard in build_events doesn't misfire even if one somehow did."""
+        fleet_row = {"ts_et": "2026-08-03T13:21:03", "action": "HOLD", "side": None,
+                     "setup_name": None, "risk_code": None, "reason": "no qualifying setup",
+                     "extra_exec": [{"setup": "bollinger_squeeze", "action": "PLACED",
+                                     "exec": {"symbol": "X", "side": "C"}}]}
+        events = pc.build_events([fleet_row], "safe-1", "fleet")
+        assert len(events) == 1
+        assert events[0]["stage"] == "NO_SIGNAL"
+
+
+# ---------------------------------------------------------------------------
 # evaluate_day -- the PARTICIPATION_HOLE predicate, in isolation
 # ---------------------------------------------------------------------------
 
