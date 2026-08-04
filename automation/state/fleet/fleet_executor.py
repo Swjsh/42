@@ -644,7 +644,16 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
             plans.append(EntryPlan(arm_id, "HOLD", side, setup, None, None, quality,
                                    "no spot in signal", strategy=strat.name))
             continue
-        strike = strike_selection.pick_strike(float(e_spot), float(equity), side, tiers)
+        # PER-SETUP STRIKE ROUTING (FLEET-VWAP-RECLAIM-EXTENSION-RISKY3, 2026-08-04): a
+        # strategy named in STRATEGY_STRIKE_TIERS prices ITS OWN table instead of the arm's
+        # bold/OTM table -- same precedented mechanism the probe/ladder/full-send lanes use
+        # (PROBE_STRIKE_TIERS, ATM-class). Reason it exists at all: vwap_reclaim_failed_break
+        # is VALIDATED at ATM (Safe-2 armed cell) / ITM-2 (Bold) and MEASURED FAILING at
+        # OTM-2 (C29) -- pricing it off an arm's OTM table would deliberately trade the
+        # known-failing cell. Absent from the map = arm table, byte-identical (C14 guard:
+        # test_vwap_reclaim_fleet_extension_2026_08_04.py proves the knob is live).
+        _entry_tiers = STRATEGY_STRIKE_TIERS.get(strat.name, tiers)
+        strike = strike_selection.pick_strike(float(e_spot), float(equity), side, _entry_tiers)
         qty = _qty_for(params.get("position_sizing_tiers"), float(equity), elite)
         if qty is None:
             plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
@@ -715,6 +724,21 @@ PROBE_STRIKE_TIERS: tuple = (
     strike_selection.StrikeTier(10_000.0, 25_000.0, 1, "Slight ITM"),
     strike_selection.StrikeTier(25_000.0, 999_999_999.0, 2, "ITM-2"),
 )
+
+# PER-SETUP STRIKE ROUTING for the strategies[] path (FLEET-VWAP-RECLAIM-EXTENSION-RISKY3,
+# 2026-08-04; prereg analysis/recommendations/fleet-vwap-reclaim-extension-prereg-2026-08-04
+# .json, frozen BEFORE arming). A strategy named here prices ITS OWN table in
+# _plan_from_strategies instead of the arm's _tiers_for_arm table. Only
+# vwap_reclaim_failed_break at ship: its validated cells are ATM (Safe-2, armed live) and
+# ITM-2 (Bold); OTM-2 is MEASURED FAILING (theta/delta, C29) -- an arm's bold/OTM table
+# would deliberately trade the failing cell. PROBE_STRIKE_TIERS (ATM-class, standalone) is
+# reused as the value for the same reason the probe/ladder/full-send lanes use it: the
+# nearer contract also clears the untouched $0.30 min_entry_premium floor on its own
+# merits. REVERT: remove the entry (arm-table pricing resumes, byte-identical); producer
+# kill is build_shared_signal.RUN_VWAP_RECLAIM_FB=False.
+STRATEGY_STRIKE_TIERS: dict = {
+    "vwap_reclaim_failed_break": PROBE_STRIKE_TIERS,
+}
 
 
 def _is_probe_active(arm: Mapping[str, Any], probe_cfg: Optional[Mapping[str, Any]]) -> bool:

@@ -25,8 +25,19 @@ from typing import Any, Optional
 FLEET_DIR = Path(__file__).resolve().parent
 REPO_ROOT = FLEET_DIR.parents[2]
 
-# backtest/lib (BarContext, watcher) + setup/scripts (heartbeat_core) on path.
-for _p in ("backtest/lib", "setup/scripts"):
+# backtest (the `lib` PACKAGE root) + setup/scripts (heartbeat_core) on path.
+# IMPORT-CHAIN FIX (2026-08-04, caught building the vwap_reclaim extension): the original
+# list here was ("backtest/lib", "setup/scripts") and _lazy_imports did
+# `from filters import BarContext` -- but backtest/lib/filters.py opens with
+# `from .ribbon import RibbonState` (PACKAGE-relative), so importing it TOP-LEVEL off
+# backtest/lib raises ImportError on every call, the fail-safe `except` swallowed it, and
+# vwap_strategy_block returned None on EVERY tick -- the FIX2 vwap_continuation emission
+# was import-DEAD from its 2026-06-25 ship until tonight (verified: 0 vwap rows in any
+# fleet arm's 3,865-row ledger; C7/L241 -- a bare except turned a wiring bug into "no
+# signal"). Correct import: `backtest` on path, modules as `lib.filters` / `lib.watchers.*`
+# (the package imports every working consumer uses). Guard:
+# test_vwap_reclaim_fleet_extension_2026_08_04.py::test_lazy_imports_actually_resolve.
+for _p in ("backtest", "setup/scripts"):
     _full = str(REPO_ROOT / _p)
     if _full not in sys.path:
         sys.path.insert(0, _full)
@@ -42,8 +53,8 @@ def _lazy_imports():
     or (None, None, None) on any import failure."""
     try:
         import heartbeat_core as hc  # un-blockable fetchers (NOT modified)
-        from filters import BarContext
-        from watchers.vwap_continuation_watcher import detect_vwap_continuation_setup
+        from lib.filters import BarContext  # package import -- see IMPORT-CHAIN FIX above
+        from lib.watchers.vwap_continuation_watcher import detect_vwap_continuation_setup
         return hc, BarContext, detect_vwap_continuation_setup
     except Exception:
         return None, None, None
@@ -131,4 +142,94 @@ def vwap_strategy_block(
         "quality": "BASE",
         "est_premium": None,                           # runner fetches the real option mid
         "spot": float(last["close"]),
+    }
+
+
+def _lazy_imports_reclaim():
+    """Lazy-dep mirror of _lazy_imports for the VWAP_RECLAIM_FAILED_BREAK detector
+    (FLEET-VWAP-RECLAIM-EXTENSION-RISKY3, 2026-08-04 -- prereg:
+    analysis/recommendations/fleet-vwap-reclaim-extension-prereg-2026-08-04.json)."""
+    try:
+        import heartbeat_core as hc  # un-blockable fetchers (NOT modified)
+        from lib.filters import BarContext  # package import -- see IMPORT-CHAIN FIX above
+        from lib.watchers.vwap_reclaim_failed_break_watcher import (
+            detect_vwap_reclaim_failed_break_setup,
+        )
+        return hc, BarContext, detect_vwap_reclaim_failed_break_setup
+    except Exception:
+        return None, None, None
+
+
+def vwap_reclaim_strategy_block(now: datetime) -> Optional[dict]:
+    """Run the VWAP_RECLAIM_FAILED_BREAK detector for the current tick off live session bars
+    (FLEET-VWAP-RECLAIM-EXTENSION-RISKY3, 2026-08-04). Mirrors vwap_strategy_block's shape
+    and fail-safety EXACTLY: pure read, no orders, any miss returns None (producer omits).
+
+    The detector is the byte-for-byte port of the VALIDATED autoresearch edge #2 (armed
+    live on core Safe-2 since extra_setup_exec_armed; real PLACED engine fill 2026-07-28
+    10:36 ET). One causal entry/day, <=10:30 ET cutoff, and the wrapper's own staleness
+    guard (the completed reclaim must BE the just-closed bar) -- that staleness guard is
+    the effective one-per-day enforcement here, because this producer runs as a fresh
+    process per tick so in-memory day state resets (same accepted envelope as the
+    vwap_continuation emission live since 2026-06-25; disclosed in the prereg).
+
+    `trigger_level_exact` = the detector's stop_price (the failed-break excursion extreme
+    -- the setup's OWN validated structural invalidation), so a structure-stop arm anchors
+    its chart stop exactly where the edge says the read is wrong."""
+    hc, BarContext, detect = _lazy_imports_reclaim()
+    if hc is None or BarContext is None or detect is None:
+        return None
+    try:
+        df = hc._fetch_spy_5m()
+    except Exception:
+        return None
+    if df is None or len(df) == 0:
+        return None
+
+    today = now.date()
+    rth = _rth_today(df, today)
+    if rth is None or len(rth) < 4:  # detector needs TREND_BARS(3)+1
+        return None
+
+    try:
+        vix_now, vix_prior = hc._fetch_vix()
+    except Exception:
+        vix_now, vix_prior = 0.0, 0.0
+
+    last = rth.iloc[-1]
+    ctx = BarContext(
+        bar_idx=len(rth) - 1,
+        timestamp_et=last["timestamp_et"].to_pydatetime(),
+        bar=last,
+        prior_bars=rth,                 # FULL session RTH frame (detector reads its own VWAP)
+        ribbon_now=None,                # reclaim detector does not read ribbon/level fields
+        ribbon_history=[],
+        vix_now=float(vix_now or 0.0),
+        vix_prior=float(vix_prior or 0.0),
+        vol_baseline_20=0.0,
+        range_baseline_20=0.0,
+        levels_active=[],
+        multi_day_levels=[],
+        htf_15m_stack=None,
+    )
+    try:
+        sig = detect(ctx)
+    except Exception:
+        return None
+    if sig is None:
+        return None
+
+    side = "C" if sig.direction == "long" else "P"
+    stop = getattr(sig, "stop_price", None)
+    return {
+        "name": "vwap_reclaim_failed_break",
+        "side": side,
+        "setup": sig.setup_name,                       # "VWAP_RECLAIM_FAILED_BREAK"
+        "triggers": list(sig.triggers_fired or []),
+        "quality": "BASE",
+        "est_premium": None,                           # runner fetches the real option mid
+        "spot": float(last["close"]),
+        # chart-stop anchor: the failed-break excursion extreme (the validated stop basis)
+        "trigger_level_exact": (float(stop) if stop is not None else None),
+        "trigger_level": (float(stop) if stop is not None else None),
     }

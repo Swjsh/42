@@ -130,7 +130,33 @@ VWAP_CONTINUATION = Strategy(
          "the validated exit body and now matches the core lane exactly (no two-lane drift).",
 )
 
-REGISTRY: tuple[Strategy, ...] = (RIBBON_RIDE, VWAP_CONTINUATION)
+# vwap_reclaim_failed_break: FLEET-VWAP-RECLAIM-EXTENSION-RISKY3 (2026-08-04; prereg
+# frozen BEFORE arming: analysis/recommendations/fleet-vwap-reclaim-extension-prereg-
+# 2026-08-04.json). Edge #2 -- the SUBTRACTIVE/STRUCTURAL sibling of vwap_continuation
+# (morning trend -> counter-trend VWAP break FAILS -> with-trend reclaim <=10:30 ET, one
+# causal entry/day; detector: backtest/lib/watchers/vwap_reclaim_failed_break_watcher.py,
+# byte-for-byte the validated autoresearch port). Exit = the Safe-2 ARMED ATM cell
+# (-8% stop / +30% TP1 / sell 80% / fixed lock -- the isolated params keys core Safe-2
+# trades live via extra_setup_exec_armed since; real PLACED engine fill 2026-07-28 10:36).
+# CAVEAT (C29, same disclosure pattern as VWAP_CONTINUATION above): validated at ATM
+# (Safe-2) and ITM-2 (Bold); OTM-2 measured FAILING (theta/delta) -- which is exactly why
+# fleet_executor.STRATEGY_STRIKE_TIERS routes this strategy's entries to the ATM-class
+# PROBE table instead of an arm's bold/OTM table. Fleet-account cells remain unvalidated
+# as cells; the forward paper ledger is the evidence (TRADE-TO-LEARN standing).
+# KILL: producer flag build_shared_signal.RUN_VWAP_RECLAIM_FB=False (one line).
+VWAP_RECLAIM_FAILED_BREAK = Strategy(
+    name="vwap_reclaim_failed_break",
+    entry_setups=("VWAP_RECLAIM_FAILED_BREAK", "vwap_reclaim_failed_break"),
+    exit=ExitShape(premium_stop_pct=-0.08, tp1_premium_pct=0.30, tp1_qty_fraction=0.8,
+                   profit_lock_mode="fixed"),
+    note="Safe-2 armed ATM cell ported 2026-08-04 (stop -8% / TP1 +30% / sell 80% / fixed). "
+         "8/8 anti-cherry-pick gates on real OPRA fills (sub-struct scorecards); OTM cells "
+         "FAIL (C29) -- entries strike-routed ATM-class via STRATEGY_STRIKE_TIERS. Per-arm "
+         "exit_patch overlays apply on top by existing design (risky-3 structure/trail 0.20, "
+         "risky-1 tp1 0.5) -- disclosed, the fleet exit A/B is the point.",
+)
+
+REGISTRY: tuple[Strategy, ...] = (RIBBON_RIDE, VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK)
 
 
 def _setup_of(side_block: Mapping[str, object]) -> str:

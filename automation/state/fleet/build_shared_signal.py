@@ -274,6 +274,20 @@ SCORING_PEAK_LIVE = True  # flipped 2026-06-25 (J directive): all paper fleet ar
 EMIT_STRATEGIES = True
 RUN_VWAP = True  # network VWAP detector pass; tests disable to stay offline
 
+# FLEET-VWAP-RECLAIM-EXTENSION-RISKY3 (2026-08-04, prereg frozen BEFORE arming:
+# analysis/recommendations/fleet-vwap-reclaim-extension-prereg-2026-08-04.json).
+# Emits the ALREADY-VALIDATED vwap_reclaim_failed_break setup (armed live on core Safe-2,
+# real PLACED engine fill 2026-07-28) into strategies[] so each arm's OWN gate decides:
+# safe-3's require_confluence_or_sequence structurally HOLDs it (the setup's 3 triggers
+# carry no confluence/sequence), risky-3 admits it at tier qty, risky-1 at full-send
+# min-size -- selectivity differentiation from the validated menu, never a strategy silo.
+# Consumer-side strike routing: fleet_executor.STRATEGY_STRIKE_TIERS prices these entries
+# ATM-class (the validated Safe-2 cell; OTM measured FAILING, C29) -- see that map.
+# Gated on (run_vwap AND this flag): run_vwap=False keeps every offline test byte-identical.
+# KILL (one line, byte-identical producer revert): set False. Kill criteria in the prereg:
+# n>=10 risky-3 fills or 10 sessions, cohort net real-fill P&L < 0 -> revert.
+RUN_VWAP_RECLAIM_FB = True
+
 
 # --- STRUCTURE-STOP trigger_level derivation (2026-07-09, flag-gated feature; this part is
 # pure data plumbing and always runs -- emitting an extra JSON field is harmless whether or
@@ -384,6 +398,16 @@ def _strategies_block(bear: dict, bull: dict, spot, now: datetime,
                 entries.append(vwap_entry)
         except Exception:
             pass  # producer must never crash on the VWAP pass — omit + continue
+        if RUN_VWAP_RECLAIM_FB:
+            # FLEET-VWAP-RECLAIM-EXTENSION-RISKY3 (2026-08-04) -- same fail-safe contract
+            # as the vwap pass above; gated on run_vwap so offline tests stay untouched.
+            try:
+                import fleet_market
+                fb_entry = fleet_market.vwap_reclaim_strategy_block(now)
+                if fb_entry is not None:
+                    entries.append(fb_entry)
+            except Exception:
+                pass  # never crash the producer -- omit + continue
     return entries
 
 
