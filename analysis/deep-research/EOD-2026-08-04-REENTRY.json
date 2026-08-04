@@ -1,0 +1,631 @@
+{
+ "artifact": "EOD-2026-08-04-REENTRY",
+ "lens": "LENS 1 - adjudicate the vwap_continuation re-entry loop",
+ "run_ts_et": "2026-08-04T16:07 (market_hours=False, et_clock verified)",
+ "authority": {
+  "pnl": "real broker fills, automation/state/fills-ledger.jsonl attribution==engine",
+  "prices": "real OPRA 1-min bars, Alpaca v1beta1/options/bars, 8 contracts / 3080 bars, fetched this session",
+  "no_simulation_in_verdict": true
+ },
+ "VERDICT": {
+  "choice": "c_underpowered",
+  "statement": "Underpowered: today's real fills say every cooldown cell LOSES; the 24-day population ex-today says tight re-entries BLEED. Opposite directions at n=1 trend day.",
+  "sub_verdict": "DO NOT ARM any re-entry cooldown tonight, at any value.",
+  "reframe": "The cooldown is the wrong lever. The loop is a symptom of a -6% premium stop running inside a 10.3% median 1-min noise band."
+ },
+ "brief_premise_corrections": [
+  {
+   "claim": "risky-3 logged ENTER_BULL on 7 ticks = 7 entries",
+   "truth": "7 decision rows, only 4 PLACED; 09:48/09:49/09:53 were SKIP_DUPLICATE_CLAIM",
+   "impact": "alarm calibrated on a number 75% too high"
+  },
+  {
+   "claim": "first four round-tripped for -$289",
+   "truth": "first THREE placed round trips lost -$288.00",
+   "impact": "ordinal wrong, magnitude right"
+  },
+  {
+   "claim": "the FIFTH (09:57) became the trade of the day",
+   "truth": "09:57 was the 4th PLACED entry / 7th decision row",
+   "impact": "no counting convention yields 5th"
+  },
+  {
+   "claim": "risky-1 took the signal 3x on a TIGHTER gate",
+   "truth": "risky-1 took it 2x; its gate is gate_override.full_send=true, the LOOSEST in the fleet (risky-3 = min_triggers:1)",
+   "impact": "LOAD-BEARING: the control is not a control; the difference was never the entry gate"
+  }
+ ],
+ "root_cause": {
+  "mechanism": "exit_manager.ExitState.from_entry resolves stop_mode='structure' only when trigger_level is not None. vwap_continuation is a continuation setup with trigger_level ALWAYS None -> the structure stop is a guaranteed no-op -> every position falls back to the raw -6% premium stop on every arm.",
+  "code_ref": "automation/state/fleet/exit_manager.py :: resolved_structure = (shape_mode=='structure' and bool(structure_stop_enabled) and trigger_level is not None)",
+  "stop_pct": -0.06,
+  "noise_floor_763C_0945_1030": {
+   "n_bars": 46,
+   "median_1min_range_pct": 10.3,
+   "p75": 13.1,
+   "p90": 14.9,
+   "max": 23.4,
+   "pct_bars_whose_own_range_exceeds_stop_width": 93
+  },
+  "provenance_gap": "the -0.06/+0.40 shape was ratified on n=149 trades over ~340 days (~0.44/day = at most ONE entry/day, no re-entry structure in the sim). It now runs at up to 5 entries/day.",
+  "provenance_ref": "analysis/recommendations/vwapcont-exit-ab-ship-gate.json"
+ },
+ "control_arm_is_a_coinflip": {
+  "finding": "risky-1's +$640 winner survived its -6% stop by 0.34 CENTS",
+  "min_bid_proxy": 1.31,
+  "at": "09:57",
+  "spread_assumption_cents": 3,
+  "cells": [
+   {
+    "scenario": "risky-1 actual",
+    "entry": 1.39,
+    "stop": 1.3066,
+    "result": "SURVIVES",
+    "margin": 0.0034
+   },
+   {
+    "scenario": "3c worse fill",
+    "entry": 1.42,
+    "stop": 1.3348,
+    "result": "STOPPED OUT",
+    "margin": -0.0248
+   },
+   {
+    "scenario": "risky-3's fill",
+    "entry": 1.46,
+    "stop": 1.3724,
+    "result": "STOPPED OUT",
+    "margin": -0.0624
+   }
+  ],
+  "implication": "risky-1's entire vwap edge over risky-3 was ~7 cents of entry fill luck. Do not build doctrine on this comparison."
+ },
+ "counterfactual_tier1_exact": {
+  "method": "cooldown applied as an EXACT filter over REAL broker round trips; can only REMOVE a real entry, never invent one; conservative by construction. entry-anchored and exit-anchored give identical cells.",
+  "today": {
+   "method": "EXACT filter over REAL broker round trips (no simulation). A cooldown can only REMOVE a real entry; it never invents one. Conservative by construction.",
+   "setup": "VWAP_CONTINUATION",
+   "date": "2026-08-04",
+   "arms": {
+    "risky-3": {
+     "entry": {
+      "0 (today)": {
+       "n": 5,
+       "pnl": 156.0,
+       "entries_kept": [
+        "09:46",
+        "09:50",
+        "09:54",
+        "09:57",
+        "10:35"
+       ],
+       "entries_blocked": []
+      },
+      "5 min": {
+       "n": 3,
+       "pnl": -328.0,
+       "entries_kept": [
+        "09:46",
+        "09:54",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:57"
+       ]
+      },
+      "10 min": {
+       "n": 3,
+       "pnl": 340.0,
+       "entries_kept": [
+        "09:46",
+        "09:57",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54"
+       ]
+      },
+      "15 min": {
+       "n": 2,
+       "pnl": -184.0,
+       "entries_kept": [
+        "09:46",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54",
+        "09:57"
+       ]
+      },
+      "30 min": {
+       "n": 2,
+       "pnl": -184.0,
+       "entries_kept": [
+        "09:46",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54",
+        "09:57"
+       ]
+      },
+      "once/day": {
+       "n": 1,
+       "pnl": -104.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54",
+        "09:57",
+        "10:35"
+       ]
+      }
+     },
+     "exit": {
+      "0 (today)": {
+       "n": 5,
+       "pnl": 156.0,
+       "entries_kept": [
+        "09:46",
+        "09:50",
+        "09:54",
+        "09:57",
+        "10:35"
+       ],
+       "entries_blocked": []
+      },
+      "5 min": {
+       "n": 3,
+       "pnl": -328.0,
+       "entries_kept": [
+        "09:46",
+        "09:54",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:57"
+       ]
+      },
+      "10 min": {
+       "n": 3,
+       "pnl": 340.0,
+       "entries_kept": [
+        "09:46",
+        "09:57",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54"
+       ]
+      },
+      "15 min": {
+       "n": 2,
+       "pnl": -184.0,
+       "entries_kept": [
+        "09:46",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54",
+        "09:57"
+       ]
+      },
+      "30 min": {
+       "n": 2,
+       "pnl": -184.0,
+       "entries_kept": [
+        "09:46",
+        "10:35"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54",
+        "09:57"
+       ]
+      },
+      "once/day": {
+       "n": 1,
+       "pnl": -104.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50",
+        "09:54",
+        "09:57",
+        "10:35"
+       ]
+      }
+     }
+    },
+    "risky-1": {
+     "entry": {
+      "0 (today)": {
+       "n": 2,
+       "pnl": 565.0,
+       "entries_kept": [
+        "09:46",
+        "09:50"
+       ],
+       "entries_blocked": []
+      },
+      "5 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "10 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "15 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "30 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "once/day": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      }
+     },
+     "exit": {
+      "0 (today)": {
+       "n": 2,
+       "pnl": 565.0,
+       "entries_kept": [
+        "09:46",
+        "09:50"
+       ],
+       "entries_blocked": []
+      },
+      "5 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "10 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "15 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "30 min": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      },
+      "once/day": {
+       "n": 1,
+       "pnl": -75.0,
+       "entries_kept": [
+        "09:46"
+       ],
+       "entries_blocked": [
+        "09:50"
+       ]
+      }
+     }
+    }
+   },
+   "combined": {
+    "entry": {
+     "0 (today)": 721.0,
+     "5 min": -403.0,
+     "10 min": 265.0,
+     "15 min": -259.0,
+     "30 min": -259.0,
+     "once/day": -179.0
+    },
+    "exit": {
+     "0 (today)": 721.0,
+     "5 min": -403.0,
+     "10 min": 265.0,
+     "15 min": -259.0,
+     "30 min": -259.0,
+     "once/day": -179.0
+    }
+   }
+  },
+  "tradeoff": {
+   "risky3_winner_entry_gap_min": {
+    "since_prior_entry": 3.0,
+    "since_prior_exit": 1.0
+   },
+   "risky1_winner_entry_gap_min": {
+    "since_prior_entry": 4.0,
+    "since_prior_exit": 3.0
+   },
+   "note": "risky-3's +$524 survives ONLY in a 10-11 min cooldown window (09:57 is 11.05 min after 09:46); dies at 12 min. risky-1's +$640 dies at ANY cooldown >= 5 min.",
+   "headline": "the arm the brief called the well-behaved control made 100% of its vwap money on a 4-minute re-entry"
+  }
+ },
+ "counterfactual_tier2_modeled_NOT_USED_FOR_VERDICT": {
+  "why_excluded": "baseline cannot reproduce the SKIP_DUPLICATE_CLAIM guard, and it over-credits winners (+1058 modeled vs +524 real on the 09:57 trade) by riding to the 2.5x runner target. Both biases FAVOUR cooldown-preserving cells, so Tier 1 is the conservative read.",
+  "calibration": "bid = OPRA close - 3c; 7/7 sign agreement vs real outcomes"
+ },
+ "generalisation": {
+  "proxy_disclosure": "the 391-day population CANNOT answer this: vwap_continuation was import-dead until FIX2 and traded live for the FIRST time today (zero historical live sequences), and the 391-day backtest population is 1-entry-per-day by construction. Closest available proxy = every same-arm/same-day/same-setup repeat-entry sequence in the 24-day REAL engine-fill history 2026-06-26..2026-08-04.",
+  "population_days": 24,
+  "all_24_days": {
+   "sequences": 45,
+   "rescues": 12,
+   "pnl_full": 2119.0,
+   "pnl_first_entry_only": -237.0,
+   "pnl_reentry_legs": 2356.0
+  },
+  "ex_08_04": {
+   "sequences": 38,
+   "rescues": 6,
+   "pnl_full": -1505.0,
+   "pnl_first_entry_only": -1334.0,
+   "pnl_reentry_legs": -171.0
+  },
+  "day_08_04_only": {
+   "sequences": 7,
+   "rescues": 6,
+   "pnl_full": 3624.0,
+   "pnl_first_entry_only": 1097.0,
+   "pnl_reentry_legs": 2527.0
+  },
+  "tight_sequences_leg_within_15min": {
+   "all_24_days": {
+    "sequences": 14,
+    "rescues": 2,
+    "pnl_reentry_legs": 54.0
+   },
+   "ex_08_04": {
+    "sequences": 12,
+    "rescues": 0,
+    "pnl_reentry_legs": -846.0
+   }
+  },
+  "cooldown_sweep_all_24_days": {
+   "0_live": {
+    "all": 2119.0,
+    "ex_0804": -1505.0,
+    "d0804": 3624.0,
+    "delta": 0.0
+   },
+   "5min": {
+    "all": 1185.0,
+    "ex_0804": -1315.0,
+    "d0804": 2500.0,
+    "delta": -934.0
+   },
+   "10min": {
+    "all": 2110.0,
+    "ex_0804": -1058.0,
+    "d0804": 3168.0,
+    "delta": -9.0
+   },
+   "15min": {
+    "all": 1598.0,
+    "ex_0804": -1046.0,
+    "d0804": 2644.0,
+    "delta": -521.0
+   },
+   "30min": {
+    "all": 2268.0,
+    "ex_0804": -755.0,
+    "d0804": 3023.0,
+    "delta": 149.0
+   },
+   "once_per_day": {
+    "all": -237.0,
+    "ex_0804": -1334.0,
+    "d0804": 1097.0,
+    "delta": -2356.0
+   }
+  },
+  "reading": "non-monotonic across the grid (5 bad, 10 neutral, 15 bad, 30 good). A genuine effect would not zig-zag. The only positive cell is +$149 over 24 days = +$6/day, inside noise. Positive-skew shape: save ~$37/day over 23 ordinary days, forfeit ~$900 on the one trend day. Sample contains exactly ONE trend day so expectation is not estimable."
+ },
+ "what_would_settle_it": [
+  "n >= 10 tight (<15 min) vwap_continuation re-entry sequences on real fills (today contributes 2)",
+  "stratified by day archetype with >= 2 trend days AND >= 2 chop days (today is 1 archetype; aggregating across archetypes here is the C4 error)",
+  "the stop-width A/B must run FIRST - testing a cooldown under the current -6% stop measures an artifact of the stop"
+ ],
+ "prereg_only_nothing_armed": [
+  {
+   "id": "PREREG-A",
+   "title": "vwap_continuation stop width A/B",
+   "grid": [
+    "-0.06 (control)",
+    "-0.12",
+    "-0.20",
+    "-0.25",
+    "catastrophe-only"
+   ],
+   "outcome_vars": [
+    "entries_per_day",
+    "reentry_sequence_count",
+    "real-OPRA P&L"
+   ],
+   "scored_prediction": "widening the stop materially reduces re-entry count, because every re-entry today was preceded by a stop-out"
+  },
+  {
+   "id": "PREREG-B",
+   "title": "trigger_level=None silently disables the structure stop",
+   "class": "C14 dead-knob: config says structure, machine runs premium",
+   "scope": "every stop_mode='structure' shape on every trigger-level-free setup",
+   "needs": [
+    "explicit assertion",
+    "a decision on chart invalidation for continuation setups (VWAP itself is the obvious candidate)"
+   ]
+  }
+ ],
+ "judgment_audit": {
+  "alarm_at_0957": {
+   "verdict": "NOT DEFENSIBLE",
+   "reasons": [
+    "trigger count wrong and never checked: reported 7 entries, 4 were placed; placement.placed sits in the SAME row as the action field and was not read (verification error, not judgment)",
+    "decision statistic structurally biased: realized P&L at minute 11 is censored and the censoring correlates with outcome sign - losers resolve in <2 min and print, winners are still open and contribute nothing",
+    "proposed action did not follow from the diagnosis: RUN_VWAP=False disarms the ENTRY producer for a pathology whose mechanism is the EXIT"
+   ]
+  },
+  "retraction": {
+   "verdict": "RIGHT CALL, WRONG PROCESS",
+   "detail": "retracted on the same censored 11-minute window that produced the alarm, with no new evidence acquired; both draws came from the same biased sample and the second happened to land correctly. Stated no threshold, so it left nothing behind for a future session.",
+   "aphorism": "a coin that lands heads is not a decision procedure"
+  },
+  "what_was_correct": "did not act mid-session; Rule 9 held. The gap is that Rule 9 stopped the ACTION but not the CONCLUSION, and a stated conclusion is what a later session acts on.",
+  "net": "alarm wrong, retraction right, neither earned; the producing process is unchanged and will fire again on the next fast-loss cluster"
+ },
+ "reconciliation": {
+  "fifo_real_fill_day_total": 3624.0,
+  "brief_day_total": 3617.19,
+  "delta": 6.81,
+  "note": "both real; delta is fee/accounting treatment, not a trade discrepancy. All five arms flat at the close - confirmed.",
+  "vwap_continuation_total": 721.0,
+  "vwap_legs": 10,
+  "vwap_round_trips": 7
+ },
+ "pdt": {
+  "status": "UNVERIFIED - missing instrument",
+  "detail": "risky-3 closed 8 round trips today on a multiplier=4 margin account. The Alpaca account payload returns no daytrade_count and no pattern_day_trader field, so PDT headroom could not be verified from the broker this session.",
+  "note": "this is the one argument for a re-entry cap that is NOT about P&L, and it currently has no instrument behind it. Named, not asserted."
+ },
+ "vwap_round_trips": [
+  {
+   "arm": "risky-1",
+   "entry_ts": "2026-08-04T09:46:07.758600",
+   "strike": 762,
+   "qty": 5,
+   "entry_px": 1.77,
+   "exit_ts": "2026-08-04T09:47:06.490816",
+   "pnl": -75.0,
+   "hold_min": 1.0,
+   "opra_hwm": 1.68
+  },
+  {
+   "arm": "risky-1",
+   "entry_ts": "2026-08-04T09:50:07.724033",
+   "strike": 763,
+   "qty": 5,
+   "entry_px": 1.39,
+   "exit_ts": "2026-08-04T11:25:06.780374",
+   "pnl": 640.0,
+   "hold_min": 95.0,
+   "opra_hwm": 5.02
+  },
+  {
+   "arm": "risky-3",
+   "entry_ts": "2026-08-04T09:46:09.163466",
+   "strike": 762,
+   "qty": 8,
+   "entry_px": 1.75,
+   "exit_ts": "2026-08-04T09:47:07.543690",
+   "pnl": -104.0,
+   "hold_min": 1.0,
+   "opra_hwm": 1.68
+  },
+  {
+   "arm": "risky-3",
+   "entry_ts": "2026-08-04T09:50:09.806444",
+   "strike": 763,
+   "qty": 8,
+   "entry_px": 1.46,
+   "exit_ts": "2026-08-04T09:52:07.318834",
+   "pnl": -40.0,
+   "hold_min": 2.0,
+   "opra_hwm": 1.49
+  },
+  {
+   "arm": "risky-3",
+   "entry_ts": "2026-08-04T09:54:07.191128",
+   "strike": 763,
+   "qty": 8,
+   "entry_px": 1.52,
+   "exit_ts": "2026-08-04T09:56:07.480805",
+   "pnl": -144.0,
+   "hold_min": 2.0,
+   "opra_hwm": 1.64
+  },
+  {
+   "arm": "risky-3",
+   "entry_ts": "2026-08-04T09:57:09.638714",
+   "strike": 763,
+   "qty": 8,
+   "entry_px": 1.4,
+   "exit_ts": "2026-08-04T10:23:06.575330",
+   "pnl": 524.0,
+   "hold_min": 25.9,
+   "opra_hwm": 3
+  },
+  {
+   "arm": "risky-3",
+   "entry_ts": "2026-08-04T10:35:08.074495",
+   "strike": 765,
+   "qty": 8,
+   "entry_px": 1.33,
+   "exit_ts": "2026-08-04T10:37:06.853354",
+   "pnl": -80.0,
+   "hold_min": 2.0,
+   "opra_hwm": 1.34
+  }
+ ]
+}
