@@ -150,6 +150,10 @@ SEMANTIC_SOURCE_ROLE = {
     "premarket_low": "support",
     "intraday_rth_low": "support",
     "intraday_swing_low": "support",
+    "prior_day_high": "resistance",
+    "prior_day_low": "support",
+    # prior_day_close is deliberately ABSENT here — non-directional (docstring above),
+    # falls through to the price-vs-spot fallback in _level(), same as legacy prior_close refs.
 }
 # prefixes the dedup must strip so PMH_/PML_ (curated, non-INTRADAY) writers collapse with their
 # INTRADAY_ twins at the same rounded price (root cause #2: dedup only caught INTRADAY_ before).
@@ -614,7 +618,8 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     computed = []
     refused = []
 
-    def _try_add(label: str, price: float, source: str, sub: pd.DataFrame) -> None:
+    def _try_add(label: str, price: float, source: str, sub: pd.DataFrame,
+                 weight: int = LEVEL_WEIGHT_INTRADAY) -> None:
         reason = _degeneracy_reason(sub)
         if reason:
             refused.append({"ts_et": now_iso, "label": f"{label}_{today}", "reason": reason,
@@ -622,7 +627,7 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
                             "volume": float(sub["volume"].sum()) if len(sub) else 0.0})
             return
         computed.append((label, price, source, len(sub), float(sub["volume"].sum()),
-                         _subset_feed(sub)))
+                         _subset_feed(sub), weight))
 
     if len(rth):
         _try_add("INTRADAY_RTH_HIGH", float(rth["high"].max()), "intraday_rth_high", rth)
@@ -638,7 +643,37 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
         _try_add("INTRADAY_PMH", float(pre["high"].max()), "premarket_high", pre)
         _try_add("INTRADAY_PML", float(pre["low"].min()), "premarket_low", pre)
 
-    # Load existing levels, drop our own prior INTRADAY_* upserts (idempotent), keep the rest.
+    # PRIOR-DAY H/L/C (queue: PRIOR-DAY-HLC-LEVELS, filed from the 2026-08-03 LANE-4 violin
+    # finding — prior_day_close was RESPECTED 15x on the 07-28/07-29 tape with ZERO engine
+    # coverage: LEVEL_WEIGHT_PRIOR_DAY_HLC (weight 3) has existed since this file's early
+    # history but no producer ever wrote PRIOR_DAY_HIGH/LOW/CLOSE (C14 dead-knob class; the
+    # only file entry was a hand-inserted `PRIOR_CLOSE_2026-06-23` one-off, stale for weeks).
+    # Same subset->degeneracy->_try_add path as every other family above, weight 3 not the
+    # default 2 (prior-day levels are a stronger structural reference than same-day computed
+    # ones per the file's own weight-scale doctrine at LEVEL_WEIGHT_* above).
+    prior_dates = sorted(d for d in df["date"].unique() if d < today)
+    if prior_dates:
+        prior_day_date = prior_dates[-1]
+        prior_day_df = df[df["date"] == prior_day_date]
+        prior_rth = prior_day_df[(prior_day_df["hm"] >= "09:30") & (prior_day_df["hm"] <= "16:00")]
+        if len(prior_rth):
+            _try_add("PRIOR_DAY_HIGH", float(prior_rth["high"].max()), "prior_day_high", prior_rth,
+                      weight=LEVEL_WEIGHT_PRIOR_DAY_HLC)
+            _try_add("PRIOR_DAY_LOW", float(prior_rth["low"].min()), "prior_day_low", prior_rth,
+                      weight=LEVEL_WEIGHT_PRIOR_DAY_HLC)
+            _try_add("PRIOR_DAY_CLOSE", float(prior_rth["close"].iloc[-1]), "prior_day_close", prior_rth,
+                      weight=LEVEL_WEIGHT_PRIOR_DAY_HLC)
+        else:
+            refused.append({"ts_et": now_iso, "label": f"PRIOR_DAY_HLC_{today}",
+                            "reason": f"prior trading day {prior_day_date} has 0 RTH bars in the "
+                                      f"fetched window", "n_bars": 0, "volume": 0.0})
+    else:
+        refused.append({"ts_et": now_iso, "label": f"PRIOR_DAY_HLC_{today}",
+                        "reason": "no prior trading day in the 7-day fetch window", "n_bars": 0,
+                        "volume": 0.0})
+
+    # Load existing levels, drop our own prior INTRADAY_*/PRIOR_DAY_* upserts (idempotent),
+    # keep the rest.
     try:
         kl = json.loads(KEY_LEVELS.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -646,12 +681,13 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     # WS3 (2026-08-01): capture the AS-READ prior file for the hysteresis diff below, BEFORE
     # any family gets stripped/re-derived — the carry decision compares prior vs fresh sets.
     prior_levels = [lv for lv in (kl.get("levels") or []) if isinstance(lv, dict)]
-    levels = [lv for lv in (kl.get("levels") or []) if not str(lv.get("label", "")).startswith("INTRADAY_")]
+    levels = [lv for lv in (kl.get("levels") or [])
+              if not str(lv.get("label", "")).startswith(("INTRADAY_", "PRIOR_DAY_"))]
 
     added = []
-    for label, price, source, n_bars, volume, feed in computed:
+    for label, price, source, n_bars, volume, feed, weight in computed:
         lvl = _level(price, spot, f"{label}_{today}", source, now_iso,
-                     source_feed=feed, n_bars=n_bars, volume=volume, weight=LEVEL_WEIGHT_INTRADAY)
+                     source_feed=feed, n_bars=n_bars, volume=volume, weight=weight)
         levels.append(lvl)
         added.append((lvl["label"], lvl["price"], lvl["role"]))
 
