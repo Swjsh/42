@@ -34,7 +34,10 @@ if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
 
 import datetime as dt
 import json
+import os
 import sys
+import time
+import uuid
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -50,6 +53,48 @@ ART_PATH = REPO / "analysis" / "regime-library" / "day-archetypes.json"
 
 ET = ZoneInfo("America/New_York")   # zoneinfo conversion from UTC -- DST-correct
                                     # (the TZ foot-gun is Bash `TZ=` / naive local)
+
+
+def _atomic_write_bytes_with_retry(path: Path, data: bytes, attempts: int = 4,
+                                    base_delay_s: float = 0.35) -> None:
+    """Write ``data`` to ``path`` atomically, retrying transient lock/race errors.
+
+    Root cause (2026-08-04): a direct ``Path.write_bytes`` (open-for-write in
+    place) on this OneDrive-synced repo (`%OneDrive%` env var set on this box --
+    Desktop is a Known-Folder-Move target) hit a one-off
+    ``OSError: [Errno 22] Invalid argument`` at 08:22:0x ET, almost certainly a
+    transient OneDrive/AV handle race on the target file. The write raised,
+    ``main()`` propagated the exception uncaught, and Python exited nonzero --
+    but the launcher (``run_exe_hidden.vbs``'s ``shell.Run cmd, 0, False``) is
+    fire-and-forget and never reports that exit code back to Task Scheduler, so
+    ``LastTaskResult`` still read 0/"success" while ``regime-stamp.json`` sat
+    frozen on the PRIOR day's content for 24h+ (self_check's REGIME-STAMP DRIFT
+    check caught the *consequence*, not the cause). Two independent hardenings:
+    (1) write to a unique temp file in the SAME directory then ``os.replace``
+    (atomic rename -- never leaves a half-written or previously-open target
+    file mid-write, and a temp-file CREATE is far less likely to collide with
+    whatever briefly held the real path's handle); (2) retry a few times with
+    backoff, since the lock (if OneDrive/AV) is normally sub-second.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    last_err: OSError | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            tmp_path.write_bytes(data)
+            os.replace(tmp_path, path)
+            return
+        except OSError as e:
+            last_err = e
+            try:
+                if tmp_path.exists():
+                    tmp_path.unlink()
+            except OSError:
+                pass
+            if attempt < attempts:
+                time.sleep(base_delay_s * attempt)
+    assert last_err is not None
+    raise last_err
 
 
 def rebuild_artifact() -> bool:
@@ -128,7 +173,8 @@ def patch_today_bias(stamp: dict) -> bool:
             "stamp_date": stamp["date"],
             "source": "regime_stamp_0822ET",
         }
-        BIAS_PATH.write_bytes(json.dumps(bias, indent=2).encode("utf-8"))
+        _atomic_write_bytes_with_retry(
+            BIAS_PATH, json.dumps(bias, indent=2).encode("utf-8"))
         return True
     except Exception as e:
         print(f"[WARN] could not patch today-bias.json: {e}", file=sys.stderr)
@@ -145,7 +191,8 @@ def main() -> int:
     today_et = dt.datetime.now(tz=ET).date()
     stamp = compose(artifact, today_et, fresh)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
-    STAMP_PATH.write_bytes(
+    _atomic_write_bytes_with_retry(
+        STAMP_PATH,
         (json.dumps(stamp, indent=1, sort_keys=True) + "\n").encode("utf-8"))
     print(f"[OK] regime-stamp.json written: {stamp['one_liner']}")
     if patch_today_bias(stamp):
