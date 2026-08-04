@@ -76,7 +76,17 @@
    },
    "door_level_distinct_clusters_across_accounts": 13,
    "events_at_or_after_1500_et": 6,
-   "pnl_at_or_after_1500_et": 542.8
+   "pnl_at_or_after_1500_et": 542.8,
+   "stale_0930_disclosure": {
+    "note": "The 2026-08-03 09:30 cluster (one event per account) rode the EOD-flagged stale-actioned tick (Friday carried bar produced the trigger; the located Monday 09:30 bar was still forming at decision time). Live, the stale-trigger guard also applied. Conservative ex-stale elite totals below.",
+    "monday_0930_event_pnl": {
+     "safe": 627.0,
+     "bold": 1089.0
+    },
+    "ex_stale_combined_total_dollar": 1860.92,
+    "ex_stale_n": 24,
+    "per_event_convention": "QTY_BY_ACCOUNT safe=3 bold=5 (standing instrument sizing)"
+   }
   }
  },
  "part_b_filter_sole_blockers": {
