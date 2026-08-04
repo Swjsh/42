@@ -184,10 +184,22 @@ EXIT_MENU: dict[str, dict] = {
         "profit_lock_mode": "trailing", "trail_pct": 0.10, "runner_target_pct": 2.5,
         "profit_lock_arm_pct": 0.05, "profit_lock_arm_scope": "post_tp1"},
     # No TP1 at all -- pure trailing ride from the arm point. The "hold longer" end.
+    #
+    # arm_scope MUST be "full" here (2026-08-04 dead-knob fix). Every OTHER shape in this
+    # menu pins "post_tp1" because that is what live does, but this shape switches TP1 OFF
+    # (tp1_premium_pct 999 is unreachable by construction). Under "post_tp1" the profit lock
+    # can only arm on a TP1 fill that never comes, so `trail_pct` was INERT and this policy
+    # silently degenerated into a byte-identical copy of `hold_to_time_stop` -- verified on
+    # 2026-08-04, where the two columns matched to the cent on all 10 winners ($23,380 each).
+    # That made the "hold longer" end of the axis look twice as corroborated as it was, and
+    # handed `capture_vs_best_policy` a denominator chosen from a menu with a duplicate in it.
+    # "full" is a real production arm_scope value (ARM_SCOPE_FULL, used for simulator
+    # parity), so this stays a live-executable policy -- it is now the shape its name
+    # already claimed to be. Guarded by test_no_tp1_shapes_must_arm_the_lock_or_trail_is_dead.
     "trail_only_no_tp1": {
         "premium_stop_pct": -0.50, "tp1_premium_pct": 999.0, "tp1_qty_fraction": 1.0,
         "profit_lock_mode": "trailing", "trail_pct": 0.20, "runner_target_pct": 2.5,
-        "profit_lock_arm_pct": 0.05, "profit_lock_arm_scope": "post_tp1"},
+        "profit_lock_arm_pct": 0.05, "profit_lock_arm_scope": "full"},
     # Ride to the 15:50 time stop / -50% cap. The degenerate "never take profit" bound.
     "hold_to_time_stop": {
         "premium_stop_pct": -0.50, "tp1_premium_pct": 999.0, "tp1_qty_fraction": 1.0,
@@ -199,6 +211,32 @@ EXIT_MENU: dict[str, dict] = {
 # every per-trade row but REFUSES to headline a capture rate -- an aggregate over a handful
 # of trades is an anecdote wearing a percent sign.
 MIN_N_FOR_AGGREGATE = 8
+
+# WAVE GROUPING (2026-08-04). The fleet's arms fill the SAME signal within seconds of each
+# other, so the natural unit of "a trade the firm took" is not one arm's position but the
+# WAVE: every arm's entry into the same impulse. Judging capture per-arm hides the thing J
+# actually asked about -- on 08-04 five arms entered 763C between 09:50 and 09:58 and got
+# five DIFFERENT outcomes from one signal. A new wave starts when the gap since the previous
+# entry exceeds this many minutes.
+WAVE_GAP_MIN = 15
+
+# DATA-INTEGRITY RAIL (2026-08-04, the second silent degradation of this fetch path --
+# cf. backtest/tests/test_exit_parity_data_creds_2026_08_03.py for the first).
+#
+# THE INVARIANT: a position in this module's population EXISTS because the broker filled it.
+# A broker fill is proof the contract traded. Therefore ZERO OPRA bars for such a symbol is
+# always a DATA FAULT (403/401/outage/indexing lag) and NEVER a legitimate "nothing to see".
+# The old code counted `n_no_bars` and printed a warning, then went right on publishing a
+# capture headline computed over whatever survived. On 2026-08-04 that turned 10 winners into
+# 1 and headlined `capture_vs_best_policy=4.3%` -- a number assembled from a single $9 trade
+# while $4,726 of winners sat unfetched. The warning was true and the headline was garbage,
+# which is the exact C7 shape: audit the OUTPUT, not the exit code.
+#
+# So: any fetch loss at all DEGRADES the run, and a degraded run publishes NO headline
+# capture number (None), while still printing every per-trade row it did manage to build.
+# A missing number forces a human to look; a plausible wrong number does not.
+DATA_INTEGRITY_OK = "OK"
+DATA_INTEGRITY_DEGRADED = "DEGRADED_MISSING_BARS"
 
 GIVEBACK_MATERIAL_PCT = 0.25   # a leg that realized <=75% of the premium available to it
 
@@ -328,7 +366,8 @@ def per_trade_capture(realized: float, variant_pnls: dict) -> dict:
             "left_on_table": round(best - realized, 2)}
 
 
-def aggregate_capture(rows: list[dict], menu_names: tuple[str, ...]) -> dict:
+def aggregate_capture(rows: list[dict], menu_names: tuple[str, ...],
+                      n_no_bars: int = 0) -> dict:
     """PURE: the population statistic -- THE deliverable.
 
     Only rows with a COMPLETE variant grid participate (`_complete` True): a trade missing
@@ -341,12 +380,21 @@ def aggregate_capture(rows: list[dict], menu_names: tuple[str, ...]) -> dict:
     and `capture_vs_oracle` (unachievable) are returned alongside as disclosure only.
 
     Refuses to headline below MIN_N_FOR_AGGREGATE (`sufficient_n` False) -- the number is
-    still computed and shown, but flagged as an anecdote, not a statistic."""
+    still computed and shown, but flagged as an anecdote, not a statistic.
+
+    `n_no_bars` (>0) means the population was SILENTLY TRUNCATED by a data fault -- see the
+    DATA_INTEGRITY_* rail above. Such a run publishes NO headline (`capture_vs_best_policy`
+    is None) regardless of how good the surviving rows look, because the denominator is no
+    longer the population it claims to be. Everything else is still computed so a human can
+    inspect what did land."""
     complete = [r for r in rows if r.get("_complete")]
     n = len(complete)
+    degraded = n_no_bars > 0
     out = {
         "n_winners_scored": n,
         "n_excluded_incomplete": len(rows) - n,
+        "n_no_bars": n_no_bars,
+        "data_integrity": DATA_INTEGRITY_DEGRADED if degraded else DATA_INTEGRITY_OK,
         "sufficient_n": n >= MIN_N_FOR_AGGREGATE,
         "min_n_for_aggregate": MIN_N_FOR_AGGREGATE,
         "realized_total": None, "policy_totals": {},
@@ -384,6 +432,104 @@ def aggregate_capture(rows: list[dict], menu_names: tuple[str, ...]) -> dict:
         out["oracle_total"] = orc_total
         out["capture_vs_oracle"] = (round(realized_total / orc_total, 4)
                                     if orc_total > 0 else None)
+    if degraded:
+        # The population is not the population this ratio claims to describe. Withhold every
+        # capture RATIO (the numbers a reader would quote) while leaving the raw totals and
+        # per-trade rows visible for inspection. A missing number forces a human to look; a
+        # plausible wrong number does not.
+        out["capture_vs_best_policy"] = None
+        out["capture_vs_per_trade_best"] = None
+        out["capture_vs_oracle"] = None
+    return out
+
+
+def _ts_minutes(ts_utc: str) -> int:
+    """PURE: minutes-since-midnight for an ISO-8601 UTC timestamp. Used only for GAP
+    arithmetic between entries on the same date, so the date part is irrelevant."""
+    hh, mm = int(str(ts_utc)[11:13]), int(str(ts_utc)[14:16])
+    return hh * 60 + mm
+
+
+def assign_waves(rows: list[dict], gap_min: int = WAVE_GAP_MIN) -> list[dict]:
+    """PURE: group positions into ENTRY WAVES -- one wave per impulse the fleet traded.
+
+    The fleet's arms all consume the same shared signal, so five arms entering 763C between
+    09:50 and 09:58 are five expressions of ONE decision, not five decisions. Grouping by arm
+    answers "how did safe-3 do"; grouping by WAVE answers "how did the firm do on that
+    signal", which is the question a capture rate is actually for.
+
+    A new wave opens when the gap since the PREVIOUS entry exceeds `gap_min` minutes. Note
+    this deliberately clusters on TIME, not strike: on 2026-08-04 the open impulse spans two
+    strikes (762C then 763C) and is one wave, while 769C appears in two waves 36 minutes
+    apart (11:52, all losers; 12:28, all winners) -- collapsing those by strike would average
+    a losing cohort into a winning one and hide the only interesting thing about them.
+
+    Rows lacking `entry_ts_utc` are returned in a trailing `unassigned` wave rather than
+    dropped (C7). Input rows are never mutated."""
+    dated = [r for r in rows if r.get("entry_ts_utc")]
+    orphans = [r for r in rows if not r.get("entry_ts_utc")]
+    dated.sort(key=lambda r: str(r["entry_ts_utc"]))
+
+    waves: list[dict] = []
+    cur: list[dict] = []
+    prev_m = None
+    for r in dated:
+        m = _ts_minutes(r["entry_ts_utc"])
+        if prev_m is not None and (m - prev_m) > gap_min:
+            waves.append({"rows": cur})
+            cur = []
+        cur.append(r)
+        prev_m = m
+    if cur:
+        waves.append({"rows": cur})
+
+    out = []
+    for i, w in enumerate(waves, start=1):
+        rs = w["rows"]
+        strikes = sorted({str(r.get("symbol", ""))[-8:-3].lstrip("0") for r in rs})
+        out.append({
+            "wave_id": i,
+            "label": "/".join(s for s in strikes if s) + "C",
+            "t_start_et": (rs[0].get("entry", {}) or {}).get("ts_et")
+            or str(rs[0]["entry_ts_utc"])[11:19],
+            "t_end_et": (rs[-1].get("entry", {}) or {}).get("ts_et")
+            or str(rs[-1]["entry_ts_utc"])[11:19],
+            "n_positions": len(rs),
+            "arms": sorted({r.get("arm") for r in rs if r.get("arm")}),
+            "realized_pnl": round(sum(r.get("realized_pnl", 0.0) for r in rs), 2),
+            "rows": rs,
+        })
+    if orphans:
+        out.append({"wave_id": None, "label": "unassigned", "t_start_et": None,
+                    "t_end_et": None, "n_positions": len(orphans),
+                    "arms": sorted({r.get("arm") for r in orphans if r.get("arm")}),
+                    "realized_pnl": round(sum(r.get("realized_pnl", 0.0)
+                                              for r in orphans), 2),
+                    "rows": orphans})
+    return out
+
+
+def wave_capture(waves: list[dict], menu_names: tuple[str, ...]) -> list[dict]:
+    """PURE: per-wave capture, each wave scored by the SAME single-fixed-policy rule the book
+    headline uses (`aggregate_capture`), so a wave row and the book row mean the same thing.
+
+    Per-wave `best_policy` is NOT a proposal: the best policy for one wave is a hindsight
+    selection over ~5 positions. It is reported to show WHERE the book's capture gap lives
+    (which impulse leaked the money), not to pick a shape."""
+    out = []
+    for w in waves:
+        agg = aggregate_capture(w["rows"], menu_names)
+        out.append({
+            "wave_id": w["wave_id"], "label": w["label"],
+            "t_start_et": w["t_start_et"], "t_end_et": w["t_end_et"],
+            "arms": w["arms"], "n_positions": w["n_positions"],
+            "realized_total": agg["realized_total"],
+            "best_policy": agg["best_policy"],
+            "best_policy_total": agg["best_policy_total"],
+            "capture_vs_best_policy": agg["capture_vs_best_policy"],
+            "oracle_total": agg["oracle_total"],
+            "policy_totals": agg["policy_totals"],
+        })
     return out
 
 
@@ -652,6 +798,10 @@ def autopsy_winner(pos: dict, esp, bars: list[dict], arm_patches: dict) -> dict 
     import trade_autopsy as ta
     return {
         "date": pos["date_et"], "arm": pos["arm"], "symbol": pos["symbol"],
+        # Raw entry timestamp: the key `assign_waves` clusters on. Kept as its own field
+        # (not derived from entry.ts_et, which is None whenever the decision row could not
+        # be matched) so wave grouping never silently loses a position.
+        "entry_ts_utc": entry_ts,
         "strategy": ta.lookup_strategy(pos["arm"], pos["symbol"], entry_ts),
         # --- WHY IT ENTERED -------------------------------------------------------------
         "entry": {
@@ -714,7 +864,8 @@ def _usd(x) -> str:
     return "n/a" if x is None else f"${x:,.2f}"
 
 
-def render_md(rows: list[dict], agg: dict, scope: str, n_no_bars: int) -> str:
+def render_md(rows: list[dict], agg: dict, scope: str, n_no_bars: int,
+              waves: list[dict] | None = None) -> str:
     L: list[str] = []
     L.append(f"# Winner autopsy — {scope}")
     L.append("")
@@ -726,6 +877,19 @@ def render_md(rows: list[dict], agg: dict, scope: str, n_no_bars: int) -> str:
              "requires its own pre-registered A/B — a good-looking number on a small winner "
              "population is an anecdote, not evidence.")
     L.append("")
+
+    # ---- data integrity, ABOVE the headline -------------------------------------------
+    # Deliberately first: a reader who stops after one screen must see that the population
+    # was truncated BEFORE they see any number computed over it.
+    if agg.get("data_integrity") == DATA_INTEGRITY_DEGRADED:
+        L.append(f"> 🚨 **DATA-INTEGRITY: DEGRADED — no capture headline published.** "
+                 f"{agg.get('n_no_bars')} winning position(s) that the broker DID fill could "
+                 f"not be priced (zero OPRA bars returned). A broker fill proves the contract "
+                 f"traded, so this is a DATA FAULT (403/401/indexing lag), never an absence "
+                 f"of data. Every capture ratio is withheld — the surviving rows are not the "
+                 f"population a ratio would claim to describe. Per-trade rows below are still "
+                 f"valid individually. **Re-run once the data source is healthy.**")
+        L.append("")
 
     # ---- the headline ---------------------------------------------------------------
     L.append("## Capture rate — how much of what our winners offered did we keep?")
@@ -801,6 +965,29 @@ def render_md(rows: list[dict], agg: dict, scope: str, n_no_bars: int) -> str:
         L.append("_Every policy above is live-executable: each is a replay through the real "
                  "`exit_manager.plan_exit_actions` on real 1-min OPRA bars. The menu is "
                  "declared once in `EXIT_MENU` and is never fitted per-run._")
+        L.append("")
+
+    # ---- per-wave capture -------------------------------------------------------------
+    if waves:
+        L.append("### Capture by ENTRY WAVE — which impulse leaked the money?")
+        L.append("")
+        L.append("| # | wave | ET | arms | n | realized | best fixed policy | that policy | "
+                 "capture | ORACLE (unreachable) |")
+        L.append("|---:|---|---|---|---:|---:|---|---:|---:|---:|")
+        for w in waves:
+            L.append(f"| {w['wave_id'] or '—'} | `{w['label']}` | "
+                     f"{w['t_start_et'] or '?'}–{w['t_end_et'] or '?'} | "
+                     f"{len(w['arms'])} | {w['n_positions']} | "
+                     f"{_usd(w['realized_total'])} | `{w['best_policy']}` | "
+                     f"{_usd(w['best_policy_total'])} | "
+                     f"{_pct(w['capture_vs_best_policy'])} | {_usd(w['oracle_total'])} |")
+        L.append("")
+        L.append("_A wave = every arm's entry into ONE impulse (new wave after a "
+                 f">{WAVE_GAP_MIN}-minute gap). The per-wave `best fixed policy` is a "
+                 "HINDSIGHT pick over a handful of positions — it localises WHERE capture "
+                 "leaked, it does not nominate a shape. The ORACLE column is the "
+                 "sell-everything-at-the-high bound: **unreachable by any live rule**, "
+                 "printed only to size the universe, and never a target._")
         L.append("")
 
     # ---- per-trade anatomy ----------------------------------------------------------
@@ -960,14 +1147,15 @@ def main() -> int:
             rows.append(r)
             _time_mod.sleep(0.05)
 
-        agg = aggregate_capture(rows, tuple(EXIT_MENU.keys()))
+        agg = aggregate_capture(rows, tuple(EXIT_MENU.keys()), n_no_bars=n_no_bars)
+        waves = wave_capture(assign_waves(rows), tuple(EXIT_MENU.keys()))
 
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         base = args.out or (args.date or "all")
         (OUT_DIR / f"{base}.jsonl").write_text(
             "\n".join(json.dumps(r) for r in rows) + ("\n" if rows else ""), encoding="utf-8")
         (OUT_DIR / f"{base}.md").write_text(
-            render_md(rows, agg, scope, n_no_bars), encoding="utf-8")
+            render_md(rows, agg, scope, n_no_bars, waves), encoding="utf-8")
 
         last_payload = {
             "scope": scope,
@@ -975,6 +1163,9 @@ def main() -> int:
             "n_winners_found": len(winners),
             "n_winners_scored": agg["n_winners_scored"],
             "n_no_bars": n_no_bars,
+            # Consumers (firm_brief) MUST branch on this before quoting any capture ratio --
+            # on a DEGRADED run every ratio below is deliberately None.
+            "data_integrity": agg["data_integrity"],
             "sufficient_n": agg["sufficient_n"],
             "realized_total": agg["realized_total"],
             "best_policy": agg["best_policy"],
@@ -988,6 +1179,9 @@ def main() -> int:
                 1 for r in rows if "shipped_exit_beat_menu" in r["tags"]),
             "runner_cohort": runner_cohort_stats(rows),
             "attribution": attribution_coverage(rows),
+            # Wave rows carry no `rows` payload -- the per-position detail already lives in
+            # the .jsonl; duplicating it here would let the two drift apart.
+            "waves": waves,
             "winners_only_sample": True,  # consumers MUST NOT read this as a policy comparison
             "pain_ledger": None,  # WS9 fold fills this below; None on scoped fires / if killed
             "fill_latency": None,  # Next-Twelve #5 fold fills this below; same fold contract

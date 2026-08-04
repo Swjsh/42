@@ -246,9 +246,42 @@ def test_resolve_shipped_shape_layers_placement_over_patch_over_defaults():
 
 def test_exit_menu_pins_arm_scope_on_every_shape():
     """L234/L248: a knob that is unconditional in prod but optional in the study is how a
-    harness silently diverges from live. Every declared shape must pin it."""
+    harness silently diverges from live. Every declared shape must pin it EXPLICITLY."""
     for name, shape in wa.EXIT_MENU.items():
-        assert shape.get("profit_lock_arm_scope") == "post_tp1", name
+        assert shape.get("profit_lock_arm_scope") in ("post_tp1", "full"), name
+    # "post_tp1" is what live runs, so it must remain the menu's default posture -- only the
+    # TP1-disabled shape is allowed to differ (see the dead-knob guard below).
+    non_default = {n for n, s in wa.EXIT_MENU.items()
+                   if s["profit_lock_arm_scope"] != "post_tp1"}
+    assert non_default == {"trail_only_no_tp1"}, non_default
+
+
+def test_no_tp1_shapes_must_arm_the_lock_or_trail_is_dead():
+    """C14 DEAD-KNOB guard (2026-08-04). A shape that switches TP1 off (unreachable
+    tp1_premium_pct) CANNOT arm a "post_tp1"-scoped profit lock, so its trail_pct silently
+    does nothing and the shape collapses into plain hold-to-time-stop.
+
+    That is exactly what `trail_only_no_tp1` did: on 2026-08-04 it matched `hold_to_time_stop`
+    to the cent on all 10 winners ($23,380 each), making the "hold longer" end of the axis
+    look twice as corroborated as it was and polluting the capture denominator with a
+    duplicate policy. Any future TP1-disabled shape must arm its lock or it is not a
+    trailing policy at all."""
+    for name, shape in wa.EXIT_MENU.items():
+        tp1_disabled = shape["tp1_premium_pct"] >= 10.0     # unreachable by construction
+        trails = shape["profit_lock_mode"] == "trailing"
+        if tp1_disabled and trails:
+            assert shape["profit_lock_arm_scope"] == "full", (
+                f"{name}: trailing + no-TP1 + post_tp1 scope => trail_pct is a DEAD KNOB")
+
+
+def test_exit_menu_has_no_behaviourally_duplicate_shapes():
+    """Two menu entries with identical knob dicts would double-count one policy in the
+    denominator. Cheap structural check; the semantic duplicate above is caught by name."""
+    seen: dict = {}
+    for name, shape in wa.EXIT_MENU.items():
+        key = tuple(sorted(shape.items()))
+        assert key not in seen, f"{name} duplicates {seen.get(key)}"
+        seen[key] = name
 
 
 def test_oracle_is_day_scoped_and_never_the_headline_denominator():
@@ -257,3 +290,109 @@ def test_oracle_is_day_scoped_and_never_the_headline_denominator():
     agg = wa.aggregate_capture([_row(50.0, {"A": 100.0}, oracle=800.0)], ("A",))
     assert agg["best_policy_total"] == 100.0     # headline uses the POLICY, not the oracle
     assert agg["capture_vs_oracle"] == pytest.approx(0.0625)
+
+
+# ---------------------------------------------------------------------------------
+# 5. DATA-INTEGRITY RAIL (2026-08-04) -- the SECOND silent degradation of this fetch
+#    path (cf. test_exit_parity_data_creds_2026_08_03.py for the first).
+#
+#    On 2026-08-04 the nightly 16:25 ET fire hit HTTP 403 on 9 of 10 winners (Alpaca
+#    does not serve same-day-expiry OPRA bars until ~20 min after the close), silently
+#    reduced the population to ONE $9 trade, and headlined "capture 4.3%" while $4,726
+#    of winners sat unfetched. The warning line was accurate; the headline was garbage.
+#    Same mistake twice => encode it as a guard, not a memory.
+# ---------------------------------------------------------------------------------
+
+def test_missing_bars_degrade_the_run_and_withhold_every_capture_ratio():
+    """THE guard. A broker fill PROVES the contract traded, so zero OPRA bars for a filled
+    position is a DATA FAULT, never a legitimate absence. A truncated population must not
+    publish a ratio -- a missing number makes a human look, a plausible wrong one does not."""
+    rows = [_row(50.0, {"A": 100.0, "B": 20.0}, oracle=400.0)]
+    agg = wa.aggregate_capture(rows, ("A", "B"), n_no_bars=9)
+    assert agg["data_integrity"] == wa.DATA_INTEGRITY_DEGRADED
+    assert agg["n_no_bars"] == 9
+    # every quotable ratio is withheld ...
+    assert agg["capture_vs_best_policy"] is None
+    assert agg["capture_vs_per_trade_best"] is None
+    assert agg["capture_vs_oracle"] is None
+    # ... while the raw totals survive for human inspection (we withhold ratios, not facts)
+    assert agg["realized_total"] == 50.0
+    assert agg["policy_totals"] == {"A": 100.0, "B": 20.0}
+    assert agg["best_policy_total"] == 100.0
+
+
+def test_clean_run_is_marked_ok_and_still_publishes_the_headline():
+    """The rail must not fire when the data is whole -- a guard that always trips is noise."""
+    rows = [_row(50.0, {"A": 100.0, "B": 20.0}, oracle=400.0)]
+    agg = wa.aggregate_capture(rows, ("A", "B"), n_no_bars=0)
+    assert agg["data_integrity"] == wa.DATA_INTEGRITY_OK
+    assert agg["capture_vs_best_policy"] == 0.5
+    assert agg["capture_vs_oracle"] == 0.125
+
+
+def test_degraded_banner_is_rendered_above_the_headline():
+    """Placement matters: a reader who stops after one screen must learn the population was
+    truncated BEFORE they read a number computed over it."""
+    rows = [_row(50.0, {"A": 100.0}, oracle=400.0)]
+    agg = wa.aggregate_capture(rows, ("A",), n_no_bars=3)
+    md = wa.render_md([], agg, "test", 3)
+    assert "DATA-INTEGRITY: DEGRADED" in md
+    assert md.index("DATA-INTEGRITY: DEGRADED") < md.index("## Capture rate")
+
+
+# ---------------------------------------------------------------------------------
+# 6. WAVE GROUPING (2026-08-04). The fleet's arms consume ONE shared signal, so the
+#    unit of "a trade the firm took" is the wave, not the per-arm position.
+# ---------------------------------------------------------------------------------
+
+def _wrow(ts_utc, symbol="SPY260804C00763000", realized=10.0, arm="safe-3"):
+    r = _row(realized, {"A": 100.0})
+    r.update({"entry_ts_utc": ts_utc, "symbol": symbol, "arm": arm, "entry": {}})
+    return r
+
+
+def test_waves_split_on_a_time_gap_not_on_strike():
+    """Two DIFFERENT strikes seconds apart are ONE impulse; the SAME strike 36 minutes later
+    is a different one. On 08-04 collapsing by strike would have averaged the 11:52 769C
+    all-loser cohort into the 12:28 769C all-winner cohort and hidden both."""
+    rows = [
+        _wrow("2026-08-04T13:46:00Z", "SPY260804C00762000"),   # open impulse, strike A
+        _wrow("2026-08-04T13:50:00Z", "SPY260804C00763000"),   # +4 min, strike B -> SAME wave
+        _wrow("2026-08-04T15:52:00Z", "SPY260804C00769000"),   # much later -> new wave
+        _wrow("2026-08-04T16:28:00Z", "SPY260804C00769000"),   # +36 min, same strike -> new
+    ]
+    waves = wa.assign_waves(rows)
+    assert [w["n_positions"] for w in waves] == [2, 1, 1]
+    assert waves[0]["label"] == "762/763C"          # one wave spanning two strikes
+
+
+def test_waves_never_drop_a_position_lacking_a_timestamp():
+    """C7: an unassignable row is COUNTED in an `unassigned` bucket, never silently lost."""
+    rows = [_wrow("2026-08-04T13:46:00Z"), _row(99.0, {"A": 1.0})]
+    waves = wa.assign_waves(rows)
+    assert sum(w["n_positions"] for w in waves) == 2
+    assert waves[-1]["label"] == "unassigned"
+    assert waves[-1]["wave_id"] is None
+
+
+def test_assign_waves_does_not_mutate_input_rows():
+    rows = [_wrow("2026-08-04T13:46:00Z")]
+    before = dict(rows[0])
+    wa.assign_waves(rows)
+    assert rows[0] == before
+
+
+def test_wave_capture_scores_each_wave_by_a_single_fixed_policy():
+    """Per-wave capture must obey the SAME anti-hindsight rule as the book headline, so a
+    wave row and the book row mean the same thing."""
+    rows = [_wrow("2026-08-04T13:46:00Z", realized=50.0),
+            _wrow("2026-08-04T13:47:00Z", realized=50.0)]
+    for r in rows:
+        r["variants"] = {"A": 100.0, "B": 20.0}
+        r["capture"] = wa.per_trade_capture(r["realized_pnl"], r["variants"])
+    caps = wa.wave_capture(wa.assign_waves(rows), ("A", "B"))
+    assert len(caps) == 1
+    assert caps[0]["realized_total"] == 100.0
+    assert caps[0]["best_policy"] == "A"
+    assert caps[0]["best_policy_total"] == 200.0
+    assert caps[0]["capture_vs_best_policy"] == 0.5
