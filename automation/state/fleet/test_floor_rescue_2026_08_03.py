@@ -127,13 +127,21 @@ def test_floor_killed_normal_plan_is_rescued_by_full_send(verdict):
     assert str(decision.reason).startswith("FULL_SEND cohort="), "fill attribution tag"
     assert "floor_rescue" in str(decision.reason), "post-floor rescue must be audit-tagged"
     assert decision.premium == ATM_PREMIUM, "rescue must be risk-gated at ITS OWN premium"
-    # strike is the ATM/PROBE table pick, not the arm's own OTM tier
+    # strike is the ATM/PROBE table pick
     spot = float(sig["spot"])
     atm = fx.strike_selection.pick_strike(spot, EQUITY, "C", fx.PROBE_STRIKE_TIERS)
     own = fx.strike_selection.pick_strike(spot, EQUITY, "C",
                                           fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)))
-    assert atm != own, "vacuous fixture: the two tables must differ at $5K"
     assert decision.strike == atm
+    # TIER-CONFIG-AGNOSTIC (amended 2026-08-04, same session): at RED-proof time the arm's
+    # own $2K-10K tier was OTM-2, so atm != own and the rescue also re-STRIKED. The parallel
+    # ATM-TIER-EXTENSION lane (task #73, prereg 625a80-class) repoints that tier to ATM,
+    # making the two tables AGREE at $5K -- which is a CURE for the exhibit, not a break of
+    # this fix (the ordering fix is a premium RE-ASK at the rescue's own strike; strike
+    # divergence was incidental). The difference claim is therefore asserted only while the
+    # config still diverges, so this guard stays meaningful under either tier table.
+    if atm != own:
+        assert decision.strike != own, "when tables diverge, the rescue must price PROBE's"
     assert decision.qty == int(BOLD_PARAMS["min_contracts"]), "rescue is min-size, always"
     assert exit_shape is not None, "the rescue's own exit shape must ride to placement"
 
