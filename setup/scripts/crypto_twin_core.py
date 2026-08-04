@@ -645,8 +645,24 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
             changed = True
             results.append({"symbol": symbol, "open_qty": open_qty, "action": "MAX_HOLD_FLATTEN",
                             "elapsed_hours": round(elapsed_h, 2), "broker": res})
+            # TWIN-PNL BUGFIX (2026-08-04, EOD-2026-08-03-TWIN.md defect #1): this branch used to
+            # journal CLOSED with no entry_price and never called _journal_exit_fill (unlike the
+            # SELL_ALL path below) -- so a max-hold exit produced no EXIT_FILLED row and
+            # crypto_twin_pnl's ENTRY_QUALITY<->EXIT_FILLED pairing left the trip open FOREVER.
+            # Confirmed real orphan: ab#206, 2026-08-03 09:55->15:55 ET, +$1.573 (+1.04%) -- the
+            # twin's largest organic winner, invisible to its own scorecard. Now mirrors the
+            # SELL_ALL path's exact calling convention: stamp entry_price on the CLOSED row (same
+            # getattr(st, "entry_premium", None) source), then poll+journal the real fill via
+            # _journal_exit_fill with btc_qty=open_qty (same "SELL_ALL always sweeps the REAL
+            # remaining broker qty" convention used below).
             _journal(cfg, "CLOSED", symbol=symbol, reason="max_hold_flatten",
-                    elapsed_hours=round(elapsed_h, 2), broker=res, scenario=scenario)
+                    elapsed_hours=round(elapsed_h, 2), broker=res, scenario=scenario,
+                    entry_price=getattr(st, "entry_premium", None))
+            if live and res.get("id"):
+                _journal_exit_fill(cfg, creds=creds, order_id=res.get("id"), kind="SELL_ALL",
+                                   reason="max_hold_flatten", scenario=scenario,
+                                   entry_price=getattr(st, "entry_premium", None),
+                                   btc_qty=open_qty)
             continue
         hilo = broker.get_crypto_quote_hilo(cfg.symbol, creds=creds)
         if hilo is None:

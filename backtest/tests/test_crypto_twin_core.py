@@ -523,8 +523,45 @@ def test_manage_positions_max_hold_flattens(tmp_path, fake_broker):
     positions = ctc._load_positions(cfg)
     assert "BTC/USD" not in positions
     journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
-    assert journal[-1]["event"] == "CLOSED"
-    assert journal[-1]["reason"] == "max_hold_flatten"
+    # TWIN-PNL BUGFIX (2026-08-04): EXIT_FILLED now trails CLOSED here too (additive telemetry,
+    # same pattern as the SELL_ALL path -- see test_manage_positions_structure_stop_closes_all),
+    # so CLOSED is no longer guaranteed journal[-1]. Filter for it explicitly instead.
+    closed_rows = [r for r in journal if r["event"] == "CLOSED"]
+    assert closed_rows[-1]["reason"] == "max_hold_flatten"
+
+
+def test_manage_positions_max_hold_flatten_writes_paired_exit_filled_with_entry_price(
+        tmp_path, fake_broker):
+    """BUGFIX guard (2026-08-04, EOD-2026-08-03-TWIN.md defect #1). Pre-fix, the max-hold
+    branch journaled CLOSED with no entry_price and never called _journal_exit_fill (unlike
+    the SELL_ALL path a few lines below it in manage_positions) -- so a max-hold exit produced
+    NO EXIT_FILLED row at all, and crypto_twin_pnl's ENTRY_QUALITY<->EXIT_FILLED chronological
+    pairing left the trip open FOREVER. Confirmed real orphan: ab#206 (2026-08-03, 09:55->15:55
+    ET, +$1.573 / +1.04% -- the twin's largest organic winner, invisible to its own scorecard).
+
+    RED-PROOF METHOD: verified by temporarily reverting the crypto_twin_core.py fix (deleting
+    the entry_price= kwarg and the _journal_exit_fill call added to the max-hold branch) and
+    re-running this test -- it fails on the pre-fix code (zero EXIT_FILLED rows, assertion
+    below raises) and passes after re-applying the fix.
+    """
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0, max_hold_hours=6.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=entered)
+    later = entered + timedelta(hours=6, minutes=1)
+    ctc.manage_positions(cfg, creds=_CREDS, now_utc=later, live=True)
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    exit_filled_rows = [r for r in journal if r["event"] == "EXIT_FILLED"]
+    assert len(exit_filled_rows) == 1, (
+        "max-hold close produced no EXIT_FILLED row -- orphaned from crypto_twin_pnl's "
+        "ENTRY_QUALITY<->EXIT_FILLED pairing, exactly the ab#206 defect")
+    row = exit_filled_rows[0]
+    assert row["entry_price"] == pytest.approx(64000.0)
+    assert row["fill_price"] == pytest.approx(64000.0)  # fake_broker.poll_fill's fixed fill
+    assert row["reason"] == "max_hold_flatten"
+    closed_row = [r for r in journal if r["event"] == "CLOSED"][0]
+    assert closed_row["entry_price"] == pytest.approx(64000.0)
 
 
 def test_manage_positions_catastrophe_cap_when_no_trigger_level(tmp_path, fake_broker):
