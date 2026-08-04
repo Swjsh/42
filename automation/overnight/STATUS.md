@@ -1,3 +1,66 @@
+## [2026-08-04T16:26 ET] conductor: OK -- REGIME-STAMP-WRITE-CRASH-FIX -- commit `d64fc045`
+
+Budget gate PASSED ($4.95/$30, 2/4 fires pre-fire). Engine health GREEN, market closed
+(16:17 ET, 22m post-close). STAGE-1 priority-2 (Engine RED/BROKEN flag): this fire's own
+`self_check.py` run showed REGIME-STAMP DRIFT DEGRADED for 2026-08-04, matching the
+`monday_verify` WS6 RED entry immediately above this one in STATUS.md -- two independent
+instruments agreeing the same morning.
+ROOT CAUSE (verified via logs, not assumed): `Get-ScheduledTaskInfo Gamma_RegimeStamp`
+showed `LastRunTime=8/4 06:22 local (08:22 ET)`, `LastTaskResult=0` -- looked like a clean
+run. But `regime-stamp.json` was frozen on 2026-08-03's content. `regime-stamp.stderr.log`
+had exactly ONE traceback: `OSError: [Errno 22] Invalid argument` on `STAMP_PATH.write_bytes`
+-- a transient lock race, near-certainly OneDrive (`%OneDrive%` env var confirmed set;
+`Desktop\42` is a Known-Folder-Move sync target). The uncaught exception exited Python
+nonzero, but `run_exe_hidden.vbs` launches via `shell.Run cmd, 0, False` (fire-and-forget,
+never waits, never propagates the child's exit code) -- so Task Scheduler's LastTaskResult=0
+was FAKE success. Grepped: 107/~150 registered Gamma_* tasks (incl. Gamma_HeartbeatCore)
+route through this same wrapper -- LastTaskResult has been an unreliable success signal
+fleet-wide, not just for this one script.
+SHIPPED (paper-adjacent, non-trading-path -- regime-stamp.json is explicitly documented
+"DESCRIPTIVE ONLY, never a live entry input"): `regime_stamp.py`'s two write sites now go
+through a new `_atomic_write_bytes_with_retry()` helper (temp file + os.replace atomic
+swap, up to 4 attempts w/ backoff on OSError) instead of a bare in-place `write_bytes`.
+6 new guard tests (`test_regime_stamp_atomic_write_2026_08_04.py`), RED-proofed via
+`git stash` (5/6 correctly failed pre-fix, exact expected AttributeError). Curated safety
+gate 59/59 PASS. Ran the fixed script live to backfill today's stale artifact: confirmed
+`regime-stamp.json` now `date=2026-08-04`, `self_check.py` DEGRADED problem count dropped
+4->3 (REGIME-STAMP DRIFT cleared; remaining 3 are PDT-BLOCKED[bold] rule-enforcement +
+TRENDLINE-DRAW, both pre-existing/unrelated). `git show d64fc045 --stat` confirms exactly
+5 intended files (regime_stamp.py, its test, the regenerated state file, the lesson-inbox
+writeup, queue.md) -- no shared-index absorption (pre-commit's dir-span warning fired
+correctly as a heuristic, non-blocking).
+**REVOKE: `git revert d64fc045`** (regime_stamp.py reverts to the direct write_bytes call;
+harmless either way since the artifact is descriptive-only and self-heals on the next
+08:22 ET fire).
+DELIBERATELY NOT FIXED this fire (scope discipline + blast radius): the deeper systemic
+bug -- `run_exe_hidden.vbs`'s fire-and-forget launch making LastTaskResult meaningless
+across all 107 tasks using it, including the live trading heartbeat. Filed as
+`VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` (queue.md, HIGH) + a lesson-inbox writeup
+(`2026-08-04-vbs-wrapper-fire-and-forget-masks-exit-code.md`) with the concrete fix shape
+(`shell.Run(cmd, 0, True)` + `WScript.Quit(errcode)`) explicitly gated behind a
+`/fable-blast-radius` pass before it ever touches `Gamma_HeartbeatCore`'s launch path --
+next fire or J's own judgment call, not mechanically executed here.
+Autonomy metric refreshed via conductor_outcome.py this same fire.
+
+---
+
+## [2026-08-04T16:15:07 ET] RED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-04 -- 4 GREEN / 0 YELLOW / 1 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 202 tick(s) showed in_trade>0. 101 real fill(s) dated 2026-08-04: risky-1@09:46, risky-3@09:46, risky-1@09:50, risky-3@09:50, risky-3@09:54, safe-2@09:56, bold-2@09:56, safe-2@09:57, risky-3@09:57, bold-2@09:57, safe-2@09:58, safe-3@09:58, bo… |
+| WS6 regime stamp | RED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-03, generated_at_et=2026-08-03T08:22:03-04:00 (hhmm=08:22, in 08:15-08:40 window=True). today-bias.json date=2026-08-04, regime_context.stamp_date=2026-08-03 (present=True, dates_match=False). one_liner='Yesterday 2026-07-31 (Fri) = V-reversal (range 1.51%, gap +0.40%… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 75 distinct near-price levels. Worst: 760.52 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 37 time(s) across 8 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-04 window_end=2026-08-03 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=10 (delta +0 vs baseline n=10) exp=$-60.9/tr, verdict_moved=False. bull now: UNDERPOWERED n=1 exp=$-295.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-04T16:00:04 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 560 theta-clock row(s) dated 2026-08-04 across 7 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=560, unavailable=0. sti… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-04 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-04`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 [2026-08-04T05:45:00 ET] conductor: OK -- TASK-SCORER-AWAITING-J-GATE -- commit `5f79e3c9`
 Budget gate PASSED ($0.77/$30, 1/4 fires pre-fire). Engine health GREEN, market closed.
 task_scorer.py --top ranked TWIN-DOCTRINE-FIRST-DEPLOY #1 AGAIN (2nd consecutive fire,
@@ -397,121 +460,14 @@ Artifacts: `analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prere
 
 ---
 
-## [2026-08-02T12:00:04 ET] conductor: QUIET -- nightly budget EXHAUSTED (8 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
 
-## [2026-08-02T10:00:04 ET] conductor: QUIET -- nightly budget EXHAUSTED (7 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
-
-## [2026-08-02T08:00:06 ET] conductor: QUIET -- nightly budget EXHAUSTED (6 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
-
-## [2026-08-02T04:16:33 ET] conductor: OK -- EXIT-HYBRID-PRETP1-FLOOR iteration 4 -- ARM_NOTHING, but the profit-lock-mechanism axis is now CLOSED (4/4 iterations tested)
-
-**Signal J wakes to (OP-25).** Budget PASS ($8.80/$30, 3/4 fires before this one), market-hours
-gate PASS (Sunday 04:00 ET). Engine health GREEN. Self-audit gaps: nothing new since 2026-08-01
-(already fully triaged). Priority scan (task_scorer.py) surfaced TWIN-DOCTRINE-FIRST-DEPLOY as
-top-ranked but it is already DRAFTED + proposed to J (gp-2026-07-23-twin-doctrine-001, pending
-J's `ship`/`shelve` reply) -- nothing autonomous left to do there. Picked the queue's other
-CRITICAL item instead: **EXIT-HYBRID-PRETP1-FLOOR**, the isolated 4th candidate on the exit-leak
-arm axis (filed 2026-07-29, 3 prior nulls).
-
-**Built exactly what the item specced:** a NEW, structurally independent knob
-(`pre_tp1_be_floor_arm_pct` on `exit_manager.ExitState`/`plan_exit_actions`, commit `ad675965`)
-that arms a BE-floor-ONLY scratch pre-TP1 -- never trails, never sets `profit_lock_armed` --
-while `profit_lock_mode` stays `"trailing"` throughout, so the post-TP1 chandelier (the
-+$15,774.05/35-for-35 runner engine) is provably untouched. This fixes iteration 3's confound:
-`profit_lock_mode="fixed"` was read by BOTH the pre-TP1 AND post-TP1 branches, so 25 of 27
-iteration-3 "degraded" trades were actually the post-TP1 trailing protection silently
-disappearing, not the pre-TP1 whipsaw the hypothesis targeted.
-
-**Froze a pre-reg BEFORE building the runner** (`prereg-pretp1-be-floor-isolated-2026-08-02.json`,
-commit `5dda3acf`, git-provably predates the runner commit `6ae876bc`) with 3 cells
-(P1=0.30/P2=0.50/P3=0.70 arm_pct, ascending, each a ONE-key change vs CONTROL -- cleaner than
-iteration 3's 3-key cells) and ran it on the SAME frozen 191-trade population, entries UNCHANGED,
-exits re-derived through the REAL `exit_manager.plan_exit_actions` core (never
-`simulate_trade_real`, 2026-07-09 sim-parity scar). CONTROL reconciled byte-for-byte (0
-mismatches vs source), runner-cohort anchor matched exactly (n=35, $15,774.05).
-
-**RESULT: ARM_NOTHING (G4 runner-cohort veto fails uniformly), but the confound-fix is
-empirically VALIDATED -- zero knob-isolation violations across all 191 trades x 3 cells.** Every
-degraded runner-cohort trade was mechanism (a) pretp1_roundtrip_to_entry (the hypothesis's own
-predicted failure mode); ZERO were mechanism (b) post-TP1 lost-trailing-protection -- proving
-this knob genuinely cannot leak into post-TP1, unlike iteration 3. Damage is far smaller than
-every prior iteration and dose-response is cleanly monotonic-improving: P1(0.30)=-$3,650.45,
-**P2(0.50, the named prediction-to-beat cell)=-$905.45** (much closer to neutral than every prior
-cell, but the "roughly NEUTRAL-to-positive" prediction was NOT met -- still a real loss),
-P3(0.70)=-$459.00. G6 (today's 2026-07-28 Bold incident trade) PASSES for P1/P2 (+$305 swing,
-scratch at $0 vs the real -$305 loss) but FAILS for P3 (that trade's +56.5% HWM never reached the
-0.70 arm level). G1 aggregate stays negative at every threshold tested.
-
-**This closes the profit-lock-mechanism axis for good, per the pre-reg's own arming_rule.** Four
-iterations (1-2 trailing-mode, 3 confounded-fixed-mode, 4 cleanly-isolated-BE-floor) have now
-tested every meaningful pre-TP1 profit-lock shape and all four fail the runner-cohort veto at
-every threshold tried. The queue item's own fallback fires: **next candidate is
-THETA-NOT-GIVEBACK** (hold-time/underlying-stall class, already filed alongside this item) -- a
-premium-space mechanism cannot beat theta decay on a still-live 0DTE thesis; the next axis must
-be TIME-space or UNDERLYING-space, not another profit-lock variant.
-
-**Guard + RED-proof:** 8 new tests in `automation/state/fleet/test_exit_manager.py` (RED-proofed
-by hand -- temp-disabled the mechanism with a literal `False and`, 3 tests failed with the exact
-expected assertion, restored, 63/63 green). 21 new tests in
-`backtest/tests/test_pretp1_be_floor_isolated_ab_2026_08_02.py`, including a hard
-`total_knob_isolation_violations == 0` RED-proof pinned directly against the shipped scorecard.
-Full regression sweep (`test_be_floor_ab_2026_07_29.py` + `test_exit_armscope_ab.py` +
-`test_exit_manager_replay.py` + `test_exit_manager_walk_stage_labels.py` +
-`test_exit_manager_walk_entry_bar_convention.py` + the new file): 98/98 PASS. Curated safety gate
-(`run_safety_gate.py`): 59/59 PASS post-ship.
-
-**Zero live-arming action taken.** `pre_tp1_be_floor_arm_pct` stays undeclared in
-`strategies.py`'s `RIBBON_RIDE` shape -- fully inert on the live path (same posture as
-`profit_lock_arm_scope="full"` before it: expressible, never armed, per the pre-reg's own
-arming_rule since no cell cleared G4). Zero `params.json`/`heartbeat_core.py`/`filters.py`/
-`strategies.py`/placement edits.
-
-**Commits:** `ad675965` (mechanism + guards), `5dda3acf` (frozen prereg), `6ae876bc` (runner +
-guards + scorecard). **Revert (mechanism, if ever wanted):** `git revert ad675965` -- the knob
-is purely additive and unreferenced by any live ExitShape, so reverting is a no-op removal, not
-a behavior change.
-
-Artifacts: `analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.{json,md}`. Full
-narrative + prior-iteration history: `automation/overnight/queue.md`
-EXIT-HYBRID-PRETP1-FLOOR entry (closed this fire).
-
----
-
-## 2026-08-03 evening -- AFTER-CLOSE PACKAGE APPLIED (SHIPs A/B/C) + fleet suite repairs
-
-**All three ships live for Tuesday 08-04, paper only, one-line reverts, J's lever is REVOKE:**
-- **SHIP A** exit anchors -> REAL FILL (was: limit price, 240/240 legs wrong since inception).
-  Revert: `git revert` the SHIP A commit.
-- **SHIP B** block_elite_bull LIFTED on BOTH cores (trade-to-learn trial 2; Fri+Mon real fleet
-  fills on the refused class vs the negative 391-day aggregate -- recency directive). Kill:
-  per arm n>=10 elite-bull fills or 10 sessions, net<0 -> re-block same day (Gamma_GateExpiryCheck
-  tracks). Revert: one key per params file -> true.
-- **SHIP C** risky-3 qty 10 when premium < $0.50 (J verbatim directive; max 9.8% of equity;
-  Rule 6 authoritative via shrink+risk_gate AFTER the boost). Kill: n>=10 boosted fills or 10
-  sessions, net<0. Revert: delete the two params_patch keys.
-Also: SHIP A's fleet-side test regressions repaired (5 tests -- the staged regression net had
-missed fleet suites); $5K-rebuild registry pins + live-verified fixture refreshed BY LIVE PROBE.
-Fleet suite 348/348. Day: +$533.22 realized, 4 arms green, full EOD in
-analysis/deep-research/EOD-2026-08-03-FULL-REVIEW.md.
-
-## Known broken
-
-- [2026-08-03T18:30:04] MCP_AUDIT_RED: Alpaca MCP servers offline — heartbeat cannot execute orders or read account state. TradingView healthy.
-- [2026-08-02T23:01:56] GATE-EXPIRY RED :: require_bearish_fill_bar :: refused cohort would have EARNED $0.44/tr, n=34 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate require_bearish_fill_bar
-[2026-08-02T18:34:00.147036-04:00] MCP_AUDIT_RED: MCP weekly audit FAILED — Alpaca Safe/Bold unreachable, TradingView relaunch ineffective
-
-- [2026-08-02T03:58:00 ET] DST-FRAME-AUDIT YELLOW :: re-violated 2026-07-02 DST-frame lesson found (fleet_arm_replay.py's first draft independently re-hit it, self-fixed before commit `151123a2`); shared OPRA loader still un-normalized, several consumers (simulator_credit.py/simulator_debit.py/exit_manager_walk.py, no `frame` param) trust callers blindly. PIVOT-PREMIUM-SELLING-SCORECARD.md LEAD-cell OOS expectancy overstated +$23.03 vs corrected +$15.30/tr (-33.6%) -- verdict unchanged (already DEAD/LEAD-not-EDGE, reinforced not flipped). bold_fullhist_replay.py anchor validation mechanism confirmed live but 0/7 current anchors are winter-dated (no numeric corruption today; will bite the first winter real fill). No live knob touched. Guard shipped + RED-proofed (3 new tests, test_graduated_guards.py). Full detail: analysis/deep-research/DST-FRAME-BLAST-RADIUS-2026-08-02.md :: re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -k dst_frame -v
-
-
-## Kitchen
-Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-- [2026-08-04 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-08-04 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-08-04 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-04.md
-
-### DEGRADED: self-check 2026-08-04T09:09:56
+### DEGRADED: self-check 2026-08-04T16:18:02
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
 - TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-03, today-bias.json regime_context.stamp_date=2026-08-03, today=2026-08-04 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
+
+### DEGRADED: self-check 2026-08-04T16:24:21
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
