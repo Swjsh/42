@@ -402,7 +402,15 @@ def _manage_ladder_position(cfg: ctc.TwinConfig, *, lane: str, position: dict, n
     flip = bool(ribbon_stack) and (ribbon_stack == ("BULL" if side == "bear" else "BEAR"))
     dec = em.plan_exit_actions(st, best_premium=best, worst_premium=worst,
                                open_qty=cfg.units_per_entry, now_et=now_et_time,
-                               ribbon_flip_back=flip, last_closed_5m_close=price)
+                               ribbon_flip_back=flip, last_closed_5m_close=price,
+                               # BUGFIX (2026-08-04, EOD-2026-08-03-TWIN.md defect #2): this call
+                               # was missing time_stop_et=cfg.wall_clock_time_stop_et, so exit_
+                               # manager's SPY-shaped 15:50 ET default (TIME_STOP_ET) silently won
+                               # and force-closed every ladder position open past 15:50 ET as
+                               # time_stop_15:50 on this 24/7 BTC instrument -- immediate re-entry
+                               # churned both lanes' A/B totals. Mirrors crypto_twin_core.py's
+                               # manage_positions() fix exactly: same cfg field, same kwarg.
+                               time_stop_et=cfg.wall_clock_time_stop_et)
 
     executed = []
     new_legs = list(position.get("legs", []))

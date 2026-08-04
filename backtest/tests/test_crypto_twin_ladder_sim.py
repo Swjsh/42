@@ -362,6 +362,42 @@ def test_max_hold_flatten_closes_and_journals_round_trip(tmp_path, fake_quote):
     assert closed["round_trip_pct"] is not None
 
 
+def test_manage_ladder_position_does_not_time_stop_at_et_1555(tmp_path, fake_quote):
+    """BUGFIX guard (2026-08-04, EOD-2026-08-03-TWIN.md defect #2). Companion to crypto_twin_
+    core.py's test_default_24_7_config_does_not_time_stop_at_et_1555. Pre-fix, _manage_ladder_
+    position's em.plan_exit_actions call omitted time_stop_et=cfg.wall_clock_time_stop_et, so
+    exit_manager's SPY-shaped 15:50 ET default (TIME_STOP_ET) silently won and force-closed
+    every ladder position open past 15:50 ET as a time_stop_15:50-class SELL_ALL, even on this
+    24/7 BTC instrument -- contaminating both lanes' A/B totals with churn (documented: variant
+    149/211 closes were time_stop, baseline 148/182).
+
+    max_hold_hours is set well past the test window (24h vs ~8h elapsed) so MAX_HOLD_FLATTEN
+    -- checked first in _manage_ladder_position -- can never mask the bug this test targets.
+
+    RED-PROOF METHOD: verified by temporarily reverting the crypto_twin_ladder_sim.py fix
+    (removing the time_stop_et=cfg.wall_clock_time_stop_et kwarg from the plan_exit_actions
+    call) and re-running this test -- it fails on the pre-fix code (a "time_stop" stage shows
+    up in the actions list and the position spuriously closes) and passes after re-applying
+    the fix.
+    """
+    cfg = _twin_cfg(tmp_path, max_hold_hours=24.0)  # default 24/7 sentinel, same as core's companion test
+    now = datetime(2026, 7, 27, 12, 0, tzinfo=timezone.utc)
+    paths = _paths(cfg)
+    verdict = lad.VariantVerdict("ENTER_BULL", "bull", "LADDER_HTF_LEVEL_RECLAIM",
+                                 trigger_level_exact=None, ribbon_stack="MIXED", htf_15m="BULL")
+    position = lad._place_ladder_entry(cfg, lane="variant", verdict=verdict, now=now,
+                                       price=64000.0, journal_path=paths["journal_path"])
+    fake_quote["quote"] = (64010.0, 63990.0)  # inert -- the ONLY thing that should fire is time_stop
+    now2 = datetime(2026, 7, 27, 19, 55, tzinfo=timezone.utc)  # UTC 19:55 == ET 15:55 (EDT)
+    exit_pass, action, position = lad._manage_ladder_position(
+        cfg, lane="variant", position=position, now=now2, price=64005.0, bar_open=64000.0,
+        ribbon_stack="MIXED", journal_path=paths["journal_path"])
+    stages = [a.get("stage") for a in exit_pass[0].get("actions", [])]
+    assert "time_stop" not in stages, "SPY's 15:50 ET EOD flatten leaked into the 24/7 ladder-sim"
+    assert action == "LADDER_MANAGED"
+    assert position is not None
+
+
 # ============================================================================
 # summarize() / report()
 # ============================================================================
