@@ -218,7 +218,10 @@ def run() -> dict:
             "risky3_qty": r3e[0].qty if r3e else None, "risky3_reason": r3e[0].reason if r3e else None,
         }
 
-    for eq in (1756.87, 1999.99, 2000.0, 2500.0, 9999.0):
+    # 12_000.0 added 2026-08-04: ATM-TIER-EXTENSION-2K-10K (1fbde442) moved the first
+    # diverging bracket from $2K to $10K (bold_core $2K-10K is now ATM; $10K-25K OTM-1 vs
+    # PROBE ITM-1) -- the sweep must keep exercising BOTH agreement regimes.
+    for eq in (1756.87, 1999.99, 2000.0, 2500.0, 9999.0, 12_000.0):
         bc = fx.strike_selection.pick_tier(eq, fx.strike_selection.V15_BOLD_CORE_TIERS)
         ps = fx.strike_selection.pick_tier(eq, fx.PROBE_STRIKE_TIERS)
         out["strike_table_agreement_by_equity"].append({

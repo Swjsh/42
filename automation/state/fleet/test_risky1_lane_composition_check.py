@@ -97,20 +97,31 @@ def test_normal_lane_enters_on_a_single_base_trigger_no_elite_needed():
 # --------------------------------------------------------------------------------------
 # 3. Strike-table agreement is equity-contingent -- vary equity, watch the verdict flip.
 # --------------------------------------------------------------------------------------
-def test_strike_tables_agree_below_2k_and_diverge_at_and_above_2k():
+def test_strike_tables_agree_below_10k_and_diverge_at_and_above_10k():
     """THE central vary-and-assert of this correction: same two tables, same helper, only
     the equity input changes, and the agreement verdict flips. If either strike table is
     ever edited such that this stops flipping, the 'coincidence, not guarantee' framing in
-    risky1_lane_composition_check.py's docstring is stale and must be revisited."""
-    below = fx.strike_selection.pick_tier(1_999.99, fx.strike_selection.V15_BOLD_CORE_TIERS)
-    below_probe = fx.strike_selection.pick_tier(1_999.99, fx.PROBE_STRIKE_TIERS)
-    assert below.strike_offset == below_probe.strike_offset == 0
+    risky1_lane_composition_check.py's docstring is stale and must be revisited.
 
-    at_or_above = fx.strike_selection.pick_tier(2_000.0, fx.strike_selection.V15_BOLD_CORE_TIERS)
-    at_or_above_probe = fx.strike_selection.pick_tier(2_000.0, fx.PROBE_STRIKE_TIERS)
+    BOUNDARY MOVED 2026-08-04 (amended by the chain-walk lane when this pin went stale):
+    ATM-TIER-EXTENSION-2K-10K (commit 1fbde442, prereg 625c6a80) repointed bold_core's
+    $2K-10K row OTM-2 -> ATM, so agreement now extends through $10K and the first
+    divergence bracket is $10K-25K (bold_core OTM-1 vs PROBE ITM-1). The 'coincidence,
+    not guarantee' framing HOLDS -- only the boundary moved. Revert of the extension
+    (restore -2 on the $2K-10K row) must flip this test back, which is exactly the
+    stale-pin alarm this guard exists to raise."""
+    for eq in (1_999.99, 2_000.0, 9_999.0):
+        core = fx.strike_selection.pick_tier(eq, fx.strike_selection.V15_BOLD_CORE_TIERS)
+        probe = fx.strike_selection.pick_tier(eq, fx.PROBE_STRIKE_TIERS)
+        assert core.strike_offset == probe.strike_offset == 0, (
+            f"at ${eq:,.2f} both tables must be ATM post-extension "
+            f"(core={core.strike_offset}, probe={probe.strike_offset})")
+
+    at_or_above = fx.strike_selection.pick_tier(10_000.0, fx.strike_selection.V15_BOLD_CORE_TIERS)
+    at_or_above_probe = fx.strike_selection.pick_tier(10_000.0, fx.PROBE_STRIKE_TIERS)
     assert at_or_above.strike_offset != at_or_above_probe.strike_offset
-    assert at_or_above.strike_offset == -2   # OTM-2
-    assert at_or_above_probe.strike_offset == 0  # stays ATM
+    assert at_or_above.strike_offset == -1       # OTM-1
+    assert at_or_above_probe.strike_offset == +1  # Slight ITM
 
 
 def test_full_send_lane_strike_is_never_derived_from_tiers_for_arm():
