@@ -194,13 +194,33 @@ def test_full_send_prices_ATM_via_PROBE_STRIKE_TIERS_not_the_arms_normal_tier():
     assert fs.strike == expected_atm, "full-send must price PROBE_STRIKE_TIERS (ATM at $2K)"
     assert fs.strike == 744, f"canary: spot {spot} ATM call strike should be 744, got {fs.strike}"
 
-    # --- vary-and-assert: it is genuinely NEARER than the arm's own bold/OTM table ---------
+    # --- vary-and-assert: the lane reads PROBE's table, never _tiers_for_arm ---------------
+    # AMENDED 2026-08-04 (chain-walk lane): ATM-TIER-EXTENSION-2K-10K (1fbde442, prereg
+    # 625c6a80) repointed bold_core's $2K-10K row OTM-2 -> ATM, so at the original $2K
+    # fixture the two tables now AGREE and the old hard `fs.strike != arm_tier_strike`
+    # assertion went vacuous-by-cure (it asserted the DEFECT's exhibit, not the mechanism).
+    # The mechanism claim ("full-send prices PROBE, never the arm's table") keeps its teeth
+    # at the first equity where the tables still DIVERGE on the committed tables --
+    # $10K-25K: bold_core OTM-1 vs PROBE ITM-1. _full_send_plan never consults
+    # position_sizing_tiers (min_contracts hard clamp), so the lane fires at this equity
+    # regardless of sizing-tier coverage. RED-proof unchanged: point _full_send_plan at
+    # _tiers_for_arm(arm) and the diverging-equity assertions fail.
     arm_tier_strike = fx.strike_selection.pick_strike(spot, EQUITY, fs.side,
                                                      fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)))
-    assert fs.strike != arm_tier_strike, (
-        "guard is vacuous if the two tables agree at this equity -- pick a fixture where they "
-        f"differ (arm table gave {arm_tier_strike}, PROBE gave {fs.strike})")
-    assert arm_tier_strike == 746, f"canary: arm's own OTM-2 table should give 746, got {arm_tier_strike}"
+    DIVERGE_EQUITY = 12_000.0
+    probe_12k = fx.strike_selection.pick_strike(spot, DIVERGE_EQUITY, fs.side,
+                                                fx.PROBE_STRIKE_TIERS)
+    arm_12k = fx.strike_selection.pick_strike(spot, DIVERGE_EQUITY, fs.side,
+                                              fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)))
+    assert probe_12k != arm_12k, (
+        "fixture broken: the two tables must still diverge SOMEWHERE (currently $10K-25K: "
+        f"bold_core OTM-1 vs PROBE ITM-1) -- got {arm_12k} vs {probe_12k}")
+    fs_12k = [p for p in fx.plan_all(_arm(FULL_SEND_ARM_ID), sig, DIVERGE_EQUITY, BOLD_PARAMS)
+              if p.action == "ENTER" and str(p.reason).startswith("FULL_SEND cohort=")]
+    assert fs_12k, "full-send lane must fire at the diverging equity too (sizing-tier-free)"
+    assert fs_12k[0].strike == probe_12k, (
+        "full-send must price PROBE's table at an equity where the arm's own table differs "
+        f"(got {fs_12k[0].strike}, PROBE says {probe_12k}, arm table says {arm_12k})")
 
     # --- and the arm's NORMAL lane is untouched: it still prices the arm's own table -------
     normal_sig = _signal_from(_vetoed_core_row(bull_score=11))
@@ -209,8 +229,9 @@ def test_full_send_prices_ATM_via_PROBE_STRIKE_TIERS_not_the_arms_normal_tier():
     assert not str(normal.reason).startswith("FULL_SEND cohort="), (
         "fixture broken -- the score-11 tick must route through the NORMAL lane")
     assert normal.strike == arm_tier_strike, (
-        "the ATM override must be scoped to the full-send lane ONLY -- the arm's normal "
-        "entries must still price its own tier table")
+        "the normal lane must price the arm's own tier table (post-ATM-extension the two "
+        "tables agree at $2K, so this is a same-value check here; the $12K divergence block "
+        "above carries the discriminating assertion)")
     assert fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)) is not fx.PROBE_STRIKE_TIERS, (
         "the arm's own tier table must never BE the probe table -- that half of the revert "
         "is real and stays")
