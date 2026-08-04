@@ -395,6 +395,83 @@ def test_chosen_side_hard_skip_rescue_end_to_end():
     assert rescued_side == "P"       # opted-out arm sees the rescued bear
 
 
+# --- LANE-5 ORPHAN CLOSE (2026-08-04): is the hard-skip override actually LIVE-WIRED? -------
+# QUEUE ITEM ("fleet_executor._effective_passed... dead knob... since 2026-07-23, only
+# reachable from backtest/replay_fleet_arms.py") investigated fresh this session. Root cause,
+# stated precisely: the mechanism is NOT code-dead -- it is CONFIG-INERT. accounts.json's
+# risky-3 entry genuinely carries `gate_params: {"hard_skip_verdicts": []}` on disk (verified
+# this session), _chosen_side/_effective_passed correctly consume it (proven above by
+# test_effective_passed_rescues_for_opted_out_arm / test_chosen_side_hard_skip_rescue_end_to_end
+# already in this file), and build_shared_signal.py's dual-perception 'bold' block DOES carry
+# score_peak_passed/hard_skip_action when SCORING_PEAK_LIVE=True (confirmed True on disk) and a
+# real (non-blind) row exists. The reason it never visibly FIRES on the live ledger: build_
+# shared_signal._HARD_SKIP_VERDICTS has exactly ONE member, SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY
+# (tied to the require_bearish_fill_bar gate) -- and per markdown/deep-research/WEEK-ORDER-
+# 2026-08-03.md's gate table, require_bearish_fill_bar is "prereg frozen, NOT armed" as a
+# deliberate evidence-based decision. An unarmed gate never writes that verdict string, so
+# hard_skip_action is always None on today's real rows and the rescue branch always resolves
+# to the SAME answer score_peak_passed alone would give -- functionally invisible, by config,
+# not by a wiring bug. The tests above already prove the ISOLATED logic; this test closes the
+# gap to "live-path" by loading the REAL accounts.json (not a hand-copied literal that could
+# silently drift from disk) and driving the mechanism through fleet_executor.plan_entry -- the
+# actual live entry point -- end to end. No production code changed; this is a diagnostic +
+# regression guard proving the mechanism is correctly wired and ready for the day
+# require_bearish_fill_bar (or any future _HARD_SKIP_VERDICTS member) arms.
+def _real_arm(arm_id: str) -> dict:
+    import pathlib
+    accounts_path = pathlib.Path(__file__).resolve().parent / "accounts.json"
+    accounts = json.loads(accounts_path.read_text(encoding="utf-8"))
+    for a in accounts["arms"]:
+        if a["id"] == arm_id:
+            return a
+    raise KeyError(f"{arm_id} not found in real accounts.json arms list")
+
+
+def test_real_accounts_json_risky3_has_the_opt_out_configured():
+    """RED-PROOF anchor: if a future accounts.json edit ever drops risky-3's opt-out (or
+    changes it to a non-empty list that re-includes the fill-bar verdict), this fails loud
+    before the end-to-end test below can silently start passing for the wrong reason."""
+    risky3 = _real_arm("risky-3")
+    assert risky3.get("gate_params") == {"hard_skip_verdicts": []}
+    risky1 = _real_arm("risky-1")
+    assert risky1.get("gate_params") is None, "risky-1 is the control -- must have NO override"
+
+
+def test_real_accounts_json_wiring_rescues_risky3_not_risky1():
+    """Vary-and-assert against the REAL on-disk accounts.json (not a synthetic fixture):
+    the SAME hard-skip-blocked BOLD-perception signal is rescued for the real risky-3 arm
+    object and stays blocked for the real risky-1 arm object, via _chosen_side -- the exact
+    function plan_entry calls first on every live tick."""
+    risky3 = _real_arm("risky-3")
+    risky1 = _real_arm("risky-1")
+    dual = {
+        "spot": 735.0, "production_action": "HOLD",
+        "bear": {"passed": False}, "bull": {"passed": False},
+        "safe": {"bear": {"passed": False}, "bull": {"passed": False}},
+        "bold": {"bear": dict(_HARD_SKIP_BLOCKED_BLOCK), "bull": {"passed": False}},
+    }
+    assert fx._chosen_side(dual, risky1)[0] is None, "control must still honor the hard-skip"
+    assert fx._chosen_side(dual, risky3)[0] == "P", "real disk risky-3 config must rescue it"
+
+
+def test_real_accounts_json_wiring_through_plan_entry_end_to_end():
+    """Full live entry point (plan_entry, not just the pure _chosen_side helper) with the
+    REAL risky-3/risky-1 arm dicts and BOLD_PARAMS -- proves the override changes the actual
+    ENTER/HOLD decision, not just an internal side-selection helper."""
+    risky3 = _real_arm("risky-3")
+    risky1 = _real_arm("risky-1")
+    dual = {
+        "spot": 735.0, "production_action": "HOLD",
+        "bear": {"passed": False}, "bull": {"passed": False},
+        "safe": {"bear": {"passed": False}, "bull": {"passed": False}},
+        "bold": {"bear": dict(_HARD_SKIP_BLOCKED_BLOCK), "bull": {"passed": False}},
+    }
+    control_plan = fx.plan_entry(risky1, dual, 5000.0, BOLD_PARAMS)
+    rescued_plan = fx.plan_entry(risky3, dual, 5000.0, BOLD_PARAMS)
+    assert control_plan.action == "HOLD", control_plan.reason
+    assert rescued_plan.action == "ENTER" and rescued_plan.side == "P", rescued_plan.reason
+
+
 # --- SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX guard (GATE-PROVENANCE-AUDIT-2026-07-02 E5/F6) ---
 def test_min_confidence_gate_removed_and_inert():
     """build_shared_signal.py has NEVER populated a "confidence" field on any signal it
