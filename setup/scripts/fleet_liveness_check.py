@@ -50,6 +50,22 @@ STATUS_SOME_SILENT = "SOME_SILENT"
 STATUS_NOT_APPLICABLE = "NOT_APPLICABLE"
 STATUS_UNKNOWN = "UNKNOWN"
 
+# --- CONTENT ALARMS (2026-08-03, PIPELINE-CHAIN-MAP silent-link closure) ---------------------
+# ">=1 row today" is CONTENT-BLIND: an arm whose every row says signal_stale (the fleet blind
+# to its own brain all day), whose entry attempts are wall-to-wall SKIP_MIN_PREMIUM_FLOOR (the
+# 2026-08-03 afternoon: 33-35 floor-kills per bold-tier arm, the whole elite cluster untradeable
+# -- caught only by a manual EOD review), or whose rows are ERROR (creds/account fetch dead)
+# reads ALL_TICKED and alarms nothing. These per-arm tallies close that class ADDITIVELY:
+# status/exit-code semantics untouched (fail-open -- a content alarm is a loud line on an
+# ALL_TICKED day, never a fake outage); alarms ride the existing `reason` string (surfaced by
+# every consumer that prints it: engine_health.check_fleet_ticked, daily_brief, the CLI) plus
+# structured `arm_content` / `content_alarms` keys. The FLOOR_WALL count doubles as the
+# standing baseline the ATM-TIER-EXTENSION-2K-10K prereg needs (EOD 2026-08-03 section 7
+# watch-item #1). Guard: backtest/tests/test_liveness_content_alarms_2026_08_03.py.
+STALE_SIGNAL_DOMINANCE_FRAC = 0.30  # >30% of an arm's rows on a dead/stale shared signal
+FLOOR_BLOCK_ALARM_MIN = 10          # >=10 floor-kills in one arm-day = a wall, not noise
+ARM_ERROR_ALARM_MIN = 3             # >=3 ERROR rows (creds/account fetch) = systemic
+
 _EXIT = {STATUS_ALL_TICKED: 0, STATUS_NOT_APPLICABLE: 0,
          STATUS_SOME_SILENT: 3, STATUS_UNKNOWN: 4}
 
@@ -101,7 +117,71 @@ def _ticked_today(arm_id: str, day: str) -> Optional[bool]:
         return None
 
 
-def check_day(day: str, accounts_path: Optional[Path] = None) -> dict:
+def _arm_day_content(arm_id: str, day: str, fleet_dir: Optional[Path] = None) -> Optional[dict]:
+    """One-pass per-arm content tally for `day`: {rows, stale_signal, floor_blocks, errors,
+    rescue_denied}. None if the arm's ledger is missing/unreadable (mirrors _ticked_today's
+    None contract). Every tally is guarded on the field EXISTING so pre-schema rows can never
+    inflate a count. rows==0 <=> the arm did not tick (the existing liveness fact)."""
+    path = (fleet_dir or FLEET_DIR) / arm_id / "decisions.jsonl"
+    if not path.exists():
+        return None
+    tally = {"rows": 0, "stale_signal": 0, "floor_blocks": 0, "errors": 0, "rescue_denied": 0}
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                if day not in line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+                if not (isinstance(row, dict) and str(row.get("ts_et", "")).startswith(day)):
+                    continue
+                tally["rows"] += 1
+                ss = row.get("signal_status")
+                if isinstance(ss, str) and ss != "ok":
+                    tally["stale_signal"] += 1
+                if str(row.get("risk_code", "")) == "SKIP_MIN_PREMIUM_FLOOR":
+                    tally["floor_blocks"] += 1
+                if str(row.get("action", "")) == "ERROR":
+                    tally["errors"] += 1
+                # L246 floor-rescue visibility (2026-08-03 fix): a denied rescue is annotated
+                # into the floor row's reason -- counting it here makes "the rescue lane tried
+                # and was refused N times" glanceable without a ledger grep.
+                if "floor_rescue denied" in str(row.get("reason", "")):
+                    tally["rescue_denied"] += 1
+        return tally
+    except OSError:
+        return None
+
+
+def _arm_content_alarms(arm_id: str, tally: Optional[dict]) -> list:
+    """Named alarm strings for one arm's day. Empty on a healthy day / rows==0 (liveness
+    itself alarms silence) / malformed input. Fail-open: never raises, never invents."""
+    try:
+        if not isinstance(tally, dict) or not tally.get("rows"):
+            return []
+        rows = tally["rows"]
+        alarms = []
+        if tally.get("stale_signal", 0) / rows > STALE_SIGNAL_DOMINANCE_FRAC:
+            alarms.append(f"{arm_id}: SIGNAL_STALE_WALL {tally['stale_signal']}/{rows} rows "
+                          "rode a missing/stale shared-signal (fleet blind to the brain -- "
+                          "check build_shared_signal / core engine)")
+        if tally.get("floor_blocks", 0) >= FLOOR_BLOCK_ALARM_MIN:
+            alarms.append(f"{arm_id}: FLOOR_WALL {tally['floor_blocks']} "
+                          "SKIP_MIN_PREMIUM_FLOOR rows (strike tier pricing under the $0.30 "
+                          "floor -- the 2026-08-03 afternoon shape; baseline for the "
+                          "ATM-TIER-EXTENSION prereg)")
+        if tally.get("errors", 0) >= ARM_ERROR_ALARM_MIN:
+            alarms.append(f"{arm_id}: ARM_ERRORS {tally['errors']} ERROR rows "
+                          "(creds/account fetch failures)")
+        return alarms
+    except Exception:  # noqa: BLE001 -- alarm derivation must never crash the caller
+        return []
+
+
+def check_day(day: str, accounts_path: Optional[Path] = None,
+              fleet_dir: Optional[Path] = None) -> dict:
     """Fleet-wide liveness verdict for one ET date (YYYY-MM-DD). Never raises."""
     try:
         d = dt.date.fromisoformat(day)
@@ -128,16 +208,26 @@ def check_day(day: str, accounts_path: Optional[Path] = None) -> dict:
 
     silent = []
     unknown_arms = []
+    arm_content: dict = {}
+    content_alarms: list = []
     for arm_id in checked_ids:
-        result = _ticked_today(arm_id, day)
-        if result is None:
+        # CONTENT ALARMS (2026-08-03): one pass answers BOTH the original liveness fact
+        # (rows>0 <=> ticked, byte-identical semantics to _ticked_today, which is kept for
+        # compat/CLI use) AND the per-arm content tally.
+        tally = _arm_day_content(arm_id, day, fleet_dir)
+        if tally is None:
             unknown_arms.append(arm_id)
-        elif result is False:
+            continue
+        if tally["rows"] == 0:
             silent.append(arm_id)
+            continue
+        arm_content[arm_id] = tally
+        content_alarms.extend(_arm_content_alarms(arm_id, tally))
 
     if silent:
         return {"date": day, "status": STATUS_SOME_SILENT, "silent_arms": silent,
                 "checked_arms": checked_ids, "unknown_arms": unknown_arms,
+                "arm_content": arm_content, "content_alarms": content_alarms,
                 "reason": f"{len(silent)}/{len(checked_ids)} fleet arm(s) recorded ZERO "
                           f"decisions today: {silent}"}
     if len(unknown_arms) == len(checked_ids):
@@ -145,10 +235,14 @@ def check_day(day: str, accounts_path: Optional[Path] = None) -> dict:
                 "checked_arms": checked_ids, "unknown_arms": unknown_arms,
                 "reason": f"all {len(checked_ids)} watched arm ledger(s) unreadable"}
     note = f" ({len(unknown_arms)} unreadable, not flagged as silent)" if unknown_arms else ""
+    # CONTENT ALARMS folded into `reason` (surfaces through every consumer that prints it);
+    # status/exit code deliberately untouched (fail-open -- a degraded day still TICKED).
+    alarm_note = f"; CONTENT ALARMS: {' | '.join(content_alarms)}" if content_alarms else ""
     return {"date": day, "status": STATUS_ALL_TICKED, "silent_arms": [],
             "checked_arms": checked_ids, "unknown_arms": unknown_arms,
+            "arm_content": arm_content, "content_alarms": content_alarms,
             "reason": f"all {len(checked_ids) - len(unknown_arms)}/{len(checked_ids)} "
-                      f"readable fleet arm(s) ticked today{note}"}
+                      f"readable fleet arm(s) ticked today{note}{alarm_note}"}
 
 
 def alarm_line(result: dict) -> Optional[str]:
@@ -159,6 +253,12 @@ def alarm_line(result: dict) -> Optional[str]:
                 f"{result['date']}: {result['silent_arms']}. Check fleet_executor liveness.")
     if st == STATUS_UNKNOWN:
         return f"I could not verify fleet-arm liveness on {result['date']}."
+    # CONTENT ALARMS (2026-08-03): an ALL_TICKED day dominated by stale-signal / floor-wall /
+    # error rows still gets a spoken line -- ticking is not trading.
+    alarms = result.get("content_alarms") or []
+    if alarms:
+        return (f"Heads up. Every fleet arm ticked on {result['date']} but the ledger "
+                f"content is degraded: {'; '.join(alarms)}")
     return None
 
 

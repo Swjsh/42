@@ -46,6 +46,26 @@ STATUS_PARTIAL = "PARTIAL"
 STATUS_NOT_APPLICABLE = "NOT_APPLICABLE"
 STATUS_UNKNOWN = "UNKNOWN"
 
+# --- CONTENT ALARMS (2026-08-03, PIPELINE-CHAIN-MAP silent-link closure) ---------------------
+# A row-count liveness check is CONTENT-BLIND: a day of 772 armed ticks that are all
+# SKIP_NO_DATA (feed dead inside a running process), all blind (key-levels.json dead), all
+# vix=0.0 (yfinance outage -- which silently makes the bear VIX-floor gate unreachable AND
+# leaves the bull VIX-cap wide open, a WRONG-BEHAVIOR failure, not just a no-trade one), or
+# peppered with broker-infra failures on its entry attempts, reads RAN and alarms nothing.
+# These tallies close that class ADDITIVELY: status/exit-code semantics are UNTOUCHED
+# (fail-open -- a content alarm is a loud line on a RAN day, never a fake outage), the alarms
+# ride the existing `reason` string (so every consumer that prints reason surfaces them for
+# free: engine_health.check_session_ran, daily_brief's EOD lead, the CLI) plus structured
+# `content` / `content_alarms` keys for machine readers. Thresholds are deliberately
+# dominance-level (not one-off): a single bad tick is routine; a third of the session is a
+# wall. Guard: backtest/tests/test_liveness_content_alarms_2026_08_03.py.
+CONTENT_DOMINANCE_FRAC = 0.30   # >30% of armed ticks = a wall, not noise
+INFRA_FAIL_MIN = 3              # >=3 entry attempts dying on infra = systemic, not a blip
+_NO_DATA_VERDICTS = {"SKIP_NO_DATA", "SKIP_BAD_INPUT"}
+_INFRA_EXEC_STATUSES = {"NO_CREDS", "EQUITY_FETCH_FAIL", "PLACE_FAIL", "NO_PREMIUM",
+                        "SKIP_ORDER_QUERY_ERROR", "SKIP_POST_CANCEL_QUERY_ERROR",
+                        "SKIP_POST_CANCEL_POSITION_QUERY_ERROR"}
+
 _EXIT = {STATUS_RAN: 0, STATUS_NOT_APPLICABLE: 0, STATUS_PARTIAL: 0,
          STATUS_DID_NOT_RUN: 3, STATUS_UNKNOWN: 4}
 
@@ -77,6 +97,11 @@ def _tick_count(day: str, path: Optional[Path] = None) -> Optional[Tuple[int, in
     p = path or CORE_DECISIONS
     try:
         armed = diagnostic = 0
+        # CONTENT ALARMS (2026-08-03): tallied in the SAME single pass (the ledger is ~23MB
+        # and this runs inside a brief that must stay fast) -- armed rows only, matching the
+        # liveness signal itself. Each tally is guarded on the field EXISTING so pre-schema
+        # rows can never inflate a count (consumers must treat missing as "older row shape").
+        content = {"no_data": 0, "blind": 0, "vix_zero": 0, "infra_fail": 0}
         with open(p, "r", encoding="utf-8", errors="replace") as fh:
             for line in fh:
                 if day not in line:
@@ -88,11 +113,52 @@ def _tick_count(day: str, path: Optional[Path] = None) -> Optional[Tuple[int, in
                 if isinstance(row, dict) and str(row.get("ts_et", "")).startswith(day):
                     if row.get("armed") is True:
                         armed += 1
+                        if str(row.get("verdict", "")) in _NO_DATA_VERDICTS:
+                            content["no_data"] += 1
+                        if row.get("blind") is True:
+                            content["blind"] += 1
+                        _vix = row.get("vix")
+                        if isinstance(_vix, (int, float)) and float(_vix) == 0.0:
+                            content["vix_zero"] += 1
+                        _exec = row.get("exec")
+                        if (isinstance(_exec, dict)
+                                and str(_exec.get("status", "")) in _INFRA_EXEC_STATUSES):
+                            content["infra_fail"] += 1
                     else:
                         diagnostic += 1
-        return armed, diagnostic
+        return armed, diagnostic, content
     except OSError:
         return None
+
+
+def _content_alarms(ticks: int, content: dict) -> list:
+    """Named alarm strings for a day whose ARMED rows are dominated by a silent-failure
+    shape. Empty list on a healthy day, on ticks==0 (liveness itself already alarms), and on
+    any malformed input (fail-open: this must never invent an alarm or raise)."""
+    try:
+        if not ticks or not isinstance(content, dict):
+            return []
+        alarms = []
+        if content.get("no_data", 0) / ticks > CONTENT_DOMINANCE_FRAC:
+            alarms.append(f"FEED_DEAD_INSIDE_RUNNING_ENGINE: {content['no_data']}/{ticks} "
+                          "armed ticks were SKIP_NO_DATA/SKIP_BAD_INPUT (bars feed or "
+                          "engine_cli dead while the process ticked)")
+        if content.get("blind", 0) / ticks > CONTENT_DOMINANCE_FRAC:
+            alarms.append(f"BLIND: {content['blind']}/{ticks} armed ticks had empty "
+                          "levels_active (key-levels.json stale/unrefreshed -- check "
+                          "Gamma_LevelRefresh)")
+        if content.get("vix_zero", 0) / ticks > CONTENT_DOMINANCE_FRAC:
+            alarms.append(f"VIX_FEED_DEAD: {content['vix_zero']}/{ticks} armed ticks carried "
+                          "vix=0.0 (the _fetch_vix fallback) -- bear VIX-floor gate silently "
+                          "unreachable AND bull VIX-cap silently open; wrong-behavior, not "
+                          "just no-trade")
+        if content.get("infra_fail", 0) >= INFRA_FAIL_MIN:
+            alarms.append(f"BROKER_INFRA_FAILURES: {content['infra_fail']} entry attempts "
+                          "died on creds/equity/quote/placement errors "
+                          f"({sorted(_INFRA_EXEC_STATUSES)} class)")
+        return alarms
+    except Exception:  # noqa: BLE001 -- alarm derivation must never crash the caller
+        return []
 
 
 def check_day(day: str, path: Optional[Path] = None, min_ticks: int = MIN_RTH_TICKS) -> dict:
@@ -111,7 +177,7 @@ def check_day(day: str, path: Optional[Path] = None, min_ticks: int = MIN_RTH_TI
     if counts is None:
         return {"date": day, "status": STATUS_UNKNOWN, "ticks": None, "diagnostic_ticks": None,
                 "reason": "decision ledger unreadable"}
-    ticks, diagnostic = counts
+    ticks, diagnostic, content = counts
     # Surfaced on every verdict so a bare 0 is never confused with a missing/!empty ledger.
     diag_note = f" ({diagnostic} unarmed diagnostic rows present)" if diagnostic else ""
     if ticks == 0:
@@ -121,13 +187,20 @@ def check_day(day: str, path: Optional[Path] = None, min_ticks: int = MIN_RTH_TI
                 "diagnostic_ticks": diagnostic,
                 "reason": "weekday with ZERO armed engine ticks -- engine did not run "
                           f"(or the market was closed for a holiday){diag_note}"}
+    # CONTENT ALARMS (2026-08-03): folded into `reason` so every consumer that prints reason
+    # surfaces them for free; ALSO structured keys for machine readers. Status/exit code are
+    # deliberately UNTOUCHED (fail-open): a content-degraded day still RAN.
+    alarms = _content_alarms(ticks, content)
+    alarm_note = f"; CONTENT ALARMS: {' | '.join(alarms)}" if alarms else ""
     if ticks < min_ticks:
         return {"date": day, "status": STATUS_PARTIAL, "ticks": ticks,
                 "diagnostic_ticks": diagnostic,
+                "content": content, "content_alarms": alarms,
                 "reason": f"only {ticks} armed ticks (< {min_ticks}) -- engine ran for part "
-                          f"of the session{diag_note}"}
+                          f"of the session{diag_note}{alarm_note}"}
     return {"date": day, "status": STATUS_RAN, "ticks": ticks, "diagnostic_ticks": diagnostic,
-            "reason": f"{ticks} armed ticks{diag_note}"}
+            "content": content, "content_alarms": alarms,
+            "reason": f"{ticks} armed ticks{diag_note}{alarm_note}"}
 
 
 def alarm_line(result: dict) -> Optional[str]:
@@ -141,6 +214,13 @@ def alarm_line(result: dict) -> Optional[str]:
                 "it was down for part of the session.")
     if st == STATUS_UNKNOWN:
         return f"I could not verify whether the engine ran on {result['date']}."
+    # CONTENT ALARMS (2026-08-03): a day that RAN but was dominated by a silent-failure shape
+    # still gets a spoken line -- that is the entire point of the content pass (a dead feed
+    # inside a running process must not read as quiet health).
+    alarms = result.get("content_alarms") or []
+    if alarms:
+        return (f"Heads up. The engine ran on {result['date']} but the ledger content is "
+                f"degraded: {'; '.join(alarms)}")
     return None
 
 
