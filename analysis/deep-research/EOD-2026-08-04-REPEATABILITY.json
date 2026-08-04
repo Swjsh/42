@@ -833,7 +833,7 @@
    "meaning": "on the trending tape ZERO contracts were floor-blocked and the entire +$2,236 came from notional. The knob is symmetric leverage."
   },
   "net_over_6_days": 932.27,
-  "reading": "ONE trend day (+$2,236) pays for FIVE hostile days (-$1,304). Whether ATM-TIER-EXTENSION is a keep depends entirely on the archetype mix ahead, and range-chop + gap-fade + pin-day + inverted-V are 63.6% of the population vs 5.1% for today's shape."
+  "reading": "ONE trend day (+$2,236) pays for FIVE hostile days (-$1,304). Whether ATM-TIER-EXTENSION is a keep depends entirely on the archetype mix ahead, and range-chop + gap-fade + pin-day + inverted-V are 63.5% of the population vs 5.1% for today's shape."
  },
  "part4_scorecard": {
   "controllable_vs_tape": {
