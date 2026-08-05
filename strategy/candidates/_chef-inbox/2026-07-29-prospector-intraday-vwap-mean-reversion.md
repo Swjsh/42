@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: academic_intraday_anomalies:
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the intraday VWAP-mean-reversion family, self-labels $0. -->

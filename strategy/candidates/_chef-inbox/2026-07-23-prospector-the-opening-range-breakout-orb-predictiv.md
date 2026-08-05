@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: academic_intraday_anomalies:
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CORRECTED + CONSOLIDATED -- canonical for the ORB family. Original ask self-labeled paid; the 07-29 and 08-03 recurrences correctly identify this is $0 and needs NO new data: first-30-min high/low range is computable directly from the already-cached SPY 5m/1m OHLCV (backtest/data/spy_5m_*.csv). Genuinely viable, unresearched candidate -- next bounded step: backtest ORB range breakout/fade using the existing bar cache, no new ingestion needed. -->

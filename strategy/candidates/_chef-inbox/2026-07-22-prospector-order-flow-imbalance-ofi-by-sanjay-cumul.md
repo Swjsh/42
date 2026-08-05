@@ -32,3 +32,17 @@ items. Do not attempt a bar-volume proxy and call it OFI (that's a different, we
 with a different name) -- either source real tick/quote data (cost/vendor decision, flag to
 J before any paid vendor) or close this one as infeasible without new data. Left open
 pending that decision rather than closed, since it's a genuine fork not yet resolved. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the cumulative-delta/order-flow-proxy family (different Pine Script authors, same underlying idea: derive a buy/sell-pressure proxy from price+volume on existing bars, no Level2 data needed). All 3 instances self-label $0. -->
+
+<!-- CORRECTION 2026-08-05 ~06:xx ET conductor (same fire): the note directly above is IMPRECISE
+against the 07-23 blocker-clarification note two blocks up -- re-read that note before acting on
+this item. QuantNomad's and LuxAlgo's "Cumulative Delta" Pine scripts (the two folded duplicates)
+are the SAME bar-volume PROXY the 07-23 note explicitly warns against treating as real OFI (no
+bid/ask tick classification, just up/down-candle volume). Folding them here as the same PROXY
+family is correct triage (they don't deserve 3 separate open items); it does NOT mean the proxy
+is now endorsed as equivalent to true order-flow-imbalance. If chef ever picks this family up,
+the two live options are still: (a) test the bar-volume proxy explicitly labeled as a proxy, weaker
+claim, lower bar, or (b) source real tick/quote data (new vendor, cost/vendor decision, flag to J
+before any paid vendor). -->
+

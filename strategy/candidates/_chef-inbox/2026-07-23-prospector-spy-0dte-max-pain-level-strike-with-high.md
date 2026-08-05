@@ -31,3 +31,5 @@ inspected). If so, Max Pain is computable free from data we can already reach, n
 DataShop license needed. Not attempted this fire (needs a full-chain OI puller + daily
 max-pain-strike calc, real new work) -- flagged as the likely free path before any paid-
 vendor ask reaches J. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CORRECTED + CONSOLIDATED -- canonical for the Max Pain family. Original ask self-labeled paid; the 07-28 recurrence claims $0 via free CBOE OI. Not independently verified this fire (no live curl probe run against CBOE OI endpoints) -- flag the $0 claim for verification before backtest, same discipline as the FINRA/CME probes elsewhere in this pass. -->

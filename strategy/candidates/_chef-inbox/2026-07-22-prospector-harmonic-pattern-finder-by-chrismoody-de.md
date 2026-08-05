@@ -32,3 +32,5 @@ scope risk: harmonic detectors are notorious for firing constantly on noise (the
 a naive-fire-rate audit before a single backtest number is trusted. Next bounded step: build
 the pure zigzag+ratio detector + immediately run the C27 fire-rate sanity check before
 spending real-fills budget on it. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the harmonic-pattern-detector family (Gartley/Bat/Butterfly/ABCD, different Pine Script authors, same underlying idea). Both instances self-label $0. -->

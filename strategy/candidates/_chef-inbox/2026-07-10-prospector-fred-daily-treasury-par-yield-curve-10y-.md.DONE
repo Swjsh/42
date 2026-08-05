@@ -60,3 +60,5 @@ separate candidate). Leaderboard row 51 added. Guard `pytest
 backtest/tests/test_fred_yield_curve_probe.py -q` 5/5 PASS. Zero trading-path files touched
 (research probe + guard test + cached CSV + leaderboard + this inbox note only). -->
 
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 5 newer near-duplicate(s) folded in this fire -- 2026-07-25-prospector-10y-2y-us-treasury-yield-spread.md (exact same 10Y-2Y spread idea); 2026-07-31-prospector-10y-2y-treasury-yield-spread-dgs10-dgs2-.md (exact same idea, names the DGS10/DGS2 FRED series already cached); 2026-08-04-prospector-10y2y-treasury-yield-spread-moves-as-a-l.md (exact same idea, 4th recurrence); 2026-08-01-prospector-daily-treasury-yield-curve-rates-from-th.md (same FRED yield-curve data feed, broader framing (raw curve vs the spread)); 2026-08-05-prospector-us-treasury-daily-yield-curve-rates-eg-2.md (same FRED yield-curve data feed, 2nd instance of the raw-curve framing). Canonical status unchanged: already screened NO_CANDIDATE_CLEARS_BAR_YET (2026-07-22 probe, n=190/~65 days, needs more data). -->

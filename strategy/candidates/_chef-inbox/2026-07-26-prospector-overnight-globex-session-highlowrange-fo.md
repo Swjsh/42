@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:overnigh
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the Globex overnight-session-range family, self-labels $0. -->

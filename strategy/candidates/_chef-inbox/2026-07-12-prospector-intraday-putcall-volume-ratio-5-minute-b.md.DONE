@@ -23,3 +23,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:in
 depends:none
 
 <!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid. Item's own Data source line: 'CBOE LiveVol or Polygon.io Options Volume API. Cost: paid.' Violates the $0-research-only doctrine. REJECT. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 2 newer near-duplicate(s) folded in this fire -- 2026-07-22-prospector-real-time-spy-putcall-ratio-cboe-tracks-.md (same put/call-ratio idea, this instance ALSO self-labeled paid (CBOE Live API)); 2026-08-02-prospector-spy-0dte-putcall-ratio-pcr-from-cboe-opt.md (same idea, ALSO self-labeled paid (Bloomberg/CBOE OPRA feed)). Canonical status unchanged: REJECTED -- self-labeled paid (CBOE LiveVol / Polygon.io options volume API). -->

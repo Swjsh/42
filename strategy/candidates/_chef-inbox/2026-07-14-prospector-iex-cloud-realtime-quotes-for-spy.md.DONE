@@ -31,3 +31,5 @@ see DATA-PROVENANCE.md). Adding IEX Cloud as a 3rd vendor for the SAME underlyin
 clear the "testable directional/timing edge" bar the item itself sets, because there's no
 new information content to test. Would reconsider only if IEX offered something Alpaca/SIP
 structurally cannot (it doesn't, for 0DTE SPY). -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 2 newer near-duplicate(s) folded in this fire -- 2026-07-27-prospector-iex-cloud-free-realtime-tradebytrade-quo.md (same IEX-Cloud-as-3rd-quote-vendor idea); 2026-08-05-prospector-iex-cloud-free-tier-realtime-trades-and-.md (same idea, 2nd recurrence). Canonical status unchanged: CLOSED-REDUNDANT-DATA-SOURCE -- Alpaca broker feed + SIP 5m cache already cover this, no new signal type. -->

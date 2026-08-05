@@ -23,3 +23,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:0d
 depends:none
 
 <!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid. Item's own Data source line: 'Interactive Brokers API (implied volatility per strike). Cost: paid.' Violates the $0-research-only doctrine. REJECT. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 2 newer near-duplicate(s) folded in this fire -- 2026-07-22-prospector-spy-0dte-implied-volatility-skew-10δ-vs-.md (same IV-skew idea, ALSO self-labeled paid (OptionMetrics/Bloomberg)); 2026-08-03-prospector-spy-0dte-implied-volatility-skew-ratio-i.md (same idea, ALSO self-labeled paid (OptionMetrics IvyDB / Bloomberg)). Canonical status unchanged: REJECTED -- self-labeled paid (Interactive Brokers / OptionMetrics / Bloomberg IV feeds). -->

@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:frontmon
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the front-month WTI crude-oil family, both instances self-label $0. -->

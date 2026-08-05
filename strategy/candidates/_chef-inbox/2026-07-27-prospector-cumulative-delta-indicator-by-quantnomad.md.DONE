@@ -1,0 +1,25 @@
+# Chef Inbox — Cumulative Delta indicator by QuantNomad (public Pine Script) – comput
+
+**Routed by:** Gamma_Prospector 2026-07-27
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:nvidia/nemotron-3-super-120b-a12b:free
+
+## The Finding
+Prospector beat `tv_community_indicators` surfaced: Cumulative Delta indicator by QuantNomad (public Pine Script) – computes running total of buyer-initiated vs seller-initiated volume -- Shows net buying/selling pressure; divergences with price signal potential reversals useful for 0DTE options and intraday futures. Data source: QuantNomad Cumulative Delta script (public TradingView link: https://www.tradingview.com/script/... ). Cost: $0. Instrument fit: both.
+
+## Research Question for Chef
+Cumulative Delta indicator by QuantNomad (public Pine Script) – computes running total of buyer-initiated vs seller-initiated volume -- this carries a testable directional/timing edge for both.
+
+## Backtest Request
+Data: QuantNomad Cumulative Delta script (public TradingView link: https://www.tradingview.com/script/... )
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: tv_community_indicators:cumulative-delta-indicator-by-quantnomad) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none
+
+<!-- DONE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): FOLDED into 2026-07-22-prospector-order-flow-imbalance-ofi-by-sanjay-cumul.md -- same cumulative-delta idea, different Pine Script author (QuantNomad). See that file for the consolidated verdict/status. -->

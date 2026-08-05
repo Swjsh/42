@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: academic_intraday_anomalies:
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the turn-of-month-effect family. Genuinely $0/self-contained: a calendar-day-of-month pattern computable from our own price history, no external data needed regardless of what either instance's Data-source line claims. -->

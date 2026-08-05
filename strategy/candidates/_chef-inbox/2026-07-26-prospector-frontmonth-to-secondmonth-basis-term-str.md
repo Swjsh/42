@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:frontmon
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CORRECTED + CONSOLIDATED -- canonical for the futures calendar-basis family. Original ask self-labeled paid (CME DataMine/Quandl term-structure dataset); the 08-04 recurrence claims $0 via Quandl's free EOD futures chain endpoint (CME_ES1/CME_ES2). Unverified claim, carried forward not independently confirmed this fire. NOTE: 2026-07-31's 'ES vs MES basis' item is a DIFFERENT idea (cross-contract-size basis, not calendar term structure) and is self-labeled paid with no free-path recurrence found -- rejected standalone, not folded here. -->

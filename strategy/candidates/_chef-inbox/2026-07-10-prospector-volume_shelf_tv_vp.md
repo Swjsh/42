@@ -48,3 +48,5 @@ for a future fire: build a pure-Python compute_volume_profile(bars, bin_width) -
 shelf detector, then test shelf-proximity as a level source the SAME way level_memory.py was
 null-tested (C25/C27 discipline -- naive-fire-rate vs random-level null, not just "does it
 correlate"). No TV MCP dependency required for the research phase. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 2 newer near-duplicate(s) folded in this fire -- 2026-07-28-prospector-market-profile-tpo-built-in-tradingview-.md (same value-area/POC family (TPO framing) -- reduces to the same testable hypothesis per the 2026-07-23 note already on this canonical); 2026-08-02-prospector-market-profile-tpo-by-alex-grover.md (same idea, 2nd TPO-framing recurrence). Canonical status unchanged: STILL OPEN -- canonical for the value-area/POC/volume-profile/market-profile family; next bounded step already specified: build compute_volume_profile(bars, bin_width) from cached SPY 5m OHLCV, no TV MCP dependency needed. -->

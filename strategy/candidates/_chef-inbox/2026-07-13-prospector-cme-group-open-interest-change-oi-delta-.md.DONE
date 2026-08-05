@@ -23,3 +23,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:cme-grou
 depends:none
 
 <!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid. Item's own Data source line: 'Quandl datasets ... accessed through Quandl API. Cost: paid.' Violates the $0-research-only doctrine. REJECT. -->
+
+<!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 1 newer near-duplicate(s) folded in this fire -- 2026-07-26-prospector-daily-cme-open-interest-changes-for-mes-.md (same CME-OI-change idea, ALSO self-labeled paid (CME DataMine/FTP)). Canonical status unchanged: REJECTED -- self-labeled paid (Quandl CME OI API). -->
