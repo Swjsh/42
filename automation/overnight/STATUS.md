@@ -1,3 +1,54 @@
+## [2026-08-04T20:44 ET] conductor: OK -- RUN-CMD-HIDDEN-MASKED-EXIT-DETECTOR -- commit `f7d069b8`
+
+Budget gate PASSED ($9.79/$30, 3/4 fires pre-fire). Engine health GREEN, market closed
+(20:30 ET). STAGE-1 priority-3 (self-audit gap, `task_scorer.py --top`): the
+2026-08-04T17:32:42 self-audit batch re-flagged VBS-WRAPPER-EXIT-CODE-BLIND-SPOT for the
+2nd calendar day in a row (also 2026-08-02) -- OP-25/C7 two-batch recurrence, the
+graduation signal. Traced the top-ranked queue item against CURRENT reality per the
+scorer's own advisory before touching anything (2026-07-18 lesson: don't mechanically
+execute a stale ranking).
+ROOT CAUSE re-confirmed (not re-derived): the queue item's own writeup already correctly
+scoped the CORE fix (flip `run_exe_hidden.vbs` to blocking) as needing a
+`/fable-blast-radius` pass before touching `Gamma_HeartbeatCore`'s launch path -- a
+genuine top-tier judgment call, not mechanical Sonnet work, so NOT attempted this fire
+(FABLE-ESCALATION discipline, no guess). Investigating for a lower-risk bounded slice
+instead surfaced a real find: `setup/scripts/fix-venv-pythonw-console-leak.ps1` already
+rewrapped ~18 `Gamma_*` tasks (BrokerFills, CboeOiBank, Confluence, CryptoTwin,
+DressRehearsal, EmaSnapshot, FirmBrief, FreeModelAudit, FuturesMirror, GuardsNightly,
+LevelMemory, OosCheck, Prospector, SelfAudit, TradeAutopsy, TradeToday, Trendlines,
+TwinSentinel) onto a relay (`wscript->run_exe_hidden.vbs->system-pythonw->
+run_cmd_hidden.py`) whose inner hop (`run_cmd_hidden.py`) ALREADY runs its child
+synchronously and logs the REAL exit code to `automation/state/logs/run-cmd-hidden-
+<date>.log` on every fire -- but grepped live: ZERO consumers of that file anywhere in
+the codebase. Evidence, not assumption, was already sitting on disk unread.
+SHIPPED (non-trading-path, additive-only): `self_check.check_run_cmd_hidden_masked_exit()`
+now reads that log every ~30min cadence and DEGRADED-flags any real non-zero exit,
+collapsed per-script (a failing 5-min-cadence task won't spam one line per fire). 14 new
+guard tests (`test_self_check_run_cmd_hidden_masked_exit.py`), RED-proofed via `git stash`
+(14/14 correctly failed pre-fix with the exact expected `AttributeError`, one real bug
+caught + fixed in my own first draft mid-fire: the no-`.py`-token fallback returned the
+raw path instead of `Path(...).name`, caught by its own guard test before commit). Full
+self_check suite **120/120 PASS**. Curated safety gate **59/59 PASS**. Live-verified
+against today's real log: `[]` (clean, matches a manual grep across this week's logs
+finding zero non-zero exits). `git show f7d069b8 --stat` confirms exactly the 4 intended
+files (self_check.py, its new test, queue.md, the self-audit gap DONE marker) -- no
+shared-index absorption (pre-commit's dir-span heuristic fired correctly, non-blocking).
+**REVOKE: `git revert f7d069b8`** (additive-only; self_check.py reverts to its prior 15
+checks, the new test file is removed).
+Rail-4 N/A (observability/telemetry tool, not params/heartbeat_core/filters/placement/
+exit code -- no PAPER account behavior changes). Zero live-trading-path files touched.
+Self-audit gap batch (2026-08-04T17:32:42) DONE-marked with the disposition of all 10
+lines (1 partially actioned as above, the rest triaged: 2 already-correct-by-design
+misreads, 3 scaffold-noise headers, 4 named-not-chased future work -- see the marker
+itself for the per-line reasoning).
+Next fire: the CORE vbs-wrapper fix (would additionally cover the live chain +
+`Gamma_HeartbeatCore` + the ~90 non-relay tasks) is still open, still correctly gated
+behind its own `/fable-blast-radius` pass -- a genuine judgment call for a future
+interactive/top-tier session, not queued as a mechanical Sonnet task.
+Autonomy metric to be refreshed via conductor_outcome.py this same fire.
+
+---
+
 ## [2026-08-04T16:26 ET] conductor: OK -- REGIME-STAMP-WRITE-CRASH-FIX -- commit `d64fc045`
 
 Budget gate PASSED ($4.95/$30, 2/4 fires pre-fire). Engine health GREEN, market closed
@@ -508,3 +559,53 @@ All five arms are $5K-class at multiplier 4 -> real PDT (3 day-trades / 5 busine
 NOT fixed here on purpose: trading-path guard; fail-CLOSED could block every fleet entry. Needs its own blast-radius pass + prereg.
 
 - [2026-08-04 21:00:01] gym-session (2026-08-04) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-04.json`
+### DEGRADED: self-check 2026-08-04T17:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-08-04T21:30:31+00:00
+- task: manager
+- date_et: 2026-08-04
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-08-04T17:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 34 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-08-04T18:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-04T18:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-04T19:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-04T19:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-04T20:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-04T20:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
