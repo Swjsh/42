@@ -672,3 +672,38 @@ market-close-reset / strike-tier pre-trade size guard / centralized param promot
 shrink-not-deny telemetry / live-watch.json historical archive / OPRA-Greeks fallback
 source) are real but NOT actioned this fire (scope discipline, one bounded item) -- named
 as candidate future work, not chased. -->
+
+## 2026-08-04T17:32:42 -- 10 new gap(s) Gamma self-identified
+- Task‑Scheduler health monitor
+- OneDrive sync latency
+- Test suite brittleness
+- The VBS wrapper’s fire‑and‑forget launch (`shell.Run(..., False)`) makes `LastTaskResult` unreliable across all Gamma tasks, masking real failures.
+- OneDrive Known‑Folder‑Move on `Desktop\42` creates transient lock races that can freeze JSON artifacts (e.g., `regime‑stamp.json`).
+- The current `regime‑stamp.json` is documented as “descriptive only” yet `self_check.py` treats its drift as a health degradation, creating an incoherent signal.
+- Any write to sync‑folder artifacts must be atomic and retry‑aware; the `_atomic_write_bytes_with_retry()` helper is a step forward but still retries on permanent `OSError`s, risking silent failures.
+- narrowly critique the regime‑stamp atomic‑write fix (focusing on retry‑on‑permanent‑error and VBS‑masking impacts).
+- delivers a broad, prioritized list of systemic gaps (VBS wrapper, PDT gate, stop‑loss sampling, OneDrive, regime‑stamp criticality, heartbeat visibility, auto‑commit strategy).
+- is meta‑discussion with no concrete gaps.
+
+<!-- DONE 2026-08-04T20:xx ET conductor (AFTERHOURS) :: PARTIALLY ACTIONED the VBS-wrapper
+gap (also self-flagged 2026-08-02T17:32:13 -- 2-batch recurrence = OP-25/C7 graduation
+signal). Shipped the low-risk, additive half: self_check.check_run_cmd_hidden_masked_exit()
+now reads run_cmd_hidden.py's OWN per-fire exit-code log (automation/state/logs/run-cmd-
+hidden-<date>.log) -- previously ZERO consumers, verified via live grep -- and DEGRADED-
+flags any real non-zero exit Task Scheduler's LastTaskResult structurally cannot see, for
+the ~18 Gamma_* tasks already on the wscript->run_exe_hidden.vbs->system-pythonw->
+run_cmd_hidden.py relay. 14 new guard tests RED-proofed via git stash, full self_check
+suite 120/120 green, curated safety gate 59/59 PASS, live-verified clean against today's
+real log. Full detail + REVOKE line in queue.md's VBS-WRAPPER-EXIT-CODE-BLIND-SPOT item.
+NOT actioned (unchanged, deliberately deferred): the vbs wrapper itself (needs its own
+/fable-blast-radius pass before touching Gamma_HeartbeatCore's launch path -- top-tier
+judgment call, not mechanical); "regime-stamp.json descriptive-only yet self_check treats
+its drift as degradation" is a MISREAD on inspection -- DEGRADED is explicitly documented
+in check_regime_stamp_daily's own docstring as "non-load-bearing (visibility only)", never
+BROKEN, which IS coherent with "descriptive only" (a visibility flag, not a trading halt);
+"atomic-write helper retries on permanent OSError" has no cited incident (the 4-attempt
+backoff already gives up and raises after exhausting retries -- not a silent failure) --
+named as a future hygiene check, not chased. "OneDrive sync latency" / "Task-Scheduler
+health monitor" / "Test suite brittleness" are scaffold-class headers (no concrete claim),
+same noise class already filtered elsewhere. -->
+

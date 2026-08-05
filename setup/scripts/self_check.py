@@ -824,6 +824,94 @@ def check_regime_stamp_daily(now, stamp_path=None, bias_path=None) -> list:
     return []
 
 
+def _parse_run_cmd_hidden_log(text: str) -> list[dict]:
+    """PURE. Parse run_cmd_hidden.py's own per-fire launcher log (automation/state/logs/
+    run-cmd-hidden-<date>.log) into completed [{"cmd": str, "exit": int}] records.
+
+    Each fire writes a 'launching: <cmd>' line, zero or more 'cwd=.../WARN ...' lines, then
+    exactly one '  exit=<N>' (or '  exit=<N> (off-desktop)') line once the child returns.
+    Pairs each 'launching:' with the NEXT 'exit=' line seen; an unpaired trailing
+    'launching:' (process still running, or the launcher itself crashed before it could log
+    an exit) is dropped, not guessed at -- this only reports COMPLETED, evidenced outcomes."""
+    records: list[dict] = []
+    pending_cmd: str | None = None
+    for line in text.splitlines():
+        if "] launching: " in line:
+            pending_cmd = line.split("] launching: ", 1)[1].strip()
+            continue
+        if pending_cmd is not None and "exit=" in line:
+            after = line.split("exit=", 1)[1].strip()
+            code_str = after.split()[0] if after.split() else after
+            try:
+                code = int(code_str)
+            except ValueError:
+                pending_cmd = None
+                continue
+            records.append({"cmd": pending_cmd, "exit": code})
+            pending_cmd = None
+    return records
+
+
+def _run_cmd_hidden_script_label(cmd: str) -> str:
+    """Best-effort script name for a launcher-log cmd line, e.g.
+    'C:\\...\\pythonw.exe C:\\...\\broker_fills.py --subject all' -> 'broker_fills.py'.
+    Picks the FIRST token ending '.py' (never the trailing args) so a task launched
+    with extra CLI args (Gamma_FreeModelAudit '--subject all', Gamma_CryptoTwin
+    '--live') still labels correctly instead of reporting the last arg as the script."""
+    tokens = cmd.split()
+    for t in tokens:
+        if t.lower().endswith(".py"):
+            return Path(t).name
+    return Path(tokens[-1]).name if tokens else cmd
+
+
+def check_run_cmd_hidden_masked_exit(now, log_path=None) -> list[str]:
+    """Fleet-wide generalization of the 2026-08-04 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT
+    self-audit gap (self-flagged 2026-08-02 AND 2026-08-04 -- OP-25/C7 two-batch
+    recurrence = the graduation signal). ~18 Gamma_* tasks (Gamma_BrokerFills,
+    Gamma_Confluence, Gamma_SelfAudit, Gamma_Prospector, Gamma_TradeAutopsy,
+    Gamma_GuardsNightly, Gamma_OosCheck, Gamma_CryptoTwin, ... see
+    setup/scripts/fix-venv-pythonw-console-leak.ps1's $targets) already route through
+    wscript -> run_exe_hidden.vbs -> system-pythonw -> run_cmd_hidden.py. The OUTER
+    wscript hop is still fire-and-forget (shell.Run cmd, 0, False) so Task Scheduler's
+    LastTaskResult can NEVER see these tasks' real outcome -- but run_cmd_hidden.py's
+    OWN process already runs the real child SYNCHRONOUSLY and writes the true exit code
+    to automation/state/logs/run-cmd-hidden-<date>.log on every single fire. Verified
+    live this fire: zero existing consumers of that file (grepped setup/automation/
+    backtest). This closes the same class of gap the regime-stamp fix closed for ONE
+    script, generalized to every task already on this relay -- using evidence that
+    already exists on disk, zero vbs edits, zero blast radius to Gamma_HeartbeatCore
+    (not on this relay; covered separately by engine-health.json content-freshness).
+
+    NOT a substitute for the still-open VBS-WRAPPER-EXIT-CODE-BLIND-SPOT queue item
+    (the wrapper itself stays fire-and-forget pending its own /fable-blast-radius pass)
+    -- this is the low-risk, additive-only half: read what the relay already writes.
+
+    DEGRADED, never BROKEN: every task on this relay today is R&D/telemetry/analysis,
+    not the live trading path (rail-2 fail-open discipline). Fail-open: missing/
+    unreadable log, or today's log simply not written yet -> []."""
+    lp = log_path or (STATE / "logs" / f"run-cmd-hidden-{now.strftime('%Y-%m-%d')}.log")
+    if not lp.exists():
+        return []
+    try:
+        text = lp.read_text(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return []
+    bad = [r for r in _parse_run_cmd_hidden_log(text) if r["exit"] != 0]
+    if not bad:
+        return []
+    # One line per distinct failing script (not per-fire) -- a frequent-cadence task
+    # failing repeatedly should read as ONE actionable finding, not per-tick spam.
+    by_script: dict[str, list[int]] = {}
+    for r in bad:
+        by_script.setdefault(_run_cmd_hidden_script_label(r["cmd"]), []).append(r["exit"])
+    parts = [f"{s} (exit={sorted(set(codes))}, {len(codes)}x)" for s, codes in sorted(by_script.items())]
+    return [f"RUN-CMD-HIDDEN MASKED EXIT: {lp.name} shows {len(bad)} real non-zero exit(s) "
+            f"Task Scheduler's LastTaskResult can never see (outer wscript hop is still "
+            f"fire-and-forget) -- {', '.join(parts)}. Check the named script's own stderr "
+            f"log for the real cause."]
+
+
 TV_CDP_URL = "http://localhost:9222/json/version"
 
 
@@ -1092,6 +1180,12 @@ def run() -> dict:
     # files accumulated with zero commit history before a one-time backfill. Guards against
     # silent re-accumulation (C7); DEGRADED-only, checked every self_check cadence ($0, fail-open).
     problems.extend(check_candidates_untracked_backlog())
+
+    # 16. RUN-CMD-HIDDEN MASKED EXIT -- the 2026-08-04 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT
+    # self-audit gap, generalized: read the real per-fire exit codes run_cmd_hidden.py
+    # already logs for every task on its relay chain, since Task Scheduler's
+    # LastTaskResult structurally cannot see them (fire-and-forget outer wscript hop).
+    problems.extend(check_run_cmd_hidden_masked_exit(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
