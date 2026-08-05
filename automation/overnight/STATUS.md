@@ -1,3 +1,72 @@
+## [2026-08-05T00:xx ET] conductor: OK -- LESSON-INBOX-BACKLOG-DRAIN -- commit `5a561fea`
+
+Budget gate PASSED ($0.00/$30, 0/4 fires pre-fire). Engine health GREEN, market closed
+(01:00 ET). STAGE-1 priority-1 (fill-funnel) clean, priority-2 (Engine RED) none,
+priority-3 (self-audit gaps) had no un-actioned 2-day-recurrence item today (VBS-WRAPPER
+already actioned 2026-08-04, remaining 08-02/08-03 batch items are named future work, not
+re-flagged). Priority-4 (queue HIGH) top-ranked item was VBS-WRAPPER-EXIT-CODE-BLIND-SPOT's
+CORE fix -- correctly deferred a 3rd time (genuinely gated behind a `/fable-blast-radius`
+pass given the shared launcher's live-trading blast radius, not guessed at Sonnet tier).
+Priority-5 (author inboxes, oldest-first): `_validator-inbox`/`_skill-inbox` empty (all
+DONE), `_lesson-inbox` had **30 un-drained items back to 2026-07-23** (12 days) -- a
+genuine systemic gap, not a one-item pick. Read all 30 in full, applied lesson-author's
+cite-or-defer discipline (every entry names file:line/commit/test evidence; zero
+speculative encodes), wrote **L253-L282** to `markdown/doctrine/LESSONS-LEARNED.md` and
+folded the L# numbers into CLAUDE.md's OP-25 index (existing class rows where a fit
+existed: C1,C4,C6,C7,C8,C11,C14,C15,C27,C34,C35; one new class **C36** for a lesson with
+no better home). Full theme summary in the commit message / CHANGELOG.md 2026-08-05 row.
+**Context-budget discipline caught mid-fire:** the honest append pushed CLAUDE.md to RED
+(9436/9000, was YELLOW 8955 pre-fire) -- trimmed narrative-parenthetical duplication from
+the OP-25 table (full prose stays in LESSONS-LEARNED.md only) back to YELLOW 8956/9000,
+verified via `check-context-budget.ps1` + `context_audit.py verify` (9/9 PASS) +
+`test_op25_index_reconciliation.py` (9/9 PASS). Also relocated a stale inline trim-note
+that had been sitting in CLAUDE.md's Update log (contradicting its own "append to
+CHANGELOG, never inline" instruction) to a proper CHANGELOG.md row.
+All 30 inbox items renamed to the canonical `*.md.DONE` terminal suffix (never deleted --
+matches the actual repo convention per `_validator-inbox`/`_chef-inbox` precedent and
+`test_inbox_done_suffix.py`, 3/3 PASS; supersedes lesson-author.md's stale "DELETE on
+success" doc line -- doc not corrected this fire, scope discipline). `journal/mistakes.md`
+has no entries in the 07-23..08-04 range -- no cross-reference needed. Fire log:
+`automation/state/logs/_lesson-author-log.jsonl` (+30 rows).
+Curated safety gate 59/59 PASS. `git show 5a561fea --stat` confirms exactly the 33 intended
+files (CHANGELOG.md, CLAUDE.md, LESSONS-LEARNED.md, 30 inbox renames) -- no shared-index
+absorption (pre-commit's dir-span heuristic fired correctly, non-blocking, per L271 which
+this very fire encoded).
+**REVOKE:** `git revert 5a561fea` (additive-only to LESSONS-LEARNED.md/CHANGELOG.md;
+CLAUDE.md table-row edits revert cleanly; inbox renames revert to active `.md`).
+Rail-4 N/A (pure doctrine authoring -- zero params/heartbeat_core/filters/placement/exit
+code touched). Ships per OP-25's lesson-author mandate (no J gate, engine-benefit per
+OP-22/26).
+Next fire: `_chef-inbox` still has **61 un-DONE items** (mostly `prospector-*` data-source
+proposals, oldest 2026-07-10) -- the next author-inbox priority once lesson-inbox (now 0
+backlog) and validator/skill (already 0) are clear. VBS-WRAPPER core fix remains queued,
+still correctly gated behind top-tier judgment.
+Autonomy metric to be refreshed via conductor_outcome.py this same fire.
+
+---
+
+## [2026-08-04] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 8tr $+104.00 ($+13.00/tr, 62.5% WR) [5d/5 day+side buckets -- 8 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 34d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-08-04] RECENCY-CONFIRMATION (confirm-before-capital gate) — YELLOW (not-yet-confirmed) on the freshest 25 trading days (2026-06-29..2026-08-03), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($475.52); Bold_ATM_1+2=YELLOW ($782.0)
+> - **edges_confirmed_on_recent = False** (any RED=False). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-04T20:44 ET] conductor: OK -- RUN-CMD-HIDDEN-MASKED-EXIT-DETECTOR -- commit `f7d069b8`
 
 Budget gate PASSED ($9.79/$30, 3/4 fires pre-fire). Engine health GREEN, market closed
@@ -233,28 +302,6 @@ Autonomy metric refreshed via conductor_outcome.py this same fire.
 
 ---
 
-## [2026-08-03] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 8tr $+104.00 ($+13.00/tr, 62.5% WR) [5d/5 day+side buckets -- 8 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 33d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-08-03] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-26..2026-07-31), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-31). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-370.08); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 [2026-08-03T20:38:16 ET] conductor: OK -- REGIME-STAMP-DAILY-DRIFT-DETECTOR -- commit `c45e691b`
 Budget gate PASSED ($9.90/$30, 3/4 fires used pre-fire). Engine health GREEN, market
 closed -- proceeded past STAGE 0. Picked the self-audit-gap lane (STAGE-1 priority-3,
@@ -408,204 +455,6 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-02T18:00:06 ET] conductor: QUIET -- nightly budget EXHAUSTED (11 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
 
-## [2026-08-02T16:00:05 ET] conductor: QUIET -- nightly budget EXHAUSTED (10 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
-
-## [2026-08-02T14:00:31 ET] conductor: QUIET -- nightly budget EXHAUSTED (9 fires today >= max_fires 4) -- zero model work this fire, gate exited immediately
-
-## [2026-08-02T13:46:42 ET] session: OK -- FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3 + FLEET-SHRINK-NOT-DENY -- commits `9b6a3e35`, `c2cb9f72`
-
-**Signal J wakes to (OP-25).** ET verified via `et_clock.py` before touching anything
-(Sunday 13:24-13:46, market_hours=False -- the task brief's own "Monday pre-dawn" framing was
-WRONG against the real clock; flagged, not acted on, since Sunday afternoon is not a
-market-hours weekday violation either way). Read `analysis/deep-research/ARM-PARTICIPATION-
-AND-GROWTH-2026-08-03.md` (commit `642ce211`) per the brief; shipped the two cheap, already-
-half-built fixes it named as the engine's own next actions. Both PAPER, both guarded,
-both RED-proofed, zero live-arming action.
-
-**FIX 1 -- safe-3 ATM strike-tier extension (commit `9b6a3e35`).**
-Routing verified BY EXECUTION before touching anything: `fleet_executor._tiers_for_arm(safe-3)`
-resolved `V15_BOLD_TIERS` (OTM-3, confirmed via `accounts.json`'s explicit
-`params_patch.strike_tier_table="bold"`), exactly as the brief said. Repointed to
-`"bold_core"` -> `V15_BOLD_CORE_TIERS` (ATM under $2K), mirroring risky-1/risky-3's
-2026-08-01 extension. AFTER, re-verified by execution: safe-3 -> `V15_BOLD_CORE_TIERS`
-(ATM, offset=0 @ safe-3's live equity $1,967.81); risky-1/risky-3 unaffected (still
-`bold_core`); safe-1 (retired) unaffected (still `bold`/OTM-3, preserved as the shared
-table's live regression witness).
-**HONEST FRAMING (verbatim, not oversold):** PARTICIPATION/machinery fix, not a validated
-P&L edge -- `bold-strike-axis-2026-07-15.json` verdicts ALL 6 strike cells including ATM
-`ship_ready:false` / "WATCH -- NOT ship-ready" (fails the walk-forward gate, structurally
-null for this cohort). risky-1/risky-3's own fix landed **2026-08-01, a Saturday** -- 2026-07-31
-is the last real trading day in the participation study's dataset, so there are **ZERO LIVE
-TRADING DAYS OF EVIDENCE** on that precedent as of this ship, let alone on safe-3's own copy.
-Pre-registered before arming: `analysis/recommendations/fleet-strike-tier-atm-extension-safe3-
-prereg-2026-08-03.json` (n>=20-fill gates, mirrors the risky-1/risky-3 prereg, discloses the
-UNTESTED $600-notional-cap tension this fix could trade one blocker for another).
-**Blast radius:** grepped every `safe-3` + strike-tier hit across `backtest/tests/`, found and
-updated 4 guard files that pinned safe-3 to the old OTM table (`test_bold_core_strike_tier_
-2026_07_15.py`, `test_fleet_strike_tier_floor_collision_2026_07_31.py`, `test_fleet_arm_parity.py`,
-`test_fleet_arm_replay.py`) plus one stale comment (`test_reset_plan_tier_boundaries_2026_08_01.py`).
-**RED-proofed:** reverted `accounts.json` to `"bold"`, ran the 4 files -- exactly 4 tests failed
-(the ones asserting safe-3 resolves `bold_core`), 59 others stayed green; restored, 63/63 green.
-**Revert:** delete/set-back `params_patch.strike_tier_table` to `"bold"` on safe-3 in
-`accounts.json` (byte-identical, no code change -- the `bold_core` branch already existed).
-**Kill criterion:** first 10-15 real sessions must show a material drop in safe-3's
-`SKIP_MIN_PREMIUM_FLOOR` rate (baseline ~1.9/day) without net real-fill P&L reading worse than
-the pre-fix -$22/13-day baseline, else revert.
-
-**FIX 2 -- shrink-not-deny in fleet_executor's qty resolution (commit `c2cb9f72`).**
-Real function name confirmed to be `_qty_for` exactly as the brief named it -- but it is a
-phase-A pure-gating function (runs before any premium is resolved), so the shrink cannot live
-inside it. Added `_shrink_qty_to_affordable`, wired into `finalize()` (phase B) immediately
-before `risk_gate.check_order` -- the first point in the call chain where a tiered qty and a
-resolved premium both exist. Shrinks a too-big qty DOWN to `risk_gate.max_affordable_qty`
-(the exact cap math `check_order` itself uses) instead of letting `check_order` deny the
-full tiered qty outright. Floor is structurally immovable: `max_affordable_qty` only ever
-returns 0 (genuine deadlock, passes through unshrunk, still denies -- no regression) or a
-value `>= min_contracts` (Rule 6's floor, J's rule).
-**DEFECT FIX, NOT NEW ARMING:** `position_sizing_tiers` already drives every fleet_rest order
-today (live since inception per `accounts.json`'s own `grid.sizing_profiles` doc) -- this only
-changes deny-on-breach to shrink-on-breach for an ALREADY-ARMED mechanism. Whether to EVER wire
-CORE (safe-2/bold-2) onto `position_sizing_tiers` is untouched and remains explicitly J's call
-(`SIZING-SCALING-DECISION-2026-08-03.md`'s own recommendation #2).
-**Verified by execution at risky-3's REAL live equity** ($2,121.61, fetched fresh this session
-via `fleet_broker.get_account`, read-only `GET /v2/account`, matched `accounts.json`'s account
-number `PA31WIU8X15Q` to the penny): qty=8 @ premium $1.50 --
-  BEFORE (`risk_gate.check_order` on the unshrunk qty, byte-identical to pre-fix `finalize()`):
-  `allowed=False code=RISK_CAP reason='risky-3-TEST: notional $1,200 exceeds per-trade cap
-  $1,061 (50% of $2,122)'`
-  AFTER (the real, current `fleet_executor.finalize()`):
-  `action=ENTER_BEAR risk_code=ALLOW reason='clean P entry (BASE); qty shrunk 8->7: RISK_CAP
-  shrink-not-deny (was DENY pre-2026-08-03)'`
-A genuine-deadlock case (elite qty=12 @ $3.00, even min_contracts=5 doesn't fit) HOLDs both
-before and after (`action=HOLD risk_code=RISK_CAP`) -- proves no risk loosening. A parallel
-Safe-side proof at the $2,000 boundary confirms the fix isn't Bold-only.
-**RED-proofed:** reverted the `finalize()` wiring to a no-op passthrough (`_qty, _shrink_note =
-plan.qty, None`), ran the new suite -- exactly the 3 finalize()-dependent tests failed (the 8
-pure-function tests on `_shrink_qty_to_affordable` stayed green, correctly, since that function
-itself was untouched by the mutation); restored, 40/40 green (11 new + 29 existing
-`test_fleet_executor.py`, unchanged -- vary-and-assert that the existing risk-cap-denies test
-still denies when the shrink is a no-op).
-**Revert (one line, byte-identical):** in `finalize()`, change
-`_qty, _shrink_note = _shrink_qty_to_affordable(plan.qty, equity, premium, _fleet_params)`
-back to `_qty, _shrink_note = plan.qty, None`.
-**Kill criterion:** over the first n>=10 real fleet fills whose `decisions.jsonl` reason
-carries a shrink note, or 10 trading sessions post-ship (whichever first), if that shrunk-qty
-cohort's realized net P&L reads negative, revert per above.
-
-**Suite counts (both fixes together):** curated safety gate (`run_safety_gate.py`) 6 suites,
-**59/59 PASS**. Full `automation/state/fleet/` suite (pytest, includes both new/updated files):
-**348/348 PASS**. The 5 strike-tier-specific `backtest/tests/` files together: **73/73 PASS**.
-
-**What evidence exists vs does not, stated plainly:** BOTH fixes are unit/integration-tested
-and execution-verified against real current equity/params -- that is real, fresh evidence this
-session. NEITHER fix has ANY live P&L evidence yet (zero fills have occurred under either
-change as of this commit) -- the kill criteria above are the forward gates, not yet cleared or
-failed. Fix 1's underlying strike table (ATM) additionally has NO validated P&L edge at all,
-on ANY population, per bold-strike-axis-2026-07-15.json's own disclosed WF-gate failure --
-this was true before this ship and remains true after it.
-
-Artifacts: `analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json`.
-`automation/state/fleet/test_shrink_not_deny_2026_08_03.py`.
-
----
-
-
-### DEGRADED: self-check 2026-08-04T16:18:02
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+### DEGRADED: self-check 2026-08-05T01:09:56
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-03, today-bias.json regime_context.stamp_date=2026-08-03, today=2026-08-04 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-
-### DEGRADED: self-check 2026-08-04T16:24:21
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-04T16:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-08-04T20:46:29+00:00
-- task: analyst
-- date_et: 2026-08-04
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### REVOKE SURFACE: LENS 4 REPEATABILITY (2026-08-04, after close)
-
-**Shipped:** `Gamma_RegimeAttribution` nightly instrument (17:45 ET daily, $0, stdlib-only, fail-open, places nothing).
-Revert (one line): `Unregister-ScheduledTask -TaskName Gamma_RegimeAttribution -Confirm:$false`.
-Everything else in this lens is read-only research tooling; no trading-path file was touched.
-
-**Headline findings** (full report `analysis/deep-research/EOD-2026-08-04-REPEATABILITY.md`):
-- 2026-08-04 = `gap-go`; its exact one-way character is **5.1% of 395 days (1 in 20)**. Mon+Tue are both the 1.8% variant -- a cluster, not a regime.
-- **57% of the day ($2,061) would have happened under yesterday's config; 43% ($1,563-$2,031) is what last night bought.** Parity gate PASS (hybrid lane reproduces the broker day to $0.00).
-- **Two signal clusters = 90.2% of gross-positive P&L.** The other six clusters combined LOST $318.
-- **SHIP B (elite-bull lift) = +$1,141, EXACT, no simulation** -- all 82 core ENTER_BULL verdicts were ELITE+level_reclaim; re-arming the gate zeroes safe-2 and bold-2.
-- **FIX2 vwap emission was NET NEGATIVE (-$247.50).** Reverting it improves the day: with vwap dead, risky-1/risky-3 take the 09:58 ELITE ribbon they were offered and refused with "position already open". The 09:57 alarm was right; the retraction was wrong. n=2 arms, 1 day -- directional, NOT ratified, no action taken.
-- **HARD-DAY TEST FAILED for ATM-TIER-EXTENSION-2K-10K:** -$1,303.60 across the 5 most hostile-character live days vs +$2,235.87 on 08-04. It is symmetric leverage (~2.2x notional at fixed qty), not a strike edge. Split: -$737 from trades the $0.30 floor would have refused, -$567 from bigger notional on identical trades. ANECDOTE (n=5 days); its own pre-registered kill criterion (n>=10 fills/arm or 10 sessions, net<0) is the authority and is NOT yet met -- no revert taken.
-- Honest EV/day: **$45-$137** depending on sizing-era and payoff-decay assumptions; instrument's own `mix_ev` = **$73.71/day**.
-
-### KNOWN BROKEN: FLEET-PDT-GATE-READS-ZERO (HIGH, found 2026-08-04, NOT fixed)
-
-`automation/state/fleet/fleet_live.py:660` -- `day_trades = int(acct.get("daytrade_count", 0) or 0)`.
-`fb.get_account()` on all 5 arms returns **no `daytrade_count` and no `pattern_day_trader` key** (37 keys verified live after the close), so the fleet PDT gate is **permanently fed 0**. Every one of 2026-08-04's 384 ticks/arm on safe-3 / risky-1 / risky-3 logged `day_trades: 0` while those arms took 6 / 5 / 8 day trades. Core bold-2 (different path, `heartbeat_core`) DID track: 3/3 by 11:26 ET, 21 ENTERs correctly refused.
-All five arms are $5K-class at multiplier 4 -> real PDT (3 day-trades / 5 business days) binds. Shape: C7/C14, a fail-open default masking an ABSENT field (L241 family).
-NOT fixed here on purpose: trading-path guard; fail-CLOSED could block every fleet entry. Needs its own blast-radius pass + prereg.
-
-- [2026-08-04 21:00:01] gym-session (2026-08-04) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-04.json`
-### DEGRADED: self-check 2026-08-04T17:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-08-04T21:30:31+00:00
-- task: manager
-- date_et: 2026-08-04
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-08-04T17:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 34 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-08-04T18:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-04T18:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-04T19:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-04T19:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-04T20:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-08-04T20:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 21 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 21x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,478.25 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-04) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
