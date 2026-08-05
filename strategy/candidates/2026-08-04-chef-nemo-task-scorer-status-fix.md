@@ -5,63 +5,56 @@
 
 # CANDIDATE: TASK_SCORER_STATUS_FIX
 
-**Filed:** 2026-07-12  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Filed:** 2026-07-21
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** quality_gate
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The current `task_scorer.py` extracts the first `status:` line it sees inside an item block. When an item spans multiple paragraphs (checkbox + continuation lines) and contains a later `status:` line that overrides an earlier one (e.g., a closed item marked ready then later marked NEEDS-MORE-DATA), the parser incorrectly uses the earlier status and marks the item as ready. We need to capture the **last** `status:` occurrence to reflect the final intended status.
+The current task_scorer.py extracts the status field only from the first line of an item's block (the checkbox line). This causes closed multi-paragraph items (where the status may appear on a continuation line) to be incorrectly marked as ready if the first line has an empty or missing status. By using _extract_field_last to parse the status from the entire block, we ensure accurate status extraction regardless of paragraph breaks.
 
 ## Mechanism
 
-Modify the item‑parsing logic in `task_scorer.py` to:
-1. Collect the full block of lines belonging to a single checklist item (the line starting with `- [ ]` or `- [x]` and all subsequent lines that are indented or belong to the same item until the next checklist line).
-2. Scan that block for all lines matching the regex `^\s*status:\s*(.+)$` (case‑insensitive).
-3. Use the value from the **last** match as the item’s status; if no match is found, leave status unchanged (or treat as unknown).
-4. Update any downstream logic that relies on the parsed status (e.g., ready‑flag calculation) to use this value.
+Modify task_scorer.py: replace the status field extraction logic in the item parsing function with a call to _extract_field_last (which scans the entire item block for the last occurrence of the field pattern). This ensures that for multi-paragraph items, the status is taken from the last occurrence (typically the correct one) rather than the first line, which may be empty or contain only the checkbox.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unchanged (parsing fix only | unchanged (parsing fix only) | 0 |
-| 5/01 winner | unchanged (parsing fix only) | unchanged (parsing fix only) | 0 |
-| 5/04 winner | unchanged (parsing fix only) | unchanged (parsing fix only) | 0 |
-| 5/05 loser | unchanged (parsing fix only) | unchanged (parsing fix only) | 0 |
-| 5/06 loser | unchanged (parsing fix only) | unchanged (parsing fix only) | 0 |
-| 5/07 loser 1 | unchanged (parsing fix only) | unchanged (parsing fix only) | 0 |
-| 5/07 loser 2 | unchanged (parsing fix only) | unchanged (parsing fix only) | 0 |
+| 4/29 winner | unchanged | unchanged | 0 |
+| 5/01 winner | unchanged | unchanged | 0 |
+| 5/04 winner | unchanged | unchanged | 0 |
+| 5/05 loser | unchanged | unchanged | 0 |
+| 5/06 loser | unchanged | unchanged | 0 |
+| 5/07 loser 1 | unchanged | unchanged | 0 |
+| 5/07 loser 2 | unchanged | unchanged | 0 |
 
-*Explanation:* This change affects only how status is read from the leaderboard markdown; it does not alter any strategy logic, engine behavior, or P&L calculations. Therefore, edge_capture and Sharpe for all J anchor days remain the same.
+(Note: This tooling change does not alter the trading engine or its P&L on J anchor days; all deltas are zero.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** N/A – this is a pure code change to the scoring script; no trading or position sizing is involved.
-2. **Sample bias:** The parser operates on the entire `strategy/candidates/_LEADERBOARD.md` file; no sampling is performed. Overfit risk is negligible because the change is deterministic and does not involve model fitting.
-3. **Out-of-sample:** NEEDS-OOS – not applicable as this is not a predictive model; the fix is a deterministic parsing adjustment.
-4. **Real-fills:** NEEDS-REAL-FILLS – not applicable; no real‑fill simulation or execution is affected.
+1. **Account-size assumption:** N/A (tooling change; no trading or position sizing involved).
+2. **Sample bias:** The fix applies uniformly to all items in the leaderboard; eliminates a bias where multi-paragraph items with status on continuation lines were incorrectly parsed as having empty status. No selection bias introduced.
+3. **Out-of-sample:** NEEDS-OOS (tooling fix validated on current leaderboard; no held-out window applicable).
+4. **Real-fills:** NEEDS-REAL-FILLS (tooling change; no real-fill validation required).
 5. **Failure modes:** 
-   - If the regex fails to capture any `status:` line (e.g., due to formatting drift), the item may be left without a status, causing it to be omitted from the leaderboard or incorrectly excluded from ready‑flag calculations.
-   - A worst‑case scenario is a closed multi‑paragraph item where an earlier `status:` line reads `PROMISING` but a later line reads `REJECTED`; using the first status would incorrectly surface the item as ready for J review.
-   - Mitigation: unit tests will verify correct extraction from varied block formats.
-6. **Concentration:** N/A – no P&L or strategy concentration is affected.
+   - Missing status field: item marked as having no status (safe default, not incorrectly ready).
+   - Multiple status fields: last occurrence used (intentional, matches visual intent).
+   - Format dependency: assumes status field uses **STATUS** markdown bold; breaks if formatting changes.
+6. **Concentration:** N/A (tooling change; no P&L concentration to disclose).
 
 ## Pre-merge gate
 
-- Add unit tests to `tests/test_task_scorer.py` covering:
-  - Single‑line items with one status.
-  - Multi‑paragraph items with multiple status lines (ensure last wins).
-  - Items with no status line (graceful handling).
-  - Ensure existing leaderboard parsing yields identical results for all items that have exactly one status line.
-- Run the full leaderboard generation script and diff output against a baseline to confirm only status fields change as expected.
-- Verify no regression in gym validators or other automated checks that depend on the leaderboard.
+- Pass existing unit tests for task_scorer.py.
+- Verify leaderboard parsing correctly extracts status from multi-paragraph items (e.g., candidates with continuation lines like QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS).
+- Run gym validators to ensure no regression in candidate scoring or status flags.
+- Confirm no false-ready markings on closed items (status should reflect final state).
 
 ## Confidence
 
-9 / 10 – The change is a localized, deterministic parsing adjustment with clear test coverage; risk of introducing bugs is low.
+9 / 10 -- Fixes a clear parsing bug by leveraging existing _extract_field_last mechanism; low risk of regression as it only changes field extraction scope.
 
 ## Pre-existing leaderboard impact
 
-This change does not alter any candidate’s underlying scores, edge_capture, or Sharpe. It only improves the fidelity of status reporting, which may affect which items appear as “ready” for J review but leaves the rank ordering and eligibility criteria untouched. No conflict with existing candidates 1‑24 in `_LEADERBOARD.md`.
+No impact on existing candidates' content or engine behavior. This change only corrects how the leaderboard's status field is read, ensuring accurate reflection of candidate states (e.g., preventing closed multi-paragraph items from appearing ready). Does not conflict with or complement any trading strategy candidates in _LEADERBOARD.md.
