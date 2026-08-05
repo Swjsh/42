@@ -5481,3 +5481,363 @@ actuator test family). Curated safety gate (31+5) PASS.
 **Generalizable rule:** whenever a lesson graduates to "a check that flags it," ask a second question: does anything *act* on the flag without a human in the loop? If not, and the underlying condition re-accrues on its own (a continuously-running producer, not a one-time event), the detector alone will re-violate on its own schedule.
 
 **Detection:** re-run `self_check.py`'s CANDIDATES-UNTRACKED check periodically — if it goes DEGRADED again, `Gamma_AutoCommitCandidates` itself has failed silently (git error swallowed) and needs its own liveness check.
+
+## L253 -- 2026-07-23: a producer widening a shared field to EVERY row silently broke a consumer's presence-based staleness heuristic
+
+**Symptom:** `automation/state/participation-daily.json` reported RED for both Safe and Bold on 2026-07-23 (`orders=0` both), triggering a false Discord alert — while Bold had actually placed and filled a real 0DTE SPY735P at 11:29 ET (-$305).
+
+**Root cause:** `backtest/tools/participation_cascade.py#classify_core_row` classified a row `STALE_TRIGGER` on a bare truthy check of `trigger_bar_et`. Valid when the field had exactly one writer (2026-07-10, the staleness-relabel branch). An unrelated 2026-07-20 visibility fix (DECISION-ROW-SPY-STALENESS) made `heartbeat_core.py` stamp `trigger_bar_et` on EVERY decision row — silently flipping the field's meaning from "true only when stale" to "true on ~100% of rows." Neither commit touched the other's file. 3 days of real PLACED/FILLED/SKIP_LATE_ENTRY rows were swallowed into `stale_trigger_bar` before this fire caught it live.
+
+**Fix:** `_trigger_bar_cross_session(row)` compares `trigger_bar_et`'s calendar day against the row's own `ts_et` day instead of bare presence. 2 new guard tests pin the 2026-07-23 exhibits; 51/51 `test_participation_cascade.py`+`test_participation_daily.py` green.
+
+**Encoded in:** `backtest/tools/participation_cascade.py`, `backtest/tests/test_participation_cascade.py`.
+
+**Detection:** any consumer keying off a shared field's bare truthiness (not an explicit sentinel) is a latent instance — grep every consumer for a bare-presence check before widening a field's writer scope. Same shape as L234/L241/L246/L248.
+
+## L254 -- 2026-07-23: a cost-tagging heuristic that doesn't cross-check already-built free pipes re-proposes paid vendors for solved problems
+
+**Symptom:** during a chef-inbox triage, 4/15 open prospector items (Put/Call Ratio, IV Skew, Max Pain, CBOE Dealer Gamma Exposure) were tagged `Cost: paid`. The 4th was a duplicate of a signal already built and accruing for free (`backtest/lib/engine/gex_regime.py` + `backtest/tools/cboe_oi_bank.py`, free CBOE CDN, 24 sessions accrued at filing time).
+
+**Root cause:** `Gamma_Prospector` surfaces ideas from general market-structure knowledge without cross-checking this repo's own already-wired free data pipes (`gex_regime.py`/`cboe_oi_bank.py` for dealer gamma; `fleet_broker.get_option_greeks` at `automation/state/fleet/fleet_broker.py:139` for free per-contract greeks/IV via Alpaca's `/v1beta1/options/snapshots`) before tagging cost.
+
+**Fix:** manually re-tagged the 4 items during triage — closed the GEX duplicate, reframed the other 3 as "likely free via the existing Alpaca options-snapshots pipe."
+
+**Encoded in:** not yet a code guard — a "already-free" registry (data class -> existing free source file) is the proposed cheap fix, not yet built.
+
+**Detection:** before any chef-inbox author tags an idea `Cost: paid`, grep the repo for an existing free pipe producing the same data class (options greeks/IV/OI, GEX/dealer-gamma, SPY price) first.
+
+## L255 -- 2026-07-23: a stale queue checkbox lets already-shipped work keep re-ranking as the top-priority item (4 confirmed instances)
+
+**Symptom:** 4 confirmed cases where a `queue.md` ticket's underlying fix shipped in a commit that did NOT flip that ticket's status — `T-W8-HEADROOM-RETEST-CANDIDATES` (2-day lag), `FUTURES-PHASE1-BATTERY` (5-day lag), `BREAKER-REARM-STALENESS` (fix and ticket filed the SAME session, still diverged, 14-day lag), `PMH-IS-FABRICATED-IEX-PREMARKET` (fix shipped 2h after filing, checkbox closed 5 days later — `task_scorer.py` kept re-ranking it top-2 HIGH across multiple intervening fires, and one fire nearly re-implemented the already-shipped fix).
+
+**Root cause:** a fire that diagnoses+fixes+commits in one motion treats the queue.md status flip as a separate bookkeeping step, easy to skip once the code is green.
+
+**Fix:** not yet built — recommended a cross-reference check (a `queue.md` item naming a specific file that has a LATER commit touching that file, while still `status:pending`, flags "possibly-already-shipped, re-verify before executing").
+
+**Encoded in:** not yet — flagged for `task_scorer.py` or a conductor STAGE 1 pre-flight helper.
+
+**Detection:** before executing `task_scorer --top` blindly, check git history on the named file first. Same family as L245/L246/L248/L257 (task-scorer section-scope).
+
+## L256 -- 2026-07-23: a shared pivot-labeling primitive's confirmation timescale silently bounds every rule composed on it — a clean C27 prescreen does not prove the rule fires on its named mechanism
+
+**Symptom:** `engulfing_at_swing_shelf` (commit `31c5089e`) passed the C27 frequency prescreen CLEAN (28.9% days, stable) but FAILED both targeted sanity-anchor checks (the exact 2026-07-21/07-23 bars J called live that motivated building it).
+
+**Root cause:** the rule composes over `ctx.structure.labeled_swings` (`backtest/lib/patterns/predicates.py`, wrapping `crypto/lib/market_structure.py`'s HH/HL/LH/LL labeler) — tuned for genuine trend-structure reversals, not tight/fast intraday double-tops that resolve within 2-3 five-minute bars and a few cents. At 07-21 11:05, three touches ~$0.08/5min apart never registered as 2+ distinct swing pivots; `flat_side` saw one pivot and returned `None`. C27's aggregate frequency number cannot surface this — it measures selectivity across history, a different question from "does this fire on the specific mechanism it was built to capture."
+
+**Fix:** no code fix shipped — `engulfing_at_swing_shelf` ships as a real, stable grammar addition on its own terms, not proof of this mechanism. A genuinely new rolling-K-bar local-extreme-cluster primitive (no swing-confirmation lag) is named as the real next step, itself requiring the same 2-anchor falsification BEFORE any pre-reg grid is built on it.
+
+**Encoded in:** not yet graduated to code (methodology lesson about validation order).
+
+**Detection:** any pattern-grammar build must run BOTH the C27 prescreen AND a named-anchor falsification check before declaring done — prescreen-clean is necessary, not sufficient. Sibling to L250 (anchor-verified composition can still be C27 noise, the inverse pairing).
+
+## L257 -- 2026-07-23: a per-section parser boundary is a contract with the doc's authors — verify they actually follow it before trusting a "stop at heading X" rule
+
+**Symptom:** `task_scorer.py`'s `_active_lines()` stopped parsing at the first top-level `## ` heading after `## Active backlog`. `queue.md`'s actual append discipline never matched — many fires filed new dated sections BELOW Active backlog. Impact confirmed live: `--all` went from 45 to 79 items after the fix — 34 items completely invisible, 18 genuine `status:pending` (9 HIGH), some sitting unrankable for weeks.
+
+**Root cause:** the parser boundary assumed a doc-authoring convention the actual authors never consistently followed — same shape as L245/L246 (queue.md multi-paragraph convention breaking a per-line parser) but for SECTION scope instead of field scope.
+
+**Fix:** `_active_lines()` now scans `## Active backlog` onward to EOF, skipping only sections matching `EXCLUDED_SECTION_RE` (`archived`/`completed`). 2 new regression tests RED-proofed via `git stash`; `test_task_scorer.py` 13/13, full suite 63/63.
+
+**Encoded in:** `setup/scripts/task_scorer.py`, `backtest/tests/test_task_scorer.py`.
+
+**Detection:** a per-section parser boundary needs the same scrutiny as a per-field one — when in doubt, scan wider and let status/dependency fields do the exclusion instead of positional section boundaries.
+
+## L258 -- 2026-07-25: a strike+side-only anchor matcher can silently accept a 2h+ time-distant collision as "matched"
+
+**Symptom:** `engine_fullhist_replay.py`'s sanity-anchor check reported the 2026-07-17 anchor day as "2/4 live entries reproduced" — the real number, once time-proximity is required, is 1/4. One "matched" row paired a live 11:40 P745 fill to a replay 13:55 P745 entry — 2h15m apart.
+
+**Root cause:** the matcher's join key (strike+side) was necessary but not sufficient. Without a time bound, "did the same trade happen" degenerates to "did ANY trade on this strike+side happen anywhere in the session" — which unrelated signals satisfy by chance far more often than intuition suggests on a single-underlying 0DTE book clustered around a handful of ATM strikes.
+
+**Fix:** `match_entries_by_strike_side_time(expected, replayed, time_tol_minutes=20)` — requires strike+side+time-window, closest-in-time tiebreak, each replayed entry consumed at most once. Guard: `test_engine_fullhist_replay.py::test_match_entries_rejects_time_distant_strike_side_collision` (RED on old behavior).
+
+**Encoded in:** `backtest/tools/engine_fullhist_replay.py`, `backtest/tests/test_engine_fullhist_replay.py`.
+
+**Detection:** any anchor/ground-truth matcher joining on a coarse key (symbol, strike+side, setup name) must ALSO bound the match by time proximity — a coarse-key-only match reports PASS even when wrong. Default future full-history/anchor-fidelity harnesses to strike+side+time-window.
+
+## L259 -- 2026-07-25: "N fills, 0% WR" over-counts independence — same-day re-entries and cross-setup-shared-classifier signals are not N independent trials
+
+**Symptom:** `vwap_continuation` (7 fills, 0% WR) + `vix_regime_dayside` (5 fills, 0% WR) were DISARMED on "0-for-12 at claimed ~55-64% WR is p<1%." The 12 CSV rows are actually 4 distinct calendar days / 4 distinct (day,side) buckets: same-entry-timestamp TP1+runner leg splits (2 rows each), and both setups deriving `side` from the IDENTICAL `session_vwap_asof` classifier on 07-21 (one wrong day-trend read wearing two setup names).
+
+**Root cause:** "N fills" (a row count) silently assumed independence. Under the honest ~4-independent-day framing, the same claimed WR gives ~1.7%-4.1%, not p<1% — still worth investigating but no longer a clean pipeline-falsification signal.
+
+**Fix:** `trade_to_learn_digest.compute_since_arm()` now reports `n_distinct_days`/`n_distinct_day_side_buckets` alongside `n_fills`, plus a `cross_setup_same_day_side` flag for any 2+ armed setups firing the same (date,side). Commit `9ad0a907`.
+
+**Encoded in:** `backtest/autoresearch/trade_to_learn_digest.py`.
+
+**Detection:** any since-arm/since-live cumulative digest must distinguish trial count (rows) from independent-evidence count (distinct day/day+side/classification) before it drives a disarm/keep call.
+
+## L260 -- 2026-07-26: a freshness/liveness check against a weekday-RTH-only producer needs the SAME market-closed exemption idiom as its siblings, or it false-RED's every weekend
+
+**Symptom:** `Gamma_DressRehearsal` (fires every calendar day incl. weekends) RED'd `overall` every Saturday/Sunday night, forever — its `check3_sanity` enforced `sight-beacon.json age < 24h` with no weekend exemption, and `self_check.py` escalated this to BROKEN every weekend, training alert-fatigue.
+
+**Root cause:** `engine_health.py` already has the correct idiom (every freshness check takes a `market_open` bool and short-circuits to GREEN "quiet OK" when closed) used consistently across `check_sight_beacon`/`check_engine_core`/`check_watcher_feed`. `dress_rehearsal.py` was built later as a sibling instrument but re-derived its own flat `age_h >= 24` check from scratch, without importing or mirroring the idiom.
+
+**Fix:** `check3_sanity(..., is_weekend: bool = False)` — derived via `et_clock.et_weekday() >= 5`. A stale-but-PRESENT beacon is GREEN "quiet OK" on a weekend; a MISSING beacon still RED's regardless of day.
+
+**Encoded in:** `setup/scripts/dress_rehearsal.py`, `backtest/tests/test_dress_rehearsal.py::TestCheck3SanityWeekendExemption` (5 tests).
+
+**Detection:** before shipping a new freshness check against a weekday-RTH-only producer, `grep "quiet OK"` / `grep "market_open"` for the existing idiom first, never re-derive a bespoke wall-clock threshold. Named follow-up not chased: holiday-awareness (weekday-only fix, not holiday-aware).
+
+## L261 -- 2026-07-28: a fixed-width search window silently starves on a sparse chain, and a second independently-computed date can drift from the broker's own clock
+
+**Symptom:** `self_check.py` BROKEN off `dress_rehearsal.py`'s deep-OTM probe: `check1_options_{safe,bold}` RED, "no candidate <= $0.05 among 3 contracts."
+
+**Root cause (two, compounding):** (1) `_pick_deep_otm_put` queried a fixed `target-10` to `target` strike window with no escalation path — SPY's far-OTM chain isn't evenly $1-spaced everywhere, and that night the 5%-OTM window held only 3 strikes, all a few cents above the $0.05 ceiling, even though a strike 12 points further qualified instantly. (2) `_next_trading_day` computed the next trading day via a separate `calendar?start=...` call, correct only after today's close — an off-schedule invocation before today's open skips today entirely and disagrees with `check3_sanity`'s own separate `/v2/clock` read of the SAME underlying fact. This is C11 (broker is source of truth) in a new shape: don't recompute a fact the broker already hands you via a different endpoint you're about to cross-check against.
+
+**Fix:** escalate through widening strike bands before concluding "no candidate exists" (log which band the pick came from); derive `next_day` from `clock.next_open` directly, demoting the calendar-endpoint guess to a fallback. Commit `96cf82b4`, 6 new guard tests RED-proofed via scoped `git stash`.
+
+**Encoded in:** `setup/scripts/dress_rehearsal.py`, `backtest/tests/test_dress_rehearsal.py::TestDeepOtmBandWidening`/`::TestNextTradingDayUsesClock`.
+
+**Detection:** fold into C11's index — any nightly/rehearsal script re-deriving "what day is it" or a fixed-width chain filter from a second source is at risk; prefer widening bands + broker-clock-direct.
+
+## L262 -- 2026-07-31: a capture monkeypatch on TWO module bindings recorded every bar twice — only the reported BAR counts were wrong, and nothing downstream ever disagreed
+
+**Symptom:** a filter-5 scorecard reported cohort-A bar counts as 346/152 (full-history) and 56/48 (recent-25) — the true counts are 173/76 and 28/24. Every number was exactly 2x, and had already been quoted to J in STATUS.md.
+
+**Root cause:** `run_arm` deliberately patches the evaluator on BOTH `lib.orchestrator` and `lib.engine.score` (each holds an independent by-name binding; the dual patch is CORRECT, needed for the per-bar parity cross-check). The defect was in the CAPTURE closure — a plain `list.append`, so one bar observed by two bindings became two rows. It survived review because `len({row['date'] ...})` (day counts) absorbed the duplicate and looked consistent, and NOTHING downstream (gate/delta/P&L/verdict) depended on cohort A — it was purely descriptive, so no cross-check ever contradicted it.
+
+**Fix:** `Blockers5Capture` keys rows on `(side, timestamp)` so re-introducing the dual patch (or a third) cannot re-inflate counts; `duplicate_hits` is asserted non-zero as a liveness probe for the parity mechanism itself. Two-layer guard: mechanism replay + a shipped-artifact assertion that the committed JSON's samples carry no duplicate timestamps (this layer FAILED against the pre-correction file).
+
+**Encoded in:** `backtest/tools/filter5_ribbon_fate_2026_07_31.py#Blockers5Capture`, `backtest/tests/test_filter5_capture_no_double_count.py`.
+
+**Detection:** when monkeypatching the same callable into N module bindings, dedupe any closure side-effect on a natural key — never "divide by N" after the fact. A descriptive statistic with NO downstream consumer is the least-verified number in any artifact and needs its own explicit assertion.
+
+## L263 -- 2026-07-31: a gate A/B's headline delta can be dominated by position-sequencing pre-emption, not the gate's own block-set
+
+**Symptom:** deleting FILTER 5 (ribbon MA-stack entry veto) produced a headline +$738.60 full-history delta, read naively as "the gate is costing $739, delete it."
+
+**Root cause:** decomposing the delta into ADDED (21 trades filter 5 genuinely blocked: +$103.60, ex-best -$437.00) vs DROPPED (8 CONTROL trades that simply vanished: -$635.00, so removing them ADDS +$635.00) showed 86% of the headline came from the DROPPED side. Those 8 trades were not blocked by anything — they disappeared because an unlocked earlier entry consumed the one-position-at-a-time slot (6/6 distinct dropped days also carry an added trade the same day). In any slot-constrained engine, loosening ANY entry gate reshuffles the entire downstream trade sequence; the gate's OWN block-set is worth ~$0/trade and turns negative once the single best trade is dropped.
+
+**Fix:** report `added_total`/`dropped_total` separately and gate the ship decision on the ADDED cohort's own expectancy; cross-check the dropped-day/added-day-same-day ratio as the pre-emption signature. Reference implementation: `attribution_block()` in `backtest/tools/filter5_ribbon_fate_2026_07_31.py`.
+
+**Encoded in:** `backtest/tools/filter5_ribbon_fate_2026_07_31.py`.
+
+**Detection:** for any gate/filter/veto A/B in a slot-constrained (one-position-at-a-time, escalation-lock, daily-cap) engine, the aggregate delta alone is unreliable — always decompose added vs dropped before attributing.
+
+## L264 -- 2026-07-31: a Task Scheduler task can silently STOP auto-firing for >24h with zero error signal, even though it is Enabled/Ready and its last run succeeded
+
+**Symptom:** `Gamma_TradeToday`, `Gamma_BrokerFills`, `Gamma_EmaSnapshot` (+ ~17 more `Gamma_*` tasks) last fired 2026-07-29 then went dark through all of 2026-07-30, despite `Enabled=True`, `State=Ready`, `LastTaskResult=0`, no hung process, no reboot, and a manual `Start-ScheduledTask` succeeding immediately. `NumberOfMissedRuns` was large and nonzero — Task Scheduler knew it had missed occurrences but `StartWhenAvailable=True` didn't catch it up. Root cause NOT determined (the Operational event log was disabled on the box, leaving no forensic trail).
+
+**Root cause (of the BLIND SPOT, not the underlying stall):** every existing watchdog (`Invoke-TvLaunchSafe`, `Invoke-LevelRefreshSafe`) assumed "not running = crashed/hung, so kill+relaunch the process." That assumption is false here — there was no process to kill; Task Scheduler itself silently declined to dispatch the trigger.
+
+**Fix:** `setup/scripts/state_freshness_selfheal.py` — for any RED `state_freshness_audit` entry, resolve the manifest's `task` field to a `Gamma_*` scheduled-task name and force `Start-ScheduledTask` directly (no process-kill step). Cooldown-guarded, fail-open, wired into the existing 5-min `Gamma_TvWatchdog` cadence.
+
+**Encoded in:** `setup/scripts/state_freshness_selfheal.py`.
+
+**Detection:** `state_freshness_audit.py`'s consequence-side check (does the manifest-listed producer's output file stay fresh) already catches this class regardless of cause. Follow-up not done: re-enable `Microsoft-Windows-TaskScheduler/Operational` for forensics on recurrence.
+
+## L265 -- 2026-08-01: a bare `git stash` mid-fire, with a `&&`-chained pop, can leave the pop never running while daemons write on top — 4th confirmed instance
+
+**Symptom:** `git stash && pytest ... && git stash pop` — pytest returned non-zero (pre-existing unrelated failures), the `&&` chain short-circuited, `git stash pop` never ran. Background daemons (Kitchen, gym, twin, prospector) wrote fresh state on top of the reverted-to-HEAD tree before manual recovery, causing a partial-conflict pop that had to be resolved with `git stash drop`.
+
+**Root cause:** same as L214/L228/L238 — a bare (non-pathspec'd) `git stash` in this repo always sweeps up concurrent daemon writes because multiple background processes continuously write tracked live-state files even during an interactive session; there is no quiescent window. Recurs despite 3 prior documented instances because the guidance was prose-only — nothing prevents the invocation, and the dangerous "stash, test, pop" reflex is easier to reach for under pressure than the safe 4-step manual pattern.
+
+**Fix:** none shipped this filing (proposed: `setup/scripts/safe_baseline_diff.py`, a single named command doing backup+checkout+restore in one call, so the SAFE pattern is as easy to reach for as the dangerous one). This fire's actual recovery: `cp <files> /tmp/backup/`, `git checkout HEAD -- <files>`, test, `cp back` — zero git-stash.
+
+**Encoded in:** not yet — proposed helper not built.
+
+**Detection:** fold into C34. Any `git stash` invocation (bare or chained) in this repo is the anti-pattern; the cp/checkout/restore dance is the standing safe substitute.
+
+## L266 -- 2026-08-01: a demerit counter gated on `if N in blockers` silently vanishes when a study disables filter N upstream instead of letting it fire-then-get-waived
+
+**Symptom:** a WS4 study's `disable_filters=[5]` mechanism tripped `filters.py`'s hard invariant on a trendline-only ADDED entry that should have been unreachable through the study's level-anchored-only bypass path.
+
+**Root cause:** `filters.py:1653-1664` only increments `trendline_chop_demerit` inside `if 5 in blockers: blockers.remove(5); ...`. A raw `disable_filters=[5]` call prevents filter 5 from ever entering `blockers` in the first place, so for a trendline-only setup that branch is FALSE and the demerit silently stays 0 — the setup is scored as if it cleanly passed filter 5, carrying none of production's real-bypass demerit bookkeeping. "Delete the check entirely" and "the check fired, then got waived" are NOT equivalent code paths even though both end in "filter 5 didn't block this trade" — inverse of L248 (a harness baseline OMITTING a production-unconditional gate); here a bypass knob omits a SIDE EFFECT gated on the same state the knob short-circuits.
+
+**Fix:** the pre-registered fallback (`run_arm_scoped`, running production's real `evaluate_bearish_setup`/`evaluate_bullish_setup` first, only re-evaluating with `disable_filters=[5]` when blockers are exactly `{5}` and the setup is level-anchored) caught the trip; the study's NULL verdict was unaffected. No standalone guard shipped yet (low severity, first occurrence, didn't change any verdict).
+
+**Encoded in:** not yet — disclosed in `analysis/recommendations/paired-ribbon-2026-08-01.md`'s `prereg_deviation` field.
+
+**Detection:** any knob that "turns off" a check must be audited for side effects (demerits/counters/flags) gated on the SAME state the knob short-circuits, not just the check's own pass/fail. A `vary-and-assert` guard (construct a case that fires filter N under production, assert the demerit is identical via production-bypass vs `disable_filters`) would catch this before a live study needs to trip an invariant to surface it.
+
+## L267 -- 2026-08-01: an A/B backtest reading an on-disk OPRA cache a CONCURRENT backfill is actively appending to must freeze its own snapshot, or arms silently diverge on DATA, not treatment
+
+**Symptom:** a study's asserted control-count anchor (211, +/-10 tolerance) drifted to 212 on a live run — purely from elapsed wall-clock time within the same process, traced to a concurrent overnight OPRA backfill appending to the shared contract cache (14225->14342->14400 contracts across the session) that the entry layer (`simulator_real.py:420`) also reads.
+
+**Root cause:** any backtest reading an on-disk cache another process might be actively writing cannot assume "it's reading from disk" implies "deterministic within this run." Two sequential runs inside ONE script (a study's control-then-treatment sequence) are exactly as exposed as two genuinely separate processes — the exposure is about wall-clock timing of the read while a writer is live, not multiprocessing per se.
+
+**Fix:** `freeze_contract_cache(snapshot)` — captures a frozenset of cache filenames ONCE at the start of `main()`, monkeypatches BOTH by-name bindings of `load_contract_bars` (asserting they `is` the same function object first) with a `gated()` wrapper returning `None` for any symbol outside the frozen snapshot. Guarantees one consistent cache view for the whole process.
+
+**Encoded in:** `backtest/tools/paired_ribbon_ab_2026_08_01.py:160-192` (study-local only, not yet promoted to a shared helper).
+
+**Detection:** fold into C34 (shared-checkout concurrent-write hazards, one layer down the stack — there git's index, here an OPRA cache directory). Any future backtest reading an externally-appended cache during a possible backfill window should snapshot-and-freeze its own view at the top of `main()`.
+
+## L268 -- 2026-08-01: a gate's STATUS LABEL can drift from the boolean it's supposed to describe — a relabel step must recompute the aggregate verdict, not just mutate a sibling display field
+
+**Symptom:** a study's first run reported ARM_EXTEND as `SHIP_CANDIDATE` with gates `[UNDETERMINED, PASS, PASS, PASS, PASS]` — the frozen pre-reg explicitly required UNDETERMINED to be treated as non-PASS. The ship rule shipped anyway.
+
+**Root cause:** `relabel_g1_measurability` only mutated `gates["G1..."]["status"]` (a display string) while `all_gates_pass = all(g["pass"] for g in gates.values())` read `gates["G1..."]["pass"]`, left untouched at whatever the raw measured-sign test produced. A human reading the printed table sees UNDETERMINED and reasonably assumes the ship rule respected it; the code computing the verdict read the boolean underneath, which said True. `score_arm()` also computed `all_gates_pass` BEFORE relabeling could touch it.
+
+**Fix:** `relabel_g1_measurability` now sets `g1["pass"]=False` whenever it sets `status="UNDETERMINED"`; a new `_recompute_verdict()` re-derives `all_gates_pass`/`verdict` AFTER relabeling. Caught via OP-33 self-review before reporting (verdict flipped `ARM_EXTEND_SHIPS` -> `NEITHER_SHIPS`), no downstream action had been taken on the buggy result.
+
+**Encoded in:** the study's own scoring module (`g2_trendline_bypass_ab_2026_08_01.py`); `filter5_ribbon_fate_2026_07_31.py`'s `relabel_g1_measurability` has the identical latent gap, flagged unfixed (never exercised — its arms failed other gates independently).
+
+**Detection:** any function whose job is to override/annotate an existing pass/fail decision must mutate the SAME field the aggregate reads, not a sibling display field — two fields describing "the same fact" will drift unless one is derived from the other.
+
+## L269 -- 2026-08-01: a green-at-ship guard suite can silently rot into RED with zero code regression — a hardcoded past-date fixture and an unmocked live-data side-channel are two distinct mechanisms
+
+**Symptom:** while closing a stale queue checkbox, `test_level_compiler_v2_guards.py` + `test_refresh_levels_intraday.py` were found RED since 2026-07-28 — the day after authoring — with zero change to the production code they guard.
+
+**Root cause (two mechanisms):** (1) `test_read_levels_byte_identical_*` fixtures used a same-day-authored `expires_at="2026-07-27T..."` compared against REAL unmocked wall-clock time in `heartbeat_core._level_expired()`; the instant wall-clock crossed that date, all fixture levels "expired," and the byte-identical assertion passed VACUOUSLY (empty==empty) — caught only because a paired non-vacuous bite assertion (`assert old_out[0] != []`) correctly failed. (2) `test_refresh_flag_on_injects_memory` built a synthetic OHLCV df but `refresh()` also unconditionally unions REAL multi-week shelf zones from `daily_context.py` (a live, current-date price-history read) — on 2026-08-01 the synthetic level happened to fall inside an actual live shelf zone and got dedup-absorbed by the higher-weight real source, so the test's pass/fail became a function of TODAY's real market structure, not the code under test.
+
+**Fix:** (1) far-future constant fixture dates (`2099-12-31`) instead of same-day-authored past dates. (2) `monkeypatch.setattr(rli, "daily_context", None)` wired into the shared `_state` fixture, using an already-supported disabled code path. Commit `155ab21e`.
+
+**Encoded in:** `backtest/tests/test_level_compiler_v2_guards.py`, `backtest/tests/test_refresh_levels_intraday.py`.
+
+**Detection:** grep test files for `\d{4}-\d{2}-\d{2}T` literals more than ~60 days in the past (calendar-drift risk), and for any test calling `refresh()`/`compute_daily_context()`-family functions without an isolation monkeypatch (live-data-leakage risk). Fold into C6 (forward-time mirror of the usual backward-look-ahead shape) and C7 (mechanism #1's vacuous-pass sub-case).
+
+## L270 -- 2026-08-01: a gate armed per-account requires a cohort computed for THAT account's sizing/tier, and a sign-only verdict rule will pass on noise
+
+**Symptom:** `block_elite_bull` was disarmed on bold-2 as a lift-gate trial (commit `b6a9db67`), then re-blocked the same session (`711420f4`) when two independent checks disconfirmed its basis.
+
+**Root cause (two compounding defects):** (1) the justifying figure (+$867, n=5) was SAFE's cohort — the recommendation never computed a bold-specific cell, yet the decision was a bold-only config flip. Re-running the identical cohort at Bold's true sizing (`min_contracts=5`, ATM tier) got +$7.80, n=5, drop-best -$535.00 — the "mandate" was a coin flip on one trade. Structural cause: until commit `efddde66`, every full-history replay tool in the repo walked the SAFE shape; there was no way to compute a Bold cohort, so nobody did, and the Safe number stood in. (2) the frozen verdict rule graded any positive total as PASS — no magnitude floor, no drop-best gate, no per-account scoping.
+
+**Fix:** a properly-powered n=103 full-population study (`bull_gate_f5class_requal_2026_08_01.py`) settled the question directly (unblocking adds -$44.18/tr, all 4 gates fail); `test_bold_fullhist_replay.py` includes an end-to-end RED-proof (a real bold anchor at correct qty=5 passes tolerance, the same anchor at qty=3 fails it).
+
+**Encoded in:** `backtest/tools/bold_fullhist_replay.py`, `backtest/tests/test_bold_fullhist_replay.py`, `automation/state/gate-registry.json#block_elite_bull.trial`.
+
+**Detection:** a gate armed per-account needs a cohort cell computed for THAT account at THAT account's sizing/strike tier — citing another account's cell is a disclosure failure even when the mechanism is shared. Verdict rules need a magnitude floor and a drop-best gate, never a sign-only test.
+
+## L271 -- 2026-08-01: in a shared checkout, another lane's bare `git commit` can silently absorb YOUR staged-but-uncommitted files (5 confirmed incidents in one night)
+
+**Symptom:** during a 12-lane weekend grind, 5 separate incidents of a parallel lane's pathspec-less `git commit` sweeping up ANOTHER lane's staged files under its own message — including a 16-file/7,912-insertion sweep of two unrelated lanes' entire deliverables in one commit, and one incident where the absorption invalidated a downstream lane's cited freeze-order evidence chain (the sha it cited to prove pre-registration timing was not even an ancestor of HEAD).
+
+**Root cause:** `git add` state is GLOBAL in a shared checkout — any parallel lane's pathspec-less `git commit` commits YOUR staged files too, with no error of any kind. Distinct from L239/L247 (own multi-path add / own later commit absorbing own work): here the absorber is a DIFFERENT concurrent session. One sub-case (two lanes editing the SAME file before either stages) is NOT fixable by pathspec discipline alone — pathspec still commits whatever the file currently contains on disk, which may already blend two sessions' edits.
+
+**Fix:** `setup/scripts/commit_scoped.py "<message>" <path>...` — stages then commits with an explicit pathspec on BOTH calls (a git STRUCTURAL guarantee via a temporary pathspec-scoped index, not a convention). `setup/git-hooks/pre-commit` extended with a WARN-ONLY, fail-open tripwire for a staged set spanning multiple top-level directories. 9 guard tests (`test_commit_scoped.py`) — reverting the helper to a bare `git commit` internally turns 5/9 RED with the foreign file visibly present.
+
+**Encoded in:** `setup/scripts/commit_scoped.py`, `backtest/tests/test_commit_scoped.py`, `setup/git-hooks/pre-commit`, `markdown/doctrine/fable-judgment/03-EXECUTION.md` (E3).
+
+**Detection:** `git show <sha> --stat` immediately after every commit, checked against the intended file list — caught 4/5 incidents here. Fold into C34. Same-file concurrent edits remain a residual risk this fix does not close; keep shared single-file registries (STATUS.md, queue.md, SCHEDULED-TASKS.md) small/localized per edit and diff before staging.
+
+## L272 -- 2026-08-02: two "independent" setups' OOS-validation populations can be a near-total same-day/same-side overlap — quantify pooled distinct trials, not raw n, before trusting a combined trial count
+
+**Symptom:** `vwap_continuation` (claimed OOS n=42) and `vix_regime_dayside` (claimed OOS n=21) went live and combined for a 0-for-12 live stretch, initially read as p<1% pipeline falsification. Re-running each setup's own detector over the 2026 OOS window found `vix_regime_dayside`'s 34 OOS signals are 94.1% (32/34) the SAME (date,side) as `vwap_continuation`'s 61 OOS signals — a caveat that was already written down at arm-time (`analysis/recommendations/vix_regime_dayside.json#L174`: "100% same-side subset of vwap_continuation") but never quantified.
+
+**Root cause:** `vix_regime_dayside` is a VIX-favorable RE-CUT of `vwap_continuation`'s own day-trend classifier (both derive `side` from the identical `session_vwap_asof` first-3-bar trend read), not an independent second signal. Treating it as additive double-counts every overlapping day toward "n trades validated" and toward how surprising a losing streak reads.
+
+**Fix:** detection-only this filing — quantified the overlap and closed the OOS-validation half of the ZERO-FOR-TWELVE-POSTMORTEM thread (the live-sample half was closed separately, L259). A reusable `pooled_distinct_trials()` helper is proposed (next to `backtest/autoresearch/probe_stats.py`) but not yet built.
+
+**Encoded in:** `backtest/tools/zero_for_twelve_oos_day_cluster_2026_08_02.py`, `backtest/tests/test_zero_for_twelve_oos_day_cluster.py` (3/3, golden-file pinned).
+
+**Detection:** before combining two setups' trade/signal counts into a single independence claim, grep `analysis/recommendations/*.json` for a "NOT INDEPENDENT"/"subset of" disclosure between them, and pool by (date,side) before quoting a combined n. Sibling to L259 at the OOS layer instead of the live-fills layer.
+
+## L273 -- 2026-08-04: a fail-safe `except` around a lazy import hid a permanently-dead producer lane for 6 weeks
+
+**Symptom:** a fleet `strategies[]` vwap_continuation emission (shipped 2026-06-25, flag-gated, registry-carried, tested) never emitted once — 0 vwap rows in 3,865 decisions.jsonl rows across 6 weeks, with zero errors anywhere.
+
+**Root cause:** `fleet_market._lazy_imports()` did `from filters import BarContext` off a `backtest/lib` sys.path entry, but `backtest/lib/filters.py` opens with a PACKAGE-relative import (`from .ribbon import RibbonState`) — the top-level import raised `ImportError` on every call, and the surrounding fail-safe `except Exception: return (None, None, None)` converted a permanent wiring bug into "detector returned no signal this tick," forever. Tests stayed green because they imported the detector through package-relative paths in the pytest env, never exercising the producer's own broken import spelling. A second env trap: the producer runs under system python via `_shared.ps1#Invoke-PythonHidden`, which injects the backtest venv via `PYTHONPATH` — a bare `python x.py` repro WITHOUT that env var tests a different interpreter reality than prod.
+
+**Fix:** corrected imports to package form (`lib.filters`, `lib.watchers.*`) with `backtest/` on sys.path, verified under the prod-faithful env. Commit `aa2e3f07`.
+
+**Encoded in:** `automation/state/fleet/fleet_market.py`, guard `test_lazy_imports_actually_resolve` (RED-proofed against the pre-fix spelling).
+
+**Detection:** every `try: import ... except: return None` lane needs a companion resolve-test that fails loudly when the import can NEVER succeed. Any repro of a `Invoke-PythonHidden`-launched script must copy prod's PYTHONPATH/VIRTUAL_ENV, or it tests a different interpreter.
+
+## L274 -- 2026-08-04: a readiness parser that reads only ITS OWN file is blind to a sibling ledger's gating status
+
+**Symptom:** `task_scorer.py --top` ranked a CLAUDE.md doctrine proposal (`TWIN-DOCTRINE-FIRST-DEPLOY`, `status:pending` in queue.md, sitting on Discord/wrist awaiting J's reply for 11-12 days) as the #1 item for 2 consecutive after-hours fires — genuinely nothing a conductor fire could DO except re-ping.
+
+**Root cause:** `task_scorer.py`'s readiness model was single-file — it parsed `queue.md`'s own `status:` field but had zero awareness that an item's real gating state can live in a companion ledger (`automation/state/conductor-proposals.jsonl`, the Discord/wrist approve-bus) the filing fire itself wrote to. `status:pending` + satisfied `depends:` looked identical to a genuinely actionable item.
+
+**Fix:** `task_scorer.py` now loads `conductor-proposals.jsonl`, finds any `gp-...` id named in a queue item's block text, and treats a `status:pending`/no-`eval_bar_cleared` match as J-gated: suppressed from `ready` while <=14 days old, resurfaces past 14 days as an explicit RE-PING task. 10 guard tests, RED-proofed via `git stash`. Commit `5f79e3c9`.
+
+**Encoded in:** `setup/scripts/task_scorer.py`.
+
+**Detection:** whenever two files both claim to describe "is this item actionable," the parser must read BOTH, not just the one it started with. Same shape as C11 (two READ endpoints disagreeing) generalized to readiness state. Extends L245/L246/L257.
+
+## L275 -- 2026-08-04: a fire-and-forget scheduled-task wrapper makes `LastTaskResult` a FAKE success signal fleet-wide
+
+**Symptom:** `Gamma_RegimeStamp` crashed (`OSError: [Errno 22]` on a OneDrive-sync lock race) while writing `regime-stamp.json`, yet Task Scheduler still reported `LastTaskResult=0`.
+
+**Root cause:** `setup/scripts/run_exe_hidden.vbs` launches its payload via `shell.Run cmd, 0, False` — fire-and-forget, `wscript.exe` never waits for or propagates the child's real exit code. 107/~150 registered `Gamma_*` tasks (including `Gamma_HeartbeatCore`) route through this wrapper, so `LastTaskResult` has been an unreliable success signal fleet-wide, not just for this one script.
+
+**Fix (partial, deliberately bounded):** the ~18 tasks already on the `wscript->run_exe_hidden.vbs->system-pythonw->run_cmd_hidden.py` relay turn out to ALREADY have their real exit code captured — `run_cmd_hidden.py` runs its child synchronously and logs `exit=N` to `automation/state/logs/run-cmd-hidden-<date>.log` on every fire, previously a file with ZERO consumers. `self_check.check_run_cmd_hidden_masked_exit()` now reads it every ~30min cadence and DEGRADED-flags any real non-zero exit, per-script-collapsed. 14 new guard tests, RED-proofed via `git stash`; full self_check suite 120/120 green. The CORE fix (changing the vbs wrapper itself to `shell.Run(cmd, 0, True)` + `WScript.Quit(errcode)`, which would additionally cover the live trading heartbeat) is explicitly deferred behind a `/fable-blast-radius` pass — a genuine top-tier judgment call given the shared launcher's live-trading blast radius, not guessed at Sonnet-workhorse tier.
+
+**Encoded in:** `setup/scripts/self_check.py#check_run_cmd_hidden_masked_exit`, `backtest/tests/test_self_check_run_cmd_hidden_masked_exit.py`.
+
+**Detection:** any fire-and-forget process launcher that never waits for or propagates a child's exit code turns the scheduler's own success signal into decoration. The CORE vbs fix remains queued (`VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`, HIGH) pending a top-tier blast-radius audit.
+
+## L276 -- 2026-07-29: cross-midnight ET/UTC date matching via substring silently leaks a fire's budget-spend across the calendar-day boundary
+
+**Symptom:** self-audit flagged "conductor firing far more than the documented max (4/day)" on 3 consecutive nights; STATUS.md's own QUIET-EXHAUSTED entries climbed past 4 fires/day even though Task Scheduler triggers were confirmed exactly the documented 3/day cadence.
+
+**Root cause:** `conductor_budget.py#spend_today()` matched a `conductor-outcomes.jsonl` row to an ET calendar day by testing whether the day string was a SUBSTRING of the row's raw UTC `fired_at` field. ET is UTC-4 in July, so a 20:30 ET evening fire on day D writes a UTC date of D+1 — substring-matching then double-counts that row on BOTH day D's own check AND day D+1's very first budget check the next morning, because the date string genuinely is a substring of the UTC stamp even though the instant is the PREVIOUS ET day. Every ET day silently started already "1+ fires spent" before its own first legitimate tick. The project's own existing test fixtures had independently fallen into the identical trap (`f"{DAY}T02:00:00+00:00"` is actually the previous ET day), so the tests only passed because of the same bug they were meant to exercise.
+
+**Fix:** `_stamp_to_et_date()` — parses the stamp, converts an aware/UTC value to its true ET calendar date via `et_clock.et_now(now_utc=...)`, falls back to the old substring match only when the stamp fails to parse (fail-open). Naive `ts_et` stamps (already ET-local) are used directly. Commit `631798f0`, 3 new regression tests RED-proofed via `git stash` (all 3 failed pre-fix with the predicted count), 16/16 green post-fix.
+
+**Encoded in:** `setup/scripts/conductor_budget.py`, `backtest/tests/test_conductor_budget.py`.
+
+**Detection:** any code bucketing a UTC-stamped event by ET CALENDAR DATE must convert the stamp to ET via `et_clock` before comparing dates — never substring/prefix-match a UTC ISO string against an ET date string, even when the ET date itself was correctly sourced elsewhere. Fold into C6/C9.
+
+## L277 -- 2026-07-30: a 5-min scheduled task can go silently dark for ~20 hours with zero Task Scheduler signal, and a proven kill+relaunch watchdog pattern only ever covered ONE producer
+
+**Symptom:** `engine_health.json` RED: `levels_blind` — 0 of 770 RTH decision rows carried any active key level all day (2026-07-30), the engine falling through to its worst cohort (trendline-only, -$1,830/WR .19 vs +$6,895/66 for level-tied trades).
+
+**Root cause:** `Gamma_LevelRefresh` (`PT5M` repetition, `IgnoreNew`, `PT3M` execution limit) went dark for ~20h with zero errors logged and zero Task Scheduler self-recovery, while every other scheduled task kept firing fine in the same window. Suspected mechanism: `IgnoreNew` + a multi-hop hidden-launch wrapper chain (`wscript.exe -> pythonw.exe -> run_ps1_hidden.py -> powershell.exe -> python.exe`) — if Task Scheduler's job-object tracking only reliably reaches its direct child, `ExecutionTimeLimit` can silently fail to reach a hang several process-generations deep, and `IgnoreNew` then blocks every subsequent trigger indefinitely because Scheduler still believes an instance is running. The alerting itself was NOT broken (Discord paged from the very first RTH tick); the gap was purely on the remediation side — nothing existed to force-kill and relaunch a stuck instance, the way `Invoke-TvLaunchSafe` already did for the analogous TV/CDP hang.
+
+**Fix:** `Invoke-LevelRefreshSafe` (`_shared.ps1`) — the same kill+relaunch pattern `Invoke-TvLaunchSafe` proved in 2026-07-06, generalized to a second producer.
+
+**Encoded in:** `setup/scripts/_shared.ps1#Invoke-LevelRefreshSafe`.
+
+**Detection:** any 5-min-or-tighter scheduled task with `IgnoreNew` + a multi-hop hidden-launch wrapper is a latent silent-stall risk, not just the one that already has a watchdog — audit every frequent producer feeding a live-path state file for the same gap. Detecting staleness is necessary but not sufficient without a paired self-heal.
+
+## L278 -- 2026-07-30: `assert "N" in src` cannot distinguish two different semantic readings of the same magic-number digits — a guard for a unit-bearing constant must assert the DECODED value
+
+**Symptom:** the self-heal window guard for L277's fix shipped as `if ($mins -ge 942 -and $mins -le 955)`, intended as minutes-since-midnight for 09:42-09:55 ET — but 942 minutes-since-midnight is 15:42 ET, not 09:42. The self-heal built specifically to prevent a repeat of a ~20h silent stall only ever activated in the final 13 minutes before close, covering ~3% of the RTH session it was meant to protect. Its own guard test, `assert "942" in src, "self-heal window must start at 09:42 ET"`, passed on BOTH the buggy and the correct code.
+
+**Root cause:** writing a guard as "does this string appear in the source" instead of "does the decoded/computed value mean what I intend" turns a semantic assertion into a syntactic one — it passes whether the number is right or wrong, as long as the wrong number happens to look plausible as a substring (942 reads as "9:42" to a skimming reviewer but is actually a valid, different, 24h-clock-adjacent value).
+
+**Fix:** extract the magic number from source via regex and assert on the DECODED meaning — `(lo // 60, lo % 60) == (9, 42)` catches what `"942" in src` cannot.
+
+**Encoded in:** the corrected watchdog window guard (`run-tv-watchdog.ps1`-adjacent self-heal test suite).
+
+**Detection:** any guard test pinning a magic number that encodes a real-world unit (minutes-since-midnight, seconds, cents, bps, an index offset) must assert the DECODED value, not the number's textual presence — two different units can silently swap under a passing presence-only test. Fold into C14 as a one-level-deeper form (varying a knob is not enough; the guard for a unit-bearing constant must also assert it decodes to the intended real-world value).
+
+## L279 -- 2026-07-31: a self-heal watchdog can silently FAIL to heal and look identical in the log to one that worked
+
+**Symptom:** `self_check.py` reported TV-CDP UNREACHABLE (RED) ~18 minutes before market open, even though `Gamma_TvWatchdog` had already logged `RELAUNCH_KILL` at both 09:05 and 09:10 ET, both landing in STATUS.md as routine, successful-looking self-heal activity.
+
+**Root cause:** `Invoke-TvLaunchSafe` (`_shared.ps1`) invoked the launch script and returned only `{skipped: bool}` — true if a 30s lock was held, false if the launch was invoked — never checking whether the launch actually restored CDP. All three watchdog call sites logged the same `tvAction` string every cycle regardless of outcome. A self-heal that can silently no-op while LOOKING like active healing manufactures false confidence and delays the moment a human actually investigates; this outage (>70min, 2+ relaunch cycles) was bounded only by a conductor fire happening to run right then.
+
+**Fix:** `Test-CdpReady` (poll helper) + `Invoke-TvLaunchSafe` now returns `{skipped, healed}` by self-verifying CDP post-launch; `run-tv-watchdog.ps1` branches into `*_healed`/`*_FAILED` outcomes, with `*_FAILED` writing a distinct `### BROKEN:` block to STATUS.md instead of blending into the routine line. Commit `c941567c`.
+
+**Encoded in:** `setup/scripts/_shared.ps1#Test-CdpReady`/`Invoke-TvLaunchSafe`, `run-tv-watchdog.ps1`, `backtest/tests/test_tv_launch_safe_2026_07_06.py`.
+
+**Detection:** any self-heal/watchdog function that "does the repair action" must verify the repair's EFFECT before reporting success, not just that the action was invoked without an exception. Named follow-up not chased: audit `Invoke-LevelRefreshSafe` and `state_freshness_selfheal.py` for the same class of gap.
+
+## L280 -- 2026-08-04: "validated" describes a backtest; only a real fill proves the code path can execute — armed and exercised are separate, non-substitutable facts
+
+**Symptom:** a 2026-08-03 report described the vwap lane as shipping "a validated edge." The setup had a real pre-registration and A/B behind it, but zero evidence the code path could execute at all — `vwap_continuation`'s fleet emission had been import-dead since 2026-06-25 (0 rows in 3,865). Worse: the setup NAME already had a live record on a different lane — 7 CORE trades, 0% WR, -$204, DISARMED 2026-07-25 — that the report never surfaced next to the "first-ever" framing.
+
+**Root cause (two compounding failures):** (1) vocabulary collapse — "validated" (a property of a backtest) was used where "armed" (a property of config) and "exercised" (a property of production, provable only by a real fill) were the load-bearing facts; a setup can be validated+armed and still structurally incapable of firing. (2) lane-blind provenance — checked whether THIS lane had fills, not whether the setup NAME had fills anywhere else; the disarm doc recording the 0/7 history was sitting in `params.json` the whole time.
+
+**Fix:** proposed three-state vocabulary (VALIDATED/ARMED/EXERCISED, each proven by a different artifact) and a lane-blind provenance check (grep the setup name across `journal/trades.csv` and every disarm doc before describing any setup as new/first-live) — not yet built as code, filed as a reporting discipline.
+
+**Encoded in:** not yet — proposed rule, no code guard shipped.
+
+**Detection:** before describing any setup as validated/new/first-live, state which of the three facts (validated/armed/exercised) is actually being claimed, and grep for prior live history under the same setup name on ANY lane. Sibling to C35 (built+tested != shipped) at the claims-vocabulary layer.
+
+## L281 -- 2026-08-04: deleting a bug's affected rows from a historical sample and calling the remainder "corrected" is a CONDITIONED filter, not a clean baseline
+
+**Symptom:** after fixing a crypto-twin ladder-sim bug (`time_stop_et` omitted from `plan_exit_actions`, so a SPY-shaped 15:50 ET default force-closed positions on a 24/7 BTC instrument), the ladder A/B was re-baselined by EXCLUDING every historical `stage == time_stop` close and reported as "the corrected totals" (variant +1.10%, baseline +0.57%, both positive). The true post-fix window (same day, small-n) showed a sign flip in both lanes.
+
+**Root cause:** the exclusion was correlated with trade duration. `exit_manager` closes when `now >= 15:50 ET`, true from 15:50 ET until midnight ET on a 24/7 instrument — an 8h05m/day (34%) dead zone. Dropping `time_stop` rows removed every trade that lived long enough to still be open when the dead zone opened (the LONGEST-held trades) plus every trade entered inside the dead zone — for a trend-continuation ladder whose thesis is that winners need time, removing the longest-held trades removes the population the strategy is supposed to profit from. The engineering fix was verified rigorously; the re-baseline was treated as bookkeeping and got none of that rigor.
+
+**Fix (rule, not code):** (1) characterize the bug's selection function (which trades could it touch, as a property) before excluding anything; (2) report the exclusion-reconstruction and the true post-fix window as SEPARATE labelled rows, never merged, even when post-fix n is embarrassingly small; (3) prefer re-running the producer over filtering its output whenever inputs still exist; (4) never quote an exclusion-reconstruction as "corrected" — call it a survivorship-filtered reconstruction. The bad `+1.1044%/+0.5745%` figures were relabelled accordingly; the underlying code fix stayed (verified organically: post-fix `LADDER_CLOSED` stages show `structure_stop` x21, `time_stop` x0).
+
+**Encoded in:** not yet — a reporting-discipline rule, no code guard.
+
+**Detection:** whenever a bug is found in a producer of historical results, ask whether the bug's selection property correlates with the outcome BEFORE dropping the affected rows — if it does, exclusion is biased and must be disclosed as such, never presented as a clean baseline. Fold into C4.
+
+## L282 -- 2026-08-04: an intra-session realized-P&L window is not evidence for a mid-session revert proposal — losers resolve fast and winners resolve slow, and a censored partial sum is biased toward the losers
+
+**Symptom:** at 09:57 ET, seven `ENTER_BULL` decision rows in 11 minutes were read as "seven entries losing money," prompting a call to disarm the setup mid-session. Only 4 of the 7 rows were actually PLACED (`action=ENTER_BULL` is written even when `placement.placed=false, reason=SKIP_DUPLICATE_CLAIM`) — a 75% overstatement sourced from a field (`action`) that was never cross-checked against the sibling field (`placement.placed`) in the SAME JSON object. The 4th placed entry became the trade of the day (+$524); the setup closed the session +$721 across two lanes.
+
+**Root cause:** realized P&L over a short window is dominated by the fact that losing round-trips resolve in under 2 minutes and a winning position stays open — reading a partial sum at minute 11 as "the setup is losing" is a survivorship artifact inverted in time: the sample is censored at the moment of measurement, and the censoring is correlated with the sign of the outcome. A retraction was made the same session but on judgment, not a stated threshold, leaving no rule for the next session to inherit. The proposed fix (`RUN_VWAP=False`, disarming the entry producer) also would not have addressed the actual mechanism (a raw -6% premium stop against a 10.3% median 1-min noise band on an exit whose `stop_mode="structure"` patch is a guaranteed no-op for a continuation setup with no `trigger_level`).
+
+**Fix (rule):** no mid-session revert of a shipped, pre-registered setup on intra-session P&L alone. Requires either a verifiable-in-one-tick MECHANISM defect (wrong side/instrument, ignored gate, entering while not flat, sizing past cap) or an existing Rule 5/6 kill-switch breach; otherwise wait for the close and the setup's own pre-registered kill criterion. Any "it fired N times" claim must be sourced from `placement.placed==true`, never the `action` field. Any proposed revert must name the misbehaving component and act on THAT component.
+
+**Encoded in:** not yet — a reporting/process-discipline rule, no code guard (Rule 9 already forbids the ACTION; this patches the gap that let the wrong CONCLUSION form and nearly get voiced).
+
+**Detection:** any censored-window P&L quoted mid-session must be labelled PARTIAL/CENSORED with the still-open-position count. Sibling to C1 (real fills is the only WR authority — completed round trips only, never a partial window).
