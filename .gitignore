@@ -214,3 +214,9 @@ analysis/crypto-twin/btc_5m_cache.json
 # disk / isn't read; neither is a correctness regression on this machine). Going forward,
 # new daily snapshots stay on disk (fully readable by every consumer above) but out of git.
 journal/gex-archive/*-cboe.json
+
+# Live TradingView chart-drawing state (entity_ids of the lines Gamma itself drew).
+# Untracked on purpose (C34): a tree-wide git op restoring stale entity_ids would
+# orphan the current lines. The "[G] " TAG sweep in draw_key_levels.py is the
+# recovery path, so this file is disposable by design.
+automation/state/chart-autodraw.json
