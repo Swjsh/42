@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "purpose": "Autopsy hypothesis mechanisms with a FILED verdict. trade_autopsy.py reads this and stops re-emitting them. HYP_DEDUPE_DAYS is a 7-day COOLDOWN, not an answer -- without this registry an already-answered question returns every week forever and the reader learns to ignore the queue.",
+  "how_to_unsettle": "Delete the row (re-opens immediately), or set/advance `revisit_after` (YYYY-MM-DD) to re-open on a stated date. Never widen HYP_DEDUPE_DAYS to silence something -- that hides every mechanism, not the answered one.",
+  "settled": [
+    {
+      "mechanism": "stop_inside_noise_floor",
+      "hypothesis_ids_seen": [
+        "H-2026-07-08-stop-noise",
+        "H-2026-07-16-stop-noise",
+        "H-2026-07-21-stop-noise",
+        "H-2026-07-29-stop-noise",
+        "H-2026-08-04-stop-noise"
+      ],
+      "emitted_count": 5,
+      "first_emitted": "2026-07-08",
+      "last_emitted": "2026-08-04",
+      "settled_on": "2026-08-06",
+      "verdict": "REGIME_CONDITIONAL_NOT_SHIPPABLE",
+      "verdict_detail": "Widening the stop is regime-conditional, not a book-wide edge. Tue 08-04 cohort -$1,111 -> +$2,097 across -15%..-50%; Wed 08-05 -$1,279 -> -$613 at best (still a loss); the 391-day gap-fade slice is MONOTONE WORSE as the stop widens. A knob that only pays on the days you cannot identify in advance is not shippable.",
+      "evidence": "analysis/deep-research/STOPPED-THEN-PAID-2026-08-04.md (run 2026-08-06)",
+      "artifact_caveat": "The detector's own `stopped_then_paid` tag is partly an artifact of the hold_to_time counterfactual, which was unbounded-upside and near-stopless until it was quarantined as an ORACLE on 2026-08-06 (DIAGNOSTIC_COUNTERFACTUALS). Any re-open must re-measure with the corrected best-counterfactual column.",
+      "graveyard_refs": [
+        "hold-longer book-wide (-$451.50 / 21)",
+        "any stop-width change in EITHER direction"
+      ],
+      "revisit_after": null,
+      "revisit_condition": "Re-open only with a PRE-REGISTERED regime classifier that identifies the paying regime BEFORE the entry, not after. Absent that, widening the stop is curve-fitting to the days that happened to trend."
+    }
+  ]
+}

@@ -143,6 +143,8 @@ LEDGER = STATE / "fills-ledger.jsonl"
 OUT_DIR = REPO / "analysis" / "autopsies"
 LAST_JSON = STATE / "trade-autopsy-last.json"
 HYP_QUEUE = STATE / "hypothesis-queue.jsonl"
+# Mechanisms with a FILED verdict. A settled question stops re-asking itself.
+SETTLED_HYP = STATE / "hypotheses-settled.json"
 QUEUE_MD = REPO / "automation" / "overnight" / "queue.md"
 OUTBOX = STATE / "discord-outbox.jsonl"
 LENS = "markdown/trading-knowledge/GENERATIVE-LENS.md"
@@ -187,10 +189,29 @@ COUNTERFACTUALS = {
     "no_stop_ride": {    # "what was the thesis worth with no stop at all?"
         "premium_stop_pct": -0.95, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667,
         "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
-    "hold_to_time": {    # "does pure theta-ride beat what we did?"
+    "hold_to_time": {    # "does pure theta-ride beat what we did?"  -- ORACLE, see below
         "premium_stop_pct": -0.95, "tp1_premium_pct": 999.0, "tp1_qty_fraction": 1.0,
         "profit_lock_mode": "fixed", "trail_pct": 0.0, "runner_target_pct": 999.0},
 }
+
+# ORACLE / DIAGNOSTIC-ONLY counterfactuals -- scored and reported, but NEVER allowed to be
+# `best_counterfactual` and NEVER allowed to set `stop_cost_vs_best`.
+#
+# WHY (fixed 2026-08-06). `hold_to_time` is an unbounded-upside, near-disabled-stop shape:
+# premium_stop_pct -0.95 (vs the shipped -50% catastrophe cap), tp1 999.0 (never takes
+# profit) and runner_target 999.0 (no ceiling). Holding the FULL position to the time exit
+# with effectively no stop wins the "best counterfactual" competition on every trend day BY
+# CONSTRUCTION, and is the worst cell on every reversal day. Because `stop_cost_vs_best` was
+# computed as max(ALL counterfactuals) - actual, that structural win became the headline
+# "$ left on the table" number in J's weekly autopsy -- the source of the misleading
+# $6,976-on-a--$104-trade figures.
+#
+# It is not a shippable shape and never was: a -95% stop is outside the doctrine's -50%
+# catastrophe cap both sides, and "hold-longer book-wide" is already in the GRAVEYARD
+# (-$451.50 over 21). Keeping it as an ORACLE is still useful -- it powers the honest
+# `exit_beat_theta` tag ("our exit was RIGHT vs riding") -- but an oracle must never be
+# mixed into a live-executable column.
+DIAGNOSTIC_COUNTERFACTUALS = frozenset({"hold_to_time"})
 
 # Rolling-window hypothesis detectors: thresholds are the "is this a pattern yet" bar.
 ROLL_N = 30                # positions in the rolling window
@@ -264,11 +285,23 @@ def classify_position(actual_pnl: float, entry_price: float, entry_bar_low: floa
     post_exit_high: highest premium AFTER the actual exit (None = no bars after / unknown).
     cf_pnls: {name: pnl} for the counterfactual replays (missing entries tolerated).
     """
+    # SHIPPABLE shapes only. ORACLE probes (DIAGNOSTIC_COUNTERFACTUALS) are excluded from
+    # `best_counterfactual`/`stop_cost_vs_best` -- see the DIAGNOSTIC_COUNTERFACTUALS note.
+    # Mixing hold_to_time in here is what produced the structural "$ left on the table"
+    # inflation that fed J misleading numbers weekly.
     best_cf_name, best_cf = None, None
     for k, v in cf_pnls.items():
+        if k in DIAGNOSTIC_COUNTERFACTUALS:
+            continue
         if v is not None and (best_cf is None or v > best_cf):
             best_cf_name, best_cf = k, v
     stop_cost = round(best_cf - actual_pnl, 2) if best_cf is not None else None
+
+    # The oracle is still reported -- separately, and labelled -- so the diagnostic
+    # question ("would pure theta-ride have beaten us?") is not lost, only quarantined.
+    oracle_pnls = {k: v for k, v in cf_pnls.items() if k in DIAGNOSTIC_COUNTERFACTUALS}
+    oracle_best = max((v for v in oracle_pnls.values() if v is not None), default=None)
+    oracle_delta = round(oracle_best - actual_pnl, 2) if oracle_best is not None else None
     tags = []
     if actual_pnl < 0 and post_exit_high is not None and post_exit_high >= entry_price:
         tags.append("stopped_then_paid")           # the 741P class: loss, then thesis paid
@@ -283,7 +316,12 @@ def classify_position(actual_pnl: float, entry_price: float, entry_bar_low: floa
             and cf_pnls["hold_to_time"] < actual_pnl):
         tags.append("exit_beat_theta")             # our exit was RIGHT vs riding (honesty tag)
     return {"tags": tags, "stop_cost_vs_best": stop_cost, "best_counterfactual": best_cf_name,
-            "entry_spike_pct": entry_spike}
+            "entry_spike_pct": entry_spike,
+            # ORACLE columns -- diagnostic only, never a shippable claim. Any consumer that
+            # sums "money left on the table" must use stop_cost_vs_best, NOT this.
+            "oracle_best_pnl": oracle_best, "oracle_delta_vs_actual": oracle_delta,
+            "oracle_note": ("hold_to_time is a near-stopless, unbounded-upside probe: it wins on "
+                            "trend days by construction. Diagnostic, not shippable.")}
 
 
 def compute_pnl_status(n_positions_found: int, n_no_bars: int) -> str:
@@ -365,14 +403,59 @@ def detect_hypotheses(rows: list[dict], today: str) -> list[dict]:
     return hyps
 
 
-def dedupe_hypotheses(new: list[dict], existing_rows: list[dict], today: str) -> list[dict]:
-    """One emission per mechanism per HYP_DEDUPE_DAYS. Pure. Generic over the
-    `mechanism`/`date` keys only -- reused verbatim for TWIN hypotheses below
-    (no SPY-specific coupling)."""
+def load_settled_mechanisms() -> dict[str, dict]:
+    """Mechanisms with a FILED verdict -> never re-emit. Fail-open (missing/corrupt = {}).
+
+    WHY THIS EXISTS (2026-08-06). `H-*-stop-noise` (mechanism `stop_inside_noise_floor`)
+    auto-emitted on 07-08, 07-16, 07-21, 07-29 and 08-04 and was never once run until
+    2026-08-06. HYP_DEDUPE_DAYS=7 is a COOLDOWN, not an answer: it guarantees a question
+    already answered comes back every week forever, which trains the reader to ignore the
+    queue. A hypothesis with a filed verdict is SETTLED and must go quiet until someone
+    explicitly un-settles it (delete its row, or bump `revisit_after`).
+    """
+    if not SETTLED_HYP.exists():
+        return {}
+    try:
+        payload = json.loads(SETTLED_HYP.read_text(encoding="utf-8-sig"))
+    except (json.JSONDecodeError, OSError):
+        return {}   # fail-open: a broken registry must never silence NOTHING, not everything
+    out: dict[str, dict] = {}
+    for row in payload.get("settled") or []:
+        mech = row.get("mechanism")
+        if isinstance(mech, str) and mech:
+            out[mech] = row
+    return out
+
+
+def is_settled(mechanism: str, settled: dict[str, dict], today: str) -> bool:
+    """A mechanism stays settled until its optional `revisit_after` date arrives.
+
+    `revisit_after` is the escape hatch for regime-conditional verdicts: the stop-noise
+    answer was "(b) regime-conditional, not shippable", which is true of THIS regime and
+    deserves a re-look eventually -- but on a stated date, not weekly by default.
+    """
+    row = settled.get(mechanism)
+    if row is None:
+        return False
+    revisit = row.get("revisit_after")
+    if isinstance(revisit, str) and revisit and today >= revisit:
+        return False
+    return True
+
+
+def dedupe_hypotheses(new: list[dict], existing_rows: list[dict], today: str,
+                      settled: dict[str, dict] | None = None) -> list[dict]:
+    """Suppress (a) SETTLED mechanisms permanently and (b) recent ones for HYP_DEDUPE_DAYS.
+
+    Pure. Generic over the `mechanism`/`date` keys only -- reused verbatim for TWIN
+    hypotheses below (no SPY-specific coupling).
+    """
+    settled = settled or {}
     cutoff = (datetime.fromisoformat(today) - timedelta(days=HYP_DEDUPE_DAYS)).date().isoformat()
     recent = {r.get("mechanism") for r in existing_rows
               if str(r.get("date", "")) >= cutoff}
-    return [h for h in new if h["mechanism"] not in recent]
+    return [h for h in new
+            if h["mechanism"] not in recent and not is_settled(h["mechanism"], settled, today)]
 
 
 # ---------- TWIN (mechanism) pure helpers -- CODE-fix-only lane (B2c) ----------------------
@@ -902,7 +985,8 @@ def main() -> int:
         # today's rows are already in history via the file we just wrote? load_recent_rows
         # re-reads the dir, so yes -- no double-append.
         new_hyps = detect_hypotheses(history, date_et)
-        new_hyps = dedupe_hypotheses(new_hyps, load_hypothesis_rows(), date_et)
+        new_hyps = dedupe_hypotheses(new_hyps, load_hypothesis_rows(), date_et,
+                                     settled=load_settled_mechanisms())
         if new_hyps:
             with HYP_QUEUE.open("a", encoding="utf-8") as fh:
                 for h in new_hyps:
@@ -964,7 +1048,8 @@ def main() -> int:
 
         twin_history = load_recent_twin_rows()
         new_twin_hyps = detect_twin_hypotheses(twin_history, date_et)
-        new_twin_hyps = dedupe_hypotheses(new_twin_hyps, load_twin_hypothesis_rows(), date_et)
+        new_twin_hyps = dedupe_hypotheses(new_twin_hyps, load_twin_hypothesis_rows(), date_et,
+                                          settled=load_settled_mechanisms())
         write_twin_hypotheses(new_twin_hyps, date_et)  # twin-only lane -- NEVER hypothesis-queue.jsonl
 
         n_anom = sum(1 for r in twin_rows if not r["classification"]["mechanism_ok"])
