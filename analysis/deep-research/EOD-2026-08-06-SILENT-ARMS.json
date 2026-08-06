@@ -1,0 +1,217 @@
+{
+  "_doc": "LENS 3 -- the two silent arms (4th consecutive session) + owed-debt clearance. Thursday 2026-08-06 after close. All broker/ledger figures re-verified this session; no figure carried forward from the briefing without re-derivation.",
+  "generated_at_et": "2026-08-06T16:34:19-04:00",
+  "clock_source": "setup/scripts/et_clock.py -> '2026-08-06 16:13:50 Thursday EDT market_hours=False' (session start) and '2026-08-06 16:34:19' (write time)",
+  "market_hours_at_write": false,
+  "n_small": true,
+  "n_small_note": "Every counterfactual below is n=1 (one trade, one day). PREREG-only. Nothing here is a ship.",
+
+  "root_causes_reverified_on_todays_ledgers": {
+    "bold-2": {
+      "display_name": "CORE-BOLD",
+      "account": "PA3WEBXJU67N",
+      "verdict": "CONFIRMED -- PDT hard-block",
+      "ledger": "automation/state/core-decisions.jsonl (account='bold')",
+      "ticks_today": 386,
+      "action_distribution": {"HOLD": 375, "SKIP_STALE_TRIGGER": 6, "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 2, "RISK_DENY_PDT": 3},
+      "risk_deny_pdt_ticks_et": ["2026-08-06T10:32:48", "2026-08-06T10:34:01", "2026-08-06T10:34:56"],
+      "denied_verdict": "ENTER_BEAR",
+      "denied_setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "denied_reason_text": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+      "second_independent_blocker": {
+        "gate": "require_bearish_fill_bar",
+        "ticks_et": ["2026-08-06T10:31:54", "2026-08-06T10:35:49"],
+        "note": "At 10:31:54 -- the exact minute safe-2 filled -- bold-2 was blocked by the fill-bar gate, NOT PDT. PDT is therefore the binding blocker only from 10:32:48 onward. Lifting PDT alone would have entered ~10:32:48, not 10:31."
+      }
+    },
+    "safe-3": {
+      "display_name": "FLEET-TIGHT-S",
+      "account": "PA32T7Q1O20H",
+      "verdict": "CORRECTED -- NOT signal-absent today. Tight-gate block on a signal that WAS present.",
+      "standing_finding_contradicted": "Briefing carried 'safe-3 silence root cause = signal-absent (1 signal in 384 ticks on 08-05), not gates.' That held Wednesday. It is FALSE for Thursday.",
+      "ledger": "automation/state/fleet/safe-3/decisions.jsonl",
+      "ticks_today": 384,
+      "action_distribution": {"HOLD": 384},
+      "reason_distribution": {"no qualifying setup (no strategy fired)": 375, "gate: 1 triggers < 2": 5, "no live signal": 4},
+      "blocking_ticks_et": ["2026-08-06T10:32:04", "2026-08-06T10:33:04", "2026-08-06T10:34:04", "2026-08-06T10:35:04", "2026-08-06T10:36:04"],
+      "setup_seen": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "quality": "BASE",
+      "binding_gate": "gate_override.min_triggers = 2 (accounts.json)",
+      "discriminator": "Same shared signal, same minute: risky-3 (min_triggers=1) and risky-1 (full_send) BOTH fired and both made money. safe-3 saw 1 trigger and required 2. The gate is the entire difference.",
+      "caveat": "min_triggers=2 is safe-3's DESIGNED selectivity as the tight arm, not a bug. Its cost today is real but n=1 cannot judge a selectivity knob."
+    }
+  },
+
+  "silence_cost_real_opra": {
+    "method": "Real Alpaca OPRA 1-min bars (/v1beta1/options/bars, SPY260806P00770000, 396 bars 13:30Z-20:05Z) replayed through the LIVE exit core automation/state/fleet/exit_manager.py#plan_exit_actions via ExitState.from_entry(structure_stop_enabled=True, trigger_level=770.24).",
+    "exit_shape": "strategies.py REGISTRY ribbon_ride: tp1_premium_pct=1.0, tp1_qty_fraction=0.667, profit_lock_mode=trailing, trail_pct=0.15, runner_target_pct=99.0, stop_mode=structure, catastrophe_stop_pct=-0.50",
+    "shape_applies_to_both": "bold-2 has no exit_patch (core arm); safe-3's exit_patch {stop_mode:structure, profit_lock_mode:trailing} is a no-op against the registry default. Both replay the plain registry shape.",
+    "qty_basis": "Each arm's OWN realized SPY-0DTE sizing from broker FILL activities since 2026-08-03 (not a modeled risk cap): bold-2 filled qty=5 on all three 08-04 entries; safe-3 filled qty=3 on all six 08-03/08-04 entries.",
+    "entry_price_basis": "1.28 = the real sibling fill at the same minute (risky-3 bought 8 @ 1.28 at 10:32:08 ET). OPRA 14:32Z bar = o1.19 h1.33 l1.16 c1.19.",
+
+    "parity_check": {
+      "why": "L251 -- a counterfactual is worthless until the harness reproduces a KNOWN real outcome.",
+      "subject": "safe-2 actual position, 3 @ 1.28 entered 10:31:53 ET",
+      "broker_truth_usd": 338.45,
+      "replay_usd": 346.45,
+      "delta_usd": 8.00,
+      "delta_pct": 2.4,
+      "verdict": "PASS -- harness is credible for this trade/day"
+    },
+    "harness_defect_found_and_corrected": {
+      "function": "backtest/tools/exit_shape_parity_study.py#replay_position",
+      "defect": "Calls ExitState.from_entry WITHOUT structure_stop_enabled or trigger_level, so stop_mode='structure' silently resolves to 'premium' with premium_stop_pct=-0.20.",
+      "consequence_measured": "First run reported safe-2 = -$76.80 (stopped out 10:34 ET at 1.024) against a broker truth of +$338.45 -- a $415 error and a sign flip. Live ran structure mode (params.structure_stop_enabled=true in BOTH params.json and aggressive/params.json), which demotes the premium stop to the -50% catastrophe cap.",
+      "status": "Worked around in this session's local replay (structure params passed explicitly). The shared helper is UNFIXED -- see open_items."
+    },
+
+    "per_arm": {
+      "bold-2": {
+        "qty": 5,
+        "entry_premium": 1.28,
+        "entry_ts_et": "2026-08-06T10:32:48",
+        "forgone_pnl_usd": 564.90,
+        "modeled_exits": [
+          {"stage": "tp1", "qty": 3, "fill": 2.56, "ts_et": "12:01"},
+          {"stage": "trail", "qty": 2, "fill": 2.1845, "ts_et": "12:05"}
+        ],
+        "blocker": "RISK_DENY_PDT"
+      },
+      "safe-3": {
+        "qty": 3,
+        "entry_premium": 1.28,
+        "entry_ts_et": "2026-08-06T10:32:04",
+        "forgone_pnl_usd": 346.45,
+        "modeled_exits": [
+          {"stage": "tp1", "qty": 2, "fill": 2.56, "ts_et": "12:01"},
+          {"stage": "trail", "qty": 1, "fill": 2.1845, "ts_et": "12:05"}
+        ],
+        "blocker": "gate_override.min_triggers=2"
+      }
+    },
+    "combined_forgone_usd": 911.35,
+    "day_actual_usd": 1460.80,
+    "day_if_all_five_participated_usd": 2372.15,
+    "silence_share_of_potential_day_pct": 38.4,
+    "verdict": "Unlike Wednesday, the silence COST money today -- $911.35, 38.4% of the achievable day."
+  },
+
+  "account_type_question_for_J": {
+    "status": "FACTS RESOLVED -- NO KEY CHANGED. This is the one item that needs J.",
+    "method": "fleet_broker.load_creds() -> per-arm GET {base_url}/v2/account (raw REST, read-only), plus alpaca + alpaca_aggressive MCP get_account_info / get_account_config, all executed 2026-08-06 ~16:20 ET.",
+    "live_fields": {
+      "safe-2": {"account": "PA3POKNV46VG", "multiplier": "4", "max_margin_multiplier": "4", "shorting_enabled": true, "status": "ACTIVE", "crypto_status": "ACTIVE", "equity": 5727.91, "cash": 5727.91, "buying_power": 22911.64, "regt_buying_power": 11455.82, "options_buying_power": 5558.56, "created_at": "2026-08-03T13:01:01Z", "pattern_day_trader": "ABSENT_FROM_RESPONSE", "daytrade_count": "ABSENT_FROM_RESPONSE"},
+      "bold-2": {"account": "PA3WEBXJU67N", "multiplier": "4", "max_margin_multiplier": "4", "shorting_enabled": true, "status": "ACTIVE", "crypto_status": "ACTIVE", "equity": 5477.71, "cash": 5477.71, "buying_power": 21910.84, "regt_buying_power": 10955.42, "options_buying_power": 5477.71, "created_at": "2026-08-03T13:01:53Z", "pattern_day_trader": "ABSENT_FROM_RESPONSE", "daytrade_count": "ABSENT_FROM_RESPONSE"},
+      "safe-3": {"account": "PA32T7Q1O20H", "multiplier": "4", "equity": 5780.15},
+      "risky-1": {"account": "PA3S9N1IV0A4", "multiplier": "4", "equity": 6338.46},
+      "risky-3": {"account": "PA3V7JT25H6Z", "multiplier": "4", "equity": 5343.32}
+    },
+    "key_correction": "pattern_day_trader and daytrade_count are ABSENT from the /v2/account payload on all six arms -- not null. The standing note 'fleet_live.py read acct daytrade_count = None -> 0' is directionally right but the sharper truth is the field never arrives at all, so .get() can only ever yield the default.",
+    "stale_premise_falsified": {
+      "pinned_claim": "risk_gate.py:50-55 + params.json _pdt_gate_mode_doc: 'VERIFIED 2026-07-14 ... both are CASH accounts (multiplier \"1\") -- PDT is structurally inapplicable.'",
+      "why_it_is_dead": "Not merely stale -- the accounts it was verified against no longer exist. All six current arms were created 2026-08-03T13:00-13:02Z in J's wipe+rebuild. Every one reports multiplier=4, max_margin_multiplier=4, shorting_enabled=true, and regt_buying_power = 2x equity. That is a RegT MARGIN account. A cash account reports multiplier=1.",
+      "also_stale": "That doc names PA3DHPT7KIQE; safe-2 now points at PA3POKNV46VG. CLAUDE.md's account table (PA3DHPT7KIQE / PA33W2KUAT40) is stale against automation/state/fleet/live-verified-account-numbers-2026-07-14.json."
+    },
+    "day_trades_live_verified": {
+      "method": "setup/scripts/pdt_tracker.fetch_day_trades_detail() over broker FILL activities, rolling 5 business days, as_of 2026-08-06T16:20 ET",
+      "safe-2": {"count": 8, "dates": ["2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06"], "rolloff": "2026-08-11"},
+      "bold-2": {"count": 3, "dates": ["2026-08-04"], "rolloff": "2026-08-12"},
+      "safe-3": {"count": 6, "dates": ["2026-08-03", "2026-08-04"], "rolloff": "2026-08-11"},
+      "risky-1": {"count": 8, "dates": ["2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06"], "rolloff": "2026-08-11"},
+      "risky-3": {"count": 9, "dates": ["2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06"], "rolloff": "2026-08-11"},
+      "note": "Briefing said safe-2 took 7 in 5 business days. Live truth is 8."
+    },
+    "params_divergence_unchanged": {
+      "automation/state/params.json": {"pdt_gate_mode": "cash_settlement", "structure_stop_enabled": true, "max_same_day_roundtrips": 5},
+      "automation/state/aggressive/params.json": {"pdt_gate_mode": "margin_pdt", "structure_stop_enabled": true, "max_same_day_roundtrips": 5},
+      "action_taken": "NONE. Neither key touched, per instruction."
+    },
+    "alpaca_docs_consulted": {
+      "tool": "mcp__alpaca__search_alpaca_docs + fetch_alpaca_doc",
+      "page": "us/understanding-finras-new-intraday-margin-rule-and-the-end-of-pdt",
+      "relevant_content": "FINRA has approved replacing the legacy PDT framework with an intraday-margin system: the $25,000 equity threshold and the four-trades-in-five-days count are both ELIMINATED, replaced by real-time Intraday Margin Level monitoring. 0DTE long-option expiration is explicitly classified as an IML-reducing transaction. Timeline: a 12-month interim transition period after SEC approval, during which member firms MAY apply either the legacy PDT rules or the new intraday-margin rules, by account or firm-wide.",
+      "docs_limitation": "The docs describe the forward regulatory regime. They do NOT state what Alpaca PAPER reports for cash-vs-margin, and no doc page was found that explains the absent pattern_day_trader/daytrade_count fields. That absence is an empirical finding from the live API, not a documented behavior."
+    },
+    "the_paragraph_for_J": "On today's live broker data safe-2's cash_settlement exemption is the DEFECT and bold-2's margin_pdt is CORRECT. Both core accounts report multiplier=4, max_margin_multiplier=4, shorting_enabled=true and regt_buying_power at 2x equity -- those are RegT margin accounts, not cash accounts, so the legacy FINRA PDT rule (which safe-2's mode switches off entirely) does apply to them, and both sit far under the $25,000 threshold at ~$5.5-5.7K. The 2026-07-14 provenance that justified the exemption ('multiplier 1, cash accounts') is not merely stale: the accounts it was measured on were deleted, and every one of the six replacements built on 2026-08-03 reports margin. Consequence: safe-2 has taken 8 day-trades in the last 5 business days on a sub-$25K margin account and its gate cannot see them, while bold-2 correctly stopped itself at 3 and has sat out four sessions -- which cost a verified $564.90 today alone. This is currently harmless because it is PAPER and Alpaca's paper API does not return pattern_day_trader or daytrade_count at all (so no broker-side enforcement exists either way); it becomes a real compliance exposure the moment GAMMA_CORE_ARMED=1 touches live money, where a real broker would flag safe-2 as a pattern day trader and freeze it. The genuine fork -- and why this is yours, not mine -- is that the two defensible fixes point opposite ways: tighten safe-2 to margin_pdt for correctness and accept that BOTH core arms then jail themselves for days at a time on paper (bold-2's four silent sessions become the norm, not the exception), or leave both loose on paper deliberately to keep collecting evidence and gate the correctness fix to live-arming instead. FINRA has in fact approved eliminating the trade-count rule in favour of intraday-margin monitoring, with a 12-month interim in which firms may apply either regime -- so the constraint bold-2 is currently obeying may not even exist by the time you arm live. I have changed nothing and recommend the second path with an explicit live-arming checklist item, but the call is yours.",
+    "what_would_need_J": "Flipping either pdt_gate_mode key. NOT done."
+  },
+
+  "red_proof_owed_debt_cleared": {
+    "task": "#103 -- RED-proof backtest/tests/test_fleet_pdt_parity.py (11/11 green but never RED-proofed)",
+    "ran_at_et": "2026-08-06 ~16:30 (market_hours=False, verified)",
+    "source_under_test": "automation/state/fleet/fleet_live.py",
+    "baseline": {"result": "11 passed in 0.19s", "sha256": "061764f17967c3118b77d8c399d547d800e74fdf402226a9613c18dac8737b46"},
+    "mutations": [
+      {"id": "M1", "description": "revert the true count to the null broker field (reintroduces the original defect)", "edit": "n = int(_pdt.fetch_day_trades_used_5d(creds))  ->  n = int((acct or {}).get(\"daytrade_count\") or 0)", "result": "4 failed, 7 passed", "named_failure": "test_true_count_comes_from_pdt_tracker_not_the_null_broker_field"},
+      {"id": "M2", "description": "make enforcement unconditional (C14 dead-knob check)", "edit": "enforce_true = bool(params.get(\"fleet_pdt_enforce\")) and bool(arm.get(\"live\"))  ->  enforce_true = True", "result": "1 failed, 10 passed", "named_failure": "test_run_expression_matches_this_mirror"},
+      {"id": "M3", "description": "fail-CLOSED instead of fail-open (invents a block on fetch outage)", "edit": "return int((acct or {}).get(\"daytrade_count\") or 0), \"broker_field_fallback\"  ->  return 99, \"broker_field_fallback\"", "result": "1 failed, 10 passed", "named_failure": "test_fetch_failure_fails_open_to_the_broker_field_then_zero"}
+    ],
+    "restore": {"sha256": "061764f17967c3118b77d8c399d547d800e74fdf402226a9613c18dac8737b46", "byte_identical": true, "post_restore_result": "11 passed in 0.19s"},
+    "verdict": "RED-PROOF PASSED -- all three pinned properties are genuinely load-bearing.",
+    "honest_weakness": "M2 is caught only by test_run_expression_matches_this_mirror, a SOURCE-TEXT assertion, not a behavioural one. It pins the literal expression string, so it reds on any benign refactor of that line and it does not prove the default-inert BEHAVIOUR. The enforcement-default property deserves a real behavioural test."
+  },
+
+  "reports_success_while_doing_nothing_sweep": {
+    "seed_case": "Gamma_TvWatchdog relaunch threw a parameter-binding error from 07-31 while healed= was computed from Test-CdpReady, which returns true whenever TV happens to be alive.",
+    "tv_heal_verification": {
+      "status": "OWED VERIFICATION NOW PERFORMED AND PASSED",
+      "method": "Killed every TradingView process at ~16:26 ET (market closed, verified), then ran the real scheduled entry point setup/scripts/run-tv-watchdog.ps1.",
+      "before": "TV procs = 0, CDP 9222 = DEAD",
+      "after": "TV procs = 9, earliest new PID 1728 StartTime 2026-08-06 16:27:44 ET, CDP 9222 = HTTP 200",
+      "stability_recheck_1634et": "TV procs = 9, CDP = 200",
+      "why_this_is_discriminating": "Pre-fix the child powershell.exe never executed a single line, so a dead TV could NOT be revived. TV coming back from a hard zero-process state is only possible if the argv fix genuinely executes launch_tv_debug.ps1.",
+      "historical_evidence_of_the_bug": "automation/state/tv-watchdog.jsonl last three rows are relaunch_kill_FAILED on 2026-07-31 15:55, 2026-07-31 16:00, and 2026-08-05 08:50."
+    },
+    "new_findings": [
+      {
+        "id": "SWEEP-1",
+        "severity": "HIGH",
+        "file": "backtest/tools/stop_width_population_grid.py#get_bars (~line 92-110)",
+        "shape": "Poisoned-empty-cache: on ANY fetch exception it sets bars=[] and then writes the cache CSV unconditionally. Every later call sees p.exists() and returns 0 bars forever, with no warning.",
+        "trigger_proven_live": "The hardcoded window end={date}T20:15:00Z (16:15 ET) always falls inside Alpaca's last-15-minutes real-time embargo for a same-day fetch. Alpaca answers HTTP 403 {\"message\":\"OPRA agreement is not signed\"}.",
+        "discriminating_evidence": "Same symbol, same key, only the end bound changed: end=20:15:00Z -> HTTP 403; end=19:00:00Z -> 200 OK with 331 bars; end=20:05:00Z -> 200 OK with 396 bars.",
+        "blast_radius": "Hit it live this session -- it silently wrote two 1-line CSVs for SPY260806P00770000 and SPY260806C00769000. Any same-day EOD study run before ~16:30 ET permanently poisons that symbol/date for every later consumer of the shared cache.",
+        "action_taken": "Deleted both poisoned files and refetched with a valid end bound. The CODE IS UNFIXED.",
+        "note": "This is the same family as L241 (a fetcher masking a 403 as 'no data'), but worse: L241's fetcher merely returned nothing, this one PERSISTS the nothing."
+      },
+      {
+        "id": "SWEEP-2",
+        "severity": "HIGH",
+        "file": "backtest/tools/exit_shape_parity_study.py#replay_position (line ~236)",
+        "shape": "Confidently-wrong-number: silently omits structure_stop_enabled and trigger_level from ExitState.from_entry, so any shape declaring stop_mode='structure' degrades to premium mode at -20% without any warning. Exit code 0, plausible-looking output.",
+        "measured_error": "safe-2's real trade replayed as -$76.80 (stopped out 10:34 ET) vs broker truth +$338.45. $415.25 error, sign flipped.",
+        "why_it_matters": "params.structure_stop_enabled=true in BOTH params.json and aggressive/params.json, i.e. every live core position since the v15.3 chart-stop-primary build runs structure mode. Any counterfactual built on this helper without the parity check is wrong in the pessimistic direction.",
+        "action_taken": "Worked around locally by passing the structure params explicitly; parity then closed to $8.00 (2.4%). The SHARED HELPER IS UNFIXED."
+      },
+      {
+        "id": "SWEEP-3",
+        "severity": "LOW-MEDIUM",
+        "files": ["setup/scripts/connectivity-gate.ps1:199", "setup/scripts/preflight-gate.ps1:96"],
+        "shape": "Both emit healed = [bool]$Heal into their status JSON -- a verbatim echo of the -Heal REQUEST switch, not the outcome of any healing. A reader sees \"healed\": true and infers healing happened when it only means healing was asked for.",
+        "mitigation_disclosed": "Not a gate-logic defect. In both scripts the primary verdict is computed from real node checks, and connectivity-gate additionally emits tv_heal_action which does carry the true outcome. preflight-gate has no such secondary field.",
+        "action_taken": "Reported only. No edit."
+      }
+    ],
+    "swept_and_clean": "grep of healed\\s*= across setup/scripts/*.ps1 returned only the two SWEEP-3 sites plus _shared.ps1:881-882 (which computes healed from a real post-action Test-CdpReady probe -- correct) and heal-engine.ps1:116 (an accumulator array, not a claim)."
+  },
+
+  "open_items_not_done": [
+    "SWEEP-1: fix get_bars to skip the cache write on a failed fetch and to clamp end to now-15min. Not shipped -- outside this lens's scope and it touches a shared research harness.",
+    "SWEEP-2: give replay_position structure-stop parameters. Not shipped -- same reason; needs its own prereg + guard because it changes every historical study built on it.",
+    "SWEEP-3: make healed reflect the action outcome in both gate scripts.",
+    "test_fleet_pdt_parity.py: replace the M2 source-text mirror with a behavioural default-inert assertion.",
+    "CLAUDE.md account table still lists PA3DHPT7KIQE / PA33W2KUAT40; live truth is PA3POKNV46VG / PA3WEBXJU67N.",
+    "The bull-side question the briefing posed is VOID as posed -- see the correction block."
+  ],
+
+  "briefing_corrections": {
+    "the_1421_long_did_not_come_from_filter_5": {
+      "briefing_claim": "The 14:21 safe-2 LONG is the first fire after filter 5 (ribbon BULL-stacked) finally cleared; blockers shed [5,7,10,11] -> [5,11] -> [5] -> fired.",
+      "ledger_truth": "In automation/state/core-decisions.jsonl the bull_blockers list NEVER empties. 14:11-14:15 = [5,7,10,11]; 14:16-14:18 = [5] (bull_score 10, ribbon MIXED); 14:19-14:25 = [5,11]; 14:26-14:29 = [5]. Every tick in that window is action=HOLD, verdict=HOLD, reason 'no setup passed scoring (neither bear nor bull)'. Filter 5 never cleared and the core path never emitted ENTER_BULL today.",
+      "what_actually_fired": "The 14:21 long was an EXTRA-SETUP fire: automation/state/fleet/safe-2/extra-setup-cooldown.json records {\"bollinger_squeeze\": \"2026-08-06T14:15:00-04:00\"} and entry-claim.json records {\"symbol\": \"SPY260806C00769000\", \"claimed_at_et\": \"2026-08-06T14:21:54\"}. Broker fill confirms buy 3 @ 1.08 at 18:21:55Z = 14:21:55 ET.",
+      "corroborating": "core-decisions logs exactly ONE PLACED for account='safe' today (10:31:03, the put). The call never appears on the core path at all.",
+      "consequence": "The briefing's 'CENTRAL QUESTION OF THE DAY' -- was the filter-5 bull entry late? -- is void as posed, because filter 5 did not fire it. The real question is whether bollinger_squeeze should be taking counter-trend longs into a BEAR/MIXED ribbon with the core bull path still blocked; it lost -$36 in 5 minutes. That is a different investigation and still n=1.",
+      "structure_shift_note": "The DORMANT structure_shift_confirmation capability referenced in the briefing is therefore NOT evidenced by today's tape one way or the other. No prereg filed."
+    }
+  }
+}
