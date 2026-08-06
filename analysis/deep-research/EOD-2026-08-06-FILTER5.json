@@ -1,0 +1,257 @@
+{
+  "artifact_id": "EOD-2026-08-06-FILTER5",
+  "lens": "LENS 2 -- the 14:21 late long, and whether filter 5 makes us structurally late",
+  "generated_at_et": "2026-08-06T16:13:50 (et_clock.py verified, market_hours=False)",
+  "status": "COMPLETE",
+  "verdict": "PREMISE_FALSE_THEN_LEVER_DEAD",
+  "headline": "The 14:21 long was NOT a filter-5 bull reclaim. Filter 5 never cleared on 2026-08-06 (175/175 ticks blocked, safe AND bold). The trade was a bollinger_squeeze extra-setup on a lane that does not consult filter 5 at all. Pricing every filter-5-blocked bull entry on real OPRA through the production exit core: 13/13 entries, -$471.00 total, mean -$36.23 -- earlier entry does NOT dominate. Filter 5 SAVED money today.",
+
+  "brief_premise_corrections": [
+    {
+      "claim": "The 14:21 safe-2 LONG is the first fire after filter 5 (ribbon BULL-stacked) finally cleared.",
+      "status": "FALSE",
+      "evidence": "core-decisions.jsonl 2026-08-06, account=safe: bull_blockers contains 5 on 175/175 ticks between 13:00:00 and 15:55:00. Identical on account=bold (175/175). Filter 5 never shed at any point in the session.",
+      "actual_cause": "extra_exec lane. Row ts_et=2026-08-06T14:21:03 carries extra_exec[0] = {setup: bollinger_squeeze, action: PLACED, exec:{symbol: SPY260806C00769000, side: C, strike: 769, qty: 3, premium: 1.10, tp: 1.43, stop: 1.01}}. That row's OWN top-level verdict is HOLD with bull_blockers [5,11]."
+    },
+    {
+      "claim": "blockers shedding [5,7,10,11] -> [5,11] -> [5] -> fired",
+      "status": "PARTIALLY TRUE -- the shed sequence is real, the 'fired' is not",
+      "evidence": "The shed sequence [5,7,10,11] -> [5,11] -> [5] is exactly right and is reproduced in the timeline below. But [5] was the FLOOR, never [] -- and the fire that followed came from a different lane."
+    },
+    {
+      "claim": "structure_shift_confirmation exists in filters.py for BEAR only; the BULL side has no equivalent at all.",
+      "status": "HALF TRUE -- corrected",
+      "evidence": "backtest/lib/structure_shift.py defines BOTH detect_structure_shift_bear (L64) and detect_structure_shift_bull (L126). filters.py CALLS the bull detector at L1279-1286. The asymmetry is in the WIRING, not the detector: bear's shift is an OR-alternative to filter 5 itself (L1495-1503, `if not (ribbon_bear_ok or structure_shift_bear is not None): blockers.append(5)`), whereas bull's shift only waives the HTF-disagreement -1 score demerit (L1275-1287) and has NO filter-5 path. Bull filter 5 (L1173-1175) is an unconditional `ribbon.stack != 'BULL'` test."
+    },
+    {
+      "claim": "armed in ZERO params files -- quantify what arming bear / building bull would be worth.",
+      "status": "TRUE that it is armed nowhere; ALREADY QUANTIFIED -- do not re-run",
+      "evidence": "structure_shift_confirmation_enabled is absent from automation/state/params.json, automation/state/aggressive/params.json, automation/state/.lastgood/params.json (verified all three). It is dormant BY MEASUREMENT, not by oversight: see prior_work below."
+    }
+  ],
+
+  "prior_work_do_not_re_derive": {
+    "prereg_1": {
+      "file": "analysis/recommendations/prereg-structure-shift-confirmation-2026-07-28.json",
+      "tested": "shift predicate STANDALONE, replacing the entire gate stack",
+      "verdict": "NULL, 1/5 gates",
+      "detail": "K=3 +$931 over 1,668 trades vs baseline level-tied +$7,039 over 68. Reproduced the broad-ladder failure shape (15,303 candidates, ~40/day vs the philosophy's once-per-6-sessions cadence)."
+    },
+    "prereg_2": {
+      "file": "analysis/recommendations/structure-shift-cascade-ab-2026-07-28.json",
+      "tested": "the EXACT staged wiring -- shift as OR-alternative to filter 5 (bear) / HTF demerit (bull), full cascade intact",
+      "population": "2025-01-02..2026-07-27, real-OPRA-only, walk_exit_manager exits",
+      "verdict": "DO_NOT_ARM",
+      "control_total": 5005.95,
+      "treatment_total": 4959.95,
+      "delta_total": -46.0,
+      "gates": {
+        "G1_positive_aggregate": {"pass": false, "delta": -46.0},
+        "G2_day_majority": {"pass": true, "improved": 10, "worsened": 6},
+        "G3_survives_drop_best": {"pass": false, "delta_minus_best": -625.0},
+        "G4_preemption_no_negative_day": {"pass": false, "n_negative_preempted_days": 2},
+        "G5_0727_bear_anchor_added": {"pass": false, "note": "the anchor the build existed for was NOT captured"}
+      },
+      "gates_passed": "1/5",
+      "evidence_floor": {"n_changed": 20, "floor": 10, "pass": true},
+      "bull_side_note": "Quoted verbatim from that artifact: 'Bull side proven a no-op for entries (passed independent of the htf demerit) -- only bear candidates (blockers==[5]) are re-scored.' Arming the flag would change NOTHING on the bull side."
+    }
+  },
+
+  "blocker_shed_timeline_2026_08_06": {
+    "window": "13:00:00 - 15:55:00 ET",
+    "source": "automation/state/core-decisions.jsonl",
+    "filter5_blocking_coverage": {
+      "core_safe": {"ticks_with_filter5_blocking": 175, "ticks_without": 0, "pct": 100.0},
+      "core_bold": {"ticks_with_filter5_blocking": 175, "ticks_without": 0, "pct": 100.0}
+    },
+    "fleet_arms_note": "safe-3 / risky-1 / risky-3 emit NO bull_blockers field at all in this window (175/175 rows: action=HOLD, reason='no qualifying setup (no strategy fired)'). The fleet lane runs the strategy registry, not the numbered bull filter cascade -- filter 5 is not in its vocabulary, so it cannot be 'late' for this reason. Their silence has a different cause.",
+    "safe_transitions": [
+      {"t": "13:00:04", "bull_score": 7,  "blockers": [5,7,10,11], "triggers": [],                              "ribbon": "BEAR",  "spy": 768.36,  "reclaim": null},
+      {"t": "13:01:04", "bull_score": 8,  "blockers": [5,7,10],    "triggers": ["level_reclaim","confluence"],  "ribbon": "BEAR",  "spy": 768.95,  "reclaim": 768.90},
+      {"t": "13:06:04", "bull_score": 7,  "blockers": [5,7,10,11], "triggers": [],                              "ribbon": "BEAR",  "spy": 768.80,  "reclaim": null},
+      {"t": "13:16:03", "bull_score": 8,  "blockers": [5,10,11],   "triggers": [],                              "ribbon": "BEAR",  "spy": 768.10,  "reclaim": null},
+      {"t": "13:36:03", "bull_score": 9,  "blockers": [5,10],      "triggers": ["level_reclaim","confluence"],  "ribbon": "BEAR",  "spy": 768.10,  "reclaim": 767.91},
+      {"t": "13:41:07", "bull_score": 8,  "blockers": [5,10,11],   "triggers": [],                              "ribbon": "BEAR",  "spy": 768.025, "reclaim": null},
+      {"t": "13:46:03", "bull_score": 9,  "blockers": [5,11],      "triggers": [],                              "ribbon": "BEAR",  "spy": 768.10,  "reclaim": null},
+      {"t": "13:51:03", "bull_score": 8,  "blockers": [5,10,11],   "triggers": [],                              "ribbon": "BEAR",  "spy": 768.06,  "reclaim": null},
+      {"t": "13:56:03", "bull_score": 10, "blockers": [5],         "triggers": ["level_reclaim","confluence"],  "ribbon": "BEAR",  "spy": 768.405, "reclaim": 768.28},
+      {"t": "14:01:03", "bull_score": 8,  "blockers": [5,10,11],   "triggers": [],                              "ribbon": "BEAR",  "spy": 768.60,  "reclaim": null},
+      {"t": "14:06:03", "bull_score": 9,  "blockers": [5,11],      "triggers": [],                              "ribbon": "BEAR",  "spy": 768.88,  "reclaim": null},
+      {"t": "14:11:03", "bull_score": 7,  "blockers": [5,7,10,11], "triggers": [],                              "ribbon": "BEAR",  "spy": 768.67,  "reclaim": null},
+      {"t": "14:16:03", "bull_score": 10, "blockers": [5],         "triggers": ["level_reclaim","confluence"],  "ribbon": "MIXED", "spy": 769.17,  "reclaim": 768.97},
+      {"t": "14:19:03", "bull_score": 9,  "blockers": [5,11],      "triggers": [],                              "ribbon": "MIXED", "spy": 769.17,  "reclaim": null},
+      {"t": "14:21:03", "bull_score": 9,  "blockers": [5,11],      "triggers": [],                              "ribbon": "MIXED", "spy": 769.36,  "reclaim": null, "note": "*** the actual entry tick -- primary bull path HELD here; bollinger_squeeze extra_exec PLACED the C769 ***"},
+      {"t": "14:26:03", "bull_score": 10, "blockers": [5],         "triggers": ["level_reclaim","confluence"],  "ribbon": "MIXED", "spy": 769.545, "reclaim": 769.51},
+      {"t": "14:31:03", "bull_score": 8,  "blockers": [5,10,11],   "triggers": [],                              "ribbon": "MIXED", "spy": 769.415, "reclaim": null},
+      {"t": "14:36:03", "bull_score": 7,  "blockers": [5,6,10,11], "triggers": [],                              "ribbon": "MIXED", "spy": 769.14,  "reclaim": null},
+      {"t": "14:51:03", "bull_score": 8,  "blockers": [5,6,11],    "triggers": [],                              "ribbon": "MIXED", "spy": 768.90,  "reclaim": null},
+      {"t": "14:56:03", "bull_score": 7,  "blockers": [5,6,10,11], "triggers": [],                              "ribbon": "MIXED", "spy": 768.87,  "reclaim": null},
+      {"t": "15:01:03", "bull_score": 8,  "blockers": [5,6,11],    "triggers": [],                              "ribbon": "MIXED", "spy": 768.93,  "reclaim": null},
+      {"t": "15:06:03", "bull_score": 9,  "blockers": [5,6],       "triggers": ["level_reclaim","confluence"],  "ribbon": "MIXED", "spy": 769.54,  "reclaim": 769.51},
+      {"t": "15:11:03", "bull_score": 8,  "blockers": [5,6,10],    "triggers": ["level_reclaim","confluence"],  "ribbon": "MIXED", "spy": 769.66,  "reclaim": 769.51},
+      {"t": "15:16:03", "bull_score": 7,  "blockers": [5,6,10,11], "triggers": [],                              "ribbon": "MIXED", "spy": 769.39,  "reclaim": null},
+      {"t": "15:21:03", "bull_score": 6,  "blockers": [5,6,7,10,11],"triggers": [],                             "ribbon": "MIXED", "spy": 769.155, "reclaim": null},
+      {"t": "15:26:03", "bull_score": 7,  "blockers": [5,6,10,11], "triggers": [],                              "ribbon": "MIXED", "spy": 768.91,  "reclaim": null},
+      {"t": "15:36:04", "bull_score": 9,  "blockers": [5,6],       "triggers": ["level_reclaim","confluence"],  "ribbon": "MIXED", "spy": 768.97,  "reclaim": 768.51},
+      {"t": "15:39:03", "bull_score": 8,  "blockers": [5,6,11],    "triggers": [],                              "ribbon": "MIXED", "spy": 768.97,  "reclaim": null},
+      {"t": "15:41:03", "bull_score": 7,  "blockers": [5,6,10,11], "triggers": [],                              "ribbon": "MIXED", "spy": 768.57,  "reclaim": null},
+      {"t": "15:46:03", "bull_score": 7,  "blockers": [5,6,10,11], "triggers": [],                              "ribbon": "BEAR",  "spy": 768.26,  "reclaim": null},
+      {"t": "15:51:03", "bull_score": 8,  "blockers": [5,6],       "triggers": ["level_reclaim","confluence"],  "ribbon": "BEAR",  "spy": 768.43,  "reclaim": 768.33}
+    ],
+    "extra_exec_lane_2026_08_06": [
+      {"t": "04:16:32", "setup": "bollinger_squeeze", "action": "PLACED", "exec": "{} (empty -- counter-only, no broker order)"},
+      {"t": "14:21:03", "setup": "bollinger_squeeze", "action": "PLACED", "exec": "SPY260806C00769000 C 769 qty 3 prem 1.10 tp 1.43 stop 1.01"},
+      {"t": "14:22:03 - 14:25:03", "setup": "bollinger_squeeze", "action": "SKIP_COOLDOWN_SAME_BAR", "n": 4},
+      {"t": "15:06:03 - 15:10:03", "setup": "level_break_first_strike", "action": "WATCH_NOT_ARMED", "n": 5},
+      {"t": "15:46:03 - 15:50:03", "setup": "bollinger_squeeze", "action": "SKIP_LATE_ENTRY", "n": 5, "entry_ceiling_et": "15:00"}
+    ]
+  },
+
+  "counterfactual_pricing": {
+    "question": "If filter 5 were not blocking, what would the bull entry have paid at each point where filter 5 was the SOLE blocker?",
+    "method": {
+      "candidate_definition": "core-decisions safe rows, 13:00-15:55 ET, where bull_blockers == [5] EXACTLY (bull_score 10). n=13 distinct minutes.",
+      "instrument": "SPY260806C00769000 (the same contract the live extra-setup lane actually bought)",
+      "price_data": "REAL OPRA 1-min bars, Alpaca /v1beta1/options/bars, 396 bars 09:30-16:05 ET. NOT synthetic, NOT Black-Scholes.",
+      "exit_engine": "backtest/lib/exit_manager_walk.py#walk_exit_manager -> the REAL exit_manager.plan_exit_actions decision core. simulator_real DELIBERATELY NOT USED (2026-07-09 SIM-EXIT-SHAPE-PARITY scar).",
+      "exit_shape": "automation/state/fleet/strategies.py#by_name('ribbon_ride').exit.to_dict() -- the production bull shape, NOT a hand-written dict",
+      "opt_df_resolution": "1min with allow_5min=False (loud-fails an unacknowledged 5-min walk)",
+      "structure_stop_enabled": true,
+      "trigger_level": "each row's own bull_reclaim_level_raw",
+      "qty": 3,
+      "time_stop_et": "15:40"
+    },
+    "exit_shape_used": {
+      "premium_stop_pct": -0.2, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing", "runner_target_pct": 99.0, "trail_pct": 0.15,
+      "profit_lock_arm_pct": 0.05, "stop_mode": "structure", "catastrophe_stop_pct": -0.5,
+      "profit_lock_arm_scope": "post_tp1"
+    },
+    "entries": [
+      {"entry_min": "13:56", "bull_score": 10, "ribbon": "BEAR",  "spy": 768.405, "reclaim": 768.28, "entry_premium": 0.44, "dollar_pnl": 24.0,   "exit_reason": "ribbon_flip_back"},
+      {"entry_min": "13:57", "bull_score": 10, "ribbon": "BEAR",  "spy": 768.405, "reclaim": 768.28, "entry_premium": 0.54, "dollar_pnl": -15.0,  "exit_reason": "ribbon_flip_back"},
+      {"entry_min": "13:58", "bull_score": 10, "ribbon": "BEAR",  "spy": 768.405, "reclaim": 768.28, "entry_premium": 0.51, "dollar_pnl": 3.0,    "exit_reason": "ribbon_flip_back"},
+      {"entry_min": "13:59", "bull_score": 10, "ribbon": "BEAR",  "spy": 768.405, "reclaim": 768.28, "entry_premium": 0.54, "dollar_pnl": -3.0,   "exit_reason": "ribbon_flip_back"},
+      {"entry_min": "14:00", "bull_score": 10, "ribbon": "BEAR",  "spy": 768.405, "reclaim": 768.28, "entry_premium": 0.55, "dollar_pnl": -15.0,  "exit_reason": "ribbon_flip_back"},
+      {"entry_min": "14:16", "bull_score": 10, "ribbon": "MIXED", "spy": 769.17,  "reclaim": 768.97, "entry_premium": 1.07, "dollar_pnl": -141.0, "exit_reason": "structure_stop @ 768.97"},
+      {"entry_min": "14:17", "bull_score": 10, "ribbon": "MIXED", "spy": 769.17,  "reclaim": 768.97, "entry_premium": 0.90, "dollar_pnl": -90.0,  "exit_reason": "structure_stop @ 768.97"},
+      {"entry_min": "14:18", "bull_score": 10, "ribbon": "MIXED", "spy": 769.17,  "reclaim": 768.97, "entry_premium": 0.95, "dollar_pnl": -105.0, "exit_reason": "structure_stop @ 768.97"},
+      {"entry_min": "14:26", "bull_score": 10, "ribbon": "MIXED", "spy": 769.545, "reclaim": 769.51, "entry_premium": 0.85, "dollar_pnl": -3.0,   "exit_reason": "structure_stop @ 769.51"},
+      {"entry_min": "14:27", "bull_score": 10, "ribbon": "MIXED", "spy": 769.545, "reclaim": 769.51, "entry_premium": 0.96, "dollar_pnl": -36.0,  "exit_reason": "structure_stop @ 769.51"},
+      {"entry_min": "14:28", "bull_score": 10, "ribbon": "MIXED", "spy": 769.545, "reclaim": 769.51, "entry_premium": 1.02, "dollar_pnl": -54.0,  "exit_reason": "structure_stop @ 769.51"},
+      {"entry_min": "14:29", "bull_score": 10, "ribbon": "MIXED", "spy": 769.545, "reclaim": 769.51, "entry_premium": 0.95, "dollar_pnl": -33.0,  "exit_reason": "structure_stop @ 769.51"},
+      {"entry_min": "14:30", "bull_score": 10, "ribbon": "MIXED", "spy": 769.545, "reclaim": 769.51, "entry_premium": 0.86, "dollar_pnl": -3.0,   "exit_reason": "structure_stop @ 769.51"}
+    ],
+    "totals": {
+      "n": 13, "winners": 2, "losers": 11,
+      "total_pnl": -471.0, "mean_pnl": -36.23,
+      "best": {"entry_min": "13:56", "pnl": 24.0},
+      "worst": {"entry_min": "14:16", "pnl": -141.0}
+    },
+    "fill_convention_sensitivity": {
+      "note": "Live fill lag on the actual trade was 52s (decision 14:21:03 -> fill 14:21:55). Re-run pricing entry at the NEXT minute's OPEN instead of the decision minute's CLOSE.",
+      "close_fill_total": -471.0, "close_fill_mean": -36.23,
+      "next_open_fill_total": -477.0, "next_open_fill_mean": -36.69,
+      "verdict": "STABLE -- conclusion does not depend on the fill convention"
+    }
+  },
+
+  "the_actual_trade": {
+    "broker_truth": {
+      "buy":  {"ts_et": "2026-08-06T14:21:55", "qty": 3, "symbol": "SPY260806C00769000", "price": 1.08, "order_type": "limit", "limit": 1.12},
+      "sell": {"ts_et": "2026-08-06T14:26:04", "qty": 3, "price": 0.96, "order_type": "market"},
+      "realised_pnl": -36.0,
+      "hold_minutes": 4.15
+    },
+    "setup": "bollinger_squeeze (extra-setup lane), NOT BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "exit_cell": {"premium_stop_pct": -0.08, "tp1_pct": 0.30, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15},
+    "replay_through_production_exit_core": {
+      "dollar_pnl": -25.92, "exit_reason": "premium_stop @ 0.99", "stop_mode": "premium",
+      "vs_broker_truth": -36.0,
+      "replay_minus_live_gap": 10.08,
+      "gap_disclosure": "Replay exits AT the -8% stop level 0.99; live market-sold at 0.96. The $10.08 gap is real exit slippage on a 3-lot, NOT a model error. Disclosed, not smoothed."
+    },
+    "same_entry_under_ribbon_ride_shape_ORACLE": {
+      "dollar_pnl": -144.0, "exit_reason": "structure_stop @ 769.0",
+      "interpretation": "ORACLE / counterfactual only, never a live-executable column. Had this entry carried the PRIMARY bull exit shape instead of its own validated bollinger cell, it would have lost -$144 instead of -$36. The tight -8% cell stop SAVED $108 on this trade."
+    }
+  },
+
+  "verdict_detail": {
+    "was_1421_late_or_just_a_loser": "NEITHER 'structurally late' NOR simply unlucky -- it was a correct-by-config entry that bought within 1 cent of the intraday top of the move and was stopped in 4 minutes by its own validated -8% cell. Real OPRA: C769 peaked at 1.22 high / 1.08 close around 14:25 and bled to 0.28 by 15:55. SPY 769.55 -> 768.53. The whole afternoon after 14:25 was a fade.",
+    "does_filter_5_make_us_late": "NOT ON THIS TAPE. Filter 5 blocked 175/175 ticks and every single one of the 13 sole-blocker release points would have LOST money through the production exit engine (-$471 total). Filter 5 was NET POSITIVE today. The structural-lateness hypothesis is NOT supported by 2026-08-06.",
+    "n_disclosure": "n=1 session, 13 counterfactual entries on ONE contract on ONE afternoon. This is NOT evidence of a general property in either direction. It is sufficient to REFUTE the specific claim made about this specific trade, and nothing more.",
+    "generalisation_gate": "The brief's condition was 'if and only if earlier entry dominates, generalize to the 25-day book and 391-day population.' Earlier entry does NOT dominate -- it is strictly worse (-$471 vs -$36). The generalisation is therefore NOT RUN. It also does not need to be: the 391-day population question was already answered on 2026-07-28 (DO_NOT_ARM, -$46, 1/5 gates)."
+  },
+
+  "why_this_is_not_the_graveyarded_item": {
+    "graveyard_entry": "filter-5 deletion",
+    "distinction": "Filter-5 DELETION removes the gate unconditionally for every bull candidate. A structure-shift ALTERNATIVE is an OR-branch: filter 5 still blocks unless a specific micro-structure predicate (higher low above the reclaimed level + high exceeding the reclaim bar's high, within K=3 bars) is satisfied -- a strictly smaller admitted set. They are genuinely different levers.",
+    "but": "The distinction is now MOOT on evidence, not on logic. The OR-branch version was A/B'd as its own hypothesis (prereg #2, 2026-07-28) against the full 391-day population and returned DO_NOT_ARM at 1/5 gates. And on the bull side specifically it is a PROVEN NO-OP for entries. So the alternative lever joins the graveyard on its own measurement -- it is not being rejected by association with filter-5 deletion.",
+    "recommendation": "Move structure_shift_confirmation from 'dormant capability awaiting quantification' to 'MEASURED AND KILLED (2026-07-28, 1/5 gates)'. It should stop appearing in briefs as untapped upside."
+  },
+
+  "prereg_candidates": [
+    {
+      "id": "PREREG-EXTRA-SETUP-VERDICT-VISIBILITY-2026-08-06",
+      "type": "OBSERVABILITY (not a trading lever)",
+      "status": "PROPOSED -- not built, not shipped",
+      "problem": "A core-decisions row's top-level `verdict` describes the PRIMARY-setup path ONLY. The extra_exec lane can place a REAL broker order on the SAME row while that row's verdict reads HOLD (today: 14:21:03 verdict=HOLD bull_blockers=[5,11], while extra_exec PLACED a real 3-lot C769). Anyone reading verdicts -- human or script -- concludes the engine was idle. This session's own brief drew exactly the wrong root cause from it, attributing the trade to filter 5.",
+      "prior_occurrences": "2026-08-03T13:21:03 (same shape, SPY260803C00757000, +$68.00) -- already documented in setup/scripts/monday_verify.py L342-355. This is the SECOND documented instance, which per doctrine makes it a systemic gap, not an incident (C7/L244: a monitor blind to a 2nd execution path).",
+      "proposed_change": "Emit a top-level `verdict` of ENTER_EXTRA_<setup> (or at minimum an `extra_exec_placed: true` flag) on any row whose extra_exec contains a PLACED with a non-empty exec.symbol. Additive field; no scoring/gating change.",
+      "guard": "A test asserting the 2026-08-06T14:21:03 and 2026-08-03T13:21:03 rows are both discoverable by a top-level-verdict scan; RED-proofed by reverting the emit.",
+      "revert": "one-line -- drop the added field",
+      "why_prereg_not_ship": "Touches the shape of a ledger that ~15 downstream consumers read (monday_verify, fill_funnel, participation_cascade, conductor_outcome, broker_fills, engine_health, free_model_audit...). Needs a blast-radius pass before it is written, not after."
+    },
+    {
+      "id": "PREREG-BOLLINGER-SQUEEZE-RECENCY-CLOCK-2026-08-06",
+      "type": "KILL-CRITERION CLOCK (per the standing 'every armed gate needs a revalidation clock' directive)",
+      "status": "PROPOSED -- not built, not shipped",
+      "observation": "bollinger_squeeze is ARMED for live paper order routing (params.json extra_setup_exec_armed.bollinger_squeeze=true) on the strength of a 2026-07-02 grind: n=303 exp +$34.9/tr, OOS +$43.6/tr, WF 1.431. Its LIVE record on the current accounts is n=2 fills: 2026-08-03 +$68.00, 2026-08-06 -$36.00 = +$32.00 total, +$16.00/tr.",
+      "evidence_limit": "n=2 is far too small to confirm or refute anything. Reported ONLY as the honest current state, explicitly NOT as a signal.",
+      "history_caveat": "All 5 SPY paper accounts were recreated 2026-08-03 (broker-verified created_at). Seven earlier bollinger_squeeze placements (2026-07-06 through 2026-07-28) have ZERO surviving broker orders -- their fill history was destroyed by the reset, not lost by a bug. Any 'since-arm' claim spanning that boundary is unrecoverable from the broker and must be sourced from ledgers instead.",
+      "proposed_clock": "Freeze a kill criterion NOW, before more fills accumulate: n>=8 bollinger_squeeze fills OR 10 further sessions, whichever first; negative realised expectancy over that window -> flip extra_setup_exec_armed.bollinger_squeeze to false and record. This mirrors the disarm precedent already applied to vwap_continuation and vix_regime_dayside on 2026-07-25 (0-for-12 combined).",
+      "revert": "single key flip, already the documented revert path"
+    }
+  ],
+
+  "incidental_verified_findings": [
+    {
+      "finding": "FLEET PDT gate confirmed still structurally blind -- live broker read",
+      "evidence": "GET /v2/account on all 5 arms returns daytrade_count = None (safe-2, bold-2, safe-3, risky-1, risky-3). Confirms the standing FLEET-PDT-PARITY finding against cold reality, not docs.",
+      "status": "corroborates existing standing finding; RED-proof still OWED"
+    },
+    {
+      "finding": "multiplier=4 on ALL five arms -- the 07-14 'both are cash accounts, multiplier=1' premise is confirmed STALE against the live broker",
+      "evidence": "GET /v2/account: safe-2 PA3POKNV46VG mult 4, bold-2 PA3WEBXJU67N mult 4, safe-3 PA32T7Q1O20H mult 4, risky-1 PA3S9N1IV0A4 mult 4, risky-3 PA3V7JT25H6Z mult 4.",
+      "action": "NONE TAKEN -- per standing instruction, do not flip pdt_gate_mode on either side. Needs J."
+    },
+    {
+      "finding": "CLAUDE.md account-number drift",
+      "evidence": "CLAUDE.md documents Gamma-Safe-2 = PA3DHPT7KIQE. Live broker reports safe-2 = PA3POKNV46VG, created 2026-08-03. The 08-03 reset re-created every arm and the soul file was not updated.",
+      "action": "flagged only, not edited"
+    },
+    {
+      "finding": "OPRA endpoint 403 is intermittent, not a hard entitlement wall",
+      "evidence": "First fetch attempt returned HTTP 403 'OPRA agreement is not signed' via .mcp.json:alpaca; an immediately subsequent probe of all keys (including the SAME mcp:alpaca key) returned 361 bars OK on 7/8 keys. safe-1 returns 401 (dead key, expected -- retired arm).",
+      "why_it_matters": "L241: a bare `except: return None` fetcher would have recorded this as 'no OPRA data' and silently downgraded the study to synthetic. Any fetcher on this path must distinguish 403-block from empty-result and retry rather than fall through."
+    }
+  ],
+
+  "data_provenance": {
+    "time_source": "setup/scripts/et_clock.py -> 2026-08-06 16:13:50 Thursday EDT, market_hours=False",
+    "decisions": "automation/state/core-decisions.jsonl (safe + bold), automation/state/fleet/{safe-3,risky-1,risky-3}/decisions.jsonl",
+    "fills": "Alpaca /v2/account/activities/FILL and /v2/orders, live read via automation/state/fleet/fleet_broker.py#load_creds()",
+    "option_prices": "Alpaca /v1beta1/options/bars 1Min, REAL OPRA, 396 bars, 2026-08-06 09:30-16:05 ET",
+    "spy_prices": "Alpaca /v2/stocks/SPY/bars 1Min feed=sip, 396 bars, resampled to 5-min for structure_stop",
+    "exit_core": "backtest/lib/exit_manager_walk.py#walk_exit_manager (production exit_manager.plan_exit_actions)",
+    "synthetic_premium_used": false,
+    "oracle_columns_flagged": ["the_actual_trade.same_entry_under_ribbon_ride_shape_ORACLE"]
+  },
+
+  "shipped": [],
+  "prereg_only": true,
+  "params_changed": false,
+  "engine_changed": false
+}
