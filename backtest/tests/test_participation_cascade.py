@@ -616,9 +616,19 @@ class TestParticipationHoleOnRealTape:
 
     def test_2026_07_10_leaderboard_is_pinned_to_the_real_tape(self):
         """If the funnel math regresses, this fails against the real tape
-        (mirrors test_fill_funnel_guard.py's pinning philosophy)."""
+        (mirrors test_fill_funnel_guard.py's pinning philosophy).
+
+        PIN CORRECTED 31 -> 30 (D6, 2026-08-06): the frozen fixture ledger contains 8
+        MIDNIGHT rows (00:54-01:01 ET, spy=751.0, armed=false, no core_tick_id) -- the
+        test-leak fingerprint (D3: test_g4_extra_setup_routing driving the real
+        run_account without a _log patch). Their 4 SKIP_STRUCTURE_VETO rows run-length-
+        encoded into exactly 1 passed-scoring event, so the original pin of 31 counted a
+        SYNTHETIC event as real tape. The new synthetic-row quarantine
+        (_is_synthetic_core_row) excludes them; 30 is the honest real-tape count, and the
+        disclosure counter must see all 8."""
         f = self._compute("2026-07-10")
-        assert f["n_passed_scoring_events"] == 31
+        assert f["n_passed_scoring_events"] == 30
+        assert f["n_synthetic_core_rows_excluded"] == 8
         assert f["n_orders"] == 0
         blockers = {b["blocker"]: b["n_arm_events"] for b in f["top_blockers"]}
         assert blockers["min_premium_floor"] == 18

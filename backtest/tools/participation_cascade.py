@@ -183,11 +183,28 @@ def _iter_jsonl(path: Path):
             yield o
 
 
+def _is_synthetic_core_row(r: dict) -> bool:
+    """SYNTHETIC-ROW QUARANTINE (D6, 2026-08-06 -- mirrors setup/scripts/fill_funnel.py's
+    identical predicate, shipped commit 3a953a70): diagnostic/guard-test invocations that
+    leaked into the LIVE core-decisions.jsonl carry armed=false AND core_tick_id=null (a
+    real production tick always stamps both). Ground truth: 322 such rows (writer identified
+    2026-08-06: test_g4_extra_setup_routing.py driving the real run_account without a _log
+    patch; stopped + guarded by test_no_ledger_leak_from_tests_2026_08_06.py). Without this
+    filter a 04:16:32 synthetic row counted as a real STALE_TRIGGER enter-verdict in
+    participation_daily's goal-layer counts."""
+    return r.get("armed") is False and r.get("core_tick_id") is None
+
+
 def _read_core_rows(day: str, core_glob_dir: Path) -> list[dict]:
     """core-decisions.jsonl + any core-decisions*.jsonl rotation archives,
-    deduped by (ts_et, account) in case a rotation ever overlaps."""
+    deduped by (ts_et, account) in case a rotation ever overlaps.
+    Synthetic (test-leak) rows are quarantined via _is_synthetic_core_row and DISCLOSED
+    through the module-level counter LAST_SYNTHETIC_EXCLUDED (C7 -- never silently dropped;
+    compute_cascade_day surfaces it as n_synthetic_core_rows_excluded)."""
+    global LAST_SYNTHETIC_EXCLUDED
     seen: set[tuple] = set()
     out: list[dict] = []
+    n_synth = 0
     try:
         paths = sorted(core_glob_dir.glob("core-decisions*.jsonl"))
     except OSError:
@@ -197,12 +214,20 @@ def _read_core_rows(day: str, core_glob_dir: Path) -> list[dict]:
             ts = str(row.get("ts_et") or "")
             if not ts.startswith(day):
                 continue
+            if _is_synthetic_core_row(row):
+                n_synth += 1
+                continue
             key = (ts, row.get("account"))
             if key in seen:
                 continue
             seen.add(key)
             out.append(row)
+    LAST_SYNTHETIC_EXCLUDED = n_synth
     return out
+
+
+# Updated by every _read_core_rows call; read by compute_cascade_day for disclosure.
+LAST_SYNTHETIC_EXCLUDED = 0
 
 
 def _read_fleet_rows(day: str, arm: str, fleet_dir: Path) -> list[dict]:
@@ -626,6 +651,7 @@ def compute_cascade_day(day: str, *, core_glob_dir: Path | None = None,
     data_dir = data_dir or DATA
 
     core_rows = _read_core_rows(day, core_glob_dir)
+    n_synthetic_excluded = LAST_SYNTHETIC_EXCLUDED  # D6 disclosure (C7)
     events_by_arm: dict[str, list[dict]] = {}
     for account, arm in CORE_ARM_LABEL.items():
         rows = [r for r in core_rows if str(r.get("account") or "") == account]
@@ -670,6 +696,7 @@ def compute_cascade_day(day: str, *, core_glob_dir: Path | None = None,
     return {
         "date": day,
         "per_arm_funnel": per_arm_funnel,
+        "n_synthetic_core_rows_excluded": n_synthetic_excluded,
         "n_passed_scoring_events": n_passed,
         "n_orders": n_orders,
         "joint_participation_pct": None if joint_pct is None else round(joint_pct, 1),
