@@ -157,6 +157,29 @@ V15_BOLD_CORE_TIERS: tuple[StrikeTier, ...] = (
     StrikeTier(25_000.0,   999_999_999.0, +2, "ITM-2"),
 )
 
+# --- V15_BOLD_CORE_PRE_EXT_TIERS ---------------------------------------------------
+# ATM-TIER-EXTENSION-2K-10K PER-ARM KILL EXECUTION (2026-08-06 evening). The extension
+# prereg (analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json)
+# froze its kill criterion as "n>=10 fills/arm ... net<0 -> revert". risky-3 MET it
+# (n=14 fills under the extension, net -$653) while risky-1 did NOT (n=11, +$903) and
+# core bold-2 / safe-3 keep the extension. Because V15_BOLD_CORE_TIERS is a SHARED
+# surface (core bold-2 heartbeat branch + j_intent_executor bold branch + every fleet
+# arm whose strike_tier_table resolves 'bold_core'), the prereg's own one-line revert
+# (edit row 2 in place) would have executed the kill on EVERY consumer -- the same
+# shared-surface trap this file's own V15_BOLD_CORE_TIERS comment documents. So the
+# per-arm kill gets its own table: byte-identical to V15_BOLD_CORE_TIERS as it stood
+# 2026-07-18..2026-08-04 (pre-extension), reachable ONLY via
+# fleet_executor._tiers_for_arm's 'bold_core_pre_ext' branch, selected ONLY by
+# risky-3's accounts.json params_patch.strike_tier_table.
+# Guard (vary-and-assert): backtest/tests/test_atm_tier_extension_risky3_kill_2026_08_06.py.
+# Un-kill (one line): risky-3 params_patch.strike_tier_table back to "bold_core".
+V15_BOLD_CORE_PRE_EXT_TIERS: tuple[StrikeTier, ...] = (
+    StrikeTier(0.0,        2_000.0,     0, "ATM"),
+    StrikeTier(2_000.0,    10_000.0,    -2, "OTM-2"),  # the killed extension row, pre-08-04 value
+    StrikeTier(10_000.0,   25_000.0,    -1, "OTM-1"),
+    StrikeTier(25_000.0,   999_999_999.0, +2, "ITM-2"),
+)
+
 
 def atm_strike(spot: float) -> int:
     """ATM strike = round(spot) to nearest dollar (matches simulator)."""

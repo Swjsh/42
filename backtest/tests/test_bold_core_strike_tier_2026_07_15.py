@@ -229,11 +229,18 @@ def test_fleet_arms_safe3_risky_1_3_resolve_atm_under_2k_via_bold_core_table():
     accounts = _json.loads((_FLEET / "accounts.json").read_text(encoding="utf-8"))
     arm_map = {a["id"]: a for a in accounts["arms"]}
 
+    # RISKY-3 KILL UPDATE (2026-08-06): risky-3 executed the 2K-10K extension's own
+    # pre-registered kill (n=14, -$653) and moved to 'bold_core_pre_ext' -- but its $0-2K
+    # band is IDENTICAL (ATM), so the under-$2K assertions here still hold for all three;
+    # only the exact-table identity check branches. See
+    # test_atm_tier_extension_risky3_kill_2026_08_06.py.
     for arm_id in ("safe-3", "risky-1", "risky-3"):
         arm = arm_map[arm_id]
         tiers = fx._tiers_for_arm(arm)
-        assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
-            f"{arm_id} must resolve V15_BOLD_CORE_TIERS via 'bold_core', got a different table"
+        expected_table = (fx.strike_selection.V15_BOLD_CORE_PRE_EXT_TIERS
+                          if arm_id == "risky-3" else fx.strike_selection.V15_BOLD_CORE_TIERS)
+        assert tiers is expected_table, \
+            f"{arm_id} must resolve {expected_table}, got a different table"
         assert tiers is not fx.strike_selection.V15_BOLD_TIERS, \
             f"{arm_id} must NOT still resolve the old shared OTM-3 table"
 
@@ -258,7 +265,11 @@ def test_fleet_arms_resolve_atm_at_5k_equity_post_rebuild():
     accounts = _json.loads((_FLEET / "accounts.json").read_text(encoding="utf-8"))
     arm_map = {a["id"]: a for a in accounts["arms"]}
 
-    for arm_id in ("safe-3", "risky-1", "risky-3"):
+    # RISKY-3 KILL UPDATE (2026-08-06): the extension's own frozen kill criterion
+    # (n>=10 fills, net<0) was MET by risky-3 (n=14, -$653) and NOT by risky-1 (n=11,
+    # +$903) -- risky-3 alone reverted its $5K band to OTM-2 via 'bold_core_pre_ext'.
+    # Vary-and-assert coverage: test_atm_tier_extension_risky3_kill_2026_08_06.py.
+    for arm_id in ("safe-3", "risky-1"):
         tiers = fx._tiers_for_arm(arm_map[arm_id])
         tier = pick_tier(5_000.0, tiers)
         assert tier.strike_offset == 0 and tier.label == "ATM", (
@@ -271,6 +282,11 @@ def test_fleet_arms_resolve_atm_at_5k_equity_post_rebuild():
             f"{arm_id} at $5K should price ATM 740/740, got P={put_strike} C={call_strike} "
             "(738/742 would mean the OTM-2 regression is back)"
         )
+    r3_tiers = fx._tiers_for_arm(arm_map["risky-3"])
+    r3_tier = pick_tier(5_000.0, r3_tiers)
+    assert r3_tier.strike_offset == -2 and r3_tier.label == "OTM-2", (
+        f"risky-3 at $5K must resolve OTM-2 (2026-08-06 pre-registered kill), got {r3_tier}"
+    )
 
 
 # =============================================================================

@@ -104,21 +104,35 @@ def test_safe1_still_resolves_to_bold_otm_tiers(fx, ss):
     )
 
 
-@pytest.mark.parametrize("arm_id", ["safe-3", "risky-1", "risky-3"])
+@pytest.mark.parametrize("arm_id", ["safe-3", "risky-1"])
 def test_risky_and_safe3_arms_now_resolve_to_bold_core_atm_tiers(fx, ss, arm_id):
     """FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01, pre-registered before arming --
     analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json) for
-    risky-1/risky-3, extended to safe-3 2026-08-03 (analysis/recommendations/
-    fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json): all three now resolve
+    risky-1, extended to safe-3 2026-08-03 (analysis/recommendations/
+    fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json): both resolve
     V15_BOLD_CORE_TIERS via params_patch.strike_tier_table='bold_core', clearing the
     min_entry_premium floor far more often at low equity (the mechanism this file's module
-    docstring names)."""
+    docstring names). risky-3 LEFT this cohort 2026-08-06 (pre-registered per-arm KILL of
+    the 2K-10K ATM extension, n=14/-$653) -- its own pin lives in
+    test_atm_tier_extension_risky3_kill_2026_08_06.py."""
     tiers = fx._tiers_for_arm(ARMS_BY_ID[arm_id])
     assert tiers is ss.V15_BOLD_CORE_TIERS, (
         f"{arm_id} no longer resolves to V15_BOLD_CORE_TIERS -- if this changed intentionally, "
         f"fold the outcome back into the arm's own prereg json."
     )
     assert tiers is not ss.V15_BOLD_TIERS, f"{arm_id} must not have reverted to the old OTM table"
+
+
+def test_risky3_resolves_pre_ext_table_after_2026_08_06_kill(fx, ss):
+    """ATM-TIER-EXTENSION-2K-10K per-arm kill (2026-08-06): risky-3 resolves
+    V15_BOLD_CORE_PRE_EXT_TIERS ($0-2K still ATM per the 2026-08-01 extension; $2K-10K
+    back to OTM-2). Full vary-and-assert coverage:
+    test_atm_tier_extension_risky3_kill_2026_08_06.py."""
+    tiers = fx._tiers_for_arm(ARMS_BY_ID["risky-3"])
+    assert tiers is ss.V15_BOLD_CORE_PRE_EXT_TIERS, (
+        "risky-3 no longer resolves the pre-extension table -- if the kill was deliberately "
+        "un-done, fold the new evidence into atm-tier-extension-2k10k-prereg-2026-08-03.json."
+    )
 
 
 def test_core_bold_arms_are_NOT_in_this_collision(fx, ss):

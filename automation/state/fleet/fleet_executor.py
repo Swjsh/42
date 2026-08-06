@@ -213,6 +213,14 @@ def _tiers_for_arm(arm: Mapping[str, Any]):
         # pre-registered gates: analysis/recommendations/fleet-strike-tier-atm-extension-
         # prereg-2026-08-01.json, frozen BEFORE this arming.
         return strike_selection.V15_BOLD_CORE_TIERS
+    if table == "bold_core_pre_ext":
+        # ATM-TIER-EXTENSION-2K-10K PER-ARM KILL (2026-08-06): risky-3's pre-registered
+        # kill criterion was MET (n=14 fills, net -$653) -- it alone reverts the $2K-10K
+        # band to OTM-2 via this branch. risky-1 (n=11, +$903) / safe-3 / core bold-2
+        # KEEP 'bold_core'. See V15_BOLD_CORE_PRE_EXT_TIERS' own comment for why the
+        # shared-table one-line revert was NOT used. Un-kill: flip risky-3's
+        # params_patch.strike_tier_table back to 'bold_core'.
+        return strike_selection.V15_BOLD_CORE_PRE_EXT_TIERS
     return strike_selection.V15_BOLD_TIERS
 
 
