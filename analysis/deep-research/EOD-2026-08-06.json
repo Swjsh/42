@@ -188,7 +188,36 @@
    "2026-08-06": "UNCLASSIFIED (posts 08-07 08:40 ET)"
   },
   "evidence_verdict": "UNDEFINED at n=4. Tue is 98% of gross; ex-Tue the other three sessions sum to +$64.00 across all five arms. 3 of 4 days were gap-go/gap-fade (22.5%/15.9% of the 391-day population) -- the week over-sampled trending opens ~2x. $210 of today alone was a coin flip.",
-  "process_grade": "C+"
+  "process_grade": "C+",
+  "by_setup": {
+   "_definition": "entry placements carrying a broker order id, all 5 arms, from core-decisions.jsonl + fleet/*/decisions.jsonl",
+   "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+    "2026-08-03": 3,
+    "2026-08-04": 18,
+    "week": 21
+   },
+   "VWAP_CONTINUATION": {
+    "2026-08-04": 7,
+    "2026-08-05": 10,
+    "week": 17
+   },
+   "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+    "2026-08-05": 3,
+    "2026-08-06": 3,
+    "week": 6
+   },
+   "[secondary] bollinger_squeeze": {
+    "2026-08-03": 1,
+    "2026-08-06": 1,
+    "week": 2
+   },
+   "[secondary] vwap_reclaim_failed_break": {
+    "2026-08-05": 1,
+    "week": 1
+   }
+  },
+  "archetype_setup_coupling": "Each day was one archetype driving one setup family: both gap-go days were pure BULLISH_RECLAIM (21/21), the single red day was VWAP_CONTINUATION-dominated (10/14), today was pure BEARISH_REJECTION. Five-arm diversification is largely ILLUSORY -- on any given day all arms held the same setup, same contract, same direction. The book is one bet per day sized five ways.",
+  "watch_not_act": "VWAP_CONTINUATION: 17 placements this week, concentrated on the only losing session. n far too small to conclude -- logged so the next session extends rather than rediscovers."
  },
  "lens": "LENS 1 -- the day and the week, reconciled and graded",
  "quote_luck_decomposition": {
