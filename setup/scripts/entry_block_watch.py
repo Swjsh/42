@@ -263,11 +263,31 @@ def _read_new_rows(path: Path, byte_offset: int) -> tuple[list[dict], int, int]:
 # --------------------------------------------------------------------------- #
 # tripwire
 # --------------------------------------------------------------------------- #
+def _risk_gate_denied(row: dict) -> bool:
+    """D8 (2026-08-06): True when this row's ENTER verdict was refused by the risk gate --
+    the order NEVER reached the broker even though the engine formed the verdict. Read from
+    both surfaces the engine writes it to (top-level `action` and `exec.status`; the real
+    2026-08-04 rows carry it on both)."""
+    if str(row.get("action") or "").startswith("RISK_DENY"):
+        return True
+    ex = row.get("exec")
+    return isinstance(ex, dict) and str(ex.get("status") or "").startswith("RISK_DENY")
+
+
 def _qualifies(row: dict, side: str) -> bool:
     """True iff `row` is a high-quality, level-tied `side` setup that the engine did
     NOT enter this tick. Old-shape rows (no *_triggers_raw key -- everything before
     2026-07-28) fall straight through the isinstance guard to False: THE
-    COMPATIBILITY TEST this module ships with, not a special case."""
+    COMPATIBILITY TEST this module ships with, not a special case.
+
+    D8 FIX (2026-08-06): a row whose verdict IS ENTER_* but whose `action`/`exec.status`
+    is a RISK_DENY_* now QUALIFIES. The old bare verdict check read "verdict==ENTER_BULL"
+    as "the engine took it" -- but a risk-gate denial means NO order reached the broker,
+    which is exactly the missed-high-quality-setup class this watcher exists to alarm on.
+    Real cost of the blindness: 2026-08-04, 21 consecutive RISK_DENY_PDT rows on bold
+    (verdict=ENTER_BULL, bull_score 11/11 tier ELITE, level_reclaim+confluence -- passing
+    every other check in this function) were structurally invisible; J learned from the
+    EOD, not from the escalation cord. Guard: test_entry_block_watch_risk_deny_2026_08_06.py."""
     cfg = SIDE_CONFIG[side]
     score = row.get(cfg["score_field"])
     if not isinstance(score, (int, float)) or score < cfg["threshold"]:
@@ -277,8 +297,8 @@ def _qualifies(row: dict, side: str) -> bool:
         return False
     if not any(t in cfg["level_tied_triggers"] for t in triggers_raw):
         return False
-    if row.get("verdict") == cfg["verdict_ok"]:
-        return False  # the engine DID take it -- not a miss
+    if row.get("verdict") == cfg["verdict_ok"] and not _risk_gate_denied(row):
+        return False  # the engine DID take it (order actually attempted) -- not a miss
     return True
 
 
@@ -304,6 +324,14 @@ def _level_phrase(row: dict, side: str) -> str:
 
 
 def _blocker_phrase(row: dict, side: str) -> str:
+    # D8 (2026-08-06): a risk-gate denial must name ITSELF, not fall through to the
+    # "other side won" phrase (the 08-04 PDT rows were verdict=ENTER_BULL with no filter
+    # blockers -- the old fallthrough would have voiced a false routing story).
+    if _risk_gate_denied(row):
+        ex = row.get("exec") if isinstance(row.get("exec"), dict) else {}
+        code = str(row.get("action") or ex.get("status") or "RISK_DENY")
+        why = str(ex.get("reason") or "").strip()
+        return f"Risk gate refused the order ({code})" + (f": {why}." if why else ".")
     cfg = SIDE_CONFIG[side]
     labels = FILTER_LABELS[side]
     blockers = row.get(cfg["blockers_field"])
