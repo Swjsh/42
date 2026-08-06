@@ -1,0 +1,87 @@
+{
+  "rule_id": "profit-lock-arm-scope-full",
+  "title": "Arm the profit-lock on FAVOR instead of on TP1 FILL (exit_manager ARM_SCOPE_FULL)",
+  "frozen_at_et": "2026-08-06T11:45:00-04:00",
+  "frozen_by": "EOD-2026-08-05 LENS-5 verification pass",
+  "prereg_before_evaluation": true,
+  "status": "FROZEN — runner NOT yet built. Nothing ships until every gate below is scored.",
+  "market_state_at_freeze": {
+    "et": "2026-08-06T11:43:11-04:00",
+    "market_hours": true,
+    "note": "Market OPEN at freeze time. NO trading-path edit was made in this session. This file is analysis-only. Any code change waits for >=15:55 ET."
+  },
+
+  "motivating_finding": {
+    "name": "the orphan band",
+    "definition": "A closed round trip whose peak premium (live exit_pass best_premium) reached >= +50% over entry, but whose TP1 never filled.",
+    "mechanism_verified_in_code": "exit_manager.py: profit_lock_armed starts False and, under the default profit_lock_arm_scope='post_tp1', is only set at/after a TP1 fill. The chandelier trail (profit_lock_mode='trailing', DEFAULT_TRAIL_PCT=0.125) is gated on profit_lock_armed. Therefore a position that never fires TP1 never arms any trail, and its only exits are the structure stop, the -50% catastrophe cap, and the 15:50 time stop.",
+    "measured_real_fills": {
+      "scope": "engine attribution, round-trip segmented, entry premium >= $0.20 (noise-floor exclusion per sub-$0.20 spread doctrine)",
+      "n": 10,
+      "winners": 0,
+      "realized_total_usd": -1510,
+      "mean_per_contract_usd": -31.5,
+      "peak_to_realized": "every one of the 10 gave back 100%+ of a >=50% unrealized gain"
+    },
+    "live_instance_in_flight_at_freeze": {
+      "symbol": "SPY260806P00770000",
+      "arms": ["risky-3 (qty 8)", "safe-2 (qty 3)"],
+      "entry": 1.28,
+      "tp1_level_plus_100pct": 2.56,
+      "peak_best_premium": 2.09,
+      "mfe_pct": 63.3,
+      "tp1_filled": false,
+      "runner_stop": 0.64,
+      "unrealized_usd": 891,
+      "note": "This is an 11th orphan-band member, unresolved at freeze time. It must be scored at today's close and appended, whichever way it resolves. Recording it BEFORE the outcome is known is the point."
+    }
+  },
+
+  "negative_result_that_constrains_the_fix": {
+    "claim": "Lowering TP1 to +50% blanket is NET NEGATIVE and is NOT the fix.",
+    "counterfactual_rescue_of_orphan_band_usd": 2922,
+    "counterfactual_cost_on_mfe_ge_100pct_tp1_fired_cohort_usd": -3235,
+    "net_usd": -313,
+    "convergent_validation": "This independently reproduces, by a different method and a different cohort, the 03:39 audit's paired live A/B result (risky-1 tp1=+50% vs safe-3 tp1=+100%: mean -$3.11/contract over 8 binding trades). Two unrelated routes agree: static TP1 HEIGHT is not the lever.",
+    "consequence": "The orphan band must be captured WITHOUT taxing the >=+100% MFE winners. That rules out any static TP1 change and points at the arming CONDITION instead."
+  },
+
+  "hypothesis": "Arming the profit-lock on favor (profit_lock_arm_scope='full', arm at DEFAULT_PROFIT_LOCK_ARM_PCT=+5%, trail 12.5% off HWM) captures the orphan band without degrading the high-MFE winners, because the trail floor only ever ratchets UP and the big winners' TP1 behaviour is unchanged.",
+  "why_this_is_not_a_graveyard_repeat": {
+    "graveyard_entry": "'pre-TP1 trailing lock x4' is listed as rejected.",
+    "distinction_that_must_be_verified_by_the_runner": "Those four were SIMULATOR studies. exit_manager.py lines 73-80 state explicitly that simulator_real arms the lock on any favorable touch including pre-TP1, so 'every sim study passing profit_lock_threshold_pct>0 credited pre-TP1 breakeven scratches' and 'those scorecards overstate live's downside protection'. The code comment then says: 'NOTHING declares \"full\" until a live-machine scorecard + STOP-B arms it -- expressible, not armed.' This prereg IS the request for that live-machine scorecard. If the runner reproduces the graveyard's negative result on the live machine, the shape dies for the fifth and final time and gets written into the graveyard as settled.",
+    "honest_prior": "The graveyard is evidence AGAINST this hypothesis. Prior is skeptical, not favourable."
+  },
+
+  "method": {
+    "engine": "Replay every scored round trip through the PRODUCTION exit_manager.plan_exit_actions — never a reimplementation.",
+    "bars": "Real OPRA 1-min bars from Alpaca for each traded contract. Real broker entry fills at their real prices.",
+    "arms_of_the_ab": ["control: profit_lock_arm_scope='post_tp1' (today's live behaviour)", "treatment: profit_lock_arm_scope='full'"],
+    "population": "All engine round trips with ledger coverage (n=200 scored at freeze), NOT just the orphan band. Scoring only the motivating cohort would be the selection error this repo has made before.",
+    "parity_requirement": "Report per-trade terminal-stage parity of the CONTROL arm against the real fills, per L251. If control does not reproduce the real outcomes stage-for-stage, the harness is wrong and no verdict may be issued.",
+    "slippage": "Score at both 3.3c (measured median) and 10c. The verdict must hold at both or be reported as slippage-dependent."
+  },
+
+  "gates_frozen_before_running": {
+    "must_all_pass_to_ship": [
+      "net_positive_on_full_population",
+      "does_not_degrade_the_high_MFE_cohort: MFE>=+100% & TP1-fired subgroup must be flat-or-better (this is the 08-04 trend-day protection and the explicit both-days requirement)",
+      "orphan_band_improves",
+      "OOS_positive",
+      "WF >= 0.70",
+      "sub_window_stable",
+      "anchor_no_regression: the 08-04 C769 runner (+223% MFE) must not be stopped out earlier than it really exited"
+    ],
+    "kill_criterion_if_shipped": "n >= 10 affected round trips or 10 sessions, whichever first; per-arm net realized P&L on affected trades < 0 -> revert same day.",
+    "one_line_revert": "Remove the profit_lock_arm_scope='full' declaration from the strategy ExitShape; _norm_arm_scope() fails safe to 'post_tp1' for any non-'full' value, so deleting the key is a byte-level restore of today's behaviour.",
+    "explicitly_not_claimed": "This prereg does NOT claim the fix works. The 08-04 trend-day winner is the exact trade a 12.5% trail armed at +5% favor is most likely to cut short. That is the single most probable failure mode and the anchor gate above exists to catch it."
+  },
+
+  "both_days_test": {
+    "requirement_from_brief": "Any recommendation that only works on one of 08-04 (trend) / 08-05 (chop) is REJECTED.",
+    "how_this_shape_could_satisfy_it": "The discriminator is tp1_filled — an INTERNAL boolean known at every tick with zero look-ahead — not a hindsight market-regime label. 08-04's winner fired TP1 at 09:57 and made its money post-TP1, where behaviour is unchanged by construction. 08-05's puts never fired TP1 and are exactly the branch the change touches.",
+    "but": "'Unchanged by construction' is only true for the post-TP1 phase. Under scope='full' the 08-04 winner would also carry an armed trail BEFORE its TP1 fired, which could have ejected it during the pre-TP1 drawdown. This is NOT resolved by argument and MUST be resolved by the anchor gate."
+  },
+
+  "cost": "$0 — pure local replay, no paid API, no LLM."
+}

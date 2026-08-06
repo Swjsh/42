@@ -423,3 +423,175 @@ cost 6% on the fast bars; it cost 15–18%.
 08-04 on a `multiplier=4` account. The Alpaca payload returns no `daytrade_count` / `pattern_day_trader`
 field, so headroom could not be confirmed from the broker this session. Named, not asserted — same gap
 the 08-04 audit flagged, still open.
+
+---
+
+# VERIFICATION PASS — 2026-08-06 11:43 ET, MARKET OPEN
+
+**Clock discipline first.** This pass was tasked as "pre-dawn ~03:40 ET, market CLOSED." That premise
+was **false at execution time.** `setup/scripts/et_clock.py` returns `2026-08-06 11:43:11 Thursday EDT`
+/ `market_hours=True`, cross-checked against PowerShell `Eastern Standard Time` → same. **No
+trading-path edit was made.** Everything below is read-only analysis plus a frozen pre-registration.
+The 03:39 run above was legitimately inside the closed window; this addendum is not.
+
+## V1. THE RECOMMENDATIONS ABOVE DID NOT SHIP
+
+`7af07b2a` is **docs-only** — two files, both under `analysis/deep-research/`. Verified by
+`git show --stat`. None of the three actions the audit called for exist in the trading path:
+
+| audit called for | state at 11:43 ET | evidence |
+|---|---|---|
+| **SHIP** per-contract entry cap of 3 | **not shipped** | no `entry_cap` / `max_entries` / per-contract counter anywhere in `setup/scripts/`, `params.json`, `crypto/lib/` |
+| **SHIP** `heartbeat_core.py` logged-`tp` correctness fix | **not shipped** | divergence still present |
+| **REVERT DUE** risky-3 ATM tier | **not reverted** | `V15_BOLD_CORE_TIERS` unchanged; risky-3 took a fresh ATM position today at 10:32 |
+
+This is the C35 pattern the doctrine already names: *built + argued ≠ shipped.* The audit correctly
+identified the actions and then filed a document. **The revert was due "same day" by its own
+pre-registration wording** (`kill_criterion: "... -> revert that arm's participation same day"`), the
+sample floor was reached on 08-05, and the 03:39 session was inside the closed window and could have
+executed it. It is now overdue by one session.
+
+## V2. EVENT B IS REPLAYING LIVE, RIGHT NOW, UNMITIGATED
+
+The defect documented in §1 is in flight as this is written. Same three arms, same shape, one day later:
+
+| arm | entry 10:32 | TP1 level | peak | tp1_filled | runner_stop | status at 11:43 |
+|---|---|---|---|---|---|---|
+| risky-1 | 1.23 (q5) | **1.845** (+50%) | 2.07 | **YES** → sold 3 @1.95, trail-out 2 @1.63 | — | **FLAT, +$296 realized** |
+| risky-3 | 1.28 (q8) | 2.56 (+100%) | 2.09 | **no** | **0.64** | **HOLDING, +$648 unrealized** |
+| safe-2 | 1.28 (q3) | 2.56 (+100%) | 2.09 | **no** | **0.64** | **HOLDING, +$243 unrealized** |
+
+Live `exit_pass` rows, quoted from the production exit manager's own state:
+
+```
+risky-3 11:36:05  open_qty=8  best_premium=2.07  tp1_filled=False  runner_stop=0.64
+                  stop_mode=structure  trigger_level=771.5
+safe-2  11:36:03  open_qty=3  best_premium=2.03  tp1_filled=False  runner_stop=0.64
+```
+
+$891 of open profit whose only floor is the **−50% catastrophe cap at 0.64**. MFE +63%. TP1 needs
+another +23 points it has never touched. Yesterday this exact configuration went +63% → −50%.
+**Prediction recorded before the outcome is known:** if this resolves as a loss it is the 11th
+consecutive orphan-band member (see V3), 0-for-11.
+
+## V3. THE ORPHAN BAND — the cohort nobody had measured
+
+§1a measured how often TP1 is *reached*. It never measured what happens to the positions that run hard
+and **still** never fire it. Built from real engine fills + the live `exit_pass` ledger, round-trip
+segmented, no modeling:
+
+> **Orphan band** = a closed round trip whose peak premium reached ≥ +50% over entry, but whose TP1
+> never filled — so `profit_lock_armed` stayed False, no trail ever engaged, and the only live exits
+> were the structure stop, the −50% cap, and the 15:50 time stop.
+
+| MFE threshold, TP1 never fired, entry ≥ $0.20 | n | total | mean/ct | winners |
+|---|---|---|---|---|
+| ≥ +30% | 18 | −$2,506 | −$29.00 | **0** |
+| ≥ +40% | 13 | −$1,760 | −$28.08 | **0** |
+| **≥ +50%** | **10** | **−$1,510** | **−$31.50** | **0** |
+| ≥ +60% | 6 | −$1,068 | −$34.50 | **0** |
+
+**Ten economically-material positions ran ≥ +50% and every single one came back a loser.** Not one
+gave back merely *some* of the gain — all ten surrendered 100%+ of peak.
+
+### V3a. Two artifacts found and killed in my own work
+
+**(i) Round-trip segmentation defect — found and fixed.** My first cut grouped by
+`(arm, date, symbol)`, which silently collapsed the 08-05 776C five-entry loop into a *single* blended
+position and attributed peak-of-day to it. Caught by an impossible row: 07-02 safe-2 P743 showed
+MFE +125.7% with `tp1_filled=False`, i.e. a peak far above its own +100% TP1. Reading the ledger showed
+**two separate round trips** that day (q5 stopped 09:32, q3 stopped 14:29) with the day's 3.07 peak
+belonging to neither entry as blended. Re-segmented buy-from-flat → back-to-flat with `exit_pass` ticks
+attributed by timestamp: **144 "positions" → 208 real round trips.** Every number above is post-fix.
+
+**(ii) The headline split is near-tautological — do not quote it.** "TP1 fired → 27/27 winners; TP1
+never fired → 10/173" is **not** a finding. Firing TP1 *requires* the price to have run, and sells
+66–80% of the position into that run; the win is definitional. It is reported here only to be
+disqualified. The orphan band is different and does survive: nothing forces a position that peaked
++50% and drifted back to finish *negative* — the time stop could have banked it anywhere above entry.
+It simply never did, 0 for 10.
+
+## V4. THE NAIVE FIX IS NET NEGATIVE — and that is the load-bearing result
+
+The obvious inference from V3 is "lower TP1 to +50%." **Measured, it loses money.**
+
+| cohort | effect of forcing TP1 to +50% |
+|---|---|
+| orphan band (MFE +50–126%, TP1 never fired), n=10 | **+$2,922** |
+| MFE ≥ +100% **and** TP1 fired, n=23 | **−$3,235** |
+| **net** | **−$313** |
+
+**This independently reproduces §4's paired live A/B** (risky-1 +50% vs safe-3 +100%: −$3.11/contract,
+1 win in 8) **by a completely different method on a different cohort.** Two unrelated routes converge:
+**static TP1 height is not the lever.** §4's conclusion stands and is now doubly sourced.
+
+What V3+V4 together establish is sharper than either alone: the orphan band must be captured **without
+taxing the high-MFE winners**, which rules out every static TP1 change and points instead at the
+*arming condition*.
+
+## V5. THE TENSION, RESTATED — the discriminator is internal, not a market regime
+
+The brief demanded a change that survives both days, or an honest admission that the answer is
+regime-conditional *plus* proof the regime is detectable live at entry.
+
+**Neither is quite right, and that is the useful part.** The two days are not in tension over one knob;
+they are two branches of the same state machine:
+
+- **08-04 (trend):** TP1 fired at 09:57 → lock armed → the live question was *how tight to trail*.
+  Answer: loosely. Behaviour post-TP1 is already correct.
+- **08-05 (chop) and today:** TP1 never fired → lock never armed → there is **no intermediate exit of
+  any kind** between entry and the −50% cap.
+
+The discriminator between those branches is **`tp1_filled`** — an internal boolean, known at every
+tick, zero look-ahead, no hindsight regime label required. That is a strictly better conditioning
+variable than "trend vs chop," which the brief rightly demanded be proven detectable and which nobody
+has proven.
+
+**The candidate that follows is already in the code and deliberately unarmed.** `exit_manager.py`
+defines `ARM_SCOPE_FULL = "full"` (arm the lock on +5% favor instead of on TP1 fill) alongside
+`DEFAULT_PROFIT_LOCK_ARM_PCT = 0.05` and `DEFAULT_TRAIL_PCT = 0.125`, with this comment:
+
+> `"full" = simulator-parity pre-TP1 arming ... NOTHING declares "full" until a live-machine`
+> `scorecard + STOP-B arms it -- expressible, not armed.`
+
+**I am not shipping it and I am not claiming it works.** The graveyard lists "pre-TP1 trailing lock ×4"
+as rejected — the prior is *against* this hypothesis. The distinction worth testing is that those four
+were simulator studies, and the same file states simulator_real arms on any favourable touch so
+"those scorecards overstate live's downside protection." The code itself asks for a live-machine
+scorecard; that is the missing artifact, not another sim run.
+
+**The most likely failure mode, named in advance:** a 12.5% trail armed at +5% favor is exactly what
+could have ejected 08-04's C769 winner (+223% MFE) during its pre-TP1 drawdown. If it does, the shape
+dies for the fifth and final time.
+
+Frozen pre-registration, committed before any runner exists:
+[`analysis/recommendations/profit-lock-arm-scope-prereg-2026-08-06.json`](../recommendations/profit-lock-arm-scope-prereg-2026-08-06.json).
+
+## V6. ATM KILL CRITERION — now knife-edge, and that is exactly why it must be honoured tonight
+
+§6 found risky-3 met its kill criterion (n=14, −$653). **Today's ATM position is +$648 unrealized**,
+which would bring the cohort to roughly breakeven if it closes there.
+
+**That is not a reprieve.** The criterion evaluates *at the sample floor*, the floor was reached on
+08-05, and the revert was due same-day. Letting a subsequent gain silently cancel a triggered kill is
+precisely the post-hoc rescue the pre-registration exists to prevent. Two honest options remain, and
+"quietly keep trading" is not one of them:
+
+1. **Honour the revert tonight** (one-line, byte-identical restore, already documented in the prereg), or
+2. **Amend the prereg in writing** with a documented reason and a fresh floor — before the outcome is known.
+
+Recording the live position's +$648 *now*, while it is still open and could still round-trip, is what
+keeps option 2 honest.
+
+## V7. WHAT THIS PASS CHANGES ABOUT §7
+
+Unchanged: cap-3 is still the entry-side recommendation; the cooldown is still rejected; widening the
+stop is still rejected. **§4's "nothing on the exit axis" is now upgraded**, not overturned: nothing on
+the exit *height* axis — V4 confirms that twice over — but the exit *arming* axis is a live, unmeasured,
+code-resident candidate with a frozen prereg and a named most-likely failure mode.
+
+**Corrected in this pass:** my own first-cut grouping defect (V3a-i), and the near-tautological split
+(V3a-ii) which must not be quoted as evidence.
+
+**Still open and still unshipped:** cap-3, the `heartbeat_core.py` label fix, the risky-3 revert, and
+PDT headroom.

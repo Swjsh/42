@@ -673,5 +673,109 @@
   "6 of 204 entries lack live MFE coverage; 57 of 204 lack a setup label (older core-lane rows) - symbol-keyed analyses are label-free and unaffected",
   "one leftover unmatched open lot (safe-2 2026-06-26 P732, 3 contracts)",
   "PDT headroom still UNVERIFIED - the Alpaca payload exposes no daytrade_count / pattern_day_trader field"
- ]
+ ],
+ "verification_pass_2026_08_06": {
+  "run_at_et": "2026-08-06T11:43:11-04:00",
+  "market_hours": true,
+  "clock_discipline": "tasked as pre-dawn/market-CLOSED; premise FALSE at execution. et_clock.py + PowerShell agree. NO trading-path edit made. Read-only analysis + frozen prereg only.",
+  "shipping_status": {
+   "commit_7af07b2a": "docs-only (2 files, both analysis/deep-research/)",
+   "cap_3": "NOT SHIPPED",
+   "heartbeat_core_tp_label_fix": "NOT SHIPPED",
+   "risky_3_atm_revert": "NOT REVERTED - overdue by one session; risky-3 took a fresh ATM position 2026-08-06 10:32",
+   "pattern": "C35 built+argued != shipped"
+  },
+  "live_event_b_replay": {
+   "symbol": "SPY260806P00770000",
+   "entry_all_arms": 1.28,
+   "risky_1": {
+    "entry": 1.23,
+    "tp1_pct": 0.5,
+    "tp1_fired": true,
+    "realized_usd": 296,
+    "status": "FLAT"
+   },
+   "risky_3": {
+    "qty": 8,
+    "tp1_pct": 1.0,
+    "tp1_fired": false,
+    "runner_stop": 0.64,
+    "unrealized_usd": 648,
+    "status": "HOLDING"
+   },
+   "safe_2": {
+    "qty": 3,
+    "tp1_pct": 1.0,
+    "tp1_fired": false,
+    "runner_stop": 0.64,
+    "unrealized_usd": 243,
+    "status": "HOLDING"
+   },
+   "peak_best_premium": 2.09,
+   "mfe_pct": 63.3,
+   "open_unrealized_total_usd": 891,
+   "prediction_recorded_before_outcome": "if this resolves as a loss it is the 11th consecutive orphan-band member (0-for-11)"
+  },
+  "orphan_band": {
+   "definition": "closed round trip, peak premium >= +50% over entry, TP1 never filled -> profit_lock_armed stayed False -> no trail ever armed",
+   "segmentation": "round-trip (buy-from-flat..back-to-flat); exit_pass ticks attributed by timestamp",
+   "entry_premium_floor_usd": 0.2,
+   "cells": {
+    "mfe_ge_30": {
+     "n": 18,
+     "total_usd": -2506,
+     "mean_per_ct": -29.0,
+     "winners": 0
+    },
+    "mfe_ge_40": {
+     "n": 13,
+     "total_usd": -1760,
+     "mean_per_ct": -28.08,
+     "winners": 0
+    },
+    "mfe_ge_50": {
+     "n": 10,
+     "total_usd": -1510,
+     "mean_per_ct": -31.5,
+     "winners": 0
+    },
+    "mfe_ge_60": {
+     "n": 6,
+     "total_usd": -1068,
+     "mean_per_ct": -34.5,
+     "winners": 0
+    }
+   }
+  },
+  "self_corrections": {
+   "segmentation_defect": "v1 grouped by (arm,date,symbol), collapsing the 08-05 776C 5-entry loop into ONE blended position and misattributing peak-of-day. Caught via impossible row 07-02 safe-2 P743 (MFE +125.7% yet tp1_filled=False). Re-segmented: 144 -> 208 round trips. All reported numbers are post-fix.",
+   "tautology_disqualified": "TP1-fired 27/27 winners vs 10/173 is near-definitional (firing TP1 requires the run and sells 66-80% into it). Reported only to be disqualified; NOT evidence. The orphan band is not tautological - nothing forces a +50%-MFE position to finish negative."
+  },
+  "naive_fix_is_net_negative": {
+   "orphan_band_rescue_usd": 2922,
+   "high_mfe_cohort_cost_usd": -3235,
+   "net_usd": -313,
+   "convergent_validation": "independently reproduces the paired live A/B (-.11/ct, 1 win in 8) by a different method on a different cohort. Static TP1 HEIGHT is not the lever - now doubly sourced."
+  },
+  "tension_resolution": {
+   "claim": "08-04 and 08-05 are not two verdicts on one knob; they are two branches of one state machine",
+   "discriminator": "tp1_filled - internal boolean, known every tick, zero look-ahead, strictly better than a hindsight trend/chop label",
+   "candidate": "exit_manager ARM_SCOPE_FULL (arm lock on +5% favor, not on TP1 fill) - exists in code, deliberately unarmed pending a live-machine scorecard",
+   "prior": "AGAINST - graveyard lists pre-TP1 trailing lock x4 rejected (all simulator studies; same file states simulator_real overstates live downside protection)",
+   "named_failure_mode": "a 12.5% trail armed at +5% favor could have ejected 08-04 C769 (+223% MFE) during its pre-TP1 drawdown",
+   "prereg": "analysis/recommendations/profit-lock-arm-scope-prereg-2026-08-06.json",
+   "shipped": false
+  },
+  "atm_kill_status": {
+   "verdict": "kill criterion MET on 08-05 at the sample floor; revert due same-day per prereg wording; NOT executed",
+   "today_effect": "risky-3 ATM position +648 unrealized would bring cohort to ~breakeven",
+   "ruling": "not a reprieve - criterion evaluates AT the sample floor. Honour the revert tonight OR amend the prereg in writing before the outcome is known. Silently continuing is the post-hoc rescue the prereg exists to prevent."
+  },
+  "still_open": [
+   "cap-3",
+   "heartbeat_core tp label fix",
+   "risky-3 ATM revert",
+   "PDT headroom instrument"
+  ]
+ }
 }
