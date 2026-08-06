@@ -1,0 +1,246 @@
+{
+  "_doc": "LENS 3 -- ONE TRADE, THREE OUTCOMES. Root-cause of the 2026-08-05 SPY260805P00772000 divergence across risky-1 / risky-3 / safe-2. Every number below is read from live ledgers (automation/state/fleet/{arm}/decisions.jsonl exit_pass rows, automation/state/core-decisions.jsonl for safe-2) or produced by replaying those real ticks through the REAL production exit engine (automation/state/fleet/exit_manager.py#plan_exit_actions). No simulation, no OPRA cache, no modelled bars.",
+  "lens": "LENS 3 -- THE PUT",
+  "generated_at_et": "2026-08-06T03:57 ET (pre-dawn, market_hours=False, verified via setup/scripts/et_clock.py)",
+  "symbol": "SPY260805P00772000",
+  "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+  "trigger_level": 772.33,
+
+  "headline": "TP1 WAS ARMED AND WORKED CORRECTLY ON ALL THREE ARMS. risky-3 and safe-2 never took profit because their armed TP1 was +100% (level 3.30 / 3.26) and the put topped at +63% / +69%. The brief's premise that risky-3 had a +40% TP1 at 2.31 is WRONG -- +40% is its vwap_continuation shape, not its ribbon shape. Zero defect in the TP1 mechanism; the defect is that an unreachable TP1 also disables the profit lock, leaving the -50% catastrophe cap as the only exit.",
+
+  "verification": {
+    "method": "Replayed each arm's real live tick series (real ASK/BID the engine saw each minute) through the unmodified production exit_manager.plan_exit_actions, seeded from ExitState.from_entry with the real resolved shape.",
+    "replay_reproduces_ledger": true,
+    "per_arm_match": {
+      "risky-1": "REPLAY == LEDGER (tp1 SELL_PARTIAL x3 @12:09:04, trail SELL_ALL x2 @12:17:04)",
+      "risky-3": "REPLAY == LEDGER (premium_stop SELL_ALL x8 @14:05:05)",
+      "safe-2": "REPLAY == LEDGER (premium_stop SELL_ALL x3 @14:12:03)"
+    },
+    "note": "Action-for-action, tick-for-tick, stage-for-stage. The mechanism is proven, not inferred."
+  },
+
+  "q1_root_cause_tp1_non_fire": {
+    "answer": "TP1 WAS armed on every arm and evaluated every tick. It did not fire on risky-3/safe-2 because best_premium never reached their armed tp1 level. Correct behaviour under a mis-scaled config, not a bug.",
+    "per_arm": {
+      "risky-1": {
+        "entry_premium_fill_anchored": 1.69,
+        "limit_price": 1.74,
+        "qty": 5,
+        "armed_tp1_premium_pct": 0.5,
+        "armed_tp1_level": 2.535,
+        "ask_peak": 2.68, "ask_peak_et": "12:09:04", "ask_peak_gain_pct": 58.6,
+        "bid_peak": 2.64, "bid_peak_et": "12:09:04", "bid_peak_gain_pct": 56.2,
+        "ticks_ask_ge_tp1": 4,
+        "tp1_fired": true,
+        "shape_source": "accounts.json risky-1 params_patch.exit_patch {tp1_premium_pct:0.5, stop_mode:structure} -- the REACHABLE-TP1 challenger lane armed 2026-07-29",
+        "realized_pnl": 347.0
+      },
+      "risky-3": {
+        "entry_premium_fill_anchored": 1.65,
+        "limit_price": 1.72,
+        "qty": 8,
+        "armed_tp1_premium_pct": 1.0,
+        "armed_tp1_level": 3.3,
+        "ask_peak": 2.69, "ask_peak_et": "12:09:04", "ask_peak_gain_pct": 63.0,
+        "bid_peak": 2.67, "bid_peak_et": "12:09:04", "bid_peak_gain_pct": 61.8,
+        "ticks_ask_ge_tp1": 0,
+        "tp1_fired": false,
+        "shape_source": "strategies.py ribbon_ride registry verbatim on the tp1 axis (arm patch only sets stop_mode/profit_lock_mode/trail_pct 0.2)",
+        "shortfall_to_tp1": "needed +100%, delivered +63% -- 0.61 cents of premium short per contract, never within 18% of the trigger",
+        "realized_pnl": -664.0
+      },
+      "safe-2": {
+        "entry_premium_fill_anchored": 1.63,
+        "limit_price": 1.66,
+        "qty": 3,
+        "armed_tp1_premium_pct": 1.0,
+        "armed_tp1_level": 3.26,
+        "ask_peak": 2.76, "ask_peak_et": "12:09:03", "ask_peak_gain_pct": 69.3,
+        "bid_peak": 2.74, "bid_peak_et": "12:09:03", "bid_peak_gain_pct": 68.1,
+        "ticks_ask_ge_tp1": 0,
+        "tp1_fired": false,
+        "shape_source": "heartbeat_core.py:2224-2230 -- no per-setup override exists for BEARISH_REJECTION_RIDE_THE_RIBBON, so the core path loads strategies.by_name('ribbon_ride').exit.to_dict() = tp1_premium_pct 1.0",
+        "realized_pnl": -255.0
+      }
+    },
+    "brief_premise_corrected": {
+      "brief_said": "risky-3 entered at 1.65 and a +40% TP1 sits at ~2.31 -- why did it not fire?",
+      "reality": "risky-3's +40% TP1 belongs to VWAP_CONTINUATION. Its BEARISH_REJECTION_RIDE_THE_RIBBON tp1 is +100% = 3.30. Exit shapes are PER-STRATEGY, not per-arm. A 2.31 TP1 never existed on this trade.",
+      "evidence": "fleet placement row 11:48:04 risky-3 logs tp1_premium_pct=1.0, tp=3.4; the 09:58 vwap row logs tp1_premium_pct=0.4."
+    }
+  },
+
+  "q1b_quote_side_hypothesis": {
+    "hypothesis": "TP1 evaluated a stale or wrong-side quote (bid instead of ask/mid), silently blocking the trigger.",
+    "verdict": "EXCLUDED -- and the bias runs the OTHER way.",
+    "evidence": "fleet_broker.get_option_quote_hilo returns (round(ask,2), round(bid,2)); exit_actuator unpacks best_premium=ASK, worst_premium=BID. TP1 tests best_premium >= level, i.e. against the ASK -- the OPTIMISTIC side for a long. A wrong-side read would make TP1 fire EARLIER, not later. Quotes were live and two-sided on every one of the 29/135/132 ticks (no 'no_quote' HOLD rows on this symbol all day).",
+    "secondary_finding": "TP1 TRIGGERS ON THE ASK BUT FILLS ON THE BID. Nominal TP1 is never the realized TP1; the gap is the spread. Hold-window spreads: risky-1 mean 4.76c / median 5.00c, risky-3 mean 2.58c / median 1.00c, safe-2 mean 2.33c / median 1.00c, max 11c. Small here, but it is a systematic optimism baked into every TP1 target and it should be disclosed in any future TP1 threshold study."
+  },
+
+  "q2_quantified_miss": {
+    "definition": "Best live-executable full exit = sell the whole position at the highest BID printed during the hold (a market sell hits the bid). Calibration: engine bid at action tick vs actual broker fill was within +/-2c/contract on all four real sells this day, so this is a fair, live-executable bound -- NOT an oracle.",
+    "per_arm": {
+      "risky-1": {"best_exit_bid": 2.64, "best_exit_et": "12:09:04", "best_exit_pnl": 475.0, "actual": 347.0, "miss": 128.0},
+      "risky-3": {"best_exit_bid": 2.67, "best_exit_et": "12:09:04", "best_exit_pnl": 816.0, "actual": -664.0, "miss": 1480.0},
+      "safe-2":  {"best_exit_bid": 2.74, "best_exit_et": "12:09:03", "best_exit_pnl": 333.0, "actual": -255.0, "miss": 588.0}
+    },
+    "total_miss": 2196.0,
+    "shape_the_put_actually_made": "1.63-1.69 entry at 11:48 -> peak bid 2.64-2.74 at 12:09 (21 minutes) -> round trip through entry ~12:27 -> 0.76-0.82 by 14:05-14:12 (-50% cap). A 21-minute spike and a 2-hour bleed.",
+    "caveat": "The best-exit bound is a single-price touch with NO depth model. risky-1 filled 3 lots at 2.62 into a 2.64 bid; an 8-lot at the same instant would likely fill worse. Treat the risky-3 figure as an upper bound."
+  },
+
+  "q3_why_risky1_exited": {
+    "mechanism": "risky-1 is the ONLY arm whose TP1 was reachable, and TP1 is the gate that unlocks every downstream protection.",
+    "chain_when_tp1_fires": [
+      "12:09:04 best 2.68 >= 2.535 -> SELL_PARTIAL 3 (tp1_qty = int(5*0.667)) at fill 2.62",
+      "same tick: RATCHET_STOP runner_stop -> BE (1.69) and profit_lock_armed = True",
+      "12:10:06 profit_lock_mode='trailing' -> runner_stop = hwm 2.68 * (1 - trail 0.15) = 2.278",
+      "12:17:04 bid 2.01 <= 2.278 -> SELL_ALL 2 at fill 2.03, stage='trail'"
+    ],
+    "chain_when_tp1_never_fires": [
+      "tp1_filled stays False for the whole trade",
+      "profit_lock_arm_scope = 'post_tp1' (registry default) -> the profit lock CANNOT arm pre-TP1",
+      "pre_tp1_be_floor_arm_pct = None -> the isolated BE floor is inert",
+      "structure stop needs a CLOSED 5m bar above 772.33 -- never happened (max close 772.125 @14:08, 20.5 cents short)",
+      "ribbon-flip needs stack=BULL for a put -- ribbon went BEAR at 12:01 and stayed BEAR",
+      "=> the ONLY surviving exit is the -50% catastrophe cap. It fired at 14:05 / 14:12."
+    ],
+    "one_sentence_root_cause": "An unreachable TP1 does not merely forgo a partial take-profit -- it structurally disarms the post-TP1-scoped profit lock, converting a 'chart-stop-primary' trade into a naked -50%-cap trade.",
+    "this_was_predicted_verbatim": "accounts.json risky-1 exit_profile_doc (written 2026-07-29): 'the registry's +100% TP1 is effectively unreachable on 0DTE, which means the TP1-partial mechanism never fires AND the post_tp1-scoped profit lock never arms -- the 2026-07-28 Bold trade peaked +56% with zero protection by design and closed -42%.' 2026-08-05 is that incident replayed: peaked +63%, zero protection, closed -50%.",
+    "luck_component_disclosed": "At 12:03:04 risky-1's ask was 2.53 against a 2.535 TP1 -- it missed by HALF A CENT. Had it fired there it would have filled the bid at 2.43 instead of 2.62. That coin-flip was worth +$57 of risky-1's +$347 (16%). Real, and not repeatable."
+  },
+
+  "q4_cross_day_risky1_policy_or_luck": {
+    "question": "Tuesday risky-1 won by NOT tightening; Wednesday it won by taking profit early. Coherent policy or two coin-flips?",
+    "answer": "NEITHER. risky-1 did not change behaviour between the days -- it ran two DIFFERENT strategies with two DIFFERENT permanently-configured exit shapes, and the framing of the tension is a false dichotomy.",
+    "tuesday_winner": {
+      "symbol": "SPY260804C00763000", "strategy": "VWAP_CONTINUATION", "entry": 1.4,
+      "shape": "tp1 +50% / tp1_qty_fraction 0.8 / profit_lock_mode FIXED / stop -6% premium",
+      "exits": "10:06:05 tp1 x4; 11:25:05 SELL_ALL x1 runner_target @ +250%",
+      "note": "The runner exited on the +250% RUNNER TARGET, not on a trail. 'Not tightening' won because profit_lock_mode=fixed parks a BE floor and the target did the work."
+    },
+    "wednesday_winner": {
+      "symbol": "SPY260805P00772000", "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON", "entry": 1.69,
+      "shape": "tp1 +50% / tp1_qty_fraction 0.667 / profit_lock_mode TRAILING 15% / stop_mode structure + -50% cap",
+      "exits": "12:09:04 tp1 x3; 12:17:04 SELL_ALL x2 trail @ 2.28"
+    },
+    "the_disconfirming_evidence": "risky-1 ALSO ran the trailing ribbon shape on Tuesday (SPY260804C00769000): TP1 fired 13:01, runner trail-exited 13:51 at 3.31 against a 4.28 bid peak = 77% capture, +$548. The trailing shape did NOT cost risky-1 on the trend day. So 'trail vs fixed' is not the cross-day discriminator at all.",
+    "what_actually_carried_both_days": "A REACHABLE TP1. On 08-04 and 08-05, across BOTH strategies and BOTH lock modes, every risky-1 trade that made money fired its +50% TP1 first -- banking 66-80% of size and arming the lock on the remainder. Every risky-3/safe-2 ribbon trade that lost big never reached its +100% TP1.",
+    "verdict": "Not luck, not adaptive judgement: a static per-strategy config assignment made on 2026-07-29 for exactly this stated reason. But see 'survives_both_days' -- the population evidence contradicts generalising it."
+  },
+
+  "cross_day_counterfactual": {
+    "method": "Identical variant patches replayed over the REAL tick series of BOTH days through the real exit engine. Wednesday = the 3 arms on the put. Tuesday = ribbon_ride trades only (C00768000, C00769000, both arms), segmented per round trip since C00769000 was traded twice.",
+    "units": "USD, exits priced at the tick BID",
+    "table": [
+      {"variant": "LIVE (as traded)", "tue_08_04": 1168.0, "tue_delta": 0.0, "wed_08_05": -592.0, "wed_delta": 0.0, "survives_both": "--"},
+      {"variant": "V1 tp1 -> +50%", "tue_08_04": 1024.0, "tue_delta": -144.0, "wed_08_05": 1051.0, "wed_delta": 1643.0, "survives_both": "NO -- costs money Tuesday"},
+      {"variant": "V2 tp1 -> +40%", "tue_08_04": null, "tue_delta": null, "wed_08_05": 990.0, "wed_delta": 1582.0, "survives_both": "NOT RUN on Tuesday (dominated by V1)"},
+      {"variant": "V3 pre-TP1 BE floor @+30%", "tue_08_04": 1168.0, "tue_delta": 0.0, "wed_08_05": 139.0, "wed_delta": 731.0, "survives_both": "TECHNICALLY YES -- but INERT on Tuesday, not tested"},
+      {"variant": "V4 profit_lock_arm_scope=full", "tue_08_04": 1168.0, "tue_delta": 0.0, "wed_08_05": 656.0, "wed_delta": 1248.0, "survives_both": "TECHNICALLY YES -- but INERT on Tuesday, not tested"}
+    ],
+    "inertness_disclosure": "V3 and V4 score 'no change' on Tuesday because Tuesday's ribbon winner ran essentially straight to TP1 without ever retracing to a BE/trail floor, and Tuesday's ribbon loser (C00768000) never went green at all (ask peak 1.02 vs 1.14 entry). Passing 'both days' by being INERT on one of them is NOT evidence of robustness, and must not be reported as such."
+  },
+
+  "survives_both_days": {
+    "verdict": "NO STATIC EXIT CHANGE SURVIVES BOTH DAYS AND THE POPULATION. Nothing ships on the exit-shape axis.",
+    "reasoning": "Each of the three candidates my 2-day replay surfaced is ALREADY killed by a larger, pre-registered, real-OPRA study on the same engine:",
+    "already_killed": [
+      {
+        "candidate": "V1 tp1_premium_pct 1.0 -> 0.5",
+        "prior": "analysis/recommendations/exit-armscope-tp1-ab-2026-07-28.md cell E2, n=190 real-OPRA trades",
+        "result": "G1 aggregate -$2,491.55 FAIL; G3 drop-best1 -$3,095.05 FAIL; G4 runner cohort -$5,615.70 with 35 worse / 0 better / 0 unchanged. Verdict ARM NOTHING.",
+        "my_2day_read": "+$1,499 net across 08-04 (-$144) and 08-05 (+$1,643) -- a single-trade outlier against a population mean of about -$13/trade. Suspicion scales with the result: the +$1,643 is driven as much by risky-3's 8-lot size riding a full round trip as by the TP1 knob."
+      },
+      {
+        "candidate": "V3 isolated pre-TP1 BE floor",
+        "prior": "analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.json (iteration 4, the CLEAN test), n=190",
+        "result": "arming_recommendation = ARM_NOTHING. G4 fails uniformly: -$3,650.45 @0.30, -$905.45 @0.50, -$459.00 @0.70; 9 worse / 0 better at 0.30, all via mechanism 'pretp1_roundtrip_to_entry'.",
+        "note": "That mechanism is exactly what would have helped on Wednesday -- and it is exactly what destroys 9 of 35 runners across the population. My Tuesday sample simply contained none of that cohort."
+      },
+      {
+        "candidate": "V4 profit_lock_arm_scope=full (pre-TP1 trailing)",
+        "prior": "exit-armscope-tp1-ab-2026-07-28.md cell E1, n=190",
+        "result": "G1 -$482.10 FAIL; G4 -$7,758.85 with 22 worse / 0 better. Verdict ARM NOTHING. Also already in the standing graveyard as 'pre-TP1 trailing lock x4'."
+      }
+    ],
+    "regime_conditional_path": {
+      "status": "The task's fallback -- 'state honestly that no single static change does, and prove the regime is detectable LIVE at entry time' -- is where this lands. The honest answer to the second half is: THE OBVIOUS DISCRIMINATOR IS ALREADY KILLED.",
+      "what_the_entry_ticks_show": {
+        "tue_08_04_12_28_entry": "ribbon BULL, htf15 BULL, trend_alignment.bull aligned=TRUE with all three timeframes (daily+hourly+m15 all uptrend), bull_score 11 vs bear 4. Trade ran to +215%.",
+        "wed_08_05_11_48_entry": "ribbon MIXED, htf15 BULL, trend_alignment.bear aligned=FALSE with only m15 agreeing (daily+hourly still uptrend), bear_score 6 vs bull 8. Trade topped at +63%.",
+        "apparent_discriminator": "context_bundle.trend_alignment[side].aligned -- already computed and logged live at every tick, so it IS entry-time observable."
+      },
+      "why_it_cannot_be_proposed": "analysis/recommendations/trend-alignment-correlation.md (frozen pre-reg 2026-07-14, n=250 signals / 90 OOS) already tested this axis and returned VERDICT: KILL -- and with the OPPOSITE SIGN to the 2-day anecdote: OOS bucket +3 (fully aligned) mean -$148.43, bucket -3 (fully fighting) mean +$200.40, Spearman rho -0.150 p=0.157, beats-null FALSE. That study's own terms: 'A KILL means Phase 0's context-bundle tag stays LOGGED-ONLY, never promoted to a gate/veto/sizing input' and 'does NOT get re-run or re-picked.'",
+      "re_pick_hazard_declared": "My question (does alignment predict MOVE MAGNITUDE / TP1 reachability?) has a different dependent variable from the killed study (does alignment predict EXPECTANCY?). That is a real logical distinction -- and it is also EXACTLY the shape of a metric re-pick after seeing a KILL, which is the failure mode the canonical battery exists to prevent. I am declaring the hazard rather than quietly proposing the variant. It goes to prereg-with-disclosure or it does not go at all. NOT armed, NOT recommended.",
+      "conclusion": "With n=2 days I can neither validate a regime rule nor overturn a 190-trade ARM_NOTHING. The correct terminal state tonight is: change nothing on the exit shape, fix the two real defects below, and let risky-1's REACHABLE-TP1 lane keep running as the already-armed live challenger whose forward ledger is the evidence."
+    }
+  },
+
+  "new_defects_found": [
+    {
+      "id": "CORE-TP1-DISPLAY-DIVERGENCE",
+      "severity": "HIGH (visibility) / ZERO (money)",
+      "class": "OP-33c -- the journal lied about the armed contract",
+      "what": "For safe-2 the 2026-08-05 11:48 exec row journaled \"tp\": 2.5 while the ARMED TP1 was 3.26 -- a 30% understatement of the take-profit level.",
+      "root_cause": "heartbeat_core.py:2049-2052 computes the DISPLAYED tp from params.json tp1_premium_pct (0.5). heartbeat_core.py:2224-2230 then arms the exit from strategies.by_name('ribbon_ride').exit.to_dict() (tp1_premium_pct 1.0). Lines 2250-2257 already back-correct plan['stop'], plan['premium_stop_pct'], plan['stop_display'], plan['stop_mode'] and plan['trigger_level'] from the resolved ExitState -- but tp was left out of that block.",
+      "why_it_matters": "This is the exact field a human (or an audit) reads to answer 'why didn't TP1 fire?'. It is what made the parent brief's premise wrong. It is also a core-vs-fleet parity gap: the fleet path logs tp1_premium_pct straight off the shape and is correct (risky-1 logged 0.5, risky-3 logged 1.0, both matching what was armed).",
+      "money_impact": "None. Both fields are log-only -- _place_simple_entry takes only symbol/qty/limit_price.",
+      "fix": "In heartbeat_core.py, inside the existing `if _exit_state is not None` correction block (~L2250-2257), mirror the stop pattern:\n    plan[\"tp1_premium_pct\"] = _exit_state.tp1_premium_pct\n    plan[\"tp\"] = round(_exit_state.entry_premium * (1.0 + _exit_state.tp1_premium_pct), 2)",
+      "guard": "Assert a core ribbon entry journals tp == entry*(1+1.0) and tp1_premium_pct == 1.0, and RED-proof by reverting the two lines.",
+      "revert": "Delete the two added lines.",
+      "status": "NOT SHIPPED BY THIS LENS -- deliberate. heartbeat_core.py is the hot shared surface and sibling lens-agents are running against this same tree this session; a mid-audit edit risks clobbering another lane (parallel-Claudes rule / L271). Handed to the orchestrator as READY-TO-SHIP with the exact diff above."
+    },
+    {
+      "id": "SAFE2-PHANTOM-FLAT-PRUNE",
+      "severity": "MEDIUM (state integrity) / ZERO (money, this trade)",
+      "class": "C11 / L237 -- broker READ endpoints transiently disagreeing",
+      "what": "At 13:57:03 the exit pass read open_qty=0 for safe-2's still-open 3-lot and emitted FLAT_PRUNED, DELETING the exit-state record. The position was unmanaged for ~10 minutes (13:57 -> 14:07, ten missed ticks). At 14:07:03 _adopt_untracked_positions re-adopted it as strategy='adopted_manual', exit='cap_only'. From 14:08 the ledger shows stop_mode='premium', trigger_level=null -- the structure stop and the ribbon-flip exit were both silently dropped.",
+      "proof_it_was_never_flat": "The same position shows open_qty=3 at 14:08:03 and sold 3 contracts at 14:12:03. It never went flat.",
+      "money_impact_2026_08_05": "ZERO, verified three ways: (a) the structure stop was never eligible anyway -- max last_closed_5m_close during the hold was 772.125 vs a 772.33 trigger; (b) ribbon-flip for a put requires stack=BULL and the ribbon was BEAR from 12:01 to the close, so the adopted_manual D2 suppression cost nothing; (c) the -50% cap was preserved across the re-adoption at the identical anchor (runner_stop 0.815 before and after).",
+      "why_it_still_matters": "It is a latent silent-degradation path: a transient broker qty=0 can strip a position's structure stop and downgrade it to cap-only WITHOUT any error, warning or STATUS entry. On a day where the 5m close DID break the trigger level, this would be a real loss. exit_actuator.manage_tick prunes on a SINGLE qty<=0 read with no confirmation.",
+      "suggested_fix_not_shipped": "Require two consecutive qty<=0 reads (or a positions-endpoint cross-check) before FLAT_PRUNED deletes a record; and log a loud row when a re-adoption DOWNGRADES a position's stop_mode from structure to premium. Needs its own blast-radius pass -- exit_actuator is shared by heartbeat_core AND fleet_live.",
+      "status": "REPORTED ONLY. Not fixed, not pre-registered -- out of this lens's scope."
+    }
+  ],
+
+  "scored_predictions_that_came_true": [
+    {
+      "source": "the 2026-08-04 audit",
+      "prediction": "'The -6% stop on a chop day -- that is the treadmill, and it is the day we have not seen yet.'",
+      "outcome": "CORRECT. 2026-08-05 delivered it: SPY260805C00776000, stop_mode='premium', trigger_level=null, premium_stop_pct=-0.06, five SELL_ALL premium_stop events per arm between 09:58 and 10:20, -$1,279 combined. The continuation-setup trigger_level=None -> structure-patch-is-a-no-op mechanism is confirmed verbatim in the live placement rows."
+    },
+    {
+      "source": "accounts.json risky-1 exit_profile_doc, written 2026-07-29",
+      "prediction": "an unreachable +100% TP1 means the partial never fires AND the post_tp1 lock never arms, so a trade can peak deep in profit with zero protection and close at a full loss",
+      "outcome": "CORRECT, twice. 2026-07-28 Bold peaked +56% and closed -42%. 2026-08-05 risky-3 peaked +63% and closed -50%; safe-2 peaked +69% and closed -53%."
+    }
+  ],
+
+  "artifacts": [
+    "analysis/deep-research/EOD-2026-08-05-PUT.md",
+    "analysis/deep-research/EOD-2026-08-05-PUT.json"
+  ],
+  "evidence_paths": [
+    "automation/state/fleet/risky-1/decisions.jsonl",
+    "automation/state/fleet/risky-3/decisions.jsonl",
+    "automation/state/core-decisions.jsonl",
+    "automation/state/fleet/exit_manager.py",
+    "automation/state/fleet/exit_actuator.py",
+    "automation/state/fleet/fleet_broker.py",
+    "automation/state/fleet/strategies.py",
+    "automation/state/fleet/accounts.json",
+    "setup/scripts/heartbeat_core.py",
+    "analysis/recommendations/exit-armscope-tp1-ab-2026-07-28.md",
+    "analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.json",
+    "analysis/recommendations/trend-alignment-correlation.md"
+  ],
+  "caveats": [
+    "n=1 trade x 3 arms on 2026-08-05, plus n=2 ribbon symbols x 2 arms on 2026-08-04. Nothing here is a validated result and no cell was scored against the canonical battery.",
+    "Counterfactual exits are priced at the printed BID with NO depth model. Calibrated to within +/-2c/contract against the day's four real fills, but an 8-lot market sell into a 0DTE touch would realise worse.",
+    "The Wednesday counterfactual replay reproduces broker-actual within $2 / $16 / $6 per arm (bid-vs-fill slippage), so the replay engine is trustworthy at this scale; the VARIANT numbers inherit the same +/-2c uncertainty.",
+    "V3/V4 'survive both days' only by being INERT on Tuesday. Stated explicitly rather than scored as robustness.",
+    "The regime-conditional path is NOT proposed as a live rule. The obvious entry-time discriminator was already KILLED with the opposite sign by a frozen pre-reg, and re-testing it on a new dependent variable is declared as a re-pick hazard, not smuggled in as a finding.",
+    "risky-1's Wednesday edge includes ~$57 (16% of its +$347) of pure luck from a half-cent TP1 miss at 12:03 that resolved favourably at 12:09."
+  ]
+}
