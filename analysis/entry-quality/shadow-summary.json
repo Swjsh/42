@@ -1,0 +1,47 @@
+{
+ "_meta": {
+  "generated_at_et": "2026-08-06T19:11:56.192429",
+  "builder": "setup/scripts/entry_shadow_counter.py",
+  "forward_prereg": "analysis/recommendations/entry-structure-forward-prereg-2026-08-06.json",
+  "shadow_only": "\u26d4 MEASUREMENT ONLY -- neither rule refuses a live entry.",
+  "forward_window": {
+   "first_date": "2026-08-06",
+   "sessions_required": 10,
+   "sessions_elapsed": 1,
+   "dates": [
+    "2026-08-06"
+   ]
+  },
+  "n_entries": 4
+ },
+ "vd1": {
+  "n_blocked": 0,
+  "n_kept": 4,
+  "n_abstain": 0,
+  "forward_delta_usd": 0,
+  "blocked_winner_usd": 0,
+  "blocked_loser_usd": 0,
+  "blocked_wr_pct": null,
+  "f_gate_progress": {
+   "F1_direction_delta_positive": false,
+   "F2_not_winner_killer": false,
+   "F3_frequency_n_blocked_ge_8": false,
+   "note": "F4 (pooled permutation) + F5 (regime split) are adjudicated by a future session per the prereg -- not computed nightly."
+  }
+ },
+ "ve3": {
+  "n_blocked": 0,
+  "n_kept": 4,
+  "n_abstain": 0,
+  "forward_delta_usd": 0,
+  "blocked_winner_usd": 0,
+  "blocked_loser_usd": 0,
+  "blocked_wr_pct": null,
+  "f_gate_progress": {
+   "F1_direction_delta_positive": false,
+   "F2_not_winner_killer": false,
+   "F3_frequency_n_blocked_ge_8": false,
+   "note": "F4 (pooled permutation) + F5 (regime split) are adjudicated by a future session per the prereg -- not computed nightly."
+  }
+ }
+}

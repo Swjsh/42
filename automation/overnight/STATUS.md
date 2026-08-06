@@ -1,3 +1,38 @@
+## [2026-08-06T19:25 ET] LANE 4 STRATEGIC ENTRIES: entry-quality ledger + V-d1/V-e3 shadow counter shipped; R-S8 killed -- REVOKE surface
+
+**What shipped (measurement only -- zero trading-path changes):**
+`setup/scripts/entry_quality_ledger.py` (standing 6-factor entry-quality ledger + frozen
+admissibility battery, prereg `entry-quality-admissibility-prereg-2026-08-06.json` @
+**6d6bf8c8** committed BEFORE the runner) and `setup/scripts/entry_shadow_counter.py`
+(V-d1 + V-e3 would_block tally per entry, idempotent, folded into the existing
+`Gamma_WinnerAutopsy` 16:25 ET fire -- no new scheduled task, fail-open). **Proven in
+situ:** full winner_autopsy fire ran tonight and printed `[entry-shadow] 4 tally rows ...
+vd1 blocks 0, ve3 blocks 0` -> `analysis/entry-quality/shadow-tally.jsonl` +
+`shadow-summary.json` (forward session #1 of 10 logged; neither rule would have touched
+winning Thursday).
+**Battery verdicts (235 engine entry fills / 26 days, BH across 5 cells):** the lane's
+named rule **"require ANY structure event within 8 bars" (R-S8-5m) is KILLED** by its own
+pre-committed criterion: delta **-$524**, blocks $3,696 of winners, worst day -$1,760 =
+2026-08-04 (it would have gutted the record Tuesday). Structure-PRESENCE survives instead:
+R-PRES-1m (=V-e3) +$2,211, **$0 winners blocked**, blocked-WR 0.0%, worst day +$27, G1-G6
+pass -- but BH q=0.37 fails the 0.10 bar, so it stays SHADOW (no new prereg needed; its
+forward prereg + tonight's counter ARE the next step). V-d1 re-scored: exact reproduction
+(+$1,242, 1 winner blocked, q=0.37) -- SHADOW per its frozen prereg.
+**Two corrections to standing numbers:** (1) the 08-05 ENTRIES study's population silently
+DROPPED an engine entry whose exit was manual-attributed (06-26 safe-2 732P, -$237): true
+<=08-05 net is **+$80, not +$317**. (2) V-e3's advertised in-sample basis (n=41, p=0.063)
+does NOT reproduce on verifiably-complete SIP bars (26/26 days x 390 RTH 1m bars checked):
+true n=28, p=0.29. The 08-05-day subset reproduces exactly, so the prior 1m context was
+thin on other days. Forward gates unaffected (they judge forward data only).
+**Guards:** `backtest/tests/test_entry_shadow_counter.py` 14/14 green; RED-proofed twice
+(V-d1 comparison inverted -> 6 RED; V-e3 quorum 20->0 -> 1 RED), both restored
+byte-identical (sha256 225f2a0d...) and re-proven green.
+**REVOKE (one line each):** delete the `entry_shadow` try-block in
+`setup/scripts/winner_autopsy.py` main() (kills the nightly tally; artifacts inert) / git
+revert of the ship commit (removes ledger + counter + guards).
+
+---
+
 ## [2026-08-06T19:20 ET] LANE 5 DON'T-TRADE-CHOP: admissibility battery (12 cells) + CHOP EXPOSURE METER shipped -- REVOKE surface
 
 **What shipped (measurement only -- zero trading-path changes):** `Gamma_ChopMeter` 16:08 ET

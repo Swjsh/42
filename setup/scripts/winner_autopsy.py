@@ -1186,6 +1186,7 @@ def main() -> int:
             "pain_ledger": None,  # WS9 fold fills this below; None on scoped fires / if killed
             "fill_latency": None,  # Next-Twelve #5 fold fills this below; same fold contract
             "catastrophe_cap_shadow": None,  # 2026-08-03 fold fills this below; same contract
+            "entry_shadow": None,  # LANE-4 2026-08-06 fold fills this below; same contract
             "md": f"analysis/winner-autopsies/{base}.md",
         }
         LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
@@ -1223,6 +1224,16 @@ def main() -> int:
                 last_payload["catastrophe_cap_shadow"] = ccs.run()
             except Exception as ce:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["catastrophe_cap_shadow"] = {"error": f"{type(ce).__name__}: {ce}"[:200]}
+            # --- ENTRY SHADOW COUNTER (LANE-4 2026-08-06) rides this SAME nightly fire,
+            # SAME fold contract (fail-open, additive, population-product only, no new
+            # scheduled task). MEASUREMENT ONLY: tallies V-d1/V-e3 would_block per entry
+            # toward analysis/recommendations/entry-structure-forward-prereg-2026-08-06.json
+            # F-gates. Never blocks a live entry. Revert: delete this try-block.
+            try:
+                import entry_shadow_counter as esc
+                last_payload["entry_shadow"] = esc.run_nightly()
+            except Exception as se:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["entry_shadow"] = {"error": f"{type(se).__name__}: {se}"[:200]}
             LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
 
         print(f"[winner-autopsy] {scope}: {len(winners)} winners found, {len(rows)} autopsied, "
