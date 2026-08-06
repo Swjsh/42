@@ -83,17 +83,30 @@ def test_fleet_deny_row_serialises_into_the_ledger_shape():
 
 
 def test_fleet_sizing_miss_is_distinguishable_from_deadlock():
-    """The whole point: two cap denies that look identical must now read differently."""
+    """The whole point: a sizing miss and a structural deadlock must read differently.
+
+    CONTRACT UPDATE (2026-08-06, test was stale): c2cb9f72 shipped SHRINK-NOT-DENY
+    (2026-08-03) — a sizing miss at an affordable premium is no longer DENIED with
+    RISK_CAP; it is shrunk to risk_gate.max_affordable_qty and ALLOWED, with the
+    shrink stamped into `reason`. The distinguishability this guard exists for is
+    PRESERVED with a new shape:
+      * sizing miss  -> ALLOW at the shrunk qty + "shrink-not-deny" note in reason
+      * deadlock     -> RISK_CAP deny + binding.deadlock=True (unchanged)
+    RED-proofs: disable _shrink_qty_to_affordable (return original qty) -> miss arm
+    goes RISK_CAP; strip the shrink note -> the reason assert fails.
+    """
     # qty far above the affordable max at a premium the arm CAN otherwise trade.
     miss = _finalize(1.00, qty=30)
-    assert miss.risk_code == "RISK_CAP"
-    assert miss.binding["deadlock"] is False
-    assert miss.binding["max_affordable_qty"] >= 3
+    assert miss.action == "ENTER_BEAR"
+    assert miss.risk_code == "ALLOW"
+    assert miss.qty is not None and 3 <= miss.qty < 30, \
+        "shrunk qty must land in [min_contracts, original_qty)"
+    assert "shrink-not-deny" in miss.reason, "sizing miss must be legible in the reason"
+    assert miss.binding is None, "ALLOW rows keep binding=None (additive-only invariant)"
 
     lock = _finalize(1.42)
     assert lock.risk_code == "RISK_CAP"
     assert lock.binding["deadlock"] is True
-    assert miss.binding["deadlock"] != lock.binding["deadlock"]
 
 
 def test_heartbeat_core_execute_wires_binding_on_risk_deny():
