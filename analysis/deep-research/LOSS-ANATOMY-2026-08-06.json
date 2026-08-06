@@ -1,0 +1,2161 @@
+{
+  "_doc": "loss_anatomy_2026_08_06.py -- LANE 0: WHERE DO THE LOSS DOLLARS ACTUALLY LIVE?",
+  "generated_at_et": "2026-08-06 (after the close, market_hours=False)",
+  "populations": {
+    "A_book": {
+      "source": "automation/state/fills-ledger.jsonl (attribution=engine, is_option, not crypto) -> exit_shape_parity_study.reconstruct_positions",
+      "authority": "REAL BROKER FILLS",
+      "n_positions": 208,
+      "n_distinct_et_dates": 26,
+      "first_date": "2026-06-26",
+      "last_date": "2026-08-06",
+      "net_pnl": 1782.01
+    },
+    "B_replay": {
+      "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json",
+      "authority": "REAL OPRA entries frozen + exits re-walked through the LIVE exit_manager.plan_exit_actions (exit_manager_walk.walk_exit_manager)",
+      "family": "RIDE_THE_RIBBON (BEARISH_REJECTION + BULLISH_RECLAIM)",
+      "n_trades": 191,
+      "n_traded_days": 141,
+      "window": {
+        "start": "2025-01-02",
+        "end": "2026-07-22",
+        "n_calendar_rth_days": 387
+      },
+      "net_pnl": 4808.75
+    }
+  },
+  "q1_distribution": {
+    "_question": "Where do the loss dollars live? Pareto or spread?",
+    "book_per_day": {
+      "label": "BOOK / per trading day (real fills)",
+      "n_total": 26,
+      "n_loss": 19,
+      "n_win": 7,
+      "n_flat": 0,
+      "loss_rate": 0.7308,
+      "total_loss_dollars": 6137.01,
+      "total_win_dollars": 7919.02,
+      "net_dollars": 1782.01,
+      "mean_loss": 323.0,
+      "median_loss": 217.0,
+      "p75_loss": 381.0,
+      "p90_loss": 828.0,
+      "p95_loss": 1935.0,
+      "max_loss": 1935.0,
+      "worst_single_share": 0.3153,
+      "n_worst_10pct": 2,
+      "worst_10pct_share": 0.4502,
+      "n_worst_20pct": 4,
+      "worst_20pct_share": 0.5757,
+      "worst_5_values": [
+        1935.0,
+        828.0,
+        388.0,
+        382.0,
+        381.0
+      ],
+      "n_days": 26,
+      "days": {
+        "2026-06-26": -15.0,
+        "2026-06-29": -136.0,
+        "2026-06-30": -388.0,
+        "2026-07-01": -64.0,
+        "2026-07-02": 244.01,
+        "2026-07-06": -217.0,
+        "2026-07-07": -123.0,
+        "2026-07-08": -382.0,
+        "2026-07-09": -381.0,
+        "2026-07-13": -25.0,
+        "2026-07-15": -309.0,
+        "2026-07-16": -83.01,
+        "2026-07-17": 590.01,
+        "2026-07-20": -141.0,
+        "2026-07-21": -76.0,
+        "2026-07-22": -108.0,
+        "2026-07-23": -305.0,
+        "2026-07-27": -828.0,
+        "2026-07-28": -346.0,
+        "2026-07-29": 1341.0,
+        "2026-07-30": -275.0,
+        "2026-07-31": 121.0,
+        "2026-08-03": 534.0,
+        "2026-08-04": 3624.0,
+        "2026-08-05": -1935.0,
+        "2026-08-06": 1465.0
+      }
+    },
+    "book_per_trade": {
+      "label": "BOOK / per position (real fills)",
+      "n_total": 208,
+      "n_loss": 157,
+      "n_win": 39,
+      "n_flat": 12,
+      "loss_rate": 0.7548,
+      "total_loss_dollars": 8813.99,
+      "total_win_dollars": 10596.0,
+      "net_dollars": 1782.01,
+      "mean_loss": 56.14,
+      "median_loss": 32.0,
+      "p75_loss": 75.0,
+      "p90_loss": 110.0,
+      "p95_loss": 162.0,
+      "max_loss": 664.0,
+      "worst_single_share": 0.0753,
+      "n_worst_10pct": 16,
+      "worst_10pct_share": 0.4076,
+      "n_worst_20pct": 32,
+      "worst_20pct_share": 0.5736,
+      "worst_5_values": [
+        664.0,
+        355.0,
+        305.0,
+        296.0,
+        295.0
+      ]
+    },
+    "book_per_day_ex_week": {
+      "label": "BOOK / per day, EX 08-04..08-06",
+      "n_total": 23,
+      "n_loss": 18,
+      "n_win": 5,
+      "n_flat": 0,
+      "loss_rate": 0.7826,
+      "total_loss_dollars": 4202.01,
+      "total_win_dollars": 2830.02,
+      "net_dollars": -1371.99,
+      "mean_loss": 233.44,
+      "median_loss": 179.0,
+      "p75_loss": 346.0,
+      "p90_loss": 388.0,
+      "p95_loss": 828.0,
+      "max_loss": 828.0,
+      "worst_single_share": 0.197,
+      "n_worst_10pct": 2,
+      "worst_10pct_share": 0.2894,
+      "n_worst_20pct": 4,
+      "worst_20pct_share": 0.471,
+      "worst_5_values": [
+        828.0,
+        388.0,
+        382.0,
+        381.0,
+        346.0
+      ],
+      "n_days": 23
+    },
+    "book_per_trade_ex_week": {
+      "label": "BOOK / per position, EX 08-04..08-06",
+      "n_total": 165,
+      "n_loss": 128,
+      "n_win": 25,
+      "n_flat": 12,
+      "loss_rate": 0.7758,
+      "total_loss_dollars": 5384.99,
+      "total_win_dollars": 4013.0,
+      "net_dollars": -1371.99,
+      "mean_loss": 42.07,
+      "median_loss": 24.5,
+      "p75_loss": 54.0,
+      "p90_loss": 85.0,
+      "p95_loss": 117.0,
+      "max_loss": 355.0,
+      "worst_single_share": 0.0659,
+      "n_worst_10pct": 13,
+      "worst_10pct_share": 0.3928,
+      "n_worst_20pct": 26,
+      "worst_20pct_share": 0.5731,
+      "worst_5_values": [
+        355.0,
+        305.0,
+        295.0,
+        165.0,
+        162.0
+      ]
+    },
+    "replay_per_day": {
+      "label": "REPLAY / per traded day",
+      "n_total": 141,
+      "n_loss": 93,
+      "n_win": 48,
+      "n_flat": 0,
+      "loss_rate": 0.6596,
+      "total_loss_dollars": 13549.7,
+      "total_win_dollars": 18358.45,
+      "net_dollars": 4808.75,
+      "mean_loss": 145.7,
+      "median_loss": 89.4,
+      "p75_loss": 173.0,
+      "p90_loss": 298.2,
+      "p95_loss": 390.0,
+      "max_loss": 825.0,
+      "worst_single_share": 0.0609,
+      "n_worst_10pct": 10,
+      "worst_10pct_share": 0.3251,
+      "n_worst_20pct": 19,
+      "worst_20pct_share": 0.496,
+      "worst_5_values": [
+        825.0,
+        708.0,
+        444.0,
+        420.6,
+        390.0
+      ],
+      "n_days": 141,
+      "n_calendar_rth_days": 387,
+      "worst_10_days": [
+        {
+          "date": "2026-06-25",
+          "pnl": -825.0
+        },
+        {
+          "date": "2026-06-26",
+          "pnl": -708.0
+        },
+        {
+          "date": "2025-02-07",
+          "pnl": -444.0
+        },
+        {
+          "date": "2025-01-29",
+          "pnl": -420.6
+        },
+        {
+          "date": "2026-06-09",
+          "pnl": -390.0
+        },
+        {
+          "date": "2026-06-17",
+          "pnl": -355.5
+        },
+        {
+          "date": "2025-08-11",
+          "pnl": -331.8
+        },
+        {
+          "date": "2026-06-29",
+          "pnl": -324.0
+        },
+        {
+          "date": "2025-09-26",
+          "pnl": -308.0
+        },
+        {
+          "date": "2025-09-17",
+          "pnl": -298.2
+        }
+      ]
+    },
+    "replay_per_trade": {
+      "label": "REPLAY / per trade",
+      "n_total": 191,
+      "n_loss": 135,
+      "n_win": 56,
+      "n_flat": 0,
+      "loss_rate": 0.7068,
+      "total_loss_dollars": 15469.3,
+      "total_win_dollars": 20278.05,
+      "net_dollars": 4808.75,
+      "mean_loss": 114.59,
+      "median_loss": 90.4,
+      "p75_loss": 128.0,
+      "p90_loss": 242.0,
+      "p95_loss": 282.0,
+      "max_loss": 579.0,
+      "worst_single_share": 0.0374,
+      "n_worst_10pct": 14,
+      "worst_10pct_share": 0.2897,
+      "n_worst_20pct": 27,
+      "worst_20pct_share": 0.448,
+      "worst_5_values": [
+        579.0,
+        468.0,
+        390.0,
+        355.5,
+        324.0
+      ]
+    },
+    "oracle_day_floor_recovery_LABEL": "ORACLE BOUND -- assumes a day is truncated at exactly -X with zero overshoot and zero cost to winning days. A live daily kill switch fires on a threshold CROSS and carries slippage + it also kills any recovery. NOT live-executable. Upper bound only.",
+    "oracle_day_floor_recovery_book": {
+      "-250": 2899.0,
+      "-400": 1963.0,
+      "-500": 1763.0,
+      "-750": 1263.0,
+      "-1000": 935.0
+    },
+    "oracle_day_floor_recovery_replay": {
+      "-250": 2012.5,
+      "-400": 797.6,
+      "-500": 533.0,
+      "-750": 75.0,
+      "-1000": 0.0
+    }
+  },
+  "q3_concentration": {
+    "_question": "Is the fleet five bets or one bet in five sizes?",
+    "per_arm": {
+      "bold-2": {
+        "n_positions": 10,
+        "net_pnl": -70.0,
+        "loss_dollars": 1165.0,
+        "win_dollars": 1095.0,
+        "n_days_traded": 7,
+        "worst_day": [
+          "2026-07-27",
+          -355.0
+        ],
+        "share_of_all_loss_dollars": 0.1322
+      },
+      "risky-1": {
+        "n_positions": 37,
+        "net_pnl": 1116.0,
+        "loss_dollars": 1381.0,
+        "win_dollars": 2497.0,
+        "n_days_traded": 15,
+        "worst_day": [
+          "2026-06-30",
+          -148.0
+        ],
+        "share_of_all_loss_dollars": 0.1567
+      },
+      "risky-3": {
+        "n_positions": 54,
+        "net_pnl": 499.0,
+        "loss_dollars": 3270.0,
+        "win_dollars": 3769.0,
+        "n_days_traded": 19,
+        "worst_day": [
+          "2026-08-05",
+          -1458.0
+        ],
+        "share_of_all_loss_dollars": 0.371
+      },
+      "safe-1": {
+        "n_positions": 24,
+        "net_pnl": -242.0,
+        "loss_dollars": 556.0,
+        "win_dollars": 314.0,
+        "n_days_traded": 8,
+        "worst_day": [
+          "2026-07-09",
+          -105.0
+        ],
+        "share_of_all_loss_dollars": 0.0631
+      },
+      "safe-2": {
+        "n_positions": 49,
+        "net_pnl": -280.99,
+        "loss_dollars": 1884.99,
+        "win_dollars": 1604.0,
+        "n_days_traded": 14,
+        "worst_day": [
+          "2026-08-05",
+          -339.0
+        ],
+        "share_of_all_loss_dollars": 0.2139
+      },
+      "safe-3": {
+        "n_positions": 34,
+        "net_pnl": 760.0,
+        "loss_dollars": 557.0,
+        "win_dollars": 1317.0,
+        "n_days_traded": 15,
+        "worst_day": [
+          "2026-07-27",
+          -87.0
+        ],
+        "share_of_all_loss_dollars": 0.0632
+      }
+    },
+    "total_loss_dollars_all_arms": 8813.99,
+    "pairwise_daily_pnl_correlation": {
+      "bold-2|risky-1": 0.6959,
+      "bold-2|risky-3": 0.9057,
+      "bold-2|safe-1": null,
+      "bold-2|safe-2": 0.6053,
+      "bold-2|safe-3": 0.7293,
+      "risky-1|risky-3": 0.664,
+      "risky-1|safe-1": 0.6117,
+      "risky-1|safe-2": 0.8923,
+      "risky-1|safe-3": 0.9906,
+      "risky-3|safe-1": 0.9809,
+      "risky-3|safe-2": 0.7382,
+      "risky-3|safe-3": 0.9294,
+      "safe-1|safe-2": null,
+      "safe-1|safe-3": 0.5842,
+      "safe-2|safe-3": 0.9017
+    },
+    "pairwise_n_common_days": {
+      "bold-2|risky-1": 4,
+      "bold-2|risky-3": 4,
+      "bold-2|safe-1": 1,
+      "bold-2|safe-2": 5,
+      "bold-2|safe-3": 5,
+      "risky-1|risky-3": 15,
+      "risky-1|safe-1": 7,
+      "risky-1|safe-2": 9,
+      "risky-1|safe-3": 13,
+      "risky-3|safe-1": 8,
+      "risky-3|safe-2": 9,
+      "risky-3|safe-3": 14,
+      "safe-1|safe-2": 2,
+      "safe-1|safe-3": 7,
+      "safe-2|safe-3": 8
+    },
+    "mean_pairwise_correlation": 0.7869,
+    "daily_sign_agreement": {
+      "bold-2|risky-1": {
+        "n": 4,
+        "same_sign": 2,
+        "rate": 0.5
+      },
+      "bold-2|risky-3": {
+        "n": 4,
+        "same_sign": 4,
+        "rate": 1.0
+      },
+      "bold-2|safe-1": {
+        "n": 1,
+        "same_sign": 1,
+        "rate": 1.0
+      },
+      "bold-2|safe-2": {
+        "n": 5,
+        "same_sign": 4,
+        "rate": 0.8
+      },
+      "bold-2|safe-3": {
+        "n": 5,
+        "same_sign": 3,
+        "rate": 0.6
+      },
+      "risky-1|risky-3": {
+        "n": 15,
+        "same_sign": 13,
+        "rate": 0.8667
+      },
+      "risky-1|safe-1": {
+        "n": 7,
+        "same_sign": 6,
+        "rate": 0.8571
+      },
+      "risky-1|safe-2": {
+        "n": 9,
+        "same_sign": 8,
+        "rate": 0.8889
+      },
+      "risky-1|safe-3": {
+        "n": 13,
+        "same_sign": 13,
+        "rate": 1.0
+      },
+      "risky-3|safe-1": {
+        "n": 8,
+        "same_sign": 8,
+        "rate": 1.0
+      },
+      "risky-3|safe-2": {
+        "n": 9,
+        "same_sign": 8,
+        "rate": 0.8889
+      },
+      "risky-3|safe-3": {
+        "n": 14,
+        "same_sign": 12,
+        "rate": 0.8571
+      },
+      "safe-1|safe-2": {
+        "n": 2,
+        "same_sign": 1,
+        "rate": 0.5
+      },
+      "safe-1|safe-3": {
+        "n": 7,
+        "same_sign": 6,
+        "rate": 0.8571
+      },
+      "safe-2|safe-3": {
+        "n": 8,
+        "same_sign": 7,
+        "rate": 0.875
+      }
+    },
+    "portfolio_daily_sd": 941.53,
+    "sum_of_arm_daily_sd": 1159.3,
+    "diversification_ratio": 0.8121,
+    "diversification_ratio_note": "sd(sum of arms) / sum(sd of arms). 1.0 == arms are perfectly co-moving (the fleet is ONE bet in N sizes). 1/sqrt(N)=0.447 for 5 independent equal-sized arms.",
+    "n_entry_minutes_total": 126,
+    "n_entry_minutes_multi_arm": 50,
+    "multi_arm_entry_minute_rate": 0.3968,
+    "n_positions_in_multi_arm_clusters": 131,
+    "pct_positions_in_multi_arm_clusters": 0.6298,
+    "multi_arm_cluster_loss_dollars": 5072.0,
+    "solo_loss_dollars": 3741.99,
+    "multi_arm_share_of_loss_dollars": 0.5754,
+    "multi_arm_cluster_net": 2998.0,
+    "solo_net": -1215.99,
+    "corr_positions_vs_loss_magnitude_losing_days": 0.3232,
+    "corr_positions_vs_loss_n_days": 19,
+    "losing_days_n_positions_vs_loss": [
+      [
+        28,
+        217.0
+      ],
+      [
+        21,
+        388.0
+      ],
+      [
+        14,
+        1935.0
+      ],
+      [
+        14,
+        382.0
+      ],
+      [
+        10,
+        381.0
+      ],
+      [
+        6,
+        828.0
+      ],
+      [
+        6,
+        123.0
+      ],
+      [
+        5,
+        141.0
+      ],
+      [
+        4,
+        346.0
+      ],
+      [
+        4,
+        309.0
+      ],
+      [
+        4,
+        136.0
+      ],
+      [
+        4,
+        76.0
+      ],
+      [
+        4,
+        64.0
+      ],
+      [
+        3,
+        108.0
+      ],
+      [
+        3,
+        83.01
+      ],
+      [
+        2,
+        275.0
+      ],
+      [
+        1,
+        305.0
+      ],
+      [
+        1,
+        25.0
+      ],
+      [
+        1,
+        15.0
+      ]
+    ]
+  },
+  "q4_time_of_day": {
+    "_question": "Is loss magnitude concentrated in a time window? (normalised by opportunity)",
+    "book_by_entry_bucket": {
+      "09:30": {
+        "n_entries": 41,
+        "n_loss": 33,
+        "loss_dollars": 1950.0,
+        "share_of_all_loss_dollars": 0.2212,
+        "loss_dollars_per_entry": 47.56,
+        "net": 1050.0,
+        "net_per_entry": 25.61
+      },
+      "10:00": {
+        "n_entries": 30,
+        "n_loss": 27,
+        "loss_dollars": 1725.0,
+        "share_of_all_loss_dollars": 0.1957,
+        "loss_dollars_per_entry": 57.5,
+        "net": -1520.0,
+        "net_per_entry": -50.67
+      },
+      "10:30": {
+        "n_entries": 7,
+        "n_loss": 4,
+        "loss_dollars": 177.0,
+        "share_of_all_loss_dollars": 0.0201,
+        "loss_dollars_per_entry": 25.29,
+        "net": 1324.0,
+        "net_per_entry": 189.14
+      },
+      "11:00": {
+        "n_entries": 15,
+        "n_loss": 12,
+        "loss_dollars": 926.99,
+        "share_of_all_loss_dollars": 0.1052,
+        "loss_dollars_per_entry": 61.8,
+        "net": -911.99,
+        "net_per_entry": -60.8
+      },
+      "11:30": {
+        "n_entries": 16,
+        "n_loss": 13,
+        "loss_dollars": 1713.0,
+        "share_of_all_loss_dollars": 0.1944,
+        "loss_dollars_per_entry": 107.06,
+        "net": -569.0,
+        "net_per_entry": -35.56
+      },
+      "12:00": {
+        "n_entries": 5,
+        "n_loss": 0,
+        "loss_dollars": 0.0,
+        "share_of_all_loss_dollars": 0.0,
+        "loss_dollars_per_entry": 0.0,
+        "net": 2318.0,
+        "net_per_entry": 463.6
+      },
+      "12:30": {
+        "n_entries": 18,
+        "n_loss": 15,
+        "loss_dollars": 791.0,
+        "share_of_all_loss_dollars": 0.0897,
+        "loss_dollars_per_entry": 43.94,
+        "net": -426.0,
+        "net_per_entry": -23.67
+      },
+      "13:00": {
+        "n_entries": 14,
+        "n_loss": 8,
+        "loss_dollars": 229.0,
+        "share_of_all_loss_dollars": 0.026,
+        "loss_dollars_per_entry": 16.36,
+        "net": 97.0,
+        "net_per_entry": 6.93
+      },
+      "13:30": {
+        "n_entries": 20,
+        "n_loss": 11,
+        "loss_dollars": 690.0,
+        "share_of_all_loss_dollars": 0.0783,
+        "loss_dollars_per_entry": 34.5,
+        "net": -227.0,
+        "net_per_entry": -11.35
+      },
+      "14:00": {
+        "n_entries": 12,
+        "n_loss": 8,
+        "loss_dollars": 148.0,
+        "share_of_all_loss_dollars": 0.0168,
+        "loss_dollars_per_entry": 12.33,
+        "net": -43.0,
+        "net_per_entry": -3.58
+      },
+      "14:30": {
+        "n_entries": 24,
+        "n_loss": 20,
+        "loss_dollars": 380.0,
+        "share_of_all_loss_dollars": 0.0431,
+        "loss_dollars_per_entry": 15.83,
+        "net": 774.0,
+        "net_per_entry": 32.25
+      },
+      "15:00": {
+        "n_entries": 6,
+        "n_loss": 6,
+        "loss_dollars": 84.0,
+        "share_of_all_loss_dollars": 0.0095,
+        "loss_dollars_per_entry": 14.0,
+        "net": -84.0,
+        "net_per_entry": -14.0
+      }
+    },
+    "replay_by_entry_bucket": {
+      "09:30": {
+        "n_entries": 23,
+        "n_loss": 13,
+        "loss_dollars": 2331.6,
+        "share_of_all_loss_dollars": 0.1507,
+        "loss_dollars_per_entry": 101.37,
+        "net": 1470.7,
+        "net_per_entry": 63.94
+      },
+      "10:00": {
+        "n_entries": 4,
+        "n_loss": 2,
+        "loss_dollars": 743.0,
+        "share_of_all_loss_dollars": 0.048,
+        "loss_dollars_per_entry": 185.75,
+        "net": -66.75,
+        "net_per_entry": -16.69
+      },
+      "10:30": {
+        "n_entries": 15,
+        "n_loss": 11,
+        "loss_dollars": 1988.2,
+        "share_of_all_loss_dollars": 0.1285,
+        "loss_dollars_per_entry": 132.55,
+        "net": -810.65,
+        "net_per_entry": -54.04
+      },
+      "11:00": {
+        "n_entries": 11,
+        "n_loss": 7,
+        "loss_dollars": 540.6,
+        "share_of_all_loss_dollars": 0.0349,
+        "loss_dollars_per_entry": 49.15,
+        "net": 1475.05,
+        "net_per_entry": 134.1
+      },
+      "11:30": {
+        "n_entries": 21,
+        "n_loss": 18,
+        "loss_dollars": 1786.0,
+        "share_of_all_loss_dollars": 0.1155,
+        "loss_dollars_per_entry": 85.05,
+        "net": -899.8,
+        "net_per_entry": -42.85
+      },
+      "12:00": {
+        "n_entries": 19,
+        "n_loss": 15,
+        "loss_dollars": 1357.2,
+        "share_of_all_loss_dollars": 0.0877,
+        "loss_dollars_per_entry": 71.43,
+        "net": -743.55,
+        "net_per_entry": -39.13
+      },
+      "12:30": {
+        "n_entries": 14,
+        "n_loss": 10,
+        "loss_dollars": 819.6,
+        "share_of_all_loss_dollars": 0.053,
+        "loss_dollars_per_entry": 58.54,
+        "net": 1012.85,
+        "net_per_entry": 72.35
+      },
+      "13:00": {
+        "n_entries": 23,
+        "n_loss": 15,
+        "loss_dollars": 1233.6,
+        "share_of_all_loss_dollars": 0.0797,
+        "loss_dollars_per_entry": 53.63,
+        "net": 1327.2,
+        "net_per_entry": 57.7
+      },
+      "13:30": {
+        "n_entries": 17,
+        "n_loss": 11,
+        "loss_dollars": 1152.8,
+        "share_of_all_loss_dollars": 0.0745,
+        "loss_dollars_per_entry": 67.81,
+        "net": 1246.3,
+        "net_per_entry": 73.31
+      },
+      "14:00": {
+        "n_entries": 22,
+        "n_loss": 18,
+        "loss_dollars": 2064.1,
+        "share_of_all_loss_dollars": 0.1334,
+        "loss_dollars_per_entry": 93.82,
+        "net": 60.35,
+        "net_per_entry": 2.74
+      },
+      "14:30": {
+        "n_entries": 18,
+        "n_loss": 11,
+        "loss_dollars": 1122.4,
+        "share_of_all_loss_dollars": 0.0726,
+        "loss_dollars_per_entry": 62.36,
+        "net": 1067.25,
+        "net_per_entry": 59.29
+      },
+      "15:00": {
+        "n_entries": 4,
+        "n_loss": 4,
+        "loss_dollars": 330.2,
+        "share_of_all_loss_dollars": 0.0213,
+        "loss_dollars_per_entry": 82.55,
+        "net": -330.2,
+        "net_per_entry": -82.55
+      }
+    },
+    "book_by_entry_bucket_ex_week": {
+      "09:30": {
+        "n_entries": 30,
+        "n_loss": 27,
+        "loss_dollars": 1366.0,
+        "share_of_all_loss_dollars": 0.2537,
+        "loss_dollars_per_entry": 45.53,
+        "net": -900.0,
+        "net_per_entry": -30.0
+      },
+      "10:00": {
+        "n_entries": 21,
+        "n_loss": 18,
+        "loss_dollars": 583.0,
+        "share_of_all_loss_dollars": 0.1083,
+        "loss_dollars_per_entry": 27.76,
+        "net": -378.0,
+        "net_per_entry": -18.0
+      },
+      "10:30": {
+        "n_entries": 3,
+        "n_loss": 3,
+        "loss_dollars": 97.0,
+        "share_of_all_loss_dollars": 0.018,
+        "loss_dollars_per_entry": 32.33,
+        "net": -97.0,
+        "net_per_entry": -32.33
+      },
+      "11:00": {
+        "n_entries": 11,
+        "n_loss": 8,
+        "loss_dollars": 733.99,
+        "share_of_all_loss_dollars": 0.1363,
+        "loss_dollars_per_entry": 66.73,
+        "net": -718.99,
+        "net_per_entry": -65.36
+      },
+      "11:30": {
+        "n_entries": 9,
+        "n_loss": 7,
+        "loss_dollars": 433.0,
+        "share_of_all_loss_dollars": 0.0804,
+        "loss_dollars_per_entry": 48.11,
+        "net": 364.0,
+        "net_per_entry": 40.44
+      },
+      "12:00": {
+        "n_entries": 1,
+        "n_loss": 0,
+        "loss_dollars": 0.0,
+        "share_of_all_loss_dollars": 0.0,
+        "loss_dollars_per_entry": 0.0,
+        "net": 126.0,
+        "net_per_entry": 126.0
+      },
+      "12:30": {
+        "n_entries": 18,
+        "n_loss": 15,
+        "loss_dollars": 791.0,
+        "share_of_all_loss_dollars": 0.1469,
+        "loss_dollars_per_entry": 43.94,
+        "net": -426.0,
+        "net_per_entry": -23.67
+      },
+      "13:00": {
+        "n_entries": 13,
+        "n_loss": 8,
+        "loss_dollars": 229.0,
+        "share_of_all_loss_dollars": 0.0425,
+        "loss_dollars_per_entry": 17.62,
+        "net": 88.0,
+        "net_per_entry": 6.77
+      },
+      "13:30": {
+        "n_entries": 18,
+        "n_loss": 9,
+        "loss_dollars": 576.0,
+        "share_of_all_loss_dollars": 0.107,
+        "loss_dollars_per_entry": 32.0,
+        "net": -113.0,
+        "net_per_entry": -6.28
+      },
+      "14:00": {
+        "n_entries": 11,
+        "n_loss": 7,
+        "loss_dollars": 112.0,
+        "share_of_all_loss_dollars": 0.0208,
+        "loss_dollars_per_entry": 10.18,
+        "net": -7.0,
+        "net_per_entry": -0.64
+      },
+      "14:30": {
+        "n_entries": 24,
+        "n_loss": 20,
+        "loss_dollars": 380.0,
+        "share_of_all_loss_dollars": 0.0706,
+        "loss_dollars_per_entry": 15.83,
+        "net": 774.0,
+        "net_per_entry": 32.25
+      },
+      "15:00": {
+        "n_entries": 6,
+        "n_loss": 6,
+        "loss_dollars": 84.0,
+        "share_of_all_loss_dollars": 0.0156,
+        "loss_dollars_per_entry": 14.0,
+        "net": -84.0,
+        "net_per_entry": -14.0
+      }
+    },
+    "normalisation_note": "loss_dollars_per_entry is the opportunity-normalised column. A bucket with more entries shows more raw loss dollars trivially; only the per-entry column is comparable across buckets. n_entries is stated in every row so no cell is read blind."
+  },
+  "q2_wednesday_decomposition": {
+    "_question": "Decompose 2026-08-05 into orthogonal buckets that SUM.",
+    "actual_spy_option_pnl": -1935.0,
+    "actual_day_pnl_incl_crypto_twin": -1943.66,
+    "crypto_twin_residual": -8.66,
+    "n_positions": 14,
+    "positions": [
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 1,
+        "entry_ts_et": "2026-08-05T09:58:05.713070",
+        "qty": 5.0,
+        "entry_price": 2.37,
+        "pnl": -85.0,
+        "pnl_per_contract": -17.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 1,
+        "entry_ts_et": "2026-08-05T09:58:07.998351",
+        "qty": 8.0,
+        "entry_price": 2.35,
+        "pnl": -136.0,
+        "pnl_per_contract": -17.0
+      },
+      {
+        "arm": "safe-2",
+        "symbol": "SPY260805C00777000",
+        "ordinal": 1,
+        "entry_ts_et": "2026-08-05T10:01:58.807481",
+        "qty": 3.0,
+        "entry_price": 1.61,
+        "pnl": -84.0,
+        "pnl_per_contract": -28.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 2,
+        "entry_ts_et": "2026-08-05T10:06:05.657021",
+        "qty": 5.0,
+        "entry_price": 2.27,
+        "pnl": -65.0,
+        "pnl_per_contract": -13.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 2,
+        "entry_ts_et": "2026-08-05T10:06:13.151414",
+        "qty": 8.0,
+        "entry_price": 2.27,
+        "pnl": -80.0,
+        "pnl_per_contract": -10.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 3,
+        "entry_ts_et": "2026-08-05T10:10:06.730438",
+        "qty": 5.0,
+        "entry_price": 2.2,
+        "pnl": -100.0,
+        "pnl_per_contract": -20.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 3,
+        "entry_ts_et": "2026-08-05T10:10:07.973623",
+        "qty": 8.0,
+        "entry_price": 2.19,
+        "pnl": -160.0,
+        "pnl_per_contract": -20.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 4,
+        "entry_ts_et": "2026-08-05T10:14:05.979265",
+        "qty": 5.0,
+        "entry_price": 2.12,
+        "pnl": -80.0,
+        "pnl_per_contract": -16.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 4,
+        "entry_ts_et": "2026-08-05T10:14:07.149383",
+        "qty": 8.0,
+        "entry_price": 2.12,
+        "pnl": -122.0,
+        "pnl_per_contract": -15.25
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 5,
+        "entry_ts_et": "2026-08-05T10:18:06.111140",
+        "qty": 5.0,
+        "entry_price": 2.06,
+        "pnl": -155.0,
+        "pnl_per_contract": -31.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260805C00776000",
+        "ordinal": 5,
+        "entry_ts_et": "2026-08-05T10:18:07.281414",
+        "qty": 8.0,
+        "entry_price": 2.09,
+        "pnl": -296.0,
+        "pnl_per_contract": -37.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260805P00772000",
+        "ordinal": 1,
+        "entry_ts_et": "2026-08-05T11:48:05.994002",
+        "qty": 5.0,
+        "entry_price": 1.69,
+        "pnl": 347.0,
+        "pnl_per_contract": 69.4
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260805P00772000",
+        "ordinal": 1,
+        "entry_ts_et": "2026-08-05T11:48:07.848571",
+        "qty": 8.0,
+        "entry_price": 1.65,
+        "pnl": -664.0,
+        "pnl_per_contract": -83.0
+      },
+      {
+        "arm": "safe-2",
+        "symbol": "SPY260805P00772000",
+        "ordinal": 1,
+        "entry_ts_et": "2026-08-05T11:49:07.326182",
+        "qty": 3.0,
+        "entry_price": 1.63,
+        "pnl": -255.0,
+        "pnl_per_contract": -85.0
+      }
+    ],
+    "sibling_per_contract_772P": 69.4,
+    "standalone_marginal_effects": {
+      "friction": 27.62,
+      "size": 966.45,
+      "reentry": 1058.0,
+      "exitcfg": 1682.4
+    },
+    "friction_detail": {
+      "entry_side_cost_dollars": -85.67,
+      "exit_side_cost_dollars": 113.3,
+      "total_cost_dollars": 27.63,
+      "sign_convention": "POSITIVE == a real cost vs that same minute's real OPRA VWAP; NEGATIVE == we executed BETTER than the minute's volume-weighted average.",
+      "reference_caveat": "The 1-min VWAP is the average of everyone's prints in that minute, not a quote we could certainly have hit. It is a fair, reproducible, real-data reference -- not an achievable-price claim.",
+      "per_position": [
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 1,
+          "entry_vs_vwap_dollars": -42.53,
+          "exit_vs_vwap_dollars": -54.66
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 1,
+          "entry_vs_vwap_dollars": -84.05,
+          "exit_vs_vwap_dollars": -71.45
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260805C00777000",
+          "ordinal": 1,
+          "entry_vs_vwap_dollars": -19.84,
+          "exit_vs_vwap_dollars": 0.17
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 2,
+          "entry_vs_vwap_dollars": 39.77,
+          "exit_vs_vwap_dollars": 38.56
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 2,
+          "entry_vs_vwap_dollars": 63.64,
+          "exit_vs_vwap_dollars": 33.08
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 3,
+          "entry_vs_vwap_dollars": 24.34,
+          "exit_vs_vwap_dollars": 16.24
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 3,
+          "entry_vs_vwap_dollars": 30.95,
+          "exit_vs_vwap_dollars": 33.98
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 4,
+          "entry_vs_vwap_dollars": -17.28,
+          "exit_vs_vwap_dollars": 20.14
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 4,
+          "entry_vs_vwap_dollars": -27.64,
+          "exit_vs_vwap_dollars": 26.22
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 5,
+          "entry_vs_vwap_dollars": -0.39,
+          "exit_vs_vwap_dollars": 11.49
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805C00776000",
+          "ordinal": 5,
+          "entry_vs_vwap_dollars": 23.38,
+          "exit_vs_vwap_dollars": 42.38
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805P00772000",
+          "ordinal": 1,
+          "entry_vs_vwap_dollars": -0.21,
+          "exit_vs_vwap_dollars": 22.18
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805P00772000",
+          "ordinal": 1,
+          "entry_vs_vwap_dollars": -32.34,
+          "exit_vs_vwap_dollars": -12.3
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260805P00772000",
+          "ordinal": 1,
+          "entry_vs_vwap_dollars": -43.48,
+          "exit_vs_vwap_dollars": 7.28
+        }
+      ]
+    },
+    "standalone_note": "Each lever applied ALONE from the actual book. These deliberately do NOT sum -- the gap is the interaction term below (C15).",
+    "interaction_term": 1483.98,
+    "all_levers_on_book": 315.49,
+    "waterfall_declared_order": {
+      "order": [
+        "friction",
+        "size",
+        "reentry",
+        "exitcfg"
+      ],
+      "actual": -1935.0,
+      "steps": [
+        {
+          "lever": "friction",
+          "delta": 27.62,
+          "book_after": -1907.38
+        },
+        {
+          "lever": "size",
+          "delta": 927.26,
+          "book_after": -980.12
+        },
+        {
+          "lever": "reentry",
+          "delta": 322.27,
+          "book_after": -657.85
+        },
+        {
+          "lever": "exitcfg",
+          "delta": 973.34,
+          "book_after": 315.49
+        }
+      ],
+      "residual_entry_location": 315.49,
+      "sum_of_deltas": 2250.49,
+      "sum_check_must_be_zero": 0.0
+    },
+    "waterfall_reverse_order": {
+      "order": [
+        "exitcfg",
+        "reentry",
+        "size",
+        "friction"
+      ],
+      "actual": -1935.0,
+      "steps": [
+        {
+          "lever": "exitcfg",
+          "delta": 1682.4,
+          "book_after": -252.6
+        },
+        {
+          "lever": "reentry",
+          "delta": 1058.0,
+          "book_after": 805.4
+        },
+        {
+          "lever": "size",
+          "delta": -366.8,
+          "book_after": 438.6
+        },
+        {
+          "lever": "friction",
+          "delta": -123.11,
+          "book_after": 315.49
+        }
+      ],
+      "residual_entry_location": 315.49,
+      "sum_of_deltas": 2250.49,
+      "sum_check_must_be_zero": 0.0
+    },
+    "shapley_order_independent": {
+      "friction": -75.49,
+      "size": 335.72,
+      "reentry": 657.74,
+      "exitcfg": 1332.52,
+      "_sum": 2250.49,
+      "_all_on_minus_actual": 2250.49,
+      "_sum_check_must_be_zero": 0.0,
+      "_n_orderings": 24
+    },
+    "shapley_note": "EXACT Shapley over all 24 orderings of the 4 levers. This is the HEADLINE attribution: order-independent, and it still sums exactly to (all-levers-on book - actual). Use these numbers, not either single waterfall -- the two waterfalls differ by up to $1,294 on the SIZE lever alone, which is the C15 interaction, not ambiguity in the data.",
+    "event_level_reconciliation": {
+      "events": {
+        "A_776C_spiral": -1279.0,
+        "A2_777C": -84.0,
+        "B_772P": -572.0
+      },
+      "prior_audit_entry_side_dollars": -1363.0,
+      "prior_audit_entry_side_share": 0.7044,
+      "prior_audit_exit_side_dollars": -572.0,
+      "prior_audit_exit_side_share": 0.2956
+    },
+    "wednesday_ordinal_decomposition": {
+      "1": {
+        "n": 6,
+        "pnl": -877.0
+      },
+      "2": {
+        "n": 2,
+        "pnl": -145.0
+      },
+      "3": {
+        "n": 2,
+        "pnl": -260.0
+      },
+      "4": {
+        "n": 2,
+        "pnl": -202.0
+      },
+      "5": {
+        "n": 2,
+        "pnl": -451.0
+      }
+    }
+  },
+  "q5_which_instrument": {
+    "_question": "Tail cap or per-trade tuning? Price both on the real-fill book.",
+    "replay_day_breaker_391d": [
+      {
+        "cap": -100,
+        "n_blocked": 21,
+        "total_delta": 407.1,
+        "book_after": 5215.85,
+        "n_days_harmed": 6,
+        "n_days_helped": 13
+      },
+      {
+        "cap": -120,
+        "n_blocked": 15,
+        "total_delta": 295.3,
+        "book_after": 5104.05,
+        "n_days_harmed": 4,
+        "n_days_helped": 10
+      },
+      {
+        "cap": -150,
+        "n_blocked": 13,
+        "total_delta": 183.1,
+        "book_after": 4991.85,
+        "n_days_harmed": 3,
+        "n_days_helped": 9
+      },
+      {
+        "cap": -200,
+        "n_blocked": 6,
+        "total_delta": 773.8,
+        "book_after": 5582.55,
+        "n_days_harmed": 0,
+        "n_days_helped": 5
+      },
+      {
+        "cap": -250,
+        "n_blocked": 5,
+        "total_delta": 723.8,
+        "book_after": 5532.55,
+        "n_days_harmed": 0,
+        "n_days_helped": 4
+      },
+      {
+        "cap": -300,
+        "n_blocked": 3,
+        "total_delta": 581.0,
+        "book_after": 5389.75,
+        "n_days_harmed": 0,
+        "n_days_helped": 3
+      },
+      {
+        "cap": -400,
+        "n_blocked": 2,
+        "total_delta": 486.0,
+        "book_after": 5294.75,
+        "n_days_harmed": 0,
+        "n_days_helped": 2
+      },
+      {
+        "cap": -500,
+        "n_blocked": 1,
+        "total_delta": 246.0,
+        "book_after": 5054.75,
+        "n_days_harmed": 0,
+        "n_days_helped": 1
+      },
+      {
+        "cap": -600,
+        "n_blocked": 0,
+        "total_delta": 0.0,
+        "book_after": 4808.75,
+        "n_days_harmed": 0,
+        "n_days_helped": 0
+      }
+    ],
+    "replay_baseline_total": 4808.75,
+    "replay_scale_caveat": "Population B is ONE arm at qty 3. The fleet book runs 5 arms at qty 3-8, so a -$600 FLEET cap is roughly a -$120 per-arm cap. Compare the replay's -$100/-$120/-$150 rows to the book's -$500/-$600 rows, not its -$600 row.",
+    "baseline_book_total": 1782.01,
+    "baseline_days": {
+      "2026-06-26": -15.0,
+      "2026-06-29": -136.0,
+      "2026-06-30": -388.0,
+      "2026-07-01": -64.0,
+      "2026-07-02": 244.01,
+      "2026-07-06": -217.0,
+      "2026-07-07": -123.0,
+      "2026-07-08": -382.0,
+      "2026-07-09": -381.0,
+      "2026-07-13": -25.0,
+      "2026-07-15": -309.0,
+      "2026-07-16": -83.01,
+      "2026-07-17": 590.01,
+      "2026-07-20": -141.0,
+      "2026-07-21": -76.0,
+      "2026-07-22": -108.0,
+      "2026-07-23": -305.0,
+      "2026-07-27": -828.0,
+      "2026-07-28": -346.0,
+      "2026-07-29": 1341.0,
+      "2026-07-30": -275.0,
+      "2026-07-31": 121.0,
+      "2026-08-03": 534.0,
+      "2026-08-04": 3624.0,
+      "2026-08-05": -1935.0,
+      "2026-08-06": 1465.0
+    },
+    "causality_note": "Realized-P&L-at-entry-time only; positions open when the breaker trips are NOT force-liquidated. Strictly later-tripping than the live equity-based kill switch, so every saving is a FLOOR.",
+    "fleet_day_breaker": [
+      {
+        "label": "FLEET realized-day breaker -$250",
+        "n_positions_blocked": 51,
+        "total_delta": -837.01,
+        "book_after": 945.0,
+        "wednesday_delta": 1485.0,
+        "tuesday_delta": -1894.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -450.0,
+        "n_days_touched": 7,
+        "n_days_harmed": 3,
+        "n_days_helped": 4,
+        "worst_harm": -1894.0,
+        "harmed_days": {
+          "2026-08-04": -1894.0,
+          "2026-07-02": -742.01,
+          "2026-07-28": -15.0
+        },
+        "delta_ex_wednesday": -2322.01
+      },
+      {
+        "label": "FLEET realized-day breaker -$400",
+        "n_positions_blocked": 13,
+        "total_delta": 249.0,
+        "book_after": 2031.01,
+        "wednesday_delta": 1225.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -710.0,
+        "n_days_touched": 2,
+        "n_days_harmed": 1,
+        "n_days_helped": 1,
+        "worst_harm": -976.0,
+        "harmed_days": {
+          "2026-07-02": -976.0
+        },
+        "delta_ex_wednesday": -976.0
+      },
+      {
+        "label": "FLEET realized-day breaker -$500",
+        "n_positions_blocked": 12,
+        "total_delta": 228.0,
+        "book_after": 2010.01,
+        "wednesday_delta": 1225.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -710.0,
+        "n_days_touched": 2,
+        "n_days_harmed": 1,
+        "n_days_helped": 1,
+        "worst_harm": -997.0,
+        "harmed_days": {
+          "2026-07-02": -997.0
+        },
+        "delta_ex_wednesday": -997.0
+      },
+      {
+        "label": "FLEET realized-day breaker -$600",
+        "n_positions_blocked": 7,
+        "total_delta": 1225.0,
+        "book_after": 3007.01,
+        "wednesday_delta": 1225.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -710.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "FLEET realized-day breaker -$750",
+        "n_positions_blocked": 5,
+        "total_delta": 1023.0,
+        "book_after": 2805.01,
+        "wednesday_delta": 1023.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -912.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "FLEET realized-day breaker -$1000",
+        "n_positions_blocked": 3,
+        "total_delta": 572.0,
+        "book_after": 2354.01,
+        "wednesday_delta": 572.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1363.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "FLEET realized-day breaker -$1500",
+        "n_positions_blocked": 0,
+        "total_delta": 0.0,
+        "book_after": 1782.01,
+        "wednesday_delta": 0.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1935.0,
+        "n_days_touched": 0,
+        "n_days_harmed": 0,
+        "n_days_helped": 0,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      }
+    ],
+    "per_arm_day_breaker": [
+      {
+        "label": "PER-ARM realized-day breaker -$250",
+        "n_positions_blocked": 8,
+        "total_delta": 515.0,
+        "book_after": 2297.01,
+        "wednesday_delta": 970.0,
+        "tuesday_delta": -524.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -965.0,
+        "n_days_touched": 3,
+        "n_days_harmed": 1,
+        "n_days_helped": 2,
+        "worst_harm": -524.0,
+        "harmed_days": {
+          "2026-08-04": -524.0
+        },
+        "delta_ex_wednesday": -455.0
+      },
+      {
+        "label": "PER-ARM realized-day breaker -$400",
+        "n_positions_blocked": 3,
+        "total_delta": 613.0,
+        "book_after": 2395.01,
+        "wednesday_delta": 613.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1322.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "PER-ARM realized-day breaker -$500",
+        "n_positions_blocked": 1,
+        "total_delta": 664.0,
+        "book_after": 2446.01,
+        "wednesday_delta": 664.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1271.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "PER-ARM realized-day breaker -$600",
+        "n_positions_blocked": 1,
+        "total_delta": 664.0,
+        "book_after": 2446.01,
+        "wednesday_delta": 664.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1271.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "PER-ARM realized-day breaker -$750",
+        "n_positions_blocked": 1,
+        "total_delta": 664.0,
+        "book_after": 2446.01,
+        "wednesday_delta": 664.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1271.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "PER-ARM realized-day breaker -$1000",
+        "n_positions_blocked": 0,
+        "total_delta": 0.0,
+        "book_after": 1782.01,
+        "wednesday_delta": 0.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1935.0,
+        "n_days_touched": 0,
+        "n_days_harmed": 0,
+        "n_days_helped": 0,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      },
+      {
+        "label": "PER-ARM realized-day breaker -$1500",
+        "n_positions_blocked": 0,
+        "total_delta": 0.0,
+        "book_after": 1782.01,
+        "wednesday_delta": 0.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1935.0,
+        "n_days_touched": 0,
+        "n_days_harmed": 0,
+        "n_days_helped": 0,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      }
+    ],
+    "ORACLE_per_trade_cap": [
+      {
+        "label": "ORACLE per-trade loss cap -$100",
+        "n_positions_blocked": 0,
+        "total_delta": 2019.0,
+        "book_after": 3801.01,
+        "wednesday_delta": 1088.0,
+        "tuesday_delta": 68.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -847.0,
+        "n_days_touched": 9,
+        "n_days_harmed": 0,
+        "n_days_helped": 9,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 931.0
+      },
+      {
+        "label": "ORACLE per-trade loss cap -$150",
+        "n_positions_blocked": 0,
+        "total_delta": 1314.0,
+        "book_after": 3096.01,
+        "wednesday_delta": 780.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1155.0,
+        "n_days_touched": 6,
+        "n_days_harmed": 0,
+        "n_days_helped": 6,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 534.0
+      },
+      {
+        "label": "ORACLE per-trade loss cap -$200",
+        "n_positions_blocked": 0,
+        "total_delta": 970.0,
+        "book_after": 2752.01,
+        "wednesday_delta": 615.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1320.0,
+        "n_days_touched": 4,
+        "n_days_harmed": 0,
+        "n_days_helped": 4,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 355.0
+      },
+      {
+        "label": "ORACLE per-trade loss cap -$300",
+        "n_positions_blocked": 0,
+        "total_delta": 424.0,
+        "book_after": 2206.01,
+        "wednesday_delta": 364.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1571.0,
+        "n_days_touched": 3,
+        "n_days_harmed": 0,
+        "n_days_helped": 3,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 60.0
+      },
+      {
+        "label": "ORACLE per-trade loss cap -$500",
+        "n_positions_blocked": 0,
+        "total_delta": 164.0,
+        "book_after": 1946.01,
+        "wednesday_delta": 164.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1771.0,
+        "n_days_touched": 1,
+        "n_days_harmed": 0,
+        "n_days_helped": 1,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      }
+    ],
+    "ORACLE_per_trade_cap_LABEL": "ORACLE -- NOT LIVE-EXECUTABLE. Truncating a realised loss at -$X assumes a fill at a price never proven available. Comparator only; never a shippable number.",
+    "positions_per_arm_day_cap": [
+      {
+        "label": "cap 2 positions per (arm,date)",
+        "n_positions_blocked": 84,
+        "total_delta": -401.01,
+        "book_after": 1381.0,
+        "wednesday_delta": 1230.0,
+        "tuesday_delta": -1557.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -705.0,
+        "n_days_touched": 13,
+        "n_days_harmed": 4,
+        "n_days_helped": 9,
+        "worst_harm": -1557.0,
+        "harmed_days": {
+          "2026-08-04": -1557.0,
+          "2026-07-02": -315.01,
+          "2026-07-17": -290.0,
+          "2026-07-21": -18.0
+        },
+        "delta_ex_wednesday": -1631.01
+      },
+      {
+        "label": "cap 3 positions per (arm,date)",
+        "n_positions_blocked": 52,
+        "total_delta": -399.0,
+        "book_after": 1383.01,
+        "wednesday_delta": 970.0,
+        "tuesday_delta": -2003.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -965.0,
+        "n_days_touched": 8,
+        "n_days_harmed": 2,
+        "n_days_helped": 6,
+        "worst_harm": -2003.0,
+        "harmed_days": {
+          "2026-08-04": -2003.0,
+          "2026-07-17": -49.0
+        },
+        "delta_ex_wednesday": -1369.0
+      },
+      {
+        "label": "cap 4 positions per (arm,date)",
+        "n_positions_blocked": 31,
+        "total_delta": -76.0,
+        "book_after": 1706.01,
+        "wednesday_delta": 768.0,
+        "tuesday_delta": -1211.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1167.0,
+        "n_days_touched": 7,
+        "n_days_harmed": 1,
+        "n_days_helped": 6,
+        "worst_harm": -1211.0,
+        "harmed_days": {
+          "2026-08-04": -1211.0
+        },
+        "delta_ex_wednesday": -844.0
+      },
+      {
+        "label": "cap 6 positions per (arm,date)",
+        "n_positions_blocked": 6,
+        "total_delta": -537.0,
+        "book_after": 1245.01,
+        "wednesday_delta": 0.0,
+        "tuesday_delta": -678.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1935.0,
+        "n_days_touched": 3,
+        "n_days_harmed": 1,
+        "n_days_helped": 2,
+        "worst_harm": -678.0,
+        "harmed_days": {
+          "2026-08-04": -678.0
+        },
+        "delta_ex_wednesday": -537.0
+      },
+      {
+        "label": "cap 8 positions per (arm,date)",
+        "n_positions_blocked": 0,
+        "total_delta": 0.0,
+        "book_after": 1782.01,
+        "wednesday_delta": 0.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1935.0,
+        "n_days_touched": 0,
+        "n_days_harmed": 0,
+        "n_days_helped": 0,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 0.0
+      }
+    ],
+    "entries_per_contract_wave_cap": [
+      {
+        "label": "cap 1 entries per (arm,symbol,date)",
+        "n_positions_blocked": 59,
+        "total_delta": -457.0,
+        "book_after": 1325.01,
+        "wednesday_delta": 1058.0,
+        "tuesday_delta": -2197.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -877.0,
+        "n_days_touched": 13,
+        "n_days_harmed": 2,
+        "n_days_helped": 11,
+        "worst_harm": -2197.0,
+        "harmed_days": {
+          "2026-08-04": -2197.0,
+          "2026-07-17": -105.0
+        },
+        "delta_ex_wednesday": -1515.0
+      },
+      {
+        "label": "cap 2 entries per (arm,symbol,date)",
+        "n_positions_blocked": 29,
+        "total_delta": 613.0,
+        "book_after": 2395.01,
+        "wednesday_delta": 913.0,
+        "tuesday_delta": -524.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1022.0,
+        "n_days_touched": 8,
+        "n_days_harmed": 2,
+        "n_days_helped": 6,
+        "worst_harm": -524.0,
+        "harmed_days": {
+          "2026-08-04": -524.0,
+          "2026-07-21": -18.0
+        },
+        "delta_ex_wednesday": -300.0
+      },
+      {
+        "label": "cap 3 entries per (arm,symbol,date)",
+        "n_positions_blocked": 12,
+        "total_delta": 720.0,
+        "book_after": 2502.01,
+        "wednesday_delta": 653.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1282.0,
+        "n_days_touched": 3,
+        "n_days_harmed": 0,
+        "n_days_helped": 3,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 67.0
+      },
+      {
+        "label": "cap 4 entries per (arm,symbol,date)",
+        "n_positions_blocked": 3,
+        "total_delta": 463.0,
+        "book_after": 2245.01,
+        "wednesday_delta": 451.0,
+        "tuesday_delta": 0.0,
+        "thursday_delta": 0.0,
+        "wednesday_after": -1484.0,
+        "n_days_touched": 2,
+        "n_days_harmed": 0,
+        "n_days_helped": 2,
+        "worst_harm": 0.0,
+        "harmed_days": {},
+        "delta_ex_wednesday": 12.0
+      }
+    ]
+  },
+  "verification": {
+    "method": "Every headline number re-derived from the RAW fills ledger / replay artifact by a second independent code path (this file) and asserted, not read back from the runners' own JSON.",
+    "n_checks": 41,
+    "all_passed": true,
+    "checks": [
+      {
+        "check": "book n_positions",
+        "got": 208,
+        "want": 208,
+        "ok": true
+      },
+      {
+        "check": "book n_dates",
+        "got": 26,
+        "want": 26,
+        "ok": true
+      },
+      {
+        "check": "book net",
+        "got": 1782.01,
+        "want": 1782.01,
+        "ok": true
+      },
+      {
+        "check": "book WED total (options only)",
+        "got": -1935.0,
+        "want": -1935.0,
+        "ok": true
+      },
+      {
+        "check": "book TUE total (options only)",
+        "got": 3624.0,
+        "want": 3624.0,
+        "ok": true
+      },
+      {
+        "check": "book THU total (options only)",
+        "got": 1465.0,
+        "want": 1465.0,
+        "ok": true
+      },
+      {
+        "check": "book worst single POSITION loss",
+        "got": -664.0,
+        "want": -664.0,
+        "ok": true
+      },
+      {
+        "check": "book n losing positions",
+        "got": 157,
+        "want": 157,
+        "ok": true
+      },
+      {
+        "check": "book median position loss",
+        "got": 32.0,
+        "want": 32.0,
+        "ok": true
+      },
+      {
+        "check": "book total position loss $",
+        "got": 8813.99,
+        "want": 8813.99,
+        "ok": true
+      },
+      {
+        "check": "book n losing days",
+        "got": 19,
+        "want": 19,
+        "ok": true
+      },
+      {
+        "check": "book total DAY loss $",
+        "got": 6137.01,
+        "want": 6137.01,
+        "ok": true
+      },
+      {
+        "check": "book worst day share of day-loss $",
+        "got": 0.3153,
+        "want": 0.3153,
+        "ok": true
+      },
+      {
+        "check": "book ex-week net (23 days)",
+        "got": -1371.99,
+        "want": -1371.99,
+        "ok": true
+      },
+      {
+        "check": "WED n_positions",
+        "got": 14,
+        "want": 14,
+        "ok": true
+      },
+      {
+        "check": "WED 776C spiral $",
+        "got": -1279.0,
+        "want": -1279.0,
+        "ok": true
+      },
+      {
+        "check": "WED 776C n round trips",
+        "got": 10,
+        "want": 10,
+        "ok": true
+      },
+      {
+        "check": "WED put risky-1 $",
+        "got": 347.0,
+        "want": 347.0,
+        "ok": true
+      },
+      {
+        "check": "WED put risky-3 $",
+        "got": -664.0,
+        "want": -664.0,
+        "ok": true
+      },
+      {
+        "check": "WED put safe-2 $",
+        "got": -255.0,
+        "want": -255.0,
+        "ok": true
+      },
+      {
+        "check": "WED sibling per-contract",
+        "got": 69.4,
+        "want": 69.4,
+        "ok": true
+      },
+      {
+        "check": "WED put per-contract gap (r1 vs r3)",
+        "got": 152.4,
+        "want": 152.4,
+        "ok": true
+      },
+      {
+        "check": "WED put event after exit-config fix",
+        "got": 1110.4,
+        "want": 1110.4,
+        "ok": true
+      },
+      {
+        "check": "WED exitcfg standalone delta",
+        "got": 1682.4,
+        "want": 1682.4,
+        "ok": true
+      },
+      {
+        "check": "WED 776C idea taken ONCE at qty3",
+        "got": -102.0,
+        "want": -102.0,
+        "ok": true
+      },
+      {
+        "check": "WED 776C execution cost (actual - idea)",
+        "got": -1177.0,
+        "want": -1177.0,
+        "ok": true
+      },
+      {
+        "check": "WED 776C pct of spiral that is count+size",
+        "got": 0.9203,
+        "want": 0.9203,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 n blocked",
+        "got": 7,
+        "want": 7,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 WED after",
+        "got": -710.0,
+        "want": -710.0,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 WED delta",
+        "got": 1225.0,
+        "want": 1225.0,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 TUE delta",
+        "got": 0.0,
+        "want": 0.0,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 THU delta",
+        "got": 0.0,
+        "want": 0.0,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 delta ex-WED",
+        "got": 0.0,
+        "want": 0.0,
+        "ok": true
+      },
+      {
+        "check": "fleet-600 n days harmed",
+        "got": 0,
+        "want": 0,
+        "ok": true
+      },
+      {
+        "check": "ORACLE per-trade -100, WED after",
+        "got": -847.0,
+        "want": -847.0,
+        "ok": true
+      },
+      {
+        "check": "replay n_trades",
+        "got": 191,
+        "want": 191,
+        "ok": true
+      },
+      {
+        "check": "replay n_traded_days",
+        "got": 141,
+        "want": 141,
+        "ok": true
+      },
+      {
+        "check": "replay window rth days",
+        "got": 387,
+        "want": 387,
+        "ok": true
+      },
+      {
+        "check": "replay net",
+        "got": 4808.75,
+        "want": 4808.75,
+        "ok": true
+      },
+      {
+        "check": "replay worst DAY",
+        "got": -825.0,
+        "want": -825.0,
+        "ok": true
+      },
+      {
+        "check": "replay worst TRADE",
+        "got": -579.0,
+        "want": -579.0,
+        "ok": true
+      }
+    ]
+  },
+  "synthesis": {
+    "headline": "The loss is not in the trades -- it is in the DAY. Worst single position in 208 real fills is -$664 and the median loser is -$32, so no per-trade instrument can produce a -$500 Wednesday. 208 ordinary trades pile into one -$1,935 day because five 'independent' arms are one bet in five sizes (mean pairwise daily-P&L r = 0.787).",
+    "instrument_verdict": "TAIL CAP AT THE DAY LEVEL. Proof: an ORACLE -$100-per-trade cap gets Wednesday to -$847; a LIVE fleet realized-day breaker at -$600 gets it to -$710 at $0 cost on Tuesday, Thursday and the other 23 days. A live day instrument beats an impossible trade instrument.",
+    "wednesday_mechanism_split_shapley": {
+      "exit_config_tp1_unreachable": -1332.52,
+      "reentry_count": -657.74,
+      "position_size": -335.72,
+      "friction_spread": 75.49,
+      "entry_location_residual": 315.49,
+      "sums_to": -1935.0
+    },
+    "prior_audit_correction": "The circulating 70.4%-ENTRY / 29.6%-EXIT split is an EVENT-level split (which contract lost money) presented as a MECHANISM split (which lever lost money). On the mechanism axis it INVERTS: 68.9% exit-config, and entry LOCATION is a net CREDIT of +$315.49. With friction removed, Rule-6 minimum size, one entry per contract and the best exit config that actually existed in the fleet that day, 2026-08-05 is a +$315.49 WINNER.",
+    "concentration_verdict": "THE FLEET IS ONE BET IN FIVE SIZES. mean pairwise arm daily-P&L r=0.787; daily sign agreement 86-100% on every pair with n>=7; diversification ratio 0.812 vs 0.447 for 5 independent arms; 63.0% of positions sit in multi-arm same-contract-same-minute clusters carrying 57.5% of all loss dollars. The fat day-tail is manufactured by correlated fleet participation, not by the strategy -- which is why the single-arm 387-RTH-day replay's worst day is only -$825.",
+    "time_of_day_verdict": "NULL. 09:30 is the single most PROFITABLE entry bucket in the replay (+$63.90/entry, net +$1,470.70) and is net-positive in the book too. Wednesday's 09:58-10:20 damage is a Wednesday fact, not a population fact. No open standdown; late standdown already graveyarded.",
+    "honesty_flags": [
+      "100% of the fleet-breaker's BOOK benefit is 2026-08-05. Ex-Wednesday it is exactly $0.00 on 25 other days. Clears a does-no-harm bar, NOT an evidence bar -> PREREG, not SHIP.",
+      "Book day-concentration is week-inflated: worst-10%-of-days share falls 45.0% -> 28.9% when 08-04..08-06 are removed. The cross-population stable value is ~29-33%.",
+      "corr(n_positions, loss magnitude) on losing days is only 0.323 -- a bare COUNT cap is not supported as a general rule even though the count mechanism dominated Wednesday.",
+      "Population B is ONE arm at qty 3; it validates the day-breaker MECHANISM but cannot validate any FLEET threshold.",
+      "Wednesday bucket (d) is a LOWER bound (the sibling paid the worst entry of the three; safe-2's own tp1_qty_fraction would have done ~$18/contract better)."
+    ]
+  }
+}
