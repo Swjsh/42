@@ -1,0 +1,73 @@
+{
+  "rule_id": "entry-quality-admissibility-2026-08-06",
+  "title": "FROZEN PREREG -- ENTRY QUALITY LEDGER + structure-presence admissibility battery (LANE 4, Thu 2026-08-06 evening)",
+  "status": "FROZEN_PREREG",
+  "frozen_at_et": "2026-08-06 ~18:55 ET (et_clock verified: 2026-08-06 18:46:33 Thursday EDT, market_hours=False)",
+  "commit_discipline": "This file is committed via commit_scoped.py BEFORE the ledger builder or any battery runner exists (git-provable freeze order). If any definition below is edited after the runner exists, this prereg is VOID and must be re-registered.",
+  "parent_study": "analysis/deep-research/EOD-2026-08-05-ENTRIES.md (LENS 2) + analysis/recommendations/entry-improvement-variants-prereg-2026-08-05.json (b9cd7a6e)",
+  "sibling_prereg_not_superseded": "analysis/recommendations/entry-structure-forward-prereg-2026-08-06.json (V-d1 + V-e3 forward shadow protocol) stays in force unchanged. Tonight's shadow-counter SHIP implements ITS measurement protocol; nothing here re-tunes its cells or gates.",
+
+  "population": {
+    "id": "LIVE-ENGINE-REAL-FILLS-v2",
+    "entries": "every option BUY fill in automation/state/fills-ledger.jsonl with attribution=='engine' (activity_id-deduped). One buy FILL = one entry event; multi-fill orders disclosed, not merged.",
+    "pnl": "FIFO within (arm, symbol, date_et) over ALL fills regardless of attribution -- exits are broker truth even when a manual/EOD-flatten sell closed an engine entry. Unclosed remainders (expiry) would carry pnl = -cost; as of freeze there are none (0 unmatched sell qty, 0 leftover, verified).",
+    "v1_delta_disclosed": "The 08-05 study's LIVE-ENGINE-REAL-FILLS-v1 (n=230, net +$317 <=08-05) silently EXCLUDED one engine entry whose exit was manual-attributed: 2026-06-26 safe-2 SPY260626P00732000 3x @0.98 -> manual sell @0.19 = -$237. v2 includes it. True <=08-05 net = +$80. v2 also extends through 2026-08-06.",
+    "verified_at_freeze": {"n_events": 235, "n_days": 26, "first": "2026-06-26", "last": "2026-08-06", "net_usd": 1545.0, "wr_pct": 19.1, "unmatched_sell_qty": 0.0, "open_leftover_qty": 0.0},
+    "mfe_authority": "analysis/pain-ledger/mae-mfe.json (frozen entry+1 conventions), joined per (arm, symbol, entry bar-minute). Entry events that are ADDS to an open position have no pain-ledger row: mfe=null, counted and disclosed, never zero-filled."
+  },
+
+  "ledger_factors_frozen": {
+    "note": "Factors (a)-(f) are DESCRIPTIVE ledger columns computed at entry time ONLY (C6: every bar used must have CLOSED at or before the entry fill timestamp). No significance claims attach to descriptive crossings; only the admissibility cells below get the permutation + BH treatment.",
+    "a_structure": "market_structure.analyze_structure over closed RTH bars strictly before entry. 5m read: window=3, quorum 8 closed 5m bars (below quorum = BLIND). 1m read: window=5, quorum 20 closed 1m bars. Recorded: last-event kind/direction/bars_ago per timeframe, plus derived buckets AGREES / DISAGREES / NO_EVENT / BLIND (direction-agreement vs trade side; identical definitions to the 08-05 study for reconciliation).",
+    "b_level_tied": "ENTER decision's trigger_level (fleet rows) / trigger_level_exact or *_level_raw (core rows) non-null == LEVEL-TIED; null == BARE confirmation. Attribution from the arm's own decisions ledger row for that symbol+date; unmatched = unattributed, disclosed.",
+    "c_extreme_distance": "signed distance from entry spot (last closed 1m close) to the nearest same-session extreme (session high for calls / session low for puts, computed over closed 1m bars) THAT IS ALSO PRESENT in the engine's own levels_active (core-decisions.jsonl timeline, causally latest row <= entry ts; match tolerance $0.25). Sign: +ve = extreme is AHEAD of the trade direction (buying toward supply / selling toward demand). levels_active exists only from 2026-07-28 -> earlier entries ABSTAIN, disclosed.",
+    "d_last5_dir": "V-d1 factor: last fully closed 5m bar direction vs trade side (up/down/flat; agreement = close>open for calls, close<open for puts). Identical to the frozen V-d1 rule input.",
+    "e_tod_bucket": "entry ET time bucket: 0930-0959, 1000-1059, 1100-1159, 1200-1329, 1330-1459, 1500-1555.",
+    "f_vwap_side": "entry spot vs session VWAP computed causally over closed RTH 1m bars (cum sum typical*vol / cum vol, RTH-anchored). above/below/unknown."
+  },
+
+  "admissibility_cells_frozen": {
+    "blocking_semantics": "A cell BLOCKS an entry (counterfactual: entry never taken, its realized FIFO P&L removed) or ABSTAINS (insufficient data = entry stands; abstain never blocks). Delta = -(sum of blocked P&L) = dollars the rule would have added.",
+    "direction_agnostic_by_design": "Cells test PRESENCE of structure, not agreement -- frozen on the 08-05 finding that the DISAGREES bucket was the most profitable cohort and NO_EVENT was the killer. A direction-agreement gate is explicitly NOT a candidate.",
+    "cells": [
+      {"id": "R-PRES-5m", "rule": "block if >=8 closed 5m RTH bars exist AND analyze_structure(window=3) reports NO BOS/CHoCH at all (last_event is None). Abstain below quorum.", "provenance": "V-e1 shape from the 08-05 study (post-hoc there; this is its first registration on v2)."},
+      {"id": "R-S8-5m", "rule": "block if >=8 closed 5m RTH bars exist AND there is NO BOS/CHoCH whose break_index falls within the LAST 8 closed 5m bars (no event at all, or last event older than 8 bars). Abstain below quorum.", "provenance": "THE lane-4 named rule: 'require ANY structure event within 8 bars'. Thu 10:31 exemplar had BOS DOWN 5 bars prior (passes); Wed 09:58-10:19 cohort had zero events (blocks)."},
+      {"id": "R-PRES-1m", "rule": "block if >=20 closed 1m RTH bars exist AND analyze_structure(window=5) reports NO BOS/CHoCH at all. Abstain below quorum.", "provenance": "V-e3 re-scored on v2 + 08-06 (its own forward prereg stays authoritative for its forward gates)."},
+      {"id": "R-S40-1m", "rule": "block if >=20 closed 1m RTH bars exist AND there is NO BOS/CHoCH whose break_index falls within the LAST 40 closed 1m bars. Abstain below quorum.", "provenance": "1m recency analogue of R-S8-5m (8 x 5m = 40 min). Registered so the timeframe choice is not cherry-picked after the fact."},
+      {"id": "V-d1-rescore", "rule": "block if last fully closed 5m bar closed AGAINST the trade direction (close<=open for calls, close>=open for puts... strictly: dir != required dir; flat blocks). Abstain if no closed 5m bar.", "provenance": "frozen in b9cd7a6e + entry-structure-forward-prereg-2026-08-06.json; re-scored on v2 ONLY to baseline the shadow counter. Its forward verdict ladder lives in ITS prereg, not here."}
+    ]
+  },
+
+  "battery_frozen": {
+    "per_cell_stats": ["n_blocked", "n_abstain", "delta_full", "delta_ex_best_day (drop the cell's single best day)", "delta_drop_top2 (drop the cell's 2 best days)", "blocked_winner_usd", "blocked_loser_usd", "blocked_cohort_wr", "delta_h1/delta_h2 (chronological halves)", "days_negative + worst_day_usd", "delta on 2026-08-04 / 2026-08-05 / 2026-08-06 individually"],
+    "permutation": "within-day permutation, 20,000 draws, seed 20260806: hold each day's NUMBER of blocked entries fixed, randomize WHICH entries within that day are blocked, one-sided p = fraction of draws with permuted delta >= observed delta. This is the discriminating test (picked-the-bad-ENTRY vs sat-out-a-bad-DAY).",
+    "bh_correction": "Benjamini-Hochberg across ALL 5 cells' permutation p-values (this battery is the family; nothing dropped, all cells reported). Significance bar: q <= 0.10.",
+    "gates": {
+      "G1": "delta_full > 0",
+      "G2": "blocked_winner_usd < blocked_loser_usd",
+      "G3": "delta_drop_top2 > 0 (concentration cut)",
+      "G4": "delta_h1 >= 0 AND delta_h2 >= 0",
+      "G5": "n_blocked >= 8",
+      "G6": "worst_day_usd >= -250",
+      "G7": "BH q <= 0.10 on the within-day permutation"
+    },
+    "verdict_ladder": {
+      "FORWARD_SHADOW_CANDIDATE": "G1..G6 pass (G7 informative): eligible for the frozen forward-shadow prereg set, NEVER armed tonight.",
+      "WATCH": "G1+G2 pass, any of G3..G6 fail.",
+      "REJECT": "G1 or G2 fail."
+    },
+    "selection_rule_precommitted": "AT MOST TWO cells graduate to FROZEN forward-shadow preregs tonight: the best-scoring 5m cell and the best-scoring 1m cell by (gates passed, then delta_drop_top2), each only if it reaches FORWARD_SHADOW_CANDIDATE. V-d1 does not consume a slot (already frozen forward). If zero qualify, zero graduate and that is the reported outcome. NOTHING IS ARMED TONIGHT under any outcome -- J's standing paper bias (take the trade) + the entry-filter graveyard make arming a forward-evidence decision only."
+  },
+
+  "shadow_counter_ship": {
+    "what": "setup/scripts/entry_shadow_counter.py -- nightly, measurement-only: for each engine entry fill of the day, compute would_block booleans for V-d1 + V-e3 (per entry-structure-forward-prereg-2026-08-06.json measurement_protocol) + the graduated cells above (diagnostic), tally to analysis/entry-quality/shadow-tally.jsonl (per-entry rows, idempotent per activity_id) + analysis/entry-quality/shadow-summary.json.",
+    "trading_path_impact": "ZERO. Reads ledgers + SIP bars after the close; never blocks, never writes any engine/params surface. Guards + RED-proof + one-line revert + REVOKE entry in STATUS.md.",
+    "forward_gates_authority": "entry-structure-forward-prereg-2026-08-06.json F1-F5 (10-session window) -- this ship is the instrument that makes those gates measurable without a human."
+  },
+
+  "kill_criteria_precommitted": [
+    "If R-S8-5m fails G1 or G2 on v2, the 'require a structure event within 8 bars' idea is REJECTED on this population and goes to the graveyard list with its numbers -- no re-cutting to rescue it.",
+    "If the NO_EVENT bucket reconciliation fails (v2 bucket does not reproduce the 08-05 study's sign and rough magnitude on the shared <=08-05 window), the discrepancy is REPORTED as the finding and no cell may graduate tonight."
+  ],
+  "what_would_falsify": "If blocked-cohort WR is indistinguishable from population WR forward, the rules select nothing and every in-sample dollar was day-level exposure reduction (the falsification already frozen in the forward prereg)."
+}
