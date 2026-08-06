@@ -1,0 +1,89 @@
+{
+  "prereg_id": "LEVER-CATCAP-2026-08-06",
+  "_doc": "FROZEN PRE-REGISTRATION -- committed BEFORE backtest/tools/lever_catcap_2026_08_06.py exists (git-provable via `git merge-base --is-ancestor <this commit> <runner commit>`). Lane: LEVER 3 -- the catastrophe cap and the per-trade loss tail. Question being answered: what caps a Wednesday-shaped day near -$500 WITHOUT costing Tuesday (+$3,617) or Thursday (+$1,461)? Written 2026-08-06 after the close (et_clock.py -> 2026-08-06 16:45:22 Thursday EDT, market_hours=False). ANALYSIS ONLY: no trading-path file is modified by this study.",
+  "clock_verified_et": "2026-08-06 16:45:22 Thursday EDT (market_hours=False)",
+
+  "GRAVEYARD_COLLISION_DECLARED_BEFORE_RUNNING": {
+    "_why_here": "The task brief asserts the catastrophe cap 'has NEVER been varied in any study' and that pre_tp1_be_floor_arm_pct is an unexplored knob. BOTH assertions are FALSE on inspection of this repo. Declaring the collisions HERE, in the frozen prereg, before any number is produced, so the confirming run cannot be mistaken for a discovery.",
+    "axis_A_catastrophe_cap": {
+      "verdict": "PRIOR ART EXISTS -- this axis is REPLICATION + GRID-FILL, not new territory.",
+      "prior_1": "backtest/tools/catastrophe_stop_shakeout_ab.py + analysis/recommendations/catastrophe-stop-shakeout-2026-07-23.{json,md} -- varied ribbon_ride catastrophe_stop_pct on the SAME 387-RTH-day pinned population used here. Cells -0.70 and -0.99. Both CONTROL_HOLDS.",
+      "prior_2": "backtest/tools/stopped_then_paid_2026_08_04.py (run 2026-08-06, same day as this study) -- its apply_width() sets out['catastrophe_stop_pct'] = width_pct for ribbon_ride at widths {-0.10,-0.12,-0.15,-0.20,-0.25,-0.30,-0.50} on 2026-08-04, 2026-08-05 and the 391-day gap-fade slice.",
+      "mechanical_identity_check": "automation/state/fleet/exit_manager.py:224-225 -- when from_entry resolves stop_mode=='structure', `stop_pct = cat_pct` and that value is stored in ExitState.premium_stop_pct (line 237). For a structure-mode position the catastrophe cap IS the operative premium stop; the shape's own premium_stop_pct is discarded. Therefore TIGHTENING the catastrophe cap on ribbon_ride is mechanically the SAME knob as the graveyarded 'stop tightening' item, applied to the structure-mode cohort. This is stated up front, not discovered later.",
+      "what_is_genuinely_unfilled": "The cells -0.35, -0.40 and -0.60 have never been run. -0.60 is bracketed by -0.50 (control) and -0.70 (tested, agg +$2,146.55, CONTROL_HOLDS on gate2/gate4). These are filled here for completeness, NOT presented as new territory."
+    },
+    "axis_C_pre_tp1_be_floor": {
+      "verdict": "PRIOR ART EXISTS -- FOUR published ARM_NOTHING iterations. This axis is GRID-FILL on the refuted side of a published monotone.",
+      "prior_iterations": [
+        "analysis/recommendations/exit-armscope-tp1-ab-2026-07-28.md (iteration 1) -- E1 arm_scope=full: agg -$482.10, runner cohort -$7,758.85 (22 worse / 0 better). ARM_NOTHING.",
+        "analysis/recommendations/exit-armpct-ab-2026-07-28.md (iteration 2) -- arm_pct 0.20/0.30/0.40 trailing. ARM_NOTHING.",
+        "analysis/recommendations/be-floor-ab-2026-07-29.md (iteration 3) -- CONFOUNDED (profit_lock_mode='fixed' silently disabled post-TP1 trailing). ARM_NOTHING.",
+        "analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.md (iteration 4, the ISOLATED knob this brief asks for) -- pre_tp1_be_floor_arm_pct at 0.30/0.50/0.70: agg -$1,105.85 / -$595.25 / -$252.00; runner cohort -$3,650.45 / -$905.45 / -$459.00. ARM_NOTHING, G4 uniform FAIL."
+      ],
+      "published_dose_response": "monotonic_improving_with_higher_arm_pct -- damage shrinks as the arm threshold RISES. The brief requests {0.15,0.20,0.25,0.30,0.40}; four of those five sit at or BELOW the already-refuted 0.30 cell, i.e. on the WORSE side of a published monotone. Pre-registered directional prediction: cells 0.15/0.20/0.25 will be worse than 0.30's -$3,650.45 runner-cohort delta. If they are not, the published monotone is wrong and that is the finding.",
+      "how_it_differs_from_arm_scope_full_MECHANICALLY": "Required by the brief, answered before running. exit_manager.py:389-395 (arm_scope='full') does THREE things: (i) sets profit_lock_armed=True, (ii) raises runner_stop to entry (BE floor), (iii) when profit_lock_mode=='trailing', additionally ratchets runner_stop to hwm*(1-trail_pct), which can climb ABOVE breakeven. exit_manager.py:403-405 (pre_tp1_be_floor_arm_pct) does ONE thing: raises runner_stop to entry, and deliberately does NOT set profit_lock_armed, so the post-TP1 chandelier ride is byte-identical to control. They are therefore NOT mechanically identical -- the isolated floor never trails pre-TP1 and never perturbs post-TP1 behaviour. NO COLLISION ON MECHANISM. The collision is on RESULT: iteration 4 already ran exactly this isolated knob and returned ARM_NOTHING."
+    },
+    "axis_B_giveback_cap": {
+      "verdict": "GENUINELY UNTESTED SUB-KNOB, with a disclosed structural caveat.",
+      "claim": "A 'hard give-back cap -- exit if the position surrenders more than X% of its peak' is, as expressible in this codebase, exactly profit_lock_arm_scope='full' + profit_lock_mode='trailing' + trail_pct=X. Every prior pre-TP1 study held trail_pct at the registry value (0.15 for ribbon_ride, 0.125 default). The pre-TP1 TRAIL WIDTH has never been varied. Cells 0.30/0.40/0.50/0.60 are new.",
+      "structural_caveat_stated_before_running": "arm_scope='full' hard-codes a BE floor at the arming instant (exit_manager.py:393). A pure give-back cap WITHOUT that BE floor is NOT expressible without editing exit_manager.py, which this analysis-only study will not do. Consequence, predicted before running: the trail floor hwm*(1-trail_pct) only exceeds the BE floor once hwm > entry/(1-trail_pct) -- i.e. +43% MFE at trail 0.30, +67% at 0.40, +100% at 0.50, +150% at 0.60. Below those MFEs the cell degenerates to the already-refuted BE-floor behaviour. So axis B is predicted to inherit iteration-1's pretp1_roundtrip_to_entry damage mechanism, differing only on trades that ran far enough for the wide trail to bind."
+    },
+    "axis_D_reachable_tp1": {
+      "verdict": "PARTIAL PRIOR ART. Cell 0.50 was published as E2 in exit-armscope-tp1-ab-2026-07-28: agg -$2,491.55, runner cohort -$5,615.70 (35 worse / 0 BETTER). Cells 0.20/0.25/0.30/0.40 are new. Reframed here as a LOSS-REDUCER: a TP1 fill unconditionally ratchets the runner stop to breakeven (exit_manager.py:490-493), so a REACHABLE TP1 is the only mechanism in the current engine that arms a breakeven floor without touching the graveyarded pre-TP1 machinery. The question is not 'does it make money' (E2 answers no) but 'how much of the LEFT TAIL does it remove, and at what price'. That decomposition has never been published."
+    }
+  },
+
+  "populations": {
+    "A_391day": {
+      "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json `trades` -- REUSED VERBATIM, never re-derived at the entry layer. 191 trades, RIDE_THE_RIBBON family, 2025-01-02..2026-07-22, 387 calendar RTH days, real-OPRA-derived, entry+1 convention.",
+      "exit_model": "backtest/lib/exit_manager_walk.walk_exit_manager -> automation/state/fleet/exit_manager.plan_exit_actions. NEVER simulator_real.simulate_trade_real (2026-07-09 SIM-EXIT-SHAPE-PARITY scar).",
+      "time_stop_et": "15:40 (matches the source population's own convention; using em.TIME_STOP_ET=15:50 would silently re-walk every trade against a later force-close).",
+      "trust_check": "CONTROL cell must reconcile to the source population's dollar_pnl with ZERO mismatches. A nonzero count invalidates the entire scorecard and the run is reported as VOID.",
+      "scale_caveat": "ONE arm at qty 3, one strategy family. Cannot express fleet effects. Worst day in 387 RTH days is -$825; it structurally cannot produce a Wednesday."
+    },
+    "B_week_book": {
+      "source": "REAL broker fills pulled live this session via automation/state/fleet/fleet_broker.load_creds() (NO arguments) + GET /v2/orders, all 5 arms (safe-2, bold-2, safe-3, risky-1, risky-3), for 2026-08-04, 2026-08-05, 2026-08-06. Read-only; no order placement.",
+      "exit_model": "Same walk_exit_manager path. Real 1-min OPRA via backtest/tools/_option_bars_1min_cache.fetch_1min_cached (Alpaca REST, disk-cached backtest/data/highres/).",
+      "walk_discipline": "SEQUENTIAL, one position at a time, PER ARM PER DAY. Never recombined across arms. A counterfactual position still open at a later REAL entry timestamp SUPPRESSES that entry (a wider stop can only delay an exit, never advance one, so counterfactual flat windows are a strict subset of the real ones).",
+      "control_construction": "The CONTROL cell is read DIRECTLY from the broker's own sell fills, never re-walked. A cell that changes nothing must reconcile to $0.00 delta BY CONSTRUCTION, not by approximation (point-sampled 1-min bar OPENs do not always land on the exact historical stop-touch minute; an approximate re-walk of entry N can spuriously suppress a real entry N+1 -- this exact bug was caught in stopped_then_paid_2026_08_04.py earlier the same day).",
+      "known_risk_declared_now": "2026-08-06 is TODAY. Same-day OPRA may not be entitled on the backtest key. If 1-min bars for 2026-08-06 cannot be fetched, the Thursday cell is reported as UNAVAILABLE-DISCLOSED, never silently omitted and never modelled."
+    }
+  },
+
+  "cells_frozen": {
+    "_scope": "Every axis is applied to the `ribbon_ride` shape ONLY, layered OUTERMOST (after the per-arm accounts.json exit_patch), so the axis is the isolated variable. vwap_continuation keeps its registry shape in every cell. DISCLOSED: axis D overrides risky-1's own tp1_premium_pct=0.5 exit_patch.",
+    "AXIS_A_CATCAP": {"knob": "catastrophe_stop_pct", "control": -0.50, "cells": [-0.20, -0.25, -0.30, -0.35, -0.40, -0.60, -0.70]},
+    "AXIS_B_GIVEBACK": {"knobs": {"profit_lock_arm_scope": "full", "profit_lock_mode": "trailing"}, "swept": "trail_pct", "cells": [0.30, 0.40, 0.50, 0.60], "arm_pct": "registry 0.05, unchanged"},
+    "AXIS_C_BEFLOOR": {"knob": "pre_tp1_be_floor_arm_pct", "control": null, "cells": [0.15, 0.20, 0.25, 0.30, 0.40]},
+    "AXIS_D_TP1": {"knob": "tp1_premium_pct", "control": 1.0, "cells": [0.20, 0.25, 0.30, 0.40, 0.50]}
+  },
+
+  "gates_frozen": {
+    "HG_TUE": "HARD GATE, per the task brief. Population-B 2026-08-04 delta >= $0.00. A cell that costs Tuesday a single dollar CANNOT ship, no matter what it does for Wednesday. Reported per cell for every cell, including failures.",
+    "G1_popA_aggregate": "Population A aggregate delta > $0.00.",
+    "G2_runner_anchor": "Population A RUNNER cohort (n=35, CONTROL +$15,774.05, the book's profit engine) delta >= $0.00. This is the established anchor-no-regression veto that killed iterations 1-4; it is not weakened here.",
+    "G3_wednesday": "Population-B 2026-08-05 delta > $0.00.",
+    "G4_thursday": "Population-B 2026-08-06 delta >= $0.00 (or UNAVAILABLE-DISCLOSED).",
+    "G5_drop_best": "Population A aggregate delta remains > $0.00 after dropping the single most-positive changed trade."
+  },
+
+  "verdict_rule_frozen": {
+    "SHIP": "HG_TUE and G1 and G2 and G3 and G4 and G5 all pass.",
+    "PREREG": "HG_TUE and G3 pass, and at least one of G1/G2 fails -- promising on the week but not carried by the population.",
+    "SHADOW": "HG_TUE passes, G3 passes, but the population evidence is directionally hostile.",
+    "NULL": "G3 fails for every cell on every axis.",
+    "GRAVEYARD_COLLISION": "The lane's primary lead is, on inspection, the same knob as an already-dead result. Declared regardless of the numbers if the mechanical identity holds."
+  },
+
+  "descriptive_outputs_frozen": {
+    "left_tail_decomposition": "For every cell in both populations: split the aggregate delta into loss_side_delta (sum of per-trade deltas over trades whose CONTROL pnl < 0) and win_side_delta (trades whose CONTROL pnl >= 0). This is the 'how much of the left tail does it remove' number the brief asks for, and it is reported even for cells that fail every gate.",
+    "tail_percentiles": "Population A per-trade loss distribution (p50/p75/p90/p95/max) under CONTROL and under each cell.",
+    "tp1_reachability": "Descriptive, no gate: fraction of ribbon_ride entries whose MFE ever reaches each candidate TP1 threshold, and the median MFE."
+  },
+
+  "no_other_knobs": "Within an axis, exactly one knob (or, for axis B, one documented knob-pair plus the swept trail width) changes from the arm-merged registry shape. Entries are frozen in both populations. No entry filter, no sizing change, no re-entry cap is combined with any cell in this study.",
+  "outputs": [
+    "analysis/deep-research/LEVER-CATCAP-2026-08-06.md",
+    "analysis/deep-research/LEVER-CATCAP-2026-08-06.json"
+  ]
+}
