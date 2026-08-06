@@ -86,34 +86,84 @@ def _creds() -> dict:
     raise RuntimeError("no live arm creds for market data")
 
 
+def _fetch_end_utc(date: str) -> str:
+    """Query-window END for `date`, capped 16 minutes behind UTC now on a SAME-DAY fetch.
+
+    D2 / SWEEP-1 TRIGGER (2026-08-06): the hardcoded `{date}T20:15:00Z` end lands inside
+    Alpaca's last-15-minute embargo whenever the fetch runs during that day's session ->
+    guaranteed 403 -> (pre-fix) a poisoned empty cache. Historical dates keep the full
+    20:15Z window byte-identical."""
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    full_end = f"{date}T20:15:00Z"
+    now = _dt.now(_tz.utc)
+    if date == now.strftime("%Y-%m-%d"):
+        capped = now - _td(minutes=16)
+        capped_s = capped.strftime("%Y-%m-%dT%H:%M:%SZ")
+        return min(full_end, capped_s)
+    return full_end
+
+
 def get_bars(symbol: str, date: str, creds: dict) -> list[dict]:
-    """Real OPRA 1-min bars, disk-cached, in exit_shape_parity_study's expected shape."""
+    """Real OPRA 1-min bars, disk-cached, in exit_shape_parity_study's expected shape.
+
+    D2 / SWEEP-1 FIX (2026-08-06, HIGH, EOD-2026-08-06-FULL-REVIEW #2): the cache CSV used
+    to be written UNCONDITIONALLY -- including after a FAILED fetch -- so one transient
+    403/timeout persisted a header-only file that returned 0 bars forever after (worse than
+    L241: L241 returned nothing once, this made the nothing permanent). Now: (a) a failed
+    fetch writes NO cache and returns [] (retried next run); (b) an existing ZERO-ROW cache
+    file is treated as poisoned -- deleted and refetched, so the two files hand-healed on
+    2026-08-06 can never silently regrow; (c) an empty-but-successful response is also NOT
+    persisted (indistinguishable from an embargo miss at this layer -- caching it would
+    recreate the same trap); (d) same-day fetches cap `end` outside Alpaca's 15-min embargo
+    (_fetch_end_utc), removing the 403 trigger itself."""
     CACHE.mkdir(parents=True, exist_ok=True)
     p = CACHE / f"{symbol}_{date}.csv"
-    if not p.exists():
-        url = ("https://data.alpaca.markets/v1beta1/options/bars"
-               f"?symbols={symbol}&timeframe=1Min&start={date}T13:00:00Z"
-               f"&end={date}T20:15:00Z&limit=10000")
-        req = urllib.request.Request(url, headers={
-            "APCA-API-KEY-ID": creds["key"], "APCA-API-SECRET-KEY": creds["secret"]})
+    if p.exists():
+        cached = _read_cache_csv(p)
+        if cached:
+            return cached
+        # zero-row cache = poisoned (the pre-fix failure artifact) -> delete + refetch
+        print(f"  [warn] poisoned zero-row cache {p.name} -- deleting and refetching",
+              file=sys.stderr)
         try:
-            with urllib.request.urlopen(req, timeout=30) as r:
-                bars = (json.loads(r.read().decode()).get("bars") or {}).get(symbol) or []
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError,
-                ConnectionError, ValueError) as exc:
-            print(f"  [warn] bar fetch failed {symbol} {date}: {exc}", file=sys.stderr)
-            bars = []
-        with p.open("w", newline="", encoding="utf-8") as fh:
-            w = csv.writer(fh)
-            w.writerow(["t", "o", "h", "l", "c", "v"])
-            for b in bars:
-                w.writerow([b["t"], b["o"], b["h"], b["l"], b["c"], b.get("v", 0)])
-        time.sleep(0.12)
+            p.unlink()
+        except OSError:
+            return []
+    url = ("https://data.alpaca.markets/v1beta1/options/bars"
+           f"?symbols={symbol}&timeframe=1Min&start={date}T13:00:00Z"
+           f"&end={_fetch_end_utc(date)}&limit=10000")
+    req = urllib.request.Request(url, headers={
+        "APCA-API-KEY-ID": creds["key"], "APCA-API-SECRET-KEY": creds["secret"]})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            bars = (json.loads(r.read().decode()).get("bars") or {}).get(symbol) or []
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError,
+            ConnectionError, ValueError) as exc:
+        print(f"  [warn] bar fetch failed {symbol} {date}: {exc} -- NOT cached, will retry",
+              file=sys.stderr)
+        return []
+    time.sleep(0.12)
+    if not bars:
+        print(f"  [warn] empty bar response {symbol} {date} -- NOT cached, will retry",
+              file=sys.stderr)
+        return []
+    with p.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["t", "o", "h", "l", "c", "v"])
+        for b in bars:
+            w.writerow([b["t"], b["o"], b["h"], b["l"], b["c"], b.get("v", 0)])
+    return _read_cache_csv(p)
+
+
+def _read_cache_csv(p: Path) -> list[dict]:
     out = []
-    with p.open(encoding="utf-8") as fh:
-        for r in csv.DictReader(fh):
-            out.append({"t": r["t"], "o": float(r["o"]), "h": float(r["h"]),
-                        "l": float(r["l"]), "c": float(r["c"])})
+    try:
+        with p.open(encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                out.append({"t": r["t"], "o": float(r["o"]), "h": float(r["h"]),
+                            "l": float(r["l"]), "c": float(r["c"])})
+    except (OSError, ValueError, KeyError):
+        return []
     return out
 
 
