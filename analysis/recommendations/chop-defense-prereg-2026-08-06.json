@@ -1,0 +1,118 @@
+{
+  "prereg_id": "chop-defense-prereg-2026-08-06",
+  "frozen_at_et": "2026-08-06T18:55 (clock verified this session: et_clock.py -> 2026-08-06 18:46:33 Thursday EDT, market_hours=False)",
+  "lane": "LANE 5 -- DON'T TRADE CHOP, honestly",
+  "freeze_statement": "This file is committed BEFORE any runner, meter, or shadow producer it describes exists. Provable: `git log --follow` on this path predates the first commit of backtest/tools/chop_admissibility_2026_08_06.py and setup/scripts/chop_exposure_meter.py; verify with `git merge-base --is-ancestor <this file's first commit> <runner's first commit>`.",
+  "standing_constraints": {
+    "day_level_classifier": "DEAD (20.9% vs 39.1% baseline). NOT resurrected here. Every cell below is PER-TRADE / INTRA-DAY, computable at entry time from closed bars and the arm's own booked outcomes.",
+    "inherited_do_not_remeasure": "same-bar cooldown, CAP-3, CONSEC4 (4-loss halt), fleet -$600 breaker: all numbers inherited verbatim from analysis/deep-research/KEEP-LOSSES-SMALL-2026-08-06.md. This lane cites, never re-runs.",
+    "graveyard_check": "No cell below is: a per-setup TIME cooldown (graveyarded), a day-level regime standdown/classifier (dead), stop width either direction (settled), any exit-side change (settled -710 floor is exit-side), once-per-day restoration (dead, -$900 Tuesday), or pre-TP1 profit-lock arming (permanent graveyard). Family C's C-AGAINST cell is disclosed GRAVEYARD-ADJACENT (cousin of structure_shift_confirmation, DEAD 07-28) and its verdict is CAPPED at SHADOW no matter what the dollars say.",
+    "verdict_cap_battery_wide": "Every fresh cell in this battery is a post-Wednesday hypothesis formulated the same week as its motivating day. NOTHING here may exceed PREREG verdict off this run. SHIP is structurally unreachable from this battery."
+  },
+  "populations": {
+    "A_book": {
+      "definition": "Real broker fills, automation/state/fills-ledger.jsonl, attribution=='engine', SPY options only, positions via exit_shape_parity_study.reconstruct_positions with exit_fills non-empty.",
+      "trust_gate_must_reconcile": {
+        "book_total_usd": 1782.01,
+        "n_positions": 208,
+        "n_dates": 26,
+        "tue_2026_08_04": 3624.00,
+        "wed_2026_08_05": -1935.00,
+        "thu_2026_08_06": 1465.00
+      },
+      "refusal": "Runner refuses to print any cell if the trust gate fails (same contract as joint_optimiser_2026_08_06.py)."
+    },
+    "B_replay": {
+      "definition": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (391-day window, 141 traded days, one arm). Families B and C computable on the pinned 5m lineage backtest/data/spy_5m_2025-01-01_2026-07-22.csv. Family A expected structural NO-OP (max 2 entries per contract per day on B) -- the runner must VERIFY and report that claim, not assume it."
+    }
+  },
+  "counterfactual_semantics": "Taken-counted sequential walk, identical to joint_optimiser_2026_08_06.py: one chronological event stream per ET date, exits book before entries at equal timestamps, a BLOCKED position contributes $0, never increments any counter (including Family A's consecutive-loss counters), never books a loss. Deletion arithmetic on real fills; no exit re-walked, no fill re-priced, no capital redeployed. ABSTAIN (feature unavailable) never blocks.",
+  "bars": {
+    "granularity": "5m RTH bars 09:30-16:00 ET, CLOSED only (bar open + 5min <= entry time), from backtest/data/spy_5m_2026-05-19_2026-08-06.csv for population A; pinned 2025 lineage for population B.",
+    "no_lookahead": "Every feature at entry uses only bars fully closed strictly before the fill timestamp and only prior trading days' completed data. L235/C6 discipline."
+  },
+  "fresh_cells": {
+    "family_A_consecutive_loss_state": {
+      "hypothesis": "After N consecutive booked losers on the SAME key intraday, the next entry on that key is chop-churn (ordinal ladder evidence: 4th -$257 n=9, 5th+ -$463 n=3 WR 0% -- inherited, cited).",
+      "cells": [
+        {"id": "A-CONSEC-CONTRACT-2", "rule": "block entry when prior consecutive TAKEN losers on (arm, date_et, symbol) >= 2"},
+        {"id": "A-CONSEC-CONTRACT-3", "rule": "block entry when prior consecutive TAKEN losers on (arm, date_et, symbol) >= 3"},
+        {"id": "A-CONSEC-SETUP-2", "rule": "block entry when prior consecutive TAKEN losers on (arm, date_et, setup) >= 2; setup==None -> ABSTAIN"},
+        {"id": "A-CONSEC-SETUP-3", "rule": "block entry when prior consecutive TAKEN losers on (arm, date_et, setup) >= 3; setup==None -> ABSTAIN"}
+      ],
+      "loss_definition": "pnl < 0 on the closed position; a winner resets the key's counter to 0; counters are per-day (no cross-day memory).",
+      "distinct_from": "CAP3 (count cap, not loss-conditional -- a 4th entry after 3 winners is allowed here); CONSEC4 (arm-level across ALL contracts/setups, already measured, inherited)."
+    },
+    "family_B_realized_range_ratio": {
+      "hypothesis": "Chop = compressed realized range. Entries taken while the session's realized range (at entry time) is far below the 20-day median for that same time-of-day cutoff fare worse.",
+      "feature": "rr = (max(high)-min(low) over today's closed 5m RTH bars at entry) / median over the prior 20 trading days of (max(high)-min(low) over that day's 5m RTH bars closed by the same HH:MM cutoff). ABSTAIN if <15 prior days available or no closed bar yet today.",
+      "cells": [
+        {"id": "B-RR-050", "rule": "block when rr < 0.50"},
+        {"id": "B-RR-060", "rule": "block when rr < 0.60"},
+        {"id": "B-RR-070", "rule": "block when rr < 0.70"},
+        {"id": "B-RR-080", "rule": "block when rr < 0.80"}
+      ],
+      "direction_note": "Only the LOW side is tested (chop = compression). No high-side cell is pre-registered; none may be added post-hoc without a fresh prereg."
+    },
+    "family_C_structure_timing": {
+      "hypothesis": "J's philosophy: structure shift at the zone, never chase. A day with no structure events yet, or a stale last event, is chop-state for a momentum/level engine.",
+      "engine": "crypto.lib.market_structure.analyze_structure / walk_structure, DEFAULT_WINDOW=2 fractal, per-day (bars since 09:30 only, no cross-day memory), events = BOS/CHoCH whose BREAK bar is fully closed <= entry time.",
+      "cells": [
+        {"id": "C-NOEVT", "rule": "block when ZERO structure events have completed today before the entry"},
+        {"id": "C-TSSE-30", "rule": "block when minutes since last event's break-bar close > 30; NOEVT -> ABSTAIN (measured by C-NOEVT, never double-counted)"},
+        {"id": "C-TSSE-60", "rule": "block when minutes since last event's break-bar close > 60; NOEVT -> ABSTAIN"},
+        {"id": "C-AGAINST", "rule": "block when the last completed event's direction disagrees with trade side (C needs bullish, P needs bearish); NOEVT -> ABSTAIN. GRAVEYARD-ADJACENT: verdict CAPPED at SHADOW (cousin of structure_shift_confirmation, DEAD 2026-07-28 DO_NOT_ARM)"}
+      ]
+    }
+  },
+  "battery": {
+    "gates": "Identical G1-G8 battery as lever_entry_count_2026_08_06.py: G1 Tuesday >= -$100 (hard), G2 Thursday >= -$100 (hard), G3 Wednesday > 0, G4 population total > 0, G5 ex-Wed >= 0, G6 zero days harmed, G7 n_blocked >= 5, G8 population B >= 0 or NO_OP.",
+    "discrimination": "within-day permutation (hold each day's blocked COUNT fixed, randomize which positions), seed 20260806, 20000 draws, one-sided.",
+    "multiplicity": "BH q over the 12 fresh cells with base m = max(17, n_measured) -- never less conservative than the parent 17-cell study. Bonferroni x17 also reported. Judgment bar: q <= 0.10.",
+    "n_cells_frozen": 12
+  },
+  "lever_preregs_for_later_arming": {
+    "BRK600_fleet_realized_breaker": {
+      "status": "PREREG ONLY -- surface does not exist; do not build the ENFORCING breaker yet (KEEP-LOSSES ladder #2).",
+      "build_spec": {
+        "basis": "REALIZED intraday P&L, NEVER equity (equity basis was ARMED on Thursday +$1,465 from 10:57 ET -- it punishes the chandelier profit-lock the engine is built on).",
+        "aggregation": "Sum of booked round-trip realized P&L across ALL live arms (core safe+bold + fleet arms) per ET date, in exit-time order.",
+        "latch": "Latching: once fleet_realized <= -600.00, blocked-for-day. Blocks NEW entries only; never force-liquidates an open position.",
+        "partial_read_rule": "If any live arm's fills cannot be read this tick, the tick is NON-ACTIONABLE: no trip may latch off a partial sum (a missing profitable arm overstates the pooled loss -> false trip). Log DEGRADED to the shadow ledger instead.",
+        "flag_first": "fleet_breaker_enabled: false must exist in fleet params BEFORE any enforcement logic ships (the one-line revert must pre-exist the feature).",
+        "threshold_frozen": "-600.00 USD, frozen HERE before any confirming run. Basis: $73 margin over the deepest recovering-day drawdown and an $800-wide safe band (-550..-1350), NOT the Wednesday ranking."
+      },
+      "forward_evidence_clock": {
+        "recorder": "setup/scripts/chop_exposure_meter.py (shipped this lane, measurement-only) computes nightly from fills-ledger.jsonl: fleet-pooled realized intraday path, its floor, and would_trip_at_-600 (latch time if any). Artifact: automation/state/chop-exposure-{date}.json. This gives the breaker prereg its forward evidence from day one WITHOUT building the enforcing surface.",
+        "window": ">= 10 sessions from first recorded session",
+        "pass": "zero would-trip events on any day that ends green; any would-trip day ends red",
+        "kill": "would-trip on any day that then ends green (ladder #2 kill, verbatim); or the pooled floor dips past -600 and recovers to green (never seen in 26 dates, nearest miss $73)"
+      }
+    },
+    "CAP3_per_contract": {
+      "status": "PREREG (KEEP-LOSSES ladder #3, inherited verbatim). 91% single-day concentration disclosed; forward clock is the ONLY path to evidence.",
+      "rule_frozen": "max 3 entries per (arm, date_et, symbol).",
+      "forward_evidence_clock": {
+        "recorder": "chop_exposure_meter.py counts ordinal>=4 entries nightly (the entries CAP3 would have blocked) -- derivable ex-post from fills-ledger.jsonl with this frozen definition; no shadow producer needed.",
+        "window": ">= 10 sessions AND >= 8 would-block events before judging",
+        "kill": "any blocked 4th+ entry that would have returned > +$300 (priced on real OPRA marks); or ex-motivating-day total goes negative",
+        "revert": "max_entries_per_contract: 99"
+      }
+    },
+    "CONSEC4_arm_halt": {
+      "status": "PREREG optional leg (KEEP-LOSSES ladder #4, inherited verbatim). Total evidence 4 dates; N=3 separately REJECTED (-$1,093 Tuesday).",
+      "rule_frozen": "halt an arm for the day after 4 consecutive booked losers (any contract/setup); winner resets.",
+      "forward_evidence_clock": {
+        "recorder": "derivable ex-post from fills-ledger.jsonl with this frozen definition (chop_exposure_meter.py logs per-arm max consecutive-loss run nightly).",
+        "window": "same >= 10 sessions",
+        "kill": "halts an arm before a session it would have finished green, twice",
+        "revert": "consec_loss_halt_n: 99"
+      }
+    }
+  },
+  "chop_exposure_meter": {
+    "contract": "MEASUREMENT ONLY. Reads fills-ledger.jsonl + 5m bars; writes automation/state/chop-exposure-{date}.json; renders one nightly line in firm-brief.md (cached-artifact read, fail-open, additive -- firm_brief's sections/verdicts unchanged). Never blocks anything, never touches params, never places or cancels orders.",
+    "line_reports": "n_entries | ordinal>=4 | against V-d1 (last closed 5m bar disagrees, flat counts as disagree -- identical semantics to lever_entry_count c6_block) | zero-structure-event entries | max consec-loss run | fleet pooled realized floor + would_trip_at_-600",
+    "fail_open": "If the 5m bar fetch fails, bar-dependent columns render n/a with a DEGRADED note; ledger-derived columns still report. A missing artifact renders 'meter has not run' in firm_brief, never an exception."
+  }
+}
