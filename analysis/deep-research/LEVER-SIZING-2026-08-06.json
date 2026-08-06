@@ -1,0 +1,1517 @@
+{
+ "lens": "LEVER 2 -- SIZING AS THE LOSS AMPLIFIER",
+ "run_at_et": "2026-08-06T15:09:38",
+ "populations": {
+  "A_book": {
+   "n_positions": 208,
+   "n_dates": 26,
+   "date_range": [
+    "2026-06-26",
+    "2026-08-06"
+   ],
+   "arms": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-2",
+    "safe-3"
+   ],
+   "authority": "REAL BROKER FILLS, automation/state/fills-ledger.jsonl"
+  },
+  "B_replay": {
+   "n_trades": 191,
+   "n_traded_days": 141,
+   "n_calendar_rth_days": 387,
+   "window": [
+    "2025-01-02",
+    "2026-07-22"
+   ],
+   "qty": "FIXED 3 == the Rule-6 floor; size-DOWN inexpressible",
+   "authority": "exits re-walked through exit_manager.plan_exit_actions"
+  }
+ },
+ "METHOD": "A sizing policy is a per-position SCALAR on real realised P&L. No exit model is used or needed on population A -- this is arithmetic on real broker fills, which is strictly more faithful than any replay. Rule 6's min-3 floor is applied to every cell. Sequential per (arm, date); no independent trades are recombined.",
+ "q1_wednesday_gap": {
+  "_question": "risky-1 -$140 vs risky-3 -$1,462 on identical decisions. Where is the 10.4x?",
+  "arm_config": {
+   "risky-1": "qty 5 | strike_tier_table=bold_core (ATM) | exit_patch tp1_premium_pct=0.5, stop_mode=structure",
+   "risky-3": "qty 8 | strike_tier_table=bold_core (ATM) | exit_patch stop_mode=structure, profit_lock_mode=trailing, trail_pct=0.20 (TP1 = registry 1.0 = +100%)"
+  },
+  "STRIKE_TIER_CONTRIBUTES_ZERO": "Both arms carry strike_tier_table='bold_core' (ATM) since 2026-08-01 and bought the IDENTICAL contracts on 2026-08-05 (SPY260805C00776000 x5 each, SPY260805P00772000 x1 each). The ATM-tier extension therefore explains EXACTLY $0.00 of the r1-vs-r3 gap. It is a real open question for the arm's absolute P&L (cell f) -- it is NOT part of this gap, and any decomposition that charges it here is wrong.",
+  "options_only_pnl": {
+   "risky-1": -138.0,
+   "risky-3": -1458.0,
+   "gap": -1320.0
+  },
+  "pairs": [
+   {
+    "symbol": "SPY260805C00776000",
+    "ordinal": 1,
+    "entry_t_r1": "09:58:05",
+    "r1": {
+     "qty": 5,
+     "entry": 2.37,
+     "exit_vwap": 2.2,
+     "pnl": -85.0
+    },
+    "r3": {
+     "qty": 8,
+     "entry": 2.35,
+     "exit_vwap": 2.18,
+     "pnl": -136.0
+    },
+    "gap": -51.0,
+    "shapley": {
+     "qty": -51.0,
+     "entry": 13.0,
+     "exit": -13.0
+    },
+    "shapley_sum_check": 0.0
+   },
+   {
+    "symbol": "SPY260805C00776000",
+    "ordinal": 2,
+    "entry_t_r1": "10:06:05",
+    "r1": {
+     "qty": 5,
+     "entry": 2.27,
+     "exit_vwap": 2.14,
+     "pnl": -65.0
+    },
+    "r3": {
+     "qty": 8,
+     "entry": 2.27,
+     "exit_vwap": 2.17,
+     "pnl": -80.0
+    },
+    "gap": -15.0,
+    "shapley": {
+     "qty": -34.5,
+     "entry": 0.0,
+     "exit": 19.5
+    },
+    "shapley_sum_check": 0.0
+   },
+   {
+    "symbol": "SPY260805C00776000",
+    "ordinal": 3,
+    "entry_t_r1": "10:10:06",
+    "r1": {
+     "qty": 5,
+     "entry": 2.2,
+     "exit_vwap": 2.0,
+     "pnl": -100.0
+    },
+    "r3": {
+     "qty": 8,
+     "entry": 2.19,
+     "exit_vwap": 1.99,
+     "pnl": -160.0
+    },
+    "gap": -60.0,
+    "shapley": {
+     "qty": -60.0,
+     "entry": 6.5,
+     "exit": -6.5
+    },
+    "shapley_sum_check": 0.0
+   },
+   {
+    "symbol": "SPY260805C00776000",
+    "ordinal": 4,
+    "entry_t_r1": "10:14:05",
+    "r1": {
+     "qty": 5,
+     "entry": 2.12,
+     "exit_vwap": 1.96,
+     "pnl": -80.0
+    },
+    "r3": {
+     "qty": 8,
+     "entry": 2.12,
+     "exit_vwap": 1.9675,
+     "pnl": -122.0
+    },
+    "gap": -42.0,
+    "shapley": {
+     "qty": -46.875,
+     "entry": 0.0,
+     "exit": 4.875
+    },
+    "shapley_sum_check": 0.0
+   },
+   {
+    "symbol": "SPY260805C00776000",
+    "ordinal": 5,
+    "entry_t_r1": "10:18:06",
+    "r1": {
+     "qty": 5,
+     "entry": 2.06,
+     "exit_vwap": 1.75,
+     "pnl": -155.0
+    },
+    "r3": {
+     "qty": 8,
+     "entry": 2.09,
+     "exit_vwap": 1.72,
+     "pnl": -296.0
+    },
+    "gap": -141.0,
+    "shapley": {
+     "qty": -102.0,
+     "entry": -19.5,
+     "exit": -19.5
+    },
+    "shapley_sum_check": 0.0
+   },
+   {
+    "symbol": "SPY260805P00772000",
+    "ordinal": 1,
+    "entry_t_r1": "11:48:05",
+    "r1": {
+     "qty": 5,
+     "entry": 1.69,
+     "exit_vwap": 2.384,
+     "pnl": 347.0
+    },
+    "r3": {
+     "qty": 8,
+     "entry": 1.65,
+     "exit_vwap": 0.82,
+     "pnl": -664.0
+    },
+    "gap": -1011.0,
+    "shapley": {
+     "qty": -20.4,
+     "entry": 26.0,
+     "exit": -1016.6
+    },
+    "shapley_sum_check": 0.0
+   }
+  ],
+  "unmatched_positions": [],
+  "shapley_total_3lever": {
+   "qty": -314.77,
+   "entry": 26.0,
+   "exit": -1031.22
+  },
+  "shapley_sum_check": 0.0,
+  "shapley_pct_of_gap": {
+   "qty": 23.8,
+   "entry": -2.0,
+   "exit": 78.1
+  },
+  "by_contract_group": {
+   "CALLS_776C_spiral": {
+    "qty": -294.38,
+    "entry": 0.0,
+    "exit": -14.62,
+    "gap": -309.0,
+    "r1_pnl": -485.0,
+    "r3_pnl": -794.0,
+    "n": 5
+   },
+   "PUT_772P": {
+    "qty": -20.4,
+    "entry": 26.0,
+    "exit": -1016.6,
+    "gap": -1011.0,
+    "r1_pnl": 347.0,
+    "r3_pnl": -664.0,
+    "n": 1
+   }
+  },
+  "prior_audit_reproduction": {
+   "factorial_2x2": {
+    "qty5_tp1_50_ACTUAL_r1": -138.0,
+    "qty8_tp1_50": -220.8,
+    "qty5_tp1_100": -911.25,
+    "qty8_tp1_100_ACTUAL_r3": -1458.0
+   },
+   "prior_size_effect_reported": 546.75,
+   "prior_size_effect_recomputed": 546.75,
+   "prior_knob_effect_reported": 1237.2,
+   "prior_knob_effect_recomputed": 1237.2,
+   "why_they_sum_to_135pct": "Both prior figures are LAST-IN waterfall marginals measured at the OTHER factor's risky-3 level: size was priced at TP1=+100% and the knob was priced at qty 8. Each is individually correct as a marginal; they overlap by the interaction term $463.95 and CANNOT be added.",
+   "corrected_2lever_shapley": {
+    "size": -314.77,
+    "exit_knob": -1005.23
+   },
+   "corrected_3lever_shapley": {
+    "qty": -314.77,
+    "entry": 26.0,
+    "exit": -1031.22
+   }
+  }
+ },
+ "q2_policies": {
+  "_question": "Which sizing policy caps Wednesday without touching Tuesday?",
+  "live_baseline_book": {
+   "total": 1782.01,
+   "TUE": 3624.0,
+   "WED": -1935.0,
+   "THU": 1465.0,
+   "n_days": 26
+  },
+  "live_baseline_replay": {
+   "total": 4808.75,
+   "n_days": 141,
+   "n_trades": 191
+  },
+  "a_flat_qty_BOOK": {
+   "flat_qty_3": {
+    "label": "every arm at qty 3",
+    "total": 1447.01,
+    "delta_total": -335.0,
+    "TUE_2026_08_04": 2658.9,
+    "TUE_delta": -965.1,
+    "WED_2026_08_05": -968.55,
+    "WED_delta": 966.45,
+    "THU_2026_08_06": 827.85,
+    "THU_delta": -637.15,
+    "delta_ex_week": 300.8,
+    "n_days_harmed": 7,
+    "n_days_helped": 15,
+    "worst_day_harmed": [
+     "2026-08-04",
+     -965.1
+    ]
+   },
+   "flat_qty_4": {
+    "label": "every arm at qty 4",
+    "total": 1929.35,
+    "delta_total": 147.34,
+    "TUE_2026_08_04": 3545.2,
+    "TUE_delta": -78.8,
+    "WED_2026_08_05": -1291.4,
+    "WED_delta": 643.6,
+    "THU_2026_08_06": 1103.8,
+    "THU_delta": -361.2,
+    "delta_ex_week": -56.26,
+    "n_days_harmed": 13,
+    "n_days_helped": 12,
+    "worst_day_harmed": [
+     "2026-08-06",
+     -361.2
+    ]
+   },
+   "flat_qty_5": {
+    "label": "every arm at qty 5",
+    "total": 2411.68,
+    "delta_total": 629.67,
+    "TUE_2026_08_04": 4431.5,
+    "TUE_delta": 807.5,
+    "WED_2026_08_05": -1614.25,
+    "WED_delta": 320.75,
+    "THU_2026_08_06": 1379.75,
+    "THU_delta": -85.25,
+    "delta_ex_week": -413.33,
+    "n_days_harmed": 15,
+    "n_days_helped": 7,
+    "worst_day_harmed": [
+     "2026-07-27",
+     -202.0
+    ]
+   },
+   "flat_qty_6": {
+    "label": "every arm at qty 6",
+    "total": 2894.02,
+    "delta_total": 1112.01,
+    "TUE_2026_08_04": 5317.8,
+    "TUE_delta": 1693.8,
+    "WED_2026_08_05": -1937.1,
+    "WED_delta": -2.1,
+    "THU_2026_08_06": 1655.7,
+    "THU_delta": 190.7,
+    "delta_ex_week": -770.39,
+    "n_days_harmed": 18,
+    "n_days_helped": 8,
+    "worst_day_harmed": [
+     "2026-07-27",
+     -408.0
+    ]
+   },
+   "flat_qty_8": {
+    "label": "every arm at qty 8",
+    "total": 3858.69,
+    "delta_total": 2076.68,
+    "TUE_2026_08_04": 7090.4,
+    "TUE_delta": 3466.4,
+    "WED_2026_08_05": -2582.8,
+    "WED_delta": -647.8,
+    "THU_2026_08_06": 2207.6,
+    "THU_delta": 742.6,
+    "delta_ex_week": -1484.52,
+    "n_days_harmed": 18,
+    "n_days_helped": 8,
+    "worst_day_harmed": [
+     "2026-07-27",
+     -820.0
+    ]
+   }
+  },
+  "a_flat_qty_REPLAY": {
+   "flat_qty_3": {
+    "label": "every trade at qty 3",
+    "total": 3845.77,
+    "delta_total": -962.98,
+    "TUE_2026_08_04": 0.0,
+    "TUE_delta": 0.0,
+    "WED_2026_08_05": 0.0,
+    "WED_delta": 0.0,
+    "THU_2026_08_06": 0.0,
+    "THU_delta": 0.0,
+    "delta_ex_week": -962.98,
+    "n_days_harmed": 22,
+    "n_days_helped": 31,
+    "worst_day_harmed": [
+     "2026-02-23",
+     -308.0
+    ]
+   },
+   "flat_qty_4": {
+    "label": "every trade at qty 4",
+    "total": 5127.7,
+    "delta_total": 318.95,
+    "TUE_2026_08_04": 0.0,
+    "TUE_delta": 0.0,
+    "WED_2026_08_05": 0.0,
+    "WED_delta": 0.0,
+    "THU_2026_08_06": 0.0,
+    "THU_delta": 0.0,
+    "delta_ex_week": 318.95,
+    "n_days_harmed": 86,
+    "n_days_helped": 45,
+    "worst_day_harmed": [
+     "2026-06-25",
+     -275.0
+    ]
+   },
+   "flat_qty_5": {
+    "label": "every trade at qty 5",
+    "total": 6409.63,
+    "delta_total": 1600.88,
+    "TUE_2026_08_04": 0.0,
+    "TUE_delta": 0.0,
+    "WED_2026_08_05": 0.0,
+    "WED_delta": 0.0,
+    "THU_2026_08_06": 0.0,
+    "THU_delta": 0.0,
+    "delta_ex_week": 1600.88,
+    "n_days_harmed": 87,
+    "n_days_helped": 45,
+    "worst_day_harmed": [
+     "2026-06-25",
+     -550.0
+    ]
+   }
+  },
+  "a_ORACLE_FLOOR_BOUND": {
+   "_what": "qty 3 on every arm every trade is the TIGHTEST LEGAL SIZE under Rule 6. It is therefore the ORACLE lower bound on what ANY shrink-only sizing policy can achieve on Wednesday -- no cell in this lane, conditional or not, can beat it.",
+   "WED_at_rule6_floor": -968.55,
+   "TUE_cost_at_rule6_floor": -965.1,
+   "THU_cost_at_rule6_floor": -637.15,
+   "VERDICT": "Sizing alone CANNOT produce a -$500 Wednesday: the legal floor still leaves -968.55 and it costs Tuesday -965.10 + Thursday -637.15 to get there."
+  },
+  "bc_halve_after_1_loss_arm_BOOK": {
+   "label": "halve after 1 closed losing round trip(s), arm-scoped",
+   "total": 1675.01,
+   "delta_total": -107.0,
+   "TUE_2026_08_04": 2818.0,
+   "TUE_delta": -806.0,
+   "WED_2026_08_05": -1252.8,
+   "WED_delta": 682.2,
+   "THU_2026_08_06": 1465.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": 16.8,
+   "n_days_harmed": 2,
+   "n_days_helped": 7,
+   "worst_day_harmed": [
+    "2026-08-04",
+    -806.0
+   ]
+  },
+  "bc_halve_after_2_loss_arm_BOOK": {
+   "label": "halve after 2 closed losing round trip(s), arm-scoped",
+   "total": 1789.01,
+   "delta_total": 7.0,
+   "TUE_2026_08_04": 2998.0,
+   "TUE_delta": -626.0,
+   "WED_2026_08_05": -1318.8,
+   "WED_delta": 616.2,
+   "THU_2026_08_06": 1465.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": 16.8,
+   "n_days_harmed": 2,
+   "n_days_helped": 6,
+   "worst_day_harmed": [
+    "2026-08-04",
+    -626.0
+   ]
+  },
+  "bc_halve_after_3_loss_arm_BOOK": {
+   "label": "halve after 3 closed losing round trip(s), arm-scoped",
+   "total": 1576.21,
+   "delta_total": -205.8,
+   "TUE_2026_08_04": 2882.0,
+   "TUE_delta": -742.0,
+   "WED_2026_08_05": -1438.8,
+   "WED_delta": 496.2,
+   "THU_2026_08_06": 1465.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": 40.0,
+   "n_days_harmed": 1,
+   "n_days_helped": 3,
+   "worst_day_harmed": [
+    "2026-08-04",
+    -742.0
+   ]
+  },
+  "bc_halve_after_1_loss_fleet_BOOK": {
+   "label": "halve after 1 closed losing round trip(s), fleet-scoped",
+   "total": 1443.81,
+   "delta_total": -338.2,
+   "TUE_2026_08_04": 2596.4,
+   "TUE_delta": -1027.6,
+   "WED_2026_08_05": -1252.8,
+   "WED_delta": 682.2,
+   "THU_2026_08_06": 1465.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": 7.2,
+   "n_days_harmed": 3,
+   "n_days_helped": 8,
+   "worst_day_harmed": [
+    "2026-08-04",
+    -1027.6
+   ]
+  },
+  "bc_halve_after_2_loss_fleet_BOOK": {
+   "label": "halve after 2 closed losing round trip(s), fleet-scoped",
+   "total": 1249.81,
+   "delta_total": -532.2,
+   "TUE_2026_08_04": 2596.4,
+   "TUE_delta": -1027.6,
+   "WED_2026_08_05": -1252.8,
+   "WED_delta": 682.2,
+   "THU_2026_08_06": 1465.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": -186.8,
+   "n_days_harmed": 3,
+   "n_days_helped": 6,
+   "worst_day_harmed": [
+    "2026-08-04",
+    -1027.6
+   ]
+  },
+  "bc_halve_after_3_loss_fleet_BOOK": {
+   "label": "halve after 3 closed losing round trip(s), fleet-scoped",
+   "total": 1567.41,
+   "delta_total": -214.6,
+   "TUE_2026_08_04": 2832.4,
+   "TUE_delta": -791.6,
+   "WED_2026_08_05": -1318.8,
+   "WED_delta": 616.2,
+   "THU_2026_08_06": 1465.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": -39.2,
+   "n_days_harmed": 2,
+   "n_days_helped": 6,
+   "worst_day_harmed": [
+    "2026-08-04",
+    -791.6
+   ]
+  },
+  "bc_halve_after_1_loss_REPLAY": {
+   "label": "halve after 1 closed losing round trip(s), 141-day population",
+   "total": 3904.76,
+   "delta_total": -903.99,
+   "TUE_2026_08_04": 0.0,
+   "TUE_delta": 0.0,
+   "WED_2026_08_05": 0.0,
+   "WED_delta": 0.0,
+   "THU_2026_08_06": 0.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": -903.99,
+   "n_days_harmed": 10,
+   "n_days_helped": 13,
+   "worst_day_harmed": [
+    "2026-02-23",
+    -308.0
+   ]
+  },
+  "bc_halve_after_2_loss_REPLAY": {
+   "label": "halve after 2 closed losing round trip(s), 141-day population",
+   "total": 4943.35,
+   "delta_total": 134.6,
+   "TUE_2026_08_04": 0.0,
+   "TUE_delta": 0.0,
+   "WED_2026_08_05": 0.0,
+   "WED_delta": 0.0,
+   "THU_2026_08_06": 0.0,
+   "THU_delta": 0.0,
+   "delta_ex_week": 134.6,
+   "n_days_harmed": 0,
+   "n_days_helped": 3,
+   "worst_day_harmed": null
+  },
+  "bc_SELECTION_TEST": {
+   "_why": "THE decisive test for cells (b) and (c), and the only one that is SCALE-FREE -- it does not care that 130 of population B's 191 trades already sit at the Rule-6 floor and cannot shrink. A shrink-on-loss policy is worth something ONLY if the trades it shrinks are, on average, losers. Run on both populations; if the post-loss cohort is the PROFITABLE one, the policy is refuted no matter how the thresholds are tuned.",
+   "BOOK": {
+    "by_prior_closed_losses": {
+     "after_0_losses": {
+      "n": 70,
+      "total": 281.01,
+      "mean": 4.01,
+      "win_pct": 21.4
+     },
+     "after_1_losses": {
+      "n": 10,
+      "total": -878.01,
+      "mean": -87.8,
+      "win_pct": 0.0
+     },
+     "after_2_losses": {
+      "n": 21,
+      "total": 892.0,
+      "mean": 42.48,
+      "win_pct": 28.6
+     },
+     "after_3_losses+": {
+      "n": 107,
+      "total": 1487.01,
+      "mean": 13.9,
+      "win_pct": 16.8
+     }
+    },
+    "halve_after_1_cohort": {
+     "n_shrunk": 138,
+     "total_shrunk": 1501.0,
+     "mean_shrunk": 10.88,
+     "n_kept": 70,
+     "total_kept": 281.01,
+     "mean_kept": 4.01,
+     "VERDICT": "SELECTS WINNERS -- shrinking this cohort DESTROYS money"
+    }
+   },
+   "REPLAY": {
+    "by_prior_closed_losses": {
+     "after_0_losses": {
+      "n": 155,
+      "total": 2973.65,
+      "mean": 19.18,
+      "win_pct": 28.4
+     },
+     "after_1_losses": {
+      "n": 33,
+      "total": 2123.3,
+      "mean": 64.34,
+      "win_pct": 36.4
+     },
+     "after_2_losses": {
+      "n": 3,
+      "total": -288.2,
+      "mean": -96.07,
+      "win_pct": 0.0
+     }
+    },
+    "halve_after_1_cohort": {
+     "n_shrunk": 36,
+     "total_shrunk": 1835.1,
+     "mean_shrunk": 50.98,
+     "n_kept": 155,
+     "total_kept": 2973.65,
+     "mean_kept": 19.18,
+     "VERDICT": "SELECTS WINNERS -- shrinking this cohort DESTROYS money"
+    }
+   }
+  },
+  "bc_TUESDAY_TRIGGER_FORENSICS": {
+   "_finding": "Tuesday's FIRST closed round trip is a LOSER, at 09:47:07, 77 seconds into the first trade of the biggest winning day in the book. Every halve-after-a-loss policy therefore arms on Tuesday before 09:48 and shrinks the rest of the day -- including the +$4.87 runner and the 12:28 769C. That is the whole reason cells (b) and (c) fail the hard gate; it is not a threshold that can be tuned around, it is the shape of the day.",
+   "first_closed_round_trip": {
+    "exit_ts_et": "2026-08-04T09:47:06.490816",
+    "positions": [
+     {
+      "arm": "risky-1",
+      "symbol": "SPY260804C00762000",
+      "entry": "09:46:07",
+      "exit": "09:47:06",
+      "pnl": -75.0
+     }
+    ]
+   },
+   "n_positions_after_first_loss": 23,
+   "pnl_after_first_loss": 3803.0,
+   "pnl_before_first_loss": -179.0,
+   "biggest_winners_in_the_shrunk_cohort": [
+    {
+     "arm": "risky-3",
+     "t": "12:28:11",
+     "symbol": "SPY260804C00769000",
+     "pnl": 788.0
+    },
+    {
+     "arm": "risky-1",
+     "t": "12:28:10",
+     "symbol": "SPY260804C00769000",
+     "pnl": 651.0
+    },
+    {
+     "arm": "risky-1",
+     "t": "09:50:07",
+     "symbol": "SPY260804C00763000",
+     "pnl": 640.0
+    },
+    {
+     "arm": "bold-2",
+     "t": "09:57:09",
+     "symbol": "SPY260804C00763000",
+     "pnl": 614.0
+    },
+    {
+     "arm": "risky-3",
+     "t": "09:57:09",
+     "symbol": "SPY260804C00763000",
+     "pnl": 524.0
+    }
+   ]
+  },
+  "size_gradient": {
+   "_question": "Does the population support 'big lots lose', once premium is controlled?",
+   "BOOK": {
+    "by_qty_band": {
+     "3": {
+      "n": 99,
+      "total": 412.01,
+      "per_trade": 4.16,
+      "per_contract": 1.39,
+      "median_entry_premium": 0.76
+     },
+     "4-5": {
+      "n": 84,
+      "total": 2230.0,
+      "per_trade": 26.55,
+      "per_contract": 5.31,
+      "median_entry_premium": 0.45
+     },
+     "6-8": {
+      "n": 20,
+      "total": -704.0,
+      "per_trade": -35.2,
+      "per_contract": -4.4,
+      "median_entry_premium": 1.36
+     },
+     "9+": {
+      "n": 5,
+      "total": -156.0,
+      "per_trade": -31.2,
+      "per_contract": -2.6,
+      "median_entry_premium": 0.1
+     }
+    },
+    "premium_stratified_control": {
+     "premium_$0.00-$1.00": {
+      "n_small_qty<=5": 125,
+      "n_big_qty>=6": 13,
+      "per_contract_small": 1.64,
+      "per_contract_big": -3.13
+     },
+     "premium_$1.00-$1.50": {
+      "n_small_qty<=5": 45,
+      "n_big_qty>=6": 4,
+      "per_contract_small": 13.77,
+      "per_contract_big": 38.56
+     },
+     "premium_$1.50-$99.00": {
+      "n_small_qty<=5": 13,
+      "n_big_qty>=6": 8,
+      "per_contract_small": -8.56,
+      "per_contract_big": -26.66
+     }
+    }
+   },
+   "REPLAY": {
+    "by_qty_band": {
+     "3": {
+      "n": 130,
+      "total": 1132.85,
+      "per_trade": 8.71,
+      "per_contract": 2.9,
+      "median_entry_premium": 1.35
+     },
+     "4-5": {
+      "n": 44,
+      "total": 4396.7,
+      "per_trade": 99.92,
+      "per_contract": 22.55,
+      "median_entry_premium": 1.1
+     },
+     "6-8": {
+      "n": 15,
+      "total": -373.8,
+      "per_trade": -24.92,
+      "per_contract": -3.89,
+      "median_entry_premium": 0.78
+     },
+     "9+": {
+      "n": 2,
+      "total": -347.0,
+      "per_trade": -173.5,
+      "per_contract": -15.09,
+      "median_entry_premium": 0.46
+     }
+    },
+    "premium_stratified_control": {
+     "premium_$0.00-$1.00": {
+      "n_small_qty<=5": 52,
+      "n_big_qty>=6": 17,
+      "per_contract_small": 8.43,
+      "per_contract_big": -6.06
+     },
+     "premium_$1.00-$1.50": {
+      "n_small_qty<=5": 75,
+      "n_big_qty>=6": 0,
+      "per_contract_small": 11.97,
+      "per_contract_big": null
+     },
+     "premium_$1.50-$99.00": {
+      "n_small_qty<=5": 47,
+      "n_big_qty>=6": 0,
+      "per_contract_small": 6.2,
+      "per_contract_big": null
+     }
+    }
+   },
+   "_confound_warning": "In BOTH populations qty is set by a dollar risk cap, so qty is mechanically INVERSE to entry premium (REPLAY median premium falls 1.35 -> 0.40 as qty rises 3 -> 13). A raw 'big lots lose' reading is therefore confounded with 'cheap contracts lose', which the return-on-notional table measures independently. The stratified rows above are the control; read those, not the raw band."
+  },
+  "d_vol_scaled": {
+   "_spec": "qty_new = max(3, round(qty * clip(ref_vol / vol_at_entry, lo, hi))). vol_at_entry = mean 5-min (high-low)/close % over the 6 CLOSED bars before entry (strictly causal). ref_vol = that population's OWN median.",
+   "ref_vol_book_pct": 0.09577,
+   "ref_vol_replay_pct": 0.08971,
+   "n_missing_vol_book": 0,
+   "n_missing_vol_replay": 3,
+   "WED_vol_vs_TUE": {
+    "2026-08-04": {
+     "n": 25,
+     "median_entry_vol_pct": 0.075
+    },
+    "2026-08-05": {
+     "n": 14,
+     "median_entry_vol_pct": 0.1647
+    },
+    "2026-08-06": {
+     "n": 4,
+     "median_entry_vol_pct": 0.0926
+    }
+   },
+   "BOOK": {
+    "clip_0.5_1.0": {
+     "label": "vol-scaled, multiplier clipped to [0.5, 1.0]",
+     "total": 2082.26,
+     "delta_total": 300.25,
+     "TUE_2026_08_04": 3453.5,
+     "TUE_delta": -170.5,
+     "WED_2026_08_05": -1419.65,
+     "WED_delta": 515.35,
+     "THU_2026_08_06": 1465.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": -44.6,
+     "n_days_harmed": 6,
+     "n_days_helped": 10,
+     "worst_day_harmed": [
+      "2026-07-29",
+      -401.6
+     ]
+    },
+    "clip_0.5_2.0": {
+     "label": "vol-scaled, multiplier clipped to [0.5, 2.0]",
+     "total": 2276.06,
+     "delta_total": 494.05,
+     "TUE_2026_08_04": 4054.5,
+     "TUE_delta": 430.5,
+     "WED_2026_08_05": -1419.65,
+     "WED_delta": 515.35,
+     "THU_2026_08_06": 1453.0,
+     "THU_delta": -12.0,
+     "delta_ex_week": -439.8,
+     "n_days_harmed": 13,
+     "n_days_helped": 9,
+     "worst_day_harmed": [
+      "2026-07-29",
+      -401.6
+     ]
+    },
+    "clip_0.33_1.0": {
+     "label": "vol-scaled, multiplier clipped to [0.33, 1.0]",
+     "total": 2082.26,
+     "delta_total": 300.25,
+     "TUE_2026_08_04": 3453.5,
+     "TUE_delta": -170.5,
+     "WED_2026_08_05": -1419.65,
+     "WED_delta": 515.35,
+     "THU_2026_08_06": 1465.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": -44.6,
+     "n_days_harmed": 6,
+     "n_days_helped": 10,
+     "worst_day_harmed": [
+      "2026-07-29",
+      -401.6
+     ]
+    }
+   },
+   "REPLAY": {
+    "clip_0.5_1.0": {
+     "label": "vol-scaled, multiplier clipped to [0.5, 1.0]",
+     "total": 4493.75,
+     "delta_total": -315.0,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": -315.0,
+     "n_days_harmed": 7,
+     "n_days_helped": 10,
+     "worst_day_harmed": [
+      "2025-06-13",
+      -131.2
+     ]
+    },
+    "clip_0.5_2.0": {
+     "label": "vol-scaled, multiplier clipped to [0.5, 2.0]",
+     "total": 4762.29,
+     "delta_total": -46.46,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": -46.46,
+     "n_days_harmed": 50,
+     "n_days_helped": 28,
+     "worst_day_harmed": [
+      "2025-08-11",
+      -298.6
+     ]
+    },
+    "clip_1.0_2.0": {
+     "label": "vol-scaled, multiplier clipped to [1.0, 2.0]",
+     "total": 5077.29,
+     "delta_total": 268.54,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": 268.54,
+     "n_days_harmed": 46,
+     "n_days_helped": 18,
+     "worst_day_harmed": [
+      "2025-08-11",
+      -298.6
+     ]
+    }
+   },
+   "REPLAY_floor_note": "Population B is at qty 3 = the Rule-6 floor, so any cell whose clip hi is 1.0 is a guaranteed NO-OP there. Reported anyway so the reader can see it is a no-op rather than assume a result."
+  },
+  "e_premium_scaled": {
+   "_spec": "qty_new = max(3, round(scale * B_arm / (entry_premium*100))); B_arm = mean(entry_notional) over that arm's own real positions (BUDGET-NEUTRAL, in-sample, disclosed).",
+   "_theory": "Constant dollar risk is the direct answer to 'the same signal cost 10x more on one arm'. It pays off ONLY if per-DOLLAR return is flat in premium. If expected return per contract RISES with premium, constant-dollar sizing systematically under-sizes the good trades. That is the decisive test and it is run below on both populations.",
+   "return_on_notional_by_premium_BOOK": {
+    "$0.00-$0.50": {
+     "n": 98,
+     "total_pnl": 40.0,
+     "total_notional": 9623.0,
+     "return_on_notional_pct": 0.42,
+     "mean_pnl_per_contract": 0.08
+    },
+    "$0.50-$1.00": {
+     "n": 40,
+     "total_pnl": 386.0,
+     "total_notional": 9738.0,
+     "return_on_notional_pct": 3.96,
+     "mean_pnl_per_contract": 2.76
+    },
+    "$1.00-$1.50": {
+     "n": 49,
+     "total_pnl": 3533.0,
+     "total_notional": 25230.0,
+     "return_on_notional_pct": 14.0,
+     "mean_pnl_per_contract": 17.75
+    },
+    "$1.50-$2.00": {
+     "n": 11,
+     "total_pnl": -897.99,
+     "total_notional": 8873.99,
+     "return_on_notional_pct": -10.12,
+     "mean_pnl_per_contract": -16.63
+    },
+    "$2.00-$99.00": {
+     "n": 10,
+     "total_pnl": -1279.0,
+     "total_notional": 14326.0,
+     "return_on_notional_pct": -8.93,
+     "mean_pnl_per_contract": -19.68
+    }
+   },
+   "return_on_notional_by_premium_REPLAY": {
+    "$0.00-$0.50": {
+     "n": 5,
+     "total_pnl": -20.05,
+     "total_notional": 973.0,
+     "return_on_notional_pct": -2.06,
+     "mean_pnl_per_contract": -0.8
+    },
+    "$0.50-$1.00": {
+     "n": 64,
+     "total_pnl": 868.05,
+     "total_notional": 22636.0,
+     "return_on_notional_pct": 3.83,
+     "mean_pnl_per_contract": 3.1
+    },
+    "$1.00-$1.50": {
+     "n": 75,
+     "total_pnl": 3087.15,
+     "total_notional": 31769.0,
+     "return_on_notional_pct": 9.72,
+     "mean_pnl_per_contract": 11.97
+    },
+    "$1.50-$2.00": {
+     "n": 28,
+     "total_pnl": 1872.0,
+     "total_notional": 14496.0,
+     "return_on_notional_pct": 12.91,
+     "mean_pnl_per_contract": 22.29
+    },
+    "$2.00-$99.00": {
+     "n": 19,
+     "total_pnl": -998.4,
+     "total_notional": 13203.0,
+     "return_on_notional_pct": -7.56,
+     "mean_pnl_per_contract": -17.52
+    }
+   },
+   "budget_per_arm_dollars": {
+    "risky-3": 493.96,
+    "safe-1": 102.38,
+    "safe-2": 311.47,
+    "risky-1": 372.78,
+    "safe-3": 147.21,
+    "bold-2": 460.0
+   },
+   "BOOK": {
+    "scale_0.5": {
+     "label": "constant dollar risk, budget x0.5",
+     "total": -174.59,
+     "delta_total": -1956.6,
+     "TUE_2026_08_04": 2658.9,
+     "TUE_delta": -965.1,
+     "WED_2026_08_05": -968.55,
+     "WED_delta": 966.45,
+     "THU_2026_08_06": 827.85,
+     "THU_delta": -637.15,
+     "delta_ex_week": -1320.8,
+     "n_days_harmed": 12,
+     "n_days_helped": 10,
+     "worst_day_harmed": [
+      "2026-08-04",
+      -965.1
+     ]
+    },
+    "scale_0.75": {
+     "label": "constant dollar risk, budget x0.75",
+     "total": -828.59,
+     "delta_total": -2610.6,
+     "TUE_2026_08_04": 2653.1,
+     "TUE_delta": -970.9,
+     "WED_2026_08_05": -968.55,
+     "WED_delta": 966.45,
+     "THU_2026_08_06": 827.85,
+     "THU_delta": -637.15,
+     "delta_ex_week": -1969.0,
+     "n_days_harmed": 13,
+     "n_days_helped": 9,
+     "worst_day_harmed": [
+      "2026-06-30",
+      -1229.6
+     ]
+    },
+    "scale_1.0": {
+     "label": "constant dollar risk, budget x1.0",
+     "total": -1199.08,
+     "delta_total": -2981.09,
+     "TUE_2026_08_04": 2811.4,
+     "TUE_delta": -812.6,
+     "WED_2026_08_05": -968.55,
+     "WED_delta": 966.45,
+     "THU_2026_08_06": 931.6,
+     "THU_delta": -533.4,
+     "delta_ex_week": -2601.54,
+     "n_days_harmed": 15,
+     "n_days_helped": 8,
+     "worst_day_harmed": [
+      "2026-06-30",
+      -1733.6
+     ]
+    },
+    "scale_1.25": {
+     "label": "constant dollar risk, budget x1.25",
+     "total": -1669.46,
+     "delta_total": -3451.47,
+     "TUE_2026_08_04": 3086.2,
+     "TUE_delta": -537.8,
+     "WED_2026_08_05": -1051.55,
+     "WED_delta": 883.45,
+     "THU_2026_08_06": 1082.55,
+     "THU_delta": -382.45,
+     "delta_ex_week": -3414.67,
+     "n_days_harmed": 16,
+     "n_days_helped": 8,
+     "worst_day_harmed": [
+      "2026-06-30",
+      -2249.2
+     ]
+    }
+   },
+   "budget_replay_dollars": 434.96,
+   "REPLAY": {
+    "scale_0.5": {
+     "label": "constant dollar risk, budget x0.5",
+     "total": 3923.17,
+     "delta_total": -885.58,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": -885.58,
+     "n_days_harmed": 28,
+     "n_days_helped": 35,
+     "worst_day_harmed": [
+      "2026-02-23",
+      -308.0
+     ]
+    },
+    "scale_0.75": {
+     "label": "constant dollar risk, budget x0.75",
+     "total": 3968.83,
+     "delta_total": -839.92,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": -839.92,
+     "n_days_harmed": 41,
+     "n_days_helped": 35,
+     "worst_day_harmed": [
+      "2025-06-13",
+      -262.4
+     ]
+    },
+    "scale_1.0": {
+     "label": "constant dollar risk, budget x1.0",
+     "total": 4991.64,
+     "delta_total": 182.89,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": 182.89,
+     "n_days_harmed": 49,
+     "n_days_helped": 23,
+     "worst_day_harmed": [
+      "2026-02-23",
+      -125.87
+     ]
+    },
+    "scale_1.25": {
+     "label": "constant dollar risk, budget x1.25",
+     "total": 6315.12,
+     "delta_total": 1506.37,
+     "TUE_2026_08_04": 0.0,
+     "TUE_delta": 0.0,
+     "WED_2026_08_05": 0.0,
+     "WED_delta": 0.0,
+     "THU_2026_08_06": 0.0,
+     "THU_delta": 0.0,
+     "delta_ex_week": 1506.37,
+     "n_days_harmed": 69,
+     "n_days_helped": 32,
+     "worst_day_harmed": [
+      "2026-07-14",
+      -126.0
+     ]
+    }
+   },
+   "REPLAY_floor_note": "Population B is at the Rule-6 floor, so constant-dollar sizing there can only size UP (cheap contracts) -- it can never express the size-DOWN half of the policy. Any REPLAY gain below is a LEVERAGE result, not a risk-control result. Labelled, not netted.",
+   "WED_position_detail": [
+    {
+     "t": "09:58:05",
+     "arm": "risky-1",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.37,
+     "qty": 5,
+     "new_qty": 3,
+     "pnl": -85.0,
+     "new_pnl": -51.0
+    },
+    {
+     "t": "09:58:07",
+     "arm": "risky-3",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.35,
+     "qty": 8,
+     "new_qty": 3,
+     "pnl": -136.0,
+     "new_pnl": -51.0
+    },
+    {
+     "t": "10:01:58",
+     "arm": "safe-2",
+     "symbol": "SPY260805C00777000",
+     "premium": 1.61,
+     "qty": 3,
+     "new_qty": 3,
+     "pnl": -84.0,
+     "new_pnl": -84.0
+    },
+    {
+     "t": "10:06:05",
+     "arm": "risky-1",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.27,
+     "qty": 5,
+     "new_qty": 3,
+     "pnl": -65.0,
+     "new_pnl": -39.0
+    },
+    {
+     "t": "10:06:13",
+     "arm": "risky-3",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.27,
+     "qty": 8,
+     "new_qty": 3,
+     "pnl": -80.0,
+     "new_pnl": -30.0
+    },
+    {
+     "t": "10:10:06",
+     "arm": "risky-1",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.2,
+     "qty": 5,
+     "new_qty": 3,
+     "pnl": -100.0,
+     "new_pnl": -60.0
+    },
+    {
+     "t": "10:10:07",
+     "arm": "risky-3",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.19,
+     "qty": 8,
+     "new_qty": 3,
+     "pnl": -160.0,
+     "new_pnl": -60.0
+    },
+    {
+     "t": "10:14:05",
+     "arm": "risky-1",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.12,
+     "qty": 5,
+     "new_qty": 3,
+     "pnl": -80.0,
+     "new_pnl": -48.0
+    },
+    {
+     "t": "10:14:07",
+     "arm": "risky-3",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.12,
+     "qty": 8,
+     "new_qty": 3,
+     "pnl": -122.0,
+     "new_pnl": -45.75
+    },
+    {
+     "t": "10:18:06",
+     "arm": "risky-1",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.06,
+     "qty": 5,
+     "new_qty": 3,
+     "pnl": -155.0,
+     "new_pnl": -93.0
+    },
+    {
+     "t": "10:18:07",
+     "arm": "risky-3",
+     "symbol": "SPY260805C00776000",
+     "premium": 2.09,
+     "qty": 8,
+     "new_qty": 3,
+     "pnl": -296.0,
+     "new_pnl": -111.0
+    },
+    {
+     "t": "11:48:05",
+     "arm": "risky-1",
+     "symbol": "SPY260805P00772000",
+     "premium": 1.69,
+     "qty": 5,
+     "new_qty": 3,
+     "pnl": 347.0,
+     "new_pnl": 208.2
+    },
+    {
+     "t": "11:48:07",
+     "arm": "risky-3",
+     "symbol": "SPY260805P00772000",
+     "premium": 1.65,
+     "qty": 8,
+     "new_qty": 3,
+     "pnl": -664.0,
+     "new_pnl": -249.0
+    },
+    {
+     "t": "11:49:07",
+     "arm": "safe-2",
+     "symbol": "SPY260805P00772000",
+     "premium": 1.63,
+     "qty": 3,
+     "new_qty": 3,
+     "pnl": -255.0,
+     "new_pnl": -255.0
+    }
+   ]
+  }
+ },
+ "q3_c31": {
+  "_question": "Use C31 as a PRIOR, not as proof. What does J's own book actually say about size?",
+  "source": "C:\\Users\\jackw\\Desktop\\42\\analysis\\j-webull\\trades-normalized.csv",
+  "n_rows": 1099,
+  "n_closed_episodes": 1079,
+  "claude_md_C31_as_written": {
+   "1-2 lots": 4576,
+   "3+ lots": -17461,
+   "scaled_in_per_trade": -327
+  },
+  "episode_level_recomputation": {
+   "1-2": {
+    "n": 884,
+    "total_pnl": -9448.0,
+    "n_contracts": 1116,
+    "pnl_per_contract": -8.47
+   },
+   "3+": {
+    "n": 195,
+    "total_pnl": -12993.0,
+    "n_contracts": 923,
+    "pnl_per_contract": -14.08
+   }
+  },
+  "scaled_in": {
+   "n": 97,
+   "total_pnl": -13249.0,
+   "per_episode": -136.59
+  },
+  "not_scaled_in": {
+   "n": 982,
+   "total_pnl": -9192.0,
+   "per_episode": -9.36
+  },
+  "per_contract_gradient": {
+   "1-2": {
+    "n": 884,
+    "total_pnl": -9448.0,
+    "pnl_per_contract": -8.47,
+    "mean_pnl_per_episode": -10.69
+   },
+   "3-5": {
+    "n": 160,
+    "total_pnl": -8491.0,
+    "pnl_per_contract": -14.44,
+    "mean_pnl_per_episode": -53.07
+   },
+   "6-10": {
+    "n": 32,
+    "total_pnl": -4274.0,
+    "pnl_per_contract": -15.1,
+    "mean_pnl_per_episode": -133.56
+   },
+   "11+": {
+    "n": 3,
+    "total_pnl": -228.0,
+    "pnl_per_contract": -4.38,
+    "mean_pnl_per_episode": -76.0
+   }
+  }
+ },
+ "verification": {
+  "n_checks": 25,
+  "n_pass": 25,
+  "checks": [
+   {
+    "check": "q1 shapley sums to the gap",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "q1 r1 options-only Wed",
+    "got": -138.0,
+    "want": -138.0,
+    "pass": true
+   },
+   {
+    "check": "q1 r3 options-only Wed",
+    "got": -1458.0,
+    "want": -1458.0,
+    "pass": true
+   },
+   {
+    "check": "q1 reproduces prior size marginal 546.75",
+    "got": 546.75,
+    "want": 546.75,
+    "pass": true
+   },
+   {
+    "check": "q1 reproduces prior knob marginal 1237.20",
+    "got": 1237.2,
+    "want": 1237.2,
+    "pass": true
+   },
+   {
+    "check": "book live Wed",
+    "got": -1935.0,
+    "want": -1935.0,
+    "pass": true
+   },
+   {
+    "check": "book live Tue",
+    "got": 3624.0,
+    "want": 3624.0,
+    "pass": true
+   },
+   {
+    "check": "pair shapley exact SPY260805C00776000#1",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "pair shapley exact SPY260805C00776000#2",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "pair shapley exact SPY260805C00776000#3",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "pair shapley exact SPY260805C00776000#4",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "pair shapley exact SPY260805C00776000#5",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "pair shapley exact SPY260805P00772000#1",
+    "got": 0.0,
+    "want": 0.0,
+    "pass": true
+   },
+   {
+    "check": "q1 strike tier contributes zero (identical contracts both arms)",
+    "got": 0,
+    "want": 0,
+    "pass": true
+   },
+   {
+    "check": "Rule-6-floor Wednesday (hand-check: -138*0.6 + -1458*0.375 + -339)",
+    "got": -968.55,
+    "want": -968.55,
+    "pass": true
+   },
+   {
+    "check": "Rule-6 floor cannot reach -500 on Wednesday",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "Rule-6 floor costs Tuesday",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "BOOK: post-loss cohort is MORE profitable per trade than the no-loss cohort",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "REPLAY: post-loss cohort is MORE profitable per trade than the no-loss cohort",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "bc_halve_after_1_loss_arm_BOOK costs Tuesday (hard gate)",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "bc_halve_after_2_loss_arm_BOOK costs Tuesday (hard gate)",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "bc_halve_after_3_loss_arm_BOOK costs Tuesday (hard gate)",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "bc_halve_after_1_loss_fleet_BOOK costs Tuesday (hard gate)",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "bc_halve_after_2_loss_fleet_BOOK costs Tuesday (hard gate)",
+    "got": true,
+    "want": true,
+    "pass": true
+   },
+   {
+    "check": "bc_halve_after_3_loss_fleet_BOOK costs Tuesday (hard gate)",
+    "got": true,
+    "want": true,
+    "pass": true
+   }
+  ]
+ }
+}
