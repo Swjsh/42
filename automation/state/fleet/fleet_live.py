@@ -108,6 +108,45 @@ def _limit_pct_for(arm: dict) -> float:
     return 0.30 if str(arm.get("id", "")).startswith("safe") and "bold" not in src else 0.50
 
 
+# FLEET-PDT-PARITY (2026-08-06): the TRUE trailing-5-business-day day-trade count, computed
+# from the broker's own FILL history exactly the way heartbeat_core.py:1909 already does for
+# the core accounts (pdt_tracker.fetch_day_trades_used_5d). See the long comment at the call
+# site in run() for WHY the fleet lane never got this and why enforcement is flag-gated.
+#
+# TTL memo: the fetch pulls ~10 calendar days of activities (measured 150-200 ms/arm on
+# 2026-08-06) and run() walks every arm serially INSIDE the placement path, so an uncached
+# call would add ~0.5 s of latency to each 60 s tick for a number that can only change when a
+# round trip COMPLETES. 90 s is under one tick plus slack, so a completed round trip is
+# reflected on the next tick at worst, while a retry/duplicate call within a tick is free.
+_PDT_TTL_SEC = 90.0
+_pdt_memo: dict[str, tuple[float, int]] = {}
+
+
+def _true_day_trades_5d(arm_id: str, creds: dict, acct: dict,
+                        now_mono: float | None = None) -> tuple[int, str]:
+    """(count, source) for this arm. FAIL-OPEN in the SAME direction pdt_tracker documents:
+    any failure degrades to the broker's own daytrade_count field, then 0 -- i.e. to exactly
+    today's pre-fix value, so a fetch outage can never invent a new block. `source` is
+    recorded in the ledger so a reader can always tell a real count from a fallback."""
+    import time as _time  # noqa: PLC0415
+    mono = now_mono if now_mono is not None else _time.monotonic()
+    hit = _pdt_memo.get(arm_id)
+    if hit and (mono - hit[0]) < _PDT_TTL_SEC:
+        return hit[1], "pdt_tracker_cached"
+    try:
+        import sys as _sys  # noqa: PLC0415
+        from pathlib import Path as _Path  # noqa: PLC0415
+        _scripts = str(_Path(__file__).resolve().parents[2] / "setup" / "scripts")
+        if _scripts not in _sys.path:
+            _sys.path.insert(0, _scripts)
+        import pdt_tracker as _pdt  # noqa: PLC0415
+        n = int(_pdt.fetch_day_trades_used_5d(creds))
+    except Exception:  # noqa: BLE001 -- visibility must never break the tick (C7 fail-open)
+        return int((acct or {}).get("daytrade_count") or 0), "broker_field_fallback"
+    _pdt_memo[arm_id] = (mono, n)
+    return n, "pdt_tracker"
+
+
 def _load_or_arm_breaker(arm_id: str, equity: float, now: datetime, limit_pct: float) -> dict:
     """Per-arm daily kill-switch. Armed from live equity at first run each day."""
     d = FLEET_DIR / arm_id
@@ -657,9 +696,43 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
             results.append(_log(arm_id, row)); continue
 
         equity = float(acct.get("equity", 0) or 0)
-        day_trades = int(acct.get("daytrade_count", 0) or 0)
-        flat = fb.is_flat_spy_options(creds)
+        # FLEET-PDT-PARITY (2026-08-06, EOD-2026-08-05-SILENT-ARMS). This line read
+        # `acct.get("daytrade_count")`, which Alpaca PAPER returns as **null** for every
+        # arm -> int(None or 0) == 0 FOREVER. fleet_executor.py:1125 pins these arms to
+        # pdt_gate_mode="margin_pdt", so the margin-PDT branch of the risk gate has been
+        # fed a hardcoded 0 since the fleet shipped: `0 >= 3` is never true, Rule 7 was
+        # structurally unenforceable on every fleet arm, and the decision ledger recorded
+        # `day_trades: 0` as if that were broker truth. This is the SAME defect
+        # heartbeat_core.py fixed for the core accounts on 2026-07-06 (its comment: "a
+        # hardcoded 0 that no component ever incremented"); the fleet lane never got the
+        # sibling fix. Broker-verified 2026-08-06 pre-dawn -- TRUE trailing-5bd counts
+        # were safe-3=6, risky-1=7, risky-3=8 while all three logged 0.
+        #
+        # TWO SEPARATE HALVES, deliberately:
+        #   VISIBILITY (always on, zero behavior change) -- the TRUE count is computed and
+        #     logged every tick as day_trades_true/day_trades_source, so the ledger stops
+        #     lying and "why didn't this arm trade" is answerable from the row itself.
+        #   ENFORCEMENT (params.fleet_pdt_enforce, DEFAULT FALSE) -- what the risk gate
+        #     actually binds on. Left OFF because flipping it blind would instantly jail
+        #     all three arms (6/7/8 >= 3) on a constraint the PAPER broker does not
+        #     enforce, and doctrine has ALREADY once ruled exactly this kind of inherited
+        #     margin-PDT block "a fictional constraint, not a real one" (params.json
+        #     #_pdt_gate_mode_doc, 2026-07-14, after it silently killed 4 real core
+        #     entries). Enforcement also needs the account-type question settled first:
+        #     all five arms now read multiplier=4 / shorting_enabled=true (MARGIN), which
+        #     CONTRADICTS core params.json's pinned "multiplier=1 ... CASH account"
+        #     provenance -- that doc also names PA3DHPT7KIQE, an account safe-2 no longer
+        #     points at. Resolve that, then flip this one key.
+        # Revert / arm: set params.fleet_pdt_enforce true (arm) or delete it (today's
+        # behavior). Guard: backtest/tests/test_fleet_pdt_parity.py (vary-and-assert, C14).
         params = fx._params_for(arm)
+        day_trades_legacy = int(acct.get("daytrade_count", 0) or 0)
+        day_trades_true, day_trades_source = _true_day_trades_5d(arm_id, creds, acct)
+        enforce_true = bool(params.get("fleet_pdt_enforce")) and bool(arm.get("live"))
+        day_trades = day_trades_true if enforce_true else day_trades_legacy
+        row.update(day_trades_true=day_trades_true, day_trades_source=day_trades_source,
+                   pdt_enforced=enforce_true)
+        flat = fb.is_flat_spy_options(creds)
         limit_pct = _limit_pct_for(arm)
         breaker = _load_or_arm_breaker(arm_id, equity, now, limit_pct)
         killed = bool(breaker.get("tripped"))
