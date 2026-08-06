@@ -1,0 +1,315 @@
+{
+ "date": "2026-08-06",
+ "generated_at_et": "2026-08-06T16:34 ET (et_clock verified)",
+ "reconciliation": {
+  "gross_option_pnl": 1465.0,
+  "broker_equity_delta_sum": 1464.0,
+  "unposted_fees_today": -0.94,
+  "crypto_twin_residual": -0.0302,
+  "unexplained": 0.0,
+  "brief_claimed": 1460.8,
+  "brief_variance_vs_gross": -4.2,
+  "brief_variance_vs_equity_delta": -3.2,
+  "per_arm": {
+   "safe-2": {
+    "equity": 5727.91,
+    "last_equity": 5389.27,
+    "delta": 338.64,
+    "gross": 339.0,
+    "fees_unposted": -0.3,
+    "crypto": -0.03,
+    "unexplained": 0.0
+   },
+   "bold-2": {
+    "equity": 5477.71,
+    "last_equity": 5477.71,
+    "delta": 0.0,
+    "gross": 0.0,
+    "fees_unposted": 0.0,
+    "crypto": 0.0,
+    "unexplained": 0.0
+   },
+   "safe-3": {
+    "equity": 5780.15,
+    "last_equity": 5780.15,
+    "delta": 0.0,
+    "gross": 0.0,
+    "fees_unposted": 0.0,
+    "crypto": 0.0,
+    "unexplained": 0.0
+   },
+   "risky-1": {
+    "equity": 6338.46,
+    "last_equity": 6042.71,
+    "delta": 295.75,
+    "gross": 296.0,
+    "fees_unposted": -0.25,
+    "crypto": 0.0,
+    "unexplained": 0.0
+   },
+   "risky-3": {
+    "equity": 5343.32,
+    "last_equity": 4513.71,
+    "delta": 829.61,
+    "gross": 830.0,
+    "fees_unposted": -0.39,
+    "crypto": 0.0,
+    "unexplained": 0.0
+   }
+  },
+  "method": "sum(all broker activities since account creation 2026-08-03) vs equity -> implied start; bold-2 and safe-3 (no trades today) land on exactly 5000.00, so the residual on the three trading arms is TODAY's accrued fees at ~$0.025/contract, which post as FEE rows after ~16:30 ET."
+ },
+ "put_trade": {
+  "safe-2": {
+   "entry_hhmm": "10:31",
+   "entry": 1.28,
+   "qty": 3,
+   "tp1_pct": 1.0,
+   "exits": [
+    [
+     "12:16",
+     2.71,
+     2
+    ],
+    [
+     "12:19",
+     2.17,
+     1
+    ]
+   ],
+   "blend": 2.53,
+   "per_ct": 125.0,
+   "gross": 375.0,
+   "oracle_per_ct": 152.0,
+   "best_close_per_ct": 122.0,
+   "capture_vs_oracle_pct": 82.2,
+   "capture_vs_best_close_pct": 102.5,
+   "tp1_level": 2.56
+  },
+  "risky-1": {
+   "entry_hhmm": "10:32",
+   "entry": 1.23,
+   "qty": 5,
+   "tp1_pct": 0.5,
+   "exits": [
+    [
+     "11:23",
+     1.95,
+     3
+    ],
+    [
+     "11:29",
+     1.63,
+     2
+    ]
+   ],
+   "blend": 1.822,
+   "per_ct": 59.2,
+   "gross": 296.0,
+   "oracle_per_ct": 157.0,
+   "best_close_per_ct": 127.0,
+   "capture_vs_oracle_pct": 37.7,
+   "capture_vs_best_close_pct": 46.6,
+   "tp1_level": 1.84
+  },
+  "risky-3": {
+   "entry_hhmm": "10:32",
+   "entry": 1.28,
+   "qty": 8,
+   "tp1_pct": 1.0,
+   "exits": [
+    [
+     "12:04",
+     2.49,
+     5
+    ],
+    [
+     "12:10",
+     2.03,
+     3
+    ]
+   ],
+   "blend": 2.3175,
+   "per_ct": 103.75,
+   "gross": 830.0,
+   "oracle_per_ct": 152.0,
+   "best_close_per_ct": 122.0,
+   "capture_vs_oracle_pct": 68.3,
+   "capture_vs_best_close_pct": 85.0,
+   "tp1_level": 2.56
+  }
+ },
+ "call_trade": {
+  "setup": "bollinger_squeeze",
+  "pipeline": "extra_exec (SECONDARY)",
+  "entry_hhmm": "14:21",
+  "entry": 1.08,
+  "qty": 3,
+  "exit_hhmm": "14:26",
+  "exit": 0.96,
+  "gross": -36.0,
+  "stop_rule": "j_bollinger_squeeze_premium_stop_pct = -0.08 (VALIDATED cell)",
+  "exit_reason": "premium_stop @ 0.99",
+  "hold_minutes": 5,
+  "oracle_per_ct": 2.0,
+  "worst_per_ct": -98.0,
+  "close_per_ct": -75.0
+ },
+ "week": {
+  "sessions": [
+   "2026-08-03",
+   "2026-08-04",
+   "2026-08-05",
+   "2026-08-06"
+  ],
+  "note": "ALL FIVE accounts were created 2026-08-03 09:00-09:02 ET and funded $5,000 each. The entire post-reset track record is 4 sessions. The brief's 3-day week omits Mon 08-03.",
+  "by_day": {
+   "2026-08-03": 534.0,
+   "2026-08-04": 3624.0,
+   "2026-08-05": -1935.0,
+   "2026-08-06": 1465.0
+  },
+  "by_arm": {
+   "safe-2": 730.0,
+   "bold-2": 479.0,
+   "safe-3": 782.0,
+   "risky-1": 1344.0,
+   "risky-3": 353.0
+  },
+  "gross_4day": 3688.0,
+  "book_start": 25000.0,
+  "book_now": 28667.55,
+  "net_4day": 3667.55,
+  "net_pct": 14.67,
+  "archetypes": {
+   "2026-08-03": "gap-go",
+   "2026-08-04": "gap-go",
+   "2026-08-05": "gap-fade",
+   "2026-08-06": "UNCLASSIFIED (posts 08-07 08:40 ET)"
+  },
+  "evidence_verdict": "UNDEFINED at n=4. Tue is 98% of gross; ex-Tue the other three sessions sum to +$64.00 across all five arms. 3 of 4 days were gap-go/gap-fade (22.5%/15.9% of the 391-day population) -- the week over-sampled trending opens ~2x. $210 of today alone was a coin flip.",
+  "process_grade": "C+"
+ },
+ "lens": "LENS 1 -- the day and the week, reconciled and graded",
+ "quote_luck_decomposition": {
+  "safe2_vs_risky3": {
+   "driver": "100% QUOTE LUCK",
+   "note": "identical entry 1.28 + tp1_premium_pct 1.0 -> identical TP1 level 2.56",
+   "poll_1204": {
+    "safe2_best_premium": 2.53,
+    "risky3_best_premium": 2.56,
+    "delta": -0.03,
+    "trigger": 2.56
+   },
+   "shared_polls": 98,
+   "polls_disagreeing_ge_1c": 82,
+   "max_divergence": 0.09,
+   "cf_safe2_fires_1204": {
+    "per_ct": 105.67,
+    "total": 317.0,
+    "delta": -58.0
+   },
+   "cf_risky3_misses_1204": {
+    "per_ct": 122.75,
+    "total": 982.0,
+    "delta": 152.0
+   },
+   "day_pnl_on_the_coin_flip": 210.0,
+   "per_ct_spread": 21.25
+  },
+  "risky1_vs_others": {
+   "driver": "CONFIGURATION",
+   "note": "exit_patch tp1 +50% vs registry +100%",
+   "cf_risky1_at_plus100": {
+    "per_ct": 126.4,
+    "total": 632.0,
+    "delta": 336.0
+   },
+   "per_ct_spread": 67.2
+  },
+  "verdict": "TP1-level A/B is UNDERPOWERED at this n: luck $210 vs config $336 on one trade (62%); per-contract 32%. Two identically-configured arms are a noise-floor instrument, not a redundancy."
+ },
+ "corrections_to_incoming_brief": [
+  {
+   "claim": "14:21 safe-2 LONG = first fire after filter 5 cleared (BULLISH_RECLAIM)",
+   "status": "WRONG",
+   "truth": "bollinger_squeeze on the SECONDARY extra_exec path; primary verdict at 14:21:03 was HOLD; 0 ENTER_BULL verdicts all day; filter 5 present in bull_blockers on EVERY armed row all session (minimum reached was [5] alone at 13:56/14:16/14:26); ribbon went BEAR->MIXED, never BULL."
+  },
+  {
+   "claim": "trendline feed DEAD -> trendline_rejection can never fire",
+   "status": "WRONG (causal link)",
+   "truth": "trigger = detect_trendline_rejection_bearish() in backtest/lib/filters.py, a 60-bar 5m pivot scan; never reads automation/state/trendlines.json. It fired at 10:31 and produced 100% of the day."
+  },
+  {
+   "claim": "trendlines.json 47 days stale, n=0",
+   "status": "OBSOLETE",
+   "truth": "as_of 2026-08-06T16:17:42-04:00, 7 manual + 1 auto. Separate real problem: 7 of 8 project to absurd prices (2825, -1117); only the auto line is near spot."
+  },
+  {
+   "claim": "WEEK = Tue/Wed/Thu = +$3,134",
+   "status": "INCOMPLETE + off",
+   "truth": "All 5 accounts created 2026-08-03; Mon 08-03 (+$534.00) omitted. Broker: 534.00 / 3624.00 / -1935.00 / 1465.00 = +$3,688.00 gross over 4 sessions."
+  },
+  {
+   "claim": "bold-2 and safe-3 SILENT 4th consecutive session",
+   "status": "WRONG",
+   "truth": "Accounts are 4 sessions old. bold-2 traded 08-04 (+$479); safe-3 traded 08-03 and 08-04. Both are on 2 consecutive silent sessions."
+  },
+  {
+   "claim": "DAY +$1,460.80 (338.45/294.55/827.80)",
+   "status": "UNREPRODUCIBLE",
+   "truth": "Broker gross +$1,465.00, equity delta +$1,464.00. Repo-wide grep finds these figures in no P&L source."
+  }
+ ],
+ "pdt": {
+  "root_cause": "Alpaca account payload has NO daytrade_count field at all (absent, not null) -> `or 0`",
+  "day_trades_true": {
+   "risky-1": 7,
+   "risky-3": 8,
+   "safe-3": 6
+  },
+  "pdt_enforced": false,
+  "bold2": "3/3 used, rolls off 2026-08-12, 3x RISK_DENY_PDT today",
+  "cost_of_enforcing_parity_today": -1465.0,
+  "params_premise_stale": {
+   "params.json": "cash_settlement justified by PA3DHPT7KIQE multiplier=1",
+   "aggressive/params.json": "margin_pdt justified by PA33W2KUAT40",
+   "live_now": {
+    "safe-2": "PA3POKNV46VG multiplier=4",
+    "bold-2": "PA3WEBXJU67N multiplier=4"
+   },
+   "action": "NEITHER KEY TOUCHED -- needs J (OP-0 #4)"
+  }
+ },
+ "shipped": {
+  "file": "setup/scripts/fill_funnel.py",
+  "changes": [
+   "fill-provenance split: filled_primary/filled_extra/filled_unattributed/extra_fill_setups",
+   "headline names the secondary setup and says 'NOT a primary ENTER'",
+   "synthetic-row quarantine: armed=false AND core_tick_id=null, disclosed via synthetic_core_rows_excluded"
+  ],
+  "guards": [
+   "test_secondary_fill_is_not_credited_to_the_primary_pipeline",
+   "test_synthetic_unarmed_rows_are_quarantined_not_counted",
+   "test_armed_row_with_tick_id_is_never_quarantined"
+  ],
+  "red_proof": [
+   "mutation: provenance split disabled -> assert 2 == 1 FAIL",
+   "mutation: quarantine disabled -> assert 0 == 1 FAIL",
+   "restored -> 52 passed (guard + why suites)"
+  ],
+  "blast_radius": "39 consumer tests passed; self_check clean (5 pre-existing DEGRADED items)",
+  "revert": "git revert <sha>; or drop the provenance block and set _is_synthetic -> return False"
+ },
+ "prereg_n1_not_shippable": {
+  "question": "What would a BULLISH_RECLAIM entry at each bull_blockers==[5] moment have paid?",
+  "moments_et": [
+   "13:56",
+   "14:16",
+   "14:26"
+  ],
+  "n": 1,
+  "status": "REGISTERED, UNMEASURED",
+  "scope_note": "separable from the bollinger_squeeze trade; must be CONDITIONAL -- 'filter-5 deletion' is already in the graveyard"
+ }
+}

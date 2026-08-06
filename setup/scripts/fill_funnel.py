@@ -255,8 +255,22 @@ def _silence_diagnosis(rows: list[dict], kind: str, f: dict) -> dict:
                 if c not in (_WHY_TRADED, _WHY_NO_SETUP, _WHY_NO_FEED)]
     quiet = counts.get(_WHY_NO_SETUP, 0) + counts.get(_WHY_NO_FEED, 0)
     if traded:
+        # Attribute fills to the pipeline that actually sent them. Saying
+        # "N filled from M ENTER verdicts" when some fills came off extra_exec
+        # invites the reader to credit the primary setup for a secondary
+        # strategy's trade (2026-08-06 scar -- see filled_primary/filled_extra).
+        n_pri = int(f.get("filled_primary", 0) or 0)
+        n_ext = int(f.get("filled_extra", 0) or 0)
+        n_una = int(f.get("filled_unattributed", 0) or 0)
         head = (f"TRADED -- {f.get('filled', 0)} filled / {f.get('exited', 0)} exited"
-                f" from {f.get('enter', 0)} ENTER verdicts")
+                f" ({n_pri} from {f.get('enter', 0)} primary ENTER verdicts")
+        if n_ext:
+            setups = ", ".join(f"{k} x{v}" for k, v in
+                               sorted(f.get("extra_fill_setups", {}).items()))
+            head += f"; {n_ext} from SECONDARY extra_exec [{setups}] -- NOT a primary ENTER"
+        if n_una:
+            head += f"; {n_una} UNATTRIBUTED (no placement row -- manual or lost)"
+        head += ")"
         if blockers:
             head += (f"; also blocked {sum(n for _, n in blockers)}x ("
                      + ", ".join(f"{n}x {c}" for c, n in blockers[:3]) + ")")
@@ -345,9 +359,15 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
         "enter_events": [], "place_fail_reasons": [], "rule_block_reasons": [],
         "enters_after_ceiling": [], "open_fills_no_exit": [],
         "extra_setup_placed": {}, "extra_placed_total": 0,
+        # FILL-PROVENANCE (2026-08-06): which PIPELINE produced each fill.
+        "filled_primary": 0, "filled_extra": 0, "filled_unattributed": 0,
+        "extra_fill_setups": {},
     }
     filled_syms: set[str] = set()
     exited_syms: set[str] = set()
+    # symbol -> pipeline that sent the order ("primary" | setup name), so a fill
+    # observed later via exit_pass broker-truth can be attributed to its origin.
+    sym_origin: dict[str, str] = {}
     for r in rows:
         v = str((r.get("verdict") if kind == "core" else r.get("action")) or "")
         if r.get("triggers") or (v and v != "HOLD"):
@@ -372,6 +392,13 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
             bucket[action] = bucket.get(action, 0) + 1
             if action == "PLACED":
                 f["extra_placed_total"] += 1
+                # remember WHICH secondary setup owns this symbol so its fill is
+                # never silently read as a primary ENTER (2026-08-06 misattribution:
+                # a bollinger_squeeze long was reported as a BULLISH_RECLAIM fire).
+                esym = ((ex.get("exec") or {}).get("symbol")
+                        or (ex.get("exec") or {}).get("sym"))
+                if esym:
+                    sym_origin.setdefault(str(esym), setup)
         # exit_pass rows carry broker-truth: open_qty>0 = we HOLD a fill;
         # a placed action (SELL_ALL / tp / stop) = the exit went to the broker.
         for ep in (r.get("exit_pass") or []):
@@ -427,6 +454,8 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
             entry_filled = float(broker.get("filled_qty") or 0) > 0
         except (TypeError, ValueError):
             entry_filled = False
+        if sym:
+            sym_origin[str(sym)] = "primary"
         if sym and (entry_filled or broker.get("filled_at")):
             filled_syms.add(sym)
         hhmm = _hhmm(str(r.get("ts_et", "")))
@@ -466,6 +495,25 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
     f["filled"] = len(filled_syms)
     f["exited"] = len(filled_syms & exited_syms)
     f["open_fills_no_exit"] = sorted(filled_syms - exited_syms)
+    # FILL-PROVENANCE split (2026-08-06). `filled` counts distinct symbols the
+    # broker confirms we held -- but the funnel's enter/attempted/accepted stages
+    # are scoped to the PRIMARY pipeline only, so a secondary (extra_exec) fill
+    # silently inflated `filled` above `accepted` and every downstream reader
+    # attributed it to the primary setup. Ground truth 2026-08-06: core:safe read
+    # "2 filled from 5 ENTER verdicts" when ENTER produced ONE fill (a bear put)
+    # and the second was a bollinger_squeeze long off extra_exec -- which sent an
+    # EOD reviewer chasing a BULLISH_RECLAIM/filter-5 story that never happened.
+    for s in sorted(filled_syms):
+        origin = sym_origin.get(s)
+        if origin == "primary":
+            f["filled_primary"] += 1
+        elif origin:
+            f["filled_extra"] += 1
+            f["extra_fill_setups"][origin] = f["extra_fill_setups"].get(origin, 0) + 1
+        else:
+            # broker-truth fill with no placement row in this ledger (manual fill,
+            # cross-day carry, or a lost row) -- disclosed, never silently bucketed.
+            f["filled_unattributed"] += 1
     # WHY (2026-08-06): additive only -- computed AFTER every stage above is final, so
     # it can read them but can never change them. Fail-open to an absent key.
     try:
@@ -491,7 +539,20 @@ def compute_funnel(day: str | None = None, *, core_path: Path | None = None,
     fleet_dir = fleet_dir or (STATE / "fleet")
 
     accounts: dict[str, dict] = {}
-    core_rows = _read_jsonl_day(core_path, day)
+    core_rows_all = _read_jsonl_day(core_path, day)
+    # SYNTHETIC-ROW QUARANTINE (2026-08-06). Diagnostic / gym-harness / guard-test
+    # invocations write into the SAME live core-decisions.jsonl as production ticks,
+    # but carry armed=false AND core_tick_id=null (a real tick always stamps both).
+    # Ground truth 2026-08-06: two such rows at 04:16:32 ET (spy pinned 751.0, vix
+    # 16.0, spread 10) inflated safe's tick count and, worse, contributed a phantom
+    # `bollinger_squeeze PLACED` with a null exec -- so the secondary-setup line read
+    # "2 PLACED" when exactly ONE order reached the broker. Quarantined, not dropped:
+    # the count is reported so a flood of them can never be silently swallowed (C7).
+    def _is_synthetic(r: dict) -> bool:
+        return r.get("armed") is False and r.get("core_tick_id") is None
+
+    core_rows = [r for r in core_rows_all if not _is_synthetic(r)]
+    n_synthetic = len(core_rows_all) - len(core_rows)
     for acct in sorted({str(r.get("account") or "core") for r in core_rows}):
         accounts[f"core:{acct}"] = _acct_funnel(
             [r for r in core_rows if str(r.get("account") or "core") == acct], "core")
@@ -511,6 +572,7 @@ def compute_funnel(day: str | None = None, *, core_path: Path | None = None,
         "generated_at_et": now.strftime("%Y-%m-%dT%H:%M:%S"),
         "accounts": accounts,
         "totals": totals,
+        "synthetic_core_rows_excluded": n_synthetic,
         "sources": {"core": str(core_path), "fleet": str(fleet_dir)},
     }
     funnel["flags"], funnel["verdict"] = _evaluate(funnel, now)
@@ -697,6 +759,10 @@ def render_text(funnel: dict) -> str:
                     parts.append(f"{setup}={n}PLACED[{name}]")
         out.append(f"  + secondary setups (extra_exec, outside the primary ENTER pipeline): "
                    f"{', '.join(parts)}")
+    if funnel.get("synthetic_core_rows_excluded"):
+        out.append(f"  + quarantined {funnel['synthetic_core_rows_excluded']} synthetic core "
+                   f"row(s) (armed=false + core_tick_id=null: diagnostic/gym/guard writes "
+                   f"into the LIVE ledger -- excluded from every stage above)")
     # WHY-EACH-ARM (2026-08-06): the standing answer to "why didn't arm X trade?"
     out.append("  why each arm did / did not trade:")
     for name, a in funnel["accounts"].items():

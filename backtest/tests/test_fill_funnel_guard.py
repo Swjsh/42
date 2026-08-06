@@ -572,3 +572,90 @@ def test_genuinely_empty_day_still_reads_idle(tmp_path):
     a = f["accounts"]["core:safe"]
     assert a["extra_setup_placed"] == {} and a["extra_placed_total"] == 0
     assert f["verdict"] == "IDLE"
+
+
+# ---------------------------------------------------------------------------
+# FILL-PROVENANCE + SYNTHETIC-ROW QUARANTINE guards (2026-08-06).
+# THE SCAR: on 2026-08-06 core:safe filled TWO symbols -- a bear put off a
+# primary ENTER_BEAR, and a bollinger_squeeze LONG off the secondary extra_exec
+# path. The funnel rendered "2 filled / 2 exited from 5 ENTER verdicts", which
+# read as though both were primary-pipeline entries. An EOD review then spent
+# the day chasing a BULLISH_RECLAIM / filter-5 story for a trade the primary
+# pipeline never made (its verdict that minute was HOLD; filter 5 never cleared
+# all session). Same day, two armed=false/core_tick_id=null diagnostic rows sat
+# in the LIVE ledger and inflated bollinger_squeeze to "2 PLACED" when exactly
+# one order reached the broker.
+# ---------------------------------------------------------------------------
+
+def _mixed_pipeline_rows(day="2026-07-02"):
+    """One PRIMARY ENTER fill (a put) + one SECONDARY extra_exec fill (a call)."""
+    return [
+        # primary pipeline: ENTER_BEAR -> placed + filled
+        {"ts_et": f"{day}T10:31:03", "account": "safe", "armed": True,
+         "core_tick_id": f"{day}T10:31:02", "verdict": "ENTER_BEAR",
+         "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+         "exec": {"status": "PLACED", "symbol": "SPY260702P00770000", "qty": 3,
+                  "broker": {"id": "ord-primary", "filled_qty": "3"}}},
+        # secondary pipeline: verdict HOLD, order placed off extra_exec
+        {"ts_et": f"{day}T14:21:03", "account": "safe", "armed": True,
+         "core_tick_id": f"{day}T14:21:02", "verdict": "HOLD",
+         "extra_exec": [{"setup": "bollinger_squeeze", "action": "PLACED",
+                         "exec": {"status": "PLACED", "symbol": "SPY260702C00769000",
+                                  "qty": 3, "broker": {"id": "ord-secondary"}}}]},
+        # broker-truth: both symbols held then exited
+        {"ts_et": f"{day}T14:22:03", "account": "safe", "armed": True,
+         "core_tick_id": f"{day}T14:22:02", "verdict": "HOLD",
+         "exit_pass": [{"symbol": "SPY260702P00770000", "open_qty": 3,
+                        "actions": [{"kind": "SELL_ALL", "placed": True}]},
+                       {"symbol": "SPY260702C00769000", "open_qty": 3,
+                        "actions": [{"kind": "SELL_ALL", "placed": True}]}]},
+    ]
+
+
+def test_secondary_fill_is_not_credited_to_the_primary_pipeline(tmp_path):
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, _mixed_pipeline_rows())
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["filled"] == 2, "two distinct symbols reached the broker"
+    assert a["filled_primary"] == 1, "exactly ONE fill came from the ENTER pipeline"
+    assert a["filled_extra"] == 1, "the bollinger_squeeze long is a SECONDARY fill"
+    assert a["filled_unattributed"] == 0
+    assert a["extra_fill_setups"] == {"bollinger_squeeze": 1}
+    head = a["why"]["headline"]
+    assert "1 from 1 primary ENTER verdicts" in head, head
+    assert "SECONDARY extra_exec" in head and "bollinger_squeeze x1" in head, head
+    assert "NOT a primary ENTER" in head, (
+        "the headline MUST say the secondary fill is not a primary entry -- "
+        "this exact ambiguity produced the 2026-08-06 filter-5 misattribution")
+
+
+def test_synthetic_unarmed_rows_are_quarantined_not_counted(tmp_path):
+    rows = _mixed_pipeline_rows()
+    # a diagnostic/gym write into the LIVE ledger: armed=false AND no core_tick_id
+    rows.append({"ts_et": "2026-07-02T04:16:32", "account": "safe", "armed": False,
+                 "core_tick_id": None, "verdict": "HOLD", "spy": 751.0,
+                 "extra_exec": [{"setup": "bollinger_squeeze", "action": "PLACED",
+                                 "exec": None}]})
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, rows)
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert f["synthetic_core_rows_excluded"] == 1
+    assert a["ticks"] == 3, "the synthetic row must not inflate the tick count"
+    assert a["extra_placed_total"] == 1, (
+        "only the ONE real broker order counts -- the phantom armed=false PLACED "
+        "with a null exec must not double the secondary-setup tally")
+    assert "quarantined 1 synthetic core row" in ff.render_text(f)
+
+
+def test_armed_row_with_tick_id_is_never_quarantined(tmp_path):
+    """Non-vacuous the other way: a REAL tick is never dropped by the filter."""
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, _mixed_pipeline_rows())
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    assert f["synthetic_core_rows_excluded"] == 0
+    assert f["accounts"]["core:safe"]["ticks"] == 3

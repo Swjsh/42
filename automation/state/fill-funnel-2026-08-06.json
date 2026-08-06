@@ -1,0 +1,346 @@
+{
+ "date": "2026-08-06",
+ "generated_at_et": "2026-08-06T16:40:59",
+ "accounts": {
+  "core:bold": {
+   "ticks": 386,
+   "signals": 5,
+   "enter": 3,
+   "rule_blocked": 3,
+   "attempted": 0,
+   "accepted": 0,
+   "filled": 0,
+   "exited": 0,
+   "retired_ladder_fails": 0,
+   "enter_events": [
+    {
+     "ts_et": "2026-08-06T10:32:48",
+     "hhmm": "10:32",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260806P00770000",
+     "qty": 5,
+     "status": "RISK_DENY_PDT",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-08-06T10:34:01",
+     "hhmm": "10:34",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260806P00770000",
+     "qty": 5,
+     "status": "RISK_DENY_PDT",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-08-06T10:34:56",
+     "hhmm": "10:34",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260806P00770000",
+     "qty": 5,
+     "status": "RISK_DENY_PDT",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    }
+   ],
+   "place_fail_reasons": [],
+   "rule_block_reasons": [
+    "bold: 3 day-trades in 5d at equity $5,478 < $25,000 \u2014 PDT rule blocks a 4th day-trade",
+    "bold: 3 day-trades in 5d at equity $5,478 < $25,000 \u2014 PDT rule blocks a 4th day-trade",
+    "bold: 3 day-trades in 5d at equity $5,478 < $25,000 \u2014 PDT rule blocks a 4th day-trade"
+   ],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": [],
+   "extra_setup_placed": {},
+   "extra_placed_total": 0,
+   "filled_primary": 0,
+   "filled_extra": 0,
+   "filled_unattributed": 0,
+   "extra_fill_setups": {},
+   "why": {
+    "traded": false,
+    "top_cause": "ENTRY_GATE_SKIP",
+    "headline": "DID NOT TRADE -- dominant cause ENTRY_GATE_SKIP (8x): refused by an entry gate; then 3x RISK_DENY_PDT. 375 of 386 ticks had no setup at all. e.g. \"no setup passed scoring (neither bear nor bull)\" x6; \"blocked by entry gate require_bearish_fill_bar\" x2",
+    "cause_counts": {
+     "ENTRY_GATE_SKIP": 8,
+     "NO_SETUP": 375,
+     "RISK_DENY_PDT": 3
+    },
+    "blocking_ticks": 11,
+    "quiet_ticks": 375,
+    "examples": {
+     "ENTRY_GATE_SKIP": {
+      "no setup passed scoring (neither bear nor bull)": 6,
+      "blocked by entry gate require_bearish_fill_bar": 2
+     }
+    }
+   }
+  },
+  "core:safe": {
+   "ticks": 386,
+   "signals": 5,
+   "enter": 5,
+   "rule_blocked": 0,
+   "attempted": 1,
+   "accepted": 1,
+   "filled": 2,
+   "exited": 2,
+   "retired_ladder_fails": 0,
+   "enter_events": [
+    {
+     "ts_et": "2026-08-06T10:31:03",
+     "hhmm": "10:31",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260806P00770000",
+     "qty": 3,
+     "status": "ACCEPTED",
+     "order_id": "ed32cc9e-a1a0-40f1-b7c4-271a1c7397c0",
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-08-06T10:32:03",
+     "hhmm": "10:32",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": null,
+     "qty": null,
+     "status": "NOT_ATTEMPTED",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-08-06T10:33:03",
+     "hhmm": "10:33",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": null,
+     "qty": null,
+     "status": "NOT_ATTEMPTED",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-08-06T10:34:03",
+     "hhmm": "10:34",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": null,
+     "qty": null,
+     "status": "NOT_ATTEMPTED",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-08-06T10:35:03",
+     "hhmm": "10:35",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": null,
+     "qty": null,
+     "status": "NOT_ATTEMPTED",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    }
+   ],
+   "place_fail_reasons": [],
+   "rule_block_reasons": [],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": [],
+   "extra_setup_placed": {
+    "bollinger_squeeze": {
+     "PLACED": 1,
+     "SKIP_COOLDOWN_SAME_BAR": 4,
+     "SKIP_LATE_ENTRY": 5
+    },
+    "level_break_first_strike": {
+     "WATCH_NOT_ARMED": 5
+    }
+   },
+   "extra_placed_total": 1,
+   "filled_primary": 1,
+   "filled_extra": 1,
+   "filled_unattributed": 0,
+   "extra_fill_setups": {
+    "bollinger_squeeze": 1
+   },
+   "why": {
+    "traded": true,
+    "top_cause": "TRADED",
+    "headline": "TRADED -- 2 filled / 2 exited (1 from 5 primary ENTER verdicts; 1 from SECONDARY extra_exec [bollinger_squeeze x1] -- NOT a primary ENTER); also blocked 10x (6x ENTRY_GATE_SKIP, 4x NOT_FLAT)",
+    "cause_counts": {
+     "ENTRY_GATE_SKIP": 6,
+     "NO_SETUP": 375,
+     "TRADED": 1,
+     "NOT_FLAT": 4
+    },
+    "blocking_ticks": 10,
+    "quiet_ticks": 375,
+    "examples": {
+     "ENTRY_GATE_SKIP": {
+      "no setup passed scoring (neither bear nor bull)": 6
+     }
+    }
+   }
+  },
+  "fleet:risky-1": {
+   "ticks": 384,
+   "signals": 1,
+   "enter": 1,
+   "rule_blocked": 0,
+   "attempted": 1,
+   "accepted": 1,
+   "filled": 1,
+   "exited": 1,
+   "retired_ladder_fails": 0,
+   "enter_events": [
+    {
+     "ts_et": "2026-08-06T10:32:04.804726-04:00",
+     "hhmm": "10:32",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260806P00770000",
+     "qty": 5,
+     "status": "ACCEPTED",
+     "order_id": "fae6f05a-62df-437f-8bd7-737b8d4843a5",
+     "reason": "ribbon_ride P (BASE); qty clamped 8->5: FULL_SEND min size"
+    }
+   ],
+   "place_fail_reasons": [],
+   "rule_block_reasons": [],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": [],
+   "extra_setup_placed": {},
+   "extra_placed_total": 0,
+   "filled_primary": 1,
+   "filled_extra": 0,
+   "filled_unattributed": 0,
+   "extra_fill_setups": {},
+   "why": {
+    "traded": true,
+    "top_cause": "TRADED",
+    "headline": "TRADED -- 1 filled / 1 exited (1 from 1 primary ENTER verdicts); also blocked 4x (4x NOT_FLAT)",
+    "cause_counts": {
+     "NO_SETUP": 375,
+     "NO_LIVE_SIGNAL": 4,
+     "TRADED": 1,
+     "NOT_FLAT": 4
+    },
+    "blocking_ticks": 4,
+    "quiet_ticks": 379,
+    "examples": {}
+   }
+  },
+  "fleet:risky-3": {
+   "ticks": 384,
+   "signals": 1,
+   "enter": 1,
+   "rule_blocked": 0,
+   "attempted": 1,
+   "accepted": 1,
+   "filled": 1,
+   "exited": 1,
+   "retired_ladder_fails": 0,
+   "enter_events": [
+    {
+     "ts_et": "2026-08-06T10:32:04.804726-04:00",
+     "hhmm": "10:32",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260806P00770000",
+     "qty": 8,
+     "status": "ACCEPTED",
+     "order_id": "faf9d3ba-0bb4-4c90-863e-70b87d569884",
+     "reason": "ribbon_ride P (BASE)"
+    }
+   ],
+   "place_fail_reasons": [],
+   "rule_block_reasons": [],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": [],
+   "extra_setup_placed": {},
+   "extra_placed_total": 0,
+   "filled_primary": 1,
+   "filled_extra": 0,
+   "filled_unattributed": 0,
+   "extra_fill_setups": {},
+   "why": {
+    "traded": true,
+    "top_cause": "TRADED",
+    "headline": "TRADED -- 1 filled / 1 exited (1 from 1 primary ENTER verdicts); also blocked 4x (4x NOT_FLAT)",
+    "cause_counts": {
+     "NO_SETUP": 375,
+     "NO_LIVE_SIGNAL": 4,
+     "TRADED": 1,
+     "NOT_FLAT": 4
+    },
+    "blocking_ticks": 4,
+    "quiet_ticks": 379,
+    "examples": {}
+   }
+  },
+  "fleet:safe-3": {
+   "ticks": 384,
+   "signals": 0,
+   "enter": 0,
+   "rule_blocked": 0,
+   "attempted": 0,
+   "accepted": 0,
+   "filled": 0,
+   "exited": 0,
+   "retired_ladder_fails": 0,
+   "enter_events": [],
+   "place_fail_reasons": [],
+   "rule_block_reasons": [],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": [],
+   "extra_setup_placed": {},
+   "extra_placed_total": 0,
+   "filled_primary": 0,
+   "filled_extra": 0,
+   "filled_unattributed": 0,
+   "extra_fill_setups": {},
+   "why": {
+    "traded": false,
+    "top_cause": "ARM_GATE",
+    "headline": "DID NOT TRADE -- dominant cause ARM_GATE (5x): blocked by this arm's own gate_override. 379 of 384 ticks had no setup at all. e.g. \"gate: 1 triggers < 2\" x5",
+    "cause_counts": {
+     "NO_SETUP": 375,
+     "NO_LIVE_SIGNAL": 4,
+     "ARM_GATE": 5
+    },
+    "blocking_ticks": 5,
+    "quiet_ticks": 379,
+    "examples": {
+     "ARM_GATE": {
+      "gate: 1 triggers < 2": 5
+     }
+    }
+   }
+  }
+ },
+ "totals": {
+  "ticks": 1924,
+  "signals": 12,
+  "enter": 10,
+  "rule_blocked": 3,
+  "attempted": 3,
+  "accepted": 3,
+  "filled": 4,
+  "exited": 4,
+  "extra_placed_total": 1
+ },
+ "synthetic_core_rows_excluded": 2,
+ "sources": {
+  "core": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\core-decisions.jsonl",
+  "fleet": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\fleet"
+ },
+ "flags": [
+  "RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 \u2014 PDT rule blocks a 4th day-trade"
+ ],
+ "verdict": "DEGRADED"
+}
