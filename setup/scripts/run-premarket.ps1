@@ -180,4 +180,23 @@ try {
 } catch {
     Write-TaskLog -TaskName $task -Message ("premarket bias-verify errored (fail-open): " + $_.Exception.Message)
 }
+
+# D9 / TRENDLINE-FEED LIVENESS (2026-08-06). automation/state/trendlines.json sat stale 47
+# days (2026-05-14 -> 2026-08-06) because its ONLY producer invocation was premarket.md
+# step 2 -- an LLM instruction -- and this script's deliverable gate checks only
+# today-bias.json, so an LLM run that silently skipped step 2 still reported success (C7:
+# audit outputs, not exit codes). Root cause 2 (when it DID run): a lexicographic
+# latest-CSV pick fitted stale data (fixed + guarded in commit 47c79f0b). This step makes
+# the artifact's production DETERMINISTIC ($0, pure Python, no LLM) regardless of LLM
+# compliance. FAIL-OPEN: a trendline failure never fails the premarket run (the artifact
+# is SHADOW / zero-consumer by design); staleness ALARMS within a day via
+# self_check.check_trendline_feed_freshness (D9 liveness guard).
+try {
+    $tl = Invoke-PythonHidden -ScriptPath "automation\scripts\compute_trendlines.py" `
+        -ArgList @() -TaskName "premarket-compute-trendlines" -TimeoutSec 60
+    Write-TaskLog -TaskName $task -Message "TRENDLINES exit=$($tl.ExitCode) $($tl.Stdout.Trim())"
+} catch {
+    Write-TaskLog -TaskName $task -Message "TRENDLINES step failed (fail-open, premarket unaffected): $($_.Exception.Message)"
+}
+
 exit $exit

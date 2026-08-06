@@ -770,6 +770,63 @@ def check_trendline_draw_freshness(now, path=None) -> list:
     return []
 
 
+TRENDLINES_FEED = STATE / "trendlines.json"
+TRENDLINES_LIVE = STATE / "trendlines-live.json"
+
+
+def check_trendline_feed_freshness(now, feed_path=None, live_path=None) -> list:
+    """D9 LIVENESS GUARD (2026-08-06): trendlines.json sat stale for 47 DAYS (2026-05-14 ->
+    2026-08-06) with zero alarms -- its only producer invocation was an LLM prompt step
+    (premarket.md step 2) that run-premarket.ps1's deliverable gate never checked (C7).
+    The producer is now a deterministic premarket step (run-premarket.ps1 TRENDLINES step,
+    automation/scripts/compute_trendlines.py); THIS check is the alarm that fires within a
+    day if either trendline surface dies again:
+      * trendlines.json      -- the daily premarket context artifact (SHADOW, zero code
+                                consumers by design until validated)
+      * trendlines-live.json -- the LIVE organ (trendline_engine.py via Gamma_Trendlines,
+                                every 5 min RTH; feeds trendline-watch visibility)
+    DEGRADED, never BROKEN: both surfaces are shadow/visibility -- a death costs research
+    context, not trading correctness (the engine's trendline_rejection trigger computes its
+    own line in-process from prior_bars and reads NEITHER file). Weekend/Monday slack keeps
+    Sat/Sun/Mon-morning from false-alarming on a Friday-dated file."""
+    problems = []
+    # calendar slack: file is produced weekday premarket; allow the weekend gap
+    slack_days = {5: 2.0, 6: 3.0, 0: 3.5}.get(now.weekday(), 1.5)
+
+    def _age_days(stamp: str):
+        try:
+            dt_ = dt.datetime.fromisoformat(str(stamp))
+            if dt_.tzinfo is not None:
+                dt_ = dt_.replace(tzinfo=None)
+            return (now - dt_).total_seconds() / 86400.0
+        except (ValueError, TypeError):
+            return None
+
+    for label, path, stamp_key in (
+            ("TRENDLINE-FEED", feed_path or TRENDLINES_FEED, "as_of"),
+            ("TRENDLINE-LIVE", live_path or TRENDLINES_LIVE, "generated_at")):
+        try:
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001 -- missing/corrupt IS the death this alarms on
+            problems.append(f"{label} DEGRADED: {Path(path).name} missing/unreadable -- the "
+                            f"producer is dead (47-day-silence class, D9). Shadow surface, "
+                            f"non-load-bearing; revive the producer.")
+            continue
+        stamp = data.get(stamp_key) or data.get("ts_et") or data.get("as_of")
+        age = _age_days(stamp)
+        if age is None:
+            problems.append(f"{label} DEGRADED: {Path(path).name} carries no parseable "
+                            f"{stamp_key!r} timestamp ({stamp!r}) -- staleness undetectable, "
+                            f"treat as dead (D9).")
+        elif age > slack_days:
+            problems.append(f"{label} DEGRADED: {Path(path).name} is {age:.1f} days old "
+                            f"(stamp {stamp}, limit {slack_days}d) -- the producer died "
+                            f"again (47-day-silence class, D9). Shadow surface, non-load-"
+                            f"bearing; check run-premarket.ps1 TRENDLINES step / "
+                            f"Gamma_Trendlines.")
+    return problems
+
+
 REGIME_STAMP_JSON = STATE / "regime-stamp.json"
 
 
@@ -1239,6 +1296,7 @@ def run() -> dict:
     # 13. TRENDLINE-DRAW FRESHNESS -- the 2026-07-16/17 scar: 2 budget-skips of premarket
     # Step 5c in 2 days went to journal only, invisible to J until he noticed a bare chart.
     problems.extend(check_trendline_draw_freshness(now))
+    problems.extend(check_trendline_feed_freshness(now))  # D9 liveness (2026-08-06)
 
     # 13b. REGIME-STAMP DRIFT -- the 2026-08-02/08-03 self-audit recurrence: only
     # monday_verify.py's WS6 check verified the Gamma_RegimeStamp -> Gamma_Premarket
