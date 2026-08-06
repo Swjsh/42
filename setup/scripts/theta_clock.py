@@ -224,9 +224,29 @@ def estimate_decomposition(*, premium_ref: float, mid_now: float, strike: Option
     }
 
 
+def greeks_source_label(greeks: Optional[dict], probe_stats: Optional[dict]) -> str:
+    """D7 fix (2026-08-06): the empty-greeks disclosure used to be a HARDCODED docstring
+    figure ("29/29 real entries to date") frozen at build time -- a counter reported as
+    prose, drifting further from truth every session. Now rendered from a LIVE persisted
+    counter (greeks-probe-stats.json, updated every probe by run_once). PURE."""
+    if greeks:
+        return "broker_snapshot"
+    if isinstance(probe_stats, dict):
+        empty = int(probe_stats.get("empty", 0) or 0)
+        nonempty = int(probe_stats.get("nonempty", 0) or 0)
+        total = empty + nonempty
+        if total > 0:
+            return (f"unavailable (Alpaca options-snapshots feed empty on {empty}/{total} "
+                    f"probes to date -- live counter, see greeks-probe-stats.json)")
+    return "unavailable (Alpaca options-snapshots feed returned empty this probe; no counter data)"
+
+
 def compute_row(*, arm: str, position: dict, quote: dict, greeks: Optional[dict],
-                 entry_snap: dict, spot_now: Optional[float], now_et: datetime) -> dict:
-    """PURE (no I/O): assemble one theta-clock row from already-fetched inputs."""
+                 entry_snap: dict, spot_now: Optional[float], now_et: datetime,
+                 greeks_probe_stats: Optional[dict] = None) -> dict:
+    """PURE (no I/O): assemble one theta-clock row from already-fetched inputs.
+    `greeks_probe_stats` (D7, additive, default None = legacy no-counter render): the
+    persisted {empty, nonempty} probe counter run_once maintains."""
     symbol = position.get("symbol", "")
     parsed = parse_occ_symbol(symbol) or {}
     strike = parsed.get("strike")
@@ -317,9 +337,8 @@ def compute_row(*, arm: str, position: dict, quote: dict, greeks: Optional[dict]
         "mins_to_close_now": round(mins_now, 1),
         "decomposition_est": decomp,
         "greeks_raw": (dict(greeks) if greeks else None),
-        "greeks_source": ("broker_snapshot" if greeks else
-                           "unavailable (Alpaca options-snapshots feed has returned empty on "
-                           "29/29 real entries to date -- see module docstring)"),
+        # D7 (2026-08-06): live counter, never a hardcoded docstring figure ("29/29" scar).
+        "greeks_source": greeks_source_label(greeks, greeks_probe_stats),
     }
 
 
@@ -630,6 +649,17 @@ def run_once(*, now_et: Optional[datetime] = None,
     theta_dir.mkdir(parents=True, exist_ok=True)
     daily_jsonl = theta_dir / f"theta-clock-{now_et.strftime('%Y-%m-%d')}.jsonl"
 
+    # D7 (2026-08-06): live greeks-probe counter -- replaces the hardcoded "29/29" prose.
+    probe_stats_path = theta_dir / "greeks-probe-stats.json"
+    try:
+        probe_stats = json.loads(probe_stats_path.read_text(encoding="utf-8"))
+        if not isinstance(probe_stats, dict):
+            probe_stats = {}
+    except (OSError, ValueError):
+        probe_stats = {}
+    probe_stats.setdefault("empty", 0)
+    probe_stats.setdefault("nonempty", 0)
+
     for arm in active_arms:
         creds = creds_by_arm.get(arm)
         if not creds:
@@ -652,6 +682,10 @@ def run_once(*, now_et: Optional[datetime] = None,
                     greeks = greeks_fn(creds, symbol)
                 except Exception:  # noqa: BLE001
                     greeks = None
+                # D7: count every probe outcome (the live counter greeks_source renders)
+                probe_stats["empty" if not greeks else "nonempty"] = (
+                    int(probe_stats.get("empty" if not greeks else "nonempty", 0)) + 1)
+                probe_stats["last_probe_et"] = now_et.strftime("%Y-%m-%dT%H:%M:%S")
 
                 entry_snap = _ensure_entry_snapshot(state, key, arm=arm, position=position,
                                                      greeks=greeks, spot_now=spot_now, now_et=now_et)
@@ -662,7 +696,8 @@ def run_once(*, now_et: Optional[datetime] = None,
                     quote = {}
 
                 row = compute_row(arm=arm, position=position, quote=quote, greeks=greeks,
-                                   entry_snap=entry_snap, spot_now=spot_now, now_et=now_et)
+                                   entry_snap=entry_snap, spot_now=spot_now, now_et=now_et,
+                                   greeks_probe_stats=probe_stats)
                 summary["positions"].append(row)
                 summary["n_positions"] += 1
 
@@ -687,6 +722,10 @@ def run_once(*, now_et: Optional[datetime] = None,
 
     _atomic_write_json(state_path, state)
     _atomic_write_json(snapshot_path, summary)
+    try:
+        _atomic_write_json(probe_stats_path, probe_stats)  # D7: persist the live counter
+    except Exception:  # noqa: BLE001 -- counter loss degrades to re-counting, never a crash
+        pass
     return summary
 
 
