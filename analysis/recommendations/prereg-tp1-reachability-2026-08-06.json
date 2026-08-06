@@ -1,0 +1,104 @@
+{
+  "prereg_id": "TP1-REACHABILITY-2026-08-06",
+  "_doc": "FROZEN PRE-REGISTRATION -- committed BEFORE backtest/tools/tp1_reachability_2026_08_06.py exists (git-provable via `git log --follow` ordering / `git merge-base --is-ancestor <this commit> <runner commit>`). Lane 2: TP1 REACHABILITY -- the full tp1_premium_pct x tp1_qty_fraction grid, population-scale, exits re-derived ONLY through backtest/lib/exit_manager_walk.walk_exit_manager -> automation/state/fleet/exit_manager.plan_exit_actions. NEVER simulator_real (2026-07-09 SIM-EXIT-SHAPE-PARITY scar). ANALYSIS produces a scorecard; NOTHING ships unless the FULL auto-ratify bar clears -- the bar is not softened to ship.",
+  "clock_verified_et": "2026-08-06 18:46:50 Thursday EDT (market_hours=False), via setup/scripts/et_clock.py",
+
+  "MECHANICAL_DISTINCTION_REQUIRED_BY_LANE": {
+    "claim": "A REACHABLE TP1 is NOT the five-times-dead pre-TP1 arm-scope cell.",
+    "mechanism_reachable_tp1": "exit_manager.py:483-496 -- TP1 fill SELLS tp1_qty=int(qty*tp1_qty_fraction) at entry*(1+tp1_premium_pct), ratchets runner_stop to BREAKEVEN, and sets profit_lock_armed=True. The runner then rides the POST-TP1 chandelier (exit_manager.py:506-516, trailing hwm*(1-trail_pct)) -- machinery that is validated live (risky-1's +50% exit_patch fired it on 2026-08-05 for +$347 while siblings rode to the -50% cap).",
+    "mechanism_dead_cell": "profit_lock_arm_scope='full' (exit_manager.py:389-395) arms the trailing lock on the FULL position BEFORE any partial banks -- no profit taken, ride choked at the first trail_pct giveback. Died five times, last E1 on live machine n=190 (runner cohort -$7,758.85, 22 worse / 0 better). PERMANENT graveyard.",
+    "what_this_grid_never_touches": "profit_lock_arm_scope stays 'post_tp1' in EVERY cell. No cell arms any lock before a partial is banked.",
+    "shared_risk_declared": "What a reachable TP1 SHARES with the graveyard is the RESULT-side risk: any earlier profit extraction damages the runner cohort that pays for the book. That is why G3 anchor-no-regression is the operative veto, unweakened."
+  },
+
+  "GRAVEYARD_AND_PRIOR_ART_DECLARED_BEFORE_RUNNING": {
+    "collision_1_catcap_axis_D_same_day": "LEVER-CATCAP-2026-08-06 (prereg commit 089beb50, run earlier TODAY) already ran tp1_premium_pct {0.20,0.25,0.30,0.40,0.50} at FIXED tp1_qty_fraction=0.667 on the SAME two populations. Results, cited not re-litigated: EVERY cell failed HG_TUE, G1(popA aggregate), G2(runner anchor), G4(thursday), G5(drop-best). popA deltas -$1,733 (tp1_30) to -$4,095 (tp1_20); runner cohort -$5,615.70 (tp1_50) to -$10,113.75 (tp1_20); Tuesday -$2,906 to -$3,821. The Wednesday +$1,683.25 (tp1_50) is the lane's quoted lever value -- it is real and it costs Tuesday -$2,906.24.",
+    "collision_2_E2_2026_07_28": "exit-armscope-tp1-ab-2026-07-28 E2 (tp1=0.5, frac 0.667): agg -$2,491.55, runner cohort -$5,615.70 (35 worse / 0 better). ARM_NOTHING. Reproduced to the cent by catcap D_tp1_50.",
+    "collision_3_graveyard_take_profit_earlier_x3": "The settled graveyard lists 'take-profit-earlier x3'. The f0.667 column of this grid IS that dead knob -- carried for grid completeness and BH honesty, not as new territory.",
+    "what_is_GENUINELY_untested": [
+      "tp1_qty_fraction axis: {0.5, 0.8} at every TP1 level -- NEVER varied in any prior study (all prior TP1 cells rode the registry 0.667).",
+      "tp1_premium_pct=0.75 -- never run at any fraction.",
+      "fraction-only cells (tp1=1.0, frac 0.5/0.8): change ONLY how much banks at the +100% TP1 -- a pure new axis.",
+      "Monday 2026-08-03 in the week book (catcap's popB was 3 sessions; the lane mandates the full 4-session week).",
+      "The formal battery: WF, OOS split, sub-window stability, BH-FDR across the whole grid -- catcap's gates had no WF/OOS/BH."
+    ],
+    "directional_predictions_frozen": [
+      "P1: f0.5 cells reduce runner-anchor damage vs f0.667 at the same TP1 level (smaller banked fraction, bigger surviving runner) but do NOT flip its sign at tp1<=0.50.",
+      "P2: integer-floor degeneracy -- tp1_qty=int(qty*frac): at qty=3 f0.667 and f0.8 are IDENTICAL (both sell 2); at qty=4 f0.5 and f0.667 are IDENTICAL (both sell 2). popA is 130x qty3 + 61x qty>=4, so column pairs will partially mirror each other BY CONSTRUCTION. Stated now so nobody reports the mirror as a robustness confirmation.",
+      "P3: fraction-only cells (tp1=1.0, f0.5/f0.8) produce small deltas confined to the ~45% of popA entries whose session-max reaches +100% (many of which the CONTROL walk exits earlier anyway).",
+      "P4: NO cell clears the full auto-ratify bar. If one does, that is the finding and it ships only with guards + RED-proof + kill criterion."
+    ]
+  },
+
+  "populations": {
+    "A_391day": {
+      "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json `trades` -- REUSED VERBATIM (n=191, RIDE_THE_RIBBON family, 2025-01-06..2026-07-21, real-OPRA, entry+1 convention). Entries FROZEN; only exits re-derived.",
+      "exit_model": "walk_exit_manager ONLY. time_stop 15:40 ET (the source population's own convention).",
+      "trust_check_VOID_rule": "CONTROL cell must reconcile to the source population's per-trade dollar_pnl with ZERO mismatches (>|$0.005|). Nonzero => the entire scorecard is VOID and reported as such.",
+      "qty_mix_disclosed": {"3": 130, "4": 25, "5": 19, "6": 9, "7": 6, "10": 1, "13": 1}
+    },
+    "B_week_book": {
+      "source": "REAL broker fills, all 5 arms (safe-2, bold-2, safe-3, risky-1, risky-3). 2026-08-04..06 REUSED VERBATIM from backtest/data/_week_orders_2026_08_06.json (the catcap-validated book: CONTROL day totals 3624.00 / -1935.00 / 1465.00 reconcile to the broker-verified week). 2026-08-03 pulled fresh this session via fleet_broker.load_creds() (NO args) + GET /v2/orders, read-only, written to backtest/data/_week_orders_2026_08_03.json BEFORE the runner runs.",
+      "monday_recon": "Monday CONTROL realized total is diffed against the broker-verified +$534 header figure; any divergence is DISCLOSED (fees/equity-vs-realized gap), never silently absorbed.",
+      "exit_model": "Same walk_exit_manager path; real 1-min OPRA via _option_bars_1min_cache.fetch_1min_cached; legacy-schema highres fallback as in catcap. Missing bars => position HELD_AT_REAL (arithmetically unable to move any delta), disclosed.",
+      "walk_discipline": "SEQUENTIAL, one position at a time, PER ARM PER DAY. A counterfactual position still open at a later REAL entry timestamp SUPPRESSES that entry. CONTROL = the broker's own fills BY CONSTRUCTION (never re-walked); CONTROL_WALK = unchanged shape through the harness -- every cell's week delta is measured against CONTROL_WALK so the knob effect is isolated from replay divergence.",
+      "strategy_attribution": "From the fleet arms' own decisions.jsonl ENTER rows exactly as catcap (setup_name VWAP=>vwap_continuation else ribbon_ride); unattributed positions HELD_AT_REAL in every cell."
+    }
+  },
+
+  "cells_frozen": {
+    "_grid_note": "Lane grid is {+30,+40,+50,+75,+100} x {live, 0.5, 0.667, 0.8}. For ribbon_ride 'live' IS 0.667 (registry) and for vwap_continuation 'live' IS 0.8 (registry) -- the live column collapses into the enumerated fractions; disclosed, not double-counted.",
+    "RIBBON_PRIMARY": {
+      "strategy_patched": "ribbon_ride ONLY (vwap keeps registry shape in these cells)",
+      "tp1_premium_pct": [0.30, 0.40, 0.50, 0.75, 1.0],
+      "tp1_qty_fraction": [0.5, 0.667, 0.8],
+      "n_cells": 15,
+      "control_equivalent": "R_tp100_f667 == the live registry shape == CONTROL_WALK; reported as the null cell.",
+      "patch_layering": "registry -> arm exit_patch -> cell patch OUTERMOST. DISCLOSED: the cell patch overrides risky-1's own tp1_premium_pct=0.5 exit_patch (catcap convention); in cell R_tp50_* risky-1 is unchanged-by-coincidence on the tp1 axis."
+    },
+    "VWAP_EXPLORATORY_WEEK_ONLY": {
+      "strategy_patched": "vwap_continuation ONLY (ribbon keeps registry+arm shape)",
+      "tp1_premium_pct": [0.30, 0.40, 0.50, 0.75, 1.0],
+      "tp1_qty_fraction": [0.5, 0.667, 0.8],
+      "n_cells": 15,
+      "control_equivalent": "W_tp40_f80 == vwap live registry shape.",
+      "SHIP_ELIGIBILITY": "NONE. popA cannot test vwap (ribbon-family population). These cells are DESCRIPTIVE / n-small labeled, ineligible to ship from this study REGARDLESS of gates. Frozen now."
+    },
+    "CONTROLS": ["CONTROL (real fills popB / source-replay popA, never re-walked)", "CONTROL_WALK (unchanged shape through the harness)"]
+  },
+
+  "gates_frozen": {
+    "G1_popA_aggregate": "popA delta vs CONTROL > $0.005.",
+    "G2_ex_best_trade": "popA delta minus the single largest POSITIVE per-trade delta still > $0.005 (drop-best only drops an actual improvement; bull_gate_atm_ssb_requalification drop_top1 semantics).",
+    "G3_runner_anchor": "popA runner cohort delta >= -$0.005. Cohort rule = catcap's: CONTROL rows with pnl>0 AND 'runner_stop' in exit_reason (n must equal 35, CONTROL total $15,497.25; the $276.80 selection-rule gap vs EXIT-LEAK's published $15,774.05 is a carried, disclosed caveat -- deltas are unaffected).",
+    "G4_subwindow_stable": "popA split into 4 sequential calendar windows: 2025H1, 2025H2, 2026Q1, 2026-04-01..07-22. PASS = delta >= -$0.005 in >= 3 of the windows containing >= 5 changed trades; if fewer than 2 windows have >= 5 changed trades, gate FAILS (insufficient dispersion to certify stability).",
+    "G5_drop_best_day": "popA delta minus the single most-positive DAY-level summed delta still > $0.005.",
+    "G6_week_tuesday_HARD": "Week 2026-08-04 delta vs CONTROL_WALK >= -$0.005. J's directive-shaped hard gate, catcap precedent: a cell that costs Tuesday cannot ship no matter what it buys elsewhere.",
+    "G7_week_total": "4-session week (08-03..08-06) total delta vs CONTROL_WALK > $0.005.",
+    "G8_bh_fdr": "Cell survives Benjamini-Hochberg at q=0.10 across the FULL 28-cell tested family (14 ribbon non-control + 14 vwap non-control). p-value = one_sample_p (ported verbatim from bull_gate_f5class_requal_2026_08_01.py:307, itself ported from shelf_hold_reclaim_study.py) over the cell's CHANGED per-trade deltas (popA for ribbon cells; week per-position deltas for vwap cells)."
+  },
+
+  "auto_ratify_bar_frozen": {
+    "OOS_positive": "popA delta restricted to entries 2026-01-01..2026-07-22 > $0 AND week total delta >= $0.",
+    "WF_ge_0.70": "Among calendar months (2025-01..2026-07) containing >= 3 changed trades: fraction with monthly delta >= $0 must be >= 0.70. Fewer than 4 qualifying months => WF FAILS (cannot certify).",
+    "sub_window_stable": "== G4.",
+    "anchor_no_regression": "== G3.",
+    "SHIP_rule": "ALL of G1..G8 AND all four bar components -> may ship tonight per OP-11 with guards + RED-proof + one-line revert + kill criterion + REVOKE entry. ANY failure -> DO_NOT_ARM: this prereg stays FROZEN with the forward clock below, and the artifact states plainly WHICH gate failed.",
+    "kill_criterion_if_shipped": "Cell-attributable net <= -$300 over the first 10 live sessions, OR live runner-cohort regression (any 2 live runners exited by the new TP1 below what the -50%/structure path realized) -> revert same day.",
+    "forward_clock_if_frozen": "Re-adjudicate when risky-1's live +50% arm reaches n>=30 ribbon fills post-2026-08-03 (its own A/B is the live instrument for this exact question), or by 2026-09-05, whichever first."
+  },
+
+  "descriptive_outputs_frozen": {
+    "reachability_reconciliation": "The lane carries two conflicting reachability claims. (a) 14% of 124 ribbon entries reach +100%, median MFE +16.3% -- LIVE-LEDGER in-trade measure (max best_premium the production exit manager saw, truncated at actual exit) on the recent live book (EOD-2026-08-05-REENTRY-SIZING.md section 1a). (b) 45.0% reach +100%, median +83.8% -- UNCONDITIONAL post-entry session max on the 391-day replay (LEVER-CATCAP-2026-08-06.md section 4, labeled upper bound). This study computes the BRIDGE: on popA, in-trade MFE under the CONTROL walk (max premium while the position is actually open) alongside the unconditional session max, so the measure gap and the population gap are separated and each claim gets a stated population + stated measure.",
+    "per_strategy_split": "Every week cell reports ribbon vs vwap contribution separately.",
+    "tp1_fire_rate": "Per cell: fraction of walked positions whose TP1 actually fills, popA and week.",
+    "quote_luck_caveat_carried": "The Thursday $210 / 3-cent stream-divergence noise floor (82/98 shared polls disagreed) is carried as a caveat on ALL week-level deltas: single-day week numbers are anecdote-scale by construction."
+  },
+
+  "no_other_knobs": "Within a cell exactly tp1_premium_pct and/or tp1_qty_fraction change for exactly one strategy family. profit_lock_arm_scope, trail_pct, catastrophe cap, stop_mode, entries, sizing: all FROZEN at registry+arm values. No entry filter, no cooldown, no sizing change is combined with any cell.",
+  "outputs": [
+    "analysis/deep-research/TP1-REACHABILITY-2026-08-06.md",
+    "analysis/deep-research/TP1-REACHABILITY-2026-08-06.json",
+    "analysis/recommendations/tp1-reachability-2026-08-06.json (the A/B scorecard, every cell disclosed)"
+  ]
+}
