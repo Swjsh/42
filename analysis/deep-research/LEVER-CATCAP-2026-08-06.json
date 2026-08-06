@@ -1,0 +1,2571 @@
+{
+  "_doc": "LEVER 3 -- catastrophe cap + per-trade loss tail. Run per frozen prereg analysis/recommendations/prereg-lever-catcap-2026-08-06.json (commit 089beb50).",
+  "generated_at_et": "2026-08-06T15:08:53.882363",
+  "runtime_seconds": 49.6,
+  "prereg_commit": "089beb50",
+  "populations": {
+    "A": {
+      "source": "analysis\\recommendations\\engine-fullhist-replay-2026-07-23.json",
+      "n": 191,
+      "control_total": 4808.75,
+      "control_reconciliation_mismatches": 0,
+      "runner_cohort_n": 35,
+      "runner_cohort_total": 15497.25,
+      "runner_anchor_expected_n": 35,
+      "runner_anchor_expected_pnl": 15774.05
+    },
+    "B": {
+      "source": "real broker /v2/orders, 5 arms, 2026-08-04..06",
+      "n_positions": {
+        "2026-08-04": 25,
+        "2026-08-05": 14,
+        "2026-08-06": 4
+      },
+      "control_day_totals_real_fills": {
+        "2026-08-04": 3624.0,
+        "2026-08-05": -1935.0,
+        "2026-08-06": 1465.0
+      },
+      "control_walk_day_totals": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1482.06,
+        "2026-08-06": 1257.4
+      },
+      "replay_divergence_walk_minus_real": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 452.94,
+        "2026-08-06": -207.6
+      },
+      "unattributed_strategy": [
+        [
+          "2026-08-05",
+          "safe-2",
+          "SPY260805C00777000"
+        ],
+        [
+          "2026-08-06",
+          "safe-2",
+          "SPY260806C00769000"
+        ]
+      ],
+      "bars_missing": []
+    }
+  },
+  "tp1_reachability": {
+    "n": 191,
+    "median_mfe": 0.8382,
+    "reach_fraction": {
+      "+20%": 0.7958,
+      "+25%": 0.7592,
+      "+30%": 0.7382,
+      "+40%": 0.7173,
+      "+50%": 0.6545,
+      "+100%": 0.4503
+    }
+  },
+  "cells": [
+    {
+      "id": "CONTROL",
+      "axis": "-",
+      "patch": {},
+      "popA_total": 4808.75,
+      "popA_delta": 0.0,
+      "popA_drop_best": -191.4,
+      "popA_n_changed": 12,
+      "popA_split": {
+        "loss_side_delta": 170.4,
+        "win_side_delta": -1288.2,
+        "n_better": 7,
+        "n_worse": 5
+      },
+      "popA_tail": {
+        "n_losers": 135,
+        "median": 90.4,
+        "p75": 125.4,
+        "p90": 242.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 15469.3
+      },
+      "runner_cohort_total": 15497.25,
+      "runner_cohort_delta": 0.0,
+      "week_day_total": {
+        "2026-08-04": 3624.0,
+        "2026-08-05": -1935.0,
+        "2026-08-06": 1465.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 0.0,
+        "2026-08-06": 0.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 0.0,
+        "2026-08-06": 0.0
+      },
+      "week_total_delta": 0.0,
+      "week_split": {
+        "loss_side_delta": 0.0,
+        "win_side_delta": 0.0,
+        "n_better": 0,
+        "n_worse": 0
+      },
+      "week_suppressed": 0,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": true,
+        "G3_wednesday": false,
+        "G4_thursday": true,
+        "G5_drop_best": false
+      },
+      "clears_all": null
+    },
+    {
+      "id": "CONTROL_WALK",
+      "axis": "-",
+      "patch": {},
+      "popA_total": 4808.75,
+      "popA_delta": 0.0,
+      "popA_drop_best": -191.4,
+      "popA_n_changed": 12,
+      "popA_split": {
+        "loss_side_delta": 170.4,
+        "win_side_delta": -1288.2,
+        "n_better": 7,
+        "n_worse": 5
+      },
+      "popA_tail": {
+        "n_losers": 135,
+        "median": 90.4,
+        "p75": 125.4,
+        "p90": 242.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 15469.3
+      },
+      "runner_cohort_total": 15497.25,
+      "runner_cohort_delta": 0.0,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1482.06,
+        "2026-08-06": 1257.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 0.0,
+        "2026-08-06": 0.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 452.94,
+        "2026-08-06": -207.6
+      },
+      "week_total_delta": 0.0,
+      "week_split": {
+        "loss_side_delta": 0.0,
+        "win_side_delta": 0.0,
+        "n_better": 0,
+        "n_worse": 0
+      },
+      "week_suppressed": 9,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": true,
+        "G3_wednesday": false,
+        "G4_thursday": true,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-20",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.2
+      },
+      "popA_total": 1809.7,
+      "popA_delta": -2999.05,
+      "popA_drop_best": -3233.05,
+      "popA_n_changed": 31,
+      "popA_split": {
+        "loss_side_delta": 1704.5,
+        "win_side_delta": -5821.35,
+        "n_better": 17,
+        "n_worse": 14
+      },
+      "popA_tail": {
+        "n_losers": 144,
+        "median": 90.4,
+        "p75": 111.0,
+        "p90": 160.0,
+        "p95": 249.0,
+        "max": 579.0,
+        "total_loss": 14815.2
+      },
+      "runner_cohort_total": 13326.9,
+      "runner_cohort_delta": -2170.35,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -939.36,
+        "2026-08-06": -440.6
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 542.7,
+        "2026-08-06": -1698.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 995.64,
+        "2026-08-06": -1905.6
+      },
+      "week_total_delta": -1155.3,
+      "week_split": {
+        "loss_side_delta": 542.7,
+        "win_side_delta": -1698.0,
+        "n_better": 2,
+        "n_worse": 4
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-25",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.25
+      },
+      "popA_total": 1486.4,
+      "popA_delta": -3322.35,
+      "popA_drop_best": -3517.35,
+      "popA_n_changed": 26,
+      "popA_split": {
+        "loss_side_delta": 1097.4,
+        "win_side_delta": -5537.55,
+        "n_better": 13,
+        "n_worse": 13
+      },
+      "popA_tail": {
+        "n_losers": 143,
+        "median": 93.0,
+        "p75": 123.0,
+        "p90": 189.0,
+        "p95": 252.0,
+        "max": 579.0,
+        "total_loss": 15536.3
+      },
+      "runner_cohort_total": 13742.15,
+      "runner_cohort_delta": -1755.1,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1029.81,
+        "2026-08-06": -541.75
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 452.25,
+        "2026-08-06": -1799.15
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 905.19,
+        "2026-08-06": -2006.75
+      },
+      "week_total_delta": -1346.9,
+      "week_split": {
+        "loss_side_delta": 452.25,
+        "win_side_delta": -1799.15,
+        "n_better": 2,
+        "n_worse": 4
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-30",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.3
+      },
+      "popA_total": 2438.7,
+      "popA_delta": -2370.05,
+      "popA_drop_best": -2561.45,
+      "popA_n_changed": 23,
+      "popA_split": {
+        "loss_side_delta": 871.8,
+        "win_side_delta": -4359.65,
+        "n_better": 12,
+        "n_worse": 11
+      },
+      "popA_tail": {
+        "n_losers": 141,
+        "median": 91.8,
+        "p75": 138.0,
+        "p90": 189.0,
+        "p95": 252.0,
+        "max": 579.0,
+        "total_loss": 15688.0
+      },
+      "runner_cohort_total": 14341.8,
+      "runner_cohort_delta": -1155.45,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1120.26,
+        "2026-08-06": -642.9
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 361.8,
+        "2026-08-06": -1900.3
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 814.74,
+        "2026-08-06": -2107.9
+      },
+      "week_total_delta": -1538.5,
+      "week_split": {
+        "loss_side_delta": 361.8,
+        "win_side_delta": -1900.3,
+        "n_better": 2,
+        "n_worse": 4
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-35",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.35
+      },
+      "popA_total": 2113.0,
+      "popA_delta": -2695.75,
+      "popA_drop_best": -2887.15,
+      "popA_n_changed": 23,
+      "popA_split": {
+        "loss_side_delta": 699.45,
+        "win_side_delta": -4513.0,
+        "n_better": 12,
+        "n_worse": 11
+      },
+      "popA_tail": {
+        "n_losers": 141,
+        "median": 91.8,
+        "p75": 144.0,
+        "p90": 220.5,
+        "p95": 252.0,
+        "max": 579.0,
+        "total_loss": 16013.7
+      },
+      "runner_cohort_total": 14296.95,
+      "runner_cohort_delta": -1200.3,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1210.71,
+        "2026-08-06": -272.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 271.35,
+        "2026-08-06": -1529.8
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 724.29,
+        "2026-08-06": -1737.4
+      },
+      "week_total_delta": -1258.45,
+      "week_split": {
+        "loss_side_delta": 271.35,
+        "win_side_delta": -1529.8,
+        "n_better": 2,
+        "n_worse": 3
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-40",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.4
+      },
+      "popA_total": 4032.2,
+      "popA_delta": -776.55,
+      "popA_drop_best": -967.95,
+      "popA_n_changed": 17,
+      "popA_split": {
+        "loss_side_delta": 413.9,
+        "win_side_delta": -2308.25,
+        "n_better": 10,
+        "n_worse": 7
+      },
+      "popA_tail": {
+        "n_losers": 137,
+        "median": 90.4,
+        "p75": 130.8,
+        "p90": 236.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 15627.4
+      },
+      "runner_cohort_total": 14858.8,
+      "runner_cohort_delta": -638.45,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1301.16,
+        "2026-08-06": -306.8
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 180.9,
+        "2026-08-06": -1564.2
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 633.84,
+        "2026-08-06": -1771.8
+      },
+      "week_total_delta": -1383.3,
+      "week_split": {
+        "loss_side_delta": 180.9,
+        "win_side_delta": -1564.2,
+        "n_better": 2,
+        "n_worse": 2
+      },
+      "week_suppressed": 9,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-60",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.6
+      },
+      "popA_total": 5555.45,
+      "popA_delta": 746.7,
+      "popA_drop_best": -197.5,
+      "popA_n_changed": 15,
+      "popA_split": {
+        "loss_side_delta": 917.1,
+        "win_side_delta": -1288.2,
+        "n_better": 8,
+        "n_worse": 7
+      },
+      "popA_tail": {
+        "n_losers": 134,
+        "median": 90.0,
+        "p75": 125.4,
+        "p90": 246.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 15436.8
+      },
+      "runner_cohort_total": 15497.25,
+      "runner_cohort_delta": 0.0,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1662.96,
+        "2026-08-06": 1257.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": -180.9,
+        "2026-08-06": 0.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 272.04,
+        "2026-08-06": -207.6
+      },
+      "week_total_delta": -180.9,
+      "week_split": {
+        "loss_side_delta": -180.9,
+        "win_side_delta": 0.0,
+        "n_better": 0,
+        "n_worse": 2
+      },
+      "week_suppressed": 9,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": true,
+        "G2_runner_anchor": true,
+        "G3_wednesday": false,
+        "G4_thursday": true,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "A_cat-70",
+      "axis": "A_CATCAP",
+      "patch": {
+        "catastrophe_stop_pct": -0.7
+      },
+      "popA_total": 6955.3,
+      "popA_delta": 2146.55,
+      "popA_drop_best": 705.2,
+      "popA_n_changed": 15,
+      "popA_split": {
+        "loss_side_delta": 2316.95,
+        "win_side_delta": -1288.2,
+        "n_better": 9,
+        "n_worse": 6
+      },
+      "popA_tail": {
+        "n_losers": 133,
+        "median": 90.0,
+        "p75": 123.6,
+        "p90": 240.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 15088.3
+      },
+      "runner_cohort_total": 15497.25,
+      "runner_cohort_delta": 0.0,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -1484.56,
+        "2026-08-06": 1257.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": -2.5,
+        "2026-08-06": 0.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 450.44,
+        "2026-08-06": -207.6
+      },
+      "week_total_delta": -2.5,
+      "week_split": {
+        "loss_side_delta": -2.5,
+        "win_side_delta": 0.0,
+        "n_better": 1,
+        "n_worse": 1
+      },
+      "week_suppressed": 9,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": true,
+        "G2_runner_anchor": true,
+        "G3_wednesday": false,
+        "G4_thursday": true,
+        "G5_drop_best": true
+      },
+      "clears_all": false
+    },
+    {
+      "id": "B_give30",
+      "axis": "B_GIVEBACK",
+      "patch": {
+        "profit_lock_arm_scope": "full",
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.3
+      },
+      "popA_total": 1986.3,
+      "popA_delta": -2822.45,
+      "popA_drop_best": -3191.45,
+      "popA_n_changed": 100,
+      "popA_split": {
+        "loss_side_delta": 6723.4,
+        "win_side_delta": -10663.65,
+        "n_better": 59,
+        "n_worse": 41
+      },
+      "popA_tail": {
+        "n_losers": 83,
+        "median": 85.2,
+        "p75": 121.8,
+        "p90": 249.0,
+        "p95": 324.0,
+        "max": 579.0,
+        "total_loss": 9351.9
+      },
+      "runner_cohort_total": 7437.5,
+      "runner_cohort_delta": -8059.75,
+      "week_day_total": {
+        "2026-08-04": 7603.4,
+        "2026-08-05": -425.56,
+        "2026-08-06": -36.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 1987.4,
+        "2026-08-05": 1056.5,
+        "2026-08-06": -1293.4
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 3979.4,
+        "2026-08-05": 1509.44,
+        "2026-08-06": -1501.0
+      },
+      "week_total_delta": 1750.5,
+      "week_split": {
+        "loss_side_delta": 1136.0,
+        "win_side_delta": 1341.5,
+        "n_better": 6,
+        "n_worse": 7
+      },
+      "week_suppressed": 13,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "B_give40",
+      "axis": "B_GIVEBACK",
+      "patch": {
+        "profit_lock_arm_scope": "full",
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.4
+      },
+      "popA_total": 1687.9,
+      "popA_delta": -3120.85,
+      "popA_drop_best": -3426.85,
+      "popA_n_changed": 100,
+      "popA_split": {
+        "loss_side_delta": 6185.0,
+        "win_side_delta": -10423.65,
+        "n_better": 60,
+        "n_worse": 40
+      },
+      "popA_tail": {
+        "n_losers": 83,
+        "median": 85.2,
+        "p75": 121.8,
+        "p90": 249.0,
+        "p95": 324.0,
+        "max": 579.0,
+        "total_loss": 9351.9
+      },
+      "runner_cohort_total": 7830.2,
+      "runner_cohort_delta": -7667.05,
+      "week_day_total": {
+        "2026-08-04": 7701.4,
+        "2026-08-05": -690.06,
+        "2026-08-06": -36.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 2085.4,
+        "2026-08-05": 792.0,
+        "2026-08-06": -1293.4
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 4077.4,
+        "2026-08-05": 1244.94,
+        "2026-08-06": -1501.0
+      },
+      "week_total_delta": 1584.0,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": 1406.5,
+        "n_better": 6,
+        "n_worse": 7
+      },
+      "week_suppressed": 13,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "B_give50",
+      "axis": "B_GIVEBACK",
+      "patch": {
+        "profit_lock_arm_scope": "full",
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.5
+      },
+      "popA_total": 1386.1,
+      "popA_delta": -3422.65,
+      "popA_drop_best": -3728.65,
+      "popA_n_changed": 100,
+      "popA_split": {
+        "loss_side_delta": 6102.8,
+        "win_side_delta": -10643.25,
+        "n_better": 61,
+        "n_worse": 39
+      },
+      "popA_tail": {
+        "n_losers": 83,
+        "median": 85.2,
+        "p75": 121.8,
+        "p90": 249.0,
+        "p95": 324.0,
+        "max": 579.0,
+        "total_loss": 9351.9
+      },
+      "runner_cohort_total": 7617.2,
+      "runner_cohort_delta": -7880.05,
+      "week_day_total": {
+        "2026-08-04": 7701.4,
+        "2026-08-05": -690.06,
+        "2026-08-06": -36.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 2085.4,
+        "2026-08-05": 792.0,
+        "2026-08-06": -1293.4
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 4077.4,
+        "2026-08-05": 1244.94,
+        "2026-08-06": -1501.0
+      },
+      "week_total_delta": 1584.0,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": 1406.5,
+        "n_better": 6,
+        "n_worse": 7
+      },
+      "week_suppressed": 13,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "B_give60",
+      "axis": "B_GIVEBACK",
+      "patch": {
+        "profit_lock_arm_scope": "full",
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.6
+      },
+      "popA_total": 869.1,
+      "popA_delta": -3939.65,
+      "popA_drop_best": -4245.65,
+      "popA_n_changed": 100,
+      "popA_split": {
+        "loss_side_delta": 6102.8,
+        "win_side_delta": -11160.25,
+        "n_better": 60,
+        "n_worse": 40
+      },
+      "popA_tail": {
+        "n_losers": 83,
+        "median": 85.2,
+        "p75": 121.8,
+        "p90": 249.0,
+        "p95": 324.0,
+        "max": 579.0,
+        "total_loss": 9351.9
+      },
+      "runner_cohort_total": 7100.2,
+      "runner_cohort_delta": -8397.05,
+      "week_day_total": {
+        "2026-08-04": 7701.4,
+        "2026-08-05": -690.06,
+        "2026-08-06": -36.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 2085.4,
+        "2026-08-05": 792.0,
+        "2026-08-06": -1293.4
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 4077.4,
+        "2026-08-05": 1244.94,
+        "2026-08-06": -1501.0
+      },
+      "week_total_delta": 1584.0,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": 1406.5,
+        "n_better": 6,
+        "n_worse": 7
+      },
+      "week_suppressed": 13,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "C_be15",
+      "axis": "C_BEFLOOR",
+      "patch": {
+        "pre_tp1_be_floor_arm_pct": 0.15
+      },
+      "popA_total": 2866.7,
+      "popA_delta": -1942.05,
+      "popA_drop_best": -2248.05,
+      "popA_n_changed": 67,
+      "popA_split": {
+        "loss_side_delta": 5276.8,
+        "win_side_delta": -8336.65,
+        "n_better": 47,
+        "n_worse": 20
+      },
+      "popA_tail": {
+        "n_losers": 93,
+        "median": 88.2,
+        "p75": 121.8,
+        "p90": 240.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 10362.9
+      },
+      "runner_cohort_total": 9911.8,
+      "runner_cohort_delta": -5585.45,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -577.56,
+        "2026-08-06": -36.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 904.5,
+        "2026-08-06": -1293.4
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 1357.44,
+        "2026-08-06": -1501.0
+      },
+      "week_total_delta": -388.9,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": -1293.4,
+        "n_better": 2,
+        "n_worse": 4
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "C_be20",
+      "axis": "C_BEFLOOR",
+      "patch": {
+        "pre_tp1_be_floor_arm_pct": 0.2
+      },
+      "popA_total": 2433.9,
+      "popA_delta": -2374.85,
+      "popA_drop_best": -2680.85,
+      "popA_n_changed": 63,
+      "popA_split": {
+        "loss_side_delta": 4666.0,
+        "win_side_delta": -8158.65,
+        "n_better": 44,
+        "n_worse": 19
+      },
+      "popA_tail": {
+        "n_losers": 97,
+        "median": 88.8,
+        "p75": 128.0,
+        "p90": 240.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 10973.7
+      },
+      "runner_cohort_total": 9911.8,
+      "runner_cohort_delta": -5585.45,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -577.56,
+        "2026-08-06": -36.0
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 904.5,
+        "2026-08-06": -1293.4
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 1357.44,
+        "2026-08-06": -1501.0
+      },
+      "week_total_delta": -388.9,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": -1293.4,
+        "n_better": 2,
+        "n_worse": 4
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "C_be25",
+      "axis": "C_BEFLOOR",
+      "patch": {
+        "pre_tp1_be_floor_arm_pct": 0.25
+      },
+      "popA_total": 2627.1,
+      "popA_delta": -2181.65,
+      "popA_drop_best": -2487.65,
+      "popA_n_changed": 60,
+      "popA_split": {
+        "loss_side_delta": 4441.0,
+        "win_side_delta": -7740.45,
+        "n_better": 42,
+        "n_worse": 18
+      },
+      "popA_tail": {
+        "n_losers": 100,
+        "median": 89.4,
+        "p75": 123.6,
+        "p90": 240.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 11198.7
+      },
+      "runner_cohort_total": 10330.0,
+      "runner_cohort_delta": -5167.25,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -577.56,
+        "2026-08-06": 220.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 904.5,
+        "2026-08-06": -1037.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 1357.44,
+        "2026-08-06": -1244.6
+      },
+      "week_total_delta": -132.5,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": -1037.0,
+        "n_better": 2,
+        "n_worse": 3
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "C_be30",
+      "axis": "C_BEFLOOR",
+      "patch": {
+        "pre_tp1_be_floor_arm_pct": 0.3
+      },
+      "popA_total": 3702.9,
+      "popA_delta": -1105.85,
+      "popA_drop_best": -1411.85,
+      "popA_n_changed": 57,
+      "popA_split": {
+        "loss_side_delta": 4000.0,
+        "win_side_delta": -6223.65,
+        "n_better": 40,
+        "n_worse": 17
+      },
+      "popA_tail": {
+        "n_losers": 102,
+        "median": 89.4,
+        "p75": 130.8,
+        "p90": 242.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 11639.7
+      },
+      "runner_cohort_total": 11846.8,
+      "runner_cohort_delta": -3650.45,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -577.56,
+        "2026-08-06": 220.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 904.5,
+        "2026-08-06": -1037.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 1357.44,
+        "2026-08-06": -1244.6
+      },
+      "week_total_delta": -132.5,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": -1037.0,
+        "n_better": 2,
+        "n_worse": 3
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "C_be40",
+      "axis": "C_BEFLOOR",
+      "patch": {
+        "pre_tp1_be_floor_arm_pct": 0.4
+      },
+      "popA_total": 3321.8,
+      "popA_delta": -1486.95,
+      "popA_drop_best": -1792.95,
+      "popA_n_changed": 44,
+      "popA_split": {
+        "loss_side_delta": 2879.4,
+        "win_side_delta": -5484.15,
+        "n_better": 30,
+        "n_worse": 14
+      },
+      "popA_tail": {
+        "n_losers": 112,
+        "median": 90.0,
+        "p75": 128.0,
+        "p90": 240.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 12760.3
+      },
+      "runner_cohort_total": 12394.3,
+      "runner_cohort_delta": -3102.95,
+      "week_day_total": {
+        "2026-08-04": 5616.0,
+        "2026-08-05": -577.56,
+        "2026-08-06": 220.4
+      },
+      "week_day_delta": {
+        "2026-08-04": 0.0,
+        "2026-08-05": 904.5,
+        "2026-08-06": -1037.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": 1992.0,
+        "2026-08-05": 1357.44,
+        "2026-08-06": -1244.6
+      },
+      "week_total_delta": -132.5,
+      "week_split": {
+        "loss_side_delta": 904.5,
+        "win_side_delta": -1037.0,
+        "n_better": 2,
+        "n_worse": 3
+      },
+      "week_suppressed": 8,
+      "gates": {
+        "HG_TUE": true,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "D_tp1_20",
+      "axis": "D_TP1",
+      "patch": {
+        "tp1_premium_pct": 0.2
+      },
+      "popA_total": 713.65,
+      "popA_delta": -4095.1,
+      "popA_drop_best": -4564.2,
+      "popA_n_changed": 94,
+      "popA_split": {
+        "loss_side_delta": 8049.4,
+        "win_side_delta": -13262.3,
+        "n_better": 49,
+        "n_worse": 45
+      },
+      "popA_tail": {
+        "n_losers": 97,
+        "median": 88.8,
+        "p75": 128.0,
+        "p90": 240.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 10973.7
+      },
+      "runner_cohort_total": 5383.5,
+      "runner_cohort_delta": -10113.75,
+      "week_day_total": {
+        "2026-08-04": 1795.06,
+        "2026-08-05": -296.21,
+        "2026-08-06": 389.65
+      },
+      "week_day_delta": {
+        "2026-08-04": -3820.94,
+        "2026-08-05": 1185.85,
+        "2026-08-06": -867.75
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": -1828.94,
+        "2026-08-05": 1638.79,
+        "2026-08-06": -1075.35
+      },
+      "week_total_delta": -3502.84,
+      "week_split": {
+        "loss_side_delta": 1337.95,
+        "win_side_delta": -4840.79,
+        "n_better": 3,
+        "n_worse": 15
+      },
+      "week_suppressed": 4,
+      "gates": {
+        "HG_TUE": false,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "D_tp1_25",
+      "axis": "D_TP1",
+      "patch": {
+        "tp1_premium_pct": 0.25
+      },
+      "popA_total": 1551.35,
+      "popA_delta": -3257.4,
+      "popA_drop_best": -3748.9,
+      "popA_n_changed": 91,
+      "popA_split": {
+        "loss_side_delta": 8139.65,
+        "win_side_delta": -12514.85,
+        "n_better": 46,
+        "n_worse": 45
+      },
+      "popA_tail": {
+        "n_losers": 100,
+        "median": 89.4,
+        "p75": 123.6,
+        "p90": 240.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 11198.7
+      },
+      "runner_cohort_total": 6035.85,
+      "runner_cohort_delta": -9461.4,
+      "week_day_total": {
+        "2026-08-04": 1947.51,
+        "2026-08-05": -213.31,
+        "2026-08-06": 517.5
+      },
+      "week_day_delta": {
+        "2026-08-04": -3668.49,
+        "2026-08-05": 1268.75,
+        "2026-08-06": -739.9
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": -1676.49,
+        "2026-08-05": 1721.69,
+        "2026-08-06": -947.5
+      },
+      "week_total_delta": -3139.64,
+      "week_split": {
+        "loss_side_delta": 1395.5,
+        "win_side_delta": -4535.14,
+        "n_better": 3,
+        "n_worse": 15
+      },
+      "week_suppressed": 4,
+      "gates": {
+        "HG_TUE": false,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "D_tp1_30",
+      "axis": "D_TP1",
+      "patch": {
+        "tp1_premium_pct": 0.3
+      },
+      "popA_total": 3075.75,
+      "popA_delta": -1733.0,
+      "popA_drop_best": -2246.9,
+      "popA_n_changed": 90,
+      "popA_split": {
+        "loss_side_delta": 8142.4,
+        "win_side_delta": -10993.2,
+        "n_better": 44,
+        "n_worse": 46
+      },
+      "popA_tail": {
+        "n_losers": 102,
+        "median": 89.4,
+        "p75": 130.8,
+        "p90": 242.0,
+        "p95": 282.0,
+        "max": 579.0,
+        "total_loss": 11639.7
+      },
+      "runner_cohort_total": 7142.1,
+      "runner_cohort_delta": -8355.15,
+      "week_day_total": {
+        "2026-08-04": 2099.96,
+        "2026-08-05": -130.41,
+        "2026-08-06": 580.75
+      },
+      "week_day_delta": {
+        "2026-08-04": -3516.04,
+        "2026-08-05": 1351.65,
+        "2026-08-06": -676.65
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": -1524.04,
+        "2026-08-05": 1804.59,
+        "2026-08-06": -884.25
+      },
+      "week_total_delta": -2841.04,
+      "week_split": {
+        "loss_side_delta": 1453.05,
+        "win_side_delta": -4294.09,
+        "n_better": 3,
+        "n_worse": 15
+      },
+      "week_suppressed": 4,
+      "gates": {
+        "HG_TUE": false,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "D_tp1_40",
+      "axis": "D_TP1",
+      "patch": {
+        "tp1_premium_pct": 0.4
+      },
+      "popA_total": 3041.6,
+      "popA_delta": -1767.15,
+      "popA_drop_best": -2325.85,
+      "popA_n_changed": 79,
+      "popA_split": {
+        "loss_side_delta": 6547.3,
+        "win_side_delta": -9432.25,
+        "n_better": 33,
+        "n_worse": 46
+      },
+      "popA_tail": {
+        "n_losers": 112,
+        "median": 90.0,
+        "p75": 128.0,
+        "p90": 240.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 12760.3
+      },
+      "runner_cohort_total": 8427.25,
+      "runner_cohort_delta": -7070.0,
+      "week_day_total": {
+        "2026-08-04": 2404.86,
+        "2026-08-05": 35.39,
+        "2026-08-06": 707.25
+      },
+      "week_day_delta": {
+        "2026-08-04": -3211.14,
+        "2026-08-05": 1517.45,
+        "2026-08-06": -550.15
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": -1219.14,
+        "2026-08-05": 1970.39,
+        "2026-08-06": -757.75
+      },
+      "week_total_delta": -2243.84,
+      "week_split": {
+        "loss_side_delta": 1568.15,
+        "win_side_delta": -3811.99,
+        "n_better": 3,
+        "n_worse": 15
+      },
+      "week_suppressed": 4,
+      "gates": {
+        "HG_TUE": false,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    },
+    {
+      "id": "D_tp1_50",
+      "axis": "D_TP1",
+      "patch": {
+        "tp1_premium_pct": 0.5
+      },
+      "popA_total": 2317.2,
+      "popA_delta": -2491.55,
+      "popA_drop_best": -3095.05,
+      "popA_n_changed": 67,
+      "popA_split": {
+        "loss_side_delta": 4042.1,
+        "win_side_delta": -7651.45,
+        "n_better": 22,
+        "n_worse": 45
+      },
+      "popA_tail": {
+        "n_losers": 123,
+        "median": 90.0,
+        "p75": 130.8,
+        "p90": 240.0,
+        "p95": 280.0,
+        "max": 579.0,
+        "total_loss": 14066.1
+      },
+      "runner_cohort_total": 9881.55,
+      "runner_cohort_delta": -5615.7,
+      "week_day_total": {
+        "2026-08-04": 2709.76,
+        "2026-08-05": 201.19,
+        "2026-08-06": 858.4
+      },
+      "week_day_delta": {
+        "2026-08-04": -2906.24,
+        "2026-08-05": 1683.25,
+        "2026-08-06": -399.0
+      },
+      "week_day_delta_vs_real_book": {
+        "2026-08-04": -914.24,
+        "2026-08-05": 2136.19,
+        "2026-08-06": -606.6
+      },
+      "week_total_delta": -1621.99,
+      "week_split": {
+        "loss_side_delta": 1683.25,
+        "win_side_delta": -3305.24,
+        "n_better": 3,
+        "n_worse": 12
+      },
+      "week_suppressed": 4,
+      "gates": {
+        "HG_TUE": false,
+        "G1_popA_aggregate": false,
+        "G2_runner_anchor": false,
+        "G3_wednesday": true,
+        "G4_thursday": false,
+        "G5_drop_best": false
+      },
+      "clears_all": false
+    }
+  ],
+  "week_positions": {
+    "2026-08-04": {
+      "safe-2": [
+        {
+          "arm": "safe-2",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:56:50",
+          "premium": 1.35,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "10:16:04",
+              2.7,
+              2
+            ],
+            [
+              "10:21:04",
+              2.48,
+              1
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 383.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-2",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "12:28:43",
+          "premium": 1.34,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "13:08:06",
+              2.61,
+              2
+            ],
+            [
+              "13:23:05",
+              2.55,
+              1
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 375.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-2",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00772000",
+          "side": "C",
+          "entry_et": "13:41:33",
+          "premium": 1.22,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "14:01:04",
+              0.9,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -96.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 771.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        }
+      ],
+      "bold-2": [
+        {
+          "arm": "bold-2",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:57:09",
+          "premium": 1.38,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:16:05",
+              2.68,
+              3
+            ],
+            [
+              "10:21:06",
+              2.5,
+              2
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 614.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "bold-2",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00768000",
+          "side": "C",
+          "entry_et": "11:26:58",
+          "premium": 1.11,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:31:05",
+              0.99,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -60.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 767.48,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "bold-2",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "11:51:41",
+          "premium": 1.19,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:56:05",
+              1.04,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -75.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        }
+      ],
+      "safe-3": [
+        {
+          "arm": "safe-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:58:06",
+          "premium": 1.38,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "10:16:05",
+              2.68,
+              2
+            ],
+            [
+              "10:21:06",
+              2.51,
+              1
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 373.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00768000",
+          "side": "C",
+          "entry_et": "11:27:08",
+          "premium": 1.11,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "11:32:06",
+              0.98,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -39.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 767.48,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "11:52:09",
+          "premium": 1.21,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "11:57:06",
+              0.99,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -66.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "12:28:08",
+          "premium": 1.33,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "13:08:07",
+              2.61,
+              2
+            ],
+            [
+              "13:23:07",
+              2.55,
+              1
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 378.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00771000",
+          "side": "C",
+          "entry_et": "13:24:08",
+          "premium": 1.4,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "13:27:06",
+              1.43,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 9.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 771.28,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00772000",
+          "side": "C",
+          "entry_et": "13:42:07",
+          "premium": 1.22,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "14:02:06",
+              1.16,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -18.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 771.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        }
+      ],
+      "risky-1": [
+        {
+          "arm": "risky-1",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00762000",
+          "side": "C",
+          "entry_et": "09:46:07",
+          "premium": 1.77,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "09:47:06",
+              1.62,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -75.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:50:07",
+          "premium": 1.39,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:06:06",
+              2.12,
+              4
+            ],
+            [
+              "11:25:06",
+              4.87,
+              1
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 640.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00768000",
+          "side": "C",
+          "entry_et": "11:27:10",
+          "premium": 1.11,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:32:07",
+              0.98,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -65.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 767.48,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "11:52:10",
+          "premium": 1.21,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:57:07",
+              0.99,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -110.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "12:28:10",
+          "premium": 1.33,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "13:01:07",
+              2.193333,
+              3
+            ],
+            [
+              "13:51:07",
+              3.29,
+              2
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 651.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        }
+      ],
+      "risky-3": [
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00762000",
+          "side": "C",
+          "entry_et": "09:46:09",
+          "premium": 1.75,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "09:47:07",
+              1.62,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -104.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:50:09",
+          "premium": 1.46,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "09:52:07",
+              1.41,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -40.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:54:07",
+          "premium": 1.52,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "09:56:07",
+              1.34,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -144.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00763000",
+          "side": "C",
+          "entry_et": "09:57:09",
+          "premium": 1.4,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:04:07",
+              1.99,
+              6
+            ],
+            [
+              "10:23:06",
+              2.25,
+              2
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 524.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 763.1,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00765000",
+          "side": "C",
+          "entry_et": "10:35:08",
+          "premium": 1.33,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:37:06",
+              1.23,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -80.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00768000",
+          "side": "C",
+          "entry_et": "11:27:12",
+          "premium": 1.038,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:32:08",
+              0.98,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -29.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 767.48,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "11:52:12",
+          "premium": 1.21,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:57:08",
+              0.99,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -110.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-04",
+          "symbol": "SPY260804C00769000",
+          "side": "C",
+          "entry_et": "12:28:11",
+          "premium": 1.32,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "13:08:08",
+              2.6,
+              3
+            ],
+            [
+              "13:51:08",
+              3.34,
+              2
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 788.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 768.61,
+          "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+        }
+      ]
+    },
+    "2026-08-05": {
+      "safe-2": [
+        {
+          "arm": "safe-2",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00777000",
+          "side": "C",
+          "entry_et": "10:01:58",
+          "premium": 1.61,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "10:20:04",
+              1.33,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -84.0,
+          "strategy": null,
+          "trigger_level": null,
+          "setup_name": null
+        },
+        {
+          "arm": "safe-2",
+          "date": "2026-08-05",
+          "symbol": "SPY260805P00772000",
+          "side": "P",
+          "entry_et": "11:49:07",
+          "premium": 1.63,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "14:12:04",
+              0.78,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -255.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 772.33,
+          "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ],
+      "risky-1": [
+        {
+          "arm": "risky-1",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "09:58:05",
+          "premium": 2.37,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:01:06",
+              2.2,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -85.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:06:05",
+          "premium": 2.27,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:08:05",
+              2.14,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -65.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:10:06",
+          "premium": 2.2,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:13:05",
+              2.0,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -100.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:14:05",
+          "premium": 2.12,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:17:05",
+              1.96,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -80.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:18:06",
+          "premium": 2.06,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "10:20:06",
+              1.75,
+              5
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -155.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-1",
+          "date": "2026-08-05",
+          "symbol": "SPY260805P00772000",
+          "side": "P",
+          "entry_et": "11:48:05",
+          "premium": 1.69,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "12:09:05",
+              2.62,
+              3
+            ],
+            [
+              "12:17:05",
+              2.03,
+              2
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 347.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 772.33,
+          "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ],
+      "risky-3": [
+        {
+          "arm": "risky-3",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "09:58:07",
+          "premium": 2.35,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:01:07",
+              2.18,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -136.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:06:13",
+          "premium": 2.27,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:09:05",
+              2.17,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -80.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:10:07",
+          "premium": 2.19,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:13:06",
+              1.99,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -160.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:14:07",
+          "premium": 2.12,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:17:06",
+              1.9675,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -122.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-05",
+          "symbol": "SPY260805C00776000",
+          "side": "C",
+          "entry_et": "10:18:07",
+          "premium": 2.09,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "10:20:07",
+              1.72,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -296.0,
+          "strategy": "vwap_continuation",
+          "trigger_level": null,
+          "setup_name": "VWAP_CONTINUATION"
+        },
+        {
+          "arm": "risky-3",
+          "date": "2026-08-05",
+          "symbol": "SPY260805P00772000",
+          "side": "P",
+          "entry_et": "11:48:07",
+          "premium": 1.65,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "14:05:07",
+              0.82,
+              8
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -664.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 772.33,
+          "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ]
+    },
+    "2026-08-06": {
+      "safe-2": [
+        {
+          "arm": "safe-2",
+          "date": "2026-08-06",
+          "symbol": "SPY260806P00770000",
+          "side": "P",
+          "entry_et": "10:31:53",
+          "premium": 1.28,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "12:16:04",
+              2.71,
+              2
+            ],
+            [
+              "12:19:04",
+              2.17,
+              1
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 375.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 771.5,
+          "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        },
+        {
+          "arm": "safe-2",
+          "date": "2026-08-06",
+          "symbol": "SPY260806C00769000",
+          "side": "C",
+          "entry_et": "14:21:55",
+          "premium": 1.08,
+          "qty": 3,
+          "exit_legs": [
+            [
+              "14:26:04",
+              0.96,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": -36.0,
+          "strategy": null,
+          "trigger_level": null,
+          "setup_name": null
+        }
+      ],
+      "risky-1": [
+        {
+          "arm": "risky-1",
+          "date": "2026-08-06",
+          "symbol": "SPY260806P00770000",
+          "side": "P",
+          "entry_et": "10:32:06",
+          "premium": 1.23,
+          "qty": 5,
+          "exit_legs": [
+            [
+              "11:23:06",
+              1.95,
+              3
+            ],
+            [
+              "11:29:06",
+              1.63,
+              2
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 296.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 771.5,
+          "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ],
+      "risky-3": [
+        {
+          "arm": "risky-3",
+          "date": "2026-08-06",
+          "symbol": "SPY260806P00770000",
+          "side": "P",
+          "entry_et": "10:32:08",
+          "premium": 1.28,
+          "qty": 8,
+          "exit_legs": [
+            [
+              "12:04:07",
+              2.49,
+              5
+            ],
+            [
+              "12:10:08",
+              2.03,
+              3
+            ]
+          ],
+          "adds": [],
+          "overlap_flag": false,
+          "realized_pnl": 830.0,
+          "strategy": "ribbon_ride",
+          "trigger_level": 771.5,
+          "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ]
+    }
+  },
+  "verdict": {
+    "call": "GRAVEYARD_COLLISION",
+    "axis_A_catcap": "GRAVEYARD_COLLISION -- for a stop_mode==structure position the catastrophe cap IS ExitState.premium_stop_pct (exit_manager.py:224-225,237), so tightening it is the graveyarded stop-tightening item; AND it was already varied by catastrophe_stop_shakeout_ab.py (2026-07-23, cells -0.70/-0.99) and stopped_then_paid_2026_08_04.py (cells -0.10..-0.50). Additionally refuted in the requested direction: Wed +$542.70 vs Thu -$1,698.00.",
+    "axis_B_giveback": "NULL -- new sub-knob (pre-TP1 trail WIDTH, never varied) but strictly dominated by the hard-coded BE floor it cannot be separated from; runner anchor -$8,060..-$8,397, WORSE than the already-graveyarded E1 cell (-$7,758.85).",
+    "axis_C_befloor": "GRAVEYARD_COLLISION -- 5th iteration of a 4-times-dead cell (pretp1-be-floor-isolated-ab-2026-08-02). New cells 0.15/0.20/0.25 sit on the worse side of the published monotone, as pre-registered, and are worse.",
+    "axis_D_tp1": "NULL -- fails the HARD Tuesday gate on every cell (-$2,906 to -$3,821). Best Wednesday saver in the study (+$1,683) but unaffordable.",
+    "cells_clearing_all_six_gates": 0,
+    "closest_cell": "A_cat-70 (fails only G3 Wednesday, by $2.50)"
+  },
+  "replication_checks": [
+    {
+      "metric": "A_cat-70 popA delta",
+      "published": 2146.55,
+      "measured": 2146.55,
+      "source": "catastrophe-stop-shakeout-2026-07-23",
+      "pass": true
+    },
+    {
+      "metric": "C_be30 popA delta",
+      "published": -1105.85,
+      "measured": -1105.85,
+      "source": "pretp1-be-floor-isolated-ab-2026-08-02 P1",
+      "pass": true
+    },
+    {
+      "metric": "C_be30 runner delta",
+      "published": -3650.45,
+      "measured": -3650.45,
+      "source": "pretp1-be-floor-isolated-ab-2026-08-02 P1 G4",
+      "pass": true
+    },
+    {
+      "metric": "D_tp1_50 popA delta",
+      "published": -2491.55,
+      "measured": -2491.55,
+      "source": "exit-armscope-tp1-ab-2026-07-28 E2 G1",
+      "pass": true
+    },
+    {
+      "metric": "D_tp1_50 runner delta",
+      "published": -5615.7,
+      "measured": -5615.7,
+      "source": "exit-armscope-tp1-ab-2026-07-28 E2 G4",
+      "pass": true
+    },
+    {
+      "metric": "week CONTROL day totals",
+      "published": {
+        "2026-08-04": 3624.0,
+        "2026-08-05": -1935.0,
+        "2026-08-06": 1465.0
+      },
+      "measured": {
+        "2026-08-04": 3624.0,
+        "2026-08-05": -1935.0,
+        "2026-08-06": 1465.0
+      },
+      "source": "LOSS-ANATOMY-2026-08-06 options-only day totals",
+      "pass": true
+    },
+    {
+      "metric": "Wednesday exit-config ceiling",
+      "published": 1682.4,
+      "measured": 1683.25,
+      "source": "LOSS-ANATOMY-2026-08-06 sibling-fill substitution vs this run walk_exit_manager tp1=0.5",
+      "pass": "0.85 apart, two independent methods"
+    }
+  ],
+  "mechanical_identity_proof": {
+    "file": "automation/state/fleet/exit_manager.py",
+    "lines": "219-237, 440",
+    "claim": "In structure mode stop_pct = cat_pct and is stored in ExitState.premium_stop_pct; the shape own premium_stop_pct is discarded. plan_exit_actions line 440 tests worst_premium <= runner_stop against that single field. Therefore catastrophe_stop_pct and premium_stop_pct are the SAME operative knob for every ribbon_ride position."
+  },
+  "per_trade_tail_invariance": {
+    "control_max_single_trade_loss": 579.0,
+    "max_across_all_22_cells": 579.0,
+    "finding": "The maximum single-trade loss does not move by one cent under any exit knob at any setting. Corroborates LOSS-ANATOMY-2026-08-06 from the opposite direction: the loss lives at the DAY level, not the trade level."
+  }
+}
