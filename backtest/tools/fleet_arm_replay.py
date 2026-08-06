@@ -213,6 +213,12 @@ _NAMED_TABLES = {
     "safe": ss.V15_SAFE_TIERS,
     "bold": ss.V15_BOLD_TIERS,
     "bold_core": ss.V15_BOLD_CORE_TIERS,
+    # ATM-TIER-EXTENSION-2K-10K per-arm kill (2026-08-06): risky-3's accounts.json now
+    # carries 'bold_core_pre_ext' (fleet_executor._tiers_for_arm's own new branch) --
+    # this harness's table vocabulary must track it or every risky-3 replay dies at
+    # resolve_strike_tiers (caught live 2026-08-06: 2 replay tests RED on exactly that
+    # ValueError; C14 second-consumer miss on the ship itself).
+    "bold_core_pre_ext": ss.V15_BOLD_CORE_PRE_EXT_TIERS,
     "probe": fx.PROBE_STRIKE_TIERS,
 }
 

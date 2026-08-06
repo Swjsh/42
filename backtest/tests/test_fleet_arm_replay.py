@@ -408,12 +408,23 @@ def test_atm_coverage_heuristic_uses_real_history_not_id_prefix_guess():
     # UPDATED 2026-08-04 (ATM-TIER-EXTENSION-2K-10K, prereg atm-tier-extension-2k10k-
     # prereg-2026-08-03.json): the $2K-$10K bracket moved OTM-2 -> ATM, so bold_core now
     # DISAGREES with the frozen historical table there too -- an ATM-cell replay at $2.5K
-    # (or the live $5K) is NOT anchor-covered anymore, and the heuristic must say so.
+    # is NOT anchor-covered anymore, and the heuristic must say so. UPDATED AGAIN
+    # 2026-08-06 (per-arm KILL of that extension on risky-3, n=14/-$653): risky-3's live
+    # label is now 'bold_core_pre_ext' whose $2K-10K row is OTM-2 -- MATCHING the frozen
+    # fill history -- so risky-3 flips back to covered, and the ATM-vs-history divergence
+    # exhibit moves to risky-1 (which KEEPS bold_core/ATM there, n=11/+$903).
+    risky1_at_2_5k = dataclasses.replace(
+        far.ArmReplayConfig.for_arm("risky-1"), equity=2_500.0)  # $2K-10K: bold_core=ATM vs history=OTM-2
+    assert far._tier_predates_or_matches_anchor_history(risky1_at_2_5k) is False, (
+        "risky-1 keeps the 2K-10K ATM extension while every real fill to date was priced "
+        "OTM-2/OTM-3 there -- must be reported NOT covered")
+
     risky3_at_2_5k = dataclasses.replace(
-        far.ArmReplayConfig.for_arm("risky-3"), equity=2_500.0)  # $2K-10K: bold_core=ATM vs history=OTM-2
-    assert far._tier_predates_or_matches_anchor_history(risky3_at_2_5k) is False, (
-        "post-2026-08-04, bold_core is ATM in the $2K-10K bracket while every real fill "
-        "to date was priced OTM-2/OTM-3 there -- must be reported NOT covered")
+        far.ArmReplayConfig.for_arm("risky-3"), equity=2_500.0)  # $2K-10K: pre_ext=OTM-2 == history
+    assert risky3_at_2_5k.strike_tiers_label == "bold_core_pre_ext"
+    assert far._tier_predates_or_matches_anchor_history(risky3_at_2_5k) is True, (
+        "post-2026-08-06 kill, risky-3's $2K-10K band (OTM-2) matches the table its real "
+        "fills were priced under -- the heuristic must recognize coverage came BACK")
 
     risky3_at_15k = dataclasses.replace(
         far.ArmReplayConfig.for_arm("risky-3"), equity=15_000.0)  # $10K-25K: both tables agree (OTM-1)
