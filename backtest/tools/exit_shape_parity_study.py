@@ -222,9 +222,58 @@ def _et_hhmm_to_utc(date_et: str, hhmm: str) -> str:
     return f"{utc_hh:02d}:{mm}:00Z"
 
 
-def replay_position(position: dict, bars: list[dict], shape: dict) -> dict:
+_OCC_SIDE_RE = __import__("re").compile(r"\d{6}([CP])\d{8}$")
+
+
+def _side_from_occ_symbol(symbol: str) -> str:
+    """'SPY260806C00769000' -> 'C'. Falls back to 'P' (the pre-2026-08-06 hardcoded value)
+    only when the symbol is not OCC-shaped -- disclosed via the returned row's 'side' key."""
+    m = _OCC_SIDE_RE.search(str(symbol or ""))
+    return m.group(1) if m else "P"
+
+
+def _last_closed_5m_close(spy_5m_bars: list[dict], bar_ts_utc: str):
+    """Latest 5-min SPY bar fully CLOSED by `bar_ts_utc` (bar start + 5min <= ts), from a
+    list of {"t": iso_utc, "c": close} dicts sorted or not. None when nothing qualifies --
+    plan_exit_actions then fail-opens (skips the structure check this tick), the same
+    contract the live actuator has."""
+    try:
+        ts = datetime.fromisoformat(str(bar_ts_utc).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    best_t, best_c = None, None
+    for b in spy_5m_bars or []:
+        try:
+            bt = datetime.fromisoformat(str(b["t"]).replace("Z", "+00:00"))
+            close = float(b["c"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        from datetime import timedelta as _td
+        if bt + _td(minutes=5) <= ts and (best_t is None or bt > best_t):
+            best_t, best_c = bt, close
+    return best_c
+
+
+def replay_position(position: dict, bars: list[dict], shape: dict, *,
+                    structure_stop_enabled: bool = False,
+                    trigger_level: "float | None" = None,
+                    spy_5m_bars: "list[dict] | None" = None) -> dict:
     """Replay ONE position under ONE candidate shape against REAL 1-min option bars, using
-    the ACTUAL live exit_manager.plan_exit_actions decision core. Returns pnl + exit trace."""
+    the ACTUAL live exit_manager.plan_exit_actions decision core. Returns pnl + exit trace.
+
+    D1 / SWEEP-2 FIX (2026-08-06, HIGH, EOD-2026-08-06-FULL-REVIEW #1): this function used
+    to call ExitState.from_entry WITHOUT trigger_level/structure_stop_enabled and
+    plan_exit_actions WITHOUT last_closed_5m_close -- so a shape declaring
+    stop_mode="structure" (the LIVE registry ribbon_ride shape; structure_stop_enabled=true
+    in BOTH params files since v15.3) silently resolved to a premium-stop walk. Measured on
+    the 2026-08-06 real put: -$76.80 reported vs +$338.45 broker truth -- SIGN FLIPPED.
+    Now: a structure-declaring shape REFUSES to replay (pnl=None, loud reason, lands in
+    n_no_data -- never a silently-degraded number) unless the caller supplies ALL of
+    structure_stop_enabled=True, a trigger_level, and spy_5m_bars ({"t","c"} 5-min SPY dicts)
+    -- in which case the structure stop is actually modeled, per-tick, exactly like
+    exit_manager_walk.walk_exit_manager (the canonical replay). Premium-mode shapes are
+    byte-identical to the pre-fix walk. `side` is now derived from the OCC symbol (was
+    hardcoded "P" -- inert for premium math, load-bearing for structure direction)."""
     entry_ts = position["entry_ts_utc"]
     relevant_bars = [b for b in bars if b["t"] >= entry_ts]
     if not relevant_bars:
@@ -233,8 +282,21 @@ def replay_position(position: dict, bars: list[dict], shape: dict) -> dict:
     qty = int(position["entry_qty"])
     if qty < 1:
         return {"pnl": None, "reason": "qty<1", "exits": []}
-    state = ExitState.from_entry(symbol=position["symbol"], side="P", entry_premium=position["entry_price"],
-                                 qty=qty, exit_shape=shape, strategy="replay")
+    side = _side_from_occ_symbol(position["symbol"])
+    shape_declares_structure = str(shape.get("stop_mode", "premium")).lower() == "structure"
+    structure_inputs_ok = (structure_stop_enabled and trigger_level is not None
+                           and spy_5m_bars is not None)
+    if shape_declares_structure and not structure_inputs_ok:
+        return {"pnl": None, "exits": [], "side": side,
+                "reason": ("structure_mode_not_modeled: shape declares stop_mode='structure' "
+                           "but caller did not supply structure_stop_enabled=True + "
+                           "trigger_level + spy_5m_bars -- refusing to silently degrade to a "
+                           "premium stop (D1/SWEEP-2 sign-flip fix 2026-08-06)")}
+    state = ExitState.from_entry(symbol=position["symbol"], side=side,
+                                 entry_premium=position["entry_price"],
+                                 qty=qty, exit_shape=shape, strategy="replay",
+                                 trigger_level=trigger_level,
+                                 structure_stop_enabled=structure_stop_enabled)
     open_qty = qty
     realized = 0.0
     exits = []
@@ -244,9 +306,12 @@ def replay_position(position: dict, bars: list[dict], shape: dict) -> dict:
         bar_dt_utc = datetime.fromisoformat(bar["t"].replace("Z", "+00:00"))
         now_et_dt = et_now(bar_dt_utc)
         now_et = now_et_dt.time()
+        closed5 = (_last_closed_5m_close(spy_5m_bars, bar["t"])
+                   if (state.stop_mode == "structure" and spy_5m_bars) else None)
         decision = plan_exit_actions(state, best_premium=bar["h"], worst_premium=bar["l"],
                                      open_qty=open_qty, now_et=now_et, ribbon_flip_back=False,
-                                     time_stop_et=TIME_STOP_ET)
+                                     time_stop_et=TIME_STOP_ET,
+                                     last_closed_5m_close=closed5)
         for action in decision.actions:
             if action.kind in ("SELL_PARTIAL", "SELL_ALL"):
                 if action.stage == "tp1":
@@ -261,7 +326,7 @@ def replay_position(position: dict, bars: list[dict], shape: dict) -> dict:
                     if action.stage == "premium_stop":
                         stopped_out = True
                         stop_bar_idx = i
-                else:  # time_stop
+                else:  # time_stop / structure_stop -- market-style, fill at this bar's close
                     fill_price = bar["c"]
                 pnl_leg = (fill_price - position["entry_price"]) * action.qty * 100
                 realized += pnl_leg
@@ -278,6 +343,7 @@ def replay_position(position: dict, bars: list[dict], shape: dict) -> dict:
         thesis_paid_after_stop = any(b["h"] >= position["entry_price"] for b in later_bars)
 
     return {"pnl": round(realized, 2), "exits": exits, "final_open_qty": open_qty,
+            "side": side, "stop_mode": state.stop_mode,
             "stopped_out": stopped_out, "thesis_paid_after_stop": thesis_paid_after_stop}
 
 
