@@ -205,6 +205,14 @@ def _payload_stub():
 
 
 def test_structure_veto_blocks_extra_setup_route(hc, monkeypatch):
+    # D3 LEDGER-LEAK FIX (2026-08-06): capture _log instead of letting run_account() append
+    # a REAL row to production automation/state/core-decisions.jsonl. This test (plus its
+    # sibling below) was the unidentified "synthetic row writer" -- 322 rows (161 suite
+    # runs x this exact blocked/placed pair, spy=751.0 vix=16.0 from _payload_stub) landed
+    # in the live ledger because this was the ONLY run_account-driving test file that did
+    # not patch _log. Same idiom as test_blind_no_levels_2026_07_30.py:98. Pinned suite-wide
+    # by test_no_ledger_leak_from_tests_2026_08_06.py.
+    monkeypatch.setattr(hc, "_log", lambda rec: None)
     monkeypatch.setattr(hc, "_fetch_spy_5m", lambda: object())
     monkeypatch.setattr(hc, "_build_payload", lambda df, params: _payload_stub())
     monkeypatch.setattr(hc, "_engine_verdict", lambda payload: {
@@ -237,6 +245,7 @@ def test_non_veto_hold_still_routes_extra_setup(hc, monkeypatch):
     """Sibling case: an ordinary HOLD (no setup, NOT a structure veto) must still
     route a fired+armed extra-setup exactly as before -- this fix narrows ONLY the
     SKIP_STRUCTURE_VETO case; it must not silently defeat the G4 route on plain HOLDs."""
+    monkeypatch.setattr(hc, "_log", lambda rec: None)  # D3 ledger-leak fix -- see sibling above
     monkeypatch.setattr(hc, "_fetch_spy_5m", lambda: object())
     monkeypatch.setattr(hc, "_build_payload", lambda df, params: _payload_stub())
     monkeypatch.setattr(hc, "_engine_verdict", lambda payload: {
