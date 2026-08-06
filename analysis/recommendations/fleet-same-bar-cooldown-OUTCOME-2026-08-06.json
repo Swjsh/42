@@ -1,0 +1,20 @@
+{
+  "rule_id": "fleet-same-bar-cooldown-2026-08-06",
+  "outcome": "DO_NOT_ARM",
+  "decided_at_et": "2026-08-06 evening (ship-gate replay, same session as the wiring)",
+  "prereg": "analysis/recommendations/fleet-same-bar-cooldown-prereg-2026-08-06.json (55880b45, committed before wiring)",
+  "shipped_state": "wiring + guards SHIPPED but DISARMED: fleet_live.FLEET_SAME_BAR_COOLDOWN = False (default pinned by test_fleet_same_bar_cooldown.py::test_default_is_disarmed_do_not_arm_verdict). Signal plumbing (trigger_bar_et threaded core-decisions -> shared-signal via build_shared_signal._map_core_row) ships live -- additive, consumed by nothing while disarmed.",
+  "why": {
+    "one_sentence": "The study's +$202 Wed / +$144 Tue was keyed to WALL-CLOCK last-closed 5m bars, but the live consult keys on the engine's own trigger_bar_et, which lags tick-phase-dependently (bar-cache append + trig_idx=n-2) -- the bar-equality relations, and therefore the blocked set, do not transfer (L251 class).",
+    "production_faithful_replay": {
+      "method": "each real placed fleet entry (per-arm decisions.jsonl, placement.placed=true) joined to its OWN core tick via core_tick_id -> core-decisions.jsonl trigger_bar_et -- exactly the value the live consult would read off shared-signal; then the exact production functions (exit_actuator.same_bar_cooldown_active / record_entry_bar) walked in time order per (arm, setup)",
+      "wed_2026_08_05": "risky-1 + risky-3 re-entries 09:58/10:06/10:10/10:14/10:18 carry trigger bars 09:50/09:55/10:00/10:05/10:10 -- ADVANCING every time -> blocks NOTHING (study claimed both 10:14 legs, +$202)",
+      "tue_2026_08_04": "only same-bar pair is risky-3 VWAP_CONTINUATION 09:54 (bar 09:45) then 09:57 (bar 09:45) -> blocks the 09:57 763C leg = +$524.00 REAL FILLS (EOD-2026-08-04-ENGINE.md:464), the exact winner the study said it preserves",
+      "net_on_motivating_tape": -524.0
+    },
+    "kill_criterion_met": "prereg kill criterion #1 (blocks an entry that would have been a winner > +$150) is met on day-0 replay -- before any forward session"
+  },
+  "arm_condition": "only after an honest forward (or historical) re-measure keyed to trigger_bar_et clears the prereg gates: does-no-harm on real fills, no blocked winner > +$150. Flip fleet_live.FLEET_SAME_BAR_COOLDOWN = True.",
+  "still_true": "the mechanism remains the correct structural guard for the TRUE sub-bar churn shape (two entries riding the SAME engine trigger bar, e.g. Tue 09:54->09:57 was 3 min apart; core's 07-20 exhibit was the same shape) -- the open question is whether blocking that shape is net-positive on real fills, and the only two-day evidence says no (the one blocked leg was the +$524 winner).",
+  "lesson_filed": "_lesson-inbox: counterfactuals for bar-keyed gates must be replayed on the engine's own bar identity (trigger_bar_et), never a wall-clock bar derivation (L251 sibling)"
+}

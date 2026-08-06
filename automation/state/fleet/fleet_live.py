@@ -228,6 +228,39 @@ def _load_prior_stops(arm_id: str, now: datetime) -> list[str]:
 # pattern, same fail-OPEN-on-read-error contract -- a claim-file problem must never itself
 # block a legitimate entry; the broker query is what fails CLOSED). Guard:
 # test_entry_idempotency_guard.py.
+# FLEET-SAME-BAR-COOLDOWN (2026-08-06) -- core-parity wiring of the 2026-07-20
+# EXTRA-SIGNAL-CHURN-COOLDOWN, NOT a new edge. The mechanism (exit_actuator.
+# same_bar_cooldown_active / record_entry_bar, per-(arm, setup) "last trigger-bar
+# attempted" ledger in <arm>/extra-setup-cooldown.json) has protected the CORE extra-setup
+# lane since 2026-07-20; the fleet placement path never consulted it (LEVER-ENTRY-COUNT-
+# 2026-08-06.md section 2d measured the gap: Wed 08-05 +$202, Tue 08-04 +$144, 0/26 days
+# harmed, blocks exactly 3 churn re-entries week-wide while preserving the 09:57 +$524
+# rescue whose trigger bar was genuinely new). Rule: the closed 5m trigger bar (signal
+# "trigger_bar_et", threaded from core-decisions by build_shared_signal) must ADVANCE
+# before the SAME (arm, setup) re-enters -- no numeric knob exists, structural.
+# Frozen forward prereg (committed BEFORE this wiring, git-provable):
+# analysis/recommendations/fleet-same-bar-cooldown-prereg-2026-08-06.json (55880b45).
+# FAIL-OPEN: missing/None trigger_bar_et, unreadable cooldown file, or ANY consult
+# exception must never block an entry; a stamp failure never aborts a placed entry.
+# Guard: test_fleet_same_bar_cooldown.py.
+#
+# *** DISARMED AT SHIP (2026-08-06 evening) -- DO-NOT-ARM verdict. *** The ship-gate
+# replay through the PRODUCTION trigger-bar identity (each fleet row's own core_tick_id
+# -> core-decisions trigger_bar_et, i.e. exactly what this consult keys on live) FAILED
+# to reproduce the study: on Wed 08-05 every re-entry's trigger bar ADVANCED
+# (09:58->09:50, 10:06->09:55, 10:10->10:00, 10:14->10:05, 10:18->10:10) so it blocks
+# NOTHING (study claimed +$202); on Tue 08-04 the only same-bar pair is risky-3
+# 09:54/09:57 (both bar 09:45) -- so it blocks the 09:57 763C leg, which is the +$524
+# REAL-FILLS WINNER the study said it preserves (EOD-2026-08-04-ENGINE.md:464). The
+# study keyed entries to WALL-CLOCK last-closed bars; the engine's trigger_bar_et lags
+# tick-phase-dependently (bar-cache append + trig_idx=n-2), so bar-equality relations
+# do not transfer (L251 class). Net on the motivating tape: -$524, and the prereg's own
+# kill criterion (blocks a winner > +$150) is met on day-0 replay. Outcome record:
+# analysis/recommendations/fleet-same-bar-cooldown-OUTCOME-2026-08-06.json.
+# ARM (only after an honest forward re-measure keyed to trigger_bar_et clears the
+# prereg gates): FLEET_SAME_BAR_COOLDOWN = True.
+FLEET_SAME_BAR_COOLDOWN = False
+
 ENTRY_CLAIM_TTL_SEC = 180  # >= one full tick at today's 3-min cadence, several at the 1-min
                            # candidate cadence; real fills resolve in ~0.1-0.2s (measured,
                            # see the 2026-08-01 latency instrument) so this only needs to
@@ -466,6 +499,21 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     expiry = now  # 0DTE
     symbol = _occ_symbol(side, strike, expiry)
     arm_id = str(arm.get("id") or "unknown")
+    # FLEET-SAME-BAR-COOLDOWN consult (see module comment at FLEET_SAME_BAR_COOLDOWN):
+    # refuse a re-entry for a (arm, setup) that already attempted an entry on THIS exact
+    # closed 5m trigger bar. Mirrors heartbeat_core._route_extra_setups' consult contract
+    # exactly (same key shape, same string-equality bar comparison, same fail-open
+    # try/except -- a cooldown-check error must never block an entry). Placed BEFORE any
+    # broker/quote call: the refusal is local and free.
+    if FLEET_SAME_BAR_COOLDOWN:
+        _cd_bar = str((signal or {}).get("trigger_bar_et") or "") or None
+        try:
+            if ea.same_bar_cooldown_active(arm_id, str(decision.setup_name or "") or None,
+                                           _cd_bar):
+                return {"mode": "LIVE", "placed": False, "reason": "SKIP_COOLDOWN_SAME_BAR",
+                        "trigger_bar_et": _cd_bar}
+        except Exception:  # noqa: BLE001 -- fail-open: a cooldown-check error never blocks
+            pass
     mid = fb.get_option_mid(creds, symbol)
     # MARKETABLE-LIMIT (#15): a limit @ mid rarely crosses on 0DTE -> the "zero fills ever" bug.
     # Price the ENTRY at ask+buffer so it actually fills; mid stays the base for the TP/stop pct
@@ -564,6 +612,16 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
         res["_note"] = ("simple marketable limit placed directly (options: no broker bracket); "
                         "TP/stop engine-managed (exit_manager)")
     placed = not res.get("_error") and not res.get("_refused")
+    # FLEET-SAME-BAR-COOLDOWN stamp: record (arm, setup) -> trigger-bar ONLY on an actual
+    # placement (mirrors core's _TAKEN contract -- every refusal above returned before this
+    # line and never stamps). record_entry_bar itself no-ops on empty setup/bar and swallows
+    # write errors (never aborts an already-placed entry).
+    if FLEET_SAME_BAR_COOLDOWN and placed:
+        try:
+            ea.record_entry_bar(arm_id, str(decision.setup_name or ""),
+                                str((signal or {}).get("trigger_bar_et") or ""))
+        except Exception:  # noqa: BLE001 -- never abort an already-placed entry
+            pass
     # EXIT ENGINE WIRING (FIX1 follow-up, 2026-06-25): the bracket above is only the
     # entry leg + a catastrophe-floor stop. Register the position with the exit_manager so
     # the tick-managed scale-out (partial TP1 at tp1_qty_fraction + runner + profit-lock per

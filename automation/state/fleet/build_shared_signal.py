@@ -146,6 +146,12 @@ def _map_core_row(row: dict) -> dict:
         # fired level-tied trigger). Absent on any row written before this build -> None,
         # the exact same "no exact level available" contract as a TRENDLINE-tier entry.
         "trigger_level_exact": row.get("trigger_level_exact"),
+        # FLEET-SAME-BAR-COOLDOWN (2026-08-06): passthrough of heartbeat_core's top-level
+        # "trigger_bar_et" (the closed 5m trigger bar's ISO timestamp, bar_ctx.timestamp_et).
+        # Consumed by fleet_live._place_live's same-bar re-entry consult. Absent on rows
+        # written before the core field existed -> None -> the cooldown fails open (never
+        # blocks), exactly like exit_actuator.same_bar_cooldown_active's own contract.
+        "trigger_bar_et": row.get("trigger_bar_et"),
     }
 
 
@@ -649,6 +655,11 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
         "production_action": action,
         "bear": bear,
         "bull": bull,
+        # FLEET-SAME-BAR-COOLDOWN (2026-08-06, additive): the closed 5m trigger bar this
+        # tick's verdict was computed on (core-decisions trigger_bar_et passthrough via
+        # _map_core_row). fleet_live's same-bar re-entry consult keys on it; None/absent
+        # (beacon fallback, old rows) -> consult fails open, never blocks.
+        "trigger_bar_et": row.get("trigger_bar_et"),
         "written_at": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "source": f"derived-from-{'core' if USE_CORE_LEDGER else 'decisions'}-v1",
     }

@@ -107,26 +107,31 @@ def test_fresh_process_each_tick_breaks_once_per_day() -> None:
     assert fires[0] == "09:55"
 
 
-def test_fleet_path_has_no_persisted_cooldown_while_core_does() -> None:
-    """Parity check: the CORE lane persists a same-bar cooldown, the FLEET lane does not.
-
-    This is the wiring half of the defect. It is asserted on SOURCE TEXT (not behaviour)
-    so it stays true regardless of market data availability.
+def test_fleet_path_persists_same_bar_cooldown_like_core() -> None:
+    """Parity check (INVERTED 2026-08-06 per this test's own original instruction: the
+    FLEET-SAME-BAR-COOLDOWN wiring landed -- prereg analysis/recommendations/
+    fleet-same-bar-cooldown-prereg-2026-08-06.json). The fleet placement path now
+    CARRIES the consult + stamp code (flag-gated; shipped DISARMED per the DO-NOT-ARM
+    day-0 replay verdict -- see the OUTCOME json + test_fleet_same_bar_cooldown.py's
+    default pin). Asserted on SOURCE TEXT (not behaviour) so it stays true regardless
+    of market data availability; behavioural coverage lives in
+    automation/state/fleet/test_fleet_same_bar_cooldown.py.
     """
     core = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
     assert "same_bar_cooldown_active" in core, "core lane lost its persisted cooldown"
     assert "record_entry_bar" in core, "core lane lost its cooldown writer"
 
-    fleet_srcs = "\n".join(
-        (REPO / "automation" / "state" / "fleet" / f).read_text(encoding="utf-8")
-        for f in ("fleet_live.py", "fleet_executor.py", "fleet_market.py")
-    )
+    fleet_live = (REPO / "automation" / "state" / "fleet" / "fleet_live.py").read_text(
+        encoding="utf-8")
     # Strip comments/docstring prose so a mention in a comment does not fake a wiring.
     code_only = "\n".join(
-        ln for ln in fleet_srcs.splitlines()
+        ln for ln in fleet_live.splitlines()
         if not ln.lstrip().startswith("#")
     )
-    assert "same_bar_cooldown_active(" not in code_only, (
-        "the fleet lane now CALLS the persisted cooldown -- good; update this test to "
-        "assert the new parity instead of the gap"
+    assert "same_bar_cooldown_active(" in code_only, (
+        "the fleet placement path lost its same-bar cooldown consult "
+        "(FLEET-SAME-BAR-COOLDOWN, prereg 2026-08-06)"
+    )
+    assert "record_entry_bar(" in code_only, (
+        "the fleet placement path lost its same-bar cooldown stamp"
     )
