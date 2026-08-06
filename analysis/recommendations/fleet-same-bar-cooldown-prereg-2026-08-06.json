@@ -1,0 +1,40 @@
+{
+  "rule_id": "fleet-same-bar-cooldown-2026-08-06",
+  "name": "SAMEBAR -- fleet same-bar re-entry cooldown (core-parity wiring)",
+  "frozen_at_et": "2026-08-06T19:05:00-04:00",
+  "commit_discipline": "THIS file must be committed BEFORE the wiring commit; verify with git merge-base --is-ancestor <prereg_sha> <wiring_sha>.",
+  "classification": "core-parity wiring of an ALREADY-SHIPPED guard, not a new edge. The mechanism (exit_actuator.same_bar_cooldown_active / record_entry_bar, EXTRA-SIGNAL-CHURN-COOLDOWN 2026-07-20) has run on the CORE extra-setup lane since 2026-07-20. The fleet entry path never consulted it (verified: callers only heartbeat_core.py:2375/:2410; fleet_live.py references it in a comment only).",
+  "rule": "Before a fleet arm places a new entry, refuse it if that (arm, setup) already attempted an entry on the SAME closed 5m trigger bar (signal trigger_bar_et string equality, exit_actuator.same_bar_cooldown_active). Stamp (arm, setup, trigger_bar_et) via exit_actuator.record_entry_bar only on an actual placement (placed=true). The trigger bar must ADVANCE before the same setup re-enters. No numeric knob exists -- structural, same as core.",
+  "fail_open_contract": "A cooldown-file read error, a missing/None trigger_bar_et on the signal, or ANY exception in the consult must never block an entry (mirrors core's try/except + same_bar_cooldown_active's own fail-open). A record failure must never abort an already-placed entry.",
+  "posthoc_evidence_labeled": {
+    "label": "POST-HOC (LEVER-ENTRY-COUNT-2026-08-06.md section 2d; written after prereg C3 failed; verdict capped at PREREG there; KEEP-LOSSES-SMALL-2026-08-06.md ladder #1 rates it SHIP-ELIGIBLE as a wiring gap)",
+    "tue_2026_08_04": 144.0,
+    "wed_2026_08_05": 202.0,
+    "thu_2026_08_06": 0.0,
+    "book_26d": 497.0,
+    "days_harmed": 0,
+    "blocked_positions_week": "exactly 3: risky-3 Tue 09:54 (bar 09:45 claimed at 09:50), risky-1 + risky-3 Wed 10:14 (bar 10:05 claimed at 10:10); preserves Tue 09:57 +$524 rescue (bar 09:50 new)",
+    "permutation_p": 0.332,
+    "bh_q": 0.766,
+    "note": "does-no-harm wiring parity, NOT statistical evidence of edge; p/q disclosed honestly"
+  },
+  "forward_window": {
+    "clock": "starts first RTH session after wiring ships (expected 2026-08-07)",
+    "review_at": "10 sessions OR first session with >=1 blocked entry, whichever first",
+    "metrics": ["blocked entries per (arm,setup,bar)", "counterfactual P&L of blocked legs on real fills", "days harmed"]
+  },
+  "kill_criteria": [
+    "any single session where the cooldown blocks an entry that would have been a winner > +$150 (real-fills counterfactual)",
+    "2 consecutive weeks net-negative attributable to the cooldown"
+  ],
+  "revert_one_line": "automation/state/fleet/fleet_live.py: set FLEET_SAME_BAR_COOLDOWN = False (single flag; consult + stamp both gate on it)",
+  "guards": [
+    "automation/state/fleet/test_fleet_same_bar_cooldown.py (vary-and-assert: same trigger bar -> second entry blocked; NEW trigger bar -> allowed; fail-open on cooldown error; no stamp on refused placement)"
+  ],
+  "red_proof_required": "mutate fleet_live.py consult site, prove guard RED, restore byte-identical (sha256), prove green",
+  "provenance": [
+    "analysis/deep-research/LEVER-ENTRY-COUNT-2026-08-06.md#2d",
+    "analysis/deep-research/KEEP-LOSSES-SMALL-2026-08-06.md ladder #1 (SHIP-ELIGIBLE)",
+    "backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py (core-lane contract)"
+  ]
+}
