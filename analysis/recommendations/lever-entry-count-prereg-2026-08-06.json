@@ -1,0 +1,129 @@
+{
+  "rule_id": "lever-entry-count-2026-08-06",
+  "title": "LEVER 4 -- STOP THE BLEED AT THE SOURCE: entry COUNT and entry ADMISSIBILITY",
+  "status": "FROZEN_PREREG",
+  "frozen_at_et": "2026-08-06 evening, market CLOSED (et_clock.py verified: 2026-08-06 16:45:26 Thursday EDT, market_hours=False)",
+  "author": "LEVER-4 agent (entry count + admissibility lane)",
+  "freeze_order_claim": "This file is committed BEFORE backtest/tools/lever_entry_count_2026_08_06.py exists. Provable with `git merge-base --is-ancestor <this-commit> <runner-commit>`.",
+
+  "why": "J, 2026-08-06 after the close: 'we need to dial in on how to NOT LOSE TWO THOUSAND DOLLARS on Wednesday ... we gotta KEEP OUR LOSSES SMALL so that way our wins can stack.' Wednesday 2026-08-05 lost -$1,943.66 (all-in) / -$1,935.00 (SPY-options-only) the day after Tuesday made +$3,617.19. Wednesday's mechanics are already fully audited elsewhere; THIS lane asks only one question: does capping or qualifying ENTRIES cap a Wednesday-shaped day WITHOUT costing Tuesday or Thursday?",
+
+  "populations": {
+    "A_BOOK": {
+      "name": "LIVE-ENGINE-REAL-FILLS-v2",
+      "source": "automation/state/fills-ledger.jsonl, attribution=='engine' AND is_option AND NOT is_crypto, grouped into POSITIONS by backtest/tools/exit_shape_parity_study.reconstruct_positions (the repo's single canonical definition), open positions dropped",
+      "window_et": "2026-06-26 .. 2026-08-06 (26 ET dates -- the brief's 'the 25-day book' predates today; today is the 26th and is INCLUDED)",
+      "authority": "REAL BROKER FILLS ONLY for P&L. Never a model, never a sim.",
+      "n_small_disclosure": "26 live days is SMALL. No cell may be called 'validated' off this population alone. The honest ceiling here is SHIP-AS-DEFECT-FIX (for a cell that only restores an already-validated contract) or PREREG/SHADOW (for anything that is a new edge)."
+    },
+    "B_REPLAY": {
+      "name": "engine-fullhist-replay-2026-07-23",
+      "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json `trades` -- 191 RIDE_THE_RIBBON-family trades over 141 traded days inside a 387-calendar-RTH-day window (2025-01-02..2026-07-22), entries frozen, exits re-walked through the REAL live exit core (exit_manager.plan_exit_actions via exit_manager_walk.walk_exit_manager)",
+      "the_briefs_391_day_population": true,
+      "scale_caveat_precommitted": "ONE arm at qty 3, one strategy family. It cannot express fleet effects and structurally cannot produce a Wednesday. It also may be structurally 1-entry-per-day, in which case every COUNT-CAP cell is a NO-OP on it -- that is a REPORTABLE NULL, not a pass.",
+      "look_ahead_rule": "entries frozen as replayed; this lane only DROPS trades, never re-prices them."
+    },
+    "C_TAPE": {
+      "name": "2026-08-05 tick sequence",
+      "source": "backtest/data/spy_5m_2026-05-19_2026-08-06.csv (Alpaca SIP 5m lineage cache) + Alpaca SIP 1Min fetched live; backtest/lib/watchers/vwap_continuation_watcher.detect_vwap_continuation_setup run bar-by-bar",
+      "purpose": "behavioural exhibit ONLY (which guard fires when). Never a P&L source."
+    }
+  },
+
+  "cells": [
+    {
+      "id": "C1-WAVE-CAP",
+      "family": "entry COUNT",
+      "rule": "At most N POSITIONS per (arm, ET date, option symbol). The (N+1)th and beyond are removed from the book; their P&L is deleted, not re-priced.",
+      "N_values": [1, 2, 3, 4, 5],
+      "headline_cell": "N=3 (the CAP-3 lever already on the table)",
+      "provenance": "PARTIALLY EXPLORED -- brief already circulates +$720 book / Wed +$653 / Tue $0.00 / Thu $0.00 / ex-08-05 +$67 on 12 removed trades. This lane RE-DERIVES from the raw ledger and must reproduce or contradict those to the dollar."
+    },
+    {
+      "id": "C2-DAY-CAP",
+      "family": "entry COUNT",
+      "rule": "At most N POSITIONS per (arm, ET date) TOTAL, across all contracts and setups.",
+      "N_values": [3, 4, 5, 6],
+      "provenance": "NEW in this lane."
+    },
+    {
+      "id": "C3-ONCE-PER-DAY-SCOPED",
+      "family": "DEFECT FIX -- restore the validated contract",
+      "rule": "At most ONE position per (arm, ET date, setup) for setup == VWAP_CONTINUATION ONLY. This restores the cell's OWN validated contract (analysis/recommendations/j-daily-pattern-LIVE.json, n=153, +$38.3/trade, measured at one entry per day) which the live fleet path structurally cannot enforce because `_fired_today` is a module global in backtest/lib/watchers/vwap_continuation_watcher.py:266 and setup/scripts/run-fleet-executor.ps1 relaunches automation/state/fleet/build_shared_signal.py in a FRESH process every 60s.",
+      "scope_justification_precommitted": "VWAP_CONTINUATION is the ONLY live setup whose validation population is one-entry-per-day. RIDE_THE_RIBBON (bull and bear) has no such contract, so extending the guard to it would be a NEW EDGE BET wearing a defect-fix costume. The scoped cell is the defect fix; the unscoped cell (C4) is reported beside it precisely so the difference is visible and cannot be blurred.",
+      "class": "C12 (stateful detectors need persisted state) + C14 (a knob unconditional in the study, void in production)",
+      "existing_characterization_guard": "backtest/tests/test_vwap_cont_once_per_day_process_scope_2026_08_05.py (already committed; test 2 must be INVERTED, never deleted, if a fix ships)"
+    },
+    {
+      "id": "C4-ONCE-PER-DAY-ALL-SETUPS",
+      "family": "entry COUNT (NOT a defect fix)",
+      "rule": "At most ONE position per (arm, ET date, setup) for EVERY setup.",
+      "provenance": "Already measured once on a 24-day book (analysis/deep-research/EOD-2026-08-04-REENTRY.json cooldown_sweep_all_24_days.once_per_day: all -$237 vs +$2,119 live, i.e. delta -$2,356; Tuesday 08-04 fell 3,624 -> 1,097). Re-measured here on 26 days for contrast with C3. EXPECTED TO FAIL the Tuesday gate -- reported anyway."
+    },
+    {
+      "id": "C5-TIME-COOLDOWN",
+      "family": "GRAVEYARD COMPARATOR -- reported, never recommended",
+      "rule": "After a position in setup S closes for arm A on date D, block any new S entry for that arm for M minutes.",
+      "M_values": [5, 10, 15, 30],
+      "status_precommitted": "GRAVEYARDED (per-setup TIME cooldown: 'Tue every cell lost, -456 to -1,124'). Included ONLY as the behavioural contrast that proves C3 is a DIFFERENT guard, not this one renamed. No verdict other than GRAVEYARD_COLLISION may be issued for this family."
+    },
+    {
+      "id": "C6-VD1",
+      "family": "entry ADMISSIBILITY",
+      "rule": "Refuse an entry when the LAST FULLY CLOSED 5m bar before the entry timestamp closed AGAINST the trade direction (close <= open for a long; close >= open for a short). ABSTAIN (never block) when no closed 5m bar exists.",
+      "provenance": "PRE-REGISTERED 2026-08-05 as brief-variant (d), frozen in analysis/recommendations/entry-improvement-variants-prereg-2026-08-05.json (commit b9cd7a6e) BEFORE any scoring; carried forward to SHADOW status in analysis/recommendations/entry-structure-forward-prereg-2026-08-06.json. In-sample on 25 days: n_blocked 33, delta +$1,242, Tue +$179, Wed +$145, 14 days touched, 1 negative (-$15), blocked-cohort WR 3.0% vs population 18.3%, within-day permutation p=0.145 across 17 UNCORRECTED cells.",
+      "what_is_new_here": "(a) 2026-08-06 is the FIRST session of that forward shadow window -- it is scored SEPARATELY as forward evidence, never merged into the in-sample headline without saying so; (b) the within-day permutation is re-run and MULTIPLICITY-CORRECTED across the 17 cells of the parent study (Bonferroni and Benjamini-Hochberg both reported); (c) Population B is added."
+    },
+    {
+      "id": "C7-SESSION-HIGH-IN-LEVELS",
+      "family": "entry ADMISSIBILITY (entry LOCATION)",
+      "rule": "Refuse a LONG when spot at entry is within X dollars BELOW a same-session extreme that is ALSO present in the engine's own levels_active list at-or-before the entry timestamp. Mirror for a SHORT vs a same-session low in levels_active. ABSTAIN when no levels_active row exists at-or-before the entry on that date.",
+      "X_values": [0.25, 0.50, 0.75, 1.00],
+      "match_tolerance_precommitted": "a levels_active entry counts as 'the session extreme' when |level - session_extreme| <= 0.05 (5 cents), fixed here so it cannot be tuned later",
+      "motivation": "2026-08-05 bought a session high (776.85, set in the FIRST minute) five times with 776.85 sitting in the engine's OWN levels_active list and zero confirmed BOS/CHoCH on 5m or 1m.",
+      "bad_prior_precommitted": "All six level-proximity cells in the parent study (V-b1/b2/b3 x engine/proxy) REJECTED. The prior on this family is BAD. If C7 rejects again the NULL is recorded cleanly and loudly.",
+      "abstention_disclosure_precommitted": "levels_active is only logged in automation/state/core-decisions.jsonl from 2026-07-28, so C7 can only be evaluated on ~8 of the 26 book dates. The abstain count MUST be reported next to every C7 number and no C7 cell may be called SHIP off that coverage."
+    }
+  ],
+
+  "scoring": {
+    "unit": "one canonical POSITION (all exit legs of one entry aggregated to one P&L number)",
+    "counterfactual_semantics": "a BLOCKED position contributes $0. Nothing is re-priced, nothing is re-walked, no exit model is invoked. Removing a trade from the real-fill book is arithmetic on broker truth; it is the only counterfactual this lane is entitled to.",
+    "what_is_NOT_modelled_precommitted": [
+      "Blocking entry k does not change the fill price of entry k+1 (they are separate real fills on separate contracts/minutes).",
+      "Blocking an entry does not free capital that the engine would then have deployed elsewhere. This lane cannot see the counterfactual trade that never happened. All deltas are therefore LOWER bounds on opportunity and UPPER bounds on nothing.",
+      "No cell re-walks exits. Any lever needing an exit re-walk belongs to the exit lane and MUST route through exit_manager.plan_exit_actions (walk_exit_manager), never simulator_real.simulate_trade_real."
+    ]
+  },
+
+  "gates": {
+    "G1_TUESDAY_HARD_GATE": "delta on 2026-08-04 >= -$100. THIS IS A HARD REJECT, not a scoring input. Tuesday's money came from 2nd and 3rd entries (the 763C rescue at 09:57 was the 3rd position on that contract; the three C769 winners were 2nd positions of their setup). Any cell that clips those is REJECTED outright regardless of every other number.",
+    "G2_THURSDAY_NO_HARM": "delta on 2026-08-06 >= -$100.",
+    "G3_WEDNESDAY_DIRECTION": "delta on 2026-08-05 > 0.",
+    "G4_POPULATION_DIRECTION": "delta over the full 26-day book > 0.",
+    "G5_NOT_JUST_THE_MOTIVATING_DAY": "delta over the book EXCLUDING 2026-08-05 >= 0.",
+    "G6_DOES_NO_HARM": "n_days_harmed == 0 (no date's P&L is reduced).",
+    "G7_FREQUENCY": "n_blocked >= 5 over the book (otherwise the cell is untested, not passing).",
+    "G8_POPULATION_B": "Population B delta >= 0, OR Population B is structurally unable to express the cell (a NO-OP), in which case the cell is reported as SINGLE-POPULATION and can never exceed PREREG."
+  },
+
+  "verdict_ladder_precommitted": {
+    "SHIP": "G1..G7 all pass AND the cell is a DEFECT FIX (restores an already-validated contract rather than asserting a new edge) AND Population B is not contradicting. A new-edge cell can NEVER reach SHIP off this population, no matter how good the dollars look.",
+    "PREREG": "G1..G3 pass and the dollar case is real but the evidence is concentrated (>= 80% of the benefit on one date) or single-population. Freeze it, shadow it, do not arm it.",
+    "SHADOW": "G1..G3 pass but discrimination fails (permutation p > 0.10 corrected) -- measure forward, arm nothing.",
+    "NULL": "the cell does not move money, or moves it inside noise.",
+    "REJECT": "G1 or G2 fails.",
+    "GRAVEYARD_COLLISION": "the cell is a graveyarded lever wearing a new name."
+  },
+
+  "discrimination_test": {
+    "name": "within-day permutation",
+    "defn": "hold each day's number of BLOCKED positions fixed, randomise WHICH positions inside that day are blocked, 20,000 draws, one-sided p = P(random delta >= observed delta). Tests 'did the rule pick the bad ENTRY' rather than 'did the rule sit out a bad DAY'.",
+    "multiplicity_precommitted": "the parent study tested 17 cells. p-values are reported RAW, Bonferroni-corrected (x17) and Benjamini-Hochberg-adjusted. The pass bar is BH q <= 0.10.",
+    "seed": 20260806
+  },
+
+  "graveyard_check_precommitted": "Before any verdict, each cell is checked against the standing graveyard: stop width (either direction), stopped-then-paid, pre-TP1 profit-lock arming (profit_lock_arm_scope=full), hold-longer, hold_to_time_stop, trail_only_no_tp1, take-profit-earlier, level-target exits, filter-5 deletion, filter-8 relax, regime standdown, blanket/adaptive/selective min-contracts, wick closed-bar entry, shadow signals as standalone triggers, bull-vix-soft-mode, the arm-looseness knob, per-setup TIME cooldown, late-day standdown, open standdown (refuted on 391 days by LANE 0). A collision is declared out loud, not quietly renamed.",
+
+  "nothing_is_armed_by_this_file": "This is a MEASUREMENT pre-registration. No params.json key, no engine file, no scheduled task is touched by this lane. Any SHIP verdict is a recommendation to a separate arming step with its own guards, RED-proof and REVOKE line."
+}
