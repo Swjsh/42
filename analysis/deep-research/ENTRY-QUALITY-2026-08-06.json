@@ -1,0 +1,89 @@
+{
+  "artifact": "ENTRY-QUALITY-2026-08-06",
+  "lane": "LANE 4 -- STRATEGIC ENTRIES",
+  "generated_at_et": "2026-08-06T19:40 ET (et_clock verified 18:46:33 EDT market_hours=False at session start)",
+  "prereg": {"file": "analysis/recommendations/entry-quality-admissibility-prereg-2026-08-06.json", "commit": "6d6bf8c8", "frozen_before_runner": true},
+  "ship_commit": "c7d2bf9b",
+  "standing_artifacts": {
+    "ledger": "analysis/entry-quality/entry-quality-ledger.json (rebuilt by setup/scripts/entry_quality_ledger.py)",
+    "battery": "analysis/entry-quality/admissibility-battery.json",
+    "shadow_tally": "analysis/entry-quality/shadow-tally.jsonl + shadow-summary.json (nightly via Gamma_WinnerAutopsy fold)"
+  },
+
+  "population": {
+    "id": "LIVE-ENGINE-REAL-FILLS-v2",
+    "n_entry_events": 235, "n_days": 26, "window": "2026-06-26..2026-08-06",
+    "net_usd": 1545.0, "wr_pct": 19.1,
+    "corrections_to_standing_numbers": [
+      "v1 (08-05 study, n=230, '+$317') silently EXCLUDED an engine entry whose exit was manual-attributed: 2026-06-26 safe-2 SPY260626P00732000 3x@0.98 -> manual 0.19 = -$237. True <=08-05 net = +$80.",
+      "V-e3's advertised in-sample basis (n=41, p=0.063) does NOT reproduce on verifiably-complete SIP bars (26/26 days x 390 RTH 1m bars + 78 5m bars verified): true n=28, delta +$2,211, p=0.29. The 08-05-day subset reproduces EXACTLY (11 blocked, -$1,363; puts read BOS-down-34-bars-ago) so the prior divergence sits in the other days' 1m context."
+    ]
+  },
+
+  "reconciliation_prior_cuts_5m_buckets": {
+    "note": "prior = EOD-2026-08-05-ENTRIES (v1, <=08-05). v2 adds 08-06 (4 entries) + the 732P event. Reconciliation is EXACT once decomposed.",
+    "AGREES":    {"prior": {"n": 120, "pnl": 344},  "v2": {"n": 122, "pnl": 71},   "delta_explained": "+732P (-237) + 08-06 squeeze (-36)"},
+    "DISAGREES": {"prior": {"n": 18,  "pnl": 559},  "v2": {"n": 21,  "pnl": 2060}, "delta_explained": "+3 Thu puts (+1501) -- fills read 5m-DISAGREES at entry time"},
+    "NO_EVENT":  {"prior": {"n": 38,  "pnl": -1366},"v2": {"n": 38,  "pnl": -1366},"delta_explained": "unchanged -- VERIFIED"},
+    "BLIND":     {"prior": {"n": 54,  "pnl": 780},  "v2": {"n": 54,  "pnl": 780},  "delta_explained": "unchanged -- VERIFIED"}
+  },
+
+  "admissibility_battery": {
+    "family": 5, "bh_q_bar": 0.10, "perm": "within-day, 20k draws, seed 20260806, eligible-only",
+    "cells": [
+      {"cell": "R-PRES-5m", "n_blocked": 38, "delta_full": 1366.0, "delta_drop_top2": -159.0, "blocked_winner_usd": 830.0, "blocked_loser_usd": 2196.0, "p": 0.2762, "bh_q": 0.3661, "gates": "12--5--", "verdict": "WATCH"},
+      {"cell": "R-S8-5m", "n_blocked": 80, "delta_full": -524.0, "delta_drop_top2": -2049.0, "blocked_winner_usd": 3696.0, "blocked_loser_usd": 3172.0, "p": 0.8587, "bh_q": 0.8587, "gates": "----5--", "verdict": "REJECT -- KILLED by pre-committed criterion; worst day -$1,760 = 08-04 (guts the record Tuesday)"},
+      {"cell": "R-PRES-1m", "n_blocked": 28, "delta_full": 2211.0, "delta_drop_top2": 565.0, "blocked_winner_usd": 0.0, "blocked_loser_usd": 2211.0, "blocked_wr_pct": 0.0, "worst_day_usd": 27.0, "p": 0.2899, "bh_q": 0.3661, "gates": "123456-", "verdict": "FORWARD_SHADOW_CANDIDATE (G7 fails -> stays SHADOW; already frozen as V-e3 forward prereg)"},
+      {"cell": "R-S40-1m", "n_blocked": 28, "delta_full": 2211.0, "delta_drop_top2": 565.0, "p": 0.2928, "bh_q": 0.3661, "gates": "123456-", "verdict": "identical blocked set to R-PRES-1m on this population (recency cap never binds on 1m) -- adds nothing"},
+      {"cell": "V-d1-rescore", "n_blocked": 33, "delta_full": 1242.0, "delta_drop_top2": 726.0, "blocked_winner_usd": 15.0, "blocked_loser_usd": 1257.0, "blocked_wr_pct": 3.0, "p": 0.1076, "bh_q": 0.3661, "gates": "123456-", "verdict": "exact reproduction of the frozen prereg's basis; stays SHADOW per its own prereg"}
+    ],
+    "graduation_outcome": "ZERO new preregs graduate (pre-committed selection rule): no 5m cell reached FORWARD_SHADOW_CANDIDATE; the best 1m cell IS V-e3, already frozen. The two frozen admissibility rules remain V-d1 + V-e3 -- within the at-most-TWO budget. NOTHING ARMED.",
+    "vd1_ve3_union_in_sample": {"n": 53, "overlap": 8, "pnl_removed_usd": -3068.0, "blocked_wr_pct": 1.9, "note": "nearly orthogonal: V-d1 catches against-bar chases, V-e3 catches structureless tape. IN-SAMPLE, shadow only."}
+  },
+
+  "factor_crossings_descriptive": {
+    "banner": "DESCRIPTIVE ONLY -- no significance claims; post-hoc cuts cannot ship. Full tables in analysis/entry-quality/entry-quality-ledger.json crossings{}.",
+    "a_structure_1m": {"AGREES": {"n": 162, "pnl": 3549, "wr": 23.5}, "DISAGREES": {"n": 32, "pnl": 353, "wr": 12.5}, "NO_EVENT": {"n": 28, "pnl": -2211, "wr": 0.0}, "BLIND": {"n": 13, "pnl": -146, "wr": 23.1}},
+    "b_trigger_class_all": {"tied": {"n": 61, "pnl": 4170, "per_entry": 68.4, "wr": 41.0, "med_mfe": 0.51}, "bare": {"n": 132, "pnl": -1911, "per_entry": -14.5, "wr": 9.8, "med_mfe": 0.09}, "unattributed": {"n": 42, "pnl": -714, "per_entry": -17.0, "wr": 16.7}},
+    "b_trigger_class_fleet_only_confound_check": {"tied": {"n": 45, "pnl": 4240, "per_entry": 94.2, "wr": 46.7}, "bare": {"n": 88, "pnl": -1801, "per_entry": -20.5, "wr": 3.4}, "note": "survives within one logging lane; CORE rows under-log trigger levels (same physical 10:31 Thu trade = bare on core, tied@771.5 on fleet) so the all-arms split is partly a logging artifact -- fleet-only is the honest read"},
+    "c_extreme_distance": {"coverage": "only 8 days (levels_active logged from 07-28); 191/235 abstain -- ALL CELLS n-small", "hug_0_0.5": {"n": 3, "pnl": -151}, "near_0.5_1.5": {"n": 19, "pnl": -247}, "far_gt_1.5": {"n": 9, "pnl": 1301, "wr": 77.8}, "beyond_lt_0": {"n": 13, "pnl": 2355, "wr": 46.2}},
+    "d_last5_agreement": {"True": {"n": 198, "pnl": 3038, "wr": 22.2}, "False": {"n": 33, "pnl": -1242, "wr": 3.0}, "None": {"n": 4, "pnl": -251}},
+    "e_tod": {"0930-0959": {"n": 45, "pnl": 1050}, "1000-1059": {"n": 37, "pnl": -196}, "1100-1159": {"n": 36, "pnl": -1481, "wr": 11.1}, "1200-1329": {"n": 44, "pnl": 1989, "wr": 29.5}, "1330-1459": {"n": 67, "pnl": 267}, "1500-1555": {"n": 6, "pnl": -84}},
+    "f_vwap_side": {"above": {"n": 177, "pnl": 1575, "wr": 15.8}, "below": {"n": 57, "pnl": 36, "wr": 29.8}},
+    "setup": {"BULLISH_RECLAIM": {"n": 115, "pnl": 2757}, "BEARISH_REJECTION": {"n": 61, "pnl": 60}, "VWAP_CONTINUATION": {"n": 17, "pnl": -558, "wr": 11.8}, "unattributed": {"n": 42, "pnl": -714}}
+  },
+
+  "the_signature": {
+    "banner": "POST-HOC descriptive 2x2 (1m structure presence x level-tied trigger) -- prereg fodder, NOT a gate",
+    "PAYS__structure_present_AND_level_tied": {"n": 55, "pnl": 3896, "per_entry": 70.8, "wr": 40.0, "med_mfe": 0.51},
+    "flat__structure_present_bare": {"n": 106, "pnl": 350, "per_entry": 3.3, "wr": 12.3},
+    "n_small__no_structure_tied": {"n": 3, "pnl": -192},
+    "BLEEDS__no_structure_AND_bare": {"n": 16, "pnl": -1649, "per_entry": -103.1, "wr": 0.0},
+    "exemplars": {
+      "thu_A_grade": "08-06 10:31-10:32 puts: 1m CHoCH DOWN 5-6 bars before fill (recent+agreeing), tied@771.5 on fleet arms, V-d1 agree, below VWAP -> +$1,501",
+      "wed_bleed": "08-05 09:58-10:19 calls: zero structure both TFs, trigger_level None (bare), buying at a 19-39min-old session high -> the -$1,363 cohort",
+      "tue_paid": "08-04 reclaims: 1m events present throughout (R-PRES-1m blocked ZERO Tuesday entries; R-S8-5m would have cost -$1,760 there)"
+    }
+  },
+
+  "cross_lane_note": "LANE 5's C-NOEVT cell REJECTED 'block zero-structure entries' at -$2,091 on Tuesday under ITS definition, while this lane's R-PRES-1m shows +$2,211 with $0 Tuesday impact. NOT a contradiction: the deciding choice is quorum handling -- R-PRES-1m ABSTAINS when <20 closed 1m bars exist (early entries stand), while blocking-when-blind variants (V-e2 shape) gut Tuesday's early reclaims. Absence-of-structure is only tradeable-adjacent when blindness abstains.",
+
+  "shadow_wiring_shipped": {
+    "counter": "setup/scripts/entry_shadow_counter.py -- V-d1 + V-e3 would_block per entry, idempotent per activity_id, $0, measurement only",
+    "nightly": "folded into Gamma_WinnerAutopsy 16:25 ET fire (same fail-open contract as pain_ledger); no new scheduled task",
+    "proof_in_situ": "full winner_autopsy fire tonight printed: [entry-shadow] 4 tally rows (0 new, 4 refreshed) across 1 forward session(s); vd1 blocks 0, ve3 blocks 0",
+    "forward_window": "session 1/10 logged (08-06): 4 entries, 0 blocks either rule -- both rules kept the whole winning Thursday",
+    "guards": "backtest/tests/test_entry_shadow_counter.py 14/14; RED-proofed x2 (V-d1 inverted -> 6 RED; quorum 20->0 -> 1 RED), restores byte-identical sha256 225f2a0d...",
+    "revert": "delete the entry_shadow try-block in winner_autopsy.py main()"
+  },
+
+  "caveats": [
+    "26 days / 235 entries is small; 08-04 alone is +$3,624 of +$1,545 net. Every battery cell reports drop-top2 + per-day columns for exactly this reason.",
+    "NOTHING clears BH q<=0.10 -- every in-sample dollar above is consistent with day-level exposure reduction until the forward window says otherwise.",
+    "Factor (b) all-arms split is partly a LOGGING artifact (core under-logs trigger levels); fleet-only split is the honest read and still separates hard.",
+    "Factor (c) has 8 days of coverage, all cells n-small: no conclusions, logged for accrual.",
+    "The 2x2 signature is post-hoc; it may be pre-registered later but ships nothing tonight.",
+    "MFE joined from pain-ledger at position grain; entry events that are adds/etc without their own pain row carry mfe=null (counted, never zero-filled).",
+    "Permutation draws among ELIGIBLE (non-abstain) entries per day -- stricter than drawing among all entries; disclosed."
+  ]
+}
