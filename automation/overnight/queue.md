@@ -2880,6 +2880,11 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260806-100058 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=59 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-06T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260806-100059 (LOW) :: v09_regime TREND_DOWN dominant: 63/80 bars (79%) | last_regime=TREND_UP atr_14=61 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-06T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260806-100100 (LOW) :: v09_regime TREND_DOWN dominant: 68/80 bars (85%) | last_regime=TREND_DOWN atr_14=52 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-06T04:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260806-100101 (LOW) :: v09_regime TREND_DOWN dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=50 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-06T05:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260806-100102 (MED) :: BTC v03_indicators rsi_14=80.30 (overbought) at last_close=64898.61 bin=2026-08-06T05:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-06T05:10:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260805-100050 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=49 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-04T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260805-100051 (LOW) :: v09_regime TREND_DOWN dominant: 62/81 bars (77%) | last_regime=TREND_UP atr_14=66 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-04T11:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260805-100052 (LOW) :: v09_regime TREND_DOWN dominant: 60/81 bars (74%) | last_regime=TREND_UP atr_14=69 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-04T12:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
@@ -2890,11 +2895,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-SWEEP-20260805-100057 (MED) :: v14_sweep liquidity-grab at level=64000 dir=down bar_idx=123 | wick_excess=0.0128% close_back=0.0968% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-05T09:57:01.681429+00:00:64000:down:123 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260804-100137 (LOW) :: v09_regime TREND_DOWN dominant: 60/81 bars (74%) | last_regime=TREND_UP atr_14=61 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-03T11:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260804-100138 (MED) :: BTC v03_indicators rsi_14=80.77 (overbought) at last_close=63691.72 bin=2026-08-03T14:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-03T14:30:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260804-100139 (MED) :: BTC v03_indicators rsi_14=81.72 (overbought) at last_close=63753.67 bin=2026-08-03T14:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-03T14:35:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260804-100140 (MED) :: BTC v03_indicators rsi_14=81.29 (overbought) at last_close=63765.34 bin=2026-08-03T14:45:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-03T14:45:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260804-100141 (MED) :: BTC v03_indicators rsi_14=19.64 (oversold) at last_close=63403.8 bin=2026-08-03T22:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-03T22:10:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260803-100128 (LOW) :: v09_regime TREND_DOWN dominant: 58/80 bars (72%) | last_regime=TREND_DOWN atr_14=42 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-02T11:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260803-100129 (LOW) :: v09_regime TREND_DOWN dominant: 60/81 bars (74%) | last_regime=TREND_DOWN atr_14=51 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-02T12:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -4055,3 +4055,32 @@ sufficient proof, as this incident demonstrated twice.**
 
 **Context:** 2026-08-06 conductor fire found `run-scout-premarket.ps1` had `-MaxBudgetUsd 0.50` since its 2026-06-15 creation (never touched since) -- causing `Error: Exceeded USD budget` -> exit=1 EVERY SINGLE DAY for ~7-8 weeks, invisible to Task Scheduler's LastTaskResult (vbs launcher hop swallows it), only caught via self_check.py's masked-exit detector. Fixed 0.50->1.00, guard: `backtest/tests/test_scout_premarket_budget.py`. Full writeup: `strategy/candidates/_lesson-inbox/budget-cap-misized-at-birth-invisible-for-8-weeks-2026-08-06.md`.
 **Action:** `grep -rn "MaxBudgetUsd" setup/scripts/run-*.ps1` (excluding worktrees), group by task shape (heartbeat-tier / premarket-class-WebSearch-driven / EOD / weekly-review), diff each value against same-shape siblings, flag any other outlier low enough to plausibly self-fail. Cross-check each flagged task's dated log(s) in `automation/state/logs/` for the same "Exceeded USD budget" signature before touching anything -- don't fix a value that isn't actually failing. :: depends:none :: status:proposed
+
+### DAY-PROFIT-FLOOR-SIZING HIGH — J-originated: cap cost basis once the day is green so a green day cannot go red
+
+**Origin:** J, live 2026-08-06 ~13:45 ET (verbatim): *"today we made fifteen hundred dollars. Any further positions we get in today, our cost basis should not exceed a thousand dollars... so we can guarantee protect at least five hundred dollars... if we make money on the day, I don't wanna put ourselves into a position we could lose money if we get into a second or third trade that day."* J explicitly asked for this to be **brainstormed and thought through fully**, then queued — NOT shipped on the spot.
+
+**Claim:** a per-arm cap on subsequent-entry cost basis, keyed to realized day P&L, converts variance into consistency and makes "green day goes red" structurally impossible. Worst case is modelled as premium -> 0 (J deliberately assumes the stop FAILS, which is correct risk thinking: stops gap).
+
+**⚠️ COUNTEREXAMPLE ALREADY FOUND — the linear form is falsified, do not build it as literally stated.**
+Hand-checked against risky-3's real 08-04 fills: running realized P&L was 762C/763C churn -288 -> 763C +524 (day +236) -> 765C -80 (+156) -> 768C -29 (+127) -> 769C -110 (**day +17**) -> 769C **+788** (day +805).
+At the 12:28 entry the day was **+$17**, so `cap = day x (1-1/3)` = **$11** against an actual cost basis of **$660** -> the rule BLOCKS the day's second-biggest winner (+$788). **The rule binds hardest exactly when the day is barely green, which is when the next trade matters most.** Any design that does not solve this is dead on arrival.
+
+**Proposed form (activation threshold + floor, not a bare ratio):**
+```
+if day_realized_pnl < ACTIVATION:  no constraint
+else: cap_cost_basis = max(MIN_VIABLE, day_realized_pnl * (1 - protect_fraction))
+```
+ACTIVATION anchor candidate **$500** (FOCUS-DOCTRINE daily target is $100-200, so 2-5x target = something real to defend). MIN_VIABLE must keep Rule-6's 3-contract minimum legal or the rule becomes a stealth no-trade gate.
+
+**Pre-committed design decisions (freeze these BEFORE the runner):**
+- **PER-ARM, never book-wide.** Rule 5 kill switches are per-account and ISOLATED; coupling arms here breaks that architecture.
+- **REALIZED only**, never realized+open. Open P&L evaporates (08-06 put: +$989 open at 12:00, and 08-05's put went +63% -> -50%).
+- **Precedence `min(Rule-6 cap, profit-protect cap)`** — Rule 6 stays authoritative; this may only TIGHTEN, never loosen.
+- **Ratchet on realized; never un-ratchet** if the day gives back.
+- **Honest prior: this is almost certainly EV-NEGATIVE.** It caps upside on green days and does nothing on red days. It is a CONSISTENCY purchase, not an edge. The deliverable is therefore NOT "does it make money" but **"EV cost per dollar of protected green day"** + how often it binds at all (PDT caps us near ~1-3 entries/arm/day, so it may rarely fire — measure the bind frequency FIRST, and if it is near-zero the whole thing is moot).
+
+**Rival formulations to test in the SAME harness (J's may not be the best shape):**
+(a) J's cost-basis cap · (b) day-peak retrace halt (stop trading if day P&L falls X% from its intraday peak) · (c) soft qty scale-down once green (never blocks, only shrinks) · (d) hard floor halt (once day > $X, halt if it would drop below $Y).
+
+**Action:** frozen prereg committed BEFORE the runner (git-provable, `git merge-base --is-ancestor`) -> sequential one-position-at-a-time walk over the 25-day real-fill book AND the 391-day replay population, per-arm, all four formulations x parameter grid -> report EVERY cell + bind-frequency + the 08-04 no-harm check as a hard gate (any cell that blocks the 12:28 769C is REJECTED) + drop-best-day sensitivity. **Do not arm on one day of evidence.** :: depends:none :: status:proposed
