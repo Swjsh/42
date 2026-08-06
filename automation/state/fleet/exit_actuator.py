@@ -66,6 +66,68 @@ def save_states(arm_id: str, states: dict) -> None:
                  encoding="utf-8")
 
 
+# --- D5 / SAFE2-PHANTOM-FLAT-PRUNE (2026-08-06) -------------------------------------------
+# Live incident 2026-08-05 13:57:03 (EOD-2026-08-05-PUT.md): ONE transient broker qty=0 read
+# emitted FLAT_PRUNED and DELETED safe-2's still-open 3-lot's exit-state record. The position
+# sat unmanaged for ~10 minutes until _adopt_untracked_positions re-adopted it as
+# "adopted_manual"/cap_only -- structure stop and ribbon-flip exit both silently dropped
+# (stop_mode downgraded structure->premium). C11-class: a single fail-open-to-0 broker read
+# is NOT broker truth. Fix: (a) prefer the fail-CLOSED symbol_position_qty_checked primitive
+# when the broker offers it (query error -> HOLD, never "flat"); (b) require
+# FLAT_READS_TO_PRUNE CONSECUTIVE flat reads (persisted per-arm across ticks/processes in
+# flat-streak.json) before the record is pruned; (c) every confirmed prune appends one loud
+# line to STATUS.md "## Live watch" (C7 -- a position leaving management is never silent).
+STATUS_MD = Path(__file__).resolve().parents[3] / "automation" / "overnight" / "STATUS.md"
+FLAT_READS_TO_PRUNE = 2
+
+
+def _flat_streak_path(arm_id: str) -> Path:
+    d = FLEET_DIR / arm_id
+    d.mkdir(exist_ok=True)
+    return d / "flat-streak.json"
+
+
+def _load_flat_streak(arm_id: str) -> dict:
+    """{symbol: consecutive_flat_reads} -- fail-open to {} on missing/corrupt."""
+    p = _flat_streak_path(arm_id)
+    if not p.exists():
+        return {}
+    try:
+        raw = json.loads(p.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _save_flat_streak(arm_id: str, streak: dict) -> None:
+    try:
+        _flat_streak_path(arm_id).write_text(json.dumps(streak, indent=2), encoding="utf-8")
+    except OSError:
+        pass  # fail-open: a lost streak write degrades to re-counting, never a crash
+
+
+def _note_flat_prune_status(arm_id: str, symbol: str, st, reads: int, now_dt) -> None:
+    """ONE loud STATUS.md '## Live watch' line per confirmed flat-prune (same section
+    theta_clock's stall alert uses; created if absent). Fail-open -- a failed status write
+    never blocks the exit tick."""
+    try:
+        line = (f"- {now_dt.strftime('%Y-%m-%d %H:%M:%S')} ET exit_actuator: FLAT_PRUNED "
+                f"{symbol} on {arm_id} after {reads} consecutive broker-flat reads "
+                f"(stop_mode={st.stop_mode}, strategy={st.strategy or '?'}) -- lifecycle "
+                f"closed outside this actuator's own sells (D5 guard, 2026-08-06)")
+        existing = STATUS_MD.read_text(encoding="utf-8") if STATUS_MD.exists() else ""
+        heading = "## Live watch"
+        if heading in existing:
+            idx = existing.index(heading) + len(heading)
+            updated = existing[:idx] + "\n\n" + line + existing[idx:]
+        else:
+            updated = existing.rstrip() + f"\n\n{heading}\n\n{line}\n"
+        STATUS_MD.parent.mkdir(parents=True, exist_ok=True)
+        STATUS_MD.write_text(updated, encoding="utf-8")
+    except OSError:
+        pass
+
+
 def _cooldown_path(arm_id: str) -> Path:
     d = FLEET_DIR / arm_id
     d.mkdir(exist_ok=True)
@@ -321,19 +383,55 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
         return []
     results: list[dict] = []
     changed = False
+    streak = _load_flat_streak(arm_id)
+    streak_changed = False
     for symbol, st in list(states.items()):
-        open_qty = broker.get_position_qty(creds, symbol)
-        if open_qty <= 0:
-            # broker shows flat -> lifecycle complete, prune the record
-            del states[symbol]
-            changed = True
-            # VISIBILITY (2026-07-09, additive/render-only, OP-33c): carry the pruned
-            # position's resolved stop_mode/trigger_level into the log row even though the
-            # ledger entry is gone -- a reader scanning decisions.jsonl for "how was this
-            # position managed" must not lose that fact the tick it closes.
-            results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_PRUNED",
+        # D5 (2026-08-06): prefer the fail-CLOSED checked primitive when the broker offers
+        # it -- a positions-QUERY error must read as "unknown", never as "flat". getattr-
+        # guarded like the open_sell_orders dupe-check below, so existing test doubles
+        # without the primitive keep today's exact get_position_qty path.
+        qty_checked = getattr(broker, "symbol_position_qty_checked", None)
+        if qty_checked is not None:
+            open_qty, q_ok = qty_checked(creds, symbol)
+        else:
+            open_qty, q_ok = broker.get_position_qty(creds, symbol), True
+        if not q_ok:
+            results.append({"symbol": symbol, "open_qty": None, "action": "HOLD",
+                            "reason": "position_query_error -- not treated as flat (D5)",
                             "stop_mode": st.stop_mode, "trigger_level": st.trigger_level})
             continue
+        if open_qty <= 0:
+            # D5 / SAFE2-PHANTOM-FLAT-PRUNE (2026-08-06): a SINGLE flat read no longer
+            # prunes -- the 2026-08-05 13:57 transient qty=0 deleted a still-open 3-lot's
+            # exit state (unmanaged 10 min, stop_mode silently downgraded on re-adoption).
+            # Require FLAT_READS_TO_PRUNE CONSECUTIVE flat reads (persisted across ticks in
+            # flat-streak.json); a confirmed prune is announced in STATUS.md '## Live watch'.
+            reads = int(streak.get(symbol, 0)) + 1
+            if reads >= FLAT_READS_TO_PRUNE:
+                del states[symbol]
+                changed = True
+                streak.pop(symbol, None)
+                streak_changed = True
+                _note_flat_prune_status(arm_id, symbol, st, reads, now_dt)
+                # VISIBILITY (2026-07-09, additive/render-only, OP-33c): carry the pruned
+                # position's resolved stop_mode/trigger_level into the log row even though
+                # the ledger entry is gone -- a reader scanning decisions.jsonl for "how was
+                # this position managed" must not lose that fact the tick it closes.
+                results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_PRUNED",
+                                "flat_reads": reads,
+                                "stop_mode": st.stop_mode, "trigger_level": st.trigger_level})
+            else:
+                streak[symbol] = reads
+                streak_changed = True
+                results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_SUSPECT_HOLD",
+                                "flat_reads": reads,
+                                "reason": (f"broker flat read {reads}/{FLAT_READS_TO_PRUNE} -- "
+                                           "keeping exit state until confirmed (D5)"),
+                                "stop_mode": st.stop_mode, "trigger_level": st.trigger_level})
+            continue
+        if symbol in streak:  # position visibly live again -> the flat read was transient
+            streak.pop(symbol, None)
+            streak_changed = True
         hilo = broker.get_option_quote_hilo(creds, symbol)
         if hilo is None:
             results.append({"symbol": symbol, "open_qty": open_qty, "action": "HOLD",
@@ -423,4 +521,6 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                         "last_closed_5m_close": last_closed_5m_close})
     if changed:
         save_states(arm_id, states)
+    if streak_changed:
+        _save_flat_streak(arm_id, streak)
     return results

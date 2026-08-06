@@ -42,8 +42,11 @@ class FakeBroker:
 
 
 def _arm(tmp_path, monkeypatch):
-    """Point the actuator's FLEET_DIR at a temp dir so state writes are isolated."""
+    """Point the actuator's FLEET_DIR at a temp dir so state writes are isolated.
+    STATUS_MD too (D5, 2026-08-06): a confirmed flat-prune appends a real STATUS.md line
+    in production; tests must never write the live file (the D3 test-leak lesson)."""
     monkeypatch.setattr(ea, "FLEET_DIR", tmp_path)
+    monkeypatch.setattr(ea, "STATUS_MD", tmp_path / "STATUS.md")
     return "test-arm"
 
 
@@ -99,13 +102,56 @@ def test_full_lifecycle_total_sold_equals_qty(tmp_path, monkeypatch):
 
 
 def test_flat_position_pruned(tmp_path, monkeypatch):
+    """D5 (2026-08-06): pruning now requires TWO consecutive flat reads. Tick 1 on a flat
+    broker read = FLAT_SUSPECT_HOLD (state KEPT); tick 2 = FLAT_PRUNED (state deleted).
+    This test previously pinned the single-read prune -- the exact defect that unmanaged
+    safe-2's live 3-lot for 10 minutes on 2026-08-05 13:57 (SAFE2-PHANTOM-FLAT-PRUNE)."""
     arm = _arm(tmp_path, monkeypatch)
     ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
                       exit_shape=RIBBON_SHAPE)
-    fb = FakeBroker(qty_seq=[0], hilo_seq=[])  # broker shows flat
+    fb = FakeBroker(qty_seq=[0], hilo_seq=[])  # broker shows flat (read 1)
     res = ea.manage_tick(arm, {}, live=True, broker=fb, now_et=_dt(11, 0))
-    assert res and res[0]["action"] == "FLAT_PRUNED"
+    assert res and res[0]["action"] == "FLAT_SUSPECT_HOLD" and res[0]["flat_reads"] == 1
+    assert SYM in ea.load_states(arm), "a single flat read must NOT delete exit state (D5)"
+    fb2 = FakeBroker(qty_seq=[0], hilo_seq=[])  # broker shows flat (read 2, consecutive)
+    res2 = ea.manage_tick(arm, {}, live=True, broker=fb2, now_et=_dt(11, 1))
+    assert res2 and res2[0]["action"] == "FLAT_PRUNED" and res2[0]["flat_reads"] == 2
     assert SYM not in ea.load_states(arm)
+
+
+def test_transient_flat_read_recovers_without_prune(tmp_path, monkeypatch):
+    """The 2026-08-05 live incident shape: flat read -> position visible again. The streak
+    must reset and the position must remain fully managed (no prune, no downgrade)."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=3,
+                      exit_shape=RIBBON_SHAPE)
+    fb_flat = FakeBroker(qty_seq=[0], hilo_seq=[])          # transient phantom-flat
+    res = ea.manage_tick(arm, {}, live=True, broker=fb_flat, now_et=_dt(13, 57))
+    assert res[0]["action"] == "FLAT_SUSPECT_HOLD"
+    fb_back = FakeBroker(qty_seq=[3], hilo_seq=[(1.05, 1.00)])  # position visible again
+    ea.manage_tick(arm, {}, live=True, broker=fb_back, now_et=_dt(13, 58))
+    assert SYM in ea.load_states(arm), "transient flat read must never cost the exit state"
+    # streak must have reset: a LATER single flat read is again only a suspect hold
+    fb_flat2 = FakeBroker(qty_seq=[0], hilo_seq=[])
+    res3 = ea.manage_tick(arm, {}, live=True, broker=fb_flat2, now_et=_dt(14, 0))
+    assert res3[0]["action"] == "FLAT_SUSPECT_HOLD" and res3[0]["flat_reads"] == 1
+
+
+def test_position_query_error_never_reads_as_flat(tmp_path, monkeypatch):
+    """D5 second layer: a broker exposing the fail-CLOSED checked primitive with ok=False
+    must produce a HOLD (unknown state), never a flat suspect / prune."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=RIBBON_SHAPE)
+
+    class CheckedErrBroker(FakeBroker):
+        def symbol_position_qty_checked(self, creds, symbol):
+            return (0, False)  # query FAILED -- 0 here must not be believed
+
+    res = ea.manage_tick(arm, {}, live=True, broker=CheckedErrBroker(qty_seq=[], hilo_seq=[]),
+                          now_et=_dt(11, 0))
+    assert res[0]["action"] == "HOLD" and "position_query_error" in res[0]["reason"]
+    assert SYM in ea.load_states(arm)
 
 
 def test_no_quote_holds(tmp_path, monkeypatch):
@@ -285,8 +331,14 @@ def test_visibility_fields_survive_flat_pruned_and_hold_rows(tmp_path, monkeypat
     ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
                       exit_shape=STRUCTURE_SHAPE, trigger_level=600.0,
                       structure_stop_enabled=True)
+    # D5 (2026-08-06): two consecutive flat reads to reach FLAT_PRUNED; both row shapes
+    # (suspect hold + confirmed prune) must carry the visibility fields.
     fb_flat = FakeBroker(qty_seq=[0], hilo_seq=[])
-    res = ea.manage_tick(arm, {}, live=True, broker=fb_flat, now_et=_dt(11, 0))
+    res_hold = ea.manage_tick(arm, {}, live=True, broker=fb_flat, now_et=_dt(11, 0))
+    assert res_hold[0]["action"] == "FLAT_SUSPECT_HOLD"
+    assert res_hold[0]["stop_mode"] == "structure" and res_hold[0]["trigger_level"] == 600.0
+    fb_flat2 = FakeBroker(qty_seq=[0], hilo_seq=[])
+    res = ea.manage_tick(arm, {}, live=True, broker=fb_flat2, now_et=_dt(11, 1))
     assert res[0]["action"] == "FLAT_PRUNED"
     assert res[0]["stop_mode"] == "structure" and res[0]["trigger_level"] == 600.0
 
