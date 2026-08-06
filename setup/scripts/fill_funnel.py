@@ -130,6 +130,162 @@ def _core_is_attempt(status: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# WHY-THIS-ARM-DID-OR-DID-NOT-TRADE  (2026-08-06, EOD-2026-08-05-SILENT-ARMS)
+# ---------------------------------------------------------------------------
+# THE INSTRUMENT THAT RETIRES "why didn't arm X trade today?" (OP-33e -- a repeated
+# question from J is a MISSING INSTRUMENT, not a query). The funnel above already
+# proved WHETHER an arm traded; it never said WHY NOT, so every silent-arm day cost
+# a manual ledger dig. Ground truth 2026-08-05: bold-2 and safe-3 took ZERO legs
+# while three siblings took 29 off the same shared signal, and the two silences had
+# COMPLETELY DIFFERENT causes -- bold-2 = free-model veto (13/16 ENTER verdicts)
+# then PDT (3/16); safe-3 = its own accounts.json gate_override (30 refusals:
+# min_triggers=2 + require_confluence_or_sequence) with the risk gate never even
+# consulted. One-cause-fits-all reporting would have been wrong for both.
+#
+# STRICTLY ADDITIVE + FAIL-OPEN: writes only the per-account "why" key and renders
+# extra lines. It never touches a funnel STAGE, never appends to `flags`, and never
+# influences `verdict` -- self_check / gamma_glance / gamma_narrative / eod_fallback
+# read those and must behave byte-identically (guard:
+# test_silence_diagnosis_is_additive_stages_and_verdict_unchanged).
+
+# Canonical terminal-cause taxonomy. Ordered MOST->LEAST informative: when a tick
+# could map to several, the first match wins, so a real gate always beats "no setup".
+_WHY_NO_SETUP = "NO_SETUP"                 # nothing fired -- the market, not the engine
+_WHY_NO_FEED = "NO_LIVE_SIGNAL"            # shared-signal missing/stale this tick
+_WHY_GATE = "ARM_GATE"                     # this arm's own accounts.json gate_override
+_WHY_MODEL_VETO = "FREE_MODEL_VETO"        # the 2 free-model entry veto
+_WHY_PDT = "RISK_DENY_PDT"                 # PDT rule (Rule 7)
+_WHY_RISK = "RISK_DENY_OTHER"              # any other risk_gate deny
+_WHY_NOT_FLAT = "NOT_FLAT"                 # already in a position (C11)
+_WHY_KILLED = "KILL_SWITCH"                # daily-loss breaker tripped (Rule 5)
+_WHY_SKIP = "ENTRY_GATE_SKIP"              # SKIP_* entry-gate refusals
+_WHY_ERROR = "ERROR"                       # broker/feed error this tick
+_WHY_TRADED = "TRADED"
+
+_WHY_PROSE = {
+    _WHY_NO_SETUP: "no qualifying setup fired",
+    _WHY_NO_FEED: "no live shared signal",
+    _WHY_GATE: "blocked by this arm's own gate_override",
+    _WHY_MODEL_VETO: "vetoed by the free-model entry check",
+    _WHY_PDT: "PDT rule blocked the day-trade (Rule 7)",
+    _WHY_RISK: "refused by the risk gate",
+    _WHY_NOT_FLAT: "already holding a position (not flat)",
+    _WHY_KILLED: "daily-loss kill switch tripped (Rule 5)",
+    _WHY_SKIP: "refused by an entry gate",
+    _WHY_ERROR: "broker/feed error",
+}
+
+
+def _why_core(row: dict) -> str:
+    """Terminal cause for ONE core (heartbeat_core) tick. Fail-open -> NO_SETUP."""
+    action = str(row.get("action") or "").upper()
+    status = str(((row.get("exec") or {}).get("status")) or "").upper()
+    for s in (action, status):
+        if not s:
+            continue
+        if s.startswith("PLACED") or s == "ACCEPTED":
+            return _WHY_TRADED
+        if s == "VETOED_BY_MODELS":
+            return _WHY_MODEL_VETO
+        if s == "RISK_DENY_PDT":
+            return _WHY_PDT
+        if s.startswith("RISK_DENY"):
+            return _WHY_RISK
+        if s == "NOT_FLAT":
+            return _WHY_NOT_FLAT
+        if s.startswith("SKIP_"):
+            return _WHY_SKIP
+        if s == "ERROR" or s.startswith("PLACE_FAIL"):
+            return _WHY_ERROR
+    return _WHY_NO_SETUP
+
+
+def _why_fleet(row: dict) -> str:
+    """Terminal cause for ONE fleet (fleet_live) tick. Fail-open -> NO_SETUP."""
+    action = str(row.get("action") or "").upper()
+    if action.startswith("ENTER"):
+        return _WHY_TRADED
+    if action == "ERROR":
+        return _WHY_ERROR
+    if row.get("killed"):
+        return _WHY_KILLED
+    code = str(row.get("risk_code") or "").upper()
+    if code == "NOT_FLAT":
+        return _WHY_NOT_FLAT
+    if code.endswith("PDT"):
+        return _WHY_PDT
+    if code and code not in ("ALLOW", "NONE"):
+        return _WHY_RISK
+    reason = str(row.get("reason") or "").lower()
+    if reason.startswith("gate:") or reason.startswith("gate "):
+        return _WHY_GATE
+    if "no live signal" in reason:
+        return _WHY_NO_FEED
+    if "risk_gate denied" in reason:
+        return _WHY_RISK
+    return _WHY_NO_SETUP
+
+
+def _silence_diagnosis(rows: list[dict], kind: str, f: dict) -> dict:
+    """Per-arm 'why did this arm trade / not trade today' one-liner + evidence counts.
+
+    Counts EVERY tick by terminal cause, then reports the dominant BLOCKING cause
+    among the ticks where a setup actually existed (i.e. excluding NO_SETUP /
+    NO_LIVE_SIGNAL, which say 'the market gave us nothing', not 'the engine refused').
+    That distinction is the whole point: a day with 384 NO_SETUP ticks is a quiet
+    tape; a day with 30 ARM_GATE refusals is a configuration decision.
+
+    Never raises -- any malformed row degrades to NO_SETUP for that tick alone.
+    """
+    counts: Counter = Counter()
+    detail: dict[str, Counter] = {}
+    for r in rows:
+        try:
+            cause = _why_core(r) if kind == "core" else _why_fleet(r)
+        except Exception:  # noqa: BLE001 -- one bad row must never blind the instrument
+            cause = _WHY_NO_SETUP
+        counts[cause] += 1
+        if cause in (_WHY_GATE, _WHY_RISK, _WHY_SKIP, _WHY_ERROR):
+            txt = str(r.get("reason") or (r.get("exec") or {}).get("reason")
+                      or r.get("action") or "")[:90]
+            detail.setdefault(cause, Counter())[txt] += 1
+    traded = bool(f.get("filled", 0) or f.get("extra_placed_total", 0)
+                  or f.get("accepted", 0))
+    blockers = [(c, n) for c, n in counts.most_common()
+                if c not in (_WHY_TRADED, _WHY_NO_SETUP, _WHY_NO_FEED)]
+    quiet = counts.get(_WHY_NO_SETUP, 0) + counts.get(_WHY_NO_FEED, 0)
+    if traded:
+        head = (f"TRADED -- {f.get('filled', 0)} filled / {f.get('exited', 0)} exited"
+                f" from {f.get('enter', 0)} ENTER verdicts")
+        if blockers:
+            head += (f"; also blocked {sum(n for _, n in blockers)}x ("
+                     + ", ".join(f"{n}x {c}" for c, n in blockers[:3]) + ")")
+        top = _WHY_TRADED
+    elif not blockers:
+        head = (f"DID NOT TRADE -- {_WHY_PROSE[_WHY_NO_SETUP]} on any of {len(rows)} ticks "
+                f"(quiet tape, not an engine refusal)")
+        top = _WHY_NO_SETUP
+    else:
+        top, n_top = blockers[0]
+        extra = ", ".join(f"{n}x {c}" for c, n in blockers[1:3])
+        head = (f"DID NOT TRADE -- dominant cause {top} ({n_top}x): {_WHY_PROSE.get(top, top)}"
+                + (f"; then {extra}" if extra else "")
+                + f". {quiet} of {len(rows)} ticks had no setup at all.")
+        ex = detail.get(top)
+        if ex:
+            head += " e.g. " + "; ".join(f'"{t}" x{n}' for t, n in ex.most_common(2))
+    return {
+        "traded": traded,
+        "top_cause": top,
+        "headline": head,
+        "cause_counts": dict(counts),
+        "blocking_ticks": sum(n for _, n in blockers),
+        "quiet_ticks": quiet,
+        "examples": {c: dict(v.most_common(3)) for c, v in detail.items()},
+    }
+
+
+# ---------------------------------------------------------------------------
 # ledger readers
 # ---------------------------------------------------------------------------
 
@@ -310,6 +466,12 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
     f["filled"] = len(filled_syms)
     f["exited"] = len(filled_syms & exited_syms)
     f["open_fills_no_exit"] = sorted(filled_syms - exited_syms)
+    # WHY (2026-08-06): additive only -- computed AFTER every stage above is final, so
+    # it can read them but can never change them. Fail-open to an absent key.
+    try:
+        f["why"] = _silence_diagnosis(rows, kind, f)
+    except Exception:  # noqa: BLE001
+        pass
     return f
 
 
@@ -535,6 +697,11 @@ def render_text(funnel: dict) -> str:
                     parts.append(f"{setup}={n}PLACED[{name}]")
         out.append(f"  + secondary setups (extra_exec, outside the primary ENTER pipeline): "
                    f"{', '.join(parts)}")
+    # WHY-EACH-ARM (2026-08-06): the standing answer to "why didn't arm X trade?"
+    out.append("  why each arm did / did not trade:")
+    for name, a in funnel["accounts"].items():
+        why = a.get("why") or {}
+        out.append(f"    {_display_label(name):<34} {why.get('headline', 'n/a')}")
     for fl in funnel["flags"]:
         out.append(f"  ! {fl}")
     return "\n".join(out)
@@ -562,6 +729,17 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
     out.append(f"| **TOTAL** | {t['ticks']} | {t['signals']} | {t['enter']} | "
                f"{t.get('rule_blocked', 0)} | "
                f"{t['attempted']} | {t['accepted']} | {t['filled']} | {t['exited']} |")
+    # WHY-EACH-ARM (2026-08-06, EOD-2026-08-05-SILENT-ARMS): OP-33e standing answer to
+    # "why did arm X not trade today" -- one row per arm, every day, no manual dig.
+    out.append("")
+    out.append("**Why each arm did / did not trade:**")
+    out.append("")
+    out.append("| account | traded | dominant cause | detail |")
+    out.append("|---|---|---|---|")
+    for name, a in funnel["accounts"].items():
+        why = a.get("why") or {}
+        out.append(f"| {_display_label(name)} | {'yes' if why.get('traded') else '**no**'} | "
+                   f"`{why.get('top_cause', 'n/a')}` | {why.get('headline', 'n/a')} |")
     # ENTER events with times + verdicts
     events = [(name, ev) for name, a in funnel["accounts"].items() for ev in a["enter_events"]]
     out.append("")
