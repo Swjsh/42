@@ -1,0 +1,13 @@
+{
+  "id": "PREREG-RUNNER-FINITE-TGT (CANDIDATE -- not scheduled, not run)",
+  "registered_et": "2026-08-06 evening (Lane 3, after HOLD-WINNERS-2026-08-06 verdict)",
+  "status": "CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.",
+  "hypothesis": "ribbon_ride's runner benefits from a FINITE runner target (2.5x, doctrine parity) regardless of lock mode: cells trailing+tgt2.5 and fixed+tgt2.5 vs CONTROL (trailing+tgt99-sentinel).",
+  "origin": "HOLD-WINNERS-2026-08-06 exploratory cell C_BE_FLOOR_TGT25: the only variant positive ex-this-week (+$204.25), least-bad on chop (-$74.75), positive on the disconfirming trend day 07-29 (+$146.90).",
+  "contamination_disclosure": "This hypothesis was SURFACED BY the 26-day window 2026-06-26..2026-08-06 (n=29 nonzero lever positions, biggest day = 91% of gross effect). A re-run of that same window cannot count as confirmation. Evidence bar: forward paper fills (n>=15 TP1-reaching runners post-registration) and/or an out-of-window replay population, scored against the same G1-G4 gate family as PREREG-RUNNER-BE-FLOOR-2026-08-06 (commit 61bc6507).",
+  "c29_note": "A finite target on ribbon_ride mixes a field into the SS-B validated cell (which is tgt-none by design). Any arming decision must treat this as a NEW cell requiring the full battery, not a knob tweak.",
+  "blocking_facts": [
+    "runner_target audit (HOLD-WINNERS-2026-08-06.md): 99.0 sentinel is deliberate (SS-B tgt-none), params.json runner_max_premium_pct is vestigial on the registry path, live runner_target exits: 2 fleet / 0 core, ever.",
+    "BE-floor primary cell verdict: REGIME_CONDITIONAL_TREND__DO_NOT_ARM (G2 chop -$320.75 FAIL, G4 thirds [-409.70, +47.35, +4388.50] FAIL)."
+  ]
+}

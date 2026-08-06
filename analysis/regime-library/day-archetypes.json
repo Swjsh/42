@@ -8721,23 +8721,67 @@
    "t_low": 0.0,
    "vix_close": 16.42,
    "vix_open": 15.57
+  },
+  "2026-08-05": {
+   "archetype": "gap-fade",
+   "atr14_prior_pct": 1.2951,
+   "body_pct": -0.7837,
+   "close": 769.76,
+   "close_loc": 0.0341,
+   "dow": "Wed",
+   "gap_pct": 0.5951,
+   "high": 776.85,
+   "low": 769.51,
+   "n_bars": 78,
+   "open": 775.84,
+   "open_loc": 0.8624,
+   "prior_close": 771.25,
+   "range_dollars": 7.34,
+   "range_pct": 0.9461,
+   "session": "full",
+   "t_high": 0.013,
+   "t_low": 1.0,
+   "vix_close": 15.71,
+   "vix_open": 17.21
+  },
+  "2026-08-06": {
+   "archetype": "range-chop",
+   "atr14_prior_pct": 1.2981,
+   "body_pct": -0.2181,
+   "close": 768.53,
+   "close_loc": 0.2454,
+   "dow": "Thu",
+   "gap_pct": 0.0585,
+   "high": 771.82,
+   "low": 767.46,
+   "n_bars": 78,
+   "open": 770.21,
+   "open_loc": 0.6307,
+   "prior_close": 769.76,
+   "range_dollars": 4.36,
+   "range_pct": 0.5661,
+   "session": "full",
+   "t_high": 0.1299,
+   "t_low": 0.4286,
+   "vix_close": 15.29,
+   "vix_open": 15.94
   }
  },
  "distribution": {
   "full_counts": {
    "V-reversal": 12,
-   "gap-fade": 62,
+   "gap-fade": 63,
    "gap-go": 89,
    "inverted-V": 9,
    "pin-day": 21,
-   "range-chop": 159,
+   "range-chop": 160,
    "trend-down": 15,
    "trend-up": 28
   },
   "full_pct": {
    "V-reversal": 3.0,
-   "gap-fade": 15.7,
-   "gap-go": 22.5,
+   "gap-fade": 15.9,
+   "gap-go": 22.4,
    "inverted-V": 2.3,
    "pin-day": 5.3,
    "range-chop": 40.3,
@@ -8750,9 +8794,9 @@
    "gap-go": 7,
    "inverted-V": 1,
    "pin-day": 1,
-   "range-chop": 8,
+   "range-chop": 9,
    "trend-down": 1,
-   "trend-up": 1
+   "trend-up": 0
   },
   "last_25_pct": {
    "V-reversal": 12.0,
@@ -8760,36 +8804,36 @@
    "gap-go": 28.0,
    "inverted-V": 4.0,
    "pin-day": 4.0,
-   "range-chop": 32.0,
+   "range-chop": 36.0,
    "trend-down": 4.0,
-   "trend-up": 4.0
+   "trend-up": 0.0
   },
   "last_25_window": [
-   "2026-06-30",
-   "2026-08-04"
+   "2026-07-02",
+   "2026-08-06"
   ],
-  "mix_l1_distance": 0.3271,
-  "n_assignable": 395,
+  "mix_l1_distance": 0.3303,
+  "n_assignable": 397,
   "top_full": "range-chop",
   "top_last_25": "range-chop"
  },
  "inputs_sha256": {
   "spy_5m_2025-01-01_2026-07-22.csv": "70be577fb3bd769b2e0cc26bd4a3e56281c054f53e13842d81a475f2ed01b289",
-  "spy_5m_2026-05-19_2026-08-04.csv": "bf313dda8e25ef30597d2307756de04b5e1c948be635051b9d60376e3c6fe151",
+  "spy_5m_2026-05-19_2026-08-06.csv": "b9cbb29b95cb3f4ab463faed194cc3115cf383ddfaa63c1f7f9b831d67a3fa9b",
   "vix_5m_2025-01-01_2026-07-22.csv": "cd49202d2ccd91fe672e25508e2c80bdd1fe92e009e78746fc0b884e8842a026",
-  "vix_5m_2026-05-19_2026-08-04.csv": "1ff7e09fc5cdb9d0b51665085d85e338467e475e7b46eb22948bdb7eea9582bf"
+  "vix_5m_2026-05-19_2026-08-06.csv": "1c24cb09b786ec75919f776b6357af3c82cfa4ccc487328b37fead2b641fd132"
  },
  "note": "Deterministic day-archetype library. Byte-identical re-run given identical inputs. Post-hoc DESCRIPTIVE taxonomy -- distinct from backtest/lib/regime_classifier.py (pre-open lookahead-safe router). No trading verdicts.",
  "population": {
   "accounting_note": "data_days counts every session present in the pinned lineage; replay-population figures quoted elsewhere (e.g. 391) may exclude short/broken sessions -- join on date, never on count.",
-  "assignable_days": 395,
-  "data_days": 396,
-  "data_end": "2026-08-04",
+  "assignable_days": 397,
+  "data_days": 398,
+  "data_end": "2026-08-06",
   "incomplete_dates": [
    "2026-06-15"
   ],
   "sessions": {
-   "full": 388,
+   "full": 390,
    "half-day": 3,
    "incomplete": 1,
    "truncated-tail": 4
