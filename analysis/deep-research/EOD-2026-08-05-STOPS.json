@@ -1,0 +1,2563 @@
+{
+ "lens": "LENS 1 -- were they good trades, and would a wider stop have saved them?",
+ "date": "2026-08-05",
+ "written_et": "2026-08-06 pre-dawn (market CLOSED, et_clock verified)",
+ "verdict": {
+  "do_we_need_larger_stops": "NO",
+  "regime_conditional": true,
+  "regime_live_detectable_at_entry": false,
+  "one_line": "A wider stop would have LOST MORE on every cell. 776C never traded at any of the five entry prices again after 10:20 and settled $0.01. The effect IS regime-conditional (trend likes width, chop hates it) but the regime is provably NOT classifiable at entry time -- this repo pre-registered that classifier on 2026-08-02 and it FAILED, and gap-go vs gap-fade (Tue vs Wed) is exactly the pair it cannot separate."
+ },
+ "q1_did_776c_ever_recover": {
+  "answer": "NO",
+  "entry_prices": [
+   2.37,
+   2.35,
+   2.27,
+   2.2,
+   2.19,
+   2.12,
+   2.09,
+   2.06
+  ],
+  "lowest_entry": 2.06,
+  "max_high_after_1020": 2.0,
+  "max_close_after_1020": 1.78,
+  "session_close": 0.01,
+  "note": "Post-10:20 maximum was an intrabar $2.00 print at 10:25 -- 6 cents BELOW the cheapest of the five entries. 'We need bigger stops' is FALSE for this day."
+ },
+ "q2_776c_sequential_stop_grid": {
+  "method": {
+   "proxy_bias": -0.026,
+   "proxy_sd": 0.058,
+   "half_spread": 0.025,
+   "exit_fill_edge": 0.02,
+   "sequential": true,
+   "quote_priority": [
+    "engine_bid",
+    "engine_mid",
+    "opra_proxy"
+   ]
+  },
+  "calibration_fit_engine_bid_vs_opra": {
+   "n": 14,
+   "mean": -0.0264,
+   "sd": 0.0577,
+   "mae": 0.0443
+  },
+  "per_arm": {
+   "risky-1": {
+    "real_pnl": -485.0,
+    "calibration_cell": -460.0,
+    "calibration_delta": 25.0,
+    "signal_minutes": [
+     "09:58",
+     "09:59",
+     "10:00",
+     "10:01",
+     "10:06",
+     "10:10",
+     "10:11",
+     "10:14",
+     "10:15",
+     "10:16",
+     "10:18",
+     "10:19"
+    ],
+    "cells": [
+     {
+      "label": "-6% (LIVE)",
+      "n_entries": 5,
+      "pnl": -535.0,
+      "mc_band": {
+       "p05": -535.0,
+       "p50": -535.0,
+       "p95": -535.0,
+       "mean": -535.0
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-10%",
+      "n_entries": 4,
+      "pnl": -573.0,
+      "mc_band": {
+       "p05": -624.9,
+       "p50": -577.05,
+       "p95": -532.0,
+       "mean": -576.47
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-12%",
+      "n_entries": 3,
+      "pnl": -493.0,
+      "mc_band": {
+       "p05": -585.05,
+       "p50": -504.15,
+       "p95": -468.45,
+       "mean": -513.13
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-15%",
+      "n_entries": 2,
+      "pnl": -488.0,
+      "mc_band": {
+       "p05": -528.5,
+       "p50": -456.3,
+       "p95": -411.45,
+       "mean": -460.72
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-20%",
+      "n_entries": 2,
+      "pnl": -488.0,
+      "mc_band": {
+       "p05": -536.15,
+       "p50": -486.45,
+       "p95": -295.0,
+       "mean": -448.62
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-25%",
+      "n_entries": 1,
+      "pnl": -295.0,
+      "mc_band": {
+       "p05": -610.55,
+       "p50": -295.0,
+       "p95": -295.0,
+       "mean": -327.97
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-50% catastrophe-only",
+      "n_entries": 1,
+      "pnl": -643.0,
+      "mc_band": {
+       "p05": -687.3,
+       "p50": -633.3,
+       "p95": -588.45,
+       "mean": -635.13
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "chart/structure (RECONSTRUCTED)",
+      "n_entries": 2,
+      "pnl": -348.0,
+      "mc_band": null,
+      "reconstructed": true
+     }
+    ]
+   },
+   "risky-3": {
+    "real_pnl": -794.0,
+    "calibration_cell": -736.0,
+    "calibration_delta": 58.0,
+    "signal_minutes": [
+     "09:58",
+     "09:59",
+     "10:00",
+     "10:01",
+     "10:06",
+     "10:10",
+     "10:11",
+     "10:14",
+     "10:15",
+     "10:16",
+     "10:18",
+     "10:19"
+    ],
+    "cells": [
+     {
+      "label": "-6% (LIVE)",
+      "n_entries": 5,
+      "pnl": -856.0,
+      "mc_band": {
+       "p05": -856.0,
+       "p50": -856.0,
+       "p95": -856.0,
+       "mean": -856.0
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-10%",
+      "n_entries": 4,
+      "pnl": -916.8,
+      "mc_band": {
+       "p05": -999.84,
+       "p50": -923.28,
+       "p95": -851.2,
+       "mean": -922.35
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-12%",
+      "n_entries": 3,
+      "pnl": -788.8,
+      "mc_band": {
+       "p05": -936.08,
+       "p50": -806.64,
+       "p95": -749.52,
+       "mean": -821.01
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-15%",
+      "n_entries": 2,
+      "pnl": -780.8,
+      "mc_band": {
+       "p05": -845.6,
+       "p50": -730.08,
+       "p95": -658.32,
+       "mean": -737.14
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-20%",
+      "n_entries": 2,
+      "pnl": -780.8,
+      "mc_band": {
+       "p05": -857.84,
+       "p50": -778.32,
+       "p95": -472.0,
+       "mean": -717.79
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-25%",
+      "n_entries": 1,
+      "pnl": -472.0,
+      "mc_band": {
+       "p05": -976.88,
+       "p50": -472.0,
+       "p95": -472.0,
+       "mean": -524.76
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "-50% catastrophe-only",
+      "n_entries": 1,
+      "pnl": -1028.8,
+      "mc_band": {
+       "p05": -1099.68,
+       "p50": -1013.28,
+       "p95": -941.52,
+       "mean": -1016.21
+      },
+      "reconstructed": false
+     },
+     {
+      "label": "chart/structure (RECONSTRUCTED)",
+      "n_entries": 2,
+      "pnl": -556.8,
+      "mc_band": null,
+      "reconstructed": true
+     }
+    ]
+   }
+  },
+  "joint_stop_x_entrycap_combined_both_arms": {
+   "-6%": {
+    "cap1": -205.0,
+    "cap2": -374.0,
+    "cap3": -613.0,
+    "cap5": -1196.0
+   },
+   "-10%": {
+    "cap1": -394.8,
+    "cap2": -732.8,
+    "cap3": -1161.8,
+    "cap5": -1161.8
+   },
+   "-15%": {
+    "cap1": -615.8,
+    "cap2": -1239.8,
+    "cap3": -1239.8,
+    "cap5": -1239.8
+   },
+   "-25%": {
+    "cap1": -838.8,
+    "cap2": -838.8,
+    "cap3": -838.8,
+    "cap5": -838.8
+   },
+   "-50%": {
+    "cap1": -1642.8,
+    "cap2": -1642.8,
+    "cap3": -1642.8,
+    "cap5": -1642.8
+   }
+  },
+  "joint_reading": "Down every column widening the stop loses more; across every row more entries loses more. Best cell = TIGHTEST stop x ONE entry (-6% x cap1 = -205) vs actual (-6% x 5 entries = -1196 modelled / -1279 broker truth). 84% of the loss is re-entry count, not width."
+ },
+ "q3_generalization": {
+  "real_fill_book_25d": {
+   "population": {
+    "positions": 205,
+    "waves": 146,
+    "waves_skipped_no_bars": 0,
+    "days": [
+     "2026-06-26",
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-07",
+     "2026-07-08",
+     "2026-07-09",
+     "2026-07-13",
+     "2026-07-15",
+     "2026-07-16",
+     "2026-07-17",
+     "2026-07-20",
+     "2026-07-21",
+     "2026-07-22",
+     "2026-07-23",
+     "2026-07-27",
+     "2026-07-28",
+     "2026-07-29",
+     "2026-07-30",
+     "2026-07-31",
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05"
+    ],
+    "actual_total_pnl": 317.01
+   },
+   "method": {
+    "varied": "premium_stop_pct only",
+    "baseline_shape": {
+     "tp1_premium_pct": 0.3,
+     "tp1_qty_fraction": 0.8,
+     "profit_lock_mode": "fixed"
+    },
+    "core": "exit_manager.plan_exit_actions (LIVE decision core)",
+    "sequential": true,
+    "entry_prices": "REAL broker fills",
+    "not_modeled": "chart-stop / ribbon_flip_back invalidation"
+   },
+   "cells": {
+    "-6%": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 815.44,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 498.43,
+      "win_rate": 0.185
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 1468.2,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 332.19,
+      "win_rate": 0.19
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": -652.76,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": 166.24,
+      "win_rate": 0.167
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 1231.12,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": -2981.88,
+      "win_rate": 0.14
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -415.68,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 3480.31,
+      "win_rate": 0.213
+     }
+    },
+    "-10%": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 767.2,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 450.19,
+      "win_rate": 0.24
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 2148.2,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 1012.19,
+      "win_rate": 0.276
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": -1381.0,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": -562.0,
+      "win_rate": 0.1
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 1052.2,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": -3160.8,
+      "win_rate": 0.158
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -285.0,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 3610.99,
+      "win_rate": 0.292
+     }
+    },
+    "-12%": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 920.84,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 603.83,
+      "win_rate": 0.274
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 1838.44,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 702.43,
+      "win_rate": 0.293
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": -917.6,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": -98.6,
+      "win_rate": 0.2
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 1202.84,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": -3010.16,
+      "win_rate": 0.193
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -282.0,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 3613.99,
+      "win_rate": 0.326
+     }
+    },
+    "-15%": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 3502.35,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 3185.34,
+      "win_rate": 0.342
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 3495.1,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 2359.09,
+      "win_rate": 0.362
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": 7.25,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": 826.25,
+      "win_rate": 0.267
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 3809.55,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": -403.45,
+      "win_rate": 0.333
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -307.2,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 3588.79,
+      "win_rate": 0.348
+     }
+    },
+    "-20%": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 5952.7,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 5635.69,
+      "win_rate": 0.397
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 6559.1,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 5423.09,
+      "win_rate": 0.44
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": -606.4,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": 212.6,
+      "win_rate": 0.233
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 6776.3,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": 2563.3,
+      "win_rate": 0.421
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -823.6,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 3072.39,
+      "win_rate": 0.382
+     }
+    },
+    "-25%": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 7557.9,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 7240.89,
+      "win_rate": 0.5
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 8864.95,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 7728.94,
+      "win_rate": 0.569
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": -1307.05,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": -488.05,
+      "win_rate": 0.233
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 8841.0,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": 4628.0,
+      "win_rate": 0.614
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -1283.1,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 2612.89,
+      "win_rate": 0.427
+     }
+    },
+    "-50% catastrophe-only": {
+     "all": {
+      "n_waves": 146,
+      "total_pnl": 7651.8,
+      "actual_pnl": 317.01,
+      "delta_vs_actual": 7334.79,
+      "win_rate": 0.582
+     },
+     "single_entry": {
+      "n_waves": 116,
+      "total_pnl": 8389.5,
+      "actual_pnl": 1136.01,
+      "delta_vs_actual": 7253.49,
+      "win_rate": 0.638
+     },
+     "multi_entry": {
+      "n_waves": 30,
+      "total_pnl": -737.7,
+      "actual_pnl": -819.0,
+      "delta_vs_actual": 81.3,
+      "win_rate": 0.367
+     },
+     "trend_like": {
+      "n_waves": 57,
+      "total_pnl": 9554.9,
+      "actual_pnl": 4213.0,
+      "delta_vs_actual": 5341.9,
+      "win_rate": 0.684
+     },
+     "chop_like": {
+      "n_waves": 89,
+      "total_pnl": -1903.1,
+      "actual_pnl": -3895.99,
+      "delta_vs_actual": 1992.89,
+      "win_rate": 0.517
+     }
+    }
+   },
+   "by_archetype": {
+    "-6%": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": -36.48,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 533.52,
+      "win_rate": 0.158
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -411.3,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2571.7,
+      "win_rate": 0.35
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 1461.82,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": -1798.18,
+      "win_rate": 0.195
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": -72.54,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": 35.46,
+      "win_rate": 0.0
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": 104.64,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": 339.63,
+      "win_rate": 0.188
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": -140.64,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -1481.64,
+      "win_rate": 0.0
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": -90.06,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 297.94,
+      "win_rate": 0.0
+     }
+    },
+    "-10%": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": -5.8,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 564.2,
+      "win_rate": 0.158
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -408.8,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2574.2,
+      "win_rate": 0.55
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 1436.7,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": -1823.3,
+      "win_rate": 0.22
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": 8.7,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": 116.7,
+      "win_rate": 0.5
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": 120.9,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": 355.89,
+      "win_rate": 0.229
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": -234.4,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -1575.4,
+      "win_rate": 0.0
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": -150.1,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 237.9,
+      "win_rate": 0.0
+     }
+    },
+    "-12%": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": -56.46,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 513.54,
+      "win_rate": 0.158
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -207.36,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2775.64,
+      "win_rate": 0.65
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 1602.44,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": -1657.56,
+      "win_rate": 0.244
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": -6.84,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": 101.16,
+      "win_rate": 0.5
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": -11.34,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": 223.65,
+      "win_rate": 0.25
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": -281.28,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -1622.28,
+      "win_rate": 0.0
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": -118.32,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 269.68,
+      "win_rate": 0.091
+     }
+    },
+    "-15%": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": -48.45,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 521.55,
+      "win_rate": 0.211
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -118.5,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2864.5,
+      "win_rate": 0.65
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 3851.25,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": 591.25,
+      "win_rate": 0.39
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": 25.65,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": 133.65,
+      "win_rate": 0.5
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": -165.9,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": 69.09,
+      "win_rate": 0.271
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": 116.4,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -1224.6,
+      "win_rate": 0.4
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": -158.1,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 229.9,
+      "win_rate": 0.091
+     }
+    },
+    "-20%": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": -163.1,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 406.9,
+      "win_rate": 0.211
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -475.4,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2507.6,
+      "win_rate": 0.7
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 6148.56,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": 2888.56,
+      "win_rate": 0.463
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": 5.4,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": 113.4,
+      "win_rate": 0.5
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": -190.5,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": 44.49,
+      "win_rate": 0.312
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": 852.14,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -488.86,
+      "win_rate": 0.8
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": -224.4,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 163.6,
+      "win_rate": 0.091
+     }
+    },
+    "-25%": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": -277.75,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 292.25,
+      "win_rate": 0.211
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -691.0,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2292.0,
+      "win_rate": 0.75
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 7511.26,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": 4251.26,
+      "win_rate": 0.61
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": -14.85,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": 93.15,
+      "win_rate": 0.5
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": -299.5,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": -64.51,
+      "win_rate": 0.375
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": 1166.64,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -174.36,
+      "win_rate": 1.0
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": 163.1,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 551.1,
+      "win_rate": 0.455
+     }
+    },
+    "-50% catastrophe-only": {
+     "V-reversal": {
+      "n_waves": 19,
+      "total_pnl": 319.2,
+      "actual_pnl": -570.0,
+      "delta_vs_actual": 889.2,
+      "win_rate": 0.474
+     },
+     "gap-fade": {
+      "n_waves": 20,
+      "total_pnl": -952.0,
+      "actual_pnl": -2983.0,
+      "delta_vs_actual": 2031.0,
+      "win_rate": 0.75
+     },
+     "gap-go": {
+      "n_waves": 41,
+      "total_pnl": 8183.16,
+      "actual_pnl": 3260.0,
+      "delta_vs_actual": 4923.16,
+      "win_rate": 0.659
+     },
+     "pin-day": {
+      "n_waves": 2,
+      "total_pnl": -116.1,
+      "actual_pnl": -108.0,
+      "delta_vs_actual": -8.1,
+      "win_rate": 0.5
+     },
+     "range-chop": {
+      "n_waves": 48,
+      "total_pnl": -1154.2,
+      "actual_pnl": -234.99,
+      "delta_vs_actual": -919.21,
+      "win_rate": 0.438
+     },
+     "trend-down": {
+      "n_waves": 5,
+      "total_pnl": 1166.64,
+      "actual_pnl": 1341.0,
+      "delta_vs_actual": -174.36,
+      "win_rate": 1.0
+     },
+     "trend-up": {
+      "n_waves": 11,
+      "total_pnl": 205.1,
+      "actual_pnl": -388.0,
+      "delta_vs_actual": 593.1,
+      "win_rate": 0.636
+     }
+    }
+   }
+  },
+  "fullhist_391d": {
+   "population": {
+    "raw_entries": 207,
+    "replayed": 191,
+    "dropped_no_opra": 16,
+    "dropped_no_spy_day": 0,
+    "window": [
+     "2025-01-02",
+     "2026-07-22"
+    ],
+    "days": 141
+   },
+   "method": {
+    "varied": "premium_stop_pct only",
+    "base_shape": {
+     "premium_stop_pct": -0.2,
+     "tp1_premium_pct": 1.0,
+     "tp1_qty_fraction": 0.667,
+     "profit_lock_mode": "trailing",
+     "runner_target_pct": 99.0,
+     "trail_pct": 0.15,
+     "profit_lock_arm_pct": 0.05,
+     "stop_mode": "structure",
+     "catastrophe_stop_pct": -0.5,
+     "profit_lock_arm_scope": "post_tp1"
+    },
+    "structure_stop_enabled": true,
+    "core": "exit_manager.plan_exit_actions via exit_manager_walk",
+    "ribbon_flip_back": "modeled (real tick frame)"
+   },
+   "cells": {
+    "-6%": {
+     "premium_stop_pct": -0.06,
+     "n_trades": 191,
+     "total_pnl": 8036.11,
+     "trend_like": 3466.47,
+     "chop_like": 4503.64,
+     "win_rate": 0.246,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": 717.9,
+       "win_rate": 0.182
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -120.09,
+       "win_rate": 0.233
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 2870.61,
+       "win_rate": 0.27
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 166.75,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -119.94,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 3859.02,
+       "win_rate": 0.267
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": 172.32,
+       "win_rate": 0.154
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": 423.54,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 1.19": 4,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 1.43": 1,
+      "structure_stop @ 593.38": 1,
+      "premium_stop @ 1.8": 2,
+      "premium_stop @ 2.11": 1,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 10,
+      "premium_stop @ 0.88": 2,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 1.46": 1,
+      "premium_stop @ 0.89": 1,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.64": 3,
+      "premium_stop @ 0.38": 1,
+      "premium_stop @ 1.24": 1,
+      "premium_stop @ 0.85": 1,
+      "time_stop_15:40 (runner)": 3,
+      "premium_stop @ 1.63": 1,
+      "premium_stop @ 1.1": 2,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 1.78": 2,
+      "premium_stop @ 1.3": 2,
+      "premium_stop @ 1.18": 2,
+      "premium_stop @ 1.91": 1,
+      "premium_stop @ 1.12": 1,
+      "premium_stop @ 0.46": 1,
+      "premium_stop @ 0.73": 1,
+      "runner_stop @ 2.81": 1,
+      "premium_stop @ 0.87": 4,
+      "premium_stop @ 0.93": 3,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "premium_stop @ 0.86": 2,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.72": 2,
+      "runner_stop @ 2.21": 3,
+      "runner_stop @ 2.09": 1,
+      "time_stop_15:40": 5,
+      "premium_stop @ 1.27": 2,
+      "premium_stop @ 1.31": 1,
+      "premium_stop @ 0.98": 1,
+      "premium_stop @ 1.06": 3,
+      "premium_stop @ 0.7": 6,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.78": 1,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.82": 2,
+      "premium_stop @ 1.75": 1,
+      "premium_stop @ 0.95": 2,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.29": 1,
+      "premium_stop @ 0.99": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 0.52": 2,
+      "premium_stop @ 2.26": 2,
+      "premium_stop @ 2.42": 1,
+      "structure_stop @ 666.864279493517": 1,
+      "premium_stop @ 0.55": 1,
+      "premium_stop @ 0.81": 2,
+      "premium_stop @ 1.44": 1,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 1.02": 1,
+      "premium_stop @ 1.25": 2,
+      "runner_stop @ 1.31": 1,
+      "premium_stop @ 0.79": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "premium_stop @ 1.58": 2,
+      "premium_stop @ 1.04": 1,
+      "premium_stop @ 1.14": 2,
+      "premium_stop @ 0.65": 3,
+      "premium_stop @ 1.32": 1,
+      "premium_stop @ 2.36": 1,
+      "premium_stop @ 2.05": 1,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 1.69": 1,
+      "premium_stop @ 1.23": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 2.04": 1,
+      "premium_stop @ 2.35": 1,
+      "premium_stop @ 1.94": 1,
+      "premium_stop @ 1.65": 1,
+      "premium_stop @ 1.09": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 1.4": 2,
+      "premium_stop @ 1.66": 1,
+      "premium_stop @ 1.28": 1,
+      "premium_stop @ 1.33": 1,
+      "premium_stop @ 1.96": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.69": 1,
+      "premium_stop @ 0.91": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "structure_stop @ 753.0": 1,
+      "premium_stop @ 0.6": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "premium_stop @ 1.16": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "premium_stop @ 1.39": 1,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "premium_stop @ 1.38": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    },
+    "-10%": {
+     "premium_stop_pct": -0.1,
+     "n_trades": 191,
+     "total_pnl": 6947.65,
+     "trend_like": 3422.55,
+     "chop_like": 3459.1,
+     "win_rate": 0.257,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": 795.8,
+       "win_rate": 0.273
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -367.25,
+       "win_rate": 0.233
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 3082.25,
+       "win_rate": 0.297
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 157.75,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -199.9,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 3072.7,
+       "win_rate": 0.267
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": 19.0,
+       "win_rate": 0.154
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": 321.3,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 1.14": 3,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 1.37": 1,
+      "structure_stop @ 593.38": 1,
+      "premium_stop @ 1.72": 2,
+      "premium_stop @ 2.02": 1,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 12,
+      "premium_stop @ 0.85": 3,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 1.4": 1,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.61": 3,
+      "premium_stop @ 0.36": 1,
+      "premium_stop @ 1.19": 2,
+      "premium_stop @ 0.81": 1,
+      "time_stop_15:40 (runner)": 3,
+      "premium_stop @ 1.56": 1,
+      "premium_stop @ 1.05": 2,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 1.7": 2,
+      "premium_stop @ 1.24": 1,
+      "premium_stop @ 1.13": 2,
+      "premium_stop @ 1.83": 1,
+      "premium_stop @ 1.07": 1,
+      "premium_stop @ 0.46": 1,
+      "runner_stop @ 2.81": 1,
+      "premium_stop @ 0.84": 4,
+      "premium_stop @ 0.89": 3,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "premium_stop @ 0.82": 2,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.69": 2,
+      "runner_stop @ 2.21": 3,
+      "runner_stop @ 2.09": 2,
+      "time_stop_15:40": 5,
+      "premium_stop @ 1.22": 3,
+      "premium_stop @ 1.25": 1,
+      "premium_stop @ 0.94": 2,
+      "premium_stop @ 1.02": 3,
+      "premium_stop @ 0.68": 4,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.75": 1,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.78": 2,
+      "premium_stop @ 1.67": 1,
+      "premium_stop @ 0.91": 1,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.28": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 0.49": 2,
+      "premium_stop @ 2.16": 2,
+      "premium_stop @ 2.31": 1,
+      "structure_stop @ 666.864279493517": 1,
+      "premium_stop @ 0.52": 1,
+      "premium_stop @ 0.77": 2,
+      "premium_stop @ 1.38": 1,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 0.97": 1,
+      "premium_stop @ 1.2": 2,
+      "runner_stop @ 1.31": 1,
+      "premium_stop @ 0.76": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "premium_stop @ 1.51": 2,
+      "premium_stop @ 1.09": 2,
+      "premium_stop @ 0.62": 3,
+      "premium_stop @ 1.26": 1,
+      "premium_stop @ 2.26": 1,
+      "premium_stop @ 1.96": 1,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 1.62": 1,
+      "premium_stop @ 1.18": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 1.95": 1,
+      "premium_stop @ 2.25": 1,
+      "premium_stop @ 1.85": 1,
+      "premium_stop @ 1.58": 1,
+      "premium_stop @ 1.04": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 1.34": 2,
+      "premium_stop @ 1.59": 1,
+      "premium_stop @ 1.28": 1,
+      "premium_stop @ 0.67": 2,
+      "premium_stop @ 1.88": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.66": 1,
+      "premium_stop @ 0.87": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "premium_stop @ 1.3": 1,
+      "structure_stop @ 753.0": 1,
+      "premium_stop @ 0.6": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "premium_stop @ 1.11": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "premium_stop @ 1.33": 1,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "premium_stop @ 1.32": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    },
+    "-12%": {
+     "premium_stop_pct": -0.12,
+     "n_trades": 191,
+     "total_pnl": 6106.77,
+     "trend_like": 3201.15,
+     "chop_like": 2839.62,
+     "win_rate": 0.262,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": 744.66,
+       "win_rate": 0.273
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -423.15,
+       "win_rate": 0.267
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 2965.65,
+       "win_rate": 0.297
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 153.25,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -271.08,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 2635.94,
+       "win_rate": 0.267
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": -57.66,
+       "win_rate": 0.154
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": 293.16,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 1.12": 3,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 1.34": 1,
+      "structure_stop @ 593.38": 1,
+      "premium_stop @ 1.68": 2,
+      "premium_stop @ 1.97": 1,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 15,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 1.36": 1,
+      "premium_stop @ 0.84": 1,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.6": 4,
+      "premium_stop @ 0.35": 1,
+      "premium_stop @ 1.16": 1,
+      "premium_stop @ 0.79": 1,
+      "time_stop_15:40 (runner)": 3,
+      "premium_stop @ 1.52": 1,
+      "premium_stop @ 1.03": 2,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 1.66": 2,
+      "premium_stop @ 1.11": 2,
+      "premium_stop @ 1.79": 1,
+      "premium_stop @ 1.05": 1,
+      "premium_stop @ 0.46": 1,
+      "runner_stop @ 2.81": 1,
+      "premium_stop @ 0.82": 4,
+      "premium_stop @ 0.87": 3,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "premium_stop @ 0.8": 2,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.68": 2,
+      "runner_stop @ 2.21": 3,
+      "runner_stop @ 2.09": 2,
+      "time_stop_15:40": 5,
+      "premium_stop @ 1.19": 3,
+      "premium_stop @ 1.22": 1,
+      "premium_stop @ 0.92": 2,
+      "premium_stop @ 0.99": 3,
+      "premium_stop @ 0.66": 4,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.73": 1,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.77": 2,
+      "premium_stop @ 1.64": 1,
+      "premium_stop @ 0.89": 1,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.27": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 0.48": 1,
+      "premium_stop @ 2.11": 2,
+      "premium_stop @ 2.26": 1,
+      "structure_stop @ 666.864279493517": 1,
+      "premium_stop @ 0.51": 1,
+      "premium_stop @ 0.76": 2,
+      "premium_stop @ 1.35": 1,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 0.95": 1,
+      "premium_stop @ 1.17": 2,
+      "runner_stop @ 1.31": 1,
+      "premium_stop @ 0.74": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "premium_stop @ 1.48": 2,
+      "premium_stop @ 1.06": 2,
+      "premium_stop @ 0.61": 3,
+      "premium_stop @ 1.23": 1,
+      "premium_stop @ 2.21": 1,
+      "premium_stop @ 1.92": 1,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 1.58": 1,
+      "premium_stop @ 1.15": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 1.91": 1,
+      "premium_stop @ 2.2": 1,
+      "premium_stop @ 1.81": 1,
+      "premium_stop @ 1.55": 1,
+      "premium_stop @ 1.02": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 1.31": 2,
+      "premium_stop @ 1.56": 1,
+      "premium_stop @ 1.2": 1,
+      "premium_stop @ 1.25": 1,
+      "premium_stop @ 0.65": 2,
+      "premium_stop @ 1.84": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.64": 1,
+      "premium_stop @ 0.85": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "premium_stop @ 0.83": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "premium_stop @ 1.3": 2,
+      "structure_stop @ 753.0": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "premium_stop @ 1.08": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "premium_stop @ 1.29": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    },
+    "-15%": {
+     "premium_stop_pct": -0.15,
+     "n_trades": 191,
+     "total_pnl": 6153.4,
+     "trend_like": 4000.75,
+     "chop_like": 2086.65,
+     "win_rate": 0.283,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": 719.25,
+       "win_rate": 0.364
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -596.1,
+       "win_rate": 0.267
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 2790.75,
+       "win_rate": 0.297
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 156.25,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -365.1,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 2172.35,
+       "win_rate": 0.279
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": 959.05,
+       "win_rate": 0.308
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": 250.95,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 1.08": 3,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 1.29": 1,
+      "structure_stop @ 593.38": 1,
+      "premium_stop @ 1.62": 2,
+      "time_stop_15:40": 6,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 18,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 1.32": 1,
+      "premium_stop @ 0.81": 1,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.58": 3,
+      "premium_stop @ 1.12": 1,
+      "premium_stop @ 0.77": 2,
+      "time_stop_15:40 (runner)": 4,
+      "premium_stop @ 1.47": 1,
+      "premium_stop @ 0.99": 3,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 1.61": 2,
+      "premium_stop @ 1.07": 2,
+      "premium_stop @ 1.73": 1,
+      "premium_stop @ 1.01": 1,
+      "premium_stop @ 0.46": 1,
+      "runner_stop @ 2.81": 1,
+      "premium_stop @ 0.79": 4,
+      "premium_stop @ 0.84": 3,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "runner_stop @ 1.85": 1,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.65": 2,
+      "runner_stop @ 2.21": 3,
+      "runner_stop @ 2.09": 2,
+      "premium_stop @ 1.15": 2,
+      "premium_stop @ 1.18": 1,
+      "premium_stop @ 0.88": 1,
+      "premium_stop @ 0.96": 3,
+      "premium_stop @ 0.64": 3,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.71": 2,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.74": 1,
+      "premium_stop @ 1.58": 1,
+      "premium_stop @ 0.86": 1,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.26": 1,
+      "premium_stop @ 0.89": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 0.47": 1,
+      "premium_stop @ 2.04": 2,
+      "premium_stop @ 2.18": 1,
+      "structure_stop @ 666.864279493517": 1,
+      "premium_stop @ 0.49": 1,
+      "premium_stop @ 0.73": 2,
+      "premium_stop @ 1.3": 2,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 0.92": 1,
+      "premium_stop @ 1.13": 2,
+      "runner_stop @ 1.31": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "premium_stop @ 1.43": 2,
+      "premium_stop @ 1.03": 2,
+      "premium_stop @ 0.59": 3,
+      "premium_stop @ 1.19": 2,
+      "premium_stop @ 2.13": 1,
+      "premium_stop @ 1.85": 1,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 1.53": 1,
+      "premium_stop @ 1.11": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 1.84": 1,
+      "premium_stop @ 2.12": 1,
+      "premium_stop @ 1.75": 1,
+      "premium_stop @ 1.5": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 1.27": 2,
+      "premium_stop @ 1.16": 1,
+      "premium_stop @ 1.21": 1,
+      "premium_stop @ 0.63": 1,
+      "runner_stop @ 2.68": 1,
+      "premium_stop @ 1.78": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.62": 1,
+      "premium_stop @ 0.82": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "premium_stop @ 0.8": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "structure_stop @ 753.0": 1,
+      "premium_stop @ 0.6": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "premium_stop @ 1.05": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "premium_stop @ 1.26": 1,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "premium_stop @ 1.25": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    },
+    "-20%": {
+     "premium_stop_pct": -0.2,
+     "n_trades": 191,
+     "total_pnl": 4808.75,
+     "trend_like": 3902.75,
+     "chop_like": 840.0,
+     "win_rate": 0.293,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": 602.5,
+       "win_rate": 0.364
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -884.35,
+       "win_rate": 0.267
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 2911.1,
+       "win_rate": 0.324
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 156.25,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -430.8,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 1396.4,
+       "win_rate": 0.291
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": 811.05,
+       "win_rate": 0.308
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": 180.6,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 1.02": 3,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 1.22": 2,
+      "structure_stop @ 593.38": 1,
+      "premium_stop @ 1.53": 2,
+      "time_stop_15:40": 6,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 19,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 1.24": 1,
+      "premium_stop @ 0.76": 1,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.54": 3,
+      "premium_stop @ 1.06": 3,
+      "premium_stop @ 0.72": 1,
+      "time_stop_15:40 (runner)": 4,
+      "premium_stop @ 1.38": 1,
+      "premium_stop @ 0.94": 1,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 1.51": 2,
+      "premium_stop @ 1.01": 2,
+      "premium_stop @ 1.62": 1,
+      "premium_stop @ 0.95": 1,
+      "premium_stop @ 0.46": 2,
+      "runner_stop @ 2.81": 1,
+      "premium_stop @ 0.74": 4,
+      "premium_stop @ 0.79": 3,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "runner_stop @ 1.85": 1,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.62": 2,
+      "runner_stop @ 2.21": 3,
+      "runner_stop @ 2.09": 2,
+      "premium_stop @ 1.08": 2,
+      "premium_stop @ 1.11": 1,
+      "premium_stop @ 0.83": 1,
+      "premium_stop @ 0.9": 3,
+      "premium_stop @ 0.6": 4,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.66": 1,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.7": 1,
+      "premium_stop @ 1.49": 1,
+      "premium_stop @ 0.81": 1,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.25": 1,
+      "premium_stop @ 0.84": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 0.44": 1,
+      "premium_stop @ 1.92": 2,
+      "premium_stop @ 2.06": 1,
+      "structure_stop @ 666.864279493517": 1,
+      "premium_stop @ 0.69": 2,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 0.86": 1,
+      "runner_stop @ 1.31": 1,
+      "premium_stop @ 0.67": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "premium_stop @ 1.34": 2,
+      "premium_stop @ 0.97": 2,
+      "premium_stop @ 0.55": 3,
+      "premium_stop @ 1.12": 1,
+      "premium_stop @ 2.01": 1,
+      "premium_stop @ 1.74": 1,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 1.44": 1,
+      "premium_stop @ 1.05": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 2.0": 1,
+      "premium_stop @ 1.65": 1,
+      "premium_stop @ 1.41": 1,
+      "premium_stop @ 0.93": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 1.19": 3,
+      "premium_stop @ 1.42": 1,
+      "premium_stop @ 1.09": 1,
+      "premium_stop @ 1.14": 1,
+      "premium_stop @ 0.59": 1,
+      "runner_stop @ 2.68": 1,
+      "premium_stop @ 1.67": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.58": 1,
+      "premium_stop @ 0.78": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "premium_stop @ 0.75": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "premium_stop @ 1.3": 1,
+      "structure_stop @ 753.0": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "runner_stop @ 2.15": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "premium_stop @ 1.18": 2,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "premium_stop @ 0.73": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    },
+    "-25%": {
+     "premium_stop_pct": -0.25,
+     "n_trades": 191,
+     "total_pnl": 4060.1,
+     "trend_like": 3443.6,
+     "chop_like": 550.5,
+     "win_rate": 0.304,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": 412.25,
+       "win_rate": 0.364
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -1172.6,
+       "win_rate": 0.267
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 2670.3,
+       "win_rate": 0.324
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 156.25,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -496.5,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 1651.1,
+       "win_rate": 0.314
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": 663.05,
+       "win_rate": 0.308
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": 110.25,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 0.95": 3,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 1.14": 1,
+      "structure_stop @ 593.38": 1,
+      "premium_stop @ 1.43": 2,
+      "time_stop_15:40": 6,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 21,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 1.16": 1,
+      "premium_stop @ 0.71": 1,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.51": 3,
+      "premium_stop @ 0.99": 1,
+      "premium_stop @ 0.68": 1,
+      "time_stop_15:40 (runner)": 4,
+      "premium_stop @ 1.3": 2,
+      "premium_stop @ 0.88": 1,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 1.42": 2,
+      "premium_stop @ 0.94": 2,
+      "premium_stop @ 1.52": 1,
+      "premium_stop @ 0.89": 1,
+      "premium_stop @ 0.46": 1,
+      "runner_stop @ 2.81": 1,
+      "premium_stop @ 0.7": 5,
+      "premium_stop @ 0.74": 3,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "runner_stop @ 1.85": 1,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.58": 2,
+      "runner_stop @ 2.21": 3,
+      "runner_stop @ 2.09": 2,
+      "premium_stop @ 1.01": 2,
+      "premium_stop @ 1.04": 1,
+      "premium_stop @ 0.78": 1,
+      "premium_stop @ 0.85": 3,
+      "premium_stop @ 0.56": 4,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.62": 1,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.65": 2,
+      "premium_stop @ 1.4": 1,
+      "premium_stop @ 0.76": 1,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.23": 1,
+      "premium_stop @ 0.79": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 1.8": 2,
+      "premium_stop @ 1.93": 1,
+      "structure_stop @ 666.864279493517": 1,
+      "premium_stop @ 0.43": 1,
+      "runner_stop @ 2.14": 1,
+      "premium_stop @ 1.15": 1,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 0.81": 1,
+      "premium_stop @ 1.0": 2,
+      "runner_stop @ 1.31": 1,
+      "premium_stop @ 0.63": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "premium_stop @ 1.26": 2,
+      "premium_stop @ 0.91": 2,
+      "premium_stop @ 0.52": 3,
+      "premium_stop @ 1.05": 1,
+      "premium_stop @ 1.88": 2,
+      "premium_stop @ 1.64": 1,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 1.35": 1,
+      "premium_stop @ 0.98": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 1.54": 1,
+      "premium_stop @ 1.32": 1,
+      "premium_stop @ 0.87": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 1.12": 2,
+      "premium_stop @ 1.33": 1,
+      "premium_stop @ 1.02": 1,
+      "runner_stop @ 2.68": 1,
+      "premium_stop @ 1.57": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.55": 1,
+      "premium_stop @ 0.73": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "structure_stop @ 753.0": 1,
+      "premium_stop @ 1.19": 1,
+      "premium_stop @ 0.6": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "runner_stop @ 2.15": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "premium_stop @ 1.11": 1,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "premium_stop @ 1.1": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "runner_stop @ 2.46": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    },
+    "-50%": {
+     "premium_stop_pct": -0.5,
+     "n_trades": 191,
+     "total_pnl": 2176.15,
+     "trend_like": 4533.55,
+     "chop_like": -2423.4,
+     "win_rate": 0.356,
+     "n_structure_mode": 67,
+     "n_premium_mode": 124,
+     "by_archetype": {
+      "V-reversal": {
+       "n": 11,
+       "pnl": -65.0,
+       "win_rate": 0.364
+      },
+      "data-incomplete": {
+       "n": 1,
+       "pnl": 66.0,
+       "win_rate": 1.0
+      },
+      "gap-fade": {
+       "n": 30,
+       "pnl": -2703.85,
+       "win_rate": 0.267
+      },
+      "gap-go": {
+       "n": 37,
+       "pnl": 3686.0,
+       "win_rate": 0.432
+      },
+      "inverted-V": {
+       "n": 2,
+       "pnl": 156.25,
+       "win_rate": 0.5
+      },
+      "pin-day": {
+       "n": 6,
+       "pnl": -837.0,
+       "win_rate": 0.0
+      },
+      "range-chop": {
+       "n": 86,
+       "pnl": 1026.2,
+       "win_rate": 0.372
+      },
+      "trend-down": {
+       "n": 13,
+       "pnl": 898.55,
+       "win_rate": 0.385
+      },
+      "trend-up": {
+       "n": 5,
+       "pnl": -51.0,
+       "win_rate": 0.2
+      }
+     },
+     "exit_reasons": {
+      "runner_stop @ 1.23": 1,
+      "premium_stop @ 0.64": 3,
+      "runner_stop @ 3.82": 1,
+      "runner_stop @ 4.96": 1,
+      "structure_stop @ 580.51": 1,
+      "premium_stop @ 0.76": 1,
+      "structure_stop @ 593.38": 1,
+      "time_stop_15:40": 15,
+      "structure_stop @ 603.71": 1,
+      "ribbon_flip_back": 31,
+      "structure_stop @ 607.445": 1,
+      "premium_stop @ 0.78": 1,
+      "runner_stop @ 2.21": 4,
+      "structure_stop @ 603.6": 1,
+      "premium_stop @ 0.66": 1,
+      "premium_stop @ 0.45": 1,
+      "time_stop_15:40 (runner)": 4,
+      "premium_stop @ 0.86": 1,
+      "structure_stop @ 596.0": 1,
+      "premium_stop @ 0.94": 1,
+      "premium_stop @ 1.01": 1,
+      "premium_stop @ 0.59": 1,
+      "premium_stop @ 0.46": 1,
+      "runner_stop @ 2.81": 1,
+      "runner_stop @ 1.96": 1,
+      "premium_stop @ 0.49": 2,
+      "runner_stop @ 1.99": 1,
+      "structure_stop @ 609.0": 1,
+      "runner_stop @ 1.85": 1,
+      "structure_stop @ 623.87": 1,
+      "structure_stop @ 626.0": 1,
+      "premium_stop @ 0.39": 2,
+      "premium_stop @ 0.47": 3,
+      "runner_stop @ 2.09": 2,
+      "premium_stop @ 0.68": 3,
+      "premium_stop @ 0.69": 1,
+      "premium_stop @ 0.52": 1,
+      "premium_stop @ 0.38": 2,
+      "runner_stop @ 2.65": 1,
+      "structure_stop @ 637.0461014596233": 1,
+      "premium_stop @ 0.41": 1,
+      "runner_stop @ 1.8": 1,
+      "premium_stop @ 0.43": 1,
+      "premium_stop @ 0.93": 1,
+      "premium_stop @ 0.51": 1,
+      "runner_stop @ 6.35": 1,
+      "premium_stop @ 0.53": 1,
+      "runner_stop @ 1.16": 1,
+      "runner_stop @ 0.88": 1,
+      "runner_stop @ 3.15": 1,
+      "premium_stop @ 1.2": 2,
+      "premium_stop @ 1.28": 1,
+      "premium_stop @ 0.34": 4,
+      "structure_stop @ 666.864279493517": 1,
+      "runner_stop @ 2.14": 2,
+      "runner_stop @ 3.83": 1,
+      "runner_stop @ 2.12": 1,
+      "structure_stop @ 660.72": 1,
+      "structure_stop @ 669.0719879985901": 1,
+      "premium_stop @ 0.54": 1,
+      "premium_stop @ 0.67": 2,
+      "runner_stop @ 1.31": 1,
+      "premium_stop @ 0.42": 1,
+      "runner_stop @ 3.26": 1,
+      "structure_stop @ 677.0": 2,
+      "structure_stop @ 682.72": 1,
+      "structure_stop @ 685.97": 1,
+      "structure_stop @ 688.72": 1,
+      "runner_stop @ 3.59": 1,
+      "premium_stop @ 0.6": 2,
+      "premium_stop @ 0.56": 2,
+      "runner_stop @ 1.92": 1,
+      "premium_stop @ 0.9": 1,
+      "runner_stop @ 1.53": 1,
+      "runner_stop @ 2.37": 1,
+      "runner_stop @ 1.68": 1,
+      "structure_stop @ 689.43": 1,
+      "structure_stop @ 692.0": 1,
+      "runner_stop @ 4.6": 1,
+      "structure_stop @ 690.545": 1,
+      "premium_stop @ 1.25": 1,
+      "premium_stop @ 0.95": 1,
+      "premium_stop @ 1.03": 1,
+      "premium_stop @ 0.58": 2,
+      "runner_stop @ 4.7": 1,
+      "premium_stop @ 0.74": 3,
+      "runner_stop @ 5.02": 1,
+      "premium_stop @ 0.37": 1,
+      "runner_stop @ 2.68": 1,
+      "premium_stop @ 0.63": 1,
+      "runner_stop @ 2.41": 1,
+      "premium_stop @ 0.36": 1,
+      "runner_stop @ 3.27": 1,
+      "runner_stop @ 2.86": 1,
+      "runner_stop @ 2.06": 1,
+      "structure_stop @ 736.6849381647099": 1,
+      "structure_stop @ 738.85": 1,
+      "runner_stop @ 2.44": 1,
+      "structure_stop @ 749.9": 1,
+      "runner_stop @ 3.01": 1,
+      "premium_stop @ 1.3": 1,
+      "structure_stop @ 753.0": 1,
+      "premium_stop @ 1.19": 1,
+      "structure_stop @ 743.8599853515625": 1,
+      "runner_stop @ 2.15": 1,
+      "structure_stop @ 730.8400268554688": 1,
+      "structure_stop @ 733.4773412770263": 1,
+      "structure_stop @ 729.7": 1,
+      "structure_stop @ 732.0982057689337": 1,
+      "structure_stop @ 737.5": 1,
+      "runner_stop @ 2.11": 1,
+      "structure_stop @ 751.3099975585938": 1,
+      "premium_stop @ 0.73": 1,
+      "structure_stop @ 745.2977294921875": 1,
+      "structure_stop @ 753.2": 1,
+      "runner_stop @ 2.46": 1,
+      "runner_stop @ 2.29": 1,
+      "structure_stop @ 744.5112751919311": 1,
+      "runner_stop @ 1.97": 1
+     }
+    }
+   },
+   "validation": {
+    "claim": "the -20% cell IS the live ribbon_ride premium_stop_pct",
+    "published_baseline": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json",
+    "published_total_pnl": 4808.75,
+    "published_n_trades": 191,
+    "this_run_minus20_total": 4808.75,
+    "this_run_n_trades": 191,
+    "match": "EXACT"
+   },
+   "tighten_stability_minus6_vs_live_minus20": {
+    "total_delta": 3227.36,
+    "n_paired": 191,
+    "n_changed": 103,
+    "n_structure_mode_invariant": 67,
+    "improved": 94,
+    "worsened": 9,
+    "drop_best_1": 2961.68,
+    "drop_best_3": 2748.32,
+    "drop_best_5": 2542.52,
+    "paired_t": 2.72,
+    "mean_per_trade": 16.9,
+    "sub_windows": {
+     "2025H1": {
+      "delta": 1443.36,
+      "n": 39
+     },
+     "2025H2": {
+      "delta": 1640.6,
+      "n": 72
+     },
+     "2026Q1": {
+      "delta": 127.93,
+      "n": 31
+     },
+     "2026May+": {
+      "delta": 15.47,
+      "n": 49
+     }
+    },
+    "verdict": "Robust to drop-best-5 and significant in aggregate, BUT the entire effect is pre-2026. In the recent window (2026 May+, n=49) tightening is worth +$15 -- indistinguishable from noise. Per J's recency>aggregate directive (2026-07-31) this does NOT clear a ship bar."
+   }
+  }
+ },
+ "q4_regime_conditionality": {
+  "effect_is_real_and_consistent": "All three populations agree on the CHOP side: widening the stop is harmful. 391-day gap-fade (08-05's own archetype, n=30): -6% -120 -> -50% -2704, monotone. 391-day chop_like: +4504 -> -2423. 25-day book chop_like: -416 -> -1903.",
+  "trend_side_conflicts": "25-day book trend_like +1231 -> +9555 (wider much better); 391-day trend_like +3466 -> +4534 (roughly flat/noisy). Different TP1 and different population mix.",
+  "live_detectable_at_entry": false,
+  "evidence": {
+   "doc": "analysis/deep-research/REGIME-EARLY-CLASSIFIER-2026-08-02.md",
+   "status": "PRE-REGISTERED AND FAILED EVERY GATE (2026-08-02)",
+   "binary_skip_precision_0945": 0.268,
+   "binary_skip_precision_1000": 0.269,
+   "eightway_accuracy_0945": 0.209,
+   "majority_baseline": 0.391,
+   "killer": "gap-fade true -> predicted gap-fade 16/44; gap-go true -> predicted gap-fade 18/71. Of days flagged gap-fade, MORE were truly gap-go. Tuesday 08-04 was gap-go and Wednesday 08-05 was gap-fade -- the exact pair the classifier cannot separate. The 776C entries were 09:58-10:19, squarely inside the blind window."
+  },
+  "conclusion": "A regime-conditional stop is NOT shippable. Labelling it 'regime-conditional' without this check would be hindsight dressed as a plan."
+ },
+ "q5_what_survives_both_days": {
+  "on_the_stop_axis": "NOTHING. No single static stop width improves both 08-04 and 08-05.",
+  "candidate_off_the_stop_axis": {
+   "name": "MAX-3-ENTRIES-PER-WAVE",
+   "definition": "at most 3 entries per (arm, date, symbol) wave",
+   "08-04_gap-go_trend_day": {
+    "waves_touched": 0,
+    "cost": 0.0,
+    "note": "largest 08-04 wave was n=3 -- literal no-op"
+   },
+   "08-05_gap-fade_chop_day": {
+    "waves_touched": 2,
+    "benefit": 653.0
+   },
+   "book_25d": {
+    "waves_touched": 9,
+    "benefit": 720.0,
+    "n_trades_removed": 12
+   },
+   "ordinal_decomposition_broker_truth": {
+    "1": {
+     "n": 146,
+     "pnl": -139.99,
+     "wins": 27,
+     "trend": 2274.0,
+     "chop": -2413.99,
+     "win_rate": 0.185
+    },
+    "2": {
+     "n": 30,
+     "pnl": 1070.0,
+     "wins": 4,
+     "trend": 1552.0,
+     "chop": -482.0,
+     "win_rate": 0.133
+    },
+    "3": {
+     "n": 17,
+     "pnl": 107.0,
+     "wins": 4,
+     "trend": 454.0,
+     "chop": -347.0,
+     "win_rate": 0.235
+    },
+    "4": {
+     "n": 9,
+     "pnl": -257.0,
+     "wins": 1,
+     "trend": -55.0,
+     "chop": -202.0,
+     "win_rate": 0.111
+    },
+    "5+": {
+     "n": 3,
+     "pnl": -463.0,
+     "wins": 0,
+     "trend": -12.0,
+     "chop": -451.0,
+     "win_rate": 0.0
+    }
+   },
+   "why_not_cap1": "2nd entries are the BEST cohort in the book: +$1,070 on n=30. A cap of 1 destroys that. cap=3 sits exactly where the ordinal cohort flips sign (3rd +$107 -> 4th -$257).",
+   "honesty": {
+    "benefit_excluding_the_motivating_day": -67.0,
+    "concentration": "91% of the measured benefit is 08-05 itself. Excluding it, cap=3 is worth +$67 across 7 waves -- noise.",
+    "n_small": true,
+    "verdict": "PRE-REGISTER AS A/B. DO NOT SHIP. Evidence is the day that motivated it."
+   },
+   "waves_that_would_be_touched": [
+    {
+     "date": "2026-06-30",
+     "arm": "risky-1",
+     "symbol": "SPY260630C00750000",
+     "n_entries": 4,
+     "archetype": "trend-up",
+     "wave_pnl": -58.0,
+     "removed_by_cap3": -30.0
+    },
+    {
+     "date": "2026-07-06",
+     "arm": "risky-1",
+     "symbol": "SPY260706C00754000",
+     "n_entries": 4,
+     "archetype": "gap-go",
+     "wave_pnl": -20.0,
+     "removed_by_cap3": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "symbol": "SPY260805C00776000",
+     "n_entries": 5,
+     "archetype": "gap-fade",
+     "wave_pnl": -485.0,
+     "removed_by_cap3": -235.0
+    },
+    {
+     "date": "2026-06-30",
+     "arm": "risky-3",
+     "symbol": "SPY260630C00750000",
+     "n_entries": 4,
+     "archetype": "trend-up",
+     "wave_pnl": -30.0,
+     "removed_by_cap3": -5.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "symbol": "SPY260805C00776000",
+     "n_entries": 5,
+     "archetype": "gap-fade",
+     "wave_pnl": -794.0,
+     "removed_by_cap3": -418.0
+    },
+    {
+     "date": "2026-07-06",
+     "arm": "safe-1",
+     "symbol": "SPY260706C00753000",
+     "n_entries": 4,
+     "archetype": "gap-go",
+     "wave_pnl": -24.0,
+     "removed_by_cap3": -8.0
+    },
+    {
+     "date": "2026-07-06",
+     "arm": "safe-2",
+     "symbol": "SPY260706P00750000",
+     "n_entries": 5,
+     "archetype": "gap-go",
+     "wave_pnl": 12.0,
+     "removed_by_cap3": -6.0
+    },
+    {
+     "date": "2026-06-30",
+     "arm": "safe-3",
+     "symbol": "SPY260630C00750000",
+     "n_entries": 4,
+     "archetype": "trend-up",
+     "wave_pnl": -33.0,
+     "removed_by_cap3": -18.0
+    },
+    {
+     "date": "2026-07-06",
+     "arm": "safe-3",
+     "symbol": "SPY260706C00754000",
+     "n_entries": 4,
+     "archetype": "gap-go",
+     "wave_pnl": -12.0,
+     "removed_by_cap3": 0.0
+    }
+   ]
+  }
+ },
+ "mechanism_corrections": {
+  "handoff_claim": "'Continuation setups have trigger_level=None ALWAYS, so their stop_mode=structure patch is a guaranteed NO-OP and they silently fall back to the raw -6% premium stop.'",
+  "correction": "For vwap_continuation this is WRONG in one load-bearing respect: it carries NO stop_mode declaration at all. strategies.py#VWAP_CONTINUATION is ExitShape(premium_stop_pct=-0.06, tp1_premium_pct=0.40, tp1_qty_fraction=0.8, profit_lock_mode='fixed') and ExitShape.stop_mode defaults to 'premium'. There is no structure patch on it to be a no-op. -6% is the DECLARED PRIMARY stop, deliberately ported 2026-07-09 (commit b1250556, STOP-B ship 2) as the 'full validated core cell' -- validated 2026-07-07, all 5 OP-22 gates PASS on n=149 real OPRA fills (OOS $75.47/tr vs $66.83, WF 1.62, anchor 82.04 vs 44.52). The 08-05 ledger confirms it live: stop_mode='premium', trigger_level=null, runner_stop == fill x 0.94 on all five entries.",
+  "why_it_matters": "This is not a config bug that can be 'fixed'. It is a validated knob meeting an adversarial day. The no-op-structure-patch story does apply to strategies that DO declare stop_mode='structure' while lacking a trigger_level -- ribbon_ride is one -- but vwap_continuation is not one of them.",
+  "the_08-04_prediction_scored": "The 08-04 audit predicted: 'The -6% stop on a chop day -- that is the treadmill, and it is the day we have not seen yet.' 2026-08-05 was gap-fade (chop-like) and the -6% stop fired 10 times for -$1,279. PREDICTION CORRECT.",
+  "put_side_note": "The 11:48 put resolved stop_mode='structure' (trigger_level 772.33) so its stop WAS the -50% catastrophe cap: runner_stop 0.825 = 1.65 x 0.50, and risky-3 exited at 0.82. Its TP1 is +100% (ribbon_ride tp1_premium_pct=1.0 -> 3.30), which the put's +59% peak never reached -- that is the mechanical answer to the TP1 question, owned by LENS 2."
+ },
+ "artifacts": {
+  "chart": "analysis/deep-research/EOD-2026-08-05-STOPS-776c-path.svg",
+  "tools": [
+   "backtest/tools/stop_width_grid_20260805.py",
+   "backtest/tools/stop_width_population_grid.py",
+   "backtest/tools/stop_width_fullhist_sweep.py"
+  ],
+  "opra_cache": [
+   "backtest/data/highres/SPY260805C00776000_1m_2026-08-05.csv",
+   "backtest/data/highres/SPY260805C00777000_1m_2026-08-05.csv",
+   "backtest/data/highres/SPY260805P00772000_1m_2026-08-05.csv",
+   "backtest/data/highres/SPY_1m_2026-08-05.csv"
+  ]
+ },
+ "caveats": [
+  "776C stop grid is n=1 contract on n=1 day. The -25% point estimate looks best but its Monte-Carlo p05 (-611 risky-1 / -977 risky-3) is WORSE than the -6% cell -- it rides a one-cent knife edge at the 10:20 sample and is NOT a robust cell.",
+  "The chart/structure cell for 776C is a RECONSTRUCTION: the live setup carried trigger_level=None, so no such level existed in production.",
+  "25-day book grid does not model chart-stop/ribbon_flip_back invalidation (inherited disclosed limitation), so its absolute dollars overstate; its -6% cell reads +815 vs broker truth +317. Rankings are the deliverable, not absolute P&L.",
+  "391-day sweep moves only 124 of 191 trades: the 67 structure-mode trades take the -50% catastrophe cap regardless of premium_stop_pct.",
+  "cap=3 benefit is n=12 removed trades across 9 waves, 91% concentrated in 08-05.",
+  "A first draft of the 25-day population tool hand-rolled the exit loop with no TP1 and no runner; every winner rode to the 15:50 flatten and the '-6% live' cell printed +$12,115 against broker truth +$317 -- a 38x artifact. It was caught and rebuilt on the live plan_exit_actions core. Recorded so it is not re-made."
+ ]
+}
