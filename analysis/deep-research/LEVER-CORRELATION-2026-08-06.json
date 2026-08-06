@@ -1,0 +1,2195 @@
+{
+ "_lane": "LEVER 5 -- FLEET CONCENTRATION (are we five bets or one bet in five sizes?)",
+ "_generated_by": "backtest/tools/lever_correlation_2026_08_06.py",
+ "_population": {
+  "source": "automation/state/fills-ledger.jsonl (REAL BROKER FILLS)",
+  "filter": "attribution=='engine' AND is_option AND NOT is_crypto",
+  "reconstruction": "exit_shape_parity_study.reconstruct_positions",
+  "n_positions": 208,
+  "n_dates": 26,
+  "date_min": "2026-06-26",
+  "date_max": "2026-08-06",
+  "n_small": true,
+  "n_small_note": "26 ET dates. Every cross-arm statistic here is n<=26 days. There is NO second population: the 391-day replay is ONE arm and structurally cannot express a fleet effect.",
+  "scope_note": "SPY OPTIONS ONLY -- excludes the crypto-twin residual, so per-arm and per-day totals differ by cents-to-dollars from the all-in figures in the briefing (e.g. Wed risky-3 -1458.00 here vs -1462.29 all-in). Both correct, different scopes."
+ },
+ "q1_correlation": {
+  "_question": "Five bets, or one bet in five sizes?",
+  "arms": [
+   "bold-2",
+   "risky-1",
+   "risky-3",
+   "safe-1",
+   "safe-2",
+   "safe-3"
+  ],
+  "n_days": 26,
+  "arm_day_pnl": {
+   "2026-06-26": {
+    "bold-2": -15.0
+   },
+   "2026-06-29": {
+    "risky-1": -48.0,
+    "risky-3": -48.0,
+    "safe-1": -32.0,
+    "safe-3": -8.0
+   },
+   "2026-06-30": {
+    "risky-1": -148.0,
+    "risky-3": -105.0,
+    "safe-1": -63.0,
+    "safe-3": -72.0
+   },
+   "2026-07-01": {
+    "risky-1": -20.0,
+    "risky-3": -20.0,
+    "safe-1": -12.0,
+    "safe-3": -12.0
+   },
+   "2026-07-02": {
+    "bold-2": 230.0,
+    "risky-1": -25.0,
+    "risky-3": 234.0,
+    "safe-1": 151.0,
+    "safe-2": -330.99,
+    "safe-3": -15.0
+   },
+   "2026-07-06": {
+    "risky-1": -25.0,
+    "risky-3": -65.0,
+    "safe-1": -40.0,
+    "safe-2": -72.0,
+    "safe-3": -15.0
+   },
+   "2026-07-07": {
+    "risky-3": -60.0,
+    "safe-1": -63.0
+   },
+   "2026-07-08": {
+    "risky-1": -110.0,
+    "risky-3": -110.0,
+    "safe-1": -78.0,
+    "safe-3": -84.0
+   },
+   "2026-07-09": {
+    "risky-1": -110.0,
+    "risky-3": -100.0,
+    "safe-1": -105.0,
+    "safe-3": -66.0
+   },
+   "2026-07-13": {
+    "risky-3": -25.0
+   },
+   "2026-07-15": {
+    "risky-1": -75.0,
+    "risky-3": -75.0,
+    "safe-2": -117.0,
+    "safe-3": -42.0
+   },
+   "2026-07-16": {
+    "safe-2": -83.01
+   },
+   "2026-07-17": {
+    "bold-2": 191.0,
+    "risky-1": 0.0,
+    "risky-3": 248.0,
+    "safe-2": 151.01,
+    "safe-3": 0.0
+   },
+   "2026-07-20": {
+    "safe-2": -141.0
+   },
+   "2026-07-21": {
+    "safe-2": -76.0
+   },
+   "2026-07-22": {
+    "safe-2": -108.0
+   },
+   "2026-07-23": {
+    "bold-2": -305.0
+   },
+   "2026-07-27": {
+    "bold-2": -355.0,
+    "risky-1": -85.0,
+    "risky-3": -85.0,
+    "safe-2": -216.0,
+    "safe-3": -87.0
+   },
+   "2026-07-28": {
+    "bold-2": -295.0,
+    "safe-2": -18.0,
+    "safe-3": -33.0
+   },
+   "2026-07-29": {
+    "risky-1": 418.0,
+    "risky-3": 586.0,
+    "safe-3": 337.0
+   },
+   "2026-07-30": {
+    "risky-3": -275.0
+   },
+   "2026-07-31": {
+    "risky-3": 46.0,
+    "safe-3": 75.0
+   },
+   "2026-08-03": {
+    "risky-1": 145.0,
+    "risky-3": 176.0,
+    "safe-2": 68.0,
+    "safe-3": 145.0
+   },
+   "2026-08-04": {
+    "bold-2": 479.0,
+    "risky-1": 1041.0,
+    "risky-3": 805.0,
+    "safe-2": 662.0,
+    "safe-3": 637.0
+   },
+   "2026-08-05": {
+    "risky-1": -138.0,
+    "risky-3": -1458.0,
+    "safe-2": -339.0
+   },
+   "2026-08-06": {
+    "risky-1": 296.0,
+    "risky-3": 830.0,
+    "safe-2": 339.0
+   }
+  },
+  "daily_pairwise": [
+   {
+    "pair": "risky-1|risky-3",
+    "n_days": 15,
+    "pearson_r": 0.664,
+    "sign_agreement": 0.8667,
+    "dates": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-08",
+     "2026-07-09",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-29",
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05",
+     "2026-08-06"
+    ]
+   },
+   {
+    "pair": "risky-3|safe-3",
+    "n_days": 14,
+    "pearson_r": 0.9294,
+    "sign_agreement": 0.8571,
+    "dates": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-08",
+     "2026-07-09",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-29",
+     "2026-07-31",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "risky-1|safe-3",
+    "n_days": 13,
+    "pearson_r": 0.9906,
+    "sign_agreement": 1.0,
+    "dates": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-08",
+     "2026-07-09",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-29",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "risky-1|safe-2",
+    "n_days": 9,
+    "pearson_r": 0.8923,
+    "sign_agreement": 0.8889,
+    "dates": [
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05",
+     "2026-08-06"
+    ]
+   },
+   {
+    "pair": "risky-3|safe-2",
+    "n_days": 9,
+    "pearson_r": 0.7382,
+    "sign_agreement": 0.8889,
+    "dates": [
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05",
+     "2026-08-06"
+    ]
+   },
+   {
+    "pair": "risky-3|safe-1",
+    "n_days": 8,
+    "pearson_r": 0.9809,
+    "sign_agreement": 1.0,
+    "dates": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-07",
+     "2026-07-08",
+     "2026-07-09"
+    ]
+   },
+   {
+    "pair": "safe-2|safe-3",
+    "n_days": 8,
+    "pearson_r": 0.9017,
+    "sign_agreement": 0.875,
+    "dates": [
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-28",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "risky-1|safe-1",
+    "n_days": 7,
+    "pearson_r": 0.6117,
+    "sign_agreement": 0.8571,
+    "dates": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-08",
+     "2026-07-09"
+    ]
+   },
+   {
+    "pair": "safe-1|safe-3",
+    "n_days": 7,
+    "pearson_r": 0.5842,
+    "sign_agreement": 0.8571,
+    "dates": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-08",
+     "2026-07-09"
+    ]
+   },
+   {
+    "pair": "bold-2|safe-2",
+    "n_days": 5,
+    "pearson_r": 0.6053,
+    "sign_agreement": 0.8,
+    "dates": [
+     "2026-07-02",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-28",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "bold-2|safe-3",
+    "n_days": 5,
+    "pearson_r": 0.7293,
+    "sign_agreement": 0.6,
+    "dates": [
+     "2026-07-02",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-28",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "bold-2|risky-1",
+    "n_days": 4,
+    "pearson_r": 0.6959,
+    "sign_agreement": 0.5,
+    "dates": [
+     "2026-07-02",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "bold-2|risky-3",
+    "n_days": 4,
+    "pearson_r": 0.9057,
+    "sign_agreement": 1.0,
+    "dates": [
+     "2026-07-02",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-08-04"
+    ]
+   },
+   {
+    "pair": "safe-1|safe-2",
+    "n_days": 2,
+    "pearson_r": null,
+    "sign_agreement": 0.5,
+    "dates": [
+     "2026-07-02",
+     "2026-07-06"
+    ]
+   },
+   {
+    "pair": "bold-2|safe-1",
+    "n_days": 1,
+    "pearson_r": null,
+    "sign_agreement": 1.0,
+    "dates": [
+     "2026-07-02"
+    ]
+   }
+  ],
+  "daily_mean_pairwise_r": 0.7869,
+  "daily_mean_pairwise_r_n_ge_7": 0.8103,
+  "daily_min_pairwise_r": 0.5842,
+  "trade_level_pairwise": [
+   {
+    "pair": "risky-1|risky-3",
+    "n_matched_trades": 31,
+    "pearson_r_per_contract": 0.6046,
+    "sign_agreement": 0.9032,
+    "mean_abs_ppc_gap": 13.25
+   },
+   {
+    "pair": "risky-1|safe-3",
+    "n_matched_trades": 26,
+    "pearson_r_per_contract": 0.989,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 2.2
+   },
+   {
+    "pair": "risky-3|safe-3",
+    "n_matched_trades": 23,
+    "pearson_r_per_contract": 0.9385,
+    "sign_agreement": 0.9565,
+    "mean_abs_ppc_gap": 6.64
+   },
+   {
+    "pair": "risky-3|safe-1",
+    "n_matched_trades": 20,
+    "pearson_r_per_contract": 0.9907,
+    "sign_agreement": 0.95,
+    "mean_abs_ppc_gap": 1.79
+   },
+   {
+    "pair": "risky-1|safe-1",
+    "n_matched_trades": 9,
+    "pearson_r_per_contract": 0.8618,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 1.78
+   },
+   {
+    "pair": "safe-1|safe-3",
+    "n_matched_trades": 8,
+    "pearson_r_per_contract": 0.9001,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 2.38
+   },
+   {
+    "pair": "bold-2|risky-3",
+    "n_matched_trades": 5,
+    "pearson_r_per_contract": 0.9289,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 16.58
+   },
+   {
+    "pair": "risky-3|safe-2",
+    "n_matched_trades": 4,
+    "pearson_r_per_contract": 0.9269,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 29.5
+   },
+   {
+    "pair": "bold-2|safe-3",
+    "n_matched_trades": 3,
+    "pearson_r_per_contract": 0.9994,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 3.18
+   },
+   {
+    "pair": "risky-1|safe-2",
+    "n_matched_trades": 3,
+    "pearson_r_per_contract": 0.3805,
+    "sign_agreement": 0.6667,
+    "mean_abs_ppc_gap": 75.13
+   },
+   {
+    "pair": "safe-2|safe-3",
+    "n_matched_trades": 3,
+    "pearson_r_per_contract": 0.9997,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 10.11
+   },
+   {
+    "pair": "bold-2|risky-1",
+    "n_matched_trades": 2,
+    "pearson_r_per_contract": null,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 4.0
+   },
+   {
+    "pair": "bold-2|safe-1",
+    "n_matched_trades": 1,
+    "pearson_r_per_contract": null,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 3.0
+   },
+   {
+    "pair": "bold-2|safe-2",
+    "n_matched_trades": 1,
+    "pearson_r_per_contract": null,
+    "sign_agreement": 1.0,
+    "mean_abs_ppc_gap": 4.87
+   }
+  ],
+  "trade_level_mean_pairwise_r": 0.8655,
+  "trade_level_n_matched_pairs_total": 139,
+  "trade_level_pooled_r": 0.8463,
+  "trade_level_pooled_r2": 0.7161,
+  "trade_level_pooled_n": 139,
+  "trade_level_sign_agreement_pooled": 0.9568,
+  "diversification_ratio_traded_days_only": 0.5956,
+  "diversification_ratio_zeros_filled": 0.8121,
+  "diversification_ratio_if_independent": 0.4082,
+  "_dr_note": "sd(sum of arms) / sum(sd of each arm). 1.0 = perfectly correlated, 0.408 = 6 independent equal-sd arms. TWO conventions given because they differ materially: 'traded_days_only' computes each arm's sd over the days IT traded (the honest per-arm volatility); 'zeros_filled' scores a non-trading day as 0.00 (LANE 0's convention, which understates a sporadic arm's sd and therefore INFLATES the ratio). Neither is wrong; quoting one without naming it is.",
+  "participation_vs_outcome": {
+   "_question": "Do MORE arms on a day mean a WORSE day? (if not, a cap is aimed backwards)",
+   "pearson_r_n_arms_vs_day_pnl": 0.2052,
+   "day_pnl_by_n_arms_active": {
+    "1": {
+     "n_days": 8,
+     "mean_day_pnl": -128.5,
+     "total": -1028.01,
+     "worst": -305.0
+    },
+    "2": {
+     "n_days": 2,
+     "mean_day_pnl": -1.0,
+     "total": -2.0,
+     "worst": -123.0
+    },
+    "3": {
+     "n_days": 4,
+     "mean_day_pnl": 131.25,
+     "total": 525.0,
+     "worst": -1935.0
+    },
+    "4": {
+     "n_days": 7,
+     "mean_day_pnl": -160.86,
+     "total": -1126.0,
+     "worst": -388.0
+    },
+    "5": {
+     "n_days": 4,
+     "mean_day_pnl": 792.25,
+     "total": 3169.01,
+     "worst": -828.0
+    },
+    "6": {
+     "n_days": 1,
+     "mean_day_pnl": 244.01,
+     "total": 244.01,
+     "worst": 244.01
+    }
+   },
+   "n_arms_on_tuesday_2026_08_04": 5,
+   "n_arms_on_wednesday_2026_08_05": 3,
+   "n_arms_on_thursday_2026_08_06": 3
+  },
+  "size_vs_per_contract_edge_within_wave": {
+   "_question": "Is the LARGEST position in a wave systematically the WORST per contract?",
+   "n_legs": 141,
+   "pearson_r_qty_vs_ppc_minus_wave_mean": -0.0987,
+   "_interpretation": "negative r == the fleet systematically puts the most contracts behind the worst-performing exit configuration."
+  },
+  "cluster_share": {
+   "n_contract_days": 71,
+   "n_multi_arm_contract_days": 36,
+   "n_positions_total": 208,
+   "n_positions_in_multi_arm_clusters": 154,
+   "share_positions_in_multi_arm_clusters": 0.7404,
+   "net_pnl_in_multi_arm_clusters": 3678.0,
+   "net_pnl_book": 1782.01,
+   "loss_dollars_in_multi_arm_clusters": 6022.0,
+   "share_of_all_loss_dollars": 0.6832
+  },
+  "_matched_pairs_sample": [
+   {
+    "date": "2026-06-29",
+    "symbol": "SPY260629C00743000",
+    "a": "risky-1",
+    "b": "safe-1",
+    "ppc_a": -4.0,
+    "ppc_b": -4.0,
+    "gap_s": 1.0,
+    "entry_px_a": 0.14,
+    "entry_px_b": 0.14
+   },
+   {
+    "date": "2026-06-29",
+    "symbol": "SPY260629C00743000",
+    "a": "risky-3",
+    "b": "safe-1",
+    "ppc_a": -4.0,
+    "ppc_b": -4.0,
+    "gap_s": 2.0,
+    "entry_px_a": 0.14,
+    "entry_px_b": 0.14
+   },
+   {
+    "date": "2026-06-29",
+    "symbol": "SPY260629C00743000",
+    "a": "risky-1",
+    "b": "risky-3",
+    "ppc_a": -4.0,
+    "ppc_b": -4.0,
+    "gap_s": 1.0,
+    "entry_px_a": 0.14,
+    "entry_px_b": 0.14
+   },
+   {
+    "date": "2026-06-30",
+    "symbol": "SPY260630C00746000",
+    "a": "safe-1",
+    "b": "safe-3",
+    "ppc_a": -12.0,
+    "ppc_b": -11.0,
+    "gap_s": 1.1,
+    "entry_px_a": 0.61,
+    "entry_px_b": 0.61
+   },
+   {
+    "date": "2026-06-30",
+    "symbol": "SPY260630C00746000",
+    "a": "risky-3",
+    "b": "safe-3",
+    "ppc_a": -12.0,
+    "ppc_b": -11.0,
+    "gap_s": 10.5,
+    "entry_px_a": 0.6,
+    "entry_px_b": 0.61
+   },
+   {
+    "date": "2026-06-30",
+    "symbol": "SPY260630C00746000",
+    "a": "risky-1",
+    "b": "safe-3",
+    "ppc_a": -16.0,
+    "ppc_b": -11.0,
+    "gap_s": 12.5,
+    "entry_px_a": 0.58,
+    "entry_px_b": 0.61
+   },
+   {
+    "date": "2026-06-30",
+    "symbol": "SPY260630C00746000",
+    "a": "risky-3",
+    "b": "safe-1",
+    "ppc_a": -12.0,
+    "ppc_b": -12.0,
+    "gap_s": 9.4,
+    "entry_px_a": 0.6,
+    "entry_px_b": 0.61
+   },
+   {
+    "date": "2026-06-30",
+    "symbol": "SPY260630C00746000",
+    "a": "risky-1",
+    "b": "safe-1",
+    "ppc_a": -16.0,
+    "ppc_b": -12.0,
+    "gap_s": 11.4,
+    "entry_px_a": 0.58,
+    "entry_px_b": 0.61
+   }
+  ]
+ },
+ "q2_book_tail": {
+  "_question": "What does the correlation do to the BOOK-level daily loss tail?",
+  "actual_fleet_daily": {
+   "n_days": 26,
+   "worst_day": -1935.0,
+   "p05_day": -828.0,
+   "p10_day": -388.0,
+   "median_day": -115.5,
+   "sd_day": 941.53,
+   "mean_day": 68.54,
+   "sum": 1782.01,
+   "worst_3": [
+    -1935.0,
+    -828.0,
+    -388.0
+   ]
+  },
+  "decorrelated_fleet_bootstrap": {
+   "n_draws": 20000,
+   "seed": 20260806,
+   "_method": "each arm's own realized daily P&L permuted within its own traded days, independently per arm, re-summed by day. Marginals + participation preserved exactly; ONLY the cross-arm common factor is destroyed.",
+   "worst_day_mean": -1404.14,
+   "worst_day_p05": -1898.99,
+   "worst_day_p50": -1458.0,
+   "sd_day_mean": 539.45,
+   "p10_day_mean": -408.55,
+   "sum_is_invariant": 1782.01,
+   "p_worst_day_at_or_below_actual": 0.0404,
+   "sd_inflation_from_correlation_x": 1.745,
+   "worst_day_inflation_from_correlation_x": 1.378
+  },
+  "capital_matched_single_arm": {
+   "bold-2": {
+    "n_days": 7,
+    "worst_day": -1704.0,
+    "sd_day": 1780.73,
+    "sum": 4620.07,
+    "p10_day": -1704.0
+   },
+   "risky-1": {
+    "n_days": 15,
+    "worst_day": -440.0,
+    "sd_day": 1404.66,
+    "sum": 5341.21,
+    "p10_day": -429.2
+   },
+   "risky-3": {
+    "n_days": 19,
+    "worst_day": -2551.5,
+    "sd_day": 963.6,
+    "sum": 2644.4,
+    "p10_day": -408.0
+   },
+   "safe-1": {
+    "n_days": 8,
+    "worst_day": -609.0,
+    "sd_day": 413.54,
+    "sum": -1129.6,
+    "p10_day": -609.0
+   },
+   "safe-2": {
+    "n_days": 14,
+    "worst_day": -4746.0,
+    "sd_day": 2759.68,
+    "sum": 2649.52,
+    "p10_day": -1089.51
+   },
+   "safe-3": {
+    "n_days": 15,
+    "worst_day": -696.0,
+    "sd_day": 1189.4,
+    "sum": 3561.61,
+    "p10_day": -522.67
+   }
+  },
+  "_capital_matched_note": "Each arm's OWN realized per-contract P&L for the day, multiplied by the FLEET's total contract count that day. Answers: if all the money ran through ONE arm's decisions, how fat is the tail? Real per-contract dollars, real contract counts, no model."
+ },
+ "q3c_concurrency_cap": {
+  "_question": "Only N of 5 arms may hold the same contract simultaneously (N=1,2,3).",
+  "concurrency_profile": {
+   "_question": "Where in the concentration spectrum do the dollars actually sit?",
+   "by_max_concurrent_arms": {
+    "1": {
+     "n_contract_days": 35,
+     "n_positions": 54,
+     "net_pnl": -1895.99
+    },
+    "2": {
+     "n_contract_days": 12,
+     "n_positions": 40,
+     "net_pnl": -679.0
+    },
+    "3": {
+     "n_contract_days": 11,
+     "n_positions": 41,
+     "net_pnl": 1769.0
+    },
+    "4": {
+     "n_contract_days": 12,
+     "n_positions": 66,
+     "net_pnl": 238.0
+    },
+    "5": {
+     "n_contract_days": 1,
+     "n_positions": 7,
+     "net_pnl": 2350.0
+    }
+   },
+   "week_detail": {
+    "2026-08-04": {
+     "SPY260804C00762000": {
+      "max_concurrent_arms": 2,
+      "n_entries": 2,
+      "net_pnl": -179.0
+     },
+     "SPY260804C00763000": {
+      "max_concurrent_arms": 5,
+      "n_entries": 7,
+      "net_pnl": 2350.0
+     },
+     "SPY260804C00765000": {
+      "max_concurrent_arms": 1,
+      "n_entries": 1,
+      "net_pnl": -80.0
+     },
+     "SPY260804C00768000": {
+      "max_concurrent_arms": 4,
+      "n_entries": 4,
+      "net_pnl": -193.0
+     },
+     "SPY260804C00769000": {
+      "max_concurrent_arms": 4,
+      "n_entries": 8,
+      "net_pnl": 1831.0
+     },
+     "SPY260804C00771000": {
+      "max_concurrent_arms": 1,
+      "n_entries": 1,
+      "net_pnl": 9.0
+     },
+     "SPY260804C00772000": {
+      "max_concurrent_arms": 2,
+      "n_entries": 2,
+      "net_pnl": -114.0
+     }
+    },
+    "2026-08-05": {
+     "SPY260805C00776000": {
+      "max_concurrent_arms": 2,
+      "n_entries": 10,
+      "net_pnl": -1279.0
+     },
+     "SPY260805C00777000": {
+      "max_concurrent_arms": 1,
+      "n_entries": 1,
+      "net_pnl": -84.0
+     },
+     "SPY260805P00772000": {
+      "max_concurrent_arms": 3,
+      "n_entries": 3,
+      "net_pnl": -572.0
+     }
+    },
+    "2026-08-06": {
+     "SPY260806P00770000": {
+      "max_concurrent_arms": 3,
+      "n_entries": 3,
+      "net_pnl": 1501.0
+     },
+     "SPY260806C00769000": {
+      "max_concurrent_arms": 1,
+      "n_entries": 1,
+      "net_pnl": -36.0
+     }
+    }
+   },
+   "_headline": "If this table slopes UP with concurrency, an arm-concurrency cap is aimed at the profitable end of the book and cannot be the loss-magnitude instrument."
+  },
+  "_priority_rule": "FCFS by exact broker fill timestamp (microsecond). This is the only priority rule that is live-implementable without a new arbiter, but note it is a RACE: several clusters have two arms filling in the SAME second. The tie-break sweep below is therefore not decoration -- it is the honesty check on the whole cell.",
+  "cells": {
+   "cap_1_fcfs_exact": {
+    "cell": "cap-1 FCFS-exact",
+    "n_blocked": 101,
+    "blocked_winners_n": 17,
+    "blocked_winners_dollars": 6898.0,
+    "blocked_losers_n": 78,
+    "blocked_losers_dollars": -4433.0,
+    "blocked_net_pnl_removed": 2465.0,
+    "book_delta": -2465.0,
+    "book_before": 1782.01,
+    "book_after": -682.99,
+    "tuesday_delta_2026_08_04": -2983.0,
+    "wednesday_delta_2026_08_05": 1713.0,
+    "thursday_delta_2026_08_06": -1126.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 6,
+    "n_days_helped": 11,
+    "days_harmed": {
+     "2026-07-02": -134.0,
+     "2026-07-17": -248.0,
+     "2026-07-29": -1004.0,
+     "2026-08-03": -321.0,
+     "2026-08-04": -2983.0,
+     "2026-08-06": -1126.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -658.0,
+    "blocked_mean_pnl": 24.41,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-29": 104.0,
+     "2026-06-30": 319.0,
+     "2026-07-01": 52.0,
+     "2026-07-02": -134.0,
+     "2026-07-06": 90.0,
+     "2026-07-07": 60.0,
+     "2026-07-08": 298.0,
+     "2026-07-09": 315.0,
+     "2026-07-15": 150.0,
+     "2026-07-17": -248.0,
+     "2026-07-27": 170.0,
+     "2026-07-29": -1004.0,
+     "2026-07-31": 80.0,
+     "2026-08-03": -321.0,
+     "2026-08-04": -2983.0,
+     "2026-08-05": 1713.0,
+     "2026-08-06": -1126.0
+    }
+   },
+   "cap_2_fcfs_exact": {
+    "cell": "cap-2 FCFS-exact",
+    "n_blocked": 46,
+    "blocked_winners_n": 9,
+    "blocked_winners_dollars": 4166.0,
+    "blocked_losers_n": 36,
+    "blocked_losers_dollars": -1608.0,
+    "blocked_net_pnl_removed": 2558.0,
+    "book_delta": -2558.0,
+    "book_before": 1782.01,
+    "book_after": -775.99,
+    "tuesday_delta_2026_08_04": -2360.0,
+    "wednesday_delta_2026_08_05": 255.0,
+    "thursday_delta_2026_08_06": -830.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 5,
+    "n_days_helped": 10,
+    "days_harmed": {
+     "2026-07-17": -15.0,
+     "2026-07-29": -471.0,
+     "2026-08-03": -176.0,
+     "2026-08-04": -2360.0,
+     "2026-08-06": -830.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1680.0,
+    "blocked_mean_pnl": 55.61,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-29": 56.0,
+     "2026-06-30": 218.0,
+     "2026-07-01": 40.0,
+     "2026-07-02": 130.0,
+     "2026-07-06": 5.0,
+     "2026-07-08": 220.0,
+     "2026-07-09": 210.0,
+     "2026-07-15": 75.0,
+     "2026-07-17": -15.0,
+     "2026-07-27": 85.0,
+     "2026-07-29": -471.0,
+     "2026-08-03": -176.0,
+     "2026-08-04": -2360.0,
+     "2026-08-05": 255.0,
+     "2026-08-06": -830.0
+    }
+   },
+   "cap_3_fcfs_exact": {
+    "cell": "cap-3 FCFS-exact",
+    "n_blocked": 18,
+    "blocked_winners_n": 3,
+    "blocked_winners_dollars": 1272.0,
+    "blocked_losers_n": 15,
+    "blocked_losers_dollars": -507.0,
+    "blocked_net_pnl_removed": 765.0,
+    "book_delta": -765.0,
+    "book_before": 1782.01,
+    "book_after": 1017.01,
+    "tuesday_delta_2026_08_04": -1133.0,
+    "wednesday_delta_2026_08_05": 0.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 6,
+    "days_harmed": {
+     "2026-08-04": -1133.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1935.0,
+    "blocked_mean_pnl": 42.5,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-29": 8.0,
+     "2026-06-30": 105.0,
+     "2026-07-01": 20.0,
+     "2026-07-02": 25.0,
+     "2026-07-08": 110.0,
+     "2026-07-09": 100.0,
+     "2026-08-04": -1133.0
+    }
+   },
+   "cap_4_fcfs_exact": {
+    "cell": "cap-4 FCFS-exact",
+    "n_blocked": 1,
+    "blocked_winners_n": 1,
+    "blocked_winners_dollars": 373.0,
+    "blocked_losers_n": 0,
+    "blocked_losers_dollars": 0,
+    "blocked_net_pnl_removed": 373.0,
+    "book_delta": -373.0,
+    "book_before": 1782.01,
+    "book_after": 1409.01,
+    "tuesday_delta_2026_08_04": -373.0,
+    "wednesday_delta_2026_08_05": 0.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 0,
+    "days_harmed": {
+     "2026-08-04": -373.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1935.0,
+    "blocked_mean_pnl": 373.0,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-08-04": -373.0
+    }
+   }
+  },
+  "tie_break_sweep": {
+   "cap_1": {
+    "n_draws": 2000,
+    "book_delta_p05": -4075.0,
+    "book_delta_p50": -3123.0,
+    "book_delta_p95": -2181.0,
+    "book_delta_best": -1689.0,
+    "book_delta_worst": -4449.0,
+    "tuesday_delta_p50": -3015.0,
+    "tuesday_delta_best": -2573.0,
+    "tuesday_never_harmed": false,
+    "share_of_draws_with_tuesday_harm": 1.0,
+    "wednesday_delta_p50": 687.0
+   },
+   "cap_2": {
+    "n_draws": 2000,
+    "book_delta_p05": -2850.0,
+    "book_delta_p50": -2304.0,
+    "book_delta_p95": -1709.0,
+    "book_delta_best": -1433.0,
+    "book_delta_worst": -3077.0,
+    "tuesday_delta_p50": -2296.0,
+    "tuesday_delta_best": -1940.0,
+    "tuesday_never_harmed": false,
+    "share_of_draws_with_tuesday_harm": 1.0,
+    "wednesday_delta_p50": 255.0
+   },
+   "cap_3": {
+    "n_draws": 2000,
+    "book_delta_p05": -1334.0,
+    "book_delta_p50": -989.0,
+    "book_delta_p95": -786.0,
+    "book_delta_best": -723.0,
+    "book_delta_worst": -1445.0,
+    "tuesday_delta_p50": -1270.0,
+    "tuesday_delta_best": -1097.0,
+    "tuesday_never_harmed": false,
+    "share_of_draws_with_tuesday_harm": 1.0,
+    "wednesday_delta_p50": 0.0
+   }
+  },
+  "random_removal_null": {
+   "cap_1": {
+    "observed_book_delta": -2465.0,
+    "n_blocked": 101,
+    "n_eligible_pool": 137,
+    "null_mean_delta": -1397.12,
+    "null_p05": -2927.0,
+    "null_p50": -1426.01,
+    "null_p95": 230.01,
+    "observed_percentile_in_null": 0.1328,
+    "one_sided_p_value_better_than_random": 0.8672,
+    "verdict": "NO SELECTIVE SKILL -- indistinguishable from removing the same number of trades at random"
+   },
+   "cap_2": {
+    "observed_book_delta": -2558.0,
+    "n_blocked": 46,
+    "n_eligible_pool": 137,
+    "null_mean_delta": -626.5,
+    "null_p05": -2389.01,
+    "null_p50": -605.01,
+    "null_p95": 1017.0,
+    "observed_percentile_in_null": 0.0352,
+    "one_sided_p_value_better_than_random": 0.9647,
+    "verdict": "SELECTIVE (outside the random-removal null)"
+   },
+   "cap_3": {
+    "observed_book_delta": -765.0,
+    "n_blocked": 18,
+    "n_eligible_pool": 137,
+    "null_mean_delta": -248.19,
+    "null_p05": -1543.99,
+    "null_p50": -197.0,
+    "null_p95": 855.0,
+    "observed_percentile_in_null": 0.2326,
+    "one_sided_p_value_better_than_random": 0.7674,
+    "verdict": "NO SELECTIVE SKILL -- indistinguishable from removing the same number of trades at random"
+   }
+  }
+ },
+ "q3c_ext_fleet_entry_cap": {
+  "_question": "Cap TOTAL fleet entries per (date, contract), any arm.",
+  "cells": {
+   "fleet_entry_cap_3": {
+    "cell": "fleet-entry-cap-3",
+    "n_blocked": 56,
+    "blocked_winners_n": 10,
+    "blocked_winners_dollars": 4100.0,
+    "blocked_losers_n": 41,
+    "blocked_losers_dollars": -1836.0,
+    "blocked_net_pnl_removed": 2264.0,
+    "book_delta": -2264.0,
+    "book_before": 1782.01,
+    "book_after": -481.99,
+    "tuesday_delta_2026_08_04": -3947.0,
+    "wednesday_delta_2026_08_05": 993.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 9,
+    "days_harmed": {
+     "2026-08-04": -3947.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -942.0,
+    "blocked_mean_pnl": 40.43,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-29": 8.0,
+     "2026-06-30": 220.0,
+     "2026-07-01": 20.0,
+     "2026-07-02": 94.0,
+     "2026-07-06": 71.0,
+     "2026-07-07": 10.0,
+     "2026-07-08": 110.0,
+     "2026-07-09": 157.0,
+     "2026-08-04": -3947.0,
+     "2026-08-05": 993.0
+    }
+   },
+   "fleet_entry_cap_4": {
+    "cell": "fleet-entry-cap-4",
+    "n_blocked": 37,
+    "blocked_winners_n": 8,
+    "blocked_winners_dollars": 3711.0,
+    "blocked_losers_n": 24,
+    "blocked_losers_dollars": -1199.0,
+    "blocked_net_pnl_removed": 2512.0,
+    "book_delta": -2512.0,
+    "book_before": 1782.01,
+    "book_after": -729.99,
+    "tuesday_delta_2026_08_04": -3703.0,
+    "wednesday_delta_2026_08_05": 913.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 4,
+    "days_harmed": {
+     "2026-08-04": -3703.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1022.0,
+    "blocked_mean_pnl": 67.89,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-30": 131.0,
+     "2026-07-06": 60.0,
+     "2026-07-09": 87.0,
+     "2026-08-04": -3703.0,
+     "2026-08-05": 913.0
+    }
+   },
+   "fleet_entry_cap_5": {
+    "cell": "fleet-entry-cap-5",
+    "n_blocked": 28,
+    "blocked_winners_n": 5,
+    "blocked_winners_dollars": 2711.0,
+    "blocked_losers_n": 19,
+    "blocked_losers_dollars": -1009.0,
+    "blocked_net_pnl_removed": 1702.0,
+    "book_delta": -1702.0,
+    "book_before": 1782.01,
+    "book_after": 80.01,
+    "tuesday_delta_2026_08_04": -2711.0,
+    "wednesday_delta_2026_08_05": 813.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 4,
+    "days_harmed": {
+     "2026-08-04": -2711.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1122.0,
+    "blocked_mean_pnl": 60.79,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-30": 113.0,
+     "2026-07-06": 53.0,
+     "2026-07-09": 30.0,
+     "2026-08-04": -2711.0,
+     "2026-08-05": 813.0
+    }
+   },
+   "fleet_entry_cap_6": {
+    "cell": "fleet-entry-cap-6",
+    "n_blocked": 20,
+    "blocked_winners_n": 3,
+    "blocked_winners_dollars": 1536.0,
+    "blocked_losers_n": 14,
+    "blocked_losers_dollars": -784.0,
+    "blocked_net_pnl_removed": 752.0,
+    "book_delta": -752.0,
+    "book_before": 1782.01,
+    "book_after": 1030.01,
+    "tuesday_delta_2026_08_04": -1536.0,
+    "wednesday_delta_2026_08_05": 653.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 3,
+    "days_harmed": {
+     "2026-08-04": -1536.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1282.0,
+    "blocked_mean_pnl": 37.6,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-30": 107.0,
+     "2026-07-06": 24.0,
+     "2026-08-04": -1536.0,
+     "2026-08-05": 653.0
+    }
+   },
+   "fleet_entry_cap_7": {
+    "cell": "fleet-entry-cap-7",
+    "n_blocked": 14,
+    "blocked_winners_n": 1,
+    "blocked_winners_dollars": 375.0,
+    "blocked_losers_n": 11,
+    "blocked_losers_dollars": -686.0,
+    "blocked_net_pnl_removed": -311.0,
+    "book_delta": 311.0,
+    "book_before": 1782.01,
+    "book_after": 2093.01,
+    "tuesday_delta_2026_08_04": -375.0,
+    "wednesday_delta_2026_08_05": 573.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "FAIL",
+    "n_days_harmed": 1,
+    "n_days_helped": 3,
+    "days_harmed": {
+     "2026-08-04": -375.0
+    },
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1362.0,
+    "blocked_mean_pnl": -22.21,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-30": 97.0,
+     "2026-07-06": 16.0,
+     "2026-08-04": -375.0,
+     "2026-08-05": 573.0
+    }
+   },
+   "fleet_entry_cap_8": {
+    "cell": "fleet-entry-cap-8",
+    "n_blocked": 10,
+    "blocked_winners_n": 0,
+    "blocked_winners_dollars": 0,
+    "blocked_losers_n": 9,
+    "blocked_losers_dollars": -554.0,
+    "blocked_net_pnl_removed": -554.0,
+    "book_delta": 554.0,
+    "book_before": 1782.01,
+    "book_after": 2336.01,
+    "tuesday_delta_2026_08_04": 0.0,
+    "wednesday_delta_2026_08_05": 451.0,
+    "thursday_delta_2026_08_06": 0.0,
+    "TUESDAY_NO_HARM_GATE": "PASS",
+    "n_days_harmed": 0,
+    "n_days_helped": 3,
+    "days_harmed": {},
+    "worst_day_before": -1935.0,
+    "worst_day_after": -1484.0,
+    "blocked_mean_pnl": -55.4,
+    "population_mean_pnl": 8.57,
+    "all_day_deltas": {
+     "2026-06-30": 87.0,
+     "2026-07-06": 16.0,
+     "2026-08-05": 451.0
+    }
+   }
+  }
+ },
+ "q3b_exit_stagger": {
+  "_question": "Do the arms' different TP1s / exit shapes actually buy anything?",
+  "n_multi_arm_waves": 52,
+  "totals": {
+   "actual": 4037.0,
+   "worst_uniform": 187.1,
+   "mean_uniform": 4454.79,
+   "best_uniform_ORACLE": 9158.95,
+   "dispersion_value_vs_mean": -417.79,
+   "insurance_vs_worst_uniform": 3849.9,
+   "capturable_spread_ORACLE": 8971.85,
+   "_labels": {
+    "best_uniform_ORACLE": "ORACLE BOUND -- requires knowing ex-ante which arm's exit config wins. NOT live-executable.",
+    "dispersion_value_vs_mean": "The live, realized value of having different exit configs across arms. Signed. This IS the answer to task 3(b)."
+   }
+  },
+  "random_config_assignment_null": {
+   "n_draws": 20000,
+   "observed_actual": 4037.0,
+   "null_mean": 4459.81,
+   "null_p05": 3806.48,
+   "null_p50": 4454.67,
+   "null_p95": 5183.97,
+   "observed_percentile": 0.165,
+   "_method": "shuffle WHICH arm's realized per-contract outcome lands on WHICH arm's realized quantity, within each wave. Tests whether the current config-to-size pairing is better than a coin flip."
+  },
+  "waves_top10_by_spread": [
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805P00772000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-2"
+    ],
+    "total_qty": 16,
+    "actual": -572.0,
+    "worst_uniform": -1360.0,
+    "mean_uniform": -525.87,
+    "best_uniform": 1110.4,
+    "dispersion_value_vs_mean": -46.13,
+    "capturable_spread": 2470.4,
+    "ppc_by_arm": {
+     "risky-1": 69.4,
+     "risky-3": -83.0,
+     "safe-2": -85.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8,
+     "safe-2": 3
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00763000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": 600.0,
+    "worst_uniform": -65.0,
+    "mean_uniform": 799.5,
+    "best_uniform": 1664.0,
+    "dispersion_value_vs_mean": -199.5,
+    "capturable_spread": 1729.0,
+    "ppc_by_arm": {
+     "risky-1": 128.0,
+     "risky-3": -5.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00763000",
+    "n_legs": 4,
+    "arms": [
+     "bold-2",
+     "risky-3",
+     "safe-2",
+     "safe-3"
+    ],
+    "total_qty": 19,
+    "actual": 1894.0,
+    "worst_uniform": 1244.5,
+    "mean_uniform": 2091.43,
+    "best_uniform": 2425.67,
+    "dispersion_value_vs_mean": -197.43,
+    "capturable_spread": 1181.17,
+    "ppc_by_arm": {
+     "safe-2": 127.67,
+     "bold-2": 122.8,
+     "risky-3": 65.5,
+     "safe-3": 124.33
+    },
+    "qty_by_arm": {
+     "safe-2": 3,
+     "bold-2": 5,
+     "risky-3": 8,
+     "safe-3": 3
+    }
+   },
+   {
+    "date": "2026-08-06",
+    "symbol": "SPY260806P00770000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-2"
+    ],
+    "total_qty": 16,
+    "actual": 1501.0,
+    "worst_uniform": 947.2,
+    "mean_uniform": 1535.73,
+    "best_uniform": 2000.0,
+    "dispersion_value_vs_mean": -34.73,
+    "capturable_spread": 1052.8,
+    "ppc_by_arm": {
+     "safe-2": 125.0,
+     "risky-1": 59.2,
+     "risky-3": 103.75
+    },
+    "qty_by_arm": {
+     "safe-2": 3,
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00769000",
+    "n_legs": 4,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-2",
+     "safe-3"
+    ],
+    "total_qty": 16,
+    "actual": 2192.0,
+    "worst_uniform": 2000.0,
+    "mean_uniform": 2155.2,
+    "best_uniform": 2521.6,
+    "dispersion_value_vs_mean": 36.8,
+    "capturable_spread": 521.6,
+    "ppc_by_arm": {
+     "safe-3": 126.0,
+     "risky-1": 130.2,
+     "risky-3": 157.6,
+     "safe-2": 125.0
+    },
+    "qty_by_arm": {
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5,
+     "safe-2": 3
+    }
+   },
+   {
+    "date": "2026-08-03",
+    "symbol": "SPY260803C00754000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-3"
+    ],
+    "total_qty": 13,
+    "actual": 466.0,
+    "worst_uniform": 377.0,
+    "mean_uniform": 487.64,
+    "best_uniform": 628.33,
+    "dispersion_value_vs_mean": -21.64,
+    "capturable_spread": 251.33,
+    "ppc_by_arm": {
+     "safe-3": 48.33,
+     "risky-1": 29.0,
+     "risky-3": 35.2
+    },
+    "qty_by_arm": {
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5
+    }
+   },
+   {
+    "date": "2026-07-27",
+    "symbol": "SPY260727P00734000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-3"
+    ],
+    "total_qty": 13,
+    "actual": -257.0,
+    "worst_uniform": -377.0,
+    "mean_uniform": -273.0,
+    "best_uniform": -221.0,
+    "dispersion_value_vs_mean": 16.0,
+    "capturable_spread": 156.0,
+    "ppc_by_arm": {
+     "safe-3": -29.0,
+     "risky-1": -17.0,
+     "risky-3": -17.0
+    },
+    "qty_by_arm": {
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00772000",
+    "n_legs": 2,
+    "arms": [
+     "safe-2",
+     "safe-3"
+    ],
+    "total_qty": 6,
+    "actual": -114.0,
+    "worst_uniform": -192.0,
+    "mean_uniform": -114.0,
+    "best_uniform": -36.0,
+    "dispersion_value_vs_mean": 0.0,
+    "capturable_spread": 156.0,
+    "ppc_by_arm": {
+     "safe-2": -32.0,
+     "safe-3": -6.0
+    },
+    "qty_by_arm": {
+     "safe-2": 3,
+     "safe-3": 3
+    }
+   },
+   {
+    "date": "2026-07-09",
+    "symbol": "SPY260709C00751000",
+    "n_legs": 4,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-1",
+     "safe-3"
+    ],
+    "total_qty": 16,
+    "actual": -182.0,
+    "worst_uniform": -256.0,
+    "mean_uniform": -184.0,
+    "best_uniform": -112.0,
+    "dispersion_value_vs_mean": 2.0,
+    "capturable_spread": 144.0,
+    "ppc_by_arm": {
+     "safe-3": -16.0,
+     "safe-1": -8.0,
+     "risky-1": -15.0,
+     "risky-3": -7.0
+    },
+    "qty_by_arm": {
+     "safe-3": 3,
+     "safe-1": 3,
+     "risky-1": 5,
+     "risky-3": 5
+    }
+   },
+   {
+    "date": "2026-07-29",
+    "symbol": "SPY260729C00740000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-3"
+    ],
+    "total_qty": 13,
+    "actual": 1154.0,
+    "worst_uniform": 1086.8,
+    "mean_uniform": 1153.24,
+    "best_uniform": 1224.6,
+    "dispersion_value_vs_mean": 0.76,
+    "capturable_spread": 137.8,
+    "ppc_by_arm": {
+     "safe-3": 88.33,
+     "risky-1": 83.6,
+     "risky-3": 94.2
+    },
+    "qty_by_arm": {
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5
+    }
+   }
+  ],
+  "week_waves": [
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805P00772000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-2"
+    ],
+    "total_qty": 16,
+    "actual": -572.0,
+    "worst_uniform": -1360.0,
+    "mean_uniform": -525.87,
+    "best_uniform": 1110.4,
+    "dispersion_value_vs_mean": -46.13,
+    "capturable_spread": 2470.4,
+    "ppc_by_arm": {
+     "risky-1": 69.4,
+     "risky-3": -83.0,
+     "safe-2": -85.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8,
+     "safe-2": 3
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00763000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": 600.0,
+    "worst_uniform": -65.0,
+    "mean_uniform": 799.5,
+    "best_uniform": 1664.0,
+    "dispersion_value_vs_mean": -199.5,
+    "capturable_spread": 1729.0,
+    "ppc_by_arm": {
+     "risky-1": 128.0,
+     "risky-3": -5.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00763000",
+    "n_legs": 4,
+    "arms": [
+     "bold-2",
+     "risky-3",
+     "safe-2",
+     "safe-3"
+    ],
+    "total_qty": 19,
+    "actual": 1894.0,
+    "worst_uniform": 1244.5,
+    "mean_uniform": 2091.43,
+    "best_uniform": 2425.67,
+    "dispersion_value_vs_mean": -197.43,
+    "capturable_spread": 1181.17,
+    "ppc_by_arm": {
+     "safe-2": 127.67,
+     "bold-2": 122.8,
+     "risky-3": 65.5,
+     "safe-3": 124.33
+    },
+    "qty_by_arm": {
+     "safe-2": 3,
+     "bold-2": 5,
+     "risky-3": 8,
+     "safe-3": 3
+    }
+   },
+   {
+    "date": "2026-08-06",
+    "symbol": "SPY260806P00770000",
+    "n_legs": 3,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-2"
+    ],
+    "total_qty": 16,
+    "actual": 1501.0,
+    "worst_uniform": 947.2,
+    "mean_uniform": 1535.73,
+    "best_uniform": 2000.0,
+    "dispersion_value_vs_mean": -34.73,
+    "capturable_spread": 1052.8,
+    "ppc_by_arm": {
+     "safe-2": 125.0,
+     "risky-1": 59.2,
+     "risky-3": 103.75
+    },
+    "qty_by_arm": {
+     "safe-2": 3,
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00769000",
+    "n_legs": 4,
+    "arms": [
+     "risky-1",
+     "risky-3",
+     "safe-2",
+     "safe-3"
+    ],
+    "total_qty": 16,
+    "actual": 2192.0,
+    "worst_uniform": 2000.0,
+    "mean_uniform": 2155.2,
+    "best_uniform": 2521.6,
+    "dispersion_value_vs_mean": 36.8,
+    "capturable_spread": 521.6,
+    "ppc_by_arm": {
+     "safe-3": 126.0,
+     "risky-1": 130.2,
+     "risky-3": 157.6,
+     "safe-2": 125.0
+    },
+    "qty_by_arm": {
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5,
+     "safe-2": 3
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00772000",
+    "n_legs": 2,
+    "arms": [
+     "safe-2",
+     "safe-3"
+    ],
+    "total_qty": 6,
+    "actual": -114.0,
+    "worst_uniform": -192.0,
+    "mean_uniform": -114.0,
+    "best_uniform": -36.0,
+    "dispersion_value_vs_mean": 0.0,
+    "capturable_spread": 156.0,
+    "ppc_by_arm": {
+     "safe-2": -32.0,
+     "safe-3": -6.0
+    },
+    "qty_by_arm": {
+     "safe-2": 3,
+     "safe-3": 3
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00768000",
+    "n_legs": 4,
+    "arms": [
+     "bold-2",
+     "risky-1",
+     "risky-3",
+     "safe-3"
+    ],
+    "total_qty": 18,
+    "actual": -193.0,
+    "worst_uniform": -234.0,
+    "mean_uniform": -197.1,
+    "best_uniform": -104.4,
+    "dispersion_value_vs_mean": 4.1,
+    "capturable_spread": 129.6,
+    "ppc_by_arm": {
+     "bold-2": -12.0,
+     "safe-3": -13.0,
+     "risky-1": -13.0,
+     "risky-3": -5.8
+    },
+    "qty_by_arm": {
+     "bold-2": 5,
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00769000",
+    "n_legs": 4,
+    "arms": [
+     "bold-2",
+     "risky-1",
+     "risky-3",
+     "safe-3"
+    ],
+    "total_qty": 18,
+    "actual": -361.0,
+    "worst_uniform": -396.0,
+    "mean_uniform": -364.5,
+    "best_uniform": -270.0,
+    "dispersion_value_vs_mean": 3.5,
+    "capturable_spread": 126.0,
+    "ppc_by_arm": {
+     "bold-2": -15.0,
+     "safe-3": -22.0,
+     "risky-1": -22.0,
+     "risky-3": -22.0
+    },
+    "qty_by_arm": {
+     "bold-2": 5,
+     "safe-3": 3,
+     "risky-1": 5,
+     "risky-3": 5
+    }
+   },
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805C00776000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": -451.0,
+    "worst_uniform": -481.0,
+    "mean_uniform": -442.0,
+    "best_uniform": -403.0,
+    "dispersion_value_vs_mean": -9.0,
+    "capturable_spread": 78.0,
+    "ppc_by_arm": {
+     "risky-1": -31.0,
+     "risky-3": -37.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805C00776000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": -145.0,
+    "worst_uniform": -169.0,
+    "mean_uniform": -149.5,
+    "best_uniform": -130.0,
+    "dispersion_value_vs_mean": 4.5,
+    "capturable_spread": 39.0,
+    "ppc_by_arm": {
+     "risky-1": -13.0,
+     "risky-3": -10.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-04",
+    "symbol": "SPY260804C00762000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": -179.0,
+    "worst_uniform": -195.0,
+    "mean_uniform": -182.0,
+    "best_uniform": -169.0,
+    "dispersion_value_vs_mean": 3.0,
+    "capturable_spread": 26.0,
+    "ppc_by_arm": {
+     "risky-1": -15.0,
+     "risky-3": -13.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805C00776000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": -202.0,
+    "worst_uniform": -208.0,
+    "mean_uniform": -203.12,
+    "best_uniform": -198.25,
+    "dispersion_value_vs_mean": 1.12,
+    "capturable_spread": 9.75,
+    "ppc_by_arm": {
+     "risky-1": -16.0,
+     "risky-3": -15.25
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805C00776000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": -221.0,
+    "worst_uniform": -221.0,
+    "mean_uniform": -221.0,
+    "best_uniform": -221.0,
+    "dispersion_value_vs_mean": 0.0,
+    "capturable_spread": 0.0,
+    "ppc_by_arm": {
+     "risky-1": -17.0,
+     "risky-3": -17.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   },
+   {
+    "date": "2026-08-05",
+    "symbol": "SPY260805C00776000",
+    "n_legs": 2,
+    "arms": [
+     "risky-1",
+     "risky-3"
+    ],
+    "total_qty": 13,
+    "actual": -260.0,
+    "worst_uniform": -260.0,
+    "mean_uniform": -260.0,
+    "best_uniform": -260.0,
+    "dispersion_value_vs_mean": 0.0,
+    "capturable_spread": 0.0,
+    "ppc_by_arm": {
+     "risky-1": -20.0,
+     "risky-3": -20.0
+    },
+    "qty_by_arm": {
+     "risky-1": 5,
+     "risky-3": 8
+    }
+   }
+  ]
+ },
+ "q4_silent_arms": {
+  "_question": "Is the fleet better or worse off for having bold-2 and safe-3 dark?",
+  "participation_audit": {
+   "arm_traded_dates": {
+    "bold-2": [
+     "2026-06-26",
+     "2026-07-02",
+     "2026-07-17",
+     "2026-07-23",
+     "2026-07-27",
+     "2026-07-28",
+     "2026-08-04"
+    ],
+    "safe-3": [
+     "2026-06-29",
+     "2026-06-30",
+     "2026-07-01",
+     "2026-07-02",
+     "2026-07-06",
+     "2026-07-08",
+     "2026-07-09",
+     "2026-07-15",
+     "2026-07-17",
+     "2026-07-27",
+     "2026-07-28",
+     "2026-07-29",
+     "2026-07-31",
+     "2026-08-03",
+     "2026-08-04"
+    ]
+   },
+   "last_traded_date": {
+    "bold-2": "2026-08-04",
+    "safe-3": "2026-08-04"
+   },
+   "consecutive_dark_sessions_by_broker_fills": {
+    "bold-2": 2,
+    "safe-3": 2
+   },
+   "dark_dates": {
+    "bold-2": [
+     "2026-08-05",
+     "2026-08-06"
+    ],
+    "safe-3": [
+     "2026-08-05",
+     "2026-08-06"
+    ]
+   },
+   "BRIEF_CORRECTION": "The task brief states bold-2 and safe-3 have 'four consecutive zero-trade sessions'. Broker fills say TWO (2026-08-05 and 2026-08-06) for BOTH arms -- each has real engine option fills on 2026-08-04. Reported as measured. (The '4th session' framing in EOD-2026-08-06-SILENT-ARMS counts consecutive EOD lenses written, not zero-fill sessions.)"
+  },
+  "week_actual_by_arm": {
+   "2026-08-04": {
+    "bold-2": 479.0,
+    "safe-3": 637.0
+   },
+   "2026-08-05": {
+    "bold-2": 0.0,
+    "safe-3": 0.0
+   },
+   "2026-08-06": {
+    "bold-2": 0.0,
+    "safe-3": 0.0
+   }
+  },
+  "week_actual_silent_pair_total": {
+   "2026-08-04": 1116.0,
+   "2026-08-05": 0.0,
+   "2026-08-06": 0.0
+  },
+  "qty_basis_from_own_broker_fills_since_08_03": {
+   "bold-2": 5,
+   "safe-3": 3
+  },
+  "dark_day_sibling_substitution": {
+   "2026-08-05": {
+    "bold-2": {
+     "contract": "SPY260805P00772000",
+     "qty_basis": 5,
+     "config_matched_siblings": [
+      "risky-3",
+      "safe-2"
+     ],
+     "excluded_incompatible_config": [
+      "risky-1"
+     ],
+     "sibling_ppc_min": -85.0,
+     "sibling_ppc_max": -83.0,
+     "sibling_ppc_median": -84.0,
+     "pnl_range": [
+      -425.0,
+      -415.0
+     ],
+     "pnl_median_estimate": -420.0,
+     "sibling_detail": {
+      "risky-1": {
+       "qty": 5,
+       "ppc": 69.4,
+       "pnl": 347.0
+      },
+      "risky-3": {
+       "qty": 8,
+       "ppc": -83.0,
+       "pnl": -664.0
+      },
+      "safe-2": {
+       "qty": 3,
+       "ppc": -85.0,
+       "pnl": -255.0
+      }
+     }
+    },
+    "safe-3": {
+     "contract": "SPY260805P00772000",
+     "qty_basis": 3,
+     "config_matched_siblings": [
+      "risky-3",
+      "safe-2"
+     ],
+     "excluded_incompatible_config": [
+      "risky-1"
+     ],
+     "sibling_ppc_min": -85.0,
+     "sibling_ppc_max": -83.0,
+     "sibling_ppc_median": -84.0,
+     "pnl_range": [
+      -255.0,
+      -249.0
+     ],
+     "pnl_median_estimate": -252.0,
+     "sibling_detail": {
+      "risky-1": {
+       "qty": 5,
+       "ppc": 69.4,
+       "pnl": 347.0
+      },
+      "risky-3": {
+       "qty": 8,
+       "ppc": -83.0,
+       "pnl": -664.0
+      },
+      "safe-2": {
+       "qty": 3,
+       "ppc": -85.0,
+       "pnl": -255.0
+      }
+     }
+    }
+   },
+   "2026-08-06": {
+    "bold-2": {
+     "contract": "SPY260806P00770000",
+     "qty_basis": 5,
+     "config_matched_siblings": [
+      "risky-3",
+      "safe-2"
+     ],
+     "excluded_incompatible_config": [
+      "risky-1"
+     ],
+     "sibling_ppc_min": 103.75,
+     "sibling_ppc_max": 125.0,
+     "sibling_ppc_median": 114.38,
+     "pnl_range": [
+      518.75,
+      625.0
+     ],
+     "pnl_median_estimate": 571.88,
+     "sibling_detail": {
+      "safe-2": {
+       "qty": 3,
+       "ppc": 125.0,
+       "pnl": 375.0
+      },
+      "risky-1": {
+       "qty": 5,
+       "ppc": 59.2,
+       "pnl": 296.0
+      },
+      "risky-3": {
+       "qty": 8,
+       "ppc": 103.75,
+       "pnl": 830.0
+      }
+     }
+    },
+    "safe-3": {
+     "contract": "SPY260806P00770000",
+     "qty_basis": 3,
+     "config_matched_siblings": [
+      "risky-3",
+      "safe-2"
+     ],
+     "excluded_incompatible_config": [
+      "risky-1"
+     ],
+     "sibling_ppc_min": 103.75,
+     "sibling_ppc_max": 125.0,
+     "sibling_ppc_median": 114.38,
+     "pnl_range": [
+      311.25,
+      375.0
+     ],
+     "pnl_median_estimate": 343.12,
+     "sibling_detail": {
+      "safe-2": {
+       "qty": 3,
+       "ppc": 125.0,
+       "pnl": 375.0
+      },
+      "risky-1": {
+       "qty": 5,
+       "ppc": 59.2,
+       "pnl": 296.0
+      },
+      "risky-3": {
+       "qty": 8,
+       "ppc": 103.75,
+       "pnl": 830.0
+      }
+     }
+    }
+   }
+  },
+  "silence_netting": {
+   "_convention": "POSITIVE = the silence HELPED the fleet (a loss avoided). NEGATIVE = the silence COST the fleet (a gain forgone).",
+   "tuesday_2026_08_04": {
+    "status": "PARTICIPATED -- not silent",
+    "contribution": 1116.0
+   },
+   "wednesday_2026_08_05_silence_effect": 672.0,
+   "thursday_2026_08_06_silence_effect": -915.0,
+   "net_silence_effect_over_the_two_dark_sessions": -243.0,
+   "cross_check_thursday_published": {
+    "source": "analysis/deep-research/EOD-2026-08-06-SILENT-ARMS.json",
+    "published_silence_cost_usd": 911.35,
+    "published_per_arm": {
+     "bold-2": 564.9,
+     "safe-3": 346.45
+    },
+    "method": "real OPRA 1-min bars through live exit_manager.plan_exit_actions (that lens's own harness), parity-checked against safe-2 broker truth at 2.4% error",
+    "this_lane_estimate": -915.0,
+    "agreement_usd": 3.65,
+    "note": "TWO INDEPENDENT METHODS on the same day. This lane substitutes a config-matched sibling's REALIZED per-contract result (pure ledger arithmetic, no exit model); the published lens replays real OPRA through the live exit core. They should agree in sign and rough magnitude, and the published figure is the better one -- quote THAT for Thursday."
+   },
+   "counterfactual_full_week_if_both_arms_had_been_ON": {
+    "_label": "n=2 dark sessions. NOT an evidence bar. Direction only.",
+    "wednesday_added_loss": -672.0,
+    "thursday_added_gain_published": 911.35,
+    "net_two_sessions_published_basis": 239.35
+   }
+  }
+ }
+}
