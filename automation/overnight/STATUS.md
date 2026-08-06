@@ -1,3 +1,68 @@
+## [2026-08-06T01:15 ET] conductor: OK -- VBS-WRAPPER-EXIT-CODE-BLIND-SPOT 2nd half -- self_check now reads run_ps1_hidden.py's exit-code log
+
+Budget gate PASSED ($0/$30 pre-fire). Engine health GREEN, market closed (01:00 ET).
+STAGE-1 priority-1 (fill-funnel/self-check) clean (DEGRADED only on expected
+PDT-BLOCKED[bold]). `task_scorer.py --top` picked `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`
+(HIGH), advisory said re-verify it still reproduces before acting -- it did, and the
+live re-check found the item's OWN prior "PARTIAL, LOW-RISK HALF" fix (2026-08-04/05)
+only covered `run_cmd_hidden.py`'s relay (24/108 tasks). Enumerated the fleet live via
+`Get-ScheduledTask`: 108 `Gamma_*` tasks route through `run_exe_hidden.vbs`, 84 of them
+NOT on that relay -- including `Gamma_EodFlatten`, `Gamma_EodFlatten_Aggressive`,
+`Gamma_SightBeacon`. Found those 84 mostly route through a SECOND pre-existing,
+already-exit-code-capturing relay (`run_ps1_hidden.py`, dated to a "5/17 evening
+foot-gun fix") that nothing had ever consumed.
+**Fix:** `self_check.check_run_ps1_hidden_masked_exit()` (sibling of the run_cmd_hidden
+check, problem #17), with a parser that reads each exit line standalone (script name is
+embedded in the line) rather than sequentially pairing launching/exit lines -- the real
+log routinely interleaves 5+ concurrent launches, which would have broken a naive copy
+of the sibling's pairing logic.
+**LIVE FINDING, evidence only, not fixed this fire:** `run-eod-flatten-aggressive.ps1`
+exited 1 on all 3 of the last 3 trading days (08-03/08-04/08-05); `run-eod-flatten.ps1`
+and `run-sight-beacon.ps1` each exited 1 once on 08-05 -- all previously invisible.
+Cross-checked against `Gamma_EodFlattenCore` (deterministic, both accounts, fires ~3min
+before the LLM path, `LastTaskResult=0` every date) and `engine-health.json`'s
+`position_safe`/`position_bold` (GREEN flat every date) -- **confirmed backstopped, not
+a realized safety incident.** Root cause of the LLM prompt's exit=1 NOT investigated
+blind (OP-0) -- filed `EOD-FLATTEN-LLM-PROMPT-EXIT1` (MED) for the next fire.
+**Verified, not just tested:** 13 new guard tests, RED-proofed via rename-and-restore
+(L238 -- explicitly avoided `git stash`, which on this repo picks up ~1800 live-daemon
+state-file diffs; git-showed the pre-edit HEAD into place, confirmed 12/12 correctly
+fail, restored, re-confirmed 12/12 green), full self_check-tagged suite 132/132 green
+(zero regressions), one test runs against the REAL 2026-08-05 on-disk log (not a
+synthetic fixture) and asserts the exact 3-script finding.
+Zero vbs edits, zero scheduled-task edits, zero live-trading-path touch -- purely
+additive read of a log that already existed (rail-4 N/A, infra visibility only).
+**REVOKE:** `git revert <this commit>` (2 files, additive-only).
+Next fire: the CORE vbs-synchronous fix still matters for whatever tasks sit on NEITHER
+relay (incl. `Gamma_HeartbeatCore` itself -- exact count not re-enumerated this fire) and
+stays behind its own `/fable-blast-radius` pass; `EOD-FLATTEN-LLM-PROMPT-EXIT1` (MED) and
+`PROSPECTOR-SEMANTIC-DEDUP-GAP` (MED) are the next-ranked queue items.
+Autonomy metric refreshed via `conductor_outcome.py` this same fire.
+
+---
+
+## [2026-08-05] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 8tr $+104.00 ($+13.00/tr, 62.5% WR) [5d/5 day+side buckets -- 8 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 35d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 3tr $-99.00 ($-33.00/tr, 33.3% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-08-05] RECENCY-CONFIRMATION (confirm-before-capital gate) — YELLOW (not-yet-confirmed) on the freshest 25 trading days (2026-06-29..2026-08-03), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($475.52); Bold_ATM_1+2=YELLOW ($782.0)
+> - **edges_confirmed_on_recent = False** (any RED=False). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-05T20:37 ET] conductor: OK -- REGIME-STAMP-DRIFT-REPATCH-FIX -- commits `2bbc00fe` + `cfe37485`
 
 Budget gate PASSED ($15.18/$30, 2/4 fires pre-fire). Engine health GREEN, market closed
@@ -186,28 +251,6 @@ proposals, oldest 2026-07-10) -- the next author-inbox priority once lesson-inbo
 backlog) and validator/skill (already 0) are clear. VBS-WRAPPER core fix remains queued,
 still correctly gated behind top-tier judgment.
 Autonomy metric to be refreshed via conductor_outcome.py this same fire.
-
----
-
-## [2026-08-04] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 8tr $+104.00 ($+13.00/tr, 62.5% WR) [5d/5 day+side buckets -- 8 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 34d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-08-04] RECENCY-CONFIRMATION (confirm-before-capital gate) — YELLOW (not-yet-confirmed) on the freshest 25 trading days (2026-06-29..2026-08-03), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($475.52); Bold_ATM_1+2=YELLOW ($782.0)
-> - **edges_confirmed_on_recent = False** (any RED=False). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -436,102 +479,12 @@ Autonomy metric refreshed via conductor_outcome.py this same fire.
 
 ---
 
-## [2026-08-04 ~01:45 ET] PIPELINE-CHAIN-WALK (Lane 2) — L246 full-send rescue SHIPPED + liveness content alarms SHIPPED (REVOKE surface)
 
-> **Signal J wakes to (OP-25).** The if-this-then-that chain walk is done: every link of both pipelines (core x2, fleet x3) mapped from code with per-link failure behavior, conjunction kills named, SPOF map + open items in `analysis/deep-research/PIPELINE-CHAIN-MAP-2026-08-03.md`.
-> - **SHIP ① `5fa89536` (paper, live Tuesday): risky-1's full-send rescue un-shadowed.** The lane had fired 0 times EVER (vs 35 floor-blocks today alone) — plan_all's "no ENTER" precondition ran before the $0.30 floor killed the doomed OTM plan. Now a floor-killed plan re-asks the rescue at its OWN ATM strike's real quote; floor + NOT_FLAT + kill-switch + PDT + Rule 6 all re-bind on the rescue (guards prove each). RED-proofed (16 fail → 17 pass), fleet suite **365/365**. **REVOKE: `git revert 5fa89536`.**
-> - **SHIP ② `9fd87d85`: both liveness watchers grew content alarms** (feed-dead-inside-running-engine / blind / VIX-feed-dead / broker-infra on core; stale-signal-wall / **FLOOR_WALL** / arm-errors on fleet). Additive + fail-open (status/exit codes untouched); alarms ride the existing `reason` string into engine_health + daily_brief. **Organic proof on today's real ledgers: FLOOR_WALL 33/35/35 (safe-3/risky-1/risky-3) — the exact wall the EOD found by hand now alarms same-day, and doubles as the ATM-TIER-EXTENSION prereg baseline.** REVOKE: `git revert 9fd87d85`.
-> - **OPEN (named, not silent):** O1 fail-open flat read on both placement paths (positions-outage → Rule-4 stack window; precise spec + proposed fail-closed variant in the map §6 — deliberately not shipped mid-parallel-lane); O2 probe/ladder share the L246 shadowing shape (extend rescue behind its own vary-and-assert); O5 vix=0.0 *behavior* (alarm shipped, gate-flip behavior needs its own prereg). Ladder-inert question RESOLVED: deliberately disarmed 07-27 on 390-day evidence (docs inline; risky-3's doc string stale).
-> - Files: `analysis/deep-research/PIPELINE-CHAIN-MAP-2026-08-03.md` · `automation/state/fleet/{fleet_executor,fleet_live,test_floor_rescue_2026_08_03}.py` · `setup/scripts/{engine_liveness_check,fleet_liveness_check}.py` · `backtest/tests/test_liveness_content_alarms_2026_08_03.py`.
-
----
-
-[2026-08-03T20:38:16 ET] conductor: OK -- REGIME-STAMP-DAILY-DRIFT-DETECTOR -- commit `c45e691b`
-Budget gate PASSED ($9.90/$30, 3/4 fires used pre-fire). Engine health GREEN, market
-closed -- proceeded past STAGE 0. Picked the self-audit-gap lane (STAGE-1 priority-3,
-outranks queue HIGH items): two consecutive un-triaged batches (2026-08-02, 2026-08-03)
-both independently flagged the SAME gap -- "regime-stamp drift detection... to avoid
-stale bias" / "a real-time drift detector that compares regime-stamp.json and
-today-bias.json timestamps... flags mismatches" -- a 2-day recurrence is the OP-25/C7
-graduation signal (re-surfaced finding -> code, not another triage note).
-Root cause verified from code, not guessed: Gamma_RegimeStamp (08:22 ET) writes
-regime-stamp.json then patches today-bias.json#regime_context; Gamma_Premarket
-(08:30 ET, LLM-authored) is supposed to re-lift the same stamp when it regenerates
-today-bias.json fresh. The ONLY existing verification of that handoff was
-monday_verify.py's WS6 check -- which runs ONCE A WEEK (Monday only). A Tue-Fri
-silent drift had zero daily detector.
-SHIPPED: `self_check.check_regime_stamp_daily()` (setup/scripts/self_check.py),
-reusing WS6's proven dates_match logic generalized to every weekday via the existing
-Gamma_SelfCheck 30-min cadence ($0, pure-Python, fail-open). DEGRADED-not-BROKEN
-classification (regime_context is explicitly non-load-bearing per regime_stamp.py's
-own docstring: "never a live entry input"). 9 new guard tests
-(backtest/tests/test_self_check_regime_stamp_drift.py), RED-proofed via `git stash`
-(all 9 correctly failed with AttributeError/missing-wiring before the change, restored
-106/106 green after). Curated safety gate 59/59 PASS at commit; `git show c45e691b
---stat` confirms exactly the 2 intended files (no shared-index absorption). Live-
-verified against today's real state: `[]` (no drift) -- matches WS6's independent
-GREEN verdict for 2026-08-03.
-Also disposed (no new build needed, verified live): "Implement live position
-reconciliation/watchdog" (08-02 batch) -- ALREADY BUILT (Gamma_GhostOrderReconciler,
-registered + Ready, 1-min cadence 09:30-15:55 ET, confirmed via
-Get-ScheduledTask + SCHEDULED-TASKS.md). "Off-box freshness watchdog" (08-03 batch) --
-same ask as tracked queue item OFF-BOX-DEADMAN-SWITCH (MED, pending), not new.
-"Twin Doctrine shadow/sandbox ratification" (08-03 batch) overlaps
-TWIN-DOCTRINE-FIRST-DEPLOY (gp-2026-07-23-twin-doctrine-001), still pending J 12 days,
-not re-pinged (spam avoidance). Both batches' remaining lines (Alpaca fallback,
-synthetic-theta replacement, budget market-close-reset, strike-tier size guard,
-centralized param promotion, shrink-not-deny telemetry, live-watch.json archive) are
-real but not actioned this fire (scope discipline) -- named future work.
-Zero trading-path/params/live-order code touched (self_check.py is a VISIBILITY-only
-observer). Ships per OP-22/OP-26 engine-benefit authoring, no J ratification needed.
-Revert: `git revert c45e691b`.
-Autonomy metric to be refreshed by conductor_outcome.py this same fire.
-
----
-
-[2026-08-03T18:46:02 ET] conductor: OK -- LESSON-INBOX-DRAIN -- commit `b514323e`
-Budget gate PASSED ($9.13/$30, 2/4 fires used pre-fire). Engine health GREEN, market
-closed -- proceeded past STAGE 0. No Agent/Task tool was exposed to this fire's tool
-list, so the lesson-author routine was executed directly (mechanical encoding) rather
-than fanned out. Drained the 3 OLDEST of 27 backlogged `_lesson-inbox/` items (oldest
-dated 2026-07-23, 11 days stale) into `LESSONS-LEARNED.md`: **L250** (C27 -- anchor-
-verified pattern composition can still be noise; anchor-verify and frequency-prescreen
-test independent properties), **L251** (C6 -- two replay engines silently disagreed on
-entry-bar eligibility for same-bar stop/TP1, diagnosed via targeted per-trade ablation
-closing 91.1% of a $39.71/tr parity gap; the convention pick itself stays an open
-FABLE-ESCALATION item, not resolved here), **L252** (C34 -- L242's own untracked-
-candidates detector re-DEGRADED within 24h; a detector without an automatic remediator
-re-violates on its own schedule -- already fixed via `auto_commit_candidates.py`,
-this just encodes the lesson). Guards verified fresh this fire: `test_op25_index_
-reconciliation.py` + `test_inbox_done_suffix.py` + `test_truncation_guard.py` 25/25
-PASS; curated safety gate 59/59 PASS at commit; `git show b514323e --stat` confirms
-exactly the 5 intended files (no shared-index absorption). Zero trading-path/params/
-live-order code touched -- pure doctrine authoring, ships per OP-22/OP-26 (no J
-ratification needed). Revert: `git revert b514323e`.
-**STOPPED at 3 (not all 27) -- real constraint hit, not laziness:** each L#
-addition to CLAUDE.md's Lessons index table costs real tokens against the
-context-leanness budget. Pre-fire it was YELLOW 8848/9000 (98%); after 3 L#s it is
-YELLOW 8955/9000 (100% of the soft cap, still below the ~10.5K hard RED ceiling).
-Continuing to drain the remaining 24 items one-CLAUDE.md-row-at-a-time would push
-past the soft cap this same fire -- deferred rather than pushed into RED.
-**Next fire should NOT just keep draining 1-3 at a time forever (24 left, ~11
-still 2026-07-23-dated):** the real fix is a CLAUDE.md Lessons-index consolidation
-pass (fold verbose per-L parentheticals for old/settled classes into terser rows,
-freeing budget for new L#s) OR accept that per-fire drain rate is now budget-
-capped at ~3/fire and plan the backlog accordingly. Filed as queue item
-`LESSON-INDEX-CONTEXT-BUDGET-COLLISION` below.
-**Also noted, not actioned this fire:** the `Agent`/`Task` tool was absent from
-this fire's tool list (only Read/Edit/Write/Bash/Grep/Glob/Alpaca-read-only were
-exposed) -- STAGE 2's "fan out via the Agent tool" instruction could not be
-followed literally; worked around by executing the specialist's own routine
-directly. If this is systemic (not a one-off), it changes STAGE 2's guidance for
-every future conductor fire, not just this one -- worth a FABLE-level check.
-
----
-
-
-### DEGRADED: self-check 2026-08-05T20:35:19
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+### DEGRADED: self-check 2026-08-06T01:00:55
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-05) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-08-06T01:09:52
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+
+### DEGRADED: self-check 2026-08-06T01:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.

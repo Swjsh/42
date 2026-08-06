@@ -19,7 +19,7 @@ Checks (each a fact, OP-33 verify-don't-claim):
 $0, pure-Python, fail-open (never raises into the scheduler).
 """
 from __future__ import annotations
-import json, sys
+import json, re, sys
 import datetime as dt
 from pathlib import Path
 
@@ -912,6 +912,81 @@ def check_run_cmd_hidden_masked_exit(now, log_path=None) -> list[str]:
             f"log for the real cause."]
 
 
+def _parse_run_ps1_hidden_log(text: str) -> list[dict]:
+    """PURE. Parse run_ps1_hidden.py's own per-fire launcher log (automation/state/logs/
+    run-ps1-hidden-<date>.log) into completed [{"name": str, "exit": int}] records.
+
+    Unlike run_cmd_hidden.py's log (which needs launching/exit LINE-ORDER pairing -- see
+    _parse_run_cmd_hidden_log, which assumes the NEXT 'exit=' line belongs to the most
+    recent 'launching:' line), run_ps1_hidden.py's own exit line embeds the script name
+    directly ('  <name>.ps1 exit=<N>'), so every completed record is self-contained on ONE
+    line -- no risk of misattributing a completion to the wrong concurrently-launched task.
+    This matters here specifically: live inspection of this log (2026-08-06) shows this
+    relay routinely has 5+ concurrent 'launching:' lines queued before their matching exits
+    land (most Gamma_* tasks route through THIS relay, not run_cmd_hidden.py's), so a
+    sequential-pairing parser would silently misattribute outcomes under real load."""
+    records: list[dict] = []
+    pattern = re.compile(r"\]\s+(\S+\.ps1) exit=(-?\d+)")
+    for line in text.splitlines():
+        m = pattern.search(line)
+        if not m:
+            continue
+        try:
+            code = int(m.group(2))
+        except ValueError:
+            continue
+        records.append({"name": m.group(1), "exit": code})
+    return records
+
+
+def check_run_ps1_hidden_masked_exit(now, log_path=None) -> list[str]:
+    """Sibling of check_run_cmd_hidden_masked_exit for the OTHER already-existing
+    exit-code-capturing relay: wscript -> run_exe_hidden.vbs -> system-pythonw ->
+    run_ps1_hidden.py -> powershell.exe -File <task>.ps1. The MAJORITY of Gamma_* scheduled
+    tasks route through THIS relay (not run_cmd_hidden.py's python-direct one) --
+    run_ps1_hidden.py has synchronously captured every child .ps1's real exit code to
+    automation/state/logs/run-ps1-hidden-<date>.log since its own '5/17 evening foot-gun
+    fix', but nothing ever read it back until this check (verified live via grep this fire,
+    zero prior consumers -- same C7 shape as the run_cmd_hidden gap, just a much bigger
+    blind spot by task count: 108 Gamma_* tasks route through run_exe_hidden.vbs, 24 were
+    already covered by check_run_cmd_hidden_masked_exit, this check covers most of the
+    remaining ~84).
+
+    LIVE FINDING this fire (2026-08-06 AFTERHOURS conductor, evidence not fixed here):
+    run-eod-flatten-aggressive.ps1 exited 1 on 3 of the last 3 available trading days
+    (08-03/08-04/08-05, 1x/day); run-eod-flatten.ps1 (Safe) and run-sight-beacon.ps1 each
+    exited 1 once on 08-05. Both LLM-prompt-driven EOD-flatten tasks are BACKSTOPPED by the
+    deterministic Gamma_EodFlattenCore (eod_flatten.py, handles BOTH accounts independently,
+    LastTaskResult=0 every day checked, fires ~3min before the LLM path) -- cross-checked
+    against engine-health.json's position_safe/position_bold (GREEN, flat) for the same
+    dates, so no position was actually left open. Root-causing WHY Invoke-Claude returns 1
+    on the eod-flatten.md prompt is deliberately NOT attempted blind in this fire (OP-0: no
+    one-sentence root cause in hand yet) -- filed as a follow-up queue item instead.
+
+    DEGRADED, never BROKEN (rail-2 fail-open discipline; every task on this relay is either
+    R&D/telemetry OR has an independent deterministic/fleet-level backstop -- this check is
+    visibility-only, same posture as its run_cmd_hidden sibling). Fail-open: missing/
+    unreadable log, or today's log not written yet -> []."""
+    lp = log_path or (STATE / "logs" / f"run-ps1-hidden-{now.strftime('%Y-%m-%d')}.log")
+    if not lp.exists():
+        return []
+    try:
+        text = lp.read_text(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return []
+    bad = [r for r in _parse_run_ps1_hidden_log(text) if r["exit"] != 0]
+    if not bad:
+        return []
+    by_script: dict[str, list[int]] = {}
+    for r in bad:
+        by_script.setdefault(r["name"], []).append(r["exit"])
+    parts = [f"{s} (exit={sorted(set(codes))}, {len(codes)}x)" for s, codes in sorted(by_script.items())]
+    return [f"RUN-PS1-HIDDEN MASKED EXIT: {lp.name} shows {len(bad)} real non-zero exit(s) "
+            f"Task Scheduler's LastTaskResult can never see (outer wscript hop is still "
+            f"fire-and-forget) -- {', '.join(parts)}. Check the named .ps1's own Invoke-Claude "
+            f"budget/timeout, or its underlying script's stderr log."]
+
+
 TV_CDP_URL = "http://localhost:9222/json/version"
 
 
@@ -1186,6 +1261,11 @@ def run() -> dict:
     # already logs for every task on its relay chain, since Task Scheduler's
     # LastTaskResult structurally cannot see them (fire-and-forget outer wscript hop).
     problems.extend(check_run_cmd_hidden_masked_exit(now))
+
+    # 17. RUN-PS1-HIDDEN MASKED EXIT -- sibling of #16 for the OTHER exit-code-capturing
+    # relay (run_ps1_hidden.py), which carries the MAJORITY of Gamma_* scheduled tasks.
+    # Same VBS-WRAPPER-EXIT-CODE-BLIND-SPOT self-audit gap, much bigger surface.
+    problems.extend(check_run_ps1_hidden_masked_exit(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
