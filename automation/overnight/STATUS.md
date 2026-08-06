@@ -1,3 +1,37 @@
+## [2026-08-06T19:20 ET] LANE 5 DON'T-TRADE-CHOP: admissibility battery (12 cells) + CHOP EXPOSURE METER shipped -- REVOKE surface
+
+**What shipped (measurement only -- zero trading-path changes):** `Gamma_ChopMeter` 16:08 ET
+daily -> `setup/scripts/chop_exposure_meter.py` -> `automation/state/chop-exposure-{date}.json`
++ `-last.json`, rendered as one line in firm-brief.md (`firm_brief.render_chop_lines`,
+additive + fail-open). Columns: entries | ord>=4 (CAP-3 forward-clock recorder) | against
+V-d1 | zero-structure (CONTEXT, not an alarm) | rr<0.70 | worst consec-loss run (CONSEC4
+recorder) | fleet-POOLED REALIZED intraday floor + BRK600 would-trip (the forward-evidence
+surface the live equity-based daily_loss_guard.py does NOT have). Prereg frozen BEFORE any
+runner: `analysis/recommendations/chop-defense-prereg-2026-08-06.json` @ **5737488a**.
+**First real line (tonight):** `CHOP METER 2026-08-06: 4 entries | ord>=4: 0 | against
+V-d1: 0 | zero-structure: 0 | rr<0.70: 1 | worst consec-loss run: 1 (contract 1) | fleet
+realized: day +1465, floor +0, BRK600 would-trip: no` -- reconciles to broker truth to the
+dollar.
+**Battery verdicts (208 real fills / 26 dates, trust gate 6/6 PASS; popB = 391-day replay):**
+the day-level chop classifier stays DEAD; of 12 fresh per-trade cells, ONE cleared all 8
+gates on both populations: **B-RR-070** (range < 0.70x 20-day median at entry: +$765 pop-A,
+0 days harmed, blocked-WR 11.4%; **+$1,645 pop-B across 22 helped / 2 harmed days**) -- BH
+q=0.50 fails the 0.10 evidence bar, so it is PREREG-with-forward-clock, NOT a ship.
+C-NOEVT (block zero-structure entries) is REJECTED at -$2,091 Tuesday; C-AGAINST confirmed
+graveyard-adjacent REJECT (-$1,501 Thursday); A-CONSEC-CONTRACT-3 passes gates but is
+CAP-3-redundant (identical Wednesday block set, +$653). Full table:
+`analysis/deep-research/CHOP-DEFENSE-2026-08-06.md` + `.json`.
+**Guards:** `backtest/tests/test_chop_exposure_meter.py` 8/8 green; RED-proofed twice
+(meter ORD_ALARM mutation -> 4 RED; firm_brief section removal -> 1 RED), both restored
+byte-identical (sha256 e70c1c30... / 3a3a5f9c...) and re-proven green.
+**Task verified through the real chain:** State=Ready, MSFT_TaskDailyTrigger, NextRun
+08-07 16:08 ET, manual Start-ScheduledTask fire -> LastTaskResult=0, artifact rewritten.
+**REVOKE (one line each):** `Unregister-ScheduledTask Gamma_ChopMeter -Confirm:$false`
+(kills the nightly fire; brief line degrades to "meter has not run yet", fail-open) / git
+revert of the ship commit (removes meter + brief hunk + guards).
+
+---
+
 ## [2026-08-06T19:15 ET] LANE-7 MONDAY-READINESS: TV watchdog argv fix PROVEN live + hidden pipeline-hang fixed -- REVOKE surface
 
 **Owed proof delivered (the 2026-08-05 argv fix had shipped UNPROVEN):** staged the real

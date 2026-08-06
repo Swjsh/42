@@ -682,6 +682,27 @@ def render_theta_clock_lines(snapshot: dict, position_state: Optional[dict] = No
             f"today -- visibility only, never auto-exits (automation/state/theta-clock.json)."]
 
 
+def render_chop_lines(data: dict) -> list[str]:
+    """PURE: render the "Chop exposure" section body from the meter's cached snapshot
+    (automation/state/chop-exposure-last.json, written by chop_exposure_meter.py /
+    Gamma_ChopMeter 16:08 ET -- LANE 5 "don't trade chop, honestly", 2026-08-06;
+    contract frozen in analysis/recommendations/chop-defense-prereg-2026-08-06.json).
+    "Did we trade chop today" becomes a glance, not a question: entries at ordinal>=4
+    (CAP-3's forward-clock recorder), against V-d1, with zero structure events (CONTEXT,
+    not an alarm -- blocking those costs Tuesday -$2,091 per the admissibility battery),
+    rr<0.70 compression, worst consecutive-loss run (CONSEC4's recorder), and the
+    fleet-pooled REALIZED floor + BRK600 would-trip (the forward-evidence surface the
+    equity-based daily_loss_guard does NOT have). MEASUREMENT ONLY. Mirrors the
+    prospector/twin fail-open shape. Guard: test_chop_exposure_meter.py."""
+    if not data or not data.get("date"):
+        return ["- meter has not run yet (Gamma_ChopMeter fires 16:08 ET weekdays)."]
+    try:
+        import chop_exposure_meter
+        return [f"- {chop_exposure_meter.render_line(data)}"]
+    except Exception as exc:  # noqa: BLE001 -- degrade this section only, never the brief
+        return [f"- chop meter snapshot unreadable ({str(exc)[:100]}) -- fix me."]
+
+
 def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) -> str:
     per_day = statement.get("per_day") or {}
     round_trips = statement.get("round_trips") or []
@@ -817,11 +838,20 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     lines.extend(render_theta_clock_lines(theta_snapshot, theta_position_state))
     lines.append("")
 
+    # Chop exposure -- LANE 5 nightly meter ("did we trade chop today" as a glance,
+    # J's next-week directive 2026-08-06: "don't trade chop"). One line; full per-entry
+    # detail in automation/state/chop-exposure-{date}.json. Fail-open, same shape as the
+    # theta/twin/prospector sections above. MEASUREMENT ONLY -- never blocks anything.
+    chop = load_json(STATE / "chop-exposure-last.json")
+    lines.append("## Chop exposure (don't-trade-chop meter)")
+    lines.extend(render_chop_lines(chop))
+    lines.append("")
+
     lines.append("---")
     lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | "
                  f"prospector-last.json | twin-health.json | crypto-twin/path-coverage.json | "
                  f"crypto-twin/gauntlet-last.json | futures/shadow-progress.json | "
-                 f"theta-clock.json | {HANDOFF_NAME}")
+                 f"theta-clock.json | chop-exposure-last.json | {HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
 
 

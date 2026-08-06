@@ -1,0 +1,75 @@
+{
+ "date": "2026-08-06",
+ "generated_at_et": "2026-08-06T19:08:50",
+ "meter_version": 1,
+ "prereg": "analysis/recommendations/chop-defense-prereg-2026-08-06.json @ 5737488a",
+ "n_entries": 4,
+ "n_ord4plus": 0,
+ "n_against_vd1": 0,
+ "n_zero_structure": 0,
+ "n_rr_below_070": 1,
+ "coverage": {
+  "vd1_known": 4,
+  "struct_known": 4,
+  "rr_known": 4
+ },
+ "bars_degraded": false,
+ "max_consec_loss_per_arm": {
+  "safe-2": 1
+ },
+ "max_consec_loss_same_contract": 1,
+ "fleet_realized": {
+  "day_total": 1465.0,
+  "intraday_floor": 0.0,
+  "floor_time_et": null,
+  "would_trip_600": false,
+  "latch_time_et": null
+ },
+ "per_entry": [
+  {
+   "arm": "safe-2",
+   "t": "10:31:53",
+   "sym": "SPY260806P00770000",
+   "side": "P",
+   "ord": 1,
+   "pnl": 375.0,
+   "against_vd1": false,
+   "zero_structure": false,
+   "rr": 0.7509
+  },
+  {
+   "arm": "risky-1",
+   "t": "10:32:06",
+   "sym": "SPY260806P00770000",
+   "side": "P",
+   "ord": 1,
+   "pnl": 296.0,
+   "against_vd1": false,
+   "zero_structure": false,
+   "rr": 0.7509
+  },
+  {
+   "arm": "risky-3",
+   "t": "10:32:08",
+   "sym": "SPY260806P00770000",
+   "side": "P",
+   "ord": 1,
+   "pnl": 830.0,
+   "against_vd1": false,
+   "zero_structure": false,
+   "rr": 0.7509
+  },
+  {
+   "arm": "safe-2",
+   "t": "14:21:55",
+   "sym": "SPY260806C00769000",
+   "side": "C",
+   "ord": 1,
+   "pnl": -36.0,
+   "against_vd1": false,
+   "zero_structure": false,
+   "rr": 0.6772
+  }
+ ],
+ "error": null
+}
