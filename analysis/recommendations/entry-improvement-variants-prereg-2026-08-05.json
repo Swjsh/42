@@ -1,0 +1,140 @@
+{
+  "rule_id": "entry-improvement-variants-2026-08-05",
+  "title": "LENS 2 (EOD 2026-08-05) -- pre-registered entry-improvement variants",
+  "status": "FROZEN_PREREG",
+  "frozen_at_et": "2026-08-06T03:5x (pre-dawn, market CLOSED, et_clock verified market_hours=False)",
+  "author": "EOD-2026-08-05 LENS 2 agent",
+  "why": "Wednesday 2026-08-05 lost -$1,943.66 the day after a +$3,617 record. Ten 776C round trips in 22 minutes lost -$1,279. The question J is owed: was that an ENTRY problem (a trade we should never have taken) or an EXIT problem (a fine trade, managed badly)? This file freezes the entry-side hypotheses BEFORE any of them is scored, so no cell can be picked after the fact.",
+
+  "population": {
+    "name": "LIVE-ENGINE-REAL-FILLS-v1",
+    "source": "automation/state/fills-ledger.jsonl, attribution=='engine' AND is_option, FIFO-matched into round trips per (arm, symbol)",
+    "arms": ["safe-1", "safe-2", "bold-2", "safe-3", "risky-1", "risky-3"],
+    "window_et": "2026-06-26 .. 2026-08-05",
+    "trading_days_with_fills": 25,
+    "distinct_entry_events": 230,
+    "fifo_round_trips": 286,
+    "actual_net_pnl_usd": 317.0,
+    "n_small_disclosure": "n=230 entries over 25 live days is SMALL. Every verdict below is bounded by that. No cell may be called 'validated' off this population alone; the honest ceiling is SHIP-AS-PARITY-FIX or WATCH.",
+    "known_concentration": "2026-08-04 alone is +$3,624 of the +$317 net. Ex-08-04 the population is -$3,307. Any variant's headline number MUST be reported both with and without 08-04."
+  },
+
+  "data_authority": {
+    "spy_bars": "Alpaca SIP 1-minute + the 5-minute lineage cache backtest/data/spy_5m_2026-05-19_2026-08-05.csv. NEVER yfinance for this study.",
+    "option_prices": "real broker fills only for P&L. Real OPRA 1-minute bars only for excursion (MFE/MAE) math.",
+    "levels": "levels_active as logged in automation/state/core-decisions.jsonl, nearest row at-or-BEFORE the entry timestamp (never after).",
+    "structure": "crypto/lib/market_structure.py analyze_structure() over CLOSED 5m RTH bars strictly < entry timestamp.",
+    "look_ahead_rule": "Every feature is computed from bars whose close time is <= the entry timestamp. A bar in progress at entry is EXCLUDED from all closed-bar features (L166/C6)."
+  },
+
+  "variants": [
+    {
+      "id": "V-a",
+      "name": "STRUCTURE_SHIFT_REQUIRED",
+      "brief_letter": "a",
+      "rule": "Block the entry unless analyze_structure() over the session's CLOSED 5m RTH bars (strictly before entry) reports last_event.kind in {BOS, CHoCH} with direction agreeing with the trade: long requires an UP break (trend=='uptrend' after the event), short requires a DOWN break.",
+      "cells": [
+        {"id": "V-a1", "max_bars_since_event": null, "note": "any prior in-direction structure event, no recency cap"},
+        {"id": "V-a2", "max_bars_since_event": 6, "note": "event within the last 6 closed 5m bars (30 min)"},
+        {"id": "V-a3", "max_bars_since_event": 3, "note": "event within the last 3 closed 5m bars (15 min)"}
+      ],
+      "swing_window": 3,
+      "fallback": "If fewer than 8 closed RTH 5m bars exist at entry, the variant ABSTAINS (does not block). Abstentions are reported separately and counted as 'kept'."
+    },
+    {
+      "id": "V-b",
+      "name": "LEVEL_PROXIMITY_BAND",
+      "brief_letter": "b",
+      "rule": "Levels are ZONES (J 2026-07-17). Block the entry unless SPY at entry sits inside a SUPPORTIVE band around an active level: for a long, level <= spot <= level + band (buying just above a reclaimed floor); for a short, level - band <= spot <= level (selling just under a rejected ceiling).",
+      "cells": [
+        {"id": "V-b1", "band_usd": 0.15},
+        {"id": "V-b2", "band_usd": 0.25},
+        {"id": "V-b3", "band_usd": 0.40}
+      ],
+      "fallback": "If no levels_active row exists at-or-before entry for that day, ABSTAIN (do not block)."
+    },
+    {
+      "id": "V-c",
+      "name": "PRIOR_DAY_EXTREME_SUPPLY_BLOCK",
+      "brief_letter": "c",
+      "rule": "Block a LONG when spot at entry is within N dollars BELOW the prior RTH session high (buying into known overhead supply). Mirror for a SHORT vs the prior RTH session low. Strictly-prior day only.",
+      "cells": [
+        {"id": "V-c1", "n_usd": 0.25},
+        {"id": "V-c2", "n_usd": 0.50},
+        {"id": "V-c3", "n_usd": 1.00}
+      ]
+    },
+    {
+      "id": "V-c-prime",
+      "name": "SESSION_HIGH_SUPPLY_BLOCK",
+      "brief_letter": "c (extension)",
+      "DISCLOSURE": "ADDED AFTER LOOKING AT THE 2026-08-05 TAPE. On 08-05 the binding supply was the SESSION high (776.85 set 09:39), not the prior-day high (773.41, already 2.5 below the open). Because this cell was motivated by the very day it is being tested on, it is judged PRIMARILY on the full population and the ex-08-05 slice. A pass driven by 08-05 alone is declared NOISE by construction.",
+      "rule": "Block a LONG when spot at entry is within N dollars BELOW the session high already established, AND that session high is at least K minutes old at entry (i.e. an established ceiling, not a live breakout). Mirror for a SHORT vs the session low.",
+      "cells": [
+        {"id": "V-cp1", "n_usd": 0.50, "k_min": 10},
+        {"id": "V-cp2", "n_usd": 1.00, "k_min": 10},
+        {"id": "V-cp3", "n_usd": 1.00, "k_min": 20}
+      ]
+    },
+    {
+      "id": "V-d",
+      "name": "CLOSED_BAR_DIRECTION_CONFIRM",
+      "brief_letter": "d",
+      "rule": "Block the entry unless the LAST FULLY CLOSED 5m bar before the entry timestamp closed in the trade direction.",
+      "cells": [
+        {"id": "V-d1", "test": "close > open for a long; close < open for a short"},
+        {"id": "V-d2", "test": "V-d1 AND close in the upper third of the bar range for a long (lower third for a short)"}
+      ]
+    }
+  ],
+
+  "scoring": {
+    "unit": "distinct ENTRY event (all FIFO exits of that entry aggregated to one P&L number)",
+    "metric_primary": "delta_usd = -(sum of P&L of the entries the variant BLOCKS). Positive delta = the variant would have made money.",
+    "reported_for_every_cell": [
+      "n_blocked", "n_kept", "n_abstain",
+      "delta_usd_full_population",
+      "delta_usd_ex_2026_08_04",
+      "delta_usd_2026_08_05_only",
+      "blocked_winner_dollars", "blocked_loser_dollars",
+      "delta_first_half_days", "delta_second_half_days",
+      "days_flipped_positive_to_negative"
+    ],
+    "no_cherry_picking_rule": "EVERY cell listed above is reported, pass or fail. No cell may be dropped from the results table."
+  },
+
+  "gates": {
+    "G1_full_population_positive": "delta_usd_full_population > 0",
+    "G2_not_a_winner_killer": "blocked_winner_dollars < blocked_loser_dollars (it must block more loss than profit)",
+    "G3_helps_the_adversarial_day": "delta_usd_2026_08_05_only > 0",
+    "G4_sub_window_stable": "delta_first_half_days >= 0 AND delta_second_half_days >= 0 (days split chronologically into two halves)",
+    "G5_not_a_knife_edge": "n_blocked >= 5",
+    "G6_survives_both_days": "does NOT turn 2026-08-04 (the trend day) negative-delta by more than -$250",
+    "verdict_ladder": {
+      "SHIP_CANDIDATE": "all of G1..G6 pass",
+      "WATCH": "G1 and G2 pass but any of G3..G6 fails",
+      "REJECT": "G1 or G2 fails"
+    },
+    "meta_gate": "A variant that passes ONLY G3 (08-05) and fails G1 is explicitly declared NOISE and goes in the graveyard, per the brief's own instruction."
+  },
+
+  "entry_vs_exit_split_method": {
+    "question": "What fraction of Wednesday's loss was ENTRY-side vs EXIT-side?",
+    "definition_entry_side": "A round trip is ENTRY-side if its real-OPRA maximum favourable excursion (MFE), measured from the actual fill price to the arm's own actual exit time, NEVER reached that strategy's OWN pre-existing TP1 threshold. Such a trade never offered the profit its own rulebook was waiting for -- no exit policy inside the current doctrine could have saved it.",
+    "definition_exit_side": "A round trip is EXIT-side if MFE-to-exit DID reach the strategy's own TP1 threshold and the trade still lost. The designed profit was on the table and management failed to take it.",
+    "recoverable_dollars": "For EXIT-side trades: P&L the arm would have booked with a resting TP1 limit at its own configured threshold from the moment of entry (tp1_qty_fraction of size out at TP1, remainder exited at the actual exit price). This is a LIVE-EXECUTABLE policy (a resting limit order), NOT an oracle.",
+    "oracle_column": "A separate, clearly-labelled ORACLE bound (perfect exit at the true 1-minute high) is reported for context ONLY and is never mixed into the executable column.",
+    "tp1_thresholds_used": "the strategy's own configured tp1_premium_pct from automation/state/fleet/strategies.py plus any per-arm exit_patch overlay in accounts.json, read from HEAD, quoted in the report."
+  },
+
+  "graveyard_respected": [
+    "hold-longer book-wide", "take-profit-earlier x3", "pre-TP1 trailing lock x4",
+    "level-target exits", "filter-5 deletion", "filter-8 relax", "regime standdown",
+    "blanket/adaptive/selective min-contracts", "wick closed-bar entry",
+    "shadow signals as standalone triggers", "bull-vix-soft-mode", "arm-looseness",
+    "per-setup re-entry cooldown (duration knob)", "late-day standdown"
+  ],
+  "graveyard_note": "V-d is adjacent to the buried 'wick closed-bar entry'. It is NOT the same test: the buried one gated the WICK-REJECTION trigger on a closed bar; V-d gates ANY entry on the direction of the last closed bar. It is reported anyway and will be killed on its own numbers if it fails.",
+
+  "what_would_falsify_the_whole_lens": "If every variant's delta_usd_full_population is <= 0, the honest conclusion is that 2026-08-05's damage was NOT entry-selection-addressable, and the answer to J is 'the entries were ordinary; the management was not.'"
+}
