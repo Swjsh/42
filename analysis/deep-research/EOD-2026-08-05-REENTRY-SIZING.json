@@ -1,0 +1,677 @@
+{
+ "lens": "L5 - re-entry loop re-adjudicated on its adversarial day + sizing",
+ "run_at_et": "2026-08-06T03:39:34-04:00",
+ "market_hours": false,
+ "authority": {
+  "fills": "automation/state/fills-ledger.jsonl attribution==engine (204 entries / 25 days)",
+  "opra": "Alpaca /v1beta1/options/bars 1Min, real, fetched live 2026-08-06",
+  "exit_state": "exit_pass rows in per-arm + core decision journals (live best/worst premium)"
+ },
+ "reconciliation": {
+  "engine_roundtrips_0805": -1935.0,
+  "broker_day_0805": -1943.66,
+  "delta": -8.66,
+  "engine_roundtrips_0804": 3624.0
+ },
+ "tp1_root_cause": {
+  "question": "why risky-3/safe-2 never fired TP1 on P00772000",
+  "answer": "setup was ribbon_ride (BEARISH_REJECTION_RIDE_THE_RIBBON); registry tp1_premium_pct=1.0 (+100%), not +40%",
+  "tp1_levels": {
+   "risky_1": 2.535,
+   "risky_3": 3.3,
+   "safe_2": 3.26
+  },
+  "peak_best_premium": {
+   "risky_1": 2.68,
+   "risky_3": 2.69,
+   "safe_2": 2.76
+  },
+  "consequence": "TP1 never fires -> profit_lock_arm_scope='post_tp1' never arms -> chandelier trail never engages -> only live exit is the -50% catastrophe cap (fired 14:05 / 14:12); runner_stop unchanged for 133 consecutive ticks",
+  "display_divergence": {
+   "file": "setup/scripts/heartbeat_core.py",
+   "logged_tp_source": "params.json tp1_premium_pct = 0.5",
+   "enforced_source": "strategies.ribbon_ride.exit tp1_premium_pct = 1.0",
+   "evidence": "safe-2 11:49 exec row logged tp=2.5, position managed at 3.26",
+   "severity": "correctness/labelling (C14/C7)"
+  }
+ },
+ "tp1_reachability": {
+  "ribbon_n": 124,
+  "median_mfe_pct": 16.1,
+  "pct_reaching_30": 35,
+  "pct_reaching_50": 23,
+  "pct_reaching_100": 14,
+  "tp1_filled_true_in_ledger": "19 of 124"
+ },
+ "discriminating_test": {
+  "design": "a wider stop can only DELAY an exit -> counterfactual flat windows are a strict subset of the real ones -> every counterfactual entry is a REAL broker fill at its REAL price; exits = real OPRA 1-min bars replayed through production exit_manager.plan_exit_actions",
+  "signal_availability_verified": "decision reason strings separate 'risk_gate denied: position already open' (signal fired, blocked) from 'no qualifying setup' (no signal)",
+  "parity": "5/5 terminal-stage parity vs real fills; modeled exits 1-3 min early (bar-low vs polled snapshot); control -661 @3.3c slip vs real -794; -829 @10c - grid ordering identical at both",
+  "verdict": "a wider stop ALONE does NOT remove the loop profitably - it converts five small losses into one larger one; every column degrades as the stop widens",
+  "grid": {
+   "risky-1": {
+    "stop-6": {
+     "cooldown_0m": -413.1,
+     "cooldown_5m": -252.3,
+     "cooldown_10m": -170.1,
+     "cooldown_15m": -167.7,
+     "cooldown_30m": -87.6,
+     "cooldown_onceday": -87.6
+    },
+    "stop-10": {
+     "cooldown_0m": -487.5,
+     "cooldown_5m": -372.5,
+     "cooldown_10m": -250.0,
+     "cooldown_15m": -257.5,
+     "cooldown_30m": -135.0,
+     "cooldown_onceday": -135.0
+    },
+    "stop-12": {
+     "cooldown_0m": -442.4,
+     "cooldown_5m": -442.4,
+     "cooldown_10m": -307.2,
+     "cooldown_15m": -302.4,
+     "cooldown_30m": -158.7,
+     "cooldown_onceday": -158.7
+    },
+    "stop-15": {
+     "cooldown_0m": -376.75,
+     "cooldown_5m": -376.75,
+     "cooldown_10m": -371.5,
+     "cooldown_15m": -365.5,
+     "cooldown_30m": -190.0,
+     "cooldown_onceday": -190.0
+    },
+    "stop-20": {
+     "cooldown_0m": -483.5,
+     "cooldown_5m": -483.5,
+     "cooldown_10m": -490.0,
+     "cooldown_15m": -482.0,
+     "cooldown_30m": -253.5,
+     "cooldown_onceday": -253.5
+    },
+    "stop-25": {
+     "cooldown_0m": -590.0,
+     "cooldown_5m": -590.0,
+     "cooldown_10m": -590.0,
+     "cooldown_15m": -586.5,
+     "cooldown_30m": -305.0,
+     "cooldown_onceday": -305.0
+    },
+    "stop-50": {
+     "cooldown_0m": -609.0,
+     "cooldown_5m": -609.0,
+     "cooldown_10m": -609.0,
+     "cooldown_15m": -609.0,
+     "cooldown_30m": -609.0,
+     "cooldown_onceday": -609.0
+    }
+   },
+   "risky-3": {
+    "stop-6": {
+     "cooldown_0m": -660.96,
+     "cooldown_5m": -402.72,
+     "cooldown_10m": -270.72,
+     "cooldown_15m": -267.36,
+     "cooldown_30m": -139.2,
+     "cooldown_onceday": -139.2
+    },
+    "stop-10": {
+     "cooldown_0m": -764.0,
+     "cooldown_5m": -588.0,
+     "cooldown_10m": -384.0,
+     "cooldown_15m": -404.0,
+     "cooldown_30m": -208.0,
+     "cooldown_onceday": -208.0
+    },
+    "stop-12": {
+     "cooldown_0m": -705.92,
+     "cooldown_5m": -705.92,
+     "cooldown_10m": -488.64,
+     "cooldown_15m": -481.92,
+     "cooldown_30m": -252.0,
+     "cooldown_onceday": -252.0
+    },
+    "stop-15": {
+     "cooldown_0m": -586.8,
+     "cooldown_5m": -586.8,
+     "cooldown_10m": -577.2,
+     "cooldown_15m": -568.8,
+     "cooldown_30m": -288.0,
+     "cooldown_onceday": -288.0
+    },
+    "stop-20": {
+     "cooldown_0m": -770.4,
+     "cooldown_5m": -770.4,
+     "cooldown_10m": -779.2,
+     "cooldown_15m": -768.0,
+     "cooldown_30m": -402.4,
+     "cooldown_onceday": -402.4
+    },
+    "stop-25": {
+     "cooldown_0m": -928.0,
+     "cooldown_5m": -928.0,
+     "cooldown_10m": -920.0,
+     "cooldown_15m": -922.4,
+     "cooldown_30m": -472.0,
+     "cooldown_onceday": -472.0
+    },
+    "stop-50": {
+     "cooldown_0m": -960.0,
+     "cooldown_5m": -960.0,
+     "cooldown_10m": -960.0,
+     "cooldown_15m": -960.0,
+     "cooldown_30m": -960.0,
+     "cooldown_onceday": -960.0
+    }
+   }
+  }
+ },
+ "cooldown_grid_tier1": {
+  "2026-08-05": {
+   "0 (live)": {
+    "pnl": -1935.0,
+    "n": 14
+   },
+   "5 min": {
+    "pnl": -1224.0,
+    "n": 10
+   },
+   "10 min": {
+    "pnl": -1137.0,
+    "n": 8
+   },
+   "15 min": {
+    "pnl": -1079.0,
+    "n": 8
+   },
+   "30 min": {
+    "pnl": -877.0,
+    "n": 6
+   },
+   "once/day": {
+    "pnl": -877.0,
+    "n": 6
+   }
+  },
+  "2026-08-04": {
+   "0 (live)": {
+    "pnl": 3624.0,
+    "n": 25
+   },
+   "5 min": {
+    "pnl": 3768.0,
+    "n": 24
+   },
+   "10 min": {
+    "pnl": 3244.0,
+    "n": 23
+   },
+   "15 min": {
+    "pnl": 3244.0,
+    "n": 23
+   },
+   "30 min": {
+    "pnl": 3244.0,
+    "n": 23
+   },
+   "once/day": {
+    "pnl": 1427.0,
+    "n": 20
+   }
+  },
+  "combined_0804_0805": {
+   "0 (live)": {
+    "pnl": 1689.0,
+    "n": 39
+   },
+   "5 min": {
+    "pnl": 2544.0,
+    "n": 34
+   },
+   "10 min": {
+    "pnl": 2107.0,
+    "n": 31
+   },
+   "15 min": {
+    "pnl": 2165.0,
+    "n": 31
+   },
+   "30 min": {
+    "pnl": 2367.0,
+    "n": 29
+   },
+   "once/day": {
+    "pnl": 550.0,
+    "n": 26
+   }
+  },
+  "all_25_days": {
+   "0 (live)": {
+    "pnl": 317.0,
+    "n": 204
+   },
+   "5 min": {
+    "pnl": 1346.0,
+    "n": 187
+   },
+   "10 min": {
+    "pnl": 1041.0,
+    "n": 181
+   },
+   "15 min": {
+    "pnl": 1099.0,
+    "n": 181
+   },
+   "30 min": {
+    "pnl": 1577.0,
+    "n": 172
+   },
+   "once/day": {
+    "pnl": -140.0,
+    "n": 145
+   }
+  },
+  "ex_0804_0805": {
+   "0 (live)": {
+    "pnl": -1372.0,
+    "n": 165
+   },
+   "5 min": {
+    "pnl": -1198.0,
+    "n": 153
+   },
+   "10 min": {
+    "pnl": -1066.0,
+    "n": 150
+   },
+   "15 min": {
+    "pnl": -1066.0,
+    "n": 150
+   },
+   "30 min": {
+    "pnl": -790.0,
+    "n": 143
+   },
+   "once/day": {
+    "pnl": -690.0,
+    "n": 119
+   }
+  }
+ },
+ "cooldown_verdict": {
+  "sign": "10 win / 1 lose across 11 affected days at 30min (sign test p~0.006)",
+  "monotonic": false,
+  "concentration": "84% of the +1260 is 2026-08-05 alone",
+  "trend_day_cost": -380,
+  "decision": "REJECTED - fails monotonicity and costs money on the trend day"
+ },
+ "ordinal_table": {
+  "entry_1": {
+   "n": 145,
+   "total": -140.0,
+   "mean": -0.97,
+   "win_pct": 19
+  },
+  "entry_2": {
+   "n": 30,
+   "total": 1070.0,
+   "mean": 35.67,
+   "win_pct": 13
+  },
+  "entry_3": {
+   "n": 17,
+   "total": 107.0,
+   "mean": 6.29,
+   "win_pct": 24
+  },
+  "entry_4": {
+   "n": 9,
+   "total": -257.0,
+   "mean": -28.56,
+   "win_pct": 11
+  },
+  "entry_5": {
+   "n": 3,
+   "total": -463.0,
+   "mean": -154.33,
+   "win_pct": 0
+  }
+ },
+ "entry_cap": {
+  "key": "(arm, date, option_symbol)",
+  "grid": {
+   "2026-08-05": {
+    "cap_1": -877.0,
+    "cap_2": -1022.0,
+    "cap_3": -1282.0,
+    "cap_4": -1484.0,
+    "live": -1935.0
+   },
+   "2026-08-04": {
+    "cap_1": 1427.0,
+    "cap_2": 3100.0,
+    "cap_3": 3624.0,
+    "cap_4": 3624.0,
+    "live": 3624.0
+   },
+   "combined_0804_0805": {
+    "cap_1": 550.0,
+    "cap_2": 2078.0,
+    "cap_3": 2342.0,
+    "cap_4": 2140.0,
+    "live": 1689.0
+   },
+   "all_25_days": {
+    "cap_1": -140.0,
+    "cap_2": 930.0,
+    "cap_3": 1037.0,
+    "cap_4": 780.0,
+    "live": 317.0
+   },
+   "ex_0804_0805": {
+    "cap_1": -690.0,
+    "cap_2": -1148.0,
+    "cap_3": -1305.0,
+    "cap_4": -1360.0,
+    "live": -1372.0
+   }
+  },
+  "cap3_removed": [
+   {
+    "ordinal": 4,
+    "date": "2026-06-30",
+    "arm": "risky-3",
+    "t": "15:13:07",
+    "symbol": "SPY260630C00750000",
+    "qty": 5.0,
+    "pnl": -5.0,
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-06-30",
+    "arm": "risky-1",
+    "t": "15:21:57",
+    "symbol": "SPY260630C00750000",
+    "qty": 5.0,
+    "pnl": -30.0,
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-06-30",
+    "arm": "safe-3",
+    "t": "15:21:57",
+    "symbol": "SPY260630C00750000",
+    "qty": 3.0,
+    "pnl": -18.0,
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-07-06",
+    "arm": "safe-2",
+    "t": "13:39:42",
+    "symbol": "SPY260706P00750000",
+    "qty": 3.0,
+    "pnl": 6.0,
+    "setup": null
+   },
+   {
+    "ordinal": 5,
+    "date": "2026-07-06",
+    "arm": "safe-2",
+    "t": "13:40:37",
+    "symbol": "SPY260706P00750000",
+    "qty": 3.0,
+    "pnl": -12.0,
+    "setup": null
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-07-06",
+    "arm": "safe-3",
+    "t": "14:22:27",
+    "symbol": "SPY260706C00754000",
+    "qty": 3.0,
+    "pnl": 0.0,
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-07-06",
+    "arm": "safe-1",
+    "t": "14:22:28",
+    "symbol": "SPY260706C00753000",
+    "qty": 8.0,
+    "pnl": -8.0,
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-07-06",
+    "arm": "risky-1",
+    "t": "14:22:29",
+    "symbol": "SPY260706C00754000",
+    "qty": 5.0,
+    "pnl": 0.0,
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-08-05",
+    "arm": "risky-1",
+    "t": "10:14:05",
+    "symbol": "SPY260805C00776000",
+    "qty": 5.0,
+    "pnl": -80.0,
+    "setup": "VWAP_CONTINUATION"
+   },
+   {
+    "ordinal": 4,
+    "date": "2026-08-05",
+    "arm": "risky-3",
+    "t": "10:14:07",
+    "symbol": "SPY260805C00776000",
+    "qty": 8.0,
+    "pnl": -122.0,
+    "setup": "VWAP_CONTINUATION"
+   },
+   {
+    "ordinal": 5,
+    "date": "2026-08-05",
+    "arm": "risky-1",
+    "t": "10:18:06",
+    "symbol": "SPY260805C00776000",
+    "qty": 5.0,
+    "pnl": -155.0,
+    "setup": "VWAP_CONTINUATION"
+   },
+   {
+    "ordinal": 5,
+    "date": "2026-08-05",
+    "arm": "risky-3",
+    "t": "10:18:07",
+    "symbol": "SPY260805C00776000",
+    "qty": 8.0,
+    "pnl": -296.0,
+    "setup": "VWAP_CONTINUATION"
+   }
+  ],
+  "cap3_removed_total": -720.0,
+  "cap3_winners_removed": 1,
+  "cap3_days_affected": 3,
+  "cap3_day_deltas": {
+   "2026-06-30": 53.0,
+   "2026-07-06": 14.0,
+   "2026-08-05": 653.0
+  },
+  "trend_day_cost_0804": 0.0,
+  "verdict": "SHIP - the only change with $0 cost on the trend day and a positive sign on every affected day",
+  "honest_bounds": "argmax of a 4-cell grid (cap2 +613 / cap3 +720 / cap4 +463 - smooth single peak, not a knife edge); fires on 12% of sessions; n=3 day-level sign test p=0.125; carried by mechanism (12 attempts at ordinal>=4, 1 winner, 0% win rate at #5) plus a provable $0 historical cost"
+ },
+ "tp1_ab_live": {
+  "clean_pair": "risky-1 tp1=0.5 vs safe-3 tp1=1.0 (every other exit field identical)",
+  "all_paired": {
+   "n": 26,
+   "mean_per_contract": -0.26,
+   "total": -6.87,
+   "risky1_wins": 5
+  },
+  "binding_only": {
+   "n": 8,
+   "mean_per_contract": -3.11,
+   "total": -24.87,
+   "risky1_wins": 1,
+   "criterion": "live MFE >= +50%"
+  },
+  "two_knob_pair": "risky-1 vs risky-3 differ in tp1 AND trail_pct (0.15 vs 0.20): n=29, +7.59/ct, but 69% of it is the 08-05 put alone",
+  "verdict": "NULL - no evidence a +50% TP1 improves P&L; the 08-05 put is n=1 and safe-3 did not trade it"
+ },
+ "sizing": {
+  "factorial_0805": {
+   "qty5_tp1_50": -138.0,
+   "qty8_tp1_50": -220.8,
+   "qty5_tp1_100": -911.25,
+   "qty8_tp1_100_ACTUAL": -1458.0
+  },
+  "size_effect": 546.75,
+  "size_share_of_loss_pct": 38,
+  "knob_effect": 1237.2,
+  "knob_share_of_loss_pct": 85,
+  "calls_only_per_contract": {
+   "risky_1": -97.0,
+   "risky_3": -99.25,
+   "gap": 2.25
+  },
+  "put_only_per_contract": {
+   "risky_1": 69.4,
+   "risky_3": -83.0,
+   "gap": 152.4
+  },
+  "kill_switch": {
+   "risky-3": {
+    "sod": 5977.81,
+    "eod": 4515.52,
+    "day": -1462.29,
+    "pct": -24.5,
+    "kill_level": -2988.91,
+    "budget_used_pct": 48.9
+   },
+   "risky-1": {
+    "sod": 6184.3,
+    "eod": 6043.91,
+    "day": -140.39,
+    "pct": -2.3,
+    "kill_level": -3092.15,
+    "budget_used_pct": 4.5
+   },
+   "safe-2": {
+    "sod": 5729.22,
+    "eod": 5389.46,
+    "day": -339.76,
+    "pct": -5.9,
+    "kill_level": -1718.77,
+    "budget_used_pct": 19.8
+   }
+  },
+  "c31": {
+   "premise_correction": "the '1-2 lots +$4,576 / 3+ lots -$17,461' split is a RETIRED per-sell-fill banding artifact; honest episode-level 1-2 lots = -$4,420; J was never net profitable at any size - do not re-quote the old split",
+   "what_survives": "monotonic per-contract gradient -$7.1/ct small -> -$28.7/ct large; the real killer is averaging-down + refusing the stop, which 'are one behaviour'",
+   "applies_to_risky3": true,
+   "reason": "five successively cheaper entries into the same falling contract (2.35 -> 2.27 -> 2.19 -> 2.12 -> 2.09) IS averaging down, executed by re-entry rather than by adding; fb.is_flat_spy_options cannot see it because the arm is genuinely flat between legs - cap-3 is the missing half of that guard"
+  }
+ },
+ "atm_tier_extension": {
+  "prereg": "analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json",
+  "sample_floor": "n>=10 fills per arm OR 10 sessions, whichever first",
+  "sessions_elapsed": 2,
+  "per_arm": {
+   "safe-3": {
+    "n": 6,
+    "net": 637.0,
+    "by_session": {
+     "2026-08-04": 637.0
+    },
+    "floor_reached": false,
+    "verdict": "FLOOR_NOT_REACHED"
+   },
+   "risky-1": {
+    "n": 11,
+    "net": 903.0,
+    "by_session": {
+     "2026-08-04": 1041.0,
+     "2026-08-05": -138.0
+    },
+    "floor_reached": true,
+    "verdict": "KEEP"
+   },
+   "risky-3": {
+    "n": 14,
+    "net": -653.0,
+    "by_session": {
+     "2026-08-04": 805.0,
+     "2026-08-05": -1458.0
+    },
+    "floor_reached": true,
+    "verdict": "KILL_CRITERION_MET"
+   },
+   "bold-2": {
+    "n": 3,
+    "net": 479.0,
+    "by_session": {
+     "2026-08-04": 479.0
+    },
+    "floor_reached": false,
+    "verdict": "FLOOR_NOT_REACHED"
+   }
+  },
+  "cohort_n": 34,
+  "cohort_net": 1366.0,
+  "anchor_no_regression": {
+   "baseline_0803": {
+    "safe-3": 33,
+    "risky-1": 35,
+    "risky-3": 35
+   },
+   "after": {
+    "2026-08-04": 0,
+    "2026-08-05": 0
+   },
+   "verdict": "PASS"
+  },
+  "sub_window_stable": "UN-EVALUABLE on a 2-session cohort of opposite signs",
+  "verdict": "risky-3 KILL CRITERION MET (n=14, -653) -> revert due per prereg; risky-1 KEEP (n=11, +903); safe-3 / bold-2 floor not reached",
+  "note": "risky-3's -653 is exit-side (776C loop -794 + put TP1 -664 against +805 on 08-04), NOT a strike-tier failure; stated separately and deliberately NOT used to explain away the trigger. The 08-04 audit's '-$1,304 across 5 hostile days' framing is contradicted by the live cohort at +$1,366 over 34 real fills."
+ },
+ "scored_prediction": {
+  "source": "analysis/deep-research/EOD-2026-08-04-REENTRY.md",
+  "quote": "The -6% stop on a chop day -- that is the treadmill, and it is the day we have not seen yet",
+  "outcome": "CAME TRUE - the -6% stop fired on 10 of 10 round trips on 2026-08-05",
+  "but": "its proposed remedy (PREREG-A, widen the stop) is FALSIFIED by that same day: widening is worse at every width"
+ },
+ "recommendations": {
+  "ship": [
+   "PER-CONTRACT-ENTRY-CAP-3 (placement-path guard; kill: n>=10 blocked or 10 sessions, net<0)",
+   "heartbeat_core.py logged-tp correctness fix + guard (no behaviour change)"
+  ],
+  "prereg_only": [
+   "ribbon_ride TP1 reachability - let the free risky-1 A/B run to n>=15 binding trades"
+  ],
+  "revert_due": [
+   "risky-3 ATM tier participation, per its own prereg"
+  ],
+  "rejected": [
+   "widen the vwap_continuation stop (worse at every width, on the exact day it was predicted to help)",
+   "any time-based re-entry cooldown (-$380 on the trend day, non-monotonic, 84% one-session)"
+  ]
+ },
+ "caveats": [
+  "cap-3 magnitude is 91% 2026-08-05; the SIGN is 3/3 affected days and the mechanism is n=12 with 1 winner",
+  "Study-B cross-day TP1 replay failed per-trade parity on 2 of 10 positions (>$250) and is NOT used for any verdict",
+  "6 of 204 entries lack live MFE coverage; 57 of 204 lack a setup label (older core-lane rows) - symbol-keyed analyses are label-free and unaffected",
+  "one leftover unmatched open lot (safe-2 2026-06-26 P732, 3 contracts)",
+  "PDT headroom still UNVERIFIED - the Alpaca payload exposes no daytrade_count / pattern_day_trader field"
+ ]
+}
