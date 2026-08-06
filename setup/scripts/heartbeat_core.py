@@ -2255,6 +2255,20 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
             plan["stop_display"] = _ea.describe_stop(_exit_state, fallback_price=stop, fallback_pct=_stop_pct)
             plan["stop_mode"] = _exit_state.stop_mode if _exit_state is not None else "premium"
             plan["trigger_level"] = _exit_state.trigger_level if _exit_state is not None else None
+            # CORE-TP1-DISPLAY-DIVERGENCE fix (D4, 2026-08-06, render-only -- same class as
+            # the stop back-correction above): the `tp` computed at ~L2052 came from
+            # params.json's tp1_premium_pct (or an _xov override), but the shape ACTUALLY
+            # registered with the exit engine can carry a DIFFERENT tp1_premium_pct -- the
+            # non-_xov (ribbon_ride) branch above arms the strategy REGISTRY's ExitShape
+            # (tp1_premium_pct=1.0), not params' 0.5 -- so the journaled tp promised a TP1
+            # the exit engine would never take. Recompute both from the ExitState that was
+            # actually registered (entry_premium-based, consistent with the stop fields
+            # above). Log-only: nothing here was ever sent to the broker
+            # (_place_simple_entry took only symbol/qty/limit_price). Guard:
+            # backtest/tests/test_core_tp1_display_2026_08_06.py.
+            if _exit_state is not None:
+                plan["tp"] = round(_exit_state.entry_premium * (1.0 + _exit_state.tp1_premium_pct), 2)
+                plan["tp1_premium_pct"] = _exit_state.tp1_premium_pct
         except Exception:  # bookkeeping must never fail an accepted entry
             plan["exit_managed"] = False
     return plan
