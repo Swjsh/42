@@ -4050,3 +4050,8 @@ sufficient proof, as this incident demonstrated twice.**
 
 **Claim:** the live stop exits losers that then pay the thesis -- the stop is harvesting winners, not cutting losers. **Evidence:** `{"losers_in_window": 16, "stopped_then_paid": 16, "fraction": 1.0, "window_n": 30}` (analysis/autopsies/2026-08-04.md).
 **Action:** replay exit-A (-50/+150/sell66/trail15) on these exact fills via exit_shape_parity_study (kill-check) · confirm on the fresh OPRA slice per the STOP-A pre-registration (T-W7) :: depends:none :: status:proposed
+
+### BUDGET-ROSTER-AUDIT-MAXBUDGETUSD MED — audit ALL run-*.ps1 `-MaxBudgetUsd` values for the same mis-sized-at-birth class as scout-premarket
+
+**Context:** 2026-08-06 conductor fire found `run-scout-premarket.ps1` had `-MaxBudgetUsd 0.50` since its 2026-06-15 creation (never touched since) -- causing `Error: Exceeded USD budget` -> exit=1 EVERY SINGLE DAY for ~7-8 weeks, invisible to Task Scheduler's LastTaskResult (vbs launcher hop swallows it), only caught via self_check.py's masked-exit detector. Fixed 0.50->1.00, guard: `backtest/tests/test_scout_premarket_budget.py`. Full writeup: `strategy/candidates/_lesson-inbox/budget-cap-misized-at-birth-invisible-for-8-weeks-2026-08-06.md`.
+**Action:** `grep -rn "MaxBudgetUsd" setup/scripts/run-*.ps1` (excluding worktrees), group by task shape (heartbeat-tier / premarket-class-WebSearch-driven / EOD / weekly-review), diff each value against same-shape siblings, flag any other outlier low enough to plausibly self-fail. Cross-check each flagged task's dated log(s) in `automation/state/logs/` for the same "Exceeded USD budget" signature before touching anything -- don't fix a value that isn't actually failing. :: depends:none :: status:proposed

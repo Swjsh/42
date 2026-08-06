@@ -34,10 +34,19 @@ Your job (per .claude/agents/scout.md):
 5. Return the standard report confirming what you wrote and where.
 "@ | Out-File -FilePath $promptFile -Encoding UTF8
 
+# NOTE 2026-08-06: was 0.50 -- self_check's RUN-PS1-HIDDEN-MASKED-EXIT detector caught
+# `Error: Exceeded USD budget (0.5)` -> exit=1 EVERY SINGLE DAY back to at least
+# 2026-06-15 (script's creation, never touched since), invisible to Task Scheduler's
+# LastTaskResult because the vbs launcher hop swallows it. scout_output.json went stale
+# (2026-08-04 -> silently un-refreshed 08-05/08-06) because most fires never reach a
+# clean write before hitting the cap. $0.50 was always too tight for a WebSearch-driven
+# macro/news scan (compare: futures-premarket does a similar job at $2.00, premarket at
+# $3.00) -- raised to $1.00, still the 2nd-cheapest premarket-class task on the roster.
+# Guard: backtest/tests/test_scout_premarket_budget.py.
 $exitCode = Invoke-Claude `
     -PromptFile $promptFile `
     -TaskName $task `
-    -MaxBudgetUsd 0.50 `
+    -MaxBudgetUsd 1.00 `
     -Model "sonnet" `
     -Effort "medium" `
     -AgentName "scout"
