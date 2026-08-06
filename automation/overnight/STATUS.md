@@ -1,3 +1,40 @@
+## [2026-08-06T05:41 ET] conductor: OK -- SCOUT-PREMARKET-BUDGET-CHRONIC-FAIL -- commit `8ad0b364`
+
+Budget gate PASSED ($5.06/$30, 1/4 fires pre-fire). Engine health GREEN, market closed
+(05:30 ET). STAGE-1 priority-1 (fill-funnel/self-check) surfaced a NEW, TODAY-dated
+self_check DEGRADED finding riding the same RUN-PS1-HIDDEN masked-exit visibility fix two
+prior fires shipped (2026-08-04/05/06): `run-scout-premarket.ps1 (exit=[1], 1x)`.
+**Root cause named in one sentence:** `-MaxBudgetUsd 0.50` (unchanged since the script's
+2026-06-15 creation) was always too tight for a WebSearch-driven macro/news scan, and the
+underlying `claude` CLI's `Error: Exceeded USD budget (0.5)` -> exit=1 has fired on EVERY
+dated log checked back to 2026-07-20 (11 sample dates, 11/11 failures) -- ~7-8 weeks of
+100% daily failure, invisible to Task Scheduler's `LastTaskResult` via the vbs launcher's
+fire-and-forget hop, only now surfaced by the masked-exit detector shipped the last 2 fires.
+**Live impact confirmed, not assumed:** `automation/scout/state/scout_output.json` (which
+Premarket at 08:30 ET reads for macro/news bias context) is stuck on its 2026-08-04
+`status: "partial"` content -- 2 consecutive sessions (08-05, 08-06) with zero fresh write.
+**Fix:** raised to `-MaxBudgetUsd 1.00` (still 2nd-cheapest premarket-class task on the
+roster; siblings doing similar work: futures-premarket $2.00, premarket itself $3.00).
+**Guard + RED-proofed live:** `backtest/tests/test_scout_premarket_budget.py` (2 tests,
+pins the exact broken 0.50 value + a 1.00 floor) -- reverted the REAL file to 0.50 by hand,
+confirmed both assertions fail with the exact evidence string quoted in the failure message,
+restored to 1.00, re-confirmed 2/2 green. Full curated pair + `test_conductor_budget.py`
+18/18 green (zero regressions).
+Rail-4 N/A (infra/scheduling wrapper edit, zero params/heartbeat_core/filters/placement/
+exit-code touched -- Scout feeds descriptive premarket context, never a live entry input).
+**REVOKE:** `git revert 8ad0b364` (2 files modified, 2 new files added -- clean revert).
+Filed `strategy/candidates/_lesson-inbox/budget-cap-misized-at-birth-invisible-for-8-weeks-2026-08-06.md`
+for lesson-author (new angle on the C7/C14 class: a budget knob can be ENFORCED correctly
+and still be silently wrong because the VALUE was mis-sized at birth, not drifted). Filed
+`BUDGET-ROSTER-AUDIT-MAXBUDGETUSD` (MED, queue.md) as the bounded next-fire follow-up --
+audit all `-MaxBudgetUsd` values roster-wide for the same class of outlier; correctly NOT
+attempted this fire (single-item scope).
+Committed via `commit_scoped.py` (4 files, pathspec-scoped; confirmed 0 other files left
+staged for absorption per L271/C34 discipline).
+Autonomy metric refreshed via `conductor_outcome.py` this same fire.
+
+---
+
 ## [2026-08-06T01:15 ET] conductor: OK -- VBS-WRAPPER-EXIT-CODE-BLIND-SPOT 2nd half -- self_check now reads run_ps1_hidden.py's exit-code log
 
 Budget gate PASSED ($0/$30 pre-fire). Engine health GREEN, market closed (01:00 ET).
@@ -466,25 +503,14 @@ Autonomy metric refreshed via conductor_outcome.py this same fire.
 
 ---
 
-## [2026-08-04 ~01:50 ET] LANE-4 VIOLIN — level-pipeline latency root-caused + IEX-tail fix SHIPPED + violin metric NIGHTLY (REVOKE surface)
 
-> **Signal J wakes to (OP-25).** "Playing these key levels like a violin" is now a nightly NUMBER, and the reason 749.33 arrived 15 minutes late is fixed for Tuesday.
-> - **ROOT CAUSE (749.33 respected 09:25-09:29, in levels_active 09:44:03):** the level refresher's SIP bars pull is served **~15 minutes delayed on this key's plan tier** (free = real-time IEX + delayed SIP). Log-proven 3 ways: 09:33/09:38 fires still wrote PML=749.65; every fire's `spot` = a ~15-min-old bar close; the 09:48:36 fire saw exactly ONE RTH bar and refused RTH H/L "only 1 bar(s)" 18 min into the session. RTH highs/lows were born at 09:53:36 (open+23m) every day this week. NOT the stale-bar guard (levels persist through 09:30-09:35 SKIPs), NOT hysteresis (label identity retires instantly), NOT truncation (7d SIP ≈ 1,000 < 1,500 limit).
-> - **SHIP ① (paper, live Tuesday): real-time IEX tail on the delayed-SIP spine** (`refresh_levels_intraday.py::_merge_iex_tail`). Final premarket extremes now land at the 09:33:36 fire → levels_active by ~09:34, ahead of the 09:35 window-open. 07-27 single-print wound stays closed (per-bar floor DERIVED from the ratified degeneracy constants: 10000/3 shares); thin/failed tail degrades to exact pre-fix SIP-only. Stale-bar guard untouched. Guards: `test_level_refresh_iex_tail_2026_08_03.py` **10/10** (both directions RED-proofed) + full level suite **50/50**; live smoke `ok:true` (tail correctly no-op on closed market). **REVOKE: revert the refresher commit.**
-> - **SHIP ② `Gamma_ViolinMetric` 17:35 ET nightly** — tape-respected levels vs levels_active AT THE TOUCH, per-source coverage + latency, frozen defn v1-2026-08-03. First 5 sessions: **66.7 / 44.8 / 0.0 / 84.1 / 75.0%** — the 0.0 is the 07-30 blindness day *independently re-detected* (instrument self-validates); 08-03's misses are exactly 749.33 + the RTH-high family. Registered State=Ready, real DailyTrigger, smoke-FIRED through the real chain (artifacts verified). Guards 6/6.
-> - **SHIP ③ trendline carry-over visibility:** `premarket_readiness` check 8 (`trendline_watch`, advisory-only, can never RED) — Tuesday 09:00 gate now shows *"3 line(s) carried from 2026-08-03; nearest support [WICK] 757.58 (TESTING); producer resumes 09:30 ET"* (live-verified). Gamma_Trendlines confirmed 09:30-16:00 ET only, feed=iex (real-time). Suite 37/37. Entry-signal form stays graveyarded.
-> - **SHIP ④ UTF-8 refresh log** (`run-level-refresh.ps1`): PS 5.1 `*>>` wrote UTF-16LE — logs were grep-blind (the orphaned data-hygiene lane's item; root cause = redirect operator encoding). Now explicit UTF-8 + loud nonzero-exit marker.
-> - **OPEN (named):** prior_day H/L/C is a DEAD-KNOB family (weight-3 constant exists, no producer writes it; violin: 0/15 covered) → queued PRIOR-DAY-HLC-LEVELS. 07-29's 44.8% predates the blindness day — unexplained, watch the trend. Plan-upgrade option (real-time SIP, ~$99/mo) = J's REVOKE-surface call, not auto-actioned.
-> - Files: `analysis/deep-research/LEVEL-LATENCY-AUDIT-2026-08-03.md` · `setup/scripts/{refresh_levels_intraday,violin_metric,premarket_readiness}.py` · `setup/scripts/{run-level-refresh,install-violin-metric}.ps1` · `analysis/violin/violin-history.jsonl`.
-
----
-
-
-### DEGRADED: self-check 2026-08-06T01:00:55
+### DEGRADED: self-check 2026-08-06T05:30:40
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### DEGRADED: self-check 2026-08-06T01:09:52
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+## Kitchen
+Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
-### DEGRADED: self-check 2026-08-06T01:09:56
+### DEGRADED: self-check 2026-08-06T05:39:56
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
