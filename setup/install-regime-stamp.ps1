@@ -1,8 +1,10 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  (Re)install Gamma_RegimeStamp on the canonical hidden-spawn chain -- fires 06:22 local
-  (Mountain) = 08:22 ET daily, between Gamma_EmaSnapshot (08:20) and Gamma_Premarket (08:30).
+  (Re)install Gamma_RegimeStamp on the canonical hidden-spawn chain -- fires TWICE daily:
+  06:22 local (Mountain) = 08:22 ET, between Gamma_EmaSnapshot (08:20) and Gamma_Premarket
+  (08:30) -- the original rebuild+stamp+patch; and 06:40 local = 08:40 ET, a REPATCH-ONLY
+  safety net ~10min after Premarket (08:30 ET) normally finishes.
 
 .DESCRIPTION
   WS6 regime library morning stamp (2026-08-01). Rebuilds
@@ -10,6 +12,19 @@
   (pure Python, deterministic, $0), writes automation/state/regime-stamp.json
   ("yesterday was X, the recent mix is Y") and patches today-bias.json#regime_context.
   Premarket lifts the stamp into the fresh today-bias.json it writes at 08:30.
+
+  REGIME-STAMP DRIFT fix (2026-08-05): Premarket is an LLM-prompt-driven session that
+  rewrites today-bias.json wholesale at 08:30 and is INSTRUCTED to carry all 4
+  regime_context fields (one_liner, yesterday_archetype, stamp_date, source) forward --
+  but transcription fidelity is not guaranteed (observed live 2026-08-05: one_liner made
+  it through, the other 3 fields silently landed null, flagged RED by both
+  monday_verify's WS6 check and self_check's REGIME-STAMP DRIFT problem the same day).
+  main() is idempotent and cheap ($0, pure Python) -- re-running it at 08:40 ET re-reads
+  whatever today-bias.json Premarket just wrote and unconditionally overwrites
+  regime_context with the correct 4-field dict, so the deterministic patch is always the
+  LAST writer regardless of how faithfully the LLM prompt transcribed it. This removes the
+  dependency on prose-instruction fidelity for a producer/consumer contract (CLAUDE.md
+  C14 class). Guard: backtest/tests/test_regime_stamp_repatch.py.
 
   Zero-leak chain per L42/C8 (mirrors install-ema-snapshot.ps1):
       wscript //nologo run_exe_hidden.vbs <backtest-venv pythonw> regime_stamp.py
@@ -52,8 +67,14 @@ $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
     -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
 
-# 06:22 LOCAL (Mountain) = 08:22 ET, between EmaSnapshot (06:20) and Premarket (06:30).
-$trigger = New-ScheduledTaskTrigger -Daily -At "06:22"
+# 06:22 LOCAL (Mountain) = 08:22 ET, between EmaSnapshot (06:20) and Premarket (06:30):
+# rebuild + stamp + patch. 06:40 LOCAL = 08:40 ET, ~10min after Premarket (06:30 MT)
+# normally finishes: repatch-only safety net (main() is idempotent -- see .DESCRIPTION
+# REGIME-STAMP DRIFT fix, 2026-08-05).
+$trigger = @(
+    (New-ScheduledTaskTrigger -Daily -At "06:22"),
+    (New-ScheduledTaskTrigger -Daily -At "06:40")
+)
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
@@ -66,9 +87,9 @@ Register-ScheduledTask `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings `
-    -Description "WS6 regime library stamp: rebuild day-archetypes.json + write regime-stamp.json (yesterday's archetype + last-25 mix) + patch today-bias.json#regime_context. 06:22 MT (08:22 ET) daily. Hidden wscript->venv-pythonw chain. Pure Python, zero LLM cost, descriptive only."
+    -Description "WS6 regime library stamp: rebuild day-archetypes.json + write regime-stamp.json (yesterday's archetype + last-25 mix) + patch today-bias.json#regime_context. Fires TWICE daily: 06:22 MT (08:22 ET, rebuild+stamp+patch) and 06:40 MT (08:40 ET, idempotent repatch-only safety net vs Premarket transcription drift -- 2026-08-05 fix). Hidden wscript->venv-pythonw chain. Pure Python, zero LLM cost, descriptive only."
 
-Write-Output "OK: Registered $TaskName for 06:22 MT (08:22 ET) daily on the hidden chain"
+Write-Output "OK: Registered $TaskName for 06:22 MT (08:22 ET) + 06:40 MT (08:40 ET) daily on the hidden chain"
 Write-Output "    Worker:  $worker"
 Write-Output "    Audit:   python setup\scripts\audit_scheduled_tasks.py   (expect no VISIBLE_WINDOW)"
 Write-Output "    Test:    Start-ScheduledTask -TaskName $TaskName"
