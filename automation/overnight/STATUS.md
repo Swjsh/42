@@ -1,3 +1,67 @@
+## [2026-08-06T20:15 ET] LANE 1 FIX+SHIP: S1-S4 executed -- SAMEBAR shipped DISARMED (day-0 replay killed the arm), risky-3 tier kill EXECUTED -- REVOKE surface
+
+**S1 -- sizing-miss wiring guard un-staled** (`36acbbab`). Root cause: the TEST was stale, not
+the code -- `c2cb9f72` (2026-08-03) deliberately shipped shrink-not-deny, so a sizing miss at
+an affordable premium now legitimately ALLOWs at max_affordable_qty; the guard still pinned the
+pre-ship DENY contract. Updated to pin the NEW distinguishability shape (miss -> ALLOW + shrink
+note; deadlock -> RISK_CAP + binding.deadlock=True). RED-proofed (shrink disabled -> 1 RED),
+restored byte-identical (sha256 2c04004b...), 7/7 green. REVOKE: `git revert 36acbbab`.
+
+**S2 -- FLEET-SAME-BAR-COOLDOWN: wired, then DISARMED by its own ship gate** (prereg
+`55880b45` committed BEFORE wiring `7598c20d`; `git merge-base --is-ancestor` proven).
+The sanctioned proof FAILED: replaying each real fleet entry through the PRODUCTION trigger-bar
+identity (row's own core_tick_id -> core-decisions trigger_bar_et -- exactly what the live
+consult keys on) shows Wed 08-05 trigger bars ADVANCE on every re-entry (blocks NOTHING, study
+claimed +$202) and Tue 08-04's only same-bar pair is risky-3 09:54/09:57 (both bar 09:45) --
+so it blocks the **09:57 763C +$524 real-fills winner** the study said it preserves
+(EOD-2026-08-04-ENGINE.md:464). The study keyed entries to WALL-CLOCK last-closed bars; engine
+bar identity lags tick-phase-dependently (L251 class; lesson filed to _lesson-inbox). Net on
+the motivating tape -$524 = the prereg's own kill criterion met on day 0. SHIPPED DISARMED:
+`fleet_live.FLEET_SAME_BAR_COOLDOWN = False` (default pinned by
+`test_fleet_same_bar_cooldown.py::test_default_is_disarmed_do_not_arm_verdict`); consult+stamp
+code + trigger_bar_et signal plumbing (additive) land for an honest forward re-measure. Guards
+8 new tests; RED-proofed (consult disabled -> 2 RED incl. the inverted parity pin), restored
+byte-identical (sha256 31e0c692...). Outcome record:
+`analysis/recommendations/fleet-same-bar-cooldown-OUTCOME-2026-08-06.json`.
+REVOKE (of the disarmed code itself): `git revert 7598c20d`. ARM (needs the re-measure to
+clear prereg gates first): flip the flag True.
+
+**S3 -- ATM-TIER-EXTENSION pre-registered KILL executed on risky-3 ONLY** (`3ac1d7b2` +
+follow-up `f3a30ad8`). Kill bar (atm-tier-extension-2k10k-prereg-2026-08-03.json: n>=10
+fills, net<0) MET by risky-3 (n=14, -$653); NOT met by risky-1 (n=11, +$903). The prereg's
+one-line revert edits the SHARED V15_BOLD_CORE_TIERS (would kill core bold-2 + j_intent +
+risky-1 + safe-3 too), so the per-arm kill ships as new `V15_BOLD_CORE_PRE_EXT_TIERS` +
+`_tiers_for_arm` branch `bold_core_pre_ext` + risky-3 accounts.json patch. Quoted at $5K:
+BEFORE risky-3 ATM/strike(C,748)=748 -> AFTER OTM-2/750; risky-1 ATM/748 both before+after;
+$0-2K band (2026-08-01 extension) unchanged ATM. Vary-and-assert guard 6/6; RED-proofed
+(accounts.json flipped back -> 1 RED), restored byte-identical (sha256 4f14e77d...).
+C14 second-consumer miss caught SAME SESSION: `fleet_arm_replay._NAMED_TABLES` didn't know
+the new name (2 replay tests died on ValueError) -- fixed in `f3a30ad8`, 2/2 green.
+UN-KILL (one line): risky-3 params_patch.strike_tier_table back to 'bold_core'.
+
+**S4 -- ghost workflow wf_6db746c8-a74: VERIFIED ALREADY DEAD, transcripts preserved.**
+TaskStop attempted on all 5 non-terminal agent ids -> "No task found" every one; full
+Win32_Process scan shows ZERO processes surviving from the 01:39-02:50 / 09:31-10:41 spawn
+windows. The "4 agents, idle 391.9m" liveness report derives from transcript mtimes (last
+write 12:41 ET; 19:13-12:41 = 392m exactly), not living processes -- the run is a
+transcript-only remnant in `~/.claude/projects/.../subagents/workflows/wf_6db746c8-a74/`.
+Nothing killed because nothing was alive; transcripts NOT deleted per instruction.
+
+**Suites after every ship:** fleet 378/378 (x3 runs), curated safety gate 59/59 (x3),
+touched test files green (quoted per ship in SHIP-LOG-2026-08-06-EVENING.md).
+
+## Known broken
+
+- **Fleet replay harness: 6 pre-existing REDs, unowned** (re-confirmed this session, 29-min
+  run, exit distinct from the 2 S3-caused ones fixed in `f3a30ad8`):
+  `test_replay_fleet_arms.py::{test_no_arm_overtrades, test_missed_within_ratchet,
+  test_three_arms_entry_faithful}` + `test_fleet_arm_replay.py::test_anchor_pass_rate_clears_
+  threshold[safe-3|risky-1|risky-3]`. Two prior reviewers counted these among "7 fleet
+  failures" (KEEP-LOSSES-SMALL-2026-08-06.md section 7 blocker); the 7th (sizing-deadlock
+  wiring) was fixed tonight (S1). risky-3 produced 75% of Wednesday -- a replay harness that
+  cannot verify that lane is a C7 hazard. NOT triaged tonight (out of Lane 1's sanctioned
+  scope); needs an owner.
+
 ## [2026-08-06T19:25 ET] LANE 4 STRATEGIC ENTRIES: entry-quality ledger + V-d1/V-e3 shadow counter shipped; R-S8 killed -- REVOKE surface
 
 **What shipped (measurement only -- zero trading-path changes):**
