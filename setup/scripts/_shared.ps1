@@ -842,7 +842,13 @@ function Invoke-TvLaunchSafe {
         [Parameter(Mandatory)][string]$LogFile,
         [switch]$Kill,
         [int]$Port = 9222,
-        [int]$CdpTimeoutSec = 12
+        # 12 -> 90 (2026-08-06, measured): a cold TV relaunch on this box takes >29s to serve
+        # CDP (launch_tv_debug.ps1's own 20s poll expired at 18:49:14 ET with CDP still down;
+        # CDP confirmed up by 18:52 ET). A 12s post-child poll structurally cannot see a
+        # genuine heal on a cold relaunch, so every REAL relaunch would log *_FAILED and spam
+        # the STATUS.md BROKEN block even when the heal worked. 90s keeps the whole tick
+        # (child <=~25s + poll) well under Gamma_TvWatchdog's PT4M ExecutionTimeLimit.
+        [int]$CdpTimeoutSec = 90
     )
     $lockFile = Join-Path $WorkDir "automation\state\tv-launch.lock"
     if (Test-Path $lockFile) {
@@ -856,9 +862,61 @@ function Invoke-TvLaunchSafe {
     $prevEAP = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
-        $killArg = if ($Kill) { @('-Kill') } else { @() }
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $LaunchScript @killArg 2>&1 |
-            Out-File -Append -Encoding utf8 -FilePath $LogFile
+        # FIX (2026-08-05 live incident): `@killArg` array-SPLAT into a NATIVE command
+        # (powershell.exe) does not splat the way it does for a cmdlet -- it emits a malformed
+        # token that the child binds POSITIONALLY to launch_tv_debug.ps1's [int]$Port, throwing
+        # `PSArgumentException: value of argument "name" is not valid` BEFORE the script body
+        # runs. Net effect: Invoke-TvLaunchSafe -Kill NEVER launched anything; the script did
+        # not execute a single line. Silent because (a) the child's failure only reached the
+        # log file, and (b) `healed` is computed from Test-CdpReady, which returns TRUE whenever
+        # TV happens to already be alive -- so a total no-op reported healed=true.
+        # Observed: every 5-min tick of 2026-07-31 (relaunch_kill_FAILED x8) and 2026-08-05
+        # 08:50 ET after J's PC restart. Build ONE explicit argv array instead -- no splat.
+        # Guard: backtest/tests/test_tv_launch_argv_2026_08_05.py (text-assertion; no Pester).
+        $psArgs = @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden',
+            '-NonInteractive', '-File', $LaunchScript
+        )
+        if ($Kill) { $psArgs += '-Kill' }
+        # FIX (2026-08-06 evening, live-proven during the Monday-readiness watchdog drill):
+        # the previous `& powershell.exe $psArgs 2>&1 | Out-File` pipeline BLOCKED until
+        # TradingView itself exited. Mechanism: launch_tv_debug.ps1 starts TradingView.exe
+        # via [Diagnostics.Process]::Start with UseShellExecute=$false and NO redirection,
+        # so TV INHERITS the child powershell's stdout/stderr handles -- a PS pipeline only
+        # completes when every writer closes the handle, and TV (hours-long) never does.
+        # MASKED until the 2026-08-05 argv fix because the malformed splat killed the child
+        # instantly (pipeline closed, function returned fast). Live repro 2026-08-06
+        # 18:48 ET: the tick healed TV+CDP fine but hung 12+ min past the heal; under
+        # Gamma_TvWatchdog's PT4M ExecutionTimeLimit the production tick would be KILLED
+        # before Test-CdpReady / healed-logging ever ran -- the 2026-07-31 *_FAILED
+        # escalation path was unreachable in exactly the scenario it was built for.
+        # Start-Process + Wait-Process waits on the CHILD POWERSHELL ONLY (it exits
+        # deterministically after its own <=20s CDP poll); TV inherits the sidecar FILE
+        # handles instead of our pipeline -- an open file handle blocks nobody. Child
+        # output is copied into $LogFile afterward so the log keeps its old shape.
+        # Guard: backtest/tests/test_tv_launch_argv_2026_08_05.py (argv + non-blocking).
+        $childOut = "$LogFile.child-out.log"
+        $childErr = "$LogFile.child-err.log"
+        try {
+            $proc = Start-Process -FilePath 'powershell.exe' -ArgumentList $psArgs `
+                -WindowStyle Hidden -PassThru `
+                -RedirectStandardOutput $childOut -RedirectStandardError $childErr
+            $null = Wait-Process -Id $proc.Id -Timeout 90 -ErrorAction SilentlyContinue
+        } catch {
+            "Invoke-TvLaunchSafe: Start-Process failed: $($_.Exception.Message)" |
+                Out-File -Append -Encoding utf8 -FilePath $LogFile
+        }
+        foreach ($side in @($childOut, $childErr)) {
+            try {
+                if ((Test-Path $side) -and ((Get-Item $side).Length -gt 0)) {
+                    Get-Content $side -ErrorAction Stop |
+                        Out-File -Append -Encoding utf8 -FilePath $LogFile
+                }
+            } catch {
+                "Invoke-TvLaunchSafe: child output left in $side (handle held by live TV)" |
+                    Out-File -Append -Encoding utf8 -FilePath $LogFile
+            }
+        }
     } finally {
         $ErrorActionPreference = $prevEAP
         Remove-Item $lockFile -Force -ErrorAction SilentlyContinue

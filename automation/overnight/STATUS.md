@@ -1,3 +1,49 @@
+## [2026-08-06T19:15 ET] LANE-7 MONDAY-READINESS: TV watchdog argv fix PROVEN live + hidden pipeline-hang fixed -- REVOKE surface
+
+**Owed proof delivered (the 2026-08-05 argv fix had shipped UNPROVEN):** staged the real
+failure (TV up since 16:27 ET with CDP dead 8,462s), ran the REAL watchdog path -- the
+`-Kill` relaunch executed launch_tv_debug.ps1 for real (pre-fix: not a single line ran)
+and CDP healed on :9222 (`tv_health_check`: cdp_connected=true, BATS:SPY @5m).
+
+**NEW defect found + fixed during the proof:** `Invoke-TvLaunchSafe`'s
+`& powershell.exe $psArgs 2>&1 | Out-File` pipeline BLOCKED until TradingView itself
+exited -- launch_tv_debug.ps1 starts TV via Process.Start/UseShellExecute=$false with no
+redirection, so TV INHERITS the child's stdout handle and the pipeline never completes.
+Masked pre-argv-fix (child died instantly); live repro tonight: tick hung 12+ min past a
+successful heal; production `Gamma_TvWatchdog` (ExecutionTimeLimit=PT4M) would be KILLED
+before `Test-CdpReady`/healed-logging ran -- the 2026-07-31 `*_FAILED` escalation was
+unreachable in exactly the scenario it was built for.
+**Fix:** Start-Process + sidecar-file redirection + `Wait-Process` on the CHILD only;
+`CdpTimeoutSec` default 12->90 (measured cold boot-to-CDP >29s; 12s poll flags every real
+heal as FAILED). **End-to-end proof:** killed TV, real `run-tv-watchdog.ps1` completed in
+**67s** with `tv_action: relaunch_fresh_healed` written same-tick
+(tv-watchdog-status.json 2026-08-06T23:09:30Z).
+**Guard:** `backtest/tests/test_tv_launch_argv_2026_08_05.py` (5 tests -- the file the
+argv fix CITED but never wrote, L249 class) + existing suite, 12/12 green. RED-proofed by
+3 source mutations (argv splat back / blocking pipe back / timeout 12): 2+2+1 guard
+failures, restored byte-identical (sha256 7ca02ee1...), green re-run.
+**Revert (one line each):** restore the `& powershell.exe $psArgs 2>&1 | Out-File` block
+in `_shared.ps1#Invoke-TvLaunchSafe` (git revert of this commit) / set CdpTimeoutSec 90->12.
+
+---
+
+## [2026-08-06T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-06 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 113 tick(s) showed in_trade>0. 11 real fill(s) dated 2026-08-06: safe-2@10:31, safe-2@10:32, risky-1@10:32, risky-3@10:32, bold-2@10:32, safe-2@10:33, bold-2@10:34, safe-2@10:34, bold-2@10:34, safe-2@10:35, safe-2@14:21. Field-level populatio… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-06, generated_at_et=2026-08-06T08:40:03-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-06, regime_context.stamp_date=2026-08-06 (present=True, dates_match=True). one_liner='Yesterday 2026-08-05 (Wed) = gap-fade (range 0.95%, gap +0.60%, c… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 51 distinct near-price levels. Worst: 769.80 flipped 5x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 36 time(s) across 2 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-06 window_end=2026-08-05 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=11 (delta +1 vs baseline n=10) exp=$-78.55/tr, verdict_moved=False. bull now: UNDERPOWERED n=8 exp=$105.75/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-06T16:00:03 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 268 theta-clock row(s) dated 2026-08-06 across 2 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=268, unavailable=0. sti… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-06 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-06`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-06T05:41 ET] conductor: OK -- SCOUT-PREMARKET-BUDGET-CHRONIC-FAIL -- commit `8ad0b364`
 
 Budget gate PASSED ($5.06/$30, 1/4 fires pre-fire). Engine health GREEN, market closed
@@ -168,6 +214,9 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ## Live watch
 
+- [2026-08-06T10:43:01 ET] THETA STALL :: safe-2 SPY260806P00770000 qty=3 :: est theta burn -6.48 vs est delta gain +0.00 over last 15min (mid=1.12, unrealized=-14.84%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-06T10:39:01 ET] THETA STALL :: risky-1 SPY260806P00770000 qty=5 :: est theta burn -5.65 vs est delta gain +0.00 over last 15min (mid=1.345, unrealized=10.57%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-06T10:37:01 ET] THETA STALL :: risky-3 SPY260806P00770000 qty=8 :: est theta burn -6.24 vs est delta gain +0.00 over last 15min (mid=1.125, unrealized=-13.28%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-05T12:18:01 ET] THETA STALL :: risky-3 SPY260805P00772000 qty=8 :: est theta burn -28.08 vs est delta gain -584.00 over last 15min (mid=2.085, unrealized=26.06%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-05T12:18:01 ET] THETA STALL :: safe-2 SPY260805P00772000 qty=3 :: est theta burn -11.52 vs est delta gain -219.00 over last 15min (mid=2.085, unrealized=27.61%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-05T10:10:00 ET] THETA STALL :: safe-2 SPY260805C00777000 qty=3 :: est theta burn -5.43 vs est delta gain +0.00 over last 15min (mid=1.695, unrealized=4.97%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
@@ -509,8 +558,207 @@ Autonomy metric refreshed via conductor_outcome.py this same fire.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 30 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-06T05:39:56
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+- [2026-08-06 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-08-06 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-08-06 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-06.md
+
+### DEGRADED: self-check 2026-08-06T06:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T06:39:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T07:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T07:39:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 2x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T08:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 2x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T08:39:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 3x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T09:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x), run-kitchen-seeder.ps1 (exit=[1], 3x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T09:39:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x), run-kitchen-seeder.ps1 (exit=[1], 4x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T10:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x), run-kitchen-seeder.ps1 (exit=[1], 4x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T10:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x), run-kitchen-seeder.ps1 (exit=[1], 5x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T11:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 11 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-kitchen-seeder.ps1 (exit=[1], 5x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T11:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 11 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-kitchen-seeder.ps1 (exit=[1], 5x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T12:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 11 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-kitchen-seeder.ps1 (exit=[1], 5x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T12:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-kitchen-seeder.ps1 (exit=[1], 6x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T13:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 6x), run-kitchen-seeder.ps1 (exit=[1], 6x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T13:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 6x), run-kitchen-seeder.ps1 (exit=[1], 6x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T14:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 6x), run-kitchen-seeder.ps1 (exit=[1], 6x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T14:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 14 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 6x), run-kitchen-seeder.ps1 (exit=[1], 7x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T15:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 7x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T15:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 8x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-08-06T20:01:45+00:00
+- task: eod-summary
+- date_et: 2026-08-06
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-08-06T16:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 18 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 8x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T16:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 9x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T16:40:41
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 9x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-08-06T20:46:15+00:00
+- task: analyst
+- date_et: 2026-08-06
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-08-06 21:00:02] gym-session (2026-08-06) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-06.json`
+### DEGRADED: self-check 2026-08-06T17:01:37
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 9x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T17:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 9x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-08-06T21:31:07+00:00
+- task: manager
+- date_et: 2026-08-06
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-08-06T17:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 20 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 10x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T18:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 20 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 10x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-06T18:39:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 11x), run-mcp-daily-audit.ps1 (exit=[124], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- [08-06 19:08 ET] TvWatchdog: tv=relaunch_fresh_healed heartbeat=na levels_refresh=none fresh_heal=ran no TV process and CDP dead - launching
+
+### DEGRADED: self-check 2026-08-06T19:09:57
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 23 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 8x), run-kitchen-seeder.ps1 (exit=[1], 11x), run-mcp-daily-audit.ps1 (exit=[124], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
