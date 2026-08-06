@@ -1,0 +1,1702 @@
+{
+ "_doc": "chop_admissibility_2026_08_06.py -- LANE 5: DON'T TRADE CHOP, honestly.",
+ "artifact": "CHOP-DEFENSE-2026-08-06",
+ "prereg": "analysis/recommendations/chop-defense-prereg-2026-08-06.json @ 5737488a",
+ "population_A": {
+  "n_positions": 208,
+  "n_dates": 26,
+  "net_usd": 1782.01,
+  "window": [
+   "2026-06-26",
+   "2026-08-06"
+  ],
+  "feature_census": {
+   "n": 208,
+   "zero_struct_entries": 75,
+   "struct_unmeasurable": 0,
+   "rr_measured": 204,
+   "rr_quartiles": [
+    0.753,
+    0.89,
+    1.205
+   ],
+   "mins_since_struct_median": 14.1
+  }
+ },
+ "population_B": {
+  "n_trades": 191,
+  "n_traded_days": 141,
+  "net_usd": 4808.75,
+  "family_A_structural": {
+   "max_consec_same_contract_losers": 2,
+   "family_A_is_noop_on_B": false
+  },
+  "feature_census": {
+   "n": 191,
+   "zero_struct_entries": 50,
+   "struct_unmeasurable": 0,
+   "rr_measured": 184,
+   "rr_quartiles": [
+    0.808,
+    1.162,
+    1.625
+   ],
+   "mins_since_struct_median": 25.0
+  },
+  "lineage": "spy_5m_2025-01-01_2026-07-22.csv (pinned)"
+ },
+ "cells": [
+  {
+   "cell": "A-CONSEC-CONTRACT-2",
+   "n_blocked": 25,
+   "n_abstain": 0,
+   "coverage_days": 26,
+   "delta_total": 598.0,
+   "delta_tue_2026_08_04": -524.0,
+   "delta_wed_2026_08_05": 913.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -315.0,
+   "delta_ex_week": 209.0,
+   "wed_after": -1022.0,
+   "book_after": 2380.01,
+   "blocked_winner_usd": 550.0,
+   "blocked_loser_usd": 1148.0,
+   "blocked_win_rate_pct": 12.0,
+   "n_days_harmed": 2,
+   "n_days_helped": 6,
+   "worst_harmed_day": [
+    "2026-08-04",
+    -524.0
+   ],
+   "harmed_days": {
+    "2026-08-04": -524.0,
+    "2026-07-21": -18.0
+   },
+   "share_of_benefit_from_wed_pct": 152.7,
+   "blocked_week_detail": [
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:57:09",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": 524.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:10:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -100.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:10:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -160.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:14:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:14:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -122.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    }
+   ],
+   "family": "A",
+   "gates": "-234--78",
+   "gates_pass": 5,
+   "gate_detail": {
+    "G1_tuesday_hard": false,
+    "G2_thursday": true,
+    "G3_wednesday": true,
+    "G4_population": true,
+    "G5_not_only_wed": false,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": "NO_OP",
+   "verdict": "REJECT",
+   "p_within_day": 0.7165,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "A-CONSEC-CONTRACT-3",
+   "n_blocked": 8,
+   "n_abstain": 0,
+   "coverage_days": 26,
+   "delta_total": 676.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 653.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 23.0,
+   "delta_ex_week": 23.0,
+   "wed_after": -1282.0,
+   "book_after": 2458.01,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 676.0,
+   "blocked_win_rate_pct": 0.0,
+   "n_days_harmed": 0,
+   "n_days_helped": 2,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": 96.6,
+   "blocked_week_detail": [
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:14:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:14:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -122.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    }
+   ],
+   "family": "A",
+   "gates": "12345678",
+   "gates_pass": 8,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": true,
+    "G3_wednesday": true,
+    "G4_population": true,
+    "G5_not_only_wed": true,
+    "G6_does_no_harm": true,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": "NO_OP",
+   "verdict": "PREREG",
+   "p_within_day": 0.359,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "A-CONSEC-SETUP-2",
+   "n_blocked": 53,
+   "n_abstain": 1,
+   "coverage_days": 26,
+   "delta_total": -978.0,
+   "delta_tue_2026_08_04": -2108.0,
+   "delta_wed_2026_08_05": 913.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -1891.0,
+   "delta_ex_week": 217.0,
+   "wed_after": -1022.0,
+   "book_after": 804.01,
+   "blocked_winner_usd": 2623.0,
+   "blocked_loser_usd": 1645.0,
+   "blocked_win_rate_pct": 18.9,
+   "n_days_harmed": 2,
+   "n_days_helped": 8,
+   "worst_harmed_day": [
+    "2026-08-04",
+    -2108.0
+   ],
+   "harmed_days": {
+    "2026-08-04": -2108.0,
+    "2026-07-17": -185.0
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:54:07",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 2,
+     "pnl": -144.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:57:09",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": 524.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "10:35:08",
+     "sym": "SPY260804C00765000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -80.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "12:28:08",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 2,
+     "pnl": 378.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-04",
+     "t": "12:28:10",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 2,
+     "pnl": 651.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "12:28:11",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 2,
+     "pnl": 788.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "13:24:08",
+     "sym": "SPY260804C00771000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 9.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "13:42:07",
+     "sym": "SPY260804C00772000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -18.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:10:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -100.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:10:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -160.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:14:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:14:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -122.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    }
+   ],
+   "family": "A",
+   "gates": "-23---78",
+   "gates_pass": 4,
+   "gate_detail": {
+    "G1_tuesday_hard": false,
+    "G2_thursday": true,
+    "G3_wednesday": true,
+    "G4_population": false,
+    "G5_not_only_wed": false,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": "NO_OP",
+   "verdict": "REJECT",
+   "p_within_day": 0.866,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "A-CONSEC-SETUP-3",
+   "n_blocked": 21,
+   "n_abstain": 1,
+   "coverage_days": 26,
+   "delta_total": 345.0,
+   "delta_tue_2026_08_04": -444.0,
+   "delta_wed_2026_08_05": 653.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -308.0,
+   "delta_ex_week": 136.0,
+   "wed_after": -1282.0,
+   "book_after": 2127.01,
+   "blocked_winner_usd": 524.0,
+   "blocked_loser_usd": 869.0,
+   "blocked_win_rate_pct": 4.8,
+   "n_days_harmed": 1,
+   "n_days_helped": 4,
+   "worst_harmed_day": [
+    "2026-08-04",
+    -444.0
+   ],
+   "harmed_days": {
+    "2026-08-04": -444.0
+   },
+   "share_of_benefit_from_wed_pct": 189.3,
+   "blocked_week_detail": [
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:57:09",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": 524.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "10:35:08",
+     "sym": "SPY260804C00765000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:14:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:14:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -122.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    }
+   ],
+   "family": "A",
+   "gates": "-234--78",
+   "gates_pass": 5,
+   "gate_detail": {
+    "G1_tuesday_hard": false,
+    "G2_thursday": true,
+    "G3_wednesday": true,
+    "G4_population": true,
+    "G5_not_only_wed": false,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": "NO_OP",
+   "verdict": "REJECT",
+   "p_within_day": 0.5462,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "B-RR-050",
+   "n_blocked": 9,
+   "n_abstain": 4,
+   "coverage_days": 26,
+   "delta_total": 103.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 103.0,
+   "delta_ex_week": 103.0,
+   "wed_after": -1935.0,
+   "book_after": 1885.01,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 103.0,
+   "blocked_win_rate_pct": 0.0,
+   "n_days_harmed": 0,
+   "n_days_helped": 1,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [],
+   "family": "B",
+   "gates": "12-45678",
+   "gates_pass": 7,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": true,
+    "G3_wednesday": false,
+    "G4_population": true,
+    "G5_not_only_wed": true,
+    "G6_does_no_harm": true,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": 152.0,
+   "verdict": "NULL",
+   "p_within_day": 0.1278,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 0.5432
+  },
+  {
+   "cell": "B-RR-060",
+   "n_blocked": 28,
+   "n_abstain": 4,
+   "coverage_days": 26,
+   "delta_total": 217.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 217.0,
+   "delta_ex_week": 217.0,
+   "wed_after": -1935.0,
+   "book_after": 1999.01,
+   "blocked_winner_usd": 32.0,
+   "blocked_loser_usd": 249.0,
+   "blocked_win_rate_pct": 14.3,
+   "n_days_harmed": 0,
+   "n_days_helped": 1,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [],
+   "family": "B",
+   "gates": "12-45678",
+   "gates_pass": 7,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": true,
+    "G3_wednesday": false,
+    "G4_population": true,
+    "G5_not_only_wed": true,
+    "G6_does_no_harm": true,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": 713.6,
+   "verdict": "NULL",
+   "p_within_day": 1.0,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "B-RR-070",
+   "n_blocked": 35,
+   "n_abstain": 4,
+   "coverage_days": 26,
+   "delta_total": 765.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 451.0,
+   "delta_thu_2026_08_06": 36.0,
+   "delta_ex_wed": 314.0,
+   "delta_ex_week": 278.0,
+   "wed_after": -1484.0,
+   "book_after": 2547.01,
+   "blocked_winner_usd": 32.0,
+   "blocked_loser_usd": 797.0,
+   "blocked_win_rate_pct": 11.4,
+   "n_days_harmed": 0,
+   "n_days_helped": 6,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": 59.0,
+   "blocked_week_detail": [
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    },
+    {
+     "arm": "safe-2",
+     "date": "2026-08-06",
+     "t": "14:21:55",
+     "sym": "SPY260806C00769000",
+     "setup": "bollinger_squeeze",
+     "wave_ord": 1,
+     "pnl": -36.0
+    }
+   ],
+   "family": "B",
+   "gates": "12345678",
+   "gates_pass": 8,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": true,
+    "G3_wednesday": true,
+    "G4_population": true,
+    "G5_not_only_wed": true,
+    "G6_does_no_harm": true,
+    "G7_frequency": true,
+    "G8_populationB": true
+   },
+   "popB": 1645.0,
+   "verdict": "PREREG",
+   "p_within_day": 0.0882,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 0.4998
+  },
+  {
+   "cell": "B-RR-080",
+   "n_blocked": 63,
+   "n_abstain": 4,
+   "coverage_days": 26,
+   "delta_total": 546.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 1142.0,
+   "delta_thu_2026_08_06": -1465.0,
+   "delta_ex_wed": -596.0,
+   "delta_ex_week": 869.0,
+   "wed_after": -793.0,
+   "book_after": 2328.01,
+   "blocked_winner_usd": 1551.0,
+   "blocked_loser_usd": 2097.0,
+   "blocked_win_rate_pct": 12.7,
+   "n_days_harmed": 1,
+   "n_days_helped": 9,
+   "worst_harmed_day": [
+    "2026-08-06",
+    -1465.0
+   ],
+   "harmed_days": {
+    "2026-08-06": -1465.0
+   },
+   "share_of_benefit_from_wed_pct": 209.2,
+   "blocked_week_detail": [
+    {
+     "arm": "safe-2",
+     "date": "2026-08-05",
+     "t": "10:01:58",
+     "sym": "SPY260805C00777000",
+     "setup": "vwap_reclaim_failed_break",
+     "wave_ord": 1,
+     "pnl": -84.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:06:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 2,
+     "pnl": -65.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:06:13",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 2,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:10:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -100.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:10:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -160.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:14:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:14:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -122.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    },
+    {
+     "arm": "safe-2",
+     "date": "2026-08-06",
+     "t": "10:31:53",
+     "sym": "SPY260806P00770000",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 375.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-06",
+     "t": "10:32:06",
+     "sym": "SPY260806P00770000",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 296.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-06",
+     "t": "10:32:08",
+     "sym": "SPY260806P00770000",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 830.0
+    },
+    {
+     "arm": "safe-2",
+     "date": "2026-08-06",
+     "t": "14:21:55",
+     "sym": "SPY260806C00769000",
+     "setup": "bollinger_squeeze",
+     "wave_ord": 1,
+     "pnl": -36.0
+    }
+   ],
+   "family": "B",
+   "gates": "1-34--7-",
+   "gates_pass": 4,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": false,
+    "G3_wednesday": true,
+    "G4_population": true,
+    "G5_not_only_wed": false,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": false
+   },
+   "popB": -634.2,
+   "verdict": "REJECT",
+   "p_within_day": 0.4603,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "C-NOEVT",
+   "n_blocked": 75,
+   "n_abstain": 0,
+   "coverage_days": 26,
+   "delta_total": 647.0,
+   "delta_tue_2026_08_04": -2091.0,
+   "delta_wed_2026_08_05": 1363.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -716.0,
+   "delta_ex_week": 1375.0,
+   "wed_after": -572.0,
+   "book_after": 2429.01,
+   "blocked_winner_usd": 3205.0,
+   "blocked_loser_usd": 3852.0,
+   "blocked_win_rate_pct": 14.7,
+   "n_days_harmed": 3,
+   "n_days_helped": 12,
+   "worst_harmed_day": [
+    "2026-08-04",
+    -2091.0
+   ],
+   "harmed_days": {
+    "2026-08-04": -2091.0,
+    "2026-08-03": -466.0,
+    "2026-07-29": -187.0
+   },
+   "share_of_benefit_from_wed_pct": 210.7,
+   "blocked_week_detail": [
+    {
+     "arm": "risky-1",
+     "date": "2026-08-04",
+     "t": "09:46:07",
+     "sym": "SPY260804C00762000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -75.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:46:09",
+     "sym": "SPY260804C00762000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -104.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-04",
+     "t": "09:50:07",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": 640.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:50:09",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -40.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:54:07",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 2,
+     "pnl": -144.0
+    },
+    {
+     "arm": "safe-2",
+     "date": "2026-08-04",
+     "t": "09:56:50",
+     "sym": "SPY260804C00763000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 383.0
+    },
+    {
+     "arm": "bold-2",
+     "date": "2026-08-04",
+     "t": "09:57:09",
+     "sym": "SPY260804C00763000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 614.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "09:57:09",
+     "sym": "SPY260804C00763000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": 524.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "09:58:06",
+     "sym": "SPY260804C00763000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 373.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "10:35:08",
+     "sym": "SPY260804C00765000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "09:58:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -85.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "09:58:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 1,
+     "pnl": -136.0
+    },
+    {
+     "arm": "safe-2",
+     "date": "2026-08-05",
+     "t": "10:01:58",
+     "sym": "SPY260805C00777000",
+     "setup": "vwap_reclaim_failed_break",
+     "wave_ord": 1,
+     "pnl": -84.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:06:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 2,
+     "pnl": -65.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:06:13",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 2,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:10:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -100.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:10:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 3,
+     "pnl": -160.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:14:05",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -80.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:14:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 4,
+     "pnl": -122.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-05",
+     "t": "10:18:06",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -155.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-05",
+     "t": "10:18:07",
+     "sym": "SPY260805C00776000",
+     "setup": "VWAP_CONTINUATION",
+     "wave_ord": 5,
+     "pnl": -296.0
+    }
+   ],
+   "family": "C",
+   "gates": "-234--7-",
+   "gates_pass": 4,
+   "gate_detail": {
+    "G1_tuesday_hard": false,
+    "G2_thursday": true,
+    "G3_wednesday": true,
+    "G4_population": true,
+    "G5_not_only_wed": false,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": false
+   },
+   "popB": -1710.5,
+   "verdict": "REJECT",
+   "p_within_day": 0.313,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  },
+  {
+   "cell": "C-TSSE-30",
+   "n_blocked": 36,
+   "n_abstain": 75,
+   "coverage_days": 26,
+   "delta_total": 1032.0,
+   "delta_tue_2026_08_04": 545.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 1032.0,
+   "delta_ex_week": 487.0,
+   "wed_after": -1935.0,
+   "book_after": 2814.01,
+   "blocked_winner_usd": 806.0,
+   "blocked_loser_usd": 1838.0,
+   "blocked_win_rate_pct": 8.3,
+   "n_days_harmed": 1,
+   "n_days_helped": 9,
+   "worst_harmed_day": [
+    "2026-07-02",
+    -550.0
+   ],
+   "harmed_days": {
+    "2026-07-02": -550.0
+   },
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [
+    {
+     "arm": "bold-2",
+     "date": "2026-08-04",
+     "t": "11:26:58",
+     "sym": "SPY260804C00768000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -60.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "11:27:08",
+     "sym": "SPY260804C00768000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -39.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-04",
+     "t": "11:27:10",
+     "sym": "SPY260804C00768000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -65.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "11:27:12",
+     "sym": "SPY260804C00768000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -29.0
+    },
+    {
+     "arm": "bold-2",
+     "date": "2026-08-04",
+     "t": "11:51:41",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -75.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "11:52:09",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -66.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-04",
+     "t": "11:52:10",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -110.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "11:52:12",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -110.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "13:24:08",
+     "sym": "SPY260804C00771000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 9.0
+    }
+   ],
+   "family": "C",
+   "gates": "12-45-7-",
+   "gates_pass": 5,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": true,
+    "G3_wednesday": false,
+    "G4_population": true,
+    "G5_not_only_wed": true,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": false
+   },
+   "popB": -1429.05,
+   "verdict": "NULL",
+   "p_within_day": 0.0261,
+   "p_bonferroni_x17": 0.4437,
+   "q_benjamini_hochberg": 0.2431
+  },
+  {
+   "cell": "C-TSSE-60",
+   "n_blocked": 11,
+   "n_abstain": 75,
+   "coverage_days": 26,
+   "delta_total": 497.0,
+   "delta_tue_2026_08_04": 361.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 497.0,
+   "delta_ex_week": 136.0,
+   "wed_after": -1935.0,
+   "book_after": 2279.01,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 497.0,
+   "blocked_win_rate_pct": 0.0,
+   "n_days_harmed": 0,
+   "n_days_helped": 4,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [
+    {
+     "arm": "bold-2",
+     "date": "2026-08-04",
+     "t": "11:51:41",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -75.0
+    },
+    {
+     "arm": "safe-3",
+     "date": "2026-08-04",
+     "t": "11:52:09",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -66.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-04",
+     "t": "11:52:10",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -110.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-04",
+     "t": "11:52:12",
+     "sym": "SPY260804C00769000",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": -110.0
+    }
+   ],
+   "family": "C",
+   "gates": "12-4567-",
+   "gates_pass": 6,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": true,
+    "G3_wednesday": false,
+    "G4_population": true,
+    "G5_not_only_wed": true,
+    "G6_does_no_harm": true,
+    "G7_frequency": true,
+    "G8_populationB": false
+   },
+   "popB": -99.5,
+   "verdict": "NULL",
+   "p_within_day": 0.0286,
+   "p_bonferroni_x17": 0.4862,
+   "q_benjamini_hochberg": 0.2431
+  },
+  {
+   "cell": "C-AGAINST",
+   "n_blocked": 20,
+   "n_abstain": 75,
+   "coverage_days": 26,
+   "delta_total": -1000.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": -1501.0,
+   "delta_ex_wed": -1000.0,
+   "delta_ex_week": 501.0,
+   "wed_after": -1935.0,
+   "book_after": 782.01,
+   "blocked_winner_usd": 1742.0,
+   "blocked_loser_usd": 742.0,
+   "blocked_win_rate_pct": 20.0,
+   "n_days_harmed": 2,
+   "n_days_helped": 4,
+   "worst_harmed_day": [
+    "2026-08-06",
+    -1501.0
+   ],
+   "harmed_days": {
+    "2026-08-06": -1501.0,
+    "2026-07-17": -241.0
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [
+    {
+     "arm": "safe-2",
+     "date": "2026-08-06",
+     "t": "10:31:53",
+     "sym": "SPY260806P00770000",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 375.0
+    },
+    {
+     "arm": "risky-1",
+     "date": "2026-08-06",
+     "t": "10:32:06",
+     "sym": "SPY260806P00770000",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 296.0
+    },
+    {
+     "arm": "risky-3",
+     "date": "2026-08-06",
+     "t": "10:32:08",
+     "sym": "SPY260806P00770000",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "wave_ord": 1,
+     "pnl": 830.0
+    }
+   ],
+   "family": "C",
+   "gates": "1-----7-",
+   "gates_pass": 2,
+   "gate_detail": {
+    "G1_tuesday_hard": true,
+    "G2_thursday": false,
+    "G3_wednesday": false,
+    "G4_population": false,
+    "G5_not_only_wed": false,
+    "G6_does_no_harm": false,
+    "G7_frequency": true,
+    "G8_populationB": false
+   },
+   "popB": -773.65,
+   "verdict": "REJECT",
+   "p_within_day": 0.9698,
+   "p_bonferroni_x17": 1.0,
+   "q_benjamini_hochberg": 1.0
+  }
+ ],
+ "cells_population_B_detail": [
+  {
+   "cell": "B|A-CONSEC-CONTRACT-2",
+   "n_blocked": 0,
+   "n_abstain": 0,
+   "coverage_days": 141,
+   "delta_total": 0.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 0.0,
+   "delta_ex_week": 0.0,
+   "wed_after": 0.0,
+   "book_after": 4808.75,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 0,
+   "blocked_win_rate_pct": null,
+   "n_days_harmed": 0,
+   "n_days_helped": 0,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "A"
+  },
+  {
+   "cell": "B|A-CONSEC-CONTRACT-3",
+   "n_blocked": 0,
+   "n_abstain": 0,
+   "coverage_days": 141,
+   "delta_total": 0.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 0.0,
+   "delta_ex_week": 0.0,
+   "wed_after": 0.0,
+   "book_after": 4808.75,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 0,
+   "blocked_win_rate_pct": null,
+   "n_days_harmed": 0,
+   "n_days_helped": 0,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "A"
+  },
+  {
+   "cell": "B|A-CONSEC-SETUP-2",
+   "n_blocked": 0,
+   "n_abstain": 0,
+   "coverage_days": 141,
+   "delta_total": 0.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 0.0,
+   "delta_ex_week": 0.0,
+   "wed_after": 0.0,
+   "book_after": 4808.75,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 0,
+   "blocked_win_rate_pct": null,
+   "n_days_harmed": 0,
+   "n_days_helped": 0,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "A"
+  },
+  {
+   "cell": "B|A-CONSEC-SETUP-3",
+   "n_blocked": 0,
+   "n_abstain": 0,
+   "coverage_days": 141,
+   "delta_total": 0.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 0.0,
+   "delta_ex_week": 0.0,
+   "wed_after": 0.0,
+   "book_after": 4808.75,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 0,
+   "blocked_win_rate_pct": null,
+   "n_days_harmed": 0,
+   "n_days_helped": 0,
+   "worst_harmed_day": null,
+   "harmed_days": {},
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "A"
+  },
+  {
+   "cell": "B|B-RR-050",
+   "n_blocked": 7,
+   "n_abstain": 7,
+   "coverage_days": 141,
+   "delta_total": 152.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 152.0,
+   "delta_ex_week": 152.0,
+   "wed_after": 0.0,
+   "book_after": 4960.75,
+   "blocked_winner_usd": 442.0,
+   "blocked_loser_usd": 594.0,
+   "blocked_win_rate_pct": 14.3,
+   "n_days_harmed": 1,
+   "n_days_helped": 5,
+   "worst_harmed_day": [
+    "2026-01-27",
+    -442.0
+   ],
+   "harmed_days": {
+    "2026-01-27": -442.0
+   },
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [],
+   "family": "B"
+  },
+  {
+   "cell": "B|B-RR-060",
+   "n_blocked": 15,
+   "n_abstain": 7,
+   "coverage_days": 141,
+   "delta_total": 713.6,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 713.6,
+   "delta_ex_week": 713.6,
+   "wed_after": 0.0,
+   "book_after": 5522.35,
+   "blocked_winner_usd": 442.0,
+   "blocked_loser_usd": 1155.6,
+   "blocked_win_rate_pct": 6.7,
+   "n_days_harmed": 1,
+   "n_days_helped": 12,
+   "worst_harmed_day": [
+    "2026-01-27",
+    -442.0
+   ],
+   "harmed_days": {
+    "2026-01-27": -442.0
+   },
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [],
+   "family": "B"
+  },
+  {
+   "cell": "B|B-RR-070",
+   "n_blocked": 26,
+   "n_abstain": 7,
+   "coverage_days": 141,
+   "delta_total": 1645.0,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": 1645.0,
+   "delta_ex_week": 1645.0,
+   "wed_after": 0.0,
+   "book_after": 6453.75,
+   "blocked_winner_usd": 535.0,
+   "blocked_loser_usd": 2180.0,
+   "blocked_win_rate_pct": 7.7,
+   "n_days_harmed": 2,
+   "n_days_helped": 22,
+   "worst_harmed_day": [
+    "2026-01-27",
+    -442.0
+   ],
+   "harmed_days": {
+    "2026-01-27": -442.0,
+    "2026-06-16": -93.0
+   },
+   "share_of_benefit_from_wed_pct": 0.0,
+   "blocked_week_detail": [],
+   "family": "B"
+  },
+  {
+   "cell": "B|B-RR-080",
+   "n_blocked": 43,
+   "n_abstain": 7,
+   "coverage_days": 141,
+   "delta_total": -634.2,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -634.2,
+   "delta_ex_week": -634.2,
+   "wed_after": 0.0,
+   "book_after": 4174.55,
+   "blocked_winner_usd": 3388.8,
+   "blocked_loser_usd": 2754.6,
+   "blocked_win_rate_pct": 25.6,
+   "n_days_harmed": 11,
+   "n_days_helped": 27,
+   "worst_harmed_day": [
+    "2025-07-17",
+    -541.0
+   ],
+   "harmed_days": {
+    "2025-07-17": -541.0,
+    "2025-09-11": -458.35,
+    "2026-01-27": -442.0,
+    "2025-07-21": -418.2,
+    "2025-08-08": -412.2,
+    "2026-07-06": -289.6
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "B"
+  },
+  {
+   "cell": "B|C-NOEVT",
+   "n_blocked": 50,
+   "n_abstain": 0,
+   "coverage_days": 141,
+   "delta_total": -1710.5,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -1710.5,
+   "delta_ex_week": -1710.5,
+   "wed_after": 0.0,
+   "book_after": 3098.25,
+   "blocked_winner_usd": 6709.7,
+   "blocked_loser_usd": 4999.2,
+   "blocked_win_rate_pct": 38.0,
+   "n_days_harmed": 18,
+   "n_days_helped": 31,
+   "worst_harmed_day": [
+    "2025-08-22",
+    -859.95
+   ],
+   "harmed_days": {
+    "2025-08-22": -859.95,
+    "2025-01-10": -717.55,
+    "2026-01-29": -656.85,
+    "2025-08-12": -572.0,
+    "2025-07-17": -541.0,
+    "2026-05-18": -504.25
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "C"
+  },
+  {
+   "cell": "B|C-TSSE-30",
+   "n_blocked": 58,
+   "n_abstain": 50,
+   "coverage_days": 141,
+   "delta_total": -1429.05,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -1429.05,
+   "delta_ex_week": -1429.05,
+   "wed_after": 0.0,
+   "book_after": 3379.7,
+   "blocked_winner_usd": 5394.85,
+   "blocked_loser_usd": 3965.8,
+   "blocked_win_rate_pct": 27.6,
+   "n_days_harmed": 16,
+   "n_days_helped": 39,
+   "worst_harmed_day": [
+    "2025-06-13",
+    -656.0
+   ],
+   "harmed_days": {
+    "2025-06-13": -656.0,
+    "2026-02-23": -616.0,
+    "2026-07-20": -489.4,
+    "2025-12-11": -486.2,
+    "2026-01-02": -446.8,
+    "2026-05-07": -382.4
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "C"
+  },
+  {
+   "cell": "B|C-TSSE-60",
+   "n_blocked": 14,
+   "n_abstain": 50,
+   "coverage_days": 141,
+   "delta_total": -99.5,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -99.5,
+   "delta_ex_week": -99.5,
+   "wed_after": 0.0,
+   "book_after": 4709.25,
+   "blocked_winner_usd": 1102.1,
+   "blocked_loser_usd": 1002.6,
+   "blocked_win_rate_pct": 28.6,
+   "n_days_harmed": 4,
+   "n_days_helped": 10,
+   "worst_harmed_day": [
+    "2025-12-11",
+    -486.2
+   ],
+   "harmed_days": {
+    "2025-12-11": -486.2,
+    "2026-02-20": -324.0,
+    "2025-10-09": -198.9,
+    "2026-06-16": -93.0
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "C"
+  },
+  {
+   "cell": "B|C-AGAINST",
+   "n_blocked": 38,
+   "n_abstain": 50,
+   "coverage_days": 141,
+   "delta_total": -773.65,
+   "delta_tue_2026_08_04": 0.0,
+   "delta_wed_2026_08_05": 0.0,
+   "delta_thu_2026_08_06": 0.0,
+   "delta_ex_wed": -773.65,
+   "delta_ex_week": -773.65,
+   "wed_after": 0.0,
+   "book_after": 4035.1,
+   "blocked_winner_usd": 3193.85,
+   "blocked_loser_usd": 2420.2,
+   "blocked_win_rate_pct": 26.3,
+   "n_days_harmed": 9,
+   "n_days_helped": 27,
+   "worst_harmed_day": [
+    "2026-02-23",
+    -616.0
+   ],
+   "harmed_days": {
+    "2026-02-23": -616.0,
+    "2025-01-08": -545.65,
+    "2025-09-25": -522.0,
+    "2026-07-20": -489.4,
+    "2025-06-20": -338.4,
+    "2026-02-20": -324.0
+   },
+   "share_of_benefit_from_wed_pct": null,
+   "blocked_week_detail": [],
+   "family": "C"
+  }
+ ]
+}
