@@ -1,0 +1,222 @@
+{
+  "lens": "LENS 4 -- SILENT ARMS",
+  "date": "2026-08-05",
+  "written_at_et": "2026-08-06T11:31",
+  "market_open_while_written": true,
+  "verdict": "Two silent arms, two different causes; PDT dominant for neither. bold-2 = gated silence (FREE_MODEL_VETO 13x). safe-3 = signal-absent silence (1 signal/384 ticks).",
+  "pdt_prime_suspect": {
+    "status": "FALSIFIED_AS_DOMINANT_CAUSE",
+    "safe_3": {
+      "risk_code_non_null_rows": 0,
+      "total_hold_rows": 383,
+      "note": "risk gate never consulted; a dead PDT gate cannot explain it"
+    },
+    "bold_2": {
+      "risk_deny_pdt": 3,
+      "all_after_decisive_tick": true,
+      "decisive_tick_verdict": "VETOED_BY_MODELS"
+    }
+  },
+  "decisive_tick": {
+    "core_tick_id": "2026-08-05T11:48:02",
+    "bar": "11:40",
+    "side": "P",
+    "safe": "PLACED",
+    "bold": "VETOED_BY_MODELS",
+    "note": "free-model veto gave opposite answers to two arms on identical input"
+  },
+  "tick_distributions": {
+    "bold_2": {
+      "ticks": 386,
+      "HOLD": 360,
+      "VETOED_BY_MODELS": 13,
+      "SKIP_STALE_TRIGGER": 6,
+      "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 4,
+      "RISK_DENY_PDT": 3,
+      "PLACED": 0
+    },
+    "safe_3": {
+      "ticks": 384,
+      "HOLD": 383,
+      "ERROR": 1,
+      "PLACED": 0,
+      "reasons": {
+        "no qualifying setup (no strategy fired)": 351,
+        "gate: requires confluence/sequence": 16,
+        "gate: 1 triggers < 2": 14,
+        "no live signal": 2,
+        "account fetch: 500": 1
+      }
+    }
+  },
+  "ledger_blind_spot": {
+    "field": "extra_exec",
+    "severity": "HIGH",
+    "lesson_ref": "L244",
+    "evidence": "core row 2026-08-05T10:01:02 action=HOLD setup=None yet extra_exec[1].action=PLACED order f9366c6f -> real fill 10:01:58 3x SPY260805C00777000 @1.61",
+    "true_counts": {
+      "safe_2": {
+        "top_level": 1,
+        "extra_exec": 1,
+        "true": 2,
+        "broker_buys": 2,
+        "reconciles": true
+      },
+      "bold_2": {
+        "top_level": 0,
+        "extra_exec": 0,
+        "true": 0,
+        "broker_buys": 0
+      },
+      "safe_3": {
+        "top_level": 0,
+        "extra_exec": null,
+        "true": 0,
+        "broker_buys": 0
+      }
+    },
+    "structural_finding": "bold-2 has ZERO extra_exec rows -- it is never evaluated against the vwap_* family that safe-2 sees. Smaller strategy surface, not only stricter gates."
+  },
+  "silence_pricing": {
+    "day_total": -1943.66,
+    "put_SPY260805P00772000_real_fills": {
+      "risky-1": {
+        "qty": 5,
+        "pnl": 347.0,
+        "per_contract": 69.4,
+        "tp1_fired": true
+      },
+      "risky-3": {
+        "qty": 8,
+        "pnl": -664.0,
+        "per_contract": -83.0,
+        "tp1_fired": false
+      },
+      "safe-2": {
+        "qty": 3,
+        "pnl": -255.0,
+        "per_contract": -85.0,
+        "tp1_fired": false
+      }
+    },
+    "bold_2_counterfactual": {
+      "label": "ORACLE_BOUND_NEVER_LIVE_EXECUTABLE",
+      "tp1_premium_pct": 0.75,
+      "ribbon_registry_tp1": 1.0,
+      "put_ask_peak_pct": "+63% to +69%",
+      "tp1_reachable": false,
+      "reason": "both 0.75 and 1.00 exceed the observed peak -> lands in the loser bucket either way",
+      "per_contract_range": [
+        -85.0,
+        -83.0
+      ],
+      "est_pnl_range_qty_3_to_8": [
+        -680.0,
+        -249.0
+      ],
+      "realised": -0.54
+    },
+    "safe_3": {
+      "counterfactual": "none -- silence began upstream of side/strike selection",
+      "realised": -0.68
+    },
+    "conclusion": "On Wednesday not trading was the best outcome available. Both silent arms got it. Not a failure."
+  },
+  "cross_day_control": {
+    "tuesday_2026_08_04": {
+      "bold_2": {
+        "traded": true,
+        "filled": 3,
+        "signals": 49,
+        "enter": 38
+      },
+      "safe_3": {
+        "traded": true,
+        "filled": 5,
+        "signals": 17,
+        "enter": 17
+      }
+    },
+    "wednesday_2026_08_05": {
+      "bold_2": {
+        "traded": false,
+        "filled": 0,
+        "signals": 20,
+        "enter": 16
+      },
+      "safe_3": {
+        "traded": false,
+        "filled": 0,
+        "signals": 1,
+        "enter": 0
+      }
+    },
+    "reading": "Gates are selective, not statically restrictive.",
+    "refusal_to_oversell": "n=2 days. safe-3's abstention is upstream signal absence (tape), not gate intelligence; bold-2's rests on a stochastic veto that answered the opposite way for safe-2 on the identical tick. NOT presented as an edge."
+  },
+  "survives_both_days": {
+    "on_this_lens_axis": "NO static change survives both",
+    "why": "tightening kills Tuesday's +3617; loosening adds legs to Wednesday's treadmill",
+    "only_cross_day_helper": "a REACHABLE TP1 (Lens 3 finding, exit-side, not shippable on 2 days)",
+    "regime_conditional_detector": "NOT PROVEN LIVE-DETECTABLE; trend-alignment tag already KILLED with opposite sign (n=250/90 OOS, aligned -148.43 vs fighting +200.40, beats_null False)"
+  },
+  "scored_prediction": {
+    "source": "08-04 audit",
+    "text": "the -6% stop on a chop day -- that is the treadmill",
+    "outcome": "CORRECT",
+    "evidence": "10 round trips C00776000, 0 winners, -1279"
+  },
+  "shipped": [
+    {
+      "commit": "e3ec740b",
+      "name": "FLEET-PDT-PARITY",
+      "paths": [
+        "automation/state/fleet/fleet_live.py",
+        "backtest/tests/test_fleet_pdt_parity.py"
+      ],
+      "status": "was already running live but UNCOMMITTED; committing removed the C34/C35 revert hazard and changed no runtime behaviour",
+      "live_proof": {
+        "date": "2026-08-06",
+        "rows_with_day_trades_true": "123/123",
+        "source": "pdt_tracker",
+        "pdt_enforced": false,
+        "day_trades_true": 6,
+        "legacy_field": 0,
+        "limit": 3
+      },
+      "guard": "11/11 green, parametrized vary-and-assert (C14) + source-mirror pins",
+      "fail_open": true,
+      "red_proof": "DEFERRED -- refuses to mutate a file executing every 60s during RTH; owed after 15:55 ET",
+      "revert": "delete params key fleet_pdt_enforce"
+    },
+    {
+      "commit": "3ba20e09",
+      "name": "per-arm silence instrument (OP-33(e))",
+      "paths": [
+        "setup/scripts/fill_funnel.py",
+        "backtest/tests/test_fill_funnel_why.py"
+      ],
+      "guard": "23/23 green",
+      "cost": "$0",
+      "extra_exec_aware": true,
+      "cross_validation": "reproduced hand-derived counts exactly and independently (13 veto/3 PDT bold-2; 16+14=30 arm-gate safe-3)"
+    }
+  ],
+  "open_owed": [
+    "RED-proof test_fleet_pdt_parity.py by source mutation after 15:55 ET -- the only unproven claim",
+    "participation_daily.py still extra_exec-blind; will under-report vwap_*/bollinger_squeeze lane trades (daily_brief.py and fill_funnel.py were fixed, this one was not)",
+    "fill_funnel prints [DEGRADED] header on both 08-04 and 08-05, unexplained -- trains J to ignore the instrument",
+    "safe-3 true PDT count 6 vs limit 3 -- harmless on paper, MUST resolve before live:true",
+    "accounts.json lists safe-1 and safe-2 on the same account number PA3POKNV46VG -- noticed, not investigated",
+    "6x SKIP_STALE_TRIGGER at 09:30-09:35 on prior-session 15:50/15:55 bars -- skipped correctly, cosmetic-but-smelly"
+  ],
+  "provenance": {
+    "fills": "automation/state/fills-ledger.jsonl (real Alpaca; 14 option buys 08-05: risky-1 6, risky-3 6, safe-2 2, bold-2 0, safe-3 0)",
+    "decisions": [
+      "automation/state/core-decisions.jsonl (772 strict rows, filtered on core_tick_id NOT substring)",
+      "automation/state/fleet/safe-3/decisions.jsonl (384 strict rows)"
+    ],
+    "sibling_lens_cited_not_rederived": "EOD-2026-08-05-PUT.md -- TP1 reachability; corrected the brief's premise that risky-3 had a +40% TP1 at 2.31 (that is the vwap_continuation shape; ribbon was +100%)",
+    "n_small": "n=2 days on every cross-day claim"
+  }
+}
