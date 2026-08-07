@@ -1,3 +1,25 @@
+## [2026-08-06] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 9tr $+68.00 ($+7.56/tr, 55.6% WR) [6d/6 day+side buckets -- 9 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 36d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 3tr $-99.00 ($-33.00/tr, 33.3% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-08-06] RECENCY-CONFIRMATION (confirm-before-capital gate) — YELLOW (not-yet-confirmed) on the freshest 25 trading days (2026-06-29..2026-08-03), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($475.52); Bold_ATM_1+2=YELLOW ($782.0)
+> - **edges_confirmed_on_recent = False** (any RED=False). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-06T20:58 ET] CONDUCTOR: fleet replay harness REDs 5/8 fixed, root-caused -- REVOKE surface
 
 **Task picked (priority-2, STATUS `### BROKEN:` flag):** the "6 pre-existing REDs, unowned"
@@ -82,15 +104,63 @@ touched test files green (quoted per ship in SHIP-LOG-2026-08-06-EVENING.md).
 
 ## Known broken
 
-- ~~Fleet replay harness: 6 pre-existing REDs, unowned~~ **3 of 6 FIXED 2026-08-06T20:58 ET**
-  (see CONDUCTOR entry above, commit `9c302f99`): `test_replay_fleet_arms.py::{test_no_arm_
-  overtrades, test_missed_within_ratchet, test_three_arms_entry_faithful}` all green now.
-  **Still open, needs an owner:** `test_fleet_arm_replay.py::test_anchor_pass_rate_clears_
-  threshold[safe-3|risky-1|risky-3]` (54-68% vs 70% threshold) -- a genuinely separate
-  exit-walk-fidelity mechanism (NOT the score_peak_passed bug, NOT caused by tonight's S3
-  ship -- see queue.md `FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT (HIGH)` for the narrowed
-  scope). risky-3 produced 75% of Wednesday -- a replay harness that cannot verify that
-  lane's exit fidelity is still a C7 hazard until this is picked up.
+- ~~Fleet replay harness: 6 pre-existing REDs, unowned~~ **ALL 6 NOW FIXED.** 3 of 6 fixed
+  2026-08-06T20:58 ET (commit `9c302f99`, see CONDUCTOR entry above). **The remaining 3
+  (`test_fleet_arm_replay.py::test_anchor_pass_rate_clears_threshold[safe-3|risky-1|
+  risky-3]`) FIXED 2026-08-07T01:13 ET** -- see CONDUCTOR entry below, commit `3d9228d4`.
+  Root cause was NOT an exit-walk mechanism bug (the scope note's own leading hypotheses
+  were checked and refuted) -- it was a metric-denominator conflation: OPRA-cache data
+  gaps were being counted as automatic fidelity FAILs. Fleet-suite REDs 3 -> 0.
+
+## [2026-08-07T01:13 ET] CONDUCTOR: fleet anchor pass-rate root-caused + fixed (denominator
+conflation, NOT an exit-walk bug) -- REVOKE surface
+
+**Task picked (priority-2, STATUS `## Known broken` flag):** the 3 remaining
+`test_fleet_arm_replay.py::test_anchor_pass_rate_clears_threshold[safe-3|risky-1|risky-3]`
+REDs left open by tonight's earlier fix (commit `9c302f99`), explicitly scoped as "a
+genuinely separate exit-walk-fidelity mechanism ... needs an owner + a dedicated fire."
+
+**Investigated live, not guessed.** Checked the scope note's own two named candidate
+mechanisms in order: (1) trigger_level resolution -- confirmed `_load_arm_trigger_levels`
+IS mostly-null (28/24/29 non-null of ~5017 decisions.jsonl rows per arm), but splitting the
+anchor pass-rate BY trigger_level presence directly REFUTED it as the cause: rows *without*
+a matched trigger_level had a HIGHER pass rate (89-94%) than rows *with* one (75-100%), and
+neither bucket individually explained the 54-68% overall number. (2) OPRA contract-bar cache
+staleness -- confirmed this IS the cause: `run_anchor_validation` computed
+`pass_rate = n_pass / n_anchors` where `n_anchors` counts ALL mined real fills, but rows
+with `replay_status != "OK"` (no OPRA cache for that symbol/date, or no SPY day) are never
+even handed to `walk_exit_manager` -- they carry no `anchor_pass` verdict, yet the shared
+denominator silently counted every one as a FAIL. Measured: safe-3 8/34 data-gap rows,
+risky-1 14/37, risky-3 18/54; among rows that COULD be replayed, fidelity was
+**88.5% / 87.0% / 94.4%** -- all comfortably above the 70% `ANCHOR_PASS_THRESHOLD`. The
+exit-walk mechanism was never broken.
+
+**Fixed:** `pass_rate` now divides by `n_replayable` (OK-status rows only, fidelity-only
+metric). Added `n_replayable` / `n_data_gap` / `opra_coverage_rate` / `coverage_note` as
+separate, still-visible fields (C7 discipline -- the coverage gap itself stays disclosed,
+it just no longer contaminates the fidelity number it doesn't belong in). All 3 arms now
+read `unvalidated: False`.
+
+**RED-proofed via rename-and-restore** (L238, never git stash): reverted
+`fleet_arm_replay.py` to its pre-fix HEAD version via `git show HEAD:... >`, confirmed the
+existing test AND a new regression test (`test_anchor_pass_rate_denominator_excludes_
+data_gaps`, pins the exact bookkeeping identity + proves the fixed rate exceeds the buggy
+formula whenever a data gap exists) both fail correctly (6/6 RED, `KeyError` on the missing
+new fields), restored the fix byte-identical (sha256 `28b578c8...`), re-confirmed 23/23
+green. Sibling suites (`test_bold_fullhist_replay.py`, `test_replay_fleet_arms.py`) 20/20
+green, curated safety gate 59/59 PASS. `git show 3d9228d4 --stat --name-status` confirms
+exactly the 2 intended files (L247 discipline). Zero trading-path files touched --
+test-harness/measurement-tool only, places no orders.
+
+**Lesson filed:** `_lesson-inbox/2026-08-07-anchor-pass-rate-data-gap-conflation.md` --
+names the generalizable rule (any "X/Y reproduces" ratio that treats "couldn't attempt" the
+same as "attempted and failed" will misdiagnose a coverage gap as a mechanism bug) and flags
+`bold_fullhist_replay.py::run_anchor_validation` as carrying the textually IDENTICAL pattern
+(dormant today only because its `ANCHOR_FILLS` list is small/hand-picked) -- follow-up
+queued, not fixed this fire (bounded task discipline).
+
+**REVOKE:** `git revert 3d9228d4` (2 files, byte-revertible; the 3 previously-RED tests
+would go RED again on revert, which is the expected/correct behavior of a clean revert).
 
 ## [2026-08-06T19:25 ET] LANE 4 STRATEGIC ENTRIES: entry-quality ledger + V-d1/V-e3 shadow counter shipped; R-S8 killed -- REVOKE surface
 
@@ -284,28 +354,6 @@ relay (incl. `Gamma_HeartbeatCore` itself -- exact count not re-enumerated this 
 stays behind its own `/fable-blast-radius` pass; `EOD-FLATTEN-LLM-PROMPT-EXIT1` (MED) and
 `PROSPECTOR-SEMANTIC-DEDUP-GAP` (MED) are the next-ranked queue items.
 Autonomy metric refreshed via `conductor_outcome.py` this same fire.
-
----
-
-## [2026-08-05] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 8tr $+104.00 ($+13.00/tr, 62.5% WR) [5d/5 day+side buckets -- 8 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 35d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 3tr $-99.00 ($-33.00/tr, 33.3% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-08-05] RECENCY-CONFIRMATION (confirm-before-capital gate) — YELLOW (not-yet-confirmed) on the freshest 25 trading days (2026-06-29..2026-08-03), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($475.52); Bold_ATM_1+2=YELLOW ($782.0)
-> - **edges_confirmed_on_recent = False** (any RED=False). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -503,61 +551,9 @@ Autonomy metric to be refreshed via conductor_outcome.py this same fire.
 
 ---
 
-## [2026-08-04T20:44 ET] conductor: OK -- RUN-CMD-HIDDEN-MASKED-EXIT-DETECTOR -- commit `f7d069b8`
 
-Budget gate PASSED ($9.79/$30, 3/4 fires pre-fire). Engine health GREEN, market closed
-(20:30 ET). STAGE-1 priority-3 (self-audit gap, `task_scorer.py --top`): the
-2026-08-04T17:32:42 self-audit batch re-flagged VBS-WRAPPER-EXIT-CODE-BLIND-SPOT for the
-2nd calendar day in a row (also 2026-08-02) -- OP-25/C7 two-batch recurrence, the
-graduation signal. Traced the top-ranked queue item against CURRENT reality per the
-scorer's own advisory before touching anything (2026-07-18 lesson: don't mechanically
-execute a stale ranking).
-ROOT CAUSE re-confirmed (not re-derived): the queue item's own writeup already correctly
-scoped the CORE fix (flip `run_exe_hidden.vbs` to blocking) as needing a
-`/fable-blast-radius` pass before touching `Gamma_HeartbeatCore`'s launch path -- a
-genuine top-tier judgment call, not mechanical Sonnet work, so NOT attempted this fire
-(FABLE-ESCALATION discipline, no guess). Investigating for a lower-risk bounded slice
-instead surfaced a real find: `setup/scripts/fix-venv-pythonw-console-leak.ps1` already
-rewrapped ~18 `Gamma_*` tasks (BrokerFills, CboeOiBank, Confluence, CryptoTwin,
-DressRehearsal, EmaSnapshot, FirmBrief, FreeModelAudit, FuturesMirror, GuardsNightly,
-LevelMemory, OosCheck, Prospector, SelfAudit, TradeAutopsy, TradeToday, Trendlines,
-TwinSentinel) onto a relay (`wscript->run_exe_hidden.vbs->system-pythonw->
-run_cmd_hidden.py`) whose inner hop (`run_cmd_hidden.py`) ALREADY runs its child
-synchronously and logs the REAL exit code to `automation/state/logs/run-cmd-hidden-
-<date>.log` on every fire -- but grepped live: ZERO consumers of that file anywhere in
-the codebase. Evidence, not assumption, was already sitting on disk unread.
-SHIPPED (non-trading-path, additive-only): `self_check.check_run_cmd_hidden_masked_exit()`
-now reads that log every ~30min cadence and DEGRADED-flags any real non-zero exit,
-collapsed per-script (a failing 5-min-cadence task won't spam one line per fire). 14 new
-guard tests (`test_self_check_run_cmd_hidden_masked_exit.py`), RED-proofed via `git stash`
-(14/14 correctly failed pre-fix with the exact expected `AttributeError`, one real bug
-caught + fixed in my own first draft mid-fire: the no-`.py`-token fallback returned the
-raw path instead of `Path(...).name`, caught by its own guard test before commit). Full
-self_check suite **120/120 PASS**. Curated safety gate **59/59 PASS**. Live-verified
-against today's real log: `[]` (clean, matches a manual grep across this week's logs
-finding zero non-zero exits). `git show f7d069b8 --stat` confirms exactly the 4 intended
-files (self_check.py, its new test, queue.md, the self-audit gap DONE marker) -- no
-shared-index absorption (pre-commit's dir-span heuristic fired correctly, non-blocking).
-**REVOKE: `git revert f7d069b8`** (additive-only; self_check.py reverts to its prior 15
-checks, the new test file is removed).
-Rail-4 N/A (observability/telemetry tool, not params/heartbeat_core/filters/placement/
-exit code -- no PAPER account behavior changes). Zero live-trading-path files touched.
-Self-audit gap batch (2026-08-04T17:32:42) DONE-marked with the disposition of all 10
-lines (1 partially actioned as above, the rest triaged: 2 already-correct-by-design
-misreads, 3 scaffold-noise headers, 4 named-not-chased future work -- see the marker
-itself for the per-line reasoning).
-Next fire: the CORE vbs-wrapper fix (would additionally cover the live chain +
-`Gamma_HeartbeatCore` + the ~90 non-relay tasks) is still open, still correctly gated
-behind its own `/fable-blast-radius` pass -- a genuine judgment call for a future
-interactive/top-tier session, not queued as a mechanical Sonnet task.
-Autonomy metric to be refreshed via conductor_outcome.py this same fire.
+## Kitchen
+Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
----
-
-
-### DEGRADED: self-check 2026-08-06T20:39:57
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 3 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 3x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+### DEGRADED: self-check 2026-08-07T01:09:57
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- TRENDLINE-DRAW never marked today (2026-08-06) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-06.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 8x), run-kitchen-seeder.ps1 (exit=[1], 13x), run-mcp-daily-audit.ps1 (exit=[124], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
