@@ -1,0 +1,927 @@
+{
+  "_doc": "Frozen-prereg execution: bull F10 buyer-pressure grid + bull F7 volume-divergence + joint cells, full 391-day real-OPRA battery. PRIMARY cohort = clean days (zero bear-side drift). ANALYSIS ONLY.",
+  "generated_at": "2026-08-07T10:25:32.381739",
+  "preregs": [
+    "analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json",
+    "analysis/recommendations/bull-f7-volume-divergence-prereg-2026-08-07.json"
+  ],
+  "smoke": true,
+  "window": [
+    "2026-07-20",
+    "2026-07-31"
+  ],
+  "recent_25_start": "2026-06-26",
+  "baseline_trade_count": 8,
+  "baseline_bull_count": 0,
+  "n_floor": 20,
+  "bh_families": {
+    "f10": [
+      "f10_relax_50",
+      "f10_relax_35",
+      "f10_off"
+    ],
+    "f7": [
+      "f7_off",
+      "joint_relax35",
+      "joint_off"
+    ]
+  },
+  "anchor_rule": "PASS iff aggregate walked P&L of baseline bulls crowded out by the relax is <= 0 (the relax may only crowd out aggregate losers)",
+  "cells": {
+    "f10_relax_50": {
+      "config": {
+        "f10_vol_mult": 0.5,
+        "disable_filters": null
+      },
+      "added_raw_n": 1,
+      "n_missing_opra": 0,
+      "bear_drift": {
+        "bear_added_n": 2,
+        "bear_removed_n": 2,
+        "dirty_days": [
+          "2026-07-23",
+          "2026-07-27"
+        ]
+      },
+      "clean_day_added_cohort_PRIMARY": {
+        "n": 0,
+        "n_missing_bars": 0,
+        "win_rate": 0.0,
+        "total_pnl": 0,
+        "expectancy_per_trade": 0.0,
+        "p_value_raw": 1.0,
+        "day_majority": {
+          "win_days": 0,
+          "days": 0,
+          "is_majority": null
+        },
+        "drop_best": {
+          "remainder": 0.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 0,
+          "total_pnl": 0,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": null,
+        "by_day_pnl": {},
+        "trades": []
+      },
+      "full_added_cohort_sensitivity": {
+        "n": 1,
+        "n_missing_bars": 0,
+        "win_rate": 0.0,
+        "total_pnl": -268.0,
+        "expectancy_per_trade": -268.0,
+        "p_value_raw": 1.0,
+        "day_majority": {
+          "win_days": 0,
+          "days": 1,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -268.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 1,
+          "total_pnl": -268.0,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 1.0,
+        "by_day_pnl": {
+          "2026-07-27": -268.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-27",
+            "entry_ts_et": "2026-07-27T09:50:00",
+            "strike": 744,
+            "entry_premium": 1.26,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 743.72,
+            "pnl": -268.0,
+            "exit_reason": "structure_stop @ 743.72",
+            "exit_time_et": "2026-07-27T09:55:00",
+            "hold_minutes": 5,
+            "f5_bull": true
+          }
+        ]
+      },
+      "month_shares_clean": {
+        "by_month": {},
+        "max_month_share": null,
+        "stable": false
+      },
+      "anchor": {
+        "missing_baseline_bulls_n": 0,
+        "forfeit_walked_pnl": 0,
+        "forfeit_unpriceable_n": 0
+      },
+      "bold_qty10_naive_scale_clean_total": 0.0,
+      "bh_fdr_significant_q10": false
+    },
+    "f10_relax_35": {
+      "config": {
+        "f10_vol_mult": 0.35,
+        "disable_filters": null
+      },
+      "added_raw_n": 2,
+      "n_missing_opra": 0,
+      "bear_drift": {
+        "bear_added_n": 3,
+        "bear_removed_n": 3,
+        "dirty_days": [
+          "2026-07-23",
+          "2026-07-27"
+        ]
+      },
+      "clean_day_added_cohort_PRIMARY": {
+        "n": 1,
+        "n_missing_bars": 0,
+        "win_rate": 1.0,
+        "total_pnl": 390.25,
+        "expectancy_per_trade": 390.25,
+        "p_value_raw": 1.0,
+        "day_majority": {
+          "win_days": 1,
+          "days": 1,
+          "is_majority": true
+        },
+        "drop_best": {
+          "remainder": 0.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 1,
+          "total_pnl": 390.25,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 1.0,
+        "by_day_pnl": {
+          "2026-07-21": 390.25
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:20:00",
+            "strike": 746,
+            "entry_premium": 1.31,
+            "qty": 3,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 390.25,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 180,
+            "f5_bull": true
+          }
+        ]
+      },
+      "full_added_cohort_sensitivity": {
+        "n": 2,
+        "n_missing_bars": 0,
+        "win_rate": 0.5,
+        "total_pnl": 122.25,
+        "expectancy_per_trade": 61.12,
+        "p_value_raw": 0.85266,
+        "day_majority": {
+          "win_days": 1,
+          "days": 2,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -268.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 2,
+          "total_pnl": 122.25,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 3.192,
+        "by_day_pnl": {
+          "2026-07-21": 390.25,
+          "2026-07-27": -268.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:20:00",
+            "strike": 746,
+            "entry_premium": 1.31,
+            "qty": 3,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 390.25,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 180,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-27",
+            "entry_ts_et": "2026-07-27T09:50:00",
+            "strike": 744,
+            "entry_premium": 1.26,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 743.72,
+            "pnl": -268.0,
+            "exit_reason": "structure_stop @ 743.72",
+            "exit_time_et": "2026-07-27T09:55:00",
+            "hold_minutes": 5,
+            "f5_bull": true
+          }
+        ]
+      },
+      "month_shares_clean": {
+        "by_month": {
+          "2026-07": 390.25
+        },
+        "max_month_share": 1.0,
+        "stable": false
+      },
+      "anchor": {
+        "missing_baseline_bulls_n": 0,
+        "forfeit_walked_pnl": 0,
+        "forfeit_unpriceable_n": 0
+      },
+      "bold_qty10_naive_scale_clean_total": 1300.83,
+      "bh_fdr_significant_q10": false
+    },
+    "f10_off": {
+      "config": {
+        "f10_vol_mult": 0.0,
+        "disable_filters": null
+      },
+      "added_raw_n": 2,
+      "n_missing_opra": 0,
+      "bear_drift": {
+        "bear_added_n": 3,
+        "bear_removed_n": 3,
+        "dirty_days": [
+          "2026-07-23",
+          "2026-07-27"
+        ]
+      },
+      "clean_day_added_cohort_PRIMARY": {
+        "n": 1,
+        "n_missing_bars": 0,
+        "win_rate": 1.0,
+        "total_pnl": 518.5,
+        "expectancy_per_trade": 518.5,
+        "p_value_raw": 1.0,
+        "day_majority": {
+          "win_days": 1,
+          "days": 1,
+          "is_majority": true
+        },
+        "drop_best": {
+          "remainder": 0.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 1,
+          "total_pnl": 518.5,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 1.0,
+        "by_day_pnl": {
+          "2026-07-21": 518.5
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:15:00",
+            "strike": 746,
+            "entry_premium": 1.19,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 518.5,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 185,
+            "f5_bull": true
+          }
+        ]
+      },
+      "full_added_cohort_sensitivity": {
+        "n": 2,
+        "n_missing_bars": 0,
+        "win_rate": 0.5,
+        "total_pnl": 250.5,
+        "expectancy_per_trade": 125.25,
+        "p_value_raw": 0.75011,
+        "day_majority": {
+          "win_days": 1,
+          "days": 2,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -268.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 2,
+          "total_pnl": 250.5,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 2.07,
+        "by_day_pnl": {
+          "2026-07-21": 518.5,
+          "2026-07-27": -268.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:15:00",
+            "strike": 746,
+            "entry_premium": 1.19,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 518.5,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 185,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-27",
+            "entry_ts_et": "2026-07-27T09:50:00",
+            "strike": 744,
+            "entry_premium": 1.26,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 743.72,
+            "pnl": -268.0,
+            "exit_reason": "structure_stop @ 743.72",
+            "exit_time_et": "2026-07-27T09:55:00",
+            "hold_minutes": 5,
+            "f5_bull": true
+          }
+        ]
+      },
+      "month_shares_clean": {
+        "by_month": {
+          "2026-07": 518.5
+        },
+        "max_month_share": 1.0,
+        "stable": false
+      },
+      "anchor": {
+        "missing_baseline_bulls_n": 0,
+        "forfeit_walked_pnl": 0,
+        "forfeit_unpriceable_n": 0
+      },
+      "bold_qty10_naive_scale_clean_total": 1296.25,
+      "bh_fdr_significant_q10": false
+    },
+    "f7_off": {
+      "config": {
+        "f10_vol_mult": 0.7,
+        "disable_filters": [
+          7
+        ]
+      },
+      "added_raw_n": 0,
+      "n_missing_opra": 0,
+      "bear_drift": {
+        "bear_added_n": 1,
+        "bear_removed_n": 1,
+        "dirty_days": [
+          "2026-07-23"
+        ]
+      },
+      "clean_day_added_cohort_PRIMARY": {
+        "n": 0,
+        "n_missing_bars": 0,
+        "win_rate": 0.0,
+        "total_pnl": 0,
+        "expectancy_per_trade": 0.0,
+        "p_value_raw": 1.0,
+        "day_majority": {
+          "win_days": 0,
+          "days": 0,
+          "is_majority": null
+        },
+        "drop_best": {
+          "remainder": 0.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 0,
+          "total_pnl": 0,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": null,
+        "by_day_pnl": {},
+        "trades": []
+      },
+      "full_added_cohort_sensitivity": {
+        "n": 0,
+        "n_missing_bars": 0,
+        "win_rate": 0.0,
+        "total_pnl": 0,
+        "expectancy_per_trade": 0.0,
+        "p_value_raw": 1.0,
+        "day_majority": {
+          "win_days": 0,
+          "days": 0,
+          "is_majority": null
+        },
+        "drop_best": {
+          "remainder": 0.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 0,
+          "total_pnl": 0,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": null,
+        "by_day_pnl": {},
+        "trades": []
+      },
+      "month_shares_clean": {
+        "by_month": {},
+        "max_month_share": null,
+        "stable": false
+      },
+      "anchor": {
+        "missing_baseline_bulls_n": 0,
+        "forfeit_walked_pnl": 0,
+        "forfeit_unpriceable_n": 0
+      },
+      "bold_qty10_naive_scale_clean_total": 0.0,
+      "bh_fdr_significant_q10": false
+    },
+    "joint_relax35": {
+      "config": {
+        "f10_vol_mult": 0.35,
+        "disable_filters": [
+          7
+        ]
+      },
+      "added_raw_n": 3,
+      "n_missing_opra": 0,
+      "bear_drift": {
+        "bear_added_n": 3,
+        "bear_removed_n": 3,
+        "dirty_days": [
+          "2026-07-23",
+          "2026-07-27"
+        ]
+      },
+      "clean_day_added_cohort_PRIMARY": {
+        "n": 2,
+        "n_missing_bars": 0,
+        "win_rate": 0.5,
+        "total_pnl": 130.25,
+        "expectancy_per_trade": 65.12,
+        "p_value_raw": 0.84124,
+        "day_majority": {
+          "win_days": 1,
+          "days": 2,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -260.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 2,
+          "total_pnl": 130.25,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 2.996,
+        "by_day_pnl": {
+          "2026-07-21": 390.25,
+          "2026-07-24": -260.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:20:00",
+            "strike": 746,
+            "entry_premium": 1.31,
+            "qty": 3,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 390.25,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 180,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-24",
+            "entry_ts_et": "2026-07-24T10:25:00",
+            "strike": 740,
+            "entry_premium": 1.23,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 738.24,
+            "pnl": -260.0,
+            "exit_reason": "structure_stop @ 738.24",
+            "exit_time_et": "2026-07-24T10:40:00",
+            "hold_minutes": 15,
+            "f5_bull": true
+          }
+        ]
+      },
+      "full_added_cohort_sensitivity": {
+        "n": 3,
+        "n_missing_bars": 0,
+        "win_rate": 0.3333,
+        "total_pnl": -137.75,
+        "expectancy_per_trade": -45.92,
+        "p_value_raw": 0.83325,
+        "day_majority": {
+          "win_days": 1,
+          "days": 3,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -528.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 3,
+          "total_pnl": -137.75,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": -2.833,
+        "by_day_pnl": {
+          "2026-07-21": 390.25,
+          "2026-07-24": -260.0,
+          "2026-07-27": -268.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:20:00",
+            "strike": 746,
+            "entry_premium": 1.31,
+            "qty": 3,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 390.25,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 180,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-24",
+            "entry_ts_et": "2026-07-24T10:25:00",
+            "strike": 740,
+            "entry_premium": 1.23,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 738.24,
+            "pnl": -260.0,
+            "exit_reason": "structure_stop @ 738.24",
+            "exit_time_et": "2026-07-24T10:40:00",
+            "hold_minutes": 15,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-27",
+            "entry_ts_et": "2026-07-27T09:50:00",
+            "strike": 744,
+            "entry_premium": 1.26,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 743.72,
+            "pnl": -268.0,
+            "exit_reason": "structure_stop @ 743.72",
+            "exit_time_et": "2026-07-27T09:55:00",
+            "hold_minutes": 5,
+            "f5_bull": true
+          }
+        ]
+      },
+      "month_shares_clean": {
+        "by_month": {
+          "2026-07": 130.25
+        },
+        "max_month_share": 1.0,
+        "stable": false
+      },
+      "anchor": {
+        "missing_baseline_bulls_n": 0,
+        "forfeit_walked_pnl": 0,
+        "forfeit_unpriceable_n": 0
+      },
+      "bold_qty10_naive_scale_clean_total": 650.83,
+      "bh_fdr_significant_q10": false
+    },
+    "joint_off": {
+      "config": {
+        "f10_vol_mult": 0.0,
+        "disable_filters": [
+          7
+        ]
+      },
+      "added_raw_n": 3,
+      "n_missing_opra": 0,
+      "bear_drift": {
+        "bear_added_n": 3,
+        "bear_removed_n": 3,
+        "dirty_days": [
+          "2026-07-23",
+          "2026-07-27"
+        ]
+      },
+      "clean_day_added_cohort_PRIMARY": {
+        "n": 2,
+        "n_missing_bars": 0,
+        "win_rate": 0.5,
+        "total_pnl": 258.5,
+        "expectancy_per_trade": 129.25,
+        "p_value_raw": 0.73985,
+        "day_majority": {
+          "win_days": 1,
+          "days": 2,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -260.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 2,
+          "total_pnl": 258.5,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": 2.006,
+        "by_day_pnl": {
+          "2026-07-21": 518.5,
+          "2026-07-24": -260.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:15:00",
+            "strike": 746,
+            "entry_premium": 1.19,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 518.5,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 185,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-24",
+            "entry_ts_et": "2026-07-24T10:25:00",
+            "strike": 740,
+            "entry_premium": 1.23,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 738.24,
+            "pnl": -260.0,
+            "exit_reason": "structure_stop @ 738.24",
+            "exit_time_et": "2026-07-24T10:40:00",
+            "hold_minutes": 15,
+            "f5_bull": true
+          }
+        ]
+      },
+      "full_added_cohort_sensitivity": {
+        "n": 3,
+        "n_missing_bars": 0,
+        "win_rate": 0.3333,
+        "total_pnl": -9.5,
+        "expectancy_per_trade": -3.17,
+        "p_value_raw": 0.99031,
+        "day_majority": {
+          "win_days": 1,
+          "days": 3,
+          "is_majority": false
+        },
+        "drop_best": {
+          "remainder": -528.0,
+          "still_positive": false
+        },
+        "recent_25": {
+          "start": "2026-06-26",
+          "n": 3,
+          "total_pnl": -9.5,
+          "collapsed_whole_cell": false
+        },
+        "concentration_top_day_share": -54.579,
+        "by_day_pnl": {
+          "2026-07-21": 518.5,
+          "2026-07-24": -260.0,
+          "2026-07-27": -268.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-21",
+            "entry_ts_et": "2026-07-21T10:15:00",
+            "strike": 746,
+            "entry_premium": 1.19,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip"
+            ],
+            "trigger_level": 745.0,
+            "pnl": 518.5,
+            "exit_reason": "runner_stop @ 2.59",
+            "exit_time_et": "2026-07-21T13:20:00",
+            "hold_minutes": 185,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-24",
+            "entry_ts_et": "2026-07-24T10:25:00",
+            "strike": 740,
+            "entry_premium": 1.23,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 738.24,
+            "pnl": -260.0,
+            "exit_reason": "structure_stop @ 738.24",
+            "exit_time_et": "2026-07-24T10:40:00",
+            "hold_minutes": 15,
+            "f5_bull": true
+          },
+          {
+            "date": "2026-07-27",
+            "entry_ts_et": "2026-07-27T09:50:00",
+            "strike": 744,
+            "entry_premium": 1.26,
+            "qty": 4,
+            "triggers_fired": [
+              "level_reclaim",
+              "ribbon_flip",
+              "confluence"
+            ],
+            "trigger_level": 743.72,
+            "pnl": -268.0,
+            "exit_reason": "structure_stop @ 743.72",
+            "exit_time_et": "2026-07-27T09:55:00",
+            "hold_minutes": 5,
+            "f5_bull": true
+          }
+        ]
+      },
+      "month_shares_clean": {
+        "by_month": {
+          "2026-07": 258.5
+        },
+        "max_month_share": 1.0,
+        "stable": false
+      },
+      "anchor": {
+        "missing_baseline_bulls_n": 0,
+        "forfeit_walked_pnl": 0,
+        "forfeit_unpriceable_n": 0
+      },
+      "bold_qty10_naive_scale_clean_total": 646.25,
+      "bh_fdr_significant_q10": false
+    }
+  },
+  "grades": {
+    "f10_relax_50": {
+      "decision_floor_n20": false,
+      "oos_positive_recent25": false,
+      "wf": "disclosed-null (no WF harness in this battery -- standing escape hatch)",
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "anchor_forfeit_dollars": 0,
+      "drop_best": false,
+      "aggregate_positive": false,
+      "verdict": "NO_VERDICT_BELOW_FLOOR"
+    },
+    "f10_relax_35": {
+      "decision_floor_n20": false,
+      "oos_positive_recent25": true,
+      "wf": "disclosed-null (no WF harness in this battery -- standing escape hatch)",
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "anchor_forfeit_dollars": 0,
+      "drop_best": false,
+      "aggregate_positive": true,
+      "verdict": "NO_VERDICT_BELOW_FLOOR"
+    },
+    "f10_off": {
+      "decision_floor_n20": false,
+      "oos_positive_recent25": true,
+      "wf": "disclosed-null (no WF harness in this battery -- standing escape hatch)",
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "anchor_forfeit_dollars": 0,
+      "drop_best": false,
+      "aggregate_positive": true,
+      "verdict": "NO_VERDICT_BELOW_FLOOR"
+    },
+    "f7_off": {
+      "decision_floor_n20": false,
+      "oos_positive_recent25": false,
+      "wf": "disclosed-null (no WF harness in this battery -- standing escape hatch)",
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "anchor_forfeit_dollars": 0,
+      "drop_best": false,
+      "aggregate_positive": false,
+      "verdict": "NO_VERDICT_BELOW_FLOOR"
+    },
+    "joint_relax35": {
+      "decision_floor_n20": false,
+      "oos_positive_recent25": true,
+      "wf": "disclosed-null (no WF harness in this battery -- standing escape hatch)",
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "anchor_forfeit_dollars": 0,
+      "drop_best": false,
+      "aggregate_positive": true,
+      "verdict": "NO_VERDICT_BELOW_FLOOR"
+    },
+    "joint_off": {
+      "decision_floor_n20": false,
+      "oos_positive_recent25": true,
+      "wf": "disclosed-null (no WF harness in this battery -- standing escape hatch)",
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "anchor_forfeit_dollars": 0,
+      "drop_best": false,
+      "aggregate_positive": true,
+      "verdict": "NO_VERDICT_BELOW_FLOOR"
+    }
+  },
+  "runtime_seconds": 21.5
+}
