@@ -1,0 +1,3025 @@
+{
+  "generated_at": "2026-08-07T14:41:17.125838",
+  "prereg": "analysis/recommendations/prereg-score-ladder-rung-2026-08-07.md (a780122e)",
+  "ledger": {
+    "mode": "ledger",
+    "qty": 5,
+    "dates": {
+      "2026-08-07": {
+        "est": false,
+        "n_core_rows": 386,
+        "n_binary_events": 10,
+        "arms": {
+          "risky-3": {
+            "rung": 7,
+            "sod_equity": 5342.98,
+            "pdt_enforced": false,
+            "binary": {
+              "trades": [
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:46:03",
+                  "entry_time": "2026-08-07T09:47:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.32,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 20.0,
+                  "exit_reason": "structure_stop @ 771.53",
+                  "exit_time": "2026-08-07T09:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:48:03",
+                  "entry_time": "2026-08-07T09:49:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.27,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 120.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:50:03",
+                  "entry_time": "2026-08-07T09:51:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.5,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:52:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:06:03",
+                  "entry_time": "2026-08-07T12:07:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.14,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -55.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:08:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:08:03",
+                  "entry_time": "2026-08-07T12:09:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:10:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:10:04",
+                  "entry_time": "2026-08-07T12:11:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.09,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:12:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                }
+              ],
+              "skipped": [],
+              "day_pnl": 80.0,
+              "day_trades_used": 6,
+              "pdt_enforced": false,
+              "sod_equity": 5342.98
+            },
+            "ladder": {
+              "trades": [
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:46:03",
+                  "entry_time": "2026-08-07T09:47:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.32,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 20.0,
+                  "exit_reason": "structure_stop @ 771.53",
+                  "exit_time": "2026-08-07T09:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:48:03",
+                  "entry_time": "2026-08-07T09:49:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.27,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 120.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:50:03",
+                  "entry_time": "2026-08-07T09:51:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.5,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:52:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:52:03",
+                  "entry_time": "2026-08-07T09:53:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.55,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -70.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:54:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:54:03",
+                  "entry_time": "2026-08-07T09:55:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.51,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -205.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:56:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:56:03",
+                  "entry_time": "2026-08-07T09:57:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.13,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -65.0,
+                  "exit_reason": "structure_stop @ 771.82",
+                  "exit_time": "2026-08-07T09:58:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:58:03",
+                  "entry_time": "2026-08-07T09:59:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.04,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:00:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:00:04",
+                  "entry_time": "2026-08-07T10:01:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.23,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -85.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:02:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:02:04",
+                  "entry_time": "2026-08-07T10:03:00",
+                  "symbol": "SPY260807C00771000",
+                  "qty": 5,
+                  "entry_premium": 1.66,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -160.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:04:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:14:03",
+                  "entry_time": "2026-08-07T10:15:00",
+                  "symbol": "SPY260807C00770000",
+                  "qty": 5,
+                  "entry_premium": 1.42,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 115.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:16:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:21:03",
+                  "entry_time": "2026-08-07T10:22:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.31,
+                  "score": 10,
+                  "blockers": [
+                    7
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "structure_stop @ 771.51",
+                  "exit_time": "2026-08-07T10:23:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:23:03",
+                  "entry_time": "2026-08-07T10:24:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.52,
+                  "score": 10,
+                  "blockers": [
+                    7
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 80.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:25:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:25:03",
+                  "entry_time": "2026-08-07T10:26:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.85,
+                  "score": 10,
+                  "blockers": [
+                    7
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:27:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:27:03",
+                  "entry_time": "2026-08-07T10:28:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.84,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 110.0,
+                  "exit_reason": "structure_stop @ 771.82",
+                  "exit_time": "2026-08-07T10:29:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:29:03",
+                  "entry_time": "2026-08-07T10:30:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 2.06,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -130.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:31:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:31:04",
+                  "entry_time": "2026-08-07T10:32:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.23,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -65.0,
+                  "exit_reason": "structure_stop @ 772.37",
+                  "exit_time": "2026-08-07T10:33:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:33:03",
+                  "entry_time": "2026-08-07T10:34:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.1,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:35:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:35:03",
+                  "entry_time": "2026-08-07T10:36:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.02,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 30.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:37:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:41:03",
+                  "entry_time": "2026-08-07T10:42:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.43,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:43:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:43:03",
+                  "entry_time": "2026-08-07T10:44:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.35,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 115.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:45:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:46:03",
+                  "entry_time": "2026-08-07T10:47:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.58,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -40.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:48:03",
+                  "entry_time": "2026-08-07T10:49:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.53,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:11:03",
+                  "entry_time": "2026-08-07T11:12:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.18,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -60.0,
+                  "exit_reason": "structure_stop @ 772.96",
+                  "exit_time": "2026-08-07T11:13:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:13:03",
+                  "entry_time": "2026-08-07T11:14:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.08,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:15:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:15:03",
+                  "entry_time": "2026-08-07T11:16:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.11,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:17:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:17:03",
+                  "entry_time": "2026-08-07T11:18:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.07,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:19:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:26:03",
+                  "entry_time": "2026-08-07T11:27:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.9,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -30.0,
+                  "exit_reason": "structure_stop @ 773.11",
+                  "exit_time": "2026-08-07T11:28:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:28:03",
+                  "entry_time": "2026-08-07T11:29:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.9,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:30:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:30:03",
+                  "entry_time": "2026-08-07T11:31:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.92,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:32:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:46:04",
+                  "entry_time": "2026-08-07T11:47:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.13,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:48:03",
+                  "entry_time": "2026-08-07T11:49:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.15,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 70.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:50:03",
+                  "entry_time": "2026-08-07T11:51:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.31,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -80.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:52:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:52:03",
+                  "entry_time": "2026-08-07T11:53:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.67,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:54:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:54:03",
+                  "entry_time": "2026-08-07T11:55:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.64,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -35.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:56:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:56:03",
+                  "entry_time": "2026-08-07T11:57:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence",
+                    "sequence_reclaim"
+                  ],
+                  "dollar_pnl": -65.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:58:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:58:03",
+                  "entry_time": "2026-08-07T11:59:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.96,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence",
+                    "sequence_reclaim"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:00:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:00:03",
+                  "entry_time": "2026-08-07T12:01:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.89,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence",
+                    "sequence_reclaim"
+                  ],
+                  "dollar_pnl": 10.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:02:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:02:03",
+                  "entry_time": "2026-08-07T12:03:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.92,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:04:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:04:03",
+                  "entry_time": "2026-08-07T12:05:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.04,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 30.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:06:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:06:03",
+                  "entry_time": "2026-08-07T12:07:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.14,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -55.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:08:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:08:03",
+                  "entry_time": "2026-08-07T12:09:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:10:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:10:04",
+                  "entry_time": "2026-08-07T12:11:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.09,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:12:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:12:03",
+                  "entry_time": "2026-08-07T12:13:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -75.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:14:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:14:03",
+                  "entry_time": "2026-08-07T12:15:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.94,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 10.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:16:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:31:03",
+                  "entry_time": "2026-08-07T12:32:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.72,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 40.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:33:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:33:03",
+                  "entry_time": "2026-08-07T12:34:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.81,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:35:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:35:03",
+                  "entry_time": "2026-08-07T12:36:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.91,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:37:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:56:03",
+                  "entry_time": "2026-08-07T12:57:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.98,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:58:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:58:03",
+                  "entry_time": "2026-08-07T12:59:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.91,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -80.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:00:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:00:03",
+                  "entry_time": "2026-08-07T13:01:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.77,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 60.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:02:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:06:03",
+                  "entry_time": "2026-08-07T13:07:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.92,
+                  "score": 10,
+                  "blockers": [
+                    5
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:08:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:08:03",
+                  "entry_time": "2026-08-07T13:09:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.91,
+                  "score": 10,
+                  "blockers": [
+                    5
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -30.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:10:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:11:03",
+                  "entry_time": "2026-08-07T13:12:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.87,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -30.0,
+                  "exit_reason": "structure_stop @ 772.2",
+                  "exit_time": "2026-08-07T13:13:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:13:03",
+                  "entry_time": "2026-08-07T13:14:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.83,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:15:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:15:03",
+                  "entry_time": "2026-08-07T13:16:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.79,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:17:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:21:03",
+                  "entry_time": "2026-08-07T13:22:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.84,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "structure_stop @ 772.2",
+                  "exit_time": "2026-08-07T13:23:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:23:03",
+                  "entry_time": "2026-08-07T13:24:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.79,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:25:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:25:03",
+                  "entry_time": "2026-08-07T13:26:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.72,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -10.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:27:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:36:03",
+                  "entry_time": "2026-08-07T13:37:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.77,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:38:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:38:03",
+                  "entry_time": "2026-08-07T13:39:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.75,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:40:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:40:03",
+                  "entry_time": "2026-08-07T13:41:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.8,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:42:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:42:03",
+                  "entry_time": "2026-08-07T13:43:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.78,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "structure_stop @ 772.22",
+                  "exit_time": "2026-08-07T13:44:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:44:03",
+                  "entry_time": "2026-08-07T13:45:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.77,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:46:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                }
+              ],
+              "skipped": [],
+              "day_pnl": -865.0,
+              "day_trades_used": 63,
+              "pdt_enforced": false,
+              "sod_equity": 5342.98
+            },
+            "n_added": 57,
+            "added_pnl": -945.0,
+            "delta_pnl": -945.0
+          },
+          "risky-1": {
+            "rung": 8,
+            "sod_equity": 6338.25,
+            "pdt_enforced": false,
+            "binary": {
+              "trades": [
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:46:03",
+                  "entry_time": "2026-08-07T09:47:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.32,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 20.0,
+                  "exit_reason": "structure_stop @ 771.53",
+                  "exit_time": "2026-08-07T09:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:48:03",
+                  "entry_time": "2026-08-07T09:49:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.27,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 120.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:50:03",
+                  "entry_time": "2026-08-07T09:51:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.5,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:52:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:06:03",
+                  "entry_time": "2026-08-07T12:07:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.14,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -55.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:08:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:08:03",
+                  "entry_time": "2026-08-07T12:09:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:10:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:10:04",
+                  "entry_time": "2026-08-07T12:11:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.09,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:12:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                }
+              ],
+              "skipped": [],
+              "day_pnl": 80.0,
+              "day_trades_used": 6,
+              "pdt_enforced": false,
+              "sod_equity": 6338.25
+            },
+            "ladder": {
+              "trades": [
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:46:03",
+                  "entry_time": "2026-08-07T09:47:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.32,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 20.0,
+                  "exit_reason": "structure_stop @ 771.53",
+                  "exit_time": "2026-08-07T09:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:48:03",
+                  "entry_time": "2026-08-07T09:49:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.27,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 120.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:50:03",
+                  "entry_time": "2026-08-07T09:51:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.5,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:52:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:52:03",
+                  "entry_time": "2026-08-07T09:53:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.55,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -70.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:54:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:54:03",
+                  "entry_time": "2026-08-07T09:55:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.51,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "ribbon_flip",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -205.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T09:56:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:56:03",
+                  "entry_time": "2026-08-07T09:57:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.13,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -65.0,
+                  "exit_reason": "structure_stop @ 771.82",
+                  "exit_time": "2026-08-07T09:58:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T09:58:03",
+                  "entry_time": "2026-08-07T09:59:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.04,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:00:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:00:04",
+                  "entry_time": "2026-08-07T10:01:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.23,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -85.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:02:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:02:04",
+                  "entry_time": "2026-08-07T10:03:00",
+                  "symbol": "SPY260807C00771000",
+                  "qty": 5,
+                  "entry_premium": 1.66,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -160.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:04:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:14:03",
+                  "entry_time": "2026-08-07T10:15:00",
+                  "symbol": "SPY260807C00770000",
+                  "qty": 5,
+                  "entry_premium": 1.42,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 115.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:16:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:21:03",
+                  "entry_time": "2026-08-07T10:22:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.31,
+                  "score": 10,
+                  "blockers": [
+                    7
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "structure_stop @ 771.51",
+                  "exit_time": "2026-08-07T10:23:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:23:03",
+                  "entry_time": "2026-08-07T10:24:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.52,
+                  "score": 10,
+                  "blockers": [
+                    7
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 80.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:25:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:25:03",
+                  "entry_time": "2026-08-07T10:26:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.85,
+                  "score": 10,
+                  "blockers": [
+                    7
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:27:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:27:03",
+                  "entry_time": "2026-08-07T10:28:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.84,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 110.0,
+                  "exit_reason": "structure_stop @ 771.82",
+                  "exit_time": "2026-08-07T10:29:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:29:03",
+                  "entry_time": "2026-08-07T10:30:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 2.06,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -130.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:31:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:31:04",
+                  "entry_time": "2026-08-07T10:32:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.23,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -65.0,
+                  "exit_reason": "structure_stop @ 772.37",
+                  "exit_time": "2026-08-07T10:33:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:33:03",
+                  "entry_time": "2026-08-07T10:34:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.1,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:35:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:35:03",
+                  "entry_time": "2026-08-07T10:36:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.02,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 30.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:37:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:41:03",
+                  "entry_time": "2026-08-07T10:42:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.43,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:43:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:43:03",
+                  "entry_time": "2026-08-07T10:44:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.35,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 115.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:45:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:46:03",
+                  "entry_time": "2026-08-07T10:47:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.58,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -40.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T10:48:03",
+                  "entry_time": "2026-08-07T10:49:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 1.53,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T10:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:11:03",
+                  "entry_time": "2026-08-07T11:12:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.18,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -60.0,
+                  "exit_reason": "structure_stop @ 772.96",
+                  "exit_time": "2026-08-07T11:13:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:13:03",
+                  "entry_time": "2026-08-07T11:14:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.08,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:15:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:15:03",
+                  "entry_time": "2026-08-07T11:16:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.11,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:17:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:17:03",
+                  "entry_time": "2026-08-07T11:18:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.07,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:19:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:26:03",
+                  "entry_time": "2026-08-07T11:27:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.9,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -30.0,
+                  "exit_reason": "structure_stop @ 773.11",
+                  "exit_time": "2026-08-07T11:28:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:28:03",
+                  "entry_time": "2026-08-07T11:29:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.9,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:30:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:30:03",
+                  "entry_time": "2026-08-07T11:31:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.92,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:32:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:46:04",
+                  "entry_time": "2026-08-07T11:47:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.13,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:48:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:48:03",
+                  "entry_time": "2026-08-07T11:49:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.15,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 70.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:50:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:50:03",
+                  "entry_time": "2026-08-07T11:51:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.31,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -80.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:52:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:52:03",
+                  "entry_time": "2026-08-07T11:53:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.67,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:54:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:54:03",
+                  "entry_time": "2026-08-07T11:55:00",
+                  "symbol": "SPY260807C00774000",
+                  "qty": 5,
+                  "entry_premium": 0.64,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -35.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:56:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:56:03",
+                  "entry_time": "2026-08-07T11:57:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence",
+                    "sequence_reclaim"
+                  ],
+                  "dollar_pnl": -65.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T11:58:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T11:58:03",
+                  "entry_time": "2026-08-07T11:59:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.96,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence",
+                    "sequence_reclaim"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:00:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:00:03",
+                  "entry_time": "2026-08-07T12:01:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.89,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence",
+                    "sequence_reclaim"
+                  ],
+                  "dollar_pnl": 10.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:02:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:02:03",
+                  "entry_time": "2026-08-07T12:03:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.92,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:04:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:04:03",
+                  "entry_time": "2026-08-07T12:05:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.04,
+                  "score": 9,
+                  "blockers": [
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 30.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:06:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:06:03",
+                  "entry_time": "2026-08-07T12:07:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.14,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -55.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:08:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:08:03",
+                  "entry_time": "2026-08-07T12:09:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 5.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:10:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "binary",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:10:04",
+                  "entry_time": "2026-08-07T12:11:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.09,
+                  "score": 11,
+                  "blockers": [],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:12:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:12:03",
+                  "entry_time": "2026-08-07T12:13:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 1.06,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -75.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:14:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:14:03",
+                  "entry_time": "2026-08-07T12:15:00",
+                  "symbol": "SPY260807C00773000",
+                  "qty": 5,
+                  "entry_premium": 0.94,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 10.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:16:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:31:03",
+                  "entry_time": "2026-08-07T12:32:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.72,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 40.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:33:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:33:03",
+                  "entry_time": "2026-08-07T12:34:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.81,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:35:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:35:03",
+                  "entry_time": "2026-08-07T12:36:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.91,
+                  "score": 10,
+                  "blockers": [
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:37:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:56:03",
+                  "entry_time": "2026-08-07T12:57:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.98,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T12:58:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T12:58:03",
+                  "entry_time": "2026-08-07T12:59:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.91,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -80.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:00:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:00:03",
+                  "entry_time": "2026-08-07T13:01:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.77,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 60.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:02:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:06:03",
+                  "entry_time": "2026-08-07T13:07:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.92,
+                  "score": 10,
+                  "blockers": [
+                    5
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:08:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:08:03",
+                  "entry_time": "2026-08-07T13:09:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.91,
+                  "score": 10,
+                  "blockers": [
+                    5
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -30.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:10:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:11:03",
+                  "entry_time": "2026-08-07T13:12:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.87,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -30.0,
+                  "exit_reason": "structure_stop @ 772.2",
+                  "exit_time": "2026-08-07T13:13:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:13:03",
+                  "entry_time": "2026-08-07T13:14:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.83,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:15:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:15:03",
+                  "entry_time": "2026-08-07T13:16:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.79,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 25.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:17:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:21:03",
+                  "entry_time": "2026-08-07T13:22:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.84,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "structure_stop @ 772.2",
+                  "exit_time": "2026-08-07T13:23:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:23:03",
+                  "entry_time": "2026-08-07T13:24:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.79,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -45.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:25:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:25:03",
+                  "entry_time": "2026-08-07T13:26:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.72,
+                  "score": 9,
+                  "blockers": [
+                    5,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -10.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:27:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:36:03",
+                  "entry_time": "2026-08-07T13:37:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.77,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:38:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:38:03",
+                  "entry_time": "2026-08-07T13:39:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.75,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 20.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:40:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:40:03",
+                  "entry_time": "2026-08-07T13:41:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.8,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:42:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:42:03",
+                  "entry_time": "2026-08-07T13:43:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.78,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": -15.0,
+                  "exit_reason": "structure_stop @ 772.22",
+                  "exit_time": "2026-08-07T13:44:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                },
+                {
+                  "lane": "rescue",
+                  "side": "C",
+                  "signal_ts": "2026-08-07T13:44:03",
+                  "entry_time": "2026-08-07T13:45:00",
+                  "symbol": "SPY260807C00772000",
+                  "qty": 5,
+                  "entry_premium": 0.77,
+                  "score": 8,
+                  "blockers": [
+                    5,
+                    7,
+                    10
+                  ],
+                  "triggers": [
+                    "level_reclaim",
+                    "confluence"
+                  ],
+                  "dollar_pnl": 50.0,
+                  "exit_reason": "ribbon_flip_back",
+                  "exit_time": "2026-08-07T13:46:00",
+                  "pricing": "REAL_OPRA_1MIN"
+                }
+              ],
+              "skipped": [],
+              "day_pnl": -865.0,
+              "day_trades_used": 63,
+              "pdt_enforced": false,
+              "sod_equity": 6338.25
+            },
+            "n_added": 57,
+            "added_pnl": -945.0,
+            "delta_pnl": -945.0
+          }
+        }
+      }
+    },
+    "per_arm_week": {
+      "risky-3": {
+        "rung": 7,
+        "n_added": 57,
+        "added_pnl": -945.0,
+        "delta_pnl": -945.0
+      },
+      "risky-1": {
+        "rung": 8,
+        "n_added": 57,
+        "added_pnl": -945.0,
+        "delta_pnl": -945.0
+      }
+    }
+  }
+}
