@@ -184,5 +184,13 @@ broker path anyway until the Tastytrade tokens rotate (or a new broker is approv
 - 2026-08-07: doc created; extraction + autopsy + v0 spec pre-registered. Data probe: yfinance
   GC/NQ/ES/MES/MGC 15m×60d + GC 1h×730d + ^VIX 15m×60d/daily×2y all available, $0. Map
   workflow (6 readers) done; pre-registration frozen at
-  `backtest/futures/analysis/SSR-battery/DESIGN.md`; build+verify workflow launched.
-  Battery verdict appended below when it lands.
+  `backtest/futures/analysis/SSR-battery/DESIGN.md`.
+- 2026-08-07 (later): **v0 battery KILL** (0/24, 0/8) — commit c28f15bd. **v1 level-fidelity
+  battery KILL at FDR** (0/48, 0/16) **but 5 PULSE cells, all SHORT-side** (NQ 15m anchor-2000
+  best p=0.0135 OOS +$1,324/tr; GC 1h OOS n≈40 +$816-841/tr beats B&H) — commit 781625e3.
+  Diagnostics: stops 3× runner payoffs; high-side sweeps (shorts) = the only profitable
+  level families. Exhibit 4,429.8 line unreconstructible from front-month data (contract
+  basis / chart TZ) — UNRESOLVED, non-gating. Per pre-registered PULSE rule → shipped
+  `Gamma_SsrShadow` forward own-book shadow (two frozen short configs); arming bar ≥20 trips
+  + expectancy + beats null; J holds REVOKE. Candidate filed:
+  `strategy/candidates/2026-08-07-ssr-sweep-shift-retest-pivot-liquidity.md`.

@@ -69,8 +69,13 @@ _BANNED_PATHSPECS = {"-A", "--all", ".", "*", "-a"}
 
 
 def _git(args: list[str]) -> subprocess.CompletedProcess:
+    # encoding/errors pinned: text=True alone decodes with the Windows ANSI code page
+    # (cp1252 here), and a single non-cp1252 byte in HOOK output (e.g. a UTF-8 curly
+    # quote, 0x9d) crashes the reader thread and aborts the commit mid-flight
+    # (observed 2026-08-07). Git emits UTF-8; decode as UTF-8 and never crash on noise.
     return subprocess.run(
-        ["git", *args], cwd=str(REPO), capture_output=True, text=True
+        ["git", *args], cwd=str(REPO), capture_output=True, text=True,
+        encoding="utf-8", errors="replace",
     )
 
 
