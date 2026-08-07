@@ -339,16 +339,64 @@ def test_symbol_side_char_parsing():
 @pytest.mark.skipif(not ANCHOR_DATA_AVAILABLE, reason="anchor SPY file or fills-ledger.jsonl missing")
 @pytest.mark.parametrize("arm_id", ["safe-3", "risky-1", "risky-3"])
 def test_anchor_pass_rate_clears_threshold(arm_id):
+    """pass_rate is a FIDELITY-ONLY metric (n_pass / n_replayable, FLEET-ANCHOR-EXIT-WALK-
+    FIDELITY-DRIFT fix 2026-08-07) -- n_anchors (total mined) and n_replayable (had an OPRA
+    cache to attempt) are asserted SEPARATELY so a coverage gap can never again silently
+    masquerade as an exit-fidelity failure the way it did pre-fix (54-68% band, root-caused
+    to be ENTIRELY n_data_gap rows counted as automatic fails, not a real exit-walk bug)."""
     cfg = far.ArmReplayConfig.for_arm(arm_id)
     spy = far._load_anchor_spy()
     ribbon = far.efr.build_ribbon_lookup(spy)
     out = far.run_anchor_validation(cfg, spy, ribbon)
     assert out["n_anchors"] >= 10, f"{arm_id}: too few mined anchors ({out['n_anchors']}) to trust the rate"
+    assert out["n_replayable"] >= 10, (
+        f"{arm_id}: only {out['n_replayable']} of {out['n_anchors']} mined anchors had an "
+        f"OPRA cache to replay against -- too few to trust the fidelity rate even though "
+        f"coverage itself isn't a fidelity bug")
     assert out["pass_rate"] >= far.ANCHOR_PASS_THRESHOLD, (
-        f"{arm_id}: anchor pass rate {out['pass_rate']:.0%} dropped below "
-        f"{far.ANCHOR_PASS_THRESHOLD:.0%} -- exit-walk fidelity regressed, or the anchor "
-        f"mining/replay pipeline broke silently")
+        f"{arm_id}: anchor pass rate {out['pass_rate']:.0%} (over {out['n_replayable']} "
+        f"replayable fills) dropped below {far.ANCHOR_PASS_THRESHOLD:.0%} -- exit-walk "
+        f"fidelity regressed, or the anchor mining/replay pipeline broke silently")
     assert out["unvalidated"] is False
+
+
+@pytest.mark.skipif(not ANCHOR_DATA_AVAILABLE, reason="anchor SPY file or fills-ledger.jsonl missing")
+@pytest.mark.parametrize("arm_id", ["safe-3", "risky-1", "risky-3"])
+def test_anchor_pass_rate_denominator_excludes_data_gaps(arm_id):
+    """RED-PROOFS the exact bug this fire fixed: a data-coverage gap (missing OPRA cache /
+    no SPY day for that date) must NOT be counted as an automatic anchor FAIL. Reverting
+    run_anchor_validation's denominator back to `n_pass / n_anchors` (the pre-fix formula)
+    makes THIS test fail because n_data_gap > 0 is real for all three arms today -- confirmed
+    live (2026-08-07): safe-3 n_data_gap=7/34, risky-1=13/37, risky-3=17/54, all from
+    NO_OPRA_CACHE_OR_NO_ENTRY_PREMIUM / NO_SPY_DAY rows, zero of them exit-fidelity checks."""
+    cfg = far.ArmReplayConfig.for_arm(arm_id)
+    spy = far._load_anchor_spy()
+    ribbon = far.efr.build_ribbon_lookup(spy)
+    out = far.run_anchor_validation(cfg, spy, ribbon)
+    # Bookkeeping identity: every mined anchor is EITHER replayable OR a disclosed data gap.
+    assert out["n_replayable"] + out["n_data_gap"] == out["n_anchors"]
+    n_data_gap_rows = sum(1 for r in out["rows"] if r.get("replay_status") != "OK")
+    assert n_data_gap_rows == out["n_data_gap"]
+    # This arm's real fills DO include data gaps today -- if this ever goes to 0 because the
+    # OPRA cache backfilled, that's fine (the assert below just stops being exercised), but
+    # right now it must be > 0 or this guard isn't actually proving anything for this arm.
+    assert out["n_data_gap"] > 0, (
+        f"{arm_id}: expected >0 data-coverage gaps today (OPRA cache incomplete for older "
+        f"real fills) -- if this now legitimately reads 0, this test's live-evidence claim "
+        f"is stale and should be re-verified, not silently trusted")
+    # THE bug this fire fixed: pass_rate must be computed over n_replayable, not n_anchors.
+    # A data-gap-heavy arm with PERFECT fidelity on its replayable population must NOT be
+    # dragged toward UNVALIDATED by rows that were never even judged.
+    expected_pass_rate = round(out["n_pass"] / out["n_replayable"], 4) if out["n_replayable"] else 0.0
+    assert out["pass_rate"] == expected_pass_rate
+    buggy_pre_fix_rate = out["n_pass"] / out["n_anchors"]
+    assert out["pass_rate"] > buggy_pre_fix_rate, (
+        f"{arm_id}: fixed pass_rate ({out['pass_rate']}) should exceed what the pre-fix "
+        f"all-anchors-denominator formula would have produced ({buggy_pre_fix_rate:.4f}) "
+        f"whenever n_data_gap > 0 -- if it doesn't, the fix regressed")
+    # opra_coverage_rate is the SEPARATE, still-visible signal for the data gap itself.
+    assert out["opra_coverage_rate"] == round(out["n_replayable"] / out["n_anchors"], 4)
+    assert 0.0 < out["opra_coverage_rate"] < 1.0
 
 
 # ---------------------------------------------------------------------------------------- #

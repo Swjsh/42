@@ -110,6 +110,19 @@ approximation, see `exit_manager_walk.py`'s own FILL-PRICE CONVENTION docstring)
 writes for that arm is labeled `"UNVALIDATED"` at the top level AND in the markdown banner --
 never silently trusted just because the tool ran without an exception.**
 
+**pass_rate's DENOMINATOR is REPLAYABLE fills only, not all mined fills** (fixed
+2026-08-07, FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT): a real fill whose OPRA contract-bar
+cache is missing (`replay_status != "OK"`, e.g. `NO_OPRA_CACHE_OR_NO_ENTRY_PREMIUM` /
+`NO_SPY_DAY`) is never even attempted by `walk_exit_manager` -- it has no `anchor_pass`
+verdict, so counting it as an automatic FAIL (the original formula: `n_pass / n_anchors`
+over ALL mined fills) conflates "no data to judge fidelity" with "judged and wrong". This
+mattered: the systemic 54-68% pass rate flagged in `queue.md`/STATUS.md's `## Known broken`
+was ENTIRELY this conflation, not an exit-walk bug -- once excluded, all three arms clear
+88-94% fidelity on the trades that could actually be replayed. `n_replayable` /
+`n_data_gap` / `opra_coverage_rate` / `coverage_note` are separate, visible fields (C7: the
+coverage gap itself stays disclosed, it's just no longer silently blended into the fidelity
+number it doesn't belong in).
+
 A REAL BUG THIS ANCHOR PASS CAUGHT (2026-08-02, disclosed rather than quietly fixed and
 forgotten): the first draft's FIFO reconciler tracked one accumulator per SYMBOL for its
 WHOLE leg history -- since OCC symbols are date-scoped but NOT round-trip-scoped (the same
@@ -627,7 +640,22 @@ def run_anchor_validation(config: ArmReplayConfig, spy_df: pd.DataFrame,
     exit_shape/structure_stop_enabled this config resolves for the counterfactual runs --
     i.e. the anchor validates the EXIT-LAYER + SIZING fidelity (known real entry premium/
     qty/time, nothing re-detected), same discipline as bold_fullhist_replay.
-    run_anchor_validation."""
+    run_anchor_validation.
+
+    DENOMINATOR FIX (FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT, root-caused 2026-08-07 --
+    see queue.md/STATUS.md same date): the original build divided `n_pass` by `n_anchors`
+    (ALL real fills mined, INCLUDING ones with `replay_status != "OK"` -- no OPRA contract-
+    bar cache for that symbol/date, or no SPY day). Those rows are never even attempted by
+    `walk_exit_manager` -- they carry no `anchor_pass` verdict at all -- yet the old formula
+    silently counted every one of them as a FAIL. Live-verified this fixed the exact
+    "systemic 54-68%" symptom flagged in STATUS.md's `## Known broken`: measured on
+    2026-08-07, safe-3/risky-1/risky-3 have 7/13/17 data-gap rows (of 34/37/54 mined) and
+    88.5%/87.0%/94.4% fidelity among the rows that COULD be replayed -- the exit-walk
+    mechanism was never broken; the metric was conflating "no data to judge" with "judged
+    and wrong". `pass_rate` now divides by `n_replayable` (rows with `replay_status=="OK"`)
+    so it measures EXIT FIDELITY ONLY; `opra_coverage_rate` is a new, separate field that
+    keeps the data-coverage gap itself visible (C7: audit outputs, don't just hide a bad
+    denominator) rather than silently dropping it."""
     fills = mine_real_arm_fills(config.arm_id)
     exit_shape = resolve_exit_shape(config)
     trigger_levels = _load_arm_trigger_levels(config.arm_id)
@@ -668,17 +696,31 @@ def run_anchor_validation(config: ArmReplayConfig, spy_df: pd.DataFrame,
             "within_tolerance": within_tol, "anchor_pass": row_pass, "replay_status": "OK",
         })
     n_anchors = len(fills)
-    pass_rate = (n_pass / n_anchors) if n_anchors else 0.0
+    n_data_gap = sum(1 for r in rows if r.get("replay_status") != "OK")
+    n_replayable = n_anchors - n_data_gap
+    pass_rate = (n_pass / n_replayable) if n_replayable else 0.0
+    opra_coverage_rate = (n_replayable / n_anchors) if n_anchors else 0.0
     return {
-        "arm_id": config.arm_id, "n_anchors": n_anchors, "n_pass": n_pass,
-        "pass_rate": round(pass_rate, 4), "all_pass": (n_anchors > 0 and n_pass == n_anchors),
-        "unvalidated": (n_anchors == 0 or pass_rate < ANCHOR_PASS_THRESHOLD),
+        "arm_id": config.arm_id, "n_anchors": n_anchors,
+        "n_replayable": n_replayable, "n_data_gap": n_data_gap,
+        "opra_coverage_rate": round(opra_coverage_rate, 4),
+        "n_pass": n_pass,
+        "pass_rate": round(pass_rate, 4),
+        "all_pass": (n_replayable > 0 and n_pass == n_replayable),
+        "unvalidated": (n_replayable == 0 or pass_rate < ANCHOR_PASS_THRESHOLD),
         "unvalidated_threshold": ANCHOR_PASS_THRESHOLD,
         "tolerance_note": (f"pass = same win/loss sign AND |replay-real| <= "
                             f"max(${ANCHOR_TOLERANCE_DOLLARS}, {ANCHOR_TOLERANCE_PCT:.0%} of "
                             f"|real|) -- same convention as bold_fullhist_replay.py's own "
                             f"anchor gate; exact-cent parity not expected (resting-order-fill "
                             f"approximation, see exit_manager_walk.py's FILL-PRICE CONVENTION)."),
+        "coverage_note": (f"{n_replayable}/{n_anchors} real fills had an OPRA contract-bar "
+                           f"cache available to even attempt a replay ({opra_coverage_rate:.0%} "
+                           f"coverage); pass_rate is computed over those {n_replayable} ONLY -- "
+                           f"the other {n_data_gap} are data-coverage gaps (no cached option "
+                           f"bars / no SPY day for that date), not exit-fidelity failures, and "
+                           f"are excluded from the fidelity denominator (see this function's "
+                           f"docstring, FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT 2026-08-07)."),
         "rows": rows,
     }
 
@@ -710,9 +752,13 @@ def write_scorecard(replay_out: dict, anchor_out: dict, config: ArmReplayConfig,
         "verdict_label": "UNVALIDATED" if unvalidated else "ANCHOR-VALIDATED",
         "unvalidated_reason": (
             None if not unvalidated else
-            (f"{anchor_out['n_pass']}/{anchor_out['n_anchors']} real fills reproduce within "
-             f"tolerance ({anchor_out['pass_rate']:.0%} < {ANCHOR_PASS_THRESHOLD:.0%} threshold)"
-             if anchor_out["n_anchors"] > 0 else "zero real fills available to anchor against")
+            (f"{anchor_out['n_pass']}/{anchor_out['n_replayable']} REPLAYABLE real fills "
+             f"reproduce within tolerance ({anchor_out['pass_rate']:.0%} < "
+             f"{ANCHOR_PASS_THRESHOLD:.0%} threshold; {anchor_out['n_data_gap']}/"
+             f"{anchor_out['n_anchors']} mined fills excluded as data-coverage gaps, not "
+             f"fidelity failures -- see coverage_note)"
+             if anchor_out["n_replayable"] > 0 else
+             "zero real fills had OPRA cache available to even attempt a replay")
         ),
         "anchor_covers_this_strike_tier": anchor_covers_strike_tier,
         "atm_tier_limitation": (
@@ -755,7 +801,8 @@ def write_scorecard(replay_out: dict, anchor_out: dict, config: ArmReplayConfig,
     h = out["headline"]
     log(f"HEADLINE [{config.arm_id}@{config.strike_tiers_label}] verdict={out['verdict_label']} "
         f"total_pnl=${h['total_pnl']:+.2f} n_trades={h['n_trades']} WR={h.get('win_rate')} "
-        f"anchor={anchor_out['n_pass']}/{anchor_out['n_anchors']}")
+        f"anchor={anchor_out['n_pass']}/{anchor_out['n_replayable']} "
+        f"(coverage {anchor_out['n_replayable']}/{anchor_out['n_anchors']})")
 
 
 
@@ -823,10 +870,15 @@ def write_markdown(out: dict, path: Path) -> None:
         "",
         "## Anchor validation (OP-16 sim-accuracy gate)",
         "",
-        f"**{a['n_pass']}/{a['n_anchors']} real {cfg['arm_id']} engine fills reproduce within "
-        f"tolerance ({a['pass_rate']:.0%}). ALL PASS: {a['all_pass']}.**",
+        f"**{a['n_pass']}/{a.get('n_replayable', a['n_anchors'])} REPLAYABLE real "
+        f"{cfg['arm_id']} engine fills reproduce within tolerance ({a['pass_rate']:.0%}). "
+        f"ALL PASS: {a['all_pass']}.** "
+        f"(coverage: {a.get('n_replayable', a['n_anchors'])}/{a['n_anchors']} mined fills "
+        f"had an OPRA cache to replay against, {a.get('opra_coverage_rate', 1.0):.0%}.)",
         "",
         f"> {a['tolerance_note']}",
+        "",
+        f"> {a.get('coverage_note', '')}",
         "",
         "| Date | Symbol | Real P&L | Replay P&L | Same sign | Within tol | PASS |",
         "|---|---|---|---|---|---|---|",
