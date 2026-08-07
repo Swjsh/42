@@ -1,0 +1,6597 @@
+{
+ "generated_at": "2026-08-07T12:23:00.865402-04:00",
+ "variants": {
+  "est_calibration": {
+   "iv": 0.19622418268978797,
+   "fit": "least-squares over 6 real fills",
+   "checks": [
+    {
+     "fill": "772C entry safe-2 09:46:34",
+     "actual": 1.67,
+     "est": 1.405,
+     "err_pct": -15.9,
+     "spy_at": 771.57
+    },
+    {
+     "fill": "772C entry safe-3 09:47:06",
+     "actual": 1.33,
+     "est": 1.336,
+     "err_pct": 0.4,
+     "spy_at": 771.42
+    },
+    {
+     "fill": "774C entry risky-3 09:47:09",
+     "actual": 0.62,
+     "est": 0.639,
+     "err_pct": 3.1,
+     "spy_at": 771.42
+    },
+    {
+     "fill": "772C stop safe-2 ~10:01:30",
+     "actual": 1.16,
+     "est": 1.164,
+     "err_pct": 0.3,
+     "spy_at": 771.09
+    },
+    {
+     "fill": "772C stop safe-3 ~10:02:00",
+     "actual": 1.11,
+     "est": 1.251,
+     "err_pct": 12.7,
+     "spy_at": 771.3
+    },
+    {
+     "fill": "774C stop risky-3 ~10:02:00",
+     "actual": 0.45,
+     "est": 0.582,
+     "err_pct": 29.4,
+     "spy_at": 771.3
+    }
+   ]
+  },
+  "variants": {
+   "HEAD": {
+    "disable_filters": null,
+    "n_entries": 2,
+    "closed_pnl_usd_EST": -82.8,
+    "open_mtm_usd_EST": 0,
+    "trades": [
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "entry_tick": "2026-08-07T09:46:00",
+      "strike": 772,
+      "entry_premium_EST": 1.417,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 771.53",
+      "exit_time": "2026-08-07 10:00:00",
+      "pnl_usd_EST": -41.4,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.279,
+        "ts": "2026-08-07 10:00:00",
+        "leg_pnl": -41.4
+       }
+      ],
+      "spy_entry": 771.595
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "entry_tick": "2026-08-07T12:06:00",
+      "strike": 773,
+      "entry_premium_EST": 1.393,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 773.11",
+      "exit_time": "2026-08-07 12:15:00",
+      "pnl_usd_EST": -41.4,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.255,
+        "ts": "2026-08-07 12:15:00",
+        "leg_pnl": -41.4
+       }
+      ],
+      "spy_entry": 773.225
+     }
+    ],
+    "scan": [
+     {
+      "trigger_bar": "2026-08-07T09:35",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       6,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:55",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:00",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:05",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:10",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       7
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:25",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:30",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:35",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:40",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:45",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:50",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:55",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:00",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:05",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:10",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:15",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:20",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:25",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:30",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:35",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:40",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:45",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:50",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:55",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       10
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:05",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:10",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       7,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:15",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     }
+    ]
+   },
+   "f10_relaxed": {
+    "disable_filters": [
+     10
+    ],
+    "n_entries": 3,
+    "closed_pnl_usd_EST": -150.6,
+    "open_mtm_usd_EST": 0,
+    "trades": [
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "entry_tick": "2026-08-07T09:46:00",
+      "strike": 772,
+      "entry_premium_EST": 1.417,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 771.53",
+      "exit_time": "2026-08-07 10:00:00",
+      "pnl_usd_EST": -41.4,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.279,
+        "ts": "2026-08-07 10:00:00",
+        "leg_pnl": -41.4
+       }
+      ],
+      "spy_entry": 771.595
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "entry_tick": "2026-08-07T10:26:00",
+      "strike": 773,
+      "entry_premium_EST": 1.389,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 771.82",
+      "exit_time": "2026-08-07 10:45:00",
+      "pnl_usd_EST": -67.8,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.163,
+        "ts": "2026-08-07 10:45:00",
+        "leg_pnl": -67.8
+       }
+      ],
+      "spy_entry": 772.72
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "entry_tick": "2026-08-07T12:06:00",
+      "strike": 773,
+      "entry_premium_EST": 1.393,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 773.11",
+      "exit_time": "2026-08-07 12:15:00",
+      "pnl_usd_EST": -41.4,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.255,
+        "ts": "2026-08-07 12:15:00",
+        "leg_pnl": -41.4
+       }
+      ],
+      "spy_entry": 773.225
+     }
+    ],
+    "scan": [
+     {
+      "trigger_bar": "2026-08-07T09:35",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       6,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:55",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:00",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:05",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:10",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       7
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:25",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:30",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:35",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:40",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:45",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:50",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:55",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:00",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:05",
+      "verdict": "SKIP_BULL_1100_1200",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:10",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:15",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:20",
+      "verdict": "SKIP_BULL_1100_1200",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:25",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:30",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:35",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:40",
+      "verdict": "SKIP_BULL_1100_1200",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:45",
+      "verdict": "SKIP_BULL_1100_1200",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:50",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       7
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:55",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       7
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:05",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:10",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       7,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:15",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     }
+    ]
+   },
+   "f7_relaxed": {
+    "disable_filters": [
+     7
+    ],
+    "n_entries": 2,
+    "closed_pnl_usd_EST": 58.2,
+    "open_mtm_usd_EST": 0,
+    "trades": [
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "entry_tick": "2026-08-07T09:46:00",
+      "strike": 772,
+      "entry_premium_EST": 1.417,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 771.53",
+      "exit_time": "2026-08-07 10:00:00",
+      "pnl_usd_EST": -41.4,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.279,
+        "ts": "2026-08-07 10:00:00",
+        "leg_pnl": -41.4
+       }
+      ],
+      "spy_entry": 771.595
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "entry_tick": "2026-08-07T10:21:00",
+      "strike": 772,
+      "entry_premium_EST": 1.408,
+      "qty": 3,
+      "exit_reason": "data_exhausted_force_close",
+      "exit_time": "2026-08-07 12:20:00",
+      "pnl_usd_EST": 99.6,
+      "legs": [
+       {
+        "stage": "force_close",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.74,
+        "ts": "2026-08-07 12:20:00",
+        "leg_pnl": 99.6
+       }
+      ],
+      "spy_entry": 771.74
+     }
+    ],
+    "scan": [
+     {
+      "trigger_bar": "2026-08-07T09:35",
+      "verdict": "HOLD",
+      "bull_score": 8,
+      "bull_blockers": [
+       6,
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:55",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:00",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:05",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:10",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:25",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:30",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:35",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:40",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:55",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:00",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:05",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:10",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:15",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:20",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:25",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:30",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:35",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:40",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:55",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:05",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:10",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:15",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       10,
+       11
+      ],
+      "status": "OK"
+     }
+    ]
+   },
+   "f7_f10_relaxed": {
+    "disable_filters": [
+     7,
+     10
+    ],
+    "n_entries": 2,
+    "closed_pnl_usd_EST": 58.2,
+    "open_mtm_usd_EST": 0,
+    "trades": [
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "entry_tick": "2026-08-07T09:46:00",
+      "strike": 772,
+      "entry_premium_EST": 1.417,
+      "qty": 3,
+      "exit_reason": "structure_stop @ 771.53",
+      "exit_time": "2026-08-07 10:00:00",
+      "pnl_usd_EST": -41.4,
+      "legs": [
+       {
+        "stage": "structure_stop",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.279,
+        "ts": "2026-08-07 10:00:00",
+        "leg_pnl": -41.4
+       }
+      ],
+      "spy_entry": 771.595
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "entry_tick": "2026-08-07T10:21:00",
+      "strike": 772,
+      "entry_premium_EST": 1.408,
+      "qty": 3,
+      "exit_reason": "data_exhausted_force_close",
+      "exit_time": "2026-08-07 12:20:00",
+      "pnl_usd_EST": 99.6,
+      "legs": [
+       {
+        "stage": "force_close",
+        "kind": "SELL_ALL",
+        "qty": 3,
+        "price": 1.74,
+        "ts": "2026-08-07 12:20:00",
+        "leg_pnl": 99.6
+       }
+      ],
+      "spy_entry": 771.74
+     }
+    ],
+    "scan": [
+     {
+      "trigger_bar": "2026-08-07T09:35",
+      "verdict": "HOLD",
+      "bull_score": 9,
+      "bull_blockers": [
+       6,
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T09:55",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:00",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:05",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:10",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "verdict": "ENTER_BULL",
+      "bull_score": 11,
+      "bull_blockers": [],
+      "status": "OK"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:25",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:30",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:35",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:40",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T10:55",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:00",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:05",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:10",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:15",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:20",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:25",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:30",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:35",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:40",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:45",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:50",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T11:55",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:05",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:10",
+      "skipped": "IN_POSITION"
+     },
+     {
+      "trigger_bar": "2026-08-07T12:15",
+      "verdict": "HOLD",
+      "bull_score": 10,
+      "bull_blockers": [
+       11
+      ],
+      "status": "OK"
+     }
+    ]
+   }
+  }
+ },
+ "f10_provenance": {
+  "note": "green(close>open) AND vol>=0.7*mean(prior 20 bars), per feed",
+  "feeds": {
+   "iex": {
+    "n": 35,
+    "f10_pass_rate": 0.143,
+    "vol_ok_rate": 0.457,
+    "green_rate": 0.429,
+    "bars": [
+     {
+      "bar": "09:30",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "09:35",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "09:40",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "09:45",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "09:50",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "09:55",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:00",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:05",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:10",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:15",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "10:20",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:25",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:30",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:35",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:40",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:45",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:50",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:55",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:00",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:05",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:10",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:15",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:20",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:25",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "11:30",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:35",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:40",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:45",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:50",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:55",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "12:00",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "12:05",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "12:10",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "12:15",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "12:20",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     }
+    ]
+   },
+   "sip": {
+    "n": 27,
+    "f10_pass_rate": 0.296,
+    "vol_ok_rate": 0.481,
+    "green_rate": 0.519,
+    "bars": [
+     {
+      "bar": "09:55",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:00",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:05",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:10",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:15",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "10:20",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "10:25",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "10:30",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:35",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:40",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:45",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:50",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "10:55",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:00",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:05",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "11:10",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "11:15",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:20",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "11:25",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "11:30",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:35",
+      "green": false,
+      "vol_ok": true,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:40",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:45",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:50",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "11:55",
+      "green": false,
+      "vol_ok": false,
+      "f10_pass": false
+     },
+     {
+      "bar": "12:00",
+      "green": true,
+      "vol_ok": true,
+      "f10_pass": true
+     },
+     {
+      "bar": "12:05",
+      "green": true,
+      "vol_ok": false,
+      "f10_pass": false
+     }
+    ]
+   },
+   "disagreement_bars": [
+    "10:20",
+    "10:25",
+    "11:05",
+    "11:10",
+    "11:20"
+   ]
+  }
+ },
+ "fidelity": {
+  "accounts": {
+   "safe": {
+    "n_trigger_bars": 34,
+    "n_replayed_ok": 34,
+    "verdict_match": 34,
+    "full_match": 33,
+    "rows": [
+     {
+      "trigger_bar": "2026-08-07T09:30",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 7,
+       "bear_blockers": [
+        1,
+        5,
+        6,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        1,
+        5,
+        6,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.44
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:30",
+       "status": "OK",
+       "spy": 771.44,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 7,
+       "triggers": [],
+       "bear_blockers": [
+        1,
+        5,
+        6,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        1,
+        5,
+        6,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 7,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:35",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        6,
+        8
+       ],
+       "bull_blockers": [
+        6,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.13
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:35",
+       "status": "OK",
+       "spy": 771.13,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        6,
+        8
+       ],
+       "bull_blockers": [
+        6,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.64,
+        771.53,
+        771.63
+       ],
+       "only_recon": [
+        769.61,
+        771.51,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "ENTER_BULL"
+      ],
+      "live": {
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 6,
+       "bull_score": 11,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+       ],
+       "spy": 772.045
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:40",
+       "status": "OK",
+       "spy": 772.045,
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 6,
+       "bull_score": 11,
+       "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+       ],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "trigger_level": 771.53
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.62,
+        771.53,
+        772.34
+       ],
+       "only_recon": [
+        769.61,
+        771.51,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:45",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 771.705
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:45",
+       "status": "OK",
+       "spy": 771.705,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.62,
+        772.34
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:50",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 771.98
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:50",
+       "status": "OK",
+       "spy": 771.98,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.53,
+        772.34
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:55",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.15
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:55",
+       "status": "OK",
+       "spy": 771.15,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.47,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:00",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 770.665
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:00",
+       "status": "OK",
+       "spy": 770.665,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.38,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:05",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 770.495
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:05",
+       "status": "OK",
+       "spy": 770.495,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": false,
+       "bear_blockers": true,
+       "bull_blockers": false,
+       "triggers": true
+      },
+      "all_match": false,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        769.62,
+        770.46,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:10",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 769.88
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:10",
+       "status": "OK",
+       "spy": 769.88,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        769.62,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7
+       ],
+       "triggers": [],
+       "spy": 771.69
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:15",
+       "status": "OK",
+       "spy": 771.69,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        769.62,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 772.045
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:20",
+       "status": "OK",
+       "spy": 772.045,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        772.37,
+        772.93
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:25",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.125
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:25",
+       "status": "OK",
+       "spy": 773.125,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        772.37,
+        773.33
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:30",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.48
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:30",
+       "status": "OK",
+       "spy": 772.48,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        773.33
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:35",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.89
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:35",
+       "status": "OK",
+       "spy": 771.89,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.76,
+        773.33
+       ],
+       "only_recon": [
+        771.82,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:40",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.785
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:40",
+       "status": "OK",
+       "spy": 771.785,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.35
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:45",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.39
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:45",
+       "status": "OK",
+       "spy": 772.39,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.35
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:50",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.125
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:50",
+       "status": "OK",
+       "spy": 772.125,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.35
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:55",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.805
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:55",
+       "status": "OK",
+       "spy": 772.805,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 12,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        772.96,
+        773.35
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:00",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.725
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:00",
+       "status": "OK",
+       "spy": 772.725,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 12,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        772.96,
+        773.35
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:05",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.015
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:05",
+       "status": "OK",
+       "spy": 773.015,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 12,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.0,
+        773.37
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:10",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.07
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:10",
+       "status": "OK",
+       "spy": 773.07,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.37
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:15",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.88
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:15",
+       "status": "OK",
+       "spy": 772.88,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.37
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:20",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.54
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:20",
+       "status": "OK",
+       "spy": 773.54,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.4,
+        773.88
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:25",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        11
+       ],
+       "triggers": [],
+       "spy": 773.66
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:25",
+       "status": "OK",
+       "spy": 773.66,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.4,
+        773.88
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:30",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.47
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:30",
+       "status": "OK",
+       "spy": 773.47,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.88
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:35",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.385
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:35",
+       "status": "OK",
+       "spy": 773.385,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.89
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:40",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.17
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:40",
+       "status": "OK",
+       "spy": 773.17,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.92
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:45",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.575
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:45",
+       "status": "OK",
+       "spy": 773.575,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.92
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:50",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 773.29
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:50",
+       "status": "OK",
+       "spy": 773.29,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.89
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:55",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 773.08
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:55",
+       "status": "OK",
+       "spy": 773.08,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.89
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "ENTER_BULL"
+      ],
+      "live": {
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 4,
+       "bull_score": 11,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "triggers": [
+        "level_reclaim",
+        "confluence"
+       ],
+       "spy": 773.145
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:00",
+       "status": "OK",
+       "spy": 773.145,
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 4,
+       "bull_score": 11,
+       "triggers": [
+        "level_reclaim",
+        "confluence"
+       ],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "trigger_level": 773.11
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.77,
+        773.64
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:05",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.13
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:05",
+       "status": "OK",
+       "spy": 773.13,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.77
+       ],
+       "only_recon": [
+        772.75
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:10",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.06
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:10",
+       "status": "OK",
+       "spy": 773.06,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": true,
+       "only_live": [],
+       "only_recon": []
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:15",
+      "n_live_ticks": 1,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.95
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:15",
+       "status": "OK",
+       "spy": 772.95,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": true,
+       "only_live": [],
+       "only_recon": []
+      }
+     }
+    ]
+   },
+   "bold": {
+    "n_trigger_bars": 34,
+    "n_replayed_ok": 34,
+    "verdict_match": 34,
+    "full_match": 34,
+    "rows": [
+     {
+      "trigger_bar": "2026-08-07T09:30",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 7,
+       "bear_blockers": [
+        1,
+        5,
+        6,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        1,
+        5,
+        6,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.44
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:30",
+       "status": "OK",
+       "spy": 771.44,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 7,
+       "triggers": [],
+       "bear_blockers": [
+        1,
+        5,
+        6,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        1,
+        5,
+        6,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 7,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:35",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        6,
+        8
+       ],
+       "bull_blockers": [
+        6,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.13
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:35",
+       "status": "OK",
+       "spy": 771.13,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        6,
+        8
+       ],
+       "bull_blockers": [
+        6,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.64,
+        771.53,
+        771.63
+       ],
+       "only_recon": [
+        769.61,
+        771.51,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:40",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "ENTER_BULL"
+      ],
+      "live": {
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 6,
+       "bull_score": 11,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+       ],
+       "spy": 772.045
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:40",
+       "status": "OK",
+       "spy": 772.045,
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 6,
+       "bull_score": 11,
+       "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+       ],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "trigger_level": 771.53
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.62,
+        771.53,
+        772.34
+       ],
+       "only_recon": [
+        769.61,
+        771.51,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:45",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 771.705
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:45",
+       "status": "OK",
+       "spy": 771.705,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.62,
+        772.34
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:50",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 771.98
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:50",
+       "status": "OK",
+       "spy": 771.98,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.53,
+        772.34
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T09:55",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.15
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T09:55",
+       "status": "OK",
+       "spy": 771.15,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.47,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:00",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 770.665
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:00",
+       "status": "OK",
+       "spy": 770.665,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        770.38,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:05",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 770.495
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:05",
+       "status": "OK",
+       "spy": 770.495,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        769.62,
+        770.46,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:10",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 769.88
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:10",
+       "status": "OK",
+       "spy": 769.88,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        769.62,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:15",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7
+       ],
+       "triggers": [],
+       "spy": 771.69
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:15",
+       "status": "OK",
+       "spy": 771.69,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        769.62,
+        772.37
+       ],
+       "only_recon": [
+        769.61,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:20",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 772.045
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:20",
+       "status": "OK",
+       "spy": 772.045,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        772.37,
+        772.93
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:25",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.125
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:25",
+       "status": "OK",
+       "spy": 773.125,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        772.37,
+        773.33
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:30",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.48
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:30",
+       "status": "OK",
+       "spy": 772.48,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        773.33
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:35",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.89
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:35",
+       "status": "OK",
+       "spy": 771.89,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 9,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.76,
+        773.33
+       ],
+       "only_recon": [
+        771.82,
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:40",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 771.785
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:40",
+       "status": "OK",
+       "spy": 771.785,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.35
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:45",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.39
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:45",
+       "status": "OK",
+       "spy": 772.39,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.35
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:50",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.125
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:50",
+       "status": "OK",
+       "spy": 772.125,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.35
+       ],
+       "only_recon": [
+        772.2,
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T10:55",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.805
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T10:55",
+       "status": "OK",
+       "spy": 772.805,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 12,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        772.96,
+        773.35
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:00",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.725
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:00",
+       "status": "OK",
+       "spy": 772.725,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 12,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        772.96,
+        773.35
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:05",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.015
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:05",
+       "status": "OK",
+       "spy": 773.015,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 4,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 12,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.0,
+        773.37
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:10",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.07
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:10",
+       "status": "OK",
+       "spy": 773.07,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        768.3,
+        771.71,
+        773.37
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:15",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.88
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:15",
+       "status": "OK",
+       "spy": 772.88,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.37
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:20",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.54
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:20",
+       "status": "OK",
+       "spy": 773.54,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.4,
+        773.88
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:25",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        11
+       ],
+       "triggers": [],
+       "spy": 773.66
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:25",
+       "status": "OK",
+       "spy": 773.66,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.4,
+        773.88
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:30",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.47
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:30",
+       "status": "OK",
+       "spy": 773.47,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.88
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:35",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.385
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:35",
+       "status": "OK",
+       "spy": 773.385,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        771.71,
+        773.89
+       ],
+       "only_recon": [
+        772.75,
+        773.36,
+        773.91
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:40",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.17
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:40",
+       "status": "OK",
+       "spy": 773.17,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.92
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:45",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.575
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:45",
+       "status": "OK",
+       "spy": 773.575,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.92
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:50",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 773.29
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:50",
+       "status": "OK",
+       "spy": 773.29,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 5,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.89
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T11:55",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "triggers": [],
+       "spy": 773.08
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T11:55",
+       "status": "OK",
+       "spy": 773.08,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 10,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.89
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:00",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "ENTER_BULL"
+      ],
+      "live": {
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 4,
+       "bull_score": 11,
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "triggers": [
+        "level_reclaim",
+        "confluence"
+       ],
+       "spy": 773.145
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:00",
+       "status": "OK",
+       "spy": 773.145,
+       "verdict": "ENTER_BULL",
+       "side": "C",
+       "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+       "bear_score": 4,
+       "bull_score": 11,
+       "triggers": [
+        "level_reclaim",
+        "confluence"
+       ],
+       "bear_blockers": [
+        5,
+        7,
+        8,
+        9,
+        10
+       ],
+       "bull_blockers": [],
+       "trigger_level": 773.11
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.77,
+        773.64
+       ],
+       "only_recon": [
+        772.75,
+        773.36
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:05",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "triggers": [],
+       "spy": 773.13
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:05",
+       "status": "OK",
+       "spy": 773.13,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 10,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": false,
+       "only_live": [
+        772.77
+       ],
+       "only_recon": [
+        772.75
+       ]
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:10",
+      "n_live_ticks": 5,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 773.06
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:10",
+       "status": "OK",
+       "spy": 773.06,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 7,
+       "bull_score": 8,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8
+       ],
+       "bull_blockers": [
+        7,
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": true,
+       "only_live": [],
+       "only_recon": []
+      }
+     },
+     {
+      "trigger_bar": "2026-08-07T12:15",
+      "n_live_ticks": 1,
+      "live_group_verdicts": [
+       "HOLD"
+      ],
+      "live": {
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "triggers": [],
+       "spy": 772.95
+      },
+      "replay": {
+       "trigger_bar": "2026-08-07T12:15",
+       "status": "OK",
+       "spy": 772.95,
+       "verdict": "HOLD",
+       "side": null,
+       "setup": null,
+       "bear_score": 6,
+       "bull_score": 9,
+       "triggers": [],
+       "bear_blockers": [
+        5,
+        8,
+        9
+       ],
+       "bull_blockers": [
+        10,
+        11
+       ],
+       "trigger_level": null
+      },
+      "match": {
+       "verdict": true,
+       "side": true,
+       "setup": true,
+       "bear_score": true,
+       "bull_score": true,
+       "bear_blockers": true,
+       "bull_blockers": true,
+       "triggers": true
+      },
+      "all_match": true,
+      "levels_live_vs_recon": {
+       "live_n": 11,
+       "recon_n": 11,
+       "identical": true,
+       "only_live": [],
+       "only_recon": []
+      }
+     }
+    ]
+   }
+  },
+  "vix_ma": {
+   "ma5": 15.845999908447265,
+   "ma20": 17.15499997138977
+  }
+ }
+}

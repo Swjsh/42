@@ -1,0 +1,76 @@
+{
+  "artifact": "FRIDAY-REPLAY-2026-08-07",
+  "lane": "LANE 3 -- replay today end to end",
+  "generated_at_et": "2026-08-07T~12:50 ET (et_clock verified 12:01:30 EDT market_hours=True at session start; market-hours READ-ONLY lane)",
+  "tool": "backtest/tools/friday_replay_2026_08_07.py",
+  "raw_cells": "analysis/deep-research/_friday_replay_raw_2026_08_07.json",
+  "pricing": "ALL counterfactual $ cells are EST (BS, least-squares IV 0.196 over 6 real morning fills; same-day OPRA 403-walled until ~16:21 ET). No ORACLE cells. Evening real-OPRA re-price addendum staged.",
+  "scope": "core lane (safe/bold) only; fleet arms excluded from replay claims (standing anchor-fidelity REDs test_anchor_pass_rate safe-3/risky-1/risky-3). Fleet statements are broker-fill facts.",
+  "fidelity": {
+    "verdict": "GREEN -- nothing quarantined",
+    "method": "hc._build_payload -> hc._engine_verdict (engine_cli subprocess) per 5m trigger bar; bars = live engine's own IEX feed refetched via the byte-identical _fetch_spy_5m URL shape; VIX + levels_active injected from the live core-decisions.jsonl rows (the exact values live consumed)",
+    "safe": {"trigger_bars": 34, "verdict_match": 34, "full_field_match": 33},
+    "bold": {"trigger_bars": 34, "verdict_match": 34, "full_field_match": 34},
+    "entries_reproduced": ["09:40-trigger ENTER_BULL 11/11 (771.53, level_reclaim+ribbon_flip+confluence, spy 772.045) -- field-for-field", "12:00-trigger ENTER_BULL (blockers [])"],
+    "single_field_diff": {"bar": "10:05", "live": "bull 10 blockers [10]", "replay": "bull 9 blockers [10,11]", "mechanism": "live scores a forming last bar; replay's is complete -- one trigger differs so f11 min_triggers flips; verdict HOLD both ways"},
+    "trigger_anchor_flicker": {"bar": "12:00 group", "live_ticks_1206_1208": 772.89, "live_ticks_1209_1210": 773.11, "replay": 773.11, "note": "live's own anchor flipped mid-group (forming-bar drift); live FILL is anchored 772.89"},
+    "levels_churn": "live-recorded levels_active == reconstruction-from-current-key-levels.json on only 2/34 bars -- intraday refresher churn; fidelity injection used the live-recorded arrays so this does not contaminate the replay"
+  },
+  "live_day": {
+    "wave_1": {"time": "09:46-09:47", "fills": {"safe-2": "3x 772C @1.67", "safe-3": "8x 772C @1.33", "risky-1": "5x 772C @1.33 (1+4)", "risky-3": "12x 774C @0.62"}, "bold-2": "dark (PDT)", "trigger": 771.53},
+    "stops": {"time": "10:01-10:02", "mechanism": "5m close 771.30 < 771.53 structure stop", "pnl": {"safe-2": -153, "safe-3": -176, "risky-1": -95, "risky-3": -204}},
+    "spiral_check": "Wednesday spiral shape did NOT recur: one entry per arm, one stop, ZERO re-entries 10:15-11:55",
+    "refusal_window": "24 trigger bars 10:15-11:55 all HOLD both core accounts while SPY ran 770.50 -> 773.66",
+    "wave_2_NEW_since_workflow_snapshot": {"time": "12:06-12:07", "fills": {"safe-2": "3x 773C @1.11", "safe-3": "8x 773C @1.10", "risky-1": "5x 773C @1.09", "risky-3": "12x 775C @0.31"}, "trigger_bar": "12:00", "trigger": 772.89, "blockers": [], "status": "OPEN at write time (~12:45 ET)"},
+    "risky3_broker_verified": {"equity": 4946.08, "sod_equity": 5342.98, "fills_utc": ["13:47:09 buy 12x774C@0.62", "14:02:09 sell 12@0.45", "16:07:10 buy 12x775C@0.31"]}
+  },
+  "morning_trade_vs_signature": {
+    "verdict": "PAY-cohort shape that lost = variance; NOT the BLEED cohort; neither frozen shadow rule (V-d1, V-e3) would have refused it",
+    "cells": {
+      "b_trigger_class": {"value": "tied (771.53 level_reclaim+confluence)", "historical": "tied n=61 +$68.4/entry 41% WR vs bare -$14.5"},
+      "a_structure": {"value": "BLIND (~3 closed 5m bars, detectors abstain by shipped quorum rule)", "historical": "BLIND(5m) n=54 +$780"},
+      "d_v_d1": {"value": "agree (up)", "historical": "agree n=198 +$3,038 vs disagree -$1,242"},
+      "e_tod": {"value": "0930-0959", "historical": "n=45 +$1,050 (best morning bucket)"},
+      "f_vwap": {"value": "above", "historical": "n=177 +$1,575"},
+      "c_extreme_dist": {"value": "0.77 off fill spot 771.57 vs session high 772.34 (near_0.5_1.5: n=19 -$247); 0.30 off trigger close (hug: n=3 n-small)", "note": "the one soft cell -- bought a PDH push near a 1-min-old session high that failed by $0.5"}
+    },
+    "source": "entry_quality_ledger.py rebuilt this session including today's fills (same frozen ENTRY-QUALITY-2026-08-06 definitions)",
+    "day_shape": "failed PDH push (-0.75 pullback) then steady grind 770.5 -> 773.9 -- trend-up day, not the Wednesday chop archetype"
+  },
+  "tier_revert_first_live_verdict": {
+    "verdict": "PASS",
+    "config": "accounts.json risky-3 params_patch.strike_tier_table='bold_core_pre_ext' (commit 3ac1d7b2) -> V15_BOLD_CORE_PRE_EXT_TIERS $2K-10K row = OTM-2 (verified in source this session)",
+    "strike": "pick_strike(772.045, eq $4,946, C, pre_ext) = 774 == actual fill; WEEK-ORDER first-tick check PASS both halves (risky-3 spot+2; safe-3/risky-1 filled 772C = ATM)",
+    "qty": "12 = elite_qty of the $2K-10K bold sizing tier (base 8/elite 12, tier SUPER signal). NOT SHIP-C boost, two independent ways: 0.62 >= 0.50 (condition false) AND boost qty 10 < plan 12 (finalize() boost never shrinks). No affordability shrink ($744 notional).",
+    "second_fill_consistent": "12:07 775C@0.31 x12 = OTM-2 off ATM-773 at eq ~$5.1K; SHIP-C condition met (0.31<0.50) but no-op vs plan 12 -- as designed",
+    "loss_per_premium_dollar_morning": {"risky-3_otm2": -0.274, "safe-2_atm": -0.305, "safe-3_atm": -0.165, "risky-1_atm": -0.143, "note": "n=1, mid-pack; per-arm A/B needs its prereg n"}
+  },
+  "refusal_window_and_variants": {
+    "filter_identities": {"7": "_bullish_volume_divergence_failed -- red recovery bar with >= volume within 2 bars of a green breakout (filters.py ~1352)", "10": "buyer_pressure_bar_v11 -- green trigger bar + vol >= 0.7 x 20-bar baseline; also blocks when ribbon None (~1206)", "11": "min_triggers(2) + level-tied requirement (~1265)"},
+    "sole_blocker_bars": {"f7_only": ["10:15"], "f10_only": ["10:20", "10:25", "11:05", "11:20", "11:40", "11:45"], "f11_only": ["11:25"]},
+    "f11_co_blocks": "12 of 24 refusal-window bars -- relaxing f7+f10 still HOLDs there",
+    "variants_EST_3lot_safe_core": {
+      "HEAD": {"entries": 2, "day_pnl_EST": -82.8, "trades": ["09:40T stop@10:00 -41.4", "12:00T stop@12:15 -41.4 (EST-conservative: walk anchors 773.11, live anchored 772.89 and still open)"]},
+      "f10_relaxed": {"entries": 3, "day_pnl_EST": -150.6, "trades": ["+10:20T 773C stopped 10:45 on 771.82 anchor -67.8"], "note": "f10-relax does NOT unlock 10:15 (f7 blocks); enters later, worse strike, loses more than HEAD"},
+      "f7_relaxed": {"entries": 2, "day_pnl_EST": 58.2, "trades": ["09:40T -41.4", "10:15T 772C rides 10:21->12:20 tape-end +99.6 OPEN"]},
+      "f7_f10_relaxed": {"entries": 2, "day_pnl_EST": 58.2, "note": "identical trades to f7_relaxed"}
+    },
+    "reading": "At the first refusal (10:15 exhibit bar) the binding blocker was F7, not F10. Today does NOT support the 08-03 gate table's +$4,535/2d f10 attribution on its own; routes to Lane 2's frozen BULL-F10 prereg runner + F7 prereg (L2-3/L2-4). n=1 day, EST, nothing ships from this lane.",
+    "est_calibration": {"iv": 0.196, "fit": "least-squares over 6 real fills", "residuals_pct": [-15.9, 0.4, 3.1, 0.3, 12.7, 29.4], "note": "the -16% is the rich 1.67 marketable-limit print; directional cells only"}
+  },
+  "f10_provenance": {
+    "within_live": "REFUTED -- heartbeat_core._fetch_spy_5m is ONE fetch feed=iex; vol_baseline_20 computed from the same frame (_build_payload ~599); bar vol and baseline cannot be cross-feed on the core path",
+    "live_vs_backtest": "CONFIRMED hazard -- today RTH f10 pass rate IEX 14.3% (5/35) vs SIP 29.6% (8/27); disagreement bars 10:20, 10:25, 11:05, 11:10, 11:20 ALL inside the refusal window (SIP passes where live-IEX blocked)",
+    "blast_radius": "BULL-F10 prereg runner's 391-day SIP battery will overstate live pass rates on marginal-volume bars; per-feed sensitivity cell recommended in that runner's disclosure"
+  },
+  "caveats": [
+    "EST everywhere in variants (BS constant-IV, residuals to +/-29%); evening real-OPRA re-price staged",
+    "n=1 day; f7-relax winner OPEN at tape end 12:20, not booked; full-day answer needs the 15:40/15:50 tape",
+    "forming-bar artifacts bound tick-level fidelity (1 field-diff bar in 68 + the 12:00 anchor flip); verdict-level fidelity 68/68",
+    "fleet replay out of scope (standing anchor REDs); 12:06 wave open at write time -- day P&L will move"
+  ],
+  "staged_for_close": [
+    "NO trading-path change recommended from Lane 3 at 15:55 -- f7/f10/f11 evidence is n=1-day EST and belongs to Lane 2's frozen preregs (in flight).",
+    "Evening OPRA re-price addendum (after ~16:21 ET): rerun backtest/tools/friday_replay_2026_08_07.py variants with real OPRA 1m contract bars (772C/773C/774C/775C) substituted for EST frames; append '## OPRA addendum' to FRIDAY-REPLAY-2026-08-07.md + refresh this JSON. Revert: git-revert the addendum commit; zero engine surfaces."
+  ]
+}
