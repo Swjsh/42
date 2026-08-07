@@ -59,12 +59,18 @@ if ($Uninstall) {
     return
 }
 
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\free_model_audit.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$script       = Join-Path $root "setup\scripts\free_model_audit.py"
+# 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 
 if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
 if (-not (Test-Path $script))      { throw "free_model_audit.py not found at $script" }
+if (-not (Test-Path $sysPythonw))  { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
@@ -77,7 +83,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 # daily even as more subjects get wired (fixed 2026-07-11: this task originally hardcoded
 # --subject heartbeat_veto, so twin_review's B2 wiring was never actually graded on a
 # schedule despite being registered in the harness).
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" `"--subject`" `"all`""
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" `"--subject`" `"all`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # 21:00 ET weekday-and-weekend daily fire (the SCRIPT decides every-other-day internally --

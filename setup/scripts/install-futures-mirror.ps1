@@ -41,8 +41,12 @@ $pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $script      = Join-Path $root "setup\scripts\futures_mirror_shadow.py"
 $etz         = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 $taskName    = "Gamma_FuturesMirror"
+# 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 
-foreach ($p in @($vbs, $pythonwVenv, $script)) {
+foreach ($p in @($vbs, $pythonwVenv, $script, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -61,8 +65,9 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> futures_mirror_shadow.py --once
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" --once"
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest venv pythonw -> futures_mirror_shadow.py --once
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" --once"
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

@@ -56,13 +56,26 @@
        future edit ever widens the Name filter to include pythonw.exe, this task
        stays exempt with zero further changes needed.
 
-  WIRING PATTERN (flash-free, matches install-ccr-keepalive.ps1's 24/7 pattern):
-    wscript -> run_exe_hidden.vbs -> backtest\.venv\Scripts\pythonw.exe -> crypto_twin_health.py --live
-  Single-hop chain (crypto_twin_health.py is a native Python script, no .ps1 to wrap --
-  same shape as ccr_keepalive.py's 3-arg chain: no run_ps1_hidden.py/run_cmd_hidden.py
-  hop needed). backtest-venv pythonw is used for BOTH the reaper-exempt-by-path launch
-  AND because it is the interpreter that already has this repo's test/runtime
-  environment set up (crypto_twin_core imports exit_manager/risk_gate/crypto.lib.*).
+  WIRING PATTERN (2026-08-07 CORRECTED -- see VBS-WRAPPER-EXIT-CODE-BLIND-SPOT drift
+  finding, queue.md): this task was migrated onto the run_cmd_hidden.py relay by
+  fix-venv-pythonw-console-leak.ps1 (commit 306e5075, "popup storm" fix), but THIS
+  install script's own template was never updated to match -- so the very next
+  legitimate re-run of install-crypto-twin.ps1 (af849657, the 2026-08-01 cadence-tune,
+  an ordinary maintenance edit unrelated to the relay fix) silently re-registered the
+  task with the OLD direct-wiring action, undoing the fix with zero error/log/visible
+  symptom (confirmed live 2026-08-07: task was back to bare venv-pythonw invocation).
+  This is the durable fix -- the relay wiring now lives at the SOURCE OF TRUTH so any
+  future legitimate re-run of this script (cadence tunes, trigger edits, etc.) can
+  never again regress it:
+    wscript -> run_exe_hidden.vbs -> SYSTEM pythonw -> run_cmd_hidden.py --cwd <repo>
+      -- backtest\.venv\Scripts\pythonw.exe crypto_twin_health.py --live
+  run_cmd_hidden.py runs the child SYNCHRONOUSLY and logs the real exit code to
+  automation/state/logs/run-cmd-hidden-<date>.log (self_check.check_run_cmd_hidden_
+  masked_exit already reads it every ~30min, zero further wiring needed). backtest-venv
+  pythonw remains the INNER interpreter (crypto_twin_core imports exit_manager/
+  risk_gate/crypto.lib.* and needs pandas); system pythonw is only the OUTER relay hop
+  (stdlib-only, per run_cmd_hidden.py's own docstring either hop is safe -- system
+  matches the other 18 already-migrated tasks' convention).
 
   CADENCE: `-Once` base trigger + `-RepetitionInterval 1min` (was 5min, see the
   2026-08-01 CADENCE-TUNE note above) + a ~10-year `-RepetitionDuration` -- the
@@ -87,21 +100,27 @@ if ($Uninstall) {
     return
 }
 
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\crypto_twin_health.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$script       = Join-Path $root "setup\scripts\crypto_twin_health.py"
 
-if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
-if (-not (Test-Path $script))      { throw "crypto_twin_health.py not found at $script" }
+if (-not (Test-Path $sysPythonw))   { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
+if (-not (Test-Path $pythonwVenv))  { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
+if (-not (Test-Path $script))       { throw "crypto_twin_health.py not found at $script" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest-venv pythonw -> crypto_twin_health.py --live
-# (flash-free chain; backtest-venv pythonw is BOTH the reaper-exempt-by-path launcher
-# AND the interpreter this repo's twin modules actually import cleanly under).
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" `"--live`""
+# wscript -> run_exe_hidden.vbs -> SYSTEM pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest-venv pythonw crypto_twin_health.py --live
+# (2026-08-07 fix -- see WIRING PATTERN note above: this is the durable, source-of-truth
+# version of the relay fix fix-venv-pythonw-console-leak.ps1 applied imperatively on
+# 2026-07-14 and this script's own re-registration silently undid on 2026-08-01.)
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" `"--live`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 1 min, 24/7 -- crypto never closes, no day/time restriction (unlike RTH tasks).

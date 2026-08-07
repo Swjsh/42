@@ -41,17 +41,22 @@ if (-not (Test-Path $pythonw)) {
 
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $worker       = Join-Path $WorkDir "automation\scripts\compute_ema_snapshot.py"
+# 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 
-foreach ($p in @($runExeHidden, $worker)) {
+foreach ($p in @($runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
-# wscript //nologo run_exe_hidden.vbs <pythonw> <compute_ema_snapshot.py>  (fully hidden)
+# wscript //nologo run_exe_hidden.vbs <system pythonw> run_cmd_hidden.py --cwd <repo>
+#   -- <venv pythonw> <compute_ema_snapshot.py>  (fully hidden, real exit-code logged)
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$WorkDir`" -- `"$pythonw`" `"$worker`""
 
 # 06:20 LOCAL (Mountain) = 08:20 ET, 10 min before Gamma_Premarket.
 $trigger = New-ScheduledTaskTrigger -Daily -At "06:20"

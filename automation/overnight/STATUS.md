@@ -1,3 +1,58 @@
+## [2026-08-07T06:35 ET] CONDUCTOR: VBS-WRAPPER blast-radius audit + CryptoTwin live regression found+fixed (13 more templates fixed) -- REVOKE surface
+
+**Task picked (priority-4, HIGH queue item VBS-WRAPPER-EXIT-CODE-BLIND-SPOT, top-ranked
+ready item per `task_scorer.py`):** ran the `/fable-blast-radius` pass its own text had
+deferred twice. **Verdict on the CORE ask (flip `run_exe_hidden.vbs` to synchronous):
+NOT RECOMMENDED.** Live-enumerated all ~108 `Gamma_*` tasks on the wrapper -- every one uses
+`MultipleInstances=IgnoreNew`, currently toothless fleet-wide because the fire-and-forget
+`shell.Run` always returns instantly. Flipping to synchronous would make BOTH `IgnoreNew`
+AND `ExecutionTimeLimit` enforceable for the first time, simultaneously, fleet-wide --
+including `Gamma_HeartbeatCore` (`PT1M` limit) and 10+ other fast-cadence tasks. A heartbeat
+tick that occasionally runs long would go from "always survives" to "Task Scheduler kills the
+process tree mid-tick" -- a brand-new failure mode on the single most safety-critical script
+in the repo. Recommending against the blanket flip; the proven safer alternative (per-task
+migration onto the `run_cmd_hidden.py` relay) stays the standing path.
+
+**While auditing, found a CONCRETE live regression, not just a hypothetical:** `Gamma_
+CryptoTwin` was migrated onto the relay imperatively on 2026-07-14 (`fix-venv-pythonw-
+console-leak.ps1`), but its own declarative install script (`install-crypto-twin.ps1`) was
+never updated to match -- its 2026-08-01 cadence-tune re-run silently reverted the fix with
+zero symptom. Generalized via a new static guard (`backtest/tests/test_install_script_relay_
+wiring_drift.py`, no live Task Scheduler calls, mirrors `test_scheduled_tasks_doc.py`'s
+precedent) -- found **13 MORE tasks with the identical latent bug** (`BrokerFills,
+Confluence, DressRehearsal, EmaSnapshot, FirmBrief, FreeModelAudit, FuturesMirror,
+LevelMemory, Prospector, TradeAutopsy, TradeToday, Trendlines, TwinSentinel`). Fixed all 14
+templates (mechanical, identical substitution: route through `wscript -> vbs -> system-
+pythonw -> run_cmd_hidden.py --cwd <repo> -- venv-pythonw <target.py>`). Live-verified
+end-to-end for CryptoTwin (re-registered live + `Start-ScheduledTask`): `run-cmd-hidden-
+2026-08-07.log` shows `exit=0 (off-desktop)` for `crypto_twin_health.py --live` (first real
+exit code ever captured for this task) and `twin-health.json` shows a fresh tick
+(`last_action=MANAGED`, `last_error=None`) -- underlying function unaffected. The other 13
+were fixed in template only (live state already matched; re-registering was unneeded churn).
+
+**RED-proofed the guard itself** (a genuine catch during RED-proofing, not routine): the
+naive `"run_cmd_hidden.py" in text` substring check falsely PASSED against the restored
+pre-fix `install-crypto-twin.ps1` because its own docstring says "no run_cmd_hidden.py hop
+needed" in prose -- fixed by stripping PS1 comments/docstrings before checking, re-confirmed
+RED against the reverted file, restored fixed version byte-identical (sha256 verified).
+15/15 parametrized (14 pass + 1 informational skip, `Gamma_SelfAudit` has no dedicated
+install script). Curated tests + adjacent suites green (`test_crypto_twin_reaper_exemption.py`,
+`test_scheduled_tasks_doc.py`, both clean).
+
+**Precisely re-scoped the remaining gap:** exactly 31 tasks (not "~90") route via the vbs
+with NO relay at all; `Gamma_EodFlattenCore`/`Gamma_JIntentExecutor` deliberately EXCLUDED
+from tonight's scope (safety-critical/daemon shape -- own dedicated fire, not a blind batch).
+Remaining ~22 filed as the next bounded step in queue.md's VBS-WRAPPER entry. Zero
+trading-path files touched (pure infra/install-script hygiene). Lesson filed:
+`_lesson-inbox/2026-08-07-imperative-fix-vs-declarative-source-drift.md`.
+
+**REVOKE:** `git revert <this commit>` (14 install-script edits + 1 new guard test file,
+byte-revertible, additive-only; the CryptoTwin re-registration can be reverted live by
+re-running the pre-fix action or simply re-running the old `install-crypto-twin.ps1` from
+git history if ever needed, though doing so would reintroduce the exact bug this fire fixed).
+
+---
+
 ## [2026-08-06] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
 
 > - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
@@ -504,56 +559,8 @@ Autonomy metric to be refreshed via conductor_outcome.py this same fire.
 
 ---
 
-## [2026-08-05T00:xx ET] conductor: OK -- LESSON-INBOX-BACKLOG-DRAIN -- commit `5a561fea`
+[2026-08-07 09:30:04] scout: HIGH catalyst @ 08:30 ET — July NFP (Employment Situation) — Premarket should set no-trade window 08:25-08:45
 
-Budget gate PASSED ($0.00/$30, 0/4 fires pre-fire). Engine health GREEN, market closed
-(01:00 ET). STAGE-1 priority-1 (fill-funnel) clean, priority-2 (Engine RED) none,
-priority-3 (self-audit gaps) had no un-actioned 2-day-recurrence item today (VBS-WRAPPER
-already actioned 2026-08-04, remaining 08-02/08-03 batch items are named future work, not
-re-flagged). Priority-4 (queue HIGH) top-ranked item was VBS-WRAPPER-EXIT-CODE-BLIND-SPOT's
-CORE fix -- correctly deferred a 3rd time (genuinely gated behind a `/fable-blast-radius`
-pass given the shared launcher's live-trading blast radius, not guessed at Sonnet tier).
-Priority-5 (author inboxes, oldest-first): `_validator-inbox`/`_skill-inbox` empty (all
-DONE), `_lesson-inbox` had **30 un-drained items back to 2026-07-23** (12 days) -- a
-genuine systemic gap, not a one-item pick. Read all 30 in full, applied lesson-author's
-cite-or-defer discipline (every entry names file:line/commit/test evidence; zero
-speculative encodes), wrote **L253-L282** to `markdown/doctrine/LESSONS-LEARNED.md` and
-folded the L# numbers into CLAUDE.md's OP-25 index (existing class rows where a fit
-existed: C1,C4,C6,C7,C8,C11,C14,C15,C27,C34,C35; one new class **C36** for a lesson with
-no better home). Full theme summary in the commit message / CHANGELOG.md 2026-08-05 row.
-**Context-budget discipline caught mid-fire:** the honest append pushed CLAUDE.md to RED
-(9436/9000, was YELLOW 8955 pre-fire) -- trimmed narrative-parenthetical duplication from
-the OP-25 table (full prose stays in LESSONS-LEARNED.md only) back to YELLOW 8956/9000,
-verified via `check-context-budget.ps1` + `context_audit.py verify` (9/9 PASS) +
-`test_op25_index_reconciliation.py` (9/9 PASS). Also relocated a stale inline trim-note
-that had been sitting in CLAUDE.md's Update log (contradicting its own "append to
-CHANGELOG, never inline" instruction) to a proper CHANGELOG.md row.
-All 30 inbox items renamed to the canonical `*.md.DONE` terminal suffix (never deleted --
-matches the actual repo convention per `_validator-inbox`/`_chef-inbox` precedent and
-`test_inbox_done_suffix.py`, 3/3 PASS; supersedes lesson-author.md's stale "DELETE on
-success" doc line -- doc not corrected this fire, scope discipline). `journal/mistakes.md`
-has no entries in the 07-23..08-04 range -- no cross-reference needed. Fire log:
-`automation/state/logs/_lesson-author-log.jsonl` (+30 rows).
-Curated safety gate 59/59 PASS. `git show 5a561fea --stat` confirms exactly the 33 intended
-files (CHANGELOG.md, CLAUDE.md, LESSONS-LEARNED.md, 30 inbox renames) -- no shared-index
-absorption (pre-commit's dir-span heuristic fired correctly, non-blocking, per L271 which
-this very fire encoded).
-**REVOKE:** `git revert 5a561fea` (additive-only to LESSONS-LEARNED.md/CHANGELOG.md;
-CLAUDE.md table-row edits revert cleanly; inbox renames revert to active `.md`).
-Rail-4 N/A (pure doctrine authoring -- zero params/heartbeat_core/filters/placement/exit
-code touched). Ships per OP-25's lesson-author mandate (no J gate, engine-benefit per
-OP-22/26).
-Next fire: `_chef-inbox` still has **61 un-DONE items** (mostly `prospector-*` data-source
-proposals, oldest 2026-07-10) -- the next author-inbox priority once lesson-inbox (now 0
-backlog) and validator/skill (already 0) are clear. VBS-WRAPPER core fix remains queued,
-still correctly gated behind top-tier judgment.
-Autonomy metric to be refreshed via conductor_outcome.py this same fire.
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.00, model=grinder-python
-
-### DEGRADED: self-check 2026-08-07T01:09:57
+### DEGRADED: self-check 2026-08-07T05:39:57
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.

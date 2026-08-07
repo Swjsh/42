@@ -7,9 +7,13 @@ $TaskName = "Gamma_Confluence"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $worker = Join-Path $ScriptsDir "confluence_producer.py"
-foreach ($p in @($pythonw, $runExeHidden, $worker)) { if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 } }
+# 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
+foreach ($p in @($pythonw, $runExeHidden, $worker, $sysPythonw, $runCmdHidden)) { if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 } }
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`""
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "07:32"
 $rep = (New-ScheduledTaskTrigger -Once -At "07:32" -RepetitionInterval (New-TimeSpan -Minutes 10) -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 30)).Repetition
 $trigger.Repetition = $rep

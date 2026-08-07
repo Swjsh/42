@@ -8,18 +8,22 @@ $ErrorActionPreference = "Stop"
 $Root      = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName  = "Gamma_LevelMemory"
-$pythonw   = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
+$pythonw      = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
-$worker    = Join-Path $ScriptsDir "level_memory_producer.py"
+$worker       = Join-Path $ScriptsDir "level_memory_producer.py"
+# 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 
-foreach ($p in @($pythonw, $runExeHidden, $worker)) {
+foreach ($p in @($pythonw, $runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`""
 
 # 07:00 LOCAL (Mountain) = 09:00 ET; repeat every 10 min for 7h -> covers 09:00-16:00 ET.
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "07:00"
