@@ -707,3 +707,59 @@ named as a future hygiene check, not chased. "OneDrive sync latency" / "Task-Sch
 health monitor" / "Test suite brittleness" are scaffold-class headers (no concrete claim),
 same noise class already filtered elsewhere. -->
 
+
+## 2026-08-05T17:32:04 -- 8 new gap(s) Gamma self-identified
+- Risk of capital erosion
+- Regime detection latency
+- Operational blind spots
+- – the 08:22 ET stamp must reliably populate `today‑bias.json#regime_context.stamp_date` and should incorporate pre‑market or intraday regime signals; a broken or stale regime context leads to biased entries and RED flags.
+- – merely logging “theta stall” is insufficient; the system must automatically reduce or close positions when theta burn outweighs delta gain near expiry.
+- – missed ticks or stale position fields must be detected and corrected (e.g., tick‑rate watchdog, auto‑restart, or re‑pull of recent market data) to keep the position monitor within its 2‑minute SLA.
+- – reliance on a single broker endpoint (Alpaca options‑snapshots) that repeatedly returns `{}` creates a blind spot; a fallback or health‑checked secondary Greeks feed is required.
+- – isolated account logic can exceed aggregate VaR/margin limits; the system needs a unified risk‑aggregation layer that enforces caps and dynamically sizes positions (e.g., volatility‑adjusted Kelly or VaR‑based limits).
+
+## 2026-08-06T17:32:58 -- 12 new gap(s) Gamma self-identified
+- Refining the "Proposed Change" Audit (Wait, I need to re-read the prompt carefully).
+- No real‑time IV surface feed
+- Silent data‑feed stall detection
+- Static position‑sizing lanes
+- Missing macro‑news sentiment integration
+- No automated pre‑trade simulation of proposed changes
+- Absence of persistent feature store
+- No explicit early‑exercise / dividend‑capture guard
+- Inadequate execution‑quality telemetry
+- Lockout of pre‑market bias updates
+- Logging & audit trail
+- The Scout premarket macro/news scanner repeatedly fails due to a low USD budget, leaving `scout_output.json` stale and biasing downstream regime/bias decisions.
+
+<!-- DONE 2026-08-07T16:40 ET conductor (AFTERHOURS, commit a2f59b87) :: ACTIONED the one
+concrete, non-scaffold item -- "Scout premarket macro/news scanner repeatedly fails ...
+leaving scout_output.json stale". Investigated with evidence (not assumed): the Windows task
+Gamma_ScoutPremarket DOES fire every weekday (LastRunTime/LastTaskResult=0 live-verified), but
+it is LLM-agent-driven, not deterministic -- its own append-only fire log (scout-log.jsonl)
+shows only 9 entries across 2026-05-20..2026-08-07 with a full SILENT MONTH (2026-06-19..
+2026-07-21) of zero logged fires. LastTaskResult=0 is not evidence the agent actually
+regenerated the artifact that day (C7) -- nothing verified the CONSUMED ARTIFACT
+(scout_output.json) itself until now. Built self_check.check_scout_premarket_fresh() (mirrors
+check_regime_stamp_daily's 2026-08-03 pattern), wired into self_check.run(), DEGRADED-only
+(scout is an addendum feed into Premarket's 08:30 ET bias write, non-load-bearing). 9 new
+guard tests (test_self_check_scout_premarket_freshness.py), RED-proofed via git stash (8/8
+fail without the fix, restored byte-identical), curated safety gate 59/59 PASS, live-verified
+clean against today's real scout_output.json (fresh, correctly produced zero problems -- no
+false positive). Remaining 11 lines are scaffold-class noise (bare section-header fragments,
+one an explicit meta-artifact "Wait, I need to re-read the prompt carefully") -- same noise
+class already filtered elsewhere, not chased. This DONE marker also closes the
+2026-08-05T17:32:04 batch immediately above: its 3 scaffold headers ("Risk of capital
+erosion"/"Regime detection latency"/"Operational blind spots") are the same noise class; its 5
+substantive lines are NOT new -- regime-stamp freshness = check_regime_stamp_daily (built
+2026-08-03, still live); missed-ticks/stale-position-fields = WS7 live-watch SLA (monday_
+verify.py, GREEN 2026-08-07); single-broker-Greeks-endpoint-returning-{} fallback = a 3rd
+consecutive-day recurrence (also 2026-08-02 "Replace synthetic theta/Greeks model" and
+2026-07-01 "Alpaca API fallback") named as a genuine but NOT-bounded future item (a secondary
+Greeks feed integration is a multi-session build, not a single-fire task -- filed as candidate
+future work, not queue.md, since no concrete secondary source has been identified yet);
+theta-stall-should-auto-reduce-position = a live risk-behavior CHANGE (would alter exit
+timing), correctly out of scope for a self-audit-organ fix, named as future candidate;
+unified cross-account VaR/margin risk-aggregation layer = a multi-session feature, named as
+future candidate, not chased this fire (one bounded task, rail 3). -->
+

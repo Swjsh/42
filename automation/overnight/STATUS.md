@@ -1,3 +1,52 @@
+## [2026-08-07T16:34 ET] CONDUCTOR: OK -- SCOUT-PREMARKET-FRESHNESS-CHECK -- self-audit gap (2026-08-06 batch) fixed+shipped -- REVOKE surface
+
+**Task picked (priority-3, self-audit gap, `analysis/self-audit/new-gaps-flagged.md`
+2026-08-06 batch, the one concrete non-scaffold line):** "Scout premarket macro/news scanner
+repeatedly fails due to a low USD budget, leaving scout_output.json stale and biasing
+downstream regime/bias decisions." Investigated with evidence: `Gamma_ScoutPremarket` (05:30
+ET) DOES fire every weekday (live-verified `Get-ScheduledTaskInfo`: LastRunTime 8/7 03:30 MT,
+LastTaskResult=0), but it is LLM-agent-driven, not a deterministic script -- its own fire log
+`scout-log.jsonl` has only 9 entries across 2026-05-20..2026-08-07, including a full SILENT
+MONTH (2026-06-19..2026-07-21). Task-Scheduler exit=0 is not evidence the agent actually
+regenerated `scout_output.json` that day (C7) -- **nothing verified the consumed artifact
+itself** until this fire. Shipped `self_check.check_scout_premarket_fresh()` (mirrors the
+2026-08-03 `check_regime_stamp_daily` pattern), wired into `self_check.run()`, DEGRADED-only
+(scout is a Premarket-bias addendum, non-load-bearing). 9 new guard tests
+(`backtest/tests/test_self_check_scout_premarket_freshness.py`), RED-proofed via `git stash`
+(8/8 fail without the fix, restored byte-identical, sha unchanged), curated safety gate 59/59
+PASS, self_check test suite 147/147 PASS, live-verified clean against today's real
+`scout_output.json` (fresh, correctly zero problems -- no false positive). Also closed the
+adjacent 2026-08-05 self-audit batch in the same triage pass (3 scaffold headers + 5
+already-tracked/not-bounded items, none newly actionable) -- see the DONE marker in
+`new-gaps-flagged.md` for the full disposition, including the noted 3rd-consecutive-day
+recurrence of "single Alpaca Greeks endpoint returning `{}`, needs a fallback source" (named
+as genuine future work, no concrete secondary source identified yet -- not queued blind).
+
+**REVOKE:** `git revert a2f59b87` (2 files, additive-only: 1 new function + wiring line in
+`self_check.py`, 1 new guard test file; no downstream consumer besides `self_check.run()`'s
+own `problems` list).
+
+Cost this fire: ~$3.05 (read-heavy investigation + 1 file build + guards + RED-proof + commit).
+
+---
+
+## [2026-08-07T16:15:05 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-07 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 137 tick(s) showed in_trade>0. 40 real fill(s) dated 2026-08-07: safe-2@09:46, bold-2@09:46, safe-2@09:47, safe-3@09:47, risky-1@09:47, risky-3@09:47, bold-2@09:47, safe-2@09:48, bold-2@09:48, safe-2@09:49, bold-2@09:49, safe-2@09:50, bold-2@… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-07, generated_at_et=2026-08-07T08:40:03-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-07, regime_context.stamp_date=2026-08-07 (present=True, dates_match=True). one_liner='Yesterday 2026-08-06 (Thu) = range-chop (range 0.57%, gap +0.06%,… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 66 distinct near-price levels. Worst: 771.77 flipped 4x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 42 time(s) across 3 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-07 window_end=2026-08-06 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=12 (delta +2 vs baseline n=10) exp=$-40.75/tr, verdict_moved=False. bull now: UNDERPOWERED n=8 exp=$105.75/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-07T16:00:05 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 368 theta-clock row(s) dated 2026-08-07 across 5 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=368, unavailable=0. sti… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-07 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-07`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-07T06:35 ET] CONDUCTOR: VBS-WRAPPER blast-radius audit + CryptoTwin live regression found+fixed (13 more templates fixed) -- REVOKE surface
 
 **Task picked (priority-4, HIGH queue item VBS-WRAPPER-EXIT-CODE-BLIND-SPOT, top-ranked
@@ -159,6 +208,7 @@ touched test files green (quoted per ship in SHIP-LOG-2026-08-06-EVENING.md).
 
 ## Known broken
 
+- [2026-08-07T16:26:31.638689] CATASTROPHE-CAP-SHADOW-LEDGER: n_fires reached 13 (>= 10) -- ready for the pre-registered widen decision queued as CATASTROPHE-CAP-WIDEN-WATCH. NOT itself a verdict. See analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl.
 - ~~Fleet replay harness: 6 pre-existing REDs, unowned~~ **ALL 6 NOW FIXED.** 3 of 6 fixed
   2026-08-06T20:58 ET (commit `9c302f99`, see CONDUCTOR entry above). **The remaining 3
   (`test_fleet_arm_replay.py::test_anchor_pass_rate_clears_threshold[safe-3|risky-1|
@@ -480,6 +530,14 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ## Live watch
 
+- [2026-08-07T12:17:01 ET] THETA STALL :: safe-2 SPY260807C00773000 qty=3 :: est theta burn -5.25 vs est delta gain -76.50 over last 15min (mid=0.985, unrealized=-11.71%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T12:15:04 ET] THETA STALL :: risky-3 SPY260807C00775000 qty=12 :: est theta burn -5.64 vs est delta gain +0.00 over last 15min (mid=0.225, unrealized=-22.58%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T12:14:03 ET] THETA STALL :: risky-1 SPY260807C00773000 qty=5 :: est theta burn -5.40 vs est delta gain -60.00 over last 15min (mid=0.995, unrealized=-9.17%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T12:13:02 ET] THETA STALL :: safe-3 SPY260807C00773000 qty=8 :: est theta burn -7.28 vs est delta gain -32.00 over last 15min (mid=1.055, unrealized=-4.54%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T09:55:04 ET] THETA STALL :: risky-1 SPY260807C00772000 qty=5 :: est theta burn -6.30 vs est delta gain +0.00 over last 15min (mid=1.415, unrealized=5.26%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T09:55:04 ET] THETA STALL :: safe-2 SPY260807C00772000 qty=3 :: est theta burn -5.43 vs est delta gain +0.00 over last 15min (mid=1.425, unrealized=-16.17%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T09:53:02 ET] THETA STALL :: risky-3 SPY260807C00774000 qty=12 :: est theta burn -5.04 vs est delta gain +0.00 over last 15min (mid=0.685, unrealized=8.06%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-07T09:52:02 ET] THETA STALL :: safe-3 SPY260807C00772000 qty=8 :: est theta burn -5.76 vs est delta gain +0.00 over last 15min (mid=1.375, unrealized=5.26%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-06T10:43:01 ET] THETA STALL :: safe-2 SPY260806P00770000 qty=3 :: est theta burn -6.48 vs est delta gain +0.00 over last 15min (mid=1.12, unrealized=-14.84%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-06T10:39:01 ET] THETA STALL :: risky-1 SPY260806P00770000 qty=5 :: est theta burn -5.65 vs est delta gain +0.00 over last 15min (mid=1.345, unrealized=10.57%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-06T10:37:01 ET] THETA STALL :: risky-3 SPY260806P00770000 qty=8 :: est theta burn -6.24 vs est delta gain +0.00 over last 15min (mid=1.125, unrealized=-13.28%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
@@ -492,75 +550,3 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
-## [2026-08-05T05:48 ET] conductor: OK -- CHEF-INBOX-BACKLOG-DRAIN -- commit `1772cb75`
-
-Budget gate PASSED ($1.87/$30, 1/4 fires pre-fire). Engine health GREEN, market closed
-(05:30 ET). STAGE-1 priority-1 (fill-funnel) clean (self-check DEGRADED only on
-PDT-BLOCKED[bold], expected Rule-7 enforcement, not a defect). Priority-2 (Engine RED) none.
-Priority-3 (self-audit gaps): no new batch since 2026-08-04T17:32:42, already fully triaged
-last fire. Priority-4/5: `task_scorer.py --top` and last fire's own "next fire" note both
-pointed to the same item -- `_chef-inbox` had **61 un-DONE items**, the next author-inbox
-priority now that validator/skill/lesson are all at 0.
-Did the dedup-first pass the queue item itself called for (L240 discipline: exact-key dedup
-misses reworded family duplicates). Grouped all 61 by semantic family (title/topic, not
-filename) and checked EVERY family against pre-existing `.DONE` canonicals BEFORE assuming
-a fresh open item was warranted -- found **9 families were re-recurrences of ideas already
-researched between 2026-07-09..07-21** that the swarm re-proposed blind to (FRED yield-curve:
-screened NEEDS-MORE-DATA 07-22; FINRA short-sale: KILL-studied, ~$4 real backtest; put/call
-ratio + IV-skew + CME-OI-change + TRIN + NYSE-TICK: REJECTED, several independently
-live-verified this pass's PREDECESSOR fire as infeasible (`^TRIN`/`^TICK` don't resolve via
-yfinance) or self-labeled paid; IEX-Cloud: CLOSED-REDUNDANT vs the Alpaca/SIP feed already
-live; market-profile/TPO: folds into the already-open `volume_shelf_tv_vp` value-area/POC
-canonical, which itself already has a concrete next-step spec). Folded 20 newer duplicates
-into those existing verdicts. The remaining **10 families had no prior canonical** (ORB,
-overnight gap-fill, max-pain, futures calendar-basis, cumulative-delta/order-flow-proxy,
-harmonic-pattern, Globex overnight-range, WTI crude, VWAP mean-reversion, turn-of-month,
-CFTC COT) -- consolidated each to its oldest instance (15 dupes folded), with **2 corrected
-forward mid-fold**: ORB and max-pain's original asks self-labeled paid, but their own LATER
-recurrences (07-29, 07-28) found genuine $0 paths (ORB's first-30-min range is computable
-straight from the SPY 5m/1m bars already cached, zero new ingestion) -- kept these OPEN with
-the canonical note corrected, rather than leaving them wrongly-closed. 2 more items REJECTED
-standalone (self-labeled paid, no sibling to fold into: NYSE Advance-Decline Line, the
-ES-vs-MES cross-contract-basis idea).
-**Self-caught error, corrected in place (OP-33):** my own first-draft consolidation note on
-the cumulative-delta/order-flow family implied the bar-volume-proxy version was an
-acceptable substitute for real order-flow-imbalance -- re-reading the family canonical's own
-2026-07-23 note (which explicitly warns "do not attempt a bar-volume proxy and call it OFI,
-that's a different, weaker signal") caught the drift before commit; appended a `CORRECTION`
-block rather than silently leaving the imprecise framing in place.
-**Net: 61 -> 24 un-DONE items (61% reduction).** 37 items renamed `*.md.DONE` with individual
-per-item fold-reason notes, 20 canonical files got ONE consolidated note each (verified via
-`ls _chef-inbox | grep -v DONE | wc -l` before/after: 61 -> 24, and `git status --porcelain`
-matching exactly 58 changed files = 37 renames + 20 canonical modifies + queue.md, no
-overreach). Zero trading-path files touched -- pure inbox-hygiene/authoring, ships per
-OP-22/26 author-inbox mandate, no J gate needed. Built the dedup logic as a one-shot Python
-script (idempotent, safe to interrupt/resume -- hit and fixed two real bugs live: a `git mv`
-failure on an untracked same-day file, and a missing family I'd analyzed but forgot to wire
-into the script), then deleted it once its job was verified done (not a standing tool).
-**Filed the root-cause follow-up:** `PROSPECTOR-SEMANTIC-DEDUP-GAP` (queue.md, MED) -- the
-2026-07-21 `already_promoted_from_inbox()` fix only catches EXACT dedupe_key repeats, not the
-swarm rewording the same topic into a fresh slug (this is a RE-VIOLATION of L240, not a new
-lesson). Scoped as a bounded, mechanical next step (keyword-overlap check before
-`prospector.py` writes a new inbox file) -- not attempted this fire, correctly deferred as a
-separate bounded task rather than scope-creeping this one.
-Commit `1772cb75` — verified via `git show 1772cb75 --stat` (exactly 58 files) and
-`git status --porcelain` confirming zero absorption of other concurrent lanes' staged work
-(`commit_scoped.py`, per L271/C34 discipline — a bare `git commit` here would have swept an
-unrelated 1833-line repo-wide diff from other sessions into this commit).
-**REVOKE:** `git revert 1772cb75` — the whole pass is additive `<!-- NOTE/DONE -->` comment
-appends + `git mv` renames, cleanly restores all 61 items to their pre-fire un-DONE state.
-Rail-4 N/A (pure doctrine/inbox authoring, zero params/heartbeat_core/filters/placement/exit
-code touched).
-Next fire: `PROSPECTOR-SEMANTIC-DEDUP-GAP` is now the top author-inbox-adjacent item; the
-24 remaining open chef-inbox items are ready for actual chef-persona triage
-(build/reject/defer with real backtests), a genuinely different cost shape than this dedup
-pass. VBS-WRAPPER core fix remains queued, still correctly gated behind top-tier judgment.
-Autonomy metric to be refreshed via conductor_outcome.py this same fire.
-
----
-
-[2026-08-07 09:30:04] scout: HIGH catalyst @ 08:30 ET — July NFP (Employment Situation) — Premarket should set no-trade window 08:25-08:45
-
-### DEGRADED: self-check 2026-08-07T05:39:57
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
