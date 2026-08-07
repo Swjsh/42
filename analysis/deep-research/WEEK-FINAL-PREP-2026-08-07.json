@@ -1,0 +1,382 @@
+{
+ "artifact": "WEEK-FINAL-PREP-2026-08-07",
+ "lane": "LANE4-week-close",
+ "generated_at_et": "2026-08-07T12:25 (approx; instrument reads 12:01-12:15 ET)",
+ "pdt_ledger": {
+  "as_of_et": "2026-08-07T12:07:11.825248",
+  "arms": {
+   "bold-2": {
+    "equity": "5477.71",
+    "pattern_day_trader": null,
+    "broker_daytrade_count": null,
+    "multiplier": "4",
+    "count_5bd": 3,
+    "qualifying_dates": [
+     "2026-08-04"
+    ],
+    "pairs_per_date": {
+     "2026-08-04": 3
+    },
+    "next_rolloff": "2026-08-12",
+    "acct_error": null,
+    "detail_error": null
+   },
+   "risky-1": {
+    "equity": "6237.87",
+    "pattern_day_trader": null,
+    "broker_daytrade_count": null,
+    "multiplier": "4",
+    "count_5bd": 9,
+    "qualifying_dates": [
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05",
+     "2026-08-06",
+     "2026-08-07"
+    ],
+    "pairs_per_date": {
+     "2026-08-03": 1,
+     "2026-08-04": 4,
+     "2026-08-05": 2,
+     "2026-08-06": 1,
+     "2026-08-07": 1
+    },
+    "next_rolloff": "2026-08-11",
+    "acct_error": null,
+    "detail_error": null
+   },
+   "risky-3": {
+    "equity": "5126.08",
+    "pattern_day_trader": null,
+    "broker_daytrade_count": null,
+    "multiplier": "4",
+    "count_5bd": 10,
+    "qualifying_dates": [
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05",
+     "2026-08-06",
+     "2026-08-07"
+    ],
+    "pairs_per_date": {
+     "2026-08-03": 1,
+     "2026-08-04": 5,
+     "2026-08-05": 2,
+     "2026-08-06": 1,
+     "2026-08-07": 1
+    },
+    "next_rolloff": "2026-08-11",
+    "acct_error": null,
+    "detail_error": null
+   },
+   "safe-1": {
+    "equity": null,
+    "pattern_day_trader": null,
+    "broker_daytrade_count": null,
+    "multiplier": null,
+    "count_5bd": 0,
+    "qualifying_dates": [],
+    "pairs_per_date": {},
+    "next_rolloff": null,
+    "acct_error": "HTTP Error 401: Unauthorized",
+    "detail_error": null
+   },
+   "safe-2": {
+    "equity": "5568.36",
+    "pattern_day_trader": null,
+    "broker_daytrade_count": null,
+    "multiplier": "4",
+    "count_5bd": 9,
+    "qualifying_dates": [
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-05",
+     "2026-08-06",
+     "2026-08-07"
+    ],
+    "pairs_per_date": {
+     "2026-08-03": 1,
+     "2026-08-04": 3,
+     "2026-08-05": 2,
+     "2026-08-06": 2,
+     "2026-08-07": 1
+    },
+    "next_rolloff": "2026-08-11",
+    "acct_error": null,
+    "detail_error": null
+   },
+   "safe-3": {
+    "equity": "5595.55",
+    "pattern_day_trader": null,
+    "broker_daytrade_count": null,
+    "multiplier": "4",
+    "count_5bd": 7,
+    "qualifying_dates": [
+     "2026-08-03",
+     "2026-08-04",
+     "2026-08-07"
+    ],
+    "pairs_per_date": {
+     "2026-08-03": 1,
+     "2026-08-04": 5,
+     "2026-08-07": 1
+    },
+    "next_rolloff": "2026-08-11",
+    "acct_error": null,
+    "detail_error": null
+   }
+  },
+  "projection": {
+   "bold-2": {
+    "today": 3,
+    "2026-08-10": 3,
+    "2026-08-11": 3,
+    "2026-08-12": 0,
+    "2026-08-13": 0,
+    "2026-08-14": 0
+   },
+   "risky-1": {
+    "today": 9,
+    "2026-08-10": 9,
+    "2026-08-11": 8,
+    "2026-08-12": 4,
+    "2026-08-13": 2,
+    "2026-08-14": 1
+   },
+   "risky-3": {
+    "today": 10,
+    "2026-08-10": 10,
+    "2026-08-11": 9,
+    "2026-08-12": 4,
+    "2026-08-13": 2,
+    "2026-08-14": 1
+   },
+   "safe-1": {
+    "today": 0,
+    "2026-08-10": 0,
+    "2026-08-11": 0,
+    "2026-08-12": 0,
+    "2026-08-13": 0,
+    "2026-08-14": 0
+   },
+   "safe-2": {
+    "today": 9,
+    "2026-08-10": 9,
+    "2026-08-11": 8,
+    "2026-08-12": 5,
+    "2026-08-13": 3,
+    "2026-08-14": 1
+   },
+   "safe-3": {
+    "today": 7,
+    "2026-08-10": 7,
+    "2026-08-11": 6,
+    "2026-08-12": 1,
+    "2026-08-13": 1,
+    "2026-08-14": 1
+   }
+  }
+ },
+ "week_book_note": "per-arm per-day = sell_notional - buy_notional over option FILL activities; 2026-08-07 cells include OPEN wave-2 cost basis as negative (positions open at pull time 12:15 ET) -- morning REALIZED per broker 11:46 ET: safe-2 -153, safe-3 -176, risky-1 -95, risky-3 -205 = -629.46",
+ "week_book": {
+  "safe-2": {
+   "2026-08-03": {
+    "pnl": 68.0,
+    "n_fills": 3,
+    "symbols": [
+     "SPY260803C00757000"
+    ]
+   },
+   "2026-08-04": {
+    "pnl": 662.0,
+    "n_fills": 10,
+    "symbols": [
+     "SPY260804C00763000",
+     "SPY260804C00769000",
+     "SPY260804C00772000"
+    ]
+   },
+   "2026-08-05": {
+    "pnl": -339.0,
+    "n_fills": 4,
+    "symbols": [
+     "SPY260805C00777000",
+     "SPY260805P00772000"
+    ]
+   },
+   "2026-08-06": {
+    "pnl": 339.0,
+    "n_fills": 5,
+    "symbols": [
+     "SPY260806C00769000",
+     "SPY260806P00770000"
+    ]
+   },
+   "2026-08-07": {
+    "pnl": -486.0,
+    "n_fills": 4,
+    "symbols": [
+     "SPY260807C00772000",
+     "SPY260807C00773000"
+    ]
+   }
+  },
+  "safe-3": {
+   "2026-08-03": {
+    "pnl": 145.0,
+    "n_fills": 3,
+    "symbols": [
+     "SPY260803C00754000"
+    ]
+   },
+   "2026-08-04": {
+    "pnl": 637.0,
+    "n_fills": 18,
+    "symbols": [
+     "SPY260804C00763000",
+     "SPY260804C00768000",
+     "SPY260804C00769000",
+     "SPY260804C00771000",
+     "SPY260804C00772000"
+    ]
+   },
+   "2026-08-07": {
+    "pnl": -1056.0,
+    "n_fills": 3,
+    "symbols": [
+     "SPY260807C00772000",
+     "SPY260807C00773000"
+    ]
+   }
+  },
+  "risky-1": {
+   "2026-08-03": {
+    "pnl": 145.0,
+    "n_fills": 5,
+    "symbols": [
+     "SPY260803C00754000"
+    ]
+   },
+   "2026-08-04": {
+    "pnl": 1041.0,
+    "n_fills": 13,
+    "symbols": [
+     "SPY260804C00762000",
+     "SPY260804C00763000",
+     "SPY260804C00768000",
+     "SPY260804C00769000"
+    ]
+   },
+   "2026-08-05": {
+    "pnl": -138.0,
+    "n_fills": 13,
+    "symbols": [
+     "SPY260805C00776000",
+     "SPY260805P00772000"
+    ]
+   },
+   "2026-08-06": {
+    "pnl": 296.0,
+    "n_fills": 3,
+    "symbols": [
+     "SPY260806P00770000"
+    ]
+   },
+   "2026-08-07": {
+    "pnl": -640.0,
+    "n_fills": 4,
+    "symbols": [
+     "SPY260807C00772000",
+     "SPY260807C00773000"
+    ]
+   }
+  },
+  "risky-3": {
+   "2026-08-03": {
+    "pnl": 176.0,
+    "n_fills": 4,
+    "symbols": [
+     "SPY260803C00754000"
+    ]
+   },
+   "2026-08-04": {
+    "pnl": 805.0,
+    "n_fills": 20,
+    "symbols": [
+     "SPY260804C00762000",
+     "SPY260804C00763000",
+     "SPY260804C00765000",
+     "SPY260804C00768000",
+     "SPY260804C00769000"
+    ]
+   },
+   "2026-08-05": {
+    "pnl": -1458.0,
+    "n_fills": 13,
+    "symbols": [
+     "SPY260805C00776000",
+     "SPY260805P00772000"
+    ]
+   },
+   "2026-08-06": {
+    "pnl": 830.0,
+    "n_fills": 3,
+    "symbols": [
+     "SPY260806P00770000"
+    ]
+   },
+   "2026-08-07": {
+    "pnl": -576.0,
+    "n_fills": 3,
+    "symbols": [
+     "SPY260807C00774000",
+     "SPY260807C00775000"
+    ]
+   }
+  },
+  "bold-2": {
+   "2026-08-04": {
+    "pnl": 479.0,
+    "n_fills": 7,
+    "symbols": [
+     "SPY260804C00763000",
+     "SPY260804C00768000",
+     "SPY260804C00769000"
+    ]
+   }
+  }
+ },
+ "wave2_open_at_1215et": {
+  "safe-2": {
+   "symbol": "SPY260807C00773000",
+   "qty": 3,
+   "avg": 1.11,
+   "upl": -54
+  },
+  "safe-3": {
+   "symbol": "SPY260807C00773000",
+   "qty": 8,
+   "avg": 1.1,
+   "upl": -136
+  },
+  "risky-1": {
+   "symbol": "SPY260807C00773000",
+   "qty": 5,
+   "avg": 1.09,
+   "upl": -80
+  },
+  "risky-3": {
+   "symbol": "SPY260807C00775000",
+   "qty": 12,
+   "avg": 0.31,
+   "upl": -84
+  }
+ },
+ "archetypes": {
+  "2026-08-03": "gap-go",
+  "2026-08-04": "gap-go",
+  "2026-08-05": "gap-fade",
+  "2026-08-06": "range-chop",
+  "2026-08-07": "PENDING-library-rebuild"
+ }
+}

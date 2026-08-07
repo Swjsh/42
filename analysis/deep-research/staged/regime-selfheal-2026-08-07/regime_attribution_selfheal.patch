@@ -1,0 +1,40 @@
+diff --git a/setup/scripts/regime_attribution.py b/setup/scripts/regime_attribution.py
+index e8a3c07..f50a2e1 100644
+--- a/setup/scripts/regime_attribution.py
++++ b/setup/scripts/regime_attribution.py
+@@ -164,6 +164,25 @@ def load_library() -> dict:
+         return {}
+ 
+ 
++def _rebuild_library_once() -> bool:
++    """Self-heal (2026-08-07): the archetype library is only rebuilt premarket
++    (Gamma_RegimeStamp 06:40 ET), so at this instrument's 17:45 ET fire the
++    target day was never present and every session graded UNTAGGED (08-05 and
++    08-06 verified -- attribution-history.jsonl holds only the 08-04 manual
++    wiring-day row because upsert_history skips non-OK rows). The rolling
++    spy_5m cache lands same-day bars ~16:16 ET daily (40-session cadence), so
++    a rebuild at fire time succeeds. Fail-open: any error returns False and
++    the caller keeps the existing honest UNTAGGED path (OP-25)."""
++    try:
++        import subprocess
++        r = subprocess.run(
++            [sys.executable, str(REPO / "backtest" / "tools" / "build_day_archetypes.py")],
++            capture_output=True, text=True, timeout=600, cwd=str(REPO))
++        return r.returncode == 0
++    except Exception:
++        return False
++
++
+ def day_pnl_map() -> tuple[dict, dict]:
+     """(date -> total real P&L across arms, date -> list of round trips)."""
+     totals: dict[str, float] = {}
+@@ -192,6 +211,9 @@ def build_report(date_et: Optional[str] = None) -> dict:
+     if target is None:
+         return dict(base, status="NO_FILLS", reason="fills-ledger has no engine round trips")
+     rec = lib.get(target)
++    if rec is None and _rebuild_library_once():
++        lib = load_library()
++        rec = lib.get(target)
+     if rec is None:
+         return dict(base, status="UNTAGGED",
+                     reason=(f"{target} is not in the archetype library -- rebuild it "
