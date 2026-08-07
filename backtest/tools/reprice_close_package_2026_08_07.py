@@ -36,6 +36,8 @@ DATE = "2026-08-07"
 COSTING_OUT = ROOT / "analysis" / "recommendations" / f"gate-postfix-costing-{DATE}.json"
 EST_LANE_ARTIFACTS = [
     ROOT / "analysis" / "deep-research" / f"FRIDAY-REPLAY-{DATE}.json",
+    ROOT / "analysis" / "recommendations" / f"f10-f7-today-est-walk-{DATE}.json",
+    ROOT / "analysis" / "recommendations" / f"f10-f7-population-battery-{DATE}.smoke.json",
 ]
 
 
