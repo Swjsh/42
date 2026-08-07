@@ -1,0 +1,5684 @@
+{
+ "run_at_et": "2026-08-07 ~12:1x ET (market hours; analysis-only, no trading-path writes)",
+ "prereg_frame": {
+  "risk_unit": "0.5 * entry_premium * 100 (v15.3 -50% catastrophe cap; full-premium reading = same table at f/2)",
+  "cells": {
+   "f": [
+    0.015,
+    0.02,
+    0.03
+   ],
+   "variants": [
+    "prod_floor",
+    "prod_floor_shrink",
+    "no_floor"
+   ]
+  },
+  "pnl_model": "pnl_cf = pnl * qty_cf/qty, position-level (LEVER-SIZING leg-rounding caveat carried)",
+  "sequential": "per-arm equity compounding from first equity_pre of the week",
+  "population_verdict_source": "LEVER-SIZING-2026-08-06 cell (e) \u2014 constant-dollar REFUTED on 26-day book (-$2,981 at budget-neutral) + hump-shaped return-on-notional; this week run is the directive's narrower question, not a re-litigation"
+ },
+ "book_n_positions": 51,
+ "friday_morning_anatomy": [
+  {
+   "arm": "safe-2",
+   "qty": 3,
+   "entry_fill": 1.67,
+   "pnl": -153.0,
+   "pnl_per_contract": -51.0,
+   "entry_notional": 501.0,
+   "notional_pct_equity": 8.7,
+   "cat_cap_dollar_risk": 250.5,
+   "cat_cap_risk_pct_equity": 4.37,
+   "sod_equity": 5727.59,
+   "rule5_kill_budget": 1718.28,
+   "loss_pct_of_kill_budget": 8.9
+  },
+  {
+   "arm": "safe-3",
+   "qty": 8,
+   "entry_fill": 1.33,
+   "pnl": -176.0,
+   "pnl_per_contract": -22.0,
+   "entry_notional": 1064.0,
+   "notional_pct_equity": 18.4,
+   "cat_cap_dollar_risk": 532.0,
+   "cat_cap_risk_pct_equity": 9.2,
+   "sod_equity": 5780.15,
+   "rule5_kill_budget": 1734.04,
+   "loss_pct_of_kill_budget": 10.1
+  },
+  {
+   "arm": "risky-1",
+   "qty": 5,
+   "entry_fill": 1.33,
+   "pnl": -95.0,
+   "pnl_per_contract": -19.0,
+   "entry_notional": 665.0,
+   "notional_pct_equity": 10.5,
+   "cat_cap_dollar_risk": 332.5,
+   "cat_cap_risk_pct_equity": 5.25,
+   "sod_equity": 6338.25,
+   "rule5_kill_budget": 3169.12,
+   "loss_pct_of_kill_budget": 3.0
+  },
+  {
+   "arm": "risky-3",
+   "qty": 12,
+   "entry_fill": 0.62,
+   "pnl": -204.0,
+   "pnl_per_contract": -17.0,
+   "entry_notional": 744.0,
+   "notional_pct_equity": 13.9,
+   "cat_cap_dollar_risk": 372.0,
+   "cat_cap_risk_pct_equity": 6.96,
+   "sod_equity": 5342.98,
+   "rule5_kill_budget": 2671.49,
+   "loss_pct_of_kill_budget": 7.6
+  }
+ ],
+ "friday_book_loss_fills_gross": -628.0,
+ "friday_book_loss_official": -629.46,
+ "combined_kill_budget": 9292.93,
+ "book_loss_pct_of_combined_kill_budget": 6.8,
+ "cells": [
+  {
+   "f": 0.015,
+   "variant": "prod_floor",
+   "week_actual": 3060.0,
+   "week_cf": 3514.33,
+   "week_delta": 454.33,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 582.33,
+     "delta": 48.33
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 3565.5,
+     "delta": -58.5
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -1388.25,
+     "delta": 546.75
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 1153.75,
+     "delta": -311.25
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -399.0,
+     "delta": 229.0
+    }
+   },
+   "friday_morning_cf": -399.0,
+   "friday_morning_delta": 229.0,
+   "wed_cf": -1388.25,
+   "g1_aggregate_improves": true,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 2995.58,
+    "delta": 765.58
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 6286.33,
+    "delta": -374.67
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": -51.17,
+    "delta": 512.83
+   },
+   "n_floored": 50,
+   "n_skipped": 0,
+   "n_upsized": 1,
+   "n_downsized": 14,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 4,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 193.33
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 176.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 68.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 640.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -25.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -90.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 383.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 614.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 327.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 373.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -60.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -29.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 378.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 651.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 788.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 9.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -96.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -84.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -80.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -76.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -155.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -185.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 347.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -415.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -255.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 296.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 518.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -153.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -95.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  },
+  {
+   "f": 0.015,
+   "variant": "prod_floor_shrink",
+   "week_actual": 3060.0,
+   "week_cf": 3466.0,
+   "week_delta": 406.0,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 534.0,
+     "delta": 0.0
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 3565.5,
+     "delta": -58.5
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -1388.25,
+     "delta": 546.75
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 1153.75,
+     "delta": -311.25
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -399.0,
+     "delta": 229.0
+    }
+   },
+   "friday_morning_cf": -399.0,
+   "friday_morning_delta": 229.0,
+   "wed_cf": -1388.25,
+   "g1_aggregate_improves": true,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 2947.25,
+    "delta": 717.25
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 6238.0,
+    "delta": -423.0
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": -99.5,
+    "delta": 464.5
+   },
+   "n_floored": 50,
+   "n_skipped": 0,
+   "n_upsized": 0,
+   "n_downsized": 14,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 176.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 68.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 640.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -25.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -90.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 383.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 614.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 327.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 373.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -60.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -29.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 378.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 651.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 788.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 9.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -96.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -84.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -80.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -76.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -155.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -185.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 347.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -415.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -255.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 296.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 518.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -153.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -95.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  },
+  {
+   "f": 0.015,
+   "variant": "no_floor",
+   "week_actual": 3060.0,
+   "week_cf": 1575.51,
+   "week_delta": -1484.49,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 460.26,
+     "delta": -73.74
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 914.3,
+     "delta": -2709.7
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": 0.0,
+     "delta": 1935.0
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 275.95,
+     "delta": -1189.05
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -75.0,
+     "delta": 553.0
+    }
+   },
+   "friday_morning_cf": -75.0,
+   "friday_morning_delta": 553.0,
+   "wed_cf": 0.0,
+   "g1_aggregate_improves": false,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 1471.76,
+    "delta": -758.24
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 1785.51,
+    "delta": -4875.49
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": 661.21,
+    "delta": 1225.21
+   },
+   "n_floored": 0,
+   "n_skipped": 17,
+   "n_upsized": 1,
+   "n_downsized": 33,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 4,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 193.33
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 4,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 116.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 3,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 105.6
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 45.33
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 128.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -5.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 127.67
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 122.8
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 65.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 124.33
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -10.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -12.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -5.8
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -15.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 126.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 130.2
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 157.6
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 125.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 3.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -32.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -6.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 0,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 0,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 125.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 59.2
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 103.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -12.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 0,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -19.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 2,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -34.0
+    }
+   ]
+  },
+  {
+   "f": 0.02,
+   "variant": "prod_floor",
+   "week_actual": 3060.0,
+   "week_cf": 3562.67,
+   "week_delta": 502.67,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 630.67,
+     "delta": 96.67
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 3565.5,
+     "delta": -58.5
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -1388.25,
+     "delta": 546.75
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 1153.75,
+     "delta": -311.25
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -399.0,
+     "delta": 229.0
+    }
+   },
+   "friday_morning_cf": -399.0,
+   "friday_morning_delta": 229.0,
+   "wed_cf": -1388.25,
+   "g1_aggregate_improves": true,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 3043.92,
+    "delta": 813.92
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 6334.67,
+    "delta": -326.33
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": -2.83,
+    "delta": 561.17
+   },
+   "n_floored": 47,
+   "n_skipped": 0,
+   "n_upsized": 1,
+   "n_downsized": 14,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 241.67
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 176.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 68.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 640.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -25.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -90.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 383.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 614.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 327.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 373.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -60.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -29.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 378.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 651.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 788.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 9.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -96.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -84.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -80.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -76.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -155.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -185.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 347.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -415.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -255.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 296.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 518.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -153.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -95.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  },
+  {
+   "f": 0.02,
+   "variant": "prod_floor_shrink",
+   "week_actual": 3060.0,
+   "week_cf": 3466.0,
+   "week_delta": 406.0,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 534.0,
+     "delta": 0.0
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 3565.5,
+     "delta": -58.5
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -1388.25,
+     "delta": 546.75
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 1153.75,
+     "delta": -311.25
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -399.0,
+     "delta": 229.0
+    }
+   },
+   "friday_morning_cf": -399.0,
+   "friday_morning_delta": 229.0,
+   "wed_cf": -1388.25,
+   "g1_aggregate_improves": true,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 2947.25,
+    "delta": 717.25
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 6238.0,
+    "delta": -423.0
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": -99.5,
+    "delta": 464.5
+   },
+   "n_floored": 47,
+   "n_skipped": 0,
+   "n_upsized": 0,
+   "n_downsized": 14,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 176.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 68.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 640.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -25.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -90.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 383.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 614.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 327.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 373.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -60.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -29.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 378.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 651.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 788.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 9.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -96.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -84.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -80.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -76.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -155.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -185.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 347.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -415.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -255.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 296.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 518.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -153.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -95.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  },
+  {
+   "f": 0.02,
+   "variant": "no_floor",
+   "week_actual": 3060.0,
+   "week_cf": 1424.07,
+   "week_delta": -1635.93,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 630.67,
+     "delta": 96.67
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 886.3,
+     "delta": -2737.7
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -225.85,
+     "delta": 1709.15
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 275.95,
+     "delta": -1189.05
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -143.0,
+     "delta": 485.0
+    }
+   },
+   "friday_morning_cf": -143.0,
+   "friday_morning_delta": 485.0,
+   "wed_cf": -225.85,
+   "g1_aggregate_improves": false,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 1320.32,
+    "delta": -909.68
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 1997.07,
+    "delta": -4663.93
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": 537.77,
+    "delta": 1101.77
+   },
+   "n_floored": 0,
+   "n_skipped": 6,
+   "n_upsized": 1,
+   "n_downsized": 41,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 241.67
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 176.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 68.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -15.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 128.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -5.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 127.67
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 122.8
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 65.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 124.33
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -10.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -12.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -5.8
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -15.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 126.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 130.2
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 157.6
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 125.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 3.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -32.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -6.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -28.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 0,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 0,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": 0.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -16.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -15.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -31.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -37.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 69.4
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -83.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 125.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 59.2
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 103.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -12.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -51.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -22.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -19.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 3,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -51.0
+    }
+   ]
+  },
+  {
+   "f": 0.03,
+   "variant": "prod_floor",
+   "week_actual": 3060.0,
+   "week_cf": 3910.4,
+   "week_delta": 850.4,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 978.4,
+     "delta": 444.4
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 3565.5,
+     "delta": -58.5
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -1388.25,
+     "delta": 546.75
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 1153.75,
+     "delta": -311.25
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -399.0,
+     "delta": 229.0
+    }
+   },
+   "friday_morning_cf": -399.0,
+   "friday_morning_delta": 229.0,
+   "wed_cf": -1388.25,
+   "g1_aggregate_improves": true,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 3391.65,
+    "delta": 1161.65
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 6682.4,
+    "delta": 21.4
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": 344.9,
+    "delta": 908.9
+   },
+   "n_floored": 44,
+   "n_skipped": 0,
+   "n_upsized": 4,
+   "n_downsized": 14,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 8,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 386.67
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 8,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 232.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 7,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 246.4
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 5,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 113.33
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 640.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -25.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -90.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 383.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 614.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 327.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 373.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -60.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -29.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 378.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 651.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 788.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 9.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -96.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -84.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -80.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -76.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -155.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -185.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 347.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -415.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -255.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 296.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 518.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -153.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -95.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  },
+  {
+   "f": 0.03,
+   "variant": "prod_floor_shrink",
+   "week_actual": 3060.0,
+   "week_cf": 3466.0,
+   "week_delta": 406.0,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 534.0,
+     "delta": 0.0
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 3565.5,
+     "delta": -58.5
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -1388.25,
+     "delta": 546.75
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 1153.75,
+     "delta": -311.25
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -399.0,
+     "delta": 229.0
+    }
+   },
+   "friday_morning_cf": -399.0,
+   "friday_morning_delta": 229.0,
+   "wed_cf": -1388.25,
+   "g1_aggregate_improves": true,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 2947.25,
+    "delta": 717.25
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 6238.0,
+    "delta": -423.0
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": -99.5,
+    "delta": 464.5
+   },
+   "n_floored": 45,
+   "n_skipped": 0,
+   "n_upsized": 0,
+   "n_downsized": 14,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 145.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 176.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 68.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 640.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -25.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -90.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 383.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 614.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 327.5
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 373.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -60.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -29.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -75.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -110.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 378.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 651.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 788.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 9.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -96.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -18.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -85.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -84.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -65.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -50.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -100.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -80.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -76.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -155.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -185.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 347.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -415.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -255.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 375.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 296.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 5,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 518.75
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -153.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 3,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -66.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 5,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -95.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  },
+  {
+   "f": 0.03,
+   "variant": "no_floor",
+   "week_actual": 3060.0,
+   "week_cf": 2646.25,
+   "week_delta": -413.75,
+   "days": {
+    "2026-08-03": {
+     "actual": 534.0,
+     "cf": 978.4,
+     "delta": 444.4
+    },
+    "2026-08-04": {
+     "actual": 3624.0,
+     "cf": 1781.8,
+     "delta": -1842.2
+    },
+    "2026-08-05": {
+     "actual": -1935.0,
+     "cf": -435.85,
+     "delta": 1499.15
+    },
+    "2026-08-06": {
+     "actual": 1465.0,
+     "cf": 539.9,
+     "delta": -925.1
+    },
+    "2026-08-07": {
+     "actual": -628.0,
+     "cf": -218.0,
+     "delta": 410.0
+    }
+   },
+   "friday_morning_cf": -218.0,
+   "friday_morning_delta": 410.0,
+   "wed_cf": -435.85,
+   "g1_aggregate_improves": false,
+   "g3_ex_best": {
+    "actual": 2230.0,
+    "cf": 2438.75,
+    "delta": 208.75
+   },
+   "g4_runner_cohort": {
+    "n": 24,
+    "actual": 6661.0,
+    "cf": 3651.25,
+    "delta": -3009.75
+   },
+   "drop_best_day": {
+    "dropped": "2026-08-04",
+    "actual": -564.0,
+    "cf": 864.45,
+    "delta": 1428.45
+   },
+   "n_floored": 0,
+   "n_skipped": 0,
+   "n_upsized": 4,
+   "n_downsized": 45,
+   "positions": [
+    {
+     "date": "2026-08-03",
+     "arm": "safe-3",
+     "time": "09:42:04",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 3,
+     "qty_cf": 8,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 386.67
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-1",
+     "time": "09:42:05",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 8,
+     "entry_px": 0.37,
+     "pnl": 145.0,
+     "pnl_cf": 232.0
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "risky-3",
+     "time": "09:42:06",
+     "contract": "SPY 2026-08-03 754C",
+     "qty": 5,
+     "qty_cf": 7,
+     "entry_px": 0.38,
+     "pnl": 176.0,
+     "pnl_cf": 246.4
+    },
+    {
+     "date": "2026-08-03",
+     "arm": "safe-2",
+     "time": "13:21:50",
+     "contract": "SPY 2026-08-03 757C",
+     "qty": 3,
+     "qty_cf": 5,
+     "entry_px": 0.53,
+     "pnl": 68.0,
+     "pnl_cf": 113.33
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:46:07",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.77,
+     "pnl": -75.0,
+     "pnl_cf": -15.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:46:09",
+     "contract": "SPY 2026-08-04 762C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.75,
+     "pnl": -104.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "09:50:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.39,
+     "pnl": 640.0,
+     "pnl_cf": 256.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:50:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 2,
+     "entry_px": 1.46,
+     "pnl": -40.0,
+     "pnl_cf": -10.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:54:07",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 2,
+     "entry_px": 1.52,
+     "pnl": -144.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "09:56:50",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.35,
+     "pnl": 383.0,
+     "pnl_cf": 255.33
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.38,
+     "pnl": 614.0,
+     "pnl_cf": 245.6
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "09:57:09",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 8,
+     "qty_cf": 2,
+     "entry_px": 1.4,
+     "pnl": 524.0,
+     "pnl_cf": 131.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "09:58:06",
+     "contract": "SPY 2026-08-04 763C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.38,
+     "pnl": 373.0,
+     "pnl_cf": 248.67
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "10:35:08",
+     "contract": "SPY 2026-08-04 765C",
+     "qty": 8,
+     "qty_cf": 2,
+     "entry_px": 1.33,
+     "pnl": -80.0,
+     "pnl_cf": -20.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:26:58",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.11,
+     "pnl": -60.0,
+     "pnl_cf": -24.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:27:08",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.11,
+     "pnl": -39.0,
+     "pnl_cf": -39.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:27:10",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.11,
+     "pnl": -65.0,
+     "pnl_cf": -26.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:27:12",
+     "contract": "SPY 2026-08-04 768C",
+     "qty": 5,
+     "qty_cf": 3,
+     "entry_px": 1.04,
+     "pnl": -29.0,
+     "pnl_cf": -17.4
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "bold-2",
+     "time": "11:51:41",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.19,
+     "pnl": -75.0,
+     "pnl_cf": -30.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "11:52:09",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.21,
+     "pnl": -66.0,
+     "pnl_cf": -44.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "11:52:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -44.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "11:52:12",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.21,
+     "pnl": -110.0,
+     "pnl_cf": -44.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "12:28:08",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.33,
+     "pnl": 378.0,
+     "pnl_cf": 252.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-1",
+     "time": "12:28:10",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.33,
+     "pnl": 651.0,
+     "pnl_cf": 260.4
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "risky-3",
+     "time": "12:28:11",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.32,
+     "pnl": 788.0,
+     "pnl_cf": 315.2
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "12:28:43",
+     "contract": "SPY 2026-08-04 769C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.34,
+     "pnl": 375.0,
+     "pnl_cf": 250.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:24:08",
+     "contract": "SPY 2026-08-04 771C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.4,
+     "pnl": 9.0,
+     "pnl_cf": 6.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-2",
+     "time": "13:41:32",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.22,
+     "pnl": -96.0,
+     "pnl_cf": -64.0
+    },
+    {
+     "date": "2026-08-04",
+     "arm": "safe-3",
+     "time": "13:42:07",
+     "contract": "SPY 2026-08-04 772C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.22,
+     "pnl": -18.0,
+     "pnl_cf": -12.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "09:58:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.37,
+     "pnl": -85.0,
+     "pnl_cf": -17.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "09:58:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.35,
+     "pnl": -136.0,
+     "pnl_cf": -17.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "10:01:58",
+     "contract": "SPY 2026-08-05 777C",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.61,
+     "pnl": -84.0,
+     "pnl_cf": -56.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:06:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.27,
+     "pnl": -65.0,
+     "pnl_cf": -13.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:06:13",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.27,
+     "pnl": -80.0,
+     "pnl_cf": -10.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:10:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.2,
+     "pnl": -100.0,
+     "pnl_cf": -20.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:10:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.19,
+     "pnl": -160.0,
+     "pnl_cf": -20.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:14:05",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.12,
+     "pnl": -80.0,
+     "pnl_cf": -16.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:14:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.12,
+     "pnl": -122.0,
+     "pnl_cf": -15.25
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "10:18:06",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 2.06,
+     "pnl": -155.0,
+     "pnl_cf": -31.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "10:18:07",
+     "contract": "SPY 2026-08-05 776C",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 2.09,
+     "pnl": -296.0,
+     "pnl_cf": -37.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-1",
+     "time": "11:48:05",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 5,
+     "qty_cf": 1,
+     "entry_px": 1.69,
+     "pnl": 347.0,
+     "pnl_cf": 69.4
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "risky-3",
+     "time": "11:48:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 8,
+     "qty_cf": 1,
+     "entry_px": 1.65,
+     "pnl": -664.0,
+     "pnl_cf": -83.0
+    },
+    {
+     "date": "2026-08-05",
+     "arm": "safe-2",
+     "time": "11:49:07",
+     "contract": "SPY 2026-08-05 772P",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.63,
+     "pnl": -255.0,
+     "pnl_cf": -170.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "10:31:53",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 3,
+     "qty_cf": 2,
+     "entry_px": 1.28,
+     "pnl": 375.0,
+     "pnl_cf": 250.0
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-1",
+     "time": "10:32:06",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.23,
+     "pnl": 296.0,
+     "pnl_cf": 118.4
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "risky-3",
+     "time": "10:32:08",
+     "contract": "SPY 2026-08-06 770P",
+     "qty": 8,
+     "qty_cf": 2,
+     "entry_px": 1.28,
+     "pnl": 830.0,
+     "pnl_cf": 207.5
+    },
+    {
+     "date": "2026-08-06",
+     "arm": "safe-2",
+     "time": "14:21:55",
+     "contract": "SPY 2026-08-06 769C",
+     "qty": 3,
+     "qty_cf": 3,
+     "entry_px": 1.08,
+     "pnl": -36.0,
+     "pnl_cf": -36.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-2",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 3,
+     "qty_cf": 1,
+     "entry_px": 1.67,
+     "pnl": -153.0,
+     "pnl_cf": -51.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "safe-3",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 8,
+     "qty_cf": 2,
+     "entry_px": 1.33,
+     "pnl": -176.0,
+     "pnl_cf": -44.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-1",
+     "time": "09:46",
+     "contract": "SPY260807C00772000",
+     "qty": 5,
+     "qty_cf": 2,
+     "entry_px": 1.33,
+     "pnl": -95.0,
+     "pnl_cf": -38.0
+    },
+    {
+     "date": "2026-08-07",
+     "arm": "risky-3",
+     "time": "09:46",
+     "contract": "SPY260807C00774000",
+     "qty": 12,
+     "qty_cf": 5,
+     "entry_px": 0.62,
+     "pnl": -204.0,
+     "pnl_cf": -85.0
+    }
+   ]
+  }
+ ]
+}
