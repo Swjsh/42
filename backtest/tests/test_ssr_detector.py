@@ -263,3 +263,75 @@ class TestSSRDetectorTextbookCases:
         sigs_b_upto = [s for s in sigs_b if s.bar_index <= _SIGNAL_BAR_IDX]
         assert sigs_a_upto == sigs_b_upto
         assert len(sigs_a_upto) == 1  # sanity: the mutation test isn't vacuously true
+
+
+# ═══════════ SSR-v1 ADDENDUM: RUN_* sweep-reference LOCK (Builder 2) ═══════
+
+@dataclass(frozen=True)
+class _RunHighSnap:
+    """Minimal stub mirroring the RUN_DAY_HIGH shape of a real
+    include_running=True LevelSnapshot (levels.py) -- a single sweepable
+    HIGH-type level named RUN_DAY_HIGH, price supplied per-bar (unlike
+    `_make_snapshots`'s single constant-repeated instance) so the fixture
+    can simulate a live, monotonically GROWING running extreme."""
+    run_day_high: Optional[float] = None
+
+    def sweepable_highs(self):
+        return [("RUN_DAY_HIGH", self.run_day_high)] if self.run_day_high is not None else []
+
+    def sweepable_lows(self):
+        return []
+
+
+class TestRunLevelLockedReference:
+    """Addendum #1: 'the sweep reference price LOCKS at the pierce bar ...
+    the level must not chase price during the close-back/retest sequence.'
+    Reuses the EXACT `_SHORT_ROWS` textbook fixture (calibrated pierce at
+    idx20, LH-pivot shift at idx25, retest+signal at idx32) but swaps the
+    constant PDH=110.0 for a RUN_DAY_HIGH that is flat at 110.0 through the
+    pierce bar (idx0..20 -- so the pierce/close-back mechanics are BYTE
+    IDENTICAL to test 1 above) and then grows by +5.0 every bar from idx21
+    onward, reaching 170.0 by the signal bar (idx32) -- 60 points above any
+    price action in the fixture. If detector.py used the LIVE (still
+    growing) value instead of the LOCKED pierce-bar value for the shift/
+    zone-band/stop/retest geometry, the zone band at bar32 would center on
+    ~170 (nowhere near the ~109 price action), the retest condition would
+    never fire, and NO signal would ever be emitted from this fixture."""
+
+    def test_locked_reference_survives_a_still_growing_live_level(self):
+        bars = _mkbars(_SHORT_ROWS, _START)
+        snaps = []
+        for i in range(len(bars)):
+            px = 110.0 if i <= 20 else 110.0 + (i - 20) * 5.0
+            snaps.append(_RunHighSnap(run_day_high=px))
+        assert snaps[32].run_day_high == 170.0, "fixture sanity: live value must have grown far past 110"
+
+        sigs = _run(bars, snaps, DEFAULT_PARAMS)
+
+        assert len(sigs) == 1, (
+            f"expected exactly one signal using the LOCKED (110.0) reference -- got {sigs!r}. "
+            "An empty result here means the zone band chased the live (170.0-by-bar32) value "
+            "instead of locking at the pierce bar, so the engineered retest never touched it."
+        )
+        sig = sigs[0]
+        # Every field below must match test_textbook_short_sweep_shift_retest's
+        # PDH=110.0 signal EXACTLY -- proving the RUN_* geometry used the
+        # locked pierce-bar price (110.0), not the live value at any later bar.
+        assert sig.bar_index == _SIGNAL_BAR_IDX
+        assert sig.direction == "short"
+        assert sig.level_name == "RUN_DAY_HIGH"
+        assert sig.level_price == 110.0, "signal's level_price must be the LOCKED price, not a later live value"
+        assert sig.sweep_extreme == 111.5
+        assert sig.stop_price == pytest.approx(111.7728544276987)
+        assert sig.state_trace == {"swept_at_index": 20, "shifted_at_index": 25, "shift_mode": "pivot"}
+
+    def test_non_run_level_unaffected_by_a_name_starting_with_run_lookalike(self):
+        """Sanity: a plain (non-RUN_) level sharing none of the lock
+        machinery still behaves exactly as test 1 -- the lock is opt-in
+        strictly by the 'RUN_' name prefix, not a global behavior change."""
+        bars = _mkbars(_SHORT_ROWS, _START)
+        snaps = _make_snapshots(len(bars), prev_day_high=110.0)
+        sigs = _run(bars, snaps, DEFAULT_PARAMS)
+        assert len(sigs) == 1
+        assert sigs[0].level_name == "PDH"
+        assert sigs[0].level_price == 110.0

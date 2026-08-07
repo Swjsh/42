@@ -145,7 +145,41 @@ Grid is FROZEN as written above before first run — no post-hoc knob additions.
   beats_null=false → armable=false. SSR on PASS goes to own-book forward shadow
   (Edge3Sim pattern), nothing live.
 
-## 6. Session log
+## 6. How to PRACTICE this (J-facing)
+
+### Lane 1 — TV Bar Replay drill (your Plus plan; intraday replay verified for dojo work)
+
+One rep ≈ 10 minutes. Do 3–5 reps a sitting; log every rep.
+
+1. **Setup:** GC (or NQ) 15m chart, your session-levels indicator on. Pick a random past
+   day you haven't seen (avoid the last week — you'll remember it). Start Bar Replay at
+   **18:00 ET the prior evening** so the overnight levels build honestly.
+2. **Step to 07:00 ET, then pause and write the Step-1 context BEFORE advancing:** which
+   levels are overhead/underneath, where's the nearest liquidity pool, is price approaching
+   an important area? **No level nearby = no-trade rep — say it out loud and score the rep
+   on whether you actually stood down.**
+3. **Advance bar by bar.** Call each stage OUT LOUD as it forms (this is the discipline
+   being trained): "sweep" (pierce + close back), "shift" (LH/HL, opposing break, or
+   displacement), "retest" (return to the zone). Only after all three: state entry, stop
+   (beyond the sweep extreme), TP1 (1.5R), runner target — THEN advance and watch.
+4. **Score the rep** (journal, one line each): setup present? all 3 stages confirmed before
+   entry? entered during the sweep (violation)? stop honored? outcome in R.
+   Chasing the sweep or entering pre-shift = failed rep **even if it made money** (process
+   > P&L, same as live).
+5. **Weekly review:** count reps, % rule-clean, avg R on clean vs dirty reps. If clean reps
+   don't out-earn dirty ones over ≥30 reps, that's evidence worth bringing to the battery.
+
+### Lane 2 — machine practice (forward shadow, spec)
+
+On PULSE/PASS from v1: own-book watch-only ledger (Edge3Sim pattern — no broker, prices
+off live yfinance quotes) running the surviving config on GC 1h and/or 15m; every signal →
+synthetic entry/stop/TP1/runner + exit management identical to the battery sim; ledger →
+`automation/state/futures/ssr-shadow-*.jsonl`; arming bar = mirror-shadow's (≥20 closed
+round trips + positive expectancy + beats same-horizon B&H null); scheduled task in the
+Gamma_FuturesMirror pattern. **Real-money arming = J only** — and futures have no live
+broker path anyway until the Tastytrade tokens rotate (or a new broker is approved).
+
+## 7. Session log
 
 - 2026-08-07: doc created; extraction + autopsy + v0 spec pre-registered. Data probe: yfinance
   GC/NQ/ES/MES/MGC 15m×60d + GC 1h×730d + ^VIX 15m×60d/daily×2y all available, $0. Map

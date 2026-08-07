@@ -236,5 +236,172 @@ def test_degenerate_r_below_one_tick_is_skipped_and_counted():
     assert stats["skipped_degenerate"] == 1
 
 
+# ===========================================================================
+# SSR-v1 ADDENDUM guards -- run_ssr_battery.py's own contract (CLI dispatch,
+# grid enumeration, pulse-tier ladder, diagnostic aggregation). NO import of
+# detector.py/levels.py internals (sibling, parallel-built modules) -- these
+# tests exercise run_ssr_battery.py's pure helpers + config in isolation,
+# same spirit as this file's v0 tests above for backtest_runner.py.
+# ===========================================================================
+
+from futures.ssr import run_ssr_battery  # noqa: E402
+
+
+# --- v1 grid enumeration ----------------------------------------------------
+
+def test_v1_grid_enumerates_exactly_8_combos():
+    assert len(run_ssr_battery.GRID_V1) == 8
+    combos = {(c["h4_anchor"], c["zone_atr_mult"], c["sweep_atr_mult"]) for c in run_ssr_battery.GRID_V1}
+    assert len(combos) == 8  # no duplicate combos
+    assert {c["h4_anchor"] for c in run_ssr_battery.GRID_V1} == {"1800", "2000"}
+    assert {c["zone_atr_mult"] for c in run_ssr_battery.GRID_V1} == {0.25, 0.5}
+    assert {c["sweep_atr_mult"] for c in run_ssr_battery.GRID_V1} == {0.10, 0.25}
+
+
+def test_v1_family_a_enumerates_48_cells():
+    cfg = run_ssr_battery.FAMILIES_V1["A"]
+    n_cells = len(cfg["symbols"]) * 2 * len(run_ssr_battery.GRID_V1)  # x2 directions
+    assert n_cells == 48
+    assert cfg["symbols"] == ["GC=F", "NQ=F", "ES=F"]
+
+
+def test_v1_family_b_enumerates_16_cells():
+    cfg = run_ssr_battery.FAMILIES_V1["B"]
+    n_cells = len(cfg["symbols"]) * 2 * len(run_ssr_battery.GRID_V1)
+    assert n_cells == 16
+    assert cfg["symbols"] == ["GC=F"]
+
+
+# --- v0 path untouched -------------------------------------------------------
+
+def test_v0_grid_and_families_unchanged_by_v1_addition():
+    """v0 GRID/FAMILIES -- byte-identical to the pre-v1 spec (DESIGN.md sec
+    4): 4 combos, unchanged output filenames, unchanged symbol lists/OOS
+    cuts. Adding v1 must never mutate the v0 config it was built alongside."""
+    assert run_ssr_battery.GRID == [
+        {"zone_atr_mult": z, "sweep_atr_mult": s} for z in (0.25, 0.5) for s in (0.10, 0.25)
+    ]
+    assert run_ssr_battery.FAMILIES["A"]["output_name"] == "futures-ssr-smoke.json"
+    assert run_ssr_battery.FAMILIES["B"]["output_name"] == "futures-ssr-regime.json"
+    assert run_ssr_battery.FAMILIES["A"]["symbols"] == ["GC=F", "NQ=F", "ES=F"]
+    assert run_ssr_battery.FAMILIES["B"]["symbols"] == ["GC=F"]
+    assert run_ssr_battery.FAMILIES["A"]["oos_cut"] == __import__("datetime").date(2026, 7, 20)
+    assert run_ssr_battery.FAMILIES["B"]["oos_cut"] == __import__("datetime").date(2026, 1, 1)
+
+
+def test_cli_version_defaults_to_v0_and_dispatches_run_family(monkeypatch):
+    calls = []
+    monkeypatch.setattr(run_ssr_battery, "run_family",
+                         lambda family, refresh: calls.append(("v0", family, refresh)))
+    monkeypatch.setattr(run_ssr_battery, "run_family_v1",
+                         lambda family, refresh: calls.append(("v1", family, refresh)))
+    monkeypatch.setattr(sys, "argv", ["run_ssr_battery.py", "--family", "A"])
+    run_ssr_battery.main()
+    assert calls == [("v0", "A", False)]
+
+
+def test_cli_version_v1_dispatches_run_family_v1_not_v0(monkeypatch):
+    calls = []
+    monkeypatch.setattr(run_ssr_battery, "run_family",
+                         lambda family, refresh: calls.append(("v0", family, refresh)))
+    monkeypatch.setattr(run_ssr_battery, "run_family_v1",
+                         lambda family, refresh: calls.append(("v1", family, refresh)))
+    monkeypatch.setattr(sys, "argv",
+                         ["run_ssr_battery.py", "--family", "B", "--version", "v1", "--refresh-data"])
+    run_ssr_battery.main()
+    assert calls == [("v1", "B", True)]
+
+
+# --- pulse-tier ladder logic (synthetic cell fixtures) ----------------------
+
+def _fixture_cell(*, oos_n, oos_mean, beats_bh, drop_top3, fdr_survivor=False, total_net=0.0):
+    return {
+        "symbol": "GC=F", "direction": "long",
+        "combo": {"h4_anchor": "1800", "zone_atr_mult": 0.25, "sweep_atr_mult": 0.10},
+        "oos": {"n": oos_n, "mean": oos_mean}, "beats_bh": beats_bh, "drop_top3_net": drop_top3,
+        "fdr_survivor": fdr_survivor, "total_net": total_net,
+    }
+
+
+def test_pulse_cells_requires_oos_n_at_least_10():
+    below = _fixture_cell(oos_n=9, oos_mean=100.0, beats_bh=True, drop_top3=50.0)
+    at_bar = _fixture_cell(oos_n=10, oos_mean=100.0, beats_bh=True, drop_top3=50.0)
+    assert run_ssr_battery._pulse_cells([below]) == []
+    assert run_ssr_battery._pulse_cells([at_bar]) == [at_bar]
+
+
+def test_pulse_cells_requires_positive_oos_mean():
+    zero = _fixture_cell(oos_n=20, oos_mean=0.0, beats_bh=True, drop_top3=50.0)
+    negative = _fixture_cell(oos_n=20, oos_mean=-5.0, beats_bh=True, drop_top3=50.0)
+    assert run_ssr_battery._pulse_cells([zero]) == []
+    assert run_ssr_battery._pulse_cells([negative]) == []
+
+
+def test_pulse_cells_requires_beats_bh_and_positive_drop_top3():
+    no_bh = _fixture_cell(oos_n=20, oos_mean=100.0, beats_bh=False, drop_top3=50.0)
+    no_drop = _fixture_cell(oos_n=20, oos_mean=100.0, beats_bh=True, drop_top3=-1.0)
+    zero_drop = _fixture_cell(oos_n=20, oos_mean=100.0, beats_bh=True, drop_top3=0.0)
+    assert run_ssr_battery._pulse_cells([no_bh]) == []
+    assert run_ssr_battery._pulse_cells([no_drop]) == []
+    assert run_ssr_battery._pulse_cells([zero_drop]) == []  # strictly > 0 required
+
+
+def test_pulse_cells_does_not_require_fdr_survivor():
+    """PULSE tier is explicitly NOT gated on FDR survival, unlike `clears`
+    (DESIGN.md addendum "v1 verdict rules": "not necessarily FDR survivors")."""
+    c = _fixture_cell(oos_n=15, oos_mean=852.5, beats_bh=True, drop_top3=1.0, fdr_survivor=False)
+    assert run_ssr_battery._pulse_cells([c]) == [c]
+
+
+def test_pulse_cells_mixed_population_filters_correctly():
+    # Mirrors v0 Family-B's real best cell (GC short 0.5/0.1: OOS n=35, +$852/tr, beats_bh).
+    good = _fixture_cell(oos_n=35, oos_mean=852.5, beats_bh=True, drop_top3=40380.58)
+    bad = _fixture_cell(oos_n=5, oos_mean=-100.0, beats_bh=False, drop_top3=-10.0)
+    assert run_ssr_battery._pulse_cells([good, bad]) == [good]
+
+
+# --- level_family / exit-reason aggregation ---------------------------------
+
+def test_level_family_breakdown_groups_by_name_and_sums_net():
+    trades = [
+        {"level_name": "PDH", "net": 100.0},
+        {"level_name": "PDH", "net": -40.0},
+        {"level_name": "RUN_DAY_HIGH", "net": 25.5},
+    ]
+    out = run_ssr_battery._level_family_breakdown(trades)
+    assert out == {
+        "PDH": {"n": 2, "total_net": 60.0},
+        "RUN_DAY_HIGH": {"n": 1, "total_net": 25.5},
+    }
+
+
+def test_level_family_breakdown_empty_trades_returns_empty_dict():
+    assert run_ssr_battery._level_family_breakdown([]) == {}
+
+
+def test_level_family_breakdown_rounds_to_cents():
+    trades = [{"level_name": "PDL", "net": 10.005}, {"level_name": "PDL", "net": 10.005}]
+    out = run_ssr_battery._level_family_breakdown(trades)
+    assert out["PDL"]["n"] == 2
+    assert out["PDL"]["total_net"] == round(20.01, 2)
+
+
+def test_exit_reason_breakdown_groups_by_outcome():
+    trades = [
+        {"outcome": "stopped", "net": -50.0},
+        {"outcome": "stopped", "net": -30.0},
+        {"outcome": "runner", "net": 200.0},
+    ]
+    out = run_ssr_battery._exit_reason_breakdown(trades)
+    assert out == {
+        "stopped": {"n": 2, "total_net": -80.0},
+        "runner": {"n": 1, "total_net": 200.0},
+    }
+
+
+def test_exit_reason_breakdown_empty_trades_returns_empty_dict():
+    assert run_ssr_battery._exit_reason_breakdown([]) == {}
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

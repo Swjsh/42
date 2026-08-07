@@ -26,7 +26,11 @@ State machine (per independent level episode -- see "Level identity" below):
              this module does not touch entry timing beyond the entry-window
              filter below).
     Any stage timing out -> back to IDLE (the SAME level can sweep again
-    later and generate an independent signal; see "Level identity").
+    later and generate an independent signal; see "Level identity"). SSR-v1
+    ADDENDUM completeness fix: a bar that times out a stale SWEPT/SHIFTED
+    episode is evaluated the SAME bar as a potential fresh IDLE-state sweep
+    (v0 dropped this -- see test_ssr_adversarial_causality.py's
+    TestSweptTimeoutSameBarCoverageGap, updated to pin the fixed behavior).
 
 Direction: a buy-side sweep of a HIGH-type level arms SHORT (sweepable_highs
 -- PDH/PWH/PREV_4H_HIGH/ASIA_HIGH/LONDON_HIGH/NY_HIGH). A sell-side sweep of
@@ -55,6 +59,18 @@ between consecutive active bars, the in-flight episode (if any) is
 DISCARDED and a fresh IDLE episode starts for the new occurrence -- an
 in-progress sweep/shift against yesterday's PDH is meaningless once PDH has
 rolled to a new value.
+
+RUN_* levels (SSR-v1 ADDENDUM opt-in, levels.py's include_running=True) are
+the one exception to that rule: their price legitimately grows every bar
+while their period is in progress, so a bare price change must NOT discard
+an in-flight episode. Instead, `_Episode.locked_level_price` snapshots the
+level's price at the pierce bar (the IDLE->SWEPT transition) and every
+downstream geometry check -- shift/displacement, zone band, stop, retest --
+reads that locked value for the rest of the episode, never the live,
+still-growing running value ("the level must not chase price"). A RUN_*
+name that vanishes from a bar's active set entirely (its session/day ended)
+discards any in-flight episode outright, so a stale lock can never resurface
+against an unrelated later occurrence of the same name.
 
 No-look-ahead (C6): `find_swing_points` + `walk_structure` are called ONCE
 over the full `bars` array up front. This is intentionally NOT a look-ahead
@@ -127,13 +143,38 @@ class SSRSignal:
 class _Episode:
     """Mutable per-level, per-sweep-attempt tracking state -- internal only,
     never returned to callers. `pierces` is a small rolling buffer of
-    (bar_index, extreme_price) tuples pruned to `sweep_close_back_bars`."""
+    (bar_index, extreme_price) tuples pruned to `sweep_close_back_bars`.
+
+    `locked_level_price` is the SSR-v1 ADDENDUM field: for RUN_* (running
+    running-extreme) levels only, the level's price as of the pierce bar
+    (the bar that transitioned IDLE -> SWEPT), locked so a live-growing
+    RUN_* value never "chases price" through the rest of the sweep -> shift
+    -> retest sequence (close-back, zone band, stop, retest all read this
+    locked value once set -- see SSRDetector.run()). None for non-RUN
+    levels (whose v0 `level_price` is already frozen for the episode's
+    lifetime by construction) and for RUN_* levels still IDLE.
+
+    `pending_ref_price` is the SELF-ABSORPTION FIX (round-1 fixer,
+    2026-08-07): for a RUN_* level, the level_price ANCHOR in effect for the
+    episode's CURRENT in-flight pierce sequence (from the bar of its first
+    still-valid pierce onward), set by `SSRDetector.run()` -- never re-read
+    from the live, still-growing snapshot value while `pierces` is non-empty.
+    Without this, a RUN_* level's own pierce bar becomes a completed prior
+    bar by the very next bar (levels.py's causal [period_start, i-1] rule),
+    self-inflating the level BEFORE the close-back confirmation or the
+    SWEPT-transition lock can read the true pierced value -- see
+    test_ssr_adversarial_run_level_self_absorption.py for the full mechanism
+    and a minimal reproduction. None whenever `pierces` is empty (no
+    in-flight pierce sequence to anchor) and for non-RUN levels (irrelevant:
+    their level_price is already frozen for the episode's lifetime)."""
     state: str = "IDLE"                      # "IDLE" | "SWEPT" | "SHIFTED"
     pierces: list = field(default_factory=list)
     swept_at_index: Optional[int] = None
     sweep_extreme: Optional[float] = None
     shifted_at_index: Optional[int] = None
     shift_mode: Optional[str] = None
+    locked_level_price: Optional[float] = None
+    pending_ref_price: Optional[float] = None
 
     def reset(self) -> None:
         self.state = "IDLE"
@@ -142,6 +183,8 @@ class _Episode:
         self.sweep_extreme = None
         self.shifted_at_index = None
         self.shift_mode = None
+        self.locked_level_price = None
+        self.pending_ref_price = None
 
 
 def _infer_granularity_seconds(bars: pd.DataFrame) -> int:
@@ -218,6 +261,17 @@ def _retest_reaction(direction: str, bar_open: float, bar_high: float, bar_low: 
 def _step_idle(ep: _Episode, direction: str, i: int, bar_high: float, bar_low: float,
                bar_close: float, level_price: float, s_mult: float,
                close_back_bars: int, atr_val: float) -> None:
+    """`level_price` here is whatever reference the caller (`SSRDetector.run`)
+    decided applies THIS bar -- for a RUN_* level with an in-flight pierce
+    sequence, that is already the anchored `pending_ref_price` from the first
+    pierce, not the live snapshot value (see `SSRDetector.run`'s IDLE-branch
+    call site and `_Episode.pending_ref_price`'s docstring). This function
+    stays a pure mechanical pierce/close-back tracker against whatever single
+    `level_price` it's handed; it also persists that same value onto
+    `ep.pending_ref_price` for the caller to reuse on the NEXT bar, cleared
+    back to None the moment `pierces` empties (pruned away or consumed by a
+    SWEPT transition) so a stale anchor can never leak into an unrelated
+    later pierce sequence."""
     ep.pierces = [(idx, ext) for idx, ext in ep.pierces if (i - idx) < close_back_bars]
     if _pierced(direction, bar_high, bar_low, level_price, s_mult, atr_val):
         ep.pierces.append((i, bar_high if direction == "short" else bar_low))
@@ -227,6 +281,7 @@ def _step_idle(ep: _Episode, direction: str, i: int, bar_high: float, bar_low: f
         ep.swept_at_index = i
         ep.sweep_extreme = max(extremes) if direction == "short" else min(extremes)
         ep.pierces = []
+    ep.pending_ref_price = level_price if ep.pierces else None
 
 
 def _step_swept(ep: _Episode, direction: str, i: int, bar_open: float, bar_high: float,
@@ -322,6 +377,7 @@ class SSRDetector:
 
         episodes: dict[str, _Episode] = {}
         last_price: dict[str, float] = {}
+        prev_active_run_names: set = set()
         signals: list[SSRSignal] = []
 
         for i in range(n):
@@ -336,6 +392,19 @@ class SSRDetector:
             if not active:
                 continue
 
+            # RUN_* episode hygiene (addendum #1): a session-scoped (or
+            # day-scoped, across a day roll) RUN_* level can vanish from
+            # `active` entirely per levels.py's own contract ("a session's
+            # running level exists only DURING that session") and later
+            # reappear against a wholly unrelated occurrence. Discard any
+            # in-flight episode the moment its name drops out, so a stale
+            # locked reference can never silently resurface later (C7).
+            cur_run_names = {name for name in active if name.startswith("RUN_")}
+            for stale in prev_active_run_names - cur_run_names:
+                if stale in episodes:
+                    episodes[stale].reset()
+            prev_active_run_names = cur_run_names
+
             a = atr_arr[i]
             atr_ok = np.isfinite(a) and a > 0
 
@@ -345,33 +414,82 @@ class SSRDetector:
                         f"SSRDetector.run: level {name!r} has invalid kind {kind!r}; "
                         "expected 'high' or 'low'"
                     )
-                if name not in episodes or last_price.get(name) != level_price:
-                    # fresh occurrence of this level (first sight, or its
-                    # underlying period rolled to a new price) -> abandon any
-                    # in-flight episode against the stale price and restart.
+                is_run = name in cur_run_names
+
+                if name not in episodes:
+                    episodes[name] = _Episode()
+                    if not is_run:
+                        last_price[name] = level_price
+                elif not is_run and last_price.get(name) != level_price:
+                    # fresh occurrence of a NON-running level (first sight, or
+                    # its underlying period rolled to a new price) -> abandon
+                    # any in-flight episode against the stale price and
+                    # restart. RUN_* levels skip this entirely -- their price
+                    # legitimately grows every bar, and the addendum requires
+                    # the sweep reference to LOCK at the pierce bar rather
+                    # than chase that live value (handled below via
+                    # locked_level_price), so a bare price change must never
+                    # abandon a RUN_* episode.
                     episodes[name] = _Episode()
                     last_price[name] = level_price
+
                 if not atr_ok:
                     continue  # ATR warmup -> no episode activity this bar (spec: "ATR NaN -> no episodes")
 
                 ep = episodes[name]
                 direction = "short" if kind == "high" else "long"
 
+                # Timeout completeness fix (addendum #3, v0 WARN): a bar that
+                # times out a stale SWEPT/SHIFTED episode is reset to IDLE
+                # in-place (not `continue`d past) so THIS SAME bar still gets
+                # evaluated below as a potential fresh IDLE-state sweep.
+                if ep.state == "SWEPT" and i - ep.swept_at_index > p.shift_window_bars:
+                    ep.reset()
+                elif ep.state == "SHIFTED" and i - ep.shifted_at_index > p.retest_window_bars:
+                    ep.reset()
+
+                # RUN_* sweep-reference lock (addendum #1): once an episode
+                # has left IDLE, all geometry (close-back already happened at
+                # the IDLE->SWEPT transition; shift/displacement, zone band,
+                # stop, retest below) reads the LOCKED price from the pierce
+                # bar, never the live (still-growing) running value. Non-RUN
+                # levels have no lock -- their level_price is already frozen
+                # for the episode's lifetime by construction.
+                geo_price = (ep.locked_level_price if (is_run and ep.locked_level_price is not None)
+                             else level_price)
+
                 if ep.state == "IDLE":
+                    # Self-absorption fix (round-1 fixer, 2026-08-07): once a
+                    # RUN_* episode has an in-flight pierce sequence
+                    # (ep.pierces non-empty from a PRIOR bar), feed
+                    # `_step_idle` the ANCHORED price from that sequence's
+                    # first pierce, never the live snapshot `level_price` --
+                    # a RUN_* level's own pierce bar becomes a completed
+                    # prior bar by the very next bar (levels.py's causal
+                    # rule), so re-reading the live value here would let the
+                    # close-back test and the SWEPT-transition lock compare
+                    # against a level the episode's own pierce just inflated.
+                    # A brand-new pierce sequence (ep.pierces empty entering
+                    # this bar) still anchors off the live value, exactly as
+                    # before. Non-RUN levels always use the live value, which
+                    # is provably constant across an episode's lifetime
+                    # anyway (see module docstring's "Level identity" note),
+                    # so this is a no-op for v0.
+                    idle_level_price = (
+                        ep.pending_ref_price
+                        if (is_run and ep.pierces and ep.pending_ref_price is not None)
+                        else level_price
+                    )
                     _step_idle(ep, direction, i, highs[i], lows[i], closes[i],
-                               level_price, p.sweep_atr_mult, p.sweep_close_back_bars, a)
+                               idle_level_price, p.sweep_atr_mult, p.sweep_close_back_bars, a)
+                    if is_run and ep.state == "SWEPT":
+                        ep.locked_level_price = idle_level_price  # lock at the TRUE pierce-bar value
                 elif ep.state == "SWEPT":
-                    if i - ep.swept_at_index > p.shift_window_bars:
-                        ep.reset()
-                        continue
                     _step_swept(ep, direction, i, opens[i], highs[i], lows[i], closes[i],
-                                level_price, a, p, events_by_break_idx, pivots_by_confirm_idx)
+                                geo_price, a, p, events_by_break_idx, pivots_by_confirm_idx)
                 elif ep.state == "SHIFTED":
-                    if i - ep.shifted_at_index > p.retest_window_bars:
-                        ep.reset()
-                        continue
                     sig = _step_shifted(ep, direction, i, opens[i], highs[i], lows[i], closes[i],
-                                        level_price, a, p, name, ts_col.iloc[i],
+                                        geo_price, a, p, name, ts_col.iloc[i],
                                         entry_start, entry_end)
                     if sig is not None:
                         signals.append(sig)

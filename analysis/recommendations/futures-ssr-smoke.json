@@ -1,7 +1,7 @@
 {
  "rule_id": "futures-ssr-smoke",
  "family": "A",
- "generated_at": "2026-08-07T14:13:15.547579",
+ "generated_at": "2026-08-07T16:10:30.888038",
  "spec_origin": [
   "backtest/futures/analysis/SSR-battery/DESIGN.md",
   "markdown/research/SSR-PIVOT-LIQUIDITY-STRATEGY.md"
@@ -63,15 +63,15 @@
     "zone_atr_mult": 0.25,
     "sweep_atr_mult": 0.1
    },
-   "n": 30,
-   "wr": 0.3667,
-   "total_net": -25315.37,
-   "mean_net": -843.85,
+   "n": 31,
+   "wr": 0.3548,
+   "total_net": -27619.45,
+   "mean_net": -890.95,
    "is": {
-    "n": 23,
-    "wr": 0.3478,
-    "total": -31111.52,
-    "mean": -1352.67
+    "n": 24,
+    "wr": 0.3333,
+    "total": -33415.6,
+    "mean": -1392.32
    },
    "oos": {
     "n": 7,
@@ -82,18 +82,18 @@
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -723.04,
-    "p_value": 0.5572,
-    "r_median_points": 13.6843
+    "null_mean": -747.48,
+    "p_value": 0.5612,
+    "r_median_points": 13.4411
    },
-   "buy_and_hold_total": -117900.38,
+   "buy_and_hold_total": -118548.35,
    "beats_bh": true,
-   "drop_top3_net": -46307.85,
+   "drop_top3_net": -48611.93,
    "halves_stability": {
     "first_half_total": -26313.07,
-    "second_half_total": 997.7,
+    "second_half_total": -1306.38,
     "first_half_n": 15,
-    "second_half_n": 15
+    "second_half_n": 16
    },
    "trades": [
     {
@@ -437,6 +437,24 @@
      "r_points": 15.3708,
      "bars_held": 2,
      "atr_at_entry": 8.471285465699598
+    },
+    {
+     "date": "2026-07-10",
+     "ts_entry_et": "2026-07-10 11:45:00-04:00",
+     "direction": "long",
+     "level_name": "ASIA_LOW",
+     "shift_mode": "pivot",
+     "entry": 4115.6001,
+     "stop": 4108.1798,
+     "tp1": 4126.7305,
+     "runner": 4127.0,
+     "runner_source": "level",
+     "outcome": "stopped",
+     "gross": -2226.08,
+     "net": -2304.08,
+     "r_points": 7.4203,
+     "bars_held": 11,
+     "atr_at_entry": 10.799723027709721
     },
     {
      "date": "2026-07-14",
@@ -1395,15 +1413,15 @@
     "zone_atr_mult": 0.25,
     "sweep_atr_mult": 0.25
    },
-   "n": 29,
-   "wr": 0.3793,
-   "total_net": -27140.77,
-   "mean_net": -935.89,
+   "n": 30,
+   "wr": 0.3667,
+   "total_net": -29444.85,
+   "mean_net": -981.5,
    "is": {
-    "n": 23,
-    "wr": 0.3478,
-    "total": -33841.47,
-    "mean": -1471.37
+    "n": 24,
+    "wr": 0.3333,
+    "total": -36145.55,
+    "mean": -1506.06
    },
    "oos": {
     "n": 6,
@@ -1414,17 +1432,17 @@
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -323.23,
-    "p_value": 0.7541,
-    "r_median_points": 13.4411
+    "null_mean": -350.75,
+    "p_value": 0.7626,
+    "r_median_points": 13.3813
    },
-   "buy_and_hold_total": -120012.32,
+   "buy_and_hold_total": -120660.29,
    "beats_bh": true,
-   "drop_top3_net": -48133.25,
+   "drop_top3_net": -50437.33,
    "halves_stability": {
-    "first_half_total": -25605.04,
-    "second_half_total": -1535.73,
-    "first_half_n": 14,
+    "first_half_total": -28083.04,
+    "second_half_total": -1361.81,
+    "first_half_n": 15,
     "second_half_n": 15
    },
    "trades": [
@@ -1769,6 +1787,24 @@
      "r_points": 15.3708,
      "bars_held": 2,
      "atr_at_entry": 8.471285465699598
+    },
+    {
+     "date": "2026-07-10",
+     "ts_entry_et": "2026-07-10 11:45:00-04:00",
+     "direction": "long",
+     "level_name": "ASIA_LOW",
+     "shift_mode": "pivot",
+     "entry": 4115.6001,
+     "stop": 4108.1798,
+     "tp1": 4126.7305,
+     "runner": 4127.0,
+     "runner_source": "level",
+     "outcome": "stopped",
+     "gross": -2226.08,
+     "net": -2304.08,
+     "r_points": 7.4203,
+     "bars_held": 11,
+     "atr_at_entry": 10.799723027709721
     },
     {
      "date": "2026-07-14",
@@ -2637,15 +2673,15 @@
     "zone_atr_mult": 0.5,
     "sweep_atr_mult": 0.1
    },
-   "n": 34,
-   "wr": 0.3529,
-   "total_net": -24137.13,
-   "mean_net": -709.92,
+   "n": 35,
+   "wr": 0.3429,
+   "total_net": -26094.1,
+   "mean_net": -745.55,
    "is": {
-    "n": 25,
-    "wr": 0.36,
-    "total": -26488.55,
-    "mean": -1059.54
+    "n": 26,
+    "wr": 0.3462,
+    "total": -28445.52,
+    "mean": -1094.06
    },
    "oos": {
     "n": 9,
@@ -2656,18 +2692,18 @@
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -595.73,
-    "p_value": 0.5392,
-    "r_median_points": 13.6843
+    "null_mean": -596.72,
+    "p_value": 0.5382,
+    "r_median_points": 13.4411
    },
-   "buy_and_hold_total": -97092.11,
+   "buy_and_hold_total": -97470.11,
    "beats_bh": true,
-   "drop_top3_net": -46874.91,
+   "drop_top3_net": -48831.88,
    "halves_stability": {
     "first_half_total": -27080.34,
-    "second_half_total": 2943.21,
+    "second_half_total": 986.24,
     "first_half_n": 17,
-    "second_half_n": 17
+    "second_half_n": 18
    },
    "trades": [
     {
@@ -3029,6 +3065,24 @@
      "r_points": 15.3708,
      "bars_held": 2,
      "atr_at_entry": 8.471285465699598
+    },
+    {
+     "date": "2026-07-10",
+     "ts_entry_et": "2026-07-10 10:30:00-04:00",
+     "direction": "long",
+     "level_name": "ASIA_LOW",
+     "shift_mode": "pivot",
+     "entry": 4114.7002,
+     "stop": 4108.437,
+     "tp1": 4124.095,
+     "runner": 4127.0,
+     "runner_source": "level",
+     "outcome": "stopped",
+     "gross": -1878.97,
+     "net": -1956.97,
+     "r_points": 6.2632,
+     "bars_held": 0,
+     "atr_at_entry": 9.08555088155581
     },
     {
      "date": "2026-07-10",
@@ -4167,15 +4221,15 @@
     "zone_atr_mult": 0.5,
     "sweep_atr_mult": 0.25
    },
-   "n": 33,
-   "wr": 0.3636,
-   "total_net": -26472.44,
-   "mean_net": -802.2,
+   "n": 34,
+   "wr": 0.3529,
+   "total_net": -28429.41,
+   "mean_net": -836.16,
    "is": {
-    "n": 25,
-    "wr": 0.36,
-    "total": -29728.41,
-    "mean": -1189.14
+    "n": 26,
+    "wr": 0.3462,
+    "total": -31685.38,
+    "mean": -1218.67
    },
    "oos": {
     "n": 8,
@@ -4186,17 +4240,17 @@
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -437.04,
-    "p_value": 0.6562,
-    "r_median_points": 13.4411
+    "null_mean": -448.09,
+    "p_value": 0.6692,
+    "r_median_points": 13.3813
    },
-   "buy_and_hold_total": -100824.02,
+   "buy_and_hold_total": -101202.03,
    "beats_bh": true,
-   "drop_top3_net": -48797.44,
+   "drop_top3_net": -50754.41,
    "halves_stability": {
-    "first_half_total": -35114.74,
-    "second_half_total": 8642.3,
-    "first_half_n": 16,
+    "first_half_total": -27740.25,
+    "second_half_total": -689.16,
+    "first_half_n": 17,
     "second_half_n": 17
    },
    "trades": [
@@ -4559,6 +4613,24 @@
      "r_points": 15.3708,
      "bars_held": 2,
      "atr_at_entry": 8.471285465699598
+    },
+    {
+     "date": "2026-07-10",
+     "ts_entry_et": "2026-07-10 10:30:00-04:00",
+     "direction": "long",
+     "level_name": "ASIA_LOW",
+     "shift_mode": "pivot",
+     "entry": 4114.7002,
+     "stop": 4108.437,
+     "tp1": 4124.095,
+     "runner": 4127.0,
+     "runner_source": "level",
+     "outcome": "stopped",
+     "gross": -1878.97,
+     "net": -1956.97,
+     "r_points": 6.2632,
+     "bars_held": 0,
+     "atr_at_entry": 9.08555088155581
     },
     {
      "date": "2026-07-10",
@@ -5573,33 +5645,33 @@
    },
    "n": 47,
    "wr": 0.2979,
-   "total_net": -136245.49,
-   "mean_net": -2898.84,
+   "total_net": -131564.85,
+   "mean_net": -2799.25,
    "is": {
     "n": 31,
     "wr": 0.2581,
-    "total": -143426.74,
-    "mean": -4626.67
+    "total": -138236.1,
+    "mean": -4459.23
    },
    "oos": {
     "n": 16,
     "wr": 0.375,
-    "total": 7181.25,
-    "mean": 448.83
+    "total": 6671.25,
+    "mean": 416.95
    },
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -1226.54,
-    "p_value": 0.96,
-    "r_median_points": 101.3366
+    "null_mean": -1191.13,
+    "p_value": 0.959,
+    "r_median_points": 97.8632
    },
    "buy_and_hold_total": -247494.0,
    "beats_bh": true,
-   "drop_top3_net": -179466.12,
+   "drop_top3_net": -174785.48,
    "halves_stability": {
     "first_half_total": -116425.69,
-    "second_half_total": -19819.8,
+    "second_half_total": -15139.16,
     "first_half_n": 23,
     "second_half_n": 24
    },
@@ -6209,17 +6281,17 @@
      "ts_entry_et": "2026-07-17 11:30:00-04:00",
      "direction": "long",
      "level_name": "ASIA_LOW",
-     "shift_mode": "bos",
+     "shift_mode": "displacement",
      "entry": 28753.25,
-     "stop": 28397.406,
-     "tp1": 29287.016,
-     "runner": 29532.0,
+     "stop": 28698.906,
+     "tp1": 28834.766,
+     "runner": 28909.75,
      "runner_source": "level",
-     "outcome": "time_exit",
-     "gross": 1200.0,
-     "net": 1158.0,
-     "r_points": 355.844,
-     "bars_held": 21,
+     "outcome": "runner",
+     "gross": 6390.64,
+     "net": 6348.64,
+     "r_points": 54.344,
+     "bars_held": 1,
      "atr_at_entry": 97.29344936417804,
      "vix_agree": true,
      "mag7_breadth": -5
@@ -6389,16 +6461,16 @@
      "ts_entry_et": "2026-07-29 08:45:00-04:00",
      "direction": "long",
      "level_name": "LONDON_LOW",
-     "shift_mode": "bos",
+     "shift_mode": "pivot",
      "entry": 27912.0,
-     "stop": 27810.6634,
-     "tp1": 28064.005,
+     "stop": 27802.1634,
+     "tp1": 28076.755,
      "runner": 28080.0,
      "runner_source": "level",
      "outcome": "stopped",
-     "gross": -6080.2,
-     "net": -6122.2,
-     "r_points": 101.3366,
+     "gross": -6590.2,
+     "net": -6632.2,
+     "r_points": 109.8366,
      "bars_held": 4,
      "atr_at_entry": 62.244275487319314,
      "vix_agree": false,
@@ -7600,7 +7672,7 @@
     }
    ],
    "skip_counts": {
-    "skipped_while_open": 33,
+    "skipped_while_open": 34,
     "skipped_no_next_bar": 0,
     "skipped_degenerate": 0,
     "skipped_no_future_bars": 0,
@@ -7621,8 +7693,8 @@
    },
    "n": 44,
    "wr": 0.2727,
-   "total_net": -145991.5,
-   "mean_net": -3317.99,
+   "total_net": -146501.5,
+   "mean_net": -3329.58,
    "is": {
     "n": 27,
     "wr": 0.2593,
@@ -7632,22 +7704,22 @@
    "oos": {
     "n": 17,
     "wr": 0.2941,
-    "total": -5066.03,
-    "mean": -298.0
+    "total": -5576.03,
+    "mean": -328.0
    },
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -1217.47,
-    "p_value": 0.9865,
-    "r_median_points": 102.5499
+    "null_mean": -1285.85,
+    "p_value": 0.982,
+    "r_median_points": 103.0392
    },
    "buy_and_hold_total": -282708.0,
    "beats_bh": true,
-   "drop_top3_net": -190097.13,
+   "drop_top3_net": -190607.13,
    "halves_stability": {
     "first_half_total": -143705.58,
-    "second_half_total": -2285.92,
+    "second_half_total": -2795.92,
     "first_half_n": 22,
     "second_half_n": 22
    },
@@ -8377,16 +8449,16 @@
      "ts_entry_et": "2026-07-29 08:45:00-04:00",
      "direction": "long",
      "level_name": "LONDON_LOW",
-     "shift_mode": "bos",
+     "shift_mode": "pivot",
      "entry": 27912.0,
-     "stop": 27810.6634,
-     "tp1": 28064.005,
+     "stop": 27802.1634,
+     "tp1": 28076.755,
      "runner": 28080.0,
      "runner_source": "level",
      "outcome": "stopped",
-     "gross": -6080.2,
-     "net": -6122.2,
-     "r_points": 101.3366,
+     "gross": -6590.2,
+     "net": -6632.2,
+     "r_points": 109.8366,
      "bars_held": 4,
      "atr_at_entry": 62.244275487319314,
      "vix_agree": false,
@@ -8553,15 +8625,15 @@
     "zone_atr_mult": 0.25,
     "sweep_atr_mult": 0.25
    },
-   "n": 47,
-   "wr": 0.383,
-   "total_net": 55484.84,
-   "mean_net": 1180.53,
+   "n": 48,
+   "wr": 0.3958,
+   "total_net": 68001.26,
+   "mean_net": 1416.69,
    "is": {
-    "n": 31,
-    "wr": 0.4194,
-    "total": 72001.4,
-    "mean": 2322.63
+    "n": 32,
+    "wr": 0.4375,
+    "total": 84517.82,
+    "mean": 2641.18
    },
    "oos": {
     "n": 16,
@@ -8572,17 +8644,17 @@
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": 861.78,
-    "p_value": 0.3663,
-    "r_median_points": 74.0505
+    "null_mean": 924.27,
+    "p_value": 0.2949,
+    "r_median_points": 75.2779
    },
-   "buy_and_hold_total": -131844.0,
+   "buy_and_hold_total": -154461.0,
    "beats_bh": true,
-   "drop_top3_net": -20454.44,
+   "drop_top3_net": -7938.02,
    "halves_stability": {
-    "first_half_total": 31908.07,
-    "second_half_total": 23576.77,
-    "first_half_n": 23,
+    "first_half_total": 45022.31,
+    "second_half_total": 22978.95,
+    "first_half_n": 24,
     "second_half_n": 24
    },
    "trades": [
@@ -9087,6 +9159,26 @@
      "mag7_breadth": -3
     },
     {
+     "date": "2026-06-29",
+     "ts_entry_et": "2026-06-29 10:00:00-04:00",
+     "direction": "short",
+     "level_name": "NY_HIGH",
+     "shift_mode": "bos",
+     "entry": 29618.75,
+     "stop": 29742.8903,
+     "tp1": 29432.5396,
+     "runner": 29363.25,
+     "runner_source": "level",
+     "outcome": "runner",
+     "gross": 12558.42,
+     "net": 12516.42,
+     "r_points": 124.1403,
+     "bars_held": 0,
+     "atr_at_entry": 80.9350776090972,
+     "vix_agree": true,
+     "mag7_breadth": -3
+    },
+    {
      "date": "2026-07-02",
      "ts_entry_et": "2026-07-02 10:30:00-04:00",
      "direction": "short",
@@ -9549,33 +9641,33 @@
    },
    "n": 54,
    "wr": 0.3519,
-   "total_net": -77635.95,
-   "mean_net": -1437.7,
+   "total_net": -72955.31,
+   "mean_net": -1351.02,
    "is": {
     "n": 38,
     "wr": 0.3684,
-    "total": -83090.05,
-    "mean": -2186.58
+    "total": -77899.41,
+    "mean": -2049.98
    },
    "oos": {
     "n": 16,
     "wr": 0.3125,
-    "total": 5454.1,
-    "mean": 340.88
+    "total": 4944.1,
+    "mean": 309.01
    },
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
     "null_mean": -559.5,
-    "p_value": 0.8226,
+    "p_value": 0.8016,
     "r_median_points": 102.5499
    },
    "buy_and_hold_total": -180468.0,
    "beats_bh": true,
-   "drop_top3_net": -131253.52,
+   "drop_top3_net": -126572.88,
    "halves_stability": {
     "first_half_total": -50801.47,
-    "second_half_total": -26834.48,
+    "second_half_total": -22153.84,
     "first_half_n": 27,
     "second_half_n": 27
    },
@@ -10325,17 +10417,17 @@
      "ts_entry_et": "2026-07-17 11:30:00-04:00",
      "direction": "long",
      "level_name": "ASIA_LOW",
-     "shift_mode": "bos",
+     "shift_mode": "displacement",
      "entry": 28753.25,
-     "stop": 28397.406,
-     "tp1": 29287.016,
-     "runner": 29532.0,
+     "stop": 28698.906,
+     "tp1": 28834.766,
+     "runner": 28909.75,
      "runner_source": "level",
-     "outcome": "time_exit",
-     "gross": 1200.0,
-     "net": 1158.0,
-     "r_points": 355.844,
-     "bars_held": 21,
+     "outcome": "runner",
+     "gross": 6390.64,
+     "net": 6348.64,
+     "r_points": 54.344,
+     "bars_held": 1,
      "atr_at_entry": 97.29344936417804,
      "vix_agree": true,
      "mag7_breadth": -5
@@ -10505,16 +10597,16 @@
      "ts_entry_et": "2026-07-29 08:45:00-04:00",
      "direction": "long",
      "level_name": "LONDON_LOW",
-     "shift_mode": "bos",
+     "shift_mode": "pivot",
      "entry": 27912.0,
-     "stop": 27810.6634,
-     "tp1": 28064.005,
+     "stop": 27802.1634,
+     "tp1": 28076.755,
      "runner": 28080.0,
      "runner_source": "level",
      "outcome": "stopped",
-     "gross": -6080.2,
-     "net": -6122.2,
-     "r_points": 101.3366,
+     "gross": -6590.2,
+     "net": -6632.2,
+     "r_points": 109.8366,
      "bars_held": 4,
      "atr_at_entry": 62.244275487319314,
      "vix_agree": false,
@@ -11776,7 +11868,7 @@
     }
    ],
    "skip_counts": {
-    "skipped_while_open": 41,
+    "skipped_while_open": 42,
     "skipped_no_next_bar": 0,
     "skipped_degenerate": 0,
     "skipped_no_future_bars": 0,
@@ -11797,8 +11889,8 @@
    },
    "n": 52,
    "wr": 0.3077,
-   "total_net": -89139.15,
-   "mean_net": -1714.21,
+   "total_net": -89649.15,
+   "mean_net": -1724.02,
    "is": {
     "n": 35,
     "wr": 0.3143,
@@ -11808,22 +11900,22 @@
    "oos": {
     "n": 17,
     "wr": 0.2941,
-    "total": -2068.18,
-    "mean": -121.66
+    "total": -2578.18,
+    "mean": -151.66
    },
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": -540.33,
-    "p_value": 0.8961,
-    "r_median_points": 103.0392
+    "null_mean": -499.06,
+    "p_value": 0.9055,
+    "r_median_points": 104.5126
    },
    "buy_and_hold_total": -206814.0,
    "beats_bh": true,
-   "drop_top3_net": -143483.53,
+   "drop_top3_net": -143993.53,
    "halves_stability": {
     "first_half_total": -57489.14,
-    "second_half_total": -31650.01,
+    "second_half_total": -32160.01,
     "first_half_n": 26,
     "second_half_n": 26
    },
@@ -12713,16 +12805,16 @@
      "ts_entry_et": "2026-07-29 08:45:00-04:00",
      "direction": "long",
      "level_name": "LONDON_LOW",
-     "shift_mode": "bos",
+     "shift_mode": "pivot",
      "entry": 27912.0,
-     "stop": 27810.6634,
-     "tp1": 28064.005,
+     "stop": 27802.1634,
+     "tp1": 28076.755,
      "runner": 28080.0,
      "runner_source": "level",
      "outcome": "stopped",
-     "gross": -6080.2,
-     "net": -6122.2,
-     "r_points": 101.3366,
+     "gross": -6590.2,
+     "net": -6632.2,
+     "r_points": 109.8366,
      "bars_held": 4,
      "atr_at_entry": 62.244275487319314,
      "vix_agree": false,
@@ -12889,15 +12981,15 @@
     "zone_atr_mult": 0.5,
     "sweep_atr_mult": 0.25
    },
-   "n": 50,
-   "wr": 0.4,
-   "total_net": 35671.96,
-   "mean_net": 713.44,
+   "n": 51,
+   "wr": 0.4118,
+   "total_net": 48188.38,
+   "mean_net": 944.87,
    "is": {
-    "n": 35,
-    "wr": 0.4286,
-    "total": 49268.88,
-    "mean": 1407.68
+    "n": 36,
+    "wr": 0.4444,
+    "total": 61785.3,
+    "mean": 1716.26
    },
    "oos": {
     "n": 15,
@@ -12908,18 +13000,18 @@
    "null_unavailable": false,
    "null": {
     "n_pool": 300,
-    "null_mean": 765.64,
-    "p_value": 0.5097,
-    "r_median_points": 79.3646
+    "null_mean": 813.64,
+    "p_value": 0.4313,
+    "r_median_points": 80.9962
    },
-   "buy_and_hold_total": -169650.0,
+   "buy_and_hold_total": -192267.0,
    "beats_bh": true,
-   "drop_top3_net": -36247.51,
+   "drop_top3_net": -23731.09,
    "halves_stability": {
     "first_half_total": 20053.19,
-    "second_half_total": 15618.77,
+    "second_half_total": 28135.19,
     "first_half_n": 25,
-    "second_half_n": 25
+    "second_half_n": 26
    },
    "trades": [
     {
@@ -13460,6 +13552,26 @@
      "bars_held": 0,
      "atr_at_entry": 53.85369947563938,
      "vix_agree": false,
+     "mag7_breadth": -3
+    },
+    {
+     "date": "2026-06-29",
+     "ts_entry_et": "2026-06-29 10:00:00-04:00",
+     "direction": "short",
+     "level_name": "NY_HIGH",
+     "shift_mode": "bos",
+     "entry": 29618.75,
+     "stop": 29742.8903,
+     "tp1": 29432.5396,
+     "runner": 29363.25,
+     "runner_source": "level",
+     "outcome": "runner",
+     "gross": 12558.42,
+     "net": 12516.42,
+     "r_points": 124.1403,
+     "bars_held": 0,
+     "atr_at_entry": 80.9350776090972,
+     "vix_agree": true,
      "mag7_breadth": -3
     },
     {
@@ -14898,14 +15010,14 @@
     "sweep_atr_mult": 0.1
    },
    "n": 65,
-   "wr": 0.3692,
-   "total_net": 3250.91,
-   "mean_net": 50.01,
+   "wr": 0.3846,
+   "total_net": 14332.89,
+   "mean_net": 220.51,
    "is": {
     "n": 50,
-    "wr": 0.32,
-    "total": -9223.61,
-    "mean": -184.47
+    "wr": 0.34,
+    "total": 1858.37,
+    "mean": 37.17
    },
    "oos": {
     "n": 15,
@@ -14917,15 +15029,15 @@
    "null": {
     "n_pool": 300,
     "null_mean": -219.54,
-    "p_value": 0.099,
+    "p_value": 0.023,
     "r_median_points": 9.2414
    },
-   "buy_and_hold_total": -83917.5,
+   "buy_and_hold_total": -77467.5,
    "beats_bh": true,
-   "drop_top3_net": -22131.82,
+   "drop_top3_net": -11049.84,
    "halves_stability": {
     "first_half_total": 1276.97,
-    "second_half_total": 1973.94,
+    "second_half_total": 13055.92,
     "first_half_n": 32,
     "second_half_n": 33
    },
@@ -15572,21 +15684,21 @@
     },
     {
      "date": "2026-06-29",
-     "ts_entry_et": "2026-06-29 10:15:00-04:00",
+     "ts_entry_et": "2026-06-29 10:00:00-04:00",
      "direction": "short",
      "level_name": "PDH",
      "shift_mode": "displacement",
-     "entry": 7415.5,
-     "stop": 7470.9497,
-     "tp1": 7332.3254,
-     "runner": 7249.1508,
-     "runner_source": "fallback_3r",
-     "outcome": "stopped",
-     "gross": -8317.46,
-     "net": -8404.46,
-     "r_points": 55.4497,
-     "bars_held": 2,
-     "atr_at_entry": 14.664810723145097,
+     "entry": 7458.5,
+     "stop": 7469.5968,
+     "tp1": 7441.8548,
+     "runner": 7436.5,
+     "runner_source": "level",
+     "outcome": "runner",
+     "gross": 2764.52,
+     "net": 2677.52,
+     "r_points": 11.0968,
+     "bars_held": 0,
+     "atr_at_entry": 12.31210385569472,
      "vix_agree": true,
      "mag7_breadth": -3
     },
@@ -16236,7 +16348,7 @@
     "skipped_no_next_bar": 0,
     "skipped_degenerate": 0,
     "skipped_no_future_bars": 0,
-    "runner_fallback_3r": 2,
+    "runner_fallback_3r": 1,
     "runner_capped_5r": 6,
     "snapshot_missing": 0,
     "shift_mode_unknown": 0
@@ -17086,14 +17198,14 @@
     "sweep_atr_mult": 0.25
    },
    "n": 61,
-   "wr": 0.3607,
-   "total_net": -4624.54,
-   "mean_net": -75.81,
+   "wr": 0.377,
+   "total_net": 6457.44,
+   "mean_net": 105.86,
    "is": {
     "n": 47,
-    "wr": 0.2979,
-    "total": -17283.79,
-    "mean": -367.74
+    "wr": 0.3191,
+    "total": -6201.81,
+    "mean": -131.95
    },
    "oos": {
     "n": 14,
@@ -17105,15 +17217,15 @@
    "null": {
     "n_pool": 300,
     "null_mean": -87.39,
-    "p_value": 0.4553,
+    "p_value": 0.2024,
     "r_median_points": 9.6854
    },
-   "buy_and_hold_total": -76819.5,
+   "buy_and_hold_total": -70369.5,
    "beats_bh": true,
-   "drop_top3_net": -30007.27,
+   "drop_top3_net": -18925.29,
    "halves_stability": {
     "first_half_total": -5320.55,
-    "second_half_total": 696.01,
+    "second_half_total": 11777.99,
     "first_half_n": 30,
     "second_half_n": 31
    },
@@ -17720,21 +17832,21 @@
     },
     {
      "date": "2026-06-29",
-     "ts_entry_et": "2026-06-29 10:15:00-04:00",
+     "ts_entry_et": "2026-06-29 10:00:00-04:00",
      "direction": "short",
      "level_name": "PDH",
      "shift_mode": "displacement",
-     "entry": 7415.5,
-     "stop": 7470.9497,
-     "tp1": 7332.3254,
-     "runner": 7249.1508,
-     "runner_source": "fallback_3r",
-     "outcome": "stopped",
-     "gross": -8317.46,
-     "net": -8404.46,
-     "r_points": 55.4497,
-     "bars_held": 2,
-     "atr_at_entry": 14.664810723145097,
+     "entry": 7458.5,
+     "stop": 7469.5968,
+     "tp1": 7441.8548,
+     "runner": 7436.5,
+     "runner_source": "level",
+     "outcome": "runner",
+     "gross": 2764.52,
+     "net": 2677.52,
+     "r_points": 11.0968,
+     "bars_held": 0,
+     "atr_at_entry": 12.31210385569472,
      "vix_agree": true,
      "mag7_breadth": -3
     },
@@ -18344,7 +18456,7 @@
     "skipped_no_next_bar": 0,
     "skipped_degenerate": 0,
     "skipped_no_future_bars": 0,
-    "runner_fallback_3r": 2,
+    "runner_fallback_3r": 1,
     "runner_capped_5r": 6,
     "snapshot_missing": 0,
     "shift_mode_unknown": 0
@@ -19414,14 +19526,14 @@
     "sweep_atr_mult": 0.1
    },
    "n": 71,
-   "wr": 0.4085,
-   "total_net": 3746.42,
-   "mean_net": 52.77,
+   "wr": 0.4225,
+   "total_net": 14828.4,
+   "mean_net": 208.85,
    "is": {
     "n": 52,
-    "wr": 0.3462,
-    "total": -10765.06,
-    "mean": -207.02
+    "wr": 0.3654,
+    "total": 316.92,
+    "mean": 6.09
    },
    "oos": {
     "n": 19,
@@ -19433,14 +19545,14 @@
    "null": {
     "n_pool": 300,
     "null_mean": -2.59,
-    "p_value": 0.4068,
+    "p_value": 0.1819,
     "r_median_points": 10.3691
    },
-   "buy_and_hold_total": -101727.0,
+   "buy_and_hold_total": -95277.0,
    "beats_bh": true,
-   "drop_top3_net": -22258.67,
+   "drop_top3_net": -11176.69,
    "halves_stability": {
-    "first_half_total": -10015.32,
+    "first_half_total": 1066.66,
     "second_half_total": 13761.74,
     "first_half_n": 35,
     "second_half_n": 36
@@ -20128,21 +20240,21 @@
     },
     {
      "date": "2026-06-29",
-     "ts_entry_et": "2026-06-29 10:15:00-04:00",
+     "ts_entry_et": "2026-06-29 10:00:00-04:00",
      "direction": "short",
      "level_name": "PDH",
      "shift_mode": "displacement",
-     "entry": 7415.5,
-     "stop": 7470.9497,
-     "tp1": 7332.3254,
-     "runner": 7249.1508,
-     "runner_source": "fallback_3r",
-     "outcome": "stopped",
-     "gross": -8317.46,
-     "net": -8404.46,
-     "r_points": 55.4497,
-     "bars_held": 2,
-     "atr_at_entry": 14.664810723145097,
+     "entry": 7458.5,
+     "stop": 7469.5968,
+     "tp1": 7441.8548,
+     "runner": 7436.5,
+     "runner_source": "level",
+     "outcome": "runner",
+     "gross": 2764.52,
+     "net": 2677.52,
+     "r_points": 11.0968,
+     "bars_held": 0,
+     "atr_at_entry": 12.31210385569472,
      "vix_agree": true,
      "mag7_breadth": -3
     },
@@ -20872,7 +20984,7 @@
     "skipped_no_next_bar": 0,
     "skipped_degenerate": 0,
     "skipped_no_future_bars": 0,
-    "runner_fallback_3r": 3,
+    "runner_fallback_3r": 2,
     "runner_capped_5r": 6,
     "snapshot_missing": 0,
     "shift_mode_unknown": 0
@@ -21822,14 +21934,14 @@
     "sweep_atr_mult": 0.25
    },
    "n": 65,
-   "wr": 0.4,
-   "total_net": -1402.18,
-   "mean_net": -21.57,
+   "wr": 0.4154,
+   "total_net": 9679.8,
+   "mean_net": 148.92,
    "is": {
     "n": 50,
-    "wr": 0.34,
-    "total": -14274.43,
-    "mean": -285.49
+    "wr": 0.36,
+    "total": -3192.45,
+    "mean": -63.85
    },
    "oos": {
     "n": 15,
@@ -21841,15 +21953,15 @@
    "null": {
     "n_pool": 300,
     "null_mean": -112.65,
-    "p_value": 0.3603,
+    "p_value": 0.1479,
     "r_median_points": 10.9975
    },
-   "buy_and_hold_total": -76042.5,
+   "buy_and_hold_total": -69592.5,
    "beats_bh": true,
-   "drop_top3_net": -27407.27,
+   "drop_top3_net": -16325.29,
    "halves_stability": {
     "first_half_total": -6846.4,
-    "second_half_total": 5444.22,
+    "second_half_total": 16526.2,
     "first_half_n": 32,
     "second_half_n": 33
    },
@@ -22496,21 +22608,21 @@
     },
     {
      "date": "2026-06-29",
-     "ts_entry_et": "2026-06-29 10:15:00-04:00",
+     "ts_entry_et": "2026-06-29 10:00:00-04:00",
      "direction": "short",
      "level_name": "PDH",
      "shift_mode": "displacement",
-     "entry": 7415.5,
-     "stop": 7470.9497,
-     "tp1": 7332.3254,
-     "runner": 7249.1508,
-     "runner_source": "fallback_3r",
-     "outcome": "stopped",
-     "gross": -8317.46,
-     "net": -8404.46,
-     "r_points": 55.4497,
-     "bars_held": 2,
-     "atr_at_entry": 14.664810723145097,
+     "entry": 7458.5,
+     "stop": 7469.5968,
+     "tp1": 7441.8548,
+     "runner": 7436.5,
+     "runner_source": "level",
+     "outcome": "runner",
+     "gross": 2764.52,
+     "net": 2677.52,
+     "r_points": 11.0968,
+     "bars_held": 0,
+     "atr_at_entry": 12.31210385569472,
      "vix_agree": true,
      "mag7_breadth": -3
     },
@@ -23160,7 +23272,7 @@
     "skipped_no_next_bar": 0,
     "skipped_degenerate": 0,
     "skipped_no_future_bars": 0,
-    "runner_fallback_3r": 3,
+    "runner_fallback_3r": 2,
     "runner_capped_5r": 6,
     "snapshot_missing": 0,
     "shift_mode_unknown": 0
@@ -23170,11 +23282,11 @@
   }
  ],
  "skip_degenerate_fallback_counts": {
-  "skipped_while_open": 657,
+  "skipped_while_open": 659,
   "skipped_no_next_bar": 0,
   "skipped_degenerate": 0,
   "skipped_no_future_bars": 0,
-  "runner_fallback_3r": 47,
+  "runner_fallback_3r": 43,
   "runner_capped_5r": 73,
   "snapshot_missing": 0,
   "shift_mode_unknown": 0
@@ -23186,8 +23298,8 @@
   "mag7_fetch_failed": 0
  },
  "headline_with_without_exhibit_2026_08_07": {
-  "with_2026_08_07": -364018.11,
-  "without_2026_08_07": -300829.63,
+  "with_2026_08_07": -294838.17,
+  "without_2026_08_07": -231649.69,
   "n_trades_on_2026_08_07": 20
  },
  "exhibit_day_breakdown_by_symbol": {
@@ -23205,5 +23317,5 @@
   }
  },
  "exhibit_contamination_note": "Strategy formalized from a 2026-08-07 GC trade; that date sits inside this smoke window. See headline_with_without_exhibit_2026_08_07.",
- "runtime_sec": 7.3
+ "runtime_sec": 5.8
 }

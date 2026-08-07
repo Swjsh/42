@@ -185,37 +185,61 @@ class TestSyntheticActiveDSTFallback:
 
 # ═══════════════ (2) SWEPT-timeout same-bar fresh-sweep coverage gap ════════
 
+def _mirror_rows(rows: list[tuple[float, float, float, float]], axis: float = 200.0):
+    """Reflect a bar sequence around `axis` (price -> axis - price), swapping
+    high/low so the OHLC invariant still holds -- same convention as
+    test_ssr_detector.py's `_mirror` helper, reimplemented locally so this
+    file stays self-contained per its own module docstring."""
+    return [(axis - o, axis - l, axis - h, axis - c) for (o, h, l, c) in rows]
+
+
 class TestSweptTimeoutSameBarCoverageGap:
-    """WARN-severity, not BLOCKING: demonstrates that detector.py's SWEPT
-    timeout path (`if i - swept_at_index > shift_window_bars: ep.reset();
-    continue`) discards the current bar's own IDLE-state evaluation, so a bar
-    that both times out a stale SWEPT episode AND independently qualifies as
-    a brand-new pierce+close-back sweep produces ZERO signal from that fresh
-    sweep -- it is silently dropped, not deferred. This can only make the
-    detector UNDER-count signals (conservative), so it cannot turn a KILL
-    verdict into a PASS; it is disclosed here as a real completeness gap, not
-    a correctness/look-ahead defect (detector.py:363-368 in the current tree).
+    """SSR-v1 ADDENDUM change #3 (documented behavior CHANGE, sanctioned):
+    detector.py's SWEPT/SHIFTED timeout path now resets the episode to IDLE
+    IN-PLACE instead of `continue`ing past the current bar for this level --
+    so a bar that both (a) times out a stale episode AND (b) independently
+    qualifies as a brand-new pierce+close-back sweep on its own now DOES
+    start a fresh episode from that same bar, rather than silently dropping
+    it. This class pins the FIXED behavior (v0 pinned the dropped-fresh-sweep
+    gap; that pin is superseded here per DESIGN.md's explicit sanction for
+    this one test).
+
+    `test_timeout_bar_that_is_also_a_fresh_sweep_completes_into_a_signal`
+    extends the original v0 fixture (same warmup, same idx20 sweep, same
+    16-flat-bar timeout runway, same idx37 fresh-sweep-on-timeout-bar) with a
+    displacement shift + retest tail so the fix is proven OBSERVABLY -- via
+    an actual emitted SSRSignal whose state_trace.swept_at_index == 37 (the
+    timeout bar itself), not index 20 -- rather than merely asserting
+    `signals == []`, which (as re-verified while writing this update) stays
+    true with or without the fix applied to this short a tail and therefore
+    cannot discriminate the two behaviors.
+    `test_mirrored_long_variant_also_completes_into_a_signal` is the
+    sanctioned "variant" proving the same fix generalizes to the LOW-type
+    level / long-direction path (exact price-mirror of the short fixture,
+    same technique as test_ssr_detector.py's mirrored-long case).
     """
 
-    def test_timeout_bar_that_is_also_a_fresh_sweep_is_dropped(self):
-        ET_ = ET
-        warmup = [(100.0, 100.5, 99.5, 100.0)] * 20
-        rows = warmup + [(108.0, 111.5, 107.5, 109.5)]        # idx20: SWEEP -> SWEPT
-        rows += [(109.5, 109.6, 109.4, 109.5)] * 16            # idx21..36: flat, still SWEPT
-        # idx37: i - swept_at_index(20) = 17 > shift_window_bars(16) -> timeout.
-        # This SAME bar ALSO independently pierces PDH=110 by >= 0.25*ATR and
-        # closes back below it -- a textbook fresh sweep, engineered to be
-        # verified against the real detector's own ATR, not a hand guess.
-        rows += [(109.0, 112.0, 108.5, 109.2)]
-        rows += [(109.2, 109.3, 109.1, 109.2)] * 3
+    # Shared short-direction (PDH) tail: idx20 sweep -> 16 flat SWEPT bars ->
+    # idx37 times out (37-20=17 > shift_window_bars=16) AND independently
+    # re-pierces+closes back through PDH=110 on the SAME bar -> idx38
+    # displacement bar shifts (SWEPT->SHIFTED) -> idx39-41 retrace -> idx42
+    # retest touch + down reaction close -> SIGNAL. Every threshold below is
+    # verified against the real detector's own Wilder-14 ATR, not hand-guessed.
+    _WARMUP = [(100.0, 100.5, 99.5, 100.0)] * 20
+    _SHORT_ROWS = _WARMUP + [
+        (108.0, 111.5, 107.5, 109.5),                        # 20  original SWEEP -> SWEPT
+        *([(109.5, 109.6, 109.4, 109.5)] * 16),               # 21..36  flat, still SWEPT
+        (109.0, 112.0, 108.5, 109.2),                         # 37  timeout + fresh pierce+close-back
+        (109.0, 109.3, 100.0, 101.0),                         # 38  displacement -> SHIFTED
+        (101.0, 104.0, 100.5, 103.5),                         # 39  retrace
+        (103.5, 107.0, 103.0, 106.5),                         # 40  retrace
+        (106.5, 109.5, 106.0, 109.0),                         # 41  retrace
+        (109.5, 110.4, 108.8, 109.0),                         # 42  retest touch + down reaction -> SIGNAL
+    ]
+    _START = pd.Timestamp("2026-06-01 00:00", tz=ET)  # early enough that bar42 (10:30 ET) is in-window
 
-        start = pd.Timestamp("2026-06-01 05:00", tz=ET_)
-        t = start
-        out = []
-        for o, h, l, c in rows:
-            out.append(_bar(t, o, h, l, c))
-            t += pd.Timedelta(minutes=15)
-        bars = pd.DataFrame(out)
+    def test_timeout_bar_that_is_also_a_fresh_sweep_completes_into_a_signal(self):
+        bars = _mkbars_local(self._SHORT_ROWS, self._START)
 
         from dataclasses import dataclass
         from typing import Optional as _Opt
@@ -235,26 +259,87 @@ class TestSweptTimeoutSameBarCoverageGap:
         params = SSRParams(zone_atr_mult=0.5, sweep_atr_mult=0.25,
                             shift_window_bars=16, retest_window_bars=16)
 
-        # Confirm the fixture actually exercises what it claims: bar 37 is a
-        # genuine fresh pierce+close-back against the SAME atr[37] the real
-        # detector will use.
-        a37 = float(atr.iloc[37])
-        assert bars["high"].iloc[37] >= 110.0 + 0.25 * a37, "fixture must pierce PDH on bar 37"
-        assert bars["close"].iloc[37] < 110.0, "fixture must close back through PDH on bar 37"
+        # Fixture-engineering proof, against the real detector's own ATR:
+        a37, a38, a42 = float(atr.iloc[37]), float(atr.iloc[38]), float(atr.iloc[42])
+        assert bars["high"].iloc[37] >= 110.0 + 0.25 * a37, "bar 37 must pierce PDH"
+        assert bars["close"].iloc[37] < 110.0, "bar 37 must close back through PDH (same bar)"
+        assert (bars["high"].iloc[38] - bars["low"].iloc[38]) >= 1.5 * a38, "bar 38 must be a displacement bar"
+        assert bars["close"].iloc[38] < bars["open"].iloc[38] < 110.0, "bar 38 must close down, away from PDH"
+        band_lo, band_hi = 110.0 - 0.5 * a42, 110.0 + 0.5 * a42
+        assert bars["high"].iloc[42] >= band_lo, "bar 42 must touch back into the zone band"
+        assert bars["close"].iloc[42] < bars["open"].iloc[42] and bars["close"].iloc[42] <= band_hi, (
+            "bar 42 must close as a down reaction inside/under the band"
+        )
 
         signals = SSRDetector(params).run(bars, snapshots, atr)
 
-        # The completeness gap: this fixture, despite containing a textbook
-        # second sweep at exactly the timeout bar, produces NO signal at all
-        # (no shift/retest ever gets a chance to start from that fresh sweep,
-        # since IDLE never even registers it). If this assertion ever flips
-        # to `len(signals) >= 1`, the gap has been fixed upstream -- update
-        # this test's docstring/assertion accordingly rather than deleting it.
-        assert signals == [], (
-            "expected the known SWEPT-timeout same-bar coverage gap (fresh sweep at "
-            "the exact timeout bar is dropped) -- if this now fires a signal, detector.py's "
-            "timeout handling changed and this regression guard should be updated, not removed"
+        assert len(signals) == 1, (
+            f"expected exactly one signal completing from the timeout-bar fresh sweep, got {signals!r} -- "
+            "if this is empty, the addendum #3 completeness fix (same-bar IDLE re-evaluation on timeout) "
+            "regressed; the fresh sweep at bar 37 (NOT the original bar-20 sweep, which never reaches "
+            "SHIFTED before its own bar-36 timeout) is the only path to a signal in this fixture"
         )
+        sig = signals[0]
+        assert sig.bar_index == 42
+        assert sig.direction == "short"
+        assert sig.level_name == "PDH"
+        assert sig.sweep_extreme == 112.0                    # bar 37's high, NOT bar 20's 111.5
+        assert sig.state_trace == {
+            "swept_at_index": 37,       # the TIMEOUT bar itself, proving same-bar re-evaluation fired
+            "shifted_at_index": 38,
+            "shift_mode": "displacement",
+        }
+
+    def test_mirrored_long_variant_also_completes_into_a_signal(self):
+        """Exact price-mirror (axis=200) of the short fixture above -- a
+        sell-side sweep of PDL=90 that times out and re-sweeps on the same
+        bar, shifts via displacement, retests, and signals LONG. Proves the
+        addendum #3 fix is direction-symmetric, not an artifact of the
+        short-side code path specifically."""
+        long_rows = _mirror_rows(self._SHORT_ROWS)
+        bars = _mkbars_local(long_rows, self._START)
+        assert (bars["high"] >= bars["low"]).all(), "mirrored fixture must preserve OHLC invariant"
+
+        from dataclasses import dataclass
+        from typing import Optional as _Opt
+
+        @dataclass(frozen=True)
+        class _Snap:
+            prev_day_low: _Opt[float] = None
+
+            def sweepable_highs(self):
+                return []
+
+            def sweepable_lows(self):
+                return [("PDL", self.prev_day_low)] if self.prev_day_low is not None else []
+
+        snapshots = [_Snap(prev_day_low=90.0)] * len(bars)
+        atr = wilder_atr(bars, period=14)
+        params = SSRParams(zone_atr_mult=0.5, sweep_atr_mult=0.25,
+                            shift_window_bars=16, retest_window_bars=16)
+
+        signals = SSRDetector(params).run(bars, snapshots, atr)
+
+        assert len(signals) == 1, signals
+        sig = signals[0]
+        assert sig.bar_index == 42
+        assert sig.direction == "long"
+        assert sig.level_name == "PDL"
+        assert sig.sweep_extreme == 88.0                      # 200 - 112.0, the mirrored fresh-sweep low
+        assert sig.state_trace == {
+            "swept_at_index": 37,
+            "shifted_at_index": 38,
+            "shift_mode": "displacement",
+        }
+
+
+def _mkbars_local(rows: list[tuple[float, float, float, float]], start: pd.Timestamp) -> pd.DataFrame:
+    out = []
+    t = start
+    for o, h, l, c in rows:
+        out.append(_bar(t, o, h, l, c))
+        t = t + pd.Timedelta(minutes=15)
+    return pd.DataFrame(out)
 
 
 if __name__ == "__main__":
