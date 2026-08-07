@@ -1,0 +1,164 @@
+diff --git a/automation/state/fleet/build_shared_signal.py b/automation/state/fleet/build_shared_signal.py
+--- a/automation/state/fleet/build_shared_signal.py
++++ b/automation/state/fleet/build_shared_signal.py
+@@ -940,32 +940,44 @@ def _probe_passed_blocks_from_row(row: "dict | None") -> dict:
+ #     entry's chart-stop anchor; no level, no trade.
+ LADDER_LEVEL_TIED = frozenset({"level_rejection", "fhh_level_rejection", "confluence",
+                                 "sequence_rejection"})
++# Bull mirror (2026-08-07, SCORE-LADDER-RUNG, prereg a780122e): the level-tied trigger
++# names filters.py's own bull filter-11 defensive gate uses (filters.py:1269).
++LADDER_LEVEL_TIED_BULL = frozenset({"level_reclaim", "confluence", "sequence_reclaim"})
+ _LADDER_EMPTY = {"available": False, "score": 0, "triggers_raw": [], "level": None,
+-                 "blockers": [], "reason": None}
++                 "blockers": [], "vix": None, "reason": None}
+ 
+ 
+ def _ladder_block_from_row(row: "dict | None") -> dict:
+-    """Pure row -> ladder block (bear side only for v1 -- bull stays out until its own
+-    pre-registered evidence exists; the 2026-07-27 10:06 bull-9 fired mid-fade and would
+-    have lost, so bull needs the study first, not a mirror-image flip)."""
+-    out = {"bear": dict(_LADDER_EMPTY)}
++    """Pure row -> ladder block. v1 (2026-07-27) was bear-only; 2026-08-07 adds the bull
++    side + a `vix` field on both blocks (SCORE-LADDER-RUNG, prereg a780122e) -- pure
++    additive producer data, same inertness contract as probe/full_send: every reader keys
++    off its own per-arm config key, so emission alone changes nothing downstream."""
++    out = {"bear": dict(_LADDER_EMPTY), "bull": dict(_LADDER_EMPTY)}
+     if row is None:
+         return out
+     verdict = str(row.get("verdict") or "")
+     reason = str(row.get("reason") or "")
+     if verdict != "HOLD" or "no setup passed scoring" not in reason:
+         return out
+-    raw = [t for t in (row.get("bear_triggers_raw") or []) if isinstance(t, str)]
+-    level = row.get("bear_rejection_level_raw")
+-    score = row.get("bear_score") or 0
+-    if not any(t in LADDER_LEVEL_TIED for t in raw):
+-        return out
+-    if not isinstance(level, (int, float)):
+-        return out
+-    out["bear"] = {"available": True, "score": int(score), "triggers_raw": raw,
+-                   "level": float(level),
+-                   "blockers": list(row.get("bear_blockers") or []),
+-                   "reason": f"score {score} blocked (blockers {row.get('bear_blockers')})"}
++    vix = row.get("vix") if isinstance(row.get("vix"), (int, float)) else None
++    for key, tied, sk, bk, tk, lk in (
++        ("bear", LADDER_LEVEL_TIED, "bear_score", "bear_blockers",
++         "bear_triggers_raw", "bear_rejection_level_raw"),
++        ("bull", LADDER_LEVEL_TIED_BULL, "bull_score", "bull_blockers",
++         "bull_triggers_raw", "bull_reclaim_level_raw"),
++    ):
++        raw = [t for t in (row.get(tk) or []) if isinstance(t, str)]
++        level = row.get(lk)
++        score = row.get(sk) or 0
++        if not any(t in tied for t in raw):
++            continue
++        if not isinstance(level, (int, float)):
++            continue
++        out[key] = {"available": True, "score": int(score), "triggers_raw": raw,
++                    "level": float(level),
++                    "blockers": list(row.get(bk) or []),
++                    "vix": vix,
++                    "reason": f"score {score} blocked (blockers {row.get(bk)})"}
+     return out
+ 
+ 
+diff --git a/automation/state/fleet/fleet_executor.py b/automation/state/fleet/fleet_executor.py
+--- a/automation/state/fleet/fleet_executor.py
++++ b/automation/state/fleet/fleet_executor.py
+@@ -900,6 +900,15 @@ def plan_all(
+         ladder_plan = _ladder_plan(arm, signal, equity, params, arm_id, spot)
+         if ladder_plan is not None:
+             plans.append(ladder_plan)
++    # SCORE LADDER RUNG (2026-08-07, prereg a780122e -- J 4th+ ask: "why are we sitting out
++    # of anything that's a ten out of eleven?"). Demotable-demerit admission, BULL ONLY (the
++    # bear side has two strikes -- see _ladder_rung_plan). Fires ONLY for an arm carrying
++    # gate_override.score_ladder_rung; absent key = byte-identical binary behavior
++    # (guard: backtest/tests/test_score_ladder_rung_2026_08_07.py, C14 vary-and-assert).
++    if not any(p.action == "ENTER" for p in plans):
++        rung_plan = _ladder_rung_plan(arm, signal, equity, params, arm_id, spot)
++        if rung_plan is not None:
++            plans.append(rung_plan)
+     # FULL-SEND (2026-07-31, J directive: "we should just be getting in shit and seeing if it
+     # works"). Third and loosest rescue lane, same shape/contract as probe + ladder: fires ONLY
+     # for an arm carrying gate_override.full_send, ONLY when no other lane produced an ENTER,
+@@ -1031,6 +1040,80 @@ def _ladder_plan(
+                      trigger_level=float(level))
+ 
+ 
++# --- SCORE LADDER RUNG (2026-08-07, prereg a780122e) --------------------------------------
++# J's words define it: an arm's admission threshold is a SCORE, not a gate cascade. For rung
++# arms, DEMOTABLE bull filters {5 ribbon-stack, 7 vol-divergence, 8 VIX-soft, 10 buyer
++# pressure} no longer veto -- each already costs its scorer demerit (exactly 1 point each:
++# filters.py:1273 `bull_score = 11 - len(blockers)`, so the logged score IS the adjusted
++# score) -- and the arm enters when score >= gate_override.score_ladder_rung. NON-DEMOTABLE
++# gates stay absolute on every rung: filter 1 (entry window), 6 (spread), 9 (VIX hard cap),
++# 11 (trigger count + level-tied -- the measured -$103/entry 0%-WR bare-confirmation
++# cohort), 12 (sweep), plus risk_gate / min_entry_premium / EOD flatten downstream, all
++# untouched (same contract as the probe/ladder/full-send lanes).
++# BULL ONLY -- the bear side has TWO strikes: the raw-floor lane (-$16,642/725tr, DISARMED
++# 2026-07-27) and the rung-semantics bear lane re-measured on the same 390-day population
++# (-$16,631/843tr rung 7, -$11,758/466tr rung 8, held-out negative --
++# analysis/arm-ladder/LADDER-RUNG-2026-08-07-population.json). Bull evidence: population
++# +$3,647/433tr rung 7 (+$8.4/tr, survives drop-best, held-out last-25% +$2,526), week
++# 2026-08-03..07 added +$3,028/arm (LADDER-RUNG-2026-08-07-week-bullonly.json; Friday
++# cells EST-priced, labeled).
++_RUNG_DEMOTABLE_BULL = frozenset({5, 7, 8, 10})
++
++
++def _ladder_rung_plan(
++    arm: Mapping[str, Any], signal: Mapping[str, Any], equity: float,
++    params: Mapping[str, Any], arm_id: str, spot: Any,
++) -> Optional[EntryPlan]:
++    """Min-size ribbon_ride BULL entry off signal['ladder']['bull'] under rung semantics.
++    Same shape/contract as _ladder_plan: min_contracts hard clamp (never _qty_for),
++    PROBE_STRIKE_TIERS, risk_gate/finalize() downstream completely untouched, and the raw
++    detection's own level rides as trigger_level (a rung entry is never stop-less).
++    Fail-closed everywhere: absent/garbage key, block, blockers, or level -> None, and the
++    caller's verdict stands unmodified. Instant de-arm: delete the config key."""
++    g = arm.get("gate_override") or {}
++    rung = g.get("score_ladder_rung")
++    if rung is None:
++        return None
++    try:
++        rung_i = int(rung)
++    except (TypeError, ValueError):
++        return None
++    if (signal.get("bull") or {}).get("passed") is True:
++        return None   # scope fence: this lane rescues SCORING-failed ticks only
++    ladder = signal.get("ladder")
++    if not isinstance(ladder, Mapping):
++        return None
++    blk = ladder.get("bull")
++    if not isinstance(blk, Mapping) or blk.get("available") is not True:
++        return None
++    score = int(blk.get("score") or 0)
++    level = blk.get("level")
++    if score < rung_i or not isinstance(level, (int, float)):
++        return None
++    try:
++        blockers = {int(b) for b in (blk.get("blockers") or [])}
++    except (TypeError, ValueError):
++        return None   # unreadable blockers: cannot prove demotable-only -> no trade
++    if not blockers <= _RUNG_DEMOTABLE_BULL:
++        return None   # a NON-DEMOTABLE blocker is active -> absolute veto, on any rung
++    if spot is None:
++        return _hold(arm_id, "C", "SCORE_LADDER_RUNG", "score-ladder-rung: no spot in signal")
++    strike = strike_selection.pick_strike(float(spot), float(equity), "C", PROBE_STRIKE_TIERS)
++    try:
++        qty = int(params.get("min_contracts", 3))
++    except (TypeError, ValueError):
++        qty = 3
++    trigs = list(blk.get("triggers_raw") or [])
++    quality = "ELITE" if any("confluence" in str(t).lower() for t in trigs) else "BASE"
++    reason = (f"SCORE_LADDER_RUNG rung={rung_i} score={score} "
++              f"blockers={sorted(blockers)} trig=" + "+".join(trigs))
++    return EntryPlan(arm_id, "ENTER", "C", "BULLISH_RECLAIM_RIDE_THE_RIBBON", strike, qty,
++                     quality, reason,
++                     strategy=strategies.RIBBON_RIDE.name,
++                     exit_shape=_exit_shape_dict(strategies.RIBBON_RIDE, arm),
++                     trigger_level=float(level))
++
++
+ # --- FLOOR-RESCUE eligibility (2026-08-03, L246-class ORDERING FIX) -----------------------
+ # THE DEFECT (EOD-2026-08-03-FULL-REVIEW.md section 4.2, "0 fires EVER vs 35 floor-blocks
+ # today"): plan_all's full-send precondition ("no ENTER in plans") runs at PLAN time, but the
