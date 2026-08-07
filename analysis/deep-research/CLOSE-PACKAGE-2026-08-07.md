@@ -7,15 +7,25 @@
 > and re-running the quoted guards. Ordered by evidence class:
 > **A. DEFECT fixes → B. cleared-battery cells → C. preregs.**
 >
-> Day context (broker-verified 11:46 ET): day −$629.46, all arms flat since 10:02, ONE
-> trade per arm, one stop, **zero re-entries — the Wednesday spiral shape did NOT
-> recur.** risky-3's 12x 774C@0.62 was the first live fill under last night's OTM-2
-> tier revert. Then 10:15–11:45: **182 verdicts, all HOLD; 70 ticks carried live bull
-> triggers** (level_reclaim + confluence, bull_score 10/11) refused by exactly the
-> rotating volume doors: **sole-[10] ×54, sole-[7] ×10, [7,10] ×6** (re-counted from
-> `core-decisions.jsonl` this session, not quoted from memory) while SPY ran
-> 770.50 → 773.17. Monday's directive — "make sure nothing is gated that actually
-> works" — is the package's charter.
+> Day context (broker-verified 11:46 ET; **updated ~12:45 via Lane 3's broker read**):
+> morning −$629.46 realized — ONE trade per arm at 09:46–47, one stop at 10:01–02,
+> **zero re-entries — the Wednesday spiral shape did NOT recur.** risky-3's 12x
+> 774C@0.62 was the first live fill under last night's OTM-2 tier revert (**tier
+> verdict: PASS**, Lane 3 §4 — OTM-2 strike exact, elite-tier qty, SHIP-C correctly
+> no-op). Then 10:15–11:45: **182 verdicts, all HOLD; 70 ticks carried live bull
+> triggers** (level_reclaim + confluence, bull_score 10/11) refused by the rotating
+> volume doors: **sole-[10] ×54, sole-[7] ×10, [7,10] ×6** (tick-level, re-counted from
+> `core-decisions.jsonl` this session; Lane 3's trigger-BAR-level view of the same
+> window: sole [7]×1 / [10]×7 / [11]×1, **f11 co-blocks 12/24 bars** — both counts are
+> real, granularity differs, neither is smoothed away) while SPY ran 770.50 → 773.17.
+> **SECOND LIVE WAVE 12:06–12:07** (after the workflow snapshot): safe-2 3x773C@1.11 ·
+> safe-3 8x773C@1.10 · risky-1 5x773C@1.09 · risky-3 12x775C@0.31, on a clean fresh
+> 772.89-reclaim signal with blockers `[]` — an honest new signal, not a chase loop;
+> OPEN at package-write time, EST-marked −$456.57 at 12:20 (Lane 2 walk). **Replay
+> fidelity GREEN** (Lane 3: 34/34 verdict-match both core accounts — the engine did
+> exactly what its code says all day; today's refusals are a FILTER-DESIGN question,
+> not an engine defect). Monday's directive — "make sure nothing is gated that
+> actually works" — is the package's charter.
 
 ---
 
@@ -62,6 +72,42 @@ feeds (`backtest/tools/feed_divergence_f10_f7.py`, mirror-guarded, 46/46):
 - **Also refuted:** "f10 collapsed when the IEX tail shipped 08-03" — per-day f10 block
   rate was already 62–72% on 07-28..07-31 vs 52–83% after; no discontinuity. The engine
   has been IEX-fed all along; 08-03 changed the level pipeline, not this.
+
+---
+
+## CROSS-LANE EVIDENCE (landed after package draft; integrated, tensions kept visible)
+
+**Lane 2 EST walk** (`f10-f7-today-est-walk-2026-08-07.json`, commit `95095bc3`;
+walk_exit_manager only, BS surface on 6 real fill anchors, OOS MAE $0.267/contract,
+ALL cells EST): whole-book refusal cost today — **relax_f10 +$885.51 · relax_f7
++$792.79 · relax_both +$885.51** (per-arm PDT-tiered, bold-2 $0, PDT-dark). Morning
+counter-cell: **relax does NOT enlarge the morning loser** (pre-09:46 zero sole-f10/f7
+ticks; the 09:46 entry is identical under every cell — delta $0.00). Exit-shape parity
+vs live ExitState: match on every compared arm.
+
+**Lane 3 replay** (`FRIDAY-REPLAY-2026-08-07.md`, commit `0ff537fb`; 34/34 fidelity
+both accounts, EST 3-lot safe-core lens): **HEAD −$83 · f10-relaxed −$151 ·
+f7-relaxed +$58 · f7+f10 +$58.** On completed trigger bars, f10-relax alone does NOT
+enter at the first refusal (f7/f11 still block), enters LATER (10:20T) into the 10:40
+pullback, and does WORSE than HEAD. Lane 3's read: **today's binding cell is F7, and
+the 08-03 "+$4,535/2d" f10 attribution gets no support from today.**
+
+**The two EST lenses DISAGREE on f10's sign (+$885 vs −$151). Neither is wrong on its
+own terms** — different granularity (live forming-bar ticks vs completed trigger
+bars: the 10:05 bar is sole-[10] in the live ledger but [10,11] on the completed bar),
+different sizing lens (actual per-arm qty vs uniform 3-lot), different entry-set
+semantics. **This disagreement is exactly what the evening real-OPRA re-price (§D) and
+the frozen 391-day battery adjudicate. No f10 value flip can ship on today's EST
+evidence — the package's battery-or-nothing gate on B1 stands, now with teeth.**
+
+**Feed provenance, three-way convergent** (this lane's instrument + Lane 3's
+independent arithmetic): within-live cross-feed seam **REFUTED** (one `feed=iex`
+fetch, bar+baseline same-frame); live-vs-backtest hazard **CONFIRMED** — today IEX f10
+pass rate 14.3% vs SIP 29.6%, disagreement bars all inside the refusal window; my
+instrument: 12–26% of bars/day flip f10 verdict across feeds, week-long,
+bidirectional. **Consequence for B1: a SIP-fed battery overstates live pass rates on
+exactly the marginal bars the filter gates — the battery verdict must be read jointly
+with the per-feed sensitivity disclosure below.**
 
 ---
 
@@ -142,6 +188,18 @@ freeze the battery result **had not landed** — the orchestrator resolves this 
 by reading Lane 2's committed verdict artifact (expected under
 `analysis/recommendations/`, rule_id `bull-f10-buyer-pressure-relax`):
 
+**EXTRA READ-JOINTLY REQUIREMENT (added after cross-lane evidence):** the battery
+population is SIP-scale while live f10 runs on IEX volume (pass rates 14.3% vs 29.6%
+today; 12–26% of bars/day verdict-flip across the week). A clearing cell must ship
+with the per-feed sensitivity disclosure attached (feed-divergence artifacts, §NEW
+MEASURED EVIDENCE), and the frozen kill criterion is the live-truth backstop: the live
+added cohort WILL differ from the SIP-modeled one — n≥10 fills/10 sessions catches it.
+Additionally: today's two EST lenses disagree on f10's sign (+$885 book walk vs −$151
+completed-bar walk) — if the battery verdict is CLEARED but the evening real-OPRA
+re-price (§D) of today's cells contradicts the battery's direction on today, the flip
+still ships (the battery is the 391-day authority; one day never overrides it) but the
+STATUS line must quote both numbers.
+
 - **IF exactly one non-baseline cell clears ALL frozen gates:** after A1 is applied and
   green, add `"filter_10_vol_multiplier_bull": <winning_cell_value>` to
   `automation/state/params.json` AND `automation/state/aggressive/params.json`
@@ -154,13 +212,20 @@ by reading Lane 2's committed verdict artifact (expected under
   Record in STATUS.md: `f10 value flip NOT applied — <gate that failed / battery not landed>; prereg stays frozen, runner re-queued (BULL-F10-PREREG-RUNNER, automation/overnight/queue.md line 14, now 4th exhibit).`
 - **Never liftable via this package:** filter 11 (Rule 2 firewall, per the prereg).
 
-### B2 — bull f7 relax — **NO cell exists to clear tonight**
+### B2 — bull f7 relax — **prereg NOW FROZEN, battery in flight, nothing ships tonight
+without it**
 
-Filter 7 has **never had a prereg** (today is its first material sole-block day,
-n=10 ticks — n-small). Lane 2's L2-4 freezes it; my feed evidence (5/28 bars
-f7-divergent today, 9–19/77 across the week) goes in as mechanism evidence. **Nothing
-f7 ships tonight by construction** — prereg-before-evidence discipline holds even
-under Monday's directive.
+Lane 2 froze `bull-f7-volume-divergence-prereg-2026-08-07.json` (commit `94157aa6`,
+git-provable BEFORE the population runner) — cells {baseline, f7_off, joint_relax35,
+joint_off}, full gate battery, disclosed-null WF stance. Both today's EST lenses put
+f7 as the day's binding cell (Lane 3: f7-relax flips today from −$83 to +$58 EST;
+Lane 2: +$792.79 book EST) and my feed instrument shows f7 is the MOST feed-fragile
+filter (bar-vs-bar volume comparison; 9–19/77 bars/day divergent). **Resolution is
+identical to B1:** if the full-population battery (running as L2-3, same runner,
+smoke committed `bf6a8f94`) clears an f7 cell per its frozen gates, the mechanical
+apply is `disable_filters` bull-side per that prereg's own staged mechanism (Lane 2's
+package owns the exact diff); if it does not land or does not clear, **nothing f7
+ships** — n=1 great-looking day is exactly the graveyard's favorite trap.
 
 ---
 
@@ -179,8 +244,12 @@ under Monday's directive.
    built; today is its 3rd exhibit. Build target `backtest/autoresearch/
    gate_expiry_check.py` is OUTSIDE this lane's market-hours writable set —
    stays queued for the evening/weekend, explicitly NOT silently dropped.
-4. **F7 prereg** — owned by Lane 2 (L2-4); if it does not land tonight, the owed item
-   is recorded here: freeze BEFORE any relax cell is ever run (graveyard discipline).
+4. ~~F7 prereg~~ — **LANDED** (`bull-f7-volume-divergence-prereg-2026-08-07.json`,
+   commit `94157aa6`, frozen before its population runner). Moved to §B2.
+5. **Lane-artifact note:** the battery smoke (`bf6a8f94`) ran a 07-20..07-31 window at
+   10:25 ET — BEFORE the F7 prereg's 12:30 freeze stamp. The smoke is machinery
+   validation (smoke:true, added-cohort n=0–1), not evidence; the full-population run
+   post-dates the freeze. Ordering disclosed here so nobody has to re-derive it.
 
 ---
 
@@ -219,6 +288,14 @@ package item is OFF and the STATUS line says which.**
 - **bold is PDT-dark until 2026-08-12** (3/3 day-trades, risk gate correctly refused 8
   ENTERs today per STATUS.md self-check) — Monday-readiness for bold is a PDT fact,
   not a gate fact.
+- **The 08-03 gate-table's "+$4,535/2d" f10 attribution is now under live challenge:**
+  today's completed-bar evidence points at f7 (and f11 co-blocking 12/24 bars) as the
+  binding doors, and f10-relax-alone made today WORSE in Lane 3's lens. The battery —
+  not the gate table, not today — settles it. Until then that number should not be
+  quoted as f10's refusal value without this caveat.
+- **Both EST lenses agree on one thing:** the morning loser was NOT enlargeable by any
+  relax cell (counter-cell delta $0.00) and was a PAY-shape entry that lost — variance,
+  not process failure (Lane 3 §3: neither shipped shadow rule would have refused it).
 - **Graveyard untouched:** nothing here re-proposes filter-5 deletion, filter-8 relax,
   stop-width changes, standdowns, or cooldowns.
 
