@@ -1,0 +1,34 @@
+{
+  "rule_id": "volume-filters-consolidated-feed",
+  "frozen_at_et": "2026-08-07T12:30:00-04:00",
+  "prereg_before_evaluation": true,
+  "status": "PREREG ONLY -- no runner executed, nothing armed, no trading-path file touched (market hours; Rule 9).",
+  "origin": "Lane 5 close-package 2026-08-07. MEASURED (backtest/tools/feed_divergence_f10_f7.py, committed 0a45d396): the live engine scores volume filters on feed=iex bars (heartbeat_core._fetch_spy_5m line 287, single fetch -> bar AND baseline same-feed) while the ratifying backtest population is SIP-scale. IEX prints a small UNSTABLE fraction of consolidated volume: mean 3.4-4.5%/day, bar-to-bar 1.3-8.2% (week 2026-08-03..07). Same rule + same window construction diverges between feeds on 12-26% of bars/day for bull filter 10 and 12-25% for filter 7.",
+  "exhibit_2026_08_07": "11:05 ET bar: SIP 987,522 (~2x baseline surge) vs IEX 12,799 (1.3%) -- the surge scored as a dead bar. Live ticks 11:15-11:18 and 11:30 were sole-[10] refusals with level_reclaim+confluence (the +$70.8/entry PAY-cohort shape per ENTRY-QUALITY-2026-08-06); under SIP volume both become ENTER_BULL (@773.02, @773.54). Real-OPRA pricing of those two events lands via backtest/tools/reprice_close_package_2026_08_07.py after 16:21 ET.",
+  "honest_context_against": "Direction split across the week is BIDIRECTIONAL -- iex-overblocks vs iex-overpasses per day: 08-03 6/5, 08-04 11/9, 08-05 8/1, 08-06 4/5, 08-07 3/0 (f10). The feed noise randomizes the filter, it does not systematically suppress winners; a feed fix is a VARIANCE fix, not a guaranteed P&L lift. Also: bull entries DID fire 09:46 on IEX volume -- the filter is degraded, not dead.",
+  "hypothesis": "Scoring volume filters (bull f10 buyer-pressure, bull f7 volume-divergence, bear f9) on consolidated-scale volume removes ~15-25%/day of feed-lottery verdict flips and improves bull-side entry admission quality on surge bars specifically.",
+  "candidate_mechanisms_to_battery": [
+    {"cell": "status_quo", "note": "feed=iex everywhere (current live)"},
+    {"cell": "yf_consolidated", "note": "beacon's existing yfinance fallback provides consolidated-scale volume for bar+baseline; ~1-2 min lag on the forming bar must be measured, not assumed"},
+    {"cell": "sip_delayed_baseline_hybrid", "note": "vol_baseline_20 from delayed SIP (free, 15-min lag is irrelevant for a 20-bar trailing SMA); current bar volume stays IEX but is scaled by the trailing IEX/SIP fraction (EWMA); scaling estimator frozen before any run"},
+    {"cell": "threshold_recalibration_only", "note": "no feed change; f10_vol_mult recalibrated to IEX statistics -- THIS IS the bull-f10-buyer-pressure-prereg-2026-08-04 battery, already frozen; do not duplicate it here"}
+  ],
+  "gates_frozen_before_any_runner": {
+    "oos_positive": "added/changed cohort OOS-positive",
+    "wf_or_disclosed_null": "WF >= 0.70 or explicit disclosed-null",
+    "sub_window_stable": "no single month > 50% of delta P&L (C4)",
+    "anchor_no_regression": "anchor trades must not degrade",
+    "decision_floor": "changed-verdict cohort n >= 20",
+    "sim_accuracy": "any sim cell must reproduce the live 2026-08-07 refusal tape (IEX cell) before its SIP cell is believed (OP-16 sim-accuracy gate)"
+  },
+  "explicitly_not_tonight": "No engine feed change ships from this prereg. The ONLY 2026-08-07 close-package items are (a) the behavior-neutral f10-bull knob threading diff and (b) a filter_10_vol_multiplier_bull value key IFF the 2026-08-04 prereg battery clears its own frozen gates.",
+  "forward_clock": "Battery runner routes to the weekend grind 2026-08-08/09 (needs per-cell live-twin replay harness, >60min build). If not run by EOD 2026-08-14, this prereg auto-expires to STALE and must be re-frozen against fresh evidence (recency doctrine, J 2026-07-31).",
+  "kill_rule_if_ever_armed": "n >= 10 sessions on the new feed cell: verdict-flip rate not reduced vs the frozen 2026-08-03..07 baseline (12-26%/day) OR bull-side net expectancy degrades -> revert to feed=iex same day (single revert: the one feed constant/scaler in heartbeat_core._fetch_spy_5m path).",
+  "sources": [
+    "analysis/deep-research/FEED-DIVERGENCE-F10-F7-2026-08-03.json .. -2026-08-07.json (committed 0a45d396)",
+    "backtest/tools/feed_divergence_f10_f7.py (mirror-guarded by backtest/tests/test_feed_divergence_tool_2026_08_07.py, 46 passed)",
+    "automation/state/core-decisions.jsonl 2026-08-07 rows (joint-blocker verification: 11:15-11:18 + 11:30 sole-[10])",
+    "markdown/research/DATA-PROVENANCE.md (feed patchwork registry)",
+    "analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json (threshold-recalibration lane, NOT duplicated here)"
+  ]
+}
