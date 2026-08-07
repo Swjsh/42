@@ -550,3 +550,35 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
+
+### DEGRADED: self-check 2026-08-07T16:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 20 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 7x), run-kitchen-seeder.ps1 (exit=[1], 11x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-08-07T20:46:08+00:00
+- task: analyst
+- date_et: 2026-08-07
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+---
+
+## [2026-08-07T16:25 ET] CLOSE EXECUTION — score-ladder ship gate: HOLD. f10 behavior-neutral fix: SHIPPED.
+
+Executed the pre-stated §5.3 ship gate from `CLOSE-PACKAGE-LADDER-ADDENDUM-2026-08-07.md` after the ≥16:21 ET real-OPRA floor. Full writeup: `analysis/deep-research/CLOSE-EXECUTION-2026-08-07.md`.
+
+**SCORE-LADDER-RUNG (LANE 1, prereg `a780122e`): HOLD, patch NOT applied.** `accounts.json` carries no `score_ladder_rung` key -- byte-identical binary production tonight, both risky arms. Re-ran the frozen runbook verbatim on Friday's full real-OPRA tape (`ladder_rung_replay_2026_08_07.py --ledger 2026-08-07 --sides C --no-est`, reproduced identically across 2 independent invocations): Friday's ladder-added P&L swung from the morning's partial-day EST estimate (+$217.01) to a real full-day **−$945.00** (57 rescue trades, the week's highest admission count -- above Wed's already-flagged 19 and Thu's 30). Week-added recomputes to **+$1,866.00** (Mon-Thu's real +$2,811 minus Friday's real −$945) -- the LITERAL single-metric STOP RULE technically still passes (week-added > 0), but the task's actual two-part gate also required "Friday not materially worse under the ladder," which FAILS hard: same-day binary_day_pnl +$80 vs ladder_day_pnl −$865 (a $945 swing, −17.7% of SOD equity in one session) for the identical arms. The specific flagship trade (10:15 entry, J's original complaint) DID win (+$115, exited via ribbon_flip_back one minute later -- not TP1, not the catastrophe cap); the day lost because the other 56 admitted rescue signals were mostly 1-minute chop round-trips on a twice-reversing tape. Real fleet Friday book independently reconciled via FIFO fills-ledger recompute: −$2,687.00 (broker-verified claim was −$2,692.06, $5.06 residual, immaterial).
+
+**HOLD-branch deliverable: `Gamma_LadderRungShadow` registered** (16:40 ET weekdays, $0, analysis-only) -- `backtest/tools/score_ladder_rung_shadow_nightly.py` replays LANE 1's exact frozen rule against real data nightly, appends to `analysis/arm-ladder/ladder-rung-shadow-ledger.jsonl`. Guard RED-proofed (module absent -> `1 failed, 3 errors`) then GREEN (`4 passed`) -- the guard's own non-vacuous real-data assertion caught a real bug in the shadow script's first draft (a missing `ALLOWED_RESCUE_SIDES={"C"}` assignment let bear rescues corrupt the count) before it shipped. `State=Ready`, seeded with today's real session. SCHEDULED-TASKS.md updated (106->107).
+
+**f10 bull-knob threading (behavior-neutral, ships regardless of the ladder gate): APPLIED.** Bull filter 10 no longer secretly shares bear filter 9's config key (`filter_10_vol_multiplier_bull`, falls back to the old shared value when absent -- byte-identical, independently verified against both live params files). RED (pre-apply, quoted): `7 failed, 47 passed`. GREEN (post-apply): `54 passed`; adjacent parity/audit suites unchanged at `41 passed`. Curated safety gate: `59 passed` (one phantom-name false positive from this session's own installer docstring, fixed by rewording the comment, not the guard).
+
+No trading-path file (`accounts.json`/`params.json`/`aggressive/params.json`) touched. No order placed. Market closed throughout. Not pushed (after-hours push is optional, not required tonight -- nothing here is time-critical for J to see before Monday).
+
+REVOKE: nothing to revoke on the ladder (never applied). f10 fix revert: `git revert <sha>`. Shadow instrument revert: `Unregister-ScheduledTask -TaskName Gamma_LadderRungShadow -Confirm:$false` + delete its 3 files.
