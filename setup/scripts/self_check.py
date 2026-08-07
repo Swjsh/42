@@ -881,6 +881,52 @@ def check_regime_stamp_daily(now, stamp_path=None, bias_path=None) -> list:
     return []
 
 
+SCOUT_OUTPUT_JSON = STATE.parent / "scout" / "state" / "scout_output.json"
+
+
+def check_scout_premarket_fresh(now, scout_path=None) -> list:
+    """DAILY freshness/liveness check for Gamma_ScoutPremarket (05:30 ET) -> scout_output.json
+    (self-audit gap flagged 2026-08-06: "The Scout premarket macro/news scanner repeatedly
+    fails due to a low USD budget, leaving scout_output.json stale and biasing downstream
+    regime/bias decisions"). Live-verified 2026-08-07: the Windows task itself fires and
+    reports LastTaskResult=0 every weekday (it is an LLM-agent-driven task, not a deterministic
+    script), but scout-log.jsonl -- the agent's OWN append-only record of its fires -- has
+    only 9 entries across 2026-05-20..2026-08-07, with a full month (2026-06-19..2026-07-21)
+    of complete silence. LastTaskResult=0 is therefore NOT evidence the agent actually
+    regenerated scout_output.json that day (C7: exit-code success != real work) -- this reads
+    the CONSUMED ARTIFACT itself, mirroring check_regime_stamp_daily/check_trendline_feed_freshness's
+    pattern, rather than trusting the scheduler.
+
+    DEGRADED (never BROKEN): scout_addendum_to_swarm is explicitly an ADDENDUM feed into
+    Premarket's 08:30 ET bias write, not itself a live-entry gate -- a stale/missing scout
+    read degrades Premarket's macro-news context, it does not halt trading."""
+    if now.weekday() >= 5:
+        return []  # no Gamma_ScoutPremarket fire on weekends
+    if now.strftime("%H:%M") < "08:00":
+        return []  # give the 05:30 ET fire (+ any late-fire retry) its window before judging
+    today = now.strftime("%Y-%m-%d")
+    sp = scout_path or SCOUT_OUTPUT_JSON
+    try:
+        out = json.loads(sp.read_text(encoding="utf-8")) if sp.exists() else None
+    except Exception:  # noqa: BLE001
+        out = None
+    if out is None:
+        return [f"SCOUT DEGRADED: scout_output.json missing/unreadable today ({today}) -- "
+                f"Gamma_ScoutPremarket produced no readable macro/news feed for Premarket's "
+                f"08:30 ET bias write. Non-load-bearing (addendum only); "
+                f"run-scout-premarket.ps1 to catch up."]
+    gen_at = out.get("generated_at") if isinstance(out, dict) else None
+    gen_date = str(gen_at)[:10] if gen_at else None
+    session_date = out.get("for_session_date") if isinstance(out, dict) else None
+    if gen_date != today and session_date != today:
+        return [f"SCOUT STALE: scout_output.json generated_at={gen_at!r} "
+                f"for_session_date={session_date!r}, today={today} -- Gamma_ScoutPremarket did "
+                f"not refresh today (task LastTaskResult can read 0 even when the agent produced "
+                f"nothing new -- exit-code success is not evidence here). Non-load-bearing "
+                f"(addendum only); run-scout-premarket.ps1 to catch up."]
+    return []
+
+
 def _parse_run_cmd_hidden_log(text: str) -> list[dict]:
     """PURE. Parse run_cmd_hidden.py's own per-fire launcher log (automation/state/logs/
     run-cmd-hidden-<date>.log) into completed [{"cmd": str, "exit": int}] records.
@@ -1302,6 +1348,12 @@ def run() -> dict:
     # monday_verify.py's WS6 check verified the Gamma_RegimeStamp -> Gamma_Premarket
     # handoff, and only once a week. This closes the Tue-Fri gap ($0, fail-open, DEGRADED).
     problems.extend(check_regime_stamp_daily(now))
+
+    # 13c. SCOUT PREMARKET FRESHNESS -- the 2026-08-06 self-audit gap: the LLM-agent-driven
+    # Gamma_ScoutPremarket task can report LastTaskResult=0 without actually regenerating
+    # scout_output.json (scout-log.jsonl shows a full silent month, 06-19..07-21). Nothing
+    # verified the CONSUMED ARTIFACT until now ($0, fail-open, DEGRADED-only).
+    problems.extend(check_scout_premarket_fresh(now))
 
     # 14. TV-CDP LIVENESS -- the 2026-07-07/09 scar (D1 audit Finding #1/#3): a 41+ hour
     # TradingView CDP outage degraded premarket bias to real 'no-trade-tv-fail' framing and
