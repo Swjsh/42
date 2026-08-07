@@ -236,6 +236,33 @@ def _passed_for_arm(arm: dict, verdict: dict, side_key: str) -> bool:
                                    action, score, trig0, fired)
 
 
+def _score_peak_passed_for_verdict(verdict: dict, side_key: str) -> bool:
+    """The RAW peak-only check (bss._score_peak_check — quality alone, no hard-skip
+    filter), mirroring build_shared_signal._bold_passed_blocks_from_row's bull_peak/
+    bear_peak exactly (SAME inputs _passed_for_arm already derives above).
+
+    HARD-SKIP-RESCUE BUG THIS CLOSES (found 2026-08-06 conductor fire,
+    REPLAY-FLEET-ARMS-SCORE-PEAK-MISSING): fleet_executor._effective_passed reads
+    block['score_peak_passed'] — NOT block['passed'] — for any arm whose accounts.json
+    carries a `gate_params.hard_skip_verdicts` key (risky-3, since the 2026-07-23
+    GATE-TIERS-IMPLEMENT ship, even with an EMPTY list — 'hard_skip_verdicts' in
+    gate_params is enough to flip the branch). _synth_signal never populated this key,
+    so block.get('score_peak_passed') was always None → _effective_passed always False
+    → _chosen_side always None for risky-3 → zero signal-driven entries for the ENTIRE
+    replay window (raw_enters={} unconditionally), surfacing as
+    test_missed_within_ratchet / test_three_arms_entry_faithful REDs (missed=16,
+    matched=0/16) — a total, not partial, mismatch was the tell that this was a
+    harness wiring gap, not a real entry-timing regression."""
+    v = verdict.get("verdict") or ""
+    action = "ENTER_BEAR" if v == "ENTER_BEAR" else ("ENTER_BULL" if v == "ENTER_BULL" else v)
+    score = verdict.get("bear_score") if side_key == "bear" else verdict.get("bull_score")
+    trigs = verdict.get("triggers_fired") or []
+    fired = bool(trigs)
+    trig0 = trigs[0] if trigs else None
+    return bss._score_peak_check("bull" if side_key == "bull" else "bear",
+                                 action, score, trig0, fired)
+
+
 def _synth_signal(arm: dict, verdict: dict, payload: dict) -> dict:
     """Synthesize the dual-perception shared-signal the fleet executor consumes, FROM
     the deterministic verdict. Field names match build_shared_signal's emitted contract
@@ -257,12 +284,19 @@ def _synth_signal(arm: dict, verdict: dict, payload: dict) -> dict:
         # exactly matching run_backtest's ELITE definition. (REPORTED as the build_shared_signal
         # change; modeled here, NOT applied to the production file.)
         has_confluence = any("confluence" in str(t).lower() for t in (trigs or []))
+        peak = _score_peak_passed_for_verdict(verdict, side_key)
         return {
             "passed": passed,
             "score": verdict.get("bear_score") if side_key == "bear" else verdict.get("bull_score"),
-            "triggers_fired": list(trigs) if passed else [],
-            "setup_name": setup if passed else None,
-            "confluence": True if (passed and has_confluence) else False,
+            # score_peak_passed (2026-08-06 fix, see _score_peak_passed_for_verdict docstring):
+            # a superset of `passed` — required by fleet_executor._effective_passed for any
+            # arm whose gate_params carries `hard_skip_verdicts` (risky-3). triggers_fired/
+            # setup_name/confluence are gated on the PEAK check too, matching
+            # build_shared_signal._bold_passed_blocks_from_row's own field-gating exactly.
+            "score_peak_passed": peak,
+            "triggers_fired": list(trigs) if peak else [],
+            "setup_name": setup if peak else None,
+            "confluence": True if (peak and has_confluence) else False,
             # confidence intentionally ABSENT (core has none) -> safe-3 DENY-on-missing
             # is moot now (current accounts.json safe-3 has no min_confidence).
         }

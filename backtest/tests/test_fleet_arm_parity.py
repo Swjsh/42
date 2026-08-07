@@ -303,16 +303,25 @@ def test_safe_loose_uses_bold_otm_strike_tiers_at_2k():
 
 
 def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
-    """safe-3/risky-1/risky-3 all resolve V15_BOLD_CORE_TIERS via params_patch.
-    strike_tier_table='bold_core' -- the 2026-08-01 extension (risky-1/risky-3) plus its
-    2026-08-03 safe-3 follow-on, both repointing to the table core Bold already used since
-    2026-07-17/18. UPDATED 2026-08-04 (ATM-TIER-EXTENSION-2K-10K, prereg
-    analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json): the
-    $2K-$10K bracket is now ALSO ATM (was OTM-2) after the $5K rebuild resurrected the
-    $0.30 floor collision -- so EQUITY_2K==2000.0, sitting at the [2K,10K) boundary, now
-    reads ATM math (600/600), diverging from the safe-1/V15_BOLD_TIERS test above (598/602)
-    BY DESIGN."""
-    for arm in (SAFE_TIGHT, RISKY_TIGHT, RISKY_LOOSE):
+    """safe-3/risky-1 resolve V15_BOLD_CORE_TIERS via params_patch.strike_tier_table=
+    'bold_core' -- the 2026-08-01 extension (risky-1/risky-3) plus its 2026-08-03 safe-3
+    follow-on, both repointing to the table core Bold already used since 2026-07-17/18.
+    UPDATED 2026-08-04 (ATM-TIER-EXTENSION-2K-10K, prereg analysis/recommendations/
+    atm-tier-extension-2k10k-prereg-2026-08-03.json): the $2K-$10K bracket is now ALSO
+    ATM (was OTM-2) -- so EQUITY_2K==2000.0, sitting at the [2K,10K) boundary, reads ATM
+    math (600/600) for safe-3/risky-1, diverging from the safe-1/V15_BOLD_TIERS test
+    above (598/602) BY DESIGN.
+
+    RISKY_LOOSE (risky-3) SPLIT OUT 2026-08-06 (ATM-TIER-EXTENSION-2K-10K PER-ARM KILL,
+    3ac1d7b2): risky-3's own frozen kill criterion (n>=10 fills, net<0) was MET
+    (n=14, -$653), so it flipped to strike_tier_table='bold_core_pre_ext'
+    (V15_BOLD_CORE_PRE_EXT_TIERS) -- byte-identical to bold_core EXCEPT the $2K-10K row
+    reverted to OTM-2 (its pre-2026-08-04 value). risky-1 (n=11, +$903) did NOT meet the
+    kill bar and stays on 'bold_core' / ATM. See test_risky3_pre_ext_strike_tier_at_2k
+    below for risky-3's own coverage (was silently stale here until this conductor
+    fire caught it via the full fleet suite -- the S3 ship's own vary-and-assert guard
+    didn't include this file)."""
+    for arm in (SAFE_TIGHT, RISKY_TIGHT):
         tiers = fx._tiers_for_arm(arm)
         assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
             f"{arm['id']} should use BOLD_CORE tiers, got a different table"
@@ -325,13 +334,45 @@ def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
     assert call_strike == 600, f"ATM CALL strike at $2K should be 600 (2026-08-04 extension), got {call_strike}"
 
 
+def test_risky3_pre_ext_strike_tier_at_2k():
+    """risky-3 ONLY (2026-08-06 per-arm kill, 3ac1d7b2): now resolves
+    V15_BOLD_CORE_PRE_EXT_TIERS, whose $2K-10K row reverted to OTM-2 -- SPY=600 at
+    EQUITY_2K gets 598/602, matching the pre-2026-08-04 shared-table behavior, NOT
+    risky-1/safe-3's ATM. Un-kill (accounts.json strike_tier_table -> 'bold_core')
+    restores ATM here too -- if this test starts failing after that edit, it is
+    expected; delete/update it in the same commit as the un-kill."""
+    tiers = fx._tiers_for_arm(RISKY_LOOSE)
+    assert tiers is fx.strike_selection.V15_BOLD_CORE_PRE_EXT_TIERS, \
+        f"{RISKY_LOOSE['id']} should use BOLD_CORE_PRE_EXT tiers post-kill, got a different table"
+
+    put_strike  = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "P", tiers)
+    call_strike = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "C", tiers)
+    assert put_strike  == 598, f"OTM-2 PUT strike at $2K should be 598 post-kill, got {put_strike}"
+    assert call_strike == 602, f"OTM-2 CALL strike at $2K should be 602 post-kill, got {call_strike}"
+
+
 def test_arm_plan_carries_atm_strike():
-    """An ENTERING risky arm at $2K on SPY=600 gets the ATM strike in the plan
-    (was OTM-2/598 before ATM-TIER-EXTENSION-2K-10K, 2026-08-04)."""
+    """An ENTERING risky-1 (BOLD_CORE, still ATM post-kill) arm at $2K on SPY=600 gets
+    the ATM strike in the plan (was OTM-2/598 before ATM-TIER-EXTENSION-2K-10K,
+    2026-08-04). Switched from RISKY_LOOSE to RISKY_TIGHT 2026-08-06: RISKY_LOOSE
+    (risky-3) no longer resolves ATM at $2K post-kill -- see
+    test_arm_plan_carries_pre_ext_strike below for its own coverage."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
+    plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
+    assert plan.action == "ENTER"
+    assert plan.strike == 600, f"PUT ATM should be 600, got {plan.strike}"
+
+
+def test_arm_plan_carries_pre_ext_strike():
+    """risky-3 (RISKY_LOOSE, post-kill) ENTERING at $2K on SPY=600 gets the OTM-2 strike
+    in the plan -- the live-path proof for test_risky3_pre_ext_strike_tier_at_2k above
+    (that test exercises strike_selection directly; this one goes through the real
+    fleet_executor.plan_entry, same discipline the old test_arm_plan_carries_atm_strike
+    used before the 2026-08-06 kill)."""
     sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan.action == "ENTER"
-    assert plan.strike == 600, f"PUT ATM should be 600, got {plan.strike}"
+    assert plan.strike == 598, f"PUT OTM-2 should be 598 post-kill, got {plan.strike}"
 
 
 # =============================================================================

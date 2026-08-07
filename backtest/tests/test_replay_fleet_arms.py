@@ -63,11 +63,15 @@ KNOWN_MAX_MISSED = {
 # Shrinks-only ratchet for the KNOWN max `extra` per arm. extra>0 is safety-critical
 # (arm over-trades vs backtest), so this is strictly bounded. A non-zero entry documents
 # a known pre-existing engine/orchestrator trigger-detection discrepancy.
-# risky-1 extra=1 (bar 1801, 2026-06-23 15:35 ET): engine's 150-bar _rebuild_level_states
-# sees sequence_rejection fresh (3-retest in window), but orchestrator's full-history
-# _update_level_states had a prior broken_back_through reset → sequence not valid.
-# Pre-existing masked discrepancy, exposed by the require_bearish_fill_bar C14 fix which
-# removed the open-position blocker that previously hid bar 1801 from arm_trades.
+# risky-1 extra=1 (bar 1801, 2026-06-23 15:35 ET) — CLOSED 2026-08-06 conductor fire
+# (REPLAY-FLEET-ARMS-SCORE-PEAK-MISSING, see _score_peak_passed_for_verdict in
+# replay_fleet_arms.py): the bar-1801 mismatch was never a window-truncation edge case —
+# _synth_signal never populated 'score_peak_passed' on the bull/bear blocks, so any bar
+# whose triggers_fired/setup_name/confluence depended on the PEAK-not-just-passed gating
+# (production's own build_shared_signal._bold_passed_blocks_from_row field-gating) could
+# drift. Fixing the missing field (which was built to unblock risky-3's separate
+# hard_skip_verdicts-rescue path, see KNOWN_MAX_MISSED note below) incidentally restored
+# byte-faithful trigger visibility at bar 1801 too. extra now 0 — ratchet tightened.
 #
 # safe-1 extra=1 (bar 1761, 2026-06-23 12:15 ET) — 2026-07-18 conductor fire, RESOLVED
 # a DIFFERENT prior mismatch (safe-1 missed=1 at bar 1394) but surfaced this ONE as
@@ -85,7 +89,7 @@ KNOWN_MAX_MISSED = {
 KNOWN_MAX_EXTRA = {
     "safe-1": 1,  # KNOWN: score-parity edge at bar 1761 (bear_score 10 vs 9), see above
     "safe-3": 0,
-    "risky-1": 1,  # KNOWN: window-truncation false-positive sequence_rejection at bar 1801
+    "risky-1": 0,  # CLOSED 2026-08-06: score_peak_passed fix, see comment above
     "risky-3": 0,
 }
 
@@ -155,17 +159,20 @@ def test_missed_within_ratchet(fidelity):
 
 
 def test_three_arms_entry_faithful(fidelity):
-    """Pins the current win state: safe-3, risky-3 are fully entry-faithful
+    """Pins the current win state: safe-3, risky-1, risky-3 are fully entry-faithful
     (extra==0 AND missed==0) -- they are ARM-READY on entry timing. A drop here is a
     real regression in the producer->consumer signal path.
     risky-3 added 2026-06-28 after C14 fix: _params_to_kwargs now wires require_bearish_fill_bar.
-    risky-1 excluded: has KNOWN extra=1 (window-truncation false-positive, see KNOWN_MAX_EXTRA).
+    risky-1 PROMOTED 2026-08-06: its prior extra=1 (bar 1801) was NOT a real window-truncation
+    edge case -- it was the SAME score_peak_passed wiring gap that zeroed risky-3's entries
+    (see KNOWN_MAX_EXTRA's comment + _score_peak_passed_for_verdict in replay_fleet_arms.py);
+    fixing the harness resolved it, extra now 0 -- promoted into the strict pin.
     safe-1 excluded 2026-07-18: its prior missed=1 (bar 1394) was RESOLVED this fire (a real
     structure_veto GT-vs-live-decision-layer gap, see _ground_truth_trades), but a separate
-    KNOWN extra=1 (bar 1761, score-parity edge) remains -- same category as risky-1's
-    exclusion, see KNOWN_MAX_EXTRA."""
+    KNOWN extra=1 (bar 1761, score-parity edge) remains -- ruled out as the SAME mechanism as
+    risky-1's old bar 1801 issue (see KNOWN_MAX_EXTRA), so safe-1 stays excluded here."""
     by_arm = {r["arm"]: r for r in fidelity["rows"]}
-    for arm in ("safe-3", "risky-3"):
+    for arm in ("safe-3", "risky-1", "risky-3"):
         r = by_arm[arm]
         assert r["extra"] == 0 and r["missed"] == 0, (
             f"{arm} lost entry-fidelity: extra={r['extra']} missed={r['missed']} "
