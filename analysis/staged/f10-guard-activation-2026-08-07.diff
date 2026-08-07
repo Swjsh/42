@@ -1,0 +1,19 @@
+diff --git a/backtest/tests/test_f10_bull_knob_threading_2026_08_07.py b/backtest/tests/test_f10_bull_knob_threading_2026_08_07.py
+index 49214f93..a99931cc 100644
+--- a/backtest/tests/test_f10_bull_knob_threading_2026_08_07.py
++++ b/backtest/tests/test_f10_bull_knob_threading_2026_08_07.py
+@@ -40,14 +40,6 @@ for _p in (str(BACKTEST), str(ROOT), str(_SCRIPTS)):
+     if _p not in sys.path:
+         sys.path.insert(0, _p)
+ 
+-# STAGED-GATE (deleted by f10-guard-activation-2026-08-07.diff at apply time):
+-pytestmark = pytest.mark.skipif(
+-    os.environ.get("GAMMA_STAGED_2026_08_07") != "1",
+-    reason="staged guard for f10-bull-knob-threading diff; run with "
+-           "GAMMA_STAGED_2026_08_07=1 (pre-apply=RED, post-apply=GREEN)",
+-)
+-
+-
+ @pytest.fixture(scope="module")
+ def hc():
+     return importlib.import_module("heartbeat_core")

@@ -1,0 +1,86 @@
+diff --git a/setup/scripts/heartbeat_core.py b/setup/scripts/heartbeat_core.py
+index 7678d75e..8f290941 100644
+--- a/setup/scripts/heartbeat_core.py
++++ b/setup/scripts/heartbeat_core.py
+@@ -559,6 +559,22 @@ def _norm_no_trade_window(value) -> "list | None":
+     return None
+ 
+ 
++def _bull_f10_vol_mult(account_params: dict) -> float:
++    """Bull filter-10 volume multiplier: dedicated `filter_10_vol_multiplier_bull` when
++    present, else the shared `filter_9_vol_multiplier` knob (pre-2026-08-07 behavior --
++    byte-identical when the dedicated key is absent).
++
++    Threading enabler for bull-f10-buyer-pressure-relax
++    (analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json). The VALUE
++    change, if any, ships ONLY as a params.json key after the prereg's frozen battery
++    clears -- this helper alone changes nothing while the key is absent.
++    Mechanism evidence: analysis/deep-research/FEED-DIVERGENCE-F10-F7-2026-08-07.md
++    (IEX under-prints consolidated volume 1.3%-8.2% bar-to-bar; surge bars read as dead).
++    """
++    _vm = account_params.get("filter_9_vol_multiplier", 0.7)
++    return float(account_params.get("filter_10_vol_multiplier_bull", _vm))
++
++
+ def _build_payload(df: pd.DataFrame, account_params: dict, *,
+                    vix: tuple | None = None, levels: tuple | None = None,
+                    vix_ma: tuple | None = None,
+@@ -651,7 +667,7 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
+         "enable_bullish": True,
+         # bear's volume filter is f9; bull's is f10 (distinct kwarg names in evaluate_*_setup)
+         "bear_kwargs": dict(_times, f9_vol_mult=_vm, min_triggers=account_params.get("filter_10_min_triggers_bear", 1)),
+-        "bull_kwargs": dict(_times, f10_vol_mult=_vm, min_triggers=account_params.get("filter_10_min_triggers_bull", 2)),
++        "bull_kwargs": dict(_times, f10_vol_mult=_bull_f10_vol_mult(account_params), min_triggers=account_params.get("filter_10_min_triggers_bull", 2)),
+     }
+     # Same-day 5m bars up to and including the trigger bar (for structure_veto_enabled).
+     # Uses the full RTH `df` (not the bounded `win`) to capture bars from open onward.
+diff --git a/backtest/lib/orchestrator.py b/backtest/lib/orchestrator.py
+index 3c202e68..658473c5 100644
+--- a/backtest/lib/orchestrator.py
++++ b/backtest/lib/orchestrator.py
+@@ -347,6 +347,10 @@ def _params_to_kwargs(overrides: dict, account_equity: Optional[float] = None) -
+         kwargs["runner_target_premium_pct"] = overrides["runner_max_premium_pct"]
+     if "filter_9_vol_multiplier" in overrides:
+         kwargs["f9_vol_mult"] = overrides["filter_9_vol_multiplier"]
++    if "filter_10_vol_multiplier_bull" in overrides:
++        # Bull-only f10 volume multiplier (2026-08-07 threading; falls back to the
++        # shared f9 knob at the call sites when None -- byte-identical when absent).
++        kwargs["f10_vol_mult_bull"] = overrides["filter_10_vol_multiplier_bull"]
+     if "filter_10_min_triggers_bear" in overrides:
+         kwargs["min_triggers_bear"] = overrides["filter_10_min_triggers_bear"]
+     if "min_triggers_bear" in overrides:  # L116: raw snake_case alias for params_overrides path
+@@ -517,6 +521,7 @@ def run_backtest(
+     no_trade_before: Optional[dt.time] = dt.time(10, 0),    # RATIFIED v11
+     no_trade_window: Optional[tuple] = (dt.time(14, 0), dt.time(15, 0)),  # RATIFIED v11
+     f9_vol_mult: float = 0.7,                                # RATIFIED v11
++    f10_vol_mult_bull: Optional[float] = None,               # 2026-08-07: bull-only f10 knob; None -> f9_vol_mult (pre-existing tie)
+     enable_bullish: bool = True,                             # RATIFIED v12 — symmetric setup hunting
+     # --- NEW 2026-05-09: asymmetric bear/bull params ---
+     min_triggers_bear: Optional[int] = None,
+@@ -723,6 +728,8 @@ def run_backtest(
+             runner_target_premium_pct = ovrk["runner_target_premium_pct"]
+         if "f9_vol_mult" in ovrk and f9_vol_mult == 0.7:
+             f9_vol_mult = ovrk["f9_vol_mult"]
++        if "f10_vol_mult_bull" in ovrk and f10_vol_mult_bull is None:
++            f10_vol_mult_bull = ovrk["f10_vol_mult_bull"]
+         if "min_triggers_bear" in ovrk and min_triggers_bear is None:
+             min_triggers_bear = ovrk["min_triggers_bear"]
+         if "min_triggers_bull" in ovrk and min_triggers_bull is None:
+@@ -1027,7 +1034,7 @@ def run_backtest(
+                 min_triggers=bull_min_triggers,
+                 no_trade_before=no_trade_before,
+                 no_trade_window=no_trade_window,
+-                f10_vol_mult=f9_vol_mult,
++                f10_vol_mult=(f10_vol_mult_bull if f10_vol_mult_bull is not None else f9_vol_mult),
+                 sweep_blocker_enabled=sweep_blocker_enabled,
+                 sweep_min_wick_pct=sweep_min_wick_pct,
+                 sweep_min_close_back_pct=sweep_min_close_back_pct,
+@@ -1072,7 +1079,7 @@ def run_backtest(
+                     min_triggers=bull_min_triggers,
+                     no_trade_before=no_trade_before,
+                     no_trade_window=no_trade_window,
+-                    f10_vol_mult=f9_vol_mult,
++                    f10_vol_mult=(f10_vol_mult_bull if f10_vol_mult_bull is not None else f9_vol_mult),
+                     sweep_blocker_enabled=sweep_blocker_enabled,
+                     sweep_min_wick_pct=sweep_min_wick_pct,
+                     sweep_min_close_back_pct=sweep_min_close_back_pct,
