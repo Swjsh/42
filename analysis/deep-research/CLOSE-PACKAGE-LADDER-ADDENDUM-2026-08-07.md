@@ -1,6 +1,173 @@
-# CLOSE-PACKAGE ADDENDUM — 2026-08-07 (orchestrator merges at 15:55)
+# CLOSE-PACKAGE LADDER ADDENDUM — 2026-08-07 (SYNTHESIS; orchestrator merges at 15:55)
 
-> Lanes append sections below. Do NOT overwrite another lane's section.
+> Synthesist section first; the four raw lane sections follow verbatim in the appendix.
+> All four lane verifiers returned `no_live_file_touched=true`. Re-confirmed fresh 13:20 ET:
+> trading-path `git diff` EMPTY, no `score_ladder_rung` key in accounts.json (grep: 0 matches),
+> patch dormant, TV replay OFF (`is_replay_started=false`) + health GREEN. Clock verified via
+> `et_clock.py` (13:20 ET, market_hours=True — this file is analysis-only).
+
+## FOR J — 12 LINES MAX
+
+1. The score ladder you have asked for four times is built, tested, and staged; it ships to both risky arms tonight after close, pending one final data check.
+2. It fixes today's exact complaint: at 10:15 a ten-of-eleven reclaim was refused on one demotable filter, and the binary engine then sat out 91 minutes of a 770.50 to 773.17 run — the ladder enters both risky arms at 10:15.
+3. Bull side only: risky-3 admits at score 7, risky-1 at score 8; the safe arms stay binary — they are the control, and that IS the ladder.
+4. Hard gates never demote on any rung: risk caps, kill switch, VIX hard cap, spread, entry window, and the level-tied rule — all 112 of today's bare-confirmation ticks stay refused, so this is not filter deletion.
+5. On this week's tape the ladder adds about +$3,028 per risky arm and takes Monday's and Tuesday's missed runners.
+6. Over 390 days it is roughly flat (rung 7 +$706, rung 8 −$644); the positive story is the 2026 slice (+$2,920 / +$1,799) — your recency doctrine applied openly, not smuggled.
+7. The bear side lost five figures at every rung in two independent replays and stays out.
+8. The final check: rerun Friday on real option data after 16:21; if it flips the week negative, we hold the patch and run the $0 shadow clock instead.
+9. Rung 8 on risky-1 is the weaker arm — slightly negative population, worst Wednesday behaviour — armed anyway under your stated bar, with a pre-stated 10-session demotion trigger.
+10. Chop days bleed (Wednesday −$1,555 uncapped); a 3-rescue-per-day cap is the staged first fast-follow — it would have made the week +$4,054.
+11. The morning −$629 was not oversize — 6.8% of combined kill budgets, every arm on the frozen grid; the real mechanism is four arms on one signal with no cross-arm budget (open finding, no change tonight), and the 12:06 re-entry both engines take identically lost about another $1,192.
+12. REVOKE any time: delete two config keys and the next tick is byte-identical binary.
+
+---
+
+## 1. LADDER VERDICT PER RUNG
+
+Two independent frozen preregs ran today (both committed BEFORE their runners, git-provable:
+`a780122e` 12:18 ET → runner `3b3072a9`; `c2ec28f3` 12:19 ET → runners `d8990156`). They
+**agree on every fact** — the ladder admits the 10:15 tick and J's Mon/Tue missed runners;
+bull-only week positive; bear dead at every rung; safe arms binary; chop-day bleed scales
+with admission width; filter 11 absolute — and **split on the verdict** because they froze
+different arithmetic and different gates: LANE 1 (single-demerit — the logged bull_score
+already IS the adjusted score, `filters.py:1273`) passed its gates → SHIP; LANE 2
+(double-demerit, strictly tighter admission, tighter gates incl. a −$300 Wednesday allowance
+and BH) failed its → PREREG+shadow.
+
+**Adjudication (synthesist): SHIP LANE 1's bull-only rung lane.** Grounds: (a) J's
+authorization bar in the directive — *positive on the week, not catastrophic on the
+population, honest cells* — is met by both rungs under the semantics the patch actually
+implements; (b) standing recency doctrine (J 2026-07-31) + 4th ask + full paper autonomy;
+(c) trivial REVOKE. LANE 2's counter-evidence is not discarded — it becomes the three
+forward controls in §5 (shadow nightly, rung-8 demotion bar, 3-rescue cap). Disclosed
+plainly: **BH is null everywhere** (best p 0.066) — nothing here is statistically proven;
+this is a recency-weighted paper experiment with the safe arms as the in-fleet control,
+exactly the fleet-parallel A/B the 2026-07-27 pk-ledger entry prescribed.
+
+| Cell | risky-3 · rung 7 | risky-1 · rung 8 | Bear (any rung) | Safe arms |
+|---|---|---|---|---|
+| **Verdict** | **SHIP** (conditional §5.3) | **SHIP + headline** (demotion bar §5.6) | **OUT** | **BINARY** (control) |
+| Week 08-03..07 added | +$3,028 (Fri cell EST, partial) | +$3,028 L1 (identical set) / +$972 L2 live-tape | — | $0 by design |
+| Tuesday (+$3,624 day) | no-harm, delta +$2,052 (L1); +$1,244 extras incl. J's missed runners (L2) | same | — | — |
+| Wednesday (−$1,935 day) | −$1,555 / 19 rescues uncapped (L1); −$1,143/11tr (L2) | −$405/5tr (L2 — breaches its frozen −$300 allowance by $105) | — | — |
+| Population 390d (qty3, real OPRA) | **+$706/822tr** (+$0.86/tr; held-out +$660; 2026 +$2,920; ex-best −$231) | **−$644/755tr** (−$0.85/tr; 2026 +$1,799) | −$16,631/843tr r7 · −$11,758/466tr r8, held-out negative | n/a |
+| No-spiral | worst intraday −29.3% of SOD vs −50% kill | same | — | — |
+
+Cohort cells (all reported): `[10]`-sole (today's shape) −$361/118tr full window but
+**+$1,384/50tr in 2026**; `[8]`-sole +$3,605/46tr (best); `[7]`-sole −$721/15tr (thin).
+LANE 2's occupancy-lane "uplift" (+$4.2–5.7K over binary) is **displacement, not extras
+edge** (extras alone −$1.1..−$2.1K under double-demerit) — disclosed, not counted as
+evidence. Rung 9 was measured (+$1,253 week live-tape) but maps to no arm — do not arm it.
+
+**Robustness note vs the dead filter-relax family:** the parallel refusal-audit workflow's
+frozen F10/F7 battery came back all-6-cells below-floor and negative — nothing ships there
+(`1bdc1f12`, synthesis `50f02a6b`) — and its IEX-twin replay found the 10:15 exhibit's sole
+blocker flips f10↔f7 across SIP/IEX feeds (`0ff537fb`). Both are DEMOTABLE, so the rung
+mechanism admits under either feed: the ladder is robust to exactly the provenance hazard
+that killed single-filter relaxes. No collision between the two packages.
+
+**Graveyard distinction (stated in prereg `a780122e` before running):** NOT filter deletion,
+NOT filter-8 relax, NOT the killed raw-floor lane (which ignored blocker identity, was
+bear-heavy, and lost −$10.9K..−$16.6K). This is per-arm score-conditional admission,
+bull-only, blockers must be a subset of {5,7,8,10}, with the safe arms as control.
+
+## 2. PRODUCTION PATCH + GUARDS (ready for 15:55 IF §5.3 passes)
+
+- **Patch:** `analysis/arm-ladder/score-ladder-rung-2026-08-07.patch` — fleet-only
+  (`build_shared_signal.py` bull producer block + vix; `fleet_executor.py`
+  `_ladder_rung_plan` behind `gate_override.score_ladder_rung`). Full diff inline in the
+  LANE 1 appendix section below. **Fresh 13:20 ET: `git apply --check` rc 0. NOT applied.**
+- **Sizing pinned in the patch:** `qty = int(params.get("min_contracts", 3))` — never
+  `_qty_for` — which closes LANE 4's warning that an unpinned ladder would size bold-ELITE
+  qty 12.
+- **Guards RED against HEAD, quoted fresh (13:21 ET):**
+  normal: `6 passed, 3 skipped, 2 xfailed in 1.16s`
+  `--runxfail`: `2 failed` — exactly `test_rung_lane_admits_bull_f10_sole_blocker` +
+  `test_producer_emits_bull_block_with_vix`. Six partition guards enforce
+  demotable/non-demotable NOW; accidental-arming guard
+  (`test_live_accounts_carry_no_rung_key_yet`) is green because the key is absent (fresh
+  grep: 0 matches).
+- **Arming keys (step §5.4):** risky-3 `"score_ladder_rung": 7`, risky-1
+  `"score_ladder_rung": 8`. **REVOKE = delete the two keys → next tick byte-identical
+  binary; whole patch git-revertible.**
+
+## 3. THE SIZE ANSWER ($629 anatomy — LANE 4, verified)
+
+- **Not an oversize event.** 28 contracts = 3 (core min) + 8 (safe ELITE tier) + 5
+  (full-send clamp) + 12 (bold ELITE tier) — every arm exactly per the frozen 2×3 grid,
+  first session the design fully expressed (ELITE + recency GREEN + 4 arms). Book loss =
+  **6.8% of combined Rule-5 kill budgets** (no arm above 10.1% of its own); ~$22.50/contract.
+  Per-contract pain INVERTED size: the qty-3 arm lost −$51/ct (64s-earlier 1.67 entry) vs
+  −$17/ct on the qty-12 arm — entry timing, not size. risky-3's $0.62 OTM-2 was the
+  *smaller* dollar exposure (13.9% eq).
+- **Dollar-risk {1.5/2/3}% cells: REFUTED, staged as NO-prereg.** Min-contract floors bind
+  44–50 of 51 week positions → the three cells collapse into one policy; best cell week
+  +$406 but G4 runner −$423 FAIL, sub-window sign-flip, and the LEVER-SIZING-2026-08-06
+  population cell (e) −$2,981 already refuted the family. Sizing cannot cap a Wednesday
+  (−$1,388 in every legal cell). **Nothing ships on sizing tonight.**
+- **The real mechanism is book-level correlation** — 4 arms, one signal, one stop, no
+  cross-arm budget (per-arm caps all honest). OPEN finding for a future lane, no proposal
+  tonight.
+- **Day update (post-write, disclosed):** the 12:06 re-entry (score 11, zero blockers —
+  both engines identical) stopped out 12:25–12:26 for ~−$1,192 more; day realized
+  ≈ **−$1,820 gross** as of ~12:30. The EOD digest must carry the full number, not the
+  stale −$629 morning headline.
+
+## 4. TV REPLAY ARTIFACT + STORY OF THE DAY
+
+**Artifact:** [`FRIDAY-TV-REPLAY-2026-08-07.md`](FRIDAY-TV-REPLAY-2026-08-07.md) — 9
+phone-scrollable frames in `friday-tv-replay-2026-08-07/`, binary-vs-ladder annotated at
+every decision point on J's own chart (committed `a6b17332`).
+
+The story in three sentences: At 09:46 all four arms bought the 09:40 close above PDH
+771.82, and the 09:55 dump stopped every one of them out by 10:02 for −$629 — a trade both
+the binary engine and the ladder take identically. From 10:15 to 11:45 the engine logged 70
+ELITE ten-of-eleven ticks refused by exactly one demotable blocker while SPY ran 770.50 to
+773.91 without a meaningful pullback — the ladder enters at 10:15 and the binary engine sat
+out the whole run, which is J's complaint made visible. At 12:06 both engines re-entered on
+a clean 11-of-11 and stopped out again by 12:26 — the ladder is an admission policy, not a
+loss dodge, and its whole case is that refusal window.
+
+## 5. ORCHESTRATOR AT 15:55 — IN ORDER (merged with the base close package)
+
+1. **Base package first, as written** — `CLOSE-PACKAGE-2026-08-07.md`: et_clock ≥15:55
+   confirm, section A defect-class fix (unconditional), the f10-bull knob REVOKE-line
+   resolution. Its F10/F7 battery verdict (all cells negative, nothing ships) does not
+   collide with the ladder — reference, do not re-litigate. Do not duplicate its items.
+2. **Confirm TV replay OFF + health GREEN** (fresh 13:20 ET: OFF/GREEN; parallel lanes drove
+   replay today — an abandoned replay chart is the real P0 per LANE 4's review).
+3. **≥16:21 — Friday final cell on real OPRA (the ship condition):**
+   `backtest/.venv/Scripts/python.exe backtest/tools/ladder_rung_replay_2026_08_07.py --ledger 2026-08-07 --sides C --no-est --out-tag friday-final`
+   **STOP RULE (pre-stated):** if week-added ≤ 0 with the real Friday cell replacing EST →
+   DO NOT apply the patch; register the shadow task (step 5) and report PREREG-HOLD.
+   (Context: G-WEEK already passes Mon–Thu alone at +$2,811 with no EST cell, so only a
+   large real-OPRA Friday loss flips it.)
+4. **If pass — apply LANE 1's runbook verbatim:** `git apply` the patch → remove the two
+   xfail markers → run rung suite + `test_probe_arm` + `test_full_send_arm` (all green
+   required) → ARM the two `score_ladder_rung` keys + update
+   `test_live_accounts_carry_no_rung_key_yet` in the same commit → `commit_scoped.py` →
+   push (after hours) → **report for REVOKE**.
+5. **Register `Gamma_LadderShadow`** (16:40 ET weekdays →
+   `backtest/tools/score_ladder_shadow_nightly.py`, $0, analysis-only) + run once for
+   today. Runs whether or not step 4 shipped — it is the independent double-demerit monitor
+   and the data source for the demotion bar.
+6. **Log the forward controls** (Monday premarket + firm brief): (a) **rung-8 demotion
+   bar** — after 10 sessions, if risky-1's rung-lane fills net ≤ 0, or any single session
+   < −$500 (qty3), or negative-session avg < −$300 → delete risky-1's key, keep rung 7
+   (numbers = LANE 2's pre-frozen bar, repurposed symmetrically, stated now before forward
+   data); (b) **3-rescue/day cap trigger** — first live day with >5 rescue entries → ship
+   the cap that evening (measured: week +$4,054 vs +$3,028, worst day −$1,555 → ~−$610);
+   (c) `pdt_enforced=false` on both risky arms — mirrored + disclosed; (d) EOD digest +
+   journal carry the full day number (≈−$1,820 gross, final at EOD), per Rule 8.
+7. **Consolidation handoffs:** LANE 3 dojo tooling scars → `dojo_session.py` backlog;
+   cross-arm book-budget OPEN finding → `FUTURE-IMPROVEMENTS.md`; 4 malformed highres cache
+   files (LANE 1 OPEN flag, shared `_option_bars_1min_cache.py` deliberately untouched) →
+   after-hours follow-up.
+
+---
+
+# APPENDIX — RAW LANE SECTIONS (verbatim, as appended by each lane; do not edit)
 
 ## LANE 4 — SIZE ANATOMY (staged for close)
 
