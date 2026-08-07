@@ -1,0 +1,81 @@
+{
+  "prereg_id": "SCORE-LADDER-V2-DEMERIT-2026-08-07",
+  "frozen_at_et": "2026-08-07T12:35:00-04:00",
+  "frozen_before_any_replay_run": true,
+  "author_lane": "score-ladder-replay (LANE 2, Friday 2026-08-07 orchestration)",
+  "authorization": "J 4th+ ask (verbatim today: 'risky accounts are able to get in on an eight out of ten, a seven out of ten, a nine out of ten. So why are we sitting out of anything that's a ten out of eleven?') + standing paper autonomy (OP-0/OP-11). Ship target: RISKY arms only, tonight, IF the frozen gates below pass. Safe arms stay binary regardless -- that IS the ladder (binary = top rung).",
+
+  "_provenance_audit": {
+    "existing_harnesses_found": [
+      "backtest/tools/arm_score_ladder_replay.py (2026-07-27: 10-anchor evidence table, raw-score>=floor semantics)",
+      "backtest/tools/ladder_fullhist_replay.py (2026-07-27: 390-day fullhist, raw bear_score>=floor + level-tied trigger; produced the DISARM evidence)",
+      "automation/state/fleet/build_shared_signal.py#_ladder_block + fleet_executor.py#_ladder_plan (live machinery, intact + inert since 2026-07-27 disarm)",
+      "setup/scripts/heartbeat_core.py#_apply_score_ladder (core-arm twin, inert -- params.json score_ladder_floor key absent)"
+    ],
+    "graveyard_this_is_NOT": [
+      "NOT filter deletion (dead): that removed a gate for ALL arms unconditionally.",
+      "NOT filter-8 relax (dead): same all-arms unconditional shape.",
+      "NOT the raw-floor bear ladder (deb781ea, DISARMED 2026-07-27 on e65ed269 evidence: floor=7 -$31,015/1538tr, floor=8 -$16,642/725tr, floor=9 -$10,903/332tr vs baseline +$5,307). Differences, each one material: (a) NON-DEMOTABLE absolutes retained on every rung (the old lane admitted ticks blocked on spread/window/VIX-hard); (b) double-demerit arithmetic is STRICTLY tighter (bear rung 7/8 admits exactly ONE demotable blocker vs the old floor=9's one ARBITRARY blocker; old floor 7/8 admitted 2-3 arbitrary blockers); (c) BOTH sides -- the old lane was bear-only and this week's misses are all bull; (d) per-arm score-conditional admission with the safe arms as always-on binary controls."
+    ]
+  },
+
+  "_ladder_semantics_frozen": {
+    "definition": "For LADDER arms, DEMOTABLE filters no longer veto -- each active demotable blocker subtracts its demerit from the reported side score, and the arm enters when adjusted_score >= its rung. NON-DEMOTABLE gates remain absolute vetoes on every rung.",
+    "arithmetic_pinned_by_J_example": "adjusted_score = reported side score (bull_score/bear_score as logged, which ALREADY carries -1 per blocker and the HTF -1 modifier) MINUS 1 more per active demotable blocker. Pinned by the task's worked example: 2026-08-07 10:15 tick, bull_score 10/11, sole blocker filter 10 (demerit 1) -> adjusted 9 >= rung 7 -> risky-3 IN. The double-subtraction is deliberate and makes admission strictly tighter than a raw-score floor.",
+    "demerit_per_demotable_blocker": 1,
+    "demotable_bull": {"5": "ribbon BULL stack", "7": "bullish volume divergence", "8": "VIX soft (<17.20 or falling)", "10": "buyer pressure (green bar + vol>=0.7x)"},
+    "demotable_bear": {"5": "ribbon BEAR stack", "7": "volume divergence", "8": "VIX soft (>17.30 and rising) -- ONLY when vix_now <= 23.0; above the bear hard cap filter 8 stays an absolute veto", "9": "seller pressure (breakdown bar, f9_vol_mult 0.7)"},
+    "non_demotable_absolute_on_every_rung": [
+      "risk_gate.check_order in full (Rule 5 kill switch, Rule 6 per-trade cap, PDT/settlement, NOT_FLAT/no-add)",
+      "filter 1 (entry window: >=09:35, <15:00 entry ceiling, any no_trade_window)",
+      "filter 6 (ribbon spread >= 30c)",
+      "bull filter 9 (VIX >= 22 hard cap)",
+      "bear filter 8 hard-cap component (VIX > 23.0)",
+      "bull filter 11 / bear filter 10 IN FULL (trigger-count AND the level-tied requirement -- the bare-confirmation cohort is the measured -$103/entry 0%-WR cell, never admitted on any rung)",
+      "sweep blockers (bull 12 / bear 11) and ANY blocker not in the explicit demotable list (fail-closed default)",
+      "min_entry_premium floor $0.30, EOD flatten, 15:40 time stop -- untouched"
+    ],
+    "derived_admission_table": {
+      "bull_base_11": {"rung_6": "<=2 demotable blockers", "rung_7": "<=2", "rung_8": "<=1", "rung_9": "<=1", "binary": "0"},
+      "bear_base_10": {"rung_6": "<=2 demotable blockers", "rung_7": "<=1", "rung_8": "<=1", "rung_9": "0 (= binary)", "binary": "0"},
+      "note": "Reported-score demerits (HTF disagreement, vix_soft) reduce headroom further on affected ticks; the table above is the no-modifier case."
+    },
+    "rung_assignment": {"risky-3": 7, "risky-1": 8, "bold-2": "binary (core control, untouched)", "safe-3": "binary", "safe-2": "binary"},
+    "both_sides": true,
+    "side_conflict_rule": "If both sides admit on the same bar, take the higher adjusted score; exact tie -> no entry (disclosed)."
+  },
+
+  "_replay_mechanics_frozen": {
+    "week_population_engine": "orchestrator.run_backtest(**SAFE_BASE_LIVE_NOW) with pass-through capture wrappers on evaluate_bearish_setup AND evaluate_bullish_setup (full result per bar_idx); SAFE_BASE_LIVE_NOW = eb.SAFE_BASE re-verified against CURRENT automation/state/params.json: block_elite_bull=False (flipped since the 07-27 tool), initial_equity=5727.91 (live-read 08-06), all other keys re-checked.",
+    "lane_construction": "Per rung: chronological merge of (a) the binary engine's own r.trades (walked at their own qty/strike, same as ladder_fullhist_replay's baseline) and (b) ladder-extra candidates (refused bars admitting at the rung), ONE POSITION AT A TIME per lane (NOT_FLAT): any event inside an open [entry, exit] window is skipped -- including binary entries suppressed by an open ladder extra (honest occupancy cost).",
+    "extras_convention": "ATM strike via fleet_executor.PROBE_STRIKE_TIERS (the live _ladder_plan's own table), qty=3 (study min-size, comparable to LADDER-FULLHIST-2026-07-27), entry = NEXT option bar's OPEN (entry+1 per ENTRY-BAR-CONVENTION-RULING-2026-07-25), exits via walk_exit_manager -> exit_manager.plan_exit_actions ONLY, ribbon_ride registry exit shape, structure_stop_enabled=True with the raw rejection/reclaim level as trigger_level, time_stop 15:40.",
+    "pnl_authority": "Real OPRA cache only in P&L aggregates; BS-synthetic-priced candidates flagged + counted + EXCLUDED (C1, same stance as ladder_fullhist_replay).",
+    "today_mechanics": "Live core-decisions.jsonl ticks are the scoring authority (no re-scoring). Hypothetical entries priced BS-EST from per-tick spy/vix, calibrated against today's real NBBO anchors (09:46 + 12:06 exec.premium + exit_pass tracks), synthetic 1-min opt_df -> walk_exit_manager; every today number LABELED EST. Per-arm day cells use the live _ladder_plan convention (PROBE ATM strike, min_contracts qty = 5 risky) AND the qty-3 study cell, both reported. Actual binary fills (real) + EST extras, sequential per arm from 09:35.",
+    "week_days": ["2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06 (real OPRA)", "2026-08-07 (EST, engine tick track)"],
+    "population_window": "2025-01-02 .. 2026-08-06 (cached lineage; exact RTH day count reported, ~396; wall-v1 frame, same as every prior tool on these caches)",
+    "rung_sweep_reported": [6, 7, 8, 9, "binary"],
+    "population_run_at": "the winning rung set only (per task), all battery cells reported"
+  },
+
+  "_ship_gates_frozen_before_looking": {
+    "ship_target": "risky-3 rung 7, risky-1 rung 8 (paper, guarded, one-line revert), tonight after 15:55 ET",
+    "G_week": "Week (Mon-Fri, Fri EST-labeled) ladder-lane net > binary-lane net at the shipping rung, AND ladder-lane week net > 0.",
+    "G_tuesday": "Tuesday 08-04 ladder-lane >= Tuesday binary-lane minus max($150, 10% of |Tuesday binary|). Tuesday was won at full gates; the ladder must not give it back.",
+    "G_wednesday": "Wednesday 08-05 (adversarial): ladder-lane >= binary-lane minus $300 AND the ladder adds NO new same-contract re-entry spiral (no 3+ extra entries on the same strike/side that day). Run with live config AS-IS (same-bar cooldown DISARMED); the cooldown interaction is noted separately, never armed in-sim.",
+    "G_population_net": "Population ladder-lane net >= binary-lane net - 0.10 * abs(binary net).",
+    "G_population_tail": "Ladder-lane worst single day >= 1.25 * binary worst single day (i.e. not more than 25% worse).",
+    "G_verdict_rule": "SHIP iff ALL of G_week, G_tuesday, G_wednesday, G_population_net, G_population_tail pass at the shipping rung set. Otherwise PREREG-ONLY, naming the exact failing cell. Pre-registered subsidiary cells (same gates, same freeze): BULL-ONLY ladder and BEAR-ONLY ladder at the same rungs -- if the primary both-sides cell fails on one side's cohort alone, the surviving side may ship by its own full gate pass, stated as that named cell, never a post-hoc slice beyond these two."
+  },
+
+  "_battery_cells": {
+    "family": "today per rung (5 cells) + week per rung (5) + population winning-rung: G1 aggregate, G3 ex-best-trade, G4 runner cohort, sub-window thirds, drop-best-day, archetype slices (trend/chop per the standing day-archetype artifact)",
+    "stats": "added-cohort per-trade bootstrap (mean>0, 10k resamples) per cell; Benjamini-Hochberg q=0.10 across the population cell family; ALL cells reported regardless of significance",
+    "honesty_rails": ["no cell dropped", "synthetic share disclosed per lane", "suppressed-binary-trade count disclosed per lane", "EST labeling on every today number", "known replay-vs-live entry-layer divergence disclosed (engine_fullhist_replay's documented limitation)"]
+  },
+
+  "artifacts": {
+    "runner": "backtest/tools/score_ladder_replay_2026_08_07.py (new module, nothing live imports it)",
+    "results": ["analysis/deep-research/SCORE-LADDER-REPLAY-2026-08-07.md", "analysis/deep-research/SCORE-LADDER-REPLAY-2026-08-07.json"],
+    "close_package": "analysis/deep-research/CLOSE-PACKAGE-LADDER-ADDENDUM-2026-08-07.md (orchestrator merges at 15:55)"
+  }
+}
