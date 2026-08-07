@@ -1,0 +1,829 @@
+{
+  "_doc": "LANE2 part 1 -- what the f10/f7 bull refusal cost TODAY (2026-08-07), per arm and book. ALL dollar cells EST (BS surface calibrated on 6 real fill anchors; evening re-price on real OPRA is part of the staged package). Walks: walk_exit_manager -> exit_manager.plan_exit_actions ONLY.",
+  "generated_at_et": "2026-08-07T10:21:27.517688",
+  "spy_bars_provenance": "alpaca:iex (creds=bold-2)",
+  "n_spy_1min_bars": 171,
+  "last_bar_et": "2026-08-07 12:20:00",
+  "sigma_nodes": [
+    {
+      "t": "2026-08-07T09:47:00",
+      "points_m_sigma": [
+        [
+          0.6000000000000227,
+          0.23828224706665324
+        ],
+        [
+          2.6000000000000227,
+          0.19409845639932127
+        ]
+      ]
+    },
+    {
+      "t": "2026-08-07T10:02:00",
+      "points_m_sigma": [
+        [
+          0.7000000000000455,
+          0.1846847397112213
+        ],
+        [
+          2.7000000000000455,
+          0.17485043511966586
+        ]
+      ]
+    },
+    {
+      "t": "2026-08-07T12:06:34",
+      "points_m_sigma": [
+        [
+          -0.2999999999999545,
+          0.14653228634010645
+        ],
+        [
+          1.7000000000000455,
+          0.14150364005030103
+        ]
+      ]
+    }
+  ],
+  "surface_validation_oos": {
+    "n_marks": 14,
+    "mae_dollars_per_contract_unit": 0.2669,
+    "detail": [
+      {
+        "ts": "2026-08-07T09:48:03",
+        "obs_mid": 1.315,
+        "model_EST": 1.568,
+        "err": 0.253
+      },
+      {
+        "ts": "2026-08-07T09:49:03",
+        "obs_mid": 1.385,
+        "model_EST": 1.795,
+        "err": 0.41
+      },
+      {
+        "ts": "2026-08-07T09:50:03",
+        "obs_mid": 1.335,
+        "model_EST": 1.866,
+        "err": 0.531
+      },
+      {
+        "ts": "2026-08-07T09:51:03",
+        "obs_mid": 1.515,
+        "model_EST": 1.855,
+        "err": 0.34
+      },
+      {
+        "ts": "2026-08-07T09:52:03",
+        "obs_mid": 1.395,
+        "model_EST": 1.92,
+        "err": 0.525
+      },
+      {
+        "ts": "2026-08-07T09:53:03",
+        "obs_mid": 1.505,
+        "model_EST": 1.854,
+        "err": 0.349
+      },
+      {
+        "ts": "2026-08-07T09:54:03",
+        "obs_mid": 1.505,
+        "model_EST": 1.79,
+        "err": 0.285
+      },
+      {
+        "ts": "2026-08-07T09:55:03",
+        "obs_mid": 1.415,
+        "model_EST": 1.649,
+        "err": 0.234
+      },
+      {
+        "ts": "2026-08-07T09:56:03",
+        "obs_mid": 1.445,
+        "model_EST": 1.201,
+        "err": -0.244
+      },
+      {
+        "ts": "2026-08-07T09:57:03",
+        "obs_mid": 1.125,
+        "model_EST": 0.982,
+        "err": -0.143
+      },
+      {
+        "ts": "2026-08-07T09:58:03",
+        "obs_mid": 1.025,
+        "model_EST": 0.986,
+        "err": -0.039
+      },
+      {
+        "ts": "2026-08-07T09:59:03",
+        "obs_mid": 1.045,
+        "model_EST": 1.173,
+        "err": 0.128
+      },
+      {
+        "ts": "2026-08-07T10:00:04",
+        "obs_mid": 1.065,
+        "model_EST": 1.265,
+        "err": 0.2
+      },
+      {
+        "ts": "2026-08-07T10:01:04",
+        "obs_mid": 1.145,
+        "model_EST": 1.09,
+        "err": -0.055
+      }
+    ]
+  },
+  "census": {
+    "window_10_15_to_11_45": {
+      "verdicts": 182,
+      "all_hold": true,
+      "sole_f10_per_account": 27,
+      "sole_f7_per_account": 5,
+      "sole_f11_per_account_firewalled_not_liftable": 5
+    },
+    "extension_11_46_to_12_05": {
+      "sole_f10_per_account": 10,
+      "joint_f7_f10_per_account": 10,
+      "note": "with f10 relaxed the latest possible entry was 11:46, vs actual 12:06"
+    },
+    "morning_counter_cell": {
+      "pre_0946_sole_f10_or_f7_ticks": 0,
+      "actual_0946_entry_blockers": [],
+      "delta_dollars": 0.0,
+      "verdict": "relaxation does NOT enlarge the morning loser -- 09:35-09:45 all multi-blocked ([1,5,6,11] then [6,10,11]); 09:46 entry identical"
+    }
+  },
+  "exit_shape_parity_vs_live_exit_state": {
+    "safe-2": {
+      "status": "compared",
+      "trail_pct": {
+        "shape": 0.15,
+        "live": 0.15,
+        "match": true
+      },
+      "tp1_premium_pct": {
+        "shape": 1.0,
+        "live": 1.0,
+        "match": true
+      },
+      "profit_lock_mode": {
+        "shape": "trailing",
+        "live": "trailing",
+        "match": true
+      }
+    },
+    "safe-3": {
+      "status": "compared",
+      "trail_pct": {
+        "shape": 0.15,
+        "live": 0.15,
+        "match": true
+      },
+      "tp1_premium_pct": {
+        "shape": 1.0,
+        "live": 1.0,
+        "match": true
+      },
+      "profit_lock_mode": {
+        "shape": "trailing",
+        "live": "trailing",
+        "match": true
+      }
+    },
+    "risky-1": {
+      "status": "compared",
+      "trail_pct": {
+        "shape": 0.15,
+        "live": 0.15,
+        "match": true
+      },
+      "tp1_premium_pct": {
+        "shape": 0.5,
+        "live": 0.5,
+        "match": true
+      },
+      "profit_lock_mode": {
+        "shape": "trailing",
+        "live": "trailing",
+        "match": true
+      }
+    },
+    "risky-3": {
+      "status": "compared",
+      "trail_pct": {
+        "shape": 0.2,
+        "live": 0.2,
+        "match": true
+      },
+      "tp1_premium_pct": {
+        "shape": 1.0,
+        "live": 1.0,
+        "match": true
+      },
+      "profit_lock_mode": {
+        "shape": "trailing",
+        "live": "trailing",
+        "match": true
+      }
+    }
+  },
+  "cells_EST": {
+    "relax_f10": {
+      "admissible_ticks": [
+        "2026-08-07T10:15:03",
+        "2026-08-07T10:26:03",
+        "2026-08-07T10:27:03",
+        "2026-08-07T10:28:03",
+        "2026-08-07T10:29:03",
+        "2026-08-07T10:30:03",
+        "2026-08-07T10:31:04",
+        "2026-08-07T10:32:03",
+        "2026-08-07T10:33:03",
+        "2026-08-07T10:34:03",
+        "2026-08-07T10:35:03",
+        "2026-08-07T10:46:03",
+        "2026-08-07T10:47:03",
+        "2026-08-07T10:48:03",
+        "2026-08-07T11:11:03",
+        "2026-08-07T11:12:03",
+        "2026-08-07T11:13:03",
+        "2026-08-07T11:14:03",
+        "2026-08-07T11:15:03",
+        "2026-08-07T11:16:03",
+        "2026-08-07T11:17:03",
+        "2026-08-07T11:18:03",
+        "2026-08-07T11:26:03",
+        "2026-08-07T11:27:03",
+        "2026-08-07T11:28:03",
+        "2026-08-07T11:29:03",
+        "2026-08-07T11:30:03"
+      ],
+      "per_arm": {
+        "safe-2": {
+          "primary_trip": {
+            "arm": "safe-2",
+            "strike": 770,
+            "qty": 3,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 1.6389,
+            "status": "CLOSED",
+            "pnl_EST": 54.9,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 54.9,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "safe-2",
+              "strike": 773,
+              "qty": 3,
+              "entry_ts_et": "2026-08-07T10:26:03",
+              "entry_premium_EST": 1.2435,
+              "status": "CLOSED",
+              "pnl_EST": -80.61,
+              "exit_reason": "structure_stop @ 771.82",
+              "exit_time_et": "2026-08-07T10:45:00",
+              "hold_minutes": 19,
+              "pdt_contingent": true
+            },
+            {
+              "arm": "safe-2",
+              "strike": 773,
+              "qty": 3,
+              "entry_ts_et": "2026-08-07T10:46:03",
+              "entry_premium_EST": 1.0572,
+              "status": "OPEN_AT_DATA_END (marked, not resolved)",
+              "pnl_EST": -57.2,
+              "exit_reason": "data_exhausted_force_close",
+              "exit_time_et": "2026-08-07T12:20:00",
+              "hold_minutes": 94,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": -82.91
+        },
+        "safe-3": {
+          "primary_trip": {
+            "arm": "safe-3",
+            "strike": 770,
+            "qty": 8,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 1.6389,
+            "status": "CLOSED",
+            "pnl_EST": 146.39,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 146.39,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "safe-3",
+              "strike": 773,
+              "qty": 8,
+              "entry_ts_et": "2026-08-07T10:26:03",
+              "entry_premium_EST": 1.2435,
+              "status": "CLOSED",
+              "pnl_EST": -214.96,
+              "exit_reason": "structure_stop @ 771.82",
+              "exit_time_et": "2026-08-07T10:45:00",
+              "hold_minutes": 19,
+              "pdt_contingent": true
+            },
+            {
+              "arm": "safe-3",
+              "strike": 773,
+              "qty": 8,
+              "entry_ts_et": "2026-08-07T10:46:03",
+              "entry_premium_EST": 1.0572,
+              "status": "OPEN_AT_DATA_END (marked, not resolved)",
+              "pnl_EST": -152.53,
+              "exit_reason": "data_exhausted_force_close",
+              "exit_time_et": "2026-08-07T12:20:00",
+              "hold_minutes": 94,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": -221.1
+        },
+        "risky-1": {
+          "primary_trip": {
+            "arm": "risky-1",
+            "strike": 770,
+            "qty": 5,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 1.6389,
+            "status": "CLOSED",
+            "pnl_EST": 91.49,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 91.49,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "risky-1",
+              "strike": 773,
+              "qty": 5,
+              "entry_ts_et": "2026-08-07T10:26:03",
+              "entry_premium_EST": 1.2435,
+              "status": "CLOSED",
+              "pnl_EST": -134.35,
+              "exit_reason": "structure_stop @ 771.82",
+              "exit_time_et": "2026-08-07T10:45:00",
+              "hold_minutes": 19,
+              "pdt_contingent": true
+            },
+            {
+              "arm": "risky-1",
+              "strike": 773,
+              "qty": 5,
+              "entry_ts_et": "2026-08-07T10:46:03",
+              "entry_premium_EST": 1.0572,
+              "status": "CLOSED",
+              "pnl_EST": 219.0,
+              "exit_reason": "runner_stop @ 1.36",
+              "exit_time_et": "2026-08-07T11:35:00",
+              "hold_minutes": 49,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": 176.14
+        },
+        "risky-3": {
+          "primary_trip": {
+            "arm": "risky-3",
+            "strike": 772,
+            "qty": 12,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 0.7156,
+            "status": "CLOSED",
+            "pnl_EST": 136.16,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 136.16,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "risky-3",
+              "strike": 775,
+              "qty": 12,
+              "entry_ts_et": "2026-08-07T10:26:03",
+              "entry_premium_EST": 0.4773,
+              "status": "CLOSED",
+              "pnl_EST": -194.86,
+              "exit_reason": "structure_stop @ 771.82",
+              "exit_time_et": "2026-08-07T10:45:00",
+              "hold_minutes": 19,
+              "pdt_contingent": true
+            },
+            {
+              "arm": "risky-3",
+              "strike": 775,
+              "qty": 12,
+              "entry_ts_et": "2026-08-07T10:46:03",
+              "entry_premium_EST": 0.3646,
+              "status": "OPEN_AT_DATA_END (marked, not resolved)",
+              "pnl_EST": -206.55,
+              "exit_reason": "data_exhausted_force_close",
+              "exit_time_et": "2026-08-07T12:20:00",
+              "hold_minutes": 94,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": -265.25
+        },
+        "bold-2": {
+          "pnl_EST": 0.0,
+          "extended_pnl_EST": 0.0,
+          "primary_trip": {
+            "status": "PDT_DARK"
+          },
+          "note": "RISK_DENY_PDT at 09:46 AND 12:06 -- relaxation cannot manufacture PDT headroom"
+        }
+      },
+      "book_pnl_EST": 428.94,
+      "book_extended_pnl_EST_pdt_contingent": -393.12
+    },
+    "relax_f7": {
+      "admissible_ticks": [
+        "2026-08-07T10:21:03",
+        "2026-08-07T10:22:03",
+        "2026-08-07T10:23:03",
+        "2026-08-07T10:24:03",
+        "2026-08-07T10:25:03"
+      ],
+      "per_arm": {
+        "safe-2": {
+          "primary_trip": {
+            "arm": "safe-2",
+            "strike": 772,
+            "qty": 3,
+            "entry_ts_et": "2026-08-07T10:21:03",
+            "entry_premium_EST": 1.3288,
+            "status": "OPEN_AT_DATA_END (marked, not resolved)",
+            "pnl_EST": 37.84,
+            "exit_reason": "data_exhausted_force_close",
+            "exit_time_et": "2026-08-07T12:20:00",
+            "hold_minutes": 119,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 37.84,
+          "extension_trips_pdt_contingent": [],
+          "extended_pnl_EST": 37.84
+        },
+        "safe-3": {
+          "primary_trip": {
+            "arm": "safe-3",
+            "strike": 772,
+            "qty": 8,
+            "entry_ts_et": "2026-08-07T10:21:03",
+            "entry_premium_EST": 1.3288,
+            "status": "OPEN_AT_DATA_END (marked, not resolved)",
+            "pnl_EST": 100.92,
+            "exit_reason": "data_exhausted_force_close",
+            "exit_time_et": "2026-08-07T12:20:00",
+            "hold_minutes": 119,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 100.92,
+          "extension_trips_pdt_contingent": [],
+          "extended_pnl_EST": 100.92
+        },
+        "risky-1": {
+          "primary_trip": {
+            "arm": "risky-1",
+            "strike": 772,
+            "qty": 5,
+            "entry_ts_et": "2026-08-07T10:21:03",
+            "entry_premium_EST": 1.3288,
+            "status": "CLOSED",
+            "pnl_EST": 292.5,
+            "exit_reason": "runner_stop @ 1.79",
+            "exit_time_et": "2026-08-07T10:31:00",
+            "hold_minutes": 10,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 292.5,
+          "extension_trips_pdt_contingent": [],
+          "extended_pnl_EST": 292.5
+        },
+        "risky-3": {
+          "primary_trip": {
+            "arm": "risky-3",
+            "strike": 774,
+            "qty": 12,
+            "entry_ts_et": "2026-08-07T10:21:03",
+            "entry_premium_EST": 0.5282,
+            "status": "OPEN_AT_DATA_END (marked, not resolved)",
+            "pnl_EST": -95.04,
+            "exit_reason": "data_exhausted_force_close",
+            "exit_time_et": "2026-08-07T12:20:00",
+            "hold_minutes": 119,
+            "pdt_contingent": false
+          },
+          "pnl_EST": -95.04,
+          "extension_trips_pdt_contingent": [],
+          "extended_pnl_EST": -95.04
+        },
+        "bold-2": {
+          "pnl_EST": 0.0,
+          "extended_pnl_EST": 0.0,
+          "primary_trip": {
+            "status": "PDT_DARK"
+          },
+          "note": "RISK_DENY_PDT at 09:46 AND 12:06 -- relaxation cannot manufacture PDT headroom"
+        }
+      },
+      "book_pnl_EST": 336.22,
+      "book_extended_pnl_EST_pdt_contingent": 336.22
+    },
+    "relax_both": {
+      "admissible_ticks": [
+        "2026-08-07T10:15:03",
+        "2026-08-07T10:21:03",
+        "2026-08-07T10:22:03",
+        "2026-08-07T10:23:03",
+        "2026-08-07T10:24:03",
+        "2026-08-07T10:25:03",
+        "2026-08-07T10:26:03",
+        "2026-08-07T10:27:03",
+        "2026-08-07T10:28:03",
+        "2026-08-07T10:29:03",
+        "2026-08-07T10:30:03",
+        "2026-08-07T10:31:04",
+        "2026-08-07T10:32:03",
+        "2026-08-07T10:33:03",
+        "2026-08-07T10:34:03",
+        "2026-08-07T10:35:03",
+        "2026-08-07T10:46:03",
+        "2026-08-07T10:47:03",
+        "2026-08-07T10:48:03",
+        "2026-08-07T11:11:03",
+        "2026-08-07T11:12:03",
+        "2026-08-07T11:13:03",
+        "2026-08-07T11:14:03",
+        "2026-08-07T11:15:03",
+        "2026-08-07T11:16:03",
+        "2026-08-07T11:17:03",
+        "2026-08-07T11:18:03",
+        "2026-08-07T11:26:03",
+        "2026-08-07T11:27:03",
+        "2026-08-07T11:28:03",
+        "2026-08-07T11:29:03",
+        "2026-08-07T11:30:03"
+      ],
+      "per_arm": {
+        "safe-2": {
+          "primary_trip": {
+            "arm": "safe-2",
+            "strike": 770,
+            "qty": 3,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 1.6389,
+            "status": "CLOSED",
+            "pnl_EST": 54.9,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 54.9,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "safe-2",
+              "strike": 772,
+              "qty": 3,
+              "entry_ts_et": "2026-08-07T10:21:03",
+              "entry_premium_EST": 1.3288,
+              "status": "OPEN_AT_DATA_END (marked, not resolved)",
+              "pnl_EST": 37.84,
+              "exit_reason": "data_exhausted_force_close",
+              "exit_time_et": "2026-08-07T12:20:00",
+              "hold_minutes": 119,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": 92.74
+        },
+        "safe-3": {
+          "primary_trip": {
+            "arm": "safe-3",
+            "strike": 770,
+            "qty": 8,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 1.6389,
+            "status": "CLOSED",
+            "pnl_EST": 146.39,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 146.39,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "safe-3",
+              "strike": 772,
+              "qty": 8,
+              "entry_ts_et": "2026-08-07T10:21:03",
+              "entry_premium_EST": 1.3288,
+              "status": "OPEN_AT_DATA_END (marked, not resolved)",
+              "pnl_EST": 100.92,
+              "exit_reason": "data_exhausted_force_close",
+              "exit_time_et": "2026-08-07T12:20:00",
+              "hold_minutes": 119,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": 247.31
+        },
+        "risky-1": {
+          "primary_trip": {
+            "arm": "risky-1",
+            "strike": 770,
+            "qty": 5,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 1.6389,
+            "status": "CLOSED",
+            "pnl_EST": 91.49,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 91.49,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "risky-1",
+              "strike": 772,
+              "qty": 5,
+              "entry_ts_et": "2026-08-07T10:21:03",
+              "entry_premium_EST": 1.3288,
+              "status": "CLOSED",
+              "pnl_EST": 292.5,
+              "exit_reason": "runner_stop @ 1.79",
+              "exit_time_et": "2026-08-07T10:31:00",
+              "hold_minutes": 10,
+              "pdt_contingent": true
+            },
+            {
+              "arm": "risky-1",
+              "strike": 773,
+              "qty": 5,
+              "entry_ts_et": "2026-08-07T10:31:04",
+              "entry_premium_EST": 1.2429,
+              "status": "CLOSED",
+              "pnl_EST": -147.59,
+              "exit_reason": "structure_stop @ 772.37",
+              "exit_time_et": "2026-08-07T10:40:00",
+              "hold_minutes": 9,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": 236.4
+        },
+        "risky-3": {
+          "primary_trip": {
+            "arm": "risky-3",
+            "strike": 772,
+            "qty": 12,
+            "entry_ts_et": "2026-08-07T10:15:03",
+            "entry_premium_EST": 0.7156,
+            "status": "CLOSED",
+            "pnl_EST": 136.16,
+            "exit_reason": "structure_stop @ 770.46",
+            "exit_time_et": "2026-08-07T10:16:00",
+            "hold_minutes": 1,
+            "pdt_contingent": false
+          },
+          "pnl_EST": 136.16,
+          "extension_trips_pdt_contingent": [
+            {
+              "arm": "risky-3",
+              "strike": 774,
+              "qty": 12,
+              "entry_ts_et": "2026-08-07T10:21:03",
+              "entry_premium_EST": 0.5282,
+              "status": "OPEN_AT_DATA_END (marked, not resolved)",
+              "pnl_EST": -95.04,
+              "exit_reason": "data_exhausted_force_close",
+              "exit_time_et": "2026-08-07T12:20:00",
+              "hold_minutes": 119,
+              "pdt_contingent": true
+            }
+          ],
+          "extended_pnl_EST": 41.12
+        },
+        "bold-2": {
+          "pnl_EST": 0.0,
+          "extended_pnl_EST": 0.0,
+          "primary_trip": {
+            "status": "PDT_DARK"
+          },
+          "note": "RISK_DENY_PDT at 09:46 AND 12:06 -- relaxation cannot manufacture PDT headroom"
+        }
+      },
+      "book_pnl_EST": 428.94,
+      "book_extended_pnl_EST_pdt_contingent": 617.57
+    }
+  },
+  "actual_1206_positions_marked_EST": {
+    "safe-2": {
+      "strike": 773,
+      "qty": 3,
+      "entry_premium_REAL": 1.11,
+      "mark_EST": 0.8865,
+      "marked_at": "2026-08-07T12:20:00",
+      "pnl_EST": -67.04,
+      "status": "OPEN (live)"
+    },
+    "safe-3": {
+      "strike": 773,
+      "qty": 8,
+      "entry_premium_REAL": 1.1,
+      "mark_EST": 0.8865,
+      "marked_at": "2026-08-07T12:20:00",
+      "pnl_EST": -170.77,
+      "status": "OPEN (live)"
+    },
+    "risky-1": {
+      "strike": 773,
+      "qty": 5,
+      "entry_premium_REAL": 1.09,
+      "mark_EST": 0.8865,
+      "marked_at": "2026-08-07T12:20:00",
+      "pnl_EST": -101.73,
+      "status": "OPEN (live)"
+    },
+    "risky-3": {
+      "strike": 775,
+      "qty": 12,
+      "entry_premium_REAL": 0.31,
+      "mark_EST": 0.2125,
+      "marked_at": "2026-08-07T12:20:00",
+      "pnl_EST": -117.03,
+      "status": "OPEN (live)"
+    }
+  },
+  "actual_1206_book_pnl_EST": -456.57,
+  "actual_morning_realized_REAL": {
+    "safe-2": -153.0,
+    "safe-3": -176.0,
+    "risky-1": -95.0,
+    "risky-3": -205.0
+  },
+  "netting_EST": {
+    "relax_f10": {
+      "refusal_cost_book_EST": 885.51,
+      "per_arm_delta_EST": {
+        "safe-2": 121.94,
+        "safe-3": 317.16,
+        "risky-1": 193.22,
+        "risky-3": 253.19,
+        "bold-2": 0.0
+      },
+      "morning_counter_cell_delta": 0.0
+    },
+    "relax_f7": {
+      "refusal_cost_book_EST": 792.79,
+      "per_arm_delta_EST": {
+        "safe-2": 104.88,
+        "safe-3": 271.69,
+        "risky-1": 394.23,
+        "risky-3": 21.99,
+        "bold-2": 0.0
+      },
+      "morning_counter_cell_delta": 0.0
+    },
+    "relax_both": {
+      "refusal_cost_book_EST": 885.51,
+      "per_arm_delta_EST": {
+        "safe-2": 121.94,
+        "safe-3": 317.16,
+        "risky-1": 193.22,
+        "risky-3": 253.19,
+        "bold-2": 0.0
+      },
+      "morning_counter_cell_delta": 0.0
+    }
+  },
+  "caveats": [
+    "EST premium surface, not OPRA -- same-day 0DTE bars unavailable until ~16:21 ET",
+    "ribbon_tick_df=None: ribbon-flip exit unavailable in walk (standing limitation)",
+    "walked cells assume the walked trade REPLACES the actual 12:06 entry (2 round trips/arm today, proven PDT-legal by the actual 12:06 fills)",
+    "no re-entry after the walked trade's exit (PDT-conservative)",
+    "positions OPEN at data end are marked at the last EST bar, not resolved",
+    "sizing held at each arm's actual morning qty (same-day sizing assumption)",
+    "5m closes for the structure stop come from the ENGINE'S OWN logged tape (trigger_bar_et->spy), not the IEX resample -- removes the razor-edge IEX-vs-SIP stop artifact at trigger 770.46",
+    "surface overprices the first ~6 min post-09:46 (IV crush between the 09:46 fill and the 10:02 stop is only linearly interpolated) -- walk-window cells price off the POST-crush 10:02/12:06 nodes and do not inherit that bias"
+  ]
+}
