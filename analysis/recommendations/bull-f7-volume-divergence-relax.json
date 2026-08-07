@@ -1,0 +1,17 @@
+{
+  "rule_id": "bull-f7-volume-divergence-relax",
+  "scorecard_generated_at_et": "2026-08-07T12:35:00-04:00",
+  "prereg": "analysis/recommendations/bull-f7-volume-divergence-prereg-2026-08-07.json (frozen 12:30 ET, committed 94157aa6 BEFORE the runner existed)",
+  "battery": "analysis/recommendations/f10-f7-population-battery-2026-08-07.json (391-day real-OPRA, same runner as the f10 family)",
+  "verdict": "NOT_CLEARED -- NO cell clears any frozen gate set. NOTHING SHIPS. Filter 7 stays armed (production).",
+  "cells": {
+    "f7_off": {"clean_n": 3, "clean_total": -673.7, "full_n": 3, "full_total": -673.7, "bh_q10": false, "verdict": "NO_VERDICT_BELOW_FLOOR (and negative)"},
+    "joint_relax35": {"clean_n": 17, "clean_total": -1629.2, "full_n": 20, "full_total": -1654.2, "bh_q10": false, "anchor_forfeit": 40.0, "verdict": "NO_VERDICT_BELOW_FLOOR (negative AND anchor-regression: crowds out a $40 baseline winner)"},
+    "joint_off": {"clean_n": 18, "clean_total": -1565.95, "full_n": 22, "full_total": -1746.95, "bh_q10": false, "anchor_forfeit": 40.0, "verdict": "NO_VERDICT_BELOW_FLOOR (negative AND anchor-regression)"}
+  },
+  "gate_summary": "Every cell fails decision_floor AND aggregate_positive AND drop_best AND sub_window_stable; joint cells additionally FAIL anchor_no_regression. Joint cells are sequential replays (never sums) per the prereg; they lose MORE than the single relaxes -- lifting both filters compounds churn, matching today's EST sequential walk where the unconstrained f10 sequence went negative.",
+  "population_mismatch_note": "Same structural finding as the f10 scorecard: the sim battery's f7 added cohort is n=3 over 391 days, while today alone had 5 sole-[7] elite refusal ticks/account. Filter 7's live-refusal question (incl. Lane 1's mechanism finding -- the noise-armed invalidation from a +$0.06-body 'breakout' bar, FRIDAY-BLOCKERS-2026-08-07.md sec 1) is NOT answered by this battery; the discriminating cell family Lane 1 proposed (breakout-leg minimum body/volume qualifier) is the future prereg candidate, and per graveyard discipline it must be frozen before any runner.",
+  "today_context_est": "Today (EST, n=1): filter 7's single 10:21 admission was the cleanest trade of the refusal window (risky-1 TP1+runner +$292 CLOSED; refusal cost vs actual +$792.79 book). One good day does not clear a frozen gate set and is disclosed in the prereg itself.",
+  "action_for_close_package": "B2 stands: nothing f7 ships tonight. Prereg now exists AND its battery has run -- both below-floor; filter 7 stays armed.",
+  "rule2_firewall": "filter 11 untouched, per the prereg."
+}

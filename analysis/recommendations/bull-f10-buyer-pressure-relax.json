@@ -1,0 +1,18 @@
+{
+  "rule_id": "bull-f10-buyer-pressure-relax",
+  "scorecard_generated_at_et": "2026-08-07T12:35:00-04:00",
+  "prereg": "analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json (frozen 2026-08-04T01:25 ET)",
+  "battery": "analysis/recommendations/f10-f7-population-battery-2026-08-07.json (391-day real-OPRA, runner backtest/tools/f10_f7_population_battery_2026_08_07.py)",
+  "verdict": "NOT_CLEARED -- NO cell clears any frozen gate set. NOTHING SHIPS. f10_vol_mult stays 0.7 (production).",
+  "cells": {
+    "f10_relax_50": {"clean_n": 9, "clean_total": -1049.25, "full_n": 10, "full_total": -1317.25, "bh_q10": false, "verdict": "NO_VERDICT_BELOW_FLOOR (and negative)"},
+    "f10_relax_35": {"clean_n": 13, "clean_total": -669.5, "full_n": 14, "full_total": -937.5, "bh_q10": false, "verdict": "NO_VERDICT_BELOW_FLOOR (and negative)"},
+    "f10_off": {"clean_n": 15, "clean_total": -762.25, "full_n": 16, "full_total": -1030.25, "bh_q10": false, "verdict": "NO_VERDICT_BELOW_FLOOR (and negative; recent25 +119.50 noted, moot)"}
+  },
+  "gate_summary": "Every cell fails decision_floor (n<20) AND aggregate_positive AND drop_best AND sub_window_stable; BH-insignificant across the family. Anchor no-regression PASSES (zero crowd-out) -- the relax adds only losers, it does not disturb baseline trades.",
+  "origin_vs_population_reconciliation": "The 08-03 origin (+$4,535/2d refusal value; WEEK-ORDER-2026-08-03.md:79) was decision-log-mined LIVE refusals on two trend days. The frozen battery mines SIM counterfactual populations: over 391 days the sim adds only 10-16 bull trades because the sim baseline rarely reaches f10-as-sole-blocker -- a structurally different, far smaller cohort than the live tick-level refusals (today alone: 27 sole-[10] elite ticks/account in 90 min). The frozen instrument answers its own question (relaxing the knob in the sim engine loses money); it CANNOT see most of the live-refusal population. Named follow-up (not a substitution): decision-log-mined live-refusal battery over the 9 sessions with bull_blockers logging (07-28..08-07), real OPRA, same gates -- no lib changes required.",
+  "iex_sensitivity_addendum_required_by_lane1": "Moot for shipping: no cell clears on the battery's native (SIP-lineage cache) feed, so no cell can be 'cleared on SIP but not IEX'. Recorded per FRIDAY-BLOCKERS-2026-08-07.md sec 5 for any future battery.",
+  "today_context_est": "Today's refusal cost (EST, n=1 day, f10-f7-today-est-walk-2026-08-07.json): relax_f10 +$885.51 book vs actual, BUT the PDT-unconstrained sequential walk flips f10 NEGATIVE (-$393: two re-trigger structure-stops) -- today's own tape agrees the f10 relax churns.",
+  "action_for_close_package_B1": "ELSE branch: nothing ships. STATUS.md line: 'f10 value flip NOT applied -- no cell cleared (all 3 below n>=20 floor AND negative aggregate); prereg stays frozen; runner HAS NOW RUN (BULL-F10-PREREG-RUNNER closes); follow-up queued: live-refusal-cohort battery.'",
+  "rule2_firewall": "filter 11 untouched, per the prereg."
+}
