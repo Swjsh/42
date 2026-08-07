@@ -38,3 +38,32 @@ the prereg must state that distinction or the old NULL will be miscounted as evi
 new mechanism. Sizing note for the ladder prereg: ladder entries on risky arms will size at bold
 tier qty (12 at ELITE, not min) unless the prereg pins qty — the 07-27 armed ladder deliberately
 used min_contracts; tonight's should state its sizing explicitly.
+
+## LANE 3 — TV BAR REPLAY WALKTHROUGH (staged for close)
+
+Full artifact (committed a6b17332): `analysis/deep-research/FRIDAY-TV-REPLAY-2026-08-07.md`
+— 9 replay screenshots inline, phone-scrollable, binary-vs-ladder annotated at every decision
+point on J's own chart (SPY 5m, TV MCP replay, produced intraday 12:07–12:30 ET, no
+trading-path file touched, tv_health_check GREEN at exit).
+
+**For J's close brief (3 lines):**
+
+- **The tape shows exactly what J said, 4th ask:** 09:40 close over PDH 771.82 → 11/11 entry
+  (both engines identical, −$629 book on the 09:55 dump, stops 10:01–10:02) → then 91 minutes
+  (10:15–11:45) of ELITE-grade refusals while SPY ran 770.50 → 773.91 with no meaningful
+  pullback — first refused tick 10:15:03 (score 10, sole blocker F10, level_reclaim+confluence
+  @770.46, VIX 15.04).
+- **Window census (182 HOLD ticks): 70 ladder-admissible** — cells (10,[10])×54, (10,[7])×10,
+  (9,[7,10])×6 → BOTH risky rungs (8 and 7) enter at 10:15; the other 112 ticks carry F11
+  (bare-confirmation, −$103/entry 0%-WR cohort) and stay refused on EVERY rung — the ladder
+  ≠ filter deletion, demonstrated on today's own tape.
+- **No oversell:** ladder buys the same 09:46 loss AND the 12:06 re-entry (score-11 cells);
+  at ~12:25 the 12:06 position was underwater (spy 771.5 vs 773C @ ~1.10, EST). Narrative ≠
+  net-positive proof — that stays on the LADDER lane's sequential walks + battery.
+
+**Dojo/tooling scars for the replay harness (fold into `dojo_session.py`):** (1) a leftover
+"Continue your last replay?" modal silently blocks VISUAL replay while the API keeps stepping —
+dismiss `[data-name="warning-dialog"]` before `replay_start`; (2) `replay_autoplay` speed is not
+honored (~3 bars/s at "1000ms"; "143ms" ran ~98 bars in <6.5s and auto-exited at the live edge) —
+fine control is `replay_step` only; (3) API-driven replay keeps painting live bars right of the
+yellow cursor — the cursor line + OHLC readout are the frame's authority.
