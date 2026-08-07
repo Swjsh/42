@@ -1,0 +1,35 @@
+{
+  "rule_id": "bull-f7-volume-divergence-relax",
+  "frozen_at_et": "2026-08-07T12:30:00-04:00",
+  "prereg_before_evaluation": true,
+  "status": "PREREG ONLY -- committed BEFORE the population runner exists or runs (git-provable ordering). Nothing armed.",
+  "origin": "2026-08-07 refusal window: 10:15-11:45 ET, 182 verdicts ALL HOLD, bull_score 10/11 with level_reclaim+confluence carried; filter 7 was the SOLE blocker on 5 ticks/account (10:21-10:25, trigger 771.51) and joint [7,10] blocked 11:56-12:05 delaying the actual entry to 12:06. Filter 7 bull-side identity (filters.py L1182-1186): _bullish_volume_divergence_failed -- green breakout followed by a red recovery bar on >= volume invalidates the setup (mirror of the bear-side volume-divergence filter). Filter 7 has NEVER had its lift A/B actually run (explicitly NOT in the graveyard).",
+  "honest_disclosure_ordering": "This prereg is frozen AFTER today's single-day EST diagnostic walk was computed and seen (f10-f7-today-est-walk-2026-08-07.json: relax_f7 primary book +$336 EST, refusal-cost-vs-actual +$793 EST, n=1 day, EST-priced, positions partly OPEN at data end). The POPULATION cells and gates below are copied from the already-frozen bull-f10-buyer-pressure-prereg-2026-08-04.json unchanged and are not tuned to today's result. Today's diagnostic is evidence about ONE day; the population battery below is the decision-bearing test.",
+  "hypothesis": "Removing the bull-side volume-divergence invalidation (filter 7) admits reclaim entries whose full-history expectancy is non-negative, i.e. the filter refuses more winners than losers.",
+  "cells_frozen": [
+    {"cell": "baseline", "config": "production SAFE_BASE (filter 7 active, f10_vol_mult 0.7)"},
+    {"cell": "f7_off", "config": "disable_filters=[7], f10_vol_mult 0.7"},
+    {"cell": "joint_relax35", "config": "disable_filters=[7] + f10_vol_mult=0.35 (middle rung of the F10 prereg's frozen grid)"},
+    {"cell": "joint_off", "config": "disable_filters=[7] + f10_vol_mult=0.0"}
+  ],
+  "joint_interaction_honesty": "Filters 7 and 10 rotate as sole blocker on overlapping tick runs (verified today: [10] 10:15, [7] 10:21-10:25, [10] 10:26+, joint [7,10] 11:56-12:05). Joint cells are SEQUENTIAL one-position replays through the standing orchestrator -- their added cohorts are mined from the joint run's own trade list, NEVER by summing the single-relax cells.",
+  "shared_kwarg_confound_disclosure": "The orchestrator exposes ONE disable_filters list and ONE f9_vol_mult knob shared by BOTH sides: disable_filters=[7] also lifts bear filter 7, and f9_vol_mult changes bear filter 9's seller-pressure threshold (orchestrator.py L1001/L1008 vs L1026/L1030). backtest/lib is read-only during market hours (Rule 9), so no bull-only kwarg can be added before 15:55 ET. HANDLING FROZEN NOW: every cell reports bear-side drift (bear trades added/removed vs baseline, keyed by entry_time/side/strike); the PRIMARY gate-bearing added-bull cohort is restricted to days with ZERO bear-side drift; the full added cohort is reported as a sensitivity slice. If the clean-day slice falls below the decision floor, verdict = NO VERDICT (stays unarmed) and the evening package includes a bull-only-kwarg re-run as a follow-up, not a silent substitution.",
+  "population": "Full 391-day real-OPRA population 2025-01-02..2026-07-31 via the standing battery (bull_gate_f5class_requal_2026_08_01.py machinery: run_backtest SAFE_BASE_LIVE, added-cohort diff vs baseline, per-trade re-walk through walk_exit_manager at the RIBBON_RIDE registry shape, et-v2 frames, ENTRY_PREMIUM_FLOOR 0.30, missing OPRA contracts dropped and counted never imputed). Safe qty-scale primary; bold qty-scale reported as sensitivity.",
+  "gates_frozen_before_any_runner": {
+    "oos_positive": "added cohort (clean-day slice) must be positive over the recent-25-session held-out window",
+    "wf_or_disclosed_null": "WF >= 0.70 or explicit disclosed-null (standing WF-gate escape hatch; this battery has no WF harness -- disclosed-null will be stated, not hidden)",
+    "sub_window_stable": "no single month > 50% of added-cohort P&L (C4)",
+    "anchor_no_regression": "baseline trades must not degrade in the relax run; crowd-out (baseline trades missing from the relax run via the one-position constraint) counted and disclosed",
+    "drop_best": "added cohort must survive drop-best-trade",
+    "decision_floor": "clean-day added-cohort n >= 20; below floor = NO verdict, stays unarmed"
+  },
+  "bh_family": "The three non-baseline cells of THIS prereg (f7_off, joint_relax35, joint_off) form one BH-FDR family at q=0.10. The F10 prereg's own three relax cells are a SEPARATE family (frozen 2026-08-04, before this file existed).",
+  "kill_rule_if_ever_armed": "n>=10 fills per account or 10 sessions, net added-cohort < 0 -> restore filter 7 (remove the disable) and f10_vol_mult to 0.7.",
+  "rule2_firewall": "Filter 11 (trigger requirement, level-tied) is NOT part of this prereg and may never be relaxed by it. Sole-[11] refusals (5/account today) are reported for honesty, not liftable.",
+  "sources": [
+    "analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json (gate template, frozen 08-04)",
+    "backtest/lib/filters.py evaluate_bullish_setup filter 7 (_bullish_volume_divergence_failed, L1182-1186)",
+    "backtest/tools/bull_gate_f5class_requal_2026_08_01.py (battery machinery)",
+    "analysis/recommendations/f10-f7-today-est-walk-2026-08-07.json (today's n=1 EST diagnostic, disclosed above)"
+  ]
+}
