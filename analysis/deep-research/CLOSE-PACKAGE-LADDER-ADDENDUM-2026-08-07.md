@@ -137,6 +137,59 @@ grows the key outside step 5.
 **The patch (dormant — NOT applied; market open during this build):** also at
 `analysis/arm-ladder/score-ladder-rung-2026-08-07.patch`.
 
+## LANE 2 — SCORE-LADDER-V2 DEMERIT REPLAY (staged for close) — verdict + cross-lane reconciliation
+
+Prereg `c2ec28f3` (frozen 12:35 ET before any run — DOUBLE-demerit arithmetic pinned by the
+task's worked example: score 10, sole blocker f10, demerit 1 → adjusted 9). Full evidence:
+`analysis/deep-research/SCORE-LADDER-REPLAY-2026-08-07.md` + 5 JSON mirrors. Runners:
+`backtest/tools/score_ladder_replay_2026_08_07.py` (population, 398d, occupancy lanes),
+`score_ladder_week_live_2026_08_07.py` (live-tape week, real OPRA — 253 leading-edge OPRA
+contracts backfilled first), `score_ladder_today_est_2026_08_07.py` (today, EST k=1.0293
+calibrated on 47 real anchors), `score_ladder_shadow_nightly.py` (standing $0 instrument).
+Guards: `backtest/tests/test_score_ladder_v2_admission_2026_08_07.py` 11/11 + RED-proofed.
+
+**LANE 2 verdict under its own frozen gates: DO NOT ARM — PREREG + shadow clock.** Failing
+cells named: G_wednesday (rung 7 −$1,143 / rung 8 −$405 vs the frozen −$300 allowance — the
+776/777C chase re-opens, mildly, at rung 8), G_week at J's rung 7 (−$59.60 live-tape), BH
+q=0.10 null everywhere, bull-cohort sub-window T2 negative. Passing cells: population net +
+tail at all ship rungs (displacement-driven: extras −$1.1K..−$2.1K, displaced binary losers
+−$6.8K..−$6.9K — disclosed, not edge), Tuesday IMPROVED +$1,243.90 (both instruments), Mon
++$738 / Tue +$1,244 = J's exact missed runners, today's 10:15 ADMITTED (adjusted 9).
+
+**Cross-lane reconciliation (LANE 1 vs LANE 2 — for the orchestrator's merge):**
+
+- **The evidence AGREES once conventions align.** Bull-only week positive in both lanes
+  (LANE 2 rung-8 bull-only ≈ +$1,454 qty3 Mon–Thu + positive Fri EST ≈ LANE 1's +$3,028
+  at qty5 incl. Fri). Bear side dead in both (LANE 2 population extras −$4.6K/−$6.4K; LANE 1
+  −$16.6K/−$11.8K at its wider admission — three strikes with July's raw floor). Safe arms
+  binary in both. Chop/fade days are where every ladder variant bleeds (LANE 1: Wed −$1,555,
+  19–31 rescues/chop-day; LANE 2: Wed −$405 at its tighter rung-8, −$1,143 at rung 7).
+- **The verdicts differ on two axes, not on the data:** (1) admission arithmetic — LANE 1
+  single-demerit (logged score ≥ rung: rung 7 admits ≤4 demotable blockers), LANE 2
+  double-demerit (task-pinned: rung 8 admits ≤1) — J's *words* ("a ten out of eleven")
+  read closer to LANE 1; the task brief's *worked example* pins LANE 2; (2) gate strictness —
+  LANE 1 froze added-P&L>0 + avg/tr>−$5 (passes), LANE 2 froze week-vs-binary + a
+  Wednesday −$300 allowance + BH (fails).
+- **If the orchestrator ships LANE 1's runbook tonight** (its gates passed; J's 4-ask
+  standing): LANE 2's evidence argues for two amendments, both cheap: (a) prefer the
+  TIGHTER admission on the riskier arm (both lanes show chase bleed scales with admission
+  width — LANE 2's ≤1-demotable cohort cut Wednesday from −$1,143 to −$405); (b) take LANE
+  1's own staged 3-rescue/day cap seriously as a fast-follow — it is the single lever both
+  lanes' Wednesday cells point at. Bear stays out regardless. If it does NOT ship, LANE 2's
+  shadow nightly (`Gamma_LadderShadow`, 16:40 ET weekdays — registration staged below) runs
+  the forward clock either way, and measures the demerit-v2 cohort even under a LANE 1 arm.
+- **Do not double-arm:** LANE 1's `score_ladder_rung` patch and any future LANE 2 arming are
+  the SAME lane in spirit — one admission rule per arm, ever. LANE 2 defers to LANE 1's
+  patch as the shipping vehicle if J/orchestrator arms tonight.
+
+**LANE 2 staged items:** (1) register `Gamma_LadderShadow` 16:40 ET weekdays →
+`backtest\.venv\Scripts\pythonw.exe backtest\tools\score_ladder_shadow_nightly.py` (append
+SCHEDULED-TASKS.md; $0; no trading-path surface) + run once for today post-16:21; (2) frozen
+forward arm bar for the demerit cohort (≥10 sessions, extras>0, no session <−$500 qty3,
+negative sessions avg ≥−$300) recorded in the runner docstring; (3) do NOT re-arm the old
+raw-floor `score_ladder_floor` keys (dead semantics). Final Friday EST numbers refresh in
+the last pre-close run of `score_ladder_today_est_2026_08_07.py`.
+
 ```diff
 diff --git a/automation/state/fleet/build_shared_signal.py b/automation/state/fleet/build_shared_signal.py
 --- a/automation/state/fleet/build_shared_signal.py

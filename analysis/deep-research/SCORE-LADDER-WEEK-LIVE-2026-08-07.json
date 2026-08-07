@@ -1,0 +1,1484 @@
+{
+ "_doc": "score_ladder_week_live_2026_08_07.py -- THE WEEK CELL ON LIVE TAPE + REAL OPRA.\n\nPrereg: analysis/recommendations/prereg-score-ladder-v2-2026-08-07.json (c2ec28f3).\n\nThe orchestrator-replay week cell (score_ladder_replay_2026_08_07.py) is a weak instrument\nfor THIS week: the offline reconstruction takes almost no trades 08-03..08-06 (known\nentry-layer divergence -- offline OHLC-derived levels vs the live engine's TV/memory level\nfeed), so its week numbers measure replay divergence more than ladder quality. THIS tool\nwalks the frozen SCORE-LADDER-V2 admission over the LIVE engine's own per-tick ledger\n(automation/state/core-decisions.jsonl -- the scores/blockers the engine actually computed\neach minute, live levels included) for 2026-08-03..08-06, pricing every hypothetical entry\nand exit on REAL OPRA 5-min bars (backfilled today, backtest/data/options/). No BS\nestimation anywhere in this file's P&L.\n\nLanes per day, per rung {6,7,8,9}: rung-admitted EXTRAS ONLY (the added cohort), qty=3 ATM\n(PROBE table), sequential NOT_FLAT, entry = first cached option bar at/after the NEXT tick,\nentry price = that bar's OPEN, exits via walk_exit_manager -> exit_manager.plan_exit_actions\nONLY (ribbon_ride registry shape, structure stop at the raw level), time stop 15:40.\nThe binary side of the week is the arms' REAL broker P&L (already booked); the ladder's\nweek delta = these extras.\n",
+ "generated_at": "2026-08-07T10:44:46.050573",
+ "prereg": "prereg-score-ladder-v2-2026-08-07.json (c2ec28f3)",
+ "days": {
+  "2026-08-03": {
+   "n_ticks": 386,
+   "n_hold": 334,
+   "rungs": {
+    "6": {
+     "trades": [
+      {
+       "date": "2026-08-03",
+       "trigger_ts": "2026-08-03T09:46:03",
+       "entry_ts": "2026-08-03T09:50:00",
+       "side": "C",
+       "symbol": "SPY260803C00752000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.29,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 751.13,
+       "dollar_pnl": 738.0,
+       "exit_reason": "time_stop_15:40 (runner)",
+       "exit_ts": "2026-08-03T15:40:00",
+       "hold_minutes": 350
+      }
+     ],
+     "skipped": [],
+     "total": 738.0
+    },
+    "7": {
+     "trades": [
+      {
+       "date": "2026-08-03",
+       "trigger_ts": "2026-08-03T09:46:03",
+       "entry_ts": "2026-08-03T09:50:00",
+       "side": "C",
+       "symbol": "SPY260803C00752000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.29,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 751.13,
+       "dollar_pnl": 738.0,
+       "exit_reason": "time_stop_15:40 (runner)",
+       "exit_ts": "2026-08-03T15:40:00",
+       "hold_minutes": 350
+      }
+     ],
+     "skipped": [],
+     "total": 738.0
+    },
+    "8": {
+     "trades": [
+      {
+       "date": "2026-08-03",
+       "trigger_ts": "2026-08-03T09:46:03",
+       "entry_ts": "2026-08-03T09:50:00",
+       "side": "C",
+       "symbol": "SPY260803C00752000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.29,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 751.13,
+       "dollar_pnl": 738.0,
+       "exit_reason": "time_stop_15:40 (runner)",
+       "exit_ts": "2026-08-03T15:40:00",
+       "hold_minutes": 350
+      }
+     ],
+     "skipped": [],
+     "total": 738.0
+    },
+    "9": {
+     "trades": [
+      {
+       "date": "2026-08-03",
+       "trigger_ts": "2026-08-03T09:46:03",
+       "entry_ts": "2026-08-03T09:50:00",
+       "side": "C",
+       "symbol": "SPY260803C00752000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.29,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 751.13,
+       "dollar_pnl": 738.0,
+       "exit_reason": "time_stop_15:40 (runner)",
+       "exit_ts": "2026-08-03T15:40:00",
+       "hold_minutes": 350
+      }
+     ],
+     "skipped": [],
+     "total": 738.0
+    }
+   }
+  },
+  "2026-08-04": {
+   "n_ticks": 388,
+   "n_hold": 336,
+   "rungs": {
+    "6": {
+     "trades": [
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T09:41:03",
+       "entry_ts": "2026-08-04T09:45:00",
+       "side": "C",
+       "symbol": "SPY260804C00762000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.45,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 761.56,
+       "dollar_pnl": 459.5,
+       "exit_reason": "runner_stop @ 3.15",
+       "exit_ts": "2026-08-04T10:25:00",
+       "hold_minutes": 40
+      },
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T10:36:03",
+       "entry_ts": "2026-08-04T10:40:00",
+       "side": "C",
+       "symbol": "SPY260804C00765000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.35,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 764.19,
+       "dollar_pnl": 784.4,
+       "exit_reason": "runner_stop @ 6.49",
+       "exit_ts": "2026-08-04T14:05:00",
+       "hold_minutes": 205
+      }
+     ],
+     "skipped": [],
+     "total": 1243.9
+    },
+    "7": {
+     "trades": [
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T09:41:03",
+       "entry_ts": "2026-08-04T09:45:00",
+       "side": "C",
+       "symbol": "SPY260804C00762000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.45,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 761.56,
+       "dollar_pnl": 459.5,
+       "exit_reason": "runner_stop @ 3.15",
+       "exit_ts": "2026-08-04T10:25:00",
+       "hold_minutes": 40
+      },
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T10:36:03",
+       "entry_ts": "2026-08-04T10:40:00",
+       "side": "C",
+       "symbol": "SPY260804C00765000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.35,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 764.19,
+       "dollar_pnl": 784.4,
+       "exit_reason": "runner_stop @ 6.49",
+       "exit_ts": "2026-08-04T14:05:00",
+       "hold_minutes": 205
+      }
+     ],
+     "skipped": [],
+     "total": 1243.9
+    },
+    "8": {
+     "trades": [
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T09:41:03",
+       "entry_ts": "2026-08-04T09:45:00",
+       "side": "C",
+       "symbol": "SPY260804C00762000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.45,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 761.56,
+       "dollar_pnl": 459.5,
+       "exit_reason": "runner_stop @ 3.15",
+       "exit_ts": "2026-08-04T10:25:00",
+       "hold_minutes": 40
+      },
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T10:36:03",
+       "entry_ts": "2026-08-04T10:40:00",
+       "side": "C",
+       "symbol": "SPY260804C00765000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.35,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 764.19,
+       "dollar_pnl": 784.4,
+       "exit_reason": "runner_stop @ 6.49",
+       "exit_ts": "2026-08-04T14:05:00",
+       "hold_minutes": 205
+      }
+     ],
+     "skipped": [],
+     "total": 1243.9
+    },
+    "9": {
+     "trades": [
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T09:41:03",
+       "entry_ts": "2026-08-04T09:45:00",
+       "side": "C",
+       "symbol": "SPY260804C00762000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.45,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 761.56,
+       "dollar_pnl": 459.5,
+       "exit_reason": "runner_stop @ 3.15",
+       "exit_ts": "2026-08-04T10:25:00",
+       "hold_minutes": 40
+      },
+      {
+       "date": "2026-08-04",
+       "trigger_ts": "2026-08-04T10:36:03",
+       "entry_ts": "2026-08-04T10:40:00",
+       "side": "C",
+       "symbol": "SPY260804C00765000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.35,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 764.19,
+       "dollar_pnl": 784.4,
+       "exit_reason": "runner_stop @ 6.49",
+       "exit_ts": "2026-08-04T14:05:00",
+       "hold_minutes": 205
+      }
+     ],
+     "skipped": [],
+     "total": 1243.9
+    }
+   }
+  },
+  "2026-08-05": {
+   "n_ticks": 386,
+   "n_hold": 366,
+   "rungs": {
+    "6": {
+     "trades": [
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T09:41:03",
+       "entry_ts": "2026-08-05T09:45:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.23,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.7,
+       "dollar_pnl": -135.0,
+       "exit_reason": "structure_stop @ 775.7",
+       "exit_ts": "2026-08-05T09:50:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T09:52:03",
+       "entry_ts": "2026-08-05T09:55:00",
+       "side": "P",
+       "symbol": "SPY260805P00775000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.89,
+       "score": 8,
+       "blockers": [
+        5
+       ],
+       "adjusted": 7,
+       "level": 775.84,
+       "dollar_pnl": -15.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:00:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:00:04",
+       "entry_ts": "2026-08-05T10:05:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.69,
+       "score": 9,
+       "blockers": [
+        7,
+        8
+       ],
+       "adjusted": 7,
+       "level": 775.84,
+       "dollar_pnl": -117.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:20:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:20:04",
+       "entry_ts": "2026-08-05T10:25:00",
+       "side": "C",
+       "symbol": "SPY260805C00776000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.78,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.84,
+       "dollar_pnl": -159.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:36:03",
+       "entry_ts": "2026-08-05T10:40:00",
+       "side": "C",
+       "symbol": "SPY260805C00775000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.41,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 774.39,
+       "dollar_pnl": 39.0,
+       "exit_reason": "structure_stop @ 774.39",
+       "exit_ts": "2026-08-05T10:45:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:56:03",
+       "entry_ts": "2026-08-05T11:00:00",
+       "side": "C",
+       "symbol": "SPY260805C00773000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.09,
+       "score": 9,
+       "blockers": [
+        7,
+        10
+       ],
+       "adjusted": 7,
+       "level": 772.97,
+       "dollar_pnl": -237.0,
+       "exit_reason": "structure_stop @ 772.97",
+       "exit_ts": "2026-08-05T11:20:00",
+       "hold_minutes": 20
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T11:21:03",
+       "entry_ts": "2026-08-05T11:25:00",
+       "side": "C",
+       "symbol": "SPY260805C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.84,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 772.08,
+       "dollar_pnl": -72.0,
+       "exit_reason": "structure_stop @ 772.08",
+       "exit_ts": "2026-08-05T11:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T12:04:03",
+       "entry_ts": "2026-08-05T12:10:00",
+       "side": "P",
+       "symbol": "SPY260805P00771000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.9,
+       "score": 8,
+       "blockers": [
+        8
+       ],
+       "adjusted": 7,
+       "level": 771.0,
+       "dollar_pnl": -276.0,
+       "exit_reason": "structure_stop @ 771.0",
+       "exit_ts": "2026-08-05T12:25:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:11:03",
+       "entry_ts": "2026-08-05T13:15:00",
+       "side": "C",
+       "symbol": "SPY260805C00771000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.41,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 771.29,
+       "dollar_pnl": -30.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-05T13:20:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:44:03",
+       "entry_ts": "2026-08-05T13:50:00",
+       "side": "C",
+       "symbol": "SPY260805C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.87,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 771.51,
+       "dollar_pnl": -63.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-05T13:55:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:56:03",
+       "entry_ts": "2026-08-05T14:00:00",
+       "side": "P",
+       "symbol": "SPY260805P00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.13,
+       "score": 8,
+       "blockers": [
+        8
+       ],
+       "adjusted": 7,
+       "level": 771.51,
+       "dollar_pnl": -78.0,
+       "exit_reason": "structure_stop @ 771.51",
+       "exit_ts": "2026-08-05T14:05:00",
+       "hold_minutes": 5
+      }
+     ],
+     "skipped": [],
+     "total": -1143.0
+    },
+    "7": {
+     "trades": [
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T09:41:03",
+       "entry_ts": "2026-08-05T09:45:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.23,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.7,
+       "dollar_pnl": -135.0,
+       "exit_reason": "structure_stop @ 775.7",
+       "exit_ts": "2026-08-05T09:50:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T09:52:03",
+       "entry_ts": "2026-08-05T09:55:00",
+       "side": "P",
+       "symbol": "SPY260805P00775000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.89,
+       "score": 8,
+       "blockers": [
+        5
+       ],
+       "adjusted": 7,
+       "level": 775.84,
+       "dollar_pnl": -15.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:00:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:00:04",
+       "entry_ts": "2026-08-05T10:05:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.69,
+       "score": 9,
+       "blockers": [
+        7,
+        8
+       ],
+       "adjusted": 7,
+       "level": 775.84,
+       "dollar_pnl": -117.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:20:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:20:04",
+       "entry_ts": "2026-08-05T10:25:00",
+       "side": "C",
+       "symbol": "SPY260805C00776000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.78,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.84,
+       "dollar_pnl": -159.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:36:03",
+       "entry_ts": "2026-08-05T10:40:00",
+       "side": "C",
+       "symbol": "SPY260805C00775000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.41,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 774.39,
+       "dollar_pnl": 39.0,
+       "exit_reason": "structure_stop @ 774.39",
+       "exit_ts": "2026-08-05T10:45:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:56:03",
+       "entry_ts": "2026-08-05T11:00:00",
+       "side": "C",
+       "symbol": "SPY260805C00773000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.09,
+       "score": 9,
+       "blockers": [
+        7,
+        10
+       ],
+       "adjusted": 7,
+       "level": 772.97,
+       "dollar_pnl": -237.0,
+       "exit_reason": "structure_stop @ 772.97",
+       "exit_ts": "2026-08-05T11:20:00",
+       "hold_minutes": 20
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T11:21:03",
+       "entry_ts": "2026-08-05T11:25:00",
+       "side": "C",
+       "symbol": "SPY260805C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.84,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 772.08,
+       "dollar_pnl": -72.0,
+       "exit_reason": "structure_stop @ 772.08",
+       "exit_ts": "2026-08-05T11:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T12:04:03",
+       "entry_ts": "2026-08-05T12:10:00",
+       "side": "P",
+       "symbol": "SPY260805P00771000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.9,
+       "score": 8,
+       "blockers": [
+        8
+       ],
+       "adjusted": 7,
+       "level": 771.0,
+       "dollar_pnl": -276.0,
+       "exit_reason": "structure_stop @ 771.0",
+       "exit_ts": "2026-08-05T12:25:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:11:03",
+       "entry_ts": "2026-08-05T13:15:00",
+       "side": "C",
+       "symbol": "SPY260805C00771000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.41,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 771.29,
+       "dollar_pnl": -30.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-05T13:20:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:44:03",
+       "entry_ts": "2026-08-05T13:50:00",
+       "side": "C",
+       "symbol": "SPY260805C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.87,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 771.51,
+       "dollar_pnl": -63.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-05T13:55:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:56:03",
+       "entry_ts": "2026-08-05T14:00:00",
+       "side": "P",
+       "symbol": "SPY260805P00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.13,
+       "score": 8,
+       "blockers": [
+        8
+       ],
+       "adjusted": 7,
+       "level": 771.51,
+       "dollar_pnl": -78.0,
+       "exit_reason": "structure_stop @ 771.51",
+       "exit_ts": "2026-08-05T14:05:00",
+       "hold_minutes": 5
+      }
+     ],
+     "skipped": [],
+     "total": -1143.0
+    },
+    "8": {
+     "trades": [
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T09:41:03",
+       "entry_ts": "2026-08-05T09:45:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.23,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.7,
+       "dollar_pnl": -135.0,
+       "exit_reason": "structure_stop @ 775.7",
+       "exit_ts": "2026-08-05T09:50:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:02:03",
+       "entry_ts": "2026-08-05T10:05:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.69,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.84,
+       "dollar_pnl": -117.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:20:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:20:04",
+       "entry_ts": "2026-08-05T10:25:00",
+       "side": "C",
+       "symbol": "SPY260805C00776000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.78,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.84,
+       "dollar_pnl": -159.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:36:03",
+       "entry_ts": "2026-08-05T10:40:00",
+       "side": "C",
+       "symbol": "SPY260805C00775000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.41,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 774.39,
+       "dollar_pnl": 39.0,
+       "exit_reason": "structure_stop @ 774.39",
+       "exit_ts": "2026-08-05T10:45:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:16:04",
+       "entry_ts": "2026-08-05T13:20:00",
+       "side": "C",
+       "symbol": "SPY260805C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.85,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 771.29,
+       "dollar_pnl": -33.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-05T13:25:00",
+       "hold_minutes": 5
+      }
+     ],
+     "skipped": [],
+     "total": -405.0
+    },
+    "9": {
+     "trades": [
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T09:41:03",
+       "entry_ts": "2026-08-05T09:45:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.23,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.7,
+       "dollar_pnl": -135.0,
+       "exit_reason": "structure_stop @ 775.7",
+       "exit_ts": "2026-08-05T09:50:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:02:03",
+       "entry_ts": "2026-08-05T10:05:00",
+       "side": "C",
+       "symbol": "SPY260805C00777000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.69,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.84,
+       "dollar_pnl": -117.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:20:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:20:04",
+       "entry_ts": "2026-08-05T10:25:00",
+       "side": "C",
+       "symbol": "SPY260805C00776000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.78,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 775.84,
+       "dollar_pnl": -159.0,
+       "exit_reason": "structure_stop @ 775.84",
+       "exit_ts": "2026-08-05T10:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T10:36:03",
+       "entry_ts": "2026-08-05T10:40:00",
+       "side": "C",
+       "symbol": "SPY260805C00775000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.41,
+       "score": 10,
+       "blockers": [
+        10
+       ],
+       "adjusted": 9,
+       "level": 774.39,
+       "dollar_pnl": 39.0,
+       "exit_reason": "structure_stop @ 774.39",
+       "exit_ts": "2026-08-05T10:45:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-05",
+       "trigger_ts": "2026-08-05T13:16:04",
+       "entry_ts": "2026-08-05T13:20:00",
+       "side": "C",
+       "symbol": "SPY260805C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.85,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 771.29,
+       "dollar_pnl": -33.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-05T13:25:00",
+       "hold_minutes": 5
+      }
+     ],
+     "skipped": [],
+     "total": -405.0
+    }
+   }
+  },
+  "2026-08-06": {
+   "n_ticks": 387,
+   "n_hold": 381,
+   "rungs": {
+    "6": {
+     "trades": [
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T09:35:03",
+       "entry_ts": "2026-08-06T09:40:00",
+       "side": "P",
+       "symbol": "SPY260806P00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.93,
+       "score": 9,
+       "blockers": [
+        8
+       ],
+       "adjusted": 8,
+       "level": 771.5,
+       "dollar_pnl": -289.5,
+       "exit_reason": "premium_stop @ 0.96",
+       "exit_ts": "2026-08-06T10:10:00",
+       "hold_minutes": 30
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:16:03",
+       "entry_ts": "2026-08-06T10:20:00",
+       "side": "C",
+       "symbol": "SPY260806C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.24,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 771.51,
+       "dollar_pnl": -168.0,
+       "exit_reason": "structure_stop @ 771.51",
+       "exit_ts": "2026-08-06T10:25:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:36:03",
+       "entry_ts": "2026-08-06T10:40:00",
+       "side": "C",
+       "symbol": "SPY260806C00771000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.8,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 770.24,
+       "dollar_pnl": -36.0,
+       "exit_reason": "structure_stop @ 770.24",
+       "exit_ts": "2026-08-06T10:45:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:45:03",
+       "entry_ts": "2026-08-06T10:50:00",
+       "side": "P",
+       "symbol": "SPY260806P00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.46,
+       "score": 8,
+       "blockers": [
+        8,
+        9
+       ],
+       "adjusted": 6,
+       "level": 770.24,
+       "dollar_pnl": -198.0,
+       "exit_reason": "structure_stop @ 770.24",
+       "exit_ts": "2026-08-06T10:55:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:55:03",
+       "entry_ts": "2026-08-06T11:00:00",
+       "side": "P",
+       "symbol": "SPY260806P00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.83,
+       "score": 8,
+       "blockers": [
+        8,
+        9
+       ],
+       "adjusted": 6,
+       "level": 769.8,
+       "dollar_pnl": 30.0,
+       "exit_reason": "structure_stop @ 769.8",
+       "exit_ts": "2026-08-06T11:05:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T11:06:03",
+       "entry_ts": "2026-08-06T11:10:00",
+       "side": "P",
+       "symbol": "SPY260806P00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.95,
+       "score": 8,
+       "blockers": [
+        8,
+        9
+       ],
+       "adjusted": 6,
+       "level": 770.24,
+       "dollar_pnl": 278.6,
+       "exit_reason": "runner_stop @ 1.84",
+       "exit_ts": "2026-08-06T11:50:00",
+       "hold_minutes": 40
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T11:50:04",
+       "entry_ts": "2026-08-06T11:55:00",
+       "side": "P",
+       "symbol": "SPY260806P00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.66,
+       "score": 8,
+       "blockers": [
+        7,
+        8
+       ],
+       "adjusted": 6,
+       "level": 768.33,
+       "dollar_pnl": 6.0,
+       "exit_reason": "structure_stop @ 768.33",
+       "exit_ts": "2026-08-06T12:10:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T12:19:03",
+       "entry_ts": "2026-08-06T12:25:00",
+       "side": "P",
+       "symbol": "SPY260806P00768000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.01,
+       "score": 8,
+       "blockers": [
+        8,
+        9
+       ],
+       "adjusted": 6,
+       "level": 768.52,
+       "dollar_pnl": -9.0,
+       "exit_reason": "structure_stop @ 768.52",
+       "exit_ts": "2026-08-06T12:40:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T12:40:03",
+       "entry_ts": "2026-08-06T12:45:00",
+       "side": "P",
+       "symbol": "SPY260806P00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.52,
+       "score": 8,
+       "blockers": [
+        8,
+        9
+       ],
+       "adjusted": 6,
+       "level": 768.54,
+       "dollar_pnl": -156.0,
+       "exit_reason": "structure_stop @ 768.54",
+       "exit_ts": "2026-08-06T13:00:00",
+       "hold_minutes": 15
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T13:06:04",
+       "entry_ts": "2026-08-06T13:10:00",
+       "side": "P",
+       "symbol": "SPY260806P00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.26,
+       "score": 9,
+       "blockers": [
+        8
+       ],
+       "adjusted": 8,
+       "level": 768.9,
+       "dollar_pnl": -213.0,
+       "exit_reason": "structure_stop @ 768.9",
+       "exit_ts": "2026-08-06T14:15:00",
+       "hold_minutes": 65
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T14:16:03",
+       "entry_ts": "2026-08-06T14:20:00",
+       "side": "C",
+       "symbol": "SPY260806C00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.92,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.97,
+       "dollar_pnl": -123.0,
+       "exit_reason": "structure_stop @ 768.97",
+       "exit_ts": "2026-08-06T14:40:00",
+       "hold_minutes": 20
+      }
+     ],
+     "skipped": [],
+     "total": -877.9
+    },
+    "7": {
+     "trades": [
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T09:35:03",
+       "entry_ts": "2026-08-06T09:40:00",
+       "side": "P",
+       "symbol": "SPY260806P00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.93,
+       "score": 9,
+       "blockers": [
+        8
+       ],
+       "adjusted": 8,
+       "level": 771.5,
+       "dollar_pnl": -289.5,
+       "exit_reason": "premium_stop @ 0.96",
+       "exit_ts": "2026-08-06T10:10:00",
+       "hold_minutes": 30
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:16:03",
+       "entry_ts": "2026-08-06T10:20:00",
+       "side": "C",
+       "symbol": "SPY260806C00772000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.24,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 771.51,
+       "dollar_pnl": -168.0,
+       "exit_reason": "structure_stop @ 771.51",
+       "exit_ts": "2026-08-06T10:25:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:36:03",
+       "entry_ts": "2026-08-06T10:40:00",
+       "side": "C",
+       "symbol": "SPY260806C00771000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.8,
+       "score": 9,
+       "blockers": [
+        5,
+        10
+       ],
+       "adjusted": 7,
+       "level": 770.24,
+       "dollar_pnl": -36.0,
+       "exit_reason": "structure_stop @ 770.24",
+       "exit_ts": "2026-08-06T10:45:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T10:56:03",
+       "entry_ts": "2026-08-06T11:00:00",
+       "side": "C",
+       "symbol": "SPY260806C00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.81,
+       "score": 9,
+       "blockers": [
+        5,
+        7
+       ],
+       "adjusted": 7,
+       "level": 769.65,
+       "dollar_pnl": -90.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-06T11:05:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T11:21:03",
+       "entry_ts": "2026-08-06T11:25:00",
+       "side": "P",
+       "symbol": "SPY260806P00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.28,
+       "score": 9,
+       "blockers": [
+        8
+       ],
+       "adjusted": 8,
+       "level": 769.8,
+       "dollar_pnl": -192.0,
+       "exit_reason": "premium_stop @ 0.64",
+       "exit_ts": "2026-08-06T14:15:00",
+       "hold_minutes": 170
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T14:16:03",
+       "entry_ts": "2026-08-06T14:20:00",
+       "side": "C",
+       "symbol": "SPY260806C00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.92,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.97,
+       "dollar_pnl": -123.0,
+       "exit_reason": "structure_stop @ 768.97",
+       "exit_ts": "2026-08-06T14:40:00",
+       "hold_minutes": 20
+      }
+     ],
+     "skipped": [],
+     "total": -898.5
+    },
+    "8": {
+     "trades": [
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T09:35:03",
+       "entry_ts": "2026-08-06T09:40:00",
+       "side": "P",
+       "symbol": "SPY260806P00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.93,
+       "score": 9,
+       "blockers": [
+        8
+       ],
+       "adjusted": 8,
+       "level": 771.5,
+       "dollar_pnl": -289.5,
+       "exit_reason": "premium_stop @ 0.96",
+       "exit_ts": "2026-08-06T10:10:00",
+       "hold_minutes": 30
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T11:21:03",
+       "entry_ts": "2026-08-06T11:25:00",
+       "side": "P",
+       "symbol": "SPY260806P00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.28,
+       "score": 9,
+       "blockers": [
+        8
+       ],
+       "adjusted": 8,
+       "level": 769.8,
+       "dollar_pnl": -192.0,
+       "exit_reason": "premium_stop @ 0.64",
+       "exit_ts": "2026-08-06T14:15:00",
+       "hold_minutes": 170
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T14:16:03",
+       "entry_ts": "2026-08-06T14:20:00",
+       "side": "C",
+       "symbol": "SPY260806C00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.92,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.97,
+       "dollar_pnl": -123.0,
+       "exit_reason": "structure_stop @ 768.97",
+       "exit_ts": "2026-08-06T14:40:00",
+       "hold_minutes": 20
+      }
+     ],
+     "skipped": [],
+     "total": -604.5
+    },
+    "9": {
+     "trades": [
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T09:46:03",
+       "entry_ts": "2026-08-06T09:50:00",
+       "side": "C",
+       "symbol": "SPY260806C00770000",
+       "qty": 3,
+       "entry_premium_realOPRA": 2.42,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 769.51,
+       "dollar_pnl": -96.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-06T09:55:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T11:26:03",
+       "entry_ts": "2026-08-06T11:30:00",
+       "side": "C",
+       "symbol": "SPY260806C00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.37,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.82,
+       "dollar_pnl": -102.0,
+       "exit_reason": "structure_stop @ 768.82",
+       "exit_ts": "2026-08-06T11:35:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T11:41:03",
+       "entry_ts": "2026-08-06T11:45:00",
+       "side": "C",
+       "symbol": "SPY260806C00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.89,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.62,
+       "dollar_pnl": -27.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-06T11:50:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T12:21:03",
+       "entry_ts": "2026-08-06T12:25:00",
+       "side": "C",
+       "symbol": "SPY260806C00768000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.29,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 767.75,
+       "dollar_pnl": -12.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-06T12:30:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T13:56:03",
+       "entry_ts": "2026-08-06T14:00:00",
+       "side": "C",
+       "symbol": "SPY260806C00768000",
+       "qty": 3,
+       "entry_premium_realOPRA": 1.1,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.28,
+       "dollar_pnl": 36.0,
+       "exit_reason": "ribbon_flip_back",
+       "exit_ts": "2026-08-06T14:05:00",
+       "hold_minutes": 5
+      },
+      {
+       "date": "2026-08-06",
+       "trigger_ts": "2026-08-06T14:16:03",
+       "entry_ts": "2026-08-06T14:20:00",
+       "side": "C",
+       "symbol": "SPY260806C00769000",
+       "qty": 3,
+       "entry_premium_realOPRA": 0.92,
+       "score": 10,
+       "blockers": [
+        5
+       ],
+       "adjusted": 9,
+       "level": 768.97,
+       "dollar_pnl": -123.0,
+       "exit_reason": "structure_stop @ 768.97",
+       "exit_ts": "2026-08-06T14:40:00",
+       "hold_minutes": 20
+      }
+     ],
+     "skipped": [],
+     "total": -324.0
+    }
+   }
+  }
+ },
+ "week_extras_totals_by_rung": {
+  "6": -39.0,
+  "7": -59.6,
+  "8": 972.4,
+  "9": 1252.9
+ }
+}
