@@ -559,6 +559,22 @@ def _norm_no_trade_window(value) -> "list | None":
     return None
 
 
+def _bull_f10_vol_mult(account_params: dict) -> float:
+    """Bull filter-10 volume multiplier: dedicated `filter_10_vol_multiplier_bull` when
+    present, else the shared `filter_9_vol_multiplier` knob (pre-2026-08-07 behavior --
+    byte-identical when the dedicated key is absent).
+
+    Threading enabler for bull-f10-buyer-pressure-relax
+    (analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json). The VALUE
+    change, if any, ships ONLY as a params.json key after the prereg's frozen battery
+    clears -- this helper alone changes nothing while the key is absent.
+    Mechanism evidence: analysis/deep-research/FEED-DIVERGENCE-F10-F7-2026-08-07.md
+    (IEX under-prints consolidated volume 1.3%-8.2% bar-to-bar; surge bars read as dead).
+    """
+    _vm = account_params.get("filter_9_vol_multiplier", 0.7)
+    return float(account_params.get("filter_10_vol_multiplier_bull", _vm))
+
+
 def _build_payload(df: pd.DataFrame, account_params: dict, *,
                    vix: tuple | None = None, levels: tuple | None = None,
                    vix_ma: tuple | None = None,
@@ -651,7 +667,7 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
         "enable_bullish": True,
         # bear's volume filter is f9; bull's is f10 (distinct kwarg names in evaluate_*_setup)
         "bear_kwargs": dict(_times, f9_vol_mult=_vm, min_triggers=account_params.get("filter_10_min_triggers_bear", 1)),
-        "bull_kwargs": dict(_times, f10_vol_mult=_vm, min_triggers=account_params.get("filter_10_min_triggers_bull", 2)),
+        "bull_kwargs": dict(_times, f10_vol_mult=_bull_f10_vol_mult(account_params), min_triggers=account_params.get("filter_10_min_triggers_bull", 2)),
     }
     # Same-day 5m bars up to and including the trigger bar (for structure_veto_enabled).
     # Uses the full RTH `df` (not the bounded `win`) to capture bars from open onward.

@@ -347,6 +347,10 @@ def _params_to_kwargs(overrides: dict, account_equity: Optional[float] = None) -
         kwargs["runner_target_premium_pct"] = overrides["runner_max_premium_pct"]
     if "filter_9_vol_multiplier" in overrides:
         kwargs["f9_vol_mult"] = overrides["filter_9_vol_multiplier"]
+    if "filter_10_vol_multiplier_bull" in overrides:
+        # Bull-only f10 volume multiplier (2026-08-07 threading; falls back to the
+        # shared f9 knob at the call sites when None -- byte-identical when absent).
+        kwargs["f10_vol_mult_bull"] = overrides["filter_10_vol_multiplier_bull"]
     if "filter_10_min_triggers_bear" in overrides:
         kwargs["min_triggers_bear"] = overrides["filter_10_min_triggers_bear"]
     if "min_triggers_bear" in overrides:  # L116: raw snake_case alias for params_overrides path
@@ -517,6 +521,7 @@ def run_backtest(
     no_trade_before: Optional[dt.time] = dt.time(10, 0),    # RATIFIED v11
     no_trade_window: Optional[tuple] = (dt.time(14, 0), dt.time(15, 0)),  # RATIFIED v11
     f9_vol_mult: float = 0.7,                                # RATIFIED v11
+    f10_vol_mult_bull: Optional[float] = None,               # 2026-08-07: bull-only f10 knob; None -> f9_vol_mult (pre-existing tie)
     enable_bullish: bool = True,                             # RATIFIED v12 — symmetric setup hunting
     # --- NEW 2026-05-09: asymmetric bear/bull params ---
     min_triggers_bear: Optional[int] = None,
@@ -723,6 +728,8 @@ def run_backtest(
             runner_target_premium_pct = ovrk["runner_target_premium_pct"]
         if "f9_vol_mult" in ovrk and f9_vol_mult == 0.7:
             f9_vol_mult = ovrk["f9_vol_mult"]
+        if "f10_vol_mult_bull" in ovrk and f10_vol_mult_bull is None:
+            f10_vol_mult_bull = ovrk["f10_vol_mult_bull"]
         if "min_triggers_bear" in ovrk and min_triggers_bear is None:
             min_triggers_bear = ovrk["min_triggers_bear"]
         if "min_triggers_bull" in ovrk and min_triggers_bull is None:
@@ -1027,7 +1034,7 @@ def run_backtest(
                 min_triggers=bull_min_triggers,
                 no_trade_before=no_trade_before,
                 no_trade_window=no_trade_window,
-                f10_vol_mult=f9_vol_mult,
+                f10_vol_mult=(f10_vol_mult_bull if f10_vol_mult_bull is not None else f9_vol_mult),
                 sweep_blocker_enabled=sweep_blocker_enabled,
                 sweep_min_wick_pct=sweep_min_wick_pct,
                 sweep_min_close_back_pct=sweep_min_close_back_pct,
@@ -1072,7 +1079,7 @@ def run_backtest(
                     min_triggers=bull_min_triggers,
                     no_trade_before=no_trade_before,
                     no_trade_window=no_trade_window,
-                    f10_vol_mult=f9_vol_mult,
+                    f10_vol_mult=(f10_vol_mult_bull if f10_vol_mult_bull is not None else f9_vol_mult),
                     sweep_blocker_enabled=sweep_blocker_enabled,
                     sweep_min_wick_pct=sweep_min_wick_pct,
                     sweep_min_close_back_pct=sweep_min_close_back_pct,
