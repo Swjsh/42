@@ -1,3 +1,9 @@
+> **Autonomy metric trend: REGRESSING** (`conductor_outcome.py metric`, 20-fire window,
+> net_improvement=83, cost_per_drained=$0.64, zero regressions). Not chased this fire (rail
+> 3, one bounded task) -- flagging per the metric protocol so next fire prefers a
+> loop-CLOSING item (author-inbox drain, a stale-J-ping resolution, or a queue item marked
+> `done`) over a new artifact until the trend recovers.
+
 ## [2026-08-08T00:00 ET] CONDUCTOR: OK -- EOD-FLATTEN-LLM-PROMPT-EXIT1 -- commit `d8ec25d2` -- REVOKE surface
 
 **Task picked (priority-4 queue MED, self-generated, top-scored ready item per `task_scorer.py`
