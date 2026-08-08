@@ -1,0 +1,1055 @@
+{
+  "computed_at_utc": "2026-08-08T22:41:34+00:00",
+  "outcomes_rows_total": 280,
+  "conductor_family_sessions_found": 104,
+  "sessions_scanned_total": 605,
+  "n_total_matched": 70,
+  "n_usable_for_ratio": 16,
+  "min_self_report_filter_usd": 0.25,
+  "real_over_self": {
+    "note": "real_cost / self_reported_cost -- THIS is the number comparable to SELF_REPORT_CORRECTION=2.2",
+    "n": 16,
+    "median": 1.808,
+    "mean": 4.347,
+    "min": 1.413,
+    "max": 14.182
+  },
+  "self_over_real": {
+    "note": "self_reported_cost / real_cost (inverse direction, sanity cross-check)",
+    "n": 16,
+    "median": 0.553,
+    "mean": 0.43,
+    "min": 0.071,
+    "max": 0.708
+  },
+  "self_reported_total_usd": 70.35,
+  "real_total_usd": 151.6,
+  "aggregate_ratio_real_over_self": 2.155,
+  "matches": [
+    {
+      "row_index": 186,
+      "task_id": "ZERO-FOR-TWELVE-POSTMORTEM",
+      "fired_at": "2026-07-26T00:38:26+00:00",
+      "self_reported_cost_usd": 0.35,
+      "session_id": "8adb0275-f544-488b-8305-f91a5cdcef00",
+      "session_last_ts": "2026-07-26T00:38:41.505000+00:00",
+      "delta_sec": -15.5,
+      "real_cost_usd": 4.5689,
+      "n_assistant_msgs": 77,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 187,
+      "task_id": "ZERO-FOR-TWELVE-POSTMORTEM",
+      "fired_at": "2026-07-26T01:24:25+00:00",
+      "self_reported_cost_usd": 4.5,
+      "session_id": "99997c85-ab9f-4237-a36e-3361578e3515",
+      "session_last_ts": "2026-07-26T01:24:43.477000+00:00",
+      "delta_sec": -18.5,
+      "real_cost_usd": 9.2564,
+      "n_assistant_msgs": 151,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 188,
+      "task_id": "DRESS-REHEARSAL-WEEKEND-FALSE-RED",
+      "fired_at": "2026-07-26T04:22:01+00:00",
+      "self_reported_cost_usd": 4.4,
+      "session_id": "bd83e62c-3ece-4bcc-a0be-cd514b026fa1",
+      "session_last_ts": "2026-07-26T04:22:21.441000+00:00",
+      "delta_sec": -20.4,
+      "real_cost_usd": 7.632,
+      "n_assistant_msgs": 125,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 189,
+      "task_id": "AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS",
+      "fired_at": "2026-07-26T19:56:55+00:00",
+      "self_reported_cost_usd": 4.3,
+      "session_id": "c1d3de78-9728-4b7f-8df5-65879ec9a27f",
+      "session_last_ts": "2026-07-26T19:57:13.432000+00:00",
+      "delta_sec": -18.4,
+      "real_cost_usd": 7.5833,
+      "n_assistant_msgs": 95,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 190,
+      "task_id": "QUIET-BUDGET-EXHAUSTED",
+      "fired_at": "2026-07-26T21:12:38+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "78a71391-db25-4abb-bd82-66d7cfa381e1",
+      "session_last_ts": "2026-07-26T21:12:42.707000+00:00",
+      "delta_sec": -4.7,
+      "real_cost_usd": 1.2207,
+      "n_assistant_msgs": 11,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 191,
+      "task_id": "BUDGET-GATE-EXHAUSTED",
+      "fired_at": "2026-07-26T21:48:19+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "96d8a8fd-b3e2-4b08-b2ec-113abc2f6a5b",
+      "session_last_ts": "2026-07-26T21:48:26.342000+00:00",
+      "delta_sec": -7.3,
+      "real_cost_usd": 1.0771,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 192,
+      "task_id": "budget-exhausted-19:48",
+      "fired_at": "2026-07-26T23:48:30+00:00",
+      "self_reported_cost_usd": 0.05,
+      "session_id": "076ca557-845e-4ee0-a0eb-4a16593a154d",
+      "session_last_ts": "2026-07-26T23:48:35.224000+00:00",
+      "delta_sec": -5.2,
+      "real_cost_usd": 1.1632,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 193,
+      "task_id": "budget-gate-exhausted-2026-07-26-2030",
+      "fired_at": "2026-07-27T00:30:33+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "5032c4aa-f8e6-46b8-a78e-9ae3f84d5c06",
+      "session_last_ts": "2026-07-27T00:30:48.274000+00:00",
+      "delta_sec": -15.3,
+      "real_cost_usd": 1.1435,
+      "n_assistant_msgs": 11,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 194,
+      "task_id": "budget-exhausted-quiet-2026-07-26-2042",
+      "fired_at": "2026-07-27T00:42:33+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "1c689e27-0542-43c2-8975-8237f5ef4176",
+      "session_last_ts": "2026-07-27T00:42:40.029000+00:00",
+      "delta_sec": -7.0,
+      "real_cost_usd": 1.0959,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 195,
+      "task_id": "BUDGET-GATE-EXHAUSTED",
+      "fired_at": "2026-07-27T01:48:29+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "36aa7e04-4812-4a6c-b618-58dd27dd636c",
+      "session_last_ts": "2026-07-27T01:48:37.430000+00:00",
+      "delta_sec": -8.4,
+      "real_cost_usd": 0.9471,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 196,
+      "task_id": "budget-exhausted-2026-07-26-fire8",
+      "fired_at": "2026-07-27T03:42:52+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "d53d4c88-58a6-4a97-8499-95e239045c7c",
+      "session_last_ts": "2026-07-27T03:43:10.058000+00:00",
+      "delta_sec": -18.1,
+      "real_cost_usd": 1.3793,
+      "n_assistant_msgs": 16,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 197,
+      "task_id": "QUIET-BUDGET-EXHAUSTED",
+      "fired_at": "2026-07-27T03:48:34+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "a90984a6-abb6-4c9d-ad3f-bd2b79d72bb7",
+      "session_last_ts": "2026-07-27T03:48:39.335000+00:00",
+      "delta_sec": -5.3,
+      "real_cost_usd": 0.9593,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 198,
+      "task_id": "budget-gate-quiet",
+      "fired_at": "2026-07-27T05:00:29+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "3819f0a8-0e32-4d0d-a2e8-1bc50f7fb6f9",
+      "session_last_ts": "2026-07-27T05:00:34.941000+00:00",
+      "delta_sec": -5.9,
+      "real_cost_usd": 1.384,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 199,
+      "task_id": "QUIET-budget-exhausted-2026-07-27-0112",
+      "fired_at": "2026-07-27T07:12:50+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "d02e6c50-b4ea-4787-a4f6-1e876f596ef8",
+      "session_last_ts": "2026-07-27T07:12:54.721000+00:00",
+      "delta_sec": -4.7,
+      "real_cost_usd": 1.4148,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 200,
+      "task_id": "budget-exhausted",
+      "fired_at": "2026-07-27T09:30:29+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "b0bc1a1a-7678-4a71-9fba-9fca6821e7aa",
+      "session_last_ts": "2026-07-27T09:30:35.450000+00:00",
+      "delta_sec": -6.5,
+      "real_cost_usd": 1.103,
+      "n_assistant_msgs": 7,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 201,
+      "task_id": "budget-gate-quiet",
+      "fired_at": "2026-07-27T10:12:30+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "5dc1791c-025e-49d2-bb4e-33ccca669ddc",
+      "session_last_ts": "2026-07-27T10:12:36.180000+00:00",
+      "delta_sec": -6.2,
+      "real_cost_usd": 1.0183,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 202,
+      "task_id": "budget-gate-quiet-09-12",
+      "fired_at": "2026-07-27T13:12:36+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "3eac2d0f-235b-4c70-955e-0d388aa14d2f",
+      "session_last_ts": "2026-07-27T13:12:44.809000+00:00",
+      "delta_sec": -8.8,
+      "real_cost_usd": 1.1956,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 203,
+      "task_id": "QUIET-budget-exhausted",
+      "fired_at": "2026-07-27T22:42:46+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "212d2c6d-e467-4e0e-a0e1-72de4217a85b",
+      "session_last_ts": "2026-07-27T22:42:51.976000+00:00",
+      "delta_sec": -6.0,
+      "real_cost_usd": 1.251,
+      "n_assistant_msgs": 12,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 204,
+      "task_id": "budget-exhausted-quiet",
+      "fired_at": "2026-07-28T00:30:40+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "e6efaeba-d98c-4aa9-ad51-84894f675f56",
+      "session_last_ts": "2026-07-28T00:30:47.825000+00:00",
+      "delta_sec": -7.8,
+      "real_cost_usd": 1.2302,
+      "n_assistant_msgs": 11,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 205,
+      "task_id": "BUDGET-EXHAUSTED-QUIET",
+      "fired_at": "2026-07-28T01:43:07+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "aa16c30a-e384-415a-8c6f-f752b1f90837",
+      "session_last_ts": "2026-07-28T01:43:13.687000+00:00",
+      "delta_sec": -6.7,
+      "real_cost_usd": 1.5814,
+      "n_assistant_msgs": 18,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 207,
+      "task_id": "DRESS-REHEARSAL-NARROW-STRIKE-BAND",
+      "fired_at": "2026-07-28T05:21:34+00:00",
+      "self_reported_cost_usd": 3.2,
+      "session_id": "d3c18488-4468-4411-b1bf-9f263403ea0a",
+      "session_last_ts": "2026-07-28T05:07:17.507000+00:00",
+      "delta_sec": 856.5,
+      "real_cost_usd": 4.5215,
+      "n_assistant_msgs": 81,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 208,
+      "task_id": "BUDGET-EXHAUSTED-2026-07-28-0530",
+      "fired_at": "2026-07-28T09:30:51+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "7c4ad02d-74c8-4c3c-a159-04b6c24f372d",
+      "session_last_ts": "2026-07-28T09:30:56.845000+00:00",
+      "delta_sec": -5.8,
+      "real_cost_usd": 1.1916,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 209,
+      "task_id": "BUDGET-GATE-QUIET",
+      "fired_at": "2026-07-28T12:42:58+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "b0109ac7-2b14-44d5-84b3-6507f1213380",
+      "session_last_ts": "2026-07-28T12:43:04.373000+00:00",
+      "delta_sec": -6.4,
+      "real_cost_usd": 1.2781,
+      "n_assistant_msgs": 13,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 210,
+      "task_id": "QUIET-BUDGET-EXHAUSTED-6of4",
+      "fired_at": "2026-07-28T22:12:46+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "90e8d4fe-cc0b-4473-8cb0-b4e48fd39fc9",
+      "session_last_ts": "2026-07-28T22:12:51.889000+00:00",
+      "delta_sec": -5.9,
+      "real_cost_usd": 1.2105,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 211,
+      "task_id": "QUIET-EXHAUSTED-2030",
+      "fired_at": "2026-07-29T00:30:52+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "d8040f6c-62ea-49d1-97eb-d62e702fdce1",
+      "session_last_ts": "2026-07-29T00:31:01.590000+00:00",
+      "delta_sec": -9.6,
+      "real_cost_usd": 1.4831,
+      "n_assistant_msgs": 11,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 212,
+      "task_id": "budget-gate-quiet-2026-07-28-fire8",
+      "fired_at": "2026-07-29T01:12:42+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "e8c5be33-bdb3-44f0-9f42-200604eb5894",
+      "session_last_ts": "2026-07-29T01:12:49.614000+00:00",
+      "delta_sec": -7.6,
+      "real_cost_usd": 1.0373,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 214,
+      "task_id": "LEVEL-REFRESH-SILENT-STALL-SELF-HEAL",
+      "fired_at": "2026-07-30T23:31:16+00:00",
+      "self_reported_cost_usd": 0.9,
+      "session_id": "a5ec3d3e-c9cd-4bf2-9227-e546d45ce1b9",
+      "session_last_ts": "2026-07-30T23:31:34.425000+00:00",
+      "delta_sec": -18.4,
+      "real_cost_usd": 10.7087,
+      "n_assistant_msgs": 153,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 215,
+      "task_id": "LEVEL-REFRESH-WATCHDOG-WINDOW-BUG",
+      "fired_at": "2026-07-31T00:38:57+00:00",
+      "self_reported_cost_usd": 0.85,
+      "session_id": "a27cf0a6-cf0b-4ef5-82a4-cc2f8570a001",
+      "session_last_ts": "2026-07-31T00:39:12.055000+00:00",
+      "delta_sec": -15.1,
+      "real_cost_usd": 6.1177,
+      "n_assistant_msgs": 105,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 218,
+      "task_id": "TV-CDP-SELFHEAL-VERIFY-2026-07-31",
+      "fired_at": "2026-07-31T13:29:21+00:00",
+      "self_reported_cost_usd": 4.95,
+      "session_id": "8a4b2698-f5ab-4ccd-b4df-9dbfe220612c",
+      "session_last_ts": "2026-07-31T13:29:44.162000+00:00",
+      "delta_sec": -23.2,
+      "real_cost_usd": 8.8607,
+      "n_assistant_msgs": 135,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 220,
+      "task_id": "PMH-IS-FABRICATED-IEX-PREMARKET",
+      "fired_at": "2026-08-01T04:10:26+00:00",
+      "self_reported_cost_usd": 0.15,
+      "session_id": "b3b9672e-37a1-4dd8-829e-c200e5af7c7d",
+      "session_last_ts": "2026-08-01T04:10:44.561000+00:00",
+      "delta_sec": -18.6,
+      "real_cost_usd": 6.9582,
+      "n_assistant_msgs": 109,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 223,
+      "task_id": "G2-TRENDLINE-BYPASS-INVERTS-PRIORITY",
+      "fired_at": "2026-08-01T08:26:53+00:00",
+      "self_reported_cost_usd": 7.7,
+      "session_id": "0f5689da-12c7-4502-af24-875c9c9cd36f",
+      "session_last_ts": "2026-08-01T08:27:19.251000+00:00",
+      "delta_sec": -26.3,
+      "real_cost_usd": 14.0357,
+      "n_assistant_msgs": 186,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 224,
+      "task_id": "BUDGET-EXHAUSTED-QUIET",
+      "fired_at": "2026-08-01T09:30:48+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "da771cf7-9341-4be1-b1e3-ff238941d4ec",
+      "session_last_ts": "2026-08-01T09:30:57.679000+00:00",
+      "delta_sec": -9.7,
+      "real_cost_usd": 1.1812,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 225,
+      "task_id": "BUDGET-EXHAUSTED-0600",
+      "fired_at": "2026-08-01T10:00:45+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "6e0aae64-435e-47ae-af9a-78fff397b402",
+      "session_last_ts": "2026-08-01T10:00:51.654000+00:00",
+      "delta_sec": -6.7,
+      "real_cost_usd": 1.0734,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 226,
+      "task_id": "BUDGET-EXHAUSTED-0800",
+      "fired_at": "2026-08-01T12:00:44+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "f9ecf777-b416-4464-8cda-2b37e6917372",
+      "session_last_ts": "2026-08-01T12:00:52.699000+00:00",
+      "delta_sec": -8.7,
+      "real_cost_usd": 1.4278,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 227,
+      "task_id": "BUDGET-EXHAUSTED-2026-08-01-1000",
+      "fired_at": "2026-08-01T14:00:34+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "a7f2d370-58a6-4faf-a091-4ec9373f2e23",
+      "session_last_ts": "2026-08-01T14:00:41.519000+00:00",
+      "delta_sec": -7.5,
+      "real_cost_usd": 1.1463,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 228,
+      "task_id": "QUIET-BUDGET-EXHAUSTED",
+      "fired_at": "2026-08-01T16:00:45+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "46dc1976-580d-432f-8a59-449f76da0650",
+      "session_last_ts": "2026-08-01T16:00:49.346000+00:00",
+      "delta_sec": -4.3,
+      "real_cost_usd": 1.2049,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 229,
+      "task_id": "budget-exhausted-2026-08-01-14h",
+      "fired_at": "2026-08-01T18:00:39+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "90e1df67-143f-45ef-82ec-59bb6088a69e",
+      "session_last_ts": "2026-08-01T18:00:46.487000+00:00",
+      "delta_sec": -7.5,
+      "real_cost_usd": 1.1691,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 230,
+      "task_id": "budget-gate-quiet-2026-08-01-1600",
+      "fired_at": "2026-08-01T20:00:54+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "b40e7068-d91c-484a-aedb-6e87ebc612e4",
+      "session_last_ts": "2026-08-01T20:00:59.549000+00:00",
+      "delta_sec": -5.5,
+      "real_cost_usd": 0.791,
+      "n_assistant_msgs": 12,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 231,
+      "task_id": "budget-gate-exhausted",
+      "fired_at": "2026-08-01T22:00:47+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "1c85db86-857b-4fdd-8f4d-c1d93d4cab5a",
+      "session_last_ts": "2026-08-01T22:00:52.677000+00:00",
+      "delta_sec": -5.7,
+      "real_cost_usd": 0.7204,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 232,
+      "task_id": "QUIET-budget-exhausted",
+      "fired_at": "2026-08-02T00:31:03+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "99d3fe4a-fe95-4d78-a72f-637716c88ee5",
+      "session_last_ts": "2026-08-02T00:31:08.871000+00:00",
+      "delta_sec": -5.9,
+      "real_cost_usd": 0.9473,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 233,
+      "task_id": "QUIET-budget-exhausted",
+      "fired_at": "2026-08-02T02:00:46+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "b97b441a-1bb9-4760-9b5c-ef4317bdf7ea",
+      "session_last_ts": "2026-08-02T02:00:49.927000+00:00",
+      "delta_sec": -3.9,
+      "real_cost_usd": 0.9481,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 236,
+      "task_id": "WF-GATE-QUEUE-CLOSURE-AND-ESCALATION",
+      "fired_at": "2026-08-02T06:06:08+00:00",
+      "self_reported_cost_usd": 0.35,
+      "session_id": "4c19fae2-119e-472c-81d1-d84a82ea7459",
+      "session_last_ts": "2026-08-02T06:06:24.050000+00:00",
+      "delta_sec": -16.1,
+      "real_cost_usd": 4.9638,
+      "n_assistant_msgs": 69,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 237,
+      "task_id": "EXIT-HYBRID-PRETP1-FLOOR-iter4",
+      "fired_at": "2026-08-02T08:17:48+00:00",
+      "self_reported_cost_usd": 8.5,
+      "session_id": "5668ac5a-3c74-4f48-acca-b2a06ef9d14a",
+      "session_last_ts": "2026-08-02T08:18:11.671000+00:00",
+      "delta_sec": -23.7,
+      "real_cost_usd": 14.7569,
+      "n_assistant_msgs": 148,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 238,
+      "task_id": "budget-gate-quiet-2026-08-02-0530",
+      "fired_at": "2026-08-02T09:30:42+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "38bfe295-544b-4236-8686-afee4209f104",
+      "session_last_ts": "2026-08-02T09:30:48.042000+00:00",
+      "delta_sec": -6.0,
+      "real_cost_usd": 1.1336,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 239,
+      "task_id": "QUIET-budget-exhausted-2026-08-02",
+      "fired_at": "2026-08-02T10:01:01+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "5cea1e09-08f6-4f5f-9d1e-82dca3305df4",
+      "session_last_ts": "2026-08-02T10:01:09.163000+00:00",
+      "delta_sec": -8.2,
+      "real_cost_usd": 0.9453,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 240,
+      "task_id": "BUDGET-EXHAUSTED-QUIET",
+      "fired_at": "2026-08-02T12:00:56+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "52632c89-a9e3-4534-b9a7-139a176fd860",
+      "session_last_ts": "2026-08-02T12:01:04.841000+00:00",
+      "delta_sec": -8.8,
+      "real_cost_usd": 1.4564,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 241,
+      "task_id": "QUIET-budget-exhausted",
+      "fired_at": "2026-08-02T14:00:45+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "58de8329-1395-438e-9003-b345ae890eca",
+      "session_last_ts": "2026-08-02T14:00:50.891000+00:00",
+      "delta_sec": -5.9,
+      "real_cost_usd": 1.469,
+      "n_assistant_msgs": 11,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 242,
+      "task_id": "budget-exhausted-2026-08-02-f8",
+      "fired_at": "2026-08-02T16:00:44+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "adb8d68c-dc8f-40fe-94c8-c09f7b42f1b1",
+      "session_last_ts": "2026-08-02T16:00:49.356000+00:00",
+      "delta_sec": -5.4,
+      "real_cost_usd": 0.709,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 243,
+      "task_id": "budget-gate-exhausted-2026-08-02-14h",
+      "fired_at": "2026-08-02T18:00:56+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "1cf2cdc5-0a0b-4c67-b9ab-1bbc6e6aea29",
+      "session_last_ts": "2026-08-02T18:01:02.171000+00:00",
+      "delta_sec": -6.2,
+      "real_cost_usd": 1.2737,
+      "n_assistant_msgs": 13,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 244,
+      "task_id": "conductor-weekend-quiet-16h",
+      "fired_at": "2026-08-02T20:00:56+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "716954ad-90be-48a3-85f9-32d1adcf58ad",
+      "session_last_ts": "2026-08-02T20:01:05.613000+00:00",
+      "delta_sec": -9.6,
+      "real_cost_usd": 1.1767,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 245,
+      "task_id": "budget-gate-quiet",
+      "fired_at": "2026-08-02T22:00:57+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "bb4319dc-d534-4126-a642-a493c49943fa",
+      "session_last_ts": "2026-08-02T22:01:04.043000+00:00",
+      "delta_sec": -7.0,
+      "real_cost_usd": 1.1615,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 246,
+      "task_id": "budget-exhausted-2026-08-02-fire13",
+      "fired_at": "2026-08-02T22:37:40+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "9d6bcc7f-d743-486f-90d4-14e0d79099a9",
+      "session_last_ts": "2026-08-02T22:38:06.341000+00:00",
+      "delta_sec": -26.3,
+      "real_cost_usd": 1.0458,
+      "n_assistant_msgs": 13,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 247,
+      "task_id": "budget-gate-exhausted-2026-08-02-fire14",
+      "fired_at": "2026-08-03T00:00:41+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "eb2d2e6f-f195-4a79-8b11-d561ef013a4e",
+      "session_last_ts": "2026-08-03T00:00:46.704000+00:00",
+      "delta_sec": -5.7,
+      "real_cost_usd": 1.1885,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 248,
+      "task_id": "budget-gate-quiet",
+      "fired_at": "2026-08-03T00:30:46+00:00",
+      "self_reported_cost_usd": 0.05,
+      "session_id": "58a5aab1-5d51-4357-b137-ed9bdc75ca42",
+      "session_last_ts": "2026-08-03T00:31:08.447000+00:00",
+      "delta_sec": -22.4,
+      "real_cost_usd": 0.825,
+      "n_assistant_msgs": 11,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 249,
+      "task_id": "budget-gate-quiet",
+      "fired_at": "2026-08-03T02:00:47+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "75812088-5d67-4ea0-be5b-2f68f9155d4c",
+      "session_last_ts": "2026-08-03T02:00:52.792000+00:00",
+      "delta_sec": -5.8,
+      "real_cost_usd": 1.1707,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 259,
+      "task_id": "CHEF-INBOX-BACKLOG-DRAIN",
+      "fired_at": "2026-08-05T09:49:34+00:00",
+      "self_reported_cost_usd": 6.05,
+      "session_id": "1232e348-5b11-437f-b878-9be4a2cf74ca",
+      "session_last_ts": "2026-08-05T09:49:56.022000+00:00",
+      "delta_sec": -22.0,
+      "real_cost_usd": 10.8452,
+      "n_assistant_msgs": 151,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 261,
+      "task_id": "VBS-WRAPPER-EXIT-CODE-BLIND-SPOT-2ND-HALF",
+      "fired_at": "2026-08-06T05:14:12+00:00",
+      "self_reported_cost_usd": 2.3,
+      "session_id": "0e4ad784-649f-40eb-91fe-8be9149258ab",
+      "session_last_ts": "2026-08-06T05:14:28.063000+00:00",
+      "delta_sec": -16.1,
+      "real_cost_usd": 8.531,
+      "n_assistant_msgs": 111,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 264,
+      "task_id": "FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT",
+      "fired_at": "2026-08-07T05:15:12+00:00",
+      "self_reported_cost_usd": 4.5,
+      "session_id": "411f3537-c57a-4fac-93c2-96772f2c5752",
+      "session_last_ts": "2026-08-07T05:15:38.651000+00:00",
+      "delta_sec": -26.7,
+      "real_cost_usd": 8.4684,
+      "n_assistant_msgs": 121,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 265,
+      "task_id": "VBS-WRAPPER-EXIT-CODE-BLIND-SPOT",
+      "fired_at": "2026-08-07T09:50:55+00:00",
+      "self_reported_cost_usd": 8.15,
+      "session_id": "4062a5ec-9c82-4830-9f36-b6a92f08f085",
+      "session_last_ts": "2026-08-07T09:51:17.262000+00:00",
+      "delta_sec": -22.3,
+      "real_cost_usd": 14.4251,
+      "n_assistant_msgs": 169,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 267,
+      "task_id": "QUIET-BUDGET-EXHAUSTED",
+      "fired_at": "2026-08-08T00:30:43+00:00",
+      "self_reported_cost_usd": 0.02,
+      "session_id": "c6e727f6-ef54-41d8-b11e-d056d1e7be96",
+      "session_last_ts": "2026-08-08T00:30:48.783000+00:00",
+      "delta_sec": -5.8,
+      "real_cost_usd": 0.9321,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 269,
+      "task_id": "VBS-WRAPPER-EXIT-CODE-BLIND-SPOT-4TH-PASS",
+      "fired_at": "2026-08-08T05:32:02+00:00",
+      "self_reported_cost_usd": 9.35,
+      "session_id": "78cd0c10-4a1d-4bce-8ca3-55d01a749228",
+      "session_last_ts": "2026-08-08T05:32:12.471000+00:00",
+      "delta_sec": -10.5,
+      "real_cost_usd": 16.3204,
+      "n_assistant_msgs": 215,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 271,
+      "task_id": "QUIET-BUDGET-EXHAUSTED-2026-08-08-0400",
+      "fired_at": "2026-08-08T08:01:06+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "3be39986-6264-49bf-8db5-54663784dba4",
+      "session_last_ts": "2026-08-08T08:01:12.759000+00:00",
+      "delta_sec": -6.8,
+      "real_cost_usd": 0.7493,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 272,
+      "task_id": "rail0-budget-exhausted-0530",
+      "fired_at": "2026-08-08T09:30:40+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "98de3a83-1f3c-40e2-aa4e-bb9b41adf83a",
+      "session_last_ts": "2026-08-08T09:30:47.483000+00:00",
+      "delta_sec": -7.5,
+      "real_cost_usd": 1.0103,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 273,
+      "task_id": "BUDGET-GATE-QUIET-0600",
+      "fired_at": "2026-08-08T10:00:53+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "7fe9457f-a807-490b-b7cc-4abdb9f2d1ae",
+      "session_last_ts": "2026-08-08T10:01:00.824000+00:00",
+      "delta_sec": -7.8,
+      "real_cost_usd": 1.1088,
+      "n_assistant_msgs": 15,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 274,
+      "task_id": "BUDGET-GATE-EXIT",
+      "fired_at": "2026-08-08T12:01:01+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "3508fc7b-a83c-4ae7-a50e-4d85819dad29",
+      "session_last_ts": "2026-08-08T12:01:07.878000+00:00",
+      "delta_sec": -6.9,
+      "real_cost_usd": 1.221,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 275,
+      "task_id": "BUDGET-GATE-QUIET",
+      "fired_at": "2026-08-08T14:00:35+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "02204bc3-290e-4262-8d4e-d2bcd818c105",
+      "session_last_ts": "2026-08-08T14:00:39.761000+00:00",
+      "delta_sec": -4.8,
+      "real_cost_usd": 1.1697,
+      "n_assistant_msgs": 8,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 276,
+      "task_id": "BUDGET-GATE-EXHAUSTED",
+      "fired_at": "2026-08-08T16:00:57+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "b676a0a4-6408-455b-93ef-897678825366",
+      "session_last_ts": "2026-08-08T16:01:20.757000+00:00",
+      "delta_sec": -23.8,
+      "real_cost_usd": 1.726,
+      "n_assistant_msgs": 18,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 277,
+      "task_id": "BUDGET-GATE-QUIET-14:00",
+      "fired_at": "2026-08-08T18:00:52+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "d2519b78-f160-467d-bda3-7fede8d330d3",
+      "session_last_ts": "2026-08-08T18:00:58.370000+00:00",
+      "delta_sec": -6.4,
+      "real_cost_usd": 0.7576,
+      "n_assistant_msgs": 10,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 278,
+      "task_id": "RAIL0-BUDGET-EXHAUSTED-2026-08-08T1600",
+      "fired_at": "2026-08-08T20:00:47+00:00",
+      "self_reported_cost_usd": 0.01,
+      "session_id": "645d4492-183b-4ca5-8450-357606a057c1",
+      "session_last_ts": "2026-08-08T20:00:53.069000+00:00",
+      "delta_sec": -6.1,
+      "real_cost_usd": 0.9817,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    },
+    {
+      "row_index": 279,
+      "task_id": "budget-gate-quiet-2026-08-08T18",
+      "fired_at": "2026-08-08T22:00:38+00:00",
+      "self_reported_cost_usd": 0.0,
+      "session_id": "d2a77285-be20-47e0-b62f-a9d5c014a2d4",
+      "session_last_ts": "2026-08-08T22:00:43.991000+00:00",
+      "delta_sec": -6.0,
+      "real_cost_usd": 1.2439,
+      "n_assistant_msgs": 9,
+      "models_seen": [
+        "claude-sonnet-5"
+      ]
+    }
+  ],
+  "provenance": {
+    "constant_origin": "conductor_budget.py module docstring + commit c96bdaf0 (2026-07-25): 'conductor reports $3.44/fire vs $7.69 real'. No standalone census artifact/script found anywhere in the repo -- grepped docs/markdown/analysis for '2.2'/'7.69'/'3.44', ran git log -S on conductor_budget.py, and inspected automation/state/spend-2026-07-25.json (the only same-dated spend snapshot that exists). That snapshot is an ALL-Claude-sessions/day aggregate ($423.39 across sonnet+opus+haiku, 12 sessions) -- NOT conductor-specific, and it does not reproduce $3.44 or $7.69 in any field.",
+    "verdict": "NOT IN WRITING beyond the module's own prose -- the original derivation is unreproducible from repo artifacts. The module's own OP-33 comment (conductor_budget.py lines 95-99) already flags this: 'no re-measurement... has been done since that single 2026-07-25 census.' Sample size of the original census is not stated anywhere either.",
+    "subscription_verdict": {
+      "verdict": "(c) quota / rate-limit-pool consumption proxy -- NOT real incremental money, and not billed per-call either.",
+      "evidence": [
+        "run-conductor.ps1 -> _shared.ps1 Invoke-Claude invokes $Global:ClaudeExe (local npm claude.exe) via `claude --print --max-budget-usd ... --model ... --effort ...`; no --api-key flag and no ANTHROPIC_API_KEY assignment anywhere in _shared.ps1 (grepped, zero matches) -- auth is the same OAuth/subscription session as J's interactive CLI, tied to the Max plan login.",
+        "CLAUDE.md OP-3: '$200/mo Max 20x plan budget' -- flat monthly subscription, not metered API billing.",
+        "spend_summary.py's own docstring: 'The Max plan covers spend up to the rate-limit budget; this report is the METER that tells us how close we are. A high $-day doesn't cost J extra (Max is flat $100/mo), but it predicts the next rate-limit hit.'",
+        "Every $ figure in this system (self-report, conductor_budget's corrected_usd, spend_summary.py, token_forensics.py, and this measurement's real_cost_usd) is the SAME notional computation: tokens x Anthropic's PUBLISHED per-token API price. None of it is an actual invoice line."
+      ],
+      "implication": "The $30/day cap is a proxy for how much of the shared Max rate-limit pool got consumed, not a dollar budget. Recalibrating the correction FACTOR keeps measuring in the right RELATIVE direction (bigger notional $ ~ more real resource burned) but USD is arguably the wrong UNIT to reason about precision in -- tokens or wall-clock would track the actual binding constraint (rate-limit walls) more directly. Flagged as a bigger finding than the factor value itself, per the task brief; NOT implemented here (no file in this task's authorized surface redesigns the budget unit)."
+    },
+    "near_zero_self_report_subpopulation": {
+      "note": "A SEPARATE failure mode from the correction-factor question: fires whose self-report is near/at $0.00 (STAGE-0 budget-gate-exit no-ops, the majority of matched fires) still cost REAL notional money -- reading CLAUDE.md + conductor.md + the full MCP tool-schema surface + the state digest is a large FIXED token cost paid on every fire regardless of how little work follows. No multiplicative constant can correct this (0 x any factor == 0) -- it is a structural blind spot in the correction MECHANISM, not evidence the constant's VALUE is wrong.",
+      "n_matched_fires": 54,
+      "self_reported_total_usd": 0.45,
+      "real_total_usd": 67.3883,
+      "implied_avg_real_cost_per_noop_fire_usd": 1.248,
+      "implication": "Every budget-exhausted/no-op re-check (observed up to 7+ times in a single day, e.g. 2026-08-08) burns roughly this much real notional spend that registers as ~$0 against the cap, regardless of what SELF_REPORT_CORRECTION is set to. This is invisible either way to the $30 cap -- it neither helps nor hurts slot admission (see slot_replay below), but it IS real quota consumption with zero visibility. Flagged as a follow-up, out of this task's authorized file surface to fix (would require editing conductor.md / run-conductor.ps1)."
+    },
+    "all_population_aggregate_ratio_including_noop_fires": 3.093
+  },
+  "slot_replay": {
+    "method": "Chronological per-ET-day admission replay of every row in conductor-outcomes.jsonl (32 real ET-days, 280 rows) under conductor_budget.py's ACTUAL shipped defaults (daily_cap_usd=30, max_fires=4, pacing disabled per the 2026-08-08 revert) -- identical methodology to test_default_config_never_diverges_from_old_flat_cap_gate_on_real_ledger, varying only SELF_REPORT_CORRECTION. A fire is 'admitted' iff prior-cumulative-raw x factor < $30 AND fires-so-far < 4; only admitted fires spend (a blocked fire never runs, so never adds to the cumulative).",
+    "total_slots_used_32_days": {
+      "current_2.20": 112,
+      "measured_2.16": 112,
+      "all_population_aggregate_3.09_for_comparison": 102
+    },
+    "days_with_different_slot_count_2.20_vs_2.16": 0,
+    "days_hitting_max_fires_ceiling_of_4": {
+      "current_2.20": 23,
+      "measured_2.16": 23
+    },
+    "verdict": "2.20 -> 2.16 changes slot admission on ZERO of 32 real days (112 slots either way). The arithmetic-artifact hypothesis (that the CONSTANT'S VALUE explains this week's 20-of-45 starvation) is FALSIFIED by direct replay -- 23 of 32 days hit the max_fires=4 hard ceiling regardless of the dollar constant, and on the remaining cap-bound days the real self-reported dollar amounts are large enough (several $3-9 real-work fires) that a 2% change in multiplier never flips an admission decision. Only a much larger swing (~3x+, i.e. correcting for the near-zero-fire population too) would measurably reduce slots -- moving TOWARD 2.16 does nothing."
+  },
+  "decision": {
+    "constant_changed": true,
+    "old_value": 2.2,
+    "new_value": 2.16,
+    "population_used": "real-work fires only (self-report >= $0.25, n=16) -- matches the constant's documented purpose (correct genuine work-fire under-reporting); the near-zero-self-report population is excluded because its ratio is undefined/unstable (division by ~$0) and represents a different, structural failure mode a multiplier cannot fix (see near_zero_self_report_subpopulation above).",
+    "why_defensible": "n=16 clears the n>=5 bar; ALL 16 individual ratios are >1.0 (self-report under-counts in every single matched fire, 100% directional consistency); dollar-weighted aggregate (the statistic that matches how the constant is actually applied, to a SUM) = 2.155, rounds to 2.16.",
+    "operator_relevant_caveat": "This is an ACCURACY correction, not a STARVATION fix -- the slot_replay above shows it changes zero historical admission outcomes. If slot starvation itself needs fixing without raising the $30 cap (OP-3 forbids that), the levers are structural: stop counting a budget-exhausted early-exit re-check against max_fires (it does zero incremental work), or reduce real per-fire spend (smaller --max-budget-usd / lower effort tier for non-shipping fires) -- both out of this task's authorized file surface (would touch conductor.md / run-conductor.ps1)."
+  }
+}

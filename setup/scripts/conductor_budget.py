@@ -7,13 +7,30 @@ file (wake-watcher debounce 30->180min + a RED pattern that no longer matches co
 scheduled cadence cut to 3 overnight fires). This governor is the BACKSTOP: even if a future fire
 launches a big multi-agent battery, the night stops when the budget is spent.
 
-THE 2.2x CORRECTION (the load-bearing detail):
+THE 2.2x CORRECTION (the load-bearing detail, ORIGINAL 2026-07-25 framing -- see the
+RE-MEASUREMENT note right below for what changed 2026-08-08):
 `conductor-outcomes.jsonl`'s self-reported `cost_usd` averages $3.44/fire, but the measured
 per-session token cost is $7.69/fire -- the conductor UNDER-REPORTS its own spend by ~2.2x. A cap
 built naively on the self-report would silently allow ~2x the intended budget, which is exactly
 the class of error this whole pass exists to kill. Every read of `cost_usd` here is multiplied by
 SELF_REPORT_CORRECTION before comparison. If a future fire learns to report true cost, set that
 constant to 1.0 and re-measure -- do not delete the mechanism.
+
+RE-MEASUREMENT (2026-08-08, CONDUCTOR-BUDGET-ARITHMETIC queue item): the 07-25 numbers above
+were never independently re-checked (they lived in prose only -- no surviving census script/
+artifact) and autonomy-metric.json's total_cost_usd turned out to be the SAME self-reported
+figure the constant is meant to correct, not an independent check -- exactly circular. A fresh
+independent measurement (backtest/tools/measure_conductor_cost.py, matching real Claude Code
+session transcripts to conductor fires and pricing actual tokens against Anthropic's published
+rates) found a dollar-weighted aggregate ratio of 2.155 (n=16 real-work fires, ALL individually
+>1.0x) -- close enough to 2.2 that a REPLAY of all 32 real ET-days in conductor-outcomes.jsonl
+shows 2.20 vs 2.16 admits the IDENTICAL number of fire slots on every single day (112 either
+way). The constant was updated to the more precisely-measured 2.16 anyway (see the constant's
+own comment for the full citation), but this is an ACCURACY fix, not a fix for conductor
+slot-starvation -- that turned out to be driven by max_fires=4 (a hard per-fire-count ceiling
+that binds on 23/32 days regardless of dollar arithmetic) and by genuine real spend on cap-bound
+days, not by the correction factor being miscalibrated. Full writeup:
+analysis/recommendations/conductor-cost-correction-measurement-2026-08-08.md
 
 Pure Python, $0, no LLM, no broker, no network. Fails OPEN (exit 0 = proceed) on any internal
 error: a broken governor must never be the reason the rig stops working (C7).
@@ -92,12 +109,28 @@ CONFIG = REPO / "automation" / "state" / "conductor-budget.json"
 # tests can monkeypatch it to a tmp path the same way OUTCOMES/CONFIG already are.
 STATUS_OUT = REPO / "automation" / "state" / "conductor-budget-status.json"
 
-# Measured 2026-07-25: real $7.69/fire vs $3.44 self-reported. UNVERIFIED SINCE (OP-33): no
-# re-measurement against real session-transcript/billing cost has been done since that single
-# 2026-07-25 census -- automation/state/autonomy-metric.json's total_cost_usd is the SAME
-# self-reported figure this constant corrects, not an independent check. Treat 2.2 as a
-# standing estimate, not a re-validated fact, until a fresh transcript census re-checks it.
-SELF_REPORT_CORRECTION = 2.2
+# RE-MEASURED 2026-08-08 (CONDUCTOR-BUDGET-ARITHMETIC, queue item): the prior value (2.2,
+# 2026-07-25) traced to prose only -- no census script/artifact survived in the repo, and
+# automation/state/autonomy-metric.json's total_cost_usd was confirmed to be the SAME
+# self-reported figure this constant corrects, not an independent check (exactly the OP-33
+# staleness flag this comment used to carry). backtest/tools/measure_conductor_cost.py closes
+# that gap: it matches each conductor-family conductor-outcomes.jsonl row to its own Claude
+# Code session transcript (~/.claude/projects/.../*.jsonl) by a literal conductor.md marker
+# string + nearest-timestamp, then computes REAL token-based cost via Anthropic's published
+# per-token pricing (independent of the LLM's own self-report) -- same methodology as
+# spend_summary.py / token_forensics.py, applied per-fire. Result, n=16 real-work fires
+# (self-report >= $0.25) matched 2026-07-26..2026-08-08: dollar-weighted aggregate ratio
+# (sum(real)/sum(self)) = 2.155 -> 2.16, ALL 16 individual ratios > 1.0 (self-report
+# under-counts every single time), median 1.81 / mean 4.35 (right-skewed by a handful of
+# investigation-heavy fires up to 14.2x). Full distribution + matched-fire list + a SEPARATE
+# structural finding (near-zero-self-report no-op fires still cost ~$1.25 real each, which NO
+# multiplicative constant can fix) + a subscription-vs-real-money verdict + a slot-admission
+# replay (2.20 vs 2.16 changes ZERO of 32 real historical ET-days -- this is an accuracy fix,
+# not a starvation fix):
+# analysis/recommendations/conductor-cost-correction-measurement-2026-08-08.json
+# Pinned by backtest/tests/test_conductor_budget.py::
+# test_self_report_correction_matches_2026_08_08_remeasurement.
+SELF_REPORT_CORRECTION = 2.16
 
 DEFAULTS = {
     "daily_cap_usd": 30.0,

@@ -4,6 +4,15 @@ Context: a measured census (2026-07-25) found the conductor family = 93.3% of au
 burn. The subtle failure mode this file pins: the conductor UNDER-REPORTS its own cost by ~2.2x
 ($3.44 self-reported vs $7.69 measured), so a cap read naively off `cost_usd` would silently
 permit ~2x the intended spend. The correction is the point of the module.
+
+RE-MEASURED 2026-08-08 (CONDUCTOR-BUDGET-ARITHMETIC): the 07-25 numbers above were never
+independently re-checked and the constant was updated 2.2 -> 2.16 off a fresh transcript-based
+measurement (n=16 real-work fires, see conductor_budget.SELF_REPORT_CORRECTION's own comment
+for the full citation and
+analysis/recommendations/conductor-cost-correction-measurement-2026-08-08.md for the writeup).
+Tests below that reference "2.2x" in their names/comments are about the CORRECTION MECHANISM
+(a constant > 1.0 is applied at all), not the specific value -- they read SELF_REPORT_CORRECTION
+dynamically and still pass unchanged at 2.16.
 """
 import json
 import sys
@@ -45,6 +54,34 @@ def _cfg(cap=30.0, fires=4, enabled=True):
 # ------------------------------------------------------- the correction factor (the whole point)
 def test_self_report_is_corrected_upward():
     assert SELF_REPORT_CORRECTION > 1.0, "the conductor under-reports; correction must scale UP"
+
+
+def test_self_report_correction_matches_2026_08_08_remeasurement():
+    """Provenance (CONDUCTOR-BUDGET-ARITHMETIC queue item): the prior 2.2 (2026-07-25) traced
+    to prose only -- no census script/artifact survived in the repo, and
+    automation/state/autonomy-metric.json's total_cost_usd turned out to be the SAME
+    self-reported figure the constant is meant to correct, not an independent check.
+
+    backtest/tools/measure_conductor_cost.py closes that gap: it matches conductor-family
+    conductor-outcomes.jsonl rows to their own Claude Code session transcripts
+    (~/.claude/projects/.../*.jsonl) via a literal conductor.md marker string + nearest-
+    timestamp, then prices the REAL tokens used against Anthropic's published per-token rates
+    (independent of the LLM's own self-report) -- same methodology as spend_summary.py /
+    token_forensics.py, applied per-fire instead of per-day.
+
+    Result: n=16 real-work fires matched (self-report >= $0.25, 2026-07-26..2026-08-08).
+    ALL 16 individual ratios > 1.0 (self-report under-counts every single time; median 1.81,
+    mean 4.35 -- right-skewed by investigation-heavy fires up to 14.2x). Dollar-weighted
+    aggregate (sum(real)/sum(self) -- the statistic that matches how the constant is actually
+    applied, to a SUM of a day's fires) = 2.155, rounds to 2.16.
+
+    Full distribution + matched-fire list + a SEPARATE structural finding (near-zero-self-
+    report no-op fires still cost ~$1.25 real each -- no multiplicative constant can fix that,
+    0 x anything == 0) + the Max-subscription-vs-real-money verdict + a 32-day slot-admission
+    replay (2.20 vs 2.16 changes ZERO days -- this is an accuracy fix, not a starvation fix):
+    analysis/recommendations/conductor-cost-correction-measurement-2026-08-08.json
+    """
+    assert SELF_REPORT_CORRECTION == 2.16
 
 
 def test_the_2x2_correction_is_actually_applied(tmp_path):
@@ -145,13 +182,16 @@ def test_first_fire_of_day_gets_generous_carry_over_allowance(tmp_path):
 
 
 def test_pacing_allowance_shrinks_as_slots_are_consumed(tmp_path):
-    led = _outcomes(tmp_path, [3.0])  # 1 fire done, raw $3 -> corrected $6.60
+    # SELF_REPORT_CORRECTION re-measured 2.2 -> 2.16 on 2026-08-08 (CONDUCTOR-BUDGET-ARITHMETIC);
+    # the arithmetic below is dynamically dependent on the constant via check()/spend_today(),
+    # so these literals track whatever SELF_REPORT_CORRECTION currently is, not a fixed 2.2.
+    led = _outcomes(tmp_path, [3.0])  # 1 fire done, raw $3 -> corrected $3*2.16=$6.48
     res = check(DAY, _pacing_cfg(cap=30.0, expected=4, floor=2.0), led)
     assert res["verdict"] == "PROCEED"
-    # remaining_slots = 4-1=3, reserve=(3-1)*2=4, allowance=(30-6.60)-4=19.40
+    # remaining_slots = 4-1=3, reserve=(3-1)*2=4, allowance=(30-6.48)-4=19.52
     assert res["remaining_slots"] == 3
     assert res["reserve_for_future_usd"] == 4.0
-    assert res["allowance_usd"] == 19.4
+    assert res["allowance_usd"] == round((30.0 - 3.0 * SELF_REPORT_CORRECTION) - 4.0, 2)
 
 
 def test_pacing_blocks_before_reservation_dips_below_floor(tmp_path):
@@ -234,7 +274,16 @@ def _old_style_check(day, cfg, path):
 
 def test_real_incident_2026_08_08_old_vs_new_pacing(tmp_path):
     """PROVE IT (step 4): replay today's REAL cost sequence through OLD vs NEW logic and quote
-    how many of the day's fire slots each leaves usable."""
+    how many of the day's fire slots each leaves usable.
+
+    NOTE (2026-08-08, CONDUCTOR-BUDGET-ARITHMETIC): SELF_REPORT_CORRECTION was re-measured
+    2.2 -> 2.16 the same day this incident happened. The dollar figures asserted below are
+    computed DYNAMICALLY off the live constant (via spend_today()/check()), so they now read
+    $34.67/$28.62 rather than the incident's own originally-logged $35.31/$29.15 (those were
+    computed under the 2.2 that was live in production AT THE TIME -- see REAL_INCIDENT_ROWS'
+    docstring above, left unchanged as an accurate historical quote). The qualitative
+    conclusion this test proves (OLD flat-cap gate lets the breach through; NEW pacing blocks
+    fire 3 before it spends) is unaffected by the constant's exact value."""
     cfg = _pacing_cfg(cap=30.0, expected=4, floor=2.0, max_fires=99)
 
     # Build the ledger incrementally, exactly as it accrues in production (each fire's check
@@ -263,8 +312,10 @@ def test_real_incident_2026_08_08_old_vs_new_pacing(tmp_path):
     new_final = spend_today(REAL_INCIDENT_DAY,
                              _outcomes_at(tmp_path, REAL_INCIDENT_ROWS[:2]))  # fire 3 blocked,
                              # never spends, so it never appends a real-cost row under NEW
-    assert old_final["corrected_usd"] == 35.31, f"OLD final corrected spend: ${old_final['corrected_usd']}"
-    assert new_final["corrected_usd"] == 29.15, f"NEW final corrected spend: ${new_final['corrected_usd']}"
+    expected_old = round(sum(c for _, c in REAL_INCIDENT_ROWS) * SELF_REPORT_CORRECTION, 2)
+    expected_new = round(sum(c for _, c in REAL_INCIDENT_ROWS[:2]) * SELF_REPORT_CORRECTION, 2)
+    assert old_final["corrected_usd"] == expected_old, f"OLD final corrected spend: ${old_final['corrected_usd']}"
+    assert new_final["corrected_usd"] == expected_new, f"NEW final corrected spend: ${new_final['corrected_usd']}"
     assert old_final["corrected_usd"] > 30.0, "OLD breaches the hard cap"
     assert new_final["corrected_usd"] <= 30.0, "NEW never breaches the hard cap"
 
