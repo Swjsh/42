@@ -19,10 +19,10 @@ Write-TaskLog -TaskName $task -Message "mcp-daily-audit: START"
 $exitCode = Invoke-Claude `
     -PromptFile (Join-Path $projectRoot "automation\prompts\mcp-weekly-audit.md") `
     -TaskName $task `
-    -MaxBudgetUsd 0.30 `
+    -MaxBudgetUsd 0.60 `
     -Model "haiku" `
     -Effort "low" `
-    -TimeoutSec 240
+    -TimeoutSec 300
 
 Write-TaskLog -TaskName $task -Message "mcp-daily-audit: END exit=$exitCode"
 exit $exitCode
