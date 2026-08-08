@@ -833,12 +833,28 @@ def _ansi_style_line(line: str) -> str:
     return "".join(out)
 
 
+def _hard_clear() -> None:
+    """Clear the console for real. J-observed failure (2026-08-08): in the
+    spawned `powershell -NoExit` legacy conhost, ANSI \\x1b[2J escapes can be
+    silent no-ops (VT mode not actually enabled for the child), so frames STACK
+    and the window becomes an endlessly scrolling log -- the exact opposite of
+    an in-place HUD. `cls` via the shell is the one clear that always works in
+    conhost; ANSI home is kept as a cheap best-effort extra elsewhere."""
+    try:
+        if os.name == "nt":
+            os.system("cls")
+        else:
+            sys.stdout.write("\x1b[2J\x1b[H")
+    except Exception:  # noqa: BLE001 -- a failed clear must never kill the window
+        pass
+
+
 def _print_frame_rich(frame: str) -> None:
     """Draw one frame via rich: styled Text lines, no Panel (border-free by
     design -- see module docstring). Any failure here is caught by the caller
     and falls through to the raw-ANSI path within the SAME cycle."""
     console = Console()
-    console.clear()
+    _hard_clear()
     text = Text()
     for i, line in enumerate(frame.split("\n")):
         if i:
@@ -863,7 +879,8 @@ def _print_frame(frame: str) -> None:
         except Exception:  # noqa: BLE001 -- rich misbehaved; fall back below, don't crash
             pass
     styled = "\n".join(_ansi_style_line(ln) for ln in frame.split("\n"))
-    output = "\x1b[2J\x1b[H" + styled + "\n"  # full clear + cursor home, then the frame
+    _hard_clear()
+    output = styled + "\n"
     try:
         sys.stdout.write(output)
     except UnicodeEncodeError:
@@ -873,7 +890,111 @@ def _print_frame(frame: str) -> None:
         # supposed to always be up. _asciify runs on the ALREADY-ANSI-styled
         # string: the escape codes are pure ASCII bytes themselves, so they pass
         # through untouched while the glyph characters get swapped.
-        sys.stdout.write("\x1b[2J\x1b[H" + _asciify(styled) + "\n")
+        sys.stdout.write(_asciify(styled) + "\n")
+    sys.stdout.flush()
+
+
+def _build_view_dict(state: dict, now_et: datetime) -> dict:
+    """The JSON-friendly twin of render_frame(): the SAME 7-section computation,
+    structured as data instead of ANSI text, for external consumers (the Next.js
+    Gamma App's /api/gamma route, added 2026-08-08 -- J rejected the terminal
+    window itself as a presence SURFACE, but this module stays alive as the
+    state librarian: the web page and the terminal render identical content
+    because both call these same pure helpers -- only the presentation differs,
+    zero business logic duplicated into TypeScript).
+    """
+    state_word = derive_state_word(now_et)
+    focus = _today_focus_text(state.get("standup"))
+
+    tape = state.get("tape") or {}
+    segments = []
+    if isinstance(tape.get("segments"), list):
+        for item in tape["segments"]:
+            if isinstance(item, (list, tuple)) and len(item) == 3:
+                acct, n, pnl = item
+                try:
+                    segments.append({"account": _sanitize_line(acct, max_len=30), "n": int(n), "pnl": float(pnl)})
+                except (TypeError, ValueError):
+                    continue
+    n_total = sum(s["n"] for s in segments)
+    net_total = sum(s["pnl"] for s in segments)
+    tape_headline = (
+        "Market closed — research mode." if not segments
+        else f"{n_total} trade{'s' if n_total != 1 else ''} · net {_fmt_signed_money(net_total)}"
+    )
+
+    right_now_dict = state.get("right_now") or {}
+    candidates = [
+        t for t in (
+            right_now_dict.get("watcher_mtime_et"),
+            right_now_dict.get("futures_tail_et"),
+            right_now_dict.get("aggressive_mtime_et"),
+        )
+        if isinstance(t, datetime)
+    ]
+    if candidates:
+        stamp = max(candidates).strftime("%H:%M ET")
+        right_now = (
+            f"Watching SPY off the 5m engine; last tick {stamp}" if state_word == "TRADING"
+            else f"Grinding research queue; last fire {stamp}"
+        )
+    else:
+        right_now = None
+
+    clocks_raw = state.get("clocks") or {}
+    ssr, mes = clocks_raw.get("ssr"), clocks_raw.get("mes")
+    ssr_have, ssr_need = _extract_progress(ssr)
+    mes_have, mes_need = _extract_progress(mes)
+    beats_null = (mes.get("arming_bar") or {}).get("beats_null") if isinstance(mes, dict) else None
+    clocks = [
+        {"label": "SSR shadow", "have": ssr_have, "need": ssr_need, "extra": ""},
+        {"label": "MES mirror", "have": mes_have, "need": mes_need,
+         "extra": "needs beats-null" if beats_null is False else ""},
+        {"label": "Cap re-check", "have": clocks_raw.get("catastrophe_n"), "need": _CATASTROPHE_CAP_CADENCE, "extra": ""},
+    ]
+
+    wants_raw = state.get("wants") if isinstance(state.get("wants"), list) else []
+    wants = [_sanitize_line(_extract_want_text(item)) for item in wants_raw[:3]]
+    ships = [_humanize_commit_subject(s, 116) for s in (state.get("recent_commits") or [])[:4]]
+
+    return {
+        "now_et_label": now_et.strftime("%A %Y-%m-%d") + " · " + now_et.strftime("%H:%M ET"),
+        "state_word": state_word,
+        "goal_line": _GOAL_LINE,
+        "todays_focus": focus,
+        "tape_headline": tape_headline,
+        "tape_segments": segments,
+        "right_now": right_now,
+        "clocks": clocks,
+        "wants": wants,
+        "recent_ships": ships,
+    }
+
+
+def _json_safe(obj):  # noqa: ANN001, ANN201 -- recursive, deliberately untyped
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_safe(v) for v in obj]
+    return obj
+
+
+def _print_json_view() -> None:
+    """--json single-shot mode: gather_state() -> the SAME view render_frame()
+    computes, as one JSON object on stdout -- then exit. No render loop, no
+    screen clear, no rich. Never raises to the caller: any failure still emits
+    a JSON object (with an "error" field) so a shell-out consumer always gets
+    parseable output rather than a stack trace on stdout.
+    """
+    try:
+        now_et = et_now()
+        state = gather_state(now_et)
+        view = _build_view_dict(state, now_et)
+        sys.stdout.write(json.dumps(_json_safe(view), ensure_ascii=False))
+    except Exception as exc:  # noqa: BLE001 -- a JSON consumer must never get a traceback on stdout
+        sys.stdout.write(json.dumps({"error": f"{type(exc).__name__}: {exc}"}))
     sys.stdout.flush()
 
 
@@ -892,14 +1013,31 @@ def _terminal_width() -> int:
 
 
 def main() -> None:
-    if sys.platform == "win32":
-        try:
-            os.system("")  # flips modern Windows consoles into VT100/ANSI-escape mode
-        except Exception:  # noqa: BLE001
-            pass
+    # UTF-8 stdout FIRST, before anything else writes a byte -- this rig's
+    # Windows console default codepage mangles the em-dashes/middots this
+    # module renders (the exact "Node spawns python with cp1252 stdout"
+    # class of bug gamma-companion/face/face_brain.py already hit once).
+    # Must run for BOTH modes: the terminal loop (original reason) and
+    # --json (added 2026-08-08 for the Next.js Gamma App shell-out -- a
+    # mangled glyph in JSON output is silent corruption for that consumer,
+    # not just a cosmetic terminal glitch, so this can't be conditional on
+    # which branch runs).
     if hasattr(sys.stdout, "reconfigure"):
         try:
             sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+        except Exception:  # noqa: BLE001
+            pass
+
+    if "--json" in sys.argv[1:]:
+        # Single-shot data-contract mode for external consumers (the Next.js
+        # Gamma App) -- deliberately checked before the terminal-only setup
+        # below (VT100 mode flip, the infinite render loop). Never touches
+        # the terminal window's own behavior.
+        _print_json_view()
+        return
+    if sys.platform == "win32":
+        try:
+            os.system("")  # flips modern Windows consoles into VT100/ANSI-escape mode
         except Exception:  # noqa: BLE001
             pass
 

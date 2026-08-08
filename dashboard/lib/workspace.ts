@@ -24,4 +24,14 @@ export const paths = {
   journal: (dateYYYYMMDD: string) =>
     path.join(WORKSPACE_ROOT, "journal", `${dateYYYYMMDD}.md`),
   trades: path.join(WORKSPACE_ROOT, "journal", "trades.csv"),
+
+  // --- Gamma App (/gamma) additions, 2026-08-08 ---
+  discordOutbox: st("discord-outbox.jsonl"),
+  futuresMirrorLedger: st("futures", "mirror-would-be.jsonl"),
+  ssrShadowLedger: st("futures", "ssr-shadow-would-be.jsonl"),
+  catastropheLedger: path.join(WORKSPACE_ROOT, "analysis", "recommendations", "catastrophe-cap-shadow-ledger.jsonl"),
+  gammaWants: st("gamma-wants.json"),
+  overnightQueue: path.join(WORKSPACE_ROOT, "automation", "overnight", "queue.md"),
+  gammaHqScript: path.join(WORKSPACE_ROOT, "setup", "scripts", "gamma_hq.py"),
+  pythonExe: path.join(WORKSPACE_ROOT, "backtest", ".venv", "Scripts", "python.exe"),
 };

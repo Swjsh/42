@@ -171,8 +171,133 @@ encodes?) feeding `_lesson-inbox/` and the kitchen.
 | Voice | LIVE (chained) | `gamma-voice-2026-07-08.wav`, 83–93s, Kokoro local |
 | Generative lever + question | LIVE (v1) | picked verticals / overnight-hold from today's PDT evidence, asked J a real PDT question |
 | Voice bot MVP (P2) | BUILT + harness-verified | session sess_DzWwBZGJ5tSeKEDRPl8cy tool round-trip on real state; voice join Ready; **J live-mic test pending** |
-| Dashboard panel | QUEUED | #28 + task chip |
+| Dashboard panel | **SUPERSEDED** — see Layer 4 below | the "queued panel" idea got absorbed into a whole page, not a panel |
 
 **The test that matters:** J wakes up tomorrow, Discord has Gamma's account of the day in
 Gamma's own words at 16:20, with one new idea and one question — no prompting. That either
 happens on 2026-07-09 or this doc's Layer 1 is marked broken in STATUS.md.
+
+---
+
+## Layer 4 — The Gamma App: the web presence surface (2026-08-08)
+
+**The ask (J, mid-flight, verbatim spirit):** "full blown gamma app... the ultimate autonomous
+gamma... living and breathing, hungry for the money... depth, vision, empathy, determination,
+awareness." **Hard constraint:** the GAMMA HQ terminal window (`gamma_hq.py`, shipped hours
+earlier the same day as part of the presence program) was explicitly rejected AS A SURFACE — "go
+look at 21st.dev, find AI assistant HQ dashboards online" — the web app is now the ONLY presence
+surface. This is NOT a reversal of the terminal build: `gamma_hq.py` stays alive as the **state
+librarian** (see below); only the ANSI-window-as-the-thing-J-looks-at idea is retired.
+
+### Why the three prior embodiments didn't stick (recon before building)
+
+1. **`dashboard/` "Trade House"** (Next.js + React-Three-Fiber pixel-art trading floor, live since
+   May) — a metrics wall + 3D scene: KitchenPanel/AutoresearchPanel/LiveWatchPanel numbers,
+   nothing first-person, nothing that initiates. J's own words killed the "make it an input tool"
+   direction 2026-06-24: "i just want to talk to you not utilize the dashboard as a tool. i just
+   want it for visuals." Visuals-only was accepted, but visuals-only never became something J
+   opened daily — an aquarium to glance at, not a colleague.
+2. **`gamma-companion/`** (Electron, port 4317, shipped 2026-06-20, iterated through v0.3.0) — grew
+   an OpenAI-Realtime voice pipeline, a chat brain, Approve/Reject cards, a GridStack layout, an
+   Electron desktop shell. Real engineering, but the **approval bus was never wired to the actual
+   actuator** (producers never enqueued real items) and it added machinery (voice meter, SDK
+   escalation, a whole second app) without closing the presence gap — matches the standing lesson
+   "presence = initiate + visible home + wants; never more machinery."
+3. **`gamma-voicebot/` + `gamma_narrative.py` Discord voice** (2026-07-08) — real TTS, real
+   barge-in, a genuinely good SAW/DID/LEARNED/CHANGING narrative structure. J's own verdict on the
+   first wav: "sounds like he's just reading the messages I get sent in Discord... hard to follow,
+   all numbers and commands" — fixed with a `spoken` register, but per the 2026-08-08 presence-doc
+   update, **"voice-briefs-alone did NOT create felt presence either."**
+4. **GAMMA HQ terminal** (`gamma_hq.py`, shipped earlier 2026-08-08 as part of the same presence
+   program) — the first surface that actually WORKED as a legibility exercise (short first-person
+   sections, fail-open placeholders, a real render-loop) — but a console window is not where J
+   lives, and this session's mid-flight redirect made that explicit.
+5. **Common thread across all four:** presence kept getting solved as an ADD-ON channel (a new
+   app, a new voice pipeline, a new window) instead of upgrading the ONE surface J might actually
+   open unprompted. The Gamma App bets on the opposite: one polished page, real data, no new
+   infrastructure class.
+
+### Design patterns stolen from 21st.dev / AI-agent-dashboard research (2026-08-08 WebSearch/WebFetch)
+
+- **Agent Activity Feed** (theskinsfactory.com) — "a real-time, filterable feed of agent actions,
+  decisions, and pending items... a timeline for autonomous behavior" → the LIVE ACTIVITY section,
+  merging commits + narrative + real fills + shadow fills into one reverse-chron stream.
+- **Decision Logs Over Action Logs** (theskinsfactory.com) — explain the WHY, not just the WHAT →
+  every trade/shadow-fill card names the setup, not just "ENTER"/"EXIT"; commit cards keep the
+  real subject line rather than just "commit pushed."
+- **Ambient Agent Patterns** (agentic-design.ai) — "always-present, contextually-aware... operate
+  seamlessly in the background while remaining accessible" → informed the calm/no-clutter
+  layout choice (generous whitespace, one accent, 20s in-place refresh) over a dense metrics grid.
+- **Mission-control style monitoring** (agentic-design.ai) — real-time oversight without alert
+  fatigue → the state chip + first-person "right now" sentence at the top, everything else is
+  supporting detail below it.
+- **Confidence Gradient** (theskinsfactory.com, "high confidence actions get minimal visual
+  weight; low confidence gets progressively more prominent") — applied narrowly and honestly: the
+  MES-mirror clock's "needs beats-null" caveat gets a visible amber badge (a real uncertainty flag
+  from the data), but nothing fabricates a confidence score where the engine doesn't compute one.
+
+### What shipped
+
+- **`gamma_hq.py --json`** (additive-only edit, zero change to the terminal's own render loop) —
+  a single-shot mode that runs the SAME pure helpers `render_frame()` uses
+  (`derive_state_word`, `_today_focus_text`, `_extract_progress`, `_sanitize_line`,
+  `_humanize_commit_subject`, …) and emits the computed 7-section view as JSON. This is the
+  **state-librarian contract**: the terminal (deprecated as a surface, kept as a library) and the
+  web page render identical semantics because they call the identical code — zero business logic
+  duplicated into TypeScript. Caught + fixed live: the JSON branch originally returned before
+  `main()`'s UTF-8 stdout reconfigure, mangling every em-dash/middot for the JSON consumer only.
+- **`dashboard/app/gamma/`** (route group, new `Section`/`PresenceHeader`/`MoneyView`/
+  `ActivityFeed`/`WantsCards`/`ThisWeekCard` components under `dashboard/components/gamma/`) —
+  PRESENCE HEADER (identity, pulsing state chip, first-person "right now" sentence, today's
+  focus), LIVE ACTIVITY (the centerpiece feed), MONEY VIEW (goal banner, today's tape, animated
+  clock bars), I WANT (numbered priority cards from `gamma-wants.json`), THIS WEEK (top-3
+  CRITICAL/HIGH items from `automation/overnight/queue.md`'s Active backlog, humanized).
+- **`dashboard/lib/{gamma-hq-bridge,activity-feed,wants,this-week,gamma-app,text}.ts`** — the data
+  layer. `activity-feed.ts` merges 4 REAL sources: git commits, `discord-outbox.jsonl` (allowlisted
+  narrative producers only — standups/prospector/firm-brief/etc — explicitly excluding
+  `self_check`, whose live sample rows were 100% raw `DEGRADED:` infra dumps with zero narrative
+  value), `journal/trades.csv` real fills, and the futures-mirror/SSR shadow ledgers (always
+  labeled "no real money"). **Substituted `journal/trades.csv` for the brief's named
+  `decisions.jsonl`**: verified live that both `automation/state/decisions.jsonl` and its
+  `aggressive/` sibling are STALE (last written 2026-06-25) — using them would have silently shown
+  weeks-old ticks as "live." trades.csv is both the doctrinally-correct source (C1: real-fills is
+  the only WR authority) and the one that's actually current.
+- **Two bugs caught + fixed in the same build session** (not shipped broken, then fixed later):
+  (1) a shared banned-substring filter built for short fields (reject a row containing "DEGRADED")
+  was wrongly also applied to long-form `queue.md` prose that legitimately *discusses* a DEGRADED
+  flag as its subject — collapsed 2 of 3 THIS-WEEK cards to a blank placeholder; split into
+  `isLogSpew()` (a skip decision, used only on raw short fields) vs `sanitizeText()` (pure
+  formatting, never refuses); (2) outbox rows are `"<@ID> [TAG] text"` — the bracket-tag strip ran
+  BEFORE the mention strip and never matched; reordered.
+- **DST-safe timestamp handling**: several state files write bare `"YYYY-MM-DDTHH:MM:SS"` ET
+  wall-clock strings with no zone suffix. This box's OS-local zone is Mountain, not Eastern (see
+  CLAUDE.md's "Bash TZ broken" lesson) — a naive `new Date(str)` in the Node process would have
+  silently skewed every activity-feed timestamp by 1-2 hours. `dashboard/lib/time.ts` gained
+  `wallClockInZoneToUtc()` (round-trip through `Intl` to discover the real DST-aware offset, no
+  hardcoded offset table) and `parseBareTimestampInZone()`.
+- **Deployed live**, not just built: `npm run build` then launched via the SAME invocation
+  `Gamma_DashboardKeepalive` uses (`node node_modules/next/dist/bin/next start -p 3000`, hidden,
+  no window flash) so it's already serving before this session ends — see verification section of
+  this session's own report for exact curl output. `http://localhost:3000/gamma`.
+
+### Phase 2 — honestly scoped, NOT built this session
+
+- **Talk-to-Gamma input.** Wire a text box on the page to the existing `discord-responder.py`
+  brain (already the standing "no LLM in the live trade loop" translator per house doctrine) —
+  same guardrails that already gate Discord-side intents apply verbatim; this is a transport
+  change, not a new brain.
+- **Session spawner buttons.** A button that fires a bounded background Claude session (e.g. "run
+  the SSR dojo rep", "re-check gate recency") via the existing scheduled-task/background-agent
+  plumbing — needs an explicit allowlist of spawnable actions (mirroring
+  `gamma-companion/lib/guard.js`'s hard-denylist pattern: never doctrine/params/live-order writes
+  from a button click) before it ships, not after.
+- **TTS presence on the page itself.** The Kokoro-local voice pipeline already exists
+  (`gamma_speak.py`) — a "listen to today's narrative" play button on the Gamma App reusing the
+  existing `.wav` artifact is a small, low-risk add; real-time voice conversation (companion's
+  OpenAI Realtime pattern) is a bigger, costed decision and stays out of scope until asked for.
+- **Decision-log depth** (the "why" behind a trade card): today's trade/shadow-fill cards show
+  setup name + P&L, not full gate/filter reasoning. `core-decisions.jsonl` has this detail but is
+  47MB and tick-noisy (mostly HOLD/SKIP) — a real "why" card would need a proper byte-offset tail
+  reader and a HOLD/SKIP-vs-ENTER/EXIT filter, deliberately deferred rather than half-built.
+- **None of this is theater-scoped** — each item names the real file/module it would extend and
+  the guardrail it would need before shipping, per OP-33's no-oversell standard.
