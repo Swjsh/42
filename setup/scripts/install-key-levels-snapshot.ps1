@@ -67,21 +67,25 @@ if ($Uninstall) {
     return
 }
 
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\snapshot_key_levels.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\snapshot_key_levels.py"
 
-if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
-if (-not (Test-Path $script))      { throw "snapshot_key_levels.py not found at $script" }
+if (-not (Test-Path $pythonwVenv))  { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
+if (-not (Test-Path $sysPythonw))   { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
+if (-not (Test-Path $script))       { throw "snapshot_key_levels.py not found at $script" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest-venv pythonw -> snapshot_key_levels.py
-# (flash-free chain; backtest-venv pythonw is BOTH the reaper-exempt-by-path
-# launcher AND the interpreter that already has et_clock importable cleanly).
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest-venv pythonw -> snapshot_key_levels.py
+# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # 4 weekday fires: 08:35 / 09:30 / 12:00 / 15:50 ET -> 06:35 / 07:30 / 10:00 / 13:50 MT.

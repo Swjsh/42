@@ -10,11 +10,15 @@
   as Gamma_DiscordBridge / Gamma_CryptoGrinderKeepalive / Gamma_KitchenDaemonKeepalive:
   a 5-min, 24/7 TCP-probe + auto-restart + episode-deduped Discord ping.
 
-  WIRING PATTERN (flash-free, matches install-preopen-readiness.ps1's action pattern):
-    wscript -> run_exe_hidden.vbs -> pythonw.exe -> ccr_keepalive.py
-  Both wscript + pythonw are GUI-subsystem (no console allocation) -- no window flash
-  ever (project_mcp_window_leak_fix). ccr_keepalive.py is a native Python keepalive
-  (no .ps1 to wrap), so this chain is 3 args, no run_ps1_hidden.py hop needed.
+  WIRING PATTERN (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- now on
+  the run_cmd_hidden.py relay, matches install-crypto-twin.ps1):
+    wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+      -- system pythonw -> ccr_keepalive.py
+  Both hops stay system pythonw (ccr_keepalive.py is stdlib-only, no venv needed).
+  run_cmd_hidden.py runs the child SYNCHRONOUSLY and logs the real exit code to
+  automation/state/logs/run-cmd-hidden-<date>.log. Prior wiring was fire-and-forget
+  (LastTaskResult always fake-0) -- one of the 31 direct-invocation tasks named in
+  VBS-WRAPPER-EXIT-CODE-BLIND-SPOT's 2026-08-07 audit (queue.md).
 
   CADENCE (matches install-crypto-grinder-keepalive.ps1's trigger idiom): a `-Once`
   base trigger + `-RepetitionInterval 5min` + a ~10-year `-RepetitionDuration` is the
@@ -41,19 +45,22 @@ if ($Uninstall) {
     return
 }
 
-$vbs     = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
-$script  = Join-Path $root "setup\scripts\ccr_keepalive.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonw      = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\ccr_keepalive.py"
 
-if (-not (Test-Path $pythonw)) { throw "system pythonw.exe not found at $pythonw" }
-if (-not (Test-Path $script))  { throw "ccr_keepalive.py not found at $script" }
+if (-not (Test-Path $pythonw))      { throw "system pythonw.exe not found at $pythonw" }
+if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
+if (-not (Test-Path $script))       { throw "ccr_keepalive.py not found at $script" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> pythonw -> ccr_keepalive.py (flash-free chain)
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonw`" `"$script`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- system pythonw -> ccr_keepalive.py
+$wscriptArgs = "//nologo `"$vbs`" `"$pythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonw`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 5 min, 24/7 -- LLM overnight/kitchen fires need CCR up outside RTH too.

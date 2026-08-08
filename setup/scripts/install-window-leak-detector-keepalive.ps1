@@ -49,19 +49,23 @@ if ($Uninstall) {
     return
 }
 
-$vbs     = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
-$script  = Join-Path $root "setup\scripts\window_leak_detector_keepalive.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonw      = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\window_leak_detector_keepalive.py"
 
-if (-not (Test-Path $pythonw)) { throw "system pythonw.exe not found at $pythonw" }
-if (-not (Test-Path $script))  { throw "window_leak_detector_keepalive.py not found at $script" }
+if (-not (Test-Path $pythonw))      { throw "system pythonw.exe not found at $pythonw" }
+if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
+if (-not (Test-Path $script))       { throw "window_leak_detector_keepalive.py not found at $script" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> pythonw -> window_leak_detector_keepalive.py (flash-free)
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonw`" `"$script`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- system pythonw -> window_leak_detector_keepalive.py
+# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
+$wscriptArgs = "//nologo `"$vbs`" `"$pythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonw`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 5 min, 24/7 -- a popup can happen at any hour.

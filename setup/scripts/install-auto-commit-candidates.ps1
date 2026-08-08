@@ -32,8 +32,16 @@
   (outside Stop-StaleClaudeProcesses's Name filter, plus the '.venv' path-match
   exemption, defense in depth) and the script itself exits well under a minute.
 
-  WIRING (flash-free, matches install-key-levels-snapshot.ps1 exactly):
-    wscript -> run_exe_hidden.vbs -> backtest\.venv\Scripts\pythonw.exe -> auto_commit_candidates.py
+  WIRING (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- now on the
+  run_cmd_hidden.py relay, matches install-crypto-twin.ps1/install-ema-snapshot.ps1):
+    wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+      -- backtest\.venv\Scripts\pythonw.exe -> auto_commit_candidates.py
+  run_cmd_hidden.py runs the child SYNCHRONOUSLY and logs the real exit code to
+  automation/state/logs/run-cmd-hidden-<date>.log (self_check.check_run_cmd_hidden_
+  masked_exit already reads it). Prior wiring was fire-and-forget (LastTaskResult
+  always fake-0) -- this task was one of the 31 direct-invocation tasks named in
+  VBS-WRAPPER-EXIT-CODE-BLIND-SPOT's 2026-08-07 audit, migrated per that item's
+  remaining-scope note (queue.md).
 
   Guard: backtest/tests/test_auto_commit_candidates.py (9/9).
   To verify after running: Get-ScheduledTask -TaskName Gamma_AutoCommitCandidates | Get-ScheduledTaskInfo
@@ -53,18 +61,24 @@ if ($Uninstall) {
     return
 }
 
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\auto_commit_candidates.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\auto_commit_candidates.py"
 
-if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
-if (-not (Test-Path $script))      { throw "auto_commit_candidates.py not found at $script" }
+if (-not (Test-Path $pythonwVenv))   { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
+if (-not (Test-Path $sysPythonw))    { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $runCmdHidden))  { throw "run_cmd_hidden.py not found at $runCmdHidden" }
+if (-not (Test-Path $script))        { throw "auto_commit_candidates.py not found at $script" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest-venv pythonw -> auto_commit_candidates.py
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 2 hours, every day -- repeat trigger needs a base daily trigger + repetition.

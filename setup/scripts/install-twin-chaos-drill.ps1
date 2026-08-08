@@ -57,20 +57,25 @@ if ($Uninstall) {
     return
 }
 
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\twin_chaos_drill.py"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\twin_chaos_drill.py"
 
-if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
-if (-not (Test-Path $script))      { throw "twin_chaos_drill.py not found at $script" }
+if (-not (Test-Path $pythonwVenv))  { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
+if (-not (Test-Path $sysPythonw))   { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
+if (-not (Test-Path $script))       { throw "twin_chaos_drill.py not found at $script" }
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest-venv pythonw -> twin_chaos_drill.py --all
-# (flash-free chain; mirrors install-crypto-twin.ps1 verbatim).
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" `"--all`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest-venv pythonw -> twin_chaos_drill.py --all
+# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" `"--all`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Weekly, Sunday 03:00 ET = 01:00 MT (this rig is MT; ET = local + 2h -- NEVER an ET

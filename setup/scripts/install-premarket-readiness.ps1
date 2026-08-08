@@ -34,15 +34,17 @@
 
 $ErrorActionPreference = "Stop"
 
-$root        = "C:\Users\jackw\Desktop\42"
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\premarket_readiness.py"
-$taskName    = "Gamma_PremarketReadiness"
-$atMT        = "07:00"
-$etz         = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
+$root         = "C:\Users\jackw\Desktop\42"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\premarket_readiness.py"
+$taskName     = "Gamma_PremarketReadiness"
+$atMT         = "07:00"
+$etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 
-foreach ($p in @($vbs, $pythonwVenv, $script)) {
+foreach ($p in @($vbs, $pythonwVenv, $sysPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -50,8 +52,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> premarket_readiness.py (no args)
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest venv pythonw -> premarket_readiness.py (no args)
+# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

@@ -61,6 +61,32 @@ EXPECTED_RELAY_TASKS: dict[str, str] = {
     "Gamma_TradeToday": "install-trade-today.ps1",
     "Gamma_Trendlines": "install-trendlines.ps1",
     "Gamma_TwinSentinel": "scripts/install-twin-sentinel.ps1",
+    # 2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- 19 of the 31 direct-
+    # invocation tasks named in the 2026-08-07 audit (queue.md), the ones with a
+    # dedicated install-*.ps1 (the other ~9 are registered by a shared/batch
+    # installer or have no discoverable install script -- left for a future fire,
+    # NOT silently claimed here). EodFlattenCore/JIntentExecutor deliberately
+    # EXCLUDED per the audit's own explicit note (system-pythonw-direct /
+    # safety-critical daemon shape, handle with a dedicated fire).
+    "Gamma_AutoCommitCandidates": "scripts/install-auto-commit-candidates.ps1",
+    "Gamma_CcrKeepalive": "scripts/install-ccr-keepalive.ps1",
+    "Gamma_ChopMeter": "scripts/install-chop-meter.ps1",
+    "Gamma_ContextBundle": "scripts/install-context-bundle.ps1",
+    "Gamma_FuturesEdge3Sim": "scripts/install-futures-edge3-sim.ps1",
+    "Gamma_KeyLevelsSnapshot": "scripts/install-key-levels-snapshot.ps1",
+    "Gamma_LedgerArchive": "scripts/install-ledger-archive.ps1",
+    "Gamma_LiveWatch": "scripts/install-live-watch.ps1",
+    "Gamma_MacroCalendar": "scripts/install-macro-calendar.ps1",
+    "Gamma_MondayVerify": "scripts/install-monday-verify.ps1",
+    "Gamma_OpenBellStatus": "scripts/install-open-bell-status.ps1",
+    "Gamma_ParticipationDaily": "scripts/install-participation-daily.ps1",
+    "Gamma_PremarketReadiness": "scripts/install-premarket-readiness.ps1",
+    "Gamma_PreopenReadiness": "scripts/install-preopen-readiness.ps1",
+    "Gamma_RegimeAttribution": "scripts/install-regime-attribution.ps1",
+    "Gamma_ThetaClock": "scripts/install-theta-clock.ps1",
+    "Gamma_TwinChaos": "scripts/install-twin-chaos-drill.ps1",
+    "Gamma_ViolinMetric": "scripts/install-violin-metric.ps1",
+    "Gamma_WindowLeakDetectorKeepalive": "scripts/install-window-leak-detector-keepalive.ps1",
 }
 
 

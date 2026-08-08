@@ -56,12 +56,14 @@
 [CmdletBinding()] param([switch]$Uninstall)
 $ErrorActionPreference = "Stop"
 
-$root        = "C:\Users\jackw\Desktop\42"
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\context_bundle_producer.py"
-$etz         = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
-$taskName    = "Gamma_ContextBundle"
+$root         = "C:\Users\jackw\Desktop\42"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\context_bundle_producer.py"
+$etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
+$taskName     = "Gamma_ContextBundle"
 
 if ($Uninstall) {
     if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
@@ -71,7 +73,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $pythonwVenv, $script)) {
+foreach ($p in @($vbs, $pythonwVenv, $sysPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -90,8 +92,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> context_bundle_producer.py --once
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" --once"
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- backtest venv pythonw -> context_bundle_producer.py --once
+# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" --once"
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

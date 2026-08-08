@@ -17,19 +17,23 @@
 # Must fire >= 16:15 ET (the plan tier's SIP recency delay must have cleared the close);
 # slot follows Gamma_ShadowSignalAudit (17:25 ET), clear of the RTH heartbeat window.
 #
-# Windowless wscript -> run_exe_hidden.vbs -> backtest-venv-pythonw (C8/L41).
+# Windowless wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py
+#   --cwd <repo> -- backtest-venv-pythonw (C8/L41). 2026-08-08 VBS-WRAPPER-EXIT-CODE-
+# BLIND-SPOT migration -- was fire-and-forget, LastTaskResult always fake-0.
 $ErrorActionPreference = "Stop"
 $Root = "C:\Users\jackw\Desktop\42"; $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName = "Gamma_ViolinMetric"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $ScriptsDir "violin_metric.py"
-foreach ($p in @($pythonw, $runExeHidden, $worker)) {
+foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
   if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`" --nightly"
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`" --nightly"
 # DailyTrigger, NOT a one-time/interval trigger (scar: project_scheduled_task_onetime_trigger_dark).
 # Weekend fires are harmless: --nightly grades the most recent COMPLETED session (idempotent upsert).
 $trigger = New-ScheduledTaskTrigger -Daily -At "15:35" -DaysInterval 1

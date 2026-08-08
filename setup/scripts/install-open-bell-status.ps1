@@ -26,12 +26,13 @@
 
 $ErrorActionPreference = "Stop"
 
-$root      = "C:\Users\jackw\Desktop\42"
-$vbs       = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
-$script    = Join-Path $root "setup\scripts\open_bell_status.py"
-$etz       = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
-$taskName  = "Gamma_OpenBellStatus"
+$root         = "C:\Users\jackw\Desktop\42"
+$vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$pythonw      = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$script       = Join-Path $root "setup\scripts\open_bell_status.py"
+$etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
+$taskName     = "Gamma_OpenBellStatus"
 
 function Show-NextET {
     param([string]$Name)
@@ -48,8 +49,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> pythonw -> open_bell_status.py (flash-free chain)
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonw`" `"$script`""
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- system pythonw -> open_bell_status.py
+# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
+$wscriptArgs = "//nologo `"$vbs`" `"$pythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
