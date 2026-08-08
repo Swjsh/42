@@ -1,3 +1,63 @@
+## [2026-08-08T00:00 ET] CONDUCTOR: OK -- EOD-FLATTEN-LLM-PROMPT-EXIT1 -- commit `d8ec25d2` -- REVOKE surface
+
+**Task picked (priority-4 queue MED, self-generated, top-scored ready item per `task_scorer.py`
+tied with a stale-J-ping item; picked this one per the tiebreak -- closes a loop over a
+re-ping):** budget gate PASSED ($0/$30, 0/4 fires pre-fire). Engine health GREEN, market
+closed (weekend). Triaged the 2026-08-07T17:32 self-audit gap batch first (priority-3) --
+no single concrete NEW bounded item (each line checked against live code: order-idempotency
+already exists in `heartbeat_core.py`, self_check.run() already has partial e2e coverage,
+Alpaca-Greeks-fallback is a 4th consecutive-day recurrence with still no concrete secondary
+source, cost-governance is partial via `conductor_budget.py`) -- appended a TRIAGED note,
+zero code change.
+
+**Main task:** root-caused `EOD-FLATTEN-LLM-PROMPT-EXIT1` (filed 2026-08-06, deliberately
+left open pending live-log evidence). Read `automation/state/logs/eod-flatten{,-aggressive}-
+<date>.log` directly for 08-03..08-07: every failing tick printed `Error: Exceeded USD budget
+(1)` verbatim. `run-eod-flatten-aggressive.ps1` failed 5/5 dates; `run-eod-flatten.ps1` (safe)
+failed 3/5 (08-05/06/07). Same class as the 2026-08-06 Scout premarket budget fix -- `$1` was
+never realistic headroom for `eod-flatten.md`'s retry-until-zero close loop (up to 3 attempts
+x ~4 MCP calls) + fill-reconciliation pass, mis-sized at birth (2026-06-21), not a
+regression. NOT a realized safety incident -- deterministic `Gamma_EodFlattenCore` backstops
+both accounts and fires first, confirmed flat every date checked.
+
+**Fixed:** raised both scripts' `-MaxBudgetUsd` 1->2 (matches futures-eod/futures-premarket).
+Guard `backtest/tests/test_eod_flatten_budget.py` (4 tests, mirrors
+`test_scout_premarket_budget.py`'s pattern), RED-proofed via rename-and-restore (git-showed
+pre-fix HEAD into place, all 4 correctly failed with the known-broken-value assertion,
+restored byte-identical via sha256, re-confirmed 4/4 green). Curated safety gate 59/59 PASS,
+sibling budget guards (scout + conductor) 22/22 green. Zero trading-path files touched
+(rail-4 N/A -- backstop LLM path, not `params*`/`heartbeat_core`/`filters`/placement/exit).
+
+**Lesson filed** (`_lesson-inbox/2026-08-08-eod-flatten-budget-misized-third-recurrence.md`):
+names this the **3rd recurrence in ~1 week** of the "budget mis-sized at birth" class (Scout
+08-06, this 08-08) and flags that `BUDGET-ROSTER-AUDIT-MAXBUDGETUSD` (queued MED,
+`status:pending`, unactioned since 08-06) should graduate from a one-time audit to a standing
+roster-wide guard per OP-25's re-violation rule -- next fire's bounded pick.
+
+**Commit verified exactly-scoped:** `git show d8ec25d2 --stat --name-status` = 5 files (2
+script edits, 1 guard test, 1 lesson, 1 self-audit triage note); `commit_scoped.py` confirmed
+zero absorption of the ~20 other files sitting staged in the shared index from concurrent
+lanes (L271/C34 discipline).
+
+**REVOKE:** `git revert d8ec25d2` (clean, 5 files, byte-revertible).
+
+Cost this fire: ~$3.90 (log archaeology across 2 accounts x 5 dates + guard build + RED-proof
++ self-audit triage + commit).
+
+---
+
+## [2026-08-07] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-02..2026-08-06), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-06). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=CONFIRM
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1304.16); Bold_ATM_1+2=YELLOW ($2017.9)
+> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #4 ATM.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+## [2026-08-07T20:30 ET] CONDUCTOR: QUIET -- nightly budget gate EXHAUSTED (corrected spend $34.54 >= cap $30.00, raw self-report $15.70 x2.2) -- zero model work this fire per rail-0
+
 ## [2026-08-07T16:34 ET] CONDUCTOR: OK -- SCOUT-PREMARKET-FRESHNESS-CHECK -- self-audit gap (2026-08-06 batch) fixed+shipped -- REVOKE surface
 
 **Task picked (priority-3, self-audit gap, `analysis/self-audit/new-gaps-flagged.md`
@@ -111,16 +171,6 @@ git history if ever needed, though doing so would reintroduce the exact bug this
 > -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 3tr $-99.00 ($-33.00/tr, 33.3% WR)
 > -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
 > - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-08-06] RECENCY-CONFIRMATION (confirm-before-capital gate) — YELLOW (not-yet-confirmed) on the freshest 25 trading days (2026-06-29..2026-08-03), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($475.52); Bold_ATM_1+2=YELLOW ($782.0)
-> - **edges_confirmed_on_recent = False** (any RED=False). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -569,16 +619,69 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
-## [2026-08-07T16:25 ET] CLOSE EXECUTION — score-ladder ship gate: HOLD. f10 behavior-neutral fix: SHIPPED.
 
-Executed the pre-stated §5.3 ship gate from `CLOSE-PACKAGE-LADDER-ADDENDUM-2026-08-07.md` after the ≥16:21 ET real-OPRA floor. Full writeup: `analysis/deep-research/CLOSE-EXECUTION-2026-08-07.md`.
+### DEGRADED: self-check 2026-08-07T20:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 9x), run-kitchen-seeder.ps1 (exit=[1], 14x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-**SCORE-LADDER-RUNG (LANE 1, prereg `a780122e`): HOLD, patch NOT applied.** `accounts.json` carries no `score_ladder_rung` key -- byte-identical binary production tonight, both risky arms. Re-ran the frozen runbook verbatim on Friday's full real-OPRA tape (`ladder_rung_replay_2026_08_07.py --ledger 2026-08-07 --sides C --no-est`, reproduced identically across 2 independent invocations): Friday's ladder-added P&L swung from the morning's partial-day EST estimate (+$217.01) to a real full-day **−$945.00** (57 rescue trades, the week's highest admission count -- above Wed's already-flagged 19 and Thu's 30). Week-added recomputes to **+$1,866.00** (Mon-Thu's real +$2,811 minus Friday's real −$945) -- the LITERAL single-metric STOP RULE technically still passes (week-added > 0), but the task's actual two-part gate also required "Friday not materially worse under the ladder," which FAILS hard: same-day binary_day_pnl +$80 vs ladder_day_pnl −$865 (a $945 swing, −17.7% of SOD equity in one session) for the identical arms. The specific flagship trade (10:15 entry, J's original complaint) DID win (+$115, exited via ribbon_flip_back one minute later -- not TP1, not the catastrophe cap); the day lost because the other 56 admitted rescue signals were mostly 1-minute chop round-trips on a twice-reversing tape. Real fleet Friday book independently reconciled via FIFO fills-ledger recompute: −$2,687.00 (broker-verified claim was −$2,692.06, $5.06 residual, immaterial).
+### DEGRADED: self-check 2026-08-07T21:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 26 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 10x), run-kitchen-seeder.ps1 (exit=[1], 14x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-**HOLD-branch deliverable: `Gamma_LadderRungShadow` registered** (16:40 ET weekdays, $0, analysis-only) -- `backtest/tools/score_ladder_rung_shadow_nightly.py` replays LANE 1's exact frozen rule against real data nightly, appends to `analysis/arm-ladder/ladder-rung-shadow-ledger.jsonl`. Guard RED-proofed (module absent -> `1 failed, 3 errors`) then GREEN (`4 passed`) -- the guard's own non-vacuous real-data assertion caught a real bug in the shadow script's first draft (a missing `ALLOWED_RESCUE_SIDES={"C"}` assignment let bear rescues corrupt the count) before it shipped. `State=Ready`, seeded with today's real session. SCHEDULED-TASKS.md updated (106->107).
+## Kitchen
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-**f10 bull-knob threading (behavior-neutral, ships regardless of the ladder gate): APPLIED.** Bull filter 10 no longer secretly shares bear filter 9's config key (`filter_10_vol_multiplier_bull`, falls back to the old shared value when absent -- byte-identical, independently verified against both live params files). RED (pre-apply, quoted): `7 failed, 47 passed`. GREEN (post-apply): `54 passed`; adjacent parity/audit suites unchanged at `41 passed`. Curated safety gate: `59 passed` (one phantom-name false positive from this session's own installer docstring, fixed by rewording the comment, not the guard).
+### DEGRADED: self-check 2026-08-07T21:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 26 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 10x), run-kitchen-seeder.ps1 (exit=[1], 14x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-No trading-path file (`accounts.json`/`params.json`/`aggressive/params.json`) touched. No order placed. Market closed throughout. Not pushed (after-hours push is optional, not required tonight -- nothing here is time-critical for J to see before Monday).
+### DEGRADED: self-check 2026-08-07T22:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 26 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 10x), run-kitchen-seeder.ps1 (exit=[1], 14x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-REVOKE: nothing to revoke on the ladder (never applied). f10 fix revert: `git revert <sha>`. Shadow instrument revert: `Unregister-ScheduledTask -TaskName Gamma_LadderRungShadow -Confirm:$false` + delete its 3 files.
+### DEGRADED: self-check 2026-08-07T22:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 27 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 10x), run-kitchen-seeder.ps1 (exit=[1], 14x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-07T23:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 28 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 11x), run-kitchen-seeder.ps1 (exit=[1], 14x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-08-08T03:30:11+00:00
+- date_et: 2026-08-07
+- total: $183.80 (threshold $30.00)
+- claude: $183.76  minimax: $0.05
+- claude_sessions: 16
+
+### DEGRADED: self-check 2026-08-07T23:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 20 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 20x bold: 3 day-trades in 5d at equity $5,478 < $25,000 — PDT rule blocks a 4th day-trade
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- TRENDLINE-DRAW never marked today (2026-08-07) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-07.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[1], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 11x), run-kitchen-seeder.ps1 (exit=[1], 15x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
