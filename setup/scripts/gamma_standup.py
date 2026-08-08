@@ -125,6 +125,7 @@ CHAR_CAP = 1200
 COMMIT_BULLET_MAX_CHARS = 150
 MAX_PATH_TOKEN_LEN = 40
 CATASTROPHE_CAP_CADENCE = 20
+FOCUS_MAX_CHARS = 110
 
 # Fixed, test-enforced. Never let one of these leak into a real Discord message.
 BANNED_SUBSTRINGS = ["DEGRADED", "MASKED EXIT", "Traceback", "exit=[", "jsonl"]
@@ -322,6 +323,67 @@ def _backlog_bullet(n: Optional[int], *, tense: str) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------- #
+# "focus" field (2026-08-08, gamma_hq.py flag #4) -- a one-line, GAMMA-HQ-ready
+# summary derived from the TODAY section's own bullet, written into
+# gamma-standup-latest.json alongside the existing keys (schema ADDITION, still
+# backward compatible -- any older reader that doesn't know "focus" just
+# ignores it). Morning-only: EOD composes have no TODAY section, so
+# gather_facts leaves facts["focus"] = None for eod and gamma_hq.py's
+# _today_focus_text falls back to its own first-line-of-text derivation then.
+# --------------------------------------------------------------------------- #
+
+_MARKDOWN_LIST_PREFIX_RE = re.compile(r"^[-*]\s+")
+_MARKDOWN_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+_MARKDOWN_BOLD_ALT_RE = re.compile(r"__(.+?)__")
+_MARKDOWN_CODE_RE = re.compile(r"`([^`]+)`")
+
+
+def _strip_markdown(text: str) -> str:
+    """Best-effort plain-text extraction from a markdown-ish source line: drop
+    a leading list-item marker ("- "/"* "), unwrap **bold**/__bold__/`code`
+    runs (keep the inner text), collapse whitespace. Not a full markdown
+    parser -- just enough that a stray "-"/"**" never reaches the one-line
+    focus field. today_bullet's own text never actually contains markdown
+    today (it's a plain composed sentence -- see _backlog_bullet), but the
+    spec calls for stripping it and a future TODAY-section source could add
+    some, so this runs unconditionally rather than being skipped as "not
+    needed yet"."""
+    t = _MARKDOWN_LIST_PREFIX_RE.sub("", text.strip())
+    t = _MARKDOWN_BOLD_RE.sub(r"\1", t)
+    t = _MARKDOWN_BOLD_ALT_RE.sub(r"\1", t)
+    t = _MARKDOWN_CODE_RE.sub(r"\1", t)
+    return " ".join(t.split())
+
+
+def _truncate_at_word_boundary(text: str, max_len: int, ellipsis: str = "...") -> str:
+    """Truncate to at most max_len characters, cutting at the last whitespace
+    boundary within budget rather than mid-word, then appending `ellipsis`.
+    Standalone sibling of the word-boundary discipline _humanize_commit_subject
+    already applies inline to commit bullets (.rsplit(" ", 1)[0] + "...") --
+    same style (ASCII "...", not a unicode ellipsis) for consistency within
+    this file, kept as its own small helper rather than touching that
+    established, separately-tested function."""
+    if len(text) <= max_len:
+        return text
+    budget = max_len - len(ellipsis)
+    if budget <= 0:
+        return text[:max_len]
+    cut = text[:budget].rsplit(" ", 1)[0]
+    cut = (cut or text[:budget]).rstrip(" ,.;:-")
+    return cut + ellipsis
+
+
+def _derive_focus(today_bullet: Optional[str]) -> str:
+    """One-line 'focus' field for gamma-standup-latest.json: the TODAY
+    section's bullet -- mirrors compose_morning_text's own TODAY-section
+    fallback phrase EXACTLY when the backlog count is unavailable (today_bullet
+    is None), so this can never diverge from what the composed message itself
+    actually shows -- markdown-stripped, capped at FOCUS_MAX_CHARS."""
+    raw = today_bullet if today_bullet else "Nothing queued -- reading the tape as it comes."
+    return _truncate_at_word_boundary(_strip_markdown(raw), FOCUS_MAX_CHARS)
+
+
+# --------------------------------------------------------------------------- #
 # Wants registry -- I WANT section (morning: plain top-3; eod: delta-annotated).
 # --------------------------------------------------------------------------- #
 
@@ -463,6 +525,7 @@ def gather_facts(mode: str, day: str, now_et: datetime) -> dict:
             _commit_bullets("4 days ago", "18 hours ago", max_n=4) if facts["is_monday"] else []
         )
         facts["today_bullet"] = _backlog_bullet(_queue_unchecked_count(QUEUE_MD_PATH), tense="today")
+        facts["focus"] = _derive_focus(facts["today_bullet"])
 
         wants_top = _top_wants(_read_json(WANTS_PATH), n=3)
         facts["wants_top"] = wants_top
@@ -477,6 +540,10 @@ def gather_facts(mode: str, day: str, now_et: datetime) -> dict:
         learned = _commit_bullets(_et_midnight_iso(day), max_n=1)
         facts["learned_bullet"] = learned[0] if learned else None
         facts["tomorrow_bullet"] = _backlog_bullet(_queue_unchecked_count(QUEUE_MD_PATH), tense="tomorrow")
+        # No TODAY section in EOD mode -- nothing to derive a focus line from.
+        # gamma_hq.py's _today_focus_text falls back to its own first-line-of-
+        # text derivation (over EOD's "text" field) when focus is None.
+        facts["focus"] = None
 
         wants_top = _top_wants(_read_json(WANTS_PATH), n=3)
         prev_latest = _read_json(LATEST_PATH)
@@ -624,6 +691,7 @@ def main(argv: Optional[list] = None) -> int:
         "text": text,
         "char_len": len(text),
         "wants_shown": wants_shown,
+        "focus": facts.get("focus"),  # schema addition 2026-08-08 -- str (morning) or None (eod)
     }
 
     print(f"[gamma_standup:{args.mode}] {day} ({len(text)} chars)")

@@ -72,15 +72,32 @@ if ($already) {
 # legacy console BufferSize/WindowSize APIs and manages tab size itself, so this
 # is wrapped in try/catch -- if it no-ops or throws, the window still opens, just
 # at whatever size the host defaults to.
+#
+# RESIZE MUST NOT BLOCK THE USER (gamma_hq.py CHANGES #1, 2026-08-08): a legacy
+# conhost window can never be dragged wider than $Host.UI.RawUI.BufferSize.Width
+# -- the PREVIOUS version of this block pinned BOTH BufferSize.Width AND
+# WindowSize.Width to the same value (100), which would have capped the user's
+# max resize-width at exactly the initial size on that host. Fixed by growing
+# the buffer to a generous ceiling (200 cols / 3000 rows -- comfortably above
+# gamma_hq.py's own MAX_WIDTH=160 render clamp, so the app can never even USE
+# more than the buffer allows) BEFORE setting the smaller initial WindowSize
+# (110x40, per spec). Both floors are monotonic (`-lt` guarded) so an
+# already-larger buffer from a prior session is never shrunk. Verified
+# headlessly this session: run against a real $Host.UI.RawUI (BufferSize
+# 120x9001 in that shell) the block completed without throwing and correctly
+# grew width 120->200 while leaving the already-larger height untouched --
+# true interactive click-and-drag resize behavior still can't be observed from
+# a non-interactive session, but the API calls themselves are proven safe.
 $resizeAndTitle = @'
 $Host.UI.RawUI.WindowTitle = 'GAMMA HQ'
 try {
     $b = $Host.UI.RawUI.BufferSize
-    $b.Width = 100
+    if ($b.Width -lt 200) { $b.Width = 200 }
+    if ($b.Height -lt 3000) { $b.Height = 3000 }
     $Host.UI.RawUI.BufferSize = $b
     $w = $Host.UI.RawUI.WindowSize
-    $w.Width = 100
-    $w.Height = 35
+    $w.Width = 110
+    $w.Height = 40
     $Host.UI.RawUI.WindowSize = $w
 } catch {}
 '@

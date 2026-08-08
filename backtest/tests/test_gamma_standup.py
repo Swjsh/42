@@ -270,6 +270,74 @@ def test_backlog_bullet_tomorrow_tense():
 
 
 # ============================================================================
+# "focus" field (2026-08-08 follow-up, gamma_hq.py flag #4):
+# _strip_markdown / _truncate_at_word_boundary / _derive_focus
+# ============================================================================
+
+def test_strip_markdown_drops_list_prefix():
+    assert gs._strip_markdown("- some bullet text") == "some bullet text"
+    assert gs._strip_markdown("* some bullet text") == "some bullet text"
+
+
+def test_strip_markdown_unwraps_bold():
+    assert gs._strip_markdown("**bold** and __also bold__") == "bold and also bold"
+
+
+def test_strip_markdown_unwraps_code():
+    assert gs._strip_markdown("run `pytest -x` now") == "run pytest -x now"
+
+
+def test_strip_markdown_collapses_whitespace():
+    assert gs._strip_markdown("  a   b\nc  ") == "a b c"
+
+
+def test_strip_markdown_plain_text_unchanged():
+    assert gs._strip_markdown("nothing fancy here") == "nothing fancy here"
+
+
+def test_truncate_at_word_boundary_short_text_unchanged():
+    assert gs._truncate_at_word_boundary("short text", 20) == "short text"
+
+
+def test_truncate_at_word_boundary_never_cuts_mid_word():
+    text = "word " * 40
+    result = gs._truncate_at_word_boundary(text.strip(), 30)
+    assert len(result) <= 30
+    assert result.endswith("...")
+    for w in result[: -len("...")].split():
+        assert w in text
+
+
+def test_truncate_at_word_boundary_one_unbroken_token_hard_slices():
+    result = gs._truncate_at_word_boundary("x" * 200, 20)
+    assert len(result) <= 20
+    assert result.endswith("...")
+
+
+def test_derive_focus_uses_today_bullet_directly():
+    bullet = "5 open research items; today I'm on the top one."
+    assert gs._derive_focus(bullet) == bullet
+
+
+def test_derive_focus_fallback_when_today_bullet_none():
+    # Mirrors compose_morning_text's own TODAY-section fallback phrase
+    # verbatim -- the focus field must never diverge from what the composed
+    # message itself shows.
+    assert gs._derive_focus(None) == "Nothing queued -- reading the tape as it comes."
+
+
+def test_derive_focus_strips_markdown():
+    assert gs._derive_focus("- **today**: ship the thing") == "today: ship the thing"
+
+
+def test_derive_focus_caps_at_focus_max_chars():
+    long_bullet = ("word " * 40).strip()
+    result = gs._derive_focus(long_bullet)
+    assert len(result) <= gs.FOCUS_MAX_CHARS
+    assert result.endswith("...")
+
+
+# ============================================================================
 # _cap_clock_segment / _shadow_segment / _compose_clocks_line
 # ============================================================================
 
@@ -433,6 +501,10 @@ def test_compose_morning_full_fixture(state_paths, monkeypatch):
     assert "Clocks: SSR shadow 0/20 · MES mirror 48/20 (needs beats-null) · Cap shadow 13/20" in text
     assert "WEEKEND RECAP" not in text
     assert len(text) <= gs.CHAR_CAP
+    # "focus" field (2026-08-08 follow-up) -- must match the TODAY bullet
+    # verbatim, since gamma_hq.py's GAMMA HQ window renders it directly.
+    assert facts["focus"] == "5 open research items; today I'm on the top one."
+    assert facts["focus"] == facts["today_bullet"]
 
 
 def test_compose_eod_full_fixture(state_paths, monkeypatch):
@@ -460,6 +532,20 @@ def test_compose_eod_full_fixture(state_paths, monkeypatch):
     assert "**I WANT**" in text
     assert "want a" in text
     assert len(text) <= gs.CHAR_CAP
+    # EOD has no TODAY section -- "focus" must stay None (gamma_hq.py falls
+    # back to first-line-of-"text" for EOD-mode standups).
+    assert facts["focus"] is None
+
+
+def test_gather_facts_morning_focus_fallback_when_queue_unreadable(state_paths, monkeypatch):
+    # queue.md is never written in this fixture -- _queue_unchecked_count
+    # returns None, so today_bullet is None too; focus must fall back to the
+    # SAME phrase compose_morning_text's own TODAY section would show.
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    assert facts["today_bullet"] is None
+    assert facts["focus"] == "Nothing queued -- reading the tape as it comes."
 
 
 def test_missing_everything_produces_valid_short_message(state_paths, monkeypatch):
@@ -713,6 +799,28 @@ def test_real_run_appends_one_row_and_writes_latest_json(state_paths, monkeypatc
     assert latest["mode"] == "eod"
     assert "text" in latest and latest["text"].startswith("EOD from Gamma.")
     assert "wants_shown" in latest
+    # "focus" schema addition (2026-08-08 follow-up) -- present but null for
+    # EOD (no TODAY section to derive it from).
+    assert "focus" in latest
+    assert latest["focus"] is None
+
+
+def test_real_morning_run_writes_focus_field_to_latest_json_round_trip(state_paths, monkeypatch):
+    # Full round-trip: real (non-dry-run) morning main() call -> compose ->
+    # write_latest() -> read the json back off disk -> "focus" is present,
+    # correct, and every pre-existing key is still there too (schema ADDITION,
+    # backward compatible -- nothing was removed or renamed).
+    _no_git(monkeypatch)
+    _write_text(state_paths["queue_md"], "\n".join(f"- [ ] item{i}" for i in range(3)) + "\n")
+    rc = gs.main(["--mode", "morning"])
+    assert rc == 0
+
+    assert state_paths["latest"].exists()
+    latest = json.loads(state_paths["latest"].read_text(encoding="utf-8"))
+    assert latest["focus"] == "3 open research items; today I'm on the top one."
+    assert {"mode", "day", "generated_et", "text", "char_len", "wants_shown", "focus"} <= set(latest.keys())
+    assert latest["mode"] == "morning"
+    assert f"- {latest['focus']}" in latest["text"]  # matches the TODAY bullet actually shown
 
 
 def test_real_run_twice_appends_two_rows(state_paths, monkeypatch):
