@@ -1,0 +1,41 @@
+{
+  "prereg_id": "GATE-REVALIDATION-2026-08-08",
+  "prereg_file": "analysis/recommendations/prereg-gate-revalidation-2026-08-08.json",
+  "cell_id": "CELL_3_filter_10_min_triggers_bull",
+  "account": "safe",
+  "params_key": "filter_10_min_triggers_bull",
+  "window": "2026-06-25..2026-08-07",
+  "replay_method": "NOT NEEDED -- population is n=0 by construction (see correction_finding)",
+  "audit_original_claim": {
+    "population_definition": "bull_blockers == [11] exactly (sole-blocked)",
+    "n": 275,
+    "characterization": "'a real trigger existed... refused solely for having only one' (gate-recency-audit-2026-08-08.md)"
+  },
+  "correction_finding": {
+    "method": "cross-tabulated the audit's own sole-[11] population against bull_triggers_raw (score.bull.triggers_fired, the SAME local `triggers` list filters.py's blocker-11 check reads) -- P&L-blind, population-structure only, done BEFORE any replay per the prereg.",
+    "finding": "ALL 275 of the naive sole-[11] rows carry bull_triggers_raw==[] (zero real triggers, not one). Separately, across the full ledger there are 81 Safe rows with exactly 1 real trigger (always 'ribbon_flip', never level-tied) -- and NONE of those 81 have bull_blockers==[11] alone; every one co-fires with >=1 OTHER filter (chiefly filter 10 'buyer pressure', 60/81).",
+    "corrected_population_n": 0,
+    "consequence": "The proposed diff (filter_10_min_triggers_bull: safe 2 -> 1, matching Bold) would change the verdict on ZERO historical ticks: the 551-combined 'sole-blocked' figure is 0-trigger noise Bold's own floor=1 blocks identically, and the 81 real-1-trigger Safe ticks the 2-floor uniquely touches are EVERY ONE of them ALSO blocked by a different, unrelaxed filter."
+  },
+  "g_battery": {
+    "gates": {
+      "G_mean": false,
+      "G_oos": false,
+      "G_drop3": false,
+      "G_bhfdr": false,
+      "G_n": false
+    },
+    "verdict": "NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL)",
+    "pval": 1.0
+  },
+  "params_diff": {
+    "key": "filter_10_min_triggers_bull",
+    "current": {
+      "safe": 2
+    },
+    "proposed": "NOT RECOMMENDED -- see correction_finding (mechanically empty affected population)"
+  },
+  "kill_criterion": "NOT APPLICABLE -- no flip proposed. If J still wants Safe's bull min_triggers relaxed for OTHER reasons (e.g. matching Bold's threshold on principle, independent of this cell's empty-population finding), that is a fresh, differently-scoped decision this study does not speak to.",
+  "guard_test_snippet": "def test_filter_10_min_triggers_bull_unchanged_pending_reratification():\n    # GATE-REVALIDATION-2026-08-08 CELL 3: NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL).\n    # The proposed unblock (safe 2 -> 1) affects ZERO historical ticks -- see\n    # correction_finding. Pins the CURRENT value.\n    import json\n    params = json.loads(open('automation/state/params.json', encoding='utf-8').read())\n    assert params['filter_10_min_triggers_bull'] == 2",
+  "generated_at": "2026-08-08T14:35:51.227156"
+}

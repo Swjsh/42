@@ -1,0 +1,97 @@
+{
+  "prereg_id": "GATE-REVALIDATION-2026-08-08",
+  "_doc": "FROZEN PRE-REGISTRATION -- committed BEFORE backtest/tools/gate_revalidation_ab.py's replay/outcome pass runs. J's directive tonight: 'why do we still have gates blocking profitable trades?' Runs the pre-registered revalidation for the THREE gates analysis/recommendations/gate-recency-audit-2026-08-08.md ranked most-likely-costing-money. GRID IS EXACTLY THESE 3 CELLS. No additions, no swapping in a 4th gate mid-session even if something more interesting turns up (flag it via the spawn_task mechanism instead).",
+
+  "SOUNDNESS_AUDIT_OF_THE_REUSED_INSTRUMENT (done BEFORE any P&L touched, per mission order)": {
+    "instrument_audited": "backtest/autoresearch/gate_expiry_check.py (J's own gate-expiry checker, automation/state/gate-registry-status.json)",
+    "mining_and_attribution_layer_VERDICT": "SOUND, REUSED VERBATIM. load_decision_rows (tail-read core-decisions.jsonl, armed=true only), cluster_events (15-min same-gate fold into one tradeable event), bar_idx_for_ts (locates the last SPY 5m bar at-or-before the decision ts, drops a bar whose OWN date differs from ts's date as a stale-bar echo -- the exact GATE-PROVENANCE-SWEEP-2026-07-10 contamination class), and _stop_level_for_row (trigger_level_exact -> bull/bear raw level -> _swing_stop fallback) are all pure, read-only, no look-ahead in the SIGNAL-IDENTIFICATION sense (the bar located is always <= the decision timestamp). Imported directly from gate_expiry_check.py, not copy-pasted.",
+    "forward_replay_layer_VERDICT": "UNSOUND -- simulate_event's call to lib.simulator_real.simulate_trade_real is the wrong tool, on TWO independently-documented, dated grounds, not one:",
+    "finding_1_exit_shape_divergence": "automation/overnight/GOAL-REPLAY-TODAY-GREEN.md's 2026-07-17 FRAME AUDIT (iteration 6) root-caused that simulate_trade_real reads exit knobs from params.json's TOP-LEVEL keys (tp1_premium_pct=0.5, profit_lock_mode='fixed', runner_target_pct=2.5), but heartbeat_core.py's REAL exit_manager registration for ribbon_ride entries (BOTH core accounts) reads automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict() instead (tp1_premium_pct=1.0, profit_lock_mode='trailing' chandelier, runner_target_pct=99.0, stop_mode='structure'). Measured: live ran the 07-17 core_safe 746P to +$241; the sim breakeven-zeroed it in 2 minutes. This is the exact scar backtest/tools/tp1_reachability_2026_08_06.py cites verbatim: 'Exits are re-derived ONLY through backtest/lib/exit_manager_walk.walk_exit_manager ... NEVER simulator_real.simulate_trade_real (2026-07-09 SIM-EXIT-SHAPE-PARITY scar).'",
+    "finding_2_intrabar_lookahead": "markdown/research/BACKTESTING-PLAYBOOK.md section 2.12 ('Same-bar trailing-stop ratchet = intrabar look-ahead', found 2026-07-11): simulate_trade_real's profit-lock block updates the trailing floor from the CURRENT bar's high, then checks the SAME bar's low against the just-ratcheted stop and fills the exit AT the ratcheted level -- a documented C6 violation under a module header that claims 'NO LOOK-AHEAD'. Measured cost on the cited P5 top cell: recorded +$34.32/tr collapsed to -$11.34/tr once look-ahead was removed and gap-aware fills were added -- a $46.32/tr swing, LARGER than the cell's own recorded expectancy.",
+    "conclusion": "gate_expiry_check.py's own P&L verdicts (structure_veto_enabled RED +$32.69/tr n=11; require_bearish_fill_bar RED +$22.96/tr n=36) are NOT re-derivable as sound evidence -- they were computed through the flagged-unsound simulator. This revalidation REUSES the instrument's mining/attribution layer (sound) and REPLACES its forward-replay layer with backtest/lib/exit_manager_walk.walk_exit_manager, which ticks the ACTUAL production exit_manager.plan_exit_actions core -- the same sound path prereg-tp1-reachability-2026-08-06.json and exit_manager_replay.py (faithfulness-tested against real broker fills, 2026-07-17) both use. This is expected to produce DIFFERENT n and DIFFERENT $/tr than gate-registry-status.json for cells 1 and 2 -- a divergence from the flagged-unsound baseline is evidence the fix mattered, not a bug in this study.",
+    "entry_bar_convention_used": "ENTRY+1: the refused tick's own decision-moment SPY bar (located via bar_idx_for_ts, matching gate_expiry_check.py's own convention) is treated as the SIGNAL bar. The fill is sourced from the OPTION contract's own 5-min bar at-or-after (bar_at_or_after) the signal bar's close + 5min (the SAME 'next bar's open, after the trigger bar' convention documented in option_pricing_real.py and implemented in simulator_real.py's next_bar_start/bar_at_or_after -- reused for consistency, only the EXIT walk swapped out). walk_exit_manager's own strict '>' entry-bar-exclusion (pinned by backtest/tests/test_exit_manager_walk_entry_bar_convention.py, ruling ENTRY-BAR-CONVENTION-RULING-2026-07-25) then starts managing exits from the bar strictly after THAT fill bar -- so no bar's own quote ever resolves its own entry."
+  },
+
+  "CORRECTION_TO_THE_AUDIT_FOUND_DURING_POPULATION_SIZING (P&L-BLIND, done before any replay)": {
+    "claim_being_checked": "gate-recency-audit-2026-08-08.md rank #1 / cell 3: 'filter_10_min_triggers_bull=2 (Safe) vs Bold's 1 -- 551 sole-blocked bull ticks/15d ... Safe's bull side had a real trigger but was refused solely for having only one.'",
+    "method": "Mined the FULL core-decisions.jsonl (23,505 rows, 2026-06-25..2026-08-07) for every armed=true Safe row where bull_blockers==[11] exactly (the audit's own 'sole-blocker' definition), and cross-tabulated against bull_triggers_raw (score.bull.triggers_fired -- the SAME local `triggers` list backtest/lib/filters.py's evaluate_bullish_setup checks at blocker-11's own two conditions: (a) len(triggers) < min_triggers, (b) len(triggers) >= min_triggers but none level-tied). This is population STRUCTURE, not outcome/P&L data -- no dollar figure was examined before this correction was written, so freezing it here is a feasibility/power check, not a result peek.",
+    "finding": "ALL 275 of Safe's sole-[11] rows (and all 276 of Bold's) carry bull_triggers_raw==[] -- ZERO real triggers, not one. The audit's 'single trigger already present' characterization does not match the ledger. Separately: across the FULL ledger, Safe has exactly 81 rows with bull_triggers_raw length==1 (always the single trigger 'ribbon_flip', never a level-tied trigger) -- and NONE of those 81 rows have bull_blockers==[11] alone; every one of them co-fires with >=1 OTHER blocker (filter 10 'buyer pressure' in 60/81, VIX/HTF filters 6/7/8 in the remainder). Zero rows exist anywhere in the ledger with >=2 triggers and blocker 11 present.",
+    "consequence_for_this_cell": "The proposed diff (filter_10_min_triggers_bull: safe 2 -> 1, matching Bold) has a MECHANICALLY EMPTY affected population on the ledger to date: the 551 combined 'sole-blocked' ticks are 0-trigger noise that Bold's own floor=1 blocks identically (0 < 1), and the 81 real-1-trigger Safe ticks that the 2-floor uniquely blocks are EVERY ONE of them ALSO blocked by a different, untouched filter (chiefly filter 10 buyer-pressure) -- so relaxing this one key changes the verdict on ZERO historical ticks. This is disclosed here, BEFORE any replay, as the frozen population-sizing fact the cell's G-battery will be run against (see cells_frozen.CELL_3 below): the G-battery is still run per the mission's instruction, but every population-size gate is mechanically pre-determined to read n=0 by this finding, not by a result peeked at afterward.",
+    "reference": "See backtest/tests/test_gate_revalidation_ab.py::test_cell3_population_classifier_zero_trigger_excluded for a guard pinning this classification logic against regressing back to the audit's original (incorrect) sole-blocker-only definition."
+  },
+
+  "cells_frozen": {
+    "CELL_1_structure_veto_enabled": {
+      "account": "safe",
+      "params_key": "structure_veto_enabled",
+      "current_value": true,
+      "proposed_value": false,
+      "skip_action": "SKIP_STRUCTURE_VETO",
+      "population_rule": "every row in core-decisions.jsonl where account=='safe', verdict=='SKIP_STRUCTURE_VETO', armed==true, clustered 15-min same-gate-fires-into-one-event (gate_expiry_check.cluster_events, reused verbatim).",
+      "window": "2026-06-26 (params.json _structure_veto_enabled_doc armed_date, git-confirmed unchanged since) .. 2026-08-07 (core-decisions.jsonl's last present date) -- the FULL history the ledger supports under the gate's current form, not a 15-day slice.",
+      "side_mix": "BOTH C and P -- this veto blocks BEAR/P entries into a same-day uptrend AND BULL/C entries into a same-day downtrend (wrong-way protection, symmetric by design)."
+    },
+    "CELL_2_require_bearish_fill_bar": {
+      "account": "bold",
+      "params_key": "require_bearish_fill_bar",
+      "current_value": true,
+      "proposed_value": false,
+      "skip_action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "population_rule": "every row where account=='bold', verdict=='SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY', armed==true, clustered 15-min.",
+      "window": "2026-06-25 (ledger's own first date -- the gate was armed 2026-06-19, BEFORE the ledger begins, so the ledger's full range is the longest window it can support) .. 2026-08-07.",
+      "side_mix": "P only (gates.py:308 -- side=='P' is a hard precondition)."
+    },
+    "CELL_3_filter_10_min_triggers_bull": {
+      "account": "safe",
+      "params_key": "filter_10_min_triggers_bull",
+      "current_value": 2,
+      "proposed_value": 1,
+      "population_rule_CORRECTED": "every row where account=='safe', armed==true, bull_blockers==[11] exactly (sole-blocked), AND len(bull_triggers_raw) >= 1 (the audit's own framing -- 'a real trigger existed'; the >=1 filter is the correction documented above, since the naive sole-[11] filter alone yields the audit's 551/275 figure but that population is 100% zero-trigger and therefore NOT what 'relaxing 2->1' would ever unblock).",
+      "window": "2026-06-25 (ledger start; git log -S confirms filter_10_min_triggers_bull has held value 2 across every commit touching automation/state/params.json in the tracked history -- 'armed in its current form' for the ledger's ENTIRE range) .. 2026-08-07.",
+      "n_mechanically_determined_pre_replay": 0,
+      "note": "No sampling parameter (k / deterministic every-kth) is needed for this cell: the corrected population is empty, so the '<=120 replays, sample deterministically' instruction from the mission is inapplicable -- there is nothing to sample. This is stated here, before any replay ran, not discovered after a disappointing result."
+    }
+  },
+
+  "replay_method_frozen": {
+    "exit_walk": "backtest/lib/exit_manager_walk.walk_exit_manager, driving automation/state/fleet/exit_manager.plan_exit_actions (the REAL production exit core) tick-by-tick over the cached 5-min OPRA option bars (only resolution this repo's disk cache serves; opt_df_resolution='5min' passed explicitly and disclosed, not silently defaulted).",
+    "exit_shape": "automation/state/fleet/strategies.py RIBBON_RIDE.exit.to_dict() -- read live from source at run time (not a hardcoded copy), since exit_manager_replay.py (2026-07-17) confirmed BOTH core accounts (safe-2/bold-2 alias to core_safe/core_bold) register this SAME shared shape with an EMPTY arm-level exit_patch.",
+    "structure_stop_enabled": "read live from each account's own params.json (confirmed true, both accounts).",
+    "time_stop_et": "read live from each account's own params.json ('time_stop_et': '15:40' both -- NOT the fleet's 15:50 default; exit_manager_replay.py's own convention).",
+    "qty": "Safe=3, Bold=5 -- matches params.json/aggressive/params.json min_contracts (the live executor's proposed_qty currently equals min_contracts on every recent ENTER row inspected; also matches autoresearch/recency_check.py's QTY_BY_ACCOUNT).",
+    "strike": "ATM via _strike_from_spot(spot) then _nearest_cached_strike(date, atm, side, max_steps=4) -- reused verbatim from autoresearch/infinite_ammo_discovery.py, same as gate_expiry_check.py.",
+    "stop_level_for_structure_stop": "_stop_level_for_row (reused verbatim from gate_expiry_check.py): trigger_level_exact -> bull_reclaim_level_raw/bear_rejection_level_raw -> _swing_stop fallback.",
+    "known_limitation_disclosed": "This replay does NOT re-verify whether a refused tick would ALSO have been blocked by a DIFFERENT, un-relaxed gate positioned LATER in GATE_ORDER than the cell's own gate (GATE_ORDER short-circuits at the first failing gate, so downstream gates were never evaluated for a refused tick). This is the SAME scope limitation gate_expiry_check.py itself carries -- not a new gap introduced here. For cell 1 (structure_veto, which runs BEFORE all 15 GATE_ORDER gates in engine_cli.py) this risk is LOWER (nothing upstream could have already blocked it, but downstream GATE_ORDER gates 1-15 are unverified). For cell 2 (require_bearish_fill_bar, GATE_ORDER #7) gates 8-15 are unverified. Flagged, not solved, in this pass."
+  },
+
+  "stats_frozen": {
+    "one_sample_p": "ported verbatim from backtest/tools/bull_gate_f5class_requal_2026_08_01.py:307 (itself ported from shelf_hold_reclaim_study.py) -- analytic two-sided p-value via Welch-style t-stat / erf. Feeds BH-FDR, matching the tp1-reachability G8 gate's own convention exactly.",
+    "bh_fdr": "ported verbatim from the same source, q=0.10, run across the 3-cell family (cell 3 contributes p=1.0 by construction -- n=0, no evidence of any effect -- rather than being silently excluded, so the family size stated in the mission (3) is honored literally).",
+    "bootstrap_p_vs_random_entry_null": "A SEPARATE, additional disclosed statistic (not a BH-FDR input) answering a different question than one_sample_p: 'is this cohort's mean distinguishable from buying the SAME side at UNIFORMLY RANDOM RTH ticks (09:35-15:00 ET, the v15.1 entry window) in the SAME window, side-matched to the cohort's own C/P mix?' Method: build a per-cell, per-side candidate universe = every RTH 5-min SPY bar in the cell's window; for B=150 draws, sample (without replacement within a draw) n bars per side matching the observed cohort's side-mix, replay each via the SAME walk_exit_manager path, take the draw's mean; p = (1 + #{null draws with mean >= observed cohort mean}) / (B + 1) (add-one-smoothed one-sided permutation p, standard convention, avoids a fragile p=0). B=150 is a compute-bounded, disclosed choice (up to 150 x n replays per cell beyond the cohort's own replay) -- not a claim of infinite-precision significance.",
+    "drop_top3": "generalizes bull_gate_f5class_requal_2026_08_01.py's drop_best (which drops exactly 1 winner) to drop the min(3, n_winners) LARGEST positive per-trade P&Ls from the total -- only ever removes actual wins, matching drop_best's own semantics for an all-losing cohort (drop_top3 == raw total when there are 0 winners).",
+    "halves_IS_OOS": "cohort events sorted chronologically by ts_et, split at the event-count midpoint (first half = IS, second half = OOS) -- 'IS/OOS by date' operationalized as a chronological midpoint split, consistent with the mission's recency framing (this is a revalidation of a SHORT-lived armed gate, not a multi-year walk-forward, so a calendar-anchored IS/OOS like OOS_2026_START would degenerate to 100% OOS or 0%)."
+  },
+
+  "g_battery_frozen": {
+    "G_mean": "refused-cohort mean net P&L (after friction, i.e. the walked dollar_pnl) > 0.",
+    "G_oos": "OOS-half (second half chronologically) mean net P&L > 0.",
+    "G_drop3": "cohort total minus the sum of its (up to) 3 largest per-trade wins still > 0.",
+    "G_bhfdr": "cell's one_sample_p survives Benjamini-Hochberg at q=0.10 across the 3-cell family.",
+    "G_n": "n >= 15.",
+    "verdict_rule": "UNBLOCK-ELIGIBLE iff G_mean AND G_oos AND G_drop3 AND G_bhfdr AND G_n ALL pass. If every gate EXCEPT G_n passes, verdict = UNDERPOWERED (stated with an accrual recommendation: how many more trading days at the cell's own recent fire-rate would be needed to cross n=15). Any other single failure (G_mean, G_oos, G_drop3, or G_bhfdr, regardless of G_n) = NOT-UNBLOCK-ELIGIBLE -- a substantive failure, not a power problem, and is reported as such even if n happens to be large.",
+    "cell_3_special_case": "n=0 by mechanical construction (see CORRECTION above) -- every gate in the battery reads FAIL/NOT-APPLICABLE by construction; verdict = NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL), a stronger and more permanent finding than UNDERPOWERED (no accrual clock will ever populate this specific population under the gate's current co-blocker interactions; time will not fix it, only a DIFFERENT change -- e.g. also relaxing filter 10 -- could, and that is explicitly out of this grid's scope)."
+  },
+
+  "kill_criterion_template_for_any_unblock_eligible_cell": "Cell-attributable net <= -$150 over the first 5 live sessions after the flip -> revert same day (one-line params.json/aggressive/params.json diff, byte-identical to the pre-flip value).",
+
+  "outputs": [
+    "analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json",
+    "analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-08.json",
+    "analysis/recommendations/gate-revalidation-min_triggers_bull-2026-08-08.json",
+    "analysis/recommendations/GATE-REVALIDATION-RESULTS-2026-08-08.md",
+    "backtest/tools/gate_revalidation_ab.py",
+    "backtest/tests/test_gate_revalidation_ab.py"
+  ],
+
+  "no_other_knobs": "Exactly the 3 named params keys are tested, one at a time, against their own refused cohort. No entry filter, exit knob, sizing change, or 4th gate is combined with any cell. ANALYSIS ONLY -- no params.json/aggressive/params.json file is touched by this study; a ready-to-apply diff is proposed for any UNBLOCK-ELIGIBLE cell, applied only by the orchestrator's own adjudication."
+}
