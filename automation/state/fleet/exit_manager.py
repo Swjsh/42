@@ -475,7 +475,11 @@ def plan_exit_actions(
                                       reason=f"time_stop_{time_stop_et.strftime('%H:%M')}",
                                       stage="time_stop"))
             return ExitDecision(pre_state, tuple(actions))
-        # (c) ribbon-flip-back -> exit ALL at market (caller already applied spread+buffer rule)
+        # (c) ribbon-flip-back -> exit ALL at market. NOTE (corrected 2026-08-08): callers
+        # apply NO spread/buffer rule -- both real callers (heartbeat_core._ribbon_flip_fn
+        # live; exit_manager_walk replay) pass a bare single-tick categorical stack equality.
+        # The prior comment claiming a caller-side "spread+buffer rule" was aspirational,
+        # never implemented (verified by the 2026-08-08 ribbon-flipback-buffer prereg sweep).
         if ribbon_flip_back:
             actions.append(ExitAction("SELL_ALL", qty=open_qty,
                                       reason="ribbon_flip_back", stage="ribbon_flip"))

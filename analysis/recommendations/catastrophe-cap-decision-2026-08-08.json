@@ -1,0 +1,27 @@
+{
+  "_doc": "CATASTROPHE-CAP-WIDEN-WATCH pre-registered decision at the n>=10 accrual threshold (filed 2026-07-23, mechanism shipped 2026-08-03, adjudicated 2026-08-08 05:00 ET). Evidence = analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl, n=13 catastrophe-cap fires 2026-07-23..2026-08-07, every row carrying its held-to-EOD counterfactual.",
+  "decided_at_et": "2026-08-08T05:05:00",
+  "n_fires": 13,
+  "evidence": {
+    "cap_was_right": 9,
+    "better_held": 4,
+    "actual_total": -3056.0,
+    "held_to_eod_counterfactual_total": -2338.0,
+    "delta_held_minus_actual": 718.0,
+    "concentration": "all 4 better-held fires sit on 2 recent dates (2026-08-05, 2026-08-07) and all 4 would have flipped to profit; the 9 cap-right fires span 5 dates and include the 2 largest saves (-504, -310 avoided). Drop those 2 recent dates -> holding loses on every remaining fire.",
+    "earlier_n7_read_2026_08_03": "0/7 better held (actual -1004 vs held -2248)"
+  },
+  "decision": "DO_NOT_WIDEN -- keep catastrophe_stop_pct at -0.50 on both accounts. The widen/hold signal is majority-refuted per-fire (9/13 cap-right), and the positive aggregate is 2-day concentrated -- the exact regime-conditional shape STOPPED-THEN-PAID-2026-08-04 already marked SETTLED-unshippable given REGIME-EARLY-CLASSIFIER-2026-08-02 (no lookahead-safe regime signal at entry; best classifier scores below majority-class baseline).",
+  "prior_art": [
+    "analysis/deep-research/STOPPED-THEN-PAID-2026-08-04.md (settled: widen-the-stop is regime-conditional, unshippable)",
+    "analysis/deep-research/REGIME-EARLY-CLASSIFIER-2026-08-02.md (no working entry-time regime classifier)",
+    "catastrophe-stop-shakeout-2026-07-23 (original n=4 underpowered signal that opened this lane)"
+  ],
+  "forward": {
+    "accrual_continues": true,
+    "mechanism": "catastrophe_cap_shadow_ledger.py stays folded into Gamma_WinnerAutopsy 16:25 ET (no change needed)",
+    "next_adjudication": "n>=20 fires OR a lookahead-safe regime classifier clearing majority-class baseline ships, whichever first",
+    "kill_criterion_for_this_decision": "if better_held reaches majority (>=n/2) across the FULL ledger at n>=20, the widen hypothesis reopens as its own pre-registered A/B"
+  },
+  "params_changed": "NONE -- this decision leaves live params untouched by construction."
+}

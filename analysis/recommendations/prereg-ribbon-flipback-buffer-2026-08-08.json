@@ -1,0 +1,37 @@
+{
+  "_doc": "PRE-REGISTRATION (frozen 2026-08-08 ~05:10 ET, before any run) -- ribbon-flip-back invalidation buffer A/B. Motivation chain: EXIT-DISCIPLINE-SPEC-2026-06-20 found the ribbon-flip-back is the exit mechanism that actually BINDS (chart-stop family does 92/100 binding exits; chart_stop_buffer_dollars itself is a live NO-OP) and flagged buffer-widening PROPOSE gated behind a real-fills A/B that was never completed. 2026-08-08 exit-map sweep confirmed this axis untested by any later study (trail-width 07-21, structure-ref 07-20, TP1-reachability 08-06, HOLD-WINNERS 08-06, STOPPED-THEN-PAID 08-04 all touch OTHER knobs). This is NOT the settled 'widen the premium stop' hypothesis: it changes when a ribbon FLIP counts as invalidation, not how far premium may fall.",
+  "hypothesis": "Whipsaw ribbon flips (flip that un-flips within 1-2 closes / by a shallow margin) fire binding exits on positions that then recover; requiring a price buffer and/or one confirming close on the flip-back reduces whipsaw exits without materially delaying true invalidations, UNCONDITIONALLY across regimes (a trend-only win auto-fails per REGIME-EARLY-CLASSIFIER-2026-08-02).",
+  "population": "The pain-ledger engine population: 219 scored closed engine option round trips 2026-06-26..2026-08-07 (analysis/pain-ledger/mae-mfe.json), positions reconstructed ONLY via exit_shape_parity_study.reconstruct_positions, bars ONLY via exit_shape_parity_study.fetch_option_bars (live OPRA 1-min; fetch once per position into a session-local cache, replay all shapes from memory). Replay ONLY via backtest/lib/exit_manager_walk.walk_exit_manager driving the production plan_exit_actions -- never a BS-sim (2026-07-09 scar).",
+  "control": "The exact live shape as resolved by the production exit_shape_for logic (strategies.py RIBBON_RIDE.exit for ribbon_ride entries; per-setup j_* params for isolated setups), with ribbon_flip_back derived exactly as walk_exit_manager currently derives it. The builder MUST quote the resolved control semantics (flip definition, any existing buffer/confirm) verbatim in the output before running candidates.",
+  "candidates_frozen": {
+    "grid": "flip_back_price_buffer_spy_dollars in {0.15, 0.30, 0.50} x flip_back_confirm_closes in {control, control+1} = 6 candidates vs CONTROL",
+    "mechanism": "variants change ONLY the caller-side derivation of the ribbon_flip_back boolean fed to plan_exit_actions per tick (buffer = SPY must close beyond the flip boundary by >= $X; confirm = N consecutive flipped 5m closes). Zero production-code edits. All other knobs pinned at control.",
+    "stop_rule": "if the current flip-back derivation has no coherent surface for a price buffer (e.g. boolean from a source that exposes no boundary distance), the builder STOPS and reports the mismatch -- no improvised alternative grid."
+  },
+  "gates_all_must_pass": {
+    "G1": "aggregate delta vs CONTROL > 0 (pooled, after friction identical to control replay)",
+    "G2": "chop-cohort delta >= 0 (regime gate; cohort def = same chop/trend day labels used by HOLD-WINNERS-2026-08-06)",
+    "G3": "runner-cohort + J-anchor no-regression (same anchors as trail-width-exit-2026-07-21)",
+    "G4": "sub-window stability: 4 chronological windows, all >= $0 delta, each with >= 5 changed trades",
+    "G5": "drop-best-day delta still > 0",
+    "G6": "worst pre-existing hard day not worsened by > $100",
+    "G7": "per-account stratification (L149): safe-cut and bold-cut deltas BOTH >= 0, reported separately, pooled verdict never overrides a negative cut",
+    "G8": "BH-FDR q=0.10 across all 6 candidates (bootstrap p per candidate on changed-trade deltas)",
+    "power_floor": "a candidate must CHANGE >= 15 trades to be adjudicable; below floor = UNDERPOWERED, not PASS"
+  },
+  "verdicts": "SHIP (all gates green -> propose shape change via the standard wiring map, kill_criterion: net <= -$300 over first 10 live sessions -> same-day revert) | FREEZE+CLOCK (single near-miss) | CONTROL_HOLDS (default). No bar-softening after the run.",
+  "prior_art_not_relitigated": [
+    "STOPPED-THEN-PAID-2026-08-04 (premium-stop width: SETTLED, untouched here)",
+    "TP1-REACHABILITY-2026-08-06 (TP1 axis: frozen clock, untouched)",
+    "trail-width-exit-2026-07-21 (trail pct: CONTROL_HOLDS, untouched)",
+    "pre-TP1 profit-lock axis (CLOSED 2026-08-02, untouched)",
+    "structure-stop-reference/zone-band (NO-SHIP 2026-07-20, untouched)",
+    "catastrophe cap width (DECIDED DO_NOT_WIDEN 2026-08-08 at n=13, untouched)"
+  ],
+  "disclosures_required_in_results": [
+    "population loser-skew (169L/39W/11S) + single-regime ~6-week window -- IS/OOS labels overstate independence",
+    "setup-family x account confound (VWAP_CONTINUATION 100% bold; unattributed 100% safe)",
+    "stop_mode unrecoverable for 107/219 -- shapes resolved via winner_autopsy.resolve_shipped_shape fallback, counted",
+    "1-min OPRA point-sample convention per walk_exit_manager (OPTION-BAR-RESOLUTION-BIAS-2026-08-02)"
+  ]
+}
