@@ -557,7 +557,19 @@ def run_tick_with_health(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool =
     row: Optional[dict] = None
     try:
         row = cts.run_scenario_tick(cfg, live=live, now_utc=now_utc, raw_bars=raw_bars)["row"]
-    except Exception as e:  # noqa: BLE001 -- deliberate outermost catch-all; see module docstring.
+    # 2026-08-08 ROOT CAUSE (task-state-guard audit): a headless scheduled-task fire has no
+    # real user at a console to press Ctrl+C, but observed live evidence (11x exit=1 in one
+    # 05:25-05:35 machine-local/MT window = 07:25-07:35 ET, run-cmd-hidden-2026-08-08.log +
+    # crypto-twin-health.stderr.log) shows a genuine KeyboardInterrupt escaping mid-network-
+    # call (fetch_closed_bars -> sock.connect); one-off this session, not seen 08-01..08-07.
+    # `except Exception` does
+    # NOT catch KeyboardInterrupt (it is a BaseException, not an Exception subclass), so this
+    # function's own contract ("never raises; the only way to know it is unhealthy is to read
+    # what it wrote down") was silently violated for exactly this failure class -- the tick
+    # crashed instead of degrading into a logged TICK_ERROR + health snapshot. Catching it
+    # here (still headless-only, no interactive session to protect) closes that gap without
+    # touching the still-unexplained external signal source itself.
+    except (Exception, KeyboardInterrupt) as e:  # noqa: BLE001 -- deliberate outermost catch-all; see module docstring.
         error_str = f"{type(e).__name__}: {e}"
         row = _tick_error_row(cfg, now_et=now_et, now_utc=now_utc, live=live, error_str=error_str)
         try:

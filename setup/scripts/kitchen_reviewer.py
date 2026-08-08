@@ -483,7 +483,7 @@ def main() -> int:
     try:
         import swarm_client as _swarm  # noqa: E402
         result = _swarm.call_role("chef", prompt, system=REVIEWER_SYSTEM_PROMPT,
-                                  max_tokens=6000, temperature=0.3,
+                                  max_tokens=12000, temperature=0.3,
                                   timeout=140, remote_timeout=110, task_id="kitchen.reviewer")
         if result.get("ok") and (result.get("content") or "").strip():
             _log(f"reviewer via pool lane={result.get('lane')}")
@@ -494,7 +494,7 @@ def main() -> int:
         for tier_idx, model in enumerate(MODEL_LADDER):
             _log(f"ladder attempt tier={tier_idx} model={model}")
             result = call_minimax(prompt, system=REVIEWER_SYSTEM_PROMPT, model=model,
-                                  max_tokens=6000, temperature=0.3, timeout=300,
+                                  max_tokens=12000, temperature=0.3, timeout=300,
                                   task_id=f"kitchen.reviewer.tier{tier_idx}")
             if result.get("ok") and (result.get("content") or "").strip():
                 result["ladder_used"] = tier_idx

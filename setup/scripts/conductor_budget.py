@@ -18,6 +18,57 @@ constant to 1.0 and re-measure -- do not delete the mechanism.
 Pure Python, $0, no LLM, no broker, no network. Fails OPEN (exit 0 = proceed) on any internal
 error: a broken governor must never be the reason the rig stops working (C7).
 
+PACING (added 2026-08-08, LANE-A-UNSTARVE-CONDUCTOR):
+Real incident, quoted: on 2026-08-08, 3 fires landed inside the first ~2h of the ET day
+(00:08/01:32/02:07 ET -- a `Gamma_ConductorWake`-triggered escalation cluster, debounced only
+30 min apart, each doing real work) costing raw $3.90 + $9.35 + $2.80 = $16.05 (corrected
+$35.31) -- OVER the $30 cap after just 3 fires. Every conductor-family fire for the rest of
+that ET day (10+ rows through 20:00 UTC, including the important 20:30 ET evening slot) found
+EXHAUSTED and did zero model work. The OLD gate was pure first-come-first-served against one
+flat cumulative cap: whichever fires happen to land first get the whole day's budget, with
+NO reservation for fires later in the day. `_pacing()` below adds a reservation: before
+admitting fire (k+1) of the day, it reserves `min_allowance_usd` for each of the
+`expected_fires_per_day - k` remaining nominal slots (including this one) and only proceeds if
+what's left over clears that reservation. This intentionally does NOT (cannot) cap how much an
+ADMITTED fire spends -- that decision is conductor.md's, outside this module's reach -- it only
+gates ADMISSION of the *next* fire. One reservation formula produces both a floor (blocks once
+the leftover-per-remaining-slot dips below `min_allowance_usd`) and a "carry-over" for
+whichever fire happens first in the day (when nothing has been reserved against it yet, it
+gets nearly the whole cap minus a token reserve for the others) -- no separate carry-over
+constant needed, see `_pacing()`. THE HARD DAILY CAP IS UNCHANGED -- pacing only decides
+*when within the day* admission stops, never *how much total* is allowed (OP-3: raising the
+cap was not authorized for this fix).
+
+KNOWN LIMIT (state plainly, don't oversell): pacing cannot protect the 20:30 ET slot on a day
+where 2 early fires alone already cost ~97% of the whole day's corrected budget ($29.15 of $30
+in the incident above) -- no admission-control scheme can create money that doesn't exist. The
+deeper fix for THAT would be a per-fire $ cap enforced *inside* `conductor.md` itself (its
+siblings `Gamma_ConductorRTH`/`Gamma_ConductorWeekend` already carry one -- $0.50 / $10 per
+SCHEDULED-TASKS.md -- `Gamma_Conductor` itself does not) -- out of this fix's allowed surface
+(conductor.md), flagged as a follow-up, not built here.
+
+CORRECTION (2026-08-08, audit re-derivation -- min_allowance_usd default reverted to 0.0):
+The "KNOWN LIMIT" above undersold the actual defect. `_pacing()` can only gate ADMISSION of a
+fire before it spends -- it can never cap what an ALREADY-ADMITTED fire spends -- so a rescue
+(pacing admitting a fire the old flat-cap-only gate would have blocked) can only ever happen if
+denying an earlier fire leaves enough spare budget for the later fire pacing intends to protect.
+A full chronological replay of all 32 real ET-days in `conductor-outcomes.jsonl` (279 rows) swept
+across `min_allowance_usd` in {0, 1, 2, 3, 3.25, 5, 6.89, 7.15, 7.69, 8, 10, 15} -- 6.89/7.15 are
+the measured corrected mean/median real-fire cost -- found **zero rescues at every single floor
+value tested**, while `extra_blocks` (pacing blocking admission the old gate would have allowed)
+strictly increases with the floor (2 extra_blocks at floor=2.0, the shipped default, rising to
+101 at floor=15.0). In other words: given the real cost distribution, pacing at ANY calibration
+only ever blocks fires the old gate would have admitted -- it never protects a later slot, because
+the fire it lets through first can already outspend the whole reservation before its own next
+check runs. Recalibrating the floor cannot fix this -- it is a structural limit of admission-only
+gating, not a tuning problem. `min_allowance_usd` therefore now DEFAULTS to 0.0 (pacing disabled,
+per this module's own documented escape hatch), restoring pure flat-cap + max_fires behavior
+until a genuine per-fire $ cap lands inside `conductor.md` (the only mechanism that can actually
+work, since it caps spend DURING a fire rather than gating admission before one). The `_pacing()`
+mechanism and its config keys are kept intact and unit-tested -- set `min_allowance_usd` > 0 in
+`automation/state/conductor-budget.json` to opt back in once that per-fire cap exists, or to
+re-run the replay against fresh evidence.
+
 CLI:
   python setup/scripts/conductor_budget.py --check    # exit 0 proceed / 3 exhausted
   python setup/scripts/conductor_budget.py --status   # human/JSON summary, always exit 0
@@ -34,11 +85,39 @@ from typing import Optional
 REPO = Path(__file__).resolve().parents[2]
 OUTCOMES = REPO / "automation" / "state" / "conductor-outcomes.jsonl"
 CONFIG = REPO / "automation" / "state" / "conductor-budget.json"
+# Spend-shape visibility record (step 3, LANE-A-UNSTARVE-CONDUCTOR) -- written best-effort by
+# main() on every --check/--status invocation so slots_used/slots_remaining/allowance_next are
+# visible without re-deriving them. Never read by check() itself (side-effect-free, so tests
+# calling check() directly stay hermetic); a module-level constant (not a main() local) so
+# tests can monkeypatch it to a tmp path the same way OUTCOMES/CONFIG already are.
+STATUS_OUT = REPO / "automation" / "state" / "conductor-budget-status.json"
 
-# Measured 2026-07-25: real $7.69/fire vs $3.44 self-reported.
+# Measured 2026-07-25: real $7.69/fire vs $3.44 self-reported. UNVERIFIED SINCE (OP-33): no
+# re-measurement against real session-transcript/billing cost has been done since that single
+# 2026-07-25 census -- automation/state/autonomy-metric.json's total_cost_usd is the SAME
+# self-reported figure this constant corrects, not an independent check. Treat 2.2 as a
+# standing estimate, not a re-validated fact, until a fresh transcript census re-checks it.
 SELF_REPORT_CORRECTION = 2.2
 
-DEFAULTS = {"daily_cap_usd": 30.0, "max_fires": 4, "enabled": True}
+DEFAULTS = {
+    "daily_cap_usd": 30.0,
+    "max_fires": 4,
+    "enabled": True,
+    # PACING (2026-08-08): the nominal number of fires the day's cap is meant to be spread
+    # across. Mirrors max_fires by default -- independently tunable (this is the PACING
+    # denominator, max_fires stays the absolute hard ceiling; see module docstring).
+    "expected_fires_per_day": 4,
+    # PACING floor: minimum $ (corrected) reserved per remaining nominal slot. DEFAULTS TO 0.0
+    # (PACING DISABLED) as of 2026-08-08 -- see module docstring "CORRECTION": a full replay of
+    # all 32 real ET-days showed 0 rescues at every floor value tested (0..15) while extra_blocks
+    # only grows with the floor, because admission-only gating structurally cannot protect a
+    # later slot once an earlier admitted fire overspends it. Set > 0 only once a genuine
+    # per-fire $ cap exists inside conductor.md to actually bound an admitted fire's spend, or to
+    # re-run the replay (setup/scripts/conductor_budget.py sweep logic is documented, not
+    # shipped as a CLI -- see the audit script referenced in the CORRECTION note) against fresh
+    # evidence and confirm a nonzero floor helps before re-enabling.
+    "min_allowance_usd": 0.0,
+}
 
 EXIT_PROCEED = 0
 EXIT_EXHAUSTED = 3
@@ -139,31 +218,99 @@ def spend_today(day: Optional[str] = None, path: Optional[Path] = None) -> dict:
             "corrected_usd": round(raw_usd * SELF_REPORT_CORRECTION, 2), "readable": True}
 
 
+def _pacing(s: dict, cfg: dict) -> dict:
+    """Per-fire pacing reservation. See module docstring 'PACING' section for the WHY.
+
+    Reserves `min_allowance_usd` for each of the `expected_fires_per_day - fires_so_far`
+    nominal slots still ahead today (floored at 1 -- always at least this fire's own slot),
+    and checks whether what's left over after that reservation still clears the floor. Never
+    raises; every input is defensively `.get()`'d with a DEFAULTS fallback so callers (incl.
+    the existing test suite's partial `_cfg()` dicts) that predate these two config keys keep
+    working unchanged.
+    """
+    expected = max(int(cfg.get("expected_fires_per_day", DEFAULTS["expected_fires_per_day"])), 1)
+    floor = max(float(cfg.get("min_allowance_usd", DEFAULTS["min_allowance_usd"])), 0.0)
+    cap = float(cfg.get("daily_cap_usd", DEFAULTS["daily_cap_usd"]))
+    fires_so_far = int(s.get("fires", 0))
+    remaining_slots = max(expected - fires_so_far, 1)
+    remaining_budget = max(cap - float(s.get("corrected_usd", 0.0)), 0.0)
+    reserve = max(remaining_slots - 1, 0) * floor
+    allowance = round(max(remaining_budget - reserve, 0.0), 2)
+    blocked = allowance < floor
+    reason = None
+    if blocked:
+        reason = (f"pacing reserve exhausted: this fire's allowance ${allowance:.2f} < floor "
+                  f"${floor:.2f} ({remaining_slots} nominal slot(s) left today incl. this one, "
+                  f"${round(reserve, 2):.2f} reserved for the rest, expected {expected} "
+                  f"fires/day)")
+    return {"pacing_blocked": blocked, "pacing_reason": reason,
+            "remaining_slots": remaining_slots, "reserve_for_future_usd": round(reserve, 2),
+            "allowance_usd": allowance}
+
+
 def check(day: Optional[str] = None, cfg: Optional[dict] = None,
           path: Optional[Path] = None, cfg_path: Optional[Path] = None) -> dict:
     """Decide whether the conductor may do LLM work right now. Never raises."""
     cfg = cfg or load_config(cfg_path)
     s = spend_today(day, path)
+    pacing_info = _pacing(s, cfg)
+    extra = {**_caps(cfg), **pacing_info}
     if not cfg.get("enabled", True):
-        return {**s, "verdict": "PROCEED", "reason": "governor disabled in config", **_caps(cfg)}
+        return {**s, "verdict": "PROCEED", "reason": "governor disabled in config", **extra}
     if s["corrected_usd"] >= float(cfg["daily_cap_usd"]):
         return {**s, "verdict": "EXHAUSTED",
                 "reason": (f"corrected spend ${s['corrected_usd']:.2f} "
                            f">= cap ${float(cfg['daily_cap_usd']):.2f} "
                            f"(raw self-report ${s['raw_usd']:.2f} x{SELF_REPORT_CORRECTION})"),
-                **_caps(cfg)}
+                **extra}
     if s["fires"] >= int(cfg["max_fires"]):
         return {**s, "verdict": "EXHAUSTED",
                 "reason": f"{s['fires']} fires today >= max_fires {cfg['max_fires']}",
-                **_caps(cfg)}
+                **extra}
+    if pacing_info["pacing_blocked"]:
+        return {**s, "verdict": "EXHAUSTED", "reason": pacing_info["pacing_reason"], **extra}
     return {**s, "verdict": "PROCEED",
             "reason": (f"${s['corrected_usd']:.2f} of ${float(cfg['daily_cap_usd']):.2f} used, "
-                       f"{s['fires']}/{cfg['max_fires']} fires"),
-            **_caps(cfg)}
+                       f"{s['fires']}/{cfg['max_fires']} fires, ${pacing_info['allowance_usd']:.2f} "
+                       f"paced allowance this fire ({pacing_info['remaining_slots']} slots left)"),
+            **extra}
 
 
 def _caps(cfg: dict) -> dict:
-    return {"daily_cap_usd": float(cfg["daily_cap_usd"]), "max_fires": int(cfg["max_fires"])}
+    return {"daily_cap_usd": float(cfg["daily_cap_usd"]), "max_fires": int(cfg["max_fires"]),
+            "expected_fires_per_day": int(cfg.get("expected_fires_per_day",
+                                                    DEFAULTS["expected_fires_per_day"])),
+            "min_allowance_usd": float(cfg.get("min_allowance_usd",
+                                                DEFAULTS["min_allowance_usd"]))}
+
+
+def _write_status(res: dict, day: Optional[str]) -> None:
+    """Best-effort spend-shape record: slots_used / slots_remaining / allowance_next. Never
+    raises, never blocks the gate (C7) -- a write failure here must not affect the verdict
+    already decided by check()."""
+    try:
+        payload = {
+            "day": res.get("day") or day,
+            "verdict": res.get("verdict"),
+            "reason": res.get("reason"),
+            "raw_usd": res.get("raw_usd"),
+            "corrected_usd": res.get("corrected_usd"),
+            "daily_cap_usd": res.get("daily_cap_usd"),
+            "max_fires": res.get("max_fires"),
+            "expected_fires_per_day": res.get("expected_fires_per_day"),
+            "min_allowance_usd": res.get("min_allowance_usd"),
+            "slots_used": res.get("fires"),
+            "slots_remaining": res.get("remaining_slots"),
+            "reserve_for_future_usd": res.get("reserve_for_future_usd"),
+            "allowance_next_usd": res.get("allowance_usd"),
+            "checked_at_utc": dt.datetime.utcnow().isoformat() + "Z",
+        }
+        STATUS_OUT.parent.mkdir(parents=True, exist_ok=True)
+        tmp = STATUS_OUT.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        tmp.replace(STATUS_OUT)
+    except Exception:  # noqa: BLE001 -- visibility record must never break the gate (C7)
+        pass
 
 
 def main(argv=None) -> int:
@@ -180,6 +327,7 @@ def main(argv=None) -> int:
         print(f"conductor_budget: internal error, failing OPEN: {e}")
         return EXIT_PROCEED
 
+    _write_status(res, a.date)
     print(json.dumps(res, indent=2) if a.json
           else f"{res['day']}  {res['verdict']}  {res['reason']}")
     if a.check and res["verdict"] == "EXHAUSTED":
