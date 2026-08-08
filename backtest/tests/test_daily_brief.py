@@ -18,6 +18,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 _REPO = Path(__file__).resolve().parents[2]
 _DB_PATH = _REPO / "setup" / "scripts" / "daily_brief.py"
 _spec = importlib.util.spec_from_file_location("daily_brief_under_test", _DB_PATH)
@@ -374,3 +376,64 @@ def test_breaker_armed_str_unknown_on_none():
 def test_breaker_armed_str_stale_rearm_is_distinguishable():
     stale = {"tripped": False, "last_reset": "2026-07-20T08:30:00-04:00"}
     assert db._breaker_armed_str(stale, "last_reset", "2026-07-22") == "armed (stale re-arm)"
+
+
+# --------------------------------------------------------------------------- #
+# 6. Crash guard (2026-08-08 delivery-chain audit finding). run_exe_hidden.vbs launches this
+# script fire-and-forget with NO stdout/stderr capture (`shell.Run cmd, 0, False`), so before
+# this guard an uncaught exception anywhere in main()'s call graph vanished with zero trace --
+# no log, no Discord signal -- contradicting install-daily-brief.ps1's own documented "fails
+# open ... never silent" guarantee. This is the same masked-exit class self_check.py already
+# monitors for run_cmd_hidden.py/run-ps1-hidden.ps1-launched tasks, via a third, previously-
+# uncovered wrapper -- and the reason 2026-07-30 (box confirmed awake + Task Scheduler
+# confirmed healthy in both the 06:45 and 14:20 MT windows, yet both briefs produced zero
+# artifact) is forensically unsolvable: nothing anywhere recorded what happened that day.
+# run_guarded() is the fix; these tests prove the safety net actually catches, logs, AND
+# alerts -- never just "didn't crash the test".
+# --------------------------------------------------------------------------- #
+
+def test_run_guarded_passes_through_normal_return(monkeypatch):
+    monkeypatch.setattr(db, "main", lambda: 0)
+    assert db.run_guarded(argv=["--mode", "morning"]) == 0
+
+
+def test_run_guarded_survives_a_crash_and_logs_it(monkeypatch, tmp_path):
+    def _boom():
+        raise RuntimeError("simulated compose bug")
+    monkeypatch.setattr(db, "main", _boom)
+    monkeypatch.setattr(db, "CRASH_LOG_PATH", tmp_path / "daily-brief.stderr.log")
+    monkeypatch.setattr(db, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+
+    rc = db.run_guarded(argv=["--mode", "eod"])
+
+    assert rc == 1  # never propagates -- that is the entire point of the guard
+    log_text = (tmp_path / "daily-brief.stderr.log").read_text(encoding="utf-8")
+    assert "RuntimeError" in log_text and "simulated compose bug" in log_text
+    outbox_text = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert "CRASHED (eod)" in outbox_text and "simulated compose bug" in outbox_text
+
+
+def test_run_guarded_never_swallows_systemexit(monkeypatch):
+    """argparse's own --mode validation (or any deliberate sys.exit) must still propagate --
+    the guard is a safety net for UNEXPECTED exceptions, not a way to mask usage errors."""
+    def _boom():
+        raise SystemExit(2)
+    monkeypatch.setattr(db, "main", _boom)
+    with pytest.raises(SystemExit):
+        db.run_guarded(argv=["--mode", "bogus"])
+
+
+def test_run_guarded_mode_label_falls_back_to_unknown_without_argv(monkeypatch, tmp_path):
+    """No --mode found in argv (a malformed launch) must still degrade gracefully -- the
+    crash guard itself must never be the thing that crashes."""
+    def _boom():
+        raise ValueError("no mode here")
+    monkeypatch.setattr(db, "main", _boom)
+    monkeypatch.setattr(db, "CRASH_LOG_PATH", tmp_path / "daily-brief.stderr.log")
+    monkeypatch.setattr(db, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+
+    rc = db.run_guarded(argv=[])
+
+    assert rc == 1
+    outbox_text = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert "CRASHED (unknown)" in outbox_text

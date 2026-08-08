@@ -673,5 +673,73 @@ def main() -> int:
     return 1
 
 
+# --------------------------------------------------------------------------- #
+# Crash guard -- 2026-08-08 delivery-chain audit finding.
+#
+# ROOT CAUSE: Gamma_MorningBrief/Gamma_EodBrief launch via
+# wscript -> run_exe_hidden.vbs -> pythonw.exe daily_brief.py, and run_exe_hidden.vbs calls
+# `shell.Run cmd, 0, False` -- fire-and-forget (no wait) with NO stdout/stderr redirection.
+# Every individual state-file reader in this module is already fail-open (never raises), but
+# nothing wrapped main() itself: an uncaught exception anywhere in its call graph (a future
+# regression in a compose/gather function, a bad edit, an environment change) would vanish
+# with ZERO trace -- no log, no Discord signal -- contradicting install-daily-brief.ps1's own
+# documented "fails open ... never silent" guarantee. This is the same masked-exit class
+# self_check.py already monitors for run_cmd_hidden.py/run-ps1-hidden.ps1-launched tasks
+# (RUN-CMD-HIDDEN / RUN-PS1-HIDDEN MASKED EXIT), just via a third, previously-uncovered
+# wrapper. It is also the reason 2026-07-30 -- a weekday when the box was confirmed awake and
+# Task Scheduler confirmed healthy in both the 06:45 and 14:20 MT windows (dozens of sibling
+# tasks fired normally that exact minute), yet BOTH briefs produced no artifact at all -- is
+# forensically unsolvable: nothing anywhere records what daily_brief.py did that day.
+#
+# Fix: wrap main() in a last-resort guard that logs any uncaught exception to a dedicated
+# file AND makes a best-effort attempt to push a short CRASHED alert through the SAME outbox
+# mechanism the rest of this file already uses -- so a future crash is at minimum visible
+# same-day, never silent. main() itself is unchanged; every existing test/behavior is
+# unaffected. Guard test: backtest/tests/test_daily_brief.py::test_run_guarded_*.
+# --------------------------------------------------------------------------- #
+
+CRASH_LOG_PATH = STATE / "logs" / "daily-brief.stderr.log"
+
+
+def _log_crash(mode: str, exc: BaseException) -> None:
+    """Best-effort: write the traceback to disk, then queue a short Discord alert. Every
+    step is individually guarded -- the crash guard itself must never raise (that would
+    just be a second, more embarrassing silent failure)."""
+    import traceback
+    try:
+        CRASH_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with CRASH_LOG_PATH.open("a", encoding="utf-8") as fh:
+            fh.write(f"\n--- {datetime.now().isoformat(timespec='seconds')} mode={mode} ---\n")
+            traceback.print_exception(type(exc), exc, exc.__traceback__, file=fh)
+    except OSError:
+        pass
+    try:
+        queue_discord_delivery(
+            f"GAMMA DAILY BRIEF CRASHED ({mode}): {type(exc).__name__}: {exc}"[:1900],
+            None, source=f"daily_brief_{mode}_crash",
+        )
+    except Exception:  # noqa: BLE001 -- the crash guard itself must never raise
+        pass
+
+
+def run_guarded(argv: "list[str] | None" = None) -> int:
+    """__main__ entry point: run main(), and if ANYTHING escapes it uncaught, log + alert
+    instead of vanishing into run_exe_hidden.vbs's discarded stdout/stderr (see module
+    comment above). `argv` is accepted only so tests can force a --mode label without
+    touching real sys.argv; production always calls this with no argument."""
+    try:
+        return main()
+    except SystemExit:
+        raise
+    except BaseException as exc:  # noqa: BLE001 -- last-resort net, must not re-raise
+        args = argv if argv is not None else sys.argv[1:]
+        mode = "unknown"
+        for i, a in enumerate(args):
+            if a == "--mode" and i + 1 < len(args):
+                mode = args[i + 1]
+        _log_crash(mode, exc)
+        return 1
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_guarded())
