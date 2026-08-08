@@ -12,5 +12,5 @@ if ($reaped.Count -gt 0) { Write-TaskLog -TaskName $task -Message "REAPED stale:
 
 Write-TaskLog -TaskName $task -Message "FIRE et=$($et.ToString('HH:mm:ss'))"
 # Flatten is small but critical (closes any open 0DTE before 16:00 expiry). Hard 2-min cap.
-$exit = Invoke-Claude -PromptFile (Join-Path $WorkDir "automation\prompts\eod-flatten.md") -TaskName $task -MaxBudgetUsd 1 -TimeoutSec 120 -Effort "low"
+$exit = Invoke-Claude -PromptFile (Join-Path $WorkDir "automation\prompts\eod-flatten.md") -TaskName $task -MaxBudgetUsd 2 -TimeoutSec 120 -Effort "low"
 exit $exit

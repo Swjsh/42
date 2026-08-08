@@ -17,7 +17,7 @@ Write-TaskLog -TaskName $task -Message "FIRE et=$($et.ToString('HH:mm:ss'))"
 $exit = Invoke-Claude `
     -PromptFile (Join-Path $WorkDir "automation\prompts\aggressive\eod-flatten.md") `
     -TaskName $task `
-    -MaxBudgetUsd 1 `
+    -MaxBudgetUsd 2 `
     -TimeoutSec 120 `
     -Effort "low"
 exit $exit

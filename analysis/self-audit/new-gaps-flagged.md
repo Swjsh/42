@@ -763,3 +763,40 @@ timing), correctly out of scope for a self-audit-organ fix, named as future cand
 unified cross-account VaR/margin risk-aggregation layer = a multi-session feature, named as
 future candidate, not chased this fire (one bounded task, rail 3). -->
 
+
+## 2026-08-07T17:32:27 -- 12 new gap(s) Gamma self-identified
+- No automated verification that scheduled‑task outputs actually changed
+- Missing fallback source for Alpaca Greeks endpoint
+- No drift detection on feature distributions used by the score‑ladder model
+- Absence of automated rollback on self‑check degradation
+- No cost‑governance for LLM‑agent usage
+- Missing end‑to‑end test for the self‑check framework itself
+- No automated validation of strategy‑candidate promotion/demotion criteria
+- Absence of real‑time order‑idempotency and duplicate‑fill detection
+- Alpaca Greeks fallback
+- All perspectives that listed gaps agree that Project Gamma needs a **fallback source for the Alpaca Greeks endpoint** (currently returning `{}` on multiple consecutive days).
+- proposes gaps like *feature‑drift detection for the score‑ladder model*, *order‑idempotency*, and *strategy‑candidate validation* that are not directly evidenced in the supplied logs.
+- adds *risk‑model integration of scout data* and *silent‑task retrigger watchdog* – useful but not explicitly called out in the context.
+
+<!-- TRIAGED 2026-08-08T00:00 ET conductor (WEEKEND): no single concrete NEW bounded item this
+batch -- checked each against live code before dismissing (not assumed). "Order-idempotency /
+duplicate-fill detection" already EXISTS (grep-confirmed: heartbeat_core.py carries idempotency
+guard logic, referenced live by the 2026-08-02 BOLD-ADAPTIVE-SIZING lane as "a concurrent lane's
+uncommitted order-idempotency guard" -- now landed). "Missing end-to-end test for self_check
+framework" -- self_check.run() IS exercised by test_self_check_participation_daily.py +
+test_ssb_certification.py (not a dedicated full-run harness, but not zero coverage either;
+narrower gap than claimed). "Missing fallback source for Alpaca Greeks endpoint" -- 4th
+consecutive-day recurrence (2026-07-01, 2026-08-02, 2026-08-06, now 2026-08-07), still no
+concrete secondary Greeks source identified by any batch -- named again as genuine but
+NOT-bounded future work (a real feed-integration project, not a single-fire task); does NOT
+yet meet the OP-25 "re-violated -> must graduate to a guard" bar because there is nothing
+mechanical to guard against, only a missing capability. "No cost-governance for LLM-agent
+usage" -- PARTIALLY exists (conductor_budget.py gates the conductor family specifically,
+per-script -MaxBudgetUsd flags exist ad hoc elsewhere e.g. scout/premarket) but there is no
+UMBRELLA governance across all LLM-agent-driven scheduled tasks -- real gap, but multi-session
+scope, named as future candidate. Remaining lines (drift-detection on score-ladder features,
+automated rollback on self-check degradation, strategy-candidate promotion/demotion validation,
+"Refining the Proposed Change Audit (Wait, I need to re-read...)") are broad/scaffold-class,
+same noise class already filtered elsewhere -- not chased. This fire's bounded task went to
+queue.md's EOD-FLATTEN-LLM-PROMPT-EXIT1 instead (a concrete, evidenced, ready item). -->
+
