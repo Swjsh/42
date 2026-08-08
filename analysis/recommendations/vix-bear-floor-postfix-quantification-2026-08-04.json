@@ -20,6 +20,22 @@
   "verdict": "NO PREREG FILED -- the number is not real. Post-fix cost of the 17.3 floor alone = $0 (zero sole-blocked events). The graveyard verdict on filter-8 relax stands unchallenged by post-fix data.",
   "standing_watch_condition": "First session that produces bear sole-blocker [8] events (a breakdown day with VIX < 17.3) -> rerun backtest/tools/postfix_gate_costing.py --start <that-date> and revisit. Until that cohort exists there is nothing to A/B. Queue item filed to extend the nightly gate-expiry instrument with this sole-blocker miner so the watch is mechanical, not remembered.",
   "n_small_disclosure": "Two sessions, both with morning-selloff-then-bull-recovery character; every cell here is n-small and disclosed as such. This artifact quantifies a door's binding frequency, not an edge.",
+  "CORRECTED_2026_08_08_SAME_EVENING": "See 'corrections' array below (POSTFIX-GATE-COSTING-UNSOUND-REPLAY fix, strategy/candidates/_lesson-inbox/2026-08-08-monitor-inherited-an-unsound-engine.md). This artifact's own 'method' line (backtest/tools/postfix_gate_costing.py) was, at generation time, forward-replaying via gate_expiry_check.simulate_event -> lib.simulator_real.simulate_trade_real -- the same unsound engine (exit-shape divergence, intrabar look-ahead) documented against gate-registry-status.json. The headline verdict (sole_blocker_8_bear_events=0, floor cost=$0) is a POPULATION-COUNT fact, unaffected by replay engine choice, and stands unchanged. The dollar-valued SECONDARY figures (oracle_5_8_both_lifted, floor_self_opening_evidence's filter-5 noise cells) were re-priced through the sound engine and both still support the same NO-WIDEN conclusion (oracle shrank further; filter-5 noise grew but stays explicitly disclosed noise-level, n=2). Original numbers PRESERVED below, never deleted.",
+  "corrections": [
+    {
+      "filed": "2026-08-08 (same evening as POSTFIX-GATE-COSTING-UNSOUND-REPLAY)",
+      "filed_by": "backtest/tools/postfix_gate_costing.py re-run through the sound engine, analysis/recommendations/gate-postfix-costing-2026-08-03.json",
+      "target": "findings.oracle_5_8_both_lifted and findings.floor_self_opening_evidence's embedded dollar figures",
+      "issue": "Both were computed via gate_expiry_check.simulate_event -> lib.simulator_real.simulate_trade_real, which has two independently-documented, dated defects: exit-shape divergence from the real production exit_manager (2026-07-17 FRAME AUDIT) and same-bar/intrabar look-ahead (BACKTESTING-PLAYBOOK.md 2.12).",
+      "original_oracle_5_8_both_lifted": {"safe": {"n_events": 13, "total_dollar": 401.76}, "bold": {"n_events": 13, "total_dollar": 669.6}},
+      "original_filter5_sole_blocker_noise": {"safe": 83.52, "bold": 118.4},
+      "superseded_by_sound_engine": {
+        "oracle_5_8_both_lifted": {"safe": {"n_events": 13, "total_dollar": 21.0}, "bold": {"n_events": 13, "total_dollar": 35.0}},
+        "filter5_sole_blocker_noise": {"safe": 345.0, "bold": 575.0}
+      },
+      "verdict_impact": "NONE -- headline verdict (sole_blocker_8_bear_events=0, floor cost=$0, NO PREREG FILED) is a population-count fact independent of replay engine and is unchanged. Secondary oracle figure moved DOWN (further from actionable), secondary noise figure moved UP but remains explicitly disclosed n=2 noise, not headline."
+    }
+  ],
   "sources": [
     "analysis/recommendations/gate-postfix-costing-2026-08-03.json (the measured cells)",
     "automation/state/gate-registry-status.json (core_strategy_bear RED read)",

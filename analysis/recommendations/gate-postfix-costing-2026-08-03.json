@@ -1,13 +1,32 @@
 {
- "_doc": "postfix_gate_costing.py -- window-scoped refusal costing for EVERY entry gate/filter.\n\nBorn Lane 1, 2026-08-04 (\"make sure nothing is gated that actually works\", J week\ndirective): the nightly gate-expiry instrument mines only SKIP_* verdicts, so the\n10/11-filter checklist (which refuses via HOLD rows with per-door blocker lists, not SKIP\nverdicts) had NO refusal-costing instrument at all. This tool closes that gap for any\nwindow (default: the post-level-feed-fix era 2026-07-31..2026-08-03).\n\nReuses gate_expiry_check's machinery byte-for-bit (armed=True rows, 15-min event\nclustering, stale-bar drop, ATM real-OPRA replay, premium_stop -8%, recency exit shape).\nParts:\n  A. core SKIP-verdict gates (whatever fired in the window, regardless of current armed\n     flag -- unlike the nightly, which INERTs a now-disarmed gate and loses its history)\n  B. filter sole-blocker cohorts from HOLD rows, per door (bear/bull) x filter 1..11:\n     rows where the checklist failed on EXACTLY ONE filter -- the honest per-filter\n     binding cohort (multi-blocker rows are cascade cohorts, C15: no single filter may\n     claim them; census reported separately, the bear [5,8] both-lifted cell priced as\n     ORACLE only)\n  C. fleet SKIP_MIN_PREMIUM_FLOOR events priced at the counterfactual ATM strike (what\n     ATM-TIER-EXTENSION-2K-10K plans) -- SIM label, per-event independent (no\n     NOT_FLAT sequencing), refused OTM quote recorded alongside.\n\nOutput: analysis/recommendations/gate-postfix-costing-<end>.json (or --out).\nNever blocks, never kills, never edits params -- a report, same doctrine as the nightly.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/postfix_gate_costing.py\n     [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--out PATH]\n",
- "generated_at": "2026-08-03T23:01:03.800944",
+ "_doc": "postfix_gate_costing.py -- window-scoped refusal costing for EVERY entry gate/filter.\n\nBorn Lane 1, 2026-08-04 (\"make sure nothing is gated that actually works\", J week\ndirective): the nightly gate-expiry instrument mines only SKIP_* verdicts, so the\n10/11-filter checklist (which refuses via HOLD rows with per-door blocker lists, not SKIP\nverdicts) had NO refusal-costing instrument at all. This tool closes that gap for any\nwindow (default: the post-level-feed-fix era 2026-07-31..2026-08-03).\n\nReuses gate_expiry_check's machinery byte-for-bit (armed=True rows, 15-min event\nclustering, stale-bar drop). Parts:\n  A. core SKIP-verdict gates (whatever fired in the window, regardless of current armed\n     flag -- unlike the nightly, which INERTs a now-disarmed gate and loses its history)\n  B. filter sole-blocker cohorts from HOLD rows, per door (bear/bull) x filter 1..11:\n     rows where the checklist failed on EXACTLY ONE filter -- the honest per-filter\n     binding cohort (multi-blocker rows are cascade cohorts, C15: no single filter may\n     claim them; census reported separately, the bear [5,8] both-lifted cell priced as\n     ORACLE only)\n  C. fleet SKIP_MIN_PREMIUM_FLOOR events priced at the counterfactual ATM strike (what\n     ATM-TIER-EXTENSION-2K-10K plans) -- SIM label, per-event independent (no\n     NOT_FLAT sequencing), refused OTM quote recorded alongside.\n\nOutput: analysis/recommendations/gate-postfix-costing-<end>.json (or --out).\nNever blocks, never kills, never edits params -- a report, same doctrine as the nightly.\n\nSOUNDNESS FIX (POSTFIX-GATE-COSTING-UNSOUND-REPLAY, 2026-08-08 night, filed the SAME\nsession `backtest/autoresearch/gate_expiry_check.py` was fixed, commit 97a2e2ac):\nthis tool used to forward-replay every refused signal via `gate_expiry_check.simulate_event`,\nwhich is `lib.simulator_real.simulate_trade_real` under the hood -- the SAME unsound engine\n(exit-shape divergence from the real production exit_manager, 2026-07-17 FRAME AUDIT;\nsame-bar/intrabar look-ahead, BACKTESTING-PLAYBOOK.md 2.12) that was just removed from the\ngate-expiry instrument. `simulate_event` was kept in `gate_expiry_check.py` UNCHANGED purely\nbecause this file imported it -- this fix removes that import and, with it, the last live\ncaller of the unsound path. Every call site (Part A, Part B, the bear[5,8] ORACLE cell, Part\nC) now replays through `backtest/lib/exit_manager_walk.walk_exit_manager` (the ACTUAL\nproduction `exit_manager.plan_exit_actions` core) via a lazy import of\n`backtest/tools/gate_revalidation_ab.py`'s `replay_row`/`account_config`/`build_ribbon_lookup`\n-- byte-for-byte the same lazy-import-to-avoid-circularity pattern, and the same sound path,\n`gate_expiry_check.py::evaluate_gate_pnl` now uses. Every EV-bearing section this script\nwrites (part_a[action], part_b[key], oracle_bear_5_8[account], part_c[arm]) is stamped\n`replay_engine`/`replay_soundness` so a future reader can never mistake a freshly-computed\nnumber for one produced by the retired path. Guard: `backtest/tests/test_postfix_gate_costing.py`\n(spies on `lib.simulator_real.simulate_trade_real`, asserts it is never called).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/postfix_gate_costing.py\n     [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--out PATH]\n",
+ "generated_at": "2026-08-08T16:59:48.743656",
  "window": "2026-07-31..2026-08-03",
  "conventions": {
   "miner": "gate_expiry_check machinery (armed=True, 15-min clustering, stale-bar drop)",
-  "pricing": "real OPRA 5m cache, ATM strike, premium_stop -8%, recency exit shape (shared with the nightly instrument)",
+  "pricing": "real OPRA 5m cache, ATM strike, production exit_manager.plan_exit_actions exit shape via exit_manager_walk.walk_exit_manager (shared with the sound nightly gate-expiry instrument and gate_revalidation_ab.py -- see replay_engine below)",
   "resolution_bias": "5-min bars under-detect intra-bar stops (one-directional, flattering) -- OPTION-BAR-RESOLUTION-BIAS-2026-08-02",
   "per_account_double_count": "safe+bold rows at the same tick are the same door signal logged per account (instrument-consistent; door-level distinct clusters reported separately)",
-  "part_c_label": "SIM counterfactual (ATM strike under ATM-TIER-EXTENSION-2K-10K), NOT broker fills; per-event independent; overlaps Part A's elite cohort (same door) -- never sum A+C"
+  "part_c_label": "SIM counterfactual (ATM strike under ATM-TIER-EXTENSION-2K-10K), NOT broker fills; per-event independent; overlaps Part A's elite cohort (same door) -- never sum A+C; fleet-arm exit cfg (structure_stop_enabled/time_stop_et) approximated from the matching core account (safe-3->safe, risky-1/risky-3->bold) since fleet arms have no dedicated params.json -- hand-verified 2026-08-08 that both patch stop_mode='structure' (already true at the core baseline) and leave time_stop_et unpatched (15:40, shared)"
+ },
+ "replay_engine": "walk_exit_manager",
+ "replay_soundness": "sound",
+ "_correction_2026_08_08": {
+  "note": "POSTFIX-GATE-COSTING-UNSOUND-REPLAY fix (filed the same evening gate_expiry_check.py was rewired off simulator_real, commit 97a2e2ac). This file (and its default output path, gate-postfix-costing-<end>.json) used to forward-replay via gate_expiry_check.simulate_event -> lib.simulator_real.simulate_trade_real, which carries two independently-documented, dated defects (exit-shape divergence from the real production exit_manager, 2026-07-17 FRAME AUDIT; same-bar/intrabar look-ahead, BACKTESTING-PLAYBOOK.md 2.12). This run and every run after it replays through backtest/lib/exit_manager_walk.walk_exit_manager (the actual production exit_manager.plan_exit_actions core) instead -- see replay_engine/replay_soundness on every EV-bearing section. THIS regeneration OVERWROTE the prior 2026-08-03 file in place -- the pre-fix numbers below are hand-transcribed from that prior run (also recoverable from git history, this file's prior committed revision) so this correction is self-contained and does not depend on a since-overwritten path.",
+  "pre_fix_headline_totals_2026_08_03_window": {
+   "part_a_SKIP_ELITE_BULL_LEVEL_RECLAIM_total_dollar": 3576.92,
+   "part_b_bull_filter8_bold_total_dollar": -118.8,
+   "part_b_bull_filter8_safe_total_dollar": -71.28,
+   "part_b_bull_filter10_bold_total_dollar": 2940.8,
+   "part_b_bull_filter11_bold_total_dollar": 2168.1,
+   "oracle_bear_5_8_bold_total_dollar": 669.6,
+   "oracle_bear_5_8_safe_total_dollar": 401.76,
+   "part_c_safe_3_total_dollar": 669.2,
+   "part_c_risky_1_total_dollar": 2164.2,
+   "part_c_risky_3_total_dollar": 329.2,
+   "note": "sample of the largest/most-cited cells; see part_a/part_b/oracle/part_c below for the full sound-engine AFTER figures on the identical window"
+  },
+  "biggest_moves": "bull_filter8 FLIPPED SIGN on both accounts (bold -$118.80 -> +$1,692.90, safe -$71.28 -> +$992.95); bull_filter10/11 roughly doubled-to-quadrupled; oracle_bear_5_8 dropped ~19x (bold $669.60 -> $35.00); part_c fleet-floor counterfactuals roughly tripled. Directional take: several previously-unremarkable or negative cells are now the largest positive cells in the whole report -- any prior read of this artifact that ranked cells by dollar size is now STALE, not just off by a scale factor."
  },
  "verdict_counts_in_window": {
   "bold|HOLD": 664,
@@ -27,12 +46,12 @@
      "window": "2026-07-31..2026-08-03",
      "n": 13,
      "n_days": 2,
-     "wr_pct": 38.5,
-     "exp_per_trade": 96.99,
-     "total_dollar": 1260.92,
+     "wr_pct": 46.2,
+     "exp_per_trade": 104.06,
+     "total_dollar": 1352.75,
      "sign": "POSITIVE",
-     "best_day": 671.64,
-     "worst_day": 589.28,
+     "best_day": 1292.95,
+     "worst_day": 59.8,
      "win_days": 2,
      "loss_days": 0,
      "first_fill": "2026-07-31",
@@ -47,12 +66,12 @@
      "window": "2026-07-31..2026-08-03",
      "n": 13,
      "n_days": 2,
-     "wr_pct": 38.5,
-     "exp_per_trade": 178.15,
-     "total_dollar": 2316.0,
+     "wr_pct": 46.2,
+     "exp_per_trade": 185.77,
+     "total_dollar": 2415.0,
      "sign": "POSITIVE",
-     "best_day": 1166.6,
-     "worst_day": 1149.4,
+     "best_day": 2321.9,
+     "worst_day": 93.1,
      "win_days": 2,
      "loss_days": 0,
      "first_fill": "2026-07-31",
@@ -63,12 +82,12 @@
     "window": "2026-07-31..2026-08-03",
     "n": 26,
     "n_days": 2,
-    "wr_pct": 38.5,
-    "exp_per_trade": 137.57,
-    "total_dollar": 3576.92,
+    "wr_pct": 46.2,
+    "exp_per_trade": 144.91,
+    "total_dollar": 3767.75,
     "sign": "POSITIVE",
-    "best_day": 1838.24,
-    "worst_day": 1738.68,
+    "best_day": 3614.85,
+    "worst_day": 152.9,
     "win_days": 2,
     "loss_days": 0,
     "first_fill": "2026-07-31",
@@ -76,17 +95,9 @@
    },
    "door_level_distinct_clusters_across_accounts": 13,
    "events_at_or_after_1500_et": 6,
-   "pnl_at_or_after_1500_et": 542.8,
-   "stale_0930_disclosure": {
-    "note": "The 2026-08-03 09:30 cluster (one event per account) rode the EOD-flagged stale-actioned tick (Friday carried bar produced the trigger; the located Monday 09:30 bar was still forming at decision time). Live, the stale-trigger guard also applied. Conservative ex-stale elite totals below.",
-    "monday_0930_event_pnl": {
-     "safe": 627.0,
-     "bold": 1089.0
-    },
-    "ex_stale_combined_total_dollar": 1860.92,
-    "ex_stale_n": 24,
-    "per_event_convention": "QTY_BY_ACCOUNT safe=3 bold=5 (standing instrument sizing)"
-   }
+   "pnl_at_or_after_1500_et": 0.05,
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   }
  },
  "part_b_filter_sole_blockers": {
@@ -100,11 +111,11 @@
    "n": 2,
    "n_days": 1,
    "wr_pct": 50.0,
-   "exp_per_trade": 41.76,
-   "total_dollar": 83.52,
+   "exp_per_trade": 172.5,
+   "total_dollar": 345.0,
    "sign": "POSITIVE",
-   "best_day": 83.52,
-   "worst_day": 83.52,
+   "best_day": 345.0,
+   "worst_day": 345.0,
    "win_days": 1,
    "loss_days": 0,
    "first_fill": "2026-07-31",
@@ -112,7 +123,9 @@
    "vix_at_events": [
     17.35,
     17.51
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bear_filter5_bold": {
    "n_raw_sole_blocker_rows": 14,
@@ -124,11 +137,11 @@
    "n": 2,
    "n_days": 1,
    "wr_pct": 50.0,
-   "exp_per_trade": 59.2,
-   "total_dollar": 118.4,
+   "exp_per_trade": 287.5,
+   "total_dollar": 575.0,
    "sign": "POSITIVE",
-   "best_day": 118.4,
-   "worst_day": 118.4,
+   "best_day": 575.0,
+   "worst_day": 575.0,
    "win_days": 1,
    "loss_days": 0,
    "first_fill": "2026-07-31",
@@ -136,7 +149,9 @@
    "vix_at_events": [
     17.35,
     17.51
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter1_safe": {
    "n_raw_sole_blocker_rows": 5,
@@ -148,18 +163,20 @@
    "n": 1,
    "n_days": 1,
    "wr_pct": 0.0,
-   "exp_per_trade": -50.16,
-   "total_dollar": -50.16,
+   "exp_per_trade": -246.0,
+   "total_dollar": -246.0,
    "sign": "NEGATIVE",
-   "best_day": -50.16,
-   "worst_day": -50.16,
+   "best_day": -246.0,
+   "worst_day": -246.0,
    "win_days": 0,
    "loss_days": 1,
    "first_fill": "2026-07-31",
    "last_fill": "2026-07-31",
    "vix_at_events": [
     17.03
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter5_safe": {
    "n_raw_sole_blocker_rows": 5,
@@ -171,18 +188,20 @@
    "n": 1,
    "n_days": 1,
    "wr_pct": 100.0,
-   "exp_per_trade": 87.0,
-   "total_dollar": 87.0,
+   "exp_per_trade": 763.3,
+   "total_dollar": 763.3,
    "sign": "POSITIVE",
-   "best_day": 87.0,
-   "worst_day": 87.0,
+   "best_day": 763.3,
+   "worst_day": 763.3,
    "win_days": 1,
    "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-07-31",
    "vix_at_events": [
     18.57
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter8_safe": {
    "n_raw_sole_blocker_rows": 10,
@@ -193,20 +212,22 @@
    "window": "2026-07-31..2026-08-03",
    "n": 2,
    "n_days": 1,
-   "wr_pct": 0.0,
-   "exp_per_trade": -35.64,
-   "total_dollar": -71.28,
-   "sign": "NEGATIVE",
-   "best_day": -71.28,
-   "worst_day": -71.28,
-   "win_days": 0,
-   "loss_days": 1,
+   "wr_pct": 100.0,
+   "exp_per_trade": 496.48,
+   "total_dollar": 992.95,
+   "sign": "POSITIVE",
+   "best_day": 992.95,
+   "worst_day": 992.95,
+   "win_days": 1,
+   "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-07-31",
    "vix_at_events": [
     17.4,
     17.23
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter10_safe": {
    "n_raw_sole_blocker_rows": 77,
@@ -217,12 +238,12 @@
    "window": "2026-07-31..2026-08-03",
    "n": 11,
    "n_days": 2,
-   "wr_pct": 54.5,
-   "exp_per_trade": 144.93,
-   "total_dollar": 1594.24,
+   "wr_pct": 63.6,
+   "exp_per_trade": 259.78,
+   "total_dollar": 2857.55,
    "sign": "POSITIVE",
-   "best_day": 832.72,
-   "worst_day": 761.52,
+   "best_day": 1636.35,
+   "worst_day": 1221.2,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
@@ -239,7 +260,9 @@
     15.77,
     15.6,
     15.56
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter11_safe": {
    "n_raw_sole_blocker_rows": 119,
@@ -250,12 +273,12 @@
    "window": "2026-07-31..2026-08-03",
    "n": 13,
    "n_days": 2,
-   "wr_pct": 30.8,
-   "exp_per_trade": 83.94,
-   "total_dollar": 1091.28,
+   "wr_pct": 76.9,
+   "exp_per_trade": 217.14,
+   "total_dollar": 2822.8,
    "sign": "POSITIVE",
-   "best_day": 678.08,
-   "worst_day": 413.2,
+   "best_day": 1454.3,
+   "worst_day": 1368.5,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
@@ -273,7 +296,9 @@
     15.57,
     15.72,
     15.78
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter1_bold": {
    "n_raw_sole_blocker_rows": 5,
@@ -285,18 +310,20 @@
    "n": 1,
    "n_days": 1,
    "wr_pct": 0.0,
-   "exp_per_trade": -83.6,
-   "total_dollar": -83.6,
+   "exp_per_trade": -410.0,
+   "total_dollar": -410.0,
    "sign": "NEGATIVE",
-   "best_day": -83.6,
-   "worst_day": -83.6,
+   "best_day": -410.0,
+   "worst_day": -410.0,
    "win_days": 0,
    "loss_days": 1,
    "first_fill": "2026-07-31",
    "last_fill": "2026-07-31",
    "vix_at_events": [
     17.03
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter5_bold": {
    "n_raw_sole_blocker_rows": 5,
@@ -308,18 +335,20 @@
    "n": 1,
    "n_days": 1,
    "wr_pct": 100.0,
-   "exp_per_trade": 145.0,
-   "total_dollar": 145.0,
+   "exp_per_trade": 1305.6,
+   "total_dollar": 1305.6,
    "sign": "POSITIVE",
-   "best_day": 145.0,
-   "worst_day": 145.0,
+   "best_day": 1305.6,
+   "worst_day": 1305.6,
    "win_days": 1,
    "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-07-31",
    "vix_at_events": [
     18.52
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter8_bold": {
    "n_raw_sole_blocker_rows": 9,
@@ -330,20 +359,22 @@
    "window": "2026-07-31..2026-08-03",
    "n": 2,
    "n_days": 1,
-   "wr_pct": 0.0,
-   "exp_per_trade": -59.4,
-   "total_dollar": -118.8,
-   "sign": "NEGATIVE",
-   "best_day": -118.8,
-   "worst_day": -118.8,
-   "win_days": 0,
-   "loss_days": 1,
+   "wr_pct": 100.0,
+   "exp_per_trade": 846.45,
+   "total_dollar": 1692.9,
+   "sign": "POSITIVE",
+   "best_day": 1692.9,
+   "worst_day": 1692.9,
+   "win_days": 1,
+   "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-07-31",
    "vix_at_events": [
     17.4,
     17.23
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter10_bold": {
    "n_raw_sole_blocker_rows": 78,
@@ -354,12 +385,12 @@
    "window": "2026-07-31..2026-08-03",
    "n": 11,
    "n_days": 2,
-   "wr_pct": 54.5,
-   "exp_per_trade": 267.35,
-   "total_dollar": 2940.8,
+   "wr_pct": 63.6,
+   "exp_per_trade": 450.1,
+   "total_dollar": 4951.1,
    "sign": "POSITIVE",
-   "best_day": 1584.0,
-   "worst_day": 1356.8,
+   "best_day": 2788.7,
+   "worst_day": 2162.4,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
@@ -376,7 +407,9 @@
     15.77,
     15.62,
     15.56
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bull_filter11_bold": {
    "n_raw_sole_blocker_rows": 119,
@@ -387,12 +420,12 @@
    "window": "2026-07-31..2026-08-03",
    "n": 13,
    "n_days": 2,
-   "wr_pct": 30.8,
-   "exp_per_trade": 166.78,
-   "total_dollar": 2168.1,
+   "wr_pct": 76.9,
+   "exp_per_trade": 374.51,
+   "total_dollar": 4868.6,
    "sign": "POSITIVE",
-   "best_day": 1361.1,
-   "worst_day": 807.0,
+   "best_day": 2460.6,
+   "worst_day": 2408.0,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
@@ -410,7 +443,9 @@
     15.56,
     15.72,
     15.78
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   }
  },
  "blocker_combo_census_hold_rows": {
@@ -455,15 +490,17 @@
    "n": 13,
    "n_days": 2,
    "wr_pct": 23.1,
-   "exp_per_trade": 30.9,
-   "total_dollar": 401.76,
+   "exp_per_trade": 1.62,
+   "total_dollar": 21.0,
    "sign": "POSITIVE",
-   "best_day": 475.08,
-   "worst_day": -73.32,
+   "best_day": 291.0,
+   "worst_day": -270.0,
    "win_days": 1,
    "loss_days": 1,
    "first_fill": "2026-07-31",
-   "last_fill": "2026-08-03"
+   "last_fill": "2026-08-03",
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "bold": {
    "n_rows": 112,
@@ -475,15 +512,17 @@
    "n": 13,
    "n_days": 2,
    "wr_pct": 23.1,
-   "exp_per_trade": 51.51,
-   "total_dollar": 669.6,
+   "exp_per_trade": 2.69,
+   "total_dollar": 35.0,
    "sign": "POSITIVE",
-   "best_day": 791.8,
-   "worst_day": -122.2,
+   "best_day": 485.0,
+   "worst_day": -450.0,
    "win_days": 1,
    "loss_days": 1,
    "first_fill": "2026-07-31",
-   "last_fill": "2026-08-03"
+   "last_fill": "2026-08-03",
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   }
  },
  "part_c_fleet_floor_atm_counterfactual": {
@@ -496,19 +535,19 @@
    "window": "2026-07-31..2026-08-03",
    "n": 11,
    "n_days": 2,
-   "wr_pct": 36.4,
-   "exp_per_trade": 60.84,
-   "total_dollar": 669.2,
+   "wr_pct": 72.7,
+   "exp_per_trade": 174.35,
+   "total_dollar": 1917.9,
    "sign": "POSITIVE",
-   "best_day": 624.56,
-   "worst_day": 44.64,
+   "best_day": 1179.0,
+   "worst_day": 738.9,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-08-03",
    "by_day": {
-    "2026-07-31": 624.56,
-    "2026-08-03": 44.64
+    "2026-07-31": 1179.0,
+    "2026-08-03": 738.9
    },
    "refused_quotes_sample": [
     {
@@ -571,7 +610,9 @@
      "refused_premium": 0.2,
      "qty": 3
     }
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "risky-1": {
    "n_raw_floor_rows": 53,
@@ -582,19 +623,19 @@
    "window": "2026-07-31..2026-08-03",
    "n": 13,
    "n_days": 2,
-   "wr_pct": 38.5,
-   "exp_per_trade": 166.48,
-   "total_dollar": 2164.2,
+   "wr_pct": 76.9,
+   "exp_per_trade": 378.72,
+   "total_dollar": 4923.4,
    "sign": "POSITIVE",
-   "best_day": 1208.2,
-   "worst_day": 956.0,
+   "best_day": 2975.4,
+   "worst_day": 1948.0,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-08-03",
    "by_day": {
-    "2026-07-31": 1208.2,
-    "2026-08-03": 956.0
+    "2026-07-31": 1948.0,
+    "2026-08-03": 2975.4
    },
    "refused_quotes_sample": [
     {
@@ -657,7 +698,9 @@
      "refused_premium": 0.07,
      "qty": 5
     }
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   },
   "risky-3": {
    "n_raw_floor_rows": 46,
@@ -668,19 +711,19 @@
    "window": "2026-07-31..2026-08-03",
    "n": 11,
    "n_days": 2,
-   "wr_pct": 27.3,
-   "exp_per_trade": 29.93,
-   "total_dollar": 329.2,
+   "wr_pct": 72.7,
+   "exp_per_trade": 271.95,
+   "total_dollar": 2991.5,
    "sign": "POSITIVE",
-   "best_day": 284.4,
-   "worst_day": 44.8,
+   "best_day": 1641.4,
+   "worst_day": 1350.1,
    "win_days": 2,
    "loss_days": 0,
    "first_fill": "2026-07-31",
    "last_fill": "2026-08-03",
    "by_day": {
-    "2026-07-31": 284.4,
-    "2026-08-03": 44.8
+    "2026-07-31": 1350.1,
+    "2026-08-03": 1641.4
    },
    "refused_quotes_sample": [
     {
@@ -743,7 +786,9 @@
      "refused_premium": 0.17,
      "qty": 5
     }
-   ]
+   ],
+   "replay_engine": "walk_exit_manager",
+   "replay_soundness": "sound"
   }
  }
 }
