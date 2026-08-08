@@ -57,7 +57,8 @@ Write-TaskLog -TaskName $task -Message ("conductor: START (" + $et.ToString("yyy
 # market-hours gate above -- a gate that decides not to run should never touch the lock).
 # conductor.md's in-prompt STAGE 0 gate is KEPT UNCHANGED as a belt-and-braces second
 # check (see its updated prose) -- it remains the ONLY gate for `Gamma_ConductorWeekend`
-# (a separate wrapper, run-conductor-weekend.ps1, out of this fix's authorized surface)
+# (a separate wrapper, run-conductor-weekend.ps1 -- PORTED there the same evening,
+#  2026-08-08: both wrappers now precheck before spawning Claude)
 # and the fail-safe if this pre-check ever mis-fires.
 #
 # FAIL-OPEN IS MANDATORY (rail 2 -- a broken meter must never silence the autonomous

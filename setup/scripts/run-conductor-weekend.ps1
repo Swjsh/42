@@ -50,6 +50,114 @@ if (Test-WeekDay -Et $et) {
 
 Write-TaskLog -TaskName $task -Message ("conductor-weekend: START (" + $et.ToString("yyyy-MM-dd HH:mm dddd") + " ET)")
 
+# --- RAIL 0 BUDGET PRE-CHECK (2026-08-08, LANE 1 -- CONDUCTOR-GATE-PRECHECK weekend port) ---
+# Ported from run-conductor.ps1's rail-0 block (same commit family). THE FINDING there applies
+# HARDER here: Gamma_ConductorWeekend fires every 2h across BOTH Saturday and Sunday (far more
+# scheduled slots/week than the weekday conductor), so it was the larger remaining source of
+# near-zero-self-report waste once the weekday wrapper got its own precheck. Before this port,
+# run-conductor.ps1's own doc comment explicitly named this file as the ONLY remaining wrapper
+# that still spawned Claude before checking the budget -- conductor.md's in-prompt STAGE 0 gate
+# was catching it, but only AFTER a full Claude session had already booted (CLAUDE.md +
+# conductor.md + the gamma agent's whole MCP tool surface), at ~$1.25 real cost per no-op.
+#
+# Adapted, not blind-pasted: this wrapper's mode string is "conductor-weekend" (not
+# "conductor"), so the recorded task-id/note are WEEKEND-tagged for downstream attribution
+# (LANE 1 step 6 quantification) while still containing the literal word "budget" so
+# autonomy_report.py's classify_noop_reason() still buckets it as budget_exhausted (checked
+# in priority order ahead of any other marker -- see that function's docstring). This wrapper
+# has no market-hours rail 1 of its own (the weekday-only gate above plays that role -- a
+# market is never open on a weekend), so this block sits in the same architectural slot:
+# after the wrapper's own "should this fire run at all" gate, before the cross-fire lock (a
+# gate that decides not to run should never touch the lock file).
+#
+# FAIL-OPEN IS MANDATORY (identical to the weekday block): a broken meter must never silence
+# the autonomous loop. Only a CONFIRMED exit code 3 (conductor_budget.py's EXIT_EXHAUSTED)
+# skips the spawn; every other outcome (missing interpreter/script, timeout, thrown exception)
+# falls through to the normal Claude fire below, unchanged.
+# ===RAIL0-PRECHECK-BLOCK-START=== (test seam: backtest/tests/test_conductor_gate_precheck.py
+# extracts the code between these two marker lines verbatim and swaps only the interpreter
+# /script/outcome-recorder paths + the wait timeout for fixtures -- never touches this file).
+$budgetPrecheckPy = Join-Path $projectRoot "backtest\.venv\Scripts\python.exe"
+$budgetPrecheckScript = Join-Path $projectRoot "setup\scripts\conductor_budget.py"
+$precheckExitCode = $null
+if ((Test-Path $budgetPrecheckPy) -and (Test-Path $budgetPrecheckScript)) {
+    try {
+        $precheckPsi = New-Object System.Diagnostics.ProcessStartInfo
+        $precheckPsi.FileName = $budgetPrecheckPy
+        $precheckPsi.Arguments = '"' + $budgetPrecheckScript + '" --check'
+        $precheckPsi.WorkingDirectory = $projectRoot
+        $precheckPsi.UseShellExecute = $false
+        $precheckPsi.CreateNoWindow = $true
+        $precheckPsi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+        $precheckPsi.RedirectStandardOutput = $true
+        $precheckPsi.RedirectStandardError = $true
+        $precheckProc = [System.Diagnostics.Process]::Start($precheckPsi)
+        # WaitForExit FIRST, THEN read stdout/stderr -- NOT the other way around.
+        # ReadToEnd() blocks until the pipe's write end closes, which normally only
+        # happens on process exit; calling it before WaitForExit deadlocks (blocks
+        # indefinitely, ignoring the 30s timeout entirely) on a hung child that
+        # produces no output -- exactly the pathological case this timeout exists to
+        # catch (same defect class caught live in run-conductor.ps1's own build --
+        # ported here unchanged rather than reintroduced).
+        if ($precheckProc.WaitForExit(30000)) {
+            $precheckExitCode = $precheckProc.ExitCode
+            $precheckStdout = $precheckProc.StandardOutput.ReadToEnd()
+            $precheckStderr = $precheckProc.StandardError.ReadToEnd()
+            if ($precheckStdout) {
+                Write-TaskLog -TaskName $task -Message ("conductor-weekend: rail-0 precheck stdout: " + $precheckStdout.Trim())
+            }
+            if ($precheckStderr) {
+                Write-TaskLog -TaskName $task -Message ("conductor-weekend: rail-0 precheck stderr: " + $precheckStderr.Trim())
+            }
+        } else {
+            # Kill() -- NOT Kill($true). The "entire process tree" overload
+            # (Process.Kill(Boolean)) is not available on this box's Windows
+            # PowerShell 5.1 / .NET Framework combo -- it throws
+            # "Cannot find an overload for Kill and the argument count: 1", which a
+            # bare try/catch here would silently swallow, leaving the hung child
+            # ORPHANED and still running. conductor_budget.py --check is a single leaf
+            # process (spawns no children of its own), so the plain single-process
+            # Kill() is sufficient -- there is no subtree to reap. Ported unchanged
+            # from run-conductor.ps1 rather than reintroduced.
+            try { $precheckProc.Kill() } catch { }
+            Write-TaskLog -TaskName $task -Message "conductor-weekend: RAIL-0 PRECHECK TIMEOUT (30s) -- failing OPEN, proceeding to Claude fire"
+        }
+    } catch {
+        Write-TaskLog -TaskName $task -Message ("conductor-weekend: RAIL-0 PRECHECK ERROR (" + $_.Exception.Message + ") -- failing OPEN, proceeding to Claude fire")
+        $precheckExitCode = $null
+    }
+} else {
+    Write-TaskLog -TaskName $task -Message "conductor-weekend: RAIL-0 PRECHECK SKIPPED -- venv python or conductor_budget.py missing, failing OPEN"
+}
+
+if ($precheckExitCode -eq 3) {
+    # NOTE: "$0.00" (literal dollar sign) inside a PS double-quoted string gets parsed
+    # as a reference to variable $0 (undefined -> empty), silently swallowing the "$0"
+    # and leaving ".00" -- same bug class caught live during the weekday build's own
+    # end-to-end verification. Say "zero real cost" instead of risking it again.
+    Write-TaskLog -TaskName $task -Message "conductor-weekend: RAIL-0 PRECHECK EXHAUSTED -- SKIP, Claude session never spawned (zero real cost)"
+    $preTaskId = "PRECHECK-BUDGET-EXHAUSTED-WEEKEND-" + (Get-EtNow).ToString("yyyy-MM-ddTHHmmss")
+    $preNote = "rail-0 budget gate EXHAUSTED (weekend conductor pre-check, PowerShell, before Claude spawn) -- zero real cost, Claude session never launched"
+    try {
+        $precheckRecordArgs = @(
+            "record",
+            "--task-id", $preTaskId,
+            "--cost", "0",
+            "--drained", "0",
+            "--added", "0",
+            "--lessons", "0",
+            "--tests-delta", "0",
+            "--regressions", "0",
+            "--note", $preNote
+        )
+        $null = Invoke-PythonHidden -ScriptPath "setup\scripts\conductor_outcome.py" `
+            -ArgList $precheckRecordArgs -TaskName "$task-precheck-record" -TimeoutSec 30
+    } catch { }
+    Write-TaskLog -TaskName $task -Message "conductor-weekend: END exit=0 (rail-0 precheck blocked, Claude never spawned)"
+    exit 0
+}
+# ===RAIL0-PRECHECK-BLOCK-END===
+
 # --- CROSS-FIRE LOCK (fail-open; SHARED with run-conductor.ps1) -----------------
 # Same lock file / same Enter-ConductorFireLock helper as run-conductor.ps1 --
 # conductor and conductor-weekend pick from the SAME queue.md and can (and, per

@@ -104,13 +104,41 @@ function Invoke-PythonHidden {
         $proc.StandardInput.WriteLine($InputObject)
         $proc.StandardInput.Close()
     }
-    $stdout = $proc.StandardOutput.ReadToEnd()
-    $stderr = $proc.StandardError.ReadToEnd()
+    # FIX (2026-08-07, Lane 2 systemic-timeout-leak audit): the old code called the
+    # SYNCHRONOUS StandardOutput/StandardError.ReadToEnd() before WaitForExit(). ReadToEnd()
+    # blocks until the pipe's write end closes, which only happens on process exit -- so a
+    # child that hangs (regardless of whether it ever writes output) blocks THIS LINE
+    # forever and WaitForExit($TimeoutSec*1000) below is never even reached. -TimeoutSec was
+    # dead in exactly the pathological case it exists for. It can also classically deadlock
+    # if the child fills the stderr OS pipe buffer while we're blocked reading only stdout.
+    # Fix: begin async reads first (mirrors Invoke-Claude's proven pattern above), so
+    # WaitForExit is the only blocking call and the timeout is real.
+    $stdoutTask = $proc.StandardOutput.ReadToEndAsync()
+    $stderrTask = $proc.StandardError.ReadToEndAsync()
     if (-not $proc.WaitForExit($TimeoutSec * 1000)) {
-        try { $proc.Kill($true) } catch {}
+        # FIX (2026-08-07, same audit): Process.Kill(Boolean) -- the process-tree overload --
+        # does NOT exist on this box's Windows PowerShell 5.1 / .NET Framework and THROWS
+        # "Cannot find an overload for 'Kill' and the argument count: 1", which the bare
+        # try/catch here swallowed. Net effect: every timeout in this function leaked its
+        # hung child instead of killing it. Proven empirically 2026-08-07: Kill($true) threw
+        # that exact exception against a real spawned process; plain Kill() on an identical
+        # process succeeded and the PID disappeared immediately. Invoke-PythonHidden's
+        # children are plain leaf python.exe processes (no MCP/child subtree spawned under
+        # them the way claude.exe spawns MCP servers under Invoke-Claude), so plain Kill()
+        # is the correct PS5.1-safe call here -- no taskkill /T tree-kill needed.
+        try { $proc.Kill() } catch {}
         $exit = -1
     } else {
         $exit = $proc.ExitCode
+    }
+    try {
+        $stdout = $stdoutTask.GetAwaiter().GetResult()
+        $stderr = $stderrTask.GetAwaiter().GetResult()
+    } catch {
+        # Defensive: if the killed process's streams fault instead of completing cleanly,
+        # don't let stdout/stderr capture failure mask the real ExitCode/timeout result above.
+        if (-not $stdout) { $stdout = "" }
+        if (-not $stderr) { $stderr = "" }
     }
 
     $ts = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")

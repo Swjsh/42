@@ -60,6 +60,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = ROOT / "setup" / "scripts"
 SHARED = SCRIPTS / "_shared.ps1"
 RUN_CONDUCTOR = SCRIPTS / "run-conductor.ps1"
+RUN_CONDUCTOR_WEEKEND = SCRIPTS / "run-conductor-weekend.ps1"
 CONDUCTOR_MD = ROOT / "automation" / "prompts" / "conductor.md"
 
 sys.path.insert(0, str(SCRIPTS))
@@ -82,8 +83,8 @@ FELL_THROUGH_EXIT = 42
 # Structural checks (fast, no subprocess) -- prove the wiring exists at all.
 # --------------------------------------------------------------------------- #
 
-def _run_conductor_src() -> str:
-    return RUN_CONDUCTOR.read_text(encoding="utf-8")
+def _run_conductor_src(source: Path = RUN_CONDUCTOR) -> str:
+    return source.read_text(encoding="utf-8")
 
 
 def test_precheck_markers_present_exactly_once():
@@ -166,21 +167,21 @@ def test_precheck_guards_missing_interpreter_and_script_with_test_path():
 # outcome-recorder paths + wait timeout for fixtures, and actually run it.
 # --------------------------------------------------------------------------- #
 
-def _extract_precheck_block() -> str:
-    src = _run_conductor_src()
+def _extract_precheck_block(source: Path = RUN_CONDUCTOR) -> str:
+    src = _run_conductor_src(source)
     start = src.index(START_MARKER)
     end = src.index(END_MARKER, start)
     return src[start:end]
 
 
 def _substituted_block(py_path: Path, script_path: Path, outcome_script_path: Path,
-                        wait_ms: int) -> str:
-    block = _extract_precheck_block()
+                        wait_ms: int, source: Path = RUN_CONDUCTOR) -> str:
+    block = _extract_precheck_block(source)
     for needle in (_OLD_PY, _OLD_SCRIPT, _OLD_WAIT, _OLD_OUTCOME_SCRIPT):
         count = block.count(needle)
         assert count == 1, (
             f"expected exactly one occurrence of {needle!r} in the extracted rail-0 "
-            f"pre-check block, found {count} -- run-conductor.ps1's shape changed, "
+            f"pre-check block of {source}, found {count} -- its shape changed, "
             f"update this test's substitution targets to match")
     block = block.replace(_OLD_PY, f'"{py_path}"')
     block = block.replace(_OLD_SCRIPT, f'"{script_path}"')
@@ -190,9 +191,10 @@ def _substituted_block(py_path: Path, script_path: Path, outcome_script_path: Pa
 
 
 def _build_harness(tmp_path: Path, py_path: Path, script_path: Path,
-                    outcome_script_path: Path, wait_ms: int = 2000) -> Path:
-    block = _substituted_block(py_path, script_path, outcome_script_path, wait_ms)
-    harness = tmp_path / "harness.ps1"
+                    outcome_script_path: Path, wait_ms: int = 2000,
+                    source: Path = RUN_CONDUCTOR, harness_name: str = "harness.ps1") -> Path:
+    block = _substituted_block(py_path, script_path, outcome_script_path, wait_ms, source)
+    harness = tmp_path / harness_name
     text = (
         '$ErrorActionPreference = "Continue"\n'
         f'$projectRoot = "{ROOT}"\n'
@@ -444,3 +446,225 @@ def test_exhausted_outcome_row_parses_via_autonomy_report(tmp_path):
     assert report["today"]["ship_fires"] == 0
     assert report["today"]["noop_reasons"]["budget_exhausted"] == 1
     assert "budget-starved" in report["today"]["verdict"]
+
+
+# --------------------------------------------------------------------------- #
+# LANE 1 (2026-08-08): run-conductor-weekend.ps1 port coverage. Same block
+# shape, same marker comments, same substitution targets (_OLD_PY/_OLD_SCRIPT/
+# _OLD_WAIT/_OLD_OUTCOME_SCRIPT) as the weekday file -- these tests reuse the
+# generalized `source=` param on the extraction/harness helpers above rather
+# than duplicating them. Executed scenarios only (structural greps for marker
+# position/wiring are the SAME shape as the weekday tests above and would be
+# redundant here); this section proves the actual behavior: exhausted blocks
+# the spawn, under-budget allows it, a precheck error falls through, and the
+# recorded outcome row is schema-valid AND classifies correctly.
+# --------------------------------------------------------------------------- #
+
+def _weekend_src() -> str:
+    return _run_conductor_src(RUN_CONDUCTOR_WEEKEND)
+
+
+def test_weekend_precheck_markers_present_exactly_once():
+    src = _weekend_src()
+    assert src.count(START_MARKER) == 1
+    assert src.count(END_MARKER) == 1
+    assert src.index(START_MARKER) < src.index(END_MARKER)
+
+
+def test_weekend_precheck_block_runs_before_invoke_claude_with_retry():
+    src = _weekend_src()
+    precheck_pos = src.index(START_MARKER)
+    invoke_pos = src.index("Invoke-ClaudeWithRetry")
+    assert precheck_pos < invoke_pos, (
+        "weekend rail-0 pre-check block must appear before the Invoke-ClaudeWithRetry call site")
+
+
+def test_weekend_precheck_block_before_cross_fire_lock():
+    """Same architectural slot as the weekend wrapper's own weekday-only gate: a gate that
+    decides not to run should never touch the (shared) cross-fire lock file first."""
+    src = _weekend_src()
+    precheck_pos = src.index(START_MARKER)
+    lock_pos = src.index("Enter-ConductorFireLock")
+    assert precheck_pos < lock_pos
+
+
+def test_weekend_precheck_block_after_weekday_only_gate():
+    """LANE 1 structural difference vs run-conductor.ps1: this wrapper's own
+    'should this fire run at all' gate is Test-WeekDay (weekend-only), not a market-hours
+    check -- the precheck must sit AFTER that gate, in the same slot rail-1 occupies in
+    the weekday file."""
+    src = _weekend_src()
+    gate_pos = src.index("if (Test-WeekDay -Et $et) {")
+    precheck_pos = src.index(START_MARKER)
+    assert gate_pos < precheck_pos
+
+
+def test_weekend_precheck_note_and_task_id_contain_budget_marker():
+    block = _extract_precheck_block(RUN_CONDUCTOR_WEEKEND)
+    task_id_line = [ln for ln in block.splitlines() if "preTaskId" in ln and "=" in ln][0]
+    note_line = [ln for ln in block.splitlines() if "preNote" in ln and "=" in ln][0]
+    assert "budget" in task_id_line.lower()
+    assert "budget" in note_line.lower()
+
+
+def test_weekend_precheck_task_id_tagged_weekend_for_attribution():
+    """LANE 1 step 6 needs to distinguish weekend-attributable precheck-blocked rows from
+    weekday ones in conductor-outcomes.jsonl -- the recorded task-id must carry a WEEKEND
+    tag, not just be a byte-identical copy of the weekday task-id."""
+    block = _extract_precheck_block(RUN_CONDUCTOR_WEEKEND)
+    task_id_line = [ln for ln in block.splitlines() if "preTaskId" in ln and "=" in ln][0]
+    assert "WEEKEND" in task_id_line
+
+
+def test_weekend_precheck_uses_kill_not_kill_tree_and_wait_before_read():
+    """Both bug fixes from the reference block must be present, not reintroduced. The
+    block's own explanatory comments legitimately MENTION 'Kill($true)' as the thing NOT
+    to do (same doc style as the reference block in run-conductor.ps1) -- so this checks
+    for the actual CALL form ('$precheckProc.Kill($true)'), not a bare substring, which
+    would false-positive on that prose."""
+    block = _extract_precheck_block(RUN_CONDUCTOR_WEEKEND)
+    assert "WaitForExit(30000)" in block
+    assert "$precheckProc.Kill()" in block
+    assert "$precheckProc.Kill($true)" not in block
+    # WaitForExit must textually precede both ReadToEnd() calls (proves the ordering fix
+    # survived the port, not just that both APIs are mentioned somewhere in the block).
+    wait_pos = block.index("WaitForExit(30000)")
+    for read_call in ("StandardOutput.ReadToEnd()", "StandardError.ReadToEnd()"):
+        assert wait_pos < block.index(read_call)
+
+
+def test_weekend_precheck_blocks_spawn_when_gate_reports_exhausted(tmp_path):
+    gate = _write_gate_fixture(tmp_path, "gate_exhausted.py", "import sys\nsys.exit(3)\n")
+    outcomes_file = tmp_path / "fixture-outcomes.jsonl"
+    recorder = _write_outcome_recorder_fixture(tmp_path, outcomes_file)
+    harness = _build_harness(tmp_path, REAL_VENV_PY, gate, recorder,
+                              source=RUN_CONDUCTOR_WEEKEND, harness_name="weekend_harness.ps1")
+    marker = tmp_path / "marker.txt"
+
+    result = _run_harness(harness, marker)
+
+    assert result.returncode == 0, (
+        f"exhausted weekend precheck must exit 0 (blocked), not fall through -- "
+        f"stdout={result.stdout!r} stderr={result.stderr!r}")
+    assert not marker.exists(), (
+        "the FELL_THROUGH sentinel must never be written -- this proves the weekend script "
+        "never reached the line where Invoke-ClaudeWithRetry would have been called")
+
+
+def test_weekend_precheck_allows_spawn_when_gate_reports_proceed(tmp_path):
+    gate = _write_gate_fixture(tmp_path, "gate_proceed.py", "import sys\nsys.exit(0)\n")
+    outcomes_file = tmp_path / "fixture-outcomes.jsonl"
+    recorder = _write_outcome_recorder_fixture(tmp_path, outcomes_file)
+    harness = _build_harness(tmp_path, REAL_VENV_PY, gate, recorder,
+                              source=RUN_CONDUCTOR_WEEKEND, harness_name="weekend_harness.ps1")
+    marker = tmp_path / "marker.txt"
+
+    result = _run_harness(harness, marker)
+
+    assert result.returncode == FELL_THROUGH_EXIT, (
+        f"a PROCEED gate must fall through unchanged -- stdout={result.stdout!r} "
+        f"stderr={result.stderr!r}")
+    assert marker.exists()
+    assert marker.read_text(encoding="utf-8-sig").strip() == "FELL_THROUGH"
+    assert not outcomes_file.exists()
+
+
+def test_weekend_precheck_fails_open_on_timeout(tmp_path):
+    gate = _write_gate_fixture(tmp_path, "gate_hangs.py", "import time\ntime.sleep(20)\n")
+    outcomes_file = tmp_path / "fixture-outcomes.jsonl"
+    recorder = _write_outcome_recorder_fixture(tmp_path, outcomes_file)
+    harness = _build_harness(tmp_path, REAL_VENV_PY, gate, recorder, wait_ms=1500,
+                              source=RUN_CONDUCTOR_WEEKEND, harness_name="weekend_harness.ps1")
+    marker = tmp_path / "marker.txt"
+
+    started = time.time()
+    result = _run_harness(harness, marker)
+    elapsed = time.time() - started
+
+    assert result.returncode == FELL_THROUGH_EXIT, (
+        f"a timed-out weekend precheck must fail OPEN (fall through) -- "
+        f"stdout={result.stdout!r} stderr={result.stderr!r}")
+    assert marker.exists()
+    assert elapsed < 15, (
+        f"took {elapsed:.1f}s -- the shortened 1.5s WaitForExit should have fired well "
+        f"before the fixture gate's 20s sleep")
+
+
+def test_weekend_precheck_fails_open_when_process_start_throws(tmp_path):
+    not_an_exe = tmp_path / "not_really_python.exe"
+    not_an_exe.write_text("this is not a valid win32 executable", encoding="utf-8")
+    gate = _write_gate_fixture(tmp_path, "gate_unused.py", "import sys\nsys.exit(3)\n")
+    outcomes_file = tmp_path / "fixture-outcomes.jsonl"
+    recorder = _write_outcome_recorder_fixture(tmp_path, outcomes_file)
+    harness = _build_harness(tmp_path, not_an_exe, gate, recorder,
+                              source=RUN_CONDUCTOR_WEEKEND, harness_name="weekend_harness.ps1")
+    marker = tmp_path / "marker.txt"
+
+    result = _run_harness(harness, marker)
+
+    assert result.returncode == FELL_THROUGH_EXIT, (
+        f"a Process.Start exception must fail OPEN -- stdout={result.stdout!r} "
+        f"stderr={result.stderr!r}")
+    assert marker.exists()
+
+
+def test_weekend_exhausted_path_writes_schema_valid_outcome_row(tmp_path):
+    gate = _write_gate_fixture(tmp_path, "gate_exhausted.py", "import sys\nsys.exit(3)\n")
+    outcomes_file = tmp_path / "fixture-outcomes.jsonl"
+    recorder = _write_outcome_recorder_fixture(tmp_path, outcomes_file)
+    harness = _build_harness(tmp_path, REAL_VENV_PY, gate, recorder,
+                              source=RUN_CONDUCTOR_WEEKEND, harness_name="weekend_harness.ps1")
+    marker = tmp_path / "marker.txt"
+
+    result = _run_harness(harness, marker)
+    assert result.returncode == 0, f"stdout={result.stdout!r} stderr={result.stderr!r}"
+
+    assert outcomes_file.exists()
+    lines = [ln for ln in outcomes_file.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    assert len(lines) == 1
+    row = json.loads(lines[0])
+
+    for field in ("fired_at", "task_id", "cost_usd", "items_drained", "items_added",
+                  "lessons_shipped", "tests_delta", "regressions", "note", "trading_day",
+                  "enters_last_trading_day", "orders_accepted",
+                  "extra_exec_orders_accepted", "fills", "distinct_setups_traded"):
+        assert field in row, f"missing field {field!r} in weekend precheck outcome row: {row}"
+
+    assert row["cost_usd"] == 0.0
+    assert row["items_drained"] == 0
+    assert row["lessons_shipped"] == 0
+    assert "budget" in row["task_id"].lower()
+    assert "weekend" in row["task_id"].lower()
+    assert "budget" in row["note"].lower()
+
+
+def test_weekend_exhausted_outcome_row_parses_via_autonomy_report(tmp_path):
+    gate = _write_gate_fixture(tmp_path, "gate_exhausted.py", "import sys\nsys.exit(3)\n")
+    outcomes_file = tmp_path / "fixture-outcomes.jsonl"
+    recorder = _write_outcome_recorder_fixture(tmp_path, outcomes_file)
+    harness = _build_harness(tmp_path, REAL_VENV_PY, gate, recorder,
+                              source=RUN_CONDUCTOR_WEEKEND, harness_name="weekend_harness.ps1")
+    marker = tmp_path / "marker.txt"
+
+    result = _run_harness(harness, marker)
+    assert result.returncode == 0, f"stdout={result.stdout!r} stderr={result.stderr!r}"
+    assert outcomes_file.exists()
+
+    import autonomy_report as ar
+
+    rows = ar.load_outcomes(outcomes_file)
+    assert len(rows) == 1, f"autonomy_report.load_outcomes() choked on the row: {rows}"
+    row = rows[0]
+
+    assert ar.is_ship_event(row) is False
+    assert ar.classify_noop_reason(row) == "budget_exhausted", (
+        f"expected budget_exhausted classification, got {ar.classify_noop_reason(row)!r} "
+        f"for row {row}")
+
+    et_date = ar._row_et_date(row)
+    assert et_date is not None
+
+    report = ar.compute_report(rows, None, dict(ar._BUDGET_DEFAULTS), et_date)
+    assert report["today"]["total_fires"] == 1
+    assert report["today"]["ship_fires"] == 0
+    assert report["today"]["noop_reasons"]["budget_exhausted"] == 1
