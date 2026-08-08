@@ -2,8 +2,12 @@
 
 WHY THIS EXISTS (tonight's audit, verified with live evidence):
 Gamma_Conductor is the ONLY scheduled loop that can change the rig unattended. Its STAGE-0
-budget gate (conductor_budget.py, $30/day cap w/ a 2.2x self-report correction) got exhausted
-inside the first ~2h of the ET day on 2026-08-08 (raw $16.05 x2.2 = $35.31 by ~02:07 ET), and
+budget gate (conductor_budget.py, $30/day cap w/ a 2.16x self-report correction -- re-measured
+2026-08-08 from 2.2x, see conductor_budget.py's own SELF_REPORT_CORRECTION constant and
+analysis/recommendations/conductor-cost-correction-measurement-2026-08-08.md) got exhausted
+inside the first ~2h of the ET day on 2026-08-08 (raw $16.05 x2.2 = $35.31 by ~02:07 ET -- the
+2.2x constant that was LIVE at the moment of this actual incident, kept here as an accurate
+historical quote; the constant has since been corrected, see above), and
 every conductor-family fire since has been a pure no-op -- 6+ consecutive QUIET/EXHAUSTED rows
 in automation/state/conductor-outcomes.jsonl with items_drained=0 through 20:00 UTC. Nothing
 today surfaced that plainly. This script is the instrument: it reads the SAME outcomes ledger

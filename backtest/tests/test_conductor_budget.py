@@ -519,3 +519,52 @@ def test_status_file_written_with_pacing_fields(tmp_path, monkeypatch, capsys):
     assert payload["slots_used"] == 1
     assert payload["slots_remaining"] >= 1
     assert "allowance_next_usd" in payload and "reserve_for_future_usd" in payload
+
+
+# ----------------------------------- CONDUCTOR-GATE-PRECHECK stale-prose fix (2026-08-08) ------
+# Companion follow-up to the cost-correction measurement: the measurement doc's own "Known
+# stale prose" section flagged automation/prompts/conductor.md's STAGE-0 text and
+# setup/scripts/autonomy_report.py's module docstring as still citing the OLD "x2.2" factor
+# after SELF_REPORT_CORRECTION was re-measured to 2.16. These tests pin the fix so a future
+# edit can't silently reintroduce the stale figure. They also pin that run-conductor.ps1's
+# new pre-check (setup/scripts/run-conductor.ps1, CONDUCTOR-GATE-PRECHECK) is documented in
+# conductor.md's STAGE 0 prose, so a reader of the prompt isn't left thinking the in-prompt
+# gate is still the primary/first check for the AFTERHOURS `conductor` task.
+CONDUCTOR_MD = ROOT / "automation" / "prompts" / "conductor.md"
+AUTONOMY_REPORT_PY = ROOT / "setup" / "scripts" / "autonomy_report.py"
+
+
+def test_conductor_md_stage0_prose_cites_2_16_not_stale_2_2():
+    src = CONDUCTOR_MD.read_text(encoding="utf-8")
+    assert "×2.16" in src, (
+        "conductor.md STAGE 0 must cite the re-measured 2.16x correction factor")
+    assert "corrects your self-report ×2.2." not in src, (
+        "the OLD stale '×2.2.' sentence must not survive -- it was flagged by the "
+        "2026-08-08 measurement doc as stale prose")
+
+
+def test_autonomy_report_docstring_cites_2_16_correction():
+    src = AUTONOMY_REPORT_PY.read_text(encoding="utf-8")
+    assert "2.16x self-report correction" in src, (
+        "autonomy_report.py's module docstring must cite the re-measured 2.16x factor "
+        "(flagged as stale '2.2x' prose by the 2026-08-08 measurement doc)")
+    # The historical incident narrative (raw $16.05 x2.2 = $35.31) is an accurate quote of
+    # what the constant WAS at the moment that real incident happened -- it must survive
+    # unchanged, this test only pins that the CURRENT/general-mechanism sentence is fixed.
+    assert "raw $16.05 x2.2 = $35.31" in src, (
+        "the historical incident quote must not be rewritten -- it describes what actually "
+        "happened under the constant that was live AT THE TIME, not the current value")
+
+
+def test_conductor_md_stage0_documents_the_wrapper_precheck_frontrun():
+    """CONDUCTOR-GATE-PRECHECK (2026-08-08): run-conductor.ps1 now runs conductor_budget.py
+    --check BEFORE spawning this Claude session at all, for the AFTERHOURS `conductor` task.
+    The in-prompt STAGE 0 gate stays mandatory (belt-and-braces + the only gate for
+    conductor-weekend), but a reader must not be left thinking it's still the FIRST check."""
+    src = CONDUCTOR_MD.read_text(encoding="utf-8")
+    stage0_start = src.index("0. **BUDGET GATE")
+    stage1_start = src.index("1. **MARKET-HOURS GATE")
+    stage0_text = src[stage0_start:stage1_start]
+    assert "run-conductor.ps1" in stage0_text
+    assert "belt-and-braces" in stage0_text
+    assert "ConductorWeekend" in stage0_text or "conductor-weekend" in stage0_text
