@@ -1,8 +1,49 @@
+## [2026-08-08T02:06 ET] CONDUCTOR: OK -- BUDGET-ROSTER-AUDIT-MAXBUDGETUSD -- commit `619f41aa` -- REVOKE surface
+
+**Task picked (priority-4 queue MED, loop-CLOSING per the REGRESSING-trend guidance below;
+nightly conductor budget was $29.15/$30 at fire start, so this fire was kept minimal --
+no Agent-tool fan-out, direct execution only):** ran the roster-wide `-MaxBudgetUsd` audit
+queued by the 2026-08-08T00:00 fire. Grepped all 23 values across `run-*.ps1`, checked every
+plausible outlier's REAL logs before touching anything (per the queue item's own Action line).
+Ruled out 2 false leads: `run-futures-heartbeat.ps1` (0.25, looks low) is a deliberately
+`Disabled` task since 2026-06-17 (annotated retirement, zero fires since -- not a bug);
+`run-analyst-eod.ps1` (0.60, looks low vs EOD siblings 4-6) shows 0/5 recent logs with any
+budget/exit signature -- genuinely not failing.
+
+**Found a real 3rd instance of the mis-sized-at-birth class:** `run-mcp-daily-audit.ps1`
+(0.30 budget / 240s timeout). Full classification of all 42 dated logs
+(2026-06-21..2026-08-07): 23 ok / 10 `Exceeded USD budget (0.3)` / 6 timeout(124) / 3 other
+exit=1 -- a **45% combined failure rate**, still active as of the two most recent failures
+checked (08-05 budget-exceeded, 08-06 timeout). The docstring's own "~$0.10/fire" estimate
+never matched reality -- round-tripping Alpaca (Safe+Bold) + TradingView MCP tools regularly
+costs 3x+ that. Fixed 0.30->0.60 budget, 240->300s timeout. Guard:
+`backtest/tests/test_mcp_daily_audit_budget.py` (4 tests, mirrors
+`test_scout_premarket_budget.py`'s pattern), RED-proofed via rename-and-restore (git-showed
+pre-fix HEAD into place, 4/4 correctly failed with the known-broken-value assertions, restored
+byte-identical via sha256). Repo-wide `-k budget` suite: 33/33 PASS. `run-mcp-weekly-audit.ps1`
+also checked -- confirmed dead code (`Gamma_McpWeeklyAudit` no longer exists in the scheduler,
+superseded by the daily version), correctly left untouched.
+
+**Lesson filed** (`_lesson-inbox/2026-08-08-mcp-daily-audit-budget-4th-recurrence-graduated-to-roster-sweep.md`):
+names this the 3rd independent instance of the identical mechanism in ~2 days of fires and
+proposes the OP-25 graduation shape -- a standing parametrized guard that walks the whole
+roster's logs and RED's on >15% budget/timeout failure rate, so the 4th recurrence (if any)
+trips automatically instead of requiring another manual grep-and-fix sweep.
+
+**Commit verified exactly-scoped:** `git show 619f41aa --stat --name-status` = 4 files (1
+script edit, 1 new guard test, 1 queue.md status flip, 1 new lesson) via `commit_scoped.py` --
+zero absorption of any other concurrent lane's staged files.
+
+**REVOKE:** `git revert 619f41aa` (clean, 4 files, byte-revertible).
+
+Cost this fire: ~$2.70 (log archaeology across 5 candidate tasks + guard build + RED-proof +
+commit; kept deliberately lean given nightly conductor budget was near its $30 cap at start).
+
+---
+
 > **Autonomy metric trend: REGRESSING** (`conductor_outcome.py metric`, 20-fire window,
-> net_improvement=83, cost_per_drained=$0.64, zero regressions). Not chased this fire (rail
-> 3, one bounded task) -- flagging per the metric protocol so next fire prefers a
-> loop-CLOSING item (author-inbox drain, a stale-J-ping resolution, or a queue item marked
-> `done`) over a new artifact until the trend recovers.
+> net_improvement=83, cost_per_drained=$0.64, zero regressions). This fire picked a
+> loop-CLOSING item (a queue item marked `done`) per the metric protocol's own guidance.
 
 ## [2026-08-08T00:00 ET] CONDUCTOR: OK -- EOD-FLATTEN-LLM-PROMPT-EXIT1 -- commit `d8ec25d2` -- REVOKE surface
 
@@ -533,58 +574,3 @@ Autonomy metric refreshed via `conductor_outcome.py` this same fire.
 
 ---
 
-## [2026-08-05T20:37 ET] conductor: OK -- REGIME-STAMP-DRIFT-REPATCH-FIX -- commits `2bbc00fe` + `cfe37485`
-
-Budget gate PASSED ($15.18/$30, 2/4 fires pre-fire). Engine health GREEN, market closed
-(20:30 ET). STAGE-1 priority-1 (fill-funnel/self-check) surfaced a genuine, TODAY-dated,
-DOUBLY-flagged infra defect that outranked queue/inbox work: self_check.py's DEGRADED
-verdict AND today's 16:15 ET monday_verify WS6 sweep (see the RED entry immediately below
-this one, same day) both independently caught `today-bias.json#regime_context` with
-`yesterday_archetype`/`stamp_date`/`source` silently null while `one_liner` alone survived
--- a producer/consumer handoff drift between `Gamma_RegimeStamp` (08:22 ET, deterministic,
-patches correctly) and `Gamma_Premarket` (08:30 ET, LLM-prompt-driven, rewrites
-today-bias.json wholesale and is only prose-instructed to carry the 4 fields forward).
-**Root cause named in one sentence:** an LLM prompt's "carry these fields forward"
-instruction is not a contract -- it silently dropped 3 of 4 fields under normal operation,
-with zero error/crash to catch it.
-**Fix:** `regime_stamp.main()` is idempotent + $0 (pure Python, no LLM/network) -- added a
-2nd daily Task Scheduler trigger at 08:40 ET (06:40 MT, ~10min after Premarket normally
-finishes) so the deterministic patch is always the LAST writer regardless of Premarket's
-transcription fidelity (`setup/install-regime-stamp.ps1`).
-**Live-verified, not just unit-tested:** fired `Gamma_RegimeStamp` manually against the
-ACTUAL broken `today-bias.json` on disk this fire -- `LastTaskResult=0`, and
-`regime_context` healed to all 4 correct fields in place (`yesterday_archetype=gap-go`,
-`stamp_date=2026-08-05`, `source=regime_stamp_0822ET`). Re-ran `self_check.py` after:
-problem count dropped 5->4, REGIME-STAMP DRIFT line gone, remaining 4 unrelated
-(PDT-BLOCKED[bold] = expected Rule-7 enforcement; TRENDLINE-DRAW = separate pre-existing
-visibility-only flag).
-**Guard:** `backtest/tests/test_regime_stamp_repatch.py` (4/4) -- reproduces the exact
-observed drift and proves the repatch heals it, proves idempotency on the already-correct
-happy path, proves fail-open on a missing bias file, and RED-proofs the install script
-itself (asserts both triggers stay registered -- catches a future edit silently reverting
-to the single pre-fix trigger). `test_regime_library_guards.py` unaffected (37/37 still
-green, no regression). Curated safety gate 59/59 PASS on both commits.
-Rail-4 N/A (this is infra/scheduling, not the SPY/crypto trading path -- no
-params/heartbeat_core/filters/placement/exit code touched; today-bias.json is descriptive
-morning context only, NEVER a live entry input per the file's own `_doc` field).
-**REVOKE:** `git revert 2bbc00fe` then re-run `setup/install-regime-stamp.ps1` restores the
-single 06:22-only trigger (the doc/lesson commit `cfe37485` reverts independently, pure
-prose).
-Filed lesson-inbox item (`2026-08-05-regime-stamp-prose-transcription-drift.md`) for
-lesson-author to encode as a formal L## -- generalizable guidance: any
-`automation/prompts/*.md` step instructing an LLM session to "carry field X from file A
-into file B it's about to rewrite" is a drift risk; prefer a deterministic re-assert
-(as shipped here) or a detector+auto-remediator pair (L252 precedent) over prose alone.
-Next fire: `_chef-inbox` still has 24 un-DONE items (chef-persona triage, a different
-cost shape than dedup); `GATE-EXPIRY-SOLE-BLOCKER-MINER` (HIGH) is queue.md's top-ranked
-item once this infra fix is closed. Autonomy metric to be refreshed via
-`conductor_outcome.py` this same fire.
-
----
-
-
-### DEGRADED: self-check 2026-08-08T01:09:56
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
-
-## Kitchen
-Kitchen: alive, queue 30 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
