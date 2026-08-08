@@ -1,5 +1,40 @@
 # Gate-Recency Audit — 2026-08-08
 
+> ## ⚠️ CORRECTION — 2026-08-08, same evening (self-caught, same session that shipped this audit)
+>
+> Rows **#3 `require_bearish_fill_bar`** and **#6 `structure_veto_enabled`** in the ranked table
+> below, and **#1 `filter_10_min_triggers_bull`**'s "a real trigger existed" characterization,
+> were **superseded hours after this audit shipped** by a J-directed pre-registered
+> revalidation: [`GATE-REVALIDATION-RESULTS-2026-08-08.md`](GATE-REVALIDATION-RESULTS-2026-08-08.md)
+> (prereg: [`prereg-gate-revalidation-2026-08-08.json`](prereg-gate-revalidation-2026-08-08.json)).
+>
+> **What was wrong:** this audit's "Cross-validated against J's own gate-expiry instrument"
+> section (below) cited `gate-registry-status.json`'s EV figures as corroborating evidence
+> without first auditing the replay engine that produced them. That engine
+> (`lib.simulator_real.simulate_trade_real`) has two independently-documented, dated defects —
+> exit-shape divergence from the real `exit_manager` (2026-07-17 FRAME AUDIT) and same-bar
+> intrabar look-ahead in its profit-lock ratchet (`BACKTESTING-PLAYBOOK.md` §2.12, 2026-07-11).
+>
+> **Corrected figures** (sound replay via `exit_manager_walk.walk_exit_manager`, the actual
+> production `exit_manager.plan_exit_actions` core):
+>
+> | Gate | Original (this audit, unsound) | Corrected (sound replay, 2026-08-08) | Verdict |
+> |---|---:|---:|---|
+> | `structure_veto_enabled` (Safe) | ~~+$32.69/tr, n=11~~ | **+$6.00/tr, n=11** — OOS half **NEGATIVE** (-$4.00/tr), drop-top-3 = **-$447** | **DO_NOT_UNBLOCK** |
+> | `require_bearish_fill_bar` (Bold) | ~~+$22.96/tr, n=36~~ | **+$47.37/tr, n=38** — one trade carries the whole cohort (drop-top-3 = -$1,363.60 vs +$1,800 raw), p=0.468 | **DO_NOT_UNBLOCK** |
+> | `filter_10_min_triggers_bull` (Safe) | ~~"551 sole-blocked ticks... a real trigger existed... refused solely for having only one"~~ | **All 551 rows carry ZERO real triggers, not one.** Relaxing safe's threshold 2→1 (matching Bold) would change the verdict on **ZERO historical ticks** — the 81 Safe ticks with a real single trigger are every one ALSO blocked by a separate, unrelaxed filter. | **NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL)** |
+>
+> **None of the 3 gates ship an unblock.** Params are unchanged. The original numbers are
+> **preserved, not deleted**, in the ranked table and JSON below (marked
+> `SUPERSEDED-2026-08-08` inline) — this box is the correction, not a rewrite of the record.
+>
+> **Propagation this correction also fixes same evening:** the unsound figures had already been
+> quoted as fact in `automation/state/gate-registry-status.json` (a concurrent session's
+> rewrite), the brand-new `setup/scripts/gate_recency_report.py` weekly digest ("would have
+> EARNED $22.96/tr … COSTING money"), and `markdown/doctrine/GATE-RECENCY-DOCTRINE.md`'s worked
+> example — all corrected the same session per OP-33 (verify, don't claim). Generalized lesson:
+> [`strategy/candidates/_lesson-inbox/2026-08-08-monitor-inherited-an-unsound-engine.md`](../../strategy/candidates/_lesson-inbox/2026-08-08-monitor-inherited-an-unsound-engine.md).
+
 > **Mission:** J standing doctrine (2026-07-31, verbatim): *"the same thing that worked on day 372 ago is not gonna work on day 162 ago."* Dynamic market — recency beats aggregate. Every armed gate needs a revalidation clock. Motivating scar: `block_elite_bull` blocked a perfect 11/11 setup 111 times same-session on stale evidence (2026-07-31).
 >
 > Machine-readable companion: [`gate-recency-audit-2026-08-08.json`](gate-recency-audit-2026-08-08.json). Read-only audit — no production file was touched.
@@ -20,12 +55,12 @@
 
 | Gate | Setting | Last validated → verdict then | Blocks (15d) | Staleness score | Recommendation |
 |---|---|---|---:|---:|---|
-| **1. `filter_10_min_triggers_bull`** | Safe=2, Bold=1 (bear floor=1 both) | **UNKNOWN** — no dated scorecard; inherited v11/v12 doctrine | 551 (275+276) | **99,180** | REVALIDATE |
+| **1. `filter_10_min_triggers_bull`** | Safe=2, Bold=1 (bear floor=1 both) | **UNKNOWN** — no dated scorecard; inherited v11/v12 doctrine | 551 (275+276) | **99,180** | ~~REVALIDATE~~ → **SUPERSEDED-2026-08-08: NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL)**, see CORRECTION box above |
 | **2. `filter_9_vol_multiplier`** (bear) | 0.7 both | UNKNOWN — v11-era, no post-v15 re-check found | 43 (21+22) | **7,740** | REVALIDATE |
-| **3. `require_bearish_fill_bar`** | Bold=true, Safe=false | 2026-06-17 → Bold IS+$363/OOS+$1,153 | 52 (Bold) | **2,704** | REVALIDATE |
+| **3. `require_bearish_fill_bar`** | Bold=true, Safe=false | 2026-06-17 → Bold IS+$363/OOS+$1,153 | 52 (Bold) | **2,704** | ~~REVALIDATE~~ → **SUPERSEDED-2026-08-08: DO_NOT_UNBLOCK** (sound-replay +$47.37/tr n=38, fails G_drop3/G_bhfdr), see CORRECTION box above |
 | **4. `extra_setup_exec_armed.vwap_continuation`** | Safe=**false** (disarmed) | 2026-07-25 → 0-for-12 real fills, -$357 combined | 169 signals suppressed | **2,366** | REVALIDATE (sanity check, not a P&L claim) |
 | **5. `block_conf_lvl_rec_afternoon`** | Bold=true, Safe=off | 2026-06-18 → self-contradictory doc (see notes) | 31 (Bold) | **1,581** | REVALIDATE |
-| 6. `structure_veto_enabled` | Safe=true, Bold=false | 2026-06-26 → Safe +$583 IS, $0 OOS | 34 (Safe) | 1,462 | REVALIDATE |
+| 6. `structure_veto_enabled` | Safe=true, Bold=false | 2026-06-26 → Safe +$583 IS, $0 OOS | 34 (Safe) | 1,462 | ~~REVALIDATE~~ → **SUPERSEDED-2026-08-08: DO_NOT_UNBLOCK** (sound-replay +$6.00/tr n=11, OOS half negative, drop-top-3 -$447), see CORRECTION box above |
 | 7. `free_model_veto` | both=true | 2026-07-09 (bugfix, never P&L-checked) | 43 core / 62 total | 1,290 | REVALIDATE |
 | 8. `entry_bar_body_pct_min` | Safe=0.2, Bold=off | 2026-06-18 → Safe OOS+$566 | 11 (Safe) | 561 | REVALIDATE |
 | 9. `block_bull_1100_1200` | Safe=true, Bold=false | 2026-06-18 → thin n=11 IS/n=1 OOS | 6 (Safe) | 306 | REVALIDATE |
@@ -46,8 +81,8 @@ Where that instrument's independent OPRA-replay P&L check exists, it agrees dire
 
 | Gate | Their P&L verdict (2026-07-02..2026-08-06 window) |
 |---|---|
-| `structure_veto_enabled` | **RED** — refused cohort would have earned +$32.69/tr, n=11 |
-| `require_bearish_fill_bar` | **RED** — refused cohort would have earned +$22.96/tr, n=36 |
+| `structure_veto_enabled` | ~~**RED** — refused cohort would have earned +$32.69/tr, n=11~~ → **SUPERSEDED-2026-08-08**: that instrument's replay engine (`simulate_trade_real`) is unsound (see CORRECTION box above); sound replay gives +$6.00/tr n=11, OOS half negative, drop-top-3 -$447 — **DO_NOT_UNBLOCK** |
+| `require_bearish_fill_bar` | ~~**RED** — refused cohort would have earned +$22.96/tr, n=36~~ → **SUPERSEDED-2026-08-08**: sound replay gives +$47.37/tr n=38, fails G_drop3/G_bhfdr (one trade carries the cohort) — **DO_NOT_UNBLOCK** |
 | `block_conf_lvl_rec_afternoon` | GREEN — refused cohort would have lost -$29.02/tr (stale docs, but not currently costing) |
 | `entry_bar_body_pct_min` | GREEN — refused cohort would have lost -$1.97/tr (thin margin) |
 | `block_bull_1100_1200` | YELLOW — refused cohort +$240.35/tr but n=3, under the n=10 floor |
@@ -76,6 +111,6 @@ Rows without a P&L verdict above (`filter_10_min_triggers_bull`, `filter_9_vol_m
 
 ## Executive digest — which 1-3 gates are most likely costing money RIGHT NOW
 
-1. **`RISK_DENY_PDT` (Bold, `pdt_gate_mode=margin_pdt`)** is the clearest dollar-quantified cost found: a self-imposed legacy-PDT rule the paper broker doesn't even enforce, hard-blocking Bold 08-05/08-06/08-07 and continuing through 08-11 — 49 fires in 15 days, and Thursday 08-06 alone was a +$1,465 book day Bold couldn't join. A decision memo with 3 named options has sat open 2 days; this audit takes no side, only flags it's unresolved and actively costing.
-2. **`structure_veto_enabled` (Safe)** and **`require_bearish_fill_bar` (Bold)** are both independently RED per J's own gate-expiry instrument as of yesterday: refused cohorts would have earned +$32.69/tr (n=11) and +$22.96/tr (n=36) — both 6+ weeks past their revalidation interval, on evidence that was thin even at inception (n=2 IS-only; Bold-only validation the fleet lane inherits globally).
-3. **Honorable mention, not yet dollar-proven:** Safe's `filter_10_min_triggers_bull=2` (double Bold's own 1, double bear's own floor) sole-blocked 551 bull ticks in 15 days with zero dated evidence for the asymmetry — the single largest volume-suppressor in the audit and a plausible reason OP-16's bull re-eval cohort is stuck at n=10. Flagged as the top REVALIDATE candidate precisely *because* it has no $ evidence yet, unlike #1/#2.
+1. **`RISK_DENY_PDT` (Bold, `pdt_gate_mode=margin_pdt`)** is the clearest dollar-quantified cost found: a self-imposed legacy-PDT rule the paper broker doesn't even enforce, hard-blocking Bold 08-05/08-06/08-07 and continuing through 08-11 — 49 fires in 15 days, and Thursday 08-06 alone was a +$1,465 book day Bold couldn't join. A decision memo with 3 named options has sat open 2 days; this audit takes no side, only flags it's unresolved and actively costing. *(Not revisited by the 2026-08-08 revalidation study — outside its 3-gate grid; still open.)*
+2. ~~**`structure_veto_enabled` (Safe)** and **`require_bearish_fill_bar` (Bold)** are both independently RED per J's own gate-expiry instrument as of yesterday: refused cohorts would have earned +$32.69/tr (n=11) and +$22.96/tr (n=36) — both 6+ weeks past their revalidation interval, on evidence that was thin even at inception (n=2 IS-only; Bold-only validation the fleet lane inherits globally).~~ → **SUPERSEDED-2026-08-08, same evening:** the "RED" verdict came from an unsound replay engine. Sound-replay revalidation gives +$6.00/tr n=11 (structure_veto, OOS half negative, drop-top-3 -$447) and +$47.37/tr n=38 (fill_bar, one trade carries the cohort, p=0.468) — **both DO_NOT_UNBLOCK, params unchanged.** See the CORRECTION box at the top of this file and `GATE-REVALIDATION-RESULTS-2026-08-08.md`.
+3. ~~**Honorable mention, not yet dollar-proven:** Safe's `filter_10_min_triggers_bull=2` (double Bold's own 1, double bear's own floor) sole-blocked 551 bull ticks in 15 days with zero dated evidence for the asymmetry — the single largest volume-suppressor in the audit and a plausible reason OP-16's bull re-eval cohort is stuck at n=10. Flagged as the top REVALIDATE candidate precisely *because* it has no $ evidence yet, unlike #1/#2.~~ → **SUPERSEDED-2026-08-08:** the "a real trigger existed" framing was wrong — all 551 rows carry zero real triggers; relaxing the threshold would change zero historical ticks. **NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL).**

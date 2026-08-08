@@ -49,7 +49,11 @@ the extra-setup lane (`extra_setup_exec_armed`), or `risk_gate` config modes
    RED per the nightly checker itself**, 43 and 52 days past their revalidation interval, on
    evidence that was thin even at inception (n=2 IS-only; Bold-only validation inherited
    globally by the fleet lane). These prove stage 1 can already SEE a problem — the gap was
-   nobody was READING stage 1's output on a cadence, which stage 2 + stage 3 fix.
+   nobody was READING stage 1's output on a cadence, which stage 2 + stage 3 fix. **(Same
+   evening, the RED verdict ITSELF was found to rest on an unsound replay engine and both gates
+   were revalidated to DO_NOT_UNBLOCK — see "REPLAY SOUNDNESS" below. Point 2's structural
+   lesson — stage 1 could already see a problem, nobody was reading it — stands unchanged; the
+   specific $/tr figures do not.)**
 3. **`filter_10_min_triggers_bull=2` (Safe, double Bold's own 1 and double bear's own floor) —
    the single largest volume-suppressor found**, 551 sole-blocked ticks in 15 days with zero
    dated evidence for the asymmetry itself. This is a scoring-filter-layer gate; it has no
@@ -61,6 +65,75 @@ Re-running `gate_recency_report.py --dry-run` against live state on 2026-08-08 r
 findings 1 and 2 exactly (same two RED gates, same $/tr figures, since it reads stage 1's own
 output) and surfaced finding 3 as the top WATCH line in the digest — proof the standing
 instrument reproduces the one-off audit's load-bearing findings without a human re-running it.
+
+---
+
+## REPLAY SOUNDNESS — the same-evening correction (2026-08-08, shipped tonight, caught tonight, corrected tonight)
+
+**The incident.** Hours after the passage above shipped, J asked *"why do we still have gates
+blocking profitable trades?"* and ordered a pre-registered revalidation of the 3
+most-money-costing gates the audit named
+(`analysis/recommendations/prereg-gate-revalidation-2026-08-08.json` →
+`GATE-REVALIDATION-RESULTS-2026-08-08.md`). That study's own soundness audit — done FIRST, per
+the mission order, before any P&L was touched — found that `gate-registry-status.json`'s own
+EV figures (the ones stage 2 had been quoting as fact in its digest, and the ones this doc's
+worked example above cites) are produced by `backtest/lib/simulator_real.simulate_trade_real`,
+which carries **two independently-documented, dated defects**, not a new finding invented for
+the study:
+
+1. **Exit-shape divergence** (2026-07-17 FRAME AUDIT) — the simulator reads exit knobs from
+   `params.json`'s top-level keys, not the REAL `exit_manager` registration
+   (`fleet/strategies.py#RIBBON_RIDE.exit.to_dict()`) both core accounts actually trade under.
+   Measured: a live trade that ran to +$241 sim-replayed as a breakeven zero.
+2. **Intrabar look-ahead** (2026-07-11, `BACKTESTING-PLAYBOOK.md` §2.12) — the profit-lock
+   ratchet arms off the current bar's high, then checks that SAME bar's low against the
+   just-armed stop. A documented C6 violation worth $46.32/tr on the cited cell — bigger than
+   that cell's own recorded expectancy.
+
+Swapping in the SOUND replay path (`backtest/lib/exit_manager_walk.walk_exit_manager`, which
+ticks the actual production `exit_manager.plan_exit_actions` core) produced materially
+different numbers on the exact two gates this doc had called RED: `structure_veto_enabled`
++$6.00/tr (not +$32.69/tr) and `require_bearish_fill_bar` +$47.37/tr (not +$22.96/tr) — and
+**both still fail the pre-registered G-battery** (concentration risk / no OOS edge / not
+significant). **Verdict: all 3 gates in that study stay DO_NOT_UNBLOCK.** Full detail:
+`analysis/recommendations/GATE-REVALIDATION-RESULTS-2026-08-08.md`.
+
+**The propagation problem this section exists to name.** The unsound EV figures had already
+been quoted as fact in four places by the time this was caught, same evening: (a)
+`gate-registry-status.json` itself, (b) `gate_recency_report.py`'s own digest line ("would have
+EARNED $22.96/tr … COSTING money"), (c)
+`analysis/recommendations/gate-recency-audit-2026-08-08.{md,json}`, and (d) this doctrine file's
+own worked example above. That is an OP-33 (verify, don't claim) failure — a monitor quoting a
+number as fact that it never verified the provenance of — and it was corrected the same
+session it was caught, not left to rot. The correction blocks are marked in each of the four
+files, not silently edited over (see each file's own dated CORRECTION block / commit).
+
+**THE RULE (permanent, going forward):**
+
+> **An EV claim may only drive a RED / "costing money" verdict if it was produced by the
+> production exit core** (`exit_manager_walk.walk_exit_manager` / `exit_manager.plan_exit_actions`,
+> or any future replacement that is itself broker-fill-faithfulness-tested against the live
+> exit path). **An EV claim produced by `simulator_real.simulate_trade_real` — or by anything
+> whose replay engine is missing/unstated — is PROVISIONAL.** Provisional EV may motivate
+> opening a pre-registered revalidation (stage 4 of the instrument chain above); it may never,
+> by itself, stand as the verdict.
+>
+> Practically, for `gate_recency_report.py`: it reads a per-gate soundness stamp
+> (`replay_soundness` / `replay_engine`, wherever `gate_expiry_check.py` writes it) off
+> `gate-registry-status.json` when present. A RED gate backed by a stamped-SOUND replay may
+> still say "COSTING money." A RED gate that is stamped unsound, or simply carries no stamp at
+> all (the schema before tonight, and the fail-open default), reads as **"RED (provisional — EV
+> from an unsound/unstamped replay engine, needs a pre-registered revalidation)"** instead —
+> weaker evidence, never stronger, fail-safe-open by construction.
+>
+> Separately: **any gate with a FILED revalidation scorecard**
+> (`analysis/recommendations/gate-revalidation-*.json`) reports THAT verdict in the digest, not
+> the raw registry EV, regardless of the registry's own (possibly still-stale) RED/GREEN
+> reading. A settled `NOT-UNBLOCK-ELIGIBLE` gate does not keep screaming "costing money" in a
+> standup after its own pre-registered study said otherwise.
+
+This is a new, generalizable pattern, not just a one-gate fix — filed to the lesson inbox:
+`strategy/candidates/_lesson-inbox/2026-08-08-monitor-inherited-an-unsound-engine.md`.
 
 ---
 

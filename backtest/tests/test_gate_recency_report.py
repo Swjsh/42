@@ -72,7 +72,7 @@ def _decision_row(date: str, account: str, *, armed: bool = True, verdict: str =
 REQUIRED_ROW_KEYS = {
     "name", "account", "setting", "last_validated", "days_stale", "blocks_15d",
     "expiry_verdict", "staleness_score", "recommendation", "category", "provenance",
-    "red_ev_note",
+    "red_ev_note", "replay_soundness", "revalidation",
 }
 
 
@@ -85,6 +85,7 @@ def state_paths(tmp_path, monkeypatch):
         "params_bold": tmp_path / "aggressive" / "params.json",
         "decisions": tmp_path / "core-decisions.jsonl",
         "out": tmp_path / "gate-recency-latest.json",
+        "recommendations": tmp_path / "recommendations",  # empty dir unless a test populates it
     }
     monkeypatch.setattr(grr, "GATE_REGISTRY", paths["registry"])
     monkeypatch.setattr(grr, "GATE_REGISTRY_STATUS", paths["status"])
@@ -92,6 +93,7 @@ def state_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(grr, "PARAMS_BOLD", paths["params_bold"])
     monkeypatch.setattr(grr, "CORE_DECISIONS", paths["decisions"])
     monkeypatch.setattr(grr, "OUT_JSON", paths["out"])
+    monkeypatch.setattr(grr, "RECOMMENDATIONS_DIR", paths["recommendations"])
     return paths
 
 
@@ -473,16 +475,67 @@ def test_build_rows_live_setting_read_from_params():
     assert row["setting"] is False  # live value, not the True fallback
 
 
-def test_build_digest_names_red_gate_and_ev():
+def test_build_digest_names_red_gate_and_ev_when_soundness_stamped_sound():
+    """A gate stamped SOUND (production exit_manager replay) keeps the old 'COSTING money'
+    wording -- the 2026-08-08 provenance-aware correction only downgrades UNSOUND/unstamped
+    RED verdicts, it never suppresses a genuinely sound one."""
     rows = [{
         "name": "structure_veto_enabled", "account": "safe", "expiry_verdict": "RED",
         "red_ev_note": "refused cohort would have EARNED $32.69/tr, n=11 -- COSTING money",
         "recommendation": "REVALIDATE", "staleness_score": 1000, "blocks_15d": 10, "days_stale": 43,
+        "replay_soundness": "sound", "revalidation": dict(grr._NO_REVALIDATION),
     }]
     digest = grr.build_digest(rows)
     assert len(digest) == 1
     assert "structure_veto_enabled" in digest[0]
     assert "$32.69/tr" in digest[0]
+    assert "PROVISIONAL" not in digest[0]
+
+
+def test_build_digest_unsound_or_unstamped_red_is_provisional_never_costing_money():
+    """THE 2026-08-08 CORRECTION, pinned: a RED gate with NO soundness stamp (the old schema,
+    or gate_expiry_check.py simply hasn't stamped this row yet) must read as PROVISIONAL and
+    must NEVER say 'COSTING money' -- that wording overclaims certainty an unstamped/unsound
+    simulator_real-derived EV does not have."""
+    unstamped = {
+        "name": "require_bearish_fill_bar", "account": "bold", "expiry_verdict": "RED",
+        "red_ev_note": "refused cohort would have EARNED $22.96/tr, n=36 -- COSTING money",
+        "recommendation": "REVALIDATE", "staleness_score": 2704, "blocks_15d": 52, "days_stale": 52,
+        "replay_soundness": "unstamped", "revalidation": dict(grr._NO_REVALIDATION),
+    }
+    unsound = dict(unstamped, replay_soundness="unsound")
+    for row in (unstamped, unsound):
+        digest = grr.build_digest([row])
+        assert len(digest) == 1
+        assert "PROVISIONAL" in digest[0]
+        assert "COSTING money" not in digest[0]
+        assert row["name"] in digest[0]
+        assert digest[0].startswith("RED --")  # still parses as a RED line, just qualified
+
+
+def test_build_digest_filed_revalidation_reports_settled_verdict_not_raw_ev():
+    """THE OTHER HALF of the 2026-08-08 correction: a gate with a FILED revalidation
+    scorecard must report THAT verdict, never the raw registry EV -- a settled
+    DO_NOT_UNBLOCK gate does not keep screaming 'costing money' after its own study said
+    otherwise, even if the registry row is still (stale) RED."""
+    row = {
+        "name": "structure_veto_enabled", "account": "safe", "expiry_verdict": "RED",
+        "red_ev_note": "refused cohort would have EARNED $32.69/tr, n=11 -- COSTING money",
+        "recommendation": "SETTLED:NOT-UNBLOCK-ELIGIBLE", "staleness_score": 1000,
+        "blocks_15d": 10, "days_stale": 43, "replay_soundness": "unstamped",
+        "revalidation": {
+            "status": "FILED", "verdict": "NOT-UNBLOCK-ELIGIBLE", "filed_date": "2026-08-08",
+            "source_file": "analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json",
+        },
+    }
+    digest = grr.build_digest([row])
+    assert len(digest) == 1
+    assert digest[0].startswith("SETTLED --")
+    assert "structure_veto_enabled" in digest[0]
+    assert "NOT-UNBLOCK-ELIGIBLE" in digest[0]
+    assert "2026-08-08" in digest[0]
+    assert "COSTING money" not in digest[0]
+    assert "$32.69" not in digest[0]  # the raw superseded EV is not re-quoted
 
 
 def test_build_digest_caps_at_max_lines_and_prioritizes_red():
@@ -537,7 +590,7 @@ def test_build_report_all_sources_missing_is_empty_input_safe(state_paths):
     """The exact 'empty-input safe' bar from the build spec: every source absent must still
     produce a schema-complete report, never raise."""
     report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
-    assert report["schema"] == "gate-recency-report-v1"
+    assert report["schema"] == "gate-recency-report-v2"
     assert report["window"]["distinct_armed_dates_found"] == 0
     assert isinstance(report["gates"], list) and len(report["gates"]) > 0
     for row in report["gates"]:
@@ -546,16 +599,10 @@ def test_build_report_all_sources_missing_is_empty_input_safe(state_paths):
     assert len(report["digest"]) >= 1
 
 
-def test_build_report_real_fixture_surfaces_a_red_gate(state_paths):
+def _structure_veto_red_fixture(state_paths):
     _write_json(state_paths["registry"], {"gates": [
         {"id": "structure_veto_enabled", "last_revalidated": "2026-06-26", "revalidation_interval_days": 21},
     ]})
-    _write_json(state_paths["status"], {"gates": {
-        "structure_veto_enabled": {
-            "overall": "RED",
-            "pnl_check": {"reason": "refused cohort would have EARNED $32.69/tr, n=11 -- COSTING money"},
-        },
-    }})
     _write_json(state_paths["params_safe"], {"structure_veto_enabled": True})
     rows = [
         _decision_row("2026-08-01", "safe", verdict="SKIP_STRUCTURE_VETO"),
@@ -563,10 +610,117 @@ def test_build_report_real_fixture_surfaces_a_red_gate(state_paths):
     ]
     _write_jsonl(state_paths["decisions"], rows)
 
+
+def test_build_report_backward_compat_old_schema_red_is_provisional_not_costing_money(state_paths):
+    """BACKWARD COMPAT with the OLD gate-registry-status.json schema (no replay_soundness /
+    replay_engine stamp at all -- the shape every RED row had before tonight's 2026-08-08
+    incident, and the shape gate_expiry_check.py's own rewrite may still race this instrument
+    with on any given run). Must NOT crash, and per the correction must NOT say 'COSTING
+    money' -- an unstamped verdict is provisional, never re-quoted as a confident cost."""
+    _structure_veto_red_fixture(state_paths)
+    _write_json(state_paths["status"], {"gates": {
+        "structure_veto_enabled": {
+            "overall": "RED",
+            "pnl_check": {"reason": "refused cohort would have EARNED $32.69/tr, n=11 -- COSTING money"},
+        },
+    }})
+
     report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
     red_names = {r["name"] for r in report["reds"]}
     assert "structure_veto_enabled" in red_names
+    assert not any("COSTING money" in line for line in report["digest"])
+    assert any("PROVISIONAL" in line for line in report["digest"])
+    row = next(r for r in report["gates"] if r["name"] == "structure_veto_enabled")
+    assert row["replay_soundness"] == "unstamped"
+
+
+def test_build_report_sound_stamp_still_reports_costing_money(state_paths):
+    """The counterpart to the backward-compat test: when gate_expiry_check.py DOES stamp a
+    row sound (production exit_manager replay), the strong wording is preserved -- the
+    correction only downgrades unsound/unstamped evidence, it never mutes real evidence."""
+    _structure_veto_red_fixture(state_paths)
+    _write_json(state_paths["status"], {"gates": {
+        "structure_veto_enabled": {
+            "overall": "RED",
+            "replay_soundness": "sound",
+            "pnl_check": {
+                "reason": "refused cohort would have EARNED $6.00/tr, n=11 -- COSTING money",
+                "replay_engine": "backtest/lib/exit_manager_walk.walk_exit_manager",
+            },
+        },
+    }})
+
+    report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
     assert any("COSTING money" in line for line in report["digest"])
+    row = next(r for r in report["gates"] if r["name"] == "structure_veto_enabled")
+    assert row["replay_soundness"] == "sound"
+
+
+def test_build_report_filed_revalidation_suppresses_costing_money_and_reports_verdict(state_paths):
+    """END TO END: a filed analysis/recommendations/gate-revalidation-*.json for this exact
+    (params_key, account) must win over the raw (even old-schema, unstamped) registry EV --
+    the settled NOT-UNBLOCK-ELIGIBLE verdict is what J sees, never 'costing money' again."""
+    _structure_veto_red_fixture(state_paths)
+    _write_json(state_paths["status"], {"gates": {
+        "structure_veto_enabled": {
+            "overall": "RED",
+            "pnl_check": {"reason": "refused cohort would have EARNED $32.69/tr, n=11 -- COSTING money"},
+        },
+    }})
+    _write_json(
+        state_paths["recommendations"] / "gate-revalidation-structure_veto-2026-08-08.json",
+        {
+            "params_key": "structure_veto_enabled",
+            "account": "safe",
+            "g_battery": {"verdict": "NOT-UNBLOCK-ELIGIBLE"},
+            "generated_at": "2026-08-08T14:35:51.000000",
+        },
+    )
+
+    report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
+    assert not any("COSTING money" in line for line in report["digest"])
+    assert any("SETTLED" in line and "NOT-UNBLOCK-ELIGIBLE" in line for line in report["digest"])
+    row = next(r for r in report["gates"] if r["name"] == "structure_veto_enabled")
+    assert row["revalidation"]["status"] == "FILED"
+    assert row["revalidation"]["verdict"] == "NOT-UNBLOCK-ELIGIBLE"
+    assert row["revalidation"]["filed_date"] == "2026-08-08"
+    assert row["recommendation"] == "SETTLED:NOT-UNBLOCK-ELIGIBLE"
+
+
+def test_load_revalidations_missing_directory_fails_open(state_paths):
+    """The recommendations dir doesn't even exist in this fixture (never created) -- must
+    degrade to {}, never raise, exactly like every other loader in this module."""
+    assert not state_paths["recommendations"].exists()
+    assert grr.load_revalidations(state_paths["recommendations"]) == {}
+
+
+def test_load_revalidations_skips_malformed_and_non_matching_files(state_paths, tmp_path):
+    rec_dir = state_paths["recommendations"]
+    rec_dir.mkdir(parents=True, exist_ok=True)
+    (rec_dir / "gate-revalidation-broken-2026-08-08.json").write_text("{not valid", encoding="utf-8")
+    _write_json(rec_dir / "gate-revalidation-no-params-key-2026-08-08.json", {"account": "safe"})
+    _write_json(rec_dir / "not-a-revalidation-file.json", {"params_key": "x", "account": "safe"})
+    assert grr.load_revalidations(rec_dir) == {}
+
+
+def test_load_revalidations_reads_verdict_and_filed_date():
+    d = {
+        "params_key": "require_bearish_fill_bar",
+        "account": "bold",
+        "g_battery": {"verdict": "NOT-UNBLOCK-ELIGIBLE"},
+        "generated_at": "2026-08-08T14:35:51.226736",
+    }
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        rec_dir = Path(td)
+        _write_json(rec_dir / "gate-revalidation-bearish_fill_bar-2026-08-08.json", d)
+        out = grr.load_revalidations(rec_dir)
+        key = ("require_bearish_fill_bar", "bold")
+        assert key in out
+        assert out[key]["status"] == "FILED"
+        assert out[key]["verdict"] == "NOT-UNBLOCK-ELIGIBLE"
+        assert out[key]["filed_date"] == "2026-08-08"
+        assert out[key]["source_file"].endswith("gate-revalidation-bearish_fill_bar-2026-08-08.json")
 
 
 def test_main_dry_run_writes_no_file(state_paths, capsys):
@@ -582,7 +736,7 @@ def test_main_real_run_writes_valid_schema_stable_json(state_paths, capsys):
     assert rc == 0
     assert state_paths["out"].exists()
     doc = json.loads(state_paths["out"].read_text(encoding="utf-8"))
-    assert doc["schema"] == "gate-recency-report-v1"
+    assert doc["schema"] == "gate-recency-report-v2"
     for key in ("generated_et", "window", "gates", "reds", "digest"):
         assert key in doc
 

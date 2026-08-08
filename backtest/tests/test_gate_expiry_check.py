@@ -20,11 +20,22 @@ Pin, in order:
   6. this checker NEVER touches market data for the categories it declares NOT_MEASURED
      (safety_doctrine / fleet_config) -- proven by calling check_gate with spy=ribbon=
      spy_ts=None and confirming no exception.
+  7. SOUNDNESS FIX (self-caught incident, 2026-08-08 evening): evaluate_gate_pnl's forward
+     replay uses backtest/lib/exit_manager_walk.walk_exit_manager (via a lazy import of
+     backtest/tools/gate_revalidation_ab.py's replay_row/account_config/build_ribbon_lookup),
+     NEVER lib.simulator_real.simulate_trade_real -- proven by monkeypatching
+     gec.simulate_trade_real to raise if called, spying on the sound replay path instead, and
+     confirming the resulting EV record carries "replay_engine"/"replay_soundness" provenance.
+  8. mining-layer outputs (load_decision_rows, cluster_events, bar_idx_for_ts,
+     _stop_level_for_row -- the layer GATE-REVALIDATION-2026-08-08 certified sound and this
+     fix keeps EXACTLY as-is) are pinned against a frozen fixture so a future edit can't
+     silently regress them while "fixing" the replay layer.
 """
 from __future__ import annotations
 
 import datetime as dt
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -347,3 +358,214 @@ def test_module_has_no_order_placement_or_arming_calls():
                  "params.json\", \"w", "aggressive/params.json\", \"w"]
     for token in forbidden:
         assert token not in src, f"gate_expiry_check.py must never contain {token!r}"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 8. SOUNDNESS FIX (2026-08-08): sound replay engine + provenance stamping
+# ─────────────────────────────────────────────────────────────────────────────
+
+class _FakeSoundReplayModule:
+    """Stands in for the lazily-imported backtest/tools/gate_revalidation_ab.py -- lets these
+    tests prove evaluate_gate_pnl's WIRING (which function it calls, what it does with the
+    result) without needing the real OPRA cache / production exit_manager the real module
+    would touch. replay_calls records every call so tests can assert the sound path actually
+    ran, exactly once per clustered event."""
+
+    def __init__(self, pnl_by_ts: dict[str, float] | None = None):
+        self.replay_calls: list[dict] = []
+        self._pnl_by_ts = pnl_by_ts or {}
+
+    def account_config(self):
+        return {
+            "safe": {"qty": 3, "structure_stop_enabled": True, "time_stop_et": dt.time(15, 40)},
+            "bold": {"qty": 5, "structure_stop_enabled": True, "time_stop_et": dt.time(15, 40)},
+        }
+
+    def build_ribbon_lookup(self, spy):
+        return "FAKE_RIBBON_LOOKUP"
+
+    def replay_row(self, row, *, spy, spy_ts, spy_by_date, ribbon_lookup, cfg):
+        self.replay_calls.append({"row": row, "cfg": cfg, "ribbon_lookup": ribbon_lookup})
+        ts = row["ts_et"]
+        pnl = self._pnl_by_ts.get(ts, 10.0)
+        return {"status": "ok", "date": ts[:10], "pnl": pnl, "ts_et": ts}
+
+
+def _tiny_spy_df():
+    return pd.DataFrame({
+        "date": [dt.date(2026, 7, 31)],
+        "close": [450.0],
+        "timestamp_et": pd.to_datetime(["2026-07-31 11:00:00"]),
+    })
+
+
+def _write_core_decisions(path, rows: list[dict]) -> None:
+    with path.open("w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r) + "\n")
+
+
+def test_evaluate_gate_pnl_uses_sound_replay_never_simulate_trade_real(monkeypatch, tmp_path):
+    """THE core soundness proof: evaluate_gate_pnl must route through the sound replay module
+    (walk_exit_manager, via the lazy gate_revalidation_ab import) and must NEVER touch
+    lib.simulator_real.simulate_trade_real -- monkeypatched here to raise if it's ever called,
+    so any regression back to the old unsound path fails loudly, not silently."""
+    gec._REPLAY_CTX_CACHE.clear()
+    fake_grab = _FakeSoundReplayModule(pnl_by_ts={"2026-07-31T11:00:00": 42.0})
+    monkeypatch.setattr(gec, "_sound_replay_module", lambda: fake_grab)
+
+    def _boom(*args, **kwargs):
+        raise AssertionError("simulate_trade_real must NEVER be called by evaluate_gate_pnl "
+                              "post-2026-08-08 soundness fix")
+    monkeypatch.setattr(gec, "simulate_trade_real", _boom)
+
+    core_decisions = tmp_path / "core-decisions.jsonl"
+    _write_core_decisions(core_decisions, [
+        {"ts_et": "2026-07-31T11:00:00", "side": "C", "account": "safe",
+         "verdict": "SKIP_FAKE_TEST_GATE", "armed": True},
+    ])
+    monkeypatch.setattr(gec, "CORE_DECISIONS", core_decisions)
+
+    gate = {"id": "_test_sound_replay_gate", "skip_action": "SKIP_FAKE_TEST_GATE",
+            "accounts_armed": {"safe": True, "bold": False}}
+    spy = _tiny_spy_df()
+
+    result = gec.evaluate_gate_pnl(gate, spy, None, pd.Series(dtype="datetime64[ns]"),
+                                    dt.date(2026, 7, 1), dt.date(2026, 7, 31), floor=1)
+
+    assert len(fake_grab.replay_calls) == 1, "sound replay must run exactly once for the one clustered event"
+    assert fake_grab.replay_calls[0]["cfg"]["qty"] == 3, "must pass the SAFE account's live cfg, not a hardcoded qty"
+    assert result["combined"]["n"] == 1
+    assert result["combined"]["exp_per_trade"] == 42.0
+    assert result["verdict"] == "RED"  # positive EV, n>=floor=1
+
+
+def test_evaluate_gate_pnl_stamps_replay_provenance_on_every_ev_record():
+    """SCHEMA: every EV-bearing record evaluate_gate_pnl produces (RED/YELLOW/GREEN AND the
+    n=0 INSUFFICIENT_DATA case -- it still ran the sound replay and found nothing) carries
+    replay_engine="walk_exit_manager" + replay_soundness="sound" so a future reader can never
+    mistake a freshly-computed number for the retired simulate_trade_real-backed one."""
+    import pytest as _pytest
+    with _pytest.MonkeyPatch.context() as mp:
+        gec._REPLAY_CTX_CACHE.clear()
+        fake_grab = _FakeSoundReplayModule()
+        mp.setattr(gec, "_sound_replay_module", lambda: fake_grab)
+        core_decisions_dir = gec.REPO  # any real dir; file itself is monkeypatched below
+        mp.setattr(gec, "CORE_DECISIONS", core_decisions_dir / "_does_not_exist_.jsonl")
+
+        gate = {"id": "_test_empty_gate", "skip_action": "SKIP_FAKE_TEST_GATE",
+                "accounts_armed": {"safe": True, "bold": False}}
+        spy = _tiny_spy_df()
+        result = gec.evaluate_gate_pnl(gate, spy, None, pd.Series(dtype="datetime64[ns]"),
+                                        dt.date(2026, 7, 1), dt.date(2026, 7, 31), floor=10)
+
+        assert result["combined"]["n"] == 0
+        assert result["verdict"] == "INSUFFICIENT_DATA"
+        assert result["replay_engine"] == "walk_exit_manager"
+        assert result["replay_soundness"] == "sound"
+
+
+def test_not_measured_and_inert_gates_carry_no_replay_provenance_stamp():
+    """A gate that never reaches the replay path (NOT_MEASURED: no skip_action; INERT: not
+    armed on either account) must NOT carry replay_engine/replay_soundness -- stamping a path
+    that never replayed anything would be a FALSE provenance claim, the exact class of error
+    this fix exists to prevent."""
+    not_measured = gec.evaluate_gate_pnl(
+        {"id": "_test_nm", "skip_action": None, "accounts_armed": {"safe": True}},
+        None, None, None, dt.date(2026, 7, 1), dt.date(2026, 7, 31), floor=10)
+    assert not_measured["verdict"] == "NOT_MEASURED"
+    assert "replay_engine" not in not_measured
+    assert "replay_soundness" not in not_measured
+
+    inert = gec.evaluate_gate_pnl(
+        {"id": "_test_inert", "skip_action": "SKIP_X", "accounts_armed": {"safe": False, "bold": False}},
+        None, None, None, dt.date(2026, 7, 1), dt.date(2026, 7, 31), floor=10)
+    assert inert["verdict"] == "INERT"
+    assert "replay_engine" not in inert
+    assert "replay_soundness" not in inert
+
+
+def test_core_strategy_category_routes_around_replay_and_carries_no_stamp(monkeypatch):
+    """category=="core_strategy" rows (core_strategy_bear/bull) are a SEPARATE, already-sound
+    instrument (real broker fills, autoresearch.core_strategy_recency) -- check_gate must
+    route them there, never through evaluate_gate_pnl, and their pnl_check must carry no
+    replay_engine/replay_soundness stamp (that field means something SPECIFIC -- 'this number
+    came from the walk_exit_manager sim replay' -- and would misdescribe a real-fills read)."""
+    def _fake_csr(gate, floor):
+        return {"verdict": "GREEN", "reason": "fake real-fills read", "core_strategy_verdict": "GREEN"}
+    monkeypatch.setattr("autoresearch.core_strategy_recency.evaluate_for_registry", _fake_csr)
+
+    def _must_not_be_called(*args, **kwargs):
+        raise AssertionError("core_strategy category must never call evaluate_gate_pnl")
+    monkeypatch.setattr(gec, "evaluate_gate_pnl", _must_not_be_called)
+
+    gate = {"id": "core_strategy_bear", "category": "core_strategy",
+            "skip_action": "n/a", "accounts_armed": {"safe": True, "bold": True}}
+    today = dt.date(2026, 8, 8)
+    result = gec.check_gate(gate, None, None, None, today, today, 10, today)
+    assert result["pnl_check"]["verdict"] == "GREEN"
+    assert "replay_engine" not in result["pnl_check"]
+    assert "replay_soundness" not in result["pnl_check"]
+
+
+def test_sound_replay_module_lazy_import_resolves_and_is_cached():
+    """The real (non-faked) lazy import must actually succeed -- proves backtest/tools is on
+    sys.path and gate_revalidation_ab.py imports cleanly from gate_expiry_check.py's own
+    process, catching an import-time regression the mocked tests above can't see. Also proves
+    the module-level cache returns the SAME object on a second call (no re-import cost)."""
+    gec._SOUND_REPLAY_MODULE = None
+    mod1 = gec._sound_replay_module()
+    assert hasattr(mod1, "replay_row")
+    assert hasattr(mod1, "account_config")
+    assert hasattr(mod1, "build_ribbon_lookup")
+    mod2 = gec._sound_replay_module()
+    assert mod1 is mod2
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 9. mining-layer frozen fixture (unchanged by the soundness fix -- pin it explicitly)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_mining_layer_frozen_fixture_load_cluster_stop_unchanged():
+    """Combined fixture pinning load_decision_rows + cluster_events + bar_idx_for_ts +
+    _stop_level_for_row's OUTPUT SHAPE together against a frozen small ledger -- the exact
+    four functions GATE-REVALIDATION-RESULTS-2026-08-08.md certified sound and this fix's
+    mission explicitly said to keep EXACTLY as-is. A future refactor that touches this layer
+    while 'improving' the replay engine regresses here first."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "core-decisions.jsonl"
+        rows = [
+            {"ts_et": "2026-07-06T10:00:00", "account": "safe", "verdict": "SKIP_STRUCTURE_VETO",
+             "armed": True, "side": "P", "trigger_level_exact": 448.5},
+            {"ts_et": "2026-07-06T10:04:00", "account": "safe", "verdict": "SKIP_STRUCTURE_VETO",
+             "armed": True, "side": "P", "trigger_level_exact": 448.5},  # same cluster (4min < 15)
+            {"ts_et": "2026-07-06T10:25:00", "account": "safe", "verdict": "SKIP_STRUCTURE_VETO",
+             "armed": True, "side": "P", "trigger_level_exact": 448.5},  # new cluster (21min gap)
+            {"ts_et": "2026-06-30T09:00:00", "account": "safe", "verdict": "SKIP_STRUCTURE_VETO",
+             "armed": True, "side": "P", "trigger_level_exact": 448.5},  # before `since` -> dropped
+        ]
+        with path.open("w", encoding="utf-8") as f:
+            for r in rows:
+                f.write(json.dumps(r) + "\n")
+
+        loaded = gec.load_decision_rows(path, since=dt.date(2026, 7, 1))
+        assert len(loaded) == 3, "the 2026-06-30 row must be dropped by the `since` filter"
+
+        events = gec.cluster_events(loaded, gap_minutes=15)
+        assert len(events) == 2, "10:00/10:04 fold into one event; 10:25 (21min gap) is a new one"
+        assert events[0]["ts_et"] == "2026-07-06T10:00:00"
+        assert events[1]["ts_et"] == "2026-07-06T10:25:00"
+
+        spy_ts = pd.Series(pd.to_datetime([
+            "2026-07-06 09:55:00", "2026-07-06 10:00:00", "2026-07-06 10:05:00",
+            "2026-07-06 10:20:00", "2026-07-06 10:25:00",
+        ]))
+        idx0, stale0 = gec.bar_idx_for_ts(spy_ts, dt.datetime(2026, 7, 6, 10, 0))
+        assert idx0 == 1 and stale0 is False
+        idx1, stale1 = gec.bar_idx_for_ts(spy_ts, dt.datetime(2026, 7, 6, 10, 25))
+        assert idx1 == 4 and stale1 is False
+
+        spy_df = pd.DataFrame({"close": [449.0, 449.2, 449.4, 449.6, 449.8]})
+        stop = gec._stop_level_for_row(events[0], spy_df, idx0, "P")
+        assert stop == 448.5, "trigger_level_exact must win over any _swing_stop fallback"

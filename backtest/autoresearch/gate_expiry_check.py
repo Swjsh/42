@@ -54,6 +54,29 @@ transition-only, no-respam pattern as setup/guard_runner_slow.py::_flag_status_m
 throughout (OP-25): a mining failure for one gate never aborts the others; the whole script
 always exits 0.
 
+SOUNDNESS FIX (self-caught incident, 2026-08-08 evening, same session that shipped the bug):
+this instrument's forward-replay layer used to be `lib.simulator_real.simulate_trade_real`,
+which carries two independently-documented, dated defects -- exit-shape divergence from the
+REAL production exit_manager (2026-07-17 FRAME AUDIT) and same-bar/intrabar look-ahead in its
+profit-lock ratchet (BACKTESTING-PLAYBOOK.md 2.12). Every EV figure this script ever wrote was
+computed through that unsound path and had propagated into automation/state/gate-registry-
+status.json, setup/scripts/gate_recency_report.py's weekly digest, and
+markdown/doctrine/GATE-RECENCY-DOCTRINE.md's worked example -- an OP-33 (verify, don't claim)
+violation. `evaluate_gate_pnl` now replays every armed gate's refused cohort through
+`backtest/lib/exit_manager_walk.walk_exit_manager` (the ACTUAL production
+`exit_manager.plan_exit_actions` core) instead -- the exact sound path
+`analysis/recommendations/GATE-REVALIDATION-RESULTS-2026-08-08.md` /
+`backtest/tools/gate_revalidation_ab.py` proved out the same night. This module's own
+mining/attribution layer (`load_decision_rows`, `cluster_events`, `bar_idx_for_ts`,
+`_stop_level_for_row`) was independently audited SOUND and is UNCHANGED -- only the
+forward-replay call inside `evaluate_gate_pnl` moved. Every EV record `evaluate_gate_pnl`
+produces now carries `replay_engine`/`replay_soundness` provenance stamps so a future reader
+never mistakes a recomputed number for the old unsound one again. `simulate_event` (the old
+simulate_trade_real-backed replay) is kept, UNCHANGED, purely because
+`backtest/tools/postfix_gate_costing.py` imports it directly -- it is no longer called from
+anywhere in this file's own flow; postfix_gate_costing.py's own use of the unsound path is a
+separate, out-of-scope finding (flagged, not fixed, here).
+
 Run: backtest/.venv/Scripts/python.exe backtest/autoresearch/gate_expiry_check.py
      [--lookback N] [--floor N] [--gate GATE_ID]
 """
@@ -97,7 +120,6 @@ import pandas as pd  # noqa: E402
 from autoresearch.recency_check import (  # noqa: E402
     RECENCY_LOOKBACK_TRADING_DAYS,
     CONFIRM_N_FLOOR,
-    QTY_BY_ACCOUNT,
     load_merged_spy_vix,
     resolve_window,
     window_metrics,
@@ -205,6 +227,45 @@ def _stop_level_for_row(row: dict, spy: pd.DataFrame, bar_idx: int, side: str) -
     return _swing_stop(spy, bar_idx, side)
 
 
+# ============================================================ SOUND forward-replay (2026-08-08
+# soundness fix -- see module docstring). ====================================================
+_SOUND_REPLAY_MODULE = None   # lazy-import cache, populated on first real use
+_REPLAY_CTX_CACHE: dict = {}  # id(spy) -> (spy_by_date, ribbon_lookup), memoized per run
+
+
+def _sound_replay_module():
+    """Lazily import backtest/tools/gate_revalidation_ab.py -- the GATE-REVALIDATION-2026-08-08
+    soundness fix -- and cache the module object. DEFERRED ON PURPOSE (function-scope, not a
+    module-level import): gate_revalidation_ab.py itself imports THIS module's mining/
+    attribution layer (load_decision_rows, cluster_events, bar_idx_for_ts, _stop_level_for_row)
+    at ITS OWN module-load time, so a module-level import here would be circular. By the time
+    this function is first CALLED, this module has already finished loading, so Python simply
+    resolves the already-complete module object -- no circularity. Reused, not reimplemented:
+    this is the exact replay approach GATE-REVALIDATION-RESULTS-2026-08-08.md proved sound
+    (walk_exit_manager, the production exit_manager.plan_exit_actions core)."""
+    global _SOUND_REPLAY_MODULE
+    if _SOUND_REPLAY_MODULE is None:
+        tools_dir = str(REPO / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import gate_revalidation_ab as _grab  # noqa: PLC0415 -- intentionally deferred, see above
+        _SOUND_REPLAY_MODULE = _grab
+    return _SOUND_REPLAY_MODULE
+
+
+def _replay_context(spy: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
+    """(spy_by_date, ribbon_lookup) for the sound replay path, memoized per spy DataFrame
+    identity -- main() loads spy ONCE and reuses it across every gate this run; recomputing
+    the ribbon + date groupby per-gate would repeat the same work ~20x for nothing."""
+    key = id(spy)
+    if key not in _REPLAY_CTX_CACHE:
+        grab = _sound_replay_module()
+        spy_by_date = {d: sub.reset_index(drop=True) for d, sub in spy.groupby("date")}
+        ribbon_lookup = grab.build_ribbon_lookup(spy)
+        _REPLAY_CTX_CACHE[key] = (spy_by_date, ribbon_lookup)
+    return _REPLAY_CTX_CACHE[key]
+
+
 def simulate_event(row: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: pd.Series,
                     qty: int, gate_id: str) -> dict:
     """Replay one refused signal forward through the REAL OPRA cache. Never raises -- every
@@ -267,12 +328,24 @@ def costing_verdict(m: dict, floor: int) -> tuple[str, str]:
 
 def evaluate_gate_pnl(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: pd.Series,
                        recent_start: dt.date, recent_end: dt.date, floor: int) -> dict:
+    """SOUND as of 2026-08-08 (see module docstring): forward-replay now runs every armed
+    gate's refused cohort through backtest/lib/exit_manager_walk.walk_exit_manager (the
+    production exit_manager.plan_exit_actions core) via a lazy import of
+    backtest/tools/gate_revalidation_ab.py's replay_row/account_config/build_ribbon_lookup --
+    NOT lib.simulator_real.simulate_trade_real. `ribbon` is accepted-but-unused: retained ONLY
+    so this function's call signature (and check_gate's positional call into it) stays
+    byte-identical, since backtest/tests/test_gate_expiry_check.py monkeypatches this whole
+    function with a 7-positional-arg fake in several places."""
     skip_action = gate.get("skip_action")
     if not skip_action or skip_action in ("n/a",) or "not a" in (skip_action or ""):
         return {"verdict": "NOT_MEASURED", "reason": "gate has no single SKIP_* action to mine"}
     accounts_armed = gate.get("accounts_armed", {}) or {}
     if not any(accounts_armed.get(a) for a in ("safe", "bold")):
         return {"verdict": "INERT", "reason": "not armed on either account -- nothing to measure"}
+
+    grab = _sound_replay_module()
+    spy_by_date, ribbon_lookup = _replay_context(spy)
+    account_cfg = grab.account_config()
 
     by_account: dict[str, dict] = {}
     all_ok_rows: list[dict] = []
@@ -284,8 +357,12 @@ def evaluate_gate_pnl(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_t
             if r.get("account") == account and r.get("verdict") == skip_action and r.get("armed") is True
         ]
         events = cluster_events(rows, EVENT_CLUSTER_GAP_MINUTES)
-        qty = QTY_BY_ACCOUNT.get(account, 1)
-        sim_results = [simulate_event(ev, spy, ribbon, spy_ts, qty, gate["id"]) for ev in events]
+        cfg = account_cfg[account]
+        sim_results = [
+            grab.replay_row(ev, spy=spy, spy_ts=spy_ts, spy_by_date=spy_by_date,
+                             ribbon_lookup=ribbon_lookup, cfg=cfg)
+            for ev in events
+        ]
         ok_rows = [r for r in sim_results if r["status"] == "ok"]
         status_counts: dict[str, int] = {}
         for r in sim_results:
@@ -301,7 +378,20 @@ def evaluate_gate_pnl(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_t
 
     combined = window_metrics(all_ok_rows, recent_start, recent_end) if all_ok_rows else {"n": 0}
     verdict, reason = costing_verdict(combined, floor)
-    return {"by_account": by_account, "combined": combined, "verdict": verdict, "reason": reason}
+    return {
+        "by_account": by_account, "combined": combined, "verdict": verdict, "reason": reason,
+        # PROVENANCE STAMP (2026-08-08 soundness fix, OP-33): every EV record this function
+        # produces -- including n=0 INSUFFICIENT_DATA reads, which still ran the sound replay
+        # and found nothing -- carries these two fields so a future reader can never mistake
+        # a freshly-computed number for the retired simulate_trade_real-backed one. Rows this
+        # function never reaches (NOT_MEASURED/INERT above, or ERROR from check_gate's own
+        # try/except wrapper, or category=="core_strategy" which routes to the SEPARATE
+        # real-broker-fills instrument core_strategy_recency.py and never calls this function
+        # at all) carry no EV number and are deliberately left unstamped -- stamping them
+        # "walk_exit_manager"/"sound" would be a FALSE provenance claim, not a true one.
+        "replay_engine": "walk_exit_manager",
+        "replay_soundness": "sound",
+    }
 
 
 def evidence_age_days(gate: dict, today: dt.date) -> int | None:

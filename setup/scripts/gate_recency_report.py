@@ -45,10 +45,28 @@ Empty-input-safe: with every input source missing, this still writes a valid, sc
 report (all gates show blocks_15d=0, expiry_verdict="NOT_IN_EXPIRY_CHECKER" or whatever the
 per-source default is) rather than raising.
 
+PROVENANCE-AWARE EV (added 2026-08-08, same evening, self-caught -- see
+strategy/candidates/_lesson-inbox/2026-08-08-monitor-inherited-an-unsound-engine.md and
+GATE-RECENCY-DOCTRINE.md's "REPLAY SOUNDNESS" rule): `gate-registry-status.json`'s pnl_check
+EV figures are computed by `backtest/autoresearch/gate_expiry_check.py`'s forward-replay layer,
+`lib.simulator_real.simulate_trade_real`, which carries two independently-documented, dated
+defects (exit-shape divergence vs the live exit_manager; same-bar/intrabar look-ahead in its
+profit-lock ratchet -- both cited in
+analysis/recommendations/GATE-REVALIDATION-RESULTS-2026-08-08.md's soundness audit). This
+script does NOT re-derive EV itself -- it reads gate-registry-status.json's own per-gate
+soundness stamp (`replay_soundness` / `replay_engine`, wherever gate_expiry_check.py writes it)
+when present, and treats a RED verdict as PROVISIONAL (never "COSTING money" wording) whenever
+that stamp is missing/unsound -- this is fail-SAFE-open: an unstamped RED reads as weaker
+evidence, never stronger. Separately, ANY gate with a FILED revalidation scorecard (scanned
+from `analysis/recommendations/gate-revalidation-*.json`) reports that verdict instead of the
+raw registry EV -- a settled DO_NOT_UNBLOCK gate must never keep screaming "costing money" in
+a standup after its own pre-registered study said otherwise.
+
 Output: automation/state/gate-recency-latest.json --
   {generated_et, window, gates:[{name, account, setting, last_validated, days_stale,
    blocks_15d, expiry_verdict, staleness_score, recommendation, category, provenance,
-   red_ev_note}], reds:[{name, account, reason}], digest:[<=3 plain-English lines]}
+   red_ev_note, replay_soundness, revalidation:{status, verdict, filed_date, source_file}}],
+   reds:[{name, account, reason}], digest:[<=3 plain-English lines]}
 Schema is STABLE (fixed key set on every row) -- a future consumer (a standup, a wants-surface,
 gamma_standup.py-style) can key off these fields without special-casing missing ones.
 
@@ -101,6 +119,13 @@ PARAMS_SAFE = STATE / "params.json"
 PARAMS_BOLD = STATE / "aggressive" / "params.json"
 CORE_DECISIONS = STATE / "core-decisions.jsonl"
 OUT_JSON = STATE / "gate-recency-latest.json"
+
+# Filed revalidation scorecards -- glob'd fresh every run, never hardcoded to one date's
+# 3 files. Matches the naming convention `gate_revalidation_ab.py` writes:
+# analysis/recommendations/gate-revalidation-{cell_name}-{date}.json, each carrying its own
+# top-level "params_key" / "account" / "g_battery.verdict" / "generated_at".
+RECOMMENDATIONS_DIR = REPO / "analysis" / "recommendations"
+REVALIDATION_GLOB = "gate-revalidation-*.json"
 
 # Matches gate-recency-audit-2026-08-08.json's recent_window.definition exactly: "last 15
 # distinct calendar dates present in core-decisions.jsonl, armed=true rows only".
@@ -357,6 +382,82 @@ def load_params() -> dict[str, dict]:
     return out
 
 
+def load_revalidations(directory: Optional[Path] = None) -> dict[tuple[str, str], dict]:
+    """Scan analysis/recommendations/gate-revalidation-*.json for filed per-gate revalidation
+    scorecards. Returns {(params_key, account): {status, verdict, filed_date, source_file}}.
+    Fail-open PER FILE: a malformed/unreadable scorecard is skipped, never crashes the run; a
+    missing/empty directory returns {} (the report degrades to raw registry EV for every gate,
+    same as before this field existed -- never an error)."""
+    directory = directory if directory is not None else RECOMMENDATIONS_DIR
+    out: dict[tuple[str, str], dict] = {}
+    try:
+        paths = sorted(directory.glob(REVALIDATION_GLOB))
+    except OSError:
+        return out
+    for p in paths:
+        try:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(doc, dict):
+            continue
+        params_key = doc.get("params_key")
+        account = doc.get("account")
+        if not isinstance(params_key, str) or not isinstance(account, str):
+            continue
+        g_battery = doc.get("g_battery")
+        verdict = g_battery.get("verdict") if isinstance(g_battery, dict) else None
+        filed_date = doc.get("generated_at")
+        if isinstance(filed_date, str) and len(filed_date) >= 10:
+            filed_date = filed_date[:10]
+        else:
+            filed_date = None
+        try:
+            source_file = str(p.relative_to(REPO)).replace("\\", "/")
+        except ValueError:
+            source_file = p.name
+        out[(params_key, account)] = {
+            "status": "FILED",
+            "verdict": verdict or "UNKNOWN",
+            "filed_date": filed_date,
+            "source_file": source_file,
+        }
+    return out
+
+
+_NO_REVALIDATION: dict[str, Any] = {
+    "status": "NOT_FILED", "verdict": None, "filed_date": None, "source_file": None,
+}
+
+# Soundness stamp field names gate_expiry_check.py may write (either at the gate's top level
+# or nested under pnl_check) -- probed defensively since the schema is still landing
+# concurrently. A recognized "sound" value/substring wins only if no "unsound" signal is also
+# present in ANY probed text (checked first, deliberately -- "sound" is a substring of
+# "unsound" so order matters). Anything unrecognized/missing -> "unstamped", which this report
+# treats identically to "unsound" per the fail-safe-open rule in the module docstring.
+_UNSOUND_MARKERS = ("unsound", "simulator_real", "simulate_trade_real")
+_SOUND_MARKERS = ("sound", "exit_manager_walk", "walk_exit_manager", "plan_exit_actions")
+
+
+def _replay_soundness(status_entry: Optional[dict]) -> str:
+    if not isinstance(status_entry, dict):
+        return "unstamped"
+    pnl_check = status_entry.get("pnl_check")
+    texts: list[str] = []
+    for src in (status_entry, pnl_check if isinstance(pnl_check, dict) else {}):
+        for field in ("replay_soundness", "replay_engine"):
+            v = src.get(field)
+            if isinstance(v, str) and v.strip():
+                texts.append(v.strip().lower())
+    for t in texts:
+        if t == "unsound" or any(m in t for m in _UNSOUND_MARKERS[1:]):
+            return "unsound"
+    for t in texts:
+        if t == "sound" or any(m in t for m in _SOUND_MARKERS[1:]):
+            return "sound"
+    return "unstamped"
+
+
 def load_window_rows(path: Path, n_days: int) -> tuple[list[dict], list[str]]:
     """Stream core-decisions.jsonl once; return (armed=true rows within the trailing n_days
     distinct armed=true trading days, that sorted list of dates). Matches gate-recency-audit-
@@ -473,7 +574,9 @@ def _recommend(spec: dict, expiry_verdict: str, blocks: int, days_stale: Optiona
 # ─────────────────────────────────────────────────────────────────────────────────────
 
 def build_rows(roster: list[dict], registry_by_id: dict, status_by_id: dict, params: dict,
-                window_rows: list[dict], today: dt.date) -> list[dict]:
+                window_rows: list[dict], today: dt.date,
+                revalidations: Optional[dict[tuple[str, str], dict]] = None) -> list[dict]:
+    revalidations = revalidations or {}
     out: list[dict] = []
     for spec in roster:
         gate_id = spec["id"]
@@ -519,7 +622,21 @@ def build_rows(roster: list[dict], registry_by_id: dict, status_by_id: dict, par
                 expiry_verdict = "NOT_IN_EXPIRY_CHECKER"
                 red_ev_note = None
 
+            replay_soundness = _replay_soundness(status) if expiry_verdict == "RED" else "not_applicable"
+
+            # A filed pre-registered revalidation (analysis/recommendations/gate-revalidation-
+            # *.json) OUTRANKS the raw registry EV -- settled evidence, never re-quoted as if
+            # still open. Match on the roster id first (the 2026-08-08 scorecards use it
+            # verbatim as params_key), then the live params_key as a fallback alias.
+            revalidation = (
+                revalidations.get((gate_id, account))
+                or revalidations.get((spec.get("params_key"), account))
+                or dict(_NO_REVALIDATION)
+            )
+
             recommendation = _recommend(spec, expiry_verdict, blocks, days_stale, interval_days)
+            if revalidation["status"] == "FILED":
+                recommendation = f"SETTLED:{revalidation['verdict']}"
 
             out.append({
                 "name": gate_id,
@@ -534,6 +651,8 @@ def build_rows(roster: list[dict], registry_by_id: dict, status_by_id: dict, par
                 "category": spec["category"],
                 "provenance": provenance,
                 "red_ev_note": red_ev_note,
+                "replay_soundness": replay_soundness,
+                "revalidation": revalidation,
             })
     return out
 
@@ -541,14 +660,42 @@ def build_rows(roster: list[dict], registry_by_id: dict, status_by_id: dict, par
 def build_digest(rows: list[dict], max_lines: int = 3) -> list[str]:
     """<=max_lines plain-English lines: every RED gate + its refused-cohort EV first, then
     (if room remains) the highest-staleness REVALIDATE/ACT-ON-PENDING-DECISION rows not
-    already a RED gate. Never empty -- a quiet week still gets one reassuring line."""
+    already a RED gate. Never empty -- a quiet week still gets one reassuring line.
+
+    PROVENANCE-AWARE wording (2026-08-08 correction -- see module docstring + GATE-RECENCY-
+    DOCTRINE.md's REPLAY SOUNDNESS rule):
+      1. A gate with a FILED revalidation scorecard reports THAT verdict -- never the raw
+         registry EV, never "COSTING money" -- a settled DO_NOT_UNBLOCK gate does not keep
+         screaming in the standup after its own study said otherwise.
+      2. Absent a filed revalidation, a RED gate backed by a SOUND replay (production
+         exit_manager core, stamped by gate_expiry_check.py) may say "COSTING money" as before.
+      3. A RED gate that is unsound or simply unstamped reads as PROVISIONAL -- weaker
+         evidence, never stronger, fail-safe-open."""
     reds = [r for r in rows if r["expiry_verdict"] == "RED"]
     lines: list[str] = []
     for r in reds:
         if len(lines) >= max_lines:
             break
-        note = r.get("red_ev_note") or "refused cohort reads positive on recent real fills"
-        lines.append(f"RED -- {r['name']} ({r['account']}): {note}")
+        revalidation = r.get("revalidation") or {}
+        if revalidation.get("status") == "FILED":
+            verdict = revalidation.get("verdict") or "UNKNOWN"
+            filed = revalidation.get("filed_date") or "an unstated date"
+            src = revalidation.get("source_file") or "a filed revalidation study"
+            lines.append(
+                f"SETTLED -- {r['name']} ({r['account']}): revalidated {filed}, "
+                f"verdict={verdict} (raw registry EV superseded -- see {src})"
+            )
+            continue
+        soundness = r.get("replay_soundness") or "unstamped"
+        if soundness == "sound":
+            note = r.get("red_ev_note") or "refused cohort reads positive on recent real fills"
+            lines.append(f"RED -- {r['name']} ({r['account']}): {note}")
+        else:
+            lines.append(
+                f"RED -- {r['name']} ({r['account']}): PROVISIONAL -- EV from an unsound/"
+                f"unstamped replay engine, needs a pre-registered revalidation before this "
+                f"can read as a real cost"
+            )
 
     if len(lines) < max_lines:
         watch = [
@@ -582,6 +729,7 @@ def build_report(lookback_days: int = TRAILING_TRADING_DAYS,
     status = load_status()
     params = load_params()
     window_rows, window_dates = load_window_rows(CORE_DECISIONS, lookback_days)
+    revalidations = load_revalidations()
 
     registry_by_id = {
         g["id"]: g for g in registry.get("gates", []) if isinstance(g, dict) and g.get("id")
@@ -589,15 +737,19 @@ def build_report(lookback_days: int = TRAILING_TRADING_DAYS,
     status_gates = status.get("gates")
     status_by_id = status_gates if isinstance(status_gates, dict) else {}
 
-    rows = build_rows(GATE_ROSTER, registry_by_id, status_by_id, params, window_rows, today)
+    rows = build_rows(GATE_ROSTER, registry_by_id, status_by_id, params, window_rows, today,
+                       revalidations=revalidations)
     reds = [
-        {"name": r["name"], "account": r["account"], "reason": r["red_ev_note"]}
+        {
+            "name": r["name"], "account": r["account"], "reason": r["red_ev_note"],
+            "replay_soundness": r["replay_soundness"], "revalidation": r["revalidation"],
+        }
         for r in rows if r["expiry_verdict"] == "RED"
     ]
     digest = build_digest(rows)
 
     return {
-        "schema": "gate-recency-report-v1",
+        "schema": "gate-recency-report-v2",  # v2 (2026-08-08): + replay_soundness, revalidation
         "generated_et": et_now().isoformat(timespec="seconds"),
         "window": {
             "trailing_trading_days_requested": lookback_days,
