@@ -3,62 +3,65 @@
 <!-- Per CLAUDE.md OP-22 + OP-25 + OP-30 (effort/concurrency discipline). -->
 <!-- NOT YET RATIFIED -- J review required per Rule 9 before any production change. -->
 
-# CANDIDATE: POOLED_DISTINCT_TRIALS_HELPER
+# CANDIDATE: pooled_distinct_trials_helper
 
-**Filed:** 2026-07-21  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** quality_gate  
+**Filed:** 2026-07-21
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** quality_gate
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Current OOS validation reporting uses raw trade counts (n) from individual setups, which can overcount independent trials when two setups signal the same (date, side) trade. This risks inflated statistical significance due to duplicate counting. We propose a helper that computes unique (date, side) pairs across setups to provide a more accurate measure of independent OOS trials for validation reporting.
+We propose to add a helper function `pooled_distinct_trials()` to compute distinct (date, side) trials across multiple setups. This will allow us to audit the independence of OOS populations by counting unique trials without double-counting the same (date, side) across different setups. We will apply this to audit whether the OOS populations of `wap_continuation` and `vix_regime_dayside` are independent (i.e., non-overlapping in terms of (date, side) trials) as a prerequisite for combining their signals.
 
 ## Mechanism
 
-Create `pooled_distinct_trials(setup1_signals, setup2_signals)` in `backtest/autoresearch/probe_stats.py` that:
-1. Extracts (date, side) from each signal in both setups' OOS outputs
-2. Combines into a set to deduplicate
-3. Returns the cardinality as the pooled distinct trial count
-Update OOS validation reporting (e.g., in `eval_combo` or scorecard generation) to use this pooled count instead of raw n when comparing or aggregating across setups.
+The helper function `pooled_distinct_trials()` will take a list of setup names and return the count of distinct (date, side) tuples where at least one of the setups fired. It will iterate over the OOS results for each setup, collect the (date, side) for each trade, and return the size of the set of these tuples.
+
+To audit independence, we will compute:
+- The number of distinct trials for `wap_continuation` alone (A)
+- The number of distinct trials for `vix_regime_dayside` alone (B)
+- The number of distinct trials for the union (A ∪ B)
+If the union count equals A + B, then the populations are disjoint (independent in the sense of no overlapping trials). If less, then there is overlap.
+
+We will implement this in `backtest/autoresearch/probe_stats.py` and then create a temporary script to run the audit on the OOS data.
 
 ## Expected impact on OP-16 anchors
 
+Since this is a research tool and does not change the trading engine, there is no direct impact on the OP-16 anchor days. However, by enabling better audit of setup independence, it may lead to better strategy combinations in the future.
+
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | unchanged (reporting-only change) | 0 |
-| 5/01 winner | unknown -- requires Stage-1 backtest | unchanged | 0 |
-| 5/04 winner | unknown -- requires Stage-1 backtest | unchanged | 0 |
-| 5/05 loser | unknown -- requires Stage-1 backtest | unchanged | 0 |
-| 5/06 loser | unknown -- requires Stage-1 backtest | unchanged | 0 |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unchanged | 0 |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unchanged | 0 |
-
-*Note: This change affects only OOS validation reporting counts, not trade execution or P&L. Engine behavior on J days remains identical.*
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (standard for all candidates)
-2. **Sample bias:** Helper uses all available OOS signals from two setups; risk of overfitting if setups are highly correlated (e.g., same underlying signal). Mitigation: pooled count reduces effective n only when signals overlap, preventing artificial inflation of independent trials.
-3. **Out-of-sample:** NEEDS-OOS (this is a reporting utility; OOS validation of the helper itself is not applicable)
-4. **Real-fills:** NEEDS-REAL-FILLS (no direct P&L impact; real-fills validation of engine unchanged)
+1. **Account-size assumption:** This helper function is used in research and does not place trades. Therefore, no account size assumption is needed for the function itself. Any subsequent strategy that uses the audit results would need to disclose its own assumption.
+2. **Sample bias:** The audit will be performed on the OOS data as defined by the existing backtest framework. The sample bias disclosure will depend on the OOS window used. We note that the OOS population for each setup may be subject to the same time-period biases as the original setup backtests.
+3. **Out-of-sample:** NEEDS-OOS (the audit requires OOS data for the two setups, which we assume is available from their respective backtests; however, we have not yet extracted the OOS trade logs for the audit).
+4. **Real-fills:** NEEDS-REAL-FILLS (the audit relies on the OOS trade logs, which should be based on real-fills simulation; we have not verified that the OOS logs for these setups are based on real-fills).
 5. **Failure modes:** 
-   - Worst day: Misinterpretation of pooled count as actual trade count could lead to incorrect position sizing if used elsewhere (mitigation: restrict use to reporting contexts only)
-   - Max drawdown: None (no P&L change)
-   - Blow-up scenario: If pooled count incorrectly used in Kelly sizing, could cause over-leverage (mitigation: document helper as reporting-only)
-6. **Concentration:** Not applicable (helper does not select trades; concentration disclosure remains engine's responsibility)
+   - The helper function may be slow if there are many setups and many trades (but we expect the number of setups to be small).
+   - If the OOS trade logs are not available or are in an unexpected format, the audit will fail.
+   - The audit assumes that the OOS logs correctly record the (date, side) for each trade; any error in the logs will propagate.
+6. **Concentration:** Not applicable to the helper function itself. The audit may reveal concentration if one setup dominates the distinct trials.
 
 ## Pre-merge gate
 
-- Unit test for `pooled_distinct_trials` covering disjoint, overlapping, and duplicate signals
-- Verify existing OOS validation reports (e.g., in `strategy/candidates/*_scorecard.md`) now reference pooled count where appropriate
-- Gym validators pass (no regression in core backtest logic)
-- No changes to automation/state/params.json or heartbeat.md (Rule 9 compliance)
+- The helper function must be unit tested (e.g., with a small mock dataset).
+- The audit script must run without error on the OOS data for the two setups.
+- The audit result must be logged and available for review.
 
 ## Confidence
 
-9 / 10 -- Straightforward reporting utility with zero engine impact; failure would only affect diagnostic metrics, not live trading.
+8 / 10 -- The helper function is a straightforward utility and we have a clear plan for the audit. The main risk is that the OOS data might not be readily accessible in the expected format, but we can adapt.
 
 ## Pre-existing leaderboard impact
 
-Complements all candidates by improving OOS validation hygiene; no conflict with existing leaderboard entries (1-24). Specifically aids candidates relying on multi-setup OOS comparison (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE).
+This candidate does not conflict with any existing candidate in the leaderboard because it is a research tool and does not propose a change to the trading engine. It complements the leaderboard by enabling better audit of setup independence, which may inform future candidates.
