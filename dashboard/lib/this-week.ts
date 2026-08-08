@@ -28,12 +28,17 @@ export async function readThisWeek(limit = 3): Promise<ThisWeekItem[]> {
       const m = ITEM_RE.exec(line);
       if (!m) continue;
       const [, id, priority, rest] = m;
-      // Description clause runs up to the NEXT "::" field separator (depends:/status:).
-      const desc = rest.split(/\s::\s/)[0] ?? rest;
+      // Description clause runs up to the NEXT "::" field separator
+      // (depends:/status:); everything after that is real metadata worth
+      // showing when the tile is expanded, not summary filler.
+      const clauses = rest.split(/\s::\s/);
+      const desc = clauses[0] ?? rest;
+      const detailClauses = clauses.slice(1).filter((c) => c.trim());
       candidates.push({
         id,
         priority,
         text: sanitizeText(desc, 150, "(no description)"),
+        detail: detailClauses.length ? sanitizeText(detailClauses.join(" · "), 300, "") || undefined : undefined,
       });
       if (candidates.length >= 40) break; // plenty to rank from without scanning the whole file
     }

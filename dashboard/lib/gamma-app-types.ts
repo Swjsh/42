@@ -17,7 +17,11 @@ export interface PresenceView {
   tape_headline: string;
   tape_segments: Array<{ account: string; n: number; pnl: number }>;
   right_now: string | null;
-  clocks: Array<{ label: string; have: number | null; need: number; extra: string }>;
+  /** `explain` is one real, honest sentence built from the same
+   * *-shadow-progress.json fields `have`/`need` were derived from (see
+   * gamma_hq.py's `_clock_explain`) -- surfaced only in the MONEY tile's
+   * expanded state. */
+  clocks: Array<{ label: string; have: number | null; need: number; extra: string; explain: string }>;
   wants: string[];
   recent_ships: string[];
 }
@@ -32,6 +36,11 @@ export interface ActivityEvent {
   subtitle?: string;
   /** "up" (win/bull/green) | "down" (loss/bear/red) | undefined (neutral). */
   tone?: "up" | "down";
+  /** Extra real detail beyond the one-line title -- e.g. a commit's full body
+   * (git log %b), a trade row's remaining CSV fields. Undefined when the
+   * source genuinely has nothing more to say (never fabricated to fill
+   * space). Shown on hover/expand, never invented. */
+  detail?: string;
 }
 
 export interface WantItem {
@@ -44,6 +53,9 @@ export interface ThisWeekItem {
   id: string;
   priority: string;
   text: string;
+  /** Real "depends:"/"status:" clauses parsed from the same queue.md line,
+   * when present -- never fabricated. Undefined when the line carried none. */
+  detail?: string;
 }
 
 export interface GammaAppView {

@@ -27,25 +27,40 @@ const execFileAsync = promisify(execFile);
 
 // --- 1. git commits ---------------------------------------------------------
 
+// %x1e (record separator) delimits commits, %x1f (unit separator) delimits
+// fields within one commit -- %b (body) itself may contain real newlines, so
+// only a byte neither git nor a commit message ever produces can safely
+// terminate a record.
 async function readGitCommits(n: number): Promise<ActivityEvent[]> {
   try {
     const { stdout } = await execFileAsync(
       "git",
-      ["log", `--pretty=format:%h%x1f%ct%x1f%s`, `-${n}`],
+      ["log", `--pretty=format:%h%x1f%ct%x1f%s%x1f%b%x1e`, `-${n}`],
       { cwd: WORKSPACE_ROOT, timeout: 10_000, windowsHide: true },
     );
     return stdout
-      .split(/\r?\n/)
+      .split("\x1e")
+      .map((s) => s.replace(/^\r?\n/, ""))
       .filter(Boolean)
-      .map((line): ActivityEvent | null => {
-        const [hash, epochSec, subject] = line.split("\x1f");
+      .map((record): ActivityEvent | null => {
+        const [hash, epochSec, subject, body] = record.split("\x1f");
         const epoch = Number(epochSec);
         if (!hash || !Number.isFinite(epoch)) return null;
+        // A poisoned commit (e.g. a script's exception handler committing its
+        // own traceback as the message) must never render verbatim -- same
+        // isLogSpew() discipline readOutboxNarrative already applies to
+        // outbox rows, now applied here too so neither raw-content path can
+        // leak a DEGRADED/traceback dump onto the page.
+        const rawSubject = String(subject ?? "");
+        const rawBody = String(body ?? "");
+        const title = isLogSpew(rawSubject) ? "(commit message withheld)" : sanitizeText(subject, 140, "(no subject)");
+        const cleanBody = isLogSpew(rawBody) ? "" : sanitizeText(body, 600, "");
         return {
           type: "commit",
           atIso: new Date(epoch * 1000).toISOString(),
-          title: sanitizeText(subject, 140, "(no subject)"),
+          title,
           subtitle: hash,
+          detail: cleanBody || undefined,
         };
       })
       .filter((e): e is ActivityEvent => e !== null);
@@ -160,11 +175,17 @@ async function readRealTrades(n: number): Promise<ActivityEvent[]> {
     const col = (name: string): number => header.indexOf(name); // NAME-based, never positional (BXM header-drift class of bug)
 
     const iDate = col("date");
+    const iTimeEntry = col("time_entry");
     const iTimeExit = col("time_exit");
     const iSetup = col("setup");
     const iContract = col("contract");
     const iPnl = col("dollar_pnl");
     const iQty = col("qty");
+    const iEntryPx = col("entry_px");
+    const iExitPx = col("exit_px");
+    const iHoldMin = col("hold_minutes");
+    const iGrade = col("trade_grade");
+    const iNotes = col("notes_short");
     if ([iDate, iTimeExit, iSetup, iContract, iPnl].some((i) => i === -1)) return [];
 
     const events: ActivityEvent[] = [];
@@ -179,12 +200,33 @@ async function readRealTrades(n: number): Promise<ActivityEvent[]> {
       const setup = humanizeIdentifier(cells[iSetup]);
       const contract = (cells[iContract] ?? "").trim();
       const qty = cells[iQty]?.trim();
+
+      // Real per-trade detail beyond the one-line title -- entry/exit prices,
+      // hold time, grade, and (when the journal recorded one) the free-text
+      // entry-reason/exit-stage note -- for the Activity tile's expanded
+      // state. Every piece is optional/skipped when the column is blank;
+      // nothing here is invented.
+      const detailParts: string[] = [];
+      const entryPx = iEntryPx >= 0 ? cells[iEntryPx]?.trim() : "";
+      const exitPx = iExitPx >= 0 ? cells[iExitPx]?.trim() : "";
+      if (entryPx && exitPx) detailParts.push(`$${entryPx} → $${exitPx}`);
+      const timeEntry = iTimeEntry >= 0 ? cells[iTimeEntry]?.trim() : "";
+      if (timeEntry) detailParts.push(`entered ${timeEntry} ET`);
+      const holdMin = iHoldMin >= 0 ? cells[iHoldMin]?.trim() : "";
+      if (holdMin) detailParts.push(`held ${holdMin}m`);
+      const grade = iGrade >= 0 ? cells[iGrade]?.trim() : "";
+      if (grade) detailParts.push(`grade ${grade}`);
+      const notes = iNotes >= 0 ? sanitizeText(cells[iNotes], 400, "") : "";
+      let detail = detailParts.join(" · ");
+      if (notes) detail = detail ? `${detail} — ${notes}` : notes;
+
       events.push({
         type: "trade",
         atIso: at.toISOString(),
         title: `Closed ${setup || "trade"} ${contract} — ${fmtSignedMoney(pnl)}`,
         subtitle: qty ? `qty ${qty}` : undefined,
         tone: pnl > 0 ? "up" : pnl < 0 ? "down" : undefined,
+        detail: detail || undefined,
       });
     }
     return events.slice(-n);

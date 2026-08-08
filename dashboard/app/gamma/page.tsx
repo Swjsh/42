@@ -1,11 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { Activity, DollarSign, HandHeart, ListChecks } from "lucide-react";
 import PresenceHeader from "@/components/gamma/PresenceHeader";
 import ActivityFeed from "@/components/gamma/ActivityFeed";
 import MoneyView from "@/components/gamma/MoneyView";
 import WantsCards from "@/components/gamma/WantsCards";
 import ThisWeekCard from "@/components/gamma/ThisWeekCard";
+import Tile from "@/components/gamma/Tile";
 import type { GammaAppView } from "@/lib/gamma-app-types";
 
 const REFRESH_MS = 20_000;
@@ -18,64 +21,144 @@ const EMPTY_VIEW: GammaAppView = {
   thisWeek: [],
 };
 
+async function fetcher(url: string): Promise<GammaAppView> {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return (await res.json()) as GammaAppView;
+}
+
+function pnlTone(headline: string | undefined): string {
+  if (!headline) return "var(--text-2)";
+  if (headline.includes("net +")) return "var(--up)";
+  if (headline.includes("net -")) return "var(--down)";
+  return "var(--text-2)";
+}
+
+function SkeletonTile({ label }: { label: string }) {
+  return (
+    <div
+      className="flex items-center gap-3 overflow-hidden rounded-[var(--radius-lg)] border px-4"
+      style={{ background: "var(--bg-card)", borderColor: "var(--border)", minHeight: 52 }}
+    >
+      <div className="skeleton-bar h-4 w-4 shrink-0 rounded-full" />
+      <div className="skeleton-bar h-3 w-24 shrink-0" />
+      <span className="sr-only">{label} loading</span>
+      <div className="skeleton-bar ml-auto h-3 w-32 shrink-0" />
+    </div>
+  );
+}
+
 /**
- * THE GAMMA APP -- Gamma's one true presence surface (2026-08-08). Not a
- * metrics wall: a colleague's status page. Sections in order: presence
- * header (identity + live state + first-person "what I'm doing right now"),
- * the live activity stream (centerpiece), the money view (goal/tape/clocks),
- * wants, and this week's plan. Polls /api/gamma every 20s and updates state
- * in place -- never a full reload, never a layout jump (every section
- * already renders its full shape with placeholders before the first fetch
- * resolves, so real data only ever swaps text/widths, not structure).
+ * THE GAMMA APP -- Gamma's one true presence surface (2026-08-08, tiles pass
+ * 2026-08-08). Not a metrics wall: a colleague's status page. Sections in
+ * order: presence header (identity + live state + first-person "what I'm
+ * doing right now", always expanded -- there's no secondary content to hide
+ * behind it), then four collapsible Tiles: the live activity stream
+ * (centerpiece, open by default), the money view (goal/tape/clocks, open by
+ * default), wants (closed by default), and this week's plan (closed by
+ * default). Polls /api/gamma every 20s via SWR (refreshInterval +
+ * keepPreviousData) -- unchanged data never re-renders/re-animates, an open
+ * tile never re-collapses on a poll tick, scroll position never jumps.
  */
 export default function GammaAppPage() {
-  const [view, setView] = useState<GammaAppView>(EMPTY_VIEW);
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
-  const [lastError, setLastError] = useState<string | null>(null);
-  const [lastOkAt, setLastOkAt] = useState<Date | null>(null);
-  const hasLoaded = useRef(false);
+  const { data, error, isValidating } = useSWR<GammaAppView>("/api/gamma", fetcher, {
+    refreshInterval: REFRESH_MS,
+    keepPreviousData: true,
+  });
 
-  const refresh = useCallback(async () => {
-    try {
-      const res = await fetch("/api/gamma", { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = (await res.json()) as GammaAppView;
-      setView(data);
-      setNowMs(Date.now());
-      setLastError(null);
-      setLastOkAt(new Date());
-      hasLoaded.current = true;
-    } catch (err) {
-      // Fail open -- keep showing the last good frame, just flag staleness in the footer.
-      setLastError(err instanceof Error ? err.message : "fetch failed");
-    }
+  const hasLoaded = data !== undefined;
+  const view = data ?? EMPTY_VIEW;
+
+  // Tick the "relative time" clock independently of the data poll, so
+  // "3m ago" labels keep advancing between fetches without touching `view`.
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 15_000);
+    return () => clearInterval(id);
   }, []);
 
+  const [lastOkAt, setLastOkAt] = useState<Date | null>(null);
   useEffect(() => {
-    refresh();
-    const id = setInterval(refresh, REFRESH_MS);
-    return () => clearInterval(id);
-  }, [refresh]);
+    if (data) setLastOkAt(new Date());
+  }, [data]);
 
   return (
-    <main className="h-screen w-full overflow-y-auto" style={{ fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" }}>
-      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-5 py-12 sm:px-8 sm:py-16">
+    <main className="gamma-app h-screen w-full overflow-y-auto">
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-8 px-5 py-12 sm:px-8 sm:py-16">
         <PresenceHeader presence={view.presence} />
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-start">
-          <ActivityFeed events={view.activity} nowMs={nowMs} />
-          <div className="flex flex-col gap-10">
-            <MoneyView presence={view.presence} />
-            <WantsCards wants={view.wants} />
-            <ThisWeekCard items={view.thisWeek} />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
+          {hasLoaded ? (
+            <Tile
+              id="activity"
+              icon={Activity}
+              title="Live activity"
+              defaultOpen
+              badge={{ text: `${view.activity.length} today` }}
+              summary={view.activity[0]?.title ?? "—"}
+            >
+              <ActivityFeed events={view.activity} nowMs={nowMs} />
+            </Tile>
+          ) : (
+            <SkeletonTile label="Live activity" />
+          )}
+
+          <div className="flex flex-col gap-6">
+            {hasLoaded ? (
+              <Tile
+                id="money"
+                icon={DollarSign}
+                title="Money"
+                defaultOpen
+                summary={
+                  <span style={{ color: pnlTone(view.presence?.tape_headline) }}>
+                    {view.presence?.tape_headline ?? "—"}
+                  </span>
+                }
+              >
+                <MoneyView presence={view.presence} />
+              </Tile>
+            ) : (
+              <SkeletonTile label="Money" />
+            )}
+
+            {hasLoaded ? (
+              <Tile
+                id="wants"
+                icon={HandHeart}
+                title="I want"
+                defaultOpen={false}
+                badge={{ text: `${view.wants.length} open` }}
+                summary={view.wants[0]?.text ?? "—"}
+              >
+                <WantsCards wants={view.wants} />
+              </Tile>
+            ) : (
+              <SkeletonTile label="I want" />
+            )}
+
+            {hasLoaded ? (
+              <Tile
+                id="thisweek"
+                icon={ListChecks}
+                title="This week"
+                defaultOpen={false}
+                badge={{ text: `${view.thisWeek.length} queued` }}
+                summary={view.thisWeek[0]?.text ?? "—"}
+              >
+                <ThisWeekCard items={view.thisWeek} />
+              </Tile>
+            ) : (
+              <SkeletonTile label="This week" />
+            )}
           </div>
         </div>
 
         <footer className="border-t pt-4 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-4)" }}>
-          {lastError
-            ? `Last refresh failed (${lastError}) — showing last good data`
+          {error
+            ? `Last refresh failed (${error instanceof Error ? error.message : "fetch failed"}) — showing last good data`
             : lastOkAt
-              ? `Synced ${lastOkAt.toLocaleTimeString()} · refreshes every 20s`
+              ? `Synced ${lastOkAt.toLocaleTimeString()} · refreshes every 20s${isValidating ? " · syncing…" : ""}`
               : "Loading…"}
         </footer>
       </div>

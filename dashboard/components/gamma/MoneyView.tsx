@@ -8,36 +8,45 @@ function ClockRow({
   have,
   need,
   extra,
+  explain,
 }: {
   label: string;
   have: number | null;
   need: number;
   extra: string;
+  explain?: string;
 }) {
   const needSafe = need > 0 ? need : 1;
   const haveSafe = have && have > 0 ? have : 0;
   const pct = Math.max(0, Math.min(100, (Math.min(haveSafe, needSafe) / needSafe) * 100));
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="w-24 shrink-0 sm:w-28" style={{ color: "var(--text-2)" }}>
-        {label}
-      </span>
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--border)" }}>
-        <div
-          className="h-full rounded-full transition-[width] duration-700 ease-out"
-          style={{ width: `${pct}%`, background: "var(--cyan)" }}
-        />
-      </div>
-      <span className="w-16 shrink-0 text-right font-mono text-xs" style={{ color: "var(--text-2)" }}>
-        {have ?? PLACEHOLDER}/{need}
-      </span>
-      {extra && (
-        <span
-          className="hidden shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline"
-          style={{ background: "var(--amber-soft, rgba(245,158,11,.14))", color: "var(--amber)" }}
-        >
-          {extra}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-3 text-sm">
+        <span className="w-24 shrink-0 sm:w-28" style={{ color: "var(--text-2)" }}>
+          {label}
         </span>
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--border)" }}>
+          <div
+            className="h-full rounded-full transition-[width] duration-700 ease-out"
+            style={{ width: `${pct}%`, background: "var(--cyan)" }}
+          />
+        </div>
+        <span className="w-16 shrink-0 text-right font-mono text-xs" style={{ color: "var(--text-2)" }}>
+          {have ?? PLACEHOLDER}/{need}
+        </span>
+        {extra && (
+          <span
+            className="hidden shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline"
+            style={{ background: "var(--amber-soft, rgba(245,158,11,.14))", color: "var(--amber)" }}
+          >
+            {extra}
+          </span>
+        )}
+      </div>
+      {explain && (
+        <p className="pl-0 text-xs leading-relaxed sm:pl-[7.5rem]" style={{ color: "var(--text-4)" }}>
+          {explain}
+        </p>
       )}
     </div>
   );
@@ -72,9 +81,9 @@ export default function MoneyView({ presence }: { presence: PresenceView | null 
         <div className="flex flex-col gap-3">
           {(
             presence?.clocks ?? [
-              { label: "SSR shadow", have: null, need: 20, extra: "" },
-              { label: "MES mirror", have: null, need: 20, extra: "" },
-              { label: "Cap re-check", have: null, need: 20, extra: "" },
+              { label: "SSR shadow", have: null, need: 20, extra: "", explain: undefined },
+              { label: "MES mirror", have: null, need: 20, extra: "", explain: undefined },
+              { label: "Cap re-check", have: null, need: 20, extra: "", explain: undefined },
             ]
           ).map((c) => (
             <ClockRow key={c.label} {...c} />

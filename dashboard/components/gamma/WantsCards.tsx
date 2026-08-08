@@ -1,9 +1,8 @@
-import Section from "./Section";
 import type { WantItem } from "@/lib/gamma-app-types";
 
 export default function WantsCards({ wants }: { wants: WantItem[] }) {
   return (
-    <Section title="I want">
+    <>
       {wants.length > 0 ? (
         <ol className="flex flex-col gap-2">
           {wants.map((w) => (
@@ -27,6 +26,6 @@ export default function WantsCards({ wants }: { wants: WantItem[] }) {
           —
         </p>
       )}
-    </Section>
+    </>
   );
 }

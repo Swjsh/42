@@ -25,6 +25,11 @@ export default function ThisWeekCard({ items }: { items: ThisWeekItem[] }) {
                   <span style={{ color: PRIORITY_COLOR[it.priority] ?? "var(--text-4)" }}>{it.priority}</span>
                   <span className="font-mono">{it.id}</span>
                 </span>
+                {it.detail && (
+                  <span className="text-[11px] leading-relaxed" style={{ color: "var(--text-3)" }}>
+                    {it.detail}
+                  </span>
+                )}
               </div>
             </li>
           ))}

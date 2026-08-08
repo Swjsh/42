@@ -22,8 +22,16 @@
 
   --text-1: #e6edf7;
   --text-2: #a4afc4;
-  --text-3: #6e7a92;
-  --text-4: #4a5570;
+  /* text-3/text-4 retuned 2026-08-08 for WCAG AA (4.5:1) against --bg-card
+     #161e35 -- verified via getComputedStyle + WCAG relative-luminance math,
+     not eyeballed. Old --text-3 #6e7a92 measured 3.82:1 (fail); old --text-4
+     #4a5570 measured 2.22:1 (fail badly). New values clear 4.5:1 against
+     --bg-card with margin (5.62:1 / 4.65:1) and clear it by a wider margin
+     against the darker --bg-deep (6.81:1 / 5.64:1), so every real usage site
+     (tile titles, footer sync line, activity subtitles/timestamps, chevron,
+     ThisWeekCard meta) passes regardless of which bg token it sits on. */
+  --text-3: #8b97af;
+  --text-4: #7c88a4;
 
   --up: #22c55e;
   --up-soft: rgba(34, 197, 94, 0.14);
@@ -49,6 +57,16 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+
+  /* Motion tokens (Material M3 duration/easing), Gamma App tiles 2026-08-08 */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --dur-micro: 120ms;
+  --dur-content: 220ms;
+  --dur-content-exit: 180ms;
+
+  /* Focus ring -- never remove :focus-visible without replacing it (WCAG 2.4.11) */
+  --focus-ring: var(--cyan);
 }
 
 html,
@@ -187,6 +205,67 @@ body {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }
+}
+
+/* ============================================================
+   GAMMA APP -- collapsible tiles (scoped to .gamma-app so this never
+   leaks into the Trade House canvas at "/")
+   ============================================================ */
+.gamma-app :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.gamma-app .tile-content[data-state="open"] {
+  animation: tile-open var(--dur-content) var(--ease-standard);
+}
+.gamma-app .tile-content[data-state="closed"] {
+  animation: tile-close var(--dur-content-exit) var(--ease-accelerate);
+  overflow: hidden;
+}
+@keyframes tile-open {
+  from { height: 0; opacity: 0; }
+  to   { height: var(--radix-collapsible-content-height); opacity: 1; }
+}
+@keyframes tile-close {
+  from { height: var(--radix-collapsible-content-height); opacity: 1; }
+  to   { height: 0; opacity: 0; }
+}
+.gamma-app .tile-chevron {
+  transition: transform var(--dur-micro) var(--ease-standard);
+}
+.gamma-app .tile-chevron[data-state="open"] { transform: rotate(180deg); }
+
+/* A genuinely new activity row (top of the feed after a poll) gets a brief
+   enter animation -- the REST of an unchanged feed never re-animates. */
+.gamma-app .activity-row-in {
+  animation: activity-row-in 300ms var(--ease-standard);
+}
+@keyframes activity-row-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeleton shimmer for the first-load state, before /api/gamma resolves. */
+.gamma-app .skeleton-bar {
+  background: linear-gradient(90deg, var(--bg-overlay) 25%, var(--bg-elev) 50%, var(--bg-overlay) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gamma-app *,
+  .gamma-app *::before,
+  .gamma-app *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ============================================================
