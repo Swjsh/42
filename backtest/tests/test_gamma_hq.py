@@ -66,7 +66,10 @@ def _full_state_fixture() -> dict:
             "futures_tail_et": now - dt.timedelta(minutes=3),
             "aggressive_mtime_et": now - dt.timedelta(minutes=10),
         },
-        "standup": {"summary": "Flat both accounts, watching the 5350 level."},
+        "standup": {
+            "focus": "Flat both accounts, watching the 5350 level.",
+            "text": "Morning J — Gamma here.\n\nlots more detail that must not show up here",
+        },
         "clocks": {
             "ssr": {"n_round_trips": 0, "arming_bar": {"round_trips_needed": 20, "beats_null": None}},
             "mes": {"n_round_trips": 48, "arming_bar": {"round_trips_needed": 20, "beats_null": False}},
@@ -146,35 +149,19 @@ def test_render_frame_partial_state_missing_keys_no_raise():
         assert marker in frame
 
 
-def test_today_focus_text_takes_first_line_only_of_real_standup_shape():
-    # Regression pin for a real bug caught in the 2026-08-08 smoke test against
-    # actual repo state: gamma_standup.py's real gamma-standup-latest.json has
-    # NO one-line "summary" field -- its "text" field is the FULL multi-
-    # paragraph composed standup. Rendering the whole thing flooded "Today's
-    # focus:" with a mid-word-truncated wall of text. Must degrade to just the
-    # first line.
-    standup = {
-        "text": (
-            "Morning J — Gamma here.\n\n"
-            "**OVERNIGHT/YESTERDAY**\n"
-            "- Exit-repair lane CLOSED honestly -- catastrophe-cap DECIDED at n=13"
-        )
-    }
-    assert hq._today_focus_text(standup) == "Morning J — Gamma here."
-    frame = hq.render_frame({"standup": standup}, dt.datetime(2026, 8, 7, 12, 31, 0))
-    assert "Today's focus: Morning J — Gamma here." in frame
-    assert "OVERNIGHT/YESTERDAY" not in frame
-    assert "**" not in frame
-
-
-def test_today_focus_text_banned_word_on_first_line_still_scrubbed():
-    standup = {"text": "Engine DEGRADED at open.\n\nEverything after is irrelevant here."}
-    assert "DEGRADED" not in hq._today_focus_text(standup)
-
-
 # --------------------------------------------------------------------------------
-# CHANGES 2026-08-08 follow-up -- HQ prefers gamma_standup.py's new "focus"
-# field over the first-line-of-text fallback.
+# _today_focus_text -- ONE tier only (standup["focus"]), no fallback to any
+# other field. CORRECTED 2026-08-08 (same day as the original "focus" flag):
+# the first cut of this function fell back to the first line of standup["text"]
+# whenever "focus" was absent. gamma_standup.py used to only populate "focus"
+# in morning mode, so every EOD-mode fire hit that fallback -- and a real
+# EOD standup's "text" opens with the fixed greeting sentence ("EOD from
+# Gamma."), so the live Gamma App page rendered "Today's focus: EOD from
+# Gamma." (J-flagged, live on the page). Root cause was the missing eod-mode
+# write in gamma_standup.py (fixed there -- see test_gamma_standup.py); this
+# function's greeting-line fallback is what let the gap reach the page
+# instead of surfacing it, so the fallback itself is now gone too: no
+# "focus" field means None, full stop, and the caller omits the line.
 # --------------------------------------------------------------------------------
 
 def test_today_focus_text_prefers_focus_field_over_text():
@@ -185,31 +172,38 @@ def test_today_focus_text_prefers_focus_field_over_text():
     assert hq._today_focus_text(standup) == "3 open research items; today I'm on the top one."
 
 
-def test_today_focus_text_falls_back_to_first_line_when_focus_absent():
-    # EOD-mode standups never populate "focus" (no TODAY section) -- must
-    # still degrade cleanly to the first-line-of-text logic.
+def test_today_focus_text_returns_none_when_focus_absent():
+    # This is the EXACT shape that produced the live bug: a standup dict with
+    # only "text" (the greeting-first-line blob), no "focus" key at all.
     standup = {"text": "EOD from Gamma.\n\n**P&L**\nSafe up $150."}
-    assert hq._today_focus_text(standup) == "EOD from Gamma."
+    assert hq._today_focus_text(standup) is None
 
 
-def test_today_focus_text_falls_back_to_first_line_when_focus_is_none():
+def test_today_focus_text_returns_none_when_focus_is_none():
     standup = {"focus": None, "text": "Morning J — Gamma here.\n\nrest of message"}
-    assert hq._today_focus_text(standup) == "Morning J — Gamma here."
+    assert hq._today_focus_text(standup) is None
 
 
-def test_today_focus_text_falls_back_to_first_line_when_focus_blank():
+def test_today_focus_text_returns_none_when_focus_blank():
     standup = {"focus": "   ", "text": "Morning J — Gamma here.\n\nrest of message"}
-    assert hq._today_focus_text(standup) == "Morning J — Gamma here."
+    assert hq._today_focus_text(standup) is None
 
 
-def test_today_focus_text_focus_field_wrong_type_falls_back():
+def test_today_focus_text_returns_none_when_focus_field_wrong_type():
     standup = {"focus": 12345, "text": "Morning J — Gamma here.\n\nrest of message"}
-    assert hq._today_focus_text(standup) == "Morning J — Gamma here."
+    assert hq._today_focus_text(standup) is None
+
+
+def test_today_focus_text_returns_none_when_standup_missing_or_malformed():
+    assert hq._today_focus_text(None) is None
+    assert hq._today_focus_text({}) is None
+    assert hq._today_focus_text(["not", "a", "dict"]) is None
 
 
 def test_today_focus_text_focus_field_is_sanitized():
     standup = {"focus": "Engine DEGRADED right now"}
     result = hq._today_focus_text(standup)
+    assert result is not None
     assert "DEGRADED" not in result
 
 
@@ -222,6 +216,37 @@ def test_render_frame_goal_section_uses_focus_field():
     frame = hq.render_frame(state, dt.datetime(2026, 8, 7, 12, 31, 0))
     assert "Today's focus: 3 open research items; today I'm on the top one." in frame
     assert "lots more detail" not in frame
+
+
+def test_render_frame_omits_focus_line_when_focus_absent():
+    # The direct regression pin for the live bug: no "focus" field (only the
+    # greeting-bearing "text") must OMIT "Today's focus:" entirely from the
+    # frame -- never show the greeting, never show a placeholder guess. The
+    # GOAL section header and goal line still render (only the second,
+    # focus-specific line is conditional).
+    standup = {"text": "EOD from Gamma.\n\n**P&L**\nSafe up $150."}
+    frame = hq.render_frame({"standup": standup}, dt.datetime(2026, 8, 7, 12, 31, 0))
+    assert "\U0001f3af GOAL" in frame
+    assert "Today's focus:" not in frame
+    assert "EOD from Gamma." not in frame
+
+
+def test_render_frame_omits_focus_line_when_standup_missing():
+    frame = hq.render_frame({}, dt.datetime(2026, 8, 7, 12, 31, 0))
+    assert "\U0001f3af GOAL" in frame
+    assert "Today's focus:" not in frame
+
+
+def test_build_view_dict_todays_focus_is_none_when_focus_absent():
+    standup = {"text": "EOD from Gamma.\n\n**P&L**\nSafe up $150."}
+    view = hq._build_view_dict({"standup": standup}, dt.datetime(2026, 8, 7, 12, 31, 0))
+    assert view["todays_focus"] is None
+
+
+def test_build_view_dict_todays_focus_present_when_focus_field_present():
+    standup = {"focus": "3 open research items; today I'm on the top one."}
+    view = hq._build_view_dict({"standup": standup}, dt.datetime(2026, 8, 7, 12, 31, 0))
+    assert view["todays_focus"] == "3 open research items; today I'm on the top one."
 
 
 def test_render_frame_malformed_types_no_raise():
@@ -259,15 +284,19 @@ def test_render_frame_never_leaks_traceback_from_wants():
 
 
 def test_render_frame_never_leaks_traceback_from_standup():
+    # "focus" is the only field _today_focus_text ever reads (2026-08-08
+    # correction -- see the block above); exercise the real field so this
+    # actually proves _sanitize_line scrubs it, not just that an unread key
+    # was ignored.
     state = _full_state_fixture()
-    state["standup"] = {"summary": 'Traceback (most recent call last):\n  File "y.py", line 9\nKeyError'}
+    state["standup"] = {"focus": 'Traceback (most recent call last):\n  File "y.py", line 9\nKeyError'}
     frame = hq.render_frame(state, dt.datetime(2026, 8, 7, 12, 31, 0))
     assert "Traceback (most recent call last)" not in frame
 
 
 def test_render_frame_never_leaks_degraded_word():
     state = _full_state_fixture()
-    state["standup"] = {"summary": "Engine DEGRADED, halted at 10:03"}
+    state["standup"] = {"focus": "Engine DEGRADED, halted at 10:03"}
     state["recent_commits"] = ["fix: DEGRADED sensor path", *state["recent_commits"]]
     state["wants"] = ["Investigate DEGRADED watcher state", *state["wants"]]
     frame = hq.render_frame(state, dt.datetime(2026, 8, 7, 12, 31, 0))

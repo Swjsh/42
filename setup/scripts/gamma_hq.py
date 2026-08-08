@@ -289,6 +289,37 @@ def _needs_beats_null_suffix(beats_null: Optional[object]) -> str:
     return ""
 
 
+def _clock_explain(label: str, raw: Optional[dict], have: Optional[int], need: int) -> str:
+    """One real, honest sentence per clock for the Gamma App's expanded MONEY
+    tile (2026-08-08) -- built ONLY from fields already present in the same
+    *-shadow-progress.json dict `have`/`need` were derived from (or, for
+    'Cap re-check', from the catastrophe ledger count itself). Never invents
+    detail the underlying file doesn't carry."""
+    if label == "Cap re-check":
+        n = have or 0
+        return f"{n} catastrophe-cap shadow exit{'s' if n != 1 else ''} logged since the last {need}-trade re-check."
+    if not isinstance(raw, dict):
+        return "No shadow ledger data yet."
+    n = raw.get("n_round_trips")
+    pnl = raw.get("total_pnl_usd")
+    avg = raw.get("avg_pnl_usd_per_trip")
+    bar = raw.get("arming_bar") if isinstance(raw.get("arming_bar"), dict) else {}
+    armable = bar.get("armable")
+    beats_null = bar.get("beats_null")
+    parts: list[str] = []
+    if isinstance(n, (int, float)):
+        parts.append(f"{int(n)} round trip{'s' if int(n) != 1 else ''}")
+    if isinstance(pnl, (int, float)):
+        avg_str = f" ({_fmt_signed_money(avg)}/trip avg)" if isinstance(avg, (int, float)) else ""
+        parts.append(f"{_fmt_signed_money(pnl)} total{avg_str}")
+    if beats_null is False:
+        parts.append("underperforms its buy-and-hold null")
+    elif beats_null is True:
+        parts.append("beats its buy-and-hold null")
+    parts.append("armable" if armable else "not yet armable")
+    return " · ".join(parts) if parts else "No shadow ledger data yet."
+
+
 def _extract_want_text(item: object) -> object:
     if isinstance(item, str):
         return item
@@ -300,64 +331,34 @@ def _extract_want_text(item: object) -> object:
     return item  # _sanitize_line's str() will make a best effort on anything else
 
 
-def _extract_standup_text(standup: Optional[dict]) -> Optional[str]:
-    # gamma-standup-latest.json's schema is owned by gamma_standup.py (a sibling
-    # tool). Defensive multi-key lookup so whichever field name that tool uses
-    # has a reasonable chance of being picked up without a code change here;
-    # always falls open to None (caller renders a generic placeholder) either way.
-    if not isinstance(standup, dict):
-        return None
-    for key in ("summary", "text", "narrative", "headline", "today"):
-        v = standup.get(key)
-        if isinstance(v, str) and v.strip():
-            return v
-    return None
+def _today_focus_text(standup: Optional[dict]) -> Optional[str]:
+    """The GOAL section's OPTIONAL second line -- gamma_standup.py's own
+    purpose-built one-line "focus" field (added 2026-08-08): the TODAY bullet
+    in morning mode, the TOMORROW bullet in eod mode, markdown-stripped,
+    <=110 chars (see gamma_standup.py's _derive_focus). ONE tier, no fallback
+    to any other field on the standup dict.
 
-
-def _today_focus_text(standup: Optional[dict]) -> str:
-    """The GOAL section's second line -- what used to be the standalone TODAY:
-    section, now folded in per spec. Three-tier fail-open priority:
-
-    1. standup["focus"] (added 2026-08-08 in gamma_standup.py per this exact
-       flag): a purpose-built one-line summary -- the TODAY section's own
-       bullet, markdown-stripped, <=110 chars -- written ONLY for morning-mode
-       standups (EOD has no TODAY section, so gamma_standup.py leaves this
-       None there). This is the semantically-correct "today's focus" content;
-       prefer it whenever present.
-    2. First-line-of-"text" (2026-08-08 smoke-test fix, kept as the fallback):
-       gamma_standup.py's real gamma-standup-latest.json schema stores the
-       FULL multi-paragraph composed standup body under "text" (no one-line
-       "summary" field despite _extract_standup_text's defensive multi-key
-       lookup hoping for one) -- rendering that whole blob produced exactly
-       the mid-word-truncated wall of text this whole redesign exists to
-       eliminate. gamma_standup's compose_morning_text/compose_eod_text always
-       open with a short, fixed, variable-free greeting line ("Morning J --
-       Gamma here." / "EOD from Gamma.") followed by a blank line then the
-       detail sections, so taking just the first line yields a clean one-liner
-       -- this is what covers EOD-mode standups (no "focus" field) and any
-       morning standup whose "focus" derivation is somehow absent.
-    3. The Monday/"(standup on file...)" placeholders when standup itself has
-       neither field usably populated.
-
-    Banned-content scrubbing (_sanitize_line) runs on whichever tier wins, and
-    since only ONE line is ever displayed, content further down a multi-line
-    "text" blob (which could theoretically contain a banned word) is never at
-    risk of leaking -- it's simply never shown.
+    An earlier revision of this function fell back to the first line of
+    standup["text"] whenever "focus" was absent. For a real
+    gamma-standup-latest.json that first line is the fixed greeting sentence
+    ("Morning J -- Gamma here." / "EOD from Gamma.") -- and because
+    gamma_standup.py used to only populate "focus" in morning mode, every
+    EOD-mode fire hit that fallback and rendered "Today's focus: EOD from
+    Gamma." on the live page (J-flagged, 2026-08-08). That was a coworker's
+    hello line dressed up as the day's actual focus, not a real degradation
+    of a missing field -- fixed at BOTH ends: gamma_standup.py now writes a
+    real "focus" in both modes, and this function no longer has a text-
+    derived fallback to fall INTO. If "focus" is missing, blank, or the
+    wrong type (a stale pre-schema latest.json, a corrupt write, or standup
+    itself being None/malformed), this returns None and the caller OMITS the
+    "Today's focus:" line entirely (_section_goal / _build_view_dict) --
+    never a guess, never the greeting, never any other field on the dict.
     """
     if isinstance(standup, dict):
         focus = standup.get("focus")
         if isinstance(focus, str) and focus.strip():
             return _sanitize_line(focus)
-    text = _extract_standup_text(standup)
-    if text is None:
-        if isinstance(standup, dict) and standup:
-            # file exists and parsed, just no field we recognize -- say so plainly
-            # rather than silently falling back to the "no standup yet" message,
-            # which would misreport that the sibling tool hasn't run.
-            return "(standup on file, no readable summary field)"
-        return "First standup lands Monday 08:15 ET"
-    first_line = text.strip().split("\n", 1)[0].strip()
-    return _sanitize_line(first_line or text)
+    return None
 
 
 _CONVENTIONAL_PREFIX_RE = re.compile(r"^[a-z]+(\([^)]*\))?:\s*(.+)$")
@@ -431,7 +432,12 @@ def _section_goal(standup: Optional[dict], width: int) -> str:
     focus = _today_focus_text(standup)
     lines = ["\U0001f3af GOAL"]
     lines.extend(_wrap_block(_GOAL_LINE, width))
-    lines.extend(_wrap_block(f"Today's focus: {focus}", width))
+    # No usable focus (missing/blank/wrong-typed "focus" field, or no standup
+    # file at all) -- OMIT the line entirely rather than show a placeholder
+    # or fall back to any other text. See _today_focus_text's docstring for
+    # the greeting-line bug this discipline replaced.
+    if focus:
+        lines.extend(_wrap_block(f"Today's focus: {focus}", width))
     return "\n".join(lines)
 
 
@@ -946,11 +952,15 @@ def _build_view_dict(state: dict, now_et: datetime) -> dict:
     ssr_have, ssr_need = _extract_progress(ssr)
     mes_have, mes_need = _extract_progress(mes)
     beats_null = (mes.get("arming_bar") or {}).get("beats_null") if isinstance(mes, dict) else None
+    cat_n = clocks_raw.get("catastrophe_n")
     clocks = [
-        {"label": "SSR shadow", "have": ssr_have, "need": ssr_need, "extra": ""},
+        {"label": "SSR shadow", "have": ssr_have, "need": ssr_need, "extra": "",
+         "explain": _clock_explain("SSR shadow", ssr if isinstance(ssr, dict) else None, ssr_have, ssr_need)},
         {"label": "MES mirror", "have": mes_have, "need": mes_need,
-         "extra": "needs beats-null" if beats_null is False else ""},
-        {"label": "Cap re-check", "have": clocks_raw.get("catastrophe_n"), "need": _CATASTROPHE_CAP_CADENCE, "extra": ""},
+         "extra": "needs beats-null" if beats_null is False else "",
+         "explain": _clock_explain("MES mirror", mes if isinstance(mes, dict) else None, mes_have, mes_need)},
+        {"label": "Cap re-check", "have": cat_n, "need": _CATASTROPHE_CAP_CADENCE, "extra": "",
+         "explain": _clock_explain("Cap re-check", None, cat_n, _CATASTROPHE_CAP_CADENCE)},
     ]
 
     wants_raw = state.get("wants") if isinstance(state.get("wants"), list) else []

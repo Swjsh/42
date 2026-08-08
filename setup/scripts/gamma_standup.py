@@ -120,6 +120,7 @@ WANTS_PATH = STATE / "gamma-wants.json"
 DISCORD_CFG_PATH = STATE / ".discord-config.json"
 OUTBOX_PATH = STATE / "discord-outbox.jsonl"
 LATEST_PATH = STATE / "gamma-standup-latest.json"
+AUTONOMY_REPORT_PATH = STATE / "autonomy-report.json"
 
 CHAR_CAP = 1200
 COMMIT_BULLET_MAX_CHARS = 150
@@ -323,14 +324,31 @@ def _backlog_bullet(n: Optional[int], *, tense: str) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------- #
-# "focus" field (2026-08-08, gamma_hq.py flag #4) -- a one-line, GAMMA-HQ-ready
-# summary derived from the TODAY section's own bullet, written into
-# gamma-standup-latest.json alongside the existing keys (schema ADDITION, still
-# backward compatible -- any older reader that doesn't know "focus" just
-# ignores it). Morning-only: EOD composes have no TODAY section, so
-# gather_facts leaves facts["focus"] = None for eod and gamma_hq.py's
-# _today_focus_text falls back to its own first-line-of-text derivation then.
+# "focus" field (2026-08-08, gamma_hq.py flag #4; corrected 2026-08-08 same
+# day -- see BUG note below) -- a one-line, GAMMA-HQ-ready summary written
+# into gamma-standup-latest.json alongside the existing keys (schema ADDITION,
+# still backward compatible -- any older reader that doesn't know "focus"
+# just ignores it). BOTH modes populate it now: morning derives it from the
+# TODAY bullet, eod from the TOMORROW bullet -- whichever backlog bullet that
+# mode's own composed message already shows, via the SAME fallback phrase
+# (TODAY_FALLBACK / TOMORROW_FALLBACK below), so this field can never diverge
+# from what J actually sees in the full message.
+#
+# BUG this replaced (J-flagged, live on the Gamma App page 2026-08-08): the
+# first cut of this field only fired in morning mode; gather_facts left
+# facts["focus"] = None for eod, and gamma_hq.py's _today_focus_text fell
+# back to the first line of standup["text"] -- which for a real standup is
+# the fixed greeting sentence ("EOD from Gamma."). The header rendered
+# "Today's focus: EOD from Gamma." -- a coworker's hello line dressed up as
+# the day's actual focus. Root cause was the missing eod-mode write, not the
+# consumer's fallback logic; the fallback just made the gap invisible instead
+# of surfacing it. Fixed at the source (both modes always write a real
+# "focus") AND at gamma_hq.py's consumer (_today_focus_text no longer falls
+# back to any greeting-bearing text at all -- see that module).
 # --------------------------------------------------------------------------- #
+
+TODAY_FALLBACK = "Nothing queued -- reading the tape as it comes."
+TOMORROW_FALLBACK = "Reading the tape fresh, nothing queued yet."
 
 _MARKDOWN_LIST_PREFIX_RE = re.compile(r"^[-*]\s+")
 _MARKDOWN_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
@@ -373,13 +391,15 @@ def _truncate_at_word_boundary(text: str, max_len: int, ellipsis: str = "...") -
     return cut + ellipsis
 
 
-def _derive_focus(today_bullet: Optional[str]) -> str:
-    """One-line 'focus' field for gamma-standup-latest.json: the TODAY
-    section's bullet -- mirrors compose_morning_text's own TODAY-section
-    fallback phrase EXACTLY when the backlog count is unavailable (today_bullet
-    is None), so this can never diverge from what the composed message itself
-    actually shows -- markdown-stripped, capped at FOCUS_MAX_CHARS."""
-    raw = today_bullet if today_bullet else "Nothing queued -- reading the tape as it comes."
+def _derive_focus(bullet: Optional[str], fallback: str) -> str:
+    """One-line 'focus' field for gamma-standup-latest.json, shared by BOTH
+    modes: morning passes the TODAY bullet + TODAY_FALLBACK, eod passes the
+    TOMORROW bullet + TOMORROW_FALLBACK. `fallback` mirrors that mode's own
+    compose_*_text no-backlog phrase EXACTLY (same module constant used in
+    both places -- see TODAY_FALLBACK/TOMORROW_FALLBACK above), so this can
+    never diverge from what the composed message itself actually shows --
+    markdown-stripped, capped at FOCUS_MAX_CHARS."""
+    raw = bullet if bullet else fallback
     return _truncate_at_word_boundary(_strip_markdown(raw), FOCUS_MAX_CHARS)
 
 
@@ -460,6 +480,39 @@ def _compose_clocks_line(segments: list) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------- #
+# AUTONOMY line (morning only, 2026-08-08 -- LANE C) -- sourced ONLY from
+# automation/state/autonomy-report.json (setup/scripts/autonomy_report.py),
+# never recomputed here. Answers "did Gamma actually drive yesterday" in one
+# honest line -- never flattering, never vague, never blank on a fully-starved
+# day (that report's own build_verdict already guarantees a non-empty verdict
+# string; this just reshapes it into first-person coworker voice using the
+# SAME numbers, per the same never-invents-a-claim discipline as every other
+# section in this module -- see gather_facts's "focus" field for precedent).
+# --------------------------------------------------------------------------- #
+
+def _autonomy_line(report: Optional[dict]) -> Optional[str]:
+    if not isinstance(report, dict):
+        return None
+    today = report.get("today")
+    if not isinstance(today, dict):
+        return None
+    total = today.get("total_fires")
+    ship = today.get("ship_fires")
+    if not isinstance(total, int) or not isinstance(ship, int):
+        return None
+    date = today.get("date") if isinstance(today.get("date"), str) else None
+    if total == 0:
+        suffix = f" ({date})" if date else ""
+        return f"Autonomy: no conductor fires logged yesterday{suffix}."
+    starved = (today.get("noop_reasons") or {}).get("budget_exhausted")
+    slot = "slot" if total == 1 else "slots"
+    line = f"Autonomy: yesterday I drove {ship} of {total} fire {slot}"
+    if isinstance(starved, int) and starved > 0:
+        line += f" -- {starved} starved on budget"
+    return line + "."
+
+
+# --------------------------------------------------------------------------- #
 # trades.csv -- EOD P&L, grouped by account_id (whatever labels appear that
 # day -- fleet arms use safe-1/safe-3/risky-1/risky-3/aggressive as well as the
 # core safe/bold, so this never hardcodes just two accounts).
@@ -525,7 +578,7 @@ def gather_facts(mode: str, day: str, now_et: datetime) -> dict:
             _commit_bullets("4 days ago", "18 hours ago", max_n=4) if facts["is_monday"] else []
         )
         facts["today_bullet"] = _backlog_bullet(_queue_unchecked_count(QUEUE_MD_PATH), tense="today")
-        facts["focus"] = _derive_focus(facts["today_bullet"])
+        facts["focus"] = _derive_focus(facts["today_bullet"], TODAY_FALLBACK)
 
         wants_top = _top_wants(_read_json(WANTS_PATH), n=3)
         facts["wants_top"] = wants_top
@@ -536,14 +589,16 @@ def gather_facts(mode: str, day: str, now_et: datetime) -> dict:
             _shadow_segment("MES mirror", _read_json(SHADOW_PROGRESS_PATH)),
             _cap_clock_segment(CATASTROPHE_CAP_LEDGER_PATH),
         ])
+        facts["autonomy_line"] = _autonomy_line(_read_json(AUTONOMY_REPORT_PATH))
     else:  # eod
         learned = _commit_bullets(_et_midnight_iso(day), max_n=1)
         facts["learned_bullet"] = learned[0] if learned else None
         facts["tomorrow_bullet"] = _backlog_bullet(_queue_unchecked_count(QUEUE_MD_PATH), tense="tomorrow")
-        # No TODAY section in EOD mode -- nothing to derive a focus line from.
-        # gamma_hq.py's _today_focus_text falls back to its own first-line-of-
-        # text derivation (over EOD's "text" field) when focus is None.
-        facts["focus"] = None
+        # EOD has no TODAY section, but it DOES have a TOMORROW bullet -- use
+        # that as the focus (same shared-constant discipline as morning; see
+        # the BUG note above the "focus" field section for why this changed
+        # from the old facts["focus"] = None).
+        facts["focus"] = _derive_focus(facts["tomorrow_bullet"], TOMORROW_FALLBACK)
 
         wants_top = _top_wants(_read_json(WANTS_PATH), n=3)
         prev_latest = _read_json(LATEST_PATH)
@@ -584,7 +639,7 @@ def compose_morning_text(facts: dict) -> str:
 
     lines.append("**TODAY**")
     today_bullet = facts.get("today_bullet")
-    lines.append(f"- {today_bullet}" if today_bullet else "- Nothing queued -- reading the tape as it comes.")
+    lines.append(f"- {today_bullet}" if today_bullet else f"- {TODAY_FALLBACK}")
     lines.append("")
 
     wants_bullets = facts.get("wants_bullets") or []
@@ -596,6 +651,10 @@ def compose_morning_text(facts: dict) -> str:
     clocks = facts.get("clocks_line")
     if clocks:
         lines.append(clocks)
+
+    autonomy_line = facts.get("autonomy_line")
+    if autonomy_line:
+        lines.append(autonomy_line)
 
     text = "\n".join(lines).strip()
     return _finalize(text)
@@ -627,7 +686,7 @@ def compose_eod_text(facts: dict) -> str:
 
     lines.append("**TOMORROW**")
     tomorrow = facts.get("tomorrow_bullet")
-    lines.append(f"- {tomorrow}" if tomorrow else "- Reading the tape fresh, nothing queued yet.")
+    lines.append(f"- {tomorrow}" if tomorrow else f"- {TOMORROW_FALLBACK}")
 
     wants_bullets = facts.get("wants_bullets") or []
     if wants_bullets:
@@ -691,7 +750,7 @@ def main(argv: Optional[list] = None) -> int:
         "text": text,
         "char_len": len(text),
         "wants_shown": wants_shown,
-        "focus": facts.get("focus"),  # schema addition 2026-08-08 -- str (morning) or None (eod)
+        "focus": facts.get("focus"),  # schema addition 2026-08-08 -- always a real one-line str now
     }
 
     print(f"[gamma_standup:{args.mode}] {day} ({len(text)} chars)")

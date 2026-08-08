@@ -75,6 +75,7 @@ def state_paths(tmp_path, monkeypatch):
         "discord_cfg": tmp_path / ".discord-config.json",
         "outbox": tmp_path / "discord-outbox.jsonl",
         "latest": tmp_path / "gamma-standup-latest.json",
+        "autonomy_report": tmp_path / "autonomy-report.json",
     }
     monkeypatch.setattr(gs, "SHADOW_PROGRESS_PATH", paths["shadow"])
     monkeypatch.setattr(gs, "SSR_SHADOW_PROGRESS_PATH", paths["ssr"])
@@ -85,6 +86,7 @@ def state_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(gs, "DISCORD_CFG_PATH", paths["discord_cfg"])
     monkeypatch.setattr(gs, "OUTBOX_PATH", paths["outbox"])
     monkeypatch.setattr(gs, "LATEST_PATH", paths["latest"])
+    monkeypatch.setattr(gs, "AUTONOMY_REPORT_PATH", paths["autonomy_report"])
     return paths
 
 
@@ -316,25 +318,48 @@ def test_truncate_at_word_boundary_one_unbroken_token_hard_slices():
 
 def test_derive_focus_uses_today_bullet_directly():
     bullet = "5 open research items; today I'm on the top one."
-    assert gs._derive_focus(bullet) == bullet
+    assert gs._derive_focus(bullet, gs.TODAY_FALLBACK) == bullet
 
 
 def test_derive_focus_fallback_when_today_bullet_none():
     # Mirrors compose_morning_text's own TODAY-section fallback phrase
     # verbatim -- the focus field must never diverge from what the composed
     # message itself shows.
-    assert gs._derive_focus(None) == "Nothing queued -- reading the tape as it comes."
+    assert gs._derive_focus(None, gs.TODAY_FALLBACK) == "Nothing queued -- reading the tape as it comes."
 
 
 def test_derive_focus_strips_markdown():
-    assert gs._derive_focus("- **today**: ship the thing") == "today: ship the thing"
+    assert gs._derive_focus("- **today**: ship the thing", gs.TODAY_FALLBACK) == "today: ship the thing"
 
 
 def test_derive_focus_caps_at_focus_max_chars():
     long_bullet = ("word " * 40).strip()
-    result = gs._derive_focus(long_bullet)
+    result = gs._derive_focus(long_bullet, gs.TODAY_FALLBACK)
     assert len(result) <= gs.FOCUS_MAX_CHARS
     assert result.endswith("...")
+
+
+# --- eod-mode focus (2026-08-08 bugfix: eod used to leave facts["focus"]
+# None entirely, which made gamma_hq.py's consumer fall back to a greeting
+# line -- "Today's focus: EOD from Gamma." on the live page) -----------------
+
+def test_derive_focus_uses_tomorrow_bullet_directly():
+    bullet = "7 open research items; tomorrow I'm on the top one."
+    assert gs._derive_focus(bullet, gs.TOMORROW_FALLBACK) == bullet
+
+
+def test_derive_focus_fallback_when_tomorrow_bullet_none():
+    # Mirrors compose_eod_text's own TOMORROW-section fallback phrase
+    # verbatim, same discipline as the morning/TODAY case above.
+    assert gs._derive_focus(None, gs.TOMORROW_FALLBACK) == "Reading the tape fresh, nothing queued yet."
+
+
+def test_fallback_constants_match_hardcoded_wording_pins():
+    # Pins the exact strings -- these are shared between gather_facts (the
+    # focus field) and compose_*_text (the visible message body); a silent
+    # wording change to either constant would otherwise go unnoticed.
+    assert gs.TODAY_FALLBACK == "Nothing queued -- reading the tape as it comes."
+    assert gs.TOMORROW_FALLBACK == "Reading the tape fresh, nothing queued yet."
 
 
 # ============================================================================
@@ -532,9 +557,11 @@ def test_compose_eod_full_fixture(state_paths, monkeypatch):
     assert "**I WANT**" in text
     assert "want a" in text
     assert len(text) <= gs.CHAR_CAP
-    # EOD has no TODAY section -- "focus" must stay None (gamma_hq.py falls
-    # back to first-line-of-"text" for EOD-mode standups).
-    assert facts["focus"] is None
+    # EOD's "focus" derives from the TOMORROW bullet (2026-08-08 bugfix --
+    # this used to be hardcoded None, which made gamma_hq.py's consumer fall
+    # back to a greeting line on the live page).
+    assert facts["focus"] == "7 open research items; tomorrow I'm on the top one."
+    assert facts["focus"] == facts["tomorrow_bullet"]
 
 
 def test_gather_facts_morning_focus_fallback_when_queue_unreadable(state_paths, monkeypatch):
@@ -546,6 +573,17 @@ def test_gather_facts_morning_focus_fallback_when_queue_unreadable(state_paths, 
     facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
     assert facts["today_bullet"] is None
     assert facts["focus"] == "Nothing queued -- reading the tape as it comes."
+
+
+def test_gather_facts_eod_focus_fallback_when_queue_unreadable(state_paths, monkeypatch):
+    # Same fallback discipline on the eod side: queue.md missing ->
+    # tomorrow_bullet is None -> focus falls back to compose_eod_text's own
+    # TOMORROW-section phrase, never to None and never to the greeting.
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 16, 45)
+    facts = gs.gather_facts("eod", now.strftime("%Y-%m-%d"), now)
+    assert facts["tomorrow_bullet"] is None
+    assert facts["focus"] == "Reading the tape fresh, nothing queued yet."
 
 
 def test_missing_everything_produces_valid_short_message(state_paths, monkeypatch):
@@ -799,10 +837,12 @@ def test_real_run_appends_one_row_and_writes_latest_json(state_paths, monkeypatc
     assert latest["mode"] == "eod"
     assert "text" in latest and latest["text"].startswith("EOD from Gamma.")
     assert "wants_shown" in latest
-    # "focus" schema addition (2026-08-08 follow-up) -- present but null for
-    # EOD (no TODAY section to derive it from).
+    # "focus" schema addition (2026-08-08, corrected same day) -- EOD now
+    # always writes a real one-line focus (TOMORROW bullet or its fallback
+    # phrase), never None. queue.md is unwritten in this fixture, so this
+    # hits the TOMORROW_FALLBACK phrase.
     assert "focus" in latest
-    assert latest["focus"] is None
+    assert latest["focus"] == gs.TOMORROW_FALLBACK
 
 
 def test_real_morning_run_writes_focus_field_to_latest_json_round_trip(state_paths, monkeypatch):
@@ -841,3 +881,126 @@ def test_main_rejects_invalid_mode(state_paths, monkeypatch):
     _no_git(monkeypatch)
     with pytest.raises(SystemExit):
         gs.main(["--mode", "bogus"])
+
+
+# ============================================================================
+# AUTONOMY line (2026-08-08, LANE C) -- sourced ONLY from
+# automation/state/autonomy-report.json (setup/scripts/autonomy_report.py).
+# Morning-only; never invents a claim if the report is missing/garbled.
+# ============================================================================
+
+def _autonomy_doc(total, ship, budget_starved=0, day="2026-08-07"):
+    return {
+        "today": {
+            "date": day,
+            "total_fires": total,
+            "ship_fires": ship,
+            "noop_reasons": {"budget_exhausted": budget_starved},
+        }
+    }
+
+
+def test_autonomy_line_missing_report_is_none():
+    assert gs._autonomy_line(None) is None
+
+
+def test_autonomy_line_garbled_report_is_none():
+    assert gs._autonomy_line({"not": "the right shape"}) is None
+    assert gs._autonomy_line({"today": "not-a-dict"}) is None
+    assert gs._autonomy_line({"today": {"total_fires": "not-an-int", "ship_fires": 1}}) is None
+
+
+def test_autonomy_line_zero_fires_is_honest_not_invented():
+    line = gs._autonomy_line(_autonomy_doc(total=0, ship=0))
+    assert line == "Autonomy: no conductor fires logged yesterday (2026-08-07)."
+
+
+def test_autonomy_line_drove_some_starved_some():
+    line = gs._autonomy_line(_autonomy_doc(total=12, ship=4, budget_starved=6))
+    assert line == "Autonomy: yesterday I drove 4 of 12 fire slots -- 6 starved on budget."
+
+
+def test_autonomy_line_no_starvation_omits_that_clause():
+    line = gs._autonomy_line(_autonomy_doc(total=5, ship=5, budget_starved=0))
+    assert line == "Autonomy: yesterday I drove 5 of 5 fire slots."
+
+
+def test_autonomy_line_fully_starved_day_is_honest_not_blank():
+    line = gs._autonomy_line(_autonomy_doc(total=6, ship=0, budget_starved=6))
+    assert line == "Autonomy: yesterday I drove 0 of 6 fire slots -- 6 starved on budget."
+    assert line.strip() != ""
+
+
+def test_autonomy_line_singular_slot_wording():
+    line = gs._autonomy_line(_autonomy_doc(total=1, ship=1, budget_starved=0))
+    assert line == "Autonomy: yesterday I drove 1 of 1 fire slot."
+
+
+def test_gather_facts_morning_reads_autonomy_line_from_report(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    _write_json(state_paths["autonomy_report"], _autonomy_doc(total=11, ship=3, budget_starved=8))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    assert facts["autonomy_line"] == "Autonomy: yesterday I drove 3 of 11 fire slots -- 8 starved on budget."
+
+
+def test_gather_facts_morning_autonomy_line_none_when_report_missing(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    assert facts["autonomy_line"] is None
+
+
+def test_gather_facts_eod_has_no_autonomy_line_key_populated(state_paths, monkeypatch):
+    """AUTONOMY is morning-only per spec -- eod's facts dict never gets this key."""
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 16, 45)
+    facts = gs.gather_facts("eod", now.strftime("%Y-%m-%d"), now)
+    assert "autonomy_line" not in facts
+
+
+def test_compose_morning_includes_autonomy_line_when_present(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    _write_json(state_paths["autonomy_report"], _autonomy_doc(total=11, ship=3, budget_starved=8))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert "Autonomy: yesterday I drove 3 of 11 fire slots -- 8 starved on budget." in text
+
+
+def test_compose_morning_omits_autonomy_line_when_report_missing(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert "Autonomy:" not in text
+
+
+def test_compose_morning_autonomy_line_stays_within_char_cap(state_paths, monkeypatch):
+    monkeypatch.setattr(gs, "_git_log_subjects", lambda since, until=None: [
+        f"abc{i} fix: {'padding text ' * 20}" for i in range(10)
+    ])
+    _write_json(state_paths["wants"], _wants_doc([
+        {"priority": 1, "id": "a", "text": "want text " * 40},
+        {"priority": 2, "id": "b", "text": "want text " * 40},
+        {"priority": 3, "id": "c", "text": "want text " * 40},
+    ]))
+    _write_json(state_paths["autonomy_report"], _autonomy_doc(total=12, ship=4, budget_starved=6))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert len(text) <= gs.CHAR_CAP
+
+
+def test_compose_morning_full_fixture_with_autonomy_matches_spec_example(state_paths, monkeypatch):
+    """Standing regression on the exact example phrase from the build spec:
+    'Yesterday I drove N of M slots -- K starved'."""
+    _no_git(monkeypatch)
+    _write_json(state_paths["autonomy_report"], _autonomy_doc(total=12, ship=4, budget_starved=6))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert "I drove 4 of 12" in text
+    assert "6 starved on budget" in text
+    for bad in gs.BANNED_SUBSTRINGS:
+        assert bad not in text

@@ -51,9 +51,17 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# Every 5 minutes, indefinitely (matches companion keepalive cadence).
-$trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Minutes 5) `
-    -Once -At (Get-Date) -RepetitionDuration ([TimeSpan]::MaxValue)
+# Every 5 minutes, indefinitely.
+# FIXED 2026-08-08: the original used -RepetitionDuration ([TimeSpan]::MaxValue),
+# which serializes to P99999999DT23H59M59S -- Windows Task Scheduler REJECTS that
+# ("task XML contains a value which is incorrectly formatted or out of range",
+# HRESULT 0x80041318), so this installer had NEVER successfully registered and the
+# dashboard had no keepalive at all. A zero/omitted duration is the documented way
+# to say "repeat indefinitely"; we also add a daily trigger so the task self-arms
+# again each day and survives a missed window.
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) `
+    -RepetitionInterval (New-TimeSpan -Minutes 5)
+$triggerDaily = New-ScheduledTaskTrigger -Daily -At "00:05"
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
     -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""
@@ -64,7 +72,7 @@ $settings = New-ScheduledTaskSettingsSet `
     -ExecutionTimeLimit (New-TimeSpan -Minutes 3)
 $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
 
-Register-ScheduledTask -TaskName $taskName -Trigger $trigger -Action $action `
+Register-ScheduledTask -TaskName $taskName -Trigger @($trigger, $triggerDaily) -Action $action `
     -Settings $settings -Principal $principal `
     -Description "Every 5min: keeps Next.js dashboard alive at :3000 (primary visibility layer). HTTP probe + silent node respawn. Hidden window per OP-27 L41. No dev server -- production build only." | Out-Null
 
