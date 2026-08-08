@@ -66,10 +66,20 @@ const CONVENTIONAL_PREFIX_RE = /^[a-z]+(\([^)]*\))?:\s*(.+)$/;
 
 /** RECENT-SHIPS-style commit subject: strip a leading conventional-commit
  * "type(scope):"/"type:" prefix, sentence-case the remainder. */
+/** Shell-escape artifacts that leak into commit subjects when a message is
+ * written from PowerShell (which requires `\$` to emit a literal dollar sign).
+ * Git stores the backslash verbatim, so "+\$1,465" and "\$30/day" reach the
+ * feed as "+\,465" / "\/day" once the shell has eaten the "$". Strip the stray
+ * backslash so the feed reads like prose rather than like a transcript of our
+ * own quoting problems. Deliberately narrow: only backslashes directly before
+ * a digit, a currency symbol, or another backslash. */
+const SHELL_ESCAPE_ARTIFACT_RE = /\\(?=[\d$\\])/g;
+
 export function humanizeCommitSubject(subject: unknown, maxLen: number): string {
   let text = sanitizeText(subject, 500);
   const m = CONVENTIONAL_PREFIX_RE.exec(text);
   if (m) text = m[2].trim();
+  text = text.replace(SHELL_ESCAPE_ARTIFACT_RE, "");
   if (text) text = text[0].toUpperCase() + text.slice(1);
   return truncateWordBoundary(text, maxLen);
 }
