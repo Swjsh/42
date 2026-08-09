@@ -88,22 +88,39 @@ def test_safe3_exit_patch_reaches_plan_fix2_path():
 
 
 def test_risky3_exit_patch_reaches_plan_fix2_path():
-    """risky-3's exit_patch (structure + trailing + wider 0.20 trail) reaches BOTH strategies'
-    placed plans, and trail_pct differs from EACH strategy's own registry default (ribbon_ride
-    defaults trail_pct=0.15, vwap_continuation defaults trail_pct=0.125 -- neither coincides
-    with 0.20, so this is a real, unambiguous proof of reach)."""
+    """risky-3's exit_patch reaches BOTH strategies' placed plans.
+
+    RE-POINTED 2026-08-09 (STOP-MODE live A/B, prereg a2d7c3e4): risky-3's patch changed from
+    {structure, trailing, trail_pct 0.20} to {stop_mode: premium}. The test's PURPOSE is
+    unchanged -- prove the patch actually reaches the placed plan -- but the field it proves it
+    with had to change with it.
+
+    DISCLOSED WEAKENING OF THE PROOF, not hidden: the old trail_pct=0.20 coincided with NO
+    strategy's registry default, so it was unambiguous proof of reach for BOTH strategies. The
+    new value 'premium' differs from ribbon_ride's registry ('structure') but COINCIDES with
+    vwap_continuation's registry default ('premium'). So this is a real proof of reach for
+    ribbon_ride only; for vwap_continuation the value is asserted for correctness but cannot
+    discriminate reach-vs-coincidence. Said out loud rather than asserted as if it still proved
+    both -- the reach for vwap_continuation is covered by the safe-3 tests, which retain a
+    registry-differing patch."""
     patch = _arm("risky-3")["params_patch"]["exit_patch"]
-    assert patch.get("trail_pct") == 0.20
+    assert patch == {"stop_mode": "premium"}, (
+        "risky-3's patch is no longer the one-variable premium flip this A/B armed; if that is "
+        "intentional, update prereg-stop-mode-live-arm-risky3-2026-08-09.json too")
     enters = _enters_by_strategy("risky-3", FIX2_SIGNAL)
     assert set(enters) == {"ribbon_ride", "vwap_continuation"}
     for name, plan in enters.items():
-        registry = strat_mod.by_name(name).exit.to_dict()
-        assert plan.exit_shape["trail_pct"] == 0.20
-        assert plan.exit_shape["trail_pct"] != registry["trail_pct"], (
-            f"risky-3/{name}: trail_pct matched registry by coincidence, not a real proof of reach"
-        )
-        assert plan.exit_shape["stop_mode"] == "structure"
-        assert plan.exit_shape["profit_lock_mode"] == "trailing"
+        assert plan.exit_shape["stop_mode"] == "premium", f"risky-3/{name} stop_mode"
+    # The discriminating half: ribbon_ride's registry says 'structure', so seeing 'premium' on
+    # its placed plan can ONLY have come from the patch.
+    ribbon_registry = strat_mod.by_name("ribbon_ride").exit.to_dict()
+    assert ribbon_registry["stop_mode"] == "structure"
+    assert enters["ribbon_ride"].exit_shape["stop_mode"] != ribbon_registry["stop_mode"], (
+        "risky-3/ribbon_ride: stop_mode matched registry, so the patch did not reach the plan")
+    # trail_pct must now fall back to each strategy's own registry default (the 0.20 override
+    # was intentionally dropped to keep this a ONE-VARIABLE change).
+    for name, plan in enters.items():
+        assert plan.exit_shape["trail_pct"] == strat_mod.by_name(name).exit.to_dict()["trail_pct"]
 
 
 # --- REACHES THE PLAN (legacy side-block fallback path) -----------------------------------
@@ -146,11 +163,17 @@ def test_risky3_exit_patch_reaches_probe_plan():
     probe_enters = [p for p in plans if p.action == "ENTER" and "PROBE_ARM" in p.reason]
     assert len(probe_enters) == 1, f"expected exactly 1 probe ENTER, got {plans}"
     plan = probe_enters[0]
-    assert plan.exit_shape["stop_mode"] == "structure"
-    assert plan.exit_shape["profit_lock_mode"] == "trailing"
-    assert plan.exit_shape["trail_pct"] == 0.20
+    # RE-POINTED 2026-08-09 (STOP-MODE live A/B, prereg a2d7c3e4): risky-3's patch is now
+    # {stop_mode: premium}. The 3rd call site still has to thread it -- only the field proving
+    # it changed. ribbon_ride's registry says 'structure', so 'premium' here can ONLY have come
+    # through the patch, which keeps this an unambiguous proof of reach.
     registry = strat_mod.RIBBON_RIDE.exit.to_dict()
-    assert plan.exit_shape["trail_pct"] != registry["trail_pct"]
+    assert registry["stop_mode"] == "structure"
+    assert plan.exit_shape["stop_mode"] == "premium"
+    assert plan.exit_shape["stop_mode"] != registry["stop_mode"]
+    # trail_pct now falls back to the registry default (the 0.20 override was intentionally
+    # dropped to keep the A/B one-variable) -- assert the fallback, not the old override.
+    assert plan.exit_shape["trail_pct"] == registry["trail_pct"]
 
 
 # --- PARITY: absent/empty exit_patch is a byte-identical no-op ----------------------------

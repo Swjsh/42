@@ -175,7 +175,11 @@ def test_patched_arms_ribbon_and_vwap_converge_on_stop_mode():
     every strategy trade this arm's chosen lane, not just ribbon_ride's own default. This is
     the mirror image of the control-arm test above: proves the patch actually reached BOTH
     strategies' placed shape, not just one."""
-    for arm_id in ("safe-3", "risky-3"):
+    # RE-POINTED 2026-08-09 (STOP-MODE live A/B, prereg a2d7c3e4): risky-3 was deliberately
+    # moved OFF the structure lane onto premium and is asserted separately below. safe-3 is
+    # now the only arm on the forced-structure lane, so this loop covers it alone -- narrowed
+    # to match reality, NOT weakened (the risky-3 half became its own stricter test).
+    for arm_id in ("safe-3",):
         s = _planned_exit_shapes(arm_id)
         for name in ("ribbon_ride", "vwap_continuation"):
             assert s[name]["stop_mode"] == "structure", f"{arm_id}/{name} stop_mode"
@@ -186,6 +190,41 @@ def test_patched_arms_ribbon_and_vwap_converge_on_stop_mode():
         vwap_registry = strat_mod.by_name("vwap_continuation").exit.to_dict()
         assert s["vwap_continuation"]["stop_mode"] != vwap_registry["stop_mode"]
         assert s["vwap_continuation"]["profit_lock_mode"] != vwap_registry["profit_lock_mode"]
+
+
+def test_risky3_is_the_premium_stop_lane():
+    """risky-3's half of the test above, split out 2026-08-09 when it moved to the premium lane
+    (STOP-MODE live A/B, prereg a2d7c3e4 -- frozen BEFORE the accounts.json edit).
+
+    This is the ONLY arm that may sit on premium; the exclusivity is what makes the A/B an
+    A/B. If premium spreads to a sibling, the comparison silently loses its control and no
+    P&L surface would reveal it."""
+    s = _planned_exit_shapes("risky-3")
+    for name in ("ribbon_ride", "vwap_continuation"):
+        assert s[name]["stop_mode"] == "premium", f"risky-3/{name} stop_mode"
+    # Discriminating: ribbon_ride's registry is 'structure', so 'premium' can only be the patch.
+    assert strat_mod.by_name("ribbon_ride").exit.to_dict()["stop_mode"] == "structure"
+    # EXCLUSIVITY -- measured on ribbon_ride ONLY, and here is why: vwap_continuation's
+    # REGISTRY default is already stop_mode='premium', so every arm that does not patch it
+    # shows premium for that strategy. Asserting "no other arm resolves premium anywhere"
+    # would therefore fail on correct config (it did, first run). ribbon_ride's registry is
+    # 'structure', so premium on ribbon_ride can ONLY come from a patch -- that is the signal.
+    leaked = []
+    for arm in ACCOUNTS["arms"]:
+        if arm["id"] == "risky-3":
+            continue
+        try:
+            shapes = _planned_exit_shapes(arm["id"])
+        except Exception:
+            continue          # arms that never plan a ribbon shape are out of scope
+        if shapes.get("ribbon_ride", {}).get("stop_mode") == "premium":
+            leaked.append(arm["id"])
+    assert leaked == [], f"premium stop_mode leaked to {leaked} -- the A/B lost its control"
+    # And no sibling may DECLARE premium in its patch, even if it plans no shape today.
+    declarers = [a["id"] for a in ACCOUNTS["arms"]
+                 if a["id"] != "risky-3"
+                 and (a.get("params_patch") or {}).get("exit_patch", {}).get("stop_mode") == "premium"]
+    assert declarers == [], f"sibling arms declare premium in exit_patch: {declarers}"
 
 
 if __name__ == "__main__":

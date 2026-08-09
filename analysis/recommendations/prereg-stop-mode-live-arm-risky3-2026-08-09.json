@@ -29,7 +29,21 @@
     "mechanism_verified_live_not_assumed": "fleet_executor._exit_shape_dict shallow-merges params_patch.exit_patch OVER the registry ExitShape at every ENTER call site; exit_manager.ExitState.from_entry resolves structure stops as (shape_mode=='structure' AND caller structure_stop_enabled) -- an AND. Setting shape_mode='premium' therefore disables the structure stop for THIS ARM ONLY, with no global flag change and no effect on any sibling arm. Keys are validated against fleet_executor.EXIT_PATCH_ALLOWED_KEYS and raise ValueError on load AND at merge (fail-loud, C14/L201)."
   },
 
-  "hypothesis": "Over forward real fills, risky-3 under premium mode produces higher per-trade expectancy than the structure-mode arms trading the same shared signal.",
+  "_corrections": [
+    {
+      "at_et": "2026-08-09 ~18:40 EDT, BEFORE any forward data existed",
+      "what_was_wrong": "This document (and the arm doc written with it) called risky-1 'the untouched registry-verbatim CONTROL'. That is FALSE as of 2026-07-29. Verified by resolving every arm through the real fleet_executor._exit_shape_dict: risky-1 carries exit_patch tp1_premium_pct 0.5 (the REACHABLE-TP1 challenger, cell 'risky x FULL-SEND') and is NOT registry-verbatim. The claim came from the accounts.json update_note_2026_07_20 text, which was accurate when written and was superseded nine days later by the REACHABLE-TP1 arming -- whose own doc says so explicitly ('This REPLACES the arm's prior role as the untouched TRIG-EXACT control'). Reading the older note instead of resolving the live shape is exactly the stale-doc trap L249 warns about.",
+      "corrected_control_design": {
+        "live_fleet_arms_are_only_three": "safe-3 (safe x tight, REGISTRY-VERBATIM), risky-1 (risky x FULL-SEND, tp1 0.5), risky-3 (risky x loose, this experiment). safe-2/bold-2 are CORE accounts driven by heartbeat_core + params.json, not the fleet loop.",
+        "PRIMARY control is NOT a sibling arm": "The authoritative control is the PAIRED SHADOW CLOCK (setup/scripts/stop_mode_shadow_ledger.py, shipped commit 1d2f5cbc, folded into nightly Gamma_WinnerAutopsy). It prices BOTH exit shapes on risky-3's OWN fills, so the comparison is WITHIN-TRADE and free of any cell/sizing/gate confound. That is a strictly better control than any sibling arm could be.",
+        "SECONDARY control": "safe-3 is the only registry-verbatim live fleet arm, but it sits in a different cell (safe x tight vs risky x loose) with different sizing and gating, so a raw per-trade comparison against it is CONFOUNDED and is reported as context only, never as the test.",
+        "TERTIARY control": "risky-3's own pre-change trailing baseline (its ZONE-RIDE history), which shares the arm's cell/sizing/gates but differs in regime -- also context, not the test."
+      },
+      "does_this_change_the_experiment": "No. The change made to risky-3 is unaffected and remains a clean one-variable flip against the registry. Only the CONTROL attribution in this document was wrong, and correcting it upgrades the design: the paired shadow clock is a within-trade control, which is what this question actually needed."
+    }
+  ],
+
+  "hypothesis": "Over forward real fills, risky-3 under premium mode produces higher per-trade expectancy than the SAME fills would have produced under the shipped structure-mode exit, as priced within-trade by the paired shadow clock.",
   "mechanism_under_test": "Structure/ribbon invalidation is a LAGGING exit (already C28: L139,141,156,157,175,243). The claim is that it exits winners early on flip-back noise AND rides losers past -20% before invalidating. FALSIFIABLE SIGNATURE: risky-3's win rate must FALL relative to its own history while per-trade expectancy RISES. If win rate rises too, the replay mechanism story is WRONG even if the dollars look good -- and that is exactly the reading the retrospective real-fills layer already produced twice.",
 
   "evidence_layers": [

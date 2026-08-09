@@ -97,8 +97,16 @@ def test_exit_shape_differs_by_strategy_not_account():
     assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20  # fallback field
     assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.06
     assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.0
-    assert plans["ribbon_ride"].exit_shape["stop_mode"] == "structure"
     assert plans["vwap_continuation"].exit_shape["tp1_premium_pct"] == 0.40
+    # stop_mode UPDATED 2026-08-09 (STOP-MODE live A/B, prereg a2d7c3e4). This arm's sample
+    # is risky-3, which now carries exit_patch {stop_mode: premium}. That patch forces BOTH
+    # strategies onto premium, so stop_mode no longer DISCRIMINATES between them ON THIS ARM.
+    # The invariant this test protects -- "exit is the strategy's property, the account only
+    # gates and sizes" -- is unharmed and is still proven above by premium_stop_pct
+    # (-0.20 vs -0.06) and tp1_premium_pct (1.0 vs 0.40), both strategy-owned and still
+    # distinct. The pin is CONVERTED rather than deleted so the patch's reach stays asserted:
+    assert plans["ribbon_ride"].exit_shape["stop_mode"] == "premium"
+    assert plans["vwap_continuation"].exit_shape["stop_mode"] == "premium"
 
 
 # --- the FLEET_OWNS_ALL_6 unification lever (no double-fill invariant) ---------
