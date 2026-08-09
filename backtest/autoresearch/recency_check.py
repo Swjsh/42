@@ -45,6 +45,36 @@ DISCLOSURE (C1/C3/C7/OP-14/OP-20): real OPRA fills only (the WR authority); per-
 not WR alone; recent-window n is SMALL by design (~3-5 trading weeks) — reported honestly, never
 hidden; SPY-direction != option edge (C3/L58). RESEARCH ONLY; no live edit, no orders.
 
+SOUNDNESS FIX (POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY, filed 2026-08-08 night, fixed same night):
+this module's forward-replay used to run every signal through `lib.simulator_real.
+simulate_trade_real` -- the SAME unsound engine flagged and ported off in
+`gate_expiry_check.py::evaluate_gate_pnl` and `backtest/tools/postfix_gate_costing.py` the same
+session (POSTFIX-GATE-COSTING-UNSOUND-REPLAY, commit 97a2e2ac): exit-shape divergence from the
+REAL production exit_manager (2026-07-17 FRAME AUDIT -- simulate_trade_real reads exit knobs from
+params.json's top-level keys, but the live exit_manager registration for ribbon_ride entries reads
+`automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead) and same-bar/intrabar
+look-ahead in its profit-lock ratchet (BACKTESTING-PLAYBOOK.md 2.12). This is the MOST
+consequential instance of that defect class: `simulate_set`'s output feeds `recency-confirmation.
+json`'s RED/YELLOW/LICENSED verdict, which `Gamma_LicenseMonitor` (22:30 ET daily) pings to J.
+
+`simulate_set` below is kept BYTE-IDENTICAL and UNCHANGED -- 60+ one-off `backtest/autoresearch/
+_b*`/`_sub*`/`_rescue*`/`_sel*`/`_sunday*`/`_web*` research scripts import its exact signature and
+depend on it for INTERNAL comparability against their own historical (already-decided) verdicts;
+re-deriving their ground truth was judged a separate, much larger blast radius (see the queue
+item). Only `main()` -- the LIVE path, the one `license_monitor.py --run` re-invokes -- now calls
+the NEW `simulate_set_sound`, which replays every signal through `backtest/lib/exit_manager_walk.
+walk_exit_manager` (the ACTUAL production `exit_manager.plan_exit_actions` core) via a lazy import
+of `backtest/tools/gate_revalidation_ab.py`'s `ribbon_ride_shape`/`ribbon_tick_df_for`/
+`build_ribbon_lookup`/`account_config` -- the SAME sound path gate_expiry_check.py and
+postfix_gate_costing.py already use, generalized only in its entry-side strike selection (that
+module's own `_replay_entry` is ATM-only; recency_check's ITM-2/OTM-2 tiers need `strike_offset`,
+the one piece of `simulate_set`'s existing convention this reuses) -- NOT a third replay engine.
+Every EV/P&L-bearing record `main()` writes now carries `replay_engine="walk_exit_manager"` /
+`replay_soundness="sound"` so a future reader can never mistake a freshly-computed number for one
+produced by the retired path. Guard: `backtest/tests/test_graduated_guards.py::
+test_simulate_trade_real_no_new_unguarded_consumers` (allowlist entry updated, ratchet stays
+green) + `backtest/tests/test_recency_check_sound_live_path.py` (new, this fix).
+
 Run: backtest/.venv/Scripts/python.exe backtest/autoresearch/recency_check.py
      [--lookback N] [--end YYYY-MM-DD] [--start YYYY-MM-DD] [--floor N]
 """
@@ -89,8 +119,10 @@ from autoresearch._b5_vix_regime_dayside import (  # noqa: E402
     VIX_SLOPE_BARS,
 )
 from lib.ribbon import compute_ribbon  # noqa: E402
-from lib.simulator_real import simulate_trade_real  # noqa: E402
+from lib.simulator_real import simulate_trade_real  # noqa: E402  (legacy simulate_set ONLY -- see SOUNDNESS FIX)
 from lib import cap_admission  # noqa: E402  (the default order-admission gate; risk_gate.check_order)
+from lib.exit_manager_walk import walk_exit_manager  # noqa: E402  (the SOUND live-path replay core)
+from lib.option_pricing_real import load_contract_bars, option_symbol, bar_at_or_after  # noqa: E402
 
 DATA = REPO / "data"
 DATA_COVERAGE = ROOT / "automation" / "state" / "data-coverage.json"
@@ -348,6 +380,136 @@ def simulate_set(signals, spy, ribbon, vix, *, strike_offset, setup, qty) -> tup
     return rows, cov
 
 
+# ═════════════════════════════════════════════════════════════════════════════════
+# POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY (2026-08-08) -- SOUND forward-replay for the LIVE
+# path only. `simulate_set` above is UNTOUCHED (byte-identical signature/semantics, still
+# calls simulate_trade_real) for the 60+ research-script consumers that need it for internal
+# comparability. `main()` below calls `simulate_set_sound` instead. See module docstring.
+# ═════════════════════════════════════════════════════════════════════════════════
+_SOUND_REPLAY_MODULE = None   # lazy-import cache, populated on first real use
+
+
+def _sound_replay_module():
+    """Lazily import backtest/tools/gate_revalidation_ab.py and cache the module object.
+    DEFERRED ON PURPOSE (function-scope, not module-level): gate_revalidation_ab.py itself
+    imports `load_merged_spy_vix` from THIS module at ITS OWN module-load time, so a
+    module-level import here would be circular. By the time this function is first CALLED,
+    this module has already finished loading, so Python simply resolves the already-complete
+    module object -- no circularity. Byte-for-byte the same pattern as
+    gate_expiry_check.py::_sound_replay_module (that file's own reference implementation)."""
+    global _SOUND_REPLAY_MODULE
+    if _SOUND_REPLAY_MODULE is None:
+        tools_dir = str(REPO / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import gate_revalidation_ab as _grab  # noqa: PLC0415 -- intentionally deferred, see above
+        _SOUND_REPLAY_MODULE = _grab
+    return _SOUND_REPLAY_MODULE
+
+
+def _replay_signal_sound(sg, spy: pd.DataFrame, spy_by_date: dict, ribbon_lookup: pd.DataFrame,
+                          *, strike_offset: int, qty: int, cfg: dict, grab) -> dict:
+    """Replay ONE signal via the SOUND production exit_manager core (backtest/lib/
+    exit_manager_walk.walk_exit_manager), reusing gate_revalidation_ab.py's
+    ribbon_ride_shape / ribbon_tick_df_for pieces VERBATIM (via `grab`, the lazy-imported
+    module) plus this module's own `_strike_from_spot` / `_nearest_cached_strike` (already
+    imported above, used unchanged from `simulate_set`).
+
+    gate_revalidation_ab's own `_replay_entry`/`replay_row` hardcode ATM strike selection --
+    every one of ITS callers is an ATM ribbon_ride gate. recency_check's ITM-2/OTM-2 tiers
+    need `strike_offset`, which is the ONE piece this function generalizes -- reusing the
+    EXACT `target = atm -+ strike_offset` convention `simulate_set` above already uses, not a
+    new invention. Every other step (exit shape, ribbon-tick alignment, the walk itself) is
+    the SAME production code path gate_revalidation_ab / gate_expiry_check /
+    postfix_gate_costing all now use. This is NOT a third replay engine -- only the entry-side
+    strike pick is new. Never raises; every failure mode returns a tagged status dict."""
+    bar = spy.iloc[sg.bar_idx]
+    d = bar["date"]
+    spot = float(bar["close"])
+    atm = _strike_from_spot(spot)
+    target = atm - strike_offset if sg.side == "P" else atm + strike_offset
+    strike = _nearest_cached_strike(d, target, sg.side, MAX_STRIKE_STEPS)
+    if strike is None:
+        return {"status": "no_contract"}
+    symbol = option_symbol(d, strike, sg.side)
+    # frame="wall-v1": matches gate_revalidation_ab._replay_entry's own normalization --
+    # load_contract_bars' default (frame=None) returns the raw tz-aware column, and
+    # walk_exit_manager's own default frame is "wall-v1" too.
+    opt_df = load_contract_bars(symbol, frame="wall-v1")
+    if opt_df is None or opt_df.empty:
+        return {"status": "no_contract_bars"}
+
+    fill_target = bar["timestamp_et"] + pd.Timedelta(minutes=5)
+    fill_bar = bar_at_or_after(opt_df, fill_target.to_pydatetime())
+    if fill_bar is None:
+        return {"status": "no_fill_bar"}
+    entry_premium = fill_bar.open
+    if entry_premium is None or entry_premium <= 0:
+        return {"status": "bad_entry_premium"}
+
+    rtd = grab.ribbon_tick_df_for(opt_df, ribbon_lookup)
+    spy_day = spy_by_date.get(d)
+    if spy_day is None or spy_day.empty:
+        return {"status": "no_spy_day"}
+
+    try:
+        res = walk_exit_manager(
+            symbol=symbol, side=sg.side, entry_time_et=fill_bar.timestamp_et,
+            entry_premium=float(entry_premium), qty=qty,
+            exit_shape=grab.ribbon_ride_shape(), structure_stop_enabled=cfg["structure_stop_enabled"],
+            trigger_level=sg.stop_level, strategy="ribbon_ride", time_stop_et=cfg["time_stop_et"],
+            opt_df=opt_df, ribbon_tick_df=rtd, five_min_spy_df=spy_day,
+            opt_df_resolution="5min", allow_5min=True,
+        )
+    except Exception as exc:  # noqa: BLE001 -- one bad signal must never abort the tier's measurement
+        return {"status": "sim_error", "error": str(exc)}
+
+    if res.exit_time_et is None:
+        return {"status": "unwalkable"}
+
+    return {"status": "ok", "date": str(d), "side": sg.side, "strike": int(strike),
+            "pnl": round(float(res.dollar_pnl), 2),
+            "entry_premium": round(float(entry_premium), 4),
+            "exit": res.exit_reason or "NONE"}
+
+
+def simulate_set_sound(signals, spy: pd.DataFrame, spy_by_date: dict, ribbon_lookup: pd.DataFrame,
+                        *, strike_offset: int, qty: int, account: str) -> tuple[list[dict], dict]:
+    """SOUND counterpart to `simulate_set` above -- `main()` (the LIVE path that produces
+    recency-confirmation.json, re-invoked nightly by Gamma_LicenseMonitor) calls THIS function
+    instead. Replays every signal through backtest/lib/exit_manager_walk.walk_exit_manager
+    (the production exit_manager.plan_exit_actions core), reusing backtest/tools/
+    gate_revalidation_ab.py's ribbon_ride_shape/ribbon_tick_df_for/build_ribbon_lookup/
+    account_config -- the SAME sound path gate_expiry_check.py::evaluate_gate_pnl and
+    postfix_gate_costing.py::replay_event already use (POSTFIX-GATE-COSTING-UNSOUND-REPLAY,
+    2026-08-08). `simulate_set` above is kept BYTE-IDENTICAL and UNCHANGED for the 60+ one-off
+    research scripts that import its exact signature for internal comparability -- see the
+    module docstring's SOUNDNESS FIX section. Returns rows carrying the SAME shape as
+    `simulate_set` (date/side/strike/pnl/entry_premium/exit), consumable by the SAME
+    window_metrics / admit_rows / book_window helpers unchanged; `cov` (the second return
+    value) additionally carries the replay_engine/replay_soundness provenance stamp."""
+    grab = _sound_replay_module()
+    cfg = grab.account_config()[account]
+    rows: list[dict] = []
+    n_total = len(signals)
+    n_filled = 0
+    status_counts: dict[str, int] = {}
+    for sg in signals:
+        out = _replay_signal_sound(sg, spy, spy_by_date, ribbon_lookup,
+                                    strike_offset=strike_offset, qty=qty, cfg=cfg, grab=grab)
+        status_counts[out["status"]] = status_counts.get(out["status"], 0) + 1
+        if out["status"] != "ok":
+            continue
+        n_filled += 1
+        rows.append({"date": out["date"], "side": out["side"], "strike": out["strike"],
+                     "pnl": out["pnl"], "entry_premium": out["entry_premium"], "exit": out["exit"]})
+    cov = {"signals": n_total, "filled": n_filled,
+           "not_filled": n_total - n_filled, "status_counts": status_counts,
+           "fill_rate": round(n_filled / n_total, 3) if n_total else 0.0,
+           "replay_engine": "walk_exit_manager", "replay_soundness": "sound"}
+    return rows, cov
+
+
 def admit_rows(rows: list[dict], account: str, equity: float, qty: int) -> tuple[list[dict], dict]:
     """Apply the LIVE order-admission gate (lib.cap_admission → risk_gate.check_order) to a
     set of fill-rows at this account/equity/qty. Returns (admitted_rows, admission_summary).
@@ -453,6 +615,13 @@ def main() -> int:
     vix = _align_vix(spy, vix_raw)
     days = build_day_contexts(spy)
     ribbon = compute_ribbon(pd.Series(spy["close"].values))
+    # SOUND replay context (POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY): built ONCE, reused across
+    # every tier this run. `ribbon` (legacy, above) is no longer fed into the live path's own
+    # replay (kept computed only because nothing downstream needs it removed); the sound path
+    # uses `ribbon_lookup` (RTH-only, gate_revalidation_ab's own convention) instead.
+    grab = _sound_replay_module()
+    spy_by_date = {d: sub.reset_index(drop=True) for d, sub in spy.groupby("date")}
+    ribbon_lookup = grab.build_ribbon_lookup(spy)
     trading_days = sorted({dc.date for dc in days})
     frame_first, frame_last = spy["timestamp_et"].iloc[0].date(), spy["timestamp_et"].iloc[-1].date()
 
@@ -476,12 +645,15 @@ def main() -> int:
     # per account (Safe 3 / Bold 5), so a tier used by both is simmed once per distinct qty.
     raw_rows_cache: dict[tuple, tuple[list[dict], dict]] = {}
 
-    def get_raw_rows(edge: str, tier: str, off: int, qty: int) -> tuple[list[dict], dict]:
-        key = (edge, tier, qty)
+    def get_raw_rows(edge: str, tier: str, off: int, qty: int, account: str) -> tuple[list[dict], dict]:
+        # LIVE PATH: sound replay (POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY) -- walk_exit_manager,
+        # NOT simulate_trade_real. key includes account since account_config (structure_stop_
+        # enabled/time_stop_et) is account-specific even when qty happens to collide.
+        key = (edge, tier, qty, account)
         if key not in raw_rows_cache:
-            raw_rows_cache[key] = simulate_set(
-                sigs[edge], spy, ribbon, vix, strike_offset=off,
-                setup=f"{edge}_{tier}", qty=qty)
+            raw_rows_cache[key] = simulate_set_sound(
+                sigs[edge], spy, spy_by_date, ribbon_lookup, strike_offset=off,
+                qty=qty, account=account)
         return raw_rows_cache[key]
 
     # admitted rows keyed by (edge, tier, account) — the REALIZABLE (cap-aware) book per account.
@@ -499,7 +671,7 @@ def main() -> int:
             acct = primary_account_for.get((edge, tier), "safe")
             qty = QTY_BY_ACCOUNT[acct]
             equity = EQUITY_BY_ACCOUNT[acct]
-            raw_rows, cov = get_raw_rows(edge, tier, off, qty)
+            raw_rows, cov = get_raw_rows(edge, tier, off, qty, acct)
             admitted, admission = admit_rows(raw_rows, acct, equity, qty)
             admitted_by_cell[(edge, tier, acct)] = admitted
             coverage[f"{edge}/{tier}"] = cov
@@ -514,6 +686,7 @@ def main() -> int:
                 "recent_window": recent, "full_oos_2026": full_oos,
                 "verdict": verdict, "reason": reason,
                 "book_basis": "cap-aware REALIZABLE (lib.cap_admission -> risk_gate.check_order)",
+                "replay_engine": "walk_exit_manager", "replay_soundness": "sound",
             }
             print(f"[recency] {edge:26s} {tier:14s}(off={off:+d}) {admission['account']:13s} "
                   f"q{qty}: admitted n={recent['n']} exp=${recent.get('exp_per_trade')} "
@@ -535,7 +708,7 @@ def main() -> int:
         for edge, tier in members:
             if (edge, tier, acct) not in admitted_by_cell:
                 off = EDGE_TIERS[edge][tier]
-                raw_rows, _ = get_raw_rows(edge, tier, off, qty)
+                raw_rows, _ = get_raw_rows(edge, tier, off, qty, acct)
                 admitted, _adm = admit_rows(raw_rows, acct, equity, qty)
                 admitted_by_cell[(edge, tier, acct)] = admitted
         recent = book_window(admitted_by_cell, members, acct, recent_start, recent_end)
@@ -546,7 +719,8 @@ def main() -> int:
                            "members": [f"{e}/{t}" for e, t in members],
                            "book_basis": "cap-aware REALIZABLE (lib.cap_admission)",
                            "recent_window": recent, "full_oos_2026": full_oos,
-                           "verdict": verdict, "reason": reason}
+                           "verdict": verdict, "reason": reason,
+                           "replay_engine": "walk_exit_manager", "replay_soundness": "sound"}
         print(f"[recency] BOOK {book:22s}: recent ${recent.get('total_dollar')} "
               f"({recent.get('n_trades')}tr/{recent.get('n_days')}d) {recent.get('sign')} -> {verdict}",
               flush=True)
@@ -562,7 +736,7 @@ def main() -> int:
         for edge, tier in members:
             if (edge, tier, acct) not in admitted_by_cell:
                 off = EDGE_TIERS[edge][tier]
-                raw_rows, _ = get_raw_rows(edge, tier, off, qty)
+                raw_rows, _ = get_raw_rows(edge, tier, off, qty, acct)
                 admitted, _adm = admit_rows(raw_rows, acct, equity, qty)
                 admitted_by_cell[(edge, tier, acct)] = admitted
         recent = book_window(admitted_by_cell, members, acct, recent_start, recent_end)
@@ -574,7 +748,8 @@ def main() -> int:
                                 "status": "FUTURE-REFERENCE ONLY (excluded from headline/gate)",
                                 "note": bspec["note"],
                                 "recent_window": recent, "full_oos_2026": full_oos,
-                                "verdict": verdict, "reason": reason}
+                                "verdict": verdict, "reason": reason,
+                                "replay_engine": "walk_exit_manager", "replay_soundness": "sound"}
         print(f"[recency] FUTURE-REF {book[:36]:36s}: recent ${recent.get('total_dollar')} "
               f"({recent.get('n_trades')}tr) {recent.get('sign')} -> {verdict} (NOT in gate)",
               flush=True)
@@ -606,7 +781,16 @@ def main() -> int:
         "lookback_trading_days_requested": args.lookback,
         "confirm_n_floor": args.floor,
         "frame": f"{frame_first}..{frame_last} (master + recent daily concat)",
-        "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+        "fills_authority": ("real OPRA option bars via backtest/lib/exit_manager_walk."
+                             "walk_exit_manager (the production exit_manager.plan_exit_actions core) "
+                             "-- SOUND as of 2026-08-08 (POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY). Prior "
+                             "verdicts through 2026-08-08 were computed via the unsound lib."
+                             "simulator_real.simulate_trade_real -- exit-shape divergence from the real "
+                             "production exit_manager + same-bar/intrabar look-ahead, see module "
+                             "docstring; preserved in the _correction_2026_08_08 block below and in "
+                             "git history, never silently overwritten (C1)"),
+        "replay_engine": "walk_exit_manager",
+        "replay_soundness": "sound",
         "book_basis": ("cap-aware REALIZABLE book — lib.cap_admission (risk_gate.check_order) "
                        "applied per account at current equity; verdict is on the affordable book"),
         "config": {"premium_stop_pct": PREMIUM_STOP_PCT,
@@ -642,6 +826,33 @@ def main() -> int:
             "no_new_ship": "RESEARCH ONLY; no live edit, no orders (money-path guard)",
         },
     }
+
+    # POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY: preserve the PRE-FIX verdict/numbers (computed via
+    # the unsound simulate_trade_real engine) in a dated correction block INSIDE the artifact,
+    # rather than silently overwriting them -- same pattern postfix_gate_costing.py used for
+    # gate-postfix-costing-2026-08-03.json's `_correction_2026_08_08` block. Only stamped once:
+    # a prior file that ALREADY carries this key (e.g. a same-day re-run after the fix) is not
+    # re-wrapped.
+    prior_summary = None
+    if OUT_JSON.exists():
+        try:
+            prior_summary = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            prior_summary = None
+    if prior_summary is not None and not prior_summary.get("_correction_2026_08_08"):
+        summary["_correction_2026_08_08"] = {
+            "note": ("PRE-FIX verdict/numbers, computed via the unsound lib.simulator_real."
+                     "simulate_trade_real engine (exit-shape divergence from the real production "
+                     "exit_manager + same-bar/intrabar look-ahead -- see module docstring). "
+                     "Preserved here, not silently overwritten, per "
+                     "POSTFIX-RECENCY-CHECK-UNSOUND-REPLAY."),
+            "prior_run_date": prior_summary.get("run_date"),
+            "prior_recent_window": prior_summary.get("recent_window"),
+            "prior_headline": prior_summary.get("headline"),
+            "prior_edges": prior_summary.get("edges"),
+            "prior_books": prior_summary.get("books"),
+            "prior_books_future_reference": prior_summary.get("books_future_reference"),
+        }
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
