@@ -438,6 +438,16 @@ class DecisionRowModel(_StateModel):
     setup_name: Optional[str] = None
     trigger: Optional[str] = None
     reason: Optional[str] = None
+    trendline_state: Optional[dict] = None
+    # ^ ADDITIVE (2026-08-09, TRENDLINE-ENGINE-2026-08-09): "engine awareness" wiring for
+    # backtest/lib/trendline_detector.py's trendline_state_for_decision_row() output --
+    # nearest_line_id / distance / side / status / just_broken / just_retested. Optional
+    # with default None so every existing row (which never carried this key) still
+    # validates byte-identically. `_StateModel`'s own `extra="allow"` already meant an
+    # unlisted key wouldn't have failed validation either way -- this makes the shape
+    # DISCOVERABLE (typed, documented) rather than merely tolerated. No producer is wired
+    # to POPULATE this on the live hot path by this change; see
+    # `annotate_decisions_with_trendline_state` for the (currently backtest-only) writer.
 
 
 class WatcherObservationRowModel(_StateModel):
