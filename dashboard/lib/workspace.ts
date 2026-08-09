@@ -34,4 +34,8 @@ export const paths = {
   overnightQueue: path.join(WORKSPACE_ROOT, "automation", "overnight", "queue.md"),
   gammaHqScript: path.join(WORKSPACE_ROOT, "setup", "scripts", "gamma_hq.py"),
   pythonExe: path.join(WORKSPACE_ROOT, "backtest", ".venv", "Scripts", "python.exe"),
+
+  // --- Vitals tile (unattended-unit traffic lights), 2026-08-09 ---
+  unattendedHealth: st("unattended-health.json"),
+  unattendedEvents: st("unattended-events.jsonl"),
 };

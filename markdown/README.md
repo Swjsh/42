@@ -18,6 +18,6 @@ stay where the engine reads them.
 | `doctrine/` | Lessons learned, doctrine archive, edge doctrine | `LESSONS-LEARNED.md`, `DOCTRINE-ARCHIVE.md` |
 | `specs/` | Engine design + wiring specs | `ARCHITECTURE.md` |
 | `audits/` | Point-in-time health checks, postmortems, status snapshots | `HEARTBEAT-TICK-AUDIT-LOG.md` (rolling, keep ~10), `HEALTH.md` |
-| `infra/` | Setup, MCP install, kitchen spec, skills catalog, tooling, doc-architecture | `DOC-ARCHITECTURE.md`, `mcp-install.md`, `KITCHEN-SPEC.md` |
+| `infra/` | Setup, MCP install, kitchen spec, skills catalog, tooling, doc-architecture | `DOC-ARCHITECTURE.md`, `mcp-install.md`, `KITCHEN-SPEC.md`, `UNATTENDED-REGISTRY.md` |
 | `meta/` | Reframe-engine / meta-ideation doctrine (P2 pipeline, OP-32) | `REFRAME-ENGINE.md` |
 | `_attic/` | **Archive** — closed-out, superseded, point-in-time studies kept for provenance (conclusions already live in MEMORY/params/living docs). Discovered via glob, never linked from CLAUDE.md. | (archive — do not add living docs here) |

@@ -11,6 +11,7 @@ import ThisWeekCard from "@/components/gamma/ThisWeekCard";
 import Tile from "@/components/gamma/Tile";
 import GammaPresence from "@/components/gamma/GammaPresence";
 import MarketChart from "@/components/gamma/MarketChart";
+import VitalsTile from "@/components/gamma/VitalsTile";
 import type { GammaAppView } from "@/lib/gamma-app-types";
 
 const REFRESH_MS = 20_000;
@@ -121,6 +122,11 @@ export default function GammaAppPage() {
             ) : (
               <SkeletonTile label="Live activity" />
             )}
+
+            {/* Vitals owns its own poll (/api/vitals, 30s) rather than riding
+                /api/gamma -- the unattended-health snapshot is written on a 10-min
+                task cadence and has nothing to do with the presence payload. */}
+            <VitalsTile />
           </div>
 
           <div className="flex flex-col gap-5">
