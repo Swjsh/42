@@ -5841,3 +5841,147 @@ actuator test family). Curated safety gate (31+5) PASS.
 **Encoded in:** not yet — a reporting/process-discipline rule, no code guard (Rule 9 already forbids the ACTION; this patches the gap that let the wrong CONCLUSION form and nearly get voiced).
 
 **Detection:** any censored-window P&L quoted mid-session must be labelled PARTIAL/CENSORED with the still-open-position count. Sibling to C1 (real fills is the only WR authority — completed round trips only, never a partial window).
+
+## L283 -- 2026-08-05: an LLM-prompt "carry these fields forward" instruction is not a contract, even when it worked correctly for weeks
+
+**Symptom:** `today-bias.json#regime_context.one_liner` was correctly populated but `yesterday_archetype`, `stamp_date`, and `source` were all `null` — flagged simultaneously by two independent producers (`monday_verify.py` WS6, RED; `self_check.py` DEGRADED).
+
+**Root cause:** `regime_stamp.py` (deterministic Python, 08:22 ET) correctly patches all 4 `regime_context` fields into `today-bias.json`. `Gamma_Premarket` (08:30 ET, an LLM-prompt session) rewrites the file wholesale and is instructed in prose to carry the same 4 fields forward verbatim — it transcribed only `one_liner` and silently wrote `null` for the other 3, no error, no crash.
+
+**Fix:** added a 2nd daily scheduled-task trigger (08:40 ET, 10 min after Premarket) that re-runs `regime_stamp.main()` (idempotent, $0) so the deterministic patch is always the LAST writer regardless of what the LLM session transcribed. Guard: `backtest/tests/test_regime_stamp_repatch.py` (4/4).
+
+**Encoded in:** `backtest/tests/test_regime_stamp_repatch.py`; the 2nd 08:40 ET trigger.
+
+**Detection:** a producer→consumer handoff where the consumer is an LLM prompt session (not code) is never a reliable contract — prose instructions degrade silently under context pressure/paraphrase drift even when unambiguous and even after working correctly for weeks. Prefer a deterministic post-patch step re-asserting the field from the authoritative source (as here), or a detector PLUS an automatic remediator (per L252) rather than a detector alone. Sibling to C14.
+
+## L284 -- 2026-08-06: a producer's changed signal shape leaves offline replicas silently wrong; a TOTAL mismatch (0/N) is a strong prior the harness broke, not the mechanism
+
+**Symptom:** `test_replay_fleet_arms.py` failed with risky-3 `missed=16, matched=0/16` — not a 1-2 bar drift like every other known parity gap, a total mismatch across the entire fidelity window.
+
+**Root cause:** `fleet_executor._effective_passed()` was extended 2026-07-23 to read `block['score_peak_passed']` instead of `block['passed']` for any arm whose `accounts.json` carries a `gate_params.hard_skip_verdicts` key (even an empty list flips the branch). The live producer (`build_shared_signal.py`) was updated the same day to emit `score_peak_passed`. But `backtest/replay_fleet_arms.py` — the standalone offline harness reconstructing the same signal shape — was never updated; its `_synth_signal()` only ever set `passed`, so `score_peak_passed` was silently `None` on every synthetic block for 13 days, only on risky-3 (the one arm with `hard_skip_verdicts` set).
+
+**Fix:** `_score_peak_passed_for_verdict()` mirrors `build_shared_signal._score_peak_check` exactly; risky-3 matched 0/16 -> 16/16. Also resolved a misdiagnosed "window-truncation false-positive" on risky-1 that was the same wiring gap.
+
+**Encoded in:** `backtest/replay_fleet_arms.py::_score_peak_passed_for_verdict`; risky-1/risky-3 promoted into the strict entry-faithful pin.
+
+**Detection:** when a producer's emitted signal SHAPE changes (a new required field), every offline replica (test fixtures, standalone replay harnesses, sim signal-synthesizers) must be updated in the same change or it silently drifts to a permanently-wrong state that only announces itself as an opaque downstream assertion failure. A TOTAL mismatch on a parity gate should be checked as a harness bug BEFORE assuming a real trading-path regression. Sibling to C6/C14.
+
+## L285 -- 2026-08-06: closing one exit-code-blind-spot relay doesn't mean there's only one relay — enumerate all launcher mechanisms live before declaring a class of bug closed
+
+**Symptom:** the 2026-08-04/05 fix (`self_check.check_run_cmd_hidden_masked_exit`) closed the exit-code blind spot for ~24 tasks routed through `run_cmd_hidden.py` and was written up as closing "the" gap. A live `Get-ScheduledTask` enumeration showed 108 tasks total, 84 not on that relay — most on a SECOND, independently-built relay (`run_ps1_hidden.py`, predates the whole investigation) that had ALSO been silently capturing exit codes with zero consumers the entire time, including safety-relevant tasks (`Gamma_EodFlatten*`, `Gamma_SightBeacon`).
+
+**Root cause:** two different sessions independently built two different "wrap the launcher so we can see the real exit code" mechanisms for two different task shapes (python-direct vs `.ps1`-wrapper) at two different times, and neither checked whether a sibling relay with the same blind spot already existed before declaring the class closed.
+
+**Fix:** enumerated the fleet, found the second relay's log already existed (`run-ps1-hidden-<date>.log`); live finding surfaced: `run-eod-flatten-aggressive.ps1` exited 1 on 3/3 recent dates, backstopped by `Gamma_EodFlattenCore` (not a realized incident, but the primary documented path was silently degraded to backup-only). Follow-up: `EOD-FLATTEN-LLM-PROMPT-EXIT1` (see L289).
+
+**Encoded in:** partial — a THIRD independent launcher/relay found with the same blind spot should graduate to a single registry test enumerating every `Gamma_*` task's Action string and asserting it routes through a KNOWN exit-code-safe mechanism (shape of `test_watcher_registry.py`).
+
+**Detection:** when a fix closes a producer/consumer visibility gap for ONE launcher/relay/wrapper mechanism, explicitly enumerate ALL launcher mechanisms live (`Get-ScheduledTask` + grep the fleet, never trust a docstring's task count) before writing the fix up as closing "the" gap. Score/label partial fixes by exact fraction covered, not prose — a "PARTIAL 24/~150" note got informally read as "closed" by the next fire's first pass. Sibling to C7.
+
+## L286 -- 2026-08-07: a shared "pass rate" denominator that counts "couldn't attempt" the same as "attempted and failed" misdiagnoses a coverage gap as a fidelity bug
+
+**Symptom:** `test_anchor_pass_rate_clears_threshold[safe-3|risky-1|risky-3]` failed at 54-68% against a 70% threshold, flagged as a possible real exit-walk-fidelity regression.
+
+**Root cause:** `fleet_arm_replay.py::run_anchor_validation` computed `pass_rate = n_pass / n_anchors` where `n_anchors` = ALL real fills mined from the ledger, but `n_pass` only counted rows that had an OPRA cache available AND reproduced within tolerance. A real fill with no OPRA cache (`NO_OPRA_CACHE_OR_NO_ENTRY_PREMIUM`/`NO_SPY_DAY`) never even reaches the exit-walk engine — it carries no verdict at all — but the shared denominator counted it as an automatic FAIL. Measured: safe-3 8/34, risky-1 14/37, risky-3 18/54 data-gap rows; among rows that COULD be replayed, fidelity was 88.5%/87.0%/94.4% — comfortably above the bar. The exit-walk mechanism was never broken; a second plausible mechanism (trigger_level resolution) was checked and directly refuted.
+
+**Fix:** split the ratio into (1) a coverage/attempt-rate denominator check and (2) a fidelity-among-attempted rate, kept as separate visible fields rather than blended into one threshold-gated number. `bold_fullhist_replay.py::run_anchor_validation` has the textually identical pattern and should be checked before it accumulates its own data-gap rows.
+
+**Encoded in:** not yet — a measurement-discipline rule, flagged as a follow-up for the Bold sibling function.
+
+**Detection:** any "X/Y reproduces" or "X/Y pass" metric that silently treats "could not attempt X" the same as "attempted X and it failed" will misdiagnose a coverage gap as a mechanism bug — the inverse of C7 (a coverage gap disguises itself as a fidelity failure, sending the investigation hunting for a mechanism bug that doesn't exist). Sibling to C4/C7.
+
+## L287 -- 2026-08-07: an imperative fix against live state silently expires the next time anyone legitimately re-runs its declarative regenerating source
+
+**Symptom:** `Gamma_CryptoTwin` was migrated onto the `run_cmd_hidden.py` relay on 2026-07-14 via a direct `Set-ScheduledTask` against live Task Scheduler state. `install-crypto-twin.ps1` (the task's own declarative install script) was never updated to match. An unrelated 2026-08-01 cadence-tune commit re-ran that stale template and silently reverted the relay fix — zero error, zero log line. Confirmed live 2026-08-07, 3+ weeks after the "fix" shipped.
+
+**Root cause:** two parallel descriptions of "what a scheduled task's action should be" exist — live Task Scheduler state (what actually runs) and the install-*.ps1 declarative template (what regenerates that state on any legitimate future edit). A fix applied to ONLY the first is invisible and temporary. Generalization check found 13 MORE instances of the identical bug across other install scripts (source templates still emit old wiring, live state correct only by luck).
+
+**Fix:** all 14 install-script templates now emit the relay wiring directly. Guard: `backtest/tests/test_install_script_relay_wiring_drift.py` — static, asserts each task's own install script contains the relay reference in CODE (not docstring/comment; a naive substring check was fooled by a pre-fix docstring literally saying "no hop needed" in prose, fixed by stripping comments before the check).
+
+**Encoded in:** `backtest/tests/test_install_script_relay_wiring_drift.py`; all 14 install-*.ps1 templates.
+
+**Detection:** any time a fix is applied imperatively against live state that has its own regenerating declarative source (scheduled tasks, but also e.g. `accounts.json`/`params.json` if a script ever rewrites them wholesale from a template), the fix must land in BOTH places in the same commit, or a static drift guard must exist before the imperative-only fix is considered shipped. Sibling to C14 (two writers of the same live state, not a config knob nobody reads).
+
+## L288 -- 2026-08-06: a per-fire budget cap mis-sized at birth fails silently forever unless compared against sibling tasks
+
+**Symptom:** `self_check.py`'s masked-exit detector flagged `run-scout-premarket.ps1 (exit=[1])`. The real error: `Exceeded USD budget (0.5)` — on EVERY dated log checked (11 dates spanning 2026-07-20 to 2026-08-06). `git log` showed exactly ONE commit ever (2026-06-15, its creation) — the `-MaxBudgetUsd 0.50` value had never been touched. `scout_output.json` had gone stale for 2+ consecutive sessions before this was caught.
+
+**Root cause:** the budget was set too low for the job at design time (a WebSearch-driven macro/news scan), and the fire-and-forget vbs launcher hop meant the daily failure produced ZERO visible signal for ~7-8 weeks. This was never a regression — it was broken from day one and nobody had an instrument that could see it. A same-purpose sibling task check would have caught it in minutes: `futures-premarket` budgets $2.00, `premarket` itself $3.00 — `scout-premarket` at $0.50 was a visible outlier the whole time, just nobody diffed the roster.
+
+**Fix:** raised 0.50 -> 1.00. Guard: `backtest/tests/test_scout_premarket_budget.py` (pins the regression value + a floor), RED-proofed live.
+
+**Encoded in:** `backtest/tests/test_scout_premarket_budget.py`; see L289/L290 for the recurrence chain and eventual roster-wide graduation.
+
+**Detection:** any `-MaxBudgetUsd` value should be sanity-checked against sibling tasks doing a similar-shaped job (WebSearch-scan tier vs heartbeat-tier vs deep-review tier) at the time it's FIRST set — a drift ratchet catches future edits but not a wrong-from-day-one value. Sibling to C14/C7.
+
+## L289 -- 2026-08-08: same budget-cap-at-birth class, 3rd recurrence — the safety-net path silently degraded to backup-only for a majority of days
+
+**Symptom:** `run-eod-flatten.ps1`/`run-eod-flatten-aggressive.ps1` (`-MaxBudgetUsd 1`, unchanged since 2026-06-21) exit=1 on a recurring basis (aggressive 5/5 dates checked, safe 3/5). Not a realized safety incident — the deterministic `Gamma_EodFlattenCore` backstops both accounts and fires ~3 min earlier — but the documented LLM path (which also does fill-reconciliation against `journal/trades.csv` and a dashboard update the deterministic core does not) was silently degraded to backup-only most days.
+
+**Root cause:** the retry-until-zero close loop (up to 3 attempts x ~4 MCP calls) plus a fill-reconciliation pass is tool-call-heavy enough that `-MaxBudgetUsd 1` was never realistic headroom — mis-sized at birth, not a regression. This is the 3rd time this exact shape has been found in ~1 week (see L288 for the 1st; `BUDGET-ROSTER-AUDIT-MAXBUDGETUSD` was filed as the explicit roster-wide follow-up after the 1st but sat `status:pending`, unexecuted, until the 2nd/3rd recurrences forced it).
+
+**Fix:** `backtest/tests/test_eod_flatten_budget.py` mirrors `test_scout_premarket_budget.py`'s pattern (pins the known-broken value + a floor).
+
+**Encoded in:** `backtest/tests/test_eod_flatten_budget.py`.
+
+**Detection:** per-script guards only catch scripts someone already investigated — they do not prevent a 4th recurrence on an untouched script (see L290 for the graduation this forced). Sibling to C14.
+
+## L290 -- 2026-08-08: 4th recurrence of budget-cap-at-birth graduates the class itself to a standing roster guard, not another one-off fix
+
+**Symptom:** the roster-wide audit (`BUDGET-ROSTER-AUDIT-MAXBUDGETUSD`, filed after L288, executed only after L289 forced it) found a 4th live instance: `run-mcp-daily-audit.ps1` (`-MaxBudgetUsd 0.30`) failing on 45% of 42 dated fires — the highest failure rate found yet, still active as of the two most recent checks. The audit also correctly ruled out two false leads by checking real logs first (a deliberately disabled task; a genuinely-fine low-looking cap), proving "cross-check real logs before touching anything" is load-bearing, not boilerplate.
+
+**Root cause:** the SAME mechanism (a `-MaxBudgetUsd` cap set once at birth, never revisited, invisible to `LastTaskResult` because the vbs/ps1 launcher hop swallows the real exit code) recurring for the 4th time across ~2 days of fires. Per OP-25, a lesson that re-violates in the wild MUST become a test, not stay a per-instance fix.
+
+**Fix:** this lesson IS the graduation trigger — the concrete shape for a future fire to build: a single parametrized `test_budget_roster_no_silent_failures.py` that walks every `run-*.ps1` with a `-MaxBudgetUsd` flag, reads its matching dated logs, and REDs if any task's `Exceeded USD budget`/timeout(124) rate over its last N logs exceeds a threshold (e.g. 15%) — turning "audit the roster" from a periodic manual sweep into a standing regression guard.
+
+**Encoded in:** not yet built as a standing guard — named here so the NEXT recurrence trips CI instead of requiring a 5th manual grep-and-fix archaeology fire.
+
+**Detection:** when the SAME lesson shape recurs a 3rd/4th time across independent instances, stop fixing instances and build the roster-wide standing guard the recurrence count itself is arguing for. Sibling to C14/C7; see L288/L289 for the recurrence chain.
+
+## L291 -- 2026-08-08: a chart-stop family claimed 92/100 of binding exits for a different era's population; on the current book it's a dead-frequency knob — and freezing with a stop_rule caught an invented mechanism before it shipped
+
+**Symptom:** the pre-registered ribbon-flip-back buffer A/B replayed all 219 pain-ledger engine positions (2026-06-26..2026-08-07) through the production exit manager with historical ribbon state properly reconstructed (first study ever to model it correctly; every prior exit study hardcoded `ribbon_flip_back=False`). Result: only 13 opposing-stack flip reads across the entire population — max 9 changed trades per candidate vs the >=15 power floor -> UNDERPOWERED, lane closed.
+
+**Root cause:** `EXIT-DISCIPLINE-SPEC.md` (2026-06-20) claims the chart-stop/ribbon-flip-back family does "92/100 of binding exits" — that described a DIFFERENT population/era. On the current engine's real fills, raw opposing-stack flips are nearly absent before other exits fire; the flip-back buffer axis is a dead-frequency knob (C30) until entry behavior changes materially. Separately, the v1 prereg froze a candidate mechanism ("SPY $ beyond the flip boundary") that did NOT exist in code — caught cleanly by the prereg's own `stop_rule` ("if the surface doesn't exist, STOP, no improvised grid") instead of shipping an invented semantics.
+
+**Fix:** lane closed as UNDERPOWERED; `EXIT-DISCIPLINE-SPEC.md`'s 92/100 figure flagged as not citable for today's book; `exit_manager.py`'s aspirational "(caller already applied spread+buffer rule)" comment corrected — no caller implements one.
+
+**Encoded in:** `ribbon-flipback-buffer-ab-v2-2026-08-08.json` scorecard; prereg files retained as the worked example of the stop_rule pattern.
+
+**Detection:** a doctrine-cited exit-frequency figure must be re-verified against the CURRENT population before being relied on — frequency claims decay with the entry population that generated them (C30 sibling). Always read a mechanism's actual code surface BEFORE freezing a grid, and always include a stop_rule so a wrong freeze dies cheap rather than shipping invented semantics.
+
+## L292 -- 2026-08-08: a monitoring instrument's own coverage scope rots exactly like the thing it monitors — nothing was watching the watcher's scope
+
+**Symptom:** `block_elite_bull` was revalidated 2026-07-10 (KEEP verdict) under a level feed later found broken, and kept blocking on that stale verdict for 21 days — including 111 refusals same-session on 2026-07-31 on a maxed 11/11 bull setup — producing the first instrument (`gate_expiry_check.py`, J directive 2026-07-31). A one-off audit then found the FIRST instrument itself has a scope gap: it only mines `GATE_ORDER` + two named vetoes + fleet config. The scoring-filter layer (`backtest/lib/filters.py`), the extra-setup lane, and `risk_gate` config modes sit entirely outside its reach. Inside that blind spot: `pdt_gate_mode=margin_pdt` (Bold) hard-blocking on a rule the paper broker doesn't enforce (one blocked day cost +$1,465); two GATE_ORDER-scope gates sitting RED 43/52 days past revalidation with nobody reading the output on a cadence; a 551-tick/15-day volume-suppressor with zero dated evidence for its asymmetry, invisible to the first instrument entirely.
+
+**Root cause:** two distinct, compounding failure modes — (1) a revalidated-but-since-invalidated gate has no re-check clock (the original scar, fixed by the first instrument), and (2) a checker's own scope is itself a silent staleness surface: `gate_expiry_check.py` correctly re-checks everything it knows about, but "everything it knows about" was fixed at build time and never revisited as the engine grew new gate layers. An instrument that faithfully re-checks a stale SCOPE is not meaningfully better than no instrument for anything outside that scope.
+
+**Fix:** built a second, complementary instrument (`gate_recency_report.py`, weekly, pure-stdlib) rather than widening the first one's expensive real-OPRA-fills replay path in place — reads the first instrument's own verdicts (never recomputes) plus its own 15-day block-count pass, covering the scope gap directly (labeled `NOT_IN_EXPIRY_CHECKER` rather than a fake GREEN when the first instrument's scope doesn't reach a gate). `markdown/doctrine/GATE-RECENCY-DOCTRINE.md` codifies the instrument chain + the rule that any gate RED >7 days without a filed revalidation pre-reg is a doctrine violation to flag in standups.
+
+**Encoded in:** `markdown/doctrine/GATE-RECENCY-DOCTRINE.md`; `setup/scripts/gate_recency_report.py` + `backtest/tests/test_gate_recency_report.py` (54 tests).
+
+**Detection:** a monitoring instrument's coverage boundary rots exactly like the thing it monitors does — periodically re-audit what a checker's scope EXCLUDES, not just whether what it includes stays fresh. Prefer a second cheap instrument reading the first one's output over widening an expensive one in place. Sibling to C7/C34.
+
+## L293 -- 2026-08-08: a monitor silently inherits the soundness of whatever engine computes its numbers unless it carries a provenance stamp forward as data
+
+**Symptom:** the nightly gate-expiry instrument computes "refused-cohort EV" for every armed gate using `simulator_real.py::simulate_trade_real`, a replay engine with TWO independently-documented, already-dated defects on file elsewhere (exit-shape divergence from the live exit manager; same-bar/intrabar look-ahead). Nobody had connected those citations to the fact that the instrument's own headline EV numbers, quoted as fact, are produced by exactly that engine. The same evening, a one-off audit cited two of those numbers as corroborating "RED — costing money" evidence; a brand-new weekly instrument quoted the same figures verbatim in its digest; a doctrine document enshrined them as its own worked example. Four separate files, one unverified number, propagating downstream into what Gamma reports to J.
+
+**Root cause:** a monitor's own evidence chain needs a provenance stamp, or it launders unsound figures into doctrine and into the operator's face. `gate_expiry_check.py` produces a number and a RED/GREEN verdict with no machine-readable trace of WHICH replay engine produced it — every downstream consumer defaults to trusting it because a signed dollar figure with a colored label reads as settled fact, not as an input with its own confidence tier. A same-evening J-directed pre-registered revalidation audited the reused instrument's soundness BEFORE touching any P&L, swapped in the sound production exit core, and got materially different numbers on both gates — both still failed the pre-registered battery; the original "unblock this, it's costing money" read was wrong for a different reason than the number being literally false.
+
+**Fix:** `gate-registry-status.json` now carries a per-gate soundness stamp (`replay_soundness`/`replay_engine`); `gate_recency_report.py` reads that stamp and defaults to PROVISIONAL (never "COSTING money" wording) when missing or unsound, and scans for a FILED settled revalidation verdict to report instead of the raw registry EV whenever one exists; `GATE-RECENCY-DOCTRINE.md` carries a permanent REPLAY SOUNDNESS rule (an EV claim may only drive a RED verdict if produced by the production exit core); the original audit files were corrected with dated CORRECTION blocks, originals preserved.
+
+**Encoded in:** `markdown/doctrine/GATE-RECENCY-DOCTRINE.md` (REPLAY SOUNDNESS rule); `setup/scripts/gate_recency_report.py` + `backtest/tests/test_gate_recency_report.py`.
+
+**Detection:** any pipeline stage that emits a number derived from a swappable/replaceable computation engine must carry that engine's identity forward as data, not just as a comment in the code that computed it — otherwise every consumer two or three hops downstream re-inherits whatever soundness the origin had, with no way to tell the difference or know when it later degrades. Sibling to C7/C14; direct sequel to L292 (same instrument, same day).
+
+## L294 -- 2026-08-09: copy-pasted fixed-position CSV loaders break identically across every sibling on the same trigger day
+
+**Symptom:** `journal/trades.csv` gained a new trailing column (`theta_at_entry`, added 2026-08-01) after the existing `account_id` column. Three independent research probes (`bxm_gate_probe.py`, `vix1d_gate_probe.py`, `fred_yield_curve_probe.py`) each had their own copy of an identical `_load_real_trades()` helper (same `header[-1] == "account_id"` assertion, same `row[-1]` read) and all three broke the exact same way. The bug was filed once against the probe caught by a routine safety-gate run; the sibling named in that file's own docstring was fixed alongside it — but a THIRD sibling was only found by grepping `header[-1]|row[-1]` across the whole repo AFTER fixing the first two, not from the original bug report.
+
+**Root cause:** copy-paste propagates fragility identically — three files sharing one brittle assumption (`account_id` is always the LAST column) will always break on the SAME calendar day, because the shared assumption breaks on the shared trigger (a new trailing column landing in the shared source file), not on three independent occasions.
+
+**Fix:** all three loaders now resolve `account_id` via `header.index("account_id")` (name-based) instead of a fixed relative position, robust to any future trailing-column append; the header assertion still fails LOUD if `account_id` is genuinely removed rather than relocated. Guard: `backtest/tests/test_trades_csv_header_drift_guard.py`, parametrized across all 3 probe modules.
+
+**Encoded in:** `backtest/tests/test_trades_csv_header_drift_guard.py`.
+
+**Detection:** when a bug is found in one file via a docstring/comment that explicitly names a "sibling" or "same shape as X" file, grep the whole repo for the specific fragile pattern rather than trusting the docstring's own list of named siblings — the docstring itself can be stale/incomplete (2 named siblings here, 3 actual). A 4th sibling probe copying the same loader shape would need to opt INTO the guard's parametrize list to get covered; it will not be auto-discovered. Sibling to C14.
