@@ -1,0 +1,39 @@
+{
+ "distinct_contracts_in_ledger": 76,
+ "missing_at_start": 6,
+ "fetched": [
+  {
+   "symbol": "SPY260702C00754000",
+   "date": "2026-07-02",
+   "bars": 79
+  },
+  {
+   "symbol": "SPY260702P00739000",
+   "date": "2026-07-02",
+   "bars": 81
+  },
+  {
+   "symbol": "SPY260807C00772000",
+   "date": "2026-08-07",
+   "bars": 81
+  },
+  {
+   "symbol": "SPY260807C00773000",
+   "date": "2026-08-07",
+   "bars": 81
+  },
+  {
+   "symbol": "SPY260807C00774000",
+   "date": "2026-08-07",
+   "bars": 81
+  },
+  {
+   "symbol": "SPY260807C00775000",
+   "date": "2026-08-07",
+   "bars": 81
+  }
+ ],
+ "no_bars_returned": [],
+ "failed": [],
+ "note": "no_bars_returned are contracts with no OPRA prints that session -- a real data absence, not a fetch bug; they stay excluded and that is correct."
+}
