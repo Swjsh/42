@@ -1,6 +1,6 @@
 # 🔬 Deep Research — INDEX
 
-> Auto-generated `2026-08-09 13:58:06 Sunday EDT` by obsidian_vault_sync.py. The graph hub for every deep-research doc. Do not edit -- regenerated nightly.
+> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py. The graph hub for every deep-research doc. Do not edit -- regenerated nightly.
 
 ## 2026-08
 

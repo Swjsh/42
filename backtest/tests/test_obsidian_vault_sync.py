@@ -192,6 +192,22 @@ def test_visible_md_ignore_is_root_anchored(tmp_path, monkeypatch):
     )
 
 
+def test_folder_hub_respects_vault_visibility(tmp_path, monkeypatch):
+    """A hub that links into EXCLUDED folders manufactures broken links instead of curing
+    orphans -- first run of the recursive markdown hub produced 70+ this way."""
+    m = _load()
+    (tmp_path / "docs" / "sub").mkdir(parents=True)
+    shown = tmp_path / "docs" / "shown.md"
+    shown.write_text("x", encoding="utf-8")
+    hidden = tmp_path / "docs" / "sub" / "hidden.md"
+    hidden.write_text("x", encoding="utf-8")
+    monkeypatch.setattr(m, "REPO", tmp_path)
+    out = m.build_folder_index(Path("docs"), "T", "stamp", recursive=True,
+                               visible={"docs/shown.md"})
+    assert "docs/shown" in out
+    assert "hidden" not in out, "hub linked a vault-hidden file -> broken link factory"
+
+
 def test_memory_mirror_is_gitignored():
     """PUBLIC repo: the memory mirror carries J's preferences and must never be pushable."""
     gi = (REPO / ".gitignore").read_text(encoding="utf-8", errors="replace")

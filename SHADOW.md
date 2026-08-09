@@ -1,6 +1,6 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-08-09 13:58:06 Sunday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 

@@ -25,7 +25,7 @@
 ### Setup name: BEARISH_REJECTION_RIDE_THE_RIBBON (PUTS)
 
 **Status:** **OBSERVATION (demoted 2026-W28)**
-<!-- ratified R-0018 from analysis/2026-W28.md @ 2026-07-12T18:00:00-06:00; demoted per Section 7 tier table: n_trades=29 (>=10), hit_rate=0.2414 (<0.40 demote floor), status was CONFIRMED; cumulative avg_return_pct=+21.28% despite low hit rate (asymmetric payoff, but hit-rate floor is the mechanical gate). Was: CONFIRMED (3 of 3 examples successful) -> paper-testing phase. Revoke by deleting this comment + restoring prior status. -->
+<!-- ratified R-0018 from analysis/weekly/2026-W28.md @ 2026-07-12T18:00:00-06:00; demoted per Section 7 tier table: n_trades=29 (>=10), hit_rate=0.2414 (<0.40 demote floor), status was CONFIRMED; cumulative avg_return_pct=+21.28% despite low hit rate (asymmetric payoff, but hit-rate floor is the mechanical gate). Was: CONFIRMED (3 of 3 examples successful) -> paper-testing phase. Revoke by deleting this comment + restoring prior status. -->
 
 **Origin / sample:**
 | Date | Contract | Entry | Exit (avg) | P&L | % return | Management quality |

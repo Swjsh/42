@@ -827,6 +827,56 @@ def build_deep_research_index(stamp: str) -> str:
     return "\n".join(L)
 
 
+def build_folder_index(folder: Path, title: str, stamp: str, recursive: bool = False,
+                       skip: tuple[str, ...] = ("INDEX.md", "INDEX-ALL.md"),
+                       visible: set[str] | None = None) -> str:
+    """Generic graph hub: one wikilink per md file, grouped by subfolder (recursive) or by
+    YYYY-MM prefix (flat). Every hub kills that folder's orphans in one generated note.
+
+    `visible` (rel-path set) restricts the hub to notes the vault actually shows -- a hub that
+    links into excluded folders (markdown/_attic, audits) manufactures broken links instead of
+    curing orphans, which is exactly what happened on this function's first run.
+    """
+    L = [f"# {title}", "",
+         f"> Auto-generated `{stamp}` by obsidian_vault_sync.py -- graph hub, do not edit.", ""]
+    root = REPO / folder
+    files = sorted(root.rglob("*.md") if recursive else root.glob("*.md"))
+    if visible is not None:
+        files = [p for p in files
+                 if str(p.relative_to(REPO)).replace("\\", "/") in visible]
+    groups: dict[str, list[str]] = {}
+    for p in files:
+        if p.name in skip:
+            continue
+        rel = str(p.relative_to(REPO)).replace("\\", "/")
+        if recursive:
+            sub = str(p.parent.relative_to(root)).replace("\\", "/")
+            key = sub if sub != "." else "(top level)"
+        else:
+            m = re.search(r"(20\d\d-\d\d)", p.name)
+            key = m.group(1) if m else "topic docs (undated)"
+        groups.setdefault(key, []).append(rel)
+    for key in sorted(groups, reverse=True):
+        L.append(f"## {key}")
+        L.append("")
+        for rel in groups[key]:
+            L.append(f"- [[{rel[:-3]}|{Path(rel).stem}]]")
+        L.append("")
+    return "\n".join(L)
+
+
+FOLDER_HUBS: list[tuple[str, str, str, bool]] = [
+    # (folder, output filename, title, recursive)
+    ("journal", "INDEX.md", "📓 Journal — INDEX", True),
+    ("markdown", "INDEX-ALL.md", "📖 markdown/ — every doc", True),
+    ("analysis", "INDEX.md", "📊 analysis/ — reviews, weeklies, one-offs", True),
+    ("analysis/eod-deep", "INDEX.md", "🌙 EOD deep reports — INDEX", False),
+    ("analysis/weekly", "INDEX.md", "📅 Weekly reviews — INDEX", False),
+    ("automation/overnight", "INDEX.md", "🌃 Overnight — STATUS, queue, archives", True),
+    ("automation", "INDEX.md", "🤖 automation/ — top-level docs", False),
+]
+
+
 JOURNAL_BASE = """\
 filters:
   and:
@@ -908,6 +958,16 @@ def main(argv: list[str] | None = None) -> int:
     idx = REPO / "analysis" / "deep-research" / "INDEX.md"
     idx.write_text(build_deep_research_index(stamp), encoding="utf-8")
     print(f"[obsidian] wrote {idx.relative_to(REPO)}")
+
+    vis_set = {str(p.relative_to(REPO)).replace("\\", "/") for p in _visible_md()}
+    for folder, fname, title, rec in FOLDER_HUBS:
+        hub = REPO / folder / fname
+        if not hub.parent.exists():
+            continue
+        hub.write_text(build_folder_index(Path(folder), title, stamp, recursive=rec,
+                                          visible=vis_set),
+                       encoding="utf-8")
+        print(f"[obsidian] hub {hub.relative_to(REPO)}")
 
     mp = REPO / "MAP.md"
     map_text = build_map(stamp)

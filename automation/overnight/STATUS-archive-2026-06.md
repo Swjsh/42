@@ -569,7 +569,7 @@ Kitchen: alive, queue 47 pending, last cook 0 min ago, today $0.00, model=grinde
 >
 > Key facts: Safe2 ATM book **RED** (n=11 recent fills, exp=-$36.79/tr, 0 win-days / 6 loss-days). Bold book YELLOW (n=7 < floor). ALL edges YELLOW. **No capital scaling authorized. No live flips.** Week P&L: -$252 (Safe -$237 EOD reconcile + Bold -$15 EOD reconcile). Cumul n_trades=17 (deploy gate needs 20). R-0015 NEW: add dual-source-failure Discord alert. R-0014 RE-ISSUE: hypothesis-grades still blank (6th consecutive week).
 >
-> Full review: `analysis/2026-W26.md` — 4 recommendations logged to `analysis/recommendations-log.jsonl`.
+> Full review: `analysis/weekly/2026-W26.md` — 4 recommendations logged to `analysis/recommendations-log.jsonl`.
 
 ---
 
