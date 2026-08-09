@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-08-09 11:35:20 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-08-09 11:53:31 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -16,7 +16,7 @@
 
 ## Today's levels
 
-*as of `2026-08-09T11:33:37-04:00`*
+*as of `2026-08-09T11:53:36-04:00`*
 
 - **731.22** — PRIOR_CLOSE_2026-06-26
 - **734.52** — PML_2026-06-29
@@ -33,6 +33,16 @@
 > No core decision rows for 2026-08-09 (weekend, holiday, or the engine is dark).
 - bias: **bullish**
 
+## This week
+
+| Day | Book | safe-2 | bold-2 | safe-3 | risky-1 | risky-3 | Legs |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| [[journal/2026-08-09\|2026-08-09]] | **-0.11** | -0.11 | 0.00 | 0.00 | 0.00 | 0.00 | 0 |
+| [[journal/2026-08-07\|2026-08-07]] | **-2687.00** | -375.00 | 0.00 | -1048.00 | -640.00 | -624.00 | 24 |
+| [[journal/2026-08-06\|2026-08-06]] | **1465.00** | 339.00 | 0.00 | 0.00 | 296.00 | 830.00 | 11 |
+| [[journal/2026-08-05\|2026-08-05]] | **-1935.00** | -339.00 | 0.00 | 0.00 | -138.00 | -1458.00 | 29 |
+| [[journal/2026-08-04\|2026-08-04]] | **3624.00** | 662.00 | 479.00 | 637.00 | 1041.00 | 805.00 | 59 |
+
 ## Open loops
 
 - [[automation/overnight/STATUS|STATUS]] — known-broken + the REVOKE surface
@@ -42,10 +52,10 @@
 
 ## Daily notes
 
+- [[journal/2026-08-09|2026-08-09]]
 - [[journal/2026-08-07|2026-08-07]]
 - [[journal/2026-08-06|2026-08-06]]
 - [[journal/2026-08-05|2026-08-05]]
 - [[journal/2026-08-04|2026-08-04]]
 - [[journal/2026-08-03|2026-08-03]]
 - [[journal/2026-07-31|2026-07-31]]
-- [[journal/2026-07-30|2026-07-30]]

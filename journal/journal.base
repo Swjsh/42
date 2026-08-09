@@ -1,0 +1,17 @@
+filters:
+  and:
+    - file.inFolder("journal")
+    - note.pnl_book
+views:
+  - type: table
+    name: "Daily P&L"
+    order:
+      - file.name
+      - note.pnl_book
+      - note.legs
+      - note.engine_ticks
+      - note.pnl_safe2
+      - note.pnl_bold2
+      - note.pnl_safe3
+      - note.pnl_risky1
+      - note.pnl_risky3

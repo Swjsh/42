@@ -196,11 +196,12 @@ def render_positions_table(snap: dict) -> list[str]:
             out.append(f"| {arm} | — | — | ⚠️ {a['error']} |")
             continue
         eq = a.get("equity")
+        eq_s = f"{eq:,.2f}" if isinstance(eq, (int, float)) else "—"
         held = " · ".join(
             f"{p['symbol']} ×{p['qty']} @{p['entry']} → {p['now']} ({money(p['upl'])})"
             for p in a.get("positions", [])
         ) or "flat"
-        out.append(f"| {arm} | {eq:,.2f} | **{money(a['day'])}** | {held} |")
+        out.append(f"| {arm} | {eq_s} | **{money(a['day'])}** | {held} |")
     out.append(f"| **BOOK** | | **{money(snap['total_day'])}** | |")
     out.append("")
     return out
@@ -356,23 +357,179 @@ def write_daily(date: str, stamp: str, snap: dict) -> Path:
     return path
 
 
+def read_frontmatter(path: Path) -> dict:
+    """Tiny flat YAML frontmatter reader (key: value lines only). Fails open to {}."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if not text.startswith("---\n"):
+            return {}
+        end = text.find("\n---\n", 4)
+        if end == -1:
+            return {}
+        out: dict = {}
+        for line in text[4:end].splitlines():
+            if ":" in line and not line.startswith(" "):
+                k, _, v = line.partition(":")
+                out[k.strip()] = v.strip()
+        return out
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def build_week_table(n: int = 10) -> list[str]:
+    """P&L table over the journal dailies' own frontmatter -- the same data Bases sees."""
+    rows = []
+    for p in sorted(JOURNAL.glob("20*.md"), reverse=True)[:n]:
+        fm = read_frontmatter(p)
+        if "pnl_book" not in fm:
+            continue
+        rows.append((p.stem, fm))
+    if not rows:
+        return ["> No daily notes carry P&L properties yet.", ""]
+    out = ["| Day | Book | safe-2 | bold-2 | safe-3 | risky-1 | risky-3 | Legs |",
+           "|---|---:|---:|---:|---:|---:|---:|---:|"]
+    for stem, fm in rows:
+        out.append(
+            f"| [[journal/{stem}\\|{stem}]] | **{fm.get('pnl_book', '?')}** | "
+            f"{fm.get('pnl_safe2', '')} | {fm.get('pnl_bold2', '')} | {fm.get('pnl_safe3', '')} | "
+            f"{fm.get('pnl_risky1', '')} | {fm.get('pnl_risky3', '')} | {fm.get('legs', '')} |"
+        )
+    out.append("")
+    return out
+
+
+def build_preregs_board(stamp: str) -> str:
+    """SHADOW.md -- every live shadow instrument's tally + the frozen preregs, one glance.
+
+    Only machine-readable sources are auto-summarised; the frozen-prereg section is a stable
+    link list (the clocks live in the linked docs -- duplicating them here would rot).
+    """
+    L = ["# 🕰️ Shadow & Prereg Board", "",
+         f"> Auto-generated `{stamp}` by obsidian_vault_sync.py. "
+         "Shadow tallies update nightly; a missing tally means that instrument has not fired yet.", ""]
+
+    L.append("## Live shadow instruments")
+    L.append("")
+    ladder = REPO / "analysis" / "arm-ladder" / "ladder-rung-shadow-ledger.jsonl"
+    if ladder.exists():
+        lines = [ln for ln in ladder.read_text(encoding="utf-8", errors="replace").splitlines() if ln.strip()]
+        last = {}
+        try:
+            last = json.loads(lines[-1]) if lines else {}
+        except Exception:  # noqa: BLE001
+            last = {}
+        L.append(f"- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — {len(lines)} session rows; "
+                 f"latest: `{json.dumps(last)[:180]}`")
+    else:
+        L.append("- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — no rows yet; first fire is the "
+                 "next weekday close.")
+    hits = sorted(REPO.glob("analysis/entry-quality/*tally*"))
+    L.append(f"- **V-d1 / V-e3 entry shadow** (16:25 fold) — "
+             + (f"artifact: `{hits[-1].relative_to(REPO)}`" if hits else "no tally artifact found yet."))
+    chop = sorted(REPO.glob("analysis/**/chop-meter*"), key=lambda p: p.stat().st_mtime) if REPO.exists() else []
+    L.append(f"- **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — "
+             + (f"latest: `{chop[-1].relative_to(REPO)}`" if chop else "artifact appears after the next close."))
+    L.append("")
+
+    L.append("## Frozen preregs (clocks live in the linked docs)")
+    L.append("")
+    for label, rel in (
+        ("TP1 sell-half at +100% (R_tp100_f50)", "analysis/deep-research/TP1-REACHABILITY-2026-08-06.md"),
+        ("Runner finite 2.5x target", "analysis/deep-research/HOLD-WINNERS-2026-08-06.md"),
+        ("B-RR-070 range compression", "analysis/deep-research/CHOP-DEFENSE-2026-08-06.md"),
+        ("BRK600 / CAP-3 / CONSEC4 loss guards", "analysis/deep-research/KEEP-LOSSES-SMALL-2026-08-06.md"),
+        ("F10 recalibration on live feed", "analysis/deep-research/FRIDAY-2026-08-07-FULL.md"),
+        ("Score ladder (held at gate)", "analysis/deep-research/CLOSE-EXECUTION-2026-08-07.md"),
+    ):
+        note = rel[:-3]
+        L.append(f"- **{label}** → [[{note}]]")
+    L.append("")
+    L.append("## Doctrine anchors")
+    L.append("")
+    L.append("- [[analysis/deep-research/WEEK-ORDER-2026-08-10|THE WEEK ORDER]] · "
+             "[[automation/overnight/STATUS|STATUS]] · [[markdown/doctrine/LESSONS-LEARNED|Lessons]]")
+    L.append("")
+    return "\n".join(L)
+
+
+JOURNAL_BASE = """\
+filters:
+  and:
+    - file.inFolder("journal")
+    - note.pnl_book
+views:
+  - type: table
+    name: "Daily P&L"
+    order:
+      - file.name
+      - note.pnl_book
+      - note.legs
+      - note.engine_ticks
+      - note.pnl_safe2
+      - note.pnl_bold2
+      - note.pnl_safe3
+      - note.pnl_risky1
+      - note.pnl_risky3
+"""
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Render firm state into the Obsidian vault.")
     ap.add_argument("--date", default=None, help="YYYY-MM-DD (default: today ET)")
     ap.add_argument("--home-only", action="store_true")
+    ap.add_argument("--backfill", nargs="*", default=None,
+                    help="extra YYYY-MM-DD dates whose daily notes get frontmatter+EOD injected")
     args = ap.parse_args(argv)
 
     today, stamp, market_open = et_now()
     date = args.date or today
     snap = broker_snapshot()
 
-    home = REPO / "HOME.md"
-    home.write_text(build_home(date, stamp, market_open, snap), encoding="utf-8")
-    print(f"[obsidian] wrote {home.relative_to(REPO)}")
-
     if not args.home_only:
         p = write_daily(date, stamp, snap)
         print(f"[obsidian] wrote {p.relative_to(REPO)}")
+        for extra in (args.backfill or []):
+            # Historical days: /v2/account only knows TODAY's delta, so recompute the day's
+            # realized P&L per arm by FIFO over that day's actual broker fills (x100 option
+            # multiplier). Real data or nothing -- never zeros presented as P&L (OP-33).
+            day_fills = fills_for(extra)
+            hist_arms = {}
+            for a in ARMS:
+                pnl, lots = 0.0, {}
+                for r in day_fills.get(a, []):
+                    qty, px = int(float(r["qty"])), float(r["px"])
+                    if r["side"] == "buy":
+                        lots.setdefault(r["sym"], []).append([qty, px])
+                    else:
+                        q = qty
+                        for lot in lots.get(r["sym"], []):
+                            take = min(q, lot[0])
+                            pnl += (px - lot[1]) * take * 100
+                            lot[0] -= take
+                            q -= take
+                            if q <= 0:
+                                break
+                hist_arms[a] = {"equity": None, "day": pnl, "positions": [], "error": None}
+            hist_snap = {"ok": True, "arms": hist_arms,
+                         "total_day": sum(v["day"] for v in hist_arms.values()), "error": None}
+            pp = write_daily(extra, f"{stamp} (backfill, FIFO-from-fills)", hist_snap)
+            print(f"[obsidian] backfilled {pp.relative_to(REPO)} "
+                  f"day={hist_snap['total_day']:+,.2f}")
+
+    home = REPO / "HOME.md"
+    home_text = build_home(date, stamp, market_open, snap)
+    week = "\n".join(["## This week", ""] + build_week_table())
+    home_text = home_text.replace("## Open loops", week + "\n## Open loops", 1)
+    home.write_text(home_text, encoding="utf-8")
+    print(f"[obsidian] wrote {home.relative_to(REPO)}")
+
+    shadow = REPO / "SHADOW.md"
+    shadow.write_text(build_preregs_board(stamp), encoding="utf-8")
+    print(f"[obsidian] wrote {shadow.relative_to(REPO)}")
+
+    base = REPO / "journal" / "journal.base"
+    base.write_text(JOURNAL_BASE, encoding="utf-8")
+    print(f"[obsidian] wrote {base.relative_to(REPO)}")
 
     print(f"[obsidian] book day P&L {money(snap.get('total_day', 0.0))} · broker_ok={snap.get('ok')}")
     return 0
