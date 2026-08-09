@@ -1,0 +1,314 @@
+{
+  "prereg_id": "TRENDLINE-ENGINE-VALIDATION-2026-08-09",
+  "prereg_file": "analysis/recommendations/prereg-trendline-engine-validation-2026-08-09.json",
+  "generated_at": "2026-08-09T14:23:11.787573",
+  "population": {
+    "n_trading_days": 399,
+    "window": "2025-01-02..2026-08-07"
+  },
+  "cell_a": {
+    "cell_id": "CELL_A_live_bear_trigger_attribution",
+    "n_trades_total": 387,
+    "trendline_rejection_sole_trigger": {
+      "n": 176,
+      "total": 2456.84,
+      "mean": 13.96,
+      "wr_pct": 33.5
+    },
+    "trendline_rejection_co_fired": {
+      "n": 25,
+      "total": -134.5,
+      "mean": -5.38,
+      "wr_pct": 28.0
+    },
+    "non_trendline": {
+      "n": 186,
+      "total": 1059.16,
+      "mean": 5.69,
+      "wr_pct": 23.7
+    },
+    "all_trendline_combined": {
+      "n": 201,
+      "total": 2322.34,
+      "mean": 11.55,
+      "wr_pct": 32.8
+    },
+    "tuesday_2026_08_04": {
+      "all_trades": {
+        "n": 0,
+        "total": 0.0,
+        "mean": null,
+        "wr_pct": null
+      },
+      "trendline_trades": {
+        "n": 0,
+        "total": 0.0,
+        "mean": null,
+        "wr_pct": null
+      },
+      "baseline_total_from_EOD_doc": 3624.0
+    },
+    "elapsed_sec": 93.0,
+    "note": "Nothing to ship -- trendline_rejection is already live and unconditional; this is a full-population measurement extending the single-day EOD-2026-08-06 finding."
+  },
+  "cell_b": {
+    "cell_id": "CELL_B_bull_trendline_reclaim_counterfactual",
+    "n_raw_fires": 2941,
+    "n_after_dedup_and_window": 2452,
+    "status_counts": {
+      "ok": 2411,
+      "no_contract": 41
+    },
+    "cohort": {
+      "n": 2411,
+      "total": -27378.25,
+      "mean": -11.36,
+      "wr_pct": 36.1,
+      "drop_top3": -30045.7,
+      "n_dropped_for_drop_top3": 3,
+      "best": 930.0,
+      "worst": -1593.0
+    },
+    "is_half": {
+      "n": 1205,
+      "total": -19286.85,
+      "mean": -16.01,
+      "wr_pct": 37.2,
+      "drop_top3": -21593.2,
+      "n_dropped_for_drop_top3": 3,
+      "best": 818.75,
+      "worst": -1593.0
+    },
+    "oos_half": {
+      "n": 1206,
+      "total": -8091.4,
+      "mean": -6.71,
+      "wr_pct": 35.1,
+      "drop_top3": -10758.85,
+      "n_dropped_for_drop_top3": 3,
+      "best": 930.0,
+      "worst": -498.0
+    },
+    "one_sample_p": 0.0012,
+    "tuesday_2026_08_04": {
+      "n_counterfactual_bull_reclaim_entries": 0,
+      "counterfactual_total": 0.0,
+      "would_ADD_to_baseline": "n/a -- none mined that day"
+    },
+    "trades_sample": [
+      {
+        "status": "ok",
+        "date": "2025-01-02",
+        "side": "C",
+        "strike": 583,
+        "entry_premium": 1.04,
+        "entry_time_et": "2025-01-02T14:45:00",
+        "pnl": -165.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-02T14:40:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-02",
+        "side": "C",
+        "strike": 583,
+        "entry_premium": 0.67,
+        "entry_time_et": "2025-01-02T14:50:00",
+        "pnl": 39.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-02T14:45:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-02",
+        "side": "C",
+        "strike": 584,
+        "entry_premium": 0.33,
+        "entry_time_et": "2025-01-02T14:55:00",
+        "pnl": 81.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-02T14:50:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-02",
+        "side": "C",
+        "strike": 584,
+        "entry_premium": 0.65,
+        "entry_time_et": "2025-01-02T15:05:00",
+        "pnl": -72.0,
+        "exit_reason": "time_stop_15:40",
+        "hold_minutes": 35,
+        "ts_et": "2025-01-02T15:00:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-07",
+        "side": "C",
+        "strike": 592,
+        "entry_premium": 1.66,
+        "entry_time_et": "2025-01-07T12:20:00",
+        "pnl": 87.0,
+        "exit_reason": "structure_stop @ 591.23",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-07T12:15:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-07",
+        "side": "C",
+        "strike": 591,
+        "entry_premium": 1.99,
+        "entry_time_et": "2025-01-07T12:35:00",
+        "pnl": 21.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-07T12:30:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-07",
+        "side": "C",
+        "strike": 590,
+        "entry_premium": 2.02,
+        "entry_time_et": "2025-01-07T12:55:00",
+        "pnl": -48.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-07T12:50:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-07",
+        "side": "C",
+        "strike": 591,
+        "entry_premium": 1.22,
+        "entry_time_et": "2025-01-07T13:00:00",
+        "pnl": 6.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-07T12:55:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-07",
+        "side": "C",
+        "strike": 591,
+        "entry_premium": 1.34,
+        "entry_time_et": "2025-01-07T13:05:00",
+        "pnl": 39.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-07T13:00:00"
+      },
+      {
+        "status": "ok",
+        "date": "2025-01-07",
+        "side": "C",
+        "strike": 592,
+        "entry_premium": 0.79,
+        "entry_time_et": "2025-01-07T13:10:00",
+        "pnl": 54.0,
+        "exit_reason": "ribbon_flip_back",
+        "hold_minutes": 5,
+        "ts_et": "2025-01-07T13:05:00"
+      }
+    ],
+    "elapsed_sec": 14.4,
+    "ownership_note": "PROPOSE-ONLY per prereg explicit_non_ownership -- bull-side LIVE graduation belongs to a different, concurrently-active sibling agent (backtest/tools/bull_trendline_reclaim_graduation_2026_08_09.py). This agent does not flip or ship anything from this cell regardless of the g_battery verdict below.",
+    "g_battery": {
+      "gates": {
+        "G_mean": false,
+        "G_oos": false,
+        "G_drop3": false,
+        "G_bhfdr": true,
+        "G_n": true
+      },
+      "verdict": "NOT-UNBLOCK-ELIGIBLE",
+      "pval": 0.0012
+    }
+  },
+  "cell_c": {
+    "cell_id": "CELL_C_trendline_proximity_admissibility",
+    "n_trades_with_line": 387,
+    "n_trades_total": 387,
+    "buckets": {
+      "near": {
+        "n": 129,
+        "total": 9418.75,
+        "mean": 73.01,
+        "wr_pct": 29.5
+      },
+      "mid": {
+        "n": 129,
+        "total": -4093.3,
+        "mean": -31.73,
+        "wr_pct": 27.1
+      },
+      "far": {
+        "n": 129,
+        "total": -1943.96,
+        "mean": -15.07,
+        "wr_pct": 28.7
+      }
+    },
+    "spearman_rho": -0.0673,
+    "shuffle_null_90pct_interval": [
+      -0.0859,
+      0.0853
+    ],
+    "beats_null": false,
+    "monotonic_inversions": 1,
+    "verdict": "KILL",
+    "elapsed_sec": 7.9
+  },
+  "cell_d": {
+    "cell_id": "CELL_D_anchor_mode_wick_vs_body_ab",
+    "wick": {
+      "n_touches": 2342,
+      "touch_respect_rate": 0.4765,
+      "mean_forward_return_favorable": -0.0163
+    },
+    "body": {
+      "n_touches": 2115,
+      "touch_respect_rate": 0.487,
+      "mean_forward_return_favorable": -0.0193
+    },
+    "two_sample_p": 0.9636,
+    "verdict": "NOT WORTH PURSUING THIS PASS",
+    "elapsed_sec": 215.7,
+    "scope_note": "SPY-point diagnostic only, not a $ backtest -- see prereg CELL_D.explicit_scope_limit"
+  },
+  "bh_fdr_family": {
+    "pvals": [
+      0.0012,
+      0.9327,
+      0.9636
+    ],
+    "significant": [
+      true,
+      false,
+      false
+    ],
+    "cells": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "hard_gate": {
+    "id": "G_TUESDAY_NO_REGRESSION",
+    "applies_to": "CELL_B only (per prereg)",
+    "cell_b_tuesday_counterfactual": {
+      "n_counterfactual_bull_reclaim_entries": 0,
+      "counterfactual_total": 0.0,
+      "would_ADD_to_baseline": "n/a -- none mined that day"
+    },
+    "verdict": "N/A -- CELL_B is PROPOSE-ONLY (see ownership_note); nothing ships from this study so nothing can regress Tuesday 2026-08-04's live +$3,624."
+  },
+  "ship_rule_applied": "Per the frozen prereg's ship_rule: this is a MEASUREMENT program. CELL_A has nothing to ship (already live). CELL_B is capped at propose-only (different sibling's lane, in flight). CELL_C/D even if supportive only qualify a FUTURE Phase-2 proposal. NOTHING in this run touches params.json, filters.py, or orchestrator.py.",
+  "total_elapsed_sec": 331.4
+}
