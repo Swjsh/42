@@ -1,0 +1,99 @@
+{
+ "columns": {
+  "TWIN_CONTROL": {
+   "n": 289,
+   "total": 4641.0,
+   "expectancy": 16.06,
+   "wr": 0.2457,
+   "drop_best_day_expectancy": 8.43,
+   "best_day": 2212.2,
+   "runner_cohort_n": 48,
+   "runner_cohort_expectancy": 1276.22,
+   "first_half_exp": 14.39,
+   "second_half_exp": 17.81,
+   "sub_window_stable": true,
+   "tuesday_0804_total": null,
+   "tuesday_0804_n": 0,
+   "bootstrap_p_mean_gt0": 0.3515,
+   "trading_days": 205,
+   "n_excluded": 16,
+   "suppressed_binary": 13
+  },
+  "ATR_LOOKAHEAD": {
+   "n": 270,
+   "total": 25720.34,
+   "expectancy": 95.26,
+   "wr": 0.3481,
+   "drop_best_day_expectancy": 84.98,
+   "best_day": 2862.0,
+   "runner_cohort_n": 67,
+   "runner_cohort_expectancy": 1267.76,
+   "first_half_exp": 54.91,
+   "second_half_exp": 138.08,
+   "sub_window_stable": true,
+   "tuesday_0804_total": null,
+   "tuesday_0804_n": 0,
+   "bootstrap_p_mean_gt0": 0.0284,
+   "trading_days": 205,
+   "n_excluded": 16,
+   "suppressed_binary": 32
+  },
+  "ATR_CLEAN": {
+   "n": 270,
+   "total": 18811.04,
+   "expectancy": 69.67,
+   "wr": 0.3333,
+   "drop_best_day_expectancy": 59.29,
+   "best_day": 2862.0,
+   "runner_cohort_n": 64,
+   "runner_cohort_expectancy": 1246.47,
+   "first_half_exp": 34.36,
+   "second_half_exp": 106.04,
+   "sub_window_stable": true,
+   "tuesday_0804_total": null,
+   "tuesday_0804_n": 0,
+   "bootstrap_p_mean_gt0": 0.0748,
+   "trading_days": 205,
+   "n_excluded": 16,
+   "suppressed_binary": 32
+  },
+  "PREM_STATIC_20": {
+   "n": 291,
+   "total": 22294.4,
+   "expectancy": 76.61,
+   "wr": 0.2096,
+   "drop_best_day_expectancy": 67.01,
+   "best_day": 2862.0,
+   "runner_cohort_n": 47,
+   "runner_cohort_expectancy": 1293.82,
+   "first_half_exp": 60.76,
+   "second_half_exp": 93.02,
+   "sub_window_stable": true,
+   "tuesday_0804_total": null,
+   "tuesday_0804_n": 0,
+   "bootstrap_p_mean_gt0": 0.0153,
+   "trading_days": 205,
+   "n_excluded": 16,
+   "suppressed_binary": 11
+  }
+ },
+ "verdict": {
+  "walker_parity": {
+   "twin_control_expectancy": 16.06,
+   "twin_control_n": 289,
+   "sl_walk_lane_control_expectancy": 16.06,
+   "sl_walk_lane_control_n": 289,
+   "delta_per_trade": 0.0,
+   "faithful": true
+  },
+  "lookahead_reproduced": {
+   "audit_expectancy": 95.26,
+   "shipped_expectancy": 95.26,
+   "matches": true
+  },
+  "lookahead_inflation_per_trade": 25.59,
+  "dynamic_width_effect_alone_per_trade": -6.94,
+  "mode_effect_alone_per_trade": 60.55
+ },
+ "runtime_seconds": 111.4
+}
