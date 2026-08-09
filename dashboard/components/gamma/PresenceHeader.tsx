@@ -34,7 +34,7 @@ const PLACEHOLDER = "—";
 export default function PresenceHeader({ presence }: PresenceHeaderProps) {
   const stateWord = presence?.state_word ?? "STANDING BY";
   return (
-    <header className="flex flex-col gap-6 border-b pb-8" style={{ borderColor: "var(--border)" }}>
+    <header className="flex flex-col gap-4 border-b pb-5" style={{ borderColor: "var(--border)" }}>
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-3">
           <span className="text-2xl font-semibold tracking-tight" style={{ color: "var(--text-1)" }}>

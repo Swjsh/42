@@ -133,7 +133,7 @@ export default function GammaPresence() {
   return (
     <div
       className="flex flex-col gap-4 rounded-[var(--radius-lg)] border p-4"
-      style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
+      style={{ borderColor: "var(--border)", background: "var(--bg-card)", boxShadow: "var(--shadow-sm)" }}
     >
       <div className="flex items-start gap-3">
         <div

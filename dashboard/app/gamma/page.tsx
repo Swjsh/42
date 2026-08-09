@@ -52,16 +52,16 @@ function SkeletonTile({ label }: { label: string }) {
 
 /**
  * THE GAMMA APP -- Gamma's one true presence surface (2026-08-09 redesign
- * pass: live quote, chart + trade narration, talk-to-Gamma, per-arm P&L).
- * Not a metrics wall: a colleague's status page. Sections in order: presence
- * header (identity + live state + first-person "what I'm doing right now" +
- * the live SPY quote, always expanded), then a real-time pairing of Gamma's
- * own presence/chat unit (self-fetching, wired to the live gamma-companion
- * server) next to the SPY chart (real bars + real trade markers + hover
- * narration -- "Gamma pointing at the chart"), then the original four
- * collapsible Tiles: live activity (centerpiece, capped to 10, open by
- * default), money (real per-arm progress bars, open by default), wants
- * (closed by default), this week (closed by default). Polls /api/gamma
+ * pass: live quote, chart + trade narration, talk-to-Gamma, per-arm P&L,
+ * two-column dashboard layout). Not a metrics wall: a colleague's status
+ * page. Presence header on top (identity + live state + first-person
+ * "what I'm doing right now" + the live SPY quote), then two balanced
+ * columns instead of a long single-column stack: LEFT = the analysis stack
+ * (chart with real trade markers/hover narration, live activity feed --
+ * capped to 10, bounded height + internal scroll so it can't dominate the
+ * page); RIGHT = the status stack (Gamma's presence/chat unit wired to the
+ * live gamma-companion server, money with real per-arm progress bars,
+ * wants, this week -- the last two collapsed by default). Polls /api/gamma
  * every 20s via SWR (refreshInterval + keepPreviousData) -- unchanged data
  * never re-renders/re-animates, an open tile never re-collapses on a poll
  * tick, scroll position never jumps.
@@ -90,39 +90,42 @@ export default function GammaAppPage() {
 
   return (
     <main className="gamma-app h-screen w-full overflow-y-auto">
-      <div className="mx-auto flex max-w-[1240px] flex-col gap-8 px-5 py-12 sm:px-8 sm:py-16">
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-5 px-5 py-6 sm:px-8 sm:py-8">
         <PresenceHeader presence={view.presence} />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:items-start">
-          <GammaPresence />
-          <Tile
-            id="chart"
-            icon={LineChart}
-            title="Chart"
-            defaultOpen
-            summary="SPY 5m + real fills"
-          >
-            <MarketChart />
-          </Tile>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
-          {hasLoaded ? (
-            <Tile
-              id="activity"
-              icon={Activity}
-              title="Live activity"
-              defaultOpen
-              badge={{ text: `${view.activity.length} today` }}
-              summary={view.activity[0]?.headline ?? "—"}
-            >
-              <ActivityFeed events={view.activity} nowMs={nowMs} />
+        {/* Two balanced columns, not four stacked rows -- chart+activity
+            (the analysis stack) on the left, presence+money+wants+thisweek
+            (the status stack) on the right, so the page reads as one
+            dashboard screen instead of a long single-column scroll. Tall
+            lists (activity, money) get a bounded height + internal scroll
+            here rather than pushing the whole page taller. */}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-start">
+          <div className="flex flex-col gap-5">
+            <Tile id="chart" icon={LineChart} title="Chart" defaultOpen summary="SPY 5m + real fills">
+              <MarketChart />
             </Tile>
-          ) : (
-            <SkeletonTile label="Live activity" />
-          )}
 
-          <div className="flex flex-col gap-6">
+            {hasLoaded ? (
+              <Tile
+                id="activity"
+                icon={Activity}
+                title="Live activity"
+                defaultOpen
+                badge={{ text: `${view.activity.length} today` }}
+                summary={view.activity[0]?.headline ?? "—"}
+              >
+                <div className="max-h-[380px] overflow-y-auto pr-1">
+                  <ActivityFeed events={view.activity} nowMs={nowMs} />
+                </div>
+              </Tile>
+            ) : (
+              <SkeletonTile label="Live activity" />
+            )}
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <GammaPresence />
+
             {hasLoaded ? (
               <Tile
                 id="money"
@@ -135,7 +138,9 @@ export default function GammaAppPage() {
                   </span>
                 }
               >
-                <MoneyView presence={view.presence} />
+                <div className="max-h-[440px] overflow-y-auto pr-1">
+                  <MoneyView presence={view.presence} />
+                </div>
               </Tile>
             ) : (
               <SkeletonTile label="Money" />
@@ -173,7 +178,7 @@ export default function GammaAppPage() {
           </div>
         </div>
 
-        <footer className="border-t pt-4 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-4)" }}>
+        <footer className="border-t pt-3 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-4)" }}>
           {error
             ? `Last refresh failed (${error instanceof Error ? error.message : "fetch failed"}) — showing last good data`
             : lastOkAt

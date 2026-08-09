@@ -147,7 +147,7 @@ export default function MoneyView({ presence }: { presence: PresenceView | null 
   const fleetPnl = data?.fleetPnl ?? [];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-5">
       <Section title="Goal">
         <p className="text-base" style={{ color: "var(--text-1)" }}>
           {presence?.goal_line ?? PLACEHOLDER}
@@ -156,7 +156,7 @@ export default function MoneyView({ presence }: { presence: PresenceView | null 
 
       <Section title="Per-arm progress (real fills, today)">
         {fleetPnl.length > 0 ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {fleetPnl.map((arm) => (
               <ArmProgressBar key={arm.armId} arm={arm} />
             ))}

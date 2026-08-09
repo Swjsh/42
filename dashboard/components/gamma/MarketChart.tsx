@@ -278,7 +278,7 @@ export default function MarketChart() {
         )}
       </header>
 
-      <div className="relative w-full" style={{ height: 420 }}>
+      <div className="relative w-full" style={{ height: 360 }}>
         <div ref={containerRef} className="h-full w-full" />
 
         {noData && (
