@@ -150,6 +150,54 @@ def test_home_renders_with_a_dead_broker(tmp_path, monkeypatch):
     assert "unavailable" in html
 
 
+def test_wikilink_regex_handles_table_escaped_pipe():
+    """[[x\\|alias]] is correct Obsidian syntax inside tables -- the target must not keep the
+    backslash (the first checker run reported its own HOME.md week-table as 7 broken links)."""
+    m = _load()
+    hit = m.WIKILINK_RE.search("| [[journal/2026-08-09\\|2026-08-09]] |")
+    assert hit is not None
+    target = hit.group(1).strip().rstrip("\\")
+    assert target == "journal/2026-08-09", f"escaped pipe leaked into target: {target!r}"
+
+
+def test_link_health_resolves_frontmatter_aliases(tmp_path, monkeypatch):
+    """Memory notes are linked by their name: slug, not filename -- resolution must honor it
+    exactly as Obsidian honors aliases, or the mirror reports 50+ false broken links."""
+    m = _load()
+    a = tmp_path / "feedback_some_thing_2026.md"
+    a.write_text('---\nname: some-thing\n---\nbody\n', encoding="utf-8")
+    b = tmp_path / "linker.md"
+    b.write_text("see [[some-thing]]\n", encoding="utf-8")
+    monkeypatch.setattr(m, "REPO", tmp_path)
+    health = m.build_link_health([a, b])
+    assert health["broken"] == [], f"alias not resolved: {health['broken']}"
+
+
+def test_visible_md_ignore_is_root_anchored(tmp_path, monkeypatch):
+    """Match-anywhere exclusion once hid markdown/doctrine/ (Lessons-Learned!) because the
+    legacy ROOT folder 'doctrine/' was excluded. Semantics must be root-anchored, like
+    Obsidian's own userIgnoreFilters."""
+    m = _load()
+    (tmp_path / "doctrine").mkdir()
+    (tmp_path / "doctrine" / "legacy.md").write_text("x", encoding="utf-8")
+    (tmp_path / "markdown" / "doctrine").mkdir(parents=True)
+    (tmp_path / "markdown" / "doctrine" / "LESSONS.md").write_text("x", encoding="utf-8")
+    cfg = tmp_path / "app.json"
+    cfg.write_text('{"userIgnoreFilters": ["doctrine/"]}', encoding="utf-8")
+    monkeypatch.setattr(m, "REPO", tmp_path)
+    visible = {str(p.relative_to(tmp_path)).replace("\\", "/") for p in m._visible_md(cfg)}
+    assert "doctrine/legacy.md" not in visible, "root doctrine/ should be hidden"
+    assert "markdown/doctrine/LESSONS.md" in visible, (
+        "markdown/doctrine was hidden by a match-anywhere rule -- Lessons-Learned invisible"
+    )
+
+
+def test_memory_mirror_is_gitignored():
+    """PUBLIC repo: the memory mirror carries J's preferences and must never be pushable."""
+    gi = (REPO / ".gitignore").read_text(encoding="utf-8", errors="replace")
+    assert "memory-mirror/" in gi, "memory-mirror/ not gitignored -- public-repo leak surface"
+
+
 def test_obsidian_blobs_are_gitignored():
     """Repo is PUBLIC: the 4.4MB vendored plugin JS and conversation-id state must never be pushed."""
     gi = (REPO / ".gitignore").read_text(encoding="utf-8", errors="replace")

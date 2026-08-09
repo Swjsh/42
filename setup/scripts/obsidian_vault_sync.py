@@ -571,6 +571,11 @@ def build_map(stamp: str) -> str:
              "whole system at the level most questions need.")
     L.append("")
 
+    L.append("## The flow, one picture")
+    L.append("")
+    L.append(MERMAID_FLOW)
+    L.append("")
+
     for section, nodes in MAP_SPEC:
         L.append(f"## {section}")
         L.append("")
@@ -629,6 +634,196 @@ def build_map(stamp: str) -> str:
     L.append("")
     L.append("[[HOME]] · [[SHADOW]] · [[CLAUDE|CLAUDE.md]] · [[markdown/README|doc index]]")
     L.append("")
+    return "\n".join(L)
+
+
+MERMAID_FLOW = """```mermaid
+flowchart LR
+  subgraph SEE
+    TV[TradingView CDP] --> SB[sight_beacon]
+    ALP[Alpaca REST] --> SB
+    LR2[level refresher] --> KL[(key-levels.json)]
+  end
+  subgraph DECIDE
+    SB --> SIG[build_shared_signal]
+    KL --> SIG
+    SIG --> F[filters.py score 0-11]
+    F --> RG[risk_gate R5/R6/R7]
+  end
+  subgraph ACT
+    RG --> HB[heartbeat_core - safe-2 bold-2]
+    RG --> FX[fleet_executor - safe-3 risky-1 risky-3]
+    HB --> EM[exit_manager]
+    FX --> EM
+    EM --> BRK[fleet_broker orders]
+  end
+  BRK --> LED[(decisions.jsonl + fills)]
+  LED --> LEARN[nightly: autopsy / chop meter / shadows]
+  LEARN -.prereg only.-> F
+```"""
+
+
+# --------------------------------------------------------------------- vault link health
+# Target may end with a backslash when the alias pipe is table-escaped ([[x\|alias]]) --
+# that backslash belongs to the escape, not the target, so it is stripped after capture.
+WIKILINK_RE = re.compile(r"\[\[([^\]|#]+?)\\?(?:#[^\]|]*)?(?:\\?\|[^\]]*)?\]\]")
+# Standard markdown links count as inbound too (markdown/README.md uses [text](path.md)) --
+# an orphan census that only sees wikilinks would overcount by every README-indexed doc.
+MDLINK_RE = re.compile(r"\]\(([^)#\s]+\.md)(?:#[^)]*)?\)")
+
+
+def _visible_md(cfg_path: Path | None = None) -> list[Path]:
+    """The vault's VISIBLE markdown set (mirrors .obsidian/app.json userIgnoreFilters)."""
+    try:
+        cfg = json.loads((cfg_path or REPO / ".obsidian" / "app.json").read_text(encoding="utf-8"))
+        ignores = [f.rstrip("/") for f in cfg.get("userIgnoreFilters", [])]
+    except Exception:  # noqa: BLE001
+        ignores = []
+    out = []
+    for p in REPO.rglob("*.md"):
+        s = str(p.relative_to(REPO)).replace("\\", "/")
+        if s.startswith(".git/"):
+            continue
+        # ROOT-ANCHORED, matching Obsidian's own userIgnoreFilters semantics. A
+        # match-anywhere rule here once hid markdown/doctrine/ (Lessons-Learned!)
+        # because the legacy root folder "doctrine/" was excluded.
+        if any(s.startswith(f + "/") for f in ignores):
+            continue
+        out.append(p)
+    return out
+
+
+def mirror_memory() -> int:
+    """Copy Claude's persistent memory notes into the vault as memory-mirror/.
+
+    WHY: repo docs wikilink memory notes by name ([[project_fleet_champion_challenger]] etc.)
+    but the originals live in ~/.claude/projects/, outside the vault -- unresolvable forever.
+    The mirror puts the memory web into the graph and resolves those links.
+
+    ⛔ PUBLIC-REPO CONSTRAINT: memory content (J's preferences, plan details) must NEVER be
+    pushed. memory-mirror/ is gitignored -- guarded by test_memory_mirror_is_gitignored.
+    Mirror is one-way (memory -> vault); edits here are overwritten, stated in each file? No:
+    stated once in _README.md inside the mirror, files copied verbatim.
+    """
+    src = Path.home() / ".claude" / "projects" / "C--Users-jackw-Desktop-42" / "memory"
+    dst = REPO / "memory-mirror"
+    if not src.exists():
+        return 0
+    dst.mkdir(exist_ok=True)
+    (dst / "_README.md").write_text(
+        "# memory-mirror\n\nGenerated one-way copy of Claude's persistent memory "
+        "(~/.claude/projects/.../memory). Edits here are overwritten by "
+        "obsidian_vault_sync.py. GITIGNORED -- never pushed (public repo).\n",
+        encoding="utf-8")
+    n = 0
+    for f in src.glob("*.md"):
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+            # Memory notes wikilink each other by their frontmatter `name:` slug (often
+            # kebab-case) while filenames are snake_case. Obsidian resolves [[slug]] only
+            # if the note carries it as an alias -- inject it into the mirrored copy.
+            m = re.search(r"^name:\s*([^\r\n]+)", text, re.M)
+            if m and text.startswith("---"):
+                slug = m.group(1).strip().strip('"')
+                if slug and slug != f.stem and "aliases:" not in text.split("---", 2)[1]:
+                    text = text.replace("---\n", f'---\naliases: ["{slug}"]\n', 1)
+            (dst / f.name).write_text(text, encoding="utf-8")
+            n += 1
+        except Exception:  # noqa: BLE001
+            continue
+    return n
+
+
+def build_link_health(visible: list[Path]) -> dict:
+    """Broken wikilinks + orphan census over the visible set. Pure read, fail-open."""
+    by_stem: dict[str, list[str]] = {}
+    rels = []
+    for p in visible:
+        rel = str(p.relative_to(REPO)).replace("\\", "/")
+        rels.append(rel)
+        by_stem.setdefault(p.stem.lower(), []).append(rel)
+        # Aliases + the memory `name:` slug resolve exactly as Obsidian resolves them.
+        try:
+            head = p.read_text(encoding="utf-8", errors="replace")[:600]
+            if head.startswith("---"):
+                for fm in re.finditer(r'^(?:name|aliases):\s*\[?\s*"?([^"\r\n\]]+)"?\]?',
+                                      head, re.M):
+                    slug = fm.group(1).strip()
+                    if slug:
+                        by_stem.setdefault(slug.lower(), []).append(rel)
+        except Exception:  # noqa: BLE001
+            pass
+    relset = set(rels)
+
+    broken: list[tuple[str, str]] = []
+    linked: set[str] = set()
+    has_outlink: set[str] = set()
+    for p in visible:
+        rel = str(p.relative_to(REPO)).replace("\\", "/")
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:  # noqa: BLE001
+            continue
+        for m in WIKILINK_RE.finditer(text):
+            target = m.group(1).strip().rstrip("\\").replace("\\", "/").rstrip("/")
+            if not target:
+                continue
+            has_outlink.add(rel)
+            cand = target if target.endswith(".md") else target + ".md"
+            if cand in relset:
+                linked.add(cand)
+            elif target.split("/")[-1].lower() in by_stem:
+                linked.add(by_stem[target.split("/")[-1].lower()][0])
+            else:
+                broken.append((rel, target))
+        # Standard markdown links: resolve relative to the note's own folder, then vault root.
+        base = Path(rel).parent
+        for m in MDLINK_RE.finditer(text):
+            raw = m.group(1).replace("\\", "/")
+            has_outlink.add(rel)
+            for cand_path in ((base / raw), Path(raw)):
+                try:
+                    cand = str(cand_path.resolve().relative_to(REPO.resolve())).replace("\\", "/")
+                except ValueError:
+                    continue
+                if cand in relset:
+                    linked.add(cand)
+                    break
+
+    orphans = [r for r in rels if r not in linked and r not in has_outlink]
+    return {"files": len(rels), "broken": broken, "orphans": orphans}
+
+
+def build_deep_research_index(stamp: str) -> str:
+    """Hub note for analysis/deep-research -- one wikilink per doc, grouped by month.
+
+    This single generated hub connects the ~100 research docs to the graph without anyone
+    hand-linking anything. Fully regenerated each run (no human content lives here).
+    """
+    docs = sorted((REPO / "analysis" / "deep-research").glob("*.md"), reverse=True)
+    by_month: dict[str, list[str]] = {}
+    undated: list[str] = []
+    for p in docs:
+        if p.name == "INDEX.md":
+            continue
+        m = re.search(r"(20\d\d)-(\d\d)", p.name)
+        key = f"{m.group(1)}-{m.group(2)}" if m else ""
+        (by_month.setdefault(key, []) if key else undated).append(p.stem)
+    L = ["# 🔬 Deep Research — INDEX", "",
+         f"> Auto-generated `{stamp}` by obsidian_vault_sync.py. The graph hub for every "
+         "deep-research doc. Do not edit -- regenerated nightly.", ""]
+    for month in sorted(by_month, reverse=True):
+        L.append(f"## {month}")
+        L.append("")
+        for stem in by_month[month]:
+            L.append(f"- [[analysis/deep-research/{stem}|{stem}]]")
+        L.append("")
+    if undated:
+        L.append("## undated")
+        L.append("")
+        for stem in undated:
+            L.append(f"- [[analysis/deep-research/{stem}|{stem}]]")
+        L.append("")
     return "\n".join(L)
 
 
@@ -707,8 +902,27 @@ def main(argv: list[str] | None = None) -> int:
     shadow.write_text(build_preregs_board(stamp), encoding="utf-8")
     print(f"[obsidian] wrote {shadow.relative_to(REPO)}")
 
+    n_mem = mirror_memory()
+    print(f"[obsidian] mirrored {n_mem} memory notes -> memory-mirror/ (gitignored)")
+
+    idx = REPO / "analysis" / "deep-research" / "INDEX.md"
+    idx.write_text(build_deep_research_index(stamp), encoding="utf-8")
+    print(f"[obsidian] wrote {idx.relative_to(REPO)}")
+
     mp = REPO / "MAP.md"
     map_text = build_map(stamp)
+    health = build_link_health(_visible_md())
+    hl = ["## 🩺 Vault link health", "",
+          f"- visible notes: **{health['files']}** · broken wikilinks: "
+          f"**{len(health['broken'])}** · orphans (no links either way): "
+          f"**{len(health['orphans'])}**"]
+    # Targets rendered WITHOUT [[ ]] so the checker never parses its own report as links.
+    for src, tgt in health["broken"][:10]:
+        hl.append(f"  - ⛔ `{src}` → `{tgt}` unresolved")
+    if len(health["broken"]) > 10:
+        hl.append(f"  - … +{len(health['broken']) - 10} more")
+    hl.append("")
+    map_text = map_text.replace("## ⏰ The daily loop", "\n".join(hl) + "\n## ⏰ The daily loop", 1)
     mp.write_text(map_text, encoding="utf-8")
     # Count only real node markers, not the legend line that explains the marker.
     missing = sum(1 for ln in map_text.splitlines()

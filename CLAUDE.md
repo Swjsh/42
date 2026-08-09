@@ -88,6 +88,7 @@ Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verif
 
 - **[`markdown/research/BACKTESTING-PLAYBOOK.md`](markdown/research/BACKTESTING-PLAYBOOK.md)** — north-star principles, 5-stage grinder pipeline, validation stack, disclosure standards (OP 20). Read before forking.
 - **[`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md)** — 22+ documented anti-patterns with symptom → root cause → fix. Cross-reference when building any new evaluator.
+- **[`MAP.md`](MAP.md)** — ⚡ **route here BEFORE any repo-wide search**: generated system map + per-question routing table (~480 of 6,777 md files are human-written; MAP names the one branch to read). Siblings: [`HOME.md`](HOME.md) live state · [`SHADOW.md`](SHADOW.md) shadow clocks/preregs.
 - **[`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md)** — cold-start "how the whole rig is wired today" snapshot. Read first if you're new to the system. Keep current when wiring changes.
 - **[`markdown/doctrine/fable-judgment/README.md`](markdown/doctrine/fable-judgment/README.md)** — ⛔ **MANDATORY before any substantive session/fire (J-directed 2026-07-02):** the Fable judgment suite — investigation / validation / execution / judgment-call PROCEDURES with worked examples; read the chapter matching your task type FIRST. State map + roadmap: [`FABLE-HANDOFF.md`](markdown/doctrine/FABLE-HANDOFF.md). Subagents/conductor default to Sonnet-class models (J's quota).
 

@@ -2564,6 +2564,13 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260809-100109 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=18 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T00:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260809-100110 (LOW) :: v09_regime TREND_DOWN dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=17 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T01:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260809-100111 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=25 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260809-100112 (LOW) :: v09_regime TREND_DOWN dominant: 58/80 bars (72%) | last_regime=TREND_DOWN atr_14=25 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260809-100113 (LOW) :: v09_regime TREND_DOWN dominant: 71/80 bars (89%) | last_regime=TREND_DOWN atr_14=22 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T04:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260809-100114 (LOW) :: v09_regime TREND_DOWN dominant: 66/81 bars (81%) | last_regime=TREND_DOWN atr_14=20 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T05:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260809-100115 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=CHOP atr_14=15 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-09T06:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260808-100127 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=57 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-07T10:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260808-100128 (LOW) :: v09_regime TREND_UP dominant: 58/81 bars (72%) | last_regime=TREND_UP atr_14=52 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-07T11:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260808-100129 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=62 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-07T12:00:00+00:00:TREND_UP :: depends:none :: status:queued
@@ -2572,13 +2579,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-BRKCLUSTER-20260808-100132 (MED) :: v11_breakout 3 breaks in 100-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-07T13:00:00+00:00 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260808-100133 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_DOWN atr_14=132 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-07T14:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-BRKCLUSTER-20260808-100134 (MED) :: v11_breakout 3 breaks in 100-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-07T14:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260808-100135 (LOW) :: v09_regime TREND_UP dominant: 65/81 bars (80%) | last_regime=TREND_DOWN atr_14=135 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-07T15:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-BRKCLUSTER-20260808-100136 (MED) :: v11_breakout 3 breaks in 100-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-07T15:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-BRKCLUSTER-20260808-100137 (MED) :: v11_breakout 3 breaks in 100-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-07T16:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-BRKCLUSTER-20260808-100138 (MED) :: v11_breakout 3 breaks in 100-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-07T17:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-BRKCLUSTER-20260808-100139 (MED) :: v11_breakout 3 breaks in 100-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-07T18:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260808-100140 (MED) :: BTC v03_indicators rsi_14=81.27 (overbought) at last_close=65016.51 bin=2026-08-08T03:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-08T03:35:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260808-100141 (MED) :: v14_sweep liquidity-grab at level=65000 dir=up bar_idx=195 | wick_excess=0.0285% close_back=0.0536% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-08T09:57:03.813079+00:00:65000:up:195 :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -3179,3 +3179,6 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
   Evidence + full diagnostic: `strategy/candidates/_lesson-inbox/2026-07-18-visibility-tool-built-but-inert.md`,
   `backtest/tests/test_push_visibility_guard.py` (6/6, RED-proofed). :: depends:none :: status:proposed
 
+### CONTEXT-LEANNESS-PASS MED — CLAUDE.md over budget BEFORE the 08-09 MAP bullet (~9.3K/9K)
+**Context:** context_guard RED at 9,396 tok (budget 9K, hard ceiling 10.5K). Pre-existing overage (~9,306 before the MAP.md pointer was added 2026-08-09; the pointer itself was then compressed ~45 tok). Per context-leanness skill: relocate reference-only blocks to markdown/ with pointers — never hand-shave doctrine.
+**Action:** run the context-leanness skill after-hours; verify guard GREEN after; all relocated blocks get pointers + no semantic change. :: depends:none :: status:proposed

@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-09 13:42:58 Sunday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-09 13:58:06 Sunday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -14,6 +14,33 @@
 | What are the rules? | CLAUDE.md — the 10 rules + OP-0/3/11/16/22/25/31/32/33 |
 
 **Do not read the whole repo.** 6,777 markdown files exist; ~479 are human-written and the rest is machine output. This map plus the four ORIENT docs is the whole system at the level most questions need.
+
+## The flow, one picture
+
+```mermaid
+flowchart LR
+  subgraph SEE
+    TV[TradingView CDP] --> SB[sight_beacon]
+    ALP[Alpaca REST] --> SB
+    LR2[level refresher] --> KL[(key-levels.json)]
+  end
+  subgraph DECIDE
+    SB --> SIG[build_shared_signal]
+    KL --> SIG
+    SIG --> F[filters.py score 0-11]
+    F --> RG[risk_gate R5/R6/R7]
+  end
+  subgraph ACT
+    RG --> HB[heartbeat_core - safe-2 bold-2]
+    RG --> FX[fleet_executor - safe-3 risky-1 risky-3]
+    HB --> EM[exit_manager]
+    FX --> EM
+    EM --> BRK[fleet_broker orders]
+  end
+  BRK --> LED[(decisions.jsonl + fills)]
+  LED --> LEARN[nightly: autopsy / chop meter / shadows]
+  LEARN -.prereg only.-> F
+```
 
 ## 🔭 SEE — what the engine perceives
 
@@ -56,6 +83,21 @@
 - **Lessons** → [[markdown/doctrine/LESSONS-LEARNED\|Lessons]] — 294 anti-patterns, indexed by theme
 - **Architecture** → [[markdown/specs/ARCHITECTURE\|Architecture]] — cold-start wiring snapshot
 - **markdown index** → [[markdown/README\|markdown index]] — the doc taxonomy
+
+## 🩺 Vault link health
+
+- visible notes: **635** · broken wikilinks: **27** · orphans (no links either way): **273**
+  - ⛔ `memory-mirror/feedback_adhd_output_style_2026_07_09.md` → `concise-responses` unresolved
+  - ⛔ `memory-mirror/feedback_dashboard_visuals_chat_ideas.md` → `STRATEGY-SPACE-MAP` unresolved
+  - ⛔ `memory-mirror/feedback_dynamic_market_recency_over_aggregate_2026_07_31.md` → `project_gate_expiry_instrument` unresolved
+  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `feedback-concise-responses` unresolved
+  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `ceo-free-agent-first` unresolved
+  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `default-act-never-ask` unresolved
+  - ⛔ `memory-mirror/feedback_free_model_audit_harness_2026_07_11.md` → `free-model-audit-harness-design` unresolved
+  - ⛔ `memory-mirror/feedback_free_swarm_only.md` → `project_groq_paid_tier_2026_07_06` unresolved
+  - ⛔ `memory-mirror/feedback_interactive_surfaces_never_gatewayed_2026_07_14.md` → `dont-disturb-user` unresolved
+  - ⛔ `memory-mirror/feedback_levels_are_zones_2026_07_17.md` → `trendline-body-xor-wick-rule` unresolved
+  - … +17 more
 
 ## ⏰ The daily loop (live task state)
 
