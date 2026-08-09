@@ -1,3 +1,70 @@
+## [2026-08-09 ~16:27 ET] SHIP: TRENDLINE DETECTOR + TIMEFRAME MATRIX + VALIDATION (measurement only, NO live flip) -- commits `605ecbbe`/`6b13a742`/`428fa273`/`783f291f` -- REVOKE surface
+
+**What shipped.** `backtest/lib/trendline_detector.py` -- the first pivot-anchored trendline detector
+that's importable library code (not a standalone script), built on `crypto/lib/market_structure.py`'s
+instrument-agnostic swing-pivot primitive per J's directive. `anchor_mode` (wick|body) structurally
+never mixed within one line; zero look-ahead (`as_of_index` truncates before any computation, not
+after); stable `line_id` labels (`TL-{symbol}-{tf}-{RES|SUP}-{W|B}-{first_anchor_unix}`); additive
+`trendline_state` field on `DecisionRowModel` (default `None`, backward compatible). 25/25 guard tests,
+incl. a monkeypatch RED-proof of the no-mixing guard. Does NOT touch the live bear trigger
+(`filters.py:601`) -- builds around it, per the brief.
+
+**Timeframe matrix** (J's literal question, `analysis/deep-research/trendline-timeframe-matrix-2026-08-09.json`):
+5m/15m near coin-flip touch-respect (47.6%/48.3%, both slightly negative mean forward move); 30m
+modestly better (53.5%, +$0.0155) but too sparse (497 touches/399 days, ~1.2/day) to be a PRIMARY
+0DTE signal; 1h basically never sets up (n=6); 1m (25-day REST sample, not population) reads positive
+but unvalidated at scale. **Recommendation: keep drawing SPY intraday lines on 5m** -- signal density
++ the already-proven live trigger, not raw respect-rate (30m nominally wins that narrow metric).
+MES/futures timeframes explicitly out of this agent's lane, noted for the swing-validation sibling.
+
+**Validation (4 cells, frozen prereg `a6cd262b` committed BEFORE the runner, all real-fills via
+`walk_exit_manager`, never `simulate_trade_real`):**
+- CELL A (measurement): `trendline_rejection` AS SOLE TRIGGER is the single strongest cohort in the
+  391-day book -- n=176, +$2,456.84, $13.96/tr, WR 33.5%. Co-firing with another trigger INVERTS it to
+  a loser (-$5.38/tr, n=25). Extends the 2026-08-06 single-day finding population-wide. Nothing to
+  ship -- already live.
+- CELL B (PROPOSE-ONLY, explicitly not shipped): the shadow bull-reclaim trigger fired unconditionally
+  loses -$27,378.25 over 2,411 real-fills counterfactual replays (-$11.36/tr), fails 3/5 auto-ratify
+  gates. Handed to J / the concurrent bull-graduation sibling (`bull_trendline_reclaim_graduation_
+  2026_08_09.py`, same session, same shadow trigger, different lane) as a cautionary baseline --
+  deliberately NOT flipped or wired, to avoid colliding with in-flight work on the identical surface.
+- CELL C: proximity-admissibility KILL per the frozen ladder -- near-bucket alone looks strong
+  ($73.01/tr) but the 3-bucket pattern is non-monotonic and fails the shuffle-null; not cherry-picked.
+- CELL D: wick vs body anchor families are statistically indistinguishable (47.65% vs 48.70% respect,
+  p=0.96) -- body family is real but redundant, not a hidden edge.
+
+**Two real bugs found and fixed en route (both outside this agent's owned files, flagged not silently
+patched over):** `recency_check.py::load_merged_spy_vix()`'s docstring claims dedup, the
+implementation is a bare `pd.concat` with none -- worked around locally, root fix belongs upstream.
+`bull_trendline_reclaim_graduation_2026_08_09.py` (sibling's file) trips the DST-frame same-file guard
+throughout this session -- still red as of this writing, not this agent's file to fix.
+
+**Guards:** `backtest/tests/test_trendline_detector.py` (25/25). **Kill criterion:** N/A -- nothing
+live was flipped, so there is nothing to revert on a bad signal. **Revert (one line each, all
+additive):** delete `trendline_detector.py` + its test file; drop the one `trendline_state` field
+from `DecisionRowModel`; the two study scripts/JSON outputs are inert (nothing imports them). Zero
+touches to `params.json`/`filters.py`/`orchestrator.py`. Full report:
+`analysis/deep-research/TRENDLINE-ENGINE-2026-08-09.md`.
+
+---
+
+## [2026-08-09T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-09 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-09 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-09 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-09. |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-09 window_end=2026-08-07 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=12 (delta +2 vs baseline n=10) exp=$-40.75/tr, verdict_moved=False. bull now: GREEN n=10 exp=$51.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-09 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-09 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-09`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-09 ~16:10 ET] SHIP: AUTONOMOUS FUTURES LANE (MES, SIMULATED fills) -- commit `4db91f44` -- REVOKE surface
 
 **What shipped.** The futures lane can now trade autonomously. `Gamma_FuturesTrader` (every 5 min,
