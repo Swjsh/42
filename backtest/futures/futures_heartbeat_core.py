@@ -225,9 +225,32 @@ def decide_entry(signals: list[dict], *, vix: float, account: PropAccount,
 
 # ── broker provisioning probe (fail-safe) ────────────────────────────────────
 def _broker_provisioned(broker) -> tuple[bool, dict]:
-    """Return (futures_provisioned, detail). True ONLY when the broker reports futures_bp > 0.
-    Any failure / watch-only / unknown -> (False, ...) so the tick fails SAFE (never routes on an
-    unprovisioned or unreadable account — today's exact 5WW73759 state, futures_bp=0.0)."""
+    """Return (futures_provisioned, detail). Fails SAFE: any failure / watch-only /
+    unknown -> (False, ...) so the tick never routes on an unreadable account.
+
+    ⚠️ CORRECTED 2026-08-09 -- futures_bp WAS THE WRONG SIGNAL. This gate originally
+    required `futures_buying_power > 0`, on the 2026-07-07 reading that cert account
+    5WW73759 showed futures_bp=0.0 and was therefore "not provisioned for futures".
+
+    That reading was wrong, and it was proven wrong end-to-end tonight while the CME
+    session was OPEN (2026-08-09 18:07-18:12 ET, sandbox, no real money):
+      * dry run       -> validated, zero errors, buying-power effect -$2.52
+      * resting order -> Routed -> **Live** on the book, reject_reason null, cancelled clean
+      * marketable    -> **FILLED** 1 /MESU6 @ 7772.5, real position held, closed, flat
+    Throughout all three, `futures_buying_power` stayed **0.0** and `is_futures_approved`
+    stayed **false**. The July "Rejected: Session offline" was a MARKET-HOURS artifact,
+    not a permissions verdict -- the account trades futures fine.
+
+    So futures_bp is not a provisioning signal on this venue; it is a field the cert
+    environment simply does not populate. Gating on it meant an armed, fully working
+    account would have routed NOTHING, forever, while reporting itself safe -- the
+    dead-knob shape (C14), with the added sting that the "evidence" for the knob was a
+    single observation taken outside trading hours.
+
+    The gate now asks the only question that actually matters: **will the broker accept
+    an order right now?** A dry run is exactly that question, costs nothing, routes
+    nothing, and cannot fill.
+    """
     try:
         if getattr(broker, "watch_only", True):
             return False, {"reason": "watch_only"}
@@ -235,11 +258,63 @@ def _broker_provisioned(broker) -> tuple[bool, dict]:
             if not broker.connect():
                 return False, {"reason": "connect_failed"}
         eq = broker.get_account_equity()
-        # get_account_equity returns net_liq; we need futures_bp specifically for the gate.
+        # futures_bp is still READ and reported -- it is useful context on the ledger row
+        # -- but it is no longer the gate. See this function's docstring: it reads 0.0 on
+        # an account that demonstrably routes and fills.
         fbp = _read_futures_bp(broker)
-        return (fbp is not None and fbp > 0.0), {"futures_bp": fbp, "net_liq": eq}
+        accepts, why = _broker_accepts_orders(broker)
+        return accepts, {"accepts_orders": accepts, "probe": why,
+                         "futures_bp": fbp, "net_liq": eq}
     except Exception as e:  # noqa: BLE001
         return False, {"reason": f"probe_error: {type(e).__name__}: {e}"}
+
+
+def _broker_accepts_orders(broker) -> tuple[bool, str]:
+    """Will the broker accept a futures order right now? Dry run = the direct question.
+
+    Routes nothing and cannot fill: `dry_run=True` is broker-side validation only. A
+    session-hours rejection correctly reads as "not now" rather than "not ever", which is
+    the exact distinction the old futures_bp gate collapsed.
+    """
+    try:
+        from decimal import Decimal  # noqa: PLC0415
+        import asyncio  # noqa: PLC0415
+        import concurrent.futures  # noqa: PLC0415
+
+        from tastytrade.instruments import Future as TTFuture  # noqa: PLC0415
+        from tastytrade.order import (  # noqa: PLC0415
+            NewOrder, OrderAction, OrderTimeInForce, OrderType,
+        )
+
+        acct = getattr(broker, "_account", None)
+        sess = getattr(broker, "_session", None)
+        if acct is None or sess is None:
+            return False, "no session/account on broker"
+
+        async def _probe():
+            res = await TTFuture.get(sess, product_codes=["MES"])
+            contracts = res if isinstance(res, list) else [res]
+            front = sorted([c for c in contracts if not getattr(c, "is_expired", False)],
+                           key=lambda c: c.expiration_date)[0]
+            order = NewOrder(
+                time_in_force=OrderTimeInForce.DAY, order_type=OrderType.LIMIT,
+                legs=[front.build_leg(Decimal(1), OrderAction.BUY_TO_OPEN)],
+                price=Decimal("-1000.00"),   # debit-signed, far below market
+            )
+            return await acct.place_order(sess, order, dry_run=True)
+
+        try:
+            asyncio.get_running_loop()
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                resp = pool.submit(asyncio.run, _probe()).result()
+        except RuntimeError:
+            resp = asyncio.new_event_loop().run_until_complete(_probe())
+
+        if resp.errors:
+            return False, f"dry_run errors: {resp.errors}"
+        return True, "dry_run validated"
+    except Exception as e:  # noqa: BLE001 -- fail safe, and say why on the ledger row
+        return False, f"{type(e).__name__}: {e}"
 
 
 def _read_futures_bp(broker) -> Optional[float]:

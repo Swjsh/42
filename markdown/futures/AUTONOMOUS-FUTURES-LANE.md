@@ -17,38 +17,58 @@ still-unresolved venue question stopped being a blocker instead of staying one. 
 
 ---
 
-## Why the venue stopped being the blocker
+## The venue question — SETTLED 2026-08-09
 
-The broker research J commissioned ([FUTURES-BROKER-RESEARCH-2026-08-09](../../analysis/deep-research/FUTURES-BROKER-RESEARCH-2026-08-09.md))
-recommends **Tastytrade sandbox** as the start-this-week pick. We already have it wired:
-cert account `5WW73759`, adapter `backtest/futures/tastytrade_paper.py`, order path proven
-to route in July.
+**The Tastytrade sandbox trades futures fine. The July diagnosis was wrong.**
 
-What actually blocked it was never really settled. On 2026-07-07 a routed order came back
-`Rejected: Session offline`, which was recorded as *"the sandbox account is not provisioned
-for futures"*. Re-probing the same account on 2026-08-09 returned a **different and more
-specific** error:
+On 2026-07-07 a routed order came back `Rejected: Session offline` and that was recorded as
+*"the sandbox account is not provisioned for futures"*. The futures lane carried that as a
+blocker for a month. It was a **market-hours artifact**.
 
-```
-tif.futures_session_not_active: The Futures trading session is not currently active.
-```
+Proven end-to-end on cert account `5WW73759` while the CME session was open
+(2026-08-09 18:07–18:12 ET, sandbox, no real money at any point):
 
-That is a **market-hours** condition, not a permissions one — and the account's own
-trading-status endpoint reports `is_futures_enabled: true`. Both observations are equally
-consistent with "futures are fine, the session simply was not active". **So the July
-diagnosis is UNCONFIRMED**, and the lane was built to not care either way.
-
-`Gamma_FuturesBrokerProbe` (18:05 ET daily, just after the Sunday reopen) runs the identical
-dry run while the session IS open and writes the answer to
-`automation/state/futures/broker-probe.jsonl`:
-
-| Hypothesis | Prediction when the session is open |
+| Test | Result |
 |---|---|
-| **H1** account not futures-approved | dry run still fails, permissions / buying-power error |
-| **H2** session-hours artifact | dry run validates, returns a buying-power effect, no errors |
+| **Dry run** | ✅ validated — zero errors, buying-power effect **−$2.52** |
+| **Resting order** | ✅ `Routed` → **`Live`** on the book, `reject_reason: null`, cancelled clean |
+| **Marketable order** | ✅ **FILLED** 1 `/MESU6` @ **7,772.50**, real position held, closed, ended flat |
 
-A dry run is broker-side validation on a **sandbox** account: it routes nothing, fills
-nothing, and cannot touch money.
+Ledger: `automation/state/futures/broker-probe.jsonl`.
+
+### The trap inside the answer
+
+Through **all three** of those, the account still reported:
+
+```
+is_futures_approved : false
+futures_buying_power: 0.0
+```
+
+Those fields are simply not populated in the cert environment. They are **not** provisioning
+signals — and the old arm gate (`futures_heartbeat_core._broker_provisioned`) required
+`futures_bp > 0`. An armed, fully working account would have routed **nothing, forever, while
+reporting itself safe**: the dead-knob shape (C14), with the extra sting that the sole evidence
+for the knob was one observation taken outside trading hours.
+
+The gate now asks the only question that matters — *will the broker accept an order right now?*
+— via a dry run, which routes nothing and cannot fill. A session-hours refusal correctly reads
+as "not now" instead of "not ever", the exact distinction the old gate collapsed.
+Guards: `test_futures_trader_core.py::TestBrokerProvisioningGate` (5, RED-proofed both
+directions). They live in that file because `test_futures_heartbeat.py` monkeypatches
+`_broker_provisioned` wholesale in an autouse fixture, so **every test in it passes without
+ever running the gate's real body**.
+
+### What this does and does not change
+
+- **Does:** a real broker-fill path exists and is verified. `FUTURES_BROKER=tastytrade` is a
+  working backend, not a someday.
+- **Does not:** the lane's default stays `fillsim`. The sandbox **resets every 24 hours**
+  (positions and trades cleared), which is fine for a fill-parity check and wrong for a book of
+  record whose journal depends on continuity. The principled shape is fillsim as the persistent
+  book plus tastytrade as a real-fill parity lane — the twin pattern — and that is a deliberate
+  next step with its own scorecard, not a switch to flip at 18:15 on a Sunday.
+- **Still true:** live money is out of scope. OP-0 #1 plus a new venue, double-gated.
 
 ---
 

@@ -302,3 +302,80 @@ class TestFuturesEod:
 
         breaks = eod.rule_audit([], {"total_pnl": -250.0})
         assert any(b["rule"] == "session_loss_cap" for b in breaks)
+
+
+# ── the corrected provisioning gate ───────────────────────────────────────────
+
+class TestBrokerProvisioningGate:
+    """Guards for futures_heartbeat_core's arm gate, CORRECTED 2026-08-09.
+
+    These live here rather than in test_futures_heartbeat.py because that file has an
+    autouse fixture which monkeypatches `_broker_provisioned` wholesale -- so every test
+    in it passes without ever executing the gate's real body. The gate is what decides
+    whether a live account routes, so it needs coverage that actually runs it.
+
+    The behaviour being pinned: futures_bp is NOT the provisioning signal. Cert account
+    5WW73759 reads futures_bp=0.0 and is_futures_approved=false while demonstrably
+    routing AND filling real sandbox orders (proven end-to-end 2026-08-09 18:07-18:12 ET).
+    Gating on futures_bp meant a working armed account routed nothing, forever, while
+    reporting itself safe.
+    """
+
+    class _Broker:
+        watch_only = False
+        def __init__(self, connected=True):
+            self._connected = connected
+            self._account = object()
+            self._session = object()
+        def is_connected(self): return self._connected
+        def connect(self): self._connected = True; return True
+        def get_account_equity(self): return 2000.0
+
+    def test_watch_only_never_provisions(self):
+        from futures import futures_heartbeat_core as hb  # noqa: PLC0415
+
+        b = self._Broker()
+        b.watch_only = True
+        ok, detail = hb._broker_provisioned(b)
+        assert ok is False and detail["reason"] == "watch_only"
+
+    def test_accepts_orders_fails_safe_without_a_session(self):
+        from futures import futures_heartbeat_core as hb  # noqa: PLC0415
+
+        class Bare:
+            pass
+        ok, why = hb._broker_accepts_orders(Bare())
+        assert ok is False and why
+
+    def test_zero_futures_bp_still_provisions_when_the_broker_accepts_orders(self, monkeypatch):
+        """THE regression this change exists to prevent. futures_bp=0.0 is the REAL
+        state of a sandbox account that routes and fills; it must not block arming."""
+        from futures import futures_heartbeat_core as hb  # noqa: PLC0415
+
+        monkeypatch.setattr(hb, "_read_futures_bp", lambda b: 0.0)
+        monkeypatch.setattr(hb, "_broker_accepts_orders", lambda b: (True, "dry_run validated"))
+        ok, detail = hb._broker_provisioned(self._Broker())
+        assert ok is True, "futures_bp=0.0 blocked a broker that accepts orders -- the old bug"
+        assert detail["futures_bp"] == 0.0
+        assert detail["accepts_orders"] is True
+
+    def test_refusal_to_accept_orders_blocks_even_with_healthy_futures_bp(self, monkeypatch):
+        """The inverse: a fat futures_bp must not wave through a broker that is
+        refusing orders. Proves the gate moved to the right signal, not just a looser one."""
+        from futures import futures_heartbeat_core as hb  # noqa: PLC0415
+
+        monkeypatch.setattr(hb, "_read_futures_bp", lambda b: 50_000.0)
+        monkeypatch.setattr(hb, "_broker_accepts_orders",
+                            lambda b: (False, "dry_run errors: ['not_allowed']"))
+        ok, detail = hb._broker_provisioned(self._Broker())
+        assert ok is False
+        assert detail["futures_bp"] == 50_000.0, "bp is still reported as context"
+
+    def test_probe_exception_fails_safe(self, monkeypatch):
+        from futures import futures_heartbeat_core as hb  # noqa: PLC0415
+
+        def boom(b):
+            raise RuntimeError("broker exploded")
+        monkeypatch.setattr(hb, "_broker_accepts_orders", boom)
+        ok, detail = hb._broker_provisioned(self._Broker())
+        assert ok is False and "probe_error" in detail.get("reason", "")

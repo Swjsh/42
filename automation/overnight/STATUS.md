@@ -1,3 +1,56 @@
+## [2026-08-09 ~18:20 ET] RESOLVED: THE FUTURES BROKER WORKS — the month-old blocker was never real — REVOKE surface
+
+**Verdict: the Tastytrade sandbox trades futures. The 2026-07-07 diagnosis was wrong.**
+
+`Rejected: Session offline` was recorded in July as *"the cert account is not provisioned for
+futures"* and the futures lane carried that as a blocker for a month. It was a **market-hours
+artifact**. Proven end-to-end tonight on `5WW73759` with the CME session OPEN (sandbox, no real
+money at any point, ledger `automation/state/futures/broker-probe.jsonl`):
+
+| Test | Result |
+|---|---|
+| dry run | ✅ validated, 0 errors, bp effect **−$2.52** |
+| resting order | ✅ `Routed` → **`Live`**, `reject_reason: null`, cancelled clean |
+| marketable order | ✅ **FILLED** 1 `/MESU6` @ **7,772.50**, position held, closed, ended flat |
+
+**🚨 The bug hiding inside the answer.** Through all three tests the account still reported
+`is_futures_approved: false` and `futures_buying_power: 0.0` — the cert environment simply does
+not populate them. The arm gate (`futures_heartbeat_core._broker_provisioned`) required
+`futures_bp > 0`. **An armed, fully working account would have routed nothing, forever, while
+reporting itself safe** — the C14 dead-knob shape, and the sole evidence for the knob was one
+observation taken outside trading hours. The gate now asks *will the broker accept an order
+right now* via a dry run (routes nothing, cannot fill), so a session-hours refusal reads as
+"not now" instead of "not ever".
+
+**A second silent gap, found while fixing the first.** `test_futures_heartbeat.py` has an autouse
+fixture that monkeypatches `_broker_provisioned` wholesale — so all 17 of its tests pass *without
+ever executing the gate's real body*. The new guards therefore live in
+`test_futures_trader_core.py::TestBrokerProvisioningGate` (5 tests, RED-proofed in BOTH
+directions: reverting to `futures_bp > 0` fails two of them).
+
+**Also fixed: the probe's own first scheduled fire failed** with `ModuleNotFoundError: No module
+named 'tastytrade'`. This box has THREE pythons and only the Microsoft Store one carried the SDK;
+I had pointed the task at `AppData\Local\Programs\Python\Python313`. It ran clean by hand and
+died on the scheduler — *"it works when I run it" proves nothing about the interpreter the
+scheduler uses.* SDK now pinned into the backtest venv at **12.4.1**, the version the July
+order-path proof used (pip resolves 13.x by default — a major bump that would silently change the
+SDK surface the entire futures order path depends on).
+
+**What this does NOT change.** The lane's default stays `fillsim`. The sandbox **resets every 24
+hours**, which is fine for a fill-parity check and wrong for a book of record whose journal needs
+continuity. The principled shape is fillsim as the persistent book + tastytrade as a real-fill
+parity lane (the twin pattern) — a deliberate next step with its own scorecard, not a switch to
+flip on a Sunday evening. Live money remains out of scope (OP-0 #1 + a new venue, double-gated).
+
+**J's decision list just got shorter:** the venue question is closed, and closed well. No IBKR
+application needed, no $7/mo TradingView add-on needed for a 5m bar-close strategy, no prop firm.
+
+**REVOKE:** `Unregister-ScheduledTask -TaskName "Gamma_FuturesBrokerProbe" -Confirm:$false`
+(its job is done — the verdict is conclusive; delete it rather than let a diagnostic become a
+standing instrument). Gate revert: `git revert` the commit below.
+
+---
+
 ## [2026-08-09 ~16:27 ET] SHIP: TRENDLINE DETECTOR + TIMEFRAME MATRIX + VALIDATION (measurement only, NO live flip) -- commits `605ecbbe`/`6b13a742`/`428fa273`/`783f291f` -- REVOKE surface
 
 **What shipped.** `backtest/lib/trendline_detector.py` -- the first pivot-anchored trendline detector
@@ -913,7 +966,7 @@ touched test files green (quoted per ship in SHIP-LOG-2026-08-06-EVENING.md).
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-09T04:39:56
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
@@ -1009,4 +1062,16 @@ Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openro
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ### DEGRADED: self-check 2026-08-09T16:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T16:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T17:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T17:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T18:09:56
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
