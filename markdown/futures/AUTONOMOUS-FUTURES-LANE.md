@@ -74,6 +74,7 @@ futures_live_data  should_take_v3        make_broker()    futures_journal
 | `backtest/futures/futures_risk_rails.py` | Rules 5/6 in **dollars and points**, incl. the liquidation-distance assertion. |
 | `backtest/futures/futures_trader_core.py` | The tick. Broker-agnostic see → decide → act. |
 | `backtest/futures/futures_journal.py` | `journal/futures/` — trades ledger, daily log, mistakes file. |
+| `backtest/futures/futures_eod.py` | The session review — tick coverage, funnel, round trips, post-hoc rule audit. |
 | `backtest/futures/futures_drills.py` | Force-fire the lifecycle + replay real bars. |
 | `setup/scripts/futures_trader_runner.py` | The scheduled entry point + liveness beacon. |
 | `setup/scripts/futures_broker_probe.py` | Settles the H1/H2 venue question with evidence. |
@@ -216,6 +217,33 @@ runs clean, exit 0, correctly noops outside RTH. Task is `Ready`, next fire Mond
 
 ---
 
+## The review loop — and why tick coverage leads it
+
+`Gamma_FuturesEod2` (16:12 ET weekdays, read-only) writes `analysis/futures-eod/<date>.md`
+and `automation/state/futures/eod-summary.json`.
+
+**The headline metric is TICK COVERAGE, not P&L.** Every other number on the digest is
+conditional on the engine having been awake, and a lane that quietly stops ticking otherwise
+produces a *perfect-looking* review: zero trades, zero errors, zero rule breaks. So a
+`DARK`/`RED` coverage verdict forces the whole digest RED and prints an explicit *"read these
+as unknown, not as zero"* banner. **"No trades today" and "the engine was dead today" must
+never render identically.**
+
+This earned itself immediately: grading 2026-08-07 returns `DARK` (0/78 ticks) — correct, the
+lane did not exist yet — rather than a clean zero-trade day.
+
+| Section | What it answers |
+|---|---|
+| **Coverage** | Did the lane fire its ~78 scheduled ticks? `GREEN` ≥90% · `YELLOW` ≥70% · `RED` >0 · `DARK` none |
+| **Funnel** | signals seen → qualified → entered, with the **rail** that rejected each drop. A lane seeing 57 signals and taking 0 is either disciplined or broken; only the breakdown tells you which |
+| **Round trips** | closed trades from **one** fill class — `SIMULATED` and `BROKER` are never mixed |
+| **Rule audit** | every entry re-checked **after the fact, independently of the pre-trade gate** — a bypassed or mis-wired gate is invisible to a check that only runs inside that same gate |
+
+`eod-summary.json` is itself in the freshness manifest, so a dead *reviewer* is caught too —
+otherwise the last digest pins forever and the lane looks reviewed when nobody reviewed it.
+
+---
+
 ## Visibility (WS-F6)
 
 J's literal question was *"where do I see the crypto gym on the dashboard"* and the honest answer
@@ -258,13 +286,16 @@ python -m futures.futures_live_data --check MES        # exit 1 if not GREEN/CLO
 python -m futures.futures_drills --scenarios
 python -m futures.futures_drills --replay --days 5
 
-# journal
+# journal + review
 python -m futures.futures_journal --summary --fills SIMULATED
+python -m futures.futures_eod --print                    # today's session review
+python -m futures.futures_eod --date 2026-08-07 --print  # any past session
 ```
 
 | Task | Cadence | What |
 |---|---|---|
 | `Gamma_FuturesTrader` | 5 min, 09:30–16:00 ET wd | the autonomous lane |
+| `Gamma_FuturesEod2` | 16:12 ET wd | the session review (tick coverage leads) |
 | `Gamma_FuturesBrokerProbe` | 18:05 ET daily | settles the H1/H2 venue question |
 | `Gamma_FuturesEdge3Sim` | 09:30 ET wd | MES→MNQ divergence forward clock |
 | `Gamma_SsrShadow` | 15 min, 03:00–17:15 ET wd | SSR forward shadow |

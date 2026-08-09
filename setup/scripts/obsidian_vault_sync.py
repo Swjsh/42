@@ -260,6 +260,32 @@ def render_other_lanes() -> list[str]:
                  f"{ssr.get('verdict', ssr.get('falsification', 'forward clock running'))}")
     else:
         L.append("- **SSR shadow** — 0 round trips so far (forward clock running)")
+
+    # EOD review -- coverage first, because a dark lane otherwise reads as a clean day.
+    eod = read_json(STATE / "futures" / "eod-summary.json") or {}
+    if eod:
+        cov = eod.get("coverage") or {}
+        L.append(f"- **last review** `{eod.get('date', '?')}` **{eod.get('verdict', '?')}** · "
+                 f"coverage {cov.get('verdict', '?')} ({cov.get('ticks', '?')}/"
+                 f"{cov.get('expected', '?')} ticks) · "
+                 f"{len(eod.get('rule_breaks') or [])} rule break(s)")
+
+    # Broker-venue verdict: the one genuinely open question on this lane. Surfaced here
+    # so the answer reaches J the moment the probe lands, rather than sitting in a
+    # jsonl nobody opens.
+    try:
+        rows = [ln for ln in (STATE / "futures" / "broker-probe.jsonl").read_text(
+            encoding="utf-8").splitlines() if ln.strip()]
+        last = json.loads(rows[-1]) if rows else None
+    except Exception:  # noqa: BLE001 -- an un-run probe must render, not raise
+        last = None
+    if last:
+        L.append(f"- **broker probe** `{last.get('at_et', '?')}` → **{last.get('verdict', '?')}** "
+                 f"(session {last.get('session_phase', '?')}, "
+                 f"futures_bp {last.get('futures_buying_power', '?')})")
+    else:
+        L.append("- **broker probe** — not yet run (fires 18:05 ET; settles whether the "
+                 "sandbox is genuinely un-provisioned or the July reject was a market-hours artifact)")
     L.append("")
 
     # --- crypto ---------------------------------------------------------------
