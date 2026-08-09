@@ -1,0 +1,44 @@
+{
+  "prereg_id": "CATASTROPHE-CAP-DECISION-2026-08-09",
+  "frozen_at_et": "2026-08-09 18:45:06 Sunday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py, run this session",
+  "frozen_before_any_runner": true,
+
+  "why_now": "The CATASTROPHE-CAP-WIDEN-WATCH accrual (setup/scripts/catastrophe_cap_shadow_ledger.py, riding the nightly Gamma_WinnerAutopsy since 2026-08-03) reached its OWN pre-registered decision bar tonight: n_fires=13 >= decision_n=10, ready_for_decision=true. The 2026-07-23 shakeout study that opened this watch explicitly forbade deciding on its n=4 sample and instructed: 'ACCRUE ... until n>=10, then a pre-registered decision.' This is that decision study, and this document is the pre-registration it demanded.",
+
+  "the_tension_this_must_adjudicate": {
+    "from_the_accrual_itself": "aggregate_actual_pnl -$3,056.00 vs aggregate_held_to_eod_counterfactual -$2,338.00 (holding is +$718 better in AGGREGATE), BUT n_would_have_been_better_held = 4 of 13 (rate 0.308). Aggregate says loosen; majority-of-fires says keep. A few large recoveries are carrying the aggregate.",
+    "from_the_entry_x_exit_matrix_the_same_evening": "the 96-cell matrix (ENTRY-EXIT-MATRIX-2026-08-09.md) found the OPPOSITE-signed gradient on the replay population: tightening the cap is strictly worse (-25% ~ $1/tr vs -50% ~ $16/tr), widening to -60% mildly better (~$20/tr), and removing it entirely (STRUCT_ONLY) better still (~$40/tr).",
+    "why_that_is_not_a_contradiction_to_wave_away": "The matrix priced the cap on REPLAY trades where the cap is one of several exits competing to fire. This accrual prices only the 13 REAL fills where the cap ACTUALLY FIRED -- a rare-tail, conditional-on-firing population. The two answer different questions and must be reported side by side. If they disagree after this study, the disagreement IS the finding (same rule the July entry-exit pass used)."
+  },
+
+  "population": "The 13 real catastrophe-cap fires in analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl (accrual window opens 2026-07-23, the day AFTER the original shakeout study's cutoff, so no fire is double-counted). Every fire is a REAL broker fill on a real account. No replay trades are added.",
+
+  "arms": {
+    "CONTROL": "the shipped -50% catastrophe cap = each fire's actual_realized_pnl (already recorded, not re-derived)",
+    "CAP_60": "cap widened to -60% of entry premium",
+    "CAP_70": "cap widened to -70% (the width the n=4 shakeout study flagged)",
+    "NO_CAP_HOLD_TO_EOD": "cap removed entirely; position rides to the last RTH bar = each fire's held_to_eod_counterfactual_pnl (already recorded)"
+  },
+  "pricing_method": "For CAP_60/CAP_70 ONLY (the two arms not already in the ledger): fetch real OPRA 1-min bars for the fire's own symbol/date via exit_shape_parity_study.fetch_option_bars -- the same fetcher every autopsy tool in this family uses, no synthetic pricing path exists -- and walk from the fire's entry timestamp forward. The wider cap fires at the FIRST bar whose low breaches entry*(1+cap); if it never breaches, the position rides to the last RTH bar (identical terminal treatment to NO_CAP_HOLD_TO_EOD). Fill at the cap price, not the bar low -- a stop fills AT the level, and using the low would flatter every wider-cap arm.",
+
+  "gates": [
+    "G_AGGREGATE: arm total $ > CONTROL total $",
+    "G_MAJORITY: the arm beats CONTROL on a MAJORITY of the 13 individual fires -- this is the gate the aggregate currently fails (4/13) and it is the one that stops a couple of big recoveries from carrying a rare-tail decision",
+    "G_DROP_BEST: the arm still beats CONTROL after removing the single fire where it gains most",
+    "G_TAIL: the arm's worst single fire is not worse than CONTROL's worst by more than the kill-switch headroom -- widening a catastrophe cap necessarily deepens the tail, and the tail is the entire reason the cap exists"
+  ],
+
+  "kill_criteria": [
+    "Any arm failing G_MAJORITY does NOT advance regardless of aggregate. Explicitly pre-committed because NO_CAP_HOLD_TO_EOD is ALREADY known to fail it (4/13) while winning the aggregate -- I am writing the rule that kills my own most eye-catching number before I run anything else.",
+    "n=13 is small for a tail statistic. NO arm ships from this study on its own. A pass here means 'propose a pre-registered forward trial', never 'flip the cap'.",
+    "If CONTROL wins, that is a RESULT and gets written down -- the watch closes as 'cap validated by forward fires', not as an inconclusive."
+  ],
+
+  "ship_rule": {
+    "ships_tonight": false,
+    "why": "This is a rare-tail lever measured on n=13 conditional-on-firing events. The catastrophe cap is the LAST backstop before a kill-switch day and the only protection whenever TP1 is unreachable. Nothing about a 13-event sample justifies loosening the final floor on live paper the night before a trading week.",
+    "what_this_produces": "A filed scorecard + verdict doc, and either (a) the watch closes with the cap validated, or (b) a pre-registered forward trial for the winning width on ONE arm."
+  },
+  "reporting_rule": "All four arms reported for all 13 fires, including per-fire rows. No top-N truncation. Nulls written down."
+}
