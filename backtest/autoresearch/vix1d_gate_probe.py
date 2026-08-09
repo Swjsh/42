@@ -67,24 +67,28 @@ def _load_real_trades() -> list[dict]:
     """Robust real-fills loader (L239-adjacent: DO NOT use pandas.read_csv on this file --
     it has 26/190 rows with an extra stray field from historical manual entries that breaks
     strict field-count parsing). Uses stdlib csv.reader (quote-aware) + POSITIONAL indices
-    that are stable regardless of the mid-row field-count drift: date=row[0] (never shifts),
-    dollar_pnl=row[13] (before the drift point in all observed bad rows), account_id=row[-1]
-    (last field, robust to a shift anywhere in the middle)."""
+    for the stable leading columns (date=row[0] never shifts, dollar_pnl=row[13] before the
+    drift point in all observed bad rows) but a NAME-based lookup for account_id
+    (BXM-PROBE-TRADES-CSV-HEADER-DRIFT-FIX, 2026-08-08: a trailing column, theta_at_entry,
+    was appended AFTER account_id on 2026-08-01, breaking the old fixed `row[-1]`
+    assumption -- name-lookup is robust to any FUTURE trailing-column append too, not just
+    this one). Same loader shape as bxm_gate_probe.py — fix both when touching either."""
     rows = []
     with open(TRADES_CSV, encoding="utf-8-sig", newline="") as f:
         r = csv.reader(f)
         header = next(r)
-        assert header[0] == "date" and header[13] == "dollar_pnl" and header[-1] == "account_id", (
+        assert header[0] == "date" and header[13] == "dollar_pnl" and "account_id" in header, (
             "trades.csv header drifted -- positional indices below are no longer valid"
         )
+        account_idx = header.index("account_id")
         for row in r:
-            if len(row) < 14:
+            if len(row) < 14 or len(row) <= account_idx:
                 continue
             try:
                 pnl = float(row[13])
             except (ValueError, IndexError):
                 continue
-            rows.append({"date": row[0], "dollar_pnl": pnl, "account_id": row[-1]})
+            rows.append({"date": row[0], "dollar_pnl": pnl, "account_id": row[account_idx]})
     return rows
 
 
