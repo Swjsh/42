@@ -389,8 +389,11 @@ def test_real_repo_params_resolve_cash_settlement_for_both_core_accounts():
     safe_params = sc._default_account_params("safe")
     bold_params = sc._default_account_params("bold")
     assert sc._pdt_gate_mode(safe_params) == "cash_settlement"
-    # UPDATED 2026-07-20 per this test's own docstring instruction: Bold's broker account
-    # became a 4x MARGIN account over the 07-18/19 weekend (multiplier=4, live-verified),
-    # so bold flipped to margin_pdt that morning -- the margin-PDT branch is live again
-    # for bold and this pin now tracks that reality. See aggressive/params.json#_pdt_gate_mode_doc.
-    assert sc._pdt_gate_mode(bold_params) == "margin_pdt"
+    # UPDATED 2026-08-09, again per this test's own docstring instruction ("update or
+    # remove this test at that point rather than treating a fail here as a regression").
+    # Bold flipped BACK to cash_settlement on 2026-08-08 (commit 883764ef, "fix(pdt):
+    # bold-2 margin_pdt to cash_settlement per J cash-accounts directive"), superseding
+    # the 2026-07-20 margin_pdt pin below it. This pin tracks the repo's live params, so
+    # a fail here means the mode moved again -- re-read aggressive/params.json
+    # #_pdt_gate_mode_doc before assuming a bug.
+    assert sc._pdt_gate_mode(bold_params) == "cash_settlement"

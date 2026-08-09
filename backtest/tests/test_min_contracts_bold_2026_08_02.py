@@ -115,12 +115,21 @@ class TestMinContractsNotDeadKnob:
             premium=premium, setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
             current_position_status="flat", day_trades_used_5d=0,
             kill_switch_tripped=False, prior_stops_today=[], params=self._params(5),
+                # bold-2 moved to pdt_gate_mode=cash_settlement on 2026-08-08 (883764ef),
+                # making these two fields REQUIRED. Production passes them
+                # (heartbeat_core.py:2039, j_intent_executor.py:291); this test did not,
+                # so every call short-circuited to UNREADABLE_INPUT and stopped testing
+                # the branch it exists to pin. Same stale-test bug as its sibling
+                # test_bold_adaptive_sizing_2026_08_02.py -- copy-pasted call sites break
+                # identically on the same trigger day (L294).
+            settled_cash_available=1197.52, same_day_entries_used=0,
         )
         allow3 = rg.check_order(
             "bold-2", equity=1197.52, start_of_day_equity=1197.52, proposed_qty=3,
             premium=premium, setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
             current_position_status="flat", day_trades_used_5d=0,
             kill_switch_tripped=False, prior_stops_today=[], params=self._params(3),
+            settled_cash_available=1197.52, same_day_entries_used=0,
         )
         assert deny5.allowed is False, f"premium={premium}: floor5 should deny (RISK_CAP)"
         assert deny5.code == rg.CODE_RISK_CAP
@@ -135,6 +144,7 @@ class TestMinContractsNotDeadKnob:
                 premium=2.50, setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
                 current_position_status="flat", day_trades_used_5d=0,
                 kill_switch_tripped=False, prior_stops_today=[], params=self._params(mc),
+                settled_cash_available=1197.52, same_day_entries_used=0,
             )
             assert d.allowed is False
 
@@ -187,6 +197,7 @@ class TestRule6AndKillSwitch:
                 premium=1.00, setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
                 current_position_status="flat", day_trades_used_5d=0,
                 kill_switch_tripped=False, prior_stops_today=[], params=p,
+                settled_cash_available=500.0, same_day_entries_used=0,
             )
             # equity $500 <= kill floor (1197.52 * (1-0.50) = $598.76) -> KILL_SWITCH,
             # regardless of min_contracts.
@@ -203,6 +214,13 @@ class TestRule6AndKillSwitch:
             premium=1.50, setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
             current_position_status="flat", day_trades_used_5d=0,
             kill_switch_tripped=False, prior_stops_today=[], params=p,
+            # Settled cash is set far above the 20-lot's $3,000 notional ON PURPOSE.
+            # Under cash_settlement an oversized proposal trips SETTLEMENT before it ever
+            # reaches the risk cap, so funding this at the account's real $1,197.52 would
+            # make the test pass on the wrong code and stop pinning RISK_CAP at all. The
+            # denial ORDER is real behaviour; this test is about the ceiling, so the
+            # settlement gate is lifted out of the way rather than allowed to shadow it.
+            settled_cash_available=100_000.0, same_day_entries_used=0,
         )
         assert d.allowed is False
         assert d.code == rg.CODE_RISK_CAP
