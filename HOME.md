@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-08-09 11:53:31 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-08-09 13:42:58 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -16,7 +16,7 @@
 
 ## Today's levels
 
-*as of `2026-08-09T11:53:36-04:00`*
+*as of `2026-08-09T13:38:36-04:00`*
 
 - **731.22** — PRIOR_CLOSE_2026-06-26
 - **734.52** — PML_2026-06-29

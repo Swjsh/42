@@ -457,6 +457,181 @@ def build_preregs_board(stamp: str) -> str:
     return "\n".join(L)
 
 
+def _live_tasks() -> dict[str, dict]:
+    """Live Windows Task Scheduler state for Gamma_* tasks. Fails open to {}."""
+    try:
+        ps = (
+            "Get-ScheduledTask | Where-Object {$_.TaskName -like 'Gamma_*'} | "
+            "ForEach-Object { $i=$_|Get-ScheduledTaskInfo; "
+            "\"$($_.TaskName)|$($_.State)|$($i.LastTaskResult)\" }"
+        )
+        out = subprocess.run(["powershell", "-NoProfile", "-Command", ps],
+                             capture_output=True, text=True, timeout=90,
+                             creationflags=_CREATE_NO_WINDOW).stdout
+        res = {}
+        for line in out.splitlines():
+            parts = line.strip().split("|")
+            if len(parts) == 3:
+                res[parts[0]] = {"state": parts[1], "last_result": parts[2]}
+        return res
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+# The architecture, declared once. Each node: (label, path-or-None, one-line role).
+# path=None means "runtime concept, no single file". A path that does not exist renders
+# with a MISSING marker -- so this map cannot silently describe a system we no longer have.
+MAP_SPEC: list[tuple[str, list[tuple[str, str | None, str]]]] = [
+    ("🔭 SEE — what the engine perceives", [
+        ("Level refresher", "setup/scripts/refresh_levels_intraday.py",
+         "writes key-levels.json every 5m; IEX tail keeps it ahead of the window"),
+        ("Key levels (state)", "automation/state/key-levels.json",
+         "the level set every entry decision is tied to"),
+        ("Sight beacon", "setup/scripts/sight_beacon.py",
+         "never-blind price feed; REST + fallback"),
+        ("Market structure", "crypto/lib/market_structure.py",
+         "HH/HL/BOS/CHoCH — the structure-shift detector. NOTE the path: it lives under "
+         "crypto/lib but is instrument-agnostic and used by the SPY engine"),
+        ("Structure watcher", "backtest/lib/watchers/market_structure_watcher.py",
+         "the watcher wrapper the engine actually calls"),
+        ("Trendlines", "automation/state/trendlines.json",
+         "SHADOW only; producer was dead 47 days, revived 08-06, zero consumers by design"),
+    ]),
+    ("🧠 DECIDE — scoring and gates", [
+        ("Shared signal builder", "automation/state/fleet/build_shared_signal.py",
+         "one signal, all arms consume it — this is why arms correlate"),
+        ("Filters + scoring", "backtest/lib/filters.py",
+         "bull/bear score 0-11; ANY blocker vetoes (entry is binary, not laddered)"),
+        ("Strategies", "automation/state/fleet/strategies.py",
+         "the 4 live setups + their exit shapes"),
+        ("Risk gate", "backtest/lib/risk_gate.py",
+         "Rules 5/6/7 — kill switch, per-trade cap, cash settlement"),
+        ("Settlement ledger", "setup/scripts/settlement_ledger.py",
+         "cash-account T+1 model; feeds the gate for BOTH core accounts"),
+    ]),
+    ("⚡ ACT — placement and exits", [
+        ("Heartbeat core", "setup/scripts/heartbeat_core.py",
+         "THE live engine, 1/min RTH — core arms (safe-2, bold-2)"),
+        ("Fleet executor", "automation/state/fleet/fleet_executor.py",
+         "fleet arms (safe-3, risky-1, risky-3); sizing + admission"),
+        ("Exit manager", "automation/state/fleet/exit_manager.py",
+         "TP1 / runner / trail / structure stop / -50% catastrophe cap"),
+        ("Fleet broker", "automation/state/fleet/fleet_broker.py",
+         "the ONLY broker surface; load_creds() takes no args"),
+    ]),
+    ("📚 LEARN — research and instruments", [
+        ("Winner autopsy", "setup/scripts/winner_autopsy.py",
+         "capture rate over the winner population, nightly"),
+        ("Chop meter", None, "Gamma_ChopMeter 16:08 — ordinal>=4, consec runs, would-trip flags"),
+        ("Entry-quality ledger", "setup/scripts/entry_quality_ledger.py",
+         "the pay-vs-bleed entry signature; V-d1/V-e3 shadow counters"),
+        ("Ladder shadow", None,
+         "Gamma_LadderRungShadow 16:40 — logs what the score ladder WOULD admit"),
+        ("Trade autopsy", "setup/scripts/trade_autopsy.py",
+         "emits hypotheses nightly; its hold_to_time counterfactual is a known artifact"),
+    ]),
+    ("🗺️ ORIENT — read these, in this order", [
+        ("CLAUDE.md", "CLAUDE.md", "the soul file. doctrine, the 10 rules, operating principles"),
+        ("THE WEEK ORDER", "analysis/deep-research/WEEK-ORDER-2026-08-10.md",
+         "what is armed right now + Monday state"),
+        ("STATUS", "automation/overnight/STATUS.md", "REVOKE surface + known-broken"),
+        ("SHADOW", "SHADOW.md", "every shadow clock + frozen prereg"),
+        ("Lessons", "markdown/doctrine/LESSONS-LEARNED.md", "294 anti-patterns, indexed by theme"),
+        ("Architecture", "markdown/specs/ARCHITECTURE.md", "cold-start wiring snapshot"),
+        ("markdown index", "markdown/README.md", "the doc taxonomy"),
+    ]),
+]
+
+CLAUDE_ROUTING = [
+    ("Why did/didn't we trade?", "journal/<date> → automation/overnight/STATUS.md"),
+    ("What is armed / what changes?", "analysis/deep-research/WEEK-ORDER-2026-08-10.md + SHADOW.md"),
+    ("Is X already tested / dead?", "the GRAVEYARD section of the latest EOD, then markdown/doctrine/LESSONS-LEARNED.md"),
+    ("How does a decision get made?", "MAP.md §SEE → §DECIDE → §ACT (this file), then filters.py"),
+    ("What broke before?", "markdown/doctrine/LESSONS-LEARNED.md (L-numbered, themed C1-C36)"),
+    ("What are the rules?", "CLAUDE.md — the 10 rules + OP-0/3/11/16/22/25/31/32/33"),
+]
+
+
+def build_map(stamp: str) -> str:
+    tasks = _live_tasks()
+    L = ["# 🗺️ Gamma — SYSTEM MAP", "",
+         f"> Auto-generated `{stamp}`. Every path is existence-checked at build time, so this "
+         "map cannot silently describe a system we no longer have. "
+         "`⛔MISSING` = the spec claims a file that is gone.", ""]
+
+    L.append("## For a fresh Claude session — read only the branch you need")
+    L.append("")
+    L.append("| If the question is… | Read |")
+    L.append("|---|---|")
+    for q, where in CLAUDE_ROUTING:
+        L.append(f"| {q} | {where} |")
+    L.append("")
+    L.append("**Do not read the whole repo.** 6,777 markdown files exist; ~479 are human-written "
+             "and the rest is machine output. This map plus the four ORIENT docs is the "
+             "whole system at the level most questions need.")
+    L.append("")
+
+    for section, nodes in MAP_SPEC:
+        L.append(f"## {section}")
+        L.append("")
+        for label, path, role in nodes:
+            if path is None:
+                L.append(f"- **{label}** — {role}")
+                continue
+            exists = (REPO / path).exists()
+            note = path[:-3] if path.endswith(".md") else None
+            link = f"[[{note}\\|{label}]]" if (note and exists) else f"`{path}`"
+            mark = "" if exists else "  ⛔MISSING"
+            L.append(f"- **{label}** → {link} — {role}{mark}")
+        L.append("")
+
+    L.append("## ⏰ The daily loop (live task state)")
+    L.append("")
+    L.append("| ET | Task | Role | State |")
+    L.append("|---|---|---|---|")
+    for et, name, role in (
+        ("08:00", "Gamma_LaunchTV", "TV + CDP up (no TV = no trades)"),
+        ("08:05/5m", "Gamma_TvWatchdog", "keeps CDP alive; heals in ~67s"),
+        ("08:30", "Gamma_Premarket", "levels, bias, hypothesis → journal note"),
+        ("09:30–15:55", "Gamma_HeartbeatCore", "THE engine, 1/min"),
+        ("/5m RTH", "Gamma_LevelRefresh", "key-levels.json freshness"),
+        ("15:55", "Gamma_EodFlatten", "nothing 0DTE survives the close"),
+        ("16:08", "Gamma_ChopMeter", "did we trade chop today"),
+        ("16:25", "Gamma_WinnerAutopsy", "capture rate + entry-quality fold"),
+        ("16:40", "Gamma_LadderRungShadow", "score-ladder shadow clock"),
+        ("16:45", "Gamma_ObsidianSync", "HOME + daily note + this map"),
+        ("17:45", "Gamma_RegimeAttribution", "was that us or the tape"),
+    ):
+        t = tasks.get(name)
+        state = f"{t['state']} (last={t['last_result']})" if t else "⛔ NOT REGISTERED"
+        L.append(f"| {et} | `{name}` | {role} | {state} |")
+    L.append("")
+
+    L.append("## 💰 The arms — risk profiles, NOT strategies")
+    L.append("")
+    L.append("All arms trade the SAME shared signal. They differ only in sizing, gates and exit "
+             "shape. That is also why they lose together: on 08-07 all four bought the same "
+             "contract within 15 seconds.")
+    L.append("")
+    L.append("| Arm | Class | Distinguishing config |")
+    L.append("|---|---|---|")
+    for arm, cls, cfg in (
+        ("safe-2", "core safe", "cash_settlement · ATM · strict"),
+        ("bold-2", "core bold", "cash_settlement (parity fix 08-09) · was PDT-dark 4 sessions"),
+        ("safe-3", "fleet safe", "bold tier table · min_triggers=2"),
+        ("risky-1", "fleet full-send", "ATM · TP1 +50% exit_patch · L246 floor-rescue"),
+        ("risky-3", "fleet loose", "OTM-2 (kill-criterion revert 08-06) · qty10 <$0.50 boost"),
+        ("crypto twin", "arm #6", "24/7 mechanism validation; P&L NEVER SPY evidence"),
+    ):
+        L.append(f"| **{arm}** | {cls} | {cfg} |")
+    L.append("")
+    L.append("---")
+    L.append("")
+    L.append("[[HOME]] · [[SHADOW]] · [[CLAUDE|CLAUDE.md]] · [[markdown/README|doc index]]")
+    L.append("")
+    return "\n".join(L)
+
+
 JOURNAL_BASE = """\
 filters:
   and:
@@ -531,6 +706,18 @@ def main(argv: list[str] | None = None) -> int:
     shadow = REPO / "SHADOW.md"
     shadow.write_text(build_preregs_board(stamp), encoding="utf-8")
     print(f"[obsidian] wrote {shadow.relative_to(REPO)}")
+
+    mp = REPO / "MAP.md"
+    map_text = build_map(stamp)
+    mp.write_text(map_text, encoding="utf-8")
+    # Count only real node markers, not the legend line that explains the marker.
+    missing = sum(1 for ln in map_text.splitlines()
+                  if ln.startswith("- ") and "MISSING" in ln)
+    # ASCII-only on stdout: the Windows console is cp1252 and a bare emoji here raises
+    # UnicodeEncodeError, which would kill the run AFTER the files were already written
+    # (looks like a failure, isn't one). Emoji stay in the file, never in the log line.
+    print(f"[obsidian] wrote {mp.relative_to(REPO)}"
+          + (f"  !! {missing} MISSING path(s)" if missing else "  (all paths verified)"))
 
     base = REPO / "journal" / "journal.base"
     base.write_text(JOURNAL_BASE, encoding="utf-8")
