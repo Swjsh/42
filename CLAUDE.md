@@ -59,7 +59,7 @@ J's rules — Gamma enforces them, doesn't write them.
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
-- **Daily P&L target (J recalibrated 2026-07-22):** $100–200/day combined = SUCCESS — one clean +30% level trade pays it; never chase dollars via more trades/size. Full lens: [`FOCUS-DOCTRINE.md`](markdown/doctrine/FOCUS-DOCTRINE.md).
+- **Daily P&L target (J recorrected 2026-08-09):** $100–200/day **PER ACCOUNT**, not combined — one clean +30% level trade pays ONE account's day. Across the 5 active real-fills arms (safe-2, bold-2, safe-3, risky-1, risky-3) that's ~$500–1,000/day book-wide, but the target is evaluated and reported per account first; a strong arm should never mask a weak one in an aggregate number. Never chase dollars via more trades/size. Full lens: [`FOCUS-DOCTRINE.md`](markdown/doctrine/FOCUS-DOCTRINE.md).
 - **Kill switches** (Rule 5): per-account + isolated — Safe-2 −30%/day (−$600 at $2K) does NOT halt Risky-2, and vice-versa. **Instrument:** SPY 0DTE, US retail.
 - **MCP wiring:** `alpaca` → Safe-2 (key `PKZFN5G3...`, repointed 2026-07-11); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json` — the ONLY credential store (global-config mirrors removed 2026-07-09; never re-mirror into `~/.claude.json`/`settings.json`).
 

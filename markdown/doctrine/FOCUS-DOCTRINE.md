@@ -10,7 +10,13 @@
 
 ## 1. THE REALISTIC GOAL (replaces the old 10-20%/day framing)
 
-**$100-200/day at the ~$2K tier = success.** The arithmetic that makes it concrete:
+**$100-200/day at the ~$2K tier = success — PER ACCOUNT (J recorrected 2026-08-09; CLAUDE.md's
+"combined" framing from 07-22 was wrong and is superseded).** Each of the 5 active real-fills
+arms (safe-2, bold-2, safe-3, risky-1, risky-3) is judged against this bar independently — a
+strong arm making the aggregate number look good must never mask a weak arm missing it. Summed
+across all 5, book-wide success reads ~$500-1,000/day, but that aggregate is a secondary
+rollup, never the primary target a single arm is measured against. The arithmetic that makes
+ONE account's target concrete:
 - 30% risk cap at $2K ≈ $600 position ≈ 3 contracts at ~$1.00-1.50 premium.
 - ONE clean +30% premium move = $135-180. **One good level trade a day pays the goal.**
 - Percent != contract price != dollars: a +30% premium target off a good entry is quick and
