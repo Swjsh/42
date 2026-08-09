@@ -34,7 +34,10 @@
       "max_age_min": 40,
       "date_field": "generated_at_et",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:00", "16:10"],
+      "window_et": [
+        "09:00",
+        "16:10"
+      ],
       "weekdays_only": true
     },
     {
@@ -46,7 +49,10 @@
       "max_age_min": null,
       "date_field": "date",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:00", "16:10"],
+      "window_et": [
+        "09:00",
+        "16:10"
+      ],
       "weekdays_only": true
     },
     {
@@ -70,7 +76,10 @@
       "max_age_min": 25,
       "date_field": "computed_at_et",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:30", "16:05"],
+      "window_et": [
+        "09:30",
+        "16:05"
+      ],
       "weekdays_only": true
     },
     {
@@ -82,7 +91,10 @@
       "max_age_min": 25,
       "date_field": "date_et",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:30", "16:05"],
+      "window_et": [
+        "09:30",
+        "16:05"
+      ],
       "weekdays_only": true
     },
     {
@@ -94,7 +106,10 @@
       "max_age_min": 40,
       "date_field": "generated_at",
       "date_expected_after_et": "09:42",
-      "window_et": ["09:32", "16:05"],
+      "window_et": [
+        "09:32",
+        "16:05"
+      ],
       "weekdays_only": true
     },
     {
@@ -106,7 +121,10 @@
       "max_age_min": 10,
       "date_field": "date",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:30", "16:00"],
+      "window_et": [
+        "09:30",
+        "16:00"
+      ],
       "weekdays_only": true
     },
     {
@@ -118,7 +136,10 @@
       "max_age_min": 10,
       "date_field": "ts_et",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:30", "16:00"],
+      "window_et": [
+        "09:30",
+        "16:00"
+      ],
       "weekdays_only": true
     },
     {
@@ -154,7 +175,10 @@
       "max_age_min": 10,
       "date_field": "ts_et",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:31", "16:00"],
+      "window_et": [
+        "09:31",
+        "16:00"
+      ],
       "weekdays_only": true
     },
     {
@@ -166,7 +190,10 @@
       "max_age_min": 15,
       "date_field": "date",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:30", "16:05"],
+      "window_et": [
+        "09:30",
+        "16:05"
+      ],
       "weekdays_only": true
     },
     {
@@ -178,7 +205,10 @@
       "max_age_min": 30,
       "date_field": "generated_at_utc",
       "date_expected_after_et": "09:35",
-      "window_et": ["09:00", "16:15"],
+      "window_et": [
+        "09:00",
+        "16:15"
+      ],
       "weekdays_only": true
     },
     {
@@ -215,6 +245,36 @@
       "date_field": "as_of",
       "date_expected_after_et": "08:00",
       "window_et": null,
+      "weekdays_only": true
+    },
+    {
+      "path": "automation/state/futures/trader/heartbeat.json",
+      "writer": "setup/scripts/futures_trader_runner.py -> futures_trader_core._write_heartbeat",
+      "task": "Gamma_FuturesTrader (every 5 min, 09:30-16:00 ET wd)",
+      "consumer": "the liveness alarm for the autonomous futures lane. SILENT DEGRADE: the tick writes this beacon on EVERY fire including HOLDs, so a stale file is the ONLY way to distinguish 'quiet market' from 'lane is dead'. Wired on day one deliberately -- the crypto twin once went dark 4 days unnoticed because nothing was watching a producer that only spoke when it traded.",
+      "criticality": "high",
+      "max_age_min": 20,
+      "date_field": "last_tick_et",
+      "date_expected_after_et": "09:35",
+      "window_et": [
+        "09:30",
+        "16:10"
+      ],
+      "weekdays_only": true
+    },
+    {
+      "path": "automation/state/futures/data-freshness.json",
+      "writer": "backtest/futures/futures_live_data.write_freshness_snapshot",
+      "task": "Gamma_FuturesTrader (every 5 min, 09:30-16:00 ET wd)",
+      "consumer": "futures_risk_rails.check_data_freshness -- ONLY a GREEN verdict authorizes a futures entry. SILENT DEGRADE: a stale snapshot pins the last verdict, so a dead yfinance feed could read GREEN forever and authorize entries on two-month-old bars. That exact staleness (the MES master ended 2026-06-12) is why the live spine exists at all.",
+      "criticality": "critical",
+      "max_age_min": 20,
+      "date_field": "written_at_et",
+      "date_expected_after_et": "09:35",
+      "window_et": [
+        "09:30",
+        "16:10"
+      ],
       "weekdays_only": true
     }
   ]

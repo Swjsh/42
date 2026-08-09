@@ -11,6 +11,7 @@
 | [SESSIONS-ROLLOVER-TAX.md](SESSIONS-ROLLOVER-TAX.md) | Trading hours, maintenance break, settlement, quarterly rollover, Section 1256 tax, costs |
 | [SOURCES.md](SOURCES.md) | All authoritative source links + retrieval dates |
 | [FUTURES-REVIVAL-PLAN-2026-07-02.md](FUTURES-REVIVAL-PLAN-2026-07-02.md) | **Multiday-swing revival: verified inventory (what exists/works/dead) + phased build plan** (J directive 2026-07-02) |
+| [AUTONOMOUS-FUTURES-LANE.md](AUTONOMOUS-FUTURES-LANE.md) | ⚡ **START HERE for the live lane** — the broker-agnostic MES tick, data spine, dollar risk rails, drills, journaling, and exactly what the simulated evidence does and does not prove (2026-08-09) |
 
 ---
 

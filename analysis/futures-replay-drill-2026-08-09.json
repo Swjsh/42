@@ -1,0 +1,93 @@
+{
+  "instrument": "MES",
+  "days": [
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07"
+  ],
+  "n_ticks": 234,
+  "n_signals_seen": 57,
+  "n_entries": 4,
+  "actions": {
+    "HOLD": 230,
+    "ENTER": 4
+  },
+  "rejections": {
+    "sizing": 3
+  },
+  "entries": [
+    {
+      "ts": "2026-08-05T14:55:00",
+      "side": "SELL",
+      "qty": 1,
+      "entry": 7765.25,
+      "stop": 7773.1,
+      "tp1": 7765.0,
+      "runner": 7764.5,
+      "stop_points": 7.850000000000364,
+      "risk_usd": 39.25000000000182,
+      "setup": "ERL_IRL_SWEEP_FVG",
+      "watcher": "erl_irl_watcher",
+      "confidence": "medium",
+      "direction": "short"
+    },
+    {
+      "ts": "2026-08-06T10:25:00",
+      "side": "SELL",
+      "qty": 1,
+      "entry": 7754.5,
+      "stop": 7768.6,
+      "tp1": 7754.0,
+      "runner": 7751.75,
+      "stop_points": 14.100000000000364,
+      "risk_usd": 70.50000000000182,
+      "setup": "ERL_IRL_SWEEP_FVG",
+      "watcher": "erl_irl_watcher",
+      "confidence": "medium",
+      "direction": "short"
+    },
+    {
+      "ts": "2026-08-07T13:30:00",
+      "side": "SELL",
+      "qty": 1,
+      "entry": 7766.75,
+      "stop": 7781.35,
+      "tp1": 7766.0,
+      "runner": 7757.25,
+      "stop_points": 14.600000000000364,
+      "risk_usd": 73.00000000000182,
+      "setup": "ERL_IRL_SWEEP_FVG",
+      "watcher": "erl_irl_watcher",
+      "confidence": "medium",
+      "direction": "short"
+    },
+    {
+      "ts": "2026-08-07T15:25:00",
+      "side": "BUY",
+      "qty": 1,
+      "entry": 7778.5,
+      "stop": 7763.7,
+      "tp1": 7782.25,
+      "runner": null,
+      "stop_points": 14.800000000000182,
+      "risk_usd": 74.00000000000091,
+      "setup": "LEVEL_REJECT_LIVE",
+      "watcher": "shotgun_scalper_watcher",
+      "confidence": "high",
+      "direction": "long"
+    }
+  ],
+  "errors": [],
+  "evidence_class": "SIMULATED fills, in-sample replay -- mechanism only, NOT edge",
+  "account": {
+    "start_equity": 2000.0,
+    "end_equity": 2021.29,
+    "realized_pnl_total": 21.290000000000003,
+    "trade_count": 4
+  },
+  "would_be_events": {
+    "placed": 4,
+    "filled": 4,
+    "tp1": 4
+  }
+}

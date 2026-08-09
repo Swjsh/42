@@ -1,0 +1,530 @@
+"""futures_trader_core.py -- THE autonomous futures tick (broker-agnostic).
+
+WHY THIS EXISTS (2026-08-09, FUTURES-FIRST-PLAN WS-F1/F3). Three futures execution
+paths already existed and none of them could actually trade autonomously today:
+
+  * `futures_heartbeat_core.run_tick()` -- deterministic and well-built, but hard-wired
+    to the tastytrade SDK (its provisioning probe introspects `broker._account`, so a
+    non-SDK broker reads as unprovisioned and it silently never routes), and its exit
+    management is a no-op unless the caller passes `force_price`.
+  * `swing_core_runner.py` -- solved those gaps, but only for the MULTIDAY swing lane,
+    and it is gated on an `armed-setups.json` that does not exist.
+  * `fill_sim_broker.FillSimBroker` -- a complete, gap-fill-correct paper exchange that
+    nothing intraday was wired to.
+
+This module is the intraday lane, and it makes the BROKER a parameter instead of an
+assumption. That is the whole design: the venue question (which is genuinely unresolved
+-- see FUTURES-BROKER-RESEARCH-2026-08-09.md) stops blocking the engine. The engine runs
+today on the local fill simulator and the same tick routes to a real broker the moment
+one clears, with no change to SEE, DECIDE, the rails, or the journal.
+
+WHAT IT REUSES (deliberately -- compound, don't accumulate):
+  SEE      futures_heartbeat_core.compute_latest_signals (the VALIDATED watcher fleet;
+           bars injected from the live spine instead of the two-month-stale master)
+  DECIDE   strategy_config_v3.should_take_v3 (the validated filter)
+  RAILS    futures_risk_rails.FuturesRiskRails (dollar-denominated, WS-F7)
+  ACT      any object with the FillSimBroker/TastytradeBroker duck-typed surface
+  EXITS    fill_sim_broker's own bar-aware fill engine / futures_exit_manager
+
+EVIDENCE STATUS -- read this before quoting any number this module produces. Fills from
+the `fillsim` backend are SIMULATED. They are mechanism evidence (does the loop see,
+decide, size, place, manage and journal correctly) and they are NOT edge evidence, under
+exactly the same standing rule that governs the crypto twin. `should_take_v3` was
+validated on the roll-adjusted continuous master; this lane feeds it a different (live,
+raw front-month, delayed-quote) frame, which is a disclosed data-source change. Any edge
+claim needs the canonical battery on its own frozen prereg -- not this ledger.
+
+SAFETY POSTURE. `fillsim` is the default backend and touches no external account. The
+`tastytrade` backend refuses to route unless BOTH `FUTURES_ARMED=1` AND the broker
+reports futures buying power > 0, so an armed-but-unprovisioned account still routes
+nothing. Live money is out of scope entirely: that is OP-0 #1 plus a new venue.
+
+STATE lives under automation/state/futures/trader/ -- disjoint from the paths
+futures_heartbeat_core and the swing lane own, so no lane can clobber another's position.
+
+CLI:
+    python -m futures.futures_trader_core --tick                 # one pass, MES, fillsim
+    python -m futures.futures_trader_core --tick --instrument MNQ
+    python -m futures.futures_trader_core --status               # read-only snapshot
+    python -m futures.futures_trader_core --drill entry          # forced scenario drill
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Optional
+
+REPO = Path(__file__).resolve().parents[2]
+for _p in ("backtest",):
+    _pp = str(REPO / _p)
+    if _pp not in sys.path:
+        sys.path.insert(0, _pp)
+
+import pandas as pd  # noqa: E402
+
+from futures.instruments import MES, MNQ, get as get_instrument  # noqa: E402
+from futures.futures_session import (  # noqa: E402
+    et_now, is_session_open, session_phase,
+)
+from futures.futures_risk_rails import FuturesRiskRails  # noqa: E402
+from futures import futures_live_data as fld  # noqa: E402
+
+STATE_DIR = REPO / "automation" / "state" / "futures" / "trader"
+LEDGER = STATE_DIR / "decisions.jsonl"
+LAST_TICK = STATE_DIR / "last-tick.json"
+LOOP_STATE = STATE_DIR / "loop-state.json"
+HEARTBEAT = STATE_DIR / "heartbeat.json"
+
+DEFAULT_INSTRUMENT = "MES"
+DEFAULT_BACKEND = os.environ.get("FUTURES_BROKER", "fillsim")
+
+# Refresh the bar cache at most this often (Yahoo is delayed anyway; hammering it
+# buys nothing and risks the documented futures-symbol flakiness).
+DATA_REFRESH_MIN_SECONDS = 60
+
+
+# ── broker factory ────────────────────────────────────────────────────────────
+
+def make_broker(backend: Optional[str] = None, *, state_dir: Optional[Path] = None,
+                start_equity: Optional[float] = None):
+    """Return an execution backend by name. The one seam the whole venue question sits behind.
+
+    "fillsim"     local gap-fill-correct paper exchange. No network, no account. DEFAULT.
+    "tastytrade"  the real sandbox adapter. Routes only when armed AND provisioned.
+    """
+    backend = (backend or DEFAULT_BACKEND).lower()
+    if backend == "fillsim":
+        from futures.fill_sim_broker import FillSimBroker  # noqa: PLC0415
+
+        return FillSimBroker(state_dir=state_dir or STATE_DIR, start_equity=start_equity)
+    if backend == "tastytrade":
+        from futures.tastytrade_paper import TastytradeBroker  # noqa: PLC0415
+
+        return TastytradeBroker(watch_only=os.environ.get("FUTURES_ARMED") != "1")
+    raise ValueError(f"unknown broker backend {backend!r} (want 'fillsim' or 'tastytrade')")
+
+
+def backend_name(broker) -> str:
+    return type(broker).__name__
+
+
+def is_simulated(broker) -> bool:
+    """True when fills are ours, not an exchange's. Stamped on every ledger row so a
+    downstream reader can never mistake sim P&L for broker P&L (the crypto-twin rule)."""
+    return type(broker).__name__ == "FillSimBroker"
+
+
+# ── io helpers ────────────────────────────────────────────────────────────────
+
+def _atomic_write_json(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _append_ledger(record: dict) -> None:
+    try:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        with LEDGER.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, default=str) + "\n")
+    except Exception:  # noqa: BLE001 -- journaling never breaks the tick
+        pass
+
+
+def _write_heartbeat(now_et: dt.datetime, verdict: str, detail: dict) -> None:
+    """Liveness beacon, written on EVERY tick including no-ops.
+
+    Shipped with the first commit on purpose: the crypto twin once went dark for four
+    days because nothing recorded that it had stopped ticking. A monitor can only
+    notice silence if something was supposed to be making noise.
+    """
+    _atomic_write_json(HEARTBEAT, {
+        "last_tick_et": now_et.isoformat(timespec="seconds"),
+        "verdict": verdict,
+        "session_phase": session_phase(now_et),
+        "detail": detail,
+    })
+
+
+# ── data ──────────────────────────────────────────────────────────────────────
+
+def refresh_data(root: str, interval: str = "5m", *, force: bool = False) -> dict:
+    """Extend the live bar cache, rate-limited. Returns the freshness verdict either way."""
+    should = force
+    if not should:
+        try:
+            snap = json.loads(fld.FRESHNESS_FILE.read_text(encoding="utf-8"))
+            last = dt.datetime.fromisoformat(snap["written_at_et"])
+            should = (et_now() - last).total_seconds() >= DATA_REFRESH_MIN_SECONDS
+        except Exception:  # noqa: BLE001 -- no snapshot yet -> refresh
+            should = True
+    if should:
+        try:
+            fld.append_live(root, interval)
+        except Exception as e:  # noqa: BLE001 -- a failed fetch must surface as STALE,
+            # never as a silent success (L241). The freshness check below is what
+            # actually decides, and it reads the file, not this call's return value.
+            _append_ledger({"event": "data_refresh_failed", "root": root,
+                            "error": f"{type(e).__name__}: {e}",
+                            "at_et": et_now().isoformat(timespec="seconds")})
+    return fld.freshness(root, interval)
+
+
+# ── the tick ──────────────────────────────────────────────────────────────────
+
+def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
+             rails: Optional[FuturesRiskRails] = None,
+             backend: Optional[str] = None,
+             now_et: Optional[dt.datetime] = None,
+             bars: Optional[pd.DataFrame] = None,
+             force_refresh: bool = False,
+             refresh: bool = True,
+             freshness_override: Optional[str] = None) -> dict:
+    """One deterministic see -> decide -> act pass. Never raises; always journals.
+
+    Order matters and is not arbitrary: EXITS are managed before ENTRIES are even
+    considered, and forced-flatten is checked before both. A tick that dies partway
+    must never have left a position unmanaged while it was off looking for a new one.
+    """
+    now_et = now_et or et_now()
+    inst = get_instrument(instrument)
+    rails = rails or FuturesRiskRails()
+    broker = broker or make_broker(backend)
+    broker.connect()
+
+    record: dict = {
+        "ts_et": now_et.isoformat(timespec="seconds"),
+        "instrument": inst.symbol,
+        "backend": backend_name(broker),
+        "simulated_fills": is_simulated(broker),
+        "session_phase": session_phase(now_et),
+        "action": "HOLD",
+        "reason": "",
+    }
+
+    # 1. Session gate. Outside the session there is nothing to manage and nothing to do.
+    if not is_session_open(now_et):
+        record.update(action="HOLD", reason=f"session {session_phase(now_et)}")
+        _write_heartbeat(now_et, "HOLD_SESSION_CLOSED", {"phase": session_phase(now_et)})
+        _append_ledger(record)
+        _atomic_write_json(LAST_TICK, record)
+        return record
+
+    # 2. Data. Freshness is computed even when the refresh throws -- a dead feed must
+    #    read as stale, not as "no news".
+    #
+    #    `refresh`/`freshness_override` exist for REPLAY DRILLS, which feed historical
+    #    bars at a historical `now_et`: the live feed is irrelevant there and its real
+    #    verdict (CLOSED/RED against a wall clock that is days ahead of the bar) would
+    #    block every entry and make the drill prove nothing. They are keyword-only and
+    #    default to live behaviour, so a production tick cannot reach them by accident.
+    if refresh and freshness_override is None:
+        fresh = refresh_data(inst.symbol, force=force_refresh)
+    else:
+        fresh = fld.freshness(inst.symbol, "5m")
+    if freshness_override is not None:
+        fresh = dict(fresh, verdict=freshness_override, overridden=True)
+        record["freshness_overridden"] = True
+    record["freshness"] = fresh["verdict"]
+    record["newest_bar_et"] = fresh.get("newest_bar_et")
+
+    if bars is None:
+        bars = fld.load_series(inst.symbol, "5m", mode="live")
+    last_price = float(bars["close"].iloc[-1]) if len(bars) else None
+    last_bar = bars.iloc[-1] if len(bars) else None
+    record["last_price"] = last_price
+
+    # 3. EXITS FIRST -- always, regardless of every gate above except the session itself.
+    #    process_quote returns ONE flat event dict ({"event": ..., "action": ...}), not a
+    #    list under an "events" key. Reading the wrong shape here would have silently
+    #    recorded zero exits forever while the fill engine worked perfectly -- caught by
+    #    the scenario drills, which is what they are for.
+    exit_events = []
+    if last_price is not None and hasattr(broker, "process_quote"):
+        # Snapshot the position BEFORE the fill engine runs: once a round trip closes,
+        # the position object is gone, and with it the entry price, stop, setup and
+        # entry time the trade ledger needs. Capturing after would silently write rows
+        # with empty entry context.
+        pre = _position_snapshot(broker, inst.symbol)
+        try:
+            ev = broker.process_quote(
+                inst.symbol, last_price,
+                bar_open=float(last_bar["open"]), bar_high=float(last_bar["high"]),
+                bar_low=float(last_bar["low"]), quote_time_et=now_et)
+            if ev and ev.get("event") and ev["event"] != "noop":
+                exit_events = [ev]
+                try:
+                    from futures.futures_journal import journal_exit  # noqa: PLC0415
+
+                    journal_exit(instrument=inst.symbol, event=ev,
+                                 backend=backend_name(broker), simulated=is_simulated(broker))
+                    # A round trip is CLOSED when nothing is left open. That is the only
+                    # moment a trades.csv row is meaningful -- a TP1 partial is not a
+                    # completed trade, and writing one per fill would double-count.
+                    if ev.get("qty_open_after") == 0:
+                        _record_round_trip(broker, inst, pre, ev, now_et, record)
+                except Exception:  # noqa: BLE001 -- journaling never breaks execution
+                    pass
+        except Exception as e:  # noqa: BLE001
+            record["exit_error"] = f"{type(e).__name__}: {e}"
+    record["exit_events"] = exit_events
+
+    # 4. Forced flatten (settlement stop / end of RTH). Demands an action, never blocks one.
+    flat_call = rails.must_flatten(now_et)
+    if flat_call.allow and not broker.is_flat(inst.symbol):
+        positions = {p["symbol"]: p for p in broker.get_positions()}
+        pos = next((p for s, p in positions.items() if inst.symbol in s), None)
+        if pos and last_price is not None:
+            side = "SELL" if float(pos.get("qty", 0)) > 0 else "BUY"
+            broker.close_position(inst.symbol, abs(int(float(pos["qty"]))), side, last_price)
+            record.update(action="FLATTEN", reason=flat_call.reason)
+            _write_heartbeat(now_et, "FLATTEN", {"rail": flat_call.rail})
+            _append_ledger(record)
+            _atomic_write_json(LAST_TICK, record)
+            return record
+
+    # 5. No stacking. One position per instrument (Rule 4 analogue: adding needs a new
+    #    confirmed trigger and a new leg, which this lane does not yet implement).
+    if not broker.is_flat(inst.symbol):
+        record.update(action="HOLD", reason="position_open_no_stack")
+        _write_heartbeat(now_et, "HOLD_POSITION_OPEN", {"exit_events": exit_events})
+        _append_ledger(record)
+        _atomic_write_json(LAST_TICK, record)
+        return record
+
+    # 6. SEE -- the validated watcher fleet, fed the LIVE frame.
+    from futures.futures_heartbeat_core import compute_latest_signals  # noqa: PLC0415
+
+    seen = compute_latest_signals(inst, bars=bars)
+    record["n_signals"] = len(seen.get("signals", []))
+    if seen.get("error"):
+        record["see_error"] = seen["error"]
+    if seen.get("snapshot"):
+        record["snapshot"] = seen["snapshot"]
+
+    # 7. DECIDE -- validated filter first, then the dollar rails.
+    from futures.strategy_config_v3 import should_take_v3  # noqa: PLC0415
+
+    vix = float(seen.get("snapshot", {}).get("vix", 17.0))
+    equity = broker.get_account_equity() or rails.start_equity
+    session_pnl = _session_realized_pnl(broker, now_et)
+    record["equity"] = equity
+    record["session_realized_pnl"] = session_pnl
+
+    chosen = None
+    for sig in seen.get("signals", []):
+        if not should_take_v3(sig["watcher"], sig["direction"], sig["confidence"], vix):
+            continue
+        stop_points = abs(float(sig["entry"]) - float(sig["stop"]))
+        qty = rails.max_qty_for(equity=equity, stop_points=stop_points, instrument=inst)
+        if qty < 1:
+            record.setdefault("rejected", []).append(
+                {"setup": sig["setup"], "rail": "sizing", "stop_points": stop_points})
+            continue
+        verdict = rails.check_entry(
+            now_et=now_et, equity=equity, session_realized_pnl=session_pnl,
+            stop_points=stop_points, qty=qty, instrument=inst,
+            freshness_verdict=fresh["verdict"])
+        if not verdict.allow:
+            record.setdefault("rejected", []).append(
+                {"setup": sig["setup"], "rail": verdict.rail, "reason": verdict.reason})
+            continue
+        chosen = {"signal": sig, "qty": qty, "stop_points": stop_points,
+                  "risk_usd": stop_points * inst.point_value * qty}
+        break
+
+    if chosen is None:
+        record.update(action="HOLD",
+                      reason="no_qualifying_signal" if record["n_signals"] else "no_signal")
+        _write_heartbeat(now_et, "HOLD", {"n_signals": record["n_signals"],
+                                          "rejected": record.get("rejected", [])})
+        _append_ledger(record)
+        _atomic_write_json(LAST_TICK, record)
+        return record
+
+    # 8. ACT.
+    sig = chosen["signal"]
+    side = "BUY" if sig["direction"] == "long" else "SELL"
+    tp1_qty = max(1, int(chosen["qty"] * 0.5)) if chosen["qty"] > 1 else chosen["qty"]
+    ids = broker.place_bracket(
+        inst.symbol, side, chosen["qty"], float(sig["entry"]), float(sig["tp1"]),
+        float(sig["stop"]), runner_price=sig.get("runner"), tp1_qty=tp1_qty)
+
+    record.update(
+        action="ENTER" if ids else "ENTER_REFUSED",
+        reason=sig["setup"],
+        entry={"side": side, "qty": chosen["qty"], "entry": sig["entry"],
+               "stop": sig["stop"], "tp1": sig["tp1"], "runner": sig.get("runner"),
+               "stop_points": chosen["stop_points"], "risk_usd": chosen["risk_usd"],
+               "setup": sig["setup"], "watcher": sig["watcher"],
+               "confidence": sig["confidence"], "direction": sig["direction"]},
+        order_ids=ids,
+    )
+    _write_heartbeat(now_et, record["action"], {"setup": sig["setup"], "qty": chosen["qty"]})
+    _append_ledger(record)
+    _atomic_write_json(LAST_TICK, record)
+
+    try:
+        from futures.futures_journal import journal_entry  # noqa: PLC0415
+
+        journal_entry(record)
+    except Exception:  # noqa: BLE001 -- journaling never breaks execution
+        pass
+    return record
+
+
+def _position_snapshot(broker, symbol: str) -> dict:
+    """The raw open/pending position dict, or {} -- the entry context a closed round
+    trip needs. Read-only; returns {} for any broker without a positions snapshot."""
+    try:
+        if hasattr(broker, "get_positions_snapshot"):
+            return dict(broker.get_positions_snapshot().get(symbol) or {})
+    except Exception:  # noqa: BLE001
+        pass
+    return {}
+
+
+def _record_round_trip(broker, inst, pre: dict, ev: dict, now_et: dt.datetime,
+                       record: dict) -> None:
+    """Append one CLOSED round trip to journal/futures/trades.csv."""
+    from futures.futures_journal import record_trade  # noqa: PLC0415
+
+    entry_px = pre.get("entry")
+    exit_px = ev.get("fill_price")
+    stop_px = pre.get("stop")
+    direction = pre.get("direction", "")
+    stop_points = (abs(float(entry_px) - float(stop_px))
+                   if entry_px is not None and stop_px is not None else None)
+    risk_usd = stop_points * inst.point_value * (pre.get("qty_total") or 1) if stop_points else None
+    pnl = ev.get("pnl")
+
+    hold_min = None
+    entry_time = pre.get("entry_time_et")
+    if entry_time:
+        try:
+            hold_min = round(
+                (now_et - dt.datetime.fromisoformat(str(entry_time))).total_seconds() / 60.0, 1)
+        except (TypeError, ValueError):
+            hold_min = None
+
+    record_trade({
+        "date": now_et.strftime("%Y-%m-%d"),
+        "session_phase": session_phase(now_et),
+        "instrument": inst.symbol,
+        "contract_month": pre.get("contract_month", ""),
+        "time_entry_et": entry_time or "",
+        "time_exit_et": now_et.isoformat(timespec="seconds"),
+        "hold_minutes": hold_min if hold_min is not None else "",
+        "setup": pre.get("setup", record.get("reason", "")),
+        "watcher": pre.get("watcher", ""),
+        "confidence": pre.get("confidence", ""),
+        "direction": direction,
+        "side": "BUY" if direction == "long" else "SELL",
+        "qty": pre.get("qty_total", ""),
+        "entry_px": entry_px if entry_px is not None else "",
+        "exit_px": exit_px if exit_px is not None else "",
+        "stop_px": stop_px if stop_px is not None else "",
+        "tp1_px": pre.get("tp1", ""),
+        "runner_px": pre.get("runner", "") if pre.get("runner") is not None else "",
+        "stop_points": round(stop_points, 2) if stop_points else "",
+        "point_value": inst.point_value,
+        "risk_usd": round(risk_usd, 2) if risk_usd else "",
+        "dollar_pnl": round(float(pnl), 2) if pnl is not None else "",
+        "r_multiple": (round(float(pnl) / risk_usd, 3)
+                       if pnl is not None and risk_usd else ""),
+        "exit_reason": ev.get("action", ev.get("event", "")),
+        "equity_pre": record.get("equity", ""),
+        "equity_post": broker.get_account_equity() or "",
+        # The disclosure that makes every downstream number interpretable.
+        "fills": "SIMULATED" if is_simulated(broker) else "BROKER",
+        "backend": backend_name(broker),
+        "followed_rules": "Y",
+        "rails_checked": "entry gated by FuturesRiskRails.check_entry",
+        "notes": "",
+    })
+
+
+# The fillsim account ledger's field names. Named here rather than inlined because a
+# rename on the broker side would otherwise degrade this to a silent 0.0 and quietly
+# disable the session-loss rail -- the C14 dead-knob shape. `test_session_pnl_reads_
+# the_real_ledger_fields` fails loudly if these drift.
+_PNL_FIELD = "daily_pnl"
+_PNL_DATE_FIELD = "last_reset_date_et"
+
+
+def _session_realized_pnl(broker, now_et: dt.datetime) -> float:
+    """Realized P&L for the CURRENT session date. 0.0 when genuinely unknowable.
+
+    A stale date returns 0.0 on purpose: yesterday's losses must not consume today's
+    session budget. Note the failure direction -- an unreadable ledger makes the
+    session-loss rail MORE permissive, so this value is never the only thing between
+    the arm and a blown day. The account floor, which reads live equity, is absolute.
+    """
+    try:
+        snap = broker.get_account_snapshot()
+    except Exception:  # noqa: BLE001 -- broker without a snapshot surface
+        return 0.0
+    if not isinstance(snap, dict):
+        return 0.0
+    if snap.get(_PNL_DATE_FIELD) != now_et.strftime("%Y-%m-%d"):
+        return 0.0
+    try:
+        return float(snap.get(_PNL_FIELD, 0.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+# ── status / drills ───────────────────────────────────────────────────────────
+
+def status(instrument: str = DEFAULT_INSTRUMENT, backend: Optional[str] = None) -> dict:
+    """Read-only snapshot. Never places, cancels or mutates anything."""
+    broker = make_broker(backend)
+    broker.connect()
+    now = et_now()
+    out = {
+        "checked_at_et": now.isoformat(timespec="seconds"),
+        "session_phase": session_phase(now),
+        "session_open": is_session_open(now),
+        "backend": backend_name(broker),
+        "simulated_fills": is_simulated(broker),
+        "equity": broker.get_account_equity(),
+        "flat": broker.is_flat(instrument),
+        "positions": broker.get_positions(),
+        "data": fld.freshness(instrument, "5m"),
+    }
+    for path, key in ((LAST_TICK, "last_tick"), (HEARTBEAT, "heartbeat")):
+        try:
+            out[key] = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            out[key] = None
+    return out
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="Autonomous futures tick (broker-agnostic)")
+    ap.add_argument("--tick", action="store_true", help="run one see->decide->act pass")
+    ap.add_argument("--status", action="store_true", help="read-only snapshot")
+    ap.add_argument("--instrument", default=DEFAULT_INSTRUMENT)
+    ap.add_argument("--backend", default=None, help="fillsim (default) | tastytrade")
+    ap.add_argument("--force-refresh", action="store_true")
+    args = ap.parse_args(argv)
+
+    if args.status:
+        print(json.dumps(status(args.instrument, args.backend), indent=2, default=str))
+        return 0
+    if args.tick:
+        rec = run_tick(args.instrument, backend=args.backend,
+                       force_refresh=args.force_refresh)
+        print(json.dumps(rec, indent=2, default=str))
+        return 0
+    ap.print_help()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

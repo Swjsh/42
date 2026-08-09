@@ -6,6 +6,30 @@
 > Audit facts below were read live this session, not recalled.
 > Broker-selection research runs in parallel → `analysis/deep-research/FUTURES-BROKER-RESEARCH-2026-08-09.md`
 > (Opus: read it before WS-F1; if it has not landed, WS-F0 blocks on it).
+>
+> ---
+>
+> ## ⚠️ EXECUTED 2026-08-09 evening — read [`AUTONOMOUS-FUTURES-LANE.md`](../futures/AUTONOMOUS-FUTURES-LANE.md) for the built state
+>
+> WS-F1/F2/F3/F4/F6/F7 are **built, tested and running**. Two audit claims in this document were
+> **corrected by live evidence** during execution — they are struck through in place below rather
+> than edited away, because both errors are instructive:
+>
+> 1. **"Edge #3 has NEVER run"** — the scheduled TASK has never fired
+>    (`LastTaskResult 267011`), but the SCRIPT has: **6 closed round trips**, 18 fill events,
+>    2026-07-20 → 08-06. "Task never ran" and "code never exercised" are different claims and
+>    this doc conflated them.
+> 2. **"futures_bp=0.0 → the account is not provisioned"** — re-probing returned
+>    `tif.futures_session_not_active` (a **market-hours** error) with `is_futures_enabled: true`.
+>    The July "not provisioned" diagnosis is **UNCONFIRMED**. `Gamma_FuturesBrokerProbe` settles
+>    it at 18:05 ET.
+>
+> **The bigger blocker this plan missed entirely:** the futures bars ended **2026-06-12**, two
+> months stale. Every "live futures tick" contemplated here would have been reading June data.
+> That, not the broker, was the real thing standing between us and an autonomous lane.
+>
+> **WS-F0 is moot as a blocker.** The lane runs on a local fill simulator behind a broker seam;
+> the venue swaps in as an env var. J is not blocking anything.
 
 ---
 
@@ -35,7 +59,7 @@ wants to trade.
 | **Docs** | `markdown/futures/`: CONTRACT-SPECS, MARGIN-LEVERAGE-RISK, SESSIONS-ROLLOVER-TAX, SOURCES, REVIVAL-PLAN | Foundational knowledge already written — sessions/rollover/leverage homework is DONE |
 | **SSR shadow** (Gamma_SsrShadow) | **LIVE** — ran 08-07 19:03 ET; frozen spec `ssr-v1`; NQ + GC configs, watermarks current; **0 round trips so far** | The forward-evidence clock is already ticking. Arming bar (frozen): ≥20 closed round trips AND positive expectancy AND beats-null. Nothing armable yet |
 | **Futures mirror** (Gamma_FuturesMirror) | Ready, ran 08-07; produces `automation/state/futures/` (account.json, decisions.jsonl, edge3-sim fills/position) | A sim spine already exists |
-| **Edge #3 sim** (mes-mnq-div) | Fleet arm `mes-mnq-div-futures` defined: "MES leads → trade MNQ laggard on ≥2-bar divergence"; task `Gamma_FuturesEdge3Sim` registered but **has never run** | Built, never exercised — same class as the vwap import-death; must be exercised or deleted |
+| **Edge #3 sim** (mes-mnq-div) | ~~task registered but **has never run**~~ **CORRECTED 2026-08-09:** the TASK has never fired, but the SCRIPT has — **6 closed round trips**, +$804.33, mean +$134.06/tr vs validated OOS +$71.46, verdict `PENDING_MORE_DATA` (needs n≥20) | **EXERCISED, not deleted** (WS-F4). Re-verified clean this session. The mean at 1.9× validated OOS on n=6 is a too-good flag, not a green light |
 | **Linear-sim arm** (mes-linear-sim) | Defined: "THE OPTION TAX IS THE KILLER, NOT THE READ — same strategy on a linear instrument" | This is the thesis that makes futures attractive for OUR engine: our directional read may be fine while 0DTE friction (25–33% spread + theta) eats it. MES friction is ~1 tick |
 | **Disabled tasks** | Gamma_FuturesEod / FuturesHeartbeat / FuturesPremarket — Disabled since June | Pre-revival era; superseded, clean up or re-register per WS-F3 |
 | **History (do not relitigate)** | Phase-1 batteries KILLED twice; SSR batteries KILLED at FDR except 5 short-side PULSE cells → forward shadow only | **The plan must not promise edge.** It promises infrastructure + shadow reps + honest gates |

@@ -212,6 +212,90 @@ def render_positions_table(snap: dict) -> list[str]:
     return out
 
 
+def render_other_lanes() -> list[str]:
+    """The non-SPY lanes, one glance each: futures, crypto gym, crypto twin.
+
+    J's literal question was "where do I see the crypto gym on the dashboard" and the
+    honest answer was NOWHERE -- the gym has scored itself daily for weeks with no
+    surface. Same for the futures lane. A lane nobody can see is a lane nobody can
+    steer, so each row below states its own EVIDENCE CLASS: simulated fills are
+    mechanism evidence and never edge evidence, and the surface says so rather than
+    leaving a reader to infer it from a doc they may never open.
+
+    Read-only and fail-open: any unreadable producer degrades to a `?` row, never an
+    exception -- HOME must render even when a lane is dark (that is exactly when it
+    matters most).
+    """
+    L: list[str] = ["## Other lanes", ""]
+
+    # --- futures --------------------------------------------------------------
+    hb = read_json(STATE / "futures" / "trader" / "heartbeat.json") or {}
+    feed = read_json(STATE / "futures" / "data-freshness.json") or {}
+    acct = read_json(STATE / "futures" / "trader" / "fillsim-account.json") or {}
+    ssr = read_json(STATE / "futures" / "ssr-shadow-progress.json") or {}
+    edge3 = read_json(STATE / "futures" / "edge3-sim-progress.json") or {}
+
+    L.append("### 📈 Futures (MES · SIMULATED fills — mechanism evidence, never edge)")
+    L.append("")
+    if hb:
+        L.append(f"- **trader** `{hb.get('verdict', '?')}` — last tick "
+                 f"`{hb.get('last_tick_et', '?')}` · session {hb.get('session_phase', '?')}")
+    else:
+        L.append("- **trader** — no heartbeat yet (Gamma_FuturesTrader has not fired)")
+    if acct:
+        L.append(f"- **sim book** equity ${acct.get('equity', 0):,.2f} "
+                 f"(start ${acct.get('starting_equity', 0):,.2f}) · "
+                 f"day ${acct.get('daily_pnl', 0):,.2f} · {acct.get('trade_count', 0)} trades")
+    L.append(f"- **feed** {feed.get('verdict', '?')} "
+             + " · ".join(f"{k} {v.get('verdict', '?')} ({v.get('age_minutes', '?')}m)"
+                          for k, v in (feed.get("feeds") or {}).items()))
+    if edge3:
+        L.append(f"- **edge #3** (MES→MNQ divergence) {edge3.get('n_closed_round_trips', 0)}"
+                 f"/{edge3.get('falsification_floor', 20)} round trips · "
+                 f"mean ${edge3.get('mean_pnl_usd_mnq', 0):,.2f} vs validated "
+                 f"${edge3.get('validated_oos_per_trade', 0):,.2f} · "
+                 f"**{edge3.get('falsification', '?')}**")
+    if ssr:
+        L.append(f"- **SSR shadow** {ssr.get('n_closed_round_trips', 0)} round trips · "
+                 f"{ssr.get('verdict', ssr.get('falsification', 'forward clock running'))}")
+    else:
+        L.append("- **SSR shadow** — 0 round trips so far (forward clock running)")
+    L.append("")
+
+    # --- crypto ---------------------------------------------------------------
+    L.append("### 🧪 Crypto (maintenance freeze — regression suite + mechanism twin)")
+    L.append("")
+    gym_json = sorted(STATE.glob("gym-scorecard-*.json"), reverse=True)
+    gym = read_json(gym_json[0]) if gym_json else {}
+    if gym:
+        audits = gym.get("audits") or []
+        greens = sum(1 for a in audits if a.get("verdict") == "GREEN")
+        detail = next((a.get("summary") for a in audits
+                       if "crypto-gym" in str(a.get("name", ""))), "")
+        L.append(f"- **gym** {gym.get('overall_verdict', '?')} · {greens}/{len(audits)} audits "
+                 f"GREEN · validators: {detail or '?'} · for `{gym.get('for_date', '?')}`")
+        for a in audits:
+            if a.get("verdict") not in (None, "GREEN"):
+                L.append(f"    - ⚠️ `{a.get('name')}` **{a.get('verdict')}** — {a.get('summary', '')}")
+    else:
+        L.append("- **gym** — no scorecard found")
+
+    # The twin has no progress/summary file; its journal IS the liveness signal, so read
+    # the last row rather than inventing a new producer to watch.
+    last_ts, n_rows = None, 0
+    try:
+        rows = [ln for ln in (STATE / "crypto-twin" / "journal.jsonl").read_text(
+            encoding="utf-8").splitlines() if ln.strip()]
+        n_rows = len(rows)
+        last_ts = json.loads(rows[-1]).get("ts_utc") if rows else None
+    except Exception:  # noqa: BLE001 -- a dark twin must render, not raise
+        pass
+    L.append(f"- **twin** last journal row `{last_ts or '?'}` · {n_rows} events "
+             f"(24/7 mechanism validator — its P&L is NEVER SPY evidence)")
+    L.append("")
+    return L
+
+
 def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     levels = read_json(STATE / "key-levels.json") or {}
     bias = read_json(STATE / "today-bias.json") or {}
@@ -261,6 +345,8 @@ def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
         L.append(f"> No core decision rows for {date} (weekend, holiday, or the engine is dark).")
     L.append(f"- bias: **{bias.get('bias', 'n/a')}**")
     L.append("")
+
+    L.extend(render_other_lanes())
 
     L.append("## Open loops")
     L.append("")
