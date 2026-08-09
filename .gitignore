@@ -220,3 +220,18 @@ journal/gex-archive/*-cboe.json
 # orphan the current lines. The "[G] " TAG sweep in draw_key_levels.py is the
 # recovery path, so this file is disposable by design.
 automation/state/chart-autodraw.json
+
+# --- Obsidian vault (2026-08-09) -------------------------------------------
+# The repo root IS an Obsidian vault (.obsidian created 2026-07-09). This repo is
+# PUBLIC, so the personal/vendored parts of the vault must never be pushed:
+#   workspace.json          -> personal pane layout + hardcoded local paths
+#   plugins/*/main.js|.css  -> 4.4MB of vendored third-party JS (realclaudian)
+#   plugins/*/data.json     -> plugin state incl. Claude conversation IDs
+# The reproducible config (which core/community plugins are on, app + appearance
+# settings, and any .base views we author) IS tracked so the vault rebuilds anywhere.
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+.obsidian/plugins/*/data.json
+.obsidian/graph.json
