@@ -68,6 +68,11 @@ LOCK_RETRY_DELAY_S = 0.4
 _BANNED_PATHSPECS = {"-A", "--all", ".", "*", "-a"}
 
 
+# CREATE_NO_WINDOW: git.exe is console-subsystem, so an unflagged spawn flashes a console
+# on J's desktop (2026-08-09 popup sweep).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
+
 def _git(args: list[str]) -> subprocess.CompletedProcess:
     # encoding/errors pinned: text=True alone decodes with the Windows ANSI code page
     # (cp1252 here), and a single non-cp1252 byte in HOOK output (e.g. a UTF-8 curly
@@ -75,7 +80,7 @@ def _git(args: list[str]) -> subprocess.CompletedProcess:
     # (observed 2026-08-07). Git emits UTF-8; decode as UTF-8 and never crash on noise.
     return subprocess.run(
         ["git", *args], cwd=str(REPO), capture_output=True, text=True,
-        encoding="utf-8", errors="replace",
+        encoding="utf-8", errors="replace", creationflags=_CREATE_NO_WINDOW,
     )
 
 

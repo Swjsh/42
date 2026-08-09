@@ -94,6 +94,10 @@ from et_clock import et_now, et_offset_hours  # noqa: E402
 # --------------------------------------------------------------------------- #
 # paths
 # --------------------------------------------------------------------------- #
+# CREATE_NO_WINDOW: the backtest-venv python spawned below is console-subsystem, which
+# flashes a console on J's desktop without the flag (2026-08-09 popup sweep).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 STATE = REPO / "automation" / "state"
 FLEET_DIR = STATE / "fleet"
 LOGS_DIR = STATE / "logs"
@@ -467,6 +471,7 @@ def _attempt_core_recency_refresh(timeout_s: int = 90) -> dict:
         proc = subprocess.run(
             [str(BACKTEST_VENV_PY), str(CORE_RECENCY_SCRIPT), "--no-replay"],
             cwd=str(REPO), capture_output=True, text=True, timeout=timeout_s,
+            creationflags=_CREATE_NO_WINDOW,
         )
         tail = (proc.stdout or proc.stderr or "").strip().splitlines()[-5:]
         return {"attempted": True, "ok": proc.returncode == 0, "returncode": proc.returncode, "tail": tail}

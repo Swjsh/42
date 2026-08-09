@@ -63,6 +63,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import state_freshness_audit as sfa  # noqa: E402
 
+# CREATE_NO_WINDOW: this module shells out to powershell.exe on a schedule, which flashes
+# a console on J's desktop without the flag (2026-08-09 popup sweep).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 COOLDOWN_PATH = REPO / "automation" / "state" / "state-freshness-selfheal-cooldown.json"
 LOG_PATH = REPO / "automation" / "state" / "state-freshness-selfheal-log.jsonl"
 DEFAULT_COOLDOWN_MIN = 20
@@ -132,9 +136,10 @@ def start_task(task_name: str, dry_run: bool = False) -> dict:
         return {"started": False, "dry_run": True}
     try:
         proc = subprocess.run(
-            ["powershell", "-NoProfile", "-Command",
-             f"Start-ScheduledTask -TaskName '{task_name}'"],
+            ["powershell", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
+             "-Command", f"Start-ScheduledTask -TaskName '{task_name}'"],
             capture_output=True, text=True, timeout=30,
+            creationflags=_CREATE_NO_WINDOW,
         )
         ok = proc.returncode == 0
         return {"started": ok, "returncode": proc.returncode,

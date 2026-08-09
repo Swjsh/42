@@ -44,6 +44,10 @@ from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
+# CREATE_NO_WINDOW: et_clock.py runs under console-subsystem python here, which flashes a
+# console on J's desktop without the flag (2026-08-09 popup sweep).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 FLEET_DIR = REPO / "automation" / "state" / "fleet"
 STATE = REPO / "automation" / "state"
 JOURNAL = REPO / "journal"
@@ -61,6 +65,7 @@ def et_now() -> tuple[str, str, bool]:
         out = subprocess.run(
             [sys.executable, str(REPO / "setup" / "scripts" / "et_clock.py")],
             capture_output=True, text=True, timeout=30,
+            creationflags=_CREATE_NO_WINDOW,
         ).stdout
         lines = [ln.strip() for ln in out.splitlines() if ln.strip()]
         stamp = lines[0]

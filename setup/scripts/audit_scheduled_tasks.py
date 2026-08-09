@@ -333,10 +333,23 @@ def evaluate_trigger_health(registry_text: str, tasks: list[dict]) -> list[dict]
 
 def _registered_tasks() -> list[dict]:
     """Return list of {name, state, execute, arguments, last_run, last_result, next_run, triggers}."""
-    helper = Path("setup/scripts/_list-gamma-tasks-json.ps1")
+    # C9 -- anchor to __file__, never CWD. This was a repo-relative path until 2026-08-09:
+    # any caller whose CWD wasn't the repo root got `powershell -File <missing>`, which
+    # drops PowerShell into banner mode and returns "Windows PowerShell\nCopyright ..." on
+    # stdout. That is 78 non-empty chars, so the `not raw.strip()` guard below waved it
+    # through and json.loads died with a bare JSONDecodeError -- the scan reporting
+    # "broken" instead of the real "you called me from the wrong directory".
+    helper = SCRIPTS_DIR / "_list-gamma-tasks-json.ps1"
     raw = _powershell_file(helper)
     if not raw.strip():
         return []
+    # Non-JSON stdout means the helper never ran (banner mode, execution-policy refusal,
+    # a stray Write-Host). Say so, rather than surfacing a positional JSON parse error.
+    if raw.lstrip()[:1] not in ("[", "{"):
+        raise RuntimeError(
+            f"task-enumeration helper returned non-JSON stdout "
+            f"(first 80 chars: {raw.strip()[:80]!r}) -- helper={helper}"
+        )
     parsed = json.loads(raw)
     return parsed if isinstance(parsed, list) else [parsed]
 
