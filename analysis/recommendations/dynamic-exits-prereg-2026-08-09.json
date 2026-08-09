@@ -1,0 +1,132 @@
+{
+  "_doc": "FROZEN pre-registration, written BEFORE backtest/tools/dynamic_exits_2026_08_09.py exists (git-provable: this file's commit predates the runner's commit). J's standing directive (weeks of repetition, verified 2026-08-09 as never queued/lessoned/varied): 'every trade is dynamic, stop, entry, trailing stop, TP, etc.' DYNAMIC != WIDER -- every candidate here COMPUTES its exit parameter from that trade's own context (ATR-at-entry or the opposing-trendline 'safety line'), never from a re-picked constant. No stop-WIDTH-at-fixed-pct grid is re-run (settled both directions per the task brief: widening -120->-2,704 on 391-day gap-fade, tightening +$3,227 aggregate but +$15 over recent n=49).",
+  "study": "dynamic_exits_2026_08_09",
+  "version": 1,
+  "generated_at_et": "2026-08-09 (Sunday after-hours work block, market CLOSED)",
+  "runner": "backtest/tools/dynamic_exits_2026_08_09.py",
+  "harness": "exit replays ONLY via backtest/lib/exit_manager_walk.py#walk_exit_manager -> automation/state/fleet/exit_manager.py#plan_exit_actions (never simulator_real). Every candidate is a per-trade exit_shape dict computed from causal (no-lookahead) trade context, fed into the SAME production decision core CONTROL uses.",
+
+  "mechanism_under_test": {
+    "architecture_finding": "ExitState (exit_manager.py) is ALREADY a per-position dataclass -- premium_stop_pct/catastrophe_stop_pct/tp1_premium_pct/trail_pct/profit_lock_arm_pct are per-TRADE fields, not global constants. Nothing in the state machine prevents dynamism. The gap is 100% at the CALLER layer: strategies.py's ExitShape literals and heartbeat_core.py's per-setup overrides populate these fields from hardcoded constants. This study tests CALLER-layer resolvers that compute the same fields from that trade's own ATR/structure context instead.",
+    "code_paths_touched": "NONE in production. This study only calls automation/state/fleet/exit_manager.py (read-only, already-shipped code) with a computed exit_shape dict, exactly like backtest/tools/catastrophe_stop_shakeout_ab.py (2026-07-23 precedent) and backtest/tools/exit_armscope_ab_2026_07_28.py already do for their own candidate shapes."
+  },
+
+  "prior_art_reconciliation": {
+    "dynamic_stop_ab_2026_07_07": "backtest/autoresearch/dynamic_stop_ab.py + analysis/recommendations/dynamic-stop-ab.json -- THE SAME QUESTION was tried once before (J's 2026-07-07 offline R&D ask), scoped to vwap_continuation ONLY, via the DEPRECATED _dte_expansion_sim (not walk_exit_manager -- predates the 2026-07-09 simulator_real-divergence scar this task explicitly forbids resurrecting), at DTE 0/1/2. VERDICT AT DTE0 (the only DTE relevant to current 0DTE-only live doctrine): 'NO dynamic rule beats static+gates' for BOTH ATM and ITM2 tiers -- ATR/IV cells all lost to static after gates. Only DTE2 (multi-day, not applicable live) saw a structure-based cell (STRUCT_buf0.25) win. This negative DTE0 result was never promoted to a lesson/queue item (consistent with the memory note's grep finding ZERO 'dynamic stop' hits) -- a disclosed, not hidden, prior. THIS STUDY DIFFERS: (a) family=ribbon_ride (the current majority/validated live strategy, not vwap_continuation), (b) harness=walk_exit_manager/plan_exit_actions (the approved production core, not the deprecated sim), (c) DTE0-only by construction (0DTE, no multi-day framing), (d) the safety-line/structure candidate reuses dynamic_stop_ab's OWN winning buffer constant (0.25) rather than re-deriving it, and (e) TP1 and trailing-width dynamism were never tested by the prior study at all (it only varied the stop). A different family + different harness + a genuinely new axis is not a re-litigation of a settled result, but the DTE0 negative prior is disclosed up front as the honest base rate to beat, not silently omitted.",
+    "catastrophe_cap_decision_2026_08_08": "analysis/recommendations/catastrophe-cap-decision-2026-08-08.json tested WIDEN-vs-HOLD the catastrophe cap at a fixed alternative width via a 13-fire shadow ledger (held-to-EOD counterfactual); decision was DO_NOT_WIDEN, cap stays pinned -0.50. This is a DIFFERENT axis (binary widen/hold of a still-CONSTANT cap) from this study's axis (COMPUTING the cap per-trade from ATR/structure, which on any given trade may resolve wider OR narrower than -0.50). Disjoint, not re-litigated.",
+    "catastrophe_stop_shakeout_2026_07_23": "tested fixed -0.70 and -0.99 alternatives on the structure-mode bear subset (n=27); CONTROL_HOLDS per the task brief's own settled-both-directions framing. This study's candidates are never a single scalar swap -- disjoint by construction (every candidate computes a DIFFERENT value per trade)."
+  },
+
+  "graveyard_check_precommitted": {
+    "verdict": "NO COLLISION with any named graveyard entry.",
+    "pre_tp1_profit_lock_arm_scope_full": "Not touched. Every candidate below inherits CONTROL's profit_lock_arm_scope='post_tp1' unchanged. Verified by construction (the resolver functions never set this key).",
+    "hold_longer": "Not touched. time_stop_et unchanged (15:40) in every candidate.",
+    "take_profit_earlier": "Not applicable as a category -- DYN-TP-ATR's tp1_premium_pct is computed bidirectionally (can resolve ABOVE or BELOW control's 1.0 depending on that trade's own ATR), not a blanket lower TP.",
+    "level_target_exits": "Not touched. No candidate sets a TP at a chart level; DYN-STRUCT-CAT/DYN-ALL use a level-derived value for the STOP side only, which is the ALREADY-LIVE, validated stop_mode='structure' mechanism (v15.3 chart-stop-primary, SS-B), not the dead level-target-TP idea (0/144).",
+    "fixed_stop_width_either_direction": "Not touched. No candidate is a single scalar swap; every candidate computes a per-trade value from that trade's own ATR or chart structure. This is the entire point of the study."
+  },
+
+  "populations": {
+    "historical_391day": {
+      "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (reused byte-identical, not re-run -- guarantees comparability with exit_armscope_ab_2026_07_28.py's own G4 runner-cohort figure, sanity-checked this session: n=35 runner_stop-exit trades, total exactly $15,774.05, matching that script's cited figure).",
+      "disclosed_span_correction": "The task brief and several prior studies refer to 'the 391-day population.' The actual frozen population reused here spans 2025-01-02..2026-07-22 (386 calendar RTH days of underlying SPY/OPRA data), producing 191 REALIZED ribbon_ride trades across 141 unique trading dates (2025-01-06..2026-07-21) -- not literally 391. Regenerating a fresh population through 2026-08-07 was out of scope for one session (would require a new orchestrator-based mining run, a materially larger undertaking than the exit-shape study this task asks for); reusing the existing frozen, already-validated population is the honest choice over silently claiming a span that was not actually re-derived.",
+      "n_trades_total": 191,
+      "n_bear_P": 151,
+      "n_bull_C": 40,
+      "n_structure_eligible_trigger_level_not_null": 67,
+      "runner_cohort_G4_anchor": {"n": 35, "definition": "exit_reason startswith 'runner_stop'", "control_total_pnl": 15774.05},
+      "sub_windows_quarterly_by_date": [
+        ["2025-01-06", "2025-07-21"], ["2025-07-29", "2025-12-02"],
+        ["2025-12-08", "2026-04-29"], ["2026-05-01", "2026-07-21"]
+      ],
+      "oos_split": "chronological last 25% of the 191 trades (sorted by date then entry_time_et) = OOS (n=47, starting 2026-05-07); first 75% = IS (n=144).",
+      "spy_5m_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv (the exact file catastrophe_stop_shakeout_ab.py used for this same population).",
+      "strike_tier_delta_assumption": "ATM (delta=0.50) for the entire population -- engine_fullhist_replay.py's SAFE_BASE config trades the field-reconciled ATM core-Safe tier per CLAUDE.md 'core Safe trades ATM' doctrine. Disclosed approximation, inherited from dynamic_stop_ab.py's own TIER_DELTA table, not re-derived."
+    },
+    "real_fill_book": {
+      "source": "automation/state/fills-ledger.jsonl, filter attribution=='engine' AND is_option AND not is_crypto, ALL 6 arms present in the ledger (bold-2, risky-1, risky-3, safe-1, safe-2, safe-3) -- passed explicitly via exit_shape_parity_study.load_fleet_engine_fills(arms=...), per that module's own documented pattern for a NEW, separately-frozen study wanting current-day coverage (does not disturb that module's own frozen FLEET_REST_ARMS default/anchor).",
+      "disclosed_span": "2026-06-26..2026-08-07, 27 ET trading dates -- the FULL ledger (not truncated to a literal 25), which is the honest 'the ~25-day real-fill book' the task names; includes the full 08-03..08-07 week.",
+      "n_fills": 533,
+      "n_positions_reconstructed": 221,
+      "n_positions_with_cached_option_bars": 203,
+      "n_positions_dropped_missing_cache": 18,
+      "dropped_disclosure": "Missing contracts are DROPPED and COUNTED, never imputed (C7). 18/221 (8.1%) real positions have no cached 1-min/5-min option bar file under backtest/data/options/ and are excluded from the repriced comparison; their actual broker-truth P&L is still included in the separately-reported broker-truth reference total.",
+      "arm_to_delta_tier": {
+        "safe-1": 0.50, "safe-2": 0.50, "safe-3": 0.50,
+        "bold-2": 0.65, "risky-1": 0.65, "risky-3": 0.65
+      },
+      "scope_limitation_disclosed": "Historical trigger_level (the exact rejection_level a real signal fired against) is not reliably recoverable from fills-ledger.jsonl alone. The real-fill-book comparison therefore runs BOTH control and every candidate at structure_stop_enabled=False (a premium-mode-equivalent REPRICING of the whole book), never mixing a structure-mode CONTROL against a premium-mode candidate. Actual broker-truth P&L (which DID use live structure-mode stops for ribbon_ride fills) is reported separately as a labeled reference row, never blended into the gated comparison. This keeps the comparison apples-to-apples (one axis changed at a time) at the cost of not exercising the structure-stop mechanism on this population -- the historical population above is exactly where the structure/safety-line axis gets its real test (67 structure-eligible trades)."
+    }
+  },
+
+  "causal_features_frozen": {
+    "atr": {
+      "definition": "Simple mean of true range (max(hi-lo, |hi-prev_close|, |lo-prev_close|)) over the trailing `length=14` 5-minute SPY bars ENDING AT the last bar fully CLOSED before entry_time_et (bar start + 5min <= entry_time -- same causal convention as exit_manager_walk.last_closed_bar_close_at / exit_manager._structure_stop_hit's fail-open input). No lookahead: only bars strictly before or exactly-closing-before entry are used. Reused verbatim from backtest/autoresearch/dynamic_stop_ab.py#atr_at (same formula, re-implemented standalone in the new runner to avoid importing that module's deprecated _dte_expansion_sim dependency at import time)."
+    },
+    "safety_line": {
+      "definition": "Run backtest/lib/trendlines.py#detect_trendlines over the CURRENT trading day's 5-minute SPY bars from session open (09:30 ET) through the last bar closed before entry_time_et (same-day only, intraday, no cross-day carry -- matches the live engine's own prior_bars convention). Each resulting Trendline's price_at(entry_ts) is evaluated. Candidates are filtered DIRECTIONALLY using the EXACT SAME convention exit_manager.nearest_active_level already uses in production: side=='P' (bear) keeps only lines projecting AT/ABOVE spot at entry; side=='C' (bull) keeps only lines projecting AT/BELOW spot. Of the surviving candidates (either polarity -- ascending or descending -- since a channel's far boundary can be either), the one NEAREST to spot is selected as the safety line. This is a genuine extension of already-validated production logic (nearest_active_level) from a static level list to trendline-PROJECTED levels, not a new invention from scratch.",
+      "fallback": "None when detect_trendlines finds <3-touch lines or no candidate survives the directional filter (insufficient swings, common on quiet/short pre-entry windows, e.g. an early 09:35 entry with only 1 prior bar). Fallback behavior is candidate-specific (stated per-candidate below) -- coverage % (how many trades got a genuinely computed vs a fallback value) is REPORTED, not hidden."
+    },
+    "translation_underlying_to_premium": {
+      "formula": "premium_distance = (|reference_level - spot_at_entry| + buffer) * tier_delta; resolved_pct = -(premium_distance / entry_premium) for stop-side candidates, +(premium_distance / entry_premium) for TP/trail-side candidates.",
+      "disclosed_approximation": "Fixed per-tier delta (no per-contract greeks feed in the cache, identical disclosed limitation to dynamic_stop_ab.py). A too-small delta widens the translated distance; too-large tightens it. Bounded by the clamps below and by reporting each candidate's realized median/p25/p75 resolved value + exit-reason mix (proves the mechanism actually bound differently, not a relabeled no-op)."
+    }
+  },
+
+  "candidates": {
+    "DYN-ATR-CAT": {
+      "axis": "stop (catastrophe_stop_pct AND premium_stop_pct set to the SAME computed value -- both fields exist so the trade is dynamic regardless of whether it resolves structure or premium mode, an axis the precedent shakeout_ab study did not cover since it only touched catastrophe_stop_pct)",
+      "formula": "pct = -clamp(1.5 * ATR14_at_entry * tier_delta / entry_premium, 0.20, 0.85)",
+      "k": 1.5,
+      "k_provenance": "inherited from dynamic_stop_ab.py's own grid (ATR_k1.5), disclosed as the prior study's best-of-a-losing-field DTE0 ATR value, not freshly cherry-picked against this population.",
+      "clamp": [0.20, 0.85],
+      "everything_else": "byte-identical to strategies.RIBBON_RIDE.exit.to_dict() control shape (tp1/trail/runner/arm_scope/time_stop untouched)."
+    },
+    "DYN-STRUCT-CAT": {
+      "axis": "stop (catastrophe_stop_pct AND premium_stop_pct, same rationale as DYN-ATR-CAT) -- the 'safety line' idea",
+      "formula": "pct = -clamp((|safety_line - spot| + 0.25) * tier_delta / entry_premium, 0.20, 0.85); falls back to CONTROL's unchanged -0.50 when no safety line resolves.",
+      "buffer": 0.25,
+      "buffer_provenance": "inherited from dynamic_stop_ab.py's STRUCT_buf0.25 -- its ONLY winning label in the prior (different-family, different-harness) study.",
+      "clamp": [0.20, 0.85],
+      "everything_else": "byte-identical to control."
+    },
+    "DYN-TP-ATR": {
+      "axis": "TP1 (tp1_premium_pct)",
+      "formula": "pct = clamp(1.0 * ATR14_at_entry * tier_delta / entry_premium, 0.30, 2.50)",
+      "k": 1.0,
+      "k_provenance": "fresh, untuned -- the prior study never tested TP dynamism at all. 1.0x is the simplest non-arbitrary starting multiple (target roughly the trade's own entry-time volatility move), chosen before any result was seen.",
+      "clamp": [0.30, 2.50],
+      "counter_evidence_disclosed": "2026-08-06 fixed +100% TP1 arms outperformed a fixed +50% arm ($125.00/$103.75 vs $59.20 per contract) -- a fixed LOWER TP is not automatically better. This candidate is reported honestly regardless of which direction it moves TP1 on any given trade.",
+      "everything_else": "byte-identical to control."
+    },
+    "DYN-TRAIL-ATR": {
+      "axis": "trailing width (trail_pct)",
+      "formula": "trail_pct = clamp(1.0 * ATR14_at_entry * tier_delta / entry_premium, 0.08, 0.30)",
+      "k": 1.0,
+      "clamp": [0.08, 0.30],
+      "everything_else": "byte-identical to control (profit_lock_arm_pct unchanged at 0.05 -- arm-threshold dynamism is named nowhere in the task's BUILD bullet list [stop/catastrophe-cap/TP/trailing] and is explicitly OUT OF SCOPE tonight, flagged as a natural next step in the report, not silently skipped)."
+    },
+    "DYN-ALL": {
+      "axis": "every named axis at once -- the literal 'every trade is dynamic, stop, entry, trailing stop, TP' bundle",
+      "formula": "stop = DYN-STRUCT-CAT's value when a safety line resolves, ELSE DYN-ATR-CAT's ATR-based value (maximizes genuine per-trade coverage rather than leaving un-resolved trades on a static fallback); TP1 = DYN-TP-ATR's value; trail = DYN-TRAIL-ATR's value.",
+      "purpose": "Tests whether combining axes is additive, subtractive, or neutral (KEEP-LOSSES-SMALL-2026-08-06.md found 14/15 lever PAIRS were subtractive on entry-side levers -- this candidate checks whether the SAME caution applies on the exit side, not assumed either way)."
+    }
+  },
+
+  "gates": {
+    "methodology_source": "4-gate + BH-FDR methodology from catastrophe_stop_shakeout_ab.py (2026-07-23 precedent), extended with the G4-named runner-cohort-no-regression bar from exit_armscope_ab_2026_07_28.py (the codebase's own 'anchor' vocabulary) and the task's explicit sub-window-stability + drop-best-day + Tuesday-no-harm requirements.",
+    "g1_aggregate": "candidate_total_pnl > control_total_pnl over the full 191-trade historical population.",
+    "g3_ex_best": "remove the single largest positive (candidate_pnl - control_pnl) TRADE; remaining aggregate delta still > 0.",
+    "g4_runner_cohort_anchor_no_regression": "re-walk the n=35 CONTROL runner_stop-exit cohort (the $15,774.05 'profit engine') under the candidate shape; candidate's total on that SAME cohort must be >= $15,774.05 (no regression, matching exit_armscope's own bar -- not required to strictly improve).",
+    "sub_window_stable": "candidate beats control (positive aggregate delta) in >= 3 of the 4 chronological quarters.",
+    "drop_best_day": "remove the single best (candidate_day_total - control_day_total) calendar DAY (distinct from g3's trade-level cut); remaining aggregate delta still > 0.",
+    "walk_forward": "WF = OOS_delta_per_trade / IS_delta_per_trade (IS = first 144 trades, OOS = last 47 trades starting 2026-05-07). Gate: OOS_delta_per_trade > 0 (OOS_positive) AND WF >= 0.70. Edge case (frozen): if IS_delta_per_trade <= 0, WF is reported as null and the gate is FAIL regardless of OOS (an IS-negative/OOS-positive flip is a sign-instability disclosure, not a pass).",
+    "bh_fdr": "one-sided paired t-test (mean per-trade delta > 0) across the 5 candidates, Benjamini-Hochberg alpha=0.10 -- REPORTED as a disclosure standard (OP-20), NOT itself a hard ship gate, matching CLAUDE.md OP-16's literal auto-ratify text (OOS_positive AND WF>=0.70 AND sub_window_stable AND anchor_no_regression -- no BH clause) and the shakeout_ab precedent's own treatment.",
+    "tuesday_hard_gate": "candidate's 2026-08-04 total (on the REAL-FILL-BOOK repriced population) must be >= control-repriced's 2026-08-04 total. ANY candidate that degrades Tuesday is REJECTED FOR SHIPPING even if every other gate passes (task's explicit HARD GATE) -- its Tuesday cost is still reported, never hidden.",
+    "auto_ratify_bar": "g1 AND g3_ex_best AND g4_runner_cohort_anchor_no_regression AND sub_window_stable AND drop_best_day AND walk_forward_gate AND tuesday_hard_gate. ALL must pass for SHIP; anything else reports CONTROL_HOLDS / PREREG_ONLY, undecorated, per OP-16/OP-33 no-oversell. No gate is softened after seeing results."
+  },
+
+  "give_back_accounting": "REQUIRED (task honesty clause, matching shakeout_ab precedent): each candidate reports extra captured on trades where it beat control, separately from extra given back on trades where it lost MORE than control -- both sides of the ledger, never just the net.",
+
+  "rules": "READ-ONLY: no params.json/exit_manager.py/strategies.py/heartbeat_core.py edit during this analysis phase. If a candidate clears the auto-ratify bar, the SHIP step is a SEPARATE, disclosed, guarded follow-up commit (new ExitShape field additions to strategies.py, flag-gated, with RED-proof + one-line revert + REVOKE per the task's SHIP RULE) -- never silently bundled into this analysis commit. No trading-path file is touched by dynamic_exits_2026_08_09.py itself. Verdict reported honestly even if every candidate is CONTROL_HOLDS -- no forced ship, no softened gate."
+}
