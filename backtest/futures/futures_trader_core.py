@@ -79,6 +79,33 @@ LAST_TICK = STATE_DIR / "last-tick.json"
 LOOP_STATE = STATE_DIR / "loop-state.json"
 HEARTBEAT = STATE_DIR / "heartbeat.json"
 
+# The real-broker lane's state root, RELATIVE to whatever STATE_DIR currently is.
+BROKER_LANE_DIRNAME = "trader-broker"
+
+
+def lane_paths(state_dir=None, backend=None) -> dict:
+    """Resolve this lane's state files. Explicit state_dir wins; else by backend.
+
+    Two lanes run the SAME decisions -- one on the local fill simulator (the persistent
+    book of record) and one on the real broker (the fill-parity lane) -- so they must
+    never share position/ledger files or each would read the other's fills as its own.
+    `trader/` stays the fillsim default, so no existing path or monitor entry moves.
+
+    RESOLVED AT CALL TIME, deliberately, off the CURRENT module globals. A frozen
+    import-time mapping silently defeated `monkeypatch.setattr(core, "STATE_DIR", tmp)`,
+    which is exactly how drills and tests isolate themselves -- and the replay drill
+    writing into real state is a bug this file has already had once tonight. Reading the
+    globals live keeps that isolation working.
+    """
+    if state_dir is None and backend and backend.lower() == "tastytrade":
+        state_dir = STATE_DIR.parent / BROKER_LANE_DIRNAME
+    if state_dir is None:
+        return {"dir": STATE_DIR, "ledger": LEDGER, "last_tick": LAST_TICK,
+                "loop_state": LOOP_STATE, "heartbeat": HEARTBEAT}
+    d = Path(state_dir)
+    return {"dir": d, "ledger": d / "decisions.jsonl", "last_tick": d / "last-tick.json",
+            "loop_state": d / "loop-state.json", "heartbeat": d / "heartbeat.json"}
+
 DEFAULT_INSTRUMENT = "MES"
 DEFAULT_BACKEND = os.environ.get("FUTURES_BROKER", "fillsim")
 
@@ -104,8 +131,35 @@ def make_broker(backend: Optional[str] = None, *, state_dir: Optional[Path] = No
     if backend == "tastytrade":
         from futures.tastytrade_paper import TastytradeBroker  # noqa: PLC0415
 
+        _load_broker_env()
         return TastytradeBroker(watch_only=os.environ.get("FUTURES_ARMED") != "1")
     raise ValueError(f"unknown broker backend {backend!r} (want 'fillsim' or 'tastytrade')")
+
+
+ENV_FILE = REPO / ".env.tastytrade"
+
+
+def _load_broker_env() -> bool:
+    """Load sandbox credentials from the gitignored store into the process env.
+
+    The adapter reads TT_SECRET/TT_REFRESH from os.environ, which works from a shell
+    that exported them and silently does NOT from a scheduled task, where there is no
+    shell at all. Running by hand therefore proved nothing about the scheduled path --
+    the same lesson the probe's ModuleNotFoundError taught an hour earlier, in a
+    different disguise.
+
+    Values are never printed, never logged, never echoed into a ledger row.
+    `setdefault` so a genuinely pre-set env always wins.
+    """
+    try:
+        for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
+        return True
+    except OSError:
+        return False
 
 
 def backend_name(broker) -> str:
@@ -127,23 +181,25 @@ def _atomic_write_json(path: Path, data: dict) -> None:
     os.replace(tmp, path)
 
 
-def _append_ledger(record: dict) -> None:
+def _append_ledger(record: dict, paths: Optional[dict] = None) -> None:
+    paths = paths or lane_paths()
     try:
-        STATE_DIR.mkdir(parents=True, exist_ok=True)
-        with LEDGER.open("a", encoding="utf-8") as fh:
+        paths["dir"].mkdir(parents=True, exist_ok=True)
+        with paths["ledger"].open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(record, default=str) + "\n")
     except Exception:  # noqa: BLE001 -- journaling never breaks the tick
         pass
 
 
-def _write_heartbeat(now_et: dt.datetime, verdict: str, detail: dict) -> None:
+def _write_heartbeat(now_et: dt.datetime, verdict: str, detail: dict,
+                     paths: Optional[dict] = None) -> None:
     """Liveness beacon, written on EVERY tick including no-ops.
 
     Shipped with the first commit on purpose: the crypto twin once went dark for four
     days because nothing recorded that it had stopped ticking. A monitor can only
     notice silence if something was supposed to be making noise.
     """
-    _atomic_write_json(HEARTBEAT, {
+    _atomic_write_json((paths or lane_paths())["heartbeat"], {
         "last_tick_et": now_et.isoformat(timespec="seconds"),
         "verdict": verdict,
         "session_phase": session_phase(now_et),
@@ -171,7 +227,7 @@ def refresh_data(root: str, interval: str = "5m", *, force: bool = False) -> dic
             # actually decides, and it reads the file, not this call's return value.
             _append_ledger({"event": "data_refresh_failed", "root": root,
                             "error": f"{type(e).__name__}: {e}",
-                            "at_et": et_now().isoformat(timespec="seconds")})
+                            "at_et": et_now().isoformat(timespec="seconds")}, paths)
     return fld.freshness(root, interval)
 
 
@@ -184,7 +240,8 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
              bars: Optional[pd.DataFrame] = None,
              force_refresh: bool = False,
              refresh: bool = True,
-             freshness_override: Optional[str] = None) -> dict:
+             freshness_override: Optional[str] = None,
+             state_dir=None) -> dict:
     """One deterministic see -> decide -> act pass. Never raises; always journals.
 
     Order matters and is not arbitrary: EXITS are managed before ENTRIES are even
@@ -195,7 +252,11 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
     inst = get_instrument(instrument)
     rails = rails or FuturesRiskRails()
     broker = broker or make_broker(backend)
-    broker.connect()
+    connected = bool(broker.connect())
+    # Two lanes run the same decisions against different execution backends; they must
+    # never share position/ledger files or each would read the other's fills as its own.
+    paths = lane_paths(state_dir, backend or (
+        "fillsim" if is_simulated(broker) else "tastytrade"))
 
     record: dict = {
         "ts_et": now_et.isoformat(timespec="seconds"),
@@ -205,14 +266,29 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
         "session_phase": session_phase(now_et),
         "action": "HOLD",
         "reason": "",
+        "connected": connected,
     }
+
+    # A lane that cannot reach its broker must not go on describing itself as a broker
+    # lane. Without this the tick happily reported simulated_fills=false while the
+    # adapter had silently failed to authenticate -- which is how phantom "BROKER" rows
+    # end up in a ledger whose entire interpretability rests on that column being true.
+    # Refuse the tick outright rather than degrade quietly into a half-lane (C7).
+    if not connected and not is_simulated(broker):
+        record.update(action="HOLD", reason="broker_not_connected",
+                      detail="adapter did not authenticate -- refusing to act or journal "
+                             "as a BROKER lane. Check .env.tastytrade is readable.")
+        _write_heartbeat(now_et, "ERROR_NOT_CONNECTED", {"backend": backend_name(broker)}, paths)
+        _append_ledger(record, paths)
+        _atomic_write_json(paths["last_tick"], record)
+        return record
 
     # 1. Session gate. Outside the session there is nothing to manage and nothing to do.
     if not is_session_open(now_et):
         record.update(action="HOLD", reason=f"session {session_phase(now_et)}")
-        _write_heartbeat(now_et, "HOLD_SESSION_CLOSED", {"phase": session_phase(now_et)})
-        _append_ledger(record)
-        _atomic_write_json(LAST_TICK, record)
+        _write_heartbeat(now_et, "HOLD_SESSION_CLOSED", {"phase": session_phase(now_et)}, paths)
+        _append_ledger(record, paths)
+        _atomic_write_json(paths["last_tick"], record)
         return record
 
     # 2. Data. Freshness is computed even when the refresh throws -- a dead feed must
@@ -283,18 +359,30 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
             side = "SELL" if float(pos.get("qty", 0)) > 0 else "BUY"
             broker.close_position(inst.symbol, abs(int(float(pos["qty"]))), side, last_price)
             record.update(action="FLATTEN", reason=flat_call.reason)
-            _write_heartbeat(now_et, "FLATTEN", {"rail": flat_call.rail})
-            _append_ledger(record)
-            _atomic_write_json(LAST_TICK, record)
+            _write_heartbeat(now_et, "FLATTEN", {"rail": flat_call.rail}, paths)
+            _append_ledger(record, paths)
+            _atomic_write_json(paths["last_tick"], record)
             return record
+
+    # 4b. Sandbox-reset reconciliation (the real-broker lane only).
+    #     The Tastytrade cert environment WIPES positions and orders every 24 hours. Our
+    #     local record of an open position therefore outlives the position itself, and a
+    #     naive reading of that gap is "we lost a fill" -- which would either strand the
+    #     lane in a permanent no-stack HOLD or make it journal a phantom exit. The broker
+    #     is the source of truth (C11): if it says flat and we think we are not, the
+    #     position is GONE, and on this venue the overwhelmingly likely cause is the daily
+    #     reset rather than a missed fill. Log it explicitly -- never silently -- and clear.
+    reset = _reconcile_broker_reset(broker, inst.symbol, paths, now_et)
+    if reset:
+        record["broker_reset"] = reset
 
     # 5. No stacking. One position per instrument (Rule 4 analogue: adding needs a new
     #    confirmed trigger and a new leg, which this lane does not yet implement).
     if not broker.is_flat(inst.symbol):
         record.update(action="HOLD", reason="position_open_no_stack")
-        _write_heartbeat(now_et, "HOLD_POSITION_OPEN", {"exit_events": exit_events})
-        _append_ledger(record)
-        _atomic_write_json(LAST_TICK, record)
+        _write_heartbeat(now_et, "HOLD_POSITION_OPEN", {"exit_events": exit_events}, paths)
+        _append_ledger(record, paths)
+        _atomic_write_json(paths["last_tick"], record)
         return record
 
     # 6. SEE -- the validated watcher fleet, fed the LIVE frame.
@@ -342,9 +430,9 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
         record.update(action="HOLD",
                       reason="no_qualifying_signal" if record["n_signals"] else "no_signal")
         _write_heartbeat(now_et, "HOLD", {"n_signals": record["n_signals"],
-                                          "rejected": record.get("rejected", [])})
-        _append_ledger(record)
-        _atomic_write_json(LAST_TICK, record)
+                                          "rejected": record.get("rejected", [])}, paths)
+        _append_ledger(record, paths)
+        _atomic_write_json(paths["last_tick"], record)
         return record
 
     # 8. ACT.
@@ -365,9 +453,9 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
                "confidence": sig["confidence"], "direction": sig["direction"]},
         order_ids=ids,
     )
-    _write_heartbeat(now_et, record["action"], {"setup": sig["setup"], "qty": chosen["qty"]})
-    _append_ledger(record)
-    _atomic_write_json(LAST_TICK, record)
+    _write_heartbeat(now_et, record["action"], {"setup": sig["setup"], "qty": chosen["qty"]}, paths)
+    _append_ledger(record, paths)
+    _atomic_write_json(paths["last_tick"], record)
 
     try:
         from futures.futures_journal import journal_entry  # noqa: PLC0415
@@ -376,6 +464,58 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
     except Exception:  # noqa: BLE001 -- journaling never breaks execution
         pass
     return record
+
+
+def _reconcile_broker_reset(broker, symbol: str, paths: dict,
+                            now_et: dt.datetime) -> Optional[dict]:
+    """Detect and record the Tastytrade cert environment's 24-hour wipe.
+
+    Returns a description of the reconciliation, or None when nothing needed doing.
+
+    Only meaningful for a broker whose positions live remotely. The fill simulator's
+    positions are ours and persist by design, so it is skipped -- treating a fillsim
+    disagreement as a "reset" would paper over a genuine state bug in our own engine.
+    """
+    if is_simulated(broker):
+        return None
+    local = paths["dir"] / "open-position.json"
+    try:
+        remembered = json.loads(local.read_text(encoding="utf-8")) if local.exists() else None
+    except (OSError, json.JSONDecodeError):
+        remembered = None
+
+    try:
+        flat_at_broker = broker.is_flat(symbol)
+    except Exception:  # noqa: BLE001 -- an unreadable broker is not a reset; do nothing
+        return None
+
+    if remembered and flat_at_broker:
+        note = {
+            "at_et": now_et.isoformat(timespec="seconds"),
+            "event": "broker_position_vanished",
+            "symbol": symbol,
+            "remembered": remembered,
+            "interpretation": ("cert sandbox resets every 24h -- position wiped remotely, "
+                               "not a missed fill. Local record cleared so the lane can "
+                               "trade again instead of stranding in no-stack HOLD."),
+        }
+        _append_ledger(note, paths)
+        try:
+            local.unlink()
+        except OSError:
+            pass
+        return note
+
+    if not flat_at_broker and not remembered:
+        # Remember what the broker is holding so the NEXT wipe is detectable.
+        try:
+            pos = broker.get_positions()
+            if pos:
+                _atomic_write_json(local, {"recorded_at_et": now_et.isoformat(timespec="seconds"),
+                                           "positions": pos})
+        except Exception:  # noqa: BLE001
+            pass
+    return None
 
 
 def _position_snapshot(broker, symbol: str) -> dict:

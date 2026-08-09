@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-08-09 16:43:32 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-08-09 18:24:54 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -16,7 +16,7 @@
 
 ## Today's levels
 
-*as of `2026-08-09T16:38:37-04:00`*
+*as of `2026-08-09T18:23:37-04:00`*
 
 - **731.22** — PRIOR_CLOSE_2026-06-26
 - **734.52** — PML_2026-06-29
@@ -35,15 +35,16 @@
 
 ## Other lanes
 
-### 📈 Futures (MES · SIMULATED fills — mechanism evidence, never edge)
+### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **trader** `HOLD_SESSION_CLOSED` — last tick `2026-08-09T15:54:42` · session WEEKEND
+- **book lane** (fillsim) `HOLD` — last tick `2026-08-09T18:24:39` · session GLOBEX
+- **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-08-09T18:21:50` · session GLOBEX
 - **sim book** equity $2,000.00 (start $2,000.00) · day $0.00 · 0 trades
 - **feed** CLOSED MES CLOSED (2797.0m) · MNQ CLOSED (2797.0m)
 - **edge #3** (MES→MNQ divergence) 6/20 round trips · mean $134.06 vs validated $71.46 · **PENDING_MORE_DATA**
 - **SSR shadow** 0 round trips · forward clock running
 - **last review** `2026-08-09` **NO_SESSION** · coverage WEEKEND (3/78 ticks) · 0 rule break(s)
-- **broker probe** — not yet run (fires 18:05 ET; settles whether the sandbox is genuinely un-provisioned or the July reject was a market-hours artifact)
+- **broker probe** `2026-08-09T18:07:48` → **H2_SESSION_ARTIFACT** (session GLOBEX, futures_bp 0.0)
 
 ### 🧪 Crypto (maintenance freeze — regression suite + mechanism twin)
 
@@ -52,7 +53,7 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=89)
-- **twin** last journal row `2026-08-09T19:00:37.833715+00:00` · 1220 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-08-09T22:10:38.207895+00:00` · 1223 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ## This week
 

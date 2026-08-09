@@ -59,16 +59,43 @@ directions). They live in that file because `test_futures_heartbeat.py` monkeypa
 `_broker_provisioned` wholesale in an autouse fixture, so **every test in it passes without
 ever running the gate's real body**.
 
-### What this does and does not change
+### The two-lane answer (built 2026-08-09, same evening)
 
-- **Does:** a real broker-fill path exists and is verified. `FUTURES_BROKER=tastytrade` is a
-  working backend, not a someday.
-- **Does not:** the lane's default stays `fillsim`. The sandbox **resets every 24 hours**
-  (positions and trades cleared), which is fine for a fill-parity check and wrong for a book of
-  record whose journal depends on continuity. The principled shape is fillsim as the persistent
-  book plus tastytrade as a real-fill parity lane — the twin pattern — and that is a deliberate
-  next step with its own scorecard, not a switch to flip at 18:15 on a Sunday.
-- **Still true:** live money is out of scope. OP-0 #1 plus a new venue, double-gated.
+The obvious move — flip the default to the real broker — is wrong, because the cert
+environment **wipes positions and orders every 24 hours**. That is fine for checking fills and
+disqualifying for a book of record whose journal depends on continuity. So both run:
+
+| Lane | Task | Backend | Job |
+|---|---|---|---|
+| **Book** | `Gamma_FuturesTrader` | `fillsim` | The persistent book of record. Survives restarts and days; the trade ledger stays continuous. |
+| **Parity** | `Gamma_FuturesBrokerLane` | `tastytrade` | **Real fills.** Actual broker acceptance, actual fill prices, actual slippage against a live book. |
+
+Same bars, same watcher fleet, same `should_take_v3`, same dollar rails — **only the execution
+backend differs.** That is the entire point: **divergence between the lanes IS the signal.** A
+simulator that quietly disagrees with the broker is the failure mode every backtest in this repo
+is ultimately exposed to, and until tonight nothing could detect it.
+
+State is fully disjoint (`trader/` vs `trader-broker/`) so neither lane can read the other's
+fills as its own, and journal rows carry `fills=BROKER` vs `SIMULATED` so the two classes can
+never be aggregated by accident.
+
+**The 24h wipe is handled explicitly.** `_reconcile_broker_reset` treats "broker says flat, we
+think we hold" as a reset — logged, never silent — and clears the local record. Reading it as a
+lost fill instead would strand the lane in a permanent no-stack HOLD.
+
+**A lane that cannot reach its broker refuses to run.** On the first attempt the adapter silently
+failed to authenticate — it reads `TT_SECRET` from `os.environ`, and a scheduled task has no
+shell to export it into — while the tick still reported `simulated_fills: false`. That is exactly
+how phantom `BROKER` rows enter a ledger whose interpretability rests on that column. Credentials
+now load from the gitignored `.env.tastytrade` inside the process, and an unconnected broker lane
+HOLDs with `broker_not_connected` rather than degrading quietly into a half-lane.
+
+> The same lesson twice in one evening, in two disguises: the probe died on the scheduler with
+> `ModuleNotFoundError` because only one of this box's three pythons had the SDK. **"It works
+> when I run it" proves nothing about the interpreter — or the environment — the scheduler uses.**
+
+**Still true:** live money is out of scope. OP-0 #1 plus a new venue, double-gated, and not
+reachable from either task's config.
 
 ---
 

@@ -60,8 +60,23 @@ def _record_failure(stage: str, err: BaseException) -> None:
 
 
 def main() -> int:
-    instrument = os.environ.get("FUTURES_INSTRUMENT", "MES")
-    backend = os.environ.get("FUTURES_BROKER", "fillsim")
+    # CLI args beat env vars: a scheduled task has no shell to export anything into, so
+    # the flags are how the two lanes are told apart on the command line the scheduler
+    # actually runs. Env stays supported for interactive use.
+    import argparse  # noqa: PLC0415
+
+    ap = argparse.ArgumentParser(description="One autonomous futures tick")
+    ap.add_argument("--backend", default=os.environ.get("FUTURES_BROKER", "fillsim"),
+                    help="fillsim (persistent book) | tastytrade (real-fill parity lane)")
+    ap.add_argument("--instrument", default=os.environ.get("FUTURES_INSTRUMENT", "MES"))
+    ap.add_argument("--armed", action="store_true",
+                    help="set FUTURES_ARMED=1 for this process (real routing on a "
+                         "SANDBOX broker; never reaches live money -- TT_SANDBOX=true)")
+    args = ap.parse_args()
+
+    instrument, backend = args.instrument, args.backend
+    if args.armed:
+        os.environ["FUTURES_ARMED"] = "1"
     try:
         from futures import futures_trader_core as core  # noqa: PLC0415
 

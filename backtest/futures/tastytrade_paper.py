@@ -49,12 +49,26 @@ POSITION_FILE = STATE_DIR / "position.json"
 ACCOUNT_FILE  = STATE_DIR / "account.json"
 WOULD_BE_FILE = STATE_DIR / "would-be-trades.jsonl"
 
-WATCH_ONLY  = True  # SAFETY (2026-06-21 readiness audit): the futures engine is an
-# unbuilt stub (broken VIX read, unwired levels, no watcher integration) and all 3
-# Gamma_Futures* tasks are DISABLED. Shipping WATCH_ONLY=False with a live place_bracket()
-# path was a loaded gun (.env.tastytrade also carries live-PROD OAuth tokens). WATCH_ONLY
-# stays True until the engine is real AND J explicitly flips it. Do NOT set False while
-# TT_PROD_* tokens exist in .env.tastytrade. (Token rotation is a separate J action.)
+WATCH_ONLY = True  # DEFAULT-SAFE, and every caller may still override per instance.
+#
+# ORIGINAL RATIONALE (2026-06-21 readiness audit), now PARTLY OBSOLETE -- recorded rather
+# than deleted, because two of its three legs were real and one has quietly expired:
+#   (a) "the futures engine is an unbuilt stub"        -> NO LONGER TRUE. The deterministic
+#       tick exists (futures_trader_core), with dollar risk rails, drills and guards.
+#   (b) "all 3 Gamma_Futures* tasks are DISABLED"      -> NO LONGER TRUE. Gamma_FuturesTrader
+#       and Gamma_FuturesEod2 are registered and firing.
+#   (c) ".env.tastytrade also carries live-PROD OAuth tokens" -> **VERIFIED FALSE 2026-08-09**:
+#       the file now holds ONLY TT_SECRET / TT_REFRESH / TT_SANDBOX. No TT_PROD_* key exists.
+#       That leg was the actual loaded gun, and it is unloaded. (Re-check before assuming --
+#       if a PROD token is ever re-added, this default must go back to hard-locked.)
+#
+# WHY IT STAYS True AS THE DEFAULT ANYWAY: a module-level constant is the wrong place to
+# arm anything. Routing is a per-lane decision made by the caller that owns the lane's
+# state and risk rails -- futures_trader_core passes watch_only explicitly, gated on
+# FUTURES_ARMED. A caller that forgets to think about it gets the safe behaviour.
+#
+# SANDBOX ONLY, ALWAYS: TT_SANDBOX=true points at api.cert.tastyworks.com. Live money is
+# OP-0 #1 plus a new venue -- double-gated, and not reachable from this file's config.
 POINT_VALUE = {"MNQ": 2, "MES": 5, "NQ": 20, "ES": 50}
 
 

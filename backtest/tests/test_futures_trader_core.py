@@ -379,3 +379,103 @@ class TestBrokerProvisioningGate:
         monkeypatch.setattr(hb, "_broker_accepts_orders", boom)
         ok, detail = hb._broker_provisioned(self._Broker())
         assert ok is False and "probe_error" in detail.get("reason", "")
+
+
+# ── lane isolation ────────────────────────────────────────────────────────────
+
+class TestLaneIsolation:
+    """Two lanes, same decisions, different execution backends -- and never a shared file.
+
+    Also pins that path resolution reads the CURRENT module globals. An import-time
+    frozen mapping silently defeats monkeypatch-based isolation, which is how the replay
+    drill once wrote simulated trades into the real journal.
+    """
+
+    def test_the_two_lanes_never_share_a_state_dir(self):
+        sim = core.lane_paths(backend="fillsim")
+        brk = core.lane_paths(backend="tastytrade")
+        assert sim["dir"] != brk["dir"]
+        for key in ("ledger", "last_tick", "heartbeat", "loop_state"):
+            assert sim[key] != brk[key], f"{key} collides across lanes"
+        assert brk["dir"].name == core.BROKER_LANE_DIRNAME
+
+    def test_fillsim_lane_keeps_the_original_paths(self):
+        """No existing monitor entry or documented path may move."""
+        sim = core.lane_paths(backend="fillsim")
+        assert sim["dir"] == core.STATE_DIR
+        assert sim["heartbeat"] == core.HEARTBEAT
+
+    def test_paths_follow_a_monkeypatched_state_dir(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(core, "STATE_DIR", tmp_path)
+        monkeypatch.setattr(core, "HEARTBEAT", tmp_path / "heartbeat.json")
+        monkeypatch.setattr(core, "LEDGER", tmp_path / "decisions.jsonl")
+        monkeypatch.setattr(core, "LAST_TICK", tmp_path / "last-tick.json")
+        monkeypatch.setattr(core, "LOOP_STATE", tmp_path / "loop-state.json")
+        assert core.lane_paths(backend="fillsim")["dir"] == tmp_path
+        # the broker lane must relocate WITH it, not stay pinned to the real tree
+        assert core.lane_paths(backend="tastytrade")["dir"].parent == tmp_path.parent
+
+    def test_explicit_state_dir_always_wins(self, tmp_path):
+        p = core.lane_paths(state_dir=tmp_path, backend="tastytrade")
+        assert p["dir"] == tmp_path
+
+
+class TestBrokerLaneSafety:
+    def test_an_unconnected_broker_lane_refuses_to_act(self, tmp_path, monkeypatch):
+        """A lane that cannot reach its broker must not keep calling itself a broker
+        lane -- that is how phantom BROKER rows enter a ledger whose interpretability
+        rests entirely on that column."""
+        monkeypatch.setattr(core, "STATE_DIR", tmp_path)
+        monkeypatch.setattr(core, "LEDGER", tmp_path / "decisions.jsonl")
+        monkeypatch.setattr(core, "LAST_TICK", tmp_path / "last-tick.json")
+        monkeypatch.setattr(core, "HEARTBEAT", tmp_path / "heartbeat.json")
+
+        class DeadBroker:
+            watch_only = False
+            def connect(self): return False
+            def is_connected(self): return False
+            def is_flat(self, s): return True
+            def get_positions(self): return []
+            def get_account_equity(self): return None
+
+        rec = core.run_tick("MES", broker=DeadBroker(), state_dir=tmp_path,
+                            now_et=RTH_WED, refresh=False, freshness_override="GREEN")
+        assert rec["action"] == "HOLD"
+        assert rec["reason"] == "broker_not_connected"
+        assert rec["connected"] is False
+
+    def test_a_simulated_lane_is_unaffected_by_the_connection_gate(self, broker, tmp_path,
+                                                                  monkeypatch):
+        monkeypatch.setattr(core, "STATE_DIR", tmp_path)
+        monkeypatch.setattr(core, "LEDGER", tmp_path / "decisions.jsonl")
+        monkeypatch.setattr(core, "LAST_TICK", tmp_path / "last-tick.json")
+        monkeypatch.setattr(core, "HEARTBEAT", tmp_path / "heartbeat.json")
+        rec = core.run_tick("MES", broker=broker, state_dir=tmp_path,
+                            now_et=dt.datetime(2026, 8, 8, 12, 0), refresh=False)
+        assert rec["reason"] != "broker_not_connected"
+
+    def test_sandbox_reset_is_reconciled_not_mistaken_for_a_lost_fill(self, tmp_path):
+        """The cert environment wipes positions every 24h. Reading that as 'we lost a
+        fill' would strand the lane in a permanent no-stack HOLD."""
+        paths = core.lane_paths(state_dir=tmp_path)
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        (tmp_path / "open-position.json").write_text(
+            '{"positions": [{"symbol": "/MESU6", "qty": 1}]}', encoding="utf-8")
+
+        class FlatBroker:
+            watch_only = False
+            def is_flat(self, s): return True
+            def get_positions(self): return []
+
+        note = core._reconcile_broker_reset(FlatBroker(), "MES", paths, RTH_WED)
+        assert note and note["event"] == "broker_position_vanished"
+        assert not (tmp_path / "open-position.json").exists(), "stale local record not cleared"
+
+    def test_reset_reconciliation_never_runs_on_the_simulator(self, broker, tmp_path):
+        """A fillsim disagreement is a real bug in OUR engine, not a venue reset --
+        papering over it with 'must have been the sandbox' would hide it."""
+        paths = core.lane_paths(state_dir=tmp_path)
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        (tmp_path / "open-position.json").write_text('{"positions": [1]}', encoding="utf-8")
+        assert core._reconcile_broker_reset(broker, "MES", paths, RTH_WED) is None
+        assert (tmp_path / "open-position.json").exists()

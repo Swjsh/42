@@ -235,13 +235,24 @@ def render_other_lanes() -> list[str]:
     ssr = read_json(STATE / "futures" / "ssr-shadow-progress.json") or {}
     edge3 = read_json(STATE / "futures" / "edge3-sim-progress.json") or {}
 
-    L.append("### 📈 Futures (MES · SIMULATED fills — mechanism evidence, never edge)")
+    L.append("### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)")
     L.append("")
     if hb:
-        L.append(f"- **trader** `{hb.get('verdict', '?')}` — last tick "
+        L.append(f"- **book lane** (fillsim) `{hb.get('verdict', '?')}` — last tick "
                  f"`{hb.get('last_tick_et', '?')}` · session {hb.get('session_phase', '?')}")
     else:
-        L.append("- **trader** — no heartbeat yet (Gamma_FuturesTrader has not fired)")
+        L.append("- **book lane** (fillsim) — no heartbeat yet (Gamma_FuturesTrader has not fired)")
+
+    # The real-fill parity lane. Shown next to the book lane on purpose: the two run the
+    # same decisions on different backends, so a divergence between these rows IS the
+    # signal, and it is only legible if both are visible at once.
+    bhb = read_json(STATE / "futures" / "trader-broker" / "heartbeat.json") or {}
+    if bhb:
+        L.append(f"- **broker lane** (tastytrade SANDBOX, REAL fills) "
+                 f"`{bhb.get('verdict', '?')}` — last tick `{bhb.get('last_tick_et', '?')}` "
+                 f"· session {bhb.get('session_phase', '?')}")
+    else:
+        L.append("- **broker lane** (tastytrade SANDBOX) — no heartbeat yet")
     if acct:
         L.append(f"- **sim book** equity ${acct.get('equity', 0):,.2f} "
                  f"(start ${acct.get('starting_equity', 0):,.2f}) · "

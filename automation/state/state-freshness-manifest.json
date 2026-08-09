@@ -288,6 +288,21 @@
       "date_expected_after_et": "16:15",
       "window_et": null,
       "weekdays_only": true
+    },
+    {
+      "path": "automation/state/futures/trader-broker/heartbeat.json",
+      "writer": "setup/scripts/futures_trader_runner.py --backend tastytrade",
+      "task": "Gamma_FuturesBrokerLane (every 5 min, 09:30-16:00 ET wd)",
+      "consumer": "the REAL-FILL parity lane's liveness. SILENT DEGRADE: this lane is the only source of broker-truth fills; if it dies, the fillsim book keeps producing clean-looking SIMULATED numbers with nothing left to check them against, and the absence of a contradiction reads exactly like agreement.",
+      "criticality": "high",
+      "max_age_min": 20,
+      "date_field": "last_tick_et",
+      "date_expected_after_et": "09:35",
+      "window_et": [
+        "09:30",
+        "16:10"
+      ],
+      "weekdays_only": true
     }
   ]
 }
