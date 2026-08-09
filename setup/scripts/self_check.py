@@ -17,6 +17,21 @@ Checks (each a fact, OP-33 verify-don't-claim):
      RTH, beacon during RTH, heartbeat decisions during RTH).
   3. LIVE-CHAIN health (engine-health RED).
 $0, pure-Python, fail-open (never raises into the scheduler).
+
+LASTTASKRESULT-UNTRUSTED-BY-DESIGN (2026-08-08, closes the G-EXITCODE graduated guard,
+test_no_monitor_trusts_lasttaskresult_as_authoritative): this file mentions
+LastTaskResult/LastRunResult 9 times, ALL of them prose (docstrings + human-readable
+finding/message strings) explaining why a given check deliberately does NOT trust Task
+Scheduler's exit code and instead reads the task's own OUTPUT ARTIFACT -- scout_output.json's
+generated_at/for_session_date (check_scout_premarket_fresh), run_cmd_hidden.py's own
+synchronously-captured real exit code in run-cmd-hidden-<date>.log
+(check_run_cmd_hidden_masked_exit), or run_ps1_hidden.py's equivalent
+run-ps1-hidden-<date>.log (check_run_ps1_hidden_masked_exit). Verified live 2026-08-08 via
+grep: this file never calls the scheduler-info cmdlet, never accesses either field as a
+struct/object attribute, and never looks either field up as a dict key -- the value is
+never read, let alone used as an authority. test_self_check_lasttaskresult_narrative_only.py
+pins both halves of this invariant (no programmatic read ever creeps in; the exemption stays
+documented, not silently inherited).
 """
 from __future__ import annotations
 import json, re, sys

@@ -4032,12 +4032,23 @@ def test_no_monitor_trusts_lasttaskresult_as_authoritative() -> None:
         REPO / "setup" / "scripts" / "gamma_glance.py",
         REPO / "setup" / "scripts" / "gamma_status.py",
     ]
-    # preopen_readiness.py is the ONE known, already-audited exception: it reads
+    # preopen_readiness.py is a known, already-audited exception: it reads
     # LastTaskResult purely as a cross-check LOG line (see its own module docstring +
     # test_preopen_readiness.py's masking-defeat test) -- the REAL verdict comes from
     # parsing each task's log-tail. Any occurrence there is fine BY NAME; every other
     # monitor script must have ZERO occurrences.
-    ALLOW_LISTED = {"preopen_readiness.py"}
+    #
+    # self_check.py earned a SECOND exception 2026-08-08 (Lane 2 of the guard-repair fire
+    # that graduated this test): PROVEN false positive, not a real violation -- all 9 hits
+    # are prose (docstrings + human-readable finding strings) explaining why each check
+    # deliberately does NOT trust the exit code and instead reads the task's own artifact
+    # (scout_output.json content, run-cmd-hidden.log / run-ps1-hidden.log real captured
+    # exit codes). Verified via grep: zero occurrences of Get-ScheduledTaskInfo,
+    # .LastTaskResult/.LastRunResult attribute access, or dict-key lookups of either name
+    # anywhere in the file -- the value is never programmatically read, let alone trusted.
+    # test_self_check_lasttaskresult_narrative_only.py pins this so a REAL future
+    # violation (an actual read/branch on the value) still fails loudly.
+    ALLOW_LISTED = {"preopen_readiness.py", "self_check.py"}
 
     pattern = re.compile(r"LastTaskResult|LastRunResult")
     violations: dict[str, int] = {}
@@ -4068,6 +4079,20 @@ def test_no_monitor_trusts_lasttaskresult_as_authoritative() -> None:
             "preopen_readiness.py is allow-listed to reference LastTaskResult because it "
             "explicitly documents the value as UNTRUSTED and cross-checks via log-tail -- "
             "that disclaimer text is gone, so the exemption is no longer earned."
+        )
+
+    # Same earned-exemption proof for self_check.py's 2026-08-08 allow-list entry: its
+    # module docstring must still carry the marker documenting the 9 hits as
+    # narrative-only (proven false positive, not code that trusts the exit code) --
+    # if that marker is ever deleted, this test should catch the exemption going stale.
+    self_check_path = REPO / "setup" / "scripts" / "self_check.py"
+    if self_check_path.exists():
+        self_check_text = self_check_path.read_text(encoding="utf-8", errors="replace")
+        assert "LASTTASKRESULT-UNTRUSTED-BY-DESIGN" in self_check_text, (
+            "self_check.py is allow-listed to mention LastTaskResult/LastRunResult because "
+            "all 9 hits are proven narrative-only (docstrings/messages explaining why each "
+            "check reads a real output artifact instead) -- the marker documenting that "
+            "proof is gone, so the exemption is no longer earned."
         )
 
 
@@ -4399,6 +4424,7 @@ _DST_FRAME_PATTERN_ALLOWLIST = {
     "backtest/tools/edge_matrix_sr_flip_retest.py": "SAFE(fp) - load_frame + inline OPRA convert + day_naive strip all resolve to naive et-v2 before the walk_exit_manager call",
     "backtest/tools/elite_bull_postfix_requal_2026_07_31.py": "AFFECTED - spy_5m() et-v2-converts; replay_event's opt_df is bare-stripped with NO tz_convert step -- genuine mismatch reaching walk_exit_manager. HIGH PRIORITY CITATION: elite-bull-requal-2026-07-31.json (this file's output) was cited in FRIDAY-DIAL-IN-2026-07-31.md to justify a block_elite_bull:false lift trial on bold-2 -- verified 2026-08-02 that trial was independently armed-then-REVERTED the SAME session (2026-08-01, see aggressive/params.json's _block_elite_bull_trial_doc: misattributed basis + contrary properly-powered evidence) -- block_elite_bull is currently true (armed) on both accounts, so there is NO current live exposure from this citation, but the file's own join should be fixed before it is ever cited again",
     "backtest/tools/kitchen_trend_day_continuation.py": "SAFE(fp) - single shared _true_et() (byte-identical to edge_matrix_bear_level_rejection.py's confirmed-safe helper) applied to both SPY and OPRA",
+    "backtest/tools/ladder_rung_replay_2026_08_07.py": "SAFE(fp) - two DISJOINT modes, each internally frame-consistent, that never share data: ledger mode's DayBars (_build_spy_5m/_build_ribbon_lookup L250-251/267-268 + _fetch_1min_normalized L313-315) applies et-v2 tz_convert to BOTH SPY and OPRA, but only over WEEK_DATES (all Aug-2026 EDT, moot anyway); population mode calls load_contract_bars(sym) at L591 with NO frame= kwarg, which per that function's own docstring (option_pricing_real.py L158-165) returns the RAW tz-aware fixed -04:00 column unchanged -- verified empirically identical convention (datetime64[ns, UTC-04:00]) to lfr.load_extended_data's bare pd.to_datetime SPY parse (ladder_fullhist_replay.py L188/190, no tz_convert) -- so population's SPY leg and OPRA leg are the same raw/wall-v1-equivalent frame, hand-verified not mixed with the ledger-mode et-v2 objects (run_population_mode never touches DayBars)",
     "backtest/tools/pullback_hold_bull_replay.py": "SAFE(fp) - real-fills path uses dojo sim_executor._load_spy_5m_for_date/_load_option_series, both routed through the same shared _to_naive_et_series helper",
 }
 
