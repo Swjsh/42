@@ -152,11 +152,21 @@ def _fetch_spy_1m_sample(trading_days: list, n_days: int) -> Optional[pd.DataFra
 
 
 # --------------------------------------------------------------------------- evaluation
+# PERFORMANCE CAP (found empirically this session): the wall-clock-scaled lookback formula
+# below gives 1m a 1170-bar window (3 trading days * 390 min/day) -- ~5x 5m's 234-bar window
+# -- and detect_trendlines' candidate search is O(pivots^2), so a 1170-bar 1m window is not
+# just proportionally slower, it is disproportionately slower (more pivots at 1m AND a bigger
+# window). Capping the bar-count keeps every timeframe column tractable; disclosed here rather
+# than silently starving the 1m column of its intended 3-day span.
+MAX_LOOKBACK_BARS = 300
+
+
 def evaluate_timeframe(df: pd.DataFrame, timeframe: str, *, cadence_bars: int) -> dict:
     tf_minutes = TIMEFRAME_MINUTES[timeframe]
     bars = td.bars_from_dataframe(df)
     n = len(bars)
-    lookback_bars = max(20, (LOOKBACK_TRADING_DAYS * BARS_PER_RTH_DAY_5M * 5) // tf_minutes)
+    lookback_bars = min(MAX_LOOKBACK_BARS,
+                         max(20, (LOOKBACK_TRADING_DAYS * BARS_PER_RTH_DAY_5M * 5) // tf_minutes))
     forward_bars = max(1, FORWARD_MINUTES // tf_minutes)
     min_span_bars = max(3, MIN_SPAN_MIN // tf_minutes)
     min_bars_between = max(2, MIN_BARS_BETWEEN_TOUCHES_MIN // tf_minutes)
@@ -237,7 +247,10 @@ def main() -> int:
     log("=== 1m (bounded recent sample) ===")
     df_1m = _fetch_spy_1m_sample(trading_days, RECENT_SAMPLE_TRADING_DAYS)
     if df_1m is not None and len(df_1m) > 0:
-        res = evaluate_timeframe(df_1m, "1m", cadence_bars=5)
+        # coarser cadence than the resampled columns (every 15th 1m bar = same ~15min wall-
+        # clock spacing) -- 1m has ~5x the bar density of 5m, so matching cadence in BAR
+        # terms (not minute terms) here keeps n_evaluations comparable across columns.
+        res = evaluate_timeframe(df_1m, "1m", cadence_bars=15)
         log(f"  n_evals={res['n_evaluations']} n_touches={res['n_touches']} "
             f"respect_rate={res['touch_respect_rate']} mean_fwd_favorable={res['mean_forward_return_favorable']} "
             f"({res['elapsed_sec']}s)")
