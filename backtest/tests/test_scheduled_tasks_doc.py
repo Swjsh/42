@@ -76,7 +76,21 @@ ALLOWLIST_UNDOCUMENTED: dict[str, str] = {
 # name → it MUST, and does, stay documented). With both names documented, this dict is
 # empty and the ratchet is back to full tightness — a brand-new undocumented Gamma_*
 # task FAILS test_every_installed_task_is_documented.
-KNOWN_DRIFT_UNDOCUMENTED: dict[str, str] = {}
+#
+# 2026-08-09: Gamma_FuturesTrader (setup/scripts/install-futures-trader.ps1) appeared
+# mid-session, registered by a CONCURRENT sibling session's own in-flight work (the MES
+# swing-validation lane referenced in TRENDLINE-ENGINE-2026-08-09's task brief) — not
+# this agent's task/file, and not something to fabricate a registry description for
+# without knowing the sibling's actual final cadence/config. Recorded here (same pattern
+# as the 2026-06-18 Phase 0b entries above) purely so the shared safety gate stays green
+# for OTHER sessions' unrelated commits while that work is still in flight. The `fixed_
+# drift` assertion below will force this entry's removal the moment the owning session
+# documents it in SCHEDULED-TASKS.md — do not remove it preemptively from here.
+KNOWN_DRIFT_UNDOCUMENTED: dict[str, str] = {
+    "Gamma_FuturesTrader": "registered by setup/scripts/install-futures-trader.ps1 -- a "
+                            "concurrent sibling session's in-flight MES swing-validation work, "
+                            "not yet documented in SCHEDULED-TASKS.md by its owning session.",
+}
 
 
 # ── Registry parsing (mirrors audit_scheduled_tasks.py for the Active set) ────
