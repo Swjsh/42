@@ -1,3 +1,90 @@
+## [2026-08-09 ~13:45 ET] SHIP: CASH-ACCOUNT PARITY (bold-2 margin_pdt -> cash_settlement) -- commit `883764ef` -- REVOKE surface
+
+**J directive (verbatim):** "we'll not be doing margin. I always use cash accounts. I got deposit
+a thousand, two thousand, or whatever, and then that's how much we have for the day to trade
+until it settles." This closes the standing account-type question -- the single open item that
+had been on J's desk since 2026-08-06.
+
+**What changed:** `automation/state/aggressive/params.json` -> `pdt_gate_mode: cash_settlement`
+(was `margin_pdt`) + provenance doc replaced. Diff is **2 insertions / 2 deletions**. A first
+attempt via a json round-trip reformatted all 164 lines and was reverted before commit; the
+shipped edit is a raw-text replace, so every other byte of the live config is untouched.
+
+**Why the old key was wrong, not merely different:** the 2026-07-20 flip to `margin_pdt` justified
+itself with broker-truth on account `PA33W2KUAT40` -- **deleted in the 2026-08-03 rebuild**. Live
+bold-2 is `PA3WEBXJU67N`. A live gate was being held open by a dead account's facts (L287 class).
+Cost: bold-2 sat PDT-dark **4 consecutive sessions** (08-04..08-07); on 08-06 alone the measured
+cost of that silence was **$911.35** of achievable day.
+
+**Why cash is the faithful model:** Alpaca PAPER issues margin accounts by default (both cores
+read multiplier=4), but J's real accounts are cash. Modelling margin PDT on paper measures a
+constraint that will never bind in production; cash settlement (T+1 options, settled-pool debit)
+is the one that will.
+
+**No new plumbing:** `settlement_ledger.ledger_path(STATE, account)` already resolves a distinct
+`bold` ledger; `heartbeat_core.py:1944-1947` feeds it per-account. risk_gate fails CLOSED without
+settlement inputs; the ledger fails OPEN on I/O error (can only widen, never invent a block).
+
+**Guard:** `backtest/tests/test_pdt_gate_mode_cash_parity_2026_08_09.py` -- 6 tests: parity pin,
+dead-account-provenance pin, revert-line pin, roundtrip-cap pin, distinct-bold-ledger pin,
+risk_gate fail-closed pin. **RED-proofed** by reverting the key ->
+`test_both_core_accounts_run_cash_settlement` FAILED -> restored -> 6 passed.
+Suites: risk_gate + settlement **109 passed**, fleet **378 passed**, safety gate **59 passed**.
+
+**REVERT (one line):** set `pdt_gate_mode` back to `"margin_pdt"` in
+`automation/state/aggressive/params.json` -- byte-identical behaviour on the next tick.
+**KILL CRITERION:** any broker rejection or PDT flag on bold-2 -> revert same day.
+**MONDAY EFFECT:** bold-2 is no longer dark. It trades Monday under settled-cash limits.
+
+---
+
+## [2026-08-09T04:00 ET] CONDUCTOR-WEEKEND: OK -- LESSON-INBOX-DRAIN-L283-L294 -- commit `1c94048a` -- REVOKE surface
+
+**Task picked (priority-5 queue, "author inboxes"; no dedicated Agent tool available this
+session so performed the lesson-author routine directly, per established precedent):** the
+self-audit gaps file's latest batch (2026-08-08T17:33:38) was checked first (priority-3) and
+found to be pure re-statement of already-tracked/already-resolved items with no new concrete
+claim (budget "x2.2" heuristic re-verified live as working correctly today; Alpaca Greeks dead
+source already named 5x as a real-but-unbounded future project; PDT gate leak / task-scheduler
+rot / fail-open blindness all map to already-shipped instruments) -- no action needed there.
+`_lesson-inbox` had 12 items pending since 2026-08-05 (5 days of accumulation, the oldest genuine
+open loop across all 4 author inboxes -- validator/chef fully drained, skill-inbox's correction
+queue drained last fire).
+
+**Did:** read all 12 candidates in full, assigned L283-L294 (verified max prior was L282 via
+grep), appended each to `markdown/doctrine/LESSONS-LEARNED.md` with Symptom/Root
+cause/Fix/Encoded in/Detection sections matching house style, folded every L# into its matching
+CLAUDE.md OP-25 C-row (C7 +4: L285/286/292/293; C14 +7: L283/284/287/288/289/290/294; C30 +1:
+L291), bumped the "current through L282" pointer to L294. Renamed all 12 inbox items to the
+canonical `.md.DONE` suffix (git detected clean 100% renames, not delete+add).
+
+**Verified, not assumed:** `test_op25_index_reconciliation.py` (12/12 -- 0 unindexed lessons
+beyond the pinned empty baseline, 0 phantom index refs) + `test_inbox_done_suffix.py` (0/0 --
+no re-consumable `.DONE.md` markers) both green post-change; curated safety gate (59/59) run
+twice (once pre-commit hook, once manually). `journal/mistakes.md` checked for matching
+2026-08-05..09 dates to cross-reference per the lesson-author contract -- none found, no
+cross-ref added.
+
+**Notable finding while drafting:** two of the 12 items (`gate-recency-instrument-graduation`
+and `monitor-inherited-an-unsound-engine`) both self-claimed "next available slot is L283" --
+correctly anticipated by the second item's own text ("lesson-author should assign the next free
+number, likely L284"); resolved by assigning sequentially (L292/L293) in filed-date order
+rather than either self-claimed number, avoiding a collision.
+
+**Commit `1c94048a`** (14 files, pathspec-scoped `git add`+`git commit -- <paths>` -- NOT
+`commit_scoped.py`, which refuses paths that don't exist on disk and can't express a rename;
+fell back to the identical two-step scoped-add/scoped-commit git invocation it wraps, same
+safety property, git detected all 12 as clean renames).
+
+**REVOKE:** `git revert 1c94048a` (14 files: CLAUDE.md + LESSONS-LEARNED.md trimmed back, 12
+inbox items restored from `.md.DONE` to their original pending `.md` names -- pure
+additive/rename change, no data loss).
+
+Cost this fire: ~$4.7 (read + triage of 12 full lesson files + self-audit-gaps batch check +
+12-entry authoring pass + 2 guard-test runs + 2 safety-gate runs + commit-tooling detour).
+
+---
+
 ## [2026-08-09T02:07 ET] CONDUCTOR: OK -- SKILL-INBOX-CORRECTION-QUEUE-DRAIN -- commit `cabb9dcf` -- REVOKE surface
 
 **Task picked (priority-5 queue, "author inboxes" -- skill-author's Stage 0 routine, no dedicated
@@ -512,53 +599,88 @@ touched test files green (quoted per ship in SHIP-LOG-2026-08-06-EVENING.md).
   were checked and refuted) -- it was a metric-denominator conflation: OPRA-cache data
   gaps were being counted as automatic fidelity FAILs. Fleet-suite REDs 3 -> 0.
 
-## [2026-08-07T01:13 ET] CONDUCTOR: fleet anchor pass-rate root-caused + fixed (denominator
-conflation, NOT an exit-walk bug) -- REVOKE surface
 
-**Task picked (priority-2, STATUS `## Known broken` flag):** the 3 remaining
-`test_fleet_arm_replay.py::test_anchor_pass_rate_clears_threshold[safe-3|risky-1|risky-3]`
-REDs left open by tonight's earlier fix (commit `9c302f99`), explicitly scoped as "a
-genuinely separate exit-walk-fidelity mechanism ... needs an owner + a dedicated fire."
+### DEGRADED: self-check 2026-08-09T04:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-**Investigated live, not guessed.** Checked the scope note's own two named candidate
-mechanisms in order: (1) trigger_level resolution -- confirmed `_load_arm_trigger_levels`
-IS mostly-null (28/24/29 non-null of ~5017 decisions.jsonl rows per arm), but splitting the
-anchor pass-rate BY trigger_level presence directly REFUTED it as the cause: rows *without*
-a matched trigger_level had a HIGHER pass rate (89-94%) than rows *with* one (75-100%), and
-neither bucket individually explained the 54-68% overall number. (2) OPRA contract-bar cache
-staleness -- confirmed this IS the cause: `run_anchor_validation` computed
-`pass_rate = n_pass / n_anchors` where `n_anchors` counts ALL mined real fills, but rows
-with `replay_status != "OK"` (no OPRA cache for that symbol/date, or no SPY day) are never
-even handed to `walk_exit_manager` -- they carry no `anchor_pass` verdict, yet the shared
-denominator silently counted every one as a FAIL. Measured: safe-3 8/34 data-gap rows,
-risky-1 14/37, risky-3 18/54; among rows that COULD be replayed, fidelity was
-**88.5% / 87.0% / 94.4%** -- all comfortably above the 70% `ANCHOR_PASS_THRESHOLD`. The
-exit-walk mechanism was never broken.
+## Kitchen
+Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-**Fixed:** `pass_rate` now divides by `n_replayable` (OK-status rows only, fidelity-only
-metric). Added `n_replayable` / `n_data_gap` / `opra_coverage_rate` / `coverage_note` as
-separate, still-visible fields (C7 discipline -- the coverage gap itself stays disclosed,
-it just no longer contaminates the fidelity number it doesn't belong in). All 3 arms now
-read `unvalidated: False`.
+### DEGRADED: self-check 2026-08-09T04:39:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-**RED-proofed via rename-and-restore** (L238, never git stash): reverted
-`fleet_arm_replay.py` to its pre-fix HEAD version via `git show HEAD:... >`, confirmed the
-existing test AND a new regression test (`test_anchor_pass_rate_denominator_excludes_
-data_gaps`, pins the exact bookkeeping identity + proves the fixed rate exceeds the buggy
-formula whenever a data gap exists) both fail correctly (6/6 RED, `KeyError` on the missing
-new fields), restored the fix byte-identical (sha256 `28b578c8...`), re-confirmed 23/23
-green. Sibling suites (`test_bold_fullhist_replay.py`, `test_replay_fleet_arms.py`) 20/20
-green, curated safety gate 59/59 PASS. `git show 3d9228d4 --stat --name-status` confirms
-exactly the 2 intended files (L247 discipline). Zero trading-path files touched --
-test-harness/measurement-tool only, places no orders.
+### DEGRADED: self-check 2026-08-09T05:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-**Lesson filed:** `_lesson-inbox/2026-08-07-anchor-pass-rate-data-gap-conflation.md` --
-names the generalizable rule (any "X/Y reproduces" ratio that treats "couldn't attempt" the
-same as "attempted and failed" will misdiagnose a coverage gap as a mechanism bug) and flags
-`bold_fullhist_replay.py::run_anchor_validation` as carrying the textually IDENTICAL pattern
-(dormant today only because its `ANCHOR_FILLS` list is small/hand-picked) -- follow-up
-queued, not fixed this fire (bounded task discipline).
+### DEGRADED: self-check 2026-08-09T05:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-**REVOKE:** `git revert 3d9228d4` (2 files, byte-revertible; the 3 previously-RED tests
-would go RED again on revert, which is the expected/correct behavior of a clean revert).
+- [2026-08-09 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
 
+- [2026-08-09 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-08-09 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-09.md
+
+### DEGRADED: self-check 2026-08-09T06:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T06:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T07:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T07:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T08:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T08:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T09:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T09:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T10:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T10:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T11:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T11:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T12:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T12:39:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T13:09:57
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
