@@ -1,0 +1,14 @@
+{"day": "2026-08-09", "series": "KXHIGHAUS", "station": "KAUS", "label": "Austin-Bergstrom", "n_members": 31, "fcst_median": 101.3, "fcst_p10": 99.1, "fcst_p90": 102.7, "observed": 100.4, "error": 0.9}
+{"day": "2026-08-09", "series": "KXHIGHDEN", "station": "KDEN", "label": "Denver Intl", "n_members": 31, "fcst_median": 97.6, "fcst_p10": 96.9, "fcst_p90": 98.9, "observed": 96.1, "error": 1.5}
+{"day": "2026-08-09", "series": "KXHIGHLAX", "station": "KLAX", "label": "Los Angeles Intl", "n_members": 31, "fcst_median": 83.2, "fcst_p10": 82.3, "fcst_p90": 83.8, "observed": 80.6, "error": 2.6}
+{"day": "2026-08-09", "series": "KXHIGHCHI", "station": "KMDW", "label": "Chicago Midway", "n_members": 31, "fcst_median": 87.5, "fcst_p10": 85.1, "fcst_p90": 88.3, "observed": 86.0, "error": 1.5}
+{"day": "2026-08-09", "series": "KXHIGHMIA", "station": "KMIA", "label": "Miami Intl", "n_members": 31, "fcst_median": 88.7, "fcst_p10": 88.1, "fcst_p90": 89.2, "observed": 91.9, "error": -3.2}
+{"day": "2026-08-09", "series": "KXHIGHNY", "station": "KNYC", "label": "NYC Central Park", "n_members": 31, "fcst_median": 94.2, "fcst_p10": 92.8, "fcst_p90": 95.8, "observed": 87.1, "error": 7.1}
+{"day": "2026-08-09", "series": "KXHIGHPHIL", "station": "KPHL", "label": "Philadelphia Intl", "n_members": 31, "fcst_median": 92.8, "fcst_p10": 92.2, "fcst_p90": 93.6, "observed": 93.2, "error": -0.4}
+{"day": "2026-08-10", "series": "KXHIGHAUS", "station": "KAUS", "label": "Austin-Bergstrom", "n_members": 31, "fcst_median": 99.4, "fcst_p10": 96.2, "fcst_p90": 101.6, "observed": null, "error": null}
+{"day": "2026-08-10", "series": "KXHIGHDEN", "station": "KDEN", "label": "Denver Intl", "n_members": 31, "fcst_median": 96.8, "fcst_p10": 94.9, "fcst_p90": 98.2, "observed": null, "error": null}
+{"day": "2026-08-10", "series": "KXHIGHLAX", "station": "KLAX", "label": "Los Angeles Intl", "n_members": 31, "fcst_median": 82.5, "fcst_p10": 81.4, "fcst_p90": 83.9, "observed": null, "error": null}
+{"day": "2026-08-10", "series": "KXHIGHCHI", "station": "KMDW", "label": "Chicago Midway", "n_members": 31, "fcst_median": 87.6, "fcst_p10": 83.1, "fcst_p90": 90.2, "observed": null, "error": null}
+{"day": "2026-08-10", "series": "KXHIGHMIA", "station": "KMIA", "label": "Miami Intl", "n_members": 31, "fcst_median": 89.1, "fcst_p10": 88.1, "fcst_p90": 89.9, "observed": null, "error": null}
+{"day": "2026-08-10", "series": "KXHIGHNY", "station": "KNYC", "label": "NYC Central Park", "n_members": 31, "fcst_median": 94.1, "fcst_p10": 92.3, "fcst_p90": 96.1, "observed": null, "error": null}
+{"day": "2026-08-10", "series": "KXHIGHPHIL", "station": "KPHL", "label": "Philadelphia Intl", "n_members": 31, "fcst_median": 94.6, "fcst_p10": 92.7, "fcst_p90": 96.1, "observed": null, "error": null}

@@ -29,6 +29,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 from cryptography.hazmat.primitives import hashes, serialization
@@ -142,10 +143,11 @@ class KalshiClient:
         url = f"{self.base_url}{path}"
         headers: dict[str, str] = {}
         if private:
-            # Sign the versioned path only -- never the query string.
-            signed_path = path.split("?", 1)[0]
-            prefix = self.base_url.split(".com", 1)[-1].split(".co", 1)[-1]
-            headers = self._auth_headers(method, f"{prefix}{signed_path}")
+            # Per Kalshi docs (getting_started/api_environments): "Request signing uses the
+            # same signed path regardless of which host is used." So the signed string is
+            # the URL PATH ONLY -- host excluded, query string excluded.
+            signed_path = urlparse(self.base_url).path.rstrip("/") + path.split("?", 1)[0]
+            headers = self._auth_headers(method, signed_path)
         try:
             resp = self._session.request(method, url, headers=headers, params=params,
                                          json=body, timeout=self.timeout)
