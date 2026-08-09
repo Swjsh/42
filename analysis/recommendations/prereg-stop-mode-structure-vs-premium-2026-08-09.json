@@ -1,0 +1,51 @@
+{
+  "prereg_id": "STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09",
+  "frozen_at_et": "2026-08-09 16:13:42 Sunday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py, run this session (box is Mountain; ET = local+2; never bash TZ)",
+  "frozen_before_any_runner": true,
+  "provenance": {
+    "why_this_exists": "The entry x exit matrix (prereg edc595af) made ATR_STOP the dominant exit column (~$95/tr vs ~$16/tr control). A /fable-too-good audit (backtest/tools/entry_exit_matrix_atr_audit_2026_08_09.py, results in analysis/deep-research/ENTRY-EXIT-MATRIX-ATR-AUDIT-2026-08-09.json) decomposed that gap and found the dynamic width was NOT the driver.",
+    "decomposition_that_motivated_this": {
+      "headline_gap_per_trade": 79.2,
+      "stop_mode_structure_to_premium": 60.55,
+      "look_ahead_artifact": 25.59,
+      "dynamic_atr_width_itself": -6.94,
+      "note": "The three components reconcile to the headline exactly. The dynamic component is NEGATIVE: an ATR-computed width is slightly worse than a flat -20% premium stop once the look-ahead is removed."
+    },
+    "walker_parity_cleared": "walk_lane_dynamic_shape reproduces sl.walk_lane's CONTROL cell exactly ($16.06/tr, n=289, delta $0.00), so the twin walker is faithful and cross-engine divergence (the SIM-EXIT-SHAPE-PARITY scar) is ruled out as the explanation.",
+    "post_hoc_disclosure": "The stop_mode axis was NOT pre-registered in edc595af. Everything above is post-hoc and is treated as hypothesis-generating ONLY. This document freezes the hypothesis BEFORE any confirmatory runner is written, which is the whole point of filing it."
+  },
+  "hypothesis": "On the ribbon_ride population, exit_shape.stop_mode='premium' (structure_stop_enabled=False, flat premium_stop_pct=-0.20) produces higher per-trade expectancy than the as-shipped stop_mode='structure', across both the historical replay population and the real-fills book.",
+  "mechanism_under_test": "Structure/ribbon invalidation is a LAGGING exit (already C28 in the lessons index: L139,141,156,157,175,243). The claim is that it exits winners early on flip-back noise AND rides losers past -20% before invalidating, and that a hard premium stop cuts losers faster while leaving winners to the chandelier trail. The falsifiable signature is: WR should FALL while total P&L RISES. If WR rises too, the mechanism story is wrong even if the dollars look good.",
+  "arms": {
+    "CONTROL": "exit_shape exactly as fleet_strategies.by_name('ribbon_ride').exit (stop_mode=structure, premium_stop_pct=-0.20, catastrophe_stop_pct=-0.50, tp1=+100%/0.667, trail 0.15, arm +0.05, arm_scope post_tp1)",
+    "PREMIUM_20": "identical in every field EXCEPT stop_mode='premium' (which sets structure_stop_enabled=False). One variable.",
+    "PREMIUM_20_CAP60": "as PREMIUM_20 but catastrophe_stop_pct=-0.60, included because the matrix showed cap-widening was directionally positive within structure mode; guards against attributing a cap effect to the mode."
+  },
+  "populations": [
+    "A: 399-trading-day replay 2025-01-02..2026-08-07, all 8 pre-registered entry rows from the matrix, real cached OPRA fills only, sequential one-position NOT_FLAT walk, exits via exit_manager_walk.walk_exit_manager -> exit_manager.plan_exit_actions (never simulator_real).",
+    "B: 244 real broker-truth engine-attributed option-buy fills over 27 trading days (2026-06-26..2026-08-07) from analysis/entry-quality/entry-quality-ledger.json, re-walked through the identical exit engine. LADDER7/8/9 and ZONE are n/a by construction (a realized fill carries no score/blocker/level-scan record)."
+  ],
+  "battery_per_cell": [
+    "n, total $, expectancy $/trade, WR",
+    "drop-best-day expectancy (G3)",
+    "sub-window stability: chronological halves, sign-consistency of expectancy",
+    "Tuesday 2026-08-04 no-harm HARD GATE, reported per cell; where the row admits zero trades that date, reported as NOT EVALUABLE, never as a pass",
+    "one-sided bootstrap p (mean > 0), n_boot=10000, seed=7",
+    "BH-FDR q=0.10 across every cell tested in this study"
+  ],
+  "kill_criteria": [
+    "Population A and population B disagree in sign on the PREMIUM_20 vs CONTROL delta -> report the disagreement as the finding; do NOT pick a winner.",
+    "The mechanism signature fails (WR does not fall while P&L rises) -> the dollar result is treated as unexplained and does not advance.",
+    "drop-best-day expectancy for PREMIUM_20 goes negative -> single-day artifact, killed.",
+    "Sub-window instability in either population -> killed."
+  ],
+  "ship_rule": {
+    "will_not_ship_on_this_run": true,
+    "why": "Three independent reasons, stated in advance so a good result cannot talk me out of them. (1) The Tuesday 2026-08-04 anchor is not evaluable on the CONTROL entry row (zero admitted trades that date), so anchor_no_regression cannot be satisfied. (2) No walk-forward efficiency is computed here, so the OP-11 auto-ratify bar (OOS positive AND WF >= 0.70 AND sub-window stable AND anchor no-regression) is not met. (3) The change reverses explicitly ratified doctrine (chart-stop-primary, 2026-06-18), which is a doctrine decision and not an exit-grid side effect.",
+    "what_this_run_produces_instead": "A filed A/B scorecard at analysis/recommendations/stop-mode-structure-vs-premium-2026-08-09.json and a REVOKE-surfaced recommendation. No edit to automation/state/params.json, automation/state/fleet/*, filters.py, or any live trading-path file.",
+    "explicitly_forbidden_tonight": "Flipping the primary stop mechanism on the live path the evening before a trading week, on a post-hoc replay finding."
+  },
+  "no_look_ahead": "Both arms are static shapes known at entry; neither reads any post-entry bar to set a parameter. This is the specific defect found in ATR_STOP and it is structurally absent here.",
+  "reporting_rule": "Every cell reported, no top-N truncation, including cells that fail. Nulls are results and get written down -- the dynamic-stop null from 2026-07-07 went unrecorded and cost weeks of re-discovery (see memory: dynamic-exits-not-fixed-caps)."
+}
