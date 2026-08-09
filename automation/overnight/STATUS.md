@@ -1,3 +1,39 @@
+## [2026-08-09T02:07 ET] CONDUCTOR: OK -- SKILL-INBOX-CORRECTION-QUEUE-DRAIN -- commit `cabb9dcf` -- REVOKE surface
+
+**Task picked (priority-5 queue, "author inboxes" -- skill-author's Stage 0 routine, no dedicated
+Agent tool available this session so performed the documented routine directly): drain the inline
+correction queue.** `strategy/candidates/_skill-inbox/_correction-queue.jsonl` had 7 entries sitting
+`processed:false` since 2026-07-02 (oldest 5+ weeks stale) -- both other inboxes (validator, lesson,
+chef) were fully drained (all `.DONE` / actioned), this was the one genuinely open loop.
+
+**Triaged all 7, individually judged, none guessed:** 3 were noise (cross-project Unreal
+Engine/"Fable" bleed-through, an under-specified fragment with no attributable subject, a
+system-generated task-notification artifact that only regex-matched inside pasted agent output).
+2 were `resolved-elsewhere` (the 07-07 "stop labeling the trade, key off the drawn level" correction
+-> formalized 3 weeks later as J-MARKET-PHILOSOPHY.md/market_structure.py structure-shift doctrine;
+the 07-08 desktop-app-disconnect complaint -> formalized as the interactive-surfaces-never-gatewayed
+rule). 2 were `patched`/already-guarded: the 07-14 trendline body/wick correction is enforced by
+`test_trendline_watch.py` + `test_trendline_multiday.py`; the 08-08 "stop spawning a PowerShell
+window, build a real gamma app" correction was answered 26 minutes later same session (commit
+63f1eec4, 14:46 MT vs 14:20 MT complaint) and polished through the night into the current Gamma App
+at localhost:3000/gamma -- **verified fresh this fire** (not assumed): `Get-ScheduledTask` shows no
+`Gamma_Hq*` task and no Startup/Desktop shortcut for the old `gamma-hq-launch.ps1` terminal launcher;
+only `Gamma_DashboardKeepalive` (the web app) + `Gamma_CompanionKeepalive` are live. The old terminal
+script is dead code on disk, never autostarted -- correction is resolved in practice, not merely
+claimed.
+
+**Result:** correction-queue.jsonl 7/10 unprocessed -> 0/10 unprocessed, schema preserved (append-only
+`outcome`+`processed_note` fields per the skill-author contract, NEVER deleted). Scoped commit via
+`commit_scoped.py` (1 file only -- checkout currently carries 1,959 modified files from concurrent
+daemons/lanes, none touched, L271/C34 discipline).
+
+**REVOKE:** `git revert cabb9dcf` (1 file, additive JSON-field-only change, no data loss).
+
+Cost this fire: ~$2.7 (7-entry individual triage incl. git-log/commit-timestamp cross-check + live
+scheduled-task verification for the 08-08 item, rather than trusting the STATUS-log claim).
+
+---
+
 ## [2026-08-09T01:11 ET] CONDUCTOR: OK -- QUEUE-MD-RETENTION-CAP step 2 -- commit pending -- REVOKE surface
 
 **Task picked (priority-4 queue, self-generated after STAGE 1's own "Read queue.md" instruction
@@ -526,41 +562,3 @@ queued, not fixed this fire (bounded task discipline).
 **REVOKE:** `git revert 3d9228d4` (2 files, byte-revertible; the 3 previously-RED tests
 would go RED again on revert, which is the expected/correct behavior of a clean revert).
 
-## [2026-08-06T19:25 ET] LANE 4 STRATEGIC ENTRIES: entry-quality ledger + V-d1/V-e3 shadow counter shipped; R-S8 killed -- REVOKE surface
-
-**What shipped (measurement only -- zero trading-path changes):**
-`setup/scripts/entry_quality_ledger.py` (standing 6-factor entry-quality ledger + frozen
-admissibility battery, prereg `entry-quality-admissibility-prereg-2026-08-06.json` @
-**6d6bf8c8** committed BEFORE the runner) and `setup/scripts/entry_shadow_counter.py`
-(V-d1 + V-e3 would_block tally per entry, idempotent, folded into the existing
-`Gamma_WinnerAutopsy` 16:25 ET fire -- no new scheduled task, fail-open). **Proven in
-situ:** full winner_autopsy fire ran tonight and printed `[entry-shadow] 4 tally rows ...
-vd1 blocks 0, ve3 blocks 0` -> `analysis/entry-quality/shadow-tally.jsonl` +
-`shadow-summary.json` (forward session #1 of 10 logged; neither rule would have touched
-winning Thursday).
-**Battery verdicts (235 engine entry fills / 26 days, BH across 5 cells):** the lane's
-named rule **"require ANY structure event within 8 bars" (R-S8-5m) is KILLED** by its own
-pre-committed criterion: delta **-$524**, blocks $3,696 of winners, worst day -$1,760 =
-2026-08-04 (it would have gutted the record Tuesday). Structure-PRESENCE survives instead:
-R-PRES-1m (=V-e3) +$2,211, **$0 winners blocked**, blocked-WR 0.0%, worst day +$27, G1-G6
-pass -- but BH q=0.37 fails the 0.10 bar, so it stays SHADOW (no new prereg needed; its
-forward prereg + tonight's counter ARE the next step). V-d1 re-scored: exact reproduction
-(+$1,242, 1 winner blocked, q=0.37) -- SHADOW per its frozen prereg.
-**Two corrections to standing numbers:** (1) the 08-05 ENTRIES study's population silently
-DROPPED an engine entry whose exit was manual-attributed (06-26 safe-2 732P, -$237): true
-<=08-05 net is **+$80, not +$317**. (2) V-e3's advertised in-sample basis (n=41, p=0.063)
-does NOT reproduce on verifiably-complete SIP bars (26/26 days x 390 RTH 1m bars checked):
-true n=28, p=0.29. The 08-05-day subset reproduces exactly, so the prior 1m context was
-thin on other days. Forward gates unaffected (they judge forward data only).
-**Guards:** `backtest/tests/test_entry_shadow_counter.py` 14/14 green; RED-proofed twice
-(V-d1 comparison inverted -> 6 RED; V-e3 quorum 20->0 -> 1 RED), both restored
-byte-identical (sha256 225f2a0d...) and re-proven green.
-**REVOKE (one line each):** delete the `entry_shadow` try-block in
-`setup/scripts/winner_autopsy.py` main() (kills the nightly tally; artifacts inert) / git
-revert of the ship commit (removes ledger + counter + guards).
-
----
-
-
-### DEGRADED: self-check 2026-08-09T01:09:56
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
