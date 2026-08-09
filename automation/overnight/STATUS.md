@@ -1,3 +1,85 @@
+## [2026-08-09 ~16:10 ET] SHIP: AUTONOMOUS FUTURES LANE (MES, SIMULATED fills) -- commit `4db91f44` -- REVOKE surface
+
+**What shipped.** The futures lane can now trade autonomously. `Gamma_FuturesTrader` (every 5 min,
+09:30-16:00 ET weekdays) runs one deterministic see->decide->act tick on MES through a
+BROKER-AGNOSTIC seam. Doc: `markdown/futures/AUTONOMOUS-FUTURES-LANE.md`. Executes FUTURES-FIRST-PLAN
+WS-F1/F2/F3/F4/F6/F7.
+
+**Why it was blocked, and the part nobody knew.** The known blocker was the broker (venue unresolved).
+The REAL blocker was data: `MES_5m_continuous.csv` ends **2026-06-12**, two months stale. Every "live
+futures tick" the plan contemplated would have been reading June bars while believing it read the tape.
+Nothing was watching for it.
+
+**Two plan audit claims corrected by live evidence:**
+1. *"Edge #3 has NEVER run"* -- the TASK never fired (`LastTaskResult 267011`), but the SCRIPT has:
+   6 closed round trips, +$804.33, mean +$134.06/tr vs validated OOS +$71.46, `PENDING_MORE_DATA`
+   (needs n>=20). **Exercised, not deleted.** The mean at 1.9x validated OOS on n=6 is a too-good
+   flag, not a green light.
+2. *"the sandbox is not provisioned for futures"* -- **UNCONFIRMED.** Re-probing returned
+   `tif.futures_session_not_active` (a MARKET-HOURS error) with `is_futures_enabled: true`. The July
+   `Session offline` reject is equally consistent with "the session simply was not active".
+   `Gamma_FuturesBrokerProbe` (18:05 ET daily) settles it; verdict lands in
+   `automation/state/futures/broker-probe.jsonl`.
+
+**EVIDENCE CLASS -- read before quoting any number.** Fills are **SIMULATED** (local `fillsim` paper
+exchange). Mechanism evidence, **NEVER edge evidence** -- same standing rule as the crypto twin.
+`journal/futures/trades.csv` carries a mandatory `fills` column so the two classes cannot be
+aggregated by accident. `should_take_v3` was validated on the roll-adjusted master and is here fed a
+different (live, raw front-month, delayed-quote) frame -- a disclosed data-source change. Any edge
+claim needs the canonical battery on its own frozen prereg.
+
+**Proven before registration:**
+- 6/6 lifecycle drills -- entry fill / TP1 partial / full stop / gap-through-stop (fills at the bar
+  OPEN 7,775, **not** the stop 7,790) / forced flatten / no-stacking.
+- No-look-ahead replay, 3 real RTH sessions: 234 ticks, 57 signals, 4 entries, 4 fills, 4 TP1,
+  **+$21.29 SIMULATED**, 0 errors (`analysis/futures-replay-drill-2026-08-09.json`). A 5-day run over
+  the same window: 5 trades (4 TP1 + 1 stop), **-$2.70**.
+- Scheduled task fired for real: `LastTaskResult=0`, heartbeat advanced to the fire's own ET stamp.
+- 70 guards (`test_futures_risk_rails.py` 50 + `test_futures_trader_core.py` 20), RED-proofed.
+
+**Bugs the drills caught (this is why drills exist):**
+- `run_tick` read `process_quote`'s return as `{"events": [...]}`; it returns a flat `{"event": ...}`.
+  The fill engine worked perfectly and the tick would have recorded **zero exits forever**.
+- The replay drill redirected state but **not** the journal -- drill trades were landing in the REAL
+  `journal/futures/` ledger. Fixed; the contaminated file was removed.
+- A guard was passing **vacuously**: under default rails the liquidation-distance rail is shadowed by
+  `account_floor` + `per_trade_risk` (C15), so removing it changed nothing. The test now also sweeps a
+  config where it genuinely binds.
+- An abandoned 2026-06-17 `journal/futures/trades.csv` with a **different header** sat on disk; our
+  writer would have appended misaligned columns under it (L294). Foreign headers are now rotated aside.
+
+**Risk rails (WS-F7), all in DOLLARS/POINTS** -- %-of-premium is meaningless on a margin product:
+1 MES cap, -$100/trade, -$200/session, $1,600 floor, RTH-only, no entry within 30m of the 17:00 ET
+settlement stop, 8-day rollover block, GREEN-feed-only. Plus the liquidation-distance assertion (our
+stop must fire before the broker's margin call). **Fail-closed for entries, fail-open for exits** --
+no rail can block an exit or a flatten.
+
+**Liveness.** A beacon is written on EVERY fire including HOLDs. Both `futures/trader/heartbeat.json`
+(high, 20m) and `futures/data-freshness.json` (critical, 20m) are registered in
+`state-freshness-manifest.json`, so the EXISTING monitor alarms -- no new monitor built. Wired day
+one deliberately: the crypto twin once went dark 4 days unnoticed.
+
+**Visibility (WS-F6).** `HOME.md` now generates an **Other lanes** section -- futures (trader, sim
+book, feed, Edge #3 vs its arming bar, SSR shadow) and crypto (gym scorecard + per-audit breakout,
+twin liveness). J's question *"where do I see the crypto gym on the dashboard"* is answered; the tile
+immediately surfaced **4 YELLOW gym audits** that had no surface before.
+
+**Also fixed, unrelated to futures:** `test_bold_adaptive_sizing_2026_08_02` was RED on `main` --
+it never passed `settled_cash_available`/`same_day_entries_used`, which became REQUIRED when bold-2
+moved to `cash_settlement` (`883764ef`). Every call short-circuited to `UNREADABLE_INPUT` and stopped
+pinning the risk-cap branch it exists to guard. **Production always passed them**
+(`heartbeat_core.py:2039`, `j_intent_executor.py:291`) -- stale test, not a live bug.
+
+**What needs J:** nothing to run the lane. Only (a) a venue decision IF tonight's probe returns H1,
+(b) the optional $7/mo TradingView CME real-time add-on (not needed for a 5m bar-close strategy),
+(c) live money -- out of scope, OP-0 #1 plus a new venue, double-gated.
+Prop firms are NOT a path (`PROP-FIRM-RESEARCH-2026-08-09.md`).
+
+**REVOKE:** `Unregister-ScheduledTask -TaskName "Gamma_FuturesTrader" -Confirm:$false`
+(and `Gamma_FuturesBrokerProbe` likewise; delete it once its verdict is conclusive).
+
+---
+
 ## [2026-08-09 ~16:00 ET] RESEARCH: BULL-TRENDLINE GRADUATION (NO SHIP) + CHART-DRAWING CAPABILITY (SHIPPED, read-only) -- commit pending this fire
 
 **J directive (verbatim):** self-approval on the bull-trendline-detector graduation decision
@@ -858,3 +940,6 @@ Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-08-09T15:39:56
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T16:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
