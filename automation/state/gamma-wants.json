@@ -8,16 +8,21 @@
     },
     {
       "priority": 2,
+      "id": "bold-atm-tier-falsification-decision",
+      "text": "The Bold ATM strike tier (shipped 2026-07-18, commit 718e0809) failed its own auto-ratify gate at ship time and has cost -$476 on 6 fills since (the old OTM-3 tier made +$406 on 4). I now track it to the promised n=20 check (bold_tier_rail.py) — but the honest ETA is 2026-09-18: at the observed 0.5 fills/day, waiting for n=20 means ~14 more fills at ~-$79 each, so WAITING IS NOT FREE — it costs roughly another $1,100. Your call: let it run, or revert now — one line each in setup/scripts/heartbeat_core.py:1975 and setup/scripts/j_intent_executor.py:311, back to ss.V15_BOLD_TIERS"
+    },
+    {
+      "priority": 3,
       "id": "pdt-account-type-decision",
       "text": "Decide the open PDT memo (PDT-ACCOUNT-TYPE-DECISION-2026-08-06): Bold sat out a +$1,465 book day Thursday because of our SELF-imposed PDT rule the paper broker doesn't enforce — I'll run whichever mode you pick, but the memo has sat 2 days"
     },
     {
-      "priority": 3,
+      "priority": 4,
       "id": "unmute-gamma-channel",
       "text": "Unmute #gamma — I only speak 2-3 times a day now, standup-style; if it's muted I'm talking to a wall"
     },
     {
-      "priority": 4,
+      "priority": 5,
       "id": "ssr-dojo-reps",
       "text": "Do 3 TV bar-replay reps of the SSR drill (markdown/research/SSR-PIVOT-LIQUIDITY-STRATEGY.md section 6) so we can compare your read to the shadow's"
     }

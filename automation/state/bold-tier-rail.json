@@ -1,0 +1,57 @@
+{
+  "_doc": "Standing falsification-rail instrument for commit 718e0809's BOLD-CORE-ATM-WIRE ship. See module docstring for full provenance.",
+  "generated_at_et": "2026-08-08T20:56:11",
+  "ship_date_et": "2026-07-18",
+  "ship_commit": "718e0809",
+  "escalation_n": 20,
+  "days_since_ship": 21,
+  "population": {
+    "source": "automation/state/fills-ledger.jsonl",
+    "arm": "bold-2",
+    "filter": "attribution==engine, is_option, not is_crypto",
+    "position_def": "exit_shape_parity_study.reconstruct_positions"
+  },
+  "post_ship": {
+    "n": 6,
+    "net_usd": -476.0,
+    "win_rate": 0.1667,
+    "mean_usd": -79.33,
+    "median_usd": -185.0,
+    "avg_notional_usd": 642.5
+  },
+  "pre_ship": {
+    "n": 4,
+    "net_usd": 406.0,
+    "win_rate": 0.5,
+    "mean_usd": 101.5,
+    "median_usd": 88.0,
+    "avg_notional_usd": 186.25
+  },
+  "delta": {
+    "net_usd_delta": -882.0,
+    "mean_usd_delta": -180.83,
+    "win_rate_delta": -0.3333,
+    "avg_notional_multiplier": 3.4497
+  },
+  "rail_status": "ACCRUING",
+  "verdict": "Bold ATM tier: 6 of 20 fills, -$476 so far (old tier was +$406 on 4) -- rail not yet triggered.",
+  "eta": {
+    "elapsed_trading_days_ex_dark": 12,
+    "observed_fills_per_trading_day": 0.5,
+    "remaining_fills_needed": 14,
+    "projected_trading_days_needed": 28,
+    "expected_trigger_eta_et": "2026-09-18",
+    "method": "observed 6 fill(s) over 12 trading day(s) since 2026-07-18 (weekdays, excluding 5 known PDT-dark date(s) -- manually transcribed from analysis/deep-research/PDT-ACCOUNT-TYPE-DECISION-2026-08-06.md section 3/5, cross-confirmed live via a 2026-08-08 self_check discord-outbox row -- NOT a live pdt_tracker query (that needs a broker credential round-trip this offline instrument does not make); extend BOLD_PDT_DARK_DATES by hand if the PDT decision memo's section 6 is resolved differently) -> rate 0.5/day, 28 more trading day(s) needed for 14 more fill(s), projected forward the same way (weekdays, dark dates excluded)"
+  },
+  "escalation": {
+    "posted_this_run": false,
+    "last_escalated_status": "ACCRUING",
+    "finding": null,
+    "posted_at_et": null,
+    "revert_instruction": "repoint the bold branch in setup/scripts/heartbeat_core.py:1975 and setup/scripts/j_intent_executor.py:311 from ss.V15_BOLD_CORE_TIERS back to ss.V15_BOLD_TIERS"
+  },
+  "warnings": [
+    "avg_notional_usd = mean(entry_price * entry_qty * 100), the real dollar premium paid per position -- a different definition than any per-trade notional figure quoted in prereg-profitability-2026-08-08.json (that document's own $ figures use a different basis; only its 3.45x notional-shift RATIO was independently cross-checked against this cohort split and matches).",
+    "PDT dark dates are hand-transcribed, not live-queried -- see eta.method."
+  ]
+}
