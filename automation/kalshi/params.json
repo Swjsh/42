@@ -1,0 +1,33 @@
+{
+  "_doc": "Kalshi lane parameters -- the ONLY place knobs live. Never hardcode these in code. Mirrors the params.json convention used by the SPY arms. Sized for the $10 seed account (2026-08-09); revisit every tier change.",
+  "arm": "kalshi-1",
+  "label": "KALSHI-1",
+
+  "_series_doc": "Ordered preference. The lane ports the SPY 0DTE directional decision, so index series come first; it falls through to the next series when a gate blocks (e.g. spread too wide). KXINXU=S&P hourly, KXINX=S&P daily.",
+  "series_preference": ["KXINXU", "KXINX"],
+
+  "_gates_doc": "Hard entry gates. Every one of these is a REFUSAL, not a preference. max_spread_cents is the C3 lesson (ITM+tight=edge, OTM+wide=bleed) ported to this venue: at 5c a maker needs ~2.5pp more edge than at 1c.",
+  "max_spread_cents": 5.0,
+  "min_depth_contracts": 50,
+  "target_prob_lo": 0.35,
+  "target_prob_hi": 0.65,
+
+  "_sizing_doc": "$10 account. max_stake is per-position notional. min_contracts guards the fee ceiling (1-contract orders pay ~14% over formula rate).",
+  "max_stake_dollars": 8.0,
+  "min_contracts": 5,
+  "max_concurrent_positions": 1,
+
+  "_risk_doc": "Mirrors Safe-2 doctrine proportionally: -30% of start-of-day equity halts the day. On a $10 account that is $3.",
+  "daily_loss_cap_dollars": 3.0,
+
+  "_execution_doc": "MAKER ONLY by design -- the economics model showed taking the spread costs 5-6x the maker fee. join_touch posts at the near touch rather than crossing. If unfilled, the tick simply re-evaluates next cycle; we never chase.",
+  "order_style": "join_touch",
+  "time_in_force": "",
+
+  "_gate_doc": "Minimum Gamma conviction required to port a decision across. Mirrors the SPY score gate; a signal too weak to trade SPY is too weak to trade here.",
+  "min_signal_score": 6,
+
+  "_hours_doc": "Index series only make sense while the underlying trades. ET. The lane self-gates outside this window for index series; 24/7 series (crypto) are exempt.",
+  "index_session_start_et": "09:30",
+  "index_session_end_et": "15:55"
+}
