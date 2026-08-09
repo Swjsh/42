@@ -1,0 +1,96 @@
+{
+  "prereg_id": "TRENDLINE-ENGINE-VALIDATION-2026-08-09",
+  "frozen_at_et": "2026-08-09 15:54:05 Sunday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
+  "frozen_before_any_run": true,
+  "author_lane": "TRENDLINE-ENGINE-2026-08-09 (J's full-trendline-implementation ask, 2026-08-09) -- detector core / labels / engine awareness / timeframe matrix / 0DTE backtest ONLY. Chart drawing + bull-side LIVE graduation are an explicitly separate sibling agent's lane (backtest/tools/bull_trendline_reclaim_graduation_2026_08_09.py) -- this prereg's cell (b) measures the SAME shadow trigger that sibling is graduating, from a completely separate, non-overlapping angle (a population-scale counterfactual, not the graduation mechanics), and does not ship or arm anything on the bull side -- see ship_rule.",
+
+  "ground_truth_read_before_this_fire": {
+    "bear_trigger_is_live": "detect_trendline_rejection_bearish (backtest/lib/filters.py:601) is LIVE and load-bearing -- analysis/deep-research/EOD-2026-08-06.md: fired on all 8 ENTER_BEAR verdicts 2026-08-06, 100% of that day's P&L. NOT modified by this study or by backtest/lib/trendline_detector.py (the new module 'builds around it', never edits it).",
+    "shadow_pieces": "automation/state/trendlines.json/trendlines-live.json (zero decision consumers, confirmed by analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md) and detect_trendline_reclaim_bullish (backtest/lib/filters.py:944, explicitly shadow-logged per its own docstring) are the genuinely shadow pieces.",
+    "trend_alignment_axis_is_a_different_question": "analysis/recommendations/trend-alignment-correlation.md (frozen 2026-07-14, KILL, no-repick clause) tested MULTI-TIMEFRAME TREND AGREEMENT (daily/hourly/15m directional alignment), not trendline GEOMETRY. This prereg does not touch that axis and is not a re-run of it.",
+    "tori_research_convergence": "analysis/deep-research/TORI-TRENDLINE-RESEARCH-2026-08-09.md -- an independently-arrived-at public method (wick-anchored, 3-touch, 6+-candle spacing, close-confirmation break) converges with our own live detector's shape. Its one concrete, portable idea (safety-line-as-dynamic-stop) is an EXIT/stop question -- explicitly out of this agent's lane (a different sibling owns exit_manager.py / params exit keys) and is NOT tested here."
+  },
+
+  "detector_under_test": {
+    "module": "backtest/lib/trendline_detector.py (NEW, this session)",
+    "public_api": "detect_trendlines(bars, ...) -> tuple[TrendlineState, ...]; bars_from_dataframe(df) -> tuple[Bar,...]; trendline_state_for_decision_row(lines) -> dict; annotate_decisions_with_trendline_state(decisions, spy_df, ...) -> list[dict]; make_line_id(...)",
+    "default_grammar": "min_touches=3, min_bars_between_touches=6, min_span_bars=6, touch_tolerance_dollars=0.20 (precedent: backtest/lib/trendlines.py TOUCH_TOLERANCE_USD), anchor_mode='wick' default, max_slope_pct_per_bar=None (uncapped) default",
+    "guard_tests": "backtest/tests/test_trendline_detector.py -- 25/25 passing, incl. a monkeypatch RED-proof of the wick/body no-mixing structural guard (test_red_proof_mixed_accessor_would_be_caught)"
+  },
+
+  "hard_gate": {
+    "id": "G_TUESDAY_NO_REGRESSION",
+    "rule": "No cell that degrades Tuesday 2026-08-04 (+$3,624 book-wide, per analysis/deep-research/EOD-2026-08-06.md week table -- the week's dominant day, 18/21 of the week's BULLISH_RECLAIM placements) may ship. Any cell whose changed-cohort includes a 2026-08-04 bar must show that day's total is >= the baseline (unchanged-engine) total for that day specifically, not just the population aggregate.",
+    "applies_to": "cell (b) only -- cells (a), (c), (d) are measurement/diagnostic and change no live trigger, so nothing they measure can 'degrade' a day (see ship_rule)."
+  },
+
+  "population": {
+    "loader": "backtest/autoresearch/recency_check.py::load_merged_spy_vix() -- the SAME loader gate_revalidation_ab.py (2026-08-08, freshest prior study) uses; auto-picks up the newest rolling SPY/VIX tail file.",
+    "window_asof_freeze": "2025-01-02 .. 2026-08-07 (399 trading days, verified via _normalize_spy(load_merged_spy_vix()[0])['date'].nunique() this session -- NOT hand-typed 391; the task brief's '391-day' figure was as of an earlier date, this prereg uses the actual current population and discloses the real n)",
+    "real_fills_rule": "REAL OPRA cached contracts ONLY (lib.option_pricing_real.load_contract_bars). Any trade/counterfactual whose contract has no cached CSV is EXCLUDED and COUNTED (status tally), never silently dropped, never BS-synthesized.",
+    "exit_rule_cells_a_and_b": "cell (a): backtest/lib/orchestrator.run_backtest(..., use_real_fills=True) -- the standard production-config population backtest every recent study in this repo uses. cell (b): backtest/lib/exit_manager_walk.walk_exit_manager -- the REAL exit_manager.plan_exit_actions decision core (NEVER simulator_real.simulate_trade_real -- 2026-07-09 SIM-EXIT-SHAPE-PARITY scar), ribbon_ride exit shape read live from automation/state/fleet/strategies.py, mirroring gate_revalidation_ab.py's proven-sound replay layer.",
+    "cells_c_and_d_scope": "cell (c) is a post-hoc correlational read over cell (a)'s own trades + decision rows (no new replay). cell (d) is an underlying-SPY-point event study (no options pricing) -- explicitly lighter-weight, disclosed as a first-pass signal-quality diagnostic, not a $ backtest (see cells_frozen.CELL_D)."
+  },
+
+  "cells_frozen": {
+    "CELL_A_live_bear_trigger_attribution": {
+      "question": "What does the ALREADY-LIVE trendline_rejection trigger contribute to the full population, beyond the single-day EOD-2026-08-06 anecdote?",
+      "method": "Run run_backtest with production-default kwargs (BEARISH_REJECTION_RIDE_THE_RIBBON + BULLISH_RECLAIM_RIDE_THE_RIBBON, use_real_fills=True) over the full population ONCE. Partition resulting trades into: trendline_rejection-SOLE-trigger, trendline_rejection-CO-FIRED (with other triggers), and non-trendline. Report n / total $ / WR / per-trade for each partition.",
+      "nothing_to_ship": "This trigger is already live and unconditional -- there is no flip to propose. Purely a measurement, reported in full per the reporting_rule below.",
+      "no_look_ahead": "Inherits run_backtest's existing, already-tested no-look-ahead discipline (unmodified engine call)."
+    },
+
+    "CELL_B_bull_trendline_reclaim_counterfactual": {
+      "question": "What would the shadow detect_trendline_reclaim_bullish trigger have added, had it been a real (non-shadow) trigger, over the population?",
+      "explicit_non_ownership": "Bull-side LIVE graduation is a DIFFERENT sibling agent's lane (backtest/tools/bull_trendline_reclaim_graduation_2026_08_09.py, being built concurrently this same session). This cell measures a population-scale counterfactual only -- it NEVER edits filters.py, NEVER flips a live/backtest default, and its output is handed to that sibling / J as evidence, not acted on by this agent.",
+      "mining_layer": "Call detect_trendline_reclaim_bullish(bar, prior_bars, bar_idx, ...) directly (UNMODIFIED, pure function, exact production signature) bar-by-bar over the population's RTH bars. Record every bar where it fires. Cross-reference against CELL_A's baseline trades: a mined bar is EXCLUDED from the counterfactual cohort if a real trade (any trigger) already opened within +/-15 minutes on the same side (side=C) -- avoids double-counting a bar the engine already traded via some other trigger.",
+      "replay_layer": "backtest/lib/exit_manager_walk.walk_exit_manager, reusing (via import, not copy-paste) autoresearch.infinite_ammo_discovery._strike_from_spot / _nearest_cached_strike for ATM strike selection and automation/state/fleet/strategies.py's ribbon_ride exit shape -- the SAME proven-sound pattern gate_revalidation_ab.py (2026-08-08) established for exactly this refused/counterfactual-tick replay problem.",
+      "qty_and_config": "qty=3 (Safe min_contracts), structure_stop_enabled=True, time_stop_et=15:40 -- read live from automation/state/params.json, not hardcoded (same discipline as gate_revalidation_ab.py's account_config()).",
+      "g_battery": "IDENTICAL gate shapes to gate_revalidation_ab.py's g_battery: G_mean (cohort mean > 0), G_oos (second-chronological-half mean > 0), G_drop3 (total minus up-to-3 largest wins still > 0), G_bhfdr (one_sample_p survives Benjamini-Hochberg q=0.10 across this study's own cell family of up to 3 statistically-tested cells: B, C, D), G_n (n >= 15). UNBLOCK-ELIGIBLE requires ALL FIVE.",
+      "hard_gate_check": "If the cohort includes any 2026-08-04 bar, that day's counterfactual total is reported and compared against $0 (baseline -- nothing fired on the bull-reclaim trigger that day in production) -- a negative 08-04 counterfactual contribution does NOT itself fail G_TUESDAY_NO_REGRESSION (nothing live changes), but is disclosed prominently if present.",
+      "ship_rule_this_cell": "EVEN IF UNBLOCK-ELIGIBLE, this agent does not propose a filters.py flag or flip anything -- it hands the scorecard to J / the bull-graduation sibling. This is a deliberate, explicit exception to the mission's general 'ship anything clearing the bar' instruction, justified by the file-ownership fence stated at the top of this document (do not clobber concurrent work on the exact same shadow trigger)."
+    },
+
+    "CELL_C_trendline_proximity_admissibility": {
+      "question": "Among decision rows the population backtest already evaluated (CELL_A's run), does trendline_detector-measured proximity to ANY detected line (nearest_distance_pct from trendline_state_for_decision_row) correlate with trade outcome?",
+      "method": "For every CELL_A trade, compute trendline state (backtest/lib/trendline_detector, wick mode, default grammar, ~3-trading-day lookback) AS OF the entry bar via annotate_decisions_with_trendline_state (strictly post-hoc, reads bars <= entry bar only -- C6). Bucket by abs(nearest_distance_pct) into near/mid/far terciles. Report per-bucket n / total / WR / per-trade, plus Spearman(bucket-rank, pnl) with a shuffle-null 90% interval (same method as trend-alignment-correlation.md, reused for consistency across correlational studies in this codebase).",
+      "kill_criteria_ladder": "SAME shape as trend-alignment-correlation.md's P1 ladder: (1) OOS-half positive AND beats shuffle-null, (2) monotonic-ish (<=1 adjacent-bucket inversion), (3) survives drop-top-3-per-bucket, (4) both chronological halves same sign. ALL FOUR required for SUPPORTED; any failure = KILL (informational, not re-run).",
+      "not_a_flip": "Even a SUPPORTED verdict here does not itself change any live filter -- it would only qualify a SEPARATELY pre-registered Phase 2 proposal for HOW an admissibility filter would be wired (mirrors trend-alignment-correlation.md's own OP-16 eval-first framing exactly)."
+    },
+
+    "CELL_D_anchor_mode_wick_vs_body_ab": {
+      "question": "Is the body-anchor family (J's 'we may be missing it' hypothesis) a real, distinct signal, or redundant with / worse than the proven wick family?",
+      "explicit_scope_limit": "SPY-POINT event study (underlying price only, no option pricing/fills) -- a first-pass signal-quality diagnostic per the task brief's own framing ('tests whether the body family we may be missing is real'), NOT a $ backtest and NOT a candidate for direct ratification. A body-anchored TRIGGER, if this cell looks promising, needs its OWN full real-fills prereg later -- explicitly deferred, not shipped from this cell.",
+      "method": "Reuses the exact touch-respect-rate / forward-return-favorable methodology from the timeframe matrix study (analysis/deep-research/trendline-timeframe-matrix-2026-08-09.json), at the LIVE production timeframe (5m) only, run twice: anchor_mode='wick' vs anchor_mode='body', identical grammar otherwise (min_touches=3, ~3-day lookback, 60-min forward window, same population).",
+      "verdict_rule": "body family is flagged 'WORTH A FOLLOW-UP PREREG' iff its touch_respect_rate is within 10 percentage points of wick's AND n_touches >= 15 (a real, non-trivial population) AND mean_forward_return_favorable > 0. Otherwise 'NOT WORTH PURSUING THIS PASS' (may still be revisited if a future session has a different, better-motivated operationalization)."
+    }
+  },
+
+  "stats_frozen": {
+    "one_sample_p": "ported verbatim from backtest/tools/gate_revalidation_ab.py:102 (itself ported from bull_gate_f5class_requal_2026_08_01.py, itself from shelf_hold_reclaim_study.py) -- kept identical across the lineage so p-values remain directly comparable.",
+    "bh_fdr": "ported verbatim from the same source, q=0.10, applied across CELL_B/C/D's statistically-tested sub-results (up to 3 tests in the family: cell B's cohort p, cell C's Spearman-derived p via the shuffle-null, cell D's wick-vs-body two-sample comparison) -- cell A is a pure measurement/attribution, not a hypothesis test, and is excluded from the BH family (nothing to correct for)."
+  },
+
+  "reporting_rule": "ALL cells reported in full regardless of outcome -- every partition/bucket, pass or fail, n and total and WR and per-trade, including the honest case where a cell comes back NULL/NOT-SIGNIFICANT/NOT-WORTH-PURSUING. No cherry-picking. Any status!='ok' replay outcome (no_contract / no_contract_bars / no_fill_bar / sim_error / unwalkable) is tallied and disclosed, never silently dropped.",
+
+  "ship_rule": "Per the mission: 'ship anything clearing the full auto-ratify bar; everything else frozen prereg with a forward clock.' Applied here: CELL_A has nothing to ship (already live). CELL_B is capped at PROPOSE-ONLY regardless of result, per the explicit non-ownership clause above (bull-side graduation is a different agent's lane, actively in flight). CELL_C, even if SUPPORTED, only qualifies a future Phase-2 wiring proposal (mirrors trend-alignment-correlation.md's own precedent) -- no filters.py/orchestrator.py change ships from this study. CELL_D is capped at a follow-up-prereg recommendation by design (see explicit_scope_limit). NET EFFECT: this prereg's cells are a MEASUREMENT program, not a live-flip program -- consistent with the detector itself being brand-new (zero hours of shadow observation) and with two sibling agents actively working the exact adjacent surfaces (bull graduation, exit/stop) this same session.",
+
+  "out_of_lane_do_not_touch": [
+    "backtest/lib/filters.py -- detect_trendline_rejection_bearish / detect_trendline_reclaim_bullish (read-only, called as pure functions, never edited)",
+    "backtest/lib/exit_manager_walk.py, automation/state/fleet/exit_manager.py -- called read-only via walk_exit_manager, never edited (a different sibling owns exit/stop work)",
+    "backtest/tools/bull_trendline_reclaim_graduation_2026_08_09.py and any chart-drawing skill/tool -- a different sibling's lane",
+    "automation/state/params.json / aggressive/params.json -- never touched by this study",
+    "analysis/recommendations/trend-alignment-correlation.md's frozen population/verdict -- not re-opened, not re-run"
+  ],
+
+  "outputs": [
+    "analysis/deep-research/trendline-timeframe-matrix-2026-08-09.json",
+    "backtest/autoresearch/trendline_timeframe_matrix_2026_08_09.py",
+    "backtest/autoresearch/trendline_validation_cells_2026_08_09.py",
+    "analysis/recommendations/trendline-engine-validation-2026-08-09.json",
+    "analysis/deep-research/TRENDLINE-ENGINE-2026-08-09.md",
+    "backtest/lib/trendline_detector.py",
+    "backtest/tests/test_trendline_detector.py"
+  ]
+}
