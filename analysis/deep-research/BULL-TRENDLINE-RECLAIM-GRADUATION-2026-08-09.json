@@ -1,0 +1,533 @@
+{
+  "_doc": "TASK 1 evidence refresh -- bull-side detect_trendline_reclaim_bullish graduation decision. ANALYSIS ONLY, ships nothing.",
+  "generated_at_et": "2026-08-09T15:35:02",
+  "hard_gate_date": "2026-08-04",
+  "hard_gate_book_pnl": 3624.0,
+  "production_shadow_tally": {
+    "accounts_scanned": [
+      "bold",
+      "risky-1",
+      "risky-3",
+      "safe",
+      "safe-1",
+      "safe-3"
+    ],
+    "ledgers_scanned": [
+      "automation/state/core-decisions.jsonl",
+      "automation/state/fleet/risky-1/decisions.jsonl",
+      "automation/state/fleet/risky-3/decisions.jsonl",
+      "automation/state/fleet/safe-1/decisions.jsonl",
+      "automation/state/fleet/safe-3/decisions.jsonl"
+    ],
+    "window": [
+      "2026-06-21",
+      "2026-08-07"
+    ],
+    "n_trading_days_logged": 38,
+    "total_rows": 41139,
+    "total_trendline_reclaim_shadow_fires": 963,
+    "total_real_enter_bull": 181,
+    "fires_per_row_pct": 2.341,
+    "days_with_at_least_one_fire": [
+      "2026-07-20",
+      "2026-07-21",
+      "2026-07-22",
+      "2026-07-23",
+      "2026-07-27",
+      "2026-07-28",
+      "2026-07-29",
+      "2026-07-30",
+      "2026-08-05",
+      "2026-08-06",
+      "2026-08-07"
+    ],
+    "n_days_with_fire": 11,
+    "hard_gate_day": {
+      "date": "2026-08-04",
+      "rows": 1928,
+      "trendline_reclaim_shadow": 0,
+      "real_enter_bull": 57,
+      "book_pnl_that_day_all_5_accounts": 3624.0,
+      "verdict": "PASS -- signal fired ZERO times across ALL scanned accounts on this date; wiring it live could not have changed any decision, tier, or fill that day"
+    },
+    "monday_before_day": {
+      "date": "2026-08-03",
+      "rows": 1924,
+      "trendline_reclaim_shadow": 0,
+      "real_enter_bull": 6
+    },
+    "per_day": {
+      "2026-06-21": {
+        "rows": 6,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-06-22": {
+        "rows": 390,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-06-24": {
+        "rows": 391,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-06-25": {
+        "rows": 756,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-06-26": {
+        "rows": 1276,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-06-29": {
+        "rows": 1288,
+        "real_enter_bull": 4,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-06-30": {
+        "rows": 1284,
+        "real_enter_bull": 23,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-01": {
+        "rows": 1278,
+        "real_enter_bull": 4,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-02": {
+        "rows": 1284,
+        "real_enter_bull": 4,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-03": {
+        "rows": 848,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-06": {
+        "rows": 1260,
+        "real_enter_bull": 32,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-07": {
+        "rows": 1284,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-08": {
+        "rows": 1286,
+        "real_enter_bull": 8,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-09": {
+        "rows": 1300,
+        "real_enter_bull": 10,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-10": {
+        "rows": 1306,
+        "real_enter_bull": 4,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-11": {
+        "rows": 2,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-13": {
+        "rows": 1156,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-14": {
+        "rows": 1166,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-15": {
+        "rows": 1172,
+        "real_enter_bull": 3,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-07-16": {
+        "rows": 1170,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-17": {
+        "rows": 1160,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-18": {
+        "rows": 4,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-07-20": {
+        "rows": 1176,
+        "trendline_reclaim_shadow": 50,
+        "real_enter_bull": 0
+      },
+      "2026-07-21": {
+        "rows": 1156,
+        "trendline_reclaim_shadow": 30,
+        "real_enter_bull": 0
+      },
+      "2026-07-22": {
+        "rows": 1158,
+        "trendline_reclaim_shadow": 80,
+        "real_enter_bull": 0
+      },
+      "2026-07-23": {
+        "rows": 1156,
+        "trendline_reclaim_shadow": 90,
+        "real_enter_bull": 0
+      },
+      "2026-07-27": {
+        "rows": 1162,
+        "trendline_reclaim_shadow": 202,
+        "real_enter_bull": 0
+      },
+      "2026-07-28": {
+        "rows": 1156,
+        "trendline_reclaim_shadow": 10,
+        "real_enter_bull": 1
+      },
+      "2026-07-29": {
+        "rows": 1120,
+        "trendline_reclaim_shadow": 130,
+        "real_enter_bull": 3
+      },
+      "2026-07-30": {
+        "rows": 1180,
+        "trendline_reclaim_shadow": 61,
+        "real_enter_bull": 0
+      },
+      "2026-07-31": {
+        "rows": 1156,
+        "real_enter_bull": 3,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-08-01": {
+        "rows": 22,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-08-02": {
+        "rows": 4,
+        "trendline_reclaim_shadow": 0,
+        "real_enter_bull": 0
+      },
+      "2026-08-03": {
+        "rows": 1924,
+        "real_enter_bull": 6,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-08-04": {
+        "rows": 1928,
+        "real_enter_bull": 57,
+        "trendline_reclaim_shadow": 0
+      },
+      "2026-08-05": {
+        "rows": 1924,
+        "trendline_reclaim_shadow": 190,
+        "real_enter_bull": 10
+      },
+      "2026-08-06": {
+        "rows": 1926,
+        "trendline_reclaim_shadow": 60,
+        "real_enter_bull": 0
+      },
+      "2026-08-07": {
+        "rows": 1924,
+        "trendline_reclaim_shadow": 60,
+        "real_enter_bull": 9
+      }
+    },
+    "structural_note": "engine_cli.py _derive_tier (~line 484) bumps to SUPER when len(winning_triggers)>=3; _derive_routing (~line 465) breaks bear/bull ties by trigger COUNT. Wiring trendline_reclaim into `triggers` is therefore not provably inert even on bars that already qualify via a DIFFERENT trigger -- it can change TIER/SIZING or which side wins a count-tied bar. Documented, not empirically re-quantified here (the P&L verdict below already fails; flagged for any future re-open)."
+  },
+  "opra_standalone_trigger_refresh": {
+    "method": "IDENTICAL to shadow_signal_edge_2026_07_31.py (fully_covered_days, run_one, day_level_test, one_sample_p, EXIT_SHAPE, RIBBON_RIDE real exit-manager walk) -- only SPY5M extended to spy_5m_2026-05-19_2026-08-07.csv so post-07-31 events resolve instead of excluding as NO_SPY_DAY.",
+    "spy5m_used": "backtest/data/spy_5m_2026-05-19_2026-08-07.csv",
+    "n_events_total": 152,
+    "n_resolved_all": 142,
+    "excluded": {
+      "UNCOVERED_NO_OPRA": 10
+    },
+    "coverage_audit": {
+      "unbiased_days": [
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-08-05",
+        "2026-08-06"
+      ],
+      "per_day": {
+        "2026-07-20": {
+          "spy_lo": 744.83,
+          "spy_hi": 748.01,
+          "atm_strikes_needed": 4,
+          "cached": 15,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-21": {
+          "spy_lo": 746.85,
+          "spy_hi": 748.61,
+          "atm_strikes_needed": 3,
+          "cached": 13,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-22": {
+          "spy_lo": 747.78,
+          "spy_hi": 748.97,
+          "atm_strikes_needed": 2,
+          "cached": 12,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-23": {
+          "spy_lo": 737.01,
+          "spy_hi": 738.98,
+          "atm_strikes_needed": 3,
+          "cached": 15,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-27": {
+          "spy_lo": 736.72,
+          "spy_hi": 739.6,
+          "atm_strikes_needed": 4,
+          "cached": 18,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-28": {
+          "spy_lo": 741.46,
+          "spy_hi": 741.46,
+          "atm_strikes_needed": 1,
+          "cached": 15,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-29": {
+          "spy_lo": 732.21,
+          "spy_hi": 738.25,
+          "atm_strikes_needed": 7,
+          "cached": 21,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-07-30": {
+          "spy_lo": 736.64,
+          "spy_hi": 739.08,
+          "atm_strikes_needed": 3,
+          "cached": 16,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-08-05": {
+          "spy_lo": 771.08,
+          "spy_hi": 772.12,
+          "atm_strikes_needed": 2,
+          "cached": 15,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-08-06": {
+          "spy_lo": 769.17,
+          "spy_hi": 771.74,
+          "atm_strikes_needed": 4,
+          "cached": 12,
+          "missing_atm_strikes": [],
+          "unbiased": true
+        },
+        "2026-08-07": {
+          "spy_lo": 772.04,
+          "spy_hi": 772.9,
+          "atm_strikes_needed": 2,
+          "cached": 0,
+          "missing_atm_strikes": [
+            772,
+            773
+          ],
+          "unbiased": false
+        }
+      }
+    },
+    "all_days_BIASED": {
+      "total_pnl": 7120.85,
+      "per_trade": 50.15,
+      "win_rate_pct": 23.9,
+      "per_day": {
+        "2026-07-20": -397.04,
+        "2026-07-21": -165.81,
+        "2026-07-22": -534.39,
+        "2026-07-23": -915.68,
+        "2026-07-27": -1435.63,
+        "2026-07-28": -256.36,
+        "2026-07-29": 10107.47,
+        "2026-07-30": 2525.69,
+        "2026-08-05": -1145.26,
+        "2026-08-06": -662.14
+      },
+      "WARNING": "OPRA cache selection is not random -- disclosure only, not a verdict basis."
+    },
+    "unbiased_days_only": {
+      "n": 142,
+      "n_days": 10,
+      "total_pnl": 7120.85,
+      "per_trade": 50.15,
+      "win_rate_pct": 23.9,
+      "per_day": {
+        "2026-07-20": -397.04,
+        "2026-07-21": -165.81,
+        "2026-07-22": -534.39,
+        "2026-07-23": -915.68,
+        "2026-07-27": -1435.63,
+        "2026-07-28": -256.36,
+        "2026-07-29": 10107.47,
+        "2026-07-30": 2525.69,
+        "2026-08-05": -1145.26,
+        "2026-08-06": -662.14
+      },
+      "day_level_test": {
+        "n_days": 10,
+        "day_sums": [
+          -397.04,
+          -165.81,
+          -534.39,
+          -915.68,
+          -1435.63,
+          -256.36,
+          10107.47,
+          2525.69,
+          -1145.26,
+          -662.14
+        ],
+        "mean_per_day": 712.09,
+        "statistic": 0.648,
+        "p_value": 0.5169343314869879,
+        "n_days_negative": 8,
+        "method": "mean/SE over day-sums, two-sided p by normal approximation (one_sample_p) -- same estimator as the per-trade screen"
+      },
+      "p_value_per_trade": 0.055154208080270155
+    },
+    "hard_gate_2026_08_04": {
+      "date": "2026-08-04",
+      "n_shadow_events_that_day": 0,
+      "n_opra_resolved_that_day": 0,
+      "pnl_that_day_standalone_trigger": 0,
+      "is_unbiased_day": false,
+      "verdict": "PASS (trivial) -- zero shadow events fired this date; no standalone-trigger backtest cell touches it at all"
+    },
+    "prior_study_2026_07_31": {
+      "file": "analysis/deep-research/SHADOW-SIGNAL-EDGE-2026-07-31.json",
+      "trendline_reclaim_unbiased": {
+        "n": 27,
+        "days": 3,
+        "total_pnl": -1097,
+        "per_trade": -40.64,
+        "win_rate_pct": 14.8,
+        "day_level_stat": -3.401,
+        "p_normal_approx": 0.00067,
+        "p_student_t_df2": 0.077,
+        "n_days_negative": 3,
+        "counterfactual_true_50pct_cap": -1588
+      }
+    }
+  },
+  "position_limited_rewalk_correction": {
+    "note": "POSITION-LIMITED re-walk of the SAME trendline_reclaim shadow firings: within each day, a firing is only counted as a tradeable entry if the account would actually be flat at that bar (i.e. the prior kept trade's own exit_time_et has passed) -- mirrors the real single-position-at-a-time constraint (Rule 4 / C11) the raw standalone-trigger scope (07-31 study's own disclosed limitation: 'take every firing as an entry') does not enforce.",
+    "n_events_in": 152,
+    "n_kept_as_tradeable": 75,
+    "n_skipped_overlap": 67,
+    "n_skipped_other_exclusion": 10,
+    "all_days_total_pnl": -1110.16,
+    "all_days_per_day": {
+      "2026-07-20": -250.62,
+      "2026-07-21": -109.31,
+      "2026-07-22": -372.49,
+      "2026-07-23": -329.87,
+      "2026-07-27": -355.14,
+      "2026-07-28": -130.01,
+      "2026-07-29": 647.98,
+      "2026-07-30": 613.65,
+      "2026-08-05": -481.94,
+      "2026-08-06": -342.41
+    },
+    "unbiased_days_only": {
+      "n": 75,
+      "n_days": 10,
+      "total_pnl": -1110.16,
+      "per_trade": -14.8,
+      "win_rate_pct": 25.3,
+      "per_day": {
+        "2026-07-20": -250.62,
+        "2026-07-21": -109.31,
+        "2026-07-22": -372.49,
+        "2026-07-23": -329.87,
+        "2026-07-27": -355.14,
+        "2026-07-28": -130.01,
+        "2026-07-29": 647.98,
+        "2026-07-30": 613.65,
+        "2026-08-05": -481.94,
+        "2026-08-06": -342.41
+      },
+      "day_majority_win_days": 2,
+      "day_majority_total_days": 10,
+      "day_majority_is_majority": false,
+      "drop_best_remainder": -1879.07,
+      "drop_best_still_positive": false,
+      "day_level_test": {
+        "n_days": 10,
+        "day_sums": [
+          -250.62,
+          -109.31,
+          -372.49,
+          -329.87,
+          -355.14,
+          -130.01,
+          647.98,
+          613.65,
+          -481.94,
+          -342.41
+        ],
+        "mean_per_day": -111.02,
+        "statistic": -0.863,
+        "p_value": 0.38793424621001676,
+        "n_days_negative": 8,
+        "method": "mean/SE over day-sums, two-sided p by normal approximation (one_sample_p) -- same estimator as the per-trade screen"
+      }
+    },
+    "example_2026_07_29_overlap_evidence": {
+      "n_events_that_day": 20,
+      "n_kept_after_position_limit": 3,
+      "corrected_total_pnl_that_day": 647.98
+    }
+  },
+  "wide_population_frequency": {
+    "window": [
+      "2025-01-02",
+      "2026-08-07"
+    ],
+    "n_sessions_in_window": 399,
+    "n_rth_bars_total": 30936,
+    "n_bars_eligible_after_warmup": 30874,
+    "n_fires": 2941,
+    "fires_per_eligible_bar_pct": 9.53,
+    "n_days_with_ge1_fire": 329,
+    "pct_days_with_ge1_fire": 82.5,
+    "note": "Price-only detector replay, continuous global bar_idx (matches lib/orchestrator.py's ctx construction: prior_bars=whole spy_df, bar_idx=global row index -- NOT per-day reset). No OPRA needed; this is a FREQUENCY number only, never mixed with the $ P&L figures above (different evidentiary basis, per the 07-31 study's own scope discipline)."
+  }
+}

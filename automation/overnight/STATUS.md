@@ -1,3 +1,95 @@
+## [2026-08-09 ~16:00 ET] RESEARCH: BULL-TRENDLINE GRADUATION (NO SHIP) + CHART-DRAWING CAPABILITY (SHIPPED, read-only) -- commit pending this fire
+
+**J directive (verbatim):** self-approval on the bull-trendline-detector graduation decision
+("you have self approval on those items. yes") + "chart drawing capabilities" + "what time frame
+do we draw them on for which markets."
+
+**TASK 1 VERDICT: `detect_trendline_reclaim_bullish` (filters.py:944) stays in SHADOW. Nothing
+wired live, nothing in filters.py touched.** Evidence chain, freshest first:
+- Refreshed `SHADOW-SIGNAL-INVENTORY-2026-07-31.md`'s standalone-trigger real-OPRA test (was
+  n=27/3 days, SIGNIFICANT NEGATIVE) through the newly-cached 08-01..08-07 OPRA window: n=142/10
+  unbiased days, raw "take every firing" total **looked positive (+$7,120.85)** -- fable-too-good
+  artifact hunt caught the mechanism BEFORE reporting it: 2026-07-29 alone contributed
+  +$10,107.47 from **15 consecutive-bar firings on one uninterrupted trend, each scored as an
+  independent trade** with no single-position constraint (the real system is single-position-
+  per-account, Rule 4/C11). Position-limited re-walk (same events, enforces the account being
+  flat before counting a firing as tradeable): **n=75 (77 of 152 raw firings were phantom
+  re-entries into an already-open position), total -$1,110.16, per-trade -$14.80, 8/10 days
+  negative, day-majority FAILS (2/10), drop-best FAILS (-$1,879.07 remaining)**. OOS_positive
+  (OP-16) fails either way once the artifact is corrected for.
+- **HARD GATE (Tuesday 2026-08-04, +$3,624 real book) PASSES trivially**: `trendline_reclaim`
+  fired **zero times in shadow across all 5 real accounts** that date (core safe+bold,
+  fleet risky-1/risky-3/safe-3 decision ledgers all checked) -- wiring it live could not have
+  touched that day's decisions, tier, sizing, or fills. Verified directly from the production
+  ledgers, not inferred.
+- Wide-population frequency (price-only, no OPRA, 2025-01-02..2026-08-07 pinned lineage + tail):
+  9.53% of eligible 5m bars fire, present on 82.5% of trading days -- moderate/recurring, not a
+  rare event.
+- Structural (documented, not re-tested): `engine_cli.py::_derive_tier` (~line 484) bumps to
+  SUPER at `len(triggers)>=3`, `_derive_routing` (~line 465) breaks bear/bull ties by trigger
+  COUNT -- wiring this trigger is not provably inert even on trades that already qualify via a
+  different trigger. Would need its own cell if this is ever re-opened.
+- Bear-side comparison (the "same bar" question the task asked to make explicit): bear's
+  `trendline_rejection` shipped 2026-05-09 via TDD alone, BEFORE OP-16's eval-first gate existed
+  (v15 ratified 2026-06-01) -- it never cleared a formal OOS/BH-corrected test either; its
+  standing is 3 months of live production survival + one outsized day (2026-08-06, 100% of that
+  day's P&L). Bull was held to, and failed, a formal real-OPRA/BH-FDR/day-level test bear never
+  had to pass.
+- Artifact: `backtest/tools/bull_trendline_reclaim_graduation_2026_08_09.py` (new, reuses
+  `shadow_signal_edge_2026_07_31.py`'s machinery verbatim) ->
+  `analysis/deep-research/BULL-TRENDLINE-RECLAIM-GRADUATION-2026-08-09.json`. Full writeup:
+  `analysis/deep-research/TRENDLINE-BULL-AND-CHART-2026-08-09.md`.
+- **Forward clock:** re-test when the position-limited unbiased-day count reaches >=20 (currently
+  10) OR if a future session wants to test it as a score-contributor/tiebreaker rather than a
+  standalone trigger (explicitly untested by either the 07-31 study or this refresh).
+- **No REVOKE needed** -- filters.py/engine_cli.py/heartbeat_core.py untouched, nothing live to
+  revert. Existing guard (`test_bull_trendline_wick_reclaim_shadow_only.py`) already pins the
+  shadow-only status and was not touched.
+
+**TASK 2/3 SHIPPED (read-only, $0, no trading-path change) -- REVOKE surface for the new files
+only:**
+- `setup/scripts/trendline_chart_draw.py` (new) -- bull+bear symmetric chart-drawing bridge
+  consuming the sibling's new `backtest/lib/trendline_detector.py` (read-only import, file
+  untouched). Preserves the existing `trendline-draw` skill's J-approved conventions verbatim
+  (color table, 1-line-per-side draw cap, wick/body always in the label). Adds a stable line-id
+  (`TL-{symbol}-{timeframe}-{RES|SUP}-{W|B}-{first_anchor_unix}`) and a first-class
+  `just_retested` state. Guard tests: `backtest/tests/test_trendline_chart_draw.py` (8 tests,
+  RED-proofed live this session -- dropped the flavor tag from the label, confirmed the guard
+  failed, restored, confirmed green).
+- **Verified live on the real chart, not just unit-tested:** drew 1 support/wick + 1
+  resistance/body line on the live `BATS:SPY` 5m chart (`draw_shape`), screenshotted (visually
+  confirmed both render with correct color/label), then removed both via `draw_remove_one`
+  (`remaining_shapes` counted 54->53->52, exactly the 2 test shapes, the chart's other 52
+  pre-existing shapes -- J's own manual lines and other systems' levels -- untouched throughout).
+- **Found + fixed a stale doc bug in passing (OP-0):** `draw_list`/`draw_remove_one` were
+  documented CONFIRMED BROKEN (2026-07-14/2026-06-24, `"getChartApi is not defined"`) in both
+  `.claude/skills/trendline-draw/SKILL.md` and `automation/prompts/premarket.md` (a LIVE daily
+  08:30 ET production step). Verified live this session they now work correctly (including the
+  documented not-found case behaving as expected). Updated both docs with a dated correction +
+  evidence; did NOT restructure premarket.md's actual mechanics (blast-radius discipline -- flagged
+  the simplification opportunity for a future session rather than rewriting a live daily step
+  same-session).
+- **Task 3 (timeframe) recommendation, implemented as the bridge's default, not just written
+  down:** detect+draw on the SAME timeframe as the displayed chart (5m for live SPY 0DTE, matches
+  `chart_get_state`'s own `chart_resolution: "5"`), never project a different TF's lines onto it
+  -- J's own twice-repeated complaints (T16 "a blind person drew them", 2026-07-15 "too many
+  lines") are exactly the failure mode cross-TF projection would reopen. Bounded ~240-bar
+  (~3-day) input window sidesteps the old T16 anchor-offscreen problem structurally instead of
+  patching it. Per-instrument: SPY 0DTE -> 5m; a swing instrument (e.g. the separate MES futures
+  program) would need ITS OWN timeframe-matched detection under the same principle -- not built
+  here (different lane).
+- **Revert (one line):** `git rm setup/scripts/trendline_chart_draw.py
+  backtest/tests/test_trendline_chart_draw.py` + revert the two doc edits (SKILL.md,
+  premarket.md) -- purely additive, no existing consumer touched, the OLD
+  `trendline_engine.py`-based flow is completely untouched and still the primary/proven path.
+- **Architecture note (not a gap, a constraint):** confirmed this session (TV CDP requires a live
+  launched session; MCP tools only exist inside a live Claude+CDP session) that drawing cannot
+  become a new always-on scheduled task -- "fold into the existing scheduled task" means
+  `Gamma_Premarket` (the one LLM-driven fire where drawing already happens), not a new headless
+  daemon. Stated explicitly rather than silently building something structurally impossible.
+
+---
+
 ## [2026-08-09 ~16:00 ET] RESEARCH: DYNAMIC EXITS AUDIT + BUILD + TEST -- commit pending this fire -- no trading-path change
 
 **J directive (verbatim, weeks-repeated):** "ive been demanding dynamic stops and removing the 50%

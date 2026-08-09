@@ -36,25 +36,33 @@ every 5 min); DRAWING is not continuously live without a session open to run it.
 
 ## Steps
 
-1. **Scoped clear of the ENGINE's own prior drawings (NEVER `draw_clear`, and NEVER the MCP
-   `draw_remove_one`/`draw_list` tools -- both are CONFIRMED BROKEN, `"getChartApi is not
-   defined"`, same root cause premarket.md's Step 5 already works around; reproduced live
-   2026-07-14 during the T14 audit).** `draw_clear` additionally has no scope/tag parameter — it
-   wipes EVERY drawing on the chart, including J's own manual lines, so it's disqualified even if
-   it worked. Use the proven `ui_evaluate` JS-injection path instead:
+1. **Scoped clear of the ENGINE's own prior drawings (NEVER `draw_clear`).** `draw_clear` has no
+   scope/tag parameter — it wipes EVERY drawing on the chart, including J's own manual lines, so
+   it is disqualified regardless of anything below.
+
+   **UPDATE 2026-08-09: `draw_remove_one`/`draw_list` are NO LONGER BROKEN — verified live this
+   session.** The 2026-07-14 finding (`"getChartApi is not defined"`) no longer reproduces:
+   `draw_list` returned a real 52-shape inventory, `draw_remove_one` on two freshly-drawn test
+   lines both succeeded (`remaining_shapes` counted down 54→53→52 exactly), and calling it on a
+   stale/already-gone `entity_id` correctly returned `{success:false, error:"Shape not found:
+   ..."}` — the documented not-found case, not a crash. **Use the MCP tools directly now:**
    ```
    backtest/.venv/Scripts/python.exe setup/scripts/trendline_draw_state.py list-ids
    ```
-   For each printed `entity_id`, read `automation/scripts/tv_ops/remove_drawing.js`, substitute
-   `__ENTITY_ID__` → `"<entity_id>"`, and pass the result to
-   `mcp__tradingview__ui_evaluate({ expression: <substituted js> })`. It returns
-   `{ success, removed_id, removed_type }` (or `{success:false, error:"not_found"}` if the line
-   was already removed by hand — treat that as success-for-our-purposes, not a failure). Then:
+   For each printed `entity_id`, call `mcp__tradingview__draw_remove_one({entity_id})` directly.
+   Treat `{success:false, error:"Shape not found: ..."}` as success-for-our-purposes (the line was
+   already gone), never a failure. Then:
    ```
    backtest/.venv/Scripts/python.exe setup/scripts/trendline_draw_state.py clear-record
    ```
    (Only clear the record AFTER the chart-side removals actually run -- clearing first and then
    failing a removal would leak an orphaned drawing nothing can find again.)
+
+   **Fallback if this regresses again:** the OLD `ui_evaluate` JS-injection workaround is still
+   valid and documented in git history (this file, pre-2026-08-09) — read
+   `automation/scripts/tv_ops/remove_drawing.js`, substitute `__ENTITY_ID__` → `"<entity_id>"`,
+   pass to `mcp__tradingview__ui_evaluate({ expression: <substituted js> })`. Re-verify with
+   `draw_list` before trusting either path if MCP tooling has changed since 2026-08-09.
 
 2. **Detect** (JSON mode, no log side-effect -- this also writes the record J asked for when run
    WITHOUT `--no-log`, e.g. the once-daily premarket fire; on-demand draws use `--no-log` so they
@@ -163,6 +171,47 @@ Once daily via `Gamma_Premarket`, ALWAYS stamp the run outcome so
 ```
 On-demand invocations (J asking mid-session) may skip this — it exists to catch the ONE daily
 premarket fire silently not happening, not to track every ad-hoc redraw.
+
+## Alternate detection source (2026-08-09): `trendline_chart_draw.py` + `trendline_detector.py`
+A second detector, `backtest/lib/trendline_detector.py` (pivot-anchored, built 2026-08-09,
+`crypto.lib.market_structure` swing-pivot primitives), plus its chart-drawing bridge
+`setup/scripts/trendline_chart_draw.py`, is available alongside the `trendline_engine.py` flow
+above -- NOT a replacement, an additional option with two things the autoresearch engine doesn't
+have: a **stable line-id** (`make_line_id` → `TL-{symbol}-{timeframe}-{RES|SUP}-{W|B}-
+{first_anchor_unix}`, survives re-detection across runs) and a first-class **`just_retested`**
+boolean (a touch landed on the CURRENT bar and isn't the line's own anchor — distinct from the
+3-way intact/testing/broken `status`, and the concrete answer to "retested-from-below"). Same
+color table, same 1-per-side draw cap, same wick/body-in-the-label rule — ported verbatim, not
+reinvented. Usage: `trendline_chart_draw.compute_draw_payload(bars, symbol=..., timeframe=...)`
+returns ready-to-splat `draw_shape` kwargs; `bars_from_ohlcv_json()` adapts a live
+`mcp__tradingview__data_get_ohlcv` call. Verified live 2026-08-09: 2 lines (1 support/wick, 1
+resistance/body) drawn on the real BATS:SPY chart, screenshotted, then cleanly removed via
+`draw_remove_one` with zero impact on the chart's other 52 pre-existing shapes. Guard tests:
+`backtest/tests/test_trendline_chart_draw.py` (8 tests, RED-proofed). Both detectors currently
+coexist; a future session may want to A/B which one produces more USEFUL (not just more) lines
+before picking one — not decided here.
+
+### Timeframe recommendation (2026-08-09, Task 3)
+**Default: detect AND draw on the SAME timeframe as the currently-displayed chart (5m for the
+live SPY 0DTE trading view — confirmed via `chart_get_state`, `chart_resolution: "5"` is the
+standing default) — never project a different timeframe's lines onto it.** Reasoning: J has
+twice complained about exactly the failure mode cross-timeframe projection would reintroduce —
+"multi-day rails at intraday zoom read as noise... a blind person drew them" (T16,
+2026-07-21) and "way too many trend lines on the screen" (2026-07-15). A line fit on 1h or Daily
+bars is calibrated to that scale's noise floor; re-projected onto a 5m chart it either looks
+arbitrary (doesn't touch anything a 5m eye would call a pivot) or requires a SECOND, unrelated
+detection pass just to justify it being there. `trendline_chart_draw.py` sidesteps the T16
+anchor-offscreen problem structurally rather than patching around it: it takes whatever bar
+window the caller hands it (default recommendation: ~240 5m bars ≈ 3 trading days, matching
+`trendline_detector.annotate_decisions_with_trendline_state`'s own default `lookback_bars=240`),
+which keeps every anchor close enough to "now" that it can't render off-screen in the first
+place — bounding the INPUT window, not label-placement-patching the OUTPUT. Per-instrument: this
+project trades SPY 0DTE only (minutes-to-hours holds → 5m is the natural unit); a swing
+instrument on a days-to-weeks holding period (e.g. the MES futures swing battery, a different
+lane) would need its OWN timeframe-matched detection (4h/Daily, per that program's own bar data)
+under the SAME principle — never SPY's 5m lines projected onto a futures chart or vice versa.
+This recommendation is implemented as the bridge's default, not merely written down: `timeframe`
+defaults to `"5m"`, and nothing in `compute_draw_payload` reads or projects a different TF's data.
 
 ## Notes / roadmap
 - A trendline break IS a Break-of-Structure; pair with `crypto/lib/market_structure.py` (BOS/CHoCH + HH/HL/LH/LL).
