@@ -1,3 +1,66 @@
+## [2026-08-09 ~18:30 ET] SHIP: THE REAL-BROKER LANE — futures now trades on an actual broker — REVOKE surface
+
+**`Gamma_FuturesBrokerLane` registered and fired.** The futures lane now runs on a REAL broker
+connection (Tastytrade SANDBOX, fake money), not only the local simulator.
+
+**Why two lanes and not a switch.** The obvious move after proving the sandbox works was to flip
+the default. That would have been wrong: the cert environment **wipes positions and orders every
+24 hours** — fine for checking fills, disqualifying for a book of record whose journal needs
+continuity. So both run the SAME deterministic tick:
+
+| Lane | Task | Backend | Job |
+|---|---|---|---|
+| Book | `Gamma_FuturesTrader` | `fillsim` | persistent book of record, continuous journal |
+| Parity | `Gamma_FuturesBrokerLane` | `tastytrade` | **real fills**, real acceptance, real slippage |
+
+Same bars, same watcher fleet, same `should_take_v3`, same dollar rails — only the backend
+differs. **Divergence between them IS the signal.** A simulator that quietly disagrees with the
+broker is the failure mode every backtest in this repo is ultimately exposed to, and until
+tonight nothing could detect it.
+
+**🚨 Three bugs found building it — all the same family: *"it works when I run it" proves nothing
+about how the scheduler runs it.***
+
+1. The adapter reads `TT_SECRET` from `os.environ`. A scheduled task has no shell to export it
+   into, so it **silently failed to authenticate while the tick still reported
+   `simulated_fills: false`** — exactly how phantom `BROKER` rows enter a ledger whose entire
+   interpretability rests on that column. Creds now load in-process from the gitignored
+   `.env.tastytrade`, and an unconnected broker lane HOLDs with `broker_not_connected` rather
+   than degrading into a half-lane.
+2. Per-backend state dirs resolved from an **import-time frozen mapping**, which silently
+   defeated monkeypatch isolation — the replay drill started writing into real state again, the
+   same contamination bug from earlier this session wearing a different hat. `lane_paths()` now
+   reads module globals at CALL time. Two leaked rows from the broken intermediate build removed.
+3. The 24h wipe reads as "we lost a fill" unless something says otherwise, which would strand the
+   lane in a permanent no-stack HOLD. `_reconcile_broker_reset` logs it explicitly — never
+   silently — and clears the local record. It never runs on the simulator, where a disagreement
+   would be a real bug in our own engine.
+
+**Proven before registration** (CME open, cert `5WW73759`, fake money): dry run validated
+(bp −$2.52) · resting order `Routed`→`Live`, cancelled clean · marketable order **FILLED** 1
+`/MESU6` @ **7,772.50**, held, closed, flat · full tick `connected=true`, equity read from the
+broker, GREEN live feed · scheduler fire `LastTaskResult=0`, beacon advanced.
+
+**Guards:** `TestLaneIsolation` + `TestBrokerLaneSafety` (9 new). The parity lane's beacon is in
+the freshness manifest — if it dies, the book keeps producing clean-looking SIMULATED numbers
+with nothing left to check them against, and **the absence of a contradiction reads exactly like
+agreement**.
+
+**Unchanged:** live futures money is OP-0 #1 **plus** a new venue — double-gated, and not
+reachable from either task's config.
+
+**REVOKE:** `Unregister-ScheduledTask -TaskName "Gamma_FuturesBrokerLane" -Confirm:$false`
+(the fillsim book lane keeps running untouched — the lanes are independent).
+
+**⚠️ Flagged, NOT fixed (not mine):** `test_state_freshness_audit::test_fresh_file_is_green` is
+flaky — it asserts the LIVE audit is GREEN, and `key-levels.json` intermittently crosses its 20m
+budget while the live audit reads GREEN seconds later. Likely a mis-specified budget: the window
+is declared 24/7 but `refresh_levels_intraday` only rewrites the file when there is something to
+write, so age grows after hours. Produces weekend false-REDs. Pre-existing; worth a deliberate
+pass on the SPY monitoring semantics rather than a drive-by edit.
+
+---
+
 ## [2026-08-09 ~18:20 ET] RESOLVED: THE FUTURES BROKER WORKS — the month-old blocker was never real — REVOKE surface
 
 **Verdict: the Tastytrade sandbox trades futures. The 2026-07-07 diagnosis was wrong.**
