@@ -1,0 +1,82 @@
+{
+  "_doc": "Frozen pre-registration for ENTRY-EXIT-MATRIX-2026-08-09, committed BEFORE the runner script exists (git-provable via git log / git merge-base --is-ancestor against the runner commit). J's /goal 2026-08-09: 'dynamic entries and exit testing across our trades, map it into a multi column/row matrix table and figure out what is profitable.' This is a FRESH pass, not a re-run of analysis/recommendations/entry-exit-matrix-2026-07-09.md -- that pass's 5 verdicts (exit-A FAIL, exit-B FAIL, entry-1 FAIL, entry-1+exit-A FAIL, exit-C+entry-2 INCONCLUSIVE_NO_ANCHOR) are CITED, not re-tested.",
+  "author": "Claude (Sonnet), analysis-only lane per CLAUDE.md file-ownership fence",
+  "frozen_at_et": "2026-08-09 (Sunday, market closed -- verified via setup/scripts/et_clock.py)",
+  "no_repick_clause": "Once this file is committed, the cell list, gates, and primary metric below do not change based on results. Any axis found broken/inapplicable during the build is marked N/A with a stated reason, never silently dropped or replaced by a better-looking cell.",
+
+  "populations": {
+    "A_391day_replay": {
+      "source": "backtest/tools/score_ladder_replay_2026_08_07.py's own machinery (run_backtest_with_full_capture, SAFE_BASE_LIVE_NOW config), REUSED not reinvented, extended by one trading day using backtest/data/spy_5m_2026-05-19_2026-08-07.csv + vix_5m_2026-05-19_2026-08-07.csv (the freshest cached SPY/VIX tail available) in place of that script's own 2026-08-06 end-date file.",
+      "window": "2025-01-02 .. 2026-08-07 (both directions, ribbon_ride only, real OPRA per-trade P&L, BS-synthetic disclosed+excluded from P&L)",
+      "gives": "r.trades = CONTROL's own binary entries (all filters as shipped); bear_by_idx/bull_by_idx = full per-bar decision log (score, blockers, triggers_raw, level, vix, spot) for every evaluated bar, used to build the 7 non-control ENTRY rows",
+      "exit_engine": "backtest/lib/exit_manager_walk.py#walk_exit_manager -> automation/state/fleet/exit_manager.py#plan_exit_actions (the live decision core), NEVER simulator_real -- closes the 2026-07-09 SIM-EXIT-SHAPE-PARITY scar per this task's own instruction",
+      "option_bars": "5-minute cached OPRA (backtest/data/options/*.csv via lib.option_pricing_real.load_contract_bars, default resolution). Touch-based stops; 1-minute close timing NOT modelled -- same disclosed gap as T3/T4/T5/ladder_fullhist_replay/score_ladder_replay_2026_08_07 (this is the established, accepted resolution for this entire research program, not a new gap)."
+    },
+    "B_25day_real_fills": {
+      "source": "analysis/entry-quality/entry-quality-ledger.json's own `events` array, REUSED verbatim (not reconstructed from scratch) -- 244 real engine-attributed option-BUY fills (fills-ledger.jsonl, attribution=='engine'), 27 trading days, 2026-06-26..2026-08-07, across the live fleet (core + fleet_rest arms). Each event already carries FIFO-matched realized pnl, entry symbol/price/time/qty/side, and pre-computed structure/V-d1 tags (s5_bucket, s5_bars_ago, d_last5_dir) built by setup/scripts/entry_quality_ledger.py.",
+      "gives": "true broker-truth entries (NOT a backtest re-simulation) for the CONTROL row + the 2 filter-type rows that have a matching field in the ledger (STRUCT8, VD1) + MAX3 (computable on any trade list). Score-ladder rows (LADDER7/8/9) and ZONE are N/A on this population -- no score/blocker/level-scan data is attached to a real fill event, and manufacturing a synthetic admission test against real fills would stop being a 'real fills' population (same reasoning the July pass used to N/A exit-C+entry-2's anchor).",
+      "exit_engine": "SAME walk_exit_manager path as population A, replayed on each event's own real 1-minute-resolution symbol against the 5-minute OPRA cache (load_contract_bars default) -- same disclosed touch-resolution gap, held CONSTANT across both populations so resolution is never a confound between them.",
+      "n_expected": "244 raw events before per-row filtering; expect lower post-filter, and lower still after any symbol missing from the local OPRA cache (excluded + counted, never silently dropped)."
+    }
+  },
+
+  "rows_entry_variants": [
+    {"id": "CONTROL", "desc": "as-shipped binary admission, all filters, both directions", "type": "baseline", "pop_a": "r.trades", "pop_b": "all 244 ledger events (FIFO round-trips)"},
+    {"id": "STRUCT8", "desc": "require a 5m market-structure event (BOS/CHoCH via crypto.lib.market_structure.analyze_structure, window=3, SAME function+params entry_quality_ledger.py uses) within 8 bars of entry", "type": "subset filter on CONTROL", "pop_a": "computed fresh on spy_rth slice ending at each CONTROL entry's bar_idx", "pop_b": "reuses ledger's a_structure_5m_within8 field (blocked_by('R-S8-5m'))"},
+    {"id": "VD1", "desc": "skip when the last FULLY CLOSED 5m bar closed against the trade direction", "type": "subset filter on CONTROL", "pop_a": "computed fresh from spy_rth's prior closed bar vs entry side", "pop_b": "reuses ledger's blocked_by('V-d1-rescore') exactly"},
+    {"id": "LADDER7", "desc": "score-ladder single-demerit admission (LANE 1 semantics per CLOSE-PACKAGE-LADDER-ADDENDUM-2026-08-07.md: the logged score already IS the adjusted score; demotable bull{5,7,8,10}/bear{5,7,8,9} no longer veto) at rung>=7 -- CONTROL union rescued extras", "type": "superset of CONTROL", "pop_a": "bear_by_idx/bull_by_idx scored-but-refused bars", "pop_b": "N/A -- no score data on real fills"},
+    {"id": "LADDER8", "desc": "same mechanism, rung>=8", "type": "superset of CONTROL", "pop_a": "as above", "pop_b": "N/A"},
+    {"id": "LADDER9", "desc": "same mechanism, rung>=9", "type": "superset of CONTROL", "pop_a": "as above", "pop_b": "N/A"},
+    {"id": "MAX3", "desc": "cap same (date, side) entries at 3/day (dedup 4th+ re-entry) -- 'arm' collapses to one simulated lane, disclosed simplification of the brief's (arm,date,contract) key", "type": "subset filter on CONTROL", "pop_a": "filter r.trades", "pop_b": "filter the 244 ledger events"},
+    {"id": "ZONE", "desc": "level-proximity BAND admission ($0.15 SPY-price band around an active level-tied trigger's own level, regardless of score) instead of the engine's tighter exact-touch requirement -- 'levels are ZONES' (J 2026-07-17)", "type": "superset of CONTROL, pop A only", "pop_a": "scored-but-refused bars with a level, |spot-level|<=0.15", "pop_b": "N/A -- no scored-refusal population exists over real fills", "disclosed_limitation": "band width ($0.15) is ONE representative choice, not a swept/pre-registered optimum -- this is one row among eight, not a dedicated band-width study"}
+  ],
+
+  "cols_exit_variants": [
+    {"id": "CONTROL", "desc": "RIBBON_RIDE.exit.to_dict() as shipped: premium_stop_pct=-0.20 (fallback only), tp1_premium_pct=1.0, tp1_qty_fraction=0.667, profit_lock_mode=trailing, trail_pct=0.15, runner_target_pct=99.0, stop_mode=structure, catastrophe_stop_pct=-0.50, structure_stop_enabled=True"},
+    {"id": "TP1_30", "desc": "tp1_premium_pct=0.30, else CONTROL"},
+    {"id": "TP1_40", "desc": "tp1_premium_pct=0.40, else CONTROL"},
+    {"id": "TP1_50", "desc": "tp1_premium_pct=0.50, else CONTROL"},
+    {"id": "TP1_75", "desc": "tp1_premium_pct=0.75, else CONTROL"},
+    {"id": "MFE_TRAIL", "desc": "MFE-triggered trailing: profit_lock_arm_pct=0.03 (vs control 0.05), trail_pct=0.10 (vs control 0.15) -- arms earlier off a smaller favorable move and trails tighter off the HWM. DISCLOSED SIMPLIFICATION: this is a tighter/earlier chandelier expressed through exit_manager's existing arm_pct+trail_pct fields, not a continuously MFE-width-scaled trail (that would need a per-tick dynamic trail_pct not natively supported by ExitState without forking exit_manager.py, which is out of file-ownership scope). If sibling DYNAMIC-EXITS-2026-08-09.md exists with its own MFE-trail definition, that definition is cited/reused instead of this one."},
+    {"id": "ATR_STOP", "desc": "premium-mode (structure_stop_enabled=False for this column only), premium_stop_pct computed PER-POSITION from the option contract's own realized bar range in the first 6 bars after entry (an option-premium ATR proxy, multiplier 2.0x, clipped to [-0.15, -0.60]) instead of a fixed static %. DISCLOSED SIMPLIFICATION: no per-fill delta/Greeks exist in the historical cache (same gap T4 disclosed and omitted entirely -- 'ATR-scaled ... stops are NOT expressible in the premium-only replay ... omitted'); this column computes ATR on the option's OWN premium bars rather than mapping a SPY-ATR through an invented delta, and is disclosed as an approximation, not delta-mapped truth."},
+    {"id": "CATCAP_25", "desc": "catastrophe_stop_pct=-0.25, else CONTROL (structure stays primary; this changes ONLY the intrabar safety-net cap, and only bites for entries where a trigger_level exists / structure mode resolves -- no-trigger-level entries fall back to premium_stop_pct=-0.20 unchanged, exactly as CONTROL does)"},
+    {"id": "CATCAP_30", "desc": "catastrophe_stop_pct=-0.30, else CONTROL"},
+    {"id": "CATCAP_40", "desc": "catastrophe_stop_pct=-0.40, else CONTROL"},
+    {"id": "CATCAP_60", "desc": "catastrophe_stop_pct=-0.60, else CONTROL"},
+    {"id": "STRUCT_ONLY", "desc": "structure_stop_enabled=True, catastrophe_stop_pct=-0.95 (effectively no catastrophe safety net) -- isolates structure-invalidation's OWN contribution by removing the -50% cap's influence entirely. This IS the brief's 'structure-invalidation stop (exit when the thesis level fails, not at a %)' column; CONTROL already runs structure-primary with a -50% net, so this column is the honest way to make the axis distinct from CONTROL rather than duplicating it."}
+  ],
+
+  "matrix_size": "8 rows x 12 cols = 96 cells x 2 populations = 192 cell-walks. Every cell reported (no truncation). CONTROL x CONTROL is the anchor cell in both populations.",
+
+  "walk_discipline": "Sequential, one-position-at-a-time (NOT_FLAT) walk per (row, col, population) -- mirrors score_ladder_replay_2026_08_07.py#walk_lane exactly: events sorted chronologically, a later signal inside an still-open prior position's holding window is SUPPRESSED, not stacked. This is re-derived independently per cell (a wider stop's suppression effect on later re-entries is measured, never assumed). Never recombine independently-simulated trades into an aggregate that ignores this.",
+
+  "battery_per_cell": [
+    "n, total $, expectancy $/trade, WR",
+    "drop-best-day expectancy (G3-style: total minus the single best trading day's P&L, divided by remaining n)",
+    "runner-cohort sub-expectancy (G4-style: trades that filled TP1, i.e. became runners)",
+    "sub-window stability: population split chronologically in half; sign-consistency of expectancy across both halves",
+    "Tuesday 2026-08-04 $ total -- HARD GATE, reported for every cell in both populations where that date is present in the row's admitted set",
+    "one-sided bootstrap p-value (mean trade pnl > 0), reusing score_ladder_replay_2026_08_07.bootstrap_p_mean_gt0 (n_boot=10000, seed=7)"
+  ],
+
+  "correction": "Benjamini-Hochberg FDR at q=0.10 (matches this repo's own established convention in score_ladder_replay_2026_08_07.py and entry_quality_ledger.py), applied SEPARATELY within each population's 96 cell p-values (two different sample spaces -- pooling them would itself be a methodological error). The corrected significance threshold actually used (not just alpha=0.10 nominal) is stated in the output for both populations.",
+
+  "hard_gates": [
+    "Tuesday 2026-08-04 (+$3,624 live day) no-harm: any cell that materially degrades this specific day's $ (population B) or its analog in population A cannot be recommended regardless of aggregate expectancy, stated explicitly per cell.",
+    "A cell only advances to 'notable' in the writeup if BOTH populations are directionally consistent OR the disagreement itself is reported as the finding (per the July pass's own precedent -- a layer conflict is a real result, not something to suppress or silently pick a winner between)."
+  ],
+
+  "interaction_effects": "For every (row!=CONTROL, col!=CONTROL) cell: predicted_additive = row[CONTROL-col].expectancy + CONTROL[col].expectancy - CONTROL[CONTROL].expectancy; interaction = actual[row,col].expectancy - predicted_additive. Positive = super-additive (the combination beats what its two solo effects predict), negative = sub-additive.",
+
+  "primary_metric": "per-trade expectancy ($/trade), OP-32 convention (expectancy first, WR/total as supporting color, never the primary sort key)",
+
+  "willing_to_conclude_null": "Yes, explicitly. If the honest result is that CONTROL x CONTROL dominates or nothing clears BH at q=0.10 net of the Tuesday gate, that is reported as the verdict, not softened. This mirrors the 2026-07-09 pass's own honest FAIL/INCONCLUSIVE verdicts, which are cited, not overwritten.",
+
+  "known_scope_limitations_disclosed_upfront": [
+    "ribbon_ride only (both directions) -- vwap_continuation is a separate setup family, owed separately, same disclosure T3/T4/T5 already carried",
+    "frictionless-at-trigger-level fills except where walk_exit_manager's own point-sample/slippage convention applies (DEFAULT_EXIT_SLIPPAGE=0.02 on market-style exits) -- no bid/ask spread modelled beyond that",
+    "qty fixed at MIN_CONTRACTS_STUDY=3 for population-A extras (matches score_ladder_replay's own study convention); population-B events use their REAL broker qty",
+    "ZONE and LADDER rows are pop-A-only by construction (stated above, not silently dropped)",
+    "MFE_TRAIL and ATR_STOP are disclosed simplifications of 'true' dynamic exits (see per-column notes) -- if the sibling DYNAMIC-EXITS-2026-08-09.md artifact exists at build time its definitions are read and reused/cited for consistency per this task's own instruction"
+  ]
+}
