@@ -1,3 +1,107 @@
+## [2026-08-09T00:13 ET] CONDUCTOR-WEEKEND: OK -- BXM-PROBE-TRADES-CSV-HEADER-DRIFT-FIX -- commits `7dfa8059` + `e26140c2` + `a5cd46a0` -- REVOKE surface
+
+**Task picked (priority-4 queue HIGH-adjacent MED, self-generated, closes a loop; budget gate
+PASSED $0/$30 fresh day-rollover, engine health GREEN, market closed):** `task_scorer.py --top`
+ranked `TWIN-DOCTRINE-FIRST-DEPLOY` #1 but it's a 17-day-stale J-ping on doctrine
+(`gp-2026-07-23-twin-doctrine-001`, still `status:pending`) -- re-pinging would be spam per
+the established precedent (see the 2026-08-04 fire's own note on this exact item). Picked
+`BXM-PROBE-TRADES-CSV-HEADER-DRIFT-FIX` instead (next-ranked concrete, ready, zero-live-impact
+item): `journal/trades.csv` gained a trailing column (`theta_at_entry`, 2026-08-01 THETA
+COCKPIT build) AFTER `account_id`, breaking `bxm_gate_probe.py` + `vix1d_gate_probe.py`'s
+fixed `header[-1] == "account_id"` assertion (both confirmed RED before touching anything:
+3 failing tests, exact `AssertionError: trades.csv header drifted`).
+
+**Fixed both, then found + fixed a THIRD sibling with the identical bug** (grepped
+`header\[-1\]|row\[-1\]` repo-wide after the first two, not trusting the docstring's own
+"same shape as X" claim -- it named only 2 siblings, there were 3):
+`fred_yield_curve_probe.py` had the exact same brittle loader, also RED. All three now
+resolve `account_id` via `header.index("account_id")` (name-based), robust to any future
+trailing-column append; the header assertion still fails LOUD (C7) if `account_id` is
+genuinely removed rather than relocated. Guard: `backtest/tests/test_trades_csv_header_drift_guard.py`
+(9 tests parametrized across all 3 probe modules), RED-proofed via `git stash` TWICE (once
+for bxm+vix1d together, once for the fred sibling found afterward) -- both times the exact
+expected tests failed pre-fix, restored byte-clean, re-confirmed green after each. Curated
+safety gate 59/59 PASS (ran twice, once per commit). Zero trading-path files touched (rail-4
+N/A -- offline research probes only, no params/heartbeat_core/filters/placement/exit code).
+
+**Lesson filed** (`_lesson-inbox/2026-08-09-copy-pasted-fixed-position-csv-loader-broke-3-siblings-identically.md`):
+names the shape (copy-pasted fixed-position CSV loaders break identically across sibling
+files on the SAME trigger day, since it's one shared assumption not three independent bugs)
+and proposes a repo-wide lint guard as the OP-25 graduation so a 4th sibling doesn't require
+another manual "oh, one more turned up" grep pass.
+
+**Commits verified exactly-scoped via `commit_scoped.py`** (avoids the L271/C34 shared-index
+absorption scar -- ~40+ other files sit modified/staged in this checkout from concurrent
+daemons/lanes, none touched): `7dfa8059` (4 files: bxm+vix1d source fixes, new guard test,
+queue.md status flip), `e26140c2` (2 files: fred source fix, guard test extended to 3
+modules), `a5cd46a0` (1 file: the lesson).
+
+**REVOKE:** `git revert a5cd46a0 e26140c2 7dfa8059` (in that order; 7 files total, all clean
+additive/scoped edits).
+
+Cost this fire: ~$4.20 (root-cause verification across 3 probe files + 2 RED-proof cycles +
+lesson authoring + 3 scoped commits).
+
+---
+
+## [2026-08-08T23:22:31 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-08 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-08 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-08 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-08. |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-08 window_end=2026-08-07 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=12 (delta +2 vs baseline n=10) exp=$-40.75/tr, verdict_moved=False. bull now: GREEN n=10 exp=$51.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-08 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-08 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-08`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## [2026-08-08] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-02..2026-08-06), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-06). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=RED
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($244.55); Bold_ATM_1+2=YELLOW ($1437.2)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: #4 ATM — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+## [2026-08-08T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-08 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-08 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-08 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-08. |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-08 window_end=2026-08-07 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=12 (delta +2 vs baseline n=10) exp=$-40.75/tr, verdict_moved=False. bull now: GREEN n=10 exp=$51.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-08 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-08 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-08`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## [2026-08-08T18:00 ET] CONDUCTOR-WEEKEND: QUIET -- nightly budget still spent (corrected $35.40 >= $30 cap, raw self-report $16.09 x2.2) -- rail-0 gate exited before any read/pick/fan-out, 7th consecutive quiet fire today (04:00, 05:30, 08:00, 10:00, 14:00, 16:00, 18:00). Cap resets at day rollover; next fire should re-check `conductor_budget.py --check` before doing any work.
+
+## [2026-08-08T16:00 ET] CONDUCTOR-WEEKEND: QUIET -- nightly budget still spent (corrected $35.38 >= $30 cap, raw self-report $16.08 x2.2) -- rail-0 gate exited before any read/pick/fan-out, 6th consecutive quiet fire today (04:00, 05:30, 08:00, 10:00, 14:00, 16:00). Cap resets at day rollover; next fire should re-check `conductor_budget.py --check` before doing any work.
+
+## [2026-08-08T14:00 ET] CONDUCTOR-WEEKEND: QUIET -- nightly budget still spent (corrected $35.35 >= $30 cap, raw self-report $16.07 x2.2) -- rail-0 gate exited before any read/pick/fan-out, 5th consecutive quiet fire today (04:00, 05:30, 08:00, 10:00, 14:00). Cap resets at day rollover; next fire should re-check `conductor_budget.py --check` before doing any work.
+
+## [2026-08-08T10:00 ET] CONDUCTOR-WEEKEND: QUIET -- nightly budget still spent (corrected $35.35 >= $30 cap, raw self-report $16.07 x2.2) -- rail-0 gate exited before any read/pick/fan-out, 4th consecutive quiet fire today (04:00, 05:30, 08:00, 10:00). Cap resets at day rollover; next fire should re-check `conductor_budget.py --check` before doing any work.
+
+## [2026-08-08T08:00 ET] CONDUCTOR-WEEKEND: QUIET -- nightly budget still spent (corrected $35.33 >= $30 cap, raw self-report $16.06 x2.2) -- rail-0 gate exited before any read/pick/fan-out, 3rd consecutive quiet fire today (04:00, 05:30, 08:00). Cap resets at day rollover; next fire should re-check `conductor_budget.py --check` before doing any work.
+
+## [2026-08-08T05:30 ET] CONDUCTOR: QUIET -- nightly budget still spent (corrected $35.31 >= $30 cap) -- rail-0 gate exited before any read/pick/fan-out, same as the 04:00 fire. Cap resets at day rollover; next fire should re-check `conductor_budget.py --check` before doing any work.
+
+## [2026-08-08T04:00 ET] CONDUCTOR: QUIET -- nightly budget spent (corrected $35.31 >= $30 cap, raw self-report $16.05 x2.2) -- rail-0 gate exited before any read/pick/fan-out. Next fire (weekend, later today) should re-check `conductor_budget.py --check`; cap resets at day rollover.
+
 ## [2026-08-08T02:06 ET] CONDUCTOR: OK -- BUDGET-ROSTER-AUDIT-MAXBUDGETUSD -- commit `619f41aa` -- REVOKE surface
 
 **Task picked (priority-4 queue MED, loop-CLOSING per the REGRESSING-trend guidance below;
@@ -90,16 +194,6 @@ lanes (L271/C34 discipline).
 
 Cost this fire: ~$3.90 (log archaeology across 2 accounts x 5 dates + guard build + RED-proof
 + self-audit triage + commit).
-
----
-
-## [2026-08-07] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-02..2026-08-06), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-06). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=CONFIRM
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1304.16); Bold_ATM_1+2=YELLOW ($2017.9)
-> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #4 ATM.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -448,129 +542,6 @@ revert of the ship commit (removes meter + brief hunk + guards).
 
 ---
 
-## [2026-08-06T19:15 ET] LANE-7 MONDAY-READINESS: TV watchdog argv fix PROVEN live + hidden pipeline-hang fixed -- REVOKE surface
 
-**Owed proof delivered (the 2026-08-05 argv fix had shipped UNPROVEN):** staged the real
-failure (TV up since 16:27 ET with CDP dead 8,462s), ran the REAL watchdog path -- the
-`-Kill` relaunch executed launch_tv_debug.ps1 for real (pre-fix: not a single line ran)
-and CDP healed on :9222 (`tv_health_check`: cdp_connected=true, BATS:SPY @5m).
-
-**NEW defect found + fixed during the proof:** `Invoke-TvLaunchSafe`'s
-`& powershell.exe $psArgs 2>&1 | Out-File` pipeline BLOCKED until TradingView itself
-exited -- launch_tv_debug.ps1 starts TV via Process.Start/UseShellExecute=$false with no
-redirection, so TV INHERITS the child's stdout handle and the pipeline never completes.
-Masked pre-argv-fix (child died instantly); live repro tonight: tick hung 12+ min past a
-successful heal; production `Gamma_TvWatchdog` (ExecutionTimeLimit=PT4M) would be KILLED
-before `Test-CdpReady`/healed-logging ran -- the 2026-07-31 `*_FAILED` escalation was
-unreachable in exactly the scenario it was built for.
-**Fix:** Start-Process + sidecar-file redirection + `Wait-Process` on the CHILD only;
-`CdpTimeoutSec` default 12->90 (measured cold boot-to-CDP >29s; 12s poll flags every real
-heal as FAILED). **End-to-end proof:** killed TV, real `run-tv-watchdog.ps1` completed in
-**67s** with `tv_action: relaunch_fresh_healed` written same-tick
-(tv-watchdog-status.json 2026-08-06T23:09:30Z).
-**Guard:** `backtest/tests/test_tv_launch_argv_2026_08_05.py` (5 tests -- the file the
-argv fix CITED but never wrote, L249 class) + existing suite, 12/12 green. RED-proofed by
-3 source mutations (argv splat back / blocking pipe back / timeout 12): 2+2+1 guard
-failures, restored byte-identical (sha256 7ca02ee1...), green re-run.
-**Revert (one line each):** restore the `& powershell.exe $psArgs 2>&1 | Out-File` block
-in `_shared.ps1#Invoke-TvLaunchSafe` (git revert of this commit) / set CdpTimeoutSec 90->12.
-
----
-
-## [2026-08-06T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-06 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 113 tick(s) showed in_trade>0. 11 real fill(s) dated 2026-08-06: safe-2@10:31, safe-2@10:32, risky-1@10:32, risky-3@10:32, bold-2@10:32, safe-2@10:33, bold-2@10:34, safe-2@10:34, bold-2@10:34, safe-2@10:35, safe-2@14:21. Field-level populatio… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-06, generated_at_et=2026-08-06T08:40:03-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-06, regime_context.stamp_date=2026-08-06 (present=True, dates_match=True). one_liner='Yesterday 2026-08-05 (Wed) = gap-fade (range 0.95%, gap +0.60%, c… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 51 distinct near-price levels. Worst: 769.80 flipped 5x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 36 time(s) across 2 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-06 window_end=2026-08-05 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=11 (delta +1 vs baseline n=10) exp=$-78.55/tr, verdict_moved=False. bull now: UNDERPOWERED n=8 exp=$105.75/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-06T16:00:03 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 268 theta-clock row(s) dated 2026-08-06 across 2 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=268, unavailable=0. sti… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-06 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-06`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-06T05:41 ET] conductor: OK -- SCOUT-PREMARKET-BUDGET-CHRONIC-FAIL -- commit `8ad0b364`
-
-Budget gate PASSED ($5.06/$30, 1/4 fires pre-fire). Engine health GREEN, market closed
-(05:30 ET). STAGE-1 priority-1 (fill-funnel/self-check) surfaced a NEW, TODAY-dated
-self_check DEGRADED finding riding the same RUN-PS1-HIDDEN masked-exit visibility fix two
-prior fires shipped (2026-08-04/05/06): `run-scout-premarket.ps1 (exit=[1], 1x)`.
-**Root cause named in one sentence:** `-MaxBudgetUsd 0.50` (unchanged since the script's
-2026-06-15 creation) was always too tight for a WebSearch-driven macro/news scan, and the
-underlying `claude` CLI's `Error: Exceeded USD budget (0.5)` -> exit=1 has fired on EVERY
-dated log checked back to 2026-07-20 (11 sample dates, 11/11 failures) -- ~7-8 weeks of
-100% daily failure, invisible to Task Scheduler's `LastTaskResult` via the vbs launcher's
-fire-and-forget hop, only now surfaced by the masked-exit detector shipped the last 2 fires.
-**Live impact confirmed, not assumed:** `automation/scout/state/scout_output.json` (which
-Premarket at 08:30 ET reads for macro/news bias context) is stuck on its 2026-08-04
-`status: "partial"` content -- 2 consecutive sessions (08-05, 08-06) with zero fresh write.
-**Fix:** raised to `-MaxBudgetUsd 1.00` (still 2nd-cheapest premarket-class task on the
-roster; siblings doing similar work: futures-premarket $2.00, premarket itself $3.00).
-**Guard + RED-proofed live:** `backtest/tests/test_scout_premarket_budget.py` (2 tests,
-pins the exact broken 0.50 value + a 1.00 floor) -- reverted the REAL file to 0.50 by hand,
-confirmed both assertions fail with the exact evidence string quoted in the failure message,
-restored to 1.00, re-confirmed 2/2 green. Full curated pair + `test_conductor_budget.py`
-18/18 green (zero regressions).
-Rail-4 N/A (infra/scheduling wrapper edit, zero params/heartbeat_core/filters/placement/
-exit-code touched -- Scout feeds descriptive premarket context, never a live entry input).
-**REVOKE:** `git revert 8ad0b364` (2 files modified, 2 new files added -- clean revert).
-Filed `strategy/candidates/_lesson-inbox/budget-cap-misized-at-birth-invisible-for-8-weeks-2026-08-06.md`
-for lesson-author (new angle on the C7/C14 class: a budget knob can be ENFORCED correctly
-and still be silently wrong because the VALUE was mis-sized at birth, not drifted). Filed
-`BUDGET-ROSTER-AUDIT-MAXBUDGETUSD` (MED, queue.md) as the bounded next-fire follow-up --
-audit all `-MaxBudgetUsd` values roster-wide for the same class of outlier; correctly NOT
-attempted this fire (single-item scope).
-Committed via `commit_scoped.py` (4 files, pathspec-scoped; confirmed 0 other files left
-staged for absorption per L271/C34 discipline).
-Autonomy metric refreshed via `conductor_outcome.py` this same fire.
-
----
-
-## [2026-08-06T01:15 ET] conductor: OK -- VBS-WRAPPER-EXIT-CODE-BLIND-SPOT 2nd half -- self_check now reads run_ps1_hidden.py's exit-code log
-
-Budget gate PASSED ($0/$30 pre-fire). Engine health GREEN, market closed (01:00 ET).
-STAGE-1 priority-1 (fill-funnel/self-check) clean (DEGRADED only on expected
-PDT-BLOCKED[bold]). `task_scorer.py --top` picked `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`
-(HIGH), advisory said re-verify it still reproduces before acting -- it did, and the
-live re-check found the item's OWN prior "PARTIAL, LOW-RISK HALF" fix (2026-08-04/05)
-only covered `run_cmd_hidden.py`'s relay (24/108 tasks). Enumerated the fleet live via
-`Get-ScheduledTask`: 108 `Gamma_*` tasks route through `run_exe_hidden.vbs`, 84 of them
-NOT on that relay -- including `Gamma_EodFlatten`, `Gamma_EodFlatten_Aggressive`,
-`Gamma_SightBeacon`. Found those 84 mostly route through a SECOND pre-existing,
-already-exit-code-capturing relay (`run_ps1_hidden.py`, dated to a "5/17 evening
-foot-gun fix") that nothing had ever consumed.
-**Fix:** `self_check.check_run_ps1_hidden_masked_exit()` (sibling of the run_cmd_hidden
-check, problem #17), with a parser that reads each exit line standalone (script name is
-embedded in the line) rather than sequentially pairing launching/exit lines -- the real
-log routinely interleaves 5+ concurrent launches, which would have broken a naive copy
-of the sibling's pairing logic.
-**LIVE FINDING, evidence only, not fixed this fire:** `run-eod-flatten-aggressive.ps1`
-exited 1 on all 3 of the last 3 trading days (08-03/08-04/08-05); `run-eod-flatten.ps1`
-and `run-sight-beacon.ps1` each exited 1 once on 08-05 -- all previously invisible.
-Cross-checked against `Gamma_EodFlattenCore` (deterministic, both accounts, fires ~3min
-before the LLM path, `LastTaskResult=0` every date) and `engine-health.json`'s
-`position_safe`/`position_bold` (GREEN flat every date) -- **confirmed backstopped, not
-a realized safety incident.** Root cause of the LLM prompt's exit=1 NOT investigated
-blind (OP-0) -- filed `EOD-FLATTEN-LLM-PROMPT-EXIT1` (MED) for the next fire.
-**Verified, not just tested:** 13 new guard tests, RED-proofed via rename-and-restore
-(L238 -- explicitly avoided `git stash`, which on this repo picks up ~1800 live-daemon
-state-file diffs; git-showed the pre-edit HEAD into place, confirmed 12/12 correctly
-fail, restored, re-confirmed 12/12 green), full self_check-tagged suite 132/132 green
-(zero regressions), one test runs against the REAL 2026-08-05 on-disk log (not a
-synthetic fixture) and asserts the exact 3-script finding.
-Zero vbs edits, zero scheduled-task edits, zero live-trading-path touch -- purely
-additive read of a log that already existed (rail-4 N/A, infra visibility only).
-**REVOKE:** `git revert <this commit>` (2 files, additive-only).
-Next fire: the CORE vbs-synchronous fix still matters for whatever tasks sit on NEITHER
-relay (incl. `Gamma_HeartbeatCore` itself -- exact count not re-enumerated this fire) and
-stays behind its own `/fable-blast-radius` pass; `EOD-FLATTEN-LLM-PROMPT-EXIT1` (MED) and
-`PROSPECTOR-SEMANTIC-DEDUP-GAP` (MED) are the next-ranked queue items.
-Autonomy metric refreshed via `conductor_outcome.py` this same fire.
-
----
-
+### DEGRADED: self-check 2026-08-09T00:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
