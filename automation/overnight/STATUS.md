@@ -1,3 +1,56 @@
+## [2026-08-09T01:11 ET] CONDUCTOR: OK -- QUEUE-MD-RETENTION-CAP step 2 -- commit pending -- REVOKE surface
+
+**Task picked (priority-4 queue, self-generated after STAGE 1's own "Read queue.md" instruction
+concretely failed this fire: `automation/overnight/queue.md` was 745,505 bytes / 4153 lines,
+over the Read tool's 256KB single-shot limit -- "File content (728KB) exceeds maximum allowed
+size (256KB)". Grepped and found this is a KNOWN, already-tracked multi-fire job --
+`QUEUE-MD-RETENTION-CAP` (filed 2026-07-22, step 1 shipped 2026-07-23: 577KB -> 537KB, explicitly
+left "still >256KB, next bounded step: triage the dated post-Completed sections and/or Active
+backlog" for a future fire. This fire IS that future fire.**
+
+**Did (step 2 of N):** individually read-and-verified 14 whole `## `-level sections sitting below
+`## Active backlog` as fully resolved (every checklist item `[x]`, or an explicit
+CLOSED/DONE/SHIPPED/NO-SHIP marker) before moving any of them verbatim to the new
+`automation/overnight/queue-archive-2026-08.md`: old `Archived 2026-06-19` + `Completed` (pure
+relocation) plus 12 dated 2026-07-07..07-20 sections (AUDIT-2026-07-07, 2026-07-09-profit-lock,
+2026-07-11-audit-harness, 2026-07-11-profitability-plan, J-INTENT-EXECUTOR,
+WF-GATE-STRUCTURALLY-NULL, WF-GATE-REDESIGN-METHODOLOGY, TRENDLINE-FIXES-2026-07-17,
+WEEKEND-METHODOLOGY-REVIEW, LEVER-1-TREND-ALIGNMENT-VERDICT-STANDING, SELF-CHECK-BROKEN-2026-07-20,
+STATE-FILE-REVERSION-2026-07-20). Extracted ONE still-open item found buried in the last of those
+(Bold's 4x-margin origin, never confirmed by J) into `## Needs J's own hands` before archiving the
+section it was hiding in. Verified via machine count (`- [ ]`/`- [x]` per section), not re-reading
+titles, that every section with ANY remaining open item was left untouched (13 sections: 138
+checklist items + 57 `### ` items in `## Active backlog` deliberately NOT touched this fire).
+
+**Caught + fixed the exact CRLF foot-gun the 2026-07-23 predecessor fire already named:** my first
+`open(path, "w", encoding="utf-8")` (no `newline=`) silently wrote CRLF into both files (confirmed
+via `file`, 3137 CRLF instances) -- re-read with `newline=None`, rewrote with `newline="\n"` on
+both, re-verified LF-only.
+
+**Result:** `queue.md` 745,505 -> 553,913(+file-write)=557,665 bytes (still >256KB -- the
+`## Active backlog` section, ~2478 lines/~444KB, is the true remaining bulk). Verified no
+regression: `task_scorer.py --top` still ranks correctly (`TWIN-DOCTRINE-FIRST-DEPLOY`, same
+known-stale-J-ping as every recent fire -- not re-pinged again, matches established precedent
+that re-pinging is spam); `pytest -k "task_scorer or queue_md or queue_archive"` 74/74 PASS, 0
+regressions; line-accounting cross-check confirmed zero content lost (33 preamble + 1019 archived
++ 3101 kept = 4153 original). Zero trading-path files touched (pure doc/archival move) -- ships
+per OP-22 engine-benefit hygiene, no J ratification needed.
+
+**Step 3 (deferred to a future fire, rail 3):** splitting `## Active backlog` itself needs a
+purpose-built parser (reuse `task_scorer._item_blocks`/`ITEM_RE`, not a fresh regex) -- tested an
+automated status-marker classifier on all 57 `### ` items this fire and it came back 54/57
+UNKNOWN (several are `### Tier 0/1/2/3/4` organizational headers, not real items), too risky to
+guess at Sonnet-workhorse tier within one bounded fire. The 138 checklist items (already carry an
+explicit `[x]`/`[ ]` marker) are lower-risk and should go first.
+
+**REVOKE:** `git revert <this commit>` (2 files: queue.md trimmed further, queue-archive-2026-08.md
+added -- additive/scoped, no data loss, matches the 2026-07-23 precedent's revert shape).
+
+Cost this fire: ~$4.50 (full read-verification of 14 sections before archiving any of them,
+CRLF catch-and-fix, task_scorer + pytest regression checks, STATUS/queue update).
+
+---
+
 ## [2026-08-09T00:13 ET] CONDUCTOR-WEEKEND: OK -- BXM-PROBE-TRADES-CSV-HEADER-DRIFT-FIX -- commits `7dfa8059` + `e26140c2` + `a5cd46a0` -- REVOKE surface
 
 **Task picked (priority-4 queue HIGH-adjacent MED, self-generated, closes a loop; budget gate
@@ -508,40 +561,6 @@ revert of the ship commit (removes ledger + counter + guards).
 
 ---
 
-## [2026-08-06T19:20 ET] LANE 5 DON'T-TRADE-CHOP: admissibility battery (12 cells) + CHOP EXPOSURE METER shipped -- REVOKE surface
 
-**What shipped (measurement only -- zero trading-path changes):** `Gamma_ChopMeter` 16:08 ET
-daily -> `setup/scripts/chop_exposure_meter.py` -> `automation/state/chop-exposure-{date}.json`
-+ `-last.json`, rendered as one line in firm-brief.md (`firm_brief.render_chop_lines`,
-additive + fail-open). Columns: entries | ord>=4 (CAP-3 forward-clock recorder) | against
-V-d1 | zero-structure (CONTEXT, not an alarm) | rr<0.70 | worst consec-loss run (CONSEC4
-recorder) | fleet-POOLED REALIZED intraday floor + BRK600 would-trip (the forward-evidence
-surface the live equity-based daily_loss_guard.py does NOT have). Prereg frozen BEFORE any
-runner: `analysis/recommendations/chop-defense-prereg-2026-08-06.json` @ **5737488a**.
-**First real line (tonight):** `CHOP METER 2026-08-06: 4 entries | ord>=4: 0 | against
-V-d1: 0 | zero-structure: 0 | rr<0.70: 1 | worst consec-loss run: 1 (contract 1) | fleet
-realized: day +1465, floor +0, BRK600 would-trip: no` -- reconciles to broker truth to the
-dollar.
-**Battery verdicts (208 real fills / 26 dates, trust gate 6/6 PASS; popB = 391-day replay):**
-the day-level chop classifier stays DEAD; of 12 fresh per-trade cells, ONE cleared all 8
-gates on both populations: **B-RR-070** (range < 0.70x 20-day median at entry: +$765 pop-A,
-0 days harmed, blocked-WR 11.4%; **+$1,645 pop-B across 22 helped / 2 harmed days**) -- BH
-q=0.50 fails the 0.10 evidence bar, so it is PREREG-with-forward-clock, NOT a ship.
-C-NOEVT (block zero-structure entries) is REJECTED at -$2,091 Tuesday; C-AGAINST confirmed
-graveyard-adjacent REJECT (-$1,501 Thursday); A-CONSEC-CONTRACT-3 passes gates but is
-CAP-3-redundant (identical Wednesday block set, +$653). Full table:
-`analysis/deep-research/CHOP-DEFENSE-2026-08-06.md` + `.json`.
-**Guards:** `backtest/tests/test_chop_exposure_meter.py` 8/8 green; RED-proofed twice
-(meter ORD_ALARM mutation -> 4 RED; firm_brief section removal -> 1 RED), both restored
-byte-identical (sha256 e70c1c30... / 3a3a5f9c...) and re-proven green.
-**Task verified through the real chain:** State=Ready, MSFT_TaskDailyTrigger, NextRun
-08-07 16:08 ET, manual Start-ScheduledTask fire -> LastTaskResult=0, artifact rewritten.
-**REVOKE (one line each):** `Unregister-ScheduledTask Gamma_ChopMeter -Confirm:$false`
-(kills the nightly fire; brief line degrades to "meter has not run yet", fail-open) / git
-revert of the ship commit (removes meter + brief hunk + guards).
-
----
-
-
-### DEGRADED: self-check 2026-08-09T00:09:56
+### DEGRADED: self-check 2026-08-09T01:09:56
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
