@@ -1,0 +1,363 @@
+{
+  "_doc": "Per-station forecast->settlement calibration. bias = forecast - observed; SUBTRACT bias from a raw forecast. sigma = residual uncertainty AFTER correction -- that is what sizing must use, never the ensemble spread.",
+  "built": "2026-08-09T23:36:43Z",
+  "sources": {
+    "forecast": "open-meteo historical-forecast (archived model runs)",
+    "truth": "NOAA NCEI daily-summaries GHCN TMAX"
+  },
+  "stations": {
+    "KXHIGHNY": {
+      "series": "KXHIGHNY",
+      "label": "NYC Central Park",
+      "ghcn": "USW00094728",
+      "nws": "KNYC",
+      "lat": 40.7789,
+      "lon": -73.9692,
+      "n": 949,
+      "usable": true,
+      "global": {
+        "bias": 0.133,
+        "sigma": 1.693
+      },
+      "bands": {
+        "-99-50": {
+          "n": 274,
+          "bias": -0.741,
+          "sigma": 1.542
+        },
+        "50-65": {
+          "n": 200,
+          "bias": -0.412,
+          "sigma": 1.651
+        },
+        "65-75": {
+          "n": 137,
+          "bias": 0.323,
+          "sigma": 1.359
+        },
+        "75-85": {
+          "n": 191,
+          "bias": 0.735,
+          "sigma": 1.357
+        },
+        "85-95": {
+          "n": 134,
+          "bias": 1.468,
+          "sigma": 1.435
+        },
+        "95-999": {
+          "n": 13,
+          "bias": 0.133,
+          "sigma": 1.693,
+          "fallback": true
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    },
+    "KXHIGHCHI": {
+      "series": "KXHIGHCHI",
+      "label": "Chicago Midway",
+      "ghcn": "USW00014819",
+      "nws": "KMDW",
+      "lat": 41.786,
+      "lon": -87.7524,
+      "n": 949,
+      "usable": true,
+      "global": {
+        "bias": -1.308,
+        "sigma": 1.465
+      },
+      "bands": {
+        "-99-50": {
+          "n": 297,
+          "bias": -1.351,
+          "sigma": 1.272
+        },
+        "50-65": {
+          "n": 175,
+          "bias": -1.182,
+          "sigma": 2.006
+        },
+        "65-75": {
+          "n": 159,
+          "bias": -1.426,
+          "sigma": 1.45
+        },
+        "75-85": {
+          "n": 200,
+          "bias": -1.404,
+          "sigma": 1.318
+        },
+        "85-95": {
+          "n": 112,
+          "bias": -1.124,
+          "sigma": 1.126
+        },
+        "95-999": {
+          "n": 6,
+          "bias": -1.308,
+          "sigma": 1.465,
+          "fallback": true
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    },
+    "KXHIGHMIA": {
+      "series": "KXHIGHMIA",
+      "label": "Miami Intl",
+      "ghcn": "USW00012839",
+      "nws": "KMIA",
+      "lat": 25.7906,
+      "lon": -80.3164,
+      "n": 948,
+      "usable": true,
+      "global": {
+        "bias": -1.059,
+        "sigma": 1.155
+      },
+      "bands": {
+        "50-65": {
+          "n": 8,
+          "bias": -1.059,
+          "sigma": 1.155,
+          "fallback": true
+        },
+        "65-75": {
+          "n": 83,
+          "bias": -1.196,
+          "sigma": 1.043
+        },
+        "75-85": {
+          "n": 421,
+          "bias": -1.247,
+          "sigma": 0.952
+        },
+        "85-95": {
+          "n": 428,
+          "bias": -0.876,
+          "sigma": 1.303
+        },
+        "95-999": {
+          "n": 8,
+          "bias": -1.059,
+          "sigma": 1.155,
+          "fallback": true
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    },
+    "KXHIGHAUS": {
+      "series": "KXHIGHAUS",
+      "label": "Austin-Bergstrom",
+      "ghcn": "USW00013904",
+      "nws": "KAUS",
+      "lat": 30.1975,
+      "lon": -97.6664,
+      "n": 949,
+      "usable": true,
+      "global": {
+        "bias": -1.046,
+        "sigma": 1.117
+      },
+      "bands": {
+        "-99-50": {
+          "n": 28,
+          "bias": 0.107,
+          "sigma": 1.479
+        },
+        "50-65": {
+          "n": 90,
+          "bias": -0.7,
+          "sigma": 1.292
+        },
+        "65-75": {
+          "n": 128,
+          "bias": -0.752,
+          "sigma": 1.408
+        },
+        "75-85": {
+          "n": 217,
+          "bias": -1.03,
+          "sigma": 1.051
+        },
+        "85-95": {
+          "n": 330,
+          "bias": -1.356,
+          "sigma": 0.943
+        },
+        "95-999": {
+          "n": 156,
+          "bias": -1.058,
+          "sigma": 0.809
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    },
+    "KXHIGHLAX": {
+      "series": "KXHIGHLAX",
+      "label": "Los Angeles Intl",
+      "ghcn": "USW00023174",
+      "nws": "KLAX",
+      "lat": 33.9381,
+      "lon": -118.3889,
+      "n": 949,
+      "usable": true,
+      "global": {
+        "bias": -0.405,
+        "sigma": 1.105
+      },
+      "bands": {
+        "-99-50": {
+          "n": 1,
+          "bias": -0.405,
+          "sigma": 1.105,
+          "fallback": true
+        },
+        "50-65": {
+          "n": 237,
+          "bias": -0.394,
+          "sigma": 1.134
+        },
+        "65-75": {
+          "n": 516,
+          "bias": -0.468,
+          "sigma": 1.073
+        },
+        "75-85": {
+          "n": 180,
+          "bias": -0.281,
+          "sigma": 1.101
+        },
+        "85-95": {
+          "n": 14,
+          "bias": -0.405,
+          "sigma": 1.105,
+          "fallback": true
+        },
+        "95-999": {
+          "n": 1,
+          "bias": -0.405,
+          "sigma": 1.105,
+          "fallback": true
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    },
+    "KXHIGHDEN": {
+      "series": "KXHIGHDEN",
+      "label": "Denver Intl",
+      "ghcn": "USW00003017",
+      "nws": "KDEN",
+      "lat": 39.8467,
+      "lon": -104.6564,
+      "n": 949,
+      "usable": true,
+      "global": {
+        "bias": -1.679,
+        "sigma": 1.528
+      },
+      "bands": {
+        "-99-50": {
+          "n": 195,
+          "bias": -1.473,
+          "sigma": 1.649
+        },
+        "50-65": {
+          "n": 228,
+          "bias": -1.891,
+          "sigma": 1.904
+        },
+        "65-75": {
+          "n": 170,
+          "bias": -1.776,
+          "sigma": 1.214
+        },
+        "75-85": {
+          "n": 149,
+          "bias": -1.447,
+          "sigma": 1.365
+        },
+        "85-95": {
+          "n": 171,
+          "bias": -1.773,
+          "sigma": 1.223
+        },
+        "95-999": {
+          "n": 36,
+          "bias": -1.514,
+          "sigma": 1.224
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    },
+    "KXHIGHPHIL": {
+      "series": "KXHIGHPHIL",
+      "label": "Philadelphia Intl",
+      "ghcn": "USW00013739",
+      "nws": "KPHL",
+      "lat": 39.8683,
+      "lon": -75.2311,
+      "n": 949,
+      "usable": true,
+      "global": {
+        "bias": -1.038,
+        "sigma": 1.352
+      },
+      "bands": {
+        "-99-50": {
+          "n": 233,
+          "bias": -0.801,
+          "sigma": 1.269
+        },
+        "50-65": {
+          "n": 197,
+          "bias": -0.68,
+          "sigma": 1.387
+        },
+        "65-75": {
+          "n": 142,
+          "bias": -0.989,
+          "sigma": 1.331
+        },
+        "75-85": {
+          "n": 227,
+          "bias": -1.283,
+          "sigma": 1.366
+        },
+        "85-95": {
+          "n": 131,
+          "bias": -1.557,
+          "sigma": 1.276
+        },
+        "95-999": {
+          "n": 19,
+          "bias": -1.038,
+          "sigma": 1.352,
+          "fallback": true
+        }
+      },
+      "window": [
+        "2024-01-01",
+        "2026-08-07"
+      ]
+    }
+  }
+}
