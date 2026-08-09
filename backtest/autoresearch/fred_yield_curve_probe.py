@@ -67,24 +67,30 @@ OUT_PATH = _REPO / "analysis" / "recommendations" / "fred-yield-curve-gate-feasi
 def _load_real_trades() -> list[dict]:
     """Robust real-fills loader (L239-adjacent: journal/trades.csv has rows with an
     extra stray field from historical manual entries that breaks strict field-count
-    parsing). Uses stdlib csv.reader (quote-aware) + POSITIONAL indices that are
-    stable regardless of mid-row field-count drift: date=row[0], dollar_pnl=row[13],
-    account_id=row[-1] -- the same loader shape as vix1d_gate_probe.py/bxm_gate_probe.py."""
+    parsing). Uses stdlib csv.reader (quote-aware) + POSITIONAL indices for the stable
+    leading columns (date=row[0], dollar_pnl=row[13]) but a NAME-based lookup for
+    account_id (BXM-PROBE-TRADES-CSV-HEADER-DRIFT-FIX, 2026-08-08/09: a trailing column,
+    theta_at_entry, was appended AFTER account_id on 2026-08-01, breaking the old
+    `header[-1] == "account_id"` fixed-position assumption -- this is the THIRD sibling
+    probe found with the identical bug, after bxm_gate_probe.py/vix1d_gate_probe.py;
+    name-lookup is robust to any FUTURE trailing-column append too, not just this one).
+    Same loader shape as vix1d_gate_probe.py/bxm_gate_probe.py — fix all three together."""
     rows = []
     with open(TRADES_CSV, encoding="utf-8-sig", newline="") as f:
         r = csv.reader(f)
         header = next(r)
-        assert header[0] == "date" and header[13] == "dollar_pnl" and header[-1] == "account_id", (
+        assert header[0] == "date" and header[13] == "dollar_pnl" and "account_id" in header, (
             "trades.csv header drifted -- positional indices below are no longer valid"
         )
+        account_idx = header.index("account_id")
         for row in r:
-            if len(row) < 14:
+            if len(row) < 14 or len(row) <= account_idx:
                 continue
             try:
                 pnl = float(row[13])
             except (ValueError, IndexError):
                 continue
-            rows.append({"date": row[0], "dollar_pnl": pnl, "account_id": row[-1]})
+            rows.append({"date": row[0], "dollar_pnl": pnl, "account_id": row[account_idx]})
     return rows
 
 

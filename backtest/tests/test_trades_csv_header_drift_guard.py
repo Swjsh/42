@@ -2,13 +2,15 @@
 conductor WEEKEND).
 
 Root cause (one sentence): `journal/trades.csv` gained a new trailing column
-(`theta_at_entry`, added 2026-08-01 by the THETA COCKPIT build) AFTER `account_id`, so both
-`bxm_gate_probe.py::_load_real_trades` and `vix1d_gate_probe.py::_load_real_trades`'s fixed
-`header[-1] == "account_id"` assertion broke -- fail-closed working as intended, but the
-probes needed to resolve `account_id`'s column by NAME instead of a fixed relative position.
+(`theta_at_entry`, added 2026-08-01 by the THETA COCKPIT build) AFTER `account_id`, so
+`bxm_gate_probe.py::_load_real_trades`, `vix1d_gate_probe.py::_load_real_trades`, AND
+`fred_yield_curve_probe.py::_load_real_trades`'s fixed `header[-1] == "account_id"`
+assertion all broke (a THIRD sibling probe, found while fixing the first two this fire) --
+fail-closed working as intended, but the probes needed to resolve `account_id`'s column by
+NAME instead of a fixed relative position.
 
-Pins (both probes share the identical loader shape -- test both, per the queue item's own
-"check both when picking this up" note):
+Pins (all three probes share the identical loader shape -- test all three, per the queue
+item's own "check both/siblings when picking this up" note):
   1. A trailing column appended AFTER account_id (this class of drift, e.g. theta_at_entry)
      does NOT break the loader -- it must still resolve account_id correctly by name.
   2. A column inserted BEFORE account_id (a different drift direction) also does not break
@@ -31,7 +33,10 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(REPO, "backtest"))
 
 from autoresearch import bxm_gate_probe  # noqa: E402
+from autoresearch import fred_yield_curve_probe  # noqa: E402
 from autoresearch import vix1d_gate_probe  # noqa: E402
+
+_PROBE_MODULES = [bxm_gate_probe, vix1d_gate_probe, fred_yield_curve_probe]
 
 # Real header shape as of 2026-08-01 (account_id at index -2, theta_at_entry appended
 # after it at index -1) -- the exact drift that broke both probes.
@@ -63,7 +68,7 @@ def _write_synthetic_csv(path, header_extra_cols):
         w.writerow(row)
 
 
-@pytest.mark.parametrize("probe_module", [bxm_gate_probe, vix1d_gate_probe])
+@pytest.mark.parametrize("probe_module", _PROBE_MODULES)
 def test_trailing_column_after_account_id_does_not_break_loader(probe_module, monkeypatch):
     """The exact 2026-08-01 drift class: a column appended AFTER account_id must not
     break the loader, and account_id must still resolve to the correct value."""
@@ -77,7 +82,7 @@ def test_trailing_column_after_account_id_does_not_break_loader(probe_module, mo
         assert rows[0]["dollar_pnl"] == pytest.approx(150.0)
 
 
-@pytest.mark.parametrize("probe_module", [bxm_gate_probe, vix1d_gate_probe])
+@pytest.mark.parametrize("probe_module", _PROBE_MODULES)
 def test_no_trailing_column_still_works(probe_module, monkeypatch):
     """account_id as the literal last column (pre-2026-08-01 shape) must still work --
     the fix must not regress the original layout."""
@@ -90,7 +95,7 @@ def test_no_trailing_column_still_works(probe_module, monkeypatch):
         assert rows[0]["account_id"] == "safe-2"
 
 
-@pytest.mark.parametrize("probe_module", [bxm_gate_probe, vix1d_gate_probe])
+@pytest.mark.parametrize("probe_module", _PROBE_MODULES)
 def test_account_id_missing_entirely_still_fails_loud(probe_module, monkeypatch):
     """C7: genuine schema loss (account_id removed, not just relocated) must still
     fail LOUD via the header assertion, not silently produce empty/wrong rows."""
