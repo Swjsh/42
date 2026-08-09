@@ -1,0 +1,246 @@
+{
+ "prereg_id": "CATASTROPHE-CAP-DECISION-2026-08-09",
+ "per_fire": [
+  {
+   "date_et": "2026-07-23",
+   "arm": "bold-2",
+   "symbol": "SPY260723P00735000",
+   "qty": 5.0,
+   "entry_price": 1.28,
+   "CONTROL": -305.0,
+   "NO_CAP_HOLD_TO_EOD": -605.0,
+   "CAP_60": -384.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -448.0,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-07-27",
+   "arm": "bold-2",
+   "symbol": "SPY260727P00737000",
+   "qty": 5.0,
+   "entry_price": 1.37,
+   "CONTROL": -355.0,
+   "NO_CAP_HOLD_TO_EOD": -665.0,
+   "CAP_60": -411.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -479.5,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-07-27",
+   "arm": "safe-3",
+   "symbol": "SPY260727P00734000",
+   "qty": 3.0,
+   "entry_price": 0.44,
+   "CONTROL": -87.0,
+   "NO_CAP_HOLD_TO_EOD": -129.0,
+   "CAP_60": -79.2,
+   "_CAP_60_fired": true,
+   "CAP_70": -92.4,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-07-27",
+   "arm": "risky-1",
+   "symbol": "SPY260727P00734000",
+   "qty": 5.0,
+   "entry_price": 0.43,
+   "CONTROL": -85.0,
+   "NO_CAP_HOLD_TO_EOD": -210.0,
+   "CAP_60": -129.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -150.5,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-07-27",
+   "arm": "risky-3",
+   "symbol": "SPY260727P00734000",
+   "qty": 5.0,
+   "entry_price": 0.43,
+   "CONTROL": -85.0,
+   "NO_CAP_HOLD_TO_EOD": -210.0,
+   "CAP_60": -129.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -150.5,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-07-27",
+   "arm": "safe-2",
+   "symbol": "SPY260727P00736000",
+   "qty": 3.0,
+   "entry_price": 1.15,
+   "CONTROL": -54.0,
+   "NO_CAP_HOLD_TO_EOD": -339.0,
+   "CAP_60": -207.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -241.5,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-07-28",
+   "arm": "safe-3",
+   "symbol": "SPY260728C00744000",
+   "qty": 3.0,
+   "entry_price": 0.31,
+   "CONTROL": -33.0,
+   "NO_CAP_HOLD_TO_EOD": -90.0,
+   "CAP_60": -55.8,
+   "_CAP_60_fired": true,
+   "CAP_70": -65.1,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-08-05",
+   "arm": "risky-3",
+   "symbol": "SPY260805P00772000",
+   "qty": 8.0,
+   "entry_price": 1.65,
+   "CONTROL": -664.0,
+   "NO_CAP_HOLD_TO_EOD": 528.0,
+   "CAP_60": -792.0,
+   "_CAP_60_fired": true,
+   "CAP_70": 88.0,
+   "_CAP_70_fired": false
+  },
+  {
+   "date_et": "2026-08-05",
+   "arm": "safe-2",
+   "symbol": "SPY260805P00772000",
+   "qty": 3.0,
+   "entry_price": 1.63,
+   "CONTROL": -255.0,
+   "NO_CAP_HOLD_TO_EOD": 204.0,
+   "CAP_60": -293.4,
+   "_CAP_60_fired": true,
+   "CAP_70": 39.0,
+   "_CAP_70_fired": false
+  },
+  {
+   "date_et": "2026-08-07",
+   "arm": "safe-3",
+   "symbol": "SPY260807C00772000",
+   "qty": 8.0,
+   "entry_price": 0.92,
+   "CONTROL": -384.0,
+   "NO_CAP_HOLD_TO_EOD": 176.0,
+   "CAP_60": -441.6,
+   "_CAP_60_fired": true,
+   "CAP_70": -515.2,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-08-07",
+   "arm": "risky-1",
+   "symbol": "SPY260807C00772000",
+   "qty": 5.0,
+   "entry_price": 0.91,
+   "CONTROL": -240.0,
+   "NO_CAP_HOLD_TO_EOD": 115.0,
+   "CAP_60": -273.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -318.5,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-08-07",
+   "arm": "risky-3",
+   "symbol": "SPY260807C00774000",
+   "qty": 12.0,
+   "entry_price": 0.62,
+   "CONTROL": -204.0,
+   "NO_CAP_HOLD_TO_EOD": -708.0,
+   "CAP_60": -446.4,
+   "_CAP_60_fired": true,
+   "CAP_70": -520.8,
+   "_CAP_70_fired": true
+  },
+  {
+   "date_et": "2026-08-07",
+   "arm": "risky-1",
+   "symbol": "SPY260807C00773000",
+   "qty": 5.0,
+   "entry_price": 1.09,
+   "CONTROL": -305.0,
+   "NO_CAP_HOLD_TO_EOD": -405.0,
+   "CAP_60": -327.0,
+   "_CAP_60_fired": true,
+   "CAP_70": -381.5,
+   "_CAP_70_fired": true
+  }
+ ],
+ "scored": {
+  "CONTROL": {
+   "n": 13,
+   "total": -3056.0,
+   "n_beats_control": 0,
+   "majority_of_fires": false,
+   "worst_single_fire": -664.0,
+   "drop_best_total": -2751.0,
+   "drop_best_still_beats_control": false
+  },
+  "CAP_60": {
+   "n": 13,
+   "total": -3968.4,
+   "n_beats_control": 1,
+   "majority_of_fires": false,
+   "worst_single_fire": -792.0,
+   "drop_best_total": -3889.2,
+   "drop_best_still_beats_control": false
+  },
+  "CAP_70": {
+   "n": 13,
+   "total": -3236.5,
+   "n_beats_control": 2,
+   "majority_of_fires": false,
+   "worst_single_fire": -520.8,
+   "drop_best_total": -3324.5,
+   "drop_best_still_beats_control": false
+  },
+  "NO_CAP_HOLD_TO_EOD": {
+   "n": 13,
+   "total": -2338.0,
+   "n_beats_control": 4,
+   "majority_of_fires": false,
+   "worst_single_fire": -708.0,
+   "drop_best_total": -2866.0,
+   "drop_best_still_beats_control": false
+  }
+ },
+ "verdict": {
+  "control_total": -3056.0,
+  "control_worst_fire": -664.0,
+  "arms": {
+   "CAP_60": {
+    "G_AGGREGATE": false,
+    "G_MAJORITY": false,
+    "G_DROP_BEST": false,
+    "G_TAIL": false,
+    "all_gates": false,
+    "delta_vs_control": -912.4
+   },
+   "CAP_70": {
+    "G_AGGREGATE": false,
+    "G_MAJORITY": false,
+    "G_DROP_BEST": false,
+    "G_TAIL": true,
+    "all_gates": false,
+    "delta_vs_control": -180.5
+   },
+   "NO_CAP_HOLD_TO_EOD": {
+    "G_AGGREGATE": true,
+    "G_MAJORITY": false,
+    "G_DROP_BEST": false,
+    "G_TAIL": false,
+    "all_gates": false,
+    "delta_vs_control": 718.0
+   }
+  },
+  "survivors": [],
+  "headline": "CAP VALIDATED BY FORWARD FIRES -- no width beats the shipped -50% on all four pre-registered gates.",
+  "ships_tonight": false
+ },
+ "excluded": []
+}
