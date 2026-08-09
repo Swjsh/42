@@ -137,6 +137,47 @@ This is a new, generalizable pattern, not just a one-gate fix — filed to the l
 
 ---
 
+## Two verdict families (2026-08-08 — a signal computed correctly, then stranded)
+
+**The gap.** `automation/state/gate-registry-status.json` carries two rows that are arguably
+the most important signals on the entire rig — `core_strategy_bear` and `core_strategy_bull`
+(`category == "core_strategy"`, produced nightly by
+`backtest/autoresearch/core_strategy_recency.py` via the SOUND `walk_exit_manager` replay +
+**real broker fills**). Their own `reason` text states the semantics verbatim: *"RED here = the
+strategy ITSELF is losing on recent real fills, not a gate costing money."* `gate_recency_report.py`'s
+`GATE_ROSTER` never included them (by design — see the CORE-STRATEGY VERDICT FAMILY block in
+that script), and nothing downstream put them in front of J in his daily flow: the only readers
+were `gate_expiry_check.py` (which computes them), `monday_verify.py` (a manual pre-flight), and
+static analysis docs. A `core_strategy_bear` RED sat unsurfaced for 7+ days before this was
+caught — the exact failure class this doctrine exists to close everywhere else.
+
+**Two families, inverted semantics — never mix them in one list:**
+
+| | GATE verdict (`gate_recency_report.py`'s `gates` list) | CORE_STRATEGY verdict (`core_strategy` block) |
+|---|---|---|
+| RED means | A **lock** is costing money — the strategy might still be fine without that one gate | The **strategy itself** is losing on recent real fills, independent of any gate |
+| Evidence | `walk_exit_manager` replay of the REFUSED cohort (what the gate blocked) | REAL BROKER FILLS of the TAKEN cohort (`pnl_check.broker_core`) — the top evidence tier per C1, not a replay at all |
+| REPLAY SOUNDNESS rule (above) applies? | Yes — an unsound/unstamped replay reads PROVISIONAL | No — broker fills need no soundness stamp; the correction above is about `simulator_real`, which this family never touches |
+| Outranks | Nothing else in the digest | Every individual gate row — a core_strategy RED leads the digest/standup ahead of any gate RED |
+| Where it lives | `gates: [...]` (per gate/account row) | `core_strategy: {bear: {...}|None, bull: {...}|None}` (top-level, separate key) |
+
+**THE RULE (permanent, going forward): a `core_strategy` RED must always be surfaced.** It is a
+strategy-health signal, not a gate-cost signal, and it is never allowed to sit in
+`gate-registry-status.json` unread the way this one did. Concretely:
+
+- `gate_recency_report.py` reads both `core_strategy_bear`/`core_strategy_bull` rows straight off
+  `gate-registry-status.json` (never recomputed) into a first-class `core_strategy` block on
+  `gate-recency-latest.json`, and any RED direction leads `digest[0]` ahead of every gate RED.
+- `gamma_standup.py`'s morning message surfaces a RED `core_strategy` verdict as its own line,
+  placed immediately after the greeting — ahead of OVERNIGHT/YESTERDAY — so it is the first
+  thing J reads and the last thing the 1200-char cap would ever cut.
+- Wording must stay honest about power: a thin sample (n below `CORE_STRATEGY_THIN_N`, both
+  scripts' independent constant currently 20 — `gate_expiry_check.py`'s own `confirm_n_floor`
+  is 10) gets an explicit *"this is a WATCH, not yet a mandate to disarm"* caveat rather than
+  reading as a confident kill signal. A `core_strategy` RED is a strategy-health alarm to
+  investigate, not an auto-disarm trigger — disarming a direction is still a human/OP-16
+  ratification decision, same as any other gate action.
+
 ## The rule
 
 **Any gate RED on `gate-recency-latest.json` for more than 7 days without a filed revalidation

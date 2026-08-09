@@ -121,12 +121,22 @@ DISCORD_CFG_PATH = STATE / ".discord-config.json"
 OUTBOX_PATH = STATE / "discord-outbox.jsonl"
 LATEST_PATH = STATE / "gamma-standup-latest.json"
 AUTONOMY_REPORT_PATH = STATE / "autonomy-report.json"
+# gate_recency_report.py's weekly artifact (2026-08-08 addition: a top-level "core_strategy"
+# block -- see GATE-RECENCY-DOCTRINE.md's "Two verdict families"). Read-only, never
+# recomputed here -- same discipline as every other source in this module.
+GATE_RECENCY_LATEST_PATH = STATE / "gate-recency-latest.json"
 
 CHAR_CAP = 1200
 COMMIT_BULLET_MAX_CHARS = 150
 MAX_PATH_TOKEN_LEN = 40
 CATASTROPHE_CAP_CADENCE = 20
 FOCUS_MAX_CHARS = 110
+# "thin" caveat threshold for the CORE STRATEGY alert line -- mirrors
+# setup/scripts/gate_recency_report.py's CORE_STRATEGY_THIN_N verbatim (gate_expiry_check.py's
+# confirm_n_floor is 10; a sample only modestly above that bare actionability floor should
+# read as thin, not confidently conclusive). Kept as an independent constant rather than a
+# shared import -- both scripts are deliberately dependency-light / standalone.
+CORE_STRATEGY_THIN_N = 20
 
 # Fixed, test-enforced. Never let one of these leak into a real Discord message.
 BANNED_SUBSTRINGS = ["DEGRADED", "MASKED EXIT", "Traceback", "exit=[", "jsonl"]
@@ -513,6 +523,61 @@ def _autonomy_line(report: Optional[dict]) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------- #
+# CORE STRATEGY alert line (morning only, 2026-08-08) -- sourced ONLY from
+# automation/state/gate-recency-latest.json's top-level "core_strategy" block (written by
+# setup/scripts/gate_recency_report.py). THE GAP THIS CLOSES: gate-registry-status.json
+# already computes core_strategy_bear/core_strategy_bull nightly (real-broker-fills recency
+# verdicts on the strategy ITSELF, inverted semantics vs a gate -- see
+# GATE-RECENCY-DOCTRINE.md's "Two verdict families") but nothing put them in front of J in
+# his daily flow. A RED here outranks any individual gate/finding elsewhere in this standup,
+# so it is surfaced right after the greeting line, ahead of OVERNIGHT/YESTERDAY -- the
+# earliest position in the message, which also means _finalize's end-of-message truncation
+# (the CHAR_CAP trade-off) drops lower-priority content FIRST, never this line.
+#
+# POISON-RESISTANT BY CONSTRUCTION: every interpolated value is read through an isinstance
+# numeric check (falls back to a safe placeholder phrase otherwise) and the direction word is
+# always one of the two fixed literals below -- never a raw string read off disk. No free-text
+# field from the source JSON (e.g. a "reason"/"headline" string) is ever interpolated, so
+# there is no path for a poisoned/corrupted artifact to inject banned substrings through this
+# line's own construction. _sanitize_bullet still runs as defense-in-depth, matching every
+# other free-form source in this module (git bullets).
+# --------------------------------------------------------------------------- #
+
+def _fmt_core_strategy_money(x) -> str:
+    if not isinstance(x, (int, float)):
+        return "an unknown $/trade figure"
+    sign = "-" if x < 0 else "+"
+    return f"{sign}${abs(x):,.2f}/trade"
+
+
+def _core_strategy_alert_line(doc: Optional[dict]) -> Optional[str]:
+    if not isinstance(doc, dict):
+        return None
+    cs = doc.get("core_strategy")
+    if not isinstance(cs, dict):
+        return None
+    for direction in ("bear", "bull"):  # stable tie-break if somehow both are RED at once
+        entry = cs.get(direction)
+        if not isinstance(entry, dict) or entry.get("verdict") != "RED":
+            continue
+        exp = entry.get("exp_per_trade")
+        n = entry.get("n")
+        window = entry.get("window") if isinstance(entry.get("window"), dict) else {}
+        n_days = window.get("n_trading_days")
+        n_str = str(n) if isinstance(n, (int, float)) else "an unstated number of"
+        window_str = f"{n_days}-day window" if isinstance(n_days, (int, float)) else "an unstated window"
+        line = (
+            f"CORE STRATEGY {direction.upper()} is RED: {_fmt_core_strategy_money(exp)} on "
+            f"{n_str} real fill{'s' if n != 1 else ''} ({window_str}) -- the {direction} side "
+            f"itself is losing money, not a gate blocking it."
+        )
+        if isinstance(n, (int, float)) and n < CORE_STRATEGY_THIN_N:
+            line += f" n={n} is thin; this is a WATCH, not yet a mandate to disarm."
+        return _sanitize_bullet(line)
+    return None
+
+
+# --------------------------------------------------------------------------- #
 # trades.csv -- EOD P&L, grouped by account_id (whatever labels appear that
 # day -- fleet arms use safe-1/safe-3/risky-1/risky-3/aggressive as well as the
 # core safe/bold, so this never hardcodes just two accounts).
@@ -590,6 +655,7 @@ def gather_facts(mode: str, day: str, now_et: datetime) -> dict:
             _cap_clock_segment(CATASTROPHE_CAP_LEDGER_PATH),
         ])
         facts["autonomy_line"] = _autonomy_line(_read_json(AUTONOMY_REPORT_PATH))
+        facts["core_strategy_line"] = _core_strategy_alert_line(_read_json(GATE_RECENCY_LATEST_PATH))
     else:  # eod
         learned = _commit_bullets(_et_midnight_iso(day), max_n=1)
         facts["learned_bullet"] = learned[0] if learned else None
@@ -619,6 +685,15 @@ def gather_facts(mode: str, day: str, now_et: datetime) -> dict:
 
 def compose_morning_text(facts: dict) -> str:
     lines = ["Morning J — Gamma here.", ""]
+
+    # CORE STRATEGY RED outranks everything else in this message -- placed first (right
+    # after the greeting) so _finalize's end-of-message truncation drops lower-priority
+    # content before this line, never the reverse. See the section above _core_strategy_
+    # alert_line for the full rationale.
+    core_strategy_line = facts.get("core_strategy_line")
+    if core_strategy_line:
+        lines.append(core_strategy_line)
+        lines.append("")
 
     lines.append("**OVERNIGHT/YESTERDAY**")
     overnight = facts.get("overnight_bullets") or []

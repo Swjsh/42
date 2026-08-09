@@ -749,6 +749,204 @@ def test_main_lookback_days_flag_is_honored(state_paths):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 10. CORE-STRATEGY VERDICT FAMILY (2026-08-08) -- FIRST-CLASS, separate from `gates`.
+# A gate RED means a LOCK is costing money; a core_strategy RED means the STRATEGY ITSELF
+# is losing on recent real fills -- inverted semantics, must never be mixed into the gate
+# list, must always lead the digest when RED.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _core_strategy_status_entry(*, verdict="RED", exp_per_trade=-40.75, n=12, wr_pct=25.0,
+                                 evidence_age_days=7, revalidation_interval_days=14,
+                                 n_trading_days=25, start="2026-07-06", end="2026-08-07"):
+    """Mirrors the real automation/state/gate-registry-status.json shape for a
+    category=="core_strategy" row (core_strategy_bear's live 2026-08-08 values by default)."""
+    return {
+        "id": "core_strategy_bear",
+        "category": "core_strategy",
+        "evidence_age_days": evidence_age_days,
+        "revalidation_interval_days": revalidation_interval_days,
+        "evidence_stale": False,
+        "pnl_check": {
+            "verdict": verdict,
+            "core_strategy_verdict": verdict,
+            "reason": f"CORE STRATEGY BEAR recency {verdict}: ...",
+            "headline": f"bear {verdict} n={n}",
+            "window": {"start": start, "end": end, "n_trading_days": n_trading_days},
+            "broker_core": {
+                "n": n, "total_dollar": (exp_per_trade or 0) * (n or 0),
+                "exp_per_trade": exp_per_trade, "wr_pct": wr_pct,
+            },
+            "replay_supplement": {"n": 14, "exp_per_trade": 57.13},
+            "detail": "automation\\state\\core-strategy-recency.json",
+        },
+        "overall": verdict,
+    }
+
+
+def test_core_strategy_entry_reads_broker_core_fields():
+    status_by_id = {"core_strategy_bear": _core_strategy_status_entry()}
+    entry = grr._core_strategy_entry(status_by_id, "bear")
+    assert entry["verdict"] == "RED"
+    assert entry["exp_per_trade"] == -40.75
+    assert entry["n"] == 12
+    assert entry["wr_pct"] == 25.0
+    assert entry["window"] == {"start": "2026-07-06", "end": "2026-08-07", "n_trading_days": 25}
+    assert entry["evidence_age_days"] == 7
+    assert entry["revalidation_interval_days"] == 14
+    assert entry["past_revalidation_interval"] is False
+
+
+def test_core_strategy_entry_past_revalidation_interval_true_when_evidence_older_than_interval():
+    status_by_id = {
+        "core_strategy_bear": _core_strategy_status_entry(evidence_age_days=20, revalidation_interval_days=14),
+    }
+    entry = grr._core_strategy_entry(status_by_id, "bear")
+    assert entry["past_revalidation_interval"] is True
+
+
+def test_core_strategy_entry_missing_gate_id_is_none_fail_open():
+    assert grr._core_strategy_entry({}, "bear") is None
+    assert grr._core_strategy_entry({"core_strategy_bear": "not-a-dict"}, "bear") is None
+
+
+def test_core_strategy_entry_missing_pnl_check_is_none_fail_open():
+    status_by_id = {"core_strategy_bear": {"id": "core_strategy_bear", "overall": "RED"}}
+    assert grr._core_strategy_entry(status_by_id, "bear") is None
+
+
+def test_build_core_strategy_block_always_has_both_direction_keys():
+    block = grr.build_core_strategy_block({"core_strategy_bear": _core_strategy_status_entry()})
+    assert set(block.keys()) == {"bear", "bull"}
+    assert block["bear"] is not None
+    assert block["bull"] is None  # not present in this fixture -- fail-open, not fabricated
+
+
+def test_build_core_strategy_block_registry_lacks_core_strategy_keys_is_all_none():
+    """Fail-open when the registry lacks those keys entirely (old schema, or a run that
+    raced core_strategy_recency.py before it wrote)."""
+    block = grr.build_core_strategy_block({})
+    assert block == {"bear": None, "bull": None}
+
+
+def test_core_strategy_digest_line_wording_respects_inverted_semantics():
+    cs = grr._core_strategy_entry({"core_strategy_bear": _core_strategy_status_entry()}, "bear")
+    line = grr._core_strategy_digest_line("bear", cs)
+    assert line.startswith("CORE STRATEGY BEAR is RED:")
+    assert "-$40.75/trade" in line
+    assert "12 real fills" in line
+    assert "25-day window" in line
+    assert "the bear side itself is losing money, not a gate blocking it" in line
+    assert "n=12 is thin" in line
+    assert "WATCH, not yet a mandate to disarm" in line
+    # NEVER the gate-family phrasing -- that means a LOCK is costing money, not this.
+    assert "COSTING money" not in line
+
+
+def test_core_strategy_digest_line_none_when_verdict_not_red():
+    green = _core_strategy_status_entry(verdict="GREEN", exp_per_trade=51.0, n=10)
+    cs = grr._core_strategy_entry({"core_strategy_bear": green}, "bear")
+    assert grr._core_strategy_digest_line("bear", cs) is None
+
+
+def test_core_strategy_digest_line_none_when_entry_is_none():
+    assert grr._core_strategy_digest_line("bear", None) is None
+
+
+def test_core_strategy_digest_line_no_thin_clause_when_n_at_or_above_threshold():
+    fixture = _core_strategy_status_entry(n=25)
+    cs = grr._core_strategy_entry({"core_strategy_bear": fixture}, "bear")
+    line = grr._core_strategy_digest_line("bear", cs)
+    assert "is thin" not in line
+
+
+def test_core_strategy_digest_line_handles_missing_n_and_window_gracefully():
+    fixture = _core_strategy_status_entry()
+    fixture["pnl_check"]["broker_core"]["n"] = None
+    fixture["pnl_check"]["window"]["n_trading_days"] = None
+    cs = grr._core_strategy_entry({"core_strategy_bear": fixture}, "bear")
+    line = grr._core_strategy_digest_line("bear", cs)
+    assert "an unstated number of" in line
+    assert "an unstated window" in line
+    assert "is thin" not in line  # can't judge thinness without a real n
+
+
+def test_build_core_strategy_digest_lines_bear_before_bull_stable_order():
+    status_by_id = {
+        "core_strategy_bear": _core_strategy_status_entry(),
+        "core_strategy_bull": {**_core_strategy_status_entry(exp_per_trade=-12.0, n=15), "id": "core_strategy_bull"},
+    }
+    block = grr.build_core_strategy_block(status_by_id)
+    lines = grr.build_core_strategy_digest_lines(block)
+    assert len(lines) == 2
+    assert lines[0].startswith("CORE STRATEGY BEAR")
+    assert lines[1].startswith("CORE STRATEGY BULL")
+
+
+def test_build_digest_core_strategy_red_leads_before_gate_reds():
+    gate_rows = [
+        {"name": f"red_{i}", "account": "safe", "expiry_verdict": "RED",
+         "red_ev_note": f"note {i}", "recommendation": "REVALIDATE",
+         "staleness_score": 100, "blocks_15d": 5, "days_stale": 20}
+        for i in range(3)
+    ]
+    core_strategy = grr.build_core_strategy_block({"core_strategy_bear": _core_strategy_status_entry()})
+    digest = grr.build_digest(gate_rows, max_lines=3, core_strategy=core_strategy)
+    assert digest[0].startswith("CORE STRATEGY BEAR is RED")
+    assert len(digest) == 3  # core_strategy line consumed a slot -- still capped
+
+
+def test_build_digest_core_strategy_none_reproduces_prior_behavior():
+    """Omitting core_strategy (the pre-2026-08-08 call signature) must reproduce the exact
+    prior behavior -- backward compatibility for any other caller of build_digest."""
+    rows = [{
+        "name": "quiet_gate", "account": "safe", "expiry_verdict": "GREEN",
+        "red_ev_note": None, "recommendation": "KEEP",
+        "staleness_score": 0, "blocks_15d": 0, "days_stale": 5,
+    }]
+    assert grr.build_digest(rows) == grr.build_digest(rows, core_strategy=None)
+
+
+def test_build_digest_core_strategy_green_never_appears_in_digest():
+    core_strategy = grr.build_core_strategy_block({
+        "core_strategy_bear": _core_strategy_status_entry(verdict="GREEN", exp_per_trade=51.0, n=10),
+    })
+    digest = grr.build_digest([], core_strategy=core_strategy)
+    assert not any("CORE STRATEGY" in line for line in digest)
+    assert "No RED" in digest[0]  # falls through to the ordinary quiet-week line
+
+
+def test_build_report_includes_core_strategy_block_end_to_end(state_paths):
+    _write_json(state_paths["status"], {"gates": {
+        "core_strategy_bear": _core_strategy_status_entry(),
+        "core_strategy_bull": {**_core_strategy_status_entry(verdict="GREEN", exp_per_trade=51.0, n=10),
+                               "id": "core_strategy_bull"},
+    }})
+    report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
+    assert "core_strategy" in report
+    assert report["core_strategy"]["bear"]["verdict"] == "RED"
+    assert report["core_strategy"]["bull"]["verdict"] == "GREEN"
+    assert report["digest"][0].startswith("CORE STRATEGY BEAR is RED")
+    assert report["schema"] == "gate-recency-report-v2"  # schema string unchanged -- additive only
+
+
+def test_build_report_core_strategy_absent_from_status_is_none_not_crash(state_paths):
+    """The status.json in this fixture has zero core_strategy rows (only an ordinary gate)
+    -- build_report must not crash and must report {"bear": None, "bull": None}, never
+    fabricate a verdict."""
+    _write_json(state_paths["status"], {"gates": {
+        "block_level_rejection": {"overall": "GREEN", "pnl_check": {}},
+    }})
+    report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
+    assert report["core_strategy"] == {"bear": None, "bull": None}
+    assert not any("CORE STRATEGY" in line for line in report["digest"])
+
+
+def test_build_report_all_sources_missing_core_strategy_is_all_none(state_paths):
+    report = grr.build_report(lookback_days=15, today=dt.date(2026, 8, 8))
+    assert report["core_strategy"] == {"bear": None, "bull": None}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 9. static guard -- read-only, never places an order or writes params
 # ─────────────────────────────────────────────────────────────────────────────
 

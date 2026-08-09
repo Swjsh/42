@@ -76,6 +76,7 @@ def state_paths(tmp_path, monkeypatch):
         "outbox": tmp_path / "discord-outbox.jsonl",
         "latest": tmp_path / "gamma-standup-latest.json",
         "autonomy_report": tmp_path / "autonomy-report.json",
+        "gate_recency_latest": tmp_path / "gate-recency-latest.json",
     }
     monkeypatch.setattr(gs, "SHADOW_PROGRESS_PATH", paths["shadow"])
     monkeypatch.setattr(gs, "SSR_SHADOW_PROGRESS_PATH", paths["ssr"])
@@ -87,6 +88,7 @@ def state_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(gs, "OUTBOX_PATH", paths["outbox"])
     monkeypatch.setattr(gs, "LATEST_PATH", paths["latest"])
     monkeypatch.setattr(gs, "AUTONOMY_REPORT_PATH", paths["autonomy_report"])
+    monkeypatch.setattr(gs, "GATE_RECENCY_LATEST_PATH", paths["gate_recency_latest"])
     return paths
 
 
@@ -1004,3 +1006,179 @@ def test_compose_morning_full_fixture_with_autonomy_matches_spec_example(state_p
     assert "6 starved on budget" in text
     for bad in gs.BANNED_SUBSTRINGS:
         assert bad not in text
+
+
+# ============================================================================
+# CORE STRATEGY alert line (2026-08-08) -- sourced ONLY from
+# automation/state/gate-recency-latest.json's top-level "core_strategy" block. Morning-only.
+# A RED here outranks every individual gate; wording must respect the inverted semantics
+# (never "COSTING money" -- that is the GATE family's phrasing) and be honest about power
+# (a thin n gets an explicit WATCH caveat).
+# ============================================================================
+
+def _gate_recency_doc(bear=None, bull=None):
+    return {"schema": "gate-recency-report-v2", "core_strategy": {"bear": bear, "bull": bull}}
+
+
+def _core_strategy_direction_fixture(*, verdict="RED", exp_per_trade=-40.75, n=12, n_trading_days=25):
+    return {
+        "verdict": verdict, "exp_per_trade": exp_per_trade, "n": n, "wr_pct": 25.0,
+        "window": {"start": "2026-07-06", "end": "2026-08-07", "n_trading_days": n_trading_days},
+        "evidence_age_days": 7, "revalidation_interval_days": 14,
+        "past_revalidation_interval": False,
+    }
+
+
+def test_core_strategy_alert_line_bear_red_matches_wording():
+    doc = _gate_recency_doc(bear=_core_strategy_direction_fixture())
+    line = gs._core_strategy_alert_line(doc)
+    assert line.startswith("CORE STRATEGY BEAR is RED:")
+    assert "-$40.75/trade" in line
+    assert "12 real fills" in line
+    assert "25-day window" in line
+    assert "the bear side itself is losing money, not a gate blocking it" in line
+    assert "n=12 is thin" in line
+    assert "WATCH, not yet a mandate to disarm" in line
+    assert "COSTING money" not in line  # never conflate with the gate family's phrasing
+
+
+def test_core_strategy_alert_line_none_when_both_green():
+    doc = _gate_recency_doc(
+        bear=_core_strategy_direction_fixture(verdict="GREEN", exp_per_trade=-40.75, n=12),
+        bull=_core_strategy_direction_fixture(verdict="GREEN", exp_per_trade=51.0, n=10),
+    )
+    assert gs._core_strategy_alert_line(doc) is None
+
+
+def test_core_strategy_alert_line_none_when_doc_missing():
+    assert gs._core_strategy_alert_line(None) is None
+
+
+def test_core_strategy_alert_line_none_when_core_strategy_key_absent():
+    assert gs._core_strategy_alert_line({"schema": "gate-recency-report-v2"}) is None
+
+
+def test_core_strategy_alert_line_none_when_directions_are_none():
+    assert gs._core_strategy_alert_line(_gate_recency_doc(bear=None, bull=None)) is None
+
+
+def test_core_strategy_alert_line_no_thin_clause_above_threshold():
+    doc = _gate_recency_doc(bear=_core_strategy_direction_fixture(n=25))
+    line = gs._core_strategy_alert_line(doc)
+    assert "is thin" not in line
+
+
+def test_core_strategy_alert_line_bull_used_when_bear_not_red():
+    doc = _gate_recency_doc(
+        bear=_core_strategy_direction_fixture(verdict="GREEN", exp_per_trade=51.0, n=10),
+        bull=_core_strategy_direction_fixture(verdict="RED", exp_per_trade=-12.5, n=15),
+    )
+    line = gs._core_strategy_alert_line(doc)
+    assert line.startswith("CORE STRATEGY BULL is RED:")
+    assert "-$12.50/trade" in line
+
+
+def test_core_strategy_alert_line_malformed_n_and_window_falls_back_gracefully():
+    doc = _gate_recency_doc(bear={
+        "verdict": "RED", "exp_per_trade": -40.75, "n": "twelve",  # poisoned type, not int
+        "window": {"n_trading_days": "twenty-five"},
+    })
+    line = gs._core_strategy_alert_line(doc)
+    assert line is not None
+    assert "an unstated number of" in line
+    assert "an unstated window" in line
+    assert "is thin" not in line  # can't judge thinness without a real numeric n
+
+
+def test_core_strategy_alert_line_poisoned_fixture_no_log_spew_leak():
+    """A corrupted/malicious gate-recency-latest.json can carry a free-text 'reason' field
+    (gate_recency_report.py's own digest text) with a banned substring inside it. This line
+    NEVER interpolates that field at all (see the poison-resistant-by-construction note
+    above _core_strategy_alert_line) -- prove it: even with DEGRADED/Traceback/MASKED EXIT
+    sitting right next to the fields this function DOES read, none of it leaks."""
+    doc = _gate_recency_doc(bear={
+        "verdict": "RED", "exp_per_trade": -40.75, "n": 12,
+        "window": {"n_trading_days": 25},
+        "reason": "alert: DEGRADED self-check, Traceback (most recent call last), MASKED EXIT",
+        "headline": "exit=[bear RED] jsonl-poisoned",
+    })
+    line = gs._core_strategy_alert_line(doc)
+    assert line is not None
+    for bad in gs.BANNED_SUBSTRINGS:
+        assert bad not in line
+    assert line.startswith("CORE STRATEGY BEAR is RED:")
+
+
+def test_gather_facts_morning_includes_core_strategy_line(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    _write_json(state_paths["gate_recency_latest"], _gate_recency_doc(bear=_core_strategy_direction_fixture()))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    assert facts["core_strategy_line"].startswith("CORE STRATEGY BEAR is RED:")
+
+
+def test_gather_facts_morning_core_strategy_line_none_when_file_missing(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    assert facts["core_strategy_line"] is None
+
+
+def test_gather_facts_eod_has_no_core_strategy_line_key():
+    """CORE STRATEGY is morning-only per spec -- eod's facts dict never gets this key,
+    same discipline as autonomy_line."""
+    now = _dt(TUESDAY, 16, 45)
+    facts = gs.gather_facts("eod", now.strftime("%Y-%m-%d"), now)
+    assert "core_strategy_line" not in facts
+
+
+def test_compose_morning_includes_core_strategy_line_leading_before_overnight(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    _write_json(state_paths["gate_recency_latest"], _gate_recency_doc(bear=_core_strategy_direction_fixture()))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert "CORE STRATEGY BEAR is RED:" in text
+    core_idx = text.index("CORE STRATEGY BEAR is RED:")
+    overnight_idx = text.index("**OVERNIGHT/YESTERDAY**")
+    assert core_idx < overnight_idx
+    assert len(text) <= gs.CHAR_CAP
+
+
+def test_compose_morning_omits_core_strategy_line_when_absent(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert "CORE STRATEGY" not in text
+
+
+def test_compose_morning_core_strategy_line_survives_char_cap_trade_off(state_paths, monkeypatch):
+    """When heavy content elsewhere would blow the cap, the CORE STRATEGY line (placed
+    first) must be what SURVIVES _finalize's end-of-message truncation -- lower-priority
+    content (git bullets / wants) gets cut first, never this line."""
+    monkeypatch.setattr(gs, "_git_log_subjects", lambda since, until=None: [
+        f"abc{i} fix: {'padding text ' * 20}" for i in range(10)
+    ])
+    _write_json(state_paths["wants"], _wants_doc([
+        {"priority": 1, "id": "a", "text": "want text " * 40},
+        {"priority": 2, "id": "b", "text": "want text " * 40},
+        {"priority": 3, "id": "c", "text": "want text " * 40},
+    ]))
+    _write_json(state_paths["gate_recency_latest"], _gate_recency_doc(bear=_core_strategy_direction_fixture()))
+    now = _dt(TUESDAY, 8, 15)
+    facts = gs.gather_facts("morning", now.strftime("%Y-%m-%d"), now)
+    text = gs.compose_morning_text(facts)
+    assert len(text) <= gs.CHAR_CAP
+    assert "CORE STRATEGY BEAR is RED:" in text
+
+
+def test_real_morning_run_with_core_strategy_red_end_to_end(state_paths, monkeypatch):
+    _no_git(monkeypatch)
+    _write_json(state_paths["gate_recency_latest"], _gate_recency_doc(bear=_core_strategy_direction_fixture()))
+    rc = gs.main(["--mode", "morning"])
+    assert rc == 0
+    latest = json.loads(state_paths["latest"].read_text(encoding="utf-8"))
+    assert "CORE STRATEGY BEAR is RED:" in latest["text"]
+    for bad in gs.BANNED_SUBSTRINGS:
+        assert bad not in latest["text"]

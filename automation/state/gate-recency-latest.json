@@ -1,0 +1,598 @@
+{
+  "schema": "gate-recency-report-v2",
+  "generated_et": "2026-08-08T23:34:42",
+  "window": {
+    "trailing_trading_days_requested": 15,
+    "distinct_armed_dates_found": 15,
+    "start": "2026-07-17",
+    "end": "2026-08-07"
+  },
+  "gates": [
+    {
+      "name": "block_level_rejection",
+      "account": "safe",
+      "setting": true,
+      "last_validated": "2026-06-17",
+      "days_stale": 52,
+      "blocks_15d": 1,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 52,
+      "recommendation": "REVALIDATE",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "block_bull_1100_1200",
+      "account": "safe",
+      "setting": true,
+      "last_validated": "2026-06-18",
+      "days_stale": 51,
+      "blocks_15d": 6,
+      "expiry_verdict": "YELLOW",
+      "staleness_score": 306,
+      "recommendation": "REVALIDATE",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "require_bearish_fill_bar",
+      "account": "bold",
+      "setting": true,
+      "last_validated": "2026-06-17",
+      "days_stale": 52,
+      "blocks_15d": 84,
+      "expiry_verdict": "RED",
+      "staleness_score": 4368,
+      "recommendation": "SETTLED:NOT-UNBLOCK-ELIGIBLE",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": "refused cohort would have EARNED $76.81/tr, n=36 >= floor 10 -- COSTING money",
+      "replay_soundness": "sound",
+      "revalidation": {
+        "status": "FILED",
+        "verdict": "NOT-UNBLOCK-ELIGIBLE",
+        "filed_date": "2026-08-08",
+        "source_file": "analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-08.json"
+      }
+    },
+    {
+      "name": "block_conf_lvl_rec_afternoon",
+      "account": "bold",
+      "setting": true,
+      "last_validated": "2026-06-18",
+      "days_stale": 51,
+      "blocks_15d": 31,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 1581,
+      "recommendation": "REVALIDATE",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "structure_veto_enabled",
+      "account": "safe",
+      "setting": true,
+      "last_validated": "2026-06-26",
+      "days_stale": 43,
+      "blocks_15d": 42,
+      "expiry_verdict": "RED",
+      "staleness_score": 1806,
+      "recommendation": "SETTLED:NOT-UNBLOCK-ELIGIBLE",
+      "category": "non_gate_order_veto",
+      "provenance": "registry",
+      "red_ev_note": "refused cohort would have EARNED $6.0/tr, n=11 >= floor 10 -- COSTING money",
+      "replay_soundness": "sound",
+      "revalidation": {
+        "status": "FILED",
+        "verdict": "NOT-UNBLOCK-ELIGIBLE",
+        "filed_date": "2026-08-08",
+        "source_file": "analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json"
+      }
+    },
+    {
+      "name": "free_model_veto",
+      "account": "safe",
+      "setting": true,
+      "last_validated": "2026-07-09",
+      "days_stale": 30,
+      "blocks_15d": 26,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 780,
+      "recommendation": "KEEP",
+      "category": "non_gate_order_veto",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "free_model_veto",
+      "account": "bold",
+      "setting": true,
+      "last_validated": "2026-07-09",
+      "days_stale": 30,
+      "blocks_15d": 17,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 510,
+      "recommendation": "KEEP",
+      "category": "non_gate_order_veto",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "entry_bar_body_pct_min",
+      "account": "safe",
+      "setting": 0.2,
+      "last_validated": "2026-06-18",
+      "days_stale": 51,
+      "blocks_15d": 12,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 612,
+      "recommendation": "REVALIDATE",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "block_elite_bull",
+      "account": "safe",
+      "setting": false,
+      "last_validated": "2026-08-03",
+      "days_stale": 5,
+      "blocks_15d": 170,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 850,
+      "recommendation": "KEEP-MONITOR-TRIAL",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "block_elite_bull",
+      "account": "bold",
+      "setting": false,
+      "last_validated": "2026-08-03",
+      "days_stale": 5,
+      "blocks_15d": 155,
+      "expiry_verdict": "GREEN",
+      "staleness_score": 775,
+      "recommendation": "KEEP-MONITOR-TRIAL",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "vix_bear_hard_cap",
+      "account": "safe",
+      "setting": 23.0,
+      "last_validated": "2026-06-18",
+      "days_stale": 51,
+      "blocks_15d": 0,
+      "expiry_verdict": "STALE_UNVERIFIED",
+      "staleness_score": 0,
+      "recommendation": "KEEP",
+      "category": "core_gate_order",
+      "provenance": "registry",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "min_entry_premium",
+      "account": "safe",
+      "setting": 0.3,
+      "last_validated": "2026-07-31",
+      "days_stale": 8,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "KEEP",
+      "category": "risk_gate_config",
+      "provenance": "audit_2026-08-08",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "min_entry_premium",
+      "account": "bold",
+      "setting": 0.3,
+      "last_validated": "2026-07-31",
+      "days_stale": 8,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "KEEP",
+      "category": "risk_gate_config",
+      "provenance": "audit_2026-08-08",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "filter_10_min_triggers_bull",
+      "account": "safe",
+      "setting": 2,
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 275,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 49500,
+      "recommendation": "SETTLED:NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL)",
+      "category": "scoring_filter",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "FILED",
+        "verdict": "NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL)",
+        "filed_date": "2026-08-08",
+        "source_file": "analysis/recommendations/gate-revalidation-min_triggers_bull-2026-08-08.json"
+      }
+    },
+    {
+      "name": "filter_10_min_triggers_bull",
+      "account": "bold",
+      "setting": 1,
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 276,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 49680,
+      "recommendation": "REVALIDATE",
+      "category": "scoring_filter",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "filter_9_vol_multiplier",
+      "account": "safe",
+      "setting": 0.7,
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 21,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 3780,
+      "recommendation": "REVALIDATE",
+      "category": "scoring_filter",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "filter_9_vol_multiplier",
+      "account": "bold",
+      "setting": 0.7,
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 22,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 3960,
+      "recommendation": "REVALIDATE",
+      "category": "scoring_filter",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "extra_setup_exec_armed.vwap_continuation",
+      "account": "safe",
+      "setting": false,
+      "last_validated": "2026-07-25",
+      "days_stale": 14,
+      "blocks_15d": 169,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 2366,
+      "recommendation": "KEEP",
+      "category": "extra_setup_gate",
+      "provenance": "audit_2026-08-08",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "extra_setup_exec_armed.vix_regime_dayside",
+      "account": "safe",
+      "setting": false,
+      "last_validated": "2026-07-25",
+      "days_stale": 14,
+      "blocks_15d": 22,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 308,
+      "recommendation": "KEEP",
+      "category": "extra_setup_gate",
+      "provenance": "audit_2026-08-08",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "pdt_gate_mode",
+      "account": "safe",
+      "setting": "cash_settlement",
+      "last_validated": "2026-08-06",
+      "days_stale": 2,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "KEEP",
+      "category": "risk_gate_config",
+      "provenance": "audit_2026-08-08",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "pdt_gate_mode",
+      "account": "bold",
+      "setting": "margin_pdt",
+      "last_validated": "2026-08-06",
+      "days_stale": 2,
+      "blocks_15d": 49,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 98,
+      "recommendation": "ACT-ON-PENDING-DECISION",
+      "category": "risk_gate_config",
+      "provenance": "audit_2026-08-08",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "liquidity_gate_bundle",
+      "account": "safe",
+      "setting": "6-key bundle, 0 code consumers",
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "RETIRE-CANDIDATE",
+      "category": "dead_config",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "liquidity_gate_bundle",
+      "account": "bold",
+      "setting": "0 code consumers",
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "RETIRE-CANDIDATE",
+      "category": "dead_config",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "macro_veto_bundle",
+      "account": "safe",
+      "setting": "4-key bundle, 0 code consumers",
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "RETIRE-CANDIDATE",
+      "category": "dead_config",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    },
+    {
+      "name": "macro_veto_bundle",
+      "account": "bold",
+      "setting": "0 code consumers",
+      "last_validated": null,
+      "days_stale": 180,
+      "blocks_15d": 0,
+      "expiry_verdict": "NOT_IN_EXPIRY_CHECKER",
+      "staleness_score": 0,
+      "recommendation": "RETIRE-CANDIDATE",
+      "category": "dead_config",
+      "provenance": "unknown_180d_proxy",
+      "red_ev_note": null,
+      "replay_soundness": "not_applicable",
+      "revalidation": {
+        "status": "NOT_FILED",
+        "verdict": null,
+        "filed_date": null,
+        "source_file": null
+      }
+    }
+  ],
+  "reds": [
+    {
+      "name": "require_bearish_fill_bar",
+      "account": "bold",
+      "reason": "refused cohort would have EARNED $76.81/tr, n=36 >= floor 10 -- COSTING money",
+      "replay_soundness": "sound",
+      "revalidation": {
+        "status": "FILED",
+        "verdict": "NOT-UNBLOCK-ELIGIBLE",
+        "filed_date": "2026-08-08",
+        "source_file": "analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-08.json"
+      }
+    },
+    {
+      "name": "structure_veto_enabled",
+      "account": "safe",
+      "reason": "refused cohort would have EARNED $6.0/tr, n=11 >= floor 10 -- COSTING money",
+      "replay_soundness": "sound",
+      "revalidation": {
+        "status": "FILED",
+        "verdict": "NOT-UNBLOCK-ELIGIBLE",
+        "filed_date": "2026-08-08",
+        "source_file": "analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json"
+      }
+    }
+  ],
+  "core_strategy": {
+    "bear": {
+      "verdict": "RED",
+      "exp_per_trade": -40.75,
+      "n": 12,
+      "wr_pct": 25.0,
+      "window": {
+        "start": "2026-07-06",
+        "end": "2026-08-07",
+        "n_trading_days": 25
+      },
+      "evidence_age_days": 7,
+      "revalidation_interval_days": 14,
+      "past_revalidation_interval": false
+    },
+    "bull": {
+      "verdict": "GREEN",
+      "exp_per_trade": 51.0,
+      "n": 10,
+      "wr_pct": 30.0,
+      "window": {
+        "start": "2026-07-06",
+        "end": "2026-08-07",
+        "n_trading_days": 25
+      },
+      "evidence_age_days": 7,
+      "revalidation_interval_days": 14,
+      "past_revalidation_interval": false
+    }
+  },
+  "digest": [
+    "CORE STRATEGY BEAR is RED: -$40.75/trade on 12 real fills (25-day window) -- the bear side itself is losing money, not a gate blocking it. n=12 is thin; this is a WATCH, not yet a mandate to disarm.",
+    "SETTLED -- require_bearish_fill_bar (bold): revalidated 2026-08-08, verdict=NOT-UNBLOCK-ELIGIBLE (raw registry EV superseded -- see analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-08.json)",
+    "SETTLED -- structure_veto_enabled (safe): revalidated 2026-08-08, verdict=NOT-UNBLOCK-ELIGIBLE (raw registry EV superseded -- see analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json)"
+  ]
+}

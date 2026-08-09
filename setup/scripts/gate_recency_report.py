@@ -66,7 +66,14 @@ Output: automation/state/gate-recency-latest.json --
   {generated_et, window, gates:[{name, account, setting, last_validated, days_stale,
    blocks_15d, expiry_verdict, staleness_score, recommendation, category, provenance,
    red_ev_note, replay_soundness, revalidation:{status, verdict, filed_date, source_file}}],
-   reds:[{name, account, reason}], digest:[<=3 plain-English lines]}
+   reds:[{name, account, reason}],
+   core_strategy:{bear:{verdict, exp_per_trade, n, wr_pct, window:{start, end,
+     n_trading_days}, evidence_age_days, revalidation_interval_days,
+     past_revalidation_interval}|None, bull:{...}|None} -- added 2026-08-08, FIRST-CLASS and
+   separate from `gates` (inverted semantics -- see the CORE-STRATEGY VERDICT FAMILY block
+   below the roster: a gate RED means a LOCK is costing money, a core_strategy RED means the
+   STRATEGY ITSELF is losing on recent real fills, and it outranks every gate),
+   digest:[<=3 plain-English lines, a core_strategy RED always leads]}
 Schema is STABLE (fixed key set on every row) -- a future consumer (a standup, a wants-surface,
 gamma_standup.py-style) can key off these fields without special-casing missing ones.
 
@@ -348,6 +355,128 @@ GATE_ROSTER: list[dict[str, Any]] = [
         "audit_interval_days": None,
     },
 ]
+
+
+# ─────────────────────────────────────────────────────────────────────────────────────
+# CORE-STRATEGY VERDICT FAMILY (added 2026-08-08 -- J directive: surface the two verdicts
+# gate_expiry_check.py / backtest/autoresearch/core_strategy_recency.py already compute
+# nightly into gate-registry-status.json under category=="core_strategy"
+# (core_strategy_bear / core_strategy_bull). Deliberately kept OUTSIDE GATE_ROSTER and
+# OUTSIDE the `gates` list this report already builds -- see GATE-RECENCY-DOCTRINE.md's
+# "Two verdict families" section:
+#
+#   GATE verdict (the roster above):    RED = a LOCK is costing money. The strategy might
+#                                        still be fine without that one gate.
+#   CORE_STRATEGY verdict (this block): RED = the STRATEGY ITSELF is losing on recent real
+#                                        fills, independent of any gate. Outranks every
+#                                        individual gate row.
+#
+# Evidenced by REAL BROKER FILLS (pnl_check.broker_core), not simulator_real -- the REPLAY
+# SOUNDNESS correction earlier in this doctrine (unsound/unstamped EV reads PROVISIONAL)
+# does NOT apply to this family; broker fills are already the top evidence tier per C1.
+# ─────────────────────────────────────────────────────────────────────────────────────
+
+CORE_STRATEGY_DIRECTIONS = ("bear", "bull")
+
+# "thin" caveat threshold for the digest/standup wording. gate_expiry_check.py's own
+# confirm_n_floor is 10 (the bare actionability floor) -- a sample only modestly above that
+# floor should read as thin, not confidently conclusive. Mirrored verbatim (with this same
+# comment) in setup/scripts/gamma_standup.py -- kept as two independent constants rather
+# than a shared import, matching this script's dependency-light-by-design philosophy.
+CORE_STRATEGY_THIN_N = 20
+
+
+def _core_strategy_entry(status_by_id: dict, direction: str) -> Optional[dict]:
+    """One direction (bear/bull) of the core_strategy verdict family, read straight off
+    gate-registry-status.json's own category=="core_strategy" row for that direction --
+    never recomputed, same read-never-recompute discipline as every gate row above.
+    Fail-open: any missing/malformed piece degrades that field to None; a totally absent
+    gate id (old schema, or a run that raced core_strategy_recency.py before it wrote)
+    returns None outright rather than raising or fabricating a verdict."""
+    entry = status_by_id.get(f"core_strategy_{direction}")
+    if not isinstance(entry, dict):
+        return None
+    pnl_check = entry.get("pnl_check")
+    if not isinstance(pnl_check, dict):
+        return None
+    broker_core = pnl_check.get("broker_core")
+    broker_core = broker_core if isinstance(broker_core, dict) else {}
+    window = pnl_check.get("window")
+    window = window if isinstance(window, dict) else {}
+
+    evidence_age_days = entry.get("evidence_age_days")
+    revalidation_interval_days = entry.get("revalidation_interval_days")
+    past_revalidation_interval = bool(
+        isinstance(evidence_age_days, (int, float))
+        and isinstance(revalidation_interval_days, (int, float))
+        and evidence_age_days > revalidation_interval_days
+    )
+
+    return {
+        "verdict": entry.get("overall") or pnl_check.get("verdict"),
+        "exp_per_trade": broker_core.get("exp_per_trade"),
+        "n": broker_core.get("n"),
+        "wr_pct": broker_core.get("wr_pct"),
+        "window": {
+            "start": window.get("start"),
+            "end": window.get("end"),
+            "n_trading_days": window.get("n_trading_days"),
+        },
+        "evidence_age_days": evidence_age_days,
+        "revalidation_interval_days": revalidation_interval_days,
+        "past_revalidation_interval": past_revalidation_interval,
+    }
+
+
+def build_core_strategy_block(status_by_id: dict) -> dict:
+    """Top-level (NOT per-gate-row) block -- FIRST-CLASS and clearly distinguished from the
+    `gates` list per the mission spec: a core_strategy verdict's semantics are inverted
+    relative to a gate's and must never be mixed into the same list a reader would scan
+    gate-by-gate. {"bear": {...} | None, "bull": {...} | None} -- always both keys present,
+    even when the underlying registry row is missing (fail-open -> None, never omitted)."""
+    return {direction: _core_strategy_entry(status_by_id, direction) for direction in CORE_STRATEGY_DIRECTIONS}
+
+
+def _fmt_core_strategy_money(x: Any) -> str:
+    if not isinstance(x, (int, float)):
+        return "an unknown $/trade figure"
+    sign = "-" if x < 0 else "+"
+    return f"{sign}${abs(x):.2f}/trade"
+
+
+def _core_strategy_digest_line(direction: str, cs: Optional[dict]) -> Optional[str]:
+    """A RED core_strategy verdict outranks any individual gate. Wording is deliberately
+    NOT the gate family's "COSTING money" phrasing -- that means a LOCK is costing money;
+    this means the STRATEGY is losing money on its own recent real fills, unconditional of
+    any gate. Honest about power: a thin n gets an explicit "WATCH, not yet a mandate to
+    disarm" caveat rather than reading as a confident kill signal."""
+    if not isinstance(cs, dict) or cs.get("verdict") != "RED":
+        return None
+    exp = cs.get("exp_per_trade")
+    n = cs.get("n")
+    window = cs.get("window") or {}
+    n_days = window.get("n_trading_days")
+    n_str = str(n) if isinstance(n, (int, float)) else "an unstated number of"
+    window_str = f"{n_days}-day window" if isinstance(n_days, (int, float)) else "an unstated window"
+    line = (
+        f"CORE STRATEGY {direction.upper()} is RED: {_fmt_core_strategy_money(exp)} on {n_str} "
+        f"real fill{'s' if n != 1 else ''} ({window_str}) -- the {direction} side itself is "
+        f"losing money, not a gate blocking it."
+    )
+    if isinstance(n, (int, float)) and n < CORE_STRATEGY_THIN_N:
+        line += f" n={n} is thin; this is a WATCH, not yet a mandate to disarm."
+    return line
+
+
+def build_core_strategy_digest_lines(core_strategy: dict) -> list[str]:
+    """Bear checked before bull (stable, arbitrary tie-break) -- returns 0-2 lines, one per
+    RED direction. Caller (build_digest) is responsible for the overall max_lines cap."""
+    lines: list[str] = []
+    for direction in CORE_STRATEGY_DIRECTIONS:
+        line = _core_strategy_digest_line(direction, core_strategy.get(direction))
+        if line:
+            lines.append(line)
+    return lines
 
 
 # ─────────────────────────────────────────────────────────────────────────────────────
@@ -657,10 +786,13 @@ def build_rows(roster: list[dict], registry_by_id: dict, status_by_id: dict, par
     return out
 
 
-def build_digest(rows: list[dict], max_lines: int = 3) -> list[str]:
-    """<=max_lines plain-English lines: every RED gate + its refused-cohort EV first, then
-    (if room remains) the highest-staleness REVALIDATE/ACT-ON-PENDING-DECISION rows not
-    already a RED gate. Never empty -- a quiet week still gets one reassuring line.
+def build_digest(rows: list[dict], max_lines: int = 3, core_strategy: Optional[dict] = None) -> list[str]:
+    """<=max_lines plain-English lines: a RED core_strategy verdict leads (it outranks every
+    individual gate -- see the CORE-STRATEGY VERDICT FAMILY block above), then every RED
+    gate + its refused-cohort EV, then (if room remains) the highest-staleness
+    REVALIDATE/ACT-ON-PENDING-DECISION rows not already a RED gate. Never empty -- a quiet
+    week still gets one reassuring line. `core_strategy` is optional and additive -- omitting
+    it (the pre-2026-08-08 call signature) reproduces the exact prior behavior.
 
     PROVENANCE-AWARE wording (2026-08-08 correction -- see module docstring + GATE-RECENCY-
     DOCTRINE.md's REPLAY SOUNDNESS rule):
@@ -671,8 +803,12 @@ def build_digest(rows: list[dict], max_lines: int = 3) -> list[str]:
          exit_manager core, stamped by gate_expiry_check.py) may say "COSTING money" as before.
       3. A RED gate that is unsound or simply unstamped reads as PROVISIONAL -- weaker
          evidence, never stronger, fail-safe-open."""
-    reds = [r for r in rows if r["expiry_verdict"] == "RED"]
     lines: list[str] = []
+    if core_strategy:
+        lines.extend(build_core_strategy_digest_lines(core_strategy))
+        lines = lines[:max_lines]
+
+    reds = [r for r in rows if r["expiry_verdict"] == "RED"]
     for r in reds:
         if len(lines) >= max_lines:
             break
@@ -746,10 +882,11 @@ def build_report(lookback_days: int = TRAILING_TRADING_DAYS,
         }
         for r in rows if r["expiry_verdict"] == "RED"
     ]
-    digest = build_digest(rows)
+    core_strategy = build_core_strategy_block(status_by_id)
+    digest = build_digest(rows, core_strategy=core_strategy)
 
     return {
-        "schema": "gate-recency-report-v2",  # v2 (2026-08-08): + replay_soundness, revalidation
+        "schema": "gate-recency-report-v2",  # kept v2 -- this addition is schema-additive only
         "generated_et": et_now().isoformat(timespec="seconds"),
         "window": {
             "trailing_trading_days_requested": lookback_days,
@@ -759,6 +896,10 @@ def build_report(lookback_days: int = TRAILING_TRADING_DAYS,
         },
         "gates": rows,
         "reds": reds,
+        # core_strategy (added 2026-08-08): FIRST-CLASS, separate from `gates` -- see the
+        # CORE-STRATEGY VERDICT FAMILY block above. Always both keys present
+        # ({"bear": {...}|None, "bull": {...}|None}), fail-open per direction.
+        "core_strategy": core_strategy,
         "digest": digest,
     }
 
