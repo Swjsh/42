@@ -10,15 +10,22 @@
 :root {
   color-scheme: dark;
 
-  --bg-deep: #050810;
-  --bg-base: #0a0f1c;
-  --bg-elev: #131b2e;
-  --bg-card: #161e35;
-  --bg-overlay: #1c2540;
+  /* Surface ladder retuned 2026-08-09 (design-research pass): the old ladder
+     (#050810 -> #161e35) carried a navy-blue cast on every surface -- the
+     single most-fingerprinted "AI-generated SaaS dashboard" tell (matches
+     the default output of most component-library dark themes). Desaturated
+     to a neutral charcoal ladder, matching how Linear/Vercel-class products
+     actually build dark surfaces: color comes from content and the one
+     signature accent (--cyan), never from the chrome underneath it. */
+  --bg-deep: #060608;
+  --bg-base: #0b0c0f;
+  --bg-elev: #141519;
+  --bg-card: #18191d;
+  --bg-overlay: #1e1f24;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-mid: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-mid: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
 
   --text-1: #e6edf7;
   --text-2: #a4afc4;
@@ -41,9 +48,19 @@
   --down-glow: rgba(239, 68, 68, 0.4);
   --amber: #f59e0b;
   --amber-soft: rgba(245, 158, 11, 0.14);
+
+  /* --cyan is the Gamma App's ONE signature chromatic accent (focus ring,
+     presence-orb glow, primary CTA/eyebrow) -- 2026-08-09 design-research
+     pass: every reference product studied (Linear, Vercel, Robinhood,
+     Hyperliquid) converges on exactly one accent hue, used sparingly,
+     everything else demoted to strictly-semantic (up/down/amber above) or
+     strictly-dataviz. New gamma-app chrome should reach for --cyan, not
+     --violet/--blue, for anything meant to read as "special." */
   --cyan: #22d3ee;
   --cyan-soft: rgba(34, 211, 238, 0.16);
   --cyan-glow: rgba(34, 211, 238, 0.45);
+  /* violet/blue: reserved for data-viz series 2/3 (chart lines) and the
+     legacy Trade House ("/") chrome -- not for new Gamma App decoration. */
   --violet: #a78bfa;
   --violet-soft: rgba(167, 139, 250, 0.16);
   --blue: #60a5fa;
@@ -54,9 +71,15 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+  /* Inset hairline ring + stacked offset (2026-08-09) -- the mechanism
+     Vercel/Geist-class surfaces use instead of a single blurred drop-shadow;
+     the inset ring is what makes a card read as "engineered" rather than
+     "a div with box-shadow applied." */
+  --shadow-sm: inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.3),
+    0 12px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: inset 0 0 0 1px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(0, 0, 0, 0.35),
+    0 24px 64px rgba(0, 0, 0, 0.5);
 
   /* Motion tokens (Material M3 duration/easing), Gamma App tiles 2026-08-08 */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -82,18 +105,40 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(ellipse 100% 60% at 50% 0%, rgba(34, 211, 238, 0.06), transparent 60%),
-    radial-gradient(ellipse 80% 50% at 80% 100%, rgba(167, 139, 250, 0.05), transparent 60%),
-    radial-gradient(ellipse 80% 50% at 10% 100%, rgba(34, 197, 94, 0.03), transparent 60%),
-    var(--bg-deep);
-  background-attachment: fixed;
+  background: var(--bg-deep);
   color: var(--text-1);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-feature-settings: "tnum";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  position: relative;
+}
+
+/* Single-hue aurora, replacing the old 3-color cyan/violet/green corner-blob
+   hero (2026-08-09 design-research pass): a tri-color gradient blob is the
+   default output of most AI page generators and reads as a template, not a
+   considered choice. One hue, used with intent, top-only, slow drift --
+   restraint is the actual signature move every reference product (Linear,
+   Vercel, Hyperliquid, Stripe) converges on. Scoped to .gamma-app only so
+   the Trade House pixel canvas at "/" is untouched. */
+.gamma-app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 40% at 50% -5%, rgba(34, 211, 238, 0.07), transparent 65%);
+  animation: aurora-drift 14s ease-in-out infinite;
+}
+@keyframes aurora-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.85; }
+  50% { transform: translate(1.5%, 1%) scale(1.06); opacity: 1; }
+}
+.gamma-app { position: relative; isolation: isolate; }
+.gamma-app > * { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .gamma-app::before { animation: none; }
 }
 
 ::selection {
@@ -107,6 +152,14 @@ body {
 .font-display {
   font-family: var(--font-space-grotesk), system-ui, sans-serif;
   letter-spacing: -0.02em;
+}
+/* Tighter-at-larger-size tracking (2026-08-09 design-research pass) -- a
+   flat letter-spacing value at every size is a component-library default;
+   Vercel/Linear-class display type goes tighter as size increases (e.g.
+   -5% at 48px+). Use on hero/large numeral text (quote ticker, big P&L). */
+.font-display-hero {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  letter-spacing: -0.035em;
 }
 .font-mono {
   font-family: var(--font-jetbrains-mono), monospace;

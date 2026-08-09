@@ -9,6 +9,13 @@
       "cwd": "dashboard"
     },
     {
+      "name": "dashboard-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "port": 3000,
+      "cwd": "dashboard"
+    },
+    {
       "name": "companion",
       "runtimeExecutable": "node",
       "runtimeArgs": ["server.js"],

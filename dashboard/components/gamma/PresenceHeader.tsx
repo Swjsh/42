@@ -1,4 +1,5 @@
 import type { PresenceView, StateWord } from "@/lib/gamma-app-types";
+import QuoteTicker from "./QuoteTicker";
 
 const CHIP_COLOR: Record<StateWord, string> = {
   TRADING: "var(--up)",
@@ -43,7 +44,10 @@ export default function PresenceHeader({ presence }: PresenceHeaderProps) {
             {presence?.now_et_label ?? PLACEHOLDER}
           </span>
         </div>
-        <StateChip stateWord={stateWord} />
+        <div className="flex items-center gap-3">
+          <QuoteTicker />
+          <StateChip stateWord={stateWord} />
+        </div>
       </div>
 
       <p className="text-lg leading-relaxed" style={{ color: "var(--text-1)" }}>

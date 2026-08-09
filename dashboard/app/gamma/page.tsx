@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { Activity, DollarSign, HandHeart, ListChecks } from "lucide-react";
+import { Activity, DollarSign, HandHeart, ListChecks, LineChart } from "lucide-react";
 import PresenceHeader from "@/components/gamma/PresenceHeader";
 import ActivityFeed from "@/components/gamma/ActivityFeed";
 import MoneyView from "@/components/gamma/MoneyView";
 import WantsCards from "@/components/gamma/WantsCards";
 import ThisWeekCard from "@/components/gamma/ThisWeekCard";
 import Tile from "@/components/gamma/Tile";
+import GammaPresence from "@/components/gamma/GammaPresence";
+import MarketChart from "@/components/gamma/MarketChart";
 import type { GammaAppView } from "@/lib/gamma-app-types";
 
 const REFRESH_MS = 20_000;
@@ -49,16 +51,20 @@ function SkeletonTile({ label }: { label: string }) {
 }
 
 /**
- * THE GAMMA APP -- Gamma's one true presence surface (2026-08-08, tiles pass
- * 2026-08-08). Not a metrics wall: a colleague's status page. Sections in
- * order: presence header (identity + live state + first-person "what I'm
- * doing right now", always expanded -- there's no secondary content to hide
- * behind it), then four collapsible Tiles: the live activity stream
- * (centerpiece, open by default), the money view (goal/tape/clocks, open by
- * default), wants (closed by default), and this week's plan (closed by
- * default). Polls /api/gamma every 20s via SWR (refreshInterval +
- * keepPreviousData) -- unchanged data never re-renders/re-animates, an open
- * tile never re-collapses on a poll tick, scroll position never jumps.
+ * THE GAMMA APP -- Gamma's one true presence surface (2026-08-09 redesign
+ * pass: live quote, chart + trade narration, talk-to-Gamma, per-arm P&L).
+ * Not a metrics wall: a colleague's status page. Sections in order: presence
+ * header (identity + live state + first-person "what I'm doing right now" +
+ * the live SPY quote, always expanded), then a real-time pairing of Gamma's
+ * own presence/chat unit (self-fetching, wired to the live gamma-companion
+ * server) next to the SPY chart (real bars + real trade markers + hover
+ * narration -- "Gamma pointing at the chart"), then the original four
+ * collapsible Tiles: live activity (centerpiece, capped to 10, open by
+ * default), money (real per-arm progress bars, open by default), wants
+ * (closed by default), this week (closed by default). Polls /api/gamma
+ * every 20s via SWR (refreshInterval + keepPreviousData) -- unchanged data
+ * never re-renders/re-animates, an open tile never re-collapses on a poll
+ * tick, scroll position never jumps.
  */
 export default function GammaAppPage() {
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
@@ -86,6 +92,19 @@ export default function GammaAppPage() {
     <main className="gamma-app h-screen w-full overflow-y-auto">
       <div className="mx-auto flex max-w-[1240px] flex-col gap-8 px-5 py-12 sm:px-8 sm:py-16">
         <PresenceHeader presence={view.presence} />
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:items-start">
+          <GammaPresence />
+          <Tile
+            id="chart"
+            icon={LineChart}
+            title="Chart"
+            defaultOpen
+            summary="SPY 5m + real fills"
+          >
+            <MarketChart />
+          </Tile>
+        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
           {hasLoaded ? (

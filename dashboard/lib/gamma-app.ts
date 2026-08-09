@@ -8,14 +8,16 @@ import { fetchPresenceView } from "./gamma-hq-bridge";
 import { gatherActivityFeed } from "./activity-feed";
 import { readWants } from "./wants";
 import { readThisWeek } from "./this-week";
+import { getFleetPnl } from "./fleet-pnl";
 import type { GammaAppView } from "./gamma-app-types";
 
 export async function buildGammaAppView(): Promise<GammaAppView> {
-  const [presence, activity, wants, thisWeek] = await Promise.all([
+  const [presence, activity, wants, thisWeek, fleetPnl] = await Promise.all([
     fetchPresenceView(),
-    gatherActivityFeed(20),
+    gatherActivityFeed(10),
     readWants(4),
     readThisWeek(3),
+    getFleetPnl(),
   ]);
 
   return {
@@ -24,5 +26,6 @@ export async function buildGammaAppView(): Promise<GammaAppView> {
     activity,
     wants,
     thisWeek,
+    fleetPnl,
   };
 }

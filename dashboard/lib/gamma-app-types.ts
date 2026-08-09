@@ -26,6 +26,22 @@ export interface PresenceView {
   recent_ships: string[];
 }
 
+/** Real per-arm P&L for the Money tile's progress bars -- one row per active
+ * fleet arm (see lib/fleet-pnl.ts), always 5 rows, never omitted even when an
+ * arm traded zero times today. targetLow/targetHigh are J's per-account
+ * $100-200/day band (CLAUDE.md 2026-08-07 correction: PER ACCOUNT, not
+ * book-wide). */
+export interface FleetArmPnl {
+  armId: string;
+  displayName: string;
+  todayPnl: number;
+  todayTrades: number;
+  targetLow: number;
+  targetHigh: number;
+  weekPnl: number;
+  allTimePnl: number;
+}
+
 export type ActivityEventType = "commit" | "narrative" | "trade" | "shadow_fill";
 
 export interface ActivityEvent {
@@ -69,4 +85,8 @@ export interface GammaAppView {
   activity: ActivityEvent[];
   wants: WantItem[];
   thisWeek: ThisWeekItem[];
+  /** Optional so existing empty-view literals (e.g. the page's pre-load
+   * placeholder) don't need updating -- buildGammaAppView always populates
+   * this with 5 real rows once the API actually responds. */
+  fleetPnl?: FleetArmPnl[];
 }

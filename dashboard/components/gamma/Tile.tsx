@@ -5,7 +5,7 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronDown, type LucideIcon } from "lucide-react";
 import { useTileState } from "@/lib/use-tile-state";
 
-export type TileId = "activity" | "money" | "wants" | "thisweek";
+export type TileId = "activity" | "money" | "wants" | "thisweek" | "chart";
 
 interface TileBadgeProps {
   text: string;

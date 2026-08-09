@@ -18,6 +18,7 @@
 import { promises as fs } from "node:fs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import path from "node:path";
 import { WORKSPACE_ROOT, paths } from "./workspace";
 import { parseBareTimestampInZone } from "./time";
 import {
@@ -35,6 +36,15 @@ import type { ActivityEvent } from "./gamma-app-types";
 const execFileAsync = promisify(execFile);
 
 // --- 1. git commits ---------------------------------------------------------
+
+// A routine janitor script (auto_commit_candidates.py) commits its own
+// housekeeping under a "chore:" subject that reads as pure jargon to a
+// non-engineer ("auto commit, ten strategy candidates slash changes... I
+// don't know what that means" -- J, verbatim, 2026-08-09). Same real
+// commit, honest plain-English framing: it's Chef's draft strategies being
+// filed, not a feature shipping. The real count from the subject stays in
+// the description; nothing here is invented.
+const AUTO_COMMIT_CANDIDATES_RE = /^chore:\s*auto-commit\s+(\d+)\s+strategy\/candidates\/\s+changes/i;
 
 // %x1e (record separator) delimits commits, %x1f (unit separator) delimits
 // fields within one commit -- %b (body) itself may contain real newlines, so
@@ -63,13 +73,23 @@ async function readGitCommits(n: number): Promise<ActivityEvent[]> {
         const rawSubject = String(subject ?? "");
         const rawBody = String(body ?? "");
         const poisoned = isLogSpew(rawSubject);
+        const autoCommitMatch = poisoned ? null : AUTO_COMMIT_CANDIDATES_RE.exec(rawSubject.trim());
         // Two tiers: a generic plain-English headline from the commit TYPE
         // ("Shipped a fix"), and the humanized subject as the description
         // underneath ("Rewired the gate-expiry instrument off the unsound
         // replay engine"). The raw, untruncated subject + hash + full body
-        // only ever appear in `detail`, behind a click.
-        const headline = poisoned ? "Commit (details withheld)" : commitTypeLabel(rawSubject);
-        const description = poisoned ? undefined : humanizeCommitSubject(subject, 110) || undefined;
+        // only ever appear in `detail`, behind a click. The auto-commit
+        // janitor row is a special case (see AUTO_COMMIT_CANDIDATES_RE above).
+        const headline = poisoned
+          ? "Commit (details withheld)"
+          : autoCommitMatch
+            ? "Filed new research drafts"
+            : commitTypeLabel(rawSubject);
+        const description = poisoned
+          ? undefined
+          : autoCommitMatch
+            ? `${autoCommitMatch[1]} new draft strategies filed`
+            : humanizeCommitSubject(subject, 110) || undefined;
         const fullSubject = poisoned ? "" : sanitizeText(subject, 300, "");
         const cleanBody = isLogSpew(rawBody) ? "" : sanitizeText(body, 600, "");
         const detailParts = [fullSubject, `commit ${hash}`, cleanBody].filter(Boolean);
@@ -115,12 +135,128 @@ interface OutboxRow {
   message?: string;
 }
 
+// Narrative producers write raw "YYYY-MM-DD beat=snake_case: ..." prefixes
+// into the message body -- redundant noise once the row has its own
+// relative-time chip and a real headline (J, verbatim, 2026-08-09: "the
+// date, obviously it happened two hours ago, why do we need the date...
+// beat option structure metrics, five new ideas, that doesn't make any
+// sense"). Pure declutter: the source producer/date/beat are still fully
+// recoverable from the event's own atIso/headline/detail -- this only
+// removes the redundant copy baked into the free-text body.
+const LEADING_DATE_RE = /^\d{4}-\d{2}-\d{2}\s+/;
+const LEADING_BEAT_RE = /^beat=[a-z0-9_]+:?\s*/i;
+function stripLeadingDateAndBeat(text: string): string {
+  return text.replace(LEADING_DATE_RE, "").replace(LEADING_BEAT_RE, "");
+}
+
+// Prospector's exact wire shape (pre date/beat-strip): "2026-08-09
+// beat=options_structure_metrics: 5 new idea(s); promoted `key` ->
+// _chef-inbox." -- captured BEFORE stripLeadingDateAndBeat runs so the real
+// date/beat/count survive for the headline-count rewrite + ledger lookup.
+const PROSPECTOR_BATCH_RE = /^(\d{4}-\d{2}-\d{2})\s+beat=([a-z0-9_]+):\s*(\d+)\s+new idea/i;
+
+interface ProspectorLedgerRow {
+  beat?: string;
+  date?: string;
+  idea?: string;
+  ts_et?: string;
+  dedupe_key?: string;
+}
+
+let prospectorEnrichmentCache: { ideas: ProspectorLedgerRow[]; promoted: Set<string> } | null = null;
+
+/** Loads analysis/prospector/ideas-ledger.jsonl (real proposed ideas,
+ * ~500 rows) + state.json's promoted_dedupe_keys (real promote/reject
+ * record) ONCE per process -- both files are small, no need to re-read disk
+ * per prospector row. Fails open to empty (enrichment becomes a no-op, never
+ * an error) so a missing/corrupt file never breaks the feed. */
+async function loadProspectorEnrichment(): Promise<{ ideas: ProspectorLedgerRow[]; promoted: Set<string> }> {
+  if (prospectorEnrichmentCache) return prospectorEnrichmentCache;
+  const ideas: ProspectorLedgerRow[] = [];
+  let promoted = new Set<string>();
+  try {
+    const ledgerText = await fs.readFile(
+      path.join(WORKSPACE_ROOT, "analysis", "prospector", "ideas-ledger.jsonl"),
+      "utf-8",
+    );
+    for (const line of ledgerText.split(/\r?\n/)) {
+      if (!line.trim()) continue;
+      try {
+        ideas.push(JSON.parse(line) as ProspectorLedgerRow);
+      } catch {
+        continue;
+      }
+    }
+  } catch {
+    // no ledger on disk -- enrichment stays empty, callers fall back cleanly
+  }
+  try {
+    const stateText = await fs.readFile(path.join(WORKSPACE_ROOT, "analysis", "prospector", "state.json"), "utf-8");
+    const state = JSON.parse(stateText) as { promoted_dedupe_keys?: string[] };
+    promoted = new Set(state.promoted_dedupe_keys ?? []);
+  } catch {
+    // leave promoted empty -- enrichment still works, just without the tag
+  }
+  prospectorEnrichmentCache = { ideas, promoted };
+  return prospectorEnrichmentCache;
+}
+
+/** Real click-to-expand substance for a Prospector row: the actual idea
+ * titles proposed in THIS batch, each tagged promoted/proposed off
+ * state.json's real promoted_dedupe_keys -- "here's the ideas, here's what
+ * worked, here's what didn't" (J, verbatim). Batch identified by beat + same
+ * calendar day + closest ts_et to the outbox post (prospector posts to the
+ * outbox within ~1s of writing the ledger rows, so a tight window reliably
+ * separates same-beat batches on the same day). Returns undefined -- never a
+ * guess -- when no matching rows are found; callers fall back to the plain
+ * count description alone. */
+async function enrichProspectorDetail(
+  beat: string,
+  date: string,
+  queuedAtIso: string,
+  count: number,
+): Promise<string | undefined> {
+  const queuedAtMs = new Date(queuedAtIso).getTime();
+  if (!beat || !date || !Number.isFinite(queuedAtMs) || count <= 0) return undefined;
+  const { ideas, promoted } = await loadProspectorEnrichment();
+  const sameBatch = ideas
+    .filter((i) => i.beat === beat && i.date === date && typeof i.ts_et === "string")
+    // ts_et is the SAME kind of bare "YYYY-MM-DDTHH:MM:SS.ffffff" (no zone
+    // suffix) ET wall-clock string the outbox's queued_at is -- it MUST go
+    // through the same parseBareTimestampInZone conversion queuedAtIso
+    // already got. A naive `new Date(ts_et)` would parse it as this box's
+    // LOCAL time (Mountain, per CLAUDE.md's standing TZ lesson), landing ~2
+    // hours off from the correctly-converted queuedAtMs and silently
+    // starving every match past the window below.
+    .map((i) => ({ row: i, at: parseBareTimestampInZone(i.ts_et) }))
+    .filter((x): x is { row: ProspectorLedgerRow; at: Date } => x.at !== null)
+    .map((x) => ({ row: x.row, diffMs: Math.abs(x.at.getTime() - queuedAtMs) }))
+    .filter((x) => x.diffMs < 15_000) // same fire, not a different same-day batch
+    .sort((a, b) => a.diffMs - b.diffMs)
+    .slice(0, count)
+    .map((x) => x.row);
+  if (sameBatch.length === 0) return undefined;
+  const lines = sameBatch
+    .map((row) => {
+      const title = sanitizeText(row.idea, 90, "");
+      if (!title) return null;
+      const tag = row.dedupe_key && promoted.has(row.dedupe_key) ? "promoted" : "proposed";
+      return `${title} (${tag})`;
+    })
+    .filter((x): x is string => x !== null);
+  return lines.length > 0 ? lines.join("\n") : undefined;
+}
+
 async function readOutboxNarrative(n: number, scanLines = 400): Promise<ActivityEvent[]> {
   try {
     const text = await fs.readFile(paths.discordOutbox, "utf-8");
     const lines = text.split(/\r?\n/).filter(Boolean);
     const tail = lines.slice(-scanLines);
-    const events: ActivityEvent[] = [];
+    interface Pending {
+      event: ActivityEvent;
+      prospector?: { beat: string; date: string; queuedAtIso: string; count: number };
+    }
+    const pending: Pending[] = [];
     for (const line of tail) {
       let row: OutboxRow;
       try {
@@ -136,23 +272,56 @@ async function readOutboxNarrative(n: number, scanLines = 400): Promise<Activity
       // mention-strip or it never matches (both are leading-anchor regexes).
       const withoutMention = rawText.replace(/^<@!?\d+>\s*/, "");
       const stripped = stripLeadingBracketTag(withoutMention.trim());
+      const prospectorMatch = row.source === "prospector" ? PROSPECTOR_BATCH_RE.exec(stripped) : null;
+      const cleaned = stripLeadingDateAndBeat(stripped);
       // Short, always-visible description (the collapsed card) vs. the
       // fuller message (the click-to-expand breakdown) -- only offered as
       // expandable when there's genuinely more beyond the short version.
-      const shortClean = sanitizeText(stripped, 110, "");
+      const shortClean = sanitizeText(cleaned, 110, "");
       if (!shortClean) continue;
-      const longClean = sanitizeText(stripped, 700, "");
+      const longClean = sanitizeText(cleaned, 700, "");
       const at = parseBareTimestampInZone(row.queued_at ?? row.ts);
       if (!at) continue;
-      events.push({
-        type: "narrative",
-        atIso: at.toISOString(),
-        headline: humanizeIdentifier(row.source) || "Note from Gamma",
-        description: shortClean,
-        detail: longClean.length > shortClean.length ? longClean : undefined,
+      pending.push({
+        event: {
+          type: "narrative",
+          atIso: at.toISOString(),
+          headline: humanizeIdentifier(row.source) || "Note from Gamma",
+          description: shortClean,
+          detail: longClean.length > shortClean.length ? longClean : undefined,
+        },
+        prospector: prospectorMatch
+          ? {
+              beat: prospectorMatch[2],
+              date: prospectorMatch[1],
+              queuedAtIso: at.toISOString(),
+              count: Number(prospectorMatch[3]),
+            }
+          : undefined,
       });
     }
-    return events.slice(-n);
+    // Enrich only the rows that will actually ship (post-slice), not every
+    // prospector row in the scan window -- keeps this bounded by `n`.
+    const sliced = pending.slice(-n);
+    return Promise.all(
+      sliced.map(async ({ event, prospector }) => {
+        if (!prospector) return event;
+        const detail = await enrichProspectorDetail(
+          prospector.beat,
+          prospector.date,
+          prospector.queuedAtIso,
+          prospector.count,
+        );
+        return {
+          ...event,
+          // "Prospector [should] be a title, and then five new ideas" (J,
+          // verbatim) -- headline is already the bare source name via
+          // humanizeIdentifier above; description becomes a plain count.
+          description: `${prospector.count} new idea${prospector.count === 1 ? "" : "s"} found`,
+          detail: detail ?? event.detail,
+        };
+      }),
+    );
   } catch {
     return [];
   }
@@ -160,7 +329,13 @@ async function readOutboxNarrative(n: number, scanLines = 400): Promise<Activity
 
 // --- 3. journal/trades.csv (real fills) -------------------------------------
 
-function parseCsvLine(line: string): string[] {
+/** Quote-aware CSV line parser (char-by-char, doubled-quote escaping). The
+ * ONLY parser journal/trades.csv should ever be read with -- the file has a
+ * small number of legacy rows with unescaped commas in free-text notes
+ * fields, which a naive split(",") mis-splits. Exported so other trades.csv
+ * consumers (e.g. lib/fleet-pnl.ts) reuse this instead of writing a second
+ * parser. */
+export function parseCsvLine(line: string): string[] {
   const out: string[] = [];
   let cur = "";
   let inQuotes = false;
@@ -323,7 +498,7 @@ async function readShadowFills(n: number): Promise<ActivityEvent[]> {
 
 // --- merge ------------------------------------------------------------------
 
-export async function gatherActivityFeed(limit = 20): Promise<ActivityEvent[]> {
+export async function gatherActivityFeed(limit = 10): Promise<ActivityEvent[]> {
   const [commits, narrative, trades, shadow] = await Promise.all([
     readGitCommits(limit),
     readOutboxNarrative(limit),
