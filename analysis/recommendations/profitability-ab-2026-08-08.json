@@ -1,0 +1,291 @@
+{
+  "_doc": "Runner execution of prereg-profitability-2026-08-08.json (BOLD2-QTY-NORMALIZE-V1). REAL FILLS ONLY. Method = production tp1_qty rounding applied to REAL exit legs (see module docstring for why a full walk_exit_manager bar replay is blocked by a confirmed missing trigger_level history, and why this method is strictly more faithful than the prereg's own flagged linear-rescale approximation).",
+  "generated_at_utc": "2026-08-09T00:42:48.471788+00:00",
+  "prereg_path": "analysis/recommendations/prereg-profitability-2026-08-08.json",
+  "tp1_qty_fraction_used": 0.667,
+  "ship_date_cutoff": "2026-07-18",
+  "population": {
+    "post_ship_only_n": 6,
+    "all_time_n": 10
+  },
+  "cells": {
+    "qty3_post_ship_only": {
+      "target_qty": 3,
+      "scope": "post_ship_only",
+      "n": 6,
+      "n_changed_trades": 6,
+      "win_rate": 0.1667,
+      "baseline_net": -476.0,
+      "rescaled_net": -282.0,
+      "delta_net": 194.0,
+      "is_oos_split": {
+        "IS_n": 6,
+        "OOS_n": 0,
+        "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
+      },
+      "drop_best_day": {
+        "best_day": "2026-08-04",
+        "baseline_ex_best_day": -955.0,
+        "rescaled_ex_best_day": -573.0,
+        "delta_ex_best_day": 382.0
+      },
+      "per_account_cuts": {
+        "bold-2": {
+          "delta": 194.0
+        },
+        "safe-2": {
+          "delta": 0.0
+        }
+      },
+      "subwindow_stability": {
+        "half_a": {
+          "n": 2,
+          "evaluable": true,
+          "baseline": -660.0,
+          "rescaled": -396.0,
+          "delta": 264.0
+        },
+        "half_b": {
+          "n": 4,
+          "evaluable": true,
+          "baseline": 184.0,
+          "rescaled": 114.0,
+          "delta": -70.0
+        },
+        "evaluable": true
+      },
+      "per_position_deltas": [
+        122.0,
+        142.0,
+        118.0,
+        -242.0,
+        24.0,
+        30.0
+      ],
+      "bootstrap_p_one_sided_delta_le_0": 0.2619,
+      "gates": {
+        "G1_aggregate_positive_delta": true,
+        "G2_survives_drop_best_day": true,
+        "G3_per_account_non_negative": true,
+        "G4_subwindow_stability_evaluable": true,
+        "power_floor_n_ge_15": false,
+        "G5_bh_fdr_q010_partial_family_of_1_candidate": false
+      }
+    },
+    "qty3_all_time_robustness_diagnostic_only": {
+      "target_qty": 3,
+      "scope": "all_time_robustness_diagnostic_only",
+      "n": 10,
+      "n_changed_trades": 10,
+      "win_rate": 0.3,
+      "baseline_net": -70.0,
+      "rescaled_net": -66.0,
+      "delta_net": 4.0,
+      "is_oos_split": {
+        "IS_n": 10,
+        "OOS_n": 0,
+        "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
+      },
+      "drop_best_day": {
+        "best_day": "2026-08-04",
+        "baseline_ex_best_day": -549.0,
+        "rescaled_ex_best_day": -357.0,
+        "delta_ex_best_day": 192.0
+      },
+      "per_account_cuts": {
+        "bold-2": {
+          "delta": 4.0
+        },
+        "safe-2": {
+          "delta": 0.0
+        }
+      },
+      "subwindow_stability": {
+        "half_a": {
+          "n": 4,
+          "evaluable": true,
+          "baseline": 406.0,
+          "rescaled": 216.0,
+          "delta": -190.0
+        },
+        "half_b": {
+          "n": 6,
+          "evaluable": true,
+          "baseline": -476.0,
+          "rescaled": -282.0,
+          "delta": 194.0
+        },
+        "evaluable": true
+      },
+      "per_position_deltas": [
+        6.0,
+        24.0,
+        -148.0,
+        -72.0,
+        122.0,
+        142.0,
+        118.0,
+        -242.0,
+        24.0,
+        30.0
+      ],
+      "bootstrap_p_one_sided_delta_le_0": 0.4773,
+      "gates": {
+        "G1_aggregate_positive_delta": true,
+        "G2_survives_drop_best_day": true,
+        "G3_per_account_non_negative": true,
+        "G4_subwindow_stability_evaluable": true,
+        "power_floor_n_ge_15": false
+      }
+    },
+    "qty4_post_ship_only": {
+      "target_qty": 4,
+      "scope": "post_ship_only",
+      "n": 6,
+      "n_changed_trades": 6,
+      "win_rate": 0.1667,
+      "baseline_net": -476.0,
+      "rescaled_net": -388.0,
+      "delta_net": 88.0,
+      "is_oos_split": {
+        "IS_n": 6,
+        "OOS_n": 0,
+        "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
+      },
+      "drop_best_day": {
+        "best_day": "2026-08-04",
+        "baseline_ex_best_day": -955.0,
+        "rescaled_ex_best_day": -764.0,
+        "delta_ex_best_day": 191.0
+      },
+      "per_account_cuts": {
+        "bold-2": {
+          "delta": 88.0
+        },
+        "safe-2": {
+          "delta": 0.0
+        }
+      },
+      "subwindow_stability": {
+        "half_a": {
+          "n": 2,
+          "evaluable": true,
+          "baseline": -660.0,
+          "rescaled": -528.0,
+          "delta": 132.0
+        },
+        "half_b": {
+          "n": 4,
+          "evaluable": true,
+          "baseline": 184.0,
+          "rescaled": 140.0,
+          "delta": -44.0
+        },
+        "evaluable": true
+      },
+      "per_position_deltas": [
+        61.0,
+        71.0,
+        59.0,
+        -130.0,
+        12.0,
+        15.0
+      ],
+      "bootstrap_p_one_sided_delta_le_0": 0.2829,
+      "gates": {
+        "G1_aggregate_positive_delta": true,
+        "G2_survives_drop_best_day": true,
+        "G3_per_account_non_negative": true,
+        "G4_subwindow_stability_evaluable": true,
+        "power_floor_n_ge_15": false,
+        "G5_bh_fdr_q010_partial_family_of_1_candidate": false
+      }
+    },
+    "qty4_all_time_robustness_diagnostic_only": {
+      "target_qty": 4,
+      "scope": "all_time_robustness_diagnostic_only",
+      "n": 10,
+      "n_changed_trades": 10,
+      "win_rate": 0.3,
+      "baseline_net": -70.0,
+      "rescaled_net": -168.0,
+      "delta_net": -98.0,
+      "is_oos_split": {
+        "IS_n": 10,
+        "OOS_n": 0,
+        "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
+      },
+      "drop_best_day": {
+        "best_day": "2026-08-04",
+        "baseline_ex_best_day": -549.0,
+        "rescaled_ex_best_day": -544.0,
+        "delta_ex_best_day": 5.0
+      },
+      "per_account_cuts": {
+        "bold-2": {
+          "delta": -98.0
+        },
+        "safe-2": {
+          "delta": 0.0
+        }
+      },
+      "subwindow_stability": {
+        "half_a": {
+          "n": 4,
+          "evaluable": true,
+          "baseline": 406.0,
+          "rescaled": 220.0,
+          "delta": -186.0
+        },
+        "half_b": {
+          "n": 6,
+          "evaluable": true,
+          "baseline": -476.0,
+          "rescaled": -388.0,
+          "delta": 88.0
+        },
+        "evaluable": true
+      },
+      "per_position_deltas": [
+        3.0,
+        12.0,
+        -154.0,
+        -47.0,
+        61.0,
+        71.0,
+        59.0,
+        -130.0,
+        12.0,
+        15.0
+      ],
+      "bootstrap_p_one_sided_delta_le_0": 0.6622,
+      "gates": {
+        "G1_aggregate_positive_delta": false,
+        "G2_survives_drop_best_day": true,
+        "G3_per_account_non_negative": false,
+        "G4_subwindow_stability_evaluable": true,
+        "power_floor_n_ge_15": false
+      }
+    }
+  },
+  "data_gap_diagnostic": {
+    "ran": true,
+    "exhibit": "SPY260723P00735000",
+    "date_et": "2026-07-23",
+    "premium_mode_fallback_pnl": -128.0,
+    "premium_mode_fallback_exit_reason": "premium_stop @ 1.02",
+    "real_fill_pnl": -305.0,
+    "divergence": 177.0,
+    "conclusion": "walk_exit_manager without a historical trigger_level does NOT reproduce the real fill -- confirms structure-stop was live and its trigger_level is not recoverable from any persisted state this session found (current-position-bold.json has no trigger_level field; decisions.jsonl's own `trigger` field stops 2026-06-25, before every post-ship trade). Real-fills-stage rescale used instead (see module docstring)."
+  },
+  "verdict": "FREEZE-WITH-CLOCK",
+  "verdict_reasoning": "Mechanically computed from the gate ladder: power floor n>=15 changed trades is NOT MET (n=6 today). Per the prereg's own battery, a candidate cannot SHIP without the power floor regardless of how the other gates read -- verdict is FREEZE-WITH-CLOCK unless n_changed_trades >= 15, matching the frozen prereg's own verdict. This Runner independently reproduces that verdict from a MORE precise (rounding-aware, not linear-approximated) recomputation, not merely restates it.",
+  "operator_bottom_line": {
+    "core_book_14d_measured_loss": -539.0,
+    "primary_cell": "qty3_post_ship_only",
+    "primary_cell_delta": 194.0,
+    "what_the_last_14_days_would_have_netted_under_this_rule": -345.0,
+    "implied_recovery_per_traded_day": 19.4,
+    "still_net_negative": true
+  }
+}

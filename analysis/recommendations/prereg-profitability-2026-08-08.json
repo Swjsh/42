@@ -1,0 +1,98 @@
+{
+  "_doc": "PREREG-PROFITABILITY-2026-08-08 -- chief-analyst synthesis of lane1 (loss anatomy) + lane2 (systematic cohort search) + lane3 (prior-art fence), frozen BEFORE next week's live paper trading. Task: single change most plausibly making the core book (safe-2+bold-2) positive. Population + gates FROZEN at time of writing -- no post-hoc knob changes without a new prereg.",
+  "written_et": "2026-08-08 (Saturday evening, market closed)",
+  "author_role": "chief_analyst_synthesis_subagent",
+  "candidate_id": "BOLD2-QTY-NORMALIZE-V1",
+  "rule_plain_english": "On the bold-2 account ONLY, while the 2026-07-18 ATM strike-tier ship (commit 718e0809) is in effect, reduce flat position size from qty=5 to qty=3 contracts (the Rule-6 hard floor: 2 TP + 1 runner). Safe-2 is untouched. The ATM strike-tier decision itself is NOT reverted -- it stays under its own pre-registered n>=20 falsification clock from the 07-18 ship commit; this prereg is a narrower, non-overlapping sizing fix layered on top of it.",
+
+  "root_diagnosis_this_candidate_targets": "On 2026-07-18 (git 718e0809), bold-2's strike selection moved OTM-3 -> ATM. Position size stayed a flat 5 contracts, so average dollar notional per bold-2 trade jumped 3.45x (measured this session from raw fills, reconciling exactly to lane1's independently-measured 3.45x: pre-ship mean dollar notional $931.25/trade over n=4, post-ship mean $3,212.50/trade over n=6). Bold-2 was net +$406 (WR 50%) on the small pre-ship size and is net -$476 (WR 16.7%) on the large post-ship size -- the SAME flat qty=5 rule applied to a ~3.5x-more-expensive contract. The three single worst trades in the entire 28-trade 14-day core book (-$355, -$305, -$295 = -$955, 40% of all loss-dollars per lane1 q1_concentration) are three of these six post-ship, high-notional bold-2 trades. This is a sizing-regime-shift mechanism, not a direction or entry-quality mechanism -- lane2 independently found zero surviving entry-side cohorts anywhere in the fleet's feature space (0/154 cells past BH-FDR), and lane3 confirms every exit-side lever is already closed. Sizing normalization is the one un-litigated, mechanistically-grounded, non-overlapping lever left.",
+
+  "prior_art_check": "NOT in lane3's SETTLED-DEAD or FROZEN-WITH-CLOCK list. Distinct from: (a) the 07-18 strike-tier decision itself (that has its own n>=20 clock, untouched here), (b) LEVER-SIZING-2026-08-06's tested cells (halve-after-N-losses REFUTED twice; Rule-6-floor-everywhere oracle NULL) -- neither of those tested cells is 'flat qty cut scoped to one account's one dated regime,' they tested loss-conditional dynamic sizing and a book-wide floor, not this. Confirmed non-overlapping via grep of analysis/deep-research + analysis/recommendations for 'qty.*normal|notional.*cap|bold.*qty|contract.*count.*reduce' -- no hits.",
+
+  "grid_design_note_IMPORTANT": "First grid draft varied target_notional in {700,950,1200} and derived qty via floor(target/premium). At current post-ship ATM premiums ($5.55-$6.90/contract), all three target values floor to the SAME qty=3 (Rule-6 minimum) -- a C14-class DEAD KNOB (looks like 3 cells, tests 1 hypothesis). Caught and redesigned before freezing: the real discriminating knob is target_qty directly, not a notional target that immediately saturates at the Rule-6 floor.",
+
+  "population": {
+    "source": "automation/state/fills-ledger.jsonl, arm=='bold-2', reconstructed to positions via backtest/lib/exit_shape_parity_study.reconstruct_positions (the repo's one definition of a position; same reconstruction lane1 used) -- run live this session via backtest/tools/lane1_loss_anatomy_2026_08_08.py's load_core_fills()/enrich_positions()",
+    "arm_scope": "bold-2 ONLY (L149: knobs ratified on one account/strike tier don't transfer -- do not generalize to safe-2, risky-1, risky-3, safe-3, safe-1 without independent re-derivation)",
+    "regime_scope_primary": "2026-07-18 (ATM-tier ship date, inclusive) through 2026-08-07 -- 6 positions, all qty=5, premium $5.55-$6.90",
+    "regime_scope_robustness_arm": "all bold-2 history 2026-06-26..2026-08-07 (n=10) -- included ONLY to show the tradeoff of a permanent (non-regime-scoped) version of the rule; not eligible for SHIP under this prereg, diagnostic only"
+  },
+
+  "is_oos_split": {
+    "IS": "2026-07-18..2026-08-07 (the 6 post-ship trades that exist today) -- used to compute the primary-cell numbers below",
+    "OOS_forward": "2026-08-10 onward (next trading week), shadow-logged: compute BOTH the actual (qty=5) and counterfactual (qty=3) P&L per bold-2 fill without arming the size cut live. First adjudication checkpoint at whichever comes first: (a) n_changed (post-07-18 bold-2 positions, IS+OOS combined) >= 15, or (b) 2026-08-28 (3 more calendar weeks)."
+  },
+
+  "grid": {
+    "axes": {
+      "target_qty": [3, 4],
+      "scope": ["post_ship_only", "all_time_robustness_diagnostic_only"]
+    },
+    "cells_n": 4,
+    "cells_eligible_for_ship": 2,
+    "justification": "target_qty=3 is the Rule-6 hard floor (2 TP + 1 runner) -- the maximum defensible cut, primary cell. target_qty=4 is a milder half-step, included so the grid isn't a single point and shows the dose-response is monotonic, not a cliff. scope=post_ship_only is the primary (regime-dated, non-hindsight: the 07-18 ship date is an independent, git-committed event, not chosen by looking at outcomes). scope=all_time is diagnostic-only (shown to disclose the opportunity cost the SAME flat rule would have imposed on the pre-ship winning stretch) and is explicitly NOT eligible for SHIP -- applying a permanent cut to a period that was already profitable at qty=5 is not what the mechanism calls for.",
+      "illustrative_non_armable_reference_cell": "target_qty=2 (violates Rule 6's 2 TP + 1 runner minimum -- shown for context only, never eligible to ship): post-ship rescaled = -$190.40 (delta +$285.60 vs baseline). Included so J can see the ceiling of what pure sizing could ever buy without a Rule-6 exception; NOT part of the gated grid."
+  },
+
+  "cell_results_computed_this_session": {
+    "note": "Computed from real fills via linear premium*qty rescale (0DTE exits are %-of-premium chart-stop/chandelier-trail per doctrine, so dollar P&L scales ~linearly with qty at fixed entry/exit price action -- an approximation, not a walk_exit_manager replay; flagged in warnings).",
+    "PRIMARY_qty3_post_ship_only": {"baseline_net": -476.0, "rescaled_net": -285.6, "delta": 190.4, "n_changed": 6},
+    "qty4_post_ship_only": {"baseline_net": -476.0, "rescaled_net": -380.8, "delta": 95.2, "n_changed": 6},
+    "qty3_all_time_diagnostic": {"pre_ship_baseline": 406.0, "pre_ship_rescaled": 237.6, "pre_ship_delta": -168.4, "post_ship_delta": 190.4, "net_all_time_delta": 22.0},
+    "qty4_all_time_diagnostic": {"pre_ship_baseline": 406.0, "pre_ship_rescaled": 324.8, "pre_ship_delta": -81.2, "post_ship_delta": 95.2, "net_all_time_delta": 14.0}
+  },
+
+  "null_hypothesis": {
+    "primary_null": "no-rescale baseline -- the actual observed post-ship bold-2 net (-$476.00, n=6). The rule must beat this, not zero.",
+    "buy_and_hold_equivalent": "NOT MEANINGFUL for 0DTE single-leg options (no continuous underlying position to hold) -- substituted with a 'do-not-trade-bold-2-at-all' floor of $0.00 as the conservative alternative baseline: the rule must be shown to beat -$476, and should be compared against $0 to make explicit that even the rescaled cell (-$285.60) is still worse than not trading bold-2 at all during this regime -- disclosed honestly in warnings, not hidden.",
+    "random_shuffle_check": "Not applicable in its usual form -- this is a uniform per-trade rescale (all post-ship trades share nearly-identical premium, so target_qty resolves to the same qty for every trade), not a trade-selection filter. There is no 'which trades get the treatment' choice to randomize against."
+  },
+
+  "gate_battery": {
+    "G1_aggregate_positive_delta": {
+      "definition": "rescaled_net > baseline_net on the primary cell",
+      "result": "PASS -- -285.60 > -476.00, delta +$190.40"
+    },
+    "G2_survives_drop_best_day": {
+      "definition": "Removing the single best calendar day (2026-08-04, +$479.00 raw across its 3 trades) from the post-ship population, the rule's DELTA (not absolute level) must still be positive: rescaled_ex_best_day > baseline_ex_best_day",
+      "result": "PASS -- baseline ex-08-04 = -$955.00 (07-23 -305, 07-27 -355, 07-28 -295), rescaled ex-08-04 = -$573.00, delta +$382.00. CAVEAT stated plainly: -$573.00 is still deeply negative in absolute terms -- this gate proves the improvement is not solely an artifact of the 08-04 outlier day, NOT that the rule makes bold-2 profitable without that day."
+    },
+    "G3_per_account_non_negative": {
+      "definition": "Per L149: every touched account's cut must be non-negative (no regression), and untouched accounts must show zero delta",
+      "result": "PASS -- safe-2 delta = $0.00 (untouched, rule is bold-2-scoped by construction). Bold-2's own delta is positive in every eligible cell (see cell_results)."
+    },
+    "G4_subwindow_stability": {
+      "definition": "Split IS population by date into two halves; each half needs >=2 changed trades to be evaluable",
+      "result": "EVALUABLE, MIXED -- half A (07-23,07-27,07-28; n=3): baseline -$955.00, rescaled -$573.00, delta +$382.00 (improves). half B (08-04 x3; n=3): baseline +$479.00, rescaled +$287.40, delta -$191.60 (WORSENS in absolute dollars -- expected and mechanical: the rule shrinks winners exactly as much as losers, since it is a uniform size cut, not a selective filter). Both halves meet the n>=2 floor. Net effect across halves is still positive ($382.40 - $191.60 = $190.40, matching G1), but this gate exposes that the rule gives back real money on good days -- disclosed, not hidden."
+    },
+    "G5_bh_fdr_q010": {
+      "definition": "Benjamini-Hochberg FDR at q=0.10 across the full family of cells run this weekend (this candidate's eligible 2 cells + the secondary candidates' cells, see companion notes)",
+      "result": "NOT YET RUN -- requires executing the sibling candidates (bear-skip, safe-2-Wednesday-standdown) through the same bh_fdr() harness (backtest/futures/battery.py, the tool lane2 used) in the same pass. DEFERRED TO EXECUTION, not to be skipped before any SHIP verdict."
+    },
+    "power_floor_n15_changed": {
+      "definition": "n_changed trades >= 15",
+      "result": "NOT MET -- n_changed = 6 (post-ship-only scope, primary) or 10 (all-time diagnostic scope, not ship-eligible anyway). This is the single binding constraint on this candidate and is why the verdict below is capped."
+    }
+  },
+
+  "verdict": "FREEZE-WITH-CLOCK",
+  "verdict_reasoning": "G1/G2/G3/G4 all read positively on available data and the mechanism is well-grounded (reproduces lane1's independently-measured 3.45x notional shift to the dollar), but power floor n>=15 changed trades is NOT met (n=6 today) and G5 (BH-FDR across the weekend's full candidate family) has not been run. Per the task's own gate battery, a candidate cannot SHIP on n=6. Shadow-log both qty=5 (actual) and qty=3 (counterfactual) P&L per bold-2 fill starting 2026-08-10 without arming the cut live; re-adjudicate against this SAME frozen grid and gate battery (no new knobs) at n_changed>=15 or 2026-08-28, whichever comes first. DO-NOT-ARM would trigger instead if a forward batch of 3+ new post-ship bold-2 trades flips G1 negative (i.e., if the -$476 sizing story turns out to be more noise than mechanism).",
+
+  "what_this_cannot_fix": [
+    "Even at its best measured cell (qty=3, post-ship-only), this recovers $190.40 of bold-2's -$476.00 14-day loss (40%) -- it does NOT flip the 14-day core book positive on its own: -$539.00 + $190.40 = -$348.60, still net negative.",
+    "It does nothing for safe-2's -$63.00 14-day loss (safe-2's own worst lever, per lane1/lane3, is the Wednesday pattern -- a SEPARATE, non-overlapping, similarly underpowered n=6 finding: safe-2 lost -$564.00 across 6 trades on 3 distinct Wednesdays [07-15, 07-22, 08-05], confirmed by this session's own re-derivation, ZERO of which are bold-2 trades).",
+    "It provides no entry-side edge -- lane2's systematic search already proved none exists in the current feature set (0/154 cells past BH-FDR). This candidate is a variance-reduction move, not a new source of positive expectancy.",
+    "It leaves the ATM-strike-tier decision itself unresolved -- if that decision is eventually judged wrong at n>=20 (its own pre-registered clock), sizing normalization becomes moot; this candidate is a stopgap under an unsettled parent decision, not a substitute for that adjudication.",
+    "If BOTH this candidate and the safe-2 Wednesday-standdown candidate eventually clear their own power floors and gates (neither does yet), their COMBINED illustrative effect on the observed 14-day window would be -$539 + $190.40 (bold-2 qty cut) + $447.00 (safe-2 Wed trades removed, in-window portion: -$108 on 07-22 + -$339 on 08-05) = +$98.40 -- i.e., a plausible path to a positive week IF both survive validation, stated here only as an honest best-case illustration, not a claim either is ready to ship."
+  ],
+
+  "realistic_best_case_dollars_per_day": "If this candidate alone clears its clock and ships as designed (qty=3, post-ship-only): roughly +$14-19/day averaged over the current 14-day sample (($190.40)/10 traded days), on an account whose own daily target inside CLAUDE.md's $100-200/day COMBINED goal is a small fraction of that total -- this is a bleed-reduction, not a path to the full target by itself. Combined with the (separately unproven) safe-2 Wednesday standdown, the illustrative combined recovery is ~$98/day-equivalent over the same 10 days -- still short of turning a bad two-week stretch into a reliably profitable one; the honest ceiling for 'next week is the first fully-autonomous profitable week' rests on BOTH candidates holding up under forward accrual AND normal week-to-week variance not producing a new -$500+ day, which no sizing rule can prevent.",
+
+  "warnings": [
+    "This is a SIZING/SELECTION approximation, not a walk_exit_manager replay: dollar P&L is assumed to scale linearly with qty at fixed entry/exit price action, which holds under the doctrine that Safe/Bold exits are %-of-premium (chart-stop/chandelier-trail), but was not independently re-verified against the production exit-manager state machine this session. Before arming, re-derive these 6 cells' rescaled P&L via an actual walk_exit_manager replay at qty=3 to confirm the linear approximation holds (commission/slippage/fill-quality at smaller size could differ non-linearly).",
+    "n=6 is a genuinely small sample. The mechanism (3.45x notional shift, dated to a specific git commit) is well-evidenced, but the SPECIFIC dollar recovery number ($190.40) should be treated as a plausible estimate, not a precise forecast -- one more losing post-ship trade or one more big winner would move it substantially.",
+    "The all-time/diagnostic scope numbers make explicit that a PERMANENT (non-regime-scoped) version of this rule would have cost bold-2 $168.40-$81.20 during its genuinely profitable pre-ship stretch -- do not generalize this rule beyond the 07-18-dated regime without re-deriving.",
+    "G5 (BH-FDR across the weekend's full candidate family) has not been run -- do not ship on G1-G4 alone; this is a stated prerequisite, not optional.",
+    "Secondary candidates referenced in what_this_cannot_fix (safe-2 Wednesday standdown, bold-2 bear-direction pause) are NOT pre-registered in this document -- they are flagged for a companion prereg if pursued, and must NOT be assumed proven by inclusion here."
+  ]
+}
