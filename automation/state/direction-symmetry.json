@@ -1,0 +1,392 @@
+{
+ "generated_at": "2026-08-09T17:12:01",
+ "doctrine": "CLAUDE.md OP-16 -- direction is NOT a scope, validation is.",
+ "traffic_light": "RED",
+ "summary": {
+  "armed_bull_specific_gates": 1,
+  "armed_bear_specific_gates": 3,
+  "asymmetric_numeric_knobs": 4,
+  "gates_without_an_opposite_twin": [
+   "block_bull_1100_1200",
+   "block_level_rejection",
+   "entry_bar_body_pct_min",
+   "vix_bear_hard_cap"
+  ],
+  "gates_on_stale_evidence": [
+   "block_bull_1100_1200",
+   "block_level_rejection",
+   "entry_bar_body_pct_min",
+   "vix_bear_hard_cap"
+  ],
+  "phantom_documented_knobs": 26,
+  "stale_threshold_days": 45
+ },
+ "asymmetric_knobs": {
+  "safe": [
+   {
+    "bull_key": "filter_10_min_triggers_bull",
+    "bull_value": 2,
+    "bear_key": "filter_10_min_triggers_bear",
+    "bear_value": 1,
+    "note": "bull needs the higher bar (2 vs 1) -- harder to ENTER bull"
+   },
+   {
+    "bull_key": "macro_soft_bull_threshold",
+    "bull_value": 10,
+    "bear_key": "macro_soft_bear_threshold",
+    "bear_value": 7,
+    "note": "bull needs the higher bar (10 vs 7) -- harder to ENTER bull"
+   }
+  ],
+  "bold": [
+   {
+    "bull_key": "premium_stop_pct_bull",
+    "bull_value": -0.05,
+    "bear_key": "premium_stop_pct_bear",
+    "bear_value": -0.07,
+    "note": "stop widths differ: bull -0.05 vs bear -0.07"
+   },
+   {
+    "bull_key": "macro_soft_bull_threshold",
+    "bull_value": 10,
+    "bear_key": "macro_soft_bear_threshold",
+    "bear_value": 7,
+    "note": "bull needs the higher bar (10 vs 7) -- harder to ENTER bull"
+   }
+  ]
+ },
+ "phantom_documented_knobs": {
+  "safe": [
+   {
+    "doc_key": "_score_ladder_floor_doc",
+    "target": "score_ladder_floor",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_vix_bull_hard_cap_doc",
+    "target": "vix_bull_hard_cap",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": "bull",
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_gap_and_go_doc",
+    "target": "gap_and_go",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_gap_and_go_isolated_exit_doc",
+    "target": "j_gap_and_go_isolated_exit",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_doc",
+    "target": "j_vwap_cont",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_isolated_exit_doc",
+    "target": "j_vwap_cont_isolated_exit",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_strike_override_doc",
+    "target": "j_vwap_cont_strike_override",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_wp8_doc",
+    "target": "j_vwap_cont_wp8",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_reclaim_fb_isolated_exit_doc",
+    "target": "j_vwap_reclaim_fb_isolated_exit",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_reclaim_fb_doc",
+    "target": "j_vwap_reclaim_fb",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vix_dayside_isolated_exit_doc",
+    "target": "j_vix_dayside_isolated_exit",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vix_dayside_doc",
+    "target": "j_vix_dayside",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_bollinger_squeeze_doc",
+    "target": "bollinger_squeeze",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_db_base_quiet_doc",
+    "target": "db_base_quiet",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_lbfs_doc",
+    "target": "j_lbfs",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_block_elite_bull_trial2_doc",
+    "target": "block_elite_bull_trial2",
+    "classification": "TRIAL_NOTE",
+    "documents_live_key": "block_elite_bull",
+    "direction": "bull"
+   },
+   {
+    "doc_key": "_j_ribbon_ride_strike_override_doc",
+    "target": "j_ribbon_ride_strike_override",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   }
+  ],
+  "bold": [
+   {
+    "doc_key": "_v15_bold_core_atm_wire_2026_07_18_doc",
+    "target": "v15_bold_core_atm_wire_2026_07_18",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_score_ladder_floor_doc",
+    "target": "score_ladder_floor",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_doc",
+    "target": "j_vwap_cont",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_strike_override_doc",
+    "target": "j_vwap_cont_strike_override",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_cont_wp8_doc",
+    "target": "j_vwap_cont_wp8",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_reclaim_fb_isolated_exit_doc",
+    "target": "j_vwap_reclaim_fb_isolated_exit",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_j_vwap_reclaim_fb_doc",
+    "target": "j_vwap_reclaim_fb",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   },
+   {
+    "doc_key": "_block_elite_bull_trial_doc",
+    "target": "block_elite_bull_trial",
+    "classification": "TRIAL_NOTE",
+    "documents_live_key": "block_elite_bull",
+    "direction": "bull"
+   },
+   {
+    "doc_key": "_tighter_stop_doc",
+    "target": "tighter_stop",
+    "classification": "PHANTOM",
+    "documents_live_key": null,
+    "direction": null,
+    "why_it_matters": "no live params key and no live parent -- reads as config, cannot fire, and will be counted as a real constraint by anyone auditing params.json"
+   }
+  ]
+ },
+ "direction_specific_gates": [
+  {
+   "gate_id": "block_level_rejection",
+   "direction": "bear",
+   "params_key": "block_level_rejection",
+   "armed_in": [
+    "safe"
+   ],
+   "has_opposite_twin": false,
+   "evidence_age_days": 53,
+   "evidence_stale": true,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "block_elite_bull",
+   "direction": "bull",
+   "params_key": "block_elite_bull",
+   "armed_in": [],
+   "has_opposite_twin": false,
+   "evidence_age_days": 6,
+   "evidence_stale": false,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "block_bull_ribbon_flip",
+   "direction": "bull",
+   "params_key": "block_bull_ribbon_flip",
+   "armed_in": [],
+   "has_opposite_twin": false,
+   "evidence_age_days": null,
+   "evidence_stale": false,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "block_bull_1100_1200",
+   "direction": "bull",
+   "params_key": "block_bull_1100_1200",
+   "armed_in": [
+    "safe"
+   ],
+   "has_opposite_twin": false,
+   "evidence_age_days": 52,
+   "evidence_stale": true,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "block_bull_morning_agg",
+   "direction": "bull",
+   "params_key": "block_bull_morning_agg",
+   "armed_in": [],
+   "has_opposite_twin": false,
+   "evidence_age_days": 46,
+   "evidence_stale": true,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "entry_bar_body_pct_min",
+   "direction": "bear",
+   "params_key": "entry_bar_body_pct_min",
+   "armed_in": [
+    "safe"
+   ],
+   "has_opposite_twin": false,
+   "evidence_age_days": 52,
+   "evidence_stale": true,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "entry_bar_body_pct_min_bull",
+   "direction": "bull",
+   "params_key": "entry_bar_body_pct_min_bull",
+   "armed_in": [],
+   "has_opposite_twin": false,
+   "evidence_age_days": null,
+   "evidence_stale": false,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "vix_bear_hard_cap",
+   "direction": "bear",
+   "params_key": "vix_bear_hard_cap",
+   "armed_in": [
+    "safe"
+   ],
+   "has_opposite_twin": false,
+   "evidence_age_days": 52,
+   "evidence_stale": true,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "core_strategy_bear",
+   "direction": "bear",
+   "params_key": "setups_allowed (params.json / aggressive/params.json)",
+   "armed_in": [],
+   "has_opposite_twin": true,
+   "evidence_age_days": 8,
+   "evidence_stale": false,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  },
+  {
+   "gate_id": "core_strategy_bull",
+   "direction": "bull",
+   "params_key": "enable_bullish + setups_allowed",
+   "armed_in": [],
+   "has_opposite_twin": true,
+   "evidence_age_days": 8,
+   "evidence_stale": false,
+   "expiry_verdict": null,
+   "refused_cohort_note": null
+  }
+ ],
+ "reading": "Every row here may be individually justified. The question this instrument exists to answer is whether they are still justified TOGETHER: a call that needs more triggers AND a higher macro score AND a narrower VIX window AND survives a time veto faces a compounded bar nobody ever priced as a whole.",
+ "not_a_proposal": "Descriptive only. Flips nothing, proposes nothing, places no order."
+}

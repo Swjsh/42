@@ -1,6 +1,38 @@
 # BULL SIDE — the owed re-evaluation — 2026-08-09
 
-**Verdict: KEEP bull enabled, but relabel it honestly. Bull is a trend-day lottery ticket, not a steady edge — 14 of 18 bull days are negative and one day carries the entire book. No block. The number goes on the REVOKE surface so nobody mistakes "enabled" for "working".**
+**Verdict: KEEP bull enabled. The "lose most days, one day pays" shape is a property of the 0DTE BOOK, not of calls — bear has it too (12/17 negative days vs bull's 14/18). Neither side is an edge right now. No block, and no direction-specific conclusion is supported by this data.**
+
+> ## ⚠️ CORRECTED 2026-08-09, same evening, after J pushed back
+>
+> The first version of this document called bull "a trend-day lottery ticket, not a steady edge"
+> and led with "14 of 18 bull days are negative", as though that were a **bull** property. It is
+> not. I ran the day-level distribution on calls only — because OP-16 asked for a *bull* re-eval —
+> and never ran the mirror on puts. Running it:
+>
+> | | n | days | total | mean/tr | negative days | best day | ex-best-day |
+> |---|--:|--:|--:|--:|--:|--:|--:|
+> | Calls (bull) | 164 | 18 | −$1,129 | −$6.88 | **14/18 (78%)** | +$3,624 (08-04) | **−$4,753** |
+> | Puts (bear) | 80 | 17 | −$84 | −$1.05 | **12/17 (71%)** | +$1,501 (08-06) | **−$1,585** |
+>
+> **Same shape on both sides.** Bear loses on 71% of its days and its total is carried by one
+> session exactly as bull's is. Ex-best-day, both are deeply negative. Asymmetric analysis
+> produced an asymmetric-looking conclusion; the conclusion was an artifact of which cut I ran.
+>
+> J's correction, verbatim: *"i dont understand the gripe witth 'calls' vs PUTS, you're very keen
+> on bear setups. we need to play both sides of the market, period."* That is not a preference —
+> it is already ratified doctrine (OP-16: **"direction is NOT a scope, validation is"**).
+>
+> **What survives from the original:** bull is modestly worse per trade (−$6.88 vs −$1.05) on
+> double the sample, and the recent "+$948 since 07-25" really is one day wide (ex-Tuesday
+> −$2,676). Those are real. What does NOT survive is treating the day-distribution shape as
+> evidence against calls specifically.
+>
+> **What this exposed downstream:** see
+> [`DIRECTION-SYMMETRY-AUDIT-2026-08-09.md`](DIRECTION-SYMMETRY-AUDIT-2026-08-09.md) — the live
+> config makes bull materially harder to ENTER than bear (2× triggers, higher macro bar, a
+> 5-point narrower VIX window, plus a bull-only time veto), on evidence samples as small as
+> n=11 from June. That asymmetry, not the day distribution, is the real finding this re-eval
+> should have surfaced.
 
 ## Why this is filed now
 
