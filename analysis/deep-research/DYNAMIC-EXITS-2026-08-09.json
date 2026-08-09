@@ -1,0 +1,757 @@
+{
+  "_doc": "Dynamic exits build+test -- J's standing directive (every exit param computed per-trade, not fixed). Frozen pre-reg: analysis/recommendations/dynamic-exits-prereg-2026-08-09.json. ANALYSIS ONLY; no trading-path file touched.",
+  "generated_at": "2026-08-09T13:42:36.336016",
+  "preregistration_file": "analysis/recommendations/dynamic-exits-prereg-2026-08-09.json",
+  "preflight_historical": {
+    "ok": true,
+    "n_total": 191,
+    "n_structure_eligible": 67,
+    "n_runner_cohort": 35,
+    "runner_cohort_total": 15774.05
+  },
+  "sanity_mismatches_vs_baseline": [],
+  "audit_table_fixed_vs_dynamic": [
+    {
+      "parameter": "premium_stop_pct",
+      "current_value": "ribbon_ride -0.20 (flag-off fallback) / vwap_continuation -0.06 / vwap_reclaim_failed_break -0.08 / vwap_cont Bold -0.07",
+      "classification": "FIXED (per-strategy constant)",
+      "should_adapt_to": "trade's own ATR or distance-to-invalidation -- TESTED TONIGHT (DYN-ATR-CAT/DYN-STRUCT-CAT set this AND catastrophe_stop_pct together). CONTROL_HOLDS."
+    },
+    {
+      "parameter": "catastrophe_stop_pct",
+      "current_value": "-0.50 global constant (CATASTROPHE_STOP_PCT), never varied as a COMPUTED value in any prior study",
+      "classification": "FIXED",
+      "should_adapt_to": "trade's own ATR or safety-line distance -- TESTED TONIGHT. CONTROL_HOLDS on the primary population; DYN-ATR-CAT is the mildest loser + only clean G4 (runner-cohort) pass."
+    },
+    {
+      "parameter": "tp1_premium_pct",
+      "current_value": "ribbon_ride 1.0 (+100%, SS-B cell) / vwap_continuation 0.40 / vwap_reclaim_failed_break 0.30",
+      "classification": "FIXED",
+      "should_adapt_to": "ATR-implied move or distance-to-next-level -- TESTED TONIGHT (DYN-TP-ATR, k=1.0). CONVERGENTLY BAD on both populations (halves the $15,774.05 runner-cohort profit historically; -$10,343.67 with Tuesday harm on real fills). GRAVEYARDED this exact form (k~1.0x ATR)."
+    },
+    {
+      "parameter": "tp1_qty_fraction",
+      "current_value": "0.667 (ribbon_ride SS-B) / 0.8 (vwap arms)",
+      "classification": "FIXED",
+      "should_adapt_to": "NOT TESTED TONIGHT -- not named in the task's BUILD bullet list (stop / catastrophe cap / TP / trailing); flagged as future scope."
+    },
+    {
+      "parameter": "trail_pct",
+      "current_value": "0.15 (ribbon_ride SS-B) / 0.125 (module default)",
+      "classification": "FIXED",
+      "should_adapt_to": "trade's own ATR -- TESTED TONIGHT (DYN-TRAIL-ATR, k=1.0). CONTROL_HOLDS on the primary population (second-mildest loser) but the ONLY candidate whose real-fill-book positive survives the Tuesday-concentration check. Closest thing to a frontier -- frozen for a forward-clock re-test, not shipped."
+    },
+    {
+      "parameter": "profit_lock_arm_pct",
+      "current_value": "0.05 flat (arm at +5% favorable)",
+      "classification": "FIXED",
+      "should_adapt_to": "should plausibly scale to volatility too -- NOT TESTED TONIGHT, not named in the task's BUILD bullet list, flagged as future scope."
+    },
+    {
+      "parameter": "profit_lock_arm_scope",
+      "current_value": "'post_tp1' (today's live behavior)",
+      "classification": "STRUCTURAL CHOICE between 2 modes, not a magnitude to compute",
+      "should_adapt_to": "N/A -- 'full' (pre-TP1 arming) is the graveyard entry that DIED FIVE TIMES (latest: G4 runner cohort -$7,758.85, 22 worse/0 better); correctly never touched by any candidate here (verified by construction)."
+    },
+    {
+      "parameter": "runner_target_pct",
+      "current_value": "99.0 sentinel (never binds -- the runner effectively has no target, rides until trail/structure/time-stop)",
+      "classification": "FIXED, but already achieves 'unconstrained' via a disable-sentinel rather than a computed value",
+      "should_adapt_to": "RECONCILE FLAG: CLAUDE.md doctrine states runner target 2.5x, but the live SHIPPED ribbon_ride cell (strategies.py RIBBON_RIDE) overrides to 99.0 -- doctrine text and shipped code have drifted apart; this predates tonight's build and is a separate, smaller doc-fix, not touched here. Per C30 (unconstrained targets = dead knob), building a genuinely dynamic runner target was judged out of scope tonight."
+    },
+    {
+      "parameter": "structure-stop eligibility (stop_mode='structure')",
+      "current_value": "requires ALL THREE: the strategy's ExitShape declares stop_mode=='structure' AND params.structure_stop_enabled AND a trigger_level resolved at entry",
+      "classification": "PRECISION CORRECTION to the task's framing: it is NOT that trigger_level is always None for continuation setups -- it is that VWAP_CONTINUATION's and VWAP_RECLAIM_FAILED_BREAK's ExitShape literals in strategies.py NEVER declare stop_mode=='structure' (both default to 'premium'), so resolved_structure is False by construction for those two strategies regardless of trigger_level. Verified by direct code read this session, not assumed from the task brief.",
+      "should_adapt_to": "N/A -- this is correctly the live, validated mechanism (v15.3 chart-stop-primary) for ribbon_ride; not a gap to close, a precision note."
+    },
+    {
+      "parameter": "time_stop_et",
+      "current_value": "'15:40' fixed wall-clock",
+      "classification": "FIXED",
+      "should_adapt_to": "could plausibly adapt to theta-decay rate or remaining premium -- NOT TESTED TONIGHT, not named in the task's BUILD bullet list."
+    },
+    {
+      "parameter": "pre_tp1_be_floor_arm_pct",
+      "current_value": "None (inert by default)",
+      "classification": "FIXED when set",
+      "should_adapt_to": "N/A -- currently unused live."
+    }
+  ],
+  "control_shape": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "candidate_definitions": {
+    "DYN-ATR-CAT": {
+      "axis": "stop (catastrophe_stop_pct AND premium_stop_pct set to the SAME computed value -- both fields exist so the trade is dynamic regardless of whether it resolves structure or premium mode, an axis the precedent shakeout_ab study did not cover since it only touched catastrophe_stop_pct)",
+      "formula": "pct = -clamp(1.5 * ATR14_at_entry * tier_delta / entry_premium, 0.20, 0.85)",
+      "k": 1.5,
+      "k_provenance": "inherited from dynamic_stop_ab.py's own grid (ATR_k1.5), disclosed as the prior study's best-of-a-losing-field DTE0 ATR value, not freshly cherry-picked against this population.",
+      "clamp": [
+        0.2,
+        0.85
+      ],
+      "everything_else": "byte-identical to strategies.RIBBON_RIDE.exit.to_dict() control shape (tp1/trail/runner/arm_scope/time_stop untouched)."
+    },
+    "DYN-STRUCT-CAT": {
+      "axis": "stop (catastrophe_stop_pct AND premium_stop_pct, same rationale as DYN-ATR-CAT) -- the 'safety line' idea",
+      "formula": "pct = -clamp((|safety_line - spot| + 0.25) * tier_delta / entry_premium, 0.20, 0.85); falls back to CONTROL's unchanged -0.50 when no safety line resolves.",
+      "buffer": 0.25,
+      "buffer_provenance": "inherited from dynamic_stop_ab.py's STRUCT_buf0.25 -- its ONLY winning label in the prior (different-family, different-harness) study.",
+      "clamp": [
+        0.2,
+        0.85
+      ],
+      "everything_else": "byte-identical to control."
+    },
+    "DYN-TP-ATR": {
+      "axis": "TP1 (tp1_premium_pct)",
+      "formula": "pct = clamp(1.0 * ATR14_at_entry * tier_delta / entry_premium, 0.30, 2.50)",
+      "k": 1.0,
+      "k_provenance": "fresh, untuned -- the prior study never tested TP dynamism at all. 1.0x is the simplest non-arbitrary starting multiple (target roughly the trade's own entry-time volatility move), chosen before any result was seen.",
+      "clamp": [
+        0.3,
+        2.5
+      ],
+      "counter_evidence_disclosed": "2026-08-06 fixed +100% TP1 arms outperformed a fixed +50% arm ($125.00/$103.75 vs $59.20 per contract) -- a fixed LOWER TP is not automatically better. This candidate is reported honestly regardless of which direction it moves TP1 on any given trade.",
+      "everything_else": "byte-identical to control."
+    },
+    "DYN-TRAIL-ATR": {
+      "axis": "trailing width (trail_pct)",
+      "formula": "trail_pct = clamp(1.0 * ATR14_at_entry * tier_delta / entry_premium, 0.08, 0.30)",
+      "k": 1.0,
+      "clamp": [
+        0.08,
+        0.3
+      ],
+      "everything_else": "byte-identical to control (profit_lock_arm_pct unchanged at 0.05 -- arm-threshold dynamism is named nowhere in the task's BUILD bullet list [stop/catastrophe-cap/TP/trailing] and is explicitly OUT OF SCOPE tonight, flagged as a natural next step in the report, not silently skipped)."
+    },
+    "DYN-ALL": {
+      "axis": "every named axis at once -- the literal 'every trade is dynamic, stop, entry, trailing stop, TP' bundle",
+      "formula": "stop = DYN-STRUCT-CAT's value when a safety line resolves, ELSE DYN-ATR-CAT's ATR-based value (maximizes genuine per-trade coverage rather than leaving un-resolved trades on a static fallback); TP1 = DYN-TP-ATR's value; trail = DYN-TRAIL-ATR's value.",
+      "purpose": "Tests whether combining axes is additive, subtractive, or neutral (KEEP-LOSSES-SMALL-2026-08-06.md found 14/15 lever PAIRS were subtractive on entry-side levers -- this candidate checks whether the SAME caution applies on the exit side, not assumed either way)."
+    }
+  },
+  "prior_art_reconciliation": {
+    "dynamic_stop_ab_2026_07_07": "backtest/autoresearch/dynamic_stop_ab.py + analysis/recommendations/dynamic-stop-ab.json -- THE SAME QUESTION was tried once before (J's 2026-07-07 offline R&D ask), scoped to vwap_continuation ONLY, via the DEPRECATED _dte_expansion_sim (not walk_exit_manager -- predates the 2026-07-09 simulator_real-divergence scar this task explicitly forbids resurrecting), at DTE 0/1/2. VERDICT AT DTE0 (the only DTE relevant to current 0DTE-only live doctrine): 'NO dynamic rule beats static+gates' for BOTH ATM and ITM2 tiers -- ATR/IV cells all lost to static after gates. Only DTE2 (multi-day, not applicable live) saw a structure-based cell (STRUCT_buf0.25) win. This negative DTE0 result was never promoted to a lesson/queue item (consistent with the memory note's grep finding ZERO 'dynamic stop' hits) -- a disclosed, not hidden, prior. THIS STUDY DIFFERS: (a) family=ribbon_ride (the current majority/validated live strategy, not vwap_continuation), (b) harness=walk_exit_manager/plan_exit_actions (the approved production core, not the deprecated sim), (c) DTE0-only by construction (0DTE, no multi-day framing), (d) the safety-line/structure candidate reuses dynamic_stop_ab's OWN winning buffer constant (0.25) rather than re-deriving it, and (e) TP1 and trailing-width dynamism were never tested by the prior study at all (it only varied the stop). A different family + different harness + a genuinely new axis is not a re-litigation of a settled result, but the DTE0 negative prior is disclosed up front as the honest base rate to beat, not silently omitted.",
+    "catastrophe_cap_decision_2026_08_08": "analysis/recommendations/catastrophe-cap-decision-2026-08-08.json tested WIDEN-vs-HOLD the catastrophe cap at a fixed alternative width via a 13-fire shadow ledger (held-to-EOD counterfactual); decision was DO_NOT_WIDEN, cap stays pinned -0.50. This is a DIFFERENT axis (binary widen/hold of a still-CONSTANT cap) from this study's axis (COMPUTING the cap per-trade from ATR/structure, which on any given trade may resolve wider OR narrower than -0.50). Disjoint, not re-litigated.",
+    "catastrophe_stop_shakeout_2026_07_23": "tested fixed -0.70 and -0.99 alternatives on the structure-mode bear subset (n=27); CONTROL_HOLDS per the task brief's own settled-both-directions framing. This study's candidates are never a single scalar swap -- disjoint by construction (every candidate computes a DIFFERENT value per trade)."
+  },
+  "graveyard_check": {
+    "verdict": "NO COLLISION with any named graveyard entry.",
+    "pre_tp1_profit_lock_arm_scope_full": "Not touched. Every candidate below inherits CONTROL's profit_lock_arm_scope='post_tp1' unchanged. Verified by construction (the resolver functions never set this key).",
+    "hold_longer": "Not touched. time_stop_et unchanged (15:40) in every candidate.",
+    "take_profit_earlier": "Not applicable as a category -- DYN-TP-ATR's tp1_premium_pct is computed bidirectionally (can resolve ABOVE or BELOW control's 1.0 depending on that trade's own ATR), not a blanket lower TP.",
+    "level_target_exits": "Not touched. No candidate sets a TP at a chart level; DYN-STRUCT-CAT/DYN-ALL use a level-derived value for the STOP side only, which is the ALREADY-LIVE, validated stop_mode='structure' mechanism (v15.3 chart-stop-primary, SS-B), not the dead level-target-TP idea (0/144).",
+    "fixed_stop_width_either_direction": "Not touched. No candidate is a single scalar swap; every candidate computes a per-trade value from that trade's own ATR or chart structure. This is the entire point of the study."
+  },
+  "coverage_historical": {
+    "DYN-ATR-CAT": {
+      "stop_computed": 190,
+      "tp1_computed": 0,
+      "trail_computed": 0,
+      "n": 191
+    },
+    "DYN-STRUCT-CAT": {
+      "stop_computed": 112,
+      "tp1_computed": 0,
+      "trail_computed": 0,
+      "n": 191
+    },
+    "DYN-TP-ATR": {
+      "stop_computed": 0,
+      "tp1_computed": 190,
+      "trail_computed": 0,
+      "n": 191
+    },
+    "DYN-TRAIL-ATR": {
+      "stop_computed": 0,
+      "tp1_computed": 0,
+      "trail_computed": 190,
+      "n": 191
+    },
+    "DYN-ALL": {
+      "stop_computed": 190,
+      "tp1_computed": 190,
+      "trail_computed": 190,
+      "n": 191
+    }
+  },
+  "coverage_real_fill_book": {
+    "DYN-ATR-CAT": {
+      "stop_computed": 203,
+      "tp1_computed": 0,
+      "trail_computed": 0,
+      "n": 203
+    },
+    "DYN-STRUCT-CAT": {
+      "stop_computed": 198,
+      "tp1_computed": 0,
+      "trail_computed": 0,
+      "n": 203
+    },
+    "DYN-TP-ATR": {
+      "stop_computed": 0,
+      "tp1_computed": 203,
+      "trail_computed": 0,
+      "n": 203
+    },
+    "DYN-TRAIL-ATR": {
+      "stop_computed": 0,
+      "tp1_computed": 0,
+      "trail_computed": 203,
+      "n": 203
+    },
+    "DYN-ALL": {
+      "stop_computed": 203,
+      "tp1_computed": 203,
+      "trail_computed": 203,
+      "n": 203
+    }
+  },
+  "historical_population": {
+    "n_trades": 191,
+    "n_oos": 47,
+    "oos_dates_start": "2026-05-07"
+  },
+  "real_fill_book_population": {
+    "n_positions_reconstructed": 221,
+    "n_repriced": 203,
+    "n_dropped_no_cache": 18,
+    "broker_truth_total_pnl": 2109.01,
+    "broker_truth_tuesday_08_04_pnl": 3624.0
+  },
+  "historical_verdicts": {
+    "DYN-ATR-CAT": {
+      "n": 191,
+      "control_total": 4808.75,
+      "candidate_total": 3992.88,
+      "aggregate_delta": -815.87,
+      "g1_aggregate_beats_control": false,
+      "g3_ex_best_trade": {
+        "result": false,
+        "delta_ex_best1": -1600.57
+      },
+      "g4_runner_cohort_anchor_no_regression": {
+        "result": true,
+        "n_runner_cohort": 35,
+        "control_cohort_total": 15774.05,
+        "candidate_cohort_total": 15774.05
+      },
+      "drop_best_day": {
+        "result": false,
+        "best_day": "2025-09-23",
+        "delta_ex_best_day": -1826.47
+      },
+      "sub_window_stable": {
+        "result": false,
+        "n_quarters_positive": 2,
+        "quarters": [
+          {
+            "start": "2025-01-06",
+            "end": "2025-07-21",
+            "n": 47,
+            "delta": -389.41
+          },
+          {
+            "start": "2025-07-29",
+            "end": "2025-12-02",
+            "n": 52,
+            "delta": 116.18
+          },
+          {
+            "start": "2025-12-08",
+            "end": "2026-04-29",
+            "n": 43,
+            "delta": 712.25
+          },
+          {
+            "start": "2026-05-01",
+            "end": "2026-07-21",
+            "n": 49,
+            "delta": -1254.89
+          }
+        ]
+      },
+      "walk_forward": {
+        "result": false,
+        "wf": -13.075,
+        "is_delta_per_trade": 1.73,
+        "oos_delta_per_trade": -22.67,
+        "n_is": 144,
+        "n_oos": 47
+      },
+      "p_value_raw": 0.65447,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 6089.93,
+        "n_beats": 17,
+        "extra_given_back_on_losses": -6905.8,
+        "n_losses": 72,
+        "net": -815.87
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.65447,
+        "bh_threshold": 0.04,
+        "significant": false
+      }
+    },
+    "DYN-STRUCT-CAT": {
+      "n": 191,
+      "control_total": 4808.75,
+      "candidate_total": 3957.78,
+      "aggregate_delta": -850.97,
+      "g1_aggregate_beats_control": false,
+      "g3_ex_best_trade": {
+        "result": false,
+        "delta_ex_best1": -2292.32
+      },
+      "g4_runner_cohort_anchor_no_regression": {
+        "result": false,
+        "n_runner_cohort": 35,
+        "control_cohort_total": 15774.05,
+        "candidate_cohort_total": 15250.75
+      },
+      "drop_best_day": {
+        "result": false,
+        "best_day": "2026-06-09",
+        "delta_ex_best_day": -2292.32
+      },
+      "sub_window_stable": {
+        "result": false,
+        "n_quarters_positive": 2,
+        "quarters": [
+          {
+            "start": "2025-01-06",
+            "end": "2025-07-21",
+            "n": 47,
+            "delta": 13.92
+          },
+          {
+            "start": "2025-07-29",
+            "end": "2025-12-02",
+            "n": 52,
+            "delta": 103.56
+          },
+          {
+            "start": "2025-12-08",
+            "end": "2026-04-29",
+            "n": 43,
+            "delta": -898.11
+          },
+          {
+            "start": "2026-05-01",
+            "end": "2026-07-21",
+            "n": 49,
+            "delta": -70.34
+          }
+        ]
+      },
+      "walk_forward": {
+        "result": false,
+        "wf": null,
+        "is_delta_per_trade": -6.06,
+        "oos_delta_per_trade": 0.45,
+        "n_is": 144,
+        "n_oos": 47
+      },
+      "p_value_raw": 0.62598,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 7165.72,
+        "n_beats": 15,
+        "extra_given_back_on_losses": -8016.69,
+        "n_losses": 71,
+        "net": -850.97
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.62598,
+        "bh_threshold": 0.02,
+        "significant": false
+      }
+    },
+    "DYN-TP-ATR": {
+      "n": 191,
+      "control_total": 4808.75,
+      "candidate_total": 3191.67,
+      "aggregate_delta": -1617.08,
+      "g1_aggregate_beats_control": false,
+      "g3_ex_best_trade": {
+        "result": false,
+        "delta_ex_best1": -2130.98
+      },
+      "g4_runner_cohort_anchor_no_regression": {
+        "result": false,
+        "n_runner_cohort": 35,
+        "control_cohort_total": 15774.05,
+        "candidate_cohort_total": 7707.28
+      },
+      "drop_best_day": {
+        "result": false,
+        "best_day": "2025-08-20",
+        "delta_ex_best_day": -2172.03
+      },
+      "sub_window_stable": {
+        "result": false,
+        "n_quarters_positive": 2,
+        "quarters": [
+          {
+            "start": "2025-01-06",
+            "end": "2025-07-21",
+            "n": 47,
+            "delta": 649.05
+          },
+          {
+            "start": "2025-07-29",
+            "end": "2025-12-02",
+            "n": 52,
+            "delta": -459.96
+          },
+          {
+            "start": "2025-12-08",
+            "end": "2026-04-29",
+            "n": 43,
+            "delta": 292.4
+          },
+          {
+            "start": "2026-05-01",
+            "end": "2026-07-21",
+            "n": 49,
+            "delta": -2098.57
+          }
+        ]
+      },
+      "walk_forward": {
+        "result": false,
+        "wf": -13.3537,
+        "is_delta_per_trade": 3.34,
+        "oos_delta_per_trade": -44.65,
+        "n_is": 144,
+        "n_oos": 47
+      },
+      "p_value_raw": 0.76491,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 8203.82,
+        "n_beats": 34,
+        "extra_given_back_on_losses": -9820.9,
+        "n_losses": 42,
+        "net": -1617.08
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.76491,
+        "bh_threshold": 0.06,
+        "significant": false
+      }
+    },
+    "DYN-TRAIL-ATR": {
+      "n": 191,
+      "control_total": 4808.75,
+      "candidate_total": 4080.72,
+      "aggregate_delta": -728.03,
+      "g1_aggregate_beats_control": false,
+      "g3_ex_best_trade": {
+        "result": false,
+        "delta_ex_best1": -959.83
+      },
+      "g4_runner_cohort_anchor_no_regression": {
+        "result": false,
+        "n_runner_cohort": 35,
+        "control_cohort_total": 15774.05,
+        "candidate_cohort_total": 15046.02
+      },
+      "drop_best_day": {
+        "result": false,
+        "best_day": "2025-12-11",
+        "delta_ex_best_day": -959.83
+      },
+      "sub_window_stable": {
+        "result": false,
+        "n_quarters_positive": 2,
+        "quarters": [
+          {
+            "start": "2025-01-06",
+            "end": "2025-07-21",
+            "n": 47,
+            "delta": -274.87
+          },
+          {
+            "start": "2025-07-29",
+            "end": "2025-12-02",
+            "n": 52,
+            "delta": 108.95
+          },
+          {
+            "start": "2025-12-08",
+            "end": "2026-04-29",
+            "n": 43,
+            "delta": 12.29
+          },
+          {
+            "start": "2026-05-01",
+            "end": "2026-07-21",
+            "n": 49,
+            "delta": -574.4
+          }
+        ]
+      },
+      "walk_forward": {
+        "result": false,
+        "wf": null,
+        "is_delta_per_trade": -1.07,
+        "oos_delta_per_trade": -12.22,
+        "n_is": 144,
+        "n_oos": 47
+      },
+      "p_value_raw": 0.95027,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 618.01,
+        "n_beats": 7,
+        "extra_given_back_on_losses": -1346.04,
+        "n_losses": 28,
+        "net": -728.03
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.95027,
+        "bh_threshold": 0.1,
+        "significant": false
+      }
+    },
+    "DYN-ALL": {
+      "n": 191,
+      "control_total": 4808.75,
+      "candidate_total": 2298.44,
+      "aggregate_delta": -2510.31,
+      "g1_aggregate_beats_control": false,
+      "g3_ex_best_trade": {
+        "result": false,
+        "delta_ex_best1": -3695.67
+      },
+      "g4_runner_cohort_anchor_no_regression": {
+        "result": false,
+        "n_runner_cohort": 35,
+        "control_cohort_total": 15774.05,
+        "candidate_cohort_total": 6954.49
+      },
+      "drop_best_day": {
+        "result": false,
+        "best_day": "2026-06-09",
+        "delta_ex_best_day": -3695.67
+      },
+      "sub_window_stable": {
+        "result": false,
+        "n_quarters_positive": 1,
+        "quarters": [
+          {
+            "start": "2025-01-06",
+            "end": "2025-07-21",
+            "n": 47,
+            "delta": -277.22
+          },
+          {
+            "start": "2025-07-29",
+            "end": "2025-12-02",
+            "n": 52,
+            "delta": -300.79
+          },
+          {
+            "start": "2025-12-08",
+            "end": "2026-04-29",
+            "n": 43,
+            "delta": 526.56
+          },
+          {
+            "start": "2026-05-01",
+            "end": "2026-07-21",
+            "n": 49,
+            "delta": -2458.86
+          }
+        ]
+      },
+      "walk_forward": {
+        "result": false,
+        "wf": null,
+        "is_delta_per_trade": -0.99,
+        "oos_delta_per_trade": -50.37,
+        "n_is": 144,
+        "n_oos": 47
+      },
+      "p_value_raw": 0.81014,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 11824.79,
+        "n_beats": 51,
+        "extra_given_back_on_losses": -14335.1,
+        "n_losses": 81,
+        "net": -2510.31
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.81014,
+        "bh_threshold": 0.08,
+        "significant": false
+      }
+    }
+  },
+  "real_fill_book_verdicts": {
+    "DYN-ATR-CAT": {
+      "n": 203,
+      "control_total": 17720.24,
+      "candidate_total": 17949.31,
+      "aggregate_delta": 229.07,
+      "g1_aggregate_beats_control": true,
+      "delta_ex_best1": -675.93,
+      "tuesday_08_04": {
+        "control_repriced": 19610.4,
+        "candidate_repriced": 22789.92,
+        "delta": 3179.52,
+        "no_harm": true
+      },
+      "concentration": {
+        "delta_ex_tuesday": -2950.45,
+        "genuinely_positive_ex_tuesday": false,
+        "n_days_total": 26,
+        "n_days_positive": 9,
+        "top_day": "2026-08-04",
+        "top_day_delta": 3179.52
+      }
+    },
+    "DYN-STRUCT-CAT": {
+      "n": 203,
+      "control_total": 17720.24,
+      "candidate_total": 18716.71,
+      "aggregate_delta": 996.47,
+      "g1_aggregate_beats_control": true,
+      "delta_ex_best1": 91.47,
+      "tuesday_08_04": {
+        "control_repriced": 19610.4,
+        "candidate_repriced": 22836.84,
+        "delta": 3226.44,
+        "no_harm": true
+      },
+      "concentration": {
+        "delta_ex_tuesday": -2229.97,
+        "genuinely_positive_ex_tuesday": false,
+        "n_days_total": 26,
+        "n_days_positive": 7,
+        "top_day": "2026-08-04",
+        "top_day_delta": 3226.44
+      }
+    },
+    "DYN-TP-ATR": {
+      "n": 203,
+      "control_total": 17720.24,
+      "candidate_total": 7376.57,
+      "aggregate_delta": -10343.67,
+      "g1_aggregate_beats_control": false,
+      "delta_ex_best1": -11074.09,
+      "tuesday_08_04": {
+        "control_repriced": 19610.4,
+        "candidate_repriced": 7703.98,
+        "delta": -11906.42,
+        "no_harm": false
+      },
+      "concentration": {
+        "delta_ex_tuesday": 1562.75,
+        "genuinely_positive_ex_tuesday": true,
+        "n_days_total": 26,
+        "n_days_positive": 7,
+        "top_day": "2026-08-05",
+        "top_day_delta": 1428.93
+      }
+    },
+    "DYN-TRAIL-ATR": {
+      "n": 203,
+      "control_total": 17720.24,
+      "candidate_total": 23722.67,
+      "aggregate_delta": 6002.43,
+      "g1_aggregate_beats_control": true,
+      "delta_ex_best1": 3664.38,
+      "tuesday_08_04": {
+        "control_repriced": 19610.4,
+        "candidate_repriced": 24501.05,
+        "delta": 4890.65,
+        "no_harm": true
+      },
+      "concentration": {
+        "delta_ex_tuesday": 1111.78,
+        "genuinely_positive_ex_tuesday": true,
+        "n_days_total": 26,
+        "n_days_positive": 4,
+        "top_day": "2026-08-04",
+        "top_day_delta": 4890.65
+      }
+    },
+    "DYN-ALL": {
+      "n": 203,
+      "control_total": 17720.24,
+      "candidate_total": 13332.71,
+      "aggregate_delta": -4387.53,
+      "g1_aggregate_beats_control": false,
+      "delta_ex_best1": -6235.58,
+      "tuesday_08_04": {
+        "control_repriced": 19610.4,
+        "candidate_repriced": 17116.7,
+        "delta": -2493.7,
+        "no_harm": false
+      },
+      "concentration": {
+        "delta_ex_tuesday": -1893.83,
+        "genuinely_positive_ex_tuesday": false,
+        "n_days_total": 26,
+        "n_days_positive": 8,
+        "top_day": "2026-08-03",
+        "top_day_delta": 1189.64
+      }
+    }
+  },
+  "final_decisions": {
+    "DYN-ATR-CAT": {
+      "historical_auto_ratify": false,
+      "real_fill_book_tuesday_no_harm": true,
+      "real_fill_book_genuinely_positive_ex_tuesday": false,
+      "FINAL": "PREREG_ONLY"
+    },
+    "DYN-STRUCT-CAT": {
+      "historical_auto_ratify": false,
+      "real_fill_book_tuesday_no_harm": true,
+      "real_fill_book_genuinely_positive_ex_tuesday": false,
+      "FINAL": "PREREG_ONLY"
+    },
+    "DYN-TP-ATR": {
+      "historical_auto_ratify": false,
+      "real_fill_book_tuesday_no_harm": false,
+      "real_fill_book_genuinely_positive_ex_tuesday": true,
+      "FINAL": "PREREG_ONLY"
+    },
+    "DYN-TRAIL-ATR": {
+      "historical_auto_ratify": false,
+      "real_fill_book_tuesday_no_harm": true,
+      "real_fill_book_genuinely_positive_ex_tuesday": true,
+      "FINAL": "PREREG_ONLY"
+    },
+    "DYN-ALL": {
+      "historical_auto_ratify": false,
+      "real_fill_book_tuesday_no_harm": false,
+      "real_fill_book_genuinely_positive_ex_tuesday": false,
+      "FINAL": "PREREG_ONLY"
+    }
+  },
+  "disclosures": [
+    "Historical population is 191 ribbon_ride trades / 141 unique dates (2025-01-06..2026-07-21), reused byte-identical from engine-fullhist-replay-2026-07-23.json -- NOT a fresh 391-day regeneration (see prereg's disclosed_span_correction).",
+    "Real-fill-book comparison is REPRICED at structure_stop_enabled=False parity (control vs candidate, one axis at a time) because historical trigger_level is not reliably recoverable from fills-ledger.jsonl alone -- broker-truth P&L (which used live structure-mode stops) is reported separately, never blended into the gated repriced comparison.",
+    "Real-fill-book repricing uses the ribbon_ride CONTROL shape uniformly for ALL positions (the dominant live strategy) even though the ledger also includes vwap_continuation / vwap_reclaim_failed_break fills governed by different registry shapes -- a disclosed simplification. The historical population (100% ribbon_ride) is unaffected.",
+    "ATR is a SIMPLE mean-true-range (not Wilder-smoothed), reused verbatim from dynamic_stop_ab.py's own formula for methodology consistency with that prior study.",
+    "Underlying-to-premium translation uses a FIXED per-tier delta approximation (ATM 0.50 / ITM-2 0.65) -- no per-contract greeks feed in the cache, identical disclosed limitation to dynamic_stop_ab.py.",
+    "Safety-line coverage is necessarily partial (reported per-candidate in coverage_historical / coverage_real_fill_book) -- trades with too few pre-entry swings fall back to CONTROL's own fixed value for that trade, disclosed not hidden."
+  ]
+}

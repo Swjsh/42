@@ -1,3 +1,70 @@
+## [2026-08-09 ~16:00 ET] RESEARCH: DYNAMIC EXITS AUDIT + BUILD + TEST -- commit pending this fire -- no trading-path change
+
+**J directive (verbatim, weeks-repeated):** "ive been demanding dynamic stops and removing the 50%
+cap for weeks !!! every trade is dynamic, stop, entry, trailing stop, TP, etc." Verified this fire:
+`grep -i "dynamic stop"` over queue.md/LESSONS-LEARNED.md was ZERO hits before this fire; the
+catastrophe cap has never been varied as a COMPUTED value in any prior study.
+
+**Audit (deliverable section 1):** `exit_manager.py`'s `ExitState` is ALREADY a per-position
+dataclass -- nothing in the state machine prevents dynamism. The gap is 100% at the CALLER layer
+(`strategies.py`'s `ExitShape` literals populate every field from hardcoded constants). Full
+fixed-vs-dynamic table for premium_stop_pct / catastrophe_stop_pct / tp1_premium_pct /
+tp1_qty_fraction / trail_pct / profit_lock_arm_pct / profit_lock_arm_scope / runner_target_pct /
+structure-stop eligibility / time_stop_et / pre_tp1_be_floor_arm_pct: `analysis/deep-research/
+DYNAMIC-EXITS-2026-08-09.md` Section 1. Corrected the task brief's own framing of one mechanism
+(continuation setups' structure-stop no-op is because their ExitShape never declares
+`stop_mode=='structure'`, not because trigger_level is always None).
+
+**Prior art found + reconciled:** `backtest/autoresearch/dynamic_stop_ab.py` (2026-07-07, J's
+earlier offline R&D ask) already tried a version of this on vwap_continuation via the DEPRECATED
+`_dte_expansion_sim` -- DTE0 verdict (the only DTE relevant to live 0DTE doctrine) was "no dynamic
+rule beats static", never promoted to a lesson/queue item (a real, disclosed silent-negative-result
+gap, consistent with why the grep came back empty). `catastrophe-cap-decision-2026-08-08.json`
+tested WIDEN-vs-HOLD a still-constant cap (disjoint axis, not re-litigated).
+
+**Built + tested:** frozen pre-registration committed BEFORE the runner existed (git-provable,
+commit `82e38bd4` predates `backtest/tools/dynamic_exits_2026_08_09.py`'s own first commit). 5
+candidates, each COMPUTING its exit parameter from that trade's own ATR-at-entry or the
+"safety line" (opposing trendline, `lib/trendlines.py#detect_trendlines`, directionally filtered
+via the exact convention `exit_manager.nearest_active_level` already uses in production) --
+DYN-ATR-CAT / DYN-STRUCT-CAT (stop), DYN-TP-ATR (TP1), DYN-TRAIL-ATR (trail width), DYN-ALL
+(all three bundled). Replayed via `walk_exit_manager` -> `exit_manager.plan_exit_actions` ONLY
+(never simulator_real), on BOTH the 191-trade ribbon_ride historical population (2025-01-06..
+2026-07-21, reused byte-identical from `engine-fullhist-replay-2026-07-23.json` -- disclosed as
+NOT a literal 391-day regen) and the real-fill book (`fills-ledger.jsonl`, all 6 arms, 27 ET dates
+2026-06-26..2026-08-07, 203/221 positions with cached option bars). 0 sanity mismatches on the
+re-walked CONTROL vs the stored baseline P&L (harness wiring confirmed correct).
+
+**VERDICT: nothing cleared the auto-ratify bar. Nothing shipped.** All 5 candidates CONTROL_HOLDS
+on the primary historical population (G1 aggregate fails for every one). Notable findings, all
+disclosed in the deliverable: DYN-TP-ATR (ATR-scaled TP1, k=1.0) is convergently bad on BOTH
+populations -- historically nearly HALVES the $15,774.05 runner-cohort profit (the 35-trade
+"profit engine" `exit_armscope_ab_2026_07_28.py` also anchors on) to $7,707.28, and on real fills
+loses $10,343.67 with Tuesday 08-04 harm; graveyarded this exact form. DYN-ALL (bundling every
+axis) is the single worst historical performer (-$2,510.31), confirming KEEP-LOSSES-SMALL-
+2026-08-06.md's entry-side "combining levers is subtractive, not additive" finding now replicated
+on the exit side -- do not bundle untested axes together. The real-fill book's apparent positive
+deltas for DYN-ATR-CAT (+$229.07) and DYN-STRUCT-CAT (+$996.47) are **100% single-day
+concentration artifacts** -- caught via an ex-Tuesday check BEFORE reporting them as a signal
+(fable-too-good discipline): both flip NEGATIVE once 2026-08-04 is excluded (-$2,950.45 /
+-$2,229.97). Only DYN-TRAIL-ATR (ATR-scaled trailing width) survives that check
+(+$1,111.78 ex-Tuesday, though thin day-coverage 4/26) -- the one genuine thread worth carrying
+forward.
+
+**Forward path (not a re-pick):** `analysis/recommendations/dynamic-exits-forward-prereg-
+2026-08-09.json` freezes a narrower next iteration (tighter ATR multiples on the stop axis,
+extended multi-day lookback for the safety-line coverage gap, a k-grid on the trailing-width
+axis) against a FORWARD CLOCK (next n>=20 real fills or a freshly-regenerated historical slice)
+-- explicitly barred from re-grading tonight's already-viewed 191-trade / 27-date populations,
+per the no-repick-after-seeing-results discipline this repo already enforces elsewhere.
+
+**Rail-4 clear:** zero trading-path file touched (`params.json`, `aggressive/params.json`,
+`exit_manager.py`, `strategies.py`, `heartbeat_core.py` all read-only this fire). Pure analysis +
+2 frozen preregs + 1 new backtest tool + 1 deliverable doc. No REVOKE needed (nothing live to
+revert); the artifacts themselves are the record.
+
+---
+
 ## [2026-08-09 ~13:45 ET] SHIP: CASH-ACCOUNT PARITY (bold-2 margin_pdt -> cash_settlement) -- commit `883764ef` -- REVOKE surface
 
 **J directive (verbatim):** "we'll not be doing margin. I always use cash accounts. I got deposit
@@ -605,7 +672,7 @@ touched test files green (quoted per ship in SHIP-LOG-2026-08-06-EVENING.md).
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-09T04:39:56
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
@@ -683,4 +750,19 @@ Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-08-09T13:09:57
 - PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $5,477.71 -- blocks a 4th day-trade until it rolls off 2026-08-12.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T13:39:57
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T14:09:57
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T14:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T15:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-09T15:39:56
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-09.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.

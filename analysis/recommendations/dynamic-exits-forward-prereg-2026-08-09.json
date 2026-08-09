@@ -1,0 +1,40 @@
+{
+  "_doc": "FORWARD-LOOKING pre-registration for the NEXT dynamic-exits iteration. Written after dynamic-exits-2026-08-09 (analysis/deep-research/DYNAMIC-EXITS-2026-08-09.{json,md}) found NO candidate cleared the auto-ratify bar on the primary 191-trade historical population -- this file freezes the frontier BEFORE looking at any new data, per the no-repick-after-seeing-results discipline (the 191-trade population and the 2026-06-26..2026-08-07 real-fill book are now SEEN data and may not be re-graded against new k-values / new coverage logic without becoming a re-pick).",
+  "study": "dynamic_exits_forward_2026_08_09",
+  "version": 1,
+  "supersedes_nothing": "This does not revisit dynamic-exits-2026-08-09's verdict (CONTROL_HOLDS, all 5 candidates). It proposes a narrower NEXT test on data not yet examined.",
+
+  "which_gate_failed_per_candidate": {
+    "DYN-ATR-CAT": "G1 aggregate FAILED on the historical population (-$815.87). G4 runner-cohort passed cleanly (exact tie, $15,774.05 both) -- this axis never touched the profit engine, it only worsened losers. WF FAILED hard (-13.075, OOS per-trade -$22.67 vs IS +$1.73) -- the mechanism degrades specifically in the most recent quarter. Real-fill-book's apparent +$229 is 100% a Tuesday 08-04 artifact (ex-Tuesday: -$2,950.45).",
+    "DYN-STRUCT-CAT": "G1 FAILED (-$850.97). G4 FAILED (runner cohort $15,250.75 vs $15,774.05 control -- the safety line DOES clip some winners). Coverage only 112/191 (58.6%) -- same-day-only lookback leaves many early-session entries with too few swings to fit a line, so the tested version is UNDERPOWERED, not necessarily wrong. Real-fill-book's apparent +$996 is 100% a Tuesday artifact (ex-Tuesday: -$2,229.97).",
+    "DYN-TP-ATR": "G1 FAILED (-$1,617.08) and G4 FAILED HARD (runner cohort $7,707.28 vs $15,774.05 -- roughly HALVES the profit engine). Real-fill-book confirms convergently: -$10,343.67, Tuesday HARM (-$11,906.42). k=1.0x ATR is simply too tight a TP1 for this population -- it takes profit before the runner's real edge develops.",
+    "DYN-TRAIL-ATR": "G1 FAILED on historical (-$728.03, second-mildest of the five) but this is the ONLY candidate whose real-fill-book positive SURVIVES the Tuesday-concentration check (ex-Tuesday +$1,111.78, though thin day-coverage 4/26 days positive). The one genuinely interesting divergence between the two populations.",
+    "DYN-ALL": "Worst historical performer (-$2,510.31) and fails Tuesday on real fills (-$2,493.70). Confirms KEEP-LOSSES-SMALL-2026-08-06.md's entry-side finding (combining levers is subtractive, not additive) now replicated on the EXIT side. Bundling compounds each axis's individual weakness rather than offsetting it."
+  },
+
+  "graveyard_addition_this_session": {
+    "DYN-TP-ATR-any-k-near-1.0": "ATR-scaled TP1 at k~1.0x, tier-delta-translated, clamped [0.30,2.50] -- convergently bad on BOTH the 191-trade historical population (halves the $15,774.05 runner cohort to $7,707.28) and the real-fill book (-$10,343.67, Tuesday harm). Do not re-test this exact form without a materially different mechanism (e.g. distance-to-next-structural-level instead of a flat ATR multiple, or a much larger k). Reusing k=1.0 again on the SAME populations would be a re-pick.",
+    "DYN-ALL-bundling": "Combining stop+TP+trail dynamism into one cell underperforms every one of its own component axes individually, on both populations. Do not bundle axes again without first confirming each component axis independently clears its own gate -- bundling untested-or-failing axes together is expected to compound, not offset, per this session's own evidence and KEEP-LOSSES-SMALL's entry-side precedent."
+  },
+
+  "next_candidates_frozen": {
+    "DYN-ATR-CAT-TIGHT": {
+      "hypothesis": "k_atr_stop=1.5 (tonight's value, inherited un-tuned from a different family's prior study) may simply be too WIDE for ribbon_ride, causing the OOS Q4 degradation (WF=-13.075). A tighter multiple may reduce -- or may not; report honestly either way.",
+      "grid": "k in {0.75, 1.0} (below tonight's 1.5), everything else identical to tonight's DYN-ATR-CAT (same clamp [0.20,0.85], same delta=0.50 ATM assumption).",
+      "must_not_reuse": "the 191-trade historical population or the 2026-06-26..2026-08-07 real-fill book AS-IS for grading -- both are now seen data for the k=1.5 cell. Evaluate against EITHER (a) the forward clock below, or (b) a freshly regenerated historical population whose date range was not part of tonight's inspection (e.g. extend engine_fullhist_replay.py through a new end date and grade ONLY the newly-added trailing slice, never the already-viewed 2025-01-06..2026-07-21 span)."
+    },
+    "DYN-STRUCT-CAT-EXTENDED-LOOKBACK": {
+      "hypothesis": "58.6% safety-line coverage (same-day-since-open only) may be leaving the mechanism underpowered rather than wrong. Extending the trendline-fit lookback to include the PRIOR 1-2 trading days' bars (still causal, still no lookahead) should raise coverage; whether that changes the G1/G4 verdict is the open question.",
+      "change": "safety_line_level's bars argument becomes 'last N trading days through the bar closed before entry' (N=2 proposed) instead of 'current day from 09:30 ET only'. Coverage % must be reported as the FIRST output (does this actually fix the stated problem) before any P&L comparison is trusted.",
+      "must_not_reuse": "same constraint as DYN-ATR-CAT-TIGHT above -- new data only, not a re-grade of tonight's 191 trades."
+    },
+    "DYN-TRAIL-ATR-REFINED": {
+      "hypothesis": "The one candidate with a genuine (non-Tuesday) positive signal on real fills, despite historical G1 failure. Worth a k-grid {0.5, 0.75, 1.5} to see whether the historical loss is k-sensitive the way DYN-TP-ATR's k=1.0 loss might not be.",
+      "must_not_reuse": "same constraint as above."
+    }
+  },
+
+  "forward_clock": "Evaluate against the NEXT n>=20 real trading days' fills (a genuinely new real-fill-book slice, e.g. everything after 2026-08-07) OR a freshly-regenerated historical population's newly-added trailing slice, WHICHEVER ARRIVES FIRST. Do not shortcut by re-running today's exact 191-trade / 2026-06-26..08-07 populations against the new k-values -- that is a re-pick, not a forward test.",
+
+  "rules": "READ-ONLY until a forward-clock cell clears the SAME auto-ratify bar dynamic-exits-prereg-2026-08-09.json defined (g1 AND g3_ex_best AND g4_runner_cohort_anchor_no_regression AND sub_window_stable AND drop_best_day AND walk_forward_gate AND tuesday_hard_gate, all pre-registered before that run). No gate softened. No forced ship."
+}
