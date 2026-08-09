@@ -53,9 +53,10 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePath
 
 REPO = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO / "setup" / "scripts"
@@ -77,6 +78,32 @@ MCP_CONFIG_SOURCES = [
     (HOME / ".claude" / "settings.json", "TOP"),
     (HOME / ".claude.json", "PROJECT"),
 ]
+
+# --- Claude Code hook-command check (5) -----------------------------------------------
+# BLIND SPOT THAT SHIPPED THIS CHECK (J: "too many cmd and windows popups", 2026-08-09):
+# checks 1-4 cover .ps1 text, .py text, MCP launchers, and Task Scheduler actions. NONE of
+# them looked at `hooks` in settings.json -- and PreToolUse/PostToolUse fire on EVERY tool
+# call in EVERY project, interactive and headless, which makes an unwrapped hook command
+# strictly the highest-frequency console-flash source on this box. Concretely: the GLOBAL
+# PreToolUse hook sat at a bare `npx -y block-no-verify@1.1.2` for a month. npx resolves to
+# a .cmd/.ps1 shim on Windows, so every single tool call flashed a console, and this audit
+# reported GREEN throughout -- the string lives in ~/.claude/settings.json's `hooks` block,
+# which nothing here read. Note this repo's OWN project hooks were already correctly wrapped
+# via run_hook_hidden.py; only the global one was missed, which is exactly why the check has
+# to be mechanical instead of relying on whoever edits a settings file remembering.
+HOOK_CONFIG_SOURCES = [
+    REPO / ".claude" / "settings.json",
+    REPO / ".claude" / "settings.local.json",
+    HOME / ".claude" / "settings.json",
+    HOME / ".claude" / "settings.local.json",
+]
+# A hook command is compliant when it is launched by pythonw (GUI subsystem -> no console of
+# its own) AND routed through a wrapper that applies CREATE_NO_WINDOW to the real child.
+HOOK_APPROVED_WRAPPERS = {"run_hook_hidden.py", "hidden_hook.py"}
+HOOK_CONSOLE_LAUNCHERS = {
+    "npx", "npm", "node", "bun", "deno", "uvx", "uv",
+    "python", "python3", "py", "cmd", "powershell", "pwsh", "wsl", "bash", "sh", "git",
+}
 
 # Files exempt from the bare-python rule (e.g., interactive launchers J runs by hand,
 # the helper itself, etc.).
@@ -337,12 +364,83 @@ def _scan_coverage() -> dict:
     return {"ps1_files_scanned": ps1_count, "py_files_scanned": py_count}
 
 
+def _hook_commands(cfg: dict) -> list[tuple[str, str]]:
+    """Yield (event, command) for every `type: command` hook in a settings dict."""
+    out: list[tuple[str, str]] = []
+    hooks = cfg.get("hooks")
+    if not isinstance(hooks, dict):
+        return out
+    for event, matchers in hooks.items():
+        if not isinstance(matchers, list):
+            continue
+        for matcher in matchers:
+            if not isinstance(matcher, dict):
+                continue
+            for hook in matcher.get("hooks", []) or []:
+                if isinstance(hook, dict) and hook.get("type") == "command":
+                    cmd = hook.get("command")
+                    if isinstance(cmd, str) and cmd.strip():
+                        out.append((str(event), cmd))
+    return out
+
+
+def _first_token(cmd: str) -> str:
+    """Basename of a command's executable, lowercased, .exe stripped."""
+    try:
+        tok = shlex.split(cmd, posix=False)[0]
+    except (ValueError, IndexError):
+        tok = cmd.split()[0] if cmd.split() else ""
+    tok = tok.strip('"').strip("'")
+    base = PurePath(tok.replace("\\", "/")).name.lower()
+    return base[:-4] if base.endswith(".exe") else base
+
+
+def _audit_hook_commands() -> tuple[list[dict], int]:
+    """Check (5): Claude Code hook commands must run through the hidden wrapper chain.
+
+    Returns (flags, hooks_scanned). Highest-frequency surface on the box -- see
+    HOOK_CONFIG_SOURCES above for the incident that shipped this check.
+    """
+    flags: list[dict] = []
+    scanned = 0
+    for path in HOOK_CONFIG_SOURCES:
+        if not path.is_file():
+            continue
+        try:
+            cfg = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            flags.append({
+                "file": str(path), "line": 0, "flag": "HOOK_CONFIG_UNREADABLE",
+                "detail": f"{type(e).__name__}: {e}",
+                "fix": "Settings file must be valid JSON for its hooks to be auditable.",
+            })
+            continue
+
+        for event, cmd in _hook_commands(cfg):
+            scanned += 1
+            launcher = _first_token(cmd)
+            if launcher.startswith("pythonw") and any(w in cmd for w in HOOK_APPROVED_WRAPPERS):
+                continue  # compliant: pythonw + a CREATE_NO_WINDOW wrapper
+            if launcher in HOOK_CONSOLE_LAUNCHERS or launcher.startswith("python"):
+                flags.append({
+                    "file": str(path), "line": 0, "flag": "HOOK_BARE_CONSOLE_LAUNCHER",
+                    "detail": f"[{event}] launcher {launcher!r} spawns a console on every "
+                              f"tool call: {cmd[:110]}",
+                    "fix": "Route through pythonw + a hidden wrapper, e.g. "
+                           "`<pythonw.exe> ~/.claude/scripts/hidden_hook.py <cmd...>` "
+                           "(or setup/scripts/run_hook_hidden.py for a .ps1).",
+                })
+    return flags, scanned
+
+
 def main() -> int:
     ps1_flags = _audit_ps1_bare_python()
     py_flags = _audit_py_missing_creationflags()
     mcp_flags = _audit_mcp_configs()
     task_flags = _audit_live_task_registry()
+    hook_flags, hooks_scanned = _audit_hook_commands()
     coverage = _scan_coverage()
+    coverage["hook_commands_scanned"] = hooks_scanned
 
     empty_scan_flags: list[dict] = []
     # STRUCTURAL GUARD: these directories/the task registry are NEVER legitimately
@@ -364,7 +462,17 @@ def main() -> int:
             "fix": "Verify PY_AUDIT_ROOTS paths resolve under this REPO checkout.",
         })
 
-    all_flags = ps1_flags + py_flags + mcp_flags + task_flags + empty_scan_flags
+    # This repo's own .claude/settings.local.json always defines hooks, so a 0 count means
+    # the hook scan didn't actually look -- same C7 logic as the ps1/py empty guards.
+    if hooks_scanned == 0:
+        empty_scan_flags.append({
+            "file": "HOOK_CONFIG_SOURCES", "line": 0, "flag": "EMPTY_SCAN_HOOKS",
+            "detail": "0 hook commands found across any settings.json -- scan did not run "
+                      "for real (this repo's .claude/settings.local.json defines several).",
+            "fix": "Verify HOOK_CONFIG_SOURCES paths resolve and the settings files parse.",
+        })
+
+    all_flags = ps1_flags + py_flags + mcp_flags + task_flags + hook_flags + empty_scan_flags
     report = {
         "audited_at": datetime.now(timezone.utc).isoformat(),
         "health": "RED" if all_flags else "GREEN",
@@ -372,6 +480,7 @@ def main() -> int:
         "py_subprocess_no_creationflags_count": len(py_flags),
         "mcp_unwrapped_launcher_count": len(mcp_flags),
         "live_task_registry_count": len(task_flags),
+        "hook_bare_console_count": len(hook_flags),
         "scan_coverage": coverage,
         "flags": all_flags,
     }
@@ -388,6 +497,8 @@ def main() -> int:
     print(f"  Py subprocess w/o creationflags:  {report['py_subprocess_no_creationflags_count']}")
     print(f"  MCP servers w/o pythonw shim:     {report['mcp_unwrapped_launcher_count']}")
     print(f"  LIVE task registry violations:    {report['live_task_registry_count']}")
+    print(f"  Hook cmds w/o hidden wrapper:     {report['hook_bare_console_count']} "
+          f"({coverage['hook_commands_scanned']} scanned)")
     if all_flags:
         print(f"\n  FLAGS ({len(all_flags)}):")
         for f in all_flags[:25]:
