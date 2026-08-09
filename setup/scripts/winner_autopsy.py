@@ -1246,6 +1246,16 @@ def main() -> int:
                 last_payload["stop_mode_shadow"] = sms.run()
             except Exception as me:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["stop_mode_shadow"] = {"error": f"{type(me).__name__}: {me}"[:200]}
+            # --- DIRECTION SYMMETRY audit (2026-08-09) rides this SAME nightly fire rather
+            # than taking a 61st scheduled task (cost discipline: task count is already ~60).
+            # Answers "is the engine as willing to go LONG as SHORT" -- J had to notice the
+            # asymmetry in prose because no surface reported it. Descriptive only, flips
+            # nothing. Revert: delete this try-block.
+            try:
+                import direction_symmetry_audit as dsa
+                last_payload["direction_symmetry"] = dsa.run()
+            except Exception as de:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["direction_symmetry"] = {"error": f"{type(de).__name__}: {de}"[:200]}
             LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
 
         print(f"[winner-autopsy] {scope}: {len(winners)} winners found, {len(rows)} autopsied, "

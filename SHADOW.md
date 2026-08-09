@@ -1,14 +1,46 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-08-09 19:48:52 Sunday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
-- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 2 session rows; latest: `{"date": "2026-08-07", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-07T14:43:18.851807", "est": false, "n_added": 57, "added_pnl": -945.0, "binary_day_pnl": 80.0, "ladder`
+- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 6 session rows; latest: `{"date": "2026-08-07", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-09T15:21:21.595305", "est": false, "n_added": 57, "added_pnl": -945.0, "binary_day_pnl": 80.0, "ladder`
 - **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl`
 - **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — artifact appears after the next close.
 
-## Frozen preregs (clocks live in the linked docs)
+- **stop_mode premium-vs-structure** (16:25 fold) — ARMED_AWAITING_FILLS — accrual starts 2026-08-10
+- **Direction symmetry** (16:25 fold) — **RED**: 4 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
+
+## Frozen preregs — auto-discovered
+
+- `TRIGGER-PARITY-BULL-2026-08-09` — [[analysis/recommendations/prereg-trigger-parity-2026-08-09]] · does **not** ship on its own evidence
+- `LADDER-X-PREMIUM-2026-08-09` — [[analysis/recommendations/prereg-ladder-x-premium-2026-08-09]] · **blocked**, deliberately unrun
+- `CATASTROPHE-CAP-DECISION-2026-08-09` — [[analysis/recommendations/prereg-catastrophe-cap-decision-2026-08-09]] · does **not** ship on its own evidence
+- `STOP-MODE-LIVE-ARM-RISKY3-2026-08-09` — [[analysis/recommendations/prereg-stop-mode-live-arm-risky3-2026-08-09]]
+- `STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09` — [[analysis/recommendations/prereg-stop-mode-structure-vs-premium-2026-08-09]]
+- `TRENDLINE-ENGINE-VALIDATION-2026-08-09` — [[analysis/recommendations/prereg-trendline-engine-validation-2026-08-09]]
+- `prereg-entry-exit-matrix-2026-08-09` — [[analysis/recommendations/prereg-entry-exit-matrix-2026-08-09]]
+- `prereg-profitability-2026-08-08` — [[analysis/recommendations/prereg-profitability-2026-08-08]]
+- `GATE-REVALIDATION-2026-08-08` — [[analysis/recommendations/prereg-gate-revalidation-2026-08-08]]
+- `prereg-ribbon-flipback-buffer-v2-2026-08-08` — [[analysis/recommendations/prereg-ribbon-flipback-buffer-v2-2026-08-08]]
+- `prereg-ribbon-flipback-buffer-2026-08-08` — [[analysis/recommendations/prereg-ribbon-flipback-buffer-2026-08-08]]
+- `SCORE-LADDER-V2-DEMERIT-2026-08-07` — [[analysis/recommendations/prereg-score-ladder-v2-2026-08-07]]
+- `prereg-runner-finite-tgt-candidate-2026-08-06` — [[analysis/recommendations/prereg-runner-finite-tgt-candidate-2026-08-06]]
+- `prereg-runner-be-floor-2026-08-06` — [[analysis/recommendations/prereg-runner-be-floor-2026-08-06]]
+- `TP1-REACHABILITY-2026-08-06` — [[analysis/recommendations/prereg-tp1-reachability-2026-08-06]]
+- `LEVER-CATCAP-2026-08-06` — [[analysis/recommendations/prereg-lever-catcap-2026-08-06]]
+- `BULL-VIX-SOFT-MODE-SOLE-BLOCKER-2026-08-03` — [[analysis/recommendations/prereg-bull-vix-soft-mode-2026-08-03]]
+- `PRETP1-BE-FLOOR-ISOLATED (iteration 4 of the exit-leak arm axis)` — [[analysis/recommendations/prereg-pretp1-be-floor-isolated-2026-08-02]]
+- `prereg-bold-selective-fallback-2026-08-02` — [[analysis/recommendations/prereg-bold-selective-fallback-2026-08-02]]
+- `prereg-bold-adaptive-sizing-2026-08-02` — [[analysis/recommendations/prereg-bold-adaptive-sizing-2026-08-02]]
+- `REGIME-STANDDOWN-EARLY-CLASSIFIER-2026-08-02` — [[analysis/recommendations/prereg-regime-standdown-2026-08-02]]
+- `prereg-min-contracts-bold-2026-08-02` — [[analysis/recommendations/prereg-min-contracts-bold-2026-08-02]]
+- `VIX-REGIME-GATE-ARCHETYPE-PARTICIPATION-2026-08-02` — [[analysis/recommendations/prereg-vix-regime-gate-archetype-2026-08-02]]
+- `prereg-trendline-context-conditioning-2026-08-01` — [[analysis/recommendations/prereg-trendline-context-conditioning-2026-08-01]]
+- `PAIRED-RIBBON-AB-2026-08-01` — [[analysis/recommendations/prereg-paired-ribbon-2026-08-01]]
+- _+25 older preregs on disk (see `analysis/recommendations/prereg-*.json`)_
+
+## Frozen preregs — curated (richer write-ups)
 
 - **TP1 sell-half at +100% (R_tp100_f50)** → [[analysis/deep-research/TP1-REACHABILITY-2026-08-06]]
 - **Runner finite 2.5x target** → [[analysis/deep-research/HOLD-WINNERS-2026-08-06]]

@@ -559,7 +559,85 @@ def build_preregs_board(stamp: str) -> str:
              + (f"latest: `{chop[-1].relative_to(REPO)}`" if chop else "artifact appears after the next close."))
     L.append("")
 
-    L.append("## Frozen preregs (clocks live in the linked docs)")
+    # --- stop_mode forward clock + direction-symmetry audit (2026-08-09). Both ride the
+    # 16:25 Gamma_WinnerAutopsy fold. Added here because SHADOW.md is THE surface for
+    # "what is accruing right now" and neither was visible anywhere -- J had to ask.
+    sm = REPO / "analysis" / "recommendations" / "stop-mode-shadow-summary.json"
+    if sm.exists():
+        try:
+            d = json.loads(sm.read_text(encoding="utf-8"))
+            if d.get("input_stale"):
+                tail = "⚠️ **INPUT STALE** — the ledger stopped feeding it; counts are frozen."
+            elif d.get("n_trades"):
+                tail = (f"n={d['n_trades']} trades / {d.get('n_days')} days, "
+                        f"cum Δ **${d.get('cum_delta_dollars', 0):,.2f}** "
+                        f"({d.get('mean_delta_per_trade')}/tr), "
+                        f"mechanism {'HOLDS' if d.get('mechanism_signature_holds') else 'FAILS'}, "
+                        f"{d.get('days_to_bar')} days to bar")
+            else:
+                tail = f"{d.get('status', 'armed')} — accrual starts {d.get('accrual_start')}"
+            L.append(f"- **stop_mode premium-vs-structure** (16:25 fold) — {tail}")
+        except Exception:  # noqa: BLE001
+            L.append("- **stop_mode premium-vs-structure** (16:25 fold) — summary unreadable")
+    else:
+        L.append("- **stop_mode premium-vs-structure** (16:25 fold) — no summary yet; "
+                 "first fire is the next weekday close.")
+    ds = REPO / "automation" / "state" / "direction-symmetry.json"
+    if ds.exists():
+        try:
+            d = json.loads(ds.read_text(encoding="utf-8"))
+            s = d.get("summary", {})
+            L.append(f"- **Direction symmetry** (16:25 fold) — **{d.get('traffic_light')}**: "
+                     f"{s.get('asymmetric_numeric_knobs')} asymmetric knobs, "
+                     f"{len(s.get('gates_on_stale_evidence') or [])} gates on stale evidence, "
+                     f"{s.get('phantom_documented_knobs')} phantom documented knobs "
+                     f"→ [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]")
+        except Exception:  # noqa: BLE001
+            L.append("- **Direction symmetry** (16:25 fold) — state unreadable")
+    else:
+        L.append("- **Direction symmetry** (16:25 fold) — no state yet.")
+    L.append("")
+
+    # --- AUTO-DISCOVERED frozen preregs. Was a hardcoded 6-item list, which meant every
+    # prereg frozen after it was written became invisible (4 were, on 2026-08-09 alone, and
+    # J had to ask whether anything knew about them). Curated entries below keep their rich
+    # doc links; anything else on disk is listed automatically so the surface can never fall
+    # behind the work again.
+    curated_files = set()
+    L.append("## Frozen preregs — auto-discovered")
+    L.append("")
+    seen_ids: set[str] = set()
+    rows: list[tuple[str, str]] = []
+    # Sort by RECENCY, not filename. Reverse-alphabetical silently dropped preregs frozen the
+    # same evening whose names start with an early letter (catastrophe-cap, ladder-x-premium
+    # fell outside the cap while zone-* survived) -- a board about what is accruing NOW must
+    # rank by when, not by spelling.
+    for p in sorted(REPO.glob("analysis/recommendations/prereg-*.json"),
+                    key=lambda q: q.stat().st_mtime, reverse=True):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8", errors="replace"))
+        except Exception:  # noqa: BLE001
+            continue
+        pid = str(d.get("prereg_id") or p.stem)
+        if pid in seen_ids:
+            continue
+        seen_ids.add(pid)
+        ships = d.get("ship_rule")
+        state = ""
+        if isinstance(ships, dict):
+            if ships.get("ships_tonight") is False or ships.get("ships_from_this_document") is False:
+                state = " · does **not** ship on its own evidence"
+        status = d.get("status")
+        if isinstance(status, str) and status.upper().startswith("FROZEN HYPOTHESIS"):
+            state = " · **blocked**, deliberately unrun"
+        rows.append((pid, f"- `{pid}` — [[{p.relative_to(REPO).as_posix()[:-5]}]]{state}"))
+    for _pid, line in rows[:25]:
+        L.append(line)
+    if len(rows) > 25:
+        L.append(f"- _+{len(rows) - 25} older preregs on disk (see "
+                 f"`analysis/recommendations/prereg-*.json`)_")
+    L.append("")
+    L.append("## Frozen preregs — curated (richer write-ups)")
     L.append("")
     for label, rel in (
         ("TP1 sell-half at +100% (R_tp100_f50)", "analysis/deep-research/TP1-REACHABILITY-2026-08-06.md"),
