@@ -231,3 +231,74 @@ class TestDataSpine:
         assert fld.live_path("MES", "5m") != fld.master_path("MES", "5m")
         assert "continuous" in fld.master_path("MES", "5m").name
         assert "live" in fld.live_path("MES", "5m").name
+
+
+# ── EOD review ────────────────────────────────────────────────────────────────
+
+class TestFuturesEod:
+    """The digest's job is to make a DEAD lane look different from a QUIET one."""
+
+    def _rows(self, n, date="2026-08-12"):
+        return [{"ts_et": f"{date}T10:{i:02d}:00", "action": "HOLD", "n_signals": 0,
+                 "freshness": "GREEN"} for i in range(n)]
+
+    def test_a_dark_lane_is_not_reported_as_a_quiet_one(self):
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        dark = eod.tick_coverage([], "2026-08-12")
+        quiet = eod.tick_coverage(self._rows(78), "2026-08-12")
+        assert dark["verdict"] == "DARK"
+        assert quiet["verdict"] == "GREEN"
+        assert dark["verdict"] != quiet["verdict"], (
+            "zero trades from a dead engine must not render like zero trades from a "
+            "disciplined one -- this is the whole point of the coverage metric")
+
+    def test_partial_coverage_is_yellow_then_red(self):
+        """Bands are fractions of the 78 expected ticks: >=90% GREEN, >=70% YELLOW,
+        anything above zero below that RED. 65/78 = 83% and 40/78 = 51%."""
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        assert eod.tick_coverage(self._rows(72), "2026-08-12")["verdict"] == "GREEN"
+        assert eod.tick_coverage(self._rows(65), "2026-08-12")["verdict"] == "YELLOW"
+        assert eod.tick_coverage(self._rows(40), "2026-08-12")["verdict"] == "RED"
+
+    def test_weekend_is_no_session_not_a_failure(self):
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        assert eod.tick_coverage([], "2026-08-08")["verdict"] == "WEEKEND"
+
+    def test_dark_coverage_forces_a_red_digest_even_with_no_rule_breaks(self, monkeypatch):
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        monkeypatch.setattr(eod, "_read_ledger", lambda date: [])
+        monkeypatch.setattr(eod, "round_trips",
+                            lambda date, fills: {"fills": fills, "n": 0, "total_pnl": 0.0,
+                                                 "win_rate": None, "best": None,
+                                                 "worst": None, "by_setup": {},
+                                                 "by_exit": {}, "rows": []})
+        d = eod.build("2026-08-12")
+        assert d["verdict"] == "RED" and not d["rule_breaks"]
+
+    def test_post_hoc_audit_catches_an_entry_the_gate_should_have_blocked(self):
+        """Independent of the pre-trade gate on purpose: a bypassed or mis-wired gate is
+        invisible to a check that only runs inside that same gate."""
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        rows = [{"ts_et": "2026-08-12T10:00:00", "action": "ENTER", "freshness": "RED",
+                 "entry": {"qty": 9, "risk_usd": 900.0, "stop": None}}]
+        breaks = eod.rule_audit(rows, {"total_pnl": 0.0})
+        rules = {b["rule"] for b in breaks}
+        assert {"contract_cap", "per_trade_risk", "defined_stop", "data_freshness"} <= rules
+
+    def test_a_clean_entry_raises_no_breaks(self):
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        rows = [{"ts_et": "2026-08-12T10:00:00", "action": "ENTER", "freshness": "GREEN",
+                 "entry": {"qty": 1, "risk_usd": 50.0, "stop": 7790.0}}]
+        assert eod.rule_audit(rows, {"total_pnl": 25.0}) == []
+
+    def test_session_loss_cap_breach_is_flagged(self):
+        from futures import futures_eod as eod  # noqa: PLC0415
+
+        breaks = eod.rule_audit([], {"total_pnl": -250.0})
+        assert any(b["rule"] == "session_loss_cap" for b in breaks)

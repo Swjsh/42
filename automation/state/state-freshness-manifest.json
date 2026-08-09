@@ -276,6 +276,18 @@
         "16:10"
       ],
       "weekdays_only": true
+    },
+    {
+      "path": "automation/state/futures/eod-summary.json",
+      "writer": "backtest/futures/futures_eod.py",
+      "task": "Gamma_FuturesEod2 (16:12 ET weekdays)",
+      "consumer": "the futures learn loop + J's daily signal. SILENT DEGRADE: if the reviewer stops running, the last digest pins forever and the lane looks reviewed when nobody reviewed it -- the same class of silence the digest's own tick-coverage metric exists to catch one level down.",
+      "criticality": "medium",
+      "max_age_min": 1500,
+      "date_field": "date",
+      "date_expected_after_et": "16:15",
+      "window_et": null,
+      "weekdays_only": true
     }
   ]
 }
