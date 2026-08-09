@@ -1,0 +1,46 @@
+{
+  "prereg_id": "LADDER-X-PREMIUM-2026-08-09",
+  "frozen_at_et": "2026-08-09 18:45:06 Sunday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py, run this session",
+  "frozen_before_any_runner": true,
+  "status": "FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.",
+
+  "the_observation": {
+    "source": "analysis/deep-research/ENTRY-EXIT-MATRIX-2026-08-09.md (96 cells) + analysis/recommendations/stop-mode-structure-vs-premium-2026-08-09.json (pre-registered confirmatory A/B)",
+    "what_the_cells_show": "The score-ladder admission rows are LOSERS under the shipped structure exit and POSITIVE under a premium stop -- at large n, which is what makes them interesting rather than noise:",
+    "cells": {
+      "LADDER7": {"n": 1527, "control_exp": -7.14, "premium_exp": 17.16, "delta": 24.30, "premium_boot_p": 0.0044},
+      "LADDER8": {"n": 1242, "control_exp": -0.57, "premium_exp": 26.71, "delta": 27.28, "premium_boot_p": 0.0005},
+      "LADDER9": {"n": 967, "control_exp": 3.86, "premium_exp": 32.68, "delta": 28.82, "premium_boot_p": 0.0009},
+      "ZONE": {"n": 2141, "control_exp": -4.87, "premium_exp": 18.66, "delta": 23.53, "premium_boot_p": 0.0010}
+    },
+    "all_four_survived_BH_FDR": "q=0.10 across all 36 cells the A/B tested"
+  },
+
+  "why_this_matters_for_the_actual_goal": "The daily target is $100-200 per account. The core binary population is ~289 trades over 205 trading days -- roughly 1.4 trades/day, so even a good per-trade edge cannot reach the target on volume that thin. The ladder rows carry 967-2141 trades over the same window (3-7x the volume). If the premium-stop finding is real, the ladder is the ONLY measured path from 'per-trade edge' to 'daily dollar target', because it is the only place the volume exists. That is why this is worth pre-registering rather than leaving as a matrix footnote.",
+
+  "hypothesis": "Score-ladder admission (rungs 7/8/9), which is unprofitable under the shipped structure exit, becomes profitable under a premium stop -- i.e. the ladder's admitted-but-marginal entries are specifically the ones that structure invalidation exits badly.",
+  "mechanism_under_test": "A rung-admitted entry is by construction a WEAKER setup than a full-gate entry (it passed on demerits). A weaker setup is less likely to hold its trigger level, so a structure stop referenced to that level fires late and often. A fixed -20% premium stop does not care how good the setup was; it caps the damage identically. If true, the ladder's loss under structure mode is an EXIT artifact, not an entry-quality verdict -- which would also retroactively explain why the ladder was HELD at its gate on 2026-08-07.",
+
+  "hard_blocker": {
+    "does_not_run_until": "risky-3's forward premium-stop result clears its own gates (n >= 20 trading days AND n >= 30 fills, expectancy positive, mechanism signature holds).",
+    "why_blocked_and_not_just_run_now": "Both ladder and premium are unshipped hypotheses. Testing their INTERACTION before either leg is independently confirmed forward is how a plausible stack becomes a compounding error -- and the retrospective real-fills layer has ALREADY failed the premium mechanism gate twice (0/4 rows, and again in the paired shadow clock). Running this now would produce a big attractive number resting on a leg that is currently failing its own test. The 181-cell/zero-ship history is what that pattern looks like at scale.",
+    "if_risky3_FAILS": "This prereg is CLOSED unrun and recorded as closed. The ladder question then returns to its 2026-08-07 HOLD on the original evidence. Writing this down now so a failed premium leg cannot quietly leave the ladder hypothesis floating as 'still promising'."
+  },
+
+  "when_unblocked_the_design": {
+    "populations": [
+      "A: the 399-day replay, ladder rungs 7/8/9 x {structure, premium}, sequential one-position walk, exits via exit_manager_walk.walk_exit_manager only",
+      "B: forward real fills from risky-3 (which already runs the score ladder AND, as of 2026-08-09, the premium stop -- so its live book is literally this joint cell)"
+    ],
+    "battery": "n, total, expectancy, WR, drop-best-day, sub-window stability, Tuesday 2026-08-04 no-harm where evaluable, bootstrap p, BH-FDR across every cell tested",
+    "interaction_requirement": "Report the INTERACTION term explicitly (actual minus additive prediction from the ladder-alone and premium-alone effects). If the joint cell is merely additive, there is no ladder-specific story and the finding collapses back into the plain stop_mode result -- which would already be covered by risky-3 and needs no separate ship.",
+    "mechanism_check": "Same falsifiable signature as the parent: win rate must FALL while expectancy RISES. Additionally, the effect must be LARGER on lower rungs (7 < 8 < 9 in setup quality => the exit-artifact story predicts the biggest premium benefit on the WEAKEST rung). If the gradient runs the other way, the mechanism story is wrong even if the dollars are good."
+  },
+
+  "ship_rule": {
+    "ships_from_this_document": false,
+    "note": "Nothing here authorizes arming a ladder rung or changing any arm. A pass would authorize a pre-registered single-arm forward trial, exactly as the stop_mode finding did -- one arm, one variable, revert documented."
+  },
+  "reporting_rule": "Every cell reported including failures. If this prereg is closed unrun, that closure is written into the file and into the queue -- an unrun pre-registration that quietly disappears is indistinguishable from a hidden negative result."
+}
