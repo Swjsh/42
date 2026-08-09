@@ -84,6 +84,57 @@ export function humanizeCommitSubject(subject: unknown, maxLen: number): string 
   return truncateWordBoundary(text, maxLen);
 }
 
+const COMMIT_TYPE_LABELS: Record<string, string> = {
+  feat: "Shipped a feature",
+  fix: "Fixed a bug",
+  perf: "Improved performance",
+  refactor: "Cleaned up code",
+  test: "Added tests",
+  docs: "Updated the docs",
+  chore: "Routine maintenance",
+  ci: "Updated automation",
+  style: "Tidied formatting",
+  build: "Updated the build",
+  revert: "Reverted a change",
+};
+const COMMIT_TYPE_RE = /^([a-z]+)(\([^)]*\))?:\s*/;
+
+/** "feat(gates): rewire the gate-expiry instrument..." -> "Shipped a feature"
+ * -- a short, plain-English label for the conventional-commit type prefix,
+ * used as the activity feed's "ad tile" headline (the humanized SUBJECT
+ * becomes the description underneath, see humanizeCommitSubject). Unknown or
+ * missing type -> a neutral fallback; never invents a category the commit
+ * message didn't state. */
+export function commitTypeLabel(subject: unknown): string {
+  const text = String(subject ?? "").trim();
+  const m = COMMIT_TYPE_RE.exec(text);
+  const type = m?.[1]?.toLowerCase();
+  return (type && COMMIT_TYPE_LABELS[type]) || "Made a change";
+}
+
+const OCC_SUFFIX_RE = /^(\d{6})([CP])(\d{8})$/;
+
+/** "SPY260807C00773000" -> "SPY $773 call" -- decodes a real OCC option
+ * symbol (root + YYMMDD + C/P + strike*1000, the format journal/trades.csv's
+ * `contract` column stores) into plain English for display. Pure
+ * reformatting of real data already in the row -- never invents a
+ * strike/side the symbol didn't encode. Anything that doesn't match the OCC
+ * shape (a malformed/partial symbol) is returned unchanged rather than
+ * guessed at. */
+export function humanizeOccSymbol(raw: unknown): string {
+  const text = String(raw ?? "").trim().toUpperCase();
+  if (text.length < 15) return text;
+  const root = text.slice(0, text.length - 15);
+  const suffix = text.slice(text.length - 15);
+  const m = OCC_SUFFIX_RE.exec(suffix);
+  if (!root || !m) return text;
+  const [, , cp, strikeDigits] = m;
+  const strike = Number(strikeDigits) / 1000;
+  if (!Number.isFinite(strike)) return text;
+  const strikeText = Number.isInteger(strike) ? String(strike) : strike.toFixed(2);
+  return `${root} $${strikeText} ${cp === "C" ? "call" : "put"}`;
+}
+
 /** "BULLISH_RECLAIM_RIDE_THE_RIBBON" -> "Bullish reclaim ride the ribbon".
  * Turns a SCREAMING_SNAKE_CASE engine identifier (setup name, reason code)
  * into something that reads like a sentence fragment rather than a constant. */

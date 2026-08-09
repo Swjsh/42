@@ -95,7 +95,7 @@ export default function GammaAppPage() {
               title="Live activity"
               defaultOpen
               badge={{ text: `${view.activity.length} today` }}
-              summary={view.activity[0]?.title ?? "—"}
+              summary={view.activity[0]?.headline ?? "—"}
             >
               <ActivityFeed events={view.activity} nowMs={nowMs} />
             </Tile>

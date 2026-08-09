@@ -34,11 +34,17 @@ export async function readThisWeek(limit = 3): Promise<ThisWeekItem[]> {
       const clauses = rest.split(/\s::\s/);
       const desc = clauses[0] ?? rest;
       const detailClauses = clauses.slice(1).filter((c) => c.trim());
+      // Short, always-visible headline (an "ad tile" title, not the whole
+      // engineering writeup) vs. the full clause + depends:/status: metadata,
+      // which only appears once the card is clicked open.
+      const shortText = sanitizeText(desc, 70, "(no description)");
+      const fullText = sanitizeText(desc, 500, "");
+      const breakdownParts = [fullText !== shortText ? fullText : "", ...detailClauses].filter((c) => c.trim());
       candidates.push({
         id,
         priority,
-        text: sanitizeText(desc, 150, "(no description)"),
-        detail: detailClauses.length ? sanitizeText(detailClauses.join(" · "), 300, "") || undefined : undefined,
+        text: shortText,
+        detail: breakdownParts.length ? sanitizeText(breakdownParts.join(" · "), 600, "") || undefined : undefined,
       });
       if (candidates.length >= 40) break; // plenty to rank from without scanning the whole file
     }

@@ -32,14 +32,19 @@ export interface ActivityEvent {
   type: ActivityEventType;
   /** True UTC instant as an ISO string -- always a real timestamp, never a guess. */
   atIso: string;
-  title: string;
-  subtitle?: string;
+  /** Short, plain-English "ad tile" title (e.g. "Fixed a bug", "Won on
+   * Bullish reclaim ride the ribbon") -- always visible, never jargon. */
+  headline: string;
+  /** One clean supporting line under the headline, always visible while the
+   * card is collapsed (e.g. the humanized commit subject, "SPY $773 call —
+   * +$614"). Undefined when the headline already says everything. */
+  description?: string;
   /** "up" (win/bull/green) | "down" (loss/bear/red) | undefined (neutral). */
   tone?: "up" | "down";
-  /** Extra real detail beyond the one-line title -- e.g. a commit's full body
-   * (git log %b), a trade row's remaining CSV fields. Undefined when the
-   * source genuinely has nothing more to say (never fabricated to fill
-   * space). Shown on hover/expand, never invented. */
+  /** The full technical breakdown -- e.g. a commit's untruncated subject +
+   * hash + body, a trade's entry/exit prices and hold time. Revealed only
+   * when the card is clicked open. Undefined when the source genuinely has
+   * nothing more to say (never fabricated to fill space). */
   detail?: string;
 }
 
