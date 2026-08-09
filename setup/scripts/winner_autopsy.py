@@ -1234,6 +1234,18 @@ def main() -> int:
                 last_payload["entry_shadow"] = esc.run_nightly()
             except Exception as se:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["entry_shadow"] = {"error": f"{type(se).__name__}: {se}"[:200]}
+            # --- STOP-MODE forward clock (2026-08-09) rides this SAME nightly fire, SAME fold
+            # contract (fail-open, additive, descriptive-only, no new scheduled task). Walks
+            # each real engine fill under BOTH the shipped structure-stop exit and a
+            # premium-stop variant and accrues the paired per-trade delta toward the >= 20
+            # trading-day bar in prereg STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 (commit
+            # 2a36724a). Changes NO knob and places no order -- reaching the bar is permission
+            # to run a pre-registered A/B, never to ship. Revert: delete this try-block.
+            try:
+                import stop_mode_shadow_ledger as sms
+                last_payload["stop_mode_shadow"] = sms.run()
+            except Exception as me:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["stop_mode_shadow"] = {"error": f"{type(me).__name__}: {me}"[:200]}
             LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
 
         print(f"[winner-autopsy] {scope}: {len(winners)} winners found, {len(rows)} autopsied, "
