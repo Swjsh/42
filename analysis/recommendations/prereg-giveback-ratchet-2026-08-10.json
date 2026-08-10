@@ -1,0 +1,67 @@
+{
+  "prereg_id": "GIVEBACK-RATCHET-2026-08-10",
+  "frozen_at_et": "2026-08-10 10:51 Monday EDT (mid-session, BEFORE any runner; positions still open)",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py, run this session",
+  "frozen_before_any_runner": true,
+  "money": "PAPER. No live-money change proposed. No param edited while positions are open (rule 9).",
+
+  "j_directive_verbatim_2026_08_10": "Why are we holding out for a hundred percent? That's unrealistic. like, ninety percent is cool. I'm gonna be triggered and upset and devastated if we are up ninety percent and then just give back all the money. Like, once we get that far up, we need a trailing stop loss at, like, sixty or seventy percent or something. So we lock in a majority of that profit.",
+
+  "the_spec_as_j_stated_it": {
+    "shape": "A RATCHET, not a trailing percentage. Once MFE reaches an arm threshold, a hard floor is placed at a FIXED GAIN LEVEL and never lowered.",
+    "j_numbers": "arm at MFE >= +90% of entry premium; floor at +60% to +70% of entry",
+    "give_back_implied": "at a +90% peak with a +65% floor, the most that can be surrendered is 25 of 90 points = ~28% of peak profit",
+    "why_a_ratchet_and_not_a_%-trail": "a %-trail off HWM keeps moving and can still bleed a large winner; a fixed gain floor guarantees a MINIMUM realized outcome once armed, which is what 'lock in a majority of that profit' actually means"
+  },
+
+  "the_root_cause_this_must_fix": "profit_lock_arm_scope='post_tp1' makes ALL trailing protection conditional on TP1 filling. With tp1_premium_pct=1.0 (+100%), TP1 is effectively unreachable on 0DTE, so the lock NEVER arms and the only backstop is the -50% catastrophe cap. Nobody chose 'no trailing stops'; it fell out of two settings interacting. THE RATCHET MUST ARM ON MFE ALONE, never referencing TP1.",
+
+  "live_case_study_captured_before_it_could_be_overwritten": {
+    "artifact": "analysis/deep-research/2026-08-10-live/PEAK-SNAPSHOT.json",
+    "why_it_matters": "This is a real-money n=1 where the defect and the fix are both visible in the same session, on the SAME signal, because one arm happened to have a reachable TP1 and three did not.",
+    "risky-3_WORKED": "entry 0.41, tp1_target 0.82 (reachable because the contract was cheap) -> tp1_filled=True, profit_lock_armed=True, runner_stop 0.7565 ABOVE entry. 6 of 10 banked, runner cannot lose.",
+    "the_three_773C_DID_NOT": "safe-2 entry 1.16 (tp1 2.32), bold-2 1.21 (tp1 2.42), safe-3 1.26 (tp1 2.52). Printed 2.28-2.31 -- 1 to 21 CENTS short of TP1. tp1_filled=False, lock_armed=False, protection = -50% cap at 0.58-0.63 while sitting +81% to +97%.",
+    "grading_j's_own_numbers_against_this_tape": {
+      "safe-2": "entry 1.16, HWM 2.30 = +98% -> ARMS at +90%; floor at +65% = 1.914; guarantees >= +$225 on 3 lots instead of 0",
+      "bold-2": "entry 1.21, HWM 2.31 = +91% -> ARMS (barely); floor 1.997; guarantees >= +$395 on 5 lots",
+      "safe-3": "entry 1.26, HWM 2.31 = +83% -> DOES NOT ARM at a +90% threshold. IMPORTANT: the arm threshold is itself a variable, and +90% is too high to catch this position. This is exactly why the arm level must be swept rather than taken as given -- reported here so the grid is not quietly fitted to the two positions it happens to catch."
+    }
+  },
+
+  "arms_to_test": {
+    "CONTROL": "as shipped: tp1 +100%, profit_lock_arm_scope post_tp1, -50% catastrophe cap",
+    "RATCHET_grid": "arm_at_mfe_pct x floor_pct = {50, 70, 90} x {50, 60, 70, 80} (12 cells), floor never lowered, armed on MFE ONLY (TP1 untouched)",
+    "GIVEBACK_CAP_grid": "exit the whole position if it surrenders more than {20, 25, 33, 50}% of peak profit",
+    "J_SPEC": "the exact cell J named: arm +90%, floor +65% -- reported separately so his stated rule is never buried inside a grid average"
+  },
+
+  "gates": [
+    "PRIMARY -- DOLLARS KEPT: total realized $ over the population. Win rate is explicitly NOT the metric (lowering TP1 raised WR 24.6%->39.9% while destroying expectancy; that trap is already measured).",
+    "G_TODAY (disqualifier): any cell that would NOT have protected today's 2.28-2.31 peak on the three 773C positions is DISQUALIFIED regardless of aggregate.",
+    "G_RUNNER: the runner cohort must not be materially clipped. Pre-TP1 %-trailing already failed exactly here (-$7,759 -> -$3,898 across arm_pct 0.05/0.20/0.30/0.40) -- a ratchet is structurally different (fixed floor, never chases price) but it MUST be proven not to repeat that failure.",
+    "G_DROP_BEST: survives removing the single best day.",
+    "G_SUB_WINDOW: sign-consistent across chronological halves.",
+    "BH-FDR q=0.10 across every cell tested."
+  ],
+
+  "kill_criteria": [
+    "Any cell that clips the runner cohort like the pre-TP1 trailing lock did -> killed, and the finding becomes 'the runner cohort cannot tolerate ANY pre-TP1 floor', which would be a genuinely important negative.",
+    "J_SPEC specifically fails G_RUNNER or G_TODAY -> say so plainly to J with the number rather than shipping a worse neighbouring cell that happens to score better; his rule and the grid winner are reported as SEPARATE results."
+  ],
+
+  "prior_art_to_RECONCILE_before_running_anything": [
+    "analysis/recommendations/be-floor-ab-2026-07-29.json / .md",
+    "analysis/recommendations/pretp1-be-floor-isolated-ab-2026-08-02.json / .md",
+    "analysis/recommendations/prereg-runner-be-floor-2026-08-06.json",
+    "analysis/deep-research/TP1-REACHABILITY-2026-08-06.md",
+    "analysis/deep-research/HOLD-WINNERS-2026-08-06.md",
+    "ENTRY-EXIT-MATRIX-2026-08-09.json: MFE_TRAIL +$18.34 and STRUCT_ONLY +$39.62 both beat CONTROL +$16.06 WITHOUT touching TP1 -- the decoupling is already directionally supported",
+    "RULE: read these verdicts FIRST. Re-discovering a recorded null is the specific failure that cost weeks on this exact question."
+  ],
+
+  "ship_rule": {
+    "ships_from_this_document": false,
+    "note": "A pass authorises a pre-registered single-arm forward trial with a documented one-line revert, same shape as the risky-3 stop_mode arming. Nothing is edited while positions are open."
+  },
+  "reporting_rule": "Every cell reported including failures. J's named cell reported separately and by name."
+}
