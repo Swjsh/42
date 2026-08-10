@@ -335,6 +335,13 @@ function Stop-StaleClaudeProcesses {
         'discord-bridge.py',
         'discord-watcher.py',
         'discord-responder.py',
+        # intraday_position_tracker.py (2026-08-10): read-only intraday capture of open
+        # positions + exit-state (HWM / tp1_filled / profit_lock_armed). It is BY DESIGN a
+        # long-running RTH daemon, so the 5-minute reaper killed its first run at exactly
+        # the 5-minute mark (ran 11:00->11:05, 40 rows, then died silently with exit 0 --
+        # the documented "this rig kills its own processes" signature). Places no orders and
+        # touches no params; exempting it cannot affect a trade.
+        'intraday_position_tracker.py',
         'sniper_pipeline.py',
         'sniper_overnight_grinder.py',
         'sniper_stage2_grinder.py',
