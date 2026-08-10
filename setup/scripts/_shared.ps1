@@ -336,11 +336,20 @@ function Stop-StaleClaudeProcesses {
         'discord-watcher.py',
         'discord-responder.py',
         # intraday_position_tracker.py (2026-08-10): read-only intraday capture of open
-        # positions + exit-state (HWM / tp1_filled / profit_lock_armed). It is BY DESIGN a
-        # long-running RTH daemon, so the 5-minute reaper killed its first run at exactly
-        # the 5-minute mark (ran 11:00->11:05, 40 rows, then died silently with exit 0 --
-        # the documented "this rig kills its own processes" signature). Places no orders and
-        # touches no params; exempting it cannot affect a trade.
+        # positions + exit-state (HWM / tp1_filled / profit_lock_armed). BY DESIGN a
+        # long-running RTH daemon, so it belongs here on its own merits (it would be reaped
+        # if ever launched with system python rather than the already-exempt backtest venv).
+        #
+        # CORRECTION OF RECORD, same session: the comment first committed here claimed the
+        # reaper had killed its first run at the 5-minute mark. THAT WAS WRONG. Both early
+        # exits were caused by piping the tracker through `head -N` -- head exits after N
+        # lines, closes the pipe, and python dies on the broken pipe with exit 0. Run 1 was
+        # piped through `head -40` and produced EXACTLY 40 lines; run 2 through `head -60`
+        # and produced EXACTLY 60. The line counts matched the head limits precisely, and
+        # unrelated python processes were still alive the whole time -- both facts were
+        # available before the misdiagnosis and neither was checked. The 5-minute timing was
+        # a coincidence that happened to match a documented scar. Kept as a warning: matching
+        # a known failure signature is not the same as reading the evidence.
         'intraday_position_tracker.py',
         'sniper_pipeline.py',
         'sniper_overnight_grinder.py',
