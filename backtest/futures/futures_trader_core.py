@@ -210,7 +210,17 @@ def _write_heartbeat(now_et: dt.datetime, verdict: str, detail: dict,
 # ── data ──────────────────────────────────────────────────────────────────────
 
 def refresh_data(root: str, interval: str = "5m", *, force: bool = False) -> dict:
-    """Extend the live bar cache, rate-limited. Returns the freshness verdict either way."""
+    """Extend the live bar cache, rate-limited. Returns the freshness verdict either way.
+
+    Persists `fld.FRESHNESS_FILE` on every call (2026-08-10 fix). Before this fix the
+    file was only ever written by `futures_live_data.py`'s own `--append`/`--check` CLI
+    path -- never by the live tick loop that actually calls this function -- so the
+    persisted snapshot silently froze at whatever a manual CLI run last wrote (caught
+    2026-08-10: `state_freshness_audit.py` flagged it a full session behind while the
+    live bar cache itself was refreshing correctly, i.e. the watchdog needed its own
+    watchdog wired to the real call site). This is exactly the C7 class this module's
+    own docstring warns about.
+    """
     should = force
     if not should:
         try:
@@ -227,8 +237,13 @@ def refresh_data(root: str, interval: str = "5m", *, force: bool = False) -> dic
             # actually decides, and it reads the file, not this call's return value.
             _append_ledger({"event": "data_refresh_failed", "root": root,
                             "error": f"{type(e).__name__}: {e}",
-                            "at_et": et_now().isoformat(timespec="seconds")}, paths)
-    return fld.freshness(root, interval)
+                            "at_et": et_now().isoformat(timespec="seconds")})
+    verdict = fld.freshness(root, interval)
+    try:
+        fld.write_freshness_snapshot((root,), interval)
+    except Exception:  # noqa: BLE001 -- snapshot write never breaks the tick
+        pass
+    return verdict
 
 
 # ── the tick ──────────────────────────────────────────────────────────────────
