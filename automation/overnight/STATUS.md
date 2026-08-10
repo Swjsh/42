@@ -53,6 +53,11 @@ Cost this fire: ~$3.3 (root-cause trace across 2 modules + 1 scheduled-task
 inspection, fix + 2-bug adjacent repair, 3-test guard authored/run, 177-test
 blast-radius re-run, commit + stash-recovery detour, queue/lesson/STATUS writeup).
 
+**Autonomy metric note:** `conductor_outcome.py metric` reports `trend: regressing`
+(net_improvement 85 over last 20 fires, cost/drained $0.76). Flagging per OP-22 --
+next fire should prefer another loop-closing item (drain, not accumulate) over a new
+artifact until this trends back to stable/improving.
+
 ---
 
 ## [2026-08-10T01:xx ET] CONDUCTOR: OK -- TWIN-ESCALATION-BACKLOG-TRIAGE + TWIN-TS-UTC-DRIFT guard -- commit pending -- REVOKE surface
