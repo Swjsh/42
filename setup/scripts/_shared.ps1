@@ -87,6 +87,15 @@ function Invoke-PythonHidden {
     $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
+    # .NET's StreamReader for a redirected pipe decodes using the CONSOLE output
+    # codepage by default (cp1252/OEM on this box), independent of what encoding the
+    # CHILD process actually wrote in. Once PYTHONIOENCODING=utf-8 (below) makes the
+    # child emit real UTF-8 bytes, decoding those bytes as cp1252 on this side produces
+    # silent mojibake (proven empirically: U+2265 round-tripped as "Γ\xeb\xd1") --
+    # not a crash, but corrupted text landing in every .python.log and any digest that
+    # echoes captured stdout verbatim. Force both sides to agree on UTF-8.
+    $psi.StandardOutputEncoding = [System.Text.Encoding]::UTF8
+    $psi.StandardErrorEncoding = [System.Text.Encoding]::UTF8
     if ($InputObject) { $psi.RedirectStandardInput = $true }
 
     # Resolve venv site-packages so 3rd-party deps (pandas, etc.) work without using the
@@ -98,6 +107,18 @@ function Invoke-PythonHidden {
         $psi.EnvironmentVariables["PYTHONPATH"] = $venvSite
         $psi.EnvironmentVariables["VIRTUAL_ENV"] = $venvDir
     }
+    # FIX (2026-08-10, kitchen_reviewer UnicodeEncodeError incident): a headless
+    # CREATE_NO_WINDOW child has no real console, so Python falls back to the Windows
+    # ANSI codepage (cp1252 on this box) for stdout/stderr instead of UTF-8. Any script
+    # that prints a non-cp1252 character (curly quotes, em-dash, >=/<=, emoji -- all
+    # routine in free-LLM-generated text this repo pipes straight to print()) crashes
+    # with UnicodeEncodeError and exits 1, silently, from Task Scheduler's point of view.
+    # kitchen_reviewer.py hit this exact way (U+2265 "≥" in a followup string) on
+    # 2026-08-10 04:50 ET. run-kalshi-tick.ps1/run-kalshi-auto.ps1 already carried this
+    # fix locally (2026-08-09) but it was never backported to the shared launcher every
+    # OTHER wrapper uses -- so the same crash was latent for all 37 Invoke-PythonHidden
+    # callers, including the live heartbeat wrappers. Fixed once, here, for all of them.
+    $psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
 
     $proc = [System.Diagnostics.Process]::Start($psi)
     if ($InputObject) {
