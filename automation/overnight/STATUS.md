@@ -1,3 +1,60 @@
+## [2026-08-10T18:45 ET] CONDUCTOR: OK -- FUTURES-FRESHNESS-SNAPSHOT-NEVER-PERSISTED fix (commit a6d7e581) -- REVOKE surface
+
+**Task picked (priority-2, Engine RED):** `engine-health.json` flagged `state_freshness`
+RED at fire start -- `automation/state/futures/data-freshness.json` dated 2026-08-09
+despite a fully clean 2026-08-10 live session (heartbeat/dispatch GREEN,
+`Gamma_FuturesTrader LastTaskResult=0`).
+
+**Root cause (verified, one sentence):** `futures_trader_core.refresh_data()` -- the
+function the LIVE 5-min futures tick actually calls every cycle -- read
+`fld.FRESHNESS_FILE` to decide whether to rate-limit its own re-fetch, but never
+called `fld.write_freshness_snapshot()` to persist it back; only
+`futures_live_data.py`'s own `--append`/`--check` CLI entry points ever wrote that
+file, so the persisted snapshot silently froze at whatever a manual CLI run last
+wrote while the underlying live bar cache kept refreshing correctly through a
+separate call (`fld.append_live`, invoked directly). Exactly the C7 class
+(`futures_live_data.py`'s own docstring names this pattern -- a fetcher whose watchdog
+only the CLI writes is not a watchdog on the live loop).
+
+**Fix (additive, one function):** `refresh_data()` now calls
+`fld.write_freshness_snapshot((root,), interval)` on every call, both branches
+(refetch and rate-limited-skip), so the persisted file always reflects the real live
+tick cadence. Also fixed an adjacent latent bug found while reading the function: the
+`data_refresh_failed` exception handler referenced an undefined `paths` name -- would
+have raised `NameError` and masked a real fetch failure with a crash instead, the
+first time `append_live` ever actually raised.
+
+**RED-proofed:** `backtest/tests/test_futures_refresh_data_persists_freshness.py` (3
+new tests) -- isolated tmp-path monkeypatching reproduces the exact caught bug (stale
+on-disk snapshot survives a live tick untouched pre-fix), proves the file gets
+re-persisted every call post-fix, and proves a failed fetch no longer raises
+`NameError`. Full futures suite re-run clean: `test_futures_trader_core.py` +
+`test_futures_heartbeat.py` + `test_futures_mirror_shadow.py` +
+`test_futures_risk_rails.py` = 177/177 green, no regression. Curated safety gate
+59/59 PASS (ran automatically at commit time).
+
+**Rail-4 clear:** single function, additive-only, one commit --
+`git revert a6d7e581` cleanly undoes it. Touches only the futures live-data refresh
+path (paper/mechanism-evidence lane per the module's own EVIDENCE STATUS section, no
+order placement/decision logic) -- guard + revert + this REVOKE report satisfy rail
+4, no J pre-approval needed.
+
+**Lesson filed:**
+`strategy/candidates/_lesson-inbox/futures-freshness-watchdog-never-wired-to-live-tick-2026-08-10.md`
+for lesson-author to encode as the next L## (candidate C7 fold: "a self-monitoring
+snapshot is only trustworthy if the live tick loop writes it, not just the CLI").
+
+**Why this outranked the queue:** Engine RED (STAGE 1 priority-2) outranks HIGH/MED
+backlog items by design -- an unaddressed `engine-health.json` RED is exactly the
+class of active, self-flagged problem the conductor exists to close before adding new
+artifacts.
+
+Cost this fire: ~$3.3 (root-cause trace across 2 modules + 1 scheduled-task
+inspection, fix + 2-bug adjacent repair, 3-test guard authored/run, 177-test
+blast-radius re-run, commit + stash-recovery detour, queue/lesson/STATUS writeup).
+
+---
+
 ## [2026-08-10T01:xx ET] CONDUCTOR: OK -- TWIN-ESCALATION-BACKLOG-TRIAGE + TWIN-TS-UTC-DRIFT guard -- commit pending -- REVOKE surface
 
 **Task picked (priority-4 queue): 9 `TWIN-ESCALATION` rows sitting `status:pending` in
@@ -712,3 +769,12 @@ CRLF catch-and-fix, task_scorer + pytest regression checks, STATUS/queue update)
 
 ## Kitchen
 Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=scorecard-python
+
+### BROKEN: self-check 2026-08-10T18:39:56
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
+- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-08-10T07:45:00 ET fire (~623.3h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+- TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TRENDLINE-FEED DEGRADED: trendlines.json is 88.4 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
+- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
+- SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
