@@ -100,7 +100,7 @@ if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
 
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -109,7 +109,7 @@ SCRIPTS = REPO / "setup" / "scripts"
 if str(SCRIPTS) not in _sys.path:
     _sys.path.insert(0, str(SCRIPTS))
 
-from et_clock import et_now  # noqa: E402
+from et_clock import et_now, et_offset_hours  # noqa: E402
 
 STATE = REPO / "automation" / "state"
 TWIN_DIR = STATE / "crypto-twin"
@@ -197,6 +197,59 @@ def _read_json(path: Path) -> Optional[dict]:
     return data if isinstance(data, dict) else None
 
 
+def _et_naive_to_utc_approx(et_naive: datetime) -> datetime:
+    """Best-effort naive-ET -> UTC using the DST-aware offset table (et_clock.py:
+    NEVER hardcode -4/-5). Looks up the offset against the ET value itself (treating
+    it as if it were the UTC instant) -- off by at most 1h in the rare week around a
+    DST transition, which is fine here: this is a coarse CROSS-CHECK, never an
+    authoritative clock (see _row_effective_utc)."""
+    offset = et_offset_hours(et_naive.replace(tzinfo=timezone.utc))
+    return (et_naive - timedelta(hours=offset)).replace(tzinfo=timezone.utc)
+
+
+def _row_effective_utc(row: dict, *, drift_tolerance_minutes: float = 30.0) -> Optional[datetime]:
+    """The row's best-available UTC timestamp, cross-checked against a corrupted
+    `ts_utc` field.
+
+    GUARD (TWIN-TS-UTC-DRIFT, 2026-08-10 conductor triage of TWIN-ESCALATION-20260804):
+    a still-unlocated writer appends some HOLD_BAD_BARS ("bar feed not ok: stale_data")
+    rows to decisions.jsonl with `ts_utc` FROZEN at a wrong historical value while
+    `ts_et` (from et_now(), never injectable in production) stays genuinely fresh --
+    16 confirmed occurrences 2026-07-15..2026-08-09, real ts_et write times scattered
+    across 6+ different calendar dates, every one carrying the identical wrong
+    ts_utc="2026-07-15T04:00:00+00:00". One of them was the LAST row in decisions.jsonl
+    at the moment twin_sentinel checked freshness on 2026-08-04T14:00:01Z, producing an
+    EXACT 29,400.0-minute false-positive TICK_GAP escalation (29400 min == precisely
+    2026-07-15T04:00 -> 2026-08-04T14:00, proving the mechanism, not a coincidence).
+    Root writer NOT yet found despite ruling out crypto_twin_core.run_tick's direct
+    call chain, crypto_twin_scenarios.run_scenario_tick, crypto_twin_health.
+    run_tick_with_health, twin_gauntlet.py's DRY fixtures (isolated tmp_dir + a
+    different frozen date), and twin_chaos_drill.drill_stale_feed (uses real wall
+    clock) -- see queue.md TWIN-ESCALATION triage note for the ruled-out list, so a
+    future session doesn't repeat this search. Cross-checking ts_utc against ts_et
+    closes the CONSUMER side of the gap without needing the producer fix: ts_et has no
+    injectable override in any traced call path, so it is the more trustworthy field
+    whenever the two disagree by more than a DST-ambiguity-sized tolerance."""
+    ts_utc = _parse_iso(row.get("ts_utc"))
+    ts_et_raw = row.get("ts_et")
+    et_naive = None
+    if isinstance(ts_et_raw, str) and ts_et_raw:
+        try:
+            et_naive = datetime.fromisoformat(ts_et_raw).replace(tzinfo=None)
+        except ValueError:
+            et_naive = None
+    et_as_utc = _et_naive_to_utc_approx(et_naive) if et_naive is not None else None
+
+    if ts_utc is not None and et_as_utc is not None:
+        drift_minutes = abs((ts_utc - et_as_utc).total_seconds()) / 60.0
+        if drift_minutes <= drift_tolerance_minutes:
+            return ts_utc
+        return et_as_utc  # ts_utc looks corrupted -- ts_et-derived UTC is more trustworthy
+    if ts_utc is not None:
+        return ts_utc
+    return et_as_utc
+
+
 def _parse_iso(s) -> Optional[datetime]:
     if not isinstance(s, str) or not s:
         return None
@@ -217,7 +270,7 @@ def _parse_iso(s) -> Optional[datetime]:
 def evaluate_tick_freshness(rows: list[dict], now_utc: datetime) -> dict:
     last_dt: Optional[datetime] = None
     for row in reversed(rows):
-        dt_ = _parse_iso(row.get("ts_utc")) or _parse_iso(row.get("ts_et"))
+        dt_ = _row_effective_utc(row)  # cross-checked vs ts_et -- see TWIN-TS-UTC-DRIFT guard
         if dt_:
             last_dt = dt_
             break
@@ -230,7 +283,7 @@ def evaluate_tick_freshness(rows: list[dict], now_utc: datetime) -> dict:
     for row in rows:
         d = row.get("session_date_utc")
         if not d:
-            dt_ = _parse_iso(row.get("ts_utc"))
+            dt_ = _row_effective_utc(row)  # same cross-check as tick freshness
             d = dt_.strftime("%Y-%m-%d") if dt_ else None
         if d == today_utc_str:
             ticks_today += 1

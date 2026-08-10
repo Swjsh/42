@@ -155,6 +155,52 @@ def test_tick_freshness_uptime_none_at_utc_midnight_zero_expected():
 
 
 # ============================================================================
+# TWIN-TS-UTC-DRIFT guard (2026-08-10, conductor triage of TWIN-ESCALATION-20260804):
+# a still-unlocated writer sometimes appends a HOLD_BAD_BARS row to decisions.jsonl
+# with `ts_utc` frozen at a wrong historical value while `ts_et` stays genuinely
+# fresh. RED-PROOFED below: reverting evaluate_tick_freshness to trust ts_utc alone
+# (as it did before this guard) makes test_tick_freshness_ignores_corrupted_ts_utc_
+# using_ts_et FAIL (huge bogus age instead of the ts_et-derived ~10min).
+# ============================================================================
+def test_row_effective_utc_trusts_self_consistent_ts_utc():
+    row = {"ts_utc": "2026-08-04T14:00:01+00:00", "ts_et": "2026-08-04T10:00:01.500000"}
+    dt = tsm._row_effective_utc(row)
+    assert dt == datetime(2026, 8, 4, 14, 0, 1, tzinfo=UTC)
+
+
+def test_row_effective_utc_overrides_corrupted_ts_utc_with_ts_et():
+    """The real 2026-08-04 incident, reproduced verbatim: ts_utc frozen at the
+    2026-07-15T04:00:00 value while ts_et correctly shows 2026-08-04."""
+    row = {"ts_utc": "2026-07-15T04:00:00+00:00", "ts_et": "2026-08-04T09:59:59.205191"}
+    dt = tsm._row_effective_utc(row)
+    # 2026-08-04 is EDT (UTC-4) -- 09:59:59 ET -> 13:59:59 UTC, NOT 2026-07-15.
+    assert dt.date().isoformat() == "2026-08-04"
+    assert dt.year == 2026 and dt.month == 8 and dt.day == 4
+
+
+def test_tick_freshness_ignores_corrupted_ts_utc_using_ts_et():
+    """The exact real-world false-positive this guard closes: without the
+    cross-check, this reports a ~29400-minute (20.4-day) TICK_GAP; with it, the
+    freshness reflects ts_et's genuinely-recent write time."""
+    rows = [{"ts_utc": "2026-07-15T04:00:00+00:00", "ts_et": "2026-08-04T09:59:59.205191"}]
+    now_utc = datetime(2026, 8, 4, 14, 0, 1, tzinfo=UTC)
+    facts = tsm.evaluate_tick_freshness(rows, now_utc)
+    assert facts["tick_age_minutes"] < 5.0  # was ~29400.0 before this guard
+    assert facts["tick_age_minutes"] is not None
+
+
+def test_row_effective_utc_no_ts_et_falls_back_to_raw_ts_utc():
+    """Rows with no ts_et (older schema / other writers) keep working exactly as
+    before -- nothing to cross-check against, so ts_utc is trusted as-is."""
+    row = {"ts_utc": "2026-07-11T00:35:00+00:00"}
+    assert tsm._row_effective_utc(row) == datetime(2026, 7, 11, 0, 35, tzinfo=UTC)
+
+
+def test_row_effective_utc_all_missing_returns_none():
+    assert tsm._row_effective_utc({}) is None
+
+
+# ============================================================================
 # count_incidents_today -- schema-tolerant
 # ============================================================================
 def test_count_incidents_today_matches_by_date_substring():
