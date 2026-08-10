@@ -190,6 +190,19 @@ class ExitState:
     # default) is fully inert -- this is a NEW additive knob, no existing persisted
     # exit-state.json record or ExitShape declares it.
     pre_tp1_be_floor_arm_pct: Optional[float] = None
+    # PROFIT RATCHET FLOOR LEVEL (2026-08-10, J-DIRECTED mid-session, rule-9 override by the
+    # rule author -- his 3rd/4th escalation of "trailing stops", armed same day the three 773C
+    # calls peaked +83/+91/+98% with zero protection and closed red, -$568 realized from a
+    # +$970 open peak). Where pre_tp1_be_floor_arm_pct alone floors at ENTRY (breakeven, the
+    # shape that FAILED G4 on 2026-08-02 by scratching pullback-then-run winners at $0), this
+    # knob raises the armed floor to entry*(1 + pre_tp1_floor_pct) -- J's spec: arm high,
+    # floor at "sixty or seventy percent" so a near-double can never round-trip red. None =
+    # floor stays at entry (byte-identical to the 2026-08-02 semantics). Only meaningful when
+    # pre_tp1_be_floor_arm_pct is also set. J's counter to the G4 veto, on the record: the
+    # veto cohort was round-trip-to-entry-then-run trades ("that's not a good entry then...
+    # pure gambling"), and a floored exit frees the arm to re-enter -- a counterfactual the
+    # single-position replay never priced. Forward ledger decides.
+    pre_tp1_floor_pct: Optional[float] = None
 
     @staticmethod
     def from_entry(*, symbol: str, side: str, entry_premium: float, qty: int,
@@ -253,6 +266,9 @@ class ExitState:
             pre_tp1_be_floor_arm_pct=(
                 None if exit_shape.get("pre_tp1_be_floor_arm_pct") is None
                 else float(exit_shape["pre_tp1_be_floor_arm_pct"])),
+            pre_tp1_floor_pct=(
+                None if exit_shape.get("pre_tp1_floor_pct") is None
+                else float(exit_shape["pre_tp1_floor_pct"])),
         )
 
     def to_dict(self) -> dict:
@@ -269,6 +285,7 @@ class ExitState:
             "catastrophe_stop_pct": self.catastrophe_stop_pct,
             "profit_lock_arm_scope": self.profit_lock_arm_scope,
             "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
+            "pre_tp1_floor_pct": self.pre_tp1_floor_pct,
         }
 
     @staticmethod
@@ -300,6 +317,9 @@ class ExitState:
             pre_tp1_be_floor_arm_pct=(
                 None if d.get("pre_tp1_be_floor_arm_pct") is None
                 else float(d["pre_tp1_be_floor_arm_pct"])),
+            pre_tp1_floor_pct=(
+                None if d.get("pre_tp1_floor_pct") is None
+                else float(d["pre_tp1_floor_pct"])),
         )
 
 
@@ -402,7 +422,14 @@ def plan_exit_actions(
         # CONTROL whether or not this knob is set. Inert (no-op) when None, the default.
         if (state.pre_tp1_be_floor_arm_pct is not None
                 and best_premium >= entry * (1.0 + state.pre_tp1_be_floor_arm_pct)):
-            runner_stop = max(runner_stop, entry)
+            # RATCHET LEVEL (2026-08-10, J-directed): when pre_tp1_floor_pct is set the armed
+            # floor sits at entry*(1+floor_pct) -- bank a fixed majority of the move -- not at
+            # breakeven. None preserves the 2026-08-02 BE semantics byte-identically. max()
+            # keeps it a RATCHET: the floor can never be lowered by a later tick, and it can
+            # only ever RAISE runner_stop, so the catastrophe/structure stops beneath are
+            # untouched.
+            _floor = entry * (1.0 + (state.pre_tp1_floor_pct or 0.0))
+            runner_stop = max(runner_stop, _floor)
         lock_ratcheted = round(runner_stop, 4) > round(orig_stop, 4)
         if state.profit_lock_arm_scope == ARM_SCOPE_FULL or state.pre_tp1_be_floor_arm_pct is not None:
             pre_state = replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,

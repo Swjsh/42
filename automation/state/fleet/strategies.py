@@ -49,6 +49,19 @@ class ExitShape:
     # pre-TP1 included). Every sim study that passed profit_lock_threshold_pct>0 assumed
     # "full"; NO live shape declares it until a live-machine scorecard + STOP-B arms it.
     profit_lock_arm_scope: str = "post_tp1"
+    # PROFIT RATCHET (2026-08-10, J-DIRECTED mid-session -- rule-9 override by the rule
+    # author, his repeated "trailing stops" escalation, armed the day three 773C calls peaked
+    # +83/+91/+98% and closed red with $0 banked). Arms once best_premium clears
+    # entry*(1+pre_tp1_be_floor_arm_pct); the floor then sits at entry*(1+pre_tp1_floor_pct)
+    # and can never be lowered. Independent of TP1 and of the post-TP1 chandelier (which is
+    # byte-identical whether or not these are set). None/None = exactly yesterday's engine.
+    # PRIOR ART, disclosed not hidden: a floor AT ENTRY arming at +30/50/70% failed its G4
+    # runner veto on 2026-08-02 (scratched pullback-then-run winners at $0). THIS shape --
+    # arm high, floor well above entry -- was never tested there; J's on-record counter is
+    # that the G4 cohort was bad entries bailed out by luck, and a floored exit frees the arm
+    # to re-enter (never priced by the single-position replay). Forward ledger decides.
+    pre_tp1_be_floor_arm_pct: "float | None" = None
+    pre_tp1_floor_pct: "float | None" = None
 
     def to_dict(self) -> dict:
         """The exit-shape dict the executor/live paths thread through (kept in sync with
@@ -64,6 +77,8 @@ class ExitShape:
             "stop_mode": self.stop_mode,
             "catastrophe_stop_pct": self.catastrophe_stop_pct,
             "profit_lock_arm_scope": self.profit_lock_arm_scope,
+            "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
+            "pre_tp1_floor_pct": self.pre_tp1_floor_pct,
         }
 
 
@@ -101,6 +116,7 @@ RIBBON_RIDE = Strategy(
     # -50% intrabar catastrophe cap, TP1 +100% sell 66%, trailing runner 15% off HWM,
     # runner_target 99.0 == the cell's tgt-none (runner exits via structure/trail/EOD only).
     exit=ExitShape(premium_stop_pct=-0.20, tp1_premium_pct=1.0, tp1_qty_fraction=0.667,
+                   pre_tp1_be_floor_arm_pct=0.75, pre_tp1_floor_pct=0.60,
                    profit_lock_mode="trailing", runner_target_pct=99.0, trail_pct=0.15,
                    stop_mode="structure", catastrophe_stop_pct=-0.50),
     note="SS-B structure-stop cell shipped 2026-07-09 (STOP-B; waiver: structure stops sit "
