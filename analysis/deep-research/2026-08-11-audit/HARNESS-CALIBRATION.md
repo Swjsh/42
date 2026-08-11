@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED SAME NIGHT — v4 is NOT the final calibration.** The "+$384" headline below was two errors cancelling (SPY feed ended 07-22 = optimistic; 2¢ slippage = pessimistic). **Final = v5: `extreme` fills + 1¢ slippage + full SPY union feed → bias −$7.4/pos, 95% sign agreement** (see the 08-11 loop commits and the lesson-inbox item *two-errors-cancelling-calibration*). The v1→v4 narrative below stands as the record of how it was found.
+
 # Harness calibration + what it says once it can be trusted — 2026-08-11
 
 ## The harness was broken twice, then fixed
