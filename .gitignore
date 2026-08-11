@@ -190,6 +190,22 @@ automation/state/futures/mirror-shadow-state.json
 automation/state/futures/mirror-positions.json
 automation/state/j-intents.json
 
+# STATE-FRESHNESS-REVERSION-FOLLOWUP-2 (2026-08-10): the 2026-07-21 sweep above missed these 6.
+# state_freshness_audit.py (built 2026-07-30, itself a sibling of this exact incident) caught
+# them RED tonight: all 6 last-committed 2026-07-14/07-15 (the SAME stash-drop-incident commit)
+# yet actively rewritten every 5-10min since -- live-verified this fire (level_memory_producer.py
+# run + logged output both show fresh today's-date content computed and written every cycle, but
+# the on-disk file kept reverting back to the 07-14/07-15 committed snapshot between checks --
+# same tracked-but-rarely-committed hazard class as DECISION_GATING_SNAPSHOTS above, just a
+# different file set the 07-21 triage didn't cover). See
+# backtest/tests/test_ledger_gitignore_guard.py STATE_FRESHNESS_REVERSION_FOLLOWUP_2.
+automation/state/key-levels-memory.json
+automation/state/prior-rth-close.json
+automation/state/trade-today.json
+automation/state/confluence-zones.json
+automation/state/ema-snapshot.json
+automation/state/context-bundle.json
+
 # Crypto twin signal-backtest bar cache (3.9MB, regenerable from Alpaca)
 analysis/crypto-twin/btc_5m_cache.json
 

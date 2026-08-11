@@ -69,6 +69,22 @@ DECISION_GATING_SNAPSHOTS = [
     "automation/state/j-intents.json",
 ]
 
+# STATE-FRESHNESS-REVERSION-FOLLOWUP-2 (2026-08-10): the 2026-07-21 triage above missed these 6.
+# state_freshness_audit.py (built 2026-07-30, a sibling detector for this exact class) caught
+# them RED/YELLOW tonight -- all last-committed 2026-07-14/07-15 (the SAME stash-drop-incident
+# commit as LEDGERS/STATE_SNAPSHOTS above) despite live-verified continuous rewrites since (their
+# own producer logs show fresh today's-date output computed and written every 5-10min cycle, yet
+# the on-disk file kept reading back as the stale 07-14/07-15 committed snapshot). Same mechanism,
+# different file set -- the prior sweep's "confirmed 13" list was a partial triage, not exhaustive.
+STATE_FRESHNESS_REVERSION_FOLLOWUP_2 = [
+    "automation/state/key-levels-memory.json",
+    "automation/state/prior-rth-close.json",
+    "automation/state/trade-today.json",
+    "automation/state/confluence-zones.json",
+    "automation/state/ema-snapshot.json",
+    "automation/state/context-bundle.json",
+]
+
 
 def test_decision_ledgers_are_gitignored():
     for path in LEDGERS:
@@ -141,6 +157,34 @@ def test_decision_gating_snapshots_are_gitignored():
 def test_decision_gating_snapshots_are_untracked():
     r = subprocess.run(
         ["git", "-C", str(REPO), "ls-files", "--", *DECISION_GATING_SNAPSHOTS],
+        capture_output=True,
+        text=True,
+    )
+    tracked = [ln for ln in r.stdout.splitlines() if ln.strip()]
+    assert not tracked, (
+        f"Still tracked in the index (gitignore alone does not untrack): {tracked}. "
+        f"Run `git rm --cached <path>` for each."
+    )
+
+
+def test_state_freshness_reversion_followup_2_are_gitignored():
+    for path in STATE_FRESHNESS_REVERSION_FOLLOWUP_2:
+        r = subprocess.run(
+            ["git", "-C", str(REPO), "check-ignore", "-q", path],
+            capture_output=True,
+        )
+        assert r.returncode == 0, (
+            f"{path} is NOT gitignored -- a tree-wide git stash/checkout/reset in the "
+            f"shared checkout can silently revert this live producer's output backward "
+            f"to a stale 2026-07-14/07-15 committed snapshot (state_freshness_audit.py "
+            f"caught it RED/YELLOW, 2026-08-10). Re-add it to .gitignore and "
+            f"`git rm --cached` it."
+        )
+
+
+def test_state_freshness_reversion_followup_2_are_untracked():
+    r = subprocess.run(
+        ["git", "-C", str(REPO), "ls-files", "--", *STATE_FRESHNESS_REVERSION_FOLLOWUP_2],
         capture_output=True,
         text=True,
     )
