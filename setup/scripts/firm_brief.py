@@ -600,6 +600,67 @@ def render_core_recency_lines(data: dict, now_et) -> list[str]:
     return lines
 
 
+def render_tomorrow_exits_lines() -> list[str]:
+    """LIVE-RESOLVED (not a snapshot): the exit shape each arm will REGISTER at its next
+    entry, resolved through the exact production functions (strategies registry ->
+    fleet_executor._exit_shape_dict per arm; heartbeat_core's ribbon path reads the same
+    registry .exit.to_dict()). Built 2026-08-10 for the j-mind-check instrument rule: J's
+    repeated "is the new stop logic actually live for tomorrow?" is a STATE question, so the
+    brief carries the resolved truth nightly instead of anyone re-deriving it on demand.
+
+    Why live-resolved when every sibling section renders a snapshot: a snapshot of a config
+    can go stale against the config itself (L287 -- imperative fixes expire when the
+    declarative source regenerates); resolving through the production code path each brief
+    means this section CANNOT disagree with what tomorrow's entry will do. $0, no network,
+    fail-open: any import/resolve error renders one loud RED line, never breaks the brief.
+
+    Also carries the pending-fill-guard presence check: the 2026-08-10 risky-1 put proved a
+    correct SHAPE is worthless if registration gets pruned during the pending-order window,
+    so 'protection is live' = shape AND registration-survival, checked together.
+    Guard: backtest/tests/test_firm_brief_tomorrow_exits.py."""
+    lines: list[str] = []
+    fleet_dir = REPO / "automation" / "state" / "fleet"
+    try:
+        if str(fleet_dir) not in sys.path:
+            sys.path.insert(0, str(fleet_dir))
+        import fleet_executor as _fx  # noqa: PLC0415
+        import strategies as _st  # noqa: PLC0415
+        accounts = json.loads((fleet_dir / "accounts.json").read_text(encoding="utf-8"))
+        ribbon = _st.by_name("ribbon_ride")
+        for arm in accounts.get("arms", []):
+            aid = arm.get("id", "?")
+            if aid in ("safe-1", "kalshi-1") or str(aid).startswith("mes-"):
+                continue
+            sh = _fx._exit_shape_dict(ribbon, arm)
+            ladder = sh.get("pre_tp1_ladder")
+            if not ladder:
+                lines.append(f"- 🚨 {aid}: NO pre_tp1_ladder in resolved shape -- the "
+                             "give-back protection is NOT live for this arm. Fix before open.")
+                continue
+            # ASCII only: console prints route through cp1252 on this box (the
+            # Invoke-PythonHidden UnicodeEncodeError class, fixed 15c1de5e) -- no arrows.
+            rungs = ", ".join(f"+{int(a * 100)}%->floor +{int(f * 100)}%" for a, f in ladder)
+            trail = (f"trail {int(float(sh['pre_tp1_trail_pct']) * 100)}% off HWM arming "
+                     f"@ +{int(float(sh['pre_tp1_trail_arm_pct']) * 100)}%"
+                     if sh.get("pre_tp1_trail_arm_pct") is not None else "no trail")
+            lines.append(f"- {aid}: ladder {rungs} | {trail} | "
+                         f"TP1 +{int(float(sh.get('tp1_premium_pct', 0)) * 100)}% | "
+                         f"stop_mode {sh.get('stop_mode')} | cat {sh.get('catastrophe_stop_pct')}")
+        src = (fleet_dir / "exit_actuator.py").read_text(encoding="utf-8")
+        if "PENDING-FILL GUARD (2026-08-10" in src:
+            lines.append("- registration: pending-fill prune guard PRESENT (a working buy "
+                         "order no longer reads as flat -- the risky-1 -$440 class is closed).")
+        else:
+            lines.append("- 🚨 registration: pending-fill prune guard MISSING from "
+                         "exit_actuator.py -- slow fills can lose their exit management again.")
+        lines.append("- extra setups (vwap/gap/squeeze) trade their own isolated validated "
+                     "cells by design (C29) -- the ladder applies to ribbon_ride entries.")
+    except Exception as e:  # noqa: BLE001 -- brief must render even if resolution breaks
+        lines.append(f"- 🚨 could not resolve tomorrow's exit shapes: {type(e).__name__}: "
+                     f"{str(e)[:120]} -- treat protection as UNVERIFIED until this renders.")
+    return lines
+
+
 def render_prospector_lines(data: dict) -> list[str]:
     """PURE: render the Prospector (exogenous-idea organ, J 2026-07-09: "gamma
     hasn't introduced a single new idea like this at all yet") section body
@@ -763,6 +824,13 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     # same no-live-network-call design as render_health above.
     lines.append("## PDT status (Rule 7 -- per-account day-trades used)")
     lines.extend(render_pdt_lines(self_check))
+    lines.append("")
+
+    # Tomorrow's exit protection, resolved through the PRODUCTION shape-resolution path
+    # (2026-08-10, j-mind-check instrument: J's repeated "is the new stop logic actually
+    # live?" retires here -- the brief proves it nightly instead of anyone re-deriving it).
+    lines.append("## Tomorrow's exits (resolved live from the entry-time code path)")
+    lines.extend(render_tomorrow_exits_lines())
     lines.append("")
 
     # Gamma's own read of its trades (trade_autopsy.py, Gamma_TradeAutopsy 16:15 ET) -- the

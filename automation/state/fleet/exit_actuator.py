@@ -401,6 +401,40 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                             "stop_mode": st.stop_mode, "trigger_level": st.trigger_level})
             continue
         if open_qty <= 0:
+            # PENDING-FILL GUARD (2026-08-10, RISKY1-PUT incident, -$440): "broker shows no
+            # POSITION" is NOT "this lifecycle is over" while an open BUY order for the same
+            # symbol is still working. risky-1's 09:52:06 put limit sat pending_new for 2m43s;
+            # the 09:53/09:54 ticks each read qty=0, D5's 2-read streak confirmed, and the
+            # exit state was pruned at 09:54:05 -- 44 seconds BEFORE the 09:54:49 fill. The
+            # position then ran unmanaged all day (premium stop 1.05 never fired; rode
+            # 1.08 -> 0.20 to the EOD sweep). safe-3/risky-3 survived the same code because
+            # their orders filled inside one tick. A flat read during the pending-order
+            # window is EXPECTED, so it must not count toward the prune streak at all.
+            # getattr-guarded like the primitives above; order-query error fails CLOSED
+            # (hold the state -- keeping a stale record is recoverable, deleting a live
+            # position's management is not; sells no-op on qty<=0 so a held record is inert).
+            _buys_checked = getattr(broker, "open_buy_orders_checked", None)
+            if _buys_checked is not None:
+                _pending, _po_ok = _buys_checked(creds, symbol)
+                if not _po_ok:
+                    results.append({"symbol": symbol, "open_qty": 0, "action": "HOLD",
+                                    "reason": ("flat read but open-order query errored -- "
+                                               "not treated as flat (pending-fill guard)"),
+                                    "stop_mode": st.stop_mode,
+                                    "trigger_level": st.trigger_level})
+                    continue
+                if _pending:
+                    if symbol in streak:  # flat reads so far were the pending window
+                        streak.pop(symbol, None)
+                        streak_changed = True
+                    results.append({"symbol": symbol, "open_qty": 0,
+                                    "action": "PENDING_FILL_HOLD",
+                                    "reason": (f"{len(_pending)} open buy order(s) working -- "
+                                               "flat read is the pending-fill window, "
+                                               "exit state kept (2026-08-10 guard)"),
+                                    "stop_mode": st.stop_mode,
+                                    "trigger_level": st.trigger_level})
+                    continue
             # D5 / SAFE2-PHANTOM-FLAT-PRUNE (2026-08-06): a SINGLE flat read no longer
             # prunes -- the 2026-08-05 13:57 transient qty=0 deleted a still-open 3-lot's
             # exit state (unmanaged 10 min, stop_mode silently downgraded on re-adoption).
@@ -413,6 +447,22 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 streak.pop(symbol, None)
                 streak_changed = True
                 _note_flat_prune_status(arm_id, symbol, st, reads, now_dt)
+                # DURABLE RECEIPT (2026-08-10): today's 09:54:05 risky-1 FLAT_PRUNED called
+                # _note_flat_prune_status yet no line survives in STATUS.md -- that file is
+                # read-modify-write by several market-hours writers, so a concurrent writer
+                # can clobber the inserted line (lost update). The prune event itself must be
+                # durably auditable, so ALSO append one line to a per-arm append-only jsonl
+                # (open 'a' -- no read-modify-write, nothing to race). STATUS stays best-effort.
+                try:
+                    with (FLEET_DIR / arm_id / "prune-log.jsonl").open(
+                            "a", encoding="utf-8") as _fh:
+                        _fh.write(json.dumps({
+                            "ts_et": now_dt.isoformat(), "symbol": symbol,
+                            "flat_reads": reads, "stop_mode": st.stop_mode,
+                            "strategy": st.strategy or "?",
+                            "entry_premium": st.entry_premium}) + "\n")
+                except OSError:
+                    pass  # receipt is best-effort; never blocks the tick
                 # VISIBILITY (2026-07-09, additive/render-only, OP-33c): carry the pruned
                 # position's resolved stop_mode/trigger_level into the log row even though
                 # the ledger entry is gone -- a reader scanning decisions.jsonl for "how was
