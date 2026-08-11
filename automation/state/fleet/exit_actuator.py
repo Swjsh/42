@@ -683,6 +683,18 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
         # closes_position tick pruned unconditionally, so a failed/errored SELL_ALL
         # permanently orphaned the position from exit management (worse than a re-fire --
         # a silent forget) until the 15:55 ET EOD flatten backstop caught it.
+        # KNOWN GAP, deliberately NOT changed here (2026-08-10 night audit, chaos drill):
+        # this condition treats "every SELL_ALL was ACCEPTED broker-side" as "the position is
+        # closed", but accepted is not filled-in-full. A SELL_ALL of 3 that fills only 2
+        # leaves a live lot and prunes its exit state anyway (drill: sells=1, leftover qty=1,
+        # tracked=False). The principled fix is to let ONLY the position read prune, but that
+        # changes prune TIMING for every position on BOTH engines and four existing tests
+        # encode the current contract, so it is a daylight change with the blast radius
+        # walked -- not an unsupervised 2am edit to shared exit semantics.
+        # RESIDUAL RISK IS BOUNDED TO ONE TICK: adoption re-registers the remainder on the
+        # very next tick -- fleet via manage_tick(adopt_untracked=True), core via
+        # heartbeat_core._adopt_untracked_positions. Verified in the drill.
+        # Full write-up: analysis/deep-research/2026-08-10-live/EXIT-FAILURE-MODES.md
         if dec.closes_position and (not live or sell_placed_ok):
             del states[symbol]  # fully closed (or WATCH preview) this tick -> prune
         results.append({"symbol": symbol, "open_qty": open_qty,
