@@ -91,17 +91,31 @@ def spy_by_day() -> dict:
     """{date: {"HH:MM": closed-5m SPY close}} -- the same feed the live engine threads into
     plan_exit_actions as last_closed_5m_close. Without it structure stops cannot fire."""
     import glob as _g
-    best, n = None, -1
+    # UNION all caches, dedupe by timestamp -- pick-biggest-file selected a cache ENDING
+    # 2026-07-22, so every later date had NO SpY feed, structure stops silently could not
+    # fire, and the K2 zone grid returned all-identical cells. Same bug already fixed in
+    # regime_shadow_counter.py; this is the second copy (L294-class sibling copies).
+    frames = []
     for f in _g.glob(str(REPO / "backtest/data/spy_5m_*.csv")):
         try:
             d = _pd.read_csv(f)
+            # The caches are a FEED PATCHWORK (data-provenance strata): some files embed
+            # "-04:00" offsets, some are naive wall-ET. Normalize PER FILE: aware -> convert
+            # to NY; naive -> localize as wall-ET (their on-disk convention). Never utc=True
+            # on a naive column -- that would silently shift wall-ET by 4-5 hours.
+            ts = _pd.to_datetime(d["timestamp_et"], format="mixed")
+            if ts.dt.tz is not None:
+                ts = ts.dt.tz_convert("America/New_York")
+            else:
+                ts = ts.dt.tz_localize("America/New_York")
+            d["ts"] = ts
+            frames.append(d)
         except Exception:  # noqa: BLE001
             continue
-        if len(d) > n:
-            best, n = d, len(d)
-    if best is None:
+    if not frames:
         return {}
-    best["ts"] = _pd.to_datetime(best["timestamp_et"], utc=True).dt.tz_convert("America/New_York")
+    best = _pd.concat(frames, ignore_index=True).drop_duplicates(subset=["ts"])
+    best = best.sort_values("ts")
     out: dict = {}
     for day, g in best.groupby(best["ts"].dt.strftime("%Y-%m-%d")):
         out[day] = dict(zip(g["ts"].dt.strftime("%H:%M"), g["close"].astype(float)))

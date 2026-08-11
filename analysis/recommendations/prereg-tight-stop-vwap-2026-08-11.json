@@ -12,5 +12,19 @@
   ],
   "kill_rule": "FAIL G1 or G2 -> vwap_continuation's tight stop is not supported by real money. Disposition on a FAIL is to WIDEN the stop to the structure/-50% shape that broker truth supports, on ONE fleet arm, as a new pre-registered forward trial -- NOT a fleet-wide flip, and NOT a same-night change to every arm.",
   "explicitly_not_licensed": "This prereg does NOT authorize touching risky-3's stop_mode (governed by prereg-stop-mode-live-arm-risky3-2026-08-09, whose n>=20-day criterion is NOT met -- 2 days elapsed), nor ribbon_ride, nor any params.json key.",
-  "reporting_rule": "Every day reported including the ones that hurt the hypothesis. Best-day concentration stated as a percentage of total."
+  "reporting_rule": "Every day reported including the ones that hurt the hypothesis. Best-day concentration stated as a percentage of total.",
+  "verdict_2026_08_11": {
+    "gates_g1_g3": "FAIL (run earlier: total -$910, drop-best -$1,631, 2/4 days, n=4 days < 8)",
+    "G4_mechanism": {
+      "death_causes_all_vwap_positions": {
+        "premium_stop": 17,
+        "trail": 11,
+        "tp1": 4,
+        "ribbon_flip": 4,
+        "runner_target": 1
+      },
+      "premium_stops_at_lt10pct_adverse": "12/17 -- five exited at POSITIVE or near-zero adverse (+5.9%, +2.8%, +2.4%, 0.0%, -0.5%): the -6% stop is reading the bid-ask spread, not price action. MECHANISM CONFIRMED."
+    },
+    "disposition": "G1/G2 fail + G4 mechanism confirmed -> the prereg's kill rule licenses widening vwap_continuation's stop toward the structure/-50% shape on ONE fleet arm as a NEW pre-registered forward trial. NOT executed tonight: G3 also failed (4 days of data vs 8 required), so the population is too thin even for the fail to be robust. The forward-trial prereg is the next action when VWAP reaches 8 distinct fill days."
+  }
 }

@@ -4,7 +4,15 @@
   "money": "PAPER. Measurement only; nothing armed by this document.",
   "hypothesis": "The structure stop fires ON the exact level (e.g. 771.00, 772.26 on 2026-08-11) and price routinely wicks through a level before continuing. J doctrine: levels are ZONES not prices. A band BELOW the trigger level (for calls; above, for puts) should reduce wick-out exits without materially widening real losses, because the -50% catastrophe cap remains beneath every band.",
   "population": "All real structure_stop exits in the live fleet ledger (23 exits, 8 days, 3 arms) -- positions re-walked with trigger_level shifted by the band. Real OPRA premium bars, calibrated walker v4 (fill_mode=mixed, SPY feed, 2c slippage; residual bias +$384/182 pos = +$2.11/pos, DISCLOSED on every number).",
-  "cells": {"band_spy_points": [0.0, 0.10, 0.20, 0.35, 0.50]},
+  "cells": {
+    "band_spy_points": [
+      0.0,
+      0.1,
+      0.2,
+      0.35,
+      0.5
+    ]
+  },
   "primary_metric": "Paired per-position P&L delta (band - band0) summed, day-clustered.",
   "gates_for_a_forward_trial_not_a_ship": [
     "G1: best band beats band=0 on paired total AND survives drop-best-day.",
@@ -13,6 +21,27 @@
     "G4: n>=15 positions actually affected by at least one band cell; if fewer, the knob is dead-frequency and this closes."
   ],
   "kill": "No band improves on band=0, or the improvement is 1 position -- levels-are-zones stays doctrine for ENTRIES but the exit stop stays at the level; closed both ways.",
-  "disclosures": ["n=23 is small and 3 same-day triples (07-17, 08-04 x2, 08-07) are correlated -- cluster by day.", "The walker cannot see ribbon exits; identical limitation in every cell, cancels in pairing.", "Band values were chosen a priori from J's zone doctrine, not fitted."],
-  "explicitly_not_licensed": "No live config change. A G1-G4 pass licenses ONE pre-registered forward arm trial only."
+  "disclosures": [
+    "n=23 is small and 3 same-day triples (07-17, 08-04 x2, 08-07) are correlated -- cluster by day.",
+    "The walker cannot see ribbon exits; identical limitation in every cell, cancels in pairing.",
+    "Band values were chosen a priori from J's zone doctrine, not fitted."
+  ],
+  "explicitly_not_licensed": "No live config change. A G1-G4 pass licenses ONE pre-registered forward arm trial only.",
+  "verdict_2026_08_11": {
+    "status": "CLOSED by its own G4 -- dead-frequency knob",
+    "run": "29 structure-stop positions priced, calibrated walker v5 (extreme fills, 1c slip, FULL SPY union feed -- the first run used a feed ending 07-22 and returned all-identical cells; that bug also invalidated the earlier +$384 calibration, re-measured to -$7.4/pos at 95% sign agreement).",
+    "cells": {
+      "0.10": 0,
+      "0.20": 611,
+      "0.35": 1633,
+      "0.50": 1633
+    },
+    "gates": {
+      "G1_beats_band0_and_drop_best": "PASS (+$1,633, drop-best +$611)",
+      "G2_mechanism": "PASS-marginal (3 distinct positions, 2 days, all helped)",
+      "G3_no_position_hurt": "PASS (0 hurt, cap floor held)",
+      "G4_n15_affected": "FAIL -- only 3 of 29 positions ever touched by any band"
+    },
+    "disposition": "No forward trial licensed. The zone shows positive sign and never hurts, but binds on 3/29 positions -- too rare to validate. Levels-are-zones stays ENTRY doctrine; the exit stop stays at the level. Closed both ways per the prereg's own kill text. Revisit ONLY on genuinely new information."
+  }
 }
