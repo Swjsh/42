@@ -1,0 +1,53 @@
+{
+  "prereg_id": "REGIME-CONDITIONAL-EXIT-2026-08-11",
+  "frozen_at_et": "2026-08-11 evening, after close, BEFORE any forward evidence exists",
+  "money": "PAPER. Nothing is armed by this document. Shadow measurement only.",
+  "origin": "Two independent findings from the 2026-08-11 pipeline audit pointed at ONE mechanism.",
+
+  "hypothesis": "The engine's edge is TREND-DEPENDENT, and the correct exit shape is therefore REGIME-DEPENDENT. On low-efficiency (chop) mornings the engine loses and a pre-TP1 profit floor helps; on high-efficiency (trend) mornings the engine wins and the same floor cuts runners.",
+
+  "discriminator": {
+    "name": "ER30",
+    "definition": "abs(close(09:55 bar) - open(09:30 bar)) / (high(09:30..09:59) - low(09:30..09:59)) on SPY 5m.",
+    "knowable_at": "10:00 ET, from CLOSED bars only. No look-ahead.",
+    "threshold_under_test": 0.35,
+    "why_not_the_archetype_library": "day-archetypes.json cannot discriminate: 2026-08-04 (+$3,624) and 2026-08-07 (-$2,687) are BOTH 'gap-go' with near-identical gap_pct (0.389 vs 0.324) and prior ATR (1.198 vs 1.244). Every field that separates them (range_pct, body_pct) is whole-day = look-ahead."
+  },
+
+  "evidence_that_motivated_it_stated_in_full_including_the_weaknesses": {
+    "ER_vs_day_pnl_n29_days": {"low_ER_lt_0.35": {"n": 8, "total": -2336, "mean": -292, "days_positive": "1/8"},
+                                "high_ER_ge_0.35": {"n": 21, "total": 716, "mean": 34, "days_positive": "7/21"}},
+    "ladder_effect_by_regime_n22_days_calibrated_harness": {"low_ER": {"n": 6, "effect": 702},
+                                                             "high_ER": {"n": 16, "effect": -2364}},
+    "WEAKNESSES": [
+      "2026-08-06 is a FALSE NEGATIVE: ER 0.29 (chop) yet +$1,465, our 3rd best day. A skip rule would have missed it.",
+      "The high-ER cohort is only 7/21 days positive -- ER identifies LOSSES, it does NOT predict wins. It is a loss filter, not an edge.",
+      "n=6-8 days in the low cohort. Thin. Neither finding is individually significant.",
+      "The ladder-by-regime split comes from a harness whose residual bias is +$384/182 positions. Small, but not zero.",
+      "ER30 and the ladder finding share the same 22-day window -- they are NOT independent samples of the same claim."
+    ]
+  },
+
+  "what_is_being_measured_forward_SHADOW_ONLY": [
+    "S1: ER30 computed and logged every trading day at 10:00 ET, with the day's realized engine P&L.",
+    "S2: For every position, whether the pre-TP1 ladder floor ARMED and whether it FIRED, tagged with that day's ER30 bucket.",
+    "S3: The counterfactual the ladder cost or saved that day, priced on the calibrated harness."
+  ],
+
+  "gates_before_ANY_live_change": [
+    "G1 n >= 25 forward trading days with ER30 logged.",
+    "G2 LOW-ER cohort: >= 8 forward days AND cumulative engine P&L on those days < 0 (the loss-filter claim reproduces forward).",
+    "G3 The ladder's sign flips between cohorts forward, in the SAME direction as the backtest (helps low-ER, hurts high-ER).",
+    "G4 DROP-BEST-DAY on each cohort separately.",
+    "G5 The 08-06 false-negative class is counted: report how many forward LOW-ER days were profitable. If >30% of low-ER days are green, the discriminator is dead and this prereg is CLOSED."
+  ],
+
+  "kill_criteria": [
+    "G5 breach (>30% of low-ER days green) -> discriminator DEAD, closed, no variants.",
+    "The ladder's regime split does not reproduce forward -> the backtest split was noise from a shared 22-day window; ladder reverts to the single UNPROVEN forward question it already is.",
+    "Any temptation to tune the 0.35 threshold on the SAME 29 days that produced it -> forbidden. The threshold is FROZEN at 0.35. A different threshold requires a fresh out-of-sample window."
+  ],
+
+  "explicitly_not_licensed": "No entry gate, no skip rule, no ladder arm/disarm, no params.json change, no accounts.json change. This document authorises MEASUREMENT ONLY. risky-3 remains governed by its own prereg (n>=20 days, 2 elapsed).",
+  "reporting_rule": "Every forward day reported, including low-ER days that print green -- those are the ones that kill the hypothesis, so they get named."
+}
