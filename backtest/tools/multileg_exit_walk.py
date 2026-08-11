@@ -47,7 +47,8 @@ import pandas as pd  # noqa: E402
 import exit_manager as em  # noqa: E402
 
 
-def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0) -> dict:
+def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
+         fill_mode: str = "extreme") -> dict:
     """Walk ONE real fill through the real exit_manager, honouring partial sells.
 
     Returns realized P&L across every leg plus the leg detail. `bars` is the contract's
@@ -74,11 +75,26 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0) -> dict:
     pnl = 0.0
     legs: list = []
 
+    # FILL MODE (2026-08-11 fidelity audit). The live engine polls a QUOTE once a minute; it
+    # does not see a 5-minute bar's high or low unless the price is still there when it looks.
+    # Feeding bar extremes into the planner triggers TP1 at highs and stops at lows the engine
+    # never captured -- measured bias +$5,949 over 182 anchored positions, concentrated entirely
+    # in ['tp1', ...] paths. Modes:
+    #   "extreme" : bar high/low          (original -- documented optimistic, kept for A/B)
+    #   "close"   : bar close for BOTH    (a price that demonstrably persisted to bar end)
+    #   "mixed"   : close for the favourable side, low for the adverse side (conservative)
     for _i, bar in sub.iterrows():
         if open_qty <= 0:
             break
-        hwm = max(hwm, float(bar["high"]))
-        dec = em.plan_exit_actions(state, best_premium=hwm, worst_premium=float(bar["low"]),
+        _hi, _lo, _cl = float(bar["high"]), float(bar["low"]), float(bar["close"])
+        if fill_mode == "close":
+            best_in, worst_in = _cl, _cl
+        elif fill_mode == "mixed":
+            best_in, worst_in = _cl, _lo
+        else:
+            best_in, worst_in = _hi, _lo
+        hwm = max(hwm, best_in)
+        dec = em.plan_exit_actions(state, best_premium=hwm, worst_premium=worst_in,
                                    open_qty=open_qty, now_et=bar["timestamp_et"].time())
         state = dec.state
         for a in dec.actions:
@@ -88,7 +104,7 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0) -> dict:
             px = getattr(a, "price", None)
             if px is None:
                 px = (entry * (1.0 + state.tp1_premium_pct) if a.stage == "tp1"
-                      else state.runner_stop_premium or float(bar["low"]))
+                      else state.runner_stop_premium or worst_in)
             n = min(int(a.qty or open_qty), open_qty)
             if n <= 0:
                 continue

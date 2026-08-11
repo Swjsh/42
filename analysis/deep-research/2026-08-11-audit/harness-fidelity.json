@@ -1,0 +1,2787 @@
+{
+  "n": 182,
+  "actual_total": -526.0,
+  "replay_total": 1585.79,
+  "bias_total": 2111.79,
+  "sign_agreement": 0.8406593406593407,
+  "median_abs_error": 27.0,
+  "pct_optimistic": 0.32967032967032966,
+  "known_harness_limits": [
+    "no SPY feed -> structure/ribbon exits cannot fire",
+    "fills at the trigger price, no slippage",
+    "5-min bars, intra-bar high/low order resolved optimistically"
+  ],
+  "rows": [
+    {
+      "arm": "safe-1",
+      "date": "2026-06-29",
+      "symbol": "SPY260629C00743000",
+      "qty": 8,
+      "entry": 0.14,
+      "actual": -32.0,
+      "replay": -56.0,
+      "err": -24.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-29",
+      "symbol": "SPY260629C00743000",
+      "qty": 12,
+      "entry": 0.14,
+      "actual": -48.0,
+      "replay": -84.0,
+      "err": -36.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-29",
+      "symbol": "SPY260629C00743000",
+      "qty": 12,
+      "entry": 0.14,
+      "actual": -48.0,
+      "replay": -84.0,
+      "err": -36.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-29",
+      "symbol": "SPY260629C00743000",
+      "qty": 8,
+      "entry": 0.11,
+      "actual": -8.0,
+      "replay": -44.0,
+      "err": -36.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00746000",
+      "qty": 3,
+      "entry": 0.61,
+      "actual": -33.0,
+      "replay": 183.0,
+      "err": 216.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00746000",
+      "qty": 3,
+      "entry": 0.61,
+      "actual": -36.0,
+      "replay": 183.0,
+      "err": 219.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00746000",
+      "qty": 5,
+      "entry": 0.6,
+      "actual": -60.0,
+      "replay": 360.0,
+      "err": 420.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00746000",
+      "qty": 4,
+      "entry": 0.58,
+      "actual": -64.0,
+      "replay": 261.0,
+      "err": 325.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00746000",
+      "qty": 1,
+      "entry": 0.58,
+      "actual": -16.0,
+      "replay": -29.0,
+      "err": -13.0,
+      "stage_path": [
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 3,
+      "entry": 0.1,
+      "actual": -3.0,
+      "replay": -15.0,
+      "err": -12.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.1,
+      "actual": 0.0,
+      "replay": -25.0,
+      "err": -25.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.1,
+      "actual": -5.0,
+      "replay": -25.0,
+      "err": -20.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 1,
+      "entry": 0.12,
+      "actual": -3.0,
+      "replay": -6.0,
+      "err": -3.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 2,
+      "entry": 0.12,
+      "actual": -6.0,
+      "replay": -12.0,
+      "err": -6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 3,
+      "entry": 0.08,
+      "actual": -18.0,
+      "replay": -12.0,
+      "err": 6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 3,
+      "entry": 0.07,
+      "actual": -6.0,
+      "replay": -10.5,
+      "err": -4.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.07,
+      "actual": -10.0,
+      "replay": -17.5,
+      "err": -7.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.07,
+      "actual": -10.0,
+      "replay": -17.5,
+      "err": -7.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 4,
+      "entry": 0.09,
+      "actual": -15.0,
+      "replay": -18.0,
+      "err": -3.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 1,
+      "entry": 0.09,
+      "actual": -3.0,
+      "replay": -4.5,
+      "err": -1.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.08,
+      "actual": -10.0,
+      "replay": -20.0,
+      "err": -10.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 3,
+      "entry": 0.07,
+      "actual": -6.0,
+      "replay": -10.5,
+      "err": -4.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.09,
+      "actual": -5.0,
+      "replay": -22.5,
+      "err": -17.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00751000",
+      "qty": 5,
+      "entry": 0.05,
+      "actual": -15.0,
+      "replay": -12.5,
+      "err": 2.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 3,
+      "entry": 0.08,
+      "actual": -18.0,
+      "replay": -12.0,
+      "err": 6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00750000",
+      "qty": 5,
+      "entry": 0.08,
+      "actual": -30.0,
+      "replay": -20.0,
+      "err": 10.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00751000",
+      "qty": 3,
+      "entry": 0.03,
+      "actual": -6.0,
+      "replay": -4.5,
+      "err": 1.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-06-30",
+      "symbol": "SPY260630C00751000",
+      "qty": 5,
+      "entry": 0.03,
+      "actual": -10.0,
+      "replay": -7.5,
+      "err": 2.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-01",
+      "symbol": "SPY260701C00751000",
+      "qty": 3,
+      "entry": 0.26,
+      "actual": -12.0,
+      "replay": -39.0,
+      "err": -27.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-01",
+      "symbol": "SPY260701C00751000",
+      "qty": 3,
+      "entry": 0.26,
+      "actual": -12.0,
+      "replay": -39.0,
+      "err": -27.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-01",
+      "symbol": "SPY260701C00751000",
+      "qty": 5,
+      "entry": 0.26,
+      "actual": -20.0,
+      "replay": -65.0,
+      "err": -45.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-01",
+      "symbol": "SPY260701C00751000",
+      "qty": 5,
+      "entry": 0.26,
+      "actual": -20.0,
+      "replay": -65.0,
+      "err": -45.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-02",
+      "symbol": "SPY260702P00743000",
+      "qty": 3,
+      "entry": 0.48,
+      "actual": -45.0,
+      "replay": -72.0,
+      "err": -27.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-02",
+      "symbol": "SPY260702P00743000",
+      "qty": 5,
+      "entry": 0.5,
+      "actual": -80.0,
+      "replay": -125.0,
+      "err": -45.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-02",
+      "symbol": "SPY260702C00754000",
+      "qty": 3,
+      "entry": 0.19,
+      "actual": -15.0,
+      "replay": -28.5,
+      "err": -13.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-02",
+      "symbol": "SPY260702C00754000",
+      "qty": 3,
+      "entry": 0.19,
+      "actual": -15.0,
+      "replay": -28.5,
+      "err": -13.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-02",
+      "symbol": "SPY260702C00754000",
+      "qty": 5,
+      "entry": 0.19,
+      "actual": -25.0,
+      "replay": -47.5,
+      "err": -22.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-02",
+      "symbol": "SPY260702C00754000",
+      "qty": 5,
+      "entry": 0.19,
+      "actual": -25.0,
+      "replay": -47.5,
+      "err": -22.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-02",
+      "symbol": "SPY260702P00742000",
+      "qty": 3,
+      "entry": 0.5,
+      "actual": 306.0,
+      "replay": 150.0,
+      "err": -156.0,
+      "stage_path": [
+        "tp1",
+        "be_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-02",
+      "symbol": "SPY260702P00742000",
+      "qty": 5,
+      "entry": 0.49,
+      "actual": 491.0,
+      "replay": 294.0,
+      "err": -197.0,
+      "stage_path": [
+        "tp1",
+        "be_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-02",
+      "symbol": "SPY260702P00739000",
+      "qty": 5,
+      "entry": 0.45,
+      "actual": -95.0,
+      "replay": -112.5,
+      "err": -17.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-02",
+      "symbol": "SPY260702P00739000",
+      "qty": 8,
+      "entry": 0.45,
+      "actual": -152.0,
+      "replay": -180.0,
+      "err": -28.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 3,
+      "entry": 0.04,
+      "actual": -6.0,
+      "replay": -6.0,
+      "err": 0.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 8,
+      "entry": 0.08,
+      "actual": -16.0,
+      "replay": -32.0,
+      "err": -16.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 5,
+      "entry": 0.04,
+      "actual": -10.0,
+      "replay": -10.0,
+      "err": 0.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 12,
+      "entry": 0.08,
+      "actual": -24.0,
+      "replay": -48.0,
+      "err": -24.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 3,
+      "entry": 0.03,
+      "actual": -3.0,
+      "replay": -4.5,
+      "err": -1.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 8,
+      "entry": 0.06,
+      "actual": -8.0,
+      "replay": -24.0,
+      "err": -16.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 5,
+      "entry": 0.03,
+      "actual": -5.0,
+      "replay": -7.5,
+      "err": -2.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 12,
+      "entry": 0.06,
+      "actual": -12.0,
+      "replay": -36.0,
+      "err": -24.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 2,
+      "entry": 0.05,
+      "actual": -2.0,
+      "replay": -5.0,
+      "err": -3.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 1,
+      "entry": 0.05,
+      "actual": -1.0,
+      "replay": -2.5,
+      "err": -1.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 1,
+      "entry": 0.1,
+      "actual": 1.0,
+      "replay": -5.0,
+      "err": -6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 7,
+      "entry": 0.1,
+      "actual": 7.0,
+      "replay": -35.0,
+      "err": -42.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 1,
+      "entry": 0.05,
+      "actual": -1.0,
+      "replay": -2.5,
+      "err": -1.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 4,
+      "entry": 0.05,
+      "actual": -4.0,
+      "replay": -10.0,
+      "err": -6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 12,
+      "entry": 0.1,
+      "actual": -24.0,
+      "replay": -60.0,
+      "err": -36.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 3,
+      "entry": 0.04,
+      "actual": 0.0,
+      "replay": -6.0,
+      "err": -6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 4,
+      "entry": 0.11,
+      "actual": -4.0,
+      "replay": -22.0,
+      "err": -18.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00753000",
+      "qty": 4,
+      "entry": 0.11,
+      "actual": -4.0,
+      "replay": -22.0,
+      "err": -18.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 5,
+      "entry": 0.04,
+      "actual": 0.0,
+      "replay": -10.0,
+      "err": -10.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 2,
+      "entry": 0.04,
+      "actual": 0.0,
+      "replay": -4.0,
+      "err": -4.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 2,
+      "entry": 0.04,
+      "actual": 0.0,
+      "replay": -4.0,
+      "err": -4.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 1,
+      "entry": 0.04,
+      "actual": 0.0,
+      "replay": -2.0,
+      "err": -2.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00755000",
+      "qty": 3,
+      "entry": 0.02,
+      "actual": -3.0,
+      "replay": -3.0,
+      "err": 0.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00754000",
+      "qty": 8,
+      "entry": 0.05,
+      "actual": -16.0,
+      "replay": -20.0,
+      "err": -4.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00755000",
+      "qty": 5,
+      "entry": 0.02,
+      "actual": -5.0,
+      "replay": -5.0,
+      "err": 0.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-06",
+      "symbol": "SPY260706C00755000",
+      "qty": 5,
+      "entry": 0.02,
+      "actual": -5.0,
+      "replay": -5.0,
+      "err": 0.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00743000",
+      "qty": 3,
+      "entry": 0.44,
+      "actual": -39.0,
+      "replay": -66.0,
+      "err": -27.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00743000",
+      "qty": 5,
+      "entry": 0.45,
+      "actual": -25.0,
+      "replay": -112.5,
+      "err": -87.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00746000",
+      "qty": 3,
+      "entry": 0.24,
+      "actual": -15.0,
+      "replay": -36.0,
+      "err": -21.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00746000",
+      "qty": 5,
+      "entry": 0.24,
+      "actual": -25.0,
+      "replay": -60.0,
+      "err": -35.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00746000",
+      "qty": 3,
+      "entry": 0.11,
+      "actual": -9.0,
+      "replay": 33.0,
+      "err": 42.0,
+      "stage_path": [
+        "tp1",
+        "be_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00746000",
+      "qty": 3,
+      "entry": 0.1,
+      "actual": -6.0,
+      "replay": 30.0,
+      "err": 36.0,
+      "stage_path": [
+        "tp1",
+        "be_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-07",
+      "symbol": "SPY260707P00746000",
+      "qty": 2,
+      "entry": 0.1,
+      "actual": -4.0,
+      "replay": 15.0,
+      "err": 19.0,
+      "stage_path": [
+        "tp1",
+        "be_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 3,
+      "entry": 1.0,
+      "actual": -69.0,
+      "replay": -150.0,
+      "err": -81.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 3,
+      "entry": 0.96,
+      "actual": -54.0,
+      "replay": -144.0,
+      "err": -90.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 5,
+      "entry": 0.94,
+      "actual": -80.0,
+      "replay": -235.0,
+      "err": -155.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 5,
+      "entry": 0.94,
+      "actual": -80.0,
+      "replay": -235.0,
+      "err": -155.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 3,
+      "entry": 0.25,
+      "actual": 0.0,
+      "replay": -37.5,
+      "err": -37.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 3,
+      "entry": 0.25,
+      "actual": 0.0,
+      "replay": -37.5,
+      "err": -37.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708P00741000",
+      "qty": 2,
+      "entry": 0.25,
+      "actual": 0.0,
+      "replay": -25.0,
+      "err": -25.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00749000",
+      "qty": 3,
+      "entry": 0.13,
+      "actual": -6.0,
+      "replay": -19.5,
+      "err": -13.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00749000",
+      "qty": 3,
+      "entry": 0.13,
+      "actual": -12.0,
+      "replay": -19.5,
+      "err": -7.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00749000",
+      "qty": 5,
+      "entry": 0.13,
+      "actual": -10.0,
+      "replay": -32.5,
+      "err": -22.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00749000",
+      "qty": 5,
+      "entry": 0.13,
+      "actual": -10.0,
+      "replay": -32.5,
+      "err": -22.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00748000",
+      "qty": 3,
+      "entry": 0.09,
+      "actual": -9.0,
+      "replay": -13.5,
+      "err": -4.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00748000",
+      "qty": 3,
+      "entry": 0.1,
+      "actual": -12.0,
+      "replay": -15.0,
+      "err": -3.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00748000",
+      "qty": 5,
+      "entry": 0.1,
+      "actual": -20.0,
+      "replay": -25.0,
+      "err": -5.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-08",
+      "symbol": "SPY260708C00748000",
+      "qty": 5,
+      "entry": 0.1,
+      "actual": -20.0,
+      "replay": -25.0,
+      "err": -5.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00751000",
+      "qty": 3,
+      "entry": 0.51,
+      "actual": -48.0,
+      "replay": -76.5,
+      "err": -28.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00751000",
+      "qty": 3,
+      "entry": 0.5,
+      "actual": -24.0,
+      "replay": -75.0,
+      "err": -51.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00751000",
+      "qty": 5,
+      "entry": 0.5,
+      "actual": -75.0,
+      "replay": -125.0,
+      "err": -50.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00751000",
+      "qty": 5,
+      "entry": 0.49,
+      "actual": -35.0,
+      "replay": -122.5,
+      "err": -87.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00751000",
+      "qty": 3,
+      "entry": 0.54,
+      "actual": -57.0,
+      "replay": -81.0,
+      "err": -24.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00751000",
+      "qty": 5,
+      "entry": 0.53,
+      "actual": -30.0,
+      "replay": -132.5,
+      "err": -102.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00750000",
+      "qty": 3,
+      "entry": 0.48,
+      "actual": -18.0,
+      "replay": 144.0,
+      "err": 162.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "safe-1",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00750000",
+      "qty": 3,
+      "entry": 0.49,
+      "actual": -24.0,
+      "replay": 147.0,
+      "err": 171.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00750000",
+      "qty": 5,
+      "entry": 0.49,
+      "actual": -35.0,
+      "replay": 294.0,
+      "err": 329.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-09",
+      "symbol": "SPY260709C00750000",
+      "qty": 5,
+      "entry": 0.48,
+      "actual": -35.0,
+      "replay": 288.0,
+      "err": 323.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": null
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-13",
+      "symbol": "SPY260713P00747000",
+      "qty": 5,
+      "entry": 0.27,
+      "actual": -25.0,
+      "replay": -67.5,
+      "err": -42.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-15",
+      "symbol": "SPY260715C00757000",
+      "qty": 3,
+      "entry": 0.3,
+      "actual": -42.0,
+      "replay": -45.0,
+      "err": -3.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-15",
+      "symbol": "SPY260715C00757000",
+      "qty": 5,
+      "entry": 0.31,
+      "actual": -75.0,
+      "replay": -77.5,
+      "err": -2.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-15",
+      "symbol": "SPY260715C00757000",
+      "qty": 5,
+      "entry": 0.31,
+      "actual": -75.0,
+      "replay": -77.5,
+      "err": -2.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00741000",
+      "qty": 1,
+      "entry": 0.48,
+      "actual": 0.0,
+      "replay": -24.0,
+      "err": -24.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00741000",
+      "qty": 2,
+      "entry": 0.48,
+      "actual": 0.0,
+      "replay": -48.0,
+      "err": -48.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00741000",
+      "qty": 5,
+      "entry": 0.48,
+      "actual": 0.0,
+      "replay": -120.0,
+      "err": -120.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00741000",
+      "qty": 5,
+      "entry": 0.46,
+      "actual": 15.0,
+      "replay": -115.0,
+      "err": -130.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00743000",
+      "qty": 5,
+      "entry": 0.39,
+      "actual": 233.0,
+      "replay": 178.4,
+      "err": -54.6,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00742000",
+      "qty": 3,
+      "entry": 0.33,
+      "actual": 0.0,
+      "replay": -49.5,
+      "err": -49.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00742000",
+      "qty": 5,
+      "entry": 0.33,
+      "actual": 0.0,
+      "replay": -82.5,
+      "err": -82.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-27",
+      "symbol": "SPY260727P00734000",
+      "qty": 3,
+      "entry": 0.44,
+      "actual": -87.0,
+      "replay": -66.0,
+      "err": 21.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-27",
+      "symbol": "SPY260727P00734000",
+      "qty": 5,
+      "entry": 0.43,
+      "actual": -85.0,
+      "replay": -107.5,
+      "err": -22.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-27",
+      "symbol": "SPY260727P00734000",
+      "qty": 5,
+      "entry": 0.43,
+      "actual": -85.0,
+      "replay": -107.5,
+      "err": -22.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-28",
+      "symbol": "SPY260728C00744000",
+      "qty": 3,
+      "entry": 0.31,
+      "actual": -33.0,
+      "replay": -46.5,
+      "err": -13.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-29",
+      "symbol": "SPY260729P00734000",
+      "qty": 3,
+      "entry": 1.56,
+      "actual": 72.0,
+      "replay": 454.35,
+      "err": 382.35,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-29",
+      "symbol": "SPY260729P00734000",
+      "qty": 5,
+      "entry": 1.56,
+      "actual": 115.0,
+      "replay": 752.7,
+      "err": 637.7,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-29",
+      "symbol": "SPY260729C00740000",
+      "qty": 3,
+      "entry": 0.85,
+      "actual": 265.0,
+      "replay": 318.75,
+      "err": 53.75,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-07-29",
+      "symbol": "SPY260729C00740000",
+      "qty": 5,
+      "entry": 0.84,
+      "actual": 418.0,
+      "replay": 306.5,
+      "err": -111.5,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-29",
+      "symbol": "SPY260729C00740000",
+      "qty": 1,
+      "entry": 0.85,
+      "actual": 97.0,
+      "replay": -42.5,
+      "err": -139.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-29",
+      "symbol": "SPY260729C00740000",
+      "qty": 4,
+      "entry": 0.84,
+      "actual": 374.0,
+      "replay": 467.5,
+      "err": 93.5,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-30",
+      "symbol": "SPY260730P00733000",
+      "qty": 5,
+      "entry": 1.16,
+      "actual": -165.0,
+      "replay": -116.0,
+      "err": 49.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-30",
+      "symbol": "SPY260730P00734000",
+      "qty": 5,
+      "entry": 1.04,
+      "actual": -110.0,
+      "replay": -104.0,
+      "err": 6.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-31",
+      "symbol": "SPY260731C00746000",
+      "qty": 5,
+      "entry": 0.33,
+      "actual": 126.0,
+      "replay": 194.5,
+      "err": 68.5,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-07-31",
+      "symbol": "SPY260731C00747000",
+      "qty": 3,
+      "entry": 0.3,
+      "actual": 75.0,
+      "replay": 87.8,
+      "err": 12.8,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-07-31",
+      "symbol": "SPY260731C00747000",
+      "qty": 5,
+      "entry": 0.52,
+      "actual": -80.0,
+      "replay": -130.0,
+      "err": -50.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-03",
+      "symbol": "SPY260803C00754000",
+      "qty": 3,
+      "entry": 0.37,
+      "actual": 145.0,
+      "replay": 105.85,
+      "err": -39.15,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-03",
+      "symbol": "SPY260803C00754000",
+      "qty": 5,
+      "entry": 0.37,
+      "actual": 145.0,
+      "replay": 119.2,
+      "err": -25.8,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-03",
+      "symbol": "SPY260803C00754000",
+      "qty": 5,
+      "entry": 0.38,
+      "actual": 176.0,
+      "replay": 175.7,
+      "err": -0.3,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00762000",
+      "qty": 5,
+      "entry": 1.77,
+      "actual": -75.0,
+      "replay": 354.0,
+      "err": 429.0,
+      "stage_path": [
+        "tp1",
+        "time_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00762000",
+      "qty": 8,
+      "entry": 1.75,
+      "actual": -104.0,
+      "replay": 697.3,
+      "err": 801.3,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00763000",
+      "qty": 5,
+      "entry": 1.39,
+      "actual": 640.0,
+      "replay": -41.7,
+      "err": -681.7,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00763000",
+      "qty": 8,
+      "entry": 1.46,
+      "actual": -40.0,
+      "replay": -70.08,
+      "err": -30.08,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00763000",
+      "qty": 8,
+      "entry": 1.52,
+      "actual": -144.0,
+      "replay": -72.96,
+      "err": 71.04,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00763000",
+      "qty": 8,
+      "entry": 1.4,
+      "actual": 524.0,
+      "replay": 491.2,
+      "err": -32.8,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00763000",
+      "qty": 3,
+      "entry": 1.38,
+      "actual": 373.0,
+      "replay": 381.95,
+      "err": 8.95,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00765000",
+      "qty": 8,
+      "entry": 1.33,
+      "actual": -80.0,
+      "replay": 464.6,
+      "err": 544.6,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00768000",
+      "qty": 3,
+      "entry": 1.11,
+      "actual": -39.0,
+      "replay": 392.35,
+      "err": 431.35,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00768000",
+      "qty": 5,
+      "entry": 1.11,
+      "actual": -65.0,
+      "replay": 233.5,
+      "err": 298.5,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00768000",
+      "qty": 4,
+      "entry": 1.04,
+      "actual": -24.0,
+      "replay": 418.2,
+      "err": 442.2,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00768000",
+      "qty": 1,
+      "entry": 1.03,
+      "actual": -5.0,
+      "replay": -51.5,
+      "err": -46.5,
+      "stage_path": [
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 2,
+      "entry": 1.21,
+      "actual": -44.0,
+      "replay": 334.9,
+      "err": 378.9,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 1,
+      "entry": 1.21,
+      "actual": -22.0,
+      "replay": -60.5,
+      "err": -38.5,
+      "stage_path": [
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 5,
+      "entry": 1.21,
+      "actual": -110.0,
+      "replay": 361.1,
+      "err": 471.1,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 5,
+      "entry": 1.21,
+      "actual": -110.0,
+      "replay": 790.8,
+      "err": 900.8,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 3,
+      "entry": 1.33,
+      "actual": 378.0,
+      "replay": 467.9,
+      "err": 89.9,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 5,
+      "entry": 1.33,
+      "actual": 651.0,
+      "replay": 603.3,
+      "err": -47.7,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00769000",
+      "qty": 5,
+      "entry": 1.32,
+      "actual": 788.0,
+      "replay": 801.8,
+      "err": 13.8,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00771000",
+      "qty": 3,
+      "entry": 1.4,
+      "actual": 9.0,
+      "replay": -210.0,
+      "err": -219.0,
+      "stage_path": [
+        "time_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-04",
+      "symbol": "SPY260804C00772000",
+      "qty": 3,
+      "entry": 1.22,
+      "actual": -18.0,
+      "replay": -183.0,
+      "err": -165.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 5,
+      "entry": 2.37,
+      "actual": -85.0,
+      "replay": -71.1,
+      "err": 13.9,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 8,
+      "entry": 2.35,
+      "actual": -136.0,
+      "replay": -112.8,
+      "err": 23.2,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 5,
+      "entry": 2.27,
+      "actual": -65.0,
+      "replay": -68.1,
+      "err": -3.1,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 8,
+      "entry": 2.27,
+      "actual": -80.0,
+      "replay": -108.96,
+      "err": -28.96,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 5,
+      "entry": 2.2,
+      "actual": -100.0,
+      "replay": -66.0,
+      "err": 34.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 8,
+      "entry": 2.19,
+      "actual": -160.0,
+      "replay": -105.12,
+      "err": 54.88,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 5,
+      "entry": 2.12,
+      "actual": -80.0,
+      "replay": -63.6,
+      "err": 16.4,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 8,
+      "entry": 2.12,
+      "actual": -122.0,
+      "replay": -101.76,
+      "err": 20.24,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 5,
+      "entry": 2.06,
+      "actual": -155.0,
+      "replay": -61.8,
+      "err": 93.2,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-05",
+      "symbol": "SPY260805C00776000",
+      "qty": 8,
+      "entry": 2.09,
+      "actual": -296.0,
+      "replay": -100.32,
+      "err": 195.68,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-05",
+      "symbol": "SPY260805P00772000",
+      "qty": 5,
+      "entry": 1.69,
+      "actual": 347.0,
+      "replay": -422.5,
+      "err": -769.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-05",
+      "symbol": "SPY260805P00772000",
+      "qty": 8,
+      "entry": 1.65,
+      "actual": -664.0,
+      "replay": -660.0,
+      "err": 4.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-06",
+      "symbol": "SPY260806P00770000",
+      "qty": 5,
+      "entry": 1.23,
+      "actual": 296.0,
+      "replay": 304.0,
+      "err": 8.0,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-06",
+      "symbol": "SPY260806P00770000",
+      "qty": 8,
+      "entry": 1.28,
+      "actual": 830.0,
+      "replay": -512.0,
+      "err": -1342.0,
+      "stage_path": [
+        "time_stop"
+      ],
+      "strategy": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00772000",
+      "qty": 8,
+      "entry": 1.33,
+      "actual": -176.0,
+      "replay": -532.0,
+      "err": -356.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00772000",
+      "qty": 1,
+      "entry": 1.33,
+      "actual": -19.0,
+      "replay": -66.5,
+      "err": -47.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00772000",
+      "qty": 4,
+      "entry": 1.33,
+      "actual": -76.0,
+      "replay": -266.0,
+      "err": -190.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00774000",
+      "qty": 12,
+      "entry": 0.62,
+      "actual": -204.0,
+      "replay": -372.0,
+      "err": -168.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00773000",
+      "qty": 8,
+      "entry": 1.1,
+      "actual": -488.0,
+      "replay": -440.0,
+      "err": 48.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00773000",
+      "qty": 5,
+      "entry": 1.09,
+      "actual": -305.0,
+      "replay": -272.5,
+      "err": 32.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00775000",
+      "qty": 12,
+      "entry": 0.31,
+      "actual": -216.0,
+      "replay": -186.0,
+      "err": 30.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00772000",
+      "qty": 8,
+      "entry": 0.92,
+      "actual": -384.0,
+      "replay": -368.0,
+      "err": 16.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00772000",
+      "qty": 4,
+      "entry": 0.91,
+      "actual": -192.0,
+      "replay": -182.0,
+      "err": 10.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00772000",
+      "qty": 1,
+      "entry": 0.91,
+      "actual": -48.0,
+      "replay": -45.5,
+      "err": 2.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-07",
+      "symbol": "SPY260807C00774000",
+      "qty": 12,
+      "entry": 0.31,
+      "actual": -204.0,
+      "replay": -186.0,
+      "err": 18.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-10",
+      "symbol": "SPY260810C00773000",
+      "qty": 3,
+      "entry": 1.33,
+      "actual": -15.0,
+      "replay": -199.5,
+      "err": -184.5,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-10",
+      "symbol": "SPY260810C00773000",
+      "qty": 5,
+      "entry": 1.33,
+      "actual": -25.0,
+      "replay": 309.2,
+      "err": 334.2,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-10",
+      "symbol": "SPY260810C00775000",
+      "qty": 5,
+      "entry": 0.55,
+      "actual": -80.0,
+      "replay": -55.0,
+      "err": 25.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-10",
+      "symbol": "SPY260810P00771000",
+      "qty": 8,
+      "entry": 0.52,
+      "actual": -8.0,
+      "replay": -24.96,
+      "err": -16.96,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "risky-1",
+      "date": "2026-08-10",
+      "symbol": "SPY260810P00773000",
+      "qty": 5,
+      "entry": 1.08,
+      "actual": -440.0,
+      "replay": -32.4,
+      "err": 407.6,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "VWAP_CONTINUATION",
+      "stop_mode": "premium"
+    },
+    {
+      "arm": "safe-3",
+      "date": "2026-08-10",
+      "symbol": "SPY260810C00773000",
+      "qty": 3,
+      "entry": 1.26,
+      "actual": -141.0,
+      "replay": -189.0,
+      "err": -48.0,
+      "stage_path": [
+        "premium_stop"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "structure"
+    },
+    {
+      "arm": "risky-3",
+      "date": "2026-08-10",
+      "symbol": "SPY260810C00775000",
+      "qty": 10,
+      "entry": 0.41,
+      "actual": 362.0,
+      "replay": 367.6,
+      "err": 5.6,
+      "stage_path": [
+        "tp1",
+        "trail"
+      ],
+      "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "stop_mode": "premium"
+    }
+  ]
+}
