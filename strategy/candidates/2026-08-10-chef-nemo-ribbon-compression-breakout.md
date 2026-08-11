@@ -5,18 +5,23 @@
 
 # CANDIDATE: RIBBON_COMPRESSION_BREAKOUT
 
-**Filed:** 2026-07-09  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** new_trigger  
+**Filed:** 2026-07-09
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** new_trigger
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-When the EMA ribbon (8,13,21,34) contracts to tight volatility, a breakout with increased volume signals the start of a short‑term trend. Entering long on the first close above the slowest EMA with elevated volume, or short on the symmetric condition, captures the ensuing move while the ribbon acts as a dynamic stop.
+A tightly contracted EMA ribbon (max EMA − min EMA of 8,13,21,34 EMA) signals low volatility and impending expansion. A breakout in the direction of the prior close after two consecutive bars of ribbon compression captures the volatility expansion. This edge exists because low volatility periods are often followed by mean-reversion or trend expansion, and the ribbon compression acts as a coiled spring.
 
 ## Mechanism
 
-Calculate the 8,13,21,34 EMA on 5‑minute bars. If the difference between the fastest (8 EMA) and slowest (34 EMA) is less than 0.15% of price for three consecutive bars (volatility compression), monitor for a breakout: enter long when price closes above the 34 EMA with volume > 1.5× the 20‑period average volume; enter short when price closes below the 8 EMA with the same volume condition. For longs, place an initial stop below the 8 EMA (opposite ribbon edge); for shorts, place a stop above the 34 EMA. Exit at 1.5× risk or trail using a chandelier exit (ATR×3). Avoid the first 15 minutes after open and only consider setups when VIX is between 12 and 22 to ensure ranging/low‑volatility regimes.
+Calculate the 8,13,21,34 EMA on 5-minute bars. Compute ribbon width = max(EMA) − min(EMA). 
+When ribbon width < 0.15 × ATR(14) for two consecutive bars and the second bar’s close is above the highest EMA (long) or below the lowest EMA (short), 
+enter at the open of the next bar in that direction. 
+Exit: initial stop at the opposite ribbon extreme (below lowest EMA for long, above highest EMA for short). 
+Target: 2×ATR or a trailing chandelier exit (using ATR-based trailing stop). 
+Regime filters: VIX between 12-22, time after 10:00 ET to avoid opening noise, skip major economic releases (FOMC, CPI, NFP, mega-cap earnings).
 
 ## Expected impact on OP-16 anchors
 
@@ -32,21 +37,26 @@ Calculate the 8,13,21,34 EMA on 5‑minute bars. If the difference between the f
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 contracts requires $25K+ account; $1K paper account ~= 14% of headline P&L (per risk‑rules.md scaling).  
-2. **Sample bias:** Proposed trigger derived from price‑action concept; no historical sample yet — high overfit risk until Stage‑1 backtest on 16‑month 5‑min SPY data.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward held‑out window performed).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA fill simulation on top‑3 J days).  
-5. **Failure modes:** Worst day: entering on a false breakout in a ranging market could trigger repeated stop‑outs; max drawdown scenario: consecutive losing breakouts during low‑volume chop; blow‑up scenario: volatility expansion after entry causing stop to be hit before target, especially if VIX spikes >22.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to determine what percentage of P&L comes from top‑5 days.
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on 3-contract minimum at $1.00 entry: $300 deployed, 50% risk cap = $150 risk, so $1K account can trade 3 contracts at ~$1.00 entry; scaling to 28 contracts would require ~$25K for same risk profile).
+2. **Sample bias:** We have not conducted any backtest yet. This is a novel proposal with zero historical testing. High overfit risk due to untested parameters (ribbon width threshold, ATR multiplier, VIX filters, time gates).
+3. **Out-of-sample:** NEEDS-OOS (no backtest performed).
+4. **Real-fills:** NEEDS-REAL-FILLS (no backtest performed).
+5. **Failure modes:** 
+   - Worst day: whipsaw in low-VIX chop (multiple false breakouts triggering stops).
+   - Max drawdown: could exceed 50% per trade if stops are wide and market gaps against position.
+   - Blow-up scenario: entering during a false breakout in a ranging market, then a strong reversal hits the stop and the trend continues against us (if we are short and market rallies, or long and market crashes).
+6. **Concentration:** unknown -- requires Stage-1 backtest (we have no data to compute what percentage of P&L comes from top-5 days).
 
 ## Pre-merge gate
 
-Needs a Stage‑1 backtest via the autoresearch grinder harness before any further ratification.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-5 / 10 -- The ribbon‑compression breakout idea is novel and logically plausible, but without any back‑tested evidence the confidence remains moderate; the mechanism is straightforward to test and could either succeed or fail depending on market regime.
+5 / 10 -- The hypothesis is logically sound (low volatility breakout) but untested. Similar ideas exist in the registry (ribbon_ride) but this is a distinct breakout-from-compression concept. Without Stage-1 backtest, we cannot validate edge capture on J's anchor days.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with any existing candidate in _LEADERBOARD.md; it introduces a new trigger type that is orthogonal to the current quality‑gates, filters, and exit‑changes. If proven effective it could complement existing strategies by providing additional entry opportunities in low‑volatility, range‑bound environments where many current setups are inactive. No direct overlap with the ranked candidates 1‑9.
+This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, exits, or watchers). 
+It complements existing volatility-based strategies but is novel in its specific trigger (ribbon compression breakout). 
+No direct overlap with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a different signal.

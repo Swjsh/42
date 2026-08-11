@@ -5,19 +5,33 @@
 
 # CANDIDATE: RIBBON_COMPRESSION_BREAKOUT_LONG
 
-**Filed:** 2026-07-21  
+**Filed:** 2026-07-22  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-When the EMA ribbon contracts to a narrow range, a break above the upper ribbon with expanding volume signals a short‑term momentum continuation. This condition reflects a period of low volatility and equilibrium that often precedes an impulsive move, providing an edge for long entries.
+When the EMA ribbon compresses (spread between fast and slow EMA below 0.10 SPY points) and then breaks out upward with above-average volume, it signals the start of a bullish leg. This edge exists because compression often precedes expansion, and a volume-confirmed breakout indicates institutional participation, increasing the probability of a sustained move.
 
 ## Mechanism
 
-**Entry:** When the 5‑minute bar closes above the highest EMA of the ribbon (EMA34) **AND** the ribbon width (EMA34‑EMA8) is less than 0.15% of SPY price for the prior 3 bars **AND** volume > 1.5× the 20‑period average volume.  
-**Exit:** Initial stop at the low of the breakout bar (chart‑stop), target at 1.5R, then trail the remaining position with a chandelier exit (ATR×3) or exit on opposite ribbon touch.
+Entry conditions (all must be true on a 5-minute bar):
+   - Ribbon compression: (slow EMA - fast EMA) < 0.10 SPY points for the last 3 consecutive bars (using 8,21,34 period EMAs).
+   - Breakout: current bar's high > the highest high of the prior 20 bars AND volume > 1.5 * the average volume of the prior 20 bars.
+   - Bullish bar: close > open.
+   - Time of day: 09:35 ET to 10:30 ET (to focus on morning momentum and avoid late-day noise).
+   Entry is placed at the open of the next bar.
+
+Exit logic:
+   - Primary stop (chart stop): low of the breakout bar (the bar that met the breakout condition).
+   - Catastrophe premium stop: -50% of entry premium for Safe account, -7% for Bold account (as per risk-rules.md).
+   - TP1: +50% of entry premium, selling 2/3 of the position.
+   - After TP1: move the stop on the remaining 1/3 to breakeven (entry premium) and trail using a chandelier stop (0.15 off the high-water mark).
+   - Runner exit: 
+        a) Price closes back into the EMA ribbon (for long: when the close is between the fast and slow EMA),
+        b) OR premium reaches 3x entry premium,
+        c) OR time stop at 15:50 ET.
 
 ## Expected impact on OP-16 anchors
 
@@ -33,21 +47,38 @@ When the EMA ribbon contracts to a narrow range, a break above the upper ribbon 
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline  
-2. **Sample bias:** No historical sample yet; proposal based on theoretical ribbon compression logic; high overfit risk until validated  
-3. **Out-of-sample:** NEEDS-OOS  
-4. **Real-fills:** NEEDS-REAL-FILLS  
-5. **Failure modes:** Whipsaw in choppy markets, false breakouts during low volume, adverse moves after entry triggering chart‑stop, failure to trail effectively in strong reversals  
-6. **Concentration:** unknown -- requires Stage-1 backtest  
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on risk-rules.md position sizing: at $25K+ account, 15+ contracts; we are using 28 as an example for headline, but note: our position sizing will be dynamic per account size. For a $1K paper account, we would trade 3 contracts, so the headline P&L would be scaled by 3/28 ≈ 10.7%, but we use 14% as a rough estimate from the playbook's example for $1K account at $1.00 entry).
+
+2. **Sample bias:** We have not conducted any backtest yet. This is a pure proposal. Sample size = 0. High overfit risk due to no data.
+
+3. **Out-of-sample:** NEEDS-OOS (no OOS test performed)
+
+4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills validation performed)
+
+5. **Failure modes:** 
+      - Worst day: whipsaw in choppy market (multiple compression-breakout failures leading to consecutive losses).
+      - Max drawdown: could exceed 50% of account if multiple stops are hit in a volatile sideways market.
+      - Blow-up scenario: if the market gaps against the position overnight (though we exit by 15:50 ET, gap risk is limited to overnight, but we don't hold overnight).
+
+6. **Concentration:** unknown -- requires Stage-1 backtest (we cannot estimate without data)
 
 ## Pre-merge gate
 
-needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
+   - Stage-1 backtest on 16-month SPY 5-minute data (2025-01-02 to 2026-06-18) must show:
+        * edge_capture >= 771 (OP-16 floor)
+        * aggregate_sharpe > 0
+        * walk-forward OOS/IS ratio >= 0.70
+        * top-5 concentration <= 200% (to avoid extreme concentration)
+   - Real-fills validation on top 3 J days (4/29, 5/01, 5/04) must show simulated P&L within ±20% of real OPRA fills.
+   - Gym validators: all tests in `backtest/tests/` must pass for the new trigger logic.
 
 ## Confidence
 
-3 / 10 -- based on theoretical rationale but requires empirical validation via Stage-1 backtest
+3/10 -- No backtest performed; high risk of overfit due to untested hypothesis. Mechanism is plausible but unproven in the OP-16 anchor days.
 
 ## Pre-existing leaderboard impact
 
-No direct conflict with existing candidates 1‑9; this is a novel trigger type targeting ribbon compression breakouts, a condition not captured by current ribbon_ride strategies, thus potentially additive rather than overlapping.
+   This candidate is a new_trigger and does not directly conflict with any existing candidate in the leaderboard (which are mostly filters, exits, or quality gates). 
+   It may complement existing filters (e.g., it could be combined with the MIDDAY_TRENDLINE_GATE or structure vetoes) but would require integration testing.
+   No known conflicts with current PROMISING or J-RATIFIED candidates.
+---
