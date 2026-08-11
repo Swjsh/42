@@ -137,7 +137,21 @@ Honest caveat carried from the audit: item 5's zone-vs-price verdict is partiall
 (filters.py touch-tolerance not traced) — flagged, not guessed.
 
 ## 3. Repo hygiene work orders
-<!-- SPLICE: STALE-INVENTORY -->
+
+Full inventory: [STALE-INVENTORY.md](../../analysis/deep-research/2026-08-11-audit/STALE-INVENTORY.md).
+Executed same night: 10-file scratch cluster deleted (spot-checked, tracked = revertible);
+3 doctrine corrections applied (decayed 92/100 figure per L291; VWAP "−6% validated" banner-
+corrected against n=126 broker truth; HARNESS-CALIBRATION v4 headline superseded-pointer to v5).
+
+Remaining orders for a Sonnet worker:
+- **28 delete-candidates** (22 in `backtest/tools/`, 6 in `setup/scripts/`) — agent-verified
+  zero-reference but only the cluster was independently spot-checked. Verify per-file
+  (grep + SCHEDULED-TASKS.md + .ps1), then pathspec-scoped delete. Never delete untracked files.
+- **`analysis/recommendations/` retention** — 833 files, 3 months, no consolidation ever
+  (OP-22 breach by drift). Design a cap: fold superseded scorecards into per-topic living
+  verdicts; the ledger index (`recommendations-log.jsonl`) stays canonical.
+- **`sampling-gap.json`** 9 days stale, cadence unconfirmed — determine one-time vs nightly.
+- 3 ARCHIVE-CANDIDATEs per the inventory's §1 table.
 
 ---
 
