@@ -1,0 +1,540 @@
+{
+  "rule_id": "GIVEBACK-RATCHET-2026-08-10",
+  "prereg": "analysis/recommendations/prereg-giveback-ratchet-2026-08-10.json",
+  "n_positions": 257,
+  "n_priced": 256,
+  "n_skipped_no_opra": 1,
+  "skipped": [
+    "2026-08-07 SPY260807P00772000: no OPRA bars"
+  ],
+  "cells": {
+    "SHIPPED": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -6796.8,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 17195.2,
+        "delta_vs_actual": -5930.8,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 4,
+        "flipped_days": [
+          "2026-06-26",
+          "2026-06-30",
+          "2026-07-08",
+          "2026-07-13"
+        ],
+        "G_RUNNER_cell_minus_control": 6903.7,
+        "G_DROP_BEST_delta": 10736.4,
+        "G_SUB_WINDOW": {
+          "h1": 4226.2,
+          "h2": 12969.0,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 446.0,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "J_TRAIL_40": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -9447.9,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 14544.1,
+        "delta_vs_actual": -8581.9,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 4,
+        "flipped_days": [
+          "2026-06-26",
+          "2026-06-30",
+          "2026-07-08",
+          "2026-07-13"
+        ],
+        "G_RUNNER_cell_minus_control": 5079.9,
+        "G_DROP_BEST_delta": 9933.5,
+        "G_SUB_WINDOW": {
+          "h1": 3521.9,
+          "h2": 11022.2,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 131.6,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "J_SPEC_RATCHET": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -12598.55,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 11393.45,
+        "delta_vs_actual": -11732.55,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 2,
+        "flipped_days": [
+          "2026-06-30",
+          "2026-07-08"
+        ],
+        "G_RUNNER_cell_minus_control": 3656.25,
+        "G_DROP_BEST_delta": 6049.7,
+        "G_SUB_WINDOW": {
+          "h1": 3294.1,
+          "h2": 8099.35,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": -717.05,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "RATCHET_a70_f50": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -9488.5,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 14503.5,
+        "delta_vs_actual": -8622.5,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 2,
+        "flipped_days": [
+          "2026-06-30",
+          "2026-07-08"
+        ],
+        "G_RUNNER_cell_minus_control": 7599.5,
+        "G_DROP_BEST_delta": 7271.0,
+        "G_SUB_WINDOW": {
+          "h1": 3926.0,
+          "h2": 10577.5,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 787.0,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "RATCHET_a70_f60": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -5588.6,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 18403.4,
+        "delta_vs_actual": -4722.6,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 2,
+        "flipped_days": [
+          "2026-06-30",
+          "2026-07-08"
+        ],
+        "G_RUNNER_cell_minus_control": 9139.9,
+        "G_DROP_BEST_delta": 8574.1,
+        "G_SUB_WINDOW": {
+          "h1": 4611.8,
+          "h2": 13791.6,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 1067.5,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "RATCHET_a90_f50": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -17209.5,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 6782.5,
+        "delta_vs_actual": -16343.5,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 1,
+        "flipped_days": [
+          "2026-07-08"
+        ],
+        "G_RUNNER_cell_minus_control": 1671.0,
+        "G_DROP_BEST_delta": 3654.0,
+        "G_SUB_WINDOW": {
+          "h1": 2305.5,
+          "h2": 4477.0,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": -860.0,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "RATCHET_a90_f60": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -14159.8,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 9832.2,
+        "delta_vs_actual": -13293.8,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 2,
+        "flipped_days": [
+          "2026-06-30",
+          "2026-07-08"
+        ],
+        "G_RUNNER_cell_minus_control": 2669.4,
+        "G_DROP_BEST_delta": 4885.7,
+        "G_SUB_WINDOW": {
+          "h1": 3044.4,
+          "h2": 6787.8,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": -764.7,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "RATCHET_a90_f70": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -10291.1,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 13700.9,
+        "delta_vs_actual": -9425.1,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 2,
+        "flipped_days": [
+          "2026-06-30",
+          "2026-07-08"
+        ],
+        "G_RUNNER_cell_minus_control": 4923.1,
+        "G_DROP_BEST_delta": 7959.9,
+        "G_SUB_WINDOW": {
+          "h1": 4010.0,
+          "h2": 9690.9,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": -669.4,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "RATCHET_a90_f80": {
+      "engine_expressible": true,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": -4474.0,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 19518.0,
+        "delta_vs_actual": -3608.0,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 3,
+        "flipped_days": [
+          "2026-06-30",
+          "2026-07-08",
+          "2026-07-09"
+        ],
+        "G_RUNNER_cell_minus_control": 8918.4,
+        "G_DROP_BEST_delta": 9451.3,
+        "G_SUB_WINDOW": {
+          "h1": 4816.0,
+          "h2": 14702.0,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": -246.1,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "GIVEBACK_20": {
+      "engine_expressible": false,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": 6910.8,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 30902.8,
+        "delta_vs_actual": 7776.8,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 16,
+        "flipped_days": [
+          "2026-06-26",
+          "2026-06-29",
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-06",
+          "2026-07-08",
+          "2026-07-09",
+          "2026-07-13",
+          "2026-07-15",
+          "2026-07-16",
+          "2026-07-21",
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-27",
+          "2026-07-28",
+          "2026-08-07"
+        ],
+        "G_RUNNER_cell_minus_control": 7342.7,
+        "G_DROP_BEST_delta": 22607.1,
+        "G_SUB_WINDOW": {
+          "h1": 9144.8,
+          "h2": 21758.0,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 210.4,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "GIVEBACK_25": {
+      "engine_expressible": false,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": 6205.5,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 30197.5,
+        "delta_vs_actual": 7071.5,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 16,
+        "flipped_days": [
+          "2026-06-26",
+          "2026-06-29",
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-06",
+          "2026-07-08",
+          "2026-07-09",
+          "2026-07-13",
+          "2026-07-15",
+          "2026-07-16",
+          "2026-07-21",
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-27",
+          "2026-07-28",
+          "2026-08-07"
+        ],
+        "G_RUNNER_cell_minus_control": 7085.0,
+        "G_DROP_BEST_delta": 21959.0,
+        "G_SUB_WINDOW": {
+          "h1": 8918.0,
+          "h2": 21279.5,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 184.25,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "GIVEBACK_33": {
+      "engine_expressible": false,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": 5077.02,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 29069.02,
+        "delta_vs_actual": 5943.02,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 15,
+        "flipped_days": [
+          "2026-06-26",
+          "2026-06-29",
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-06",
+          "2026-07-08",
+          "2026-07-09",
+          "2026-07-13",
+          "2026-07-15",
+          "2026-07-16",
+          "2026-07-21",
+          "2026-07-23",
+          "2026-07-27",
+          "2026-07-28",
+          "2026-08-07"
+        ],
+        "G_RUNNER_cell_minus_control": 6672.68,
+        "G_DROP_BEST_delta": 20922.04,
+        "G_SUB_WINDOW": {
+          "h1": 8555.12,
+          "h2": 20513.9,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 142.41,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    },
+    "GIVEBACK_50": {
+      "engine_expressible": false,
+      "oos": {
+        "n_days": 27,
+        "n_positions": 247,
+        "total_cell": 2679.0,
+        "total_control": -23992.0,
+        "total_actual": -866.0,
+        "paired_delta_vs_control": 26671.0,
+        "delta_vs_actual": 3545.0,
+        "median_day_fidelity_err": 275.0,
+        "losing_days_actual": 20,
+        "flipped_to_winning": 15,
+        "flipped_days": [
+          "2026-06-26",
+          "2026-06-29",
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-06",
+          "2026-07-08",
+          "2026-07-09",
+          "2026-07-13",
+          "2026-07-15",
+          "2026-07-16",
+          "2026-07-21",
+          "2026-07-23",
+          "2026-07-27",
+          "2026-07-28",
+          "2026-08-07"
+        ],
+        "G_RUNNER_cell_minus_control": 5796.5,
+        "G_DROP_BEST_delta": 18718.5,
+        "G_SUB_WINDOW": {
+          "h1": 7784.0,
+          "h2": 18887.0,
+          "sign_consistent": true
+        },
+        "bootstrap_p_one_sided": 0.0001
+      },
+      "today_in_sample": {
+        "cell": 53.5,
+        "control": -1813.0,
+        "actual": -758.0
+      },
+      "bh_fdr_q10_pass": true
+    }
+  },
+  "verdict": {
+    "status": "PASS -- ladder stays live",
+    "decided_on": "BINDING-SLICE analysis, not the headline table",
+    "why_the_headline_table_is_not_the_verdict": "The full-population paired deltas (+$14k..+$31k vs control) are inflated by a control the harness cannot make realistic: with no SPY feed, structure/ribbon exits never fire, so CONTROL replays ~$23k worse than the live engine's actual exits over the same fills. Any floor beats a strawman. The GIVEBACK cells' +$7.8k-vs-actual likewise contradicts the measured pre-TP1 %-trail G_RUNNER failure (-$7,759) from the walk_exit_manager study -- tight trails are exactly what the 5m optimistic intra-bar convention flatters most. Both were caught by /fable-too-good before being quoted.",
+    "binding_slice": {
+      "definition": "positions whose replay MFE >= +50% (the lowest rung). Below that the ladder is guard-tested inert -- production behavior is byte-identical to control, so every sub-binding difference in this harness is pure harness error, not signal.",
+      "oos_ex_2026_08_10": {
+        "n_positions": 113,
+        "n_days": 21,
+        "ladder_replay_total": 12599,
+        "actual_total": 6145,
+        "delta_vs_actual": 6454,
+        "cohort_A_live_tp1d": {
+          "n": 40,
+          "ladder": 5442,
+          "actual": 9201,
+          "clip_cost": -3759,
+          "meaning": "trades that were already banking -- the ladder's real price"
+        },
+        "cohort_B_live_not_tp1d": {
+          "n": 73,
+          "ladder": 7158,
+          "actual": -3056,
+          "rescue": 10214,
+          "meaning": "the give-back class: peaked >=+50%, never banked, mostly died. THE defect the ladder exists to fix."
+        },
+        "gates": {
+          "days_better": "15/21",
+          "G_DROP_BEST": 4375,
+          "G_SUB_WINDOW": "halves +2441/+4014 sign-consistent",
+          "bootstrap_p_day_clustered": 0.0073
+        }
+      },
+      "caveats": [
+        "5m intra-bar optimism inflates floor fills in BOTH cohorts",
+        "ladder-side replay also lacks structure exits (error in both directions)",
+        "forward live evidence (ladder is live as of af6cf286/658ecc79) supersedes this replay -- nightly winner_autopsy carries it"
+      ]
+    },
+    "kill_criteria_check": "Prereg kill: 'any cell that clips the runner cohort like the pre-TP1 trailing lock did'. Clip cost -$3,759 vs the trail study's -$7,759, against rescue +$10,214 and net +$6,454, p=0.0073 day-clustered: NOT killed. The clip is the accepted price of the floor, reported not hidden."
+  }
+}
