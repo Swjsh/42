@@ -1,0 +1,11 @@
+[
+  {"date": "2026-08-10", "arm": "safe-3",  "entry_time": "09:35:07", "symbol": "SPY260810C00773000", "qty": 3,  "entry_premium": 1.33, "actual_exit_time": "09:37:05", "actual_exit_premium": 1.28, "actual_pnl": -15.0},
+  {"date": "2026-08-10", "arm": "risky-1", "entry_time": "09:35:09", "symbol": "SPY260810C00773000", "qty": 5,  "entry_premium": 1.33, "actual_exit_time": "09:37:06", "actual_exit_premium": 1.28, "actual_pnl": -25.0},
+  {"date": "2026-08-10", "arm": "risky-3", "entry_time": "09:35:11", "symbol": "SPY260810C00775000", "qty": 5,  "entry_premium": 0.55, "actual_exit_time": "09:40:08", "actual_exit_premium": 0.39, "actual_pnl": -80.0},
+  {"date": "2026-08-10", "arm": "risky-3", "entry_time": "09:52:10", "symbol": "SPY260810P00771000", "qty": 8,  "entry_premium": 0.52, "actual_exit_time": "09:53:06", "actual_exit_premium": 0.51, "actual_pnl": -8.0},
+  {"date": "2026-08-10", "arm": "risky-1", "entry_time": "09:54:49", "symbol": "SPY260810P00773000", "qty": 5,  "entry_premium": 1.08, "actual_exit_time": "15:45:06", "actual_exit_premium": 0.20, "actual_pnl": -440.0},
+  {"date": "2026-08-10", "arm": "safe-2",  "entry_time": "09:56:54", "symbol": "SPY260810C00773000", "qty": 3,  "entry_premium": 1.16, "actual_exit_time": "12:36:04", "actual_exit_premium": 0.69, "actual_pnl": -141.0},
+  {"date": "2026-08-10", "arm": "bold-2",  "entry_time": "09:57:32", "symbol": "SPY260810C00773000", "qty": 5,  "entry_premium": 1.21, "actual_exit_time": "12:36:06", "actual_exit_premium": 0.67, "actual_pnl": -270.0},
+  {"date": "2026-08-10", "arm": "safe-3",  "entry_time": "09:58:06", "symbol": "SPY260810C00773000", "qty": 3,  "entry_premium": 1.26, "actual_exit_time": "12:37:05", "actual_exit_premium": 0.79, "actual_pnl": -141.0},
+  {"date": "2026-08-10", "arm": "risky-3", "entry_time": "09:58:08", "symbol": "SPY260810C00775000", "qty": 10, "entry_premium": 0.41, "actual_exit_time": "10:47/10:52", "actual_exit_premium": 0.772, "actual_pnl": 362.0}
+]

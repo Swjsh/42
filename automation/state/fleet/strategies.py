@@ -125,7 +125,16 @@ RIBBON_RIDE = Strategy(
     # runner_target 99.0 == the cell's tgt-none (runner exits via structure/trail/EOD only).
     exit=ExitShape(premium_stop_pct=-0.20, tp1_premium_pct=1.0, tp1_qty_fraction=0.667,
                    pre_tp1_ladder=[[0.50, 0.30], [0.75, 0.60]],
-                   pre_tp1_trail_arm_pct=0.40, pre_tp1_trail_pct=0.20,
+                   # Trail arms at the TOP RUNG, not at +40% as first drafted. Measured on the
+                   # 2026-08-10 tape (9 real fills, real OPRA 5m): a +40%-armed 20% trail can only
+                   # ever bind between +40% and +50% MFE -- above +50% the fixed rungs are always
+                   # the higher floor -- and in that dead band it sold every 773C at ~10:05 on the
+                   # first pullback. Day came to +$132 vs +$446 with the rungs alone, and it cut
+                   # the day's one real winner from +$123 to +$62. Armed at +75% the trail only
+                   # takes over above +100% MFE (hwm*0.80 > entry*1.60), which is exactly the gap
+                   # the fixed top rung leaves open: without it a +200% runner still gives back to
+                   # +60%. Inert on today's tape (best MFE was +98%); it exists for the bigger run.
+                   pre_tp1_trail_arm_pct=0.75, pre_tp1_trail_pct=0.20,
                    profit_lock_mode="trailing", runner_target_pct=99.0, trail_pct=0.15,
                    stop_mode="structure", catastrophe_stop_pct=-0.50),
     note="SS-B structure-stop cell shipped 2026-07-09 (STOP-B; waiver: structure stops sit "

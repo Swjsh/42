@@ -1,0 +1,371 @@
+<title>Aug 10 — the day, re-run through the ladder</title>
+<style>
+:root{
+  --ink:#0E1419; --paper:#EDF0F2; --surface:#FFFFFF; --line:#D3DAE0;
+  --slate:#5C6B75; --brass:#A87620; --jade:#137254; --rust:#A93A26;
+  --grid:#DCE2E7; --shadow:0 1px 2px rgba(14,20,25,.06),0 8px 24px -12px rgba(14,20,25,.18);
+  --fg:var(--ink); --bg:var(--paper);
+}
+@media (prefers-color-scheme:dark){
+  :root{ --paper:#0B1116; --surface:#131B21; --line:#26333C; --slate:#8798A3;
+    --brass:#D9A648; --jade:#3FBF92; --rust:#E4705A; --grid:#1D272E; --ink:#E8EEF2;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px -14px rgba(0,0,0,.7);
+    --fg:var(--ink); --bg:var(--paper); }
+}
+:root[data-theme="dark"]{ --paper:#0B1116; --surface:#131B21; --line:#26333C; --slate:#8798A3;
+  --brass:#D9A648; --jade:#3FBF92; --rust:#E4705A; --grid:#1D272E; --ink:#E8EEF2;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px -14px rgba(0,0,0,.7);
+  --fg:var(--ink); --bg:var(--paper); }
+:root[data-theme="light"]{ --paper:#EDF0F2; --surface:#FFFFFF; --line:#D3DAE0; --slate:#5C6B75;
+  --brass:#A87620; --jade:#137254; --rust:#A93A26; --grid:#DCE2E7; --ink:#0E1419;
+  --shadow:0 1px 2px rgba(14,20,25,.06),0 8px 24px -12px rgba(14,20,25,.18);
+  --fg:var(--ink); --bg:var(--paper); }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:"Segoe UI Variable Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.mono{font-family:Consolas,"SF Mono","Cascadia Mono",ui-monospace,Menlo,monospace;
+  font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(18px,4vw,40px) 96px;
+  display:flex;flex-direction:column;gap:clamp(38px,5vw,60px)}
+
+.eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);
+  font-weight:650;margin:0}
+h1{font-size:clamp(30px,5.2vw,50px);line-height:1.04;letter-spacing:-.028em;font-weight:700;
+  margin:.34em 0 0;text-wrap:balance;max-width:19ch}
+h2{font-size:clamp(19px,2.4vw,24px);letter-spacing:-.015em;font-weight:680;margin:0;
+  text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--slate);font-size:17px;margin-top:14px;max-width:62ch}
+section{display:flex;flex-direction:column;gap:18px}
+
+.headline{display:flex;flex-wrap:wrap;gap:clamp(20px,4vw,52px);align-items:flex-end;
+  padding:26px 0 0;border-top:2px solid var(--fg);margin-top:26px}
+.big{display:flex;flex-direction:column;gap:2px}
+.big .k{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);
+  font-weight:650}
+.big .v{font-size:clamp(34px,6vw,54px);line-height:1;font-weight:700;letter-spacing:-.03em}
+.v.up{color:var(--jade)} .v.down{color:var(--rust)}
+.big .n{font-size:13px;color:var(--slate)}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  box-shadow:var(--shadow);overflow:hidden}
+figcaption{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;
+  justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+figcaption b{font-size:14.5px;font-weight:660;letter-spacing:-.01em}
+figcaption span{font-size:12.5px;color:var(--slate)}
+.cv{display:block;width:100%;height:auto}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:12px 18px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--slate)}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:7px;vertical-align:1px;
+  border-radius:50%;font-style:normal}
+.legend .sq{border-radius:0;height:2px;width:16px;vertical-align:4px}
+
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:820px;font-size:13.5px}
+th{text-align:right;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);font-weight:660;padding:13px 12px;border-bottom:1px solid var(--fg);
+  white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+th:first-child,th.l{text-align:left}
+td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+td:first-child,td.l{text-align:left}
+tbody tr:last-child td{border-bottom:1px solid var(--fg)}
+tfoot td{padding:14px 12px;font-weight:700;font-size:14.5px;border:0}
+.up{color:var(--jade)} .down{color:var(--rust)}
+.arm{font-size:12px;color:var(--slate)}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border:1px solid currentColor;border-radius:2px;font-weight:650}
+.tag.lock{color:var(--brass)} .tag.stop{color:var(--rust)} .tag.chop{color:var(--slate)}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brass);
+  border-radius:3px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.card.warn{border-left-color:var(--rust)}
+.card h3{margin:0;font-size:14px;font-weight:670;letter-spacing:-.005em}
+.card p{font-size:13.5px;color:var(--slate);max-width:none}
+.card p b{color:var(--fg);font-weight:640}
+
+.note{border-top:1px solid var(--line);padding-top:22px;font-size:13.5px;color:var(--slate);
+  display:flex;flex-direction:column;gap:12px}
+.note b{color:var(--fg)}
+code{font-family:Consolas,ui-monospace,monospace;font-size:.92em;background:var(--grid);
+  padding:1px 5px;border-radius:2px}
+@media (prefers-reduced-motion:no-preference){.cv{transition:opacity .2s}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">Exit-only counterfactual &middot; Monday 10 August 2026 &middot; real fills, real OPRA</p>
+  <h1>The same nine trades, re-run through the ladder.</h1>
+  <p class="lede">Entries held exactly as they filled. Only the exit logic changes &mdash;
+     every position walked forward bar by bar through the live <code>exit_manager</code>.</p>
+  <div class="headline">
+    <div class="big"><span class="k">As traded</span><span class="v down" id="tA"></span>
+      <span class="n">nine fills, broker record</span></div>
+    <div class="big"><span class="k">Through the ladder</span><span class="v up" id="tR"></span>
+      <span class="n">rungs +50&rarr;+30, +75&rarr;+60</span></div>
+    <div class="big"><span class="k">Swing</span><span class="v" id="tD"></span>
+      <span class="n">7 of 9 trades improve</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Where the money was, and where it went</h2>
+  <p class="lede" style="margin-top:0">Five of the nine trades were the same contract &mdash; the
+     773&nbsp;call. It peaked at <b>2.30</b> and closed the day at pocket change. This is the
+     whole argument in one picture.</p>
+  <figure>
+    <figcaption><b>SPY 773C &middot; 0DTE premium, 5-minute OPRA</b>
+      <span>brass steps = ladder floors for the 1.16 entry</span></figcaption>
+    <canvas class="cv" id="c1" width="1600" height="620"></canvas>
+    <div class="legend">
+      <span><i class="sq" style="background:var(--brass)"></i>ladder floor (never lowers)</span>
+      <span><i style="background:var(--jade)"></i>ladder exit</span>
+      <span><i style="background:var(--rust)"></i>actual exit</span>
+      <span><i style="background:var(--fg)"></i>entry</span>
+      <span>peak 2.30 at 10:45 &mdash; TP1 sat at 2.32</span>
+    </div>
+  </figure>
+</section>
+
+<section>
+  <h2>Trade by trade</h2>
+  <div class="tw"><table>
+    <thead><tr>
+      <th class="l">#</th><th class="l">Arm</th><th class="l">Contract</th><th>Qty</th>
+      <th>In</th><th>Fill</th><th>Peak</th><th>Out</th><th>Exit</th><th class="l">Why</th>
+      <th>Ladder P&amp;L</th><th>Actual</th><th>Delta</th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+    <tfoot id="tf"></tfoot>
+  </table></div>
+</section>
+
+<section>
+  <h2>Two trades that do not improve &mdash; and why</h2>
+  <div class="grid2">
+    <div class="card warn">
+      <h3>#9 risky-3 &middot; +$123 vs +$362 actual</h3>
+      <p>The day's one real winner gets <b>clipped</b>. Its cheap 0.41 contract made TP1 reachable,
+         so live it banked at 0.82. Under the ladder the <b>+30% floor</b> catches an earlier dip
+         and takes it at 0.53. Any pre-TP1 floor costs something on the trades that were already
+         working &mdash; that is the honest price of the protection, and it is
+         <b>$239</b> on this tape.</p>
+    </div>
+    <div class="card warn">
+      <h3>#4 risky-3 put &middot; &minus;$208 vs &minus;$8 actual</h3>
+      <p>Not a real result. Live, this was flat in <b>56 seconds</b> on a signal flip. The replay
+         has no SPY feed, so it cannot fire a structure exit &mdash; it holds the put down to the
+         premium stop instead. Read this row as an <b>artifact of the harness</b>, not a
+         prediction. Excluding it, the day is <b>+$654</b>.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The underlying, for context</h2>
+  <figure>
+    <figcaption><b>SPY &middot; 5-minute, 09:30&ndash;16:00 ET</b>
+      <span>all nine entries land inside the first 23 minutes</span></figcaption>
+    <canvas class="cv" id="c2" width="1600" height="440"></canvas>
+    <div class="legend">
+      <span><i style="background:var(--jade)"></i>call entries</span>
+      <span><i style="background:var(--rust)"></i>put entries</span>
+      <span>high 775.05 at 10:45 &middot; 12:30 break to 771.62</span>
+    </div>
+  </figure>
+</section>
+
+<section>
+  <h2>What changed in the engine</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>The rungs ship as specified</h3>
+      <p><b>+50% &rarr; floor +30%.</b> <b>+75% &rarr; floor +60%.</b> Armed on high-water mark
+         alone, never referencing TP1, and the floor never lowers. This is what breaks the old
+         chain, where protection was gated behind a +100% take-profit that 0DTE almost never
+         reaches.</p>
+    </div>
+    <div class="card">
+      <h3>The trail moved from +40% to +75%</h3>
+      <p>At a +40% arm a 20% trail can only out-floor the +50 rung while gain sits between
+         <b>+40% and +50%</b> &mdash; and in that band it liquidated every 773C at ~10:05 on the
+         first pullback. Day came to <b>+$132</b> instead of +$446. Armed at the top rung it only
+         takes over <b>above +100%</b>, covering the gap where the fixed floor would otherwise let
+         a +200% runner give back to +60%.</p>
+    </div>
+  </div>
+</section>
+
+<div class="note">
+  <p><b>Five-minute granularity.</b> Floors are tested against each bar's low. Where one bar both
+     sets a new high-water mark and breaches the floor that results, this resolves optimistically
+     &mdash; arm first, then exit at the floor. Sub-bar ordering is unknowable from these bars.</p>
+  <p><b>No SPY feed in the replay.</b> Structure and ribbon exits cannot fire, so the no-ladder
+     control replays to &minus;$1,813 against a real &minus;$758. Every number here is quoted
+     against the <b>actual</b> fills, never against that control.</p>
+  <p><b>This is one day, n=1.</b> A rung sweep on this tape happens to favour +60/+35 and +80/+65
+     by a further $154 &mdash; that difference is noise at this sample size and was not shipped.
+     The population run against the frozen pre-registration is the gate that decides.</p>
+  <p><b>Reproduce it:</b>
+     <code>python backtest/tools/ladder_day_replay.py --fills analysis/deep-research/2026-08-10-live/real-fills.json --trigger-level 772.86</code></p>
+</div>
+</div>
+
+<script>
+const D = {"spy":[["09:30",772.64,773.63,772.55,772.64],["09:35",772.63,773.12,772.5,772.8],["09:40",772.79,773.11,772.52,772.66],["09:45",772.65,773.26,772.62,773.13],["09:50",773.13,773.41,772.5,773.13],["09:55",773.13,773.52,773.01,773.47],["10:00",773.42,773.85,773.39,773.72],["10:05",773.68,774.03,773.57,774.03],["10:10",774.03,774.26,773.89,774.22],["10:15",774.22,774.35,773.97,774.29],["10:20",774.29,774.38,773.83,773.97],["10:25",773.97,774.46,773.77,774.36],["10:30",774.36,774.69,774.27,774.36],["10:35",774.36,774.62,774.17,774.34],["10:40",774.34,774.64,774.31,774.6],["10:45",774.61,775.05,774.6,774.92],["10:50",774.93,774.95,773.8,773.88],["10:55",773.85,774.11,773.5,773.52],["11:00",773.51,773.95,773.31,773.71],["11:05",773.71,774.03,773.58,773.58],["11:10",773.55,773.92,773.45,773.82],["11:15",773.82,774.19,773.76,773.92],["11:20",773.92,774.1,773.8,773.92],["11:25",773.92,773.99,773.42,773.74],["11:30",773.76,773.87,773.36,773.39],["11:35",773.41,773.6,773.23,773.28],["11:40",773.27,773.81,773.16,773.79],["11:45",773.81,773.88,773.51,773.55],["11:50",773.57,774.34,773.5,774.21],["11:55",774.19,774.41,774.03,774.31],["12:00",774.34,774.44,774.04,774.17],["12:05",774.17,774.2,773.88,773.99],["12:10",774.0,774.14,773.78,773.78],["12:15",773.78,773.79,773.45,773.69],["12:20",773.67,773.86,773.48,773.77],["12:25",773.76,773.92,773.35,773.37],["12:30",773.37,773.49,771.62,772.68],["12:35",772.74,773.07,772.52,772.57],["12:40",772.57,772.64,771.98,772.16],["12:45",772.16,772.63,771.93,772.61],["12:50",772.63,772.64,772.26,772.53],["12:55",772.53,772.96,772.52,772.95],["13:00",772.94,773.05,772.5,772.68],["13:05",772.68,773.09,772.58,773.09],["13:10",773.07,773.25,772.9,773.11],["13:15",773.12,773.28,772.99,773.14],["13:20",773.15,773.21,772.99,773.15],["13:25",773.14,773.18,772.86,773.11],["13:30",773.11,773.26,773.06,773.13],["13:35",773.12,773.16,772.7,772.85],["13:40",772.84,772.97,772.61,772.65],["13:45",772.66,772.76,772.55,772.68],["13:50",772.68,772.75,772.49,772.62],["13:55",772.61,772.82,772.51,772.74],["14:00",772.73,772.88,772.66,772.74],["14:05",772.74,773.02,772.65,772.94],["14:10",772.94,773.06,772.64,772.68],["14:15",772.67,772.75,772.53,772.56],["14:20",772.58,772.75,772.5,772.55],["14:25",772.55,772.71,772.51,772.53],["14:30",772.52,772.67,772.36,772.55],["14:35",772.54,772.71,772.32,772.56],["14:40",772.56,772.93,772.55,772.89],["14:45",772.88,772.93,772.74,772.85],["14:50",772.84,773.15,772.84,773.11],["14:55",773.12,773.33,773.0,773.19],["15:00",773.2,773.32,773.05,773.19],["15:05",773.19,773.4,773.11,773.39],["15:10",773.39,773.39,773.22,773.3],["15:15",773.3,773.44,773.21,773.3],["15:20",773.31,773.4,773.18,773.37],["15:25",773.39,773.39,772.88,772.93],["15:30",772.95,773.0,772.73,772.89],["15:35",772.88,773.29,772.78,773.17],["15:40",773.19,773.2,772.94,773.09],["15:45",773.08,773.22,772.9,773.17],["15:50",773.16,773.16,772.36,772.38],["15:55",772.4,773.16,772.32,773.06]],"opra":{"SPY260810C00773000":[["09:30",1.27,1.67,1.26,1.33],["09:35",1.18,1.31,1.04,1.1],["09:40",1.09,1.26,1.0,1.01],["09:45",1.0,1.21,0.99,1.21],["09:50",1.13,1.32,0.93,1.18],["09:55",1.19,1.35,1.13,1.33],["10:00",1.35,1.53,1.27,1.44],["10:05",1.44,1.64,1.36,1.63],["10:10",1.64,1.77,1.56,1.7],["10:15",1.71,1.8,1.58,1.8],["10:20",1.82,1.86,1.57,1.65],["10:25",1.52,1.82,1.45,1.82],["10:30",1.82,2.03,1.78,1.84],["10:35",1.94,2.0,1.71,1.82],["10:40",1.82,2.0,1.79,1.95],["10:45",1.96,2.3,1.96,2.21],["10:50",2.2,2.24,1.47,1.59],["10:55",1.56,1.62,1.33,1.34],["11:00",1.21,1.52,1.17,1.38],["11:05",1.38,1.55,1.31,1.37],["11:10",1.3,1.41,1.2,1.4],["11:15",1.4,1.63,1.35,1.45],["11:20",1.5,1.54,1.34,1.39],["11:25",1.32,1.33,1.12,1.28],["11:30",1.28,1.36,1.06,1.1],["11:35",1.06,1.18,0.97,0.99],["11:40",0.99,1.29,0.93,1.28],["11:45",1.29,1.33,1.08,1.11],["11:50",1.1,1.64,1.07,1.54],["11:55",1.52,1.66,1.41,1.61],["12:00",1.61,1.69,1.38,1.48],["12:05",1.49,1.5,1.27,1.34],["12:10",1.33,1.44,1.2,1.21],["12:15",1.2,1.2,1.04,1.13],["12:20",1.11,1.25,1.01,1.16],["12:25",1.17,1.26,0.93,0.95],["12:30",0.94,1.03,0.35,0.63],["12:35",0.65,0.83,0.6,0.61],["12:40",0.62,0.64,0.42,0.47],["12:45",0.46,0.61,0.42,0.6],["12:50",0.61,0.61,0.47,0.54],["12:55",0.55,0.72,0.55,0.71],["13:00",0.7,0.74,0.5,0.56],["13:05",0.56,0.72,0.51,0.71],["13:10",0.72,0.8,0.62,0.7],["13:15",0.7,0.79,0.63,0.7],["13:20",0.71,0.74,0.63,0.71],["13:25",0.7,0.72,0.53,0.69],["13:30",0.68,0.74,0.62,0.66],["13:35",0.66,0.68,0.49,0.53],["13:40",0.52,0.57,0.41,0.42],["13:45",0.43,0.47,0.38,0.43],["13:50",0.43,0.44,0.35,0.39],["13:55",0.39,0.46,0.36,0.41],["14:00",0.42,0.47,0.39,0.4],["14:05",0.41,0.54,0.38,0.49],["14:10",0.49,0.56,0.36,0.38],["14:15",0.38,0.4,0.31,0.33],["14:20",0.32,0.37,0.3,0.3],["14:25",0.3,0.34,0.27,0.29],["14:30",0.28,0.34,0.23,0.3],["14:35",0.29,0.34,0.22,0.27],["14:40",0.27,0.43,0.27,0.4],["14:45",0.4,0.42,0.34,0.37],["14:50",0.38,0.53,0.37,0.5],["14:55",0.5,0.62,0.43,0.53],["15:00",0.53,0.58,0.44,0.52],["15:05",0.52,0.64,0.46,0.63],["15:10",0.63,0.64,0.51,0.56],["15:15",0.56,0.64,0.49,0.55],["15:20",0.55,0.59,0.46,0.56],["15:25",0.56,0.58,0.27,0.28],["15:30",0.29,0.32,0.21,0.27],["15:35",0.27,0.4,0.22,0.38],["15:40",0.37,0.39,0.25,0.32],["15:45",0.31,0.38,0.23,0.35],["15:50",0.35,0.35,0.07,0.07],["15:55",0.07,0.16,0.05,0.1],["16:00",0.13,0.2,0.07,0.09],["16:05",0.08,0.1,0.05,0.06],["16:10",0.07,0.07,0.02,0.04]],"SPY260810C00775000":[["09:30",0.54,0.72,0.53,0.54],["09:35",0.48,0.51,0.39,0.41],["09:40",0.39,0.47,0.34,0.34],["09:45",0.35,0.41,0.34,0.41],["09:50",0.45,0.45,0.31,0.39],["09:55",0.4,0.46,0.37,0.44],["10:00",0.45,0.53,0.42,0.49],["10:05",0.49,0.59,0.46,0.59],["10:10",0.58,0.66,0.55,0.63],["10:15",0.64,0.67,0.55,0.66],["10:20",0.69,0.7,0.55,0.56],["10:25",0.54,0.68,0.53,0.66],["10:30",0.67,0.77,0.64,0.66],["10:35",0.73,0.75,0.6,0.65],["10:40",0.65,0.72,0.63,0.7],["10:45",0.71,0.89,0.7,0.84],["10:50",0.84,0.86,0.5,0.54],["10:55",0.49,0.54,0.39,0.39],["11:00",0.35,0.47,0.33,0.42],["11:05",0.42,0.48,0.38,0.39],["11:10",0.35,0.41,0.34,0.4],["11:15",0.4,0.49,0.37,0.4],["11:20",0.42,0.44,0.35,0.37],["11:25",0.33,0.34,0.27,0.31],["11:30",0.31,0.34,0.22,0.24],["11:35",0.26,0.26,0.2,0.2],["11:40",0.2,0.28,0.19,0.28],["11:45",0.29,0.32,0.23,0.24],["11:50",0.24,0.44,0.22,0.39],["11:55",0.39,0.45,0.34,0.41],["12:00",0.41,0.45,0.32,0.36],["12:05",0.35,0.36,0.27,0.3],["12:10",0.3,0.33,0.25,0.25],["12:15",0.25,0.25,0.2,0.23],["12:20",0.23,0.26,0.19,0.22],["12:25",0.22,0.26,0.16,0.17],["12:30",0.16,0.19,0.02,0.1],["12:35",0.1,0.15,0.1,0.11],["12:40",0.11,0.11,0.07,0.07],["12:45",0.07,0.1,0.07,0.1],["12:50",0.1,0.1,0.08,0.09],["12:55",0.08,0.12,0.08,0.12],["13:00",0.12,0.12,0.08,0.08],["13:05",0.08,0.11,0.08,0.11],["13:10",0.11,0.13,0.1,0.11],["13:15",0.1,0.12,0.09,0.1],["13:20",0.1,0.11,0.09,0.09],["13:25",0.09,0.1,0.07,0.1],["13:30",0.1,0.1,0.08,0.08],["13:35",0.09,0.09,0.06,0.07],["13:40",0.07,0.07,0.05,0.05],["13:45",0.05,0.06,0.04,0.05],["13:50",0.05,0.06,0.05,0.05],["13:55",0.06,0.06,0.05,0.05],["14:00",0.06,0.06,0.05,0.05],["14:05",0.05,0.07,0.04,0.06],["14:10",0.06,0.06,0.04,0.04],["14:15",0.04,0.05,0.03,0.04],["14:20",0.04,0.05,0.04,0.05],["14:25",0.04,0.05,0.03,0.03],["14:30",0.03,0.04,0.03,0.04],["14:35",0.03,0.04,0.02,0.03],["14:40",0.03,0.04,0.02,0.04],["14:45",0.04,0.04,0.03,0.03],["14:50",0.03,0.05,0.03,0.04],["14:55",0.05,0.05,0.04,0.04],["15:00",0.04,0.05,0.03,0.03],["15:05",0.04,0.05,0.03,0.05],["15:10",0.05,0.05,0.03,0.03],["15:15",0.03,0.04,0.03,0.04],["15:20",0.03,0.04,0.02,0.03],["15:25",0.02,0.03,0.02,0.02],["15:30",0.02,0.03,0.01,0.01],["15:35",0.01,0.04,0.01,0.01],["15:40",0.01,0.02,0.01,0.01],["15:45",0.01,0.02,0.01,0.02],["15:50",0.01,0.02,0.01,0.01],["15:55",0.01,0.01,0.01,0.01],["16:00",0.01,0.01,0.01,0.01],["16:05",0.01,0.01,0.01,0.01],["16:10",0.01,0.01,0.01,0.01]],"SPY260810P00773000":[["09:30",1.51,1.55,1.03,1.46],["09:35",1.51,1.52,1.34,1.37],["09:40",1.35,1.5,1.17,1.27],["09:45",1.19,1.23,0.97,1.07],["09:50",0.95,1.3,0.94,1.05],["09:55",1.02,1.11,0.87,0.93],["10:00",0.83,0.88,0.7,0.74],["10:05",0.74,0.81,0.63,0.64],["10:10",0.63,0.64,0.56,0.6],["10:15",0.59,0.64,0.56,0.56],["10:20",0.55,0.64,0.52,0.62],["10:25",0.62,0.67,0.46,0.48],["10:30",0.49,0.51,0.39,0.46],["10:35",0.47,0.54,0.4,0.47],["10:40",0.48,0.48,0.37,0.39],["10:45",0.38,0.39,0.29,0.31],["10:50",0.33,0.66,0.31,0.65],["10:55",0.65,0.68,0.57,0.66],["11:00",0.73,0.85,0.57,0.65],["11:05",0.66,0.69,0.55,0.64],["11:10",0.73,0.76,0.57,0.58],["11:15",0.57,0.59,0.42,0.5],["11:20",0.46,0.54,0.44,0.48],["11:25",0.49,0.69,0.48,0.54],["11:30",0.51,0.68,0.49,0.64],["11:35",0.64,0.73,0.58,0.69],["11:40",0.68,0.74,0.51,0.51],["11:45",0.48,0.56,0.44,0.53],["11:50",0.54,0.56,0.28,0.28],["11:55",0.34,0.35,0.27,0.29],["12:00",0.28,0.35,0.25,0.32],["12:05",0.32,0.38,0.31,0.35],["12:10",0.34,0.39,0.32,0.39],["12:15",0.39,0.55,0.38,0.43],["12:20",0.44,0.51,0.36,0.39],["12:25",0.38,0.53,0.34,0.52],["12:30",0.52,1.27,0.46,0.9],["12:35",0.89,1.05,0.73,1.02],["12:40",1.02,1.36,0.96,1.27],["12:45",1.27,1.44,0.96,0.97],["12:50",0.97,1.17,0.96,1.0],["12:55",0.99,1.01,0.73,0.74],["13:00",0.73,0.98,0.68,0.86],["13:05",0.87,0.91,0.61,0.62],["13:10",0.62,0.7,0.55,0.59],["13:15",0.58,0.62,0.49,0.55],["13:20",0.54,0.62,0.51,0.54],["13:25",0.55,0.68,0.52,0.55],["13:30",0.55,0.56,0.47,0.52],["13:35",0.52,0.72,0.5,0.65],["13:40",0.66,0.78,0.57,0.75],["13:45",0.74,0.8,0.66,0.7],["13:50",0.71,0.82,0.67,0.75],["13:55",0.74,0.79,0.61,0.65],["14:00",0.65,0.7,0.56,0.63],["14:05",0.64,0.69,0.5,0.53],["14:10",0.52,0.68,0.47,0.67],["14:15",0.66,0.74,0.61,0.72],["14:20",0.71,0.76,0.6,0.71],["14:25",0.71,0.73,0.62,0.71],["14:30",0.71,0.84,0.63,0.7],["14:35",0.7,0.86,0.6,0.68],["14:40",0.69,0.7,0.48,0.52],["14:45",0.51,0.57,0.48,0.52],["14:50",0.51,0.51,0.37,0.38],["14:55",0.37,0.41,0.29,0.32],["15:00",0.31,0.37,0.26,0.3],["15:05",0.3,0.33,0.23,0.24],["15:10",0.24,0.28,0.22,0.24],["15:15",0.24,0.26,0.19,0.22],["15:20",0.22,0.26,0.18,0.18],["15:25",0.18,0.36,0.18,0.35],["15:30",0.34,0.45,0.31,0.35],["15:35",0.36,0.37,0.17,0.18],["15:40",0.19,0.29,0.18,0.21],["15:45",0.21,0.33,0.16,0.18],["15:50",0.18,0.69,0.17,0.6],["15:55",0.59,0.7,0.21,0.41],["16:00",0.14,0.28,0.12,0.21],["16:05",0.22,0.25,0.16,0.19],["16:10",0.21,0.24,0.15,0.21]],"SPY260810P00771000":[["09:30",0.75,0.76,0.47,0.49],["09:40",0.54,0.59,0.54,0.55],["09:45",0.5,0.53,0.49,0.52],["09:55",0.42,0.44,0.42,0.43],["10:00",0.35,0.36,0.31,0.31],["10:05",0.28,0.28,0.25,0.25],["10:10",0.25,0.26,0.22,0.23],["10:15",0.23,0.24,0.22,0.23],["10:20",0.22,0.22,0.21,0.21],["10:25",0.21,0.22,0.18,0.18],["10:30",0.18,0.19,0.15,0.17],["10:35",0.17,0.2,0.16,0.19],["10:40",0.18,0.18,0.14,0.14],["10:45",0.15,0.15,0.11,0.11],["10:50",0.11,0.18,0.11,0.18],["10:55",0.25,0.25,0.24,0.25],["11:00",0.23,0.25,0.22,0.25],["11:05",0.25,0.25,0.2,0.21],["11:10",0.23,0.25,0.21,0.21],["11:15",0.15,0.18,0.14,0.16],["11:20",0.15,0.18,0.15,0.17],["11:25",0.22,0.22,0.16,0.17],["11:30",0.16,0.2,0.16,0.19],["11:35",0.23,0.24,0.21,0.22],["11:40",0.23,0.25,0.16,0.16],["11:45",0.14,0.17,0.14,0.16],["11:50",0.17,0.17,0.09,0.1],["11:55",0.1,0.1,0.08,0.09],["12:00",0.09,0.1,0.07,0.09],["12:05",0.09,0.1,0.08,0.1],["12:10",0.09,0.11,0.08,0.1],["12:15",0.11,0.13,0.1,0.12],["12:20",0.13,0.14,0.1,0.11],["12:25",0.1,0.14,0.09,0.14],["12:30",0.14,0.42,0.13,0.32],["12:35",0.24,0.36,0.22,0.34],["12:40",0.34,0.47,0.31,0.45],["12:45",0.44,0.52,0.29,0.29],["12:50",0.3,0.37,0.29,0.31],["12:55",0.3,0.31,0.2,0.2],["13:00",0.21,0.28,0.18,0.24],["13:05",0.23,0.25,0.15,0.16],["13:10",0.16,0.17,0.13,0.14],["13:15",0.13,0.14,0.11,0.12],["13:20",0.13,0.14,0.11,0.12],["13:25",0.12,0.15,0.11,0.12],["13:30",0.12,0.12,0.09,0.11],["13:35",0.11,0.16,0.1,0.15],["13:40",0.15,0.16,0.12,0.16],["13:45",0.15,0.17,0.13,0.14],["13:50",0.15,0.17,0.13,0.15],["13:55",0.15,0.16,0.11,0.11],["14:00",0.11,0.13,0.1,0.12],["14:05",0.11,0.13,0.08,0.08],["14:10",0.08,0.11,0.08,0.11],["14:15",0.11,0.12,0.1,0.12],["14:20",0.12,0.12,0.09,0.1],["14:25",0.11,0.11,0.09,0.11],["14:30",0.11,0.14,0.09,0.1],["14:35",0.11,0.13,0.08,0.1],["14:40",0.1,0.1,0.06,0.06],["14:45",0.06,0.07,0.06,0.06],["14:50",0.06,0.07,0.04,0.04],["14:55",0.05,0.05,0.03,0.04],["15:00",0.03,0.04,0.03,0.03],["15:05",0.03,0.04,0.02,0.03],["15:10",0.03,0.04,0.03,0.03],["15:15",0.03,0.04,0.02,0.02],["15:20",0.03,0.03,0.02,0.02],["15:25",0.02,0.03,0.02,0.03],["15:30",0.03,0.03,0.02,0.02],["15:35",0.03,0.03,0.01,0.03],["15:40",0.02,0.03,0.02,0.03],["15:45",0.02,0.03,0.02,0.02],["15:50",0.03,0.04,0.02,0.02],["15:55",0.03,0.03,0.02,0.03],["16:00",0.02,0.02,0.01,0.01],["16:05",0.01,0.01,0.01,0.01],["16:10",0.01,0.01,0.01,0.01]]},"rows":[{"date":"2026-08-10","arm":"safe-3","entry_time":"09:35:07","symbol":"SPY260810C00773000","qty":3,"entry_premium":1.33,"actual_exit_time":"09:37:05","actual_exit_premium":1.28,"actual_pnl":-15.0,"replay_exit_time":"10:30","replay_exit_premium":1.729,"replay_reason":"pre_tp1 profit_lock arm/trail","replay_pnl":119.7,"mfe_pct":52.6,"hwm_premium":2.03,"delta_vs_actual":134.7},{"date":"2026-08-10","arm":"risky-1","entry_time":"09:35:09","symbol":"SPY260810C00773000","qty":5,"entry_premium":1.33,"actual_exit_time":"09:37:06","actual_exit_premium":1.28,"actual_pnl":-25.0,"replay_exit_time":"10:30","replay_exit_premium":1.729,"replay_reason":"pre_tp1 profit_lock arm/trail","replay_pnl":199.5,"mfe_pct":52.6,"hwm_premium":2.03,"delta_vs_actual":224.5},{"date":"2026-08-10","arm":"risky-3","entry_time":"09:35:11","symbol":"SPY260810C00775000","qty":5,"entry_premium":0.55,"actual_exit_time":"09:40:08","actual_exit_premium":0.39,"actual_pnl":-80.0,"replay_exit_time":"10:45","replay_exit_premium":0.715,"replay_reason":"premium_stop @ 0.72","replay_pnl":82.5,"mfe_pct":61.8,"hwm_premium":0.89,"delta_vs_actual":162.5},{"date":"2026-08-10","arm":"risky-3","entry_time":"09:52:10","symbol":"SPY260810P00771000","qty":8,"entry_premium":0.52,"actual_exit_time":"09:53:06","actual_exit_premium":0.51,"actual_pnl":-8.0,"replay_exit_time":"10:05","replay_exit_premium":0.26,"replay_reason":"premium_stop @ 0.26","replay_pnl":-208.0,"mfe_pct":0.0,"hwm_premium":0.52,"delta_vs_actual":-200.0},{"date":"2026-08-10","arm":"risky-1","entry_time":"09:54:49","symbol":"SPY260810P00773000","qty":5,"entry_premium":1.08,"actual_exit_time":"15:45:06","actual_exit_premium":0.2,"actual_pnl":-440.0,"replay_exit_time":"10:20","replay_exit_premium":0.54,"replay_reason":"premium_stop @ 0.54","replay_pnl":-270.0,"mfe_pct":2.8,"hwm_premium":1.11,"delta_vs_actual":170.0},{"date":"2026-08-10","arm":"safe-2","entry_time":"09:56:54","symbol":"SPY260810C00773000","qty":3,"entry_premium":1.16,"actual_exit_time":"12:36:04","actual_exit_premium":0.69,"actual_pnl":-141.0,"replay_exit_time":"10:10","replay_exit_premium":1.508,"replay_reason":"pre_tp1 profit_lock arm/trail","replay_pnl":104.4,"mfe_pct":52.6,"hwm_premium":1.77,"delta_vs_actual":245.4},{"date":"2026-08-10","arm":"bold-2","entry_time":"09:57:32","symbol":"SPY260810C00773000","qty":5,"entry_premium":1.21,"actual_exit_time":"12:36:06","actual_exit_premium":0.67,"actual_pnl":-270.0,"replay_exit_time":"10:20","replay_exit_premium":1.573,"replay_reason":"premium_stop @ 1.57","replay_pnl":181.5,"mfe_pct":53.7,"hwm_premium":1.86,"delta_vs_actual":451.5},{"date":"2026-08-10","arm":"safe-3","entry_time":"09:58:06","symbol":"SPY260810C00773000","qty":3,"entry_premium":1.26,"actual_exit_time":"12:37:05","actual_exit_premium":0.79,"actual_pnl":-141.0,"replay_exit_time":"10:30","replay_exit_premium":1.638,"replay_reason":"pre_tp1 profit_lock arm/trail","replay_pnl":113.4,"mfe_pct":61.1,"hwm_premium":2.03,"delta_vs_actual":254.4},{"date":"2026-08-10","arm":"risky-3","entry_time":"09:58:08","symbol":"SPY260810C00775000","qty":10,"entry_premium":0.41,"actual_exit_time":"10:47/10:52","actual_exit_premium":0.772,"actual_pnl":362.0,"replay_exit_time":"10:10","replay_exit_premium":0.533,"replay_reason":"pre_tp1 profit_lock arm/trail","replay_pnl":123.0,"mfe_pct":61.0,"hwm_premium":0.66,"delta_vs_actual":-239.0}],"totals":{"replay":446.0,"actual":-758.0}};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function frame(cv){
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  return ctx;
+}
+function scaleY(v,lo,hi,top,bot){ return bot - (v-lo)/(hi-lo)*(bot-top); }
+
+/* ---- chart 1: 773C premium path with ladder floors ---- */
+function drawPremium(){
+  const cv=document.getElementById('c1'), ctx=frame(cv);
+  const bars=D.opra['SPY260810C00773000'].filter(b=>b[0]>='09:35'&&b[0]<='13:00');
+  const L=64,R=cv.width-18,T=26,B=cv.height-42;
+  let lo=Infinity,hi=-Infinity;
+  bars.forEach(b=>{lo=Math.min(lo,b[3]);hi=Math.max(hi,b[2])});
+  lo=Math.max(0,lo-0.12); hi+=0.14;
+  const w=(R-L)/bars.length, X=i=>L+i*w+w/2, Y=v=>scaleY(v,lo,hi,T,B);
+
+  ctx.strokeStyle=css('--grid'); ctx.lineWidth=1; ctx.fillStyle=css('--slate');
+  ctx.font='500 20px Consolas,ui-monospace,monospace'; ctx.textAlign='right';
+  for(let p=Math.ceil(lo*4)/4;p<=hi;p+=0.25){
+    const y=Y(p); ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke();
+    ctx.fillText(p.toFixed(2),L-10,y+7);
+  }
+  ctx.textAlign='center';
+  bars.forEach((b,i)=>{ if(b[0].endsWith(':00')||b[0].endsWith(':30'))
+    ctx.fillText(b[0],X(i),B+28); });
+
+  /* ladder floors for the 1.16 entry: +30% and +60% */
+  const floors=[[1.16*1.30,'+30% floor  (arms at +50%)'],[1.16*1.60,'+60% floor  (arms at +75%)']];
+  ctx.strokeStyle=css('--brass'); ctx.fillStyle=css('--brass');
+  ctx.setLineDash([7,5]); ctx.lineWidth=2.5;
+  floors.forEach(([p,lab])=>{ const y=Y(p);
+    ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke();
+    ctx.textAlign='left'; ctx.font='600 19px "Segoe UI",sans-serif';
+    ctx.fillText(lab,L+10,y-9);
+  });
+  ctx.setLineDash([]);
+
+  /* candles */
+  bars.forEach((b,i)=>{
+    const up=b[4]>=b[1], col=up?css('--jade'):css('--rust');
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(X(i),Y(b[2])); ctx.lineTo(X(i),Y(b[3])); ctx.stroke();
+    const y1=Y(Math.max(b[1],b[4])), y2=Y(Math.min(b[1],b[4]));
+    ctx.fillRect(X(i)-w*0.3, y1, Math.max(w*0.6,1.5), Math.max(y2-y1,1.6));
+  });
+
+  const at=t=>bars.findIndex(b=>b[0]===t);
+  function mark(t,px,col,label,above){
+    const i=at(t); if(i<0)return; const x=X(i),y=Y(px);
+    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,8,0,7); ctx.fill();
+    ctx.strokeStyle=css('--surface'); ctx.lineWidth=2.5; ctx.stroke();
+    ctx.fillStyle=col; ctx.font='700 19px "Segoe UI",sans-serif';
+    ctx.textAlign = x>R-260 ? 'right':'left';
+    ctx.fillText(label, x + (x>R-260?-14:14), y + (above?-13:24));
+  }
+  mark('09:55',1.16,css('--fg'),'safe-2 in  1.16',true);
+  mark('10:10',1.51,css('--jade'),'LADDER OUT  1.51   +$104',true);
+  mark('12:35',0.69,css('--rust'),'actual out  0.69   −$141',false);
+  const pi=at('10:45');
+  if(pi>=0){ ctx.fillStyle=css('--brass'); ctx.font='700 20px "Segoe UI",sans-serif';
+    ctx.textAlign='center'; ctx.fillText('peak 2.30',X(pi),Y(2.30)-16); }
+}
+
+/* ---- chart 2: SPY with entry markers ---- */
+function drawSpy(){
+  const cv=document.getElementById('c2'), ctx=frame(cv);
+  const bars=D.spy, L=76,R=cv.width-18,T=24,B=cv.height-42;
+  let lo=Infinity,hi=-Infinity;
+  bars.forEach(b=>{lo=Math.min(lo,b[3]);hi=Math.max(hi,b[2])});
+  lo-=0.25; hi+=0.35;
+  const w=(R-L)/bars.length, X=i=>L+i*w+w/2, Y=v=>scaleY(v,lo,hi,T,B);
+
+  ctx.strokeStyle=css('--grid'); ctx.fillStyle=css('--slate'); ctx.lineWidth=1;
+  ctx.font='500 19px Consolas,ui-monospace,monospace'; ctx.textAlign='right';
+  for(let p=Math.ceil(lo);p<=hi;p+=1){ const y=Y(p);
+    ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke();
+    ctx.fillText(p.toFixed(0),L-10,y+7); }
+  ctx.textAlign='center';
+  bars.forEach((b,i)=>{ if(b[0].endsWith(':00')) ctx.fillText(b[0],X(i),B+28); });
+
+  bars.forEach((b,i)=>{
+    const up=b[4]>=b[1], col=up?css('--jade'):css('--rust');
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(X(i),Y(b[2])); ctx.lineTo(X(i),Y(b[3])); ctx.stroke();
+    const y1=Y(Math.max(b[1],b[4])), y2=Y(Math.min(b[1],b[4]));
+    ctx.fillRect(X(i)-w*0.3,y1,Math.max(w*0.6,1.4),Math.max(y2-y1,1.4));
+  });
+
+  /* entries, bucketed to the 5-min bar */
+  const buckets={};
+  D.rows.forEach(r=>{
+    const [h,m]=r.entry_time.split(':').map(Number);
+    const key=String(h).padStart(2,'0')+':'+String(Math.floor(m/5)*5).padStart(2,'0');
+    (buckets[key]=buckets[key]||[]).push(r);
+  });
+  Object.entries(buckets).forEach(([t,rs])=>{
+    const i=bars.findIndex(b=>b[0]===t); if(i<0)return;
+    const isPut=rs[0].symbol.slice(-9,-8)==='P';
+    const col=isPut?css('--rust'):css('--jade');
+    const y=Y(bars[i][3])+26;
+    ctx.fillStyle=col; ctx.beginPath();
+    ctx.moveTo(X(i),y-13); ctx.lineTo(X(i)-8,y+4); ctx.lineTo(X(i)+8,y+4); ctx.closePath(); ctx.fill();
+    ctx.font='700 18px "Segoe UI",sans-serif'; ctx.textAlign='center';
+    ctx.fillText(rs.length+'×', X(i), y+24);
+  });
+  ctx.fillStyle=css('--slate'); ctx.font='600 19px "Segoe UI",sans-serif'; ctx.textAlign='left';
+  const hp=bars.findIndex(b=>b[2]>=775.05);
+  if(hp>=0) ctx.fillText('high 775.05', X(hp)+12, Y(775.05)-10);
+}
+
+/* ---- table ---- */
+function money(v){const s=v<0?'−':'+';return s+'$'+Math.abs(v).toFixed(0);}
+function fillTable(){
+  const tb=document.getElementById('tb');
+  D.rows.forEach((r,i)=>{
+    const sym=r.symbol, isPut=sym.slice(-9,-8)==='P';
+    const cn=(isPut?'Put ':'Call ')+parseInt(sym.slice(-8,-3),10);
+    const why=r.replay_reason.startsWith('pre_tp1')
+      ? '<span class="tag lock">ladder floor</span>'
+      : (r.mfe_pct<10 ? '<span class="tag chop">no run — stop</span>'
+                      : '<span class="tag stop">premium stop</span>');
+    const d=r.delta_vs_actual;
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td class="l mono">${i+1}</td><td class="l arm">${r.arm}</td>
+       <td class="l">${cn}</td><td class="mono">${r.qty}</td>
+       <td class="mono">${r.entry_time.slice(0,5)}</td><td class="mono">${r.entry_premium.toFixed(2)}</td>
+       <td class="mono">${r.mfe_pct.toFixed(0)}%</td>
+       <td class="mono">${r.replay_exit_time}</td><td class="mono">${r.replay_exit_premium.toFixed(2)}</td>
+       <td class="l">${why}</td>
+       <td class="mono ${r.replay_pnl>=0?'up':'down'}"><b>${money(r.replay_pnl)}</b></td>
+       <td class="mono ${r.actual_pnl>=0?'up':'down'}">${money(r.actual_pnl)}</td>
+       <td class="mono ${d>=0?'up':'down'}">${money(d)}</td></tr>`);
+  });
+  const R=D.totals.replay, A=D.totals.actual;
+  document.getElementById('tf').innerHTML =
+    `<tr><td class="l" colspan="10">Nine fills &middot; five arms &middot; all flat by 15:45</td>
+     <td class="mono up">${money(R)}</td><td class="mono down">${money(A)}</td>
+     <td class="mono up">${money(R-A)}</td></tr>`;
+  document.getElementById('tA').textContent=money(A);
+  document.getElementById('tR').textContent=money(R);
+  const dEl=document.getElementById('tD');
+  dEl.textContent=money(R-A); dEl.classList.add(R-A>=0?'up':'down');
+}
+
+function drawAll(){ drawPremium(); drawSpy(); }
+fillTable(); drawAll();
+new MutationObserver(drawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(window.matchMedia) matchMedia('(prefers-color-scheme:dark)').addEventListener('change',drawAll);
+</script>

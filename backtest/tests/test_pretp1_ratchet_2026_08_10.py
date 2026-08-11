@@ -55,13 +55,25 @@ def _tick(state, best, worst):
 
 
 def test_registry_arms_js_ladder_and_trail():
-    """J's spec: rungs +50->+30 and +75->+60, trail arms +40 riding 20% off HWM."""
+    """J's rungs, and the trail placed where it can actually bind.
+
+    J specified the trail arm at +40%. Replaying the 2026-08-10 tape (9 real fills, real OPRA
+    5m bars) showed +40% is strictly harmful: a 20% trail off HWM only out-floors the +50->+30
+    rung while MFE is between +40% and +50%, and inside that band it liquidated every 773C at
+    ~10:05 on the first pullback -- day +$132 vs +$446 for the rungs alone, and the one real
+    winner cut from +$123 to +$62. Armed at the top rung it instead covers the gap ABOVE the
+    ladder, where the fixed +60% floor would otherwise let a +200% runner give back to +60%.
+    """
     e = st.by_name("ribbon_ride").exit
     assert e.pre_tp1_ladder == [[0.50, 0.30], [0.75, 0.60]]
-    assert e.pre_tp1_trail_arm_pct == pytest.approx(0.40)
+    assert e.pre_tp1_trail_arm_pct == pytest.approx(0.75)
     assert e.pre_tp1_trail_pct == pytest.approx(0.20)
     d = e.to_dict()
     assert d["pre_tp1_ladder"] == [[0.50, 0.30], [0.75, 0.60]]
+    # The design invariant, asserted rather than trusted to the comment: the trail must never be
+    # the binding floor at or below the top rung, or it reintroduces the early-exit band.
+    top_arm, top_floor = e.pre_tp1_ladder[-1]
+    assert (1.0 + top_arm) * (1.0 - e.pre_tp1_trail_pct) <= 1.0 + top_floor
 
 
 def test_none_none_is_byte_identical_to_legacy():
@@ -85,13 +97,13 @@ def test_top_rung_and_trail_both_apply_max_wins():
     assert s1.tp1_filled is False
 
 
-def test_trail_protects_between_rungs():
-    """+70% MFE: below the +75 rung but above BOTH the +40 trail arm and the +50 rung.
-    This is the gap the single ratchet left wide open -- safe-3 peaked +83% and got nothing."""
+def test_rung_protects_between_rungs():
+    """+70% MFE: above the +50 rung, below the +75 rung. The +50->+30 rung is the whole
+    protection here -- safe-3 peaked +83% under the old shape and got nothing at all."""
     s = _state()
     hwm = 1.16 * 1.70
     _a, s1 = _tick(s, best=hwm, worst=1.50)
-    assert s1.runner_stop_premium == pytest.approx(max(1.16 * 1.30, hwm * 0.80), abs=1e-4)
+    assert s1.runner_stop_premium == pytest.approx(1.16 * 1.30, abs=1e-4)
     assert s1.runner_stop_premium > s.runner_stop_premium
 
 
@@ -101,18 +113,32 @@ def test_below_trail_arm_nothing_engages():
     assert s1.runner_stop_premium == s.runner_stop_premium
 
 
-def test_trail_rises_with_hwm_then_never_falls():
-    """Between the +40 trail arm and the +50 rung the TRAIL is the only thing holding the
-    floor, so this is where its ratcheting is observable (at +50%+ the fixed rung dominates
-    and would mask a broken trail -- the first draft of this test made exactly that mistake)."""
+def test_trail_leads_above_the_top_rung_and_never_falls():
+    """ABOVE +100% MFE the trail overtakes the fixed +60% floor and keeps climbing with the
+    HWM. This is the only band where the trail does any work, and it is the band the ladder
+    alone cannot cover: without it a runner that prints +200% still gives back to +60%.
+    (Below +100% the fixed rung is the higher floor and would mask a broken trail -- the first
+    draft of this test made exactly that mistake, at +42%.)"""
     s = _state()
-    _a, s1 = _tick(s, best=1.16 * 1.42, worst=1.40)   # +42% MFE: trail only
+    hwm1 = 1.16 * 2.20                                # +120% MFE -> trail 2.0416 vs rung 1.856
+    _a, s1 = _tick(s, best=hwm1, worst=2.00)
+    assert s1.runner_stop_premium == pytest.approx(max(1.16 * 1.60, hwm1 * 0.80), abs=1e-4)
+    assert s1.runner_stop_premium == pytest.approx(hwm1 * 0.80, abs=1e-4), "trail must lead here"
     lo = s1.runner_stop_premium
-    assert lo == pytest.approx(1.16 * 1.42 * 0.80, abs=1e-4)
-    _a, s2 = _tick(s1, best=1.16 * 1.48, worst=1.50)  # higher HWM -> higher trail
+    _a, s2 = _tick(s1, best=1.16 * 2.60, worst=2.40)  # higher HWM -> higher trail
     assert s2.runner_stop_premium > lo
-    _a, s3 = _tick(s2, best=1.16 * 1.48, worst=1.40)  # price sags, HWM unchanged
+    _a, s3 = _tick(s2, best=1.16 * 2.60, worst=2.10)  # price sags, HWM unchanged -> floor holds
     assert s3.runner_stop_premium >= s2.runner_stop_premium
+
+
+def test_trail_is_inert_inside_the_ladder_band():
+    """The regression that motivated moving the arm: at +42% and at +70% MFE the trail must
+    contribute NOTHING. If someone re-lowers pre_tp1_trail_arm_pct to 0.40 this goes RED."""
+    s = _state()
+    _a, s1 = _tick(s, best=1.16 * 1.42, worst=1.40)   # +42%: below the +50 rung, trail must not fire
+    assert s1.runner_stop_premium == s.runner_stop_premium
+    _a, s2 = _tick(s, best=1.16 * 1.70, worst=1.50)   # +70%: rung floor only, not hwm*0.80
+    assert s2.runner_stop_premium == pytest.approx(1.16 * 1.30, abs=1e-4)
 
 
 def test_ratchet_never_lowers():
