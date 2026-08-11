@@ -48,6 +48,18 @@ sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from et_clock import et_now as _et_clock_now  # DST-aware ET (TZ-SYSTEMIC fix)
 SWARM = REPO / "setup" / "scripts" / "swarm_consult.py"
 PY = REPO / "backtest" / ".venv" / "Scripts" / "python.exe"
+
+# SELF-AUDIT-GAP-LOG-REVERSION (2026-08-11): swarm_consult.py's OWN internal budget is
+# PERSPECTIVE_TIMEOUT_S(240, parallel across models) + SYNTHESIS_TIMEOUT_S(300, sequential
+# after perspectives) = 540s worst case -- this outer subprocess timeout MUST exceed that
+# sum or every run whose synthesis phase takes anywhere near its own allotted budget gets
+# silently killed here and swallowed by the bare `except Exception: return 0` below (exit-0
+# "success" with zero audit performed). Measured live: 300s (< 540s) caused 2 consecutive
+# full-audit failures, 2026-08-09 + 2026-08-10, invisible until this fire's investigation --
+# gap-log.jsonl (the dedup ledger) hadn't advanced in a month for a COMPOUNDING reason (see
+# .gitignore), but these 2 fires never even reached the write step at all.
+# See backtest/tests/test_self_audit_swarm_timeout.py for the cross-file drift guard.
+SWARM_SUBPROCESS_TIMEOUT_S = 600
 LOG = REPO / "analysis" / "self-audit" / "gap-log.jsonl"
 FLAGS = REPO / "analysis" / "self-audit" / "new-gaps-flagged.md"
 CONSULT_DIR = REPO / "analysis" / "swarm-consult"
@@ -259,8 +271,8 @@ def main() -> int:
     try:
         subprocess.run([exe, str(SWARM), "audit", "--quiet", "--question", STANDING_QUESTION,
                         "--context", _recent_context()],
-                       cwd=str(REPO), timeout=300, capture_output=True, text=True,
-                       creationflags=_CREATE_NO_WINDOW)
+                       cwd=str(REPO), timeout=SWARM_SUBPROCESS_TIMEOUT_S, capture_output=True,
+                       text=True, creationflags=_CREATE_NO_WINDOW)
     except Exception as e:  # noqa: BLE001
         print(f"self_audit: swarm run failed ({type(e).__name__}: {e})")
         return 0

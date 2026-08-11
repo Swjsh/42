@@ -87,6 +87,17 @@ STATE_FRESHNESS_REVERSION_FOLLOWUP_2 = [
     "automation/state/context-bundle.json",
 ]
 
+# SELF-AUDIT-GAP-LOG-REVERSION (2026-08-11): 5th round of the SAME mechanism, a new file
+# family outside automation/state/ entirely. gap-log.jsonl is self_audit.py's ONLY source
+# of "already seen" dedup keys -- last real commit was 2026-07-14's data-loss-recovery
+# (41889a0f), frozen there ever since despite the script appending to it on every
+# successful run. Net effect: already-triaged self-audit gaps were silently re-flagged as
+# "new" and re-triaged from scratch for ~4 weeks, invisible because new-gaps-flagged.md (a
+# SEPARATE, properly-committed narrative file) kept growing normally the whole time.
+SELF_AUDIT_GAP_LOG = [
+    "analysis/self-audit/gap-log.jsonl",
+]
+
 
 def test_decision_ledgers_are_gitignored():
     for path in LEDGERS:
@@ -187,6 +198,33 @@ def test_state_freshness_reversion_followup_2_are_gitignored():
 def test_state_freshness_reversion_followup_2_are_untracked():
     r = subprocess.run(
         ["git", "-C", str(REPO), "ls-files", "--", *STATE_FRESHNESS_REVERSION_FOLLOWUP_2],
+        capture_output=True,
+        text=True,
+    )
+    tracked = [ln for ln in r.stdout.splitlines() if ln.strip()]
+    assert not tracked, (
+        f"Still tracked in the index (gitignore alone does not untrack): {tracked}. "
+        f"Run `git rm --cached <path>` for each."
+    )
+
+
+def test_self_audit_gap_log_is_gitignored():
+    for path in SELF_AUDIT_GAP_LOG:
+        r = subprocess.run(
+            ["git", "-C", str(REPO), "check-ignore", "-q", path],
+            capture_output=True,
+        )
+        assert r.returncode == 0, (
+            f"{path} is NOT gitignored -- a tree-wide git stash/checkout/reset in the "
+            f"shared checkout can silently freeze self_audit.py's dedup ledger to a stale "
+            f"committed snapshot again (SELF-AUDIT-GAP-LOG-REVERSION, 2026-08-11 -- frozen "
+            f"at 2026-07-14 for ~4 weeks). Re-add it to .gitignore and `git rm --cached` it."
+        )
+
+
+def test_self_audit_gap_log_is_untracked():
+    r = subprocess.run(
+        ["git", "-C", str(REPO), "ls-files", "--", *SELF_AUDIT_GAP_LOG],
         capture_output=True,
         text=True,
     )

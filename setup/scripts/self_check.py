@@ -942,6 +942,55 @@ def check_scout_premarket_fresh(now, scout_path=None) -> list:
     return []
 
 
+SELF_AUDIT_GAP_LOG = REPO / "analysis" / "self-audit" / "gap-log.jsonl"
+
+
+def check_self_audit_organ_alive(now, log_path=None) -> list:
+    """DAILY liveness check for Gamma_SelfAudit's own dedup ledger (self-audit gap,
+    found 2026-08-11: `self_audit.py`'s outer subprocess timeout to swarm_consult.py was
+    300s, LESS than swarm_consult's own worst-case internal budget (240s perspectives +
+    300s synthesis = 540s) -- 2 consecutive full-audit failures (2026-08-09, 2026-08-10)
+    were silently swallowed by a bare `except Exception: return 0`, invisible to Task
+    Scheduler (LastTaskResult=0) and to J (new-gaps-flagged.md, a SEPARATE properly-
+    committed file, kept looking alive because its own DONE-triage edits are conductor-
+    authored, not self_audit.py-authored). This reads the CONSUMED dedup ledger
+    (gap-log.jsonl) directly, mirroring check_regime_stamp_daily/check_scout_premarket_fresh's
+    'verify the artifact, not the exit code' pattern -- rather than trusting the scheduler.
+
+    Gamma_SelfAudit fires ~17:30 ET EVERY day (including weekends, confirmed live against
+    the scheduled task's own info), unlike the weekday-only Premarket/Scout/RegimeStamp checks --
+    so this check does NOT skip weekends. DEGRADED (never BROKEN): the gap-finder is a
+    proactive-visibility organ, not a trading-path input; a stale ledger degrades J's
+    "Gamma catches its own gaps" signal, it does not halt or misdirect a trade."""
+    if now.strftime("%H:%M") < "18:15":
+        return []  # give the ~17:30 ET fire its 600s swarm budget + buffer before judging
+    today = now.strftime("%Y-%m-%d")
+    lp = log_path or SELF_AUDIT_GAP_LOG
+    if not lp.exists():
+        return [f"SELF-AUDIT DEGRADED: gap-log.jsonl missing today ({today}) -- Gamma_SelfAudit "
+                f"has never completed a full run, or its state dir was wiped. Non-load-bearing "
+                f"(visibility only); run self_audit.py by hand to catch up."]
+    newest_date = None
+    try:
+        for line in lp.read_text(encoding="utf-8").splitlines():
+            try:
+                ts = json.loads(line).get("ts_et")
+            except Exception:  # noqa: BLE001
+                continue
+            if ts and (newest_date is None or ts[:10] > newest_date):
+                newest_date = ts[:10]
+    except Exception:  # noqa: BLE001
+        return [f"SELF-AUDIT DEGRADED: gap-log.jsonl unreadable today ({today}). Non-load-bearing "
+                f"(visibility only)."]
+    if newest_date != today:
+        return [f"SELF-AUDIT STALE: gap-log.jsonl newest entry dated {newest_date!r}, today={today} "
+                f"-- Gamma_SelfAudit's swarm consult likely failed silently (exit-0 on TimeoutExpired "
+                f"is by design in self_audit.py's except-block; check self-audit.stdout.log for "
+                f"'swarm run failed'). Non-load-bearing (visibility only); "
+                f"python setup/scripts/self_audit.py to catch up."]
+    return []
+
+
 def _parse_run_cmd_hidden_log(text: str) -> list[dict]:
     """PURE. Parse run_cmd_hidden.py's own per-fire launcher log (automation/state/logs/
     run-cmd-hidden-<date>.log) into completed [{"cmd": str, "exit": int}] records.
@@ -1391,6 +1440,13 @@ def run() -> dict:
     # relay (run_ps1_hidden.py), which carries the MAJORITY of Gamma_* scheduled tasks.
     # Same VBS-WRAPPER-EXIT-CODE-BLIND-SPOT self-audit gap, much bigger surface.
     problems.extend(check_run_ps1_hidden_masked_exit(now))
+
+    # 18. SELF-AUDIT ORGAN ALIVE -- the 2026-08-11 finding: self_audit.py's own outer
+    # subprocess timeout (300s) was smaller than swarm_consult.py's worst-case internal
+    # budget (540s), silently killing 2 consecutive full audits (08-09/08-10) with exit-0.
+    # Watches the dedup ledger (gap-log.jsonl) directly so a future recurrence surfaces
+    # within a day instead of a month.
+    problems.extend(check_self_audit_organ_alive(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,

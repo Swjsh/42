@@ -218,6 +218,18 @@ automation/state/futures/data-freshness.json
 automation/state/futures/eod-summary.json
 automation/state/futures/trader-broker/heartbeat.json
 
+# SELF-AUDIT-GAP-LOG-REVERSION (2026-08-11, conductor AFTERHOURS): 5th round of the SAME
+# tracked-but-rarely-committed hazard class (2026-07-14/07-20/07-21/08-10 rounds above), a
+# NEW file set outside automation/state/ entirely. gap-log.jsonl is self_audit.py's ONLY
+# source of "already seen" dedup keys (_known_gap_keys() reads nothing else) -- last real
+# commit was 2026-07-14's data-loss-recovery (41889a0f), frozen there ever since despite
+# self_audit.py appending to it on every successful run (new-gaps-flagged.md kept growing
+# through 2026-08-08 via a SEPARATE, properly-committed file, masking that the dedup ledger
+# itself had been silently reverting for a month). Net effect: already-triaged gaps were
+# re-flagged as "new" and re-triaged from scratch, repeatedly, for ~4 weeks. See
+# backtest/tests/test_ledger_gitignore_guard.py SELF_AUDIT_GAP_LOG.
+analysis/self-audit/gap-log.jsonl
+
 # Crypto twin signal-backtest bar cache (3.9MB, regenerable from Alpaca)
 analysis/crypto-twin/btc_5m_cache.json
 
