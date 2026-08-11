@@ -1,18 +1,22 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-08-09 19:48:52 Sunday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-08-11 18:55:07 Tuesday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
-- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 6 session rows; latest: `{"date": "2026-08-07", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-09T15:21:21.595305", "est": false, "n_added": 57, "added_pnl": -945.0, "binary_day_pnl": 80.0, "ladder`
+- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 4 session rows; latest: `{"date": "2026-08-11", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-11T14:40:04.672657", "est": false, "n_added": 13, "added_pnl": -105.0, "binary_day_pnl": 63.5, "ladder`
 - **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl`
 - **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — artifact appears after the next close.
 
-- **stop_mode premium-vs-structure** (16:25 fold) — ARMED_AWAITING_FILLS — accrual starts 2026-08-10
+- **stop_mode premium-vs-structure** (16:25 fold) — ⚠️ **INPUT STALE** — the ledger stopped feeding it; counts are frozen.
 - **Direction symmetry** (16:25 fold) — **RED**: 4 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
 
 ## Frozen preregs — auto-discovered
 
+- `STRUCTURE-STOP-ZONE-2026-08-11` — [[analysis/recommendations/prereg-structure-stop-zone-2026-08-11]]
+- `TIGHT-STOP-VWAP-2026-08-11` — [[analysis/recommendations/prereg-tight-stop-vwap-2026-08-11]]
+- `REGIME-CONDITIONAL-EXIT-2026-08-11` — [[analysis/recommendations/prereg-regime-conditional-exit-2026-08-11]]
+- `GIVEBACK-RATCHET-2026-08-10` — [[analysis/recommendations/prereg-giveback-ratchet-2026-08-10]] · does **not** ship on its own evidence
 - `TRIGGER-PARITY-BULL-2026-08-09` — [[analysis/recommendations/prereg-trigger-parity-2026-08-09]] · does **not** ship on its own evidence
 - `LADDER-X-PREMIUM-2026-08-09` — [[analysis/recommendations/prereg-ladder-x-premium-2026-08-09]] · **blocked**, deliberately unrun
 - `CATASTROPHE-CAP-DECISION-2026-08-09` — [[analysis/recommendations/prereg-catastrophe-cap-decision-2026-08-09]] · does **not** ship on its own evidence
@@ -34,11 +38,7 @@
 - `prereg-bold-selective-fallback-2026-08-02` — [[analysis/recommendations/prereg-bold-selective-fallback-2026-08-02]]
 - `prereg-bold-adaptive-sizing-2026-08-02` — [[analysis/recommendations/prereg-bold-adaptive-sizing-2026-08-02]]
 - `REGIME-STANDDOWN-EARLY-CLASSIFIER-2026-08-02` — [[analysis/recommendations/prereg-regime-standdown-2026-08-02]]
-- `prereg-min-contracts-bold-2026-08-02` — [[analysis/recommendations/prereg-min-contracts-bold-2026-08-02]]
-- `VIX-REGIME-GATE-ARCHETYPE-PARTICIPATION-2026-08-02` — [[analysis/recommendations/prereg-vix-regime-gate-archetype-2026-08-02]]
-- `prereg-trendline-context-conditioning-2026-08-01` — [[analysis/recommendations/prereg-trendline-context-conditioning-2026-08-01]]
-- `PAIRED-RIBBON-AB-2026-08-01` — [[analysis/recommendations/prereg-paired-ribbon-2026-08-01]]
-- _+25 older preregs on disk (see `analysis/recommendations/prereg-*.json`)_
+- _+29 older preregs on disk (see `analysis/recommendations/prereg-*.json`)_
 
 ## Frozen preregs — curated (richer write-ups)
 

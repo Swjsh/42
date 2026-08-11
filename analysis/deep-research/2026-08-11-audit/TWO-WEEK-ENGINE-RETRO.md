@@ -75,7 +75,11 @@ days with **drop-best −$124** and 6/14 days positive. The book is one Tuesday.
 4. **safe-3 took zero trades 08-11** — unexplained; a fifth of the book idle.
 5. **Partial-fill prune gap** — bounded to one tick by adoption; real fix is a blast-radius
    change, deliberately deferred.
-6. **safe-1 credential dead (401)**; pain-ledger producer stale since 08-01.
+6. **safe-1 credential dead (401)**. ~~pain-ledger producer stale since 08-01~~ — CORRECTED
+   same night: the ledger regenerated 08-11 14:26 and a manual run scores 243/245 positions
+   through today, so the producer is alive; the real anomaly is the unexplained 08-01→08-10
+   gap plus `winner-autopsy-last.json` carrying `date: None` (partial-run signature). Filed
+   as a diagnostic, not a dead producer.
 
 ## 7. The meta-lesson the two weeks actually taught
 

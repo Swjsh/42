@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-09 14:24:14 Sunday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-11 18:55:07 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -86,18 +86,18 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **639** · broken wikilinks: **27** · orphans (no links either way): **1**
-  - ⛔ `memory-mirror/feedback_adhd_output_style_2026_07_09.md` → `concise-responses` unresolved
-  - ⛔ `memory-mirror/feedback_dashboard_visuals_chat_ideas.md` → `STRATEGY-SPACE-MAP` unresolved
-  - ⛔ `memory-mirror/feedback_dynamic_market_recency_over_aggregate_2026_07_31.md` → `project_gate_expiry_instrument` unresolved
-  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `feedback-concise-responses` unresolved
-  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `ceo-free-agent-first` unresolved
-  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `default-act-never-ask` unresolved
-  - ⛔ `memory-mirror/feedback_free_model_audit_harness_2026_07_11.md` → `free-model-audit-harness-design` unresolved
-  - ⛔ `memory-mirror/feedback_free_swarm_only.md` → `project_groq_paid_tier_2026_07_06` unresolved
-  - ⛔ `memory-mirror/feedback_interactive_surfaces_never_gatewayed_2026_07_14.md` → `dont-disturb-user` unresolved
-  - ⛔ `memory-mirror/feedback_levels_are_zones_2026_07_17.md` → `trendline-body-xor-wick-rule` unresolved
-  - … +17 more
+- visible notes: **681** · broken wikilinks: **51** · orphans (no links either way): **1**
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-structure-stop-zone-2026-08-11` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-tight-stop-vwap-2026-08-11` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-regime-conditional-exit-2026-08-11` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-giveback-ratchet-2026-08-10` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-trigger-parity-2026-08-09` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-ladder-x-premium-2026-08-09` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-catastrophe-cap-decision-2026-08-09` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-stop-mode-live-arm-risky3-2026-08-09` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-stop-mode-structure-vs-premium-2026-08-09` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-trendline-engine-validation-2026-08-09` unresolved
+  - … +41 more
 
 ## ⏰ The daily loop (live task state)
 
@@ -111,7 +111,7 @@ flowchart LR
 | 15:55 | `Gamma_EodFlatten` | nothing 0DTE survives the close | Ready (last=0) |
 | 16:08 | `Gamma_ChopMeter` | did we trade chop today | Ready (last=0) |
 | 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=0) |
-| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=267011) |
+| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=0) |
 | 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Ready (last=0) |
 | 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Ready (last=0) |
 
