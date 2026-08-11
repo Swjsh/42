@@ -222,6 +222,32 @@ class TwinConfig:
         "trail_pct": 0.01,               # 1%
         "profit_lock_arm_pct": 0.005,    # +0.5%
         "runner_target_pct": 0.03,       # +3%
+        # PRE-TP1 LADDER (2026-08-10) -- the give-back ratchet shipped to production the same
+        # day (rungs +50%->floor +30%, +75%->floor +60%, trail 20% off HWM arming at +75%).
+        # Production's absolute percentages are meaningless here for the reason this whole
+        # block exists: spot BTC does not move +50% intraday, so copying them verbatim would
+        # install a knob that can NEVER arm -- a dead-knob fake validation of exactly the C14
+        # class this repo keeps getting bitten by. What IS portable is the ladder's SHAPE:
+        # every rung is a fraction of TP1. Production TP1 is +100%, so its rungs sit at
+        # 0.50/0.75 of TP1 with floors at 0.30/0.60 of TP1. Applied to this twin's +1.5% TP1
+        # that is arm 0.75%/1.125% and floor 0.45%/0.90% -- same geometry, reachable scale.
+        # MECHANISM ONLY, never an edge claim: what the twin can prove overnight on real
+        # broker fills is that the ladder ARMS at the right MFE, RATCHETS monotonically, and
+        # FIRES a real sell when breached. Whether those levels make money is a SPY question
+        # answered by SPY evidence, and twin P&L never enters the SPY edge ledger.
+        # Safe to change mid-run: exit shapes are snapshotted into ExitState at register_entry,
+        # so any position already open keeps the shape it was opened under.
+        # The TRAIL needs its own scaling, and 0.20 verbatim would have been a second dead
+        # knob: production trails 20% off the HWM of an option PREMIUM (which routinely gives
+        # back 20%), whereas here the same 20% is 20% off spot BTC -- a crash, never reached,
+        # so the rung floor would always dominate and the trail clause would never execute.
+        # Scale by the CROSSOVER instead: in production the trail overtakes the top rung when
+        # hwm*(1-t) > entry*1.60, i.e. at MFE +100% == exactly TP1. Solving the same identity
+        # against this twin's top rung (+0.90% floor) and TP1 (+1.5%) gives t = 1 - 1.009/1.015
+        # = 0.006. Same geometry, reachable scale, trail clause actually executes.
+        "pre_tp1_ladder": [[0.0075, 0.0045], [0.01125, 0.0090]],
+        "pre_tp1_trail_arm_pct": 0.01125,
+        "pre_tp1_trail_pct": 0.006,
     })
 
     # TWIN-B3 (2026-07-14, queue TWIN-B3-ENTRY-MANAGER-LIVE / EDGE-1): passive-limit entry

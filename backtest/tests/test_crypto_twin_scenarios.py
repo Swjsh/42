@@ -296,6 +296,13 @@ def test_build_scenario_cfg_never_leaks_into_fresh_twinconfig_default():
         "stop_mode": "structure", "premium_stop_pct": -0.03, "tp1_premium_pct": 0.015,
         "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.01,
         "profit_lock_arm_pct": 0.005, "runner_target_pct": 0.03,
+        # PRE-TP1 LADDER (2026-08-10) -- the production give-back ratchet, rescaled by the
+        # SAME ratios against this twin's own TP1 (rungs at 0.50/0.75 of TP1, floors at
+        # 0.30/0.60, trail crossing over the top rung at 1.0x TP1 exactly as production does).
+        # Wired here so real overnight crypto fills exercise the ladder code path; MECHANISM
+        # only -- twin P&L is never SPY edge evidence. See TwinConfig.exit_shape's comment.
+        "pre_tp1_ladder": [[0.0075, 0.0045], [0.01125, 0.0090]],
+        "pre_tp1_trail_arm_pct": 0.01125, "pre_tp1_trail_pct": 0.006,
     }
 
 
