@@ -1,55 +1,55 @@
 {
-  "checked_at_et": "2026-08-01 14:57:02",
-  "checked_at_utc": "2026-08-01T18:57:02Z",
-  "verdict": "GREEN",
+  "checked_at_et": "2026-08-10 21:55:02",
+  "checked_at_utc": "2026-08-11T01:55:02Z",
+  "verdict": "YELLOW",
   "market_open": false,
   "checks": [
     {
       "name": "session_ran",
       "status": "GREEN",
-      "detail": "2026-08-01 is a weekend -- no session expected",
-      "critical": false
+      "detail": "2026-08-10 session ran (772 ticks)",
+      "critical": true
     },
     {
       "name": "levels_blind",
       "status": "GREEN",
-      "detail": "2026-08-01 is a weekend -- no session expected",
-      "critical": false
+      "detail": "770/770 RTH decision rows carried active levels on 2026-08-10",
+      "critical": true
     },
     {
       "name": "levels_file_stale",
       "status": "GREEN",
-      "detail": "weekend -- level refresh idle (file dated 2026-08-01)",
+      "detail": "dated today, 13 level(s) visible to the engine, rewritten 1.4m ago",
       "critical": false
     },
     {
       "name": "fleet_ticked",
       "status": "GREEN",
-      "detail": "2026-08-01 is a weekend -- no session expected",
-      "critical": false
+      "detail": "all 3/3 readable fleet arm(s) ticked today",
+      "critical": true
     },
     {
       "name": "heartbeat_safe",
       "status": "GREEN",
-      "detail": "last safe tick 28.4m ago (14:28:41) (market closed -- quiet OK)",
+      "detail": "last safe tick 360.0m ago (15:55:04) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "heartbeat_bold",
       "status": "GREEN",
-      "detail": "last bold tick 1382.0m ago (15:55:04) (market closed -- quiet OK)",
+      "detail": "last bold tick 359.9m ago (15:55:06) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "sight_beacon",
       "status": "GREEN",
-      "detail": "eye 1.0m old; spy=746.79 ribbon=BULL src=alpaca_rest_iex (market closed -- quiet OK)",
+      "detail": "eye 325.0m old; spy=772.82 ribbon=BEAR src=alpaca_rest_iex (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "watcher_feed",
       "status": "GREEN",
-      "detail": "newest bar 2026-07-31 (market closed -- quiet OK)",
+      "detail": "newest bar 2026-07-14 (market closed -- quiet OK)",
       "critical": true
     },
     {
@@ -67,13 +67,13 @@
     {
       "name": "breaker_rearm_safe",
       "status": "GREEN",
-      "detail": "last_reset=2026-07-31 (market closed -- quiet OK)",
+      "detail": "last_reset=2026-08-10 (market closed -- quiet OK)",
       "critical": false
     },
     {
       "name": "breaker_rearm_bold",
       "status": "GREEN",
-      "detail": "session_id=2026-07-31 (market closed -- quiet OK)",
+      "detail": "session_id=2026-08-10 (market closed -- quiet OK)",
       "critical": false
     },
     {
@@ -91,29 +91,33 @@
     {
       "name": "gex_archive",
       "status": "GREEN",
-      "detail": "accrual healthy: 29 sessions, latest 2026-07-31 == owed 2026-07-31, no unexplained gaps (2 known gap(s) ['2026-07-24', '2026-07-30'], explained) (29 sessions, latest 2026-07-31)",
+      "detail": "accrual healthy: 35 sessions, latest 2026-08-10 == owed 2026-08-10, no unexplained gaps (2 known gap(s) ['2026-07-24', '2026-07-30'], explained) (35 sessions, latest 2026-08-10)",
       "critical": false
     },
     {
       "name": "level_feed",
       "status": "GREEN",
-      "detail": "as_of 14:53:36 (3.4m old) (market closed -- refresh idle, quiet OK)",
+      "detail": "as_of 21:53:37 (1.4m old) (market closed -- refresh idle, quiet OK)",
       "critical": true
     },
     {
       "name": "dispatch_health",
       "status": "GREEN",
-      "detail": "dispatch live: safe(6t<30)",
+      "detail": "dispatch live: safe 386/386",
       "critical": false
     },
     {
       "name": "state_freshness",
-      "status": "GREEN",
-      "detail": "17 live-path state files fresh",
+      "status": "RED",
+      "detail": "1/21 live-path state files STALE -- data-freshness.json. Their producers stopped writing; consumers did not notice.",
       "critical": false
     }
   ],
-  "reds": [],
-  "red_checks": [],
+  "reds": [
+    "state_freshness: 1/21 live-path state files STALE -- data-freshness.json. Their producers stopped writing; consumers did not notice."
+  ],
+  "red_checks": [
+    "state_freshness"
+  ],
   "alerted": false
 }

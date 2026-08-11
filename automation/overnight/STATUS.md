@@ -1,3 +1,44 @@
+## [2026-08-10T21:54 ET] CONDUCTOR: OK -- STATE-FRESHNESS-REVERSION-FOLLOWUP-3 (5 producers manually refreshed) -- REVOKE surface N/A (no code changed)
+
+**Task picked (priority-2, Engine RED):** `engine-health.json` flagged `state_freshness`
+RED at fire start -- 7/21 stale. NOT the git-reversion class from the two prior fires
+tonight (verified those 6 files stay correctly untracked+gitignored, `git status
+--porcelain` clean). This time it's a NEW class.
+
+**Root cause (verified live):** `context-bundle.json`/`confluence-zones.json`/`trade-
+today.json`/`ema-snapshot.json`/`news.json`/`premarket-readiness.json` carried
+weeks-stale INTERNAL content stamps (07-14 through 07-27) despite their scheduled tasks
+(`Gamma_ContextBundle`, `Gamma_Confluence`, `Gamma_TradeToday`, `Gamma_EmaSnapshot`,
+`Gamma_MacroCalendar`, `Gamma_PremarketReadiness`) firing all day with clean
+`LastTaskResult=0` and zero hits in `self_check.py`'s masked-exit check. Manually
+re-running all 5 underlying producers via the EXACT scheduled-task invocation chain
+worked instantly -- confirms the producer CODE is fine; something about the unattended
+firing specifically silently no-ops. **Precise mechanism NOT conclusively found this
+fire** (rail-3 bounded) -- investigated and RULED OUT `run_cmd_hidden.py` code drift
+(byte-identical to HEAD since 07-14) and `Principal.LogonType` (identical
+`Interactive`/`jackw` across working and broken tasks). Flagged as
+`RUN-CMD-HIDDEN-OFF-DESKTOP-PROVENANCE` in queue.md with concrete evidence for a future
+fire to pick up with live instrumentation.
+
+**Fix:** manually re-ran all 5 producers -- `state_freshness_audit.py` verdict went 7/21
+stale (RED) -> 1/21 stale (the 1 remaining, `futures/data-freshness.json`, is a
+DIFFERENT already-fixed-in-code issue from tonight's 18:45 fire, self-heals on
+tomorrow's live tick). `engine-health.json` re-run confirms `state_freshness` RED only
+on that 1 expected-quiet entry.
+
+**Lesson filed:** `_lesson-inbox/state-freshness-detector-no-remediator-2026-08-10.md` --
+2nd instance of "a detector without an automatic remediator re-violates on its own
+schedule" (L252's rule). `state_freshness_audit.py` correctly flagged RED the ENTIRE
+3-4 week gap and nothing ever auto-re-ran the flagged producer. Queued
+`STATE-FRESHNESS-AUTO-REMEDIATOR` (HIGH) to close that gap structurally.
+
+**Rail-4 N/A:** zero trading-path files touched; zero code changed. Only regenerated
+JSON/state files via their own existing, unmodified producers (byte-identical output to
+what those scripts would produce on their next legitimate scheduled fire) + 1
+lesson-inbox write + 3 queue.md items. Nothing to revert.
+
+---
+
 ## [2026-08-10T21:05 ET] CONDUCTOR: CORRECTION to the 20:43 entry below -- the "absorbed by 658ecc79" claim was WRONG, re-verified and re-shipped
 
 **What actually happened (OP-33: caught by re-verifying my own claim, not trusting it):** the
@@ -620,120 +661,13 @@ only:**
 
 ---
 
-## [2026-08-09 ~16:00 ET] RESEARCH: DYNAMIC EXITS AUDIT + BUILD + TEST -- commit pending this fire -- no trading-path change
 
-**J directive (verbatim, weeks-repeated):** "ive been demanding dynamic stops and removing the 50%
-cap for weeks !!! every trade is dynamic, stop, entry, trailing stop, TP, etc." Verified this fire:
-`grep -i "dynamic stop"` over queue.md/LESSONS-LEARNED.md was ZERO hits before this fire; the
-catastrophe cap has never been varied as a COMPUTED value in any prior study.
-
-**Audit (deliverable section 1):** `exit_manager.py`'s `ExitState` is ALREADY a per-position
-dataclass -- nothing in the state machine prevents dynamism. The gap is 100% at the CALLER layer
-(`strategies.py`'s `ExitShape` literals populate every field from hardcoded constants). Full
-fixed-vs-dynamic table for premium_stop_pct / catastrophe_stop_pct / tp1_premium_pct /
-tp1_qty_fraction / trail_pct / profit_lock_arm_pct / profit_lock_arm_scope / runner_target_pct /
-structure-stop eligibility / time_stop_et / pre_tp1_be_floor_arm_pct: `analysis/deep-research/
-DYNAMIC-EXITS-2026-08-09.md` Section 1. Corrected the task brief's own framing of one mechanism
-(continuation setups' structure-stop no-op is because their ExitShape never declares
-`stop_mode=='structure'`, not because trigger_level is always None).
-
-**Prior art found + reconciled:** `backtest/autoresearch/dynamic_stop_ab.py` (2026-07-07, J's
-earlier offline R&D ask) already tried a version of this on vwap_continuation via the DEPRECATED
-`_dte_expansion_sim` -- DTE0 verdict (the only DTE relevant to live 0DTE doctrine) was "no dynamic
-rule beats static", never promoted to a lesson/queue item (a real, disclosed silent-negative-result
-gap, consistent with why the grep came back empty). `catastrophe-cap-decision-2026-08-08.json`
-tested WIDEN-vs-HOLD a still-constant cap (disjoint axis, not re-litigated).
-
-**Built + tested:** frozen pre-registration committed BEFORE the runner existed (git-provable,
-commit `82e38bd4` predates `backtest/tools/dynamic_exits_2026_08_09.py`'s own first commit). 5
-candidates, each COMPUTING its exit parameter from that trade's own ATR-at-entry or the
-"safety line" (opposing trendline, `lib/trendlines.py#detect_trendlines`, directionally filtered
-via the exact convention `exit_manager.nearest_active_level` already uses in production) --
-DYN-ATR-CAT / DYN-STRUCT-CAT (stop), DYN-TP-ATR (TP1), DYN-TRAIL-ATR (trail width), DYN-ALL
-(all three bundled). Replayed via `walk_exit_manager` -> `exit_manager.plan_exit_actions` ONLY
-(never simulator_real), on BOTH the 191-trade ribbon_ride historical population (2025-01-06..
-2026-07-21, reused byte-identical from `engine-fullhist-replay-2026-07-23.json` -- disclosed as
-NOT a literal 391-day regen) and the real-fill book (`fills-ledger.jsonl`, all 6 arms, 27 ET dates
-2026-06-26..2026-08-07, 203/221 positions with cached option bars). 0 sanity mismatches on the
-re-walked CONTROL vs the stored baseline P&L (harness wiring confirmed correct).
-
-**VERDICT: nothing cleared the auto-ratify bar. Nothing shipped.** All 5 candidates CONTROL_HOLDS
-on the primary historical population (G1 aggregate fails for every one). Notable findings, all
-disclosed in the deliverable: DYN-TP-ATR (ATR-scaled TP1, k=1.0) is convergently bad on BOTH
-populations -- historically nearly HALVES the $15,774.05 runner-cohort profit (the 35-trade
-"profit engine" `exit_armscope_ab_2026_07_28.py` also anchors on) to $7,707.28, and on real fills
-loses $10,343.67 with Tuesday 08-04 harm; graveyarded this exact form. DYN-ALL (bundling every
-axis) is the single worst historical performer (-$2,510.31), confirming KEEP-LOSSES-SMALL-
-2026-08-06.md's entry-side "combining levers is subtractive, not additive" finding now replicated
-on the exit side -- do not bundle untested axes together. The real-fill book's apparent positive
-deltas for DYN-ATR-CAT (+$229.07) and DYN-STRUCT-CAT (+$996.47) are **100% single-day
-concentration artifacts** -- caught via an ex-Tuesday check BEFORE reporting them as a signal
-(fable-too-good discipline): both flip NEGATIVE once 2026-08-04 is excluded (-$2,950.45 /
--$2,229.97). Only DYN-TRAIL-ATR (ATR-scaled trailing width) survives that check
-(+$1,111.78 ex-Tuesday, though thin day-coverage 4/26) -- the one genuine thread worth carrying
-forward.
-
-**Forward path (not a re-pick):** `analysis/recommendations/dynamic-exits-forward-prereg-
-2026-08-09.json` freezes a narrower next iteration (tighter ATR multiples on the stop axis,
-extended multi-day lookback for the safety-line coverage gap, a k-grid on the trailing-width
-axis) against a FORWARD CLOCK (next n>=20 real fills or a freshly-regenerated historical slice)
--- explicitly barred from re-grading tonight's already-viewed 191-trade / 27-date populations,
-per the no-repick-after-seeing-results discipline this repo already enforces elsewhere.
-
-**Rail-4 clear:** zero trading-path file touched (`params.json`, `aggressive/params.json`,
-`exit_manager.py`, `strategies.py`, `heartbeat_core.py` all read-only this fire). Pure analysis +
-2 frozen preregs + 1 new backtest tool + 1 deliverable doc. No REVOKE needed (nothing live to
-revert); the artifacts themselves are the record.
-
----
-
-## [2026-08-09 ~13:45 ET] SHIP: CASH-ACCOUNT PARITY (bold-2 margin_pdt -> cash_settlement) -- commit `883764ef` -- REVOKE surface
-
-**J directive (verbatim):** "we'll not be doing margin. I always use cash accounts. I got deposit
-a thousand, two thousand, or whatever, and then that's how much we have for the day to trade
-until it settles." This closes the standing account-type question -- the single open item that
-had been on J's desk since 2026-08-06.
-
-**What changed:** `automation/state/aggressive/params.json` -> `pdt_gate_mode: cash_settlement`
-(was `margin_pdt`) + provenance doc replaced. Diff is **2 insertions / 2 deletions**. A first
-attempt via a json round-trip reformatted all 164 lines and was reverted before commit; the
-shipped edit is a raw-text replace, so every other byte of the live config is untouched.
-
-**Why the old key was wrong, not merely different:** the 2026-07-20 flip to `margin_pdt` justified
-itself with broker-truth on account `PA33W2KUAT40` -- **deleted in the 2026-08-03 rebuild**. Live
-bold-2 is `PA3WEBXJU67N`. A live gate was being held open by a dead account's facts (L287 class).
-Cost: bold-2 sat PDT-dark **4 consecutive sessions** (08-04..08-07); on 08-06 alone the measured
-cost of that silence was **$911.35** of achievable day.
-
-**Why cash is the faithful model:** Alpaca PAPER issues margin accounts by default (both cores
-read multiplier=4), but J's real accounts are cash. Modelling margin PDT on paper measures a
-constraint that will never bind in production; cash settlement (T+1 options, settled-pool debit)
-is the one that will.
-
-**No new plumbing:** `settlement_ledger.ledger_path(STATE, account)` already resolves a distinct
-`bold` ledger; `heartbeat_core.py:1944-1947` feeds it per-account. risk_gate fails CLOSED without
-settlement inputs; the ledger fails OPEN on I/O error (can only widen, never invent a block).
-
-**Guard:** `backtest/tests/test_pdt_gate_mode_cash_parity_2026_08_09.py` -- 6 tests: parity pin,
-dead-account-provenance pin, revert-line pin, roundtrip-cap pin, distinct-bold-ledger pin,
-risk_gate fail-closed pin. **RED-proofed** by reverting the key ->
-`test_both_core_accounts_run_cash_settlement` FAILED -> restored -> 6 passed.
-Suites: risk_gate + settlement **109 passed**, fleet **378 passed**, safety gate **59 passed**.
-
-**REVERT (one line):** set `pdt_gate_mode` back to `"margin_pdt"` in
-`automation/state/aggressive/params.json` -- byte-identical behaviour on the next tick.
-**KILL CRITERION:** any broker rejection or PDT flag on bold-2 -> revert same day.
-**MONDAY EFFECT:** bold-2 is no longer dark. It trades Monday under settled-cash limits.
-
----
-
-
-### BROKEN: self-check 2026-08-10T20:39:56
+### BROKEN: self-check 2026-08-10T21:47:23
 - PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-08-10T07:45:00 ET fire (~625.3h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-08-10T07:45:00 ET fire (~626.5h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
 - TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - TRENDLINE-FEED DEGRADED: trendlines.json is 88.5 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
 - REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
 - SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 12x). Check the named script's own stderr log for the real cause.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
