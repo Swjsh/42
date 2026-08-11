@@ -203,6 +203,22 @@ class ExitState:
     # pure gambling"), and a floored exit frees the arm to re-enter -- a counterfactual the
     # single-position replay never priced. Forward ledger decides.
     pre_tp1_floor_pct: Optional[float] = None
+    # LADDER + TRAIL (2026-08-10, J spec after the ratchet's first day): the single rung above
+    # only protects trades that reach it. J: "once we hit fifty percent, put a stop loss on
+    # thirty percent... forty percent with the automatic trailing stop loss of twenty percent,
+    # that would be clean."
+    #   pre_tp1_ladder     [[arm_pct, floor_pct], ...] -- each rung locks a FIXED floor at
+    #                      entry*(1+floor_pct) once best_premium clears entry*(1+arm_pct).
+    #   pre_tp1_trail_arm_pct / pre_tp1_trail_pct -- once MFE clears the arm, a DYNAMIC floor
+    #                      rides at hwm*(1-trail_pct) and keeps rising with the high-water mark.
+    # The effective floor is max(all armed rungs, trail, existing stop) -- so the trail protects
+    # early and the fixed rungs guarantee a minimum once price gets far enough. Never lowers.
+    # All None = inert. NOTE the trail is evaluated SOFTWARE-side every tick; the fixed rungs
+    # are what a broker-side resting stop would be PATCHed to (they move 2-3x per trade, the
+    # trail moves constantly -- which is exactly why only the rungs go to the broker).
+    pre_tp1_ladder: Optional[list] = None
+    pre_tp1_trail_arm_pct: Optional[float] = None
+    pre_tp1_trail_pct: Optional[float] = None
 
     @staticmethod
     def from_entry(*, symbol: str, side: str, entry_premium: float, qty: int,
@@ -269,6 +285,13 @@ class ExitState:
             pre_tp1_floor_pct=(
                 None if exit_shape.get("pre_tp1_floor_pct") is None
                 else float(exit_shape["pre_tp1_floor_pct"])),
+            pre_tp1_ladder=(exit_shape.get("pre_tp1_ladder") or None),
+            pre_tp1_trail_arm_pct=(
+                None if exit_shape.get("pre_tp1_trail_arm_pct") is None
+                else float(exit_shape["pre_tp1_trail_arm_pct"])),
+            pre_tp1_trail_pct=(
+                None if exit_shape.get("pre_tp1_trail_pct") is None
+                else float(exit_shape["pre_tp1_trail_pct"])),
         )
 
     def to_dict(self) -> dict:
@@ -286,6 +309,9 @@ class ExitState:
             "profit_lock_arm_scope": self.profit_lock_arm_scope,
             "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
             "pre_tp1_floor_pct": self.pre_tp1_floor_pct,
+            "pre_tp1_ladder": self.pre_tp1_ladder,
+            "pre_tp1_trail_arm_pct": self.pre_tp1_trail_arm_pct,
+            "pre_tp1_trail_pct": self.pre_tp1_trail_pct,
         }
 
     @staticmethod
@@ -320,6 +346,13 @@ class ExitState:
             pre_tp1_floor_pct=(
                 None if d.get("pre_tp1_floor_pct") is None
                 else float(d["pre_tp1_floor_pct"])),
+            pre_tp1_ladder=(d.get("pre_tp1_ladder") or None),
+            pre_tp1_trail_arm_pct=(
+                None if d.get("pre_tp1_trail_arm_pct") is None
+                else float(d["pre_tp1_trail_arm_pct"])),
+            pre_tp1_trail_pct=(
+                None if d.get("pre_tp1_trail_pct") is None
+                else float(d["pre_tp1_trail_pct"])),
         )
 
 
@@ -430,8 +463,24 @@ def plan_exit_actions(
             # untouched.
             _floor = entry * (1.0 + (state.pre_tp1_floor_pct or 0.0))
             runner_stop = max(runner_stop, _floor)
+        # LADDER RUNGS: every rung whose arm the high-water mark has cleared locks its fixed
+        # floor. max() over all of them + the running stop keeps it a pure ratchet.
+        for _rung in (state.pre_tp1_ladder or ()):
+            try:
+                _arm, _flr = float(_rung[0]), float(_rung[1])
+            except (TypeError, ValueError, IndexError):
+                continue        # a malformed rung must never break the tick (fail-open)
+            if hwm >= entry * (1.0 + _arm):
+                runner_stop = max(runner_stop, entry * (1.0 + _flr))
+        # DYNAMIC TRAIL: once MFE clears the arm, ride hwm*(1-trail). This is the leg that
+        # protects the trades that never reach a fixed rung.
+        if (state.pre_tp1_trail_arm_pct is not None and state.pre_tp1_trail_pct is not None
+                and hwm >= entry * (1.0 + state.pre_tp1_trail_arm_pct)):
+            runner_stop = max(runner_stop, hwm * (1.0 - state.pre_tp1_trail_pct))
         lock_ratcheted = round(runner_stop, 4) > round(orig_stop, 4)
-        if state.profit_lock_arm_scope == ARM_SCOPE_FULL or state.pre_tp1_be_floor_arm_pct is not None:
+        if (state.profit_lock_arm_scope == ARM_SCOPE_FULL
+                or state.pre_tp1_be_floor_arm_pct is not None
+                or state.pre_tp1_ladder or state.pre_tp1_trail_arm_pct is not None):
             pre_state = replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,
                                 runner_stop_premium=round(runner_stop, 4))
         else:

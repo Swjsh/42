@@ -62,6 +62,11 @@ class ExitShape:
     # to re-enter (never priced by the single-position replay). Forward ledger decides.
     pre_tp1_be_floor_arm_pct: "float | None" = None
     pre_tp1_floor_pct: "float | None" = None
+    # J's LADDER (2026-08-10): fixed rungs lock a guaranteed minimum; the trail protects
+    # everything that never reaches a rung. Effective floor = max(rungs, trail, stop).
+    pre_tp1_ladder: "list | None" = None
+    pre_tp1_trail_arm_pct: "float | None" = None
+    pre_tp1_trail_pct: "float | None" = None
 
     def to_dict(self) -> dict:
         """The exit-shape dict the executor/live paths thread through (kept in sync with
@@ -79,6 +84,9 @@ class ExitShape:
             "profit_lock_arm_scope": self.profit_lock_arm_scope,
             "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
             "pre_tp1_floor_pct": self.pre_tp1_floor_pct,
+            "pre_tp1_ladder": self.pre_tp1_ladder,
+            "pre_tp1_trail_arm_pct": self.pre_tp1_trail_arm_pct,
+            "pre_tp1_trail_pct": self.pre_tp1_trail_pct,
         }
 
 
@@ -116,7 +124,8 @@ RIBBON_RIDE = Strategy(
     # -50% intrabar catastrophe cap, TP1 +100% sell 66%, trailing runner 15% off HWM,
     # runner_target 99.0 == the cell's tgt-none (runner exits via structure/trail/EOD only).
     exit=ExitShape(premium_stop_pct=-0.20, tp1_premium_pct=1.0, tp1_qty_fraction=0.667,
-                   pre_tp1_be_floor_arm_pct=0.75, pre_tp1_floor_pct=0.60,
+                   pre_tp1_ladder=[[0.50, 0.30], [0.75, 0.60]],
+                   pre_tp1_trail_arm_pct=0.40, pre_tp1_trail_pct=0.20,
                    profit_lock_mode="trailing", runner_target_pct=99.0, trail_pct=0.15,
                    stop_mode="structure", catastrophe_stop_pct=-0.50),
     note="SS-B structure-stop cell shipped 2026-07-09 (STOP-B; waiver: structure stops sit "

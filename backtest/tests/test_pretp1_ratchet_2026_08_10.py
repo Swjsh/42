@@ -54,40 +54,65 @@ def _tick(state, best, worst):
     return list(dec.actions), dec.state
 
 
-def test_registry_arms_ribbon_ride_at_75_60():
+def test_registry_arms_js_ladder_and_trail():
+    """J's spec: rungs +50->+30 and +75->+60, trail arms +40 riding 20% off HWM."""
     e = st.by_name("ribbon_ride").exit
-    assert e.pre_tp1_be_floor_arm_pct == pytest.approx(0.75)
-    assert e.pre_tp1_floor_pct == pytest.approx(0.60)
+    assert e.pre_tp1_ladder == [[0.50, 0.30], [0.75, 0.60]]
+    assert e.pre_tp1_trail_arm_pct == pytest.approx(0.40)
+    assert e.pre_tp1_trail_pct == pytest.approx(0.20)
     d = e.to_dict()
-    assert d["pre_tp1_be_floor_arm_pct"] == pytest.approx(0.75)
-    assert d["pre_tp1_floor_pct"] == pytest.approx(0.60)
+    assert d["pre_tp1_ladder"] == [[0.50, 0.30], [0.75, 0.60]]
 
 
 def test_none_none_is_byte_identical_to_legacy():
     """The inertness contract: with both knobs None the tick-state is exactly yesterday's."""
-    legacy = _state(pre_tp1_be_floor_arm_pct=None, pre_tp1_floor_pct=None)
+    legacy = _state(pre_tp1_be_floor_arm_pct=None, pre_tp1_floor_pct=None,
+                    pre_tp1_ladder=None, pre_tp1_trail_arm_pct=None, pre_tp1_trail_pct=None)
     _a, s1 = _tick(legacy, best=2.02, worst=1.70)   # +74% MFE, the 2026-08-05-class peak
     # no ratchet knob -> stop remains the entry-seeded catastrophe stop, nothing armed
     assert s1.runner_stop_premium == legacy.runner_stop_premium
     assert s1.profit_lock_armed is False
 
 
-def test_floor_arms_at_75_and_sits_at_160_pct_of_entry():
-    """TODAY'S CASE: entry 1.16, HWM 2.30 (+98%). Arm at +75% -> floor at 1.16*1.60=1.856."""
-    s = _state()   # registry values 0.75/0.60
+def test_top_rung_and_trail_both_apply_max_wins():
+    """TODAY'S CASE: entry 1.16, HWM 2.30 (+98%). Rung +75 floors 1.856; trail floors
+    2.30*0.80=1.84. max() -> 1.856, the rung."""
+    s = _state()
     _a, s1 = _tick(s, best=2.30, worst=2.20)
-    assert s1.runner_stop_premium == pytest.approx(1.16 * 1.60, abs=1e-4), (
-        f"floor {s1.runner_stop_premium} != entry*1.60 -- either the arm did not fire or it "
-        f"floored at entry (the shape that failed its 2026-08-02 G4 veto)")
+    assert s1.runner_stop_premium == pytest.approx(max(1.16 * 1.60, 2.30 * 0.80), abs=1e-4)
     # and it must NOT have armed the chandelier -- these knobs are independent of the lock
     assert s1.profit_lock_armed is False
     assert s1.tp1_filled is False
 
 
-def test_below_arm_threshold_no_floor():
+def test_trail_protects_between_rungs():
+    """+70% MFE: below the +75 rung but above BOTH the +40 trail arm and the +50 rung.
+    This is the gap the single ratchet left wide open -- safe-3 peaked +83% and got nothing."""
     s = _state()
-    _a, s1 = _tick(s, best=1.16 * 1.70, worst=1.50)   # +70% MFE < +75% arm
+    hwm = 1.16 * 1.70
+    _a, s1 = _tick(s, best=hwm, worst=1.50)
+    assert s1.runner_stop_premium == pytest.approx(max(1.16 * 1.30, hwm * 0.80), abs=1e-4)
+    assert s1.runner_stop_premium > s.runner_stop_premium
+
+
+def test_below_trail_arm_nothing_engages():
+    s = _state()
+    _a, s1 = _tick(s, best=1.16 * 1.30, worst=1.20)   # +30% MFE < +40% trail arm
     assert s1.runner_stop_premium == s.runner_stop_premium
+
+
+def test_trail_rises_with_hwm_then_never_falls():
+    """Between the +40 trail arm and the +50 rung the TRAIL is the only thing holding the
+    floor, so this is where its ratcheting is observable (at +50%+ the fixed rung dominates
+    and would mask a broken trail -- the first draft of this test made exactly that mistake)."""
+    s = _state()
+    _a, s1 = _tick(s, best=1.16 * 1.42, worst=1.40)   # +42% MFE: trail only
+    lo = s1.runner_stop_premium
+    assert lo == pytest.approx(1.16 * 1.42 * 0.80, abs=1e-4)
+    _a, s2 = _tick(s1, best=1.16 * 1.48, worst=1.50)  # higher HWM -> higher trail
+    assert s2.runner_stop_premium > lo
+    _a, s3 = _tick(s2, best=1.16 * 1.48, worst=1.40)  # price sags, HWM unchanged
+    assert s3.runner_stop_premium >= s2.runner_stop_premium
 
 
 def test_ratchet_never_lowers():
@@ -121,8 +146,9 @@ def test_post_tp1_chandelier_unchanged():
 
 def test_patch_allowlist_accepts_the_new_keys():
     import fleet_executor as fx
-    assert "pre_tp1_be_floor_arm_pct" in fx.EXIT_PATCH_ALLOWED_KEYS
-    assert "pre_tp1_floor_pct" in fx.EXIT_PATCH_ALLOWED_KEYS
+    for k in ("pre_tp1_be_floor_arm_pct", "pre_tp1_floor_pct", "pre_tp1_ladder",
+              "pre_tp1_trail_arm_pct", "pre_tp1_trail_pct"):
+        assert k in fx.EXIT_PATCH_ALLOWED_KEYS, k
 
 
 def test_risky3_premium_lane_inherits_the_ratchet():
@@ -134,8 +160,8 @@ def test_risky3_premium_lane_inherits_the_ratchet():
     arm = next(a for a in accounts["arms"] if a["id"] == "risky-3")
     shape = fx._exit_shape_dict(st.by_name("ribbon_ride"), arm)
     assert shape["stop_mode"] == "premium"
-    assert shape["pre_tp1_be_floor_arm_pct"] == pytest.approx(0.75)
-    assert shape["pre_tp1_floor_pct"] == pytest.approx(0.60)
+    assert shape["pre_tp1_ladder"] == [[0.50, 0.30], [0.75, 0.60]]
+    assert shape["pre_tp1_trail_pct"] == pytest.approx(0.20)
 
 
 if __name__ == "__main__":  # pragma: no cover
