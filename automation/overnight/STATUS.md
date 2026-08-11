@@ -1,3 +1,52 @@
+## [2026-08-11T05:30 ET] CONDUCTOR: OK -- SELF-AUDIT-ORGAN-TIMEOUT-AND-DEDUP-LEDGER-REVERSION (priority-3, self-audit gaps) -- commit `44061a57`, REVOKE surface
+
+**Task picked (priority-3 per STAGE 1: self-audit gaps):** function-first (fill_funnel)
+and engine-health (state_freshness) were both clean at fire start (1/21 stale = the
+already-known, non-critical `futures/data-freshness.json` self-heal-on-next-live-tick
+entry). Read `analysis/self-audit/new-gaps-flagged.md` and found its last batch/triage
+was 2026-08-08 -- 3 days silent for a daily-firing organ. Investigated live rather than
+assuming: `Gamma_SelfAudit` (Get-ScheduledTaskInfo-equivalent check) shows
+`LastTaskResult=0` on 2026-08-10, but `analysis/self-audit/gap-log.jsonl` (the dedup
+ledger, distinct from the properly-committed `new-gaps-flagged.md`) hadn't gained a new
+timestamp since 2026-07-13 -- a full month.
+
+**2 root causes, both real, both fixed:**
+1. `self_audit.py`'s outer `subprocess.run(..., timeout=300)` to `swarm_consult.py` was
+   SMALLER than swarm_consult's own worst-case internal budget
+   (`PERSPECTIVE_TIMEOUT_S=240 + SYNTHESIS_TIMEOUT_S=300 = 540s`) -- silently killed and
+   swallowed by a bare `except Exception: return 0`. Live log evidence:
+   `self-audit.stdout.log` shows `TimeoutExpired` on 2026-08-09 AND 2026-08-10
+   (2 consecutive full-audit failures, exit-0 to Task Scheduler both times).
+2. `gap-log.jsonl` -- self_audit.py's ONLY dedup-key source -- is the SAME
+   tracked-but-rarely-committed hazard class as the 4 prior STATE-FILE-REVERSION rounds
+   (2026-07-14/07-20/07-21/08-10), just a 5th file family outside `automation/state/`.
+   Last real commit: the 2026-07-14 data-loss-recovery (`41889a0f`). Effect: already-
+   triaged gaps were silently re-flagged "new" and re-triaged from scratch for ~4 weeks,
+   masked because `new-gaps-flagged.md` (a separate, correctly-committed narrative file)
+   kept growing normally the whole time -- a producer's visible output looking healthy
+   is not evidence its internal state is.
+
+**Fix:** `SWARM_SUBPROCESS_TIMEOUT_S=600` (named constant, cross-file drift guard);
+`gap-log.jsonl` gitignored + `git rm --cached` (5th instance of the established remedy,
+new `SELF_AUDIT_GAP_LOG` category in `test_ledger_gitignore_guard.py`);
+`self_check.check_self_audit_organ_alive()` (DEGRADED-only daily liveness check on the
+ledger's own newest timestamp, mirrors `check_regime_stamp_daily`/
+`check_scout_premarket_fresh`'s "verify the artifact, not the exit code" pattern) so a
+future recurrence surfaces within a day, not a month.
+
+**Verified (OP-33):** 23 new/extended guard tests, RED-proofed via rename-and-restore
+(L238, not `git stash`) against pre-fix HEAD source -- 11/11 correctly failed pre-fix
+(`AttributeError`/assertion misses), 23/23 green post-fix. Full
+self_check+self_audit+gitignore suite: 221/221 green. Curated safety gate: 59/59 PASS.
+`git show 44061a57 --stat` confirms exactly the 7 intended files (L247 discipline).
+Lesson filed: `_lesson-inbox/self-audit-organ-timeout-and-dedup-ledger-reversion-2026-08-11.md`.
+
+**Rail-4 clear:** zero live-order/params/heartbeat_core/filters/placement/exit/CLAUDE.md
+files touched -- pure self-improvement-organ infra (self_audit.py, self_check.py, 2 new
+test files, .gitignore, the untracked ledger). **REVOKE:** `git revert 44061a57` (7 files).
+
+---
+
 ## [2026-08-11T01:08 ET] CONDUCTOR: OK -- VERIFY-2026-08-10-ZERO-FILLS-DESPITE-ACCEPTED-ORDERS (FUNCTION-FIRST) -- commit `1d43c599`, REVOKE surface
 
 **Task picked (priority-1, FUNCTION FIRST per STAGE 1):** queue.md's own
@@ -644,157 +693,7 @@ Prop firms are NOT a path (`PROP-FIRM-RESEARCH-2026-08-09.md`).
 
 ---
 
-## [2026-08-09 ~16:00 ET] RESEARCH: BULL-TRENDLINE GRADUATION (NO SHIP) + CHART-DRAWING CAPABILITY (SHIPPED, read-only) -- commit pending this fire
 
-**J directive (verbatim):** self-approval on the bull-trendline-detector graduation decision
-("you have self approval on those items. yes") + "chart drawing capabilities" + "what time frame
-do we draw them on for which markets."
-
-**TASK 1 VERDICT: `detect_trendline_reclaim_bullish` (filters.py:944) stays in SHADOW. Nothing
-wired live, nothing in filters.py touched.** Evidence chain, freshest first:
-- Refreshed `SHADOW-SIGNAL-INVENTORY-2026-07-31.md`'s standalone-trigger real-OPRA test (was
-  n=27/3 days, SIGNIFICANT NEGATIVE) through the newly-cached 08-01..08-07 OPRA window: n=142/10
-  unbiased days, raw "take every firing" total **looked positive (+$7,120.85)** -- fable-too-good
-  artifact hunt caught the mechanism BEFORE reporting it: 2026-07-29 alone contributed
-  +$10,107.47 from **15 consecutive-bar firings on one uninterrupted trend, each scored as an
-  independent trade** with no single-position constraint (the real system is single-position-
-  per-account, Rule 4/C11). Position-limited re-walk (same events, enforces the account being
-  flat before counting a firing as tradeable): **n=75 (77 of 152 raw firings were phantom
-  re-entries into an already-open position), total -$1,110.16, per-trade -$14.80, 8/10 days
-  negative, day-majority FAILS (2/10), drop-best FAILS (-$1,879.07 remaining)**. OOS_positive
-  (OP-16) fails either way once the artifact is corrected for.
-- **HARD GATE (Tuesday 2026-08-04, +$3,624 real book) PASSES trivially**: `trendline_reclaim`
-  fired **zero times in shadow across all 5 real accounts** that date (core safe+bold,
-  fleet risky-1/risky-3/safe-3 decision ledgers all checked) -- wiring it live could not have
-  touched that day's decisions, tier, sizing, or fills. Verified directly from the production
-  ledgers, not inferred.
-- Wide-population frequency (price-only, no OPRA, 2025-01-02..2026-08-07 pinned lineage + tail):
-  9.53% of eligible 5m bars fire, present on 82.5% of trading days -- moderate/recurring, not a
-  rare event.
-- Structural (documented, not re-tested): `engine_cli.py::_derive_tier` (~line 484) bumps to
-  SUPER at `len(triggers)>=3`, `_derive_routing` (~line 465) breaks bear/bull ties by trigger
-  COUNT -- wiring this trigger is not provably inert even on trades that already qualify via a
-  different trigger. Would need its own cell if this is ever re-opened.
-- Bear-side comparison (the "same bar" question the task asked to make explicit): bear's
-  `trendline_rejection` shipped 2026-05-09 via TDD alone, BEFORE OP-16's eval-first gate existed
-  (v15 ratified 2026-06-01) -- it never cleared a formal OOS/BH-corrected test either; its
-  standing is 3 months of live production survival + one outsized day (2026-08-06, 100% of that
-  day's P&L). Bull was held to, and failed, a formal real-OPRA/BH-FDR/day-level test bear never
-  had to pass.
-- Artifact: `backtest/tools/bull_trendline_reclaim_graduation_2026_08_09.py` (new, reuses
-  `shadow_signal_edge_2026_07_31.py`'s machinery verbatim) ->
-  `analysis/deep-research/BULL-TRENDLINE-RECLAIM-GRADUATION-2026-08-09.json`. Full writeup:
-  `analysis/deep-research/TRENDLINE-BULL-AND-CHART-2026-08-09.md`.
-- **Forward clock:** re-test when the position-limited unbiased-day count reaches >=20 (currently
-  10) OR if a future session wants to test it as a score-contributor/tiebreaker rather than a
-  standalone trigger (explicitly untested by either the 07-31 study or this refresh).
-- **No REVOKE needed** -- filters.py/engine_cli.py/heartbeat_core.py untouched, nothing live to
-  revert. Existing guard (`test_bull_trendline_wick_reclaim_shadow_only.py`) already pins the
-  shadow-only status and was not touched.
-
-**TASK 2/3 SHIPPED (read-only, $0, no trading-path change) -- REVOKE surface for the new files
-only:**
-- `setup/scripts/trendline_chart_draw.py` (new) -- bull+bear symmetric chart-drawing bridge
-  consuming the sibling's new `backtest/lib/trendline_detector.py` (read-only import, file
-  untouched). Preserves the existing `trendline-draw` skill's J-approved conventions verbatim
-  (color table, 1-line-per-side draw cap, wick/body always in the label). Adds a stable line-id
-  (`TL-{symbol}-{timeframe}-{RES|SUP}-{W|B}-{first_anchor_unix}`) and a first-class
-  `just_retested` state. Guard tests: `backtest/tests/test_trendline_chart_draw.py` (8 tests,
-  RED-proofed live this session -- dropped the flavor tag from the label, confirmed the guard
-  failed, restored, confirmed green).
-- **Verified live on the real chart, not just unit-tested:** drew 1 support/wick + 1
-  resistance/body line on the live `BATS:SPY` 5m chart (`draw_shape`), screenshotted (visually
-  confirmed both render with correct color/label), then removed both via `draw_remove_one`
-  (`remaining_shapes` counted 54->53->52, exactly the 2 test shapes, the chart's other 52
-  pre-existing shapes -- J's own manual lines and other systems' levels -- untouched throughout).
-- **Found + fixed a stale doc bug in passing (OP-0):** `draw_list`/`draw_remove_one` were
-  documented CONFIRMED BROKEN (2026-07-14/2026-06-24, `"getChartApi is not defined"`) in both
-  `.claude/skills/trendline-draw/SKILL.md` and `automation/prompts/premarket.md` (a LIVE daily
-  08:30 ET production step). Verified live this session they now work correctly (including the
-  documented not-found case behaving as expected). Updated both docs with a dated correction +
-  evidence; did NOT restructure premarket.md's actual mechanics (blast-radius discipline -- flagged
-  the simplification opportunity for a future session rather than rewriting a live daily step
-  same-session).
-- **Task 3 (timeframe) recommendation, implemented as the bridge's default, not just written
-  down:** detect+draw on the SAME timeframe as the displayed chart (5m for live SPY 0DTE, matches
-  `chart_get_state`'s own `chart_resolution: "5"`), never project a different TF's lines onto it
-  -- J's own twice-repeated complaints (T16 "a blind person drew them", 2026-07-15 "too many
-  lines") are exactly the failure mode cross-TF projection would reopen. Bounded ~240-bar
-  (~3-day) input window sidesteps the old T16 anchor-offscreen problem structurally instead of
-  patching it. Per-instrument: SPY 0DTE -> 5m; a swing instrument (e.g. the separate MES futures
-  program) would need ITS OWN timeframe-matched detection under the same principle -- not built
-  here (different lane).
-- **Revert (one line):** `git rm setup/scripts/trendline_chart_draw.py
-  backtest/tests/test_trendline_chart_draw.py` + revert the two doc edits (SKILL.md,
-  premarket.md) -- purely additive, no existing consumer touched, the OLD
-  `trendline_engine.py`-based flow is completely untouched and still the primary/proven path.
-- **Architecture note (not a gap, a constraint):** confirmed this session (TV CDP requires a live
-  launched session; MCP tools only exist inside a live Claude+CDP session) that drawing cannot
-  become a new always-on scheduled task -- "fold into the existing scheduled task" means
-  `Gamma_Premarket` (the one LLM-driven fire where drawing already happens), not a new headless
-  daemon. Stated explicitly rather than silently building something structurally impossible.
-
----
-
-
-### BROKEN: self-check 2026-08-10T21:47:23
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-08-10T07:45:00 ET fire (~626.5h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
-- TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.5 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-10T22:09:56
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.6 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-10T22:39:56
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.6 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-10T23:09:56
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.6 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-11T03:30:12+00:00
-- date_et: 2026-08-10
-- total: $518.45 (threshold $30.00)
-- claude: $518.45  minimax: $0.00
-- claude_sessions: 22
-
-### BROKEN: self-check 2026-08-10T23:39:56
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.6 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-## Kitchen
-Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-08-11T00:09:56
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.6 days old (stamp 2026-05-14T08:39:13-04:00, limit 1.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
-
-### DEGRADED: self-check 2026-08-11T00:39:56
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.7 days old (stamp 2026-05-14T08:39:13-04:00, limit 1.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
+### DEGRADED: self-check 2026-08-11T05:39:56
+- TRENDLINE-FEED DEGRADED: trendlines.json is 88.9 days old (stamp 2026-05-14T08:39:13-04:00, limit 1.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-11.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
