@@ -828,11 +828,46 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
             # Only consulted by a position whose stop_mode resolved to "structure" at entry
             # (exit_manager.plan_exit_actions); every other position ignores it.
             _closed_5m_close = (usable_signal or {}).get("spot")
-            exit_pass = ea.manage_tick(arm_id, creds, live=bool(master_live) and bool(arm.get("live"))
-                                       and not bool(breaker.get("tripped")), now_et=now,
+            # ORPHAN-POSITION SAFETY NET (2026-08-10 night audit): adopt any open broker
+            # position this arm is NOT tracking, so a lost/corrupt exit-state can never leave
+            # a live position unmanaged until the 15:55 flatten -- the shape of today's
+            # risky-1 -$440. Until tonight fleet arms (safe-3/risky-1/risky-3) had no
+            # equivalent of heartbeat_core's _adopt_untracked_positions at all. Done INSIDE
+            # manage_tick (not as a separate call here) so it uses the same injectable broker
+            # the tick already resolved -- a standalone call imported the real fleet_broker
+            # and fired an out-of-band `positions` GET that existing test doubles could not
+            # intercept. `registry_shape` lets an ENGINE-PLACED orphan get its full ladder
+            # back rather than a cap-only downgrade; unknown provenance stays cap-only.
+            try:
+                import strategies as _strategies  # noqa: PLC0415
+                _adopt_shape = fx._exit_shape_dict(_strategies.by_name("ribbon_ride"), arm)
+            except Exception:  # noqa: BLE001 -- no shape -> adoption still runs, cap-only
+                _adopt_shape = None
+            # KILL-SWITCH MUST NOT FREEZE EXITS (2026-08-10 night audit -- fleet-only defect).
+            # This gate used to include `and not breaker.tripped`, which set live=False on a
+            # tripped arm and turned the whole exit pass into WATCH: planned but PLACED
+            # NOTHING. Proven empirically -- a 3-lot at entry 1.16 quoted 0.45 (61% down, way
+            # through the -50% catastrophe cap) placed 1 sell with the breaker OK and ZERO
+            # sells with it tripped. The stop-loss stopped working at exactly the moment the
+            # account was losing the most, and the position rode to the 15:55 flatten.
+            #
+            # Rule 5 ("day closed for that account, no revenge trades") is an ENTRY rule.
+            # Exiting an existing position is risk REDUCTION, never a revenge trade, and
+            # freezing it converts a bounded loss into an unbounded one.
+            #
+            # heartbeat_core._manage_exits has ALWAYS been correct here (`live=ARMED`, no
+            # breaker term), so this is fleet_live diverging from the reference path -- the
+            # same 3 arms (safe-3/risky-1/risky-3) that also lacked the orphan safety net.
+            # Entries remain fully blocked when tripped, by two INDEPENDENT gates that this
+            # change does not touch: `arm_live` (below) and risk_gate's kill_switch_tripped.
+            # Revert: re-add `and not bool(breaker.get("tripped"))` to this live= expression.
+            exit_pass = ea.manage_tick(arm_id, creds,
+                                       live=bool(master_live) and bool(arm.get("live")),
+                                       now_et=now,
                                        ribbon_flip_back_fn=_flip,
                                        time_stop_et=params.get("time_stop_et"),
-                                       last_closed_5m_close=_closed_5m_close)
+                                       last_closed_5m_close=_closed_5m_close,
+                                       adopt_untracked=True, registry_shape=_adopt_shape)
         except Exception as e:  # noqa: BLE001
             exit_pass = [{"error": f"exit_manage: {type(e).__name__}: {e}"}]
 

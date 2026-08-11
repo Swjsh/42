@@ -279,6 +279,24 @@ def reanchor_entry(arm_id: str, *, symbol: str, true_entry_premium: Optional[flo
         return None
     if st.tp1_filled or st.profit_lock_armed:
         return None
+    # LADDER-AWARE REFUSAL (2026-08-10 night audit). The two flags above were the complete
+    # "a real tick already acted" test when they were written -- but the pre-TP1 ladder
+    # shipped today deliberately arms WITHOUT setting profit_lock_armed (it is independent of
+    # the post-TP1 chandelier by design; test_pretp1_ratchet asserts that flag stays False).
+    # So a ladder-armed position passes both checks, and the recompute below would overwrite
+    # a floor of entry*1.30 with entry*(1 + premium_stop_pct) -- a SILENT RATCHET VIOLATION,
+    # the one invariant the whole give-back fix rests on.
+    #
+    # Not reachable today: both call sites (fleet_live._place_live, heartbeat_core.
+    # _reanchor_after_reconcile) re-anchor synchronously in the same tick as register_entry,
+    # long before any tick can drive MFE to +50%. But that is a TIMING argument, and the
+    # explicit guard is blind to the ladder -- so a future deferred/retried re-anchor (very
+    # plausible now that tonight's pending-fill fix makes slow fills survivable) would
+    # silently wipe the floor. Make it STRUCTURAL: if the stop has already been ratcheted
+    # above its entry-seeded value, something has moved it and re-anchoring is unsafe.
+    _seeded = st.entry_premium * (1.0 + st.premium_stop_pct)
+    if st.runner_stop_premium is not None and st.runner_stop_premium > _seeded + 1e-9:
+        return None
     old_entry = st.entry_premium
     new_hwm = (true_entry_premium if (st.hwm_premium is None or st.hwm_premium <= old_entry)
               else st.hwm_premium)
@@ -288,6 +306,111 @@ def reanchor_entry(arm_id: str, *, symbol: str, true_entry_premium: Optional[flo
     states[symbol] = new_st
     save_states(arm_id, states)
     return new_st
+
+
+def adopt_untracked_positions(arm_id: str, creds: dict, *, broker=None,
+                              registry_shape: "dict | None" = None) -> list:
+    """SAFETY NET (2026-08-10 night audit): register any OPEN broker position this arm is not
+    tracking, so a lost/corrupt ExitState can never leave a live position completely unmanaged.
+
+    WHY THIS DID NOT EXIST FOR FLEET ARMS. heartbeat_core has had
+    `_adopt_untracked_positions` since 2026-07-07, but ONLY the core accounts (safe-2, bold-2)
+    run through it. fleet_live -- which drives safe-3, risky-1 and risky-3 -- had no adoption
+    of any kind, so for 3 of the 5 active arms the chain was:
+
+        exit-state lost  ->  manage_tick's `if not states: return []`  ->  ZERO exit
+        management, silently, until the 15:55 EOD flatten.
+
+    That is exactly the shape of the 2026-08-10 risky-1 -$440 loss. The pending-fill prune
+    guard closed the CAUSE that produced it that day; this closes the CLASS. `load_states`
+    fails open to {} on unreadable JSON (a deliberate never-crash choice), which means a
+    single corrupt write, a disk hiccup, or any future prune bug reproduces the same silent
+    naked position. Defense in depth: the cause fix and this net are independent.
+
+    PROVENANCE decides the shape, mirroring heartbeat_core's D2 rule:
+      * engine-placed (the arm's own decisions ledger shows a placement for this symbol
+        today) -> adopt with the FULL registry shape, anchored to the BROKER's avg entry
+        price, so ladder protection is genuinely restored rather than downgraded.
+      * anything else (manual, unknown, unreadable ledger) -> CAP-ONLY (-50% + time stop).
+        The engine never imposes its own strategy exit on a trade it cannot prove it opened.
+    Any doubt at all resolves to cap-only.
+
+    Idempotent (symbols already tracked are untouched, their evolving hwm/tp1/floor state
+    preserved) and fail-open (returns an error record, never raises -- adoption must never
+    abort the caller's exit pass). Places no orders itself; it only restores management.
+    Guard: backtest/tests/test_orphan_position_adoption_2026_08_10.py
+    """
+    out: list = []
+    try:
+        if broker is None:
+            import fleet_broker as broker  # noqa: PLC0415
+        positions = broker.open_spy_option_positions(creds)
+        if not isinstance(positions, list) or not positions:
+            return out
+        states = load_states(arm_id)
+        placed_today = _engine_placed_symbols_today(arm_id)
+        for p in positions:
+            symbol = str(p.get("symbol") or "")
+            if not symbol or symbol in states:
+                continue
+            try:
+                qty = abs(int(float(p.get("qty") or 0)))
+                entry = float(p.get("avg_entry_price") or 0)
+            except (TypeError, ValueError):
+                continue
+            if qty < 1 or entry <= 0:
+                continue
+            engine_placed = symbol in placed_today
+            if engine_placed and registry_shape:
+                shape, kind = dict(registry_shape), "engine_placed_full_shape"
+            else:
+                shape, kind = ({"premium_stop_pct": -0.50, "tp1_premium_pct": 99.0,
+                                "tp1_qty_fraction": 0.0, "profit_lock_mode": "fixed",
+                                "stop_mode": "premium", "catastrophe_stop_pct": -0.50},
+                               "cap_only")
+            register_entry(arm_id, symbol=symbol, side=("P" if "P00" in symbol else "C"),
+                           entry_premium=entry, qty=qty, exit_shape=shape,
+                           strategy=("adopted_orphan" if engine_placed else "adopted_manual"),
+                           trigger_level=None, structure_stop_enabled=False)
+            rec = {"symbol": symbol, "qty": qty, "entry_premium": entry,
+                   "adopted_as": kind, "action": "ADOPTED_UNTRACKED"}
+            out.append(rec)
+            # C7: a position (re-)entering management is never silent.
+            try:
+                with (FLEET_DIR / arm_id / "prune-log.jsonl").open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"ts_et": _now_et().isoformat(),
+                                         "event": "ADOPTED_UNTRACKED", **rec}) + "\n")
+            except OSError:
+                pass
+    except Exception as e:  # noqa: BLE001 -- must never abort the exit pass
+        out.append({"action": "ADOPT_ERROR", "error": f"{type(e).__name__}: {e}"[:160]})
+    return out
+
+
+def _engine_placed_symbols_today(arm_id: str) -> set:
+    """Symbols this arm's OWN decisions ledger shows it placed today. Fail-CLOSED to an empty
+    set: unreadable provenance must downgrade adoption to cap-only, never upgrade it."""
+    out: set = set()
+    try:
+        today = _now_et().strftime("%Y-%m-%d")
+        p = FLEET_DIR / arm_id / "decisions.jsonl"
+        if not p.exists():
+            return out
+        for line in p.read_text(encoding="utf-8").splitlines():
+            if not line.strip() or today not in line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if not str(row.get("ts_et") or "").startswith(today):
+                continue
+            pl = row.get("placement") or {}
+            if pl.get("placed") and pl.get("symbol"):
+                out.add(str(pl["symbol"]))
+    except OSError:
+        return set()
+    return out
 
 
 def _now_et() -> datetime:
@@ -350,7 +473,9 @@ def make_ribbon_flip_fn(ribbon_stack: Optional[str]):
 def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 ribbon_flip_back_fn=None, now_et: Optional[datetime] = None,
                 broker=None, time_stop_et=None,
-                last_closed_5m_close: Optional[float] = None) -> list[dict]:
+                last_closed_5m_close: Optional[float] = None,
+                adopt_untracked: bool = False,
+                registry_shape: "dict | None" = None) -> list[dict]:
     """Run ONE exit-management tick over EVERY managed position on this arm.
 
     For each persisted ExitState: read live qty + quote, plan the action, and (when live)
@@ -378,10 +503,21 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
     stop_t = em.parse_time_stop_et(time_stop_et)
     now_dt = (now_et or _now_et())
     now_t = now_dt.time()
+    results: list[dict] = []
+    # ORPHAN-POSITION SAFETY NET (2026-08-10 night audit) -- MUST run BEFORE the
+    # `if not states: return []` below, because an empty state ledger with an OPEN broker
+    # position is exactly the naked-position case this exists to catch. Opt-in
+    # (default False) so every pre-existing caller is byte-identical; fleet_live passes True.
+    # heartbeat_core keeps its own _adopt_untracked_positions and does NOT pass this --
+    # adoption is idempotent, so even double-wiring would be safe, but one owner per path
+    # keeps the Discord-ping semantics there unduplicated.
+    if adopt_untracked:
+        adopted = adopt_untracked_positions(arm_id, creds, broker=broker,
+                                            registry_shape=registry_shape)
+        results.extend(adopted)
     states = load_states(arm_id)
     if not states:
-        return []
-    results: list[dict] = []
+        return results
     changed = False
     streak = _load_flat_streak(arm_id)
     streak_changed = False
