@@ -1,3 +1,95 @@
+## [2026-08-10T21:05 ET] CONDUCTOR: CORRECTION to the 20:43 entry below -- the "absorbed by 658ecc79" claim was WRONG, re-verified and re-shipped
+
+**What actually happened (OP-33: caught by re-verifying my own claim, not trusting it):** the
+20:43 entry below claimed the first 6 files' untrack landed correctly, just under another
+session's commit message (`658ecc79`). That was a misread -- I checked `git ls-files` (which
+reflects the INDEX) and treated "empty" as proof of a committed state, without separately
+checking `git cat-file -e HEAD:<path>` (which reflects what's actually COMMITTED). Re-checking
+directly: all 8 target files (the original 6 + the 2 found in the completeness pass below) were
+STILL PRESENT IN HEAD after three separate `git commit -- <paths>` invocations, each of which
+silently printed "no changes added to commit" despite `git diff --cached` correctly showing a
+staged `D` for every path -- root cause of that specific git behavior not resolved this fire
+(flagged below, not chased further -- the fix itself was not blocked by it).
+
+**Resolution:** verified the full shared index held EXACTLY these 8 staged deletions and
+nothing foreign (`git diff --cached --name-only`, 8 lines, all mine) before doing a plain
+(non-pathspec) `git commit` -- safe specifically because nothing else was staged to absorb.
+Commit `cd7a3824`. Re-verified post-commit via `git cat-file -e HEAD:<path>` (not `ls-files`)
+for all 8: all ABSENT from HEAD, confirmed untracked. Guard suite 10/10 green. Working-tree
+disk content for all 8 files verified intact and JSON-parseable.
+
+**New, real finding for a future fire (not chased further this fire, rail-3 bounded):**
+`git commit -m ... -- <pathspec>` on this checkout silently declined to commit an otherwise-
+valid staged deletion three times in a row tonight, with no error and a misleading "no changes
+added to commit" message even though `git diff --cached -- <same paths>` showed a real diff.
+Mechanism not identified (possibly interaction with `.gitignore` + a freshly-`rm --cached`
+path in the SAME invocation, possibly hook-related, possibly a genuine git quirk on this
+Windows/git-bash setup) -- worth a dedicated investigation if it recurs, since pathspec-scoped
+commits are this repo's own prescribed defense against shared-index absorption
+(`commit_scoped.py`) and a silent failure mode in that exact mechanism is a real gap.
+
+---
+
+## [2026-08-10T20:43 ET] CONDUCTOR: OK -- STATE-FRESHNESS-REVERSION-FOLLOWUP-2 (6 files untracked) -- REVOKE surface
+
+**Task picked (priority-2, Engine RED):** `engine-health.json` flagged `state_freshness`
+RED at fire start -- 6 live-path producers stale 2026-07-14/07-15, up to 27 days:
+`key-levels-memory.json`, `prior-rth-close.json`, `trade-today.json`, `confluence-zones.json`,
+`ema-snapshot.json`, `context-bundle.json`.
+
+**Root cause (verified live, one sentence):** all 6 are tracked-but-rarely-committed
+(last commit = 2026-07-14/07-15, the SAME commit as the 2026-07-14 `git stash drop`
+data-loss incident) while their Task-Scheduler-run producers keep rewriting them every
+5-10min all day (confirmed: `LastTaskResult=0`, and `level_memory_producer.py`'s own
+stdout log shows fresh today's-date content computed AND written every cycle) -- so a
+tree-wide git op in the shared checkout kept reverting the on-disk file back to the stale
+committed snapshot between checks. Identical mechanism, and the identical established fix,
+as the 2026-07-14/07-20/07-21 incidents already closed for LEDGERS/STATE_SNAPSHOTS/
+DECISION_GATING_SNAPSHOTS in `backtest/tests/test_ledger_gitignore_guard.py` -- the 2026-07-21
+triage was a partial sweep (~76 tracked files reviewed, 13 fixed) and simply missed these 6.
+
+**Fix:** `git rm --cached` (untrack, disk content untouched) + `.gitignore` entries, mirroring
+the 3 prior rounds exactly. New `STATE_FRESHNESS_REVERSION_FOLLOWUP_2` list + 2 guard tests
+(`test_state_freshness_reversion_followup_2_are_{gitignored,untracked}`) in the same file.
+Full guard suite 8/8 green (4 pre-existing + 4 new). Working-tree copies verified intact and
+JSON-parseable post-fix.
+
+**Live-caught a NEW instance of the L271 shared-index-absorption class while shipping this**
+(not a new lesson -- an already-documented recurring hazard of this multi-session checkout):
+the first commit this fire (`27cb218d`) landed the `.gitignore` + guard-test edits correctly,
+but between my `git rm --cached` staging and the commit, a CONCURRENT other session ran a bare
+`git commit` (`658ecc79`, "fix: move pre-TP1 trail arm +40% -> +75%; ship day-replay tool" --
+unrelated trading-path work, not mine) that swept the staged untrack of these 6 files into ITS
+OWN commit before my scoped follow-up could land. End state is fully correct and independently
+re-verified after the fact (`git ls-files` empty + `git check-ignore` IGNORED for all 6, pytest
+8/8 green, disk content intact) -- only the commit attribution is under someone else's message.
+Disclosing per the established L271 remedy (transparency, not a force-rewrite of shared history
+that would risk clobbering the other session's legitimate concurrent work).
+
+**Found + flagged (not fixed, rail-3 out of scope):**
+`backtest/tests/test_state_freshness_audit.py::test_date_axis_quiet_before_producer_ready_time`
+is flaky pre-existing -- reproduced FAILING on main with this fire's changes fully stashed out
+(baseline, before any of my edits). Compares a fixture file's age against the REAL wall clock
+instead of a frozen one, so it silently crosses its own 20min budget as real time passes since
+whatever epoch the fixture assumes. Not touched this fire (pre-existing, different file/module).
+
+**Rail-4 clear:** additive-only (`.gitignore` + test extension) + index-untrack only (disk
+content unchanged either way) -- zero trading-path files touched. Revert: the untrack is
+reversible via `git add -f <path>` if ever needed, though per the established doctrine here
+(3 prior identical incidents) re-tracking these files would be reintroducing the vulnerability,
+not a fix.
+
+**Why this outranked the queue:** Engine RED (STAGE 1 priority-2) outranks HIGH/MED backlog by
+design -- this is the SAME class of active, self-flagged, silently-blind-for-27-days problem
+the conductor exists to close before adding new artifacts, and it was the last remaining
+`state_freshness` RED after tonight's earlier futures-freshness fix.
+
+Cost this fire: ~$5 (live root-cause trace across producer logs + Task Scheduler introspection
++ git history, established-pattern fix + 2-test guard, a live git-index-absorption incident
+mid-flight requiring re-verification and disclosure, queue/STATUS writeup).
+
+---
+
 ## [2026-08-10T18:45 ET] CONDUCTOR: OK -- FUTURES-FRESHNESS-SNAPSHOT-NEVER-PERSISTED fix (commit a6d7e581) -- REVOKE surface
 
 **Task picked (priority-2, Engine RED):** `engine-health.json` flagged `state_freshness`
@@ -635,151 +727,13 @@ Suites: risk_gate + settlement **109 passed**, fleet **378 passed**, safety gate
 
 ---
 
-## [2026-08-09T04:00 ET] CONDUCTOR-WEEKEND: OK -- LESSON-INBOX-DRAIN-L283-L294 -- commit `1c94048a` -- REVOKE surface
 
-**Task picked (priority-5 queue, "author inboxes"; no dedicated Agent tool available this
-session so performed the lesson-author routine directly, per established precedent):** the
-self-audit gaps file's latest batch (2026-08-08T17:33:38) was checked first (priority-3) and
-found to be pure re-statement of already-tracked/already-resolved items with no new concrete
-claim (budget "x2.2" heuristic re-verified live as working correctly today; Alpaca Greeks dead
-source already named 5x as a real-but-unbounded future project; PDT gate leak / task-scheduler
-rot / fail-open blindness all map to already-shipped instruments) -- no action needed there.
-`_lesson-inbox` had 12 items pending since 2026-08-05 (5 days of accumulation, the oldest genuine
-open loop across all 4 author inboxes -- validator/chef fully drained, skill-inbox's correction
-queue drained last fire).
-
-**Did:** read all 12 candidates in full, assigned L283-L294 (verified max prior was L282 via
-grep), appended each to `markdown/doctrine/LESSONS-LEARNED.md` with Symptom/Root
-cause/Fix/Encoded in/Detection sections matching house style, folded every L# into its matching
-CLAUDE.md OP-25 C-row (C7 +4: L285/286/292/293; C14 +7: L283/284/287/288/289/290/294; C30 +1:
-L291), bumped the "current through L282" pointer to L294. Renamed all 12 inbox items to the
-canonical `.md.DONE` suffix (git detected clean 100% renames, not delete+add).
-
-**Verified, not assumed:** `test_op25_index_reconciliation.py` (12/12 -- 0 unindexed lessons
-beyond the pinned empty baseline, 0 phantom index refs) + `test_inbox_done_suffix.py` (0/0 --
-no re-consumable `.DONE.md` markers) both green post-change; curated safety gate (59/59) run
-twice (once pre-commit hook, once manually). `journal/mistakes.md` checked for matching
-2026-08-05..09 dates to cross-reference per the lesson-author contract -- none found, no
-cross-ref added.
-
-**Notable finding while drafting:** two of the 12 items (`gate-recency-instrument-graduation`
-and `monitor-inherited-an-unsound-engine`) both self-claimed "next available slot is L283" --
-correctly anticipated by the second item's own text ("lesson-author should assign the next free
-number, likely L284"); resolved by assigning sequentially (L292/L293) in filed-date order
-rather than either self-claimed number, avoiding a collision.
-
-**Commit `1c94048a`** (14 files, pathspec-scoped `git add`+`git commit -- <paths>` -- NOT
-`commit_scoped.py`, which refuses paths that don't exist on disk and can't express a rename;
-fell back to the identical two-step scoped-add/scoped-commit git invocation it wraps, same
-safety property, git detected all 12 as clean renames).
-
-**REVOKE:** `git revert 1c94048a` (14 files: CLAUDE.md + LESSONS-LEARNED.md trimmed back, 12
-inbox items restored from `.md.DONE` to their original pending `.md` names -- pure
-additive/rename change, no data loss).
-
-Cost this fire: ~$4.7 (read + triage of 12 full lesson files + self-audit-gaps batch check +
-12-entry authoring pass + 2 guard-test runs + 2 safety-gate runs + commit-tooling detour).
-
----
-
-## [2026-08-09T02:07 ET] CONDUCTOR: OK -- SKILL-INBOX-CORRECTION-QUEUE-DRAIN -- commit `cabb9dcf` -- REVOKE surface
-
-**Task picked (priority-5 queue, "author inboxes" -- skill-author's Stage 0 routine, no dedicated
-Agent tool available this session so performed the documented routine directly): drain the inline
-correction queue.** `strategy/candidates/_skill-inbox/_correction-queue.jsonl` had 7 entries sitting
-`processed:false` since 2026-07-02 (oldest 5+ weeks stale) -- both other inboxes (validator, lesson,
-chef) were fully drained (all `.DONE` / actioned), this was the one genuinely open loop.
-
-**Triaged all 7, individually judged, none guessed:** 3 were noise (cross-project Unreal
-Engine/"Fable" bleed-through, an under-specified fragment with no attributable subject, a
-system-generated task-notification artifact that only regex-matched inside pasted agent output).
-2 were `resolved-elsewhere` (the 07-07 "stop labeling the trade, key off the drawn level" correction
--> formalized 3 weeks later as J-MARKET-PHILOSOPHY.md/market_structure.py structure-shift doctrine;
-the 07-08 desktop-app-disconnect complaint -> formalized as the interactive-surfaces-never-gatewayed
-rule). 2 were `patched`/already-guarded: the 07-14 trendline body/wick correction is enforced by
-`test_trendline_watch.py` + `test_trendline_multiday.py`; the 08-08 "stop spawning a PowerShell
-window, build a real gamma app" correction was answered 26 minutes later same session (commit
-63f1eec4, 14:46 MT vs 14:20 MT complaint) and polished through the night into the current Gamma App
-at localhost:3000/gamma -- **verified fresh this fire** (not assumed): `Get-ScheduledTask` shows no
-`Gamma_Hq*` task and no Startup/Desktop shortcut for the old `gamma-hq-launch.ps1` terminal launcher;
-only `Gamma_DashboardKeepalive` (the web app) + `Gamma_CompanionKeepalive` are live. The old terminal
-script is dead code on disk, never autostarted -- correction is resolved in practice, not merely
-claimed.
-
-**Result:** correction-queue.jsonl 7/10 unprocessed -> 0/10 unprocessed, schema preserved (append-only
-`outcome`+`processed_note` fields per the skill-author contract, NEVER deleted). Scoped commit via
-`commit_scoped.py` (1 file only -- checkout currently carries 1,959 modified files from concurrent
-daemons/lanes, none touched, L271/C34 discipline).
-
-**REVOKE:** `git revert cabb9dcf` (1 file, additive JSON-field-only change, no data loss).
-
-Cost this fire: ~$2.7 (7-entry individual triage incl. git-log/commit-timestamp cross-check + live
-scheduled-task verification for the 08-08 item, rather than trusting the STATUS-log claim).
-
----
-
-## [2026-08-09T01:11 ET] CONDUCTOR: OK -- QUEUE-MD-RETENTION-CAP step 2 -- commit pending -- REVOKE surface
-
-**Task picked (priority-4 queue, self-generated after STAGE 1's own "Read queue.md" instruction
-concretely failed this fire: `automation/overnight/queue.md` was 745,505 bytes / 4153 lines,
-over the Read tool's 256KB single-shot limit -- "File content (728KB) exceeds maximum allowed
-size (256KB)". Grepped and found this is a KNOWN, already-tracked multi-fire job --
-`QUEUE-MD-RETENTION-CAP` (filed 2026-07-22, step 1 shipped 2026-07-23: 577KB -> 537KB, explicitly
-left "still >256KB, next bounded step: triage the dated post-Completed sections and/or Active
-backlog" for a future fire. This fire IS that future fire.**
-
-**Did (step 2 of N):** individually read-and-verified 14 whole `## `-level sections sitting below
-`## Active backlog` as fully resolved (every checklist item `[x]`, or an explicit
-CLOSED/DONE/SHIPPED/NO-SHIP marker) before moving any of them verbatim to the new
-`automation/overnight/queue-archive-2026-08.md`: old `Archived 2026-06-19` + `Completed` (pure
-relocation) plus 12 dated 2026-07-07..07-20 sections (AUDIT-2026-07-07, 2026-07-09-profit-lock,
-2026-07-11-audit-harness, 2026-07-11-profitability-plan, J-INTENT-EXECUTOR,
-WF-GATE-STRUCTURALLY-NULL, WF-GATE-REDESIGN-METHODOLOGY, TRENDLINE-FIXES-2026-07-17,
-WEEKEND-METHODOLOGY-REVIEW, LEVER-1-TREND-ALIGNMENT-VERDICT-STANDING, SELF-CHECK-BROKEN-2026-07-20,
-STATE-FILE-REVERSION-2026-07-20). Extracted ONE still-open item found buried in the last of those
-(Bold's 4x-margin origin, never confirmed by J) into `## Needs J's own hands` before archiving the
-section it was hiding in. Verified via machine count (`- [ ]`/`- [x]` per section), not re-reading
-titles, that every section with ANY remaining open item was left untouched (13 sections: 138
-checklist items + 57 `### ` items in `## Active backlog` deliberately NOT touched this fire).
-
-**Caught + fixed the exact CRLF foot-gun the 2026-07-23 predecessor fire already named:** my first
-`open(path, "w", encoding="utf-8")` (no `newline=`) silently wrote CRLF into both files (confirmed
-via `file`, 3137 CRLF instances) -- re-read with `newline=None`, rewrote with `newline="\n"` on
-both, re-verified LF-only.
-
-**Result:** `queue.md` 745,505 -> 553,913(+file-write)=557,665 bytes (still >256KB -- the
-`## Active backlog` section, ~2478 lines/~444KB, is the true remaining bulk). Verified no
-regression: `task_scorer.py --top` still ranks correctly (`TWIN-DOCTRINE-FIRST-DEPLOY`, same
-known-stale-J-ping as every recent fire -- not re-pinged again, matches established precedent
-that re-pinging is spam); `pytest -k "task_scorer or queue_md or queue_archive"` 74/74 PASS, 0
-regressions; line-accounting cross-check confirmed zero content lost (33 preamble + 1019 archived
-+ 3101 kept = 4153 original). Zero trading-path files touched (pure doc/archival move) -- ships
-per OP-22 engine-benefit hygiene, no J ratification needed.
-
-**Step 3 (deferred to a future fire, rail 3):** splitting `## Active backlog` itself needs a
-purpose-built parser (reuse `task_scorer._item_blocks`/`ITEM_RE`, not a fresh regex) -- tested an
-automated status-marker classifier on all 57 `### ` items this fire and it came back 54/57
-UNKNOWN (several are `### Tier 0/1/2/3/4` organizational headers, not real items), too risky to
-guess at Sonnet-workhorse tier within one bounded fire. The 138 checklist items (already carry an
-explicit `[x]`/`[ ]` marker) are lower-risk and should go first.
-
-**REVOKE:** `git revert <this commit>` (2 files: queue.md trimmed further, queue-archive-2026-08.md
-added -- additive/scoped, no data loss, matches the 2026-07-23 precedent's revert shape).
-
-Cost this fire: ~$4.50 (full read-verification of 14 sections before archiving any of them,
-CRLF catch-and-fix, task_scorer + pytest regression checks, STATUS/queue update).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=scorecard-python
-
-### BROKEN: self-check 2026-08-10T18:39:56
+### BROKEN: self-check 2026-08-10T20:39:56
 - PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-23, not today 2026-08-10 -- Gamma_ParticipationDaily likely did not fire.
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-08-10T07:45:00 ET fire (~623.3h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-08-10T07:45:00 ET fire (~625.3h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
 - TRENDLINE-DRAW never marked today (2026-08-10) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TRENDLINE-FEED DEGRADED: trendlines.json is 88.4 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
+- TRENDLINE-FEED DEGRADED: trendlines.json is 88.5 days old (stamp 2026-05-14T08:39:13-04:00, limit 3.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
 - REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-04, today-bias.json regime_context.stamp_date=2026-08-10, today=2026-08-10 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
 - SCOUT STALE: scout_output.json generated_at='2026-06-19T09:30:00Z' for_session_date='2026-06-19', today=2026-08-10 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-10.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 12x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-10.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-discord-responder.ps1 (exit=[3221225794], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
