@@ -497,7 +497,7 @@
     }
   },
   "verdict": {
-    "status": "PASS -- ladder stays live",
+    "status": "RETRACTED 2026-08-11 -- see RETRACTION_2026_08_11",
     "decided_on": "BINDING-SLICE analysis, not the headline table",
     "why_the_headline_table_is_not_the_verdict": "The full-population paired deltas (+$14k..+$31k vs control) are inflated by a control the harness cannot make realistic: with no SPY feed, structure/ribbon exits never fire, so CONTROL replays ~$23k worse than the live engine's actual exits over the same fills. Any floor beats a strawman. The GIVEBACK cells' +$7.8k-vs-actual likewise contradicts the measured pre-TP1 %-trail G_RUNNER failure (-$7,759) from the walk_exit_manager study -- tight trails are exactly what the 5m optimistic intra-bar convention flatters most. Both were caught by /fable-too-good before being quoted.",
     "binding_slice": {
@@ -536,5 +536,35 @@
       ]
     },
     "kill_criteria_check": "Prereg kill: 'any cell that clips the runner cohort like the pre-TP1 trailing lock did'. Clip cost -$3,759 vs the trail study's -$7,759, against rescue +$10,214 and net +$6,454, p=0.0073 day-clustered: NOT killed. The clip is the accepted price of the floor, reported not hidden."
+  },
+  "RETRACTION_2026_08_11": {
+    "status": "VERDICT RETRACTED -- the PASS below was produced by a broken harness",
+    "what_was_wrong": "Both the headline table and the binding-slice verdict used backtest/tools/ladder_day_replay.replay_fill, which BREAKS ON THE FIRST ACTION and returns one exit price for the whole position. A TP1 partial is therefore scored as a FULL exit at the TP1 price and the runner leg is discarded entirely. Under ladder-OFF (the CONTROL arm) TP1 fires on 74 of 256 positions, so the control lost 74 runner legs; under ladder-ON the floor fires first and there is only one leg anyway. The harness systematically crippled the control, which is precisely what made the ladder look good.",
+    "how_it_was_caught": "A tp1_qty_fraction sweep returned byte-identical totals for 50% / 67% / 80% -- impossible if partial sells were modeled.",
+    "reconciliation_same_256_positions": {
+      "ladder_OFF": {
+        "first_exit": -25805,
+        "multi_leg": 432,
+        "delta": 26237
+      },
+      "ladder_ON": {
+        "first_exit": -6351,
+        "multi_leg": -4460,
+        "delta": 1891
+      },
+      "paired_effect_first_exit_WRONG": 19454,
+      "paired_effect_multi_leg_CORRECT": -4891
+    },
+    "corrected_verdict": {
+      "paired_total": -4891,
+      "mean_per_day": -175,
+      "days_worse": "12/28",
+      "drop_best_day": -7014,
+      "bootstrap_p_effect_ge_0": 0.2602,
+      "reading": "NOT statistically distinguishable from zero. The ladder is UNPROVEN -- neither the +$6,454 win claimed on 2026-08-10 nor a demonstrated loss."
+    },
+    "known_bias_that_favours_RETAINING_the_ladder": "The harness has no SPY feed, so structure/ribbon exits cannot fire in EITHER arm. In live trading a structure_stop would have closed many of these positions anyway; in the harness the ladder floor fires instead and the ladder is charged for an exit that would have happened regardless. The paired delta is therefore biased AGAINST the ladder by an unmeasured amount.",
+    "disposition": "KEEP LIVE, RECLASSIFIED. Not reverted: it is not proven harmful (p=0.26), it addresses a real observed failure (2026-08-10, three 773C positions peaked +83/+91/+98% and closed RED), it did not hurt on its first live day (2026-08-11 book +$188, no give-back), and the harness bias runs against it. Its status changes from VALIDATED to UNPROVEN / forward-evidence-only. Nightly winner_autopsy carries the live ladder-vs-actual read; that is now the ONLY evidence that counts for this knob.",
+    "cache_coverage_checked": "79/84 distinct contracts = 94%; only 2026-08-11 (OPRA 403) missing. No population selection bias."
   }
 }

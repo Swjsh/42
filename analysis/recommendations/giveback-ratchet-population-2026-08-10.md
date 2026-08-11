@@ -1,3 +1,24 @@
+# ⛔ VERDICT RETRACTED 2026-08-11 — read this first
+
+The PASS below was produced by `ladder_day_replay.replay_fill`, which breaks on the FIRST
+action and scores a TP1 partial as a full exit, discarding the runner leg. Under ladder-OFF
+(the control) TP1 fires on **74 of 256** positions, so the control lost 74 runner legs;
+ladder-ON exits on the floor first and has one leg anyway. The harness crippled the control.
+
+| paired ladder effect | first-exit (wrong) | multi-leg (correct) |
+|---|--:|--:|
+| same 256 positions | **+$19,454** | **−$4,891** |
+
+Corrected: −$175/day, 12/28 days worse, drop-best −$7,014, **bootstrap p = 0.26 → not
+significant**. The ladder is **UNPROVEN**, not validated and not disproven.
+
+**Disposition: KEEP LIVE, reclassified to forward-evidence-only.** Not reverted — it is not
+proven harmful, it addresses a real observed failure, it did no harm on its first live day,
+and the harness (no SPY feed → no structure exits) is biased *against* it. Correct harness:
+`backtest/tools/multileg_exit_walk.py`.
+
+---
+
 # GIVEBACK-RATCHET population kill-check (2026-08-10)
 
 Population: 256/257 engine positions priced on real OPRA (1 skipped, no bars). Gate cohort EXCLUDES 2026-08-10 (in-sample). Full disclosures in the runner header.
