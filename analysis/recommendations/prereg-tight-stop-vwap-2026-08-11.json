@@ -1,0 +1,16 @@
+{
+  "prereg_id": "TIGHT-STOP-VWAP-2026-08-11",
+  "frozen_at_et": "2026-08-11 evening, AFTER close, BEFORE the runner",
+  "money": "PAPER only.",
+  "hypothesis": "The two remaining tight-percentage-stop setups (vwap_continuation -6%, vwap_reclaim_failed_break -8%) lose money for the same mechanical reason measured on broker truth across n=126 real fills: a sub-10% premium stop on a 0DTE option reads the bid-ask spread, not price action. Wide structure/-50% configs returned +$33.43/tr; tight-% configs returned -$28.96/tr; a $62/tr spread that reproduced independently on every arm.",
+  "what_is_being_tested": "Whether vwap_continuation's realized edge survives (a) removal of its single best day and (b) a per-day sign test. NOT a harness counterfactual -- the exit harness was disqualified 2026-08-11 for exit-timing questions (systematic +21min hold bias). Broker-realized P&L only.",
+  "gates": [
+    "G1 DROP-BEST-DAY: total realized P&L must remain > 0 after removing the single best day.",
+    "G2 SIGN CONSISTENCY: > 50% of trading days positive.",
+    "G3 n: at least 8 distinct trading days with fills.",
+    "G4 MECHANISM: if the setup dies chiefly on premium_stop at <10% adverse, the spread-reading mechanism is confirmed; if it dies on structure/time/ribbon, the tight stop is NOT the cause and this prereg does not license changing it."
+  ],
+  "kill_rule": "FAIL G1 or G2 -> vwap_continuation's tight stop is not supported by real money. Disposition on a FAIL is to WIDEN the stop to the structure/-50% shape that broker truth supports, on ONE fleet arm, as a new pre-registered forward trial -- NOT a fleet-wide flip, and NOT a same-night change to every arm.",
+  "explicitly_not_licensed": "This prereg does NOT authorize touching risky-3's stop_mode (governed by prereg-stop-mode-live-arm-risky3-2026-08-09, whose n>=20-day criterion is NOT met -- 2 days elapsed), nor ribbon_ride, nor any params.json key.",
+  "reporting_rule": "Every day reported including the ones that hurt the hypothesis. Best-day concentration stated as a percentage of total."
+}
