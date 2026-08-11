@@ -15,10 +15,12 @@ twice in one day by `git stash`/`checkout` operations colliding with live writer
 fix applied (see STATE_SNAPSHOTS below) -- a re-violated lesson graduated to code per
 OP-25. See automation/overnight/queue.md STATE-FILE-REVERSION-2026-07-20.
 """
+import json
 import subprocess
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+STATE_FRESHNESS_MANIFEST = REPO / "automation" / "state" / "state-freshness-manifest.json"
 
 LEDGERS = [
     "automation/state/core-decisions.jsonl",
@@ -192,4 +194,56 @@ def test_state_freshness_reversion_followup_2_are_untracked():
     assert not tracked, (
         f"Still tracked in the index (gitignore alone does not untrack): {tracked}. "
         f"Run `git rm --cached <path>` for each."
+    )
+
+
+# ---------------------------------------------------------------------------------------
+# MANIFEST-DRIVEN GUARD (2026-08-10) -- closes the class, not just this incident's instances.
+# ---------------------------------------------------------------------------------------
+# Four rounds of this exact mechanism (2026-07-14, 07-20, 07-21, 08-10) were each fixed with a
+# NEW hand-curated list above -- each round's triage was a snapshot, not a standing check, so
+# the NEXT new live-state producer added to state-freshness-manifest.json (the repo's own
+# authoritative list of continuously-rewritten decision-relevant state) could silently repeat
+# the incident a 5th time with nobody noticing until engine-health.json goes RED again. This
+# test reads that manifest directly and checks EVERY entry, so a future manifest addition that
+# forgets the gitignore/untrack step fails HERE, at test time, instead of silently reverting
+# weeks of live state first. Two entries this fire (premarket-readiness.json, news.json) were
+# found by this exact cross-check -- they were RED/YELLOW in tonight's audit but missed by the
+# STATE_FRESHNESS_REVERSION_FOLLOWUP_2 list above (which only captured the first 6 noticed).
+
+def _manifest_paths() -> list[str]:
+    try:
+        raw = json.loads(STATE_FRESHNESS_MANIFEST.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []  # manifest unreadable -- nothing to check, not a guard failure
+    entries = raw.get("entries") if isinstance(raw, dict) else raw
+    if not isinstance(entries, list):
+        return []
+    return [e["path"] for e in entries if isinstance(e, dict) and e.get("path")]
+
+
+def test_state_freshness_manifest_entries_are_gitignored():
+    paths = _manifest_paths()
+    assert paths, "state-freshness-manifest.json unreadable or empty -- check the fixture path"
+    not_ignored = []
+    for path in paths:
+        r = subprocess.run(["git", "-C", str(REPO), "check-ignore", "-q", path], capture_output=True)
+        if r.returncode != 0:
+            not_ignored.append(path)
+    assert not not_ignored, (
+        f"These state-freshness-manifest.json entries are NOT gitignored, so a tree-wide git "
+        f"stash/checkout/reset in the shared checkout can silently revert them backward to a "
+        f"stale committed snapshot (the 2026-07-14/07-20/07-21/08-10 recurring incident class): "
+        f"{not_ignored}. Add each to .gitignore and `git rm --cached` it."
+    )
+
+
+def test_state_freshness_manifest_entries_are_untracked():
+    paths = _manifest_paths()
+    assert paths, "state-freshness-manifest.json unreadable or empty -- check the fixture path"
+    r = subprocess.run(["git", "-C", str(REPO), "ls-files", "--", *paths], capture_output=True, text=True)
+    tracked = [ln for ln in r.stdout.splitlines() if ln.strip()]
+    assert not tracked, (
+        f"These state-freshness-manifest.json entries are still tracked in the index (gitignore "
+        f"alone does not untrack): {tracked}. Run `git rm --cached <path>` for each."
     )

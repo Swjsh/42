@@ -205,6 +205,18 @@ automation/state/trade-today.json
 automation/state/confluence-zones.json
 automation/state/ema-snapshot.json
 automation/state/context-bundle.json
+# Same fire, completed sweep: these 2 are ALSO in state-freshness-manifest.json and were ALSO
+# caught RED/YELLOW tonight, tracked-but-stale (07-15/07-27) -- the initial pass above missed them.
+automation/state/premarket-readiness.json
+automation/state/news.json
+# Defensive-only (already untracked, not currently vulnerable) -- closing the gap so a future
+# `git add -A` can't re-introduce these into the index. Same manifest, completeness pass.
+automation/state/trendlines-live.json
+automation/state/pnl-statement.json
+automation/state/futures/trader/heartbeat.json
+automation/state/futures/data-freshness.json
+automation/state/futures/eod-summary.json
+automation/state/futures/trader-broker/heartbeat.json
 
 # Crypto twin signal-backtest bar cache (3.9MB, regenerable from Alpaca)
 analysis/crypto-twin/btc_5m_cache.json
