@@ -45,8 +45,14 @@ assumption at size before trusting any projection).
 ## 1. Priority-ordered work map
 
 ### P0 — Diagnostics (Sonnet, hours)
-- **safe-3 took zero trades 08-11** while four siblings traded. Mine its decisions.jsonl
-  verdict distribution vs risky-3's for the same ticks; identify the sole-blocking gate.
+- ~~safe-3 took zero trades 08-11~~ **ANSWERED same night:** safe-3's stricter quality gate
+  (`1 triggers < 2` ×26, `requires confluence/sequence` ×11) correctly refused the day's
+  single-trigger VWAP setups. Not a defect. The REAL finding underneath: **ribbon_ride fired
+  ZERO entries book-wide on 08-11 — the entire book traded `vwap_continuation`.** Two
+  consequences: (a) the ladder (ribbon-scoped, C29) never applied to most of the day, so
+  08-11 is NOT ladder evidence; (b) the VWAP stop-widening clock in P6 governs the currently
+  ACTIVE revenue path, upgrading its priority. New measured question: does safe-3's
+  2-trigger gate earn its keep (its era P&L −$10/tr vs siblings' churn)?
 - **`winner-autopsy-last.json` carries `date: None`** (partial-run signature) and the pain
   ledger silently skipped 08-01→08-10 before self-healing. Find the failing branch; add a
   loud STATUS line on partial runs (C7).
