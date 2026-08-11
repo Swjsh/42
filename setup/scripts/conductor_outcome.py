@@ -375,6 +375,54 @@ def _avg_function_score(rows: list[dict[str, Any]]) -> float:
     return round(sum(_fire_function_score(r) for r in rows) / len(rows), 4)
 
 
+def _reconcile_function_fields(
+    all_rows: list[dict[str, Any]], rows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Backfill-lag correction: replace each row's function fields with the
+    MAX seen for that row's ``trading_day`` across the full outcome history.
+
+    Why this exists (2026-08-11, VERIFY-2026-08-10-ZERO-FILLS-DESPITE-ACCEPTED-
+    ORDERS follow-up): each row is a POINT-IN-TIME snapshot taken when that fire
+    called record(). ``fleet_journal_bridge.py`` backfills journal/trades.csv
+    from broker-truth (pnl-statement.json) on its own separate schedule, well
+    after the trading day ends — so any conductor fire that snapshots BEFORE
+    that backfill lands (e.g. an early-evening fire) correctly captures
+    ``fills: 0`` for a day that traded fine. Live-verified 2026-08-11: 3
+    consecutive fires (22:40/00:50/01:55 ET) all stored ``fills: 0`` for
+    2026-08-10, while `fill_funnel.py --date 2026-08-10` (broker-truth) showed
+    GREEN with 6 real fills, and re-running `trading_function_snapshot()` live
+    (after the backfill caught up) returned `fills: 11`. Nothing was ever
+    trading-broken; the METRIC was reading a stale snapshot.
+
+    fills/orders_accepted/enters_last_trading_day/distinct_setups_traded are
+    all monotonically non-decreasing as a day's ledgers get backfilled (the
+    session is over; nothing un-fills), so taking the running max per
+    trading_day is a safe, non-mutating reconciliation at the READ layer only
+    — the stored rows on disk are never rewritten (append-only ledger intact).
+    A row with an empty/missing ``trading_day`` is left untouched (nothing to
+    key the reconciliation on).
+    """
+    best: dict[str, dict[str, float]] = {}
+    for r in all_rows:
+        day = str(r.get("trading_day", "") or "")
+        if not day:
+            continue
+        slot = best.setdefault(day, {f: 0.0 for f in _FUNCTION_FIELDS})
+        for f in _FUNCTION_FIELDS:
+            slot[f] = max(slot[f], _num(r, f))
+
+    reconciled: list[dict[str, Any]] = []
+    for r in rows:
+        day = str(r.get("trading_day", "") or "")
+        if not day or day not in best:
+            reconciled.append(r)
+            continue
+        merged = dict(r)
+        merged.update(best[day])
+        reconciled.append(merged)
+    return reconciled
+
+
 def _trend(rows: list[dict[str, Any]]) -> str:
     """Compare the recent half vs the older half of the window — FUNCTION FIRST.
 
@@ -427,6 +475,10 @@ def compute_metric(
 
     all_rows = _read_outcomes(out_path)
     rows = all_rows[-window:]  # last N (chronological order preserved)
+    # Backfill-lag correction (function fields only) — see
+    # _reconcile_function_fields docstring. Does not affect cost/drained/
+    # regressions/net_improvement, which are genuinely per-fire, not per-day.
+    fn_rows = _reconcile_function_fields(all_rows, rows)
 
     total_cost = round(sum(_num(r, "cost_usd") for r in rows), 4)
     total_drained = int(sum(_num(r, "items_drained") for r in rows))
@@ -434,7 +486,7 @@ def compute_metric(
     fires_counted = len(rows)
     cost_per_drained = round(total_cost / max(1, total_drained), 4)
 
-    latest_snap = rows[-1] if rows else {}
+    latest_snap = fn_rows[-1] if fn_rows else {}
     metric: dict[str, Any] = {
         "computed_at": _utc_now_iso(),
         "window": window,
@@ -444,8 +496,10 @@ def compute_metric(
         "total_cost_usd": total_cost,
         "cost_per_drained_usd": cost_per_drained,
         "fires_counted": fires_counted,
-        # Trading function (the point of the rig — weighted above artifacts):
-        "function_score_avg": _avg_function_score(rows),
+        # Trading function (the point of the rig — weighted above artifacts).
+        # fn_rows (not rows) so a same-day backfill-lag snapshot doesn't fake
+        # a regression — see _reconcile_function_fields.
+        "function_score_avg": _avg_function_score(fn_rows),
         "function_latest": {
             "trading_day": str(latest_snap.get("trading_day", "") or ""),
             "enters_last_trading_day": int(_num(latest_snap, "enters_last_trading_day")),
@@ -454,7 +508,7 @@ def compute_metric(
             "fills": int(_num(latest_snap, "fills")),
             "distinct_setups_traded": int(_num(latest_snap, "distinct_setups_traded")),
         },
-        "trend": _trend(rows),
+        "trend": _trend(fn_rows),
     }
 
     if write:

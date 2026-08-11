@@ -209,23 +209,32 @@ def _snap(enters=0, accepted=0, fills=0, setups=0, day="2026-07-01"):
 
 
 def test_trend_function_beats_artifacts(co):
+    # 2026-08-11 note: older/recent halves now use DISTINCT trading_day values
+    # (not both "2026-07-01") -- compute_metric() reconciles function fields
+    # per trading_day to the max seen (backfill-lag fix), which would
+    # otherwise blend an artificial same-day "zero half" and "nonzero half"
+    # into one merged value and silently defeat this test's whole premise.
+    # Distinct days is also the REALISTIC shape: sequential fires normally
+    # snapshot sequential distinct trading days, not the same one twice.
     # Older half: artifact-heavy (tons drained), zero trading function.
-    co.record(task_id="o1", items_drained=10, tests_delta=41, function_snapshot=_snap())
-    co.record(task_id="o2", items_drained=10, tests_delta=41, function_snapshot=_snap())
+    co.record(task_id="o1", items_drained=10, tests_delta=41, function_snapshot=_snap(day="2026-06-29"))
+    co.record(task_id="o2", items_drained=10, tests_delta=41, function_snapshot=_snap(day="2026-06-30"))
     # Recent half: barely any artifacts, but the rig actually traded.
-    co.record(task_id="r1", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1))
-    co.record(task_id="r2", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1))
+    co.record(task_id="r1", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1, day="2026-07-01"))
+    co.record(task_id="r2", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1, day="2026-07-02"))
     metric = co.compute_metric(window=20)
     # Artifact-only trend would say "regressing" (20 drained -> 0). Function wins.
     assert metric["trend"] == "improving"
 
 
 def test_trend_function_loss_is_regressing_despite_artifacts(co):
+    # See test_trend_function_beats_artifacts's note: distinct trading_day per
+    # half so the 2026-08-11 backfill-lag reconciliation doesn't blend them.
     # BITE (inverse): trading stopped, artifacts exploded -> regressing.
-    co.record(task_id="o1", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1))
-    co.record(task_id="o2", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1))
-    co.record(task_id="r1", items_drained=10, tests_delta=41, function_snapshot=_snap())
-    co.record(task_id="r2", items_drained=10, tests_delta=41, function_snapshot=_snap())
+    co.record(task_id="o1", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1, day="2026-06-29"))
+    co.record(task_id="o2", items_drained=0, function_snapshot=_snap(enters=2, accepted=1, fills=1, day="2026-06-30"))
+    co.record(task_id="r1", items_drained=10, tests_delta=41, function_snapshot=_snap(day="2026-07-01"))
+    co.record(task_id="r2", items_drained=10, tests_delta=41, function_snapshot=_snap(day="2026-07-02"))
     metric = co.compute_metric(window=20)
     assert metric["trend"] == "regressing"
 
