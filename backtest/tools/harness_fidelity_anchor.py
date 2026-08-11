@@ -50,6 +50,8 @@ for _p in ("backtest", "backtest/lib", "backtest/tools", "automation/state/fleet
     if _full not in sys.path:
         sys.path.insert(0, _full)
 
+import pandas as _pd  # noqa: E402
+
 import strategies as st  # noqa: E402
 from ladder_population_killcheck import load_positions  # noqa: E402
 from lib.option_pricing_real import load_contract_bars  # noqa: E402
@@ -85,8 +87,31 @@ def placement_configs() -> dict:
     return out
 
 
+def spy_by_day() -> dict:
+    """{date: {"HH:MM": closed-5m SPY close}} -- the same feed the live engine threads into
+    plan_exit_actions as last_closed_5m_close. Without it structure stops cannot fire."""
+    import glob as _g
+    best, n = None, -1
+    for f in _g.glob(str(REPO / "backtest/data/spy_5m_*.csv")):
+        try:
+            d = _pd.read_csv(f)
+        except Exception:  # noqa: BLE001
+            continue
+        if len(d) > n:
+            best, n = d, len(d)
+    if best is None:
+        return {}
+    best["ts"] = _pd.to_datetime(best["timestamp_et"], utc=True).dt.tz_convert("America/New_York")
+    out: dict = {}
+    for day, g in best.groupby(best["ts"].dt.strftime("%Y-%m-%d")):
+        out[day] = dict(zip(g["ts"].dt.strftime("%H:%M"), g["close"].astype(float)))
+    return out
+
+
 def main() -> int:
     cfgs = placement_configs()
+    spy = spy_by_day()
+    slip = float(os.environ.get("SLIPPAGE", "0"))
     positions = load_positions()
     cache: dict = {}
     for s in sorted({p["symbol"] for p in positions}):
@@ -112,7 +137,8 @@ def main() -> int:
             if cfg.get(k) is not None:
                 shape[k] = cfg[k]
         r = walk(q, shape, bars, trigger_level=float(cfg.get("trigger_level") or 0.0),
-                 fill_mode=os.environ.get("FILL_MODE", "extreme"))
+                 fill_mode=os.environ.get("FILL_MODE", "extreme"),
+                 spy_closes=spy.get(q["date"]), slippage=slip)
         if "error" in r:
             continue
         rows.append({"arm": q["arm"], "date": q["date"], "symbol": q["symbol"],

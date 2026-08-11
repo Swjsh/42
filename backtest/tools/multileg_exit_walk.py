@@ -48,7 +48,7 @@ import exit_manager as em  # noqa: E402
 
 
 def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
-         fill_mode: str = "extreme") -> dict:
+         fill_mode: str = "extreme", spy_closes=None, slippage: float = 0.0) -> dict:
     """Walk ONE real fill through the real exit_manager, honouring partial sells.
 
     Returns realized P&L across every leg plus the leg detail. `bars` is the contract's
@@ -68,7 +68,14 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
     state = em.ExitState.from_entry(
         symbol=sym, side=("P" if "P00" in sym else "C"), entry_premium=entry, qty=qty,
         exit_shape=shape, strategy=str(fill.get("strategy", "RIBBON")),
-        trigger_level=trigger_level, structure_stop_enabled=True)
+        trigger_level=trigger_level, structure_stop_enabled=bool(trigger_level))
+
+    # SPY FEED (2026-08-11 harness fix #1). Without it, structure/ribbon exits CANNOT fire and
+    # the walk holds a median 21 minutes longer than the live engine on 87/182 anchored
+    # positions -- the single largest source of the +$5,949 fidelity bias, and fatal because
+    # hold-time IS the variable under test in any exit A/B. `spy_closes` maps "HH:MM" -> the
+    # CLOSED 5m SPY close, exactly what heartbeat_core/fleet_live thread into
+    # plan_exit_actions as last_closed_5m_close. Absent -> old behaviour, disclosed.
 
     open_qty = qty
     hwm = entry
@@ -94,8 +101,11 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
         else:
             best_in, worst_in = _hi, _lo
         hwm = max(hwm, best_in)
+        _t = bar["timestamp_et"].strftime("%H:%M")
+        _spy = (spy_closes or {}).get(_t)
         dec = em.plan_exit_actions(state, best_premium=hwm, worst_premium=worst_in,
-                                   open_qty=open_qty, now_et=bar["timestamp_et"].time())
+                                   open_qty=open_qty, now_et=bar["timestamp_et"].time(),
+                                   last_closed_5m_close=_spy)
         state = dec.state
         for a in dec.actions:
             if a.kind not in ("SELL_PARTIAL", "SELL_ALL"):
@@ -108,6 +118,10 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
             n = min(int(a.qty or open_qty), open_qty)
             if n <= 0:
                 continue
+            # SLIPPAGE (harness fix #2). The engine market-sells; it does not get the trigger
+            # price. Measured at +$60.5/position on the 20 fidelity positions whose exit TIMING
+            # matched live exactly -- i.e. pure price error with timing held constant.
+            px = max(0.01, float(px) - slippage)
             pnl += (float(px) - entry) * n * 100
             open_qty -= n
             legs.append({"t": bar["timestamp_et"].strftime("%H:%M"), "stage": a.stage,
