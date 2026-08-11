@@ -113,7 +113,28 @@ time-of-day, spread/liquidity check, recency verdict, book exposure.
 ---
 
 ## 2. Checklist gap map (evidence-based)
-<!-- SPLICE: GAMMA-CHECKLIST-GAP-MAP -->
+
+Full file:line audit: [GAMMA-CHECKLIST-GAP-MAP.md](../../analysis/deep-research/2026-08-11-audit/GAMMA-CHECKLIST-GAP-MAP.md)
+(traced `heartbeat_core → engine_cli → score/gates → risk_gate` + fleet path).
+
+**Scorecard: 3 WIRED-LIVE · 7 PARTIALLY WIRED · 2 ABSENT** of J's 12 checklist items.
+
+| status | items |
+|---|---|
+| ✅ WIRED-LIVE | risk sizing · daily kill switch · time-of-day gates |
+| 🟡 PARTIAL | VIX (level only, not character) · key levels (point prices, zone logic unverified downstream) · trend/regime (see below) · spread/premium floor · PDT · recency gating · multi-timeframe |
+| ❌ ABSENT | **news/economic calendar** (built for the retired LLM heartbeat, never ported — zero matches in heartbeat_core; in the KNOWN_DEAD registry) · **book-level exposure across arms** (risk_gate.check_order has no cross-account term; one signal fans to 6 arms uncapped — confirms P4) |
+
+**The finding that reframes P5:** the multi-timeframe/regime machinery J asked for *already
+exists* — `context_bundle_producer.py` computes the daily/hourly/15m trend-alignment bundle on
+schedule, and `market_structure.py` carries full BOS/CHoCH — but both are **logged-only**:
+"nothing on the score/gates path reads it," by its own docstring. Only a narrow
+`classify_trend()` binary veto is live, and it explicitly does NOT fire on chop ("range /
+unknown ⇒ NO veto") — which is mechanically the same hole as the 113-tick blind window and
+the chop-day losses. **P5 Phase 1 is therefore cheaper than drafted: the card mostly wires
+EXISTING producers into one at-decision snapshot rather than building new sensors.**
+Honest caveat carried from the audit: item 5's zone-vs-price verdict is partially unverified
+(filters.py touch-tolerance not traced) — flagged, not guessed.
 
 ## 3. Repo hygiene work orders
 <!-- SPLICE: STALE-INVENTORY -->
