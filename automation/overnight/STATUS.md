@@ -1,3 +1,55 @@
+## [2026-08-11T01:08 ET] CONDUCTOR: OK -- VERIFY-2026-08-10-ZERO-FILLS-DESPITE-ACCEPTED-ORDERS (FUNCTION-FIRST) -- commit `1d43c599`, REVOKE surface
+
+**Task picked (priority-1, FUNCTION FIRST per STAGE 1):** queue.md's own
+"next fire: run `fill_funnel.py` for 2026-08-10 FIRST" flag, filed after
+`conductor_outcome.py metric` reported `orders_accepted=9, fills=0` for
+2026-08-10 -- the exact entry->order->fill funnel break shape that outranks
+everything else in the conductor prompt.
+
+**Verdict: NOT a real break.** `fill_funnel.py --date 2026-08-10` = **GREEN**
+across all 5 arms (core:bold/core:safe/fleet risky-1/risky-3/safe-3): 9
+accepted, 6 filled, 6 exited. The `fills=0` reading was a metric-timing
+artifact: `conductor_outcome.py`'s function snapshot reads `journal/
+trades.csv`, which `fleet_journal_bridge.py` backfills from broker-truth on
+its OWN separate schedule well after the trading day ends. 3 fires overnight
+(08-10 22:40 / 08-11 00:50 / 01:55 ET) all fired BEFORE that backfill landed
+and honestly recorded `fills:0` for a day that traded fine -- re-running
+`trading_function_snapshot()` live (this fire, after the backfill caught up)
+returned `fills:11`.
+
+**Fixed the metric, not just the symptom:** `compute_metric()` now
+reconciles the function fields (fills/orders_accepted/enters/distinct_setups/
+extra_exec) per `trading_day` to the MAX seen across the full outcome
+history before computing `function_latest`/`trend`/`function_score_avg` --
+safe because these fields are monotonically non-decreasing as a completed
+day's ledgers backfill (nothing un-fills). Read-layer only;
+`conductor-outcomes.jsonl` itself is never rewritten (append-only ledger
+intact). 5 new guard tests (`test_conductor_outcome_backfill_reconciliation.py`),
+RED-proofed via `git stash` (1/5 correctly failed pre-fix on the direct
+reconciliation assertion). Corrected (not weakened) 2 pre-existing trend
+tests in `test_conductor_outcome_function.py` whose fixtures used one
+literal `trading_day` string for both halves of an older-vs-recent
+comparison as a convenience shorthand -- the new (correct) reconciliation
+blends same-day snapshots, so gave each half a distinct realistic day
+instead; same assertions, same intent. Full blast radius (conductor_outcome
++ conductor_gate_precheck + conductor_budget suites): 93/93 green. Curated
+safety gate 59/59 PASS. `git show 1d43c599 --stat` confirms exactly the 4
+intended files (source fix + 2 test files + 1 lesson-inbox write).
+
+**Lesson filed:** `_lesson-inbox/2026-08-11-conductor-outcome-backfill-lag-
+false-alarm.md` -- general pattern: a consumer reading a value written by
+two producers on different schedules (live tick + separate backfill job)
+cannot trust a single point-in-time read as final; reconcile to best-known
+value when the field is provably monotonic, or the race reads as a false
+signal to every downstream consumer.
+
+**Rail-4 clear:** zero trading-path files touched (params/heartbeat_core/
+filters/placement/exit/CLAUDE.md) -- pure conductor self-measurement code +
+2 test files + 1 lesson write. **REVOKE:** `git revert 1d43c599` (4 files,
+clean).
+
+---
+
 ## [2026-08-11T01:15 ET] KNOWN BROKEN: 2 pre-existing test failures, NOT caused by tonight's exit work
 
 Surfaced while running the twin suite after wiring the pre-TP1 ladder into the crypto twin.
@@ -743,3 +795,6 @@ Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-08-11T00:09:56
 - TRENDLINE-FEED DEGRADED: trendlines.json is 88.6 days old (stamp 2026-05-14T08:39:13-04:00, limit 1.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
+
+### DEGRADED: self-check 2026-08-11T00:39:56
+- TRENDLINE-FEED DEGRADED: trendlines.json is 88.7 days old (stamp 2026-05-14T08:39:13-04:00, limit 1.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
