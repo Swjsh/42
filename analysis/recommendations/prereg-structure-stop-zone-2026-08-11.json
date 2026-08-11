@@ -1,0 +1,18 @@
+{
+  "prereg_id": "STRUCTURE-STOP-ZONE-2026-08-11",
+  "frozen_at_et": "2026-08-11 evening, BEFORE the runner",
+  "money": "PAPER. Measurement only; nothing armed by this document.",
+  "hypothesis": "The structure stop fires ON the exact level (e.g. 771.00, 772.26 on 2026-08-11) and price routinely wicks through a level before continuing. J doctrine: levels are ZONES not prices. A band BELOW the trigger level (for calls; above, for puts) should reduce wick-out exits without materially widening real losses, because the -50% catastrophe cap remains beneath every band.",
+  "population": "All real structure_stop exits in the live fleet ledger (23 exits, 8 days, 3 arms) -- positions re-walked with trigger_level shifted by the band. Real OPRA premium bars, calibrated walker v4 (fill_mode=mixed, SPY feed, 2c slippage; residual bias +$384/182 pos = +$2.11/pos, DISCLOSED on every number).",
+  "cells": {"band_spy_points": [0.0, 0.10, 0.20, 0.35, 0.50]},
+  "primary_metric": "Paired per-position P&L delta (band - band0) summed, day-clustered.",
+  "gates_for_a_forward_trial_not_a_ship": [
+    "G1: best band beats band=0 on paired total AND survives drop-best-day.",
+    "G2: mechanism visible -- the improvement must come from SURVIVED wick-outs (exit later at better price or TP1), not from a single lucky position.",
+    "G3: no band cell increases any single position's loss beyond the -50% cap floor (structural invariant, must hold by construction).",
+    "G4: n>=15 positions actually affected by at least one band cell; if fewer, the knob is dead-frequency and this closes."
+  ],
+  "kill": "No band improves on band=0, or the improvement is 1 position -- levels-are-zones stays doctrine for ENTRIES but the exit stop stays at the level; closed both ways.",
+  "disclosures": ["n=23 is small and 3 same-day triples (07-17, 08-04 x2, 08-07) are correlated -- cluster by day.", "The walker cannot see ribbon exits; identical limitation in every cell, cancels in pairing.", "Band values were chosen a priori from J's zone doctrine, not fitted."],
+  "explicitly_not_licensed": "No live config change. A G1-G4 pass licenses ONE pre-registered forward arm trial only."
+}
