@@ -217,6 +217,8 @@ class ExitState:
     # are what a broker-side resting stop would be PATCHed to (they move 2-3x per trade, the
     # trail moves constantly -- which is exactly why only the rungs go to the broker).
     pre_tp1_ladder: Optional[list] = None
+    pre_tp1_ribbon_confirm_ticks: Optional[int] = None
+    ribbon_flip_streak: int = 0          # consecutive flipped ticks seen PRE-TP1
     pre_tp1_trail_arm_pct: Optional[float] = None
     pre_tp1_trail_pct: Optional[float] = None
 
@@ -286,6 +288,9 @@ class ExitState:
                 None if exit_shape.get("pre_tp1_floor_pct") is None
                 else float(exit_shape["pre_tp1_floor_pct"])),
             pre_tp1_ladder=(exit_shape.get("pre_tp1_ladder") or None),
+            pre_tp1_ribbon_confirm_ticks=(
+                None if exit_shape.get("pre_tp1_ribbon_confirm_ticks") is None
+                else int(exit_shape["pre_tp1_ribbon_confirm_ticks"])),
             pre_tp1_trail_arm_pct=(
                 None if exit_shape.get("pre_tp1_trail_arm_pct") is None
                 else float(exit_shape["pre_tp1_trail_arm_pct"])),
@@ -310,6 +315,8 @@ class ExitState:
             "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
             "pre_tp1_floor_pct": self.pre_tp1_floor_pct,
             "pre_tp1_ladder": self.pre_tp1_ladder,
+            "pre_tp1_ribbon_confirm_ticks": self.pre_tp1_ribbon_confirm_ticks,
+            "ribbon_flip_streak": self.ribbon_flip_streak,
             "pre_tp1_trail_arm_pct": self.pre_tp1_trail_arm_pct,
             "pre_tp1_trail_pct": self.pre_tp1_trail_pct,
         }
@@ -347,6 +354,10 @@ class ExitState:
                 None if d.get("pre_tp1_floor_pct") is None
                 else float(d["pre_tp1_floor_pct"])),
             pre_tp1_ladder=(d.get("pre_tp1_ladder") or None),
+            pre_tp1_ribbon_confirm_ticks=(
+                None if d.get("pre_tp1_ribbon_confirm_ticks") is None
+                else int(d["pre_tp1_ribbon_confirm_ticks"])),
+            ribbon_flip_streak=int(d.get("ribbon_flip_streak") or 0),
             pre_tp1_trail_arm_pct=(
                 None if d.get("pre_tp1_trail_arm_pct") is None
                 else float(d["pre_tp1_trail_arm_pct"])),
@@ -556,9 +567,25 @@ def plan_exit_actions(
         # live; exit_manager_walk replay) pass a bare single-tick categorical stack equality.
         # The prior comment claiming a caller-side "spread+buffer rule" was aspirational,
         # never implemented (verified by the 2026-08-08 ribbon-flipback-buffer prereg sweep).
+        # CONFIRMATION BUFFER (2026-08-11, prereg RIBBON-CONFIRM-2026-08-11). The comment
+        # above records that the buffer was never implemented; this implements it. Require N
+        # CONSECUTIVE flipped ticks before selling; a clean tick resets the streak. None or 1
+        # is byte-identical to the single-tick behaviour above (inertness contract).
+        # Live exhibit: 2026-08-11 killed three PROFITABLE puts in 11 minutes at 57-60s holds;
+        # the dumped 771P printed 1.29 four hours later. PRE-TP1 ONLY -- the post-TP1 runner
+        # ribbon exit below is untouched, that leg already banked TP1.
+        _need = state.pre_tp1_ribbon_confirm_ticks
+        _streak = (state.ribbon_flip_streak + 1) if ribbon_flip_back else 0
+        if _streak != state.ribbon_flip_streak:
+            pre_state = replace(pre_state, ribbon_flip_streak=_streak)
+        if ribbon_flip_back and (_need is None or _streak >= int(_need)):
+            actions.append(ExitAction(
+                "SELL_ALL", qty=open_qty, stage="ribbon_flip",
+                reason=("ribbon_flip_back" if _need is None or int(_need) <= 1
+                        else f"ribbon_flip_back ({_streak}/{int(_need)} confirmed)")))
+            return ExitDecision(pre_state, tuple(actions))
         if ribbon_flip_back:
-            actions.append(ExitAction("SELL_ALL", qty=open_qty,
-                                      reason="ribbon_flip_back", stage="ribbon_flip"))
+            # armed, flipped, but not yet confirmed -> HOLD this tick and carry the streak
             return ExitDecision(pre_state, tuple(actions))
         # (d) TP1 partial: best >= entry*(1+tp1_premium_pct) -> SELL tp1_qty, runner stop -> BE
         tp1_level = entry * (1.0 + state.tp1_premium_pct)

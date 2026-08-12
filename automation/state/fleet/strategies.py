@@ -65,6 +65,10 @@ class ExitShape:
     # J's LADDER (2026-08-10): fixed rungs lock a guaranteed minimum; the trail protects
     # everything that never reaches a rung. Effective floor = max(rungs, trail, stop).
     pre_tp1_ladder: "list | None" = None
+    # PRE-TP1 RIBBON CONFIRMATION (2026-08-11, prereg RIBBON-CONFIRM-2026-08-11).
+    # N consecutive flipped ticks required before a pre-TP1 ribbon exit sells. None or 1 =
+    # today's exact single-tick behaviour. Post-TP1 runner ribbon exit is untouched.
+    pre_tp1_ribbon_confirm_ticks: "int | None" = None
     pre_tp1_trail_arm_pct: "float | None" = None
     pre_tp1_trail_pct: "float | None" = None
 
@@ -85,6 +89,7 @@ class ExitShape:
             "pre_tp1_be_floor_arm_pct": self.pre_tp1_be_floor_arm_pct,
             "pre_tp1_floor_pct": self.pre_tp1_floor_pct,
             "pre_tp1_ladder": self.pre_tp1_ladder,
+            "pre_tp1_ribbon_confirm_ticks": self.pre_tp1_ribbon_confirm_ticks,
             "pre_tp1_trail_arm_pct": self.pre_tp1_trail_arm_pct,
             "pre_tp1_trail_pct": self.pre_tp1_trail_pct,
         }
