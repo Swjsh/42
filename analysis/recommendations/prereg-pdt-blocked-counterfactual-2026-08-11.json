@@ -1,0 +1,23 @@
+{
+  "rule_id": "PDT-BLOCKED-COUNTERFACTUAL-2026-08-11",
+  "frozen_at_et": "2026-08-11T21:40:00-04:00",
+  "status": "FROZEN_BEFORE_RUNNER",
+  "origin": "Core-ledger recovery (same night) exposed 68 RISK_DENY_PDT refusals across 9 days / 18 unique entry intents — the single largest category of trades the engine wanted and never took. J goal: 'unlock more trades from historic data'.",
+  "question": "On PAPER accounts, the engine self-imposes the live PDT rule (3 day-trades / 5 business days under $25k). Did that self-imposed constraint COST money or SAVE money?",
+  "why_it_is_live": "Alpaca paper does not enforce PDT — this is a deliberate engine-side simulation of the live constraint. It is defensible ONLY if it is not destroying research power for free. Two independent reasons it may be wrong: (a) the growth ladder targets >=$25k accounts where PDT does not apply at all, so paper is rehearsing a constraint the target state never has; (b) blocking every trade after the 3rd in a rolling window yields a SYSTEMATICALLY BIASED subsample (early-window entries only), which corrupts every downstream WR/expectancy estimate, not just the blocked rows.",
+  "population": "All status == RISK_DENY_PDT rows in core-decisions.jsonl carrying a symbol, deduped to unique (account, symbol, date) intents. Measured 2026-08-11: 68 attempts -> 18 unique intents, 2026-07-08 .. 2026-08-07.",
+  "method": "Price each blocked intent at its LOGGED qty and premium, on real OPRA 5-min bars, through the real exit_manager via multileg_exit_walk at calibration v5 (extreme fills, $0.01 slippage, SPY union feed). Exit shape = that account's params.json config (safe/bold), the same shape its PLACED siblings ran that day.",
+  "gates": {
+    "G1_net_positive": "blocked cohort net P&L > 0 (PDT cost us money)",
+    "G2_day_balance": "count(profitable blocked days) > count(losing blocked days)",
+    "G3_drop_best": "net - best_day >= 0 (not one lucky day)",
+    "G4_not_concentrated": "no single day is more than 60% of a positive net"
+  },
+  "decision_rule": "ALL gates pass -> propose relaxing the paper-side PDT simulation behind a per-arm flag, default OFF, one arm armed, with a forward kill criterion. ANY gate fails -> PDT stays exactly as-is and the result is filed as 'the constraint was protective (or neutral)'. Either way the number gets published.",
+  "known_limitations_stated_before_running": [
+    "NAIVE counterfactual: taking a blocked trade would have shifted the rolling PDT window and could have blocked a DIFFERENT later trade. This measures the marginal value of the blocked intents in isolation, not a full sequential re-simulation. A positive result therefore licenses a forward trial, never a direct ship.",
+    "Capital is assumed non-binding (bold equity $5,478 vs ~$500/position); flag if any intent violates the arm's risk cap.",
+    "n=18 is below the advisory n>=20 bar. A pass is SUGGESTIVE, not sufficient on its own."
+  ],
+  "explicitly_forbidden": "Dropping losing days; re-picking the exit shape after seeing results; converting a pass into a live-money change (PDT is a real regulatory rule for live accounts under $25k and is NOT being questioned there)."
+}
