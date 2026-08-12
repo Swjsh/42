@@ -119,3 +119,19 @@ Factors computed by the SAME frozen code that built the signature (`entry_qualit
 Lane 3 recommends **NO trading-path change at 15:55 from this lane** — today's f7/f10/f11 evidence is n=1-day EST and belongs to Lane 2's frozen preregs (already in flight). The only staged item is mechanical and read-only:
 
 1. **Evening OPRA re-price addendum** (after ~16:21 ET): rerun `backtest/tools/friday_replay_2026_08_07.py variants` with real OPRA contract bars substituted for the EST frames (772C/773C/774C/775C, 1-min), append `## OPRA addendum` to this file + refresh the JSON. Guard: cells must keep their EST-vs-OPRA delta visible. Revert: git-revert of the addendum commit; no engine surface involved.
+
+## Book-exposure anatomy (appended 2026-08-11, J: "why did we have so much out there?")
+
+Every fill, broker ledger truth (14 positions, net **-$2,687** on **$6,907** premium deployed = -39% of deployed):
+
+| wave | time | fills | contracts | premium | setup | net |
+|---|---|---|---|---|---|---|
+| 1 | 09:46-09:47 | 5 (all 5 arms) | 28 | $2,974 | BULLISH_RECLAIM calls 772/774C | -$628 |
+| 2 | 12:06-12:07 | 4 | 28 | $2,130 | SAME setup, 773/775C | -$1,192 |
+| 3 | 12:37-12:40 | 4 | 25 | $1,563 | SAME setup, **re-bought the 772C stopped in wave 1** | -$828 |
+| 4 | 14:16 | 1 | 3 | $240 | first and only put of the day | -$39 |
+
+**Findings:**
+- **No kill switch breached and none SHOULD have** — arms are $5K each; worst arm (safe-3) lost -$1,048 = -21%, under the -30% kill. Per-arm risk worked as configured.
+- **The failure is book-level correlation**: 5 arms x same signal x same second = 28 contracts of one strike cluster per wave, x3 waves of the same failing bullish thesis on a fade day, with re-entry into the exact strike just stopped. No cross-arm exposure cap exists (P4 in OPUS-WORKER-HANDOFF), no same-strike re-entry cooldown, no regime gate (08-07 is the ER30 origin exhibit).
+- **Not a position-size problem**: each individual fill was within Rule-6 sizing. The C31 echo is exact — the killer is re-entering/adding into a failing thesis, not the flat count.

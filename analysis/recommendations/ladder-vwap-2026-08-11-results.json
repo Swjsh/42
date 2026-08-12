@@ -1,0 +1,19 @@
+{
+  "rule_id": "LADDER-VWAP-2026-08-11",
+  "ran_at_et": "2026-08-11T21:05:00-04:00",
+  "verdict": "NO-SHIP — all 4 gates FAIL",
+  "cohort": {"n_positions": 25, "n_days": 4, "strategy": "VWAP_CONTINUATION"},
+  "result": {
+    "net_delta": -411,
+    "helped_days": 0,
+    "hurt_days": 1,
+    "neutral_days": 3,
+    "drop_best": -411,
+    "worst_day": {"date": "2026-08-04", "delta": -411}
+  },
+  "gates": {"G1_net_positive": false, "G2_day_balance": false, "G3_drop_best": false, "G4_worst_day": false},
+  "mechanism": "All damage lands on 2026-08-04 (the trend day): VWAP_CONTINUATION winners ARE trend-day winners, and the ladder's +50%/+75% rungs amputate exactly those. On the 3 chop/flat vwap days (incl. 08-11) the delta is ~$0 — positions die below rung 1, so the ladder never arms. Third independent confirmation of the +chop/-trend split (ribbon cohort net +$224 over 23 days, helped 9/hurt 6, drop-best -$703 — a wash).",
+  "reference_ribbon_cell": {"n_positions": 168, "n_days": 23, "net_delta": 224, "helped": 9, "hurt": 6, "drop_best": -703},
+  "action": "Ladder stays OFF all VWAP paths. C29 scoping vindicated. The lever is DAY TYPE, not rung values — routes to REGIME-CONDITIONAL-EXIT-2026-08-11 (ER30 shadow, forward clock 0/25).",
+  "population_note": "OPRA backfill 2026-08-11 closed the bars gap (5 contracts incl. all of today's); remaining non-replayable rows (81/274) lack placement-config reconstruction from the decisions ledger, NOT market data. Same-day OPRA fetch confirmed working."
+}
