@@ -236,11 +236,19 @@ is still −$3,338. Not "profitable" — *first non-negative era, 0.7pp of margi
 1. **Cut average loss** (−$127 book, −$147 safe-3). Each $10 off moves breakeven WR ~0.6pp.
 2. **Regime selection** (P1/ER30, forward 0/25) — unchanged as #1.
 
-**NEW top-of-queue question, evidence-backed:** the clamp's **per-arm release hysteresis**.
-In August `risky-3` was **never clamped once** (FULL on every entry) and `safe-3` flipped to FULL
-on exactly 08-07 — the two arms that took the biggest hits that day, while `risky-1` stayed
-clamped and was protected +$921. Prereg: should release require more than one good day, and why
-is risky-3 permanently GREEN? This is a *release-condition* question, not a clamp question.
+**NEW top-of-queue question, evidence-backed (CORRECTED after reading the source):** the recency
+clamp's **release hysteresis**. Note two corrections to my first pass -- `fleet_executor.py:302-352`
+has **TWO** clamps with near-identical log lines: `FULL_SEND min size` (unconditional on a full-send
+arm) and `recency RED` (global verdict). `risky-1` is the FULL-SEND arm, so its 08-07 protection
+(+$921) was by-design min-sizing, NOT a recency signal. And the recency verdict is **GLOBAL** (one
+shared `recency-confirmation.json`, read live per tick), so it cannot differ per arm -- risky-3 DID
+clamp 12->5 on 08-04 from 11:27 on, and `recency_min_size_enabled=True` in both params files.
+The real mechanism: the global verdict was **not RED on the morning of 08-07**, so safe-3 and
+risky-3 entered at full tier size into the worst day, having been RED through 08-04 and returning
+to RED by 08-10. Prereg to write: should release require N consecutive non-RED sessions instead of
+tracking a signal that went non-RED for a single morning?
+Live state at handoff: `_recency_verdict()` == **RED**, so all arms size at `min_contracts`
+(safe 3 / bold 5) on the next session.
 
 **Methodology note for the next worker — two of my own errors were caught mid-analysis, both by
 process rather than luck:** a linear-scaling counterfactual gave the clamp result the WRONG SIGN
