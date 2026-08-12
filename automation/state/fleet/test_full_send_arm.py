@@ -363,3 +363,51 @@ def test_full_send_arm_is_still_a_risk_profile_not_a_strategy():
     plan = _fs_plan()
     assert plan.strategy == "ribbon_ride"
     assert plan.setup_name.upper() in fx.PROBE_RIBBON_SETUPS
+
+
+# =============================================================================
+# SELECTIVITY-GATE REGRESSION GUARD (2026-08-12)
+# =============================================================================
+# Commit e28d210c (2026-07-31 16:21) intended to ADD the full-send producer lane. It
+# SWAPPED risky-1's whole gate_override dict instead:
+#     -{"min_triggers": 2, "require_confluence_or_sequence": true}
+#     +{"full_send": true}
+# The two key families are ORTHOGONAL in source -- _gate_check reads only min_triggers /
+# require_confluence_or_sequence / min_setup_quality and never sees full_send; _is_full_send
+# reads only full_send -- so the swap DELETED the arm's entry gate and bought nothing.
+# accounts.json's own map_doc recorded the accident on 2026-08-02; nothing repaired it for
+# 12 days. On 2026-08-12 risky-1 took 16 of the book's 38 positions while its live twin
+# safe-3, running these exact keys, blocked 49 of the 83 identical signal-ticks.
+# THESE TESTS WOULD HAVE GONE RED ON e28d210c. That is the whole point of them.
+
+
+def test_risky1_selectivity_gate_survives_full_send():
+    """THE REGRESSION GUARD: arming/adjusting full_send must never remove the entry gate."""
+    go = _arm(FULL_SEND_ARM_ID).get("gate_override") or {}
+    assert go.get("min_triggers", 0) >= 2, (
+        f"risky-1 lost its min_triggers gate -- this is the e28d210c regression. gate_override={go}")
+    assert go.get("require_confluence_or_sequence") is True, (
+        f"risky-1 lost require_confluence_or_sequence -- e28d210c regression. gate_override={go}")
+
+
+def test_full_send_and_selectivity_keys_coexist():
+    """They are orthogonal key families: restoring the gate must NOT de-arm full-send,
+    and arming full-send must NOT clear the gate. Both must read True off the same dict."""
+    arm = _arm(FULL_SEND_ARM_ID)
+    go = arm.get("gate_override") or {}
+    assert go.get("full_send") is True, "full_send was dropped while restoring the gate"
+    assert fx._is_full_send(arm) is True, "_is_full_send no longer recognises the arm"
+    assert {"min_triggers", "require_confluence_or_sequence"} <= set(go), (
+        "gate keys missing from the same dict that carries full_send")
+
+
+def test_risky1_gate_matches_its_live_twin_safe3():
+    """safe-3 is risky-1's gate twin (same selectivity, different sizing). They diverged
+    only because of the accidental deletion -- pin them back together so a future edit to
+    one is a visible, deliberate divergence rather than a silent one."""
+    r1 = (_arm(FULL_SEND_ARM_ID).get("gate_override") or {})
+    s3 = (_arm("safe-3").get("gate_override") or {})
+    for k in ("min_triggers", "require_confluence_or_sequence"):
+        assert r1.get(k) == s3.get(k), (
+            f"risky-1 and safe-3 disagree on {k}: {r1.get(k)!r} vs {s3.get(k)!r}. "
+            "If this divergence is intentional, update this guard with the reason.")
