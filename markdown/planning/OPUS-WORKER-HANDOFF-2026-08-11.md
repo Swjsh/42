@@ -311,3 +311,79 @@ a hand-tuned threshold.
 - L244-sibling lesson filed: an arm-scoped ledger read (core only) was reported book-wide
   at 10:17 ("no bearish verdicts") while risky-3 was already short 13 minutes earlier.
   Any intraday "what is the engine doing" answer must sweep core + all fleet ledgers.
+
+---
+
+## 7. CHURN TEARDOWN VERDICT (2026-08-12 night) — §6's O1 is PARTLY REFUTED, read this first
+
+Full: [CHURN-TEARDOWN-2026-08-12.md](../../analysis/deep-research/2026-08-12-churn/CHURN-TEARDOWN-2026-08-12.md).
+15-agent workflow, 7 forensic lanes each adversarially refuted before counting, 4 survived.
+
+**§6 O1(b) said "ARM P2 ribbon-confirm." DO NOT.** The ribbon never flipped on 08-12 — 772 RTH
+ticks, BULL 670, **zero transitions into BEAR after 09:36**, all 27 ENTER_BEAR carried
+`ribbon: BULL`. An N-tick buffer against a permanently-true predicate delays each dump N
+minutes and liquidates all 18 anyway. P2 remains correct for **flicker** (08-11 was a genuine
+mid-hold flip) — wrong instrument for this day.
+
+**§6's premise was also wrong:** the churn was not the loss. `ribbon_flip` (18 positions,
+1.0-min median) netted **+$60**. The money left via `structure_stop` −$579 (11 calls, zero
+winners, 24-min median) and `premium_stop` −$493. 38 positions, not 40.
+
+### SHIPPED tonight (done, committed)
+**Restored risky-1's selectivity gate** — commit `e28d210c` (07-31) swapped its whole
+`gate_override` dict, deleting `min_triggers`/`require_confluence_or_sequence` while intending
+only to ADD `full_send`. Key families are orthogonal; full-send stays armed. 3 guards
+RED-proofed against the exact mutation. accounts.json's own map_doc had recorded the accident
+on 08-02 and nothing repaired it for 12 days.
+
+### REMAINING, ranked (all blocked on evidence, none ship blind)
+- **R1 — instrument the contradiction (zero risk, GATES R3/R4).** Add `entry_ribbon_stack` +
+  `ribbon_stack_now` to each `manage_tick` action; add per-day exit_stage histogram +
+  median-hold + pct-under-2min to the nightly brief, sourced from `journal/trades.csv`'s
+  `Exit stage=` (hard order-id join via `fleet_journal_bridge.py:769/569`, not a log-string
+  inference). The 0→1→4→21 ribbon_flip ramp was invisible until this teardown.
+- **R2 — stage-label conflation (label-only).** `exit_manager.py:528-538` `floor_active` never
+  checks `pre_tp1_ladder` / `pre_tp1_trail_arm_pct` (both added 08-10, AFTER the 07-23
+  conflation patch), so a ladder floor exit journals as a catastrophe stop. Exhibit: safe-3
+  entry 0.56 → "premium_stop @ 0.73" realized **+$45**. Contaminates every stage-grouped
+  analysis including the teardown's own. Guard must assert the ACTION list is byte-identical.
+- **R3 — resolve the ribbon contradiction, ONE side only, PREREG MANDATORY.** (a) entry-side
+  refusal removes 18 entries but re-arms a filter `filters.py:1662-1665` deliberately waives
+  and misses the VWAP legs entirely; (b) exit-side freeze `entry_ribbon_stack` on ExitState
+  (appended last, `from_dict` default None = byte-identical) and gate `:581` on a real flip
+  FROM entry state. Tape favours (b) — the 18 ribbon-dumped puts made **+$60** while the 11
+  ribbon-ALIGNED calls lost **−$579** — but it is n=1 day and **nobody has priced holding
+  them.** BLOCKED on the OPRA backfill below. Population = the 5 ENTER_BEAR@BULL days
+  (07-14 alone n=48). **Must carry a matched suppress-k-at-random control.**
+- **R4 — premium-stop execution frame, PREREG MANDATORY.** `exit_manager.py:275` seeds the stop
+  off the ASK-side fill; `:527` tests it against the BID. Median spread is 1.45% of ask but
+  **15.7% of samples ≥6%** — one tick in six, the round-trip spread alone exceeds the −6% stop.
+  Do NOT change −0.06 itself (ratified cell, n=149, all 5 gates PASS); fix the frame.
+
+### DO-NOT list (each looked right; evidence killed it)
+Time-based re-entry cooldown (fails a 20k-draw permutation null — 5min WORSE than random,
+15min exactly random; standing rule: **carry a suppress-k-at-random control or you re-derive
+the day's base rate and call it edge**) · `FLEET_SAME_BAR_COOLDOWN` (its 6 waves netted +$89;
+2nd tape meeting its own kill criterion) · editing `j_vwap_cont_premium_stop_pct` (fleet arms
+never read params.json for exit shape) · wiring `ribbon_flip_back_min_spread_cents` (dead, and
+would have changed zero trades — all flip spreads were 33-57c, ≥30).
+
+### NEW open items (ranked; #1 is the literal "broken code" J suspected)
+1. 🚨 **safe-2 09:58 P773 buy has NO decision row.** Core ledger 9 PLACED vs 10 core broker
+   buys; bold-2 reconciles 5/5. Rows 09:56-09:59 all `verdict: HOLD, side: null`. Unexplained
+   second execution path (L244 class). Probe: trace its `client_order_id` across all ledgers.
+2. **Nobody read the ribbon PRODUCER** (`backtest/lib/ribbon.py`). If it mis-classifies an
+   efficient fade, both R3 shapes mask an upstream defect. Reconstruct MA inputs on the 5
+   ENTER_BEAR@BULL days.
+3. **OPRA backfill blocks R3.** Zero `SPY260812*` in `backtest/data/options/`;
+   `/v1beta1/options/bars` → 403 "OPRA agreement is not signed". Use `/v1beta1/options/trades`
+   aggregated to bars.
+4. **Fleet arms trade signals the CORE vetoed** — risky-1's 13:24/13:32 came off core ticks
+   whose verdict was `SKIP_STRUCTURE_VETO`.
+5. **Rule 7 PDT is inert on every fleet arm** — `pdt_enforced: false`, `day_trades_true: 12`.
+   Reads armed in the ledger; is not.
+6. **BTC/USD round trip on the core Safe OPTIONS account** 20:45:04. Crypto is gym-only.
+7. 💸 **Latent live spread $196-292/day at this entry rate.** Paper slip measured −$1.98 with a
+   90% CI of −$531..+$499 (268x the point estimate) — **"we pay no spread" is a property of
+   Alpaca's paper simulator, not a measurement.** Put on the live-arming checklist: this is the
+   figure that makes the book unviable at `GAMMA_CORE_ARMED=1` at 38 entries/day.
