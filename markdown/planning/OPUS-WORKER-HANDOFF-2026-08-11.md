@@ -202,3 +202,48 @@ placement-CONFIG reconstruction from the decisions ledger. Worker order: extend
 81 rows, then core-account pre-06-26 fills become replayable too. 08-07 book-exposure anatomy
 (FRIDAY-REPLAY fold) hardens P4: no kill breach — the loss was 3 same-thesis waves x 5 arms
 x same second, incl. re-buying a just-stopped strike.
+
+---
+
+## 5. Night-of results (2026-08-11 late / 08-12 early) — read before picking up P0-P7
+
+Full evidence: [UNLOCK-AND-BREAKEVEN-2026-08-11.md](../../analysis/deep-research/2026-08-11-audit/UNLOCK-AND-BREAKEVEN-2026-08-11.md)
+
+**P0 coverage item CLOSED — and the diagnosis in §1 was wrong.** The limiter was never OPRA and
+never "config reconstruction" generically: `placement_configs()` globbed only the fleet directory,
+so **safe-2 and bold-2 (the core accounts) were invisible to every replay study**. Recovered from
+`core-decisions.jsonl` with per-field provenance stamps. Population **193 -> 240 of 274**, days
+22 -> 27, accounts 4/6 -> **6/6**. OPRA bar gap is now **zero** (same-day fetch works). 7 guards,
+RED-proofed. Live-path blast radius zero.
+
+**Four questions answered, all NO-SHIP — the engine is unchanged and that is the correct outcome:**
+
+| question | verdict |
+|---|---|
+| Un-scope the ladder to all strategies (J's challenge) | 🔴 VWAP cohort −$411, all 4 gates fail. Ladder stays ribbon-only. |
+| Ladder helps bulls / hurts bears? | ⚪ Bootstrap: both CIs straddle zero (p=0.12 / p=0.70). Noise. |
+| Nth-trade-of-day is negative EV? | ⚪ No effect (1st −$8 vs later −$5, WR flat ~20%). |
+| Relax the paper PDT simulation (68 blocked trades)? | 🔴 Net −$62, 13/18 losers. PDT was protective. Closed. |
+| Is the recency qty-clamp mis-firing? | 🔴 Hypothesis REJECTED — clamp is worth **+$876**. Stays. |
+
+**THE NUMBER THAT MATTERS — August crossed breakeven, with no cushion:**
+avg win $312 / avg loss $127 = 2.45x → **breakeven WR 29.0%, actual 29.7%.** Era WR went
+10.9% (Jun) → 27.8% (Jul) → **29.7% (Aug)**, net −$1,289 → −$617 → **+$286**. Drop-best August
+is still −$3,338. Not "profitable" — *first non-negative era, 0.7pp of margin*.
+
+**Re-prioritised work map.** Every exit-shape knob is now measured as a wash or worse
+(ladder scope, ladder tuning, PDT, trade sequencing, clamp removal — all dead). Two levers remain:
+1. **Cut average loss** (−$127 book, −$147 safe-3). Each $10 off moves breakeven WR ~0.6pp.
+2. **Regime selection** (P1/ER30, forward 0/25) — unchanged as #1.
+
+**NEW top-of-queue question, evidence-backed:** the clamp's **per-arm release hysteresis**.
+In August `risky-3` was **never clamped once** (FULL on every entry) and `safe-3` flipped to FULL
+on exactly 08-07 — the two arms that took the biggest hits that day, while `risky-1` stayed
+clamped and was protected +$921. Prereg: should release require more than one good day, and why
+is risky-3 permanently GREEN? This is a *release-condition* question, not a clamp question.
+
+**Methodology note for the next worker — two of my own errors were caught mid-analysis, both by
+process rather than luck:** a linear-scaling counterfactual gave the clamp result the WRONG SIGN
+(caught by the prereg's mandated non-linear replay), and a `(arm, symbol, date)` join key
+double-counted split fills (caught by refusing to report an unexplained sign flip and tracing one
+position to leg level). **Do not report a reversal you cannot explain mechanically.**
