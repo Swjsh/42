@@ -231,6 +231,49 @@ def autopsy_staleness_note(autopsy_date: "str | None", now_et) -> "str | None":
     return None
 
 
+def winner_autopsy_staleness_note(generated_at: "str | None", now_et) -> "str | None":
+    """Sibling of autopsy_staleness_note for the WINNER autopsy (Gamma_WinnerAutopsy 16:25 ET).
+
+    WHY IT EXISTS (2026-08-11 handoff P0). The LOSS autopsy has had a staleness note since it
+    shipped; the winner side never got one. That asymmetry is not cosmetic: the WS9 pain
+    ledger and three shadow counters (catastrophe-cap, entry, stop-mode) all ride the winner
+    autopsy's fire as folds. So a dark Gamma_WinnerAutopsy silently freezes FIVE surfaces at
+    once while the brief keeps printing yesterday's capture rate as if it were current --
+    which is the most plausible reason the pain ledger sat at 2026-08-01 for nine days
+    without anyone noticing (C7: silent success is failure).
+
+    Reads `generated_at` (an ISO datetime), NOT `date` -- winner-autopsy-last.json has no
+    `date` key and never has. A probe doing .get("date") returns None on a perfectly healthy
+    payload; that false signal is exactly what put this item on the work map.
+
+    Fire 16:25 ET, checked with a 16:40 grace (the loss autopsy uses 16:15/16:30). Returns
+    None when fresh or never-run (the "no winner autopsy yet" line covers never-run).
+    Guard: backtest/tests/test_firm_brief_winner_staleness.py"""
+    import datetime as _dt
+    if not generated_at:
+        return None
+    d = now_et.date()
+    if d.weekday() >= 5:
+        expected = d - _dt.timedelta(days=d.weekday() - 4)
+    elif now_et.time() >= _dt.time(16, 40):
+        expected = d
+    else:
+        expected = d - _dt.timedelta(days=1)
+        while expected.weekday() >= 5:
+            expected -= _dt.timedelta(days=1)
+    try:
+        have = _dt.date.fromisoformat(str(generated_at)[:10])
+    except ValueError:
+        return (f"- ⚠ STALE: unparseable winner-autopsy generated_at {generated_at!r} -- "
+                f"check Gamma_WinnerAutopsy.")
+    if have < expected:
+        return (f"- ⚠ STALE: last winner autopsy ran {have} but {expected} should exist by "
+                f"now -- Gamma_WinnerAutopsy (16:25 ET) may not be firing. This ALSO freezes "
+                f"the pain ledger + catastrophe-cap/entry/stop-mode shadows, which ride the "
+                f"same fire. Check Get-ScheduledTaskInfo Gamma_WinnerAutopsy.")
+    return None
+
+
 def render_health(self_check: dict) -> "tuple[str, str]":
     """(one-word verdict, one-line detail). Missing/unreadable cache -> YELLOW (never GREEN
     on unknown state)."""
@@ -852,6 +895,11 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     # offered did we actually keep". Fail-open, same shape as the section above.
     winner = load_json(STATE / "winner-autopsy-last.json")
     lines.append("## Winner autopsy (capture rate)")
+    # Staleness FIRST -- a frozen capture rate reads as current unless the brief says
+    # otherwise, and this fire also carries the pain ledger + 3 shadow counters (2026-08-11).
+    winner_stale = winner_autopsy_staleness_note(winner.get("generated_at"), now_et)
+    if winner_stale:
+        lines.append(winner_stale)
     lines.extend(render_winner_autopsy_lines(winner))
     lines.append("")
 
