@@ -10,6 +10,16 @@ FLEET-PARITY-TESTS-READ-LIVE-STATE (commit dea5b2e2). These tests pin the CORREC
 empirically-verified composition so it cannot silently drift back to the wrong story, and
 RED-proof the specific claims risky1_lane_composition_check.py's docstring makes.
 
+AMENDED 2026-08-12 -- THESE PINS WERE PINNING AN ACCIDENT. The "normal lane is ungated"
+composition locked in here was never designed; it was the side effect of e28d210c swapping
+risky-1's gate_override dict instead of merging into it. On 2026-08-12 risky-1 took 16 of the
+book's 38 positions while its gate twin safe-3 -- running the exact keys e28d210c deleted --
+blocked 49 of the 83 identical signal-ticks. The gate was restored that night and every
+affected pin was RE-DERIVED (not deleted), per the instruction the original gate_override pin
+wrote into its own docstring. Each amended test carries its reason inline. Discriminating
+power is preserved: every vary-and-assert still runs, expectation inverted rather than
+removed. Evidence: analysis/deep-research/2026-08-12-churn/.
+
 Run: backtest/.venv/Scripts/python.exe -m pytest automation/state/fleet/test_risky1_lane_composition_check.py -q
 """
 from __future__ import annotations
@@ -42,33 +52,49 @@ def _arm(arm_id: str) -> dict:
 # --------------------------------------------------------------------------------------
 # 1. THE CORRECTED FACT: risky-1's gate_override carries no trigger-count/confluence gate.
 # --------------------------------------------------------------------------------------
-def test_risky1_gate_override_is_full_send_only_not_tight():
-    """DRIFT GUARD + CORRECTION-OF-RECORD pin: the 2026-08-02 audit's premise
-    ("min_triggers=2 + confluence/sequence required") requires these keys to be present.
-    They are not -- e28d210c replaced the whole dict. If this ever fails because the keys
-    reappeared, the composition conclusion in this module's docstring must be re-derived,
-    not assumed."""
+def test_risky1_gate_override_is_full_send_PLUS_the_restored_gate():
+    """AMENDED 2026-08-12 -- the re-derivation this pin's own docstring demanded.
+
+    The original asserted gate_override == {"full_send": True} and said: "If this ever fails
+    because the keys reappeared, the composition conclusion must be RE-DERIVED, not assumed."
+    They reappeared DELIBERATELY. Here is the re-derivation.
+
+    WHAT CHANGED: e28d210c (2026-07-31) intended to ADD the full-send producer lane; it
+    SWAPPED the whole dict and silently deleted risky-1's entry gate. accounts.json's own
+    map_doc recorded that accident on 2026-08-02 -- and these tests then pinned the ACCIDENT
+    as though it were the design. On 2026-08-12 risky-1 took 16 of the book's 38 positions
+    while its gate twin safe-3, running these exact keys, blocked 49 of the 83 identical
+    signal-ticks. Gate restored that night (churn teardown, 15-agent workflow).
+
+    WHY 'UNGATED NORMAL LANE' NO LONGER HOLDS: it was never a design property, only the
+    observable consequence of a dict swap. The key families are ORTHOGONAL in source
+    (_gate_check reads min_triggers / require_confluence_or_sequence / min_setup_quality and
+    never sees full_send; _is_full_send reads only full_send), so both coexist."""
     g = _arm("risky-1").get("gate_override") or {}
-    assert g == {"full_send": True}, (
-        f"risky-1.gate_override changed to {g!r} -- re-derive the lane composition proof, "
-        "the 'normal lane is ungated' finding no longer holds as stated")
-    assert "min_triggers" not in g
-    assert "require_confluence_or_sequence" not in g
+    assert g.get("full_send") is True, f"full_send lost from risky-1.gate_override: {g!r}"
+    assert g.get("min_triggers") == 2, (
+        f"risky-1 lost its restored min_triggers gate: {g!r} -- if deliberate, re-derive the "
+        "lane composition proof again and amend this pin with the reason")
+    assert g.get("require_confluence_or_sequence") is True, (
+        f"risky-1 lost require_confluence_or_sequence: {g!r}")
 
 
-def test_risky1_gate_check_passes_with_zero_selectivity_demands():
-    """RED-proof: fx._gate_check(risky-1, ...) must return None (pass) for a block with
-    only ONE trigger and no confluence -- if a future edit reinstates min_triggers/
-    require_confluence_or_sequence, this fails, proving the test actually discriminates."""
+def test_risky1_gate_check_now_BLOCKS_a_single_trigger_no_confluence_tick():
+    """AMENDED 2026-08-12 (gate restored). Same discriminating structure, expectation
+    inverted: risky-1 must now REFUSE the thin tick it used to take. The vary-and-assert
+    runs in BOTH directions, so this still proves _gate_check is live rather than inert --
+    it is the behavioural assertion that would have caught e28d210c."""
     arm = _arm("risky-1")
     blk = {"triggers_fired": ["level_rejection"], "confluence": False}
-    assert fx._gate_check(arm, blk, {}) is None
-    # vary-and-assert: an arm that DOES carry those keys must still be gated (proves the
-    # None result above is because risky-1's config lacks the gate, not because
-    # _gate_check itself is broken/inert).
-    tight_arm = dict(arm)
-    tight_arm["gate_override"] = {"min_triggers": 2, "require_confluence_or_sequence": True}
-    assert fx._gate_check(tight_arm, blk, {}) is not None
+    assert fx._gate_check(arm, blk, {}) is not None, (
+        "risky-1 took a 1-trigger no-confluence tick -- its restored gate is not binding")
+    # other direction: strip the gate keys and the SAME block must pass, proving the refusal
+    # comes from the config and not from a broken/always-deny gate.
+    ungated = dict(arm)
+    ungated["gate_override"] = {"full_send": True}
+    assert fx._gate_check(ungated, blk, {}) is None, (
+        "_gate_check refuses even without selectivity keys -- it is not discriminating")
+    assert fx._is_full_send(arm) is True  # orthogonal families both live
 
 
 def test_grid_map_metadata_matches_the_arms_own_cell_field():
@@ -86,12 +112,17 @@ def test_grid_map_metadata_matches_the_arms_own_cell_field():
 # --------------------------------------------------------------------------------------
 # 2. Normal lane fires ungated (proves point 1 behaviorally, not just via config read).
 # --------------------------------------------------------------------------------------
-def test_normal_lane_enters_on_a_single_base_trigger_no_elite_needed():
+def test_normal_lane_NO_LONGER_enters_on_a_single_base_trigger():
+    """AMENDED 2026-08-12 (gate restored) -- behavioural counterpart of the config pin, and
+    the entire point of the restoration. 1_NORMAL_PASS is a plain single-trigger BASE tick:
+    exactly the cohort that produced risky-1's 16-of-38 entry share on 2026-08-12. With
+    min_triggers=2 + confluence/sequence required it must be refused on the normal lane."""
     sig = lcc._signal(lcc.SCENARIOS["1_NORMAL_PASS"])
     enters, _ = lcc.enter_plans(ACCOUNTS, "risky-1", sig, lcc.RISKY1_LIVE_EQUITY, BOLD_PARAMS)
-    assert enters, "risky-1 must enter on a plain single-trigger BASE-quality pass"
-    assert lcc._lane(enters[0].reason) == "normal"
-    assert enters[0].quality == "BASE"
+    normal = [e for e in enters if lcc._lane(e.reason) == "normal"]
+    assert not normal, (
+        "risky-1's normal lane still enters on a single-trigger BASE tick: "
+        f"{[e.reason for e in normal]!r} -- restored gate is not binding on the plan path")
 
 
 # --------------------------------------------------------------------------------------
@@ -150,10 +181,16 @@ def test_full_send_entries_always_carry_the_full_send_reason_prefix():
             f"{name}: reason={enters[0].reason!r} does not carry the FULL_SEND tag -- "
             "full_send_vs_gated.py's _lane() would misclassify this fill as 'normal'")
 
+    # AMENDED 2026-08-12: with the gate restored, 1_NORMAL_PASS (single-trigger BASE) no
+    # longer yields a NORMAL entry. Whatever it yields must be nothing, or a correctly-tagged
+    # FULL_SEND rescue -- never an untagged fill, which is the misclassification
+    # full_send_vs_gated.py._lane() exists to prevent.
     sig = lcc._signal(lcc.SCENARIOS["1_NORMAL_PASS"])
     enters, _ = lcc.enter_plans(ACCOUNTS, "risky-1", sig, lcc.RISKY1_LIVE_EQUITY, BOLD_PARAMS)
-    assert enters and not enters[0].reason.startswith("FULL_SEND"), (
-        "a normally-passing tick must NOT carry the FULL_SEND tag")
+    for e in enters:
+        assert e.reason.startswith("FULL_SEND"), (
+            f"post-gate-restore a single-trigger BASE tick produced untagged entry {e.reason!r} "
+            "-- it would be misattributed to the normal lane")
 
 
 # --------------------------------------------------------------------------------------
@@ -195,7 +232,9 @@ def test_risky3_hard_skip_override_is_currently_not_consulted_by_plan_all():
 # --------------------------------------------------------------------------------------
 def test_run_produces_the_expected_shape():
     r = lcc.run()
-    assert r["risky1_gate_override"] == {"full_send": True}
+    # AMENDED 2026-08-12: gate restored alongside full_send (orthogonal key families).
+    assert r["risky1_gate_override"] == {
+        "full_send": True, "min_triggers": 2, "require_confluence_or_sequence": True}
     assert set(r["scenarios"]) == {
         f"{name}@{eq}" for name in lcc.SCENARIOS
         for eq in ("live_lt_2k", "above_2k")
