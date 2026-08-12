@@ -1,0 +1,18 @@
+{
+  "rule_id": "LADDER-VWAP-2026-08-11",
+  "frozen_at_et": "2026-08-11T20:55:00-04:00",
+  "status": "FROZEN_BEFORE_RUNNER",
+  "origin": "J challenge 2026-08-11 evening: 'why is the ladder scoped to just one trading strategy? all trades need dynamic exits' — measure before blanket-enabling (C29/L149: exit knobs ratified on one cohort do not transfer).",
+  "hypothesis": "The pre-TP1 ladder shipped on ribbon_ride (rungs [[0.50,0.30],[0.75,0.60]], trail arm 0.75, trail 0.20 — EXACT shipped values, zero re-tuning) also improves VWAP_CONTINUATION cohort P&L.",
+  "population": "All real-fills fleet positions whose placement config strategy == VWAP_CONTINUATION, every replayable day through 2026-08-11 inclusive. Exact n disclosed in results (expected ~25; advisory bar n>=20).",
+  "harness": "multileg_exit_walk at calibration v5 ONLY (fill_mode=extreme, $0.01 slippage, full SPY union feed; anchored bias -$7.4/pos, 95% sign). A/B = per-position ACTUAL placement shape vs ACTUAL shape + ladder fields. Replay-vs-replay comparison exclusively — never replay-vs-broker.",
+  "gates": {
+    "G1_net_positive": "sum(delta) > 0 over the cohort",
+    "G2_day_balance": "count(days delta > +$1) > count(days delta < -$1)",
+    "G3_drop_best": "sum(delta) - max(day delta) >= 0",
+    "G4_worst_day": "min(day delta) >= -300"
+  },
+  "kill_criteria": "Any gate fails -> NO-SHIP, ladder stays OFF all VWAP paths; result logged either way. If shipped: nightly winner-autopsy ladder-vs-actual fold monitors the vwap slice; revoke on 3 consecutive hurt days.",
+  "explicitly_forbidden": "Re-tuning rung values on this cohort; excluding days after seeing results; swapping fill_mode or slippage after seeing results.",
+  "reference_cell": "Ribbon cohort same-harness result (measured 2026-08-11, pre-freeze, separate question): net -$68 over 22 days, helped 8 / hurt 6 / neutral 8 — a wash whose sign splits by regime (+chop/-trend)."
+}
