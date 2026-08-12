@@ -1,0 +1,29 @@
+{
+  "prereg_id": "RIBBON-CONFIRM-2026-08-11",
+  "frozen_at_et": "2026-08-11 night, BEFORE the code change",
+  "money": "PAPER. One fleet arm. Default OFF everywhere else.",
+  "handoff_ref": "markdown/planning/OPUS-WORKER-HANDOFF-2026-08-11.md P2",
+
+  "defect": "exit_manager.plan_exit_actions fires a full pre-TP1 SELL_ALL on a SINGLE flipped ribbon tick. exit_manager.py's own comment (line ~554, corrected 2026-08-08) states the spread/buffer rule was 'aspirational, never implemented' -- both real callers pass a bare single-tick categorical stack equality. On a 60-second heartbeat any one-minute wobble liquidates the whole position.",
+
+  "live_exhibit_2026_08_11": "Three profitable puts killed in 11 minutes, holds of 57-60 seconds: risky-3 09:47 771P +20%, risky-3 09:52 771P +13%, risky-1 09:56 773P +7%. The 09:46 771P dumped at 0.54 printed 1.29 at 14:41 (our OWN bold-2 fill) -- holding 10 lots was +$840 vs the +$90 taken; 10.7% capture of a move identified at the correct minute.",
+
+  "why_forward_only_and_NOT_a_backtest": "ribbon_flip has fired exactly FIVE times in the entire live ledger (3 on 08-11, 1 on 08-10, 1 on 07-07). There is no population to A/B. The 2026-08-08 flip-back buffer study already found the axis dead-frequency (13 flip reads across the full population) and was correctly declared UNDERPOWERED. A backtest here would be theatre. This ships as a mechanism repair with a forward kill clock, or not at all.",
+
+  "change": {
+    "field": "pre_tp1_ribbon_confirm_ticks (ExitShape -> ExitState)",
+    "semantics": "PRE-TP1 ribbon_flip_back must be TRUE on N CONSECUTIVE planning ticks before it sells. A False tick resets the streak to 0. None or 1 = today's exact behaviour (inertness contract).",
+    "scope": "PRE-TP1 ONLY. The post-TP1 runner ribbon exit is UNTOUCHED -- that leg already banked TP1 and its give-back profile is different.",
+    "arming": "risky-1 only, via params_patch.exit_patch. Every other arm keeps None."
+  },
+
+  "forward_kill_criteria": [
+    "K1: any single day where the delayed exit costs > $150 versus the single-tick counterfactual (computable from the ledger: the tick-1 quote vs the tick-N fill) -> REVERT immediately, do not wait for n.",
+    "K2: 10 forward ribbon_flip fires on the armed arm with cumulative net cost > $0 -> REVERT.",
+    "K3: the armed arm's exit mix shifts such that catastrophe-cap exits rise (delaying the ribbon exit must not simply route the same loss through the -50% cap) -> REVERT and report the routing change as the finding."
+  ],
+  "success_readout_NOT_a_ship_licence": "N>=10 forward fires with net benefit > $0 AND no K3 routing shift buys ONE thing: permission to pre-register a multi-arm trial. It never auto-promotes.",
+
+  "revert_one_line": "In automation/state/fleet/accounts.json, arm risky-1, delete pre_tp1_ribbon_confirm_ticks from params_patch.exit_patch. Byte-identical restore; takes effect on the next entry (shapes snapshot at register_entry).",
+  "disclosures": ["Confirmation DELAYS an exit that is sometimes right. The cost is real and K1 prices it.", "n=5 lifetime means even the forward clock will be slow; that is the honest state of this knob, not a reason to skip the clock."]
+}
