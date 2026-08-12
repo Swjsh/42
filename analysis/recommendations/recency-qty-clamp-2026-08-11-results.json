@@ -1,0 +1,29 @@
+{
+  "rule_id": "RECENCY-QTY-CLAMP-2026-08-11",
+  "ran_at_et": "2026-08-11T22:45:00-04:00",
+  "verdict": "FAIL G1/G2/G3 -> the recency qty-clamp STAYS. It is protective, worth about +$876 in August.",
+  "headline": "Unclamping (trading the WANTED qty instead of the clamped qty) costs -$876 across 40 clamped August positions / 7 days. Helped 3 days, hurt 4, drop-best -$1,167. No kill-switch breach either way (G4 passes).",
+  "per_day_advantage_of_unclamping": {
+    "2026-08-03": 194, "2026-08-04": 291, "2026-08-05": -64, "2026-08-06": 170,
+    "2026-08-07": -921, "2026-08-10": -521, "2026-08-11": -25
+  },
+  "gates": {"G1_unclamp_net_positive": false, "G2_day_balance": false,
+            "G3_drop_best": false, "G4_kill_switch_safe": true},
+  "mechanism_as_measured": "The clamp gives up modest upside on good days (+$291 forgone on 08-04, +$194 on 08-03) and buys large protection on bad days (-$921 saved on 08-07, -$521 on 08-10). Net protective. That is the correct shape for a variance control and it is earning its keep.",
+  "TWO_ERRORS_CAUGHT_IN_MY_OWN_ANALYSIS_BEFORE_REPORTING": [
+    {
+      "error": "LINEAR-SCALING ESTIMATE said unclamping EARNS +$1,254 (saved $3,839 on losers, cost $4,998 on winners).",
+      "why_wrong": "It computed counterfactual P&L as pnl_per_contract * wanted_qty. The prereg flagged this assumption as untrusted BEFORE running and required a real replay. Reported sign was wrong.",
+      "detection": "Prereg method clause mandating a non-linear replay."
+    },
+    {
+      "error": "FIRST REPLAY said unclamping loses -$2,135.",
+      "why_wrong": "The wanted-qty lookup was keyed on (arm, symbol, date), but that key maps to MULTIPLE fills -- safe-3 split 2+1 lots on the same contract at 11:52 on 08-04, and several arms re-entered the same strike the same day. Every fill sharing a key got the full wanted qty, double-counting unclamped size.",
+      "detection": "Traced one position at qty 3 vs 8: per-contract P&L identical (+$81.8), proving the walker scales LINEARLY -- which contradicted the aggregate. The contradiction exposed the join bug.",
+      "fix": "Per-fill join: decision rows matched to fills by nearest timestamp within 300s, each decision row consumed at most once."
+    }
+  ],
+  "corrected_method": "40 clamped fleet positions, Aug 03-11. Each fill replayed TWICE through the real exit_manager via multileg_exit_walk at calibration v5 (extreme fills, $0.01 slippage, SPY union feed) -- at traded qty and at wanted qty -- entry time / premium / exit shape held fixed. 29 positions unmatched (core accounts safe-2/bold-2 have no fleet decision row; the clamp question is fleet-scoped).",
+  "REFINED_FINDING_FOR_NEXT_SESSION": "The clamp is not the defect. Its per-arm RELEASE behaviour is the open question: risky-3 was NEVER clamped in August (FULL on every entry), and safe-3 flipped to FULL on exactly 2026-08-07 -- the two arms that took the biggest hits that day. risky-1, which stayed clamped through 08-07, was protected to the tune of $921. Question to prereg next: why is risky-3's recency state permanently GREEN, and should the clamp's release require more than a single good day?",
+  "rule6_check": "At the WANTED qty, 0 of 41 clamped positions would breach the per-trade risk cap (safe 30% / bold-risky 50%). The clamp is a DISCRETIONARY reduction layered on top of Rule 6, not risk-rule enforcement."
+}

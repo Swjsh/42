@@ -114,3 +114,59 @@ above breakeven. Two levers move a razor-thin margin, in priority order:
    the losses cluster and where every fixed exit shape fails.
 
 Explicitly NOT levers, now measured: exit-ladder tuning, ladder scope, PDT, trade sequencing.
+
+---
+
+## 5. Chasing lever #1 (cut average loss): the recency qty-clamp — CLAMP STAYS
+
+safe-3 is the only negative August arm and **its entire loss is 2026-08-07**, where it traded
+**8 lots** vs 3 lots on every comparable day. The ledger names the cause verbatim:
+
+| day | safe-3 `reason` | qty | result |
+|---|---|---:|---|
+| 08-04 | `ribbon_ride C (ELITE); qty clamped 8->3: recency RED` | 3 | +$782 across the day |
+| **08-07** | `ribbon_ride C (ELITE)` — **no clamp** | **8** | **−$1,048** |
+
+08-07 is also the only August day where unclamped entries outnumbered clamped (6 vs 3), and it
+is the month's worst day. A backward-looking recency gate mechanically sizes DOWN after losses
+and UP after wins (C22) — so the hypothesis was: **the clamp released at the worst moment and
+that is the loss.**
+
+### Result: hypothesis REJECTED. The clamp is protective, worth ≈ **+$876** in August.
+
+Unclamping (trading the wanted qty) across 40 clamped positions / 7 days: **−$876**, helped 3
+days / hurt 4, drop-best −$1,167. No kill-switch breach either way. **All ship gates fail.**
+
+| | 08-03 | 08-04 | 08-05 | 08-06 | 08-07 | 08-10 | 08-11 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| advantage of unclamping | +194 | +291 | −64 | +170 | **−921** | **−521** | −25 |
+
+Correct shape for a variance control: gives up modest upside on good days, buys large protection
+on bad ones. **Rule-6 falsifier:** at wanted qty, **0 of 41** positions would breach the per-trade
+risk cap — so the clamp is a *discretionary* reduction layered on Rule 6, not risk-rule enforcement.
+
+### ⚠️ Two errors I caught in my own analysis before reporting — both would have shipped a wrong sign
+
+1. **Linear-scaling estimate said unclamping EARNS +$1,254.** It computed counterfactual P&L as
+   `pnl_per_contract × wanted_qty`. The prereg had flagged that assumption as untrusted *before*
+   the run and mandated a real replay. **Caught by the prereg.**
+2. **First replay then said unclamping LOSES −$2,135.** The wanted-qty lookup was keyed on
+   `(arm, symbol, date)` — but that key maps to **multiple fills** (safe-3 split 2+1 lots on one
+   contract at 11:52 on 08-04; several arms re-entered the same strike same day). Every fill
+   sharing a key received the full wanted qty. **Caught by refusing to report an unexplained sign
+   flip:** tracing one position at qty 3 vs 8 showed per-contract P&L *identical* (+$81.8), which
+   proved the walker scales linearly and contradicted the aggregate.
+
+Corrected join: decision rows matched to fills by nearest timestamp within 300 s, each consumed once.
+
+### 🔎 The real open question this exposed
+
+The clamp isn't broken — **its per-arm release behaviour is.** In August:
+
+- **risky-1** — clamped through 08-07 → **protected, +$921**
+- **risky-3** — `FULL` on *every single entry* all month, never clamped once
+- **safe-3** — `RED` on 08-03/08-04, flipped `FULL` on exactly **08-07**, back to `RED` on 08-10
+
+The two arms that were unclamped on 08-07 are the two that took the biggest hits. Next prereg:
+**why is risky-3's recency state permanently GREEN, and should release require more than one good
+day?** That is a release-hysteresis question, not a clamp question.
