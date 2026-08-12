@@ -165,3 +165,40 @@ Remaining orders for a Sonnet worker:
    evidence (08-04 is 100%+ of the config's net; drop-best before believing anything).
 4. Commit via `setup/scripts/commit_scoped.py`; never bare `git commit`; never push 09:30–15:55 ET.
 5. Workers report deltas + evidence, TLDR-style; UNVERIFIED stays labeled.
+
+---
+
+## P7 — Exit-Supervisor shadow (J directive 2026-08-11 evening: "use Opus at entry to evaluate everything")
+
+Evidence forcing this lane: THREE independent same-harness measurements now agree the exit lever
+is DAY TYPE, not shape values — ribbon ladder net +$224/23d (wash, +chop/-trend split),
+VWAP ladder **NO-SHIP all gates** (-$411, 100% on the 08-04 trend day; never arms on chop),
+ER30 origin split. Any FIXED shape loses somewhere. J's instinct ("each trade needs to be
+dynamic; the Python engine may not see the big picture") matches the data.
+
+**Architecture — judgment PLANS, determinism EXECUTES** (respects the retired-LLM-heartbeat scar,
+market-hours Max-pool starvation, no-LLM-in-order-path):
+- Slow path (at entry, seconds-tolerant): model reads the full picture (regime, key-level zones +
+  multi-day level history, 4h/15m structure, VIX character, volume) → writes a STRUCTURED exit
+  plan (hold-to level, stop basis, invalidation conditions). Hot path (60s): exit_manager executes
+  mechanically; fail-open to current shape on any model failure. Model never touches orders.
+- **Step 1 ($0, offline)**: replay real entries' FROZEN at-entry context bundles through the
+  judgment layer; score its plans vs engine actual exits on broker truth. Contamination guard:
+  inputs strictly the at-entry snapshot. Grading machinery already exists (shadow_model_eval /
+  free-model trust gate: >=85% over >=15 evidence).
+- Step 2 (live shadow, needs API key = J action; est **$2-5/day** at 5-10 entries, Opus-low):
+  plans logged at real entries, zero authority.
+- Step 3 (only on Step-2 pass): advisor — plan feeds exit_manager params within guardrails.
+- **Flywheel**: every place judgment beats the engine, distill WHY into a deterministic rule →
+  prereg → ship. Opus is a rule-miner, not a tick-decider.
+- Cheapest 80% first: the sensors already exist LOGGED-ONLY (context_bundle daily/1h/15m,
+  market_structure BOS/CHoCH, key-level zones, chop meter) — P5 wires them before paying a model
+  to look at a picture the engine already computes but never reads.
+
+**P0 addendum (same night):** replay coverage limiter is NOT market data — same-day OPRA fetch
+works (today's 4 contracts backfilled at 21:00 ET), bars gap now ZERO. 81/274 rows lack
+placement-CONFIG reconstruction from the decisions ledger. Worker order: extend
+`harness_fidelity_anchor.placement_configs()` fallback (journal/params history) to recover the
+81 rows, then core-account pre-06-26 fills become replayable too. 08-07 book-exposure anatomy
+(FRIDAY-REPLAY fold) hardens P4: no kill breach — the loss was 3 same-thesis waves x 5 arms
+x same second, incl. re-buying a just-stopped strike.
