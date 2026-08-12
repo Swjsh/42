@@ -170,3 +170,38 @@ The clamp isn't broken — **its per-arm release behaviour is.** In August:
 The two arms that were unclamped on 08-07 are the two that took the biggest hits. Next prereg:
 **why is risky-3's recency state permanently GREEN, and should release require more than one good
 day?** That is a release-hysteresis question, not a clamp question.
+
+### ✏️ CORRECTION to §5's closing question (traced to source after the fact)
+
+I posed "why is risky-3's recency state permanently GREEN?" **That question is malformed and two
+of its premises were wrong.** Reading `fleet_executor.py:302-352` instead of inferring from logs:
+
+**There are TWO different clamps writing near-identical log lines, and I conflated them.**
+
+| clamp | log line | trigger |
+|---|---|---|
+| `_apply_full_send_min_sizing` | `qty clamped N->M: FULL_SEND min size` | fires on **every entry** of a full-send arm, unconditionally |
+| `_apply_recency_min_sizing` | `qty clamped N->M: recency RED` | fires when the **global** ribbon_ride recency verdict is RED |
+
+1. **`risky-1` is the FULL-SEND arm** (`gate_override: {"full_send": true}`, cell `risky x FULL-SEND`).
+   Its clamps all month are FULL_SEND min-sizing **operating exactly as designed** — nothing to do
+   with recency. So "risky-1 stayed clamped and was protected +$921" is true in dollars but I
+   attributed it to the wrong mechanism.
+2. **The recency verdict is GLOBAL, not per-arm** — one shared file
+   (`automation/state/recency-confirmation.json`), read live each tick. It therefore *cannot* differ
+   between arms, so "risky-3 is permanently GREEN" is impossible as stated. risky-3 **did** clamp
+   (12->5) on 08-04 from 11:27 onward. `recency_min_size_enabled=True` in **both** params files
+   (safe `min_contracts` 3, bold 5) — every arm has it on.
+
+**The corrected mechanism, and it is a better question:** the global verdict was **not RED on the
+morning of 2026-08-07**, so safe-3 and risky-3 entered at full tier size into the month's worst
+day; it had been RED through 08-04 and returned to RED by 08-10. risky-1 escaped only because
+FULL_SEND clamps unconditionally.
+
+**Real open question:** the recency verdict *flips intraday and mid-week*. Should the clamp
+release require **hysteresis** (N consecutive non-RED sessions) rather than tracking a signal that
+went non-RED for one morning and cost the book its worst day? That is a
+release-hysteresis prereg, and it is now the top queue item.
+
+**Live-state note for the next session:** `_recency_verdict()` returns **RED right now**
+(`any_red: true`), so on the next session every arm sizes at `min_contracts` (safe 3 / bold 5).
