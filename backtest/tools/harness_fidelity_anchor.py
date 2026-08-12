@@ -60,9 +60,98 @@ from multileg_exit_walk import walk  # noqa: E402
 OUT = REPO / "analysis" / "deep-research" / "2026-08-11-audit" / "harness-fidelity.json"
 
 
-def placement_configs() -> dict:
-    """(arm, symbol, date) -> the exit config that position was ACTUALLY placed under."""
+# The CORE accounts (safe-2 / bold-2) do NOT write automation/state/fleet/<arm>/decisions.jsonl
+# -- they are the heartbeat_core path and log to automation/state/core-decisions.jsonl under a
+# DIFFERENT schema (no `placement` block; `exec` carries ABSOLUTE tp/stop prices and the strategy
+# sits at top-level `setup`). placement_configs() globbed only the fleet directory, so every core
+# position was invisible to every replay study -- 81 of 274 real fills silently excluded, and the
+# exclusion read as "no OPRA data" rather than "this arm has no reader". C7: the harness reported
+# a smaller population instead of reporting that it could not see two accounts.
+_CORE_LEDGER = REPO / "automation/state/core-decisions.jsonl"
+_CORE_ACCOUNT_TO_ARM = {"safe": "safe-2", "bold": "bold-2"}
+# tp1_qty_fraction is NOT recorded in the core exec block. It comes from params.json, whose value
+# last changed 2026-06-15 (git log -S) -- BEFORE this population's first fill (2026-06-26) -- so a
+# current read is historically correct for every row in scope. Re-verify before extending the
+# window earlier than 2026-06-15.
+_CORE_TP1_QTY_FRACTION = {"safe-2": 0.8, "bold-2": 0.667}
+_CORE_PARAMS_STABLE_SINCE = "2026-06-15"
+
+
+def _core_placement_configs() -> dict:
+    """(arm, symbol, date) -> exit config for the CORE accounts, rebuilt from core-decisions.jsonl.
+
+    Provenance is stamped per field-group on every row so a downstream study can refuse
+    lower-fidelity reconstructions:
+      core:explicit -- the exec block recorded the field itself (highest fidelity)
+      core:derived  -- computed from the recorded ABSOLUTE tp/stop against entry premium
+      core:params   -- params.json, verified unchanged across the population window
+    Only status == PLACED rows are indexed; RISK_DENY_*/SKIP_*/PLACE_FAIL never became positions.
+    """
     out: dict = {}
+    if not _CORE_LEDGER.exists():
+        return out
+    with open(_CORE_LEDGER, encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            if "SPY2" not in line:  # cheap prefilter -- the ledger is ~52MB of HOLD ticks
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            ex = r.get("exec") or {}
+            sym = ex.get("symbol")
+            if not sym or ex.get("status") != "PLACED":
+                continue
+            arm = _CORE_ACCOUNT_TO_ARM.get(r.get("account"))
+            if not arm:
+                continue
+            prem = ex.get("premium")
+            try:
+                prem = float(prem)
+            except (TypeError, ValueError):
+                prem = 0.0
+            prov: dict = {}
+
+            def _pct(explicit_key: str, abs_key: str, label: str):
+                """Prefer the explicitly-logged pct; else derive it from the absolute price."""
+                v = ex.get(explicit_key)
+                if v is not None:
+                    prov[label] = "core:explicit"
+                    return float(v)
+                a = ex.get(abs_key)
+                if a is None or prem <= 0:
+                    prov[label] = "core:absent"
+                    return None
+                prov[label] = "core:derived"
+                return float(a) / prem - 1.0
+
+            tp1 = _pct("tp1_premium_pct", "tp", "tp1_premium_pct")
+            stop = _pct("premium_stop_pct", "stop", "premium_stop_pct")
+            if ex.get("stop_mode") is not None:
+                prov["stop_mode"] = "core:explicit"
+            prov["tp1_qty_fraction"] = "core:params"
+            out[(arm, sym, str(r.get("ts_et", ""))[:10])] = {
+                "stop_mode": ex.get("stop_mode"),
+                "premium_stop_pct": stop,
+                "tp1_premium_pct": tp1,
+                "tp1_qty_fraction": _CORE_TP1_QTY_FRACTION.get(arm),
+                "profit_lock_mode": ex.get("profit_lock_mode"),
+                "trigger_level": ex.get("trigger_level"),
+                "strategy": ex.get("setup") or r.get("setup"),
+                "_provenance": prov,
+                "_source": "core-decisions",
+            }
+    return out
+
+
+def placement_configs() -> dict:
+    """(arm, symbol, date) -> the exit config that position was ACTUALLY placed under.
+
+    Fleet arms come from their own per-arm decisions.jsonl; the CORE accounts (safe-2/bold-2)
+    are recovered from core-decisions.jsonl. Fleet rows are written LAST so that if a key ever
+    appears in both, the higher-fidelity fleet placement block wins.
+    """
+    out: dict = _core_placement_configs()
     for p in glob.glob(str(REPO / "automation/state/fleet/*/decisions.jsonl")):
         arm = os.path.basename(os.path.dirname(p))
         for line in open(p, encoding="utf-8"):
@@ -83,6 +172,7 @@ def placement_configs() -> dict:
                 "profit_lock_mode": pl.get("profit_lock_mode"),
                 "trigger_level": pl.get("trigger_level"),
                 "strategy": pl.get("strategy"),
+                "_source": "fleet",
             }
     return out
 
