@@ -1,0 +1,27 @@
+{
+  "rule_id": "RECENCY-QTY-CLAMP-2026-08-11",
+  "frozen_at_et": "2026-08-11T22:20:00-04:00",
+  "status": "FROZEN_BEFORE_RUNNER",
+  "origin": "Chasing the ONE lever the August breakeven math points at (cut average loss). safe-3 is the only negative August arm (-$422) and its entire loss is 2026-08-07, where it traded 8 lots vs 3 lots on every comparable day. The ledger names the cause in plain text: 08-04 reason = 'qty clamped 8->3: recency RED', 08-07 reason = 'ribbon_ride C (ELITE)' with no clamp.",
+  "mechanism_under_test": "A backward-looking RECENCY state gates a qty clamp (wanted -> reduced). Because it is backward-looking it mechanically sizes DOWN after losses and UP after wins. On 2026-08-07 the clamp released across safe-3 and risky-3 simultaneously -- 08-07 is the only August day where unclamped entries outnumbered clamped (6 vs 3) and it is the worst day of the month (-$2,687). C22: backward-looking classifiers anti-correlate with recovery periods.",
+  "prior_measurement_flagged_as_UNRELIABLE": {
+    "linear_scaling_estimate": "-$1,254 net clamp effect in August (saved $3,839 on losers, cost $4,998 on winners), computed as pnl_per_contract * wanted_qty.",
+    "why_not_trusted": "Assumes P&L scales LINEARLY with qty. It does not: exit_manager's tp1_qty_fraction partial scale-out rounds differently at different qty, and the runner leg size changes. This prereg exists to replace that assumption with a real replay at both sizes.",
+    "falsifier_already_run": "Rule-6 per-trade risk cap checked at the WANTED qty: 0 of 41 clamped positions would breach. The clamp is therefore a DISCRETIONARY reduction layered on top of Rule 6, not a risk-rule enforcement."
+  },
+  "method": "For every August fleet position whose decision row records a 'qty clamped W->T' reason, replay the SAME fill twice through the real exit_manager via multileg_exit_walk at calibration v5 (extreme fills, $0.01 slippage, SPY union feed) -- once at traded qty T, once at wanted qty W -- holding entry time, entry premium, and the arm's actual exit shape FIXED. Replay-vs-replay only; the harness bias cancels.",
+  "gates_for_proposing_any_change": {
+    "G1_clamp_is_net_negative": "sum(replay@W) - sum(replay@T) > 0 (removing the clamp earns money) under the NON-LINEAR replay, not the linear estimate",
+    "G2_day_balance": "count(days where unclamping helps) > count(days where it hurts)",
+    "G3_drop_best": "the advantage survives removing the single best day",
+    "G4_tail_is_survivable": "on the worst day, the unclamped book loss must NOT push any arm past its kill-switch fraction (safe -30%, bold/risky -50% of start-of-day equity)"
+  },
+  "decision_rule": "ALL gates pass -> propose a per-arm flag to disable the recency clamp, default OFF, armed on ONE arm, with a forward kill criterion. ANY gate fails -> the clamp stays and the result is filed. G4 is a HARD gate: an EV gain bought with kill-switch risk is refused regardless of G1-G3, because a tripped kill switch forfeits the rest of the day.",
+  "explicitly_forbidden": [
+    "Shipping on the linear-scaling estimate.",
+    "Treating 2026-08-07 as proof on its own (n=1 day for the release event).",
+    "Re-tuning the recency threshold on this window -- that is fitting the gate to the days that motivated the question.",
+    "Any live-money change; paper only."
+  ],
+  "sample_note": "43 clamped positions across 7 August days. Below the n>=20 DAY bar; a pass licenses a forward paper trial, never a direct ship."
+}
