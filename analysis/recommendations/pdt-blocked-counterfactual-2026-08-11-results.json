@@ -1,0 +1,26 @@
+{
+  "rule_id": "PDT-BLOCKED-COUNTERFACTUAL-2026-08-11",
+  "ran_at_et": "2026-08-11T21:55:00-04:00",
+  "verdict": "FAIL all 4 gates -> PDT simulation stays exactly as-is on paper",
+  "cohort": {"denied_attempts": 68, "unique_intents": 18, "days": 9,
+             "window": "2026-07-08 .. 2026-08-07", "accounts": {"bold": 53, "safe": 15}},
+  "result": {
+    "net_pnl": -62,
+    "losing_intents": 13,
+    "winning_intents": 5,
+    "positive_days": 2,
+    "negative_days": 7,
+    "drop_best": -607,
+    "best_day": {"date": "2026-08-04", "pnl": 544}
+  },
+  "gates": {"G1_net_positive": false, "G2_day_balance": false, "G3_drop_best": false,
+            "G4_not_concentrated": false},
+  "interpretation": "The engine's self-imposed paper PDT constraint was mildly PROTECTIVE, not costly. The only positive day is 2026-08-04, the same trend day that dominates every other study. Relaxing PDT on paper would have bought 68 extra trades for -$62 and a worse day-balance.",
+  "method": "Logged qty + premium per blocked intent, real OPRA 5-min bars, real exit_manager via multileg_exit_walk at calibration v5 (extreme fills, $0.01 slippage, SPY union feed); exit shape = that account's params.json config.",
+  "limitations_carried_from_prereg": "Naive counterfactual (no sequential PDT-window re-simulation); n=18 below the n>=20 advisory bar. Both were stated BEFORE the run and neither is load-bearing for a FAIL.",
+  "scope_note": "This tested the PAPER-side simulation only. PDT is a real regulatory rule for live accounts under $25k and was never in question there.",
+  "companion_findings": {
+    "trade_ordinal": "No ordinal effect on broker P&L (n=274): 1st trade of day/arm mean -$8 WR 20%, all subsequent mean -$5 WR 19%. Trade sequencing is not a lever.",
+    "coverage_unlock": "Same night: placement_configs() was blind to safe-2/bold-2 (core accounts); recovery took the replayable population 193 -> 240 of 274."
+  }
+}
