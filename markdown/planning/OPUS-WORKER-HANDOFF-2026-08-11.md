@@ -255,3 +255,59 @@ process rather than luck:** a linear-scaling counterfactual gave the clamp resul
 (caught by the prereg's mandated non-linear replay), and a `(arm, symbol, date)` join key
 double-counted split fills (caught by refusing to report an unexplained sign flip and tracing one
 position to leg level). **Do not report a reversal you cannot explain mechanically.**
+
+---
+
+## 6. 2026-08-12 EOD — work orders from the −$900 day (Fable investigation, execution = Opus)
+
+Evidence: [eod-deep-2026-08-12.md](../../analysis/eod-deep/eod-deep-2026-08-12.md).
+Book −$900, all 5 arms red, on an ER30=0.79 EFFICIENT FADE (not chop — the regime filter
+would not have helped). Two defects, both already known, both now priced at book scale.
+
+### O1 — KILL THE CHURN (top priority; the day's loss ≈ the churn tax)
+40 entries, median hold **1.5 min**, 22/40 under 2 min, BOTH directions negative
+(calls −$582 / puts −$308). The correct 09:46 771P read still lost money to 60–180s ejects.
+- (a) Root-cause the exact exit stage per fill from the fleet sell rows (my HOLD-row grep
+  missed them — find the sell/exit row schema first). Hypotheses: single-tick
+  `ribbon_flip_back` (P2's exact target) and/or risky-3's premium stop_mode on cheap
+  contracts. Attribute all 40.
+- (b) ARM P2 (`pre_tp1_ribbon_confirm_ticks: 2`) on ONE arm under the frozen
+  RIBBON-CONFIRM-2026-08-11 prereg — it is built, 9 guards, RED-proofed, registry default
+  None. Pre-register forward kill criteria before arming (already drafted in prereg).
+- (c) Same-signal re-entry cooldown: risky-1 took 18 entries. Prereg first; the 07-x
+  cooldown studies exist — check them before running anything new (Obsidian rule).
+
+### O2 — VETO LAYER: fix the quorum bug + build the actuator + THEN decide kill/keep
+- (a) BUG (unconditional): `heartbeat_core._free_model_eval` — `veto = len(answered)>=1...`
+  lets a lone NO veto when the sibling lane crashes. Require >=2 answered lanes to veto
+  (restores the documented "1 dissent allowed" intent). qwen3 `no_valid_json` ran 43%
+  today; 6/14 morning vetoes were single-lane.
+- (b) ACTUATOR (the missing half): free_model_audit scorecards have been RED since 07-31
+  and nothing consumes them. 3 consecutive sub-bar runs -> auto-disable the touchpoint +
+  loud STATUS line. Same class as the dead C31 control test.
+- (c) DECISION (after a+b): sum the full-dollar counterfactual of blocked entries over the
+  audit window on real OPRA. Population audit says 31% veto accuracy; TODAY the vetoes
+  saved money (all 33 blocked longs on a fade day; placed siblings lost). Kill/keep on the
+  summed number, not on either anecdote. Fable's morning "kill it" was premature — hold it
+  to the same evidence bar as everything else.
+
+### O3 — BEAR-SIDE SCORING AUDIT (the directional miss)
+Zero core ENTER_BEAR on a −$2.33 fade; bull 10 / bear 5 on every scored tick; mechanical
+premarket bias "bullish"; `level_reclaim` fired repeatedly on a falling tape. NOT a VIX
+gate (bear thresholds vestigial, live cap 23 vs VIX 14.8). Trace the scoring stack: why
+does the bear side structurally lose on fade days? (C28 lagging-signal class; bull n=80
+WR 1.2% history says the bull reclaim trigger itself is suspect on weak tape.) Deliverable:
+per-tick score decomposition for 09:35–10:30 today, then a prereg'd trigger-side fix — NOT
+a hand-tuned threshold.
+
+### O4 — bookkeeping (cheap, do alongside)
+- ER30 forward clock: today = day 1 of 25, verdict TREND(0.79) with a LOSING day — logged
+  honestly: today is evidence the discriminator alone is NOT sufficient (loss driver was
+  exits, not regime).
+- August ledger: −$614 era-to-date after today; breakeven margin gone. Update
+  UNLOCK-AND-BREAKEVEN if any doc cites +$286 as current.
+- C31 control-test repair still open from 08-12 早 (stub `open_buy_orders_checked` in the
+  affected harnesses; assert specific plan.status values).
+- L244-sibling lesson filed: an arm-scoped ledger read (core only) was reported book-wide
+  at 10:17 ("no bearish verdicts") while risky-3 was already short 13 minutes earlier.
+  Any intraday "what is the engine doing" answer must sweep core + all fleet ledgers.
