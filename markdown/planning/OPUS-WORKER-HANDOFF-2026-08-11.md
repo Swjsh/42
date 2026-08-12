@@ -387,3 +387,37 @@ would have changed zero trades — all flip spreads were 33-57c, ≥30).
    90% CI of −$531..+$499 (268x the point estimate) — **"we pay no spread" is a property of
    Alpaca's paper simulator, not a measurement.** Put on the live-arming checklist: this is the
    figure that makes the book unviable at `GAMMA_CORE_ARMED=1` at 38 entries/day.
+
+---
+
+## 8. THE CAPABILITY AUDIT (2026-08-12 late) — the merged queue that supersedes prior rankings
+
+Full register: [CAPABILITY-AUDIT-2026-08-12.md](../../analysis/deep-research/2026-08-12-churn/CAPABILITY-AUDIT-2026-08-12.md)
+Method: enumerate the disciplined-human decision inventory (17 items), ask per item "does ANY
+component have the vocabulary to express this decision?" Result: **3 EXISTS / 4 PARTIAL /
+10 ABSENT** — execution hygiene near-perfect, trade judgment near-empty. Every ABSENT was
+grep/code-verified, not recalled.
+
+**Why months of audits missed these:** conformance audits can only inspect code that exists;
+and three mechanisms (PROBE, SCORE LADDER, FULL-SEND) were explicitly built to convert silence
+into trades during the learning phase — "decline the day" was legislated against, not
+overlooked. Going live = deliberately reversing that posture.
+
+**THE QUEUE (gaps + open bugs merged, ONE list — items 1-7 are the "focus on trading" set):**
+1. Sit-out / conviction floor — Fable design agent in flight, Opus builds from its memo
+2. Range-vs-trend day mode — 08-12's root cause (ribbon audit CLEARED the ribbon: it printed
+   BEAR 34.4% of the past month and correctly flagged real down days; 08-12 closed −$0.66,
+   a RANGE day, and the engine has no range mode)
+3. Bug #1 entry-side (refuse entries the exit predicate already rejects) — prereg'd, removes
+   18 of 38 entries with zero new exposure
+4. Same-thesis strike-out rule (wrong about UP 3x in a row → stand down the thesis) — the
+   −$579 bucket, C31's live sibling
+5. Daily profit lockout (one clean trade pays the day — then STOP) — tiny build
+6. Repeat-touch level scoring (3rd rejection at a shelf = rising conviction — J's own edge)
+7. Calendar port to the live path (CPI/FOMC currently invisible; 0 matches in heartbeat_core)
+8-12. Trade budget · cost-vs-edge gate · orphan-fill traces · stagnation-exit STUDY ·
+   intraday memory design (C22 trap applies)
+
+**Standing rule shipped to lesson inbox:** capability audit re-runs at every posture change.
+Agents in flight when this was written: options-data decision memo (Opus) + conviction/sit-out
+design (Fable). Their outputs slot into queue items 1-2 and the OPRA blocker respectively.
