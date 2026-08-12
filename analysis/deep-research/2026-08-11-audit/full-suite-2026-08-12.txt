@@ -1,0 +1,298 @@
+x....................................................................... [  0%]
+.....................................................F.................. [  1%]
+........................................................................ [  2%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................F............................... [  5%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+...........F............................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 11%]
+........................................................................ [ 11%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 16%]
+.....................................................................F.. [ 17%]
+....................................................F................... [ 18%]
+............F........................................................... [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+.........................FFF............................................ [ 28%]
+............................FF.......................................... [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+................................................................F....... [ 33%]
+.................................................FF..................... [ 34%]
+........................................................................ [ 35%]
+.................F...................F.................................. [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 42%]
+.......................................F..F............................. [ 43%]
+.F...................................................................... [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+.F......s............................................................... [ 47%]
+...................F.................................................... [ 48%]
+............................................s........................... [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 50%]
+...............................................F........................ [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+...........................................FFF.......................... [ 56%]
+.................................F....................F.............F.F. [ 56%]
+...FFF.......F............xxx........................................... [ 57%]
+.......................................................................F [ 58%]
+.F.......................................F.............................. [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 62%]
+........F............................................................... [ 62%]
+........................................................................ [ 63%]
+.............F.......................................................... [ 64%]
+.......................................FF............................... [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 67%]
+....................................................F................... [ 68%]
+.......................................................F................ [ 69%]
+..........................................................F..F.......... [ 70%]
+........................................................................ [ 71%]
+...............................F........................................ [ 72%]
+..........FF............................................................ [ 73%]
+........................................................................ [ 73%]
+........................................................................ [ 74%]
+...........................................xxsss........................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+......FF.F...FF......................................................... [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 83%]
+...........................F......
+[FINDING] automation/state/decisions.jsonl: 59/63 rows valid, 4 corrupt (legacy, pre-contract). First few: [(8, 'Field required'), (9, 'Field required'), (19, 'Field required')]
+.
+[FINDING] automation/state/aggressive/decisions.jsonl: 46/46 rows valid, 0 corrupt (legacy, pre-contract). First few: []
+..................................... [ 84%]
+......................................................F................. [ 84%]
+...........................ssss......................................... [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+..........................F......F...............F...................... [ 90%]
+.........F.............................................................. [ 91%]
+........................................................................ [ 92%]
+.................FFFF................................................... [ 93%]
+..............................................F......................... [ 94%]
+........................................................................ [ 95%]
+........................................FF.......F..F.FF..F............. [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+...........F..................x......................................... [ 98%]
+.......F.F..........................................................F... [ 99%]
+........................................FFF.........                     [100%]
+============================== warnings summary ===============================
+backtest\tests\test_finra_short_volume_study.py:207
+  C:\Users\jackw\Desktop\42\backtest\tests\test_finra_short_volume_study.py:207: PytestUnknownMarkWarning: Unknown pytest.mark.network - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.network
+
+tests/test_actuator_recency_gate.py: 2 warnings
+tests/test_autonomy_actuator.py: 12 warnings
+tests/test_autonomy_auto_approve.py: 8 warnings
+tests/test_companion_approval_bridge.py: 8 warnings
+tests/test_resolve_proposal.py: 7 warnings
+  C:\Users\jackw\Desktop\42\setup\scripts\autonomy_actuator.py:69: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return dt.datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+tests/test_autoresearch_proposer.py: 4 warnings
+tests/test_autoresearch_state.py: 8 warnings
+  C:\Users\jackw\Desktop\42\backtest\autoresearch\state.py:107: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    or f"ar_{tag or 'default'}_{dt.datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+
+tests/test_autoresearch_proposer.py: 4 warnings
+tests/test_autoresearch_state.py: 8 warnings
+  C:\Users\jackw\Desktop\42\backtest\autoresearch\state.py:61: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at: str = field(default_factory=lambda: dt.datetime.utcnow().isoformat(timespec="seconds"))
+
+tests/test_autoresearch_state.py::test_save_load_roundtrip
+tests/test_autoresearch_state.py::test_touch_param_maintains_cooldown_ring
+tests/test_autoresearch_state.py::test_touch_param_maintains_cooldown_ring
+tests/test_autoresearch_state.py::test_touch_param_maintains_cooldown_ring
+tests/test_autoresearch_state.py::test_touch_param_maintains_cooldown_ring
+  C:\Users\jackw\Desktop\42\backtest\autoresearch\state.py:70: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.last_modification_at = dt.datetime.utcnow().isoformat(timespec="seconds")
+
+tests/test_autoresearch_state.py::test_append_history_writes_jsonl
+tests/test_autoresearch_state.py::test_append_history_writes_jsonl
+tests/test_autoresearch_state.py::test_append_history_per_mode
+tests/test_autoresearch_state.py::test_append_history_per_mode
+  C:\Users\jackw\Desktop\42\backtest\autoresearch\state.py:137: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    record.setdefault("at", dt.datetime.utcnow().isoformat(timespec="seconds"))
+
+tests/test_conductor_budget.py::test_cli_exit_codes
+tests/test_conductor_budget.py::test_cli_exit_codes
+tests/test_conductor_budget.py::test_status_never_blocks
+tests/test_conductor_budget.py::test_status_file_written_with_pacing_fields
+  C:\Users\jackw\Desktop\42\setup\scripts\conductor_budget.py:339: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "checked_at_utc": dt.datetime.utcnow().isoformat() + "Z",
+
+tests/test_darwin.py::test_scorecard_attributes_winners_and_losers_to_bear_filters
+tests/test_darwin.py::test_scorecard_routes_bullish_trades_to_bull_filters
+  C:\Users\jackw\Desktop\42\backtest\darwin\scorecard.py:178: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.last_updated = dt.datetime.utcnow().isoformat(timespec="seconds")
+
+tests/test_darwin.py::test_update_promotes_top_quartile_filter
+tests/test_darwin.py::test_update_demotes_bottom_quartile_filter
+tests/test_darwin.py::test_update_skips_filter_with_too_few_passes
+tests/test_darwin.py::test_weight_clamps_to_floor_and_ceiling
+tests/test_darwin.py::test_weight_clamps_to_floor_and_ceiling
+  C:\Users\jackw\Desktop\42\backtest\darwin\weights.py:107: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    fw.updated_at = dt.datetime.utcnow().isoformat(timespec="seconds")
+
+tests/test_et_clock.py::test_inline_dst_matches_et_clock
+  C:\Users\jackw\Desktop\42\backtest\tests\test_et_clock.py:237: UserWarning: Could not extract engine_health._et_offset_hours -- skipping cross-check
+    warnings.warn("Could not extract engine_health._et_offset_hours -- skipping cross-check",
+
+tests/test_janus.py::test_detect_with_no_data_returns_mixed
+  C:\Users\jackw\Desktop\42\backtest\janus\detector.py:158: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    detected_at=dt.datetime.utcnow().isoformat(timespec="seconds"),
+
+tests/test_janus.py::test_detect_recognises_novel_regime_when_recent_collapses
+tests/test_janus.py::test_detect_recognises_historical_regime_when_recent_excels
+tests/test_janus.py::test_detect_returns_mixed_within_deadband
+tests/test_janus.py::test_recent_baseline_windows_do_not_overlap
+tests/test_janus.py::test_baseline_window_clipped_to_available_data
+tests/test_janus.py::test_threshold_adjustments_tighter_for_novel
+tests/test_janus.py::test_threshold_adjustments_default_for_mixed
+tests/test_janus.py::test_ref_date_clips_to_history
+  C:\Users\jackw\Desktop\42\backtest\janus\detector.py:206: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    detected_at=dt.datetime.utcnow().isoformat(timespec="seconds"),
+
+tests/test_lesson_regression_audit.py::test_record_is_idempotent_per_day
+tests/test_lesson_regression_audit.py::test_record_is_idempotent_per_day
+  C:\Users\jackw\Desktop\42\setup\scripts\lesson_regression_audit.py:77: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return dt.datetime.utcnow().strftime("%Y-%m-%d")
+
+tests/test_lesson_regression_audit.py::test_record_is_idempotent_per_day
+  C:\Users\jackw\Desktop\42\setup\scripts\lesson_regression_audit.py:103: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    f.write(json.dumps({"detected_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+
+tests/test_regime_standdown_study.py::test_evaluate_arm_runner_cohort_regression_fails_gate
+  C:\Users\jackw\Desktop\42\backtest\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:592: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+    res = hypotest_fun_out(*samples, **kwds)
+
+tests/test_swing_seeds.py::TestRRWSeed::test_real_mes_daily_smoke
+tests/test_trendline_swing_seed.py::TestEndToEndSmoke::test_real_mes_smoke
+  C:\Users\jackw\Desktop\42\backtest\futures\data.py:38: FutureWarning: In a future version of pandas, parsing datetimes with mixed time zones will raise an error unless `utc=True`. Please specify `utc=True` to opt in to the new behaviour and silence this warning. To create a `Series` with mixed offsets and `object` dtype, please use `apply` and `datetime.datetime.strptime`
+    ts = pd.to_datetime(df[tcol])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backtest\tests\test_audit_fix_heartbeat.py::TestFillReconciliation::test_execute_writes_reconciled_fill_into_broker_row
+FAILED backtest\tests\test_bold_tier_rail.py::test_population_filter_matches_lane1_real_ledger_anchor
+FAILED backtest\tests\test_ccr_interactive_isolation.py::test_router_port_only_appears_in_allowlisted_repo_files
+FAILED backtest\tests\test_directional_gate_battery_ships.py::test_live_params_unchanged_for_tested_gates_given_zero_disables
+FAILED backtest\tests\test_dojo_directive.py::test_known_exit_patch_keys_all_accepted
+FAILED backtest\tests\test_dojo_exit_diversity_replay.py::test_exit_profiles_pulled_from_live_accounts_json
+FAILED backtest\tests\test_execute_stop_display.py::test_structure_mode_corrects_plan_stop_and_renders_display
+FAILED backtest\tests\test_execute_stop_display.py::test_structure_mode_flag_off_stays_premium_no_op
+FAILED backtest\tests\test_execute_stop_display.py::test_isolated_setup_unaffected_by_structure_flag
+FAILED backtest\tests\test_exit_manager_replay.py::test_faithfulness_pin - as...
+FAILED backtest\tests\test_exit_manager_replay.py::test_per_trade_pnl_pin - A...
+FAILED backtest\tests\test_fleet_keystone_consumer.py::test_keystone_signal_drives_loose_arm_to_enter
+FAILED backtest\tests\test_fleet_time_stop_threaded.py::test_manage_tick_receives_params_time_stop
+FAILED backtest\tests\test_fleet_time_stop_threaded.py::test_no_arm_is_live_in_this_harness
+FAILED backtest\tests\test_free_model_audit_swarm_consult.py::test_wired_in_real_registry_and_end_to_end_against_the_real_consult
+FAILED backtest\tests\test_free_model_audit_twin_review.py::test_wired_in_real_registry_and_end_to_end_against_the_real_sidecar
+FAILED backtest\tests\test_gap_and_go_exit_wiring_2026_07_18.py::test_vwap_continuation_stays_premium_mode_even_with_rejection_level
+FAILED backtest\tests\test_gap_and_go_exit_wiring_2026_07_18.py::test_removing_override_entry_degrades_to_ribbon_shape
+FAILED backtest\tests\test_gate_e2e_2026_06_18.py::test_parity_gate_values_present_in_params
+FAILED backtest\tests\test_graduated_guards.py::test_free_model_cost_estimate_is_zero
+FAILED backtest\tests\test_guard_cmd_popup_fix_ws6.py::TestExistingApprovedPatternsNonRegression::test_run_hidden_vbs_still_recognized
+FAILED backtest\tests\test_level_compiler_v2_guards.py::test_degeneracy_healthy_subset_not_refused
+FAILED backtest\tests\test_min_entry_premium_floor.py::test_core_execute_floor_passes_when_mid_above_floor
+FAILED backtest\tests\test_min_entry_premium_floor.py::test_core_execute_floor_absent_is_byte_identical
+FAILED backtest\tests\test_min_entry_premium_floor.py::test_core_execute_floor_zero_is_byte_identical
+FAILED backtest\tests\test_monday_verify_2026_08_01.py::test_run_all_friday_2026_07_31_matches_documented_flicker_numbers
+FAILED backtest\tests\test_money_path_2026_07_01.py::TestSimpleFirstPlacement::test_execute_first_and_only_order_call_is_simple_marketable
+FAILED backtest\tests\test_money_path_2026_07_01.py::TestExtraSetupArming::test_execute_vwap_uses_validated_atm_strike_and_qty3
+FAILED backtest\tests\test_money_path_2026_07_01.py::TestExtraSetupArming::test_vwap_exit_shape_is_validated_cell_not_ribbon_ride
+FAILED backtest\tests\test_nbbo_capture_2026_07_20.py::test_dry_plan_carries_reconstructed_nbbo
+FAILED backtest\tests\test_nbbo_capture_2026_07_20.py::test_nbbo_respects_custom_entry_cross_buffer
+FAILED backtest\tests\test_nbbo_capture_2026_07_20.py::test_nbbo_reconstruction_uses_zero_new_network_calls
+FAILED backtest\tests\test_never_average_down_2026_07_20.py::TestCoreExecuteRefusesStackedEntry::test_control_when_flat_the_route_still_works
+FAILED backtest\tests\test_p5_shape_gate.py::test_live_shapes_all_gated_green
+FAILED backtest\tests\test_p5_shape_gate.py::test_check_cli_returns_zero_when_gated
+FAILED backtest\tests\test_params_consumer_reconciliation.py::test_known_dead_allowlist_shrinks_only
+FAILED backtest\tests\test_pnl_attribution_2026_07_28.py::test_trigger_class_partitions_replay_population
+FAILED backtest\tests\test_preopen_readiness.py::test_fetch_eod_flatten_reality_reads_real_tmp_files
+FAILED backtest\tests\test_profitability_ab.py::test_real_bold2_population_reproduces_prereg_frozen_baselines
+FAILED backtest\tests\test_profitability_ab.py::test_primary_cell_matches_prereg_ratio_within_rounding_tolerance
+FAILED backtest\tests\test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage
+FAILED backtest\tests\test_regime_reslice_2026_07_28.py::test_min_triggers_bear2_reconstruction_join_is_exact
+FAILED backtest\tests\test_replay_today_eval.py::test_1min_determinism_hash_pinned
+FAILED backtest\tests\test_replay_today_eval.py::test_1min_pinned_total_pnl_per_arm[core_bold-99.0]
+FAILED backtest\tests\test_ribbon_flipback_ab_v2.py::test_mae_mfe_frozen_population_size
+FAILED backtest\tests\test_ribbon_ride_strike_override_2026_07_11.py::TestStrikeOverride::test_bear_trades_atm_and_flag_off_reverts
+FAILED backtest\tests\test_ribbon_ride_strike_override_2026_07_11.py::TestStrikeOverride::test_bull_trades_atm_and_flag_off_reverts
+FAILED backtest\tests\test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector
+FAILED backtest\tests\test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector
+FAILED backtest\tests\test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal
+FAILED backtest\tests\test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error
+FAILED backtest\tests\test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises
+FAILED backtest\tests\test_state_contracts.py::test_live_json_file_validates[automation/state/aggressive/loop-state.json]
+FAILED backtest\tests\test_structure_shift_cascade_ab.py::TestBaselineAnchorReproduction::test_control_prefix_reproduces_stored_scorecard
+FAILED backtest\tests\test_trade_today_watcher.py::test_engine_attributed_true_via_extra_exec_2026_07_16_incident
+FAILED backtest\tests\test_trade_today_watcher.py::test_engine_attributed_true_via_real_risky3_2026_07_17_incident
+FAILED backtest\tests\test_trade_today_watcher.py::test_exit_profile_matches_live_accounts_json
+FAILED backtest\tests\test_trail_width_exit_ab.py::test_anchor_population_hash_matches_frozen_prereg
+FAILED backtest\tests\test_trigger_level_exact_provenance.py::test_execute_prefers_trigger_level_exact_over_heuristic
+FAILED backtest\tests\test_trigger_level_exact_provenance.py::test_execute_falls_back_to_heuristic_when_exact_absent
+FAILED backtest\tests\test_trigger_level_exact_provenance.py::test_execute_trigger_level_none_when_both_sources_absent
+FAILED backtest\tests\test_trigger_level_exact_provenance.py::test_execute_trigger_level_exact_is_emission_only
+FAILED backtest\tests\test_twin_gauntlet.py::test_dry_mode_all_six_paths_pass_by_default
+FAILED backtest\tests\test_tz_quality_lock_2026_07_02.py::TestReentryAfterStopRoutesToExecute::test_same_setup_reentry_after_stop_is_placed_not_locked
+FAILED backtest\tests\test_tz_quality_lock_2026_07_02.py::TestReentryAfterStopRoutesToExecute::test_no_broker_activities_probe_on_the_entry_path
+FAILED backtest\tests\test_unattended_health.py::test_weekday_task_quiet_since_friday_is_green_on_sunday
+FAILED backtest\tests\test_unattended_health.py::test_never_run_inside_start_boundary_budget_is_yellow
+FAILED backtest\tests\test_unattended_health.py::test_nonzero_exit_code_is_flagged
+FAILED backtest\tests\test_unattended_health.py::test_running_and_not_yet_run_result_codes_are_benign
+FAILED backtest\tests\test_unattended_health.py::test_off_member_does_not_drag_a_healthy_unit_out_of_green
+FAILED backtest\tests\test_vwap_reclaim_fleet_extension_2026_08_04.py::test_risky3_exit_patch_overlays_on_top
+FAILED backtest\tests\test_watcher_registry.py::test_every_detector_file_is_registered
+FAILED backtest\tests\test_watcher_registry.py::test_registry_is_exact_partition_of_disk
+FAILED backtest\tests\test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags
+FAILED backtest\tests\test_wire_bollinger_squeeze.py::TestRegisteredExitShape::test_exit_shape_is_the_validated_cell
+FAILED backtest\tests\test_wire_bollinger_squeeze.py::TestRegisteredExitShape::test_removing_override_entry_degrades_shape
+FAILED backtest\tests\test_wire_bollinger_squeeze.py::TestRegisteredExitShape::test_tq_plmode_trail_keys_are_live
+77 failed, 8383 passed, 9 skipped, 7 xfailed, 98 warnings in 3750.61s (1:02:30)
+EXIT=1
