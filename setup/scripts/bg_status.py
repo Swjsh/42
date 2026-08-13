@@ -177,6 +177,66 @@ def _scan(run_dir: Path) -> dict:
     }
 
 
+def _detached_workers() -> list[dict]:
+    """Long-running processes that an AGENT LAUNCHED AND LEFT BEHIND.
+
+    WHY (found the same night this file grew its agent lane, by testing the new lane's own answer):
+    `--live` reported "0 RUNNING" while two study arms the slippage agent had spawned -- batch.py,
+    gated.py and two slip_runner*.py -- had been grinding for two hours. They survive because
+    `backtest/.venv` is reaper-exempt (`_shared.ps1#Stop-StaleClaudeProcesses`). An agent stopping
+    is NOT its work stopping, so "no agents running" is not an answer to "is anything still
+    running". Same L292 shape as the agent gap itself, one level down.
+
+    Windows-only (CIM); returns [] anywhere else and on any failure. Fails open by construction --
+    a status tool must never raise, and an empty list here degrades to the agent+workflow view.
+    """
+    if not sys.platform.startswith("win"):
+        return []
+    import subprocess  # noqa: PLC0415 -- optional, Windows-only path
+    ps = (
+        "Get-CimInstance Win32_Process -Filter \"Name='python.exe' or Name='pythonw.exe'\" | "
+        "ForEach-Object { [pscustomobject]@{ pid=$_.ProcessId; "
+        "started=$_.CreationDate.ToString('o'); cmd=$_.CommandLine } } | ConvertTo-Json -Compress"
+    )
+    try:
+        raw = subprocess.run(["powershell", "-NoProfile", "-Command", ps],
+                             capture_output=True, text=True, timeout=25).stdout
+        procs = json.loads(raw) if raw.strip() else []
+    except Exception:  # noqa: BLE001 -- fail open; this lane is a bonus, never a dependency
+        return []
+    if isinstance(procs, dict):
+        procs = [procs]
+
+    out: list[dict] = []
+    for p in procs:
+        cmd = (p or {}).get("cmd") or ""
+        # Agent-launched work lives in the per-session scratchpad. Scheduled daemons launch from
+        # setup/scripts via run_cmd_hidden and are NOT what "are we still working?" is asking
+        # about -- they are always on by design.
+        #
+        # Slashes are NORMALIZED first: the same session scratchpad shows up with backslashes from
+        # some launchers and forward slashes from others. A backslash-only match silently dropped
+        # the two longest-running arms (batch.py, gated.py) while listing their short-lived
+        # children -- an undercount that reads as "less is running than really is".
+        norm = cmd.lower().replace("/", "\\")
+        if "\\claude\\" not in norm or "scratchpad" not in norm:
+            continue
+        started = str((p or {}).get("started") or "")
+        age_min = -1.0
+        try:
+            from datetime import datetime  # noqa: PLC0415
+            ts = datetime.fromisoformat(started)
+            age_min = (datetime.now(ts.tzinfo) - ts).total_seconds() / 60.0
+        except Exception:  # noqa: BLE001
+            pass
+        # The script name is the only legible part of a 400-char scratchpad command line.
+        script = next((tok.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]
+                       for tok in cmd.split() if tok.lower().endswith(".py")), "?")
+        out.append({"pid": (p or {}).get("pid"), "script": script,
+                    "age_min": round(age_min, 1), "cmd": cmd[:200]})
+    return sorted(out, key=lambda r: -r["age_min"])
+
+
 def _tail_message(transcript: Path) -> tuple[str, bool, int]:
     """Return (final assistant text, last_record_has_tool_use, record_count).
 
@@ -314,16 +374,28 @@ def main(argv: list[str] | None = None) -> int:
     max_age = None if args.all else 24.0
     scans = [_scan(d) for d in _find_workflow_dirs(max_age)]
     agents = [_scan_agent(m) for m in _find_agent_metas(max_age)]
+    workers = _detached_workers()
     if args.live:
         agents = [a for a in agents if a.get("state") in ("RUNNING", "STALE?")]
         scans = [s for s in scans if str(s.get("state", "")).startswith("RUNNING")]
 
     running = [a for a in agents if a.get("state") == "RUNNING"]
     if args.json:
-        print(json.dumps({"agents": agents, "runs": scans,
-                          "n_running": len(running)}, indent=2))
+        print(json.dumps({"agents": agents, "runs": scans, "detached_workers": workers,
+                          "n_running": len(running),
+                          "n_detached": len(workers)}, indent=2))
         return 0
 
+    # Detached work first: an agent stopping is not its work stopping, and this is the lane that
+    # answers "is anything still running" when every agent has already reported.
+    print(f"DETACHED WORKERS (agent-launched, still alive) -- {len(workers)}")
+    if workers:
+        for w in workers:
+            print(f"   pid {str(w['pid']):<7} {w['age_min']:>7.1f}m  {_ascii(w['script'])}")
+    else:
+        print("   none.")
+
+    print()
     window = "" if args.all else " (last 24h; --all for everything)"
     print(f"AGENT-TOOL SUBAGENTS{window} -- {len(running)} RUNNING of {len(agents)}")
     if agents:

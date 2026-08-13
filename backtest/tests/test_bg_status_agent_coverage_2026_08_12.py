@@ -208,6 +208,82 @@ def test_output_never_dies_on_its_own_payload(root, capsys):
     out.encode("ascii")  # raises if any non-ascii escaped into the report
 
 
+# ------------------------------------------------------- detached agent-launched workers
+
+SCRATCH = (r"C:\Users\jackw\AppData\Local\Temp\claude\C--Users-jackw-Desktop-42"
+           r"\21375492-0e59-4fe4-99b0-ba94a60caa33\scratchpad")
+
+
+def _fake_ps(payload, monkeypatch):
+    """Stand in for the PowerShell CIM call."""
+    import subprocess
+
+    class _R:
+        stdout = json.dumps(payload)
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: _R())
+    monkeypatch.setattr(sys, "platform", "win32")
+
+
+def test_forward_slash_scratchpad_paths_are_matched(monkeypatch):
+    """THE UNDERCOUNT BUG. The same session scratchpad appears with backslashes from some
+    launchers and forward slashes from others. A backslash-only match dropped the two
+    longest-running arms (batch.py, gated.py) while still listing their short-lived children --
+    an undercount that reads as 'less is running than really is'."""
+    fwd = SCRATCH.replace("\\", "/")
+    _fake_ps([{"pid": 1, "started": "2026-08-12T21:01:21.6600120-06:00",
+               "cmd": f"python.exe {fwd}/batch.py {fwd}/verdicts.json 0.01"}], monkeypatch)
+    got = bs._detached_workers()
+    assert len(got) == 1, "forward-slash scratchpad paths are invisible again"
+    assert got[0]["script"] == "batch.py"
+
+
+def test_scheduled_daemons_are_excluded(monkeypatch):
+    """Always-on scheduled daemons are not what 'are we still working?' asks about; including
+    them would bury the agent-launched work in permanent noise."""
+    _fake_ps([{"pid": 2, "started": "2026-08-12T21:01:21.0000000-06:00",
+               "cmd": r"pythonw.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_daemon.py"}],
+             monkeypatch)
+    assert bs._detached_workers() == []
+
+
+def test_age_parses_seven_digit_fractional_seconds(monkeypatch):
+    """PowerShell's 'o' format emits 7 fractional digits. If this ever fails to parse the age
+    silently degrades to -1 and every worker looks brand new."""
+    _fake_ps([{"pid": 3, "started": "2026-08-12T21:01:21.6600120-06:00",
+               "cmd": f"python.exe {SCRATCH}\\slip_runner.py"}], monkeypatch)
+    got = bs._detached_workers()
+    assert got and got[0]["age_min"] >= 0.0, f"age failed to parse: {got}"
+
+
+def test_detached_lane_fails_open_when_powershell_dies(monkeypatch):
+    """This lane is a bonus, never a dependency -- if CIM is unavailable the rest must still
+    print rather than the whole status tool raising."""
+    import subprocess
+    monkeypatch.setattr(sys, "platform", "win32")
+
+    def _boom(*a, **k):
+        raise OSError("powershell not found")
+    monkeypatch.setattr(subprocess, "run", _boom)
+    assert bs._detached_workers() == []
+
+
+def test_detached_lane_is_noop_off_windows(monkeypatch):
+    monkeypatch.setattr(sys, "platform", "linux")
+    assert bs._detached_workers() == []
+
+
+def test_detached_workers_are_reported_even_when_no_agent_is_running(root, monkeypatch, capsys):
+    """THE WHOLE POINT. An agent stopping is not its work stopping. bg_status reported
+    '0 RUNNING' on 2026-08-12 while 8 agent-launched workers were alive."""
+    _fake_ps([{"pid": 9, "started": "2026-08-12T21:01:21.6600120-06:00",
+               "cmd": f"python.exe {SCRATCH}\\batch.py"}], monkeypatch)
+    _mk_agent(root, "fin001", desc="finished", final_text="A real verdict. " * 60)
+    bs.main(["--live"])
+    out = capsys.readouterr().out
+    assert "DETACHED WORKERS" in out and "batch.py" in out
+    assert "0 RUNNING" in out, "fixture sanity: no agent should be running here"
+
+
 def test_fails_open_on_a_corrupt_meta(root):
     sub = root / "C--proj" / "sess" / "subagents"
     sub.mkdir(parents=True, exist_ok=True)
