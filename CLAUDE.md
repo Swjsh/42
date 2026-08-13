@@ -54,8 +54,17 @@ J's rules — Gamma enforces them, doesn't write them.
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
-| **Account 1** | Gamma-Safe-2 | `PA3DHPT7KIQE` | $1,746.75 (2026-07-11, live-verified; was $1,763 on the old deleted account) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups | `params.json` |
-| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (2026-06-26) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `aggressive/params.json` |
+| **Account 1** | Gamma-Safe-2 | `PA3DHPT7KIQE` | **$5,501 (2026-08-13, broker-verified)** | Conservative — ATM, 30% risk, CONFIRMED setups | `params.json` |
+| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (2026-06-26) | Aggressive — ITM-2, 50% risk, ALL setups | `aggressive/params.json` |
+
+> ⚠️ **TP1 IS NOT A PER-ACCOUNT SETTING — it comes from the STRATEGY** (corrected 2026-08-13; this
+> table previously claimed "+30% TP1 / +75% TP1", which no live path has used for months).
+> `ribbon_ride` — the setup that actually fires — hardcodes **TP1 +100%, sell 66%** at
+> [`strategies.py:131`](automation/state/fleet/strategies.py), ported whole-cell from SS-B
+> (commit `933bd651`). `params.json`'s `tp1_premium_pct` (0.5) is NOT on that path. Per-arm
+> overrides exist (`accounts.json` gives risky-1 +50%). **Read the arm's `exit-state.json` for
+> live truth, never this table.** Open question under review: TP1 +100% fires on only ~20% of
+> trades — see [`COST-RECOVERY-SIZING-2026-08-13.md`](analysis/recommendations/COST-RECOVERY-SIZING-2026-08-13.md).
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
