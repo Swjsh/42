@@ -62,6 +62,18 @@ POLL_INTERVAL_SEC = 15
 API = "https://discord.com/api/v10"
 HEARTBEAT_PATH = STATE_DIR / "discord-bridge-heartbeat.json"  # written each tick for frozen-bridge detection
 
+# STALENESS POLICY (2026-08-12). The outbox is a FIFO with no expiry, so whenever the bridge falls
+# behind it does not "catch up" -- it delivers OLD alerts forever, in order, arriving later and
+# later. Measured on 2026-08-12: 1,837 undelivered messages, MEDIAN AGE 15.6 DAYS, oldest 29.6.
+# The bridge's last successful send (2026-08-10 16:31 MT) was dispatching 2026-07-14 content.
+# So even while "working" it was pushing month-old 0DTE trade alerts at J -- which is worse than
+# silence, and is the likely reason the channel got muted in the first place.
+#
+# A 0DTE entry/exit ping has a shelf life of minutes. Delivering it late is not partial credit, it
+# is misinformation: it describes a position that has already been closed. So drain drops anything
+# older than this instead of dutifully shipping history.
+MAX_MESSAGE_AGE_MIN = int(_os.environ.get("GAMMA_DISCORD_MAX_AGE_MIN", "120"))
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -197,27 +209,49 @@ def poll_inbox(config: dict, wm: dict) -> int:
     return new_count
 
 
-def drain_outbox(config: dict, wm: dict) -> int:
+def _row_age_min(row: dict) -> "float | None":
+    """Age of an outbox row in minutes, or None if it carries no parseable timestamp.
+
+    Producers stamp either `queued_at` or `ts`, in a mix of formats seen on disk: '...Z',
+    '...+00:00', and NAIVE '2026-07-08T16:39:56'. Naive stamps are treated as UTC because that is
+    what every producer writes (now_iso() -> utcnow). Returning None on an unparseable stamp means
+    "cannot judge age" -> the message is SENT, never silently dropped: an undateable message must
+    fail toward delivery, not toward the bin.
+    """
+    raw = (row.get("queued_at") or row.get("ts") or "").strip()
+    if not raw:
+        return None
+    try:
+        parsed = dt.datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt.timezone.utc)
+    return (dt.datetime.now(dt.timezone.utc) - parsed).total_seconds() / 60.0
+
+
+def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
     """Send any new lines in outbox JSONL since last_outbox_line_no.
-    Returns count of messages sent.
+    Returns (sent, dropped_stale, pending_after).
 
     SAFETY: J explicitly requested "do not message swjsh vault, only HQ".
     We hard-pin the channel_id to config.channel_id and IGNORE any per-row
     channel_id override. To send to a different channel, edit the config.
     """
     if not OUTBOX_PATH.exists():
-        return 0
+        return (0, 0, 0)
     token = config["bot_token"]
     default_channel = config.get("channel_id")
     HQ_ONLY_CHANNEL = default_channel  # always use config channel, refuse overrides
 
     sent = 0
+    dropped = 0
     last_line_no = wm.get("last_outbox_line_no", 0)
     with OUTBOX_PATH.open(encoding="utf-8") as f:
         lines = f.readlines()
 
     if last_line_no >= len(lines):
-        return 0
+        return (0, 0, 0)
 
     for i in range(last_line_no, len(lines)):
         raw = lines[i].strip()
@@ -252,6 +286,15 @@ def drain_outbox(config: dict, wm: dict) -> int:
             wm["last_outbox_line_no"] = i + 1
             continue
 
+        # STALENESS DROP (see MAX_MESSAGE_AGE_MIN). Advance and SAVE -- unlike the older
+        # silent-skip branches above, which advance the in-memory watermark without persisting it.
+        age_min = _row_age_min(row)
+        if age_min is not None and age_min > MAX_MESSAGE_AGE_MIN:
+            dropped += 1
+            wm["last_outbox_line_no"] = i + 1
+            save_watermarks(wm)
+            continue
+
         # Discord max 2000 chars; truncate.
         if len(content) > 1900:
             content = content[:1900] + "...[truncated]"
@@ -260,7 +303,7 @@ def drain_outbox(config: dict, wm: dict) -> int:
         if file_path:
             r = _send_file_message(token, channel_id, content, file_path)
             if r is None:
-                return sent  # network error -- don't advance watermark, retry this line later
+                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))  # network error -- don't advance watermark, retry this line later
             if r == "missing":
                 logger.error("outbox line %d file attachment missing on disk -- skipping", i)
                 wm["last_outbox_line_no"] = i + 1
@@ -276,7 +319,7 @@ def drain_outbox(config: dict, wm: dict) -> int:
                 )
             except requests.RequestException as e:
                 logger.error("outbox send network error: %s -- will retry next tick", e)
-                return sent  # don't advance watermark; retry this line later
+                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))  # don't advance watermark; retry this line later
         if r.status_code in (200, 201):
             sent += 1
             wm["last_outbox_line_no"] = i + 1
@@ -288,13 +331,16 @@ def drain_outbox(config: dict, wm: dict) -> int:
             retry_after = float(r.headers.get("Retry-After", "5"))
             logger.warning("rate limited; sleeping %.1fs", retry_after)
             time.sleep(retry_after)
-            return sent  # retry this line on next iteration
+            return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))  # retry this line on next iteration
         else:
             logger.error("outbox http %d: %s -- skipping line %d", r.status_code, r.text[:200], i)
             wm["last_outbox_line_no"] = i + 1
             save_watermarks(wm)
 
-    return sent
+    if dropped:
+        logger.warning("dropped %d outbox message(s) older than %d min (stale-alert policy)",
+                       dropped, MAX_MESSAGE_AGE_MIN)
+    return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))
 
 
 def main() -> int:
@@ -327,13 +373,20 @@ def main() -> int:
     )
 
     consecutive_errors = 0
+    pending = 0
+    dropped_total = 0
+    last_delivery_at = None
     try:
         while True:
             try:
                 in_count = poll_inbox(config, wm)
-                out_count = drain_outbox(config, wm)
-                if in_count or out_count:
-                    logger.info("tick: inbox=%d outbox=%d", in_count, out_count)
+                out_count, dropped, pending = drain_outbox(config, wm)
+                dropped_total += dropped
+                if out_count:
+                    last_delivery_at = now_iso()
+                if in_count or out_count or dropped:
+                    logger.info("tick: inbox=%d outbox=%d dropped=%d pending=%d",
+                                in_count, out_count, dropped, pending)
                 consecutive_errors = 0
             except Exception as e:
                 consecutive_errors += 1
@@ -344,9 +397,23 @@ def main() -> int:
                     consecutive_errors = 0
             # DISCORD-FROZEN-DETECTION: write last_tick_at each loop iteration.
             # Watchdog can check this file; if > 5 min stale, bridge is frozen (alive but not polling).
+            #
+            # 2026-08-12 -- last_tick_at + consecutive_errors ALONE IS NOT A HEALTH SIGNAL. It only
+            # proves the loop is spinning. For 2+ days this file reported a fresh tick and
+            # `consecutive_errors: 0` while 1,837 messages sat undelivered and J received nothing,
+            # because a drain that sends zero raises no error and logs no line. Measuring liveness
+            # instead of DELIVERY is how a dead channel reports itself healthy (C7).
+            # `outbox_pending` and `last_delivery_at` are the fields that can actually go RED.
             try:
                 HEARTBEAT_PATH.write_text(
-                    json.dumps({"last_tick_at": now_iso(), "consecutive_errors": consecutive_errors}),
+                    json.dumps({
+                        "last_tick_at": now_iso(),
+                        "consecutive_errors": consecutive_errors,
+                        "outbox_pending": pending,
+                        "last_delivery_at": last_delivery_at,
+                        "dropped_stale_total": dropped_total,
+                        "max_message_age_min": MAX_MESSAGE_AGE_MIN,
+                    }),
                     encoding="utf-8",
                 )
             except Exception:
