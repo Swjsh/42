@@ -456,6 +456,80 @@ def _read_levels(spy: float) -> tuple[list[float], list[float]]:
     return active, multi
 
 
+CONVICTION_ZONES_STALE_MIN = 240  # confluence zones are a multi-hour structural read; a
+                                  # 4h-old zone map is still informative (unlike a trend read)
+
+
+def _read_confluence_zones() -> "list | None":
+    """Fail-open read of automation/state/confluence-zones.json for the conviction score's
+    C7 (zone stack). Returns None (=> component degrades to 0 and names itself) when the file
+    is missing/unreadable/stale. NEVER raises.
+
+    This file has been produced on schedule and consumed by NOTHING. On 2026-08-12 it held a
+    4-source zone at 770.48-771.44 -- J's 12:35 bounce zone -- while the engine fired longs at
+    the top of the range."""
+    try:
+        raw = json.loads((STATE / "confluence-zones.json").read_text(encoding="utf-8"))
+        gen = str(raw.get("generated_at") or "")[:19]
+        if gen:
+            try:
+                age = (_et_now().replace(tzinfo=None) - datetime.strptime(gen, "%Y-%m-%dT%H:%M:%S")
+                       ).total_seconds() / 60.0
+                if age > CONVICTION_ZONES_STALE_MIN:
+                    return None
+            except (TypeError, ValueError):
+                pass  # unparseable stamp -> keep the zones, fail open
+        z = raw.get("zones") or raw.get("confluence_zones")
+        return z if isinstance(z, list) else None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _conviction_shadow(verdict: dict, bc: dict, account: str) -> "dict | None":
+    """PHASE A — SHADOW ONLY. Compute the conviction score for an ENTER verdict and return it
+    for the ledger row. NOTHING reads this to make a decision; there is no SKIP_LOW_CONVICTION
+    branch yet, by design (blocking ships only after the frozen F1-F4 gates clear).
+
+    Wrapped so it can NEVER affect a tick: any exception at all is swallowed and reported as a
+    degraded row. A shadow instrument that can break the live loop is worse than no instrument.
+    """
+    try:
+        import conviction as _cv
+        side = str(verdict.get("side") or "")[:1].upper()
+        if side not in ("C", "P"):
+            return None
+        spy = float(bc["bar"]["close"])
+        # envelope = today's window high/low as the engine already saw it (no look-ahead:
+        # bars_prior is the scoring history THROUGH the trigger bar).
+        bars = bc.get("bars_prior") or []
+        hi = max((float(b["high"]) for b in bars), default=None)
+        lo = min((float(b["low"]) for b in bars), default=None)
+        k = 0
+        try:
+            import settlement_ledger as _sl
+            _st = _sl.get_settlement_status(
+                STATE / "settlement-ledger.json", _et_now().strftime("%Y-%m-%d"), None)
+            k = int(_st.get("entries_used_today") or 0)
+        except Exception:  # noqa: BLE001 -- k=0 is the most PERMISSIVE floor (fail-open)
+            k = 0
+        res = _cv.score_conviction(
+            side=side,
+            entry_level=verdict.get("rejection_level"),
+            level_records=_read_level_records(spy),
+            triggers_fired=verdict.get("triggers_fired"),
+            level_states=bc.get("level_states"),
+            trigger_close=spy,
+            envelope_high=hi, envelope_low=lo,
+            structure_side=None,   # C5 not yet threaded off engine_cli -> degrades, by design
+            confluence_zones=_read_confluence_zones(),
+            k=k)
+        out = res.to_dict()
+        out["shadow_only"] = True   # explicit: this row changed no behaviour
+        return out
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}", "shadow_only": True}
+
+
 CONTEXT_BUNDLE_STALE_MIN = 20  # older than this -> treat as absent (a stale trend read is
                                 # worse than none; matches the 5-min Gamma_ContextBundle cadence
                                 # with generous slack for a missed/late fire).
@@ -1204,6 +1278,11 @@ def run_account(account: str, core_tick_id: str | None = None) -> dict:
            "side": verdict.get("side"), "setup": verdict.get("setup_name"),
            "bear_score": verdict.get("bear_score"), "bull_score": verdict.get("bull_score"),
            "triggers": verdict.get("triggers_fired"), "reason": verdict.get("reason"),
+           # CONVICTION SHADOW (Phase A, 2026-08-12) — LOGGED ONLY, changes NOTHING.
+           # The positive-evidence axis the engine never had (its scores count absent
+           # objections: bear_score = 10 - len(blockers)). None on non-ENTER rows.
+           # Blocking (SKIP_LOW_CONVICTION) ships only after the frozen F1-F4 gates clear.
+           "conviction": _conviction_shadow(verdict, bc, account),
            # WHY-NOT PROVENANCE (2026-07-27, TRIGGER-BLINDNESS). LOGGED ONLY, additive.
            #
            # THE INCIDENT: on 2026-07-27 the engine detected J's setup perfectly at 09:40
