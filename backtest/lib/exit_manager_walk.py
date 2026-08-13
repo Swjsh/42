@@ -19,14 +19,41 @@ plan_exit_actions`) tick-by-tick over ANY uniform-cadence bar series (1-minute f
 real fills, 5-minute for historical backtests where only 5-min OPRA is cached) instead of
 re-deriving exit decisions via simulate_trade_real's parallel (and shown-divergent) walk.
 
-FILL-PRICE CONVENTION (extends simulator_real.py's documented, reviewed convention -- not a
-new invention): limit-style triggers (TP1, premium/catastrophe stop, profit-lock floor
-breach, runner_target) fill EXACTLY at the triggered premium level (a resting-order fill
-model). Market-style triggers (ribbon_flip_back, time_stop, structure_stop) fill at that
-bar's CLOSE minus DEFAULT_EXIT_SLIPPAGE -- structure_stop is priced this way NOT because it
-is imprecise but because trigger_level is a SPY price level, not an option premium; there is
-no limit-price equivalent, and exit_actuator.manage_tick places a real market_sell the instant
-the break is detected (see exit_actuator.py:214-220).
+FILL-PRICE CONVENTION -- ⚠️ ITS STATED JUSTIFICATION IS FALSE. CORRECTED 2026-08-12, NOT YET FIXED.
+
+WHAT THE CODE DOES: limit-style triggers (TP1, premium/catastrophe stop, profit-lock floor
+breach, runner_target, trail, be_stop) fill EXACTLY at the triggered premium level with ZERO
+slippage -- 6 of 9 stages. Only the 3 in _MARKET_STAGES (time_stop, ribbon_flip,
+structure_stop) subtract DEFAULT_EXIT_SLIPPAGE.
+
+WHAT THIS DOCSTRING USED TO CLAIM: that the zero-slippage stages model "a resting-order fill
+model". THERE IS NO RESTING-ORDER EXIT LANE IN THIS SYSTEM. Verified:
+  * automation/state/fleet/fleet_broker.py#market_sell builds
+    {"symbol", "qty", "side": "sell", "type": "market", "time_in_force": "day"} -- there is no
+    limit_price key on any exit order, ever.
+  * exit_actuator.manage_tick is the SOLE function that fires it (exit_actuator.py:658), and
+    BOTH engines route through it: core arms via heartbeat_core.py:1038/1044, fleet arms via
+    fleet_live. TP1 included.
+So every live exit, at every stage, is an unconditional MARKET order and pays the spread.
+
+DIRECTION OF THE ERROR (stated precisely, correcting the retracted "errs conservative" framing
+that this repo already had to walk back once): the 6 zero-slippage stages are ALWAYS optimistic
+versus live, never conservative. TP1 and runner_target overstate realised wins; the stops
+understate realised losses.
+
+WHY IT IS NOT FIXED IN THIS COMMIT, deliberately: walk_exit_manager has 95 calling files and no
+slippage kwarg at all (DEFAULT_EXIT_SLIPPAGE is a module constant, see :67) -- a fix needs new
+plumbing AND moves every historical cell at once, so it belongs in the SAME pre-registered commit
+as the 2c->1c slippage re-baseline and the fee model, not in an unattended edit. Pinned by
+backtest/tests/test_exit_walk_fill_model_2026_08_12.py so it cannot be forgotten a THIRD time:
+this exact mechanism was already written down correctly on 2026-07-23 in
+automation/overnight/queue.md:2846 (TWIN-B6-SIM-FRICTION-CALIBRATION -- "every twin exit is a
+MARKET order (no exit-side passive-limit lane exists) ... never its 'TP1/stop fills exactly at
+the bracket level' limit-exit assumption -- flagged as a TWIN-B6b follow-up, not built") and sat
+unacted-on for three weeks.
+
+KNOWN DOWNSTREAM EXPOSURE: gate_expiry_check.py and postfix_gate_costing.py were re-pointed onto
+walk_exit_manager on 2026-08-08, so a Discord-facing gate signal inherits this bias.
 
 TICK-MANAGED SEMANTICS (mirrors heartbeat_core.py:870-883 / exit_actuator.manage_tick exactly):
 exits are managed BEFORE a new entry is evaluated each real tick, so a freshly-registered
