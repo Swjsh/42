@@ -82,3 +82,52 @@ ENTER-at-NOT_FLAT during shadow).
   to close = −$10,313 (all) / −$2,845 (one per arm/direction) vs churn's −$890 — entries were
   the loss mechanism under EVERY exit policy. This STRENGTHENS the entry-side design (C1/C4
   are the discriminators for J's 12:35-at-the-edge trade) and killed R3's exit-side option.
+
+---
+
+## BACKTEST ATTEMPT (Opus, same night) — VERDICT: **NOT BACKTESTABLE. Shadow-forward is the only path.**
+
+J asked why the score wasn't being backtested on prior days. Attempted; here is the honest result.
+
+### Why history cannot answer this
+The score's four highest-value inputs were **never persisted**, because of the very defect the
+score exists to fix — `_read_levels` flattened level records to bare floats *before* anything
+was logged:
+
+| input | needed by | in the historical ledger? |
+|---|---|---|
+| level RECORDS (label/memory_score/touches) | C1 (+2), C2 | ❌ only `levels_active` floats |
+| `rejection_level` (which level the entry was tied to) | C1 | ❌ logs as `None` |
+| `level_states` bounce history | C3 | ❌ not persisted on the row |
+| `key-levels.json` as-of snapshot | C1/C2 | ❌ committed only every ~1-2 weeks |
+
+Today's `_read_level_records` fix means these WILL be logged from tomorrow. History is gone.
+
+### Two flawed attempts, disclosed
+1. **First run: contaminated by my own harness** — I passed a hardcoded `['level_rejection']`
+   trigger list and used the trigger LEVEL as the bar close. Result "100% blocked" was an
+   artifact of placeholder inputs. Exactly the write-a-harness-that-passes trap; discarded.
+2. **Second run (real triggers + real closes where recoverable):** 37 placed entries,
+   **35 blocked = 95%**, score distribution `{0:10, 3:3, 4:21, 5:3}`.
+   STILL NOT TRUSTWORTHY: the 10 zeros are risky-1/risky-3 rows where `trigger_level` and
+   `triggers` are absent from the fleet row shape my extractor reads — they score 0 from
+   MISSING INPUTS, not from low conviction. Per-arm field coverage is uneven.
+
+### What survives as a signal (weak, flagged, not acted on)
+- **95% block sits exactly ON the pre-registered F3 DOA boundary** (">95% blocked = strangling").
+  Even allowing that degraded inputs inflate it, this is an early warning the floor may be too
+  high or the components too sparse — NOT a success. It must not be read as "the ratchet would
+  have saved the day."
+- **21 of 37 score identically at 4** — the score is poorly discriminating on this population.
+  Clustering at one value is the shape of a metric that is not measuring much yet.
+- The 2 entries that would have been TAKEN (score 5, 09:52/09:53 774C) **both lost** (−$24, −$10).
+  So the day offers no evidence the score selects winners either.
+
+### Consequence for the ship plan — UNCHANGED, and this is why it was written that way
+Shadow-forward with F1-F4 remains the only admissible path. Concrete additions from this attempt:
+- **F3 must be evaluated on CLEAN shadow inputs only** — never on reconstructed history.
+- **Add a coverage gate:** if >10% of shadow rows carry any `degraded_components`, the sample is
+  not measuring the score (F4 already says >20% degraded = don't arm; the backtest shows the
+  realistic failure is uneven PER-ARM field coverage, so degradation must be tracked per arm).
+- **Weight calibration cannot be frozen on 08-12 alone** — the population clusters at 4 and the
+  inputs are partial. Freeze weights only after the shadow produces clean rows across >=15 days.
