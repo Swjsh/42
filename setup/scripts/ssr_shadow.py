@@ -734,6 +734,41 @@ def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] 
         "arming_bar": {"round_trips_needed": ARMING_MIN_ROUND_TRIPS, "round_trips_have": n,
                        "expectancy_positive": positive_expectancy, "beats_null": beats_null,
                        "armable": armable},
+        "fundability": _fundability(total_pnl),
+    }
+
+
+# ── FUNDABILITY DISCLOSURE (2026-08-13) ───────────────────────────────────────────────────
+# total_pnl_usd above is scored on FULL-SIZE NQ (point_value 20.0) and GC (100.0), because the
+# CONFIGS are keyed "NQ"/"GC" and get_ssr resolves those to the full contracts.
+#
+# One full NQ at ~29,850 is ~$597,000 of notional. The shadow trades qty=3 => ~$1.79M. The book
+# behind this program holds ~$5,500. That is a ratio of ~326x: the headline USD figure is
+# arithmetically correct and operationally impossible, and the ARMING BAR reads that figure.
+#
+# This does NOT change the frozen spec (spec_version stays ssr-v1) and does NOT rewrite the 8
+# round trips already scored -- mixing units inside one study's ledger would be worse than the
+# disclosure. It makes the gap VISIBLE so nobody arms on a number the account cannot trade.
+# Switching CONFIGS to MNQ/MGC is a spec change (ssr-v2) and needs its own decision + a
+# recompute of the historical rows from their recorded points.
+MICRO_OF = {"NQ": "MNQ", "GC": "MGC"}
+_FULL_TO_MICRO_POINT_RATIO = 10.0   # NQ 20.0 -> MNQ 2.0 ; GC 100.0 -> MGC 10.0 (both exactly 10x)
+
+
+def _fundability(total_pnl_usd: float) -> dict:
+    """Report what the same POINTS would be worth on the micro contracts the book can fund.
+    Approximate: it scales by the point-value ratio only and does NOT re-derive per-trip
+    round-turn fees (NQ 4.00 -> MNQ 1.24, GC 6.00 -> MGC 3.00), which makes the micro figure
+    very slightly conservative. Labelled approximate rather than presented as exact."""
+    return {
+        "scored_on": "FULL-SIZE NQ (point_value 20.0) and GC (100.0)",
+        "book_can_fund": "MNQ (2.0) / MGC (10.0) at this account size",
+        "point_value_ratio": _FULL_TO_MICRO_POINT_RATIO,
+        "micro_equivalent_total_pnl_usd_approx": round(total_pnl_usd / _FULL_TO_MICRO_POINT_RATIO, 2),
+        "approximation": "scales point value only; per-trip round-turn fees not re-derived",
+        "why_it_matters": ("the arming bar reads total_pnl_usd, which is scored on contracts "
+                           "this account cannot fund -- ~$1.79M notional at qty=3 vs ~$5,500 equity"),
+        "to_fix_properly": "switch CONFIGS to MNQ/MGC as spec_version ssr-v2 and recompute history from points",
     }
 
 
