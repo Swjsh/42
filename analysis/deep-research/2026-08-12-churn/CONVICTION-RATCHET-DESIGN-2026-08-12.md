@@ -131,3 +131,30 @@ Shadow-forward with F1-F4 remains the only admissible path. Concrete additions f
   realistic failure is uneven PER-ARM field coverage, so degradation must be tracked per arm).
 - **Weight calibration cannot be frozen on 08-12 alone** — the population clusters at 4 and the
   inputs are partial. Freeze weights only after the shadow produces clean rows across >=15 days.
+
+### ⛔ CORRECTION TO THE ABOVE (J, same night): "NOT BACKTESTABLE" WAS WRONG
+
+J pushed back: *"we could definitely just replay the days, backtest with this new knob."*
+He is right, and the section above overstated the blocker.
+
+**What I missed:** the level set does not have to be RECOVERED from logs — it can be
+REGENERATED from bars. `setup/scripts/refresh_levels_intraday.py::refresh(df=None)` takes an
+injectable DataFrame; its own comment reads *"df injectable for tests/replay (G6 seam
+pattern)"*, and `backtest/tests/test_level_compiler_v2_guards.py` already exercises exactly
+that injection. Feed it historical SPY bars and you get real level RECORDS — labels,
+memory_score, multi_day — as of that day. C1/C2/C3 become computable.
+
+**What stays true:** the *logged* history is still metadata-free, so a ledger-only
+reconstruction is impossible — that part of the diagnosis holds. The error was concluding
+"impossible" from "not in the logs" without checking whether the producer could be re-run.
+Same failure shape as the OPRA "403" a day earlier: an absent capability assumed from a single
+blocked path, when a second path was open the whole time. **Rule: before declaring data
+unavailable, check whether the PRODUCER can be re-run, not just whether the OUTPUT was stored.**
+
+**Known wrinkle for the backtest runner:** `refresh()` stamps `now = et_now()`, so injected
+historical bars get labelled with today's date, which also perturbs the downstream
+`_level_expired` filter. Must be solved (clock monkeypatch or stamp post-processing) and
+disclosed; if the regenerated set cannot be made faithful to the as-of day, the honest answer
+is to stop rather than score against a fabricated level set.
+
+A backtest agent is running this now, with the mandatory suppress-k-at-random control.
