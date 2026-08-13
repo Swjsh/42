@@ -1,0 +1,95 @@
+{
+  "prereg_id": "FILL-MODEL-UNIFICATION-2026-08-13",
+  "frozen_at_et": "2026-08-13T02:36:41",
+  "frozen_at_et_source": "setup/scripts/et_clock.py (box runs Mountain; ET = local+2)",
+  "frozen_before_any_comparison_run": true,
+  "frozen_at_git_head": "968f0a7032a71f508ab021995c7368a21db13813",
+
+  "why_now": {
+    "trigger": "The 2026-08-12 slippage re-baseline stopped at an explicit blocker in its own words: 'fix the runner-stop slippage first, or flipping the defaults to 0.01 bakes the non-monotonicity in permanently.' Half that blocker was cleared the same night; the other half was found hours later and is larger.",
+    "what_is_already_DONE_and_must_not_be_re-done": {
+      "simulator_real.py + simulator_real_trailing.py stop fills": "FIXED and committed 2026-08-12. All three stop sites in each file (pre-TP1 premium stop, post-TP1 conservative BE stop, post-TP1 aggressive stop) now pay exit_slippage. Guard: backtest/tests/test_exit_slippage_symmetry_2026_08_12.py, RED-proofed. This prereg does NOT revisit them; it inherits them as the new baseline."
+    },
+    "what_remains_and_is_the_subject_of_this_prereg": [
+      "A: exit_manager_walk.py fills 6 of 9 exit stages at the EXACT triggered premium with zero slippage (tp1, runner_target, premium_stop, profit_lock_floor, trail, be_stop). Only _MARKET_STAGES (time_stop, ribbon_flip, structure_stop) pay DEFAULT_EXIT_SLIPPAGE.",
+      "B: DEFAULT_ENTRY_SLIPPAGE / DEFAULT_EXIT_SLIPPAGE = 0.02 in simulator_real.py, versus a measured SPY-0DTE half-spread of $0.0104 (Roll estimator over 554,198 RTH ticks) and an independent broker-fill calibration of 0.01.",
+      "C: fees are modelled as $0. Measured $0.0304/contract-side. They cut the OPPOSITE way to a slippage reduction."
+    ]
+  },
+
+  "the_hazard_this_prereg_exists_to_contain": {
+    "distinct_from_the_2026-08-12_prereg": "That one contained ONE hazard: a friction change laundering a kill. This one contains that PLUS a sequencing hazard the earlier study could not have hit, because item A was not yet known.",
+    "sequencing_hazard": "Re-baselining slippage (B) on top of an ASYMMETRIC fill model (A) does not reduce error, it relocates it. exit_manager_walk's 6 zero-slippage stages make its P&L partly INSENSITIVE to the slippage constant, so lowering the constant moves market-exit cells and leaves limit-style cells nearly still. The resulting before/after table would look like a clean friction effect and would actually be a mixture of two different things. ORDER IS THEREFORE PART OF THE PREREGISTRATION, not an implementation detail.",
+    "offsetting_hazard": "B alone is favourable to every cell; C alone is unfavourable to every cell. Shipping B without C produces a one-sided improvement that is an artifact of partial modelling, not a better model. They must land in the SAME commit.",
+    "laundering_hazard_inherited_verbatim": "A SIGN FLIP IS NOT A RESURRECTION. No cell is re-armed, un-killed, or described as 'now profitable' by this work. The maximum output for any flipped cell is: candidate for re-validation through the normal gate stack, on its own evidence, later."
+  },
+
+  "mandatory_order_of_operations": [
+    "STEP 1 -- fix A (exit_manager_walk fill model) with the slippage constants UNCHANGED at 0.02. Publish the A-only delta. This isolates the fill-model effect from the friction effect.",
+    "STEP 2 -- only after STEP 1's table exists: change B and C together in one commit. Publish the (B+C)-only delta measured from STEP 1's post-fix baseline.",
+    "STEP 3 -- publish the combined A+B+C delta versus the pre-2026-08-13 baseline, and state explicitly that it is the composition of steps 1 and 2, not an independent measurement.",
+    "A run that changes A, B and C simultaneously is INVALID under this prereg regardless of what it shows. The three effects are not separable after the fact -- the 2026-08-12 study already demonstrated that 54.3% of exit-mix distributions shift between arms, so path divergence would be indistinguishable from friction."
+  ],
+
+  "population": {
+    "definition": "Every verdict-bearing script whose artifact still exists under analysis/ or strategy/ AND whose P&L flows through exit_manager_walk.walk_exit_manager or simulator_real*/simulate_trade_real* without an explicit slippage kwarg.",
+    "known_scale": "~95 files contain a genuine walk_exit_manager( call (grep files_with_matches over backtest/, verified 2026-08-12); the module self-describes '80+ call sites'. The simulate_trade_real side was AST-measured at 195 call sites / 166 default-consuming / 78 verdict-bearing scripts -- the widely-quoted '241 studies' was a raw grep of call sites and is WRONG.",
+    "counting_rule": "Report scripts that WRITE A VERDICT, never raw call sites. Conflating the two is the specific error this line exists to prevent."
+  },
+
+  "validity_gates_that_must_pass_before_any_delta_is_published": {
+    "G1_control_arm_reproduces": "Re-running the unchanged code must reproduce each published verdict EXACTLY. The 2026-08-12 study achieved this on all 4 Tier-A cells and it is the only thing that makes a delta interpretable.",
+    "G2_rng_noise_floor": "Two identical runs must differ in 0 keys. Measured 0/339 on 2026-08-12; re-measure, do not assume.",
+    "G3_write_sandbox": "No published verdict, no automation/state/* file, and no module default may be mutated by the measurement runs themselves.",
+    "G4_patch_binds": "Vary-and-assert: the fill-model change must produce a non-zero delta wherever the affected exit stages actually occur in the population. A zero delta everywhere means the patch did not bind (C14), not that the bug was harmless.",
+    "G5_input_freshness": "watcher-observations.jsonl is a ROLLING file that holds ~one day; studies reading it silently emit verdicts at n=0. Any cell whose n is 0 or whose population is empty is reported as NOT-RUN, never as a result."
+  },
+
+  "direction_sanity_check": {
+    "A_fill_model": "Charging slippage on 6 previously-free exit stages can only REDUCE realised P&L on cells that use them. Any cell that IMPROVES under A alone is an anomaly and must be explained before the table is published.",
+    "B_slippage_2c_to_1c": "Halving friction can only IMPROVE cells, NOW that the simulator_real asymmetry is fixed. Before that fix the sign was mixed -- that non-monotonicity was the bug. If any cell WORSENS under B alone, a zero-slippage path remains somewhere and must be found before proceeding.",
+    "C_fees": "Adding a real per-contract-side fee can only REDUCE P&L. Any improvement is an anomaly.",
+    "why_this_matters": "These three one-way predictions are the cheapest possible falsification test of the implementation. This repo has already retracted one 'errs conservative' claim about this exact code; a stated direction that the data violates is the signal that the model is still wrong."
+  },
+
+  "what_would_make_me_RECOMMEND_revisiting_a_killed_cell": {
+    "necessary_and_not_sufficient": [
+      "The cell reproduces exactly under G1.",
+      "Its kill basis is one that friction can actually move -- P&L or expectancy. NOT win-rate-threshold, NOT random_null (mathematically invariant: the null is simulated under the same friction, so both arms shift together), NOT concentration, truncation, frequency, look-ahead or edge_capture.",
+      "n >= 15 in the affected cohort.",
+      "The flip survives drop-best.",
+      "The flip is not a single-trade exit-path reclassification -- the 2026-08-12 study found one cell swinging +$80.64/trade against a ~$6/trade arithmetic bound purely because one trade moved LEVEL_STOP -> TP1_RUNNER_RIBBON."
+    ],
+    "prior": "14 of 20 killed cells cite at least one gate friction cannot move; only 2 died on a purely friction-movable basis, both on win rate. The expected number of legitimate revivals is approximately zero, and a result claiming many should be treated as evidence of an implementation error."
+  },
+
+  "aggregate_to_quantify": {
+    "forbidden": "A naive sum across cells. On 2026-08-12 that produced $1.38M, which is meaningless -- it double-counts nested keys across mutually exclusive grid cells. Publishing it would have been a fabricated headline.",
+    "required": "Per-cell deltas only, plus a count of cells by direction and a median per-trade delta within each of the three steps."
+  },
+
+  "ship_rule": {
+    "ships_on_completion": false,
+    "what_this_produces": "Three before/after tables (A, B+C, combined) and a scorecard. NOTHING is armed, un-killed, or re-config'd by this study.",
+    "live_config": "automation/state/* is READ-ONLY for this entire study.",
+    "module_defaults": "Changing DEFAULT_ENTRY_SLIPPAGE / DEFAULT_EXIT_SLIPPAGE is IN scope here (it is item B) but only in STEP 2, only alongside fees, and only after STEP 1's table exists."
+  },
+
+  "reporting_rule": {
+    "all_cells": "Report every cell, including unchanged and NOT-RUN ones. Reporting only movers is selection.",
+    "not_run_is_not_a_pass": "A cell that could not execute is NOT-RUN, never a null result. Conflating 'could not attempt' with 'attempted and found nothing' is a documented failure class here.",
+    "provenance_stamp": "Every published table carries the git HEAD it was produced at and the prereg_id, so a downstream consumer cannot inherit soundness sight-unseen."
+  },
+
+  "known_downstream_consumers_to_re-check_after_any_change": [
+    "gate_expiry_check.py and postfix_gate_costing.py were re-pointed onto walk_exit_manager on 2026-08-08, so a Discord-facing gate signal inherits the fill model.",
+    "recency_check.py feeds recency-confirmation.json, which fleet_executor.py:254 reads to shrink or pass LIVE qty. A fill-model change moves a live sizing input.",
+    "stop-mode-structure-vs-premium-2026-08-09 is doubly confounded by item A (its CONTROL arm resolves mostly via slippage-modelled structure_stop while its treatment arms resolve via zero-slippage premium_stop). It did NOT ship, but for three unrelated reasons -- the confound itself was never the thing that caught it."
+  ],
+
+  "provenance": {
+    "item_A_first_identified": "2026-07-23, automation/overnight/queue.md:2846 (TWIN-B6-SIM-FRICTION-CALIBRATION): 'every twin exit is a MARKET order (no exit-side passive-limit lane exists) ... never its TP1/stop fills exactly at the bracket level limit-exit assumption -- flagged as a TWIN-B6b follow-up, not built.' Correct, written down, and unacted-on for three weeks.",
+    "item_A_re-found_and_documented": "2026-08-12/13. exit_manager_walk.py docstring corrected (its 'resting-order fill model' justification is false: fleet_broker.market_sell sends {\"type\": \"market\"} with no limit_price for every exit stage, via the single call site exit_actuator.py:658, for both core and fleet). Pinned by backtest/tests/test_exit_walk_fill_model_2026_08_12.py.",
+    "blocking_relationship": "This prereg is the gate. Neither the walk fill-model fix nor the slippage re-baseline may proceed without it, and neither may proceed alone."
+  }
+}
