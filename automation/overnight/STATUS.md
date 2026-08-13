@@ -638,7 +638,7 @@ pass on the SPY monitoring semantics rather than a drive-by edit.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-12.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 ### DEGRADED: self-check 2026-08-12T21:09:57
 - PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
@@ -872,6 +872,229 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openro
 - ok: True
 - cost_usd: 0.0000
 
+## [2026-08-10] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-07..2026-08-10), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-10). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=RED
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($291.05); Bold_ATM_1+2=YELLOW ($1437.2)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: #4 ATM — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+
+## [2026-08-09 ~18:20 ET] RESOLVED: THE FUTURES BROKER WORKS — the month-old blocker was never real — REVOKE surface
+
+**Verdict: the Tastytrade sandbox trades futures. The 2026-07-07 diagnosis was wrong.**
+
+`Rejected: Session offline` was recorded in July as *"the cert account is not provisioned for
+futures"* and the futures lane carried that as a blocker for a month. It was a **market-hours
+artifact**. Proven end-to-end tonight on `5WW73759` with the CME session OPEN (sandbox, no real
+money at any point, ledger `automation/state/futures/broker-probe.jsonl`):
+
+| Test | Result |
+|---|---|
+| dry run | ✅ validated, 0 errors, bp effect **−$2.52** |
+| resting order | ✅ `Routed` → **`Live`**, `reject_reason: null`, cancelled clean |
+| marketable order | ✅ **FILLED** 1 `/MESU6` @ **7,772.50**, position held, closed, ended flat |
+
+**🚨 The bug hiding inside the answer.** Through all three tests the account still reported
+`is_futures_approved: false` and `futures_buying_power: 0.0` — the cert environment simply does
+not populate them. The arm gate (`futures_heartbeat_core._broker_provisioned`) required
+`futures_bp > 0`. **An armed, fully working account would have routed nothing, forever, while
+reporting itself safe** — the C14 dead-knob shape, and the sole evidence for the knob was one
+observation taken outside trading hours. The gate now asks *will the broker accept an order
+right now* via a dry run (routes nothing, cannot fill), so a session-hours refusal reads as
+"not now" instead of "not ever".
+
+**A second silent gap, found while fixing the first.** `test_futures_heartbeat.py` has an autouse
+fixture that monkeypatches `_broker_provisioned` wholesale — so all 17 of its tests pass *without
+ever executing the gate's real body*. The new guards therefore live in
+`test_futures_trader_core.py::TestBrokerProvisioningGate` (5 tests, RED-proofed in BOTH
+directions: reverting to `futures_bp > 0` fails two of them).
+
+**Also fixed: the probe's own first scheduled fire failed** with `ModuleNotFoundError: No module
+named 'tastytrade'`. This box has THREE pythons and only the Microsoft Store one carried the SDK;
+I had pointed the task at `AppData\Local\Programs\Python\Python313`. It ran clean by hand and
+died on the scheduler — *"it works when I run it" proves nothing about the interpreter the
+scheduler uses.* SDK now pinned into the backtest venv at **12.4.1**, the version the July
+order-path proof used (pip resolves 13.x by default — a major bump that would silently change the
+SDK surface the entire futures order path depends on).
+
+**What this does NOT change.** The lane's default stays `fillsim`. The sandbox **resets every 24
+hours**, which is fine for a fill-parity check and wrong for a book of record whose journal needs
+continuity. The principled shape is fillsim as the persistent book + tastytrade as a real-fill
+parity lane (the twin pattern) — a deliberate next step with its own scorecard, not a switch to
+flip on a Sunday evening. Live money remains out of scope (OP-0 #1 + a new venue, double-gated).
+
+**J's decision list just got shorter:** the venue question is closed, and closed well. No IBKR
+application needed, no $7/mo TradingView add-on needed for a 5m bar-close strategy, no prop firm.
+
+**REVOKE:** `Unregister-ScheduledTask -TaskName "Gamma_FuturesBrokerProbe" -Confirm:$false`
+(its job is done — the verdict is conclusive; delete it rather than let a diagnostic become a
+standing instrument). Gate revert: `git revert` the commit below.
+
+---
+
+
+## [2026-08-09 ~16:27 ET] SHIP: TRENDLINE DETECTOR + TIMEFRAME MATRIX + VALIDATION (measurement only, NO live flip) -- commits `605ecbbe`/`6b13a742`/`428fa273`/`783f291f` -- REVOKE surface
+
+**What shipped.** `backtest/lib/trendline_detector.py` -- the first pivot-anchored trendline detector
+that's importable library code (not a standalone script), built on `crypto/lib/market_structure.py`'s
+instrument-agnostic swing-pivot primitive per J's directive. `anchor_mode` (wick|body) structurally
+never mixed within one line; zero look-ahead (`as_of_index` truncates before any computation, not
+after); stable `line_id` labels (`TL-{symbol}-{tf}-{RES|SUP}-{W|B}-{first_anchor_unix}`); additive
+`trendline_state` field on `DecisionRowModel` (default `None`, backward compatible). 25/25 guard tests,
+incl. a monkeypatch RED-proof of the no-mixing guard. Does NOT touch the live bear trigger
+(`filters.py:601`) -- builds around it, per the brief.
+
+**Timeframe matrix** (J's literal question, `analysis/deep-research/trendline-timeframe-matrix-2026-08-09.json`):
+5m/15m near coin-flip touch-respect (47.6%/48.3%, both slightly negative mean forward move); 30m
+modestly better (53.5%, +$0.0155) but too sparse (497 touches/399 days, ~1.2/day) to be a PRIMARY
+0DTE signal; 1h basically never sets up (n=6); 1m (25-day REST sample, not population) reads positive
+but unvalidated at scale. **Recommendation: keep drawing SPY intraday lines on 5m** -- signal density
++ the already-proven live trigger, not raw respect-rate (30m nominally wins that narrow metric).
+MES/futures timeframes explicitly out of this agent's lane, noted for the swing-validation sibling.
+
+**Validation (4 cells, frozen prereg `a6cd262b` committed BEFORE the runner, all real-fills via
+`walk_exit_manager`, never `simulate_trade_real`):**
+- CELL A (measurement): `trendline_rejection` AS SOLE TRIGGER is the single strongest cohort in the
+  391-day book -- n=176, +$2,456.84, $13.96/tr, WR 33.5%. Co-firing with another trigger INVERTS it to
+  a loser (-$5.38/tr, n=25). Extends the 2026-08-06 single-day finding population-wide. Nothing to
+  ship -- already live.
+- CELL B (PROPOSE-ONLY, explicitly not shipped): the shadow bull-reclaim trigger fired unconditionally
+  loses -$27,378.25 over 2,411 real-fills counterfactual replays (-$11.36/tr), fails 3/5 auto-ratify
+  gates. Handed to J / the concurrent bull-graduation sibling (`bull_trendline_reclaim_graduation_
+  2026_08_09.py`, same session, same shadow trigger, different lane) as a cautionary baseline --
+  deliberately NOT flipped or wired, to avoid colliding with in-flight work on the identical surface.
+- CELL C: proximity-admissibility KILL per the frozen ladder -- near-bucket alone looks strong
+  ($73.01/tr) but the 3-bucket pattern is non-monotonic and fails the shuffle-null; not cherry-picked.
+- CELL D: wick vs body anchor families are statistically indistinguishable (47.65% vs 48.70% respect,
+  p=0.96) -- body family is real but redundant, not a hidden edge.
+
+**Two real bugs found and fixed en route (both outside this agent's owned files, flagged not silently
+patched over):** `recency_check.py::load_merged_spy_vix()`'s docstring claims dedup, the
+implementation is a bare `pd.concat` with none -- worked around locally, root fix belongs upstream.
+`bull_trendline_reclaim_graduation_2026_08_09.py` (sibling's file) trips the DST-frame same-file guard
+throughout this session -- still red as of this writing, not this agent's file to fix.
+
+**Guards:** `backtest/tests/test_trendline_detector.py` (25/25). **Kill criterion:** N/A -- nothing
+live was flipped, so there is nothing to revert on a bad signal. **Revert (one line each, all
+additive):** delete `trendline_detector.py` + its test file; drop the one `trendline_state` field
+from `DecisionRowModel`; the two study scripts/JSON outputs are inert (nothing imports them). Zero
+touches to `params.json`/`filters.py`/`orchestrator.py`. Full report:
+`analysis/deep-research/TRENDLINE-ENGINE-2026-08-09.md`.
+
+---
+
+
+## [2026-08-09T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-09 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-09 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-09 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-09. |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-09 window_end=2026-08-07 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=12 (delta +2 vs baseline n=10) exp=$-40.75/tr, verdict_moved=False. bull now: GREEN n=10 exp=$51.0/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-09 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-09 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-09`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+
+## [2026-08-09 ~16:10 ET] SHIP: AUTONOMOUS FUTURES LANE (MES, SIMULATED fills) -- commit `4db91f44` -- REVOKE surface
+
+**What shipped.** The futures lane can now trade autonomously. `Gamma_FuturesTrader` (every 5 min,
+09:30-16:00 ET weekdays) runs one deterministic see->decide->act tick on MES through a
+BROKER-AGNOSTIC seam. Doc: `markdown/futures/AUTONOMOUS-FUTURES-LANE.md`. Executes FUTURES-FIRST-PLAN
+WS-F1/F2/F3/F4/F6/F7.
+
+**Why it was blocked, and the part nobody knew.** The known blocker was the broker (venue unresolved).
+The REAL blocker was data: `MES_5m_continuous.csv` ends **2026-06-12**, two months stale. Every "live
+futures tick" the plan contemplated would have been reading June bars while believing it read the tape.
+Nothing was watching for it.
+
+**Two plan audit claims corrected by live evidence:**
+1. *"Edge #3 has NEVER run"* -- the TASK never fired (`LastTaskResult 267011`), but the SCRIPT has:
+   6 closed round trips, +$804.33, mean +$134.06/tr vs validated OOS +$71.46, `PENDING_MORE_DATA`
+   (needs n>=20). **Exercised, not deleted.** The mean at 1.9x validated OOS on n=6 is a too-good
+   flag, not a green light.
+2. *"the sandbox is not provisioned for futures"* -- **UNCONFIRMED.** Re-probing returned
+   `tif.futures_session_not_active` (a MARKET-HOURS error) with `is_futures_enabled: true`. The July
+   `Session offline` reject is equally consistent with "the session simply was not active".
+   `Gamma_FuturesBrokerProbe` (18:05 ET daily) settles it; verdict lands in
+   `automation/state/futures/broker-probe.jsonl`.
+
+**EVIDENCE CLASS -- read before quoting any number.** Fills are **SIMULATED** (local `fillsim` paper
+exchange). Mechanism evidence, **NEVER edge evidence** -- same standing rule as the crypto twin.
+`journal/futures/trades.csv` carries a mandatory `fills` column so the two classes cannot be
+aggregated by accident. `should_take_v3` was validated on the roll-adjusted master and is here fed a
+different (live, raw front-month, delayed-quote) frame -- a disclosed data-source change. Any edge
+claim needs the canonical battery on its own frozen prereg.
+
+**Proven before registration:**
+- 6/6 lifecycle drills -- entry fill / TP1 partial / full stop / gap-through-stop (fills at the bar
+  OPEN 7,775, **not** the stop 7,790) / forced flatten / no-stacking.
+- No-look-ahead replay, 3 real RTH sessions: 234 ticks, 57 signals, 4 entries, 4 fills, 4 TP1,
+  **+$21.29 SIMULATED**, 0 errors (`analysis/futures-replay-drill-2026-08-09.json`). A 5-day run over
+  the same window: 5 trades (4 TP1 + 1 stop), **-$2.70**.
+- Scheduled task fired for real: `LastTaskResult=0`, heartbeat advanced to the fire's own ET stamp.
+- 70 guards (`test_futures_risk_rails.py` 50 + `test_futures_trader_core.py` 20), RED-proofed.
+
+**Bugs the drills caught (this is why drills exist):**
+- `run_tick` read `process_quote`'s return as `{"events": [...]}`; it returns a flat `{"event": ...}`.
+  The fill engine worked perfectly and the tick would have recorded **zero exits forever**.
+- The replay drill redirected state but **not** the journal -- drill trades were landing in the REAL
+  `journal/futures/` ledger. Fixed; the contaminated file was removed.
+- A guard was passing **vacuously**: under default rails the liquidation-distance rail is shadowed by
+  `account_floor` + `per_trade_risk` (C15), so removing it changed nothing. The test now also sweeps a
+  config where it genuinely binds.
+- An abandoned 2026-06-17 `journal/futures/trades.csv` with a **different header** sat on disk; our
+  writer would have appended misaligned columns under it (L294). Foreign headers are now rotated aside.
+
+**Risk rails (WS-F7), all in DOLLARS/POINTS** -- %-of-premium is meaningless on a margin product:
+1 MES cap, -$100/trade, -$200/session, $1,600 floor, RTH-only, no entry within 30m of the 17:00 ET
+settlement stop, 8-day rollover block, GREEN-feed-only. Plus the liquidation-distance assertion (our
+stop must fire before the broker's margin call). **Fail-closed for entries, fail-open for exits** --
+no rail can block an exit or a flatten.
+
+**Liveness.** A beacon is written on EVERY fire including HOLDs. Both `futures/trader/heartbeat.json`
+(high, 20m) and `futures/data-freshness.json` (critical, 20m) are registered in
+`state-freshness-manifest.json`, so the EXISTING monitor alarms -- no new monitor built. Wired day
+one deliberately: the crypto twin once went dark 4 days unnoticed.
+
+**Visibility (WS-F6).** `HOME.md` now generates an **Other lanes** section -- futures (trader, sim
+book, feed, Edge #3 vs its arming bar, SSR shadow) and crypto (gym scorecard + per-audit breakout,
+twin liveness). J's question *"where do I see the crypto gym on the dashboard"* is answered; the tile
+immediately surfaced **4 YELLOW gym audits** that had no surface before.
+
+**Also fixed, unrelated to futures:** `test_bold_adaptive_sizing_2026_08_02` was RED on `main` --
+it never passed `settled_cash_available`/`same_day_entries_used`, which became REQUIRED when bold-2
+moved to `cash_settlement` (`883764ef`). Every call short-circuited to `UNREADABLE_INPUT` and stopped
+pinning the risk-cap branch it exists to guard. **Production always passed them**
+(`heartbeat_core.py:2039`, `j_intent_executor.py:291`) -- stale test, not a live bug.
+
+**What needs J:** nothing to run the lane. Only (a) a venue decision IF tonight's probe returns H1,
+(b) the optional $7/mo TradingView CME real-time add-on (not needed for a 5m bar-close strategy),
+(c) live money -- out of scope, OP-0 #1 plus a new venue, double-gated.
+Prop firms are NOT a path (`PROP-FIRM-RESEARCH-2026-08-09.md`).
+
+**REVOKE:** `Unregister-ScheduledTask -TaskName "Gamma_FuturesTrader" -Confirm:$false`
+(and `Gamma_FuturesBrokerProbe` likewise; delete it once its verdict is conclusive).
+
+---
+
+
+### DEGRADED: self-check 2026-08-11T05:39:56
+- TRENDLINE-FEED DEGRADED: trendlines.json is 88.9 days old (stamp 2026-05-14T08:39:13-04:00, limit 1.5d) -- the producer died again (47-day-silence class, D9). Shadow surface, non-load-bearing; check run-premarket.ps1 TRENDLINES step / Gamma_Trendlines.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-11.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+---
+
 ## Known broken
 - [2026-08-13T16:07:55 ET] shadow_signal_audit: newly ORPHANED/DRIFTED: confluence_zones. A detector produces output no decision path consumes (C7 at architecture scale). See analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md.
 
@@ -880,4 +1103,11 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openro
 - TRENDLINE-DRAW never marked today (2026-08-13) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-13 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-13.log shows 45 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 45x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-13.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-13T16:39:57
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- TRENDLINE-DRAW never marked today (2026-08-13) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-13 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-13.log shows 47 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 47x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-13.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
