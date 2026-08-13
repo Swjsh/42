@@ -522,3 +522,56 @@ pre-registered A/B study (never hand-picked)"* — never run.
 tag — a scorecard path or the literal word UNVALIDATED. A comment explaining the reasoning is
 NOT evidence (the exemplar's comment was expert-sounding and 2x wrong). Re-run at every posture
 change; paper->live especially, where fees and spread go from $0 to real.
+
+---
+
+## 12. CONVICTION VERDICT: NULL (2026-08-12) + latency root-caused + slippage standing results
+
+**[CONVICTION-VERDICT-2026-08-12.md](../../analysis/conviction/CONVICTION-VERDICT-2026-08-12.md)
+— DO NOT ARM.** Backtested on history (it WAS possible: `reconstruct_levels_asof.py` already
+existed; reconstruction fidelity measured at recall 0.852 / precision 0.806 / 0 inventions).
+Higher conviction does NOT make more money: **Spearman −0.025** at the signal unit; scores 5-6
+are 0-for-6. The ratchet suppresses −$22 vs a random-suppression median of **+$159, p = 0.325**
+— *deleting 21 random trades beats deleting the 21 the score picked*. Kept expectancy worse
+than baseline at every floor 2-6. NOT a hard kill (6 signals, binomial p=0.124) — shadow keeps
+running, prior is now null. **Role-side coherence measured and NOT supported — do not add it.**
+F1 gate corrected: **"≥25 blocked SIGNALS"**, not fills (6-arm fan-out inflates fills 2.33x).
+
+**LATENCY ROOT-CAUSED — the 424 s was mostly a measurement artifact.** `fill_latency.py:138`
+maps `bar_close_ts` to `trigger_bar_et`, which is the bar's **OPEN**. Proved: engine logged
+`trigger_bar_et=09:45, spy=773.54`; the 5-min bar labelled 09:45 (spans 09:45-09:50) closes at
+exactly 773.54. **Every hop inflated by 300 s.** True bar-close→verdict ~**124 s**. Tick-by-tick
+shows bull score sat at 6 for ten ticks and jumped to 10 the moment the 09:45 bar closed — the
+engine fired on the FIRST tick it could. **J's sniper entries are earned; median trigger-close→
+fill drift is $0.18** (tail to $1.22 on fast morning moves). Of the true ~124 s: ~64 s to pick
+up a closed bar, **~60 s lost to the free-model veto, which vetoed then PASSED the identical
+verdict one tick later** — a second, independent charge against the veto lane on top of its
+31.2% accuracy. Work order: rename to `trigger_bar_open_ts` + derive a real `bar_close_ts`.
+
+**SLIPPAGE RE-BASELINE — standing results (agent stalled mid-table; these were stable across
+3 reports):**
+- **"241 studies" was WRONG** (raw grep of call sites). AST: 195 call sites, 166
+  default-consuming, **78 scripts writing a verdict artifact that exists today**.
+- 🐛 **EXIT-SLIPPAGE ASYMMETRY BUG, verified independently by me**: market exits pay
+  `- exit_slippage` (simulator_real.py ~659/685/710/740/763/784/824) but
+  `runner_exit_premium = runner_stop_premium` and `cons_price = runner_stop_premium` fill at
+  the EXACT stop with none, as does the TP1 premium-fallback limit. Predicted
+  `0.30 x 0.01 x 2 x 100 = $0.60` matched observed −$0.60 exactly. Shared by
+  `simulator_real_trailing.py`; credit/debit sims are clean. **Makes the harness non-monotonic
+  — lower slippage makes some cells WORSE.**
+- ⛔ **Therefore the 2c default was NOT uniformly pessimistic** (a claim I had written into
+  simulator_real.py and have now corrected there). Same script, same trades: premium-stop arm
+  moved +$39.60, market-exit arm +$548.80. **No single "pessimism" number exists — the sign
+  depends on each cell's exit mix.**
+- **The one Tier-A killed cell (ORB) HOLDS** — reproduced exactly, died on win rate (gate
+  `wr >= 0.50`), which friction does not move. No sign flip.
+- 🚨 **INPUT ROT**: `watcher-observations.jsonl` is rotated past 1MB by `heal-engine.ps1` and
+  holds only today. Old studies match zero rows, exit 0, and **emit real-looking verdicts at
+  n=0** (ORB published n=10; re-runs give n=0 and still print `verdict: FAIL`). 7,681 rows
+  recovered from archives reproduced the published numbers exactly. **Any study re-run today
+  against this file is silently scoring nothing.**
+
+**ORDER OF OPERATIONS for the fill model — do NOT do these separately:**
+fix the exit-slippage asymmetry FIRST, then re-baseline slippage (2c→1c) AND add fees
+($0.0304/contract-side, currently modelled as $0) in ONE prereg'd commit. They cut opposite
+ways; any one alone moves every historical cell in a misleading direction.
