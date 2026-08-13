@@ -67,11 +67,67 @@ def _detector_alive() -> tuple[bool, int | None]:
         return False, pid
 
 
+SUMMARY_FILE = STATE_DIR / "window-leak-summary.json"
+
+# A detector process older than this is RECYCLED even while "alive" (2026-08-13).
+#
+# WHY. On 2026-08-13 J reported console windows flashing all morning. The detector process
+# (pid 8840) was alive and polling -- window-leak-summary.json read polls_total 3,180,000 with
+# leaks_total 0, and window-leaks.jsonl had logged nothing since 2026-07-14. Restarting it
+# produced 37 detections in the next 8 minutes, spread across the whole window (only 2 in the
+# first poll, so NOT a startup enumeration artifact). At ~4.6 leaks/min the old process should
+# have logged tens of thousands over its 88-hour life. It had silently stopped detecting while
+# continuing to poll and to write summaries.
+#
+# This keepalive only ever asked "is the PID alive?", which was TRUE the entire time. Process
+# liveness is not detection liveness -- the same distinction that let `exit=0` mean "nothing
+# raised" rather than "the work happened" elsewhere in this repo on the same day.
+#
+# A bounded recycle is the honest mitigation: the wedge's mechanism is not understood, and
+# "polls are advancing" cannot distinguish a wedged detector from a genuinely quiet screen.
+# Recycling costs one process restart per MAX_AGE and removes the failure's ability to persist.
+MAX_DETECTOR_AGE_S = 6 * 3600
+
+
+def _detector_runtime_s() -> "float | None":
+    """Runtime derived from the detector's OWN counters (polls_total * poll_interval_s).
+    Returns None if unreadable -- and an unreadable summary must NOT trigger a recycle, or a
+    transient read error would restart the detector on every fire."""
+    try:
+        import json
+        d = json.loads(SUMMARY_FILE.read_text(encoding="utf-8"))
+        return float(d["polls_total"]) * float(d["poll_interval_s"])
+    except Exception:
+        return None
+
+
+def _kill(pid: int) -> bool:
+    try:
+        subprocess.run(["taskkill", "/PID", str(pid), "/F"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                       timeout=10, creationflags=_CREATE_NO_WINDOW)
+        return True
+    except Exception:
+        return False
+
+
 def main() -> int:
     alive, pid = _detector_alive()
     if alive:
-        _log(f"detector alive (pid={pid})")
-        return 0
+        age = _detector_runtime_s()
+        if age is not None and age > MAX_DETECTOR_AGE_S and pid:
+            _log(f"detector pid={pid} has run {age/3600:.1f}h (> {MAX_DETECTOR_AGE_S/3600:.0f}h) "
+                 f"-- RECYCLING to clear a possible detection wedge (2026-08-13 incident)")
+            if _kill(pid):
+                time.sleep(1)
+                # fall through to the relaunch path below
+            else:
+                _log(f"  taskkill failed for pid={pid}; leaving it alive")
+                return 0
+        else:
+            _log(f"detector alive (pid={pid}, runtime={age/3600:.1f}h)" if age is not None
+                 else f"detector alive (pid={pid}, runtime unknown)")
+            return 0
 
     if not SYS_PYTHONW.exists():
         _log(f"FATAL: system pythonw missing at {SYS_PYTHONW}")
