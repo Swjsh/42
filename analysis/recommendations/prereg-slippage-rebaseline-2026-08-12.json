@@ -57,6 +57,27 @@
     ]
   },
 
+  "AMENDMENT_1": {
+    "amended_at_et": "2026-08-12 22:35 Wednesday EDT",
+    "amended_after_seeing": "Control-arm results for the first ~18 of 78 scripts, plus a reconstruction experiment. NO treatment (0.01) arm result influenced this amendment, and the anti-laundering rule is TIGHTENED by it, not loosened. Declared openly rather than applied silently.",
+
+    "what_I_found_that_the_freeze_did_not_anticipate": "The dominant failure is not slowness or non-determinism, it is INPUT ROT with a single root cause. automation/state/watcher-observations.jsonl -- the trade population for a large family of these studies -- is a ROLLING file. setup/scripts/heal-engine.ps1 rotates it into automation/state/archive/ once it exceeds 1MB, so the live file holds only the CURRENT DAY (102 rows, all 2026-08-12). Studies from May/June therefore see an empty population, run clean, and emit n=0 verdicts with no error. Two confirmed: orb_real_fills_validate.py (published n=10, re-runs n=0) and v14e_chart_stop_research.py (published n_stopped_obs=100, re-runs n=0).",
+
+    "recovery_attempted": "Per the standing lesson (commit e8e7913d: check whether the PRODUCER can re-run, not just whether the OUTPUT was stored) the archives were checked. History IS recoverable: archive/watcher-observations-rotated-2026-06-22.jsonl alone holds 4,914 rows back to 2025-01-02 including v14_enhanced_watcher (563) and orb_watcher (402). A read-only reconstruction (union of 6 archives + the live file, keyed on observation-event identity, graded copy wins) yields 7,681 rows over 376 dates, 2025-01-02..2026-08-12. The live file is never modified.",
+
+    "why_the_reconstruction_is_NOT_a_reproduction": "The reconstruction is a SUPERSET, not a restoration of the historical snapshot. v14e_chart_stop_research re-runs on it with n_stopped_obs=132 against a published 100, because observations kept accruing after the study was published (and the SPY 5m master CSV has since been re-merged to a later end date). The original population is unrecoverable -- nothing snapshotted it.",
+
+    "the_two_tier_design_this_forces": {
+      "TIER_A_prereg_eligible": "Control@0.02 reproduces the published artifact's headline numbers. The 0.01-vs-0.02 delta is directly comparable to the PUBLISHED VERDICT. Only Tier A can ever produce a 'CANDIDATE FOR RE-VALIDATION' line.",
+      "TIER_B_paired_arm_only": "The script runs with a non-empty population, but on a DRIFTED or RECONSTRUCTED population that does not match the published snapshot. Control and treatment share a byte-identical population and code path, so the SLIPPAGE EFFECT is validly measured -- but the result says NOTHING about whether the published verdict was right, and CANNOT revisit any kill. Reported separately and labelled on every row.",
+      "TIER_C_not_runnable": "Vacuous even after reconstruction, or ERROR / TIMEOUT. Reported with the exact reason and no numbers."
+    },
+
+    "how_this_TIGHTENS_rather_than_loosens_the_anti_laundering_rule": "The original freeze had one gate. This adds a second, strictly narrower one: a cell can only be nominated for re-validation from TIER A, and Tier A additionally now requires that the control reproduce the published numbers -- which the rot makes RARE. Tier B is explicitly barred from nominating anything, no matter how large or positive its delta. If Tier A turns out to be empty, the honest headline is 'the affected verdict set is not reproducible today', and that is a reportable result, not a failure to be worked around.",
+
+    "vary_and_assert_requirement_added": "C14 (dead/translated-but-unapplied knobs) requires proving the injected knob BINDS. A treatment run that produces byte-identical output to control is only acceptable when the population is empty. For every non-empty cell, control-vs-treatment MUST differ in at least one numeric, or the cell is classified PATCH_DID_NOT_BIND and investigated -- never reported as 'no effect'. This was added after v14e_chart_stop_research initially appeared to show 'no change' when in fact it had zero trades."
+  },
+
   "direction_sanity_check": {
     "assertion": "Lower friction is strictly less cost. For any given trade population, slippage=0.01 must produce total P&L GREATER THAN OR EQUAL TO slippage=0.02.",
     "if_violated": "Any cell that gets WORSE at 0.01 indicates a BUG in that harness -- a sign error, a slippage applied in the wrong direction, or a path-dependent exit whose trigger ordering is being changed by the fill price. This is pre-registered as a MORE VALUABLE finding than the re-baseline itself and will be reported loudly rather than smoothed over.",
