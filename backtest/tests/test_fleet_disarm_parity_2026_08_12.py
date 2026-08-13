@@ -99,6 +99,43 @@ def test_a_disarmed_setup_can_never_be_SELECTED_for_an_order(strat):
     assert mixed is not None and mixed.strategy == "ribbon_ride"
 
 
+def test_EVERY_registry_strategy_is_governed_by_the_switch(strat):
+    """THE CLASS, not the instance. vwap_continuation is how we FOUND this; it is not the scope.
+
+    J's question was "how many more things can be wrong?" -- and the honest answer for this class
+    is only bounded if the mechanism covers EVERY strategy, not the one that happened to bleed.
+    So this drives each REGISTRY strategy through select_plan with the disarm policy stubbed to
+    name it, and asserts it becomes unselectable. A strategy added later with its own bespoke
+    arming path fails here instead of quietly trading after a kill.
+    """
+    import importlib.util as _iu
+    import sys as _sys
+    fleet_dir = REPO / "automation" / "state" / "fleet"
+    if str(fleet_dir) not in _sys.path:
+        _sys.path.insert(0, str(fleet_dir))
+    spec = _iu.spec_from_file_location("_fleet_exec_all", fleet_dir / "fleet_executor.py")
+    fx = _iu.module_from_spec(spec)
+    _sys.modules["_fleet_exec_all"] = fx
+    spec.loader.exec_module(fx)
+
+    assert strat.REGISTRY, "fixture sanity: the registry is empty, this test would be vacuous"
+    ungoverned = []
+    for s in strat.REGISTRY:
+        # Pretend THIS strategy is the disarmed one, whatever params actually says today.
+        fx.strategies._disarmed_setups = lambda _s=s: {x.lower() for x in _s.entry_setups}
+        plan = fx.EntryPlan("risky-1", "ENTER", "C", s.entry_setups[0], 600, 1.0, "ELITE",
+                            "test", strategy=s.name)
+        got = fx.select_plan([plan])
+        if got is not None and got.action == "ENTER":
+            ungoverned.append(s.name)
+    # restore the real policy so later tests see production behaviour
+    fx.strategies._disarmed_setups = strat._disarmed_setups
+
+    assert not ungoverned, (
+        "these REGISTRY strategies can be SELECTED FOR AN ORDER even when params disarms them, "
+        f"so a kill would half-land on them exactly as it did for vwap_continuation: {ungoverned}")
+
+
 def test_the_legacy_path_stays_unreachable_in_production(strat):
     """WHY fired() carries no disarm: production never reaches it. plan_all branches on a
     top-level "strategies" key and build_shared_signal ALWAYS emits one, so the legacy
