@@ -1,0 +1,83 @@
+{
+  "_doc": "Classification of every action the LIVE engine emits, by whether the BACKTEST can reproduce it. Consumed by setup/scripts/parity_check.py. An action the live engine emits that is absent here is UNCLASSIFIED and turns the check RED -- that is the alarm, and it is the exact state VETOED_BY_MODELS sat in unnoticed for 38 days while every backtest silently overstated trade count.",
+  "_status_vocabulary": {
+    "MODELED": "The backtest reproduces this refusal. Cite the backtest-side file:line.",
+    "LIVE_ONLY_INTENTIONAL": "Live-only BY DESIGN with no meaningful backtest equivalent (e.g. broker-race guards). Must carry a reason.",
+    "LIVE_ONLY_DIVERGENCE": "Live refuses, the backtest CANNOT. Backtest is optimistic by this action's share of actionable ticks."
+  },
+  "_rule": "Only classify what you have independently verified with file:line on BOTH sides. Leaving something UNCLASSIFIED is honest; guessing MODELED to get a green light is the failure this file exists to prevent.",
+  "_seeded": "2026-08-12 -- seeded with the 5 actions verified by adversarial audit this session (workflow wf_66f0df68-a26, parity lane: 5 claims upheld, 0 refuted). Everything else is deliberately left UNCLASSIFIED rather than assumed.",
+  "actions": {
+    "VETOED_BY_MODELS": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "The free-model veto ran ONLY in heartbeat_core.run_account's live tick wrapper (heartbeat_core.py:1581-1583), after the shared engine_cli verdict. Verified absent from engine_cli.py, gates.py, score.py, orchestrator.py, simulator_real.py, simulator_real_trailing.py, engine_fullhist_replay.py, replay_heartbeat_core.py and dojo/engine_step.py. It killed 132 of 656 live ENTER verdicts (20.1%) across 38 days while every backtest assumed those trades were taken. DISABLED on the money path 2026-08-12 (commit 073469a9, GAMMA_FREE_MODEL_VETO defaults off), which finally aligns live with what backtests always represented -- but every pre-2026-08-12 backtest verdict still carries this bias.",
+      "verified": "2026-08-12, 12 claims upheld / 0 refuted, ledger counts recomputed from raw JSONL by an independent verifier"
+    },
+    "SKIP_STRUCTURE_VETO": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "structure_veto_enabled is true in Safe's params.json and enforced every live tick inside engine_cli.decide_payload -- but the veto lives in engine_cli.py, not gates.py, and orchestrator.run_backtest calls score_bar/evaluate_gates DIRECTLY, never decide_payload. So no backtest kwarg can switch it on: it is architecturally invisible to every orchestrator-based tool.",
+      "verified": "2026-08-12 adversarial verify, upheld"
+    },
+    "RISK_DENY_PDT": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "orchestrator.py's risk_gate assert-agree call explicitly neutralises PDT limits, so the backtest takes day-trades the live PDT counter refuses. Rule 7 is a hard live constraint with no backtest counterpart.",
+      "verified": "2026-08-12 adversarial verify, upheld"
+    },
+    "RISK_DENY_SETTLEMENT": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "Same orchestrator neutralisation. The cash-settlement branch is doubly unreachable in backtest: settled_cash_available/same_day_entries_used are never supplied, AND orchestrator never sets pdt_gate_mode at all (zero occurrences), so it always defaults to margin_pdt and the branch is gated off before the None-check is reached.",
+      "verified": "2026-08-12 adversarial verify, upheld (verifier added the second, more fundamental mechanism)"
+    },
+    "RISK_DENY_RISK_CAP": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "Same orchestrator risk_gate neutralisation -- kill-switch and prior-stop state are not threaded into the backtest, so per-trade risk-cap refusals never fire there.",
+      "verified": "2026-08-12 adversarial verify, upheld"
+    },
+    "SKIP_ELITE_BULL_LEVEL_RECLAIM": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_CONF_LVL_REC_AFTERNOON": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_DOJI_ENTRY_BAR": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_RIBBON_MOMENTUM_GATE": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_BULL_1100_1200": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_LEVEL_REJECTION_GATE": {
+      "status": "MODELED",
+      "reason": "Enforced in backtest/lib/engine/gates.py, which orchestrator.run_backtest DOES call (orchestrator.py:43 `evaluate_gates as _engine_evaluate_gates`). Shared code -- live and backtest evaluate the identical gate.",
+      "verified": "2026-08-12 -- located in gates.py; orchestrator import confirmed at orchestrator.py:40-43"
+    },
+    "SKIP_QUALITY_LOCK": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "THE engine_cli BLIND SPOT. Enforced inside backtest/lib/engine/engine_cli.py, which is shared code by location but NOT by call path: orchestrator.run_backtest imports only score_bar and evaluate_gates (orchestrator.py:40-43) and never calls decide_payload -- the single mention of engine_cli in orchestrator.py is a comment at :1301. So every orchestrator-based backtest tool is architecturally incapable of reproducing this refusal, exactly like SKIP_STRUCTURE_VETO. Being in a 'shared' file is not the same as being on the shared call path, and that distinction is what hid this.",
+      "verified": "2026-08-12 -- found by parity_check's own first run; grep-confirmed engine_cli-only + orchestrator import list read directly"
+    },
+    "SKIP_BAD_INPUT": {
+      "status": "LIVE_ONLY_DIVERGENCE",
+      "reason": "THE engine_cli BLIND SPOT. Enforced inside backtest/lib/engine/engine_cli.py, which is shared code by location but NOT by call path: orchestrator.run_backtest imports only score_bar and evaluate_gates (orchestrator.py:40-43) and never calls decide_payload -- the single mention of engine_cli in orchestrator.py is a comment at :1301. So every orchestrator-based backtest tool is architecturally incapable of reproducing this refusal, exactly like SKIP_STRUCTURE_VETO. Being in a 'shared' file is not the same as being on the shared call path, and that distinction is what hid this.",
+      "verified": "2026-08-12 -- found by parity_check's own first run; grep-confirmed engine_cli-only + orchestrator import list read directly"
+    }
+  },
+  "_engine_cli_blind_spot": "SKIP_STRUCTURE_VETO, SKIP_QUALITY_LOCK and SKIP_BAD_INPUT share one root cause: they are enforced in engine_cli.decide_payload, which no orchestrator-based backtest calls. 152 live refusals (6.9% of actionable) that no backtest can reproduce. Fixing the class -- routing backtests through decide_payload, or lifting these into gates.py -- closes all three at once and prevents the next one."
+}
