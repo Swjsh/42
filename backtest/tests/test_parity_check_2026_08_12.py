@@ -95,6 +95,48 @@ def test_confirmed_and_unknown_are_never_blended():
         "the blended headline came back -- confirmed and unknown are different epistemic states")
 
 
+def test_row_count_is_not_treated_as_blocking_impact():
+    """THE 40x OVERSTATE, found by this tool's own first run.
+
+    A ledger row carries BOTH `verdict` (what the shared engine decided) and `action` (the final
+    outcome) -- different layers. SKIP_STALE_TRIGGER had 400 rows but sat on an ENTER verdict only
+    10 times; the other 390 stamped ticks that were already HOLD or already SKIP_*, changing the
+    LABEL and not the OUTCOME. Ranking by row count made it the largest apparent divergence at
+    18.16% of decisions when its real blocking impact was 10 trades.
+    """
+    counts = Counter({"HOLD": 800, "LABEL_ONLY": 190, "REAL_BLOCKER": 10})
+    blocked = Counter({"LABEL_ONLY": 5, "REAL_BLOCKER": 10})  # LABEL_ONLY mostly hit non-ENTERs
+    reg = {"LABEL_ONLY": {"status": "LIVE_ONLY_DIVERGENCE"},
+           "REAL_BLOCKER": {"status": "LIVE_ONLY_DIVERGENCE"}}
+    res = pc.evaluate(counts, 1000, reg, blocked)
+    by = {r["action"]: r for r in res["rows"]}
+
+    assert by["LABEL_ONLY"]["count"] == 190 and by["LABEL_ONLY"]["blocked_enter"] == 5
+    assert by["REAL_BLOCKER"]["count"] == 10 and by["REAL_BLOCKER"]["blocked_enter"] == 10
+    # Row count ranks LABEL_ONLY 19x higher; blocking impact ranks REAL_BLOCKER 2x higher.
+    assert by["LABEL_ONLY"]["count"] > by["REAL_BLOCKER"]["count"]
+    assert by["REAL_BLOCKER"]["blocked_enter"] > by["LABEL_ONLY"]["blocked_enter"]
+    assert res["confirmed_blocked_enters"] == 15
+
+
+def test_blocked_enter_excludes_placed_trades():
+    """PLACED is an ENTER that succeeded. Counting it as 'blocked' would inflate every figure."""
+    counts = Counter({"HOLD": 900, "PLACED": 50, "SKIP_X": 50})
+    blocked = Counter({"SKIP_X": 50})
+    res = pc.evaluate(counts, 1000, {"SKIP_X": {"status": "LIVE_ONLY_DIVERGENCE"}}, blocked)
+    assert res["enter_verdicts_blocked_total"] == 50
+    assert all(r["action"] != "PLACED" for r in res["rows"])
+
+
+def test_blocked_counts_default_to_zero_not_to_the_row_count():
+    """Fail-safe direction: with no blocked data the tool must UNDER-claim impact, never fall back
+    to row counts and silently resurrect the 40x overstate."""
+    res = pc.evaluate(Counter({"HOLD": 900, "SKIP_X": 100}), 1000,
+                      {"SKIP_X": {"status": "LIVE_ONLY_DIVERGENCE"}})
+    assert res["confirmed_blocked_enters"] == 0
+    assert res["rows"][0]["blocked_enter"] == 0
+
+
 def test_denominator_excludes_HOLD():
     """Using all ticks makes every divergence look negligible: SKIP_STRUCTURE_VETO is 0.4% of ticks
     but 5.3% of actual decisions."""
@@ -171,8 +213,8 @@ def test_orchestrator_still_does_not_call_decide_payload():
 
 def test_missing_ledger_fails_open(monkeypatch, tmp_path):
     monkeypatch.setattr(pc, "LEDGER", tmp_path / "nope.jsonl")
-    counts, total = pc._harvest_live_actions(pc.LEDGER)
-    assert (counts, total) == (Counter(), 0)
+    counts, total, blocked = pc._harvest_live_actions(pc.LEDGER)
+    assert (counts, total, blocked) == (Counter(), 0, Counter())
     assert pc.main([]) == 0
 
 
@@ -186,7 +228,7 @@ def test_corrupt_registry_fails_open_to_UNCLASSIFIED(monkeypatch, tmp_path):
 def test_malformed_ledger_lines_are_skipped_not_fatal(tmp_path):
     f = tmp_path / "l.jsonl"
     f.write_text('{"action":"HOLD"}\nnot json\n\n{"action":"SKIP_X"}\n', encoding="utf-8")
-    counts, total = pc._harvest_live_actions(f)
+    counts, total, _blocked = pc._harvest_live_actions(f)
     assert total == 2 and counts["SKIP_X"] == 1
 
 

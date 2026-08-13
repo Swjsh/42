@@ -73,14 +73,35 @@ LIVE_ONLY_DIVERGENCE = "LIVE_ONLY_DIVERGENCE"      # live refuses, backtest cann
 VALID_STATUS = {MODELED, LIVE_ONLY_INTENTIONAL, LIVE_ONLY_DIVERGENCE}
 
 
-def _harvest_live_actions(path: Path = LEDGER) -> tuple[Counter, int]:
+ENTER_VERDICTS = {"ENTER_BULL", "ENTER_BEAR"}
+
+
+def _harvest_live_actions(path: Path = LEDGER) -> tuple[Counter, int, Counter]:
     """Distinct actions the live engine has ACTUALLY emitted, with counts.
 
     The ledger rather than the source, deliberately: heartbeat_core assigns `rec["action"]` from a
     literal in only 7 places, but also from the engine verdict and from the executor's status, so
     a source scan sees a small minority of the real vocabulary.
+
+    THIRD RETURN VALUE, added 2026-08-12 after this tool's own first run misled me. A ledger row
+    carries BOTH `verdict` (what the shared engine decided) and `action` (the final outcome), and
+    they are DIFFERENT LAYERS. Counting rows alone conflates them:
+
+        SKIP_STALE_TRIGGER  400 rows, but only  10 sat on an ENTER verdict (2.5%)
+
+    The other 390 stamped ticks that were already HOLD or already SKIP_* -- the action changed the
+    LABEL, not the OUTCOME. Weighting it by row count made it the single largest apparent
+    divergence at 18.16% of decisions when its true blocking impact is 10 trades. A 40x overstate.
+
+    So `blocked_enter` counts only rows where the engine said ENTER and the action was something
+    else -- refusals that demonstrably stopped a trade. Note this is the right denominator for
+    POST-VERDICT refusals (heartbeat/executor layer, which run 100% on ENTER rows) and is
+    structurally 0 for ENGINE-SIDE gates, where the verdict IS the refusal and no ENTER ever
+    appears. Both are real refusals; they are simply measured at different layers, and the report
+    must not pretend one number covers both.
     """
     counts: Counter = Counter()
+    blocked: Counter = Counter()
     total = 0
     try:
         with path.open(encoding="utf-8", errors="replace") as fh:
@@ -93,10 +114,13 @@ def _harvest_live_actions(path: Path = LEDGER) -> tuple[Counter, int]:
                 except (ValueError, TypeError):
                     continue
                 total += 1
-                counts[str(rec.get("action") or "(none)")] += 1
+                action = str(rec.get("action") or "(none)")
+                counts[action] += 1
+                if str(rec.get("verdict") or "") in ENTER_VERDICTS and action != "PLACED":
+                    blocked[action] += 1
     except OSError:
-        return Counter(), 0
-    return counts, total
+        return Counter(), 0, Counter()
+    return counts, total, blocked
 
 
 def _load_registry(path: Path = REGISTRY) -> dict:
@@ -106,9 +130,12 @@ def _load_registry(path: Path = REGISTRY) -> dict:
         return {}
 
 
-def evaluate(counts: Counter, total: int, registry: dict) -> dict:
+def evaluate(counts: Counter, total: int, registry: dict,
+             blocked: Counter | None = None) -> dict:
     """Classify every observed action. Pure -- no I/O, so it is trivially testable."""
     actionable = total - counts.get("HOLD", 0)
+    blocked = blocked or Counter()
+    n_enter_blocked = sum(blocked.values())
     rows = []
     for action, n in counts.most_common():
         if action in NON_REFUSAL:
@@ -123,6 +150,9 @@ def evaluate(counts: Counter, total: int, registry: dict) -> dict:
             "pct_actionable": round(100.0 * n / actionable, 2) if actionable else 0.0,
             "status": status,
             "reason": (entry or {}).get("reason", ""),
+            # Rows where the ENGINE said ENTER and this action stopped it. The honest measure of
+            # a POST-VERDICT refusal's blocking impact; structurally 0 for engine-side gates.
+            "blocked_enter": blocked.get(action, 0),
         })
 
     unclassified = [r for r in rows if r["status"] == "UNCLASSIFIED"]
@@ -137,6 +167,10 @@ def evaluate(counts: Counter, total: int, registry: dict) -> dict:
     # and unknown are different epistemic states and get different fields.
     confirmed_pct = round(sum(r["pct_actionable"] for r in divergences), 2)
     unknown_pct = round(sum(r["pct_actionable"] for r in unclassified), 2)
+    # Trades actually stopped by a refusal no backtest can reproduce -- the number that survives
+    # the row-count/outcome conflation described in _harvest_live_actions.
+    confirmed_blocked = sum(r["blocked_enter"] for r in divergences)
+    unknown_blocked = sum(r["blocked_enter"] for r in unclassified)
 
     if unclassified:
         verdict = "RED"
@@ -153,6 +187,9 @@ def evaluate(counts: Counter, total: int, registry: dict) -> dict:
         "unknown_pct": unknown_pct,
         "n_unclassified": len(unclassified),
         "n_divergences": len(divergences),
+        "enter_verdicts_blocked_total": n_enter_blocked,
+        "confirmed_blocked_enters": confirmed_blocked,
+        "unknown_blocked_enters": unknown_blocked,
         "rows": rows,
     }
 
@@ -164,13 +201,13 @@ def main(argv: list[str] | None = None) -> int:
                     help="exit 1 when any live action is UNCLASSIFIED")
     args = ap.parse_args(argv)
 
-    counts, total = _harvest_live_actions()
+    counts, total, blocked = _harvest_live_actions()
     if total == 0:
         print("parity_check: live ledger unreadable or empty -- cannot assess. "
               f"(looked in {LEDGER})")
         return 0
 
-    result = evaluate(counts, total, _load_registry())
+    result = evaluate(counts, total, _load_registry(), blocked)
 
     if args.json:
         print(json.dumps(result, indent=2))
@@ -184,10 +221,15 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  {result['unknown_pct']}% UNKNOWN -- not yet classified either way "
           f"({result['n_unclassified']} actions). Unknown is not the same as broken.")
     print()
-    print(f"{'STATUS':<24} {'ACTION':<32} {'N':>6} {'%ACT':>7}")
-    print("-" * 74)
+    print(f"  {result['confirmed_blocked_enters']} ENTER verdicts were actually STOPPED by a "
+          f"confirmed divergence (of {result['enter_verdicts_blocked_total']} blocked overall) -- "
+          f"row counts overstate blocking impact, see BLOCK column")
+    print()
+    print(f"{'STATUS':<24} {'ACTION':<32} {'N':>6} {'%ACT':>7} {'BLOCK':>6}")
+    print("-" * 82)
     for r in result["rows"]:
-        print(f"{r['status']:<24} {r['action'][:32]:<32} {r['count']:>6} {r['pct_actionable']:>6.2f}%")
+        print(f"{r['status']:<24} {r['action'][:32]:<32} {r['count']:>6} "
+              f"{r['pct_actionable']:>6.2f}% {r['blocked_enter']:>6}")
 
     if result["n_unclassified"]:
         print(f"\n!! {result['n_unclassified']} UNCLASSIFIED action(s). Each is a live behaviour "

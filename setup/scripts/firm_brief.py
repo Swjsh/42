@@ -604,18 +604,25 @@ def render_parity_lines() -> list[str]:
     """
     try:
         import parity_check as pcheck  # noqa: PLC0415 -- optional, must never break the brief
-        counts, total = pcheck._harvest_live_actions()
+        counts, total, blocked = pcheck._harvest_live_actions()
         if not total:
             return ["- parity: live ledger unreadable -- cannot assess."]
-        res = pcheck.evaluate(counts, total, pcheck._load_registry())
+        res = pcheck.evaluate(counts, total, pcheck._load_registry(), blocked)
     except Exception as exc:  # noqa: BLE001
         return [f"- parity: could not compute ({exc})."]
 
     mark = {"RED": "🔴", "AMBER": "🟡", "GREEN": "🟢"}.get(res["verdict"], "")
+    # Lead with BLOCKED ENTERS, not share-of-decisions. Row counts overstate blocking impact --
+    # SKIP_STALE_TRIGGER is 18.16% of decisions but stopped only 10 trades, because 390 of its 400
+    # rows stamped ticks that were already HOLD. "Trades the backtest takes and live refused" is
+    # the quantity that actually explains a backtest-winner-loses-live outcome.
     out = [
-        f"- {mark} {res['verdict']} -- {res['confirmed_unmodelled_pct']}% of "
-        f"{res['actionable_ticks']:,} actionable live decisions are refusals NO backtest can "
-        f"reproduce ({res['n_divergences']} confirmed divergences).",
+        f"- {mark} {res['verdict']} -- {res['confirmed_blocked_enters']} ENTER verdicts were "
+        f"KILLED by refusals no backtest can reproduce "
+        f"({res['n_divergences']} confirmed divergences; "
+        f"{res['enter_verdicts_blocked_total']} ENTERs blocked in total).",
+        f"- {res['confirmed_unmodelled_pct']}% of {res['actionable_ticks']:,} actionable "
+        f"decisions carry a confirmed divergence (row-share, for context only).",
     ]
     if res["n_unclassified"]:
         worst = max((r for r in res["rows"] if r["status"] == "UNCLASSIFIED"),
