@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+from zoneinfo import ZoneInfo
 import json
 import os
 import sys
@@ -88,9 +89,28 @@ def fetch_contract_bars(symbol: str, trade_date: str, key: str, secret: str) -> 
     rows = []
     for b in bars:
         ts_utc = dt.datetime.fromisoformat(b["t"].replace("Z", "+00:00"))
-        ts_et = ts_utc - dt.timedelta(hours=4)  # ET = UTC-4 during EDT
+        # DST FIX (2026-08-12). Was `ts_utc - timedelta(hours=4)` with the comment
+        # "ET = UTC-4 during EDT" -- true only during EDT. Every bar fetched for an EST month
+        # (Nov-Mar) was silently written to the cache labelled ONE HOUR LATE, which shifts a
+        # 09:30 open to 10:30 and makes every downstream entry/exit join wrong by a bar.
+        # This is the documented DST-frame artifact class (naive joins = winter look-ahead);
+        # the sibling copy in _option_bars_1min_cache.py carries the same bug and is queued.
+        # ZoneInfo handles the transition dates correctly; no manual offset can.
+        # BOTH HALVES must move together. The old code wrote a UTC-4 wall-clock AND a
+        # hardcoded "-04:00" suffix, which is wrong-wall-clock-but-right-INSTANT in winter
+        # (10:30-04:00 == 14:30Z == the true 09:30 EST bar). Fixing only the wall-clock while
+        # leaving the literal suffix would have produced 09:30-04:00 == 13:30Z — a DIFFERENT,
+        # one-hour-early instant, i.e. a worse bug than the one being fixed. %z emits the real
+        # offset (-04:00 in EDT, -05:00 in EST), so wall-clock and instant are both correct.
+        # Cache compatibility: existing winter rows parse to the SAME instant as new ones, so
+        # any reader that honours the offset (e.g. et_frame / pd.to_datetime(format="mixed"))
+        # is unaffected; only naive wall-clock readers change, and for those the new value is
+        # the correct one. No current live data is affected — the whole real-fills population
+        # is Jun-Aug (EDT), where old and new are byte-identical.
+        ts_et = ts_utc.astimezone(ZoneInfo("America/New_York"))
         rows.append({
-            "timestamp_et": ts_et.strftime("%Y-%m-%dT%H:%M:%S-04:00"),
+            "timestamp_et": ts_et.strftime("%Y-%m-%dT%H:%M:%S%z")[:-2] + ":"
+                            + ts_et.strftime("%z")[-2:],
             "open": b["o"],
             "high": b["h"],
             "low": b["l"],
