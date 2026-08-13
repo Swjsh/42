@@ -144,6 +144,46 @@ def _ratified_knobs(params: dict) -> list[str]:
     return [k for k in params if not k.startswith("_") and k not in _METADATA_KEYS]
 
 
+def _strip_py_comments(src: str) -> str:
+    """Drop `#` comments from Python source before it enters the consumer corpus.
+
+    WHY (2026-08-12). A COMMENT IS NOT A CONSUMER, and treating it as one made this ratchet
+    self-defeating: documenting that a knob is dead REVIVED it. Concretely,
+    `test_known_dead_allowlist_shrinks_only` failed on `bid_ask_spread_max_cents` whose only two
+    "consumers" were prose saying it was dead --
+
+        setup/scripts/heartbeat_core.py:2150   "... bid_ask_spread_max_cents was a dead knob with
+                                                zero consumers ..."
+        backtest/tests/test_nbbo_capture_2026_07_20.py:5   (already excluded: tests are skipped)
+
+    -- so the ratchet demanded delisting a knob that is still genuinely dead. Delisting it would
+    have been the WRONG fix: it would have removed a real dead knob from the allowlist and hidden
+    it. Fixing the scanner is the right one.
+
+    Only `#` comments are stripped, and only for .py files. Docstrings are deliberately left in:
+    they are far more likely to be a genuine API contract, and tokenize cannot distinguish a
+    docstring from a module-level string constant that IS a consumer.
+
+    Fails SAFE: on any tokenize error the raw text is returned. Over-including can only mark a key
+    ALIVE (the pre-existing behaviour); under-including would mark a live key DEAD and trip
+    test_no_new_dead_params_knob loudly, which is the direction that must never happen silently.
+    """
+    import io
+    import tokenize
+    try:
+        out, last_end = [], (1, 0)
+        for tok in tokenize.generate_tokens(io.StringIO(src).readline):
+            if tok.type == tokenize.COMMENT:
+                continue
+            if tok.start[0] > last_end[0]:
+                out.append("\n" * (tok.start[0] - last_end[0]))
+            out.append(tok.string)
+            last_end = tok.end
+        return "".join(out)
+    except Exception:  # noqa: BLE001 -- fail safe toward the pre-existing behaviour
+        return src
+
+
 def _consumer_corpus() -> str:
     parts: list[str] = []
     for root, glob in _CONSUMER_GLOBS:
@@ -152,9 +192,12 @@ def _consumer_corpus() -> str:
             if "/.claude/worktrees" in rp or "/backtest/tests/" in rp:
                 continue
             try:
-                parts.append(p.read_text(encoding="utf-8", errors="ignore"))
+                text = p.read_text(encoding="utf-8", errors="ignore")
             except OSError:
-                pass
+                continue
+            if p.suffix == ".py":
+                text = _strip_py_comments(text)
+            parts.append(text)
     return "\n".join(parts)
 
 
@@ -168,6 +211,34 @@ def _dead_knobs() -> list[str]:
     params = _params()
     corpus = _consumer_corpus()
     return [k for k in _ratified_knobs(params) if not _is_referenced(k, corpus)]
+
+
+# ── 0. A COMMENT IS NOT A CONSUMER ────────────────────────────────────────────
+
+def test_a_comment_mentioning_a_key_does_not_revive_it():
+    """THE SELF-DEFEAT. Before 2026-08-12 this ratchet scanned raw text, so writing
+    "# foo_knob was a dead knob with zero consumers" in live code made foo_knob look ALIVE.
+    That is exactly what happened to bid_ask_spread_max_cents (heartbeat_core.py:2150), and it
+    demanded delisting a knob that is genuinely still dead -- i.e. the ratchet was pushing toward
+    HIDING a real dead knob."""
+    src = "x = 1  # totally_fake_knob_abc was a dead knob with zero consumers\n"
+    assert _is_referenced("totally_fake_knob_abc", src), "fixture sanity: raw text does match"
+    assert not _is_referenced("totally_fake_knob_abc", _strip_py_comments(src)), (
+        "a comment mentioning a key still revives it -- documenting deadness makes it look alive")
+
+
+def test_real_code_references_survive_stripping():
+    """The other direction: stripping must not blind the ratchet to genuine consumers, which
+    would mark a LIVE key dead and trip the ratchet loudly for the wrong reason."""
+    src = 'v = params["real_live_knob"]  # real_live_knob comment\n'
+    assert _is_referenced("real_live_knob", _strip_py_comments(src))
+
+
+def test_stripping_fails_safe_on_unparseable_source():
+    """Fail toward the pre-existing behaviour (over-include -> ALIVE), never toward marking live
+    keys dead."""
+    broken = "def f(:\n  # some_knob\n"
+    assert _strip_py_comments(broken) == broken
 
 
 # ── 1. No NEW dead knob may appear ────────────────────────────────────────────
