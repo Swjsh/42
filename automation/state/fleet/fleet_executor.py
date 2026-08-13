@@ -298,6 +298,7 @@ def _recency_verdict(path: Optional[Path] = None) -> str:
 
 def _apply_full_send_min_sizing(
     qty: Optional[int], arm: Optional[Mapping[str, Any]], params: Mapping[str, Any],
+    equity: Any = None,
 ) -> "tuple[Optional[int], Optional[str]]":
     """FULL-SEND (2026-07-31): clamp qty DOWN to params.min_contracts on EVERY entry a
     full-send arm makes -- the "never loose on RISK" half of the profile. J's design is
@@ -308,18 +309,74 @@ def _apply_full_send_min_sizing(
     Returns (qty, clamp_note); clamp_note is None unless the clamp actually fired."""
     if qty is None or not _is_full_send(arm):
         return qty, None
-    try:
-        min_qty = int(params.get("min_contracts", 3))
-    except (TypeError, ValueError):
-        min_qty = 3
+    # EQUITY-SCALED (2026-08-13) -- SAME restoration as the recency clamp, and it MUST be applied
+    # here too or the fix is a no-op on the one arm that matters. risky-1 is full_send=true AND
+    # live=true, and this clamp runs IMMEDIATELY AFTER _apply_recency_min_sizing (lines ~750/949):
+    # scaling only the recency floor would have been silently re-clamped back to the $2K-era
+    # constant right here. That is the half-landed-fix class this repo keeps hitting.
+    #
+    # THE TENSION, STATED SO IT CAN BE REVOKED: full-send's design is "get in more, at minimum
+    # size" -- one reading says the minimum should stay an absolute count precisely because the
+    # arm takes MORE trades. The other reading, taken here, is that "minimum size" was authored
+    # as a RISK FRACTION (5 contracts at ~$1 was ~30% of a $1,648 account; at $5,384 the same 5
+    # contracts is 9.3%), so freezing the count silently made the arm 3x more conservative than
+    # designed. Scaling preserves the intent; freezing changes it. min() remains a ceiling.
+    # REVERT: min_contracts_equity_scaled=false reverts BOTH clamps together.
+    min_qty, scale_note = _scaled_min_contracts(params, equity)
     clamped = min(int(qty), min_qty)
     if clamped == qty:
         return qty, None
-    return clamped, f"qty clamped {qty}->{clamped}: FULL_SEND min size"
+    return clamped, f"qty clamped {qty}->{clamped}: FULL_SEND min size{scale_note}"
+
+
+def _scaled_min_contracts(params: Mapping[str, Any], equity: Any) -> "tuple[int, str]":
+    """The recency floor expressed as the EQUITY FRACTION it originally encoded (2026-08-13).
+
+    THE DEFECT. `min_contracts` is the only sizing knob in params.json that is an absolute
+    COUNT -- per_trade_risk_cap_pct and daily_loss_kill_switch_pct are PERCENTAGES and rescale
+    themselves. It was authored at ~$2,000 equity, where 3 contracts at ~$1.03 was 15.4% of the
+    account. At $5,501 the same 3 contracts is 5.6% -- the clamp silently became 2.75x tighter
+    than the policy that was actually A/B validated (recency-sizing-ab.json, policy_dominates
+    =true, -$1,274 improvement over 8 real fleet-fill days).
+
+    Measured live 2026-08-13: `safe-3 qty clamped 8 -> 3` (equity 4470),
+    `risky-1 qty clamped 12 -> 5` (equity 4979).
+
+    THIS IS A RESTORATION, NOT AN UPSIZE. It returns the floor to the fraction the validated
+    policy encoded (3 -> 8 at current equity, which is the risk gate's own answer), NOT the full
+    risk cap (16). The 5.6x equity-proportional figure from FULL-TRADE-REVIEW-2026-08-13.md is
+    deliberately NOT taken: today's zero drawdown was ordering luck, and C31 stands (J's 667 real
+    trades: +$4,576 at 1-2 lots, -$17,461 at 3+).
+
+    FAIL-SAFE DIRECTION: any unreadable equity/baseline returns the UNSCALED floor -- degrading
+    toward LESS size. Sizing up on a bad read would be the worst possible failure mode.
+    """
+    try:
+        base_min = int(params.get("min_contracts", 3))
+    except (TypeError, ValueError):
+        base_min = 3
+    if not bool(params.get("min_contracts_equity_scaled", False)):
+        return base_min, ""
+    try:
+        base_eq = float(params.get("min_contracts_baseline_equity") or 0.0)
+        eq = float(equity)
+    except (TypeError, ValueError):
+        return base_min, ""
+    if base_eq <= 0 or eq <= 0:
+        return base_min, ""
+    ratio = eq / base_eq
+    if ratio <= 1.0:
+        # Never tighten below Rule 6's hard floor ("min 3 contracts = 2 TP + 1 runner").
+        return base_min, ""
+    scaled = int(base_min * ratio + 0.5)          # round half UP, not banker's rounding
+    if scaled <= base_min:
+        return base_min, ""
+    return scaled, f" [floor {base_min}->{scaled} @ equity {eq:.0f}/{base_eq:.0f}]"
 
 
 def _apply_recency_min_sizing(
     qty: Optional[int], strategy_name: Optional[str], params: Mapping[str, Any],
+    equity: Any = None,
 ) -> "tuple[Optional[int], Optional[str]]":
     """Clamp qty DOWN to the account's min_contracts floor (Rule 6) when ribbon_ride's
     CURRENT recency verdict is RED. YELLOW/GREEN/unreadable-state/flag-off/wrong-strategy
@@ -339,14 +396,11 @@ def _apply_recency_min_sizing(
         return qty, None
     if _recency_verdict() != "RED":
         return qty, None
-    try:
-        min_qty = int(params.get("min_contracts", 3))
-    except (TypeError, ValueError):
-        min_qty = 3
+    min_qty, scale_note = _scaled_min_contracts(params, equity)
     clamped = min(int(qty), min_qty)
     if clamped == qty:
         return qty, None
-    note = f"qty clamped {qty}->{clamped}: recency RED"
+    note = f"qty clamped {qty}->{clamped}: recency RED{scale_note}"
     print(f"[fleet_executor] {note} (strategy={strategy_name})", flush=True)
     return clamped, note
 
@@ -534,7 +588,7 @@ def plan_entry(
     _strat_for_sizing = (RECENCY_MIN_SIZE_STRATEGY
                          if str(setup or "").upper() in {s.upper() for s in strategies.RIBBON_RIDE.entry_setups}
                          else None)
-    qty, _clamp_note = _apply_recency_min_sizing(qty, _strat_for_sizing, params)
+    qty, _clamp_note = _apply_recency_min_sizing(qty, _strat_for_sizing, params, equity)
     reason = f"clean {side} entry ({quality})"
     if _clamp_note:
         reason += f"; {_clamp_note}"
@@ -704,8 +758,8 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
             plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                    "no sizing tier covers equity", strategy=strat.name))
             continue
-        qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
-        qty, _fs_note = _apply_full_send_min_sizing(qty, arm, params)
+        qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params, equity)
+        qty, _fs_note = _apply_full_send_min_sizing(qty, arm, params, equity)
         _clamp_note = _fs_note or _clamp_note
         # LEVEL PROVENANCE (G12, 2026-07-09 night): prefer the EXACT trigger level the entry
         # signal fired against (build_shared_signal's trigger_level_exact -- ground truth,
@@ -903,8 +957,8 @@ def plan_all(
                     plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                            "no sizing tier covers equity", strategy=strat.name))
                     continue
-                qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
-                qty, _fs_note = _apply_full_send_min_sizing(qty, arm, params)
+                qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params, equity)
+                qty, _fs_note = _apply_full_send_min_sizing(qty, arm, params, equity)
                 _clamp_note = _fs_note or _clamp_note
                 # LEVEL PROVENANCE: same exact-over-heuristic preference as _plan_from_strategies
                 # (see comment there) -- the side-block fallback path mirrors it for parity.
