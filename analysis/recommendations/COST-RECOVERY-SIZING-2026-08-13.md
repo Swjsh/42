@@ -135,3 +135,54 @@ correct.
 - Live equity read from broker `/v2/account` per arm, not from any cached state file.
 - Directive is J's, unprompted, and overrides the earlier REJECT reading — correctly, because
   that study's population did not contain this structure.
+
+
+---
+
+## EXHIBIT — 2026-08-13 live fills (added post-close of the trade, same day)
+
+`BULLISH_RECLAIM_RIDE_THE_RIBBON`, SPY260813C00777000, entered 09:51 ET, fully flat 10:42 ET.
+Book **+$1,619**. All figures below are broker fills, not replay.
+
+| arm | Q | cost | tranche 1 | runner | total | **cost recovered at** |
+|---|---|---|---|---|---|---|
+| safe-2 | 3 | $309 | 10:19 2@2.10 | 10:42 1@2.21 | $332 | **+104%** |
+| safe-3 | 3 | $327 | 10:22 2@2.27 | 10:42 1@2.21 | $348 | **+108%** |
+| bold-2 | 5 | $505 | 10:12 3@1.99 | 10:42 2@2.21 | $534 | **+97%** |
+| risky-1 | 5 | $540 | 10:01 3@1.68 | 10:42 2@2.21 | $405 | **+105%** (NOT at TP1) |
+
+### The decisive row is risky-1
+
+It has the *low* TP1 (+50%) — the "safe" config. It fired at +56%, sold 3 of 5 for **$504
+against a $540 cost**, and **still had not paid for the trade.** It needed the runner to reach
+break-even on capital.
+
+Cause: `tp1_qty_fraction 0.667 x 5 = 3.33 -> floors to 3`. The law requires
+`ceil(5 / 1.56) = 4`. **Off by one contract**, and a fixed fraction cannot know that.
+
+> A fixed `tp1_qty_fraction` does not recover cost. Only `ceil(Q/(1+r))` does, by construction.
+
+### Every arm needed ~+100% to get paid back
+
+Not one arm recovered its cost below +97%. **Today worked only because the contract doubled.**
+On a day topping at +50%, safe-2 (3 lots, TP1 +100%) banks nothing at tranche 1 and is entirely
+dependent on the ladder floor. That is the home-run dependency J named, demonstrated on a day
+the engine WON.
+
+### Honest counter-evidence
+
+On today's tape the current config **made more money** than cost-recovery sizing would have.
+Re-running risky-1 selling 4 at 1.68 instead of 3: cost recovered ($672 > $540), but total
+falls to **$353 vs the actual $405** — the extra contract sold at 1.68 instead of riding to 2.21.
+
+**This does not weaken the case; it defines the study.** Cost recovery is insurance, and today
+was a day insurance was not needed. Its value is on the **79.6% of trades that never reach
++100%** (`popA_tp1_fire_rate` = 0.2042). Evaluating it on the full pooled population — where a
+handful of doublers dominate the sum — measures the wrong thing.
+
+### Study design this forces
+
+1. **Stratify on outcome reached**: trades topping <+20%, +20-50%, +50-100%, >+100%. Report all four.
+2. **Primary metric is not total P&L** — it is *fraction of trades that returned their own cost*,
+   with total P&L reported alongside as the cost of the insurance.
+3. **Control arm must reproduce the table above exactly** (G1), including risky-1's shortfall.
