@@ -1,0 +1,156 @@
+{
+  "scorecard_id": "SLIPPAGE-REBASELINE-2026-08-12",
+  "prereg": "analysis/recommendations/prereg-slippage-rebaseline-2026-08-12.json",
+  "prereg_frozen_commit": "b2ab6943",
+  "prereg_amended_commit": "97d46490",
+  "generated_at_et": "2026-08-12 (after-hours work block)",
+  "headline": "NO published KILL is overturned. The three killed cells whose control run reproduces their published numbers EXACTLY all hold at slippage=0.01. Separately, the harness was found to be NON-MONOTONIC in slippage (a real bug), which invalidates the premise that the 0.02 default was uniformly 2x pessimistic.",
+  "population_correction": {
+    "work_order_claim": "255 call sites, ~241 studies ran on the 2x-pessimistic default",
+    "measured_by_AST_over_live_tree": {
+      "call_sites": 195,
+      "default_consuming": 166,
+      "explicit_slippage_kwarg": 7,
+      "kwargs_forwarded_unknown": 22,
+      "files_with_any_default_call": 163,
+      "scripts_writing_an_analysis_artifact_that_exists": 78
+    },
+    "why_the_claim_was_too_high": [
+      "the raw grep counted .claude/worktrees copies of the same files",
+      "it counted imports, defs, docstrings and comment text as call sites",
+      "it equated CALL SITES with STUDIES -- many scripts hold several call sites, and most call sites live in scripts that never published a verdict"
+    ],
+    "honest_count": "78 verdict-bearing scripts, not 241"
+  },
+  "arms": {
+    "CONTROL_002": "slippage forced to 0.02 on every simulator entry point",
+    "TREATMENT_001": "slippage forced to 0.01, identical population and code path",
+    "method": "the function object is wrapped and the kwarg injected before the target script imports it; for the 2 scripts that import and pass the module CONSTANTS explicitly, the constants themselves are rebound pre-import. No repo file edited.",
+    "write_sandbox": "all writes under analysis/, automation/, strategy/, journal/ redirected to a scratch mirror; verified afterwards that all 47 target artifacts retain their pre-run mtimes"
+  },
+  "outcome_classes": {
+    "PATCH_DID_NOT_BIND": 3,
+    "MEASURED": 49,
+    "VACUOUS_EMPTY_POPULATION": 17,
+    "NOT_RUNNABLE": 4,
+    "NO_PNL_EFFECT": 5
+  },
+  "reproduction_vs_published": {
+    "REPRODUCES": 10,
+    "DIFFERS": 47,
+    "VACUOUS": 5,
+    "ERROR": 4,
+    "NO_ARTIFACT": 12
+  },
+  "TIER_A_killed_cells_that_reproduce_exactly": [
+    {
+      "cell": "orb_real_fills_validate (analysis/recommendations/orb_real_fills.json)",
+      "published": "n=10, v1 WR 0.30 / P&L $2.70, v2 WR 0.90 / P&L $272.80, gate_pass false, verdict FAIL",
+      "control_002": "reproduced EXACTLY (after reconstructing the rotted input population)",
+      "treatment_001": "v1 P&L $17.30 (+$14.60), v2 P&L $297.00 (+$24.20), WR UNCHANGED 0.30/0.90",
+      "verdict_at_001": "FAIL -- unchanged",
+      "why": "the gate is `wr >= 0.50 in BOTH variants`. Friction moves dollars, not the sign of a trade, so the win rate is untouched. The cell was killed on WIN RATE, which this change cannot address.",
+      "sign_flip": false
+    },
+    {
+      "cell": "nlwb_tp1_sweep (analysis/recommendations/nlwb_tp1_sweep.json)",
+      "published": "best TP1=0.30, P&L -$1,596",
+      "control_002": "-$1,596 -- reproduced EXACTLY",
+      "treatment_001": "-$1,516 (+$80)",
+      "verdict_at_001": "'No TP1 value rescues NLWB to positive' -- unchanged",
+      "sign_flip": false
+    },
+    {
+      "cell": "nlwb_chart_stop_sweep (analysis/recommendations/nlwb_chart_stop_sweep.json)",
+      "published": "best offset -0.40, P&L -$840",
+      "control_002": "-$840 -- reproduced EXACTLY",
+      "treatment_001": "-$760 (+$80)",
+      "verdict_at_001": "'No chart stop rescues NLWB' -- unchanged",
+      "sign_flip": false
+    }
+  ],
+  "why_kills_were_never_likely_to_move": {
+    "kill_flavoured_published_verdicts": 20,
+    "citing_at_least_one_slippage_INVARIANT_gate": 14,
+    "killed_on_a_purely_friction_movable_basis": 2,
+    "which_two": [
+      "nlwb_full_real_fills (WIN_RATE)",
+      "momentum-accel-highvol (WIN_RATE)"
+    ],
+    "the_decisive_one": "RANDOM_NULL (6 cells) is mathematically invariant to this change -- the null is simulated under the SAME slippage, so both arms shift together and the DIFFERENCE the gate tests is unchanged. Those 6 can never be rescued by re-baselining friction.",
+    "others_invariant": "truncation artifact, frequency floor, look-ahead/coverage, edge_capture (OP-16)",
+    "partially_sensitive": "concentration / positive-quarters -- these are RATIOS and marginal quarter signs, so a uniform shift can move them; they are the main source of the sub-cell sign flips below"
+  },
+  "FINDING_1_harness_is_non_monotonic_in_slippage": {
+    "severity": "HIGH -- this is a real bug and it is worth more than the re-baseline",
+    "claim": "Lowering slippage makes some cells WORSE, which is impossible for a well-formed fill model.",
+    "root_cause": "Two exit paths fill at an exact price with NO exit_slippage while every market exit pays it: (a) the TP1 premium fallback at entry*(1+tp1_pct) -- defensible, a limit order fills at its limit; (b) the runner stop INCLUDING the post-TP1 breakeven stop -- NOT defensible, a stop executes at market.",
+    "arithmetic_proof": "For a TP1-limit + BE-runner trade, P&L = tp1_premium_pct * entry_fill * tp1_qty * 100 -- strictly proportional to an entry fill that INCLUDES entry slippage. With TP1_PREMIUM_PCT=0.30, TP1_QTY_FRACTION=2/3, qty=3 -> tp1_qty=2, halving slippage predicts exactly 0.30*0.01*2*100 = $0.60 WORSE per trade. Observed: -$0.60 on EVERY TP1_THEN_RUNNER_RIBBON trade in v14e_ampm_real_fills.",
+    "affected_modules": {
+      "backtest/lib/simulator_real.py": "lines ~703, ~832, ~859 (runner stop) + ~789 (TP1 fallback)",
+      "backtest/lib/simulator_real_trailing.py": "lines 294, 383, 408 + 344"
+    },
+    "clean_modules": [
+      "backtest/lib/simulator_credit.py",
+      "backtest/lib/simulator_debit.py"
+    ],
+    "who_it_bites_hardest": "EXIT-TUNING sweeps, whose whole purpose is choosing exit parameters. sweep_regime_chandelier is 24/24 cells WORSE at lower slippage; sweep_timecond_exit 23/44; sweep_watcher_exits 20/114; sweep_lunch_trough_gate 8/23.",
+    "consequence_for_the_premise": "The 0.02 default was NOT uniformly pessimistic. It overstated entry cost and market exits but INFLATED %-target winners and gave every stop a free fill. The SIGN of the bias depends on each cell's exit mix, so there is no single 'dollars of baked-in pessimism' number and none is reported.",
+    "evidence_of_exit_mix_dependence": "same script, same trades, v14e_chart_stop_research: the premium-stop arm moved +$39.60 while the market-exit arm moved +$548.80 -- a 14x difference from exit mix alone.",
+    "recommended_fix": "apply exit_slippage to the runner-stop fills in both affected modules, then add a vary-and-assert guard to backtest/tests/test_graduated_guards.py. NOT done here -- it changes every backtest result and needs its own prereg."
+  },
+  "FINDING_2_deltas_are_path_divergence_not_friction": {
+    "severity": "HIGH -- this is why no sign flip in this study is trustworthy evidence",
+    "claim": "Most measured cell deltas are dominated by slippage-induced EXIT RECLASSIFICATION, not by the friction change itself.",
+    "arithmetic_bound": "the direct friction effect is bounded at $0.02/share * 100 * qty = ~$6/trade at qty=3. Deltas far exceeding that bound cannot be friction.",
+    "worked_example": "_recency_stop_variant_ab ITM-2 / chartstop-only / recent_window: n=11 in BOTH arms, yet exp_per_trade went -$39.60 -> +$41.04 (+$80.64/trade, a $887 swing). The exit mix changed: EXIT_ALL_LEVEL_STOP 3->2, TP1_THEN_RUNNER_RIBBON 1->2. ONE trade's exit path flipped and carried the entire cell.",
+    "mechanism": "a 1c cheaper entry lowers the stop level; on a 5-MINUTE-bar option cache that can move the breach across a bar boundary so a different exit fires first. Already a documented limitation (OPTION-BAR-RESOLUTION-BIAS-2026-08-02, $1,821.75 aggregate swing).",
+    "prevalence": "70 of 129 exit-mix distributions (54.3%) changed between arms, across 8 of the 9 scripts that report one.",
+    "conclusion": "sign flips produced by this study are NOT evidence about any cell's true edge."
+  },
+  "sign_flips": {
+    "cells_that_flip_sign": 339,
+    "scripts_containing_at_least_one": 22,
+    "what_they_are": "almost entirely SWEEP-GRID sub-cells and slices (by_quarter, by_side, by_regime, exit_mini_sweeps[N], all_cells[N], grid[N]) in studies carrying 80-1126 P&L cells each. With that many cells, a uniform shift crossing zero somewhere is arithmetically guaranteed -- it is the multiple-comparisons surface these studies' own gates exist to defend against (anti-pattern 2.10).",
+    "headline_metric_flips_worth_naming": [
+      "_b6_turn_of_month_drift primary_per_trade -12.85 -> +0.88 (cell died on 5/8 gates incl. random-null and concentration; both invariant or barely moved, so the kill stands)",
+      "_edgehunt_momentum_accel baseline_prod_v15_strike-2_stop-8_per_trade -7.2 -> +0.8",
+      "gate_sweep_volume_morning scenarios[1] edge_capture -263 -> +42"
+    ],
+    "ruling": "NONE is nominated for re-validation. Per the frozen prereg a nomination requires the control to reproduce the published numbers (these are all DIFFERS or worse), n>=15, a non-marginal clearance of the ORIGINAL kill threshold, and drop-best survival. None qualifies, and FINDING_2 independently disqualifies flips driven by path divergence."
+  },
+  "aggregate_pessimism_deliberately_NOT_quantified": {
+    "why": "a naive sum over all P&L keys gives $1,377,291.71, which is meaningless -- it double-counts nested keys and sums across hundreds of mutually exclusive sweep-grid cells that were never a portfolio. Reporting it would be a fabricated headline.",
+    "what_can_honestly_be_said": [
+      "the DIRECT friction effect is ~$0.02/contract/round-trip, i.e. ~$6/trade at qty=3, and only on market-priced exits",
+      "on proportional exits (premium stop, %-target TP1) the effect is scaled down by the stop/target percentage, and on stop fills it is currently ZERO because of FINDING_1",
+      "the three Tier-A killed cells moved +$14.60, +$80 and +$80 -- 5-10% of their deficits"
+    ]
+  },
+  "coverage_and_what_could_not_be_run": {
+    "measured": 49,
+    "vacuous_empty_population": 17,
+    "not_runnable": 4,
+    "no_pnl_effect": 5,
+    "patch_did_not_bind": 3,
+    "reasons": {
+      "input rot (dominant)": "automation/state/watcher-observations.jsonl is a ROLLING file rotated into archive/ by heal-engine.ps1 past 1MB; it now holds ONE day. Studies keyed on it match zero rows, exit 0, and emit a real-looking verdict at n=0. 7,681 rows over 376 dates were recovered from the archives, which reproduced orb_real_fills EXACTLY -- but the reconstruction is a SUPERSET (v14e re-runs n=132 vs published 100), so it validates the method without restoring most published snapshots.",
+      "OPRA cache-edge guard (2 scripts)": "_web_vwap_cont_late_entry_theta_cliff and _wp5_strike_ab assert `fill date <= cache edge 2026-05-29`; the SPY feed has since extended past it. Their guard fired correctly. Not re-runnable without editing a hardcoded constant (out of scope).",
+      "harness gap (1 script)": "lbfs_shadow_revalidation writes via an unguarded Path.open; it failed CLOSED (no repo write) and ran fine in the reconstructed-input arm.",
+      "different exit engine (1 script)": "recency_check routes its live-path replay through lib/exit_manager_walk.walk_exit_manager, not simulate_trade_real (which it imports for a legacy path only). walk_exit_manager carries its OWN fill model, so the simulator patch legitimately does not reach it. Not a bug.",
+      "argparse-gated writers (12 scripts)": "only emit an artifact when given --out; re-run separately with the flag and included in the results above."
+    }
+  },
+  "validity_controls_run": {
+    "write_sandbox_verified": "all 47 target artifacts retain pre-run mtimes; the 3 files that did change were written by concurrent scheduled tasks (recency_check writes via the PATCHED Path.write_text, and this session's run was ~1h earlier)",
+    "patch_binds_C14_vary_and_assert": "confirmed; the 3 initial PATCH_DID_NOT_BIND cases were diagnosed rather than reported as 'no effect' -- 2 were explicit-constant callers (fixed by rebinding the constants; both then reproduced and held) and 1 uses a different exit engine",
+    "rng_noise_floor": "0 differing numeric keys across identical-slippage replicates (339 keys on _sel_vwap_sizing; 0 on every gated script measured). The 10 scripts with unseeded randomness do not have it reach their reported outputs.",
+    "arms_symmetric": "78 scripts each, 74 OK / 4 ERROR in both arms"
+  },
+  "actions_taken": "NONE beyond publishing. No cell re-armed, no kill reversed, no live config touched, module defaults NOT changed (explicitly out of scope per the work order).",
+  "recommended_next": [
+    "Fix the runner-stop slippage in simulator_real.py + simulator_real_trailing.py under its own prereg, then add a monotonicity vary-and-assert guard. This blocks a clean re-baseline until done.",
+    "Re-baseline the module defaults to 0.01 ONLY AFTER that fix, otherwise the re-baseline bakes in the non-monotonicity.",
+    "Make studies snapshot their input population (or an input hash + row count) into their own artifact, and treat n==0 as NO_RESULT rather than a verdict."
+  ]
+}
