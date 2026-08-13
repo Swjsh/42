@@ -19,12 +19,15 @@ KEY CONTRACTS PROVED
    safe HOLDs.
 2. PER-ARM GATE: safe-3 (tight, require_confluence_or_sequence) HOLDs on non-elite signals
    and ENTERs on elite ones. safe-1 / risky-3 (loose, min_triggers=1) ENTER on any
-   single-trigger pass. risky-1 (RISKY_TIGHT below — name predates the 2026-07-31 FULL-SEND
-   conversion, commit e28d210c) no longer carries min_triggers/require_confluence at all
-   (gate_override is now {"full_send": true}) — its NORMAL lane is therefore UNGATED, same as
-   risky-3, and ENTERs on any single-trigger pass at normal (not min) sizing; the separate
-   full-send MIN-SIZE rescue lane (_full_send_plan, only for producer-cohort-vetoed ticks) is
-   a plan_all-level concern covered by test_full_send_arm.py, not by this fast plan_entry file.
+   single-trigger pass. risky-1 (RISKY_TIGHT below) is TIGHT AGAIN and the name is accurate
+   once more: its gate_override is
+   {"full_send": true, "min_triggers": 2, "require_confluence_or_sequence": true}.
+   CORRECTED 2026-08-12 — this header used to say risky-1 "no longer carries min_triggers/
+   require_confluence at all". That described commit e28d210c (2026-07-31), which dropped those
+   keys as an ACCIDENT rather than a decision; the drop was reverted this session, so the arm
+   HOLDs a non-elite/no-confluence pass on the normal lane. The separate full-send MIN-SIZE
+   rescue lane (_full_send_plan, only for producer-cohort-vetoed ticks) remains a plan_all-level
+   concern covered by test_full_send_arm.py, not by this fast plan_entry file.
 3. SIZING: safe-1 / safe-3 use SAFE params (base_qty=5 at $2K–10K); risky-1 / risky-3 use
    BOLD params (base_qty=8 at $2K–10K). The _base_params_for routing is the only source of
    this difference.
@@ -235,18 +238,31 @@ def test_safe_tight_enters_on_elite_safe_bear():
 # 3. RISKY ARM GATE (reads signal['bold'])
 # =============================================================================
 
-def test_risky_tight_enters_on_non_elite_bold_bear_since_fullsend_conversion():
-    """RISKY_TIGHT (risky-1) lost its min_triggers/require_confluence gate on 2026-07-31
-    (FULL-SEND conversion, commit e28d210c: gate_override -> {"full_send": true}). Its
-    NORMAL lane (this test calls plan_entry directly, not the plan_all rescue lane) is now
-    UNGATED — a non-elite bold bear pass ENTERs at BASE quality, same shape as RISKY_LOOSE.
-    This is a DELIBERATE behavior change, not a bug — pinned here so a future accounts.json
-    edit that silently re-tightens (or a revert per the commit's own REVOKE line) is visible
-    as an intentional test change, not a mystery regression."""
+def test_risky_tight_HOLDS_on_non_elite_bold_bear_after_the_gate_revert():
+    """FLIPPED 2026-08-12, and this is the flip the previous version asked for by name.
+
+    It used to assert the opposite -- that risky-1 ENTERs ungated -- because commit e28d210c
+    (2026-07-31) had replaced its gate_override with a bare {"full_send": true}, dropping
+    min_triggers and require_confluence_or_sequence entirely. Its own docstring said: "pinned
+    here so a future accounts.json edit that silently re-tightens (OR A REVERT PER THE COMMIT'S
+    OWN REVOKE LINE) is visible as an intentional test change, not a mystery regression."
+
+    That revert happened this session. risky-1's gate_override is back to
+    {"full_send": true, "min_triggers": 2, "require_confluence_or_sequence": true}, so a
+    non-elite bold bear with no confluence is GATED on the normal lane. The e28d210c drop was
+    an accident, not a decision, and this test was pinning the accident.
+
+    Sibling tests amended for the same revert: automation/state/fleet/test_full_send_arm.py and
+    test_risky1_lane_composition_check.py. THIS FILE WAS MISSED in that pass and sat failing --
+    which is why it later looked like an unrelated pre-existing failure. It was not.
+    """
     sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=False)
     plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
-    assert plan.action == "ENTER", plan.reason
-    assert plan.quality == "BASE"
+    assert plan.action == "HOLD", (
+        f"risky-1 entered a non-elite/no-confluence bold bear: {plan.reason}. Its restored gate "
+        "requires confluence-or-sequence; if it was deliberately loosened again, that needs the "
+        "same REVOKE trail e28d210c was supposed to have.")
+    assert "gate" in (plan.reason or "").lower(), plan.reason
 
 
 def test_risky_tight_enters_on_elite_bold_bear():
@@ -356,10 +372,19 @@ def test_arm_plan_carries_atm_strike():
     the ATM strike in the plan (was OTM-2/598 before ATM-TIER-EXTENSION-2K-10K,
     2026-08-04). Switched from RISKY_LOOSE to RISKY_TIGHT 2026-08-06: RISKY_LOOSE
     (risky-3) no longer resolves ATM at $2K post-kill -- see
-    test_arm_plan_carries_pre_ext_strike below for its own coverage."""
-    sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
+    test_arm_plan_carries_pre_ext_strike below for its own coverage.
+
+    SIGNAL STRENGTHENED 2026-08-12 (the assertion is unchanged): this test is about STRIKE
+    SELECTION, and it was using a bare 1-trigger signal only because risky-1 was ungated under
+    commit e28d210c. That gate_override was reverted this session back to
+    {"full_send": true, "min_triggers": 2, "require_confluence_or_sequence": true}, so a
+    1-trigger pass now correctly HOLDs and the strike would never be exercised. The fixture now
+    clears the restored gate (2 triggers + confluence) so the ATM assertion still measures what
+    it was written to measure. Gating behaviour itself is asserted in
+    test_risky_tight_HOLDS_on_non_elite_bold_bear_after_the_gate_revert."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
-    assert plan.action == "ENTER"
+    assert plan.action == "ENTER", plan.reason
     assert plan.strike == 600, f"PUT ATM should be 600, got {plan.strike}"
 
 
