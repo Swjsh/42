@@ -470,12 +470,27 @@ def test_safe_perception_missing_bold_sub_block_falls_back_BITE():
 # =============================================================================
 
 def test_recency_red_clamps_risky_elite_qty(monkeypatch):
-    """RED verdict clamps risky-1's elite ribbon_ride qty 12->min_contracts (5)."""
+    """RED verdict clamps risky-1's elite ribbon_ride qty 12 -> the min_contracts FLOOR.
+
+    UPDATED 2026-08-13 (MIN-CONTRACTS-EQUITY-SCALING). The intent of this test is unchanged --
+    a RED verdict must clamp qty DOWN to the floor -- but the floor is no longer the frozen
+    integer 5. It is now the equity FRACTION that 5 encoded when this arm's policy was
+    validated at $1,648 equity: at EQUITY_2K the floor scales to int(5 * 2000/1648 + 0.5) = 6.
+
+    The expected value was 5 only because min_contracts was an absolute count authored at a
+    smaller account. That staleness is the defect being fixed
+    (analysis/deep-research/FULL-TRADE-REVIEW-2026-08-13.md), not a property worth pinning.
+    The clamp DIRECTION (12 -> 6, strictly down) is what this test exists to protect and it
+    is asserted explicitly below.
+    """
     monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
     sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
     assert plan.action == "ENTER"
-    assert plan.qty == 5, f"RED verdict should clamp risky-1 elite qty to min_contracts, got {plan.qty}"
+    assert plan.qty == 6, (
+        f"RED should clamp risky-1 elite qty to the equity-scaled floor (5 @ $1,648 -> 6 @ "
+        f"$2,000), got {plan.qty}")
+    assert plan.qty < 12, "the clamp must still reduce size -- that is the whole policy"
     assert "recency red" in plan.reason.lower(), plan.reason
 
 
@@ -511,14 +526,22 @@ def test_recency_yellow_does_not_clamp_risky_elite_qty(monkeypatch):
 
 def test_recency_red_clamps_base_tier_ribbon_ride_too(monkeypatch):
     """RED clamps by STRATEGY (ribbon_ride, C29), not by quality tier — RISKY_LOOSE's
-    non-elite BASE-tier entry is the same strategy and gets clamped too: base qty 8 ->
-    min_contracts 5 (risky-3's floor). Confirms the clamp scope is strategy-wide, not
-    elite-only."""
+    non-elite BASE-tier entry is the same strategy and gets clamped too. Confirms the clamp
+    scope is strategy-wide, not elite-only.
+
+    UPDATED 2026-08-13 (MIN-CONTRACTS-EQUITY-SCALING), same reason as
+    test_recency_red_clamps_risky_elite_qty: risky-3's floor of 5 was authored at $1,648 equity
+    and is now expressed as that risk FRACTION, so at EQUITY_2K it scales to 6. The scope claim
+    this test protects -- BASE tier is clamped too, not just elite -- is unaffected.
+    """
     monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
     sig = _dual_signal(bold_bear_passed=True, n_triggers=1, confluence=False)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan.action == "ENTER"
-    assert plan.qty == 5, f"base qty (8) should clamp to risky-3's min_contracts (5), got {plan.qty}"
+    assert plan.qty == 6, (
+        f"base qty (8) should clamp to risky-3's equity-scaled floor (5 @ $1,648 -> 6 @ "
+        f"$2,000), got {plan.qty}")
+    assert plan.qty < 8, "BASE-tier entries must still be clamped -- that is this test's scope claim"
     assert "recency red" in plan.reason.lower(), plan.reason
 
 
