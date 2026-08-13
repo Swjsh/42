@@ -592,6 +592,43 @@ def render_winner_autopsy_lines(data: dict) -> list[str]:
             "pre-registered A/B over the FULL population."]
 
 
+def render_parity_lines() -> list[str]:
+    """One-glance answer to: can the backtest reproduce what live actually does?
+
+    RED means at least one action the live engine emits is UNCLASSIFIED -- nobody has decided
+    whether any backtest can model it. That is not a cosmetic state: it is exactly the state
+    VETOED_BY_MODELS sat in for 38 days while every backtest silently overstated trade count.
+
+    Fails open to a single honest line -- a brief that dies because one section could not compute
+    is worse than a brief that says "could not compute".
+    """
+    try:
+        import parity_check as pcheck  # noqa: PLC0415 -- optional, must never break the brief
+        counts, total = pcheck._harvest_live_actions()
+        if not total:
+            return ["- parity: live ledger unreadable -- cannot assess."]
+        res = pcheck.evaluate(counts, total, pcheck._load_registry())
+    except Exception as exc:  # noqa: BLE001
+        return [f"- parity: could not compute ({exc})."]
+
+    mark = {"RED": "🔴", "AMBER": "🟡", "GREEN": "🟢"}.get(res["verdict"], "")
+    out = [
+        f"- {mark} {res['verdict']} -- {res['confirmed_unmodelled_pct']}% of "
+        f"{res['actionable_ticks']:,} actionable live decisions are refusals NO backtest can "
+        f"reproduce ({res['n_divergences']} confirmed divergences).",
+    ]
+    if res["n_unclassified"]:
+        worst = max((r for r in res["rows"] if r["status"] == "UNCLASSIFIED"),
+                    key=lambda r: r["count"], default=None)
+        tail = f" Largest: {worst['action']} ({worst['pct_actionable']}%)." if worst else ""
+        out.append(
+            f"- {res['n_unclassified']} live action(s) UNCLASSIFIED, {res['unknown_pct']}% of "
+            f"decisions -- nobody has decided if the backtest models them.{tail}")
+        out.append("- classify in automation/state/parity-registry.json; "
+                   "detail: python setup/scripts/parity_check.py")
+    return out
+
+
 def render_core_recency_lines(data: dict, now_et) -> list[str]:
     """PURE: render the CORE-STRATEGY RECENCY line (WS11 2026-08-01; J's standing rule
     2026-07-31: "day 372 ago is not gonna work like day 162 ago") from
@@ -911,6 +948,19 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     core_recency = load_json(STATE / "core-strategy-recency.json")
     lines.append("## Core strategy recency (25d real fills)")
     lines.extend(render_core_recency_lines(core_recency, now_et))
+    lines.append("")
+
+    # Live/backtest decision parity -- does the backtest model what live actually DOES?
+    # (2026-08-12. The free-model veto refused 132 of 656 live ENTER verdicts across 38 days and
+    # NO backtest modelled it, so every backtest number described an engine that took trades
+    # production silently refused. Nothing surfaced that; a human found it by asking at midnight.
+    # J: "we've surfaced things that should have been found." This is the line that surfaces it.)
+    #
+    # Computed LIVE rather than read from a state file, deliberately: a cached parity verdict
+    # would acquire its own staleness failure mode, which is the same class of bug it exists to
+    # catch. parity_check is read-only, pure and fails open.
+    lines.append("## Live/backtest parity")
+    lines.extend(render_parity_lines())
     lines.append("")
 
     # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single
