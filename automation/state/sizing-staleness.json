@@ -1,0 +1,45 @@
+{
+ "_doc": "Detect sizing constants that were correct at one account size and silently rot at another.",
+ "verdict": "RED",
+ "drift_warn_ratio": 1.5,
+ "drift_red_ratio": 2.5,
+ "self_scaling_knobs_not_at_risk": [
+  "per_trade_risk_cap_pct",
+  "daily_loss_kill_switch_pct"
+ ],
+ "rows": [
+  {
+   "key": "min_contracts",
+   "params_file": "automation/state/params.json",
+   "arm": "safe-2",
+   "value": 3,
+   "authored_equity": 2000.0,
+   "authored_note": "Rule 6 'Min 3 contracts (2 TP + 1 runner)', $1-2K era",
+   "consumed_by": "fleet_executor._apply_recency_min_sizing (as a CEILING via min())",
+   "live_equity": 5500.84,
+   "equity_ratio": 2.75,
+   "equity_proportional_value": 8,
+   "pct_of_equity_when_authored": null,
+   "cost_recovery_min_r_at_current": 0.5,
+   "cost_recovery_min_r_at_proportional": 0.2,
+   "status": "RED"
+  },
+  {
+   "key": "min_contracts",
+   "params_file": "automation/state/aggressive/params.json",
+   "arm": "bold-2",
+   "value": 5,
+   "authored_equity": 1648.0,
+   "authored_note": "recency-confirmation.json config.equity.bold",
+   "consumed_by": "fleet_executor._apply_recency_min_sizing (as a CEILING via min())",
+   "live_equity": 5516.5,
+   "equity_ratio": 3.35,
+   "equity_proportional_value": 17,
+   "pct_of_equity_when_authored": null,
+   "cost_recovery_min_r_at_current": 0.25,
+   "cost_recovery_min_r_at_proportional": 0.2,
+   "status": "RED"
+  }
+ ],
+ "finding": "analysis/recommendations/COST-RECOVERY-SIZING-2026-08-13.md"
+}
