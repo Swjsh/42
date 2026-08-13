@@ -437,3 +437,41 @@ design (Fable). Their outputs slot into queue items 1-2 and the OPRA blocker res
 - **HOLD COUNTERFACTUAL PRICED** (was "impossible", then $0): hold-all −$10,313 / one-per-arm
   −$2,845 vs churn −$890. **R3 exit-side option KILLED; R3 = entry-side only.** Entries are the
   loss mechanism under every exit policy — reinforces queue items 1-3.
+
+---
+
+## 10. DATA QUESTION CLOSED + Phase A SHIPPED (2026-08-12 late)
+
+**Quotes/order book: [OPTION-QUOTES-ORDERBOOK-MEMO](../../analysis/deep-research/2026-08-12-churn/OPTION-QUOTES-ORDERBOOK-MEMO-2026-08-12.md)
+— BUY NOTHING.** SPY 0DTE trades at the PENNY FLOOR (min tick $0.010 on all 30 near-ATM
+contracts, 554,198 RTH ticks sampled); Roll half-spread $0.0104/side converges with the
+broker-calibrated 1c. Replay error is 93%-concentrated in positions whose error EXCEEDS a full
+round-trip spread => structural (intra-bar path), not friction. **The free fidelity lever is
+1-min bars ($0, already entitled) while the harness runs 5-min.**
+
+**🚨 NEW WORK ORDER — SLIPPAGE RE-BASELINE (needs its own frozen prereg).**
+`simulator_real.py:107-108` + `simulator_credit.py:70-71` default slippage to **$0.02 = 2x the
+measured $0.0104**. 255 call sites, only 14 pass it explicitly => ~241 studies ran 2x-pessimistic.
+NOT changed tonight: halving it shifts every historical cell at once and could flip KILLED cells
+positive on a config edit rather than new evidence. Comment corrected with the measurement.
+Re-baseline = ONE commit + re-run the affected verdict set + before/after table for every
+sign-flip.
+
+**Phase A conviction SHIPPED (shadow, zero behaviour change):** `conviction.py` (pure, 7
+components, max 8) + escalating ratchet (entry k needs floor+k) + `_read_level_records`
+(single-parse refactor; GUARD 6 byte-identical pin passes) + shadow logging on every ENTER row
++ confluence-zones reader (produced on schedule, consumed by nothing until now) + 12 guards
+RED-proofed two ways. Floor **calibrated 4 -> 5** by origin exhibit A. DST fix in the OPRA
+fetcher (both wall-clock AND offset — fixing only the wall-clock would have written every
+winter bar to a WRONG INSTANT).
+
+**⚠️ BACKTEST REFUSED — read the memo's backtest section before trusting any number.** The
+score's four best inputs were never persisted (the same metadata-discard defect), so history
+cannot answer this. Two attempts disclosed; the honest read is **95% block = exactly ON the F3
+DOA boundary**, with 21/37 scoring identically at 4 (poorly discriminating) and both "takes"
+being losers. Added gate: track `degraded_components` PER ARM — uneven per-arm field coverage
+is the realistic failure mode, not global degradation.
+
+**Next (unchanged):** nightly conviction shadow counter · frozen prereg (weights only after
+>=15 clean shadow days) · entry-side bug #1 · unfreeze `fetch_option_data.CONTRACTS` ·
+premarket reads -> SIP.

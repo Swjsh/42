@@ -104,6 +104,26 @@ def _ribbon_at(ribbon_df: Optional[pd.DataFrame], idx: int) -> Optional[RibbonSt
 # half-spread ≈ 0.02-0.05. We use $0.02 for both sides — slightly aggressive but
 # defensible for OPRA-feed liquidity at common strikes. Tune with `entry_slippage`
 # and `exit_slippage` kwargs on simulate_trade_real.
+# ⚠️ MEASURED 2026-08-12 — THE PREMISE OF THE COMMENT ABOVE IS WRONG FOR SPY 0DTE, AND THIS
+# DEFAULT IS ~2x THE REAL COST. Two independent methods agree to the cent:
+#   * Roll (1984) effective-spread estimator over 554,198 RTH ticks on the 30 near-ATM 0DTE
+#     contracts -> median effective spread $0.0208, i.e. HALF-SPREAD $0.0104/side. The
+#     minimum observed tick is $0.010 on ALL 30 contracts (including a $7.69-mid one):
+#     SPY 0DTE is quoted at the PENNY FLOOR, not the "0.02-0.05" this comment assumes.
+#   * The v5 harness calibration, regressed independently against 182 REAL broker fills,
+#     landed on slippage=0.01 (analysis/deep-research/2026-08-11-audit/HARNESS-CALIBRATION.md).
+# Same number from microstructure theory and from broker truth.
+#
+# NOT CHANGED HERE, DELIBERATELY. 255 call sites exist and only 14 pass slippage explicitly,
+# so ~241 studies were run against this default. Halving it would shift roughly +$0.02/contract
+# per round trip into EVERY historical cell at once — enough to flip previously-KILLED cells
+# positive on a config edit rather than on new evidence. That is precisely how a kill decision
+# gets laundered. The 2c default is the CONSERVATIVE direction (it understates edge, never
+# overstates it), so leaving it costs nothing but pessimism.
+# WORK ORDER (needs its own frozen prereg): re-baseline to 0.01 in ONE commit, re-run the
+# affected verdict set, and publish a before/after table for every cell whose sign changes.
+# Callers wanting truth today pass slippage=0.01 explicitly, as the calibrated harness does.
+# Sibling with the same default: backtest/lib/simulator_credit.py:70-71.
 DEFAULT_ENTRY_SLIPPAGE = 0.02
 DEFAULT_EXIT_SLIPPAGE = 0.02
 
