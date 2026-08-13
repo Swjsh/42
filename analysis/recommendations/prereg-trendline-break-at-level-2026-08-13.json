@@ -1,0 +1,109 @@
+{
+  "prereg_id": "TRENDLINE-BREAK-AT-LEVEL-2026-08-13",
+  "frozen_before_any_runner": true,
+  "frozen_at_et_source": "setup/scripts/et_clock.py (box runs Mountain; ET = local+2)",
+  "origin": {
+    "trigger": "J, 2026-08-13 ~14:15 ET, unprompted, while a same-day rising support sat 0.03 from the close: 'should we be drawing or theorizing on this trend line break as we approach the key level'.",
+    "why_it_is_a_real_question": "The existing break dataset is UNCONDITIONAL. It answers 'do trendline breaks pay?' (no) and has never been sliced on whether the break happened AT a key level. J's question is exactly that confluence cohort, and it is not in any artifact in this repo."
+  },
+  "baseline_already_measured_do_not_re_derive": {
+    "source": "analysis/trendlines/break-dataset-summary.json",
+    "scope": "380 trading days 2025-01-02..2026-07-13, 78,191 qualifying lines, 52,833 breaks, min_respect_beyond_anchors_gate=2, RTH 09:30-15:55",
+    "wick_support_bearish": {
+      "mfe_30": 0.7394,
+      "mae_30": 1.048,
+      "mfe_60": 0.9519,
+      "mae_60": 1.4927,
+      "mfe_90": 1.0639,
+      "mae_90": 1.8102,
+      "retest_within_10bar_rate": 0.5056
+    },
+    "wick_resistance_bullish": {
+      "mfe_30": 0.7272,
+      "mae_30": 1.1028,
+      "mfe_60": 0.9537,
+      "mae_60": 1.6741,
+      "mfe_90": 1.0964,
+      "mae_90": 2.078,
+      "retest_within_10bar_rate": 0.5012
+    },
+    "reading": "MAE exceeds MFE at EVERY horizon in BOTH directions, and the ratio decays with time (0.71 -> 0.64 -> 0.59 on wick_support). Roughly half of all breaks retest within 10 bars. Unconditionally, the break is not the trade."
+  },
+  "the_hypothesis": "A trendline break whose break price sits inside a key-level zone behaves DIFFERENTLY from the unconditional break population -- specifically, that confluence raises the MFE/MAE ratio relative to the same-family baseline.",
+  "why_the_prior_is_against_it": "This repo has repeatedly found that proximity gates ANTI-correlate with breakout setups (C20: 'gate direction must match setup structure'). A break is a breakout-class event; a level is a mean-reversion-class attractor. The mechanism could plausibly run either way, and the honest expectation is NO effect. A large positive effect should be treated as an implementation error first (see /fable-too-good).",
+  "cohort_definition": {
+    "join_key": "break.line_value_at_break (the price at which the break occurred) and date_et",
+    "primary_level_set": {
+      "coverage": "all 380 days",
+      "derived_from": "backtest/data/spy_5m_2025-01-01_2026-07-08.csv -- THE SAME BAR CACHE THE BREAK DATASET WAS BUILT FROM, so no new data lineage is introduced",
+      "levels": [
+        "PRIOR_DAY_HIGH",
+        "PRIOR_DAY_LOW",
+        "PRIOR_DAY_CLOSE",
+        "OVERNIGHT_HIGH",
+        "OVERNIGHT_LOW",
+        "INTRADAY_RTH_HIGH_SO_FAR",
+        "INTRADAY_RTH_LOW_SO_FAR"
+      ],
+      "causality": "INTRADAY_* levels are computed from bars STRICTLY BEFORE the break bar. A level that includes the break bar itself is look-ahead (C6) and voids the cell."
+    },
+    "secondary_level_set": {
+      "coverage": "18 days only (journal/key-levels-archive/, 2026-05-19..2026-07-02) = 4.7% of the population",
+      "purpose": "FIDELITY CHECK ONLY -- does the derived structural set agree with what the live level engine actually published on the days where both exist?",
+      "rule": "NEVER pooled with the primary set, and n=18 days is reported as too small to conclude from. MEMORY_SUP_* / MEMORY_RES_* multi-day levels cannot be reconstructed outside these 18 days and are OUT OF SCOPE -- stated as a limitation, not silently omitted."
+    }
+  },
+  "proximity_bands_preregistered": {
+    "bands_usd": [
+      0.1,
+      0.2,
+      0.35,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "rule": "ALL SIX are reported. Band width is a pre-registered sweep, never hand-picked after seeing results -- J's standing rule ('levels are ZONES not prices; band width = pre-reg A/B, never hand-picked'). Selecting the best band post hoc is the failure this list exists to prevent.",
+    "control_band": "A break is 'AT a level' if min |line_value_at_break - level_price| <= band. Everything else is the NOT-AT-LEVEL cohort, which is reported alongside -- not discarded."
+  },
+  "metrics": {
+    "primary": "mfe_H / mae_H ratio at H in {30, 60, 90} min, per anchor_family x kind, conditional vs unconditional.",
+    "secondary": [
+      "retest_within_10bar rate",
+      "break_type split (close_through vs wick_through_only)",
+      "volume_ratio at break",
+      "intact_eod rate"
+    ],
+    "HONESTY_CLAUSE": "MFE/MAE is EXCURSION, not P&L. It applies no stop, no target, no theta, and no spread. A favourable excursion ratio is NECESSARY but nowhere near SUFFICIENT to trade -- this repo has already been burned by SPY-price edge that did not survive option economics (C3). No cell from this study may be described as profitable. The maximum output is: a cohort worth pricing on real OPRA in a SEPARATE study."
+  },
+  "multiple_comparisons": {
+    "cells": "6 bands x 4 family-kind combos x 3 horizons = 72 primary cells",
+    "correction": "Benjamini-Hochberg FDR at q=0.10 across all 72. Uncorrected p-values are reported but never used for a verdict.",
+    "null": "Within-day permutation: shuffle the level set across dates (keeping the level COUNT and the intraday spacing distribution intact) and re-measure. A confluence effect that survives date-shuffling is a distance artifact, not confluence."
+  },
+  "validity_gates": {
+    "G1_baseline_reproduces": "Re-deriving the unconditional numbers from break-dataset.jsonl must reproduce break-dataset-summary.json EXACTLY. If it does not, the summary and the raw file disagree and NOTHING downstream is interpretable.",
+    "G2_no_lookahead": "Every INTRADAY level must be computed from bars strictly before break_bar_idx. Assert per row; a violation voids the cell rather than being footnoted.",
+    "G3_patch_binds": "Vary-and-assert (C14): the AT-LEVEL cohort size must CHANGE monotonically with band width. If all six bands return the same n, the join did not bind and the result is meaningless.",
+    "G4_not_run_is_not_a_pass": "Any cell with n < 30 breaks is reported NOT-RUN, never as a null result.",
+    "G5_read_only": "analysis/, automation/state/ and all params are READ-ONLY for this study. It arms nothing."
+  },
+  "what_would_make_me_recommend_anything": {
+    "necessary_and_not_sufficient": [
+      "G1 reproduces the published baseline exactly.",
+      "The effect survives BH-FDR at q=0.10.",
+      "The effect survives the date-shuffled null.",
+      "The effect is MONOTONE or at least coherent across adjacent bands -- an effect that appears at 0.35 and vanishes at 0.20 and 0.50 is noise wearing a band.",
+      "n >= 30 in the affected cell.",
+      "The direction matches the stated mechanism, not just the sign that would be convenient."
+    ],
+    "and_even_then": "The output is a CANDIDATE COHORT for real-OPRA pricing, never an armed gate. Excursion is not P&L."
+  },
+  "ship_rule": {
+    "ships_on_completion": false,
+    "produces": "One table of all 72 cells plus the NOT-AT-LEVEL comparison, the null result, and a one-line verdict per family.",
+    "provenance_stamp": "The published table carries the git HEAD it was produced at and this prereg_id, so a downstream reader cannot inherit soundness sight-unseen (L293)."
+  },
+  "execution_note": "The break dataset is 67MB / ~52,833 break rows. The Windows reaper kills project python > 5 min (see CLAUDE.md debugging section), so the runner MUST stream the JSONL and checkpoint, or run as an exempt long-grind task. A runner killed mid-scan that writes a partial table is the exact silent-truncation failure this repo keeps repeating.",
+  "frozen_at_et": "2026-08-13 14:22:46 Thursday EDT",
+  "frozen_at_git_head": "c12f6dcd064c8b702dba32778b99b8ec3510696f"
+}
