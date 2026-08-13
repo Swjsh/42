@@ -186,3 +186,59 @@ handful of doublers dominate the sum — measures the wrong thing.
 2. **Primary metric is not total P&L** — it is *fraction of trades that returned their own cost*,
    with total P&L reported alongside as the cost of the insurance.
 3. **Control arm must reproduce the table above exactly** (G1), including risky-1's shortfall.
+
+
+---
+
+## EXHIBIT 2 -- the OTHER half of the distribution, same day (trade #4, 14:36 ET)
+
+Exhibit 1 (the 09:51 777C) DOUBLED, and the +100% TP1 beat every alternative on it. That is the
+20.4% case. This is the other 79.6%, and it landed four hours later on the same setup.
+
+`BULLISH_RECLAIM_RIDE_THE_RIBBON`, SPY260813C00777000, entered 14:36-14:37 ET.
+Recorded while the position was STILL OPEN; the counterfactual is conditional on a floor exit.
+
+| arm | entry | Q | cost | HWM | live TP1 | banked at peak |
+|---|---|---|---|---|---|---|
+| safe-2 | 0.66 | 3 | $198 | 1.11 (**+68%**) | +100% = 1.32 | **$0** |
+| safe-3 | 0.65 | 3 | $195 | 1.10 (**+69%**) | +100% = 1.30 | **$0** |
+
+The trade ran +68% and **banked nothing**, because the first tranche is priced at a double.
+It then faded to 0.91 with the ladder floor locked at 0.858 (+30%) -- five cents away.
+
+### Counterfactual under the cost-recovery law
+
+For Q=3 the law returns r=+50% (the lowest band leaving a runner), sell `ceil(3/1.5)=2`:
+
+| arm | LIVE (exit 3 at floor) | LAW (sell 2 @ +50%, 1 runner to floor) | delta |
+|---|---|---|---|
+| safe-2 | +$59.40 | **+$85.80** | **+$26.40 (+44%)** |
+| safe-3 | +$58.50 | **+$84.50** | **+$26.00 (+44%)** |
+
+Cost recovery is EXACT, not approximate: 2 x 0.99 x 100 = $198 against a $198 outlay. The
+identity 2 x 1.5 = 3 is why -- at Q=3 and r=+50% the law consumes the position to the cent and
+leaves precisely one free contract.
+
+### Why this pair of exhibits is the whole argument
+
+Same setup, same instrument, same day, four hours apart:
+
+| | move | +100% TP1 verdict |
+|---|---|---|
+| trade #1 (09:51) | +124% | **won** -- holding beat every lower TP1 |
+| trade #4 (14:36) | +68% peak | **banked $0**; cost-recovery +44% better |
+
+The live config is not wrong, it is **conditional**: it wins on doublers and forfeits the peak on
+everything else. `popA_tp1_fire_rate = 0.2042` says doublers are ~1 trade in 5.
+
+This is precisely why the tp1-reachability study's REJECT does not settle it. That sweep lowered
+TP1 on a FIXED position and measured the pooled sum -- where the doublers dominate. It never
+asked the question these two exhibits pose: *what does the OTHER 79.6% give up?*
+
+**Study design implication (already in the gates above, now with a live anchor): stratify on the
+peak the trade actually reached. Reporting one pooled number across both exhibits would average a
++124% winner against a +68% non-winner and conclude nothing.**
+
+Status: trade #4 was OPEN at time of writing. If it recovers to +100% or exits above the floor,
+these deltas change -- the EXHIBIT stands (it banked $0 at a +68% peak) but the dollar figures
+must be re-derived from the actual fills, not from this projection.
