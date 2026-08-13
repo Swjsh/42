@@ -5,20 +5,18 @@
 
 # CANDIDATE: OPENING_RANGE_VWAP_PULLBACK_LONG
 
-**Filed:** 2026-07-09
-**Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** new_trigger
+**Filed:** 2026-07-09  
+**Filer:** chef-nemotron (free-tier autonomous R&D)  
+**Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Early-morning overextension beyond the opening range often reverts to intraday fair value (VWAP) while a bullish EMA stack supports continuation. This strategy fades the initial OR break and enters on a VWAP pullback with ribbon confirmation, capturing mean reversion within an intraday uptrend bias.
+Price that breaks the opening range (first 30 min) then pulls back to VWAP within the first hour shows institutional acceptance and tends to resume the breakout direction. This setup captures the continuation of institutional order flow after an initial breakout, where the pullback to VWAP represents a tested liquidity level before trend resumption.
 
 ## Mechanism
 
-- **Entry trigger:** First 5-min bar breaks above opening range high (ORH). Wait for a bar where close is within 0.1% of VWAP, close > open (bullish), and EMA9 > EMA20 > EMA50 (bullish stack). Enter long at close of that bar.
-- **Exit:** Chart stop at opening range low (ORL) or most recent swing low; initial target 1.5× risk; trail with chandelier exit (20-period ATR × 1.5).
-- **Regime filters:** Only trade when VIX < 20 and time between 09:30-10:30; skip if opening range width < 0.2% of price.
+After the opening range (first 30 min) is defined, if price breaks above OR high, wait for a pullback where price touches or crosses VWAP from above and closes bullish (close > open) on a 5‑min bar with volume > 1.5× the average 5‑min volume of the opening range; go long at close of that bar. Initial stop placed at the OR low; take profit at 2× risk or trail using a 15% Chandelier exit from highest close since entry. Regime hint: Best when VIX is between 12‑20 (moderate volatility) and the session is not a major news window (avoid first 15 min after 08:30 CT and last 30 min).
 
 ## Expected impact on OP-16 anchors
 
@@ -32,17 +30,16 @@ Early-morning overextension beyond the opening range often reverts to intraday f
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
+(No data available; requires Stage-1 backtest via autoresearch grinder harness to populate.)
+
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L.
-2. **Sample bias:** Zero-sample idea; no historical backtest conducted. High overfit risk until validated.
-3. **Out-of-sample:** NEEDS-OOS
-4. **Real-fills:** NEEDS-REAL-FILLS
-5. **Failure modes:** 
-   - Worst day: Strong trend day where OR break continues without pullback, causing repeated stopped entries.
-   - Max drawdown: Unknown without backtest.
-   - Blow-up scenario: Volatility expansion day where OR break fails and price reverses sharply through ORL/swing stop.
-6. **Concentration:** Unknown -- requires Stage-1 backtest.
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (based on risk rules: max 50% per-trade risk, 3-contract minimum at $1K scales to 28 contracts at ~$25K).
+2. **Sample bias:** No sample yet; proposal is based on theoretical edge. High overfit risk until Stage-1 backtest on 16-month SPY 5m data (2025-01-02 to 2026-06-18) validates consistency across regimes.
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not performed).
+4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days not checked against realistic OPRA simulator).
+5. **Failure modes:** Worst day: false breakout followed by reversal (e.g., 5/07) could trigger stop at OR low; max drawdown scenario: consecutive failed breakouts in low-VIX chop; blow-up scenario: volatility expansion after entry triggering Chandelier trail too early during gap-and-go reversal.
+6. **Concentration:** unknown -- requires Stage-1 backtest to determine if top-5 days drive X% of P&L.
 
 ## Pre-merge gate
 
@@ -50,8 +47,8 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Confidence
 
-5 / 10 -- Plausible intraday mean reversion thesis but requires validation; similar ORB/VWAP strategies exist in registry with mixed results.
+5 / 10 -- Hypothesis aligns with smart money concepts (institutional acceptance of breakouts) but lacks empirical validation; similar ORB_RETEST_LONG exists in watch-only but differs by requiring VWAP pullback with volume filter, which may add robustness or reduce edge.
 
 ## Pre-existing leaderboard impact
 
-No direct conflict with existing candidates (e.g., ORB_RETEST_LONG waits for OR retest, VWAP_CONTINUATION trades VWAP slope direction). This strategy fades OR break and enters on VWAP pullback with EMA confirmation. May complement time-of-day filters but requires independent validation.
+Complements ORB_RETEST_LONG (watch-only) by adding a VWAP-conditioned filter; does not conflict with any ratified candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) as it targets long bias only after OR break. No direct overlap with existing triggers in leaderboard (all are either watch-only, gates, or bearish/bullish ribbon rides). May provide orthogonal long-side edge if validated.
