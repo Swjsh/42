@@ -90,6 +90,45 @@ def is_flat_spy_options(creds: dict[str, str]) -> bool:
     return len(open_spy_option_positions(creds)) == 0
 
 
+def open_spy_option_positions_checked(creds: dict[str, str]) -> "tuple[list, bool]":
+    """SPY option positions, with the read's SUCCESS reported separately (2026-08-13).
+
+    THE INCIDENT THIS EXISTS FOR. `get_positions` collapses any failure to `[]`:
+
+        res = _request(creds, "positions")
+        return res if isinstance(res, list) else []      # a timeout returns {"_error": ...}
+
+    so an unreadable arm is INDISTINGUISHABLE from a flat one. On 2026-08-13 bold-2's
+    /v2/positions hung at 15s for ~15 minutes (while /v2/clock and /v2/orders answered in 0.2s,
+    that arm only). The exit loop saw "no positions", did nothing, and logged exit=0 while the
+    bid sat through the -50% stop. Measured cost: -$40 of the -$200 realized.
+
+    That was survivable. The UNBOUNDED case is eod_flatten, which read `[]`, logged
+    "EOD_FLATTEN_NOOP -- already flat", and returned. On a 0DTE contract a missed flatten is not
+    a delayed exit, it is expiry.
+
+    WHY get_positions IS NOT CHANGED. Its fail-open behaviour is deliberate and documented for
+    the exit manager's per-tick re-derivation ("simply re-tries every minute regardless" --
+    get_position_qty). That reasoning holds for INDEPENDENT failures; today's were CORRELATED
+    (one arm's endpoint down for 15 minutes straight), which is exactly when "it'll retry" stops
+    being true. Rather than flip a documented default under every caller, this adds the checked
+    read that callers who cannot tolerate a false "flat" must use -- the same shape as
+    open_buy_orders_checked / symbol_position_qty_checked (2026-08-02).
+
+    Returns (positions, ok). ok=False means the query itself failed and the caller MUST NOT read
+    the empty list as "flat". Never raises.
+    """
+    try:
+        res = _request(creds, "positions")
+    except Exception:  # noqa: BLE001 -- a guard primitive must never crash the caller's tick
+        return [], False
+    if not isinstance(res, list):
+        return [], False
+    return ([p for p in res
+             if str(p.get("symbol", "")).startswith("SPY") and len(str(p.get("symbol", ""))) >= 15
+             and str(p.get("asset_class", "")) in ("option", "us_option", "")], True)
+
+
 OPTIONS_DATA_HOST = "https://data.alpaca.markets"
 
 

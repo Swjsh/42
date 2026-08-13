@@ -38,6 +38,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from datetime import timezone, datetime
 from pathlib import Path
 
@@ -66,6 +67,13 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Set GAMMA_EOD_DRY=1 to simulate without placing orders (weekend test / dry-run).
 DRY = os.environ.get("GAMMA_EOD_DRY", "0") == "1"
+
+# Position-read retries before declaring the flat status UNKNOWN (2026-08-13). Sized against the
+# measured incident: bold-2's /v2/positions timed out at 15s repeatedly, and a persistence probe
+# showed 4/6 eventually succeeding with one recovery taking 24.0s. Three attempts with a short
+# gap covers a recovering endpoint without stalling the 15:55 flatten window.
+READ_ATTEMPTS = 3
+READ_RETRY_S = 2.0
 
 
 # ---- helpers --------------------------------------------------------------------
@@ -101,8 +109,33 @@ def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path) ->
     result: dict = {"arm": arm, "ts": ts_start, "dry": DRY}
 
     try:
-        # Step 1: check current positions
-        positions = fleet_broker.open_spy_option_positions(creds)
+        # Step 1: check current positions.
+        #
+        # CHECKED READ (2026-08-13). This used open_spy_option_positions, which collapses ANY
+        # read failure to [] -- so a broker timeout landed here as qty_total==0 and returned
+        # "EOD_FLATTEN_NOOP -- already flat". On 2026-08-13 bold-2's /v2/positions hung for ~15
+        # minutes while its other endpoints answered in 0.2s; had that window covered 15:55, a
+        # live 0DTE contract would have EXPIRED while this logged that everything was fine.
+        # A missed flatten on 0DTE is not a delayed exit, it is total loss.
+        #
+        # Retry a few times, then FAIL LOUD. An unreadable arm is reported as READ_FAILED, never
+        # as NOOP -- "could not measure" must never render as "measured and fine" (C7).
+        positions: list = []
+        read_ok = False
+        for _attempt in range(READ_ATTEMPTS):
+            positions, read_ok = fleet_broker.open_spy_option_positions_checked(creds)
+            if read_ok:
+                break
+            time.sleep(READ_RETRY_S)
+        if not read_ok:
+            msg = (f"EOD_FLATTEN_READ_FAILED arm={arm} -- positions query failed "
+                   f"{READ_ATTEMPTS}x; CANNOT confirm flat. NOT reporting NOOP.")
+            _log(log, msg)
+            result.update({"outcome": "READ_FAILED", "closed": [], "remaining": None,
+                           "errors": [f"positions query failed {READ_ATTEMPTS}x -- flat status UNKNOWN"]})
+            _append_jsonl(jsonl, result)
+            return result
+
         symbols = [str(p.get("symbol")) for p in positions]
         qty_total = sum(abs(int(float(p.get("qty", 0)))) for p in positions)
 
