@@ -221,10 +221,28 @@ def _extract_et_offset_hours_from_engine_health():
     g: dict = {"__name__": "_test_eh"}
     try:
         exec(compile(src, "engine_health.py", "exec"), g)  # noqa: S102 -- test-only exec
-    except Exception:
-        # If exec fails (e.g. missing state files), fall back to import-util
+        fn = g.get("_et_offset_hours")
+        if fn is not None:
+            return fn
+    except Exception:  # noqa: BLE001 -- fall through to the import-util route below
+        pass
+
+    # THE FALLBACK THIS DOCSTRING PROMISED (2026-08-12). It was never implemented: the except
+    # branch said "fall back to import-util" and then `return None`, so the caller warned and
+    # PASSED. The exec route has been failing silently for an unknown span, meaning the
+    # engine_health-vs-et_clock cross-check -- the whole point of this test -- was a no-op while
+    # reporting green. L249 class (a stub citing a dependency nobody built) crossed with C7
+    # (silent success). importlib does work; verified 0/9 mismatches when run by hand.
+    import importlib.util as _iu  # noqa: PLC0415
+    spec = _iu.spec_from_file_location("_eh_probe", REPO / "setup" / "scripts" / "engine_health.py")
+    if spec is None or spec.loader is None:
         return None
-    return g.get("_et_offset_hours")
+    mod = _iu.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception:  # noqa: BLE001
+        return None
+    return getattr(mod, "_et_offset_hours", None)
 
 
 def test_inline_dst_matches_et_clock():
@@ -232,11 +250,14 @@ def test_inline_dst_matches_et_clock():
     ec = _import_et_clock()
 
     eh_fn = _extract_et_offset_hours_from_engine_health()
-    if eh_fn is None:
-        import warnings
-        warnings.warn("Could not extract engine_health._et_offset_hours -- skipping cross-check",
-                      stacklevel=1)
-        return
+    # FAIL, do not skip (2026-08-12). This used to warn and return, so an extraction failure was
+    # indistinguishable from a passing cross-check -- and that is exactly what happened. If
+    # engine_health ever legitimately stops carrying its own DST implementation, DELETE this test
+    # deliberately; do not let it decay back into a green no-op.
+    assert eh_fn is not None, (
+        "could not extract engine_health._et_offset_hours -- the cross-check cannot run. This is "
+        "a FAILURE, not a skip: engine_health keeps an independent inline DST implementation "
+        "(engine_health.py:140, used at :160) and nothing else verifies it matches et_clock.")
 
     mismatches = []
     for utc in _TEST_UTC_INSTANTS:
