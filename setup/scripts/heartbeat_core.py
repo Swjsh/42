@@ -866,9 +866,50 @@ def _veto_snapshot(bc: dict, verdict: dict) -> str:
             f"{setup_seg} triggers={verdict.get('triggers_fired')}")
 
 
+FREE_MODEL_VETO_ENABLED = os.environ.get("GAMMA_FREE_MODEL_VETO", "0") == "1"
+# ⛔ DISABLED BY DEFAULT 2026-08-12 — J's directive: "I don't want my money in the hands of
+# these free agents that could mess up. I'd rather have it in the hands of Claude that I've
+# crafted myself." Free models stay welcome for BRAINSTORMING (prospector, twin-review,
+# swarm-consult are all research-side and untouched); they no longer hold authority over an
+# order. This was the ONLY free-model call reachable from the money path — verified by grep
+# over heartbeat_core + every automation/state/fleet module; fleet arms never call a model,
+# they inherit the core verdict.
+#
+# THREE INDEPENDENT CHARGES, each sufficient on its own:
+#   1. ACCURACY — veto-only accuracy 31.2% on 2026-08-10 (20 TRUE vs 44 FALSE vetoes; it
+#      blocked winners 2.2:1 over losers). 0.0% twice (07-31, 08-04). Cumulative 61.7% over
+#      460 evidence points, 0 of 3 consecutive runs above the required 85% bar. It has been
+#      failing its own OP-32 trust gate continuously since 2026-07-31 and nothing consumed
+#      the verdict.
+#   2. TIMING — measured 2026-08-12: 09:51:04 fired ENTER_BULL -> VETOED_BY_MODELS;
+#      09:52:04 fired the IDENTICAL verdict -> PLACED. It cost a full minute of entry timing
+#      and then let the same trade through. ~60 s of the true ~124 s bar-close->verdict
+#      latency was this lane, on the exact fast-move bars where a minute is worth the most.
+#   3. QUORUM BUG — `veto = len(answered) >= 1 and len(gos) == 0 and len(no) >= 1` lets a
+#      LONE "no" veto whenever the sibling lane crashes, contradicting the comment's own
+#      "1 dissent allowed". qwen3:14b returned no_valid_json on 43% of calls on 08-12;
+#      6 of 14 vetoes that morning ran as a single-model dictator.
+#
+# Skipping the CALL (not just the authority) also removes its latency from the hot path —
+# there is no reason to pay a network/inference round trip for a value nothing reads.
+# The audit harness keeps its 460 evidence points and can still grade the lane offline.
+# REVERT: set GAMMA_FREE_MODEL_VETO=1 in the launcher. Guard:
+# backtest/tests/test_free_model_veto_disabled_2026_08_12.py.
+
+
 def _free_model_eval(account: str, payload: dict, verdict: dict) -> dict:
     """2 FREE models each give GO/NO-GO on the rules-engine's ENTER. Veto only — they can
-    block a marginal entry, never manufacture one. $0 (groq/cerebras/gemini free pool)."""
+    block a marginal entry, never manufacture one. $0 (groq/cerebras/gemini free pool).
+
+    DISABLED by default since 2026-08-12 (see FREE_MODEL_VETO_ENABLED above). When disabled
+    this returns veto=False WITHOUT calling any model, so the lane costs nothing and decides
+    nothing. The row is still written to the ledger so the disabling is visible per-tick
+    rather than silent."""
+    if not FREE_MODEL_VETO_ENABLED:
+        return {"evaluated": False, "votes": [], "veto": False,
+                "note": "free-model veto DISABLED (J 2026-08-12: no free models on the money "
+                        "path). Set GAMMA_FREE_MODEL_VETO=1 to re-enable.",
+                "disabled_by_config": True}
     try:
         import swarm_client as sc
     except Exception:
