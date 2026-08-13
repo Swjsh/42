@@ -12,6 +12,36 @@ is omitted — see DATA ACCESS below). No replay engine, no simulator. Broker fi
 
 ---
 
+---
+
+## ⚠️ SUPERSEDED IN PART — read DEEP-REVIEW-2026-08-13-MULTIAGENT.md first
+
+A 36-agent adversarial review (7 angles, every finding refuted-or-survived by an independent
+reviewer) corrected this document's HEADLINE. The per-trade forensics below stand; the framing
+and the significance claim do not.
+
+**1. There were not 15 trades. There were 5 signal EVENTS**, mechanically fanned across arms —
+proven by identical `core_tick_id` on all three fleet arms entering at 09:52:04. All five events
+are sign-homogeneous, so **8W/7L is really 2W/3L.**
+
+**2. The "+25% in 4-6 minutes, zero overlap" separator is NOT significant.** Fisher p = 0.000155
+at n=15, but **p = 0.100 at n=5** — the honest unit. Worse, the winner half is near-tautological:
+minimum winner *realized* return is +46.77%, and realized <= MFE by construction. The only
+empirical content is the loser side (max loser MFE +23.71%), which rests on **3 events**. It is
+also partly measuring ENTRY SLIPPAGE rather than signal quality — event C is one price path
+peaking at 1.20, entered at 0.97 / 1.13 / 1.14, producing MFE +23.7% / +6.2% / +5.3% purely from
+a 17.5% entry-price spread.
+
+**3. Event A alone is +$1,985 = 114% of the day's net. Ex-A, 2026-08-13 is a -$237 LOSING day.**
+
+**4. Section 5c's "worst-case ordering drawdown" is not an observed drawdown** — it is
+sum(losses)/equity under a reordering that did not happen, i.e. a deterministic function of total
+losses. On n=1 with known outcomes it cannot be distinguished from fitting to which trades lost.
+
+**5. The actual #1 finding is different and was not in this document:** five arms run five
+different entry-gate sets and no inventory exists of which gate is armed where. That moved $942
+today in two opposite directions.
+
 ## 1. The ledger — 15 round trips, +$1,748
 
 | # | in | out | arm | strike | Q | entry | exit | P&L | MFE | MAE | capture eff |
