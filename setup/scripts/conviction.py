@@ -190,8 +190,13 @@ def score_conviction(
     mem = 0
     if rec is not None:
         ms = _f(rec.get("memory_score"))
+        # BUG FIX 2026-08-12 (found by the historical backtest): this tested
+        # `source.startswith("shelf")`, but the producer writes `daily_context_shelf` — so the
+        # highest-weighted level class in the compiler (SHELF, weight 5, multi-WEEK zones)
+        # could NEVER score the memory component. A dead branch, C14 class, in code I shipped
+        # the same night. Substring match, not prefix.
         if (ms is not None and ms >= MEMORY_SCORE_MIN) or rec.get("multi_day") \
-                or str(rec.get("source", "")).startswith("shelf") \
+                or "shelf" in str(rec.get("source", "")).lower() \
                 or str(rec.get("label", "")).startswith("MEMORY_"):
             mem = W_MULTI_DAY
     comp["multi_day_memory"] = mem

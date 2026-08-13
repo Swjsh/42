@@ -70,9 +70,42 @@ Why this matters beyond fidelity:
   accounted for, and it is in the OPTIMISTIC direction.
 - The conviction score's C4 (range extreme) is computed at a price we are ~10 minutes late to.
 
-→ **Work order (now ranked #1): root-cause the 424 s bar_close -> core_verdict hop.** Is it a
-scheduler cadence, a warmup, a data-fetch wait, or an artifact of which bar gets labelled the
-trigger? Then re-price the entry bias with a latency-aware replay.
+### ✅ ROOT-CAUSED SAME NIGHT — the 424 s was mostly a MEASUREMENT ARTIFACT
+
+**`bar_close_ts` is not a bar close. It is the bar's OPEN.** `fill_latency.py:138` maps it to
+`trigger_bar_et`, and the engine writes that as the bar's opening timestamp. Proved three ways
+on 2026-08-12: the engine logged `trigger_bar_et=09:45, spy=773.54`, and the 5-min bar
+*labelled* 09:45 (spanning 09:45-09:50) closes at exactly **773.54**; same match for
+09:35→772.88 and 09:40→772.81.
+
+**Every hop measured from `bar_close_ts` is therefore inflated by one full bar period (300 s).**
+
+| | reported | TRUE (−300 s) |
+|---|---:|---:|
+| bar close → core verdict | 424 s | **~124 s** |
+| bar close → fill (fleet) | 578 s | **~278 s** |
+
+**The tick-by-tick proves the engine is not slow.** Ticks 09:41-09:45 saw the 09:35 bar (bull 6,
+no setup); 09:46-09:50 saw the 09:40 bar (bull 6, no setup); at **09:51:04** the 09:45 bar
+became available, **bull jumped 6→10**, and the setup fired on the FIRST tick it could.
+**The setup genuinely did not exist until that bar closed.** J's sniper entries are real and
+earned, not luck.
+
+What the true ~124 s actually decomposes into, and both parts are addressable:
+1. **~64 s to pick up a bar that has already closed** (bar closes 09:50:00, first tick using it
+   is 09:51:04). Polling/availability lag — worth a look, but a 1-min heartbeat can't do much
+   better than ~60 s without a faster cadence or a push feed.
+2. **~60 s lost to the FREE-MODEL VETO.** 09:51:04 fired `ENTER_BULL` → `VETOED_BY_MODELS`;
+   09:52:04 fired the identical verdict → `PLACED`. **The veto layer cost a full minute of
+   entry timing on this trade, then let the same trade through anyway.** This is a NEW cost of
+   the veto lane, separate from its 31.2% accuracy problem — it delays entries it does not
+   ultimately block. Fold into the veto kill/keep decision.
+
+→ **Work orders:** (a) FIX THE INSTRUMENT — rename to `trigger_bar_open_ts` and add a derived
+`bar_close_ts = open + bar_period`, so nobody re-reads a 300 s offset as engine lag (I did,
+and reported 9.6 min to J before catching it); (b) quantify the veto's timing cost across the
+population and add it to the veto ledger; (c) the entry-bias concern is much smaller than
+stated — median trigger-bar-close→fill drift is $0.18, with a fast-move tail to $1.22.
 
 ### 3. `min_entry_premium = $0.30` — VALIDATED ✅ (the good case)
 Backed by `analysis/recommendations/min-entry-premium-2026-07-31.json` **and** a

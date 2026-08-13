@@ -114,12 +114,32 @@ def _ribbon_at(ribbon_df: Optional[pd.DataFrame], idx: int) -> Optional[RibbonSt
 #     landed on slippage=0.01 (analysis/deep-research/2026-08-11-audit/HARNESS-CALIBRATION.md).
 # Same number from microstructure theory and from broker truth.
 #
-# NOT CHANGED HERE, DELIBERATELY. 255 call sites exist and only 14 pass slippage explicitly,
-# so ~241 studies were run against this default. Halving it would shift roughly +$0.02/contract
-# per round trip into EVERY historical cell at once — enough to flip previously-KILLED cells
-# positive on a config edit rather than on new evidence. That is precisely how a kill decision
-# gets laundered. The 2c default is the CONSERVATIVE direction (it understates edge, never
-# overstates it), so leaving it costs nothing but pessimism.
+# NOT CHANGED HERE, DELIBERATELY. AST over the live tree: 195 call sites, 166 consuming this
+# default, 78 scripts writing a verdict artifact that still exists ("241 studies" was a raw
+# grep of call sites and is WRONG — corrected 2026-08-12). Halving it shifts every historical
+# cell at once, enough to flip previously-KILLED cells positive on a config edit rather than on
+# new evidence. That is how a kill decision gets laundered.
+#
+# ⛔ AND CORRECTING A CLAIM THAT WAS WRITTEN HERE EARLIER THE SAME NIGHT: this comment used to
+# assert the 2c default "is the CONSERVATIVE direction (understates edge, never overstates)."
+# **THAT IS FALSE**, and the re-baseline proved it with exact arithmetic. See the exit-slippage
+# ASYMMETRY BUG below: market exits pay exit_slippage, but the runner/premium stop and the TP1
+# premium-fallback limit fill at EXACT prices with none. So a lower slippage makes some cells
+# WORSE — impossible for a well-formed fill model. Measured on one script, same trades: the
+# premium-stop arm moved +$39.60 while the market-exit arm moved +$548.80. **There is no single
+# "pessimism" number — the sign depends on each cell's exit mix.** Do not reason about this
+# default as uniformly safe.
+#
+# 🐛 EXIT-SLIPPAGE ASYMMETRY BUG (verified 2026-08-12, NOT yet fixed — needs its own prereg
+# because it moves every historical cell): market exits correctly pay `- exit_slippage`
+# (lines ~659/685/710/740/763/784/824), but `runner_exit_premium = runner_stop_premium` and
+# `cons_price = runner_stop_premium` fill at the exact stop with NO slippage, as does the TP1
+# premium-fallback limit. Predicted delta for a TP1-limit + BE-runner trade,
+# 0.30 x 0.01 x 2 x 100 = $0.60, matched the observed -$0.60 on every such trade.
+# `simulator_real_trailing.py` shares it; `simulator_credit`/`simulator_debit` are clean.
+# FIX THIS FIRST — re-baselining slippage on top of an asymmetric fill model just moves the
+# error around. And fees (measured $0.0304/contract-side, modelled as $0 here) must move in
+# the SAME prereg'd commit, since they cut the opposite way.
 # WORK ORDER (needs its own frozen prereg): re-baseline to 0.01 in ONE commit, re-run the
 # affected verdict set, and publish a before/after table for every cell whose sign changes.
 # Callers wanting truth today pass slippage=0.01 explicitly, as the calibrated harness does.
