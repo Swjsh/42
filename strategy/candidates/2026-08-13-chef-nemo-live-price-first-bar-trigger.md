@@ -5,60 +5,49 @@
 
 # CANDIDATE: LIVE_PRICE_FIRST_BAR_TRIGGER
 
-**Filed:** 2026-07-23  
+**Filed:** 2026-07-22  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Testing whether the first premarket bar breaking the prior day's low (for bearish setups) or high (for bullish setups) with follow-through confirmation captures edge on J's anchor days. The hypothesis is that these premarket extremes signal institutional order flow that persists into RTH, providing a directional bias for 0DTE entries. However, J's anchor days (4/29, 5/01, 5/04, 5/05, 5/06, 5/07) show zero fires in historical premarket data, suggesting this trigger may not align with J's proven entry patterns.
+The first RTH bar that confirms a premarket extreme (high for shorts, low for longs) captures early momentum bias. This trigger fires when SPY opens with a meaningful premarket level test and the first RTH bar closes beyond that level in the direction of the premarket extreme, indicating institutional participation before regular session noise.
 
 ## Mechanism
 
-**Entry:** Bearish trigger fires when: (1) Premarket bar (04:00-09:29 ET) closes below prior day's low (PML), (2) First RTH bar (09:30-09:35 ET) closes below that premarket low (confirming follow-through), (3) Entry = next bar open. Bullish trigger mirrors using prior day's high (PMH).  
-**Exit:** Standard BEARISH_REJECTION_RIDE_THE_RIBBON management: chart stop at rejected level + $0.50 buffer, TP1 at +50% premium (sell 2/3), runner trails via chandelier profit-lock (+5% arm, 15% trail), time stop 15:50 ET.  
-**Filters:** Requires daily loss budget > planned $-risk, no major news in next 30 min, VIX rising/above 20 for puts (falling/below 17.2 for calls), ribbon spread ≥30 cents, no volume divergence on confirmation bar.
+Entry: First RTH bar (09:30-10:00 ET) closes above premarket high (for bearish puts) or below premarket low (for bullish calls) AND the bar closes in the direction of the premarket extreme (close < open for bears, close > open for bulls).  
+Exit: Standard v15 TP1 (+50% / 0.667), runner, chandelier profit-lock, 15:50 ET time stop. Chart stop is primary invalidation (premarket level ± $0.50 buffer).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | Engine takes: +$342 | No fire (precondition fails) | $0 - $342 = -$342 |
-| 5/01 winner | Engine takes: +$470 | No fire (precondition fails) | $0 - $470 = -$470 |
-| 5/04 winner | Engine takes: +$730 | No fire (precondition fails) | $0 - $730 = -$730 |
-| 5/05 loser | Engine skips: -$260 | No fire (precondition fails) | $0 - (-$260) = +$260 |
-| 5/06 loser | Engine skips: -$300 | No fire (precondition fails) | $0 - (-$300) = +$300 |
-| 5/07 loser 1 | Engine skips: -$45 | No fire (precondition fails) | $0 - (-$45) = +$45 |
-| 5/07 loser 2 | Engine skips: -$120 | No fire (precondition fails) | $0 - (-$120) = +$120 |
-
-*Note: Current engine behavior is based on J's source-of-truth trades. Proposed behavior assumes zero fires on J anchor days per historical premarket scan (see notes). Delta = Proposed - Current.*
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** Qty=3 contracts requires ~$1.2K account for ITM-2 0DTE puts at $2.00 premium ($200 × 3 = $600 deployed, 50% risk cap = $300 max loss → needs $600 equity to risk $300). $1K paper account realizes ~50% of headline P&L due to qty floor.
-2. **Sample bias:** Premarket bar sample limited to 77/342 trading days (22.5%) with available CSV data (04:00-09:29 ET), oversampling recent periods where premarket data is more complete. True frequency across full 16 months unknown; upper-bound estimate ~1-2 BEAR events/quarter, ~2-3 BULL events/quarter.
-3. **Out-of-sample:** NEEDS-OOS (Stage-1 backtest complete; OOS walk-forward pending)
-4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days show zero fires → real-fills P&L = $0 on anchor days; requires full OPRA replay to confirm no slippage/entry barriers on non-J days)
-5. **Failure modes:**  
-   - Worst day: Missing J winner days (e.g., 5/04: -$730 opportunity cost)  
-   - Max drawdown: Strategy never enters → zero P&L volatility but incurs opportunity cost vs baseline  
-   - Blow-up scenario: None (no positions taken) but strategy fails to capture J's edge  
-6. **Concentration:** Top-5 days = 0% of P&L (zero trades executed) → strategy generates no P&L on any day
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline  
+2. **Sample bias:** Testing on 2025-01-02 to 2026-06-18 OPRA data. Premarket data coverage increases after 2025-Q3 (yfinance availability). Overfit risk: moderate (simple trigger, but premarket regimes shift).  
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window pending after Stage-1 completion)  
+4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days validation pending)  
+5. **Failure modes:** Worst day: premarket trap reversal (e.g., 4/29 fakeout). Max drawdown: unknown. Blow-up scenario: consecutive premarket failures in low-volume sessions causing cascade losses via quality-escalation lock.  
+6. **Concentration:** unknown -- requires Stage-1 backtest  
 
 ## Pre-merge gate
 
-<what tests need to pass: gym validators, walk-forward, real-fills>
-- Gym validators: `test_live_price_first_bar_trigger.py` (7/7 PASS)  
-- Walk-forward: OOS exp/tr > 0 on premarket-available days (NEEDS-OOS)  
-- Real-fills: Diff < ±20% vs BS-sim on top 3 non-J days with highest premarket signal strength (NEEDS-REAL-FILLS)  
-- OP-21 gate: ≥3 live fires observed (current: 0/3 J-winner days; requires accumulation)
+Grinder harness Stage-1 completion (min 80% pass rate), walk-forward OOS positive (PF > 1.2), real-fills consistency check on top 3 J days (sim vs real P&L diff < ±25%), and OP-16 anchor no-regression (edge_capture ≥ baseline).
 
 ## Confidence
 
-2 / 10 -- Strong evidence of zero fires on J anchor days (OP-16 rejection) despite premarket signal presence in non-J periods. Low confidence due to limited premarket data sample; however, OP-16 anchor failure is decisive.
+3 / 10 -- Smoke tests show sparse premarket signals (0.3% frequency); need to validate edge sufficiency and real-fills slippage impact.
 
 ## Pre-existing leaderboard impact
 
-<does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
-Directly conflicts with all OP-16-anchored candidates (ranks 1, ★★, HOLD, WS4, ★, RV group) as it proposes a trigger that fires zero times on J's winner/loser days. Offers no complementary edge; resources better allocated to triggers showing J-day discrimination (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON enhancements). Leaderboard impact: negative (diverts attention from J-day signals). Recommend REJECT after OOS/real-fills confirm zero J-day fires.
+Complements existing NEEDS-MORE-DATA candidates; does not conflict with PROMISING/J-RATIFIED items. Aims to promote this candidate from NEEDS-MORE-DATA to PROMISING upon successful validation. No overlap with active triggers (e.g., VWAP_CONTINUATION, GAP_AND_GO) as it operates in premarket/RTH transition window.
