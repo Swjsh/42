@@ -475,3 +475,50 @@ is the realistic failure mode, not global degradation.
 **Next (unchanged):** nightly conviction shadow counter · frozen prereg (weights only after
 >=15 clean shadow days) · entry-side bug #1 · unfreeze `fetch_option_data.CONTRACTS` ·
 premarket reads -> SIP.
+
+---
+
+## 11. UNVALIDATED-CONSTANTS REGISTER (2026-08-12) — J's "what other tools need sharpening?"
+
+Full: [UNVALIDATED-CONSTANTS-2026-08-12.md](../../analysis/deep-research/2026-08-12-churn/UNVALIDATED-CONSTANTS-2026-08-12.md)
+
+**THE FINDING THAT OUTRANKS EVERYTHING ELSE IN THIS HANDOFF — LATENCY.**
+`analysis/pain-ledger/latency.json` (n=30, measured since 08-01, docstring: *"INSTRUMENT ONLY
+-- never load-bearing"*): **bar close -> core verdict median 424 s / p90 604 s. Total bar close
+-> fill median 578 s (9.6 min).** Execution is fine (plan->fill = 0.7 s). The engine acts on a
+5-minute bar roughly **two bars late**, on a strategy whose edge is 30-minute 0DTE moves.
+It was measured, written down, and NOTHING READS IT. Consequences: (a) plausibly a large part
+of "why didn't we get in at 09:50"; (b) **every replay assumes an instant fill at the trigger
+bar, so the harness models an entry we never get — a systematic OPTIMISTIC entry-price bias no
+calibration has accounted for**; (c) the 5 round-number staleness windows should be DERIVED
+from this distribution instead of guessed. **Root-cause the 424 s hop first.**
+
+**Fees: unmodelled on the path we actually trade.** `simulator_credit.py` models commission;
+`simulator_real.py` + `simulator.py` (the directional 0DTE engines producing every headline
+expectancy) have NO fee term. Measured real cost **$0.0304/contract-side** ($40.44 / 1,332
+sides) = **~$0.18 per 3-lot round trip vs ~$0.06 of spread — fees are ~3x spread and modelled
+as zero.** ⚠️ This cuts OPPOSITE to the slippage finding (2x pessimistic), so **re-baseline
+slippage and fees TOGETHER in one prereg'd commit** — doing slippage alone swings optimistic.
+
+**Live inconsistency (not just unvalidated):** three different chandelier trail values on one
+path — `exit_manager.py:69` = 0.125, `heartbeat_core.py:2333` fallback = 0.15, CLAUDE.md prose
+= 15%. Which binds depends on whether a registry lookup succeeds. Resolve before trusting any
+exit study.
+
+**`entry_cross_buffer = 0.03`** — every live entry crosses **3c** above the ask when the
+measured half-spread is **1.04c**. Bare constant. Measure the realized fill-vs-ask distribution
+from fills we already own.
+
+**Self-flag against my own build:** conviction C2 uses `memory_score >= 40`; production's merge
+uses **60**, and the level-memory wire itself graded NEGATIVE_INSUFFICIENT_N (n=3, −$489.50),
+kept ON only because n was under the floor. Resolve before freezing conviction weights.
+
+**More dead config:** liquidity-gate bundle (6 keys) and macro-veto bundle (4 keys) CONFIRMED
+DEAD, zero consumers; `vix_bear_hard_cap` STALE_UNVERIFIED (0 fires); `vix_dir_deadband` in no
+study. **Admitted placeholder running live:** `ZONE_WIDTH_PCT=0.0005`, comment says *"pending a
+pre-registered A/B study (never hand-picked)"* — never run.
+
+**Standing rule:** every numeric constant on a decision/simulation path carries a provenance
+tag — a scorecard path or the literal word UNVALIDATED. A comment explaining the reasoning is
+NOT evidence (the exemplar's comment was expert-sounding and 2x wrong). Re-run at every posture
+change; paper->live especially, where fees and spread go from $0 to real.
