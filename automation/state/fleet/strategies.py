@@ -202,6 +202,53 @@ def _setup_of(side_block: Mapping[str, object]) -> str:
     return str(side_block.get("setup_name") or side_block.get("setup") or "").strip()
 
 
+def _disarmed_setups() -> set[str]:
+    """Setup keys explicitly set FALSE in params.json's extra_setup_exec_armed.
+
+    ⛔ WHY THIS EXISTS (2026-08-12). vwap_continuation was DISARMED on 2026-07-25 (commit
+    e0356fb1, whose own message reads "DISARM vwap_continuation + vix_regime_dayside (0-for-12
+    live, -$357, caused 2 of 3 losing days)"). That commit touched ONLY params.json -- which
+    governs the CORE arms. The fleet arms never consulted params at all: fired() matched against
+    REGISTRY membership alone, and build_shared_signal.py hardcodes RUN_VWAP = True.
+
+    So the kill landed on 2 of 5 arms and the setup kept trading on the other three for 18 days.
+    Measured from journal/trades.csv: 43 fills after the disarm date -- risky-3 26 fills -$646,
+    risky-1 17 fills -$400, TOTAL -$1,046, still filling on 2026-08-12. The half-landed kill cost
+    ~3x the -$357 that motivated the kill in the first place.
+
+    L287 class: an imperative fix applied to one surface expires the moment a second surface
+    regenerates the same decision independently. The fix is structural, not another one-off --
+    ONE switch (params.extra_setup_exec_armed) now governs BOTH paths, so the next disarm cannot
+    half-land the same way.
+
+    Semantics, deliberately asymmetric:
+      * key present and FALSE  -> disarmed on the fleet path too.
+      * key present and TRUE   -> armed (vwap_reclaim_failed_break, unaffected).
+      * key ABSENT             -> armed. RIBBON_RIDE is the CORE setup and correctly appears
+                                  nowhere in extra_setup_exec_armed; keying off absence would
+                                  disarm the whole engine.
+
+    FAILS OPEN on any read/parse error -- a guard that halts trading because a config read
+    hiccupped is worse than the bug it prevents (OP-25: guards must never block the engine).
+    """
+    try:
+        import json  # noqa: PLC0415
+        from pathlib import Path  # noqa: PLC0415
+        # This file lives at automation/state/fleet/strategies.py, so parents[1] IS
+        # automation/state -- params.json sits right there. (First cut used parents[2] plus a
+        # re-appended "automation/state", which resolved to automation/automation/state/... ,
+        # failed to read, and fell through the fail-open path -- i.e. the disarm would have
+        # silently done NOTHING while looking installed. Anchor to __file__, count carefully: L21.)
+        params = json.loads(
+            (Path(__file__).resolve().parents[1] / "params.json").read_text(encoding="utf-8"))
+        armed = params.get("extra_setup_exec_armed") or {}
+        return {str(k).lower() for k, v in armed.items() if v is False}
+    except Exception as exc:  # noqa: BLE001 -- fail OPEN, never block the engine
+        print(f"[strategies] WARN: could not read extra_setup_exec_armed ({exc}); "
+              "no fleet-side disarm applied this tick")
+        return set()
+
+
 def fired(side_block: Mapping[str, object]) -> list[Strategy]:
     """Strategies whose entry setup matches this fired side-block (>=1 trigger).
 
@@ -213,10 +260,15 @@ def fired(side_block: Mapping[str, object]) -> list[Strategy]:
     if not triggers:
         return []
     setup = _setup_of(side_block).upper()
+    disarmed = _disarmed_setups()
     out = []
     for strat in REGISTRY:
-        if any(setup == s.upper() for s in strat.entry_setups):
-            out.append(strat)
+        if not any(setup == s.upper() for s in strat.entry_setups):
+            continue
+        # A disarm recorded in params must reach the fleet arms too -- see _disarmed_setups.
+        if any(s.lower() in disarmed for s in strat.entry_setups):
+            continue
+        out.append(strat)
     return out
 
 
