@@ -75,10 +75,24 @@ Corollary: **proportional stops absorb slippage changes.** For a stop at `entry*
 P&L is `stop_pct * entry_fill`, so the slippage effect is scaled by `stop_pct` (~8%) instead of
 passed through at 100%.
 
+## Blast radius — which simulators carry it
+
+| module | slippage-free stop fill? | verdict |
+|---|---|---|
+| `backtest/lib/simulator_real.py` | YES — lines ~703, ~832, ~859 (`= runner_stop_premium`) + TP1 fallback ~789 | **AFFECTED** |
+| `backtest/lib/simulator_real_trailing.py` | YES — lines 294, 383, 408 + TP1 fallback 344 | **AFFECTED** |
+| `backtest/lib/simulator_credit.py` | no — every exit is `m ± exit_slippage` (lines 404-406) | clean |
+| `backtest/lib/simulator_debit.py` | no — every exit is `m ± exit_slippage` (lines 375-377) | clean |
+
+The two AFFECTED modules are the single-leg directional simulators, which are exactly the ones
+the whole verdict-bearing study set runs on. The multi-leg spread simulators are symmetric and
+correct.
+
 ## Fix
 
-1. Apply `exit_slippage` to the runner-stop fills (lines ~703, ~832, ~859). A stop is a market
-   order. Leaving the TP1 *limit* slippage-free is fine and should be commented as deliberate.
+1. Apply `exit_slippage` to the runner-stop fills in BOTH affected modules (`simulator_real.py`
+   ~703/~832/~859 and `simulator_real_trailing.py` 294/383/408). A stop is a market order.
+   Leaving the TP1 *limit* slippage-free is fine and should be commented as deliberate.
 2. Until (1) lands, **never interpret a slippage sweep on this harness as monotonic**, and never
    quote a single "$X of baked-in pessimism" number across cells with different exit mixes.
 
