@@ -409,23 +409,51 @@ def _level_expired(lv: dict, today_et: str) -> bool:
     return exp < today_et
 
 
-def _read_levels(spy: float) -> tuple[list[float], list[float]]:
+def _read_level_records(spy: float) -> list[dict]:
+    """The IN-SCOPE level RECORDS with their metadata INTACT — tier, label, touches,
+    memory_score, role, multi_day — for every non-expired level within $12 of spot.
+
+    WHY THIS EXISTS (2026-08-12, conviction build). `_read_levels` below flattens every one of
+    these records to a bare rounded float at the single point of consumption. On 2026-08-12
+    key-levels.json held `MEMORY_RES_225 @ 773.06` (139 touches) and `MEMORY_SUP_162 @ 771.44`
+    (96 touches) -- J's exact 3-day shelf, the repeat-touch memory the G11 merge exists to
+    produce -- and the decision path threw all of it away, then fired a bullish reclaim at the
+    top of the range. The scoring metadata was never missing; it was discarded here.
+
+    Contract: this is the SINGLE parse. `_read_levels` derives its two float lists from this
+    function's output so the two can never drift (L294: copy-pasted sibling loaders break
+    identically). Same file read, same expiry filter, same $12 window, same fail-open.
+    """
     try:
         kl = json.loads((STATE / "key-levels.json").read_text(encoding="utf-8"))
         levels = kl.get("levels") or kl.get("key_levels") or []
         today_et = _et_now().strftime("%Y-%m-%d")
-        active, multi = [], []
+        out: list[dict] = []
         for lv in levels:
             if _level_expired(lv, today_et):
                 continue  # drop levels that expired on a prior ET day (fail-open on bad/absent date)
             p = lv.get("price") or lv.get("level") or lv.get("value")
             if isinstance(p, (int, float)) and abs(p - spy) <= 12:
-                active.append(round(float(p), 2))
-                if lv.get("multi_day") or lv.get("role") in ("broken_to_resistance", "resistance", "support"):
-                    multi.append(round(float(p), 2))
-        return active, multi
+                out.append(lv)
+        return out
     except (OSError, json.JSONDecodeError):
-        return [], []
+        return []
+
+
+def _read_levels(spy: float) -> tuple[list[float], list[float]]:
+    """UNCHANGED CONTRACT — (active_prices, multi_day_prices), both rounded to 2dp.
+
+    Now DERIVED from _read_level_records so the metadata-aware reader and the float reader
+    share one parse. Byte-identical output is pinned by
+    test_level_compiler_v2_guards.py GUARD 6 and test_audit_fix_heartbeat.py::TestExpiredLevels.
+    """
+    active, multi = [], []
+    for lv in _read_level_records(spy):
+        p = lv.get("price") or lv.get("level") or lv.get("value")
+        active.append(round(float(p), 2))
+        if lv.get("multi_day") or lv.get("role") in ("broken_to_resistance", "resistance", "support"):
+            multi.append(round(float(p), 2))
+    return active, multi
 
 
 CONTEXT_BUNDLE_STALE_MIN = 20  # older than this -> treat as absent (a stale trend read is
