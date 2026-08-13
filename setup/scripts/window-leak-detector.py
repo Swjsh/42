@@ -226,14 +226,37 @@ def _is_service_rooted(ancestry: list[dict]) -> bool:
     return any(n in ("svchost.exe", "services.exe", "wininit.exe") for n in names)
 
 
+# Images a TITLE-substring allowlist may exempt (2026-08-13 SCOPE FIX).
+#
+# THE BUG THIS CLOSES. The title allowlist ("Claude Code", "Steam", "Apex Legends", ...) exists
+# so J's OWN app windows are not reported as leaks. But it was matched against EVERY suspect
+# image, and a console host spawned BY one of those apps INHERITS the parent's console title.
+# So a transient `powershell.exe` console launched from a Claude Code session carried the title
+# "Claude Code", matched the allowlist, and was silently skipped -- not logged, not counted,
+# not hidden.
+#
+# Measured consequence: on 2026-08-13 J reported console windows flashing on screen while
+# window-leak-summary.json read `leaks_total: 0` across 3,180,000 polls, and window-leaks.jsonl
+# had recorded nothing since 2026-07-14. The detector was not broken -- it was exempting exactly
+# the windows being complained about.
+#
+# A title match is now only honoured for the app's OWN window image. A console host is never
+# exempted by inheriting an allowlisted app's title.
+TITLE_ALLOWLIST_IMAGES = {"WindowsTerminal.exe"}
+
+
 def _is_allowed(image_name: str, title: str, pid: int, allow: dict) -> bool:
     if image_name in allow.get("image_names", []):
         return True
     if pid in allow.get("pids", []):
         return True
-    for sub in allow.get("title_substrings", []):
-        if sub and sub.lower() in title.lower():
-            return True
+    # Title substrings are TRUSTED ONLY for the app's own window image. Console hosts
+    # (powershell.exe / cmd.exe / conhost.exe / OpenConsole.exe) inherit their parent's title
+    # and must never be exempted by it -- that is the blindness this scope closes.
+    if image_name in TITLE_ALLOWLIST_IMAGES:
+        for sub in allow.get("title_substrings", []):
+            if sub and sub.lower() in title.lower():
+                return True
     return False
 
 
