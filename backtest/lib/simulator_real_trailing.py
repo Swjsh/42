@@ -291,7 +291,12 @@ def simulate_trade_real_trailing(
         if not tp1_filled:
             if worst_premium <= runner_stop_premium:
                 fill.runner_exit_time_et = spy_time
-                fill.runner_exit_premium = runner_stop_premium
+                # FIXED 2026-08-12: a triggered stop sells AT MARKET (live:
+                # fleet_broker.market_sell), so it pays the exit half-spread. Filling at
+                # the exact stop made the harness non-monotonic in slippage. Identical
+                # bug and identical fix as simulator_real.py -- L294 class, copy-pasted
+                # siblings breaking identically.
+                fill.runner_exit_premium = max(0.01, runner_stop_premium - exit_slippage)
                 fill.exit_reason = ExitReason.EXIT_ALL_PREMIUM_STOP
                 break
 
@@ -380,7 +385,12 @@ def simulate_trade_real_trailing(
                 cons_price = max(0.01, opt_bar.close - exit_slippage)
             elif worst_premium <= runner_stop_premium:
                 cons_exit_now = True
-                cons_price = runner_stop_premium
+                # FIXED 2026-08-12: a triggered stop sells AT MARKET (live:
+                # fleet_broker.market_sell), so it pays the exit half-spread. Filling at
+                # the exact stop made the harness non-monotonic in slippage. Identical
+                # bug and identical fix as simulator_real.py -- L294 class, copy-pasted
+                # siblings breaking identically.
+                cons_price = max(0.01, runner_stop_premium - exit_slippage)
             elif time_stop_now:
                 cons_exit_now = True
                 cons_price = max(0.01, opt_bar.close - exit_slippage)
@@ -405,7 +415,12 @@ def simulate_trade_real_trailing(
                 aggr_price = runner_target_premium
             elif worst_premium <= runner_stop_premium:
                 aggr_exit_now = True
-                aggr_price = runner_stop_premium
+                # FIXED 2026-08-12: a triggered stop sells AT MARKET (live:
+                # fleet_broker.market_sell), so it pays the exit half-spread. Filling at
+                # the exact stop made the harness non-monotonic in slippage. Identical
+                # bug and identical fix as simulator_real.py -- L294 class, copy-pasted
+                # siblings breaking identically.
+                aggr_price = max(0.01, runner_stop_premium - exit_slippage)
             elif time_stop_now:
                 aggr_exit_now = True
                 aggr_price = max(0.01, opt_bar.close - exit_slippage)

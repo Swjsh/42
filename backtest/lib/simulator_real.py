@@ -10,7 +10,9 @@ Fill conventions (NO LOOK-AHEAD):
     price plus an entry-slippage buffer (defaults to $0.02 per contract = bid/ask
     half-spread on liquid 0DTE ATM options).
   - This means MIN HOLD = 5 minutes (one full bar after entry).
-  - Stop touched (bar.low <= stop): fill at stop_premium (limit-stop fills here).
+  - Stop touched (bar.low <= stop): fill at stop_premium MINUS exit_slippage. A triggered
+    stop sells AT MARKET (live does exactly this via fleet_broker.market_sell), so it pays
+    the exit half-spread like any other market exit. Fixed 2026-08-12.
   - TP1 touched (bar.high >= tp1): fill at tp1_premium (limit fills exactly).
   - Market exits (level stop, ribbon flip, time stop): fill at bar.close minus
     exit_slippage ($0.02 default — we lose the half-spread on the way out).
@@ -20,8 +22,10 @@ Conservative: same-bar stop+TP1 conflict → stop fills first.
 Slippage parameters (configurable per call):
   - entry_slippage: added to entry fill (we pay the ASK side of bid/ask spread).
   - exit_slippage: subtracted from market-exit fills (we hit the BID).
-  - Limit-order exits (TP1 hit, BE stop hit, premium stop hit) have NO slippage —
-    they fill exactly at the bracket level.
+  - TRUE limit exits (a resting TP1 limit) fill exactly, with no slippage.
+    STOPS DO NOT: the premium stop, the post-TP1 breakeven stop and the aggressive-runner
+    stop are triggers, not resting limits, and all pay exit_slippage. Treating them as
+    exact-fill limits made the harness non-monotonic in slippage (fixed 2026-08-12).
 
 Differences vs BS simulator:
   - max_adverse_premium / max_favorable_premium reflect actual bar lows/highs.
@@ -130,20 +134,25 @@ def _ribbon_at(ribbon_df: Optional[pd.DataFrame], idx: int) -> Optional[RibbonSt
 # "pessimism" number — the sign depends on each cell's exit mix.** Do not reason about this
 # default as uniformly safe.
 #
-# 🐛 EXIT-SLIPPAGE ASYMMETRY BUG (verified 2026-08-12, NOT yet fixed — needs its own prereg
-# because it moves every historical cell): market exits correctly pay `- exit_slippage`
-# (lines ~659/685/710/740/763/784/824), but `runner_exit_premium = runner_stop_premium` and
-# `cons_price = runner_stop_premium` fill at the exact stop with NO slippage, as does the TP1
-# premium-fallback limit. Predicted delta for a TP1-limit + BE-runner trade,
-# 0.30 x 0.01 x 2 x 100 = $0.60, matched the observed -$0.60 on every such trade.
-# `simulator_real_trailing.py` shares it; `simulator_credit`/`simulator_debit` are clean.
-# FIX THIS FIRST — re-baselining slippage on top of an asymmetric fill model just moves the
-# error around. And fees (measured $0.0304/contract-side, modelled as $0 here) must move in
-# the SAME prereg'd commit, since they cut the opposite way.
-# WORK ORDER (needs its own frozen prereg): re-baseline to 0.01 in ONE commit, re-run the
-# affected verdict set, and publish a before/after table for every cell whose sign changes.
-# Callers wanting truth today pass slippage=0.01 explicitly, as the calibrated harness does.
-# Sibling with the same default: backtest/lib/simulator_credit.py:70-71.
+# ✅ EXIT-SLIPPAGE ASYMMETRY BUG — FIXED 2026-08-12.
+# Was: market exits paid `- exit_slippage` but `runner_exit_premium = runner_stop_premium`,
+# `cons_price = runner_stop_premium` and `aggr_price = runner_stop_premium` filled at the
+# EXACT stop with none. That made P&L on those trades proportional to a slippage-INFLATED
+# entry against a slippage-free exit, so LOWERING slippage made them WORSE -- impossible for
+# a well-formed fill model. Predicted 0.30 x 0.01 x 2 x 100 = $0.60, observed -$0.60 on every
+# such trade. All three stop fills now pay exit_slippage; the TP1 resting limit still fills
+# exactly, because a resting limit genuinely does.
+#
+# DIRECTION: stop exits now realise LESS. Cells that lean on stop fills get worse, so this
+# can only deepen a kill, never resurrect one -- the safe direction for arming decisions.
+# Guard: backtest/tests/test_exit_slippage_symmetry_2026_08_12.py.
+#
+# STILL OPEN, deliberately separate: (a) simulator_real_trailing.py shares the same three
+# sites and is NOT fixed here; (b) the 2c -> 1c re-baseline itself; (c) fees (measured
+# $0.0304/contract-side, modelled as $0) which cut the opposite way and must land in the
+# SAME prereg'd commit as the re-baseline. `simulator_credit`/`simulator_debit` are clean.
+# Published pre-2026-08-12 verdicts carry the old asymmetry; the re-baseline agent showed no
+# Tier-A kill flips under it (all 4 reproduced exactly at 0.02).
 DEFAULT_ENTRY_SLIPPAGE = 0.02
 DEFAULT_EXIT_SLIPPAGE = 0.02
 
@@ -717,10 +726,30 @@ def simulate_trade_real(
 
         # ── Pre-TP1 hard exits (apply to all units before TP1) ──────────
         if not tp1_filled:
-            # Premium stop -50% → exit all
+            # Premium stop -50% → exit all AT MARKET.
+            #
+            # FIXED 2026-08-12 (was: `= runner_stop_premium`, i.e. a perfect fill at the exact
+            # stop price with zero slippage). A stop is not a resting limit -- it TRIGGERS and
+            # sells at market, and live does exactly that via fleet_broker.market_sell. You cannot
+            # be filled at precisely your stop when price trades through it.
+            #
+            # The old form made the harness NON-MONOTONIC IN SLIPPAGE: P&L on these trades was
+            # proportional to a slippage-INFLATED entry while the exit paid nothing, so LOWERING
+            # slippage made these trades WORSE. Predicted 0.30*0.01*2*100 = $0.60 and observed
+            # exactly -$0.60 on every such trade. That killed the idea of a single "pessimism"
+            # number: the sign of the 2c-vs-1c bias depended on each cell's exit mix (same trades:
+            # +$39.60 on a premium-stop arm vs +$548.80 on a market-exit arm), which is why my
+            # earlier "the 2c default errs conservative" claim was wrong and had to be retracted.
+            #
+            # Worst hit were the EXIT-TUNING sweeps -- sweep_regime_chandelier went 24/24 cells
+            # worse -- i.e. precisely the studies that chose our live exit parameters.
+            #
+            # Direction of this fix: stop exits now realise LESS, so cells that lean on stop fills
+            # get worse. It cannot resurrect a killed cell, only deepen a kill -- conservative in
+            # the safe direction for any arming decision.
             if worst_premium <= runner_stop_premium:
                 fill.runner_exit_time_et = spy_time
-                fill.runner_exit_premium = runner_stop_premium
+                fill.runner_exit_premium = max(0.01, runner_stop_premium - exit_slippage)
                 fill.exit_reason = ExitReason.EXIT_ALL_PREMIUM_STOP
                 break
 
@@ -849,7 +878,11 @@ def simulate_trade_real(
             # BE stop hit
             elif worst_premium <= runner_stop_premium:
                 cons_exit_now = True
-                cons_price = runner_stop_premium
+                # FIXED 2026-08-12: was `= runner_stop_premium` (perfect fill at the exact
+                # BE stop). Same asymmetry as the pre-TP1 stop above -- a triggered stop
+                # sells at market (live: fleet_broker.market_sell), so it pays the exit
+                # half-spread. This is the post-TP1 breakeven-stop leg.
+                cons_price = max(0.01, runner_stop_premium - exit_slippage)
             # Time stop
             elif time_stop_now:
                 cons_exit_now = True
@@ -876,7 +909,8 @@ def simulate_trade_real(
                 aggr_price = runner_target_premium
             elif worst_premium <= runner_stop_premium:
                 aggr_exit_now = True
-                aggr_price = runner_stop_premium
+                # FIXED 2026-08-12: see the conservative leg -- triggered stop = market sell.
+                aggr_price = max(0.01, runner_stop_premium - exit_slippage)
             elif time_stop_now:
                 aggr_exit_now = True
                 aggr_price = max(0.01, opt_bar.close - exit_slippage)
