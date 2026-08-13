@@ -211,9 +211,35 @@ def _stage_fill_level(stage: str, state_in: em.ExitState, state_after: em.ExitSt
     return None  # time_stop / ribbon_flip / structure_stop -> market fill
 
 
-def _fill_price(stage: str, level: Optional[float], bar_close: float) -> float:
-    if stage in _MARKET_STAGES or level is None:
-        return max(0.01, bar_close - DEFAULT_EXIT_SLIPPAGE)
+def _fill_price(stage: str, level: Optional[float], bar_close: float,
+                exit_slippage: float = DEFAULT_EXIT_SLIPPAGE,
+                all_exits_market: bool = False) -> float:
+    """Resolve one exit stage's fill price.
+
+    PLUMBING ADDED 2026-08-13 under prereg FILL-MODEL-UNIFICATION-2026-08-13. Both new
+    parameters DEFAULT TO TODAY'S EXACT BEHAVIOUR, so this commit changes no number anywhere:
+      exit_slippage=DEFAULT_EXIT_SLIPPAGE  -> identical to the previous hardcoded constant
+      all_exits_market=False               -> identical limit-style/market-style split
+
+    WHY IT EXISTS. The prereg's STEP 1 is "fix the fill model with the slippage constants
+    UNCHANGED, and publish the A-only delta" -- and that was un-runnable, because this module
+    had no way to express either arm: DEFAULT_EXIT_SLIPPAGE was a module constant and there was
+    no switch for the market-vs-limit split. The prereg named this as the blocker verbatim
+    ("a fix needs new plumbing here"). This is that plumbing and nothing else.
+
+    all_exits_market=True is the STEP 1 TREATMENT ARM: every stage fills at bar close minus
+    slippage, which is what live actually does -- fleet_broker.market_sell sends
+    {"type": "market"} with no limit_price for every exit stage, TP1 included, via the single
+    call site exit_actuator.py:658, for both core and fleet arms. See this module's FILL-PRICE
+    CONVENTION note for why the previous "resting-order fill model" justification is false.
+
+    It is a PARAMETER, not a flipped default, on purpose: flipping the default would move every
+    one of ~95 calling files' historical cells in the same commit that introduced the switch,
+    which is precisely the laundering the prereg forbids. The default flips only in the
+    prereg'd commit that also carries the re-baseline and fees, after STEP 1's table exists.
+    """
+    if all_exits_market or stage in _MARKET_STAGES or level is None:
+        return max(0.01, bar_close - exit_slippage)
     return max(0.01, level)
 
 
@@ -225,6 +251,8 @@ def walk_exit_manager(
     five_min_spy_df: pd.DataFrame,
     opt_df_resolution: Optional[str] = None, allow_5min: bool = True,
     frame: str = FRAME_WALL_V1,
+    exit_slippage: float = DEFAULT_EXIT_SLIPPAGE,
+    all_exits_market: bool = False,
 ) -> WalkResult:
     """Walk ONE position from entry through resolution via the REAL exit_manager decision
     core. `opt_df` (columns: timestamp_et, open/high/low/close) and `ribbon_tick_df` (same
@@ -335,7 +363,9 @@ def walk_exit_manager(
             if a.kind not in ("SELL_PARTIAL", "SELL_ALL"):
                 continue
             level = _stage_fill_level(a.stage, state_in, state)
-            px = _fill_price(a.stage, level, float(bar["close"]))
+            px = _fill_price(a.stage, level, float(bar["close"]),
+                             exit_slippage=exit_slippage,
+                             all_exits_market=all_exits_market)
             leg_pnl = (px - entry_premium) * a.qty * 100.0
             realized += leg_pnl
             open_qty -= a.qty

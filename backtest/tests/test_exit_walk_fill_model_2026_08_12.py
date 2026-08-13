@@ -110,15 +110,29 @@ def test_the_false_resting_order_justification_is_gone():
         "checkable rather than an opinion")
 
 
-def test_no_slippage_kwarg_yet_so_a_fix_needs_plumbing():
-    """Explains WHY this is pinned rather than fixed, in a form that fails when that stops being
-    true -- i.e. when someone adds the kwarg and the fix becomes cheap."""
+def test_the_plumbing_landed_and_its_defaults_are_inert():
+    """RETIRED-AND-REPLACED 2026-08-13, per this test's own prior instruction.
+
+    It used to assert walk_exit_manager had NO slippage kwarg, with the message: "the plumbing
+    objection is gone, so the fill-model fix is now cheap. Do it under a prereg and delete this
+    test." The prereg (FILL-MODEL-UNIFICATION-2026-08-13) was frozen and the plumbing landed, so
+    that assertion fired exactly as designed.
+
+    Replaced rather than deleted: what still matters is that the plumbing did NOT quietly change
+    the default. Value-level pins for all 9 stages live in
+    test_exit_walk_fill_plumbing_2026_08_13.py; this keeps the pointer so the two files are not
+    read in isolation.
+    """
     code = _code(WALK)
     m = re.search(r"def walk_exit_manager\((.*?)\)\s*->", code, re.S)
     assert m, "walk_exit_manager signature not found"
-    assert "slippage" not in m.group(1), (
-        "walk_exit_manager now accepts a slippage kwarg -- the plumbing objection is gone, so the "
-        "fill-model fix is now cheap. Do it under a prereg and delete this test.")
+    sig = m.group(1)
+    assert "exit_slippage" in sig and "all_exits_market" in sig, (
+        "the STEP-1 plumbing was removed -- neither prereg arm can be run without it")
+    assert "all_exits_market: bool = False" in sig, (
+        "all_exits_market no longer defaults to False. Flipping it moves every one of ~95 calling "
+        "files' historical cells; that belongs in the prereg'd commit with the re-baseline and "
+        "fees, in the mandated order.")
 
 
 def test_the_queue_entry_that_called_this_three_weeks_early_still_exists():
