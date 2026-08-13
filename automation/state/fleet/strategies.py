@@ -260,16 +260,19 @@ def fired(side_block: Mapping[str, object]) -> list[Strategy]:
     if not triggers:
         return []
     setup = _setup_of(side_block).upper()
-    disarmed = _disarmed_setups()
     out = []
     for strat in REGISTRY:
-        if not any(setup == s.upper() for s in strat.entry_setups):
-            continue
-        # A disarm recorded in params must reach the fleet arms too -- see _disarmed_setups.
-        if any(s.lower() in disarmed for s in strat.entry_setups):
-            continue
-        out.append(strat)
+        if any(setup == s.upper() for s in strat.entry_setups):
+            out.append(strat)
     return out
+
+    # NOTE: the params disarm is deliberately NOT enforced here. fired() is only reached by
+    # plan_all's LEGACY fallback branch, and build_shared_signal always emits a top-level
+    # "strategies" key (:684), so production never takes it. Enforcing here was inert in
+    # production and only broke legacy-path plumbing tests. The disarm lives at
+    # fleet_executor.select_plan -- the point where exactly one plan becomes an order.
+    # test_fleet_disarm_parity_2026_08_12.py pins that the producer keeps emitting
+    # "strategies"; if that ever stops, the legacy branch goes live and needs its own guard.
 
 
 def by_name(name: str) -> Strategy | None:

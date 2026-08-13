@@ -77,10 +77,21 @@ def test_decide_arm_returns_selected_exit_shape():
     assert exit_shape["stop_mode"] == "structure"
 
 
-def test_decide_arm_vwap_exit_when_only_vwap_fires():
+def test_decide_arm_vwap_exit_when_only_vwap_fires(monkeypatch):
     """Only VWAP fires -> decide_arm selects it and returns its registry exit shape.
     Pins updated 2026-07-09 (T-W6 option a port, STOP-B): -0.06/+0.40/fixed = the FULL
-    validated core cell (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS)."""
+    validated core cell (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS).
+
+    AMENDED 2026-08-12 (not weakened): select_plan now refuses to select a setup disarmed in
+    params.extra_setup_exec_armed, and vwap_continuation is currently DISARMED -- the 2026-07-25
+    kill had only landed on the core arms, letting it fill 43 more times on risky-1/risky-3 for
+    -$1,046. This test is about SELECTION + EXIT-SHAPE PLUMBING ("when exactly one strategy
+    fires, decide_arm returns THAT strategy's registry exit shape"), using vwap as the vehicle
+    because the pinned -0.06/+0.40/fixed values are vwap-specific. So the arming policy is
+    stubbed out here and asserted where it belongs, in
+    backtest/tests/test_fleet_disarm_parity_2026_08_12.py.
+    """
+    monkeypatch.setattr(fx.strategies, "_disarmed_setups", lambda: set())
     sig = {"spot": 600.0, "strategies": [
         _strat_entry("vwap_continuation", "C", "VWAP_CONTINUATION",
                      triggers=["VWAP_TREND_ESTABLISHED", "VWAP_CONTINUATION_BREAKOUT"])]}

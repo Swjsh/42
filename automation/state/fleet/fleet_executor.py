@@ -426,10 +426,47 @@ def select_plan(plans: Sequence[EntryPlan]) -> Optional[EntryPlan]:
     if not plans:
         return None
     order = {s.name: i for i, s in enumerate(strategies.REGISTRY)}
-    enters = [p for p in plans if p.action == "ENTER"]
+
+    # ⛔ PARAMS DISARM ENFORCED AT THE ORDER CHOKE POINT (2026-08-12).
+    #
+    # WHERE THIS BELONGS AND WHY IT IS HERE, NOT EARLIER. vwap_continuation was disarmed on
+    # 2026-07-25 (commit e0356fb1, "0-for-12 live, -$357") but only in params.json, which the
+    # core arms read and the fleet arms did not -- so it kept filling on risky-1/risky-3 for 18
+    # days: 43 fills, -$1,046, ~3x the loss that motivated the kill.
+    #
+    # I got the placement of the fix wrong TWICE before landing here, and both misses are the
+    # same lesson:
+    #   1. strategies.fired() -- INERT. build_shared_signal always emits a top-level
+    #      "strategies" key (:684), so plan_all always takes the FIX2 branch and fired() is
+    #      never called in production.
+    #   2. _plan_from_strategies -- money-correct but WRONG LAYER. It suppressed the PLAN, and a
+    #      dozen exit-A/B tests legitimately use vwap as the second strategy to prove per-arm
+    #      exit-shape plumbing. Killing planning destroyed that test vehicle for no safety gain.
+    #
+    # Planning a strategy and PLACING its order are different concerns. select_plan is where
+    # exactly one plan becomes an order, so it is the narrowest cut that protects money while
+    # leaving planning observable. A disarmed strategy is dropped from the ENTER candidates; the
+    # plans themselves still exist for logging and for the exit-shape contracts.
+    disarmed = strategies._disarmed_setups()
+
+    def _is_disarmed(p) -> bool:
+        strat = strategies.by_name(str(p.strategy)) if p.strategy else None
+        if strat is None:
+            return False  # unknown -> never silently suppress
+        return any(s.lower() in disarmed for s in strat.entry_setups)
+
+    enters = [p for p in plans if p.action == "ENTER" and not _is_disarmed(p)]
     if enters:
         return min(enters, key=lambda p: order.get(p.strategy, 999))
-    return plans[0]
+
+    # THE FALLBACK MUST BE FILTERED TOO. The original `return plans[0]` exists for faithful
+    # logging when nothing ENTERs -- but with the disarm filter above, plans[0] can BE the
+    # disarmed ENTER plan, handing the caller exactly the order we just refused. My first cut had
+    # this hole and the guard test caught it. Fall back only to plans that are not disarmed
+    # ENTERs; if literally every plan is one, return None -- the same "nothing to do" the caller
+    # already handles for an empty plan list.
+    rest = [p for p in plans if not (p.action == "ENTER" and _is_disarmed(p))]
+    return rest[0] if rest else None
 
 
 # --- phase A: pure gating (fully unit-testable, no I/O, no risk gate) ---------

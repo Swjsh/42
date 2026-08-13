@@ -56,16 +56,64 @@ def _fired(strat, setup: str) -> list[str]:
 # --------------------------------------------------------------- the disarm reaches the fleet
 
 
-def test_a_setup_disarmed_in_params_does_not_fire_on_the_fleet(strat):
-    """THE REGRESSION. If this goes green-to-red, a params disarm is once again core-only and a
-    killed setup is trading real fills on risky-1/risky-3."""
+def test_a_disarmed_setup_can_never_be_SELECTED_for_an_order(strat):
+    """THE REGRESSION, asserted at the point that actually places orders.
+
+    RE-POINTED 2026-08-12, same session, after two wrong placements of this fix:
+      1. strategies.fired() -- INERT in production. build_shared_signal always emits a top-level
+         "strategies" key, so plan_all takes the FIX2 branch and fired() is never reached live.
+      2. _plan_from_strategies -- money-correct but wrong layer: it suppressed the PLAN, breaking
+         a dozen exit-A/B tests that legitimately use vwap as the second strategy to prove
+         per-arm exit-shape plumbing.
+
+    select_plan is where exactly one plan becomes an order, so it is the narrowest cut that
+    protects money while leaving planning observable.
+    """
+    import importlib.util as _iu
+    import sys as _sys
+    fleet_dir = REPO / "automation" / "state" / "fleet"
+    if str(fleet_dir) not in _sys.path:
+        _sys.path.insert(0, str(fleet_dir))
+    spec = _iu.spec_from_file_location("_fleet_exec_probe", fleet_dir / "fleet_executor.py")
+    fx = _iu.module_from_spec(spec)
+    _sys.modules["_fleet_exec_probe"] = fx
+    spec.loader.exec_module(fx)
+
     armed = json.loads(PARAMS.read_text(encoding="utf-8")).get("extra_setup_exec_armed", {})
     assert armed.get("vwap_continuation") is False, (
         "fixture assumption broken: vwap_continuation is no longer disarmed in params. If it was "
         "deliberately RE-armed, that needs its own evidence and this test should be re-pointed.")
-    assert _fired(strat, "VWAP_CONTINUATION") == [], (
-        "vwap_continuation still fires on the fleet path despite params disarming it -- the "
-        "2026-07-25 kill is half-landed again (cost -$1,046 over 18 days the first time)")
+
+    def _plan(strategy_name):
+        return fx.EntryPlan("risky-1", "ENTER", "C", "VWAP_CONTINUATION", 600, 1.0, "ELITE",
+                            "test", strategy=strategy_name)
+
+    # A disarmed strategy alone -> nothing selectable, so no order can be built from it.
+    only_disarmed = fx.select_plan([_plan("vwap_continuation")])
+    assert only_disarmed is None or only_disarmed.action != "ENTER", (
+        "a DISARMED strategy was selected for an order -- the 2026-07-25 kill is half-landed "
+        "again (it cost -$1,046 across 43 fills over 18 days the first time)")
+
+    # Mixed: the armed strategy must still win, proving we suppressed the right one only.
+    mixed = fx.select_plan([_plan("vwap_continuation"), _plan("ribbon_ride")])
+    assert mixed is not None and mixed.strategy == "ribbon_ride"
+
+
+def test_the_legacy_path_stays_unreachable_in_production(strat):
+    """WHY fired() carries no disarm: production never reaches it. plan_all branches on a
+    top-level "strategies" key and build_shared_signal ALWAYS emits one, so the legacy
+    fired() branch is dead in production. If that ever stops being true, this test goes RED and
+    the legacy branch needs its own disarm before it can trade a killed setup."""
+    bss = (REPO / "automation" / "state" / "fleet" / "build_shared_signal.py").read_text(
+        encoding="utf-8")
+    assert 'sig["strategies"] =' in bss, (
+        "build_shared_signal no longer always emits a top-level 'strategies' key -- plan_all may "
+        "now take the LEGACY fired() branch, which carries NO disarm. Add one before shipping.")
+    live = REPO / "automation" / "state" / "fleet" / "shared-signal.json"
+    if live.exists():
+        assert "strategies" in json.loads(live.read_text(encoding="utf-8")), (
+            "the live shared-signal.json has no 'strategies' key -- production is on the legacy "
+            "branch, which has no disarm")
 
 
 def test_fired_actually_consults_params(strat):
