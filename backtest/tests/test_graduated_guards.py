@@ -4779,7 +4779,7 @@ _SIMULATE_TRADE_REAL_ALLOWLIST = {
     "backtest/autoresearch/_b4_ml_direction_model.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_b4_reclaim_null_precision.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_b4_volume_profile_poc.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
-    "backtest/autoresearch/_b5_vix_regime_dayside.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
+    "backtest/autoresearch/_b5_vix_regime_dayside.py": "LIVE CONSUMER (label corrected 2026-08-12): underscore-prefixed by convention but IMPORTED by recency_check.py + gate_expiry_check.py. recency_check is re-invoked nightly by Gamma_LicenseMonitor and writes recency-confirmation.json, which fleet_executor.py:254 reads to shrink/pass live qty -- so this file feeds CAPITAL SIZING. Previously mislabelled 'no live consumer', which would have justified deleting it.",
     "backtest/autoresearch/_b6_nr7_inside_day_orb.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_b6_turn_of_month_drift.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_b7_mdt_confluence.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
@@ -4802,7 +4802,7 @@ _SIMULATE_TRADE_REAL_ALLOWLIST = {
     "backtest/autoresearch/_edgehunt_named_level_bounce.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_edgehunt_orb.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_edgehunt_v14_enhanced.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
-    "backtest/autoresearch/_edgehunt_vwap_continuation.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
+    "backtest/autoresearch/_edgehunt_vwap_continuation.py": "LIVE CONSUMER (label corrected 2026-08-12): IMPORTED by recency_check.py (nightly Gamma_LicenseMonitor -> recency-confirmation.json -> fleet_executor.py:254 live qty sizing) plus gate_expiry_check.py and 12 other non-one-off modules. Note it is NOT the harness parity-bound to the live vwap watcher -- that is j_daily_pattern_ratify.py -- so the SIZING monitor and the ARMING watcher read different vwap detectors. Previously mislabelled 'no live consumer'.",
     "backtest/autoresearch/_gap_and_go_causality_audit.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_newhunt_cpr_pivot_bounce.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_newhunt_ibs_mean_reversion.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
@@ -4835,7 +4835,7 @@ _SIMULATE_TRADE_REAL_ALLOWLIST = {
     "backtest/autoresearch/_sub_chandelier_trail_vwap_cont.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_sub_skip_top_tercile_otm2.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_sub_struct_orb_reclaim.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
-    "backtest/autoresearch/_sub_struct_vwap_reclaim_failed_break.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
+    "backtest/autoresearch/_sub_struct_vwap_reclaim_failed_break.py": "LIVE CONSUMER (label corrected 2026-08-12): IMPORTED by recency_check.py (nightly Gamma_LicenseMonitor -> recency-confirmation.json -> fleet_executor.py:254 live qty sizing). Previously mislabelled 'no live consumer'.",
     "backtest/autoresearch/_sun_combine_rule.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_sunday_fresh_revalidation.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
     "backtest/autoresearch/_sunday_monday_gap_skip.py": "DEAD: underscore-prefixed one-off research probe (autoresearch/ dated-script convention), not scheduled, no live consumer",
@@ -4999,3 +4999,82 @@ def test_simulate_trade_real_no_new_unguarded_consumers() -> None:
         f"reason. Either way, do not silently widen the allowlist without one."
     )
 
+
+
+# ── "no live consumer" must STAY true (2026-08-12) ────────────────────────────
+def test_no_live_consumer_labels_are_actually_true():
+    """A justification is only as good as its truth, and this one had rotted.
+
+    _SIMULATE_TRADE_REAL_ALLOWLIST exempts each listed file from the simulate_trade_real guard,
+    and 91 entries justify that exemption with "not scheduled, no live consumer". For three of
+    them that was FALSE:
+
+        _b5_vix_regime_dayside                  <- recency_check.py, gate_expiry_check.py
+        _edgehunt_vwap_continuation             <- recency_check.py + 13 others
+        _sub_struct_vwap_reclaim_failed_break   <- recency_check.py
+
+    recency_check.py is re-invoked nightly by Gamma_LicenseMonitor and writes
+    recency-confirmation.json, which fleet_executor.py:254 reads to shrink or pass live qty. So
+    those three feed CAPITAL SIZING while the registry said they had no consumer at all -- anyone
+    trusting the label could have deleted a live dependency, and the exemption itself rested on a
+    false premise.
+
+    IMPORTS ARE RESOLVED WITH AST, NOT TEXT SEARCH. A first pass using word-boundary matching
+    reported 14 offenders; 11 of those were comment or string mentions (filters.py and runner.py
+    merely NAME these modules in prose). That is the same comment-is-not-a-consumer trap fixed in
+    test_params_consumer_reconciliation.py the same night -- so this test parses the AST and looks
+    only at real Import/ImportFrom nodes.
+
+    Importers that are THEMSELVES underscore one-offs do not count: a dead probe importing another
+    dead probe is still dead. Only a non-underscore, non-test module makes a file live.
+    """
+    import ast as _ast
+    import glob as _glob
+    import os as _os
+
+    # Match on the POSITIVE marker, not the substring. A corrected label that QUOTES the old
+    # phrase ("previously mislabelled 'no live consumer'") would otherwise still be treated as a
+    # deadness claim -- the same documenting-it-revives-it trap this session already hit in
+    # test_params_consumer_reconciliation.py. Deadness claims start with "DEAD:"; corrected ones
+    # start with "LIVE CONSUMER".
+    dead = {_os.path.basename(p)[:-3] for p, j in _SIMULATE_TRADE_REAL_ALLOWLIST.items()
+            if j.startswith("DEAD:")}
+    # LIVE means REACHABLE FROM A SCHEDULED SCRIPT, not merely "imported by something".
+    # A first cut flagged any non-underscore importer, which swept in research aggregators
+    # (agg_*.py, vwapcont_parity_diagnose.py) whose own liveness is exactly what is in question.
+    # A guard that cries wolf gets ignored, so liveness is anchored to the documented scheduler
+    # registry -- the same thing that made the three real findings real:
+    #   recency_check.py -> Gamma_LicenseMonitor -> recency-confirmation.json
+    #                    -> fleet_executor.py:254 live qty sizing.
+    _registry = (REPO / "automation" / "state" / "SCHEDULED-TASKS.md")
+    _scheduled = set(re.findall(r"([a-z0-9_]+\.py)", _registry.read_text(encoding="utf-8")))         if _registry.exists() else set()
+    assert _scheduled, "SCHEDULED-TASKS.md yielded no script names -- this guard would be vacuous"
+
+    offenders: dict[str, list[str]] = {}
+    for pat in ("setup/scripts/**/*.py", "automation/**/*.py",
+                "backtest/lib/**/*.py", "backtest/autoresearch/*.py", "backtest/tools/*.py"):
+        for f in _glob.glob(str(REPO / pat), recursive=True):
+            rf = f.replace("\\", "/")
+            base = _os.path.basename(f)
+            if "/.claude/" in rf or base.startswith("test_") or base.startswith("_"):
+                continue
+            if base not in _scheduled:
+                continue  # not a scheduled entry point -> cannot make a dead probe live
+            try:
+                tree = _ast.parse(open(f, encoding="utf-8", errors="replace").read())
+            except Exception:  # noqa: BLE001 -- unparseable file cannot import anything meaningful
+                continue
+            for n in _ast.walk(tree):
+                mods: list[str] = []
+                if isinstance(n, _ast.Import):
+                    mods = [a.name.split(".")[-1] for a in n.names]
+                elif isinstance(n, _ast.ImportFrom) and n.module:
+                    mods = [n.module.split(".")[-1]]
+                for mm in mods:
+                    if mm in dead:
+                        offenders.setdefault(mm, []).append(base)
+
+    assert not offenders, (
+        "these allowlist entries are labelled DEAD but ARE imported by a SCHEDULED script -- "
+        "correct the justification (or the dependency) before trusting it: "
+        + "; ".join(f"{k} <- {sorted(set(v))}" for k, v in sorted(offenders.items())))
