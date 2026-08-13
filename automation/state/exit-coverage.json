@@ -1,0 +1,49 @@
+{
+ "_doc": "Alarms only on (position held) AND (uncovered or stale). Flat arms never alarm.",
+ "verdict": "GREEN",
+ "stale_threshold_min": 3.0,
+ "read_timeout_s": 25,
+ "rows": [
+  {
+   "arm": "safe-2",
+   "read_detail": "ok in 0.2s (attempt 1)",
+   "exit_state_age_min": 51.4,
+   "tracked": [],
+   "held": [],
+   "status": "FLAT"
+  },
+  {
+   "arm": "safe-3",
+   "read_detail": "ok in 0.1s (attempt 1)",
+   "exit_state_age_min": 110.3,
+   "tracked": [],
+   "held": [],
+   "status": "FLAT"
+  },
+  {
+   "arm": "bold-2",
+   "read_detail": "ok in 0.1s (attempt 1)",
+   "exit_state_age_min": 35.3,
+   "tracked": [],
+   "held": [],
+   "status": "FLAT"
+  },
+  {
+   "arm": "risky-1",
+   "read_detail": "ok in 0.1s (attempt 1)",
+   "exit_state_age_min": 110.3,
+   "tracked": [],
+   "held": [],
+   "status": "FLAT"
+  },
+  {
+   "arm": "risky-3",
+   "read_detail": "ok in 0.1s (attempt 1)",
+   "exit_state_age_min": 122.3,
+   "tracked": [],
+   "held": [],
+   "status": "FLAT"
+  }
+ ],
+ "incident": "journal/2026-08-13.md -- broker read hang silently skipped bold-2's exit loop"
+}
