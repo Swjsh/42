@@ -118,3 +118,46 @@ in `test_full_send_arm.py`, RED-proofed by re-injecting the exact mutation (3 fa
 29/29 green). **Not sold on paper dollars** (+$70, worse than random) — sold on reverting an
 unintended deletion, removing 12 entries of real spread friction paper doesn't charge, and
 making an experiment falsifiable whose lane has produced 0 of 66 lifetime placements.
+
+---
+
+## POST-TEARDOWN CORRECTIONS (same night, after the data memo + hold counterfactual)
+
+**1. Open item #3 (OPRA backfill blocked) is FALSE — we were never blocked.** A dedicated
+research agent probed every option endpoint live on both keys: `/v1beta1/options/bars` returns
+**200 at $0** — 1-min AND 5-min, same-day 0DTE included, history to Feb 2024, 200 req/min.
+The recorded 403 "OPRA agreement is not signed" exists ONLY on `quotes/latest?feed=opra` (an
+explicit feed override no repo script uses) and was misattributed to bars. Historical option
+QUOTES don't exist at any Alpaca tier (the /quotes 404 is a product gap, not permissions) —
+use /trades for spread work. Also: stock SIP is FREE for data >15 min old; the IEX premarket
+fallback was sampling **3 bars where SIP has 274 (1% coverage)**. Fills-vs-bars validation:
+85/85 of today's fills matched a 1-min bar, ~4c mean abs deviation, +1.2c buy-side skew (paper
+fills at the ask vs trade prints). Queued fixes: unfreeze `fetch_option_data.py`'s hardcoded
+19-contract list (frozen 2026-05-07 — the actual cache-gap bug), route its hardcoded UTC-4
+offset through `lib/et_frame.py` (DST-artifact recurrence, also in `_option_bars_1min_cache.py`),
+switch premarket level reads to SIP.
+
+**2. The hold-vs-dump question is now PRICED (real 1-min/5-min bars, all 8 contracts, $0):**
+
+| counterfactual | P&L | vs actual −$890 |
+|---|---:|---:|
+| every position held to 15:50 | **−$10,313** | −$9,423 worse |
+| ONE trade per arm/direction (first entry, held to 15:50) | **−$2,845** | −$1,955 worse |
+
+Caveat: both are full-hold bounds with no intraday management (a managed hold with TP1/trail
+sits between), and 15:50 on 0DTE is near-intrinsic. But the direction is unambiguous.
+
+**Consequences:**
+- **R3 option (b) — exit-side "hold through the ribbon dump" — is KILLED for this tape.** The
+  18 ribbon-dumped puts held to close get massacred (the 09:46 771P @0.82 held = −$632; SPY
+  recovered to 772.40 and theta did the rest). The single-tick dump, wrong by construction,
+  functioned as a cheap fast stop on a mean-reverting day. **R3 proceeds ENTRY-SIDE only:
+  don't OPEN positions the exit predicate already rejects.**
+- The teardown's own suggestive cell (+$60 dumped vs −$579 aligned-held) pointed the wrong
+  way once priced — reinforcing the standing rule: no exit change ships on a suggestive cell
+  without the hold counterfactual actually computed.
+- **Entries were the loss mechanism in full**: morning entries mid-flush (not at range edges)
+  lose under EVERY exit policy tested — dump fast (−$890), hold all (−$10.3k), trade once and
+  hold (−$2.8k). The only winning line on 08-12 remains J's: one long at the 12:35 support
+  touch at the RANGE EDGE. Entry location/conviction is the whole game — which is exactly what
+  the conviction-ratchet design gates on (C1 named level, C4 range extreme).

@@ -421,3 +421,19 @@ overlooked. Going live = deliberately reversing that posture.
 **Standing rule shipped to lesson inbox:** capability audit re-runs at every posture change.
 Agents in flight when this was written: options-data decision memo (Opus) + conviction/sit-out
 design (Fable). Their outputs slot into queue items 1-2 and the OPRA blocker respectively.
+
+---
+
+## 9. BOTH AGENT MEMOS LANDED (2026-08-12 late) — the build spec is ready
+
+- **[OPTIONS-DATA-DECISION-MEMO](../../analysis/deep-research/2026-08-12-churn/OPTIONS-DATA-DECISION-MEMO-2026-08-12.md)**:
+  never blocked; $0 free tier serves 1-min OPRA bars incl. same-day 0DTE. §7's "OPRA backfill
+  blocks R3" is FALSE (corrected in the teardown doc). 08-12's 8 contracts backfilled same
+  night. Three queued fixes: unfreeze fetch_option_data CONTRACTS (derive from fills), route
+  its UTC-4 hardcode through et_frame (DST class, also _option_bars_1min_cache), premarket→SIP.
+- **[CONVICTION-RATCHET-DESIGN](../../analysis/deep-research/2026-08-12-churn/CONVICTION-RATCHET-DESIGN-2026-08-12.md)**:
+  the queue-item-1 build spec. Phase A (shadow, zero-behavior) is one evening; F1-F4 gates
+  frozen before forward day 1.
+- **HOLD COUNTERFACTUAL PRICED** (was "impossible", then $0): hold-all −$10,313 / one-per-arm
+  −$2,845 vs churn −$890. **R3 exit-side option KILLED; R3 = entry-side only.** Entries are the
+  loss mechanism under every exit policy — reinforces queue items 1-3.
