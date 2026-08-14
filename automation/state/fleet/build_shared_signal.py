@@ -8,10 +8,19 @@ row for today and maps it into the shared-signal contract the fleet executor con
 FAITHFULNESS NOTE (v1): decisions.jsonl carries action + bear/bull scores + spy + vix +
 ribbon + setup + trigger, but NOT confidence/confluence/est_premium. So:
   * production_action, scores, spot, vix, ribbon are faithful.
-  * bear.passed/bull.passed are derived from the production ACTION (the 3 fleet arms are
-    all MORE selective than production -- stricter gate / direction-lock / different
-    instrument -- so deriving "passed" from production's choice is correct: an arm can
-    only filter production's signal further, never enter when production held).
+  * bear.passed/bull.passed are derived from the production ACTION.
+    ⚠ STALE-GUARANTEE CORRECTION (2026-08-14; found by the 2026-08-13 deep review): this
+    paragraph used to claim "an arm can only filter production's signal further, never
+    enter when production held." THAT HAS BEEN FALSE SINCE 2026-06-25: passed_scoring_peak
+    (~line 771) sets passed=True whenever score >= BULL_PEAK_THRESHOLD with a fired
+    trigger REGARDLESS of production's verdict (SCORING_PEAK_LIVE=True), and three further
+    producer-side rescue lanes exist (probe / full_send / score-ladder). Exactly ONE
+    verdict hard-blocks (SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY). Proven live 2026-08-13:
+    production returned SKIP_BULL_1100_1200 at 11:41-11:43 and took nothing, while safe-3 /
+    risky-1 / risky-3 all entered at 11:42:05 for -$325. CONSEQUENCE FOR RISK REASONING:
+    fleet exposure is NOT bounded by production's gate perimeter -- any analysis assuming
+    it is, is wrong. (v1's derivation below remains accurate for the verdict-derived
+    fields; only the containment GUARANTEE was false.)
   * confidence/confluence are omitted -> safe-3's A+ gate runs conservative (holds more).
   * est_premium is omitted -> the fleet runner fetches the REAL option mid per arm.
 The faithfulness upgrade (heartbeat emits confidence/confluence/est_premium natively) is

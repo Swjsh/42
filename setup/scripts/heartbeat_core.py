@@ -507,8 +507,15 @@ def _conviction_shadow(verdict: dict, bc: dict, account: str) -> "dict | None":
         k = 0
         try:
             import settlement_ledger as _sl
+            # PER-ACCOUNT LEDGER (2026-08-14 fix, deep-review finding): this hardcoded
+            # STATE/"settlement-ledger.json" for BOTH accounts while the live risk gate at
+            # ~:2226 already uses _sl.ledger_path(STATE, account) -- so bold's conviction k
+            # read safe's entry counter (observed live 2026-08-13: bold logged k=1 at
+            # 09:51:06 on its own FIRST entry of the day). This function has received
+            # `account` since birth and never used it. Shadow-only surface (conviction is
+            # DISARMED), so the fix moves telemetry, not orders.
             _st = _sl.get_settlement_status(
-                STATE / "settlement-ledger.json", _et_now().strftime("%Y-%m-%d"), None)
+                _sl.ledger_path(STATE, account), _et_now().strftime("%Y-%m-%d"), None)
             k = int(_st.get("entries_used_today") or 0)
         except Exception:  # noqa: BLE001 -- k=0 is the most PERMISSIVE floor (fail-open)
             k = 0
