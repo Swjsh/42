@@ -142,14 +142,41 @@ try {
     if ($be.stale) { $triggers += $be.detail }
 
     if ($triggers.Count -gt 0) {
-        # Refresh the EYE first (the brain reads sight-beacon), then re-tick the BRAIN. Both
-        # tasks are on healthy daily triggers (Ready) and idempotent -- a re-fire is just an
-        # extra tick. heartbeat_core ticks BOTH accounts in one run, so one re-fire covers
-        # safe + bold.
+        # Refresh the EYE first (the brain reads sight-beacon). The eye places no orders, so a
+        # re-fire is genuinely harmless.
         try { Start-ScheduledTask -TaskName "Gamma_SightBeacon" -EA Stop;   $healed += "re-fired Gamma_SightBeacon (eye)" }
         catch { Write-TaskLog -TaskName "engine-heal" -Message "SightBeacon re-fire failed: $_" }
-        try { Start-ScheduledTask -TaskName "Gamma_HeartbeatCore" -EA Stop; $healed += "re-fired Gamma_HeartbeatCore (brain)" }
-        catch { Write-TaskLog -TaskName "engine-heal" -Message "HeartbeatCore re-fire failed: $_" }
+
+        # BRAIN re-fire (2026-08-14 FIX): the old comment here claimed "a re-fire is just an
+        # extra tick... idempotent". FALSE for an ORDER-PLACING process. On 2026-08-14 09:46 the
+        # scheduled tick launched at :02, this healer re-fired at :06, and the two processes
+        # raced the entry-claim file -- both passed the flat-check before either wrote, both
+        # placed, and safe-2/bold-2 each carried a DOUBLE position (6/10 contracts instead of
+        # 3/5, ~-$371 of the day's -$1,569). The heal trigger was "ledger STALE 1071m" -- but a
+        # dark LEDGER does not mean a dead PROCESS: the engine was trading fine and simply not
+        # writing rows. Re-fire ONLY when no heartbeat_core process is actually alive.
+        # Fail-safe direction: a skipped heal costs one 60s tick; a wrong re-fire costs a
+        # double entry.
+        $brainAlive = $false
+        try {
+            $procs = Get-CimInstance Win32_Process -Filter "Name='pythonw.exe' OR Name='python.exe'" -EA Stop
+            foreach ($p in $procs) {
+                if ($p.CommandLine -and $p.CommandLine -like "*heartbeat_core*") { $brainAlive = $true; break }
+            }
+        } catch {
+            # CIM unreadable -> we cannot PROVE the brain is dead, so do not re-fire an
+            # order-placing task on uncertainty (same rule as the entry path's fail-closed
+            # placement gates).
+            $brainAlive = $true
+            Write-TaskLog -TaskName "engine-heal" -Message "CIM read failed; treating brain as alive (no re-fire on uncertainty): $_"
+        }
+        if ($brainAlive) {
+            Write-TaskLog -TaskName "engine-heal" -Message "brain STALE but a heartbeat_core process is ALIVE -- ledger-write defect, not process death. NOT re-firing (2026-08-14 double-entry scar)."
+            $healed += "brain stale but alive -- re-fire SKIPPED (write-path defect)"
+        } else {
+            try { Start-ScheduledTask -TaskName "Gamma_HeartbeatCore" -EA Stop; $healed += "re-fired Gamma_HeartbeatCore (brain, confirmed dead)" }
+            catch { Write-TaskLog -TaskName "engine-heal" -Message "HeartbeatCore re-fire failed: $_" }
+        }
     }
 
     if ($healed.Count -gt 0) {
