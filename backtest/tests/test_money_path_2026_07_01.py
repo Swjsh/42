@@ -210,6 +210,16 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="2000.0", manages_exits=T
     posts: list = []
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+        # RED-FOR-A-WEEK FIX (2026-08-14): the ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02)
+        # added open_buy_orders_checked / symbol_position_qty_checked, which call _request
+        # with GET and require a LIST ("confirmed empty") -- this fake returned the accepted-
+        # order DICT for every endpoint, so ok=False -> SKIP_ORDER_QUERY_ERROR and three
+        # placement tests failed on both pre- and post-2026-08-14 code (attributed by running
+        # the suite against the pre-today heartbeat_core: identical 3 failures). GETs are
+        # queries, not orders: answer "confirmed empty" and do NOT count them in `posts`,
+        # which exists to count ORDER submissions.
+        if method == "GET":
+            return []
         posts.append({"endpoint": endpoint, "method": method, "data": data})
         return {"id": "ord-1", "status": "accepted"}
 

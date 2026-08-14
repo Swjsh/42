@@ -2069,6 +2069,92 @@ def _acquire_claim(arm_id: str, symbol: str, now: datetime,
         return True              # documented fail-open; broker-side checks stay fail-CLOSED
 
 
+# ── COLD-OPEN GUARD (2026-08-14) ─────────────────────────────────────────────────────────
+# The box slept 04:27-09:46 ET. On wake, the engine's FIRST look at the day -- key levels 322
+# minutes stale, no premarket, no warmup -- was a bull entry 10 seconds into its first tick
+# (first core row of the day: 09:46:12 action=PLACED), at the top of a 1.1-point range, into
+# INTRADAY_RTH_HIGH, after a +3.14 prior day. All five arms followed the shared signal:
+# -$1,569. An engine that has been dark during RTH must OBSERVE before it may buy.
+#
+# Trigger: at ENTRY-attempt time, the newest prior core-decisions row for this account is
+# > COLD_OPEN_GAP_MIN old. During RTH the engine writes a row EVERY tick (~60s), so a >10min
+# hole in its own ledger means it was genuinely dark -- asleep, crashed, or blocked. Normal
+# days never trip this: by the 09:35 entry gate the engine has been writing rows since 09:30,
+# so the newest prior row is ~1 minute old (verified on the Monday-open shape: the overnight
+# gap is invisible because rows exist from today's 09:30 onward BEFORE any entry is legal).
+#
+# On trip: refuse the entry (SKIP_COLD_OPEN) and write a marker; entries stay refused until
+# the marker expires (COLD_OPEN_WARMUP_MIN of observation, during which normal ticks keep
+# writing rows, so the re-measure after expiry passes). Exits, the kill-switch, and the EOD
+# flatten are NEVER touched -- this sits on the entry path only, beside the claim gate.
+# Fail-open on any read error: a corrupt ledger must not brick entries; the guard is an extra
+# safety, not the authority. KILL: params cold_open_guard_enabled=false (single key).
+COLD_OPEN_GAP_MIN = 10.0     # >10min of missing RTH rows = the engine was dark
+COLD_OPEN_WARMUP_MIN = 3.0   # observe this long after waking before entries are legal
+
+
+def _cold_open_path(arm_id: str) -> Path:
+    d = STATE / "fleet" / arm_id
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "cold-open.json"
+
+
+def _cold_open_block(account: str, arm_id: str, now: datetime, params: dict) -> "str | None":
+    """Returns a human-readable reason to REFUSE this entry, or None to allow."""
+    if not bool(params.get("cold_open_guard_enabled", True)):
+        return None
+    # 1. An active warmup marker refuses outright.
+    try:
+        rec = json.loads(_cold_open_path(arm_id).read_text(encoding="utf-8"))
+        until = datetime.fromisoformat(str(rec["until_et"]))
+        if until.tzinfo is None and now.tzinfo is not None:
+            until = until.replace(tzinfo=now.tzinfo)
+        if now < until:
+            return (f"cold-open warmup active until {str(rec['until_et'])[11:19]} "
+                    f"(dark gap {rec.get('gap_min', '?')}m detected at wake)")
+    except (OSError, ValueError, KeyError):
+        pass
+    # 2. Measure the gap to this account's newest PRIOR ledger row (same 128KB-tail read
+    #    engine_health.check_engine_core uses -- one mental model, one file).
+    try:
+        with LEDGER.open("rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            f.seek(max(0, size - 131072))
+            tail = f.read().decode("utf-8", errors="replace").splitlines()
+        newest = None
+        for raw in reversed(tail):
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                row = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            if row.get("account") == account and row.get("ts_et"):
+                newest = datetime.strptime(str(row["ts_et"])[:19], "%Y-%m-%dT%H:%M:%S")
+                break
+        if newest is None:
+            return None          # no history at all (fresh install) -- do not block
+        if newest.tzinfo is None and now.tzinfo is not None:
+            newest = newest.replace(tzinfo=now.tzinfo)
+        gap_min = (now - newest).total_seconds() / 60.0
+        if gap_min > COLD_OPEN_GAP_MIN:
+            until = now + timedelta(minutes=COLD_OPEN_WARMUP_MIN)
+            try:
+                _cold_open_path(arm_id).write_text(
+                    json.dumps({"until_et": until.isoformat(), "gap_min": round(gap_min, 1),
+                                "detected_at_et": now.isoformat()}),
+                    encoding="utf-8")
+            except OSError:
+                pass             # marker write failure -> this attempt still refuses
+            return (f"engine was dark {gap_min:.0f}m before this entry attempt -- "
+                    f"observing {COLD_OPEN_WARMUP_MIN:.0f}m before entries are legal")
+    except OSError:
+        return None              # fail-open: never brick entries on a ledger read error
+    return None
+
+
 def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: bool) -> dict:
     """SIZE + PLACE a 0DTE entry via the TESTED fleet_broker + risk_gate primitives.
     dry=True computes everything and returns the plan WITHOUT placing (shadow / self-test)."""
@@ -2306,6 +2392,14 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     # which drives the real run_account() loop, not an assertion from reading the source).
     #   LAYER 1 -- claim file (local, no network): an unexpired claim for this EXACT
     #     (arm, symbol) refuses outright before ever reaching the broker.
+    # COLD-OPEN GUARD (2026-08-14, wake-storm scar): an engine that was dark during RTH must
+    # observe before it may buy. Checked before the claim so a refused cold-open attempt
+    # never consumes the 180s claim window.
+    _cold_reason = _cold_open_block(account, arm, _now_exec, params)
+    if _cold_reason:
+        plan["status"] = "SKIP_COLD_OPEN"
+        plan["detail"] = _cold_reason
+        return plan
     if _claim_active(arm, symbol, _now_exec):
         plan["status"] = "SKIP_DUPLICATE_CLAIM"
         plan["detail"] = f"entry claim already active for {symbol}"
