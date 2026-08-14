@@ -351,6 +351,11 @@ function Stop-StaleClaudeProcesses {
         # a coincidence that happened to match a documented scar. Kept as a warning: matching
         # a known failure signature is not the same as reading the evidence.
         'intraday_position_tracker.py',
+        # market_hours_keepawake.py (2026-08-14): holds ES_SYSTEM_REQUIRED 09:10-16:10 ET so
+        # the box cannot idle-sleep mid-session (the 2026-08-14 sleep gap 04:27-09:46 ET cost
+        # -$1,569 via a wake-storm double entry + a stale-level top-tick buy). BY DESIGN a
+        # long-running RTH daemon; reaping it silently re-enables mid-session sleep.
+        'market_hours_keepawake.py',
         'sniper_pipeline.py',
         'sniper_overnight_grinder.py',
         'sniper_stage2_grinder.py',
