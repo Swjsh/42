@@ -1,0 +1,55 @@
+{
+  "_doc": "Shadow-only. Records entry location; arms nothing. Cells become DECIDABLE at n>=30 gated, matching the study's floor.",
+  "study": "analysis/recommendations/ENTRY-LOCATION-GATE-2026-08-14.md",
+  "n_rows": 23,
+  "cells": {
+    "C|prox<=0.10": {
+      "n_gated": 6,
+      "n_side_total": 18,
+      "needed_for_decidable": 24,
+      "decidable": false,
+      "gated_pnl": 1895.0,
+      "gated_win_rate": 0.8333
+    },
+    "C|prox<=0.20": {
+      "n_gated": 11,
+      "n_side_total": 18,
+      "needed_for_decidable": 19,
+      "decidable": false,
+      "gated_pnl": 697.0,
+      "gated_win_rate": 0.4545
+    },
+    "C|prox<=0.30": {
+      "n_gated": 11,
+      "n_side_total": 18,
+      "needed_for_decidable": 19,
+      "decidable": false,
+      "gated_pnl": 697.0,
+      "gated_win_rate": 0.4545
+    },
+    "P|prox<=0.10": {
+      "n_gated": 2,
+      "n_side_total": 5,
+      "needed_for_decidable": 28,
+      "decidable": false,
+      "gated_pnl": -250.0,
+      "gated_win_rate": 0.0
+    },
+    "P|prox<=0.20": {
+      "n_gated": 3,
+      "n_side_total": 5,
+      "needed_for_decidable": 27,
+      "decidable": false,
+      "gated_pnl": -268.0,
+      "gated_win_rate": 0.0
+    },
+    "P|prox<=0.30": {
+      "n_gated": 3,
+      "n_side_total": 5,
+      "needed_for_decidable": 27,
+      "decidable": false,
+      "gated_pnl": -268.0,
+      "gated_win_rate": 0.0
+    }
+  }
+}
