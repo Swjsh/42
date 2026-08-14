@@ -7,7 +7,7 @@
   {
    "arm": "safe-2",
    "read_detail": "ok in 0.2s (attempt 1)",
-   "exit_state_age_min": 51.4,
+   "exit_state_age_min": 59.5,
    "tracked": [],
    "held": [],
    "status": "FLAT"
@@ -15,7 +15,7 @@
   {
    "arm": "safe-3",
    "read_detail": "ok in 0.1s (attempt 1)",
-   "exit_state_age_min": 110.3,
+   "exit_state_age_min": 58.4,
    "tracked": [],
    "held": [],
    "status": "FLAT"
@@ -23,7 +23,7 @@
   {
    "arm": "bold-2",
    "read_detail": "ok in 0.1s (attempt 1)",
-   "exit_state_age_min": 35.3,
+   "exit_state_age_min": 59.5,
    "tracked": [],
    "held": [],
    "status": "FLAT"
@@ -31,7 +31,7 @@
   {
    "arm": "risky-1",
    "read_detail": "ok in 0.1s (attempt 1)",
-   "exit_state_age_min": 110.3,
+   "exit_state_age_min": 58.4,
    "tracked": [],
    "held": [],
    "status": "FLAT"
@@ -39,7 +39,7 @@
   {
    "arm": "risky-3",
    "read_detail": "ok in 0.1s (attempt 1)",
-   "exit_state_age_min": 122.3,
+   "exit_state_age_min": 65.3,
    "tracked": [],
    "held": [],
    "status": "FLAT"

@@ -131,3 +131,41 @@ def test_main_always_exits_zero(mod):
 
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+# ------------------------------------------------------------- QTY coverage (2026-08-14)
+
+
+def test_the_wake_storm_double_entry_is_detected(mod, tmp_path, monkeypatch):
+    """2026-08-14: safe-2 held 6 contracts, exit-state tracked the SYMBOL with total_qty 3.
+    This detector said OK while half the position had no stop. Symbol membership != coverage."""
+    fleet = tmp_path / "fleet"; (fleet / "testarm").mkdir(parents=True, exist_ok=True)
+    import json as _json, os as _os, time as _time
+    st = fleet / "testarm" / "exit-state.json"
+    st.write_text(_json.dumps({PUT: {"symbol": PUT, "total_qty": 3}}), encoding="utf-8")
+    monkeypatch.setattr(mod, "FLEET", fleet)
+    monkeypatch.setattr(mod, "read_positions",
+                        lambda arm, creds: ([{"symbol": PUT, "qty": "6"}], "ok"))
+    row = mod.assess_arm("testarm", {"key": "k", "secret": "s"}, _time.time())
+    assert row["status"] == "QTY_MISMATCH", (
+        f"got {row['status']} for broker=6 vs tracked=3 -- the 2026-08-14 blind spot is back")
+    assert "broker=6 tracked=3" in row["why"]
+
+
+def test_matching_qty_is_still_OK(mod, tmp_path, monkeypatch):
+    """Vary-and-assert: the new check must not alarm on a correctly-tracked position."""
+    fleet = tmp_path / "fleet"; (fleet / "testarm").mkdir(parents=True, exist_ok=True)
+    import json as _json, time as _time
+    (fleet / "testarm" / "exit-state.json").write_text(
+        _json.dumps({PUT: {"symbol": PUT, "total_qty": 5}}), encoding="utf-8")
+    monkeypatch.setattr(mod, "FLEET", fleet)
+    monkeypatch.setattr(mod, "read_positions",
+                        lambda arm, creds: ([{"symbol": PUT, "qty": "5"}], "ok"))
+    row = mod.assess_arm("testarm", {"key": "k", "secret": "s"}, _time.time())
+    assert row["status"] == "OK", f"correctly-tracked position alarmed as {row['status']}"
+
+
+def test_qty_mismatch_ranks_RED(mod):
+    """An unmanaged half-position is as severe as an untracked one."""
+    src = (mod.__file__ and open(mod.__file__, encoding="utf-8").read()) or ""
+    assert '"QTY_MISMATCH": 3' in src, "QTY_MISMATCH no longer ranks at UNCOVERED severity"

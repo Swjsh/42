@@ -110,6 +110,28 @@ def assess_arm(arm: str, creds: dict, now: float) -> dict[str, Any]:
         row["status"] = "UNCOVERED"
         row["why"] = f"held but absent from exit-state: {uncovered}"
         return row
+    # QTY MISMATCH (2026-08-14): symbol membership is NOT coverage. On 2026-08-14 a wake-storm
+    # double entry left safe-2 holding 6 contracts with exit-state tracking 3, bold-2 10 vs 5 --
+    # this detector reported OK because the SYMBOL was tracked, while half of each position had
+    # no stop, no TP1, and nothing that would ever exit it. Coverage = the exit manager knows
+    # about every CONTRACT, not every symbol.
+    qty_gaps = []
+    for p in (pos or []):
+        sym = str(p.get("symbol"))
+        if sym not in tracked or not isinstance(state, dict):
+            continue
+        try:
+            held_q = abs(int(float(p.get("qty", 0))))
+            trk_q = int(state[sym].get("total_qty") or 0)
+        except (TypeError, ValueError, KeyError):
+            continue        # unparseable -> fall through to the stale/OK checks, never crash
+        if held_q != trk_q:
+            qty_gaps.append(f"{sym}: broker={held_q} tracked={trk_q}")
+    if qty_gaps:
+        row["status"] = "QTY_MISMATCH"
+        row["why"] = ("exit manager tracks the symbol but NOT the full size -- the surplus "
+                      f"contracts have no stop and nothing will exit them: {qty_gaps}")
+        return row
     if age_min is not None and age_min > STALE_MIN:
         row["status"] = "STALE"
         row["why"] = (f"holding {held} but exit-state has not refreshed in {age_min:.1f} min "
@@ -124,7 +146,7 @@ def assess() -> dict[str, Any]:
     accounts = secrets.get("accounts") or {}
     now = time.time()
     rows = [assess_arm(a, accounts[a], now) for a in ARMS if a in accounts]
-    order = {"UNCOVERED": 3, "BLIND": 2, "STALE": 2, "OK": 0, "FLAT": 0}
+    order = {"UNCOVERED": 3, "QTY_MISMATCH": 3, "BLIND": 2, "STALE": 2, "OK": 0, "FLAT": 0}
     worst = max((order.get(r["status"], 0) for r in rows), default=0)
     verdict = "RED" if worst >= 3 else ("YELLOW" if worst == 2 else "GREEN")
     return {
