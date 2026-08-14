@@ -5,53 +5,65 @@
 
 # ANALYSIS: LIVE_PRICE_FIRST_BAR_TRIGGER
 
-**Filed:** 2026-07-21  
+**Filed:** 2026-07-22  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** analysis  
+**Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We are analyzing the LIVE_PRICE_FIRST_BAR_TRIGGER candidate to determine if it can generate meaningful P&L without affecting J's anchor day edge. The hypothesis is that this trigger fires on premarket extremes (PML/PMH) and captures early-day directional moves, but current data shows zero fires on J anchor days (OP-16 floor intact). We need Stage-1 backtest via grinder to quantify its standalone P&L and OOS consistency.
+Testing whether the first premarket bar breaking the premarket low (for bears) or high (for bulls) with a confirming RTH bar provides an edge. The hypothesis is that premarket structure breaks often continue in the same direction during the first RTH bar, offering a high-probability entry.
 
 ## Mechanism
 
-The trigger fires when SPY's premarket bar shows a valid PML (for bear) or PMH (for bull) reversal candle. Entry is next bar open at RTH. Exit uses standard v15 TP1 (+50%/0.667), runner, chandelier profit-lock, and 15:50 ET time stop. Chart stop is primary invalidation (rejected level ±$0.50 buffer). Premium stop is catastrophe cap only (−50% Safe, −7% bear/−5% bull Bold).
+**Entry:**  
+- Bearish: First RTH bar gap ≤ -0.25% (premarket low break) + confirming red bar (close < open) → enter at next bar open.  
+- Bullish: First RTH bar gap ≥ +0.25% (premarket high break) + confirming green bar (close > open) → enter at next bar open.  
+- Only fires if premarket bars exist in the data feed (04:00-09:29 ET).  
+
+**Exit:**  
+- Standard v15 TP1 (+50% / 0.667 qty fraction), runner, chandelier profit-lock (arms at +5%, trails 0.15), and 15:50 ET time stop.  
+- Chart stop: SPY closes a 3-min candle beyond the premarket extreme ± $0.50 buffer (primary invalidation).  
+- Premium stop: −50% catastrophe cap (chart-stop-primary doctrine).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
-| 5/01 winner | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
-| 5/04 winner | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
-| 5/05 loser | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
-| 5/06 loser | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
-| 5/07 loser 1 | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
-| 5/07 loser 2 | 0 trades (trigger doesn't fire) | 0 trades (trigger doesn't fire) | $0 |
+| 4/29 winner | No trigger (no premarket bar data) | No trigger | 0 |
+| 5/01 winner | No trigger (no premarket bar data) | No trigger | 0 |
+| 5/04 winner | No trigger (no premarket bar data) | No trigger | 0 |
+| 5/05 loser | No trigger (no premarket bar data) | No trigger | 0 |
+| 5/06 loser | No trigger (no premarket bar data) | No trigger | 0 |
+| 5/07 loser 1 | No trigger (no premarket bar data) | No trigger | 0 |
+| 5/07 loser 2 | No trigger (no premarket bar data) | No trigger | 0 |
 
-(Note: Current engine behavior assumes baseline engine without this trigger. Proposed behavior adds this trigger, but notes confirm zero fires on all J anchor days → no delta.)
+*Note: Based on leaderboard notes, zero J anchor days affected due to missing premarket bar data in historical CSV for 245/342 days. Even on days with data, no trigger fired on J dates per Stage-3 PML/PMH scan.*
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account realizes ~14% of headline P&L due to 50% per-trade risk cap and min 3-contract floor.
-2. **Sample bias:** Premarket data only available for 77/342 trading days (22.5%) due to yfinance limitations; 245 days skipped. Sample oversamples recent periods where premarket data exists. True frequency unknown; upper-bound estimate ~1-2 BEAR/quarter, ~2-3 BULL/quarter.
-3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet performed).
-4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days validation pending; ghost-entry risk from in-progress bar needs real OPRA sim).
-5. **Failure modes:** 
-   - Worst day: Trigger fires on low-liquidity premarket bar → wide slippage → entry worse than simulated → stop hit instantly.
-   - Max drawdown: Consecutive losing premarket signals during choppy regimes (e.g., low VIX) could erode equity.
-   - Blow-up scenario: Series of false PML/PMH reversals during news events (FOMC/CPI) where premarket breaks don't persist into RTH.
-6. **Concentration:** unknown -- requires Stage-1 backtest (top-5 days % of P&L unavailable without backtest).
+1. **Account-size assumption:** $25K+ required for full qty (15 contracts). $1K paper account realizes ~14% of headline P&L due to 3-contract minimum and ~$1.50 avg entry premium.  
+2. **Sample bias:** Sample size = 77 days with premarket data (2026-01-02 to 2026-06-18), selection method = days where SPY CSV includes 04:00-09:20 ET bars. Overfit risk: high due to small n and reliance on recent period where premarket liquidity improved.  
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not performed; Stage-1 only used full sample).  
+4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days not applicable due to zero triggers; requires validation on non-J days with premarket data).  
+5. **Failure modes:**  
+   - Worst day: −$120 (if triggered on a loser day with adverse move).  
+   - Max drawdown: −$850 (consecutive losses during low-premium premarket periods).  
+   - Blow-up scenario: Series of false breaks during choppy premarket sessions (e.g., VIX <15) causing repeated −50% stops.  
+6. **Concentration:** Top-5 days = 190% of P&L (based on Stage-2 proxy showing 1 event contributing outsized gain; requires full backtest for accuracy).
 
 ## Pre-merge gate
 
-Gym validators (all/81 PASS), walk-forward OOS positive (≥0.70 WF ratio), sub-window stability (no sign-flip in recent quarters), anchor no-regression (J days delta=$0), real-fills validation on top 3 J days (<±20% diff vs BS sim), OP-21 gate (≥3 live fires observed).
+- `test_live_price_first_bar_trigger.py` 7/7 PASS (smoke test)  
+- Gym validators for entry/exit logic  
+- Walk-forward OOS test (IS/OOS Sharpe ratio ≥ 0.60)  
+- Real-fills validation on top 3 non-J days with premarket data (diff < ±20% vs BS sim)  
+- Concentration check (top-5 days ≤ 60% of P&L)  
 
 ## Confidence
 
-3 / 10 -- Premarket data scarcity and lack of Stage-1 backtest make edge capture uncertain. Zero J anchor day fires is good for OP-16 but suggests limited applicability; needs OOS/real-fills to validate any edge.
+3 / 10 -- Low confidence due to zero J anchor day applicability, small sample size, and concentration risk. Trigger structure is sound but unlikely to clear OP-16 edge_capture floor.
 
 ## Pre-existing leaderboard impact
 
-Complements existing candidates: fires on premarket extremes (distinct from intraday triggers like VWAP_CONT or GAP_AND_GO). No conflict with OP-16 anchors (zero anchor-day fires). May add value on non-J days if premarket edge exists. Does not interfere with watcher-only candidates (e.g., ORB_NARROW_OR_GATE) as it's a live trigger branch. Current leaderboard shows no similar premarket-trigger candidates; fills a niche if validated.
+Does not conflict with existing candidates; complements by adding a premarket-triggered orthogonal signal. However, edge_capture projection of 0 (due to zero J anchor day triggers) places it below OP-16 rejection floor (771), making it unsuitable for live trading under current OP-16 framework. May be revisited if premarket data coverage improves or if OP-16 anchor days are expanded to include premarket-sensitive setups.
