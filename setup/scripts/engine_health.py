@@ -625,6 +625,31 @@ def check_watcher_feed(market_open: bool, et: datetime) -> dict:
     )
 
 
+def check_keepawake(market_open: bool) -> dict:
+    """SLEEP-PREVENTION LIVENESS (2026-08-14). The box slept 04:27-09:46 ET and the whole rig
+    was dark; Gamma_MarketKeepAwake now holds ES_SYSTEM_REQUIRED through RTH and writes a
+    heartbeat every tick. A prevention daemon that dies silently is the leak-detector wedge
+    all over again (alive-looking, doing nothing) -- so its liveness is CONSUMED here rather
+    than trusted. YELLOW, never RED/critical: this layer is prevention; the cold-open guard
+    and the healer liveness check are the damage-control layers beneath it."""
+    name = "keepawake"
+    if not market_open:
+        return _chk(name, "GREEN", "market closed -- keepawake not required", critical=False)
+    p = STATE / "keepawake-heartbeat.json"
+    if not p.exists():
+        return _chk(name, "YELLOW", "keepawake-heartbeat.json missing during RTH -- "
+                    "sleep-prevention daemon not running (box can idle-sleep mid-session)",
+                    critical=False)
+    try:
+        age = (datetime.now(timezone.utc).timestamp() - p.stat().st_mtime) / 60.0
+    except OSError:
+        return _chk(name, "YELLOW", "keepawake heartbeat unreadable", critical=False)
+    if age > 5.0:
+        return _chk(name, "YELLOW", f"keepawake heartbeat STALE {age:.1f}m (>5m) during RTH -- "
+                    "daemon died or wedged; box can idle-sleep mid-session", critical=False)
+    return _chk(name, "GREEN", f"asserting, heartbeat {age:.1f}m old", critical=False)
+
+
 def check_sight_beacon(market_open: bool, now_utc: datetime) -> dict:
     """The EYE: sight-beacon.json must be fresh during RTH. A stale/failed beacon means
     the engine is BLIND -- the #1 forbidden state (J: 'the engine can NOT be blind ever').
@@ -1089,6 +1114,7 @@ def build_report() -> dict:
         check_engine_core("heartbeat_safe", "safe", mkt, et),
         check_engine_core("heartbeat_bold", "bold", mkt, et),
         check_sight_beacon(mkt, now_utc),
+        check_keepawake(mkt),
         check_watcher_feed(mkt, et),
         check_killswitch("killswitch_safe", STATE / "circuit-breaker.json"),
         check_killswitch("killswitch_bold", AGG / "circuit-breaker.json"),

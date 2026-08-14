@@ -1,0 +1,103 @@
+{
+ "_doc": "Pipeline wiring audit -- every live-path producer->consumer edge, verified empirically.",
+ "rth_at_run": true,
+ "verdict": "YELLOW",
+ "edges": [
+  {
+   "edge": "sight_beacon -> heartbeat_core",
+   "file": "automation\\state\\sight-beacon.json",
+   "fresh": "ok 0.9m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "heartbeat_core -> core-decisions.jsonl (safe)",
+   "file": "automation\\state\\core-decisions.jsonl",
+   "fresh": "ok 0.9m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "heartbeat_core -> core-decisions.jsonl (bold)",
+   "file": "automation\\state\\core-decisions.jsonl",
+   "fresh": "ok 0.9m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "build_shared_signal -> fleet_executor",
+   "file": "automation\\state\\fleet\\shared-signal.json",
+   "fresh": "ok 0.9m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "level_refresher -> key-levels.json -> heartbeat",
+   "file": "automation\\state\\key-levels.json",
+   "fresh": "ok 3.3m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "ema_snapshot -> ORPHANED (monitored, consumed by nothing)",
+   "file": "automation\\state\\ema-snapshot.json",
+   "fresh": "ok 4.5m",
+   "fields": "ok",
+   "consumed": "NO CONSUMER (declared gap)",
+   "verdict": "YELLOW"
+  },
+  {
+   "edge": "engine_health -> heal-engine (contract: same file, same staleness fields)",
+   "file": "automation\\state\\engine-health.json",
+   "fresh": "ok 0.8m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "exit_manager state (safe-2) <- exit_actuator",
+   "file": "automation\\state\\fleet\\safe-2\\exit-state.json",
+   "fresh": "ok 75.9m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "settlement ledger PER-ACCOUNT (safe) -> risk_gate + conviction",
+   "file": "automation\\state\\settlement-ledger.json",
+   "fresh": "ok 110.7m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "recency_check -> recency-confirmation.json -> fleet clamp",
+   "file": "automation\\state\\recency-confirmation.json",
+   "fresh": "ok 786.7m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "keepawake daemon liveness -> engine_health (wired 2026-08-14)",
+   "file": "automation\\state\\keepawake-heartbeat.json",
+   "fresh": "ok 1.0m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  },
+  {
+   "edge": "exit-coverage instrument -> firm_brief (wired 2026-08-14)",
+   "file": "automation\\state\\exit-coverage.json",
+   "fresh": "ok 16.4m",
+   "fields": "ok",
+   "consumed": "ok",
+   "verdict": "GREEN"
+  }
+ ]
+}

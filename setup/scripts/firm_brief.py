@@ -592,6 +592,24 @@ def render_winner_autopsy_lines(data: dict) -> list[str]:
             "pre-registered A/B over the FULL population."]
 
 
+def render_exit_coverage_lines() -> list[str]:
+    """EXIT COVERAGE on the daily brief (2026-08-14). The wiring audit found this instrument
+    had NO consumer -- it caught the wake-storm's unmanaged surplus contracts only after the
+    fact because nobody read it. A coverage verdict that reaches no operator is not coverage."""
+    try:
+        d = json.loads((STATE / "exit-coverage.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ["- Exit coverage: instrument unreadable (exit_coverage_check.py not run?)"]
+    v = d.get("verdict", "?")
+    bad = [r for r in d.get("rows", []) if r.get("status") not in ("OK", "FLAT")]
+    if not bad:
+        return [f"- Exit coverage: {v} -- every held contract tracked by the exit manager"]
+    lines = [f"- Exit coverage: {v} -- {len(bad)} arm(s) need attention:"]
+    for r in bad[:4]:
+        lines.append(f"    [{r.get('status')}] {r.get('arm')}: {str(r.get('why'))[:90]}")
+    return lines
+
+
 def render_parity_lines() -> list[str]:
     """One-glance answer to: can the backtest reproduce what live actually does?
 
@@ -968,6 +986,7 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     # catch. parity_check is read-only, pure and fails open.
     lines.append("## Live/backtest parity")
     lines.extend(render_parity_lines())
+    lines.extend(render_exit_coverage_lines())
     lines.append("")
 
     # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single
