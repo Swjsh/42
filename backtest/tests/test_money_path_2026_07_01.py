@@ -39,6 +39,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from _broker_request_stub import broker_list_stub  # shared L294 contract
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -210,6 +211,12 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="2000.0", manages_exits=T
     posts: list = []
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         # RED-FOR-A-WEEK FIX (2026-08-14): the ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02)
         # added open_buy_orders_checked / symbol_position_qty_checked, which call _request
         # with GET and require a LIST ("confirmed empty") -- this fake returned the accepted-

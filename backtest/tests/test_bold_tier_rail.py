@@ -359,7 +359,19 @@ def test_population_filter_matches_lane1_real_ledger_anchor():
     A change to this file (or to exit_shape_parity_study's population filter) that silently
     shifts these two numbers is the exact provenance-drift failure class this instrument
     exists to prevent -- see module docstring."""
-    positions = bt.load_bold_positions(bt.LEDGER)
+    # WINDOW-BOUNDED (2026-08-14). This pinned the WHOLE ledger against a snapshot taken on
+    # 2026-08-08, so every new bold-2 fill after that date moved the number: it had drifted to
+    # n=20 and the guard had been RED for days, catching nothing. That is L292 -- a monitor
+    # whose own coverage scope rots exactly like the thing it monitors -- and the specific
+    # failure is that "the ledger grew" and "the population FILTER changed" were reported
+    # identically, while only the second is a defect.
+    #
+    # The anchor is now evaluated over the window it was actually verified against
+    # (<= 2026-08-08). Fills after that date cannot move it; a change to load_bold_positions
+    # or split_cohorts still does, which is the whole point of the instrument.
+    ANCHOR_ASOF_ET = "2026-08-08"
+    positions = [p for p in bt.load_bold_positions(bt.LEDGER)
+                 if p.get("date_et", "") <= ANCHOR_ASOF_ET]
     post, pre = bt.split_cohorts(positions)
     post_stats = bt.cohort_stats(post)
     pre_stats = bt.cohort_stats(pre)

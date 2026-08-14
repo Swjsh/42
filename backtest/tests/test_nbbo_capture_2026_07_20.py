@@ -19,6 +19,7 @@ import types
 from pathlib import Path
 
 import pytest
+from _broker_request_stub import broker_list_stub  # shared L294 contract
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -48,7 +49,7 @@ def _payload():
     return {"bar_ctx": {"timestamp_et": "2026-07-20 10:55:00", "bar": {"close": 620.0}}}
 
 
-def _wire_common_broker(hc, monkeypatch, *, mid: float, entry_px: float):
+def _wire_common_broker(hc, monkeypatch, tmp_path, *, mid: float, entry_px: float):
     """Mirrors test_audit_fix_heartbeat.py's TestFillReconciliation wiring exactly --
     mocks ONLY get_option_mid + marketable_limit_price (never get_option_quote_hilo),
     proving the NBBO capture makes ZERO extra network calls on this path."""
@@ -69,6 +70,15 @@ def _wire_common_broker(hc, monkeypatch, *, mid: float, entry_px: float):
     monkeypatch.setattr(fb, "symbol_position_qty_checked", lambda c, s: (0, True))
     monkeypatch.setattr(fb, "cancel_order", lambda *a, **k: {})
     monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 20, 10, 55))
+    # STATE SANDBOX (added 2026-08-14). The comment above ALREADY claimed "hc.STATE is
+    # sandboxed to tmp_path below" -- it never was on this helper's path, and three tests
+    # here take no tmp_path at all. So risk_gate read the LIVE
+    # automation/state/circuit-breaker.json and compared this stub's $2,000 equity against
+    # the real account's `starting_equity_today`. That silently became a kill-switch DENY the
+    # moment the live account grew past ~$2,857 (2000 / 0.7), and these tests have been RED
+    # since. A test coupled to live equity is a time bomb with a known fuse -- and a docstring
+    # asserting the isolation it does not perform is the reason nobody looked here.
+    monkeypatch.setattr(hc, "STATE", tmp_path)
 
     class _Resp:
         def read(self):
@@ -78,7 +88,7 @@ def _wire_common_broker(hc, monkeypatch, *, mid: float, entry_px: float):
     monkeypatch.setattr(_ur, "urlopen", lambda req, timeout=10: _Resp())
 
 
-def test_dry_plan_carries_reconstructed_nbbo(hc, monkeypatch):
+def test_dry_plan_carries_reconstructed_nbbo(hc, monkeypatch, tmp_path):
     """dry=True (WOULD_PLACE) path: mid=1.00, entry_px=1.08, buffer=0.03 (explicit local pin,
     independent of whatever automation/state/params.json's live entry_cross_buffer default
     is today -- 2026-08-02 ship changed the live default to 0.015; this test's whole point is
@@ -86,16 +96,16 @@ def test_dry_plan_carries_reconstructed_nbbo(hc, monkeypatch):
     buffer rather than silently drifting whenever that default is retuned, mirroring
     test_nbbo_respects_custom_entry_cross_buffer's own explicit-override pattern below) ->
     ask=entry_px-buffer=1.05, bid=2*mid-ask=0.95, spread=0.10. Bit-exact reconstruction."""
-    _wire_common_broker(hc, monkeypatch, mid=1.00, entry_px=1.08)
+    _wire_common_broker(hc, monkeypatch, tmp_path, mid=1.00, entry_px=1.08)
     params = dict(SAFE_PARAMS, entry_cross_buffer=0.03)
     plan = hc._execute("safe", _verdict(), _payload(), params, dry=True)
     assert plan["status"] == "WOULD_PLACE"
     assert plan["nbbo"] == {"bid": 0.95, "ask": 1.05, "mid": 1.00, "spread": 0.10}
 
 
-def test_nbbo_respects_custom_entry_cross_buffer(hc, monkeypatch):
+def test_nbbo_respects_custom_entry_cross_buffer(hc, monkeypatch, tmp_path):
     """A non-default entry_cross_buffer must still invert correctly (not hardcode 0.03)."""
-    _wire_common_broker(hc, monkeypatch, mid=2.00, entry_px=2.20)
+    _wire_common_broker(hc, monkeypatch, tmp_path, mid=2.00, entry_px=2.20)
     params = dict(SAFE_PARAMS, entry_cross_buffer=0.10)
     plan = hc._execute("safe", _verdict(), _payload(), params, dry=True)
     assert plan["nbbo"]["ask"] == pytest.approx(2.10)   # entry_px(2.20) - buffer(0.10)
@@ -104,11 +114,11 @@ def test_nbbo_respects_custom_entry_cross_buffer(hc, monkeypatch):
     assert plan["nbbo"]["spread"] == pytest.approx(0.20)
 
 
-def test_nbbo_reconstruction_uses_zero_new_network_calls(hc, monkeypatch):
+def test_nbbo_reconstruction_uses_zero_new_network_calls(hc, monkeypatch, tmp_path):
     """get_option_quote_hilo (the 3rd/independent quote endpoint) must NEVER be called by
     _execute -- if a future edit adds a real 3rd fetch for NBBO, this goes RED immediately."""
     import fleet_broker as fb
-    _wire_common_broker(hc, monkeypatch, mid=1.00, entry_px=1.08)
+    _wire_common_broker(hc, monkeypatch, tmp_path, mid=1.00, entry_px=1.08)
 
     def _boom(*a, **k):
         pytest.fail("_execute must not call get_option_quote_hilo -- NBBO is reconstructed "
@@ -130,6 +140,12 @@ def test_placed_entry_carries_nbbo_into_the_persisted_broker_row(hc, monkeypatch
     seq = {"n": 0}
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         if method == "POST":
             return {"id": "ord-nbbo-1", "status": "pending_new", "filled_qty": "0"}
         seq["n"] += 1
@@ -139,7 +155,7 @@ def test_placed_entry_carries_nbbo_into_the_persisted_broker_row(hc, monkeypatch
                 "filled_avg_price": "1.09"}
 
     monkeypatch.setattr(fb, "_request", fake_request)
-    _wire_common_broker(hc, monkeypatch, mid=1.00, entry_px=1.08)
+    _wire_common_broker(hc, monkeypatch, tmp_path, mid=1.00, entry_px=1.08)
     monkeypatch.setattr(hc, "STATE", tmp_path)
     monkeypatch.setattr(hc, "CORE_MANAGES_EXITS", True)
     _real_reconcile = hc._reconcile_fill
@@ -159,10 +175,10 @@ def test_placed_entry_carries_nbbo_into_the_persisted_broker_row(hc, monkeypatch
     json.dumps(plan["nbbo"])
 
 
-def test_no_premium_short_circuit_never_computes_nbbo(hc, monkeypatch):
+def test_no_premium_short_circuit_never_computes_nbbo(hc, monkeypatch, tmp_path):
     """No two-sided quote -> NO_PREMIUM, same as before this change; nbbo key absent
     (never a None-valued key masquerading as real telemetry)."""
-    _wire_common_broker(hc, monkeypatch, mid=0.0, entry_px=0.0)
+    _wire_common_broker(hc, monkeypatch, tmp_path, mid=0.0, entry_px=0.0)
     plan = hc._execute("safe", _verdict(), _payload(), SAFE_PARAMS, dry=True)
     assert plan["status"] == "NO_PREMIUM"
     assert "nbbo" not in plan

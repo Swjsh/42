@@ -245,7 +245,20 @@ def test_translation_table_pins_against_live_aggressive_params_json():
     assert agg["per_trade_risk_cap_pct"] == 0.50
     assert base["per_trade_risk_cap_pct"] == 0.50
 
-    assert "structure_veto_enabled" not in agg   # disclosed gap: no run_backtest kwarg exists
+    # DISCLOSED GAP: run_backtest has no structure_veto_enabled kwarg, so the Bold replay
+    # cannot honour that gate at all. This used to assert the key was ABSENT from Bold's
+    # params -- true until commit e486f92a stated it explicitly ("Bold ran veto-off by
+    # OMISSION"), after which the pin sat RED and stopped guarding anything.
+    #
+    # The property that actually matters is FIDELITY, not absence: the replay is faithful
+    # exactly while the live value is falsy, because the harness's implicit behaviour is
+    # veto-off. Restated that way, so the assertion RED-flags the case that would make the
+    # Bold replay silently wrong (someone arming the veto on Bold) instead of the harmless
+    # case of the key being written down.
+    assert not agg.get("structure_veto_enabled"), (
+        "Bold's live params now ARM structure_veto_enabled, but run_backtest has no kwarg "
+        "for it -- every Bold replay from this point would silently omit a live gate. Either "
+        "thread the kwarg through run_backtest or stop arming it on Bold.")
 
 
 def test_translation_table_differs_from_safe_where_documented():

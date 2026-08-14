@@ -292,6 +292,13 @@ _ALLOWLIST = {
     "strategy/candidates/_lesson-inbox/2026-07-14-ccr-boot-lockout.md",
     "markdown/doctrine/LESSONS-LEARNED.md",
     "CHANGELOG.md",
+    # Added 2026-08-14. Both are pure NARRATIVE of the 2026-07-14 incident -- the category
+    # this allowlist's own comment already sanctions -- and both post-date the list, so the
+    # scan had been RED (and therefore dead) since they landed. Verified by reading: the
+    # audit doc quotes the leaked settings line, and the memory mirror states the rule
+    # ("nothing routes through port 3456"). Neither wires anything.
+    "markdown/audits/OLLAMA-CCR-AUDIT-2026-07-14.md",
+    "memory-mirror/feedback_interactive_surfaces_never_gatewayed_2026_07_14.md",
 }
 
 _SCAN_EXCLUDE_DIR_PARTS = {

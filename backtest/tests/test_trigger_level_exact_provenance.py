@@ -43,6 +43,7 @@ for _p in (str(BACKTEST), str(ROOT), str(_SCRIPTS), str(_FLEET)):
         sys.path.insert(0, _p)
 
 from lib.engine.engine_cli import decide_payload  # noqa: E402
+from _broker_request_stub import broker_list_stub  # shared L294 contract
 
 SAFE_PARAMS_PATH = ROOT / "automation" / "state" / "params.json"
 SAFE_PARAMS = json.loads(SAFE_PARAMS_PATH.read_text(encoding="utf-8"))
@@ -175,6 +176,12 @@ def _wire_execute(hc, monkeypatch, tmp_path, register_entry_fn, *, mid=1.00,
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
         posts.append({"endpoint": endpoint, "method": method, "data": data})
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         return {"id": "ord-1", "status": "accepted"}
 
     monkeypatch.setattr(fb, "_request", fake_request)
@@ -249,12 +256,21 @@ def test_execute_trigger_level_exact_is_emission_only(hc, monkeypatch, tmp_path)
     qty/premium/tp/stop) is byte-identical whether or not the verdict carries
     rejection_level -- only the register_entry trigger_level kwarg differs. Proves this is
     a pure data-emission addition with zero effect on gate/scoring/sizing/placement."""
+    # SEPARATE STATE DIRS PER ARM OF THE COMPARISON (2026-08-14). Both calls place the same
+    # symbol for the same arm in the same minute, which the atomic entry claim shipped today
+    # (`_acquire_claim`, O_CREAT|O_EXCL) correctly refuses as a duplicate -- the second call
+    # returned SKIP_DUPLICATE_CLAIM and the byte-identical assertion failed on `status`.
+    # That is the guard working, not a regression: this test's subject is the A/B on
+    # rejection_level, so each arm gets its own claim namespace instead of racing itself.
+    without_dir, with_dir = tmp_path / "without", tmp_path / "with"
+    without_dir.mkdir(); with_dir.mkdir()
+
     captured_without: dict = {}
-    _wire_execute(hc, monkeypatch, tmp_path, lambda *a, **kw: captured_without.update(kw), mid=1.00)
+    _wire_execute(hc, monkeypatch, without_dir, lambda *a, **kw: captured_without.update(kw), mid=1.00)
     plan_without = hc._execute("safe", dict(_VERDICT), _payload([621.0]), SAFE_PARAMS, dry=False)
 
     captured_with: dict = {}
-    _wire_execute(hc, monkeypatch, tmp_path, lambda *a, **kw: captured_with.update(kw), mid=1.00)
+    _wire_execute(hc, monkeypatch, with_dir, lambda *a, **kw: captured_with.update(kw), mid=1.00)
     verdict_with = {**_VERDICT, "rejection_level": 622.5}
     plan_with = hc._execute("safe", verdict_with, _payload([621.0]), SAFE_PARAMS, dry=False)
 

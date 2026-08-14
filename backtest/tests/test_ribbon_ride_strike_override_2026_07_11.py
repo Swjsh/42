@@ -45,6 +45,7 @@ import types
 from pathlib import Path
 
 import pytest
+from _broker_request_stub import broker_list_stub, order_posts  # shared L294 contract
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -81,6 +82,12 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="25000.0",
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
         posts.append({"endpoint": endpoint, "method": method, "data": data})
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         return {"id": "ord-1", "status": "accepted"}
 
     monkeypatch.setattr(fb, "_request", fake_request)
@@ -158,7 +165,7 @@ class TestStrikeOverride:
         plan = hc._execute("safe", verdict, _PAYLOAD_25K, SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert plan["strike"] == 620, "ribbon_ride BEAR must trade ATM (validated cell)"
-        assert len(posts) == 1 and "order_class" not in posts[0]["data"]
+        assert len(order_posts(posts)) == 1 and "order_class" not in order_posts(posts)[0]["data"]
 
         off = dict(SAFE_PARAMS)
         off["j_ribbon_ride_strike_override_enabled"] = False
@@ -173,7 +180,7 @@ class TestStrikeOverride:
         plan = hc._execute("safe", verdict, _PAYLOAD_25K, SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert plan["strike"] == 620, "ribbon_ride BULL must trade ATM (validated cell)"
-        assert len(posts) == 1 and "order_class" not in posts[0]["data"]
+        assert len(order_posts(posts)) == 1 and "order_class" not in order_posts(posts)[0]["data"]
 
         off = dict(SAFE_PARAMS)
         off["j_ribbon_ride_strike_override_enabled"] = False

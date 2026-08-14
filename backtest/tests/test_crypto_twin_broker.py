@@ -22,6 +22,7 @@ sys.path.insert(0, str(REPO / "setup" / "scripts"))
 sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
 
 import crypto_twin_broker as ctb  # noqa: E402
+from _broker_request_stub import broker_list_stub  # shared L294 contract
 
 
 # --- creds loading ----------------------------------------------------------------------
@@ -57,6 +58,12 @@ def test_sell_qty_floors_never_rounds_up(monkeypatch):
     captured = {}
 
     def _fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         captured.update(data or {})
         return {"id": "x", "status": "accepted"}
     monkeypatch.setattr(ctb._fb, "_request", _fake_request)
@@ -70,6 +77,12 @@ def test_buy_qty_keeps_plain_rounding(monkeypatch):
     captured = {}
 
     def _fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         captured.update(data or {})
         return {"id": "x", "status": "accepted"}
     monkeypatch.setattr(ctb._fb, "_request", _fake_request)
@@ -179,6 +192,12 @@ def test_place_crypto_order_uses_gtc_time_in_force(monkeypatch):
     captured = {}
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         captured["data"] = data
         return {"id": "o1", "status": "accepted"}
 

@@ -229,6 +229,17 @@ class TestFillReconciliation:
         def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
             if method == "POST":          # the entry placement
                 return {"id": "ord-77", "status": "pending_new", "filled_qty": "0"}
+            # FIXTURE FIX 2026-08-14 (L294 sibling -- test_money_path.py's fake_request had
+            # the IDENTICAL defect and was repaired the same week). The 2026-08-02
+            # order-level idempotency guard queries `orders?status=open` and `positions`
+            # through open_buy_orders_checked / symbol_position_qty_checked, which fail
+            # CLOSED unless the response is a LIST. This stub returned an order DICT for
+            # every GET, so the guard reported ok=False and _execute returned
+            # SKIP_ORDER_QUERY_ERROR -- the test had been RED since that guard shipped,
+            # asserting nothing about reconciliation at all. A permanently-red guard is a
+            # dead guard (C7: a failing test nobody reads is indistinguishable from no test).
+            if endpoint.startswith("orders?") or endpoint.startswith("positions"):
+                return []                 # confirmed-empty: no pending BUY, no open position
             seq["n"] += 1                 # subsequent GET polls -> fills on 2nd read
             if seq["n"] == 1:
                 return {"id": "ord-77", "status": "pending_new", "filled_qty": "0"}

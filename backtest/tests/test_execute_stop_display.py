@@ -32,6 +32,7 @@ for _p in (str(BACKTEST), str(ROOT), str(_SCRIPTS), str(_FLEET)):
         sys.path.insert(0, _p)
 
 import pytest
+from _broker_request_stub import broker_list_stub, order_posts  # shared L294 contract
 
 SAFE_PARAMS_PATH = ROOT / "automation" / "state" / "params.json"
 SAFE_PARAMS = json.loads(SAFE_PARAMS_PATH.read_text(encoding="utf-8"))
@@ -80,6 +81,12 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, params, ea_fake,
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
         posts.append({"endpoint": endpoint, "method": method, "data": data})
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         return {"id": "ord-1", "status": "accepted"}
 
     monkeypatch.setattr(fb, "_request", fake_request)
@@ -146,8 +153,8 @@ def test_structure_mode_corrects_plan_stop_and_renders_display(hc, monkeypatch, 
         "must not still show the mid-anchored pre-resolution estimate"
 
     # RENDER-ONLY: the one broker POST is untouched -- no stop/tp key ever reaches the order
-    assert len(posts) == 1
-    data = posts[0]["data"]
+    assert len(order_posts(posts)) == 1
+    data = order_posts(posts)[0]["data"]
     assert "stop" not in data and "stop_loss" not in data and "order_class" not in data
 
 

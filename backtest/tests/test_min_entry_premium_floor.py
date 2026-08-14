@@ -26,6 +26,7 @@ import types
 from pathlib import Path
 
 import pytest
+from _broker_request_stub import broker_list_stub, order_posts  # shared L294 contract
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -150,6 +151,12 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, mid=1.00, equity="2000.0",
 
     def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
         posts.append({"endpoint": endpoint, "method": method, "data": data})
+
+        _lst = broker_list_stub(endpoint, method)
+
+        if _lst is not None:
+
+            return _lst  # collection endpoints must be LIST-shaped
         return {"id": "ord-1", "status": "accepted"}
 
     monkeypatch.setattr(fb, "_request", fake_request)
@@ -196,7 +203,7 @@ def test_core_execute_floor_passes_when_mid_above_floor(hc, monkeypatch, tmp_pat
     posts = _wire_execute(hc, monkeypatch, tmp_path, mid=1.00)
     plan = hc._execute("safe", _VERDICT, _PAYLOAD, SAFE_PARAMS, dry=False)
     assert plan["status"] == "PLACED", plan
-    assert len(posts) == 1
+    assert len(order_posts(posts)) == 1
 
 
 def test_core_execute_floor_absent_is_byte_identical(hc, monkeypatch, tmp_path):
@@ -207,7 +214,7 @@ def test_core_execute_floor_absent_is_byte_identical(hc, monkeypatch, tmp_path):
     posts = _wire_execute(hc, monkeypatch, tmp_path, mid=0.05)
     plan = hc._execute("safe", _VERDICT, _PAYLOAD, params_no_floor, dry=False)
     assert plan["status"] == "PLACED", plan
-    assert len(posts) == 1
+    assert len(order_posts(posts)) == 1
 
 
 def test_core_execute_floor_zero_is_byte_identical(hc, monkeypatch, tmp_path):
@@ -216,7 +223,7 @@ def test_core_execute_floor_zero_is_byte_identical(hc, monkeypatch, tmp_path):
     posts = _wire_execute(hc, monkeypatch, tmp_path, mid=0.05)
     plan = hc._execute("safe", _VERDICT, _PAYLOAD, params_off, dry=False)
     assert plan["status"] == "PLACED", plan
-    assert len(posts) == 1
+    assert len(order_posts(posts)) == 1
 
 
 def test_core_execute_bold_floor_rejects_sub_floor_mid(hc, monkeypatch, tmp_path):
