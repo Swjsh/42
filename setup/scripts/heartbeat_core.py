@@ -485,7 +485,28 @@ def _read_confluence_zones() -> "list | None":
         return None
 
 
-def _conviction_shadow(verdict: dict, bc: dict, account: str) -> "dict | None":
+def _sameday_structure_side(payload: dict) -> "str | None":
+    """C5's input: the same-day 5m structure trend, mapped to the side that AGREES with it.
+
+    Reuses `engine_cli._classify_sameday_5m` -- the SAME classifier the live structure veto
+    consults -- rather than a second implementation, so the shadow component can never disagree
+    with the gate that actually blocks trades. Deliberately NOT wired through the engine's
+    return payload: that is a shared contract with replay-parity tests, and this is a
+    shadow-only telemetry need.
+
+    'range' and 'unknown' map to None -> C5 DEGRADES, which is correct: no structural opinion
+    is not the same as a structural disagreement, and `_veto_side` treats both as no-veto.
+    Any failure returns None (fail-open); conviction is disarmed, so None costs nothing.
+    """
+    try:
+        from backtest.lib.engine.engine_cli import _classify_sameday_5m
+        trend = _classify_sameday_5m(payload.get("sameday_5m_bars"))
+        return {"uptrend": "C", "downtrend": "P"}.get(str(trend))
+    except Exception:  # noqa: BLE001 -- a shadow input must never break a tick
+        return None
+
+
+def _conviction_shadow(verdict: dict, payload: dict, account: str) -> "dict | None":
     """PHASE A — SHADOW ONLY. Compute the conviction score for an ENTER verdict and return it
     for the ledger row. NOTHING reads this to make a decision; there is no SKIP_LOW_CONVICTION
     branch yet, by design (blocking ships only after the frozen F1-F4 gates clear).
@@ -498,12 +519,25 @@ def _conviction_shadow(verdict: dict, bc: dict, account: str) -> "dict | None":
         side = str(verdict.get("side") or "")[:1].upper()
         if side not in ("C", "P"):
             return None
+        # Everything below runs ONLY for a sided verdict, so the structure classification is
+        # lazy by construction -- no swing-point pass on the ~99% of ticks that HOLD.
+        bc = payload["bar_ctx"]
         spy = float(bc["bar"]["close"])
-        # envelope = today's window high/low as the engine already saw it (no look-ahead:
-        # bars_prior is the scoring history THROUGH the trigger bar).
-        bars = bc.get("bars_prior") or []
-        hi = max((float(b["high"]) for b in bars), default=None)
-        lo = min((float(b["low"]) for b in bars), default=None)
+        # ROOT CAUSE OF C4's 102/102 DEGRADATION (found + fixed 2026-08-14). This read
+        # `bc.get("bars_prior")`, but build_bar_context writes that history under
+        # **"prior_bars"** -- the key was transposed, so `bars` was ALWAYS [], hi/lo were
+        # ALWAYS None, and range_extreme degraded on every single tick since birth. Proof it
+        # was never once satisfied: `range_position` is written only on the non-degraded
+        # branch, and it appears in 0 of 102 conviction rows on disk. Pure C14 dead-knob --
+        # and the SECOND one in this component's short life (the `startswith("shelf")` branch
+        # in conviction.py was the first, 2026-08-12). A transposed key is invisible to a
+        # test that only asserts "the row exists".
+        #
+        # SECOND DEFECT, fixed in the same pass: max/min over prior_bars would have been a
+        # ~1.9-SESSION range (the window is 150 x 5m bars), not today's. C4 means intraday
+        # location, so the producer now computes a session-scoped envelope with timestamps it
+        # actually has. Fixing only the key would have silently scored a different concept.
+        hi, lo = bc.get("session_high"), bc.get("session_low")
         k = 0
         try:
             import settlement_ledger as _sl
@@ -527,7 +561,7 @@ def _conviction_shadow(verdict: dict, bc: dict, account: str) -> "dict | None":
             level_states=bc.get("level_states"),
             trigger_close=spy,
             envelope_high=hi, envelope_low=lo,
-            structure_side=None,   # C5 not yet threaded off engine_cli -> degrades, by design
+            structure_side=_sameday_structure_side(payload),   # C5 threaded 2026-08-14
             confluence_zones=_read_confluence_zones(),
             k=k)
         out = res.to_dict()
@@ -733,6 +767,17 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
         _fh = df[(_dt.dt.date == _tt.date()) & (_dt.dt.time >= time(9, 30)) & (_dt.dt.time <= time(9, 55))]
         if len(_fh):
             fhh = round(float(_fh["high"].max()), 2)
+    # SESSION ENVELOPE (added 2026-08-14) — the trigger DAY's high/low through the trigger bar.
+    # Consumed ONLY by _conviction_shadow's C4 range_extreme (shadow-only surface). Computed
+    # here because bar_ctx["prior_bars"] carries no timestamps, and the 150-bar window spans
+    # ~1.9 RTH sessions — so a max/min over prior_bars is a MULTI-DAY range, which is not what
+    # C4 means. C4's whole purpose is intraday location ("puts want the TOP of the envelope,
+    # calls the BOTTOM"), so a 2-day envelope would score a different concept under the same
+    # name. Causal: sliced to :trig_idx+1 before any aggregation (C6).
+    _sess = win.iloc[: trig_idx + 1]
+    _sess = _sess[pd.to_datetime(_sess["timestamp"]).dt.date == _tt.date()]
+    session_hi = round(float(_sess["high"].max()), 4) if len(_sess) else None
+    session_lo = round(float(_sess["low"].min()), 4) if len(_sess) else None
     # level_states: replay orchestrator._update_level_states over the window THRU the trigger
     # bar (no look-ahead) so filter-10 sequence_rejection/reclaim see the same role+bounce_history.
     # Uses `active` (NOT multi) + fhh = orchestrator effective_levels. WINDOW-TRUNCATION CAVEAT:
@@ -747,6 +792,7 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
         "bar": {"open": float(trig["open"]), "high": float(trig["high"]), "low": float(trig["low"]),
                 "close": spy, "volume": float(trig["volume"])},
         "prior_bars": prior,
+        "session_high": session_hi, "session_low": session_lo,
         "ribbon_now": ribbon_now,
         "ribbon_history": ribbon_series[max(0, trig_idx - 3):trig_idx + 1],
         "vix_now": vix_now, "vix_prior": vix_prior,
@@ -1330,7 +1376,7 @@ def run_account(account: str, core_tick_id: str | None = None) -> dict:
            # The positive-evidence axis the engine never had (its scores count absent
            # objections: bear_score = 10 - len(blockers)). None on non-ENTER rows.
            # Blocking (SKIP_LOW_CONVICTION) ships only after the frozen F1-F4 gates clear.
-           "conviction": _conviction_shadow(verdict, bc, account),
+           "conviction": _conviction_shadow(verdict, payload, account),
            # WHY-NOT PROVENANCE (2026-07-27, TRIGGER-BLINDNESS). LOGGED ONLY, additive.
            #
            # THE INCIDENT: on 2026-07-27 the engine detected J's setup perfectly at 09:40
