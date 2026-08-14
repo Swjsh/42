@@ -1960,7 +1960,7 @@ def _capture_greeks(creds: dict, symbol: str, *, fetch=None) -> dict:
 # verbatim, not reinvented), same SKIP_* vocabulary -- one mental model covers both lanes;
 # grep either symbol name and find both implementations side by side. This is a SEPARATE
 # small implementation of the claim-file half (not a cross-import of fleet_live's own
-# module-private _claim_active/_write_claim): fleet_broker.py's two checked primitives are
+# module-private _claim_active/_acquire_claim): fleet_broker.py's two checked primitives are
 # the genuinely shared/public layer both lanes call into; the claim file is per-caller local
 # state, and each lane owns its own copy the same way exit_actuator.py owns its own
 # (differently-scoped) same_bar_cooldown_active claim file rather than a caller reaching into
@@ -2010,16 +2010,63 @@ def _claim_active(arm_id: str, symbol: str, now: datetime,
         return False
 
 
-def _write_claim(arm_id: str, symbol: str, now: datetime) -> None:
-    """Reserve the entry claim BEFORE the broker POST. Best-effort/fail-safe: a write error
-    here must never abort an otherwise-clean entry -- the broker-side open-orders check on
-    the NEXT tick remains the backstop if this local marker is lost."""
+def _acquire_claim(arm_id: str, symbol: str, now: datetime,
+                   ttl_sec: float = ENTRY_CLAIM_TTL_SEC) -> bool:
+    """ATOMICALLY reserve the entry claim BEFORE the broker POST. True iff THIS process now
+    holds the claim; False means another live process holds a fresh one and the caller MUST
+    NOT place.
+
+    2026-08-14 FIX (double-entry scar). The old shape was check-then-write: _claim_active()
+    early in _execute, then a blind best-effort _write_claim here. On wake-from-sleep the
+    scheduled tick (09:46:02) and the healer's re-fire (09:46:06) both passed the check
+    before either wrote -- two distinct client_order_ids 21ms apart, safe-2 filled 6
+    contracts instead of 3, bold-2 10 instead of 5 (~-$371 of the day's -$1,569).
+    os.open(O_CREAT|O_EXCL) hands the arbitration to the kernel: exactly one winner, the
+    loser gets FileExistsError and refuses. The race window is not smaller -- it is gone.
+
+    A fresh claim for a DIFFERENT symbol also refuses: one in-flight entry per arm at a
+    time (deliberately stricter than the old per-symbol scope -- two different-symbol
+    entries 21ms apart on one arm is the same accident in a disguise). Stale (> ttl) or
+    corrupt claims are removed and the exclusive create retried ONCE; if two processes both
+    remove-and-retry, O_EXCL still picks one winner.
+
+    Unexpected OSErrors (permissions, disk) keep the module's documented fail-open
+    contract and proceed -- the broker-side checked queries remain the fail-CLOSED
+    authority."""
+    path = _claim_path(arm_id)
+    payload = json.dumps({"symbol": symbol, "claimed_at_et": now.isoformat()}).encode("utf-8")
+
+    def _try_excl() -> "bool | None":
+        try:
+            fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return None          # another process holds the file
+        try:
+            os.write(fd, payload)
+        finally:
+            os.close(fd)
+        return True
+
     try:
-        _claim_path(arm_id).write_text(
-            json.dumps({"symbol": symbol, "claimed_at_et": now.isoformat()}),
-            encoding="utf-8")
+        if _try_excl():
+            return True
+        # File exists. Fresh claim (any symbol) -> refuse; stale/corrupt -> remove + retry once.
+        try:
+            rec = json.loads(path.read_text(encoding="utf-8"))
+            claimed_at = datetime.fromisoformat(str(rec["claimed_at_et"]))
+            if claimed_at.tzinfo is None:
+                claimed_at = claimed_at.replace(tzinfo=now.tzinfo)
+            if (now - claimed_at).total_seconds() <= ttl_sec:
+                return False
+        except (OSError, ValueError, KeyError):
+            pass                 # unreadable/corrupt counts as stale
+        try:
+            os.remove(str(path))
+        except OSError:
+            pass
+        return bool(_try_excl())  # None = lost the recreate race -> False
     except OSError:
-        pass
+        return True              # documented fail-open; broker-side checks stay fail-CLOSED
 
 
 def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: bool) -> dict:
@@ -2249,7 +2296,7 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
         plan["entry_px"] = entry_px
         return plan
     # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02) -- see the module comment above this
-    # function's helpers (ENTRY_CLAIM_TTL_SEC / _claim_path / _claim_active / _write_claim)
+    # function's helpers (ENTRY_CLAIM_TTL_SEC / _claim_path / _claim_active / _acquire_claim)
     # for the full design rationale. Every return below is a SKIP row: this block is reached
     # only on the ENTRY path (both the primary ribbon ENTER_* branch and the G4 extra-setup
     # route funnel through this SAME _execute -- see run_account/_route_extra_setups), never
@@ -2301,9 +2348,13 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
             plan["status"] = "SKIP_CANCEL_RACED_FILL"
             plan["detail"] = f"{symbol} shows {held_qty} filled contract(s) -- cancel raced a fill"
             return plan
-    # Reserve the claim BEFORE the broker POST (defense in depth, independent of the
-    # broker's own propagation timing -- see LAYER 1 above).
-    _write_claim(arm, symbol, _now_exec)
+    # ATOMIC claim acquire BEFORE the broker POST -- the kernel picks exactly one winner
+    # (2026-08-14 wake-storm double entry; see _acquire_claim). Placement now REQUIRES
+    # holding the claim; a blind write here is the bug, not a backstop.
+    if not _acquire_claim(arm, symbol, _now_exec):
+        plan["status"] = "SKIP_DUPLICATE_CLAIM"
+        plan["detail"] = f"another live process holds {arm}'s entry claim -- refusing to place"
+        return plan
     res = _place_simple_entry(creds, symbol=symbol, qty=qty, limit_price=entry_px)
     plan["status"] = "PLACED" if not res.get("_error") and not res.get("_refused") else "PLACE_FAIL"
     plan["broker"] = res
