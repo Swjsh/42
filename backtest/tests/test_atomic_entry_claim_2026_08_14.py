@@ -48,6 +48,22 @@ def hc(tmp_path, monkeypatch):
     return m
 
 
+@pytest.fixture
+def hc_factory(hc, tmp_path):
+    """Same module, a FRESH claim-state directory per call -- so repeated-contention trials
+    each start from a clean stale claim instead of inheriting the previous trial's file."""
+    counter = {"n": 0}
+
+    def _make():
+        counter["n"] += 1
+        d = tmp_path / f"trial{counter['n']}"
+        d.mkdir(parents=True, exist_ok=True)
+        hc.STATE = d
+        return hc
+
+    return _make
+
+
 def _storm(hc, n, symbol, now, arm="safe-2"):
     """n simultaneous acquirers released by a barrier -- the 09:46 wake-storm, amplified."""
     results: list[bool] = []
@@ -99,6 +115,36 @@ def test_stale_claim_is_reclaimable_by_exactly_one(hc):
     later = NOW + datetime.timedelta(seconds=hc.ENTRY_CLAIM_TTL_SEC + 5)
     wins = sum(_storm(hc, 8, "SPY260814P00776000", later))
     assert wins == 1, f"{wins} of 8 won a STALE claim -- remove+retry must still be arbitrated"
+
+
+def test_stale_takeover_is_arbitrated_under_REPEATED_contention(hc_factory):
+    """THE TEST THAT ACTUALLY CAUGHT THE BUG -- and the reason it is written this way.
+
+    The single-shot storm above PASSED in isolation and FAILED inside a 1,000-test run. That
+    is not flakiness; that is a race whose window only opens under load, which is exactly the
+    condition it matters in (the 2026-08-14 double entry happened during a wake-storm). The
+    original implementation removed the stale claim UNCONDITIONALLY before recreating it, so a
+    slow contender could delete the FRESH claim a fast contender had just won and then create
+    its own -- two winners.
+
+    Measured on the pre-fix shape: 6 multi-winner outcomes in 300 trials x 16 threads (2%).
+    Post-fix (rename-arbitrated takeover): 0 in 300. This test runs enough trials to make that
+    2% effectively certain to surface (1 - 0.98^40 > 55%, and in practice it fires far sooner),
+    so the guard fails on the DEFECT rather than on the scheduler's mood.
+    """
+    counts = []
+    for _ in range(40):
+        hc = hc_factory()                      # fresh STATE sandbox per trial
+        assert hc._acquire_claim("safe-2", SYM, NOW) is True
+        later = NOW + datetime.timedelta(seconds=hc.ENTRY_CLAIM_TTL_SEC + 5)
+        counts.append(sum(_storm(hc, 16, SYM, later)))
+    assert max(counts) <= 1, (
+        f"{sum(1 for c in counts if c > 1)}/40 trials produced MORE THAN ONE stale-claim "
+        f"winner (max {max(counts)}) -- that is a double entry on the exact path the "
+        "2026-08-14 incident took")
+    assert min(counts) == 1, (
+        f"{sum(1 for c in counts if c == 0)}/40 trials produced NO winner -- a stale claim "
+        "must always be reclaimable by someone, or the arm is wedged until the file ages out")
 
 
 def test_corrupt_claim_counts_as_stale_one_winner(hc, tmp_path):

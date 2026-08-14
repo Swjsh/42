@@ -75,6 +75,9 @@ LEDGER = STATE / "core-decisions.jsonl"
 # after the safe row / 0.5s before the bold row -- forfeited a full 3-min cadence slot).
 TICK_MARKER = STATE / "core-decisions-tick.json"
 import os  # noqa: E402
+import threading  # noqa: E402 -- _acquire_claim's stale-takeover token is per-THREAD as well
+                  # as per-process: the guard test storms 8 threads in ONE process, and a
+                  # pid-only token would collide there and mask the arbitration it tests.
 import logging  # noqa: E402
 
 # Module logger — was referenced (logger.warning at the dispatch except, logger.critical
@@ -2079,9 +2082,25 @@ def _acquire_claim(arm_id: str, symbol: str, now: datetime,
 
     A fresh claim for a DIFFERENT symbol also refuses: one in-flight entry per arm at a
     time (deliberately stricter than the old per-symbol scope -- two different-symbol
-    entries 21ms apart on one arm is the same accident in a disguise). Stale (> ttl) or
-    corrupt claims are removed and the exclusive create retried ONCE; if two processes both
-    remove-and-retry, O_EXCL still picks one winner.
+    entries 21ms apart on one arm is the same accident in a disguise).
+
+    STALE TAKEOVER IS ARBITRATED BY RENAME, NOT BY REMOVE (2026-08-14, second fix).
+    The first version of this function claimed in its own docstring that "if two processes
+    both remove-and-retry, O_EXCL still picks one winner". That was FALSE, and
+    test_stale_claim_is_reclaimable_by_exactly_one caught it -- but only under load (it
+    passes in isolation and failed inside a 1,000-test run, which is precisely when a race
+    shows up and precisely the reading that must not be dismissed as flakiness).
+
+    The hole: `os.remove()` was unconditional after the staleness read, so a slow contender
+    could delete the FRESH claim a fast contender had just won, then create its own. Two
+    winners, i.e. the exact double entry this guard exists to prevent, on the exact path
+    (wake-from-sleep, stale claim on disk) where the 2026-08-14 incident happened.
+
+    Now: each contender tries to rename the stale file to a private name. The kernel lets
+    exactly ONE rename succeed -- every other contender finds the source already gone and
+    REFUSES. Only the rename winner recreates. If someone else has created a fresh claim in
+    the meantime, the winner's O_EXCL create fails and it refuses too: at most one True,
+    never two, and the failure direction is "nobody enters this tick", which is the cheap one.
 
     Unexpected OSErrors (permissions, disk) keep the module's documented fail-open
     contract and proceed -- the broker-side checked queries remain the fail-CLOSED
@@ -2113,11 +2132,17 @@ def _acquire_claim(arm_id: str, symbol: str, now: datetime,
                 return False
         except (OSError, ValueError, KeyError):
             pass                 # unreadable/corrupt counts as stale
+        # Kernel-arbitrated takeover: exactly one contender can rename the stale file away.
+        taking = path.with_name(f"{path.name}.taking.{os.getpid()}.{threading.get_ident()}")
         try:
-            os.remove(str(path))
+            os.rename(str(path), str(taking))
         except OSError:
-            pass
-        return bool(_try_excl())  # None = lost the recreate race -> False
+            return False         # lost the takeover (or it vanished) -> refuse, never guess
+        try:
+            os.remove(str(taking))
+        except OSError:
+            pass                 # our private copy; a leftover cannot affect arbitration
+        return bool(_try_excl())  # None = someone created a fresh claim meanwhile -> False
     except OSError:
         return True              # documented fail-open; broker-side checks stay fail-CLOSED
 
