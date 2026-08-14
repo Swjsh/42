@@ -386,3 +386,5 @@ When starting any item:
 1. Move from this file to an active task in `automation/state/research-queue.json`
 2. Create matching CLAUDE.md operating principle if it changes doctrine
 3. Update CHANGELOG.md row
+
+- **[2026-08-14] ENTRY-QUALITY program** — the engine's scores admit, nothing ranks; full diagnosis + 8-item ordered workplan + traps ledger: [`ENTRY-QUALITY-HANDOFF-2026-08-14.md`](ENTRY-QUALITY-HANDOFF-2026-08-14.md). Re-arm of equity-scaled sizing is gated on it.
