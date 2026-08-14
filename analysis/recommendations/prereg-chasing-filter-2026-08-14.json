@@ -1,0 +1,80 @@
+{
+ "prereg_id": "CHASING-FILTER-2026-08-14",
+ "frozen_at_et": "2026-08-14 18:50:04 EDT",
+ "frozen_at_et_source": "setup/scripts/et_clock.py",
+ "frozen_at_git_head": "920db576",
+ "frozen_before_any_runner": true,
+ "status": "FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.",
+
+ "origin": "Handoff item N5 (markdown/planning/ENTRY-QUALITY-HANDOFF-2026-08-14.md). Deep review 2026-08-13: event C is ONE option price path peaking at 1.20, entered by three arms at 0.97 / 1.13 / 1.14. The resulting MFE spread (+23.7% / +6.2% / +5.3%) is 17.5% of entry-price dispersion, NOT three different signal qualities. No guard anywhere refuses an option that has already run away from the price the trigger fired at.",
+
+ "the_hypothesis": "Entry EXECUTION quality is a separate axis from setup quality. An option bought materially above its premium at the trigger bar has strictly worse expectancy than the same setup bought at or near the trigger-bar premium, because the buyer pays for move that has already happened and inherits a worse stop distance on the identical chart invalidation.",
+
+ "why_this_is_worth_testing_when_two_entry_studies_just_returned_nothing": "ENTRY-LOCATION-GATE and ENTRY-RANGE-CONTEXT both tested SETUP context and both failed. This tests EXECUTION, which is a different variable and is the one the 08-13 forensics actually isolated: same setup, same minute, same strike, three prices. That is a within-event comparison, so it is not vulnerable to the cross-day confounds that killed the other two.",
+
+ "THE_BLOCKER_STATED_UP_FRONT": {
+  "what": "Trigger-bar option premium is NOT in any existing population. analysis/recommendations/engine-fullhist-replay-2026-07-23.json carries entry_premium only. The options BARS endpoint returns 403 OPRA agreement is not signed (handoff N8, J action item). The options TRADES endpoint works but only with `end` omitted, i.e. one unbounded pull per contract.",
+  "consequence": "G0 below is a hard gate. If trigger-bar premium cannot be reconstructed for n>=30 trades, this prereg reports NOT-RUN and nothing else. It does not silently fall back to a proxy.",
+  "explicitly_forbidden_fallback": "Using SPY's own move from trigger bar to entry bar as a stand-in for the option's move. That is a DIFFERENT hypothesis (C3: SPY-price edge is not option edge; delta and theta break the mapping). If it is tested it is tested as its own labelled family with its own name, never as a substitute that inherits this prereg's conclusions."
+ },
+
+ "population": {
+  "primary": "engine-fullhist-replay-2026-07-23 trades (n=191 raw), restricted to trades whose trigger-bar option premium is reconstructible from OPRA trade prints.",
+  "unit": "one round trip = one row. Same-event fan-out across arms is NOT deduplicated here BECAUSE the within-event price spread IS the variable under test. This is the one study where the fan-out is signal rather than pseudo-replication -- and it is therefore reported with its event count alongside its row count, always both.",
+  "forward": "setup/scripts/entry_location_shadow.py already logs entry premium per fill; a trigger-bar premium field is added there ONLY after this prereg's G0 resolves, so the shadow ledger's schema does not churn on an untested idea."
+ },
+
+ "feature_definition_causal": {
+  "trigger_bar": "the 5-minute bar whose CLOSE produced the ENTER decision -- the bar strictly BEFORE the entry bar. Never the entry bar itself (C6).",
+  "trigger_bar_premium": "last OPRA print of the traded contract at or before the trigger bar's close timestamp. If no print exists in the 5 minutes ending at that close, the trade is EXCLUDED, not interpolated.",
+  "chase_ratio": "entry_premium / trigger_bar_premium",
+  "note": "chase_ratio is undefined, not 1.0, when trigger_bar_premium is missing. A missing denominator must never become a passing row."
+ },
+
+ "cells_preregistered": {
+  "thresholds": [1.10, 1.15, 1.25],
+  "sides": ["C", "P"],
+  "subsets": ["all", "first-arm-only"],
+  "total_cells": 12,
+  "first_arm_only_rationale": "The first arm into an event is by construction the least-chased. Reporting it separately prevents the gate from being scored purely as `prefer whichever arm was fastest`, which is an execution-latency finding wearing a signal-quality costume.",
+  "all_cells_reported": true
+ },
+
+ "metrics": {
+  "primary": "delta in mean dollar P&L per trade, gated cohort vs kept cohort",
+  "test": "two-sided permutation, 20000 iterations",
+  "multiple_comparisons": "Benjamini-Hochberg FDR at q=0.10 across ALL measured cells in one family. A cell that is significant uncorrected and not after correction is reported as NOT SURVIVING, in those words.",
+  "mandatory_columns": ["n_gated", "n_events_gated", "gated_mean", "kept_mean", "blocked_winners_n", "blocked_winner_dollars", "book_delta_if_gated"],
+  "win_rate": "EXPLORATORY ONLY, outside the FDR family, cannot support a decision. Same treatment as the location study."
+ },
+
+ "validity_gates": {
+  "G0_data_availability": "HARD GATE. n>=30 trades with a defined chase_ratio, or the verdict is NOT-RUN and no cell is interpreted. Report how many trades were excluded and why.",
+  "G1_floor": "no cell with n_gated < 30 is interpreted; it reports NOT-RUN.",
+  "G2_binds": "gated counts must be monotone non-decreasing as the threshold loosens 1.25 -> 1.15 -> 1.10, or the feature is mis-wired (C14).",
+  "G3_blocked_winner_pricing": "every cell prices what the gate would have thrown away, in dollars. A gate that blocks more winner-dollars than loser-dollars is a LOSS regardless of its p-value (C20 -- this is exactly how ENTRY-LOCATION-GATE's prox<=0.30 cell was caught).",
+  "G4_event_confound": "report n_events alongside n_trades in every cell. If a cell's gated rows come from fewer than 5 distinct events, it is NOT-RUN no matter how many rows it has.",
+  "G5_latency_confound": "if the effect exists in `all` but vanishes in `first-arm-only`, the verdict is CONFOUNDED-WITH-ARM-LATENCY and the correct fix is an execution fix (order routing / limit price), NOT an entry gate.",
+  "G6_read_only": "the runner arms nothing, writes no params, and touches no live state."
+ },
+
+ "ship_rule": "Nothing ships from this prereg alone. A surviving cell earns: (1) a shadow field on live entries, (2) >=15 live sessions of accrual, (3) a re-test on the forward population, and only then a proposal. min_contracts_equity_scaled stays disarmed regardless -- its re-arm condition is a VALIDATED gate, and validated means forward-validated.",
+
+ "declared_expectation_recorded_before_running": "NOT-RUN on G0, most likely -- the OPRA blocker is real and the reconstruction cost is high. If it does run, the honest prior is that the effect is REAL BUT SMALL and mostly an execution problem (G5 fires), because the mechanism is arithmetic rather than statistical: paying 17.5% more for the same contract is a worse trade by construction. The trap is that arithmetic certainty tempts one to skip the evidence, and the 08-13 event C spread is n=1 event.",
+
+ "what_would_make_me_recommend_nothing": [
+  "G0 fails -> NOT-RUN, say so plainly, do not proxy.",
+  "G5 fires -> route the finding to execution, not to a gate.",
+  "blocked winner dollars exceed blocked loser dollars at any surviving threshold.",
+  "fewer than 5 distinct events behind any cell."
+ ],
+
+ "provenance": {
+  "handoff": "markdown/planning/ENTRY-QUALITY-HANDOFF-2026-08-14.md item N5",
+  "deep_review": "analysis/deep-research/DEEP-REVIEW-2026-08-13-MULTIAGENT.md (event C entry-price spread)",
+  "sibling_studies_that_returned_nothing": [
+   "analysis/recommendations/ENTRY-LOCATION-GATE-2026-08-14.md (NULL + refuted by its own anchors)",
+   "analysis/recommendations/ENTRY-RANGE-CONTEXT-2026-08-14.md (NOT-RUN, all 16 cells)"
+  ]
+ }
+}

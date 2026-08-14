@@ -141,8 +141,16 @@ correct.
 
 ## EXHIBIT — 2026-08-13 live fills (added post-close of the trade, same day)
 
+> **`evidence_n = 1`** (stamped 2026-08-14 per deep-review tonight-item #3, C4 disclosure).
+> The four rows below are **one signal event fanned across four arms** — identical
+> `core_tick_id`, same strike, same minute. They are four *executions* of one observation, not
+> four observations. Nothing in this exhibit is a sample size; it is a worked example of the
+> algebra in §1, which is what carries the argument. The day's own honest unit is **5 events**
+> (not 15 round trips), and this is one of them.
+
 `BULLISH_RECLAIM_RIDE_THE_RIBBON`, SPY260813C00777000, entered 09:51 ET, fully flat 10:42 ET.
-Book **+$1,619**. All figures below are broker fills, not replay.
+These four arms **+$1,619**; the full event including risky-3's 779C leg is **+$1,985**.
+All figures below are broker fills, not replay.
 
 | arm | Q | cost | tranche 1 | runner | total | **cost recovered at** |
 |---|---|---|---|---|---|---|
