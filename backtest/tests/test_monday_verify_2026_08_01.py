@@ -708,13 +708,33 @@ def test_run_all_against_real_repo_state_never_raises():
         assert isinstance(c["observed"], str) and c["observed"]
 
 
-def test_run_all_friday_2026_07_31_matches_documented_flicker_numbers():
+def test_run_all_friday_2026_07_31_matches_documented_flicker_numbers(monkeypatch):
     """Cross-validates check_ws3's flip-counting logic against the REAL numbers published in
     LEVEL-FLICKER-FIX-2026-08-01.md (743.25: present 331/386, 14 flips) -- an independent
-    re-derivation from the raw ledger, not a copy of the doc's own claim."""
+    re-derivation from the raw ledger, not a copy of the doc's own claim.
+
+    TAIL WIDENED 2026-08-15. Production reads a bounded 4MB tail of core-decisions.jsonl,
+    which was ample when this was written and is now 6.9% of a 60MB ledger -- Friday
+    2026-07-31 sits at byte ~31M, far outside it, so the check returned NOT_EXERCISED with an
+    empty detail and the test died on KeyError: 'n_ticks'. Nothing regressed in the
+    flip-counting logic; the ledger outgrew the window. Production is UNAFFECTED (monday_verify
+    runs on Monday against the Friday that just happened, always inside 4MB).
+
+    Widened rather than frozen to a fixture because the rows are still there and this ledger
+    has no rotation (it runs unbroken from 2026-06-25; only watcher-observations is archived),
+    and because reading the REAL ledger is the property this test exists for. If core-decisions
+    ever does get a retention cap (OP-22 says every append-only producer eventually should),
+    this fails loudly with the message below -- freeze the 772 rows to a fixture at that point.
+    """
     mv = _mv()
+    monkeypatch.setattr(mv, "CORE_TAIL_BYTES", 256 * 1024 * 1024)
     result = mv.check_ws3_level_hysteresis("2026-07-31")
     detail = result["detail"]
+    assert detail, (
+        "2026-07-31 has no rows in core-decisions.jsonl even reading the whole file -- the "
+        "ledger has been pruned/rotated. Freeze that day's 772 rows into "
+        "backtest/tests/fixtures/ and point this test at them, as the trade_today_watcher "
+        "attribution guards do.")
     assert detail["n_ticks"] == 386
     row = detail["per_level"].get("743.25")
     assert row is not None, "743.25 must appear in Friday's real per-level stats"

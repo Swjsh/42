@@ -415,26 +415,36 @@ def test_latest_dated_file_none_when_no_match(tmp_path):
 def test_fetch_eod_flatten_reality_reads_real_tmp_files(tmp_path, monkeypatch):
     """Bite test: write real files in the exact on-disk convention (separate LLM .log for
     safe/aggressive + eod_flatten.py's .jsonl for Core) and confirm the fetcher parses all 3
-    without any mocking of the parsing logic itself."""
+    without any mocking of the parsing logic itself.
+
+    CLOCK-RELATIVE since 2026-08-15. This pinned the literal date 2026-07-08, which was
+    recent when written and then aged past EOD_FLATTEN_MAX_AGE_DAYS (6). The fetcher's
+    staleness gate correctly dropped all three entries and the test died on
+    KeyError: 'Gamma_EodFlatten' -- a FRESHNESS test that had itself gone stale. The gate is
+    right; the fixture was wrong to be absolute. Dated off the real ET clock (the convention
+    this file already uses for the canary fixtures below), so it cannot rot again. The stale
+    path stays covered by test_fetch_eod_flatten_reality_drops_stale_entries.
+    """
     monkeypatch.setattr(por, "LOG_DIR", tmp_path)
-    (tmp_path / "eod-flatten-2026-07-08.log").write_text(
-        "2026-07-08 15:55:04 ET === START tick ===\n2026-07-08 15:55:20 ET === END tick exit=0 ===\n",
+    day = _et_now().date().isoformat()
+    (tmp_path / f"eod-flatten-{day}.log").write_text(
+        f"{day} 15:55:04 ET === START tick ===\n{day} 15:55:20 ET === END tick exit=0 ===\n",
         encoding="utf-8",
     )
-    (tmp_path / "eod-flatten-aggressive-2026-07-08.log").write_text(
-        "2026-07-08 15:55:04 ET === START tick ===\n2026-07-08 15:55:20 ET === END tick exit=0 ===\n",
+    (tmp_path / f"eod-flatten-aggressive-{day}.log").write_text(
+        f"{day} 15:55:04 ET === START tick ===\n{day} 15:55:20 ET === END tick exit=0 ===\n",
         encoding="utf-8",
     )
-    (tmp_path / "eod-flatten-2026-07-08.jsonl").write_text(
+    (tmp_path / f"eod-flatten-{day}.jsonl").write_text(
         json.dumps({"arm": "safe-2", "outcome": "NOOP"}) + "\n"
         + json.dumps({"arm": "bold-2", "outcome": "NOOP"}) + "\n",
         encoding="utf-8",
     )
 
     out = por.fetch_eod_flatten_reality()
-    assert out["Gamma_EodFlatten"]["date"] == "2026-07-08"
+    assert out["Gamma_EodFlatten"]["date"] == day
     assert "exit=0" in out["Gamma_EodFlatten"]["text"]
-    assert out["Gamma_EodFlatten_Aggressive"]["date"] == "2026-07-08"
+    assert out["Gamma_EodFlatten_Aggressive"]["date"] == day
     assert {r["arm"] for r in out["Gamma_EodFlattenCore"]["rows"]} == {"safe-2", "bold-2"}
 
     checks = por.assess_eod_flatten_reality(out)

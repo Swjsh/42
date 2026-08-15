@@ -1,7 +1,7 @@
 {
   "_doc": "P5-HARD-GATE waiver registry (ground rule 10, HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX). A shape listed here satisfies the P5 gate (setup/scripts/p5_shape_gate.py + test_p5_shape_gate.py) WITHOUT being a mass-grind-phase5-summary.json survivor. j_signed=false => PROVISIONAL: the shape was ALREADY live before the gate existed; the waiver keeps the guard green (no hard-RED on a pre-existing shape) while surfacing it LOUDLY for J to sign, replace, or retire. j_signed=true requires an explicit J decision (OP-0). NEVER hand-add a signed waiver on J's behalf.",
   "schema": "p5-waivers-v1",
-  "updated": "2026-07-09",
+  "updated": "2026-08-15",
   "waivers": [
     {
       "strategy": "ribbon_ride",
@@ -35,6 +35,17 @@
       "justification_j_signed": "J directive 2026-07-09 ~00:30 ET ('I'm not the gatekeeper. If it improves the engine it ships. That's an OP.') + the 2026-07-07 all-5-gates-PASS scorecard (analysis/recommendations/vwapcont-exit-ab-ship-gate.json) + T-W6 provenance investigation (markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md). STOP-B disposition: analysis/recommendations/entry-exit-matrix-2026-07-09.md (SHIPS item 2). REVOKE-able by J.",
       "provenance": "analysis/recommendations/vwapcont-exit-ab-ship-gate.json (2026-07-07 walk-forward A/B) ; markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md ; strategies.py VWAP_CONTINUATION",
       "resolves_when": "Standing (signed). Superseded only by a future validated vwap_continuation cell or J revoke."
+    },
+    {
+      "strategy": "vwap_reclaim_failed_break",
+      "shape": {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.30, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"},
+      "j_signed": false,
+      "status": "PROVISIONAL_GATE_COMPLETION",
+      "added": "2026-08-15",
+      "reason": "GATE-COMPLETION, second recurrence of the exact gap the ribbon_ride row above records ('the ship note recorded the waiver rationale but the row was never written'). The shape shipped live 2026-08-03 (aa2e3f07, FLEET-VWAP-RECLAIM-EXTENSION-RISKY3) and its P5 registry row was never written, so p5_shape_gate + test_p5_shape_gate have been RED on main since that day -- the gate worked, nobody read it. Not a P5 (premium/ribbon-grind) survivor BY CONSTRUCTION, the same rationale as the vwap_continuation row above: this is a SUBTRACTIVE/STRUCTURAL setup validated by its OWN dedicated study, and the grind never modeled it. Exit body is the Safe-2 ARMED ATM cell (-8% stop / +30% TP1 / sell 80% / fixed), ported byte-for-byte. CHECKED, NOT ASSUMED: this is NOT the stale -0.08/+0.30/0.667/trailing fleet shape the vwap_continuation row calls out as superseded -- that one is qty 0.667 + trailing; this is qty 0.8 + fixed, the validated armed cell. C29 caveat disclosed at ship: validated at ATM (Safe-2) and ITM-2 (Bold), OTM-2 measured FAILING, which is why entries strike-route ATM-class via STRATEGY_STRIKE_TIERS rather than an arm's bold/OTM table; fleet-account cells remain unvalidated AS CELLS and the forward paper ledger is the evidence.",
+      "justification_unsigned": "PROVISIONAL by design -- the registry's own rule is 'NEVER hand-add a signed waiver on J's behalf' (OP-0). The ship itself was pre-registered and frozen BEFORE arming, but signing is J's call, not a follow-up session's. J: sign, replace with a P5-passing cell, or revoke (instant de-arm = build_shared_signal.RUN_VWAP_RECLAIM_FB=False, one line).",
+      "provenance": "analysis/recommendations/fleet-vwap-reclaim-extension-prereg-2026-08-04.json (frozen_before_arming=true, registered 2026-08-04T00:45 ET) ; analysis/recommendations/sub-struct_vwap_reclaim_failed_break.json (8/8 anti-cherry-pick gates on real OPRA fills) ; automation/state/fleet/strategies.py VWAP_RECLAIM_FAILED_BREAK ; guard backtest/tests/test_vwap_reclaim_fleet_extension_2026_08_04.py",
+      "resolves_when": "The prereg's OWN frozen kill-check settles it: n >= 10 risky-3 real fills OR 10 trading sessions from arming, whichever first; cohort net real-fill P&L < 0 at checkpoint -> revert. Or J signs, or a P5-passing cell supersedes it."
     }
   ]
 }
