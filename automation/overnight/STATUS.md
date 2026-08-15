@@ -1,3 +1,47 @@
+## [2026-08-15 ~09:xx ET] CORRECTION -- I over-claimed the exit finding. The live before/after is CONFOUNDED.
+
+I told J this morning that live fills "confirm" the exit-stack hypothesis and called the
+signature "unambiguous". **That was wrong**, and reviewing my own analysis on request broke it.
+
+WHAT I DID: split live round trips at 2026-08-10 (the day the ratchet + ladder + trail shipped)
+and read PRE n=101 / +$384 / avg_win $300 against POST n=95 / -$1,694 / avg_win $144. Flat win
+rate, halved winners -- a clean "exits are clipping the tail" story.
+
+WHY IT DOES NOT HOLD:
+1. **Two independent changes land inside the same boundary.** `1a2692c4` (08-09) armed risky-3
+   on the PREMIUM-STOP lane -- a different exit change, its own A/B. `97734a7b` (08-12)
+   restored a risky-1 selectivity gate that had been DELETED, so risky-1 traded part of the
+   window with degraded ENTRY selectivity. `3ac1d7b2` (08-06) killed risky-3's ATM tier.
+2. **Those two arms drive the collapse.** risky-1 avg_win $416 -> $100, risky-3 $379 -> $116.
+   They are exactly the arms with their own concurrent changes.
+3. **There is a counter-example my aggregate buried: safe-3 avg_win went UP, $188 -> $197.**
+   A uniform-degradation claim dies on one clean arm moving the other way.
+4. Per-arm PRE n is 7-30. Not a population.
+5. 08-14's wake-storm double entry is still inside POST.
+
+WHAT SURVIVES, and it is still the live question: the REPLAY evidence. It holds the entry
+population FIXED and varies only exit config, so it is not vulnerable to any of the above --
+10/10 arm-instances worse, plus the $191 -> $114 `premium_stop @ 0.61` case. That is
+suggestive and it is NOT confirmed by live P&L. The honest status is UNRESOLVED, pending the
+frozen PRE-TP1-RATCHET-COST study.
+
+## NEW FINDING (and it is why this went unnoticed for five days)
+
+**The engine does not record WHY a position exited.** Checked: `exit-state.json` is empty when
+flat; `fleet/*/decisions.jsonl` carries `exit_pass` on 2,594 rows but the reason is `None` on
+893 of the post-stack ones; `trades.csv` has no exit-reason column. Nothing on disk answers
+"which layer closed this trade" -- ladder rung vs trail vs TP1 vs structure stop vs
+catastrophe cap.
+
+CONSEQUENCE: a three-layer exit stack shipped on 2026-08-10 and NO live surface could attribute
+a single exit to it. That is why the avg-win change was invisible for five days, why my
+before/after had to lean on confounded aggregates, and why the ratchet study must be
+replay-based rather than answered from live fills.
+
+**This is the highest-value build on the board** -- higher than the study it unblocks. One
+field (`exit_reason` + which layer bound) stamped on every close, and every future exit change
+becomes measurable in a day instead of never.
+
 ## [2026-08-15 ~02:0x ET] Family B started -- watcher registry CLOSED; unattended_health traced but NOT fixed
 
 CLOSED:
@@ -416,142 +460,74 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
-## [2026-08-11T05:30 ET] CONDUCTOR: OK -- SELF-AUDIT-ORGAN-TIMEOUT-AND-DEDUP-LEDGER-REVERSION (priority-3, self-audit gaps) -- commit `44061a57`, REVOKE surface
 
-**Task picked (priority-3 per STAGE 1: self-audit gaps):** function-first (fill_funnel)
-and engine-health (state_freshness) were both clean at fire start (1/21 stale = the
-already-known, non-critical `futures/data-freshness.json` self-heal-on-next-live-tick
-entry). Read `analysis/self-audit/new-gaps-flagged.md` and found its last batch/triage
-was 2026-08-08 -- 3 days silent for a daily-firing organ. Investigated live rather than
-assuming: `Gamma_SelfAudit` (Get-ScheduledTaskInfo-equivalent check) shows
-`LastTaskResult=0` on 2026-08-10, but `analysis/self-audit/gap-log.jsonl` (the dedup
-ledger, distinct from the properly-committed `new-gaps-flagged.md`) hadn't gained a new
-timestamp since 2026-07-13 -- a full month.
-
-**2 root causes, both real, both fixed:**
-1. `self_audit.py`'s outer `subprocess.run(..., timeout=300)` to `swarm_consult.py` was
-   SMALLER than swarm_consult's own worst-case internal budget
-   (`PERSPECTIVE_TIMEOUT_S=240 + SYNTHESIS_TIMEOUT_S=300 = 540s`) -- silently killed and
-   swallowed by a bare `except Exception: return 0`. Live log evidence:
-   `self-audit.stdout.log` shows `TimeoutExpired` on 2026-08-09 AND 2026-08-10
-   (2 consecutive full-audit failures, exit-0 to Task Scheduler both times).
-2. `gap-log.jsonl` -- self_audit.py's ONLY dedup-key source -- is the SAME
-   tracked-but-rarely-committed hazard class as the 4 prior STATE-FILE-REVERSION rounds
-   (2026-07-14/07-20/07-21/08-10), just a 5th file family outside `automation/state/`.
-   Last real commit: the 2026-07-14 data-loss-recovery (`41889a0f`). Effect: already-
-   triaged gaps were silently re-flagged "new" and re-triaged from scratch for ~4 weeks,
-   masked because `new-gaps-flagged.md` (a separate, correctly-committed narrative file)
-   kept growing normally the whole time -- a producer's visible output looking healthy
-   is not evidence its internal state is.
-
-**Fix:** `SWARM_SUBPROCESS_TIMEOUT_S=600` (named constant, cross-file drift guard);
-`gap-log.jsonl` gitignored + `git rm --cached` (5th instance of the established remedy,
-new `SELF_AUDIT_GAP_LOG` category in `test_ledger_gitignore_guard.py`);
-`self_check.check_self_audit_organ_alive()` (DEGRADED-only daily liveness check on the
-ledger's own newest timestamp, mirrors `check_regime_stamp_daily`/
-`check_scout_premarket_fresh`'s "verify the artifact, not the exit code" pattern) so a
-future recurrence surfaces within a day, not a month.
-
-**Verified (OP-33):** 23 new/extended guard tests, RED-proofed via rename-and-restore
-(L238, not `git stash`) against pre-fix HEAD source -- 11/11 correctly failed pre-fix
-(`AttributeError`/assertion misses), 23/23 green post-fix. Full
-self_check+self_audit+gitignore suite: 221/221 green. Curated safety gate: 59/59 PASS.
-`git show 44061a57 --stat` confirms exactly the 7 intended files (L247 discipline).
-Lesson filed: `_lesson-inbox/self-audit-organ-timeout-and-dedup-ledger-reversion-2026-08-11.md`.
-
-**Rail-4 clear:** zero live-order/params/heartbeat_core/filters/placement/exit/CLAUDE.md
-files touched -- pure self-improvement-organ infra (self_audit.py, self_check.py, 2 new
-test files, .gitignore, the untracked ledger). **REVOKE:** `git revert 44061a57` (7 files).
-
----
-
-## [2026-08-11T01:08 ET] CONDUCTOR: OK -- VERIFY-2026-08-10-ZERO-FILLS-DESPITE-ACCEPTED-ORDERS (FUNCTION-FIRST) -- commit `1d43c599`, REVOKE surface
-
-**Task picked (priority-1, FUNCTION FIRST per STAGE 1):** queue.md's own
-"next fire: run `fill_funnel.py` for 2026-08-10 FIRST" flag, filed after
-`conductor_outcome.py metric` reported `orders_accepted=9, fills=0` for
-2026-08-10 -- the exact entry->order->fill funnel break shape that outranks
-everything else in the conductor prompt.
-
-**Verdict: NOT a real break.** `fill_funnel.py --date 2026-08-10` = **GREEN**
-across all 5 arms (core:bold/core:safe/fleet risky-1/risky-3/safe-3): 9
-accepted, 6 filled, 6 exited. The `fills=0` reading was a metric-timing
-artifact: `conductor_outcome.py`'s function snapshot reads `journal/
-trades.csv`, which `fleet_journal_bridge.py` backfills from broker-truth on
-its OWN separate schedule well after the trading day ends. 3 fires overnight
-(08-10 22:40 / 08-11 00:50 / 01:55 ET) all fired BEFORE that backfill landed
-and honestly recorded `fills:0` for a day that traded fine -- re-running
-`trading_function_snapshot()` live (this fire, after the backfill caught up)
-returned `fills:11`.
-
-**Fixed the metric, not just the symptom:** `compute_metric()` now
-reconciles the function fields (fills/orders_accepted/enters/distinct_setups/
-extra_exec) per `trading_day` to the MAX seen across the full outcome
-history before computing `function_latest`/`trend`/`function_score_avg` --
-safe because these fields are monotonically non-decreasing as a completed
-day's ledgers backfill (nothing un-fills). Read-layer only;
-`conductor-outcomes.jsonl` itself is never rewritten (append-only ledger
-intact). 5 new guard tests (`test_conductor_outcome_backfill_reconciliation.py`),
-RED-proofed via `git stash` (1/5 correctly failed pre-fix on the direct
-reconciliation assertion). Corrected (not weakened) 2 pre-existing trend
-tests in `test_conductor_outcome_function.py` whose fixtures used one
-literal `trading_day` string for both halves of an older-vs-recent
-comparison as a convenience shorthand -- the new (correct) reconciliation
-blends same-day snapshots, so gave each half a distinct realistic day
-instead; same assertions, same intent. Full blast radius (conductor_outcome
-+ conductor_gate_precheck + conductor_budget suites): 93/93 green. Curated
-safety gate 59/59 PASS. `git show 1d43c599 --stat` confirms exactly the 4
-intended files (source fix + 2 test files + 1 lesson-inbox write).
-
-**Lesson filed:** `_lesson-inbox/2026-08-11-conductor-outcome-backfill-lag-
-false-alarm.md` -- general pattern: a consumer reading a value written by
-two producers on different schedules (live tick + separate backfill job)
-cannot trust a single point-in-time read as final; reconcile to best-known
-value when the field is provably monotonic, or the race reads as a false
-signal to every downstream consumer.
-
-**Rail-4 clear:** zero trading-path files touched (params/heartbeat_core/
-filters/placement/exit/CLAUDE.md) -- pure conductor self-measurement code +
-2 test files + 1 lesson write. **REVOKE:** `git revert 1d43c599` (4 files,
-clean).
-
----
-
-## [2026-08-11T01:15 ET] KNOWN BROKEN: 2 pre-existing test failures, NOT caused by tonight's exit work
-
-Surfaced while running the twin suite after wiring the pre-TP1 ladder into the crypto twin.
-Both were verified pre-existing by A/B, so neither is a regression from tonight -- but they
-were failing silently and nobody had flagged them (C7). Filed, not fixed: fixing them is out
-of scope for the exit lane and would be a drive-by.
-
-1. `test_twin_gauntlet.py::test_dry_mode_all_six_paths_pass_by_default` -- the `max_hold`
-   path FAILs. Root cause: the scenario asserts `journal[-1]["event"] == "CLOSED"`, but the
-   twin now writes `CLOSED` then `EXIT_FILLED`, so the last row is EXIT_FILLED and the check
-   misses. PROOF IT IS NOT THE LADDER: `run_dry(['max_hold'], overrides={'exit_shape': <ladder
-   keys removed>})` FAILs identically. The journal-ordering change predates 2026-08-10.
-   Fix when picked up: assert on the presence of a CLOSED/max_hold_flatten row in the tail,
-   not on strict last-row position.
-
-2. `test_free_model_audit_twin_review.py::test_wired_in_real_registry_and_end_to_end_against_the_real_sidecar`
-   -- asserts `result["correct"] is True` against the LIVE twin-health sidecar. It depends on
-   current sidecar content, so it is environment-coupled by construction and will flap.
-   Fix when picked up: pin a fixture sidecar for the assertion and keep the live read as a
-   separate, non-blocking smoke.
-
-Everything else in the twin + fleet suites is green: fleet 379 passed, twin/crypto 880 passed.
-
+### DEGRADED: self-check 2026-08-15T04:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 13x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 46 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-### DEGRADED: self-check 2026-08-15T02:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T02:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 4x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T03:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 7x). Check the named script's own stderr log for the real cause.
+### DEGRADED: self-check 2026-08-15T04:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 16x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T05:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T05:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+- [2026-08-15 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-08-15 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-15.md
+
+### DEGRADED: self-check 2026-08-15T06:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 25x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T06:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 28 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 28x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T07:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 31x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T07:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 34 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 34x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T08:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 37 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 37x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T08:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 40 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 40x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T09:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 43 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 43x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T09:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 46 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 46x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T10:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 49 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 49x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T10:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 52 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 52x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T11:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 55 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 55x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T11:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 58 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 58x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
