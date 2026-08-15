@@ -3,49 +3,60 @@
  "frozen_before_any_runner": true,
  "status": "FROZEN -- NOT RUN.",
  "frozen_at_et_source": "setup/scripts/et_clock.py",
-
  "origin": "Not a hypothesis I went looking for. The exit_manager_replay pin had been RED for weeks; repairing it surfaced that on 2026-07-17 the LIVE bold trade at 13:51:21 made $191, while TODAY's exit config replays it to $114 -- exited by `premium_stop @ 0.61`, and it is the only unfaithful trade of the six. A real winner cut ~40%.",
-
  "the_question": "Does the PRE-TP1 PROFIT RATCHET (1a9b1409) plus J's LADDER (af6cf286) and the +40%->+75% trail arm (658ecc79) cost more in truncated winners than it saves in protected profit, measured across a population rather than one trade?",
-
  "why_it_is_NOT_obviously_a_bug": "Locking profit earlier and capping the runner is the ratchet's INTENDED shape -- it is insurance, and insurance loses money on the days it was not needed. The 08-13 exhibit showed the mirror case (a day that only worked because the contract doubled). One trade cannot distinguish 'working as designed' from 'over-tightened', which is exactly why this is a study and not an edit.",
-
  "why_the_prior_is_genuinely_two-sided": "AGAINST the ratchet: C30 (unconstrained/over-tight exit knobs are this repo's most repeated dead end), C2/L51/L55 (first-strike entries are chart-stop-only precisely because premium stops misfire on 0DTE noise), and the noise-floor finding (10-min MAE -36% vs a -20% stop = winners stopped by noise). FOR the ratchet: J's own directive that runners must not give back open profit, and the cost-recovery law's insurance logic. Expect a TRADE-OFF TABLE, not a winner.",
-
  "population": {
   "source": "real-OPRA-fills replay across every date with a 1-min highres cache, NOT the single 2026-07-17 day that generated the question",
   "unit": "one round trip",
   "minimum": "n>=30 trades per cell or the cell reports NOT-RUN",
   "disclosure_required": "the generating trade (2026-07-17 bold 13:51:21) must be reported SEPARATELY and excluded from the headline, because a hypothesis cannot be confirmed by the observation that produced it"
  },
-
  "cells_preregistered": {
-  "arms": ["ratchet_ON_current", "ratchet_OFF", "ratchet_ON_looser_arm"],
+  "arms": [
+   "ratchet_ON_current",
+   "ratchet_OFF",
+   "ratchet_ON_looser_arm"
+  ],
   "note": "exit numeric parameters pinned identically across cells except the ONE knob under test (the strike-A/B pinning rule, deep-review tonight-item #5); report achieved runner fraction after integer rounding",
   "all_cells_reported": true
  },
-
  "metrics": {
   "primary": "delta in mean dollar P&L per trade vs ratchet_ON_current",
-  "mandatory_columns": ["n", "truncated_winner_dollars", "protected_loss_dollars", "net", "n_trades_whose_exit_reason_CHANGED"],
+  "mandatory_columns": [
+   "n",
+   "truncated_winner_dollars",
+   "protected_loss_dollars",
+   "net",
+   "n_trades_whose_exit_reason_CHANGED"
+  ],
   "the_column_that_decides_it": "truncated_winner_dollars vs protected_loss_dollars -- the ratchet is insurance, so it must be priced as insurance: what did the premium cost, and what did it pay out?",
   "test": "two-sided permutation, 20000 iterations; BH-FDR q=0.10 across all measured cells"
  },
-
  "validity_gates": {
   "G1_faithfulness_first": "the replay must reproduce LIVE fills on the unchanged arm before any counterfactual arm is interpreted. exit_manager_replay currently reports 5/6 faithful -- resolve or disclose that sixth before trusting any cell.",
   "G2_knob_binds": "vary-and-assert (C14): n_trades_whose_exit_reason_CHANGED must be >0 in every non-control cell, or the knob is inert and the cell is meaningless.",
   "G3_no_single_trade_drives_it": "report the result with the largest-|delta| trade removed. If the sign flips, say so in the headline -- 08-13's own review was distorted exactly this way (one event = 114% of the day).",
   "G4_read_only": "arms nothing; params untouched."
  },
-
  "ship_rule": "Nothing ships from this study alone. The ratchet was J-directed under a rule-9 override and is guard-tested; loosening it is a POLICY change that needs J, not a research verdict. The maximum output is a priced trade-off table J can rule on.",
-
  "declared_expectation_recorded_before_running": "The ratchet costs real money on trend days and saves real money on reversal days, netting close to zero with wide variance -- i.e. a NULL on mean P&L with a genuine reduction in downside dispersion. If it shows a large clean positive for either arm, hunt the artifact first (/fable-too-good): the most likely one is a replay whose counterfactual arm silently changes the ENTRY population, not just the exit.",
-
  "provenance": {
   "surfaced_by": "backtest/tests/test_exit_manager_replay.py re-pin, 2026-08-15",
   "raw": "analysis/recommendations/exit-manager-replay-2026-07-17.json",
-  "config_commits_since_the_original_pin": ["1a9b1409", "af6cf286", "658ecc79", "20a9e792"]
+  "config_commits_since_the_original_pin": [
+   "1a9b1409",
+   "af6cf286",
+   "658ecc79",
+   "20a9e792"
+  ]
+ },
+ "AMENDED_2026_08_15_before_any_run": {
+  "why": "Live exit telemetry (545 attributed actions) showed the mechanism is a COMPOSITION shift, not a P&L level: ribbon_flip_back went 4%->22% of closes, runner_target @ +250% went 3 fires -> 0. Net P&L is the downstream symptom; composition is the cause.",
+  "amendment_is_legitimate_because": "no cell of this prereg has been run. Amending an UNRUN prereg on new observational evidence is pre-registration working; amending it after seeing results would be the violation.",
+  "new_primary_metric": "exit-reason COMPOSITION per cell: share of closes by {runner_target, runner_stop, ribbon_flip_back, structure_stop, premium_stop, tp1}, reported alongside net P&L.",
+  "the_decisive_number": "runner_target fire RATE. It is 0/98 post-stack vs 3/239 pre-stack. If removing the ladder does not restore ANY runner_target fires, the ladder is not what is capping the tail and this whole line of inquiry is wrong.",
+  "new_gate_G5_composition_binds": "a cell whose exit-reason composition is unchanged from control did not actually vary the knob (C14) -- report NOT-RUN rather than a P&L delta."
  }
 }
