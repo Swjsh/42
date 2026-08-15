@@ -1,0 +1,58 @@
+{
+ "prereg_id": "PRE-TP1-RATCHET-COST-2026-08-15",
+ "status": "CELLS_DEFINED_POPULATION_BLOCKED",
+ "cells": {
+  "ratchet_ON_current": {
+   "varies_from_control": []
+  },
+  "ladder_OFF": {
+   "varies_from_control": [
+    "pre_tp1_ladder"
+   ]
+  },
+  "ladder_TOP_RUNG_OFF": {
+   "varies_from_control": [
+    "pre_tp1_ladder"
+   ]
+  },
+  "pre_tp1_ALL_OFF": {
+   "varies_from_control": [
+    "pre_tp1_ladder",
+    "pre_tp1_trail_arm_pct",
+    "pre_tp1_trail_pct"
+   ]
+  }
+ },
+ "control_shape": {
+  "premium_stop_pct": -0.2,
+  "tp1_premium_pct": 1.0,
+  "tp1_qty_fraction": 0.667,
+  "profit_lock_mode": "trailing",
+  "runner_target_pct": 99.0,
+  "trail_pct": 0.15,
+  "profit_lock_arm_pct": 0.05,
+  "stop_mode": "structure",
+  "catastrophe_stop_pct": -0.5,
+  "profit_lock_arm_scope": "post_tp1",
+  "pre_tp1_be_floor_arm_pct": null,
+  "pre_tp1_floor_pct": null,
+  "pre_tp1_ladder": [
+   [
+    0.5,
+    0.3
+   ],
+   [
+    0.75,
+    0.6
+   ]
+  ],
+  "pre_tp1_ribbon_confirm_ticks": null,
+  "pre_tp1_trail_arm_pct": 0.75,
+  "pre_tp1_trail_pct": 0.2
+ },
+ "highres_days_available": 224,
+ "highres_date_range": [
+  "2025-01-06",
+  "2026-08-14"
+ ]
+}
