@@ -108,5 +108,74 @@ def test_process_liveness_alone_is_no_longer_the_whole_check(ka):
         "which reported 'alive' for 88 hours while nothing was being detected")
 
 
+# ---------------------------------------------------------------------------
+# THE SEQUEL (2026-08-15): the recycle guard above became the failure it prevents.
+# ---------------------------------------------------------------------------
+#
+# This file's own header warned "too short thrashes the detector". It did -- not because the
+# THRESHOLD was too short, but because the AGE was measured against the wrong process.
+#
+# _detector_runtime_s derives runtime from the summary's polls_total * poll_interval_s. When a
+# recycle happens, the newly-launched detector has not written a summary yet, so the next fire
+# re-read the DEAD process's frozen counters: 43800 * 0.5 = 21,900s = 6.083h, permanently over
+# the 21,600s threshold. So it killed the new detector too -- before it could ever overwrite
+# the file. Self-perpetuating: ~43 hours of kill-relaunch every 5 minutes, zero polls recorded,
+# window-leak-summary.json 43h stale, and no leak detection at all the whole time.
+#
+# The original code guarded the UNREADABLE summary case ("a transient read error would restart
+# the detector on every fire") and missed the STALE one. A stale summary is the worse of the
+# two: unreadable returns None and is handled: stale returns a confident wrong number.
+
+def _summary(ka, tmp_path, monkeypatch, *, polls, pid):
+    p = tmp_path / "window-leak-summary.json"
+    p.write_text(json.dumps({"polls_total": polls, "poll_interval_s": 0.5,
+                             "pid": pid, "leaks_total": 0}), encoding="utf-8")
+    monkeypatch.setattr(ka, "SUMMARY_FILE", p)
+    return p
+
+
+def test_runtime_ignores_counters_written_by_a_DIFFERENT_process(ka, tmp_path, monkeypatch):
+    """RED-PROOF for the 43h thrash loop. A summary stamped with another pid describes
+    someone else's lifetime; the honest answer is 'unknown', which the caller already treats
+    as do-not-recycle. Real observed values: summary pid=3720, live pid=2240."""
+    _summary(ka, tmp_path, monkeypatch, polls=43800, pid=3720)
+    assert ka._detector_runtime_s(live_pid=2240) is None
+
+
+def test_a_genuine_wedge_is_STILL_recycled(ka, tmp_path, monkeypatch):
+    """The 2026-08-13 mitigation must survive the fix. When the counters belong to the process
+    being scored, a 6.08h runtime still exceeds the threshold and still triggers a recycle --
+    otherwise this fix would silently restore the 88-hour wedge."""
+    _summary(ka, tmp_path, monkeypatch, polls=43800, pid=2240)
+    age = ka._detector_runtime_s(live_pid=2240)
+    assert age is not None and age > ka.MAX_DETECTOR_AGE_S
+
+
+def test_a_young_detector_is_left_alone(ka, tmp_path, monkeypatch):
+    _summary(ka, tmp_path, monkeypatch, polls=100, pid=2240)
+    age = ka._detector_runtime_s(live_pid=2240)
+    assert age == 50.0 and age < ka.MAX_DETECTOR_AGE_S
+
+
+def test_summary_without_a_pid_does_not_trigger_a_recycle(ka, tmp_path, monkeypatch):
+    """An older-format summary carrying no pid cannot be attributed to this process, so it
+    must not authorise killing it -- fail toward leaving a working detector running."""
+    p = tmp_path / "window-leak-summary.json"
+    p.write_text(json.dumps({"polls_total": 43800, "poll_interval_s": 0.5}), encoding="utf-8")
+    monkeypatch.setattr(ka, "SUMMARY_FILE", p)
+    assert ka._detector_runtime_s(live_pid=2240) is None
+
+
+def test_main_scopes_the_runtime_query_to_the_live_pid(ka):
+    """The fix is only real if main() actually passes the pid -- an unscoped call reproduces
+    the loop exactly."""
+    src = "\n".join(l for l in KA.read_text(encoding="utf-8").splitlines()
+                    if not l.strip().startswith("#"))
+    body = src[src.index("def main("):]
+    assert "_detector_runtime_s(live_pid=" in body, (
+        "main() calls _detector_runtime_s without scoping it to the live pid -- a recycled "
+        "detector will again be scored on the dead process's counters and killed forever")
+
+
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(pytest.main([__file__, "-q"]))

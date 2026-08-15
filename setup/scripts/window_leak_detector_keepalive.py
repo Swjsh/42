@@ -89,13 +89,34 @@ SUMMARY_FILE = STATE_DIR / "window-leak-summary.json"
 MAX_DETECTOR_AGE_S = 6 * 3600
 
 
-def _detector_runtime_s() -> "float | None":
+def _detector_runtime_s(live_pid: "int | None" = None) -> "float | None":
     """Runtime derived from the detector's OWN counters (polls_total * poll_interval_s).
     Returns None if unreadable -- and an unreadable summary must NOT trigger a recycle, or a
-    transient read error would restart the detector on every fire."""
+    transient read error would restart the detector on every fire.
+
+    ...AND NOT IF IT BELONGS TO A DIFFERENT PROCESS (fixed 2026-08-15). The original guarded
+    only the UNREADABLE case, but a STALE summary is worse than an unreadable one: it is
+    confidently wrong, and it created a self-perpetuating recycle loop that ran for ~43 hours.
+
+    THE LOOP, measured live: the summary was frozen at polls_total=43800 x 0.5s = 21,900s =
+    6.083h, permanently above MAX_DETECTOR_AGE_S (21,600s). Every 5-minute fire read those
+    DEAD counters, concluded the freshly-launched detector had "run 6.1h", and killed it --
+    before it lived long enough to overwrite the summary with its own counters. So the file
+    stayed frozen, so the next fire read 6.1h again. The keepalive built to prevent a wedge
+    became the wedge: 43h of kill-relaunch thrash, zero polls recorded, and
+    window-leak-summary.json 43h stale (which is how the unattended tile finally caught it).
+
+    The summary already stamps the pid that wrote it, so the fix needs no new state: if that
+    pid is not the process we are scoring, these counters describe someone else's lifetime and
+    the honest answer is "unknown", which the caller already treats as do-not-recycle.
+    """
     try:
         import json
         d = json.loads(SUMMARY_FILE.read_text(encoding="utf-8"))
+        if live_pid is not None:
+            summary_pid = d.get("pid")
+            if summary_pid is None or int(summary_pid) != int(live_pid):
+                return None
         return float(d["polls_total"]) * float(d["poll_interval_s"])
     except Exception:
         return None
@@ -114,7 +135,9 @@ def _kill(pid: int) -> bool:
 def main() -> int:
     alive, pid = _detector_alive()
     if alive:
-        age = _detector_runtime_s()
+        # Scope the runtime to THIS pid -- counters written by a previous detector are not
+        # this one's age (see _detector_runtime_s for the 43h thrash loop that caused).
+        age = _detector_runtime_s(live_pid=pid)
         if age is not None and age > MAX_DETECTOR_AGE_S and pid:
             _log(f"detector pid={pid} has run {age/3600:.1f}h (> {MAX_DETECTOR_AGE_S/3600:.0f}h) "
                  f"-- RECYCLING to clear a possible detection wedge (2026-08-13 incident)")
