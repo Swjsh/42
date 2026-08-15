@@ -56,8 +56,14 @@ def test_manage_tick_receives_params_time_stop(fl, monkeypatch, tmp_path):
     # REAL manage_tick -- this fake must accept it (a mock with a stale signature makes
     # fleet_live.run()'s try/except SILENTLY swallow the TypeError, which is exactly the
     # kind of false-green this guard exists to prevent; see run()'s exit-pass except block).
+    # **kw ADDED 2026-08-14. fleet_live's call site gained `adopt_untracked=` and
+    # `registry_shape=`; this stub's fixed signature did not, so EVERY call raised TypeError,
+    # the per-arm handler swallowed it, and `captured` came back empty -- both tests in this
+    # file had been RED (and dead) ever since. A stub pinned to an exact kwarg list breaks on
+    # any additive change to the thing it stands in for, so it now absorbs new kwargs instead
+    # of failing on them; the kwargs these tests actually ASSERT on stay named and explicit.
     def fake_manage_tick(arm_id, creds, *, live, ribbon_flip_back_fn=None, now_et=None,
-                         broker=None, time_stop_et=None, last_closed_5m_close=None):
+                         broker=None, time_stop_et=None, last_closed_5m_close=None, **kw):
         captured.append({"arm_id": arm_id, "live": live, "time_stop_et": time_stop_et,
                          "last_closed_5m_close": last_closed_5m_close})
         return []
@@ -92,8 +98,14 @@ def test_no_arm_is_live_in_this_harness(fl, monkeypatch, tmp_path):
     pass ran live=False (nothing in this guard can ever place)."""
     captured: list[dict] = []
 
+    # **kw ADDED 2026-08-14. fleet_live's call site gained `adopt_untracked=` and
+    # `registry_shape=`; this stub's fixed signature did not, so EVERY call raised TypeError,
+    # the per-arm handler swallowed it, and `captured` came back empty -- both tests in this
+    # file had been RED (and dead) ever since. A stub pinned to an exact kwarg list breaks on
+    # any additive change to the thing it stands in for, so it now absorbs new kwargs instead
+    # of failing on them; the kwargs these tests actually ASSERT on stay named and explicit.
     def fake_manage_tick(arm_id, creds, *, live, ribbon_flip_back_fn=None, now_et=None,
-                         broker=None, time_stop_et=None, last_closed_5m_close=None):
+                         broker=None, time_stop_et=None, last_closed_5m_close=None, **kw):
         captured.append({"live": live})
         return []
 
