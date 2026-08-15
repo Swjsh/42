@@ -97,12 +97,34 @@ def test_bootstrap_delta_pvalue_empty_is_nan():
     assert math.isnan(pab.bootstrap_delta_pvalue([]))
 
 
+
+# ANCHOR AS-OF DATE (added 2026-08-15). These pins reproduce what
+# prereg-profitability-2026-08-08.json independently measured ON 2026-08-08. They pinned the
+# WHOLE bold-2 ledger, so every trade the arm has taken since moved them: post_ship had grown
+# n=6 -> 20 and -$476.00 -> -$1,338.00, and both tests had been RED (and therefore blind) ever
+# since. L292 -- a monitor whose own coverage scope rots exactly like the thing it monitors.
+#
+# Bounding to the anchor's own window keeps the tripwire doing its ONE job (detect a change in
+# fills-ledger parsing or reconstruct_positions' grouping) while ledger GROWTH, which is not a
+# defect, stops masquerading as drift.
+#
+# NOT A PIN, BUT WORTH A HUMAN'S EYE: unbounded, bold-2's post-ship window now reads n=20 /
+# -$1,338.00 (was n=6 / -$476.00 on 2026-08-08). That is live arm performance, not a test
+# artifact, and it belongs in a P&L review rather than in this tripwire's expectations.
+ANCHOR_ASOF_ET = "2026-08-08"
+
+
+def _asof(positions: list) -> list:
+    """Positions on or before the date these anchors were frozen against."""
+    return [p for p in positions
+            if str(p.get("date_et") or p.get("entry_ts_utc", ""))[:10] <= ANCHOR_ASOF_ET]
+
 def test_real_bold2_population_reproduces_prereg_frozen_baselines():
     """Tripwire: if fills-ledger.jsonl or reconstruct_positions' grouping ever drifts, this
     fails loudly instead of silently shipping a wrong baseline. Pins the EXACT numbers the
     frozen prereg independently measured (population.regime_scope_primary /
     cell_results_computed_this_session in prereg-profitability-2026-08-08.json)."""
-    positions = pab.load_bold2_positions()
+    positions = _asof(pab.load_bold2_positions())
     post_ship = pab.scope_positions(positions, "post_ship_only")
     pre_ship = [p for p in positions if p not in post_ship]
 
@@ -121,7 +143,7 @@ def test_primary_cell_matches_prereg_ratio_within_rounding_tolerance():
     (wrong sign, wrong order of magnitude) fails loudly while the known +3.60 rounding
     correction does not."""
     tp1_frac = pab.current_tp1_qty_fraction()
-    positions = pab.load_bold2_positions()
+    positions = _asof(pab.load_bold2_positions())
     cell = pab.run_cell(positions, 3, "post_ship_only", tp1_frac)
     assert cell["baseline_net"] == -476.00
     assert cell["delta_net"] > 0
