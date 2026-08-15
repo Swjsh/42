@@ -1310,6 +1310,86 @@ def _problem_is_broken(p: str) -> bool:
             or ("CONTRADICTORY ROLES" in p) or ("PLACEMENT BROKEN" in p))
 
 
+_AUTH_OUTAGE_SIGNATURES = ("Not logged in", "Please run /login")
+
+
+def check_llm_auth_outage(now, logs_dir=None, lookback_days: int = 7) -> list[str]:
+    """THE SINGLE-CAUSE, J-ONLY-FIXABLE OUTAGE. Built 2026-08-15 after finding the entire
+    autonomous conductor dead for five days with nobody told.
+
+    WHY THIS IS NOT A DUPLICATE of check_run_ps1_hidden_masked_exit: that sibling correctly
+    reported `run-conductor-weekend.ps1 (exit=[1], 5x)` -- a GENERIC non-zero exit, sitting in
+    a list next to unrelated exit=1 noise, with the advice "check the named .ps1's own log".
+    It cannot say WHY, cannot say the whole LLM fleet shares one cause, and cannot say that no
+    amount of automated self-healing will ever fix it. This check reads one level deeper and
+    names the condition.
+
+    THE MECHANISM: every LLM-driven task spawns `claude`, which answers
+    "Not logged in - Please run /login" and returns 1. Rail-0's budget precheck says PROCEED
+    (it measures spend, and a login failure spends $0), so the fire burns its slot and exits.
+    Task Scheduler shows LastTaskResult=0 because the outer wscript hop is fire-and-forget.
+    Every layer reports success except the work.
+
+    MEASURED AT BUILD TIME: 49 failed fires across 8 distinct tasks from 2026-08-11, 100% of
+    conductor fires from 08-12 on. The rig did not visibly break because the deterministic
+    backstops held -- eod_flatten.py covered the LLM EOD-flatten path and
+    premarket_deterministic_fallback.py covered premarket -- which is exactly the danger: a
+    backstop silently carrying production is indistinguishable from a healthy primary until
+    the backstop is the thing that fails.
+
+    ONLY J CAN CLEAR IT: `claude /login` is interactive OAuth. This check therefore reports a
+    J-ACTION, not a self-heal target -- no automation should retry into it.
+
+    Fail-open (missing/unreadable logs -> []); read-only; $0.
+    """
+    d = logs_dir or (STATE / "logs")
+    try:
+        if not d.exists():
+            return []
+        log_files = sorted(d.glob("*.log"))
+    except Exception:  # noqa: BLE001 -- an observer never raises
+        return []
+
+    cutoff = (now.date() - dt.timedelta(days=lookback_days)).isoformat()
+    per_task: dict[str, int] = {}
+    days: set[str] = set()
+    for f in log_files:
+        m = re.search(r"(\d{4}-\d{2}-\d{2})", f.name)
+        day = m.group(1) if m else None
+        if day is None or day < cutoff:
+            continue
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:  # noqa: BLE001
+            continue
+        hits = sum(text.count(s) for s in _AUTH_OUTAGE_SIGNATURES)
+        if not hits:
+            continue
+        # One fire logs both signature strings on one line; count LINES, not substrings.
+        hits = sum(1 for ln in text.splitlines()
+                   if any(s in ln for s in _AUTH_OUTAGE_SIGNATURES))
+        if not hits:
+            continue
+        task = re.sub(r"-?\d{4}-\d{2}-\d{2}.*$", "", f.name) or f.name
+        per_task[task] = per_task.get(task, 0) + hits
+        days.add(day)
+
+    if not per_task:
+        return []
+    total = sum(per_task.values())
+    named = ", ".join(f"{t} ({n}x)" for t, n in sorted(per_task.items(), key=lambda kv: -kv[1]))
+    span = f"{min(days)}..{max(days)}" if days else "?"
+    return [
+        f"BROKEN -- CLAUDE CLI IS LOGGED OUT: {total} LLM fire(s) across {len(per_task)} task(s) "
+        f"died on 'Not logged in / Please run /login' over {span}. Affected: {named}. "
+        f"Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows "
+        f"LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success "
+        f"except the work. The autonomous loop is NOT running. "
+        f"J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation "
+        f"can clear it and nothing should retry into it."
+    ]
+
+
 def run() -> dict:
     now = et_now(); hm = now.strftime("%H:%M")
     rth = ("09:30" <= hm <= "15:55") and now.weekday() < 5
@@ -1440,6 +1520,11 @@ def run() -> dict:
     # relay (run_ps1_hidden.py), which carries the MAJORITY of Gamma_* scheduled tasks.
     # Same VBS-WRAPPER-EXIT-CODE-BLIND-SPOT self-audit gap, much bigger surface.
     problems.extend(check_run_ps1_hidden_masked_exit(now))
+    # The DIAGNOSIS layer on top of the two masked-exit checks above. They report THAT a
+    # fire exited non-zero; this reports the one cause that (a) hits the whole LLM fleet at
+    # once, (b) makes rail-0 read PROCEED because it spends $0, and (c) no automation can
+    # ever clear. Runs after them so its named verdict lands next to the generic evidence.
+    problems.extend(check_llm_auth_outage(now))
 
     # 18. SELF-AUDIT ORGAN ALIVE -- the 2026-08-11 finding: self_audit.py's own outer
     # subprocess timeout (300s) was smaller than swarm_consult.py's worst-case internal
