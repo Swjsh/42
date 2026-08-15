@@ -1234,6 +1234,20 @@ def main() -> int:
                 last_payload["entry_shadow"] = esc.run_nightly()
             except Exception as se:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["entry_shadow"] = {"error": f"{type(se).__name__}: {se}"[:200]}
+            # --- CONVICTION SHADOW REPORT (2026-08-15) rides this SAME nightly fire, SAME
+            # fold contract (fail-open, additive, population-product only, no new scheduled
+            # task). MEASUREMENT ONLY -- conviction is DISARMED; no SKIP_LOW_CONVICTION
+            # branch exists. Recomputed nightly (pure ledger read, $0, idempotent) so the
+            # WEEKLY would_block distribution is a standing artifact rather than something a
+            # human re-derives differently each week. Partitions on the 974ca235 C4/C5 fix
+            # boundary: the 102 pre-fix rows blocked 100% by ARITHMETIC (max score 4 vs min
+            # floor 5, C4+C5 dead), so pooling them would publish that artifact as the
+            # ratchet's block rate. Revert: delete this try-block.
+            try:
+                import conviction_shadow_report as csr
+                last_payload["conviction_shadow"] = csr.run()
+            except Exception as cse:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["conviction_shadow"] = {"error": f"{type(cse).__name__}: {cse}"[:200]}
             # --- STOP-MODE forward clock (2026-08-09) rides this SAME nightly fire, SAME fold
             # contract (fail-open, additive, descriptive-only, no new scheduled task). Walks
             # each real engine fill under BOTH the shipped structure-stop exit and a

@@ -1,0 +1,105 @@
+{
+ "_meta": {
+  "generated_at_et": "2026-08-15T13:28:40",
+  "builder": "setup/scripts/conviction_shadow_report.py",
+  "armed": false,
+  "shadow_only": "[DISARMED] MEASUREMENT ONLY -- no SKIP_LOW_CONVICTION branch exists; no row here refused an entry.",
+  "fix_boundary_et": "2026-08-14T19:15:22",
+  "fix_commit": "974ca235",
+  "partition_rationale": "Rows before the boundary scored with C4 range_extreme and C5 structure DEGRADED (transposed key), so they blocked by construction. Pooling them with post-fix rows would report the artifact, not the ratchet (L248).",
+  "ledgers_read": [
+   "automation/state/core-decisions.jsonl",
+   "automation/state/fleet/risky-1/decisions.jsonl",
+   "automation/state/fleet/risky-3/decisions.jsonl",
+   "automation/state/fleet/safe-1/decisions.jsonl",
+   "automation/state/fleet/safe-3/decisions.jsonl"
+  ],
+  "status": "POST-FIX POPULATION IS EMPTY. The C4/C5 fix landed after the last session's final tick, so no conviction row has yet been scored with those components live. This is not a finding about the ratchet -- there is no evidence yet. First rows arrive on the next session with an ENTER verdict."
+ },
+ "post_fix": {
+  "n": 0
+ },
+ "weekly_last_5_sessions": {
+  "n": 0
+ },
+ "pre_fix_DO_NOT_POOL": {
+  "n": 102,
+  "n_scored": 102,
+  "n_errored": 0,
+  "would_block": 102,
+  "would_allow": 0,
+  "block_rate_pct": 100.0,
+  "dates": [
+   "2026-08-13",
+   "2026-08-14"
+  ],
+  "arms": [
+   "core"
+  ],
+  "score_histogram": {
+   "0": 34,
+   "3": 26,
+   "4": 42
+  },
+  "floor_effective_histogram": {
+   "5": 3,
+   "6": 30,
+   "7": 36,
+   "8": 24,
+   "9": 9
+  },
+  "component_hit_rate_pct": {
+   "named_level": 66.7,
+   "multi_day_memory": 0.0,
+   "fresh_test": 31.4,
+   "range_extreme": 0.0,
+   "structure_agreement": 0.0,
+   "elite_trigger": 66.7,
+   "zone_stack": 9.8
+  },
+  "degraded_components": {
+   "range_extreme": 102,
+   "structure": 102,
+   "zone_stack": 12
+  },
+  "by_k": {
+   "0": {
+    "n": 3,
+    "blocked": 3,
+    "block_rate_pct": 100.0
+   },
+   "1": {
+    "n": 30,
+    "blocked": 30,
+    "block_rate_pct": 100.0
+   },
+   "2": {
+    "n": 36,
+    "blocked": 36,
+    "block_rate_pct": 100.0
+   },
+   "3": {
+    "n": 24,
+    "blocked": 24,
+    "block_rate_pct": 100.0
+   },
+   "4": {
+    "n": 9,
+    "blocked": 9,
+    "block_rate_pct": 100.0
+   }
+  },
+  "by_date": {
+   "2026-08-13": {
+    "n": 56,
+    "blocked": 56,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-14": {
+    "n": 46,
+    "blocked": 46,
+    "block_rate_pct": 100.0
+   }
+  }
+ }
+}
