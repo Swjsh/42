@@ -132,5 +132,72 @@ def test_mechanism_signature_requires_wr_to_fall():
         "signature must NOT hold when win rate rises, however good the dollars look")
 
 
+# ---------------------------------------------------------------------------
+# THE FEED (2026-08-15). This clock reads an artifact something ELSE must rebuild.
+# ---------------------------------------------------------------------------
+
+def _winner_autopsy_fold_order() -> list[str]:
+    """Names of the shadow modules imported inside winner_autopsy's nightly fold block,
+    in source order. AST, never grep -- a name inside a comment or a retracted block reads
+    identically to a live import under a substring check (standing repo rule)."""
+    import ast
+    src = (Path(__file__).resolve().parents[2] / "setup" / "scripts"
+           / "winner_autopsy.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    watched = {"pain_ledger", "entry_quality_ledger", "stop_mode_shadow_ledger",
+               "entry_shadow_counter", "conviction_shadow_report"}
+    seen: list[tuple[int, str]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name in watched:
+                    seen.append((node.lineno, alias.name))
+    seen.sort()
+    return [name for _, name in seen]
+
+
+def test_enriched_ledger_rebuild_is_wired_into_the_nightly_fold():
+    """RED-PROOF: `entry_quality_ledger.build_ledger()` was in NO scheduled task and NO fold.
+    The enriched artifact this module reads was therefore last written 2026-08-10 with data
+    through 2026-08-06, while the book traded through 08-14 -- so this ARMED prereg sat at
+    n_trades=0 / ARMED_AWAITING_FILLS for five sessions and could never reach its 20-day bar.
+    A shadow clock whose FEED has no producer is a clock that will never ring."""
+    order = _winner_autopsy_fold_order()
+    assert "entry_quality_ledger" in order, (
+        "nothing rebuilds analysis/entry-quality/entry-quality-ledger.json -- the stop_mode "
+        "clock's only input. Re-wire the fold in winner_autopsy.py.")
+
+
+def test_fold_order_keeps_the_ledger_between_its_producer_and_its_consumer():
+    """ORDER IS LOAD-BEARING, in both directions:
+      * build_ledger joins analysis/pain-ledger/mae-mfe.json via load_pain_index(), so it must
+        run AFTER the pain_ledger fold, or it enriches against a stale/absent MFE join.
+      * stop_mode_shadow_ledger READS the enriched artifact, so it must run AFTER the rebuild,
+        or every nightly fire accrues against yesterday's ledger -- one day permanently behind,
+        which is exactly the silent-lag class this whole fix exists to close.
+    """
+    order = _winner_autopsy_fold_order()
+    for name in ("pain_ledger", "entry_quality_ledger", "stop_mode_shadow_ledger"):
+        assert name in order, f"{name} missing from the nightly fold"
+    assert order.index("pain_ledger") < order.index("entry_quality_ledger"), \
+        "entry_quality_ledger must run AFTER pain_ledger (it joins mae-mfe.json)"
+    assert order.index("entry_quality_ledger") < order.index("stop_mode_shadow_ledger"), \
+        "entry_quality_ledger must run BEFORE stop_mode_shadow_ledger (which reads its output)"
+
+
+def test_input_health_flags_a_ledger_that_stopped_advancing():
+    """The clock already knew. `_input_health` sets input_stale=True when the enriched ledger
+    has not reached the last completed session -- it reported the freeze correctly for five
+    days and nothing consumed the alarm. Pin the flag so the signal cannot be dropped, since
+    a silent zero and a real zero are indistinguishable downstream (C7)."""
+    sms = _load()
+    stale = sms._input_health([{"date_et": "2026-08-06"}])
+    assert stale["input_ledger_newest_date"] == "2026-08-06"
+    assert "input_stale" in stale
+    fresh_day = stale["input_expected_through"]
+    fresh = sms._input_health([{"date_et": fresh_day}])
+    assert fresh["input_stale"] is False, fresh
+
+
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(pytest.main([__file__, "-q"]))

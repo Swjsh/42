@@ -1224,6 +1224,37 @@ def main() -> int:
                 last_payload["catastrophe_cap_shadow"] = ccs.run()
             except Exception as ce:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["catastrophe_cap_shadow"] = {"error": f"{type(ce).__name__}: {ce}"[:200]}
+            # --- ENRICHED ENTRY-QUALITY LEDGER (2026-08-15). This rebuild was NEVER WIRED to
+            # any fire: `entry_quality_ledger.build_ledger()` appears in no scheduled task, so
+            # the enriched artifact was last written 2026-08-10 carrying data only through
+            # 2026-08-06 while the book kept trading through 08-14.
+            #
+            # WHAT THAT SILENTLY COST: `stop_mode_shadow_ledger` reads this enriched JSON
+            # deliberately (build_population() has no `trigger_level`, so structure stops
+            # could never fire -- root-caused 2026-08-09 in its own docstring). With the
+            # artifact frozen, the ARMED prereg STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 sat
+            # at n_trades=0 / "ARMED_AWAITING_FILLS" for five trading days and would never
+            # have reached its 20-day bar. Rebuilding by hand once moved it to ACCRUING with
+            # 66 trades. The clock's own `input_stale` flag had been reporting the problem
+            # correctly the whole time -- nothing consumed the alarm (C7/L292).
+            #
+            # ORDER IS LOAD-BEARING: build_ledger joins `analysis/pain-ledger/mae-mfe.json`
+            # via load_pain_index(), so it must run AFTER the pain_ledger fold above and
+            # BEFORE the stop_mode fold below that reads its output.
+            #
+            # $0: Alpaca SIP stock bars on a per-day disk cache, so a nightly rerun fetches at
+            # most one new day. Descriptive/shadow-only -- writes nothing an engine reads.
+            # Revert: delete this try-block.
+            try:
+                import entry_quality_ledger as eql_build
+                _eql = eql_build.build_ledger()
+                last_payload["entry_quality_ledger"] = {
+                    "events": len(_eql.get("events") or []),
+                    "days": (_eql.get("_meta", {}).get("population", {}) or {}).get("n_days"),
+                    "generated_at_et": _eql.get("_meta", {}).get("generated_at_et"),
+                }
+            except Exception as qe:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["entry_quality_ledger"] = {"error": f"{type(qe).__name__}: {qe}"[:200]}
             # --- ENTRY SHADOW COUNTER (LANE-4 2026-08-06) rides this SAME nightly fire,
             # SAME fold contract (fail-open, additive, population-product only, no new
             # scheduled task). MEASUREMENT ONLY: tallies V-d1/V-e3 would_block per entry
