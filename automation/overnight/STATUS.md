@@ -70,9 +70,66 @@ on each artifact's **own build stamp, never a data date** — a data date parks 
 state file). Restored the original formatting and re-applied surgically — net diff is now 61
 insertions, 0 deletions.
 
+### 4. The recycle guard BECAME the wedge — 43h of thrash (`fee97318`)
+
+Found by sweeping every non-GREEN unit. `window_leak_detector_keepalive` recycled the detector
+**every 5 minutes**, each time claiming it "has run 6.1h" on a process launched 5 minutes
+earlier. Cause: it derives runtime from `polls_total × poll_interval_s` in a summary the
+**dead** detector wrote (`43800 × 0.5 = 6.083h`, permanently over the 6h threshold). The new
+detector was killed before it could ever overwrite that file — so the file stayed frozen, so
+the next fire killed the next one. **~43 hours with no leak detection at all.**
+
+The original guarded the *unreadable* summary case and missed the *stale* one — stale is worse,
+it returns a confident wrong number. Fixed by scoping the runtime to the live pid (the summary
+already stamps its own). **The 08-13 wedge mitigation survives** — a genuine 6.08h runtime on
+its OWN counters still recycles, pinned by a test. Verified live: `runtime unknown` →
+`runtime=0.1h`, summary advancing again (polls 43800-frozen → 600 and climbing).
+
+*I first blamed a UTC-vs-local offset — 6.1h looks exactly like MDT's 6h plus a 5-minute age,
+and I'd already fixed two clock bugs today. Reading the code killed that. Noted because the
+coincidence was persuasive and wrong.*
+
+### 5. 8 live tasks that no unit watched (`019fbe29`)
+
+The registry's own anti-rot diff (L292) was naming them; nobody claimed them. Sharpest:
+**`Gamma_IncidentFixStatus`** — it re-verifies daily that the 08-14 loss-morning fixes are
+still landed, and was itself unregistered. *It guarded the roster while nothing guarded it.*
+
 ---
-**On J's desk, unchanged from earlier today:** the 190-vs-191 dataset decision, and the
-PROVISIONAL P5 waiver for `vwap_reclaim_failed_break`. **New:** `claude /login`.
+
+## SURVEY COMPLETE — what is left, and why it is left
+
+**Infrastructure: swept exhaustively. Everything fixable is fixed.**
+66 units → **63 GREEN / 1 YELLOW / 1 RED / 1 OFF**; `engine-health` GREEN with zero reds.
+- The RED is the auth outage → **J's `claude /login`**, nothing here can clear it.
+- The YELLOW is a stale pid file for `window_leak_hook.py` — which turns out to be **untracked
+  and to have no launcher anywhere** (one of 9 untracked scripts in `setup/scripts/`). None of
+  the 9 is referenced by any scheduled task, so **the rig is still reproducible from the repo**;
+  they are orphaned tools, not load-bearing. Flagged rather than bulk-committed — this is a
+  PUBLIC repo and unreviewed files do not get swept in.
+
+**Research/engine-edge: not short of ideas — short of VALIDATED ones.** 104 open queue items.
+The top engine-edge entries are already filed, already CRITICAL, and already gated:
+- `G1-FILTER5-VS-REJECTION-SETUPS` — **this is the M1 entry/exit ribbon contradiction**, filed
+  2026-07-27 with the same structural argument (filter 5 anti-correlates with rejection setups,
+  C28/L243), a named candidate, and an explicit "must clear the 4-gate + pooled BH-FDR bar on
+  386 days before arming". Shipping it tonight would violate the eval-first gate (OP-11). My
+  contribution was verifying it is **still live in code today** and folding that into the churn
+  teardown.
+- `THETA-NOT-GIVEBACK`, `EXIT-HYBRID-PRETP1-FLOOR` — same shape: CRITICAL, pre-reg required.
+
+**So the binding constraint on engine edge is forward evidence, not effort — and the evidence
+pipelines were the thing that was broken.** A dead prereg clock, an unmonitored shadow layer,
+and a dead autonomous loop were all silently producing nothing. That is what this session
+fixed. Conviction's first post-fix rows land **Monday 08-17**; the stop_mode clock is
+**ACCRUING (17 days to its bar)**; the V-d1/V-e3 forward window sits at 7/10 sessions.
+
+**Known gap, disclosed not hidden:** 29 fills (08-13 ×17, 08-14 ×12) still skip the stop_mode
+clock on `no_opra_cache` — the already-queued `fetch_option_data.py` frozen-contract-list fix.
+
+---
+**On J's desk:** `claude /login` (**blocks the entire autonomous loop**) · the 190-vs-191
+dataset decision · the PROVISIONAL P5 waiver for `vwap_reclaim_failed_break`.
 
 ## [2026-08-15T16:15:02 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-15 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
 
