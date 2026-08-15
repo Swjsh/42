@@ -1,3 +1,29 @@
+## [2026-08-15 ~02:0x ET] Family B started -- watcher registry CLOSED; unattended_health traced but NOT fixed
+
+CLOSED:
+- `test_watcher_registry` (2). `bollinger_squeeze_watcher.py` was on disk and not in
+  `runner.WATCHERS` -- exactly the gap that guard exists to catch, RED since the file landed.
+  Verdict: **EXCLUDE, not register**, and that was checked not assumed. It is imported directly
+  by `autoresearch/bollinger_fresh_reverify.py` and its logic is PORTED into
+  `lib/patterns/context.py` for the live path, so registering it would double-run logic the
+  live path already carries. Exclusion carries its evidence inline.
+
+TRACED, NOT FIXED -- `test_unattended_health` (5):
+- Symptom: scenarios built to read GREEN now read RED, e.g. "HAS NOT FIRED in **7.5d**" for a
+  task whose fixture sets `last_run=2026-08-07` against a FIXED `SUNDAY = 2026-08-09 15:00`.
+  7.5d back from that Sunday is 2026-08-02, which is neither date.
+- RULED OUT: `evaluate_task` ignoring its `now_et` argument. It does not -- it uses `now_et`
+  for the gap and the unscheduled-day slack (`unattended_health.py:295+`). That was the obvious
+  suspect and it is innocent.
+- REMAINING HYPOTHESIS: the test's `_task(last_run=...)` helper no longer writes the field the
+  evaluator reads, so the task looks like it has never run and the gap is measured from the
+  trigger start instead. That is the SAME contract-drift family as the stale
+  `fake_manage_tick` signature repaired earlier tonight -- a helper pinned to a shape that moved.
+- NEXT STEP: diff `_task()`'s output keys against what `evaluate_task` actually reads. One read
+  each way; do not re-pin the day budgets, which are not the problem.
+
+Stopped here deliberately rather than guessing at a health monitor's thresholds.
+
 ## [2026-08-15 ~01:4x ET] Family A continued -- 3 more bounded, 1 diagnosed as unfixable-by-patch, 3 left with a SUSPICIOUS signature
 
 DONE since the escalation above:
