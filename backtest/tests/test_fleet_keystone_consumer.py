@@ -100,6 +100,15 @@ def test_keystone_signal_drives_loose_arm_to_enter(tmp_path, monkeypatch):
     sig = _build(tmp_path, monkeypatch, scoring_peak=True)
     assert sig["bold"]["bull"]["passed"] is True  # producer half (re-pinned for context)
 
+    # RECENCY SANDBOXED 2026-08-14. plan_entry consults fx._recency_verdict(), which reads the
+    # LIVE automation/state/recency-confirmation.json. That file went RED after the recent cold
+    # stretch, so the clamp fired and qty came back 5 instead of 8 -- and this test had been RED
+    # ever since, guarding nothing. The test's subject is the producer->consumer LINK and the
+    # base-tier sizing, not recency policy (which has its own guards in test_fleet_arm_parity),
+    # so the verdict is pinned GREEN here. A test whose verdict depends on today's live fleet
+    # state cannot guard anything -- same defect as the nbbo fixture that read the live circuit
+    # breaker.
+    monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "GREEN")
     params = fx._params_for(LOOSE_BOLD)
     plan = fx.plan_entry(LOOSE_BOLD, sig, equity=2000.0, params=params)
     assert plan.action == "ENTER", f"loose arm must ENTER the keystone signal, got {plan.reason}"
