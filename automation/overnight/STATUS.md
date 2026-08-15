@@ -1,3 +1,48 @@
+## [2026-08-15 ~10:xx ET] CORRECTION #2 -- the exit telemetry EXISTS. I queried one level too shallow. And it answers the question.
+
+RETRACTED: "the engine does not record why a position exited". **False.** `exit_pass` rows carry
+an `actions[]` list, and each action has `kind` + `reason`. I read `reason` off the RESULT dict
+(which has no such key) instead of off the actions inside it, saw `None`, and declared a missing
+instrument. The correct query returns 545 attributed exit actions. **I nearly built a duplicate
+of a surface that already worked** -- the exact "check for prior coverage before building" rule.
+
+## WHAT THE REAL ATTRIBUTION SAYS (closing + partial actions)
+
+| reason | PRE-stack | share | POST-stack (08-10+) | share |
+|---|---|---|---|---|
+| `premium_stop` | 147 | **62%** | 19 | 19% |
+| `structure_stop` | 28 | 12% | 31 | **32%** |
+| `ribbon_flip_back` | 9 | 4% | 22 | **22%** |
+| `runner_stop` (the ratcheted floor) | 26 | 11% | 13 | 13% |
+| `tp1 @ +100%` | 17 | 7% | 9 | 9% |
+| `runner_target @ +250%` | **3** | 1% | **0** | **0%** |
+| totals | 239 | | 98 | |
+
+THREE THINGS FALL OUT, and none of them are what I argued this morning:
+
+1. **`ribbon_flip_back` went 4% -> 22% of all closes.** That is the biggest compositional shift
+   in the book, and C28 is explicit that **ribbon flip is a LAGGING exit**. A fifth of closes now
+   run through the layer doctrine already says fires late. This was not in any hypothesis I had.
+2. **`runner_target @ +250%` fired 3 times PRE and ZERO times POST.** Nothing rides to target
+   any more. Alongside 46 `RATCHET_STOP|runner_stop trail/arm` and 16 `RATCHET_STOP|pre_tp1
+   profit_lock arm/trail` moves, the mechanism is visible: floors ratchet up, positions exit on
+   the ratcheted floor, the tail never completes.
+3. **The ladder does NOT close positions directly** -- it appears only as `RATCHET_STOP` (a floor
+   move). Its effect is INDIRECT, realised as `runner_stop` closes. So "the ladder clipped it"
+   and "runner_stop closed it" are the same event under two names, which is precisely why the
+   confounded before/after could not resolve it.
+
+## STATUS OF THE EXIT QUESTION
+
+Still UNRESOLVED, but now measurable from live data rather than only replay. The ratchet-cost
+prereg should be amended before running: its cells must key on **exit-reason composition**
+(runner_stop vs runner_target vs ribbon_flip_back), not just net P&L, because the P&L delta is
+the downstream symptom and the composition shift is the mechanism.
+
+TWO CORRECTIONS IN ONE MORNING, both mine, both from over-reading thin evidence: (a) "live fills
+confirm it" -- confounded; (b) "no exit telemetry" -- wrong query. The pattern in both is
+reaching a headline before exhausting the data. Recorded here rather than quietly fixed.
+
 ## [2026-08-15 ~09:xx ET] CORRECTION -- I over-claimed the exit finding. The live before/after is CONFOUNDED.
 
 I told J this morning that live fills "confirm" the exit-stack hypothesis and called the
