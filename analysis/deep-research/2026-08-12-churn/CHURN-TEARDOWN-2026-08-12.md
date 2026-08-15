@@ -161,3 +161,54 @@ sits between), and 15:50 on 0DTE is near-intrinsic. But the direction is unambig
   hold (−$2.8k). The only winning line on 08-12 remains J's: one long at the 12:35 support
   touch at the RANGE EDGE. Entry location/conviction is the whole game — which is exactly what
   the conviction-ratchet design gates on (C1 named level, C4 range extreme).
+
+---
+
+## 2026-08-15 — this doc ANSWERS the handoff's "largest unexplained compositional shift"
+
+The 2026-08-15 engine-review handoff flagged `ribbon_flip_back` going **4% → 22% of all closes**
+as "the largest unexplained compositional shift in the book" and "an open lead nobody has
+explained." It was explained here, the night it happened. Recording the join so the next
+session routes here instead of re-deriving it.
+
+**It is not a shift in exit behaviour. It is one out-of-population day.**
+
+| window | closes | `ribbon_flip_back` | share |
+|---|---:|---:|---:|
+| PRE-stack (everything before 08-10) | 239 | 9 | 4% |
+| POST 08-10..08-14 | 98 | 22 | **22%** |
+| POST **excluding 08-12** | 59 | 4 | **7%** |
+
+Per day: 08-10 **1**, 08-11 **3**, 08-12 **18**, 08-13 **0**, 08-14 **0**. Eighteen of the
+twenty-two POST firings — and 58% of every `ribbon_flip_back` that has EVER fired (31 all-time)
+— are 2026-08-12. Strip that one day and the "shift" is 7% vs 4% on n=4.
+
+(Counting note: this table counts logged exit ACTIONS keyed on `reason`; the teardown above
+counts broker POSITIONS and reports 1/4/21 for the same three days. Different units, same
+mechanism, same magnitude. Neither was silently adopted for the other.)
+
+**Two framing corrections for whoever inherits the handoff:**
+
+1. **C28 ("ribbon flip is a LAGGING exit") does not explain this — it is the opposite.** These
+   exits fired at a **1.0-minute median hold**, on the position's FIRST management tick. Not
+   late: immediate, and immediate *by construction*, per M1 above — entry waives the ribbon
+   check and the exit enforces it, so the position is born pre-invalidated. Reaching for C28
+   here points at exit width, which is precisely the lever the same handoff concluded not to
+   pull.
+2. **The denominator moved too.** Only 98 closes POST vs 239 PRE-stack, so any surviving reason
+   gains share mechanically as `premium_stop` collapsed 62% → 19%. Absolute count is the honest
+   axis; share alone overstates every non-premium_stop row in that table.
+
+**Still live as of 2026-08-15** — re-verified in code today, not recalled from this doc:
+- Entry still waives it: `backtest/lib/filters.py` `if trendline_only_setup: blockers.remove(5)`
+  — and filter 5 IS the ribbon check (`:1172` BULL-stacked, `:1487` BEAR-stacked, confirmed by
+  reading the numbering rather than trusting the label).
+- Exit still enforces it bare: `exit_actuator.py` `ribbon_stack == ("BULL" if side == "P" else
+  "BEAR")`, whose own docstring says it is "Shared by heartbeat_core (core accounts) AND
+  fleet_live (fleet arms) so the two exit paths cannot drift". The `heartbeat_core.py:877`
+  reference above has since drifted to a different function — the shared predicate in
+  `exit_actuator.py` is now the single authority, which is an improvement, but M1 is UNFIXED.
+
+So **M1 remains the open bug**, and it is an ENTRY-side bug — consistent with this teardown's own
+conclusion (R3 proceeds entry-side only) and with the handoff's verdict that the next lever is
+entry selectivity, not exit width. Nothing about the 4% → 22% number argues for re-tuning exits.
