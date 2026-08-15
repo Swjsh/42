@@ -12,13 +12,11 @@
 
 ## Hypothesis
 
-Price pulling back to VWAP while the EMA ribbon is bullishly stacked offers a high‑probability long entry. This occurs when short-term momentum pauses at fair value (VWAP) but the intermediate-term trend (EMA ribbon) remains intact, providing a low-risk entry point with asymmetric upside.
+Price exhibits mean-reversion to VWAP during intraday trends, but resumes the trend after a short pullback when the EMA ribbon remains aligned. This setup captures that re-entry edge by requiring a VWAP reclaim after a two-bar dip, bullish EMA ribbon alignment, and strong bar close quality, avoiding false breakouts in choppy conditions.
 
 ## Mechanism
 
-Entry trigger: When price closes below VWAP but remains above the 20-EMA (lowest EMA in the ribbon) AND the ribbon is bullish (5-EMA > 8-EMA > 13-EMA > 21-EMA) AND RSI(14) is between 40-60, enter long at the close of that bar.  
-Exit: Initial stop at the most recent swing low (structure invalidation), TP1 at 1.5R from entry, then trail the remaining position 12% off the high-water mark.  
-Regime filters: Only active when VIX < 20, time between 09:45-11:30 EST, and ribbon is upward sloping (each EMA above the prior). Avoid when VIX > 25 or ribbon is flat/downward.
+Entry: On 5-minute bars, when (1) close crosses above VWAP after being below it for ≥2 consecutive bars, (2) EMA8 > EMA21 > EMA55 (bullish ribbon) on that bar, and (3) close is in upper 50% of bar range (bullish body). Exit: Initial stop at swing low prior to entry bar (chart-stop), profit target at 1.5×ATR from entry, or trailing stop of 15% off highest high since entry. Only trades between 09:45-11:30 EST when VIX < 18 to avoid regime mismatch.
 
 ## Expected impact on OP-16 anchors
 
@@ -34,24 +32,21 @@ Regime filters: Only active when VIX < 20, time between 09:45-11:30 EST, and rib
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** Strategy assumes $25K+ account for full position sizing (15 contracts per playbook). $1K paper account would realize ~14% of headline P&L due to 3-contract minimum.
-2. **Sample bias:** Zero historical backtest conducted; proposal based solely on conceptual thesis. High overfit risk until Stage-1 validation.
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window tested).
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic simulator validation on top 3 J days).
-5. **Failure modes:** 
-   - Worst day: Whipsaw during VIX expansion (>25) triggering false ribbon alignment.
-   - Max drawdown: Consecutive losing days in choppy markets (VIX 15-20 with flat ribbon) causing repeated stop-outs.
-   - Blow-up scenario: Gap open through stop during news event (FOMC/CPI) with VIX >30 and no liquidity.
-6. **Concentration:** Unknown -- requires Stage-1 backtest to determine if top-5 days exceed 20% of P&L.
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ≈14% of headline P&L due to 50% risk cap and 3-contract minimum.
+2. **Sample bias:** Proposed logic based on intraday price action principles; sample size zero (no backtest performed); high overfit risk without walk-forward validation.
+3. **Out-of-sample:** NEEDS-OOS (no OOS test conducted).
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic fill simulation on top 3 J days).
+5. **Failure modes:** Worst day: whipsaw in sideways market causing multiple stopped entries; max drawdown: potential -50% per trade if stops hit; blow-up scenario: prolonged low-VIX trend where ribbon alignment fails and VWAP pullbacks become continuation failures.
+6. **Concentration:** unknown -- requires Stage-1 backtest (if top-5 days drive >100% of P&L, strategy is fragile).
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
 
 ## Confidence
 
-3 / 10 -- Novel mechanism lacks empirical validation; relies on untested confluence of VWAP, EMA ribbon, and RSI filters.
+5 / 10 -- Based on sound intraday price action logic but zero empirical validation; requires Stage-1 backtest to assess edge capture on J anchors and avoid overfit to recent market regimes.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with existing candidates 1-24 in _LEADERBOARD.md. Adds new trigger logic without modifying existing parameters, gates, or exit mechanics. Complements VWAP_CONTINUATION by trading pullbacks vs. continuations. No overlap in entry conditions with current leaderboard strategies.
+Complements existing VWAP_CONTINUATION by capturing pullback-reentries rather than strict VWAP stays; differs from RIBBON_RIDE by adding VWAP reclaim trigger and body-quality filter. No direct conflict with leaderboard candidates as it targets a distinct setup type (VWAP/ribbon hybrid) not currently covered. May overlap with MIDDAY_TRENDLINE_GATE regime filters but operates earlier in session (09:45-11:30 vs 11:30-14:00).
