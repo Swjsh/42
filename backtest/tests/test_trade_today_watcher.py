@@ -1,8 +1,9 @@
 """Guard: trade_today_watcher classify_orders (OP-33e 'did it trade' instrument, 2026-07-08)."""
 from __future__ import annotations
-import importlib.util, json, sys
+import importlib.util, json, shutil, sys
 from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
 def _load():
@@ -138,15 +139,25 @@ def test_engine_attributed_true_when_exec_symbol_matches(tmp_path, monkeypatch):
     assert w._is_engine_attributed("safe-2", SYM) is True
 
 
-def test_engine_attributed_true_via_extra_exec_2026_07_16_incident():
+def test_engine_attributed_true_via_extra_exec_2026_07_16_incident(tmp_path, monkeypatch):
     """This is the exact real-world case that motivated the fix, corrected same-day: a real
     fill (SPY260716P00751000) placed via the extra-setup G4 side-channel (vwap_continuation,
     exec-armed) logs under row["extra_exec"][i]["exec"], NOT the primary row["exec"] dict.
     The first version of this function only checked the primary path and wrongly returned
     False here -- caught when J said "I did not do anything today," forcing re-investigation.
-    Runs against the REAL on-disk state file, not a fixture -- pins that an extra-setup fill
-    is correctly attributed to the engine."""
+
+    SANDBOXED 2026-08-15. This ran against the LIVE core-decisions.jsonl until it started
+    failing -- not because attribution broke, but because `_decision_rows_for_arm` reads a
+    BOUNDED TAIL (2000 lines) and that ledger grew to 27,335 rows. The July-16 rows sit at
+    index ~11,124, i.e. 14k lines outside the window. Production is UNAFFECTED: a fill is
+    pinged the same day it happens, always inside the tail. Only a test asserting on a
+    months-old incident could age out. The real rows are frozen verbatim in
+    fixtures/attribution-2026-07-16-core.jsonl -- which also RESCUES them, since the live
+    ledger will eventually drop them entirely."""
     w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    shutil.copy(FIXTURES / "attribution-2026-07-16-core.jsonl",
+                tmp_path / "core-decisions.jsonl")
     assert w._is_engine_attributed("safe-2", "SPY260716P00751000") is True
 
 
@@ -235,14 +246,22 @@ def test_engine_attributed_false_for_fleet_arm_monitoring_tick_no_actions(tmp_pa
     assert w._is_engine_attributed("risky-3", FLEET_SYM) is False
 
 
-def test_engine_attributed_true_via_real_risky3_2026_07_17_incident():
+def test_engine_attributed_true_via_real_risky3_2026_07_17_incident(tmp_path, monkeypatch):
     """The exact real-world incident that motivated this fix: risky-3 filled 5 real broker
     orders on 2026-07-17 (+$248 realized) and every single one pinged Discord as
     "UNATTRIBUTED FILL (no matching decision row)" despite a complete ENTER_BEAR +
-    exit_pass trail existing in automation/state/fleet/risky-3/decisions.jsonl. Runs against
-    the REAL on-disk state file, not a fixture -- pins that both the entry and an exit fill
-    from that incident are now correctly attributed."""
+    exit_pass trail existing in automation/state/fleet/risky-3/decisions.jsonl.
+
+    SANDBOXED 2026-08-15, same cause as the 07-16 pin above: risky-3's ledger grew to 7,306
+    rows and the July-17 rows sit at index 2,236 -- outside the 2000-line tail
+    `_decision_rows_for_arm` reads. The attribution logic never regressed; the evidence
+    scrolled past the window. Frozen verbatim (both ENTER_BEARs + the full exit_pass trail)
+    in fixtures/attribution-2026-07-17-risky3.jsonl."""
     w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    d = tmp_path / "fleet" / "risky-3"
+    d.mkdir(parents=True)
+    shutil.copy(FIXTURES / "attribution-2026-07-17-risky3.jsonl", d / "decisions.jsonl")
     assert w._is_engine_attributed("risky-3", "SPY260717P00741000") is True   # ENTER_BEAR entry
     assert w._is_engine_attributed("risky-3", "SPY260717P00743000") is True   # 2nd ENTER_BEAR + exits
 
@@ -523,7 +542,13 @@ def test_exit_profile_matches_live_accounts_json():
         # (tp1 1.0 -> 0.5 only). The control
         # role moved to the core arms (safe-2/bold-2), which still run the registry shape.
         assert w._exit_profile_for_arm("risky-1") == "REACHABLE-TP1"
-        assert w._exit_profile_for_arm("risky-3") == "ZONE-RIDE"
+        # risky-3 was ZONE-RIDE until 2026-08-09, when `1a2692c4` armed it on the
+        # PREMIUM-STOP lane as a one-variable live paper A/B for the stop_mode finding
+        # (prereg `a2d7c3e4`, frozen BEFORE the config change). RE-PINNED 2026-08-15, not
+        # sandboxed: this assertion exists to catch accounts.json edits and it caught a real
+        # one -- the edit was deliberate and pre-registered, so the pin moves to match.
+        # NOTE for the exit review: this arm is a CONFOUND in any PRE/POST 08-10 exit split.
+        assert w._exit_profile_for_arm("risky-3") == "PREMIUM-STOP"
         assert w._exit_profile_for_arm("safe-2") == "CORE"
         assert w._exit_profile_for_arm("bold-2") == "CORE"
     finally:

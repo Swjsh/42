@@ -19,6 +19,7 @@ Run:
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import sys
 
 import pytest
@@ -69,6 +70,49 @@ JSONL_CASES = [
 ]
 
 
+# State files belonging to a RETIRED producer. Their contract describes an ACTIVE
+# lane, so a retired lane's frozen skeleton cannot satisfy it -- and weakening the
+# model to accept nulls would weaken it for the LIVE core file too, which is the
+# one that matters.
+#
+# aggressive/loop-state.json (2026-08-15): `spy.last` and `ribbon` are null. The
+# LLM aggressive heartbeat that populated them was retired 2026-06-25 --
+# `Gamma_Heartbeat_Aggressive` is Disabled and aggressive/decisions.jsonl froze the
+# same day at 46 rows. loop_state_refresh.py states the general case outright:
+# "loop-state.json is a legacy LLM-heartbeat artifact; the deterministic engine
+# (heartbeat_core) never increments it." Nothing will ever repopulate those fields.
+#
+# The exclusion RE-ARMS ITSELF: it is gated on the retirement still being true
+# (no new decision rows), not on a hand-maintained list. Revive the lane and this
+# guard starts enforcing the full contract again on the next appended row -- so
+# this cannot rot into a permanent blind spot the way a bare skip would (L292).
+RETIRED_PRODUCER_FILES = {
+    "automation/state/aggressive/loop-state.json":
+        ("automation/state/aggressive/decisions.jsonl", "2026-06-25"),
+}
+
+
+def _retired_lane_is_still_retired(ledger_rel: str, frozen_after: str) -> tuple[bool, str]:
+    """(still_retired, evidence). Pure file read -- no PowerShell, no network."""
+    ledger = REPO_ROOT / ledger_rel
+    if not ledger.exists():
+        return True, f"{ledger_rel} absent"
+    newest = ""
+    for line in ledger.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        for key in ("ts_et", "ts", "timestamp", "date"):
+            val = row.get(key)
+            if isinstance(val, str) and len(val) >= 10:
+                newest = max(newest, val[:10])
+                break
+    return newest <= frozen_after, f"{ledger_rel} newest row {newest or 'none'}"
+
+
 @pytest.mark.parametrize(
     "rel_path,model",
     JSON_CASES,
@@ -78,6 +122,20 @@ def test_live_json_file_validates(rel_path, model):
     path = REPO_ROOT / rel_path
     if not path.exists():
         pytest.skip(f"state file absent (ok): {rel_path}")
+    if rel_path in RETIRED_PRODUCER_FILES:
+        ledger_rel, frozen_after = RETIRED_PRODUCER_FILES[rel_path]
+        still_retired, evidence = _retired_lane_is_still_retired(ledger_rel, frozen_after)
+        assert still_retired, (
+            f"{rel_path} is excluded as a RETIRED producer, but its lane is ALIVE again "
+            f"({evidence}). Re-arm the full contract for this file -- remove it from "
+            f"RETIRED_PRODUCER_FILES -- rather than leaving a live lane unvalidated."
+        )
+        # Retirement holds. Still enforce what the self-healer depends on
+        # (_shared.ps1#Repair-StateFiles validates schema_version + session_id).
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        assert isinstance(data.get("schema_version"), int), f"{rel_path}: schema_version"
+        assert data.get("session_id"), f"{rel_path}: session_id"
+        pytest.skip(f"retired producer, lane still dead ({evidence})")
     try:
         load_validated(path, model)
     except StateContractError as exc:
