@@ -40,20 +40,41 @@ pytestmark = pytest.mark.skipif(
     not _DATA_AVAILABLE,
     reason="today's 1-min OPRA cache (backtest/data/highres/) not present in this checkout")
 
-# Pinned baseline (iteration 6, 2026-07-17 after-hours). See
-# analysis/recommendations/exit-manager-replay-2026-07-17.json for the full record.
+# Pinned baseline. See analysis/recommendations/exit-manager-replay-2026-07-17.json.
+#
+# RE-PINNED 2026-08-15, with the drift EXPLAINED rather than absorbed.
+#
+# This harness reads LIVE automation/state/params.json + fleet/strategies.py, so its numbers
+# move whenever exit config ships. Between the original pin (2026-07-17) and now, four
+# J-directed exit changes landed -- the PRE-TP1 PROFIT RATCHET (1a9b1409), J's LADDER
+# (af6cf286), the trail arm moved +40% -> +75% (658ecc79), and the ribbon confirmation buffer
+# (20a9e792, implemented NOT armed). The pin was never moved with them, so it sat RED and
+# detected nothing thereafter.
+#
+# WHAT THE DRIFT ACTUALLY IS -- the one number worth a human's attention:
+#   ("bold", "13:51:21")  177.4 -> 114.0, and it is now the ONE unfaithful trade (5/6).
+#   Its replay exit is `premium_stop @ 0.61`, while the LIVE trade made $191.
+#   Today's exit config would have cut that real winner by ~40%.
+# That is the pre-TP1 ratchet's INTENDED shape (lock profit earlier, cap the runner), so it is
+# a trade-off, not self-evidently a bug -- but it is n=1 and it has never been measured across
+# a population. Filed in STATUS.md; the question "does the ratchet cost more than it saves"
+# needs its own pre-registered study, NOT an adjudication on one trade.
+#
+# HOW TO MAINTAIN THIS PIN: re-derive it whenever exit config ships, in the SAME commit, and
+# state what moved and why -- as here. Do not silently re-pin: the delta IS the signal, and a
+# pin quietly dragged to today's numbers is how a real exit regression would slip through.
 PINNED_PER_TRADE_PNL = {
     ("safe", "11:06:03"): -46.0,
     ("safe", "11:40:04"): -102.0,
     ("safe", "13:01:03"): 246.3,
-    ("bold", "13:51:21"): 177.4,
+    ("bold", "13:51:21"): 114.0,   # was 177.4 -- pre-TP1 ratchet, premium_stop @ 0.61
     ("safe", "14:03:03"): 112.15,
     ("safe", "14:49:03"): -63.0,
 }
-PINNED_N_FAITHFUL = 6
+PINNED_N_FAITHFUL = 5              # was 6 -- the bold trade above is the unfaithful one
 PINNED_N_SCORED = 6
-PINNED_ALL_FAITHFUL = True
-PINNED_TOTAL_DELTA = -17.15
+PINNED_ALL_FAITHFUL = False        # was True, for the same single trade
+PINNED_TOTAL_DELTA = -80.55        # was -17.15; the -63.4 move is that trade
 
 
 def _run():
