@@ -78,7 +78,7 @@ import json
 import re
 import subprocess
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -124,8 +124,23 @@ def _et_now() -> datetime:
 
 
 def _et_offset_hours(now_et: datetime) -> int:
-    """Live ET-minus-local offset, so mtimes/naive locals convert across DST."""
-    return round((now_et - datetime.now()).total_seconds() / 3600.0)
+    """ET-minus-LOCAL offset AT `now_et`, so mtimes/naive locals convert across DST.
+
+    Derived from the two zones' own UTC offsets on that date -- NEVER by
+    differencing `now_et` against the live wall clock. The wall-clock form was
+    only correct when `now_et` happened to BE now: it silently redefined
+    "timezone offset" as "how far in the past the caller's clock is", so a
+    frozen fixture clock 5.8 days back returned -140 "hours" and shifted every
+    converted timestamp by ~6 days -- turning 2-hour-old tasks into 5.9-day
+    outages. `evaluate_task` documents itself as pure given (task, now_et);
+    this is what makes that claim true.
+    """
+    from et_clock import et_offset_hours  # noqa: PLC0415 -- deferred, matches _et_now
+    et_from_utc = et_offset_hours(now_et.replace(tzinfo=timezone.utc))
+    local = now_et.astimezone().utcoffset()
+    if local is None:  # no local tz resolvable -- treat local AS ET rather than guess
+        return 0
+    return et_from_utc - round(local.total_seconds() / 3600.0)
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +169,41 @@ def _dow_bit(day: datetime) -> int:
     return 1 << ((day.weekday() + 1) % 7)
 
 
+_DOW_NAME_BITS = {
+    "sunday": 1, "monday": 2, "tuesday": 4, "wednesday": 8,
+    "thursday": 16, "friday": 32, "saturday": 64,
+}
+
+
+def _dow_mask_value(dow: Any) -> int:
+    """Normalise a trigger's DaysOfWeek to a Windows bitmask. Never raises.
+
+    The live enumerator (`_list-gamma-tasks-json.ps1`) casts `[int]$tr.DaysOfWeek`,
+    so today this is always an int or null. It is normalised anyway because a bare
+    `int(dow)` raises TypeError on a list -- and a crash inside the health monitor
+    takes down the surface whose whole job is noticing that things are down (C7).
+    Accepts: 62 | "62" | ["Monday", "Friday"] | [2, 32] | "Monday".
+    """
+    if isinstance(dow, bool) or dow is None:
+        return 0
+    if isinstance(dow, (int, float)):
+        return int(dow)
+    if isinstance(dow, str):
+        name = _DOW_NAME_BITS.get(dow.strip().lower())
+        if name is not None:
+            return name
+        try:
+            return int(dow.strip())
+        except ValueError:
+            return 0
+    if isinstance(dow, (list, tuple, set, frozenset)):
+        mask = 0
+        for item in dow:
+            mask |= _dow_mask_value(item)
+        return mask
+    return 0
+
+
 def _scheduled_days_mask(triggers: list[dict]) -> Optional[int]:
     """Union of DaysOfWeek across enabled triggers, or None when unrestricted.
 
@@ -168,9 +218,9 @@ def _scheduled_days_mask(triggers: list[dict]) -> Optional[int]:
     for t in triggers:
         if not t.get("enabled", True):
             continue
-        dow = t.get("days_of_week")
-        if dow:
-            mask |= int(dow)
+        bits = _dow_mask_value(t.get("days_of_week"))
+        if bits:
+            mask |= bits
         else:
             saw_unrestricted = True
     if saw_unrestricted or not mask:
@@ -212,7 +262,7 @@ def expected_gap_minutes(triggers: list[dict]) -> tuple[Optional[float], str]:
             # DAILY task that skips weekends. Score it daily and let the mask's
             # unscheduled-day slack absorb the skipped days; scoring it at 10080m
             # would give a Mon-Fri task a three-week licence to be dead.
-            if t.get("days_of_week"):
+            if _dow_mask_value(t.get("days_of_week")):
                 cadence, label = 1440.0, "fires on its scheduled weekdays"
             else:
                 cadence, label = 10080.0, "weekly trigger"

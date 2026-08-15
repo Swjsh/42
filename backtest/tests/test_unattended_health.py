@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -341,6 +341,65 @@ def test_shipped_registry_manifest_refs_all_resolve():
     missing = [(u["id"], a) for u in reg["units"] for a in (u.get("artifacts") or [])
                if isinstance(a, str) and a not in manifest]
     assert not missing, f"unresolved manifest refs: {missing}"
+
+
+# ---------------------------------------------------------------------------
+# Clock purity -- RED-PROOF for the 2026-08-15 wall-clock coupling defect
+# ---------------------------------------------------------------------------
+
+def test_et_offset_does_not_drift_with_the_wall_clock():
+    """RED-PROOF: `_et_offset_hours` derived ET-minus-local by differencing its
+    argument against `datetime.now()`. That is only correct when the argument IS
+    now. Driven with a frozen fixture clock it returned the DISTANCE from today
+    (-140 "hours" for SUNDAY), shifting every converted stamp by ~6 days and
+    manufacturing 5 fake outages. A timezone offset is a property of a DATE, so
+    it must stay bounded no matter how stale the caller's clock is."""
+    for clock in (SUNDAY, datetime(2020, 1, 2, 3, 4), datetime(2026, 12, 25, 9, 0)):
+        off = uh._et_offset_hours(clock)
+        assert -12 <= off <= 12, f"{clock} -> {off}h is a clock difference, not an offset"
+
+
+def test_task_verdict_depends_only_on_its_frozen_clock():
+    """The contract `evaluate_task` advertises ("pure apart from its inputs, so the
+    guard can drive it with synthetic task dicts and a frozen clock"). A task that
+    ran 2h before the frozen clock is GREEN -- and stays GREEN however far in the
+    past that frozen clock sits. Under the old code the same fixture read
+    'HAS NOT FIRED in 5.9d' purely because the suite ran 6 days later."""
+    for clock in (SUNDAY, datetime(2026, 3, 11, 15, 0), datetime(2025, 11, 5, 15, 0)):
+        last = (clock - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%S")
+        res = uh.evaluate_task(_task(last_run=last), "critical", clock, {})
+        assert res["status"] == "GREEN", f"{clock}: {res['detail']}"
+
+
+# ---------------------------------------------------------------------------
+# DaysOfWeek normalisation -- crash hardening on the live evaluation path
+# ---------------------------------------------------------------------------
+
+def test_days_of_week_accepts_every_shape_without_raising():
+    """RED-PROOF: `_scheduled_days_mask` did a bare `int(dow)`, which raises
+    TypeError on a list. The live enumerator casts `[int]$tr.DaysOfWeek` so this
+    is latent today, but an unhandled raise here kills the monitor whose only job
+    is noticing that things are dead (C7)."""
+    assert uh._dow_mask_value(MON_FRI) == MON_FRI
+    assert uh._dow_mask_value("62") == MON_FRI
+    assert uh._dow_mask_value(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]) == MON_FRI
+    assert uh._dow_mask_value([2, 4, 8, 16, 32]) == MON_FRI
+    assert uh._dow_mask_value("Monday") == 2
+    assert uh._dow_mask_value(None) == 0
+    assert uh._dow_mask_value("garbage") == 0
+    assert uh._dow_mask_value(["garbage", "Monday"]) == 2
+
+
+def test_list_shaped_days_of_week_survives_the_whole_evaluator():
+    """The exact repro from the 2026-08-15 handoff, driven end-to-end rather than
+    at the helper -- a fix that only satisfies the unit is a half-fix."""
+    trig = dict(_weekday_trigger(), days_of_week=["Monday", "Tuesday", "Wednesday",
+                                                  "Thursday", "Friday"])
+    assert uh._scheduled_days_mask([trig]) == MON_FRI
+    assert uh.expected_gap_minutes([trig])[0] == 1440
+    res = uh.evaluate_task(_task(last_run="2026-08-07T14:00:00-06:00", triggers=[trig]),
+                           "critical", SUNDAY, {})
+    assert res["status"] == "GREEN", res["detail"]
 
 
 if __name__ == "__main__":
