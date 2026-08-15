@@ -224,6 +224,13 @@ def evaluate(trades: list[dict], label: str) -> dict[str, Any]:
 
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    # DATASET INTEGRITY (2026-08-15). This study published its population size off a file
+    # that had been mutated out-of-band -- engine-fullhist-replay went 190 -> 191 rows via an
+    # unrelated regime-threshold commit, and this runner read the mutated version. Fail here,
+    # before computing, rather than publishing a number under a frozen prereg's authority.
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    from dataset_integrity import assert_intact
+    assert_intact("analysis/recommendations/engine-fullhist-replay-2026-07-23.json")
     days = load_bars()
     ordered = sorted(days)
     prior_of = {d: (ordered[i - 1] if i else None) for i, d in enumerate(ordered)}

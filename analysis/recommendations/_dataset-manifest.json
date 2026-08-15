@@ -1,0 +1,26 @@
+{
+ "datasets": {
+  "analysis/recommendations/engine-fullhist-replay-2026-07-23.json": {
+   "present": true,
+   "sha256_16": "92f1db979c25213f",
+   "bytes": 182674,
+   "n_records": 191,
+   "purpose": "18-month full-engine replay; the population for structure_shift_cascade, regime_reslice, pnl_attribution, ENTRY-LOCATION-GATE and ENTRY-RANGE-CONTEXT"
+  },
+  "analysis/trendlines/break-dataset-summary.json": {
+   "present": true,
+   "sha256_16": "d9e664c0306dd76e",
+   "bytes": 3170,
+   "n_records": null,
+   "purpose": "unconditional trendline-break baseline; TRENDLINE-BREAK-AT-LEVEL's G1 control"
+  },
+  "analysis/pain-ledger/mae-mfe.json": {
+   "present": true,
+   "sha256_16": "896bbee2d91f30a7",
+   "bytes": 276587,
+   "n_records": 303,
+   "purpose": "MAE/MFE scored positions; ribbon_flipback_ab_v2's frozen 219-row population (APPEND-ONLY -- tracked by frozen-prefix count, see record_count_note)"
+  }
+ },
+ "_doc": "Content hashes for frozen research datasets. Written by setup/scripts/dataset_integrity.py --record. A DRIFT here means a published conclusion's population changed after publication."
+}
