@@ -1,3 +1,69 @@
+## [2026-08-15 ~13:4x ET] HANDOFF QUEUE 1-5 WORKED. 2 handoff claims corrected. 1 item was already answered in the vault.
+
+Six commits: c23d6b77, 7b8aa67b, 6fa5e218, e6ad0ec0, 7c0895f1, 46b5d800, 692161d0.
+
+**TWO CORRECTIONS TO THE HANDOFF ITSELF** (both verified before acting, neither inherited):
+
+1. **Item 1's stated root cause was wrong.** `int(dow)` on a list is NOT the root of the 5
+   `test_unattended_health` failures -- the fixtures pass `MON_FRI = 62`, an INT, and `None`
+   elsewhere; neither shape can raise it. The real cause is `_et_offset_hours` deriving the
+   ET-minus-local offset by differencing `now_et` against the live wall clock: correct only
+   when `now_et` IS now, so a frozen fixture clock returned **-140 hours** and shifted every
+   timestamp ~5.8 days ("HAS NOT FIRED in 5.9d" was the distance to TODAY, which is why it
+   drifted daily). Live was always fine (+2h) -- which is exactly why the monitor looked
+   healthy while its guard suite sat red. The TypeError is real but latent (the live
+   enumerator casts `[int]$tr.DaysOfWeek`); hardened anyway, on both call sites.
+
+2. **Item 5's standing state is optimistic.** "C4/C5 now actually score for the first time" is
+   true of the CODE, not of any DATA. `974ca235` landed 2026-08-14 19:15 ET; the last
+   conviction row on disk is 2026-08-14T13:35 -- 5h41m earlier. **Zero post-fix rows exist**;
+   Monday 08-17 is the first. All 102 rows on disk are pre-fix and blocked 100% -- and that is
+   ARITHMETIC, not signal quality: max observed score 4 vs a MINIMUM effective floor of 5, so
+   no row could ever clear its floor. Pooling them publishes "99% block rate" (measured on
+   n=103) and would likely kill the component on false evidence. The new weekly reporter
+   partitions on the fix boundary for exactly that reason.
+
+**ITEM 4 WAS ALREADY ANSWERED, in `analysis/deep-research/2026-08-12-churn/`.** The handoff
+called ribbon_flip_back 4%->22% "the largest unexplained compositional shift in the book" and
+"an open lead nobody has explained" -- it was explained the night it happened; the handoff did
+not route through the churn teardown. Folded the join in there per OP-22 rather than opening a
+parallel doc. **It is not an exit shift: 18 of the 22 POST firings are 2026-08-12 alone** (58%
+of every ribbon_flip_back that has EVER fired). Per day 1/3/18/0/0. Strip that day and POST is
+7% vs 4% PRE-stack, on n=4. Two framing corrections: **C28 (lagging exit) is backwards here** --
+median hold 1.0 min, fired on the position's FIRST management tick, pre-invalidated by
+construction (entry waives the ribbon check, exit enforces it); and the DENOMINATOR moved (98
+closes POST vs 239), so every surviving reason gains share mechanically. **M1 re-verified STILL
+LIVE in code today** -- `filters.py` still does `if trendline_only_setup: blockers.remove(5)`
+and filter 5 IS the ribbon check (:1172/:1487). It is an ENTRY-side bug, consistent with the
+handoff's own "next lever is entry selectivity".
+
+**THE SAME CLOCK DEFECT EXISTS TWICE.** `state_freshness_audit.py:300` carried the identical
+`round((now_et - datetime.now())/3600)` expression. Found via a test that failed IN-BATCH and
+passed in isolation: because the expression rounds to whole HOURS, the sub-hour remainder leaks
+into `age_min` as a phantom age -- observed +18.5m then +16.6m twenty minutes later, drifting
+minute-by-minute across key-levels.json's 20m budget. A genuinely flaky guard whose flakiness
+was a real impurity in the producer. Repo swept: those two were the only instances, both now
+fixed and guarded.
+
+**A GATE WAS RIGHT AND UNREAD.** `test_p5_shape_gate` was not stale --
+`vwap_reclaim_failed_break` shipped live 2026-08-03 (`aa2e3f07`) and its P5 waiver row was
+never written, so the gate has been RED on main since. That is the SECOND recurrence of the
+gap the ribbon_ride row already documents. Added the row the ship owed, deliberately
+**PROVISIONAL (j_signed=false)** -- the registry's own rule is "NEVER hand-add a signed waiver
+on J's behalf". **J: sign, replace, or revoke** (revoke = `RUN_VWAP_RECLAIM_FB=False`, one
+line; the prereg's frozen kill-check at n>=10 risky-3 fills already settles it).
+
+**TESTS THAT PASSED FOR THE WRONG REASON.** The 2 "network-only" Family D failures are not
+network-dependent. All four free-model guards `_load()` an adapter that `free_model_audit`
+already imports itself, creating a SECOND module object -- so `monkeypatch.setattr(sca, ...)`
+patched a copy the adapter never calls and `grade()` ran the REAL LLM path. **A test that
+believed it was mocked was firing a live `claude` subprocess** (proof it is gone: 4.38s ->
+0.34s). `prospector` was GREEN for the wrong reason -- inert patches, so it read the REAL
+production ideas-ledger instead of its tmp fixture. Fixed all four.
+
+**STILL RED BY DESIGN, awaiting J (unchanged):** `test_pnl_attribution` and
+`test_regime_reslice` -- the 190-vs-191 provenance detectors. Not touched, not re-pinned.
+
 ## [2026-08-15 ~11:4x ET] PROVENANCE DEFECT: a frozen research population was mutated out-of-band by an unrelated commit
 
 The three off-by-one failures I flagged DO-NOT-RE-PIN are traced. They were right to be RED.
@@ -584,7 +650,7 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-15T04:39:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 16x). Check the named script's own stderr log for the real cause.
@@ -652,4 +718,16 @@ Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-08-15T12:09:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 61 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 61x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T12:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 64 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 64x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T13:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 67 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 67x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T13:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 70 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 70x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
