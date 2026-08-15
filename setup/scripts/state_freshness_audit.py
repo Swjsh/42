@@ -99,6 +99,26 @@ def _et_now() -> datetime:
     return et_now().replace(tzinfo=None)
 
 
+def _et_minus_local_hours(now_et: datetime) -> int:
+    """ET-minus-LOCAL offset AT `now_et`, for converting a naive LOCAL mtime into ET.
+
+    Derived from the two zones' own UTC offsets on that date, so it is a property of the
+    DATE and not of when this happens to run. Never differences `now_et` against the live
+    wall clock -- see the call site for what that cost. Fail-open to 0 (treat local AS ET)
+    rather than guess, matching this module's notify-only posture.
+    """
+    from datetime import timezone  # noqa: PLC0415
+    try:
+        from et_clock import et_offset_hours  # noqa: PLC0415
+        et_from_utc = et_offset_hours(now_et.replace(tzinfo=timezone.utc))
+        local = now_et.astimezone().utcoffset()
+        if local is None:
+            return 0
+        return et_from_utc - round(local.total_seconds() / 3600.0)
+    except Exception:  # noqa: BLE001 -- a monitor must not die on a clock import
+        return 0
+
+
 def _holidays() -> set:
     """US market holidays, reusing engine_health's cached loader.  Fail-open to an
     EMPTY set: on a holiday with no holiday data we would expect today's session
@@ -295,9 +315,19 @@ def evaluate_entry(entry: dict, now_et: datetime, holidays: set,
             out["status"] = "UNKNOWN"
             out["reasons"].append(f"{rel} stat failed ({type(e).__name__})")
             return out
-        # mtime is LOCAL (Mountain); convert to ET by the live offset rather than
-        # a hardcoded +2 so this stays correct across DST transitions.
-        offset_h = round((now_et - datetime.now()).total_seconds() / 3600.0)
+        # mtime is LOCAL (Mountain); convert to ET by the offset the two zones ACTUALLY
+        # had on that date, not by differencing now_et against the wall clock.
+        #
+        # FIXED 2026-08-15 (identical defect to unattended_health.py:126, same session):
+        # `round((now_et - datetime.now())/3600)` is only an offset when now_et IS now. Under
+        # an injected clock it becomes the distance from today -- and because it ROUNDS to
+        # whole hours, the sub-hour remainder leaks straight into age_min as a phantom age.
+        # Measured with the guard's fixed PREMARKET clock: a -388.69h difference rounds to
+        # -389, leaving 18.5 minutes of pure rounding artifact, which drifts minute-by-minute
+        # and crossed the 20m budget for part of every hour -- a genuinely flaky guard whose
+        # flakiness was a real impurity in the producer, not test noise.
+        # Live behaviour is unchanged (now_et IS now there, so both forms give +2).
+        offset_h = _et_minus_local_hours(now_et)
         age_min = (now_et - (mtime_local + timedelta(hours=offset_h))).total_seconds() / 60.0
     out["age_min"] = round(age_min, 1)
 

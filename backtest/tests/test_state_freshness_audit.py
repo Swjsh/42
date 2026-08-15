@@ -311,5 +311,40 @@ def test_engine_health_check_never_raises(monkeypatch):
     assert r["critical"] is False
 
 
+def test_et_minus_local_offset_is_a_property_of_the_date_not_of_now():
+    """RED-PROOF for the 2026-08-15 flaky-guard defect.
+
+    The AGE axis converted a LOCAL mtime to ET with
+    `round((now_et - datetime.now()).total_seconds()/3600)`. That is only an offset when
+    `now_et` IS now; under this file's own fixed PREMARKET clock it evaluated to -389, and
+    because it rounds to whole HOURS the sub-hour remainder leaked into age_min as a phantom
+    age (measured: 18.5-20.9 minutes, drifting minute-by-minute). Against key-levels.json's
+    20m budget that made `test_date_axis_quiet_before_producer_ready_time` pass or fail purely
+    on what time of the hour the suite ran -- it passed in isolation and failed in-batch 20
+    minutes earlier. The flakiness was a real impurity in the PRODUCER, not test noise.
+
+    A timezone offset is a property of a DATE, so it must stay bounded for any clock.
+    """
+    for clock in (PREMARKET, AFTER_CLOSE, datetime(2020, 1, 2, 3, 4),
+                  datetime(2026, 12, 25, 9, 0)):
+        off = sfa._et_minus_local_hours(clock)
+        assert -12 <= off <= 12, f"{clock} -> {off}h is a clock difference, not an offset"
+
+
+def test_age_axis_reports_no_phantom_age_under_a_frozen_clock(tmp_path):
+    """The end-to-end shape of the same defect. The fixture file is written NOW and evaluated
+    under a FIXED PAST clock, so its honest age relative to that clock is strongly NEGATIVE
+    (the file did not exist yet). The broken offset masked that with a small POSITIVE number
+    -- the rounding remainder, measured at +18.5 to +20.9m -- which is exactly what crossed
+    key-levels.json's 20m budget and made this file flaky. Sign is the discriminator: a small
+    positive age here means the offset arithmetic is manufacturing it again."""
+    _write(tmp_path, "key-levels.json", {"for_session": "2026-07-29"})
+    r = sfa.evaluate_entry(_entry(), PREMARKET, NO_HOLIDAYS, repo=tmp_path)
+    assert r["status"] == "GREEN", r["reasons"]
+    assert r["age_min"] < 0, (
+        f"age_min={r['age_min']}m is positive for a file written AFTER the frozen clock -- "
+        "the ET-minus-local offset is being derived from the wall clock again")
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
