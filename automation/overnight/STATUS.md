@@ -1,3 +1,41 @@
+## [2026-08-15 ~11:xx ET] ANSWER: the ratchet works as designed. The problem is the BOOK's payoff math, not the knob.
+
+Measured MFE capture from LIVE telemetry (best_premium in exit_pass, joined to fills). Capture =
+realized move / peak favourable move. Negative = the trade went green and round-tripped to red.
+
+| window | n | median capture | avg win | avg loss | win rate |
+|---|---|---|---|---|---|
+| PRE 07-20..08-09 | 85 | **-32.0%** | $300 | -$115 | 29% |
+| POST 08-10..08-14 | 77 | **-6.7%** | $144 | -$89 | 31% |
+
+**The ratchet is doing exactly what it was built to do.** Give-back collapsed from -32% to -6.7%
+median. Losses shrank. This is insurance working, and it kills my "the ladder is clipping
+winners, remove it" framing -- the ladder is the reason trades stop round-tripping to red.
+
+**But it truncates BOTH tails, and this book cannot afford that.** At 29-31% win rate the
+breakeven payoff ratio is ~2.3. PRE ran 2.61 (barely viable). POST runs 1.62 (underwater at any
+WR below ~38%). Halving avg_win from $300 to $144 costs more than shrinking avg_loss from $115
+to $89 saves, because at this win rate the book is carried entirely by the right tail.
+
+## THE ACTUAL PROBLEM, stated plainly
+
+This is a **~30% win-rate, tail-dependent** book. Every exit tightening trades tail for
+consistency, and consistency is worth less than the tail here. So the fix is NOT to re-tune the
+ladder -- it is either:
+  (a) raise win rate so tighter exits become affordable (entry-quality work: conviction C4/C5
+      now actually score, the escalating floor is the sit-out mechanism), or
+  (b) accept the tail dependence and stop tightening exits into it.
+Doing (b) without (a) returns the book to +$384/101 trades, which is not a business either.
+
+**Recommendation for J:** the ladder stays. The next lever is entry selectivity, not exit width.
+Re-tuning exits has now been tried three times (ratchet, ladder, trail) inside five days and the
+payoff ratio got worse each time.
+
+CORRECTIONS TODAY: 4. (1) "live fills confirm it" -- confounded. (2) "no exit telemetry" -- wrong
+query. (3) "runner_target 3->0 implicates the ladder" -- it was disabled 07-09 by SS-B. (4) "the
+ladder clips winners, remove it" -- capture data says it PREVENTS give-back. Every one came from
+publishing a headline before exhausting the data on disk.
+
 ## [2026-08-15 ~10:xx ET] CORRECTION #2 -- the exit telemetry EXISTS. I queried one level too shallow. And it answers the question.
 
 RETRACTED: "the engine does not record why a position exited". **False.** `exit_pass` rows carry
@@ -575,4 +613,8 @@ Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-08-15T11:39:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 58 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 58x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T12:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 61 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 61x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
