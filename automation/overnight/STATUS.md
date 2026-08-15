@@ -61,8 +61,31 @@ believed it was mocked was firing a live `claude` subprocess** (proof it is gone
 0.34s). `prospector` was GREEN for the wrong reason -- inert patches, so it read the REAL
 production ideas-ledger instead of its tmp fixture. Fixed all four.
 
-**STILL RED BY DESIGN, awaiting J (unchanged):** `test_pnl_attribution` and
-`test_regime_reslice` -- the 190-vs-191 provenance detectors. Not touched, not re-pinned.
+**MY OWN MEASUREMENT WAS WRONG FIRST, and it hid 5 failures.** The batch runner piped each
+pytest batch through `tail -40`, which truncated the short-test-summary on noisy batches: the
+per-batch "N failed" counts summed to **15** while only **9** unique FAILED lines survived. I
+reported 9. The harness now greps FAILED/ERROR from the FULL output and PRINTS ITS OWN
+RECONCILIATION (summed-per-batch vs unique-captured) so the same silent drop cannot recur --
+a harness that loses failures is worse than no harness (C7), and this one was mine. The 5 it
+had hidden are now fixed in `78c96a0f`: two `vwap_reclaim` stale pins of the SAME 08-09/08-12
+config changes the handoff already names as confounds; two `tz_quality_lock` fakes that stubbed
+the fail-OPEN `open_buy_orders` while the entry path's idempotency guard calls the fail-CLOSED
+`*_checked` variants; and **a half-landed fix** -- B6 taught three twin-gauntlet checkers that
+`CLOSED` is no longer `journal[-1]`, `_dry_max_hold` was MISSED, and it had been scoring a
+genuine PASS as "0/1 hit the expected mechanism" ever since. A half-landed fix reads exactly
+like a regression in the thing it never touched (trap #5).
+
+**FINAL SUITE, harness-reconciled: 7,306 passed / 3 failed / 9 skipped / 7 xfailed.**
+
+**THE 3 REMAINING ARE RED BY DESIGN, awaiting J -- do not re-pin them.**
+`test_pnl_attribution`, `test_regime_reslice`, and `test_structure_shift_cascade_ab` (three,
+not two) are the 190-vs-191 provenance detectors. Untouched. They are the only thing that
+noticed a frozen research population being mutated out-of-band, and re-pinning is precisely
+what would bury it. **J's call:** restate `56a4907d`'s headline and re-derive downstream pins
+from 191, or restore the 190-row file.
+
+**ALSO AWAITING J (new this session):** the PROVISIONAL P5 waiver for
+`vwap_reclaim_failed_break` -- sign, replace, or revoke.
 
 ## [2026-08-15 ~11:4x ET] PROVENANCE DEFECT: a frozen research population was mutated out-of-band by an unrelated commit
 
@@ -575,159 +598,11 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-12T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-12 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
 
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+### DEGRADED: self-check 2026-08-15T14:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 72 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 72x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 117 tick(s) showed in_trade>0. 117 real fill(s) dated 2026-08-12: risky-1@09:46, risky-3@09:46, safe-2@09:51, safe-2@09:52, risky-1@09:52, risky-3@09:52, bold-2@09:52, safe-2@09:53, bold-2@09:53, bold-2@09:53, safe-2@09:54, safe-3@09:54, bold… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-12, generated_at_et=2026-08-12T08:40:03-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-12, regime_context.stamp_date=2026-08-12 (present=True, dates_match=True). one_liner='Yesterday 2026-08-11 (Tue) = range-chop (range 0.70%, gap +0.19%,… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 64 distinct near-price levels. Worst: 772.47 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 126 time(s) across 20 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-12 window_end=2026-08-11 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=17 (delta +7 vs baseline n=10) exp=$-22.0/tr, verdict_moved=False. bull now: GREEN n=12 exp=$8.25/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-12T16:00:03 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 340 theta-clock row(s) dated 2026-08-12 across 8 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=340, unavailable=0. sti… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-12 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-12`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-11T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-11 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 134 tick(s) showed in_trade>0. 50 real fill(s) dated 2026-08-11: risky-1@09:46, risky-3@09:46, risky-3@09:51, risky-1@09:52, risky-1@09:55, risky-3@09:55, safe-2@11:51, safe-2@11:52, risky-1@11:52, safe-2@11:53, bold-2@11:53, safe-2@11:54, bo… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-11, generated_at_et=2026-08-11T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-11, regime_context.stamp_date=2026-08-11 (present=True, dates_match=True). one_liner='Yesterday 2026-08-10 (Mon) = pin-day (range 0.44%, gap -0.07%, cl… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 60 distinct near-price levels. Worst: 772.26 flipped 5x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 42 time(s) across 7 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-11 window_end=2026-08-10 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=12 (delta +2 vs baseline n=10) exp=$-42.75/tr, verdict_moved=False. bull now: GREEN n=12 exp=$8.25/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-11T16:00:04 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 252 theta-clock row(s) dated 2026-08-11 across 4 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=252, unavailable=0. sti… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-11 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-11`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## Live watch
-
-- [2026-08-14T13:13:00 ET] THETA STALL :: safe-2 SPY260814P00776000 qty=3 :: est theta burn -6.69 vs est delta gain -34.50 over last 15min (mid=0.535, unrealized=-12.7%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-14T13:09:00 ET] THETA STALL :: bold-2 SPY260814P00776000 qty=5 :: est theta burn -7.90 vs est delta gain -22.50 over last 15min (mid=0.635, unrealized=-10.29%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-14T10:16:00 ET] THETA STALL :: safe-3 SPY260814C00778000 qty=7 :: est theta burn -14.56 vs est delta gain -91.00 over last 15min (mid=1.055, unrealized=-9.65%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-14T09:57:00 ET] THETA STALL :: risky-3 SPY260814C00780000 qty=12 :: est theta burn -5.16 vs est delta gain +0.00 over last 15min (mid=0.445, unrealized=20.0%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-14T09:55:01 ET] THETA STALL :: safe-2 SPY260814C00778000 qty=6 :: est theta burn -5.04 vs est delta gain -39.00 over last 15min (mid=1.285, unrealized=0.78%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-14T09:53:00 ET] THETA STALL :: bold-2 SPY260814C00778000 qty=10 :: est theta burn -6.00 vs est delta gain -85.00 over last 15min (mid=1.305, unrealized=1.59%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-14T09:51:00 ET] THETA STALL :: risky-1 SPY260814C00778000 qty=12 :: est theta burn -5.04 vs est delta gain -72.00 over last 15min (mid=1.085, unrealized=-1.79%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T12:53:01 ET] THETA STALL :: safe-2 SPY260813P00776000 qty=3 :: est theta burn -5.34 vs est delta gain +0.00 over last 15min (mid=0.395, unrealized=-38.09%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T12:49:01 ET] THETA STALL :: bold-2 SPY260813P00776000 qty=5 :: est theta burn -5.70 vs est delta gain +0.00 over last 15min (mid=0.435, unrealized=-32.81%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T11:52:01 ET] THETA STALL :: safe-3 SPY260813C00776000 qty=3 :: est theta burn -5.52 vs est delta gain -27.00 over last 15min (mid=0.845, unrealized=-25.66%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T11:49:01 ET] THETA STALL :: bold-2 SPY260813C00776000 qty=5 :: est theta burn -6.60 vs est delta gain +0.00 over last 15min (mid=0.905, unrealized=-9.28%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T11:48:01 ET] THETA STALL :: risky-1 SPY260813C00776000 qty=5 :: est theta burn -5.15 vs est delta gain -10.00 over last 15min (mid=0.985, unrealized=-14.04%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T10:38:01 ET] THETA STALL :: risky-3 SPY260813C00781000 qty=10 :: est theta burn -5.50 vs est delta gain +0.00 over last 15min (mid=0.305, unrealized=-11.11%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T10:18:02 ET] THETA STALL :: safe-2 SPY260813C00777000 qty=3 :: est theta burn -6.06 vs est delta gain -1.50 over last 15min (mid=1.94, unrealized=84.47%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-13T10:18:02 ET] THETA STALL :: safe-3 SPY260813C00777000 qty=3 :: est theta burn -6.27 vs est delta gain -1.50 over last 15min (mid=1.94, unrealized=74.31%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-12T10:17:01 ET] THETA STALL :: risky-3 SPY260812C00775000 qty=10 :: est theta burn -5.50 vs est delta gain +0.00 over last 15min (mid=0.395, unrealized=5.71%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-12T10:17:01 ET] THETA STALL :: safe-2 SPY260812C00773000 qty=3 :: est theta burn -5.16 vs est delta gain +0.00 over last 15min (mid=1.055, unrealized=1.98%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-12T10:17:01 ET] THETA STALL :: safe-3 SPY260812C00773000 qty=3 :: est theta burn -5.22 vs est delta gain +0.00 over last 15min (mid=1.055, unrealized=0.98%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-12T10:14:01 ET] THETA STALL :: risky-1 SPY260812C00773000 qty=5 :: est theta burn -5.25 vs est delta gain +0.00 over last 15min (mid=0.945, unrealized=0.0%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-12T10:11:01 ET] THETA STALL :: bold-2 SPY260812C00773000 qty=5 :: est theta burn -5.20 vs est delta gain +0.00 over last 15min (mid=1.025, unrealized=-4.76%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-12T09:54:01 ET] THETA STALL :: risky-3 SPY260812P00771000 qty=8 :: est theta burn -5.28 vs est delta gain +0.00 over last 15min (mid=0.755, unrealized=10.0%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T14:40:03 ET] THETA STALL :: risky-1 SPY260811P00770000 qty=5 :: est theta burn -6.70 vs est delta gain -15.00 over last 15min (mid=0.645, unrealized=6.9%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T13:55:02 ET] THETA STALL :: safe-2 SPY260811P00771000 qty=3 :: est theta burn -5.04 vs est delta gain +0.00 over last 15min (mid=0.465, unrealized=-10.2%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T13:39:01 ET] THETA STALL :: risky-1 SPY260811P00771000 qty=5 :: est theta burn -5.35 vs est delta gain -95.00 over last 15min (mid=0.715, unrealized=-6.41%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T13:38:01 ET] THETA STALL :: bold-2 SPY260811P00771000 qty=5 :: est theta burn -6.05 vs est delta gain -100.00 over last 15min (mid=0.675, unrealized=-17.72%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T12:03:01 ET] THETA STALL :: safe-2 SPY260811P00772000 qty=3 :: est theta burn -5.46 vs est delta gain +0.00 over last 15min (mid=0.685, unrealized=-13.58%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T12:02:02 ET] THETA STALL :: bold-2 SPY260811P00772000 qty=5 :: est theta burn -5.15 vs est delta gain -87.50 over last 15min (mid=0.735, unrealized=-20.23%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T12:01:01 ET] THETA STALL :: risky-1 SPY260811P00772000 qty=5 :: est theta burn -6.95 vs est delta gain +0.00 over last 15min (mid=0.655, unrealized=-25.88%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-11T09:57:01 ET] THETA STALL :: risky-3 SPY260811P00771000 qty=10 :: est theta burn -6.50 vs est delta gain +0.00 over last 15min (mid=0.485, unrealized=-4.17%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
-
----
-
-
-### DEGRADED: self-check 2026-08-15T04:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 13x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-## Kitchen
-Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-08-15T04:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 16x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T05:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T05:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-- [2026-08-15 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-08-15 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-15.md
-
-### DEGRADED: self-check 2026-08-15T06:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 25x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T06:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 28 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 28x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T07:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 31x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T07:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 34 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 34x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T08:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 37 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 37x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T08:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 40 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 40x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T09:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 43 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 43x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T09:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 46 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 46x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T10:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 49 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 49x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T10:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 52 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 52x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T11:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 55 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 55x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T11:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 58 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 58x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T12:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 61 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 61x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T12:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 64 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 64x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T13:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 67 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 67x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-15T13:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 70 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 70x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+### DEGRADED: self-check 2026-08-15T14:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 75 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 75x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
