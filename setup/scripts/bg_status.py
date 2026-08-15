@@ -199,8 +199,11 @@ def _detached_workers() -> list[dict]:
         "started=$_.CreationDate.ToString('o'); cmd=$_.CommandLine } } | ConvertTo-Json -Compress"
     )
     try:
+        # CREATE_NO_WINDOW (OP-27/L41) added 2026-08-14: a bare powershell spawn is the
+        # single worst offender for console flash -- pre-existing gap.
         raw = subprocess.run(["powershell", "-NoProfile", "-Command", ps],
-                             capture_output=True, text=True, timeout=25).stdout
+                             capture_output=True, text=True, timeout=25,
+                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout
         procs = json.loads(raw) if raw.strip() else []
     except Exception:  # noqa: BLE001 -- fail open; this lane is a bonus, never a dependency
         return []

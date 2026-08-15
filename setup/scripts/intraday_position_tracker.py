@@ -44,8 +44,11 @@ POLL_SECONDS = 60
 
 def _et_now() -> str:
     try:
+        # CREATE_NO_WINDOW (OP-27/L41) added 2026-08-14: pre-existing gap, and this one runs
+        # on an RTH cadence, so it would flash repeatedly during the trading day.
         out = subprocess.run([sys.executable, str(REPO / "setup" / "scripts" / "et_clock.py")],
-                             capture_output=True, text=True, timeout=30).stdout
+                             capture_output=True, text=True, timeout=30,
+                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout
         return out.splitlines()[0].strip()
     except Exception:  # noqa: BLE001
         return dt.datetime.now().isoformat(timespec="seconds") + " (LOCAL fallback)"

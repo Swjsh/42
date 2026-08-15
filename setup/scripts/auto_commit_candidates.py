@@ -42,12 +42,16 @@ LOG_PATH = REPO / "automation" / "state" / "auto-commit-candidates-log.jsonl"
 
 
 def _run(args: list[str]) -> subprocess.CompletedProcess:
+    # CREATE_NO_WINDOW (OP-27/L41): a bare subprocess.run flashes a conhost window on win32.
+    # Added 2026-08-14 -- pre-existing gap, caught by test_window_leak_compliance while
+    # closing a popup regression of my own. This one fires on every candidate auto-commit.
     return subprocess.run(
         args,
         cwd=str(REPO),
         capture_output=True,
         text=True,
         timeout=60,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
 
 

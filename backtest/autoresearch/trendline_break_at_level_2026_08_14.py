@@ -311,8 +311,15 @@ def main() -> int:
                   "binds": len(set(sizes)) > 1}
 
     import subprocess
+    # CREATE_NO_WINDOW (OP-27/L41): a bare subprocess.run on win32 flashes a conhost window.
+    # Added 2026-08-14 -- I introduced this call tonight WITHOUT the flag and
+    # test_window_leak_compliance caught it. That guard exists because console popups were a
+    # named, shouted-about defect; shipping a new one inside a research runner is exactly how
+    # they come back.
+    _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
     head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO,
-                          capture_output=True, text=True).stdout.strip()
+                          capture_output=True, text=True,
+                          creationflags=_NO_WINDOW).stdout.strip()
     rep = {
         "prereg_id": "TRENDLINE-BREAK-AT-LEVEL-2026-08-13",
         "runner": "backtest/autoresearch/trendline_break_at_level_2026_08_14.py",
