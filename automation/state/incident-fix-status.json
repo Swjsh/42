@@ -1,0 +1,110 @@
+{
+ "_doc": "Live re-verification of the 2026-08-14 incident fix roster. Every row is a fresh check against disk/params/guard exit code -- never a stored claim.",
+ "incident": "2026-08-14 -$1,569 (box slept -> double entry + blind first tick)",
+ "n_fixes": 10,
+ "n_red": 0,
+ "n_without_a_guard": 3,
+ "headline": "ALL GREEN",
+ "fixes": [
+  {
+   "id": "atomic-entry-claim",
+   "closes": "double entry (two processes, 21ms apart)",
+   "code_ok": true,
+   "code": "O_EXCL create + rename-arbitrated stale takeover + placement gated",
+   "guard": "backtest/tests/test_atomic_entry_claim_2026_08_14.py",
+   "guard_green": true,
+   "guard_detail": "10 passed in 0.68s",
+   "status": "GREEN"
+  },
+  {
+   "id": "cold-open-guard",
+   "closes": "blind first tick after a dark stretch",
+   "code_ok": true,
+   "code": "COLD_OPEN_GAP_MIN = 10.0",
+   "guard": "backtest/tests/test_cold_open_guard_2026_08_14.py",
+   "guard_green": true,
+   "guard_detail": "8 passed in 0.42s",
+   "status": "GREEN"
+  },
+  {
+   "id": "healer-liveness",
+   "closes": "healer re-fired a brain that was already alive",
+   "code_ok": true,
+   "code": "liveness check before re-fire",
+   "guard": null,
+   "guard_green": null,
+   "guard_detail": "no guard",
+   "status": "GREEN"
+  },
+  {
+   "id": "exit-coverage-qty",
+   "closes": "exit state disagreed with broker qty after a double fill",
+   "code_ok": true,
+   "code": "qty-aware (QTY_MISMATCH)",
+   "guard": "backtest/tests/test_exit_coverage_2026_08_13.py",
+   "guard_green": true,
+   "guard_detail": "15 passed in 0.19s",
+   "status": "GREEN"
+  },
+  {
+   "id": "conviction-per-account-k",
+   "closes": "bold's conviction read safe's entry counter",
+   "code_ok": true,
+   "code": "per-account settlement ledger",
+   "guard": null,
+   "guard_green": null,
+   "guard_detail": "no guard",
+   "status": "GREEN"
+  },
+  {
+   "id": "conviction-c4-c5",
+   "closes": "no entry-quality signal existed at all",
+   "code_ok": true,
+   "code": "C4 session envelope + C5 structure threaded; no transposed key",
+   "guard": "backtest/tests/test_conviction_c4_c5_wiring_2026_08_14.py",
+   "guard_green": true,
+   "guard_detail": "17 passed in 4.47s",
+   "status": "GREEN"
+  },
+  {
+   "id": "sizing-disarmed",
+   "closes": "equity-scaled floor DOUBLED a bad signal",
+   "code_ok": true,
+   "code": "min_contracts_equity_scaled=False (must stay False -- re-arm needs a validated gate)",
+   "guard": "backtest/tests/test_min_contracts_equity_scaling_2026_08_13.py",
+   "guard_green": true,
+   "guard_detail": "21 passed in 0.14s",
+   "status": "GREEN"
+  },
+  {
+   "id": "keep-awake",
+   "closes": "the box slept 04:27-09:46 ET",
+   "code_ok": true,
+   "code": "task Ready; last session 2026-08-14T11:29:58 -> 2026-08-14T16:09:58, 281 ticks, 0 API failures",
+   "guard": null,
+   "guard_green": null,
+   "guard_detail": "no guard",
+   "status": "GREEN"
+  },
+  {
+   "id": "no-console-popups",
+   "closes": "console flash regression class",
+   "code_ok": true,
+   "code": "guard-enforced",
+   "guard": "backtest/tests/test_window_leak_compliance.py",
+   "guard_green": true,
+   "guard_detail": "3 passed in 0.35s",
+   "status": "GREEN"
+  },
+  {
+   "id": "eod-flatten-checked-read",
+   "closes": "a broker timeout could log 'already flat'",
+   "code_ok": true,
+   "code": "checked read + retry, fails LOUD",
+   "guard": "backtest/tests/test_eod_flatten.py",
+   "guard_green": true,
+   "guard_detail": "12 passed in 0.23s",
+   "status": "GREEN"
+  }
+ ]
+}
