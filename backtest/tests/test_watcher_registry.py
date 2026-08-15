@@ -51,6 +51,18 @@ _WATCHERS_DIR = _REPO / "lib" / "watchers"
 # the registry handles a None-returning detector cleanly), so it is NOT excluded.
 EXCLUDED_FILES: dict[str, str] = {
     # "example_watcher.py": "reason it is intentionally unregistered",
+    #
+    # Added 2026-08-15. This test went RED when the file landed and stayed RED, which is the
+    # failure it exists to prevent -- but the verdict here is EXCLUDE, not register, and that
+    # was checked rather than assumed. Evidence: it is imported directly by
+    # backtest/autoresearch/bollinger_fresh_reverify.py (`from lib.watchers import
+    # bollinger_squeeze_watcher as bw`), and its bandwidth/session logic is PORTED into
+    # backtest/lib/patterns/context.py for the live path (that file names it in two comments).
+    # So it is a research + ported-source module, not a detector awaiting a slot in the
+    # runner's rotation; adding it there would double-run logic the live path already carries.
+    "bollinger_squeeze_watcher.py":
+        "research/ported source -- consumed directly by autoresearch/bollinger_fresh_reverify.py "
+        "and ported into lib/patterns/context.py for the live path; not a runner-rotation detector",
 }
 
 
