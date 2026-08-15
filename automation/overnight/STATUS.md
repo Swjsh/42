@@ -1,3 +1,79 @@
+## [2026-08-15 ~17:0x ET] 🚨 THE AUTONOMOUS LOOP HAS BEEN DEAD SINCE 08-11. Plus: a prereg clock was dead too, and the shadow layer had ZERO monitoring.
+
+Engine-state survey after the handoff queue. Three findings, all the same shape: **something
+that was supposed to be running silently was not, and every surface reported healthy.**
+
+### 1. 🚨 CLAUDE CLI IS LOGGED OUT — J ACTION REQUIRED (`818a1439`)
+
+**`claude /login`. That is the whole fix, and only J can do it** (interactive OAuth; nothing
+in this repo can clear it, and nothing should retry into it).
+
+**49 failed LLM fires across 8 tasks since 2026-08-11. 100% of conductor fires from 08-12 on**
+(3/3, 4/4, 2/2, 11/11) against ~470 clean fires before. Every fire: spawn `claude` →
+`Not logged in · Please run /login` → exit 1.
+
+Affected: conductor (12), conductor-weekend (9), context_guard (5), eod-flatten (4),
+eod-flatten-aggressive (4), mcp-daily-audit (4-5), premarket (4-8), scout (2).
+
+**Why it survived five days — every layer reported success except the work:**
+- rail-0 budget precheck said `PROCEED — $0.00 of $30.00 used` on every fire. It measures
+  **SPEND**, and a logged-out fire spends nothing. *The cheaper the failure, the more
+  confidently that gate approved it.*
+- Task Scheduler showed `LastTaskResult=0` — the outer wscript hop is fire-and-forget.
+- The masked-exit check DID fire, but could only say `run-conductor-weekend.ps1 (exit=[1], 5x)`,
+  sitting beside unrelated exit=1 noise. Seeing conductor and eod-flatten as separate
+  incidents is what hid the single shared cause.
+- The unattended registry flagged `Conductor RED [3.4d]` — correct, but generic staleness,
+  days late, no cause, no action.
+
+**Nothing visibly broke because the deterministic backstops held** — `eod_flatten.py` covered
+the failed LLM EOD-flatten path, `premarket_deterministic_fallback.py` covered premarket. That
+is the danger, not the reassurance: a backstop silently carrying production is
+indistinguishable from a healthy primary until the backstop is what fails.
+
+Now detected by name: `self_check.check_llm_auth_outage` — one cause, whole fleet, with span
+and per-task counts, classified **BROKEN** (its siblings say DEGRADED because they have
+backstops; this has none) so it routes through the existing STATUS `## Known broken` + Discord
+escalation. **Verified live: self-check flipped DEGRADED → BROKEN and the finding is on this
+file now.**
+
+### 2. An ARMED prereg's forward clock had no producer (`dbc2e004`)
+
+`entry_quality_ledger.build_ledger()` was in **no scheduled task and no fold** — nothing
+rebuilt the enriched ledger. Last written 08-10 with data through **08-06** while the book
+traded 08-07 and 08-10..08-14.
+
+`stop_mode_shadow_ledger` reads that artifact deliberately (`build_population()` has no
+`trigger_level`, so structure stops could never fire). With it frozen, prereg
+**STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09** sat at `n_trades=0 / ARMED_AWAITING_FILLS` and
+**would never have reached its 20-day bar.** The clock's own `input_stale` flag had been
+reporting this correctly the entire time; nothing consumed the alarm.
+
+Rebuilt: ledger 235 events/26 days → **344/32**; clock → **ACCRUING, 66 trades / 3 days,
+days_to_bar 20 → 17**. Now wired into the 16:25 fold, with the order pinned by AST
+(**after** pain_ledger — it joins `mae-mfe.json`; **before** stop_mode — which reads its
+output). Disclosed gap: 29 fills (08-13 ×17, 08-14 ×12) still skipped `no_opra_cache`.
+
+### 3. The entire shadow layer had zero freshness monitoring (`2673b36e`, `d074e9bb`)
+
+Measured: the freshness manifest carried **21 entries and covered ZERO shadow artifacts**. The
+fold contract is "fail-open, never fatal", so any folded producer can fail — or never be wired
+at all — while `winner-autopsy-last.json` stays fresh and the unit reads OK. Watching the
+parent taught us nothing.
+
+Added the 5 fold sub-products to the `eod-pipeline` unit. **medium → YELLOW never RED** (a
+research clock is not a trading emergency, and a tile that REDs for one gets ignored), keyed
+on each artifact's **own build stamp, never a data date** — a data date parks on the last day
+*with fills*, so it would alarm every time the engine correctly sat out.
+
+**Self-correction:** my helper re-serialized all 62 units (1,092-line reformat of a shared
+state file). Restored the original formatting and re-applied surgically — net diff is now 61
+insertions, 0 deletions.
+
+---
+**On J's desk, unchanged from earlier today:** the 190-vs-191 dataset decision, and the
+PROVISIONAL P5 waiver for `vwap_reclaim_failed_break`. **New:** `claude /login`.
+
 ## [2026-08-15T16:15:02 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-15 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
 
 **Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
