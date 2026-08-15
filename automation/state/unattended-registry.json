@@ -608,18 +608,36 @@
       "name": "Shadow rails",
       "group": "RESEARCH",
       "criticality": "low",
-      "what": "Bold tier rail + ladder-rung shadow pre-registrations.",
-      "breaks": "Pre-registered shadow arms stop recording would-be decisions; their clocks silently stop.",
-      "tasks": ["Gamma_BoldTierRail", "Gamma_LadderRungShadow"]
+      "what": "Bold tier rail + ladder-rung + ER30 regime shadow pre-registrations.",
+      "breaks": "Pre-registered shadow arms stop recording would-be decisions; their clocks silently stop -- and a stopped clock is indistinguishable from a clock with nothing to record (the 2026-08-15 stop_mode finding).",
+      "tasks": ["Gamma_BoldTierRail", "Gamma_LadderRungShadow", "Gamma_RegimeShadow"]
+    },
+    {
+      "id": "incident-roster",
+      "name": "Incident fix roster",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "Daily 07:30 re-verification that the fixes from the 2026-08-14 loss morning are STILL landed (incident_fix_status.py). Silent unless one regresses.",
+      "breaks": "A shipped incident fix can silently un-land -- reverted, refactored away, or half-landed across call sites -- and nothing notices until the same loss repeats. UNREGISTERED until 2026-08-15: this task guarded the roster while nothing guarded the task.",
+      "tasks": ["Gamma_IncidentFixStatus"]
+    },
+    {
+      "id": "kalshi",
+      "name": "Kalshi lane",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Autonomous Kalshi weather lane: scores its own settled predictions against NOAA GHCN and trades ONLY cities past a per-city scorecard bar.",
+      "breaks": "An unproven city silently stays in shadow (the design intent) OR the lane stops scoring entirely and nobody notices -- the whole point of the per-city bar is that it advances without anyone remembering to check it.",
+      "tasks": ["Gamma_KalshiAuto"]
     },
     {
       "id": "futures",
       "name": "Futures program",
       "group": "RESEARCH",
       "criticality": "medium",
-      "what": "MES/MNQ mirror-shadow + SSR forward shadow + edge-3 sim.",
-      "breaks": "The futures forward-shadow clock stops accruing -- the whole program's only live evidence source.",
-      "tasks": ["Gamma_FuturesMirror", "Gamma_SsrShadow", "Gamma_FuturesEdge3Sim"],
+      "what": "MES/MNQ mirror-shadow + SSR forward shadow + edge-3 sim + the autonomous intraday lane (fillsim book lane + tastytrade SANDBOX real-fill parity lane) and its EOD.",
+      "breaks": "The futures forward-shadow clock stops accruing -- the whole program's only live evidence source. With the intraday lane dark, the real-fill parity question (the thing that unblocked this program) stops accumulating evidence too.",
+      "tasks": ["Gamma_FuturesMirror", "Gamma_SsrShadow", "Gamma_FuturesEdge3Sim", "Gamma_FuturesTrader", "Gamma_FuturesBrokerLane", "Gamma_FuturesBrokerProbe", "Gamma_FuturesEod2"],
       "expect_disabled": {
         "Gamma_FuturesHeartbeat": "futures trading loop not armed -- shadow only",
         "Gamma_FuturesEod": "paired with the disabled futures heartbeat",
@@ -883,9 +901,9 @@
       "name": "Infra keepalives",
       "group": "INFRA",
       "criticality": "medium",
-      "what": "Dashboard, companion UI and claude-code-router keepalives (every 5 min).",
-      "breaks": "The dashboard/companion die quietly; CCR death once silently killed a whole premarket.",
-      "tasks": ["Gamma_DashboardKeepalive", "Gamma_CompanionKeepalive", "Gamma_CcrKeepalive"],
+      "what": "Dashboard, companion UI and claude-code-router keepalives (every 5 min) + the market-hours keep-awake that stops the box sleeping through a session.",
+      "breaks": "The dashboard/companion die quietly; CCR death once silently killed a whole premarket. If the keep-awake dies the box can sleep through RTH -- the 2026-08-14 04:27-09:46 sleep produced a double entry and a blind first tick.",
+      "tasks": ["Gamma_DashboardKeepalive", "Gamma_CompanionKeepalive", "Gamma_CcrKeepalive", "Gamma_MarketKeepAwake"],
       "artifacts": [
         {
           "path": "automation/state/ccr-keepalive.json",
