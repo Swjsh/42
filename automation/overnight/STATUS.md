@@ -1,3 +1,44 @@
+## [2026-08-15 ~01:4x ET] Family A continued -- 3 more bounded, 1 diagnosed as unfixable-by-patch, 3 left with a SUSPICIOUS signature
+
+DONE since the escalation above:
+- `test_replay_today_eval` (12) re-pinned -- this is what produced the escalation.
+- `test_profitability_ab` (2) bounded to its 2026-08-08 anchor. Surfaced live: bold-2's
+  post-ship window now reads **n=20 / -$1,338** vs the frozen n=6 / -$476.
+- `test_ribbon_flipback_ab_v2` bounded. Population edge DERIVED, not guessed: trades through
+  **2026-08-07** total exactly 219.
+- `test_trail_width_exit_ab` -> **xfail with the diagnosis**, because the obvious fix is wrong
+  and I tried it. `build_anchor_population()` filters on "has a cached real-OPRA CSV", and that
+  cache grew RETROACTIVELY, so the frozen 113 is NOT a date prefix of today's 284 (even
+  2026-07-18 already gives 129). **A population defined by "whatever we happen to have cached"
+  is not reproducible by construction** -- that defect affects EVERY study on this harness, not
+  just this pin. Correct fix = the prereg stores (symbol, entry_ts_utc) IDs and hashes that set.
+  Prereg amendment = a decision, not a patch.
+
+## LEFT, and they share a signature worth a fresh eye -- OFF BY ONE
+
+| test | expected | got |
+|---|---|---|
+| `test_structure_shift_cascade_ab` | 190 trades in the `<=2026-07-22` prefix | **191** |
+| `test_regime_reslice_2026_07_28` | 74 | **75** |
+| `test_pnl_attribution_2026_07_28` | partition dict | differs slightly |
+
+These are NOT the ledger-growth pattern above (which moves counts by tens or hundreds). A
+one-trade delta in a REPLAY POPULATION PREFIX means the replay file itself changed, or a
+boundary date moved by one row. Note that `engine-fullhist-replay-2026-07-23.json` is the same
+population tonight's ENTRY-LOCATION study used and reported as **191 trades**, while this test
+expects 190 at the same cutoff.
+
+**DO NOT re-pin these to the new numbers.** Find out which trade appeared and why first -- an
+off-by-one in a frozen research population is either a provenance bug or an undisclosed data
+edit, and both matter more than the pin does. This is the first thing to pick up.
+
+## THEN, in order
+1. Run the frozen `PRE-TP1-RATCHET-COST-2026-08-15` prereg (the escalation above needs a number).
+2. Family B live-state coupling (~10): `test_unattended_health` (5), `test_watcher_registry` (2),
+   `test_trade_today_watcher` (3), `test_state_contracts`.
+3. Families C (~10) and D (2, confirm network-only first).
+4. Entry-quality handoff items 5-8; re-arm sizing LAST and only on a validated gate.
+
 ## [2026-08-15 ~01:00 ET] ESCALATION -- the current exit config replays UNIFORMLY WORSE, 10 arm-instances, zero counter-examples
 
 **This is the one item worth J's attention. Everything else below is housekeeping.**
@@ -484,3 +525,7 @@ Kitchen: alive, queue 46 pending, last cook 0 min ago, today $0.00, model=openro
 ### DEGRADED: self-check 2026-08-15T02:39:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 4x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-15T03:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 7x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
