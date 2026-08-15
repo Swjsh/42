@@ -200,6 +200,15 @@ ROSTER: list[tuple[str, str, Callable[[], tuple[bool, str]], str | None]] = [
 ]
 
 
+def _now_et() -> str:
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        from et_clock import et_now
+        return et_now().strftime("%Y-%m-%d %H:%M ET")
+    except Exception:  # noqa: BLE001 -- a timestamp must never break the alert
+        return "unknown ET"
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     rows: list[dict[str, Any]] = []
@@ -240,6 +249,28 @@ def main() -> int:
         print(f"\n  {len(ungarded)} fix(es) have NO guard test -- they can regress silently: "
               + ", ".join(r["id"] for r in ungarded))
     print(f"\nwrote {OUT.relative_to(REPO).as_posix()}")
+
+    # --alert: SILENT unless something is RED. A daily instrument that appends a GREEN entry
+    # every morning trains its reader to ignore it, and the one morning it matters it looks
+    # like all the others (OP-25: J must wake to a SIGNAL, never to noise). So the only thing
+    # that reaches STATUS.md is a regression -- or a roster that quietly shrank.
+    if "--alert" in sys.argv and (red or ungarded):
+        status = REPO / "automation" / "overnight" / "STATUS.md"
+        out = [f"## [{_now_et()}] RED -- INCIDENT FIX ROSTER REGRESSED "
+               f"({len(red)} RED, {len(ungarded)} unguarded)", ""]
+        for r in red:
+            out += [f"- **{r['id']}** -- closes: {r['closes']}",
+                    f"  - code: {r['code']}", f"  - guard: {r['guard_detail']}"]
+        for r in ungarded:
+            out.append(f"- **{r['id']}** has NO guard test -- it can regress unnoticed")
+        out += ["", "Source: `setup/scripts/incident_fix_status.py --alert` "
+                    "(2026-08-14 incident roster). Re-run it to reproduce.", ""]
+        try:
+            prev = status.read_text(encoding="utf-8", errors="replace")
+            status.write_text("\n".join(out) + "\n" + prev, encoding="utf-8", newline="\n")
+            print(f"  ALERTED -> {status.relative_to(REPO).as_posix()}")
+        except OSError as e:
+            print(f"  alert append FAILED: {e}")
     return 0
 
 

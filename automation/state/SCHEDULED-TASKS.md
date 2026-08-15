@@ -262,3 +262,15 @@
 4. Note in CLAUDE.md / the relevant OP if doctrine-significant.
 
 If you can't justify a task in one sentence in "Why it exists", **the task should not exist.**
+
+### Gamma_IncidentFixStatus (added 2026-08-15)
+
+| field | value |
+|---|---|
+| **When** | Daily 07:30 local (StartWhenAvailable, so a slept box still runs it) |
+| **Runs** | `backtest/.venv/Scripts/pythonw.exe setup/scripts/incident_fix_status.py --alert` |
+| **Does** | Re-verifies all 10 fixes from the 2026-08-14 -$1,569 incident against COLD REALITY -- AST of the code on disk, the flag in params.json, each guard's exit code, and the keep-awake task's own registration state. |
+| **Output** | `automation/state/incident-fix-status.json` every run. |
+| **Alerts** | **SILENT unless a fix REGRESSED.** A daily GREEN entry would train its reader to ignore it, so only a RED (or a roster that shrank) reaches STATUS.md. |
+| **Verified** | Fired manually 2026-08-15 00:39 -- LastTaskResult=0, output file rewritten. Registered != running, so this was checked end to end. |
+| **Why** | J asked 'are the fixes still in?' three times in one session. OP-33(e): a repeated question is a missing instrument. |
