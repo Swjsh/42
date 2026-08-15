@@ -1,3 +1,38 @@
+## [2026-08-15 ~11:4x ET] PROVENANCE DEFECT: a frozen research population was mutated out-of-band by an unrelated commit
+
+The three off-by-one failures I flagged DO-NOT-RE-PIN are traced. They were right to be RED.
+
+`analysis/recommendations/engine-fullhist-replay-2026-07-23.json` is the 18-month full-engine
+replay every downstream study keys on. Its own research commit (`56a4907d`) published
+**+$5,064.75 / 190 trades**. It is now **+$4,808.75 / 191 trades**.
+
+WHAT CHANGED, exactly one row:
+  ADDED   2025-02-07 10:45 ET  SPY250207C00608000   (a loser; total P&L -$256.00)
+  REMOVED nothing
+WHO CHANGED IT: `df0348d9 fix(regime-library): pin all 15 threshold constants + wire first live
+consumer`. A regime-threshold commit that had no business touching a replay artifact -- almost
+certainly an incidental re-run swept into an unrelated commit.
+
+WHY IT MATTERS BEYOND THREE RED TESTS:
+- The published headline of that study is now wrong by -$256 and +1 trade, and nothing announced
+  it. `test_structure_shift_cascade_ab` (190 vs 191), `test_regime_reslice` (74 vs 75) and
+  `test_pnl_attribution` were the ONLY things that noticed, and they were dismissed as stale.
+- **My own ENTRY-LOCATION-GATE study used the mutated file** and reported "$4,808.75 across 191
+  trades" as the published population. That study's conclusion (a NULL) does not hinge on one
+  losing trade, but the disclosure is wrong and is corrected here.
+- Any study that pinned 190 and any that read 191 disagree about the same "frozen" population.
+
+DECISION NEEDED (J's, not mine): either the added trade is legitimate -- in which case
+`56a4907d`'s headline must be restated and every downstream pin re-derived from 191 -- or it is
+contamination and the file should be restored to the 190-row version. I did not re-pin the three
+tests to 191, because re-pinning is what would have buried this.
+
+GUARD TO BUILD EITHER WAY: frozen research populations need a content hash recorded in the
+artifact itself and asserted on read, so an out-of-band edit fails loudly at the point of USE
+rather than three tests later. This is the same class as the trail_width finding (a population
+defined by whatever is cached is not reproducible) -- both say the same thing: **this repo has
+no integrity check on the datasets its studies stand on.**
+
 ## [2026-08-15 ~11:xx ET] ANSWER: the ratchet works as designed. The problem is the BOOK's payoff math, not the knob.
 
 Measured MFE capture from LIVE telemetry (best_premium in exit_pass, joined to fills). Capture =
