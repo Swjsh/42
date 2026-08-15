@@ -409,12 +409,29 @@ def test_evaluate_candidate_g7_per_account_split():
 # ------------------------------------------------------------------------------------------
 # population parity with mae-mfe.json counts
 # ------------------------------------------------------------------------------------------
+# The frozen population's own as-of boundary, DERIVED not guessed: mae-mfe.json is append-only
+# and had grown 219 -> 303 by 2026-08-15, so this pinned a moving target and had been RED (and
+# blind) since the ledger passed 219. Counting by date, trades through **2026-08-07** total
+# exactly 219 -- that is the study's real population edge. L292 again: the monitor's coverage
+# scope rots exactly like the thing it monitors.
+MAE_MFE_ANCHOR_ASOF_ET = "2026-08-07"
+
+
 def test_mae_mfe_frozen_population_size():
     """The frozen population this study MUST match: 219 scored engine positions, per the
     prereg's population_and_engine clause. Pure JSON read, no network -- catches accidental
-    drift in the on-disk ledger the harness pins against."""
+    drift in the on-disk ledger the harness pins against.
+
+    Bounded to the population's own as-of date (see above) so that APPENDING new trades -- the
+    ledger's normal behaviour, not a defect -- no longer reads as drift, while a change to the
+    already-frozen rows still fails loudly. That distinction is the whole point of the tripwire.
+    """
     data = json.loads(m.MAE_MFE.read_text(encoding="utf-8"))
-    assert len(data["trades"]) == 219
+    frozen = [t for t in data["trades"] if str(t.get("date", ""))[:10] <= MAE_MFE_ANCHOR_ASOF_ET]
+    assert len(frozen) == 219, (
+        f"the FROZEN slice (<= {MAE_MFE_ANCHOR_ASOF_ET}) is {len(frozen)}, not 219 -- rows "
+        "inside the study's own population changed, which invalidates its results")
+    assert len(data["trades"]) >= 219, "mae-mfe.json SHRANK -- the ledger lost history"
 
 
 def test_load_frozen_population_matches_and_excludes_unmatched(monkeypatch, tmp_path):
