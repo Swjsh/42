@@ -482,14 +482,23 @@ def test_recency_red_clamps_risky_elite_qty(monkeypatch):
     (analysis/deep-research/FULL-TRADE-REVIEW-2026-08-13.md), not a property worth pinning.
     The clamp DIRECTION (12 -> 6, strictly down) is what this test exists to protect and it
     is asserted explicitly below.
+
+    DISARMED 2026-08-14 (636c5ba4). min_contracts_equity_scaled shipped, doubled a bad signal
+    on the 08-14 wake-storm, and was reverted the same day -- but this test kept asserting the
+    ARMED value and went RED with the revert. That is a half-landed revert, the same defect
+    class the revert itself was written about. The default-path expectation is now the
+    DISARMED floor; the scaling arithmetic is still covered, explicitly flag-on, by
+    test_min_contracts_equity_scaling_2026_08_13.py. Re-arming the flag is gated on a
+    VALIDATED entry-quality gate (see that revert commit) -- flip this expectation then, not
+    before.
     """
     monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
     sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_TIGHT, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_TIGHT))
     assert plan.action == "ENTER"
-    assert plan.qty == 6, (
-        f"RED should clamp risky-1 elite qty to the equity-scaled floor (5 @ $1,648 -> 6 @ "
-        f"$2,000), got {plan.qty}")
+    assert plan.qty == 5, (
+        f"with min_contracts_equity_scaled DISARMED the floor is the authored count 5, "
+        f"got {plan.qty}")
     assert plan.qty < 12, "the clamp must still reduce size -- that is the whole policy"
     assert "recency red" in plan.reason.lower(), plan.reason
 
@@ -533,14 +542,19 @@ def test_recency_red_clamps_base_tier_ribbon_ride_too(monkeypatch):
     test_recency_red_clamps_risky_elite_qty: risky-3's floor of 5 was authored at $1,648 equity
     and is now expressed as that risk FRACTION, so at EQUITY_2K it scales to 6. The scope claim
     this test protects -- BASE tier is clamped too, not just elite -- is unaffected.
+
+    DISARMED 2026-08-14 (636c5ba4), same as its sibling above: the flag was reverted the day
+    after it shipped and this expectation was not moved with it, so the guard sat RED. Default
+    path now asserts the DISARMED floor; the scaling arithmetic stays covered flag-on in
+    test_min_contracts_equity_scaling_2026_08_13.py.
     """
     monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
     sig = _dual_signal(bold_bear_passed=True, n_triggers=1, confluence=False)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan.action == "ENTER"
-    assert plan.qty == 6, (
-        f"base qty (8) should clamp to risky-3's equity-scaled floor (5 @ $1,648 -> 6 @ "
-        f"$2,000), got {plan.qty}")
+    assert plan.qty == 5, (
+        f"with min_contracts_equity_scaled DISARMED the floor is the authored count 5, "
+        f"got {plan.qty}")
     assert plan.qty < 8, "BASE-tier entries must still be clamped -- that is this test's scope claim"
     assert "recency red" in plan.reason.lower(), plan.reason
 
