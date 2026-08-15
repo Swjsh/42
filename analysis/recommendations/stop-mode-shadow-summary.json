@@ -1,5 +1,6 @@
 {
  "prereg": "STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 (prereg commit 2a36724a)",
+ "generated_at_et": "2026-08-15T16:39:42.559272",
  "accrual_start": "2026-08-10",
  "n_trades": 66,
  "n_days": 3,
@@ -21,7 +22,7 @@
  "days_premium_better": 2,
  "status": "ACCRUING",
  "decision_rule": "This ledger NEVER changes stop_mode by itself. At n_days >= 20 it becomes the evidence base for a separate pre-registered A/B. Reaching the bar is permission to TEST, not to ship.",
- "new_this_run": 66,
+ "new_this_run": 0,
  "skipped_this_run": [
   {
    "activity_id": "20260813095105489::3fd4faaf-1e49-481b-a734-062dac83ff28",

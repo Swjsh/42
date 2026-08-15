@@ -156,11 +156,28 @@ def _input_health(events: list[dict]) -> dict:
                            "frozen, NOT a real absence of fills." if stale else "fed")}
 
 
+def _stamp_now_et() -> str:
+    """Build stamp for the summary artifact. ADDED 2026-08-15 so a freshness monitor can
+    tell 'this clock ran and had nothing to add' from 'this clock stopped running'.
+
+    Deliberately the BUILD time, not the newest input date: a legitimate no-trade session
+    leaves the input date parked on the last day with fills, so keying freshness off the
+    feed would fire a false alarm every time the engine correctly sat out -- and sitting
+    out is a valid day.
+    """
+    try:
+        from et_clock import et_now  # noqa: PLC0415
+        return et_now().isoformat()
+    except Exception:  # noqa: BLE001 -- a stamp must never break the clock
+        return ""
+
+
 def _summarize(rows: list[dict]) -> dict:
     n = len(rows)
     days = sorted({r["date_et"] for r in rows})
     if not n:
-        return {"prereg": PREREG, "accrual_start": ACCRUAL_START_DATE, "n_trades": 0,
+        return {"prereg": PREREG, "generated_at_et": _stamp_now_et(),
+                "accrual_start": ACCRUAL_START_DATE, "n_trades": 0,
                 "n_days": 0, "days_to_bar": BAR_GATE_DAYS, "status": "ARMED_AWAITING_FILLS",
                 "note": "No engine option fills on/after the accrual start yet. An empty clock "
                         "on day 0 is expected, NOT a failure -- but a clock still empty after "
@@ -172,6 +189,7 @@ def _summarize(rows: list[dict]) -> dict:
     mean_d = d_sum / n
     return {
         "prereg": PREREG,
+        "generated_at_et": _stamp_now_et(),
         "accrual_start": ACCRUAL_START_DATE,
         "n_trades": n, "n_days": len(days),
         "date_span": f"{days[0]}..{days[-1]}",

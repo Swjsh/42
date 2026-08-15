@@ -333,6 +333,35 @@ def test_shipped_registry_is_valid_and_every_unit_names_a_consequence():
         assert u["group"] in ("TRADING", "DATA", "AUDIT", "RESEARCH", "REPORTING", "INFRA")
 
 
+def test_nightly_fold_subproducts_are_covered_not_just_their_parent():
+    """RED-PROOF (2026-08-15): the winner-autopsy fold contract is "fail-open, never fatal",
+    so every folded shadow producer can fail -- or never be wired at all -- forever, while the
+    PARENT artifact (winner-autopsy-last.json) stays perfectly fresh. Covering only the parent
+    is what let entry-quality-ledger.json sit frozen at 2026-08-06 for five trading days,
+    which in turn pinned an ARMED prereg's forward clock at n_trades=0 / ARMED_AWAITING_FILLS
+    -- a state indistinguishable from a genuine absence of fills.
+
+    Each sub-product must be covered by its OWN BUILD STAMP, never a data-derived date: on a
+    legitimate no-trade session a data date parks on the last day with fills, and keying
+    freshness off that would alarm every time the engine correctly sat out."""
+    reg = json.loads(uh.REGISTRY.read_text(encoding="utf-8"))
+    unit = next(u for u in reg["units"] if u["id"] == "eod-pipeline")
+    covered = {a["path"] if isinstance(a, dict) else a for a in unit.get("artifacts") or []}
+    for required in ("analysis/entry-quality/entry-quality-ledger.json",
+                     "analysis/recommendations/stop-mode-shadow-summary.json"):
+        assert required in covered, (
+            f"{required} is produced by the 16:25 fold and read by a forward clock, but no "
+            "unit watches it -- a dead clock would again be invisible for weeks")
+    for art in unit.get("artifacts") or []:
+        if not isinstance(art, dict) or art["path"] not in covered:
+            continue
+        if art["path"].startswith("analysis/"):
+            assert art.get("date_field"), f"{art['path']} needs a build-stamp date_field"
+            assert art.get("criticality") == "medium", (
+                f"{art['path']}: research artifacts stay YELLOW -- a RED on the trading tile "
+                "for a research clock is how a tile gets ignored")
+
+
 def test_shipped_registry_manifest_refs_all_resolve():
     """Every string artifact ref must resolve in state-freshness-manifest.json --
     otherwise the unit silently degrades to UNKNOWN forever and nobody notices."""
