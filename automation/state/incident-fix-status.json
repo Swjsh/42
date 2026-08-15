@@ -3,7 +3,7 @@
  "incident": "2026-08-14 -$1,569 (box slept -> double entry + blind first tick)",
  "n_fixes": 10,
  "n_red": 0,
- "n_without_a_guard": 3,
+ "n_without_a_guard": 0,
  "headline": "ALL GREEN",
  "fixes": [
   {
@@ -13,7 +13,7 @@
    "code": "O_EXCL create + rename-arbitrated stale takeover + placement gated",
    "guard": "backtest/tests/test_atomic_entry_claim_2026_08_14.py",
    "guard_green": true,
-   "guard_detail": "10 passed in 0.68s",
+   "guard_detail": "10 passed in 0.79s",
    "status": "GREEN"
   },
   {
@@ -31,9 +31,9 @@
    "closes": "healer re-fired a brain that was already alive",
    "code_ok": true,
    "code": "liveness check before re-fire",
-   "guard": null,
-   "guard_green": null,
-   "guard_detail": "no guard",
+   "guard": "backtest/tests/test_incident_fix_roster_2026_08_15.py",
+   "guard_green": true,
+   "guard_detail": "9 passed in 1.11s",
    "status": "GREEN"
   },
   {
@@ -43,7 +43,7 @@
    "code": "qty-aware (QTY_MISMATCH)",
    "guard": "backtest/tests/test_exit_coverage_2026_08_13.py",
    "guard_green": true,
-   "guard_detail": "15 passed in 0.19s",
+   "guard_detail": "15 passed in 0.18s",
    "status": "GREEN"
   },
   {
@@ -51,9 +51,9 @@
    "closes": "bold's conviction read safe's entry counter",
    "code_ok": true,
    "code": "per-account settlement ledger",
-   "guard": null,
-   "guard_green": null,
-   "guard_detail": "no guard",
+   "guard": "backtest/tests/test_incident_fix_roster_2026_08_15.py",
+   "guard_green": true,
+   "guard_detail": "9 passed in 1.10s",
    "status": "GREEN"
   },
   {
@@ -63,7 +63,7 @@
    "code": "C4 session envelope + C5 structure threaded; no transposed key",
    "guard": "backtest/tests/test_conviction_c4_c5_wiring_2026_08_14.py",
    "guard_green": true,
-   "guard_detail": "17 passed in 4.47s",
+   "guard_detail": "17 passed in 4.64s",
    "status": "GREEN"
   },
   {
@@ -73,7 +73,7 @@
    "code": "min_contracts_equity_scaled=False (must stay False -- re-arm needs a validated gate)",
    "guard": "backtest/tests/test_min_contracts_equity_scaling_2026_08_13.py",
    "guard_green": true,
-   "guard_detail": "21 passed in 0.14s",
+   "guard_detail": "21 passed in 0.19s",
    "status": "GREEN"
   },
   {
@@ -81,9 +81,9 @@
    "closes": "the box slept 04:27-09:46 ET",
    "code_ok": true,
    "code": "task Ready; last session 2026-08-14T11:29:58 -> 2026-08-14T16:09:58, 281 ticks, 0 API failures",
-   "guard": null,
-   "guard_green": null,
-   "guard_detail": "no guard",
+   "guard": "backtest/tests/test_incident_fix_roster_2026_08_15.py",
+   "guard_green": true,
+   "guard_detail": "9 passed in 1.08s",
    "status": "GREEN"
   },
   {
@@ -93,7 +93,7 @@
    "code": "guard-enforced",
    "guard": "backtest/tests/test_window_leak_compliance.py",
    "guard_green": true,
-   "guard_detail": "3 passed in 0.35s",
+   "guard_detail": "3 passed in 0.37s",
    "status": "GREEN"
   },
   {
@@ -103,7 +103,7 @@
    "code": "checked read + retry, fails LOUD",
    "guard": "backtest/tests/test_eod_flatten.py",
    "guard_green": true,
-   "guard_detail": "12 passed in 0.23s",
+   "guard_detail": "12 passed in 0.29s",
    "status": "GREEN"
   }
  ]
