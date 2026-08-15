@@ -67,7 +67,15 @@ def test_flat_noop_both_accounts(tmp_path):
     with (
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
+        # CHECKED-READ SIBLING (2026-08-14). eod_flatten switched to
+        # open_spy_option_positions_checked on 2026-08-13 (a broker timeout used to
+        # collapse to [] and log "already flat" -- a missed 0DTE flatten is total loss).
+        # These stubs still patched only the UNCHECKED reader, so the real call ran, failed,
+        # and every test here returned READ_FAILED. My own fix; the sibling call site was
+        # missed. Both are patched now so the pair can never drift again.
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=[]),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=([], True)),
         patch.object(ef.fleet_broker, "close_all_spy_options") as mock_close,
     ):
         rc = ef.main()
@@ -82,6 +90,8 @@ def test_flat_noop_result_logged(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=[]),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=([], True)),
         patch.object(ef.fleet_broker, "close_all_spy_options"),
     ):
         ef.main()
@@ -105,6 +115,8 @@ def test_close_when_positions_open(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=pos),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=(pos, True)),
         patch.object(ef.fleet_broker, "close_all_spy_options", return_value=close_result) as mock_close,
     ):
         rc = ef.main()
@@ -126,6 +138,8 @@ def test_close_success_logged(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=pos),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=(pos, True)),
         patch.object(ef.fleet_broker, "close_all_spy_options", return_value=close_result),
     ):
         ef.main()
@@ -157,6 +171,8 @@ def test_fail_open_safe_errors_bold_still_closes(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", side_effect=side_effect_positions),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     side_effect=lambda c: (side_effect_positions(c), True)),
         patch.object(ef.fleet_broker, "close_all_spy_options", return_value=close_result),
     ):
         rc = ef.main()
@@ -186,6 +202,8 @@ def test_fail_open_bold_errors_safe_still_closes(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", side_effect=side_effect_positions),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     side_effect=lambda c: (side_effect_positions(c), True)),
         patch.object(ef.fleet_broker, "close_all_spy_options", return_value=close_result),
     ):
         rc = ef.main()
@@ -246,6 +264,8 @@ def test_dry_run_no_orders_placed(tmp_path, monkeypatch):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=pos),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=(pos, True)),
         patch.object(ef.fleet_broker, "close_all_spy_options") as mock_close,
     ):
         rc = ef.main()
@@ -269,6 +289,8 @@ def test_dry_run_noop_when_flat(tmp_path, monkeypatch):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=[]),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=([], True)),
         patch.object(ef.fleet_broker, "close_all_spy_options") as mock_close,
     ):
         rc = ef.main()
@@ -300,6 +322,8 @@ def test_skip_no_creds_missing_safe(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=creds_missing_safe),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=pos),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=(pos, True)),
         patch.object(ef.fleet_broker, "close_all_spy_options", return_value=close_result),
     ):
         rc = ef.main()
@@ -332,6 +356,8 @@ def test_expiry_agnostic_closes_all_spy_options(tmp_path):
         patch.object(ef, "LOG_DIR", tmp_path),
         patch.object(ef.fleet_broker, "load_creds", return_value=_flat_creds()),
         patch.object(ef.fleet_broker, "open_spy_option_positions", return_value=pos),
+        patch.object(ef.fleet_broker, "open_spy_option_positions_checked",
+                     return_value=(pos, True)),
         patch.object(ef.fleet_broker, "close_all_spy_options", return_value=close_result) as mock_close,
     ):
         rc = ef.main()
