@@ -1,3 +1,48 @@
+## [2026-08-14 23:3x ET] FULL SUITE MEASURED AT LAST -- 6,374 passed / 59 failed; 4 POPUP GAPS CLOSED
+
+First complete run of backtest/tests in this session. It required 30-file batches: the reaper
+kills any python process over 5 minutes, which is what silently truncated every earlier
+full-suite and per-chunk attempt (I wrongly blamed a timeout first, then the reaper for a run
+that WAS a timeout -- both stated corrections are in the transcript).
+
+CLOSED tonight after the sweep:
+- **4 CREATE_NO_WINDOW gaps** (`test_window_leak_compliance`). ONE WAS MINE, shipped hours
+  earlier: a git provenance call in the trendline runner. The other three are pre-existing and
+  worse in practice -- `bg_status.py` spawns a bare `powershell` (worst offender for flash),
+  and `intraday_position_tracker.py` runs on an RTH cadence so it would flash repeatedly
+  DURING the trading day. All four fixed; guard green.
+- 9x `test_eod_flatten` (my own 08-13 checked-read regression), 2x `test_fleet_time_stop_threaded`,
+  1x `test_fleet_keystone_consumer`, 2x `test_fleet_arm_parity` -- see the prior entry.
+
+## KNOWN BROKEN -- ~46 remaining, and they cluster into FOUR families, not 46 problems
+
+FAMILY A -- REPLAY PINS THAT DRIFT WITH LIVE CONFIG (~20 tests). `test_replay_today_eval`
+(12: per-arm pinned P&L + determinism hashes), `test_exit_manager_replay` (2),
+`test_profitability_ab` (2), `test_trail_width_exit_ab`, `test_ribbon_flipback_ab_v2`,
+`test_structure_shift_cascade_ab`, `test_pnl_attribution_2026_07_28`, `test_regime_reslice`.
+These harnesses read LIVE params.json / strategies.py / fills-ledger, so every frozen anchor
+moves when live config or the ledger moves. **DO NOT RE-PIN TO TODAY'S NUMBERS** -- a
+faithfulness pin that drifts with live state cannot detect the regression it exists for. The
+fix is a frozen config+population SNAPSHOT per harness. Until then it is UNKNOWN whether e.g.
+exit_manager_replay's 177.4 -> 114.0 is a legitimate config change or a real regression. This
+family is the single highest-value cleanup left and it is a DESIGN change, not a patch.
+
+FAMILY B -- LIVE-STATE COUPLING IN FIXTURES (~10). Same root as the keystone/nbbo repairs:
+`test_unattended_health` (5), `test_watcher_registry` (2 -- registry vs disk partition drifted
+as detector files were added), `test_trade_today_watcher` (3), `test_state_contracts`.
+Mechanical once each is traced; each needs its own sandbox.
+
+FAMILY C -- STALE SHAPE/ANCHOR PINS (~10). `test_p5_shape_gate` (2), `test_gate_e2e`,
+`test_level_compiler_v2_guards`, `test_monday_verify`, `test_replay_fleet_arms` (2),
+`test_twin_gauntlet`, `test_tz_quality_lock` (2), `test_vwap_reclaim_fleet_extension` (2),
+`test_preopen_readiness`, `test_regime_early_classifier_guards`, `test_guard_cmd_popup_fix_ws6`.
+
+FAMILY D -- NETWORK-DEPENDENT (2). `test_free_model_audit_*` end-to-end against real free-model
+endpoints. Expected to fail offline; NOT yet confirmed as network-only -- confirm first.
+
+NEXT SESSION: Family A is the one that matters (it covers exit + P&L faithfulness, i.e. the
+money path). Families B/C are volume, not risk.
+
 ## [2026-08-14 23:0x ET] GREEN -- loop resumed: 5 filed failures CLOSED, 9 more were MY OWN regression
 
 CLOSED since the 20:26 entry (all committed, all root-caused not guessed):
@@ -543,4 +588,19 @@ mid-flight requiring re-verification and disclosure, queue/STATUS writeup).
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-08-14T23:09:57
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
+- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 83 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 83x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-08-15T03:30:16+00:00
+- date_et: 2026-08-14
+- total: $602.92 (threshold $30.00)
+- claude: $602.92  minimax: $0.00
+- claude_sessions: 26
