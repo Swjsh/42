@@ -30,7 +30,16 @@ def _load(name: str, relpath: str):
 
 
 fma = _load("free_model_audit", "setup/scripts/free_model_audit.py")
-sca = _load("free_model_audit_swarm_consult", "setup/scripts/free_model_audit_swarm_consult.py")
+
+# DO NOT _load() this one (fixed 2026-08-15). free_model_audit imports it ITSELF while
+# building AUDIT_SUBJECTS (free_model_audit.py:237), and the adapter's `grade` closes over
+# THAT module instance. Re-executing the file here produced a SECOND, distinct module object,
+# so every `monkeypatch.setattr(sca, "_blind_reanswer", ...)` below patched a copy the adapter
+# never calls -- and `grade` then ran the REAL `_blind_reanswer`, i.e. a test that believed it
+# was mocked was firing a live `claude` subprocess. It "failed" only because that call fails on
+# this box; with a working subprocess it would have passed while silently spending money.
+# Binding to the sys.modules entry keeps one instance, which is what the adapter uses.
+sca = sys.modules["free_model_audit_swarm_consult"]
 
 
 # ---------- REAL fixture (verbatim from disk, 2026-06-28-224358 consult) ----------

@@ -29,7 +29,14 @@ def _load(name: str, relpath: str):
 
 
 fma = _load("free_model_audit", "setup/scripts/free_model_audit.py")
-tr = _load("free_model_audit_twin_review", "setup/scripts/free_model_audit_twin_review.py")
+
+# DO NOT _load() this one (fixed 2026-08-15) -- same defect as the swarm_consult guard.
+# free_model_audit imports it ITSELF while building AUDIT_SUBJECTS
+# (free_model_audit.py:205), and the adapter's `grade` closes over THAT instance. Re-executing
+# the file here made a SECOND module object, so the monkeypatches below patched a copy the
+# adapter never calls and `grade` ran the REAL LLM path -- a test that believed it was mocked
+# firing a live `claude` subprocess. Bind to the sys.modules entry so there is ONE instance.
+tr = sys.modules["free_model_audit_twin_review"]
 
 
 # ---------- REAL fixture (verbatim from automation/state/crypto-twin/reviews/2026-07-11.json) ----------

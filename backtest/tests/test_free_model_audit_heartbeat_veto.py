@@ -26,7 +26,14 @@ def _load(name: str, relpath: str):
 
 
 fma = _load("free_model_audit", "setup/scripts/free_model_audit.py")
-hv = _load("free_model_audit_heartbeat_veto", "setup/scripts/free_model_audit_heartbeat_veto.py")
+# DO NOT _load() this one (fixed 2026-08-15) -- free_model_audit imports it ITSELF when
+# building AUDIT_SUBJECTS, so re-executing the file makes a second module object and any
+# monkeypatch here lands on a copy the adapter never calls. This file's tests happen to call
+# `hv.grade_item` DIRECTLY rather than through `adapter.grade`, so they were not yet wrong --
+# but they sit one added adapter test away from the exact silent-real-LLM-call defect that
+# hit the swarm_consult and twin_review guards. Bound to sys.modules so all four siblings
+# share one instance and the trap cannot re-open.
+hv = sys.modules["free_model_audit_heartbeat_veto"]
 
 
 # ---------- REAL fixture rows (verbatim from core-decisions.jsonl, 2026-07-11 grep) ----------

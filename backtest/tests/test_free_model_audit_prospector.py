@@ -30,7 +30,14 @@ def _load(name: str, relpath: str):
 
 
 fma = _load("free_model_audit", "setup/scripts/free_model_audit.py")
-pa = _load("free_model_audit_prospector", "setup/scripts/free_model_audit_prospector.py")
+# DO NOT _load() this one (fixed 2026-08-15) -- same defect as the swarm_consult/twin_review
+# guards. free_model_audit imports it ITSELF when building AUDIT_SUBJECTS, and the adapter's
+# `grade` closes over THAT instance; re-executing the file made a second module object.
+# This file's symptom was subtler than a failure: `test_wired_in_real_registry` PASSED while
+# its two monkeypatches were inert, so `adapter.grade` read the REAL production
+# ideas-ledger.jsonl instead of the tmp fixture and asserted the value the unpatched path
+# happened to return. A test passing for the wrong reason, live-state-coupled.
+pa = sys.modules["free_model_audit_prospector"]
 
 
 # ---------- REAL fixtures (verbatim from disk, 2026-07-09 gex_flip_from_banked_cboe promotion) ----------
