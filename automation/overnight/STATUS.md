@@ -1,3 +1,63 @@
+## [2026-08-15 ~01:00 ET] ESCALATION -- the current exit config replays UNIFORMLY WORSE, 10 arm-instances, zero counter-examples
+
+**This is the one item worth J's attention. Everything else below is housekeeping.**
+
+Two independent replay harnesses, two different days, two different exit code paths, all
+pinned before the pre-TP1 ratchet shipped. Repairing their dead pins produced this:
+
+| harness / day | arm | pinned | now | delta |
+|---|---|---|---|---|
+| replay_today_eval 5-min | core_safe | -312.00 | -336.00 | **-24.00** |
+| | core_bold | 65.25 | 61.25 | -4.00 |
+| | fleet_safe_3 | -83.25 | -95.25 | -12.00 |
+| | fleet_risky_1 | -138.75 | -158.75 | -20.00 |
+| | fleet_risky_3 | -36.75 | -56.75 | -20.00 |
+| replay_today_eval 1-min | all five | | | **-30 / -15.25 / -12 / -20 / -20** |
+| exit_manager_replay | core_bold 13:51:21 | 177.40 | 114.00 | **-63.40** (live made 191) |
+
+**10 arm-instances degraded. NONE improved.** Book-level: about **-$80 on one replay day**,
+against a $100-200/day/account target.
+
+WHAT CHANGED: four J-directed exit ships after the pins were frozen -- pre-TP1 profit ratchet
+(`1a9b1409`), J's ladder (`af6cf286`), trail arm +40% -> +75% (`658ecc79`), ribbon confirmation
+buffer (`20a9e792`, implemented not armed). The exit_manager case is explicit about the
+mechanism: the trade now exits on `premium_stop @ 0.61` instead of riding.
+
+WHAT THIS IS **NOT**: proof of a regression. The ratchet is insurance -- it is SUPPOSED to cost
+money on days it was not needed, and 2026-08-13's own exhibit was a day that only worked
+because the contract doubled. Replay counterfactuals are not live P&L.
+
+WHY IT STILL NEEDS DECIDING: a one-directional result across ten arm-instances with **zero
+offsetting cases anywhere in the available evidence** is the shape that earns a measurement,
+not a shrug. If the insurance never visibly pays in any replay we hold, either we are not
+holding the days where it pays, or it is priced wrong.
+
+**DECISION IS J'S, NOT MINE.** The ratchet shipped under a rule-9 override; loosening it is a
+policy change. I did not touch the knob. What I did:
+- re-pinned both harnesses to current values WITH the drift documented inline, so they detect
+  the NEXT change instead of staying dead (they had detected nothing for weeks);
+- added a maintenance rule to each: re-derive in the SAME commit as any exit-config ship;
+- froze `prereg-pre-tp1-ratchet-cost-2026-08-15.json`, which prices the ratchet as insurance
+  (`truncated_winner_dollars` vs `protected_loss_dollars`), requires the result with the
+  largest single trade removed (G3), and caps its own output at "a priced table for J".
+
+## WHAT NEEDS DOING NEXT, in priority order
+
+1. **RUN the ratchet-cost prereg.** It is frozen and unrun. It is the only thing that converts
+   the above from a suspicion into a number J can rule on. Needs a multi-day real-fills
+   population, not the two days that generated the question (G3 forbids that).
+2. **Family A, the rest** (~6 remaining): `test_profitability_ab` (2), `test_trail_width_exit_ab`,
+   `test_ribbon_flipback_ab_v2`, `test_structure_shift_cascade_ab`, `test_pnl_attribution`,
+   `test_regime_reslice`. Same disease, same treatment: re-derive, document the drift, add the
+   maintenance rule. Each one may hide a finding like the above -- two of the three repaired so
+   far did.
+3. **Family B live-state coupling** (~10): `test_unattended_health` (5), `test_watcher_registry`
+   (2 -- registry vs disk partition drifted as detectors were added), `test_trade_today_watcher`
+   (3), `test_state_contracts`. Mechanical; sandbox each like the keystone/nbbo repairs.
+4. **Family C stale shape pins** (~10) and **Family D network-dependent** (2, confirm first).
+5. Entry-quality handoff items 5-8 (probe-lane wiring, tier derivation / ELITE retirement,
+   re-arm sizing LAST -- still gated on a validated entry-quality gate that does not exist).
+
 ## [2026-08-14 23:3x ET] FULL SUITE MEASURED AT LAST -- 6,374 passed / 59 failed; 4 POPUP GAPS CLOSED
 
 First complete run of backtest/tests in this session. It required 30-file batches: the reaper
@@ -413,194 +473,14 @@ of scope for the exit lane and would be a drive-by.
 
 Everything else in the twin + fleet suites is green: fleet 379 passed, twin/crypto 880 passed.
 
-## [2026-08-10T21:54 ET] CONDUCTOR: OK -- STATE-FRESHNESS-REVERSION-FOLLOWUP-3 (5 producers manually refreshed) -- REVOKE surface N/A (no code changed)
-
-**Task picked (priority-2, Engine RED):** `engine-health.json` flagged `state_freshness`
-RED at fire start -- 7/21 stale. NOT the git-reversion class from the two prior fires
-tonight (verified those 6 files stay correctly untracked+gitignored, `git status
---porcelain` clean). This time it's a NEW class.
-
-**Root cause (verified live):** `context-bundle.json`/`confluence-zones.json`/`trade-
-today.json`/`ema-snapshot.json`/`news.json`/`premarket-readiness.json` carried
-weeks-stale INTERNAL content stamps (07-14 through 07-27) despite their scheduled tasks
-(`Gamma_ContextBundle`, `Gamma_Confluence`, `Gamma_TradeToday`, `Gamma_EmaSnapshot`,
-`Gamma_MacroCalendar`, `Gamma_PremarketReadiness`) firing all day with clean
-`LastTaskResult=0` and zero hits in `self_check.py`'s masked-exit check. Manually
-re-running all 5 underlying producers via the EXACT scheduled-task invocation chain
-worked instantly -- confirms the producer CODE is fine; something about the unattended
-firing specifically silently no-ops. **Precise mechanism NOT conclusively found this
-fire** (rail-3 bounded) -- investigated and RULED OUT `run_cmd_hidden.py` code drift
-(byte-identical to HEAD since 07-14) and `Principal.LogonType` (identical
-`Interactive`/`jackw` across working and broken tasks). Flagged as
-`RUN-CMD-HIDDEN-OFF-DESKTOP-PROVENANCE` in queue.md with concrete evidence for a future
-fire to pick up with live instrumentation.
-
-**Fix:** manually re-ran all 5 producers -- `state_freshness_audit.py` verdict went 7/21
-stale (RED) -> 1/21 stale (the 1 remaining, `futures/data-freshness.json`, is a
-DIFFERENT already-fixed-in-code issue from tonight's 18:45 fire, self-heals on
-tomorrow's live tick). `engine-health.json` re-run confirms `state_freshness` RED only
-on that 1 expected-quiet entry.
-
-**Lesson filed:** `_lesson-inbox/state-freshness-detector-no-remediator-2026-08-10.md` --
-2nd instance of "a detector without an automatic remediator re-violates on its own
-schedule" (L252's rule). `state_freshness_audit.py` correctly flagged RED the ENTIRE
-3-4 week gap and nothing ever auto-re-ran the flagged producer. Queued
-`STATE-FRESHNESS-AUTO-REMEDIATOR` (HIGH) to close that gap structurally.
-
-**Rail-4 N/A:** zero trading-path files touched; zero code changed. Only regenerated
-JSON/state files via their own existing, unmodified producers (byte-identical output to
-what those scripts would produce on their next legitimate scheduled fire) + 1
-lesson-inbox write + 3 queue.md items. Nothing to revert.
-
----
-
-## [2026-08-10T21:05 ET] CONDUCTOR: CORRECTION to the 20:43 entry below -- the "absorbed by 658ecc79" claim was WRONG, re-verified and re-shipped
-
-**What actually happened (OP-33: caught by re-verifying my own claim, not trusting it):** the
-20:43 entry below claimed the first 6 files' untrack landed correctly, just under another
-session's commit message (`658ecc79`). That was a misread -- I checked `git ls-files` (which
-reflects the INDEX) and treated "empty" as proof of a committed state, without separately
-checking `git cat-file -e HEAD:<path>` (which reflects what's actually COMMITTED). Re-checking
-directly: all 8 target files (the original 6 + the 2 found in the completeness pass below) were
-STILL PRESENT IN HEAD after three separate `git commit -- <paths>` invocations, each of which
-silently printed "no changes added to commit" despite `git diff --cached` correctly showing a
-staged `D` for every path -- root cause of that specific git behavior not resolved this fire
-(flagged below, not chased further -- the fix itself was not blocked by it).
-
-**Resolution:** verified the full shared index held EXACTLY these 8 staged deletions and
-nothing foreign (`git diff --cached --name-only`, 8 lines, all mine) before doing a plain
-(non-pathspec) `git commit` -- safe specifically because nothing else was staged to absorb.
-Commit `cd7a3824`. Re-verified post-commit via `git cat-file -e HEAD:<path>` (not `ls-files`)
-for all 8: all ABSENT from HEAD, confirmed untracked. Guard suite 10/10 green. Working-tree
-disk content for all 8 files verified intact and JSON-parseable.
-
-**New, real finding for a future fire (not chased further this fire, rail-3 bounded):**
-`git commit -m ... -- <pathspec>` on this checkout silently declined to commit an otherwise-
-valid staged deletion three times in a row tonight, with no error and a misleading "no changes
-added to commit" message even though `git diff --cached -- <same paths>` showed a real diff.
-Mechanism not identified (possibly interaction with `.gitignore` + a freshly-`rm --cached`
-path in the SAME invocation, possibly hook-related, possibly a genuine git quirk on this
-Windows/git-bash setup) -- worth a dedicated investigation if it recurs, since pathspec-scoped
-commits are this repo's own prescribed defense against shared-index absorption
-(`commit_scoped.py`) and a silent failure mode in that exact mechanism is a real gap.
-
----
-
-## [2026-08-10T20:43 ET] CONDUCTOR: OK -- STATE-FRESHNESS-REVERSION-FOLLOWUP-2 (6 files untracked) -- REVOKE surface
-
-**Task picked (priority-2, Engine RED):** `engine-health.json` flagged `state_freshness`
-RED at fire start -- 6 live-path producers stale 2026-07-14/07-15, up to 27 days:
-`key-levels-memory.json`, `prior-rth-close.json`, `trade-today.json`, `confluence-zones.json`,
-`ema-snapshot.json`, `context-bundle.json`.
-
-**Root cause (verified live, one sentence):** all 6 are tracked-but-rarely-committed
-(last commit = 2026-07-14/07-15, the SAME commit as the 2026-07-14 `git stash drop`
-data-loss incident) while their Task-Scheduler-run producers keep rewriting them every
-5-10min all day (confirmed: `LastTaskResult=0`, and `level_memory_producer.py`'s own
-stdout log shows fresh today's-date content computed AND written every cycle) -- so a
-tree-wide git op in the shared checkout kept reverting the on-disk file back to the stale
-committed snapshot between checks. Identical mechanism, and the identical established fix,
-as the 2026-07-14/07-20/07-21 incidents already closed for LEDGERS/STATE_SNAPSHOTS/
-DECISION_GATING_SNAPSHOTS in `backtest/tests/test_ledger_gitignore_guard.py` -- the 2026-07-21
-triage was a partial sweep (~76 tracked files reviewed, 13 fixed) and simply missed these 6.
-
-**Fix:** `git rm --cached` (untrack, disk content untouched) + `.gitignore` entries, mirroring
-the 3 prior rounds exactly. New `STATE_FRESHNESS_REVERSION_FOLLOWUP_2` list + 2 guard tests
-(`test_state_freshness_reversion_followup_2_are_{gitignored,untracked}`) in the same file.
-Full guard suite 8/8 green (4 pre-existing + 4 new). Working-tree copies verified intact and
-JSON-parseable post-fix.
-
-**Live-caught a NEW instance of the L271 shared-index-absorption class while shipping this**
-(not a new lesson -- an already-documented recurring hazard of this multi-session checkout):
-the first commit this fire (`27cb218d`) landed the `.gitignore` + guard-test edits correctly,
-but between my `git rm --cached` staging and the commit, a CONCURRENT other session ran a bare
-`git commit` (`658ecc79`, "fix: move pre-TP1 trail arm +40% -> +75%; ship day-replay tool" --
-unrelated trading-path work, not mine) that swept the staged untrack of these 6 files into ITS
-OWN commit before my scoped follow-up could land. End state is fully correct and independently
-re-verified after the fact (`git ls-files` empty + `git check-ignore` IGNORED for all 6, pytest
-8/8 green, disk content intact) -- only the commit attribution is under someone else's message.
-Disclosing per the established L271 remedy (transparency, not a force-rewrite of shared history
-that would risk clobbering the other session's legitimate concurrent work).
-
-**Found + flagged (not fixed, rail-3 out of scope):**
-`backtest/tests/test_state_freshness_audit.py::test_date_axis_quiet_before_producer_ready_time`
-is flaky pre-existing -- reproduced FAILING on main with this fire's changes fully stashed out
-(baseline, before any of my edits). Compares a fixture file's age against the REAL wall clock
-instead of a frozen one, so it silently crosses its own 20min budget as real time passes since
-whatever epoch the fixture assumes. Not touched this fire (pre-existing, different file/module).
-
-**Rail-4 clear:** additive-only (`.gitignore` + test extension) + index-untrack only (disk
-content unchanged either way) -- zero trading-path files touched. Revert: the untrack is
-reversible via `git add -f <path>` if ever needed, though per the established doctrine here
-(3 prior identical incidents) re-tracking these files would be reintroducing the vulnerability,
-not a fix.
-
-**Why this outranked the queue:** Engine RED (STAGE 1 priority-2) outranks HIGH/MED backlog by
-design -- this is the SAME class of active, self-flagged, silently-blind-for-27-days problem
-the conductor exists to close before adding new artifacts, and it was the last remaining
-`state_freshness` RED after tonight's earlier futures-freshness fix.
-
-Cost this fire: ~$5 (live root-cause trace across producer logs + Task Scheduler introspection
-+ git history, established-pattern fix + 2-test guard, a live git-index-absorption incident
-mid-flight requiring re-verification and disclosure, queue/STATUS writeup).
-
----
-
-
-### DEGRADED: self-check 2026-08-14T20:39:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 68 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 68x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-14T21:09:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 71 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 71x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-14T21:39:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 74x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-14T22:09:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 77 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 77x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-14T22:39:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 80 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 80x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 46 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-### DEGRADED: self-check 2026-08-14T23:09:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-14) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-14) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-14 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-14.log shows 83 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 83x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-14.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor.ps1 (exit=[1], 1x), run-crypto-regression.ps1 (exit=[1073807364], 1x), run-kitchen-reviewer.ps1 (exit=[1], 3x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+### DEGRADED: self-check 2026-08-15T02:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### WARN: spend-summary threshold breach
-- ts: 2026-08-15T03:30:16+00:00
-- date_et: 2026-08-14
-- total: $602.92 (threshold $30.00)
-- claude: $602.92  minimax: $0.00
-- claude_sessions: 26
+### DEGRADED: self-check 2026-08-15T02:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 4x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.

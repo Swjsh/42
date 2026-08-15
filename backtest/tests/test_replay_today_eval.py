@@ -46,16 +46,44 @@ for _p in (REPO, REPO / "backtest", REPO / "backtest" / "tools"):
 import replay_today_eval as rte  # noqa: E402
 
 # Pinned baseline (iteration 2, 2026-07-17 real tape + real OPRA fills + recorded decision
-# streams). See analysis/recommendations/replay-today-baseline-2026-07-17.json for the full
-# record.
+# streams). See analysis/recommendations/replay-today-baseline-2026-07-17.json.
+#
+# RE-PINNED 2026-08-15 -- AND THE DRIFT IS THE FINDING, NOT THE CHORE.
+#
+# This harness reads LIVE params.json / strategies.py / key-levels.json, so its numbers move
+# whenever exit config ships. Four J-directed exit changes landed after the pin (pre-TP1
+# ratchet 1a9b1409, ladder af6cf286, trail arm +40->+75 658ecc79, ribbon buffer 20a9e792) and
+# the pin was never moved with them, so it sat RED and detected nothing.
+#
+# WHAT MOVED, and why it matters more than the pin does:
+#     arm              pinned      now      delta
+#     core_safe        -312.00   -336.00   -24.00
+#     core_bold          65.25     61.25    -4.00
+#     fleet_safe_3      -83.25    -95.25   -12.00
+#     fleet_risky_1    -138.75   -158.75   -20.00
+#     fleet_risky_3     -36.75    -56.75   -20.00
+#                                  TOTAL   -80.00
+# EVERY ARM IS WORSE. Not one improved. The 1-min path shows the same one-directional shape.
+# Sibling evidence the same night: exit_manager_replay's bold 13:51:21 went 177.4 -> 114.0
+# (live made 191) via `premium_stop @ 0.61`.
+#
+# So across TWO replay days and SIX arm-instances the current exit config replays uniformly
+# worse than the pre-ratchet baseline, with zero counter-examples. That is not proof of a
+# regression -- these could be days the insurance was not needed, which is exactly what the
+# ratchet is FOR -- but a one-directional result with no offsetting day anywhere in the
+# available evidence is the shape that deserves a measurement, not a shrug. Pre-registered as
+# PRE-TP1-RATCHET-COST-2026-08-15; escalated to J in STATUS.md.
+#
+# MAINTENANCE RULE: re-derive these in the SAME commit as any exit-config ship and state what
+# moved. A pin quietly dragged to today's numbers is how a real exit regression slips through.
 PINNED_TOTAL_PNL = {
-    "core_safe": -312.0,
-    "core_bold": 65.25,
-    "fleet_safe_3": -83.25,
-    "fleet_risky_1": -138.75,
-    "fleet_risky_3": -36.75,
+    "core_safe": -336.0,      # was -312.00
+    "core_bold": 61.25,       # was   65.25
+    "fleet_safe_3": -95.25,   # was  -83.25
+    "fleet_risky_1": -158.75, # was -138.75
+    "fleet_risky_3": -56.75,  # was  -36.75
 }
-PINNED_DETERMINISM_HASH = "4d57bc48d151e1e2"
+PINNED_DETERMINISM_HASH = "53a86e4ffee65adf"   # was 4d57bc48d151e1e2
 PINNED_ALL_FAITHFUL = False
 PINNED_N_FAITHFUL = 0
 PINNED_N_CAPTURED = 5
@@ -64,14 +92,19 @@ PINNED_N_DECISION_MATCHES = 12
 PINNED_N_ENTRIES = 12
 
 # ITERATION 3 (1-min exit-layer path via simulate_entry_best) -- see module docstring.
+# RE-PINNED 2026-08-15, same cause and the SAME one-directional shape as the 5-min path above:
+#   core_safe 0.0 -> -30.0 | core_bold 99.0 -> 83.75 | fleet_safe_3 0.0 -> -12.0
+#   fleet_risky_1 0.0 -> -20.0 | fleet_risky_3 4.0 -> -16.0
+# Five arms, five degradations, no improvements. Two independent exit paths agreeing on the
+# direction is why this was escalated rather than absorbed.
 PINNED_TOTAL_PNL_1MIN = {
-    "core_safe": 0.0,
-    "core_bold": 99.0,
-    "fleet_safe_3": 0.0,
-    "fleet_risky_1": 0.0,
-    "fleet_risky_3": 4.0,
+    "core_safe": -30.0,       # was  0.0
+    "core_bold": 83.75,       # was 99.0
+    "fleet_safe_3": -12.0,    # was  0.0
+    "fleet_risky_1": -20.0,   # was  0.0
+    "fleet_risky_3": -16.0,   # was  4.0
 }
-PINNED_DETERMINISM_HASH_1MIN = "b1199323f7e5c827"
+PINNED_DETERMINISM_HASH_1MIN = "72aa9774157d44b1"   # was b1199323f7e5c827
 PINNED_ALL_FAITHFUL_1MIN = False
 PINNED_N_FAITHFUL_1MIN = 2
 PINNED_RESOLUTION_COUNTS_1MIN = {"1min": 12, "5min_fallback": 0, "none": 0}
