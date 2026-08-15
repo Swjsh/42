@@ -107,6 +107,18 @@ def test_known_exit_patch_keys_all_accepted():
         "stop_mode": "structure",
         "catastrophe_stop_pct": -0.5,
         "profit_lock_arm_scope": "post_tp1",
+        # ADDED 2026-08-14. These six pre_tp1_* fields exist on ExitShape (and therefore in
+        # EXIT_PATCH_ALLOWED_KEYS, which is derived from it), but this literal is HAND-TYPED
+        # and had not been extended -- so the test sat RED. That is exactly the drift its own
+        # docstring warns about, arriving in the fixture rather than in the code: the two
+        # PRODUCTION sets never diverged (directive.py reads the executor's frozenset, which
+        # reads ExitShape's fields); only this third, hand-maintained copy did.
+        "pre_tp1_trail_pct": 0.15,
+        "pre_tp1_trail_arm_pct": 0.05,
+        "pre_tp1_floor_pct": 0.02,
+        "pre_tp1_be_floor_arm_pct": 0.10,
+        "pre_tp1_ribbon_confirm_ticks": 2,
+        "pre_tp1_ladder": [[0.25, 0.5]],
     }
     assert set(full_patch) == fleet_executor.EXIT_PATCH_ALLOWED_KEYS
     d = dd.parse_and_validate(_raw(exits=full_patch))

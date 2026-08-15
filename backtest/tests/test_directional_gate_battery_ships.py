@@ -273,9 +273,15 @@ def test_live_params_unchanged_for_tested_gates_given_zero_disables():
     update this pin alongside that change (it is a state pin, not a policy pin)."""
     safe = json.load(open(PARAMS_SAFE, encoding="utf-8"))
     bold = json.load(open(PARAMS_BOLD, encoding="utf-8"))
-    assert safe.get("block_elite_bull") is True
+    # PIN UPDATED 2026-08-14 for block_elite_bull, per this docstring's own instruction.
+    # `f4890edb feat(gate): lift block_elite_bull on BOTH cores -- trade-to-learn trial 2
+    # (SHIP B)` deliberately disabled it on Safe AND Bold and did not update this pin, so the
+    # test sat RED and guarded nothing thereafter. Verified deliberate before moving it: the
+    # lift is its own commit with a named trial, not a stray edit. The pin still binds -- it
+    # now asserts the CURRENT state, so the next unannounced flip REDs again.
+    assert safe.get("block_elite_bull") is False      # lifted by f4890edb (trade-to-learn 2)
+    assert bold.get("block_elite_bull") is False      # lifted by f4890edb, same commit
     assert safe.get("block_bull_1100_1200") is True
     assert safe.get("entry_bar_body_pct_min") == 0.2
-    assert bold.get("block_elite_bull") is True
     assert bold.get("require_bearish_fill_bar") is True
     assert bold.get("block_conf_lvl_rec_afternoon") is True

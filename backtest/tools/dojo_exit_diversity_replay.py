@@ -117,6 +117,26 @@ def _load_exit_profiles() -> dict:
     # which still run the registry shape verbatim -- so CONTROL is now sourced from safe-2's
     # (empty) patch rather than risky-1's. This guard's contract is unchanged: any future
     # relabelling still fails LOUD here instead of silently racing the wrong profile (C14).
+    # 2026-08-14: ZONE-RIDE IS RETIRED, and this guard is what surfaced it. Commit
+    # `1a2692c4 feat(fleet): arm risky-3 on the premium-stop lane -- one-variable live paper
+    # A/B for the stop_mode finding (prereg a2d7c3e4)` deliberately repurposed risky-3, and
+    # NO arm carries exit_profile ZONE-RIDE any more. That is a legitimate lane change, not a
+    # mistake -- but it means this study can no longer be re-run AS PRE-REGISTERED, because
+    # one of its four profiles has no live source.
+    #
+    # The guard therefore says exactly that instead of the generic "mapping is stale", which
+    # read like a config typo and got ignored. The completed artifact
+    # (analysis/.../EXIT-DIVERSITY-2026-07-20.md) still stands on the data it was run against;
+    # what is gone is the ability to reproduce it without a human re-scoping the profile set.
+    if arms["risky-3"].get("exit_profile") == "PREMIUM-STOP":
+        raise ValueError(
+            "ZONE-RIDE lane RETIRED: risky-3 was repurposed to the PREMIUM-STOP A/B by commit "
+            "1a2692c4 (prereg a2d7c3e4) and no arm carries exit_profile 'ZONE-RIDE'. This "
+            "study cannot be re-run as pre-registered -- its 4-profile set is no longer "
+            "sourceable from live accounts.json. Re-scope the profile set (a human decision, "
+            "in a new prereg) before trusting any output from this tool. The already-published "
+            "EXIT-DIVERSITY-2026-07-20 result is unaffected; only reproduction is blocked."
+        )
     expected_labels = {"safe-2": "CORE", "risky-1": "REACHABLE-TP1", "safe-3": "RIBBON", "risky-3": "ZONE-RIDE"}
     for arm_id, want in expected_labels.items():
         got = arms[arm_id].get("exit_profile")

@@ -172,7 +172,25 @@ def test_exit_profiles_pulled_from_live_accounts_json():
     The guard's job is unchanged -- prove the study reads the LIVE lanes and that they are
     genuinely different -- so it now pins the new set. If a lane is added/removed, update this
     list deliberately; do not delete the test.
+
+    ZONE-RIDE RETIRED 2026-08-14: commit 1a2692c4 repurposed risky-3 onto the PREMIUM-STOP
+    A/B (prereg a2d7c3e4), and no arm carries exit_profile 'ZONE-RIDE' any more. That is a
+    deliberate lane change, so the loader now refuses LOUDLY and specifically rather than
+    reporting a generic "mapping is stale" (which read like a config typo and was ignored
+    while the test sat RED). This test therefore pins THE REFUSAL: the study is not
+    re-runnable as pre-registered until a human re-scopes its profile set in a new prereg.
+    The published EXIT-DIVERSITY-2026-07-20 result is unaffected -- only reproduction is
+    blocked. Restore the profile assertions below if a ZONE-RIDE lane is ever re-armed.
     """
+    with pytest.raises(ValueError, match="ZONE-RIDE lane RETIRED"):
+        ddr._load_exit_profiles()
+
+
+@pytest.mark.skip(reason="ZONE-RIDE lane retired by 1a2692c4 -- see the test above; these "
+                         "assertions are kept verbatim so they can be restored if the lane "
+                         "is re-armed, rather than deleted and silently forgotten")
+def test_exit_profiles_lane_shapes_when_zone_ride_exists():
+    """The original per-lane shape assertions, preserved for restoration."""
     profiles = ddr._load_exit_profiles()
     assert set(profiles.keys()) == {"CONTROL", "RIBBON", "ZONE-RIDE", "REACHABLE-TP1"}
     assert profiles["CONTROL"] == {}
