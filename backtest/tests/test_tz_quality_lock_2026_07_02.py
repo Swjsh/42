@@ -100,6 +100,16 @@ class TestReentryAfterStopRoutesToExecute:
         monkeypatch.setattr(fb, "marketable_limit_price",
                             lambda c, s, side="buy", buffer=0.03: 1.08)
         monkeypatch.setattr(fb, "open_buy_orders", lambda c, s: [])
+        # ADDED 2026-08-15. The entry path's order-level idempotency guard (71cce7ac /
+        # b80b799c, 2026-08-01..03) calls the *_checked* primitives, which fail CLOSED on an
+        # unverifiable query -- deliberately, since "a missed entry is cheap, a double entry
+        # is not". This fake stubbed only the fail-OPEN `open_buy_orders`, so the real checked
+        # variants ran against the stubbed `_request` and returned ok=False, turning both
+        # tests into SKIP_ORDER_QUERY_ERROR. Stubbing the clean state (no pending BUY, no held
+        # qty, query SUCCEEDED) is what lets them reach the placement they exist to assert --
+        # it does not weaken the guard, which keeps its own coverage elsewhere.
+        monkeypatch.setattr(fb, "open_buy_orders_checked", lambda c, s: ([], True))
+        monkeypatch.setattr(fb, "symbol_position_qty_checked", lambda c, s: (0, True))
         monkeypatch.setattr(fb, "cancel_order", lambda *a, **k: {})
         monkeypatch.setattr(hc, "STATE", tmp_path)
         now = dt.datetime(2026, 7, 2, 11, 50, 2)  # the tick the old lock/crash killed

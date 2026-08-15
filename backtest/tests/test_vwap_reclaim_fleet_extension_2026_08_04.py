@@ -124,11 +124,32 @@ def test_safe3_holds_the_same_entry_on_its_own_gate():
     assert (r3.action, mine[0].action) == ("ENTER", "HOLD")
 
 
-def test_risky1_enters_at_full_send_min_size():
+def test_risky1_holds_the_base_reclaim_since_its_gate_was_restored():
+    """RE-PINNED 2026-08-15. risky-1 ENTERed this BASE-quality signal until `97734a7b`
+    (08-12) RESTORED its selectivity gate -- `gate_override.require_confluence_or_sequence`,
+    which `e28d210c` had accidentally DELETED. It now HOLDs on exactly the reason safe-3
+    does, on the same signal. That is the gate working, not a regression, and it is why the
+    2026-08-12 churn teardown counts risky-1 as a confounded arm in any PRE/POST split."""
     plans = _plans("risky-1", BOLD_PARAMS)
+    mine = [p for p in plans if p.strategy == "vwap_reclaim_failed_break"]
+    assert len(mine) == 1
+    assert mine[0].action == "HOLD"
+    assert "confluence/sequence" in mine[0].reason, mine[0].reason
+
+
+def test_risky1_enters_at_full_send_min_size_on_an_elite_reclaim():
+    """The assertion the test above used to carry -- the FULL_SEND arm-level clamp binds on a
+    reclaim entry -- kept alive by giving the signal what risky-1's restored gate now demands.
+    `_is_elite` keys off a confluence flag or a `sequence*` trigger NAME, so one added trigger
+    clears the A+ gate without touching any other axis. Re-pinning the HOLD alone would have
+    silently retired full-send min-size coverage the moment the gate came back (C14)."""
+    elite_signal = {"spot": 737.3, "strategies": [
+        dict(REAL_SHAPED_ENTRY,
+             triggers=[*REAL_SHAPED_ENTRY["triggers"], "sequence_rejection"])]}
+    plans = _plans("risky-1", BOLD_PARAMS, signal=elite_signal)
     enters = [p for p in plans if p.action == "ENTER"
               and p.strategy == "vwap_reclaim_failed_break"]
-    assert len(enters) == 1
+    assert len(enters) == 1, [(p.action, p.reason) for p in plans]
     assert enters[0].qty == BOLD_PARAMS["min_contracts"], \
         "full-send arm-level clamp must bind on the reclaim entry too"
     assert "FULL_SEND min size" in enters[0].reason
@@ -168,11 +189,28 @@ def test_registry_cell_is_the_safe2_armed_atm_cell():
             s.exit.tp1_qty_fraction, s.exit.profit_lock_mode) == (-0.08, 0.30, 0.8, "fixed")
 
 
-def test_risky3_exit_patch_overlays_on_top():
-    shape = fx._exit_shape_dict(fstrat.VWAP_RECLAIM_FAILED_BREAK, _ARM["risky-3"])
-    assert shape["premium_stop_pct"] == -0.08 and shape["tp1_premium_pct"] == 0.30
-    assert shape["stop_mode"] == "structure" and shape["trail_pct"] == 0.20, \
-        "risky-3's accounts.json exit_patch must shallow-merge over the ported cell"
+def test_arm_exit_patch_overlays_on_top_of_the_ported_cell():
+    """RE-PINNED 2026-08-15, and moved from risky-3 to risky-1 to keep testing the MECHANISM.
+
+    This asserted risky-3's `exit_patch` overlaying `stop_mode=structure` / `trail_pct=0.20`.
+    `1a2692c4` (08-09) armed risky-3 on the PREMIUM-STOP lane as a pre-registered one-variable
+    live A/B (prereg `a2d7c3e4`, frozen BEFORE the change), replacing that patch -- so the
+    assertion was pinning a config that was deliberately retired, the same stale-pin family as
+    `test_exit_profile_matches_live_accounts_json`.
+
+    risky-1 still carries a real `params_patch.exit_patch`, so the shallow-merge contract is
+    proven there instead of being deleted. risky-3 now asserts the COMPLEMENT -- an arm with no
+    exit_patch inherits the ported cell verbatim -- which is the other half of the same
+    mechanism and was never covered before."""
+    patched = fx._exit_shape_dict(fstrat.VWAP_RECLAIM_FAILED_BREAK, _ARM["risky-1"])
+    assert patched["premium_stop_pct"] == -0.08, "un-patched keys keep the ported cell"
+    assert patched["tp1_premium_pct"] == 0.5, \
+        "risky-1's accounts.json exit_patch must shallow-merge over the ported cell"
+    assert patched["stop_mode"] == "structure"
+
+    inherited = fx._exit_shape_dict(fstrat.VWAP_RECLAIM_FAILED_BREAK, _ARM["risky-3"])
+    assert (inherited["premium_stop_pct"], inherited["tp1_premium_pct"]) == (-0.08, 0.30), \
+        "an arm with no exit_patch must inherit the Safe-2 armed ATM cell verbatim"
 
 
 # ---------------------------------------------------------------------------------

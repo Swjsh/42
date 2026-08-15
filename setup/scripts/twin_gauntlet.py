@@ -600,7 +600,14 @@ def _dry_max_hold(ctc, n: int, *, elapsed_hours=6.05) -> dict:
                 ctc.manage_positions(cfg, creds=_DRY_CREDS,
                                      now_utc=entered + timedelta(hours=elapsed_hours), live=True)
             journal = _read_journal(cfg)
-            closed = journal[-1] if journal else {}
+            # B6: see _dry_tp1_trail's comment -- CLOSED no longer guaranteed journal[-1].
+            # THIS SITE WAS MISSED when B6 landed on the other three dry checkers (2026-07-23);
+            # caught 2026-08-15. The mechanism had been firing correctly the whole time --
+            # the journal tail read [CLOSED(max_hold_flatten), EXIT_FILLED] and this checker
+            # read only [-1], so it scored a genuine PASS as "0/1 hit the expected mechanism".
+            # A half-landed fix reads exactly like a regression in the thing it never touched.
+            closed_rows = [r for r in journal if r.get("event") == "CLOSED"]
+            closed = closed_rows[-1] if closed_rows else {}
             ok = closed.get("event") == "CLOSED" and closed.get("reason") == "max_hold_flatten"
             results.append({"ok": ok, "journal_tail": journal[-2:]})
     return _summarize_dry("max_hold", results)
