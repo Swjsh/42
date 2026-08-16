@@ -58,3 +58,74 @@ The single highest-leverage row is `filter_10_min_triggers_bull` 2→1 — one i
 ```bash
 backtest/.venv/Scripts/python.exe setup/scripts/direction_symmetry_audit.py
 ```
+
+---
+
+## FORWARD MEASUREMENT 2026-08-16 — the harder-gated side is the BETTER side
+
+> This audit established the asymmetry **structurally** (four of four knobs disfavour bull). It
+> never priced it. Here is the P&L, from the FIFO real-fills authority
+> (`fills_fifo.mine_real_arm_fills`, `attribution=='engine'` only), 282 round trips
+> 2026-06-26..2026-08-14. Descriptive only — nothing armed, no knob touched.
+
+### Raw round trips
+
+| window | side | n | net | exp/trade | WR | avg win |
+|---|---|--:|--:|--:|--:|--:|
+| since 07-20 | **BULL** | 106 | **+$419** | **+$3.95** | 28.3% | **$322** |
+| since 07-20 | BEAR | 72 | −$1,729 | **−$24.01** | 31.9% | $139 |
+| since 08-01 | BULL | 92 | −$333 | −$3.62 | 27.2% | $333 |
+| since 08-01 | BEAR | 53 | −$360 | −$6.79 | 35.8% | $157 |
+
+**The mechanism is the tail, not the hit rate.** Bear's raw WR is *higher* in both windows, yet
+it loses far more per trade — because bull's average win is **2.2× bear's** ($322 vs $139). On
+a book the 2026-08-15 review already established as tail-dependent, the side with no right tail
+is the side that bleeds.
+
+### The correction that matters: these are not independent samples
+
+`LEVER-CORRELATION-2026-08-06` (r = 0.846, forward-checked 2026-08-16) says the fleet is one
+bet in five sizes. Counting one **(date, symbol) cluster** as one signal — however many arms
+took it — the raw counts are inflated **2.3×–3.5×**:
+
+| window | side | independent signals | raw RTs | inflation | per signal | signal WR |
+|---|---|--:|--:|--:|--:|--:|
+| since 07-20 | **BULL** | 37 | 106 | 2.9× | **+$11.3** | **27.0%** |
+| since 07-20 | BEAR | 28 | 72 | 2.6× | **−$61.8** | **14.3%** |
+| since 08-01 | BULL | 29 | 92 | 3.2× | −$11.5 | 27.6% |
+| since 08-01 | BEAR | 15 | 53 | 3.5× | −$24.0 | 13.3% |
+
+**Two things fall out, and the second is the one nobody has accounted for:**
+
+1. **Raw WR FLATTERS the bear side, and reverses the ranking.** Raw: bear 31.9% vs bull 28.3%.
+   Per independent signal: bear **14.3%** vs bull **27.0%** — bear's advantage does not merely
+   shrink, it inverts to roughly half. Bear's losing signals are spread across more arms than
+   its winning ones, so per-round-trip counting double-counts its wins. Any direction
+   comparison quoted in round trips is measuring arm count as much as edge.
+
+2. **⚠️ CLAUDE.md's bull re-eval bar is stated in the inflated unit.** OP-16 says bull "stays
+   enabled pending honest re-eval at **n ≥ 20**". At the measured 2.9×–3.5× inflation, n=20
+   round trips can be as few as **6–7 independent signals**. The bar is far weaker than it
+   reads. (The same line's cited evidence — "bull n=80 WR 1.2% −$1,573" — is a July 9-day
+   window and is now stale: bull is 17.2% WR over 174 RTs all-time, 28.3% since 07-20.)
+
+### What this does and does not say
+
+**DOES:** the four knobs this audit found — all of which make a call harder to enter or hold —
+sit on the side that has outperformed on every recent window, in both units. That is a
+measurable cost to the RED, not just an aesthetic asymmetry, and it is exactly J's 2026-08-09
+objection ("we need to play both sides of the market, period") showing up in dollars.
+
+**DOES NOT:** license flipping any knob. Eval-first (OP-11) applies and this is descriptive
+evidence, not a scorecard. Specifically:
+- **Neither side is profitable.** Bull is ~breakeven at best (+$11.3/signal since 07-20,
+  −$11.5 since 08-01). "Better" here means "less bad".
+- **n is genuinely small in the honest unit** — 15 bear signals since 08-01. One 4-arm cluster
+  moves these totals by more than the totals (2026-08-14: −$1,497; 2026-08-13: +$2,151).
+- Bull's low WR with a large average win means its result is carried by very few trades; that
+  is a fragile distribution to re-tune a gate on.
+
+**The concrete next step** is a pre-registered symmetry test on the four named knobs, sized in
+INDEPENDENT SIGNALS rather than round trips. Writing the prereg is the gate; this measurement
+is the motivation for it, and the unit correction above should be inherited by any study that
+follows.
