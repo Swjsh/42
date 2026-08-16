@@ -116,6 +116,119 @@ def is_post_fix(row: dict) -> bool:
     return row["ts_et"] >= FIX_BOUNDARY_ET
 
 
+# Conviction is logged on the core ENTER tick; the broker fill lands 1-3s later.
+_CORE_ACCOUNT_TO_ARM = {"safe": "safe-2", "bold": "bold-2"}
+_JOIN_WINDOW_S = 120
+
+
+def _attach_outcomes(rows: list[dict]) -> int:
+    """Join each conviction row to its REAL round trip and attach `real_pnl`. Never raises.
+
+    WHY THIS EXISTS (2026-08-16, gap in this module's own first build). Without it the report
+    answers "how often would conviction block?" and NOT "would blocking have helped?" -- so
+    reaching the 20-day bar would prove nothing about whether the gate is any good. A block
+    rate is a description of the gate; only the outcome join is evidence about it.
+
+    Match is (arm, entry within +/-120s). Conservative by design: an unmatched row is left
+    with real_pnl=None and EXCLUDED from the outcome cells rather than guessed at, and the
+    match count is reported so a low join rate cannot masquerade as a thin population.
+    """
+    try:
+        sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
+        from fills_fifo import mine_real_arm_fills  # noqa: PLC0415
+        from datetime import datetime  # noqa: PLC0415
+    except Exception:  # noqa: BLE001 -- the join is additive; never break the report
+        return 0
+
+    by_arm: dict[str, list[dict]] = {}
+    for arm in set(_CORE_ACCOUNT_TO_ARM.values()):
+        try:
+            by_arm[arm] = mine_real_arm_fills(arm)
+        except Exception:  # noqa: BLE001
+            by_arm[arm] = []
+
+    def parse(ts: str):
+        try:
+            return datetime.fromisoformat(ts[:19])
+        except (ValueError, TypeError):
+            return None
+
+    # STRICTLY ONE-TO-ONE. Conviction logs on EVERY ENTER tick, so 09:46/09:47/09:48 rows all
+    # sit within the window of the single 09:46 fill. A nearest-match-per-row join therefore
+    # lets one round trip be claimed 3-4 times: measured on the real ledger it turned 11
+    # distinct round trips into 34 "joined" rows and -$317 into -$1,750, a 5.5x inflation of
+    # the headline number. (Exactly the round-trips-are-not-decisions class this repo hit on
+    # 2026-08-16 -- it recurs anywhere a many-to-one relation is joined without claiming.)
+    # Greedy by smallest time gap; each conviction row and each round trip claimed at most
+    # once; everything else stays real_pnl=None and is excluded rather than guessed at.
+    candidates = []
+    for idx, row in enumerate(rows):
+        arm = _CORE_ACCOUNT_TO_ARM.get(str(row.get("account")))
+        t = parse(row["ts_et"])
+        if not arm or t is None:
+            continue
+        for rid, rt in enumerate(by_arm.get(arm, [])):
+            if rt["date"] != row["date"]:
+                continue
+            et = parse(rt["entry_ts_et"])
+            if et is None:
+                continue
+            gap = abs((et - t).total_seconds())
+            if gap <= _JOIN_WINDOW_S:
+                candidates.append((gap, idx, arm, rid, rt))
+
+    candidates.sort(key=lambda c: c[0])
+    used_rows: set[int] = set()
+    used_rts: set[tuple] = set()
+    joined = 0
+    for gap, idx, arm, rid, rt in candidates:
+        if idx in used_rows or (arm, rid) in used_rts:
+            continue
+        rows[idx]["real_pnl"] = rt["real_pnl"]
+        rows[idx]["matched_symbol"] = rt["symbol"]
+        rows[idx]["match_gap_s"] = round(gap, 1)
+        used_rows.add(idx)
+        used_rts.add((arm, rid))
+        joined += 1
+    return joined
+
+
+def outcome_cells(rows: list[dict]) -> dict:
+    """P&L split by what conviction WOULD have done. The decision-relevant cell."""
+    scored = [r for r in rows if r.get("real_pnl") is not None]
+    if not scored:
+        return {"n_joined": 0,
+                "note": "no conviction row joined to a real round trip -- no outcome evidence"}
+    blocked = [r for r in scored if r["conviction"].get("would_block")]
+    allowed = [r for r in scored if not r["conviction"].get("would_block")]
+
+    def cell(rs):
+        if not rs:
+            return {"n": 0}
+        pnl = sum(r["real_pnl"] for r in rs)
+        wins = sum(1 for r in rs if r["real_pnl"] > 0)
+        return {"n": len(rs), "total_pnl": round(pnl, 2),
+                "mean_pnl": round(pnl / len(rs), 2),
+                "win_rate_pct": round(100.0 * wins / len(rs), 1)}
+
+    by_score: dict[str, dict] = {}
+    for r in scored:
+        key = str(r["conviction"].get("total"))
+        by_score.setdefault(key, []).append(r)
+    return {
+        "n_joined": len(scored),
+        "n_unjoined": len(rows) - len(scored),
+        "WOULD_BLOCK": cell(blocked),
+        "WOULD_ALLOW": cell(allowed),
+        "delta_if_armed_usd": round(-sum(r["real_pnl"] for r in blocked), 2),
+        "by_score": {k: cell(v) for k, v in sorted(by_score.items())},
+        "_reading": ("delta_if_armed_usd is what the book would have gained (+) or given up "
+                     "(-) had conviction been ARMED over this population -- descriptive, and "
+                     "NOT a scorecard: it carries no OOS split, no permutation null, and no "
+                     "matched suppress-k-at-random control."),
+    }
+
+
 def summarise(rows: list[dict]) -> dict:
     """would_block distribution + the shape behind it, for ONE population."""
     total = len(rows)
@@ -187,6 +300,7 @@ def _recent_sessions(rows: list[dict], n_sessions: int = 5) -> list[dict]:
 
 
 def build_report(rows: list[dict], generated_at_et: str) -> dict:
+    _attach_outcomes(rows)
     pre = [r for r in rows if not is_post_fix(r)]
     post = [r for r in rows if is_post_fix(r)]
     report = {
@@ -208,8 +322,10 @@ def build_report(rows: list[dict], generated_at_et: str) -> dict:
                              for p in ledger_paths()],
         },
         "post_fix": summarise(post),
+        "post_fix_outcomes": outcome_cells(post),
         "weekly_last_5_sessions": summarise(_recent_sessions(post)),
         "pre_fix_DO_NOT_POOL": summarise(pre),
+        "pre_fix_outcomes_DO_NOT_POOL": outcome_cells(pre),
     }
     if not post:
         report["_meta"]["status"] = (
@@ -260,6 +376,17 @@ def render(report: dict) -> str:
             lines.append(f"  block rate by k (escalating floor): "
                          + ", ".join(f"k={k}:{v['block_rate_pct']}%({v['n']})"
                                      for k, v in sec["by_k"].items()))
+        oc = report.get({"post_fix": "post_fix_outcomes",
+                         "pre_fix_DO_NOT_POOL": "pre_fix_outcomes_DO_NOT_POOL"}.get(key, ""), {})
+        if oc.get("n_joined"):
+            wb, wa = oc["WOULD_BLOCK"], oc["WOULD_ALLOW"]
+            lines.append(f"  OUTCOMES (joined {oc['n_joined']}, unjoined {oc['n_unjoined']}):")
+            lines.append(f"    would BLOCK: n={wb.get('n',0)} pnl={wb.get('total_pnl',0)} "
+                         f"mean={wb.get('mean_pnl',0)} wr={wb.get('win_rate_pct',0)}%")
+            lines.append(f"    would ALLOW: n={wa.get('n',0)} pnl={wa.get('total_pnl',0)} "
+                         f"mean={wa.get('mean_pnl',0)} wr={wa.get('win_rate_pct',0)}%")
+            lines.append(f"    delta if ARMED: {oc['delta_if_armed_usd']:+.2f} USD "
+                         f"(descriptive -- no OOS, no null, no random-suppression control)")
         lines.append("")
     lines.append("=" * 78)
     return "\n".join(lines)

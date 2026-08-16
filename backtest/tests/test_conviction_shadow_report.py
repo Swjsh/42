@@ -189,5 +189,69 @@ def test_run_writes_the_artifact(tmp_path, monkeypatch):
     assert on_disk["post_fix"] == rep["post_fix"]
 
 
+# ---------------------------------------------------------------------------
+# Outcome join -- "would blocking have HELPED?", not just "how often would it block?"
+# ---------------------------------------------------------------------------
+
+def test_outcome_join_is_strictly_one_to_one(monkeypatch):
+    """RED-PROOF, and this bug was live for one commit's worth of minutes before it was caught.
+
+    Conviction logs on EVERY ENTER tick, so the 09:46 / 09:47 / 09:48 rows all sit inside the
+    join window of the SINGLE 09:46 fill. A nearest-match-per-row join lets one round trip be
+    claimed 3-4 times. Measured on the real ledger it turned 11 distinct round trips into 34
+    'joined' rows and -$317 into -$1,750 -- a 5.5x inflation of the headline number, and the
+    exact round-trips-are-not-decisions class this repo documented the same day.
+
+    A many-to-one relation joined without CLAIMING is a silent multiplier on every downstream
+    dollar figure."""
+    ticks = [_row(f"2026-08-17T09:4{i}:0{i}", block=True) for i in (6, 7, 8)]
+    for t in ticks:
+        t["account"] = "safe"
+        t["date"] = "2026-08-17"
+
+    fake_rt = [{"date": "2026-08-17", "symbol": "SPY260817C00780000",
+                "entry_ts_et": "2026-08-17T09:46:14", "real_pnl": -282.0}]
+    monkeypatch.setitem(sys.modules, "fills_fifo",
+                        type(sys)("fills_fifo"))
+    sys.modules["fills_fifo"].mine_real_arm_fills = (
+        lambda arm: fake_rt if arm == "safe-2" else [])
+
+    joined = csr._attach_outcomes(ticks)
+    assert joined == 1, f"one fill must be claimed ONCE, got {joined} claims"
+    matched = [t for t in ticks if t.get("real_pnl") is not None]
+    assert len(matched) == 1
+    assert sum(t["real_pnl"] for t in matched) == -282.0, "P&L must not be multiplied"
+
+
+def test_outcome_cells_split_block_vs_allow(monkeypatch):
+    """The decision-relevant contrast. A gate with an EMPTY allow-cell has no discriminating
+    power -- its 'delta if armed' is just the book's P&L negated, which is the sit-out result,
+    not evidence about the gate."""
+    rows = [_row("2026-08-17T09:46:00", block=True), _row("2026-08-17T10:00:00", block=False)]
+    rows[0]["real_pnl"], rows[1]["real_pnl"] = -100.0, 50.0
+    cells = csr.outcome_cells(rows)
+    assert cells["n_joined"] == 2
+    assert cells["WOULD_BLOCK"]["total_pnl"] == -100.0
+    assert cells["WOULD_ALLOW"]["total_pnl"] == 50.0
+    assert cells["delta_if_armed_usd"] == 100.0
+
+
+def test_outcome_cells_are_honest_when_nothing_joined():
+    cells = csr.outcome_cells([_row("2026-08-17T09:46:00")])
+    assert cells["n_joined"] == 0
+    assert "no outcome evidence" in cells["note"]
+
+
+def test_delta_if_armed_carries_its_caveat():
+    """A dollar figure with no OOS split, no null and no random-suppression control must say
+    so in the artifact -- the 2026-08-12 teardown killed a '+$594' cell of exactly this shape
+    because ANY rule deleting k trades on a losing day earns the base rate for free."""
+    rows = [_row("2026-08-17T09:46:00", block=True)]
+    rows[0]["real_pnl"] = -100.0
+    reading = csr.outcome_cells(rows)["_reading"]
+    assert "not a scorecard" in reading.lower()
+    assert "suppress-k-at-random" in reading or "random" in reading
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
