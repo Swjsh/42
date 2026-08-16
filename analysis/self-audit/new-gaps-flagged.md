@@ -800,3 +800,139 @@ automated rollback on self-check degradation, strategy-candidate promotion/demot
 same noise class already filtered elsewhere -- not chased. This fire's bounded task went to
 queue.md's EOD-FLATTEN-LLM-PROMPT-EXIT1 instead (a concrete, evidenced, ready item). -->
 
+
+## 2026-08-11T17:32:29 -- 12 new gap(s) Gamma self-identified
+- Live watch tick reliability
+- Theta stall auto-mitigation
+- Real-time Greeks integration
+- Self-audit organ reliability
+- Regime-based position scaling
+- Adaptive hysteresis N
+- Strategy performance pruning
+- Data freshness health check
+- Regime‑stamp & bias JSON
+- Theta‑stall alerts are currently only logged; the system does **not** automatically act on them, allowing positions to bleed theta.
+- Data‑freshness/reliability problems exist: live‑watch ticks are occasionally missed, the self‑audit organ has timed out, and state files can become stale.
+- Theta modeling relies on a placeholder sqrt‑time‑decay model because the broker’s greeks endpoint returns empty; a real‑time implied‑volatility/Greeks feed is missing.
+
+## 2026-08-12T17:32:46 -- 12 new gap(s) Gamma self-identified
+- Broker Greeks Fallback/Validation.
+- Autonomous State Reconciliation (Orphan Fills).
+- Intraday Churn Detection/Throttling.
+- Live Verdict Aggregation/Logging Consistency.
+- Automated "Unblocking" for Recency Gates.
+- Pre-Commit Parameter Collision Detection.
+- Realized vs. Implied Volatility Divergence Alert.
+- – the theta‑clock falls back to `sqrt_time_decay_model_est` 100 % of the time (Perspectives 1, 2, 4, 5).
+- – the system reports RED/BLOCKED but continues to enter new positions (Perspectives 1, 2, 4, 5).
+- – churn has been identified as a loss driver yet no autonomous detector/pause exists (Perspectives 1, 2, 4).
+- – no pre‑commit/live validation to catch colliding keys, drift, or bad pins before they go live (Perspectives 1, 2, 4).
+- adds a suite of market‑microstructure and execution‑quality gaps (bid‑ask spread monitoring, delta/vega rebalancing, IV‑skew tracking, data‑feed failover, sandbox back‑testing, regulatory‑feed monitoring, latency logging). These are **not [...]
+
+## 2026-08-13T17:32:38 -- 10 new gap(s) Gamma self-identified
+- Early‑MFE discriminator not used for exits or position scaling
+- No automated ingestion of deep‑trade‑review findings into the self‑improvement loop
+- Missing real‑time telemetry dashboard for key microstructure metrics
+- No pre‑deployment simulation/paper‑trading gate for rule changes
+- System‑health alerts are log‑only, not actionable
+- Leak‑detector keepalive recycle
+- `eod_flatten` read fix
+- Allowlist scope expansion
+- The **+25% MFE in 4‑6 min discriminator** is a validated winner/loser separator that is currently only logged; no gate, exit, or sizing logic consumes it.
+- (e.g., `min_contracts`, TP1 values, equity‑scaled limits) are not continuously validated against live equity or config files, creating drift and sizing mismatches.
+
+## 2026-08-14T17:32:45 -- 7 new gap(s) Gamma self-identified
+- Rule 9 / Rule 10 / OP violations
+- The **08:22 ET regime‑stamp job** is not firing reliably; stale `regime‑stamp.json` corrupts `today‑bias.json` and downstream bias‑propagation (Perspectives 1, 2, 5).
+- is sub‑optimal (≈6 % missing RTH ticks) and required position fields can remain null after a fill (Perspectives 1, 2, 5).
+- The **recency‑confirmation gate** (OP‑25) is not enforced in the live entry path; RED‑blocked edges still receive fills (Perspectives 2, 5).
+- can race with the entry engine, risking duplicate orders or state corruption (Perspective 1).
+- must be atomic with the regime‑stamp completion; otherwise downstream modules read a mismatched bias (Perspective 1).
+- The more rigorous stance is to fix the observed failures first because they directly violate Rules 9/10 and produce immediate financial loss; the enhancements in Perspective 3 are valuable but secondary until the foundation is stable.
+
+## 2026-08-15T17:31:57 -- 12 new gap(s) Gamma self-identified
+- Backstop Execution is a P0 Incident, Not a Silent Success
+- Gate on Output Artifacts, Not Just Spend
+- Training data starvation
+- No "LLM liveness" gate on trade entry
+- No suppression of interactive UI on scheduled task failure
+- `self_check.check_llm_auth_outage` threshold too high (3 runs)
+- No registry of "armed but unmonitored" shadow components
+- Deterministic fallbacks lack regime/vol/Greek checks
+- `rail-0` measures spend, not success
+- Unattended registry has no tiering
+- No automated `claude /login` recovery path
+- No circuit breaker
+
+<!-- DONE 2026-08-16 ~14:xx ET conductor (WEEKEND): TRIAGED batches 2026-08-11 through
+2026-08-15 (5 stale batches, all live-code-verified rather than re-derived, closing 5 open
+loops in one fire per OP-22's compound-over-accumulate tiebreak). Also closes the remaining
+"Alpaca API fallback" / "synthetic theta/Greeks" thread that recurred across 2026-07-01,
+2026-08-02, 2026-08-05, 2026-08-06, 2026-08-07, 2026-08-11 batches.
+
+**Debunked with evidence (the headline finding this fire):** 2026-08-13's "Early-MFE
+discriminator not used for exits or position scaling ... a VALIDATED winner/loser separator"
+is FALSE as stated -- `analysis/deep-research/FULL-TRADE-REVIEW-2026-08-13.md` §2 (dated the
+SAME day this gap was flagged) already falsified it: "The '+25% in 4-6 minutes, zero overlap'
+separator is NOT significant. Fisher p=0.000155 at n=15, but p=0.100 at n=5 -- the honest
+unit [round-trips-are-not-decisions, same class as C31's L168/L203]. Worse, the winner half
+is near-tautological (realized <= MFE by construction); the only empirical content is the
+loser side, resting on 3 events, and partly measures entry slippage not signal quality." The
+swarm-consult perspective that generated this gap read the discriminator's existence, not its
+(same-day, already-published) refutation. Nothing to wire -- there is no validated separator
+to consume. No new guard needed (the finding IS the guard: don't re-cite this discriminator
+as validated without re-reading the debunk).
+
+**"Alpaca Greeks endpoint returns {}, needs a fallback" (7th consecutive recurrence,
+07-01/08-02/08-05/08-06/08-07/08-11/08-12) -- ALREADY BUILT, just never cross-referenced by
+the self-audit swarm:** `setup/scripts/theta_clock.py` (built 2026-08-01, PREDATES most of
+these re-flags) is exactly this fallback -- a model-free intrinsic-value delta component plus
+a documented, honestly-`_est`-labeled sqrt-time-decay theta estimate, real broker greeks
+preferred and reported raw as `broker_snapshot` whenever they DO arrive, running on its own
+`Gamma_ThetaClock` task fully off the heartbeat hot path. A REAL third-party Greeks/IV feed
+(the thing every batch actually keeps asking for) would be a NET-NEW paid vendor -- explicitly
+against CLAUDE.md cost discipline (`~/.claude/CLAUDE.md` §5: no net-new paid APIs without
+explicit OK) -- so "no automated real-time Greeks feed" is a standing, deliberate tradeoff,
+not an unaddressed gap. Closing this thread; if it re-surfaces, point at this entry.
+
+**"Recency-confirmation gate (OP-25) not enforced in the live entry path; RED-blocked edges
+still receive fills" (2026-08-14) -- VERIFIED MISREAD, same disposition class as the
+2026-07-31 batch's near-identical claim:** grepped `heartbeat_core.py` + `risk_gate.py` for
+`recency` this fire -- zero hits in the CORE entry path. Recency-RED gates the EXTRA-SETUP
+CAPITAL-scaling exec-arm only (`heartbeat_core.py:2664-2674`, `extra_setup_exec_armed`) and
+the AutoApply actuator's params-deploy path (`autonomy_actuator.py#_recency_gate_clears`,
+belt-and-suspenders defense in depth on TOP of `contender_oos_check.assess_recency_gate`).
+Core validated setups trading PAPER while recency is not CONFIRMed is TRADE-TO-LEARN, CLAUDE.md
+rail-4, by design (memory: `feedback_j_ratified_paper_autonomy_2026_07_01`) -- not a bug.
+
+**"`self_check.check_llm_auth_outage` threshold too high (3 runs)" (2026-08-15) -- VERIFIED
+FALSE against the live function** (`setup/scripts/self_check.py:1316-1390`): there is no
+3-run threshold anywhere in the code -- it fires BROKEN on `total >= 1` (`if not per_task:
+return []`, else report unconditionally). The gap's factual premise doesn't match what
+shipped. "No automated `claude /login` recovery path" is EXPLICITLY the wrong ask -- the same
+function's own docstring says "J ACTION REQUIRED ... interactive OAuth ... nothing in this
+repo can clear it, and nothing should retry into it" (the L-lesson this detector encodes:
+don't build automation that retries into an auth wall). Not gaps.
+
+**Already built, confirmed live this fire:** "Autonomous State Reconciliation (Orphan Fills)"
+(08-12) -> `Gamma_GhostOrderReconciler`, registered, every 1 min 09:30-15:55 ET (verified row
+in SCHEDULED-TASKS.md this fire), "Detects ENTER decisions with no matching Alpaca fill." "Leak-
+detector keepalive recycle" (08-13) -> fixed 2026-08-15 per STATUS.md ("the recycle guard
+BECAME the wedge -- 43h of thrash", commit `fee97318`). "eod_flatten read fix" (08-13) ->
+STATUS.md 08-15 entry references "my own 08-13 checked-read regression" as already resolved
+same window.
+
+**Remaining lines are scaffold-class or genuinely multi-session, not chased (scope
+discipline, one bounded item):** "Rule 9/10 violations" header, "Regime-based position
+scaling", "Adaptive hysteresis N", "Strategy performance pruning" (08-11, no concrete failure
+mode cited); "Intraday Churn Detection/Throttling", "Pre-Commit Parameter Collision
+Detection" (08-12, real but unbounded, no incident cited); "No automated ingestion of deep-
+trade-review findings into the self-improvement loop", "No pre-deployment simulation/paper-
+trading gate for rule changes" (08-13 -- the latter is a misread, TRADE-TO-LEARN + the
+validation stack already IS this); "Automated 'Unblocking' for Recency Gates" (08-12 -- this
+is backwards, an automated unblock would defeat the CONFIRM-BEFORE-CAPITAL gate's whole
+purpose, not a gap to fix); "No registry of armed-but-unmonitored shadow components",
+"Deterministic fallbacks lack regime/vol/Greek checks", "rail-0 measures spend not success"
+(08-15, the last of these is already the KNOWN, documented tradeoff self-corrected via
+`SELF_REPORT_CORRECTION` in `conductor_budget.py`, not new). None meet the bar (concrete,
+evidenced, single-fire-boundable) -- named as candidate future work only. -->

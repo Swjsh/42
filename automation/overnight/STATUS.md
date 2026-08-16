@@ -1,3 +1,35 @@
+## [2026-08-16 14:0x ET] conductor-weekend: OK — self-audit-gap-triage — closed 5 stale batches (08-11..08-15), evidence-verified
+
+Not new code — a self-audit-organ triage fire (priority-3 in STAGE 1). Closed 5 open loops in
+`analysis/self-audit/new-gaps-flagged.md`, each checked against LIVE state, not re-derived:
+
+- **Headline debunk:** 08-13's "+25% MFE in 4-6 min, validated winner/loser separator" claim
+  was already FALSIFIED the same day in `FULL-TRADE-REVIEW-2026-08-13.md` (Fisher p=0.100 at
+  the honest n=5 unit, near-tautological winner side) — the swarm cited the discriminator's
+  existence, not its same-day debunk. Nothing to wire; there's no validated separator.
+- **7th-recurrence thread closed:** "Alpaca Greeks endpoint fallback" (flagged 7 times since
+  07-01) — already built as `theta_clock.py` (2026-08-01, predates most of the re-flags): an
+  honestly `_est`-labeled model-free fallback, real broker greeks preferred when they arrive. A
+  REAL 3rd-party Greeks feed would be a net-new paid vendor (against cost discipline) — the
+  gap kept re-asking for something already correctly declined.
+- **Misread confirmed twice:** 08-14's "recency gate not enforced in live entry path, RED
+  edges still fill" — grepped `heartbeat_core.py`/`risk_gate.py`, zero recency references in
+  the core path; recency-RED gates the extra-setup CAPITAL exec-arm only (by design, TRADE-
+  TO-LEARN rail-4), core paper trades continue on purpose.
+- **Code claim verified false:** 08-15's "`check_llm_auth_outage` threshold too high (3 runs)"
+  — read the live function, it fires on `total >= 1`, no 3-run gate exists. Same batch's "no
+  automated `claude /login` recovery path" is explicitly the WRONG ask — the detector's own
+  docstring says "nothing should retry into it" (interactive OAuth).
+- **Already-shipped confirms:** Ghost-order reconciler (08-12), leak-detector recycle fix
+  (08-13, already fixed 08-15), eod_flatten read regression (08-13, already fixed).
+
+Zero trading-path files touched — analysis-doc only. Full evidence + remaining
+scaffold/multi-session items (none met the bounded-task bar) in the DONE marker at the end of
+`new-gaps-flagged.md`. Next fire: pick up whichever queue.md HIGH item or author-inbox item is
+freshest — chef/lesson inboxes (188/122 open) are the next-largest untriaged surfaces.
+
+---
+
 ## [2026-08-16 ~13:2x ET] SUNDAY RESEARCH BLOCK — 5 findings. Two frozen conclusions decayed; the shadow layer could not have proved itself.
 
 J out for the day. No trading-path file touched, nothing armed. Commits: `8b602615`,
@@ -645,284 +677,3 @@ endpoints. Expected to fail offline; NOT yet confirmed as network-only -- confir
 NEXT SESSION: Family A is the one that matters (it covers exit + P&L faithfulness, i.e. the
 money path). Families B/C are volume, not risk.
 
-## [2026-08-14 23:0x ET] GREEN -- loop resumed: 5 filed failures CLOSED, 9 more were MY OWN regression
-
-CLOSED since the 20:26 entry (all committed, all root-caused not guessed):
-- `test_fleet_time_stop_threaded` (2) -- fleet_live's manage_tick call site gained
-  `adopt_untracked=` / `registry_shape=`; the stub's fixed signature rejected them, so EVERY
-  call raised TypeError, the per-arm handler swallowed it, and `captured` came back empty. I
-  had filed this as "needs a real trace"; the trace took three reads. Stub now absorbs additive
-  kwargs; the asserted ones stay explicit.
-- `test_fleet_keystone_consumer` (1) -- read the LIVE recency verdict, which is RED, so the
-  clamp fired and qty came back 5 not 8. Pinned GREEN; recency has its own guards elsewhere.
-- `test_fleet_arm_parity` (2) -- my own min_contracts revert left them asserting the ARMED value.
-- `test_eod_flatten` (9) -- **MY OWN 2026-08-13 regression.** The checked-read fix switched
-  eod_flatten to open_spy_option_positions_checked; I shipped its new guard file and never
-  updated this file's 11 patch sites, which still stubbed the UNCHECKED reader. Real call ran,
-  failed, all 9 returned READ_FAILED. THIRD half-landed fix of mine this week, identical shape
-  every time: change a call site, ship its new guard, miss the siblings stubbing the old one.
-
-## KNOWN BROKEN (diagnosed, NOT fixed -- both need a decision, not a patch)
-
-1. `test_exit_manager_replay::{test_faithfulness_pin,test_per_trade_pnl_pin}`
-   n_faithful 6 -> 5; trade ('bold','13:51:21') P&L drifted 177.4 -> **114.0**.
-   CAUSE: the replay harness reads LIVE `automation/state/params.json` +
-   `automation/state/fleet/strategies.py`, so its 2026-07-17 pins move whenever live exit
-   config moves. FIX SHAPE: do NOT re-pin to today's numbers -- a faithfulness pin that drifts
-   with live params cannot detect a replay regression, which is the only thing it exists for.
-   Freeze a config SNAPSHOT for the replay and pin against that. Until then it is unknown
-   whether 177.4 -> 114.0 is a legitimate exit-config change or a real regression.
-
-2. `test_free_model_audit_{swarm_consult,twin_review}::test_wired_in_real_registry_and_end_to_end_*`
-   Both are live-network end-to-end tests against real free-model endpoints. Expected to fail
-   offline; NOT yet confirmed as network-only. Confirm before touching.
-
-SCOPE NOTE: batches 5-15 of 15 were still running when this was written -- ~290 of 434 files
-un-run. Anything they surface is NOT in this list.
-
-## [2026-08-14 20:26 ET] GREEN + KNOWN BROKEN -- interactive session: conviction repair, a live double-entry race, 30 revived guards, 2 studies run to null
-
-SHIPPED (all guard-tested + RED-proofed, all committed):
-- `974ca235` conviction C4 read a TRANSPOSED key (`bars_prior` vs the producer's `prior_bars`)
-  and degraded on 102/102 rows since birth -- reachable ceiling 4 vs floor 5, i.e. `would_block`
-  was TRUE on every single sided verdict. It was a constant, not a scorer. C5 threaded off the
-  live structure classifier. STILL DISARMED.
-- `33ba0814` **the entry claim's STALE path was not arbitrated** -- measured 2 winners in 6 of
-  300 trials x 16 threads (2.0%) on the exact wake-from-sleep path that cost ~$371 on 08-14.
-  Now kernel-arbitrated by rename. 0 of 300 after. Caught because the single-shot storm test
-  passed alone and failed inside a 1,000-test run; that is a race, not flakiness.
-- `1a9687de` + `23262fd1` + `08e496d2` 30 dead guards revived across 20 files. Root cause of 21
-  of them: one copy-pasted `fake_request` shape (L294) that the 2026-08-02 idempotency guard
-  invalidated, silently disabling every money-path guard. Now ONE shared contract.
-- `71900cc7` TRENDLINE-BREAK-AT-LEVEL prereg (frozen 08-13, runner never written) RUN: NULL,
-  0/72 cells survive. Its first run reported 72/72 at p=0.001 -- a NaN artifact, caught and NOT
-  written up; the runner now carries its own too-good tripwire.
-- `920db576` ENTRY-RANGE-CONTEXT: NOT-RUN, all 16 cells; the bull side runs opposite its own
-  hypothesis.
-
-## KNOWN BROKEN (found tonight, NOT caused by tonight's work, NOT yet fixed)
-
-Test chunks 00-01 are fully green (2,292 tests). Chunk 02 has **14 remaining failures**; 3 are
-diagnosed, 11 are un-triaged (chunks 03-07 not yet run -- the 5-minute reaper kills a full-suite
-run at ~46%, so it must be run in per-chunk background fires).
-
-Diagnosed, environment-coupled (the same class as the nbbo fixture fixed tonight -- a test that
-reads LIVE state and therefore changes verdict as the account/fleet moves):
-- `test_fleet_keystone_consumer::test_keystone_signal_drives_loose_arm_to_enter` -- expects
-  qty 8, gets 5 because the LIVE recency verdict is currently RED and clamps it. The harness
-  does not sandbox `_recency_verdict`.
-- `test_fleet_time_stop_threaded::{test_manage_tick_receives_params_time_stop,
-  test_no_arm_is_live_in_this_harness}` -- `captured` comes back empty; nothing ran for any arm.
-
-FIX SHAPE (do not just move the numbers): sandbox `fx._recency_verdict` and the arm roster in
-those harnesses, the way `test_nbbo_capture` now sandboxes `hc.STATE`. A test whose verdict
-depends on today's live fleet state cannot guard anything.
-
-NEXT SESSION, in order: (1) triage the 11 un-diagnosed chunk-02 failures, (2) run chunks 03-07,
-(3) handoff workplan items 5-8 (probe-lane wiring, tier derivation/ELITE retirement, re-arm
-sizing LAST -- still gated on a validated entry-quality gate that does not exist yet).
-
-
-## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=grinder-python
-
-### BROKEN: self-check 2026-08-15T18:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 96 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 96x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 6x), run-conductor.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 46 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (13x), conductor-weekend (10x), context_guard (5x), eod-flatten (4x), eod-flatten-aggressive (4x), mcp-daily-audit (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T18:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 99 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 99x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 6x), run-conductor.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 47 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (13x), conductor-weekend (10x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T19:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 102 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 102x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 6x), run-conductor.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 47 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (13x), conductor-weekend (10x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T19:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 105 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 105x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 6x), run-conductor.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 47 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (13x), conductor-weekend (10x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T20:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 108 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 108x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 7x), run-conductor.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 48 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (13x), conductor-weekend (11x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T20:39:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 111 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 111x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 7x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 50 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (15x), conductor-weekend (11x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T21:09:57
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 114 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 114x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 7x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 50 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (15x), conductor-weekend (11x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T21:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 117 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 117x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 7x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 50 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (15x), conductor-weekend (11x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T22:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 120 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 120x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 14 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 8x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 51 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (15x), conductor-weekend (12x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T22:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 123 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 123x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 8x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 51 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (15x), conductor-weekend (12x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-15T23:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 126 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 126x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 8x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 51 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (15x), conductor-weekend (12x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-16T03:30:12+00:00
-- date_et: 2026-08-15
-- total: $1008.94 (threshold $30.00)
-- claude: $1008.94  minimax: $0.00
-- claude_sessions: 26
-
-### BROKEN: self-check 2026-08-15T23:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-15.log shows 129 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 129x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-15.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 8x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-license-monitor.ps1 (exit=[1], 1x), run-mcp-daily-audit.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 52 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-15. Affected: conductor (16x), conductor-weekend (12x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T00:09:56
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 53 LLM fire(s) across 8 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (16x), conductor-weekend (13x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T00:39:56
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 55 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (16x), conductor-weekend (13x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), conductor-wake (2x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T01:09:56
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 58 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (17x), conductor-weekend (13x), context_guard (5x), mcp-daily-audit (5x), conductor-wake (4x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T01:39:56
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 60 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (17x), conductor-weekend (13x), conductor-wake (6x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T02:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 63 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (17x), conductor-weekend (14x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T02:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 4x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 64 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (18x), conductor-weekend (14x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T03:09:56
-- CANDIDATES-UNTRACKED: 21 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 7x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 64 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (18x), conductor-weekend (14x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T03:39:56
-- CANDIDATES-UNTRACKED: 21 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 11 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 10x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 64 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (18x), conductor-weekend (14x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T04:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 14 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 13x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 65 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (18x), conductor-weekend (15x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T04:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 17 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 16x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 65 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (18x), conductor-weekend (15x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T05:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 20 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 65 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (18x), conductor-weekend (15x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T05:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 23 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 1x), run-conductor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 66 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (19x), conductor-weekend (15x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-- [2026-08-16 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-08-16 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-16.md
-
-### BROKEN: self-check 2026-08-16T06:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 26 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 25x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-conductor.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 68 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (20x), conductor-weekend (16x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T06:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 28x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-conductor.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 68 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (20x), conductor-weekend (16x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T07:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 32 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 31x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-conductor.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 68 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (20x), conductor-weekend (16x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T07:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 35 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 34x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 2x), run-conductor.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 68 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (20x), conductor-weekend (16x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T08:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 38 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 37x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-conductor.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 69 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (20x), conductor-weekend (17x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T08:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 41 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 40x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-conductor.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 69 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (20x), conductor-weekend (17x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T09:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 44 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 43x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-conductor.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 70 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (21x), conductor-weekend (17x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T09:39:56
-- CANDIDATES-UNTRACKED: 23 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 47 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 46x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 3x), run-conductor.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 70 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (21x), conductor-weekend (17x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T10:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 50 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 49x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-conductor.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 71 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (21x), conductor-weekend (18x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T10:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 53 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 52x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-conductor.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 71 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (21x), conductor-weekend (18x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T11:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 56 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 55x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 71 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (21x), conductor-weekend (18x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T11:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 59 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 58x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 8 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 4x), run-conductor.ps1 (exit=[1], 3x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 71 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (21x), conductor-weekend (18x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T12:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 62 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 61x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T12:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 65 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 64x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T13:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 68 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 67x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
