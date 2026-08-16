@@ -1,13 +1,13 @@
 {
-  "last_update_et": "2026-07-10T08:30:00",
-  "updated_at": "2026-07-10T08:30:00-04:00",
+  "last_update_et": "2026-08-11T08:30:00",
+  "updated_at": "2026-08-11T08:30:00-04:00",
   "claude_status": "FLAT",
-  "claude_reasoning": "Premarket: no-trade-neutral-range -- spot 751.89 sitting on own PMH, VIX 15.83 LOW, ribbon not yet confirmed",
+  "claude_reasoning": "Premarket: no-trade context -- spot 774.59 coiled under PMH 774.96 resistance, dense support stack 771.46-773.03, VIX/ribbon unread this AM (budget)",
   "agents": {
     "premarket": {
       "active": true,
-      "speech": "Bias neutral, watching 751.89 -- reject = calls no / puts eligible, break = bull eligible",
-      "last_active_at": "2026-07-10T08:30:00-04:00"
+      "speech": "Watching 774.96 -- break+hold = bull eligible, reject+772.87 break = bear eligible",
+      "last_active_at": "2026-08-11T08:30:00-04:00"
     },
     "heartbeat": {
       "active": false,
@@ -16,8 +16,8 @@
     },
     "review": {
       "active": true,
-      "speech": "W28: BEARISH demoted (WR 24%, n29); BULLISH crit WR 6% n101 needs J revoke; recency RED; decision ledger dead since 6/25 (R-0016).",
-      "last_active_at": "2026-07-12T18:00:00-06:00"
+      "speech": "W33: -$1,694/117tr book; Bold -12.9% worst arm; expectancy regressed +$3.49->-$1.90/tr; setup-perf.json froze 3rd time; both recency books CONFIRM 2wk.",
+      "last_active_at": "2026-08-16T18:00:00-06:00"
     },
     "eod": {
       "active": false,
@@ -33,7 +33,14 @@
       "active": false,
       "speech": null,
       "last_active_at": "2026-07-06T15:55:05-04:00"
+    },
+    "entry_block_watch": {
+      "active": true,
+      "speech": "Gamma here. The engine sees a 10 out of 11 bull setup at 777.81 on Safe -- level reclaim plus confluence -- and is not taking it. Blocker: volume. J, say the word to arm it.",
+      "side": "bull",
+      "account": "safe",
+      "last_active_at": "2026-08-14T10:24:05-04:00"
     }
   },
-  "ticker_speech": "W28: BEARISH demoted (WR 24%, n29); BULLISH crit WR 6% n101 needs J revoke; recency RED; decision ledger dead since 6/25 (R-0016)."
+  "ticker_speech": "Weekly review: -$1,694/wk, Bold arm -12.9% worst. Hit rate up 4wk straight but expectancy flipped negative. setup-perf.json frozen again -- see R-0032."
 }
