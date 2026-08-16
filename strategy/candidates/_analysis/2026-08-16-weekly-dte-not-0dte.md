@@ -5,18 +5,21 @@
 
 # ANALYSIS: WEEKLY_DTE_NOT_0DTE
 
-**Filed:** 2026-07-21
-**Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** structural_dte_finding
+**Filed:** 2026-07-21  
+**Filer:** chef-nemotron (free-tier autonomous R&D)  
+**Type:** analysis_of_existing_candidate  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The same directional signal (e.g., VWAP continuation) produces higher expectancy when executed at longer DTE (1-2 day weekly options) due to reduced theta decay on entry, allowing the trade to capture more of the directional move without being eroded by time decay. This edge exists because 0DTE options suffer from extreme theta decay, especially in sideways or slow-moving markets, while slightly longer DTE retains more extrinsic value.
+Extending the DTE from 0DTE to 1-2 day weekly options for the same vwap_continuation signal (ITM-2 strike, -8%/+30% exit) improves edge_capture on J anchor days by reducing theta decay and improving the expectancy per trade, while preserving the directional edge of the signal. The structural DTE change isolates the variable of time decay, expecting higher OOS exp/tr due to lower theta impact on entry premium.
 
 ## Mechanism
 
-Entry: Same signal as the base strategy (e.g., VWAP continuation) but triggers on 1DTE or 2DTE weekly options instead of 0DTE, using the same strike (ITM-2) and same exit rules (-8% stop, +30% target). Exit: Identical to base strategy — chart stop (8% adverse move), premium stop (-50% Safe/-7% Bold), TP1 at +50% (sell 2/3), runner with chandelier profit-lock, and time stop at 15:50 ET.
+Entry trigger: identical vwap_continuation signal (first ≤10:30-ET bar continuing in-trend after first 3 RTH closes on one side of session VWAP).  
+Contract selection: same ITM-2 strike, but DTE changed from 0 to 1 or 2 calendar days (weekly options).  
+Exit logic: identical -8% stop (catastrophe cap, chart-stop primary) and +30% target, with chandelier profit-lock (+5% arm, 0.15 trail) and 15:50 ET time stop.  
+Position sizing: unchanged per account tier (min 3 contracts), as the DTE change does not alter the risk-per-trade logic (premium stop remains -50% Safe / -7% Bold).
 
 ## Expected impact on OP-16 anchors
 
@@ -30,23 +33,32 @@ Entry: Same signal as the base strategy (e.g., VWAP continuation) but triggers o
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
+*Note: The candidate description provides aggregate OOS exp/tr ($36.34 → $59.02 → $66.13) and cross-anchor examples (e.g., vwap_reclaim_failed_break ITM-2 -8%: −$4/−$2 at 0/1DTE → +$63.82 at 2DTE), but does not break down performance per J anchor day. A Stage-1 backtest is required to isolate anchor-day P&L.*
+
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (per OP-20 disclosure 1).
-2. **Sample bias:** Sample size and selection method unknown from leaderboard; overfit risk present without OOS validation and real-fills check on anchor days.
-3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet performed).
-4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days real-fills validation not yet performed).
-5. **Failure modes:** Worst day: unknown; max drawdown: unknown; blow-up scenario: adverse gap against position during overnight hold (since weekly options held overnight) or adverse move during market hours exceeding -8% stop.
-6. **Concentration:** Concentration disclosure: unknown -- requires analysis of top-5 days contribution to P&L.
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (per OP-20 disclosure 1). The candidate uses ITM-2 strikes; at $1.00 entry premium, 28 contracts = $2,800 deployed, requiring ~$5.6K account for 50% risk cap.  
+2. **Sample bias:** The OOS exp/tr monotone claim is based on 2025-01-02 to 2026-06-18 data (16 months). Selection method: all vwap_continuation signals filtered for ITM-2, same exit rules. Overfit risk: medium — the DTE variable is structural and isolated, but the signal population may have regime-dependent performance (see candidate's caveat: 2DTE loses vs 0DTE in 4/4 most-recent months 2026-03..06).  
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window 2026-Q3 to 2027-Q1 not yet executed; candidate's existing OOS is on 2025-01-02..2026-06-18).  
+4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days not yet simulated with real OPRA fills for 2DTE variants; candidate cites real-sim path for a twin 585P but not anchor-day-specific).  
+5. **Failure modes:**  
+   - Worst day: potential for larger gap risk overnight (though held-overnight ~0% at -8% stop per candidate).  
+   - Max drawdown: unknown without full OOS; candidate notes 2DTE random-null does NOT clear (p=0.0647) in recent months, suggesting edge may not be robust.  
+   - Blow-up scenario: volatility expansion causing early stop outs; wider DTE may increase exposure to adverse news overnight.  
+6. **Concentration:** The candidate states: "drop-top3 near full mean ($45-$59, not concentration)" for 2DTE. However, this is aggregate; concentration on J days unknown without anchor-day breakdown.
 
 ## Pre-merge gate
 
-gym v41 81/81 PASS, walk-forward OOS (IS/OOS Sharpe ratio ≥ 0.70 on specified windows), real-fills validation on top 3 J days (≤15% P&L deviation vs BS-sim).
+- gym validators: `test_multiday_dte_compare.py` 4/4 PASS (existing)  
+- walk-forward: positive OOS exp/tr in 2026-Q3 to 2027-Q1 window  
+- real-fills: simulated OPRA fills on top 3 J days show delta edge_capture > 0 vs 0DTE baseline  
+- anchor no-regression: engine must take all 3 J winners (4/29, 5/01, 5/04) with non-decreased P&L  
+- WF ≥ 0.70: walk-forward Sharpe ratio ≥ 0.70 in OOS window  
 
 ## Confidence
 
-7 / 10 -- Based on leaderboard showing 103/104 PASS and guard test 4/4 PASS, with OOS exp/tr monotone increase from 0DTE to 2DTE (+82%) and random-entry null crushed at every bucket (p ≤ 0.045). However, missing OOS Sharpe ≥ 0.70 and real-fills validation on anchor days.
+6 / 10 -- The candidate shows strong OOS exp/tr monotone and cross-family confirmation, but recent-month degradation (2DTE vs 0DTE in 4/4 months 2026-03..06) and non-clearing random-null raise robustness concerns. The walk-forward OOS test on 2026-Q3 to 2027-Q1 is critical to verify if the edge persists in forward data.
 
 ## Pre-existing leaderboard impact
 
-Complements and corresponds to the existing candidate `WEEKLY_DTE_NOT_0DTE` currently ranked ★★ (Rank 2) with status PROMISING. This analysis supports its promotion pending completion of pre-merge gate.
+This analysis verifies the top keeper (Rank ★★) and does not conflict with other candidates. It complements the structural DTE finding by testing its edge_capture impact on J anchors in forward OOS. If the test passes, it reinforces the candidate's PROMISING status; if fails, it may trigger re-evaluation. No changes to leaderboard ranking are implied by this analysis alone.
