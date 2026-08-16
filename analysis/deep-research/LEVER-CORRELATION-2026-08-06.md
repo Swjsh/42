@@ -437,3 +437,64 @@ better.** Anyone arguing to restore them for upside must own that.
     level-target exits, not a per-setup TIME cooldown, not a regime standdown, not a min-contracts rule, not
     late-day standdown. Its nearest live relative is the **per-arm CAP-3 entries** lever already open in
     another lane — which this lane's fleet-entry-cap-8 cell is **dominated by** and therefore defers to.
+
+---
+
+## FORWARD CHECK 2026-08-16 — the evidence half of this KILL has expired
+
+> Re-run on the 6 sessions that happened AFTER this doc froze (2026-08-07 .. 2026-08-14, 98
+> positions), using this doc's OWN `positions_from_scratch()` and `max_concurrent()` verbatim
+> (L251 — a second implementation would silently disagree). **Method validated first:** the
+> frozen-window cut reproduces the published table exactly — 1 = −1,896.00 (35 cd / 54 pos),
+> 3 = +1,769, 5 = +2,350, every count matching. Only then was the new window read.
+
+**The single number this KILL rested on has flipped sign.**
+
+| max concurrent arms | frozen ≤08-06 | NEW >08-06 | |
+|---|---:|---:|---|
+| 1 | −1,896.00 | −1,107.00 | |
+| 2 | −679.00 | −841.00 | |
+| **3** | **+1,769.00** | **−2,675.00** | 🔴 **sign flip** |
+| 4 | +238.00 | +242.00 | |
+| 5 | +2,350.00 | *(no 5-arm days)* | |
+| **3+ combined** | **+4,357** | **−2,433** | |
+
+The whole new window is net −$4,381, so a negative bucket proves nothing on its own.
+**Normalised against each window's own mean, the buckets did not merely weaken — they swapped
+places:**
+
+| arms | frozen: mean/pos (vs window +8.57) | NEW: mean/pos (vs window −44.70) |
+|---|---:|---:|
+| 1 (lonely) | −35.11 (**−43.68**, worst) | −33.55 (**+11.16**, better than average) |
+| 3 | +43.15 (**+34.58**, best ex-5) | −99.07 (**−54.37**, worst) |
+| 4 | +3.61 (−4.96) | +10.08 (**+54.79**, best) |
+
+The lonely end and the 3-arm end traded positions outright — a ~55-point swing for 1-arm and
+an ~89-point swing for 3-arm, in per-position terms.
+
+### What this does and does not license
+
+**DOES:** stop citing "concentration is not where the loss dollars live" as settled. It
+described a 26-date sample; it does not describe the book as of 2026-08-14. Anything that
+inherits this table as a premise needs to re-derive it first.
+
+**DOES NOT: this is not a case for arming a concentration cap.** Three reasons, and I want them
+on the record so nobody reads the sign flip as a green light:
+1. **4-arm is the BEST bucket in the new window** (+54.79 vs window). A cap at 3 would block
+   precisely the bucket that is currently carrying the book.
+2. **This doc's kill was mechanical as well as empirical** — "a cap on the pile-on is a pure
+   leverage reduction, it removes winners and losers in the same proportion." That argument is
+   independent of the slope and has NOT been retested here.
+3. **n is small and the win rates are wild** (6% to 71% across frozen buckets). One 4-arm
+   cluster on 2026-08-14 (−$1,497) and one on 2026-08-13 (+$2,151) move these totals by more
+   than the totals themselves.
+
+### The generalisable point
+
+This doc was rigorous — 47/47 assertions, a second independent code path, an explicit n-small
+caveat — and its central table still decayed to the point of inversion in **ten days**. The
+defect was never the analysis; it is that a frozen conclusion shipped **without a revalidation
+clock**, so nothing was scheduled to notice when it stopped being true. That is the same class
+as the armed-gate recency doctrine, applied to research findings rather than to gates.
+
+Nothing was armed, disarmed, or re-armed by this check. Analysis only.
