@@ -12,11 +12,11 @@
 
 ## Hypothesis
 
-Volatility compression during the lunch lull (11:30‑13:30 ET) often precedes an expansion breakout after 13:30, offering a high‑probability directional move. The squeeze indicates institutional order flow pausing, with latent directional pressure building. A volume‑filtered breakout from the lull box captures this pent‑up move with favorable risk-reward.
+Volatility compression during the lunch period (11:30‑13:30 ET) often precedes a directional breakout after 13:30 ET. A ≥30% ATR contraction signals a coiled range; a breakout with above‑average volume captures the ensuing move.
 
 ## Mechanism
 
-Between 11:30 and 13:30 ET, if the 5‑minute ATR < 0.4 × 20‑period ATR, mark the high and low of that window as the ‘lull box’. After 13:30, on the first 5‑minute bar that closes above the lull box high with volume > 1.5× the average 5‑minute volume of the day, enter long; conversely, close below the lull box low with high volume enters short. Require the 8/21 EMA ribbon to be aligned with the break direction (bullish ribbon for long, bearish for short). Exit shape: Initial stop at the opposite side of the lull box. Target at 2R or use a chart‑stop at the next significant swing point (HH/LL) with a runner trailing 12% of the high‑water mark.
+At 11:30 ET compute ATR(14) over the prior 14 bars; at 13:30 ET compute ATR(14) again. If ATR(13:30) < 0.7 × ATR(11:30) (≥30% contraction), define the lunch‑period high (11:30‑13:30) and low. After 13:30 ET, on the first bar where price breaks above the lunch‑range high with volume > 1.2× the average lunch‑period volume, enter long; if price breaks below the low with the same volume condition, enter short. Stop is placed at the opposite side of the lunch range (short‑side stop above lunch high for longs, long‑side stop below lunch low for shorts). Target is 2R or a trailing premium‑stop of 1.5% if the trade moves favorably. The strategy is disabled on FOMC/CPI/NFP days and when VIX ≥ 22 or the EMA ribbon is strongly stacked (avoid strong trending regimes).
 
 ## Expected impact on OP-16 anchors
 
@@ -32,21 +32,21 @@ Between 11:30 and 13:30 ET, if the 5‑minute ATR < 0.4 × 20‑period ATR, mark
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline  
-2. **Sample bias:** Sample size undefined (no backtest yet); selection method would be all days 2025-01-02 to 2026-06-18; overfit risk high due to novel lookback window and multiple parameters (ATR multiplier, volume threshold, EMA alignment)  
-3. **Out-of-sample:** NEEDS-OOS  
-4. **Real-fills:** NEEDS-REAL-FILLS  
-5. **Failure modes:** Worst day: whipsaw breakout triggering both sides; max drawdown: consecutive failed breakouts in low‑vol regime; blow‑up scenario: volatility expansion against position during news event within lunch window  
-6. **Concentration:** unknown -- requires Stage-1 backtest  
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% of headline P&L (risk per trade limited to 50% of equity).  
+2. **Sample bias:** No historical data examined yet; proposal is based on anecdotal observation of lunch‑time volatility contraction. High overfit risk until a Stage‑1 backtest is performed.  
+3. **Out-of-sample:** NEEDS-OOS (no walk‑forward held‑out window conducted).  
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA fill simulation on top‑3 J days).  
+5. **Failure modes:** Worst day: whipsaw after lunch contraction leads to repeated stop‑outs; max drawdown could exceed 50% of equity if multiple false breakouts occur; blow‑up scenario: trading during a news‑driven volatility expansion where contraction signal fails and breakout direction reverses sharply.  
+6. **Concentration:** Unknown; cannot estimate concentration without backtest results.
 
 ## Pre-merge gate
 
-needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
+Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-5 / 10 -- Novel thesis with plausible mechanics but zero empirical validation; relies on untested assumptions about lunch‑lull dynamics and breakout fidelity
+4 / 10 -- Hypothesis is plausible but lacks any empirical validation; similar time‑window breakout ideas have not appeared in the leaderboard, suggesting the edge may be weak or already arbitraged.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with existing candidates (all are watcher/gate/exit changes); introduces a new trigger type orthogonal to current leaderboard entries. Complements existing volatility‑based entries by targeting mid‑day compression rather than opening range.
+This candidate is a novel time‑window trigger (lunch‑period volatility contraction) distinct from existing triggers such as ORB_NARROW_OR_GATE (opening‑range focus) and VWAP_CONTINUATION (morning VWAP alignment). It does not directly conflict with any ranked candidate; if validated it could complement existing morning‑biased setups by capturing afternoon breakout opportunities. No overlap with watcher‑only or gate‑only proposals.
