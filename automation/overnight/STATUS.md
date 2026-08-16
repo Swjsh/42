@@ -28,6 +28,11 @@ scaffold/multi-session items (none met the bounded-task bar) in the DONE marker 
 `new-gaps-flagged.md`. Next fire: pick up whichever queue.md HIGH item or author-inbox item is
 freshest — chef/lesson inboxes (188/122 open) are the next-largest untriaged surfaces.
 
+Autonomy metric (20-fire window): `trend=regressing`, cost/drained $0.92, net_improvement 87.
+This fire's cost/drained is far below window average — next fire should prefer another
+loop-closing item (author-inbox drain, queue.md DONE) over a new-artifact task to pull the
+trend back.
+
 ---
 
 ## [2026-08-16 ~13:2x ET] SUNDAY RESEARCH BLOCK — 5 findings. Two frozen conclusions decayed; the shadow layer could not have proved itself.
