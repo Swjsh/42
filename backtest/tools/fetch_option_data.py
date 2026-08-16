@@ -143,13 +143,96 @@ def already_cached(symbol: str) -> bool:
     return p.exists() and p.stat().st_size > 100
 
 
+def topup_from_fills_ledger(max_fetch: int = 60, sleep_s: float = 0.35) -> dict:
+    """Cache every engine-filled option contract that is not cached yet. Never raises.
+
+    WHY (2026-08-16). `CONTRACTS` above is a HARDCODED list of 19 contracts, all dated
+    2026-03..05 and frozen since 2026-05-07. It has no relationship to what the live book
+    actually traded, so the cache only grew when someone ran a bulk fetch by hand. On
+    2026-08-16 the last cached contract was 2026-08-12 and the live fills ledger had 9
+    contracts from 08-13/08-14 with no bars.
+
+    WHAT THAT COST: `option_pricing_real.load_contract_bars` has NO fetch-on-miss -- it
+    returns None -- so every consumer silently drops those fills. The stop_mode forward clock
+    skipped 29 of them as `no_opra_cache` while reporting itself healthy, i.e. a prereg clock
+    quietly accruing on a subset. Filling the 9 moved it 66 -> 95 trades and 3 -> 5 days in
+    one run.
+
+    A cache that only grows when a human remembers is a cache that is always two days stale
+    exactly when the newest evidence matters most. This makes the top-up part of the nightly
+    fold instead.
+
+    $0: Alpaca `/v1beta1/options/bars` is free on the already-wired key (verified 2026-08-12,
+    200 req/min); `max_fetch` bounds a first run or a long outage so one fire cannot stall on
+    a huge backlog -- the remainder is picked up by the next fire and reported as `remaining`.
+    """
+    out = {"missing": 0, "fetched": 0, "failed": 0, "remaining": 0, "symbols": []}
+    try:
+        ledger = ROOT.parent / "automation" / "state" / "fills-ledger.jsonl"
+        if not ledger.exists():
+            out["error"] = "fills-ledger.jsonl absent"
+            return out
+        first_date: dict[str, str] = {}
+        for line in ledger.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            if (r.get("attribution") != "engine" or not r.get("is_option")
+                    or r.get("is_crypto")):
+                continue
+            sym, day = r.get("symbol"), r.get("date_et")
+            if not sym or not day:
+                continue
+            if sym not in first_date or day < first_date[sym]:
+                first_date[sym] = day
+
+        missing = sorted((s, d) for s, d in first_date.items() if not already_cached(s))
+        out["missing"] = len(missing)
+        if not missing:
+            return out
+
+        creds = resolve_alpaca_creds()
+        for sym, day in missing[:max_fetch]:
+            try:
+                rows = fetch_contract_bars(sym, day, creds.key, creds.secret)
+                if rows:
+                    write_cache(sym, rows)
+                    out["fetched"] += 1
+                    out["symbols"].append(sym)
+                else:
+                    out["failed"] += 1
+            except Exception:  # noqa: BLE001 -- one bad contract never stalls the fold
+                out["failed"] += 1
+            time.sleep(sleep_s)
+        out["remaining"] = max(0, len(missing) - max_fetch)
+    except Exception as e:  # noqa: BLE001 -- fail-open: this is a side-product of a fold
+        out["error"] = f"{type(e).__name__}: {e}"[:200]
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--topup", action="store_true",
+                    help="cache every engine-filled contract not yet cached (from the "
+                         "live fills ledger, not the frozen CONTRACTS list)")
     ap.add_argument("--check", action="store_true",
                     help="just report cache status, no fetches")
     ap.add_argument("--force", action="store_true",
                     help="re-fetch even if cached")
     args = ap.parse_args(argv)
+
+    if args.topup:
+        res = topup_from_fills_ledger()
+        print(f"topup: missing={res['missing']} fetched={res['fetched']} "
+              f"failed={res['failed']} remaining={res['remaining']}"
+              + (f" error={res['error']}" if res.get("error") else ""))
+        for s in res["symbols"]:
+            print(f"  + {s}")
+        return 0
 
     cached = sum(1 for _, sym in CONTRACTS if already_cached(sym))
     print(f"Cache: {cached}/{len(CONTRACTS)} contracts cached at {CACHE_DIR}")

@@ -1279,6 +1279,28 @@ def main() -> int:
                 last_payload["conviction_shadow"] = csr.run()
             except Exception as cse:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["conviction_shadow"] = {"error": f"{type(cse).__name__}: {cse}"[:200]}
+            # --- OPRA CACHE TOP-UP (2026-08-16) rides this SAME nightly fire, SAME fold
+            # contract (fail-open, additive, no new scheduled task). MUST run BEFORE the
+            # stop_mode fold below, which prices round trips off these cached bars.
+            #
+            # THE GAP: fetch_option_data.CONTRACTS is a HARDCODED list of 19 contracts, all
+            # 2026-03..05, frozen since 2026-05-07 -- no relationship to what the live book
+            # trades. The cache only grew when someone ran a bulk fetch by hand, so on
+            # 2026-08-16 the newest cached contract was 08-12 while the ledger had 9 from
+            # 08-13/08-14. `load_contract_bars` has NO fetch-on-miss (returns None), so the
+            # stop_mode clock silently skipped 29 fills as `no_opra_cache` while reporting
+            # itself healthy -- a prereg clock accruing on a subset. Filling those 9 moved it
+            # 66 -> 95 trades and 3 -> 5 days in one run.
+            #
+            # A cache that only grows when a human remembers is always two days stale exactly
+            # when the newest evidence matters most. $0 (Alpaca options/bars is free on the
+            # wired key). Revert: delete this try-block.
+            try:
+                sys.path.insert(0, str(REPO / "backtest" / "tools"))
+                import fetch_option_data as _fod
+                last_payload["opra_topup"] = _fod.topup_from_fills_ledger()
+            except Exception as oe:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["opra_topup"] = {"error": f"{type(oe).__name__}: {oe}"[:200]}
             # --- STOP-MODE forward clock (2026-08-09) rides this SAME nightly fire, SAME fold
             # contract (fail-open, additive, descriptive-only, no new scheduled task). Walks
             # each real engine fill under BOTH the shipped structure-stop exit and a

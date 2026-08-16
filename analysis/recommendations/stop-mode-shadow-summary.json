@@ -1,146 +1,31 @@
 {
  "prereg": "STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 (prereg commit 2a36724a)",
- "generated_at_et": "2026-08-15T16:39:42.559272",
+ "generated_at_et": "2026-08-16T13:10:04.626186",
  "accrual_start": "2026-08-10",
- "n_trades": 66,
- "n_days": 3,
- "date_span": "2026-08-10..2026-08-12",
- "days_to_bar": 17,
- "cum_delta_dollars": 145.6,
- "mean_delta_per_trade": 2.21,
- "control_total": -1629.3,
- "premium_total": -1483.7,
- "wr_control": 0.2424,
- "wr_premium": 0.2424,
+ "n_trades": 95,
+ "n_days": 5,
+ "date_span": "2026-08-10..2026-08-14",
+ "days_to_bar": 15,
+ "cum_delta_dollars": 1808.6,
+ "mean_delta_per_trade": 19.04,
+ "control_total": -1994.7,
+ "premium_total": -186.1,
+ "wr_control": 0.2632,
+ "wr_premium": 0.2632,
  "delta_wr": 0.0,
  "mechanism_signature_holds": false,
  "per_day_delta": {
   "2026-08-10": 119.2,
   "2026-08-11": 166.0,
-  "2026-08-12": -139.6
+  "2026-08-12": -139.6,
+  "2026-08-13": 581.2,
+  "2026-08-14": 1081.8
  },
- "days_premium_better": 2,
+ "days_premium_better": 4,
  "status": "ACCRUING",
  "decision_rule": "This ledger NEVER changes stop_mode by itself. At n_days >= 20 it becomes the evidence base for a separate pre-registered A/B. Reaching the bar is permission to TEST, not to ship.",
- "new_this_run": 0,
- "skipped_this_run": [
-  {
-   "activity_id": "20260813095105489::3fd4faaf-1e49-481b-a734-062dac83ff28",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813095107752::4c2a8983-d75d-467e-89a7-f3e6e9b95d4a",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813095208545::c7da2ac8-c850-41f6-bbd9-113ea0759164",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813095210273::0b3e82d0-7424-4a13-9ebc-2758b4b100c8",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813095211710::027bda11-04a5-4761-81e5-3328f6cf5196",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813102711091::00c0dd8d-6ef5-4448-a285-c7c11984a83d",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813114106199::35dc60a7-b4de-42d7-ad45-fda745f4d8f8",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813114207338::63829db2-f029-4faa-8833-f8bc32158f2c",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813114212511::fc210768-6b7c-47c6-9794-0aa71fc37b7b",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813114237756::6e4785d7-44ad-4d94-8716-cd47bbe9e315",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813124105543::ac3e2fc1-6cff-48e2-a4a0-9605336705f8",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813124107804::557d03aa-c3a5-47be-9929-ca1b95fa64cc",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813124107938::269d2bb6-1eac-49ec-bf89-18890f529cc1",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813143606100::11c6e9d5-81a7-4742-80c3-5eebee08a6f0",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813143606278::e7286148-2ac7-4c2a-b5d0-649fbc06578f",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813143708906::507df042-9182-427d-90fb-fa7becaabee6",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260813143711081::cef835e2-c1f6-485f-bfff-7e3b25ccef92",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094614113::d502a8a8-95b5-40e5-8079-bca6542a1263",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094614230::67ee6307-d140-4bef-ba6d-85de657f24b9",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094618059::8049905d-e3f5-4db8-b4fe-155f522184f2",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094618063::720dec15-d793-4591-ae42-821790fb8f01",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094708063::222db401-57ad-4f18-bee7-812dfca06177",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094709751::e139a785-a6fa-4d87-a3a2-5e435d5220b3",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814094711450::15339530-41b4-432a-ab36-94bf1fa7d1b8",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814121405840::b32330d8-12ba-4e7f-9b8f-a6e9a8a2bea9",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814121405965::35dc0969-2d46-4e54-a813-a87bdaafa804",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814125605435::c7f0a029-2bcc-40c3-ba85-63f730f1af17",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814125605550::28a9186a-061a-4612-af76-b3665b9db266",
-   "reason": "no_opra_cache"
-  },
-  {
-   "activity_id": "20260814125807285::f44052d2-dfe6-48f7-a0e5-c43a632a8a4d",
-   "reason": "no_opra_cache"
-  }
- ],
+ "new_this_run": 29,
+ "skipped_this_run": [],
  "input_ledger_newest_date": "2026-08-14",
  "input_expected_through": "2026-08-14",
  "input_stale": false,

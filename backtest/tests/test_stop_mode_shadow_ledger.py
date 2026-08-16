@@ -145,7 +145,7 @@ def _winner_autopsy_fold_order() -> list[str]:
            / "winner_autopsy.py").read_text(encoding="utf-8")
     tree = ast.parse(src)
     watched = {"pain_ledger", "entry_quality_ledger", "stop_mode_shadow_ledger",
-               "entry_shadow_counter", "conviction_shadow_report"}
+               "entry_shadow_counter", "conviction_shadow_report", "fetch_option_data"}
     seen: list[tuple[int, str]] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -183,6 +183,25 @@ def test_fold_order_keeps_the_ledger_between_its_producer_and_its_consumer():
         "entry_quality_ledger must run AFTER pain_ledger (it joins mae-mfe.json)"
     assert order.index("entry_quality_ledger") < order.index("stop_mode_shadow_ledger"), \
         "entry_quality_ledger must run BEFORE stop_mode_shadow_ledger (which reads its output)"
+
+
+def test_opra_cache_topup_runs_before_the_clock_that_prices_off_it():
+    """RED-PROOF (2026-08-16): this clock prices round trips off cached OPRA bars, and
+    `option_pricing_real.load_contract_bars` has NO fetch-on-miss -- it returns None. So an
+    uncached contract is SILENTLY DROPPED, not retried. `fetch_option_data.CONTRACTS` is a
+    hardcoded 19-contract list frozen since 2026-05-07, so the cache only grew when a human
+    ran a bulk fetch: on 2026-08-16 the newest cached contract was 08-12 while the ledger
+    carried 9 from 08-13/08-14, and this clock skipped 29 fills as `no_opra_cache` while
+    reporting itself healthy. Filling them moved it 66 -> 95 trades, 3 -> 5 days.
+
+    Top-up AFTER the clock would leave every fire pricing yesterday's contracts -- one day
+    permanently behind, which is the same silent-lag class the ledger-rebuild ordering closes."""
+    order = _winner_autopsy_fold_order()
+    assert "fetch_option_data" in order, (
+        "nothing tops up the OPRA cache from the live fills ledger -- uncached contracts are "
+        "dropped silently by load_contract_bars and this clock accrues on a subset")
+    assert order.index("fetch_option_data") < order.index("stop_mode_shadow_ledger"), \
+        "the OPRA top-up must run BEFORE the clock that prices off the cache"
 
 
 def test_input_health_flags_a_ledger_that_stopped_advancing():
