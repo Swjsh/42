@@ -1,3 +1,44 @@
+## [2026-08-16 17:4x ET] conductor: OK — committed the sitting-uncommitted CLAUDE.md context-leanness trim (`7cec203d`)
+
+Engine health GREEN (weekend, quiet OK). Budget gate PROCEED ($2.81/$30, 3/4 fires used).
+Found the working tree had a verified-but-never-committed CLAUDE.md trim from an earlier
+fire: TP1 source-of-truth prose + OP-16 setup-scope/bull-reeval prose relocated out of
+CLAUDE.md into `COST-RECOVERY-SIZING-2026-08-13.md` and `edge-master-doctrine.md`,
+addressing this session's own injected RED context-budget flag (9633/9000 tok). Per
+OP-33 (verify, don't claim) I did NOT trust the "relocated verbatim" claim on sight —
+grepped both target anchors, confirmed the full prose landed intact with working links
+before staging anything. Pure relocation, zero rule/decision content changed (not a
+doctrine edit in the substantive sense the propose-only rail guards against). Pathspec
+commit of exactly the 3 touched files (CLAUDE.md + 2 target docs), curated safety gate
+59/59 PASS. CLAUDE.md 34,376 -> 33,310 bytes (~266 tok saved; RED persists, smaller RED —
+another trim pass is still owed). **REVOKE:** `git revert 7cec203d` (doc-only, clean).
+
+`queue.md` and the lesson-inbox drain item the prior fire also flagged as uncommitted
+were in fact already committed (checked — clean). Zero trading-path files touched.
+
+Next fire: CLAUDE.md is still over the 9K budget — another leanness pass is the fastest
+next win (`markdown/infra/CONTEXT-LEANNESS.md` has the scoring method); otherwise
+chef-inbox (77+ open, oldest 2026-07-10) is the largest untriaged surface, or
+`GATE-RECENCY-REVALIDATION` (HIGH, 3 pre-sketched A/Bs ready) if a fire wants engine-edge
+work instead of inbox drain.
+
+## [2026-08-16T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-16 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-16 -- no RTH session evidence (non-trading day or engine idle). |
+| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-16 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
+| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-16. |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-16 window_end=2026-08-14 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=26 (delta +16 vs baseline n=10) exp=$-36.62/tr, verdict_moved=False. bull now: GREEN n=23 exp=$3.13/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-16 -- non-trading day. |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-16 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-16`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-16 16:1x ET] conductor-weekend: OK — CONDUCTOR-BUDGET-ARITHMETIC re-verified stale, downgraded CRITICAL→MED
 
 Not new code — a queue-hygiene/pruning fire (OP-22 tiebreak: closing a loop over
@@ -595,107 +636,3 @@ TRACED, NOT FIXED -- `test_unattended_health` (5):
 
 Stopped here deliberately rather than guessing at a health monitor's thresholds.
 
-## [2026-08-15 ~01:4x ET] Family A continued -- 3 more bounded, 1 diagnosed as unfixable-by-patch, 3 left with a SUSPICIOUS signature
-
-DONE since the escalation above:
-- `test_replay_today_eval` (12) re-pinned -- this is what produced the escalation.
-- `test_profitability_ab` (2) bounded to its 2026-08-08 anchor. Surfaced live: bold-2's
-  post-ship window now reads **n=20 / -$1,338** vs the frozen n=6 / -$476.
-- `test_ribbon_flipback_ab_v2` bounded. Population edge DERIVED, not guessed: trades through
-  **2026-08-07** total exactly 219.
-- `test_trail_width_exit_ab` -> **xfail with the diagnosis**, because the obvious fix is wrong
-  and I tried it. `build_anchor_population()` filters on "has a cached real-OPRA CSV", and that
-  cache grew RETROACTIVELY, so the frozen 113 is NOT a date prefix of today's 284 (even
-  2026-07-18 already gives 129). **A population defined by "whatever we happen to have cached"
-  is not reproducible by construction** -- that defect affects EVERY study on this harness, not
-  just this pin. Correct fix = the prereg stores (symbol, entry_ts_utc) IDs and hashes that set.
-  Prereg amendment = a decision, not a patch.
-
-## LEFT, and they share a signature worth a fresh eye -- OFF BY ONE
-
-| test | expected | got |
-|---|---|---|
-| `test_structure_shift_cascade_ab` | 190 trades in the `<=2026-07-22` prefix | **191** |
-| `test_regime_reslice_2026_07_28` | 74 | **75** |
-| `test_pnl_attribution_2026_07_28` | partition dict | differs slightly |
-
-These are NOT the ledger-growth pattern above (which moves counts by tens or hundreds). A
-one-trade delta in a REPLAY POPULATION PREFIX means the replay file itself changed, or a
-boundary date moved by one row. Note that `engine-fullhist-replay-2026-07-23.json` is the same
-population tonight's ENTRY-LOCATION study used and reported as **191 trades**, while this test
-expects 190 at the same cutoff.
-
-**DO NOT re-pin these to the new numbers.** Find out which trade appeared and why first -- an
-off-by-one in a frozen research population is either a provenance bug or an undisclosed data
-edit, and both matter more than the pin does. This is the first thing to pick up.
-
-## THEN, in order
-1. Run the frozen `PRE-TP1-RATCHET-COST-2026-08-15` prereg (the escalation above needs a number).
-2. Family B live-state coupling (~10): `test_unattended_health` (5), `test_watcher_registry` (2),
-   `test_trade_today_watcher` (3), `test_state_contracts`.
-3. Families C (~10) and D (2, confirm network-only first).
-4. Entry-quality handoff items 5-8; re-arm sizing LAST and only on a validated gate.
-
-## [2026-08-15 ~01:00 ET] ESCALATION -- the current exit config replays UNIFORMLY WORSE, 10 arm-instances, zero counter-examples
-
-**This is the one item worth J's attention. Everything else below is housekeeping.**
-
-Two independent replay harnesses, two different days, two different exit code paths, all
-pinned before the pre-TP1 ratchet shipped. Repairing their dead pins produced this:
-
-| harness / day | arm | pinned | now | delta |
-|---|---|---|---|---|
-| replay_today_eval 5-min | core_safe | -312.00 | -336.00 | **-24.00** |
-| | core_bold | 65.25 | 61.25 | -4.00 |
-| | fleet_safe_3 | -83.25 | -95.25 | -12.00 |
-| | fleet_risky_1 | -138.75 | -158.75 | -20.00 |
-| | fleet_risky_3 | -36.75 | -56.75 | -20.00 |
-| replay_today_eval 1-min | all five | | | **-30 / -15.25 / -12 / -20 / -20** |
-| exit_manager_replay | core_bold 13:51:21 | 177.40 | 114.00 | **-63.40** (live made 191) |
-
-**10 arm-instances degraded. NONE improved.** Book-level: about **-$80 on one replay day**,
-against a $100-200/day/account target.
-
-WHAT CHANGED: four J-directed exit ships after the pins were frozen -- pre-TP1 profit ratchet
-(`1a9b1409`), J's ladder (`af6cf286`), trail arm +40% -> +75% (`658ecc79`), ribbon confirmation
-buffer (`20a9e792`, implemented not armed). The exit_manager case is explicit about the
-mechanism: the trade now exits on `premium_stop @ 0.61` instead of riding.
-
-WHAT THIS IS **NOT**: proof of a regression. The ratchet is insurance -- it is SUPPOSED to cost
-money on days it was not needed, and 2026-08-13's own exhibit was a day that only worked
-because the contract doubled. Replay counterfactuals are not live P&L.
-
-WHY IT STILL NEEDS DECIDING: a one-directional result across ten arm-instances with **zero
-offsetting cases anywhere in the available evidence** is the shape that earns a measurement,
-not a shrug. If the insurance never visibly pays in any replay we hold, either we are not
-holding the days where it pays, or it is priced wrong.
-
-**DECISION IS J'S, NOT MINE.** The ratchet shipped under a rule-9 override; loosening it is a
-policy change. I did not touch the knob. What I did:
-- re-pinned both harnesses to current values WITH the drift documented inline, so they detect
-  the NEXT change instead of staying dead (they had detected nothing for weeks);
-- added a maintenance rule to each: re-derive in the SAME commit as any exit-config ship;
-- froze `prereg-pre-tp1-ratchet-cost-2026-08-15.json`, which prices the ratchet as insurance
-  (`truncated_winner_dollars` vs `protected_loss_dollars`), requires the result with the
-  largest single trade removed (G3), and caps its own output at "a priced table for J".
-
-## WHAT NEEDS DOING NEXT, in priority order
-
-1. **RUN the ratchet-cost prereg.** It is frozen and unrun. It is the only thing that converts
-   the above from a suspicion into a number J can rule on. Needs a multi-day real-fills
-   population, not the two days that generated the question (G3 forbids that).
-2. **Family A, the rest** (~6 remaining): `test_profitability_ab` (2), `test_trail_width_exit_ab`,
-   `test_ribbon_flipback_ab_v2`, `test_structure_shift_cascade_ab`, `test_pnl_attribution`,
-   `test_regime_reslice`. Same disease, same treatment: re-derive, document the drift, add the
-   maintenance rule. Each one may hide a finding like the above -- two of the three repaired so
-   far did.
-3. **Family B live-state coupling** (~10): `test_unattended_health` (5), `test_watcher_registry`
-   (2 -- registry vs disk partition drifted as detectors were added), `test_trade_today_watcher`
-   (3), `test_state_contracts`. Mechanical; sandbox each like the keystone/nbbo repairs.
-4. **Family C stale shape pins** (~10) and **Family D network-dependent** (2, confirm first).
-5. Entry-quality handoff items 5-8 (probe-lane wiring, tier derivation / ELITE retirement,
-   re-arm sizing LAST -- still gated on a validated entry-quality gate that does not exist).
-
-
-## Kitchen
-Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
