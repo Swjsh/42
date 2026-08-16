@@ -57,14 +57,9 @@ J's rules — Gamma enforces them, doesn't write them.
 | **Account 1** | Gamma-Safe-2 | `PA3DHPT7KIQE` | **$5,501 (2026-08-13, broker-verified)** | Conservative — ATM, 30% risk, CONFIRMED setups | `params.json` |
 | **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (2026-06-26) | Aggressive — ITM-2, 50% risk, ALL setups | `aggressive/params.json` |
 
-> ⚠️ **TP1 IS NOT A PER-ACCOUNT SETTING — it comes from the STRATEGY** (corrected 2026-08-13; this
-> table previously claimed "+30% TP1 / +75% TP1", which no live path has used for months).
-> `ribbon_ride` — the setup that actually fires — hardcodes **TP1 +100%, sell 66%** at
-> [`strategies.py:131`](automation/state/fleet/strategies.py), ported whole-cell from SS-B
-> (commit `933bd651`). `params.json`'s `tp1_premium_pct` (0.5) is NOT on that path. Per-arm
-> overrides exist (`accounts.json` gives risky-1 +50%). **Read the arm's `exit-state.json` for
-> live truth, never this table.** Open question under review: TP1 +100% fires on only ~20% of
-> trades — see [`COST-RECOVERY-SIZING-2026-08-13.md`](analysis/recommendations/COST-RECOVERY-SIZING-2026-08-13.md).
+> ⚠️ **TP1 IS NOT A PER-ACCOUNT SETTING — it comes from the STRATEGY** (`ribbon_ride` hardcodes
+> +100%/sell-66%; per-arm overrides exist). **Read the arm's `exit-state.json` for live truth,
+> never this table.** Full correction + evidence: [`COST-RECOVERY-SIZING-2026-08-13.md`](analysis/recommendations/COST-RECOVERY-SIZING-2026-08-13.md#tp1-source-of-truth-correction-relocated-from-claudemd-2026-08-16-context-leanness-trim).
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
@@ -209,9 +204,7 @@ These are non-negotiable, second only to the 10 rules above.
     - **Eval-first gate:** every HIGH+ urgency recommendation needs A/B scorecard at `analysis/recommendations/{rule_id}.json` BEFORE ratification. Auto-ratify requires: OOS_positive AND WF ≥ 0.70 AND sub_window_stable AND anchor_no_regression. **J is NOT a ratification gate** — J's role is REVOKE only. evidence_n ≥ 15 is advisory. Ratify any after-hours evening.
     - **FORBIDDEN FRAMING (see OP-0):** a cleared/standing-authorized edge SHIPS and reports for REVOKE; asking permission to ship a profitable edge IS the banned anti-pattern.
 
-16. **J's edge is the source of truth — measure edge capture, NOT aggregate optimization.** Source-of-truth trades (winners engine MUST take / losers MUST skip or lose less) relocated verbatim: [`markdown/doctrine/edge-master-doctrine.md`](markdown/doctrine/edge-master-doctrine.md#j-edge-source-of-truth-trades) (2026-07-16 fold). **J-edge score:** `edge_capture = sum(engine_pnl_on_winning_days) - sum(max(0, engine_loss_on_losing_days))`. Max possible: 1542. Candidates with edge_capture < 771 (50%) are REJECTED regardless of aggregate; `final_score = edge_capture × aggregate_sharpe` (Sharpe/P&L secondary tiebreakers only). **Sim accuracy gate:** verify sim's strike picker matches production (`strike_offset`) before ratification — BS-sim-ignored-strike-offset incident invalidated a weekend of research.
-
-    **Setup scope = BOTH directions (UNLOCKED 2026-06-28)** — direction is NOT a scope, *validation* is. BEARISH_REJECTION + BULLISH_RECLAIM_RIDE_THE_RIBBON both ACTIVE, identical placement path (`enable_bullish=True`). Bull evidence corrected 2026-07-11: old +$5,586/56% WR was a real-OPRA SIM, not broker fills; live paper fills bull n=80 WR 1.2% -$1,573 (9-day, VIX pinned, small-n) — stays enabled pending honest re-eval at n≥20 under SS-B + corrected strike tier (detail: PROFITABILITY-DEEP-RESEARCH-2026-07-11.md). Per-direction block-filters stay ON (A/B-validated per losing cohort; winner = NON-ribbon_flip BULLISH_RECLAIM; detail → C22). Guards: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path`. **Live-money arming of EITHER direction needs J (OP-0 #1); paper/shadow does not.**
+16. **J's edge is the source of truth — measure edge capture, NOT aggregate optimization.** Full formula, source-of-truth trades, sim-accuracy gate, and both-directions setup-scope detail (bull re-eval status, block-filter A/B, guards) relocated verbatim: [`markdown/doctrine/edge-master-doctrine.md`](markdown/doctrine/edge-master-doctrine.md#j-edge-source-of-truth-trades) (2026-07-16 fold). **Both directions ACTIVE** (BEARISH_REJECTION + BULLISH_RECLAIM_RIDE_THE_RIBBON, identical placement path) — direction is not a scope, *validation* is. **Live-money arming of EITHER direction needs J (OP-0 #1); paper/shadow does not.**
 
 22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** perfect current work → known TODOs → `markdown/planning/FUTURE-IMPROVEMENTS.md` → audit staleness → replays/validations → improve playbook/lessons → investigate underperformers.
 

@@ -199,3 +199,7 @@ Known good baseline (locked floor — never regress below this):
 
 **J-edge score:** `edge_capture = sum(engine_pnl_on_winning_days) - sum(max(0, engine_loss_on_losing_days))`
 Max possible: 1542. Candidates with edge_capture < 771 (50%) are REJECTED regardless of aggregate. `final_score = edge_capture × aggregate_sharpe`. Aggregate Sharpe/P&L are secondary tiebreakers only.
+
+**Sim accuracy gate:** verify sim's strike picker matches production (`strike_offset`) before ratification — BS-sim-ignored-strike-offset incident invalidated a weekend of research.
+
+**Setup scope = BOTH directions (UNLOCKED 2026-06-28)** — relocated verbatim from CLAUDE.md OP-16 (2026-08-16 context-leanness fold). Direction is NOT a scope, *validation* is. BEARISH_REJECTION + BULLISH_RECLAIM_RIDE_THE_RIBBON both ACTIVE, identical placement path (`enable_bullish=True`). Bull evidence corrected 2026-07-11: old +$5,586/56% WR was a real-OPRA SIM, not broker fills; live paper fills bull n=80 WR 1.2% -$1,573 (9-day, VIX pinned, small-n) — stays enabled pending honest re-eval at n≥20 under SS-B + corrected strike tier (detail: PROFITABILITY-DEEP-RESEARCH-2026-07-11.md). Per-direction block-filters stay ON (A/B-validated per losing cohort; winner = NON-ribbon_flip BULLISH_RECLAIM; detail → C22). Guards: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path`. **Live-money arming of EITHER direction needs J (OP-0 #1); paper/shadow does not.**

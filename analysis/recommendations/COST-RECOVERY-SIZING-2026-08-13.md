@@ -250,3 +250,16 @@ peak the trade actually reached. Reporting one pooled number across both exhibit
 Status: trade #4 was OPEN at time of writing. If it recovers to +100% or exits above the floor,
 these deltas change -- the EXHIBIT stands (it banked $0 at a +68% peak) but the dollar figures
 must be re-derived from the actual fills, not from this projection.
+
+---
+
+## TP1 source-of-truth correction (relocated from CLAUDE.md 2026-08-16, context-leanness trim)
+
+**TP1 is NOT a per-account setting -- it comes from the STRATEGY** (corrected 2026-08-13; the
+Account context table previously claimed "+30% TP1 / +75% TP1", which no live path had used for
+months). `ribbon_ride` -- the setup that actually fires -- hardcodes **TP1 +100%, sell 66%** at
+[`strategies.py:131`](../../automation/state/fleet/strategies.py), ported whole-cell from SS-B
+(commit `933bd651`). `params.json`'s `tp1_premium_pct` (0.5) is NOT on that path. Per-arm
+overrides exist (`accounts.json` gives risky-1 +50%). **Read the arm's `exit-state.json` for
+live truth, never the CLAUDE.md table.** Open question under review: TP1 +100% fires on only
+~20% of trades -- see the cost-recovery exhibits above.
