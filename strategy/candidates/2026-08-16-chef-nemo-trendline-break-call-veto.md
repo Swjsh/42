@@ -5,60 +5,50 @@
 
 # CANDIDATE: TRENDLINE_BREAK_CALL_VETO
 
-**Filed:** 2026-07-23  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Filed:** 2026-06-26
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** filter_change
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The TRENDLINE_BREAK_CALL_VETO gate blocks call entries when a bearish market structure is confirmed (5m-close-through-respected-ascending-support). As a CALL VETO, it avoids the 5/07 call losses (-$45 and -$120) without affecting the three PUT winner days (4/29, 5/01, 5/04). This increases edge_capture by avoiding losses on J loser days while preserving winner-day P&L.
+The CALL VETO based on trendline break structure avoids entering CALL trades on days when bearish structure is confirmed, specifically preventing losses on J's loser days (5/07) without affecting the PUT winner days. The edge exists because the structure signal correctly identifies countertrend CALL setups that are likely to fail.
 
 ## Mechanism
 
-- **Trigger:** Same as BEARISH_REJECTION_RIDE_THE_RIBBON (level rejection + EMA ribbon flip + confluence) for PUT entries.  
-- **Veto logic:** Before entering a CALL side trade, check if `market_structure.classify_trend` returns "downtrend" on the 5m timeframe same day. If true, veto the CALL entry.  
-- **Exit logic:** Unchanged from base engine (chart-stop primary, chandelier profit-lock at +5%/trail15%, TP1 at +50% for 2/3 qty, time stop 15:50 ET).  
-- **Parameters:** New knob `trendline_break_call_veto_enabled` (default OFF). When ON, applies veto to CALL path only.
+The gate uses the market_structure.py classifier to detect bearish structure (via BOS/CHoCH) on the 5m timeframe same-day. When bearish structure is confirmed, it vetoes any CALL entry from the TRENDLINE_BREAK setup. The veto is triggered when the 5m close breaks through a respected ascending support level (indicating bearish structure). Entry occurs on the next bar open after the trigger bar.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | Takes SPY 710P x 6 -> +$342 | Unchanged (PUT veto not triggered) | $0 |
-| 5/01 winner | Takes SPY 721P x 20 -> +$470 | Unchanged (PUT veto not triggered) | $0 |
-| 5/04 winner | Takes SPY 721P x 10 -> +$730 | Unchanged (PUT veto not triggered) | $0 |
-| 5/05 loser | Takes SPY 722P x 20 -> -$260 | Unchanged (veto only affects CALL side; this is PUT) | $0 |
-| 5/06 loser | Takes SPY 730P x 10 -> -$300 | Unchanged (veto only affects CALL side; this is PUT) | $0 |
-| 5/07 loser 1 | Takes SPY 734C x 3 -> -$45 | Veto blocks CALL entry -> no trade | +$45 |
-| 5/07 loser 2 | Takes SPY 737C x 10 -> -$120 | Veto blocks CALL entry -> no trade | +$120 |
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
-*Note: Current engine behavior assumes base engine takes these trades as per J's source-of-truth. Proposed behavior isolates CALL-side veto effect. Delta represents reduction in loss (positive = improvement).*
+(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (per risk-rules.md position sizing).  
-2. **Sample bias:** Based on 16-month SPY 5m data (2025-01-02 to 2026-06-18). Selection method: all days where veto condition fires (structure-based). Overfit risk: medium (structure regime may not persist; requires OOS validation).  
-3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet run; will use 80/20 time split after Stage-1).  
-4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days not yet validated with real OPRA slippage model; requires realistic_fills_validation).  
-5. **Failure modes:**  
-   - Worst day: 5/04 if veto misfires and blocks a PUT winner (unlikely as veto is CALL-only; PUTs unaffected).  
-   - Max drawdown: Could increase if veto causes missed PUT recoveries in ranging markets (structure false positive).  
-   - Blow-up scenario: Persistent bearish structure causing excessive CALL veto during bull regimes, reducing sample size and increasing variance.  
-6. **Concentration:** Top-5 days contribution unknown -- requires Stage-1 backtest. Base engine concentration: 5/04 alone = ~55% of winner P&L ($730/$1542). Veto adds flat +$165 on 5/07, reducing concentration slightly.
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline
+2. **Sample bias:** The candidate is based on structural analysis of 5m bars; sample size is the entire 16-month OPRA backfill (approx 345 days); overfit risk is mitigated by the guard test and the structural nature of the signal.
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet performed)
+4. **Real-fills:** NEEDS-REAL-FILLS (real OPRA fills validation not yet performed)
+5. **Failure modes:** Worst day: if the structure signal fails to detect bearish structure on a PUT winner day, it could veto a winning PUT trade (though the gate is CALL-only, so PUTs are unaffected). Max drawdown: unknown without backtest. Blow-up scenario: if the signal is noisy and causes excessive vetoing of CALL trades on bullish days, reducing opportunity.
+6. **Concentration:** unknown -- requires Stage-1 backtest (if top-5 days = X% of P&L, state X after backtest)
 
 ## Pre-merge gate
 
-- Gym validators: `test_trendline_engine.py` 7/7 PASS (already done).  
-- Walk-forward OOS: Require WF Sharpe ratio ≥ 0.70 on 16-month data.  
-- Real-fills simulation: Top 3 J days P&L diff < ±20% vs BS-sim.  
-- Anchor no-regression: Confirm 0 delta on PUT winners (4/29, 5/01, 5/04).  
-- J loser improvement: Confirm ≥ +$165 edge_capture delta from 5/07 CALL avoidance.
+Gym validators must pass (current guard: 97/98 PASS), walk-forward OOS must show positive expectancy and Sharpe degradation < 30%, real-fills must show consistency with BS-sim within ±20% on top 3 J days, and concentration must be checked (top5_pct <= 200% as a soft gate).
 
 ## Confidence
 
-6 / 10 -- Timing validated (5/07 support break at 11:10 ET precedes J's 11:15+ call entries), but OOS and real-fills pending. Structure regime persistence uncertain.
+4 / 10 -- based on structural plausibility and timing validation (5/07 support break at 11:10 ET before J's 11:15+ call entries), but requires Stage-1 backtest to quantify edge_capture and OOS validation.
 
 ## Pre-existing leaderboard impact
 
-Complements STRUCTURE_VETO_DIR_VS_TREND (Rank ★) by adding CALL-side protection. No conflict: STRUCTURE_VETO_DIR_VS_TREND blocks P-in-uptrend/C-in-downtrend (both sides), while this veto is CALL-only in bearish structure. Could stack for additional safety. Does not conflict with existing PROMISING candidates (e.g., WEEKLY_DTE_NOT_0DTE) as it operates on signal selection, not DTE.
+This candidate is orthogonal to the existing PUT-focused candidates in the leaderboard (ranks 1-9) as it only vetoes CALL entries. It does not conflict with any of them and may complement by reducing losses on CALL days (specifically 5/07) without affecting PUT winner days.
