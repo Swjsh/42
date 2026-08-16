@@ -1,11 +1,13 @@
 {
+  "_why_windows_powershell": "ADDED 2026-08-15 after the detector hid J's own interactive PowerShell window twice at 18:03 ET. The ancestry safety gate is NOT buggy -- its premise is. Modern Windows Terminal launches by DCOM activation, so a terminal J opens from the Start menu is spawned by svchost.exe -> services.exe -> wininit.exe with NO explorer.exe anywhere: byte-identical to the service-rooted leak signature. Ancestry therefore cannot distinguish J's terminal from a Task Scheduler leak, and the title allowlist (already honoured for WindowsTerminal.exe) is the intended discriminator. The space matters: automation-spawned shells are titled with a FULL PATH ('C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe' -- 'WindowsPowerShell', no space), so this substring exempts the interactive window WITHOUT exempting them. Verified against the real window-leaks.jsonl records.",
   "image_names": [],
   "title_substrings": [
     "Claude Code",
     "Claude in Chrome",
     "Apex Legends",
     "Steam",
-    "Discord"
+    "Discord",
+    "Windows PowerShell"
   ],
   "pids": []
 }

@@ -113,5 +113,74 @@ def test_the_shipped_allowlist_still_contains_the_trigger_entry(det):
         "shipped config; re-derive it rather than assuming the fix is still load-bearing")
 
 
+# ---------------------------------------------------------------------------
+# 2026-08-15: the OPPOSITE failure -- the detector hid J's OWN terminal.
+# ---------------------------------------------------------------------------
+#
+# The 08-13 fix above tightened the allowlist so a console host could not hide behind an
+# inherited title. Two days later the detector ate J's interactive PowerShell window twice
+# ("my powershell window is being auto closed"). Both records in window-leaks.jsonl:
+#
+#   image_name: WindowsTerminal.exe   title: "Windows PowerShell"   mitigated: true
+#   ancestry:   WindowsTerminal.exe -> svchost.exe -> services.exe -> wininit.exe
+#
+# THE ANCESTRY GATE IS NOT BUGGY -- ITS PREMISE IS. `_is_service_rooted` assumes a terminal J
+# opened himself descends from explorer.exe. Modern Windows Terminal launches by DCOM
+# activation, so a Start-menu terminal is spawned by svchost with NO explorer.exe in the
+# chain -- byte-identical to the service-rooted leak signature. Ancestry cannot separate them,
+# so the title allowlist (already honoured for WindowsTerminal.exe by the 08-13 scope fix) is
+# the only discriminator available.
+#
+# THE SPACE IS LOAD-BEARING. Automation-spawned shells are titled with a FULL PATH --
+# "C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe" -- where "WindowsPowerShell" has
+# no space. J's interactive window is the friendly name "Windows PowerShell". So the substring
+# exempts his window and still hides the automation one.
+
+_REAL_VENV_LEAK = r"C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe"
+_REAL_PS_PATH_LEAK = r"C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe"
+_REAL_GIT_LEAK = r"C:\Program Files\Git\cmd\git.exe"
+
+
+def _shipped_allowlist(det):
+    import json
+    return {**det.DEFAULT_ALLOWLIST,
+            **json.loads(det.ALLOW_FILE.read_text(encoding="utf-8"))}
+
+
+def test_js_own_interactive_terminal_is_exempt(det):
+    """RED-PROOF, from the exact record that hid J's window on 2026-08-15."""
+    allow = _shipped_allowlist(det)
+    assert det._is_allowed("WindowsTerminal.exe", "Windows PowerShell", 5804, allow) is True
+
+
+@pytest.mark.parametrize("title", [_REAL_VENV_LEAK, _REAL_PS_PATH_LEAK, _REAL_GIT_LEAK,
+                                    "Terminal", "Windows Script Host"])
+def test_real_automation_leaks_are_STILL_hidden(det, title):
+    """The exemption must not buy J's window back at the cost of the popups he asked to
+    have killed. Every title here is copied from real window-leaks.jsonl rows."""
+    allow = _shipped_allowlist(det)
+    assert det._is_allowed("WindowsTerminal.exe", title, 999, allow) is False
+
+
+def test_the_path_titled_powershell_leak_is_not_caught_by_the_space(det):
+    """The whole exemption rests on 'Windows PowerShell' (with a space) not being a substring
+    of '...\\WindowsPowerShell\\v1.0\\...' (without one). If someone 'tidies' the allowlist
+    entry to 'WindowsPowerShell', every automation shell silently becomes exempt."""
+    allow = _shipped_allowlist(det)
+    assert "Windows PowerShell" in allow["title_substrings"], (
+        "the interactive-terminal exemption was removed -- J's own window will be hidden again")
+    assert "WindowsPowerShell" not in allow["title_substrings"], (
+        "space-less 'WindowsPowerShell' would exempt every automation-spawned shell too")
+    assert det._is_allowed("WindowsTerminal.exe", _REAL_PS_PATH_LEAK, 999, allow) is False
+
+
+def test_a_console_host_titled_windows_powershell_is_still_not_exempt(det):
+    """The 08-13 scope fix must survive this addition: only WindowsTerminal.exe's OWN window
+    may be exempted by title, never a console host that inherited it."""
+    allow = _shipped_allowlist(det)
+    for image in ("powershell.exe", "cmd.exe", "conhost.exe", "OpenConsole.exe"):
+        assert det._is_allowed(image, "Windows PowerShell", 999, allow) is False
+
+
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(pytest.main([__file__, "-q"]))
