@@ -89,7 +89,12 @@ def _vix_bucket(v) -> str:
 
 
 def _trade_vix(t):
-    for attr in ("vix", "vix_now", "vix_at_entry"):
+    # `entry_vix` is the real TradeFill field. The first version of this guessed at
+    # "vix"/"vix_now"/"vix_at_entry", found NONE of them, silently bucketed all 281-343
+    # trades as "unknown", and reported `dynamic_justified: false` -- a FALSE NEGATIVE
+    # dressed as an answer. `_dynamic_answerable` below now refuses to answer at all rather
+    # than repeat that.
+    for attr in ("entry_vix", "vix", "vix_now", "vix_at_entry"):
         v = getattr(t, attr, None)
         if v is None and isinstance(t, dict):
             v = t.get(attr)
@@ -168,7 +173,16 @@ def main() -> int:
             best_by_bucket[name] = {"best_threshold_cents": best[1],
                                     "exp": round(best[0], 2), "n": best[2]}
     optima = {v["best_threshold_cents"] for v in best_by_bucket.values()}
-    dynamic_justified = len(optima) > 1
+
+    # ANSWERABILITY GATE. If the VIX field did not resolve, every trade lands in "unknown"
+    # and `optima` is empty -- which would print as "dynamic not justified" when the truth is
+    # "the question was never asked". Refuse to answer instead of answering falsely.
+    unknown_share = 0.0
+    total_t = sum(c["n"] for c in cells) or 1
+    unknown_t = sum(c["by_vix"].get("unknown", {}).get("n", 0) for c in cells)
+    unknown_share = unknown_t / total_t
+    dynamic_answerable = unknown_share < 0.5 and bool(best_by_bucket)
+    dynamic_justified = (len(optima) > 1) if dynamic_answerable else None
 
     best_overall = max((c for c in cells if c["n"] >= 10),
                        key=lambda c: c["exp"], default=None)
@@ -201,6 +215,12 @@ def main() -> int:
         "baseline": baseline,
         "cells": cells,
         "dynamic_question": {
+            "answerable": dynamic_answerable,
+            "unknown_vix_share": round(unknown_share, 3),
+            "_answerability_note": ("dynamic_justified is null when the VIX field did not "
+                                    "resolve on >=50% of trades. The first run of this study "
+                                    "bucketed 100% as 'unknown' and printed 'not justified' -- "
+                                    "a false negative dressed as a finding."),
             "best_threshold_per_vix_bucket": best_by_bucket,
             "distinct_optima": sorted(optima),
             "dynamic_justified": dynamic_justified,
@@ -217,8 +237,12 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=1, default=str), encoding="utf-8")
     print(f"\nwrote {OUT.relative_to(REPO)}")
-    print(f"dynamic justified by VIX stratification: {dynamic_justified} "
-          f"(optima {sorted(optima)})")
+    if not dynamic_answerable:
+        print(f"DYNAMIC QUESTION UNANSWERED -- VIX unresolved on "
+              f"{unknown_share:.0%} of trades. Not reporting a verdict.")
+    else:
+        print(f"dynamic justified by VIX stratification: {dynamic_justified} "
+              f"(optima {sorted(optima)})")
     if best_overall:
         print(f"best expectancy cell: {best_overall['threshold_cents']}c "
               f"exp=${best_overall['exp']:.1f} n={best_overall['n']}")
