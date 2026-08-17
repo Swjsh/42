@@ -1,4 +1,6 @@
-﻿## [2026-08-17 18:44 ET] conductor: OK — WS6 RED fixed (regime_context self-heal), commits `7bd9472c` + `a242a66b`
+﻿## [2026-08-17 18:47 ET] conductor: outcome metric — `trend: regressing` (net_improvement 22/20-fire window, cost/drained $2.19). Next fire should prefer a loop-closing item over a new artifact. Also committed the untracked STATUS-archive-2026-08.md roll-off (9,017 lines, `status_retention.py`, never landed before — commit `8e5c5603`).
+
+## [2026-08-17 18:44 ET] conductor: OK — WS6 RED fixed (regime_context self-heal), commits `7bd9472c` + `a242a66b`
 
 **Picked from STAGE 1 priority-2 (Engine RED in today's own monday_verify table) + priority-3
 (self-audit gap, same finding independently flagged 2026-08-16).** Root cause: `regime_stamp.py`
