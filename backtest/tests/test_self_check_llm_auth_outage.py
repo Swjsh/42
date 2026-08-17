@@ -112,6 +112,31 @@ def test_silent_when_the_fleet_is_logged_in(tmp_path):
     assert sc.check_llm_auth_outage(NOW, logs_dir=tmp_path) == []
 
 
+def test_clears_once_an_llm_fire_SUCCEEDS_again(tmp_path):
+    """RED-PROOF (2026-08-17, the morning J restored the login). Without this the alarm keeps
+    firing for the whole 7-day lookback AFTER the fix -- and an alarm that cannot go green is
+    one people learn to ignore, which is precisely the failure this check exists to end.
+
+    Keyed on a SUCCESSFUL FIRE, never on elapsed time: a weekend has no fires at all, and
+    silence is not recovery."""
+    _log(tmp_path, "conductor-2026-08-15.log", FIRE)
+    assert sc.check_llm_auth_outage(NOW, logs_dir=tmp_path), "must fire while unrecovered"
+    _log(tmp_path, "conductor-2026-08-15.log",
+         FIRE + "2026-08-15 12:00:00 ET === END tick exit=0 ===\n")
+    assert sc.check_llm_auth_outage(NOW, logs_dir=tmp_path) == [], \
+        "a clean exit=0 fire on/after the newest failure proves auth is back"
+
+
+def test_does_NOT_clear_on_a_success_that_predates_the_failure(tmp_path):
+    """Recovery must be LATER than the breakage. A green fire from before the outage says
+    nothing about now -- that would let an old success permanently mask a live outage."""
+    _log(tmp_path, "conductor-2026-08-13.log",
+         "2026-08-13 09:00:00 ET === END tick exit=0 ===\n")
+    _log(tmp_path, "conductor-2026-08-15.log", FIRE)
+    assert sc.check_llm_auth_outage(NOW, logs_dir=tmp_path), \
+        "a success PREDATING the newest failure must not clear the alarm"
+
+
 def test_ignores_logs_older_than_the_lookback(tmp_path):
     """A cleared outage must stop being reported, or the alarm never goes green again and
     people learn to ignore it."""

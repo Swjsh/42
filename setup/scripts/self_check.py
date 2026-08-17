@@ -1353,6 +1353,8 @@ def check_llm_auth_outage(now, logs_dir=None, lookback_days: int = 7) -> list[st
     cutoff = (now.date() - dt.timedelta(days=lookback_days)).isoformat()
     per_task: dict[str, int] = {}
     days: set[str] = set()
+    newest_fail = ""
+    newest_ok = ""
     for f in log_files:
         m = re.search(r"(\d{4}-\d{2}-\d{2})", f.name)
         day = m.group(1) if m else None
@@ -1362,9 +1364,10 @@ def check_llm_auth_outage(now, logs_dir=None, lookback_days: int = 7) -> list[st
             text = f.read_text(encoding="utf-8", errors="replace")
         except Exception:  # noqa: BLE001
             continue
-        hits = sum(text.count(s) for s in _AUTH_OUTAGE_SIGNATURES)
-        if not hits:
-            continue
+        # RECOVERY EVIDENCE: a clean `exit=0` LLM fire proves auth works again. Tracked per
+        # log file so the alarm can go green on PROOF rather than on a timer.
+        if "=== END tick exit=0 ===" in text:
+            newest_ok = max(newest_ok, day)
         # One fire logs both signature strings on one line; count LINES, not substrings.
         hits = sum(1 for ln in text.splitlines()
                    if any(s in ln for s in _AUTH_OUTAGE_SIGNATURES))
@@ -1373,8 +1376,17 @@ def check_llm_auth_outage(now, logs_dir=None, lookback_days: int = 7) -> list[st
         task = re.sub(r"-?\d{4}-\d{2}-\d{2}.*$", "", f.name) or f.name
         per_task[task] = per_task.get(task, 0) + hits
         days.add(day)
+        newest_fail = max(newest_fail, day)
 
     if not per_task:
+        return []
+
+    # CLEARED. An LLM fire has succeeded on or after the newest failure day, so the login was
+    # restored. Without this the alarm keeps firing for the whole lookback after the fix --
+    # an alarm that cannot go green is one people learn to ignore, which is the exact failure
+    # this check was built to end. (Deliberately keyed on a SUCCESSFUL FIRE, not on elapsed
+    # time: a weekend has no fires at all, and silence is not recovery.)
+    if newest_ok and newest_ok >= newest_fail:
         return []
     total = sum(per_task.values())
     named = ", ".join(f"{t} ({n}x)" for t, n in sorted(per_task.items(), key=lambda kv: -kv[1]))
