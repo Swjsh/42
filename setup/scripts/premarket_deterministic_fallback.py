@@ -80,6 +80,7 @@ from typing import Any, Callable, Optional
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
 TODAY_BIAS = STATE / "today-bias.json"
+REGIME_STAMP = STATE / "regime-stamp.json"
 KEY_LEVELS = STATE / "key-levels.json"
 PARAMS = STATE / "params.json"
 SAFE_BREAKER = STATE / "circuit-breaker.json"
@@ -124,6 +125,44 @@ def _atomic_write_json(path: Path, obj: Any) -> None:
 
 def _round2(x: Optional[float]) -> Optional[float]:
     return round(x, 2) if isinstance(x, (int, float)) else None
+
+
+def _reattach_regime_context(today_str: str) -> bool:
+    """Self-heal WS6 (live-observed 2026-08-17): this fallback writes today-bias.json
+    WHOLESALE and its own output dict never carries a `regime_context` key, so ANY
+    invocation of this script wipes whatever `regime_stamp.py` (Gamma_RegimeStamp,
+    08:22/08:40 ET) had already patched in. The 08:40 ET repatch trigger is only a
+    safety net for Premarket's (08:30 ET) transcription -- it does NOT cover an
+    ad-hoc run of THIS script at an arbitrary later time, which is exactly what
+    happened during the 2026-08-17 09:3x ET incident-repair sequence (box slept
+    through both regime-stamp triggers; `run-premarket.ps1`'s fallback path ran at
+    09:35 ET, after `regime_stamp.py` had already produced a same-day stamp via
+    Task Scheduler's own missed-trigger catch-up) -- the result was a fresh,
+    correctly-dated today-bias.json with `regime_context` silently absent
+    (monday_verify WS6 RED). Fix: re-apply the same 4-field patch shape
+    `regime_stamp.patch_today_bias` uses, sourced from today's regime-stamp.json,
+    immediately after every write this script makes -- so the field survives
+    regardless of invocation order or timing. Fail-open throughout (rail-2): a
+    missing/stale/malformed stamp or bias file is a silent no-op, never raises.
+    Returns True iff the patch was applied.
+    """
+    try:
+        stamp = _load_json(REGIME_STAMP)
+        if not isinstance(stamp, dict) or stamp.get("date") != today_str:
+            return False
+        bias = _load_json(TODAY_BIAS)
+        if not isinstance(bias, dict):
+            return False
+        bias["regime_context"] = {
+            "one_liner": stamp.get("one_liner"),
+            "yesterday_archetype": (stamp.get("yesterday") or {}).get("archetype"),
+            "stamp_date": stamp.get("date"),
+            "source": "regime_stamp_0822ET",
+        }
+        _atomic_write_json(TODAY_BIAS, bias)
+        return True
+    except Exception:
+        return False  # best-effort self-heal, never block the primary write (rail-2)
 
 
 def _et_offset_suffix(dt_et_naive: datetime) -> str:
@@ -587,6 +626,7 @@ def run(repo_root: Path = REPO, now_et: Optional[datetime] = None, dry_run: bool
     result = build(repo_root=repo_root, now_et=now_et, **kwargs)
     if result.get("ok") and not dry_run:
         _atomic_write_json(TODAY_BIAS, {k: v for k, v in result.items() if k != "ok"})
+        _reattach_regime_context(str(result.get("date")))
     return result
 
 
