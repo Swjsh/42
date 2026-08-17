@@ -1,3 +1,44 @@
+﻿## [2026-08-17 18:44 ET] conductor: OK — WS6 RED fixed (regime_context self-heal), commits `7bd9472c` + `a242a66b`
+
+**Picked from STAGE 1 priority-2 (Engine RED in today's own monday_verify table) + priority-3
+(self-audit gap, same finding independently flagged 2026-08-16).** Root cause: `regime_stamp.py`
+(Gamma_RegimeStamp, 08:22/08:40 ET) DID correctly write a same-day `regime-stamp.json` today —
+Task Scheduler's own missed-trigger catch-up fired it ~09:35 ET after the box slept through both
+fixed triggers (the OPEN INCIDENT documented lower in this file) — but `today-bias.json#
+regime_context` came back completely **absent**, because the incident-repair run of
+`premarket_deterministic_fallback.py` (also ~09:35 ET, to re-date `today-bias.json` after the
+sleep) writes that file WHOLESALE and never carried `regime_context` forward. The existing 08:40
+ET repatch trigger only ever covered Premarket's (08:30 ET) transcription drift — it doesn't
+cover an ad-hoc fallback run at an arbitrary later time, which is exactly what happened.
+
+**Fix:** `run()` now calls a new `_reattach_regime_context()` immediately after every write,
+self-healing `regime_context` from today's `regime-stamp.json` whenever one exists, regardless
+of invocation order/timing. Fail-open, $0, idempotent. 6 new guard tests
+(`test_premarket_fallback_regime_reattach_2026_08_17.py`), RED-proofed via `git stash` (fails on
+old code with `AttributeError`, proving the tests exercise the fix). Full premarket-fallback
+suite + curated safety gate (59/59) green. Live-healed today's actual `today-bias.json`
+(gitignored state) — `regime_context.stamp_date` now reads `2026-08-17`.
+
+Also closed the self-audit loop on both untriaged batches (2026-08-16 "Regime-stamp & bias
+modules" = the same bug; 2026-08-17 "silent config-code drift" = already shipped same day via
+`dead_knob_audit.py` commit `c4b7dac8`, "pre-session health gate missing" = misread, the gate
+already exists and worked today per the OPEN INCIDENT's own "Measured damage: NONE").
+
+**Self-inflicted near-miss this fire, self-corrected:** a failed `Edit` (unicode/CRLF mismatch on
+the self-audit file) led to a reflexive `git checkout --` that wiped ~17 lines of never-committed
+self-audit swarm output. Recovered byte-for-byte from this session's own transcript (lucky — the
+content had been read verbatim two tool-calls earlier) and re-verified via `git diff --stat`
+before committing. Filed to `_lesson-inbox` (`git-checkout-dash-dash-destroys-uncommitted-
+research-2026-08-17.md`) — the durable fix is "check `git status`/`git diff` before ANY
+`checkout --`/`reset`/`clean`," not yet graduated to a hard guard.
+
+Trading-path scope: NONE (this touches `automation/state/today-bias.json` generation, a
+descriptive-only, non-load-bearing field — `regime_context` is explicitly documented "never a
+live entry input"). Revert: `git revert a242a66b 7bd9472c` (two independent commits, either
+revertible alone).
+
+---
+
 ## [2026-08-17 EOD] 🟢 +$124 REALIZED. Full review. TP1 is hardcoded, the config lies, and the ribbon knob is a rounding error next to VIX.
 
 Day closed flat, all positions out. Commits: `4dcb4f01`, `f0e5cd51`, `9c2b47a3`.
@@ -427,7 +468,9 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
-## Known broken` + Discord
+## Known broken
+[2026-08-17T18:30:29-04:00] MCP_AUDIT_RED: Both Alpaca accounts point to wrong numbers: Safe PA3POKNV46VG (expected PA3DHPT7KIQE), Bold PA3WEBXJU67N (expected PA33W2KUAT40). MCP keys misconfigured.
+` + Discord
 escalation. **Verified live: self-check flipped DEGRADED → BROKEN and the finding is on this
 file now.**
 
@@ -631,427 +674,11 @@ from 191, or restore the 190-row file.
 **ALSO AWAITING J (new this session):** the PROVISIONAL P5 waiver for
 `vwap_reclaim_failed_break` -- sign, replace, or revoke.
 
-## [2026-08-15 ~11:4x ET] PROVENANCE DEFECT: a frozen research population was mutated out-of-band by an unrelated commit
 
-The three off-by-one failures I flagged DO-NOT-RE-PIN are traced. They were right to be RED.
-
-`analysis/recommendations/engine-fullhist-replay-2026-07-23.json` is the 18-month full-engine
-replay every downstream study keys on. Its own research commit (`56a4907d`) published
-**+$5,064.75 / 190 trades**. It is now **+$4,808.75 / 191 trades**.
-
-WHAT CHANGED, exactly one row:
-  ADDED   2025-02-07 10:45 ET  SPY250207C00608000   (a loser; total P&L -$256.00)
-  REMOVED nothing
-WHO CHANGED IT: `df0348d9 fix(regime-library): pin all 15 threshold constants + wire first live
-consumer`. A regime-threshold commit that had no business touching a replay artifact -- almost
-certainly an incidental re-run swept into an unrelated commit.
-
-WHY IT MATTERS BEYOND THREE RED TESTS:
-- The published headline of that study is now wrong by -$256 and +1 trade, and nothing announced
-  it. `test_structure_shift_cascade_ab` (190 vs 191), `test_regime_reslice` (74 vs 75) and
-  `test_pnl_attribution` were the ONLY things that noticed, and they were dismissed as stale.
-- **My own ENTRY-LOCATION-GATE study used the mutated file** and reported "$4,808.75 across 191
-  trades" as the published population. That study's conclusion (a NULL) does not hinge on one
-  losing trade, but the disclosure is wrong and is corrected here.
-- Any study that pinned 190 and any that read 191 disagree about the same "frozen" population.
-
-DECISION NEEDED (J's, not mine): either the added trade is legitimate -- in which case
-`56a4907d`'s headline must be restated and every downstream pin re-derived from 191 -- or it is
-contamination and the file should be restored to the 190-row version. I did not re-pin the three
-tests to 191, because re-pinning is what would have buried this.
-
-GUARD TO BUILD EITHER WAY: frozen research populations need a content hash recorded in the
-artifact itself and asserted on read, so an out-of-band edit fails loudly at the point of USE
-rather than three tests later. This is the same class as the trail_width finding (a population
-defined by whatever is cached is not reproducible) -- both say the same thing: **this repo has
-no integrity check on the datasets its studies stand on.**
-
-## [2026-08-15 ~11:xx ET] ANSWER: the ratchet works as designed. The problem is the BOOK's payoff math, not the knob.
-
-Measured MFE capture from LIVE telemetry (best_premium in exit_pass, joined to fills). Capture =
-realized move / peak favourable move. Negative = the trade went green and round-tripped to red.
-
-| window | n | median capture | avg win | avg loss | win rate |
-|---|---|---|---|---|---|
-| PRE 07-20..08-09 | 85 | **-32.0%** | $300 | -$115 | 29% |
-| POST 08-10..08-14 | 77 | **-6.7%** | $144 | -$89 | 31% |
-
-**The ratchet is doing exactly what it was built to do.** Give-back collapsed from -32% to -6.7%
-median. Losses shrank. This is insurance working, and it kills my "the ladder is clipping
-winners, remove it" framing -- the ladder is the reason trades stop round-tripping to red.
-
-**But it truncates BOTH tails, and this book cannot afford that.** At 29-31% win rate the
-breakeven payoff ratio is ~2.3. PRE ran 2.61 (barely viable). POST runs 1.62 (underwater at any
-WR below ~38%). Halving avg_win from $300 to $144 costs more than shrinking avg_loss from $115
-to $89 saves, because at this win rate the book is carried entirely by the right tail.
-
-## THE ACTUAL PROBLEM, stated plainly
-
-This is a **~30% win-rate, tail-dependent** book. Every exit tightening trades tail for
-consistency, and consistency is worth less than the tail here. So the fix is NOT to re-tune the
-ladder -- it is either:
-  (a) raise win rate so tighter exits become affordable (entry-quality work: conviction C4/C5
-      now actually score, the escalating floor is the sit-out mechanism), or
-  (b) accept the tail dependence and stop tightening exits into it.
-Doing (b) without (a) returns the book to +$384/101 trades, which is not a business either.
-
-**Recommendation for J:** the ladder stays. The next lever is entry selectivity, not exit width.
-Re-tuning exits has now been tried three times (ratchet, ladder, trail) inside five days and the
-payoff ratio got worse each time.
-
-CORRECTIONS TODAY: 4. (1) "live fills confirm it" -- confounded. (2) "no exit telemetry" -- wrong
-query. (3) "runner_target 3->0 implicates the ladder" -- it was disabled 07-09 by SS-B. (4) "the
-ladder clips winners, remove it" -- capture data says it PREVENTS give-back. Every one came from
-publishing a headline before exhausting the data on disk.
-
-## [2026-08-15 ~10:xx ET] CORRECTION #2 -- the exit telemetry EXISTS. I queried one level too shallow. And it answers the question.
-
-RETRACTED: "the engine does not record why a position exited". **False.** `exit_pass` rows carry
-an `actions[]` list, and each action has `kind` + `reason`. I read `reason` off the RESULT dict
-(which has no such key) instead of off the actions inside it, saw `None`, and declared a missing
-instrument. The correct query returns 545 attributed exit actions. **I nearly built a duplicate
-of a surface that already worked** -- the exact "check for prior coverage before building" rule.
-
-## WHAT THE REAL ATTRIBUTION SAYS (closing + partial actions)
-
-| reason | PRE-stack | share | POST-stack (08-10+) | share |
-|---|---|---|---|---|
-| `premium_stop` | 147 | **62%** | 19 | 19% |
-| `structure_stop` | 28 | 12% | 31 | **32%** |
-| `ribbon_flip_back` | 9 | 4% | 22 | **22%** |
-| `runner_stop` (the ratcheted floor) | 26 | 11% | 13 | 13% |
-| `tp1 @ +100%` | 17 | 7% | 9 | 9% |
-| `runner_target @ +250%` | **3** | 1% | **0** | **0%** |
-| totals | 239 | | 98 | |
-
-THREE THINGS FALL OUT, and none of them are what I argued this morning:
-
-1. **`ribbon_flip_back` went 4% -> 22% of all closes.** That is the biggest compositional shift
-   in the book, and C28 is explicit that **ribbon flip is a LAGGING exit**. A fifth of closes now
-   run through the layer doctrine already says fires late. This was not in any hypothesis I had.
-2. **`runner_target @ +250%` fired 3 times PRE and ZERO times POST.** Nothing rides to target
-   any more. Alongside 46 `RATCHET_STOP|runner_stop trail/arm` and 16 `RATCHET_STOP|pre_tp1
-   profit_lock arm/trail` moves, the mechanism is visible: floors ratchet up, positions exit on
-   the ratcheted floor, the tail never completes.
-3. **The ladder does NOT close positions directly** -- it appears only as `RATCHET_STOP` (a floor
-   move). Its effect is INDIRECT, realised as `runner_stop` closes. So "the ladder clipped it"
-   and "runner_stop closed it" are the same event under two names, which is precisely why the
-   confounded before/after could not resolve it.
-
-## STATUS OF THE EXIT QUESTION
-
-Still UNRESOLVED, but now measurable from live data rather than only replay. The ratchet-cost
-prereg should be amended before running: its cells must key on **exit-reason composition**
-(runner_stop vs runner_target vs ribbon_flip_back), not just net P&L, because the P&L delta is
-the downstream symptom and the composition shift is the mechanism.
-
-TWO CORRECTIONS IN ONE MORNING, both mine, both from over-reading thin evidence: (a) "live fills
-confirm it" -- confounded; (b) "no exit telemetry" -- wrong query. The pattern in both is
-reaching a headline before exhausting the data. Recorded here rather than quietly fixed.
-
-## [2026-08-15 ~09:xx ET] CORRECTION -- I over-claimed the exit finding. The live before/after is CONFOUNDED.
-
-I told J this morning that live fills "confirm" the exit-stack hypothesis and called the
-signature "unambiguous". **That was wrong**, and reviewing my own analysis on request broke it.
-
-WHAT I DID: split live round trips at 2026-08-10 (the day the ratchet + ladder + trail shipped)
-and read PRE n=101 / +$384 / avg_win $300 against POST n=95 / -$1,694 / avg_win $144. Flat win
-rate, halved winners -- a clean "exits are clipping the tail" story.
-
-WHY IT DOES NOT HOLD:
-1. **Two independent changes land inside the same boundary.** `1a2692c4` (08-09) armed risky-3
-   on the PREMIUM-STOP lane -- a different exit change, its own A/B. `97734a7b` (08-12)
-   restored a risky-1 selectivity gate that had been DELETED, so risky-1 traded part of the
-   window with degraded ENTRY selectivity. `3ac1d7b2` (08-06) killed risky-3's ATM tier.
-2. **Those two arms drive the collapse.** risky-1 avg_win $416 -> $100, risky-3 $379 -> $116.
-   They are exactly the arms with their own concurrent changes.
-3. **There is a counter-example my aggregate buried: safe-3 avg_win went UP, $188 -> $197.**
-   A uniform-degradation claim dies on one clean arm moving the other way.
-4. Per-arm PRE n is 7-30. Not a population.
-5. 08-14's wake-storm double entry is still inside POST.
-
-WHAT SURVIVES, and it is still the live question: the REPLAY evidence. It holds the entry
-population FIXED and varies only exit config, so it is not vulnerable to any of the above --
-10/10 arm-instances worse, plus the $191 -> $114 `premium_stop @ 0.61` case. That is
-suggestive and it is NOT confirmed by live P&L. The honest status is UNRESOLVED, pending the
-frozen PRE-TP1-RATCHET-COST study.
-
-## NEW FINDING (and it is why this went unnoticed for five days)
-
-**The engine does not record WHY a position exited.** Checked: `exit-state.json` is empty when
-flat; `fleet/*/decisions.jsonl` carries `exit_pass` on 2,594 rows but the reason is `None` on
-893 of the post-stack ones; `trades.csv` has no exit-reason column. Nothing on disk answers
-"which layer closed this trade" -- ladder rung vs trail vs TP1 vs structure stop vs
-catastrophe cap.
-
-CONSEQUENCE: a three-layer exit stack shipped on 2026-08-10 and NO live surface could attribute
-a single exit to it. That is why the avg-win change was invisible for five days, why my
-before/after had to lean on confounded aggregates, and why the ratchet study must be
-replay-based rather than answered from live fills.
-
-**This is the highest-value build on the board** -- higher than the study it unblocks. One
-field (`exit_reason` + which layer bound) stamped on every close, and every future exit change
-becomes measurable in a day instead of never.
-
-## [2026-08-15 ~02:0x ET] Family B started -- watcher registry CLOSED; unattended_health traced but NOT fixed
-
-CLOSED:
-- `test_watcher_registry` (2). `bollinger_squeeze_watcher.py` was on disk and not in
-  `runner.WATCHERS` -- exactly the gap that guard exists to catch, RED since the file landed.
-  Verdict: **EXCLUDE, not register**, and that was checked not assumed. It is imported directly
-  by `autoresearch/bollinger_fresh_reverify.py` and its logic is PORTED into
-  `lib/patterns/context.py` for the live path, so registering it would double-run logic the
-  live path already carries. Exclusion carries its evidence inline.
-
-TRACED, NOT FIXED -- `test_unattended_health` (5):
-- Symptom: scenarios built to read GREEN now read RED, e.g. "HAS NOT FIRED in **7.5d**" for a
-  task whose fixture sets `last_run=2026-08-07` against a FIXED `SUNDAY = 2026-08-09 15:00`.
-  7.5d back from that Sunday is 2026-08-02, which is neither date.
-- RULED OUT: `evaluate_task` ignoring its `now_et` argument. It does not -- it uses `now_et`
-  for the gap and the unscheduled-day slack (`unattended_health.py:295+`). That was the obvious
-  suspect and it is innocent.
-- REMAINING HYPOTHESIS: the test's `_task(last_run=...)` helper no longer writes the field the
-  evaluator reads, so the task looks like it has never run and the gap is measured from the
-  trigger start instead. That is the SAME contract-drift family as the stale
-  `fake_manage_tick` signature repaired earlier tonight -- a helper pinned to a shape that moved.
-- NEXT STEP: diff `_task()`'s output keys against what `evaluate_task` actually reads. One read
-  each way; do not re-pin the day budgets, which are not the problem.
-
-Stopped here deliberately rather than guessing at a health monitor's thresholds.
-
-
-### BROKEN: self-check 2026-08-16T18:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T18:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T19:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-## Kitchen
-Kitchen: alive, queue 35 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: self-check 2026-08-16T19:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T20:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T20:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T21:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T21:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T22:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 75 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- crypto_twin_health.py (exit=[1], 1x), twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T22:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 75 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- crypto_twin_health.py (exit=[1], 1x), twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 14 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: self-check 2026-08-16T23:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-16.log shows 75 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- crypto_twin_health.py (exit=[1], 1x), twin_chaos_drill.py (exit=[1], 1x), unattended_health.py (exit=[1], 73x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-16.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-conductor-weekend.ps1 (exit=[1], 5x), run-conductor.ps1 (exit=[1], 4x), run-kitchen-reviewer.ps1 (exit=[1], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-level-refresh.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-treasurer-weekly.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-17T13:35:25+00:00
-- date_et: 2026-08-17
-- total: $64.46 (threshold $30.00)
-- claude: $64.46  minimax: $0.00
-- claude_sessions: 1
-
-### BROKEN: premarket 2026-08-17
-- PREMARKET SILENT FAILURE: claude exit=0 but today-bias.date=2026-08-14 != today 2026-08-17 (no fresh bias written). Engine would open on a STALE bias.
-
-
-### DEGRADED: premarket 2026-08-17
-- PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step (today-bias.date=2026-08-14 != today 2026-08-17 (no fresh bias written). Engine would open on a STALE bias.)
-
-
-### BROKEN: self-check 2026-08-17T09:35:19
-- PREMARKET STALE: today-bias.json date=2026-08-14 != today 2026-08-17 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-08-14T11:32:27.355955 predates the expected 2026-08-17T07:45:00 ET fire (~70.0h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: regime-stamp.json date=2026-08-16, today-bias.json regime_context.stamp_date=2026-08-16, today=2026-08-17 -- stale handoff between Gamma_RegimeStamp and Gamma_Premarket. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### BROKEN: premarket 2026-08-17
-- PREMARKET SILENT FAILURE: claude exit=1 but today-bias.falsifiable_predictions is empty (0) -- the premarket LLM produced no predictions (silent failure).
-
-
-### DEGRADED: premarket 2026-08-17
-- PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step (today-bias.falsifiable_predictions is empty (0) -- the premarket LLM produced no predictions (silent failure).)
-
-
-- [2026-08-17 07:35:22] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-08-17 07:35:22] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-17.md
-
-### BROKEN: self-check 2026-08-17T09:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- BROKEN -- CLAUDE CLI IS LOGGED OUT: 73 LLM fire(s) across 9 task(s) died on 'Not logged in / Please run /login' over 2026-08-11..2026-08-16. Affected: conductor (22x), conductor-weekend (19x), conductor-wake (8x), context_guard (5x), mcp-daily-audit (5x), eod-flatten (4x), eod-flatten-aggressive (4x), premarket (4x), scout (2x). Rail-0 budget says PROCEED (a logged-out fire spends $0) and Task Scheduler shows LastTaskResult=0 (fire-and-forget wscript hop), so every layer reports success except the work. The autonomous loop is NOT running. J ACTION REQUIRED: run `claude /login` -- this is interactive OAuth, no automation can clear it and nothing should retry into it.
-
-### DEGRADED: self-check 2026-08-17T10:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T10:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T11:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T11:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 4x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T12:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 7x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T12:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 10x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-17T13:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- ENGINE CANNOT ENTER: 220 ticks today, 0 ENTER, 4x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- CANDIDATES-UNTRACKED: 21 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 13x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-17T13:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- ENGINE CANNOT ENTER: 250 ticks today, 0 ENTER, 17x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 13x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-17T14:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- ENGINE CANNOT ENTER: 280 ticks today, 0 ENTER, 17x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 16x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-17T14:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- ENGINE CANNOT ENTER: 310 ticks today, 0 ENTER, 17x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T15:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T15:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 25x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-08-17T20:00:28+00:00
-- task: eod-summary
-- date_et: 2026-08-17
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-08-17T16:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 28 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 28x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-## Known broken
-
-- [2026-08-17T16:15:02] MONDAY-VERIFY RED :: ws6_regime_stamp :: regime-stamp.json date=2026-08-17, generated_at_et=2026-08-17T09:35:24-04:00 (hhmm=09:35, in 08:15-08:40 window=False). today-bias.json date=2026-08-17, regime_context.stamp_date=None (present=False, dates_match=False).… :: re-check: backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-17
-
-### DEGRADED: self-check 2026-08-17T16:39:56
+### DEGRADED: self-check 2026-08-17T18:39:56
 - PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
 - PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
 - TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- REGIME-STAMP DRIFT: today-bias.json (2026-08-17) has no regime_context -- Gamma_Premarket likely did not re-lift the 08:22 ET stamp. Non-load-bearing (visibility only); regime_stamp.py --run to catch up.
 - SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-08-17T20:45:45+00:00
-- task: analyst
-- date_et: 2026-08-17
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
