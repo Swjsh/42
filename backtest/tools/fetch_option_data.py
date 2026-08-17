@@ -166,7 +166,8 @@ def topup_from_fills_ledger(max_fetch: int = 60, sleep_s: float = 0.35) -> dict:
     200 req/min); `max_fetch` bounds a first run or a long outage so one fire cannot stall on
     a huge backlog -- the remainder is picked up by the next fire and reported as `remaining`.
     """
-    out = {"missing": 0, "fetched": 0, "failed": 0, "remaining": 0, "symbols": []}
+    out = {"missing": 0, "fetched": 0, "failed": 0, "remaining": 0, "symbols": [],
+           "deferred_same_day": 0, "failure_reasons": {}}
     try:
         ledger = ROOT.parent / "automation" / "state" / "fills-ledger.jsonl"
         if not ledger.exists():
@@ -196,7 +197,21 @@ def topup_from_fills_ledger(max_fetch: int = 60, sleep_s: float = 0.35) -> dict:
             return out
 
         creds = resolve_alpaca_creds()
+        # SAME-DAY BARS ARE 403, MEASURED 2026-08-17. Isolated with a discriminating test:
+        # 2026-08-13 and 2026-08-14 contracts returned 200 with 81 bars each, while a
+        # 2026-08-17 contract returned HTTP 403 on the SAME endpoint, key and code path. So
+        # the discriminator is the DAY, not the endpoint or entitlement.
+        #
+        # This REFINES the 2026-08-12 churn-teardown correction, which recorded
+        # "/v1beta1/options/bars returns 200 at $0 -- same-day 0DTE included". True for a PAST
+        # 0DTE expiry; NOT true for the current session. The nightly fold therefore cannot
+        # price today's fills at 16:25 and will pick them up tomorrow -- a ONE-DAY LAG that is
+        # expected, self-healing, and must not be logged as a failure or someone will chase it.
+        today = dt.date.today().isoformat()
         for sym, day in missing[:max_fetch]:
+            if day >= today:
+                out["deferred_same_day"] += 1
+                continue
             try:
                 rows = fetch_contract_bars(sym, day, creds.key, creds.secret)
                 if rows:
@@ -205,8 +220,14 @@ def topup_from_fills_ledger(max_fetch: int = 60, sleep_s: float = 0.35) -> dict:
                     out["symbols"].append(sym)
                 else:
                     out["failed"] += 1
-            except Exception:  # noqa: BLE001 -- one bad contract never stalls the fold
+                    out["failure_reasons"]["empty_response"] = \
+                        out["failure_reasons"].get("empty_response", 0) + 1
+            except Exception as e:  # noqa: BLE001 -- one bad contract never stalls the fold
+                # RECORD THE REASON. The first version counted failures without saying why,
+                # which turned a diagnosable 403 into an anonymous "failed=2".
                 out["failed"] += 1
+                key = f"{type(e).__name__}:{str(e)[:40]}"
+                out["failure_reasons"][key] = out["failure_reasons"].get(key, 0) + 1
             time.sleep(sleep_s)
         out["remaining"] = max(0, len(missing) - max_fetch)
     except Exception as e:  # noqa: BLE001 -- fail-open: this is a side-product of a fold
@@ -228,8 +249,14 @@ def main(argv=None) -> int:
     if args.topup:
         res = topup_from_fills_ledger()
         print(f"topup: missing={res['missing']} fetched={res['fetched']} "
-              f"failed={res['failed']} remaining={res['remaining']}"
+              f"failed={res['failed']} deferred_same_day={res['deferred_same_day']} "
+              f"remaining={res['remaining']}"
               + (f" error={res['error']}" if res.get("error") else ""))
+        if res.get("failure_reasons"):
+            print(f"  failure reasons: {res['failure_reasons']}")
+        if res["deferred_same_day"]:
+            print("  (same-day option bars are 403 until the next session -- expected, "
+                  "self-heals on tomorrow's fold)")
         for s in res["symbols"]:
             print(f"  + {s}")
         return 0

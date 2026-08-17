@@ -1,0 +1,343 @@
+{
+ "_meta": {
+  "audit": "DEAD-KNOB-AUDIT",
+  "generated_for": "2026-08-17 -- two dead knobs found by hand in one session",
+  "method": "static reference scan; see module docstring for what this does NOT prove",
+  "classes": {
+   "unreferenced": "name appears in no .py -- almost certainly dead",
+   "shadowed": "name IS referenced but a hardcoded literal for the same concept wins downstream -- a pure grep calls these healthy. This is the class that produced the +75%-vs-+100% TP1 lie."
+  },
+  "propose_only": true
+ },
+ "unreferenced": [
+  {
+   "file": "automation/state/params.json",
+   "key": "rule_version_v15_3_notes",
+   "value": "v15.3 LIVE 2026-06-01 per J authorization ('we need to add w"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "rule_version_v15_2_notes",
+   "value": "v15.2 LIVE 2026-05-18 evening per J ratification ('Lets do o"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "rule_version_notes",
+   "value": "v15.1 LIVE 2026-05-14 evening per J authorization ('any time"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "rule_version_revert_command",
+   "value": "To revert v15.1 -> v15: (1) edit this file rule_version 'v15"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "heartbeat_interval_minutes",
+   "value": 3
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "runner_be_stop_after_tp1",
+   "value": true
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "exit_all_on_runner_signal_if_tp1_unfired",
+   "value": true
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "vix_dir_deadband",
+   "value": 0.05
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "gap_and_go_side",
+   "value": "put"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "j_vix_dayside_low_margin",
+   "value": 0.25
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "j_vix_dayside_slope_rule",
+   "value": "not_rising"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "scale_up_min_consecutive_days_above_threshold",
+   "value": 3
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "min_trendline_bear_spread_cents",
+   "value": 0
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "v15_hard_gate_logic",
+   "value": "If (qty x premium x 100) > (account_equity x max_pct), reduc"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "v15_profit_lock_decision_data",
+   "value": "SUPERSEDED 2026-06-19 by _v15_profit_lock_trail_pct_doc_2026"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "v15_ratification_status",
+   "value": "LIVE 2026-05-13 evening - heartbeat.md updated, rule_version"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "first_entry_after_tp_size_reduction",
+   "value": 1
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "macro_hard_veto_minutes",
+   "value": 120
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "macro_soft_modifier_minutes",
+   "value": 240
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "macro_soft_bull_threshold",
+   "value": 10
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "macro_soft_bear_threshold",
+   "value": 7
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "macro_calendar_max_staleness_days",
+   "value": 7
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "bid_ask_spread_max_cents",
+   "value": 8
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "bid_ask_spread_max_pct_of_mid",
+   "value": 0.1
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "delta_min_abs",
+   "value": 0.3
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "delta_max_abs",
+   "value": 0.55
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "open_interest_min",
+   "value": 500
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "liquidity_strike_retries_max",
+   "value": 2
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "enable_news_no_trade_windows",
+   "value": true
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "enable_size_modifier_windows",
+   "value": false
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "enable_dealer_level_journaling",
+   "value": true
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "enable_dark_pool_aggregation",
+   "value": true
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "dark_pool_min_block_size",
+   "value": 5000
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "dark_pool_top_n_shelves",
+   "value": 5
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "eod_flatten_et",
+   "value": "15:55"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "eod_summary_et",
+   "value": "16:00"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "daily_review_et",
+   "value": "16:30"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "premarket_et",
+   "value": "08:30"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "weekly_review_et_sunday",
+   "value": "18:00"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "min_disk_free_mb",
+   "value": 100
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "rule_version_notes",
+   "value": "Bumped from v14-aggressive to v15.1 on 2026-05-14 evening. I"
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "heartbeat_interval_minutes",
+   "value": 3
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "runner_be_stop_after_tp1",
+   "value": true
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "exit_all_on_runner_signal_if_tp1_unfired",
+   "value": true
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "vix_dir_deadband",
+   "value": 0.05
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "first_entry_after_tp_size_reduction",
+   "value": 1
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "macro_hard_veto_minutes",
+   "value": 120
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "macro_soft_modifier_minutes",
+   "value": 240
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "macro_soft_bull_threshold",
+   "value": 10
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "macro_soft_bear_threshold",
+   "value": 7
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "bid_ask_spread_max_cents",
+   "value": 12
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "bid_ask_spread_max_pct_of_mid",
+   "value": 0.12
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "delta_min_abs",
+   "value": 0.25
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "delta_max_abs",
+   "value": 0.6
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "open_interest_min",
+   "value": 300
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "liquidity_strike_retries_max",
+   "value": 2
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "eod_flatten_et",
+   "value": "15:55"
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "eod_summary_et",
+   "value": "16:00"
+  }
+ ],
+ "shadowed": [
+  {
+   "file": "automation/state/params.json",
+   "key": "premium_stop_pct",
+   "value": -0.5,
+   "shadowed_by": "automation/state/fleet/strategies.py ExitShape"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "tp1_premium_pct",
+   "value": 0.5,
+   "shadowed_by": "automation/state/fleet/strategies.py ExitShape (ribbon_ride=1.0)"
+  },
+  {
+   "file": "automation/state/params.json",
+   "key": "tp1_qty_fraction",
+   "value": 0.8,
+   "shadowed_by": "automation/state/fleet/strategies.py ExitShape"
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "premium_stop_pct",
+   "value": -0.07,
+   "shadowed_by": "automation/state/fleet/strategies.py ExitShape"
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "tp1_premium_pct",
+   "value": 0.75,
+   "shadowed_by": "automation/state/fleet/strategies.py ExitShape (ribbon_ride=1.0)"
+  },
+  {
+   "file": "automation/state/aggressive/params.json",
+   "key": "tp1_qty_fraction",
+   "value": 0.667,
+   "shadowed_by": "automation/state/fleet/strategies.py ExitShape"
+  }
+ ],
+ "live_count": 165
+}

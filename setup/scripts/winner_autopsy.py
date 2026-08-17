@@ -1279,6 +1279,27 @@ def main() -> int:
                 last_payload["conviction_shadow"] = csr.run()
             except Exception as cse:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["conviction_shadow"] = {"error": f"{type(cse).__name__}: {cse}"[:200]}
+            # --- DEAD-KNOB AUDIT (2026-08-17) rides this SAME nightly fire, SAME fold
+            # contract (fail-open, additive, no new scheduled task). Static reference scan of
+            # both params files.
+            #
+            # WHY: two dead knobs surfaced BY HAND in a single session, both on live paths.
+            # `aggressive/params.json` says tp1_premium_pct=0.75 while the engine fired TP1 at
+            # +100% (proven arithmetically on the day's winner) because strategies.py:131
+            # hardcodes 1.0. And `ribbon_min_spread_cents` has been a known dead knob since
+            # fleet_gate_sweetspot.py:505 wrote it down -- and stayed in the config anyway.
+            # A config that advertises numbers the engine ignores is a config that will be
+            # tuned with confidence and no effect.
+            #
+            # Reports TWO classes deliberately: UNREFERENCED (name in no .py) and SHADOWED
+            # (name IS referenced but a hardcoded cell wins downstream). A pure grep calls the
+            # SHADOWED class healthy, which is exactly how the TP1 lie survived.
+            # Revert: delete this try-block.
+            try:
+                import dead_knob_audit as _dka
+                last_payload["dead_knob_audit"] = _dka.audit()
+            except Exception as ke:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["dead_knob_audit"] = {"error": f"{type(ke).__name__}: {ke}"[:200]}
             # --- OPRA CACHE TOP-UP (2026-08-16) rides this SAME nightly fire, SAME fold
             # contract (fail-open, additive, no new scheduled task). MUST run BEFORE the
             # stop_mode fold below, which prices round trips off these cached bars.

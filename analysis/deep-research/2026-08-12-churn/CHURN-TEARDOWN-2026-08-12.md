@@ -212,3 +212,33 @@ mechanism, same magnitude. Neither was silently adopted for the other.)
 So **M1 remains the open bug**, and it is an ENTRY-side bug — consistent with this teardown's own
 conclusion (R3 proceeds entry-side only) and with the handoff's verdict that the next lever is
 entry selectivity, not exit width. Nothing about the 4% → 22% number argues for re-tuning exits.
+
+---
+
+## 2026-08-17 — CORRECTION to POST-TEARDOWN CORRECTION #1 (same-day bars)
+
+Correction #1 above records: *"`/v1beta1/options/bars` returns **200 at $0** — 1-min AND 5-min,
+**same-day 0DTE included**"*. The bolded clause is **wrong for the CURRENT session**.
+
+Measured 2026-08-17 after the close, same endpoint, same key, same code path:
+
+| contract | day | result |
+|---|---|---|
+| `SPY260814C00778000` | 2026-08-14 (past) | **200 — 81 bars** |
+| `SPY260813C00777000` | 2026-08-13 (past) | **200 — 81 bars** |
+| `SPY260817P00775000` | **2026-08-17 (today)** | **403 Forbidden** |
+
+**The discriminator is the DAY, not the endpoint, the feed override, or the entitlement.** A
+past 0DTE expiry is free and complete; the current session is 403 until it becomes a past day.
+
+Consequences, both now handled in `fetch_option_data.topup_from_fills_ledger`:
+- The nightly 16:25 fold **cannot** price the session it just finished. It picks those
+  contracts up on the NEXT night — a one-day lag that is expected and self-healing.
+- That lag must not be logged as a failure. Same-day contracts are now **deferred**
+  (`deferred_same_day`) rather than attempted, and genuine failures now record their reason
+  instead of incrementing an anonymous `failed` counter — the first version turned a
+  diagnosable 403 into "failed=2" with no cause, which is how this nearly went unexplained.
+
+Practical limit worth stating plainly: **a same-day hold-through counterfactual is not
+computable on the day.** Any "should we have held?" question about today's fills has to wait
+until tomorrow, or use a different data source.
