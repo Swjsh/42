@@ -1,0 +1,23 @@
+# Chef Inbox — Futures curve and basis between front‑month and next‑month MES/MNQ
+
+**Routed by:** Gamma_Prospector 2026-08-17
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:cerebras:gpt-oss-120b
+
+## The Finding
+Prospector beat `futures_positioning` surfaced: Futures curve and basis between front‑month and next‑month MES/MNQ -- A steepening or flattening curve reveals roll‑cost expectations and can be used to time spread‑based position adjustments. Data source: CME DataMine “Futures Curve” dataset (e.g., https://www.cmegroup.com/trading/interest-rate/futures/interest-rate-futures.html) or Barchart API Futures Curve endpoint. Cost: paid. Instrument fit: both.
+
+## Research Question for Chef
+Futures curve and basis between front‑month and next‑month MES/MNQ -- this carries a testable directional/timing edge for both.
+
+## Backtest Request
+Data: CME DataMine “Futures Curve” dataset (e.g., https://www.cmegroup.com/trading/interest-rate/futures/interest-rate-futures.html) or Barchart API Futures Curve endpoint
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:futures-curve-and-basis-between-frontmon) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none
