@@ -936,3 +936,60 @@ purpose, not a gap to fix); "No registry of armed-but-unmonitored shadow compone
 (08-15, the last of these is already the KNOWN, documented tradeoff self-corrected via
 `SELF_REPORT_CORRECTION` in `conductor_budget.py`, not new). None meet the bar (concrete,
 evidenced, single-fire-boundable) -- named as candidate future work only. -->
+## 2026-08-16T17:33:02 -- 5 new gap(s) Gamma self-identified
+- Review against "Adversarial Pre-Ship Review" format requested in the prompt?
+- Regime‑stamp & bias modules
+- External audit trail
+- – noted as a structural gap by Perspectives 1, 2, and 4.
+- – the Alpaca options‑snapshots endpoint repeatedly returns `{}`; Perspectives 1, 4, and 5 all flag this as a blind‑spot that forces the engine to rely on an unverified model.
+
+<!-- DONE 2026-08-17 ~18:4x ET conductor (AFTERHOURS, commit 7bd9472c) :: ACTIONED gap #2
+("Regime-stamp & bias modules") -- it was a live, CURRENT bug, not a stale re-triage. Traced
+to today's own monday_verify WS6 RED (STATUS.md 2026-08-17T16:15:02 entry) plus the box-slept
+OPEN INCIDENT documented 2 hours earlier in the same file: regime-stamp.json WAS correctly
+written today (Task Scheduler's own missed-trigger catch-up fired regime_stamp.py ~09:35 ET
+after the box slept through both the 08:22 and 08:40 ET triggers), but today-bias.json#
+regime_context came back completely absent (not stale -- ABSENT) because the incident-repair
+sequence's premarket_deterministic_fallback.py run (09:35 ET, to re-date today-bias after the
+sleep) writes today-bias.json WHOLESALE and never carried regime_context forward -- the existing
+08:40 ET repatch trigger only covers Premarket's (08:30 ET) transcription window, not an ad-hoc
+fallback invocation at an arbitrary later time. ROOT-CAUSE FIXED: run() now calls a new
+_reattach_regime_context() immediately after every write, re-applying the same 4-field patch
+shape from today's regime-stamp.json whenever one exists and is dated today -- self-healing
+regardless of invocation order/timing, fail-open, $0, idempotent. 6 new guard tests
+(test_premarket_fallback_regime_reattach_2026_08_17.py), RED-proofed via git stash (fails on old
+code with AttributeError -- proves the tests actually exercise the fix), full premarket-fallback
+suite + curated safety gate (59/59) green. Live-healed today's actual today-bias.json (gitignored
+state) as part of verification -- WS6 now reads regime_context.stamp_date=2026-08-17. #1/#3/#4/#5
+are scaffold/synthesis-narration + the already-7x-closed Alpaca-Greeks-{} thread (2026-08-15 DONE
+marker) -- no new action. -->
+
+## 2026-08-17T17:33:17 -- 8 new gap(s) Gamma self-identified
+- Self‑improvement feedback corruption
+- The system suffers from **silent config‑code drift** (hard‑coded values in `strategies.py` overriding `params.json`).
+- A **pre‑session health/validation gate** is missing – the engine can start trading with stale data, slept processes, or broken feeds.
+- are needed; static knobs (e.g., ribbon_ride, VIX‑based spreads) do not adapt to changing volatility regimes.
+- is absent; the system has no way to detect adverse fills or venue degradation.
+- (daily loss limits, circuit breakers, position‑sizing tied to volatility) are not automated.
+- (auto‑freeze/thaw, candidate pruning, expectancy tracking) relies on manual operator intervention.
+- are weak: logs are unstructured, strategy changes are not versioned, and there is no automated rollback mechanism.
+
+<!-- DONE 2026-08-17 ~18:4x ET conductor (AFTERHOURS) :: TRIAGED. Gap #2 ("silent config-code
+drift, hard-coded values in strategies.py overriding params.json") was ALREADY SHIPPED earlier
+the SAME DAY, before this fire started -- dead_knob_audit.py (commit c4b7dac8, "the exit shape
+in BOTH params files is a LIE -- 6 shadowed knobs, audited nightly") plus the EOD write-up
+(commit 627b2f42) already built the exact SHADOWED-knob detector this gap asks for, folded into
+Gamma_WinnerAutopsy, with its own guard tests. No re-build needed, this triage just closes the
+loop so the batch stops reading as open. "Pre-session health/validation gate is missing" is a
+MISREAD -- Gamma_PremarketReadiness (09:00 ET, fuses 7 checks incl. levels_sanity/tv_cdp/
+engine_health), Gamma_PreopenReadiness (08:25 ET), and self_check.py (30-min cadence) already
+form exactly this gate; today's own OPEN INCIDENT entry in STATUS.md shows the gate DID catch and
+the repair path DID fire (0 orders placed while blind, per that entry's own "Measured damage:
+NONE" section) -- the ask describes a system that already exists and worked today, not a gap.
+Gap #1 and the unlabeled bullet fragments (#4-#8, "are needed...", "is absent...", "(daily loss
+limits...)", "(auto-freeze/thaw...)", "are weak...") are synthesis-narration fragments with the
+leading clause stripped by the extractor (same scaffold-crowding class as prior batches) --
+"daily loss limits/circuit breakers not automated" is factually false (Rule 5 + risk_gate.py,
+verified GREEN in engine-health.json this fire) and "strategy changes not versioned" is false
+(git IS the versioning + AutoApply's revert <id> mechanism) -- not actioned, no concrete new
+claim survives. -->
