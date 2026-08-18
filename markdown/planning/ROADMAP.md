@@ -11,6 +11,12 @@
 > answer exists yet — stated as a question, not invented). Every number carries its source and
 > date. Where a gate's pass/fail criterion isn't actually wired to code, this doc says
 > **"criterion undefined"** rather than inventing one.
+>
+> **Mid-session update, same evening:** a sibling audit (`PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md`,
+> commit `b89a03e4`) landed independently while this document was being written and materially
+> sharpened §3 Gate 3, §5a, and two of §7's open questions — folded in on discovery rather than
+> left to go stale on day one. This is itself a working example of §"OVERLAP" doctrine: parallel
+> sessions compound instead of colliding when the later one reads before it writes.
 
 ---
 
@@ -78,7 +84,7 @@ flowchart TD
 |---|---|---|---|---|
 | 1 | **Strategy ratification** (which edges are even allowed to trade) | **RATIFIED, actively enforced** | OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor-no-regression AND evidence_n (`CLAUDE.md` OP-11 says ≥15, **advisory**; `accounts.json#promotion_gate.min_clean_trades` says **30**, appears to be what's actually consumed — see Contradiction #2) | Live and enforced across dozens of `backtest/autoresearch/validate_*.py` scripts (e.g. `validate_level_family.py:477`: *"Gates: deduped n>=20 AND WR>=45% AND exp>0 AND real-fills exp>0 AND anchor-no-regression"*) |
 | 2 | **Per-account paper-to-live threshold** | **Criterion PARTIALLY DEFINED** | `CLAUDE.md:65`: ≥20 trades, WR≥45%, positive expectancy, ≤2 rule breaks, **per account independently** | Trade count / WR / expectancy are computable from `journal/trades.csv`. **No script was found that computes this exact 4-condition tuple at the account level.** The only wiring found is `.claude/agents/treasurer.md:135`'s narrative "Live threshold status \| M/4 conditions met" table — a persona template, not an automated check. **"Rule breaks ≤2" has no found automated tally at account scope.** This is the gate CLAUDE.md's account table has always pointed to as "the" live threshold, and it is less automated than it reads. |
-| 3 | **Regulatory / broker premise resolved** | **OPEN QUESTION** | Confirm which PDT regime actually applies to Safe-2/Bold-2 specifically; confirm the cash-vs-margin premise the code runs on | See §5 below — Alpaca's contract reserves the right to keep legacy PDT per-account during its 18-month phase-in (through 2027-10-20); this was never independently confirmed against Gamma's own two accounts. Separately, Alpaca sells no true cash-account product at all — a structural fact, not a config toggle — yet both core arms' live `pdt_gate_mode` is `cash_settlement`. |
+| 3 | **Regulatory / broker premise resolved** | **SUBSTANTIALLY RESOLVED tonight** (was OPEN QUESTION earlier this session — updated after a parallel sibling audit landed mid-session, see below) | Confirm which PDT regime actually applies to Safe-2/Bold-2 specifically; confirm the cash-vs-margin premise the code runs on | **Decisive evidence found:** a fresh 2026-08-18 live broker read found `pattern_day_trader`/`daytrade_count` **entirely ABSENT** (not null) from both core accounts' payload, replaced by `intraday_adjustments` — high-confidence proof both accounts run Alpaca's NEW post-2026-06-04 regime, not the legacy grace-window. Full detail + 16-item code trace: `analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md` (commit `b89a03e4`, landed the same evening as this roadmap). Doc-only fixes already shipped there: `risk_gate.py`, `settlement_ledger.py`, `pdt_tracker.py` docstrings + `markdown/0dte/risk-rules.md` Rule 7 section corrected. **What's still open:** `CLAUDE.md` Rule 7's own text (deliberately not touched by either audit — needs J, Rule 9). |
 | 4 | **One-account consolidation decision** | **PROPOSED — not ratified** | J's explicit go-ahead; `ONE-ACCOUNT-TRANSITION-2026-08-18.md` explicitly self-labels "PLANNING / DOCUMENTATION ONLY... Live arming needs J (OP-0 #1)" | Recommendation on the table: ONE live account (the product) + the paper fleet continues as the laboratory. Directly reframes `CLAUDE.md:64`'s "both accounts grow" language — see Contradiction #1. |
 | 5 | **Conviction / sizing gates validated** | **OPEN, in progress** | Per `ONE-ACCOUNT-TRANSITION-2026-08-18.md` §6: (a) conviction v0 or v2 demonstrates measurable separation (blocked trades worse than allowed trades) over enough paired rows post-fix; (b) `min_contracts_equity_scaled` re-arms ONLY on that validated gate; (c) strike question settled by the strike matrix, not intuition; (d) this document's regulatory picture confirmed | Conviction v2 shipped 2026-08-18 (shadow). Its own doc is explicit: v2 fixes *blindness* (can now see the paying lane) but its *discrimination* power (the quality bar) is UNPROVEN — "do not read v2 as 'conviction fixed.'" |
 | 6 | **Live-money arming** | **Always needs J (OP-0 #1)** | No criterion beyond "the gates above have cleared" is defined anywhere in the repo | **Criterion undefined beyond J's judgment call.** This is by design (OP-0 #1) — not a gap to fix, a line that should never be automated. |
@@ -95,7 +101,7 @@ flowchart TD
 | "Both accounts grow $5K→$10K→$25K+" | **STALE FRAME — see §5.** Not false, but no longer the sharpest statement of the destination given the r=0.846 finding. |
 | ONE live account + paper fleet as laboratory | **PROPOSED**, 2026-08-18, awaiting J |
 | $25K as a hard milestone | **REFRAMED, not deleted — see §5.** It was a regulatory floor; that floor no longer exists at the FINRA level. |
-| `pdt_gate_mode=cash_settlement` on both core arms | **LIVE IN CODE**, resting on a premise (this is a cash account) that broker reads say is false |
+| `pdt_gate_mode=cash_settlement` on both core arms | **LIVE IN CODE, confirmed J-directed** (2026-08-09) capital-discipline choice — its old doc-justification (false "cash account" premise) was corrected same evening as this roadmap, `b89a03e4` |
 | Conviction v2 "fixes" ranking | **FALSE — explicitly disclaimed by its own doc.** It fixes visibility, not discrimination. |
 | Live-money arming criteria | **OPEN QUESTION** — undefined beyond "J decides," which is intentional |
 
@@ -149,6 +155,21 @@ and Rule 7's PDT framing is flagged as needing J's explicit review (§7, Open Qu
 rewriting one of the 10 rules is not a docs-consolidation act (Rule 9: rules change on weekends,
 in writing, with documented reason) — this document surfaces it, it does not resolve it.
 
+**A sibling audit that landed the same evening** (`PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md`,
+16-item code trace) found $25K is actually **three unrelated things wearing the same number**,
+which sharpens the reframe further:
+1. The old PDT regulatory floor (Rule 7, `CLAUDE.md`) — obsolete per FINRA 2026-06-04, above.
+2. An equity-tier band in `backtest/lib/cap_admission.py`/`setup/scripts/pre_order_gate.py` —
+   **dead code**, not imported by either live order path (`heartbeat_core.py`, `fleet_executor.py`).
+3. **A LIVE $25K boundary that is neither of the above:** `automation/state/params.json`'s
+   `v15_max_premium_pct_of_account` leverage-cap ladder — real, executing, per-order sizing math
+   ("prevents 315%-leverage situations," per its own doc field) — genuinely coincidental with the
+   growth-milestone number, not PDT-derived, and correctly left unchanged by that audit.
+So "$25K" in this repo was never one fact drifting stale — it was three separate facts that
+happen to share a number, only one of which (the PDT floor) the regulatory repeal actually
+touches. The growth-milestone reading (this section) and the live leverage-cap reading (fact 3)
+both survive; only the PDT-floor reading (fact 1) needed reframing.
+
 ### 5b. "Both accounts grow" vs the one-account proposal
 
 **Where it came from.** `markdown/0dte/dual-account-design.md` (ratified 2026-05-14) built the
@@ -181,8 +202,8 @@ between "grow both accounts" and "consolidate to one" is J's, not a docs-audit's
 |---|---|---|---|---|
 | 1 | Both-accounts-grow vs one-account proposal | `CLAUDE.md:64` — *"Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better."* | `markdown/planning/ONE-ACCOUNT-TRANSITION-2026-08-18.md:15-22` — the fleet is r=0.846 correlated, "one bet in five sizes," so the dual-account experiment's original question is already answered (they don't diverge) | Presented as PROPOSED vs RATIFIED in §4; CLAUDE.md's Goal line now points here instead of asserting either side (§8) |
 | 2 | Strategy-ratify evidence_n: 15 vs 30 | `CLAUDE.md` OP-11 — *"evidence_n ≥ 15 is advisory"* | `automation/state/fleet/accounts.json#promotion_gate.min_clean_trades` = **30**, with no "advisory" qualifier — reads as the actual number code would check | Flagged as Open Question §7; not resolved here — do not assume which one governs without reading the consuming code path fresh |
-| 3 | `cash_settlement` premise vs broker reality | `automation/state/params.json:10` / `automation/state/aggressive/params.json:4` — `pdt_gate_mode: "cash_settlement"`, live on both core arms today | `markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18.md:98` — *"No, we do not offer cash accounts. All accounts are set up as margin accounts"* (Alpaca, quoted directly); `PDT-ACCOUNT-TYPE-DECISION-2026-08-06.md:16` — live broker read shows `multiplier=4` (margin-shaped) on every arm | Flagged as Open Question §7 — this is a live code premise, not a stale doc, and outside this audit's mandate to change (no params edits) |
-| 4 | $25K: regulatory wall vs compounding waypoint | `CLAUDE.md:44` (Rule 7) — frames $25K as the PDT unlock threshold | `markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18.md` — FINRA eliminated that floor 2026-06-04 (with the phase-in caveats above) | Reframed in §5a; Rule 7 itself is NOT edited by this audit (rule changes need J, in writing, per Rule 9) — flagged §7 |
+| 3 | `cash_settlement` premise vs broker reality | `automation/state/params.json:10` / `automation/state/aggressive/params.json:4` — `pdt_gate_mode: "cash_settlement"`, live on both core arms today | `markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18.md:98` — *"No, we do not offer cash accounts. All accounts are set up as margin accounts"* (Alpaca, quoted directly); `PDT-ACCOUNT-TYPE-DECISION-2026-08-06.md:16` — live broker read shows `multiplier=4` (margin-shaped) on every arm | **Substantially resolved** by `analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md` (commit `b89a03e4`, same evening): the mode is not accidental drift — safe-2 adopted it 2026-07-14, bold-2 2026-08-09 by explicit J directive ("I always use cash accounts... that's how much we have until it settles"). It's a deliberate capital-discipline throttle with a now-corrected doc justification, not a bug. Docstrings fixed in `risk_gate.py`/`settlement_ledger.py`/`pdt_tracker.py`; params files intentionally not touched (out of scope for both audits) |
+| 4 | $25K: regulatory wall vs compounding waypoint | `CLAUDE.md:44` (Rule 7) — frames $25K as the PDT unlock threshold | `markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18.md` — FINRA eliminated that floor 2026-06-04 (with the phase-in caveats above) | Reframed in §5a (+ the three-meanings finding); Rule 7 itself is NOT edited by this audit (rule changes need J, in writing, per Rule 9) — flagged §7. A second, independent audit tonight reached the identical "NEEDS-J, do not edit" conclusion on Rule 7 (`PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md` finding #7) |
 | 5 | Account identifiers stale in 3 places | `CLAUDE.md:57-58` (current, fixed tonight, commit `ac9e84a7`) — `PA3POKNV46VG` / `PA3WEBXJU67N` | `markdown/specs/ARCHITECTURE.md:196` still cites `PA3DHPT7KIQE` / `PA33W2KUAT40` ("Date of Last Update: 2026-07-11"); `markdown/0dte/dual-account-design.md:11` still cites the same two dead identifiers | ARCHITECTURE.md corrected as part of this audit (§8); dual-account-design.md gets a pointer note, not a full rewrite (out of scope — it's a frozen 2026-05-14 design record) |
 | 6 | Superseded strike-tier ladder repeated as current | `CLAUDE.md:30` — *"live truth (fills-verified 2026-07-11): core Safe trades ATM... params.json's ladder is vestigial"* | `markdown/specs/ARCHITECTURE.md:197` still states the old ladder ("OTM-3 $1K / OTM-2 $2-10K / OTM-1 $10-25K / ITM-2 $25K+") as current strategy | Corrected as part of this audit (§8) |
 | 7 | Daily P&L target: per-account vs book-wide | — checked for this explicitly, per the task brief — | `CLAUDE.md:66`, `FOCUS-DOCTRINE.md:13-19`, and `.claude/agents/treasurer.md` **all already frame per-account-first, book-wide-secondary**, consistent with J's 2026-08-09 correction | **No live contradiction found.** Stated here so the check is on record, not because a fix was needed. |
@@ -193,17 +214,17 @@ between "grow both accounts" and "consolidate to one" is J's, not a docs-audit's
 
 ## 7. Open questions for J — no invented answers
 
-1. **PDT regime for Safe-2/Bold-2 specifically.** Alpaca's contract reserves the right to keep
-   legacy PDT per-account during its phase-in (through 2027-10-20). Nobody has pulled a
-   confirmation of which regime applies to these two accounts by name. (Low urgency on paper —
-   Alpaca paper shows zero PDT enforcement in practice — but load-bearing before real money.)
-2. **`pdt_gate_mode=cash_settlement` — intentional or drifted?** Both core arms run this mode
-   today. The "these are cash accounts" premise it was originally built on is now confirmed
-   false at the product level (Alpaca sells no cash accounts). This may already be J's
-   considered choice (it matches "Option A: match the broker" from
-   `PDT-ACCOUNT-TYPE-DECISION-2026-08-06.md`) — but that decision was never explicitly closed
-   out in writing against tonight's regulatory findings. Worth a one-line confirmation, not a
-   re-litigation.
+1. **PDT regime for Safe-2/Bold-2 specifically — ANSWERED tonight, worth J's eyes anyway.**
+   `PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md` found `pattern_day_trader`/`daytrade_count` entirely
+   ABSENT from both accounts' live payload — high-confidence proof they're on the new regime,
+   not the legacy grace-window. Not independently re-run by this document's own session; relayed
+   from the sibling audit's direct field read. Re-verify once, in writing, before it becomes
+   load-bearing for real money.
+2. **`pdt_gate_mode=cash_settlement` — confirmed intentional, not drifted.** J directed this
+   parity move explicitly (bold-2, 2026-08-09) as a capital-discipline choice independent of the
+   account's actual regulatory type. The only remaining loose end is cosmetic: the code comments
+   that used to justify it with a false "these are cash accounts" claim are now fixed
+   (`b89a03e4`). No decision needed here — recorded so the next session doesn't re-open it.
 3. **Rule 7's PDT text.** Now describes a floor that no longer binds at the FINRA level (with
    the phase-in caveats above). This audit does not touch the 10 rules — that needs J, in
    writing, per Rule 9. Left exactly as-is pending that review.
@@ -265,6 +286,7 @@ destination/gate* framing was replaced with a pointer to this file.
 | Fleet correlation r=0.846 | `analysis/deep-research/LEVER-CORRELATION-2026-08-06.md` + `.json` | 2026-08-06, 47/47 assertions re-verified; 2026-08-16 forward-check |
 | PDT/$25K regulatory finding | `markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18.md` | 2026-08-18, primary sources fetched directly (FINRA, SEC, Alpaca contract text) |
 | Broker account-type facts | `analysis/deep-research/PDT-ACCOUNT-TYPE-DECISION-2026-08-06.md` | 2026-08-06, live broker reads |
+| PDT code/doc alignment (16-item trace, $25K's 3 meanings) | `analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md` | 2026-08-18, sibling audit, commit `b89a03e4` — landed the same evening as this roadmap and folded in here on discovery |
 | One-account proposal | `markdown/planning/ONE-ACCOUNT-TRANSITION-2026-08-18.md` | 2026-08-18, J-directed, PROPOSED status explicit in the doc itself |
 | Strategy ratify gate in force | `backtest/autoresearch/validate_level_family.py`, `validate_breakout_family.py`, and ~15 sibling scripts | grepped live 2026-08-18 |
 | Daily target per-account | `markdown/doctrine/FOCUS-DOCTRINE.md` | J-directed 2026-07-22, recorrected 2026-08-09 |
