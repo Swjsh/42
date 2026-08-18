@@ -1,4 +1,10 @@
-﻿## [2026-08-17 18:47 ET] conductor: outcome metric — `trend: regressing` (net_improvement 22/20-fire window, cost/drained $2.19). Next fire should prefer a loop-closing item over a new artifact. Also committed the untracked STATUS-archive-2026-08.md roll-off (9,017 lines, `status_retention.py`, never landed before — commit `8e5c5603`).
+﻿## [2026-08-17 20:37 ET] conductor: OK — CLAUDE.md context-budget RED→YELLOW, commit `aef7c486`
+
+**Picked from STAGE 0 (`check-context-budget.ps1` flagged RED 9248/9000, 103% — the digest header itself showed this every fire).** Deduped 9 redundant `(prose: LESSONS-LEARNED.md L##)` parentheticals in the OP-25 Lessons index (each cited L# already present verbatim in its own row's L-list, header already says "full prose in LESSONS-LEARNED.md" — pure duplication) + shrank the Account-context repointing narrative to a one-line pointer (confirmed full detail still verbatim in `dual-account-design.md:35` before cutting). Zero information loss — this is dedup, not hand-shaving. Re-measured: **YELLOW 8311/9000 (92%)**. Verified `context_audit.py verify` 9/9 PASS (all 10 rules, both account numbers, kill-switch text, rule-version pin, refusals, work-cadence table, Lessons table, 0 missing doc pointers, under budget). Pre-commit curated safety gate (6 suites) 59/59 PASS automatically. Doc-only, zero trading-path files touched, ships per OP-22/OP-26 (no J gate). Revert: `git revert aef7c486`.
+
+Checked self-audit gaps (priority-3, above this pick) first — the only untriaged batch (17:33 ET) was already fully closed by an earlier fire tonight (regime_context fix), confirmed via the file's own DONE marker. No higher-priority item was skipped.
+
+## [2026-08-17 18:47 ET] conductor: outcome metric — `trend: regressing` (net_improvement 22/20-fire window, cost/drained $2.19). Next fire should prefer a loop-closing item over a new artifact. Also committed the untracked STATUS-archive-2026-08.md roll-off (9,017 lines, `status_retention.py`, never landed before — commit `8e5c5603`).
 
 ## [2026-08-17 18:44 ET] conductor: OK — WS6 RED fixed (regime_context self-heal), commits `7bd9472c` + `a242a66b`
 
@@ -587,97 +593,11 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-15 ~13:4x ET] HANDOFF QUEUE 1-5 WORKED. 2 handoff claims corrected. 1 item was already answered in the vault.
 
-Six commits: c23d6b77, 7b8aa67b, 6fa5e218, e6ad0ec0, 7c0895f1, 46b5d800, 692161d0.
+## Kitchen
+Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-**TWO CORRECTIONS TO THE HANDOFF ITSELF** (both verified before acting, neither inherited):
-
-1. **Item 1's stated root cause was wrong.** `int(dow)` on a list is NOT the root of the 5
-   `test_unattended_health` failures -- the fixtures pass `MON_FRI = 62`, an INT, and `None`
-   elsewhere; neither shape can raise it. The real cause is `_et_offset_hours` deriving the
-   ET-minus-local offset by differencing `now_et` against the live wall clock: correct only
-   when `now_et` IS now, so a frozen fixture clock returned **-140 hours** and shifted every
-   timestamp ~5.8 days ("HAS NOT FIRED in 5.9d" was the distance to TODAY, which is why it
-   drifted daily). Live was always fine (+2h) -- which is exactly why the monitor looked
-   healthy while its guard suite sat red. The TypeError is real but latent (the live
-   enumerator casts `[int]$tr.DaysOfWeek`); hardened anyway, on both call sites.
-
-2. **Item 5's standing state is optimistic.** "C4/C5 now actually score for the first time" is
-   true of the CODE, not of any DATA. `974ca235` landed 2026-08-14 19:15 ET; the last
-   conviction row on disk is 2026-08-14T13:35 -- 5h41m earlier. **Zero post-fix rows exist**;
-   Monday 08-17 is the first. All 102 rows on disk are pre-fix and blocked 100% -- and that is
-   ARITHMETIC, not signal quality: max observed score 4 vs a MINIMUM effective floor of 5, so
-   no row could ever clear its floor. Pooling them publishes "99% block rate" (measured on
-   n=103) and would likely kill the component on false evidence. The new weekly reporter
-   partitions on the fix boundary for exactly that reason.
-
-**ITEM 4 WAS ALREADY ANSWERED, in `analysis/deep-research/2026-08-12-churn/`.** The handoff
-called ribbon_flip_back 4%->22% "the largest unexplained compositional shift in the book" and
-"an open lead nobody has explained" -- it was explained the night it happened; the handoff did
-not route through the churn teardown. Folded the join in there per OP-22 rather than opening a
-parallel doc. **It is not an exit shift: 18 of the 22 POST firings are 2026-08-12 alone** (58%
-of every ribbon_flip_back that has EVER fired). Per day 1/3/18/0/0. Strip that day and POST is
-7% vs 4% PRE-stack, on n=4. Two framing corrections: **C28 (lagging exit) is backwards here** --
-median hold 1.0 min, fired on the position's FIRST management tick, pre-invalidated by
-construction (entry waives the ribbon check, exit enforces it); and the DENOMINATOR moved (98
-closes POST vs 239), so every surviving reason gains share mechanically. **M1 re-verified STILL
-LIVE in code today** -- `filters.py` still does `if trendline_only_setup: blockers.remove(5)`
-and filter 5 IS the ribbon check (:1172/:1487). It is an ENTRY-side bug, consistent with the
-handoff's own "next lever is entry selectivity".
-
-**THE SAME CLOCK DEFECT EXISTS TWICE.** `state_freshness_audit.py:300` carried the identical
-`round((now_et - datetime.now())/3600)` expression. Found via a test that failed IN-BATCH and
-passed in isolation: because the expression rounds to whole HOURS, the sub-hour remainder leaks
-into `age_min` as a phantom age -- observed +18.5m then +16.6m twenty minutes later, drifting
-minute-by-minute across key-levels.json's 20m budget. A genuinely flaky guard whose flakiness
-was a real impurity in the producer. Repo swept: those two were the only instances, both now
-fixed and guarded.
-
-**A GATE WAS RIGHT AND UNREAD.** `test_p5_shape_gate` was not stale --
-`vwap_reclaim_failed_break` shipped live 2026-08-03 (`aa2e3f07`) and its P5 waiver row was
-never written, so the gate has been RED on main since. That is the SECOND recurrence of the
-gap the ribbon_ride row already documents. Added the row the ship owed, deliberately
-**PROVISIONAL (j_signed=false)** -- the registry's own rule is "NEVER hand-add a signed waiver
-on J's behalf". **J: sign, replace, or revoke** (revoke = `RUN_VWAP_RECLAIM_FB=False`, one
-line; the prereg's frozen kill-check at n>=10 risky-3 fills already settles it).
-
-**TESTS THAT PASSED FOR THE WRONG REASON.** The 2 "network-only" Family D failures are not
-network-dependent. All four free-model guards `_load()` an adapter that `free_model_audit`
-already imports itself, creating a SECOND module object -- so `monkeypatch.setattr(sca, ...)`
-patched a copy the adapter never calls and `grade()` ran the REAL LLM path. **A test that
-believed it was mocked was firing a live `claude` subprocess** (proof it is gone: 4.38s ->
-0.34s). `prospector` was GREEN for the wrong reason -- inert patches, so it read the REAL
-production ideas-ledger instead of its tmp fixture. Fixed all four.
-
-**MY OWN MEASUREMENT WAS WRONG FIRST, and it hid 5 failures.** The batch runner piped each
-pytest batch through `tail -40`, which truncated the short-test-summary on noisy batches: the
-per-batch "N failed" counts summed to **15** while only **9** unique FAILED lines survived. I
-reported 9. The harness now greps FAILED/ERROR from the FULL output and PRINTS ITS OWN
-RECONCILIATION (summed-per-batch vs unique-captured) so the same silent drop cannot recur --
-a harness that loses failures is worse than no harness (C7), and this one was mine. The 5 it
-had hidden are now fixed in `78c96a0f`: two `vwap_reclaim` stale pins of the SAME 08-09/08-12
-config changes the handoff already names as confounds; two `tz_quality_lock` fakes that stubbed
-the fail-OPEN `open_buy_orders` while the entry path's idempotency guard calls the fail-CLOSED
-`*_checked` variants; and **a half-landed fix** -- B6 taught three twin-gauntlet checkers that
-`CLOSED` is no longer `journal[-1]`, `_dry_max_hold` was MISSED, and it had been scoring a
-genuine PASS as "0/1 hit the expected mechanism" ever since. A half-landed fix reads exactly
-like a regression in the thing it never touched (trap #5).
-
-**FINAL SUITE, harness-reconciled: 7,306 passed / 3 failed / 9 skipped / 7 xfailed.**
-
-**THE 3 REMAINING ARE RED BY DESIGN, awaiting J -- do not re-pin them.**
-`test_pnl_attribution`, `test_regime_reslice`, and `test_structure_shift_cascade_ab` (three,
-not two) are the 190-vs-191 provenance detectors. Untouched. They are the only thing that
-noticed a frozen research population being mutated out-of-band, and re-pinning is precisely
-what would bury it. **J's call:** restate `56a4907d`'s headline and re-derive downstream pins
-from 191, or restore the 190-row file.
-
-**ALSO AWAITING J (new this session):** the PROVISIONAL P5 waiver for
-`vwap_reclaim_failed_break` -- sign, replace, or revoke.
-
-
-### DEGRADED: self-check 2026-08-17T18:39:56
+### DEGRADED: self-check 2026-08-17T20:39:56
 - PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
 - PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
 - TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
