@@ -189,18 +189,22 @@ Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`
 - Ratify autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed (OP-11/OP-22). J's role = REVOKE, not approve.
 
 ## 9. Roadmap (current)
-- **Gamma companion (desktop presence):** `gamma-companion/` zero-dep Node app — little-robot UI reading REAL state + an Approve/Reject loop (`companion-decisions.jsonl`), launched via `LAUNCH-COMPANION.vbs` → localhost:4317. v0 shipped 2026-06-20; next: Electron always-on-top + wire real approvals into the J approve/revoke bus.
-- Fleet executor M2 (live REST placement + heartbeat shared-signal emit + MES arm).
-- Shared-decision-library refactor (unify `params ↔ heartbeat ↔ filters`) — spec in `markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`.
-- Conductor phases (model routing Haiku/Opus; Discord approve/revoke bus).
-- Wire GEX regime tag into premarket/heartbeat (capture is live; consumption is a separate proposal).
+> **Destination, current position, and ordered gates now live in ONE place:**
+> [`markdown/planning/ROADMAP.md`](../planning/ROADMAP.md) (2026-08-18 consolidation — this
+> section used to restate that content and drifted stale; folded per OP-22). The infra
+> work-items formerly listed here are tactical backlog, not destination/gates — they live in
+> [`markdown/planning/FUTURE-IMPROVEMENTS.md`](../planning/FUTURE-IMPROVEMENTS.md) (Gamma
+> companion Electron follow-up, Fleet executor M2, shared-decision-library refactor, conductor
+> model-routing phases, GEX regime-tag consumption) if not already superseded — re-verify
+> currency before treating any as an open task; this doc's own staleness (§10 below, until
+> tonight) is exactly the failure mode ROADMAP.md exists to stop.
 
 ## 10. Project Identification
 - **Project:** Project Gamma (call sign "Gamma"). **Operator:** J (jack.watergun@gmail.com), single user.
 - **Instruments:** 0DTE SPY options (primary) + futures MNQ/MES (TT sandbox, heartbeat disabled for cost). Crypto = gym-only, never traded.
-- **Accounts (paper):** Gamma-Safe-2 `PA3DHPT7KIQE` (~$1.75K, conservative; repointed 2026-07-11 from deleted `PA3S2PYAS2WQ`, reused the former fleet safe-1 account) · Gamma-Risky-2 `PA33W2KUAT40` (~$1.67K, aggressive).
-- **Strategy:** rule version **v15** (live 2026-05-13); chart-stops-primary on Safe (2026-06-18); per-tier strikes (OTM-3 $1K / OTM-2 $2-10K / OTM-1 $10-25K / ITM-2 $25K+); chandelier trailing; 09:35 ET entry gate.
-- **Date of Last Update:** 2026-07-11.
+- **Accounts (paper, corrected 2026-08-18 — see `ROADMAP.md` §2 for live-verified equity):** Gamma-Safe-2 `PA3POKNV46VG` (core, conservative) · Gamma-Bold-2 `PA3WEBXJU67N` (core, aggressive). `PA3DHPT7KIQE`/`PA33W2KUAT40` (previously listed here) are dead identifiers — corrected in `CLAUDE.md` commit `ac9e84a7`, 2026-08-18.
+- **Strategy:** rule version **v15.3 Safe / v15.2 Bold**; chart-stops-primary (2026-06-18); **live truth (fills-verified 2026-07-11): core Safe trades ATM** via `crypto/lib/strike_selection.py#V15_SAFE_TIERS` — the OTM-3/OTM-2/OTM-1/ITM-2 ladder previously stated here is vestigial on the live core path (`CLAUDE.md:30`); chandelier trailing; 09:35 ET entry gate.
+- **Date of Last Update:** 2026-08-18 (account identifiers + strategy line corrected; prior update 2026-07-11 — the 38-day gap is itself the drift this fix addresses).
 
 ## 11. Glossary
 - **0DTE** — zero days to expiration. **ET / RTH** — Eastern time / regular hours (09:30–16:00).

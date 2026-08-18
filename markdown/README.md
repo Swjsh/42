@@ -14,7 +14,7 @@ stay where the engine reads them.
 | `0dte/` | SPY 0DTE strategy, playbook, patterns, key levels, J-edge, risk rules | `playbook.md`, `risk-rules.md`, `J-EDGE-GROUND-TRUTH.md` |
 | `futures/` | MNQ/MES contract specs, margin, sessions, sources | `CONTRACT-SPECS.md`, `README.md` |
 | `research/` | Backtest findings, studies, swarm benchmarks, R&D writeups | `STRATEGY-BACKLOG.md`, `GRIND-RESULTS.md`, `SWARM-BENCHMARK.md`, `BACKTESTING-PLAYBOOK.md` |
-| `planning/` | Roadmaps, checklists, gameplans, daily-review process | `AUTONOMY-ROADMAP.md`, `LIVE-PATH-WORKPACKAGE.md`, `JARVIS-WATCH-DESIGN.md`, `GAMMA-COCKPIT-EXECUTION-LOG.md`, `FUTURE-IMPROVEMENTS.md`, `BRAIN-SOVEREIGNTY.md`, `GAMMA-WORKER.md` |
+| `planning/` | Roadmaps, checklists, gameplans, daily-review process | **[`ROADMAP.md`](planning/ROADMAP.md) — THE canonical destination/gates roadmap, read this first**; `AUTONOMY-ROADMAP.md`, `LIVE-PATH-WORKPACKAGE.md`, `JARVIS-WATCH-DESIGN.md`, `GAMMA-COCKPIT-EXECUTION-LOG.md`, `FUTURE-IMPROVEMENTS.md`, `BRAIN-SOVEREIGNTY.md`, `GAMMA-WORKER.md` |
 | `doctrine/` | Lessons learned, doctrine archive, edge doctrine | `LESSONS-LEARNED.md`, `DOCTRINE-ARCHIVE.md` |
 | `specs/` | Engine design + wiring specs | `ARCHITECTURE.md` |
 | `trading-knowledge/` | Options mechanics (Greeks, structures), DTE/IV theory, market-structure execution, regulatory + broker research | `options-greeks-structures.md`, `dte-iv-volatility.md`, `market-structure-execution.md`, `GENERATIVE-LENS.md` |

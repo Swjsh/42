@@ -5,7 +5,15 @@
 > **Canonical configs:** [`automation/state/params.json`](../../automation/state/params.json) (Safe) · [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) (Bold). (`params_safe.json` / `params_bold.json` never existed — the original design-of-record names; the live files are these.)
 > **Why this exists:** Controlled A/B experiment. Same signal engine, two expression layers. Equal capital. Real trading data to build the account-scaling doctrine we don't yet have evidence for.
 
-> **⚠️ DESIGN-OF-RECORD BANNER (2026-05-18):** The parameter tables below are the *original* dual-account design. Several values have since moved (live as of 2026-06-21): Safe = $2K (Safe-2 `PA3DHPT7KIQE`, repointed 2026-07-11 -- see below), OTM-2 strike (per-tier), 09:35 entry gate, +50% TP1, −50% premium catastrophe cap (chart-stop primary); Bold = ~$1.65K (Risky-2 `PA33W2KUAT40`), −7% bear / −5% bull. **For live values, [`automation/state/params.json`](../../automation/state/params.json) + [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) are authoritative.**
+> **⚠️ DESIGN-OF-RECORD BANNER (2026-05-18):** The parameter tables below are the *original* dual-account design. Several values have since moved (live as of 2026-06-21): Safe = $2K (Safe-2 `PA3DHPT7KIQE`, repointed 2026-07-11 -- see below), OTM-2 strike (per-tier), 09:35 entry gate, +50% TP1, −50% premium catastrophe cap (chart-stop primary); Bold = ~$1.65K (Risky-2 `PA33W2KUAT40`), −7% bear / −5% bull. **For live values, [`automation/state/params.json`](../../automation/state/params.json) + [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) are authoritative.** Both account identifiers above are dead again as of 2026-08-18 (current: Safe-2 `PA3POKNV46VG`, Bold-2 `PA3WEBXJU67N` — see `CLAUDE.md` account table).
+>
+> **2026-08-18 note:** the question this doc was built to answer — *"which risk profile
+> compounds better?"* — has a live update: the fleet (now 5 arms, not 2) measures at
+> **r=0.846 correlation, 95.7% sign agreement** (`analysis/deep-research/LEVER-CORRELATION-2026-08-06.md`),
+> i.e. the accounts are not behaving as independent risk-profile experiments. A one-account
+> consolidation is PROPOSED (not ratified) on that evidence. Current destination, gate status,
+> and this contradiction stated in full: [`markdown/planning/ROADMAP.md`](../planning/ROADMAP.md) §5b.
+> This document's history below is left intact as the frozen original design record.
 
 ---
 

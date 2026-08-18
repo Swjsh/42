@@ -43,6 +43,13 @@
 
 ## 4. THE ROADMAP — execution-ready specs (Sonnet-Gamma runs these; queue.md carries the live copies)
 
+> **2026-08-18 note:** this section is a frozen 2026-07-02 execution-queue snapshot, kept
+> verbatim below for provenance — it is NOT the current destination/milestone roadmap despite
+> the header. **The current canonical roadmap (destination, gates, RATIFIED/PROPOSED/OPEN
+> status) lives at [`markdown/planning/ROADMAP.md`](../planning/ROADMAP.md).** Most items below
+> are 47+ days old and should be assumed done/superseded until re-verified against `queue.md`
+> or `git log` — do not treat this list as live work.
+
 Priority order; each is one evening-session or conductor-fire sized; every one ships with guard + revert + REVOKE line:
 
 1. **RISKY-ARM GATE TIERS** — implement per-arm gate-strictness from the GATE-PROVENANCE-AUDIT-2026-07-02 design (agent report + markdown/audits/): SAFE=full stack, RISKY=minimum viable (NEVER relax: kill-switch, PDT, flat-verify, entry floor/ceiling, risk caps). Risky arms take the one-gate-away trades; measure per-arm funnels ≥5 days before judging.
