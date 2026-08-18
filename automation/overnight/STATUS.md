@@ -1,3 +1,7 @@
+## [2026-08-18 01:14 ET] conductor: OK — VBS-WRAPPER-EXIT-CODE-BLIND-SPOT 5th pass, third relay closed, commit `e436e8a0`
+
+**Picked from STAGE 1 priority-4 (queue.md HIGH, top task_scorer-ranked ready item).** Engine health GREEN, self-audit gaps queue fully triaged (nothing untouched). Re-investigated the "9 tasks with no dedicated install script" claim from the 4th pass rather than trusting it — live `Get-ScheduledTask` enumeration found 6 of 9 DO have install scripts (`setup/` root, missed by a narrower prior search), and **all 9 plus 3 more (`JIntentExecutor`, `LadderRungShadow`, `RegimeShadow`) are already on a THIRD relay, `run_py_venv_hidden.py`** (built 2026-08-13 for a console-leak fix, "STOP THESE FUCKING CMD POPUS") — which turns out to already log real per-fire exit codes to `automation/state/logs/run-py-venv-hidden-<date>.log`, with zero consumers (same C7 gap class as the first two relays before their 2026-08-04/06 fixes). Shipped `self_check.check_run_py_venv_hidden_masked_exit()` (12 new RED-proofed guard tests) + fixed the identical CryptoTwin-class template-drift regression across 8 install-script templates that still showed the OLD backtest-venv-pythonw-direct wiring (a future legitimate re-run would have silently reverted BOTH the exit-code visibility AND reintroduced the console-leak bug) + created `install-chart-auto-draw.ps1` (that one genuinely had zero prior install script) + extended `test_install_script_relay_wiring_drift.py` for the third relay marker. Live-verified end-to-end (not just text presence): re-registered all 8 scripts, live-fired `Gamma_ChartAutoDraw` + `Gamma_RegimeStamp` via `Start-ScheduledTask`, confirmed fresh `exit=0` lines land in today's real log. 181 self_check + 45 relay-drift tests green, curated safety gate 59/59 PASS, `git show e436e8a0 --stat` confirms exactly the 12 intended files. Zero trading-path files touched (pure infra/scheduling hygiene, same class as the prior 4 passes). **REVOKE:** `git revert e436e8a0` (12 files, additive + template-fix only, cleanly revertible). Remaining scope unchanged from the 4th pass: `JIntentExecutor` (safety-critical daemon, deliberately excluded) + `RegimeShadow` (still no discoverable install script) + ~22 never-migrated direct-invocation tasks (different relay decision, out of scope tonight).
+
 ## [2026-08-18 ~01:0x ET] 🌙 OVERNIGHT LOOP — engine-red root-caused + fixed, tomorrow verified READY, manager loop revived
 
 J's directive: no red Discord wake-ups, be ready to fire on all cylinders. Commits:
@@ -651,86 +655,3 @@ clock on `no_opra_cache` — the already-queued `fetch_option_data.py` frozen-co
 **On J's desk:** `claude /login` (**blocks the entire autonomous loop**) · the 190-vs-191
 dataset decision · the PROVISIONAL P5 waiver for `vwap_reclaim_failed_break`.
 
-## [2026-08-15T16:15:02 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-15 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-15 -- no RTH session evidence (non-trading day or engine idle). |
-| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-15 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
-| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-15. |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-15 window_end=2026-08-14 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=26 (delta +16 vs baseline n=10) exp=$-36.62/tr, verdict_moved=False. bull now: GREEN n=23 exp=$3.13/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-15 -- non-trading day. |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-15 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-15`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-08-17T20:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T21:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T21:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T22:09:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T22:39:56
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-17T23:09:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-18T03:30:11+00:00
-- date_et: 2026-08-17
-- total: $430.11 (threshold $30.00)
-- claude: $430.11  minimax: $0.00
-- claude_sessions: 11
-
-### DEGRADED: self-check 2026-08-17T23:39:57
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x), run-license-monitor.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
