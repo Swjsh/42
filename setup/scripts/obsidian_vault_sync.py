@@ -722,7 +722,11 @@ MAP_SPEC: list[tuple[str, list[tuple[str, str | None, str]]]] = [
     ]),
     ("📚 LEARN — research and instruments", [
         ("Winner autopsy", "setup/scripts/winner_autopsy.py",
-         "capture rate over the winner population, nightly"),
+         "EXIT question — capture rate over the winner population, nightly"),
+        ("Winner signature", "setup/scripts/winner_signature.py",
+         "ENTRY/REGIME question — 'what does our money look like'; writes "
+         "analysis/winner-autopsies/SIGNATURE.md. The edge is exits >=1.3x entry premium; "
+         "the day cannot be pre-selected (every pre-open range proxy r~0)"),
         ("Chop meter", None, "Gamma_ChopMeter 16:08 — ordinal>=4, consec runs, would-trip flags"),
         ("Entry-quality ledger", "setup/scripts/entry_quality_ledger.py",
          "the pay-vs-bleed entry signature; V-d1/V-e3 shadow counters"),

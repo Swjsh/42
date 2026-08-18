@@ -1,0 +1,65 @@
+{
+  "rule_id": "day-throttle-forward-2026-08-18",
+  "title": "FORWARD pre-registration -- shadow-measure a per-arm intraday realized-loss throttle before arming it",
+  "status": "FROZEN_PREREG_FORWARD",
+  "frozen_at_et": "2026-08-18 01:14 ET (market CLOSED -- et_clock.py verified market_hours=False at freeze time)",
+  "parent_study": "analysis/winner-autopsies/SIGNATURE.md + signature.json (setup/scripts/winner_signature.py)",
+  "shadow_only": "MEASUREMENT ONLY -- this rule refuses NOTHING live during the window.",
+
+  "the_finding_in_one_paragraph": "Over 424 real fills / 102 independent impulse waves / 39 sessions the book is $-668 at 30.0% trade WR and 24% WAVE WR. Every dollar we have made came from an exit at >=1.3x entry premium (96 fills, 23% of the book, $17,067); everything below that is net negative. The single strongest correlate of session P&L is the day's REALIZED range (r=+0.42, and days under 0.5% range went 0-for-5 green at $-3,853) -- and that variable is pure look-ahead. Every pre-open proxy for it fails: ATR14-prior r=-0.11 vs P&L, VIX-open r=+0.04, |gap| r=-0.15. The day therefore CANNOT be pre-selected, which means the only available lever is intraday feedback. The engine currently has none: Rule 5 halts Safe at -30% of start-of-day equity, and across 105 arm-days with recorded equity the WORST was -24.4%, p10 was -10.1%, median -2.1%. The kill switch has never been reachable. That is the gap this pre-registration tests.",
+
+  "mechanism": "Not 'losses predict losses' as a mystical property. The claim is narrower and structural: our entry trigger fires on impulse ATTEMPTS, and cannot distinguish an attempt that will run from one that will be absorbed. On a session where absorption is the regime, the trigger keeps re-firing into the same absorbing conditions and each attempt dies small (median losing exit 0.82x entry, ~-18%, nowhere near the -50% catastrophe cap). Realized intraday loss is the cheapest available READ-OUT of 'today is an absorbing tape' -- it is a regime detector built from our own fills rather than from a price statistic that demonstrably does not predict the regime.",
+
+  "candidates": [
+    {
+      "id": "T-2",
+      "provenance": "PRE-REGISTERED. Threshold is NOT tuned -- see robustness_note.",
+      "rule": "An arm stops opening new positions for the remainder of the session once its own REALIZED P&L for that session (counting ONLY trades already EXITED at the moment the new entry would be placed) reaches <= -2% of that arm's start-of-day equity. Open positions are unaffected -- the exit manager continues to run them to their normal exits. Resets at the next session open.",
+      "in_sample": {"kept": 285, "skipped": 139, "book_total_usd": 2011, "baseline_usd": -668, "delta_usd": 2679}
+    },
+    {
+      "id": "T-6",
+      "provenance": "PRE-REGISTERED. The conservative end of the same knob -- included so the window can distinguish 'the throttle works' from 'a specific threshold works'.",
+      "rule": "Identical to T-2 with the threshold at -6% of start-of-day equity.",
+      "in_sample": {"kept": 397, "skipped": 27, "book_total_usd": 1252, "baseline_usd": -668, "delta_usd": 1920}
+    }
+  ],
+
+  "robustness_note": "The reason two thresholds are registered rather than one tuned one: EVERY setting across the whole plausible range improves the in-sample book, monotonically in sign if not in size -- -1%:$2,116, -2%:$2,011, -3%:$1,476, -4%:$291, -5%:$834, -6%:$1,252, -8%:$964, -10%:$452, none:$-668. Nine of nine settings beat no-throttle. A result that survives its own knob sweep is a different kind of claim than a result that needed a knob picked for it. That is what makes this worth a forward window at all -- see concentration_disclosure for what still makes it weak.",
+
+  "concentration_disclosure": "LOAD-BEARING, read before quoting any delta above. At the book level a -$400 day-stop moves only 5 of 39 sessions, and the top 3 (2026-08-07 +$2,059, 2026-08-05 +$1,225, 2026-08-12 +$335) carry $2,721 of a $3,324 total delta. Effective n is a handful of sessions, NOT 424 fills. One session (2026-08-11, -$563) is made WORSE. Any in-sample dollar figure here is an anecdote with a large error bar; the forward window is the actual evidence and nothing ships before it closes.",
+
+  "secondary_counter": {
+    "id": "H-FIRSTWAVE",
+    "why": "The same regime claim expressed as a cleaner, cheaper signal -- worth logging alongside T-2/T-6 because if it holds it is a simpler rule than a dollar threshold.",
+    "observation_in_sample": "Conditioned on the FIRST impulse wave of the session: after a red first wave (28 sessions), everything traded afterwards -- 165 fills -- came to $-3,338 with 3/28 sessions green. After a green first wave (11 sessions), the remainder came to $+2,269. No rule is proposed from this yet; it is logged as a boolean per entry so the forward window can measure it.",
+    "logged_as": "first_wave_of_session_was_red (bool) + n_waves_elapsed_this_session (int), on every ENTER decision row"
+  },
+
+  "measurement_protocol": {
+    "mode": "SHADOW ONLY. Neither threshold may refuse a live entry during this window. Each ENTER decision row logs would_block_T2 / would_block_T6 / first_wave_of_session_was_red alongside the entry the engine actually takes.",
+    "no_look_ahead_rule": "The realized-P&L sum feeding the throttle may include ONLY trades whose EXIT timestamp is at or before the candidate entry's timestamp. A still-open loser must NOT arm the throttle -- we could not have known it. This is the difference between a counterfactual and an oracle, and it is pinned by backtest/tests/test_winner_signature.py::test_day_stop_ignores_a_trade_that_has_not_exited_yet.",
+    "window": "the next 15 trading sessions with at least one engine fill (longer than the usual 10 -- the in-sample effect lives in a minority of sessions, so a short window is uninformative by construction)",
+    "no_peeking_rule": "no interim arming, no threshold edits, no cell changes inside the window. If either threshold needs to move, this pre-registration is VOID and a new one is written.",
+    "cost": "$0 -- pure Python over state the tick already holds."
+  },
+
+  "forward_gates": {
+    "F1_direction": "forward delta_usd > 0 for the candidate over the shadow window",
+    "F2_not_a_winner_killer": "blocked_winner_dollars < blocked_loser_dollars forward",
+    "F3_frequency": "n_blocked >= 10 forward; below that EXTEND the window, judge nothing",
+    "F4_not_one_session": "forward delta stays > 0 after DROPPING the single best session -- this is the gate the in-sample result would currently FAIL, and it is the whole reason nothing is armed today",
+    "F5_regime_neutral": "forward delta >= 0 on both the highest-range and lowest-range session in the window",
+    "verdict_ladder": {
+      "ARM": "F1..F5 all pass -- ship to paper, report for REVOKE (OP-0/OP-11: a cleared edge ships, it does not ask)",
+      "EXTEND": "F3 fails -- run 10 more sessions",
+      "KILL": "F1, F2 or F4 fails"
+    }
+  },
+
+  "what_this_is_NOT": [
+    "NOT an entry filter. Every ex-ante entry-side bucket tested (VIX band, hour, setup, side, trigger set, entry premium) either fails at wave level or duplicates a gate that already exists.",
+    "NOT a ribbon-width filter. Cutting ribbon width >=40c turns the whole book positive and is the most seductive number in the parent study -- it also removes 81% of the population and kills 18 of the top-25 winners. It is trend-extension, not bid-ask, and filtering on it is survivorship. Recorded here so a future session does not rediscover and ship it.",
+    "NOT a change to Rule 5. Rule 5's -30%/-50% per-account kill switch stays exactly as written. This is a SECOND, tighter, intraday throttle that sits inside it; the finding about Rule 5 is only that it is calibrated to account destruction rather than to the loss distribution it actually sees."
+  ]
+}

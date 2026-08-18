@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-11 18:55:07 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-18 01:15:47 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -68,7 +68,8 @@ flowchart LR
 
 ## 📚 LEARN — research and instruments
 
-- **Winner autopsy** → `setup/scripts/winner_autopsy.py` — capture rate over the winner population, nightly
+- **Winner autopsy** → `setup/scripts/winner_autopsy.py` — EXIT question — capture rate over the winner population, nightly
+- **Winner signature** → `setup/scripts/winner_signature.py` — ENTRY/REGIME question — 'what does our money look like'; writes analysis/winner-autopsies/SIGNATURE.md. The edge is exits >=1.3x entry premium; the day cannot be pre-selected (every pre-open range proxy r~0)
 - **Chop meter** — Gamma_ChopMeter 16:08 — ordinal>=4, consec runs, would-trip flags
 - **Entry-quality ledger** → `setup/scripts/entry_quality_ledger.py` — the pay-vs-bleed entry signature; V-d1/V-e3 shadow counters
 - **Ladder shadow** — Gamma_LadderRungShadow 16:40 — logs what the score ladder WOULD admit
@@ -86,17 +87,17 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **681** · broken wikilinks: **51** · orphans (no links either way): **1**
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-structure-stop-zone-2026-08-11` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-tight-stop-vwap-2026-08-11` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-regime-conditional-exit-2026-08-11` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-giveback-ratchet-2026-08-10` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-trigger-parity-2026-08-09` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-ladder-x-premium-2026-08-09` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-catastrophe-cap-decision-2026-08-09` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-stop-mode-live-arm-risky3-2026-08-09` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-stop-mode-structure-vs-premium-2026-08-09` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-trendline-engine-validation-2026-08-09` unresolved
+- visible notes: **721** · broken wikilinks: **51** · orphans (no links either way): **1**
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-pre-tp1-ratchet-cost-2026-08-15` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-chasing-filter-2026-08-14` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-entry-range-context-2026-08-14` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-entry-location-gate-2026-08-14` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-trendline-break-at-level-2026-08-13` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-fill-model-unification-2026-08-13` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-slippage-rebaseline-2026-08-12` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-recency-qty-clamp-2026-08-11` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-ladder-vwap-2026-08-11` unresolved
   - … +41 more
 
 ## ⏰ The daily loop (live task state)
@@ -110,8 +111,8 @@ flowchart LR
 | /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Ready (last=0) |
 | 15:55 | `Gamma_EodFlatten` | nothing 0DTE survives the close | Ready (last=0) |
 | 16:08 | `Gamma_ChopMeter` | did we trade chop today | Ready (last=0) |
-| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=0) |
-| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=0) |
+| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=267011) |
+| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=267011) |
 | 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Ready (last=0) |
 | 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Ready (last=0) |
 
