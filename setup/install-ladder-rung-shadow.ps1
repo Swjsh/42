@@ -40,31 +40,38 @@
   nothing else in the repo depends on it (analysis-only leaf).
 #>
 
+# 2026-08-18: routed via run_py_venv_hidden.py (2026-08-13 console-leak fix). Also closes
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT via self_check.check_run_py_venv_hidden_masked_exit()
+# (evidence live 2026-08-17: score_ladder_rung_shadow_nightly.py exit=0 in
+# run-py-venv-hidden-2026-08-17.log). Live state was already on this wiring (2026-08-13
+# imperative patch); this template was drifted (CryptoTwin-class regression) until now.
 $ErrorActionPreference = "Stop"
 $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_LadderRungShadow"
 
-# Backtest venv pythonw -- has pandas (system Python313 does not). GUI-subsystem = windowless.
-$pythonw = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
-if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
+# System pythonw (GUI-subsystem, windowless) + run_py_venv_hidden.py puts the backtest
+# venv's site-packages on PYTHONPATH so pandas/numpy still resolve.
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+if (-not (Test-Path $sysPythonw)) {
+    Write-Error "system pythonw not found at $sysPythonw"
     exit 1
 }
 
-$runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
-$worker       = Join-Path $WorkDir "backtest\tools\score_ladder_rung_shadow_nightly.py"
+$runExeHidden    = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
+$worker          = Join-Path $WorkDir "backtest\tools\score_ladder_rung_shadow_nightly.py"
 
-foreach ($p in @($runExeHidden, $worker)) {
+foreach ($p in @($runExeHidden, $runPyVenvHidden, $worker)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
-# wscript //nologo run_exe_hidden.vbs <pythonw> <score_ladder_rung_shadow_nightly.py>  (fully hidden)
+# wscript //nologo run_exe_hidden.vbs <sys-pythonw> run_py_venv_hidden.py <...nightly.py>
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$worker`""
 
 # 14:40 LOCAL (Mountain) = 16:40 ET weekdays -- after spy_5m cache lands (~16:16 ET) and
 # same-day OPRA unlocks (~16:21 ET). Weekdays only (0DTE has nothing to tally on weekends).

@@ -1154,6 +1154,73 @@ def check_run_ps1_hidden_masked_exit(now, log_path=None) -> list[str]:
             f"budget/timeout, or its underlying script's stderr log."]
 
 
+def _parse_run_py_venv_hidden_log(text: str) -> list[dict]:
+    """PURE. Parse run_py_venv_hidden.py's own per-fire launcher log (automation/state/logs/
+    run-py-venv-hidden-<date>.log) into completed [{"name": str, "exit": int}] records.
+
+    This is the THIRD exit-code-capturing relay (built 2026-08-13, "STOP THESE FUCKING CMD
+    POPUS" -- window_leak_detector's console-leak fix: system-pythonw + PYTHONPATH onto the
+    backtest venv's site-packages, instead of ever invoking the venv's OWN pythonw, which
+    allocates a WindowsTerminal -Embedding host on `import pandas`). Like run_ps1_hidden.py's
+    log (NOT run_cmd_hidden.py's), each completed record is self-contained on ONE line --
+    '[ts] <script>.py exit=<N>' optionally followed by 'args=[...]' -- so no launching/exit
+    line-order pairing is needed, and concurrent interleaved fires can't misattribute."""
+    records: list[dict] = []
+    pattern = re.compile(r"\]\s+(\S+\.py) exit=(-?\d+)")
+    for line in text.splitlines():
+        m = pattern.search(line)
+        if not m:
+            continue
+        try:
+            code = int(m.group(2))
+        except ValueError:
+            continue
+        records.append({"name": m.group(1), "exit": code})
+    return records
+
+
+def check_run_py_venv_hidden_masked_exit(now, log_path=None) -> list[str]:
+    """THIRD sibling of check_run_cmd_hidden_masked_exit / check_run_ps1_hidden_masked_exit
+    for the newest relay, run_py_venv_hidden.py (built 2026-08-13). At least 12 Gamma_* tasks
+    (ChartAutoDraw, EodBrief, EodDojoManifest, GateExpiryCheck, JIntentExecutor,
+    LadderRungShadow, MorningBrief, RegimeShadow, RegimeStamp, RiskyDivergenceWeekly,
+    ShadowSignalAudit, WinnerAutopsy -- live-enumerated 2026-08-18 via Get-ScheduledTask, not
+    guessed) route wscript -> run_exe_hidden.vbs -> system-pythonw -> run_py_venv_hidden.py ->
+    <target>.py. The outer wscript hop is still fire-and-forget, so Task Scheduler's
+    LastTaskResult can never see these tasks' real outcome -- but run_py_venv_hidden.py's own
+    process runs the child SYNCHRONOUSLY and has been logging the true exit code to
+    automation/state/logs/run-py-venv-hidden-<date>.log since its own 2026-08-13 birth. Zero
+    prior consumers (verified live via grep this fire, same class of gap as the 2026-08-04/
+    2026-08-06 fixes for the other two relays -- those tasks were imperatively migrated off
+    the OLD backtest-venv-pythonw-direct wiring onto THIS relay sometime after 2026-08-13, but
+    nothing was ever built to read what it already writes).
+
+    DEGRADED, never BROKEN (rail-2 fail-open discipline; every task on this relay today is
+    R&D/telemetry/analysis/premarket-visibility, not the live trading path -- JIntentExecutor
+    is the daemon that DOES route orders, but it is deliberately excluded from any live-wiring
+    template rewrite per the VBS-WRAPPER-EXIT-CODE-BLIND-SPOT queue item's own note; this
+    check is read-only visibility, not a gate, so including it in the scan is safe). Fail-open:
+    missing/unreadable log, or today's log not written yet -> []."""
+    lp = log_path or (STATE / "logs" / f"run-py-venv-hidden-{now.strftime('%Y-%m-%d')}.log")
+    if not lp.exists():
+        return []
+    try:
+        text = lp.read_text(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return []
+    bad = [r for r in _parse_run_py_venv_hidden_log(text) if r["exit"] != 0]
+    if not bad:
+        return []
+    by_script: dict[str, list[int]] = {}
+    for r in bad:
+        by_script.setdefault(r["name"], []).append(r["exit"])
+    parts = [f"{s} (exit={sorted(set(codes))}, {len(codes)}x)" for s, codes in sorted(by_script.items())]
+    return [f"RUN-PY-VENV-HIDDEN MASKED EXIT: {lp.name} shows {len(bad)} real non-zero exit(s) "
+            f"Task Scheduler's LastTaskResult can never see (outer wscript hop is still "
+            f"fire-and-forget) -- {', '.join(parts)}. Check the named script's own stderr "
+            f"log for the real cause."]
+
+
 TV_CDP_URL = "http://localhost:9222/json/version"
 
 
@@ -1532,6 +1599,12 @@ def run() -> dict:
     # relay (run_ps1_hidden.py), which carries the MAJORITY of Gamma_* scheduled tasks.
     # Same VBS-WRAPPER-EXIT-CODE-BLIND-SPOT self-audit gap, much bigger surface.
     problems.extend(check_run_ps1_hidden_masked_exit(now))
+
+    # 17b. RUN-PY-VENV-HIDDEN MASKED EXIT -- third sibling of #16/#17, for the newest
+    # (2026-08-13) console-leak-safe relay. Same VBS-WRAPPER-EXIT-CODE-BLIND-SPOT self-audit
+    # gap; these ~12 tasks were imperatively migrated onto it after birth but never got a
+    # consumer for the exit-code log it already writes.
+    problems.extend(check_run_py_venv_hidden_masked_exit(now))
     # The DIAGNOSIS layer on top of the two masked-exit checks above. They report THAT a
     # fire exited non-zero; this reports the one cause that (a) hits the whole LLM fleet at
     # once, (b) makes rail-0 read PROCEED because it spends $0, and (c) no automation can

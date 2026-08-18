@@ -19,11 +19,14 @@ identical latent risk the next time its own install script is legitimately re-ru
 
 THE FIX (this test enforces it going forward): for every Gamma_* task this repo
 considers "on the relay" (EXPECTED_RELAY_TASKS below), the install-*.ps1 file that
-registers it must itself reference `run_cmd_hidden.py` (or `run_ps1_hidden.py`) in its
-action-construction code -- not just live Task Scheduler state, which this test does
-NOT query (pure static parsing, runs anywhere, fast, deterministic, matches
-test_scheduled_tasks_doc.py's precedent of doc<->script static checking rather than
-doc<->live-reality, which is audit_scheduled_tasks.py's separate live-state job).
+registers it must itself reference `run_cmd_hidden.py`, `run_ps1_hidden.py`, or
+`run_py_venv_hidden.py` (the THIRD relay, added 2026-08-13 as a console-leak fix and
+found to ALSO close the exit-code blind spot for the ~12 tasks migrated onto it -- see
+the 2026-08-18 entries below) in its action-construction code -- not just live Task
+Scheduler state, which this test does NOT query (pure static parsing, runs anywhere,
+fast, deterministic, matches test_scheduled_tasks_doc.py's precedent of doc<->script
+static checking rather than doc<->live-reality, which is audit_scheduled_tasks.py's
+separate live-state job).
 
 A task that legitimately still routes directly (never migrated, or migrated to a
 DIFFERENT relay like run_ps1_hidden.py for a .ps1-wrapped worker) is fine as long as
@@ -87,6 +90,28 @@ EXPECTED_RELAY_TASKS: dict[str, str] = {
     "Gamma_TwinChaos": "scripts/install-twin-chaos-drill.ps1",
     "Gamma_ViolinMetric": "scripts/install-violin-metric.ps1",
     "Gamma_WindowLeakDetectorKeepalive": "scripts/install-window-leak-detector-keepalive.ps1",
+    # 2026-08-18 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT follow-up -- the THIRD relay,
+    # run_py_venv_hidden.py (built 2026-08-13 as a console-leak fix, not originally for
+    # exit-code visibility). These 8 tasks were imperatively migrated onto it by
+    # convert_tasks_off_venv_python.py's 2026-08-13 run (live-confirmed via
+    # Get-ScheduledTask) but their OWN install-*.ps1 templates were never updated to
+    # match -- the identical CryptoTwin-class drift regression this whole guard exists to
+    # prevent, just against a newer relay. Gamma_ChartAutoDraw had NO prior install script
+    # at all (newly created: install-chart-auto-draw.ps1). Gamma_JIntentExecutor and
+    # Gamma_RegimeShadow are ALSO on this relay live but deliberately left OUT of this map
+    # -- JIntentExecutor per the standing safety-critical-daemon exclusion (same reasoning
+    # as EodFlattenCore above), RegimeShadow because no install script could be found for
+    # it (registered by something other than a dedicated file; not silently claimed here).
+    "Gamma_ChartAutoDraw": "install-chart-auto-draw.ps1",
+    "Gamma_EodBrief": "scripts/install-daily-brief.ps1",
+    "Gamma_EodDojoManifest": "install-eod-dojo-manifest.ps1",
+    "Gamma_GateExpiryCheck": "install-gate-expiry-check.ps1",
+    "Gamma_LadderRungShadow": "install-ladder-rung-shadow.ps1",
+    "Gamma_MorningBrief": "scripts/install-daily-brief.ps1",
+    "Gamma_RegimeStamp": "install-regime-stamp.ps1",
+    "Gamma_RiskyDivergenceWeekly": "install-risky-divergence-weekly.ps1",
+    "Gamma_ShadowSignalAudit": "install-shadow-signal-audit.ps1",
+    "Gamma_WinnerAutopsy": "install-winner-autopsy.ps1",
 }
 
 
@@ -141,13 +166,15 @@ def test_expected_relay_task_install_script_references_relay(task_name: str) -> 
     # mention inside a comment/docstring saying the relay is NOT used must not pass).
     text = _strip_ps1_comments(raw_text)
 
-    assert "run_cmd_hidden.py" in text or "run_ps1_hidden.py" in text, (
+    assert (
+        "run_cmd_hidden.py" in text or "run_ps1_hidden.py" in text or "run_py_venv_hidden.py" in text
+    ), (
         f"DRIFT: {script_path} registers {task_name} directly against a target script "
-        f"with no run_cmd_hidden.py/run_ps1_hidden.py relay reference. This is the exact "
-        f"class of regression found live for Gamma_CryptoTwin on 2026-08-07 (a prior "
-        f"imperative fix was silently undone by this script's own next legitimate "
-        f"re-run). Re-apply the relay wiring in THIS FILE (not just live Task Scheduler "
-        f"state) before shipping any other change to it."
+        f"with no run_cmd_hidden.py/run_ps1_hidden.py/run_py_venv_hidden.py relay "
+        f"reference. This is the exact class of regression found live for "
+        f"Gamma_CryptoTwin on 2026-08-07 (a prior imperative fix was silently undone by "
+        f"this script's own next legitimate re-run). Re-apply the relay wiring in THIS "
+        f"FILE (not just live Task Scheduler state) before shipping any other change to it."
     )
 
 

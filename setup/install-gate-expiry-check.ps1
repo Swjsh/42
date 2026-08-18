@@ -52,19 +52,28 @@ $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_GateExpiryCheck"
 
-# Must be an interpreter that HAS the backtest deps (pandas/numpy). The dedicated backtest
-# venv does; the system Python313 does NOT. pythonw keeps it windowless.
-$pythonw = "C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\pythonw.exe"
-if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
+# Must be an interpreter that HAS the backtest deps (pandas/numpy). Routed via
+# run_py_venv_hidden.py (2026-08-13 console-leak fix -- system pythonw + PYTHONPATH onto the
+# backtest venv's site-packages, NEVER the venv's own pythonw, which allocates a
+# WindowsTerminal -Embedding host on `import pandas`; see convert_tasks_off_venv_python.py's
+# 2026-08-13 RUN RECORD). Also closes VBS-WRAPPER-EXIT-CODE-BLIND-SPOT for this task: the
+# relay logs the real exit code to automation/state/logs/run-py-venv-hidden-<date>.log,
+# consumed by self_check.check_run_py_venv_hidden_masked_exit() since 2026-08-18. Live state
+# was already on this wiring via the 2026-08-13 imperative XML patch; this file's own
+# template was never updated to match -- the exact CryptoTwin-class regression
+# (test_install_script_relay_wiring_drift.py) this fix closes.
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+if (-not (Test-Path $sysPythonw)) {
+    Write-Error "system pythonw not found at $sysPythonw"
     exit 1
 }
 
-$runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
-$checker      = Join-Path $WorkDir "backtest\autoresearch\gate_expiry_check.py"
-$registry     = Join-Path $WorkDir "automation\state\gate-registry.json"
+$runExeHidden    = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
+$checker         = Join-Path $WorkDir "backtest\autoresearch\gate_expiry_check.py"
+$registry        = Join-Path $WorkDir "automation\state\gate-registry.json"
 
-foreach ($p in @($runExeHidden, $checker, $registry)) {
+foreach ($p in @($runExeHidden, $runPyVenvHidden, $checker, $registry)) {
     if (-not (Test-Path $p)) {
         Write-Error "Required file missing: $p"
         exit 1
@@ -73,10 +82,10 @@ foreach ($p in @($runExeHidden, $checker, $registry)) {
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
-# wscript //nologo run_exe_hidden.vbs <pythonw> <gate_expiry_check.py>  (fully hidden)
+# wscript //nologo run_exe_hidden.vbs <sys-pythonw> run_py_venv_hidden.py <gate_expiry_check.py>
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$checker`"" `
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$checker`"" `
     -WorkingDirectory $WorkDir
 
 # 23:00 LOCAL (Mountain) = 01:00 ET. DailyTrigger (not a one-time/interval trigger -- a

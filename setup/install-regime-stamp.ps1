@@ -41,31 +41,40 @@
   Unregister-ScheduledTask -TaskName Gamma_RegimeStamp.
 #>
 
+# 2026-08-18: routed via run_py_venv_hidden.py (2026-08-13 console-leak fix -- system
+# pythonw + PYTHONPATH onto the backtest venv's site-packages, never the venv's own pythonw,
+# which allocates a WindowsTerminal -Embedding host on `import pandas`). Also closes
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT via self_check.check_run_py_venv_hidden_masked_exit().
+# Live state was already on this wiring (2026-08-13 imperative patch, convert_tasks_off_
+# venv_python.py); this template was drifted (CryptoTwin-class regression,
+# test_install_script_relay_wiring_drift.py) until this fix.
 $ErrorActionPreference = "Stop"
 $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_RegimeStamp"
 
-# Backtest venv pythonw -- has pandas (system Python313 does not). GUI-subsystem = windowless.
-$pythonw = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
-if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
+# System pythonw (GUI-subsystem, windowless) + run_py_venv_hidden.py puts the backtest
+# venv's site-packages on PYTHONPATH so pandas/numpy still resolve.
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+if (-not (Test-Path $sysPythonw)) {
+    Write-Error "system pythonw not found at $sysPythonw"
     exit 1
 }
 
-$runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
-$worker       = Join-Path $WorkDir "automation\scripts\regime_stamp.py"
+$runExeHidden    = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
+$worker          = Join-Path $WorkDir "automation\scripts\regime_stamp.py"
 
-foreach ($p in @($runExeHidden, $worker)) {
+foreach ($p in @($runExeHidden, $runPyVenvHidden, $worker)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
-# wscript //nologo run_exe_hidden.vbs <pythonw> <regime_stamp.py>  (fully hidden)
+# wscript //nologo run_exe_hidden.vbs <sys-pythonw> run_py_venv_hidden.py <regime_stamp.py>
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$worker`""
 
 # 06:22 LOCAL (Mountain) = 08:22 ET, between EmaSnapshot (06:20) and Premarket (06:30):
 # rebuild + stamp + patch. 06:40 LOCAL = 08:40 ET, ~10min after Premarket (06:30 MT)

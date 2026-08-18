@@ -15,15 +15,22 @@
 # MSFT_TaskDailyTrigger is asserted at the end of this script -- this repo has been burned by
 # tasks documented Active while sitting Disabled, and by one-time triggers that go dark after
 # their first fire.
+# 2026-08-18: routed via run_py_venv_hidden.py (2026-08-13 console-leak fix -- system
+# pythonw + PYTHONPATH onto the backtest venv's site-packages, never the venv's own pythonw,
+# which allocates a WindowsTerminal -Embedding host on `import pandas`). Also closes
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT via self_check.check_run_py_venv_hidden_masked_exit().
+# Live state was already on this wiring (2026-08-13 imperative patch); this template was
+# drifted (CryptoTwin-class regression, test_install_script_relay_wiring_drift.py) until now.
 $ErrorActionPreference = "Stop"
 $Root       = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName   = "Gamma_WinnerAutopsy"
-$pythonw    = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
 $worker     = Join-Path $ScriptsDir "winner_autopsy.py"
 
-foreach ($p in @($pythonw, $runExeHidden, $worker)) {
+foreach ($p in @($sysPythonw, $runExeHidden, $runPyVenvHidden, $worker)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -32,7 +39,7 @@ Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Silent
 # --out all -> analysis/winner-autopsies/all.{md,jsonl} is the standing, always-current
 # population report; winner-autopsy-last.json is what firm_brief renders.
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`" --out all"
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$worker`" --out all"
 
 # 14:25 local (Mountain) = 16:25 ET, every day.
 $trigger = New-ScheduledTaskTrigger -Daily -At "14:25"

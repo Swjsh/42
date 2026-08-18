@@ -11,19 +11,25 @@
 # TIME: 15:00 MOUNTAIN Sunday = 17:00 ET Sunday. This box runs Mountain; ET = local + 2
 # (CLAUDE.md). Market closed; clear of every RTH/heartbeat window and the 16:0x EOD fires.
 #
-# Windowless wscript -> run_exe_hidden.vbs -> backtest-venv-pythonw (C8/L41).
+# Windowless wscript -> run_exe_hidden.vbs -> system-pythonw -> run_py_venv_hidden.py (2026-08-13
+# console-leak fix, C8/L41 -- see install-gate-expiry-check.ps1's comment for the full history).
+# Also closes VBS-WRAPPER-EXIT-CODE-BLIND-SPOT for this task via
+# self_check.check_run_py_venv_hidden_masked_exit() (2026-08-18). Live state was already on
+# this wiring (2026-08-13 imperative patch); this template was drifted (CryptoTwin-class
+# regression) until this fix.
 $ErrorActionPreference = "Stop"
 $Root = "C:\Users\jackw\Desktop\42"; $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName = "Gamma_RiskyDivergenceWeekly"
-$pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
 $worker = Join-Path $ScriptsDir "full_send_vs_gated.py"
-foreach ($p in @($pythonw, $runExeHidden, $worker)) {
+foreach ($p in @($sysPythonw, $runExeHidden, $runPyVenvHidden, $worker)) {
   if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`" --weekly"
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$worker`" --weekly"
 # Weekly STANDING trigger (never a one-time trigger: project_scheduled_task_onetime_trigger_dark).
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "15:00"
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `

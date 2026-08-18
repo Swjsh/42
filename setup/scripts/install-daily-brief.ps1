@@ -19,10 +19,10 @@
                        output is citable. Per-account realized P&L, fills + setups traded, an
                        honest wins/losses one-liner, tonight's backlog, film-room availability.
 
-  WIRING PATTERN (flash-free, matches install-futures-edge3-sim.ps1 exactly):
-    wscript -> run_exe_hidden.vbs -> backtest\.venv\Scripts\pythonw.exe -> daily_brief.py --mode X
-  Runs on the BACKTEST venv -- automatically reaper-exempt (backtest\.venv is already in
-  _shared.ps1's EXEMPT_DAEMONS substring list).
+  WIRING PATTERN (updated 2026-08-18, see the top-of-file comment for why):
+    wscript -> run_exe_hidden.vbs -> system pythonw -> run_py_venv_hidden.py -> daily_brief.py --mode X
+  run_py_venv_hidden.py puts the backtest venv's site-packages on PYTHONPATH so imports still
+  resolve without ever invoking the venv's own pythonw (console-leak source, 2026-08-13 fix).
 
   TZ RULE: this rig is Mountain Time (ET = local + 2h, year-round -- both zones share the same
   DST calendar). 08:45 ET -> 06:45 MT. 16:20 ET -> 14:20 MT. NEVER pass an ET literal to -At.
@@ -39,13 +39,21 @@
 
 $ErrorActionPreference = "Stop"
 
-$root        = "C:\Users\jackw\Desktop\42"
-$vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
-$script      = Join-Path $root "setup\scripts\daily_brief.py"
-$etz         = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
+# 2026-08-18: routed via run_py_venv_hidden.py (2026-08-13 console-leak fix -- system
+# pythonw + PYTHONPATH onto the backtest venv's site-packages, never the venv's own pythonw,
+# which allocates a WindowsTerminal -Embedding host on `import pandas`). Also closes
+# VBS-WRAPPER-EXIT-CODE-BLIND-SPOT via self_check.check_run_py_venv_hidden_masked_exit().
+# Live state was already on this wiring (2026-08-13 imperative patch, convert_tasks_off_
+# venv_python.py); this template was drifted (CryptoTwin-class regression,
+# test_install_script_relay_wiring_drift.py) until this fix.
+$root            = "C:\Users\jackw\Desktop\42"
+$vbs             = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$sysPythonw      = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPyVenvHidden = Join-Path $root "setup\scripts\run_py_venv_hidden.py"
+$script          = Join-Path $root "setup\scripts\daily_brief.py"
+$etz             = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 
-foreach ($p in @($vbs, $pythonwVenv, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $runPyVenvHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -71,8 +79,8 @@ function Install-BriefTask {
         Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
     }
 
-    # wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> daily_brief.py --mode <Mode>
-    $wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" --mode $Mode"
+    # wscript -> run_exe_hidden.vbs -> sys-pythonw -> run_py_venv_hidden.py -> daily_brief.py --mode <Mode>
+    $wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$script`" --mode $Mode"
 
     $action = New-ScheduledTaskAction `
         -Execute "wscript.exe" `

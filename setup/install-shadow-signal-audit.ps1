@@ -14,20 +14,24 @@
 # Slot chosen after Gamma_GymSession (17:00 ET) and Gamma_WatcherGrader (17:10 ET), well
 # clear of the 09:30-15:55 ET heartbeat window.
 #
-# Windowless wscript -> run_exe_hidden.vbs -> backtest-venv-pythonw (C8/L41: a visible console
-# popup on J's screen is a standing offense).
+# Windowless wscript -> run_exe_hidden.vbs -> system-pythonw -> run_py_venv_hidden.py (2026-08-13
+# console-leak fix, C8/L41: a visible console popup on J's screen is a standing offense).
+# Also closes VBS-WRAPPER-EXIT-CODE-BLIND-SPOT via self_check.check_run_py_venv_hidden_masked_exit()
+# (2026-08-18). Live state was already on this wiring (2026-08-13 imperative patch); this
+# template was drifted (CryptoTwin-class regression) until this fix.
 $ErrorActionPreference = "Stop"
 $Root = "C:\Users\jackw\Desktop\42"; $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName = "Gamma_ShadowSignalAudit"
-$pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
 $worker = Join-Path $ScriptsDir "shadow_signal_audit.py"
-foreach ($p in @($pythonw, $runExeHidden, $worker)) {
+foreach ($p in @($sysPythonw, $runExeHidden, $runPyVenvHidden, $worker)) {
   if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$worker`""
 # DailyTrigger, NOT a one-time/interval trigger -- a -Once trigger goes dark after it fires
 # (scar: project_scheduled_task_onetime_trigger_dark).
 $trigger = New-ScheduledTaskTrigger -Daily -At "15:25" -DaysInterval 1
