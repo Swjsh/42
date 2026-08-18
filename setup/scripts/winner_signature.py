@@ -352,10 +352,18 @@ def main():
     club = banded.get("≥2.0×", [])
     if runners:
         d("")
-        d(f"**Every dollar we have ever made came from an exit at ≥1.3× entry.** Those "
-          f"{len(runners)} fills — {100 * len(runners) / len(recs):.0f}% of the book — carry "
-          f"${sum(r['pnl'] for r in runners):,.0f}. Everything below 1.3× is net negative, including the "
-          "band that closed at a nominal small profit.")
+        small = banded.get("1.0–1.3×", [])
+        s_usd = sum(r["pnl"] for r in small)
+        r_usd = sum(r["pnl"] for r in runners)
+        loss_usd = sum(r["pnl"] for r in recs if (r["mult"] or 9) < 1.0)
+        d(f"**Practically all of it comes from exits at ≥1.3× entry** — {len(runners)} fills, "
+          f"{100 * len(runners) / len(recs):.0f}% of the book, ${r_usd:,.0f}.")
+        d("")
+        d("> The claim is NOT the tautology that winners won. It is that **a small win is worth "
+          f"almost nothing here**: the 1.0–1.3× band is {len(small)} fills for ${s_usd:,.0f} — "
+          f"{100 * s_usd / max(1e-9, r_usd):.0f}% of what the runner bands carry — against a loss book "
+          f"of ${loss_usd:,.0f}. Scalping this system toward a higher win rate would buy more of the "
+          "band that does not pay. The right tail IS the business.")
     if club:
         d("")
         d(f"**The 2× club — {len(club)} fills ({100 * len(club) / len(recs):.0f}% of the book) carrying "

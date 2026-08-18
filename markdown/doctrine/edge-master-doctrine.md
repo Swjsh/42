@@ -223,10 +223,12 @@ Wave WR is **24%** — three of every four impulses we commit to lose money — 
 
 ### 1. What the edge IS
 
-**Every dollar we have ever made came from an exit at ≥1.3× entry premium.** Those 96 fills (23% of
-the book) carry **$17,067**; every band below 1.3× is net negative, including the one that closed at
-a nominal small profit. The 2× club is 35 fills (8%) worth $6,184 — median hold **43 min**, median
-entry premium **$0.84**, concentrated on 10 sessions.
+**Practically all of it comes from exits at ≥1.3× entry premium** — 96 fills, 23% of the book,
+**$17,067**. That is not the tautology that winners won: the point is that **a small win is worth
+almost nothing here.** The 1.0–1.3× band is 50 fills for **$900** — 5% of what the runner bands
+carry — against a loss book of **−$18,635**. Scalping this system toward a higher win rate would
+buy more of the band that does not pay. The 2× club is 35 fills (8%) worth $6,184 — median hold
+**43 min**, median entry premium **$0.84**, concentrated on 10 sessions.
 
 > **The edge in one line: a near-the-money contract given room to run through a real impulse.**
 > Not a win rate. A right-tail. This is a positive-skew architecture and it must be judged as one.

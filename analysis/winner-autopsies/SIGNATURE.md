@@ -1,6 +1,6 @@
 # Winner signature — what does our money actually look like?
 
-_Generated 2026-08-18 01:17:09 ET · real-fills journal · $0 (pure Python) · `setup/scripts/winner_signature.py`._
+_Generated 2026-08-18 01:29:35 ET · real-fills journal · $0 (pure Python) · `setup/scripts/winner_signature.py`._
 
 > **DESCRIPTIVE ONLY — this file ratifies nothing.** Read the three disclosures in the module docstring before quoting any number: (1) arms are not independent, the honest denominator is WAVES not trades; (2) hold-time and exit-multiple are OUTCOMES, never entry filters; (3) day realized range is LOOK-AHEAD and unusable as a gate.
 
@@ -29,7 +29,9 @@ _Generated 2026-08-18 01:17:09 ET · real-fills journal · $0 (pure Python) · `
 | 0.7–1.0× | 192 | $-8,720 |
 | <0.7× | 86 | $-9,915 |
 
-**Every dollar we have ever made came from an exit at ≥1.3× entry.** Those 96 fills — 23% of the book — carry $17,067. Everything below 1.3× is net negative, including the band that closed at a nominal small profit.
+**Practically all of it comes from exits at ≥1.3× entry** — 96 fills, 23% of the book, $17,067.
+
+> The claim is NOT the tautology that winners won. It is that **a small win is worth almost nothing here**: the 1.0–1.3× band is 50 fills for $900 — 5% of what the runner bands carry — against a loss book of $-18,635. Scalping this system toward a higher win rate would buy more of the band that does not pay. The right tail IS the business.
 
 **The 2× club — 35 fills (8% of the book) carrying $6,184.** Median hold **43 min**, median entry premium **$0.84**, concentrated on **10 sessions**. That is the edge in one line: a near-the-money contract given room to run through a real impulse.
 
