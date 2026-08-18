@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-18 01:26:19 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-18 08:48:58 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -87,7 +87,7 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **721** · broken wikilinks: **51** · orphans (no links either way): **1**
+- visible notes: **722** · broken wikilinks: **51** · orphans (no links either way): **1**
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-pre-tp1-ratchet-cost-2026-08-15` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-chasing-filter-2026-08-14` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-entry-range-context-2026-08-14` unresolved

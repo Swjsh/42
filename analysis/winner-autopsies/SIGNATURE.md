@@ -1,6 +1,6 @@
 # Winner signature — what does our money actually look like?
 
-_Generated 2026-08-18 01:29:35 ET · real-fills journal · $0 (pure Python) · `setup/scripts/winner_signature.py`._
+_Generated 2026-08-18 08:47:33 ET · real-fills journal · $0 (pure Python) · `setup/scripts/winner_signature.py`._
 
 > **DESCRIPTIVE ONLY — this file ratifies nothing.** Read the three disclosures in the module docstring before quoting any number: (1) arms are not independent, the honest denominator is WAVES not trades; (2) hold-time and exit-multiple are OUTCOMES, never entry filters; (3) day realized range is LOOK-AHEAD and unusable as a gate.
 
@@ -11,6 +11,19 @@ _Generated 2026-08-18 01:29:35 ET · real-fills journal · $0 (pure Python) · `
 - Engine decision context recovered for **98%** of fills (the shortfall is fills predating `core-decisions.jsonl`; they stay in P&L, drop out of context buckets).
 - **Trade level:** 127 winners / 297 losers · WR **30.0%** · net **$-668**.
 - **Wave level:** WR **24%** — three of every four impulses we commit to lose money.
+
+### ⚠ ERA SPLIT — this population is not one engine (2026-08-11 boundary)
+
+On **2026-08-10** ribbon_ride shipped `pre_tp1_ladder`, a stop RATCHET that locks the runner stop at entry×1.30 once MFE clears +50%. On the pain ledger's real-OPRA MFE/MAE over the full population: **before** the ship, 19 of 45 positions that reached ≥+50% favorable still closed at or below entry, giving back **$2,549**; **after**, 14 of 14 closed green and worst-case heat fell from −46%/−72% MAE to −4%/−15%. Pooling across that is describing an engine we no longer run — and would keep nominating exit fixes for a leak that is already closed.
+
+| era | sessions | fills | waves | trade WR | wave WR | net | $/session |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| pre-ladder (≤2026-08-10) | 34 | 312 | 80 | 26% | 22% | $144 | $4 |
+| post-ladder (≥2026-08-11) | 5 | 112 | 22 | 41% | 27% | $-812 | $-162 |
+
+**Read this honestly in both directions.** The ratchet did what it was built to do — the give-back leak is measurably closed. It did NOT make the book positive: the post-ladder era is still red, and its losses now sit almost entirely in sub-1.0× exits, i.e. trades that never worked at all rather than winners handed back. That is the absorption problem, which is what `day-throttle-forward-prereg-2026-08-18` measures — and the post-ladder era is far too few sessions to conclude anything from on its own.
+
+> **Consequence for every section below:** they are still pooled across both eras, because splitting them would leave cell sizes that cannot support any read at all. Treat the EXIT-shaped findings as describing the pre-ladder engine, and the ENTRY/REGIME-shaped findings as the ones that survive the boundary.
 
 - Winners **$17,967** (avg $141, median $97, max $1,500).
 - Losers **$-18,635** (avg $-63, median $-30, worst $-770).

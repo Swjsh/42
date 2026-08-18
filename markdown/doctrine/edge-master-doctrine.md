@@ -318,3 +318,47 @@ is printed for drift-checking and is barred by construction from clearing anythi
 
 **The window opens the first session after 2026-08-18 and needs 15 sessions.** Until then the
 correct reading of every number in §1–§7 is *hypothesis*, and the correct action is none.
+
+### 9. The 2026-08-10 era break — and what it does to §1–§8 (added 2026-08-18)
+
+Cross-checking the study against [`analysis/pain-ledger/mae-mfe.json`](../../analysis/pain-ledger/mae-mfe.json)
+(real-OPRA MFE/MAE over the FULL population, winners *and* losers) produced the single most
+important correction to it: **the population is two different engines.**
+
+`ribbon_ride` shipped `pre_tp1_ladder` on 2026-08-10 — a stop RATCHET that locks the runner
+stop at entry×1.30 once MFE clears +50%.
+
+| window | positions offering ≥+50% | of those, closed ≤ entry | given back |
+|---|---:|---:|---:|
+| pre-ship (06-26 → 08-09) | 45 | **19** | **−$2,549** |
+| ship day (08-10) | 4 | 3 | −$552 |
+| post-ship (08-11 → 08-17) | 14 | **0** | **$0** |
+
+Worst-case heat on that cohort collapsed from −46%/−72% MAE to −4%/−15%. **The biggest single
+leak the review found was already closed before the review ran.** `winner_signature.py` now
+splits every headline on `LADDER_ERA_START = 2026-08-11` so it stops describing an engine we
+no longer run.
+
+**Do not re-tune exits on the pooled numbers.** That is the trap this section exists to block.
+
+### 10. What the MFE lens settles that P&L alone cannot
+
+MFE answers what a trade OFFERED, independent of what our exit took — so it separates "bad
+exit" from "no edge":
+
+| family | n | median MFE | ≥+50% offered | winners' median MFE | realized | reading |
+|---|---:|---:|---:|---:|---:|---|
+| `ribbon_ride` | 233 | +19% | **27%** | **+129%** | −$430 | **produces the tail.** This is the edge. |
+| `vwap_continuation` | 41 | **+5%** | **5%** | +10% | −$1,088 | no tail exists to harvest |
+| `vwap_reclaim_fb` | 3 | +14% | 0% | — | −$200 | n=3, not judgeable |
+
+`vwap_continuation` had **zero** positions that offered ≥+50% and were not captured — so its
+loss is not an exit failure. In a business whose entire product is the ≥1.3× tail, a family
+whose p90 MFE is +17% is a structural tax, and **no exit shape is reachable that fixes it.**
+Frozen as a kill-check with a forward bar rather than killed on ~6 independent waves:
+[`vwap-family-killcheck-prereg-2026-08-18.json`](../../analysis/recommendations/vwap-family-killcheck-prereg-2026-08-18.json).
+
+Post-ladder the surviving bleed is entirely in **sub-1.0× exits** — trades that never worked at
+all, not winners handed back. That is the absorption problem, and it is what the day-throttle
+pre-reg already measures. **The exit side has had its fix; the open question is now entirely
+on the entry/regime side.**

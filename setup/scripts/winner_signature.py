@@ -55,6 +55,23 @@ FLEET_ARMS = ("risky-1", "risky-3", "safe-1", "safe-3")
 KNOWN_ARMS = {"safe", "bold", "safe-1", "safe-3", "risky-1", "risky-3"}
 WAVE_GAP_S = 900  # >15 min between entries starts a new wave (same convention as winner_autopsy)
 
+# ------------------------------------------------------------------------------------------
+# ERA BOUNDARY -- the population is NOT homogeneous and pooling it reports a stale engine.
+#
+# On 2026-08-10 ribbon_ride shipped `pre_tp1_ladder` (a stop RATCHET: once MFE clears +50%
+# the runner_stop locks at entry*1.30, again at +75%/+1.60). Measured on the pain ledger's
+# real-OPRA MFE/MAE over the full population: BEFORE the ship, 19 of 45 positions that
+# reached >=+50% favorable still closed at or below entry, giving back $2,549. AFTER it,
+# 14 of 14 such positions closed GREEN and worst-case heat collapsed from -46%/-72% MAE to
+# -4%/-15%. That is a step change in the exit machinery, not drift.
+#
+# Reporting one pooled headline across that boundary describes an engine that no longer
+# exists, and would keep nominating exit fixes for a leak that is already closed. Every
+# headline below is therefore split. `2026-08-11` is the first FULL session under the new
+# shape (the 10th is the deploy day itself and is left in the old era, where its 3 remaining
+# give-backs belong).
+LADDER_ERA_START = "2026-08-11"
+
 
 # ----------------------------------------------------------------------------- helpers
 def _num(x):
@@ -319,6 +336,44 @@ def main():
       f"net **${total:,.0f}**.")
     d(f"- **Wave level:** WR **{wave_wr:.0f}%** — three of every four impulses we commit to lose money.")
     d("")
+    d(f"### ⚠ ERA SPLIT — this population is not one engine ({LADDER_ERA_START} boundary)")
+    d("")
+    d("On **2026-08-10** ribbon_ride shipped `pre_tp1_ladder`, a stop RATCHET that locks the runner "
+      "stop at entry×1.30 once MFE clears +50%. On the pain ledger's real-OPRA MFE/MAE over the full "
+      "population: **before** the ship, 19 of 45 positions that reached ≥+50% favorable still closed "
+      "at or below entry, giving back **$2,549**; **after**, 14 of 14 closed green and worst-case heat "
+      "fell from −46%/−72% MAE to −4%/−15%. Pooling across that is describing an engine we no longer "
+      "run — and would keep nominating exit fixes for a leak that is already closed.")
+    d("")
+    d("| era | sessions | fills | waves | trade WR | wave WR | net | $/session |")
+    d("|---|---:|---:|---:|---:|---:|---:|---:|")
+    era_stats = {}
+    for lab, sel in (("pre-ladder (≤2026-08-10)", [r for r in recs if r["date"] < LADDER_ERA_START]),
+                     (f"post-ladder (≥{LADDER_ERA_START})", [r for r in recs if r["date"] >= LADDER_ERA_START])):
+        if not sel:
+            continue
+        ew = wavify(sorted(sel, key=lambda r: (r["date"], r["sec"])))
+        sess = len({r["date"] for r in sel})
+        tot = sum(r["pnl"] for r in sel)
+        twr = 100 * sum(1 for r in sel if r["pnl"] > 0) / len(sel)
+        wwr = 100 * sum(1 for x in ew if x["pnl"] > 0) / len(ew)
+        era_stats[lab] = {"sessions": sess, "fills": len(sel), "waves": len(ew),
+                          "trade_wr_pct": round(twr, 1), "wave_wr_pct": round(wwr, 1),
+                          "net": round(tot, 2), "per_session": round(tot / sess, 2)}
+        d(f"| {lab} | {sess} | {len(sel)} | {len(ew)} | {twr:.0f}% | {wwr:.0f}% | ${tot:,.0f} | ${tot/sess:,.0f} |")
+    d("")
+    d("**Read this honestly in both directions.** The ratchet did what it was built to do — the "
+      "give-back leak is measurably closed. It did NOT make the book positive: the post-ladder era is "
+      "still red, and its losses now sit almost entirely in sub-1.0× exits, i.e. trades that never "
+      "worked at all rather than winners handed back. That is the absorption problem, which is what "
+      "`day-throttle-forward-prereg-2026-08-18` measures — and the post-ladder era is far too few "
+      "sessions to conclude anything from on its own.")
+    d("")
+    d("> **Consequence for every section below:** they are still pooled across both eras, because "
+      "splitting them would leave cell sizes that cannot support any read at all. Treat the "
+      "EXIT-shaped findings as describing the pre-ladder engine, and the ENTRY/REGIME-shaped "
+      "findings as the ones that survive the boundary.")
+    d("")
     wsum, lsum = sum(r["pnl"] for r in W), sum(r["pnl"] for r in L)
     d(f"- Winners **${wsum:,.0f}** (avg ${st.mean([r['pnl'] for r in W]):,.0f}, median "
       f"${st.median([r['pnl'] for r in W]):,.0f}, max ${max(r['pnl'] for r in W):,.0f}).")
@@ -572,6 +627,8 @@ def main():
                   "builder": "setup/scripts/winner_signature.py",
                   "descriptive_only": True, "wave_gap_seconds": WAVE_GAP_S,
                   "context_coverage_pct": round(100 * ctx_cov, 1)},
+        "era_boundary": LADDER_ERA_START,
+        "eras": era_stats,
         "population": {"fills": len(recs), "waves": len(waves), "sessions": len(byday),
                        "winners": len(W), "losers": len(L), "net": round(total, 2),
                        "trade_wr_pct": round(100 * len(W) / len(recs), 1),
