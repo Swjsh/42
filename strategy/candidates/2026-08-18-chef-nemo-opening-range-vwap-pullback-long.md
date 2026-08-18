@@ -5,23 +5,20 @@
 
 # CANDIDATE: OPENING_RANGE_VWAP_PULLBACK_LONG
 
-**Filed:** 2026-07-22  
+**Filed:** 2026-07-09  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-After an opening‑range high breakout within the first 30 minutes, a pullback to the VWAP (but not below the OR low) between 30‑60 minutes often finds support and resumes the intraday trend. Adding a bullish‑close and above‑average volume filter increases the probability that the pullback is a genuine retest rather than a reversal, offering a high‑probability long entry in an uptrend regime.
+If SPY opens above VWAP and then pulls back to VWAP with bullish rejection, the intraday bias remains long. This setup captures the tendency of strong opening momentum to resume after a minor VWAP test, avoiding false breakouts by requiring volume confirmation and a bullish candle structure at the pullback.
 
 ## Mechanism
 
-1. **ORH breakout:** If SPY price breaks above the opening‑range high (ORH) within the first 30 minutes of RTH (09:30‑10:00 ET), mark the breakout bar.  
-2. **Pullback window:** Between 30‑60 minutes (10:00‑10:30 ET) look for a bar that touches or closes below the VWAP but does **not** close below the opening‑range low (ORL).  
-3. **Entry filters:** The pullback bar must close bullish (close > open) and have volume greater than the 20‑bar average volume.  
-4. **Entry:** Go long at the close of that bar.  
-5. **Exit:** Initial stop at the low of the pullback bar (chart‑stop). Target 2R (twice the risk). After reaching 1R, trail the stop with a 15% chandelier or exit on a premium‑stop (defined in params.json).  
-6. **Regime filter:** Only take the trade if VIX < 22 and SPY price is above the 200‑period EMA on the 5‑min chart (overall uptrend). Skip if VIX > 30 or price is below the 200‑EMA (choppy/downtrend).
+**Entry:** When the opening range high (first 30-min) is above the session VWAP, and price retraces to within 0.1% of VWAP forming a bullish candle (close > open and low ≤ VWAP) with volume ≥1.2× the 5‑min average volume, enter long at the close of that candle.  
+**Exit:** Stop placed below the low of the pullback candle; target 2× risk or exit when price reaches the opening range high.  
+**Regime filters:** Only trade when VIX is between 12‑22 and the opening range is <0.5% of price; skip gap‑up days >0.8%.
 
 ## Expected impact on OP-16 anchors
 
@@ -37,24 +34,21 @@ After an opening‑range high breakout within the first 30 minutes, a pullback
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 contracts requires $25K+ account to fit the 50% per‑trade risk cap; a $1K paper account would trade ~14% of the headline qty (≈4 contracts) and realize proportionally lower P&L.  
-2. **Sample bias:** The idea is derived from intraday price action observations; no historical sample has been evaluated yet, so sample size = 0 and overfit risk is high until a Stage‑1 backtest is performed.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out window tested).  
-4. **Real-fills:** NEEDS-REAL‑FILLS (no realistic OPRA fill simulation on the top 3 J days).  
-5. **Failure modes:**  
-   - Worst day: a false breakout followed by a strong reversal could trigger entry and hit the chart‑stop quickly, resulting in a loss equal to the risk per trade.  
-   - Max drawdown: a string of losing pullback days in a choppy, low‑VIX environment could erode equity; without regime filters the drawdown could exceed 30% of account.  
-   - Blow‑up scenario: trading during a high‑VIX news event (VIX > 30) where the ORH breakout fails and price gaps through the pullback bar low, causing slippage and larger than expected loss.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to determine what percentage of P&L comes from the top‑5 days.
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (based on 50% risk cap and 3-contract minimum scaling).
+2. **Sample bias:** No historical backtest performed; proposal is based on theoretical edge. High overfit risk due to untested parameters (VWAP tolerance, volume multiplier, VIX/orange range thresholds).
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window tested).
+4. **Real-fills:** NEEDS-REAL-FILLS (no validation against real OPRA fills on anchor days).
+5. **Failure modes:** Worst day: whipsaw during low-VIX chop (multiple false VWAP pullbacks triggering stops). Max drawdown scenario: consecutive losing pullback days in a strong trend (e.g., 5%+ adverse move after entry). Blow-up: gap-down day >1% triggering entry on false long signal.
+6. **Concentration:** unknown -- requires Stage-1 backtest (cannot estimate top-5 days contribution without historical simulation).
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification. The backtest must produce equity‑curve statistics, per‑anchor‑day P&L, and OP‑20 disclosures (real‑fills check, OOS test, concentration, failure modes).
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-4 / 10 -- The hypothesis is plausible based on price‑action intuition, but there is zero empirical validation. The regime filters (VIX < 22, price above 200‑EMA) are added to mitigate false signals, yet without a backtest we cannot estimate hit rate, reward‑to‑risk, or edge capture.
+4 / 10 -- Hypothesis is plausible but untested; high parameter sensitivity and regime dependencies require validation before commitment.
 
 ## Pre-existing leaderboard impact
 
-This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing VWAP‑based candidates (e.g., VWAP_CONTINUATION) because it uses VWAP as a pullback reference after an ORH breakout rather than a continuation signal. It does not conflict with any current top‑10 candidates, as it operates on a different time‑of‑day window and entry logic. If validated, it could add a new long‑biased setup to the arsenal, potentially increasing trade frequency and diversifying the long‑side exposure. However, until a Stage‑1 backtest is run, the impact on edge_capture and Sharpe remains unknown.
+Complements existing VWAP-based strategies (e.g., VWAP_CONTINUATION) by focusing on a specific pullback pattern rather than general continuation. No direct conflict with registered candidates; orthogonal to ORB_RETEST_LONG (which tests opening range, not VWAP). Does not interfere with structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) as it operates on different timeframe and conditions.
