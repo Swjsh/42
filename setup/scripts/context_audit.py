@@ -90,12 +90,37 @@ def movable_candidates(txt):
                 cands.append((TOK(b), f"OP-{bq.group(1)}: {bq.group(2)[:42]}"))
     return sorted(cands, reverse=True)
 
+def _core_accounts_documented(txt, repo):
+    """True iff CLAUDE.md names both core arms' CURRENT account numbers per the fleet registry.
+
+    Fails OPEN (returns True) only if the registry itself is unreadable -- an integrity check
+    must not red the soul file because an unrelated state file is missing.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+    try:
+        reg = _json.loads((_Path(repo) / "automation" / "state" / "fleet" / "accounts.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return True
+    wanted = []
+    for arm in reg.get("arms", []):
+        if (arm.get("id") or arm.get("arm_id")) in ("safe-2", "bold-2"):
+            acct = arm.get("account_number")
+            if isinstance(acct, str):
+                wanted.append(acct)
+    return bool(wanted) and all(a in txt for a in wanted)
+
+
 # ---- INTEGRITY INVARIANTS (the safety net for autonomous edits) ------------
 def integrity(txt, repo):
     checks = []
     def c(name, ok): checks.append((name, bool(ok)))
     c("All 10 rules present", all(re.search(rf'(?m)^{i}\. \*\*', txt) for i in range(1, 11)))
-    c("Both account numbers present", "PA3DHPT7KIQE" in txt and "PA33W2KUAT40" in txt)
+    # SCAR (2026-08-18): this asserted two hardcoded literals that were never real account
+    # numbers, so after CLAUDE.md was corrected to the TRUE accounts this invariant began
+    # false-failing the correct file -- an integrity check that punishes accuracy. Now it
+    # asserts CLAUDE.md names whatever the fleet registry says the two core arms are.
+    c("Both account numbers present", _core_accounts_documented(txt, repo))
     c("Kill-switch text present", "start-of-day equity" in txt or "start-of-day" in txt)
     c("Rule-version pinned", bool(re.search(r'Current rule version:\s*v\d+', txt)))
     c("Refusals section present", bool(re.search(r'(?m)^## What I will refuse', txt)))

@@ -17,6 +17,33 @@ def get_et_now():
     utc_now = datetime.now(timezone.utc)
     return utc_now.isoformat()
 
+EXPECTED_ACCOUNTS_DOC = """Read expected account numbers from the FLEET REGISTRY, never hardcode.
+
+SCAR (2026-08-18): this module compared the live API's account_number for equality against
+"PA3DHPT7KIQE"/"PA33W2KUAT40". Neither string was ever a real account number -- a documentation
+transcription error that got copied into code -- so the equality could NEVER be satisfied and
+this audit reported FAIL on every run regardless of real connection health. Its sibling
+mcp_audit_direct.py had the identical defect AND fired a Discord alert on every RED, which
+manufactured a recurring "engine red" ping with no underlying fault. A monitor that cannot go
+green trains the operator to ignore the channel.
+"""
+
+
+def expected_accounts():
+    """(safe_acct, bold_acct) from automation/state/fleet/accounts.json. See EXPECTED_ACCOUNTS_DOC."""
+    import json as _json
+    from pathlib import Path as _Path
+    reg_path = _Path(__file__).resolve().parents[2] / "automation" / "state" / "fleet" / "accounts.json"
+    reg = _json.loads(reg_path.read_text(encoding="utf-8"))
+    by_id = {}
+    for arm in reg.get("arms", []):
+        aid = arm.get("id") or arm.get("arm_id")
+        acct = arm.get("account_number")
+        if aid and isinstance(acct, str):
+            by_id.setdefault(str(aid), acct)
+    return by_id.get("safe-2"), by_id.get("bold-2")
+
+
 def call_mcp_tool(tool_name: str) -> dict:
     """
     Call an MCP tool via claude command-line.
@@ -68,7 +95,8 @@ def audit():
         account_blocked = data.get("account_blocked", None)
         print(f"  OK: acct={account_num}, status={status}")
 
-        if (account_num == "PA3DHPT7KIQE" and
+        _exp_safe, _exp_bold = expected_accounts()
+        if (_exp_safe and account_num == _exp_safe and
             status == "ACTIVE" and
             not trading_blocked and
             not account_blocked):
@@ -88,7 +116,8 @@ def audit():
         status = data.get("status", "UNKNOWN")
         print(f"  OK: acct={account_num}, status={status}")
 
-        if (account_num == "PA33W2KUAT40" and
+        _exp_safe, _exp_bold = expected_accounts()
+        if (_exp_bold and account_num == _exp_bold and
             status == "ACTIVE"):
             bold_ok = True
             print("  Bold: PASS")
@@ -130,8 +159,8 @@ def audit():
         "skill": "mcp-weekly-audit",
         "run_at": ts_iso,
         "verdict": verdict,
-        "alpaca_safe": {"ok": safe_ok, "account": "PA3DHPT7KIQE", "note": "Clock + Account probed"},
-        "alpaca_bold": {"ok": bold_ok, "account": "PA33W2KUAT40", "note": "Account probed"},
+        "alpaca_safe": {"ok": safe_ok, "account": expected_accounts()[0], "note": "Clock + Account probed"},
+        "alpaca_bold": {"ok": bold_ok, "account": expected_accounts()[1], "note": "Account probed"},
         "tradingview": {"ok": tv_ok, "cdp_connected": tv_ok, "relaunched": tv_relaunched, "chart_symbol": chart_symbol, "note": "Health check"},
         "reason": reason
     }
