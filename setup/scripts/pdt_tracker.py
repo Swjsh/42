@@ -18,6 +18,27 @@ as a VISIBILITY surface (self_check.py, firm_brief.py) and still written to
 circuit-breaker.json by heartbeat_core.py -- unrelated to which rule gates
 the order.
 
+STATUS UPDATE (2026-08-18, markdown/trading-knowledge/REGULATORY-BROKER-
+LANDSCAPE-2026-08-18.md + analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-
+2026-08-18.md): the account-numbers/"CASH account" premise two paragraphs up
+was already stale by 2026-08-06 (those accounts were deleted in the 2026-08-03
+fleet rebuild; current core accounts read multiplier=4, margin) and is wrong
+in principle -- Alpaca sells no cash-account product at all. Separately and
+more fundamentally, FINRA eliminated the margin-PDT rule this module
+reconstructs, effective 2026-06-04 (SR-FINRA-2025-017); a 2026-08-18 live read
+of both current core accounts found the pattern_day_trader/daytrade_count
+fields entirely ABSENT from Alpaca's account payload (replaced by
+intraday_adjustments) -- these accounts are confirmed on Alpaca's NEW
+intraday-margin regime. Net effect: this module no longer reconstructs a
+broker-mirrored rule at all -- it is LOCAL POLICY WITH AN OBSOLETE RATIONALE,
+kept alive only as (a) a VISIBILITY surface (self_check.py / firm_brief.py /
+circuit-breaker.json's day_trades_used_5d) and (b) the dormant legacy gate for
+fleet arms, where it is structurally inert today (fleet_live.py's default
+`day_trades_legacy` path reads the now-absent broker field, always 0). Do NOT
+re-arm params.fleet_pdt_enforce against this module's count without first
+addressing (1)/(2) above -- it would enforce a retired rule using a definition
+neither FINRA nor our own broker tracks any more.
+
 ORIGINAL DOCSTRING (below) describes the margin-PDT count itself, unchanged:
 
 FIX (2026-07-06): circuit-breaker.json's day_trades_used_5d was a hardcoded 0,

@@ -4,6 +4,26 @@ both core accounts return multiplier="1" and Alpaca reports pattern_day_trader
 /daytrade_count as null -- PDT is structurally inapplicable to a cash account;
 research: markdown/research/CASH-ACCOUNT-DAY-TRADING-REGULATIONS-2026-07-14.md).
 
+UPDATE (2026-08-18, markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-
+2026-08-18.md + analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md):
+the "multiplier=1 / CASH account" premise directly above was already stale by
+2026-08-06 (live read: multiplier=4, margin) and is wrong in principle -- Alpaca
+sells no cash-account product at all ("we do not offer cash accounts. All
+accounts are set up as margin accounts", confirmed 2026-08-18). This module's
+settled-cash / GFV-style discipline is therefore a VOLUNTARY risk constraint
+modelled on a product these accounts don't actually hold, not a regulatory
+requirement -- both core accounts run it today by J's 2026-08-09 directive
+("I always use cash accounts... that's how much we have until it settles"),
+chosen for its own capital-discipline value independent of the account's real
+type. Whether to keep modelling cash-style settlement on margin accounts is J's
+call; this module's own mechanics (below) are correct and unaffected either way
+-- a settled-cash pool debit is still a reasonable same-day-entries throttle
+regardless of what regulatory rule (if any) requires it. Separately, FINRA
+eliminated the margin-PDT rule this module was built to replace, effective
+2026-06-04 (SR-FINRA-2025-017) -- the historical justification below predates
+that and is now doubly obsolete, but the replacement this module provides was
+never dependent on that justification staying true.
+
 WHAT THIS MODELS (cash-account settlement, not margin PDT)
 ------------------------------------------------------------
 A cash account may re-trade freely using SETTLED funds. Options settle T+1

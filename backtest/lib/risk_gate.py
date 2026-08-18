@@ -64,6 +64,31 @@ testable. The rules, with their doctrine source:
                          generous sanity cap, default 5). Both are REQUIRED
                          (fail-closed) in this mode -- a missing value is
                          uncertainty, not permission.
+                       UPDATE (2026-08-18, markdown/trading-knowledge/REGULATORY-
+                         BROKER-LANDSCAPE-2026-08-18.md + analysis/deep-research/
+                         PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md): the "margin_pdt"
+                         premise above is DOUBLY stale. (1) FINRA eliminated this
+                         exact rule for margin accounts (SR-FINRA-2025-017,
+                         effective 2026-06-04; 18mo firm grace window to
+                         2027-10-20). (2) "both are CASH accounts (multiplier
+                         '1')" was already wrong by 2026-08-06 (live read:
+                         multiplier=4, margin) and is wrong in principle -- Alpaca
+                         sells no cash-account product at all ("all accounts are
+                         set up as margin accounts", confirmed 2026-08-18). A
+                         2026-08-18 live read of both core accounts found the
+                         pattern_day_trader/daytrade_count fields entirely ABSENT
+                         from the account payload (replaced by
+                         intraday_adjustments) -- these accounts are confirmed on
+                         Alpaca's NEW intraday-margin regime, not held under the
+                         legacy grace-window clause. Neither core account runs
+                         margin_pdt today (both are cash_settlement); this branch
+                         is live code only for fleet arms (pinned margin_pdt,
+                         fleet_executor.py:1224) where it is structurally inert
+                         (day_trades_used_5d fed is always 0). If ever reactivated
+                         with a real count, it would enforce a rule neither FINRA
+                         nor Alpaca applies to these accounts any more -- treat
+                         PDT_EQUITY_THRESHOLD/PDT_DAY_TRADE_LIMIT below as a frozen
+                         historical-rule model, not a current regulatory citation.
   FIRST_ENTRY_LOCK   DELETED (J directive 2026-07-02: "Gone. We no longer have
                      it in our codebase."). The 'no second entry on a setup that
                      stopped out today' deny was Claude-invented and never
@@ -113,10 +138,20 @@ CODE_FIRST_ENTRY_LOCK = "FIRST_ENTRY_LOCK"  # RETIRED 2026-07-02 (kept for old-l
 CODE_NOT_FLAT = "NOT_FLAT"
 CODE_UNREADABLE_INPUT = "UNREADABLE_INPUT"
 
-# PDT (margin_pdt mode only) applies only under the $25K margin-account threshold
-# (CLAUDE.md Rule 7, legacy). Neither core account is a margin account (verified
-# 2026-07-14: multiplier=1, cash accounts) -- this constant is retained only for
-# the legacy pdt_gate_mode="margin_pdt" path (revert / non-cash-account callers).
+# PDT (margin_pdt mode only) models FINRA's PRE-2026-06-04 margin-account rule
+# (CLAUDE.md Rule 7, legacy) -- $25K threshold, 3-day-trades/5-business-days.
+# FINRA ELIMINATED this rule for margin accounts effective 2026-06-04
+# (SR-FINRA-2025-017, 18mo firm grace window to 2027-10-20) -- see
+# markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18.md and
+# analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md. Both core
+# accounts ARE margin accounts (multiplier=4, live-verified 2026-08-06 and
+# 2026-08-18 -- the prior "cash account, multiplier=1" claim here was wrong even
+# before the rule changed; Alpaca sells no cash-account product at all). Neither
+# core account runs this branch today (both are pdt_gate_mode="cash_settlement");
+# retained for the legacy revert path and for fleet arms (pinned margin_pdt,
+# fleet_executor.py:1224) where it is structurally inert -- the day-trade count
+# fed to it is always 0 (Alpaca's daytrade_count field is gone from the account
+# payload as of 2026-08-18, replaced by intraday_adjustments).
 PDT_EQUITY_THRESHOLD = 25_000.0
 PDT_DAY_TRADE_LIMIT = 3
 
