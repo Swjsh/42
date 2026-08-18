@@ -650,6 +650,28 @@ def check_keepawake(market_open: bool) -> dict:
     return _chk(name, "GREEN", f"asserting, heartbeat {age:.1f}m old", critical=False)
 
 
+def _rth_staleness_min(raw_age_min: float, et: datetime) -> float:
+    """Effective RTH staleness: a session can only have been dark for as long as it has
+    been OPEN.
+
+    THE 09:30:02 FALSE-RED (root-caused 2026-08-17, J: "I don't wanna wake up tomorrow and
+    see a Discord message of the engine being red"). The 15-min beacon's 09:30 fire lands
+    ~2s after the bell, BEFORE the 1-min heartbeat's first tick (~09:30:18+) and before the
+    sight beacon's first write. Raw age then reaches back to YESTERDAY'S 15:55:04 EOD tick =
+    a constant 1055.0m -- which is why 08-11/12/13 pinged J three BYTE-IDENTICAL "ENGINE
+    STALE 1055.0m" REDs at 13:30:02Z sharp (the "frozen value" smell was a constant
+    15:55:04->09:30:02 gap, not a frozen timestamp). Each RED was true for <90 seconds and
+    self-cleared at the 09:45 beacon -- an alarm that wakes J for nothing.
+
+    WATCHER_OPEN_GRACE_MIN killed this exact class for watcher_feed in July and the fix
+    never landed on these siblings (trap 5: fixes land on ALL call sites). The min() clamp
+    is universally safe: intra-session staleness is never reduced (a 13:00 death at 14:00 is
+    60m raw vs 270m since-open -> 60m stands), while a REAL dark open still REDs once the
+    session has been open longer than the budget -- the 2026-08-14 box-sleep morning (first
+    tick 09:46) would RED from ~09:38, exactly as it should."""
+    return min(raw_age_min, max(0.0, _minutes_since_open(et)))
+
+
 def check_sight_beacon(market_open: bool, now_utc: datetime) -> dict:
     """The EYE: sight-beacon.json must be fresh during RTH. A stale/failed beacon means
     the engine is BLIND -- the #1 forbidden state (J: 'the engine can NOT be blind ever').
@@ -672,10 +694,14 @@ def check_sight_beacon(market_open: bool, now_utc: datetime) -> dict:
         return _chk(name, "GREEN", f"{detail} (market closed -- quiet OK)", critical=True)
     if data.get("ok") is False:
         return _chk(name, "RED", f"BLIND: beacon ok=False (fetch failed) -- {detail}", critical=True)
-    if age > BEACON_STALE_MIN:
+    eff = _rth_staleness_min(age, _et_now(now_utc))  # 09:30:02 false-RED fix
+    if eff > BEACON_STALE_MIN:
         return _chk(name, "RED",
-                    f"BLIND: eye STALE {age:.1f}m (>{BEACON_STALE_MIN}m) during RTH -- {detail}",
+                    f"BLIND: eye STALE {eff:.1f}m (>{BEACON_STALE_MIN}m) during RTH -- {detail}",
                     critical=True)
+    if age > BEACON_STALE_MIN:
+        return _chk(name, "GREEN",
+                    f"awaiting first beacon write of the session ({detail})", critical=True)
     return _chk(name, "GREEN", detail, critical=True)
 
 
@@ -720,9 +746,14 @@ def check_engine_core(name: str, account: str, market_open: bool, et: datetime) 
     detail = f"last {account} tick {age:.1f}m ago ({newest[11:19]})"
     if not market_open:
         return _chk(name, "GREEN", f"{detail} (market closed -- quiet OK)", critical=True)
-    if age > CORE_STALE_MIN:
+    eff = _rth_staleness_min(age, et)  # 09:30:02 false-RED fix -- see helper docstring
+    if eff > CORE_STALE_MIN:
         return _chk(name, "RED",
-                    f"ENGINE STALE {age:.1f}m (>{CORE_STALE_MIN}m) during RTH -- {detail}",
+                    f"ENGINE STALE {eff:.1f}m (>{CORE_STALE_MIN}m) during RTH -- {detail}",
+                    critical=True)
+    if age > CORE_STALE_MIN:
+        return _chk(name, "GREEN",
+                    f"awaiting first tick of the session ({detail}; open {max(0.0, _minutes_since_open(et)):.1f}m)",
                     critical=True)
     return _chk(name, "GREEN", detail, critical=True)
 
