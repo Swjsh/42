@@ -509,6 +509,21 @@ def _sameday_structure_side(payload: dict) -> "str | None":
         return None
 
 
+def _read_shadow_trendlines() -> "list | None":
+    """automation/state/trendlines-live.json's lines, or None. Fail-open, never raises.
+
+    Feeds the conviction_tl SHADOW variant ONLY (see _conviction_shadow). That artifact's own
+    note is explicit -- "NOT fed to entries -- entry-wire is A/B-gated NEEDS-REVIEW" -- and
+    nothing here changes that: this read reaches a scorer that no branch consumes.
+    """
+    try:
+        raw = json.loads((STATE / "trendlines-live.json").read_text(encoding="utf-8"))
+        lines = raw.get("trendlines")
+        return lines if isinstance(lines, list) else None
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return None
+
+
 def _conviction_shadow(verdict: dict, payload: dict, account: str) -> "dict | None":
     """PHASE A — SHADOW ONLY. Compute the conviction score for an ENTER verdict and return it
     for the ledger row. NOTHING reads this to make a decision; there is no SKIP_LOW_CONVICTION
@@ -569,6 +584,34 @@ def _conviction_shadow(verdict: dict, payload: dict, account: str) -> "dict | No
             k=k)
         out = res.to_dict()
         out["shadow_only"] = True   # explicit: this row changed no behaviour
+        # --- conviction_tl: the v2 A/B arm (2026-08-18, J-directed, STAYS SHADOW) ----------
+        # v0 scored BOTH live winners 0/8 (104 post-fix rows, 100% would_block,
+        # delta_if_armed -$522) because C1 pays only for a NAMED HORIZONTAL level and both
+        # winners entered on a SLOPED trendline, while C4 scored a breakdown at the session
+        # low as bad location. v2 generalises C1 -> "anchor" and C4 -> "location". Computed
+        # from the SAME inputs plus the shadow trendline artifact, logged BESIDE v0 so the
+        # outcome join gets a paired comparison on identical entries -- the cheapest possible
+        # A/B, zero engine change. Wrapped separately: a v2 failure must never cost the v0 row.
+        try:
+            tl_recs = _read_shadow_trendlines()
+            if tl_recs is not None:
+                res_tl = _cv.score_conviction(
+                    side=side,
+                    entry_level=verdict.get("rejection_level"),
+                    level_records=_read_level_records(spy),
+                    triggers_fired=verdict.get("triggers_fired"),
+                    level_states=bc.get("level_states"),
+                    trigger_close=spy,
+                    envelope_high=hi, envelope_low=lo,
+                    structure_side=_sameday_structure_side(payload),
+                    confluence_zones=_read_confluence_zones(),
+                    trendline_records=tl_recs,
+                    k=k)
+                out["variant_tl"] = res_tl.to_dict()
+                out["variant_tl"]["shadow_only"] = True
+        except Exception as _e:  # noqa: BLE001 -- the A/B arm never breaks the primary row
+            out["variant_tl"] = {"error": f"{type(_e).__name__}: {_e}"[:160],
+                                 "shadow_only": True}
         return out
     except Exception as e:  # noqa: BLE001
         return {"error": f"{type(e).__name__}: {e}", "shadow_only": True}

@@ -57,6 +57,26 @@ MAX_PRIOR_TESTS_TODAY = 1   # C3: this is the 1st or 2nd test of the level today
 RANGE_EXTREME_PCT = 0.30    # C4: top/bottom 30% of the prior-day-union-today envelope
 ZONE_MIN_SOURCES = 3        # C7
 
+# --- TRENDLINE ANCHOR (v2 variant, 2026-08-18) ---------------------------------------------
+# WHY: two live days (08-17 +$360, 08-18 +$162) were won on `trendline_rejection`, and v0
+# scored every one of them 0/8 -- 104 post-fix rows, 100% would_block, delta_if_armed -$522.
+# The cause is structural, not tuning: C1 pays only for a NAMED HORIZONTAL level, and a
+# trendline is a SLOPED line with no name, so the winner's `trigger_level_exact` is null.
+# C4 compounds it -- "puts want the TOP of the envelope" scores a breakdown at the session
+# low as bad location, which is exactly what a continuation entry IS.
+#
+# v2 therefore generalises TWO components rather than bolting on a 9th:
+#   C1  "no named level, no trade"  ->  "no ANCHOR, no trade" (horizontal OR quality trendline)
+#   C4  "range extreme"             ->  "good location" (range extreme OR AT the line)
+# MAX_SCORE stays 8 so v0 and v2 floors are directly comparable in the A/B.
+_SCORING_KEYS = ("named_level", "multi_day_memory", "fresh_test", "range_extreme",
+                 "structure_agreement", "elite_trigger", "zone_stack")
+
+TL_MIN_RESPECTS = 20        # a line the tape has actually honoured (today's winners: 52-124)
+TL_MAX_VIOLATIONS = 6       # ...without being repeatedly sliced
+TL_TOUCH_TOL = 0.60         # $: entry must be AT the line to earn C4-as-location
+_TL_TRIGGER_MARKERS = ("trendline",)
+
 # CALIBRATED 2026-08-12 on origin exhibit A, floor 4 -> 5. At 4, the identity components
 # (C1 named +2, C2 remembered +1, C3 fresh +1) STACK EXACTLY TO THE FLOOR, so any named,
 # remembered, lightly-tested level cleared the bar on level identity alone. 08-12's signature
@@ -148,6 +168,43 @@ def _match_level(entry_level: Optional[float],
     return best
 
 
+def _match_trendline(side: str, close: Optional[float],
+                     records: Optional[Sequence[Mapping[str, Any]]]) -> Optional[Mapping[str, Any]]:
+    """The best QUALITY trendline this entry is trading against, or None. Pure.
+
+    Quality bar = the tape has honoured it (respects >= TL_MIN_RESPECTS) without repeatedly
+    slicing it (violations <= TL_MAX_VIOLATIONS). Side matters: a PUT trades a rejection at
+    RESISTANCE / a break of SUPPORT, so both kinds qualify -- what must hold is that price is
+    AT the line, which the caller's TL_TOUCH_TOL check enforces for C4. Deliberately does NOT
+    filter on anchor_family: doctrine says a line is all-wick XOR all-body, never mixed, and
+    the producer already guarantees that -- re-filtering here would silently halve the input.
+    """
+    if not records or close is None:
+        return None
+    best = None
+    best_gap = None
+    for r in records:
+        if not isinstance(r, Mapping):
+            continue
+        val = _f(r.get("current_value") if r.get("current_value") is not None
+                 else r.get("break_level"))
+        if val is None:
+            continue
+        respects = r.get("respect_count")
+        violations = r.get("violations")
+        try:
+            if int(respects) < TL_MIN_RESPECTS:
+                continue
+            if violations is not None and int(violations) > TL_MAX_VIOLATIONS:
+                continue
+        except (TypeError, ValueError):
+            continue
+        gap = abs(close - val)
+        if best_gap is None or gap < best_gap:
+            best, best_gap = r, gap
+    return best
+
+
 def score_conviction(
     *,
     side: str,
@@ -160,6 +217,7 @@ def score_conviction(
     envelope_low: Optional[float] = None,
     structure_side: Optional[str] = None,
     confluence_zones: Optional[Sequence[Mapping[str, Any]]] = None,
+    trendline_records: Optional[Sequence[Mapping[str, Any]]] = None,
     k: int = 0,
     floor: int = DEFAULT_FLOOR,
     ratchet_step: int = DEFAULT_RATCHET_STEP,
@@ -180,6 +238,20 @@ def score_conviction(
     if not level_records:
         degraded.append("named_level")
     comp["named_level"] = W_NAMED_LEVEL if rec is not None else 0
+    # v2 ANCHOR GENERALISATION (opt-in: only when trendline_records is passed; absent =>
+    # byte-identical v0, which keeps the running shadow series comparable).
+    tl_rec = None
+    tl_on = trendline_records is not None
+    if tl_on:
+        tf_probe = [str(t).lower() for t in (triggers_fired or [])]
+        tl_fired = any(m in t for t in tf_probe for m in _TL_TRIGGER_MARKERS)
+        tl_rec = _match_trendline(s, _f(trigger_close), trendline_records) if tl_fired else None
+        comp["trendline_anchor"] = W_NAMED_LEVEL if tl_rec is not None else 0
+        if tl_rec is not None:
+            comp["trendline_respects"] = tl_rec.get("respect_count")
+            comp["trendline_value"] = _f(tl_rec.get("current_value"))
+        if comp["named_level"] == 0 and tl_rec is not None:
+            comp["named_level"] = W_NAMED_LEVEL   # C1 satisfied by a SLOPED anchor
     label = str(rec.get("label")) if isinstance(rec, Mapping) and rec.get("label") else None
     price = _f(rec.get("price") or rec.get("level") or rec.get("value")) if rec else None
 
@@ -233,6 +305,16 @@ def score_conviction(
         elif s == "C" and pos <= RANGE_EXTREME_PCT:
             rng = W_RANGE_EXTREME
         comp["range_position"] = round(pos, 3)
+    # v2 LOCATION GENERALISATION: a trendline entry's "good location" is being AT THE LINE,
+    # not at the envelope extreme. Without this, a breakdown rejection off a sloped line is
+    # scored as bad location BY CONSTRUCTION -- the second half of why v0 zeroed the winners.
+    if tl_on and rng == 0 and tl_rec is not None and c is not None:
+        tl_val = _f(tl_rec.get("current_value"))
+        if tl_val is not None and abs(c - tl_val) <= TL_TOUCH_TOL:
+            rng = W_RANGE_EXTREME
+            comp["location_source"] = "at_trendline"
+            if "range_extreme" in degraded:
+                degraded.remove("range_extreme")
     comp["range_extreme"] = rng
 
     # --- C5 STRUCTURE AGREEMENT (+1, SOFT) -----------------------------------------------
@@ -265,7 +347,12 @@ def score_conviction(
                 break
     comp["zone_stack"] = zone
 
-    total = sum(v for key, v in comp.items() if key != "range_position")
+    # EXPLICIT ALLOWLIST, not exclusion-by-one. v2 adds DIAGNOSTIC keys (trendline_anchor,
+    # trendline_respects, trendline_value, location_source, range_position) that must never
+    # reach the total -- trendline_anchor in particular MIRRORS the C1 point it already
+    # granted, so summing it would double-count the anchor and inflate every trendline entry
+    # by 2. An exclusion list would have silently mis-scored the moment a key was added.
+    total = sum(int(comp.get(key) or 0) for key in _SCORING_KEYS)
     fl = effective_floor(k, floor, ratchet_step)
     return ConvictionResult(
         total=int(total),
