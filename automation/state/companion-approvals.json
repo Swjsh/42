@@ -1,6 +1,6 @@
 {
   "schema": "gamma-companion-approvals@1",
-  "updated_at": "2026-06-30T01:56:00.380Z",
+  "updated_at": "2026-08-18T09:32:42.958Z",
   "pending": [
     {
       "severity": "info",
@@ -8,6 +8,13 @@
       "id": "cd-2026-06-29-001",
       "title": "06-28 dead-axis params auto-apply bypassed recency gate",
       "detail": "tp1 0.667->0.8 + profit-lock trailing->FIXED shipped live from a WR-12% premium-axis contender while recency=RED. Approve=revert to trailing/0.667; reject=keep & update doctrine."
+    },
+    {
+      "severity": "info",
+      "created_at": "2026-08-18T09:32:42.952Z",
+      "id": "gp-2026-07-23-twin-doctrine-001",
+      "title": "Twin-first-deploy doctrine fold (26d stale)",
+      "detail": "One-sentence CLAUDE.md OP-31 fold: new watcher/detector/exit feature runs 24-48h on the crypto twin before touching SPY. Formalizes existing advisory practice. Zero risk, doctrine-only. Approve to ship, reject to shelve."
     }
   ]
 }

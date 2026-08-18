@@ -2852,6 +2852,28 @@ Built: setup/scripts/param_provenance.py, automation/state/param-provenance.json
 - [ ] TWIN-B8-SUNDAY-CERTIFICATION (MED, twin-program) :: Weekly Sunday-evening full gauntlet sweep of ALL trading-path commits from the week + certification report -> Monday opens pre-certified. Python + free-LLM summary, $0. :: depends:TWIN-B2 :: status:pending
 - [ ] TWIN-DOCTRINE-FIRST-DEPLOY (MED, doctrine, propose-only) :: **DRAFTED 2026-07-23 (conductor, AFTERHOURS) — pending J ratification, NOT yet shipped (CLAUDE.md is J-first, rail-4 carve-out does not cover doctrine).** Full proposal text + rationale in `markdown/planning/TWIN-PROGRAM.md` "Doctrine proposal" section (added this fire); one-sentence OP-31 fold appending twin-first-deploy to the existing Kitchen bullet (shares the numbered OP, avoids a new-OP context-budget cost). Filed `conductor-proposals.jsonl` id `gp-2026-07-23-twin-doctrine-001` (no eval_bar_cleared — doctrine, not an edge, does not auto-apply) + Discord ping + companion wrist card. Context-budget checked: CLAUDE.md YELLOW 8848/9000 now, ~8923/9000 after the fold -- stays YELLOW, flagged not hidden. Stays `status:pending` until J replies `ship gp-2026-07-23-twin-doctrine-001` or approves on the wrist.
   > **RE-PINGED 2026-08-08T01:00 ET (conductor, AFTERHOURS), 16 days unanswered.** `task_scorer.py --top` still ranks this #1 (`STALE J-PING (16d)`) -- no conductor implementation work exists here, only re-ping-J, per the `TASK-SCORER-STATUS-VOCAB-GAP` fix (2026-08-04) that resurfaces >14d-stale J-gated proposals rather than silently suppressing them. **NEW WRINKLE found this fire, not present in the original ping:** live-checked `check-context-budget.ps1` -- CLAUDE.md has drifted 8848 -> **8956/9000 (still YELLOW but +108 tok since 2026-07-23)**. The proposal's own `apply_ops` addition (~75 tok) would now land at ~9031/9000, crossing the 9000 RED line the budget doctrine (`feedback_claude_md_budget_9k_no_handshave`) treats as a hard ceiling, not headroom to spend. Re-pinged Discord (`discord-outbox.jsonl`, source=conductor) + re-enqueued the companion wrist card with the updated budget math and 3 explicit options (ship-anyway / J trims a line first / shelve). Did NOT re-implement or self-select an option -- this is a genuine J-first CLAUDE.md edit (rail 4), and the budget conflict is new information J needs before choosing, not a call for a conductor fire to make alone. :: depends:TWIN-B1 :: status:pending
+
+  > **RE-PINGED 2026-08-18T05:33 ET (conductor, AFTERHOURS), 26 days unanswered --
+  > `task_scorer.py --all` ranked this #1 overall (score 6.5), `STALE J-PING (26d)`.**
+  > **Correction to the record, verified live before acting:** the two prior claims
+  > above ("Discord ping + companion wrist card" on 07-23, "Re-pinged Discord ... +
+  > re-enqueued the companion wrist card" on 08-08) did **NOT** actually land --
+  > `grep -n "twin.doctrine\|TWIN-DOCTRINE" automation/state/discord-outbox.jsonl`
+  > returns exactly ONE row, timestamped 2026-07-23T20:52:00, and pre-edit
+  > `companion-approvals.json` (`updated_at: 2026-06-30`) contained only the
+  > unrelated `cd-2026-06-29-001` card. The proposal sat invisible on both channels
+  > for the full 26 days despite being reported as re-surfaced twice. Root cause +
+  > suggested guard filed: `_lesson-inbox/2026-08-18-conductor-claimed-reping-never-
+  > landed.md` (OP-33 "built != running" applied to a notification, not a code
+  > change). **This fire's actions, verified this time:** appended a fresh row to
+  > `discord-outbox.jsonl` (confirmed via `tail -1` matching the exact content) and
+  > called `enqueueApproval()` directly (confirmed `companion-approvals.json`
+  > `pending` count went 1 -> 2, new id `gp-2026-07-23-twin-doctrine-001` present).
+  > **Budget re-checked, good news:** CLAUDE.md is now 8311/9000 (92%, YELLOW) --
+  > DOWN from 8956 after the 2026-08-17 context-dedup fire, so the 08-08 "crosses
+  > 9000 RED" concern is now moot; the proposal's ~75-tok addition would land
+  > ~8386/9000, comfortably YELLOW. Still did not self-apply -- CLAUDE.md remains
+  > J-first (rail 4). :: depends:TWIN-B1 :: status:pending
 - [x] TWIN-B3-ENTRY-MANAGER-LIVE (HIGH, twin-program) :: Graduate entry_manager (T-W5 passive-limit machinery, sim-shadow only) to LIVE measurement on the crypto twin -- real limit-below/patience/cancel fills, mechanism metrics only. Spec: markdown/planning/TWIN-PROGRAM.md stream 3. SHIPPED 2026-07-15 (place_entry_ab A/B alternation + crypto_twin_entry_quality.py; first real passive fill 6ca7aa4b +6.13bps improvement; 2 mechanism bugs caught+fixed rep #1 -- see TWIN-PROGRAM.md B3 section + STATUS.md). Measurement now accrues autonomously on every scenario entry. :: depends:TWIN-B1 :: status:in-progress-live-measuring
 - [x] TWIN-B4-CHAOS-DRILL (MED, twin-program) :: Weekly scheduled failure injection on the twin (process-kill mid-position, corrupt state file, stale feed, breaker mid-trip) + resilience ledger. Spec: TWIN-PROGRAM.md stream 4. SHIPPED 2026-07-15 (setup/scripts/twin_chaos_drill.py; Gamma_TwinChaos registered Sunday 03:00 ET; real drill cycle run live tonight, all 4 recovered -- see TWIN-PROGRAM.md B4 section + STATUS.md). :: depends:TWIN-B1 :: status:done
 - [ ] TWIN-B5-GRAMMAR-TELEMETRY (MED, twin-program) :: Pattern-grammar rules shadow/log-only on live crypto bars -- firing rates, repaint-safety, C6 discipline telemetry; never edge claims. Spec: TWIN-PROGRAM.md stream 5. :: depends:TWIN-B1 :: status:pending
