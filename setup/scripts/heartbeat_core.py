@@ -501,12 +501,59 @@ def _sameday_structure_side(payload: dict) -> "str | None":
     is not the same as a structural disagreement, and `_veto_side` treats both as no-veto.
     Any failure returns None (fail-open); conviction is disarmed, so None costs nothing.
     """
+    return _sameday_structure_diag(payload)[0]
+
+
+def _sameday_structure_diag(payload: dict) -> "tuple[str | None, str]":
+    """(side, reason) -- the SINGLE implementation; `_sameday_structure_side` is its façade.
+
+    WHY THIS EXISTS (2026-08-18, alignment review). C5 degraded on 74% of post-fix conviction
+    rows and the row could not say WHY, because a legitimate "no structural opinion" ('range'
+    / 'unknown') and a swallowed crash both returned None. That is the C7 failure mode --
+    silent success is indistinguishable from silent failure -- inside the instrument that
+    gates equity-scaled sizing, so the 74% was unreadable rather than merely unflattering.
+
+    The mechanism is real and measured, not hypothetical: `_classify_sameday_5m` builds
+    `crypto.lib.bar.Bar`, which REJECTS a naive timestamp. Replayed over five days of cached
+    5m bars, naive `timestamp_iso` yields 'unknown' on 714/714 windows (100% silent failure);
+    the identical bars with a -04:00 offset yield range 299 / uptrend 202 / downtrend 154 /
+    unknown 59 (50.1% legitimate abstention). Live sits at 74%, i.e. between the two -- so it
+    is NOT fully broken (it does emit uptrend/downtrend), but whether some fraction is the
+    crash path was UNKNOWABLE from the row. Now it is recorded.
+
+    reason is one of: 'uptrend' | 'downtrend' | 'range' | 'unknown' | 'error:<ExcType>'.
+    Still fail-open -- any exception returns (None, 'error:...'), never raises.
+    """
+    bars = payload.get("sameday_5m_bars")
     try:
         from backtest.lib.engine.engine_cli import _classify_sameday_5m
-        trend = _classify_sameday_5m(payload.get("sameday_5m_bars"))
-        return {"uptrend": "C", "downtrend": "P"}.get(str(trend))
-    except Exception:  # noqa: BLE001 -- a shadow input must never break a tick
-        return None
+        trend = str(_classify_sameday_5m(bars))
+    except Exception as _e:  # noqa: BLE001 -- a shadow input must never break a tick
+        return None, f"error:{type(_e).__name__}"
+    if trend in ("uptrend", "downtrend"):
+        return ("C" if trend == "uptrend" else "P"), trend
+    if trend != "unknown":
+        return None, trend            # 'range' -- a genuine, informative abstention
+    # 'unknown' is the AMBIGUOUS value: `_classify_sameday_5m` returns it for "fewer than 5
+    # bars" AND for "any exception", swallowed one layer below us. Probe cheaply to say which,
+    # WITHOUT changing engine_cli's contract (it is pinned by replay-parity tests).
+    try:
+        n = len(bars) if bars is not None else 0
+    except TypeError:
+        return None, "unknown:not_sized"
+    if n < 5:
+        return None, "unknown:insufficient_bars"
+    try:
+        import datetime as _dt3
+        from crypto.lib.bar import Bar as _Bar
+        _r0 = bars[0]
+        _ts0 = _dt3.datetime.fromisoformat(str(_r0.get("timestamp_iso") or _r0.get("timestamp_et") or ""))
+        _Bar(open_time=_ts0, open=float(_r0["open"]), high=float(_r0["high"]),
+             low=float(_r0["low"]), close=float(_r0["close"]),
+             volume=float(_r0.get("volume", 0.0)), granularity_seconds=300, source="spy_5m")
+    except Exception as _probe:  # noqa: BLE001 -- the probe itself must never break a tick
+        return None, f"unknown:error:{type(_probe).__name__}"
+    return None, "unknown:classifier"
 
 
 def _read_shadow_trendlines() -> "list | None":
@@ -571,6 +618,10 @@ def _conviction_shadow(verdict: dict, payload: dict, account: str) -> "dict | No
             k = int(_st.get("entries_used_today") or 0)
         except Exception:  # noqa: BLE001 -- k=0 is the most PERMISSIVE floor (fail-open)
             k = 0
+        # ONE computation shared by v0 and v2 (was computed twice -- same payload, same
+        # answer, twice the swing-point pass). `_structure_reason` makes C5's degradation
+        # readable: 'range' is a real abstention, 'error:*' is a defect. See _sameday_structure_diag.
+        _structure_side, _structure_reason = _sameday_structure_diag(payload)
         res = _cv.score_conviction(
             side=side,
             entry_level=verdict.get("rejection_level"),
@@ -579,11 +630,12 @@ def _conviction_shadow(verdict: dict, payload: dict, account: str) -> "dict | No
             level_states=bc.get("level_states"),
             trigger_close=spy,
             envelope_high=hi, envelope_low=lo,
-            structure_side=_sameday_structure_side(payload),   # C5 threaded 2026-08-14
+            structure_side=_structure_side,   # C5 threaded 2026-08-14; diag 2026-08-18
             confluence_zones=_read_confluence_zones(),
             k=k)
         out = res.to_dict()
         out["shadow_only"] = True   # explicit: this row changed no behaviour
+        out["structure_reason"] = _structure_reason   # why C5 scored/degraded (2026-08-18)
         # --- conviction_tl: the v2 A/B arm (2026-08-18, J-directed, STAYS SHADOW) ----------
         # v0 scored BOTH live winners 0/8 (104 post-fix rows, 100% would_block,
         # delta_if_armed -$522) because C1 pays only for a NAMED HORIZONTAL level and both
@@ -603,7 +655,7 @@ def _conviction_shadow(verdict: dict, payload: dict, account: str) -> "dict | No
                     level_states=bc.get("level_states"),
                     trigger_close=spy,
                     envelope_high=hi, envelope_low=lo,
-                    structure_side=_sameday_structure_side(payload),
+                    structure_side=_structure_side,
                     confluence_zones=_read_confluence_zones(),
                     trendline_records=tl_recs,
                     k=k)
