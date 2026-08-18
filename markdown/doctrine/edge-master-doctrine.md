@@ -298,3 +298,21 @@ and it is a strike-selection defect rather than an edge.
 ELITE waves happened to lose. Any conclusion drawn from the per-trade row here is an artifact of
 correlated arms, not a property of the label. This is the whole reason `winner_signature.py` prints
 waves as the headline — and it caught a wrong claim in the first draft of this very section.
+
+### 8. How this gets audited (the standing loop, not a one-off)
+
+| organ | fires | asks |
+|---|---|---|
+| `Gamma_WinnerAutopsy` → `winner-autopsies/all.md` | 16:25 ET | how much of what our winners offered did we KEEP? (exit) |
+| `Gamma_WinnerSignature` → `winner-autopsies/SIGNATURE.md` | 16:32 ET | what does our money LOOK LIKE? (entry / regime / shape) |
+| `Gamma_DayThrottleShadow` → `day-throttle-shadow-summary.json` | 16:35 ET | is the one live hypothesis surviving its forward window? |
+
+The third one exists because a pre-registration that nothing computes is prose, and prose
+never adjudicates itself (C35/L221 shape — a falsification promise sitting unwired). It
+recomputes `would_block` per fill AFTER the close from `journal/trades.csv` rather than
+instrumenting the 1-minute tick: identical evidence, and a crash in the counter can never
+touch a trade. Its `forward` block is the ONLY thing that can clear a gate; `in_sample_reference`
+is printed for drift-checking and is barred by construction from clearing anything.
+
+**The window opens the first session after 2026-08-18 and needs 15 sessions.** Until then the
+correct reading of every number in §1–§7 is *hypothesis*, and the correct action is none.

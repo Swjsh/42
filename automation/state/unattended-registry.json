@@ -931,7 +931,8 @@
     "Gamma_AnalystEodReview",
     "Gamma_TradeAutopsy",
     "Gamma_WinnerAutopsy",
-    "Gamma_WinnerSignature"
+    "Gamma_WinnerSignature",
+    "Gamma_DayThrottleShadow"
    ],
    "expect_disabled": {
     "Gamma_EveningNarrative": "DISABLED 2026-07-25 -- duplicate of Gamma_EodBrief",
@@ -952,6 +953,16 @@
      "path": "analysis/winner-autopsies/signature.json",
      "writer": "winner signature (winner_signature.py)",
      "task": "Gamma_WinnerSignature",
+     "criticality": "medium",
+     "max_age_min": 2160,
+     "date_field": null,
+     "window_et": null,
+     "weekdays_only": false
+    },
+    {
+     "path": "analysis/recommendations/day-throttle-shadow-summary.json",
+     "writer": "day-throttle shadow counter (day_throttle_shadow.py)",
+     "task": "Gamma_DayThrottleShadow",
      "criticality": "medium",
      "max_age_min": 2160,
      "date_field": null,

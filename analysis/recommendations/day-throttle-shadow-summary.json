@@ -1,0 +1,121 @@
+{
+ "_meta": {
+  "generated_at_et": "2026-08-18T01:24:54.248502",
+  "builder": "setup/scripts/day_throttle_shadow.py",
+  "prereg": "analysis/recommendations/day-throttle-forward-prereg-2026-08-18.json",
+  "prereg_status": "FROZEN_PREREG_FORWARD",
+  "shadow_only": "MEASUREMENT ONLY -- neither threshold refuses a live entry.",
+  "candidates_pct_of_sod_equity": {
+   "T-2": 2.0,
+   "T-6": 6.0
+  },
+  "forward_window": {
+   "first_date": "2026-08-18",
+   "sessions_required": 15,
+   "sessions_elapsed": 0,
+   "dates": [],
+   "verdict_ready": false
+  }
+ },
+ "forward": {
+  "T-2": {
+   "n_kept": 0,
+   "n_blocked": 0,
+   "n_abstain": 0,
+   "delta_usd": 0,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 0,
+   "blocked_wr_pct": null,
+   "delta_ex_best_session_usd": 0.0,
+   "sessions_touched": 0,
+   "f_gates": {
+    "F1_direction_positive": false,
+    "F2_not_a_winner_killer": false,
+    "F3_frequency_n_blocked_ge_10": false,
+    "F4_survives_dropping_best_session": false,
+    "_note": "F5 (regime split) is adjudicated by a session reading the window, not computed nightly -- it needs the range classification for each session in the window."
+   }
+  },
+  "T-6": {
+   "n_kept": 0,
+   "n_blocked": 0,
+   "n_abstain": 0,
+   "delta_usd": 0,
+   "blocked_winner_usd": 0,
+   "blocked_loser_usd": 0,
+   "blocked_wr_pct": null,
+   "delta_ex_best_session_usd": 0.0,
+   "sessions_touched": 0,
+   "f_gates": {
+    "F1_direction_positive": false,
+    "F2_not_a_winner_killer": false,
+    "F3_frequency_n_blocked_ge_10": false,
+    "F4_survives_dropping_best_session": false,
+    "_note": "F5 (regime split) is adjudicated by a session reading the window, not computed nightly -- it needs the range classification for each session in the window."
+   }
+  },
+  "H-FIRSTWAVE": {
+   "n_judgeable": 0,
+   "after_red_first_wave": {
+    "n": 0,
+    "usd": 0
+   },
+   "after_green_first_wave": {
+    "n": 0,
+    "usd": 0
+   },
+   "_observation_only": "No rule is proposed from this. It is logged so the window can measure whether the in-sample split survives."
+  }
+ },
+ "in_sample_reference": {
+  "T-2": {
+   "n_kept": 278,
+   "n_blocked": 139,
+   "n_abstain": 7,
+   "delta_usd": 2679.0,
+   "blocked_winner_usd": 2893.0,
+   "blocked_loser_usd": -5572.0,
+   "blocked_wr_pct": 22.3,
+   "delta_ex_best_session_usd": 925.0,
+   "sessions_touched": 20,
+   "f_gates": {
+    "F1_direction_positive": true,
+    "F2_not_a_winner_killer": true,
+    "F3_frequency_n_blocked_ge_10": true,
+    "F4_survives_dropping_best_session": true,
+    "_note": "F5 (regime split) is adjudicated by a session reading the window, not computed nightly -- it needs the range classification for each session in the window."
+   }
+  },
+  "T-6": {
+   "n_kept": 390,
+   "n_blocked": 27,
+   "n_abstain": 7,
+   "delta_usd": 1920.0,
+   "blocked_winner_usd": 472.0,
+   "blocked_loser_usd": -2392.0,
+   "blocked_wr_pct": 18.5,
+   "delta_ex_best_session_usd": 1092.0,
+   "sessions_touched": 7,
+   "f_gates": {
+    "F1_direction_positive": true,
+    "F2_not_a_winner_killer": true,
+    "F3_frequency_n_blocked_ge_10": true,
+    "F4_survives_dropping_best_session": true,
+    "_note": "F5 (regime split) is adjudicated by a session reading the window, not computed nightly -- it needs the range classification for each session in the window."
+   }
+  },
+  "H-FIRSTWAVE": {
+   "n_judgeable": 240,
+   "after_red_first_wave": {
+    "n": 175,
+    "usd": -3545.0
+   },
+   "after_green_first_wave": {
+    "n": 65,
+    "usd": 2519.0
+   },
+   "_observation_only": "No rule is proposed from this. It is logged so the window can measure whether the in-sample split survives."
+  }
+ },
+ "_reading_note": "`forward` is the ONLY block that can adjudicate the pre-registration. `in_sample_reference` is the population the hypothesis was generated on and is printed for drift-checking only -- it can never clear a gate."
+}

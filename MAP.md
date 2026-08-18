@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-18 01:15:47 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-18 01:26:19 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
