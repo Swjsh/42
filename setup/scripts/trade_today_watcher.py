@@ -46,7 +46,6 @@ sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 import fleet_broker as fb  # noqa: E402
 from et_clock import et_offset_hours, et_today_str  # noqa: E402
-from arm_display import display_name_for_arm_id  # noqa: E402
 
 STATE = REPO / "automation" / "state"
 OUTBOX = STATE / "discord-outbox.jsonl"
@@ -355,6 +354,130 @@ def _is_engine_attributed(arm: str, symbol: str) -> bool:
     return False
 
 
+# =============================================================================
+# READABLE FILL FORMAT (2026-08-17, J's exact words after calling the old single-line
+# pipe-concatenated message "just gibberish" and "I cannot read them"): "Red or green
+# emoji for put or call, and then needs to be, like, 777c five contracts at price with
+# a take profit at this level. But it needs to be in, like, a new line and, like, a
+# bullet." Replaces the old one-liner --
+#   "ENGINE TRADE [safe-2 CORE-SAFE (46VG)]: SPY260817P00775000 x5 @ $0.72 buy
+#    (2026-08-17T17:06:05Z) | exit: structure@775.09 (armed) | exit:CORE"
+# -- with a direction-emoji headline + bulleted detail:
+#   "🔴 775P ×5 @ $0.72 — ENGINE TRADE [bold-2]
+#    • TP1 $1.44 (+100%), sell 3
+#    • stop: structure @ $775.09
+#    • 13:06:05 ET"
+# The pretty arm_display.display_name_for_arm_id() suffix (e.g. "CORE-BOLD (U67N)") is
+# DROPPED from the tag -- J asked for it SHORT ("[bold-2]"); it was a major contributor
+# to the "gibberish" complaint. Newlines survive the outbox->Discord path unmodified:
+# discord-bridge.py's drain_outbox only .strip()s the OUTER ends of `content` and posts
+# it verbatim as JSON (json={"content": content}), which preserves embedded "\n" through
+# both the HTTP JSON encoding and Discord's own multi-line rendering.
+# =============================================================================
+_OCC_RE = re.compile(r"^[A-Z]+\d{6}([CP])(\d{8})$")
+
+
+def _parse_occ(symbol: str) -> "tuple[str, str] | None":
+    """OCC option symbol -> (right 'C'|'P', human strike label, e.g. '775' or '775.5').
+    None on anything that doesn't match the expected shape -- callers fall back to the
+    raw symbol string rather than crash or silently mislabel a real fill (fail-open)."""
+    m = _OCC_RE.match(symbol or "")
+    if not m:
+        return None
+    right = m.group(1)
+    strike = int(m.group(2)) / 1000.0
+    strike_s = str(int(strike)) if strike == int(strike) else f"{strike:g}"
+    return right, strike_s
+
+
+def _contract_label(symbol: str) -> str:
+    """'SPY260817P00775000' -> '775P'. Falls back to the raw symbol on a parse miss."""
+    parsed = _parse_occ(symbol)
+    return f"{parsed[1]}{parsed[0]}" if parsed else symbol
+
+
+def _direction_emoji(symbol: str) -> str:
+    """J's literal spec: red for PUT, green for CALL. Neutral white circle on a parse
+    miss -- never guess a direction the symbol string didn't actually say."""
+    parsed = _parse_occ(symbol)
+    if parsed is None:
+        return "⚪"  # white circle -- unknown, never silently guess red or green
+    return "\U0001F534" if parsed[0] == "P" else "\U0001F7E2"
+
+
+def _fmt_fill_time_et(filled_at) -> str:
+    """RFC3339 UTC fill timestamp -> 'HH:MM:SS' in ET (DST-aware via et_offset_hours,
+    the SAME helper _is_rehearsal_probe already uses for this identical conversion).
+    '' on anything unparseable -- fail-open, never blocks the rest of the ping."""
+    parsed = _parse_utc(filled_at)
+    if parsed is None:
+        return ""
+    et_dt = parsed + dt.timedelta(hours=et_offset_hours(parsed))
+    return et_dt.strftime("%H:%M:%S")
+
+
+def _position_exit_info(arm: str, symbol: str) -> "dict | None":
+    """The live exit-state.json record for (arm, symbol), or None if absent/unreadable.
+    Same read _structure_exit_label's source 1 already uses (STATE/fleet/{arm}/
+    exit-state.json) -- an ENTRY fill's position is registered the SAME tick this
+    watcher pings it, so it is always still present here. Deliberately does NOT fall
+    back to _structure_exit_label's source-2 decision-log scan: that fallback exists for
+    an EXIT fill whose position was just pruned, and reusing it for a TP1-bullet/stop-
+    bullet context would attach a stale "(armed)" stop label to a fill that may have
+    closed for an unrelated reason (e.g. a TP1 partial sell, not a stop-out) -- see the
+    main() loop comment for why EXIT fills render no stop bullet at all. Fail-open."""
+    try:
+        est_path = STATE / "fleet" / arm / "exit-state.json"
+        if not est_path.exists():
+            return None
+        est = json.loads(est_path.read_text(encoding="utf-8"))
+        pos = est.get(symbol)
+        return pos if isinstance(pos, dict) else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _tp1_bullet(pos: dict) -> str:
+    """'TP1 $X.XX (+NN%), sell Q' from a freshly-registered exit-state record (tp1_level
+    math mirrors exit_manager.py's own `entry * (1 + tp1_premium_pct)`, ~line 591 of
+    automation/state/fleet/exit_manager.py -- same formula, read-only, never re-derives
+    or overrides it). '' on any missing/malformed field or a zero tp1_qty (an all-runner
+    shape has nothing to report here) -- fail-open, never blocks the rest of the ping."""
+    try:
+        entry = float(pos["entry_premium"])
+        pct = float(pos["tp1_premium_pct"])
+        qty = int(pos["tp1_qty"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+    if qty <= 0:
+        return ""
+    tp1_price = entry * (1.0 + pct)
+    return f"TP1 ${tp1_price:.2f} ({pct * 100:+.0f}%), sell {qty}"
+
+
+def _stop_bullet(pos: dict) -> str:
+    """'stop: structure @ $LEVEL' (v15.3 chart-stop-primary) or 'stop: catastrophe cap
+    NN% ($PRICE)' (premium-mode fallback -- CLAUDE.md 2026-06-18: "premium stops are now
+    -50% catastrophe caps both sides") -- whichever this position actually resolved to
+    ONCE at entry (stop_mode never flaps mid-trade, per exit_manager.ExitState's own
+    contract). '' when neither is available -- fail-open, never blocks the ping."""
+    try:
+        entry = float(pos["entry_premium"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+    if str(pos.get("stop_mode", "premium")) == "structure" and pos.get("trigger_level") is not None:
+        try:
+            return f"stop: structure @ ${float(pos['trigger_level']):.2f}"
+        except (TypeError, ValueError):
+            return ""
+    try:
+        cat_pct = float(pos.get("catastrophe_stop_pct"))
+    except (TypeError, ValueError):
+        return ""
+    cat_price = entry * (1.0 + cat_pct)
+    return f"stop: catastrophe cap {cat_pct * 100:.0f}% (${cat_price:.2f})"
+
+
 def main() -> int:
     creds_all = fb.load_creds()
     pinged = {}
@@ -401,26 +524,65 @@ def main() -> int:
 
     mention = _load_user_mention()
     for x in new:
-        first = "  <<< FIRST ENGINE FILL EVER!" if not ever_filled else ""
-        struct = _structure_exit_label(x["arm"], x["symbol"])
-        label = "ENGINE TRADE" if _is_engine_attributed(x["arm"], x["symbol"]) else "UNATTRIBUTED FILL (no matching decision row)"
-        # DISPLAY NAME (2026-07-17): [x['arm']] stays the ping's arm KEY for correlation with
-        # decisions.jsonl/state paths -- x['arm'] itself is untouched (still what
-        # _structure_exit_label/_is_engine_attributed key off of above). Only the label shown
-        # to J is prettified, e.g. "[safe-2]" -> "[safe-2 CORE-SAFE (KIQE)]".
-        arm_label = display_name_for_arm_id(x["arm"])
-        arm_s = x["arm"] if arm_label == x["arm"] else f"{x['arm']} {arm_label}"
-        # EXIT-PROFILE TAG (2026-07-20): which exit_patch overlay banked this fill --
-        # RIBBON / TRIG-EXACT / ZONE-RIDE / CORE (see _exit_profile_for_arm). '' when the
-        # arm has no label yet -- omitted rather than printing an empty " | exit:" tag.
-        profile = x.get("exit_profile") or _exit_profile_for_arm(x["arm"])
-        exit_tag = f" | exit:{profile}" if profile else ""
-        msg = (f"{label} [{arm_s}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
-               f"{x.get('side')} ({x.get('filled_at', '')}){struct}{exit_tag}{first}")
+        first = not ever_filled
+        arm_id = x["arm"]              # SHORT tag only (J's spec) -- the pretty
+                                        # arm_display display_name suffix is dropped, see
+                                        # the READABLE FILL FORMAT comment above.
+        symbol = x["symbol"]
+        side = str(x.get("side") or "").lower()
+        is_exit = side == "sell"       # entries are always broker BUYs in this system
+                                        # (never averages down / never shorts options --
+                                        # see MEMORY "never_average_down" guard); a SELL
+                                        # is unambiguously a TP1/runner/stop exit fill.
+        attributed = _is_engine_attributed(arm_id, symbol)
+        # EXIT-PROFILE (2026-07-20): which exit_patch overlay banked this fill -- RIBBON /
+        # TRIG-EXACT / ZONE-RIDE / CORE / PREMIUM-STOP (see _exit_profile_for_arm). '' when
+        # the arm has no label yet -- omitted rather than printing an empty bullet.
+        profile = x.get("exit_profile") or _exit_profile_for_arm(arm_id)
+        fill_et = _fmt_fill_time_et(x.get("filled_at"))
+        emoji = _direction_emoji(symbol)
+        contract = _contract_label(symbol)
+        qty_i = int(x["qty"])
+        price = x["price"]
+
+        if is_exit:
+            head = f"{emoji} {contract} EXIT ×{qty_i} @ ${price:.2f} [{arm_id}]"
+        else:
+            verb = "ENGINE TRADE" if attributed else "UNATTRIBUTED"
+            head = f"{emoji} {contract} ×{qty_i} @ ${price:.2f} — {verb} [{arm_id}]"
+
+        bullets: list[str] = []
+        if not is_exit:
+            # TP1/stop bullets are ENTRY-ONLY (J's spec: EXIT fills get "no TP bullet";
+            # a stop bullet on an EXIT would be either stale [the position is already
+            # gone] or actively misleading on a TP1 partial-sell EXIT, whose position is
+            # STILL open and would otherwise print "(armed)" stop info that had nothing
+            # to do with why THIS fill happened -- see _position_exit_info's docstring).
+            pos = _position_exit_info(arm_id, symbol)
+            if pos:
+                tp1 = _tp1_bullet(pos)
+                if tp1:
+                    bullets.append(tp1)
+                stop = _stop_bullet(pos)
+                if stop:
+                    bullets.append(stop)
+        if fill_et:
+            bullets.append(f"{fill_et} ET")
+        if profile:
+            bullets.append(f"profile: {profile}")
+        if not attributed:
+            # J relies on this warning (rule-10 "if Gamma flags a rule violation, the
+            # trade does not happen" territory when it's a ROGUE fill) -- moved off line 1
+            # into a bullet per J's explicit "it can move to a bullet".
+            bullets.append("⚠️ UNATTRIBUTED — no matching decision row")
+        if first:
+            bullets.append("\U0001F389 FIRST ENGINE FILL EVER")
+
+        msg = "\n".join([head] + [f"• {b}" for b in bullets])
         with OUTBOX.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps({"content": mention + "[TRADE] " + msg,
+            fh.write(json.dumps({"content": mention + msg,
                                  "source": "trade_today_watcher", "queued_at": _now()}) + "\n")
-        print("PINGED J:", msg)
+        print("PINGED J:", msg.replace("\n", " | "))
         ever_filled = True
 
     if new and not LIFETIME.exists():

@@ -297,7 +297,14 @@ def test_unattributed_fleet_fill_label_wired_into_message_before_fix_reproduced(
 
 def test_unattributed_fill_label_wired_into_message(tmp_path, monkeypatch):
     """The ping message itself must say UNATTRIBUTED, not ENGINE TRADE, when no exec
-    row matches -- proves the label is actually wired, not just the helper function."""
+    row matches -- proves the label is actually wired, not just the helper function.
+
+    FORMAT CHANGE 2026-08-17 (J: the old single-line pipe-concatenated ping was "just
+    gibberish"/"I cannot read them" -- ratified bulleted-message rewrite in
+    trade_today_watcher.main()): the old "UNATTRIBUTED FILL (no matching decision row)"
+    text moved off line 1 into its own bullet ("UNATTRIBUTED [<arm>]" headline + a
+    "no matching decision row" bullet, per J's "it can move to a bullet"). Pin updated
+    deliberately to the new format, not weakened."""
     w = _load()
     monkeypatch.setattr(w, "STATE", tmp_path)
     monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
@@ -315,7 +322,8 @@ def test_unattributed_fill_label_wired_into_message(tmp_path, monkeypatch):
     (tmp_path / "core-decisions.jsonl").write_text("", encoding="utf-8")
     w.main()
     content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
-    assert "UNATTRIBUTED FILL" in content
+    assert "UNATTRIBUTED [safe-2]" in content
+    assert "no matching decision row" in content
     assert "ENGINE TRADE [" not in content
 
 
@@ -348,10 +356,18 @@ def test_attributed_fill_label_wired_into_message(tmp_path, monkeypatch):
 
 
 def test_structure_exit_label_wired_into_fill_message(tmp_path, monkeypatch):
-    """RENDER-ONLY / reuse proof: main()'s existing composer calls _structure_exit_label and
-    the suffix lands in the SAME message + SAME outbox path -- no new Discord path was built."""
+    """RENDER-ONLY / reuse proof, updated for the 2026-08-17 bulleted-format ship: main()'s
+    composer now reads exit-state.json via _position_exit_info (NOT _structure_exit_label
+    -- see that function's docstring for why: reusing _structure_exit_label's EXIT-fill
+    decision-log fallback for the new stop bullet would attach a stale/misleading
+    "(armed)" structure label to a TP1 partial-sell that didn't actually stop out).
+    _structure_exit_label itself is UNCHANGED and still directly unit-tested above (5
+    tests); this test instead proves _position_exit_info/_stop_bullet are the ones
+    actually wired into the ONE real outbox write -- same reuse-not-duplicate guarantee,
+    updated call site."""
     src = (Path(__file__).resolve().parents[2] / "setup" / "scripts" / "trade_today_watcher.py").read_text(encoding="utf-8")
-    assert "_structure_exit_label(x[\"arm\"], x[\"symbol\"])" in src.replace("'", '"')
+    assert "_position_exit_info(arm_id, symbol)" in src.replace("'", '"')
+    assert "_stop_bullet(pos)" in src
     assert src.count('OUTBOX.open("a"') == 1, \
         "must reuse the ONE existing outbox write, not add a second Discord path"
 
@@ -556,8 +572,10 @@ def test_exit_profile_matches_live_accounts_json():
 
 
 def test_exit_profile_wired_into_fill_ping_message(tmp_path, monkeypatch):
-    """End-to-end: main()'s ping message carries the ' | exit:<PROFILE>' tag for a fleet
-    arm with a label -- proves the label is actually wired, not just the helper function."""
+    """End-to-end: main()'s ping message carries a 'profile: <PROFILE>' bullet for a
+    fleet arm with a label -- proves the label is actually wired, not just the helper
+    function. FORMAT CHANGE 2026-08-17: the old inline ' | exit:<PROFILE>' suffix moved
+    to its own bullet in the ratified bulleted-message rewrite (pin updated deliberately)."""
     w = _load()
     monkeypatch.setattr(w, "STATE", tmp_path)
     monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
@@ -582,13 +600,16 @@ def test_exit_profile_wired_into_fill_ping_message(tmp_path, monkeypatch):
     monkeypatch.setattr(w, "_load_user_mention", lambda: "")
     w.main()
     content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
-    assert " | exit:ZONE-RIDE" in content
+    assert "profile: ZONE-RIDE" in content
     trade_today = json.loads((tmp_path / "trade-today.json").read_text(encoding="utf-8"))
     assert trade_today["fills"][0]["exit_profile"] == "ZONE-RIDE"
 
 
 def test_exit_profile_tag_omitted_when_label_missing(tmp_path, monkeypatch):
-    """An arm with no exit_profile label yet must not print an empty ' | exit:' tag."""
+    """An arm with no exit_profile label yet must not print an empty profile bullet.
+    FORMAT CHANGE 2026-08-17: re-pinned to the new 'profile: <X>' bullet text (the old
+    ' | exit:' substring no longer appears in ANY message under the new format, so that
+    assertion alone would no longer guard anything -- strengthened, not weakened)."""
     w = _load()
     monkeypatch.setattr(w, "STATE", tmp_path)
     monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
@@ -609,6 +630,146 @@ def test_exit_profile_tag_omitted_when_label_missing(tmp_path, monkeypatch):
     w.main()
     content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
     assert " | exit:" not in content
+    assert "profile:" not in content
+
+
+# =============================================================================
+# READABLE FILL FORMAT (2026-08-17): J's exact words after calling the old single-line
+# pipe-concatenated fill ping "just gibberish"/"I cannot read them" -- "Red or green
+# emoji for put or call, and then needs to be, like, 777c five contracts at price with
+# a take profit at this level... in a new line and, like, a bullet." These 4 tests pin
+# the ratified bulleted-message rewrite (trade_today_watcher.main() + the new
+# _parse_occ/_contract_label/_direction_emoji/_tp1_bullet/_stop_bullet helpers).
+# =============================================================================
+def _wire_common(w, tmp_path, monkeypatch):
+    """Shared plumbing for the 4 tests below -- state-path monkeypatches every other
+    end-to-end test in this file already uses."""
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
+
+
+def _last_ping_content(tmp_path) -> str:
+    lines = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8").strip().splitlines()
+    return json.loads(lines[-1])["content"]
+
+
+def test_put_entry_renders_red_emoji_strike_qty_price_and_tp1_bullet(tmp_path, monkeypatch):
+    """(1) A PUT entry fill renders \U0001F534 (red circle) + parsed '775P' + qty + price
+    on line 1, and a 'TP1 $X.XX (+NN%), sell Q' bullet sourced from a tmp exit-state.json
+    fixture. Uses the EXACT numbers behind the real 2026-08-17 13:06:05 ET bold-2 fill
+    (775P x5 @ $0.72, ribbon_ride's registered entry_premium/tp1_premium_pct/tp1_qty ->
+    TP1 $1.44 +100%, sell 3) so this test is anchored to a real, verified trade."""
+    w = _load()
+    _wire_common(w, tmp_path, monkeypatch)
+    put_sym = "SPY260817P00775000"
+    d = tmp_path / "fleet" / "bold-2"
+    d.mkdir(parents=True)
+    (d / "exit-state.json").write_text(json.dumps({
+        put_sym: {"entry_premium": 0.72, "tp1_premium_pct": 1.0, "tp1_qty": 3,
+                  "stop_mode": "structure", "trigger_level": 775.09,
+                  "catastrophe_stop_pct": -0.50}}), encoding="utf-8")
+    row = {"ts_et": "2026-08-17T13:06:05", "account": "bold",
+           "exec": {"status": "FILLED", "symbol": put_sym}}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"bold-2": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "930f75b8", "symbol": put_sym, "qty": 5, "price": 0.72, "side": "buy",
+         "status": "filled", "filled_at": "2026-08-17T17:06:05Z"}])
+    w.main()
+    msg = _last_ping_content(tmp_path)
+    lines = msg.split("\n")
+    assert lines[0].startswith("\U0001F534 775P ×5 @ $0.72"), lines[0]
+    assert "ENGINE TRADE [bold-2]" in lines[0]
+    assert "TP1 $1.44 (+100%), sell 3" in msg
+    assert "stop: structure @ $775.09" in msg
+    assert "13:06:05 ET" in msg
+
+
+def test_call_entry_renders_green_emoji(tmp_path, monkeypatch):
+    """(2) A CALL entry fill renders \U0001F7E2 (green circle) + parsed strike+'C'."""
+    w = _load()
+    _wire_common(w, tmp_path, monkeypatch)
+    call_sym = "SPY260817C00778000"
+    d = tmp_path / "fleet" / "safe-2"
+    d.mkdir(parents=True)
+    (d / "exit-state.json").write_text(json.dumps({
+        call_sym: {"entry_premium": 0.50, "tp1_premium_pct": 1.0, "tp1_qty": 2,
+                  "stop_mode": "premium", "trigger_level": None,
+                  "catastrophe_stop_pct": -0.50}}), encoding="utf-8")
+    row = {"ts_et": "2026-08-17T10:00:00", "account": "safe",
+           "exec": {"status": "FILLED", "symbol": call_sym}}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"safe-2": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "call-ord-1", "symbol": call_sym, "qty": 3, "price": 0.50, "side": "buy",
+         "status": "filled", "filled_at": "2026-08-17T14:00:00Z"}])
+    w.main()
+    msg = _last_ping_content(tmp_path)
+    lines = msg.split("\n")
+    assert lines[0].startswith("\U0001F7E2 778C ×3 @ $0.50"), lines[0]
+    assert "stop: catastrophe cap -50% ($0.25)" in msg  # premium-mode fallback, no trigger_level
+
+
+def test_exit_fill_renders_no_tp1_bullet(tmp_path, monkeypatch):
+    """(3) A SELL-side fill renders as an EXIT line with NO TP1 bullet -- even when the
+    exit-state ledger STILL has the symbol (the real shape of a TP1 partial sell, where
+    the runner leg is still open and the record hasn't been pruned yet). J's spec: "EXIT
+    fills: ... no TP bullet", unconditionally on side, not conditionally on ledger state."""
+    w = _load()
+    _wire_common(w, tmp_path, monkeypatch)
+    put_sym = "SPY260817P00775000"
+    d = tmp_path / "fleet" / "bold-2"
+    d.mkdir(parents=True)
+    # Deliberately STILL present (tp1_filled True, runner still open) -- proves the
+    # omission is driven by side=="sell", not by exit-state absence.
+    (d / "exit-state.json").write_text(json.dumps({
+        put_sym: {"entry_premium": 0.72, "tp1_premium_pct": 1.0, "tp1_qty": 3,
+                  "tp1_filled": True, "stop_mode": "structure", "trigger_level": 775.09,
+                  "catastrophe_stop_pct": -0.50}}), encoding="utf-8")
+    row = {"ts_et": "2026-08-17T13:06:05", "account": "bold",
+           "exec": {"status": "FILLED", "symbol": put_sym}}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"bold-2": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "5d51e6ed", "symbol": put_sym, "qty": 3, "price": 1.50, "side": "sell",
+         "status": "filled", "filled_at": "2026-08-17T17:26:04Z"}])
+    w.main()
+    msg = _last_ping_content(tmp_path)
+    lines = msg.split("\n")
+    assert lines[0].startswith("\U0001F534 775P EXIT ×3 @ $1.50"), lines[0]
+    assert "[bold-2]" in lines[0]
+    assert "TP1" not in msg
+    assert "stop:" not in msg
+    assert "13:26:04 ET" in msg
+
+
+def test_unattributed_label_still_appears_for_unattributed_fill(tmp_path, monkeypatch):
+    """(4) The UNATTRIBUTED warning J relies on still appears (moved to a bullet, per
+    J's explicit "it can move to a bullet") when no decision row matches -- re-verified
+    here against a CALL fill (distinct fixture from the pre-existing pin test above) so
+    this is a genuinely independent guard, not a duplicate of it."""
+    w = _load()
+    _wire_common(w, tmp_path, monkeypatch)
+    call_sym = "SPY260817C00780000"
+    d = tmp_path / "fleet" / "risky-1"
+    d.mkdir(parents=True)
+    (tmp_path / "core-decisions.jsonl").write_text("", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"risky-1": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "rogue-1", "symbol": call_sym, "qty": 2, "price": 0.40, "side": "buy",
+         "status": "filled", "filled_at": "2026-08-17T15:00:00Z"}])
+    w.main()
+    msg = _last_ping_content(tmp_path)
+    lines = msg.split("\n")
+    assert "UNATTRIBUTED [risky-1]" in lines[0]
+    assert "ENGINE TRADE" not in lines[0]
+    assert "⚠️ UNATTRIBUTED — no matching decision row" in msg
 
 
 def test_two_credential_labels_one_account_produce_one_counted_fill_per_order_id(tmp_path, monkeypatch):

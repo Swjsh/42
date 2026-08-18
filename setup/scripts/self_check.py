@@ -1548,23 +1548,64 @@ def run() -> dict:
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
               "pdt": pdt_summary}
+    # SNAPSHOT the previous alert state BEFORE the unconditional write below clobbers it --
+    # see _alert()'s docstring for the exact "engine red spam" bug this closes (2026-08-17).
+    prev_alert: dict = {}
+    if LAST.exists():
+        try:
+            old = json.loads(LAST.read_text(encoding="utf-8")) or {}
+            prev_alert = {"_alerted_sig": old.get("_alerted_sig", ""), "_alerted_at": old.get("_alerted_at")}
+        except Exception:  # noqa: BLE001
+            prev_alert = {}
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
     if problems:
-        _alert(result)
+        _alert(result, prev_alert)
     return result
 
 
-def _alert(result: dict) -> None:
-    """Surface to STATUS.md + Discord — ONLY on a NEW problem set (no spam when unchanged)."""
+SELF_CHECK_REPEAT_SUPPRESS_MIN = 360  # 6h -- an unresolved problem still re-pings
+# periodically (never total silence) but not on every ~30-min self_check cadence tick.
+
+
+def _alert(result: dict, prev_alert: "dict | None" = None) -> None:
+    """Surface to STATUS.md always; ping Discord on a NEW/CHANGED problem set, or on a
+    REPEAT of the identical set only once SELF_CHECK_REPEAT_SUPPRESS_MIN has elapsed
+    since the last actual SEND.
+
+    BUG FIXED (2026-08-17, J: "I keep getting Discord messages saying engine red and it
+    buries the trade pings" -- root-caused via automation/state/discord-outbox.jsonl:
+    self_check was the single dominant outbox producer over the trailing 7 days (297 of
+    1,049 messages, ~28% of ALL Discord traffic), with CONSECUTIVE BYTE-IDENTICAL-content
+    runs up to 25 long -- e.g. the exact same "PREMARKET DEGRADED: today-bias.json is
+    fresh-dated but LLM-authored narrative failed..." message re-sent every ~30 min for
+    12 straight hours on 2026-08-14). The "Discord ping only on a CHANGED problem set"
+    comment on the prior version of this function was the INTENDED behavior but was
+    completely inert: run() unconditionally overwrote LAST with a brand-new result dict
+    (no _alerted_sig key at all) immediately before calling this function -- so the old
+    `prev = ...get("_alerted_sig", "")` here ALWAYS read back "" (the very file it needed
+    to compare against had just been clobbered by the SAME run(), a few lines above, in
+    the SAME process). `sig != prev` was therefore true 100% of the time there was any
+    problem, every single fire. Fix: run() now snapshots the PRE-EXISTING _alerted_sig/
+    _alerted_at into `prev_alert` BEFORE its own unconditional write and passes it in
+    here; this function never re-reads LAST (by the time it would, the file on disk is
+    always this SAME run's own fresh snapshot, not the prior run's).
+
+    engine_health.py's separate "Engine RED"/"Engine DEGRADED" pings were investigated in
+    the same pass and are UNCHANGED: only ~8 messages over the same 7 days, each
+    describing a DIFFERENT specific failure (state_freshness vs heartbeat_safe vs
+    levels_file_stale vs breaker_rearm_safe) -- i.e. NOT repeat-identical content, so that
+    producer does not meet the bar for this suppression and was left untouched.
+
+    Never suppresses a FIRST occurrence or a genuinely CHANGED problem set -- only a
+    byte-identical repeat within the 6h window is throttled -- and STATUS.md always gets
+    the unthrottled snapshot regardless (this throttles the Discord PING only, never the
+    underlying detection; no check anywhere in this file was weakened or disabled)."""
+    prev_alert = prev_alert or {}
     sig = " | ".join(result["problems"])
-    prev = ""
-    if LAST.exists():
-        try:
-            prev = (json.loads(LAST.read_text(encoding="utf-8")) or {}).get("_alerted_sig", "")
-        except Exception:  # noqa: BLE001
-            pass
-    # STATUS.md (always append the current snapshot)
+    prev_sig = prev_alert.get("_alerted_sig", "")
+    prev_at = prev_alert.get("_alerted_at")
+    # STATUS.md (always append the current snapshot -- unthrottled, file-only, not a ping)
     try:
         with STATUS_MD.open("a", encoding="utf-8") as f:
             f.write(f"\n### {result['verdict']}: self-check {result['ts_et']}\n")
@@ -1572,15 +1613,29 @@ def _alert(result: dict) -> None:
                 f.write(f"- {p}\n")
     except OSError:
         pass
-    # Discord ping only on a CHANGED problem set (avoid every-30-min spam)
-    if sig != prev:
+    # Discord: always on a NEW/CHANGED problem set. A REPEAT of the identical set is
+    # suppressed until SELF_CHECK_REPEAT_SUPPRESS_MIN has elapsed since the last real
+    # SEND (never since the last SILENT cycle -- see the `else` branch below).
+    repeat_stale_enough = True
+    if sig == prev_sig and prev_at:
+        try:
+            age_min = (dt.datetime.fromisoformat(result["ts_et"])
+                       - dt.datetime.fromisoformat(prev_at)).total_seconds() / 60.0
+            repeat_stale_enough = age_min >= SELF_CHECK_REPEAT_SUPPRESS_MIN
+        except ValueError:
+            repeat_stale_enough = True  # unparseable timestamp -> never silently suppress
+    send = (sig != prev_sig) or repeat_stale_enough
+    if send:
         try:
             with DISCORD_OUTBOX.open("a", encoding="utf-8") as f:
                 f.write(json.dumps({"ts": result["ts_et"], "channel": "gamma-ops",
                                     "source": "self_check",
                                     "message": f"SELF-CHECK {result['verdict']}: " + "; ".join(result["problems"])[:500]}) + "\n")
+            result["_alerted_at"] = result["ts_et"]
         except OSError:
             pass
+    else:
+        result["_alerted_at"] = prev_at  # carry the last REAL send time forward
     # remember what we alerted on
     result["_alerted_sig"] = sig
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")
