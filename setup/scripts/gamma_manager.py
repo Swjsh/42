@@ -214,15 +214,38 @@ def _log(entry: dict) -> None:
 def run_cycle(*, allow_heavy: bool = True) -> dict:
     """One bounded Manager cycle: pick the highest-value action, dispatch, log."""
     ctx = gather_context()
+    # CONTRACT RESTATED INLINE (2026-08-18 fix). From 16:16 ET 2026-08-17 every pick failed
+    # silently: qwen3:14b, fed a richer STATUS-laden context, drifted to its own JSON shape
+    # ({"task":..., "details":{...}} -- valid JSON, MISSING the required "prompt" key), the
+    # schema validator rejected it, and the log recorded error:null because transport was ok.
+    # Reproduced live before fixing. Stating the required keys in the prompt text itself is
+    # the deterministic half of the fix; surfacing the rejection below is the other half.
     pick_prompt = (
-        "Given the current firm state below, output the JSON for the single "
-        "highest-value, bounded, ready R&D action to run RIGHT NOW.\n\n" + ctx
+        "FIRM STATE (context only -- do NOT echo it back):\n"
+        + ctx +
+        "\n\nNow output the single highest-value, bounded, ready R&D action to run "
+        "RIGHT NOW, as ONE JSON object with EXACTLY these keys: "
+        '"role" (one of: strategist|coder|critic|validator|forager|chef), '
+        '"prompt" (the concrete instruction for that employee, REQUIRED), '
+        '"reason" (why now), optional "action", optional "escalate" (bool), '
+        'optional "python_tool". No other keys. Never mirror the context JSON. '
+        "Example shape: {" + chr(34) + "role" + chr(34) + ": " + chr(34) + "critic" + chr(34) + ", "
+        + chr(34) + "prompt" + chr(34) + ": " + chr(34) + "rank the newest candidates vs the J-edge floor" + chr(34) + ", "
+        + chr(34) + "reason" + chr(34) + ": " + chr(34) + "freshest unranked output" + chr(34) + "}"
     )
     env, pick = sc.call_role_json("coordinator", pick_prompt, PICK_SCHEMA,
                                   system=SYSTEM, max_tokens=700, task_id="manager.pick")
     if not pick:
-        _log({"phase": "pick", "ok": False, "lane": env.get("lane"), "error": env.get("error")})
-        return {"ok": False, "stage": "pick", "error": env.get("error")}
+        # C7: a schema rejection is NOT "no error" -- transport-ok + schema-invalid was
+        # logged as error:null, hiding a 100%-failure streak for 8+ hours. Synthesize a
+        # diagnostic when the envelope carries none: attempts, rejected lanes, content head.
+        err = env.get("error")
+        if not err:
+            head = str(env.get("content") or "")[:160].replace("\n", " ")
+            err = (f"schema_invalid: {env.get('json_attempts')} attempt(s), "
+                   f"lanes_rejected={env.get('json_lanes_rejected')}, content_head={head!r}")
+        _log({"phase": "pick", "ok": False, "lane": env.get("lane"), "error": err})
+        return {"ok": False, "stage": "pick", "error": err}
 
     role = (pick.get("role") or "").strip().lower()
     action = pick.get("action") or (pick.get("prompt", "")[:40].strip() or "task")
