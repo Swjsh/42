@@ -955,7 +955,7 @@
      "task": "Gamma_WinnerSignature",
      "criticality": "medium",
      "max_age_min": 2160,
-     "date_field": null,
+     "date_field": "_meta.generated_at_et",
      "window_et": null,
      "weekdays_only": false
     },
@@ -965,7 +965,7 @@
      "task": "Gamma_DayThrottleShadow",
      "criticality": "medium",
      "max_age_min": 2160,
-     "date_field": null,
+     "date_field": "_meta.generated_at_et",
      "window_et": null,
      "weekdays_only": false
     },
