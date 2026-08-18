@@ -50,12 +50,12 @@ J's rules — Gamma enforces them, doesn't write them.
 
 ## Account context
 
-Gamma-Safe-2 alias points at `PA3DHPT7KIQE` (repointed 2026-07-11 after an account-deletion incident — see `automation/state/fleet/accounts.json`). One account, one execution path. Full history: [`dual-account-design.md`](markdown/0dte/dual-account-design.md).
+Account numbers below are **broker-verified live 2026-08-18**; `automation/state/fleet/accounts.json` is the source of truth and agrees. The 2026-07-11 repoint (deleted account) is history — see that file's `update_note_2026_07_11`. One account, one execution path. Full history: [`dual-account-design.md`](markdown/0dte/dual-account-design.md).
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
-| **Account 1** | Gamma-Safe-2 | `PA3DHPT7KIQE` | **$5,501 (2026-08-13, broker-verified)** | Conservative — ATM, 30% risk, CONFIRMED setups | `params.json` |
-| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (2026-06-26) | Aggressive — ITM-2, 50% risk, ALL setups | `aggressive/params.json` |
+| **Account 1** | Gamma-Safe-2 (fleet `safe-2`) | `PA3POKNV46VG` | **$5,266.38 (2026-08-18, broker-verified)** | Conservative — ATM, 30% risk, CONFIRMED setups | `params.json` |
+| **Account 2** | Gamma-Bold-2 (fleet `bold-2`) | `PA3WEBXJU67N` | **$5,048.40 (2026-08-18, broker-verified)** | Aggressive — ITM-2, 50% risk, ALL setups | `aggressive/params.json` |
 
 > ⚠️ **TP1 IS NOT A PER-ACCOUNT SETTING — it comes from the STRATEGY** (`ribbon_ride` hardcodes
 > +100%/sell-66%; per-arm overrides exist). **Read the arm's `exit-state.json` for live truth,
@@ -65,7 +65,7 @@ Gamma-Safe-2 alias points at `PA3DHPT7KIQE` (repointed 2026-07-11 after an accou
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
 - **Daily P&L target (J recorrected 2026-08-09):** $100–200/day **PER ACCOUNT**, not combined — one clean +30% level trade pays ONE account's day. Across the 5 active real-fills arms (safe-2, bold-2, safe-3, risky-1, risky-3) that's ~$500–1,000/day book-wide, but the target is evaluated and reported per account first; a strong arm should never mask a weak one in an aggregate number. Never chase dollars via more trades/size. Full lens: [`FOCUS-DOCTRINE.md`](markdown/doctrine/FOCUS-DOCTRINE.md).
 - **Kill switches** (Rule 5): per-account + isolated — Safe-2 −30%/day (−$600 at $2K) does NOT halt Risky-2, and vice-versa. **Instrument:** SPY 0DTE, US retail.
-- **MCP wiring:** `alpaca` → Safe-2 (key `PKZFN5G3...`, repointed 2026-07-11); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json` — the ONLY credential store (global-config mirrors removed 2026-07-09; never re-mirror into `~/.claude.json`/`settings.json`).
+- **MCP wiring (verified 2026-08-18):** `alpaca` → safe-2 `PA3POKNV46VG` (key `PKWEWC7N...`); `alpaca_aggressive` → **bold-2** `PA3WEBXJU67N` (key `PKEZ6OKP...`) — note it is bold-2, NOT risky-3. Both in project-root `.mcp.json` — the ONLY credential store (global-config mirrors removed 2026-07-09; never re-mirror into `~/.claude.json`/`settings.json`).
 
 ---
 
@@ -74,8 +74,8 @@ Gamma-Safe-2 alias points at `PA3DHPT7KIQE` (repointed 2026-07-11 after an accou
 | Layer | Tool | Status |
 |---|---|---|
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
-| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PKZFN5G3…` → PA3DHPT7KIQE. Tools: `mcp__alpaca__*` |
-| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2). Both creds live ONLY in project-root `.mcp.json` (mirrors removed 2026-07-09, never re-mirror). Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
+| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PKWEWC7N…` → PA3POKNV46VG. Tools: `mcp__alpaca__*` |
+| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKEZ6OKP…` → PA3WEBXJU67N (bold-2). Both creds live ONLY in project-root `.mcp.json` (mirrors removed 2026-07-09, never re-mirror). Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + 2 free-model veto + risk_gate); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
 | Heartbeat scheduler | Windows Task Scheduler (Python) | ~60 registered (counts drift -- registry is truth). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
