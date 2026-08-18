@@ -525,6 +525,19 @@ def main(n_days: int = N_DAYS, write_log: bool = True, as_json: bool = False) ->
             trendline_watch.refresh()
         except Exception as exc:  # noqa: BLE001 -- deliberate fail-open, logged not raised
             print(f"trendline_watch refresh failed (non-fatal): {exc}")
+        # T-MANUAL (2026-08-18, J: "the engine reads his hand-drawn trendlines ONLY at
+        # premarket... anything he draws during the session is never seen"): best-effort
+        # intraday refresh of J's MANUAL chart-drawn lines into trendlines.json, piggybacked
+        # on this SAME 5-min RTH cadence rather than a new scheduled task. FAIL-OPEN by
+        # doctrine (C7), identical pattern to trendline_watch just above -- placed AFTER this
+        # function's own log_lines/write_live_state/trendline_watch writes so a failure here
+        # (CDP down, JS eval failure, whatever) has zero blast radius on the primary
+        # auto-detection artifacts, which are already safely written by this point.
+        try:
+            import trendline_manual
+            trendline_manual.refresh(spot=(bars[-1]["c"] if bars else None))
+        except Exception as exc:  # noqa: BLE001 -- deliberate fail-open, logged not raised
+            print(f"trendline_manual refresh failed (non-fatal): {exc}")
     if as_json:
         # T14: for the visibility bridge (trendline-draw skill) -- full anchor coords, NO log
         # side-effect required (write_log=False is the normal pairing with --json so an

@@ -1,62 +1,504 @@
 {
-  "schema_version": 2,
-  "as_of": "2026-05-14T08:39:13-04:00",
-  "spot": 744.92,
-  "lookback_sessions": 5,
-  "manual_count": 3,
-  "auto_count": 0,
+  "schema_version": 1,
+  "as_of": "2026-08-18T17:55:08.396354-04:00",
+  "spot": 767.41,
+  "lookback_sessions": 2,
+  "bars_used": 156,
+  "manual_count": 1,
+  "manual_significant_count": 1,
+  "auto_count": 8,
   "manual": [
     {
-      "id": "5EWHJK",
-      "direction": "ascending",
-      "slope_per_sec": 5.70e-05,
-      "slope_per_hour_dollars": 0.2052,
-      "anchor_points": [
-        { "time": 1778182200, "price": 733.94, "iso_et": "2026-05-07T15:30:00-04:00" },
-        { "time": 1778269500, "price": 738.92, "iso_et": "2026-05-08T15:45:00-04:00" }
-      ],
-      "touch_count": 2,
-      "source": "manual_chart_draw",
-      "projected_price_now": 767.0,
-      "distance_from_spot_dollars": 22.1,
-      "actionable": false,
-      "reason": "Projected $767 is $22 above spot $744.92 — stale ascending line from 5/07-5/08 session. Price well above this line."
-    },
-    {
-      "id": "S3pkoW",
-      "direction": "ascending",
-      "slope_per_sec": 2.76e-04,
-      "slope_per_hour_dollars": 0.993,
-      "anchor_points": [
-        { "time": 1778492100, "price": 737.40, "iso_et": "2026-05-12T09:15:00-04:00" },
-        { "time": 1778503500, "price": 740.55, "iso_et": "2026-05-12T12:25:00-04:00" }
-      ],
-      "touch_count": 2,
-      "source": "manual_chart_draw",
-      "projected_price_now": 812.0,
-      "distance_from_spot_dollars": 67.1,
-      "actionable": false,
-      "reason": "Projected $812 is $67 above spot — stale, extremely steep slope. Not relevant for today."
-    },
-    {
-      "id": "u6xABx",
       "direction": "descending",
-      "slope_per_sec": -1.02e-04,
-      "slope_per_hour_dollars": -0.368,
+      "slope_per_sec": -3.6978909814243994e-05,
+      "slope_per_hour_dollars": -0.13312407533127837,
+      "intercept_price": 779.3424386573083,
+      "intercept_timestamp": 1786736100,
       "anchor_points": [
-        { "time": 1778151600, "price": 736.10, "iso_et": "2026-05-07T12:20:00-04:00" },
-        { "time": 1778213700, "price": 729.75, "iso_et": "2026-05-08T05:35:00-04:00" }
+        {
+          "time": 1786736100,
+          "price": 779.3424386573083
+        },
+        {
+          "time": 1787075700,
+          "price": 766.7844008843911
+        }
       ],
       "touch_count": 2,
+      "last_touched_at": 1787075700,
+      "r_squared": 1.0,
       "source": "manual_chart_draw",
-      "projected_price_now": 673.7,
-      "distance_from_spot_dollars": -71.2,
-      "actionable": false,
-      "reason": "Projected $674 is $71 below spot — stale descending line from 5/07-5/08. Far below current price."
+      "chart_drawing_id": "5rlDCY",
+      "projected_price_now": 766.2516,
+      "distance_from_spot_dollars": 1.1584,
+      "projected_at_close_today": 766.5071,
+      "anchor_age_days": 0.2,
+      "span_minutes": 5660.0,
+      "respect_count_recent": 0
     }
   ],
-  "auto": [],
-  "actionable_count": 0,
-  "doctrine_note": "Trendlines are CONTEXT data — heartbeat does NOT score them as entry triggers until a backtest demonstrates positive expectancy uplift. See OP-6 + markdown/0dte/playbook.md TRENDLINE_BREAK_RETEST (DRAFT).",
-  "stale_note": "All 3 manual trendlines drawn on 2026-05-07/08 session. None project within $20 of today's spot. J should draw fresh trendlines if structure is relevant for 2026-05-14. Also: entity 3k9w8h (expired ~733.55 level) still on chart — remove when draw_remove_one is restored."
+  "manual_significant": [
+    {
+      "direction": "descending",
+      "slope_per_sec": -3.6978909814243994e-05,
+      "slope_per_hour_dollars": -0.13312407533127837,
+      "intercept_price": 779.3424386573083,
+      "intercept_timestamp": 1786736100,
+      "anchor_points": [
+        {
+          "time": 1786736100,
+          "price": 779.3424386573083
+        },
+        {
+          "time": 1787075700,
+          "price": 766.7844008843911
+        }
+      ],
+      "touch_count": 2,
+      "last_touched_at": 1787075700,
+      "r_squared": 1.0,
+      "source": "manual_chart_draw",
+      "chart_drawing_id": "5rlDCY",
+      "projected_price_now": 766.2516,
+      "distance_from_spot_dollars": 1.1584,
+      "projected_at_close_today": 766.5071,
+      "anchor_age_days": 0.2,
+      "span_minutes": 5660.0,
+      "respect_count_recent": 0
+    }
+  ],
+  "auto": [
+    {
+      "direction": "ascending",
+      "slope_per_sec": 1.6666666666659746e-05,
+      "slope_per_hour_dollars": 0.05999999999997509,
+      "intercept_price": 767.33,
+      "intercept_timestamp": 1787066400,
+      "anchor_points": [
+        {
+          "time": 1787065200,
+          "price": 767.42
+        },
+        {
+          "time": 1787066400,
+          "price": 767.33
+        },
+        {
+          "time": 1787076300,
+          "price": 767.45
+        },
+        {
+          "time": 1787080200,
+          "price": 767.56
+        }
+      ],
+      "touch_count": 4,
+      "last_touched_at": 1787080200,
+      "r_squared": 0.4768518518524245,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_963694",
+      "projected_price_now": 767.7251,
+      "distance_from_spot_dollars": -0.3151,
+      "projected_at_close_today": 767.61
+    },
+    {
+      "direction": "ascending",
+      "slope_per_sec": 2.8205128205102552e-05,
+      "slope_per_hour_dollars": 0.10153846153836919,
+      "intercept_price": 767.45,
+      "intercept_timestamp": 1787076300,
+      "anchor_points": [
+        {
+          "time": 1787066400,
+          "price": 767.33
+        },
+        {
+          "time": 1787076300,
+          "price": 767.45
+        },
+        {
+          "time": 1787080200,
+          "price": 767.56
+        }
+      ],
+      "touch_count": 3,
+      "last_touched_at": 1787080200,
+      "r_squared": 0.042023758069909545,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_344749",
+      "projected_price_now": 767.8395,
+      "distance_from_spot_dollars": -0.4295,
+      "projected_at_close_today": 767.6446
+    },
+    {
+      "direction": "ascending",
+      "slope_per_sec": 1.574074074074748e-05,
+      "slope_per_hour_dollars": 0.05666666666669093,
+      "intercept_price": 767.9,
+      "intercept_timestamp": 1787059800,
+      "anchor_points": [
+        {
+          "time": 1787059800,
+          "price": 767.9
+        },
+        {
+          "time": 1787061300,
+          "price": 768.12
+        },
+        {
+          "time": 1787070600,
+          "price": 768.07
+        }
+      ],
+      "touch_count": 3,
+      "last_touched_at": 1787070600,
+      "r_squared": 0.0,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_585647",
+      "projected_price_now": 768.3771,
+      "distance_from_spot_dollars": -0.9671,
+      "projected_at_close_today": 768.2683
+    },
+    {
+      "direction": "descending",
+      "slope_per_sec": -6.204906204906139e-05,
+      "slope_per_hour_dollars": -0.223376623376621,
+      "intercept_price": 773.8,
+      "intercept_timestamp": 1786991100,
+      "anchor_points": [
+        {
+          "time": 1786988700,
+          "price": 773.845
+        },
+        {
+          "time": 1786991100,
+          "price": 773.8
+        },
+        {
+          "time": 1786992600,
+          "price": 773.82
+        },
+        {
+          "time": 1786996200,
+          "price": 773.36
+        },
+        {
+          "time": 1787060400,
+          "price": 769.5
+        },
+        {
+          "time": 1787061600,
+          "price": 769.27
+        },
+        {
+          "time": 1787063400,
+          "price": 769.25
+        },
+        {
+          "time": 1787070000,
+          "price": 768.87
+        },
+        {
+          "time": 1787071800,
+          "price": 768.87
+        },
+        {
+          "time": 1787077200,
+          "price": 768.565
+        },
+        {
+          "time": 1787081400,
+          "price": 768.22
+        }
+      ],
+      "touch_count": 11,
+      "last_touched_at": 1787081400,
+      "r_squared": 0.9985436767504006,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_951330",
+      "projected_price_now": 767.6566,
+      "distance_from_spot_dollars": -0.2466,
+      "projected_at_close_today": 768.0853
+    },
+    {
+      "direction": "descending",
+      "slope_per_sec": -7.187499999999977e-05,
+      "slope_per_hour_dollars": -0.25874999999999915,
+      "intercept_price": 775.77,
+      "intercept_timestamp": 1786975800,
+      "anchor_points": [
+        {
+          "time": 1786974300,
+          "price": 776.0101
+        },
+        {
+          "time": 1786975800,
+          "price": 775.77
+        },
+        {
+          "time": 1786977000,
+          "price": 775.5899
+        },
+        {
+          "time": 1787060400,
+          "price": 769.5
+        },
+        {
+          "time": 1787070000,
+          "price": 768.87
+        },
+        {
+          "time": 1787071800,
+          "price": 768.87
+        },
+        {
+          "time": 1787077200,
+          "price": 768.565
+        },
+        {
+          "time": 1787081400,
+          "price": 768.22
+        }
+      ],
+      "touch_count": 8,
+      "last_touched_at": 1787081400,
+      "r_squared": 0.999054546859512,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_021623",
+      "projected_price_now": 767.5541,
+      "distance_from_spot_dollars": -0.1441,
+      "projected_at_close_today": 768.0506
+    },
+    {
+      "direction": "descending",
+      "slope_per_sec": -4.963768115941633e-05,
+      "slope_per_hour_dollars": -0.1786956521738988,
+      "intercept_price": 769.25,
+      "intercept_timestamp": 1787063400,
+      "anchor_points": [
+        {
+          "time": 1787060400,
+          "price": 769.5
+        },
+        {
+          "time": 1787061600,
+          "price": 769.27
+        },
+        {
+          "time": 1787063400,
+          "price": 769.25
+        },
+        {
+          "time": 1787070000,
+          "price": 768.87
+        },
+        {
+          "time": 1787071800,
+          "price": 768.87
+        },
+        {
+          "time": 1787077200,
+          "price": 768.565
+        },
+        {
+          "time": 1787081400,
+          "price": 768.22
+        }
+      ],
+      "touch_count": 7,
+      "last_touched_at": 1787081400,
+      "r_squared": 0.9681815015478356,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_458252",
+      "projected_price_now": 767.9243,
+      "distance_from_spot_dollars": -0.5143,
+      "projected_at_close_today": 768.2672
+    },
+    {
+      "direction": "descending",
+      "slope_per_sec": -3.9215686274507576e-05,
+      "slope_per_hour_dollars": -0.14117647058822727,
+      "intercept_price": 769.27,
+      "intercept_timestamp": 1787061600,
+      "anchor_points": [
+        {
+          "time": 1787060400,
+          "price": 769.5
+        },
+        {
+          "time": 1787061600,
+          "price": 769.27
+        },
+        {
+          "time": 1787063400,
+          "price": 769.25
+        },
+        {
+          "time": 1787070000,
+          "price": 768.87
+        },
+        {
+          "time": 1787071800,
+          "price": 768.87
+        },
+        {
+          "time": 1787077200,
+          "price": 768.565
+        }
+      ],
+      "touch_count": 6,
+      "last_touched_at": 1787077200,
+      "r_squared": 0.9158760831953564,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_867205",
+      "projected_price_now": 768.152,
+      "distance_from_spot_dollars": -0.742,
+      "projected_at_close_today": 768.4229
+    },
+    {
+      "direction": "descending",
+      "slope_per_sec": -0.00019999999999998654,
+      "slope_per_hour_dollars": -0.7199999999999516,
+      "intercept_price": 769.27,
+      "intercept_timestamp": 1787061600,
+      "anchor_points": [
+        {
+          "time": 1787060400,
+          "price": 769.5
+        },
+        {
+          "time": 1787061600,
+          "price": 769.27
+        },
+        {
+          "time": 1787064600,
+          "price": 768.805
+        },
+        {
+          "time": 1787065500,
+          "price": 768.38
+        },
+        {
+          "time": 1787067000,
+          "price": 768.19
+        }
+      ],
+      "touch_count": 5,
+      "last_touched_at": 1787067000,
+      "r_squared": 0.9757612211405399,
+      "source": "auto_detected",
+      "chart_drawing_id": "auto_114832",
+      "projected_price_now": 763.5684,
+      "distance_from_spot_dollars": 3.8416,
+      "projected_at_close_today": 764.95
+    }
+  ],
+  "manual_dropped": [
+    {
+      "chart_drawing_id": "5EWHJK",
+      "age_days": 102.1,
+      "projected_price_now": 1241.4826,
+      "reason": "anchors 102.1d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "7qQlMk",
+      "age_days": 32.1,
+      "projected_price_now": 515.893,
+      "reason": "anchors 32.1d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "Db2tqP",
+      "age_days": 11.3,
+      "projected_price_now": 841.3125,
+      "reason": "anchors 11.3d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "Ksverr",
+      "age_days": 15.2,
+      "projected_price_now": 850.9799,
+      "reason": "anchors 15.2d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "S3pkoW",
+      "age_days": 99.4,
+      "projected_price_now": 3106.9557,
+      "reason": "anchors 99.4d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "S4rfUH",
+      "age_days": 62.6,
+      "projected_price_now": 810.1971,
+      "reason": "anchors 62.6d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "SlIpFL",
+      "age_days": 96.3,
+      "projected_price_now": 1092.2454,
+      "reason": "anchors 96.3d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "Y2Ti98",
+      "age_days": 5.2,
+      "projected_price_now": 824.0368,
+      "reason": "projects $824.04 vs spot $767.41 (> $15 away)"
+    },
+    {
+      "chart_drawing_id": "bJD13y",
+      "age_days": 35.4,
+      "projected_price_now": 1659.4067,
+      "reason": "anchors 35.4d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "cMvlXq",
+      "age_days": 12.3,
+      "projected_price_now": 448.8611,
+      "reason": "anchors 12.3d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "dk6RTY",
+      "age_days": 95.3,
+      "projected_price_now": 2754.9942,
+      "reason": "anchors 95.3d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "eEKu8T",
+      "age_days": 32.4,
+      "projected_price_now": 2179.4626,
+      "reason": "anchors 32.4d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "ih40Fi",
+      "age_days": 40.7,
+      "projected_price_now": 605.0357,
+      "reason": "anchors 40.7d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "rxMKYG",
+      "age_days": 15.5,
+      "projected_price_now": 870.0332,
+      "reason": "anchors 15.5d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "tYvbxj",
+      "age_days": 6.4,
+      "projected_price_now": 673.1128,
+      "reason": "projects $673.11 vs spot $767.41 (> $15 away)"
+    },
+    {
+      "chart_drawing_id": "u6xABx",
+      "age_days": 102.7,
+      "projected_price_now": -178.2647,
+      "reason": "anchors 102.7d old (> 10.0d)"
+    },
+    {
+      "chart_drawing_id": "vFNohA",
+      "age_days": 92.2,
+      "projected_price_now": -1397.8528,
+      "reason": "anchors 92.2d old (> 10.0d)"
+    }
+  ],
+  "source_csv": "spy_5m_2026-05-19_2026-08-18.csv",
+  "bars_end_et": "2026-08-18T15:55:00-04:00",
+  "status_note": "SHADOW / no downstream consumer. Verified 2026-08-06: NO code reads this file -- the engine's trendline_rejection trigger computes its own line in-process from prior_bars (backtest/lib/filters.py detect_trendline_rejection_bearish) and does NOT depend on this artifact. The LIVE trendline organ is backtest/autoresearch/trendline_engine.py -> trendlines-live.json + trendline-watch.json (Gamma_Trendlines, every 5 min RTH). This file's CLI entry point (main()) is legacy and is invoked only by automation/prompts/premarket.md step 2, once daily. UPDATE 2026-08-18: compute() itself (this payload) is now ALSO refreshed every 5 min RTH, piggybacked on the Gamma_Trendlines task, via backtest/autoresearch/trendline_manual.py::refresh() -- see that module for the manual-line intraday-visibility fix. Still zero code consumers by design; still SHADOW; entries never read this file.",
+  "doctrine_note": "Trendlines are CONTEXT data \u2014 heartbeat does NOT score them as entry triggers until a backtest demonstrates positive expectancy uplift over v14 baseline. See operating principle 6 + markdown/0dte/playbook.md TRENDLINE_BREAK_RETEST (DRAFT). manual_significant is a VISIBILITY-ONLY higher-timeframe view of manual \u2014 nothing in this file is wired to entries, full stop."
 }

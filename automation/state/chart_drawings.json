@@ -1,70 +1,709 @@
 {
   "schema_version": 2,
   "purpose": "Snapshot of all line-tool drawings on the SPY chart. Read by trendline detection pipeline.",
-  "as_of": "2026-06-18T08:40:00-04:00",
-  "source": "ui_evaluate workaround — mcp__tradingview__draw_list returns 'getChartApi is not defined' (broken). Refreshed at premarket 2026-06-18.",
-  "count": 51,
+  "as_of": "2026-08-18T17:55:08.306835",
+  "source": "tv_cdp direct (intraday refresh via trendline_manual.refresh_chart_drawings, piggybacked on Gamma_Trendlines' 5-min RTH cadence -- see this module's docstring)",
+  "count": 56,
   "drawings": [
-    { "id": "7f6O7p", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 747.0 }], "note": "ACTIVE — PMH 2026-06-18" },
-    { "id": "8xQNH3", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 756.68 }], "note": "STALE — expired 2026-06-17 EOD" },
-    { "id": "ZwWg0n", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 756.68 }], "note": "STALE — duplicate" },
-    { "id": "fUhJ65", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 756.68 }], "note": "STALE — duplicate" },
-    { "id": "Gd0RFh", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 752.09 }], "note": "ACTIVE key level — PMH_2026-06-15_NOW_RESISTANCE" },
-    { "id": "7SwHCp", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 752.09 }], "note": "ACTIVE duplicate" },
-    { "id": "UuxeXX", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 752.09 }], "note": "ACTIVE duplicate" },
-    { "id": "gMxYxG", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 750.62 }], "note": "ACTIVE key level — RTH_LOW_2026-06-16" },
-    { "id": "rCinX8", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 755.39 }], "note": "ACTIVE key level — RTH_HIGH_2026-06-16" },
-    { "id": "nyAGrW", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 748.0 }], "note": "ACTIVE key level — PML_2026-06-15_CARRY" },
-    { "id": "oEGJ9p", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 748.0 }], "note": "ACTIVE duplicate" },
-    { "id": "S4rfUH", "title": "trendline", "point_count": 2, "points": [{ "time": 1781292600, "price": 751.51 }, { "time": 1781678400, "price": 755.41 }], "note": "J-drawn ascending trendline Jun 12→Jun 16. Price now far below (~745 vs ~755+ projected). Context only." },
-    { "id": "RRjxhN", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 745.43 }] },
-    { "id": "JSyXIs", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 746.48 }] },
-    { "id": "belh8v", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 744.35 }] },
-    { "id": "YWASA4", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 743.81 }] },
-    { "id": "nt0mjg", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 743.79 }] },
-    { "id": "oSKzWw", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 742.7 }] },
-    { "id": "CARfdc", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 742.87 }] },
-    { "id": "CWPl5H", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 741.61 }] },
-    { "id": "k3D09a", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 741.4 }] },
-    { "id": "IZmgQz", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 740.07 }] },
-    { "id": "hgigl3", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 739.04 }] },
-    { "id": "CfxLeN", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 738.86 }] },
-    { "id": "jbUg9Z", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 738.1 }] },
-    { "id": "kY9RXc", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 738.1 }] },
-    { "id": "4DaGTU", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 737.6 }] },
-    { "id": "0y2Dom", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 737.26 }] },
-    { "id": "s34vX3", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 737.53 }] },
-    { "id": "D2sSBF", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 735.4 }] },
-    { "id": "dwxdpr", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 735.4 }] },
-    { "id": "f4NgW7", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 736.13 }] },
-    { "id": "IP60WJ", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 734.56 }] },
-    { "id": "3k9w8h", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 734.23 }] },
-    { "id": "hpfK9w", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 734.58 }] },
-    { "id": "KNPeJM", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 732.33 }] },
-    { "id": "1SgQTU", "title": "horizontal ray", "point_count": 1, "points": [{ "time": 1778162400, "price": 731.47 }] },
-    { "id": "2YToUA", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 728.62 }] },
-    { "id": "OBFYc2", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 725.04 }] },
-    { "id": "PgGT41", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 751.65 }] },
-    { "id": "TItyre", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 751.65 }] },
-    { "id": "mhhXmd", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 755.35 }] },
-    { "id": "8UEWS2", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 741.77 }] },
-    { "id": "eshyVr", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 741.01 }] },
-    { "id": "5EWHJK", "title": "trendline", "point_count": 2, "points": [{ "time": 1778182200, "price": 733.94 }, { "time": 1778269500, "price": 738.92 }], "note": "STALE — May 7-8" },
-    { "id": "S3pkoW", "title": "trendline", "point_count": 2, "points": [{ "time": 1778492100, "price": 737.40 }, { "time": 1778503500, "price": 740.55 }], "note": "STALE — May 12" },
-    { "id": "SlIpFL", "title": "trendline", "point_count": 2, "points": [{ "time": 1778665500, "price": 741.05 }, { "time": 1778770800, "price": 745.44 }], "note": "STALE — May 14-15" },
-    { "id": "dk6RTY", "title": "trendline", "point_count": 2, "points": [{ "time": 1778846100, "price": 739.48 }, { "time": 1778856900, "price": 742.12 }], "note": "STALE — May 16" },
-    { "id": "u6xABx", "title": "trendline", "point_count": 2, "points": [{ "time": 1778151600, "price": 736.10 }, { "time": 1778213700, "price": 729.75 }], "note": "STALE — May 7-8 descending" },
-    { "id": "vFNohA", "title": "trendline", "point_count": 2, "points": [{ "time": 1779098100, "price": 740.99 }, { "time": 1779122100, "price": 734.57 }], "note": "STALE — May 18" },
-    { "id": "YWmNb5", "title": "ray", "point_count": 2, "points": [{ "time": 1778487300, "price": 738.84 }, { "time": 1778504700, "price": 738.85 }], "note": "STALE" }
-  ],
-  "summary": {
-    "total_count": 51,
-    "trendline_count": 7,
-    "ray_count": 2,
-    "horizontal_line_count": 42,
-    "active_trendlines": ["S4rfUH (context only — price 745.69 far below projected ~755+)"],
-    "active_key_levels_on_chart": ["7f6O7p (747.00 PMH today)", "Gd0RFh (752.09)", "7SwHCp (752.09 dup)", "UuxeXX (752.09 dup)", "gMxYxG (750.62)", "rCinX8 (755.39)", "nyAGrW (748.00)", "oEGJ9p (748.00 dup)"],
-    "stale_trendlines": ["5EWHJK", "S3pkoW", "SlIpFL", "dk6RTY", "u6xABx", "vFNohA"],
-    "chart_cleanup_note": "51 drawings — heavy clutter from May sessions. draw_remove_one broken. 3x 756.68 expired lines. 3x 752.09 duplicates. Cleanup deferred until draw_remove_one is fixed."
-  }
+    {
+      "id": "1SgQTU",
+      "title": "horizontal ray",
+      "point_count": 1,
+      "points": [
+        {
+          "time": 1778162400,
+          "price": 731.4661828394238
+        }
+      ]
+    },
+    {
+      "id": "5EWHJK",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1778182200,
+          "price": 733.9449872508757
+        },
+        {
+          "time": 1778269500,
+          "price": 738.9189984275356
+        }
+      ]
+    },
+    {
+      "id": "7XMiKm",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 776.85
+        }
+      ]
+    },
+    {
+      "id": "7qQlMk",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1784175300,
+          "price": 752.4490266685257
+        },
+        {
+          "time": 1784317500,
+          "price": 740.9085529377251
+        }
+      ]
+    },
+    {
+      "id": "BAYH4p",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 771.77
+        }
+      ]
+    },
+    {
+      "id": "BJ931l",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 754.71
+        }
+      ]
+    },
+    {
+      "id": "Db2tqP",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786036500,
+          "price": 767.6528790506827
+        },
+        {
+          "time": 1786116000,
+          "price": 773.2108692779641
+        }
+      ]
+    },
+    {
+      "id": "HZzKfp",
+      "title": "ray",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786026600,
+          "price": 767.2732796469824
+        },
+        {
+          "time": 1786362000,
+          "price": 773.6824743381171
+        }
+      ]
+    },
+    {
+      "id": "Ksverr",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1785776400,
+          "price": 761.2478828096098
+        },
+        {
+          "time": 1785527700,
+          "price": 744.260576420055
+        }
+      ]
+    },
+    {
+      "id": "NsTeZV",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 750.98
+        }
+      ]
+    },
+    {
+      "id": "NwWgUb",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 768.2706422583028
+        }
+      ]
+    },
+    {
+      "id": "Ob3JyE",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 741.61
+        }
+      ]
+    },
+    {
+      "id": "S3pkoW",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1778503500,
+          "price": 740.5458876057882
+        },
+        {
+          "time": 1778492100,
+          "price": 737.4041263978244
+        }
+      ]
+    },
+    {
+      "id": "S4rfUH",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1781292600,
+          "price": 751.5105713740912
+        },
+        {
+          "time": 1781678100,
+          "price": 755.4128755466547
+        }
+      ]
+    },
+    {
+      "id": "SlIpFL",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1778770800,
+          "price": 745.441285162787
+        },
+        {
+          "time": 1778665500,
+          "price": 741.0516804167206
+        }
+      ]
+    },
+    {
+      "id": "X43NfE",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 770.24
+        }
+      ]
+    },
+    {
+      "id": "Y2Ti98",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786639800,
+          "price": 778.3373357207583
+        },
+        {
+          "time": 1786562700,
+          "price": 770.5128459508392
+        }
+      ]
+    },
+    {
+      "id": "YWmNb5",
+      "title": "ray",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1778487300,
+          "price": 738.8448748807664
+        },
+        {
+          "time": 1778504700,
+          "price": 738.8495224565178
+        }
+      ]
+    },
+    {
+      "id": "bJD13y",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1784016900,
+          "price": 747.6064689957458
+        },
+        {
+          "time": 1784031900,
+          "price": 752.0568686347815
+        }
+      ]
+    },
+    {
+      "id": "cMvlXq",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786024200,
+          "price": 767.9599794661829
+        },
+        {
+          "time": 1786011600,
+          "price": 771.7320176615669
+        }
+      ]
+    },
+    {
+      "id": "dk6RTY",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1778846100,
+          "price": 739.4820616115226
+        },
+        {
+          "time": 1778856900,
+          "price": 742.1224680100426
+        }
+      ]
+    },
+    {
+      "id": "eEKu8T",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1784279100,
+          "price": 739.5935018792444
+        },
+        {
+          "time": 1784292900,
+          "price": 746.6622092420116
+        }
+      ]
+    },
+    {
+      "id": "ejlvHG",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 750
+        }
+      ]
+    },
+    {
+      "id": "f7Jqrj",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 750.9004963796506
+        }
+      ]
+    },
+    {
+      "id": "fIOT0E",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 742.97
+        }
+      ]
+    },
+    {
+      "id": "fT1nDp",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 747.46
+        }
+      ]
+    },
+    {
+      "id": "hUZOKr",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 769.51
+        }
+      ]
+    },
+    {
+      "id": "ih40Fi",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1783351800,
+          "price": 752.6084379632639
+        },
+        {
+          "time": 1783571400,
+          "price": 743.939548613796
+        }
+      ]
+    },
+    {
+      "id": "jV2kpb",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 749.53
+        }
+      ]
+    },
+    {
+      "id": "k23TyU",
+      "title": "ray",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786437000,
+          "price": 775.4095183411077
+        },
+        {
+          "time": 1786461000,
+          "price": 770.5054353289418
+        }
+      ]
+    },
+    {
+      "id": "ldYVxF",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 740.6947218907138
+        }
+      ]
+    },
+    {
+      "id": "qNWnp3",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 743.35
+        }
+      ]
+    },
+    {
+      "id": "rDVuYv",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 737.6775648144016
+        }
+      ]
+    },
+    {
+      "id": "rxMKYG",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1785347700,
+          "price": 726.6296111153135
+        },
+        {
+          "time": 1785753300,
+          "price": 760.0112751622904
+        }
+      ]
+    },
+    {
+      "id": "tDfZhc",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 768
+        }
+      ]
+    },
+    {
+      "id": "tYvbxj",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786538100,
+          "price": 771.840162859202
+        },
+        {
+          "time": 1786527300,
+          "price": 773.7717567835509
+        }
+      ]
+    },
+    {
+      "id": "u6xABx",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1778151600,
+          "price": 736.1008221212244
+        },
+        {
+          "time": 1778213700,
+          "price": 729.7482964869849
+        }
+      ]
+    },
+    {
+      "id": "vFNohA",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1779098100,
+          "price": 740.9903553743076
+        },
+        {
+          "time": 1779122100,
+          "price": 734.5674093659967
+        }
+      ]
+    },
+    {
+      "id": "vTXr06",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 752.63
+        }
+      ]
+    },
+    {
+      "id": "vWImQe",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 744.5104729007577
+        }
+      ]
+    },
+    {
+      "id": "vYdrXr",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 770.2128306243493
+        }
+      ]
+    },
+    {
+      "id": "xa8jEg",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 745.8728871834942
+        }
+      ]
+    },
+    {
+      "id": "zgMQiN",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 745.3926327745811
+        }
+      ]
+    },
+    {
+      "id": "5rlDCY",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        {
+          "time": 1786736100,
+          "price": 779.3424386573083
+        },
+        {
+          "time": 1787075700,
+          "price": 766.7844008843911
+        }
+      ]
+    },
+    {
+      "id": "Ba2k4H",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 767.56
+        }
+      ]
+    },
+    {
+      "id": "k5USbw",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 767.8
+        }
+      ]
+    },
+    {
+      "id": "xbVFiP",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 766.95
+        }
+      ]
+    },
+    {
+      "id": "eN1AFN",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 768.22
+        }
+      ]
+    },
+    {
+      "id": "qkJYEK",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 768.5
+        }
+      ]
+    },
+    {
+      "id": "Rq3X37",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 769.5
+        }
+      ]
+    },
+    {
+      "id": "GOv98l",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 770.42
+        }
+      ]
+    },
+    {
+      "id": "dtKA03",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 771.09
+        }
+      ]
+    },
+    {
+      "id": "dbUJPm",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 771.84
+        }
+      ]
+    },
+    {
+      "id": "gvqs2H",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 772.45
+        }
+      ]
+    },
+    {
+      "id": "XbEyxp",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 772.59
+        }
+      ]
+    },
+    {
+      "id": "6zVqXS",
+      "title": "horizontal line",
+      "point_count": 1,
+      "points": [
+        {
+          "time": null,
+          "price": 776.77
+        }
+      ]
+    }
+  ]
 }

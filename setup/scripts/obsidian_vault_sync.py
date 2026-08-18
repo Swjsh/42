@@ -696,7 +696,8 @@ MAP_SPEC: list[tuple[str, list[tuple[str, str | None, str]]]] = [
         ("Structure watcher", "backtest/lib/watchers/market_structure_watcher.py",
          "the watcher wrapper the engine actually calls"),
         ("Trendlines", "automation/state/trendlines.json",
-         "SHADOW only; producer was dead 47 days, revived 08-06, zero consumers by design"),
+         "SHADOW only, zero consumers by design; manual (J-drawn) lines now refresh intraday "
+         "every 5m RTH via trendline_manual.py, piggybacked on Gamma_Trendlines (08-18)"),
     ]),
     ("🧠 DECIDE — scoring and gates", [
         ("Shared signal builder", "automation/state/fleet/build_shared_signal.py",

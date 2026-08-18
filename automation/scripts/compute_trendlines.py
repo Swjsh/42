@@ -5,11 +5,12 @@ STATUS -- READ THIS BEFORE TRUSTING OR REVIVING THIS SCRIPT (audited 2026-08-06)
   * This is a LEGACY producer with ZERO downstream consumers. A repo-wide search on
     2026-08-06 found no code that reads `automation/state/trendlines.json` -- only
     this file writes it, and two prompt docs mention it.
-  * Its only caller is automation/prompts/premarket.md step 2, an LLM instruction.
-    It is NOT on any scheduled task. That is the whole reason the artifact sat stale
-    from 2026-05-14 to 2026-08-06: the premarket deliverable-gate in
-    setup/scripts/run-premarket.ps1 checks only today-bias.json, so an LLM run that
-    silently skipped step 2 still reported success (C7 -- audit outputs, not exit codes).
+  * ITS CLI ENTRY POINT (`main()`, `python compute_trendlines.py`) is still called from
+    exactly one place: automation/prompts/premarket.md step 2, an LLM instruction, once
+    daily. That is the whole reason the artifact sat stale from 2026-05-14 to 2026-08-06:
+    the premarket deliverable-gate in setup/scripts/run-premarket.ps1 checks only
+    today-bias.json, so an LLM run that silently skipped step 2 still reported success
+    (C7 -- audit outputs, not exit codes).
   * The engine's `trendline_rejection` trigger DOES NOT depend on this file. It
     computes its own line in-process from prior_bars via
     backtest/lib/filters.py::detect_trendline_rejection_bearish. Measured over the
@@ -18,6 +19,23 @@ STATUS -- READ THIS BEFORE TRUSTING OR REVIVING THIS SCRIPT (audited 2026-08-06)
   * The LIVE trendline organ is backtest/autoresearch/trendline_engine.py
     (Gamma_Trendlines, every 5 min RTH) -> trendlines-live.json / trendline-watch.json,
     which were both fresh at 16:00 ET on 2026-08-06.
+  * UPDATE 2026-08-18 (J: "the engine reads his hand-drawn TradingView trendlines ONLY
+    at premarket, so anything he draws during the session is never seen"): `compute()`
+    (this module's real work function, as opposed to the CLI-only `main()` above) is now
+    ALSO called intraday, every 5 min RTH, piggybacked on the Gamma_Trendlines task via
+    backtest/autoresearch/trendline_manual.py::refresh() -- see that module's docstring.
+    That module ALSO refreshes automation/state/chart_drawings.json itself (previously
+    only touched by the once-daily premarket ui_evaluate step, and observed stale for
+    two months in the live state dir) via setup/scripts/tv_cdp.py, the existing headless
+    CDP client -- so J's manual lines are now visible within one 5-min tick of drawing
+    them, not just the next morning. Both call sites share this file's SAME `compute()`
+    function and SAME staleness/significance filters -- there is exactly one manual-line
+    reader and one set of thresholds, never two that could silently disagree (L251).
+    A NEW higher-timeframe significance filter (`score_manual_significance`, see
+    MANUAL_MIN_SIGNIFICANT_SPAN_MINUTES below) additionally keeps `manual_significant`
+    down to a few structurally meaningful lines instead of every scribble -- J's second
+    ask ("I wanna do this on a higher time frame... so we don't have a bunch of small
+    individual trend lines").
 
   Consumption stays SHADOW. Promotion bar is stated in
   analysis/deep-research/EOD-2026-08-06-INSTRUMENTS.md.
@@ -48,6 +66,7 @@ sys.path.insert(0, str(REPO_ROOT / "backtest"))
 
 from lib.trendlines import (  # noqa: E402
     Trendline,
+    TOUCH_TOLERANCE_USD,
     detect_trendlines,
     trendline_from_two_points,
 )
@@ -60,6 +79,28 @@ DATA_DIR = REPO_ROOT / "backtest" / "data"
 # is still anywhere near the tape; beyond these bounds it is extrapolation noise.
 MANUAL_MAX_AGE_DAYS = 10.0
 MANUAL_MAX_DISTANCE = 15.0
+
+# HIGHER-TIMEFRAME SIGNIFICANCE FILTER (2026-08-18, J verbatim: "I wanna do this on a
+# higher time frame, though, so we don't have a bunch of small individual trend lines").
+# The staleness filters above answer "is this line still near the tape"; this answers
+# "is this line big enough to matter". A manual line whose two anchors are 6 minutes
+# apart is a scribble even when it is 2 minutes old and sits right on spot.
+MANUAL_MIN_SIGNIFICANT_SPAN_MINUTES = 120.0
+# Anchors must be >= 2 trading hours apart. SPY RTH is 390 min/session, so this floors
+# out anything under ~1/3 of a session. Chosen to sit clearly ABOVE the auto-detector's
+# own 30-min noise floor (see the `relevant` auto-line filter in compute() below) since
+# J's ask was specifically for a HIGHER timeframe than what already counts as "not
+# noise" for auto-detected lines -- a manual line is held to a stricter bar than that,
+# not a looser one, precisely because a human drew it and it will get drawn again.
+
+MANUAL_TOUCH_TOLERANCE_USD = TOUCH_TOLERANCE_USD
+# Reuse backtest.lib.trendlines' own $0.20 touch tolerance (mined from the existing
+# auto-detector) rather than inventing a second one.
+
+MANUAL_SIGNIFICANT_CAP = 5
+# Top-K by (span_minutes x max(respect_count_recent, 1)) -- mirrors this file's own
+# "top 5 per direction" auto-line cap a few lines below, and the trendline-draw skill's
+# "way too many trend lines on the screen" cap precedent (J, 2026-07-15).
 
 
 def _latest_spy_csv() -> Path:
@@ -164,6 +205,86 @@ def _detected_id(line: Trendline) -> str:
     return f"auto_{h % 1_000_000:06d}"
 
 
+def _manual_respect_count(entry: dict, bars: pd.DataFrame, tolerance: float = MANUAL_TOUCH_TOLERANCE_USD) -> int:
+    """How many bars in `bars` came within `tolerance` of this manual line's projected price
+    without closing through it -- the same 'respected touch' idea trendlines-live.json already
+    computes for auto lines (backtest/autoresearch/trendline_engine.py::_fit's respect/
+    violations walk), MINED here rather than reinvented (task doctrine: don't build a second
+    scoring scheme). Manual lines only ever carry their 2 drawn anchors as touch_count
+    (backtest/lib/trendlines.py::trendline_from_two_points hard-codes touch_count=2) -- this
+    gives J's hand-drawn lines a REAL respect measurement against the actual tape instead of
+    that placeholder."""
+    if bars is None or bars.empty:
+        return 0
+    direction = entry.get("direction")
+    intercept_price = entry.get("intercept_price")
+    intercept_ts = entry.get("intercept_timestamp")
+    slope = entry.get("slope_per_sec")
+    if None in (direction, intercept_price, intercept_ts, slope):
+        return 0
+    count = 0
+    for row in bars.itertuples():
+        proj = intercept_price + slope * (int(row.timestamp_unix) - intercept_ts)
+        if not ((row.low - tolerance) <= proj <= (row.high + tolerance)):
+            continue
+        violated = (row.close < proj - tolerance) if direction == "ascending" else (row.close > proj + tolerance)
+        if not violated:
+            count += 1
+    return count
+
+
+def score_manual_significance(manual_lines: list[dict], bars: pd.DataFrame) -> tuple[list[dict], list[dict], list[dict]]:
+    """HIGHER-TIMEFRAME FILTER (J, 2026-08-18) -- see MANUAL_MIN_SIGNIFICANT_SPAN_MINUTES.
+
+    Every age/distance-surviving manual line gets two new informational fields
+    (`span_minutes`, `respect_count_recent`) -- additive, never changes an existing key's
+    meaning. Lines are then gated down to a `significant` subset by two named-constant
+    criteria:
+      1. SPAN FLOOR -- anchors must be >= MANUAL_MIN_SIGNIFICANT_SPAN_MINUTES apart. This is
+         the primary "higher timeframe" gate J asked for verbatim.
+      2. TOP-K CAP by (span_minutes x max(respect_count_recent, 1)) -- ranks span-floor
+         survivors by a blend of how long-lived AND how respected they are, keeps only the
+         top MANUAL_SIGNIFICANT_CAP.
+
+    Returns (all_enriched, significant, dropped). `dropped` entries use the SAME
+    {chart_drawing_id, reason} shape as the age/distance `manual_dropped` list in compute()
+    below, so a caller can merge both lists without a schema branch."""
+    all_enriched: list[dict] = []
+    for m in manual_lines:
+        anchors = m.get("anchor_points") or []
+        times = [a["time"] for a in anchors if "time" in a]
+        span_minutes = (max(times) - min(times)) / 60.0 if len(times) >= 2 else 0.0
+        all_enriched.append({
+            **m,
+            "span_minutes": round(span_minutes, 1),
+            "respect_count_recent": _manual_respect_count(m, bars),
+        })
+
+    dropped: list[dict] = []
+    survivors: list[dict] = []
+    for m in all_enriched:
+        if m["span_minutes"] < MANUAL_MIN_SIGNIFICANT_SPAN_MINUTES:
+            dropped.append({
+                "chart_drawing_id": m.get("chart_drawing_id"),
+                "span_minutes": m["span_minutes"],
+                "reason": (f"insignificant: span {m['span_minutes']:.1f}min < "
+                           f"{MANUAL_MIN_SIGNIFICANT_SPAN_MINUTES:.0f}min floor "
+                           f"(scribble, not higher-timeframe)"),
+            })
+            continue
+        survivors.append(m)
+
+    survivors.sort(key=lambda m: m["span_minutes"] * max(m["respect_count_recent"], 1), reverse=True)
+    significant = survivors[:MANUAL_SIGNIFICANT_CAP]
+    for m in survivors[MANUAL_SIGNIFICANT_CAP:]:
+        dropped.append({
+            "chart_drawing_id": m.get("chart_drawing_id"),
+            "span_minutes": m["span_minutes"],
+            "reason": f"insignificant: ranked below top {MANUAL_SIGNIFICANT_CAP} by span x respect",
+        })
+    return all_enriched, significant, dropped
+
+
 def compute(spot: float | None, lookback_sessions: int) -> dict:
     bars = _load_recent_bars(lookback_sessions)
     detected = detect_trendlines(bars)
@@ -228,6 +349,14 @@ def compute(spot: float | None, lookback_sessions: int) -> dict:
         enriched["anchor_age_days"] = age_days
         manual_lines.append(enriched)
 
+    # HIGHER-TIMEFRAME SIGNIFICANCE FILTER (2026-08-18) -- see score_manual_significance's
+    # docstring. Runs AFTER the age/distance staleness filter above (a line has to be valid
+    # context before it's worth ranking); reassigns manual_lines to the enriched version so
+    # every surviving entry (not just the significant ones) carries span_minutes /
+    # respect_count_recent for visibility.
+    manual_lines, manual_significant, manual_insignificant = score_manual_significance(manual_lines, bars)
+    manual_dropped.extend(manual_insignificant)
+
     # Filter auto-detected lines to actionable ones:
     #   - Within ±$5 of spot at the projection time (closer than that to be relevant
     #     for an entry trigger)
@@ -271,8 +400,10 @@ def compute(spot: float | None, lookback_sessions: int) -> dict:
         "lookback_sessions": lookback_sessions,
         "bars_used": int(len(bars)),
         "manual_count": len(manual_lines),
+        "manual_significant_count": len(manual_significant),
         "auto_count": len(auto_lines),
         "manual": manual_lines,
+        "manual_significant": manual_significant,
         "auto": auto_lines,
         "manual_dropped": manual_dropped,
         "source_csv": _latest_spy_csv().name,
@@ -286,13 +417,20 @@ def compute(spot: float | None, lookback_sessions: int) -> dict:
             "detect_trendline_rejection_bearish) and does NOT depend on this artifact. "
             "The LIVE trendline organ is backtest/autoresearch/trendline_engine.py -> "
             "trendlines-live.json + trendline-watch.json (Gamma_Trendlines, every 5 min RTH). "
-            "This producer is legacy and is invoked only by automation/prompts/premarket.md "
-            "step 2; it is NOT on any scheduled task."
+            "This file's CLI entry point (main()) is legacy and is invoked only by "
+            "automation/prompts/premarket.md step 2, once daily. UPDATE 2026-08-18: "
+            "compute() itself (this payload) is now ALSO refreshed every 5 min RTH, "
+            "piggybacked on the Gamma_Trendlines task, via "
+            "backtest/autoresearch/trendline_manual.py::refresh() -- see that module for "
+            "the manual-line intraday-visibility fix. Still zero code consumers by design; "
+            "still SHADOW; entries never read this file."
         ),
         "doctrine_note": (
             "Trendlines are CONTEXT data — heartbeat does NOT score them as entry triggers "
             "until a backtest demonstrates positive expectancy uplift over v14 baseline. "
-            "See operating principle 6 + markdown/0dte/playbook.md TRENDLINE_BREAK_RETEST (DRAFT)."
+            "See operating principle 6 + markdown/0dte/playbook.md TRENDLINE_BREAK_RETEST (DRAFT). "
+            "manual_significant is a VISIBILITY-ONLY higher-timeframe view of manual — nothing "
+            "in this file is wired to entries, full stop."
         ),
     }
 
@@ -310,7 +448,8 @@ def main() -> int:
     payload = compute(spot=args.spot, lookback_sessions=args.lookback_sessions)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(f"wrote {args.out} — {payload['manual_count']} manual + {payload['auto_count']} auto trendlines")
+    print(f"wrote {args.out} — {payload['manual_count']} manual "
+          f"({payload['manual_significant_count']} significant) + {payload['auto_count']} auto trendlines")
     return 0
 
 
