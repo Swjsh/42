@@ -301,7 +301,19 @@ RUN_VWAP = True  # network VWAP detector pass; tests disable to stay offline
 # Gated on (run_vwap AND this flag): run_vwap=False keeps every offline test byte-identical.
 # KILL (one line, byte-identical producer revert): set False. Kill criteria in the prereg:
 # n>=10 risky-3 fills or 10 sessions, cohort net real-fill P&L < 0 -> revert.
-RUN_VWAP_RECLAIM_FB = True
+#
+# KILL EXECUTED 2026-08-17 EOD -- the prereg's OWN frozen checkpoint, not a discretionary
+# call. Window: 10 trading sessions from arming (08-04..08-17 inclusive) hit today, before
+# the n>=10 fills bar ("whichever first"; fills n=3). Cohort: risky-3
+# VWAP_RECLAIM_FAILED_BREAK real fills, all 2026-08-17 -- 776P -$64, 776P -$72 (a 3-minute
+# same-contract re-entry after the first stop), 775P -$64 = NET -$200 < 0 -> revert.
+# Honest caveat, disclosed not hidden: n=3 is thin evidence; the prereg chose the
+# whichever-first window precisely so a quiet lane could not stay armed unbounded, and
+# relitigating a frozen criterion with hindsight is the failure mode preregs exist to stop.
+# The CORE safe-2 lane (params.extra_setup_exec_armed.vwap_reclaim_failed_break) is OUTSIDE
+# this prereg's scope and is untouched here. Re-arm path: a fresh prereg, per OP-11.
+# J REVOKE: set True (byte-identical producer restore).
+RUN_VWAP_RECLAIM_FB = False
 
 
 # --- STRUCTURE-STOP trigger_level derivation (2026-07-09, flag-gated feature; this part is
