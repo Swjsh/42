@@ -620,7 +620,7 @@ def test_decide_arm_probe_daily_cap_at_boundary():
 def test_decide_arm_non_probe_arm_untouched_by_probe_cfg():
     """decide_arm for a NON-probe arm, with probe_cfg present and the SAME cohort-blocked
     signal, produces a plain HOLD (no PROBE_ARM plan synthesized) -- the flag is arm-scoped."""
-    safe1 = {"id": "safe-1", "gate_override": {"min_triggers": 1}, "account_number": "PA3DHPT7KIQE"}
+    safe1 = {"id": "safe-1", "gate_override": {"min_triggers": 1}, "account_number": "PATESTFAKE01"}  # synthetic fixture, not a real account
     decision, _ = fl.decide_arm(
         safe1, WINDOW_BLOCKED_SIGNAL, equity=2000.0, flat=True, day_trades=0,
         killed=False, sod_equity=2000.0, prior_stops=[], params=REAL_PARAMS,

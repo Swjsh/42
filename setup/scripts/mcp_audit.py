@@ -17,16 +17,15 @@ def get_et_now():
     utc_now = datetime.now(timezone.utc)
     return utc_now.isoformat()
 
-EXPECTED_ACCOUNTS_DOC = """Read expected account numbers from the FLEET REGISTRY, never hardcode.
-
-SCAR (2026-08-18): this module compared the live API's account_number for equality against
-"PA3DHPT7KIQE"/"PA33W2KUAT40". Neither string was ever a real account number -- a documentation
-transcription error that got copied into code -- so the equality could NEVER be satisfied and
-this audit reported FAIL on every run regardless of real connection health. Its sibling
-mcp_audit_direct.py had the identical defect AND fired a Discord alert on every RED, which
-manufactured a recurring "engine red" ping with no underlying fault. A monitor that cannot go
-green trains the operator to ignore the channel.
-"""
+# Read expected account numbers from the FLEET REGISTRY, never hardcode.
+#
+# SCAR (2026-08-18): this module compared the live API's account_number for equality against
+# "PA3DHPT7KIQE"/"PA33W2KUAT40". Neither string was ever a real account number -- a documentation
+# transcription error that got copied into code -- so the equality could NEVER be satisfied and
+# this audit reported FAIL on every run regardless of real connection health. Its sibling
+# mcp_audit_direct.py had the identical defect AND fired a Discord alert on every RED, which
+# manufactured a recurring "engine red" ping with no underlying fault. A monitor that cannot go
+# green trains the operator to ignore the channel.
 
 
 def expected_accounts():
