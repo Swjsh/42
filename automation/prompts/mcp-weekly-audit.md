@@ -4,11 +4,11 @@ You are Gamma running the WEEKLY MCP CONNECTION AUDIT. Headless, one-shot. Round
 
 ## Step 1 -- Alpaca Safe (mcp__alpaca__*)
 - Call `mcp__alpaca__get_clock` -> expect JSON with `is_open` + `next_open`.
-- Call `mcp__alpaca__get_account_info` -> expect `account_number` == `PA3DHPT7KIQE`, `status` == `ACTIVE`, `trading_blocked` == false, `account_blocked` == false. (Repointed 2026-07-11 -- was `PA3S2PYAS2WQ`, deleted 2026-07-10; now reuses the former fleet safe-1 account.)
+- Call `mcp__alpaca__get_account_info` -> expect `account_number` == `PA3POKNV46VG`, `status` == `ACTIVE`, `trading_blocked` == false, `account_blocked` == false. (Repointed 2026-07-11 -- was `PA3S2PYAS2WQ`, deleted 2026-07-10; now reuses the former fleet safe-1 account. Corrected 2026-08-18: this step previously named `PA3DHPT7KIQE`, which was never the real account -- see `analysis/deep-research/ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18.md`.)
 - safe_ok = both calls returned valid JSON AND account matches AND not blocked.
 
 ## Step 2 -- Alpaca Bold (mcp__alpaca_aggressive__*)
-- Call `mcp__alpaca_aggressive__get_account_info` -> expect `account_number` == `PA33W2KUAT40`, `status` == `ACTIVE`, `trading_blocked` == false.
+- Call `mcp__alpaca_aggressive__get_account_info` -> expect `account_number` == `PA3WEBXJU67N`, `status` == `ACTIVE`, `trading_blocked` == false. (Corrected 2026-08-18: previously named `PA33W2KUAT40`, never the real account.)
 - bold_ok = valid JSON AND account matches AND not blocked.
 
 ## Step 3 -- TradingView (mcp__tradingview__*)
@@ -32,8 +32,8 @@ Write `automation/state/mcp-weekly-audit-latest.json`:
   "skill": "mcp-weekly-audit",
   "run_at": "<ISO-8601 ET>",
   "verdict": "GREEN|YELLOW|RED",
-  "alpaca_safe": {"ok": <bool>, "account": "PA3S2PYAS2WQ", "note": "<short>"},
-  "alpaca_bold": {"ok": <bool>, "account": "PA33W2KUAT40", "note": "<short>"},
+  "alpaca_safe": {"ok": <bool>, "account": "PA3POKNV46VG", "note": "<short>"},
+  "alpaca_bold": {"ok": <bool>, "account": "PA3WEBXJU67N", "note": "<short>"},
   "tradingview": {"ok": <bool>, "cdp_connected": <bool>, "relaunched": <bool>, "chart_symbol": "<sym>", "note": "<short>"},
   "reason": "<one line summary>"
 }

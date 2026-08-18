@@ -11,8 +11,11 @@
 
 ## Why this exists (the scar)
 
-The 2026-07-11 repoint moved core Safe onto account `PA3DHPT7KIQE` — a REAL, already-active
-account that had been trading for weeks as fleet arm `safe-1` (57 lifetime round trips). The
+The 2026-07-11 repoint moved core Safe onto account `PA3POKNV46VG` — a REAL, already-active
+account that had been trading for weeks as fleet arm `safe-1` (57 lifetime round trips). (Corrected
+2026-08-18: this line previously named `PA3DHPT7KIQE`, which was never the real account —
+`accounts.json`'s own `_repoint_2026_07_11` doc field confirms `PA3POKNV46VG`; see
+`analysis/deep-research/ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18.md`.) The
 repoint correctly updated credentials, retired the donor fleet arm, reset the equity baseline,
 and swept every fills-attribution consumer it could find (broker_fills.py, mcp_audit.py,
 accounts_status.py, docs — see the consumer table in `STATUS.md`'s 2026-07-11

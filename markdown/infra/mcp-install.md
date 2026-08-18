@@ -5,7 +5,7 @@
 **Host:** Claude Code (Cowork's connector registry doesn't carry Alpaca or TradingView MCPs).
 **Config file:** repo-root **`.mcp.json`** (`C:\Users\jackw\Desktop\42\.mcp.json`) — project-scoped, picked up on Claude Code restart. The same server block is mirrored in `~/.claude.json` under this project's entry; keep the two in sync.
 
-There are **three** MCP servers: `tradingview`, `alpaca` (Gamma-Safe-2), `alpaca_aggressive` (Gamma-Risky-2). Both Alpaca servers run the same binary under different keys.
+There are **three** MCP servers: `tradingview`, `alpaca` (Gamma-Safe-2), `alpaca_aggressive` (Gamma-Bold-2). Both Alpaca servers run the same binary under different keys.
 
 ---
 
@@ -29,27 +29,27 @@ Binary: `uvx alpaca-mcp-server` (uv fetches/pins it; no clone, no `pip install -
 ```jsonc
 {
   "mcpServers": {
-    "alpaca": {                         // → Gamma-Safe-2  (PA3DHPT7KIQE, repointed 2026-07-11)
+    "alpaca": {                         // → Gamma-Safe-2  (PA3POKNV46VG, repointed 2026-07-11)
       "command": "C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe",
       "args": [
         "C:\\Users\\jackw\\Desktop\\42\\setup\\mcp\\mcp_stdio_hidden.py",
         "uvx", "alpaca-mcp-server"
       ],
       "env": {
-        "ALPACA_API_KEY": "PK7WRO5T…",      // Safe-2 key
+        "ALPACA_API_KEY": "PKWEWC7N…",      // Safe-2 key
         "ALPACA_SECRET_KEY": "…",
         "ALPACA_PAPER_TRADE": "true",
         "ALPACA_BASE_URL": "https://paper-api.alpaca.markets"
       }
     },
-    "alpaca_aggressive": {              // → Gamma-Risky-2 (PA33W2KUAT40)
+    "alpaca_aggressive": {              // → Gamma-Bold-2  (PA3WEBXJU67N)
       "command": "C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe",
       "args": [
         "C:\\Users\\jackw\\Desktop\\42\\setup\\mcp\\mcp_stdio_hidden.py",
         "uvx", "alpaca-mcp-server"
       ],
       "env": {
-        "ALPACA_API_KEY": "PKQMQD2N…",      // Risky-2 key
+        "ALPACA_API_KEY": "PKEZ6OKP…",      // Bold-2 key
         "ALPACA_SECRET_KEY": "…",
         "ALPACA_PAPER_TRADE": "true",
         "ALPACA_BASE_URL": "https://paper-api.alpaca.markets"

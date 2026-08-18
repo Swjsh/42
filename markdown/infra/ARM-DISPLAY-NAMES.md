@@ -3,8 +3,18 @@
 > Added 2026-07-17. J: "i dont like how the arms are named currently" — the
 > safe-1/safe-2/safe-3/risky-1/risky-3/bold-2 scheme is confusing on its own merits (numbers
 > carry no meaning, "risky" vs "bold" is inconsistent) **and** unsafe — safe-1 (retired) and
-> safe-2 point at the SAME broker account (`PA3DHPT7KIQE`, the 2026-07-11 repoint), which
+> safe-2 point at the SAME broker account (`PA3POKNV46VG`, the 2026-07-11 repoint), which
 > caused a real double-count in a report before this fix.
+>
+> **CORRECTED 2026-08-18** (account-identity alignment audit): the mapping table below carried
+> the account numbers as they stood 2026-07-17/07-14. Every fleet_rest account (safe-3/risky-1/
+> risky-3) was reset to a new Alpaca paper account number since then (see
+> `analysis/deep-research/RESET-PLAN-2026-08-01.md`), and this table was never updated to
+> follow — it also had two numbers that were never correct even at authorship (safe-2/bold-2,
+> the same class of error CLAUDE.md carried; see
+> `analysis/deep-research/ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18.md`). Values below are
+> re-verified against `automation/state/fleet/accounts.json` as of 2026-08-18 — that file, not
+> this table, stays the source of truth going forward.
 
 ## What changed, what didn't
 
@@ -24,12 +34,12 @@
 
 | arm id | display_name | account (last-4) | note |
 |---|---|---|---|
-| `safe-2` | `CORE-SAFE (KIQE)` | `PA3DHPT7KIQE` | production core Safe, live heartbeat |
-| `bold-2` | `CORE-BOLD (AT40)` | `PA33W2KUAT40` | production core Bold, live heartbeat |
-| `safe-3` | `FLEET-TIGHT-S (OB0Q)` | `PA32RD49OB0Q` | safe sizing, tight gate (fleet_rest) |
-| `risky-1` | `FLEET-FULLSEND-R (8G19)` | `PA3W17FD8G19` | FULL-SEND learning arm since 2026-07-31 (`e28d210c` — was `FLEET-TIGHT-R`, risky x tight): min-size, ATM, no cohort vetoes |
-| `risky-3` | `FLEET-LOOSE-R (X15Q)` | `PA31WIU8X15Q` | risky sizing, loose gate (fleet_rest); also the probe arm |
-| `safe-1` | `RETIRED (=CORE-SAFE acct KIQE)` | `PA3DHPT7KIQE` | **shares CORE-SAFE's account** — retired 2026-07-11, never places orders (status-gated), left in place as historical trading record |
+| `safe-2` | `CORE-SAFE (46VG)` | `PA3POKNV46VG` | production core Safe, live heartbeat |
+| `bold-2` | `CORE-BOLD (U67N)` | `PA3WEBXJU67N` | production core Bold, live heartbeat |
+| `safe-3` | `FLEET-TIGHT-S (T20H)` | `PA32T7Q1O20H` | safe sizing, tight gate (fleet_rest) |
+| `risky-1` | `FLEET-FULLSEND-R (V0A4)` | `PA3S9N1IV0A4` | FULL-SEND learning arm since 2026-07-31 (`e28d210c` — was `FLEET-TIGHT-R`, risky x tight): min-size, ATM, no cohort vetoes |
+| `risky-3` | `FLEET-LOOSE-R (5H6Z)` | `PA3V7JT25H6Z` | risky sizing, loose gate (fleet_rest); also the probe arm |
+| `safe-1` | `RETIRED (=CORE-SAFE acct 46VG)` | `PA3POKNV46VG` | **shares CORE-SAFE's account** — retired 2026-07-11, never places orders (status-gated), left in place as historical trading record |
 | `mes-mnq-div-futures` | `FUTURES-DIV (dormant, 3759)` | `5WW73759` (TT sandbox) | edge3 MES/MNQ divergence, `enabled=false` |
 | `mes-linear-sim` | `FUTURES-LINEAR (pending, 3759)` | `5WW73759` (TT sandbox) | `status=pending_build`, not yet wired |
 
@@ -38,7 +48,7 @@ Crypto Twin (a separate 24/7 mechanism-validation engine, not an `accounts.json`
 through `arm_display.display_name_for_label("crypto-twin"/"twin")`.
 
 **Reading the account-collision at a glance:** `safe-1` and `safe-2` are the only two arms
-that share a real account_number. Their display names both surface the SAME last-4 (`KIQE`),
+that share a real account_number. Their display names both surface the SAME last-4 (`46VG`),
 so any status line showing both side by side makes the shared-account fact impossible to miss
 — that visibility is the concrete fix for the double-count incident.
 
@@ -57,10 +67,10 @@ it):
 
 | Surface | What changed |
 |---|---|
-| `setup/scripts/trade_today_watcher.py` | Discord fill ping: `[safe-2]` → `[safe-2 CORE-SAFE (KIQE)]` |
-| `setup/scripts/firm_brief.py` | PDT section: `- core Safe:` → `- core Safe [CORE-SAFE (KIQE)]:` |
+| `setup/scripts/trade_today_watcher.py` | Discord fill ping: `[safe-2]` → `[safe-2 CORE-SAFE (46VG)]` |
+| `setup/scripts/firm_brief.py` | PDT section: `- core Safe:` → `- core Safe [CORE-SAFE (46VG)]:` |
 | `setup/scripts/gamma_status.py` | ACCOUNTS section now lists every arm: `id` + `display_name` + `[status]` |
-| `setup/scripts/participation_daily.py` | Markdown table: `safe (safe-2)` → `safe (safe-2 CORE-SAFE (KIQE))` |
+| `setup/scripts/participation_daily.py` | Markdown table: `safe (safe-2)` → `safe (safe-2 CORE-SAFE (46VG))` |
 | `setup/scripts/fill_funnel.py` | `render_text`/`render_markdown` account rows + the P&L by-arm bullet lines |
 
 **Deliberately NOT touched:** `funnel["flags"]`/`funnel["accounts"]` dict keys, fill_funnel's

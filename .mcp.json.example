@@ -13,7 +13,7 @@
         "ALPACA_SECRET_KEY": "${ALPACA_SECRET_KEY}",
         "ALPACA_PAPER_TRADE": "true",
         "ALPACA_BASE_URL": "https://paper-api.alpaca.markets",
-        "_account_label": "Gamma-Safe-1 (paper)"
+        "_account_label": "Gamma-Safe-2 (paper)"
       }
     },
     "alpaca_aggressive": {
@@ -24,7 +24,7 @@
         "ALPACA_SECRET_KEY": "${ALPACA_AGGRESSIVE_SECRET_KEY}",
         "ALPACA_PAPER_TRADE": "true",
         "ALPACA_BASE_URL": "https://paper-api.alpaca.markets",
-        "_account_label": "Gamma-Risky-2 (paper)"
+        "_account_label": "Gamma-Bold-2 (paper)"
       }
     }
   }

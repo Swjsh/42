@@ -68,14 +68,23 @@ Alpaca's UI labels drift from our arm names (a repoint renames our side, not the
 **account number**, never by the label shown in the switcher. Source of truth:
 `automation/state/fleet/accounts.json`; canonical view `python setup/scripts/accounts_status.py`.
 
+**Corrected 2026-08-18** (account-identity alignment audit): every row below except crypto twin was
+still showing its PRE-2026-08-02-wipe account number -- and the Safe-1/Safe-2 row was never even
+correct at that, a documentation-only error separate from the wipe (see
+`analysis/deep-research/ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18.md`). Account numbers below are
+re-verified against `automation/state/fleet/accounts.json` as of 2026-08-18. The Alpaca UI **label**
+column is NOT re-verified -- five of six accounts were deleted and recreated 2026-08-02, so any
+custom dashboard nickname from before that date may no longer apply. Re-check the switcher by
+**account number**, never by a remembered label, per the section below.
+
 | Alpaca label | Account # | Our arm | Login |
 |---|---|---|---|
-| **"Safe-1"** | PA3DHPT7KIQE | **safe-2** (CORE Safe) | swjsh.chief |
-| "Safe-3" | PA32RD49OB0Q | safe-3 (fleet) | swjsh.chief |
+| *(re-verify live)* | PA3POKNV46VG | **safe-2** (CORE Safe) | swjsh.chief |
+| *(re-verify live)* | PA32T7Q1O20H | safe-3 (fleet) | swjsh.chief |
 | "crypto" | PA38EG1JTFBT | **crypto twin — DO NOT DELETE** | swjsh.chief |
-| — | PA33W2KUAT40 | bold-2 (CORE Bold) | jack.watergun |
-| — | PA3W17FD8G19 | risky-1 (fleet) | jack.watergun |
-| — | PA31WIU8X15Q | risky-3 (fleet) | jack.watergun |
+| *(re-verify live)* | PA3WEBXJU67N | bold-2 (CORE Bold) | jack.watergun |
+| *(re-verify live)* | PA3S9N1IV0A4 | risky-1 (fleet) | jack.watergun |
+| *(re-verify live)* | PA3V7JT25H6Z | risky-3 (fleet) | jack.watergun |
 
 ⛔ **The crypto twin is never re-funded.** It runs 24/7, carries the organic ladder A/B and 155+
 lifetime orders of evidence continuity, and deleting it destroys a running experiment. It also sits

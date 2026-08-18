@@ -4989,9 +4989,9 @@ actuator test family). Curated safety gate (31+5) PASS.
 
 ## L215 -- 2026-07-14: PDT day-trade counts are tracked per BROKER ACCOUNT, not per logical alias/strategy — a repointed/reused account inherits the prior tenant's rolling day-trade count
 
-**Symptom:** core Safe's first live trading day after being repointed to account `PA3DHPT7KIQE` (2026-07-11) produced a `RISK_DENY_PDT` block on a fully-valid, gate-passing signal at 12:39 ET — the account's own "first trade of its new life" was blocked by "9 day-trades in 5d."
+**Symptom:** core Safe's first live trading day after being repointed to account `PA3POKNV46VG` (2026-07-11) produced a `RISK_DENY_PDT` block on a fully-valid, gate-passing signal at 12:39 ET — the account's own "first trade of its new life" was blocked by "9 day-trades in 5d."
 
-**Root cause:** `PA3DHPT7KIQE` is the same broker account previously used by fleet arm safe-1 (retired 2026-07-11). PDT counts are tracked per broker account; core Safe silently inherited safe-1's rolling 5-business-day count. The circuit-breaker re-arm script's own note confirms this was never addressed ("day_trades_used_5d left untouched"). Not a bug in the PDT gate (rule 7 worked correctly on the data it was given) — a missing step in the account-repoint runbook.
+**Root cause:** `PA3POKNV46VG` is the same broker account previously used by fleet arm safe-1 (retired 2026-07-11). PDT counts are tracked per broker account; core Safe silently inherited safe-1's rolling 5-business-day count. The circuit-breaker re-arm script's own note confirms this was never addressed ("day_trades_used_5d left untouched"). Not a bug in the PDT gate (rule 7 worked correctly on the data it was given) — a missing step in the account-repoint runbook.
 
 **Fix:** any future account repoint/reuse must EXPLICITLY audit and decide on the inherited PDT day-trade count as part of the repoint checklist.
 
