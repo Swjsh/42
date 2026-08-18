@@ -3220,3 +3220,8 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 
 **Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 7490.1, "window_net_pnl": -1946.0, "n_dominated": 20, "window_n": 30}` (analysis/autopsies/2026-08-11.md).
 **Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
+
+### T-CONVICTION-TL-2026-08-18 HIGH — conviction cannot see trendlines; it gates sizing re-arm
+
+**Claim:** the entry-quality gate that `min_contracts_equity_scaled` re-arm waits on scored the 08-17 winner 0/8 (no trendline component; C4 anti-momentum) — it can never validate as built, so sizing stays frozen at min_contracts forever. **Evidence:** first post-fix day 58/58 would_block incl. the +$360 winner; outcome join WOULD_BLOCK=+$360/WOULD_ALLOW=none (analysis/conviction/CONVICTION-VERDICT-2026-08-12.md §2026-08-18, analysis/entry-quality/conviction-shadow-report.json).
+**Action:** implement shadow-only `conviction_tl` variant per the design note (C-trendline 0-2pts from line metadata + lane-aware C4) logged side-by-side in the same decision row; paired outcome join decides; OP-11 gates before any arming :: depends:none :: status:proposed

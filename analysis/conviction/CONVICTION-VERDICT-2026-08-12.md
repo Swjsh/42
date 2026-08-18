@@ -93,3 +93,44 @@ Spearman look 2.33x stronger than it is.
 **The honest read: I built a positive-evidence axis in one evening and the data says it does
 not predict returns. That is the system working — the design memo pre-registered the exact
 control that killed it, before the score existed.**
+
+---
+
+## 2026-08-18 — DESIGN GAP, from the first post-fix live day: conviction is blind to the lane that produces the winners
+
+First day of honest C4/C5 data (2026-08-17): **58 post-fix rows, 100% would_block — including
+the day's only winner** (bold 13:06 ENTER_BEAR, +$360), which scored **0/8**:
+
+- `named_level: 0` — the trigger was a **trendline_rejection**; `trigger_level_exact` is null
+  and **no conviction component credits trendlines at all**. J trades trendlines as
+  first-class (body-XOR-wick doctrine, dedicated engine); the scorer cannot see them.
+- `range_position: 0.046` — price at the session LOW. C4 assumes mean reversion ("puts want
+  the TOP of the envelope"), so a momentum breakdown — the ribbon_ride family's core trade —
+  scores zero *by construction* on exactly the entries it should be sizing up.
+- Outcome join, day 1: WOULD_BLOCK n=1 P&L **+$360**, WOULD_ALLOW n=0. Armed, today would
+  have been **−$324 worse**.
+
+**Why this is load-bearing:** at VIX 15 (the mid regime, most days) filter 8 shuts the
+ordinary bear lanes; the **trendline-only lane is the only one that fires**. A gate scoring
+that lane 0/8 can never validate — and `min_contracts_equity_scaled` re-arm (the answer to
+J's "why only 5 contracts") **waits on that validation**. The chain: more size ← sizing
+re-arm ← validated entry gate ← this fix.
+
+### Proposed components (shadow-scored side-by-side, never armed without the OP-11 gates)
+
+1. **C-trendline (0–2 pts):** credit `trendline_rejection` when the line's own metadata
+   clears a quality bar — touches ≥ 3, age ≥ N bars, flavor consistent (wick-only engine
+   lines per doctrine; the engine already logs this in `trendlines-live.json` /
+   `analysis/trendlines/trendline-log.jsonl`). Band width from a pre-reg A/B, never
+   hand-picked (levels-are-zones doctrine).
+2. **C4 made lane-aware:** for `tier TRENDLINE` / momentum entries, `range_extreme` goes
+   NEUTRAL (0, not scored) instead of penalizing; mean-reversion lanes keep the current
+   scoring. Scoring a breakdown at the low as "bad location" is a category error for a
+   continuation setup.
+3. **Shadow both variants in the same row** (`conviction` + `conviction_tl`) so the outcome
+   join produces a paired comparison on identical entries — the cheapest possible A/B, zero
+   engine change.
+
+Kill-honesty: today is **n=1**. The proposal is to *measure* the redesigned scorer in
+shadow, not to trust it. Bar to arm anything: the standing eval-first gates + the outcome
+join showing the redesigned gate separates winners from losers on ≥ 4 weeks of post-fix rows.
