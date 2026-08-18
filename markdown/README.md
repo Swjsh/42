@@ -17,6 +17,7 @@ stay where the engine reads them.
 | `planning/` | Roadmaps, checklists, gameplans, daily-review process | `AUTONOMY-ROADMAP.md`, `LIVE-PATH-WORKPACKAGE.md`, `JARVIS-WATCH-DESIGN.md`, `GAMMA-COCKPIT-EXECUTION-LOG.md`, `FUTURE-IMPROVEMENTS.md`, `BRAIN-SOVEREIGNTY.md`, `GAMMA-WORKER.md` |
 | `doctrine/` | Lessons learned, doctrine archive, edge doctrine | `LESSONS-LEARNED.md`, `DOCTRINE-ARCHIVE.md` |
 | `specs/` | Engine design + wiring specs | `ARCHITECTURE.md` |
+| `trading-knowledge/` | Options mechanics (Greeks, structures), DTE/IV theory, market-structure execution, regulatory + broker research | `options-greeks-structures.md`, `dte-iv-volatility.md`, `market-structure-execution.md`, `GENERATIVE-LENS.md` |
 | `audits/` | Point-in-time health checks, postmortems, status snapshots | `HEARTBEAT-TICK-AUDIT-LOG.md` (rolling, keep ~10), `HEALTH.md` |
 | `infra/` | Setup, MCP install, kitchen spec, skills catalog, tooling, doc-architecture | `DOC-ARCHITECTURE.md`, `mcp-install.md`, `KITCHEN-SPEC.md`, `UNATTENDED-REGISTRY.md` |
 | `meta/` | Reframe-engine / meta-ideation doctrine (P2 pipeline, OP-32) | `REFRAME-ENGINE.md` |
