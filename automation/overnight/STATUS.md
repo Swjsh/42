@@ -1,3 +1,35 @@
+## [2026-08-17 evening] 🔬 FABLE EOD AUDIT — winner forensics, conviction's first honest data, one pre-registered KILL executed
+
+Full audit: [`EOD-2026-08-17-FABLE-AUDIT.md`](../../analysis/deep-research/EOD-2026-08-17-FABLE-AUDIT.md).
+Day was RIGHT-shaped: payoff 6.1:1 @ 20% WR (+$24.8/tr EV). Per-account: bold-2 **+$360 above
+target**; the −$236 drag was one experiment that tonight **executed its own frozen kill**.
+
+- **Winner (13:06 bold, +$360):** entered via the **trendline-only lane — the only bear lane
+  alive at VIX 15** (filter 8 needs VIX>17.3 rising; the lane waives 5/8/9). Quirk on record:
+  13:04 had MORE evidence (level+trendline, score 9) and was blocked; it fired at 13:06 when
+  the setup got *narrower*. **Why 5 contracts: `qty = min_contracts` flat (heartbeat_core:2388)**
+  — the aggressive tier table (8/12) is NOT consumed on the core path (dead-knob ledger +1);
+  equity-scaling stays deliberately disarmed pending a validated entry-quality gate.
+- 🚨 **Conviction would have BLOCKED the winner.** First post-fix day: 58 rows, 100%
+  would_block, winner scored **0/8** (no trendline component exists; C4 range_position 0.046 =
+  session low = momentum reads as zero). Armed today = −$324 worse. **Queued: trendline-quality
+  component — it is the gate to sizing re-arm, the highest-leverage design fix on the board.**
+- **Safe missed the winner:** all 17 SKIP_STRUCTURE_VETO ticks were safe's, 13:06–13:25 — the
+  classifier read "uptrend" at the breakdown (lagging, L243 family). ≈$216 forgone. Exhibit
+  filed to the standing structure-veto audit; gate untouched.
+- **The 4 losers:** one family (vwap_reclaim), all −8% stops, all theses paid later (the 10:23
+  scratch was the SAME 775P bold rode +100%). "Hold longer?" belongs to the **stop-mode clock:
+  interim 95tr/5d has premium stops AHEAD +$1,809** — tight stops STAY; today accrues tomorrow
+  (same-day 403). The 09:53→09:56 same-contract re-entry (−$136) is M3 churn — dies with the kill.
+- ⚡ **KILL EXECUTED (pre-registered, J-revocable):** FLEET-VWAP-RECLAIM checkpoint hit today
+  (10 sessions, whichever-first; cohort n=3 = **−$200 < 0**) → `RUN_VWAP_RECLAIM_FB=False`.
+  n=3 thin, disclosed; frozen criteria don't get relitigated. Core safe-2 lane out of scope,
+  stays, on watch. Waiver row updated (bookkeeping, not signed). 43/43 + 9/9 guards.
+- **Opus review:** incident handling + self-corrections hold. Pushbacks: the "production fails
+  OP-16 EC" claim is boundary-trade-driven (autopsy before verdict); the matrix's regime finding
+  is ribbon-config-scoped — today's losers were vwap-family, don't conflate.
+- 🔄 Discord trade-ping reformat (J's emoji/bullet spec): Sonnet agent running, reports separately.
+
 ﻿## [2026-08-17 20:37 ET] conductor: OK — CLAUDE.md context-budget RED→YELLOW, commit `aef7c486`
 
 **Picked from STAGE 0 (`check-context-budget.ps1` flagged RED 9248/9000, 103% — the digest header itself showed this every fire).** Deduped 9 redundant `(prose: LESSONS-LEARNED.md L##)` parentheticals in the OP-25 Lessons index (each cited L# already present verbatim in its own row's L-list, header already says "full prose in LESSONS-LEARNED.md" — pure duplication) + shrank the Account-context repointing narrative to a one-line pointer (confirmed full detail still verbatim in `dual-account-design.md:35` before cutting). Zero information loss — this is dedup, not hand-shaving. Re-measured: **YELLOW 8311/9000 (92%)**. Verified `context_audit.py verify` 9/9 PASS (all 10 rules, both account numbers, kill-switch text, rule-version pin, refusals, work-cadence table, Lessons table, 0 missing doc pointers, under budget). Pre-commit curated safety gate (6 suites) 59/59 PASS automatically. Doc-only, zero trading-path files touched, ships per OP-22/OP-26 (no J gate). Revert: `git revert aef7c486`.
@@ -598,6 +630,14 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-17T20:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- SCOUT STALE: scout_output.json generated_at='2026-08-11T09:30:04Z' for_session_date='2026-08-11', today=2026-08-17 -- Gamma_ScoutPremarket did not refresh today (task LastTaskResult can read 0 even when the agent produced nothing new -- exit-code success is not evidence here). Non-load-bearing (addendum only); run-scout-premarket.ps1 to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-17.log shows 29 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 29x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-17.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-17T21:09:56
 - PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
 - PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
 - TRENDLINE-DRAW never marked today (2026-08-17) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
