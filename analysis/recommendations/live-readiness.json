@@ -1,0 +1,297 @@
+{
+  "generated_et": "2026-08-18T19:14:52",
+  "instrument": "setup/scripts/live_readiness.py",
+  "gate_source": "CLAUDE.md account-context table: \"Live threshold (per account independently): >= 20 trades, WR >= 45%, positive expectancy, <= 2 rule breaks.\"",
+  "thresholds": {
+    "min_trades": 20,
+    "min_win_rate": 0.45,
+    "min_rule_breaks_ok": 2,
+    "expectancy_rule": "strictly > 0 (exactly $0.00 FAILS)"
+  },
+  "disclosure": {
+    "correlation": "The 5 active SPY arms trade ONE shared signal: r=0.846 (r^2=0.716), 95.7% sign agreement, 139 matched trade pairs, every one of 15 pairwise daily correlations positive (analysis/deep-research/LEVER-CORRELATION-2026-08-06.md, 2026-08-16 forward-checked). A book-wide n is NOT 5x independent evidence -- read per-arm rows first; any aggregate below is a CORRELATED ROLLUP.",
+    "rule_breaks_ledger": "automation/state/rule-breaks.jsonl carries no arm/account attribution field as verified this run -- see each arm's criteria.rule_breaks.note."
+  },
+  "arms": [
+    {
+      "insufficient_data": false,
+      "n_trades": 47,
+      "win_rate": 0.2128,
+      "expectancy": -8.0,
+      "criteria": {
+        "n_trades": {
+          "value": 47,
+          "threshold": ">=20",
+          "pass": true
+        },
+        "win_rate": {
+          "value": 0.2128,
+          "threshold": ">=45.0%",
+          "pass": false
+        },
+        "expectancy": {
+          "value": -8.0,
+          "threshold": "> $0.00 (exactly $0.00 FAILS)",
+          "pass": false
+        },
+        "rule_breaks": {
+          "value": null,
+          "threshold": "<=2",
+          "pass": null,
+          "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'safe-3' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        }
+      },
+      "overall_verdict": "UNKNOWN",
+      "context": {
+        "total_pnl": -376.0,
+        "median_trade": -9.0,
+        "largest_win": 378.0,
+        "largest_loss": -488.0,
+        "avg_win": 190.9,
+        "avg_loss": -61.76,
+        "payoff_ratio": 3.091,
+        "max_consecutive_losses": 24,
+        "date_range": [
+          "2026-06-29",
+          "2026-08-14"
+        ],
+        "trading_days_represented": 20,
+        "concentration": {
+          "best_day": "2026-08-04",
+          "best_day_pnl": 637.0,
+          "share_of_total_pnl": -1.6941,
+          "note": null
+        }
+      },
+      "arm_id": "safe-3",
+      "display_name": "FLEET-TIGHT-S (T20H)",
+      "account_number": "PA32T7Q1O20H"
+    },
+    {
+      "insufficient_data": false,
+      "n_trades": 69,
+      "win_rate": 0.2319,
+      "expectancy": -10.67,
+      "criteria": {
+        "n_trades": {
+          "value": 69,
+          "threshold": ">=20",
+          "pass": true
+        },
+        "win_rate": {
+          "value": 0.2319,
+          "threshold": ">=45.0%",
+          "pass": false
+        },
+        "expectancy": {
+          "value": -10.67,
+          "threshold": "> $0.00 (exactly $0.00 FAILS)",
+          "pass": false
+        },
+        "rule_breaks": {
+          "value": null,
+          "threshold": "<=2",
+          "pass": null,
+          "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'safe-2' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        }
+      },
+      "overall_verdict": "UNKNOWN",
+      "context": {
+        "total_pnl": -736.0,
+        "median_trade": -28.0,
+        "largest_win": 383.0,
+        "largest_loss": -282.0,
+        "avg_win": 150.56,
+        "avg_loss": -59.34,
+        "payoff_ratio": 2.537,
+        "max_consecutive_losses": 10,
+        "date_range": [
+          "2026-07-02",
+          "2026-08-18"
+        ],
+        "trading_days_represented": 22,
+        "concentration": {
+          "best_day": "2026-08-04",
+          "best_day_pnl": 662.0,
+          "share_of_total_pnl": -0.8995,
+          "note": null
+        }
+      },
+      "arm_id": "safe-2",
+      "display_name": "CORE-SAFE (46VG)",
+      "account_number": "PA3POKNV46VG"
+    },
+    {
+      "insufficient_data": false,
+      "n_trades": 68,
+      "win_rate": 0.2353,
+      "expectancy": -4.37,
+      "criteria": {
+        "n_trades": {
+          "value": 68,
+          "threshold": ">=20",
+          "pass": true
+        },
+        "win_rate": {
+          "value": 0.2353,
+          "threshold": ">=45.0%",
+          "pass": false
+        },
+        "expectancy": {
+          "value": -4.37,
+          "threshold": "> $0.00 (exactly $0.00 FAILS)",
+          "pass": false
+        },
+        "rule_breaks": {
+          "value": null,
+          "threshold": "<=2",
+          "pass": null,
+          "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'risky-1' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        }
+      },
+      "overall_verdict": "UNKNOWN",
+      "context": {
+        "total_pnl": -297.0,
+        "median_trade": -20.0,
+        "largest_win": 651.0,
+        "largest_loss": -468.0,
+        "avg_win": 224.81,
+        "avg_loss": -74.88,
+        "payoff_ratio": 3.002,
+        "max_consecutive_losses": 23,
+        "date_range": [
+          "2026-06-29",
+          "2026-08-14"
+        ],
+        "trading_days_represented": 21,
+        "concentration": {
+          "best_day": "2026-08-04",
+          "best_day_pnl": 1041.0,
+          "share_of_total_pnl": -3.5051,
+          "note": null
+        }
+      },
+      "arm_id": "risky-1",
+      "display_name": "FLEET-FULLSEND-R (V0A4)",
+      "account_number": "PA3S9N1IV0A4"
+    },
+    {
+      "insufficient_data": false,
+      "n_trades": 26,
+      "win_rate": 0.2692,
+      "expectancy": -18.92,
+      "criteria": {
+        "n_trades": {
+          "value": 26,
+          "threshold": ">=20",
+          "pass": true
+        },
+        "win_rate": {
+          "value": 0.2692,
+          "threshold": ">=45.0%",
+          "pass": false
+        },
+        "expectancy": {
+          "value": -18.92,
+          "threshold": "> $0.00 (exactly $0.00 FAILS)",
+          "pass": false
+        },
+        "rule_breaks": {
+          "value": null,
+          "threshold": "<=2",
+          "pass": null,
+          "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'bold-2' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        }
+      },
+      "overall_verdict": "UNKNOWN",
+      "context": {
+        "total_pnl": -492.0,
+        "median_trade": -67.5,
+        "largest_win": 614.0,
+        "largest_loss": -460.0,
+        "avg_win": 338.0,
+        "avg_loss": -150.42,
+        "payoff_ratio": 2.247,
+        "max_consecutive_losses": 5,
+        "date_range": [
+          "2026-06-26",
+          "2026-08-18"
+        ],
+        "trading_days_represented": 14,
+        "concentration": {
+          "best_day": "2026-08-04",
+          "best_day_pnl": 479.0,
+          "share_of_total_pnl": -0.9736,
+          "note": null
+        }
+      },
+      "arm_id": "bold-2",
+      "display_name": "CORE-BOLD (U67N)",
+      "account_number": "PA3WEBXJU67N"
+    },
+    {
+      "insufficient_data": false,
+      "n_trades": 79,
+      "win_rate": 0.2152,
+      "expectancy": -2.15,
+      "criteria": {
+        "n_trades": {
+          "value": 79,
+          "threshold": ">=20",
+          "pass": true
+        },
+        "win_rate": {
+          "value": 0.2152,
+          "threshold": ">=45.0%",
+          "pass": false
+        },
+        "expectancy": {
+          "value": -2.15,
+          "threshold": "> $0.00 (exactly $0.00 FAILS)",
+          "pass": false
+        },
+        "rule_breaks": {
+          "value": null,
+          "threshold": "<=2",
+          "pass": null,
+          "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'risky-3' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        }
+      },
+      "overall_verdict": "UNKNOWN",
+      "context": {
+        "total_pnl": -170.0,
+        "median_trade": -30.0,
+        "largest_win": 830.0,
+        "largest_loss": -664.0,
+        "avg_win": 276.41,
+        "avg_loss": -78.53,
+        "payoff_ratio": 3.52,
+        "max_consecutive_losses": 18,
+        "date_range": [
+          "2026-06-29",
+          "2026-08-17"
+        ],
+        "trading_days_represented": 26,
+        "concentration": {
+          "best_day": "2026-08-06",
+          "best_day_pnl": 830.0,
+          "share_of_total_pnl": -4.8824,
+          "note": null
+        }
+      },
+      "arm_id": "risky-3",
+      "display_name": "FLEET-LOOSE-R (5H6Z)",
+      "account_number": "PA3V7JT25H6Z"
+    }
+  ],
+  "book_wide_rollup": {
+    "_label": "CORRELATED ROLLUP -- NOT independent evidence. The 5 active SPY arms trade ONE shared signal: r=0.846 (r^2=0.716), 95.7% sign agreement, 139 matched trade pairs, every one of 15 pairwise daily correlations positive (analysis/deep-research/LEVER-CORRELATION-2026-08-06.md, 2026-08-16 forward-checked). A book-wide n is NOT 5x independent evidence -- read per-arm rows first; any aggregate below is a CORRELATED ROLLUP.",
+    "arms_scored": 5,
+    "arms_pass": 0,
+    "arms_fail": 0,
+    "arms_unknown": 5,
+    "arms_insufficient": 0,
+    "total_closed_round_trips": 289,
+    "total_real_pnl": -2071.0
+  }
+}

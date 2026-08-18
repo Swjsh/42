@@ -83,7 +83,7 @@ flowchart TD
 | # | Gate | Status | What it requires as evidence | Current state |
 |---|---|---|---|---|
 | 1 | **Strategy ratification** (which edges are even allowed to trade) | **RATIFIED, actively enforced** | OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor-no-regression AND evidence_n (`CLAUDE.md` OP-11 says ≥15, **advisory**; `accounts.json#promotion_gate.min_clean_trades` says **30**, appears to be what's actually consumed — see Contradiction #2) | Live and enforced across dozens of `backtest/autoresearch/validate_*.py` scripts (e.g. `validate_level_family.py:477`: *"Gates: deduped n>=20 AND WR>=45% AND exp>0 AND real-fills exp>0 AND anchor-no-regression"*) |
-| 2 | **Per-account paper-to-live threshold** | **Criterion PARTIALLY DEFINED** | `CLAUDE.md:65`: ≥20 trades, WR≥45%, positive expectancy, ≤2 rule breaks, **per account independently** | Trade count / WR / expectancy are computable from `journal/trades.csv`. **No script was found that computes this exact 4-condition tuple at the account level.** The only wiring found is `.claude/agents/treasurer.md:135`'s narrative "Live threshold status \| M/4 conditions met" table — a persona template, not an automated check. **"Rule breaks ≤2" has no found automated tally at account scope.** This is the gate CLAUDE.md's account table has always pointed to as "the" live threshold, and it is less automated than it reads. |
+| 2 | **Per-account paper-to-live threshold** | **INSTRUMENT BUILT 2026-08-18 — 3/4 conditions computed per arm; 4th (rule breaks) structurally unattributable** | `CLAUDE.md:65`: ≥20 trades, WR≥45%, positive expectancy, ≤2 rule breaks, **per account independently** | `setup/scripts/live_readiness.py` (guard `backtest/tests/test_live_readiness.py`, 19/19 passing, RED-proofed by temporarily flipping the n_trades and expectancy comparisons and confirming the guard failed) computes n_trades/win_rate/expectancy per arm from `fills_fifo.mine_real_arm_fills` (real closed round trips) and writes `analysis/recommendations/live-readiness.json` every run, always deriving the arm roster fresh from `accounts.json` rather than hardcoding it. **Live run 2026-08-18 (real ledger, all 5 active arms):** n_trades clears everywhere (26-79 closed real round trips), but win_rate and expectancy both fail hard on every arm — 21.3%-26.9% WR (need ≥45%) and -$2.15 to -$18.92/trade (need positive). Those two failures alone already disqualify every arm today, independent of rule breaks. **The 4th condition is a separate, still-open gap, not just an unwired one:** `rule-breaks.jsonl` carries no arm/account attribution field (single row on disk, confirmed by direct inspection), so the instrument reports it UNKNOWN rather than guessing — which is why its own overall-verdict label reads UNKNOWN, not FAIL, for arms whose win-rate/expectancy numbers alone already fail. |
 | 3 | **Regulatory / broker premise resolved** | **SUBSTANTIALLY RESOLVED tonight** (was OPEN QUESTION earlier this session — updated after a parallel sibling audit landed mid-session, see below) | Confirm which PDT regime actually applies to Safe-2/Bold-2 specifically; confirm the cash-vs-margin premise the code runs on | **Decisive evidence found:** a fresh 2026-08-18 live broker read found `pattern_day_trader`/`daytrade_count` **entirely ABSENT** (not null) from both core accounts' payload, replaced by `intraday_adjustments` — high-confidence proof both accounts run Alpaca's NEW post-2026-06-04 regime, not the legacy grace-window. Full detail + 16-item code trace: `analysis/deep-research/PDT-CODE-ALIGNMENT-AUDIT-2026-08-18.md` (commit `b89a03e4`, landed the same evening as this roadmap). Doc-only fixes already shipped there: `risk_gate.py`, `settlement_ledger.py`, `pdt_tracker.py` docstrings + `markdown/0dte/risk-rules.md` Rule 7 section corrected. **What's still open:** `CLAUDE.md` Rule 7's own text (deliberately not touched by either audit — needs J, Rule 9). |
 | 4 | **One-account consolidation decision** | **PROPOSED — not ratified** | J's explicit go-ahead; `ONE-ACCOUNT-TRANSITION-2026-08-18.md` explicitly self-labels "PLANNING / DOCUMENTATION ONLY... Live arming needs J (OP-0 #1)" | Recommendation on the table: ONE live account (the product) + the paper fleet continues as the laboratory. Directly reframes `CLAUDE.md:64`'s "both accounts grow" language — see Contradiction #1. |
 | 5 | **Conviction / sizing gates validated** | **OPEN, in progress** | Per `ONE-ACCOUNT-TRANSITION-2026-08-18.md` §6: (a) conviction v0 or v2 demonstrates measurable separation (blocked trades worse than allowed trades) over enough paired rows post-fix; (b) `min_contracts_equity_scaled` re-arms ONLY on that validated gate; (c) strike question settled by the strike matrix, not intuition; (d) this document's regulatory picture confirmed | Conviction v2 shipped 2026-08-18 (shadow). Its own doc is explicit: v2 fixes *blindness* (can now see the paying lane) but its *discrimination* power (the quality bar) is UNPROVEN — "do not read v2 as 'conviction fixed.'" |
@@ -97,7 +97,7 @@ flowchart TD
 |---|---|
 | $100–200/day per account is the success bar | **RATIFIED** (FOCUS-DOCTRINE, J 2026-07-22 / recorrected 2026-08-09) |
 | Strategy ratify gate (OOS+WF+sub-window+anchor) | **RATIFIED**, enforced in code |
-| Per-account paper→live threshold (20 trades/45% WR/+exp/≤2 breaks) | **RATIFIED as doctrine, but criterion partially undefined in code** (Gate 2 above) |
+| Per-account paper→live threshold (20 trades/45% WR/+exp/≤2 breaks) | **RATIFIED as doctrine; NOW COMPUTED per arm** (`setup/scripts/live_readiness.py`, 2026-08-18) — win_rate + expectancy fail on all 5 arms today, rule-break attribution still unresolved (Gate 2 above) |
 | "Both accounts grow $5K→$10K→$25K+" | **STALE FRAME — see §5.** Not false, but no longer the sharpest statement of the destination given the r=0.846 finding. |
 | ONE live account + paper fleet as laboratory | **PROPOSED**, 2026-08-18, awaiting J |
 | $25K as a hard milestone | **REFRAMED, not deleted — see §5.** It was a regulatory floor; that floor no longer exists at the FINRA level. |
@@ -208,7 +208,7 @@ between "grow both accounts" and "consolidate to one" is J's, not a docs-audit's
 | 6 | Superseded strike-tier ladder repeated as current | `CLAUDE.md:30` — *"live truth (fills-verified 2026-07-11): core Safe trades ATM... params.json's ladder is vestigial"* | `markdown/specs/ARCHITECTURE.md:197` still states the old ladder ("OTM-3 $1K / OTM-2 $2-10K / OTM-1 $10-25K / ITM-2 $25K+") as current strategy | Corrected as part of this audit (§8) |
 | 7 | Daily P&L target: per-account vs book-wide | — checked for this explicitly, per the task brief — | `CLAUDE.md:66`, `FOCUS-DOCTRINE.md:13-19`, and `.claude/agents/treasurer.md` **all already frame per-account-first, book-wide-secondary**, consistent with J's 2026-08-09 correction | **No live contradiction found.** Stated here so the check is on record, not because a fix was needed. |
 | 8 | "THE ROADMAP" mislabeled | `markdown/doctrine/FABLE-HANDOFF.md:44` — section literally titled *"THE ROADMAP,"* dated 2026-07-02, an execution queue (RISKY-ARM GATE TIERS, COOLDOWN A/B, etc.) 47 days stale as of this audit | This document | FABLE-HANDOFF.md §4 retitled with a pointer here (§8); its historical content is left intact as a frozen record, not deleted |
-| 9 | "Live threshold" gate looks automated but mostly isn't | `CLAUDE.md:65` states it as a flat 4-condition bar | No script found that computes all 4 conditions at account scope (Gate 2, §3) — only `treasurer.md`'s narrative M/4 tracking | Documented honestly in Gate 2 rather than asserting it's enforced when the evidence doesn't show that |
+| 9 | "Live threshold" gate looks automated but mostly isn't | `CLAUDE.md:65` states it as a flat 4-condition bar | No script found that computes all 4 conditions at account scope (Gate 2, §3) — only `treasurer.md`'s narrative M/4 tracking | Documented honestly in Gate 2 rather than asserting it's enforced when the evidence doesn't show that. **UPDATE 2026-08-18:** `setup/scripts/live_readiness.py` now computes 3 of the 4 conditions per arm; see Gate 2 above for what it found and why the 4th stays UNKNOWN by design rather than guessed |
 
 ---
 
@@ -235,12 +235,19 @@ between "grow both accounts" and "consolidate to one" is J's, not a docs-audit's
    recommendation, not a decision. This roadmap reflects it as PROPOSED. It becomes RATIFIED
    only when J says so, at which point this section (and `CLAUDE.md`'s account-context table)
    both need a same-day update.
-6. **Account-level "Live threshold" — build the missing instrument, or drop the claim?** Gate 2
-   (§3) is stated as doctrine but not fully wired. Either an automated per-account check should
-   exist (trade count + WR are already computable from `trades.csv`; "rule breaks ≤2" needs a
-   tally against `journal/mistakes.md`), or the doctrine should say plainly that it's a manual
-   treasurer judgment call, not a script. Leaving it stated-but-unwired risks someone assuming
-   it already gates something.
+6. **Account-level "Live threshold" — ANSWERED 2026-08-18: instrument built, not dropped.**
+   `setup/scripts/live_readiness.py` now computes n_trades/win_rate/expectancy per arm from
+   real closed round trips (`fills_fifo.mine_real_arm_fills`), guard-tested at the exact
+   boundaries CLAUDE.md states (19/20 trades, 44.9/45.0% WR, expectancy exactly $0.00, 2/3
+   rule breaks — `backtest/tests/test_live_readiness.py`, 19/19 passing, RED-proofed).
+   **What remains open:** rule breaks ≤2 could NOT be wired against `journal/mistakes.md` as
+   this section originally proposed — that file is human prose, not structured data (verified
+   directly) — and the actual machine-readable ledger (`automation/state/rule-breaks.jsonl`)
+   carries no arm/account attribution field at all (one row on disk, 2026-05-18, book-level
+   only). The instrument reports this 4th condition UNKNOWN rather than guessing, so no arm's
+   overall verdict can read PASS until either that ledger grows real attribution or a human
+   (Treasurer) makes the call explicitly. Moot today regardless: win_rate and expectancy
+   already fail hard on every arm (see Gate 2, §3).
 
 ---
 
