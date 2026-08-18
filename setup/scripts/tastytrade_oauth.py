@@ -10,7 +10,7 @@ The OAuth "Create Grant" flow happens in the browser (no redirect server needed)
   5. Run this script to verify the connection works
 
 Usage:
-  set TT_SECRET=43092f9e739c0a0cb64b94754aa7ed9edf988ebb
+  set TT_SECRET=<client_secret from when you created the app>
   set TT_REFRESH=<your-refresh-token>
   python setup/scripts/tastytrade_oauth.py
 """
@@ -24,8 +24,16 @@ except ImportError:
     print("Run: pip install tastytrade")
     sys.exit(1)
 
-CLIENT_SECRET = os.getenv("TT_SECRET",   "43092f9e739c0a0cb64b94754aa7ed9edf988ebb")
+CLIENT_SECRET = os.getenv("TT_SECRET", "")
 REFRESH_TOKEN = os.getenv("TT_REFRESH",  "")
+if not CLIENT_SECRET:
+    # SECURITY (2026-08-18): this file previously carried a REAL Tastytrade OAuth
+    # client_secret as the os.getenv default -- in a TRACKED file, in a PUBLIC repo,
+    # and a second copy in the module docstring. Both removed. The secret is in git
+    # HISTORY and must be treated as compromised until rotated at my.tastytrade.com.
+    # Never reintroduce a credential default: fail loudly instead (CLAUDE.md secrets rule).
+    print("TT_SECRET is not set. Export it first -- never hardcode it here.")
+    sys.exit(2)
 SANDBOX       = os.getenv("TT_SANDBOX",  "true").lower() != "false"
 
 ENV_FILE = os.path.join(os.path.dirname(__file__), "..", "..", ".env.tastytrade")
