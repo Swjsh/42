@@ -156,3 +156,124 @@ def evaluate(open_positions_by_arm: dict[str, list[dict]],
             f"bound this)"
         ),
     }
+
+
+# --------------------------------------------------------------------------------------- #
+# Live readers -- local state only. NO broker calls.
+# --------------------------------------------------------------------------------------- #
+# WHY LOCAL STATE AND NOT THE BROKER: this runs on the 1-minute hot path. Polling 5 accounts
+# per tick would be 5 extra REST round-trips every minute of every session -- a cost and a
+# latency the cap does not need. Each arm ALREADY fetches its own equity on its own tick, so
+# it simply records it; and open positions are already persisted per arm by the exit manager.
+EQUITY_SNAPSHOT_NAME = "book-equity-snapshot.json"
+# An equity reading older than this is not trusted as a denominator.
+EQUITY_STALE_MINUTES = 90.0
+
+
+def record_arm_equity(arm_id: str, equity: float, state_dir: Path, now_et_iso: str) -> None:
+    """Record ONE arm's equity into the shared snapshot. Fail-soft: never raises.
+
+    Read-modify-write of a small dict. Concurrent arms can interleave; a lost update costs
+    at most one stale-but-recent reading, which the staleness check already tolerates. Worth
+    far less than the complexity of locking on a hot path.
+    """
+    try:
+        path = Path(state_dir) / EQUITY_SNAPSHOT_NAME
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                data = {}
+        except (OSError, ValueError):
+            data = {}
+        data[str(arm_id)] = {"equity": float(equity), "ts_et": str(now_et_iso)}
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except Exception:  # noqa: BLE001 -- telemetry must never break a tick
+        pass
+
+
+def _minutes_old(ts_et: str, now_et_iso: str) -> float | None:
+    import datetime as _dt
+    try:
+        a = _dt.datetime.fromisoformat(str(ts_et).replace("Z", ""))
+        b = _dt.datetime.fromisoformat(str(now_et_iso).replace("Z", ""))
+    except (TypeError, ValueError):
+        return None
+    if a.tzinfo and not b.tzinfo:
+        a = a.replace(tzinfo=None)
+    if b.tzinfo and not a.tzinfo:
+        b = b.replace(tzinfo=None)
+    return abs((b - a).total_seconds()) / 60.0
+
+
+def read_book_state(state_dir: Path, now_et_iso: str,
+                    accounts_path: Path = ACCOUNTS_PATH) -> tuple[dict, dict, str | None]:
+    """(open_positions_by_arm, equity_by_arm, degraded_reason).
+
+    Positions come from each arm's exit-state.json -- a dict keyed by option symbol whose
+    records carry `entry_premium` and `total_qty` (see fleet/exit_manager.ExitState). An
+    absent or empty file means that arm is FLAT, which is a real reading, not a gap.
+
+    Equity comes from the shared snapshot. A MISSING or STALE arm makes the whole reading
+    DEGRADED rather than silently shrinking the denominator -- a smaller denominator would
+    make the cap stricter, i.e. fail CLOSED, which is precisely the behaviour the OP-32
+    lockout scar forbids.
+    """
+    state_dir = Path(state_dir)
+    arms = active_spy_arms(accounts_path)
+    if not arms:
+        return {}, {}, "registry_unreadable -- no active arms resolved"
+
+    positions: dict[str, list[dict]] = {}
+    for arm in arms:
+        aid = str(arm["arm_id"])
+        rec_path = state_dir / "fleet" / aid / "exit-state.json"
+        rows: list[dict] = []
+        try:
+            blob = json.loads(rec_path.read_text(encoding="utf-8"))
+            if isinstance(blob, dict):
+                for rec in blob.values():
+                    if isinstance(rec, dict):
+                        rows.append({"qty": rec.get("total_qty"),
+                                     "premium": rec.get("entry_premium")})
+        except (OSError, ValueError):
+            rows = []          # absent file == flat, per the exit manager's own contract
+        positions[aid] = rows
+
+    equity: dict[str, float] = {}
+    stale: list[str] = []
+    try:
+        snap = json.loads((state_dir / EQUITY_SNAPSHOT_NAME).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        snap = {}
+    for arm in arms:
+        aid = str(arm["arm_id"])
+        row = snap.get(aid) if isinstance(snap, dict) else None
+        if not isinstance(row, dict):
+            stale.append(f"{aid}:missing")
+            continue
+        age = _minutes_old(row.get("ts_et", ""), now_et_iso)
+        if age is None or age > EQUITY_STALE_MINUTES:
+            stale.append(f"{aid}:stale({age if age is None else round(age)}m)")
+            continue
+        try:
+            equity[aid] = float(row["equity"])
+        except (TypeError, ValueError, KeyError):
+            stale.append(f"{aid}:unreadable")
+
+    degraded = None
+    if stale:
+        degraded = ("equity unavailable for " + ", ".join(stale) +
+                    " -- denominator incomplete, failing OPEN")
+    return positions, equity, degraded
+
+
+def evaluate_live(state_dir: Path, now_et_iso: str, prospective_notional: float = 0.0,
+                  max_pct: float = DEFAULT_MAX_BOOK_EXPOSURE_PCT,
+                  accounts_path: Path = ACCOUNTS_PATH) -> dict:
+    """Convenience wrapper: read local state, then judge. Always returns a loggable dict."""
+    positions, equity, degraded = read_book_state(state_dir, now_et_iso, accounts_path)
+    if degraded:
+        return {"allowed": True, "degraded": degraded, "book_equity": None,
+                "current_notional": None, "prospective_notional": round(prospective_notional, 2),
+                "projected_pct": None, "max_pct": max_pct, "per_arm_notional": {}}
+    return evaluate(positions, equity, prospective_notional, max_pct)

@@ -112,3 +112,86 @@ def test_active_spy_arms_excludes_futures_and_retired() -> None:
 
 def test_active_spy_arms_fails_soft_on_missing_registry(tmp_path: Path) -> None:
     assert be.active_spy_arms(tmp_path / "nope.json") == []
+
+
+# ===================================================================================== #
+# Live readers + wiring
+# ===================================================================================== #
+def test_flat_arms_read_as_zero_not_as_missing(tmp_path) -> None:
+    """An absent exit-state.json means FLAT -- a real reading, not a gap. If it degraded
+    instead, the cap would fail open on every ordinary flat day and never bind at all."""
+    (tmp_path / "fleet").mkdir()
+    import json as _j
+    snap = {}
+    for a in be.active_spy_arms():
+        snap[a["arm_id"]] = {"equity": 5000.0, "ts_et": "2026-08-18T12:00:00"}
+    (tmp_path / be.EQUITY_SNAPSHOT_NAME).write_text(_j.dumps(snap), encoding="utf-8")
+    r = be.evaluate_live(tmp_path, "2026-08-18T12:01:00")
+    assert r["degraded"] is None, r["degraded"]
+    assert r["current_notional"] == 0.0
+    assert r["allowed"] is True
+
+
+def test_missing_equity_degrades_and_fails_OPEN(tmp_path) -> None:
+    """A missing arm must NOT silently shrink the denominator -- that would make the cap
+    STRICTER (fail closed), the exact OP-32 lockout behaviour."""
+    (tmp_path / "fleet").mkdir()
+    r = be.evaluate_live(tmp_path, "2026-08-18T12:00:00", prospective_notional=1e9)
+    assert r["allowed"] is True
+    assert r["degraded"] and "failing OPEN" in r["degraded"]
+
+
+def test_stale_equity_degrades(tmp_path) -> None:
+    import json as _j
+    (tmp_path / "fleet").mkdir()
+    snap = {a["arm_id"]: {"equity": 5000.0, "ts_et": "2026-08-18T00:00:00"}
+            for a in be.active_spy_arms()}
+    (tmp_path / be.EQUITY_SNAPSHOT_NAME).write_text(_j.dumps(snap), encoding="utf-8")
+    r = be.evaluate_live(tmp_path, "2026-08-18T23:00:00")   # 23h old, cap is 90min
+    assert r["allowed"] is True and r["degraded"] and "stale" in r["degraded"]
+
+
+def test_record_arm_equity_roundtrips_and_never_raises(tmp_path) -> None:
+    be.record_arm_equity("safe-2", 5266.32, tmp_path, "2026-08-18T12:00:00")
+    be.record_arm_equity("bold-2", 5048.40, tmp_path, "2026-08-18T12:00:01")
+    import json as _j
+    snap = _j.loads((tmp_path / be.EQUITY_SNAPSHOT_NAME).read_text(encoding="utf-8"))
+    assert snap["safe-2"]["equity"] == 5266.32
+    assert snap["bold-2"]["equity"] == 5048.40, "second write clobbered the first"
+    be.record_arm_equity("x", float("nan"), Path("/no/such/dir"), "bad-ts")   # must not raise
+
+
+def test_open_positions_sum_into_notional(tmp_path) -> None:
+    import json as _j
+    (tmp_path / "fleet").mkdir()
+    arms = be.active_spy_arms()
+    a0 = arms[0]["arm_id"]
+    d = tmp_path / "fleet" / a0
+    d.mkdir(parents=True)
+    (d / "exit-state.json").write_text(_j.dumps({
+        "SPY260818P00768000": {"entry_premium": 0.50, "total_qty": 4}}), encoding="utf-8")
+    snap = {a["arm_id"]: {"equity": 5000.0, "ts_et": "2026-08-18T12:00:00"} for a in arms}
+    (tmp_path / be.EQUITY_SNAPSHOT_NAME).write_text(_j.dumps(snap), encoding="utf-8")
+    r = be.evaluate_live(tmp_path, "2026-08-18T12:01:00")
+    assert r["per_arm_notional"][a0] == 200.0, r["per_arm_notional"]
+    assert r["current_notional"] == 200.0
+
+
+def test_core_execute_wiring_is_present_and_guarded() -> None:
+    """AST-level pin: the cap must be CALLED on the core execute path, and the call must be
+    inside a try/except so a risk READ can never break a tick."""
+    import ast
+    src = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
+    assert "SKIP_BOOK_EXPOSURE_CAP" in src, "cap not wired into the core execute path"
+    assert "book_exposure_cap_pct" in src, "cap threshold is not config-driven"
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "_execute"), None)
+    assert fn is not None, "_execute not found"
+    calls_in_try = False
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Try):
+            seg = ast.get_source_segment(src, node) or ""
+            if "evaluate_live" in seg:
+                calls_in_try = True
+    assert calls_in_try, "the book-exposure call is not wrapped in try/except -- a risk READ must never break a tick"

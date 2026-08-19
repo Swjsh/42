@@ -2524,6 +2524,50 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     _stop_pct = _params_float(params, _xov["stop"], -0.50) if _xov else -0.50
     tp = round(mid * (1 + _tp1_pct), 2)
     stop = round(mid * (1 + _stop_pct), 2)
+
+    # ---- BOOK-LEVEL EXPOSURE CEILING (2026-08-18) --------------------------------------
+    # THE GAP THIS CLOSES: every arm's kill switch (Rule 5) and per-trade cap (Rule 6) are
+    # per-account and ISOLATED -- correct in themselves, and exactly why nothing bounded the
+    # AGGREGATE. All 5 arms consume ONE shared signal (r=0.846, 95.7% sign agreement), so a
+    # single correlated tick could commit ~42% of the book to one same-direction bet with no
+    # code measuring it. Per-account discipline plus perfect correlation equals book-level
+    # concentration no per-account rule can see.
+    #
+    # CALIBRATION IS MEASURED: peak concurrent book notional across all real fills was $4,596
+    # = 18.7% of a ~$24.5K book (2026-08-14 09:47 ET, all five arms open, 100% same-direction
+    # -- also the book's second-worst day). The 25% default therefore truncates the tail
+    # WITHOUT having bound a single historical entry. If it ever binds, that is new
+    # information about the book, not a mis-set knob.
+    #
+    # FAILS OPEN, LOUDLY: any unreadable input returns allowed=True with a `degraded` reason
+    # that lands in the row. A risk cap that halts trading because a state file was briefly
+    # unreadable is worse than the concentration it prevents (OP-32 lockout scar).
+    # Local state only -- no broker calls on the hot path.
+    # REVERT (one line): set book_exposure_cap_pct to 0 in params.json.
+    try:
+        import book_exposure as _bx
+        _arm_id = ACCOUNTS[account]["fleet_arm"]
+        _bx.record_arm_equity(_arm_id, equity, STATE, _et_now().isoformat())
+        _cap_pct = _params_float(params, "book_exposure_cap_pct",
+                                 _bx.DEFAULT_MAX_BOOK_EXPOSURE_PCT)
+        if _cap_pct > 0:
+            _bk = _bx.evaluate_live(STATE, _et_now().isoformat(),
+                                    prospective_notional=float(qty) * float(mid) * 100.0,
+                                    max_pct=_cap_pct)
+            if not _bk.get("allowed", True):
+                return {"status": "SKIP_BOOK_EXPOSURE_CAP", "symbol": symbol, "qty": qty,
+                        "premium": mid, "book_exposure": _bk,
+                        "reason": _bk.get("reason")}
+    except Exception as _bx_exc:  # noqa: BLE001 -- a risk READ must never break the tick
+        # Degradation is RECORDED, never silent: a cap that quietly stops evaluating is
+        # indistinguishable from a cap that is passing, which is the whole failure class
+        # this session has been unpicking.
+        try:
+            _log({"event": "BOOK_EXPOSURE_CHECK_DEGRADED", "account": account,
+                  "error": f"{type(_bx_exc).__name__}: {_bx_exc}"[:200]})
+        except Exception:  # noqa: BLE001
+            pass
+
     plan = {"status": "WOULD_PLACE" if dry else "PLACING", "symbol": symbol, "side": side,
             "strike": strike, "qty": qty, "premium": mid, "tp": tp, "stop": stop, "equity": equity,
             "setup": setup_name, "nbbo": nbbo}
