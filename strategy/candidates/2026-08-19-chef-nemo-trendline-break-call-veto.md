@@ -5,56 +5,55 @@
 
 # CANDIDATE: TRENDLINE_BREAK_CALL_VETO
 
-**Filed:** 2026-07-22  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Filed:** 2026-08-20
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** filter_change
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We aim to capture edge by vetoing call entries on days where a bearish trendline break is detected, avoiding losses on J's call-loser days (specifically 5/07). The edge exists because J's live trades show significant call losses on 5/07 that are structurally avoidable via trendline breaks.
+We hypothesize that the TRENDLINE_BREAK_CALL_VETO filter will prevent the engine from taking call entries on days when a bearish trendline is broken (specifically, when the 5m close breaks through an ascending support). This is expected to avoid the call losses on 5/07 (which were -$45 and -$120) without affecting the PUT winner days (4/29, 5/01, 5/04) because the PUT winner days do not trigger the call veto (as they are PUTs and the veto is only for calls). By avoiding these losing call trades, we expect to increase edge_capture by $165 (the amount of the losses avoided) while keeping the winner P&L unchanged.
 
 ## Mechanism
 
-The `trendline_break_call_veto` detector fires when a 5m close breaks through a respected ascending support (BOS/CHoCH via `market_structure.py`). When fired, it blocks call entries for the base strategy (assumed to be BULLISH_RECLAIM_RIDE_THE_RIBBON or similar) for the remainder of the day. PUT entries are unaffected. Exit logic remains unchanged from the base strategy. The veto is evaluated on every bar; once fired, it stays active until the session end.
+The filter uses the market_structure.py module to detect an ascending trendline (respected support) and then checks for a 5m close breaking below that trendline (a break of structure). When such a break is detected and the overall structure is bearish (as determined by the market_structure.classify_trend function), the filter triggers and vetoes any call entry that would otherwise occur at that time. The filter is applied only to the call side (side=='C') and does not affect put entries. The entry logic for the engine remains unchanged; the filter simply blocks the call entry signal when the conditions are met.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | takes SPY 710P x6, +$342 | takes SPY 710P x6, +$342 | 0 |
-| 5/01 winner | takes SPY 721P x20, +$470 | takes SPY 721P x20, +$470 | 0 |
-| 5/04 winner | takes SPY 721P x10, +$730 | takes SPY 721P x10, +$730 | 0 |
-| 5/05 loser | takes SPY 722P x20, -$260 | takes SPY 722P x20, -$260 | 0 |
-| 5/06 loser | takes SPY 730P x10, -$300 | takes SPY 730P x10, -$300 | 0 |
-| 5/07 loser 1 | takes SPY 734C x3, -$45 | skips call entry, $0 | +$45 |
-| 5/07 loser 2 | takes SPY 737C x10, -$120 | skips call entry, $0 | +$120 |
-
-*Note: Delta reflects change in edge_capture component. Avoiding a loss of $L increases edge_capture by $L (since we subtract max(0, loss)). Base engine edge_capture on J days is unknown; this veto adds ~$165 incremental edge_capture per leaderboard notes.*
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline  
-2. **Sample bias:** Sample size=6 J days (3 winners, 3 losers). Selection method=J's source-of-truth live trade days. Overfit risk=high if veto parameters fitted to J days; mitigated by structural nature of trendline break detector (no free parameters).  
-3. **Out-of-sample:** NEEDS-OOS (full 16-month walk-forward held-out window pending)  
-4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days validation pending)  
-5. **Failure modes:**  
-   - Worst day: veto fires on a call-winner day, blocking +$200+ gain → edge_capture reduction  
-   - Max drawdown: unknown without full backtest (could exceed -$5k if veto misses multiple large call losers)  
-   - Blow-up scenario: persistent failure to veto during call-loss clusters (e.g., 3+ consecutive -$100 call days)  
-6. **Concentration:** Top-1 day (5/07) contributes ~100% of projected edge_capture ($165) if no other days affected → concentration disclosure: 100%  
+1. **Account-size assumption:** The strategy assumes an account size of at least $25K+ for full position sizing (qty=28 requires $25K+; $1K paper ~= 14% headline). This is based on the risk rules which cap risk per trade at 50% of account equity and the minimum position size of 3 contracts.
+2. **Sample bias:** The candidate is based on the observation of the 5/07 call losers and the structural break that occurred prior to the J call entries. The sample size for the structural break trigger is not yet known (requires Stage-1 backtest over 16 months of data). There is a risk of overfit if the structural break pattern is not persistent or if the 5/07 day is an outlier.
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet performed)
+4. **Real-fills:** NEEDS-REAL-FILLS (real-fills on top-3 J days not yet performed)
+5. **Failure modes:** 
+   - Worst day: If the filter fires on a winner day (though it is designed to only affect calls, and the winner days are PUTs, so it should not fire) but if it did, it might block a winning call setup on a day that is not a J day but could be a winner. However, on J days the winners are PUTs so no impact.
+   - Max drawdown: The filter may cause missed opportunities on call setups that would have been winners, leading to lower overall P&L and potentially higher drawdown if those missed wins were during a losing streak.
+   - Blow-up scenario: The filter could fail to block a call loser if the structural break is not detected correctly, leading to the same loss as without the filter.
+6. **Concentration:** unknown -- requires Stage-1 backtest (we do not know what percentage of P&L comes from the top 5 days)
 
 ## Pre-merge gate
 
-- Gym validators: `backtest/tests/test_trendline_engine.py` 7/7 PASS  
-- Walk-forward: 16-month OOS with IS/OOS Sharpe ratio ≥0.70  
-- Real-fills: top 3 J days P&L deviation < ±20% vs BS-sim  
-- Anchor no-regression: byte-identical behavior on 4/29, 5/01, 5/04  
+The candidate must pass:
+   - Gym validators (all tests in `backtest/tests/` related to the trendline engine and the filter)
+   - Walk-forward OOS test with a ratio >= 0.70 (as per the doctrine)
+   - Real-fills validation on the top-3 J days (4/29, 5/01, 5/04) showing that the behavior matches the BS-sim within ±20%
+   - Concentration analysis showing that no more than 20% of the P&L comes from the top 5 days (to avoid over-reliance on a few days)
 
 ## Confidence
 
-4/10 -- Timing validated (5/07 break at 11:10 ET precedes J's 11:15+ entries), guard tests pass, but lacking OOS and real-fills validation. Structural edge plausible but unproven outside J days.
+4 / 10 -- The hypothesis is based on a single day's observation (5/07) and requires validation over a larger sample. The guard tests have passed but the full OOS and real-fills are pending.
 
 ## Pre-existing leaderboard impact
 
-Updates existing candidate WS4 ([TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md)) from `NEEDS-MORE-DATA` to `PROMISING` if OOS/real-fills pass, or `REJECTED` if fails. Complements rank 17 (`V14E_CHOP_ZONE_GATE`) as orthogonal structural filter; conflicts with no existing candidates (pure call-veto gate). Does not alter PUT-side logic, so zero impact on bearish anchor days.
+This candidate is already in the leaderboard as WS4 (rank WS4). It is currently marked as NEEDS-MORE-DATA. If the Stage-1 backtest shows positive results (edge_capture increase of at least $165 without harming winners and passing the gates), it may move to PROMISING. It does not conflict with other candidates; it is a filter that can be combined with other strategies (like the structure veto) as long as the gates are independent.

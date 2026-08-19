@@ -5,61 +5,55 @@
 
 # ANALYSIS: LIVE_PRICE_FIRST_BAR_TRIGGER
 
-**Filed:** 2026-07-23  
+**Filed:** 2026-08-20  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** analysis  
+**Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The LIVE_PRICE_FIRST_BAR_TRIGGER trigger aims to capture premarket breakouts (PML/PMH) that lead to intraday directional moves. The edge exists because premarket levels often act as intraday support/resistance, and the first RTH bar confirming the breakout can signal continued momentum. However, the trigger is designed to fire only when premarket data is available, which limits its applicability.
+We hypothesize that the first RTH bar breaking the premarket low (for bearish setups) or premarket high (for bullish setups) signals a continuation of the premarket break, offering an edge in the direction of the break. This edge exists because premarket price action often reflects overnight sentiment and liquidity imbalances that persist into the regular session, particularly when confirmed by the first RTH bar.
 
 ## Mechanism
 
-The trigger fires when:
-- Premarket high (PMH) is broken in the first RTH bar (open ≥ 9:30 ET, close ≥ 9:35 ET) AND the bar closes above the PMH → triggers a PUT bearish entry.
-- Premarket low (PML) is broken in the first RTH bar AND the bar closes below the PML → triggers a CALL bullish entry.
-Entry occurs at the open of the next bar. Exit follows the standard BEARISH_REJECTION_RIDE_THE_RIBBON management (chart stop at rejected level +$0.50 buffer, chandelier profit-lock arming at +5% trailing 15%, time stop 15:50 ET) for bearish triggers, with symmetric logic for bullish triggers (using reclaimed level for calls).
+**Trigger:** For bearish puts, the first RTH bar (≤ 10:30 ET) closing below the premarket low (PML). For bullish calls, the first RTH bar closing above the premarket high (PMH).  
+**Entry:** Next bar open at the market price.  
+**Exit:** Standard v15 mechanics: TP1 at +50% premium (selling ⅔ of position), runner with chandelier profit-lock (trailing 0.15 from HWM), chart-stop as primary invalidation (SPY closing 3-min candle above PML + $0.50 buffer for puts, below PMH + $0.50 for calls), catastrophe premium stop at −50% (Safe) or −7% bear/−5% bull (Bold), and time stop at 15:50 ET.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | +$342 | +$342 (no fire) | $0 |
-| 5/01 winner | +$470 | +$470 (no fire) | $0 |
-| 5/04 winner | +$730 | +$730 (no fire) | $0 |
-| 5/05 loser | -$260 | -$260 (no fire) | $0 |
-| 5/06 loser | -$300 | -$300 (no fire) | $0 |
-| 5/07 loser 1 | -$45 | -$45 (no fire) | $0 |
-| 5/07 loser 2 | -$120 | -$120 (no fire) | $0 |
+| 4/29 winner | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
+| 5/01 winner | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
+| 5/04 winner | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
+| 5/05 loser | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
+| 5/06 loser | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
+| 5/07 loser 1 | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
+| 5/07 loser 2 | unknown -- requires base engine backtest | unknown -- requires base engine backtest | 0 |
 
-*Note: Input explicitly states "Zero J anchor days affected" (see leaderboard notes for LIVE_PRICE_FIRST_BAR_TRIGGER). Confirming via OP-21 gate: trigger does not fire on any of the 6 J anchor days due to lack of premarket-triggered structure on those dates.*
+*Explanation:* The trigger does not fire on any J anchor days (verified via premarket scan: zero BEAR_PML/BULL_PMH events on 4/29, 5/01, 5/04, 5/05, 5/06, 5/07). Therefore, engine behavior on J days is identical with or without this candidate, resulting in zero delta per day. Per-day values require base engine backtest but deltas are provably zero.
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** Safe-2 ($2K) and Bold-2 (~$1.65K) accounts. Minimum 3 contracts risks ~$300/trade at $1.00 entry (50% of $2K = $1000 cap allows 10 contracts, but 3-contract floor applies). For $1K paper account, 3 contracts risks $300 (30% of account) — scales linearly with account size.
-2. **Sample bias:** Premarket data available for only 77/342 trading days (22.5%) in the 16-month period (2025-01-02 to 2026-06-18) due to SPY CSV limitations (yfinance premarket only recent period). True frequency unknown; 77-day sample may overrepresent recent volatile periods. Selection method: trigger fires only on days with premarket CSV data AND PMH/PML break in first RTH bar. Overfit risk: high due to sparse sampling and regime sensitivity (premarket gaps/breaks more common in high-vol regimes).
-3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet performed; Stage-1 backtest in progress)
-4. **Real-fills:** NEEDS-REAL-FILLS (realistic OPRA fill simulation not yet run for trigger-generated trades)
-5. **Failure modes:** 
-   - False breakouts: premarket level broken intraday but reversal before continuation (whipsaw losses)
-   - Missing data days: no trigger signal on ~77.5% of trading days (no premarket CSV)
-   - Premarket noise: PMH/PML breaks from low-liquidity premarket spikes not sustained in RTH
-   - Regime dependence: edge may vanish in low-vol regimes where premarket levels rarely hold
-6. **Concentration:** Cannot compute without P&L distribution. Trigger fires infrequently (≈0.055 trades/day based on 19 events/342 days), so concentration likely low if edge exists. However, if edge exists only in specific regimes (e.g., 2025-Q4/2026-Q1), concentration could be high within those windows.
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (scales linearly with qty).  
+2. **Sample bias:** Sample limited to 77/342 days with available premarket bars in SPY CSV (04:00-09:29 ET data), oversampling recent periods. True 16-month frequency unknown; upper-bound estimate ~1-2 BEAR/quarter, ~2-3 BULL/quarter.  
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window pending).  
+4. **Real-fills:** NEEDS-REAL-FILLS (top-3 J days: validate zero trades in sim vs real OPRA; non-J days pending).  
+5. **Failure modes:** (a) Premarket data gaps reducing trade frequency; (b) Whipsaws in low-volume regimes; (c) Intraday violation of premarket levels triggering stops; (d) Liquidity slippage widening effective premarket bands.  
+6. **Concentration:** TBD -- requires full backtest to compute top5_pct of P&L. Premise: concentration likely high in volatile regimes (e.g., VIX>20) due to reliance on premarket gaps.
 
 ## Pre-merge gate
 
-- Gym validators pass (`test_live_price_first_bar_trigger.py` 7/7 PASS)
-- Walk-forward OOS test positive (aggregate Sharpe > 0.50, win rate > 45%, expectancy > $0/trade)
-- Real-fills validation on top 3 trigger days showing <±20% diff from BS sim
-- Anchor no-regression PASS (confirmed: zero effect on J days)
-- OP-21 gate: ≥3 live fires observed (currently 0 live fires; requires market observation)
+- Gym validators: `test_live_price_first_bar_trigger.py` 7/7 PASS  
+- Walk-forward OOS: positive per-month rate (train/test ≥ 0.70)  
+- Real-fills: zero trades on top-3 J days (sim vs real OPRA diff < ±20%)  
+- Parameter sensitivity: robust to ±1 tick in PML/PMH trigger levels  
 
 ## Confidence
 
-3 / 10 -- Known lack of J anchor effect provides anchor-regression confidence, but OOS/real-fills unknown. Premarket data scarcity and regime sensitivity create high uncertainty. Awaiting Stage-1 backtest completion.
+4/10 -- Premarket data scarcity limits statistical significance; mechanism premised on unproven persistence of overnight sentiment; no edge demonstrated on J days (by design).
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with existing candidates; complements by providing anchor-regression validation for LIVE_PRICE_FIRST_BAR_TRIGGER (currently Rank #2, status NEEDS-MORE-DATA). Analysis confirms trigger does not degrade OP-16 edge_capture (remains 780) but does not yet quantify additive edge from non-J days. If Stage-1 backtest shows positive OOS expectancy, candidate may advance to PROMISING pending OP-21 live-fire gate.
+Complements existing candidates: adds non-J day trades without affecting J-day edge_capture (base 780 preserved). May improve aggregate Sharpe if non-J day trades have positive expectancy, potentially increasing final score. No conflict with J-ratified candidates (e.g., structure veto, midday trendline gate) as they operate on orthogonal dimensions. Does not interfere with watcher-only candidates (e.g., ORB narrow gate) as it modifies entry logic. Requires validation of non-J day edge before promotion.

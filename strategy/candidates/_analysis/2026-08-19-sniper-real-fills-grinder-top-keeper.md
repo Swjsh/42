@@ -3,60 +3,61 @@
 <!-- Per CLAUDE.md OP-22 + OP-25 + OP-30 (effort/concurrency discipline). -->
 <!-- NOT YET RATIFIED -- J review required per Rule 9 before any production change. -->
 
-# ANALYSIS: SNIPER_REAL_FILLS_GRINDER_TOP_KEEPER
+# ANALYSIS: Sniper Real Fills Grinder Top Keeper
 
-**Filed:** 2026-08-24  
+**Filed:** 2026-07-23  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** analysis  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We assess whether the top keeper from sniper_real_fills_grinder (vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_offset=2, premium_stop_pct=-0.1, tp1_premium_pct=0.5, tp1_qty_fraction=0.5, runner_target_pct=2.0, profit_lock_threshold_pct=0.05, profit_lock_stop_offset_pct=0.05, qty=10, proximity_dollars=1.5, require_break_above_open=true) captures genuine edge on J's anchor days or is an overfit artifact. The grinder reports wide_pnl=-90.8, edge_capture=-126.0, WR=0.5, indicating underperformance relative to the baseline engine (which would achieve edge_capture=+1542 by taking all three J winners and skipping losers).
+We are analyzing the top keeper from the sniper_real_fills_grinder output to determine if it represents a genuine edge or overfit. The keeper shows negative edge_capture (-126.0) and negative wide_pnl (-90.8), suggesting it underperforms the baseline and likely captures noise rather than signal.
 
 ## Mechanism
 
-**Entry logic:** SNIPER_LEVEL_BREAK trigger with vol_mult=1.1 (volume must exceed 1.1× 20-bar average), body_min_cents=0.02 (minimum real-body size), min_stars=2 (minimum confluence score), strike_offset=2 (OTM-2 puts), proximity_dollars=1.5 (price must be within $1.5 of the level), require_break_above_open=true (price must break above the open to confirm breakdown).  
-**Exit logic:** premium_stop_pct=-0.1 (10% catastrophic stop), tp1_premium_pct=0.5 (take 50% of position at +50% premium), tp1_qty_fraction=0.5 (sell half of contracts at TP1), runner_target_pct=2.0 (runner target at +200% premium), profit_lock_threshold_pct=0.05 (profit lock arms at +5% favor), profit_lock_stop_offset_pct=0.05 (once armed, stop trails to max(entry×0.05, highest×0.95)). qty=10 contracts per trade.
+The keeper's parameter combo includes: vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_offset=2, premium_stop_pct=-0.1, tp1_premium_pct=0.5, tp1_qty_fraction=0.5, runner_target_pct=2.0, profit_lock_threshold_pct=0.05, profit_lock_stop_offset_pct=0.05, qty=10, proximity_dollars=1.5, require_break_above_open=true. Compared to typical baseline settings (e.g., vol_mult=1.0, body_min_cents=0.0, min_stars=1, strike_offset=0, premium_stop_pct=-0.06), this combo increases volatility sensitivity, tightens body requirements, raises star threshold, moves strikes OTM, widens the stop, reduces TP1 fraction, sets an aggressive runner target, and adds a profit lock mechanism. However, these changes resulted in negative performance on J anchor days.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | Takes +$342 | -$329 (loss) | -$671 |
-| 5/01 winner | Takes +$470 | +$329 (inferred) | -$141 |
-| 5/04 winner | Takes +$730 | +$110 | -$620 |
-| 5/05 loser | Skips (0) | -$236 (loss) | -$236 |
-| 5/06 loser | Skips (0) | $0 (break-even) | $0 |
-| 5/07 loser 1 | Skips (0) | $0 (break-even) | $0 |
-| 5/07 loser 2 | Skips (0) | $0 (break-even) | $0 |
+| 4/29 winner | unknown -- requires Stage-1 backtest | -329.0 | est -329.0 |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown (missing in keeper data) | unknown |
+| 5/04 winner | unknown -- requires Stage-1 backtest | 110.0 | est -620.0 (vs baseline +730) |
+| 5/05 loser | unknown -- requires Stage-1 backtest | -236.0 | est +24.0 (vs baseline -260) |
+| 5/06 loser | unknown -- requires Stage-1 backtest | 0.0 | est +300.0 (vs baseline -300) |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | 0.0 | est +45.0 (vs baseline -45) |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | 0.0 | est +120.0 (vs baseline -120) |
 
-*Notes:* 5/01 P&L not directly in keeper JSON; derived from edge_capture=-126.0 and other known P&Ls to be +$329. All values in dollars.
+*Note: Baseline behavior refers to the source-of-truth J trades. Current engine behavior is unknown without a Stage-1 backtest. Proposed behavior is taken from the keeper's PnL fields. Delta is estimated as (proposed - baseline) for winners and (baseline - proposed) for losers (since losers want to lose less). Missing 5/01 data prevents full edge_capture validation.*
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=10 contracts at ~$1.00–$2.00 entry premium requires ~$1,000–$2,000 capital per trade (10 contracts × $1.00 × 100 = $1,000). To respect the 50% per-trade risk cap, an account of ≥$2,000 is needed for full size; a $1K paper account would realize ~50% of headline P&L (≈ -$45 wide_pnl).
-2. **Sample bias:** The grinder evaluated ~16 months of OPRA data (2025-01-02 to 2026-06-18) but only a subset of days appear in the `by_day` map (likely days where the trigger fired). Selection method: kept combos that passed Stage-2 filters (vol_mult, body_min_cents, min_stars, etc.). Overfit risk is high because the optimizer selected from thousands of combos; edge_capture is negative, suggesting the combo may be fitting noise rather than a persistent edge.
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window reported; the grinder output appears to be in-sample performance across the full period).
-4. **Real-fills:** NEEDS-REAL-FILLS (the wide_pnl and edge_capture values are derived from a BS‑sim or similar idealized filler; no real OPRA bid/ask slippage model applied).
+1. **Account-size assumption:** qty=10 requires approximately $1K+ account given typical 0DTE entry premiums of $0.50-$2.00, risking 5%-20% of a $1K account per trade (based on 10% stop via premium_stop_pct=-0.1).  
+2. **Sample bias:** The keeper was selected from an unknown-sized grinder (output of sniper_stage2_grinder). Selection method likely based on in-sample PnL/edge_capture, creating high overfit risk due to optimization on the same data used for selection.  
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window performed; grinder appears to be in-sample only).  
+4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days not validated with real OPRA fills; grinder may have used a simulator).  
 5. **Failure modes:**  
-   - Worst day: 4/29 loss -$329 (single‑day drawdown).  
-   - Max drawdown: likely exceeds -$1,000 when stacking losing days (e.g., 4/29 + 5/05 = -$565).  
-   - Blow‑up scenario: A sequence of losing J‑day trades (4/29, 5/05) combined with whipsaw losses on non‑anchor days could erase a small account quickly; the strategy lacks a reliable winner to offset losses.
-6. **Concentration:** UNKNOWN -- requires Stage-1 backtest to compute top‑5‑day % of P&L. Given the sparse `by_day` P&L values (many zero or small), concentration may be low, but the negative edge_capture makes this metric moot for promotion.
+   - Worst day: -$382.0 observed in by_day snippet (2025-02-12), suggesting potential for large single-day losses.  
+   - Max drawdown: unknown without full equity curve, but sequence of losses (e.g., -345.0, -382.0) indicates risk of sustained drawdowns.  
+   - Blow-up scenario: Gap risk could overwhelm the -10% premium stop; aggressive runner_target_pct=2.0 may cause profit giveback in reversing markets; OTM strikes (strike_offset=2) increase exposure to theta decay.  
+6. **Concentration:** unknown -- requires full PnL breakdown to compute top5_pct (by_day snippet shows both large positives and negatives, but incomplete data prevents calculation).
 
 ## Pre-merge gate
 
-- Pass gym validators (basic sanity checks).  
-- Demonstrate OOS walk‑forward with edge_capture > 0 (or at least > -771 to avoid automatic reject).  
-- Show real‑fills validation on the top 3 J days (4/29, 5/01, 5/04) with simulated slippage < ±20% of BS‑sim P&L.  
-- Verify that the combo does not degrade Sharpe below the baseline (aggregate_sharpe > 0).  
-- File a scorecard in `analysis/recommendations/` with full OP‑20 disclosures.
+<what tests need to pass: gym validators, walk-forward, real-fills>  
+This candidate fails the OP-16 edge_capture floor (<771) and requires:  
+- Stage-1 backtest to confirm J day behavior  
+- Walk-forward OOS test with edge_capture >771  
+- Real-fills validation on top 3 J days showing <20% PnL deviation from simulation  
+- Concentration check (top5_pct <200%)  
+- Failure mode analysis showing max drawdown <50% of equity  
 
 ## Confidence
 
-2 / 10 -- The keeper shows negative edge_capture, indicating it underperforms the baseline engine on J's anchor days. The wide_pnl is also negative, and the win rate is only 0.5. Without evidence of OOS robustness or real‑fills confirmation, the combo is likely an overfit to noise or a poor parameter region.
+1 / 10 -- The keeper shows negative edge_capture and wide_pnl, missing critical J day data (5/01), and exhibits multiple overfit warning signs (aggressive runner target, OTM strike shift, no OOS validation). It is unlikely to represent genuine edge.
 
 ## Pre-existing leaderboard impact
 
-This analysis does not propose a new candidate; it evaluates an existing grinder keeper. The top keeper’s edge_capture (-126.0) is far below the leaderboard’s inclusion threshold of edge_capture ≥ 771. It would rank as REJECTED if promoted. It does not complement any current leaderboard entry because it moves in the opposite direction (losing where winners should win). No conflict with existing candidates, but also no value add.
+This analysis does not propose a new candidate; it evaluates an existing grinder output. It conflicts with no leaderboard candidates directly but reinforces the need for rigorous OOS validation before promotion (as seen in candidates like WEEKLY_DTE_NOT_0DTE and STRUCTURE_VETO_DIR_VS_TREND). The negative edge_capture confirms this keeper would be REJECTED if submitted as a candidate.
