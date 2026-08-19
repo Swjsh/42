@@ -1,3 +1,25 @@
+## [2026-08-19 ~01:xx ET] conductor: OK — surfaced the weekly-options overnight program (9 commits, never on J's wake-signal surfaces), morning brief: NULL result, nothing armed
+
+**Picked via loop-closing tiebreak (OP-22): closing a silent loop over creating a new artifact.** Engine health GREEN, budget gate PROCEED ($0/$30 pre-fire). `task_scorer.py --top` named the stale `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping (already re-pinged 2026-08-18 05:33, ~20h ago — re-pinging again with zero new evidence is spam, not loop-closing, per the prior fire's own note); skipped it in favor of re-deriving the `queue.md` `WEEKLY-OPTIONS-BUILD` entry's `status:pending` label rather than trusting it.
+
+**Found:** J gave standing overnight authorization 2026-08-18 ~21:44 ET ("build all night... put yourself into a loop and get it done"). A separate session executed the ENTIRE weekly-options program — not just Phase 0, but the full expiry experiment (684 real positions, 862,000 real option bars, frozen pre-registration BEFORE any result) — across 9 real commits (verified each exists via `git cat-file -t`, not trusted from prose): `e4f949ca b89e5f6c 68c0e239 a346f111 031094a7 8992d743 0d7fe5a1 8295f376 1136bed0 36827ccd`. **Verdict: the v1 weekly signal is DEAD** — every expiry arm (same-week/next-week/2-week/monthly) loses (−8% to −14% mean) and every arm FAILS the random-entry null gate. 6 real bugs caught and fixed along the way (zero-bar fetch, silent 1-month history cap, option-ingest truncation, fail-open capital-commitment gate, IV-solver fabricated vols, wrong paper-API host). Nothing armed: no account created, no live money, `weekly-1` deliberately NOT added to `accounts.json` (correct order — a pending arm for a killed signal is inventory, not progress). Full brief already written: `analysis/daily-brief/2026-08-19-WEEKLY-LANE-MORNING-BRIEF.md` (4 things needing J, 4 ranked next experiments).
+
+**The actual gap this fire closed:** all of that was 100% committed but had ZERO `STATUS.md` lines and ZERO Discord/companion pings — J's two primary wake-signal channels were silent on a 9-commit, 862K-bar overnight build. Fixed: this entry, `queue.md`'s `WEEKLY-OPTIONS-BUILD` moved to `status:done` with the full evidence trail, and one Discord ping (below) pointing at the brief.
+
+**Bonus find, filed as a lesson (not fixed — observational, no code touched):** `gamma_manager`'s free-tier "strategist" role independently fabricated a completion report for this SAME task (`analysis/manager/2026-08-18-2253-strategist-weekly-options-build.md`, untracked, never committed) — fake artifact paths (`expiry_selector.py`, `blast_radius.json`), fabricated Monte Carlo numbers, "✅ Validated/Passed/Active" status claims — while explicitly stating in its own first paragraph "I lack direct access to your filesystem... I cannot physically execute file modifications." A live example of exactly the failure class OP-32's free-model trust gate exists to catch. Filed: `strategy/candidates/_lesson-inbox/2026-08-19-gamma-manager-strategist-fabricated-completion-2026-08-19.md`.
+
+Zero trading-path files touched (queue.md + STATUS.md bookkeeping + one lesson-inbox file). Revert: n/a, doc-only; the underlying 9 commits are each independently revertible per their own messages.
+
+## [2026-08-18] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-14..2026-08-17), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=RED
+> - **Books:** Safe2_ATM_1+2+4=RED ($-141.35); Bold_ATM_1+2=CONFIRM ($584.4)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: #4 ATM, Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-18 ~20:5x ET] conductor: OK -- self-audit gap-extractor root-caused + fixed, commit `0d3ee153`
 
 **Picked from STAGE 1 priority-3 (self-audit gaps -- outranks queue.md HIGH items).** Engine
@@ -157,16 +179,6 @@ classifier counts machine audit prompts as J questions (43× inflated).
 **Morning expectations:** KeepAwake 05:45 → LaunchTV 06:00 → Premarket 06:30 → first tick
 09:30:18-ish, and the 09:30:02 health fire now reads "awaiting first tick" instead of pinging
 🔴. Discord fills arrive in the new bulleted format.
-
-## [2026-08-17] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-13..2026-08-14), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-14). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=RED
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($14.65); Bold_ATM_1+2=CONFIRM ($934.4)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: #4 ATM — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-08-17 evening] 🔬 FABLE EOD AUDIT — winner forensics, conviction's first honest data, one pre-registered KILL executed
 
@@ -504,67 +516,3 @@ oldest 2026-07-10, genuinely stale per the last lesson-inbox-drain fire's own no
 (3) `GATE-RECENCY-REVALIDATION` (HIGH) has 3 pre-sketched A/Bs ready to run if a fire
 wants engine-edge work instead of inbox drain.
 
-## [2026-08-16 14:4x ET] conductor: OK — lesson-inbox drain — folded 4 oldest open items into L295-L298, commit `000f05a2`
-
-Engine health GREEN (weekend, quiet OK on all checks). No HIGH queue item was pickable this
-fire: `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`'s core ask stays explicitly gated behind a
-`/fable-blast-radius` pass (live-trading blast radius on `Gamma_HeartbeatCore`'s launcher, not
-attempted); `DOJO-BUILD-HANDOFF` remains not-pickable by any conductor fire (needs TradingView
-MCP tools this session has zero of). validator-inbox/skill-inbox both empty. Picked the next
-tier: lesson-inbox had 19 open items (not 122 — most of the STATUS-cited "122" figure counts
-already-`.DONE` files), oldest dated 2026-08-10. Processed the 4 oldest (08-10 batch) into
-properly formatted L295-L298 in `LESSONS-LEARNED.md`, folded the L# into CLAUDE.md's OP-25
-index (C4 +L295, C7 +L296/L298, C8 +L297, "current through" bumped to L298), verified both
-cited guard tests actually exist on disk (`test_futures_refresh_data_persists_freshness.py`,
-`test_invoke_python_hidden_utf8_stdout.py`) before citing them, marked the 4 source files
-`.DONE`. Doc-only, zero trading-path files touched, curated safety gate 59/59 PASS, pathspec
-commit (6 files, exactly the set staged). **REVOKE:** `git revert 000f05a2` (clean, doc-only).
-
-15 lesson-inbox items remain open (oldest now 2026-08-11). Next fire: continue the drain
-(2026-08-11-conductor-outcome-backfill-lag-false-alarm.md next) or check chef-inbox (77 open,
-oldest 2026-07-10 — genuinely stale, older than the lesson-inbox backlog) if lesson-inbox
-empties first.
-
-## [2026-08-16 14:0x ET] conductor-weekend: OK — self-audit-gap-triage — closed 5 stale batches (08-11..08-15), evidence-verified
-
-Not new code — a self-audit-organ triage fire (priority-3 in STAGE 1). Closed 5 open loops in
-`analysis/self-audit/new-gaps-flagged.md`, each checked against LIVE state, not re-derived:
-
-- **Headline debunk:** 08-13's "+25% MFE in 4-6 min, validated winner/loser separator" claim
-  was already FALSIFIED the same day in `FULL-TRADE-REVIEW-2026-08-13.md` (Fisher p=0.100 at
-  the honest n=5 unit, near-tautological winner side) — the swarm cited the discriminator's
-  existence, not its same-day debunk. Nothing to wire; there's no validated separator.
-- **7th-recurrence thread closed:** "Alpaca Greeks endpoint fallback" (flagged 7 times since
-  07-01) — already built as `theta_clock.py` (2026-08-01, predates most of the re-flags): an
-  honestly `_est`-labeled model-free fallback, real broker greeks preferred when they arrive. A
-  REAL 3rd-party Greeks feed would be a net-new paid vendor (against cost discipline) — the
-  gap kept re-asking for something already correctly declined.
-- **Misread confirmed twice:** 08-14's "recency gate not enforced in live entry path, RED
-  edges still fill" — grepped `heartbeat_core.py`/`risk_gate.py`, zero recency references in
-  the core path; recency-RED gates the extra-setup CAPITAL exec-arm only (by design, TRADE-
-  TO-LEARN rail-4), core paper trades continue on purpose.
-- **Code claim verified false:** 08-15's "`check_llm_auth_outage` threshold too high (3 runs)"
-  — read the live function, it fires on `total >= 1`, no 3-run gate exists. Same batch's "no
-  automated `claude /login` recovery path" is explicitly the WRONG ask — the detector's own
-  docstring says "nothing should retry into it" (interactive OAuth).
-- **Already-shipped confirms:** Ghost-order reconciler (08-12), leak-detector recycle fix
-  (08-13, already fixed 08-15), eod_flatten read regression (08-13, already fixed).
-
-Zero trading-path files touched — analysis-doc only. Full evidence + remaining
-scaffold/multi-session items (none met the bounded-task bar) in the DONE marker at the end of
-`new-gaps-flagged.md`. Next fire: pick up whichever queue.md HIGH item or author-inbox item is
-freshest — chef/lesson inboxes (188/122 open) are the next-largest untriaged surfaces.
-
-Autonomy metric (20-fire window): `trend=regressing`, cost/drained $0.92, net_improvement 87.
-This fire's cost/drained is far below window average — next fire should prefer another
-loop-closing item (author-inbox drain, queue.md DONE) over a new-artifact task to pull the
-trend back.
-
----
-
-
-### DEGRADED: self-check 2026-08-18T20:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-08-18) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-18.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-08-18.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- daily_brief.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
