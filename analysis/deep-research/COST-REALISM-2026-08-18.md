@@ -12,6 +12,53 @@
 
 ---
 
+## ✅ RESOLVED SAME EVENING — the exit-side half is no longer unverified
+
+This document's central open question ("does paper's fill quality hide a spread cost on top of
+fees?") was answered a few hours later by
+[`setup/scripts/exit_fill_realism.py`](../../setup/scripts/exit_fill_realism.py). Summary here so
+the answer lives with the question; full method in that module's docstring.
+
+**Method.** Historical options *quotes* 404 on this key, but *bars* are free — so instead of
+"what was the bid", ask "where in that minute's traded range did the fill land", with **BUY fills
+as a built-in control**. If the spread is genuinely crossed, buys should sit HIGH in the range
+(paying the ask) and sells LOW (hitting the bid).
+
+| side | n | median position in range | reading |
+|---|---:|---:|---|
+| BUY | 70 | **0.667** | high in range — paying the ask, **realistic** |
+| SELL | 68 | **0.462** | mid — **not** the ~0.333 a genuine bid-hit implies |
+
+**The asymmetry is the finding.** Entries are charged realistically; exits are credited about
+**0.129 of the traded range** better than a real market sell would get — one-sided optimism,
+once per round trip.
+
+| | |
+|---|---:|
+| median traded range in the exit minute | $0.080 |
+| one-sided gap | 0.129 of range = **$0.0103/contract** |
+| median exit qty | 3 contracts → **$3.10 per exit** |
+| across 289 closed round trips | **~$895** |
+
+| book | figure |
+|---|---:|
+| as traded | −$2,071 |
+| after real fees (this document) | −$2,201 |
+| **after fees + measured exit slippage** | **−$3,096** ← realistic-transition estimate |
+
+> ⚠️ **This REFINES Scenario B rather than confirming it.** The $0.02/contract conservative
+> placeholder below overstated exit slippage by roughly **2×**; measured is $0.0103. The honest
+> transition number is **−$3,096, not −$5,069** — so the placeholder should not be quoted going
+> forward.
+
+**Limits, stated not buried:** a 1-minute OHLC bar is built from *trades*, not quotes, so the bar
+low sits at or above the true bid — the test is CONSERVATIVE and can understate fill quality,
+never overstate it. Traded range is not the bid–ask spread; this measures whether we
+systematically land at the bad end of the minute (on exits, we do not), not a direct spread
+crossing. One-trade minutes are excluded, never defaulted to 0.5.
+
+---
+
 ## VERDICT
 
 **Real regulatory fees — which Alpaca PAPER is already charging for real, just not counting
