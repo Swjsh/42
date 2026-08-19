@@ -129,3 +129,86 @@ instruments at all.
 
 **None of this is a reason to stop the lane.** It is a reason to stop trusting THIS signal, which
 is what a pre-registered null gate is for.
+
+---
+
+# ADDENDUM — failure diagnosis (same night, 513 core-arm positions)
+
+Stratifying the ledger to ask *why* it lost, and whether any subgroup was quietly working.
+
+## 1. There is no hidden winner. The failure is uniform.
+
+| Cut | n | mean | median | tail ≥+30% |
+|---|---|---|---|---|
+| round_numbers | 282 | −10.99% | −33.44% | 19.9% |
+| swing_high_low | 102 | −2.48% | −32.74% | 22.5% |
+| prior_week_month_hlc | 90 | −19.04% | −35.43% | 15.6% |
+| ema_20_50 | 39 | −24.56% | −38.31% | 7.7% |
+| **all EXCEPT round_numbers** | 231 | **−12.66%** | −33.68% | 17.3% |
+| bullish / bearish | 270 / 243 | −13.58% / −9.70% | — | — |
+| GLD / QQQ | 252 / 261 | −8.39% / −14.98% | — | — |
+
+**Every family, both directions, both symbols lose.** The earlier concern that `round_numbers`
+(55% of signals) might be poisoning an otherwise-good signal is **answered and dismissed** —
+removing it makes the result slightly *worse*, not better. The composite is not hiding two
+populations; it is one uniformly unprofitable population.
+
+## 2. CORRECTION to my own first read: the confluence gate is UNINFORMATIVE, not backwards
+
+The per-bucket table showed confluence=5 as the worst cohort (−24.97%, 12% win), which looked
+like a quality score ranking backwards (the C25/C20 anti-correlation pattern). **Tested
+properly, that is not supported:**
+
+- Spearman ρ(confluence, return) = **−0.054, p = 0.226** (n=513)
+- high-confluence (≥4) mean −14.37% vs low (≤2) mean −11.84%, Mann-Whitney **p = 0.627**
+
+The confluence=5 cohort was n=57 — noise. The honest conclusion is that confluence carries **no
+information about outcome in either direction**. It is a dead knob (C14), not an inverted one.
+Recording the correction because the first read was mine and it was wrong.
+
+## 3. The distribution is bimodal, and the break-even gap is large
+
+| Exit | n | share | mean return |
+|---|---|---|---|
+| `theta_budget` | 285 | 56% | **−48.29%** |
+| `tp1` | 88 | 17% | **+96.49%** |
+
+Overall: 25.0% winners averaging **+72.3%**, 75.0% losers averaging **−39.7%**.
+
+**At this win rate and loss size, winners would need to average +119.4% to break even. They
+average +72.3% — a gap of 47 percentage points.** This is not a near-miss that a parameter
+tweak closes; it is a structurally unprofitable shape.
+
+## 4. The one modeling caveat — and why it does NOT rescue the verdict
+
+The `theta_budget` exits average −48% even though the budget triggers at 30% bleed. That is the
+**adverse-first resolution** doing its job: when a session's low crosses the threshold, the exit
+is modeled at that low, because daily bars cannot prove the favorable price came first. Live
+execution would likely do better than −48%.
+
+Recomputing with losers at −30% instead of −39.7% gives ≈ **−4.4%** — still negative, and still
+before any of the frictions a real fill would add.
+
+**Critically, this conservatism is SYMMETRIC:** the random-entry null was walked through the
+exact same adverse-first machinery. So while the absolute return level is pessimistic, the
+*relative* verdict — that the signal does not beat random entry — is unaffected by it. That is
+the finding that matters, and it survives.
+
+## 5. What this actually means for the lane
+
+The trigger is **not selecting moments when the underlying is about to move**. It enters, the
+underlying goes nowhere in particular, theta collects, and 56% of positions bleed to the budget
+stop. The 17% that reach TP1 pay well (+96%) but not often enough or big enough.
+
+Ranked next experiments (none run tonight — recorded so the next session starts with a plan,
+not a blank page):
+
+1. **Timeframe**: the trigger requires a structure shift on the newest *1H* bar for a *multi-day*
+   thesis. That mismatch is the most likely single cause. Test a daily-bar trigger.
+2. **Zone quality**: confluence is proven dead. If zone quality matters at all it needs a
+   different measure — untouched-level age, or volume at the level, not count of nearby zones.
+3. **Direction filter**: with ~50/50 direction and both losing, the trigger may be detecting
+   *volatility* rather than *direction*. If so the correct expression is a non-directional
+   structure, which this lane explicitly does not trade today.
+4. **`structure_hh_hl_lh_ll` produced zero signals** across both symbols — still unexplained,
+   and worth one hour of inspection before trusting the 5-family design.
