@@ -11,7 +11,7 @@
 **The diagram is already built here — three times over, un-unified — and more agents is the wrong next move.**
 
 1. Anthropic's own 2026 guidance is **single-agent-first**: multi-agent costs **3–10x the tokens** for equivalent tasks and is *contraindicated* exactly where agents share context. Gamma's live trading path is already the right shape (deterministic, $0, no LLM on the hot path). Don't "agentify" it.
-2. The measured failure in this rig is **not missing workers — it is unverified worker output and undelivered results.** 9 of 690 free-tier worker reports fabricated artifacts that never existed, undetected for two months. 4 of 6 things J repeatedly asks for already have complete machinery that simply never *pushes* him an answer.
+2. The measured failure in this rig is **not missing workers — it is unverified worker output and undelivered results.** 12 of 690 free-tier worker reports fabricated artifacts that never existed, undetected for two months. 4 of 6 things J repeatedly asks for already have complete machinery that simply never *pushes* him an answer.
 3. So the master's missing arm is the diagram's own third bullet — **"interpret worker response / task reassignment"** — not its second.
 
 ---
@@ -98,8 +98,8 @@ This is **already the diagram**, and the deterministic layer being the biggest i
 
 ### Three measured defects
 
-**1. Worker output was never verified — 9 fabricated reports over 2 months.**
-`analysis/manager/2026-08-18-2253-strategist-weekly-options-build.md` reported the weekly-options Phase 0 build complete, citing `expiry_selector.py`, `blast_radius_20260818.json`, `sector_heat_signals.csv` — **none of which were ever written**, while the real work ran elsewhere. A sweep of all 690 reports found **9 with the same shape** (2026-06-25 → 2026-08-18), a ~1.3% base rate. The existing `_looks_like_garbage()` catches token-salad; it cannot catch a *fluent* lie. This is the structural exposure of master/worker: **the orchestrator only ever sees the summary, never the trace.**
+**1. Worker output was never verified — 12 fabricated reports over 2 months.**
+`analysis/manager/2026-08-18-2253-strategist-weekly-options-build.md` reported the weekly-options Phase 0 build complete, citing `expiry_selector.py`, `blast_radius_20260818.json`, `sector_heat_signals.csv` — **none of which were ever written**, while the real work ran elsewhere. A sweep of all 690 reports found **12 with the same shape** (2026-06-25 → 2026-08-18), a 1.7% base rate. The existing `_looks_like_garbage()` catches token-salad; it cannot catch a *fluent* lie. This is the structural exposure of master/worker: **the orchestrator only ever sees the summary, never the trace.**
 
 **2. Escalation had no dedupe — one blocker, nine queue lines.**
 `gamma_manager.escalate()` appended to `queue.md` unconditionally on a 20-minute cadence. One unresolved blocker produced 9 near-identical `ESCALATION (manager_flagged)` entries in a day. The coordinator re-words each time, so string equality never matched.
@@ -141,7 +141,7 @@ Every worker must declare four things, each derived from a verified finding:
 | Field | Why it is mandatory |
 |---|---|
 | `context_boundary` | Anthropic: decompose by **context**, not role. A worker that cannot name the bulky thing it reads *so the master doesn't have to* is a prompt, not an agent — it belongs inline. |
-| `verified_by` | The master cannot bank an unverified completion claim (the 9-report scar). Must be a **deterministic** gate. |
+| `verified_by` | The master cannot bank an unverified completion claim (the 12-report scar). Must be a **deterministic** gate. |
 | `delivers_to` | Work that lands nowhere gets redone by the next session. |
 | model pin | Subagents cannot switch their own model; an in-prompt "run /model sonnet first" is a **no-op** (2026-07-23 scar: 2.2M tokens on mechanical grid work). |
 
@@ -179,7 +179,7 @@ worker-registry: GREEN (9 workers, 6 j-intents, 0 drift)
 13 passed in 1.53s
 [!!] FABRICATED  analysis\manager\2026-08-18-2253-strategist-weekly-options-build.md  (3/8 artifacts resolve)
 [OK] VERIFIED    analysis\daily-brief\2026-08-19-WEEKLY-LANE-MORNING-BRIEF.md  (16/16 artifacts resolve)
-sweep of 690 reports: 618 NO_CLAIMS · 39 VERIFIED · 24 UNVERIFIED · 9 FABRICATED
+sweep of 690 reports: 611 NO_CLAIMS - 40 VERIFIED - 27 UNVERIFIED - 12 FABRICATED
 ```
 
 RED-proof, fabrication gate — disable the bare-filename extraction and the detector goes blind:

@@ -46,7 +46,7 @@
     },
     "free": {
       "cost": "$0 (free lanes + local ollama floor)",
-      "rule": "R&D recon and drafting only. NEVER trusted without a deterministic gate — measured 9/690 reports (1.3%) fabricated artifact claims over two months before worker_output_verify.py existed.",
+      "rule": "R&D recon and drafting only. NEVER trusted without a deterministic gate — measured 12/690 reports (1.7%) fabricated artifact claims over two months before worker_output_verify.py existed.",
       "roster": "automation/state/model-roster.json",
       "driver": "setup/scripts/gamma_manager.py"
     },

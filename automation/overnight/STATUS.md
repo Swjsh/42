@@ -5,7 +5,7 @@
 **Verdict: the diagram is already built here 3x over -- more agents is the WRONG next move.** Anthropic's own 2026 guidance is single-agent-first (multi-agent = 3-10x tokens, contraindicated where agents share context). The measured defects are unverified worker output and undelivered results, not missing workers.
 
 **Three measured findings:**
-- **9 of 690 free-tier worker reports FABRICATED artifacts** that never existed (2026-06-25..08-18, ~1.3%, undetected 2 months). Canonical scar: the 08-18 strategist report claiming the weekly-options Phase 0 build was done.
+- **12 of 690 free-tier worker reports FABRICATED artifacts** that never existed (2026-06-25..08-18, 1.7%, undetected 2 months). Canonical scar: the 08-18 strategist report claiming the weekly-options Phase 0 build was done.
 - **1 blocker -> 9 duplicate queue.md escalations** in a day: `gamma_manager.escalate()` had no dedupe and the coordinator re-words every fire, so string equality never matched.
 - **Notional burn $430-$1,554/day** over the last 10 logged days (mean ~$780; Max-plan capacity, not a bill -- but the same pool the heartbeat ticks on). Fan-out was uncapped.
 

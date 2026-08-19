@@ -7,7 +7,7 @@ summary, never its trace):
      reported Phase 0 of the weekly-options build as done, citing artifacts
      (expiry_selector.py, blast_radius_20260818.json, sector_heat_signals.csv)
      that were never written. A sweep of all 690 reports in analysis/manager/
-     found 9 with the same shape, spanning 2026-06-25..2026-08-18 — undetected
+     found 12 with the same shape, spanning 2026-06-25..2026-08-18 — undetected
      for two months. `_looks_like_garbage()` cannot catch a FLUENT lie.
 
   2. ESCALATION SPAM. `gamma_manager.escalate()` appended to queue.md

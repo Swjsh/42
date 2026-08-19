@@ -78,7 +78,11 @@ _PATH_RE = re.compile(
 # of ./expiry_selector.py links - so slash-anchored paths alone are not enough.
 _BARE_RE = re.compile(
     r"(?:`([\w.@+-]+\.(?:" + "|".join(_EXTS) + r"))`"
-    r"|\]\(\.?/?([\w./@+-]+\.(?:" + "|".join(_EXTS) + r"))\))",
+    r"|\]\(\.?/?([\w./@+-]+\.(?:" + "|".join(_EXTS) + r"))\)"
+    # ...and in plain prose. A worker that writes "I wrote it to foo.json" with no
+    # backticks is making exactly the same claim; requiring markup would leave the
+    # cheapest evasion wide open.
+    r"|(?<![\w/\\.-])([\w@+-]+\.(?:" + "|".join(_EXTS) + r"))(?![\w/]))",
     re.IGNORECASE,
 )
 
@@ -191,11 +195,12 @@ def extract_claims(text: str) -> dict:
         if raw in seen:
             continue
         seen.add(raw)
+        seen.add(raw.rsplit("/", 1)[-1])   # don't re-claim its basename below
         paths.append(raw)
 
     bare = []
     for m in _BARE_RE.finditer(text):
-        raw = (m.group(1) or m.group(2) or "").replace("\\", "/").lstrip("./")
+        raw = (m.group(1) or m.group(2) or m.group(3) or "").replace("\\", "/").lstrip("./")
         if not raw or raw in seen:
             continue
         if "/" in raw and raw.split("/", 1)[0] in roots:
@@ -204,6 +209,10 @@ def extract_claims(text: str) -> dict:
             continue
         name = raw.rsplit("/", 1)[-1]
         if name in seen:
+            continue
+        # An all-digit stem is prose, not an artifact: "sections 8-12.md" produced
+        # a phantom `12.md` claim on two otherwise-clean reports.
+        if not re.search(r"[a-zA-Z]", name.rsplit(".", 1)[0]):
             continue
         seen.add(name)
         bare.append(name)

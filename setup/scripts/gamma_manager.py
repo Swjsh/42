@@ -427,8 +427,8 @@ def run_cycle(*, allow_heavy: bool = True) -> dict:
 
     # ANTI-FABRICATION GATE (2026-08-19). _looks_like_garbage() above catches token
     # salad; it cannot catch a FLUENT report about work that never happened. A sweep
-    # of all 690 reports in analysis/manager/ found 9 that claim artifacts which do
-    # not exist on disk, spanning 2026-06-25..2026-08-18 — a ~1.3% base rate running
+    # of all 690 reports in analysis/manager/ found 12 that claim artifacts which do
+    # not exist on disk, spanning 2026-06-25..2026-08-18 — a 1.7% base rate running
     # undetected for two months. The master must never bank an unverified completion.
     # Fail-OPEN: a verifier crash degrades to the old behaviour, it never halts a fire.
     verdict = "SKIPPED"
