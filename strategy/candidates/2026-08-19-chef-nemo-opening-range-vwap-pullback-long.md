@@ -5,25 +5,18 @@
 
 # CANDIDATE: OPENING_RANGE_VWAP_PULLBACK_LONG
 
-**Filed:** 2026-08-24  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** new_trigger  
+**Filed:** 2026-08-24
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** new_trigger
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Early‑morning price often reverts to intraday VWAP after the initial imbalance, offering a high‑probability long when the pullback shows a bullish close and above‑average volume. The edge exists because the first 30 minutes frequently establish a temporary value area (the opening range) and subsequent mean‑reversion to VWAP captures institutional order flow that faded the initial gap or news‑driven move.
+A bullish rejection candlestick at VWAP within the opening range signals intraday support and a likely resumption of the morning bias. This captures short-term mean reversion within the established intraday trend, leveraging VWAP as dynamic support/resistance during the opening range period when institutional participation is highest.
 
 ## Mechanism
 
-1. **Opening range:** Compute ORH and ORL from the first 30 minutes (09:30‑10:00 ET).  
-2. **Entry window:** Between 09:45 and 10:15 ET, look for a bar where price touches the session VWAP.  
-3. **Filters:** The bar must close bullish (close > open) and its volume must exceed 1.5× the average volume of the first 15 minutes (09:30‑09:45 ET).  
-4. **Entry:** Enter long at the close of that bar.  
-5. **Initial stop:** The lower of (a) the opening range low (ORL) or (b) the bar’s low minus 0.5×ATR(5).  
-6. **Primary target:** Exit at 2× risk from entry.  
-7. **Runner:** If the target is hit, trail the remaining position with a chandelier exit (3×ATR(22)) from the highest high since entry.  
-8. **Regime filter:** Only consider trades when VIX < 20 and time is between 09:30‑11:30 ET; skip periods of scheduled high‑impact news (FOMC, CPI, NFP, mega‑cap earnings).
+Define opening_range as first 30‑min bars (09:30-10:00 ET); if price retouches VWAP (|price‑VWAP|/price < 0.001) after having deviated earlier in the OR, and the bar shows bullish engulfing (close > prior_open AND open < prior_close) OR a hammer (lower_wick >= 2*body AND close near high), and volume > average_volume_20bars then go long at bar close. Exit shape: Stop at opening_range_low (chart‑stop); exit half at 1.5R, let runner trail with a 15% trailing stop from high‑water mark. Regime hint: Works when VIX is moderate (15‑30) and opening gap is small (<0.2% of price); avoid the first 5 min after open to reduce noise.
 
 ## Expected impact on OP-16 anchors
 
@@ -39,24 +32,24 @@ Early‑morning price often reverts to intraday VWAP after the initial imbalance
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 contracts requires ~$25K+ account to fit the 50% per‑trade risk cap at typical entry premiums (~$1.00). A $1K paper account would realize ~14% of headline P&L (3‑contract minimum).  
-2. **Sample bias:** The hypothesis is derived from intraday price action observations; no historical sample has been vetted yet. High overfit risk until a Stage‑1 backtest on a representative out‑of‑sample window is performed.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test performed).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA fill simulation on the top‑3 J days).  
-5. **Failure modes:**  
-   - Worst day: a strong trend day where price never pulls back to VWAP, causing repeated missed entries and potential whipsaw if the regime filter fails.  
-   - Max drawdown: could exceed 30% of allocated capital if a sequence of losing trades occurs during low‑volume, choppy periods where the volume filter fails to reject noise.  
-   - Blow‑up scenario: entering on a false VWAP touch during a news‑driven spike, then reversing sharply, hitting the initial stop and the trailing runner stop in quick succession.  
-6. **Concentration:** Unknown until backtest completed; if the strategy relies on a few high‑volume reversal days, the top‑5 days could represent a large fraction of P&L (potentially >100%).  
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on 50% risk per trade and 3-contract minimum at $1K account size).
+2. **Sample bias:** Zero historical backtest conducted; proposal based solely on conceptual thesis. High overfit risk until validated.
+3. **Out-of-sample:** NEEDS-OOS (no OOS test performed).
+4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills validation on top 3 J days).
+5. **Failure modes:** 
+   - Worst day: repeated VWAP touches without follow-through causing multiple stopped losses
+   - Max drawdown: unknown without backtest; potential for consecutive losses in choppy OR conditions
+   - Blow-up scenario: strong directional move through OR low without VWAP reversion, triggering full stop on all contracts
+6. **Concentration:** unknown -- requires Stage-1 backtest (no data on P&L distribution).
 
 ## Pre-merge gate
 
-Needs a Stage‑1 backtest via the autoresearch grinder harness before any further ratification. The backtest must produce equity curves, trade logs, and OP‑16 anchor‑day performance for review.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-5/10 – The logic is plausible and aligns with common intraday mean‑reversion ideas, but without any empirical validation the confidence remains moderate. The regime filters (VIX < 20, time window) and volume/additional bullish‑close filter aim to improve selectivity, yet the true edge can only be measured after a Stage‑1 backtest.
+5 / 10 -- based on sound intraday structure logic but requiring empirical validation; no edge demonstration yet.
 
 ## Pre-existing leaderboard impact
 
-This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing volatility‑ or structure‑based candidates (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) because it operates on a different early‑morning window and uses VWAP as the retracement target rather than the opening range high/low. No known conflicts with current PROMISING or J‑RATIFIED candidates.
+This proposal introduces a new long-biased trigger mechanism. It does not directly conflict with existing candidates (which are predominantly watcher proposals, gates, or structural filters) but may compete for capital allocation with other long strategies. As a novel trigger type, it would be evaluated independently on its own merits.
