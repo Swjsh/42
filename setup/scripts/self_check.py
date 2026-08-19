@@ -653,6 +653,80 @@ def check_macro_calendar_freshness(now, news_path=None) -> list:
             f"`schtasks /query /tn Gamma_MacroCalendar /v`."]
 
 
+# ---- WEEKLY-1 EARNINGS-CALENDAR FRESHNESS (2026-08-18) --------------------------------
+# WEEKLY-OPTIONS-PROGRAM.md's "trusted earnings calendar" workstream: setup/scripts/
+# earnings_calendar.py is the sole guard against the weekly-options lane's single worst
+# NEW failure mode vs the core 0DTE SPY book -- holding a single-name option through an
+# earnings print, where IV crush loses money even when direction is right. That producer's
+# own written contract (automation/state/weekly/earnings-blackout.json#_fail_closed_contract)
+# already tells any consumer to treat the feed as BLOCKED for every non-exempt symbol when
+# the file is missing/stale -- this wires that SAME rule into the standing self_check alarm
+# surface so a dead producer can't rot unnoticed the way Gamma_MacroCalendar's did on
+# 2026-07-15 (check_macro_calendar_freshness above; this check deliberately mirrors that
+# one's shape and severity).
+#
+# RED (BROKEN), not DEGRADED, for the same reason as MACRO-CALENDAR STALE: a stale
+# earnings feed is a real trading-relevant gap for weekly-1's single-name symbols, not a
+# cosmetic staleness.
+#
+# The staleness threshold is read LIVE from weekly/params.json#entry.
+# earnings_feed_stale_hours_fail_closed -- single source of truth shared with the
+# producer's own fail-closed contract, never a hand-copied constant here (mirrors
+# check_pdt_status's _default_max_same_day_roundtrips "live-read, not hand-copied"
+# pattern) -- with a fail-open default of 48h (the value in place at build time) if that
+# key is itself unreadable, so a params-read failure degrades to a last-known-good number
+# rather than silencing the alarm or fabricating a stricter one.
+#
+# weekly-1 is shadow-only / paper-pending (no scheduled cadence exists yet for this
+# producer at build time) -- this check runs UNCONDITIONALLY (no weekday/RTH gate, unlike
+# most staleness checks in this file) so it is ready the moment a cadence is wired, rather
+# than silently waiting on a time window that may not match whatever cadence lands.
+EARNINGS_BLACKOUT_JSON = STATE / "weekly" / "earnings-blackout.json"
+WEEKLY_PARAMS_JSON = STATE / "weekly" / "params.json"
+_EARNINGS_FEED_STALE_HOURS_DEFAULT = 48.0  # last-known-good fallback if params.json is unreadable
+
+
+def check_earnings_calendar_freshness(now, path=None, params_path=None) -> list:
+    """VISIBILITY + FAIL-CLOSED alarm for the weekly-1 earnings-blackout feed. See the
+    module comment immediately above for the full rationale (mirrors
+    check_macro_calendar_freshness's shape/severity for the same reason: both gate a
+    real, undisclosed-until-now trading risk, not a cosmetic staleness).
+
+    Missing/unreadable file -> RED (fail-closed: an absent feed must never read as
+    'probably fine'). Unparseable generated_at_et -> RED (staleness undetectable, treat
+    as stale). Age beyond the live-read threshold -> RED. A fresh, parseable file ->
+    silent (no problem)."""
+    pp = params_path or WEEKLY_PARAMS_JSON
+    try:
+        params = json.loads(pp.read_text(encoding="utf-8"))
+        stale_hours = float(params["entry"]["earnings_feed_stale_hours_fail_closed"])
+    except Exception:  # noqa: BLE001
+        stale_hours = _EARNINGS_FEED_STALE_HOURS_DEFAULT
+
+    p = path or EARNINGS_BLACKOUT_JSON
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return [f"EARNINGS-CALENDAR MISSING/UNREADABLE (RED): {p.name} not found or not valid "
+                f"JSON -- per its own fail-closed contract, EVERY non-exempt weekly-1 single-"
+                f"name symbol must be treated as BLOCKED until this producer runs. Run "
+                f"setup/scripts/earnings_calendar.py."]
+    gen_at = d.get("generated_at_et")
+    try:
+        gen_dt = dt.datetime.fromisoformat(str(gen_at))
+    except (ValueError, TypeError):
+        return [f"EARNINGS-CALENDAR STALE (RED): {p.name} has no parseable generated_at_et "
+                f"({gen_at!r}) -- staleness undetectable, treat as stale (fail-closed)."]
+    age_h = (now - gen_dt).total_seconds() / 3600.0
+    if age_h > stale_hours:
+        return [f"EARNINGS-CALENDAR STALE (RED): {p.name} is {age_h:.1f}h old (fail-closed "
+                f"threshold {stale_hours:.0f}h, params.json#entry."
+                f"earnings_feed_stale_hours_fail_closed) -- per its own fail-closed contract, "
+                f"every non-exempt weekly-1 single-name symbol must be treated as BLOCKED "
+                f"until setup/scripts/earnings_calendar.py runs again."]
+    return []
+
+
 # ---- PRIOR-TRADING-DAY DARK (2026-07-24) -----------------------------------------------
 # The 2026-07-15 scar (see _calendar_staleness above) was diagnosed as ONE producer
 # (Gamma_MacroCalendar) missing its fire because an overnight event left no interactive
@@ -1556,6 +1630,12 @@ def run() -> dict:
     # it to STATUS.md/Discord (context_bundle_producer's calendar_stale flag is LOGGED ONLY).
     # Standing instrument now, so a future miss (any cause) can't rot silently either.
     problems.extend(check_macro_calendar_freshness(now))
+
+    # 12a. WEEKLY-1 EARNINGS-CALENDAR FRESHNESS -- same shape/severity as #12, for the
+    # weekly-options lane's earnings-blackout feed (setup/scripts/earnings_calendar.py).
+    # A stale/missing feed means single-name entries can't be verified against an
+    # earnings print -- the lane's single worst new IV-crush failure mode.
+    problems.extend(check_earnings_calendar_freshness(now))
 
     # 12b. PRIOR-TRADING-DAY DARK -- the 2026-07-24 scar: unlike every other check above
     # (scoped to "today"), this looks BACKWARD at the most recently completed trading day so

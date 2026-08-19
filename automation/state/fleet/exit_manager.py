@@ -221,6 +221,21 @@ class ExitState:
     ribbon_flip_streak: int = 0          # consecutive flipped ticks seen PRE-TP1
     pre_tp1_trail_arm_pct: Optional[float] = None
     pre_tp1_trail_pct: Optional[float] = None
+    # THETA BUDGET (2026-08-18, weekly-options multi-day exit management workstream --
+    # appended last for positional compatibility, exactly like every prior additive field
+    # above). PURELY INFORMATIONAL/PASS-THROUGH from this file's point of view: nothing in
+    # plan_exit_actions below reads or writes these two fields, and no ExitShape/exit_shape
+    # dict key feeds them at from_entry -- every position, SPY or weekly, is born with
+    # theta_budget_hit=False/theta_budget_reason="". They exist so a CALLER-SIDE wrapper
+    # (automation/state/weekly/weekly_exit_gate.py -- a multi-day theta-decay check
+    # exit_manager itself has no concept of, and never will: this file stays symbol- and
+    # hold-duration-agnostic by design, see module docstring) can persist ITS OWN decision
+    # onto the shared ExitState record via dataclasses.replace, so the reason a weekly
+    # position closed survives a missed tick / process restart the same way tp1_filled or
+    # profit_lock_armed do. Guard (proves this file's own walk is byte-identical whether or
+    # not a caller has set these): backtest/tests/test_exit_manager_additive_fields_inert.py.
+    theta_budget_hit: bool = False
+    theta_budget_reason: str = ""
 
     @staticmethod
     def from_entry(*, symbol: str, side: str, entry_premium: float, qty: int,
@@ -319,6 +334,8 @@ class ExitState:
             "ribbon_flip_streak": self.ribbon_flip_streak,
             "pre_tp1_trail_arm_pct": self.pre_tp1_trail_arm_pct,
             "pre_tp1_trail_pct": self.pre_tp1_trail_pct,
+            "theta_budget_hit": self.theta_budget_hit,
+            "theta_budget_reason": self.theta_budget_reason,
         }
 
     @staticmethod
@@ -364,6 +381,10 @@ class ExitState:
             pre_tp1_trail_pct=(
                 None if d.get("pre_tp1_trail_pct") is None
                 else float(d["pre_tp1_trail_pct"])),
+            # absent on any pre-2026-08-18 record -> False/"", the exact legacy (inert)
+            # behavior -- see the dataclass field comment above.
+            theta_budget_hit=bool(d.get("theta_budget_hit", False)),
+            theta_budget_reason=str(d.get("theta_budget_reason", "")),
         )
 
 

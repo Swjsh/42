@@ -125,12 +125,51 @@ class OptionBar:
     trade_count: int
 
 
-def option_symbol(trade_date: dt.date, strike: int, side: str) -> str:
-    """Build OCC option symbol: SPY{YYMMDD}{C|P}{strike*1000:08d}."""
+def option_symbol(trade_date: dt.date, strike: int, side: str, root: str = "SPY") -> str:
+    """Build a real-world (broker/vendor) OCC option symbol:
+    {ROOT}{YYMMDD}{C|P}{strike*1000:08d}.
+
+    GENERALIZED 2026-08-18 (markdown/planning/WEEKLY-OPTIONS-PROGRAM.md §5 "New" -- the
+    weekly-options lane trades GLD/QQQ/NVDA/TSLA/AAPL, not just SPY) from the original
+    hardcoded `f"SPY{yymmdd}{s}{strike*1000:08d}"`. `root` is a NEW keyword parameter
+    defaulting to "SPY", so every existing 3-positional-arg call site (~250 across this
+    codebase) is byte-identical to before -- pinned by
+    test_option_symbol_multi_root_2026_08_18.py against the two independently-known-good
+    strings already asserted elsewhere in this repo:
+    test_bull_gate_f5class_requal_2026_08_01.py's "SPY260731C00746000" and the WINTER_OPRA
+    cache filename in test_et_frame_guards.py ("SPY250102C00580000").
+
+    ROOT-PADDING CORRECTNESS NOTE: the formally published OCC "Options Symbology
+    Initiative" spec pads the root LEFT-JUSTIFIED to a fixed 6 characters (blank-filled)
+    inside a rigid 21-character field. Real brokers/vendors -- Alpaca (this shop's
+    broker), OPRA, and WeBull (verified against J's own real historical fills,
+    analysis/webull-j-trades/j_roundtrips.json, e.g. "TSLA210611C00620000",
+    "NVDA210618C00795000", "AAPL211119C00152500" -- all UNPADDED, variable total length)
+    -- never emit that space padding; they concatenate the root at its NATURAL length
+    directly against YYMMDD. This function matches the VENDOR convention (what Alpaca
+    actually returns, and what this codebase's CSV cache is keyed by), not the padded
+    spec -- both because (a) it must match real broker/CSV-cache symbols, and (b) padding
+    would break the "SPY output byte-identical to before" backward-compat requirement
+    above (padded "SPY   " is a different string than unpadded "SPY"). This is also WHY
+    the 4 duplicate SPY-prefix parse sites flagged in WEEKLY-OPTIONS-PROGRAM.md §5
+    (e.g. setup/scripts/atomic_bracket_guard.py's hardcoded `symbol[9]` side lookup) are
+    wrong for 4-char roots -- the side character sits at a root-length-DEPENDENT index,
+    never a fixed one. NOT fixed in this file (outside this workstream's file ownership
+    for this build) -- flagged for whichever workstream owns those 4 sites.
+
+    `root` is validated to 1-6 alphanumeric characters (the OSI field's real width cap)
+    and upper-cased for consistency with SPY/GLD/QQQ/NVDA/TSLA/AAPL's own convention, via
+    an assert -- matching this function's pre-existing `side` validation idiom, not a
+    silent clamp or truncation.
+    """
     yymmdd = trade_date.strftime("%y%m%d")
     s = side.upper()
     assert s in ("C", "P"), f"side must be C or P, got {side}"
-    return f"SPY{yymmdd}{s}{int(round(strike)) * 1000:08d}"
+    root_u = root.upper()
+    assert root_u.isalnum() and 1 <= len(root_u) <= 6, (
+        f"root must be 1-6 alphanumeric characters (OSI root field width), got {root!r}"
+    )
+    return f"{root_u}{yymmdd}{s}{int(round(strike)) * 1000:08d}"
 
 
 def load_contract_bars(
