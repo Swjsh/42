@@ -157,6 +157,41 @@ premiums, not a rounding artifact.
 > one; the median-extrapolation understated the cost by ~16% because larger exits carry
 > proportionally more slippage and medians discard that.
 
+### ⚠️ Artifact hunt on the slippage number — it is a RANGE, not a point
+
+Before that cost figure stood, I checked whether the buy/sell asymmetry was uniform. **It is
+not**, and the uniform application above overstates it:
+
+| arm | BUY med | SELL med | one-sided gap | slip/contract |
+|---|---:|---:|---:|---:|
+| risky-1 | 0.652 | 0.551 | 0.203 | $0.0162 |
+| safe-3 | 0.800 | 0.375 | 0.175 | $0.0140 |
+| safe-2 | 0.750 | 0.399 | 0.149 | $0.0119 |
+| bold-2 | 0.654 | 0.444 | 0.098 | $0.0078 |
+| **risky-3** | 0.500 | 0.500 | **0.000** | **$0.0000** |
+
+**risky-3 — the largest arm by trade count — shows no measurable exit optimism at all.**
+Applying per-arm gaps instead of a uniform 0.129:
+
+| method | book |
+|---|---:|
+| uniform 0.129 gap | −$3,677 |
+| **per-arm measured gaps** | **−$3,362** |
+
+So the honest cost-realistic book is a **range of roughly −$3,360 to −$3,680**, not a point.
+Under per-arm slippage risky-3's margin narrows to **−0.8pp** — the closest any arm gets to its
+own breakeven anywhere in this analysis.
+
+**Do not over-read risky-3.** Its per-side samples are small (n=15 buys / 17 sells) and a median
+of exactly 0.500 on *both* sides is the kind of too-clean number that usually means thin data,
+not a genuinely different execution path. Per-arm gaps generally rest on n=8–28 per side. The
+aggregate asymmetry is well supported (4 of 5 arms, and the BUY control behaves exactly as
+spread-crossing predicts); the per-arm decomposition is indicative only.
+
+**I stopped refining here.** Further precision on this number does not change any decision: at
+−$3.4K to −$3.7K with every arm 1–7pp under breakeven and no expectancy distinguishable from
+zero, the answer is the same.
+
 **The conclusion does not change: still near-misses, still not statistically distinguishable
 from zero, still not ready.** But "how near" is now honestly ~3–7pp rather than ~1–5pp.
 
