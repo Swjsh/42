@@ -120,19 +120,38 @@ until a signal variant clears the null gate. The account is the last step, not t
 
 ---
 
-## 🔭 Where I'd go next (ranked, with reasons)
+## 🔭 Where I'd go next — the diagnosis is now CLOSED
 
-1. **Timeframe mismatch** — the trigger fires on a *1-hour* structure shift to justify a
-   *multi-day* hold. That's the most likely single cause of the failure. Test a daily-bar trigger.
-2. **Zone quality needs a different measure** — confluence is proven dead (ρ=−0.05, p=0.23; my
-   earlier "it ranks backwards" read was noise from n=57, corrected in the record). If quality
-   matters it needs untouched-level age or volume-at-level, not a count of nearby zones.
-3. **Is it detecting volatility rather than direction?** ~50/50 direction split, both losing. If
-   so the correct expression is non-directional — which this lane deliberately doesn't trade.
-4. **`structure_hh_hl_lh_ll` produced zero signals** on both symbols. Unexplained; one hour of
-   inspection before trusting the five-family design.
+After the first verdict I ranked four hypotheses. **Two were tested overnight and both are
+dead**, which changes the conclusion from "needs tuning" to "this signal family is finished":
 
----
+1. ~~**Timeframe mismatch** (1H trigger for a multi-day hold)~~ → **REFUTED.** Scaled the design
+   up one step (zones WEEKLY, trigger DAILY) over 8 symbols / 129 paired signals. It got
+   *worse*: −23.5% vs −8.1%, and the right tail **shrank on every arm** (23.4%→17.1%). Slowing
+   the trigger moves away from the only thing that pays.
+2. ~~**Detecting volatility rather than direction**~~ → **TESTED, and the answer is neither.**
+   On underlying bars across 9 symbols: pooled absolute-move lift +5.2%/−2.4%/−0.9% at 1/3/5
+   days, direction hit rate 49.9–51.4%, and **0 of 9 symbols significant on direction**. The
+   trigger carries no directional information *and* no magnitude information.
+
+**⚠️ A correction I caught on myself, worth your attention.** On 2 symbols that volatility test
+looked decisive (+24%/+18%/+24% move lift) and I had already written it up as "a volatility
+detector wearing a directional costume." Widening from 2 symbols to 9 killed it — the whole
+effect was **GLD, alone**, dominating a two-symbol average. Had I stopped at the first result,
+the next session would have built straddle machinery to express an edge that does not exist.
+
+**What survives as genuinely interesting:** GLD *specifically* shows a +33.5% absolute-move lift
+at 3 days with p=0.0012, which survives Bonferroni across the nine tests. That is one name, not
+a strategy — but it is the one thread here worth pulling.
+
+**What is NOT worth another run:** more expiry variants, more DTE tuning, more zone families
+bolted onto this trigger. Five independent cuts of the data now agree the trigger itself is the
+problem.
+
+**The real next step is a design decision, not a build:** this lane needs a *different signal
+hypothesis*, and picking one is a judgment call I'd rather make with you than guess at
+overnight. The apparatus to test any candidate now exists and is proven — the next idea can be
+evaluated in a single session instead of a night.
 
 ## 📁 Where everything lives
 
@@ -142,6 +161,7 @@ until a signal variant clears the null gate. The account is the last step, not t
 - Sector + liquidity screens: `analysis/sector-heat/2026-08-18.json`, `analysis/weekly-lane/universe-liquidity-screen.json`
 - Commits: `e4f949ca` `b89e5f6c` `68c0e239` `a346f111` `031094a7` `8992d743` `0d7fe5a1` `8295f376` `1136bed0`
 
-**Bottom line: the lane is not dead — the v1 signal is. We spent the night building the
-apparatus that can tell the difference, and it earned its keep on day one by refusing to let a
-losing strategy look promising.**
+**Bottom line: the lane is not dead — the v1 signal is, conclusively. We spent the night
+building the apparatus that can tell the difference, and it earned its keep twice: once by
+refusing to let a losing strategy look promising, and once by catching a wrong conclusion of
+mine before it became the next session's build plan.**
