@@ -62,7 +62,7 @@ SPY/NVDA/AAPL/TSLA tier. **Breadth is limited by liquidity, not by ideas.**
 
 ---
 
-## 🐛 Six real bugs caught, all fixed and guarded
+## 🐛 Seven real bugs caught
 
 Worth knowing because several would have silently corrupted results:
 
@@ -77,6 +77,14 @@ Worth knowing because several would have silently corrupted results:
 5. **IV solver fabricated vols** — the bisection's early return bypassed the identifiability
    guard on the *common* path; a contract with no vol information solved "successfully."
 6. **Paper keys 401 against the live API host** (contracts endpoint needs `paper-api`).
+7. **The confluence score was double-counting itself** — and this one matters most for any
+   rebuild. The `structure_hh_hl_lh_ll` zone family emits the price of a *broken swing*, which
+   **is** a swing price — so 100% of its zones duplicate a `swing_high_low` zone (QQQ 15/15,
+   GLD 10/10, NVDA 17/17). Two effects: it could never win signal attribution (so the
+   per-family analysis conflates the two), and **every broken level got a free +1 confluence**
+   representing no real corroboration. The bias isn't random — it lands on *broken* levels,
+   arguably the weaker ones. That is very likely why confluence measured nothing: not a dead
+   knob, but a knob wired to a self-double-counting input. It cannot be re-tested until fixed.
 
 ---
 
