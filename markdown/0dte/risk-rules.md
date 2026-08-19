@@ -296,3 +296,27 @@ kill switch and risk cap are per-account and isolated, which is correct in itsel
 why nothing bounds the aggregate. `setup/scripts/book_exposure.py` measures and judges it
 (default cap 25% of book equity, calibrated so it would not have bound any historical entry —
 observed peak was 18.7%). Wiring it into the entry paths is a separate change.
+
+### EOD flatten — coverage fixed 2026-08-18, with a same-day near-miss on record
+
+Two gaps, both invisible on paper and account-ending live (SPY options settle **physically** —
+an unclosed ITM 0DTE is assigned ~100 shares/contract, roughly $77,000 against a ~$5,000
+account):
+
+1. **`eod_flatten.py` covered only `safe-2` and `bold-2`.** The three fleet arms are separate
+   real accounts taking real 0DTE positions, and `fleet_eod.py` exists but is scheduled
+   **nowhere** (verified against the live Task Scheduler, not the docs). The roster is now
+   derived from the fleet registry, so all five are covered and a new arm is covered the
+   moment it is registered.
+2. **A 3×-failed flatten escalated nowhere.** The code set `outcome="PARTIAL_FILL_ESCALATION"`
+   and stopped; the kill-switch write and Discord ping lived only in
+   `automation/prompts/eod-flatten.md`, which `eod_flatten.py`'s own docstring demotes to
+   "a verbose-confirmation fallback (NOT the execution path)". It now writes
+   `kill-switch-{arm}.json` and a loud `STATUS.md` line.
+
+**Same-day corroboration, not hypothetical.** On 2026-08-18 the LLM-based
+`run-eod-flatten-aggressive.ps1` **timed out (exit 124) at 15:55–15:57 ET** — precisely its
+flatten window. It was harmless only because both open positions had already exited at
+15:01 and 15:03. Had either run to 15:50, the LLM path would have failed, and before this fix
+the fleet arms had no Python fallback at all. That is the fragility the pure-Python path was
+built to replace, observed live on the same day the gap was found.
