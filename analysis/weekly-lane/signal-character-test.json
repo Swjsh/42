@@ -1,0 +1,408 @@
+{
+  "test": "signal_character_volatility_vs_direction",
+  "signals_source": "analysis/weekly-lane/signal-density-probe.json",
+  "_reading": "abs-move lift with p<0.05 = the trigger carries MAGNITUDE information. signed-move at baseline with direction hit rate ~50% = it carries NO DIRECTION information. Both together = a volatility detector, and every directional expression of it must lose the spread and theta.",
+  "pooled_by_horizon": {
+    "1d": {
+      "symbols": 9,
+      "mean_abs_lift_pct": 5.2,
+      "symbols_with_abs_p_lt_05": 2,
+      "symbols_with_signed_p_lt_05": 0,
+      "mean_direction_hit_rate_pct": 51.4
+    },
+    "3d": {
+      "symbols": 9,
+      "mean_abs_lift_pct": -2.4,
+      "symbols_with_abs_p_lt_05": 1,
+      "symbols_with_signed_p_lt_05": 0,
+      "mean_direction_hit_rate_pct": 51.0
+    },
+    "5d": {
+      "symbols": 9,
+      "mean_abs_lift_pct": -0.9,
+      "symbols_with_abs_p_lt_05": 1,
+      "symbols_with_signed_p_lt_05": 0,
+      "mean_direction_hit_rate_pct": 49.9
+    }
+  },
+  "per_symbol": [
+    {
+      "symbol": "GLD",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 84,
+          "n_baseline": 899,
+          "abs_move_signal": 1.276,
+          "abs_move_baseline": 0.887,
+          "abs_move_lift_pct": 43.9,
+          "p_abs_greater": 0.0001,
+          "signed_move_signal": -0.032,
+          "signed_move_baseline": 0.098,
+          "p_signed_greater": 0.9571,
+          "direction_hit_rate_pct": 41.7
+        },
+        "3d": {
+          "n_signals": 83,
+          "n_baseline": 897,
+          "abs_move_signal": 2.064,
+          "abs_move_baseline": 1.546,
+          "abs_move_lift_pct": 33.5,
+          "p_abs_greater": 0.0012,
+          "signed_move_signal": -0.143,
+          "signed_move_baseline": 0.295,
+          "p_signed_greater": 0.9818,
+          "direction_hit_rate_pct": 45.8
+        },
+        "5d": {
+          "n_signals": 81,
+          "n_baseline": 895,
+          "abs_move_signal": 2.739,
+          "abs_move_baseline": 2.016,
+          "abs_move_lift_pct": 35.8,
+          "p_abs_greater": 0.0001,
+          "signed_move_signal": -0.334,
+          "signed_move_baseline": 0.49,
+          "p_signed_greater": 0.9914,
+          "direction_hit_rate_pct": 46.9
+        }
+      }
+    },
+    {
+      "symbol": "QQQ",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 87,
+          "n_baseline": 899,
+          "abs_move_signal": 0.972,
+          "abs_move_baseline": 0.925,
+          "abs_move_lift_pct": 5.0,
+          "p_abs_greater": 0.1955,
+          "signed_move_signal": 0.228,
+          "signed_move_baseline": 0.112,
+          "p_signed_greater": 0.3008,
+          "direction_hit_rate_pct": 55.2
+        },
+        "3d": {
+          "n_signals": 87,
+          "n_baseline": 897,
+          "abs_move_signal": 1.684,
+          "abs_move_baseline": 1.647,
+          "abs_move_lift_pct": 2.3,
+          "p_abs_greater": 0.1801,
+          "signed_move_signal": 0.233,
+          "signed_move_baseline": 0.344,
+          "p_signed_greater": 0.6855,
+          "direction_hit_rate_pct": 52.9
+        },
+        "5d": {
+          "n_signals": 85,
+          "n_baseline": 895,
+          "abs_move_signal": 2.41,
+          "abs_move_baseline": 2.147,
+          "abs_move_lift_pct": 12.3,
+          "p_abs_greater": 0.105,
+          "signed_move_signal": 0.004,
+          "signed_move_baseline": 0.568,
+          "p_signed_greater": 0.9751,
+          "direction_hit_rate_pct": 50.6
+        }
+      }
+    },
+    {
+      "symbol": "IWM",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 101,
+          "n_baseline": 899,
+          "abs_move_signal": 0.92,
+          "abs_move_baseline": 1.006,
+          "abs_move_lift_pct": -8.6,
+          "p_abs_greater": 0.6233,
+          "signed_move_signal": -0.121,
+          "signed_move_baseline": 0.061,
+          "p_signed_greater": 0.8832,
+          "direction_hit_rate_pct": 50.5
+        },
+        "3d": {
+          "n_signals": 100,
+          "n_baseline": 897,
+          "abs_move_signal": 1.572,
+          "abs_move_baseline": 1.654,
+          "abs_move_lift_pct": -4.9,
+          "p_abs_greater": 0.5941,
+          "signed_move_signal": -0.262,
+          "signed_move_baseline": 0.191,
+          "p_signed_greater": 0.9881,
+          "direction_hit_rate_pct": 44.0
+        },
+        "5d": {
+          "n_signals": 99,
+          "n_baseline": 895,
+          "abs_move_signal": 2.003,
+          "abs_move_baseline": 2.16,
+          "abs_move_lift_pct": -7.3,
+          "p_abs_greater": 0.6023,
+          "signed_move_signal": -0.076,
+          "signed_move_baseline": 0.316,
+          "p_signed_greater": 0.9492,
+          "direction_hit_rate_pct": 43.4
+        }
+      }
+    },
+    {
+      "symbol": "XOM",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 96,
+          "n_baseline": 899,
+          "abs_move_signal": 1.265,
+          "abs_move_baseline": 1.152,
+          "abs_move_lift_pct": 9.8,
+          "p_abs_greater": 0.1696,
+          "signed_move_signal": 0.201,
+          "signed_move_baseline": 0.054,
+          "p_signed_greater": 0.1797,
+          "direction_hit_rate_pct": 56.2
+        },
+        "3d": {
+          "n_signals": 94,
+          "n_baseline": 897,
+          "abs_move_signal": 2.086,
+          "abs_move_baseline": 2.055,
+          "abs_move_lift_pct": 1.5,
+          "p_abs_greater": 0.3304,
+          "signed_move_signal": 0.303,
+          "signed_move_baseline": 0.16,
+          "p_signed_greater": 0.3458,
+          "direction_hit_rate_pct": 57.4
+        },
+        "5d": {
+          "n_signals": 94,
+          "n_baseline": 895,
+          "abs_move_signal": 2.893,
+          "abs_move_baseline": 2.675,
+          "abs_move_lift_pct": 8.2,
+          "p_abs_greater": 0.2196,
+          "signed_move_signal": 0.541,
+          "signed_move_baseline": 0.259,
+          "p_signed_greater": 0.2275,
+          "direction_hit_rate_pct": 57.4
+        }
+      }
+    },
+    {
+      "symbol": "CVX",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 101,
+          "n_baseline": 899,
+          "abs_move_signal": 1.18,
+          "abs_move_baseline": 1.074,
+          "abs_move_lift_pct": 9.9,
+          "p_abs_greater": 0.0369,
+          "signed_move_signal": 0.218,
+          "signed_move_baseline": 0.025,
+          "p_signed_greater": 0.1023,
+          "direction_hit_rate_pct": 63.4
+        },
+        "3d": {
+          "n_signals": 101,
+          "n_baseline": 897,
+          "abs_move_signal": 1.921,
+          "abs_move_baseline": 1.95,
+          "abs_move_lift_pct": -1.5,
+          "p_abs_greater": 0.5558,
+          "signed_move_signal": 0.246,
+          "signed_move_baseline": 0.075,
+          "p_signed_greater": 0.3816,
+          "direction_hit_rate_pct": 55.4
+        },
+        "5d": {
+          "n_signals": 100,
+          "n_baseline": 895,
+          "abs_move_signal": 2.558,
+          "abs_move_baseline": 2.473,
+          "abs_move_lift_pct": 3.4,
+          "p_abs_greater": 0.1158,
+          "signed_move_signal": 0.229,
+          "signed_move_baseline": 0.116,
+          "p_signed_greater": 0.415,
+          "direction_hit_rate_pct": 54.0
+        }
+      }
+    },
+    {
+      "symbol": "SPY",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 90,
+          "n_baseline": 899,
+          "abs_move_signal": 0.666,
+          "abs_move_baseline": 0.657,
+          "abs_move_lift_pct": 1.4,
+          "p_abs_greater": 0.4011,
+          "signed_move_signal": -0.023,
+          "signed_move_baseline": 0.077,
+          "p_signed_greater": 0.9094,
+          "direction_hit_rate_pct": 47.8
+        },
+        "3d": {
+          "n_signals": 90,
+          "n_baseline": 897,
+          "abs_move_signal": 1.098,
+          "abs_move_baseline": 1.175,
+          "abs_move_lift_pct": -6.6,
+          "p_abs_greater": 0.7007,
+          "signed_move_signal": -0.158,
+          "signed_move_baseline": 0.239,
+          "p_signed_greater": 0.9975,
+          "direction_hit_rate_pct": 48.9
+        },
+        "5d": {
+          "n_signals": 89,
+          "n_baseline": 895,
+          "abs_move_signal": 1.487,
+          "abs_move_baseline": 1.519,
+          "abs_move_lift_pct": -2.1,
+          "p_abs_greater": 0.5152,
+          "signed_move_signal": -0.122,
+          "signed_move_baseline": 0.396,
+          "p_signed_greater": 0.9986,
+          "direction_hit_rate_pct": 44.9
+        }
+      }
+    },
+    {
+      "symbol": "NVDA",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 90,
+          "n_baseline": 899,
+          "abs_move_signal": 1.681,
+          "abs_move_baseline": 2.29,
+          "abs_move_lift_pct": -26.6,
+          "p_abs_greater": 0.9726,
+          "signed_move_signal": 0.001,
+          "signed_move_baseline": 0.225,
+          "p_signed_greater": 0.8508,
+          "direction_hit_rate_pct": 51.1
+        },
+        "3d": {
+          "n_signals": 89,
+          "n_baseline": 897,
+          "abs_move_signal": 3.041,
+          "abs_move_baseline": 4.203,
+          "abs_move_lift_pct": -27.6,
+          "p_abs_greater": 0.9815,
+          "signed_move_signal": -0.085,
+          "signed_move_baseline": 0.685,
+          "p_signed_greater": 0.9786,
+          "direction_hit_rate_pct": 50.6
+        },
+        "5d": {
+          "n_signals": 87,
+          "n_baseline": 895,
+          "abs_move_signal": 3.648,
+          "abs_move_baseline": 5.525,
+          "abs_move_lift_pct": -34.0,
+          "p_abs_greater": 0.9997,
+          "signed_move_signal": -0.819,
+          "signed_move_baseline": 1.094,
+          "p_signed_greater": 0.9997,
+          "direction_hit_rate_pct": 41.4
+        }
+      }
+    },
+    {
+      "symbol": "AAPL",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 102,
+          "n_baseline": 899,
+          "abs_move_signal": 1.287,
+          "abs_move_baseline": 1.122,
+          "abs_move_lift_pct": 14.8,
+          "p_abs_greater": 0.2095,
+          "signed_move_signal": 0.03,
+          "signed_move_baseline": 0.105,
+          "p_signed_greater": 0.827,
+          "direction_hit_rate_pct": 48.0
+        },
+        "3d": {
+          "n_signals": 101,
+          "n_baseline": 897,
+          "abs_move_signal": 2.19,
+          "abs_move_baseline": 2.152,
+          "abs_move_lift_pct": 1.8,
+          "p_abs_greater": 0.7029,
+          "signed_move_signal": 0.017,
+          "signed_move_baseline": 0.318,
+          "p_signed_greater": 0.788,
+          "direction_hit_rate_pct": 51.5
+        },
+        "5d": {
+          "n_signals": 101,
+          "n_baseline": 895,
+          "abs_move_signal": 2.918,
+          "abs_move_baseline": 2.905,
+          "abs_move_lift_pct": 0.5,
+          "p_abs_greater": 0.4156,
+          "signed_move_signal": 0.177,
+          "signed_move_baseline": 0.521,
+          "p_signed_greater": 0.7867,
+          "direction_hit_rate_pct": 52.5
+        }
+      }
+    },
+    {
+      "symbol": "TSLA",
+      "n_sessions": 900,
+      "horizons": {
+        "1d": {
+          "n_signals": 91,
+          "n_baseline": 899,
+          "abs_move_signal": 2.588,
+          "abs_move_baseline": 2.662,
+          "abs_move_lift_pct": -2.8,
+          "p_abs_greater": 0.3395,
+          "signed_move_signal": 0.088,
+          "signed_move_baseline": 0.171,
+          "p_signed_greater": 0.6367,
+          "direction_hit_rate_pct": 48.4
+        },
+        "3d": {
+          "n_signals": 91,
+          "n_baseline": 897,
+          "abs_move_signal": 3.782,
+          "abs_move_baseline": 4.725,
+          "abs_move_lift_pct": -19.9,
+          "p_abs_greater": 0.9784,
+          "signed_move_signal": 0.304,
+          "signed_move_baseline": 0.521,
+          "p_signed_greater": 0.5913,
+          "direction_hit_rate_pct": 52.7
+        },
+        "5d": {
+          "n_signals": 90,
+          "n_baseline": 895,
+          "abs_move_signal": 4.651,
+          "abs_move_baseline": 6.185,
+          "abs_move_lift_pct": -24.8,
+          "p_abs_greater": 0.9956,
+          "signed_move_signal": 1.075,
+          "signed_move_baseline": 0.851,
+          "p_signed_greater": 0.2769,
+          "direction_hit_rate_pct": 57.8
+        }
+      }
+    }
+  ]
+}

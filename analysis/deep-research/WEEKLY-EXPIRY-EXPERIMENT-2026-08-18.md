@@ -265,3 +265,60 @@ The surviving hypotheses, re-ranked after this result:
 **What is NOT worth another run:** more expiry variants, more DTE tuning, more zone families
 bolted onto the same trigger. The trigger itself is the thing under suspicion, and three
 independent cuts of the data now agree.
+
+---
+
+# FINAL CHARACTERIZATION — the trigger detects NOTHING (and a correction I caught on myself)
+
+The remaining hypothesis after the expiry experiment (moot) and the timeframe variant (refuted)
+was: *the trigger detects VOLATILITY, not DIRECTION.* Tested directly on underlying bars alone —
+no options, no fills, no modeling — by comparing each signal's forward move against the
+unconditional baseline of all sessions.
+
+## The correction, stated first because I nearly published the wrong answer
+
+Run on **2 symbols (GLD+QQQ)** the result looked decisive: **+24.4% / +17.9% / +24.0%** absolute
+move lift at 1/3/5 days with a ~48% direction hit rate. That reads exactly like a clean
+volatility detector, and it was written up as one.
+
+Run on **9 symbols**, it disappears:
+
+| pooled | 1d | 3d | 5d |
+|---|---|---|---|
+| mean abs-move lift | **+5.2%** | **−2.4%** | **−0.9%** |
+| symbols with p<0.05 (abs) | 2 / 9 | 1 / 9 | 1 / 9 |
+| symbols with p<0.05 (signed) | 0 / 9 | 0 / 9 | 0 / 9 |
+| direction hit rate | 51.4% | 51.0% | 49.9% |
+
+Per-symbol at 3 days: **GLD +33.5% (p=0.0012)**, and then IWM −4.9%, SPY −6.6%, TSLA −19.9%,
+NVDA −27.6%, with QQQ/XOM/CVX/AAPL all within ±2.3% of baseline and none significant.
+
+**The volatility effect was GLD, and GLD alone, dominating a two-symbol average.** One name out
+of nine is not a property of the trigger. (GLD's own effect does survive a Bonferroni correction
+across the nine tests — 0.0012 × 9 = 0.011 — so it is plausibly real *for GLD*, and is the one
+thread here worth a follow-up. It is not a strategy.)
+
+## The actual verdict
+
+**The level-interaction + structure-shift trigger carries no information about direction AND no
+information about magnitude.** It is not a mis-expressed volatility signal that needs a
+straddle. It is noise, and every cut of the data now agrees:
+
+1. All four expiry arms lose and fail the null gate.
+2. Slowing the trigger to a daily timeframe makes it *worse* and thins the right tail.
+3. Stratified by zone family, direction, symbol, and confluence — uniformly unprofitable.
+4. Confluence, the built-in quality score, is statistically dead (ρ=−0.05, p=0.23).
+5. And now: no forward-move edge of any kind, on 9 symbols across 3 horizons.
+
+This closes the diagnosis. The v1 signal family is done — not "needs tuning," done.
+
+## Why this correction matters more than the result
+
+The 2-symbol read was not a rounding error; it was a confident, mechanistically plausible
+conclusion ("volatility detector wearing a directional costume") that would have sent the next
+session building straddle machinery to express an edge that does not exist. It survived one
+round of scrutiny and died on the second, purely because the sample was widened from 2 names to
+9. **The lesson is the shop's own C4 in a new costume: a small-N average is not an effect.**
+
+Filed as a lesson candidate: *before characterizing what a signal IS, widen the symbol sample —
+a single idiosyncratic name can manufacture a clean-looking mechanism across an entire study.*
