@@ -1181,6 +1181,13 @@ def finalize(
     prior_stops_today: Sequence[str],
     params: Mapping[str, Any],
     account_label: str,
+    # FLEET SETTLEMENT GATE (2026-08-18, RULE-ENGINE-ALIGNMENT-2026-08-18.md fix):
+    # this arm's OWN settlement_ledger.py status (fleet_live.run() computes it per-arm
+    # and threads it through decide_arm -> here). Default None = every OTHER existing
+    # caller (run_dry, every pre-existing test) is byte-identical -- see the gate block
+    # below for the full double-gate contract.
+    settled_cash_available: Any = None,
+    same_day_entries_used: Any = None,
 ) -> ArmDecision:
     """Run the shared risk gate over an ENTER plan; HOLD plans pass through."""
     if plan.action == "HOLD":
@@ -1254,6 +1261,70 @@ def finalize(
                 and _prem_f < _b_below and _b_qty > _boosted_qty):
             _boosted_qty = _b_qty
     _qty, _shrink_note = _shrink_qty_to_affordable(_boosted_qty, equity, premium, _fleet_params)
+    # FLEET SETTLEMENT GATE (2026-08-18, RULE-ENGINE-ALIGNMENT-2026-08-18.md fix) --------
+    # Gives fleet BOTH protections core has and fleet lacked: a pre-order settled-cash
+    # check (Rule 7) and a same-day entries-per-day cap -- WITHOUT flipping pdt_gate_mode
+    # away from margin_pdt (that stays pinned above, unchanged -- flipping it is a
+    # separate, J-owned decision; see this function's own BLAST-RADIUS GUARD comment).
+    # Calls risk_gate.check_settlement -- the SAME pure function check_order's own
+    # cash_settlement branch calls -- directly, independent of pdt_gate_mode, so there
+    # is exactly ONE settlement implementation (L184 "one implementation" doctrine).
+    #
+    # DOUBLE-GATED, both independently required (so this is a byte-identical no-op for
+    # every OTHER existing caller of finalize()):
+    #   1. params.fleet_settlement_gate_enabled must be True. CURRENT VALUE: True in
+    #      BOTH live config files (automation/state/params.json, automation/state/
+    #      aggressive/params.json) as of this fix, so all 3 fleet arms (safe-3, risky-1,
+    #      risky-3) run the gate starting now. ONE-LINE REVERT: set
+    #      fleet_settlement_gate_enabled to false (or delete the key) in BOTH files.
+    #   2. The caller must actually supply settled_cash_available (not None) -- i.e. have
+    #      wired a real ledger read. fleet_live.py's run() does this (per-arm, via its own
+    #      settlement_ledger.py ledger -- ledger_path's new fleet-arm branch, isolated
+    #      from core and from every other arm); fleet_executor.run_dry() (the CLI/
+    #      backtest-console path) and every pre-existing test call site do NOT pass these
+    #      two kwargs, so they default to None and this block is skipped entirely.
+    #   3. kill_switch_tripped must be False -- mirrors check_order's own rule PRIORITY
+    #      (Rule 5 kill-switch outranks Rule 7 settlement there too); when the switch is
+    #      already tripped, skip straight to the unchanged check_order call below so the
+    #      more meaningful KILL_SWITCH reason surfaces, not a settlement one.
+    #
+    # FAIL-CLOSED to match core: check_settlement denies (never silently allows) on
+    # missing/unreadable settlement data. The refusal gets its OWN distinct risk_code
+    # (FLEET_SETTLEMENT_CASH / FLEET_SETTLEMENT_CAP / FLEET_SETTLEMENT_UNREADABLE) so it
+    # is never mistakable for a plain "no signal" HOLD in decisions.jsonl (the
+    # silent-failure class C7 warns about). max_same_day_roundtrips is read from
+    # `params` -- the SAME key core's own cap reads (both live config files currently
+    # set 5) -- never a second hardcoded copy of the number.
+    # Guard: backtest/tests/test_fleet_settlement_gate_2026_08_18.py.
+    if (not kill_switch_tripped and bool(params.get("fleet_settlement_gate_enabled"))
+            and settled_cash_available is not None):
+        _settlement_denial = risk_gate.check_settlement(
+            account_label,
+            premium=premium,
+            proposed_qty=_qty,
+            settled_cash_available=settled_cash_available,
+            same_day_entries_used=same_day_entries_used,
+            params=params,
+        )
+        if _settlement_denial is not None:
+            _fcode = "FLEET_SETTLEMENT_UNREADABLE"
+            if _settlement_denial.code == risk_gate.CODE_SETTLEMENT:
+                # Label WHICH settlement rule bound, for a greppable decisions.jsonl.
+                # This re-reads already-available numbers for LABELING only -- the exact
+                # SAME comparison check_settlement made internally to pick this branch
+                # (cap is checked before cash there, so if cap is true that's provably
+                # which one fired) -- it is not a second enforcement authority.
+                try:
+                    _entries_i = int(same_day_entries_used)
+                    _max_rt = int(params.get("max_same_day_roundtrips",
+                                             risk_gate.DEFAULT_MAX_SAME_DAY_ROUNDTRIPS))
+                    _fcode = ("FLEET_SETTLEMENT_CAP" if _entries_i >= _max_rt
+                             else "FLEET_SETTLEMENT_CASH")
+                except (TypeError, ValueError):
+                    _fcode = "FLEET_SETTLEMENT_CASH"
+            return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
+                               _qty, premium, plan.quality, _fcode,
+                               f"fleet settlement gate: {_settlement_denial.reason}")
     decision = risk_gate.check_order(
         account_label,
         equity=equity,

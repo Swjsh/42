@@ -247,6 +247,121 @@ def _max_premium_pct_for_equity(
     return None  # equity not covered by any tier -> uncertainty -> deny upstream
 
 
+# --- SETTLEMENT (cash_settlement pdt_gate_mode) — extracted (2026-08-18) ------
+#
+# RULE-ENGINE-ALIGNMENT-2026-08-18.md finding: fleet_executor.py deliberately pins
+# pdt_gate_mode="margin_pdt" for all 3 fleet arms (safe-3/risky-1/risky-3) because it
+# never computed settled_cash_available/same_day_entries_used — so no fleet order was
+# EVER checked against a settled-cash pool, and nothing capped fleet's same-day entry
+# COUNT the way core's max_same_day_roundtrips does. Fixing that WITHOUT flipping
+# fleet's pdt_gate_mode (a separate, J-owned decision — see fleet_executor.finalize's
+# own blast-radius comment) means fleet needs to run this same settlement math
+# independent of the mode dispatch below. Rather than hand-rolling a second copy of the
+# comparisons (the exact "guard exists on one path only" bug class this fix closes —
+# L184 "reuse the ONE implementation, never re-inline" doctrine), this inline block was
+# extracted VERBATIM into
+# this standalone pure function. check_order's own cash_settlement branch below now
+# just calls it — byte-identical behavior (same codes, same messages, same order of
+# checks; pinned by test_risk_gate.py's existing cash_settlement suite, unmodified).
+# fleet_executor.finalize calls this SAME function directly, independent of
+# pdt_gate_mode, for its own new settlement pre-gate (backtest/tests/
+# test_fleet_settlement_gate_2026_08_18.py).
+def check_settlement(
+    account: str,
+    *,
+    premium: Any,
+    proposed_qty: Any,
+    settled_cash_available: Any,
+    same_day_entries_used: Any,
+    params: Mapping[str, Any],
+) -> Optional["Deny"]:
+    """PURE. The cash-settlement / GFV-aware Rule 7 check. Returns None when the
+    order clears settlement; a Deny(CODE_UNREADABLE_INPUT or CODE_SETTLEMENT)
+    otherwise. Self-validates `premium`/`proposed_qty` (fail-closed on bad input)
+    so it is safe to call STANDALONE — it does not assume a caller already ran
+    check_order's own rule-0 validation on these two fields. check_order's call
+    site (below) already has them pre-validated by its own rule 0, so this repeats
+    a cheap, always-passing check there — never a behavior change on that path."""
+    if _is_bad_number(premium) or _as_float(premium) <= 0:
+        return Deny(
+            CODE_UNREADABLE_INPUT, f"premium must be a readable number > 0 (got {premium!r})"
+        )
+    if _is_bad_number(proposed_qty):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"proposed_qty is missing/NaN/unparseable ({proposed_qty!r})",
+        )
+    _qty_f = _as_float(proposed_qty)
+    if _qty_f != int(_qty_f) or _qty_f <= 0:
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"proposed_qty must be a positive whole number (got {proposed_qty!r})",
+        )
+    premium_f = _as_float(premium)
+    qty_i = int(_qty_f)
+
+    # NEW 2026-07-14: gates on SETTLED cash (GFV/Reg-T aware), not a trade
+    # count. Both inputs are REQUIRED in this mode — fail closed, matching
+    # every other hard-halt rule in this function; a caller that flips a
+    # cash account into this mode without wiring the ledger gets denies,
+    # never silent no-op allows.
+    if same_day_entries_used is None or _is_bad_number(same_day_entries_used):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"same_day_entries_used is required under pdt_gate_mode=cash_settlement "
+            f"and must be a readable number (got {same_day_entries_used!r})",
+        )
+    if settled_cash_available is None or _is_bad_number(settled_cash_available):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"settled_cash_available is required under pdt_gate_mode=cash_settlement "
+            f"and must be a readable number (got {settled_cash_available!r})",
+        )
+    entries_used_f = _as_float(same_day_entries_used)
+    if entries_used_f < 0 or entries_used_f != int(entries_used_f):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"same_day_entries_used must be a non-negative whole number (got "
+            f"{same_day_entries_used!r})",
+        )
+    entries_used_i = int(entries_used_f)
+    settled_f = _as_float(settled_cash_available)
+    if settled_f < 0:
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"settled_cash_available must be >= 0 (got {settled_f})",
+        )
+
+    max_rt_raw = params.get("max_same_day_roundtrips", DEFAULT_MAX_SAME_DAY_ROUNDTRIPS)
+    if _is_bad_number(max_rt_raw):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            "params.max_same_day_roundtrips present but unreadable",
+        )
+    max_rt = int(_as_float(max_rt_raw))
+
+    # Belt-and-suspenders sanity cap.
+    if entries_used_i >= max_rt:
+        return Deny(
+            CODE_SETTLEMENT,
+            f"{account}: {entries_used_i} same-day entries already placed >= sanity cap "
+            f"{max_rt} (params.max_same_day_roundtrips)",
+        )
+
+    # The real cash-account constraint: this order's notional must be
+    # covered by TODAY's still-settled pool, without reaching into today's
+    # (still-unsettled, T+1) closing proceeds — the GFV pattern.
+    notional_preview = premium_f * qty_i * 100.0
+    if notional_preview > settled_f:
+        return Deny(
+            CODE_SETTLEMENT,
+            f"{account}: notional ${notional_preview:,.0f} exceeds settled cash remaining "
+            f"${settled_f:,.0f} today — would fund from today's unsettled proceeds "
+            f"(Good Faith Violation risk)",
+        )
+    return None
+
+
 def check_order(
     account: str,
     *,
@@ -420,65 +535,23 @@ def check_order(
     pdt_mode = str(params.get("pdt_gate_mode") or "margin_pdt").strip().lower()
 
     if pdt_mode == "cash_settlement":
-        # NEW 2026-07-14: gates on SETTLED cash (GFV/Reg-T aware), not a trade
-        # count. Both inputs are REQUIRED in this mode — fail closed, matching
-        # every other hard-halt rule in this function; a caller that flips a
-        # cash account into this mode without wiring the ledger gets denies,
-        # never silent no-op allows.
-        if same_day_entries_used is None or _is_bad_number(same_day_entries_used):
-            return Deny(
-                CODE_UNREADABLE_INPUT,
-                f"same_day_entries_used is required under pdt_gate_mode=cash_settlement "
-                f"and must be a readable number (got {same_day_entries_used!r})",
-            )
-        if settled_cash_available is None or _is_bad_number(settled_cash_available):
-            return Deny(
-                CODE_UNREADABLE_INPUT,
-                f"settled_cash_available is required under pdt_gate_mode=cash_settlement "
-                f"and must be a readable number (got {settled_cash_available!r})",
-            )
-        entries_used_f = _as_float(same_day_entries_used)
-        if entries_used_f < 0 or entries_used_f != int(entries_used_f):
-            return Deny(
-                CODE_UNREADABLE_INPUT,
-                f"same_day_entries_used must be a non-negative whole number (got "
-                f"{same_day_entries_used!r})",
-            )
-        entries_used_i = int(entries_used_f)
-        settled_f = _as_float(settled_cash_available)
-        if settled_f < 0:
-            return Deny(
-                CODE_UNREADABLE_INPUT,
-                f"settled_cash_available must be >= 0 (got {settled_f})",
-            )
-
-        max_rt_raw = params.get("max_same_day_roundtrips", DEFAULT_MAX_SAME_DAY_ROUNDTRIPS)
-        if _is_bad_number(max_rt_raw):
-            return Deny(
-                CODE_UNREADABLE_INPUT,
-                "params.max_same_day_roundtrips present but unreadable",
-            )
-        max_rt = int(_as_float(max_rt_raw))
-
-        # Belt-and-suspenders sanity cap.
-        if entries_used_i >= max_rt:
-            return Deny(
-                CODE_SETTLEMENT,
-                f"{account}: {entries_used_i} same-day entries already placed >= sanity cap "
-                f"{max_rt} (params.max_same_day_roundtrips)",
-            )
-
-        # The real cash-account constraint: this order's notional must be
-        # covered by TODAY's still-settled pool, without reaching into today's
-        # (still-unsettled, T+1) closing proceeds — the GFV pattern.
-        notional_preview = premium_f * qty_i * 100.0
-        if notional_preview > settled_f:
-            return Deny(
-                CODE_SETTLEMENT,
-                f"{account}: notional ${notional_preview:,.0f} exceeds settled cash remaining "
-                f"${settled_f:,.0f} today — would fund from today's unsettled proceeds "
-                f"(Good Faith Violation risk)",
-            )
+        # EXTRACTED 2026-08-18 into check_settlement (module-level, above) so
+        # fleet_executor.py's own settlement pre-gate can reuse the IDENTICAL
+        # math without a parallel reimplementation (L184 "one implementation").
+        # premium_f/qty_i are already validated by rule 0 above — check_settlement
+        # re-validates them too (so it's safe to call standalone), which is a
+        # no-op here since they're already known-good. Byte-identical to the
+        # inline block this replaced: same codes, same messages, same order.
+        _denial = check_settlement(
+            account,
+            premium=premium_f,
+            proposed_qty=qty_i,
+            settled_cash_available=settled_cash_available,
+            same_day_entries_used=same_day_entries_used,
+            params=params,
+        )
+        if _denial is not None:
+            return _denial
     else:
         # LEGACY margin_pdt (function-level default when params.pdt_gate_mode
         # is absent — every pre-2026-07-14 caller/test is byte-identical).

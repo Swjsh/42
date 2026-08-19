@@ -317,7 +317,8 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
                day_trades: int, killed: bool, sod_equity: float,
                prior_stops: list[str], params: dict, premium_override: float | None = None,
                probe_cfg: dict | None = None, probe_entries_today: int = 0,
-               rescue_premium_fetch=None):
+               rescue_premium_fetch=None,
+               settled_cash_available: Any = None, same_day_entries_used: Any = None):
     """Multi-strategy decision: every fired strategy is gated+sized by plan_all, ONE is
     selected (REGISTRY priority, one-position rule), then the shared risk gate runs. No
     I/O, no placement. Returns (ArmDecision, exit_shape) so the caller can build the
@@ -340,6 +341,14 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
     real premium -- so the floor and every downstream risk guard bind on it verbatim. None
     (every pre-existing caller) => the rescue finalizes with premium=None and risk_gate
     fails CLOSED (UNREADABLE_INPUT): the lane never trades blind. I/O stays in the caller.
+
+    settled_cash_available/same_day_entries_used (2026-08-18, RULE-ENGINE-ALIGNMENT-
+    2026-08-18.md fix): this arm's OWN settlement_ledger.py status, computed by the
+    caller (run()) once per tick and passed straight through to BOTH fx.finalize() calls
+    below (normal plan + floor-rescue) so a floor-rescued full-send trade gets the same
+    settlement protection as a normal entry. Default None (every pre-existing caller) is
+    a byte-identical no-op -- see fleet_executor.finalize's own gate-block comment for
+    the full double-gate contract.
     """
     if signal is None:
         return (fx.ArmDecision(arm["id"], "HOLD", None, None, None, None, None, None,
@@ -383,6 +392,8 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
         day_trades_used_5d=day_trades, kill_switch_tripped=killed,
         prior_stops_today=prior_stops, params=params,
         account_label=str(arm.get("account_number") or arm["id"]),
+        settled_cash_available=settled_cash_available,
+        same_day_entries_used=same_day_entries_used,
     )
     # L246 ORDERING FIX (2026-08-03): when the floor kills the selected plan, the full-send
     # rescue lane that plan_all's "no ENTER in plans" precondition shadowed gets its turn --
@@ -406,6 +417,8 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
                 day_trades_used_5d=day_trades, kill_switch_tripped=killed,
                 prior_stops_today=prior_stops, params=params,
                 account_label=str(arm.get("account_number") or arm["id"]),
+                settled_cash_available=settled_cash_available,
+                same_day_entries_used=same_day_entries_used,
             )
             if r_decision.risk_code == "ALLOW" and r_decision.action in ("ENTER_BEAR",
                                                                          "ENTER_BULL"):
@@ -461,7 +474,7 @@ def _before_entry_floor(params: dict, now_et: datetime) -> bool:
 
 
 def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
-                signal: dict, params: dict, now: datetime) -> dict:
+                signal: dict, params: dict, now: datetime, *, sod: float | None = None) -> dict:
     """LIVE bracket placement (gated). Built for the Monday flip; never runs in WATCH.
 
     The bracket levels come from the SELECTED strategy's own ExitShape (the grind-winner
@@ -620,6 +633,23 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
         try:
             ea.record_entry_bar(arm_id, str(decision.setup_name or ""),
                                 str((signal or {}).get("trigger_bar_et") or ""))
+        except Exception:  # noqa: BLE001 -- never abort an already-placed entry
+            pass
+    # SETTLEMENT LEDGER DEBIT (2026-08-18, RULE-ENGINE-ALIGNMENT-2026-08-18.md fix; mirrors
+    # heartbeat_core.py's own settlement-ledger debit at its own PLACED call site). Record
+    # ONLY on a real ACCEPTED placement (never on a WATCH-mode call, which never reaches
+    # here -- see run()'s arm_live gate -- and never on a PLACE_FAIL, which committed no
+    # capital) -- notional uses the ACTUAL entry_px, not any pre-trade estimate, since
+    # that's what this arm's account is really committing. Double-gated exactly like the
+    # READ side in run(): the flag AND sod (only passed by run(); every pre-existing test
+    # call site omits it, defaulting to None) must both be present, so this is a
+    # byte-identical no-op there. Fail-safe (never abort an already-placed entry on a
+    # bookkeeping error) -- matches every other post-placement block in this function.
+    if placed and sod is not None and bool(params.get("fleet_settlement_gate_enabled")):
+        try:
+            import settlement_ledger as _sl  # noqa: PLC0415
+            _sl.record_entry(_sl.ledger_path(FLEET_DIR.parent, arm_id), now.strftime("%Y-%m-%d"),
+                             sod, entry_px * qty * 100.0, _now_et().strftime("%Y-%m-%dT%H:%M:%S"))
         except Exception:  # noqa: BLE001 -- never abort an already-placed entry
             pass
     # EXIT ENGINE WIRING (FIX1 follow-up, 2026-06-25): the bracket above is only the
@@ -796,6 +826,44 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
         killed = bool(breaker.get("tripped"))
         sod = float(breaker.get("starting_equity_today", equity))
         prior_stops = _load_prior_stops(arm_id, now)
+        # FLEET SETTLEMENT GATE (2026-08-18, RULE-ENGINE-ALIGNMENT-2026-08-18.md fix) --------
+        # This arm's OWN settled-cash ledger + entries-per-day count, mirroring
+        # heartbeat_core.py's own settlement_ledger wiring (setup/scripts/heartbeat_core.py
+        # ~2392-2401) WITHOUT flipping this arm's pdt_gate_mode (stays margin_pdt --
+        # fleet_executor.finalize's own blast-radius guard, unchanged by this fix). `sod`
+        # (this arm's own start-of-day equity, already computed above via
+        # _load_or_arm_breaker) doubles as this arm's start-of-day SETTLED cash -- the same
+        # equity-as-settled-cash proxy core uses (both are flat overnight: Rule 4 + the
+        # 15:55 flatten mean nothing is unsettled carryover). Gated behind
+        # params.fleet_settlement_gate_enabled so a single flag flip reverts to ZERO new
+        # I/O and zero new enforcement (both live config files set this True as of this
+        # fix). ledger_path's fleet-arm branch (extended this fix) isolates this file from
+        # core's safe/bold ledgers AND from every other fleet arm's own ledger.
+        # Guard: backtest/tests/test_fleet_settlement_gate_2026_08_18.py.
+        settled_cash_available = None
+        same_day_entries_used = None
+        if bool(params.get("fleet_settlement_gate_enabled")):
+            try:
+                import settlement_ledger as _sl  # noqa: PLC0415
+                _settlement = _sl.get_settlement_status(
+                    _sl.ledger_path(FLEET_DIR.parent, arm_id), now.strftime("%Y-%m-%d"), sod)
+                settled_cash_available = _settlement["settled_cash_remaining"]
+                same_day_entries_used = _settlement["entries_used_today"]
+            except Exception:  # noqa: BLE001 -- get_settlement_status/ledger_path are
+                # THEMSELVES internally fail-OPEN per settlement_ledger.py's own documented
+                # contract (a ledger I/O error there already resets to "0 entries, full SOD
+                # cash" rather than raising), so this branch should be realistically
+                # unreachable in production -- it exists only to catch a bug in THIS glue
+                # code (e.g. a broken sys.path) without ever crashing the tick. Leaving
+                # settled_cash_available as None here would be read by finalize() as "gate
+                # not wired" and SILENTLY SKIP enforcement -- the wrong direction entirely
+                # for a NEW safety gate (never let a plumbing bug widen availability the way
+                # settlement_ledger's OWN documented fail-open contract deliberately does).
+                # Feed the gate a value it is GUARANTEED to fail-closed on instead -- same
+                # mechanism as any other unreadable-input deny, distinctly labeled.
+                settled_cash_available = "settlement_ledger_error"
+                same_day_entries_used = "settlement_ledger_error"
+                row["settlement_ledger_error"] = True
         # PROBE ARM: only the named arm reads/writes probe-count.json (no stray per-arm
         # files for the other 3 -- guard on _is_probe_active, not just "does probe_cfg exist").
         probe_entries_today = (_load_probe_count(arm_id, now).get("count", 0)
@@ -895,7 +963,9 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
                                           # consulted on a SKIP_MIN_PREMIUM_FLOOR verdict).
                                           rescue_premium_fetch=(
                                               lambda side, strike:
-                                              fb.get_option_mid(creds, _occ_symbol(side, strike, now))))
+                                              fb.get_option_mid(creds, _occ_symbol(side, strike, now))),
+                                          settled_cash_available=settled_cash_available,
+                                          same_day_entries_used=same_day_entries_used)
 
         # PROBE ARM: the cap counts DECIDED (risk_gate-ALLOWED) probe entries, not merely
         # attempted plans -- increments regardless of WATCH/LIVE mode (a WATCH-mode "would
@@ -915,7 +985,8 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
             # a slow tick. Logging only -- _place_live's decision/pricing/placement logic is
             # unchanged; this just timestamps the moment right before it runs.
             plan_ts = _now_et()
-            placement = _place_live(creds, arm, decision, exit_shape, usable_signal, params, now)
+            placement = _place_live(creds, arm, decision, exit_shape, usable_signal, params, now,
+                                    sod=sod)
             placement["plan_ts"] = plan_ts.isoformat()
         else:
             placement = {"mode": "WATCH" if not arm_live else "LIVE",

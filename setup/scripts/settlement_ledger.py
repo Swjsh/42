@@ -155,9 +155,28 @@ def get_settlement_status(path: Path, today_et_date: str, sod_settled_cash: floa
 
 
 def ledger_path(state_dir: Path, account: str) -> Path:
-    """Canonical per-account ledger path. account: "safe" or "bold" (matches
-    heartbeat_core.py's existing circuit-breaker path convention: safe ->
-    STATE/settlement-ledger.json, bold -> STATE/aggressive/settlement-ledger.json)."""
-    if str(account).lower() == "bold":
+    """Canonical per-account ledger path.
+
+    account: "safe" or "bold" (core -- matches heartbeat_core.py's existing
+    circuit-breaker path convention: safe -> STATE/settlement-ledger.json,
+    bold -> STATE/aggressive/settlement-ledger.json), OR a FLEET ARM ID
+    (2026-08-18, RULE-ENGINE-ALIGNMENT-2026-08-18.md fix -- e.g. "safe-3",
+    "risky-1", "risky-3") -> STATE/fleet/<arm_id>/settlement-ledger.json.
+
+    BEFORE this fix, any non-"bold" account string -- including a fleet arm id
+    -- fell through to the SAME path "safe" resolves to: a fleet arm calling
+    this function would have silently COLLIDED with core Safe-2's own ledger
+    file (two independent execution paths -- heartbeat_core.py's tick loop and
+    fleet_live.py's -- reading/writing the SAME state file). "safe"/"bold" are
+    UNCHANGED below (byte-identical, pinned by test_ledger_path_safe_vs_bold).
+    The new fleet branch mirrors fleet_live.py's own established per-arm state
+    convention (FLEET_DIR/<arm_id>/circuit-breaker.json, /probe-count.json,
+    /first-entry-lock.json) so every fleet arm's ledger is isolated both from
+    core and from every OTHER fleet arm.
+    """
+    acct = str(account).lower()
+    if acct == "bold":
         return state_dir / "aggressive" / "settlement-ledger.json"
-    return state_dir / "settlement-ledger.json"
+    if acct == "safe":
+        return state_dir / "settlement-ledger.json"
+    return state_dir / "fleet" / str(account) / "settlement-ledger.json"
