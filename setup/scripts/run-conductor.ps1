@@ -215,6 +215,21 @@ try {
     # MODEL (2026-07-02, J quota directive): opus -> sonnet. Conductor fires are queue-drain
     # fix-and-guard work; sonnet + the fable-judgment suite (mandatory via CLAUDE.md) handles
     # them at ~1/5 the pool cost. Reserve opus-class for frame-audit/architecture sessions only.
+    # FAN-OUT BLAST RADIUS (2026-08-19). Anthropic ships depth/concurrency caps whose
+    # DEFAULTS are depth 3 / concurrency 20, and one Agent call has been reported to
+    # grow into 48+ background agents / ~1.5M tokens. Our doctrine is narrower: rail 3
+    # says ONE bounded item per fire, and conductor.md STAGE 2 already says "spawn 2-5
+    # agents in a SINGLE message" -- so pin depth=1 (specialists may not spawn their
+    # own subagents) and concurrency=5 (matches the prompt's own ceiling).
+    # Wired HERE, at automation's own launch point, never as a global interactive
+    # default (L213 -- J's interactive sessions must not inherit automation limits).
+    # Values are the registry's: automation/state/worker-registry.json .master.fanout_caps.
+    # UNVERIFIED AT RUNTIME: env-var names come from Anthropic's Agent SDK docs
+    # (verified 2026-08-19) and are version-gated; an unrecognised name is ignored, so
+    # this fails OPEN -- it can tighten the blast radius, never break a fire.
+    $env:CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH = "1"
+    $env:CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "5"
+
     $exitCode = Invoke-ClaudeWithRetry `
         -PromptFile $promptFile `
         -TaskName $task `

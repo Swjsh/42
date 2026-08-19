@@ -1,0 +1,220 @@
+{
+  "_doc": "THE ORG CHART. One machine-readable source of truth for Gamma's master/worker topology: who the master is, which workers exist, which repeated J-intent or standing job each one OWNS, what tools it gets, what deterministic gate verifies its output, and where its output reaches J. Validated by setup/scripts/worker_registry.py --check (drift against .claude/agents/*.md, automation/state/SCHEDULED-TASKS.md and model-roster.json is an ERROR, not a comment). Design + evidence: analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md.",
+  "_doctrine": "Anthropic 2026 guidance, adversarially verified: decompose by CONTEXT BOUNDARY, never by role — 'when agents are split by problem type, they engage in a telephone game.' Every worker below must therefore state context_boundary: the bulky thing it reads that the master must NOT have to hold. A worker that cannot state one is a prompt, not an agent, and belongs inline.",
+  "version": 1,
+  "updated_et": "2026-08-19",
+  "master": {
+    "name": "gamma",
+    "persona": ".claude/agents/gamma.md",
+    "loop": "automation/prompts/conductor.md",
+    "model": "opus",
+    "job": "Coordinate. Interpret worker responses. Reassign and reconfigure. NEVER do worker-tier execution itself.",
+    "must_not": [
+      "place or cancel any order (disallowedTools in the persona frontmatter enforces this)",
+      "do mechanical execution a sonnet/haiku worker or a $0 script can do (OP-3)",
+      "bank a worker completion claim that has not passed the worker's verified_by gate (OP-33)",
+      "fan out during 09:30-15:55 ET — the heartbeat shares the Max rate-limit pool"
+    ],
+    "fanout_caps": {
+      "_doc": "Anthropic Agent SDK ships depth/concurrency/spend caps (depth 3, concurrency 20, spend UNCAPPED by default). Uncapped spend is the live risk here: measured notional burn 2026-08-10..08-19 ranged $430-$1,554/day. These are the project's chosen values; wire at automation's own launch point, never as a global interactive default (L213).",
+      "max_subagent_spawn_depth": 1,
+      "max_concurrent_subagents": 5,
+      "max_budget_usd_per_fire": 3.0,
+      "source": "https://code.claude.com/docs/en/agent-sdk/subagents",
+      "wired_at": "setup/scripts/run-conductor.ps1 (depth + concurrency env vars, 2026-08-19)",
+      "_budget_note": "max_budget_usd_per_fire is the REGISTRY's target. run-conductor.ps1 currently passes -MaxBudgetUsd 10.00, raised from 1.50 on 2026-06-20 after the first live fire aborted at t+1s having done zero work. Tightening it needs a measured per-fire distribution first, not a guess."
+    },
+    "_production_model_note": "The persona frontmatter says opus and this registry mirrors it, but PRODUCTION conductor fires launch with -Model sonnet (run-conductor.ps1, J quota directive 2026-07-02). Opus is reserved for frame-audit/architecture sessions. The registry tracks the persona; the wrapper is the runtime truth."
+  },
+  "delegation_contract": {
+    "_doc": "Anthropic, 'How we built our multi-agent research system': 'Each subagent needs an objective, an output format, guidance on the tools and sources to use, and clear task boundaries. Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information.' Verified 3-0. Enforced by setup/scripts/worker_registry.py --contract.",
+    "required_fields": ["objective", "output_format", "tools_and_sources", "boundaries"],
+    "effort_scaling": {
+      "_doc": "Anthropic's published tiers. Treat as a ceiling, not a target — every subagent is billed to the same pool the heartbeat ticks on.",
+      "simple_fact_find": "1 worker, 3-10 tool calls",
+      "direct_comparison": "2-4 workers, 10-15 tool calls each",
+      "complex_research": "10+ workers with clearly divided responsibilities"
+    },
+    "model_pin_required": true,
+    "_model_pin_note": "Every Agent(...) and every agent() call site inside a Workflow script MUST carry an explicit model. Subagents cannot switch their own model and an in-prompt 'run /model sonnet first' line is a NO-OP. 2026-07-23 scar: an 11-agent matrix workflow inherited the session tier and burned 2.2M tokens on mechanical grid work."
+  },
+  "tiers": {
+    "deterministic": {
+      "cost": "$0",
+      "rule": "If the step is decidable without a model, it MUST be a script. This is the largest tier by design and the only tier allowed on the live trading hot path.",
+      "examples": ["heartbeat_core.py", "risk_gate.py", "filters.py", "worker_output_verify.py", "sight_beacon.py"]
+    },
+    "free": {
+      "cost": "$0 (free lanes + local ollama floor)",
+      "rule": "R&D recon and drafting only. NEVER trusted without a deterministic gate — measured 9/690 reports (1.3%) fabricated artifact claims over two months before worker_output_verify.py existed.",
+      "roster": "automation/state/model-roster.json",
+      "driver": "setup/scripts/gamma_manager.py"
+    },
+    "claude": {
+      "cost": "Max subscription pool — shared with the live heartbeat",
+      "rule": "haiku = templated authoring; sonnet = the workhorse (implementation, review, all fan-outs); opus = judgment only (ship/kill, audit, architecture)."
+    }
+  },
+  "workers": [
+    {
+      "name": "pilot",
+      "tier": "claude",
+      "model": "sonnet",
+      "persona": ".claude/agents/pilot.md",
+      "owns": "live trade execution (manual/ad-hoc fires only)",
+      "j_intent": null,
+      "context_boundary": "the live chart + option chain — thousands of bars and quotes the master must never hold",
+      "verified_by": "backtest/lib/risk_gate.py + automation/scripts/pre_order_gate.py",
+      "delivers_to": "journal/{date}.md + automation/state/current-position.json",
+      "note": "PRODUCTION ticks do NOT run this persona. The live engine is the deterministic Gamma_HeartbeatCore. This is the manual entry point only."
+    },
+    {
+      "name": "analyst",
+      "tier": "claude",
+      "model": "sonnet",
+      "persona": ".claude/agents/analyst.md",
+      "owns": "post-trade review, pattern mining, the canonical EOD digest",
+      "j_intent": "edge_review",
+      "context_boundary": "the full trades.csv + journal history — 30-day windows of raw fills the master only needs the conclusion of",
+      "verified_by": "worker_output_verify.py + the real-fills authority (C1: only real fills settle a WR claim)",
+      "delivers_to": "analysis/eod-deep/{date}.md",
+      "scheduled_task": "Gamma_AnalystEodReview"
+    },
+    {
+      "name": "chef",
+      "tier": "claude",
+      "model": "opus",
+      "persona": ".claude/agents/chef.md",
+      "owns": "strategy R&D — new candidates, ranked by edge_capture x sharpe (OP-16)",
+      "j_intent": "new_lane",
+      "context_boundary": "the backtest engine's full candidate matrix and grind output",
+      "verified_by": "the canonical battery (OOS + WF>=0.70 + sub-window stability + anchor no-regression) before anything ships",
+      "delivers_to": "strategy/candidates/ (DRAFT only — never production doctrine)"
+    },
+    {
+      "name": "treasurer",
+      "tier": "claude",
+      "model": "sonnet",
+      "persona": ".claude/agents/treasurer.md",
+      "owns": "risk + sizing audit against live equity, kill-switch and tier transitions",
+      "j_intent": null,
+      "context_boundary": "broker account activity + portfolio history across both accounts",
+      "verified_by": "risk_gate.py replay — a proposal that the gate would reject is not a proposal",
+      "delivers_to": "DRAFT proposals only; never edits params*.json",
+      "scheduled_task": "Gamma_TreasurerWeekly"
+    },
+    {
+      "name": "scout",
+      "tier": "claude",
+      "model": "haiku",
+      "persona": ".claude/agents/scout.md",
+      "owns": "pre-market macro/news/catalyst scan",
+      "j_intent": "todays_theory",
+      "context_boundary": "the open web — bulky raw pages distilled into one fixed JSON schema",
+      "verified_by": "schema validation + freshness stamp on automation/state/news.json",
+      "delivers_to": "automation/state/news.json -> consumed by Premarket",
+      "scheduled_task": "Gamma_ScoutPremarket"
+    },
+    {
+      "name": "coach",
+      "tier": "claude",
+      "model": "haiku",
+      "persona": ".claude/agents/coach.md",
+      "owns": "gym + scheduled-task + drift health rollup",
+      "j_intent": "is_everything_running",
+      "context_boundary": "42 validator outputs + ~118 scheduled-task states",
+      "verified_by": "the gym itself is the deterministic check; coach only aggregates",
+      "delivers_to": "STATUS.md ## Known broken + analysis/gym/{date}.md",
+      "scheduled_task": "Gamma_GymSession"
+    },
+    {
+      "name": "validator-author",
+      "tier": "claude",
+      "model": "haiku",
+      "persona": ".claude/agents/validator-author.md",
+      "owns": "authoring new gym validators from _validator-inbox",
+      "j_intent": null,
+      "context_boundary": "one inbox item + the v01 template",
+      "verified_by": "green-or-revert: the full gym must pass or the validator is reverted",
+      "delivers_to": "crypto/validators/"
+    },
+    {
+      "name": "skill-author",
+      "tier": "claude",
+      "model": "haiku",
+      "persona": ".claude/agents/skill-author.md",
+      "owns": "authoring new skills from _skill-inbox",
+      "j_intent": null,
+      "context_boundary": "one inbox item + the SKILL.md template",
+      "verified_by": "smoke-or-revert",
+      "delivers_to": ".claude/skills/ + markdown/infra/SKILLS-CATALOG.md"
+    },
+    {
+      "name": "lesson-author",
+      "tier": "claude",
+      "model": "haiku",
+      "persona": ".claude/agents/lesson-author.md",
+      "owns": "encoding foot-guns as L## lessons from _lesson-inbox",
+      "j_intent": null,
+      "context_boundary": "one inbox item",
+      "verified_by": "cite-or-defer (defers hand-wavy items rather than inventing)",
+      "delivers_to": "markdown/doctrine/LESSONS-LEARNED.md + CLAUDE.md OP-25"
+    }
+  ],
+  "j_intents": {
+    "_doc": "The repeated things J actually asks for, mined from automation/state/j-question-ledger.jsonl (29 genuine prompts of 52 rows; the other 23 are audit-harness pollution — see queue item T-JQL-CLASSIFIER-2026-08-18). A repeated question is a MISSING INSTRUMENT, not a query (OP-33e). Every intent needs an owner AND a push surface — an intent with machinery but no delivery is still an open intent, which is why J keeps asking.",
+    "is_everything_running": {
+      "asked": 4,
+      "examples": ["engine firing on all cylinders?", "so engine is working well and on its own today?", "Is everything up and running so that we're able to successfully trade today?"],
+      "owner": "coach",
+      "machinery": ["connectivity-gate skill", "preflight-gate skill", "Gamma_PreopenReadiness", "Gamma_PremarketReadiness", "automation/state/unattended-health.json"],
+      "delivery_status": "PULL_ONLY",
+      "gap": "every check exists and passes; none of them PUSH a green/red line to J before the open, so he asks."
+    },
+    "status_tldr": {
+      "asked": 3,
+      "examples": ["whats the status of everything tldr bullets emoji", "whats the status talk to me concise", "whats the status on all the engine fixes that stemmed from todays losses"],
+      "owner": "coach",
+      "machinery": ["Gamma_FirmBrief", "Gamma_MorningBrief", "Gamma_EodBrief", "automation/overnight/STATUS.md"],
+      "delivery_status": "PULL_ONLY",
+      "gap": "STATUS.md is append-only and long; the briefs are written but J has to go find them."
+    },
+    "edge_review": {
+      "asked": 2,
+      "examples": ["review all the trades that we've done with the engine, and focus on the winners? What is our edge?", "Make sure we learned how to be profitable"],
+      "owner": "analyst",
+      "machinery": ["Gamma_TradeAutopsy", "Gamma_WinnerAutopsy", "Gamma_WinnerSignature", "j-winner-audit skill"],
+      "delivery_status": "PARTIAL",
+      "gap": "autopsies run nightly; the cumulative 'here is our edge' answer is re-derived by hand each time J asks."
+    },
+    "todays_theory": {
+      "asked": 1,
+      "examples": ["Has the engine reviewed today's levels? And what are we theorizing?"],
+      "owner": "scout",
+      "machinery": ["Gamma_Premarket", "automation/state/today-bias.json", "automation/state/key-levels.json"],
+      "delivery_status": "PULL_ONLY",
+      "gap": "today-bias.json holds falsifiable predictions; nothing narrates them to J pre-open."
+    },
+    "explain_for_me": {
+      "asked": 1,
+      "examples": ["I need you to break this down for me a little better with how this helps me and what exactly you recommend that I should do"],
+      "owner": "UNOWNED",
+      "machinery": [],
+      "delivery_status": "NONE",
+      "gap": "no worker owns translating machine output into 'what this means for you and what to do'. This is the one intent with genuinely no owner."
+    },
+    "new_lane": {
+      "asked": 3,
+      "examples": ["we should be trading futures today as well", "have it running twenty four seven", "I wanna explore trading, like, the different weekly Friday expirations of other stocks"],
+      "owner": "chef",
+      "machinery": ["Gamma_Prospector", "the Kitchen", "markdown/planning/WEEKLY-OPTIONS-PROGRAM.md"],
+      "delivery_status": "PARTIAL",
+      "gap": "lanes get built and killed correctly; the kill result reaches J only if a session happens to write a brief."
+    }
+  },
+  "open_gaps": [
+    "explain_for_me has no owner — the only J-intent with zero machinery.",
+    "4 of 6 J-intents are PULL_ONLY: the answer exists on disk before J asks, and he still has to ask. Delivery, not machinery, is the binding constraint on 'fully autonomous'.",
+    "fanout_caps above are the DECIDED values; they are not yet wired into the conductor's launch point."
+  ]
+}

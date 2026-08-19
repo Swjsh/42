@@ -1795,6 +1795,13 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260819-100128 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=54 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T01:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260819-100129 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=53 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260819-100130 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=47 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260819-100131 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=43 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T04:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260819-100132 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=37 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T05:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260819-100133 (LOW) :: v09_regime TREND_DOWN dominant: 58/80 bars (72%) | last_regime=TREND_DOWN atr_14=39 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T06:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260819-100134 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_UP atr_14=43 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-19T07:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260818-100115 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=80 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-17T17:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260818-100116 (LOW) :: v09_regime TREND_UP dominant: 59/81 bars (73%) | last_regime=TREND_UP atr_14=100 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-17T18:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260818-100117 (LOW) :: v09_regime TREND_UP dominant: 60/81 bars (74%) | last_regime=TREND_UP atr_14=95 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-17T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
@@ -1803,13 +1810,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260818-100120 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=53 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-18T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260818-100121 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=48 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-18T04:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260818-100122 (MED) :: v14_sweep liquidity-grab at level=64000 dir=down bar_idx=114 | wick_excess=0.0195% close_back=0.1019% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-18T09:57:03.020223+00:00:64000:down:114 :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260818-100123 (MED) :: v14_sweep liquidity-grab at level=64000 dir=down bar_idx=124 | wick_excess=0.0322% close_back=0.1099% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-18T09:57:03.020223+00:00:64000:down:124 :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260817-133647 (MED) :: BTC v03_indicators rsi_14=87.12 (overbought) at last_close=63252.16 bin=2026-08-16T16:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-16T16:20:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260817-133648 (MED) :: BTC v03_indicators rsi_14=86.41 (overbought) at last_close=63249.99 bin=2026-08-16T16:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-16T16:25:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260817-133649 (MED) :: BTC v03_indicators rsi_14=86.54 (overbought) at last_close=63252.42 bin=2026-08-16T16:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-16T16:30:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260817-133650 (MED) :: BTC v03_indicators rsi_14=88.37 (overbought) at last_close=63288.27 bin=2026-08-16T16:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-16T16:35:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260817-133651 (MED) :: BTC v03_indicators rsi_14=85.03 (overbought) at last_close=63287.35 bin=2026-08-16T16:40:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-16T16:40:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260817-133652 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=34 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-16T18:00:00+00:00:TREND_UP :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -2402,3 +2402,39 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 - [ ] ESCALATION (manager_flagged) — OP-32 free-model trust gate validation: exposes a critical trust gate vulnerability where free-tier 'strategist' role generated fake artifacts for a live overnight program - must verify system integri _(gamma_manager 2026-08-19 04:53 ET)_
 
 - [ ] ESCALATION (manager_flagged) — OP-32 free-model trust gate validation: critical trust gate vulnerability exposed where fake artifacts were generated for a live overnight program - must verify system integrity before any further bui _(gamma_manager 2026-08-19 05:33 ET)_
+
+- [ ] ESCALATION (manager_flagged) — run validation checks on artifact generation paths and compare against actual disk writes: critical trust gate vulnerability exposed where fake artifacts were generated for a live overnight program -  _(gamma_manager 2026-08-19 05:53 ET)_
+
+- [ ] ESCALATION (manager_flagged) — compare generated artifacts against actual disk writes to detect discrepancies: critical trust gate vulnerability exposed where fake artifacts were generated for a live overnight program - must verify _(gamma_manager 2026-08-19 06:13 ET)_
+
+- [ ] ESCALATION (manager_flagged) — OP-32 free-model trust gate validation: critical trust gate vulnerability exposed where free-tier 'strategist' role generated fake artifacts for a live overnight program - must verify system integrity _(gamma_manager 2026-08-19 06:33 ET)_
+
+- [ ] ESCALATION (manager_flagged) — edgehunt-weekly-options-build.json: critical trust gate validation needed after fake artifact generation incident, with direct relevance to system integrity checks and signal validation _(gamma_manager 2026-08-19 06:53 ET)_
+
+- [ ] ESCALATION (manager_flagged) — OP-32 free-model trust gate validation: Critical trust gate vulnerability exposed by fake artifact generation requires direct validation of disk writes vs claimed outputs _(gamma_manager 2026-08-19 07:13 ET)_
+
+- [ ] ESCALATION (manager_flagged) — Compare generated artifacts in 'edgehunt: Critical trust gate vulnerability exposed by fake artifact generation requires direct validation of disk writes vs claimed outputs to prevent further systemic _(gamma_manager 2026-08-19 07:33 ET)_
+
+- [ ] ESCALATION (manager_flagged) — trust_gate_artifact_validation: Critical trust gate vulnerability exposed by fake artifact generation requires immediate validation of disk writes vs claimed outputs to ensure system integrity _(gamma_manager 2026-08-19 16:13 ET)_
+
+### T-AUTOPSY-H-2026-08-19-left-on-table MED — autopsy hypothesis: exit_shape_dominated
+
+**Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 4579.2, "window_net_pnl": -1354.0, "n_dominated": 7, "window_n": 30}` (analysis/autopsies/2026-08-19.md).
+**Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
+
+- [ ] ESCALATION (manager_flagged) — Compare disk writes in 'edgehunt-weekly-: Critical trust gate vulnerability exposed by fake artifact generation requires immediate validation of disk writes vs claimed outputs to prevent systemic sign _(gamma_manager 2026-08-19 17:53 ET)_
+
+### T-INTENT-PUSH-2026-08-19 HIGH -- 4 of 6 repeated J-intents are PULL_ONLY; delivery is the autonomy blocker
+
+**Claim:** J keeps asking the same six questions not because the machinery is missing but because nothing PUSHES him the answer. Mined `automation/state/j-question-ledger.jsonl` (29 genuine prompts of 52 rows): `is_everything_running` x4, `status_tldr` x3, `new_lane` x3, `edge_review` x2, `todays_theory` x1, `explain_for_me` x1. **Five of six already have complete machinery on disk** (connectivity-gate/preflight-gate/PreopenReadiness, FirmBrief/MorningBrief/STATUS.md, Prospector/Kitchen, TradeAutopsy/WinnerAutopsy, today-bias.json) yet 4 of 6 are delivery_status PULL_ONLY. **Evidence:** `automation/state/worker-registry.json` .j_intents (validated GREEN by `python setup/scripts/worker_registry.py --check`), full analysis `analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md` Part 2.
+**Action:** do NOT add worker agents (research-backed kill: 5 of 6 problems are already solved on disk; a new agent adds 3-10x tokens + a telephone-game hop). Instead wire the existing $0 outputs to a push surface -- one pre-open readiness line and one EOD edge line through the already-built Discord outbox / companion bus -- then flip those intents to delivery_status PUSH in the registry and let `--intents` prove it :: depends:none :: status:proposed
+
+### T-EXPLAIN-OWNER-2026-08-19 MED -- `explain_for_me` is the one J-intent with no owner and no machinery
+
+**Claim:** every other repeated J-intent has an owning worker; `explain_for_me` ("break this down for me, how does this help me, what exactly do you recommend I do") has neither owner nor machinery. It is the translation layer from machine output to J-actionable meaning. **Evidence:** `automation/state/worker-registry.json` .j_intents.explain_for_me (owner UNOWNED, machinery [], delivery NONE); ledger prompt 2026-07-08.
+**Action:** decide OWNER before building anything -- the cheap answer is a register/format applied by whoever already writes the brief (analyst for EOD, coach for status), not a new agent. Re-read `markdown/planning/GAMMA-WORKER.md` "narrative register v1.1" first: that layer was already designed and partly shipped, so this is likely a re-wire, not a build :: depends:none :: status:proposed
+
+### T-NUMERIC-FABRICATION-2026-08-19 MED -- the anti-fabrication gate proves files exist, not that numbers are real
+
+**Claim:** `worker_output_verify.py` closes the artifact half of the free-model trust gap (9/690 reports caught) but explicitly does NOT verify numeric claims -- the 08-18 scar report also carried invented Monte-Carlo figures ("Max loss = 0.07%", "100% pass rate") that no deterministic check touches. **Evidence:** the tool's own WHAT IT DOES NOT CHECK docstring; `analysis/manager/2026-08-18-2253-strategist-weekly-options-build.md`.
+**Action:** narrow scope first -- most fabricated numbers in this rig cite a named artifact, so the highest-ROI next gate is "a metric asserted alongside a file path must be re-derivable from that file", not general numeric verification. Prototype against the 9 known-fabricated reports as the labelled positive set and the 39 VERIFIED ones as the negative set :: depends:none :: status:proposed

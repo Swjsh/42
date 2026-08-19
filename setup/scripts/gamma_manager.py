@@ -20,7 +20,9 @@ design fork, a denylist surface, or the SHIP/REVOKE call) — via an enqueued si
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import subprocess
 import sys
 
@@ -186,20 +188,135 @@ SYSTEM = (
 )
 
 
-def escalate(reason: str, detail: str = "") -> None:
-    """Enqueue a signal for the CEO — never halts."""
-    line = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "source": "gamma_manager", "reason": reason, "detail": detail[:500]}
+ESCALATION_LEDGER = STATE / "manager-escalations.json"
+ESCALATION_COOLDOWN_H = 24
+
+
+_ESCALATION_STOPWORDS = {
+    "the", "a", "an", "of", "to", "in", "for", "and", "or", "is", "are", "was",
+    "were", "be", "by", "with", "that", "this", "it", "as", "on", "at", "from",
+    "must", "needs", "need", "where", "which", "requires", "require", "further",
+}
+
+
+def _escalation_tokens(reason: str, detail: str) -> set:
+    """Content words identifying an escalation, order- and inflection-insensitive.
+
+    The free coordinator re-words the same blocker every fire ("exposed where fake
+    artifacts were generated" vs "exposed by fake artifact generation"), so an
+    exact-string or word-order hash does NOT dedupe the real traffic. Compare
+    stemmed content-word SETS instead.
+    """
+    words = re.findall(r"[a-z0-9]+", f"{reason} {detail}".lower())
+    out = set()
+    for w in words:
+        if len(w) < 3 or w in _ESCALATION_STOPWORDS:
+            continue
+        for suf in ("ications", "ication", "ations", "ation", "ing", "ors", "or",
+                    "ers", "er", "ies", "ed", "es", "s"):
+            if len(w) > len(suf) + 3 and w.endswith(suf):
+                w = w[: -len(suf)]
+                break
+        out.add(w)
+    return out
+
+
+def _escalation_key(reason: str, detail: str) -> str:
+    toks = sorted(_escalation_tokens(reason, detail))
+    return hashlib.sha1(" ".join(toks).encode("utf-8")).hexdigest()[:16]
+
+
+def _match_existing(ledger: dict, tokens: set, threshold: float = 0.30):
+    """Return the ledger key of a semantically-equivalent prior escalation, if any.
+
+    THRESHOLD IS MEASURED, NOT GUESSED (2026-08-19). Jaccard over stemmed content
+    words, scored on the seven real queue.md appends of one blocker:
+        same blocker, reworded ....... 0.367 - 0.913  (min 0.367)
+        related but DISTINCT ......... 0.176 - 0.206  (lane garbage / 429s)
+        unrelated .................... 0.000 - 0.065  (engine RED, sizing breach)
+    0.30 sits in the gap with margin both ways. Too high and the spam returns;
+    too low and dedupe becomes a gag that hides a real second blocker from J.
+    """
+    best_key, best_score = None, 0.0
+    for k, v in ledger.items():
+        prev = set(v.get("tokens") or [])
+        if not prev:
+            continue
+        union = tokens | prev
+        if not union:
+            continue
+        score = len(tokens & prev) / len(union)
+        if score > best_score:
+            best_key, best_score = k, score
+    return (best_key, best_score) if best_score >= threshold else (None, best_score)
+
+
+def escalate(reason: str, detail: str = "") -> bool:
+    """Enqueue a signal for the CEO — never halts. Idempotent within a cooldown.
+
+    SCAR 2026-08-19: this appended to queue.md unconditionally on a 20-minute
+    cadence, so ONE unresolved blocker (the OP-32 free-model trust gate) produced
+    9 near-identical `- [ ] ESCALATION (manager_flagged)` lines in a single day.
+    An escalation surface that repeats itself is an escalation surface J stops
+    reading. Repeats now bump a counter in the ledger instead of re-queuing.
+
+    Returns True if the signal was newly surfaced, False if suppressed as a dupe.
+    """
+    now = datetime.now(timezone.utc)
+    tokens = _escalation_tokens(reason, detail)
+    ledger = {}
+    try:
+        if ESCALATION_LEDGER.exists():
+            ledger = json.loads(ESCALATION_LEDGER.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        ledger = {}     # unreadable ledger must not block the signal — fail OPEN
+
+    match, _score = _match_existing(ledger, tokens)
+    key = match or _escalation_key(reason, detail)
+
+    prev = ledger.get(key)
+    suppressed = False
+    if prev:
+        try:
+            last = datetime.fromisoformat(prev["last_ts"])
+            suppressed = (now - last) < timedelta(hours=ESCALATION_COOLDOWN_H)
+        except (KeyError, ValueError):
+            suppressed = False
+
+    entry = prev or {"first_ts": now.isoformat(timespec="seconds"), "count": 0,
+                     "reason": reason, "detail": detail[:200]}
+    # Keep the FIRST occurrence's tokens as the stable identity. Overwriting them
+    # each fire would let the fingerprint drift across rewordings until it matches
+    # everything — dedupe would silently become a gag.
+    entry.setdefault("tokens", sorted(tokens))
+    entry["last_ts"] = now.isoformat(timespec="seconds")
+    entry["count"] = int(entry.get("count", 0)) + 1
+    ledger[key] = entry
+    try:
+        ESCALATION_LEDGER.write_text(json.dumps(ledger, indent=1), encoding="utf-8")
+    except OSError:
+        pass
+
+    if suppressed:
+        _log({"phase": "escalate_suppressed", "key": key, "reason": reason,
+              "count": entry["count"]})
+        return False
+
+    line = {"ts": now.isoformat(timespec="seconds"), "source": "gamma_manager",
+            "reason": reason, "detail": detail[:500], "key": key,
+            "occurrence": entry["count"]}
     try:
         with open(OUTBOX, "a", encoding="utf-8") as f:
             f.write(json.dumps(line) + "\n")
     except OSError:
         pass
+    seen = f" (seen {entry['count']}x since {entry['first_ts'][:10]})" if entry["count"] > 1 else ""
     try:
         with open(QUEUE_MD, "a", encoding="utf-8") as f:
-            f.write(f"\n- [ ] ESCALATION ({reason}) — {detail[:200]} _(gamma_manager {_et_now():%Y-%m-%d %H:%M} ET)_\n")
+            f.write(f"\n- [ ] ESCALATION ({reason}) [{key}]{seen} — {detail[:200]} _(gamma_manager {_et_now():%Y-%m-%d %H:%M} ET)_\n")
     except OSError:
         pass
+    return True
 
 
 def _log(entry: dict) -> None:
@@ -307,11 +424,44 @@ def run_cycle(*, allow_heavy: bool = True) -> dict:
               f"elapsed={denv.get('elapsed_s')}s | action={action} -->\n"
               f"<!-- reason: {pick.get('reason','')} -->\n\n")
     out_path.write_text(header + content, encoding="utf-8")
+
+    # ANTI-FABRICATION GATE (2026-08-19). _looks_like_garbage() above catches token
+    # salad; it cannot catch a FLUENT report about work that never happened. A sweep
+    # of all 690 reports in analysis/manager/ found 9 that claim artifacts which do
+    # not exist on disk, spanning 2026-06-25..2026-08-18 — a ~1.3% base rate running
+    # undetected for two months. The master must never bank an unverified completion.
+    # Fail-OPEN: a verifier crash degrades to the old behaviour, it never halts a fire.
+    verdict = "SKIPPED"
+    try:
+        import worker_output_verify as wov
+        vres = wov.verify(content, report_dir=out_path.parent)
+        verdict = vres["verdict"]
+        if verdict == "FABRICATED":
+            banner = ("> [!DANGER] QUARANTINED — FABRICATED ARTIFACT CLAIMS\n"
+                      "> This report names files/commits that do not exist. It was NOT\n"
+                      "> accepted as work done. Missing: "
+                      + ", ".join(vres["missing_paths"] + vres["missing_shas"])[:400]
+                      + "\n> Checked by setup/scripts/worker_output_verify.py\n\n")
+            out_path.write_text(banner + header + content, encoding="utf-8")
+            _log({"phase": "dispatch", "ok": False, "role": role, "action": action,
+                  "lane": denv.get("lane"), "error": "fabricated_artifacts",
+                  "missing": vres["missing_paths"] + vres["missing_shas"],
+                  "out": str(out_path.relative_to(REPO))})
+            escalate("worker_fabrication",
+                     f"{role} claimed artifacts that do not exist for '{action}': "
+                     + ", ".join(vres["missing_paths"] + vres["missing_shas"])[:150])
+            return {"ok": False, "stage": "dispatch", "role": role, "action": action,
+                    "error": "fabricated_artifacts",
+                    "out": str(out_path.relative_to(REPO))}
+    except Exception as e:                      # noqa: BLE001 — rail: never halt a fire
+        _log({"phase": "verify_error", "role": role, "action": action, "error": str(e)[:200]})
+
     _log({"phase": "dispatch", "ok": True, "role": role, "lane": denv.get("lane"),
           "action": action, "out": str(out_path.relative_to(REPO)),
-          "elapsed_s": denv.get("elapsed_s")})
+          "artifact_verdict": verdict, "elapsed_s": denv.get("elapsed_s")})
     return {"ok": True, "stage": "dispatch", "role": role, "lane": denv.get("lane"),
-            "action": action, "out": str(out_path.relative_to(REPO))}
+            "action": action, "artifact_verdict": verdict,
+            "out": str(out_path.relative_to(REPO))}
 
 
 def main() -> int:
