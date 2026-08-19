@@ -195,3 +195,101 @@ def test_core_execute_wiring_is_present_and_guarded() -> None:
             if "evaluate_live" in seg:
                 calls_in_try = True
     assert calls_in_try, "the book-exposure call is not wrapped in try/except -- a risk READ must never break a tick"
+
+
+def test_fleet_wiring_is_present_and_guarded() -> None:
+    """The fleet path is where the gap actually bites -- 3 arms on the SAME signal core's 2
+    already act on. Pin that the cap is called there, inside a try/except."""
+    import ast
+    src = (REPO / "automation" / "state" / "fleet" / "fleet_executor.py").read_text(encoding="utf-8")
+    assert "BOOK_EXPOSURE_CAP" in src, "cap not wired into the fleet decision path"
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "finalize"), None)
+    assert fn is not None, "finalize() not found"
+    guarded = any(isinstance(n, ast.Try) and "evaluate_live" in (ast.get_source_segment(src, n) or "")
+                  for n in ast.walk(fn))
+    assert guarded, "fleet book-exposure call is not inside try/except"
+
+
+def _load_fleet_executor():
+    """Plain import, NOT spec_from_file_location: loading this module under a second name
+    re-executes its dataclass definitions and blows up in dataclasses.py. Same lesson the
+    conviction test hit earlier in this session."""
+    import sys as _sys
+    for pth in (REPO / "setup" / "scripts", REPO / "automation" / "state" / "fleet"):
+        if str(pth) not in _sys.path:
+            _sys.path.insert(0, str(pth))
+    import fleet_executor  # type: ignore
+    return fleet_executor
+
+
+def test_fleet_state_path_resolves_to_the_real_state_dir() -> None:
+    """SCAR (2026-08-18): the first cut used parents[2] from
+    automation/state/fleet/fleet_executor.py, which is <repo>/automation -- so _BX_STATE
+    became <repo>/automation/automation/state (nonexistent) AND the sibling et_clock import
+    path was wrong, silently dropping _bx_now_iso to LOCAL Mountain time, 2h behind ET. Two
+    bugs from one off-by-one, both invisible unless you PRINT the value. parents[3] is repo."""
+    fe = _load_fleet_executor()
+    assert Path(fe._BX_STATE) == REPO / "automation" / "state", fe._BX_STATE
+    assert Path(fe._BX_STATE).is_dir()
+
+
+def test_fleet_clock_matches_et_clock_right_now() -> None:
+    """Live agreement check. The box runs Mountain; ET = local + 2."""
+    fe = _load_fleet_executor()
+    import et_clock  # type: ignore
+    assert fe._bx_now_iso()[:13] == et_clock.et_now().isoformat()[:13]
+
+
+def test_fleet_clock_fallback_is_a_REJECTED_sentinel_not_local_time() -> None:
+    """THE GUARD THAT ACTUALLY HOLDS.
+
+    An earlier version of this test tried to prove the ET-vs-local bug by breaking the
+    import path and asserting the clock went wrong. It was INERT: this test module puts
+    <repo>/setup/scripts on sys.path itself, so `import et_clock` inside _bx_now_iso
+    succeeded regardless of the module's own (broken) path insertion, and the guard passed
+    against known-broken code. An inert guard is worse than no guard -- it converts a real
+    defect into false confidence -- so it was replaced rather than left green.
+
+    What IS testable, and is the property that matters: on import failure the function must
+    return a sentinel the staleness check REJECTS. If it fell back to datetime.now(), the
+    snapshot would carry LOCAL Mountain time -- 2h behind ET -- which looks stale-but-valid
+    and silently poisons the exposure denominator. A wrong-but-plausible timestamp is far
+    more dangerous than an obviously-dead one.
+    """
+    import ast
+    src = (REPO / "automation" / "state" / "fleet" / "fleet_executor.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "_bx_now_iso"), None)
+    assert fn is not None, "_bx_now_iso not found"
+    # AST, not text: a text scan matched `datetime.now()` inside this test's OWN explanatory
+    # comment. Same false-positive class as the earlier check_tv guard -- documentation that
+    # quotes the bug is not the bug.
+    naive_now_calls = [
+        n for n in ast.walk(fn)
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+        and n.func.attr == "now" and not n.args and not n.keywords
+    ]
+    assert not naive_now_calls, (
+        "_bx_now_iso calls a bare .now() -- on this Mountain-time box that is 2h behind ET "
+        "and would read as stale-but-valid rather than failing visibly"
+    )
+    seg = ast.get_source_segment(src, fn) or ""
+    assert "1970-01-01" in seg, "fallback is not a sentinel the staleness check will reject"
+
+    # And prove the sentinel is genuinely rejected, rather than assuming it.
+    import json as _j
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "fleet").mkdir()
+        snap = {a["arm_id"]: {"equity": 5000.0, "ts_et": "1970-01-01T00:00:00"}
+                for a in be.active_spy_arms()}
+        (d / be.EQUITY_SNAPSHOT_NAME).write_text(_j.dumps(snap), encoding="utf-8")
+        r = be.evaluate_live(d, "2026-08-18T12:00:00")
+        assert r["degraded"] and "stale" in r["degraded"], (
+            "the sentinel was ACCEPTED as a valid equity timestamp"
+        )
+        assert r["allowed"] is True, "must still fail OPEN"

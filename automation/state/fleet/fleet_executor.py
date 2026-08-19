@@ -1169,6 +1169,26 @@ def floor_rescue_plan(
 
 
 # --- phase B: risk gate (reuses the single authority) ------------------------
+_BX_STATE = Path(__file__).resolve().parents[3] / "automation" / "state"
+
+
+def _bx_now_iso() -> str:
+    """ET timestamp for the book-exposure equity snapshot. Never bash TZ -- this box runs
+    Mountain and ET = local+2; et_clock is the only correct source."""
+    try:
+        import sys as _s
+        _p = str(Path(__file__).resolve().parents[3] / "setup" / "scripts")
+        if _p not in _s.path:
+            _s.path.insert(0, _p)
+        import et_clock as _ec
+        return _ec.et_now().isoformat()
+    except Exception:  # noqa: BLE001
+        # NEVER silently return LOCAL time here: this box runs Mountain, so a naive
+        # datetime.now() is 2 hours behind ET and would make every equity snapshot look
+        # stale-but-valid. Return a marker the staleness check will reject instead.
+        return "1970-01-01T00:00:00"
+
+
 def finalize(
     plan: EntryPlan,
     *,
@@ -1350,6 +1370,43 @@ def finalize(
         return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
                            _qty, premium, plan.quality, decision.code,
                            f"risk_gate denied: {decision.reason}", binding=_binding)
+    # ---- BOOK-LEVEL EXPOSURE CEILING (2026-08-18) --------------------------------------
+    # Companion to the same check in heartbeat_core._execute. THIS is the path where the gap
+    # actually bites: the fleet runs THREE arms off the SAME shared signal that core's two
+    # already act on (r=0.846, 95.7% sign agreement), and every arm's kill switch (Rule 5)
+    # and per-trade cap (Rule 6) is per-account and ISOLATED -- correct individually, and
+    # exactly why nothing bounded the aggregate. Without this, five arms could commit ~42% of
+    # the book to one same-direction bet with no code measuring it.
+    #
+    # Calibration (measured, not guessed): peak concurrent book notional across every real
+    # fill was $4,596 = 18.7% of a ~$24.5K book, on 2026-08-14 09:47 ET with all five arms
+    # open and 100% same-direction -- also the book's second-worst day. The 25% default
+    # truncates that tail without having bound a single historical entry.
+    #
+    # FAILS OPEN, LOUDLY, and reads LOCAL STATE ONLY (no broker call on the hot path). The
+    # arm's own equity is recorded here from the value this function already has, which is
+    # what keeps the shared denominator fresh without any extra fetch.
+    # REVERT (one line): set book_exposure_cap_pct to 0 in automation/state/params.json.
+    try:
+        import sys as _sys
+        _bx_path = str(Path(__file__).resolve().parents[3] / "setup" / "scripts")
+        if _bx_path not in _sys.path:
+            _sys.path.insert(0, _bx_path)
+        import book_exposure as _bx
+        _bx.record_arm_equity(plan.arm_id, equity, _BX_STATE, _bx_now_iso())
+        _cap = _fleet_params.get("book_exposure_cap_pct", _bx.DEFAULT_MAX_BOOK_EXPOSURE_PCT)
+        _cap = float(_cap) if _cap is not None else 0.0
+        if _cap > 0:
+            _bk = _bx.evaluate_live(_BX_STATE, _bx_now_iso(),
+                                    prospective_notional=float(_qty) * float(premium) * 100.0,
+                                    max_pct=_cap)
+            if not _bk.get("allowed", True):
+                return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
+                                   _qty, premium, plan.quality, "BOOK_EXPOSURE_CAP",
+                                   f"book exposure gate: {_bk.get('reason')}")
+    except Exception:  # noqa: BLE001 -- a risk READ must never break an arm's decision
+        pass
+
     action = "ENTER_BEAR" if plan.side == "P" else "ENTER_BULL"
     _reason = plan.reason if not _shrink_note else f"{plan.reason}; {_shrink_note}"
     return ArmDecision(plan.arm_id, action, plan.side, plan.setup_name, plan.strike,
