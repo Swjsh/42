@@ -97,6 +97,17 @@ def _recent_context() -> str:
 
 
 def _norm(s: str) -> str:
+    # 2026-08-18: collapse ALL unicode whitespace (e.g. U+202F narrow no-break
+    # space, seen verbatim in real consult text as "Rule 10") to a plain
+    # ' ' BEFORE stripping non-alnum chars. Without this, the alnum-strip
+    # regex below (which only preserves literal ASCII ' ') silently GLUES
+    # adjacent words together ("Rule 10" -> "rule10"), defeating every
+    # space-anchored scaffold-prefix match (e.g. the "rule 9"/"rule 10"
+    # entries in _SCAFFOLD_PREFIXES) -- a latent bug newly exposed once
+    # _extract_gaps started joining full bullet lines (see _join_bold_bullet)
+    # instead of short bold-only headlines, which had accidentally masked it
+    # via the separate <3-word length check.
+    s = re.sub(r"\s", " ", s)
     return re.sub(r"[^a-z0-9 ]", "", s.lower()).strip()[:90]
 
 
@@ -201,7 +212,17 @@ _CONSENSUS_LEADIN_RE = re.compile(
     r"|a majority\b"
     r"|most (perspectives|agree)\b"
     r"|finally all (concur|agree)\b"
-    r"|several (perspectives )?agree\b)"
+    r"|several (perspectives )?agree\b"
+    # 2026-08-18: "The most rigorous view is Perspective 5 because ..." -- the
+    # SAME synthesis cross-reference-noise class as _PERSPECTIVE_REF_RE (rating
+    # one perspective against the others), just a lead-in shape neither that
+    # regex (requires the LINE to start with 'perspective(s) N') nor this one
+    # (required an explicit agree/concur/majority verb) caught. Leaked verbatim
+    # into the 2026-08-18 batch under "Key disagreements". Anchored to the
+    # rating lead-in only, so a real gap that happens to discuss which
+    # perspective is "most rigorous" mid-sentence still survives.
+    r"|the most (rigorous|compelling|persuasive|convincing) view is perspectives?\s*\d"
+    r"|the strongest perspective is\s*\d)"
 )
 
 
@@ -233,17 +254,61 @@ def _is_real_gap(text: str) -> bool:
     return True
 
 
+_NUM_BOLD_LINE_RE = re.compile(r"(?m)^\s*\d+\.\s+\*\*(.+?)\*\*(.*)$")
+_DASH_BOLD_LINE_RE = re.compile(r"(?m)^\s*[-*]\s+\*\*(.+?)\*\*(.*)$")
+_LEADING_SEP_RE = re.compile(r"^[:\-–—]+\s*")
+# Known prompt-template SECTION-NAME labels ("**Role:**", "**Task:**", ...) --
+# when the ENTIRE bold span is exactly one of these (colon included), the
+# bullet is the model echoing its own prompt skeleton, not a gap, regardless
+# of what mundane instruction-restatement text follows on the same line
+# ("Formatting: List format as requested. Top 6-8."). Joining full lines
+# (2026-08-18 fix below) would otherwise let these survive the trailing-':'
+# scaffold check, which only fired when the label was captured bare.
+_KNOWN_TEMPLATE_LABELS = {
+    "role", "task", "context", "constraints", "formatting", "final polish",
+    "specific output format", "drafting the response",
+}
+
+
+def _join_bold_bullet(label: str, rest: str) -> str:
+    """Recombine a perspective bold-lead-in bullet with the explanation that
+    follows it on the SAME line, instead of keeping only the bold headline.
+
+    2026-08-18 (real observed regression, 4th day running of the SAME
+    scaffold-crowding triage class): the old code captured ONLY the text
+    inside `**...**` and threw away everything after -- so
+    '1. **Implement the watcher scripts** (`order-quality-watcher.py`, ...) as
+    lightweight services that publish events to `automation/state/`' flagged
+    as the unreadable, contextless fragment 'Implement the watcher scripts'.
+    Synthesis bullets got a full-line-capture fix for this exact class back
+    on 2026-08-02 (`_strip_bold_label`); perspective numbered/dash bold
+    bullets never did, and kept leaking headline-only fragments across the
+    2026-08-15/16/17/18 batches (each individually triaged as noise instead
+    of the root cause being fixed). NOTE this is intentionally NOT the same
+    transform as `_strip_bold_label`: that one DROPS the bold segment because
+    it is a meta-label ('Key risk:', 'Most rigorous view:'); here the bold
+    segment is usually the finding/action ITSELF, so it is KEPT and the
+    trailing explanation is appended, not substituted.
+    """
+    label = label.strip()
+    if label.endswith(":") and label[:-1].strip().lower() in _KNOWN_TEMPLATE_LABELS:
+        return ""  # pure template-skeleton label; nothing salvageable
+    rest = _LEADING_SEP_RE.sub("", rest.strip())
+    return f"{label} {rest}".strip() if rest else label
+
+
 def _extract_gaps(consult_json: dict) -> list[str]:
     """Pull the ranked gap bullets out of the swarm synthesis + perspectives."""
     # The synthesis + perspective markdown carries numbered/bulleted gaps; grab bold lead-ins
-    # and numbered items from the raw perspective text.
+    # and numbered items from the raw perspective text, WITH whatever explanation follows
+    # them on the same line (see _join_bold_bullet).
     out = []
     for persp in consult_json.get("perspectives", []):
         body = persp.get("content") or persp.get("text") or ""
-        for m in re.findall(r"(?m)^\s*\d+\.\s+\*\*(.+?)\*\*", body):
-            out.append(m.strip())
-        for m in re.findall(r"(?m)^\s*[-*]\s+\*\*(.+?)\*\*", body):
-            out.append(m.strip())
+        for m in _NUM_BOLD_LINE_RE.finditer(body):
+            out.append(_soft_truncate(_join_bold_bullet(m.group(1), m.group(2))))
+        for m in _DASH_BOLD_LINE_RE.finditer(body):
+            out.append(_soft_truncate(_join_bold_bullet(m.group(1), m.group(2))))
     synth = consult_json.get("synthesis", {})
     sbody = synth.get("content") if isinstance(synth, dict) else str(synth)
     for m in re.findall(r"(?m)^\s*[-*]\s+(.+)$", sbody or ""):

@@ -186,7 +186,18 @@ def test_bullet_with_no_bold_label_unaffected():
 
 
 def test_real_fixture_06_29_surfaces_real_gaps():
-    """Lock the real-world regression against the committed 06-29 consult (skip if absent)."""
+    """Lock the real-world regression against the committed 06-29 consult (skip if absent).
+
+    2026-08-18: needle check changed from exact membership to prefix-match.
+    Before the same-day fix (_join_bold_bullet), a perspective bold bullet
+    like '1. **Filter 5/9 static thresholds** -- already proven root cause,
+    no adaptive mechanism' extracted to ONLY the bold headline, dropping the
+    explanation -- exactly the headline-only-fragment bug this same fire
+    fixed for perspective bullets (synthesis bullets got the equivalent fix
+    2026-08-02). The extractor now correctly KEEPS the full sentence, so the
+    old exact-string assertions are stale by design, not a regression --
+    updated to assert the real gap still surfaces (as a prefix of the fuller,
+    more useful text) rather than re-asserting the old truncated behavior."""
     f = REPO / "analysis" / "swarm-consult" / "2026-06-29-173002-audit-audit-project-gamma-autonomous-0dte-spy-options-tr.json"
     if not f.exists():
         pytest.skip("06-29 consult fixture not present")
@@ -194,7 +205,91 @@ def test_real_fixture_06_29_surfaces_real_gaps():
     gaps = self_audit._extract_gaps(json.loads(f.read_text(encoding="utf-8")))
     assert gaps, "extractor produced nothing on the real fixture"
     assert not any(g.strip().endswith(":") for g in gaps), "scaffold header leaked"
-    # the 4 perspective-4 bold gaps must surface (they were crowded out before the fix)
+    # the 4 perspective-4 bold gaps must surface (they were crowded out before the fix) --
+    # now with their full explanation attached, so match by prefix not exact string.
     for needle in ("Filter 5/9 static thresholds", "Silent task duplication",
                    "Intraday broker degradation blindness", "Anchor-day drift undetected"):
-        assert needle in gaps, f"real gap missing from fixture extraction: {needle!r}"
+        assert any(g.startswith(needle) for g in gaps), \
+            f"real gap missing from fixture extraction: {needle!r}"
+
+
+# --- 2026-08-18 regression: perspective bold-bullet headline-only fragments ------
+# 4th day running of the SAME triage class (08-15/16/17/18 batches each hand-triaged
+# as "scaffold-crowding noise" without the root cause ever being fixed): the
+# perspective numbered/dash bold-bullet regex only ever captured the text INSIDE
+# `**...**`, discarding the explanation on the rest of the line -- unlike synthesis
+# bullets, which got a full-line-capture fix back on 2026-08-02 (_strip_bold_label).
+
+def test_perspective_bold_bullet_keeps_trailing_explanation():
+    """Real observed fragment (2026-08-18 batch): '1. **Implement the watcher
+    scripts** (`order-quality-watcher.py`, `margin-checker.py`, etc.) as
+    lightweight services that publish events to the existing `automation/state/`
+    folder.' used to extract to ONLY 'Implement the watcher scripts' -- an
+    unreadable, contextless headline. Must now keep the full sentence."""
+    body = (
+        "1. **Implement the watcher scripts** (`order-quality-watcher.py`, "
+        "`margin-checker.py`, etc.) as lightweight services that publish "
+        "events to the existing `automation/state/` folder."
+    )
+    gaps = self_audit._extract_gaps(_consult([body]))
+    assert gaps == [
+        "Implement the watcher scripts (`order-quality-watcher.py`, "
+        "`margin-checker.py`, etc.) as lightweight services that publish "
+        "events to the existing `automation/state/` folder."
+    ]
+
+
+def test_perspective_bold_only_bullet_unaffected():
+    """A bold bullet with nothing trailing it on the line (the old common
+    case, e.g. real fixture 'Filter 5/9 static thresholds') must still
+    extract to exactly the bold text, unchanged."""
+    body = "1. **Filter 5/9 static thresholds**"
+    gaps = self_audit._extract_gaps(_consult([body]))
+    assert gaps == ["Filter 5/9 static thresholds"]
+
+
+def test_perspective_template_label_bullet_still_rejected():
+    """The join must NOT resurrect known prompt-template section labels
+    ('Role:', 'Task:', 'Context:', 'Constraints:', 'Formatting:') just
+    because instruction-restatement text follows them on the same line --
+    these are the model echoing its own prompt skeleton, not a gap."""
+    for label, tail in [
+        ("Role", "Free-tier reasoning model for Project Gamma."),
+        ("Task", "Audit the system for obvious gaps."),
+        ("Context", "Recent commits show focus on postmortems."),
+        ("Constraints", "Be direct, specific, rigorous. No filler."),
+        ("Formatting", "List format as requested. Top 6-8."),
+    ]:
+        body = f"1. **{label}:** {tail}"
+        gaps = self_audit._extract_gaps(_consult([body]))
+        assert gaps == [], f"template label leaked through the join: {label!r} -> {gaps!r}"
+
+
+def test_norm_does_not_glue_words_across_narrow_nbsp():
+    """Real observed fixture text uses U+202F (narrow no-break space) inside
+    'Rule 10' -- the alnum-strip regex only ever preserved literal ASCII
+    ' ', so it silently fused this into 'rule10', defeating the space-anchored
+    'rule 9'/'rule 10' scaffold-prefix match once full-line joining (this
+    fire) gave the fused text enough words to slip past the old length<3
+    guard that had accidentally been masking the bug."""
+    assert self_audit._norm("Rule 10 violation") == "rule 10 violation"
+    assert self_audit._is_real_gap("Rule 10 Trades occur despite violating a risk limit") is False
+
+
+def test_most_rigorous_view_is_perspective_n_rejected():
+    """Real observed noise (2026-08-18 synthesis 'Key disagreements' section):
+    'The most rigorous view is Perspective 5 because it directly addresses
+    the primary failure modes...' -- rating one perspective against the
+    others, the same cross-reference-noise class as _PERSPECTIVE_REF_RE and
+    _CONSENSUS_LEADIN_RE target, just a lead-in shape neither caught."""
+    body = (
+        "- The most rigorous view is Perspective 5 because it directly "
+        "addresses the primary failure modes of a 0DTE SPY options trader."
+    )
+    gaps = self_audit._extract_gaps(_synth_consult(body))
+    assert gaps == [], f"perspective-rating lead-in leaked: {gaps!r}"
+    # non-over-rejection: a real gap that merely discusses which view is
+    # "rigorous" mid-sentence, not as the bullet's own lead-in, must survive.
+    assert self_audit._is_real_gap(
+        "Position sizing should weight the most rigorous backtests higher"
+    ) is True

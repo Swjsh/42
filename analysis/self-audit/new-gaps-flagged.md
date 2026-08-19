@@ -993,3 +993,49 @@ leading clause stripped by the extractor (same scaffold-crowding class as prior 
 verified GREEN in engine-health.json this fire) and "strategy changes not versioned" is false
 (git IS the versioning + AutoApply's revert <id> mechanism) -- not actioned, no concrete new
 claim survives. -->
+
+## 2026-08-18T17:32:49 -- 5 new gap(s) Gamma self-identified
+- Implement the watcher scripts
+- Hook each watcher into the existing `task_scorer.py`
+- Add a small “auto‑safety” layer
+- Update the documentation
+- The most rigorous view is Perspective 5 because it directly addresses the primary failure modes of a 0DTE SPY options trader—slippage, margin breach, mis‑sized positions, regime shifts, Greek mis‑calculation, lack of exit protection, PnL [...]
+
+<!-- DONE 2026-08-18 ~20:5x ET conductor (AFTERHOURS) :: ROOT-CAUSED + FIXED THE EXTRACTOR
+itself, not just this one batch -- this was the 4th consecutive day (08-15/16/17/18) the
+SAME triage note got written ("scaffold-crowding class as prior batches") without anyone
+fixing the actual mechanism. Traced #1-4 to the perspective bold-bullet regexes
+(`_NUM_BOLD_LINE_RE`/`_DASH_BOLD_LINE_RE`) capturing ONLY the text inside `**...**` and
+discarding everything after on the same line -- the real source markdown ("1. **Implement
+the watcher scripts** (`order-quality-watcher.py`, ...) as lightweight services that
+publish events to `automation/state/`") had a perfectly readable full sentence; the
+extractor threw the back half away. Synthesis bullets got the equivalent fix 2026-08-02
+(`_strip_bold_label`); perspective bullets never did. Traced #5 ("The most rigorous view is
+Perspective 5 because...") to a genuinely new lexical noise variant -- a perspective-rating
+lead-in neither `_PERSPECTIVE_REF_RE` nor `_CONSENSUS_LEADIN_RE` matched. Fixed both in
+`setup/scripts/self_audit.py`: `_join_bold_bullet()` now recombines the bold lead-in with
+its trailing explanation (verified against the real 2026-08-18 fixture: #1-4 now read as
+complete sentences); added the "most rigorous view is perspective N" lead-in to
+`_CONSENSUS_LEADIN_RE`. Fixing the join surfaced two LATENT bugs it would otherwise have
+newly exposed: (a) known prompt-template section labels ("Role:"/"Task:"/"Context:"/
+"Constraints:"/"Formatting:") would have started leaking through once trailing instruction-
+restatement text defeated the old trailing-colon check -- added `_KNOWN_TEMPLATE_LABELS`
+exact-match guard; (b) `_norm()` silently glued adjacent words together whenever the source
+used U+202F (narrow no-break space, e.g. real fixture text "Rule 10") because the alnum-
+strip regex only ever preserved literal ASCII ' ' -- this had been masked by the old
+short-headline capture (a fused "rule10" token failed the separate <3-word length check
+before the prefix-match was ever reached) and would have newly resurfaced once full-line
+joins gave it enough words to slip past that guard. Fixed `_norm()` to collapse all unicode
+whitespace to ' ' before stripping. 5 new regression tests reproduce all four sub-bugs
+verbatim + RED-proofed via git-stash (fail on pre-fix code, pass restored); updated one
+stale exact-match assertion in `test_real_fixture_06_29_surfaces_real_gaps` to prefix-match
+(the extractor now correctly returns MORE text than before, not less -- the old exact
+string was itself a symptom of the bug being fixed). Full suite: 79/79 green
+(`test_self_audit_extract.py` + `test_self_audit_swarm_timeout.py` +
+`test_self_check_self_audit_organ_alive.py`). This batch's own 5 gaps are template-generic
+watchdog-script proposals (execution-quality/margin/vol-sizing/IV/stop-loss watchers already
+covered by prior batches' triage as "named infra that already exists in some form or is a
+recurring un-actioned brainstorm, not a single-fire-boundable new claim") -- no separate
+action taken on their content; the extractor fix IS this fire's action. Zero trading-path
+file touched. Revert: `git revert <this commit>` (2 files: self_audit.py + its test file,
+additive only). -->
