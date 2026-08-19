@@ -182,6 +182,42 @@ FOMC 9/16, NVDA 8/26 · MRVL 8/27 · AVGO 9/2.
 - **Safety halt:** any position-visibility incident (C11 class) → lane halts until root-caused.
 - **Live money:** never without J (OP-0 #1) — unchanged, forever, regardless of paper results.
 
+## 9b. NIGHT RUN 2026-08-18 → 08-19 — the work order + progress ledger
+
+> J went to bed 2026-08-18 ~21:44 ET with explicit standing authorization: *"do you have
+> permission to build this out and backtest and device things and test and strategize and build
+> all night… map it out, and then put yourself into a loop and get it done… don't skip anything."*
+> This section is the MAP + the live progress ledger. **Any session resuming this work reads
+> here first.** Update the checkboxes in place; do not create a parallel run doc (OP-22).
+>
+> **Standing authorization covers:** build, wire, test, backtest, experiment, screen, fix,
+> document, commit — all paper/shadow, all git-revertible.
+> **Still needs J (queued, never attempted autonomously):** (1) create the weekly-1 Alpaca paper
+> account, (2) provision its API key, (3) arm live money (OP-0 #1), (4) two judgment calls —
+> overnight-trim semantics and GLD's expiry-day cutoff class.
+
+| # | Phase | Scope | State |
+|---|---|---|---|
+| 1 | **Stage-A core build** | 6 workstreams (signal core, earnings feed, expiry selector, exit gate, risk gates, sector heat) + weekly_core integrator + participation cascade | ✅ files landed; adversarial review in flight |
+| 2 | **Review remediation** | Fix every CRITICAL/IMPORTANT the code review returns; re-run guards; verify the two LIVE-file edits (`exit_manager.py`, `option_pricing_real.py`) are provably inert for the SPY book | ⬜ |
+| 3 | **Data ingestion** | `fetch_weekly_option_data.py` — liquidity-FILTERED contract selection (probe finding: coverage is volume-gated; filter by OI/volume BEFORE fetching or the set fills with 2-bar phantom series). Expiry-day bar handled specially (11-07 probe showed low 0.07 / 381k vol — pathological). Cache + coverage manifest | ✅ **DONE.** 180,873 real daily bars / 11,629 liquid contracts (GLD+QQQ, expiries 06-01→08-14), 10,309 with ≥5-bar multi-day paths. Integrity clean (0 flag-mismatch / 0 post-expiry / 0 hi<lo / 0 negative). **Two real bugs caught and fixed:** (a) paper key 401s against `api.alpaca.markets` — the contracts endpoint needs `paper-api`; (b) expiry-window and bar-window shared a start date, silently truncating 275 contracts (2.4%) to their expiry-day bar while still reporting "99% coverage" — fixed via `BAR_LOOKBACK_DAYS=45`, truncation 275→53, rows +37%. Regression guard RED-proofed. Data is gitignored (regenerable); the script is committed. |
+| 4 | **Multi-day backtest harness** | `multiday_walk.py` + `weekly_fill_model.py` — position spans sessions, overnight gap-as-jump, weekend exclusion, %-of-spread fills. Disclose/fix the known zero-slippage optimism in `exit_manager_walk.py` BEFORE trusting any number | ⬜ |
+| 5 | **Freeze the prereg** | `analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18.json` — frozen BEFORE any result is looked at | ⬜ |
+| 6 | **RUN the expiry experiment** | J's explicit ask: same-week vs next-week vs 2-weeks-out vs monthly. Paired/matched (same signal, N contracts), delta-matched, %-return-on-premium primary, Holm-corrected across the 3 contrasts, per-arm real-vs-synthetic completeness disclosed | ⬜ |
+| 7 | **RUN the strategy backtest** | The level-interaction thesis on weeklies, multi-day holds, across the basket. Random-entry-null MAX gate before ANY result is called promising | ⬜ |
+| 8 | **Sector + universe screen** | J's ask ("different sectors, what's hot when"): run the heat scanner for real; screen a WIDE options-liquidity universe (not just the 6 named); report what is genuinely tradeable at $5K | ⬜ |
+| 9 | **Wiring** | Scheduled tasks (EarningsRefresh, WeeklyLevels, WeeklyCore, FridayFlatten+Verify), `state_freshness_audit` registration, journal schema w/ lot linkage, `weekly-pulse` skill, obsidian sync block | ⬜ |
+| 10 | **Shadow dry-run** | Run `weekly_core` against recent history; read the participation cascade. **The L199 question: does the gate stack EVER fire?** A lane that never trades is the #1 program risk | ⬜ |
+| 11 | **Docs + commit + morning brief** | Fold corrections into this doc + the research record; commit in reviewable chunks; write J's morning brief incl. the 4 things needing him | ⬜ |
+
+**Ordering rule:** phases 3→7 are the evidence spine and run in order. Phase 8 is independent and
+may interleave. Phase 10 gates any claim that the lane "works." **Nothing in this list arms
+anything or places an order.**
+
+**Standing discipline for every iteration:** no result is reported as promising until it clears
+the random-entry-null MAX gate; every new param gets a vary-and-assert; every producer fails
+loudly; anything that looks too good gets the artifact hunt BEFORE it gets written up.
+
 ## 9. Documentation architecture (how/where this program journals)
 
 - **This file** — canonical program state (status line + append log).

@@ -1,0 +1,114 @@
+{
+  "_doc": "Weekly-options lane (weekly-1) config. Created 2026-08-18 per markdown/planning/WEEKLY-OPTIONS-PROGRAM.md + the v2 merged build plan. TRACKED config (the lane's live/decision-gating state files beside it are gitignored -- see .gitignore 'Weekly-options lane'). NOTHING here arms anything: status is shadow, live is false, and no account exists yet.",
+  "_status": "SHADOW_PENDING_BUILD",
+  "_rule_version": "weekly-v1",
+  "_provenance": "Values marked UNVALIDATED_STARTING_DEFAULT have NOT been fitted to weekly fills -- they are ported/argued starting points that must earn their keep via the paired shadow-clock A/B. Do not cite them as validated.",
+
+  "arm": "weekly-1",
+  "live": false,
+  "shadow_only": true,
+
+  "universe": {
+    "_doc": "FIXED basket at v1 (the dynamic universe funnel is v2 basket-rotation machinery, deliberately not wired here). Wave 2 symbols are listed but NOT active.",
+    "active": ["GLD", "QQQ"],
+    "wave_2_pending": ["NVDA", "TSLA", "AAPL"],
+    "wave_2_gate": "NVDA may not join until the correlation gate is ENFORCED (measured r=0.60-0.68 vs QQQ) and its 2026-08-26 earnings has passed.",
+    "excluded": {
+      "RIVN": "Friday-only expiries; ATM premium $0.17-0.19 where the $0.02 spread is 11-19% -- sub-$0.20 noise floor (see project_noise_floor_entry_exit_matrix)."
+    }
+  },
+
+  "signal": {
+    "_doc": "The 4 tunables. FOCUS-DOCTRINE caps a candidate at <=4 tunable parameters -- adding a 5th requires killing one.",
+    "ZONE_WIDTH_ATR_MULT": 0.25,
+    "SWING_WINDOW_DAILY": 5,
+    "SWING_WINDOW_1H": 3,
+    "MIN_ZONE_CONFLUENCE": 1,
+    "_MIN_ZONE_CONFLUENCE_note": "1 = no-op (any single zone qualifies). 2 = stricter. Left at 1 pending shadow-ledger evidence rather than assumed.",
+    "timeframes": {
+      "zone_tf": "1Day",
+      "trigger_tf": "1Hour",
+      "_amendment": "Program doc row 1 originally specified a daily/4h/1h 3-tier. Alpaca has NO native 4H bar; client-side resampling was judged unproven engineering cost. 2-tier daily+1h ships instead. This is a documented amendment, not a silent override."
+    },
+    "zone_families": ["swing_high_low", "structure_hh_hl_lh_ll", "prior_week_month_hlc", "round_numbers", "ema_20_50"],
+    "_zone_families_cut": {"poc_value_area": "coarse 1H-bar approximation of a tick-level concept -- revisit only on evidence"},
+    "soft_logged_only": {
+      "_doc": "Logged on every row, NEVER a hard AND-gate. Making these gates would worsen the joint gate-cascade risk (L199: 6 arms/700 signals/0 trades) and break the 4-param ceiling.",
+      "iv_rank": true,
+      "sector_heat_rs": true
+    }
+  },
+
+  "entry": {
+    "min_dte_at_entry": 3,
+    "expiry_rule": "this_friday_if_dte_ge_3_else_next_friday",
+    "target_delta_min": 0.40,
+    "target_delta_max": 0.70,
+    "structure": "long_premium_only",
+    "_structure_note": "Debit spreads are v2 -- exit_manager cannot price spread P&L (capped/non-linear); shipping two unknowns at once was rejected.",
+    "earnings_blackout_sessions": 3,
+    "earnings_feed_stale_hours_fail_closed": 48,
+    "_earnings_note": "Fail-CLOSED for single-name symbols on stale/missing feed. GLD/QQQ are ETFs and structurally exempt.",
+    "liquidity_gate": {
+      "max_spread_pct_of_premium": 5.0,
+      "min_open_interest": 500,
+      "_feed": "indicative",
+      "_feed_note": "This account has NO signed OPRA agreement. Every spread/liquidity number the lane will EVER produce comes from Alpaca's free 'indicative' (delayed, modified) feed. Tag feed='indicative' on every row, forever -- this is a permanent structural ceiling, not a bootstrap gap."
+    }
+  },
+
+  "risk": {
+    "per_trade_risk_cap_pct": 0.30,
+    "min_contracts": 3,
+    "max_concurrent_positions": 2,
+    "_max_concurrent_note": "Basket-wide, not per-symbol. Multi-day holds tie up capital for days; a $5K account cannot carry more without starving the next setup.",
+    "correlation_gate": {
+      "deny_abs_r_gte": 0.70,
+      "lookback_days": 60,
+      "fail_mode": "closed",
+      "_fail_mode_note": "Deliberate departure from book_exposure's fail-open precedent: this gate has no independent backstop. Missing correlation data = deny."
+    },
+    "overnight_size_multiplier": 0.5,
+    "_overnight_semantics": "NEEDS_J: one-time entry-sizing cut vs nightly-compounding halving. Materially different risk profiles. Assumed one-time until J rules.",
+    "daily_loss_kill_switch_pct": 0.30,
+    "kill_switch_semantics": "blocks_new_entries_only",
+    "_kill_switch_note": "Never force-closes. Rule 5's exact per-account mechanism. Multi-day unrealized swings must not liquidate live positions.",
+    "weekend_holds": false
+  },
+
+  "exits": {
+    "_label": "UNVALIDATED_STARTING_DEFAULT",
+    "_doc": "Ported/argued starting points, NOT fitted to weekly fills. The underlying theta math was measured at the 3DTE floor case only, not across the real 5-9 DTE entry range. Validated only via the paired shadow-clock A/B (both this shape AND the naive ported-0DTE shape are journaled from the first signal).",
+    "tp1_premium_pct": 45.0,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_mult": 1.75,
+    "trail_pct": 20.0,
+    "profit_lock_arm_pct": 15.0,
+    "catastrophe_stop_pct": -50.0,
+    "theta_budget": {
+      "_doc": "MUST evaluate BEFORE the catastrophe cap. Verified decay is -18/-19%/day at 3DTE, so a flat position decays ~46-56% by day 3-4 on its own -- an unmodified -50% cap silently becomes a theta timer that mislabels normal decay as a stopped-out loss.",
+      "fires_before_catastrophe_cap": true,
+      "max_premium_bleed_pct_without_progress": 30.0,
+      "thesis_progress_definition": "underlying has moved >= 0.5 * ZONE_WIDTH in the trade's direction from entry"
+    },
+    "days_to_live": 3
+  },
+
+  "flatten_schedule_et": {
+    "_doc": "CORRECTED 2026-08-18 from the frozen v1 doc's 15:30 ET, which was PAST both real cutoffs and dangerous. Verified: Alpaca rejects option orders after 3:15pm ET on expiration day for every pilot name except SPY/QQQ, and the do-not-exercise submission cutoff is 3:00pm ET. A long option left to auto-exercise would deliver shares this account cannot afford.",
+    "soft_time_stop": "14:45",
+    "hard_backstop": "14:50",
+    "last_resort_dne_sweep": "14:55",
+    "_gld_cutoff_class": "NEEDS_J_OR_EMPIRICAL: GLD's expiration-day cutoff class (3:15pm general vs 3:30pm SPY/QQQ class) is not stated on Alpaca's public page. Conservatively assumed the TIGHTER class."
+  },
+
+  "promotion": {
+    "_doc": "Shadow -> paper bar. Counts DISTINCT TRADING-DAY SESSIONS, not raw signal rows: >=10 rows across correlated symbols can be ~3 macro days wearing 4 ticker labels (QQQ/NVDA/TSLA/AAPL share tech/semis beta, r=0.60-0.71 measured).",
+    "min_signals": 10,
+    "min_distinct_sessions": 10,
+    "max_gate_misfires": 0,
+    "random_entry_null_gate": "MAX",
+    "_random_entry_null_note": "Edge must beat the randomized-entry null at its MAX, not its mean, on real fills BEFORE any read is described as promising. L58/L136: SPY-price WR looks real; option-P&L WR is not.",
+    "real_fills_promotion_gate_n": 30
+  }
+}

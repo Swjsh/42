@@ -282,3 +282,17 @@ memory-mirror/
 
 # Matrix per-trade audit dumps: 35MB+ local audit trail, regenerable from the runner.
 analysis/deep-research/*-trades.json
+
+# --- Weekly-options lane (2026-08-18) --------------------------------------
+# Same tracked-but-rarely-committed reversion hazard as the SPY ledgers/snapshots above
+# (test_ledger_gitignore_guard.py). These are continuously written, decision-gating, and
+# would be silently reverted BACKWARD by any tree-wide git stash/checkout in the shared
+# checkout. params.json is deliberately NOT here -- it is config and stays tracked.
+automation/state/weekly/shadow-ledger.jsonl
+automation/state/weekly/participation-cascade.jsonl
+automation/state/weekly/exit-state.json
+automation/state/weekly/positions.json
+automation/state/weekly/circuit-breaker.json
+automation/state/weekly/earnings-blackout.json
+automation/state/weekly/key-levels-*.json
+automation/state/weekly/expiry-experiment-shadow-ledger.jsonl

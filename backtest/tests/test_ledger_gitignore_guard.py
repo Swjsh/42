@@ -98,6 +98,50 @@ SELF_AUDIT_GAP_LOG = [
     "analysis/self-audit/gap-log.jsonl",
 ]
 
+# WEEKLY-OPTIONS LANE (2026-08-18): pre-emptive, not reactive. The weekly-1 lane's live
+# state is the SAME hazard class as everything above -- continuously written, decision-
+# gating, rarely committed -- so it is gitignored in the same commit that creates
+# automation/state/weekly/, rather than after a sixth incident teaches the lesson again.
+# NOTE: automation/state/weekly/params.json is deliberately NOT in this list -- it is
+# config (like the SPY params.json) and MUST stay tracked.
+WEEKLY_LANE_SNAPSHOTS = [
+    "automation/state/weekly/shadow-ledger.jsonl",
+    "automation/state/weekly/participation-cascade.jsonl",
+    "automation/state/weekly/exit-state.json",
+    "automation/state/weekly/positions.json",
+    "automation/state/weekly/circuit-breaker.json",
+    "automation/state/weekly/earnings-blackout.json",
+    "automation/state/weekly/key-levels-GLD.json",
+    "automation/state/weekly/expiry-experiment-shadow-ledger.jsonl",
+]
+
+
+def test_weekly_lane_state_is_gitignored():
+    """Weekly-lane live state must be unreachable by any tree-wide git operation."""
+    for path in WEEKLY_LANE_SNAPSHOTS:
+        r = subprocess.run(
+            ["git", "-C", str(REPO), "check-ignore", "-q", path],
+            capture_output=True,
+        )
+        assert r.returncode == 0, (
+            f"{path} is NOT gitignored -- a tree-wide git stash/reset in the shared "
+            f"checkout can silently revert the weekly lane's decision-gating state "
+            f"BACKWARD (see .gitignore 'Weekly-options lane')."
+        )
+
+
+def test_weekly_params_stays_tracked():
+    """The inverse guard: params.json is CONFIG and must never be swept into the ignore."""
+    r = subprocess.run(
+        ["git", "-C", str(REPO), "check-ignore", "-q", "automation/state/weekly/params.json"],
+        capture_output=True,
+    )
+    assert r.returncode != 0, (
+        "automation/state/weekly/params.json is gitignored -- it is tracked CONFIG "
+        "(like automation/state/params.json). An over-broad weekly/ ignore rule would "
+        "make the lane's rule set invisible to review and unrecoverable."
+    )
+
 
 def test_decision_ledgers_are_gitignored():
     for path in LEDGERS:
