@@ -9,7 +9,26 @@
 > All five arms are **PAPER**. No real money was ever at risk. That is the point of the
 > exercise working correctly.
 
-## VERDICT
+> ## ⚠️ CORRECTION APPENDED 2026-08-18, SAME EVENING
+>
+> J pushed back on this document's framing: *"the win rate doesn't necessarily reflect being
+> profitable, so we need to rethink that part of the readiness gate."* He was right, and
+> testing it changed the conclusion. Two things this document got wrong:
+>
+> 1. **The 45% win-rate bar is miscalibrated for this strategy.** Profitability is decided by
+>    whether the win rate clears *this* strategy's breakeven, which is `1/(1+payoff_ratio)`.
+>    The arms run 2.25×–3.52× payoffs, so their breakevens are **22%–31%**, not 45%. Measured
+>    against their own lines, every arm is **0.6–5.1 percentage points short** — near-misses,
+>    not failures. A flat 45% bar demands roughly double what the strategy needs.
+>
+> 2. **Not one arm's expectancy is statistically distinguishable from zero.** |t| runs
+>    0.1–0.7 against a threshold of 2. The point estimates are negative; the *conclusion*
+>    "no arm is close" was not supported by them. The honest verdict is **UNKNOWN**, not FAIL.
+>
+> The gate now reports breakeven win rate, margin in percentage points, and a t-statistic.
+> The tables below are left unedited as the original reading.
+
+## VERDICT (as originally written — see correction above)
 
 **No arm is close to the live bar. Every arm fails win rate and fails expectancy.**
 
@@ -84,6 +103,22 @@ pre-registered stop-mode clock at its own D20 checkpoint, not by re-reading this
 - Say anything about a specific arm's independent merit — at r=0.846 these are five sizes of
   one bet, and the per-arm rows should be read as five looks at the same strategy.
 - Justify loosening any gate to trade more. The measured problem is not too few trades.
+
+## Corrected verdict
+
+| arm | win rate | its own breakeven | margin | expectancy | t |
+|---|---:|---:|---:|---:|---:|
+| risky-3 | 21.5% | 22.1% | **−0.6pp** | −$2.15 | −0.1 |
+| risky-1 | 23.5% | 25.0% | −1.5pp | −$4.37 | −0.2 |
+| safe-3 | 21.3% | 24.4% | −3.2pp | −$8.00 | −0.4 |
+| bold-2 | 26.9% | 30.8% | −3.9pp | −$18.92 | −0.4 |
+| safe-2 | 23.2% | 28.3% | −5.1pp | −$10.67 | −0.7 |
+
+**Every arm is a near-miss on its own terms, and no arm has enough data to say so with
+confidence.** That is a materially different situation from "not close," and it points at a
+different question: the gap is 0.6–5.1pp of win rate, which is small enough that costs
+(fees + spread, being quantified separately) could plausibly account for the whole of it —
+or make it worse. That is now the load-bearing unknown.
 
 ## Reproduce
 

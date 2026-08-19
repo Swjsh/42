@@ -186,8 +186,36 @@ def _context_stats(trips_sorted: list[dict]) -> dict:
     best_day_date, best_day_pnl = max(by_day.items(), key=lambda kv: kv[1])
     dates = sorted(by_day.keys())
     concentration_share = (best_day_pnl / total_pnl) if total_pnl != 0 else None
+    # BREAKEVEN WIN RATE (added 2026-08-18, J-directed: "the win rate doesn't necessarily
+    # reflect being profitable, so we need to rethink that part of the readiness gate").
+    # A fixed 45% bar is strategy-agnostic and therefore wrong here. What actually decides
+    # profitability is whether the win rate clears THIS strategy's own breakeven, which is
+    # 1/(1+payoff_ratio). Measured on real fills the arms run a 2.25x-3.52x payoff, so their
+    # breakevens sit at 22%-31% -- and every arm is within 0.6-5.1 percentage points of its
+    # own line. Against a flat 45% bar they look hopeless; against their own breakeven they
+    # are near-misses. Same data, opposite conclusion, which is the whole point.
+    breakeven_wr = (1.0 / (1.0 + payoff_ratio)) if payoff_ratio else None
+    actual_wr = (len(wins) / len(pnls_in_order)) if pnls_in_order else None
+    wr_margin_pp = (
+        (actual_wr - breakeven_wr) * 100.0
+        if (breakeven_wr is not None and actual_wr is not None) else None
+    )
+    # Is expectancy DISTINGUISHABLE from zero, or is the point estimate noise? Standard error
+    # of the mean; |t| < 2 means we cannot tell. This is the honest counterweight to reading a
+    # small negative expectancy as proof of no edge -- and to reading a small positive one as
+    # proof of edge.
+    n_obs = len(pnls_in_order)
+    stdev = statistics.pstdev(pnls_in_order) if n_obs > 1 else 0.0
+    sem = (stdev / (n_obs ** 0.5)) if n_obs > 1 and stdev > 0 else None
+    expectancy_pt = (total_pnl / n_obs) if n_obs else None
+    t_stat = (expectancy_pt / sem) if (sem and expectancy_pt is not None) else None
     return {
         "total_pnl": round(total_pnl, 2),
+        "breakeven_win_rate": round(breakeven_wr, 4) if breakeven_wr is not None else None,
+        "win_rate_margin_pp": round(wr_margin_pp, 2) if wr_margin_pp is not None else None,
+        "expectancy_sem": round(sem, 2) if sem else None,
+        "expectancy_t_stat": round(t_stat, 2) if t_stat is not None else None,
+        "expectancy_distinguishable_from_zero": (abs(t_stat) >= 2.0) if t_stat is not None else None,
         "median_trade": round(statistics.median(pnls_in_order), 2),
         "largest_win": round(max(pnls_in_order), 2),
         "largest_loss": round(min(pnls_in_order), 2),
@@ -429,6 +457,35 @@ def print_human_report(report: dict) -> None:
               f"{arm['overall_verdict']:<12}")
     print()
     print("rule-break attribution: " + report["disclosure"]["rule_breaks_ledger"])
+    print()
+    print("PROFITABILITY LENS -- what actually decides whether an arm makes money")
+    print("  (J 2026-08-18: \"the win rate doesn't necessarily reflect being profitable\")")
+    print("  A flat 45% bar is strategy-agnostic. THIS strategy's breakeven is 1/(1+payoff).")
+    print()
+    print(f"  {'ARM':<10}{'WIN_RATE':>10}{'BREAKEVEN':>11}{'MARGIN':>10}{'EXPECT':>10}{'t':>7}  VERDICT")
+    print("  " + "-" * 72)
+    for arm in report["arms"]:
+        ctx = arm.get("context") or {}
+        c = arm["criteria"]
+        be = ctx.get("breakeven_win_rate")
+        mg = ctx.get("win_rate_margin_pp")
+        t = ctx.get("expectancy_t_stat")
+        dist = ctx.get("expectancy_distinguishable_from_zero")
+        wr = c["win_rate"]["value"]
+        if be is None:
+            print(f"  {arm['arm_id']:<10}{'--':>10}{'--':>11}{'--':>10}{'--':>10}{'--':>7}  INSUFFICIENT")
+            continue
+        if dist is False:
+            verdict = "INDISTINGUISHABLE FROM ZERO (n too small)"
+        elif mg >= 0:
+            verdict = "above own breakeven"
+        else:
+            verdict = f"below own breakeven by {abs(mg):.1f}pp"
+        print(f"  {arm['arm_id']:<10}{wr:>9.1%}{be:>10.1%}{mg:>9.1f}pp"
+              f"{c['expectancy']['value']:>10.2f}{(t if t is not None else 0):>7.1f}  {verdict}")
+    print()
+    print("  t = expectancy / standard-error. |t| < 2 means the point estimate is NOT")
+    print("  statistically distinguishable from zero -- read it as 'unknown', not 'no edge'.")
     print()
     print("CONTEXT (not gate criteria -- disclosure, not a pass/fail bar):")
     for arm in report["arms"]:
