@@ -1,3 +1,71 @@
+## [2026-08-18 ~20:5x ET] conductor: OK -- self-audit gap-extractor root-caused + fixed, commit `0d3ee153`
+
+**Picked from STAGE 1 priority-3 (self-audit gaps -- outranks queue.md HIGH items).** Engine
+health GREEN, budget gate PROCEED ($12.42/$30 pre-fire, 2/4 fires used). TWIN-DOCTRINE-FIRST-
+DEPLOY scored #1 on `task_scorer.py` (6.5) but was already re-pinged this SAME morning at
+05:33 ET with a verified landed ping on both Discord + companion channels -- re-pinging again
+15 hours later with zero new evidence would be spam, not loop-closing (OP-22), so skipped in
+favor of the next-highest genuinely-actionable item.
+
+**The real find:** `new-gaps-flagged.md`'s 2026-08-15/16/17/18 batches each got the SAME
+hand-triage note ("scaffold-crowding class as prior batches") without anyone ever reading the
+extractor code -- 4 consecutive nights of correctly diagnosing the symptom and never fixing
+the mechanism. Root cause: `self_audit.py`'s perspective bold-bullet regexes captured ONLY the
+text inside `**...**` and discarded the explanation on the rest of the line -- so genuinely
+readable source markdown ("**Implement the watcher scripts** (`order-quality-watcher.py`,
+...) as lightweight services that publish events to `automation/state/`") extracted down to
+the unreadable fragment "Implement the watcher scripts". Synthesis bullets got the equivalent
+full-line-capture fix on 2026-08-02; perspective bullets never did, and the two extraction
+paths silently diverged. Also caught a genuinely NEW noise variant in the same batch ("The
+most rigorous view is Perspective 5 because...") that neither existing cross-reference filter
+matched, plus two LATENT bugs the join would otherwise have newly exposed: known prompt-
+template labels (Role:/Task:/Context:) leaking once trailing text defeated the old trailing-
+colon check, and `_norm()` silently fusing words across U+202F narrow no-break spaces
+(verified against the real 06-29 fixture's "Rule 10" text -- was defeating the "rule 9"/
+"rule 10" scaffold-prefix match, previously masked by the old short-capture behavior).
+
+**Shipped:** `_join_bold_bullet()` (recombine, don't discard), extended `_CONSENSUS_LEADIN_RE`,
+`_KNOWN_TEMPLATE_LABELS` guard, unicode-whitespace-safe `_norm()`. 5 new regression tests
+reproducing all 4 sub-bugs verbatim, RED-proofed via git-stash (fail on pre-fix code, pass
+restored); updated one now-stale exact-match assertion in the existing 06-29 fixture test to
+prefix-match (the extractor correctly returns MORE text now, not less). Verified end-to-end
+against the real 2026-08-18 consult fixture: all 4 fragments now read as complete sentences,
+the 5th (perspective-rating noise) correctly dropped. 79/79 self-audit suite green, curated
+safety gate 59/59 PASS. Marked the 2026-08-18 batch DONE in `new-gaps-flagged.md` with the
+full writeup; filed `_lesson-inbox/2026-08-18-self-audit-extractor-headline-fragments.md` on
+the meta-pattern (a repeated hand-triage note is itself the bug to fix -- read the producer
+before writing another consumer-side triage). Zero trading-path file touched (pure Python
+extraction logic + tests + docs). **REVOKE:** `git revert 0d3ee153` (4 files, additive:
+new helper functions + 5 new tests + one updated assertion + doc annotations, no existing
+behavior removed). **Autonomy-metric trend: `regressing`** (cost/drained $1.95 over the last
+20 fires) -- noted per OP-22, not investigated this fire (bounded-task scope); next fire
+should prefer a loop-closing item over a new artifact to help correct it.
+
+## [2026-08-18T16:15:02 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-18 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 27 tick(s) showed in_trade>0. 32 real fill(s) dated 2026-08-18: safe-2@14:36, safe-2@14:37, safe-2@14:38, safe-2@14:39, safe-2@14:40, bold-2@14:40, safe-2@14:41, bold-2@14:41, safe-2@14:42, bold-2@14:42, safe-2@14:43, bold-2@14:43, safe-2@14:… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-18, generated_at_et=2026-08-18T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-18, regime_context.stamp_date=2026-08-18 (present=True, dates_match=True). one_liner='Yesterday 2026-08-17 (Mon) = range-chop (range 0.55%, gap -0.02%,… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 59 distinct near-price levels. Worst: 768.50 flipped 7x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 83 time(s) across 11 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-18 window_end=2026-08-17 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=27 (delta +17 vs baseline n=10) exp=$-21.93/tr, verdict_moved=False. bull now: GREEN n=23 exp=$3.13/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-18T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 48 theta-clock row(s) dated 2026-08-18 across 1 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=48, unavailable=0. still… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-18 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-18`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## [2026-08-18 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.28s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## [2026-08-18 05:33 ET] conductor: OK — TWIN-DOCTRINE-FIRST-DEPLOY re-pinged (26d stale), found+fixed 2 prior false "pinged" claims
 
 **Picked from STAGE 1 priority-4/8 (`task_scorer.py --all` #1 ready item, score 6.5,
@@ -494,212 +562,9 @@ trend back.
 
 ---
 
-## [2026-08-16 ~13:2x ET] SUNDAY RESEARCH BLOCK — 5 findings. Two frozen conclusions decayed; the shadow layer could not have proved itself.
 
-J out for the day. No trading-path file touched, nothing armed. Commits: `8b602615`,
-`b0319e3e`, `aa3793f3`, `7a3709bc`, `315273e0`.
-
-### 1. Friday's −$1,837 had never been autopsied — the analyst that would do it is dead
-
-The LLM EOD/analyst lane has been failing since 08-11 (the logout), so the worst day of the
-week was never reviewed. Done now from the FIFO authority: **ONE signal at 09:46–09:47 cost
-$1,569 — 85% of the day.** Four arms bought the *identical* contract `C00778000` within 60s
-(safe-2 6, bold-2 10, safe-3 7, risky-1 12 = 35 contracts), and **bold-2's 10 is a double
-entry — 5 @ 1.26 twice, 4 milliseconds apart.** The double-entry fix (`33ba0814`) landed that
-evening; without it the day was ≈$371 cheaper.
-
-### 2. A frozen KILL's evidence expired in ten days (`8b602615`)
-
-`LEVER-CORRELATION-2026-08-06` killed every arm-concurrency cap on the argument that loss
-dollars live at the *lonely* end (1-arm = −$1,896) not the pile-on end. Forward-checked on the
-6 sessions since, **reusing its own code and reproducing its published table exactly first**:
-the 3-arm bucket flipped **+$1,769 → −$2,675**. Normalised to each window's own mean the
-buckets *swapped places* — 1-arm went worst→better-than-average, 3-arm went best→worst.
-
-**This is NOT a case for arming a cap** (4-arm is the best bucket now; the original kill was
-mechanical as well as empirical; n is small) and the doc says so. The point is that a rigorous
-finding — 47/47 assertions, second code path, explicit n-small caveat — **decayed to inversion
-in ten days because it shipped without a revalidation clock.**
-
-### 3. The four knobs that gate CALLS harder sit on the BETTER side (`b0319e3e`)
-
-The 08-09 symmetry audit found the asymmetry structurally and never priced it. Priced:
-**bull +$3.95/trade vs bear −$24.01 since 07-20.** Mechanism is the tail — bear's raw WR is
-*higher*, but bull's average win is **2.2×** ($322 vs $139).
-
-**And the unit was wrong.** Since the fleet is one bet in five sizes, counting round trips
-inflates n by **2.3–3.5×**. Per independent signal the ranking *inverts*: bear WR 31.9% → **14.3%**,
-bull 28.3% → **27.0%**. ⚠️ **CLAUDE.md OP-16's bull re-eval bar "n ≥ 20" is stated in the
-inflated unit — that can be 6–7 real decisions.** Restating it is a doctrine edit, so flagged
-not changed.
-
-### 4. The OPRA cache only grew when a human remembered (`7a3709bc`)
-
-`fetch_option_data.CONTRACTS` is 19 hardcoded contracts, all Mar–May, frozen since 05-07.
-`load_contract_bars` has **no fetch-on-miss** — it returns None — so uncached contracts are
-dropped silently. The stop-mode clock was skipping 29 fills as `no_opra_cache` **while
-reporting itself ACCRUING and healthy**: a prereg clock accruing on a subset of its own
-population. Fetched the 9 missing (free, real): clock **66 → 95 trades, 3 → 5 days,
-skipped 29 → 0**. Then closed the class — a top-up derived from the live ledger now rides the
-nightly fold, AST-pinned to run *before* the clock that prices off it.
-
-### 5. The conviction shadow could not have proved itself (`315273e0`)
-
-Gap in my own 08-15 build: it reported how often conviction *would block* and never whether
-blocking would have **helped**. Reaching the 20-day bar would have proven nothing. Now joined
-to real outcomes (block vs allow, by score, delta-if-armed).
-
-**I caught a 5.5× inflation in that join before committing.** Conviction logs on every ENTER
-tick, so 09:46/09:47/09:48 rows all matched the single 09:46 fill — 11 round trips became 34
-"joined" rows and −$317 became −$1,750. Now strictly one-to-one; verified to the exact dollar.
-Same round-trips-are-not-decisions class as finding 3, recurring in my own code within the hour.
-
----
-**Unchanged on J's desk:** `claude /login` · the 190-vs-191 dataset call · the PROVISIONAL P5
-waiver. **New, non-blocking:** whether OP-16's `n ≥ 20` should be restated in independent signals.
-
-## [2026-08-15 ~17:0x ET] 🚨 THE AUTONOMOUS LOOP HAS BEEN DEAD SINCE 08-11. Plus: a prereg clock was dead too, and the shadow layer had ZERO monitoring.
-
-Engine-state survey after the handoff queue. Three findings, all the same shape: **something
-that was supposed to be running silently was not, and every surface reported healthy.**
-
-### 1. 🚨 CLAUDE CLI IS LOGGED OUT — J ACTION REQUIRED (`818a1439`)
-
-**`claude /login`. That is the whole fix, and only J can do it** (interactive OAuth; nothing
-in this repo can clear it, and nothing should retry into it).
-
-**49 failed LLM fires across 8 tasks since 2026-08-11. 100% of conductor fires from 08-12 on**
-(3/3, 4/4, 2/2, 11/11) against ~470 clean fires before. Every fire: spawn `claude` →
-`Not logged in · Please run /login` → exit 1.
-
-Affected: conductor (12), conductor-weekend (9), context_guard (5), eod-flatten (4),
-eod-flatten-aggressive (4), mcp-daily-audit (4-5), premarket (4-8), scout (2).
-
-**Why it survived five days — every layer reported success except the work:**
-- rail-0 budget precheck said `PROCEED — $0.00 of $30.00 used` on every fire. It measures
-  **SPEND**, and a logged-out fire spends nothing. *The cheaper the failure, the more
-  confidently that gate approved it.*
-- Task Scheduler showed `LastTaskResult=0` — the outer wscript hop is fire-and-forget.
-- The masked-exit check DID fire, but could only say `run-conductor-weekend.ps1 (exit=[1], 5x)`,
-  sitting beside unrelated exit=1 noise. Seeing conductor and eod-flatten as separate
-  incidents is what hid the single shared cause.
-- The unattended registry flagged `Conductor RED [3.4d]` — correct, but generic staleness,
-  days late, no cause, no action.
-
-**Nothing visibly broke because the deterministic backstops held** — `eod_flatten.py` covered
-the failed LLM EOD-flatten path, `premarket_deterministic_fallback.py` covered premarket. That
-is the danger, not the reassurance: a backstop silently carrying production is
-indistinguishable from a healthy primary until the backstop is what fails.
-
-Now detected by name: `self_check.check_llm_auth_outage` — one cause, whole fleet, with span
-and per-task counts, classified **BROKEN** (its siblings say DEGRADED because they have
-backstops; this has none) so it routes through the existing STATUS `## Live watch
-
-- [2026-08-17T10:12:00 ET] THETA STALL :: risky-3 SPY260817P00776000 qty=8 :: est theta burn -10.88 vs est delta gain -44.00 over last 15min (mid=1.135, unrealized=2.78%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
-
----
-
-## Known broken
-[2026-08-17T18:30:29-04:00] MCP_AUDIT_RED: Both Alpaca accounts point to wrong numbers: Safe PA3POKNV46VG (expected PA3DHPT7KIQE), Bold PA3WEBXJU67N (expected PA33W2KUAT40). MCP keys misconfigured.
-` + Discord
-escalation. **Verified live: self-check flipped DEGRADED → BROKEN and the finding is on this
-file now.**
-
-### 2. An ARMED prereg's forward clock had no producer (`dbc2e004`)
-
-`entry_quality_ledger.build_ledger()` was in **no scheduled task and no fold** — nothing
-rebuilt the enriched ledger. Last written 08-10 with data through **08-06** while the book
-traded 08-07 and 08-10..08-14.
-
-`stop_mode_shadow_ledger` reads that artifact deliberately (`build_population()` has no
-`trigger_level`, so structure stops could never fire). With it frozen, prereg
-**STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09** sat at `n_trades=0 / ARMED_AWAITING_FILLS` and
-**would never have reached its 20-day bar.** The clock's own `input_stale` flag had been
-reporting this correctly the entire time; nothing consumed the alarm.
-
-Rebuilt: ledger 235 events/26 days → **344/32**; clock → **ACCRUING, 66 trades / 3 days,
-days_to_bar 20 → 17**. Now wired into the 16:25 fold, with the order pinned by AST
-(**after** pain_ledger — it joins `mae-mfe.json`; **before** stop_mode — which reads its
-output). Disclosed gap: 29 fills (08-13 ×17, 08-14 ×12) still skipped `no_opra_cache`.
-
-### 3. The entire shadow layer had zero freshness monitoring (`2673b36e`, `d074e9bb`)
-
-Measured: the freshness manifest carried **21 entries and covered ZERO shadow artifacts**. The
-fold contract is "fail-open, never fatal", so any folded producer can fail — or never be wired
-at all — while `winner-autopsy-last.json` stays fresh and the unit reads OK. Watching the
-parent taught us nothing.
-
-Added the 5 fold sub-products to the `eod-pipeline` unit. **medium → YELLOW never RED** (a
-research clock is not a trading emergency, and a tile that REDs for one gets ignored), keyed
-on each artifact's **own build stamp, never a data date** — a data date parks on the last day
-*with fills*, so it would alarm every time the engine correctly sat out.
-
-**Self-correction:** my helper re-serialized all 62 units (1,092-line reformat of a shared
-state file). Restored the original formatting and re-applied surgically — net diff is now 61
-insertions, 0 deletions.
-
-### 4. The recycle guard BECAME the wedge — 43h of thrash (`fee97318`)
-
-Found by sweeping every non-GREEN unit. `window_leak_detector_keepalive` recycled the detector
-**every 5 minutes**, each time claiming it "has run 6.1h" on a process launched 5 minutes
-earlier. Cause: it derives runtime from `polls_total × poll_interval_s` in a summary the
-**dead** detector wrote (`43800 × 0.5 = 6.083h`, permanently over the 6h threshold). The new
-detector was killed before it could ever overwrite that file — so the file stayed frozen, so
-the next fire killed the next one. **~43 hours with no leak detection at all.**
-
-The original guarded the *unreadable* summary case and missed the *stale* one — stale is worse,
-it returns a confident wrong number. Fixed by scoping the runtime to the live pid (the summary
-already stamps its own). **The 08-13 wedge mitigation survives** — a genuine 6.08h runtime on
-its OWN counters still recycles, pinned by a test. Verified live: `runtime unknown` →
-`runtime=0.1h`, summary advancing again (polls 43800-frozen → 600 and climbing).
-
-*I first blamed a UTC-vs-local offset — 6.1h looks exactly like MDT's 6h plus a 5-minute age,
-and I'd already fixed two clock bugs today. Reading the code killed that. Noted because the
-coincidence was persuasive and wrong.*
-
-### 5. 8 live tasks that no unit watched (`019fbe29`)
-
-The registry's own anti-rot diff (L292) was naming them; nobody claimed them. Sharpest:
-**`Gamma_IncidentFixStatus`** — it re-verifies daily that the 08-14 loss-morning fixes are
-still landed, and was itself unregistered. *It guarded the roster while nothing guarded it.*
-
----
-
-## SURVEY COMPLETE — what is left, and why it is left
-
-**Infrastructure: swept exhaustively. Everything fixable is fixed.**
-66 units → **63 GREEN / 1 YELLOW / 1 RED / 1 OFF**; `engine-health` GREEN with zero reds.
-- The RED is the auth outage → **J's `claude /login`**, nothing here can clear it.
-- The YELLOW is a stale pid file for `window_leak_hook.py` — which turns out to be **untracked
-  and to have no launcher anywhere** (one of 9 untracked scripts in `setup/scripts/`). None of
-  the 9 is referenced by any scheduled task, so **the rig is still reproducible from the repo**;
-  they are orphaned tools, not load-bearing. Flagged rather than bulk-committed — this is a
-  PUBLIC repo and unreviewed files do not get swept in.
-
-**Research/engine-edge: not short of ideas — short of VALIDATED ones.** 104 open queue items.
-The top engine-edge entries are already filed, already CRITICAL, and already gated:
-- `G1-FILTER5-VS-REJECTION-SETUPS` — **this is the M1 entry/exit ribbon contradiction**, filed
-  2026-07-27 with the same structural argument (filter 5 anti-correlates with rejection setups,
-  C28/L243), a named candidate, and an explicit "must clear the 4-gate + pooled BH-FDR bar on
-  386 days before arming". Shipping it tonight would violate the eval-first gate (OP-11). My
-  contribution was verifying it is **still live in code today** and folding that into the churn
-  teardown.
-- `THETA-NOT-GIVEBACK`, `EXIT-HYBRID-PRETP1-FLOOR` — same shape: CRITICAL, pre-reg required.
-
-**So the binding constraint on engine edge is forward evidence, not effort — and the evidence
-pipelines were the thing that was broken.** A dead prereg clock, an unmonitored shadow layer,
-and a dead autonomous loop were all silently producing nothing. That is what this session
-fixed. Conviction's first post-fix rows land **Monday 08-17**; the stop_mode clock is
-**ACCRUING (17 days to its bar)**; the V-d1/V-e3 forward window sits at 7/10 sessions.
-
-**Known gap, disclosed not hidden:** 29 fills (08-13 ×17, 08-14 ×12) still skip the stop_mode
-clock on `no_opra_cache` — the already-queued `fetch_option_data.py` frozen-contract-list fix.
-
----
-**On J's desk:** `claude /login` (**blocks the entire autonomous loop**) · the 190-vs-191
-dataset decision · the PROVISIONAL P5 waiver for `vwap_reclaim_failed_break`.
-
-
-## Kitchen
-Kitchen: alive, queue 52 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+### DEGRADED: self-check 2026-08-18T20:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-08-18) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-18.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-08-18.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- daily_brief.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
