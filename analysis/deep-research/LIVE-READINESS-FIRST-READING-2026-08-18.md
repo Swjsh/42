@@ -120,6 +120,46 @@ different question: the gap is 0.6–5.1pp of win rate, which is small enough th
 (fees + spread, being quantified separately) could plausibly account for the whole of it —
 or make it worse. That is now the load-bearing unknown.
 
+## Cost-realistic final picture (added after the exit-fill question was settled)
+
+The corrected verdict above uses GROSS P&L. Real trading pays two costs paper does not charge
+us: regulatory fees (Alpaca paper debits them for real, but `broker_fills.py` reads
+`/activities/FILL` only, so `real_pnl` never counted them) and exit slippage (measured: our
+sells are credited **0.129 of the traded range** better than a real market sell would get —
+`exit_fill_realism.py`). Applying both **per trade**, not by extrapolation:
+
+| arm | n | gross expectancy | **net expectancy** | win rate | breakeven | **margin** |
+|---|---:|---:|---:|---:|---:|---:|
+| risky-3 | 79 | −$2.15 | **−$10.21** | 20.3% | 23.0% | **−2.8pp** |
+| risky-1 | 68 | −$4.37 | **−$10.20** | 20.6% | 23.7% | −3.1pp |
+| safe-3 | 47 | −$8.00 | **−$11.94** | 21.3% | 26.0% | −4.7pp |
+| bold-2 | 26 | −$18.92 | **−$24.74** | 26.9% | 32.0% | −5.1pp |
+| safe-2 | 69 | −$10.67 | **−$14.09** | 23.2% | 29.9% | −6.7pp |
+
+| book | figure |
+|---|---:|
+| as traded | −$2,071 |
+| after real fees | −$2,201 |
+| **after fees + measured exit slippage** | **−$3,677** |
+
+**Realistic costs roughly DOUBLE the gap for the best arms** — risky-3 goes from a 0.6pp
+near-miss on gross numbers to **2.8pp** once it pays what a real account pays. Costs are worth
+roughly **2 percentage points of win rate**, which is the single most useful number in this
+document for anyone deciding what "close" means.
+
+Note the win rates move too (risky-1 23.5% → 20.6%, risky-3 21.5% → 20.3%): costs flip
+marginal winners into losers. That is a real effect of trading a thin edge on sub-$1.00
+premiums, not a rounding artifact.
+
+> ⚠️ **Correction to an earlier figure in this session.** A first pass estimated the
+> cost-realistic book at −$3,096 by extrapolating from median traded range and median exit
+> qty. Computing it per-trade instead gives **−$3,677**. The per-trade number is the correct
+> one; the median-extrapolation understated the cost by ~16% because larger exits carry
+> proportionally more slippage and medians discard that.
+
+**The conclusion does not change: still near-misses, still not statistically distinguishable
+from zero, still not ready.** But "how near" is now honestly ~3–7pp rather than ~1–5pp.
+
 ## Reproduce
 
 ```bash
