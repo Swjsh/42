@@ -322,3 +322,57 @@ round of scrutiny and died on the second, purely because the sample was widened 
 
 Filed as a lesson candidate: *before characterizing what a signal IS, widen the symbol sample —
 a single idiosyncratic name can manufacture a clean-looking mechanism across an entire study.*
+
+---
+
+# DEFECT FOUND -- why `structure_hh_hl_lh_ll` never fired, and why confluence is corrupted
+
+The zero-signal mystery for the `structure_hh_hl_lh_ll` zone family is solved, and the answer is
+a genuine design defect rather than a dead branch.
+
+**The family is NOT dead code.** It produces 10-17 zones per symbol (second-most after
+`swing_high_low`). But measured directly:
+
+| symbol | structure zones | price-identical to a swing zone | first swing idx | first structure idx |
+|---|---|---|---|---|
+| QQQ | 15 | **15 (100%)** | 0 | 37 |
+| GLD | 10 | **10 (100%)** | 0 | 32 |
+| NVDA | 17 | **17 (100%)** | 0 | 39 |
+
+**100% of structure zones share a price with a swing zone** -- definitionally inevitable, since
+`_structure_zones` emits `ev.broken_price`, the price of a swing that was broken, and a broken
+swing price *is* a swing price. The two families are not independent; one is a labelled subset
+of the other.
+
+**1. (Cosmetic) The family can never win attribution.** `detect_trigger` resolves a touched zone
+with `min(touched, key=|price - close|)`; on an exact tie Python keeps the first, and
+`swing_high_low` is emitted first (index 0 vs 32-39). Every structure signal is *recorded* as a
+swing signal. **The per-family stratification earlier in this document therefore conflates the
+two** -- "swing_high_low, n=102" silently includes the structure population. No verdict changes
+(all families lost), but the family attribution must not be quoted as if separable.
+
+**2. (Material) It systematically corrupts the confluence score.** `_confluence_count` counts
+DISTINCT FAMILIES overlapping the target band -- sound in principle. But because a broken swing
+appears in both families, **every level that has been broken receives an automatic +1
+confluence** representing no independent corroboration. Measured on QQQ: a structure zone scored
+confluence=2 where only **1 distinct price** existed in the band.
+
+The bias is not random -- it lands specifically on **broken** levels, arguably the *less*
+reliable ones (a level that has been broken is a level that failed). The quality score adds a
+point for a property that may well be negative.
+
+**This is the most plausible mechanical explanation for why confluence measured nothing**
+(rho=-0.054, p=0.226): a large share of its variance is a spurious constant added to a
+particular, non-random subset of levels. It was not a dead knob -- it was a knob wired to a
+self-double-counting input.
+
+## What this obliges
+
+- Confluence cannot be trusted or re-tested until the duplicate-price problem is fixed.
+- Any rebuild must decide whether "a broken swing" is a *distinct kind of level* from "a swing"
+  (defensible -- a broken level flipping role is real market structure) and if so emit it at a
+  distinct price or with an explicit flip-role label, not as a duplicate price in a second family.
+- The zone-emission layer needs a dedupe-by-price step, or `_confluence_count` must count
+  distinct PRICES rather than distinct FAMILIES.
+
+Lesson filed: `strategy/candidates/_lesson-inbox/derived-features-double-count-as-confluence-2026-08-18.md`
