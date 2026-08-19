@@ -1,6 +1,14 @@
 # WEEKLY-OPTIONS PROGRAM — the second lane (living doc)
 
-> **Status: PHASE 0 — DESIGN COMPLETE, BUILD PENDING.** J directed the expansion 2026-08-18
+> **Status (2026-08-18 ~23:00 ET): MACHINERY BUILT + FIRST VERDICT IN — the v1 signal is DEAD.**
+> Ingestion, multi-day walk, delta-matched selection, exits, gates and the null harness are all
+> built, guarded and committed. Their first act was to kill the v1 signal: all four expiry arms
+> lose and every one FAILS the random-entry null
+> ([`WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md`](../../analysis/deep-research/WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md)).
+> Nothing is armed; `params.json` is untouched; no account exists. **The lane is not dead — the
+> signal is.** Next work is signal diagnosis (§9b phases 8+), not wiring a trigger that loses.
+>
+> **Original status line, kept for provenance:** PHASE 0 — DESIGN COMPLETE, BUILD PENDING. J directed the expansion 2026-08-18
 > ("turn this from a 0DTE shop into a full-blown option shop"). Research + design synthesis:
 > [`analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md`](../../analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md).
 > This file is the program's ONE canonical home — status line above updates as phases land
@@ -46,6 +54,45 @@ sub-$0.20 noise-floor lesson; sizing-to-cap needs ~75 contracts). **Avoid:** XBI
 Unpublicized finding: GLD/XLF/SMH quietly run TRUE DAILY expiries (same as SPY/QQQ/IWM).
 NVDA's 8/26 Wednesday expiry is NOT LISTED (earnings that day) — expiry-selector must read
 the actual chain, never assume a calendar. Full 30-name tier tables: synthesis doc, Finding 1.
+
+## 2b. HOT ≠ TRADEABLE — the sector screen's actual finding (2026-08-18 night)
+
+J asked to trade "what's hot, what's the sector." Both halves were run: the heat scanner ranks
+the sectors, and a live options-liquidity screen asks whether the hot names can actually be
+traded at $5K. **They mostly cannot, and that is the finding.**
+
+Heat ranking (own data, independently reproducing the night's web research):
+**GDX +21.7% 1M RS (#1)** · XLE (#2) · XLV (#3, already weakening) · laggards XLU/XLC/XLY.
+
+Now the same names put through the options screen (ATM, nearest expiry ≥3 DTE):
+
+| Tradeable at $5K | spread | | Hot but UNTRADEABLE | spread |
+|---|---|---|---|---|
+| QQQ | 1.7% | | AEM *(+37%, hottest name)* | **45.4%** |
+| IWM | 2.0% | | WPM *(+28%)* | **95.5%** |
+| GLD | 2.7% | | FNV | 42.8% |
+| CVX | 2.9% | | B *(Barrick, +21%)* | 42.4% |
+| XOM | 3.6% | | GDX *(the ETF itself)* | 20.7% |
+| *(NEM 7.6%, SLV 6.1%, XLE 10.7% = tier 2)* | | | PSX / MPC | 39.6% / 43.7% |
+| | | | XLV / JNJ / LLY | 44.8% / 15.8% / 16.1% |
+
+**The actionable rule this produces:** *express a hot theme through its most liquid vehicle, not
+its best-performing name.* Gold is the #1 theme — and the way to trade it is **GLD at 2.7%**,
+not the miners at 20–95%. Energy is #2 — and the way to trade it is **XOM/CVX directly** (3.6%
+/ 2.9%), not XLE (10.7%) or the refiners (~40%). A 45% spread means a trade must gain 45% just
+to break even; no edge survives that, so chasing the hottest *name* is how this lane would have
+bled out quietly.
+
+This also retires the "expand to many tickers" impulse honestly: after screening, the genuinely
+tradeable weekly universe for this account is **small — roughly QQQ, IWM, GLD, XOM, CVX, plus
+the already-known SPY/NVDA/AAPL/TSLA tier**. Breadth is constrained by liquidity, not by ideas.
+
+⚠️ **Caveat, and it is real:** these quotes were snapshotted ~23:00 ET on the free INDICATIVE
+feed. After-hours spreads run wider than intraday. Evidence they are still informative: GLD
+screened 2.7% here and 2.7% in the independent daytime screen, QQQ 1.7% vs 1.1% — liquid names
+are stable while illiquid ones blow out. So the TIER1 set is trustworthy; the AVOID
+classifications for mid-liquidity names (NEM, COP, JNJ) should be **re-verified during RTH**
+before being treated as final. Open-interest came back empty from this feed — a known gap.
 
 ## 3. Where it trades — the `weekly-1` arm
 
@@ -206,7 +253,7 @@ FOMC 9/16, NVDA 8/26 · MRVL 8/27 · AVGO 9/2.
 | 6 | **RUN the expiry experiment** | J's explicit ask: same-week vs next-week vs 2-weeks-out vs monthly. Paired/matched (same signal, N contracts), delta-matched, %-return-on-premium primary, Holm-corrected across the 3 contrasts, per-arm real-vs-synthetic completeness disclosed | 🔄 **PREREQ CLEARED**, commit `031094a7`. Density probe: **185 signals / 134 distinct sessions** (GLD 94/85, QQQ 91/88) → **SUFFICIENT** vs the prereg's n≥30. Distribution healthy: direction ~50/50, confluence spread 1–5, max 2/session, fires on 34–39% of sessions (under C27's >80% noise alarm). **Two silent bugs fixed in `bars.py` en route** — a missing `start` made every fetch return ZERO bars on all feeds, and missing pagination capped history at ~1 month while looking complete (192→1,505 hourly bars). **BS/IV solver DONE**, commit `8992d743` — delta-matching needs derived greeks (cached bars carry none); refuses to fabricate a vol in the vega dead zone, and the round-trip test caught a real bug where bisection's early-return bypassed that guard on the common path. **Data extended**: cache now spans Oct-2025→Aug-2026 expiries, **862K bars / 34,358 contracts**, so every arm incl. the 30-DTE monthly control has real contracts. **EXECUTED.** 171 paired signals (of 185) across the 3 weekly arms + 80 monthly-control. **Verdict: the which-Friday question is MOOT — every arm loses and every arm FAILS the random-entry null.** Full write-up: [`WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md`](../../analysis/deep-research/WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md). Contrasts were Holm-significant (longer DTE = better median, shorter DTE = fatter right tail) but they compare *losing* strategies and authorize nothing. |
 | 6b | **Findings to carry into the experiment** (from the density probe) | — | ⚠️ **CONCENTRATION:** `round_numbers` produces **~55% of all signals** (54/94 GLD, 48/91 QQQ) — and that family's increment heuristic was flagged *by its own author* as an unvalidated judgment call. Per C4, disclose this concentration in every downstream result; if the strategy pays, check whether it pays *only* through round numbers. ⚠️ **DEAD FAMILY:** `structure_hh_hl_lh_ll` produced **ZERO signals on both symbols** — either it never lands near price or it is redundant with `swing_high_low`. Investigate before trusting the 5-family design; a family contributing nothing is a dead knob (C14). |
 | 7 | **RUN the strategy backtest** | The level-interaction thesis on weeklies, multi-day holds, across the basket. Random-entry-null MAX gate before ANY result is called promising | ✅ **DONE — and the answer is NEGATIVE.** Folded into phase 6's run (the expiry experiment IS the strategy backtest, paired across arms). **All four arms lose (−8% to −14% mean) and ALL FAIL the random-entry null gate.** Mechanism: `theta_budget` is the dominant exit (48–64%) — the trigger enters, price doesn't progress, decay kills it; only 12–22% reach TP1. Full adjudication: [`WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md`](../../analysis/deep-research/WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md). |
-| 8 | **Sector + universe screen** | J's ask ("different sectors, what's hot when"): run the heat scanner for real; screen a WIDE options-liquidity universe (not just the 6 named); report what is genuinely tradeable at $5K | ⬜ |
+| 8 | **Sector + universe screen** | J's ask ("different sectors, what's hot when"): run the heat scanner for real; screen a WIDE options-liquidity universe (not just the 6 named); report what is genuinely tradeable at $5K | ✅ **DONE.** Heat scanner live (14/14 scored, GDX/XLE/XLV top-3, independently reproducing the night's web research). Liquidity screen over 19 names → **HOT ≠ TRADEABLE**: the hottest name (AEM +37%) carries a 45% spread; WPM 95%. Tradeable set is small: QQQ/IWM/GLD/CVX/XOM. Rule extracted: *express a theme through its most liquid vehicle, not its best performer* (gold → GLD not miners; energy → XOM/CVX not XLE/refiners). Full table + RTH re-verify caveat: §2b. |
 | 9 | **Wiring** | Scheduled tasks (EarningsRefresh, WeeklyLevels, WeeklyCore, FridayFlatten+Verify), `state_freshness_audit` registration, journal schema w/ lot linkage, `weekly-pulse` skill, obsidian sync block | ⬜ |
 | 10 | **Shadow dry-run** | Run `weekly_core` against recent history; read the participation cascade. **The L199 question: does the gate stack EVER fire?** A lane that never trades is the #1 program risk | ⬜ |
 | 11 | **Docs + commit + morning brief** | Fold corrections into this doc + the research record; commit in reviewable chunks; write J's morning brief incl. the 4 things needing him | ⬜ |
