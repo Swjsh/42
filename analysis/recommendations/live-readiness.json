@@ -1,5 +1,5 @@
 {
-  "generated_et": "2026-08-18T21:51:42",
+  "generated_et": "2026-08-18T22:20:17",
   "instrument": "setup/scripts/live_readiness.py",
   "gate_source": "CLAUDE.md account-context table: \"Live threshold (per account independently): >= 20 trades, WR >= 45%, positive expectancy, <= 2 rule breaks.\"",
   "thresholds": {
@@ -44,6 +44,9 @@
       "overall_verdict": "UNKNOWN",
       "context": {
         "total_pnl": -376.0,
+        "fees_total": 15.17,
+        "total_pnl_net_of_fees": -391.17,
+        "expectancy_net_of_fees": -8.32,
         "breakeven_win_rate": 0.2444,
         "win_rate_margin_pp": -3.17,
         "expectancy_sem": 22.36,
@@ -103,6 +106,9 @@
       "overall_verdict": "UNKNOWN",
       "context": {
         "total_pnl": -736.0,
+        "fees_total": 19.6,
+        "total_pnl_net_of_fees": -755.6,
+        "expectancy_net_of_fees": -10.95,
         "breakeven_win_rate": 0.2827,
         "win_rate_margin_pp": -5.08,
         "expectancy_sem": 14.84,
@@ -162,6 +168,9 @@
       "overall_verdict": "UNKNOWN",
       "context": {
         "total_pnl": -297.0,
+        "fees_total": 32.04,
+        "total_pnl_net_of_fees": -329.04,
+        "expectancy_net_of_fees": -4.84,
         "breakeven_win_rate": 0.2499,
         "win_rate_margin_pp": -1.46,
         "expectancy_sem": 22.29,
@@ -221,6 +230,9 @@
       "overall_verdict": "UNKNOWN",
       "context": {
         "total_pnl": -492.0,
+        "fees_total": 12.2,
+        "total_pnl_net_of_fees": -504.2,
+        "expectancy_net_of_fees": -19.39,
         "breakeven_win_rate": 0.308,
         "win_rate_margin_pp": -3.87,
         "expectancy_sem": 50.62,
@@ -280,6 +292,9 @@
       "overall_verdict": "UNKNOWN",
       "context": {
         "total_pnl": -170.0,
+        "fees_total": 49.78,
+        "total_pnl_net_of_fees": -219.78,
+        "expectancy_net_of_fees": -2.78,
         "breakeven_win_rate": 0.2213,
         "win_rate_margin_pp": -0.61,
         "expectancy_sem": 23.33,

@@ -76,7 +76,7 @@ Account numbers below are **broker-verified live 2026-08-18**; `automation/state
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
 | Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PKWEWC7N…` → PA3POKNV46VG. Tools: `mcp__alpaca__*` |
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKEZ6OKP…` → PA3WEBXJU67N (bold-2). Both creds live ONLY in project-root `.mcp.json` (mirrors removed 2026-07-09, never re-mirror). Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
-| Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + 2 free-model veto + risk_gate); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
+| Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + risk_gate). **Free-model veto DISABLED since 2026-08-12** (`GAMMA_FREE_MODEL_VETO` defaults 0; guard `test_free_model_veto_disabled_2026_08_12.py`); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
 | Heartbeat scheduler | Windows Task Scheduler (Python) | ~60 registered (counts drift -- registry is truth). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
@@ -110,7 +110,7 @@ Lean Tier-1 soul file (this) + `markdown/<topic>/` mid-sized single-topic docs u
 |---|---|---|
 | 08:00 · 08:05–16:00 /5min | Gamma_LaunchTV · Gamma_TvWatchdog | TV+CDP up & kept alive (the "no TV = no trades" fix); flags stale heartbeat |
 | 08:30 | Gamma_Premarket | Level audit, bias, hypothesis, levels drawn, journal seeded, pin check |
-| 09:30–15:55 /1min | Gamma_HeartbeatCore | **THE live trading engine** — both accounts. engine_cli score+gates + structure-veto + 2 free-model veto + risk_gate |
+| 09:30–15:55 /1min | Gamma_HeartbeatCore | **THE live trading engine** — both accounts. engine_cli score+gates + structure-veto + risk_gate (free-model veto OFF since 2026-08-12) |
 | 15:55 | Gamma_EodFlatten (+_Aggressive) | Closes any 0DTE Safe/Bold position not out by 15:50 |
 
 Kitchen R&D fires (keepalive 5min · seeder :20 · reviewer 2h) and all other tasks → [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md).

@@ -186,6 +186,36 @@ def _context_stats(trips_sorted: list[dict]) -> dict:
     best_day_date, best_day_pnl = max(by_day.items(), key=lambda kv: kv[1])
     dates = sorted(by_day.keys())
     concentration_share = (best_day_pnl / total_pnl) if total_pnl != 0 else None
+    # NET-OF-FEES (added 2026-08-18). Alpaca PAPER is NOT frictionless: it charges real
+    # OCC/ORF/TAF/SEC/CAT, verified live against get_account_activities_by_type(FEE) and
+    # matched to the cent over 9 days. But broker_fills.py hits /activities/FILL only, so
+    # FEE rows are structurally never ingested -- every real_pnl this repo has produced
+    # silently EXCLUDES fees the broker is actually debiting. `real_pnl` is not redefined
+    # here (44 files consume it; silently shifting its meaning mid-flight is exactly the
+    # kind of change this repo has been burned by). Fees are reported ALONGSIDE instead, so
+    # the readiness gate -- the one number that decides go-live -- reads honest.
+    #
+    # NOTE ON THE KEY NAME: the first cut of this read `.get("total_fees") or 0.0`, which
+    # does not exist -- the real key is `fee_total_ex_cat`. Every trip silently contributed
+    # 0.00 and the gate printed "$0.00 fees" against a book that is genuinely charged them.
+    # That is the exact silent-zero class this file exists to expose, so the lookup below is
+    # STRICT: a missing key makes fees UNAVAILABLE (None), never zero. Reporting "no fees"
+    # when you mean "could not read fees" is the failure mode, not a rounding detail.
+    fees_total = None
+    try:
+        import cost_model as _cm
+        _acc = 0.0
+        for _t in trips_sorted:
+            _fb = _cm.fee_breakdown(_t)
+            if "fee_total_ex_cat" not in _fb:
+                raise KeyError("fee_total_ex_cat missing -- cost_model schema changed")
+            _acc += float(_fb["fee_total_ex_cat"])
+        fees_total = _acc
+    except Exception:  # noqa: BLE001 -- a disclosure line must never break the gate
+        fees_total = None
+    net_total = (total_pnl - fees_total) if fees_total is not None else None
+    net_expectancy = (net_total / len(pnls_in_order)) if (net_total is not None and pnls_in_order) else None
+
     # BREAKEVEN WIN RATE (added 2026-08-18, J-directed: "the win rate doesn't necessarily
     # reflect being profitable, so we need to rethink that part of the readiness gate").
     # A fixed 45% bar is strategy-agnostic and therefore wrong here. What actually decides
@@ -211,6 +241,9 @@ def _context_stats(trips_sorted: list[dict]) -> dict:
     t_stat = (expectancy_pt / sem) if (sem and expectancy_pt is not None) else None
     return {
         "total_pnl": round(total_pnl, 2),
+        "fees_total": round(fees_total, 2) if fees_total is not None else None,
+        "total_pnl_net_of_fees": round(net_total, 2) if net_total is not None else None,
+        "expectancy_net_of_fees": round(net_expectancy, 2) if net_expectancy is not None else None,
         "breakeven_win_rate": round(breakeven_wr, 4) if breakeven_wr is not None else None,
         "win_rate_margin_pp": round(wr_margin_pp, 2) if wr_margin_pp is not None else None,
         "expectancy_sem": round(sem, 2) if sem else None,
@@ -483,6 +516,18 @@ def print_human_report(report: dict) -> None:
             verdict = f"below own breakeven by {abs(mg):.1f}pp"
         print(f"  {arm['arm_id']:<10}{wr:>9.1%}{be:>10.1%}{mg:>9.1f}pp"
               f"{c['expectancy']['value']:>10.2f}{(t if t is not None else 0):>7.1f}  {verdict}")
+    print()
+    print()
+    print("  NET OF REAL FEES (Alpaca paper DOES charge OCC/ORF/TAF/SEC/CAT; our fills")
+    print("  pipeline reads /activities/FILL only, so real_pnl has always excluded them):")
+    for arm in report["arms"]:
+        ctx = arm.get("context") or {}
+        f, net, nexp = ctx.get("fees_total"), ctx.get("total_pnl_net_of_fees"), ctx.get("expectancy_net_of_fees")
+        if f is None:
+            print(f"    {arm['arm_id']:<10} fees unavailable")
+            continue
+        print(f"    {arm['arm_id']:<10} fees {_fmt_money(f):>9}   net P&L {_fmt_money(net):>11}"
+              f"   net expectancy {_fmt_money(nexp):>9}")
     print()
     print("  t = expectancy / standard-error. |t| < 2 means the point estimate is NOT")
     print("  statistically distinguishable from zero -- read it as 'unknown', not 'no edge'.")
