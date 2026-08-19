@@ -59,8 +59,46 @@ import fleet_broker  # noqa: E402 (from automation/state/fleet)
 from et_clock import et_now  # noqa: E402 (from setup/scripts)
 
 # ---- config ---------------------------------------------------------------------
-ACCOUNTS = ["safe-2", "bold-2"]
+# COVERAGE FIX (2026-08-18). This read ACCOUNTS = ["safe-2", "bold-2"] -- the two CORE arms
+# only. The three fleet arms (safe-3, risky-1, risky-3) are separate real Alpaca accounts that
+# take real 0DTE positions, and `fleet_eod.py` exists but is scheduled NOWHERE (verified against
+# the live Task Scheduler, not the docs). So 3 of 5 active arms had NO deterministic EOD
+# flatten at all.
+#
+# WHY THAT IS HARMLESS ON PAPER AND CATASTROPHIC LIVE: SPY options are PHYSICALLY settled. An
+# unclosed ITM 0DTE contract is assigned 100 shares -- roughly $77,000 of stock per contract at
+# current SPY -- against a ~$5,000 account. On paper that is a number in a ledger; live it is an
+# account-ending margin call. This is exactly the class of gap that never shows up in paper
+# results and only appears the first time real money is on the line.
+#
+# The roster is now DERIVED from the fleet registry (active + paper-account arms) intersected
+# with the arms that actually have creds, so a new arm is covered the moment it is registered
+# rather than the next time someone remembers to edit this list.
 MAX_RETRIES = 3
+
+
+def _active_arms() -> list[str]:
+    """Active SPY arms from the fleet registry. Falls back to the two core arms if the
+    registry is unreadable -- flattening SOMETHING beats flattening nothing."""
+    try:
+        reg = json.loads((_REPO / "automation" / "state" / "fleet" / "accounts.json")
+                         .read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ["safe-2", "bold-2"]
+    out = []
+    for arm in reg.get("arms", []):
+        acct = arm.get("account_number")
+        if not isinstance(acct, str) or not acct.startswith("PA"):
+            continue          # skips futures/sim arms -- not SPY options
+        if str(arm.get("status") or "").lower() != "active":
+            continue          # skips retired arms
+        aid = arm.get("id") or arm.get("arm_id")
+        if aid:
+            out.append(str(aid))
+    return out or ["safe-2", "bold-2"]
+
+
+ACCOUNTS = _active_arms()
 
 LOG_DIR = _REPO / "automation" / "state" / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -101,6 +139,53 @@ def _log(log_path: Path, msg: str) -> None:
 def _append_jsonl(jsonl_path: Path, record: dict) -> None:
     with jsonl_path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(record) + "\n")
+
+
+def _escalate(arm: str, remaining: int, errors: list, log: Path) -> None:
+    """Terminal flatten failure -> halt the arm and leave a signal a human will actually see.
+
+    Fail-soft by design: escalation must never raise back into the flatten loop, because the
+    OTHER arms still need their turn. Each step is independently guarded AND the whole body is
+    wrapped -- a per-step guard is not enough, because `_log` itself writes to disk and can
+    raise (caught by test_escalate_never_raises_even_when_everything_fails, which failed on the
+    first cut of this function for exactly that reason: the kill-switch write was guarded, the
+    log call reporting its failure was not).
+    """
+    try:
+        _escalate_inner(arm, remaining, errors, log)
+    except Exception:  # noqa: BLE001 -- last-resort: an escalation must never abort the sweep
+        pass
+
+
+def _escalate_inner(arm: str, remaining: int, errors: list, log: Path) -> None:
+    """Body of _escalate. See that function for the fail-soft contract."""
+    reason = (f"EOD_FLATTEN_PARTIAL_FILL: {remaining} contract(s) NOT closed for {arm} -- "
+              f"MANUAL ACTION REQUIRED. SPY options settle PHYSICALLY; an unclosed ITM 0DTE "
+              f"is assigned ~100 shares/contract. errors={errors[:3]}")
+    # 1. Kill-switch file -- halts the arm so it cannot open more risk while unresolved.
+    try:
+        ks = _REPO / "automation" / "state" / f"kill-switch-{arm}.json"
+        ks.write_text(json.dumps({
+            "armed": True, "arm": arm, "reason": reason,
+            "set_by": "eod_flatten.py", "set_at_et": _et_ts(),
+            "clear_by": "resolve the open position manually, then delete this file",
+        }, indent=2), encoding="utf-8")
+        _log(log, f"EOD_FLATTEN_KILLSWITCH_WRITTEN arm={arm} path={ks.name}")
+    except Exception as exc:  # noqa: BLE001
+        _log(log, f"EOD_FLATTEN_KILLSWITCH_FAILED arm={arm} err={type(exc).__name__}: {exc}")
+    # 2. STATUS.md "Known broken" -- the surface J's morning read already looks at.
+    try:
+        status = _REPO / "automation" / "overnight" / "STATUS.md"
+        if status.exists():
+            with status.open("a", encoding="utf-8") as fh:
+                fh.write(
+                    "\n- 🚨 **" + _et_ts() + " EOD FLATTEN FAILED - " + arm + "** - "
+                    + str(remaining) + " contract(s) still open. Physical assignment risk. "
+                    + reason + "\n"
+                )
+            _log(log, f"EOD_FLATTEN_STATUS_APPENDED arm={arm}")
+    except Exception as exc:  # noqa: BLE001
+        _log(log, f"EOD_FLATTEN_STATUS_FAILED arm={arm} err={type(exc).__name__}: {exc}")
 
 
 def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path) -> dict:
@@ -183,6 +268,15 @@ def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path) ->
             f"EOD_FLATTEN_{outcome} arm={arm} "
             f"closed={all_closed} errors={all_errors} remaining={final_remaining}"
         ))
+        # ESCALATION FIX (2026-08-18). This branch LOGGED "PARTIAL_FILL_ESCALATION" and did
+        # nothing else. The actual escalation -- write a kill-switch, ping Discord -- lived
+        # ONLY in automation/prompts/eod-flatten.md, which this module's own docstring
+        # explicitly demotes to "a verbose-confirmation fallback (NOT the execution path)".
+        # So on the path that actually runs, a 3x-failed flatten was a log line nobody reads,
+        # while an ITM 0DTE walked into physical assignment. The word "ESCALATION" in an
+        # outcome string is not an escalation.
+        if final_remaining != 0:
+            _escalate(arm, final_remaining, all_errors, log)
 
         result.update({
             "outcome": outcome,
