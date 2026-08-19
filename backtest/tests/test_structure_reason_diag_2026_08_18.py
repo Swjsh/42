@@ -102,6 +102,26 @@ def test_naive_timestamps_are_distinguishable_from_a_real_abstention() -> None:
     )
 
 
+def test_error_reason_carries_the_MESSAGE_not_just_the_type() -> None:
+    """SCAR (2026-08-19). The first cut recorded only `error:{type}`. Live, that produced
+    `error:ModuleNotFoundError` on 12/12 SAFE ticks while BOLD succeeded on all 12 in the
+    same process -- a perfectly deterministic asymmetry that could NOT be diagnosed, because
+    the one fact needed (which module) was the part thrown away. An instrument that proves
+    something is broken but not what is only half an instrument."""
+    class Boom:
+        def __len__(self): return 9
+        def __getitem__(self, i): raise ModuleNotFoundError("No module named 'somepkg'")
+        def __iter__(self): raise ModuleNotFoundError("No module named 'somepkg'")
+        def __bool__(self): return True
+    side, reason = hc._sameday_structure_diag({"sameday_5m_bars": Boom()})
+    assert side is None
+    assert "error:" in reason
+    assert "somepkg" in reason, (
+        f"reason {reason!r} names the exception TYPE but not the missing module -- "
+        "that is exactly the information the 2026-08-19 safe/bold asymmetry needed"
+    )
+
+
 def test_error_reason_is_prefixed_for_grepability() -> None:
     """An exception must surface as 'error:<Type>' so it can be counted in a ledger sweep."""
     class Exploding:

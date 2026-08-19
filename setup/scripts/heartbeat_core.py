@@ -532,7 +532,13 @@ def _sameday_structure_diag(payload: dict) -> "tuple[str | None, str]":
         from backtest.lib.engine.engine_cli import _classify_sameday_5m
         trend = str(_classify_sameday_5m(bars))
     except Exception as _e:  # noqa: BLE001 -- a shadow input must never break a tick
-        return None, f"error:{type(_e).__name__}"
+        # CARRY THE MESSAGE, not just the type (2026-08-19). The first cut recorded only
+        # `error:{type}`, which on 2026-08-19 logged `error:ModuleNotFoundError` on 12/12 SAFE
+        # ticks while BOLD succeeded on all 12 in the same process -- a perfectly
+        # deterministic asymmetry that could not be diagnosed, because the one fact needed
+        # (WHICH module) was the part thrown away. An instrument that proves something is
+        # broken but not what is only half an instrument.
+        return None, f"error:{type(_e).__name__}:{str(_e)[:80]}"
     if trend in ("uptrend", "downtrend"):
         return ("C" if trend == "uptrend" else "P"), trend
     if trend != "unknown":
@@ -555,7 +561,7 @@ def _sameday_structure_diag(payload: dict) -> "tuple[str | None, str]":
              low=float(_r0["low"]), close=float(_r0["close"]),
              volume=float(_r0.get("volume", 0.0)), granularity_seconds=300, source="spy_5m")
     except Exception as _probe:  # noqa: BLE001 -- the probe itself must never break a tick
-        return None, f"unknown:error:{type(_probe).__name__}"
+        return None, f"unknown:error:{type(_probe).__name__}:{str(_probe)[:80]}"
     return None, "unknown:classifier"
 
 
