@@ -235,7 +235,7 @@ Per playbook policy (line 14): "Setup needs at least 3 confirming real-trade exa
 
 ### Setup name: VWAP_CONTINUATION (CALLS and PUTS)
 
-**Status:** **LIVE** — `j_vwap_cont_enabled=true` in [`automation/state/params.json`](../../automation/state/params.json), `side='both'` (J's explicit call; bull-side entries remain OP-16-tracked toward 3 live wins). Full wiring + validation: [`markdown/specs/VWAP-CONTINUATION-WIRING.md`](../specs/VWAP-CONTINUATION-WIRING.md).
+**Status:** **DETECTOR LIVE, EXECUTION CURRENTLY DISARMED (2026-08-18 status note)** — `j_vwap_cont_enabled=true` in [`automation/state/params.json`](../../automation/state/params.json), `side='both'` (J's explicit call; bull-side entries remain OP-16-tracked toward 3 live wins), so the detector still fires+logs every tick. But `extra_setup_exec_armed.vwap_continuation=false` since **2026-07-25** (J-approved disarm: 7 live trades, 0% WR, -$204, one of two setups behind 2 of the week's 3 losing days) — no new order has been placed since. Full wiring + validation: [`markdown/specs/VWAP-CONTINUATION-WIRING.md`](../specs/VWAP-CONTINUATION-WIRING.md). Revert: `extra_setup_exec_armed.vwap_continuation=true`.
 
 **Why it exists (Rule 1 mapping):** The live heartbeat's `VWAP_CONTINUATION` block can fire an entry — so it needs a named playbook pattern. This is the entry. Mined from J's 313 real Webull winners and re-validated on our 2025–26 real OPRA fills (2026-06-20): real-fills/ATM n=153, expectancy +$38.3, WR 76.5%, fires ~42% of days (near-daily), both directions positive, drop-top5 robust, DSR PASS.
 
@@ -258,11 +258,15 @@ Per playbook policy (line 14): "Setup needs at least 3 confirming real-trade exa
 
 ### Setup name: GAP_AND_GO (PUTS)
 
-**Status:** **LIVE** — `gap_and_go_enabled=true` in [`automation/state/params.json`](../../automation/state/params.json), `side='put'` (put-only = OP-16-compliant, no bull-side scope expansion).
+**Status:** **IMPLEMENTED — WATCH-ONLY, never execution-armed (corrected 2026-08-18).**
 
-**Why it exists (Rule 1 mapping):** The live heartbeat's `GAP_AND_GO` block can fire an entry — so it needs a named playbook pattern. This is the entry.
+> **2026-08-18 correction, read this first.** `analysis/deep-research/RULE-ENGINE-ALIGNMENT-2026-08-18.md` claimed this setup was *"wired nowhere in code — zero hits in strategies.py, build_shared_signal.py, heartbeat_core.py, or filters.py... the playbook describes a trade the engine has never been able to take."* That claim is **FALSE** — this fix's session independently re-verified by reading the code directly (not trusting the prior audit) and found a real, working, tested implementation: the detector (`backtest/lib/watchers/gap_and_go_watcher.py`), its dispatch wiring (`setup/scripts/setup_dispatch.py`'s `DISPATCH_ROSTER`, which names GAP_AND_GO as one of setup_dispatch's own "PER-DETECTOR STATUS" entries), a dedicated exit-shape override in the live engine (`heartbeat_core.py`'s `_SETUP_EXIT_OVERRIDES["gap_and_go"]`, added 2026-07-18 with its own guard test `test_gap_and_go_exit_wiring_2026_07_18.py`), and a scorecard (`analysis/recommendations/gap-and-go-LIVE.json`). **What IS true, and is the real reason this setup has never traded:** `gap_and_go` has **never appeared as a key in `extra_setup_exec_armed`** (`automation/state/params.json`) — every tick the detector fires+logs (WATCH), but `heartbeat_core._route_extra_setups` gates real order placement on `extra_setup_exec_armed["gap_and_go"] is True`, and that key has been absent since inception. The 2026-06-28 re-validation found "0 robust cells on fresh OPRA + prior-close feed broken" and the exec-arm was never revisited even after the prior-close feed WAS fixed (`prior-rth-close.json`, V2 fix 2026-07-08). Verified this session: **0 rows** for `gap_and_go` in `journal/trades.csv` — it has never placed a single real order, paper or otherwise.
 
-**Hypothesis:** H2b opening-gap continuation. When SPY opens with a meaningful gap and the first RTH bar confirms the direction, the gap tends to extend rather than fill. Validated real-fills (chart-stop-only): expectancy +$41.6, WR 72.6%, n=84, DSR PASS, WF median +1.87 all-OOS-positive, 6/6 quarters positive, both directions positive (we trade puts only per OP-16), causality 96/96 PASS.
+**Why it exists (Rule 1 mapping):** The live heartbeat's `GAP_AND_GO` detector evaluates and logs a signal every RTH tick (`gap_and_go_enabled=true` in [`automation/state/params.json`](../../automation/state/params.json)) — so it needs a named playbook pattern, exactly like any other named pattern here, even though it has never been armed to actually place an order.
+
+**Hypothesis:** H2b opening-gap continuation. When SPY opens with a meaningful gap and the first RTH bar confirms the direction, the gap tends to extend rather than fill.
+
+**Offline validation record (pre-arming — NOT a live-fills record, since it has never been armed):** chart-stop-only backtest against real OPRA option data: expectancy +$41.6, WR 72.6%, n=84, DSR PASS, WF median +1.87 all-OOS-positive, 6/6 quarters positive, both directions positive (we trade puts only per OP-16), causality 96/96 PASS. This is offline evidence from before the 2026-06-28 re-validation reversed course — it does not describe anything the engine has actually done live.
 
 **Context filters:**
 - First RTH bar gap ≥ 0.25%.
@@ -273,9 +277,93 @@ Per playbook policy (line 14): "Setup needs at least 3 confirming real-trade exa
 
 **Contract selection:** per account tier. Min 3 contracts, ~6% premium ceiling.
 
-**Stop:** **CHART-STOP-ONLY** — the first-bar opposite extreme is the invalidation. Premium stop is the catastrophe cap only (chart-stop-primary, C2). Standard v15 TP1 (+50% / 0.667), runner, chandelier, and 15:50 ET time stop apply.
+**Stop:** **CHART-STOP-ONLY** — the first-bar opposite extreme is the invalidation. Premium stop is the catastrophe cap only (chart-stop-primary, C2). Standard v15 TP1 (+30% per `j_gap_and_go_tp1_pct`), runner, chandelier, and 15:50 ET time stop apply — declared in `heartbeat_core._SETUP_EXIT_OVERRIDES` but never yet exercised by a real fill.
 
-**Detector:** `backtest/lib/watchers/gap_and_go_watcher.py`. Scorecard: `analysis/recommendations/gap-and-go-LIVE.json`.
+**Detector:** `backtest/lib/watchers/gap_and_go_watcher.py`, dispatched every RTH tick via `setup/scripts/setup_dispatch.py`. Scorecard: `analysis/recommendations/gap-and-go-LIVE.json`.
+
+**To arm it live (NOT done by this fix — a params.json edit + J ratification, same as any other setup):** add `"gap_and_go": true` to `extra_setup_exec_armed` in `automation/state/params.json` after a fresh re-validation clears the 2026-06-28 "0 robust cells" finding. Whether GAP_AND_GO *should* be armed is J's call, not something this documentation fix decides.
+
+---
+
+### Setup name: VWAP_RECLAIM_FAILED_BREAK (PUTS live; CALLS wired, Bold not armed)
+
+**Status:** **LIVE on core Safe-2 ONLY** — `j_vwap_reclaim_fb_enabled=true` + `extra_setup_exec_armed.vwap_reclaim_failed_break=true` in [`automation/state/params.json`](../../automation/state/params.json) (ATM cell, `side='both'`). **Bold NOT armed** (`j_vwap_reclaim_fb_enabled=false` in [`aggressive/params.json`](../../automation/state/aggressive/params.json) — the validated Bold cell is ITM-2, not ATM, per C29). **Fleet arms (safe-3/risky-1/risky-3) KILLED 2026-08-17** — see the disclosure box below. Real fills confirmed in `journal/trades.csv`.
+
+> **2026-08-18 finding (why this entry exists at all): this setup traded LIVE on real capital with ZERO named pattern in this file**, discovered by `RULE-ENGINE-ALIGNMENT-2026-08-18.md` and closed by this fix. This is a straightforward Rule-1 documentation gap, not a code problem — the code has enforced "matches the code's own setup registry" correctly the whole time; nothing here cross-checked that registry against this file until now.
+
+**Why it exists (Rule 1 mapping):** `heartbeat_core.py`'s G4 extra-setup dispatch can fire a real `VWAP_RECLAIM_FAILED_BREAK` entry on core Safe-2 today — so it needs a named playbook pattern, same as any other live setup.
+
+**Hypothesis:** J_VWAP_RECLAIM_FB (edge #2) — the SUBTRACTIVE/STRUCTURAL sibling of `VWAP_CONTINUATION`. Morning trend establishes (first 3 RTH closes one side of as-of session VWAP) → price breaks VWAP **counter-trend** → the break **FAILS** and price **RECLAIMS with-trend** (≤10:30 ET) → one causal entry/day. The chart stop is the failed-break excursion extreme — the structural invalidation.
+
+**Context filters:** first 3 RTH closes all the same side of session VWAP (as-of, no look-ahead); counter-trend VWAP break; with-trend reclaim by 10:30 ET; standard entry/time gates.
+
+**Trigger:** the with-trend VWAP reclaim following a failed counter-trend break, ≤10:30 ET. Entry = next bar.
+
+**Contract selection:** Safe-2 = ATM (`j_vwap_reclaim_fb_strike_offset_safe=0`). Bold's validated cell is ITM-2 but Bold is not currently armed. Min 3 contracts.
+
+**Stop:** **CHART-STOP** — the failed-break excursion extreme (`j_vwap_reclaim_fb_stop_buffer=0.25` on Safe-2). Isolated premium catastrophe cap **-8%** (`j_vwap_reclaim_fb_premium_stop_pct`, NOT the global -50% cap — this is the setup's own validated cell, sourcing the global cap here would trade an unvalidated shape per C29/L149). Time stop 15:50 ET.
+
+**Target / exit:** TP1 **+30%** (`j_vwap_reclaim_fb_tp1_pct=0.30`), sell 80%, fixed lock — the Safe-2 ATM cell, distinct from `ribbon_ride`'s shape.
+
+**Detector:** `backtest/lib/watchers/vwap_reclaim_failed_break_watcher.py` (GAMMA-SYNC: `backtest/lib/filters.py#detect_vwap_reclaim_failed_break` delegates to the same detector, no drift). Dispatched every RTH tick via `setup/scripts/setup_dispatch.py`.
+
+**Evidence — Safe-2 ATM cell (why it's armed):** clears **all 8 anti-cherry-pick gates** on real OPRA fills (`RECLAIM-RESCUE-SCORECARD.md` rank 1: OOS +$32.33/tr n=18, full +$54.21/tr n=76, WR 55.3%, medPrem $1.395 → qty3 notional ~$419, under the ~$529 30%-of-equity cap at the time of arming). Ratified 2026-07-01 as part of the TRADE-TO-LEARN batch-2 J ratification (paper).
+
+> **Fleet-cohort record — write what's true, not a flattering description.** A SEPARATE, pre-registered fleet-cohort experiment (`analysis/recommendations/fleet-vwap-reclaim-extension-prereg-2026-08-04.json`, frozen 2026-08-04 BEFORE arming, extending this setup to safe-3/risky-1/risky-3) hit its pre-registered "10 sessions or first checkpoint" bar on **2026-08-17** at **cohort n=3, net −$200** — below the frozen bar → **KILLED**: `build_shared_signal.RUN_VWAP_RECLAIM_FB=False` (one-line kill switch). n=3 is a thin sample; disclosed as thin, not cherry-picked away, per this project's own frozen-criteria-don't-get-relitigated rule. **Core Safe-2's lane is explicitly OUTSIDE that fleet prereg's scope** (it runs under the separate, earlier 2026-07-01 trade-to-learn ratification) and continues to trade unaffected by the fleet kill — this is a real, current asymmetry: the identical setup name is DEAD on 3 of 5 arms and LIVE on the other 2 (Safe-2 armed; Bold not armed but never disarmed either — it was simply never turned on).
+>
+> **Whether VWAP_RECLAIM_FAILED_BREAK should be an approved playbook pattern, given the fleet-cohort kill, is J's call — not this documentation fix's.** This entry documents what the engine actually does today (core Safe-2 continues to trade it live), not an endorsement of the pattern.
+
+---
+
+### Setup name: BOLLINGER_SQUEEZE (CALLS and PUTS)
+
+**Status:** **LIVE on core Safe-2 ONLY** — `bollinger_squeeze_enabled=true` + `extra_setup_exec_armed.bollinger_squeeze=true` in `automation/state/params.json` (WIRE-BOLLINGER, 2026-07-02). Bold/aggressive not armed (Safe-only per the 2026-07-01 mandate). Real OPRA fills confirmed in `journal/trades.csv`, most recently 2026-08-11.
+
+**Why it exists (Rule 1 mapping):** trades live on real Safe-2 capital today — a 2026-08-18 finding (RULE-ENGINE-ALIGNMENT audit), same class of gap as VWAP_RECLAIM_FAILED_BREAK above, closed by this fix.
+
+**Hypothesis:** family-grind survivor off a Bollinger-Band squeeze/breakout family. Trigger set (from real fill notes): `BB_SQUEEZE_RECENT` + `BAND_BREAK_UP`/`BAND_BREAK_DOWN` + `VOLUME_CONFIRM`, confidence medium.
+
+**Contract selection:** ATM, min 3 contracts. Needs ~40 session bars of BB/percentile warmup, so earliest live fire is early afternoon.
+
+**Stop / target:** isolated exit knobs per `heartbeat_core._SETUP_EXIT_OVERRIDES["bollinger_squeeze"]` (own stop/tp1/qty-fraction/profit-lock-mode/trail keys — does not inherit the global or ribbon_ride shape).
+
+**Detector:** `backtest/lib/watchers/bollinger_squeeze_watcher.py`, dispatched every RTH tick via `setup/scripts/setup_dispatch.py`.
+
+---
+
+### Setup name: DOUBLE_BOTTOM_BASE_QUIET (CALLS mirror; validated side per cell)
+
+**Status:** **LIVE (armed) on core Safe-2 ONLY** — `db_base_quiet_enabled=true` + `extra_setup_exec_armed.double_bottom_base_quiet=true` since the 2026-07-01 trade-to-learn ratification. **No confirmed real fill found in `journal/trades.csv` as of 2026-08-18** — absence of evidence, not evidence of a wiring problem; the detector may simply not have matched a live pattern yet.
+
+**Why it exists (Rule 1 mapping):** armed and capable of a real Safe-2 order today — a 2026-08-18 finding, closed by this fix.
+
+**Hypothesis / cell:** best-clearing cell from `edgehunt-double_bottom_base_quiet.json` (2026-06-20): ATM, stop **-0.99** (a chart/time-stop cell, not a premium stop), TP1 **+30%**, runner **2.0×**. 4 of 20 strike/stop cells clear the full candidate-edge bar; best (strike+0/stop-0.99): N=122, WR=63.9%, OOS avg +$26.3/trade.
+
+**Detector:** `backtest/lib/watchers/double_bottom_base_quiet_watcher.py`, dispatched every RTH tick via `setup/scripts/setup_dispatch.py`.
+
+---
+
+### Setup name: VIX_REGIME_DAYSIDE (CALLS and PUTS)
+
+**Status:** **WATCH-ONLY — disarmed 2026-07-25 (J-approved).** Detector still runs+logs every tick (`j_vix_dayside_enabled=true`); `extra_setup_exec_armed.vix_regime_dayside=false` blocks any new order. Was armed on core Safe-2 from 2026-07-01 to 2026-07-25: **5 real trades, 0% WR, -$153** (real OPRA fills, `journal/trades.csv` 2026-07-20/07-21) — one of two setups (with `vwap_continuation`) behind the 0-for-12 combined result that triggered the 2026-07-25 disarm.
+
+**Why it exists (Rule 1 mapping):** the detector fires+logs every tick and DID place 5 real orders in its armed window — a 2026-08-18 finding, closed by this fix.
+
+**Hypothesis:** VIX-regime-conditioned dayside continuation. Trigger set (from fill notes): `VWAP_DAY_TREND_ESTABLISHED` + `VIX_REGIME_FAVORABLE_LOW_NOT_RISING`. Detector: `backtest/lib/watchers/vix_regime_dayside_watcher.py` (also exposed via `backtest/lib/filters.py#detect_vix_regime_dayside`), fed by an intraday VIX series (`heartbeat_core._fetch_vix_intraday`, G6). Isolated exit knobs: `heartbeat_core._SETUP_EXIT_OVERRIDES["vix_regime_dayside"]`.
+
+**Revert to re-arm:** `extra_setup_exec_armed.vix_regime_dayside=true` — not done by this fix; a real re-validation would be the honest prerequisite given the 0% WR record.
+
+---
+
+### Setup name: LEVEL_BREAK_FIRST_STRIKE (bearish breakdown-continuation)
+
+**Status:** **SHADOW-LOGGED ONLY — deliberately never execution-armed.** Detector runs+logs every RTH tick (`j_lbfs_enabled=true`), but `level_break_first_strike` is intentionally absent from `extra_setup_exec_armed` — `setup_dispatch.py`'s own docstring: *"DO NOT add 'level_break_first_strike' to extra_setup_exec_armed without a follow-up study clearing the walk-forward bar."* Zero real fills (consistent with never being armed).
+
+**Why it exists (Rule 1 mapping):** fires+logs a real signal every tick via the same G4 dispatch path as the armed setups above — a 2026-08-18 finding, closed by this fix.
+
+**Hypothesis:** bearish breakdown-continuation on MIXED-ribbon days. Detector: `backtest/lib/watchers/level_break_first_strike_watcher.py`, wired 2026-07-15 (SHADOW-LOGGED).
+
+**Why it's not armed:** the existing N=19 VIX≥20 ATM real-fills cohort shows a positive aggregate (WR 58.8%, +$762.60) but **FAILS a chronological walk-forward split** (IS +$1,351.80 / OOS -$589.20, wf_ratio -0.44 < the 0.70 bar → `STUDY_FAILS_BAR`). A 2026-05-16..07-14 extension scan found 26 new signals, zero at VIX≥20 — no fresh ratifiable evidence. Live arming needs its own follow-up study (`analysis/recommendations/lbfs-shadow-wiring-preregistration.json` / `lbfs-shadow-wiring-revalidation-2026-07-15.json`), explicitly deferred, not this entry's call.
 
 ---
 

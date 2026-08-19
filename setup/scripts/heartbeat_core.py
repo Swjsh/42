@@ -155,6 +155,9 @@ GATE_KEYS = [
 
 
 from et_clock import et_now as _et_clock_now  # noqa: E402  (after sys.path insert above)
+import params_integrity_guard  # noqa: E402  -- RULE-9 mid-session params-mutation DETECTOR
+# (visibility only, never blocks a tick -- see module docstring for the OP-32 fail-open
+# rationale). Same-directory sibling import, same pattern as et_clock above.
 
 
 def _et_now() -> datetime:
@@ -2916,6 +2919,17 @@ def main() -> int:
     if not _is_rth(et):
         print("skipped (not RTH)")
         return 0
+    try:
+        # RULE-9 DETECTOR (2026-08-18): snapshot/compare the params files this tick reads;
+        # on a mid-session mutation, logs a loud event + surfaces to STATUS.md/Discord.
+        # DETECTS ONLY -- the return value is deliberately never consulted below; this must
+        # never gate ARMED/placement (OP-32 fail-open doctrine, see module docstring).
+        # state_dir=STATE (a live global lookup, not a value baked in at import time) so any
+        # test that monkeypatches this module's STATE also redirects the detector -- see
+        # params_integrity_guard._paths_for's docstring for the leak this closed.
+        params_integrity_guard.check(et, log_fn=_log, state_dir=STATE)
+    except Exception:  # noqa: BLE001 -- visibility instrument must never break a live tick
+        pass
     # TICK-COMPLETE MARKER (2026-08-01, WEEKEND-TWELVE #4 race fix): one id per main()
     # invocation, threaded into BOTH accounts' ledger rows below (additive "core_tick_id"
     # field) so a reader can pair the safe+bold rows that belong to the SAME tick instead of
