@@ -1,0 +1,28 @@
+{
+  "experiment": "weekly_expiry_comparison",
+  "prereg": "analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18.json",
+  "spread_pct_assumed": 0.05,
+  "symbols": [
+    "GLD",
+    "QQQ"
+  ],
+  "selection_stats": {
+    "signals_seen": 185,
+    "skip_no_prices_MONTHLY": 87,
+    "paired_signals": 171,
+    "skip_no_expiry_MONTHLY": 18,
+    "skip_no_expiry_TWO_WEEKS_OUT": 14,
+    "unpaired_signals_dropped": 14,
+    "skip_no_expiry_NEXT_WEEK": 10,
+    "skip_no_expiry_SAME_WEEK": 8
+  },
+  "paired_signals": 171,
+  "min_pairs_required": 30,
+  "per_arm_n": {
+    "MONTHLY": 80,
+    "NEXT_WEEK": 171,
+    "SAME_WEEK": 171,
+    "TWO_WEEKS_OUT": 171
+  },
+  "_note": "Statistics are computed by weekly_expiry_experiment_report.py, not here."
+}

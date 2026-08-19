@@ -1,0 +1,173 @@
+{
+  "experiment": "weekly_expiry_comparison",
+  "prereg": "analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18.json",
+  "primary_metric": "percent return on premium, net of modeled spread",
+  "per_arm": {
+    "MONTHLY": {
+      "n": 80,
+      "median_dte_at_entry": 29.0,
+      "mean_return_pct": -11.347,
+      "median_return_pct": -19.428,
+      "stdev_return_pct": 34.233,
+      "mean_pnl_dollars": -158.65,
+      "total_pnl_dollars": -12691.85,
+      "_win_rate_SECONDARY": 23.75,
+      "right_tail_share_ge_30pct": 10.0,
+      "exit_reasons": {
+        "flatten_soft_time_stop": 42,
+        "theta_budget": 25,
+        "days_to_live": 7,
+        "tp1": 6
+      },
+      "adverse_resolution_sessions": 76,
+      "gapped_through_sessions": 1,
+      "exited_on_expiry_day": 0,
+      "expiry_fallbacks": 0,
+      "mean_abs_delta": 0.4951,
+      "mean_delta_err": 0.014
+    },
+    "NEXT_WEEK": {
+      "n": 171,
+      "median_dte_at_entry": 14,
+      "mean_return_pct": -13.509,
+      "median_return_pct": -33.081,
+      "stdev_return_pct": 50.527,
+      "mean_pnl_dollars": -168.6,
+      "total_pnl_dollars": -28831.4,
+      "_win_rate_SECONDARY": 23.98,
+      "right_tail_share_ge_30pct": 18.71,
+      "exit_reasons": {
+        "theta_budget": 94,
+        "flatten_soft_time_stop": 30,
+        "tp1": 30,
+        "days_to_live": 17
+      },
+      "adverse_resolution_sessions": 150,
+      "gapped_through_sessions": 8,
+      "exited_on_expiry_day": 0,
+      "expiry_fallbacks": 0,
+      "mean_abs_delta": 0.4912,
+      "mean_delta_err": 0.0141
+    },
+    "SAME_WEEK": {
+      "n": 171,
+      "median_dte_at_entry": 7,
+      "mean_return_pct": -8.089,
+      "median_return_pct": -41.561,
+      "stdev_return_pct": 79.605,
+      "mean_pnl_dollars": -95.91,
+      "total_pnl_dollars": -16400.75,
+      "_win_rate_SECONDARY": 27.49,
+      "right_tail_share_ge_30pct": 23.39,
+      "exit_reasons": {
+        "theta_budget": 109,
+        "tp1": 38,
+        "flatten_soft_time_stop": 20,
+        "days_to_live": 4
+      },
+      "adverse_resolution_sessions": 144,
+      "gapped_through_sessions": 20,
+      "exited_on_expiry_day": 1,
+      "expiry_fallbacks": 0,
+      "mean_abs_delta": 0.4973,
+      "mean_delta_err": 0.0114
+    },
+    "TWO_WEEKS_OUT": {
+      "n": 171,
+      "median_dte_at_entry": 22,
+      "mean_return_pct": -13.62,
+      "median_return_pct": -27.839,
+      "stdev_return_pct": 40.183,
+      "mean_pnl_dollars": -168.04,
+      "total_pnl_dollars": -28735.07,
+      "_win_rate_SECONDARY": 23.39,
+      "right_tail_share_ge_30pct": 14.04,
+      "exit_reasons": {
+        "theta_budget": 82,
+        "flatten_soft_time_stop": 38,
+        "days_to_live": 31,
+        "tp1": 20
+      },
+      "adverse_resolution_sessions": 156,
+      "gapped_through_sessions": 1,
+      "exited_on_expiry_day": 0,
+      "expiry_fallbacks": 0,
+      "mean_abs_delta": 0.4936,
+      "mean_delta_err": 0.013
+    }
+  },
+  "contrasts_holm_corrected": {
+    "SAME_WEEK_vs_NEXT_WEEK": {
+      "n_pairs": 166,
+      "median_diff_pct": -8.519,
+      "mean_diff_pct": 4.145,
+      "wilcoxon_stat": 5893.0,
+      "p_raw": 0.09435500877089524,
+      "p_holm": 0.09435500877089524,
+      "significant_at_0.05": false
+    },
+    "SAME_WEEK_vs_TWO_WEEKS_OUT": {
+      "n_pairs": 166,
+      "median_diff_pct": -10.543,
+      "mean_diff_pct": 4.239,
+      "wilcoxon_stat": 5458.0,
+      "p_raw": 0.017584618649099625,
+      "p_holm": 0.03516923729819925,
+      "significant_at_0.05": true
+    },
+    "NEXT_WEEK_vs_TWO_WEEKS_OUT": {
+      "n_pairs": 166,
+      "median_diff_pct": -5.269,
+      "mean_diff_pct": 0.094,
+      "wilcoxon_stat": 4839.0,
+      "p_raw": 0.0007453697963175303,
+      "p_holm": 0.002236109388952591,
+      "significant_at_0.05": true
+    }
+  },
+  "random_entry_null": {
+    "NEXT_WEEK": {
+      "draws": 20,
+      "null_mean_of_means": -7.686,
+      "null_MAX_of_means": 24.932,
+      "null_min_of_means": -26.672
+    },
+    "SAME_WEEK": {
+      "draws": 20,
+      "null_mean_of_means": 6.727,
+      "null_MAX_of_means": 255.096,
+      "null_min_of_means": -41.855
+    },
+    "TWO_WEEKS_OUT": {
+      "draws": 20,
+      "null_mean_of_means": -7.839,
+      "null_MAX_of_means": 15.788,
+      "null_min_of_means": -25.351
+    }
+  },
+  "null_gate": {
+    "SAME_WEEK": {
+      "real_mean_return_pct": -8.089,
+      "null_MAX_of_means": 255.096,
+      "beats_null_MAX": false
+    },
+    "NEXT_WEEK": {
+      "real_mean_return_pct": -13.509,
+      "null_MAX_of_means": 24.932,
+      "beats_null_MAX": false
+    },
+    "TWO_WEEKS_OUT": {
+      "real_mean_return_pct": -13.62,
+      "null_MAX_of_means": 15.788,
+      "beats_null_MAX": false
+    }
+  },
+  "disclosures": {
+    "spread_pct_assumed": 0.05,
+    "intraday_path_unknown": true,
+    "adverse_resolution": "sessions touching both target and stop resolved AGAINST the position",
+    "quote_feed": "indicative (this account has no OPRA agreement)",
+    "zone_family_concentration": "round_numbers produced ~55% of all signals (density probe)",
+    "monthly_arm": "descriptive control; excluded from the Holm family per prereg"
+  }
+}
