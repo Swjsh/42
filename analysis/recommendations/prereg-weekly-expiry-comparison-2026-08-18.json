@@ -1,0 +1,104 @@
+{
+  "rule_id": "prereg-weekly-expiry-comparison-2026-08-18",
+  "title": "Which expiration is better for a multi-day level trade: same-week, next-week, two-weeks-out, or monthly?",
+  "status": "FROZEN_BEFORE_ANY_RESULT",
+  "frozen_at_et": "2026-08-18T22:4x",
+  "frozen_by": "Fable, weekly-lane night run (program doc §9b phase 5)",
+  "provenance": {
+    "origin": "J's explicit directive 2026-08-18: 'we're gonna need to test, you know, which Friday, you know, one week or two week out, which expiration was better for data.'",
+    "code_frozen_at_commit": "68c0e239",
+    "implementation": [
+      "backtest/lib/expiry_selector.py (the four selection rules)",
+      "backtest/lib/multiday_walk.py (the walk, adverse-first resolution)",
+      "backtest/lib/weekly_fill_model.py (explicit spread cost)",
+      "automation/state/weekly/weekly_exit_gate.py (exit rules, shared with the live lane)"
+    ],
+    "_no_results_seen": "This document is written BEFORE the experiment has been run even once. No arm's outcome is known to the author at freeze time."
+  },
+
+  "hypothesis": {
+    "primary": "For a multi-day level-interaction trade, expiry choice materially changes per-trade expectancy, and the optimum is NOT the cheapest/nearest contract — because same-week expiries bought mid-week sit on the steepest part of the decay curve while the thesis needs days to play out.",
+    "null": "No arm differs meaningfully from the others once spread cost and position-size normalization are applied.",
+    "null_is_a_shippable_result": true,
+    "_null_action": "If the null holds, ship the arm with the best LIQUIDITY and lowest spread cost (expected: same-week or next-week on the pilot ETFs), and record that expiry is NOT an edge lever. A null must not be re-run with new slicing until something wins — that is the multiple-comparisons trap this preregistration exists to prevent."
+  },
+
+  "arms": {
+    "SAME_WEEK": "nearest listed Friday >= as_of, subject to min_dte_at_entry=3",
+    "NEXT_WEEK": "the listed Friday after SAME_WEEK's",
+    "TWO_WEEKS_OUT": "the listed Friday after NEXT_WEEK's",
+    "MONTHLY": "nearest listed expiry to 30 DTE (control, tolerance +/-7 days)",
+    "_selection_contract": "Rules operate on the LIVE list of available expiries, never a computed calendar Friday. Verified necessary: NVDA's 2026-08-26 expiry is not listed because earnings land that day. Any fallback is recorded with its reason and the row is tagged fallback=true."
+  },
+
+  "design": {
+    "type": "paired / within-subject",
+    "pairing_unit": "one signal instance",
+    "description": "Every entry signal generates one position in EACH arm simultaneously, from the same underlying, same direction, same entry session. The ONLY difference between arms is the contract selected. This makes the comparison a matched-pairs test and removes signal-quality variance from the contrast entirely.",
+    "why_paired": "Comparing separate strategy runs would confound expiry choice with which signals each run happened to catch. With n small (this lane has zero history), an unpaired design has no realistic chance of detecting a true difference."
+  },
+
+  "metrics": {
+    "primary": "per-trade percent return on premium paid, net of modeled spread cost",
+    "_primary_rationale": "NOT win rate. The engine's established edge is a right tail — money comes only from exits >= 1.3x entry premium (memory: engine-edge-right-tail-2026-08-18). A win-rate metric would rank arms by frequency of small wins and actively mislead.",
+    "secondary": [
+      "expectancy in dollars per trade at a fixed risk budget",
+      "theta efficiency = net return divided by total theta paid over the hold",
+      "max favorable excursion capture (did the arm's exit rules actually harvest the right tail)",
+      "proportion of trades exiting on days_to_live vs target vs stop vs theta_budget"
+    ],
+    "_theta_efficiency_why": "It makes the core tradeoff explicit and is the metric most likely to explain WHY an arm wins: longer DTE pays less decay per day but costs more premium and carries less gamma."
+  },
+
+  "confound_controls": {
+    "position_size": "MANDATORY. Longer-DTE contracts cost more, so a fixed contract count would silently compare different dollar risks. Every arm is normalized to the SAME dollar risk budget; contract counts differ. Getting this wrong would make the cheapest arm look best purely as a leverage artifact.",
+    "delta": "Strikes are DELTA-matched across arms, not strike-matched — the same strike is a different delta at different DTE.",
+    "spread_cost": "Applied per arm from the same explicit model; longer-dated contracts are not given a free pass on their wider spreads.",
+    "weekend_inclusion": "Recorded per trade. A Friday-expiry held over a weekend is a materially different exposure and is reported as a stratum, not silently pooled.",
+    "earnings_in_window": "Any arm whose contract window contains the underlying's earnings print is EXCLUDED from the primary comparison and reported separately — otherwise the longer arms are penalized for an event risk the rules already forbid holding.",
+    "iv_at_entry": "Logged per trade; used to check the arms are not being compared across different vol regimes."
+  },
+
+  "statistics": {
+    "test": "Wilcoxon signed-rank on paired per-trade returns",
+    "contrasts": ["SAME_WEEK vs NEXT_WEEK", "NEXT_WEEK vs TWO_WEEKS_OUT", "SAME_WEEK vs TWO_WEEKS_OUT"],
+    "multiple_comparison_correction": "Holm across the 3 pairwise contrasts. MONTHLY is a descriptive control and is NOT included in the corrected family.",
+    "alpha": 0.05,
+    "min_paired_observations": 30,
+    "_min_n_rationale": "Below 30 pairs the test cannot separate a real effect from noise at this effect size; a result on fewer pairs is reported as DESCRIPTIVE ONLY and cannot ship an arm.",
+    "stopping_rule": "Run the full available history once. No peeking-and-extending: if n < 30 the answer is 'insufficient evidence', not 'collect until significant'.",
+    "random_entry_null": "MANDATORY before any arm is described as good. Each arm's return distribution must beat a randomized-entry null at the null's MAX, not its mean. An arm that beats the other arms but not the random null means the EXPIRY choice is irrelevant because the SIGNAL has no edge — a result that must be reported plainly rather than buried."
+  },
+
+  "data_disclosure": {
+    "required_on_every_output_row": [
+      "pct_real_bars vs pct_synthetic (per arm)",
+      "spread_pct_assumed",
+      "intraday_path_unknown (always true for daily bars)",
+      "adverse_resolution_sessions",
+      "gapped_through_sessions",
+      "n_pairs_after_exclusions"
+    ],
+    "_why": "Coverage is volume-gated, so it varies by arm: longer-dated contracts are systematically thinner. An arm could 'win' purely by having less real data and more synthetic smoothing. Reporting a p-value without per-arm completeness would hide exactly that."
+  },
+
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "ship_an_arm_if": "It wins its Holm-corrected pairwise contrasts at alpha=0.05 AND clears the random-entry null at MAX AND has >= 30 paired observations AND its data completeness is within 15 percentage points of the comparison arm's.",
+    "ship_the_liquid_default_if": "No arm wins under the above — i.e. the null holds. Records expiry as a non-lever.",
+    "kill_the_experiment_if": "Fewer than 30 pairs exist across the entire available history, meaning the signal does not fire often enough to answer the question with this data.",
+    "what_no_result_authorizes": "Nothing in this experiment can arm live money, change SPY parameters, or alter the 10 rules. Its maximum authority is setting the weekly lane's default expiry_rule in automation/state/weekly/params.json."
+  },
+
+  "dead_knob_check": {
+    "requirement": "The expiry rule parameter must provably change the selected contract (C14 vary-and-assert).",
+    "status": "ALREADY GREEN before freeze — backtest/tests/test_expiry_selector_vary_and_assert.py::test_all_four_rules_select_different_expiries_same_inputs proves the four rules select four DISTINCT expiries from identical inputs."
+  },
+
+  "known_limitations_stated_upfront": [
+    "Daily bars only: intraday path unknown, resolved adversely by construction.",
+    "Spread is MODELED, not measured — this account has no OPRA agreement, only the free indicative feed.",
+    "Pilot basket is GLD+QQQ (ETFs, no earnings), so the earnings-exclusion control is untested until single names join at wave 2.",
+    "Backtested signals are not live fills; nothing here substitutes for the real-fills promotion gate."
+  ]
+}
