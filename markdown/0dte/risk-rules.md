@@ -247,3 +247,52 @@ Before any entry, expect this kind of explicit math:
 > Placing bracket order via Alpaca paper. Thesis logged."
 
 That kind of explicit, math-first dialogue is what these rules are for. If the math doesn't fit, the trade resizes or doesn't happen.
+
+---
+
+## Constraints the engine enforces that were never written down (documented 2026-08-18)
+
+> Found by the rule-to-engine alignment audit (`analysis/deep-research/RULE-ENGINE-ALIGNMENT-2026-08-18.md`)
+> and then **re-verified against code and the live decision ledger before being written here** —
+> two of the audit's six claims did not survive that check and are corrected below.
+>
+> An undocumented constraint is as dangerous as an unenforced rule, in the opposite direction:
+> it shapes every live decision while no one can point to why. Firing counts are real, taken
+> from `automation/state/core-decisions.jsonl`.
+
+### LIVE — enforced today, previously undocumented
+
+| constraint | value | fires | what it does |
+|---|---|---:|---|
+| `min_entry_premium` | **$0.30**, both accounts | constant | Refuses any entry whose premium is below $0.30. Correct for a *managed* position — an −8% stop on a $0.06 contract is half a cent, i.e. spread noise, not risk. It is also what blocks the "lottery ticket" idea; an unmanaged lottery leg needs its own rule, not an exemption from this one. |
+| `entry_no_trade_after_et` | **15:00 ET**, both accounts | 130× (`SKIP_LATE_ENTRY`) | No NEW entries after 15:00. Open positions are still held to the 15:50 time-stop. CLAUDE.md documents the 15:50 flatten but never mentioned this earlier entry cutoff. |
+| Fill-bar quality veto | — | **243×** (`SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY`) | Blocks a bear entry when the fill bar itself printed bullish. The single most-fired undocumented gate in the ledger. |
+| Doji entry-bar veto | — | 44× (`SKIP_DOJI_ENTRY_BAR`) | Blocks entry on an indecision bar. |
+
+### CORRECTIONS to the audit's findings
+
+- **"Bold has its own 15:00 cutoff, earlier than the documented 15:50."** Half right. The 15:00
+  entry cutoff is real and *was* undocumented — but it applies to **both accounts**, not just
+  Bold (`params.json:45` and `aggressive/params.json:39` both read `"15:00"`). It is not an
+  asymmetry between arms.
+- **"`score_ladder_floor` can promote a HOLD into an ENTER."** The hook exists but is
+  **DISARMED and inert** — the key is absent from both params files, leaving only a
+  `_score_ladder_floor_DISARMED_2026_07_27` provenance note. It was disarmed on evidence, not
+  by oversight: the 390-day full-history replay measured floor=9 at **−$10,903 over 332 trades**
+  against a **+$5,307** binary-engine baseline (Safe), and floor=8 at **−$16,642 over 725
+  trades** (Bold). All floors lost. With the key absent, ticks are byte-identical. This is not
+  a live undocumented constraint — it is a correctly-parked one.
+
+### Shadow, not live
+
+- **`day_throttle_shadow`** — a per-arm T−2% / T−6% intraday circuit breaker, pre-registered
+  (`day-throttle-forward-prereg-2026-08-18`) and counting forward in shadow. It is the natural
+  instrument for the "did we overtrade today" worry, and it is **not** blocking anything yet.
+
+### Still open, and deliberately not fixed here
+
+There is **no book-level exposure ceiling across the five correlated arms** — each arm's
+kill switch and risk cap are per-account and isolated, which is correct in itself and exactly
+why nothing bounds the aggregate. `setup/scripts/book_exposure.py` measures and judges it
+(default cap 25% of book equity, calibrated so it would not have bound any historical entry —
+observed peak was 18.7%). Wiring it into the entry paths is a separate change.
