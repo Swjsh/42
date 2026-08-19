@@ -153,6 +153,30 @@ hypothesis*, and picking one is a judgment call I'd rather make with you than gu
 overnight. The apparatus to test any candidate now exists and is proven — the next idea can be
 evaluated in a single session instead of a night.
 
+## ⚖️ One thing I want to frame carefully, because it's yours
+
+The signal we tested **is your stated market philosophy, mechanized**: supply/demand zones,
+wait for the return, structure shift at the zone, never chase candles. That is what
+`zones.py` + `trigger.py` implement, and it is what failed.
+
+**I do not think this shows your philosophy is wrong, and I want to be precise about why.**
+What was tested is one *mechanization* of it — a specific zone-construction (5 families,
+ATR-scaled width), a specific structure-shift detector (CHoCH/BOS on a fixed fractal window),
+and a specific "at the zone" tolerance. A discretionary trader reading the same chart brings
+context that none of those encode: whether the level has been respected *lately*, what the
+broader trend is doing, whether the approach was impulsive or exhausted, what happened the last
+two times price came here.
+
+So the honest statement is narrow: **this particular encoding of the idea carries no
+information on these 9 underlyings at these horizons.** Whether the idea survives a better
+encoding is genuinely open — and it is the question I'd want your input on, because you know
+what you're actually looking at when you take one of these trades, and that's the part the
+detector is missing.
+
+What I would *not* do is keep bolting parameters onto this trigger hoping one sticks. Five cuts
+of the data agree the trigger is the problem, and that is a signal to rethink the encoding, not
+to tune it.
+
 ## 📁 Where everything lives
 
 - Program doc (canonical, with the full phase ledger): `markdown/planning/WEEKLY-OPTIONS-PROGRAM.md` §9b
