@@ -1,3 +1,15 @@
+## [2026-08-19 ~05:30-05:40 ET] conductor: OK — queue.md OP-22 consolidation pass (598,612 -> 348,523 bytes) + retention-cap guard, commit `60eb232e`
+
+**Picked via loop-closing tiebreak (OP-22).** Budget gate PROCEED ($0.76/$30 pre-fire), engine health GREEN. `task_scorer.py --top` named `TWIN-DOCTRINE-FIRST-DEPLOY` again — already re-pinged twice (2026-08-18 05:33 verified-landed, and again per the ~01:xx fire's own note as "spam, not loop-closing" with zero new evidence) — skipped a third re-ping for the same reason. `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` (#2, score 6.0) is 5 passes deep with its core ask deliberately gated behind its own `/fable-blast-radius` pass per the last 2 fires that touched it — a 6th incremental slice was lower value than closing a genuinely stale loop. Self-audit gaps queue (`new-gaps-flagged.md`) fully triaged through 2026-08-18, nothing new.
+
+**The find:** `automation/overnight/queue.md` — the conductor's own external memory — had silently regrown to 598,612 bytes (2.3x the Read tool's 256KB limit) in the 10 days since the last consolidation (2026-08-09), with 119 fully-resolved `[x] status:done/closed/resolved/cancelled/decided` items (each a multi-hundred-word writeup) crowding the live backlog instead of an archive. OP-22 says "every append-only producer has a retention cap; hitting it triggers CONSOLIDATION" — but the cap for this specific file lived only in a one-time 2026-08-09 archive note's prose, not in anything that runs again, so it silently failed a second time with zero warning.
+
+**Fixed:** extracted all 119 resolved items verbatim, original order, to `automation/overnight/queue-archive-2026-08-19.md` (header documents the selection method: checked `[x]` AND last `status:` token resolves to a terminal state, OR a bold `**DONE/CLOSED/RESOLVED/CANCELLED/DECIDED**` marker with no explicit status token — 6 checked-but-`status:pending` items deliberately LEFT in place as genuinely open follow-ups). Verified BEFORE removal that none of the 69 top-level archived item IDs are referenced by a `depends:` clause in any still-active item (programmatic check, zero hits — no dependency chain broken). `task_scorer.py --all` re-verified post-consolidation: 91 items parse, 51 ready, same top item (`TWIN-DOCTRINE-FIRST-DEPLOY`) still surfaces correctly. Curated safety gate 59/59 PASS.
+
+**Graduated to a guard (STAGE 4.5):** `backtest/tests/test_queue_md_retention_cap.py` — RED-fails once `queue.md` crosses 450,000 bytes (headroom above today's 348,523), and separately asserts the 2026-08-19 archive file exists and is non-trivial (so a future fix for a failing size test can't just delete the overflow instead of archiving it). Lesson filed: `_lesson-inbox/queue-md-retention-cap-was-prose-not-code-2026-08-19.md`, with a suggested follow-up inventory sweep of other append-only files (`journal/mistakes.md`, `STATUS.md` itself) that may carry the same prose-only-cap risk.
+
+Zero trading-path files touched (queue.md + a new archive file + a new pytest guard + a lesson-inbox item). Rail-4 n/a (not a trading-path change). **Revert:** `git revert 60eb232e` (3 files: 1 new archive file + queue.md trim + 1 new guard test — cleanly revertible, though reverting would re-introduce the exact regrowth this fire fixed).
+
 ## [2026-08-19 ~01:xx ET] conductor: OK — surfaced the weekly-options overnight program (9 commits, never on J's wake-signal surfaces), morning brief: NULL result, nothing armed
 
 **Picked via loop-closing tiebreak (OP-22): closing a silent loop over creating a new artifact.** Engine health GREEN, budget gate PROCEED ($0/$30 pre-fire). `task_scorer.py --top` named the stale `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping (already re-pinged 2026-08-18 05:33, ~20h ago — re-pinging again with zero new evidence is spam, not loop-closing, per the prior fire's own note); skipped it in favor of re-deriving the `queue.md` `WEEKLY-OPTIONS-BUILD` entry's `status:pending` label rather than trusting it.
@@ -477,42 +489,4 @@ work instead of inbox drain.
 Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-16`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
 
 ---
-
-## [2026-08-16 16:1x ET] conductor-weekend: OK — CONDUCTOR-BUDGET-ARITHMETIC re-verified stale, downgraded CRITICAL→MED
-
-Not new code — a queue-hygiene/pruning fire (OP-22 tiebreak: closing a loop over
-creating an artifact). `task_scorer.py --top` correctly excluded the J-gated
-`TWIN-DOCTRINE-FIRST-DEPLOY` (24d stale re-ping, working as designed since the
-2026-08-04 fix) and ranked `CONDUCTOR-BUDGET-ARITHMETIC` (CRITICAL, filed 2026-08-08,
-"THE autonomy blocker") next. Before spending effort on it, re-derived fresh evidence
-instead of trusting the 8-day-old label: both of its own two named sub-asks were
-already answered the same evening it was filed (`conductor_budget.py`'s own docstring
-carries the full 2026-08-08 re-measurement — correction factor 2.16 confirmed via
-independent token pricing, pacing adversarially falsified to zero rescues at every
-floor, `min_allowance_usd` defaulted to 0.0) — but that resolution was never folded
-back into the queue item, so the CRITICAL label kept biasing every fire's task-pick
-toward a solved problem. **Live-reverified this fire:** `autonomy_report.py` — today
-2/2 ship (0 budget_exhausted), this week 7/7 ship, 0 budget_exhausted noops. Grepped
-`conductor-outcomes.jsonl` for every budget-exhausted/QUIET row since 2026-08-02: 13
-rows on 08-02/03 + 1 on 08-08, then **zero in the 8+ days since** — even though
-`max_fires=4` and `Gamma_ConductorWeekend`'s every-2h-all-day cadence are both
-unchanged. The acute starvation crisis is not currently occurring. Downgraded to MED
-with the evidence inline, left an explicit re-open trigger (`noop_reasons.budget_
-exhausted` going non-zero again → re-open HIGH), did NOT close outright (the deeper
-fix — a per-fire $ cap enforced inside conductor.md itself, since admission-only
-pacing structurally can't cap an already-admitted fire — remains unbuilt and is the
-only real remaining gap). Filed a lesson (`_lesson-inbox/stale-critical-priority-
-survives-own-resolution-2026-08-16.md`): a fix landing in code doesn't auto-propagate
-back to the queue item that requested it; re-derive evidence before trusting any
-priority label, don't inherit it at face value. Zero trading-path / zero code files
-touched — `queue.md` text edit only. **REVOKE:** revert the queue.md hunk (doc-only,
-trivially reversible, no commit made yet — see below).
-
-Next fire: (1) `git add automation/overnight/queue.md automation/overnight/STATUS.md
-strategy/candidates/_lesson-inbox/stale-critical-priority-survives-own-resolution-
-2026-08-16.md` + commit (not yet committed this fire — do it first thing); (2) if
-still picking after that, chef-inbox is the largest untriaged surface (77+ open,
-oldest 2026-07-10, genuinely stale per the last lesson-inbox-drain fire's own note);
-(3) `GATE-RECENCY-REVALIDATION` (HIGH) has 3 pre-sketched A/Bs ready to run if a fire
-wants engine-edge work instead of inbox drain.
 
