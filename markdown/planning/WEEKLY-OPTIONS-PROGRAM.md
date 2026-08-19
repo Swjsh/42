@@ -1,0 +1,194 @@
+# WEEKLY-OPTIONS PROGRAM — the second lane (living doc)
+
+> **Status: PHASE 0 — DESIGN COMPLETE, BUILD PENDING.** J directed the expansion 2026-08-18
+> ("turn this from a 0DTE shop into a full-blown option shop"). Research + design synthesis:
+> [`analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md`](../../analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md).
+> This file is the program's ONE canonical home — status line above updates as phases land
+> (OP-22: append here, never a parallel doc). Supersedes-in-part:
+> [`CROSS-TICKER-BRAINSTORM-2026-07-10.md`](CROSS-TICKER-BRAINSTORM-2026-07-10.md) (banner added there).
+>
+> **Update log:** 2026-08-18 — created (design ratified by J's directive; nothing armed, no code shipped yet).
+
+---
+
+## 1. What this program is — and is not
+
+- **Is:** a second, isolated trading lane — directional **weekly options** (calls/puts, long
+  premium) on a pilot basket of liquid non-SPY underlyings, traded on the SAME edge thesis as
+  the core shop: **level interaction** (rejection, reclaim, S/R flip+retest) per FOCUS-DOCTRINE
+  §2. Multi-day holds (the point of weeklies), shadow-first, paper-only.
+- **Is not:** a scaling of a proven edge (the SPY book fails live-readiness today — WR 21–27%,
+  negative expectancy, all 5 arms, `analysis/recommendations/live-readiness.json` 2026-08-18).
+  This is **edge-search**: the hypothesis is that the level thesis pays better on ~18–19%/day
+  theta surfaces (broker-verified 3DTE ATM, all six pilot names) than on 0DTE SPY's
+  100%-same-day cliff. If the hypothesis is wrong, the kill criteria in §8 fire.
+- **Non-comparability doctrine (crypto-twin rules):** weekly-1 P&L is NEVER evidence for or
+  against any SPY parameter, and vice versa. Findings here propose changes to weekly files
+  only. The SPY book and its doctrine are untouched by this program's existence.
+- **Relationship to the 10 rules:** the 10 rules apply verbatim (no setup no trade, trigger
+  discipline, defined stop, no adding, per-account kill switch, journal-everything, Gamma
+  vetoes). The v15 *mechanics* under them are re-derived for weeklies in §4.
+
+## 2. The universe (verified 2026-08-18 — re-verify cadence before relying on a specific day)
+
+**Pilot basket (v1):** **GLD, QQQ** → **+NVDA after 2026-08-26 earnings** → wave 2: TSLA, AAPL.
+**Parked:** RIVN (Friday-only; $0.17–0.19 ATM premium where the spread is 11–19% — our own
+sub-$0.20 noise-floor lesson; sizing-to-cap needs ~75 contracts). **Avoid:** XBI, NIO, DIA.
+
+| Fact (2026-08-18) | GLD | QQQ | NVDA | TSLA | AAPL | RIVN |
+|---|---|---|---|---|---|---|
+| Expiry cadence (live-chain-verified) | **Daily** | **Daily** | M/W/F | M/W/F | M/W/F | Fri-only |
+| ATM weekly spread (closing quote) | 2.7% | 1.1% | **2.15%** | 3.8% | 8%* | 11–19% 🚨 |
+| 3-contract ATM cost vs $1,580 cap | $891 ✅ | $1,632 ⚠️ OTM-1 | $837 ✅ | $1,569 ⚠️ | $969 ✅ | n/a |
+| Next earnings | none (ETF) | none (ETF) | **8/26 AMC** | ~late Oct | 10/29 | ~Nov |
+
+*AAPL closing print; 35K OI says it tightens intraday — verify before first trade.
+Unpublicized finding: GLD/XLF/SMH quietly run TRUE DAILY expiries (same as SPY/QQQ/IWM).
+NVDA's 8/26 Wednesday expiry is NOT LISTED (earnings that day) — expiry-selector must read
+the actual chain, never assume a calendar. Full 30-name tier tables: synthesis doc, Finding 1.
+
+## 3. Where it trades — the `weekly-1` arm
+
+**ONE new dedicated Alpaca paper account.** Never on the SPY core accounts:
+`fleet_broker.is_flat_spy_options`/`close_all_spy_options` (+4 duplicate sites, §5) filter
+`startswith("SPY")` — a TSLA/GLD position on a core account is invisible to the flat-check and
+EOD-flatten (an automated, permanent C11). Never a repointed SPY arm (evidence-trail
+destruction — the 2026-07-11 repoint scar). Never per-sector accounts before evidence
+(the r=0.846 "one bet in five sizes" lesson). Split per-underlying only after the basket
+clears the fleet `promotion_gate` (n≥30 clean, OOS+, WF≥0.70, sub-window stable, anchor-no-regression).
+
+Planned `accounts.json` arm entry (added as `pending_build` at build time — schema precedent:
+the futures arms already sit in the same array with their own `instrument` values):
+
+```json
+{
+  "id": "weekly-1",
+  "display_name": "WEEKLY-BASKET (paper, pending)",
+  "status": "pending_build", "execution": "weekly_rest", "live": false,
+  "fidelity": "real_fills", "broker": "alpaca_weekly",
+  "account_number": null,
+  "key_ref": "automation/state/fleet/secrets.json :: accounts.weekly-1",
+  "instrument": "WEEKLY_OPTION_MULTI",
+  "underlyings": ["GLD", "QQQ", "NVDA", "TSLA", "AAPL"],
+  "config_source": "automation/state/weekly/params.json",
+  "starting_equity": 5000.0,
+  "note": "Edge-search lane. Crypto-twin non-comparability doctrine: P&L never SPY evidence. Multi-day holds — EXEMPT from same-day EodFlatten by design. Kill criteria: WEEKLY-OPTIONS-PROGRAM.md §8."
+}
+```
+
+## 4. The v1 rule set (weekly mechanics under the unchanged 10 rules)
+
+| # | 0DTE mechanic | Weekly v1 rule | Why |
+|---|---|---|---|
+| 1 | Level entry, chart-structure stop | **Keeps** — same trigger logic on daily/4h/1h zones per symbol | Core edge thesis transfers |
+| 2 | SPY only | Per-ticker liquidity gate: ATM spread ≤5% of premium AND real OI, checked at entry time | Single names vary; closing screens lie |
+| 3 | Expiry = today | **Min DTE ≥3 at entry**: Mon–Tue entries may use this-Friday; Wed–Fri entries use NEXT Friday. Selector reads the live chain (earnings gaps exist) | Same-week bought midweek is already on the steep decay curve |
+| 4 | Delta = tier table | **0.40–0.70Δ** (ATM to slightly ITM) | Directional-swing convention; survives adverse days |
+| 5 | Flat by 15:50 ET | **Days-to-live budget set at entry (default 3 trading days)** + theta budget (exit if premium bleeds >40% with thesis unprogressed) + **close by Friday 15:30 ET — NO weekend holds in v1** | Replaces EOD-flatten; kills weekend gap+theta class entirely |
+| 6 | Overnight never happens | Overnight holds allowed Mon–Thu at **×0.5 size multiplier** on the standard formula; reduce into close | Chart stop is inert overnight; single-name gaps ~2× SPY |
+| 7 | No earnings exist | **Earnings blackout: no entry ≤3 sessions before that name's print; never hold through any print.** IV-rank logged per entry (favor IVR 0–30) | IV crush beats correct direction; MIT-documented retail leak |
+| 8 | −50% catastrophe premium cap | **Keeps** (both sides) | Long premium unchanged |
+| 9 | TP1 +30–100%/trail/runner | Shapes inherited as STARTING values, re-fit on real weekly fills before trusted | %s were validated on SPY fills only (Class B by evidence) |
+| 10 | Long premium only | **Keeps for v1.** Debit spreads deferred to v2 (exit_manager can't price spread P&L; don't ship two unknowns) | Consequence accepted: v1 simply never trades event windows |
+| 11 | Min 3 contracts, 30% cap | **Keeps** (min 3 = 2 TP + 1 runner; 30% of weekly-1 equity) | Sizing doctrine transfers |
+| 12 | Kill switch −30%/day | **Keeps, per-account** on weekly-1, isolated from all SPY arms | Rule 5 verbatim |
+
+## 5. Wiring map — what actually changes (from the coupling audit, file:line verified 2026-08-18)
+
+**Reused as-is (proven symbol-generic — crypto twin imports them verbatim):**
+`automation/state/fleet/exit_manager.py` (all %-of-premium; `TIME_STOP_ET` is already
+params-configurable — weekly params set the Friday close-out instead),
+`fleet_executor.py`, `strategies.py` (exit shapes), `backtest/lib/risk_gate.py`,
+`crypto/lib/market_structure.py`, most of `fleet_broker.py`.
+
+**Generalize (small, mechanical):**
+- `fleet_broker.py:82-129,466-484` — `open_spy_option_positions`/`is_flat_spy_options`/
+  `open_spy_option_positions_checked`/`close_all_spy_options` → take `symbol_root(s)`.
+- Same fix propagated to the 4 duplicate sites: `setup/scripts/atomic_bracket_guard.py:84`
+  (also fix the `symbol[9]` fixed-index OCC parse — wrong for 4-char roots),
+  `entry_location_shadow.py:99`, `fast_path_executor.py:359,369`, `trade_today_watcher.py:81`.
+- `crypto/lib/strike_selection.py:184` — `atm_strike = round(spot)` assumes $1 strikes; needs
+  per-symbol strike-increment awareness (TSLA/NVDA/AAPL trade $2.50/$5 rungs at these prices).
+
+**New (genuinely absent logic):**
+- `weekly_expiry_selector` — resolve target Friday (or M/W) from the LIVE chain per §4 rule 3;
+  never calendar-assume (NVDA 8/26 is missing from the chain).
+- `weekly_core` — thin SEE/DECIDE: per-symbol level zones (daily/4h/1h) + market_structure +
+  the §4 gates → shadow ledger → (later) fleet ACT lane. **`heartbeat_core.py` is NOT reused**
+  — its SEE/DECIDE is SPY-entangled (its own crypto-twin precedent says the same) and its
+  expiry logic is `_et_now()` (heartbeat_core.py:2445).
+- Per-symbol state: `automation/state/weekly/{params.json, key-levels-<sym>.json, shadow-ledger.jsonl}`
+  — the existing key-levels/today-bias schemas are symbol-less by design; we do NOT attempt the
+  503-file `"spy"`-field rename.
+- Sector-heat scanner (§6) + nightly weekly-lane premarket task (levels per basket symbol).
+- Scheduled tasks at build time: `Gamma_WeeklyCore` (RTH cadence TBD at build), `Gamma_WeeklyLevels`
+  (premarket), `Gamma_SectorHeat` (nightly). weekly-1 is EXEMPT from same-day EodFlatten by design.
+
+**Explicitly not touched:** `heartbeat_core.py`, SPY params files, the 10 rules, all SPY arms.
+**Zero backtest history exists for any new symbol** (spy_5m/OPRA caches are SPY-only by
+construction) — the lane starts as a mechanism trial; real fills are the only evidence.
+
+## 6. Sector-heat scanner (the "what's hot, when" instrument) — $0, nightly
+
+15 tickers (11 SPDRs + SMH, GDX, IWM; SPY benchmark) from daily bars (Alpaca/yfinance):
+RS-vs-SPY (1w/1m/3m) + simplified RRG quadrant (Leading/Weakening/Lagging/Improving) +
+MA-stack score + top-10-holdings breadth + dollar-volume-change flow proxy →
+cross-sectional composite → rank; top-3 sectors get their liquid top-10 holdings ranked.
+Output: `analysis/sector-heat/{date}.json` + one-line verdict into the premarket brief.
+**Selection layer ONLY — never an entry signal; the §4 gates still decide every trade.**
+Full formula + schema: synthesis doc Finding 5. Seasonality worth encoding: September
+trend-conditional gate (SPX vs 200dma); earnings-cluster calendar (semis run offset fiscal
+years). Killed folklore: "sell in May", gold-September (sources contradict).
+
+Current snapshot (2026-08-18, goes stale fast): 🔥 XLE +9.9%/1M · XLV +6.6% (3M leader) ·
+XLK +5.6% but rolling over. 🥶 XLU/XLRE/XLC. Backdrop: 30-yr ~5.3% (2-decade high), VIX ~15.8,
+FOMC 9/16, NVDA 8/26 · MRVL 8/27 · AVGO 9/2.
+
+## 7. Build order (order-of-operations only — no time estimates)
+
+**Phase 0 — autonomous, no J dependency (queued: `automation/overnight/queue.md` WEEKLY-OPTIONS-BUILD):**
+1. `automation/state/weekly/params.json` (v1 rules §4 encoded; own kill-switch/cap/hold-model).
+2. Generalize the SPY-prefix helpers + 4 duplicate sites + strike-increment fix (§5) — with
+   guard tests that RED on regression (engine-wins loop rule).
+3. `weekly_expiry_selector` + tests against the live chain (incl. the NVDA-8/26-missing case).
+4. Sector-heat scanner + first `analysis/sector-heat/{date}.json`.
+5. `weekly_core` SHADOW mode: levels for GLD+QQQ, would-be entries/exits → shadow ledger.
+   Pre-registration frozen before first row (see §8).
+6. Add `weekly-1` to `accounts.json` as `pending_build` (blast-radius check first: confirm
+   fleet_executor skips non-active arms — the futures-arm precedent says yes, verify anyway).
+7. TV watchlist + journal scaffolding (`journal/` entries tag `arm=weekly-1`).
+
+**Phase 1 — J, blocking (~5 minutes, the ONLY human steps):**
+8. Pick login → dashboard **Open New Paper Account** ($5,000 suggested) → confirm options
+   Level 3 shows → generate key+secret → paste directly into gitignored
+   `automation/state/fleet/secrets.json` under `accounts.weekly-1` (never through chat).
+
+**Phase 2 — autonomous, after the key lands:**
+9. `load_creds()`/`get_account()` read-only self-check; fill real account number into
+   accounts.json; dry-run the new symbol-scoped flat-check against the (flat) account.
+10. Shadow → paper: first real weekly-1 orders only after the §8 shadow bar clears.
+11. Wave 2 symbols (NVDA post-8/26, TSLA, AAPL) + debit-spread v2 design — each gated on §8.
+
+## 8. Pre-registered gates and kill criteria (frozen 2026-08-18, before any data exists)
+
+- **Shadow → paper bar:** ≥10 valid shadow signals across ≥10 distinct sessions, with sane
+  mechanism (entries at levels, exits per §4, no gate misfires). <10 signals in 20 sessions =
+  the setup doesn't occur on these surfaces → **kill or re-scope universe.**
+- **Paper evidence bar:** the fleet's own `promotion_gate` (n≥30 clean trades, OOS-positive
+  framing per real fills, WF≥0.70 where applicable, anchor-no-regression vs doing nothing).
+- **Program kill:** after ≥30 real-fills trades, basket expectancy below the CONCURRENT SPY
+  book's → kill the lane, fold lessons, keep the scanner if it independently earns its keep.
+- **Scanner kill:** top-3 sector picks show no lift vs equal-weight null after 60 sessions.
+- **Safety halt:** any position-visibility incident (C11 class) → lane halts until root-caused.
+- **Live money:** never without J (OP-0 #1) — unchanged, forever, regardless of paper results.
+
+## 9. Documentation architecture (how/where this program journals)
+
+- **This file** — canonical program state (status line + append log).
+- `analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md` — frozen research record.
+- `automation/state/weekly/shadow-ledger.jsonl` — shadow decisions (machine).
+- `journal/YYYY-MM-DD.md` + `journal/trades.csv` — weekly-1 trades journal WITH `arm=weekly-1`
+  tags, same Rule-8 discipline as SPY.
+- `analysis/sector-heat/{date}.json` — scanner output.
+- ROADMAP.md carries the program as a PROPOSED row; MAP.md picks this file up via
+  markdown/README.md on next vault sync. Dated studies FOLD here per OP-22.

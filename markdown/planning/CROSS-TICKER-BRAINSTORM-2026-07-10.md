@@ -1,5 +1,14 @@
 # Cross-Ticker Brainstorm — J's ask, Fable's full-attention answer (2026-07-10 ~01:50 ET)
 
+> ⚠️ **SUPERSEDED IN PART (2026-08-18):** J explicitly directed the second-chain expansion
+> ("turn this from a 0DTE shop into a full-blown option shop") — overriding §B's preconditions
+> by principal decision while they remain UNMET (all 5 arms failing live-readiness that day).
+> The expansion is therefore framed as **edge-search, not scaling**, with pre-registered kill
+> criteria. Current program: [`WEEKLY-OPTIONS-PROGRAM.md`](WEEKLY-OPTIONS-PROGRAM.md) ·
+> research: `analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md`.
+> §A (confluence sensors) and this doc's liquidity/earnings/validation-debt analysis remain
+> valid and are cited by the new program. Original record below, unedited.
+
 > **J (2026-07-09):** "look at other stocks. for spx confluence i think… msft, nvda, tsla, nflx,
 > GLD, QQQ, other FAANG… either for confluence, or to even trade their option chain. I would
 > rather just be a SPY/SPX sniper i think… don't want to over crowd or take away focus."

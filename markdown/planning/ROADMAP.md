@@ -104,6 +104,7 @@ flowchart TD
 | `pdt_gate_mode=cash_settlement` on both core arms | **LIVE IN CODE, confirmed J-directed** (2026-08-09) capital-discipline choice — its old doc-justification (false "cash account" premise) was corrected same evening as this roadmap, `b89a03e4` |
 | Conviction v2 "fixes" ranking | **FALSE — explicitly disclaimed by its own doc.** It fixes visibility, not discrimination. |
 | Live-money arming criteria | **OPEN QUESTION** — undefined beyond "J decides," which is intentional |
+| Weekly-options second lane (GLD/QQQ pilot → NVDA/TSLA/AAPL; new `weekly-1` paper arm) | **PROPOSED→BUILDING, J-directed 2026-08-18.** Explicitly edge-search, not scaling (SPY book failed live-readiness that day). Canonical: `WEEKLY-OPTIONS-PROGRAM.md`; research: `analysis/deep-research/OPTIONS-SHOP-EXPANSION-2026-08-18.md`. Supersedes-in-part CROSS-TICKER-BRAINSTORM-2026-07-10. Paper-only; live arming stays OP-0 #1. |
 
 ---
 
