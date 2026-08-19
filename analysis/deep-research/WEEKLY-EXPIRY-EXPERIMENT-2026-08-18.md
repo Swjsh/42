@@ -212,3 +212,56 @@ not a blank page):
    structure, which this lane explicitly does not trade today.
 4. **`structure_hh_hl_lh_ll` produced zero signals** across both symbols — still unexplained,
    and worth one hour of inspection before trusting the 5-family design.
+
+---
+
+# VARIANT #1 TESTED AND REFUTED — the timeframe mismatch was NOT the cause
+
+The failure diagnosis ranked "the 1H trigger is too fast for a multi-day thesis" as the **most
+likely single cause**. It was tested the same night. **It is wrong, and the correction runs in
+the opposite direction: slowing the trigger makes the strategy materially WORSE.**
+
+Variant design (a clean one-step scale-up preserving the slow-zone/fast-trigger separation):
+production = zones DAILY + trigger 1H → variant = **zones WEEKLY + trigger DAILY**. Run over
+8 liquid symbols (GLD, QQQ, IWM, XOM, CVX, NVDA, AAPL, TSLA), 129 paired signals, identical
+machinery, identical frozen rules.
+
+| Arm | v1 mean | **variant mean** | v1 tail ≥+30% | **variant tail** |
+|---|---|---|---|---|
+| SAME_WEEK | −8.09% | **−23.51%** | 23.4% | **17.1%** |
+| NEXT_WEEK | −13.51% | **−22.40%** | 18.7% | **8.5%** |
+| TWO_WEEKS_OUT | −13.62% | **−22.42%** | 14.0% | **6.2%** |
+| MONTHLY *(control)* | −11.35% | **−17.78%** | 10.0% | **4.8%** |
+
+**Null gate: still FAIL on every arm** (real −22% to −24% vs null MAX +4.9% to +10.6%).
+
+Two things worth noting:
+
+1. **The right tail SHRANK on every arm** — 23.4%→17.1%, 18.7%→8.5%, 14.0%→6.2%. Since this
+   shop's entire edge thesis is a right tail, a change that thins the tail is moving away from
+   the only thing that pays, not toward it.
+2. **The null is much better behaved here** (MAX +4.9% to +10.6%, versus the +255% outlier in
+   the 2-symbol run). Eight symbols give the random draws enough diversity that no single
+   lottery ticket dominates — which retroactively confirms the earlier +255% was the
+   spot-proxy artifact it was labelled as, not a real feature of the null.
+
+## What this changes
+
+The two most obvious fixes are now both dead: **expiry choice** (tested, moot) and **trigger
+timeframe** (tested, backwards). That materially lowers the odds that this signal family is
+salvageable by tuning, and raises the odds that level-interaction-plus-structure-shift simply
+does not predict direction on these underlyings at these horizons.
+
+The surviving hypotheses, re-ranked after this result:
+
+1. **It may be detecting VOLATILITY, not DIRECTION.** ~50/50 direction split, both sides losing,
+   on both timeframes. If the trigger marks "something is about to move" without saying which
+   way, then every directional expression of it must lose the spread and theta. That is
+   consistent with everything observed so far and is now the leading explanation.
+2. **Zone quality needs a genuinely different measure** — confluence is proven dead (ρ=−0.05).
+3. **`structure_hh_hl_lh_ll` produced zero signals** on every symbol tested, across both
+   timeframes. Still unexplained; now more suspicious as a construction bug than a design choice.
+
+**What is NOT worth another run:** more expiry variants, more DTE tuning, more zone families
+bolted onto the same trigger. The trigger itself is the thing under suspicion, and three
+independent cuts of the data now agree.

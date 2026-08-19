@@ -4,25 +4,34 @@
   "spread_pct_assumed": 0.05,
   "symbols": [
     "GLD",
-    "QQQ"
+    "QQQ",
+    "IWM",
+    "XOM",
+    "CVX",
+    "NVDA",
+    "AAPL",
+    "TSLA"
   ],
   "selection_stats": {
-    "signals_seen": 185,
-    "skip_no_prices_MONTHLY": 87,
-    "paired_signals": 171,
-    "skip_no_expiry_MONTHLY": 18,
-    "skip_no_expiry_TWO_WEEKS_OUT": 14,
-    "unpaired_signals_dropped": 14,
-    "skip_no_expiry_NEXT_WEEK": 10,
-    "skip_no_expiry_SAME_WEEK": 8
+    "signals_seen": 402,
+    "skip_no_prices_SAME_WEEK": 260,
+    "skip_no_prices_NEXT_WEEK": 262,
+    "skip_no_prices_TWO_WEEKS_OUT": 259,
+    "skip_no_expiry_MONTHLY": 277,
+    "unpaired_signals_dropped": 273,
+    "skip_no_prices_MONTHLY": 41,
+    "paired_signals": 129,
+    "skip_no_expiry_NEXT_WEEK": 8,
+    "skip_no_expiry_TWO_WEEKS_OUT": 11,
+    "skip_no_expiry_SAME_WEEK": 4
   },
-  "paired_signals": 171,
+  "paired_signals": 129,
   "min_pairs_required": 30,
   "per_arm_n": {
-    "MONTHLY": 80,
-    "NEXT_WEEK": 171,
-    "SAME_WEEK": 171,
-    "TWO_WEEKS_OUT": 171
+    "MONTHLY": 83,
+    "NEXT_WEEK": 129,
+    "SAME_WEEK": 129,
+    "TWO_WEEKS_OUT": 129
   },
   "_note": "Statistics are computed by weekly_expiry_experiment_report.py, not here."
 }

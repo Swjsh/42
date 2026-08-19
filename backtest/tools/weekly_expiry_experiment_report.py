@@ -189,13 +189,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--spread-pct", type=float, default=0.05)
     ap.add_argument("--skip-null", action="store_true")
+    ap.add_argument("--ledger", default=None)
+    ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)
 
-    if not LEDGER.exists():
-        print(f"ERROR: no ledger at {LEDGER} -- run weekly_expiry_experiment.py first",
+    ledger = Path(args.ledger) if args.ledger else LEDGER
+    out = Path(args.out) if args.out else OUT
+    if not ledger.exists():
+        print(f"ERROR: no ledger at {ledger} -- run weekly_expiry_experiment.py first",
               file=sys.stderr)
         return 1
-    rows = [json.loads(l) for l in LEDGER.open(encoding="utf-8")]
+    rows = [json.loads(l) for l in ledger.open(encoding="utf-8")]
     by_arm = defaultdict(list)
     for r in rows:
         by_arm[r["arm"]].append(r)
@@ -266,7 +270,7 @@ def main(argv: list[str] | None = None) -> int:
             "monthly_arm": "descriptive control; excluded from the Holm family per prereg",
         },
     }
-    OUT.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    out.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     print("\n=== PER ARM (primary: % return on premium) ===", file=sys.stderr)
     for a, d in desc.items():

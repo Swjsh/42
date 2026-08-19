@@ -135,8 +135,9 @@ def select_expiry(rule: str, available: list[dt.date], as_of: dt.date, min_dte: 
     return {"expiry": chosen, "dte": (chosen - as_of).days, "rule": rule, "fallback": fallback}
 
 
-def run(symbols: list[str], params: dict, spread_pct: float) -> tuple[list[dict], dict]:
-    sig_doc = json.loads(SIGNALS.read_text(encoding="utf-8"))
+def run(symbols: list[str], params: dict, spread_pct: float,
+        signals_path: Path | None = None) -> tuple[list[dict], dict]:
+    sig_doc = json.loads((signals_path or SIGNALS).read_text(encoding="utf-8"))
     min_dte = int(params["entry"]["min_dte_at_entry"])
     shape = params["exits"]
 
@@ -235,21 +236,25 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--symbols", default=None)
     ap.add_argument("--spread-pct", type=float, default=DEFAULT_SPREAD_PCT)
+    ap.add_argument("--signals", default=None, help="override the signals JSON (e.g. a variant probe)")
+    ap.add_argument("--ledger", default=None, help="override the output ledger path")
     args = ap.parse_args(argv)
 
     params = json.loads(PARAMS.read_text(encoding="utf-8"))
     symbols = ([s.strip().upper() for s in args.symbols.split(",")]
                if args.symbols else list(params["universe"]["active"]))
 
-    rows, stats = run(symbols, params, args.spread_pct)
+    signals_path = Path(args.signals) if args.signals else None
+    ledger_path = Path(args.ledger) if args.ledger else LEDGER
+    rows, stats = run(symbols, params, args.spread_pct, signals_path=signals_path)
     if not rows:
         print("ERROR: zero paired observations produced. That is a finding (the arms never "
               "co-occur on the cached data), not a successful run.", file=sys.stderr)
         return 1
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    LEDGER.parent.mkdir(parents=True, exist_ok=True)
-    with LEDGER.open("w", encoding="utf-8") as fh:
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+    with ledger_path.open("w", encoding="utf-8") as fh:
         for r in rows:
             fh.write(json.dumps(r, default=str) + "\n")
 
@@ -273,7 +278,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"paired signals: {stats.get('paired_signals', 0)} "
           f"(dropped unpaired: {stats.get('unpaired_signals_dropped', 0)})", file=sys.stderr)
     print(f"rows per arm: {summary['per_arm_n']}", file=sys.stderr)
-    print(f"wrote {LEDGER} and {OUT_DIR / 'expiry-experiment-raw.json'}", file=sys.stderr)
+    print(f"wrote {ledger_path} and {OUT_DIR / 'expiry-experiment-raw.json'}", file=sys.stderr)
     return 0
 
 
