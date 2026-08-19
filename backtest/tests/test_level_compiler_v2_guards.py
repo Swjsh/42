@@ -116,9 +116,43 @@ def _rth_bars_ok():
     ]
 
 
-def _make_df(rth_bars, pre_bars=()):
+def _prior_trading_day(today_str):
+    """The weekday before `today_str`; Sat/Sun step back to Friday."""
+    from datetime import timedelta
+    d = datetime.strptime(today_str, "%Y-%m-%d").date() - timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d.strftime("%Y-%m-%d")
+
+
+def _make_df(rth_bars, pre_bars=(), with_prior_day=False):
+    """Synthetic bar frame for refresh(df=...).
+
+    with_prior_day: also emit a minimal RTH session for the PRIOR trading day.
+
+    WHY THE FLAG EXISTS (2026-08-18). `refresh()` takes an injectable `df` (the G6 seam) but
+    still reads the CLOCK live via et_now(), so it derives "prior trading day" from the REAL
+    date. A fixture holding only today's bars has no prior day to find, and refresh correctly
+    records a PRIOR_DAY_HLC refusal saying exactly that. That refusal is CORRECT BEHAVIOUR --
+    the code honestly reporting a gap in the data it was handed -- but it made
+    `assert provenance_notes == []` fail for a reason unrelated to what the test guards
+    (degeneracy handling of a healthy subset). Supplying the prior day lets the strict
+    assertion stand instead of being weakened to accommodate a fixture artifact. Fixing the
+    TEST was right here precisely because the test was wrong; production behaviour is correct.
+    """
     today = rli.et_now().strftime("%Y-%m-%d")
     rows = []
+    if with_prior_day:
+        prior = _prior_trading_day(today)
+        # >=3 bars: the compiler refuses a level computed from fewer (the degeneracy guard
+        # this very test exists to protect). Two bars produced
+        # "only 2 bar(s) (<3 required)" refusals -- the guard working correctly on a
+        # too-thin fixture, which is exactly the distinction being drawn here.
+        for hm, hi, lo, cl, vol in (("09:35", 744.0, 743.0, 743.5, 30_000),
+                                    ("12:00", 744.8, 743.4, 744.2, 26_000),
+                                    ("15:55", 744.5, 743.2, 744.0, 28_000)):
+            rows.append({"date": prior, "hm": hm, "high": hi, "low": lo,
+                         "close": cl, "volume": vol})
     for hm, hi, lo, cl, vol in list(pre_bars) + list(rth_bars):
         rows.append({"date": today, "hm": hm, "high": hi, "low": lo, "close": cl, "volume": vol})
     return pd.DataFrame(rows)
@@ -196,11 +230,16 @@ def test_degeneracy_healthy_subset_not_refused(_state):
     pre_healthy = [("08:00", 745.0, 744.5, 744.8, 20_000),
                    ("08:15", 745.3, 744.8, 745.0, 18_000),
                    ("08:30", 745.6, 745.0, 745.4, 22_000)]
-    rli.refresh(df=_make_df(_rth_bars_ok(), pre_healthy))
+    rli.refresh(df=_make_df(_rth_bars_ok(), pre_healthy, with_prior_day=True))
     data = json.loads(kl.read_text())
     labels = {lv["label"].split("_2026")[0] for lv in data["levels"]}
     assert "INTRADAY_PMH" in labels and "INTRADAY_PML" in labels
-    assert data["provenance_notes"] == []
+    # Strict, and it stays strict: a healthy subset WITH a prior day present must refuse
+    # nothing. The fixture now supplies that prior day so the assertion tests degeneracy
+    # handling rather than a gap in its own input (see _make_df's docstring).
+    assert data["provenance_notes"] == [], (
+        f"healthy subset produced refusals: {data['provenance_notes']}"
+    )
 
 
 # =====================================================================================
