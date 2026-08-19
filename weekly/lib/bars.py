@@ -114,37 +114,76 @@ def _bar_close_et(open_et: datetime, timeframe: str) -> datetime:
     return open_et + _GRANULARITY_TD[timeframe]
 
 
-def _fetch_raw_bars(symbol: str, timeframe: str, limit: int, feed: str, timeout: int) -> list[dict]:
+# Bars per TRADING SESSION, used to translate a requested bar `limit` into a calendar-time
+# lookback for the mandatory `start` parameter below.
+_BARS_PER_SESSION: dict[str, float] = {"1Day": 1.0, "1Hour": 6.5}
+# Calendar days per trading session (weekends + holidays), with slack. Overshooting `start` is
+# free -- the API still returns only `limit` bars, newest-first.
+_CALENDAR_SLACK = 1.75
+
+
+def _lookback_start(timeframe: str, limit: int, now_et: datetime) -> str:
+    sessions = max(1.0, limit / _BARS_PER_SESSION[timeframe])
+    days = max(7, int(sessions * _CALENDAR_SLACK) + 7)
+    return (now_et - timedelta(days=days)).date().isoformat()
+
+
+def _fetch_raw_bars(symbol: str, timeframe: str, limit: int, feed: str, timeout: int,
+                    now_et: datetime | None = None) -> list[dict]:
     if timeframe not in _GRANULARITY_TD:
         raise ValueError(f"unsupported timeframe {timeframe!r}; expected one of {tuple(_GRANULARITY_TD)}")
     creds = resolve_alpaca_creds()
+    if now_et is None:
+        now_et = datetime.now(timezone.utc).astimezone(ET)
     params = {
         "timeframe": timeframe,
         "limit": limit,
         "feed": feed,
         "adjustment": "raw",
+        # MANDATORY (fixed 2026-08-18). Alpaca defaults an omitted `start` to the CURRENT DAY
+        # only, which for 1Day contains no completed bar -- the endpoint then returns zero
+        # bars on every feed, which reads exactly like "this symbol has no data." Verified
+        # live: GLD 1Day returned 0 bars with no start and 5 bars with start=2026-01-01, on
+        # both iex and sip. Derived from `limit` so a caller asking for more history gets it.
+        "start": _lookback_start(timeframe, limit, now_et),
         # newest-first so a `limit`-capped response can never truncate the
         # NEWEST bar off the tail (the exact 2026-06-26 sight_beacon scar --
         # sort=asc + a low limit silently froze the frame on a stale session).
         "sort": "desc",
     }
-    url = f"{DATA_HOST}/v2/stocks/{symbol}/bars?{urlencode(params)}"
-    req = Request(url, headers={
-        "APCA-API-KEY-ID": creds.key,
-        "APCA-API-SECRET-KEY": creds.secret,
-        "accept": "application/json",
-    })
-    try:
-        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 -- fixed https host, not user input
-            payload = json.loads(resp.read())
-    except (HTTPError, URLError, TimeoutError) as exc:
-        raise BarFetchError(
-            f"{symbol} {timeframe}: Alpaca bar fetch failed: {type(exc).__name__}: {exc}"
-        ) from exc
-    bars = payload.get("bars")
+    # PAGINATION IS MANDATORY (fixed 2026-08-18). Alpaca caps the PAGE size well below a large
+    # `limit` and signals more data with `next_page_token`. Requesting limit=10000 hourly bars
+    # returned 223 with next_page_token set -- so a single-shot fetch silently capped history
+    # at ~1 month while looking like a complete answer. With sort=desc the first page holds the
+    # NEWEST bars, so the truncation is invisible at the tail and only starves the far end.
+    bars: list[dict] = []
+    page_token: str | None = None
+    while len(bars) < limit:
+        q = dict(params)
+        if page_token:
+            q["page_token"] = page_token
+        url = f"{DATA_HOST}/v2/stocks/{symbol}/bars?{urlencode(q)}"
+        req = Request(url, headers={
+            "APCA-API-KEY-ID": creds.key,
+            "APCA-API-SECRET-KEY": creds.secret,
+            "accept": "application/json",
+        })
+        try:
+            with urlopen(req, timeout=timeout) as resp:  # noqa: S310 -- fixed https host, not user input
+                payload = json.loads(resp.read())
+        except (HTTPError, URLError, TimeoutError) as exc:
+            raise BarFetchError(
+                f"{symbol} {timeframe}: Alpaca bar fetch failed: {type(exc).__name__}: {exc}"
+            ) from exc
+        page = payload.get("bars") or []
+        bars.extend(page)
+        page_token = payload.get("next_page_token")
+        if not page_token or not page:
+            break
+
     if not bars:
         raise BarFetchError(f"{symbol} {timeframe}: Alpaca returned zero bars (response keys={list(payload)})")
-    return list(reversed(bars))  # desc -> asc (oldest first)
+    return list(reversed(bars[:limit]))  # desc -> asc (oldest first)
 
 
 def _bars_to_frame(raw: list[dict], timeframe: str, now_et: datetime, min_bars: int, symbol: str) -> pd.DataFrame:
@@ -215,7 +254,7 @@ def fetch_bars(
     """
     if now_et is None:
         now_et = datetime.now(timezone.utc).astimezone(ET)
-    raw = _fetch_raw_bars(symbol, timeframe, limit, feed, timeout)
+    raw = _fetch_raw_bars(symbol, timeframe, limit, feed, timeout, now_et=now_et)
     return _bars_to_frame(raw, timeframe, now_et, min_bars, symbol)
 
 
