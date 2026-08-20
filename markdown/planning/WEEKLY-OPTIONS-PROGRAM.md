@@ -253,8 +253,10 @@ coded for spy."* A fork, not a refactor. The SPY engine is never imported or mod
 | Broker + position layer | ✅ 39 tests; crypto-safety + fail-loud RED-proofed |
 | Signal/scoring core (SPY score, symbol-generic) | 🔄 building |
 | Sizing / risk / expiry | 🔄 building |
-| Engine tick (`multi/core.py`) | ⬜ next, after the above land |
-| Live shadow run over the universe | ⬜ |
+| Engine tick (`multi/core.py`) | ✅ **COMPLETE end-to-end.** funnel → signal → risk → expiry → strike → liquidity → sizing → WOULD_PLACE row. 12 guards including an AST-parsed no-order-path test (RED-proofed: injecting `place_bracket` fails it by line number, and a second guard independently flags it as a non-read broker call). |
+| Live shadow run over the universe | ✅ **RUNS.** 40 symbols → funnel filtered 35 → 5 examined → 1 directional → real contract selected. Chain reads dropped 40→1. |
+| **Scheduled: `Gamma_MultiCore`** | ✅ **REGISTERED + VERIFIED** — 09:35 ET daily, repeating every 15 min for 6h10m, NextRunTime confirmed non-null. **15-min, not 1-min**: this is a multi-day lane, the funnel already cuts to ≤5, and a multi-day thesis does not change between minutes — copying the SPY engine's 1/min cadence would be cargo-culting the number instead of the reason. |
+| **THE MISSING LINK (found + fixed)** | 🐛 Filter 10 requires a LEVEL-TIED trigger; `core.py` passed **no levels**, so it vetoed **100% of symbols on every tick, forever**, while reading as “no setups today”. The SPY engine's level source is a single-symbol file whose schema has no symbol field — it cannot generalize. Built `multi/lib/levels.py` (swing pivots, prior day/week extremes, price-scaled round numbers, ATR-deduped so one price is one level). Directional signals **0 → 3** immediately. Found by the participation cascade, not by luck. |
 | Paper orders | ⬜ gated on shadow evidence |
 
 **Separation guarantees:** not registered in the SPY fleet's `accounts.json` (that file is read
