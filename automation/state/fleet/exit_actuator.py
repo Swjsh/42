@@ -32,8 +32,44 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "setup" / "scripts"))
 from et_clock import ET_TZ as ET  # DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 import exit_manager as em
+# ORDER-INTENT LEDGER (2026-08-19) -- the WHY behind every exit leg, keyed by order_id.
+# record_submit() is TOTAL (never raises); the IMPORT is guarded too so a missing/broken
+# telemetry module degrades to a no-op stub rather than stopping the exit engine -- an
+# unmanaged 0DTE long is the one failure mode that costs real money.
+try:
+    import order_intent_log as _oil
+except Exception:  # noqa: BLE001 -- telemetry must never gate an exit
+    class _oil:  # type: ignore[no-redef]  # noqa: N801
+        ROLE_CORE = "core"
+        ROLE_TP1 = "tp1"
+        ROLE_RUNNER = "runner"
+        ROLE_FLATTEN = "flatten"
+
+        @staticmethod
+        def record_submit(**_fields: object) -> None:
+            return None
 
 FLEET_DIR = Path(__file__).resolve().parent
+
+
+def _exit_leg_role(action, state) -> str:
+    """WHICH of the N contracts this sell leg is -- the literal thing J asked for.
+
+    SELL_PARTIAL is always the TP1 tranche (the only partial the exit manager emits).
+    SELL_ALL depends on where the position already is: after TP1 filled, what remains IS the
+    runner; before TP1, a SELL_ALL is closing the whole original position (a stop / time stop
+    / ribbon flip that fired before any scale-out), which is the CORE leg. Read off the
+    persisted ExitState, never guessed. Total: any unexpected shape yields "unknown" rather
+    than a wrong label, and it can never raise into the exit path."""
+    try:
+        kind = getattr(action, "kind", "")
+        if kind == "SELL_PARTIAL":
+            return _oil.ROLE_TP1
+        if kind == "SELL_ALL":
+            return _oil.ROLE_RUNNER if getattr(state, "tp1_filled", False) else _oil.ROLE_CORE
+    except Exception:  # noqa: BLE001
+        pass
+    return "unknown"
 
 
 def _state_path(arm_id: str) -> Path:
@@ -661,6 +697,48 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                         and not res.get("_skipped")
                 if live and not placed:
                     sell_placed_ok = False
+                # ORDER-INTENT LEDGER (2026-08-19, J: "every exit ... I wanna know what each
+                # ten contract did at what time and WHY it did that"). THIS is the half the
+                # fills ledger never had: a.reason is the exit manager's OWN word for why
+                # this leg fired (premium stop / TP1 / runner target / trail / time stop),
+                # a.stage is which tranche, and st carries the stop/target/HWM that decided
+                # it. STRICTLY ADDITIVE -- the sell above is already submitted and nothing
+                # here reads back into it. NBBO is FREE: best/worst_premium ARE the ask/bid
+                # from the single get_option_quote_hilo this tick already made, so no extra
+                # network call lands on the exit path. record_submit is TOTAL (never raises).
+                try:
+                    _oil.record_submit(
+                        arm=arm_id, symbol=symbol, side="sell", qty=a.qty,
+                        leg_role=_exit_leg_role(a, st), intent="EXIT",
+                        reason=f"{a.kind}:{a.stage or '?'} {a.reason or ''}".strip(),
+                        source="exit_actuator.manage_tick", broker_response=res,
+                        decision_tick_id=(now_t.isoformat() if now_t is not None else None),
+                        nbbo={"bid": worst_premium, "ask": best_premium,
+                              "source": "get_option_quote_hilo_at_exit_decision"},
+                        # spy_at_submit stays NULL on purpose: this path never reads the
+                        # underlying, and we will not add a blocking spot fetch to the exit path
+                        # for telemetry. The 5m close we DO have is recorded under its real name.
+                        spy_at_submit=None, spy_source="not_read_on_exit_path",
+                        spy_last_closed_5m=last_closed_5m_close,
+                        strategy=st.strategy, order_type="market",
+                        exit_state={"entry_premium": st.entry_premium,
+                                    "stop_premium": st.runner_stop_premium,
+                                    "target_premium": round(st.entry_premium
+                                                            * (1.0 + st.runner_target_pct), 4),
+                                    "tp1_premium": round(st.entry_premium
+                                                         * (1.0 + st.tp1_premium_pct), 4),
+                                    "hwm_premium": st.hwm_premium,
+                                    "tp1_filled": st.tp1_filled,
+                                    "profit_lock_armed": st.profit_lock_armed,
+                                    "stop_mode": st.stop_mode,
+                                    "trigger_level": st.trigger_level,
+                                    "total_qty": st.total_qty, "tp1_qty": st.tp1_qty,
+                                    "runner_qty": st.runner_qty},
+                        open_qty_before=open_qty, live=live, placed=placed)
+                except Exception:  # noqa: BLE001 -- record_submit is itself total, but its
+                    # ARGUMENTS are built here; a telemetry expression must never raise into
+                    # an order path. This is the outer half of the never-costs-a-trade rule.
+                    pass
                 executed.append({"kind": a.kind, "qty": a.qty, "stage": a.stage,
                                  "reason": a.reason, "placed": placed,
                                  "broker": res})

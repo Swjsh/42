@@ -176,6 +176,8 @@ section+section{margin-top:var(--s8)}
 .src{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--bd-subtle);font-size:11px;
   color:var(--tx-4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5)}
 .src .stale{color:var(--warn)}
+  .age{font-variant-numeric:tabular-nums}
+  .age.stale{color:var(--warn)}
 .stagger>*{opacity:0;transform:translateY(8px);animation:fu .4s var(--e-hover) forwards;
   animation-delay:calc(var(--i,0)*45ms)}
 @keyframes fu{to{opacity:1;transform:none}}
@@ -242,6 +244,14 @@ tr:last-child td{border-bottom:none}
 .pal .res div.sel{background:var(--bg-3)}
 .pal .res .k{margin-left:auto;color:var(--tx-4);font-size:11px}
 
+.brief{padding:var(--s7) var(--s8)}
+.brieflines p{font-size:16px;line-height:1.65;color:var(--tx-1);margin-top:var(--s4);max-width:78ch}
+.brieflines p:first-child{font-size:19px;letter-spacing:-.01em}
+.flag{margin-top:var(--s5);padding:var(--s4) var(--s5);border-radius:var(--r-md);font-size:13.5px;
+  border:1px solid var(--bd);background:var(--bg-2)}
+.flag b{letter-spacing:.06em;font-size:11px;margin-right:var(--s3);color:var(--acc)}
+.flag.bad{border-color:color-mix(in oklch,var(--warn) 34%,transparent);background:var(--warn-dim)}
+.flag.bad b{color:var(--warn)}
 .note{padding:var(--s9);text-align:center;color:var(--tx-4);font-size:13px}
 .kv{display:flex;justify-content:space-between;gap:var(--s5);padding:var(--s3) 0;
   border-bottom:1px solid var(--bd-subtle);font-size:13px}

@@ -43,6 +43,21 @@ import fleet_broker as fb  # noqa: E402
 import fleet_executor as fx  # noqa: E402
 import exit_actuator as ea  # noqa: E402  (the tick-managed scale-out engine)
 from et_clock import ET_TZ as ET  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
+# ORDER-INTENT LEDGER (2026-08-19) -- the WHY behind every order, keyed by order_id.
+# record_submit() is TOTAL (never raises); the IMPORT is guarded too so a missing/broken
+# telemetry module degrades to a no-op stub instead of stopping this arm from placing.
+try:  # noqa: E402
+    import order_intent_log as _oil
+except Exception:  # noqa: BLE001 -- telemetry must never gate an arm's ability to trade
+    class _oil:  # type: ignore[no-redef]  # noqa: N801
+        ROLE_CORE = "core"
+        ROLE_TP1 = "tp1"
+        ROLE_RUNNER = "runner"
+        ROLE_FLATTEN = "flatten"
+
+        @staticmethod
+        def record_submit(**_fields: object) -> None:
+            return None
 ACCOUNTS_PATH = FLEET_DIR / "accounts.json"
 DEFAULT_SIGNAL = FLEET_DIR / "shared-signal.json"
 SIGNAL_MAX_AGE_SEC = 420  # 7 min -- a heartbeat tick is every 3 min
@@ -625,6 +640,35 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
         res["_note"] = ("simple marketable limit placed directly (options: no broker bracket); "
                         "TP/stop engine-managed (exit_manager)")
     placed = not res.get("_error") and not res.get("_refused")
+    # ORDER-INTENT LEDGER (2026-08-19, J: "every single entry, every exit ... why it did
+    # that"). fills-ledger.jsonl is broker echo -- WHAT filled, never WHY. This writes the WHY
+    # keyed by order_id so every fill leg inherits it. STRICTLY ADDITIVE: the POST above is
+    # already done and none of its parameters are read back or changed here.
+    # NBBO is RECONSTRUCTED from the SAME two quote calls that priced this order (mid from
+    # get_option_mid, entry_px from marketable_limit_price = ask + buffer) -- exactly the
+    # inversion heartbeat_core._execute documents -- so this adds ZERO network round-trips to
+    # the entry-critical path. record_submit is TOTAL (never raises).
+    _oil_buf = float(params.get("entry_cross_buffer", 0.03))
+    _oil_ask = round(entry_px - _oil_buf, 2)
+    try:
+        _oil.record_submit(
+            arm=arm_id, symbol=symbol, side="buy", qty=qty, leg_role=_oil.ROLE_CORE,
+            intent="ENTRY", reason=f"fleet entry {decision.setup_name or 'unknown_setup'}",
+            source="fleet_live._place_live", broker_response=res,
+            decision_tick_id=str((signal or {}).get("core_tick_id") or "") or None,
+            nbbo={"bid": round(2 * mid - _oil_ask, 2), "ask": _oil_ask, "mid": mid,
+                  "source": "reconstructed_from_entry_pricing"},
+            spy_at_submit=(signal or {}).get("spot"),
+            limit_price=entry_px, order_type="limit", strategy=decision.setup_name,
+            exit_state={"stop_premium": stop_price, "target_premium": tp_price,
+                        "stop_pct": stop_pct, "tp1_pct": tp_pct, "hwm": None,
+                        "note": "planned exit shape at entry (frozen by exit_manager.from_entry)"},
+            trigger_bar_et=str((signal or {}).get("trigger_bar_et") or "") or None,
+            submit_ts_et=submit_ts)
+    except Exception:  # noqa: BLE001 -- record_submit is itself total, but its
+        # ARGUMENTS are built here; a telemetry expression must never raise into
+        # an order path. This is the outer half of the never-costs-a-trade rule.
+        pass
     # FLEET-SAME-BAR-COOLDOWN stamp: record (arm, setup) -> trigger-bar ONLY on an actual
     # placement (mirrors core's _TAKEN contract -- every refusal above returned before this
     # line and never stamps). record_entry_bar itself no-ops on empty setup/bar and swallows

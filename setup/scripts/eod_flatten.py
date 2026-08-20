@@ -246,7 +246,14 @@ def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path) ->
         final_remaining = qty_total
 
         for attempt in range(1, MAX_RETRIES + 1):
-            res = fleet_broker.close_all_spy_options(creds, live=True)
+            # arm/reason are LOGGING-ONLY labels (default None; see close_all_spy_options'
+            # docstring) that give the order-intent ledger the WHY this path never wrote.
+            # They change nothing about the orders placed. 2026-08-19.
+            res = fleet_broker.close_all_spy_options(
+                creds, live=True, arm=arm,
+                reason=(f"EOD_FLATTEN attempt {attempt}/{MAX_RETRIES} -- 15:55 ET forced "
+                        f"close; SPY options settle PHYSICALLY and an unclosed ITM 0DTE is "
+                        f"assigned ~100 shares/contract"))
             closed = res.get("closed", [])
             errors = res.get("errors", [])
             remaining = res.get("remaining", 0)

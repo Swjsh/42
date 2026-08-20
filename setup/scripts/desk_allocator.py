@@ -146,11 +146,21 @@ def assess_multi_sector() -> dict:
 
 
 def assess_prediction_markets() -> dict:
-    n = _rows(STATE / "kalshi" / "shadow-ledger.jsonl")
+    """DEFECT FIXED 2026-08-20: this counted rows and never asked whether the lane
+    was still RUNNING. Kalshi's last tick was 10.3 DAYS old while the desk was
+    being reported as a healthy shadow lane progressing toward its bar. A row
+    count is a measure of history, not of life."""
+    k = STATE / "kalshi"
+    n = _rows(k / "shadow-ledger.jsonl")
+    age = _age_h(k / "last-tick.json")
+    live = age is not None and age <= 48        # daily lane: two missed days is dead
     return {
         "real_fills": False, "armable_unarmed": False, "dead_signal": False,
-        "progress": min(1.0, n / 20.0), "broken": [],
-        "headline": "%d shadow rows toward the per-city bar" % n,
+        "progress": min(1.0, n / 20.0) if live else 0.0,
+        "broken": [] if live else ["kalshi last-tick %s" % (
+            "%.0fh stale" % age if age is not None else "MISSING")],
+        "headline": "%d shadow rows toward the per-city bar%s" % (
+            n, "" if live else " — LANE NOT TICKING"),
     }
 
 

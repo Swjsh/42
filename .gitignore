@@ -160,6 +160,18 @@ automation/archive/
 # setup/scripts/archive_ledgers.py -- this line is only the deletion guard.
 automation/state/fills-ledger.jsonl
 
+# === Added 2026-08-19: the ORDER-INTENT LEDGER + its enriched join ===
+# order-intents.jsonl is the WHY behind every order (setup/scripts/order_intent_log.py),
+# written at submit time by the live order path; fills-enriched.jsonl is the fills-ledger
+# joined to it (setup/scripts/backfill_fills_enriched.py). Both are trade-book state of
+# exactly the same kind as fills-ledger.jsonl above, so they get the same treatment and for
+# the same two reasons: (a) untracked-AND-unignored is the worst combination, because
+# `git clean -fd automation/state/` deletes untracked files but SKIPS ignored ones; and
+# (b) this repo is PUBLIC -- an unignored book file is one `git add -A` away from being
+# published. Durable custody is Gamma_LedgerCustody / archive_ledgers.py, not git.
+automation/state/order-intents.jsonl
+automation/state/fills-enriched.jsonl
+
 # === Added 2026-07-20: STATE-FILE-REVERSION incident fix (same mechanism, recurred TWICE
 # same day -- once 04:27/05:58 ET premarket, once 18:40 ET mid-session) ===
 # circuit-breaker*.json + today-bias.json are continuously overwritten-in-place (not

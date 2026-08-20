@@ -47,6 +47,24 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from et_clock import ET_TZ  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
+
+# ORDER-INTENT LEDGER (2026-08-19) -- the WHY behind every order, keyed by order_id.
+# record_submit() is TOTAL (never raises); the IMPORT is guarded too so a missing/broken
+# telemetry module degrades to a no-op stub instead of blocking a trade.
+try:  # noqa: E402
+    import order_intent_log as _oil
+except Exception:  # noqa: BLE001 -- telemetry must never gate an order
+    class _oil:  # type: ignore[no-redef]  # noqa: N801
+        ROLE_CORE = "core"
+        ROLE_TP1 = "tp1"
+        ROLE_RUNNER = "runner"
+        ROLE_FLATTEN = "flatten"
+        ROLE_MANUAL = "manual"
+
+        @staticmethod
+        def record_submit(**_fields: object) -> None:
+            return None
+
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 # Keys are loaded at runtime from .mcp.json (gitignored) — never hardcode here.
@@ -721,6 +739,25 @@ def _place_live_bracket(
         "stop_loss": {"stop_price": str(decision.proposed_stop_premium)},
     }
     resp = _alpaca("orders", account, method="POST", data=payload, timeout=10)
+    # ORDER-INTENT LEDGER (2026-08-19). This path is ONE sentinel file away from placing live
+    # orders, so it gets the same WHY-capture as the armed engines rather than going blind the
+    # day it flips. Additive; the POST above is untouched; record_submit is TOTAL.
+    try:
+        _oil.record_submit(
+            arm=str(account), symbol=symbol, side="buy", qty=decision.proposed_qty,
+            leg_role=_oil.ROLE_CORE, intent="ENTRY",
+            reason=f"fast_path alert {getattr(decision, 'alert_bias', None) or '?'}: "
+                   f"{getattr(decision, 'reason', None) or 'numeric_pulse alert'}",
+            source="fast_path_executor._place_live_bracket", broker_response=resp,
+            limit_price=decision.proposed_premium, order_type="limit",
+            nbbo={"bid": None, "ask": None, "source": "not_retained_on_fast_path"},
+            exit_state={"stop_premium": decision.proposed_stop_premium,
+                        "target_premium": decision.proposed_tp1_premium,
+                        "hwm": None, "note": "broker bracket legs requested at submit"})
+    except Exception:  # noqa: BLE001 -- record_submit is itself total, but its
+        # ARGUMENTS are built here; a telemetry expression must never raise into
+        # an order path. This is the outer half of the never-costs-a-trade rule.
+        pass
     if isinstance(resp, dict) and resp.get("_error"):
         err = resp.get("_body", {}).get("message", resp.get("_error"))
         return False, None, f"Alpaca rejected: {err}"

@@ -39,7 +39,14 @@ def main() -> int:
             print(f"{arm_id}: no creds")
             continue
         # live=True so it actually sells; flat arms (WATCH / never placed) return no-op.
-        res = fb.close_all_spy_options(creds, live=True)
+        # arm/reason are LOGGING-ONLY labels (default None; see close_all_spy_options'
+        # docstring). THIS call site is where the book's five unexplainable exits came from
+        # -- including risky-1's -$440 on 2026-08-10 -- because the sweep recorded only the
+        # symbol and threw the broker response away. It now writes an order-intent row.
+        res = fb.close_all_spy_options(
+            creds, live=True, arm=arm_id,
+            reason=("FLEET_EOD_FLATTEN -- fleet sweep on the >=15:50 ET tick; no 0DTE long "
+                    "rides to expiry/auto-exercise (assignment blowup corrupts the arm)"))
         print(f"{arm_id}: {json.dumps(res)}")
     return 0
 

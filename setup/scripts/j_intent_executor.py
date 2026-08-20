@@ -102,6 +102,23 @@ import risk_gate as rg  # noqa: E402
 import settlement_ledger as sl  # noqa: E402
 import pdt_tracker as pdt  # noqa: E402
 import strike_selection as ss  # noqa: E402
+# ORDER-INTENT LEDGER (2026-08-19) -- the WHY behind every order, keyed by order_id.
+# record_submit() is TOTAL (never raises); the IMPORT is guarded too so a missing/broken
+# telemetry module degrades to a no-op stub instead of blocking a trade.
+try:
+    import order_intent_log as _oil
+except Exception:  # noqa: BLE001 -- telemetry must never gate an order
+    class _oil:  # type: ignore[no-redef]  # noqa: N801
+        ROLE_CORE = "core"
+        ROLE_TP1 = "tp1"
+        ROLE_RUNNER = "runner"
+        ROLE_FLATTEN = "flatten"
+        ROLE_MANUAL = "manual"
+
+        @staticmethod
+        def record_submit(**_fields: object) -> None:
+            return None
+
 
 STATE = PROJECT_ROOT / "automation" / "state"
 INTENTS_PATH = STATE / "j-intents.json"
@@ -318,12 +335,18 @@ def resolve_symbol(intent: dict, spy_price: float, equity: float) -> str:
 
 
 # ============================================================ order placement
-def place_entry(creds: dict, *, symbol: str, qty: int, live: bool = True) -> dict:
+def place_entry(creds: dict, *, symbol: str, qty: int, live: bool = True,
+                arm: str | None = None, reason: str | None = None) -> dict:
     """Cancel-replace any stale pending BUY on this exact symbol, then place
     ONE simple marketable limit BUY (Alpaca rejects bracket/oto for options
     100% of the time -- heartbeat_core._place_simple_entry precedent; TP/
     stop are engine-managed via exit_actuator, never a broker bracket).
-    Polls to a terminal fill so the caller gets a REAL fill price/qty."""
+    Polls to a terminal fill so the caller gets a REAL fill price/qty.
+
+    `arm` / `reason` (2026-08-19) are LOGGING-ONLY labels for the order-intent
+    ledger and default to None, so every pre-existing call site is
+    byte-identical. J asked for "every single entry" -- a trade HE called is
+    exactly the kind that must not be missing its WHY."""
     if not live:
         return {"_skipped": "live flag False (WATCH mode)"}
     for o in fb.open_buy_orders(creds, symbol):
@@ -335,6 +358,22 @@ def place_entry(creds: dict, *, symbol: str, qty: int, live: bool = True) -> dic
     order = {"symbol": symbol, "qty": str(int(qty)), "side": "buy", "type": "limit",
              "limit_price": str(round(float(entry_px), 2)), "time_in_force": "day"}
     res = fb._request(creds, "orders", method="POST", data=order)
+    # ORDER-INTENT LEDGER (2026-08-19). Written AFTER the POST, before any early return, so a
+    # broker-REJECTED J-called entry is recorded too -- a refusal is exactly the fact we lose
+    # today. Additive; the order above is untouched. record_submit is TOTAL (never raises).
+    try:
+        _oil.record_submit(
+            arm=(arm or "j_intent"), symbol=symbol, side="buy", qty=qty,
+            leg_role=_oil.ROLE_MANUAL, intent="ENTRY",
+            reason=(reason or "J-called conditional intent: trigger fired (j_intent_logic)"),
+            source="j_intent_executor.place_entry", broker_response=res,
+            limit_price=entry_px, order_type="limit",
+            nbbo={"bid": None, "ask": None, "mid": None,
+                  "source": "marketable_limit_price_only_no_hilo_retained"})
+    except Exception:  # noqa: BLE001 -- record_submit is itself total, but its
+        # ARGUMENTS are built here; a telemetry expression must never raise into
+        # an order path. This is the outer half of the never-costs-a-trade rule.
+        pass
     if not isinstance(res, dict):
         return {"_error": f"unexpected broker response: {res!r}"}
     if res.get("_error"):

@@ -28,6 +28,33 @@ const M=v=>(v==null||isNaN(v))?'—':(v>=0?'+$':'−$')+Math.abs(v).toLocaleStri
 const M2=v=>(v==null||isNaN(v))?'—':(v>=0?'+$':'−$')+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const sgn=v=>v>0?'pos':v<0?'neg':'';
 const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+/* HYDRATION: ages are computed at VIEW time, never baked at build time. A static
+   page that hard-codes "0.1h" still claims 0.1h six hours later - the silent-
+   staleness failure this cockpit exists to avoid. Everything carrying data-ts
+   re-renders its age on a 30s timer. */
+function agoOf(iso){
+  if(!iso)return null;
+  const t=Date.parse(String(iso).replace(' ','T')); if(isNaN(t))return null;
+  return (Date.now()-t)/3.6e6;
+}
+function agoTxt(h){
+  if(h==null)return 'unknown age';
+  if(h<0.0167)return 'just now';
+  if(h<1)return Math.round(h*60)+'m ago';
+  if(h<48)return h.toFixed(1)+'h ago';
+  return (h/24).toFixed(1)+'d ago';
+}
+function ageEl(iso,warnH){
+  const s=el('span','age'); s.dataset.ts=iso||''; s.dataset.warn=warnH||D.stale_hours;
+  paintAge(s); return s;
+}
+function paintAge(s){
+  const h=agoOf(s.dataset.ts), w=parseFloat(s.dataset.warn||D.stale_hours);
+  s.textContent=agoTxt(h);
+  s.className='age'+((h==null||h>w)?' stale':'');
+  if(s.dataset.ts)s.title=s.dataset.ts+' ET';
+}
+setInterval(function(){$$('.age').forEach(paintAge)},30000);
 
 function health(v){const k=cls(v);
   if(['GREEN','OK','EDGE','REALFILLS','LIVEPAPERREALFILLS'].includes(k))return'ok';
@@ -36,8 +63,12 @@ function health(v){const k=cls(v);
 function srcRow(list){
   const d=el('div','src');
   (list||[]).forEach(s=>{
-    const st=s.age_h==null||s.age_h>D.stale_hours;
-    d.appendChild(el('span',st?'stale':'',(s.ok===false?'⚠ ':'')+esc(s.path)+(s.age_h==null?'':' · '+s.age_h.toFixed(1)+'h')));
+    const w=el('span',null,(s.ok===false?'⚠ ':'')+esc(s.path)+' · ');
+    // Prefer an absolute stamp so the age stays live; fall back to a build-time age.
+    if(s.last_write)w.appendChild(ageEl(s.last_write));
+    else w.appendChild(el('span',(s.age_h==null||s.age_h>D.stale_hours)?'age stale':'age',
+                          s.age_h==null?'unknown age':agoTxt(s.age_h)));
+    d.appendChild(w);
   });
   return d;
 }
@@ -81,6 +112,8 @@ const VIEWS=[
  {id:'overview',ic:'◎',label:'Overview',key:'o'},
  {id:'desks',ic:'▦',label:'Desks',key:'d'},
  {id:'orchestration',ic:'⛬',label:'Orchestration',key:'g'},
+ {id:'engine',ic:'❥',label:'Engine room',key:'e'},
+ {id:'agents',ic:'✦',label:'Agents',key:'w'},
  {id:'journal',ic:'▤',label:'Journal',key:'j'},
  {id:'answers',ic:'✔',label:'Answers',key:'a'},
  {id:'activity',ic:'⟡',label:'Activity',key:'v'},
@@ -93,6 +126,33 @@ function bookSummary(){
 /* ---------- OVERVIEW: verdict -> desks -> agents -> exceptions ---------- */
 function vOverview(h){
   const s=bookSummary(), desks=D.desks?.desks||[];
+
+  // THE BRIEFING leads. J: "command center should be like me talking to an
+  // employee" - so the first thing on the page is what I would SAY, not a metric
+  // wall. Deterministic templates over real state; never an LLM, which is the
+  // fabrication risk this cockpit exists to close.
+  const br=D.briefing||{lines:[]};
+  if((br.lines||[]).length){
+    const b=el('div','card gborder brief');
+    const hd=el('div','row wrap');
+    hd.innerHTML='<span class="eyebrow">Where we stand</span>';
+    hd.appendChild(el('span','chip live '+(D.hq?.state_word?'ok':'bad'),
+      '<i class="dot"></i>'+esc(D.hq?.state_word||'NO DATA')));
+    const sp=el('span','sp'); hd.appendChild(sp);
+    const ag=el('span','dim'); ag.appendChild(el('span',null,'briefed ')); ag.appendChild(ageEl(D.built_at_et,2));
+    hd.appendChild(ag);
+    b.appendChild(hd);
+    const ul=el('div','brieflines');
+    br.lines.forEach(l=>ul.appendChild(el('p',null,esc(l))));
+    b.appendChild(ul);
+    (br.flags||[]).forEach(f=>{
+      const fl=el('div','flag '+(f.kind==='broken'?'bad':'dec'));
+      fl.innerHTML='<b>'+(f.kind==='broken'?'NOT TICKING':'DECISION WAITING')+'</b> '+esc(f.text);
+      b.appendChild(fl);
+    });
+    if(br.source)b.appendChild(srcRow([br.source]));
+    h.appendChild(b);
+  }
 
   // hero
   const hero=el('div','card gborder');
@@ -312,6 +372,99 @@ function orgSvg(org){
   const wrap=el('div','org'); wrap.appendChild(s); return wrap;
 }
 
+/* ---------- ENGINE ROOM: every engine's heartbeat and its reasons ---------- */
+function vEngine(h){
+  const er=D.engine_room||{engines:[]};
+  h.appendChild(el('div','shead','<h2>Engine room</h2><span class="dim">every engine, its own ledger, its own stated reasons</span>'));
+  const g=el('div','grid g2');
+  (er.engines||[]).forEach(e=>{
+    const c=el('div','card click'); spot(c);
+    const age=agoOf(e.last_write), dead=(age==null||age>24);
+    const r=el('div','row wrap');
+    r.innerHTML='<span style="font-weight:600">'+esc(e.name)+'</span>';
+    r.appendChild(el('span','chip '+(dead?'bad':'ok live'),'<i class="dot"></i>'+(dead?'NOT TICKING':'TICKING')));
+    c.appendChild(r);
+    c.appendChild(el('div','micro',esc(e.cadence)));
+    const beat=el('div','row'); beat.style.marginTop='var(--s4)';
+    beat.appendChild(el('span','stat',Number(e.total||0).toLocaleString()));
+    beat.appendChild(el('span','dim','ticks logged \u00b7 last'));
+    beat.appendChild(ageEl(e.last_write,24));
+    c.appendChild(beat);
+    const vr=el('div','row wrap'); vr.style.marginTop='var(--s4)';
+    Object.keys(e.verdicts||{}).forEach(k=>vr.appendChild(el('span','chip',esc(k)+' \u00d7'+e.verdicts[k])));
+    c.appendChild(vr);
+    const t0=(e.ticks||[])[0];
+    if(t0&&t0.why)c.appendChild(el('div','dim','last: '+esc(t0.why)));
+    c.onclick=()=>engineDrawer(e);
+    g.appendChild(c);
+  });
+  h.appendChild(g); stag(g);
+}
+function engineDrawer(e){
+  openDrawer(e.name+' \u2014 tick stream',b=>{
+    b.appendChild(el('div','micro',esc(e.engine)));
+    const k=el('div'); k.style.margin='var(--s4) 0';
+    k.appendChild(el('div','kv','<span class="k">Cadence</span><span class="v">'+esc(e.cadence)+'</span>'));
+    k.appendChild(el('div','kv','<span class="k">Ticks logged</span><span class="v mono">'+Number(e.total||0).toLocaleString()+'</span>'));
+    const lw=el('div','kv','<span class="k">Last tick</span>');
+    const vv=el('span','v'); vv.appendChild(ageEl(e.last_write,24)); lw.appendChild(vv); k.appendChild(lw);
+    b.appendChild(k);
+    (e.ticks||[]).forEach(t=>{
+      const row=el('div'); row.style.cssText='padding:var(--s4) 0;border-bottom:1px solid var(--bd-subtle)';
+      const top=el('div','row wrap');
+      top.innerHTML='<span class="mono dim">'+esc(String(t.ts||'').slice(11,19))+'</span>';
+      top.appendChild(el('span','chip',esc(t.verdict)));
+      if(t.account)top.appendChild(el('span','micro',esc(t.account)));
+      if(t.px!=null)top.appendChild(el('span','mono dim',String(t.px)));
+      if(t.scores&&t.scores.bull!=null)top.appendChild(el('span','micro','bull '+t.scores.bull+' / bear '+t.scores.bear));
+      if(t.sym)top.appendChild(el('span','micro',esc(t.sym)));
+      row.appendChild(top);
+      if(t.why)row.appendChild(el('div','mut',esc(t.why)));
+      (t.blockers||[]).forEach(x=>row.appendChild(el('div','micro warnc','blocked by '+esc(x))));
+      if(t.ctx)row.appendChild(el('div','micro','ribbon '+esc(t.ctx.ribbon||'\u2014')+' \u00b7 15m '+esc(t.ctx.htf||'\u2014')+
+        ' \u00b7 VIX '+(t.ctx.vix==null?'\u2014':t.ctx.vix)+' \u00b7 spread '+(t.ctx.spread_c==null?'\u2014':t.ctx.spread_c+'c')));
+      b.appendChild(row);
+    });
+    b.appendChild(srcRow([{path:e.source,last_write:e.last_write}]));
+  });
+}
+
+/* ---------- AGENTS: who ran, and was the output TRUSTED ---------- */
+function vAgents(h){
+  const a=D.agents||{events:[],counts:{},sources:[]};
+  h.appendChild(el('div','shead','<h2>Agents</h2><span class="dim">what ran \u2014 and whether its output survived the fabrication gate</span>'));
+  const g=el('div','grid g4');
+  [['Events',a.counts.total,''],['Failed',a.counts.failed,a.counts.failed?'neg':''],
+   ['Fabricated',a.counts.fabricated,a.counts.fabricated?'neg':'pos'],
+   ['Dupes suppressed',a.counts.suppressed,'']].forEach(row=>{
+    const c=el('div','card');
+    c.appendChild(el('div','micro',row[0]));
+    c.appendChild(el('div','big '+(row[2]||''),String(row[1]==null?0:row[1])));
+    g.appendChild(c);
+  });
+  h.appendChild(g); stag(g);
+  const c=el('div','card'); c.style.marginTop='var(--s5)';
+  c.appendChild(el('h3',null,'Recent agent activity'));
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>When</th><th>Tier</th><th>Agent</th><th>Did</th><th>Artifacts</th></tr></thead>';
+  const tb=el('tbody');
+  (a.events||[]).forEach(e=>{
+    const vd=e.verdict||'';
+    const cl=vd==='FABRICATED'?'neg':vd==='VERIFIED'?'pos':'dim';
+    const tr=el('tr');
+    tr.innerHTML='<td class="mono dim">'+esc(String(e.ts||'').slice(5,16).replace('T',' '))+'</td>'+
+      '<td><span class="chip">'+esc(e.tier)+'</span></td>'+
+      '<td><b>'+esc(e.who)+'</b>'+(e.lane?'<div class="micro">'+esc(e.lane)+'</div>':'')+'</td>'+
+      '<td>'+(e.ok?'':'<span class="neg">\u2715 </span>')+esc(e.what)+
+        (e.err?'<div class="micro warnc">'+esc(e.err)+'</div>':'')+'</td>'+
+      '<td class="'+cl+'">'+esc(vd||'\u2014')+'</td>';
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); c.appendChild(tbl);
+  c.appendChild(srcRow(a.sources));
+  h.appendChild(c);
+}
+
 /* ---------- JOURNAL ---------- */
 let calArm='BOOK', calBasis='n', calMonth=null;
 function vJournal(h){
@@ -514,7 +667,7 @@ function navBuild(){
     n.appendChild(a);
   });
 }
-const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,journal:vJournal,answers:vAnswers,activity:vActivity};
+const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,journal:vJournal,answers:vAnswers,activity:vActivity};
 let CUR='overview';
 function route(want){
   const id=want||(location.hash||'#overview').slice(1).split('?')[0];
@@ -534,6 +687,7 @@ function palBuild(){
   (D.desks?.desks||[]).forEach(d=>PAL.push({t:d.name,s:'Desk',go:()=>deskDrawer(d)}));
   (D.org?.functions||[]).forEach(f=>PAL.push({t:f.name,s:'Agent',go:()=>route('orchestration')}));
   (D.answers||[]).forEach(a=>PAL.push({t:a.q,s:'Answer',go:()=>answerDrawer(a)}));
+  (D.engine_room?.engines||[]).forEach(e=>PAL.push({t:e.name,s:'Engine',go:()=>engineDrawer(e)}));
   const v=(D.calendar?.views||{}).BOOK||{days:{}};
   Object.keys(v.days).sort().reverse().slice(0,40).forEach(d=>PAL.push({t:d,s:'Day',go:()=>dayDrawer(d,'BOOK')}));
 }
@@ -557,7 +711,7 @@ function palClose(){$('#pal').classList.remove('on')}
   $('#statetxt').textContent=hq.state_word||'NO DATA';
   $('#statechip').className='chip live '+(hq.state_word?'ok':'bad');
   $('#clock').innerHTML=esc(hq.now_et_label||D.generated_et||'')+'<br><span style="opacity:.6">'+esc(hq.tape_headline||'')+'</span>';
-  $('#footstamp').textContent='built '+String(D.generated_et||'').slice(0,16);
+  const fs=$('#footstamp'); fs.textContent='built '; fs.appendChild(ageEl(D.built_at_et,2));
   navBuild(); palBuild();
   $('#dclose').onclick=closeDrawer; $('#scrim').onclick=closeDrawer;
   $('#palin').addEventListener('input',e=>{palSel=0;palRender(e.target.value)});

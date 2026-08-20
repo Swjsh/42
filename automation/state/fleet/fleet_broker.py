@@ -19,6 +19,7 @@ read-only self-check.
 from __future__ import annotations
 
 import json
+import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -26,6 +27,29 @@ from typing import Any
 
 FLEET_DIR = Path(__file__).resolve().parent
 SECRETS_PATH = FLEET_DIR / "secrets.json"
+
+# ORDER-INTENT LEDGER (2026-08-19) -- the WHY behind every order, keyed by order_id. Used
+# ONLY by close_all_spy_options below (the force-flatten, which previously logged nothing at
+# all). record_submit() is TOTAL (never raises); the import is guarded too, because this
+# module is THE broker surface -- an ImportError here would take every arm offline.
+# APPEND, never insert(0): this module is imported by every arm and by ~60 test files, so it
+# must not reorder anyone's module resolution. Appending means setup/scripts is consulted only
+# when nothing already on the path provides the name -- zero shadowing risk, now or later.
+# (Verified 2026-08-19: setup/scripts currently shares no module name with
+# automation/state/fleet, backtest/lib, or crypto/lib -- but append keeps that from mattering.)
+sys.path.append(str(FLEET_DIR.parents[2] / "setup" / "scripts"))
+try:
+    import order_intent_log as _oil
+except Exception:  # noqa: BLE001 -- telemetry must never gate the broker surface
+    class _oil:  # type: ignore[no-redef]  # noqa: N801
+        ROLE_CORE = "core"
+        ROLE_TP1 = "tp1"
+        ROLE_RUNNER = "runner"
+        ROLE_FLATTEN = "flatten"
+
+        @staticmethod
+        def record_submit(**_fields: object) -> None:
+            return None
 
 
 def load_creds() -> dict[str, dict[str, str]]:
@@ -463,10 +487,19 @@ def replace_stop_order(creds: dict[str, str], *, order_id: str, stop_price: floa
                     data={"stop_price": str(round(float(stop_price), 2))})
 
 
-def close_all_spy_options(creds: dict[str, str], *, live: bool) -> dict:
+def close_all_spy_options(creds: dict[str, str], *, live: bool,
+                          arm: str | None = None, reason: str | None = None) -> dict:
     """EOD flatten primitive: market-sell every open SPY option position.
 
     Read-only (returns the would-close list) unless live=True. Idempotent.
+
+    `arm` / `reason` (2026-08-19) are LOGGING-ONLY labels for the order-intent ledger and
+    default to None, so every pre-existing call site is byte-identical. They exist because
+    this function was the rig's single largest blind spot: it market-sold positions and
+    recorded nothing but the SYMBOL in `closed`, discarding the broker response -- order_id
+    included. FIVE exits in the entire book have no logged reason ANYWHERE because they came
+    through here, one of them risky-1's -$440 on 2026-08-10, the second-largest loss in the
+    book. The RETURN SHAPE IS UNCHANGED (closed/errors/remaining) so no consumer moves.
     """
     positions = open_spy_option_positions(creds)
     if not live:
@@ -480,6 +513,28 @@ def close_all_spy_options(creds: dict[str, str], *, live: bool) -> dict:
         order = {"symbol": sym, "qty": str(qty), "side": "sell",
                  "type": "market", "time_in_force": "day"}
         res = _request(creds, "orders", method="POST", data=order)
+        # ORDER-INTENT ROW -- written AFTER the POST, from the response we were already
+        # holding and previously threw away. Adds no call, changes no order, and cannot
+        # raise (record_submit is total). This is what stops the next force-flatten from
+        # becoming another unexplainable loss.
+        try:
+            _oil.record_submit(
+                arm=(arm or "unknown"), symbol=sym, side="sell", qty=qty,
+                leg_role=_oil.ROLE_FLATTEN, intent="EXIT",
+                reason=(reason or "EOD_FORCE_FLATTEN: 0DTE must not ride into expiry/assignment"),
+                source="fleet_broker.close_all_spy_options", broker_response=res,
+                order_type="market",
+                # No quote and no spot are read on this path (it sells at market, blind by
+                # design) and we will NOT add a fetch to a flatten. Recorded as absent, not null.
+                nbbo={"bid": None, "ask": None, "source": "not_read_on_force_flatten_path"},
+                spy_at_submit=None, spy_source="not_read_on_force_flatten_path",
+                position_qty_at_flatten=qty,
+                avg_entry_price=p.get("avg_entry_price"),
+                unrealized_pl=p.get("unrealized_pl"))
+        except Exception:  # noqa: BLE001 -- record_submit is itself total, but its
+            # ARGUMENTS are built here; a telemetry expression must never raise into
+            # an order path. This is the outer half of the never-costs-a-trade rule.
+            pass
         (errors if isinstance(res, dict) and res.get("_error") else closed).append(sym)
     return {"closed": closed, "errors": errors, "remaining": len(open_spy_option_positions(creds))}
 

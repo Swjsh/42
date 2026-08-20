@@ -152,6 +152,23 @@ GATE_KEYS = [
 
 
 from et_clock import et_now as _et_clock_now  # noqa: E402  (after sys.path insert above)
+# ORDER-INTENT LEDGER (2026-08-19) -- the WHY behind every order, keyed by order_id (see
+# order_intent_log's module docstring). record_submit() is TOTAL (never raises), so a logging
+# failure can never cost a trade. The import itself is the only other way this could touch the
+# engine, so it is guarded too: a missing/broken telemetry module degrades to a no-op stub and
+# the engine runs BYTE-IDENTICALLY, rather than failing to import at 09:30.
+try:  # noqa: E402
+    import order_intent_log as _oil
+except Exception:  # noqa: BLE001 -- telemetry must never gate the engine's ability to start
+    class _oil:  # type: ignore[no-redef]  # noqa: N801
+        ROLE_CORE = "core"
+        ROLE_TP1 = "tp1"
+        ROLE_RUNNER = "runner"
+        ROLE_FLATTEN = "flatten"
+
+        @staticmethod
+        def record_submit(**_fields: object) -> None:
+            return None
 import params_integrity_guard  # noqa: E402  -- RULE-9 mid-session params-mutation DETECTOR
 # (visibility only, never blocks a tick -- see module docstring for the OP-32 fail-open
 # rationale). Same-directory sibling import, same pattern as et_clock above.
@@ -2729,6 +2746,27 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     plan["status"] = "PLACED" if not res.get("_error") and not res.get("_refused") else "PLACE_FAIL"
     plan["broker"] = res
     plan["entry_px"] = entry_px
+    # ORDER-INTENT LEDGER (2026-08-19, J: "I wanna know what each ten contract did at what
+    # time and why it did that"). fills-ledger.jsonl is broker echo -- it records WHAT filled
+    # and has never carried WHY. This writes the WHY, keyed by order_id, so every fill leg
+    # can inherit it. STRICTLY ADDITIVE: the order was already submitted on the line above
+    # and this touches none of its parameters; `nbbo` and `spy` are the SAME values this tick
+    # already priced the order off of (no new network call on the entry-critical path);
+    # order_intent_log.record_submit can never raise (module docstring rule #1).
+    # decision_tick_id is the TRIGGER BAR -- the engine tick that caused this order.
+    try:
+        _oil.record_submit(
+            arm=arm, symbol=symbol, side="buy", qty=qty, leg_role=_oil.ROLE_CORE, intent="ENTRY",
+            reason=f"{verdict.get('verdict')} {setup_name or 'BEARISH_REJECTION_RIDE_THE_RIBBON'}",
+            source="heartbeat_core._execute", broker_response=res,
+            decision_tick_id=str(payload.get("bar_ctx", {}).get("timestamp_et") or "") or None,
+            nbbo=dict(nbbo, source="reconstructed_from_entry_pricing"), spy_at_submit=spy,
+            limit_price=entry_px, order_type="limit", strategy=setup_name,
+            account=account, plan_status=plan["status"], score=verdict.get("score"))
+    except Exception:  # noqa: BLE001 -- record_submit is itself total, but its
+        # ARGUMENTS are built here; a telemetry expression must never raise into
+        # an order path. This is the outer half of the never-costs-a-trade rule.
+        pass
     plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only, POST-placement (never slows the fill)
     # SETTLEMENT LEDGER DEBIT (2026-07-14): record ONLY on a real ACCEPTED
     # placement (never on dry/shadow calls, which return before this line —
