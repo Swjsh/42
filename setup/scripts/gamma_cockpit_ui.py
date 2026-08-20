@@ -202,6 +202,34 @@ section+section{margin-top:var(--s8)}
 .legend .ramp{width:110px;height:8px;border-radius:var(--r-pill);
   background:linear-gradient(90deg,var(--neg),var(--bg-2),var(--pos));border:1px solid var(--bd-subtle)}
 
+/* ---------------- heartbeat (EKG) ---------------- */
+/* One bar per recent tick, height/colour by verdict, newest pulsing. The sweep
+   is a gradient that travels the strip so a LIVE engine reads as alive at a
+   glance and a dead one is visibly frozen. All motion off under reduced-motion. */
+.beat{position:relative;display:flex;align-items:flex-end;gap:2px;height:44px;
+  padding:0 2px;border-radius:var(--r-md);background:var(--bg-inset);
+  border:1px solid var(--bd-subtle);overflow:hidden}
+.beat i{flex:1 1 auto;min-width:2px;background:var(--tx-4);border-radius:1px;opacity:.55;
+  transition:height .3s var(--e-open)}
+.beat i.hold{background:var(--tx-3)}
+.beat i.act{background:var(--acc);opacity:.95;box-shadow:0 0 6px var(--acc)}
+.beat i.exit{background:var(--warn);opacity:.9}
+.beat i.stop{background:var(--neg);opacity:.9}
+.beat i.now{animation:beatpulse 1.8s var(--e-hover) infinite}
+@keyframes beatpulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.45;transform:scaleY(.72)}}
+.beat.live::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,color-mix(in oklch,var(--acc) 22%,transparent) 48%,transparent 62%);
+  transform:translateX(-100%);animation:sweep 3.6s linear infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+.beat.dead{filter:grayscale(1) brightness(.6)}
+.beatlbl{display:flex;justify-content:space-between;font-size:11px;color:var(--tx-4);margin-top:var(--s2)}
+
+/* ---------------- positions ---------------- */
+.flatbig{font-size:34px;font-weight:650;letter-spacing:-.02em;color:var(--tx-2)}
+.poswrap{display:flex;align-items:center;gap:var(--s7);flex-wrap:wrap}
+.armpill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--r-pill);
+  background:var(--bg-2);border:1px solid var(--bd);font-size:12px;color:var(--tx-2)}
+.armpill b{color:var(--tx-1);font-variant-numeric:tabular-nums}
 /* ---------------- table ---------------- */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-4);

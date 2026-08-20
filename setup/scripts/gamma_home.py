@@ -483,6 +483,7 @@ def build(quiet: bool = False) -> dict:
         "engine_room": _cd().engine_room(),
         "agents": _cd().agent_feed(),
         "thinking": _cd().thinking(),
+        "positions": _cd().positions(),
         "briefing": None,   # filled below, needs desks+allocation+answers
         "wants_full": _wants_full(),
         "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),

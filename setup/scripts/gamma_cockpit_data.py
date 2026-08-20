@@ -368,3 +368,72 @@ def briefing(desks: list, allocation: dict, answers: list) -> dict:
     return {"lines": lines, "flags": flags,
             "bias": th.get("bias"), "claims": th.get("claims", []),
             "last": last, "source": th.get("source")}
+
+
+FILLS_LEDGER = REPO / "automation" / "state" / "fills-ledger.jsonl"
+
+# current-position*.json looked like the obvious source and is a TRAP: those files
+# are 1,500-2,400h stale (Jun/Jul abandonment), still parse cleanly, and would have
+# rendered a confident wrong answer. Positions are RECONSTRUCTED from the fills
+# ledger instead, which is the same authority the P&L calendar settles against.
+STALE_POSITION_FILES = (
+    "automation/state/current-position.json",
+    "automation/state/current-position-safe.json",
+    "automation/state/current-position-bold.json",
+    "automation/state/aggressive/current-position-bold.json",
+)
+
+
+def positions() -> dict:
+    """Net open positions per arm, rebuilt from every fill.
+
+    net(arm, symbol) = sum(buy qty) - sum(sell qty). A symbol nets to zero when
+    the round trip closed, so anything left non-zero is genuinely open right now.
+    FLAT is a real answer and gets stated plainly rather than shown as an empty
+    table - "sitting out is a valid day".
+    """
+    rows = _tail_json(FILLS_LEDGER, 100000)
+    net, last_close, arms = {}, None, {}
+    for r in rows:
+        if not r.get("is_option") or r.get("is_crypto"):
+            continue
+        arm, sym = r.get("arm"), r.get("symbol")
+        q = float(r.get("qty") or 0) * (1 if str(r.get("side", "")).lower().startswith("b") else -1)
+        key = (arm, sym)
+        net[key] = net.get(key, 0.0) + q
+        arms.setdefault(arm, {"fills": 0, "last_ts": None})
+        arms[arm]["fills"] += 1
+        arms[arm]["last_ts"] = r.get("ts_et") or arms[arm]["last_ts"]
+        if q < 0:
+            last_close = r
+
+    open_rows = []
+    for (arm, sym), q in net.items():
+        if abs(q) < 1e-9:
+            continue
+        open_rows.append({"arm": arm, "symbol": sym, "qty": round(q, 4),
+                          "side": "LONG" if q > 0 else "SHORT"})
+    open_rows.sort(key=lambda r: (r["arm"], r["symbol"]))
+
+    return {
+        "flat": not open_rows,
+        "open": open_rows,
+        "arms": [{"arm": a, "fills": v["fills"], "last_fill": v["last_ts"]}
+                 for a, v in sorted(arms.items())],
+        "last_close": ({"symbol": last_close.get("symbol"), "arm": last_close.get("arm"),
+                        "ts": last_close.get("ts_et"), "price": last_close.get("price"),
+                        "qty": last_close.get("qty")} if last_close else None),
+        "option_fills": sum(1 for r in rows if r.get("is_option") and not r.get("is_crypto")),
+        "source": {"path": FILLS_LEDGER.relative_to(REPO).as_posix(),
+                   "last_write": _iso(FILLS_LEDGER)},
+        "ignored_stale": [
+            {"path": p, "age_h": round(_age_of(REPO / p) or 0, 1)} for p in STALE_POSITION_FILES
+        ],
+    }
+
+
+def _age_of(p: Path):
+    try:
+        return (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).total_seconds() / 3600.0
+    except OSError:
+        return None
