@@ -508,6 +508,61 @@ def build_answers() -> list:
     return answers
 
 
+
+def build_allocation() -> dict:
+    """The master's desk ranking. Imported, never re-derived (one canonical source)."""
+    try:
+        import desk_allocator as da
+        return da.allocate()
+    except Exception as e:                      # noqa: BLE001 - page must render regardless
+        return {"error": str(e)[:160], "desks": []}
+
+
+def build_org() -> dict:
+    """Master -> desks -> shared functions, for the org graph.
+
+    Edges are DELEGATION, labelled with what the desk owns -- per the UX research,
+    an org chart that only shows hierarchy is static; labelling the edge with what
+    is delegated makes it read as a live map of who owns what.
+    """
+    reg, meta = _load_json(REGISTRY)
+    reg = reg or {}
+    return {
+        "master": reg.get("master", {}),
+        "desks": [{"id": d["id"], "name": d["name"], "status": d.get("status", ""),
+                   "instrument": d.get("instrument", ""),
+                   "functions": d.get("functions_it_invokes", [])}
+                  for d in reg.get("desks", [])],
+        "functions": [{"name": w["name"], "model": w.get("model"), "tier": w.get("tier"),
+                       "owns": w.get("owns", ""), "verified_by": w.get("verified_by", ""),
+                       "j_intent": w.get("j_intent")}
+                      for w in reg.get("workers", [])],
+        "contract": reg.get("delegation_contract", {}),
+        "source": meta,
+    }
+
+
+def calendar_scale(cal: dict) -> dict:
+    """Clamp the colour ramp so one blowout day does not wash out the month.
+
+    UX research (dashboard anti-patterns, 'Rainbow Heatmap of Sadness'): saturate
+    the scale at ~2x the trailing average absolute day, and annotate the true
+    min/max rather than letting extremes own the ramp.
+    """
+    vals = []
+    for view in (cal.get("views") or {}).values():
+        for row in (view.get("days") or {}).values():
+            v = row.get("n")
+            if isinstance(v, (int, float)):
+                vals.append(abs(v))
+    if not vals:
+        return {"clamp": 500.0, "max_abs": 0.0}
+    vals.sort()
+    trailing = vals[-30:] if len(vals) > 30 else vals
+    avg = sum(trailing) / len(trailing)
+    return {"clamp": max(200.0, 2.0 * avg), "max_abs": vals[-1]}
+
+
 def _money(v) -> str:
     try:
         v = float(v)
@@ -779,9 +834,13 @@ def build(quiet: bool = False) -> dict:
         "hq": hq or {},
         "hq_source": hq_meta,
         "calendar": compact_calendar(cal or {}),
+        "calendar_full": cal or {},
+        "calendar_scale": calendar_scale(cal or {}),
         "calendar_source": cal_meta,
         "answers": build_answers(),
         "desks": build_desks(),
+        "allocation": build_allocation(),
+        "org": build_org(),
         "wants_full": _wants_full(),
         "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),
                          "age_h": _age_h(GAMMA_WANTS), "ok": GAMMA_WANTS.exists()},
@@ -808,7 +867,10 @@ def _et_label() -> str:
 
 
 def render(payload: dict) -> str:
-    return _TEMPLATE.replace("__DATA_JSON__", json.dumps(payload, default=str))
+    """Delegate to the cockpit UI + JS modules (presentation lives there)."""
+    import gamma_cockpit_ui as ui
+    import gamma_cockpit_js as vjs
+    return ui.render(payload, vjs.JS)
 
 
 def main() -> int:

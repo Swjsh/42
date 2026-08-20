@@ -113,9 +113,20 @@ def test_rendered_page_is_self_contained_and_clean():
     html = gh.render(payload)
     assert html.lstrip().startswith("<!doctype html>")
     assert "__DATA_JSON__" not in html, "data placeholder was not substituted"
-    # No external fetches: the page must work with no server and no network.
-    assert "http://" not in html.replace("http://localhost", ""), "external http reference"
-    assert "<script src" not in html and "cdn" not in html.lower()
+    # No external FETCHES: the page must work with no server and no network.
+    # Scope this to markup/CSS, where a URL would actually be requested. URLs
+    # inside the embedded JSON payload are inert data (worker-registry.json cites
+    # the Anthropic docs page its fan-out caps came from), and XML namespace URIs
+    # are identifiers, never fetched.
+    markup = re.sub(r"const D=\{.*?\};", "", html, flags=re.S)
+    probe = (markup.replace("http://www.w3.org/", "")
+                   .replace("https://www.w3.org/", "")
+                   .replace("http://localhost", ""))
+    assert "http://" not in probe and "https://" not in probe, "external http reference in markup/CSS"
+    assert "<script src" not in html and "<link rel=\"stylesheet\"" not in html
+    assert "cdn." not in html.lower() and "@import" not in html
+    # Fonts must be system stacks — a webfont would be a network dependency.
+    assert "@font-face" not in html
     # Mojibake canaries from the cp1252 decode bug.
     for bad in ("Â·", "â€", "Ã©"):
         assert bad not in html, "mojibake %r survived - check subprocess encoding" % bad
@@ -140,4 +151,6 @@ def test_shipped_page_exists_and_is_fresh_enough():
     if not p.exists():
         pytest.fail("analysis/home/index.html missing - run setup/scripts/gamma_home.py")
     assert p.stat().st_size > 10_000, "page suspiciously small"
-    assert "Command Center" in p.read_text(encoding="utf-8", errors="replace")[:2000]
+    head = p.read_text(encoding="utf-8", errors="replace")[:3000]
+    assert "Cockpit" in head, "shipped page is not the cockpit build"
+    assert "__DATA_JSON__" not in head and "__JS__" not in head, "template placeholder left unsubstituted"

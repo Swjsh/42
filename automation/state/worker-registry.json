@@ -318,17 +318,19 @@
       "id": "multi-sector",
       "name": "Multi-sector options",
       "instrument": "WEEKLY_OPTIONS (non-SPY)",
-      "status": "SHADOW_V1_SIGNAL_KILLED",
+      "status": "SHADOW_LIVE_MULTI_SYMBOL",
       "context_boundary": "per-ticker weekly chains (IWM/NVDA/AAPL/XOM/TSLA/CVX...), weekly expiries, sector heat, earnings blackouts",
       "arms": [
-        "weekly-1 (NOT created -- deliberately withheld behind the kill-gate result)"
+        "multi-1 (acct PA38EG1JTFBT, SHADOW — no order-placement call exists in multi/core.py)",
+        "weekly-1 (NOT created — withheld behind the v1 kill-gate result)"
       ],
-      "engine": "automation/state/weekly/ (shadow only)",
-      "scoreboard": "weekly/variant-daily-ledger.jsonl (470 rows) + expiry-experiment-shadow-ledger.jsonl (593 rows)",
-      "arming_bar": "NOT MET -- the v1 signal FAILED the random-entry null on every arm (-8% to -14% mean). Nothing ships; the machinery lives, the signal is dead.",
+      "engine": "Gamma_MultiCore every 15 min RTH over a ~72-name universe (multi/core.py) + the retired weekly-options v1 shadow ledgers",
+      "scoreboard": "automation/state/multi/shadow-ledger.jsonl + participation-cascade.jsonl; weekly/variant-daily-ledger.jsonl + expiry-experiment-shadow-ledger.jsonl",
+      "arming_bar": "multi-1: shadow, no bar cleared yet. weekly v1: FAILED its random-entry null on every arm (-8% to -14% mean) — that signal stays dead; the machinery is reused.",
       "functions_it_invokes": [
         "chef"
-      ]
+      ],
+      "_correction_2026_08_20": "This entry said SHADOW_V1_SIGNAL_KILLED with no live lane. That was already stale when written: another session had registered Gamma_MultiCore, a live 15-min RTH shadow tick over ~72 names, writing to automation/state/multi/. Found because the pre-commit doc guard refused a commit over the undocumented task — the same class of error as the wants: a registry entry is a CLAIM, and reality moves past claims nobody re-verifies."
     },
     {
       "id": "prediction-markets",

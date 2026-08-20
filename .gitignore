@@ -147,6 +147,19 @@ automation/state/fleet/risky-3/decisions.jsonl
 automation/state/fleet/safe-3/decisions.jsonl
 automation/archive/
 
+# === Added 2026-08-19: fills-ledger.jsonl was MISSED by the 2026-07-14 pass above ===
+# It is the ONLY surviving copy of 22 of our 35 trading days -- Alpaca's paper API has
+# deleted its own history (a FILL query for 2026-06-25..2026-08-03 returns ZERO rows while
+# the identical query from 2026-08-03 returns rows immediately). 137 of 303 round trips and
+# -$1,664 of the -$1,805 gross rest on this file alone.
+# It was untracked AND unignored, which is the WORST combination: `git clean -fd
+# automation/state/` deletes untracked files but SKIPS ignored ones, and `git clean -nd`
+# confirmed "Would remove automation/state/fills-ledger.jsonl". Ignoring it closes that
+# hole and also stops `git add -A` from pushing the book to a PUBLIC repo.
+# Durable custody (off-volume, checksummed, permanent) is Gamma_LedgerCustody /
+# setup/scripts/archive_ledgers.py -- this line is only the deletion guard.
+automation/state/fills-ledger.jsonl
+
 # === Added 2026-07-20: STATE-FILE-REVERSION incident fix (same mechanism, recurred TWICE
 # same day -- once 04:27/05:58 ET premarket, once 18:40 ET mid-session) ===
 # circuit-breaker*.json + today-bias.json are continuously overwritten-in-place (not

@@ -51,6 +51,7 @@ from multi.lib import broker as mb  # noqa: E402
 from multi.lib import creds as mc  # noqa: E402
 from multi.lib import expiry as mx  # noqa: E402
 from multi.lib import levels as mlv  # noqa: E402
+from multi.lib import watchlist as mw  # noqa: E402
 from multi.lib import positions as mp  # noqa: E402
 from multi.lib import risk as mr  # noqa: E402
 from multi.lib import signal as ms  # noqa: E402
@@ -246,6 +247,33 @@ def _num(v):
         return None
 
 
+def attention_from_bars(bars_by_symbol: dict) -> dict:
+    """Derive stage-2 attention facts from bars ALREADY fetched -- no extra API calls.
+
+    relative volume is the field that matters (see watchlist.py): it normalizes against each
+    symbol's OWN baseline, so a 9.8x reading means the same thing for an $18 stock and a $700
+    ETF, which raw volume or %-change never can.
+    """
+    out = {}
+    for sym, df in (bars_by_symbol or {}).items():
+        try:
+            if df is None or len(df) < 30:
+                continue
+            vols = df["volume"].to_numpy(dtype=float)
+            recent = float(vols[-6:].mean()) if len(vols) >= 6 else float(vols[-1])
+            base = float(vols[:-6].mean()) if len(vols) > 12 else float(vols.mean())
+            rel = (recent / base) if base > 0 else 1.0
+            closes = df["close"].to_numpy(dtype=float)
+            span = min(len(closes) - 1, 7)
+            pct = 100.0 * (closes[-1] / closes[-1 - span] - 1.0) if span > 0 else 0.0
+            out[sym] = {"rel_volume": round(rel, 3), "pct_change": round(pct, 3),
+                        "dollar_volume": round(float(closes[-1]) * recent, 2),
+                        "scanner_hits": 0}
+        except (KeyError, IndexError, ValueError, ZeroDivisionError):
+            continue
+    return out
+
+
 def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
          dry_bars: dict | None = None) -> tuple[list[dict], Counter]:
     """One evaluation pass over `symbols`. Returns (rows, cascade_counter).
@@ -264,10 +292,32 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     if equity <= 0:
         raise TickError(f"account equity read as {equity!r} — refusing to size against it")
 
+    # --- THE FUNNEL: narrow ~72 names to <=5 BEFORE any expensive chain read ---------------
+    # Stages 1-3 are cheap (bars we already hold); the per-symbol chain reads that follow are
+    # not. Running them on 72 names would be ~72x the API cost for the same decisions, and the
+    # rate limit is a real constraint. Narrowing by RANKING (never thresholding) means this
+    # cannot silently yield an empty watchlist on a quiet day -- the L199 failure.
+    attention = attention_from_bars(dry_bars or {})
+    watch, stage_counts = mw.build_watchlist(symbols, attention=attention)
+    cascade["funnel_universe"] = stage_counts.get("universe", 0)
+    cascade["funnel_liquidity"] = stage_counts.get("liquidity", 0)
+    cascade["funnel_attention"] = stage_counts.get("attention", 0)
+    cascade["funnel_setup"] = stage_counts.get("setup", 0)
+    watch_syms = [c.symbol for c in watch]
+    watch_facts = {c.symbol: c for c in watch}
+
     for sym in symbols:
         cascade["evaluated"] += 1
+        if sym not in watch_syms:
+            # Not a failure -- the funnel did its job. Recorded so the cascade stays honest
+            # about how many names were considered vs actually examined.
+            cascade["funnel_filtered_out"] += 1
+            continue
+        wf = watch_facts.get(sym)
         row: dict = {"ts_et": ts, "symbol": sym, "account": creds.account_number,
-                     "shadow": True, "feed": "indicative"}
+                     "shadow": True, "feed": "indicative",
+                     "rel_volume": getattr(wf, "rel_volume", None),
+                     "attention_score": getattr(wf, "attention_score", None)}
 
         bars = (dry_bars or {}).get(sym)
         if bars is None or len(bars) < 60:
@@ -460,7 +510,8 @@ def main(argv: list[str] | None = None) -> int:
         write_rows(rows, cascade)
 
     print(f"[multi_core] {ts_summary(cascade)}", file=sys.stderr)
-    for g in ("evaluated", "bars_ok", "signal_scored", "action_directional",
+    for g in ("evaluated", "funnel_filtered_out", "bars_ok", "signal_scored",
+              "action_directional",
               "risk_admitted", "expiry_available", "strike_selected", "liquidity_ok",
               "sized_ok", "would_place"):
         print(f"    {g:<20} {cascade.get(g, 0)}", file=sys.stderr)

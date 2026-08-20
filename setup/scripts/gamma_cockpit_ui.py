@@ -1,0 +1,312 @@
+"""gamma_cockpit_ui.py - the COCKPIT's markup, styling and behaviour.
+
+Split out of gamma_home.py so neither file passes the repo's 800-line ceiling.
+This module owns PRESENTATION only: every number it renders arrives pre-computed
+in the payload. It never reads a state file and never derives a metric.
+
+HARD CONSTRAINT: one self-contained file. No CDN, no web fonts, no external JS or
+CSS. It must work from a file:// URL with no network, which rules out every chart
+library - the sparklines, bars and the org graph are hand-rolled SVG.
+
+DESIGN SYSTEM (from the 2026 design research, sources in the session report)
+  * OKLCH neutrals on hue 265 at near-zero chroma. Perceptually even lightness
+    steps, which a flat hex ladder does not give you - that evenness is what
+    makes an elevation ramp read as a system instead of as noise.
+  * Semantic colours pinned to L 68-72% so profit/loss/warning read as equally
+    vivid against the canvas.
+  * ONE MEANING PER COLOUR. Red/green are reserved for P&L only. System and agent
+    health use traffic-light DOTS, never red/green fills - the UX research names
+    colour-collision as a top dashboard anti-pattern.
+  * Layered shadows (2-4 low-opacity stacks), not one hard shadow.
+  * Motion: expo-out cubic-bezier(.16,1,.3,1) for hover; opens slower than
+    closes; stagger capped at 8 items so long lists never feel slow. All of it
+    off under prefers-reduced-motion.
+  * Tabular numerals everywhere a number can change.
+
+HONESTY RULES BAKED INTO THE MARKUP
+  * Every metric keeps its source path + age. Past the staleness window the badge
+    goes amber. A cockpit that looks authoritative while showing stale data is
+    worse than an ugly one.
+  * Per-desk numbers are always shown; there is no aggregate-only view. An
+    aggregate that hides a weak desk behind a strong one is the exact anti-pattern
+    J has called out before.
+  * The calendar colour ramp is CLAMPED so one blowout day cannot wash out the
+    month, and the true min/max are annotated.
+"""
+from __future__ import annotations
+
+import json
+
+CSS = r"""
+:root{
+  --bg-canvas:oklch(14% .020 265); --bg-1:oklch(18% .020 265); --bg-2:oklch(22% .022 265);
+  --bg-3:oklch(26% .024 265); --bg-inset:oklch(11% .018 265);
+  --bd-subtle:color-mix(in oklch, white 7%, transparent);
+  --bd:color-mix(in oklch, white 12%, transparent);
+  --bd-strong:color-mix(in oklch, white 20%, transparent);
+  --tx-1:oklch(97% .005 265); --tx-2:oklch(78% .010 265);
+  --tx-3:oklch(58% .012 265); --tx-4:oklch(40% .010 265);
+  --pos:oklch(72% .19 152); --pos-dim:color-mix(in oklch,var(--pos) 16%,transparent);
+  --neg:oklch(68% .21 25);  --neg-dim:color-mix(in oklch,var(--neg) 16%,transparent);
+  --warn:oklch(78% .17 80); --warn-dim:color-mix(in oklch,var(--warn) 16%,transparent);
+  --acc:oklch(70% .16 250); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
+  --sh-1:0 1px 2px oklch(0% 0 0/.24);
+  --sh-2:0 1px 2px oklch(0% 0 0/.20),0 4px 10px oklch(0% 0 0/.24);
+  --sh-3:0 2px 4px oklch(0% 0 0/.20),0 10px 24px oklch(0% 0 0/.32);
+  --sh-4:0 4px 8px oklch(0% 0 0/.24),0 20px 48px oklch(0% 0 0/.40);
+  --s1:2px;--s2:4px;--s3:8px;--s4:12px;--s5:16px;--s6:20px;--s7:24px;--s8:32px;--s9:40px;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-pill:999px;
+  --e-hover:cubic-bezier(.16,1,.3,1); --e-open:cubic-bezier(.32,.72,0,1);
+  --e-close:cubic-bezier(.4,0,1,1); --e-route:cubic-bezier(.65,0,.35,1);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+  --side:240px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-size:14px;
+  line-height:1.5;-webkit-font-smoothing:antialiased}
+.num,td.n,.big,.mid,.stat{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+/* ambient wash + subliminal grain (kills gradient banding) */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 520px at 10% -10%,color-mix(in oklch,var(--acc) 12%,transparent),transparent 62%),
+             radial-gradient(720px 440px at 94% 2%,color-mix(in oklch,var(--pos) 7%,transparent),transparent 64%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.035;
+  mix-blend-mode:overlay;background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)"/></svg>')}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--bd-strong);border-radius:6px;border:3px solid var(--bg-canvas)}
+::selection{background:var(--acc-dim)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:var(--r-sm)}
+
+/* ---------------- shell ---------------- */
+.app{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh;position:relative;z-index:1}
+.side{border-right:1px solid var(--bd-subtle);background:var(--bg-inset);padding:var(--s6) var(--s4);
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:var(--s1)}
+.brand{display:flex;align-items:center;gap:var(--s4);padding:var(--s1) var(--s3) var(--s6)}
+.mark{width:32px;height:32px;border-radius:9px;flex:none;position:relative;
+  background:linear-gradient(145deg,var(--acc),oklch(64% .19 300));
+  box-shadow:inset 0 1px 0 color-mix(in oklch,white 22%,transparent),0 6px 18px -6px var(--acc)}
+.mark::after{content:"Γ";position:absolute;inset:0;display:grid;place-items:center;font:700 17px/1 var(--font);color:#fff}
+.brand b{font-size:15px;font-weight:600;letter-spacing:-.015em}
+.brand small{display:block;color:var(--tx-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--r-md);color:var(--tx-2);
+  font-size:14px;font-weight:500;position:relative;transition:background .14s var(--e-hover),color .14s var(--e-hover)}
+.nav a:hover{background:var(--bg-1);color:var(--tx-1);text-decoration:none}
+.nav a.on{background:var(--bg-2);color:var(--tx-1)}
+.nav a.on::before{content:"";position:absolute;left:-12px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;
+  background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.nav .ic{width:17px;text-align:center;font-size:13px;opacity:.9}
+.nav .badge{margin-left:auto;font-size:11px;font-weight:600;padding:1px 7px;border-radius:var(--r-pill);
+  background:var(--bg-3);color:var(--tx-2);border:1px solid var(--bd)}
+.nav .badge.hot{background:var(--warn-dim);color:var(--warn);border-color:color-mix(in oklch,var(--warn) 34%,transparent)}
+.side .foot{margin-top:auto;font-size:11px;color:var(--tx-4);line-height:1.8;padding:var(--s4) var(--s3) 0;
+  border-top:1px solid var(--bd-subtle)}
+kbd{background:var(--bg-3);border:1px solid var(--bd);border-bottom-width:2px;border-radius:5px;padding:1px 5px;
+  font:600 11px/1.4 var(--mono);color:var(--tx-2)}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:var(--s4);padding:var(--s5) var(--s7);
+  border-bottom:1px solid var(--bd-subtle);
+  background:color-mix(in oklch,var(--bg-canvas) 78%,transparent);
+  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%)}
+.top h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.sp{flex:1}
+.clock{font:400 11px/1.4 var(--mono);color:var(--tx-3);letter-spacing:.02em;text-align:right}
+.view{padding:var(--s7);max-width:1560px;width:100%}
+.view.anim{animation:vin .3s var(--e-route)}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------------- primitives ---------------- */
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3)}
+.big{font-size:40px;font-weight:650;letter-spacing:-.02em;line-height:1.1}
+.mid{font-size:24px;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+.stat{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.mut{color:var(--tx-2);font-size:14px}
+.dim{color:var(--tx-3);font-size:12px}
+.micro{color:var(--tx-4);font-size:11px;letter-spacing:.02em}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.warnc{color:var(--warn)}.acc{color:var(--acc)}
+.mono{font-family:var(--mono)}
+.grid{display:grid;gap:var(--s5)}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.stack{display:flex;flex-direction:column;gap:var(--s5)}
+.row{display:flex;align-items:center;gap:var(--s4)}
+.wrap{flex-wrap:wrap}
+section+section{margin-top:var(--s8)}
+.shead{display:flex;align-items:baseline;gap:var(--s4);margin-bottom:var(--s5)}
+.shead h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+
+.card{background:var(--bg-1);border:1px solid var(--bd-subtle);border-radius:var(--r-lg);
+  padding:var(--s6);box-shadow:var(--sh-2);position:relative;container-type:inline-size;
+  transition:box-shadow .16s var(--e-hover),border-color .16s var(--e-hover),transform .16s var(--e-hover)}
+.card h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);
+  margin-bottom:var(--s4)}
+.card.click{cursor:pointer}
+.card.click:hover{box-shadow:var(--sh-3);border-color:var(--bd);transform:translateY(-2px)}
+/* mouse-following spotlight - the signature premium hover */
+.spot::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;
+  background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%),var(--acc-dim),transparent 70%);
+  transition:opacity .2s var(--e-hover)}
+.spot:hover::before{opacity:1}
+/* gradient hairline for the hero only - restraint is the point */
+.gborder{position:relative}
+.gborder::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,var(--acc) 0%,transparent 55%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;opacity:.7}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--r-pill);
+  font-size:11px;font-weight:600;letter-spacing:.03em;border:1px solid var(--bd);background:var(--bg-2);
+  color:var(--tx-2);white-space:nowrap}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+/* traffic-light DOTS for health. never red/green fills - that vocabulary is P&L's */
+.chip.ok .dot{background:var(--pos)} .chip.warn .dot{background:var(--warn)} .chip.bad .dot{background:var(--neg)}
+.chip.ok{color:var(--tx-1)} .chip.warn{color:var(--warn)} .chip.bad{color:var(--neg)}
+.chip.live .dot{animation:pl 2.4s var(--e-hover) infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.4}}
+
+.bar{height:6px;border-radius:var(--r-pill);background:var(--bg-inset);overflow:hidden;border:1px solid var(--bd-subtle)}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),oklch(78% .14 250));
+  transition:width .8s var(--e-open)}
+.bar.done>i{background:linear-gradient(90deg,var(--pos),oklch(82% .15 152))}
+.src{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--bd-subtle);font-size:11px;
+  color:var(--tx-4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5)}
+.src .stale{color:var(--warn)}
+.stagger>*{opacity:0;transform:translateY(8px);animation:fu .4s var(--e-hover) forwards;
+  animation-delay:calc(var(--i,0)*45ms)}
+@keyframes fu{to{opacity:1;transform:none}}
+
+/* ---------------- calendar ---------------- */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dow{font-size:11px;color:var(--tx-4);text-align:center;letter-spacing:.06em;text-transform:uppercase;
+  font-weight:600;padding-bottom:var(--s2)}
+.cell{min-height:70px;border:1px solid var(--bd-subtle);border-radius:var(--r-md);background:var(--bg-1);
+  padding:6px 8px;display:flex;flex-direction:column;gap:2px;
+  transition:transform .14s var(--e-hover),border-color .14s var(--e-hover),box-shadow .14s var(--e-hover)}
+.cell.empty{background:transparent;border-color:transparent}
+.cell.has{cursor:pointer}
+.cell.has:hover{transform:translateY(-2px);border-color:var(--bd-strong);box-shadow:var(--sh-2)}
+.cell .d{font-size:11px;color:var(--tx-4);font-weight:600;line-height:1}
+.cell .v{font-weight:650;font-size:clamp(11px,1.05vw,14px);line-height:1.15;margin-top:auto;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.cell .t{font-size:10px;color:var(--tx-4)}
+.cell .arms{display:flex;gap:2px;margin-top:1px}
+.cell .arms i{width:5px;height:5px;border-radius:1px;background:var(--tx-4);opacity:.7}
+.legend{display:flex;align-items:center;gap:var(--s3);font-size:11px;color:var(--tx-4)}
+.legend .ramp{width:110px;height:8px;border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--neg),var(--bg-2),var(--pos));border:1px solid var(--bd-subtle)}
+
+/* ---------------- table ---------------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-4);
+  padding:var(--s3) var(--s4);border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--bg-1);z-index:1}
+td{padding:var(--s3) var(--s4);border-bottom:1px solid var(--bd-subtle);color:var(--tx-2)}
+td.n{text-align:right;font-family:var(--mono);font-size:12px}
+tbody tr{transition:background .12s var(--e-hover)}
+tbody tr:hover{background:var(--bg-2)}
+tr:last-child td{border-bottom:none}
+
+/* ---------------- drawer ---------------- */
+.scrim{position:fixed;inset:0;background:oklch(8% .01 265/.66);backdrop-filter:blur(3px);opacity:0;
+  pointer-events:none;transition:opacity .22s var(--e-open);z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(720px,95vw);z-index:50;background:var(--bg-1);
+  border-left:1px solid var(--bd);transform:translateX(101%);transition:transform .26s var(--e-open);
+  display:flex;flex-direction:column;box-shadow:var(--sh-4)}
+.drawer.closing{transition-duration:.18s;transition-timing-function:var(--e-close)}
+.drawer.on{transform:none}
+.drawer header{padding:var(--s6) var(--s7);border-bottom:1px solid var(--bd-subtle);display:flex;
+  align-items:center;gap:var(--s4)}
+.drawer header h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.drawer .body{padding:var(--s6) var(--s7);overflow:auto;flex:1}
+.x{margin-left:auto;background:var(--bg-2);border:1px solid var(--bd);color:var(--tx-2);width:30px;height:30px;
+  border-radius:var(--r-md);cursor:pointer;font-size:16px;line-height:1;transition:background .14s var(--e-hover)}
+.x:hover{background:var(--bg-3);color:var(--tx-1)}
+
+/* ---------------- palette ---------------- */
+.pal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding-top:13vh;
+  background:oklch(8% .01 265/.6);backdrop-filter:blur(4px)}
+.pal.on{display:flex}
+.pal .box{width:min(580px,92vw);background:var(--bg-2);border:1px solid var(--bd);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--sh-4);animation:pop .2s var(--e-hover)}
+@keyframes pop{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+.pal input{width:100%;padding:16px 18px;background:transparent;border:none;outline:none;color:var(--tx-1);
+  font-size:15px;font-family:var(--font);border-bottom:1px solid var(--bd-subtle)}
+.pal .res{max-height:340px;overflow:auto;padding:var(--s2)}
+.pal .res div{padding:10px 14px;cursor:pointer;display:flex;gap:11px;align-items:center;font-size:14px;
+  border-radius:var(--r-md)}
+.pal .res div.sel{background:var(--bg-3)}
+.pal .res .k{margin-left:auto;color:var(--tx-4);font-size:11px}
+
+.note{padding:var(--s9);text-align:center;color:var(--tx-4);font-size:13px}
+.kv{display:flex;justify-content:space-between;gap:var(--s5);padding:var(--s3) 0;
+  border-bottom:1px solid var(--bd-subtle);font-size:13px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--tx-3);white-space:nowrap}
+.kv .v{text-align:right;color:var(--tx-1)}
+
+@container (max-width:250px){.card .spark{display:none}}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:var(--s3)}
+  .side .foot{display:none}.nav{flex-direction:row;flex-wrap:wrap}.nav a.on::before{display:none}
+  .view{padding:var(--s5)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .stagger>*{opacity:1;transform:none}
+}
+"""
+
+SHELL = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gamma — Cockpit</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>__CSS__</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="mark"></div><div><b>Gamma</b><small>Cockpit</small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot"><kbd>⌘</kbd><kbd>K</kbd> palette · <kbd>?</kbd> help<br><span id="footstamp"></span></div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <h1 id="vtitle">Overview</h1>
+      <span class="chip live" id="statechip"><i class="dot"></i><span id="statetxt"></span></span>
+      <div class="sp"></div>
+      <div class="clock" id="clock"></div>
+    </header>
+    <div class="view anim" id="view"></div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <header><h2 id="dtitle"></h2><button class="x" id="dclose" aria-label="Close">×</button></header>
+  <div class="body" id="dbody"></div>
+</aside>
+<div class="pal" id="pal">
+  <div class="box"><input id="palin" placeholder="Jump to a view, desk, agent or day…" autocomplete="off">
+  <div class="res" id="palres"></div></div>
+</div>
+<script>const D=__DATA_JSON__;</script>
+<script>__JS__</script>
+</body>
+</html>
+"""
+
+
+def render(payload: dict, js: str) -> str:
+    """Assemble the page. The one sequence that could break out of a <script>
+    block is neutralised; everything else is escaped by esc() at render time."""
+    blob = json.dumps(payload, default=str).replace("</script", "<\\/script")
+    return (SHELL.replace("__CSS__", CSS)
+                 .replace("__DATA_JSON__", blob)
+                 .replace("__JS__", js))
