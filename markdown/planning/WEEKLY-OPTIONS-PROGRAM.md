@@ -229,6 +229,39 @@ FOMC 9/16, NVDA 8/26 · MRVL 8/27 · AVGO 9/2.
 - **Safety halt:** any position-visibility incident (C11 class) → lane halts until root-caused.
 - **Live money:** never without J (OP-0 #1) — unchanged, forever, regardless of paper results.
 
+## 9a. THE MULTI-SYMBOL LANE (v2) — WHERE "TRADE OTHER NAMES" ACTUALLY STANDS
+
+> J, 2026-08-19: *"I still don't really know where that stands."* Fair. This section is the
+> one-glance status surface for the original ask — trading names beyond SPY. Update it in place.
+
+**What v1 got wrong (owned):** asked to trade other names, I invented a NEW signal for them
+(level-interaction) and spent a night proving *it* fails. "My new signal failed" is not "other
+names failed." **The engine we actually trade on SPY — `filters.py`'s 0-11 score driving
+`ribbon_ride` / `vwap_continuation` / `vwap_reclaim_failed_break` — had never been pointed at
+another ticker.** That is what the multi lane fixes.
+
+**The v2 approach, per J's directive:** *"copy the entire spy engine and then paste it… you
+don't touch the original, and then you make it so we trade other names… nothing should say hard
+coded for spy."* A fork, not a refactor. The SPY engine is never imported or modified.
+
+| Component | State |
+|---|---|
+| Account **PA38EG1JTFBT** ($9,628 — highest paper balance, options L3) | ✅ wired by REFERENCE (no secret copied); `verify_account()` refuses on account mismatch |
+| Shared-account crypto safety | ✅ enforced in code — OCC-only filters; this lane cannot see or close the twin's BTC, and vice versa |
+| ~70-name universe + LIVE liquidity gate | ✅ (static screens fail on catalyst days — MRNA: 1 contract Mon, 30,314 Wed) |
+| Scanner stack (movers / actives / news / gap+RVOL / composite) | ✅ 31 tests; flagged MRNA on all 4 scanners at 9.8x RVOL |
+| Broker + position layer | ✅ 39 tests; crypto-safety + fail-loud RED-proofed |
+| Signal/scoring core (SPY score, symbol-generic) | 🔄 building |
+| Sizing / risk / expiry | 🔄 building |
+| Engine tick (`multi/core.py`) | ⬜ next, after the above land |
+| Live shadow run over the universe | ⬜ |
+| Paper orders | ⬜ gated on shadow evidence |
+
+**Separation guarantees:** not registered in the SPY fleet's `accounts.json` (that file is read
+by the live SPY executor); own params, own state dir, own ledger. Its P&L is never SPY evidence
+and vice versa. Because the account is shared with the crypto twin, **account equity is not
+evidence for either program** — each reads its own ledger.
+
 ## 9b. NIGHT RUN 2026-08-18 → 08-19 — the work order + progress ledger
 
 > J went to bed 2026-08-18 ~21:44 ET with explicit standing authorization: *"do you have
