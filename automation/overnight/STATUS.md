@@ -365,3 +365,20 @@ target**; the −$236 drag was one experiment that tonight **executed its own fr
 
 Checked self-audit gaps (priority-3, above this pick) first — the only untriaged batch (17:33 ET) was already fully closed by an earlier fire tonight (regime_context fix), confirmed via the file's own DONE marker. No higher-priority item was skipped.
 
+
+### ⚠️ KNOWN BROKEN (found 2026-08-20, multi-lane regression check) — a graduated guard is DEAD in full-suite runs
+
+`test_graduated_guards.py::test_free_model_cost_estimate_is_zero` **fails in a full-suite run,
+passes alone.** It guards a real scar (G-PHANTOM-COST: unknown `:free` slugs falling through to
+paid rates and corrupting spend summaries), so the scar it protects could recur unnoticed.
+
+Two-file repro: `pytest backtest/tests/test_eod_quant_guard.py "backtest/tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero"` → 1 failed.
+Source: `test_eod_quant_guard.py:24-37` puts a stub in `sys.modules["run_minimax"]` at import
+scope and never restores it; `test_eod...` sorts before `test_graduated...`.
+
+**NOT fully root-caused.** The final error is `AttributeError: 'NoneType' has no attribute
+'__dict__'` inside CPython `dataclasses.py:757` — deeper than sys.modules shadowing. One fix
+attempt (load-by-file-path) did NOT resolve it and was reverted rather than left half-applied.
+Not caused by the multi lane (multi tests + this guard together: 68 passed).
+Full writeup + suggested sweep: `strategy/candidates/_lesson-inbox/graduated-guard-dead-in-full-suite-2026-08-20.md`.
+**Invisible to the pre-commit gate** — the curated 6-suite subset does not include this pairing.
