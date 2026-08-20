@@ -147,6 +147,72 @@ def test_stale_takeover_is_arbitrated_under_REPEATED_contention(hc_factory):
         "must always be reclaimable by someone, or the arm is wedged until the file ages out")
 
 
+def test_toctou_steals_a_legitimately_fresh_claim_from_under_a_new_owner(hc_factory, monkeypatch):
+    """2026-08-19 regression -- the ACTUAL mechanism behind incident_fix_status.py's 1/40
+    multi-winner finding (probabilistic storm test above: 0/300 at ship time, 1/40 measured
+    2026-08-19 -- a real residual race, not flakiness).
+
+    THE BUG: staleness is judged by READING `path` BEFORE the takeover rename, but the
+    takeover rename itself does not re-check what it is actually renaming -- it blindly takes
+    over whatever currently sits at `path`. That is a classic TOCTOU: a slow contender (T1)
+    can read the ORIGINAL stale record, get preempted, and while it sleeps a fast contender
+    (T2) legitimately wins a full stale-takeover and installs a brand-new FRESH claim. When T1
+    wakes it acts on its STALE verdict from moments ago and renames-away T2's fresh claim
+    anyway -- deleting the legitimate winner's reservation and installing its own. Both T1 and
+    T2 return True: two winners on the exact incident path (double entry).
+
+    This test forces that exact interleaving via a monkeypatched json.loads that pauses T1
+    immediately after it reads (and judges stale) the ORIGINAL record, releasing it only once
+    T2 has completed an entire independent, legitimate stale-takeover end to end. Must fail
+    (both True) on the pre-fix "check staleness before takeover" shape and pass once staleness
+    is judged on the content the renamer actually now privately owns (after the takeover, not
+    before it)."""
+    hc = hc_factory()
+    assert hc._acquire_claim("safe-2", SYM, NOW) is True
+    later = NOW + datetime.timedelta(seconds=hc.ENTRY_CLAIM_TTL_SEC + 5)
+
+    real_loads = hc.json.loads
+    gap_entered = threading.Event()
+    proceed = threading.Event()
+    call_count = {"n": 0}
+    lock = threading.Lock()
+
+    def _hooked_loads(s, *a, **kw):
+        rec = real_loads(s, *a, **kw)
+        with lock:
+            call_count["n"] += 1
+            is_first = call_count["n"] == 1
+        if is_first:
+            # T1 just finished reading + judging the ORIGINAL stale record. Pause here, BEFORE
+            # T1's takeover rename, so an independent contender (T2) can win a full legitimate
+            # stale-takeover cycle -- installing a brand-new FRESH claim -- in the meantime.
+            gap_entered.set()
+            proceed.wait(timeout=5)
+        return rec
+
+    monkeypatch.setattr(hc.json, "loads", _hooked_loads)
+
+    results: dict[str, bool] = {}
+
+    def _late_renamer():
+        results["late_t1"] = hc._acquire_claim("safe-2", SYM, later)
+
+    t = threading.Thread(target=_late_renamer)
+    t.start()
+    assert gap_entered.wait(timeout=5), "T1 never reached the staleness read -- test setup broken"
+    results["legit_winner_t2"] = hc._acquire_claim("safe-2", SYM, later)
+    proceed.set()
+    t.join(timeout=5)
+
+    winners = sum(1 for v in results.values() if v)
+    assert winners == 1, (
+        f"{winners} of 2 contenders (a legitimate stale-takeover winner T2, plus a slow "
+        f"contender T1 acting on a stale staleness-verdict) both claimed True: {results} -- "
+        "T1 renamed T2's brand-new fresh claim away out from under it. This is the exact "
+        "TOCTOU double-entry race the 2026-08-19 fix closes by judging staleness on content "
+        "taken into custody, never on a read performed before the takeover.")
+
+
 def test_corrupt_claim_counts_as_stale_one_winner(hc, tmp_path):
     d = tmp_path / "fleet" / "safe-2"
     d.mkdir(parents=True, exist_ok=True)

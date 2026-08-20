@@ -75,9 +75,6 @@ LEDGER = STATE / "core-decisions.jsonl"
 # after the safe row / 0.5s before the bold row -- forfeited a full 3-min cadence slot).
 TICK_MARKER = STATE / "core-decisions-tick.json"
 import os  # noqa: E402
-import threading  # noqa: E402 -- _acquire_claim's stale-takeover token is per-THREAD as well
-                  # as per-process: the guard test storms 8 threads in ONE process, and a
-                  # pid-only token would collide there and mask the arbitration it tests.
 import logging  # noqa: E402
 
 # Module logger — was referenced (logger.warning at the dispatch except, logger.critical
@@ -2188,23 +2185,47 @@ def _acquire_claim(arm_id: str, symbol: str, now: datetime,
     time (deliberately stricter than the old per-symbol scope -- two different-symbol
     entries 21ms apart on one arm is the same accident in a disguise).
 
-    STALE TAKEOVER IS ARBITRATED BY RENAME, NOT BY REMOVE (2026-08-14, second fix).
-    The first version of this function claimed in its own docstring that "if two processes
-    both remove-and-retry, O_EXCL still picks one winner". That was FALSE, and
-    test_stale_claim_is_reclaimable_by_exactly_one caught it -- but only under load (it
-    passes in isolation and failed inside a 1,000-test run, which is precisely when a race
-    shows up and precisely the reading that must not be dismissed as flakiness).
+    STALE TAKEOVER USES AN OS-LEVEL LOCK, NEVER A REMOVE/RENAME DANCE (2026-08-19, third
+    fix -- replaces two prior rename-based attempts, both of which left `path` observably
+    ABSENT from the directory for some nonzero window during a takeover).
 
-    The hole: `os.remove()` was unconditional after the staleness read, so a slow contender
-    could delete the FRESH claim a fast contender had just won, then create its own. Two
-    winners, i.e. the exact double entry this guard exists to prevent, on the exact path
-    (wake-from-sleep, stale claim on disk) where the 2026-08-14 incident happened.
+    Second-fix history (both superseded, kept for the incident trail): first the takeover
+    unconditionally REMOVED the stale file before recreating it, so a slow contender could
+    delete the FRESH claim a fast contender had just won. Fixed to a kernel-arbitrated
+    rename-away-then-recreate -- but that still judged staleness from a READ taken BEFORE
+    the takeover rename (a TOCTOU: a slow contender could act on a stale verdict and steal a
+    fresh claim a fast contender had *just* installed,
+    test_toctou_steals_a_legitimately_fresh_claim_from_under_a_new_owner), AND separately,
+    every rename-away made `path` briefly nonexistent, which let a completely unrelated
+    contender's own top-of-function O_CREAT|O_EXCL fast path slip in during that gap
+    (measured empirically: widening the gap while fixing the TOCTOU took the storm-test
+    failure rate from 1/40 to 39/40 -- confirmed live via traced os.rename calls showing an
+    extra winner whose return value never touched os.rename at all, i.e. it won purely via
+    the untouched fast path while `path` sat empty).
 
-    Now: each contender tries to rename the stale file to a private name. The kernel lets
-    exactly ONE rename succeed -- every other contender finds the source already gone and
-    REFUSES. Only the rename winner recreates. If someone else has created a fresh claim in
-    the meantime, the winner's O_EXCL create fails and it refuses too: at most one True,
-    never two, and the failure direction is "nobody enters this tick", which is the cheap one.
+    Both holes share one root cause: TWO DIFFERENT PRIMITIVES (O_CREAT|O_EXCL create, and a
+    rename-based takeover) were racing on the SAME namespace slot, and neither could see the
+    other coming. No amount of narrowing that gap fixes it -- it only makes the residual race
+    rarer, which is exactly the "0/300 at ship time, 1/40 later" trajectory this file already
+    lived through once. The only shape that CLOSES it is: `path` must never disappear from
+    the directory at all once it exists, so there is no window a second primitive can ever
+    observe as empty.
+
+    Now: the FIRST-ever claim for an arm still uses the fast O_CREAT|O_EXCL path (`path`
+    genuinely does not exist yet, cheap and uncontested in the overwhelming common case).
+    Every SUBSEQUENT contender -- fresh-claim-refuse or stale-claim-takeover alike -- opens
+    the EXISTING file and takes a real OS-level exclusive byte-range lock on it
+    (`msvcrt.locking`, Windows; this file is Windows-only per the rest of the codebase) BEFORE
+    reading or judging anything. The lock, not a rename, is the sole arbiter: at most one
+    contender ever holds it at a time, `path` is never removed (only overwritten IN PLACE
+    while the lock is held), and Windows releases the lock automatically if the holding
+    process dies mid-critical-section -- no separate stale-lock-recovery logic needed, unlike
+    a file-based lock which would need its own TTL/takeover story (and therefore its own
+    TOCTOU to get wrong).
+
+    Contract, unchanged: fresh (age <= ttl) -> refuse, claim untouched. Stale/corrupt/
+    unreadable -> overwrite in place with our claim, return True. Lock contention (someone
+    else mid-takeover right now) -> refuse immediately, never block or guess.
 
     Unexpected OSErrors (permissions, disk) keep the module's documented fail-open
     contract and proceed -- the broker-side checked queries remain the fail-CLOSED
@@ -2226,27 +2247,50 @@ def _acquire_claim(arm_id: str, symbol: str, now: datetime,
     try:
         if _try_excl():
             return True
-        # File exists. Fresh claim (any symbol) -> refuse; stale/corrupt -> remove + retry once.
+        # File already exists. Open it (never removing/renaming it -- `path` must stay
+        # present in the directory at every instant so no OTHER contender's independent
+        # O_CREAT|O_EXCL fast path can ever observe it as absent) and take a real OS-level
+        # exclusive lock before touching its content. This is the sole arbiter now; a rename
+        # is never used again past this point.
+        import msvcrt  # noqa: PLC0415 -- Windows-only primitive, imported where it is used
         try:
-            rec = json.loads(path.read_text(encoding="utf-8"))
-            claimed_at = datetime.fromisoformat(str(rec["claimed_at_et"]))
-            if claimed_at.tzinfo is None:
-                claimed_at = claimed_at.replace(tzinfo=now.tzinfo)
-            if (now - claimed_at).total_seconds() <= ttl_sec:
-                return False
-        except (OSError, ValueError, KeyError):
-            pass                 # unreadable/corrupt counts as stale
-        # Kernel-arbitrated takeover: exactly one contender can rename the stale file away.
-        taking = path.with_name(f"{path.name}.taking.{os.getpid()}.{threading.get_ident()}")
+            fd = os.open(str(path), os.O_RDWR)
+        except FileNotFoundError:
+            # vanished between our _try_excl() and this open (nothing in this codebase
+            # removes the claim file, but stay defensive) -- one more fast-path attempt,
+            # now that it is genuinely gone.
+            return bool(_try_excl())
         try:
-            os.rename(str(path), str(taking))
-        except OSError:
-            return False         # lost the takeover (or it vanished) -> refuse, never guess
-        try:
-            os.remove(str(taking))
-        except OSError:
-            pass                 # our private copy; a leftover cannot affect arbitration
-        return bool(_try_excl())  # None = someone created a fresh claim meanwhile -> False
+            try:
+                msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+            except OSError:
+                return False      # someone else holds the lock right now -- refuse, never guess/block
+            try:
+                os.lseek(fd, 0, os.SEEK_SET)
+                data = os.read(fd, 1 << 20)
+                try:
+                    rec = json.loads(data.decode("utf-8"))
+                    claimed_at = datetime.fromisoformat(str(rec["claimed_at_et"]))
+                    if claimed_at.tzinfo is None:
+                        claimed_at = claimed_at.replace(tzinfo=now.tzinfo)
+                    is_stale = (now - claimed_at).total_seconds() > ttl_sec
+                except (ValueError, KeyError, UnicodeDecodeError, json.JSONDecodeError):
+                    is_stale = True   # unreadable/corrupt counts as stale
+                if not is_stale:
+                    return False      # fresh, someone else's legitimate claim -- refuse, untouched
+                os.lseek(fd, 0, os.SEEK_SET)
+                os.write(fd, payload)
+                os.ftruncate(fd, len(payload))
+                return True
+            finally:
+                try:
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+                except OSError:
+                    pass          # lock never acquired, or process teardown raced us -- the OS
+                                   # releases it on close/exit regardless
+        finally:
+            os.close(fd)
     except OSError:
         return True              # documented fail-open; broker-side checks stay fail-CLOSED
 

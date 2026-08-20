@@ -65,13 +65,21 @@ def _guard(test_rel: str) -> tuple[bool, str]:
 # --------------------------------------------------------------------------- the roster
 # (id, chain link it closes, live check -> (ok, detail), guard test path or None)
 def _chk_claim() -> tuple[bool, str]:
+    """2026-08-19 (third fix): the takeover mechanism moved from a rename-based dance (which
+    left `path` briefly absent -- two separate races found and closed on this date, see
+    heartbeat_core.py's _acquire_claim docstring) to an OS-level exclusive lock that never
+    removes `path` from the directory at all. This is the MECHANISM-PRESENCE half of the
+    check only; main() already runs this row's actual guard test (test_atomic_entry_claim_
+    2026_08_14.py, which pins the property that matters -- at most one winner under storm
+    contention) separately via the roster's `guard` column, so this function does not
+    duplicate that pytest run."""
     s = _read("setup/scripts/heartbeat_core.py")
     excl = "os.O_CREAT | os.O_EXCL" in s
-    rename = "os.rename(str(path), str(taking))" in s
+    lock = "msvcrt.locking" in s and "LK_NBLCK" in s
     gated = 'plan["status"] = "SKIP_DUPLICATE_CLAIM"' in s
-    if excl and rename and gated:
-        return True, "O_EXCL create + rename-arbitrated stale takeover + placement gated"
-    missing = [n for n, v in (("O_EXCL", excl), ("rename-takeover", rename),
+    if excl and lock and gated:
+        return True, "O_EXCL create + OS-level lock-arbitrated stale takeover + placement gated"
+    missing = [n for n, v in (("O_EXCL", excl), ("OS-level lock takeover", lock),
                               ("placement gate", gated)) if not v]
     return False, "MISSING: " + ", ".join(missing)
 
