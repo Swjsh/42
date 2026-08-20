@@ -183,6 +183,34 @@ class TestWriterNeverRaises:
                           leg_role="core", intent="ENTRY", reason="r", source="t", nbbo=nbbo)
         assert nbbo == before
 
+    def test_pytest_never_writes_the_production_ledger(self, oil, monkeypatch):
+        """THE SEAM. This module is called from inside the PRODUCTION submit functions, and
+        dozens of pre-existing tests drive those functions with a stubbed broker. On the first
+        full suite run that put 53 fabricated rows (arms "safe-3-test2",
+        "pytest-killswitch-exits") into the real order-intents.jsonl. Nothing reads it on the
+        decision path so no trade was affected -- but this ledger IS the forensic record, and
+        a forensic record with invented rows is worse than none.
+
+        RED-PROOF: with the `PYTEST_CURRENT_TEST` branch removed from _intents_path, this
+        asserted-equal check fails immediately -- the resolved path comes back as the real
+        automation/state/order-intents.jsonl.
+        """
+        monkeypatch.delenv(oil._PATH_ENV, raising=False)
+        resolved = oil._intents_path()
+        assert resolved != oil.INTENTS_PATH, (
+            f"under pytest the writer resolved to the PRODUCTION ledger {resolved} -- "
+            "a test run must never be able to fabricate rows in the real book")
+        assert "automation" not in str(resolved).replace("\\", "/"), (
+            "test output must not land anywhere under automation/state")
+
+    def test_explicit_path_and_env_still_beat_the_test_divert(self, oil, tmp_path, monkeypatch):
+        """The seam must not make the writer untestable: a caller naming its own file wins."""
+        explicit = tmp_path / "explicit.jsonl"
+        assert oil._intents_path(explicit) == explicit
+        env_path = tmp_path / "env.jsonl"
+        monkeypatch.setenv(oil._PATH_ENV, str(env_path))
+        assert oil._intents_path() == env_path
+
     def test_append_only_never_truncates(self, oil, ledger):
         for i in range(5):
             oil.record_submit(path=ledger, arm="safe-2", symbol=f"S{i}", side="buy", qty=1,

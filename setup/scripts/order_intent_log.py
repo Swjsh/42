@@ -92,11 +92,36 @@ REQUIRED_FIELDS = ("arm", "symbol", "side", "qty", "leg_role", "intent", "reason
 # --------------------------------------------------------------------------------------
 
 def _intents_path(explicit: Any = None) -> Path:
+    """Where this row goes. Precedence: explicit path > env override > TEST DIVERT > prod.
+
+    THE TEST SEAM (added 2026-08-19, after it bit immediately). This module is called from
+    inside heartbeat_core._execute / fleet_live._place_live / exit_actuator.manage_tick /
+    fleet_broker.close_all_spy_options -- the PRODUCTION functions. Dozens of pre-existing
+    tests drive exactly those functions with a stubbed broker, so on the first full suite run
+    53 rows of test garbage (arms "safe-3-test2", "pytest-killswitch-exits", "test-arm")
+    landed in the real automation/state/order-intents.jsonl. Nothing reads this file on the
+    decision path, so no trade was affected -- but this ledger IS the forensic record the
+    whole build exists to create, and a forensic record with fabricated rows in it is worse
+    than no record at all.
+
+    Rather than edit dozens of test files (and depend on every FUTURE test remembering), the
+    writer itself refuses to touch production state while pytest is in the process. Same
+    class of defect as fleet_executor's hard-coded _BX_STATE book-equity path; fixed here at
+    the seam so it cannot recur.
+
+    An explicit path= or the env override still wins, so a test that WANTS to assert a real
+    write (test_order_intent_log_2026_08_19.py does) simply names its own file.
+    """
     if explicit:
         return Path(str(explicit))
     env = os.environ.get(_PATH_ENV)
     if env:
         return Path(env)
+    if os.environ.get("PYTEST_CURRENT_TEST") or "pytest" in sys.modules:
+        # Divert to the OS temp dir, not a sibling file: test output must not accumulate in
+        # automation/state at all, where a later reader could mistake it for the real book.
+        import tempfile  # noqa: PLC0415
+        return Path(tempfile.gettempdir()) / "gamma-order-intents-TEST.jsonl"
     return INTENTS_PATH
 
 
