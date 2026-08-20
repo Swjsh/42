@@ -1,0 +1,847 @@
+{
+ "generated_at_et": "2026-08-19T22:48:39",
+ "primary_model": "pnl_market_range",
+ "n_bootstrap": 2000,
+ "cluster_unit": "trading day",
+ "production_worst_arm_day": [
+  "safe-3",
+  "2026-08-07",
+  -1067.33
+ ],
+ "production_rule5_breach_arm_days": 1,
+ "cells": [
+  {
+   "cell_id": "f0.5_t1.0_r99.0_x0.4",
+   "total_delta_net": 13214.42,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    11439.82,
+    0.8657
+   ],
+   "best_day": [
+    "2026-08-04",
+    11439.82
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -816.8
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2976.05,
+    0.2252
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    1774.6
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 6,
+   "loao_min": [
+    "risky-3",
+    9339.44
+   ],
+   "boot_p_positive": 0.888,
+   "boot_ci95": [
+    -1874.93,
+    39480.32
+   ],
+   "split_first_half": 149.44,
+   "split_second_half": 13064.98,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.333_t1.0_r99.0_x0.4",
+   "total_delta_net": 13063.81,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    11170.11,
+    0.855
+   ],
+   "best_day": [
+    "2026-08-04",
+    11170.11
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -511.04
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    4374.47,
+    0.3349
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    1893.7
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 6,
+   "loao_min": [
+    "risky-3",
+    7422.99
+   ],
+   "boot_p_positive": 0.889,
+   "boot_ci95": [
+    -1587.3,
+    38615.02
+   ],
+   "split_first_half": 129.35,
+   "split_second_half": 12934.46,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.333_t0.75_r99.0_x0.4",
+   "total_delta_net": 12385.39,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    11029.92,
+    0.8906
+   ],
+   "best_day": [
+    "2026-08-04",
+    11029.92
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -546.61
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    4316.29,
+    0.3485
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    1355.47
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 8,
+   "loao_min": [
+    "risky-3",
+    6984.12
+   ],
+   "boot_p_positive": 0.8745,
+   "boot_ci95": [
+    -2189.95,
+    37884.6
+   ],
+   "split_first_half": 18.33,
+   "split_second_half": 12367.06,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.333_t0.3_r99.0_x0.4",
+   "total_delta_net": 12093.4,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    10652.47,
+    0.8808
+   ],
+   "best_day": [
+    "2026-08-04",
+    10652.47
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -602.95
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    4191.96,
+    0.3466
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    1440.93
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 13,
+   "days_negative": 12,
+   "loao_min": [
+    "risky-3",
+    6686.38
+   ],
+   "boot_p_positive": 0.885,
+   "boot_ci95": [
+    -2588.23,
+    37223.66
+   ],
+   "split_first_half": 90.09,
+   "split_second_half": 12003.31,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "risky-3",
+    "2026-08-05",
+    -807.75
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.5_t0.75_r99.0_x0.4",
+   "total_delta_net": 11931.75,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    11090.47,
+    0.9295
+   ],
+   "best_day": [
+    "2026-08-04",
+    11090.47
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -925.03
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2859.69,
+    0.2397
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    841.28
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 8,
+   "loao_min": [
+    "risky-3",
+    8367.32
+   ],
+   "boot_p_positive": 0.8535,
+   "boot_ci95": [
+    -2913.88,
+    37487.78
+   ],
+   "split_first_half": 46.08,
+   "split_second_half": 11885.67,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.333_t0.5_r99.0_x0.4",
+   "total_delta_net": 11041.76,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    10848.03,
+    0.9825
+   ],
+   "best_day": [
+    "2026-08-04",
+    10848.03
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -602.95
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    4245.52,
+    0.3845
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    193.73
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 5,
+   "days_negative": 12,
+   "loao_min": [
+    "risky-3",
+    5924.62
+   ],
+   "boot_p_positive": 0.83,
+   "boot_ci95": [
+    -3512.21,
+    36288.4
+   ],
+   "split_first_half": -59.14,
+   "split_second_half": 11100.9,
+   "split_sign_stable": false,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.333_t1.0_r99.0_x0.25",
+   "total_delta_net": 10760.25,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    7553.72,
+    0.702
+   ],
+   "best_day": [
+    "2026-08-04",
+    7553.72
+   ],
+   "worst_day": [
+    "2026-08-13",
+    -171.21
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    4374.47,
+    0.4065
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    3206.53
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 6,
+   "loao_min": [
+    "risky-3",
+    4704.2
+   ],
+   "boot_p_positive": 0.965,
+   "boot_ci95": [
+    -174.39,
+    28957.27
+   ],
+   "split_first_half": 162.39,
+   "split_second_half": 10597.86,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.5_t0.3_r99.0_x0.4",
+   "total_delta_net": 10749.69,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    10251.7,
+    0.9537
+   ],
+   "best_day": [
+    "2026-08-04",
+    10251.7
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -1065.88
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2611.02,
+    0.2429
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    497.99
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 14,
+   "days_negative": 12,
+   "loao_min": [
+    "risky-3",
+    7299.06
+   ],
+   "boot_p_positive": 0.8405,
+   "boot_ci95": [
+    -3849.15,
+    35222.11
+   ],
+   "split_first_half": -7.83,
+   "split_second_half": 10757.52,
+   "split_sign_stable": false,
+   "worst_arm_day_abs": [
+    "risky-3",
+    "2026-08-05",
+    -777.58
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.5_t0.5_r99.0_x0.4",
+   "total_delta_net": 10525.12,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    10790.17,
+    1.0252
+   ],
+   "best_day": [
+    "2026-08-04",
+    10790.17
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -1065.88
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2718.14,
+    0.2583
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    -265.05
+   ],
+   "lodo_all_positive": false,
+   "days_positive": 6,
+   "days_negative": 11,
+   "loao_min": [
+    "risky-3",
+    7138.6
+   ],
+   "boot_p_positive": 0.8075,
+   "boot_ci95": [
+    -4249.42,
+    35840.85
+   ],
+   "split_first_half": -53.39,
+   "split_second_half": 10578.51,
+   "split_sign_stable": false,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.333_t0.3_r99.0_x0.25",
+   "total_delta_net": 10379.45,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    7036.08,
+    0.6779
+   ],
+   "best_day": [
+    "2026-08-04",
+    7036.08
+   ],
+   "worst_day": [
+    "2026-08-05",
+    -468.28
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    4191.96,
+    0.4039
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    3343.37
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 12,
+   "days_negative": 13,
+   "loao_min": [
+    "risky-3",
+    4684.53
+   ],
+   "boot_p_positive": 0.967,
+   "boot_ci95": [
+    -355.08,
+    27687.22
+   ],
+   "split_first_half": -69.85,
+   "split_second_half": 10449.3,
+   "split_sign_stable": false,
+   "worst_arm_day_abs": [
+    "risky-3",
+    "2026-08-05",
+    -935.31
+   ],
+   "rule5_breach_arm_days": 0
+  },
+  {
+   "cell_id": "f0.0_t0.3_r1.0_x0.1",
+   "total_delta_net": 10236.63,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    9626.96,
+    0.9404
+   ],
+   "best_day": [
+    "2026-08-04",
+    9626.96
+   ],
+   "worst_day": [
+    "2026-08-11",
+    -255.43
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    5772.89,
+    0.5639
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    609.67
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 6,
+   "loao_min": [
+    "risky-3",
+    4048.49
+   ],
+   "boot_p_positive": 0.887,
+   "boot_ci95": [
+    -647.6,
+    30676.74
+   ],
+   "split_first_half": 131.36,
+   "split_second_half": 10105.27,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.667_t1.0_r99.0_x0.15",
+   "total_delta_net": 4071.54,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    3855.62,
+    0.947
+   ],
+   "best_day": [
+    "2026-08-04",
+    3855.62
+   ],
+   "worst_day": [
+    "2026-06-26",
+    0.0
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2276.84,
+    0.5592
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    215.92
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 3,
+   "days_negative": 0,
+   "loao_min": [
+    "risky-3",
+    1794.7
+   ],
+   "boot_p_positive": 0.9595,
+   "boot_ci95": [
+    0.0,
+    11918.78
+   ],
+   "split_first_half": 136.0,
+   "split_second_half": 3935.54,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.667_t1.5_r99.0_x0.15",
+   "total_delta_net": 5445.99,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    4894.57,
+    0.8987
+   ],
+   "best_day": [
+    "2026-08-04",
+    4894.57
+   ],
+   "worst_day": [
+    "2026-08-13",
+    -205.94
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2639.43,
+    0.4847
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    551.42
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 6,
+   "days_negative": 4,
+   "loao_min": [
+    "risky-3",
+    2439.39
+   ],
+   "boot_p_positive": 0.947,
+   "boot_ci95": [
+    -195.25,
+    15782.91
+   ],
+   "split_first_half": 228.07,
+   "split_second_half": 5217.92,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.667_t0.5_r99.0_x0.15",
+   "total_delta_net": 2550.06,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    2842.71,
+    1.1148
+   ],
+   "best_day": [
+    "2026-08-04",
+    2842.71
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -406.23
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    1954.44,
+    0.7664
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    -292.65
+   ],
+   "lodo_all_positive": false,
+   "days_positive": 9,
+   "days_negative": 8,
+   "loao_min": [
+    "risky-3",
+    683.01
+   ],
+   "boot_p_positive": 0.7625,
+   "boot_ci95": [
+    -1391.27,
+    9025.33
+   ],
+   "split_first_half": 127.37,
+   "split_second_half": 2422.69,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f1.0_t1.0_r1.0_x0.1",
+   "total_delta_net": 449.64,
+   "n_days": 35,
+   "top_day": [
+    "2026-07-29",
+    -420.63,
+    -0.9355
+   ],
+   "best_day": [
+    "2026-08-04",
+    293.49
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -420.63
+   ],
+   "top_trade": [
+    "2026-07-29",
+    "risky-1",
+    -214.58,
+    -0.4772
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    156.15
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 9,
+   "days_negative": 1,
+   "loao_min": [
+    "safe-2",
+    210.22
+   ],
+   "boot_p_positive": 0.7945,
+   "boot_ci95": [
+    -827.46,
+    1570.39
+   ],
+   "split_first_half": 194.6,
+   "split_second_half": 255.04,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.667_t1.0_r99.0_x0.4",
+   "total_delta_net": 8560.1,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    7396.08,
+    0.864
+   ],
+   "best_day": [
+    "2026-08-04",
+    7396.08
+   ],
+   "worst_day": [
+    "2026-07-29",
+    -663.43
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    2276.84,
+    0.266
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    1164.02
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 6,
+   "days_negative": 4,
+   "loao_min": [
+    "risky-3",
+    5765.38
+   ],
+   "boot_p_positive": 0.8905,
+   "boot_ci95": [
+    -1250.11,
+    25666.17
+   ],
+   "split_first_half": 152.35,
+   "split_second_half": 8407.75,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  },
+  {
+   "cell_id": "f0.667_t1.0_r2.5_x0.15",
+   "total_delta_net": 1843.96,
+   "n_days": 35,
+   "top_day": [
+    "2026-08-04",
+    1401.94,
+    0.7603
+   ],
+   "best_day": [
+    "2026-08-04",
+    1401.94
+   ],
+   "worst_day": [
+    "2026-06-26",
+    0.0
+   ],
+   "top_trade": [
+    "2026-08-04",
+    "risky-3",
+    795.5,
+    0.4314
+   ],
+   "lodo_min": [
+    "2026-08-04",
+    442.02
+   ],
+   "lodo_all_positive": true,
+   "days_positive": 4,
+   "days_negative": 0,
+   "loao_min": [
+    "risky-3",
+    958.02
+   ],
+   "boot_p_positive": 0.987,
+   "boot_ci95": [
+    79.92,
+    4873.94
+   ],
+   "split_first_half": 136.0,
+   "split_second_half": 1707.96,
+   "split_sign_stable": true,
+   "worst_arm_day_abs": [
+    "safe-3",
+    "2026-08-07",
+    -1067.33
+   ],
+   "rule5_breach_arm_days": 1
+  }
+ ]
+}
