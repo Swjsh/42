@@ -1,3 +1,17 @@
+## [2026-08-20 ~01:15 ET] conductor: OK — MES mirror lane ARMED for real (paper) execution: `Gamma_FuturesMirror --armed`, 91 guard tests green
+
+**Picked via STAGE 1a (`desk_allocator.py`): Futures desk flagged DECISION ROTTING (+100 pts, top of all 4 desks) — the MES mirror-shadow lane cleared its arming bar 2026-08-19 (59/20 closed round trips, +$1,268.66, beats an ES=F buy-and-hold null; `automation/state/futures/shadow-progress.json`) and sat un-acted-on.** Budget gate PROCEED ($0/$30 pre-fire). Engine health GREEN. This outranked the stale `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping and every queue/inbox item — an armed-bar desk decision is the allocator's explicit #1 priority under an Engine-RED.
+
+**Real architectural hazard found and resolved before shipping, not after:** `Gamma_FuturesBrokerLane` (the `should_take_v3` signal) already places REAL sandbox orders on the SAME account (`5WW73759`) and SAME instrument (`MES`) — confirmed live via `trader-broker/open-position.json` (2 contracts held 2026-08-19). A naive "just flip the switch" would have created two independent execution lanes with no coordination on a shared account. Resolved WITHOUT a new coordination primitive: `broker.is_flat(instrument)` is already account-truth (not lane-local), so both lanes gating new entries on it naturally refuse to stack on each other's position — verified by test, not assumed. Residual same-5-minute-window TOCTOU race disclosed, not solved (bounded by paper money + per-trade dollar caps); follow-up filed (`FUTURES-MIRROR-CROSS-LANE-CLAIM`, queue.md) to reuse the 2026-08-19 SPY-engine atomic-entry-claim lock pattern if ever needed.
+
+**Shipped** (`setup/scripts/futures_mirror_shadow.py`): `_broker_execute_entry()` — strictly additive, gated by `MIRROR_ARMED` (env, read fresh at call time, default OFF). Reuses, never reimplements: `compute_entry_levels`'s already-computed entry/stop/tp1, `futures_risk_rails.FuturesRiskRails` (same dollar/points rails the broker lane uses, `per_trade_risk_cap=$150` sized for the frozen spec's 2-lot ATR stop), and `futures_trader_core.make_broker("tastytrade")`/credential-loading (the SAME `place_bracket()` proven end-to-end live 2026-08-09: dry run, resting order, filled marketable order). Frozen spec qty (2 in/1 off at TP1) is NEVER resized by the rails — a rail failure rejects the trade rather than deploying an unvalidated variant. Entry is a marketable LIMIT (ES proxy quote ± 2.0pt buffer), not price-perfect. Journals to a NEW disjoint ledger `mirror-broker-orders.jsonl` (fills=BROKER) — `mirror-would-be.jsonl` (fills=SIMULATED, the arming-bar evidence) is completely untouched by arming, same convention as the existing trader/ vs trader-broker/ split.
+
+**Verified, quoted:** 12 new guard tests (`TestArmedExecution`) + all 69 pre-existing tests green (81/81 total, `test_futures_mirror_shadow.py`), covering: default-off zero-behavior-change, env read fresh not cached, buffered-limit sign correctness (long buffers up/short buffers down), broker-not-connected fail-open, per-trade-risk-cap rejection (never resized), internal-exception fail-open, cross-lane no-stack refusal, and the full `run_once()` integration proving shadow+broker ledgers are written independently. Full futures suite re-run for regression: 263/263 passed. Live production smoke test (unarmed `--once` against real state): exit 0, arming-bar evidence untouched (still 59 round trips). Re-registered `Gamma_FuturesMirror` with `--armed` (`install-futures-mirror.ps1`) — `NextRun ET: 2026-08-20 09:30` (does not fire again until RTH, giving a review window). Confirmed `.env.tastytrade` present for credential loading.
+
+**Self-caught cleanup:** an ad-hoc `python -c` debug probe during investigation (unmonkeypatched `STATE_DIR`) wrote one throwaway skip-row into the REAL `automation/state/futures/mirror-broker-orders.jsonl` before the task existed — caught before reporting (OP-33), deleted, file confirmed absent again. No real order was placed (the debug row was itself a rail-rejection skip, `place_bracket` was never called).
+
+**Rail 4 (PAPER trading-path edit — arming a NEW paper execution leg, not live money):** guard tests are the regression guard (a) — 12 new + 81 total green; revert is `git revert` on this commit plus re-running `install-futures-mirror.ps1` after removing ` --armed` from `$wscriptArgs` (b); this entry + Discord ping is the REVOKE report (c). Zero live-money surfaces touched — `TT_SANDBOX=true`, same double-gate (OP-0 #1 + a new venue) as the existing broker lane. Lesson filed: `_lesson-inbox/shared-broker-account-cross-lane-position-attribution-2026-08-20.md`. Follow-up: `FUTURES-MIRROR-CROSS-LANE-CLAIM` (queue.md, LOW). `automation/state/worker-registry.json` futures desk entry updated to reflect ARMED status.
+
 ## [2026-08-19 ~23:5x ET] OK -- THE COMMAND CENTER shipped: one HTML page, the six repeated questions pre-answered
 
 **J directive:** "review everything regarding an app / home base / command center, find the Gamma Journal calendar, consolidate everything into one. I'd prefer a localhost HTML page -- more editable and we can make it look how I want it."
@@ -351,180 +365,3 @@ target**; the −$236 drag was one experiment that tonight **executed its own fr
 
 Checked self-audit gaps (priority-3, above this pick) first — the only untriaged batch (17:33 ET) was already fully closed by an earlier fire tonight (regime_context fix), confirmed via the file's own DONE marker. No higher-priority item was skipped.
 
-## [2026-08-17 18:47 ET] conductor: outcome metric — `trend: regressing` (net_improvement 22/20-fire window, cost/drained $2.19). Next fire should prefer a loop-closing item over a new artifact. Also committed the untracked STATUS-archive-2026-08.md roll-off (9,017 lines, `status_retention.py`, never landed before — commit `8e5c5603`).
-
-## [2026-08-17 18:44 ET] conductor: OK — WS6 RED fixed (regime_context self-heal), commits `7bd9472c` + `a242a66b`
-
-**Picked from STAGE 1 priority-2 (Engine RED in today's own monday_verify table) + priority-3
-(self-audit gap, same finding independently flagged 2026-08-16).** Root cause: `regime_stamp.py`
-(Gamma_RegimeStamp, 08:22/08:40 ET) DID correctly write a same-day `regime-stamp.json` today —
-Task Scheduler's own missed-trigger catch-up fired it ~09:35 ET after the box slept through both
-fixed triggers (the OPEN INCIDENT documented lower in this file) — but `today-bias.json#
-regime_context` came back completely **absent**, because the incident-repair run of
-`premarket_deterministic_fallback.py` (also ~09:35 ET, to re-date `today-bias.json` after the
-sleep) writes that file WHOLESALE and never carried `regime_context` forward. The existing 08:40
-ET repatch trigger only ever covered Premarket's (08:30 ET) transcription drift — it doesn't
-cover an ad-hoc fallback run at an arbitrary later time, which is exactly what happened.
-
-**Fix:** `run()` now calls a new `_reattach_regime_context()` immediately after every write,
-self-healing `regime_context` from today's `regime-stamp.json` whenever one exists, regardless
-of invocation order/timing. Fail-open, $0, idempotent. 6 new guard tests
-(`test_premarket_fallback_regime_reattach_2026_08_17.py`), RED-proofed via `git stash` (fails on
-old code with `AttributeError`, proving the tests exercise the fix). Full premarket-fallback
-suite + curated safety gate (59/59) green. Live-healed today's actual `today-bias.json`
-(gitignored state) — `regime_context.stamp_date` now reads `2026-08-17`.
-
-Also closed the self-audit loop on both untriaged batches (2026-08-16 "Regime-stamp & bias
-modules" = the same bug; 2026-08-17 "silent config-code drift" = already shipped same day via
-`dead_knob_audit.py` commit `c4b7dac8`, "pre-session health gate missing" = misread, the gate
-already exists and worked today per the OPEN INCIDENT's own "Measured damage: NONE").
-
-**Self-inflicted near-miss this fire, self-corrected:** a failed `Edit` (unicode/CRLF mismatch on
-the self-audit file) led to a reflexive `git checkout --` that wiped ~17 lines of never-committed
-self-audit swarm output. Recovered byte-for-byte from this session's own transcript (lucky — the
-content had been read verbatim two tool-calls earlier) and re-verified via `git diff --stat`
-before committing. Filed to `_lesson-inbox` (`git-checkout-dash-dash-destroys-uncommitted-
-research-2026-08-17.md`) — the durable fix is "check `git status`/`git diff` before ANY
-`checkout --`/`reset`/`clean`," not yet graduated to a hard guard.
-
-Trading-path scope: NONE (this touches `automation/state/today-bias.json` generation, a
-descriptive-only, non-load-bearing field — `regime_context` is explicitly documented "never a
-live entry input"). Revert: `git revert a242a66b 7bd9472c` (two independent commits, either
-revertible alone).
-
----
-
-## [2026-08-17 EOD] 🟢 +$124 REALIZED. Full review. TP1 is hardcoded, the config lies, and the ribbon knob is a rounding error next to VIX.
-
-Day closed flat, all positions out. Commits: `4dcb4f01`, `f0e5cd51`, `9c2b47a3`.
-
-### The book
-
-| entry | arm | setup | exit | P&L |
-|---|---|---|---|---|
-| 09:53 | risky-3 | vwap_reclaim_failed_break | premium_stop −8% | −$64 |
-| 09:56 | risky-3 | vwap_reclaim_failed_break | premium_stop −8% | −$72 |
-| 10:01 | safe-2 | vwap_reclaim_failed_break | premium_stop −8% | −$36 |
-| 10:23 | risky-3 | vwap_reclaim_failed_break | premium_stop −8% | −$64 |
-| **13:06** | **bold-2** | **ribbon_ride** | **TP1 +100% → trail** | **+$360** |
-
-**+$124 net.** Four −8% scratches on one strategy, one clean winner on another. Both exit
-shapes did exactly what they are designed to do. **15 ENTER_BEAR verdicts** — the engine hunted
-J's direction all session and was selective about which it took.
-
-**Winner management, verified:** profit-lock armed pre-TP1 at 13:22 (stop 0.936) → ratcheted
-1.152 → TP1 +100% sold 3 @ 1.50 → stop to breakeven → runner trailed 1.3175 → 1.36 → fired at
-13:33 @ 1.35. Peak was 1.60, so **25c (15.6%) give-back — the designed 15%-off-HWM trail**, and
-it exited **7 minutes before the 13:40 bounce** that would have killed the puts.
-
-### 🚨 TP1 is hardcoded, and the config disagrees with the engine
-
-J asked: static or dynamic? **Static — and worse, `params.json` advertises a different number.**
-
-`aggressive/params.json` says `tp1_premium_pct = 0.75`. The engine fired at **+100%**. Proven
-arithmetically: entry 0.72, so +75%=1.26 and +100%=1.44. At 13:24 `best` was **1.40** — clears
-1.26, would have fired a +75% TP1, **did not fire**. It fired at 13:26 when best hit 1.55.
-The live value is the literal `tp1_premium_pct=1.0` at **`strategies.py:131`**.
-
-The hardcode is **defensible** — it is the SS-B validated cell, ported whole per C29. What is
-not defensible is the config lying to whoever tunes it next. **And it is not one key:**
-
-| shadowed knob | both params files |
-|---|---|
-| `tp1_premium_pct` | overridden by `strategies.py` ExitShape |
-| `tp1_qty_fraction` | overridden |
-| `premium_stop_pct` | overridden |
-
-**Anyone tuning stop, target or size from params.json is tuning nothing.** Plus 58
-UNREFERENCED keys — `delta_min_abs` and `enable_news_no_trade_windows` appear in **zero**
-non-test `.py`; `bid_ask_spread_max_cents` is called a dead knob in heartbeat_core's own
-comment at `:2361`. **Several were already known dead and left in the file.** Now audited
-nightly (`dead_knob_audit.py`, folded into Gamma_WinnerAutopsy, 5 guards).
-
-### 🎯 The ribbon matrix — J's ask, and it inverts the obvious answer
-
-Filter 6 was the **sole blocker** on four rejections J called correctly (12:14/12:16/12:26/12:31,
-spread 29.3→21.9c), then the one that cleared 30c at 13:06 paid +$360. Historically filter 6 is
-the sole bear blocker **154 times across 7 days**.
-
-One-variable sweep, 15c→30c, 18 months, real OPRA fills:
-
-| VIX regime | n | best thr | exp at best | across ALL thresholds |
-|---|---:|---:|---:|---|
-| calm (<15) | 31 | 20c | −$6.70 | −13.8 → −6.7 **all negative** |
-| mid (15–20) | 256 | 18c | −$5.23 | −12.1 → −5.2 **all negative** |
-| **elevated (≥20)** | 35 | 26c | **+$83.16** | +65.8 → +83.2 **all positive** |
-
-**In 89% of trades the strategy loses at EVERY threshold. All profit is the 11% at VIX ≥ 20.**
-Regime effect ~$90/trade; threshold effect inside a regime ~$5. **We were arguing about a
-rounding error.**
-
-Production 30c IS the worst aggregate cell (+$41 total vs +$281..+$946) — but that column
-zigzags and is noise. The one clean signal is edge_capture: **byte-identical 709.07 from 18c
-through 28c, then −621 at 30c.** A single-boundary cliff. Production sits at **−40% of max edge
-capture** where OP-16 rejects anything below +50%.
-
-**Today ran at VIX 15.0–15.1 — the mid bucket, negative at every threshold.** So filter 6's four
-refusals more likely **saved** money than cost it. The opposite of what the live exhibit invited.
-
-### ⚠️ Flagged against my own prior finding
-
-This window shows **bear positive / bull negative in every cell**, cutting against the
-live-fills direction finding I filed 2026-08-16. Different eras, both honest — so "bull is the
-better side" is **not robust across periods** and must stop being cited as settled.
-
-### Method self-corrections (mine, this session)
-
-1. The matrix's first run printed `dynamic_justified: false` because the VIX extractor guessed
-   field names and missed `entry_vix`, bucketing **100% of trades as "unknown"** — a false
-   negative dressed as an answer. It now refuses to report a verdict when VIX is unresolved on
-   ≥50% of trades.
-2. Same-day option bars are **403** (isolated: 08-13/08-14 return 200 with 81 bars; 08-17
-   returns 403 on the same endpoint/key/code path). This **refines** the 08-12 teardown's
-   "same-day 0DTE included" claim. My top-up was counting failures with no reason — an
-   anonymous `failed=2` for a diagnosable 403. Now defers same-day and records causes.
-
-### Nothing armed
-
-No params file touched, no filter changed, no threshold moved. The defensible next step is a
-pre-registered **VIX-regime standdown** — the effect 18× larger than the knob asked about —
-with OOS split, permutation null and a matched suppress-k-at-random control.
-
-
-### DEGRADED: self-check 2026-08-19T20:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-## Kitchen
-Kitchen: alive, queue 49 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-08-19T21:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T21:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T22:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T22:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T23:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-08-20T03:30:10+00:00
-- date_et: 2026-08-19
-- total: $649.79 (threshold $30.00)
-- claude: $649.75  minimax: $0.04
-- claude_sessions: 12
-
-### DEGRADED: self-check 2026-08-19T23:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.

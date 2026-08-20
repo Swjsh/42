@@ -152,6 +152,46 @@ ARMING BAR (evaluated by a LATER session, not this one -- also written into
   this), positive expectancy in pnl_usd_mes, AND beats a same-horizon ES=F buy-and-hold null
   (same signal timestamps/directions, held flat-to-deadline, no stop/target). This script
   does not compute or check that bar -- it only accumulates rows.
+
+ARMED EXECUTION (added 2026-08-20, desk_allocator.py "DECISION ROTTING" -- the bar above
+  CLEARED 2026-08-19: 59/20 round trips, +$1,268.66, beats null). Gated by `MIRROR_ARMED=1`
+  (env, read fresh at call time -- never cached, so a caller can flip it after import), OFF
+  by default. When OFF: zero behavior change, this file's entire pre-existing shadow
+  machinery above runs exactly as it always has -- the arming-bar evidence stream is never
+  touched by anything below. When ON: for EVERY signal this poll also opens as a synthetic
+  shadow position (unchanged), `_broker_execute_entry()` ADDITIONALLY places a REAL bracket
+  order on the Tastytrade sandbox (paper only, TT_SANDBOX=true, never reachable from live
+  money -- OP-0 #1 plus a new venue, double-gated same as futures_trader_core). It reuses,
+  never reimplements: `compute_entry_levels`'s already-computed entry/stop/tp1 (same numbers
+  the shadow row got), `futures_risk_rails.FuturesRiskRails` (the SAME dollar/points rails
+  the should_take_v3 broker lane uses), and `futures_trader_core.make_broker("tastytrade")` /
+  `_load_broker_env` (the SAME credential-loading + FUTURES_ARMED-gated watch_only construction
+  already proven end-to-end 2026-08-09 -- dry run, resting order, filled marketable order; see
+  AUTONOMOUS-FUTURES-LANE.md).
+    QTY is the FROZEN spec's ENTRY_QTY=2/TP1_QTY=1 -- never resized by the rails; a rail
+    failure REJECTS the trade rather than shrinking it, since resizing would deploy an
+    unvalidated variant of the exact spec that earned the arming bar.
+    ENTRY is a LIMIT order at the ES proxy quote +/- BROKER_ENTRY_SLIPPAGE_PTS (marketable,
+    not price-perfect) -- a plain LIMIT at the unbuffered proxy price could rest unfilled
+    forever against MES's own (slightly different) real quote.
+    CROSS-LANE SAFETY: `broker.is_flat(ARM_INSTRUMENT)` reads the BROKER's actual account
+    position, which the should_take_v3 broker lane (Gamma_FuturesBrokerLane, SAME sandbox
+    account 5WW73759, SAME "MES" instrument) also trades -- so this naturally refuses to
+    stack on top of whatever that lane already holds, and vice versa (its own run_tick() no-
+    stack gate reads the same broker truth). DISCLOSED, not solved: a same-5-minute-window
+    TOCTOU race between the two independently-scheduled lanes is possible in principle (both
+    read is_flat()=True before either places an order) -- bounded by each lane's own dollar
+    caps, paper money, and the 2026-08-19 atomic-entry-claim lesson names this exact class;
+    a shared OS-level claim file is a disclosed follow-up (queue.md), not built tonight.
+    `session_realized_pnl` for the check_session_loss rail comes from
+    `futures_trader_core._session_realized_pnl(broker, now_et)`, which calls a
+    `get_account_snapshot()` TastytradeBroker does not implement -- it fails open to 0.0 (its
+    own documented behavior: "an unreadable ledger makes the session-loss rail MORE
+    permissive"). The account-floor rail (equity read live from the broker, therefore already
+    reflecting BOTH lanes' fills) remains the hard backstop regardless.
+    Journals to `mirror-broker-orders.jsonl` (fills=BROKER) -- disjoint from `mirror-would-
+    be.jsonl` (fills=SIMULATED) so the two classes can never be aggregated by accident, same
+    convention as futures_trader_core's trader/ vs trader-broker/ split.
 """
 from __future__ import annotations
 
@@ -211,6 +251,13 @@ WOULD_BE_FILE = STATE_DIR / "mirror-would-be.jsonl"
 CORE_LEDGER = STATE_DIR.parent / "core-decisions.jsonl"   # automation/state/core-decisions.jsonl
                                                             # (heartbeat_core.py's LEDGER const)
 CORE_ARM_ID = "core"       # watermark key for CORE_LEDGER's single-file line count
+
+# ── ARMED EXECUTION (see module docstring "ARMED EXECUTION") ──────────────────────────────
+BROKER_ORDERS_FILE = STATE_DIR / "mirror-broker-orders.jsonl"
+ARM_INSTRUMENT = "MES"
+BROKER_ENTRY_SLIPPAGE_PTS = 2.0    # LIMIT entry buffered beyond the ES proxy quote so it is
+                                    # marketable against MES's own real quote, not price-perfect.
+BROKER_PER_TRADE_RISK_CAP = 150.0  # sized for the frozen spec's 2-lot ATR stop; see docstring.
 
 SPEC_VERSION = "v2"               # bump on ANY change to the constants below -- see module
                                    # docstring "SPEC VERSION" + "SPEC v1 -> v2" for the
@@ -578,6 +625,83 @@ def compute_entry_levels(direction: str, entry_price: float, atr: float) -> dict
     }
 
 
+def _mirror_armed() -> bool:
+    """Read fresh at call time -- never cached as a module constant -- so a caller (main(),
+    or a test) can flip MIRROR_ARMED after this module is already imported. Same reasoning as
+    _et_now()'s lazy et_clock import above: a top-level constant would bind at import time and
+    ignore any later os.environ change, including monkeypatch."""
+    return os.environ.get("MIRROR_ARMED", "0") == "1"
+
+
+def _broker_execute_entry(sig: dict, pos: dict, now_et: dt.datetime) -> Optional[dict]:
+    """Places a REAL Tastytrade-sandbox bracket order for a mirror signal that has ALREADY
+    been recorded in the (untouched) synthetic shadow ledger by the caller. See module
+    docstring "ARMED EXECUTION" for the full design + disclosed limitations. Returns None when
+    not armed (the overwhelmingly common case); a dict describing the outcome (placed, skipped
+    with a reason, or error) when armed. NEVER raises -- any failure here must not break the
+    shadow poll that is this file's actual arming-bar evidence stream."""
+    if not _mirror_armed():
+        return None
+    try:
+        from futures.futures_risk_rails import FuturesRiskRails  # noqa: PLC0415
+        from futures.instruments import get as get_instrument  # noqa: PLC0415
+        from futures.futures_trader_core import (  # noqa: PLC0415
+            make_broker, _session_realized_pnl,
+        )
+
+        inst = get_instrument(ARM_INSTRUMENT)
+        rails = FuturesRiskRails(max_contracts=ENTRY_QTY,
+                                 per_trade_risk_cap=BROKER_PER_TRADE_RISK_CAP)
+        # make_broker("tastytrade") gates watch_only on FUTURES_ARMED (its own established
+        # convention) -- set it for THIS process only, mirroring futures_trader_runner.py's
+        # --armed flag. Each scheduled task is its own python.exe invocation, so this never
+        # leaks into another lane's process.
+        os.environ.setdefault("FUTURES_ARMED", "1")
+        broker = make_broker("tastytrade")
+        if not broker.connect():
+            return {"skipped": "broker_not_connected"}
+        if not broker.is_flat(ARM_INSTRUMENT):
+            return {"skipped": "position_open_no_stack"}
+
+        equity = broker.get_account_equity() or rails.start_equity
+        session_pnl = _session_realized_pnl(broker, now_et)
+        verdict = rails.check_entry(
+            now_et=now_et, equity=equity, session_realized_pnl=session_pnl,
+            stop_points=pos["r_points"], qty=ENTRY_QTY, instrument=inst,
+            freshness_verdict="GREEN")
+        if not verdict.allow:
+            row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+                  "signal_ref": pos["signal_ref"], "placed": False,
+                  "skipped": verdict.rail, "reason": verdict.reason, "fills": "BROKER"}
+            _append_jsonl(BROKER_ORDERS_FILE, row)
+            return row
+
+        side = "BUY" if pos["direction"] == "long" else "SELL"
+        entry_limit = (pos["entry"] + BROKER_ENTRY_SLIPPAGE_PTS if side == "BUY"
+                       else pos["entry"] - BROKER_ENTRY_SLIPPAGE_PTS)
+        ids = broker.place_bracket(
+            ARM_INSTRUMENT, side, ENTRY_QTY, entry_limit, pos["tp1"], pos["stop"],
+            tp1_qty=TP1_QTY)
+        row = {
+            "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "signal_ref": pos["signal_ref"],
+            "direction": pos["direction"], "side": side, "qty": ENTRY_QTY,
+            "entry_limit": round(entry_limit, 4), "stop": pos["stop"], "tp1": pos["tp1"],
+            "order_ids": ids, "placed": bool(ids), "equity_at_entry": equity,
+            "fills": "BROKER",
+        }
+        _append_jsonl(BROKER_ORDERS_FILE, row)
+        return row
+    except Exception as e:  # noqa: BLE001 -- armed execution must never break the shadow poll
+        row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+              "signal_ref": pos.get("signal_ref"), "placed": False,
+              "error": f"{type(e).__name__}: {e}", "fills": "BROKER"}
+        try:
+            _append_jsonl(BROKER_ORDERS_FILE, row)
+        except Exception:  # noqa: BLE001
+            pass
+        return row
+
+
 def open_mirror_position(signal: dict, entry_price: float, atr: float, now_et: dt.datetime) -> dict:
     """PURE. Builds a brand-new position dict (never mutates `signal`)."""
     levels = compute_entry_levels(signal["direction"], entry_price, atr)
@@ -853,6 +977,17 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
             _append_jsonl(WOULD_BE_FILE, _placed_row(sig, pos))
             _append_jsonl(WOULD_BE_FILE, _filled_row(pos, now_et))
             opened += 1
+            # ARMED EXECUTION (see module docstring) -- strictly additive; a no-op unless
+            # MIRROR_ARMED=1, and any failure here is caught inside the function itself so it
+            # can never break the shadow tracking above (opened/positions/WOULD_BE_FILE).
+            try:
+                broker_result = _broker_execute_entry(sig, pos, now_et)
+                if broker_result is not None and broker_result.get("error"):
+                    errors.append(f"broker_execute_failed:{pos['signal_ref']}:"
+                                 f"{broker_result['error']}")
+            except Exception as e:  # noqa: BLE001 -- belt-and-braces; the function already
+                errors.append(f"broker_execute_unexpected:{pos['signal_ref']}:"  # catches
+                             f"{type(e).__name__}:{e}")                          # internally
 
     # 4) manage every open position (including any just opened this poll).
     events = 0
@@ -904,7 +1039,13 @@ def main() -> int:
         ap.add_argument("--once", action="store_true",
                         help="run exactly one poll pass (the only mode this script has; "
                              "kept for explicit/literal CLI compliance)")
-        ap.parse_args()
+        ap.add_argument("--armed", action="store_true",
+                        help="set MIRROR_ARMED=1 for this process (real bracket orders on "
+                             "the SANDBOX broker; never reaches live money). Default OFF -- "
+                             "the shadow tracker runs identically either way.")
+        args = ap.parse_args()
+        if args.armed:
+            os.environ["MIRROR_ARMED"] = "1"
         summary = run_once()
         _log(f"pass complete: {json.dumps(summary, default=str)[:2000]}")
         return 0

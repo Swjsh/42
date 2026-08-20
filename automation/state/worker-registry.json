@@ -300,15 +300,15 @@
       "id": "futures",
       "name": "Futures",
       "instrument": "MES/MNQ",
-      "status": "SHADOW_SIM_ONLY_ZERO_REAL_FILLS",
+      "status": "MES_MIRROR_ARMED_PAPER_2026_08_20_ELSE_SHADOW_SIM",
       "context_boundary": "MES/MNQ quotes, CME session phases, point-based stops, ATR trails",
       "arms": [
-        "mes-linear-sim (pending_build)",
+        "mes-linear-sim (ARMED 2026-08-20, paper -- Gamma_FuturesMirror --armed, Tastytrade sandbox 5WW73759, frozen qty 2/1, shares the account+instrument with trader-broker via broker.is_flat() cross-lane no-stack; first real fill still pending as of arming)",
         "mes-mnq-div-futures (dormant)"
       ],
-      "engine": "5 lanes: trader fillsim + trader broker + MES mirror + edge3 sim + SSR shadow",
-      "scoreboard": "automation/state/futures/*-progress.json (each lane self-scores vs its own arming bar)",
-      "arming_bar": "MES mirror has CLEARED it (59/20 trips, +$1,269, beats null) -- a decision waiting",
+      "engine": "5 lanes: trader fillsim + trader broker + MES mirror (now dual: synthetic shadow + real broker) + edge3 sim + SSR shadow",
+      "scoreboard": "automation/state/futures/*-progress.json (each lane self-scores vs its own arming bar); mirror-broker-orders.jsonl (fills=BROKER) is the NEW armed-leg ledger, disjoint from mirror-would-be.jsonl (fills=SIMULATED, still the arming-bar evidence)",
+      "arming_bar": "MES mirror CLEARED it 2026-08-19 (59/20 trips, +$1,269, beats null) -- ACTED ON 2026-08-20: real bracket-order execution wired + guard-tested (12 tests, backtest/tests/test_futures_mirror_shadow.py::TestArmedExecution) + Gamma_FuturesMirror re-registered with --armed. Next observation point: first real sandbox fill or rail rejection during 09:30-16:05 ET.",
       "functions_it_invokes": [
         "chef",
         "treasurer"

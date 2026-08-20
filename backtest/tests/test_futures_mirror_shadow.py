@@ -46,6 +46,12 @@ def _isolate_state(monkeypatch, tmp_path):
     # so every pre-existing test (none of which pass core_file= explicitly) stays hermetic --
     # same pattern as the CALENDAR_FILE line above, not a new isolation mechanism.
     monkeypatch.setattr(fms, "CORE_LEDGER", tmp_path / "does-not-exist-core-decisions.jsonl")
+    # 2026-08-20 ARMED EXECUTION extension: same disjoint-path treatment as WOULD_BE_FILE, plus
+    # a hard reset of the two env vars _broker_execute_entry reads/sets, so no test can leak
+    # MIRROR_ARMED/FUTURES_ARMED into another test or into a real process via test pollution.
+    monkeypatch.setattr(fms, "BROKER_ORDERS_FILE", state_dir / "mirror-broker-orders.jsonl")
+    monkeypatch.delenv("MIRROR_ARMED", raising=False)
+    monkeypatch.delenv("FUTURES_ARMED", raising=False)
 
 
 def _write_decisions(path: Path, rows: list[dict]) -> None:
@@ -872,6 +878,207 @@ class TestIdempotentCatchup:
 
         assert refs_a == refs_b
         assert len(refs_a) == 3
+
+
+# ═══════════════════════ armed execution (2026-08-20) ═══════════════════════════
+class _FakeBroker:
+    """Duck-typed TastytradeBroker stand-in. Deliberately has NO get_account_snapshot -- the
+    same shape the real TastytradeBroker has, so _session_realized_pnl's documented fail-open
+    (AttributeError -> 0.0) is exercised for real, not mocked around."""
+
+    def __init__(self, *, connected=True, flat=True, equity=2000.0):
+        self._connected = connected
+        self._flat = flat
+        self._equity = equity
+        self.bracket_calls: list[tuple] = []
+
+    def connect(self):
+        return self._connected
+
+    def is_flat(self, instrument):
+        return self._flat
+
+    def get_account_equity(self):
+        return self._equity
+
+    def place_bracket(self, instrument, side, qty, entry_price, tp1_price, stop_price,
+                      runner_price=None, tp1_qty=None):
+        self.bracket_calls.append((instrument, side, qty, entry_price, tp1_price, stop_price))
+        return ["order-1", "order-2", "order-3"]
+
+
+def _sig_and_pos(direction="long"):
+    # atr=5.0 -> r_points=STOP_ATR_MULT(2.0)*5=10pts -> risk=10*$5*qty(2)=$100, comfortably
+    # under BROKER_PER_TRADE_RISK_CAP=$150 -- these fixtures are for the "rails clear" tests;
+    # the dedicated rail-rejection test below uses its own wide-ATR position.
+    sig = {"signal_ref": f"{direction}|2026-08-20T10:00", "direction": direction,
+          "source_arms": ["safe-1"], "setup_name": "TEST"}
+    pos = fms.open_mirror_position(sig, entry_price=6000.0, atr=5.0,
+                                   now_et=dt.datetime(2026, 8, 20, 10, 0, 0))
+    return sig, pos
+
+
+class TestArmedExecution:
+    def test_default_off_returns_none_and_writes_nothing(self):
+        """MIRROR_ARMED unset (the default) -- zero behavior change, zero file writes."""
+        sig, pos = _sig_and_pos()
+        result = fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+        assert result is None
+        assert not fms.BROKER_ORDERS_FILE.exists()
+
+    def test_armed_but_env_false_string_stays_off(self, monkeypatch):
+        monkeypatch.setenv("MIRROR_ARMED", "0")
+        assert fms._mirror_armed() is False
+
+    def test_armed_reads_env_fresh_not_cached(self, monkeypatch):
+        """Flip the env AFTER import (exactly how main()'s --armed flag works) -- must be
+        honored, proving _mirror_armed() is not a module-import-time-cached constant."""
+        assert fms._mirror_armed() is False
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        assert fms._mirror_armed() is True
+
+    def test_armed_places_bracket_with_buffered_marketable_limit(self, monkeypatch):
+        fake = _FakeBroker(connected=True, flat=True, equity=2000.0)
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        import futures.futures_trader_core as ftc
+        monkeypatch.setattr(ftc, "make_broker", lambda backend: fake)
+
+        sig, pos = _sig_and_pos("long")
+        result = fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+
+        assert result["placed"] is True
+        assert result["fills"] == "BROKER"
+        assert len(fake.bracket_calls) == 1
+        instrument, side, qty, entry_price, tp1_price, stop_price = fake.bracket_calls[0]
+        assert instrument == fms.ARM_INSTRUMENT == "MES"
+        assert side == "BUY"                                  # long direction -> BUY
+        assert qty == fms.ENTRY_QTY == 2                       # frozen spec qty, never resized
+        # long entry is buffered UP (marketable, willing to pay slightly more)
+        assert entry_price == pytest.approx(pos["entry"] + fms.BROKER_ENTRY_SLIPPAGE_PTS)
+        assert stop_price == pos["stop"]
+        assert tp1_price == pos["tp1"]
+        # journaled, disjoint from the synthetic shadow ledger
+        rows = [json.loads(line) for line in
+               fms.BROKER_ORDERS_FILE.read_text(encoding="utf-8").splitlines()]
+        assert len(rows) == 1 and rows[0]["placed"] is True
+
+    def test_armed_short_direction_sells_and_buffers_down(self, monkeypatch):
+        fake = _FakeBroker(connected=True, flat=True, equity=2000.0)
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        import futures.futures_trader_core as ftc
+        monkeypatch.setattr(ftc, "make_broker", lambda backend: fake)
+
+        sig, pos = _sig_and_pos("short")
+        fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+
+        _, side, _, entry_price, _, _ = fake.bracket_calls[0]
+        assert side == "SELL"
+        assert entry_price == pytest.approx(pos["entry"] - fms.BROKER_ENTRY_SLIPPAGE_PTS)
+
+    def test_armed_refuses_to_stack_on_the_broker_account(self, monkeypatch):
+        """Cross-lane safety: broker.is_flat() is account-truth, not lane-local -- a position
+        held by ANY lane (e.g. the should_take_v3 broker lane, same account+instrument) must
+        refuse a new mirror entry rather than stack on top of it."""
+        fake = _FakeBroker(connected=True, flat=False, equity=2000.0)
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        import futures.futures_trader_core as ftc
+        monkeypatch.setattr(ftc, "make_broker", lambda backend: fake)
+
+        sig, pos = _sig_and_pos()
+        result = fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+
+        assert result["skipped"] == "position_open_no_stack"
+        assert fake.bracket_calls == []
+
+    def test_armed_but_not_connected_skips_without_placing(self, monkeypatch):
+        fake = _FakeBroker(connected=False)
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        import futures.futures_trader_core as ftc
+        monkeypatch.setattr(ftc, "make_broker", lambda backend: fake)
+
+        sig, pos = _sig_and_pos()
+        result = fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+
+        assert result["skipped"] == "broker_not_connected"
+        assert fake.bracket_calls == []
+
+    def test_armed_rail_rejection_skips_without_placing(self, monkeypatch):
+        """A stop wide enough to blow the per-trade risk cap must be REJECTED, never resized --
+        resizing would silently deploy an unvalidated variant of the arming-bar's exact spec."""
+        fake = _FakeBroker(connected=True, flat=True, equity=2000.0)
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        import futures.futures_trader_core as ftc
+        monkeypatch.setattr(ftc, "make_broker", lambda backend: fake)
+
+        sig = {"signal_ref": "long|2026-08-20T10:00", "direction": "long",
+              "source_arms": ["safe-1"], "setup_name": "TEST"}
+        # ATR=100 -> r_points = STOP_ATR_MULT(2.0)*100 = 200pts -> risk = 200*$5*2 = $2,000,
+        # far past BROKER_PER_TRADE_RISK_CAP=$150.
+        pos = fms.open_mirror_position(sig, entry_price=6000.0, atr=100.0,
+                                       now_et=dt.datetime(2026, 8, 20, 10, 0, 0))
+        result = fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+
+        assert result["skipped"] == "per_trade_risk"
+        assert fake.bracket_calls == []
+        assert "qty" not in result   # never resized -- no shrunk-qty field to find
+
+    def test_broker_execute_never_raises_on_internal_exception(self, monkeypatch):
+        """The whole function must fail open -- an unexpected exception inside is caught and
+        journaled as an error row, never propagated (it must not break the shadow poll)."""
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        import futures.futures_trader_core as ftc
+
+        def _boom(backend):
+            raise RuntimeError("simulated broker construction failure")
+
+        monkeypatch.setattr(ftc, "make_broker", _boom)
+        sig, pos = _sig_and_pos()
+        result = fms._broker_execute_entry(sig, pos, dt.datetime(2026, 8, 20, 10, 0, 0))
+        assert "error" in result
+        assert "simulated broker construction failure" in result["error"]
+
+    def test_run_once_default_off_writes_no_broker_orders_file(self, tmp_path):
+        """Full run_once() integration, MIRROR_ARMED unset -- regression guard proving the
+        pre-existing shadow behavior is completely unaffected by this feature's existence.
+        Two polls (cold-start, then the real signal) -- same pattern as
+        test_signal_written_after_cold_start_is_mirrored_on_next_poll above."""
+        p = tmp_path / "safe-1" / "decisions.jsonl"
+        _write_decisions(p, [_enter_row("2026-06-01T10:05:00-04:00", "safe-1")])
+        fms.run_once(now_et=dt.datetime(2026, 8, 20, 10, 0, 0),
+                    quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 5.0, fleet_files=[p])
+
+        _write_decisions(p, [_enter_row("2026-08-20T10:00:00-04:00", "safe-1")])
+        summary = fms.run_once(now_et=dt.datetime(2026, 8, 20, 10, 5, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 5.0,
+                               fleet_files=[p])
+        assert summary["opened"] == 1
+        assert summary["errors"] == []
+        assert not fms.BROKER_ORDERS_FILE.exists()
+        assert fms.WOULD_BE_FILE.exists()   # the shadow ledger IS still written
+
+    def test_run_once_armed_writes_both_shadow_and_broker_ledgers(self, tmp_path, monkeypatch):
+        """When armed, the SAME detected signal produces BOTH the synthetic shadow rows
+        (unchanged) AND a real broker-order row -- strictly additive, not a replacement."""
+        fake = _FakeBroker(connected=True, flat=True, equity=2000.0)
+        import futures.futures_trader_core as ftc
+        monkeypatch.setattr(ftc, "make_broker", lambda backend: fake)
+
+        p = tmp_path / "safe-1" / "decisions.jsonl"
+        _write_decisions(p, [_enter_row("2026-06-01T10:05:00-04:00", "safe-1")])
+        fms.run_once(now_et=dt.datetime(2026, 8, 20, 10, 0, 0),
+                    quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 5.0, fleet_files=[p])
+
+        monkeypatch.setenv("MIRROR_ARMED", "1")
+        _write_decisions(p, [_enter_row("2026-08-20T10:00:00-04:00", "safe-1")])
+        summary = fms.run_once(now_et=dt.datetime(2026, 8, 20, 10, 5, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 5.0,
+                               fleet_files=[p])
+
+        assert summary["opened"] == 1
+        assert summary["errors"] == []
+        assert fms.WOULD_BE_FILE.exists()
+        assert fms.BROKER_ORDERS_FILE.exists()
+        assert len(fake.bracket_calls) == 1
 
 
 # ═══════════════════════ no-naive-datetime discipline ═══════════════════════════
