@@ -133,7 +133,10 @@ def _build_scaled_bear_bars(scale: float, n_warmup: int = 49) -> tuple[pd.DataFr
     (share counts are real-world price-independent quantities)."""
     rows = []
     mult = 1.05
-    step = 0.0012
+    step = 0.0001  # gentle drift -- keeps ribbon spread_pct small enough (~0.2%) that a
+    # flat-dollar regression (e.g. $0.30 always) diverges from the correct percent-of-price
+    # threshold at LOW price scales while staying invisible at HIGH ones -- see the
+    # RED-proof note on test_scale_invariance_bear_score_identical_across_price_scales.
     for _ in range(n_warmup):
         o, c = mult, mult - step
         h, l = max(o, c) + 0.00015, min(o, c) - 0.00015
@@ -155,7 +158,10 @@ def _build_scaled_bull_bars(scale: float, n_warmup: int = 49) -> tuple[pd.DataFr
     """Bull mirror of _build_scaled_bear_bars: a rising drift + a level-reclaim trigger bar."""
     rows = []
     mult = 0.95
-    step = 0.0012
+    step = 0.0001  # gentle drift -- keeps ribbon spread_pct small enough (~0.2%) that a
+    # flat-dollar regression (e.g. $0.30 always) diverges from the correct percent-of-price
+    # threshold at LOW price scales while staying invisible at HIGH ones -- see the
+    # RED-proof note on test_scale_invariance_bear_score_identical_across_price_scales.
     for _ in range(n_warmup):
         o, c = mult, mult + step
         h, l = max(o, c) + 0.00015, min(o, c) - 0.00015

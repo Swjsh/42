@@ -50,6 +50,7 @@ if str(REPO_ROOT) not in sys.path:
 from multi.lib import broker as mb  # noqa: E402
 from multi.lib import creds as mc  # noqa: E402
 from multi.lib import expiry as mx  # noqa: E402
+from multi.lib import levels as mlv  # noqa: E402
 from multi.lib import positions as mp  # noqa: E402
 from multi.lib import risk as mr  # noqa: E402
 from multi.lib import signal as ms  # noqa: E402
@@ -174,6 +175,77 @@ def fetch_bars(creds, symbol: str, timeframe: str = "1Hour", limit: int = 400):
     return df if len(df) else None
 
 
+# --- chain reads (lane-owned; the contracts endpoint lives on the PAPER trading host) --------
+# A paper key 401s against api.alpaca.markets for /v2/options/contracts -- the trading API is
+# host-partitioned by account type while the market-DATA host is shared. Learned 2026-08-18.
+
+def _paper_get(creds, path: str, params: dict) -> dict:
+    from urllib.parse import urlencode
+    from urllib.request import Request, urlopen
+    url = creds.base_url + path + "?" + urlencode(params)
+    req = Request(url, headers={"APCA-API-KEY-ID": creds.key,
+                                "APCA-API-SECRET-KEY": creds.secret})
+    with urlopen(req, timeout=30) as r:  # noqa: S310
+        return json.loads(r.read())
+
+
+def _data_get(creds, path: str, params: dict) -> dict:
+    from urllib.parse import urlencode
+    from urllib.request import Request, urlopen
+    url = "https://data.alpaca.markets" + path + "?" + urlencode(params)
+    req = Request(url, headers={"APCA-API-KEY-ID": creds.key,
+                                "APCA-API-SECRET-KEY": creds.secret})
+    with urlopen(req, timeout=30) as r:  # noqa: S310
+        return json.loads(r.read())
+
+
+def fetch_chain(creds, symbol: str, right: str, max_dte: int = 45) -> list:
+    """Listed contracts for `symbol` as [{expiry, strike, contract}] -- a LIVE chain read.
+
+    Never a computed calendar: an expiry can be absent because earnings land that day
+    (verified -- NVDA has no 2026-08-26 expiry for exactly that reason).
+    """
+    today = now_et().date()
+    payload = _paper_get(creds, "/v2/options/contracts", {
+        "underlying_symbols": symbol, "status": "active",
+        "expiration_date_gte": today.isoformat(),
+        "expiration_date_lte": (today + dt.timedelta(days=max_dte)).isoformat(),
+        "type": "call" if right == "C" else "put",
+        "limit": 10000,
+    })
+    out = []
+    for c in payload.get("option_contracts") or []:
+        try:
+            out.append({"expiry": dt.date.fromisoformat(c["expiration_date"]),
+                        "strike": float(c["strike_price"]),
+                        "contract": c["symbol"]})
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
+def fetch_option_quote(creds, occ: str):
+    """Live quote for ONE contract. Returns None rather than a default when the quote is
+    missing -- a fabricated mid would silently pass the liquidity gate."""
+    d = _data_get(creds, "/v1beta1/options/snapshots/" + occ, {"feed": "indicative"})
+    snap = (d.get("snapshots") or {}).get(occ) or d.get("snapshot") or {}
+    q = snap.get("latestQuote") or {}
+    bid, ask = q.get("bp"), q.get("ap")
+    if not bid or not ask:
+        return None
+    return {"bid": float(bid), "ask": float(ask),
+            "open_interest": snap.get("openInterest"),
+            "volume": (snap.get("dailyBar") or {}).get("v")}
+
+
+def _num(v):
+    try:
+        f = float(v)
+        return f if f == f else None
+    except (TypeError, ValueError):
+        return None
+
+
 def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
          dry_bars: dict | None = None) -> tuple[list[dict], Counter]:
     """One evaluation pass over `symbols`. Returns (rows, cascade_counter).
@@ -204,8 +276,20 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
             continue
         cascade["bars_ok"] += 1
 
+        # Per-symbol levels. Without these, filter 10 (level-tied trigger required) vetoes
+        # EVERY symbol on every tick -- the lane is structurally unable to trade. Found by the
+        # participation cascade 2026-08-20.
         try:
-            sig = ms.build_signal(sym, bars, params=params)
+            active_lv, multi_lv = mlv.compute_levels(bars)
+        except mlv.LevelError as e:
+            row.update(decision="BLOCKED", gate="signal_scored", reason=f"levels: {e}")
+            rows.append(row)
+            continue
+        row["n_levels_active"] = len(active_lv)
+        try:
+            sig = ms.build_signal(sym, bars, params=params,
+                                  candidate_levels=active_lv,
+                                  candidate_multi_day_levels=multi_lv)
         except (ms.SignalBuildError, ValueError) as e:
             row.update(decision="BLOCKED", gate="signal_scored", reason=f"signal error: {e}")
             rows.append(row)
@@ -239,9 +323,91 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
             continue
         cascade["risk_admitted"] += 1
 
-        row.update(decision="WOULD_EVALUATE_CHAIN", gate="expiry_available",
-                   reason="chain read deferred — shadow scoring pass")
-        cascade["reached_chain"] += 1
+        # --- chain stage: expiry -> strike -> liquidity -> size ---------------------------
+        try:
+            chain = fetch_chain(creds, sym, side)
+        except Exception as e:  # noqa: BLE001 -- one bad chain read must not kill the tick
+            row.update(decision="BLOCKED", gate="expiry_available",
+                       reason="chain read failed: " + type(e).__name__)
+            rows.append(row)
+            continue
+        expiries = sorted({c["expiry"] for c in chain})
+        if not expiries:
+            row.update(decision="BLOCKED", gate="expiry_available", reason="no listed expiries")
+            rows.append(row)
+            continue
+        try:
+            exp_sel = mx.select_expiry(symbol=sym, available_expiries=expiries, params=params)
+        except Exception as e:  # noqa: BLE001
+            row.update(decision="BLOCKED", gate="expiry_available", reason="expiry: %s" % e)
+            rows.append(row)
+            continue
+        chosen_exp = getattr(exp_sel, "expiry", None)
+        if chosen_exp is None:
+            row.update(decision="BLOCKED", gate="expiry_available",
+                       reason=str(getattr(exp_sel, "reason", "no expiry cleared min DTE")))
+            rows.append(row)
+            continue
+        cascade["expiry_available"] += 1
+        if isinstance(chosen_exp, str):
+            chosen_exp = dt.date.fromisoformat(chosen_exp)
+        row.update(expiry=str(chosen_exp), dte=(chosen_exp - now_et().date()).days)
+
+        strikes = sorted({c["strike"] for c in chain if c["expiry"] == chosen_exp})
+        spot = _num(sig.get("spot"))
+        if not strikes or spot is None:
+            row.update(decision="BLOCKED", gate="strike_selected", reason="no strikes or spot")
+            rows.append(row)
+            continue
+        try:
+            k_sel = msz.select_strike(symbol=sym, spot=spot, side=side,
+                                      available_strikes=strikes)
+        except Exception as e:  # noqa: BLE001
+            row.update(decision="BLOCKED", gate="strike_selected", reason="strike: %s" % e)
+            rows.append(row)
+            continue
+        strike = getattr(k_sel, "strike", None)
+        occ = next((c["contract"] for c in chain
+                    if c["expiry"] == chosen_exp and c["strike"] == strike), None)
+        if occ is None:
+            row.update(decision="BLOCKED", gate="strike_selected",
+                       reason="selected strike is not in the listed chain")
+            rows.append(row)
+            continue
+        cascade["strike_selected"] += 1
+        row.update(strike=strike, contract=occ)
+
+        try:
+            quote = fetch_option_quote(creds, occ)
+        except Exception:  # noqa: BLE001
+            quote = None
+        ok, why, facts = liquidity_ok(quote, params)
+        for k, v in facts.items():
+            if k != "feed":
+                row[k] = v
+        if not ok:
+            row.update(decision="BLOCKED", gate="liquidity_ok", reason=why)
+            rows.append(row)
+            continue
+        cascade["liquidity_ok"] += 1
+
+        try:
+            sz = msz.size_entry(symbol=sym, equity=equity, premium=facts["mid"],
+                                params=params, open_positions=open_opts)
+        except Exception as e:  # noqa: BLE001
+            row.update(decision="BLOCKED", gate="sized_ok", reason="sizing: %s" % e)
+            rows.append(row)
+            continue
+        if not getattr(sz, "allowed", False):
+            row.update(decision="BLOCKED", gate="sized_ok",
+                       reason=str(getattr(sz, "reason", "sizing denied")))
+            rows.append(row)
+            continue
+        cascade["sized_ok"] += 1
+        cascade["would_place"] += 1
+        row.update(decision="WOULD_PLACE", gate="would_place",
+                   qty=getattr(sz, "qty", None), notional=getattr(sz, "notional", None),
+                   reason="all gates cleared - SHADOW, no order sent")
         rows.append(row)
 
     return rows, cascade
@@ -295,16 +461,17 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"[multi_core] {ts_summary(cascade)}", file=sys.stderr)
     for g in ("evaluated", "bars_ok", "signal_scored", "action_directional",
-              "risk_admitted", "reached_chain"):
+              "risk_admitted", "expiry_available", "strike_selected", "liquidity_ok",
+              "sized_ok", "would_place"):
         print(f"    {g:<20} {cascade.get(g, 0)}", file=sys.stderr)
     return 0
 
 
 def ts_summary(c: Counter) -> str:
     ev = c.get("evaluated", 0)
-    reached = c.get("reached_chain", 0)
+    reached = c.get("would_place", 0)
     pct = (100.0 * reached / ev) if ev else 0.0
-    return f"{ev} symbols evaluated, {reached} reached the chain stage ({pct:.1f}% joint pass)"
+    return f"{ev} symbols evaluated, {reached} WOULD PLACE ({pct:.1f}% joint pass)"
 
 
 if __name__ == "__main__":
