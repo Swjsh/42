@@ -304,11 +304,14 @@ def resolve_symbol(intent: dict, spy_price: float, equity: float) -> str:
     """ATM/OTM strike via the SAME V15 tier ladder + pick_strike the live
     engine trades (crypto/lib/strike_selection.py) -- never a hand-picked
     strike. Expiry = today (0DTE, per CLAUDE.md 'The strategy')."""
-    # BOLD CORE ATM WIRE (2026-07-18, J explicit "Yes -- wire Bold to ATM" in-chat):
-    # bold branch repointed to V15_BOLD_CORE_TIERS so J-called conditional trades on
-    # the bold account share the same $0-2K ATM tier as the heartbeat path (was a
-    # documented divergence risk -- see crypto/lib/strike_selection.py docstring).
-    tiers = ss.V15_BOLD_CORE_TIERS if intent["account"] == "bold" else ss.V15_SAFE_TIERS
+    # BOLD CORE ATM WIRE -- REVERTED 2026-08-20 alongside heartbeat_core.py's tier pick
+    # (J: "retire a strat that is losing? i guess so yeah"). The 2026-07-18 ATM ship
+    # failed its own auto-ratify gate and its standing falsification rail fired at
+    # n=25: -$808 vs the OTM-3 tier's +$406 on 4 (automation/state/bold-tier-rail.json).
+    # BOTH sites must move together -- a split leaves the J-called path trading a
+    # different strike tier than the engine, which is the exact divergence the
+    # original wire existed to close. Guard: test_bold_tier_revert_2026_08_20.py.
+    tiers = ss.V15_BOLD_TIERS if intent["account"] == "bold" else ss.V15_SAFE_TIERS
     strike = ss.pick_strike(spy_price, equity, intent["side"], tiers)
     expiry_yymmdd = et_now().strftime("%y%m%d")
     return spx.occ_symbol(intent["side"], strike, expiry_yymmdd, underlying="SPY")

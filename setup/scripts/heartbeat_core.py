@@ -2473,13 +2473,19 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     setup_name = verdict.get("setup_name") or (
         "BEARISH_REJECTION_RIDE_THE_RIBBON" if side == "P" else "BULLISH_RECLAIM_RIDE_THE_RIBBON")
     # strike + contract + premium
-    # BOLD CORE ATM WIRE (2026-07-18, J explicit "Yes -- wire Bold to ATM" in-chat):
-    # bold branch repointed from V15_BOLD_TIERS to V15_BOLD_CORE_TIERS ($0-2K tier only:
-    # OTM-3 -> ATM). V15_BOLD_TIERS itself is untouched -- fleet_executor.py's safe-3/
-    # risky-1/risky-3 arms still resolve the original OTM-3 table directly. See
-    # crypto/lib/strike_selection.py's V15_BOLD_CORE_TIERS docstring for full evidence
-    # + revert instructions.
-    strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_CORE_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
+    # BOLD CORE ATM WIRE -- REVERTED 2026-08-20 (J: "so #2 is asking if I want to
+    # retire a strat that is losing? i guess so yeah").
+    # Shipped 2026-07-18 (commit 718e0809) repointing the bold branch from
+    # V15_BOLD_TIERS to V15_BOLD_CORE_TIERS ($0-2K tier: OTM-3 -> ATM). It FAILED its
+    # own auto-ratify gate at ship time and was allowed to run under a standing
+    # falsification rail (setup/scripts/bold_tier_rail.py) to n=20.
+    # THE RAIL FIRED: at n=25 post-ship fills the ATM tier is -$808 (WR 24%, mean
+    # -$32/fill) against the OTM-3 tier's +$406 on 4 (WR 50%). rail_status=
+    # TRIGGERED_NEGATIVE, automation/state/bold-tier-rail.json 2026-08-20T00:24 ET.
+    # A pre-registered rail that triggers is the whole point -- it gets honoured.
+    # To re-ship ATM: swap back to ss.V15_BOLD_CORE_TIERS here AND at
+    # j_intent_executor.py's tier pick, and re-run the auto-ratify gate FIRST.
+    strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
         if ss else (int(round(spy)) + (2 if side == "P" else -2))
     # FIX4/WP-5 + trade-to-learn (2026-07-01): per-setup strike override — each armed extra
     # setup is VALIDATED at a specific strike tier (e.g. vwap_continuation ATM on Safe /

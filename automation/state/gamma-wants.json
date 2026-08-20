@@ -4,28 +4,37 @@
     {
       "priority": 1,
       "id": "mes-mnq-div-sandbox-buying-power",
-      "text": "mes-mnq-div (validated OOS +$71.46/trade) is still dormant -- but NOT on credentials. Probe 2026-08-20 00:05 ET authenticated to the Tastytrade SANDBOX account 5WW73759, resolved front month /MESU6 and returned dry_run_ok:true. The real blockers are (a) futures_buying_power = $0.00 and is_futures_approved = false on that sandbox account, and (b) the arm's own enabled:false flag in automation/state/fleet/accounts.json. Nothing here needs a token rotation and nothing here needs J.",
-      "_correction_2026_08_19": "Prior text asked J to 'rotate the Tastytrade PROD tokens (owed since 06-22)'. That was wrong on its face -- this arm uses the sandbox, not PROD -- and it nagged J on the home page for 8 weeks for an action that would not have unblocked anything. J: 'why do I need to rotate the key? it's a fucking training [account]. Can you just use it? Shut up about it.' Corrected by running the probe instead of repeating the claim."
-    },
-    {
-      "priority": 2,
-      "id": "bold-atm-tier-falsification-decision",
-      "text": "The Bold ATM strike tier (shipped 2026-07-18, commit 718e0809) failed its own auto-ratify gate at ship time and has cost -$476 on 6 fills since (the old OTM-3 tier made +$406 on 4). I now track it to the promised n=20 check (bold_tier_rail.py) — but the honest ETA is 2026-09-18: at the observed 0.5 fills/day, waiting for n=20 means ~14 more fills at ~-$79 each, so WAITING IS NOT FREE — it costs roughly another $1,100. Your call: let it run, or revert now — one line each in setup/scripts/heartbeat_core.py:1975 and setup/scripts/j_intent_executor.py:311, back to ss.V15_BOLD_TIERS"
-    },
-    {
-      "priority": 3,
-      "id": "pdt-account-type-decision",
-      "text": "Decide the open PDT memo (PDT-ACCOUNT-TYPE-DECISION-2026-08-06): Bold sat out a +$1,465 book day Thursday because of our SELF-imposed PDT rule the paper broker doesn't enforce — I'll run whichever mode you pick, but the memo has sat 2 days"
+      "text": "mes-mnq-div (validated OOS +$71.46/trade) is dormant, and it is NOT a money problem and NOT a credentials problem. Probe 2026-08-20 00:05 ET: authenticated to Tastytrade SANDBOX 5WW73759, net_liq $2,000, front month /MESU6, dry_run_ok:true. The single blocker is is_futures_approved=false on that sandbox account -> futures_buying_power $0.00. The tastytrade SDK's Account class exposes only get_balances/get_balance_snapshots -- no deposit, transfer or approval method -- so this is a toggle in Tastytrade's sandbox UI, not something automation can do. Adding money would not change it.",
+      "_correction_2026_08_19": "Prior text asked J to 'rotate the Tastytrade PROD tokens (owed since 06-22)'. That was wrong on its face -- this arm uses the sandbox, not PROD -- and it nagged J on the home page for 8 weeks for an action that would not have unblocked anything. J: 'why do I need to rotate the key? it's a fucking training [account]. Can you just use it? Shut up about it.' Corrected by running the probe instead of repeating the claim.",
+      "verified_at": "2026-08-20",
+      "verify_cmd": "python setup/scripts/futures_broker_probe.py"
     },
     {
       "priority": 4,
       "id": "unmute-gamma-channel",
-      "text": "Unmute #gamma — I only speak 2-3 times a day now, standup-style; if it's muted I'm talking to a wall"
+      "text": "Unmute #gamma — I only speak 2-3 times a day now, standup-style; if it's muted I'm talking to a wall",
+      "verified_at": "2026-08-20"
     },
     {
       "priority": 5,
       "id": "ssr-dojo-reps",
-      "text": "Do 3 TV bar-replay reps of the SSR drill (markdown/research/SSR-PIVOT-LIQUIDITY-STRATEGY.md section 6) so we can compare your read to the shadow's"
+      "text": "Do 3 TV bar-replay reps of the SSR drill (markdown/research/SSR-PIVOT-LIQUIDITY-STRATEGY.md section 6) so we can compare your read to the shadow's",
+      "verified_at": "2026-08-20"
     }
-  ]
+  ],
+  "_retired": [
+    {
+      "retired_at": "2026-08-20",
+      "id": "pdt-account-type-decision",
+      "text": "Decide the open PDT memo (PDT-ACCOUNT-TYPE-DECISION-2026-08-06): Bold sat out a +$1,465 book day Thursday because of our SELF-imposed PDT rule the paper broker doesn't enforce — I'll run whichever mode you pick, but the memo has sat 2 days",
+      "why": "J: 'this should have been deleted when we did all the research about current option facts.' Half right, and the half that mattered: the want said Bold sat out a +$1,465 day 'because of our SELF-imposed PDT rule'. PDT-the-regulation is dead here -- FINRA repealed the $25K day-trading floor 2026-06-04 and PDT-CODE-ALIGNMENT-AUDIT-2026-08-18 confirmed the accounts are margin (multiplier=4), not cash. What is actually live is pdt_gate_mode=cash_settlement: a 5-roundtrip/day settlement throttle J CHOSE deliberately on 2026-08-09 ('I always use cash accounts... that's how much we have until it settles'). A standing want that re-asks a question J already answered is a nag, not a want. Retired. If the throttle costs another measurable day, that is a fresh data point and a fresh want -- not this one resurrected."
+    },
+    {
+      "retired_at": "2026-08-20",
+      "id": "bold-atm-tier-falsification-decision",
+      "text": "The Bold ATM strike tier (shipped 2026-07-18, commit 718e0809) failed its own auto-ratify gate at ship time and has cost -$476 on 6 fills since (the old OTM-3 tier made +$406 on 4). I now track it to the promised n=20 check (bold_tier_rail.py) — but the honest ETA is 2026-09-18: at the observed 0.5 fills/day, waiting for n=20 means ~14 more fills at ~-$79 each, so WAITING IS NOT FREE — it costs roughly another $1,100. Your call: let it run, or revert now — one line each in setup/scripts/heartbeat_core.py:1975 and setup/scripts/j_intent_executor.py:311, back to ss.V15_BOLD_TIERS",
+      "why": "ANSWERED AND EXECUTED. J: 'so #2 is asking if I want to retire a strat that is losing? i guess so yeah lol'. The want's own numbers were already stale when he read them -- it said -$476 on 6 fills with an ETA of 2026-09-18, but bold_tier_rail.py had already reached n=25 at -$808 (WR 24%) and flipped rail_status=TRIGGERED_NEGATIVE. Reverted both sites to ss.V15_BOLD_TIERS (heartbeat_core.py + j_intent_executor.py), pinned by backtest/tests/test_bold_tier_revert_2026_08_20.py which RED-proofs on either site flipping back or the two diverging."
+    }
+  ],
+  "_freshness_rule": "ADDED 2026-08-20 after two wants sat on J's home page for weeks while being FACTUALLY WRONG (a Tastytrade PROD-token rotation for a sandbox arm; a PDT decision whose premise the research had already killed). A want is a claim about the world. Before a want is surfaced it should be re-verified -- prefer a `verify_cmd` that proves the blocker still exists. Wants carrying a `verified_at` older than 14 days render with a stale badge on the command center."
 }

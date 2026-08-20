@@ -64,6 +64,9 @@ SIGNATURE_MD = REPO / "analysis" / "winner-autopsies" / "SIGNATURE.md"
 # presented as current. Generous on purpose: this page is read after hours too.
 STALE_HOURS = 24.0
 
+# A want unverified for longer than this is shown with a badge, not as fact.
+WANT_STALE_DAYS = 14
+
 
 # ---------------------------------------------------------------- helpers
 
@@ -140,10 +143,22 @@ def _wants_full() -> list:
         if isinstance(w, dict):
             text = str(w.get("text", "")).strip()
             pri = w.get("priority", 99)
+            verified = str(w.get("verified_at", "")).strip()
         else:
-            text, pri = str(w).strip(), 99
-        if text:
-            rows.append({"priority": pri, "text": _clean(text)})
+            text, pri, verified = str(w).strip(), 99, ""
+        if not text:
+            continue
+        # STALENESS BADGE (2026-08-20). Two wants sat on this page for weeks while
+        # being factually wrong. A want is a claim; an unverified claim gets flagged
+        # rather than presented as current.
+        stale = True
+        if verified:
+            try:
+                stale = (datetime.now() - datetime.strptime(verified, "%Y-%m-%d")).days > WANT_STALE_DAYS
+            except ValueError:
+                stale = True
+        rows.append({"priority": pri, "text": _clean(text),
+                     "verified_at": verified, "stale": stale})
     rows.sort(key=lambda r: r["priority"])
     return rows[:3]
 
@@ -439,6 +454,7 @@ _TEMPLATE = r"""<!doctype html>
   .want:last-child{border-bottom:none}
   .want .wnum{color:var(--accent);font-weight:700;font-size:13px;min-width:14px}
   .want .wtxt{font-size:13.5px;line-height:1.5;word-break:break-word}
+  .want .wstale{color:var(--amber);font-size:11.5px;margin-left:6px;white-space:nowrap}
   .bar{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:5px}
   .bar>i{display:block;height:100%;background:var(--accent)}
   a{color:var(--accent)}
@@ -593,7 +609,11 @@ const wantsSrc = wantRows.length ? wantRows : (hq.wants||[]);
 wantsSrc.forEach((t,i)=>{
   const r=el('div','want');
   r.appendChild(el('div','wnum',(i+1)));
-  r.appendChild(el('div','wtxt',t));
+  const body = el('div','wtxt', t);
+  const meta = (D.wants_full||[])[i];
+  if (meta && meta.stale) body.appendChild(el('span','wstale',
+    ' ⚠ unverified' + (meta.verified_at ? ' since ' + meta.verified_at : '')));
+  r.appendChild(body);
   w.appendChild(r);
 });
 if(!wantsSrc.length) w.innerHTML='<span class="stale">⚠ no wants data</span>';

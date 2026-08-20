@@ -1,10 +1,10 @@
 {
   "_doc": "Standing falsification-rail instrument for commit 718e0809's BOLD-CORE-ATM-WIRE ship. See module docstring for full provenance.",
-  "generated_at_et": "2026-08-08T20:56:11",
+  "generated_at_et": "2026-08-20T00:24:48",
   "ship_date_et": "2026-07-18",
   "ship_commit": "718e0809",
   "escalation_n": 20,
-  "days_since_ship": 21,
+  "days_since_ship": 33,
   "population": {
     "source": "automation/state/fills-ledger.jsonl",
     "arm": "bold-2",
@@ -12,12 +12,12 @@
     "position_def": "exit_shape_parity_study.reconstruct_positions"
   },
   "post_ship": {
-    "n": 6,
-    "net_usd": -476.0,
-    "win_rate": 0.1667,
-    "mean_usd": -79.33,
-    "median_usd": -185.0,
-    "avg_notional_usd": 642.5
+    "n": 25,
+    "net_usd": -808.0,
+    "win_rate": 0.24,
+    "mean_usd": -32.32,
+    "median_usd": -75.0,
+    "avg_notional_usd": 500.6
   },
   "pre_ship": {
     "n": 4,
@@ -28,26 +28,26 @@
     "avg_notional_usd": 186.25
   },
   "delta": {
-    "net_usd_delta": -882.0,
-    "mean_usd_delta": -180.83,
-    "win_rate_delta": -0.3333,
-    "avg_notional_multiplier": 3.4497
+    "net_usd_delta": -1214.0,
+    "mean_usd_delta": -133.82,
+    "win_rate_delta": -0.26,
+    "avg_notional_multiplier": 2.6878
   },
-  "rail_status": "ACCRUING",
-  "verdict": "Bold ATM tier: 6 of 20 fills, -$476 so far (old tier was +$406 on 4) -- rail not yet triggered.",
+  "rail_status": "TRIGGERED_NEGATIVE",
+  "verdict": "Bold ATM tier: 25 of 20 fills, -$808 so far (old tier was +$406 on 4) -- rail TRIGGERED.",
   "eta": {
-    "elapsed_trading_days_ex_dark": 12,
-    "observed_fills_per_trading_day": 0.5,
-    "remaining_fills_needed": 14,
-    "projected_trading_days_needed": 28,
-    "expected_trigger_eta_et": "2026-09-18",
-    "method": "observed 6 fill(s) over 12 trading day(s) since 2026-07-18 (weekdays, excluding 5 known PDT-dark date(s) -- manually transcribed from analysis/deep-research/PDT-ACCOUNT-TYPE-DECISION-2026-08-06.md section 3/5, cross-confirmed live via a 2026-08-08 self_check discord-outbox row -- NOT a live pdt_tracker query (that needs a broker credential round-trip this offline instrument does not make); extend BOLD_PDT_DARK_DATES by hand if the PDT decision memo's section 6 is resolved differently) -> rate 0.5/day, 28 more trading day(s) needed for 14 more fill(s), projected forward the same way (weekdays, dark dates excluded)"
+    "elapsed_trading_days_ex_dark": 18,
+    "observed_fills_per_trading_day": 1.3889,
+    "remaining_fills_needed": 0,
+    "projected_trading_days_needed": 0,
+    "expected_trigger_eta_et": "2026-08-20",
+    "method": "power floor already met -- no projection needed"
   },
   "escalation": {
     "posted_this_run": false,
-    "last_escalated_status": "ACCRUING",
-    "finding": null,
-    "posted_at_et": null,
+    "last_escalated_status": "TRIGGERED_NEGATIVE",
+    "finding": "I'm escalating BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL (commit 718e0809, 2026-07-18): bold-2's ATM strike tier has hit its own n>=20 falsification check -- 20 fills, -$1,338 net (WR 15%), vs the old OTM-3 tier's +$406 on 4. Per the ship commit's own rail this is NOT a silent revert -- it escalates to Fable judgment (/think-like-fable). The one-line revert is ready any time: repoint the bold branch in setup/scripts/heartbeat_core.py:1975 and setup/scripts/j_intent_executor.py:311 from ss.V15_BOLD_CORE_TIERS back to ss.V15_BOLD_TIERS.",
+    "posted_at_et": "2026-08-14T16:50:00",
     "revert_instruction": "repoint the bold branch in setup/scripts/heartbeat_core.py:1975 and setup/scripts/j_intent_executor.py:311 from ss.V15_BOLD_CORE_TIERS back to ss.V15_BOLD_TIERS"
   },
   "warnings": [
