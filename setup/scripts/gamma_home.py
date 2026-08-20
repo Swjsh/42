@@ -373,7 +373,7 @@ def build_answers() -> list:
     # a repeated question is a missing instrument. The readiness card above only
     # ever covered the SPY engine; futures runs five separate lanes and none of
     # them had a glanceable line anywhere.
-    fut = REPO / "automation" / "state" / "futures"
+    fut = STATE / "futures"
     lanes, live, stale_lanes = [], 0, []
     LANES = [
         ("trader (fillsim)", fut / "trader" / "heartbeat.json"),
