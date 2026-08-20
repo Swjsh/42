@@ -1,0 +1,104 @@
+{
+  "_doc": "MULTI-SYMBOL OPTIONS LANE (arm multi-1). A COPY of the SPY engine, symbol-parameterized. J directive 2026-08-19: copy the SPY engine, do not touch the original, trade many names. NOTHING here is SPY-hardcoded. TRACKED config; live state beside it is gitignored.",
+  "_status": "SHADOW_BUILD",
+  "_rule_version": "multi-v1",
+  "_separation": "This lane NEVER imports, modifies, or shares state with the SPY engine. Its P&L is never SPY evidence and vice versa (crypto-twin non-comparability doctrine).",
+
+  "arm": "multi-1",
+  "live": false,
+  "shadow_only": true,
+
+  "account": {
+    "account_number": "PA38EG1JTFBT",
+    "key_source": "crypto-twin",
+    "_key_source_doc": "Reads the EXISTING key from automation/state/crypto-twin/secrets.json (accounts.twin) by REFERENCE -- the secret is never copied into a second file, so a rotation updates in one place. J directed reuse of this account 2026-08-19 (highest paper balance, $9,628.45, options level 3).",
+    "_shared_account_caveat": "This account also runs the crypto twin (BTC/USD, 1/min). Flat-checks and position filters in this lane MUST scope to equity-option symbols only and never touch or count crypto positions -- and the twin's own crypto flat-check must never see these options. Equity-curve P&L on this account is therefore a BLEND of two programs: read per-program ledgers, never the account equity line, for either program's evidence.",
+    "starting_equity_note": "9628.45 observed 2026-08-19; the crypto twin's dust BTC position (~$0.0002) is immaterial."
+  },
+
+  "universe": {
+    "_doc": "A BROAD optionable universe. Membership is NOT a promise of tradeability -- every name passes a LIVE liquidity gate at decision time (see entry.liquidity_gate). J directive: 'more names than I just said... we can trade a lot of different names.'",
+    "_selection_basis": "Liquid US optionable names across sectors: mega-cap tech, semis, index/sector ETFs, financials, energy, healthcare, consumer, high-beta retail favourites. Screened live before any entry.",
+    "index_etf": ["SPY", "QQQ", "IWM", "DIA"],
+    "sector_etf": ["XLK", "XLE", "XLF", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB", "XLRE", "XLC", "SMH", "GDX", "XBI", "TLT", "SLV", "GLD", "USO"],
+    "mega_tech": ["AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA", "AVGO", "AMD", "NFLX"],
+    "semis_hardware": ["MU", "INTC", "QCOM", "TXN", "ARM", "MRVL"],
+    "financials": ["JPM", "BAC", "GS", "MS", "WFC", "C"],
+    "energy": ["XOM", "CVX", "COP", "SLB", "OXY"],
+    "healthcare": ["LLY", "UNH", "JNJ", "MRK", "PFE", "ABBV", "MRNA"],
+    "consumer_industrial": ["WMT", "COST", "HD", "DIS", "NKE", "BA", "CAT", "UBER"],
+    "high_beta": ["PLTR", "COIN", "MSTR", "HOOD", "SOFI", "RIVN", "SMCI", "AFRM"],
+    "_total_note": "~70 names. The live liquidity gate is what decides what is actually tradeable on any given day -- an event can make a normally-illiquid chain deeply liquid (MRNA 2026-08-19: 1 contract Monday, 30,314 Wednesday)."
+  },
+
+  "entry": {
+    "min_dte_at_entry": 3,
+    "expiry_rule": "this_friday_if_dte_ge_3_else_next_friday",
+    "target_delta_min": 0.40,
+    "target_delta_max": 0.70,
+    "structure": "long_premium_only",
+    "max_concurrent_symbols": 3,
+    "liquidity_gate": {
+      "_doc": "Checked LIVE at decision time, per symbol, per contract -- never from a static universe list. This is the fix for the static-screen failure: catalyst days create their own liquidity.",
+      "max_spread_pct_of_premium": 8.0,
+      "min_open_interest": 250,
+      "min_contract_volume_today": 100,
+      "min_underlying_dollar_volume": 20000000,
+      "feed": "indicative",
+      "_feed_note": "No OPRA agreement on this account: every spread number is from the free indicative feed. Permanent disclosure on every row."
+    }
+  },
+
+  "risk": {
+    "per_trade_risk_cap_pct": 0.20,
+    "_cap_note": "Lower than the SPY lane's 30% because this lane spreads across many names; per-trade cap x max_concurrent must stay well inside equity.",
+    "min_contracts": 3,
+    "max_concurrent_positions": 3,
+    "daily_loss_kill_switch_pct": 0.25,
+    "kill_switch_semantics": "blocks_new_entries_only",
+    "correlation_gate": {"deny_abs_r_gte": 0.75, "lookback_days": 60, "fail_mode": "closed"},
+    "max_positions_per_sector": 1,
+    "weekend_holds": false
+  },
+
+  "exits": {
+    "_label": "COPIED_FROM_SPY_ENGINE_UNVALIDATED_ON_THESE_NAMES",
+    "_doc": "Starting values ported from the SPY engine's shapes. They were fitted on SPY 0DTE fills and are NOT validated on these underlyings or these DTEs. Paired shadow-clock logs the ported shape alongside any variant from the first signal.",
+    "tp1_premium_pct": 45.0,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_mult": 1.75,
+    "trail_pct": 20.0,
+    "profit_lock_arm_pct": 15.0,
+    "catastrophe_stop_pct": -50.0,
+    "theta_budget": {
+      "fires_before_catastrophe_cap": true,
+      "max_premium_bleed_pct_without_progress": 30.0,
+      "thesis_progress_definition": "underlying has moved >= 0.5 * ATR(14) in the trade's direction from entry"
+    },
+    "days_to_live": 3
+  },
+
+  "flatten_schedule_et": {
+    "_doc": "Expiration-day cutoffs. Alpaca rejects option orders after ~3:15pm ET on expiration day for most names and the do-not-exercise cutoff is 3:00pm ET. A long option left to auto-exercise would deliver shares this account cannot afford.",
+    "soft_time_stop": "14:45",
+    "hard_backstop": "14:50",
+    "last_resort_dne_sweep": "14:55"
+  },
+
+  "scanners": {
+    "_doc": "Free Alpaca surfaces, all verified working 2026-08-19. These SELECT candidates; they never place or gate a trade on their own.",
+    "movers": {"enabled": true, "endpoint": "/v1beta1/screener/stocks/movers", "min_abs_pct": 8.0},
+    "most_actives": {"enabled": true, "endpoint": "/v1beta1/screener/stocks/most-actives", "top": 25},
+    "news": {"enabled": true, "endpoint": "/v1beta1/news", "lookback_hours": 24},
+    "gap": {"enabled": true, "min_gap_pct": 5.0, "min_rel_volume": 3.0},
+    "_verified": "movers returned MRNA +177.0% on 2026-08-19, matching the independently derived figure exactly."
+  },
+
+  "promotion": {
+    "min_signals": 20,
+    "min_distinct_sessions": 15,
+    "random_entry_null_gate": "MAX",
+    "real_fills_promotion_gate_n": 30,
+    "_doc": "Same bar as every other arm. No result is described as promising until it beats the randomized-entry null at its MAX."
+  }
+}

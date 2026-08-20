@@ -296,3 +296,15 @@ automation/state/weekly/circuit-breaker.json
 automation/state/weekly/earnings-blackout.json
 automation/state/weekly/key-levels-*.json
 automation/state/weekly/expiry-experiment-shadow-ledger.jsonl
+
+# --- Multi-symbol options lane (2026-08-19) --------------------------------
+# Same decision-gating reversion hazard as every other live-state family above.
+# params.json + universe.json stay TRACKED (config); live state is ignored.
+automation/state/multi/secrets.json
+automation/state/multi/shadow-ledger.jsonl
+automation/state/multi/decisions.jsonl
+automation/state/multi/positions.json
+automation/state/multi/exit-state.json
+automation/state/multi/circuit-breaker.json
+automation/state/multi/scanner-*.json
+automation/state/multi/key-levels-*.json
