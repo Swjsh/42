@@ -1,3 +1,34 @@
+## [2026-08-20 05:36 ET] conductor: OK — closed `no-console-popups` RED on the 2026-08-14 incident roster, commit `d2204b53`
+
+**Picked via STAGE 1a (`desk_allocator.py`) + STAGE 1 priority-2 (Engine RED/incident roster) — outranks the queue/inbox items.** Budget gate PROCEED ($0.76/$30 pre-fire — corrected: actually $17.28/$30, 1/4 fires used per the gate's own output). Engine health GREEN. `desk_allocator.py` ranked Futures #1 (DECISION ROTTING) but the futures desk was already armed by the ~01:15 ET fire tonight (`worker-registry.json` confirms `MES_MIRROR_ARMED_PAPER_2026_08_20`) — its score is stale (allocator heuristic hasn't caught up), so the next real futures work is watching for the first real sandbox fill, not an action this fire. SPY 0DTE desk (#2, self-check DEGRADED) traced to a benign masked-exit log line, not a fill-funnel break. `incident_fix_status.py --alert` showed 2 RED (`conviction-c4-c5`, `no-console-popups`) — `no-console-popups` had regressed from GREEN with 2 test failures, a concrete guard regression that outranks queue.md's `TWIN-DOCTRINE-FIRST-DEPLOY` (already re-pinged 3x with zero new evidence per the last several fires).
+
+**Root cause:** `test_window_leak_compliance.py` (OP-27 L41 / C8 ratchet) caught 7 new `subprocess.run()` calls added since the last drain (2026-06-30) missing `creationflags=CREATE_NO_WINDOW` — would flash a conhost window when invoked from a headless pythonw scheduled task: `archive_ledgers.py:535`, `gamma_cockpit_data.py:49`, `gamma_home.py:200,507`, `worker_output_verify.py:125,170`, and `automation/swarm/data_fetcher.py:17` (this file was ALSO never git-tracked until this commit — a genuine gap, now closed). Separately, `test_no_ps1_bare_python` false-flagged a doc-comment line in `install-ledger-custody.ps1` that happened to start with the literal text "python.exe" — reworded the prose (zero behavior change) so the regex-based detector stops matching comments.
+
+**Verified, quoted:** `test_window_leak_compliance.py` 3/3 green (was 1/3 — 2 failed). `incident_fix_status.py --alert` re-run: `no-console-popups` OK/GREEN (1 RED remains, `conviction-c4-c5`, unrelated pre-existing item, out of this fire's bounded scope). Full regression slice on every touched module (`test_archive_ledgers`, `test_cockpit_feeds_2026_08_20`, `test_gamma_cockpit_2026_08_20`, `test_gamma_home_2026_08_19`, `test_worker_output_verify_2026_08_19`): 77/77 passed. `py_compile` clean on the newly-tracked `data_fetcher.py`. Commit-time curated safety gate: 59/59 passed.
+
+**Rail 4 not strictly triggered (infra/guard fix, not a trading-path params/heartbeat_core/filters/placement edit)** — ships per OP-22/OP-26 engine-benefit authoring path. Guard test is the regression check (a); revert is `git revert d2204b53`, one clean commit, 6 files (b); this STATUS entry is the report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
+
+**Autonomy metric (`conductor_outcome.py metric`, 20-fire window): `trend: regressing`** — net_improvement=20/total_regressions=0 (healthy), but flagged per OP-22 for the next fire to weigh: `cost_per_drained_usd=$1.87` over the window. Not investigated further this fire (bounded-task rail) — worth a look if the trend persists past a few more fires.
+
+## [2026-08-20 05:34 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.50s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-20 05:31 ET] RED -- INCIDENT FIX ROSTER REGRESSED (2 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.60s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 2 failed, 1 passed in 0.50s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## [2026-08-20 ~01:15 ET] conductor: OK — MES mirror lane ARMED for real (paper) execution: `Gamma_FuturesMirror --armed`, 91 guard tests green
 
 **Picked via STAGE 1a (`desk_allocator.py`): Futures desk flagged DECISION ROTTING (+100 pts, top of all 4 desks) — the MES mirror-shadow lane cleared its arming bar 2026-08-19 (59/20 closed round trips, +$1,268.66, beats an ES=F buy-and-hold null; `automation/state/futures/shadow-progress.json`) and sat un-acted-on.** Budget gate PROCEED ($0/$30 pre-fire). Engine health GREEN. This outranked the stale `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping and every queue/inbox item — an armed-bar desk decision is the allocator's explicit #1 priority under an Engine-RED.
@@ -327,58 +358,6 @@ classifier counts machine audit prompts as J questions (43× inflated).
 09:30:18-ish, and the 09:30:02 health fire now reads "awaiting first tick" instead of pinging
 🔴. Discord fills arrive in the new bulleted format.
 
-## [2026-08-17 evening] 🔬 FABLE EOD AUDIT — winner forensics, conviction's first honest data, one pre-registered KILL executed
 
-Full audit: [`EOD-2026-08-17-FABLE-AUDIT.md`](../../analysis/deep-research/EOD-2026-08-17-FABLE-AUDIT.md).
-Day was RIGHT-shaped: payoff 6.1:1 @ 20% WR (+$24.8/tr EV). Per-account: bold-2 **+$360 above
-target**; the −$236 drag was one experiment that tonight **executed its own frozen kill**.
-
-- **Winner (13:06 bold, +$360):** entered via the **trendline-only lane — the only bear lane
-  alive at VIX 15** (filter 8 needs VIX>17.3 rising; the lane waives 5/8/9). Quirk on record:
-  13:04 had MORE evidence (level+trendline, score 9) and was blocked; it fired at 13:06 when
-  the setup got *narrower*. **Why 5 contracts: `qty = min_contracts` flat (heartbeat_core:2388)**
-  — the aggressive tier table (8/12) is NOT consumed on the core path (dead-knob ledger +1);
-  equity-scaling stays deliberately disarmed pending a validated entry-quality gate.
-- 🚨 **Conviction would have BLOCKED the winner.** First post-fix day: 58 rows, 100%
-  would_block, winner scored **0/8** (no trendline component exists; C4 range_position 0.046 =
-  session low = momentum reads as zero). Armed today = −$324 worse. **Queued: trendline-quality
-  component — it is the gate to sizing re-arm, the highest-leverage design fix on the board.**
-- **Safe missed the winner:** all 17 SKIP_STRUCTURE_VETO ticks were safe's, 13:06–13:25 — the
-  classifier read "uptrend" at the breakdown (lagging, L243 family). ≈$216 forgone. Exhibit
-  filed to the standing structure-veto audit; gate untouched.
-- **The 4 losers:** one family (vwap_reclaim), all −8% stops, all theses paid later (the 10:23
-  scratch was the SAME 775P bold rode +100%). "Hold longer?" belongs to the **stop-mode clock:
-  interim 95tr/5d has premium stops AHEAD +$1,809** — tight stops STAY; today accrues tomorrow
-  (same-day 403). The 09:53→09:56 same-contract re-entry (−$136) is M3 churn — dies with the kill.
-- ⚡ **KILL EXECUTED (pre-registered, J-revocable):** FLEET-VWAP-RECLAIM checkpoint hit today
-  (10 sessions, whichever-first; cohort n=3 = **−$200 < 0**) → `RUN_VWAP_RECLAIM_FB=False`.
-  n=3 thin, disclosed; frozen criteria don't get relitigated. Core safe-2 lane out of scope,
-  stays, on watch. Waiver row updated (bookkeeping, not signed). 43/43 + 9/9 guards.
-- **Opus review:** incident handling + self-corrections hold. Pushbacks: the "production fails
-  OP-16 EC" claim is boundary-trade-driven (autopsy before verdict); the matrix's regime finding
-  is ribbon-config-scoped — today's losers were vwap-family, don't conflate.
-- 🔄 Discord trade-ping reformat (J's emoji/bullet spec): Sonnet agent running, reports separately.
-
-﻿## [2026-08-17 20:37 ET] conductor: OK — CLAUDE.md context-budget RED→YELLOW, commit `aef7c486`
-
-**Picked from STAGE 0 (`check-context-budget.ps1` flagged RED 9248/9000, 103% — the digest header itself showed this every fire).** Deduped 9 redundant `(prose: LESSONS-LEARNED.md L##)` parentheticals in the OP-25 Lessons index (each cited L# already present verbatim in its own row's L-list, header already says "full prose in LESSONS-LEARNED.md" — pure duplication) + shrank the Account-context repointing narrative to a one-line pointer (confirmed full detail still verbatim in `dual-account-design.md:35` before cutting). Zero information loss — this is dedup, not hand-shaving. Re-measured: **YELLOW 8311/9000 (92%)**. Verified `context_audit.py verify` 9/9 PASS (all 10 rules, both account numbers, kill-switch text, rule-version pin, refusals, work-cadence table, Lessons table, 0 missing doc pointers, under budget). Pre-commit curated safety gate (6 suites) 59/59 PASS automatically. Doc-only, zero trading-path files touched, ships per OP-22/OP-26 (no J gate). Revert: `git revert aef7c486`.
-
-Checked self-audit gaps (priority-3, above this pick) first — the only untriaged batch (17:33 ET) was already fully closed by an earlier fire tonight (regime_context fix), confirmed via the file's own DONE marker. No higher-priority item was skipped.
-
-
-### ⚠️ KNOWN BROKEN (found 2026-08-20, multi-lane regression check) — a graduated guard is DEAD in full-suite runs
-
-`test_graduated_guards.py::test_free_model_cost_estimate_is_zero` **fails in a full-suite run,
-passes alone.** It guards a real scar (G-PHANTOM-COST: unknown `:free` slugs falling through to
-paid rates and corrupting spend summaries), so the scar it protects could recur unnoticed.
-
-Two-file repro: `pytest backtest/tests/test_eod_quant_guard.py "backtest/tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero"` → 1 failed.
-Source: `test_eod_quant_guard.py:24-37` puts a stub in `sys.modules["run_minimax"]` at import
-scope and never restores it; `test_eod...` sorts before `test_graduated...`.
-
-**NOT fully root-caused.** The final error is `AttributeError: 'NoneType' has no attribute
-'__dict__'` inside CPython `dataclasses.py:757` — deeper than sys.modules shadowing. One fix
-attempt (load-by-file-path) did NOT resolve it and was reverted rather than left half-applied.
-Not caused by the multi lane (multi tests + this guard together: 68 passed).
-Full writeup + suggested sweep: `strategy/candidates/_lesson-inbox/graduated-guard-dead-in-full-suite-2026-08-20.md`.
-**Invisible to the pre-commit gate** — the curated 6-suite subset does not include this pairing.
+## Kitchen
+Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
