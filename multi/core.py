@@ -50,7 +50,9 @@ if str(REPO_ROOT) not in sys.path:
 from multi.lib import broker as mb  # noqa: E402
 from multi.lib import creds as mc  # noqa: E402
 from multi.lib import expiry as mx  # noqa: E402
+from multi.lib import exits as mex  # noqa: E402
 from multi.lib import levels as mlv  # noqa: E402
+from multi.lib import position_state as mps  # noqa: E402
 from multi.lib import watchlist as mw  # noqa: E402
 from multi.lib import positions as mp  # noqa: E402
 from multi.lib import risk as mr  # noqa: E402
@@ -274,6 +276,76 @@ def attention_from_bars(bars_by_symbol: dict) -> dict:
     return out
 
 
+def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: dict) -> list:
+    """Evaluate EXITS for open positions BEFORE considering any new entry.
+
+    Ordering is deliberate: a lane that looks for entries before managing what it already holds
+    can breach its own concurrency cap and, worse, can miss an expiry-day flatten while busy
+    scoring new names. Exits first, always.
+
+    SHADOW: this records the exit DECISION. It does not send anything -- exits.evaluate_exit is
+    a pure function and no broker submission is reachable from here.
+    """
+    out = []
+    try:
+        state = mps.load_state()
+    except mps.PositionStateError as e:
+        # A corrupt/missing state file must never read as "no open positions" -- that is the
+        # dangerous direction (it would look like a clean book while positions are live).
+        return [{"ts_et": now_et().isoformat(timespec="seconds"), "kind": "exit_eval",
+                 "decision": "BLOCKED", "gate": "position_state",
+                 "reason": "position state unreadable: %s" % e, "shadow": True}]
+
+    if not state:
+        return out
+
+    for contract, rec in state.items():
+        row = {"ts_et": now_et().isoformat(timespec="seconds"), "kind": "exit_eval",
+               "contract": contract, "symbol": getattr(rec, "symbol", None),
+               "shadow": True, "feed": "indicative"}
+        try:
+            quote = fetch_option_quote(creds, contract)
+        except Exception:  # noqa: BLE001
+            quote = None
+        if not quote:
+            row.update(decision="BLOCKED", gate="quote",
+                       reason="no two-sided quote for an OPEN position")
+            out.append(row)
+            continue
+
+        sym = getattr(rec, "symbol", None)
+        df = (bars_by_symbol or {}).get(sym)
+        underlying = None
+        atr14 = None
+        if df is not None and len(df) > 15:
+            try:
+                underlying = float(df["close"].iloc[-1])
+                atr14 = mlv._atr(df)
+            except Exception:  # noqa: BLE001
+                underlying, atr14 = None, None
+
+        try:
+            decision = mex.evaluate_exit(
+                rec, now_et=now_et(),
+                best_premium=float(quote["ask"]), worst_premium=float(quote["bid"]),
+                open_qty=getattr(rec, "qty", 0), underlying_price=underlying,
+                atr14=atr14, params=params,
+            )
+        except Exception as e:  # noqa: BLE001
+            row.update(decision="BLOCKED", gate="exit_eval",
+                       reason="exit evaluation failed: %s" % type(e).__name__)
+            out.append(row)
+            continue
+
+        row.update(decision=str(getattr(decision, "action", "HOLD")),
+                   stage=str(getattr(decision, "stage", "") or getattr(decision, "reason", "")),
+                   qty_to_close=getattr(decision, "qty", None),
+                   bid=quote["bid"], ask=quote["ask"],
+                   days_held=getattr(rec, "days_held", None))
+        out.append(row)
+    return out
+
+
 def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
          dry_bars: dict | None = None) -> tuple[list[dict], Counter]:
     """One evaluation pass over `symbols`. Returns (rows, cascade_counter).
@@ -291,6 +363,12 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     equity = float(account.get("equity") or 0.0)
     if equity <= 0:
         raise TickError(f"account equity read as {equity!r} — refusing to size against it")
+
+    # EXITS FIRST. Managing what we already hold outranks hunting new entries -- a lane that
+    # scores 72 names before checking an expiry-day flatten has its priorities inverted.
+    exit_rows = manage_open_positions(params, creds, open_opts, dry_bars or {})
+    rows.extend(exit_rows)
+    cascade["exit_evaluations"] = len(exit_rows)
 
     # --- THE FUNNEL: narrow ~72 names to <=5 BEFORE any expensive chain read ---------------
     # Stages 1-3 are cheap (bars we already hold); the per-symbol chain reads that follow are
@@ -490,6 +568,13 @@ def main(argv: list[str] | None = None) -> int:
     creds = mc.resolve(params)
     mc.verify_account(creds)
 
+    # Bootstrap the position-state file ONCE, explicitly. position_state deliberately refuses
+    # to treat a missing file as "no open positions" -- that is the dangerous direction, since
+    # it would read as a clean book while positions are live. So a genuinely-fresh lane creates
+    # it here on purpose, and any LATER disappearance or corruption stays a loud alarm rather
+    # than being silently re-created every tick.
+    mps.ensure_initialized()
+
     syms = ([s.strip().upper() for s in args.symbols.split(",")]
             if args.symbols else universe_symbols(params))
     if args.limit:
@@ -510,7 +595,8 @@ def main(argv: list[str] | None = None) -> int:
         write_rows(rows, cascade)
 
     print(f"[multi_core] {ts_summary(cascade)}", file=sys.stderr)
-    for g in ("evaluated", "funnel_filtered_out", "bars_ok", "signal_scored",
+    for g in ("exit_evaluations", "evaluated", "funnel_filtered_out", "bars_ok",
+              "signal_scored",
               "action_directional",
               "risk_admitted", "expiry_available", "strike_selected", "liquidity_ok",
               "sized_ok", "would_place"):
