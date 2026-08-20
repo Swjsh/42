@@ -1,11 +1,11 @@
 {
   "_doc": "Trading journal calendar -- setup/scripts/journal_calendar.py. REPORTING ONLY: arms nothing, places no orders, edits no params*.json.",
-  "generated_et": "2026-08-19T18:05:41.020228",
+  "generated_et": "2026-08-20T18:30:12.431089",
   "date_range": [
     "2026-06-26",
-    "2026-08-19"
+    "2026-08-20"
   ],
-  "row_count": 303,
+  "row_count": 312,
   "roster": [
     "safe-2",
     "bold-2",
@@ -2217,18 +2217,165 @@
               "pnl_net_ex_cat": -42.28
             }
           ]
+        },
+        "2026-08-20": {
+          "date": "2026-08-20",
+          "pnl_gross": 266.0,
+          "pnl_net": 264.58,
+          "fees_total": 1.42,
+          "fees_cat": 0.01,
+          "trade_count": 5,
+          "wins_gross": 2,
+          "losses_gross": 3,
+          "scratches_gross": 0,
+          "wins_net": 2,
+          "losses_net": 3,
+          "scratches_net": 0,
+          "trades": [
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820C00767000",
+              "side": "C",
+              "entry_ts_et": "2026-08-20T10:26:05.152593",
+              "entry_premium": 1.05,
+              "exit_ts_et": "2026-08-20T10:27:04.318959",
+              "exit_premium": 0.87,
+              "qty": 3,
+              "real_pnl": -54.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 767.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.87,
+              "pnl_cross_check_ok": true,
+              "setup": null,
+              "setup_matched": false,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": -54.0,
+              "pnl_net_ex_cat": -54.28
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00766000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T12:56:05.082022",
+              "entry_premium": 0.7,
+              "exit_ts_et": "2026-08-20T13:22:04.722476",
+              "exit_premium": null,
+              "qty": 3,
+              "real_pnl": 191.0,
+              "_note": "3-leg exit",
+              "arm": "safe-2",
+              "strike": 766.0,
+              "multi_leg": true,
+              "legs": [
+                {
+                  "qty": 1.0,
+                  "price": 1.39,
+                  "ts_et": "2026-08-20T13:20:05.723038"
+                },
+                {
+                  "qty": 1.0,
+                  "price": 1.39,
+                  "ts_et": "2026-08-20T13:20:05.845726"
+                },
+                {
+                  "qty": 1.0,
+                  "price": 1.23,
+                  "ts_et": "2026-08-20T13:22:04.722476"
+                }
+              ],
+              "exit_premium_avg": 1.3367,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": 191.0,
+              "pnl_net_ex_cat": 190.72
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00765000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T13:31:05.578958",
+              "entry_premium": 0.82,
+              "exit_ts_et": "2026-08-20T13:32:04.859127",
+              "exit_premium": 0.76,
+              "qty": 3,
+              "real_pnl": -18.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 765.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.76,
+              "pnl_cross_check_ok": true,
+              "setup": null,
+              "setup_matched": false,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": -18.0,
+              "pnl_net_ex_cat": -18.28
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00765000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:01:06.111347",
+              "entry_premium": 1.04,
+              "exit_ts_et": "2026-08-20T14:12:05.038596",
+              "exit_premium": 1.62,
+              "qty": 3,
+              "real_pnl": 174.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 765.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 1.62,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.29,
+              "pnl_gross": 174.0,
+              "pnl_net_ex_cat": 173.71
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00764000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:56:05.165269",
+              "entry_premium": 0.79,
+              "exit_ts_et": "2026-08-20T15:40:05.770716",
+              "exit_premium": 0.7,
+              "qty": 3,
+              "real_pnl": -27.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 764.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.7,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": -27.0,
+              "pnl_net_ex_cat": -27.28
+            }
+          ]
         }
       },
       "summary": {
-        "total_pnl_gross": -850.0,
-        "total_pnl_net": -870.67,
-        "total_fees": 20.67,
-        "trading_days": 23,
-        "total_trades": 72,
-        "win_rate_by_day_gross": 0.3043,
-        "win_rate_by_day_net": 0.3043,
-        "win_rate_by_trade_gross": 0.2222,
-        "win_rate_by_trade_net": 0.2222,
+        "total_pnl_gross": -584.0,
+        "total_pnl_net": -606.09,
+        "total_fees": 22.09,
+        "trading_days": 24,
+        "total_trades": 77,
+        "win_rate_by_day_gross": 0.3333,
+        "win_rate_by_day_net": 0.3333,
+        "win_rate_by_trade_gross": 0.2338,
+        "win_rate_by_trade_net": 0.2338,
         "best_day_gross": {
           "date": "2026-08-04",
           "pnl": 662.0
@@ -2246,16 +2393,16 @@
           "pnl": -391.09
         },
         "current_streak_gross": {
-          "type": "losing",
+          "type": "winning",
           "length": 1,
-          "since_date": "2026-08-19",
-          "through_date": "2026-08-19"
+          "since_date": "2026-08-20",
+          "through_date": "2026-08-20"
         },
         "current_streak_net": {
-          "type": "losing",
+          "type": "winning",
           "length": 1,
-          "since_date": "2026-08-19",
-          "through_date": "2026-08-19"
+          "since_date": "2026-08-20",
+          "through_date": "2026-08-20"
         }
       }
     },
@@ -3260,18 +3407,80 @@
               "pnl_net_ex_cat": -0.45
             }
           ]
+        },
+        "2026-08-20": {
+          "date": "2026-08-20",
+          "pnl_gross": 175.0,
+          "pnl_net": 174.09,
+          "fees_total": 0.91,
+          "fees_cat": 0.01,
+          "trade_count": 2,
+          "wins_gross": 2,
+          "losses_gross": 0,
+          "scratches_gross": 0,
+          "wins_net": 2,
+          "losses_net": 0,
+          "scratches_net": 0,
+          "trades": [
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00764000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T13:16:07.394311",
+              "entry_premium": 0.34,
+              "exit_ts_et": "2026-08-20T13:45:06.438996",
+              "exit_premium": 0.52,
+              "qty": 5,
+              "real_pnl": 90.0,
+              "_note": null,
+              "arm": "bold-2",
+              "strike": 764.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.52,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.45,
+              "pnl_gross": 90.0,
+              "pnl_net_ex_cat": 89.55
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00763000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:03:08.635371",
+              "entry_premium": 0.34,
+              "exit_ts_et": "2026-08-20T14:13:05.725396",
+              "exit_premium": 0.51,
+              "qty": 5,
+              "real_pnl": 85.0,
+              "_note": null,
+              "arm": "bold-2",
+              "strike": 763.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.51,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.45,
+              "pnl_gross": 85.0,
+              "pnl_net_ex_cat": 84.55
+            }
+          ]
         }
       },
       "summary": {
-        "total_pnl_gross": -402.0,
-        "total_pnl_net": -415.71,
-        "total_fees": 13.71,
-        "trading_days": 15,
-        "total_trades": 29,
-        "win_rate_by_day_gross": 0.5333,
-        "win_rate_by_day_net": 0.5333,
-        "win_rate_by_trade_gross": 0.2759,
-        "win_rate_by_trade_net": 0.2759,
+        "total_pnl_gross": -227.0,
+        "total_pnl_net": -241.62,
+        "total_fees": 14.62,
+        "trading_days": 16,
+        "total_trades": 31,
+        "win_rate_by_day_gross": 0.5625,
+        "win_rate_by_day_net": 0.5625,
+        "win_rate_by_trade_gross": 0.3226,
+        "win_rate_by_trade_net": 0.3226,
         "best_day_gross": {
           "date": "2026-08-04",
           "pnl": 479.0
@@ -3290,15 +3499,15 @@
         },
         "current_streak_gross": {
           "type": "winning",
-          "length": 3,
+          "length": 4,
           "since_date": "2026-08-17",
-          "through_date": "2026-08-19"
+          "through_date": "2026-08-20"
         },
         "current_streak_net": {
           "type": "winning",
-          "length": 3,
+          "length": 4,
           "since_date": "2026-08-17",
-          "through_date": "2026-08-19"
+          "through_date": "2026-08-20"
         }
       }
     },
@@ -9789,18 +9998,80 @@
               "pnl_net_ex_cat": -90.85
             }
           ]
+        },
+        "2026-08-20": {
+          "date": "2026-08-20",
+          "pnl_gross": 370.0,
+          "pnl_net": 368.27,
+          "fees_total": 1.73,
+          "fees_cat": 0.01,
+          "trade_count": 2,
+          "wins_gross": 2,
+          "losses_gross": 0,
+          "scratches_gross": 0,
+          "wins_net": 2,
+          "losses_net": 0,
+          "scratches_net": 0,
+          "trades": [
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00764000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T13:16:08.535337",
+              "entry_premium": 0.34,
+              "exit_ts_et": "2026-08-20T13:45:09.829350",
+              "exit_premium": 0.53,
+              "qty": 10,
+              "real_pnl": 190.0,
+              "_note": null,
+              "arm": "risky-3",
+              "strike": 764.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.53,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.86,
+              "pnl_gross": 190.0,
+              "pnl_net_ex_cat": 189.14
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00763000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:03:07.476750",
+              "entry_premium": 0.35,
+              "exit_ts_et": "2026-08-20T14:12:08.884299",
+              "exit_premium": 0.53,
+              "qty": 10,
+              "real_pnl": 180.0,
+              "_note": null,
+              "arm": "risky-3",
+              "strike": 763.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.53,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.86,
+              "pnl_gross": 180.0,
+              "pnl_net_ex_cat": 179.14
+            }
+          ]
         }
       },
       "summary": {
-        "total_pnl_gross": -320.0,
-        "total_pnl_net": -371.75,
-        "total_fees": 51.75,
-        "trading_days": 27,
-        "total_trades": 81,
-        "win_rate_by_day_gross": 0.3704,
-        "win_rate_by_day_net": 0.3704,
-        "win_rate_by_trade_gross": 0.2099,
-        "win_rate_by_trade_net": 0.2099,
+        "total_pnl_gross": 50.0,
+        "total_pnl_net": -3.48,
+        "total_fees": 53.48,
+        "trading_days": 28,
+        "total_trades": 83,
+        "win_rate_by_day_gross": 0.3929,
+        "win_rate_by_day_net": 0.3929,
+        "win_rate_by_trade_gross": 0.2289,
+        "win_rate_by_trade_net": 0.2289,
         "best_day_gross": {
           "date": "2026-08-06",
           "pnl": 830.0
@@ -9818,16 +10089,16 @@
           "pnl": -1462.24
         },
         "current_streak_gross": {
-          "type": "losing",
-          "length": 3,
-          "since_date": "2026-08-14",
-          "through_date": "2026-08-19"
+          "type": "winning",
+          "length": 1,
+          "since_date": "2026-08-20",
+          "through_date": "2026-08-20"
         },
         "current_streak_net": {
-          "type": "losing",
-          "length": 3,
-          "since_date": "2026-08-14",
-          "through_date": "2026-08-19"
+          "type": "winning",
+          "length": 1,
+          "since_date": "2026-08-20",
+          "through_date": "2026-08-20"
         }
       }
     },
@@ -18264,18 +18535,257 @@
               "pnl_net_ex_cat": -90.85
             }
           ]
+        },
+        "2026-08-20": {
+          "date": "2026-08-20",
+          "pnl_gross": 811.0,
+          "pnl_net": 806.94,
+          "fees_total": 4.06,
+          "fees_cat": 0.03,
+          "trade_count": 9,
+          "wins_gross": 6,
+          "losses_gross": 3,
+          "scratches_gross": 0,
+          "wins_net": 6,
+          "losses_net": 3,
+          "scratches_net": 0,
+          "trades": [
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820C00767000",
+              "side": "C",
+              "entry_ts_et": "2026-08-20T10:26:05.152593",
+              "entry_premium": 1.05,
+              "exit_ts_et": "2026-08-20T10:27:04.318959",
+              "exit_premium": 0.87,
+              "qty": 3,
+              "real_pnl": -54.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 767.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.87,
+              "pnl_cross_check_ok": true,
+              "setup": null,
+              "setup_matched": false,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": -54.0,
+              "pnl_net_ex_cat": -54.28
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00766000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T12:56:05.082022",
+              "entry_premium": 0.7,
+              "exit_ts_et": "2026-08-20T13:22:04.722476",
+              "exit_premium": null,
+              "qty": 3,
+              "real_pnl": 191.0,
+              "_note": "3-leg exit",
+              "arm": "safe-2",
+              "strike": 766.0,
+              "multi_leg": true,
+              "legs": [
+                {
+                  "qty": 1.0,
+                  "price": 1.39,
+                  "ts_et": "2026-08-20T13:20:05.723038"
+                },
+                {
+                  "qty": 1.0,
+                  "price": 1.39,
+                  "ts_et": "2026-08-20T13:20:05.845726"
+                },
+                {
+                  "qty": 1.0,
+                  "price": 1.23,
+                  "ts_et": "2026-08-20T13:22:04.722476"
+                }
+              ],
+              "exit_premium_avg": 1.3367,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": 191.0,
+              "pnl_net_ex_cat": 190.72
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00765000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T13:31:05.578958",
+              "entry_premium": 0.82,
+              "exit_ts_et": "2026-08-20T13:32:04.859127",
+              "exit_premium": 0.76,
+              "qty": 3,
+              "real_pnl": -18.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 765.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.76,
+              "pnl_cross_check_ok": true,
+              "setup": null,
+              "setup_matched": false,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": -18.0,
+              "pnl_net_ex_cat": -18.28
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00765000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:01:06.111347",
+              "entry_premium": 1.04,
+              "exit_ts_et": "2026-08-20T14:12:05.038596",
+              "exit_premium": 1.62,
+              "qty": 3,
+              "real_pnl": 174.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 765.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 1.62,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.29,
+              "pnl_gross": 174.0,
+              "pnl_net_ex_cat": 173.71
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00764000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:56:05.165269",
+              "entry_premium": 0.79,
+              "exit_ts_et": "2026-08-20T15:40:05.770716",
+              "exit_premium": 0.7,
+              "qty": 3,
+              "real_pnl": -27.0,
+              "_note": null,
+              "arm": "safe-2",
+              "strike": 764.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.7,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.28,
+              "pnl_gross": -27.0,
+              "pnl_net_ex_cat": -27.28
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00764000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T13:16:07.394311",
+              "entry_premium": 0.34,
+              "exit_ts_et": "2026-08-20T13:45:06.438996",
+              "exit_premium": 0.52,
+              "qty": 5,
+              "real_pnl": 90.0,
+              "_note": null,
+              "arm": "bold-2",
+              "strike": 764.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.52,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.45,
+              "pnl_gross": 90.0,
+              "pnl_net_ex_cat": 89.55
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00763000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:03:08.635371",
+              "entry_premium": 0.34,
+              "exit_ts_et": "2026-08-20T14:13:05.725396",
+              "exit_premium": 0.51,
+              "qty": 5,
+              "real_pnl": 85.0,
+              "_note": null,
+              "arm": "bold-2",
+              "strike": 763.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.51,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.45,
+              "pnl_gross": 85.0,
+              "pnl_net_ex_cat": 84.55
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00764000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T13:16:08.535337",
+              "entry_premium": 0.34,
+              "exit_ts_et": "2026-08-20T13:45:09.829350",
+              "exit_premium": 0.53,
+              "qty": 10,
+              "real_pnl": 190.0,
+              "_note": null,
+              "arm": "risky-3",
+              "strike": 764.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.53,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.86,
+              "pnl_gross": 190.0,
+              "pnl_net_ex_cat": 189.14
+            },
+            {
+              "date": "2026-08-20",
+              "symbol": "SPY260820P00763000",
+              "side": "P",
+              "entry_ts_et": "2026-08-20T14:03:07.476750",
+              "entry_premium": 0.35,
+              "exit_ts_et": "2026-08-20T14:12:08.884299",
+              "exit_premium": 0.53,
+              "qty": 10,
+              "real_pnl": 180.0,
+              "_note": null,
+              "arm": "risky-3",
+              "strike": 763.0,
+              "multi_leg": false,
+              "legs": [],
+              "exit_premium_avg": 0.53,
+              "pnl_cross_check_ok": true,
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "setup_matched": true,
+              "fees_total_ex_cat": 0.86,
+              "pnl_gross": 180.0,
+              "pnl_net_ex_cat": 179.14
+            }
+          ]
         }
       },
       "summary": {
-        "total_pnl_gross": -1805.0,
-        "total_pnl_net": -1940.98,
-        "total_fees": 135.98,
-        "trading_days": 35,
-        "total_trades": 303,
-        "win_rate_by_day_gross": 0.3429,
-        "win_rate_by_day_net": 0.3429,
-        "win_rate_by_trade_gross": 0.231,
-        "win_rate_by_trade_net": 0.231,
+        "total_pnl_gross": -994.0,
+        "total_pnl_net": -1134.04,
+        "total_fees": 140.04,
+        "trading_days": 36,
+        "total_trades": 312,
+        "win_rate_by_day_gross": 0.3611,
+        "win_rate_by_day_net": 0.3611,
+        "win_rate_by_trade_gross": 0.2436,
+        "win_rate_by_trade_net": 0.2436,
         "best_day_gross": {
           "date": "2026-08-04",
           "pnl": 3624.0
@@ -18294,15 +18804,15 @@
         },
         "current_streak_gross": {
           "type": "winning",
-          "length": 3,
+          "length": 4,
           "since_date": "2026-08-17",
-          "through_date": "2026-08-19"
+          "through_date": "2026-08-20"
         },
         "current_streak_net": {
           "type": "winning",
-          "length": 3,
+          "length": 4,
           "since_date": "2026-08-17",
-          "through_date": "2026-08-19"
+          "through_date": "2026-08-20"
         }
       }
     }
