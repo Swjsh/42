@@ -1,3 +1,27 @@
+## [2026-08-20 ~01:4x ET] OK -- desk orchestration + the cockpit: 8 views, 6 defects fixed, 72 guards green
+
+**J directive chain:** "how does that fit into the agent orchestration flow" -> "build a command center that looks epic" -> "review from every angle, ensure accuracy and hydration, show me each engine's ticks and what agents are doing, make it like talking to an employee." Canonical doc (folded, not a new file): `analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md` Parts 6-7.
+
+**THE DESK MODEL.** J's axis was right and it was not the one the registry used: the 9 workers are split by ROLE (the named anti-pattern); DESKS split by INSTRUMENT, which is a real context boundary. Org is now a MATRIX -- desks own context, the 9 workers are shared functions invoked BY a desk with that desk's context, master allocates. Four desks registered with their true state (spy-0dte real fills · futures sim-only · multi-sector shadow · prediction-markets shadow).
+
+**THE MASTER'S MISSING THIRD ARM.** `desk_allocator.py` -- conductor STAGE 1 drained a FLAT queue, which structurally starves any desk nobody wrote an item for. That is exactly how the futures MES mirror hit `armable:true` (59/20, +$1,269, beats its -$4,934 null) and sat unnoticed until J asked. Now ranked deterministically with reasons, wired as STAGE 1a. P&L level is deliberately NOT scored -- that is revenge-engineering.
+
+**THE COCKPIT.** `analysis/home/index.html`, 8 views (Overview / Desks / Orchestration / Engine room / Agents / Journal / Answers / Activity), Cmd-K palette, drill-down drawers, hand-rolled SVG org graph. Still ONE self-contained file -- no CDN, no webfont, no chart library -- because the surface it replaces (localhost:3000/gamma) was verified DEAD behind a keepalive. Engine room shows every engine's ticks WITH the engine's own reasons (filter indices resolved: "6 - spread too wide", "8 - VIX regime"). Agents view shows what ran and whether its output passed the anti-fabrication gate. The overview now leads with a first-person briefing -- deterministic templates, NEVER an LLM.
+
+**SIX DEFECTS FOUND REVIEWING MY OWN WORK** (4 of them in code written the day before): baked build-time ages (a page open 6h claimed 6-minute-old data) · two clocks on one screen (MT mtime vs ET ledger stamps) · Kalshi reported healthy while its last tick was 10.3 DAYS old (row count measures history, not life) · routing depending on location.hash mutating · multi-sector hardcoded SIGNAL_KILLED while `Gamma_MultiCore` was live · and `index.html` tracked in git as a 446KB generated file rewritten every 30 min (now untracked + gitignored; rebuilds in 1.3s).
+
+**ACCURACY AUDIT:** BOOK summary exact, 143 day-rows across 6 arms match source, 303 trades embedded, every answer carries provenance. ZERO mismatches. 72 guards green; all five modules under the 800-line ceiling.
+
+**OPEN:** numeric fabrication still unguarded (the gate proves a file exists, not that a number is real) · Kalshi lane dead 10+ days, surfaced not diagnosed · Cmd-K and the .vbs launcher not exercised by J directly.
+
+## [2026-08-20 05:38 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.38s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## [2026-08-20 05:36 ET] conductor: OK — closed `no-console-popups` RED on the 2026-08-14 incident roster, commit `d2204b53`
 
 **Picked via STAGE 1a (`desk_allocator.py`) + STAGE 1 priority-2 (Engine RED/incident roster) — outranks the queue/inbox items.** Budget gate PROCEED ($0.76/$30 pre-fire — corrected: actually $17.28/$30, 1/4 fires used per the gate's own output). Engine health GREEN. `desk_allocator.py` ranked Futures #1 (DECISION ROTTING) but the futures desk was already armed by the ~01:15 ET fire tonight (`worker-registry.json` confirms `MES_MIRROR_ARMED_PAPER_2026_08_20`) — its score is stale (allocator heuristic hasn't caught up), so the next real futures work is watching for the first real sandbox fill, not an action this fire. SPY 0DTE desk (#2, self-check DEGRADED) traced to a benign masked-exit log line, not a fill-funnel break. `incident_fix_status.py --alert` showed 2 RED (`conviction-c4-c5`, `no-console-popups`) — `no-console-popups` had regressed from GREEN with 2 test failures, a concrete guard regression that outranks queue.md's `TWIN-DOCTRINE-FIRST-DEPLOY` (already re-pinged 3x with zero new evidence per the last several fires).
@@ -361,3 +385,22 @@ classifier counts machine audit prompts as J questions (43× inflated).
 
 ## Kitchen
 Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-08-20T05:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+- [2026-08-20 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-08-20 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-20.md
+
+### DEGRADED: self-check 2026-08-20T06:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-20T06:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-20T07:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-20T07:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.

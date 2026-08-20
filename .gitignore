@@ -333,3 +333,10 @@ automation/state/multi/exit-state.json
 automation/state/multi/circuit-breaker.json
 automation/state/multi/scanner-*.json
 automation/state/multi/key-levels-*.json
+
+# The cockpit is a BUILD ARTIFACT, not source. setup/scripts/gamma_home.py
+# regenerates it in ~1.3s and Gamma_Home rewrites it every 30 min, so tracking a
+# 446KB file that changes every half hour would bloat history for nothing. The
+# launcher (LAUNCH-GAMMA-HOME.vbs) regenerates before opening, so a fresh
+# checkout is one double-click from a current page.
+analysis/home/index.html
