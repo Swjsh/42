@@ -1,0 +1,1322 @@
+{
+ "AS_TRADED|s1|e1": {
+  "cell": "AS_TRADED",
+  "sizing": "s1",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 315.0,
+   "win_rate": 0.2705,
+   "avg_win": 203.73,
+   "avg_loss": -82.19,
+   "max_dd": -3992.0,
+   "best_trade": 881.0,
+   "worst_trade": -712.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 185.44,
+   "win_rate": 0.2705,
+   "avg_win": 203.32,
+   "avg_loss": -74.54,
+   "max_dd": -4048.6,
+   "best_trade": 880.29,
+   "worst_trade": -712.69,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2698.56,
+   "win_rate": 0.2329,
+   "avg_win": 226.29,
+   "avg_loss": -80.74,
+   "max_dd": -5325.88,
+   "best_trade": 864.29,
+   "worst_trade": -728.69,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 0.0,
+   "top_trade_share": null,
+   "top_day_share": null,
+   "note": "delta is zero -- share undefined, not zero"
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 0.0,
+   "top_trade_share": null,
+   "top_day_share": null,
+   "note": "delta is zero -- share undefined, not zero"
+  }
+ },
+ "ITM-2|s1|e1": {
+  "cell": "ITM-2",
+  "sizing": "s1",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 3012.0,
+   "win_rate": 0.3253,
+   "avg_win": 323.93,
+   "avg_loss": -146.11,
+   "max_dd": -5171.0,
+   "best_trade": 1516.0,
+   "worst_trade": -1128.0,
+   "n_days_positive": 13,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 2877.3,
+   "win_rate": 0.3253,
+   "avg_win": 323.49,
+   "avg_loss": -141.39,
+   "max_dd": -5193.56,
+   "best_trade": 1515.5,
+   "worst_trade": -1129.05,
+   "n_days_positive": 13,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -6.7,
+   "win_rate": 0.2877,
+   "avg_win": 355.73,
+   "avg_loss": -143.69,
+   "max_dd": -6038.43,
+   "best_trade": 1505.5,
+   "worst_trade": -1153.05,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 2697.0,
+   "top_trade_share": 0.3867,
+   "top_day_share": 1.0015,
+   "top3_day_share": 2.036
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 2691.86,
+   "top_trade_share": 0.3874,
+   "top_day_share": 1.0033,
+   "top3_day_share": 2.0397
+  }
+ },
+ "ITM-1|s1|e1": {
+  "cell": "ITM-1",
+  "sizing": "s1",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 2184.0,
+   "win_rate": 0.3014,
+   "avg_win": 306.85,
+   "avg_loss": -127.28,
+   "max_dd": -4511.0,
+   "best_trade": 1329.0,
+   "worst_trade": -816.0,
+   "n_days_positive": 13,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 2051.69,
+   "win_rate": 0.3014,
+   "avg_win": 306.42,
+   "avg_loss": -122.13,
+   "max_dd": -4543.56,
+   "best_trade": 1328.51,
+   "worst_trade": -817.03,
+   "n_days_positive": 13,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -832.31,
+   "win_rate": 0.2671,
+   "avg_win": 335.76,
+   "avg_loss": -126.27,
+   "max_dd": -5409.65,
+   "best_trade": 1318.51,
+   "worst_trade": -841.03,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 1869.0,
+   "top_trade_share": 0.458,
+   "top_day_share": 1.2477,
+   "top3_day_share": 2.4901
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 1866.25,
+   "top_trade_share": 0.4587,
+   "top_day_share": 1.2495,
+   "top3_day_share": 2.4936
+  }
+ },
+ "ATM|s1|e1": {
+  "cell": "ATM",
+  "sizing": "s1",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 1177.0,
+   "win_rate": 0.2774,
+   "avg_win": 269.53,
+   "avg_loss": -103.28,
+   "max_dd": -4383.0,
+   "best_trade": 1116.0,
+   "worst_trade": -712.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1046.58,
+   "win_rate": 0.2774,
+   "avg_win": 269.12,
+   "avg_loss": -98.35,
+   "max_dd": -4424.64,
+   "best_trade": 1115.52,
+   "worst_trade": -712.69,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -1837.42,
+   "win_rate": 0.25,
+   "avg_win": 288.92,
+   "avg_loss": -104.7,
+   "max_dd": -5423.1,
+   "best_trade": 1105.52,
+   "worst_trade": -728.69,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 862.0,
+   "top_trade_share": 0.7459,
+   "top_day_share": 2.0232,
+   "top3_day_share": 3.9907
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 861.14,
+   "top_trade_share": 0.7467,
+   "top_day_share": 2.0251,
+   "top3_day_share": 3.9945
+  }
+ },
+ "OTM+1|s1|e1": {
+  "cell": "OTM+1",
+  "sizing": "s1",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 854.0,
+   "win_rate": 0.2671,
+   "avg_win": 207.53,
+   "avg_loss": -78.23,
+   "max_dd": -3606.0,
+   "best_trade": 889.0,
+   "worst_trade": -648.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 724.42,
+   "win_rate": 0.2671,
+   "avg_win": 207.11,
+   "avg_loss": -72.1,
+   "max_dd": -3647.68,
+   "best_trade": 888.53,
+   "worst_trade": -648.68,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2159.58,
+   "win_rate": 0.2295,
+   "avg_win": 231.21,
+   "avg_loss": -78.45,
+   "max_dd": -4956.24,
+   "best_trade": 878.53,
+   "worst_trade": -664.68,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 539.0,
+   "top_trade_share": 0.7718,
+   "top_day_share": 1.8776,
+   "top3_day_share": 4.0019
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 538.98,
+   "top_trade_share": 0.7718,
+   "top_day_share": 1.8775,
+   "top3_day_share": 4.0019
+  }
+ },
+ "OTM+2|s1|e1": {
+  "cell": "OTM+2",
+  "sizing": "s1",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 326.0,
+   "win_rate": 0.2466,
+   "avg_win": 153.06,
+   "avg_loss": -54.56,
+   "max_dd": -2928.0,
+   "best_trade": 671.0,
+   "worst_trade": -552.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 196.97,
+   "win_rate": 0.2466,
+   "avg_win": 152.64,
+   "avg_loss": -49.06,
+   "max_dd": -2988.01,
+   "best_trade": 670.53,
+   "worst_trade": -552.68,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2687.03,
+   "win_rate": 0.2055,
+   "avg_win": 172.9,
+   "avg_loss": -56.3,
+   "max_dd": -4346.01,
+   "best_trade": 660.53,
+   "worst_trade": -568.68,
+   "n_days_positive": 9,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 11.0,
+   "top_trade_share": 30.5455,
+   "top_day_share": 107.1818,
+   "top3_day_share": 222.1818
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 11.53,
+   "top_trade_share": 29.1414,
+   "top_day_share": 102.2567,
+   "top3_day_share": 211.9853
+  }
+ },
+ "AS_TRADED|s1|e2": {
+  "cell": "AS_TRADED",
+  "sizing": "s1",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 689.5,
+   "win_rate": 0.2842,
+   "avg_win": 201.24,
+   "avg_loss": -83.84,
+   "max_dd": -4269.5,
+   "best_trade": 1088.0,
+   "worst_trade": -680.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 559.92,
+   "win_rate": 0.2842,
+   "avg_win": 200.83,
+   "avg_loss": -77.08,
+   "max_dd": -4310.99,
+   "best_trade": 1087.28,
+   "worst_trade": -680.69,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2324.08,
+   "win_rate": 0.2363,
+   "avg_win": 231.54,
+   "avg_loss": -82.07,
+   "max_dd": -5478.39,
+   "best_trade": 1071.28,
+   "worst_trade": -696.69,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 374.5,
+   "top_trade_share": 1.3725,
+   "top_day_share": 0.7557,
+   "top3_day_share": 1.8972
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 374.48,
+   "top_trade_share": 1.3725,
+   "top_day_share": 0.7557,
+   "top3_day_share": 1.8973
+  }
+ },
+ "ITM-2|s1|e2": {
+  "cell": "ITM-2",
+  "sizing": "s1",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 4532.0,
+   "win_rate": 0.3253,
+   "avg_win": 339.93,
+   "avg_loss": -146.11,
+   "max_dd": -5990.0,
+   "best_trade": 1650.0,
+   "worst_trade": -1128.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 4397.25,
+   "win_rate": 0.3253,
+   "avg_win": 339.49,
+   "avg_loss": -141.39,
+   "max_dd": -6031.41,
+   "best_trade": 1649.49,
+   "worst_trade": -1129.05,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": 1513.25,
+   "win_rate": 0.2877,
+   "avg_win": 373.82,
+   "avg_loss": -143.69,
+   "max_dd": -6915.41,
+   "best_trade": 1639.49,
+   "worst_trade": -1153.05,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 4217.0,
+   "top_trade_share": 0.2964,
+   "top_day_share": 0.7493,
+   "top3_day_share": 1.9765
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 4211.81,
+   "top_trade_share": 0.2968,
+   "top_day_share": 0.7502,
+   "top3_day_share": 1.9788
+  }
+ },
+ "ITM-1|s1|e2": {
+  "cell": "ITM-1",
+  "sizing": "s1",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 4506.0,
+   "win_rate": 0.3048,
+   "avg_win": 336.35,
+   "avg_loss": -131.08,
+   "max_dd": -5402.5,
+   "best_trade": 1328.0,
+   "worst_trade": -1080.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 4373.62,
+   "win_rate": 0.3048,
+   "avg_win": 335.92,
+   "avg_loss": -125.73,
+   "max_dd": -5444.78,
+   "best_trade": 1327.27,
+   "worst_trade": -1081.03,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": 1489.62,
+   "win_rate": 0.2705,
+   "avg_win": 368.55,
+   "avg_loss": -129.7,
+   "max_dd": -6376.78,
+   "best_trade": 1311.27,
+   "worst_trade": -1105.03,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 4191.0,
+   "top_trade_share": 0.2326,
+   "top_day_share": 0.7072,
+   "top3_day_share": 1.6108
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 4188.18,
+   "top_trade_share": 0.2328,
+   "top_day_share": 0.7077,
+   "top3_day_share": 1.6118
+  }
+ },
+ "ATM|s1|e2": {
+  "cell": "ATM",
+  "sizing": "s1",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 2532.0,
+   "win_rate": 0.2808,
+   "avg_win": 282.04,
+   "avg_loss": -103.49,
+   "max_dd": -4958.5,
+   "best_trade": 1088.0,
+   "worst_trade": -684.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 2401.56,
+   "win_rate": 0.2808,
+   "avg_win": 281.62,
+   "avg_loss": -98.53,
+   "max_dd": -5000.13,
+   "best_trade": 1087.28,
+   "worst_trade": -685.02,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -482.44,
+   "win_rate": 0.2534,
+   "avg_win": 302.43,
+   "avg_loss": -104.87,
+   "max_dd": -5959.6,
+   "best_trade": 1071.28,
+   "worst_trade": -709.02,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 2217.0,
+   "top_trade_share": 0.2954,
+   "top_day_share": 0.8868,
+   "top3_day_share": 2.0492
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 2216.12,
+   "top_trade_share": 0.2956,
+   "top_day_share": 0.8871,
+   "top3_day_share": 2.0499
+  }
+ },
+ "OTM+1|s1|e2": {
+  "cell": "OTM+1",
+  "sizing": "s1",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 1308.0,
+   "win_rate": 0.274,
+   "avg_win": 199.53,
+   "avg_loss": -75.54,
+   "max_dd": -3570.0,
+   "best_trade": 785.0,
+   "worst_trade": -500.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1178.39,
+   "win_rate": 0.274,
+   "avg_win": 199.11,
+   "avg_loss": -69.58,
+   "max_dd": -3630.26,
+   "best_trade": 784.52,
+   "worst_trade": -500.69,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -1705.61,
+   "win_rate": 0.2363,
+   "avg_win": 221.01,
+   "avg_loss": -76.03,
+   "max_dd": -4988.26,
+   "best_trade": 774.52,
+   "worst_trade": -516.69,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 993.0,
+   "top_trade_share": 0.5942,
+   "top_day_share": 1.2256,
+   "top3_day_share": 2.7764
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 992.95,
+   "top_trade_share": 0.5942,
+   "top_day_share": 1.2256,
+   "top3_day_share": 2.7764
+  }
+ },
+ "OTM+2|s1|e2": {
+  "cell": "OTM+2",
+  "sizing": "s1",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 799.0,
+   "win_rate": 0.2637,
+   "avg_win": 140.38,
+   "avg_loss": -52.68,
+   "max_dd": -2443.0,
+   "best_trade": 600.0,
+   "worst_trade": -364.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 669.98,
+   "win_rate": 0.2637,
+   "avg_win": 139.97,
+   "avg_loss": -47.01,
+   "max_dd": -2502.17,
+   "best_trade": 599.53,
+   "worst_trade": -364.68,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2214.02,
+   "win_rate": 0.2192,
+   "avg_win": 158.33,
+   "avg_loss": -54.15,
+   "max_dd": -3842.17,
+   "best_trade": 589.53,
+   "worst_trade": -380.68,
+   "n_days_positive": 9,
+   "n_days": 35
+  },
+  "avg_contracts": 4.94,
+  "total_contracts": 1442,
+  "conc_gross_vs_prod": {
+   "total_delta": 484.0,
+   "top_trade_share": 0.8884,
+   "top_day_share": 2.8719,
+   "top3_day_share": 6.4205
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 484.54,
+   "top_trade_share": 0.8874,
+   "top_day_share": 2.8687,
+   "top3_day_share": 6.4134
+  }
+ },
+ "AS_TRADED|s2|e1": {
+  "cell": "AS_TRADED",
+  "sizing": "s2",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 713.0,
+   "win_rate": 0.2705,
+   "avg_win": 189.19,
+   "avg_loss": -74.13,
+   "max_dd": -3830.0,
+   "best_trade": 881.0,
+   "worst_trade": -623.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 591.54,
+   "win_rate": 0.2705,
+   "avg_win": 188.8,
+   "avg_loss": -67.25,
+   "max_dd": -3883.16,
+   "best_trade": 880.29,
+   "worst_trade": -623.63,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2130.46,
+   "win_rate": 0.2329,
+   "avg_win": 210.0,
+   "avg_loss": -73.26,
+   "max_dd": -5082.44,
+   "best_trade": 864.29,
+   "worst_trade": -637.63,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 4.66,
+  "total_contracts": 1361,
+  "conc_gross_vs_prod": {
+   "total_delta": 398.0,
+   "top_trade_share": 0.2236,
+   "top_day_share": 0.5804,
+   "top3_day_share": 1.1759
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 568.1,
+   "top_trade_share": 0.1603,
+   "top_day_share": 0.4286,
+   "top3_day_share": 0.8752
+  }
+ },
+ "ITM-2|s2|e1": {
+  "cell": "ITM-2",
+  "sizing": "s2",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 1394.0,
+   "win_rate": 0.3253,
+   "avg_win": 100.26,
+   "avg_loss": -42.79,
+   "max_dd": -1607.0,
+   "best_trade": 682.0,
+   "worst_trade": -332.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1349.76,
+   "win_rate": 0.3253,
+   "avg_win": 100.12,
+   "avg_loss": -41.43,
+   "max_dd": -1613.49,
+   "best_trade": 681.62,
+   "worst_trade": -332.36,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": 529.76,
+   "win_rate": 0.2877,
+   "avg_win": 110.45,
+   "avg_loss": -42.06,
+   "max_dd": -1940.12,
+   "best_trade": 673.62,
+   "worst_trade": -340.36,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "avg_contracts": 1.4,
+  "total_contracts": 410,
+  "conc_gross_vs_prod": {
+   "total_delta": 1079.0,
+   "top_trade_share": 0.3522,
+   "top_day_share": 1.3262,
+   "top3_day_share": 3.0046
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 3228.32,
+   "top_trade_share": 0.1203,
+   "top_day_share": 0.482,
+   "top3_day_share": 1.0907
+  }
+ },
+ "ITM-1|s2|e1": {
+  "cell": "ITM-1",
+  "sizing": "s2",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 1054.0,
+   "win_rate": 0.3014,
+   "avg_win": 127.18,
+   "avg_loss": -51.99,
+   "max_dd": -2246.0,
+   "best_trade": 852.0,
+   "worst_trade": -430.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 999.15,
+   "win_rate": 0.3014,
+   "avg_win": 127.01,
+   "avg_loss": -49.89,
+   "max_dd": -2272.78,
+   "best_trade": 851.46,
+   "worst_trade": -430.46,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -102.85,
+   "win_rate": 0.2671,
+   "avg_win": 139.47,
+   "avg_loss": -51.32,
+   "max_dd": -2844.78,
+   "best_trade": 839.46,
+   "worst_trade": -440.46,
+   "n_days_positive": 9,
+   "n_days": 35
+  },
+  "avg_contracts": 1.89,
+  "total_contracts": 551,
+  "conc_gross_vs_prod": {
+   "total_delta": 739.0,
+   "top_trade_share": 0.3816,
+   "top_day_share": 1.4871,
+   "top3_day_share": 2.9865
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 2595.71,
+   "top_trade_share": 0.111,
+   "top_day_share": 0.4643,
+   "top3_day_share": 0.9632
+  }
+ },
+ "ATM|s2|e1": {
+  "cell": "ATM",
+  "sizing": "s2",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 733.0,
+   "win_rate": 0.2774,
+   "avg_win": 172.26,
+   "avg_loss": -66.1,
+   "max_dd": -3665.0,
+   "best_trade": 881.0,
+   "worst_trade": -623.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 651.29,
+   "win_rate": 0.2774,
+   "avg_win": 171.98,
+   "avg_loss": -62.93,
+   "max_dd": -3708.63,
+   "best_trade": 880.29,
+   "worst_trade": -623.63,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -1096.71,
+   "win_rate": 0.25,
+   "avg_win": 184.38,
+   "avg_loss": -66.47,
+   "max_dd": -4679.91,
+   "best_trade": 864.29,
+   "worst_trade": -637.63,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 2.99,
+  "total_contracts": 874,
+  "conc_gross_vs_prod": {
+   "total_delta": 418.0,
+   "top_trade_share": 0.2895,
+   "top_day_share": 1.1148,
+   "top3_day_share": 2.0502
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 1601.85,
+   "top_trade_share": 0.0795,
+   "top_day_share": 0.3286,
+   "top3_day_share": 0.6039
+  }
+ },
+ "OTM+1|s2|e1": {
+  "cell": "OTM+1",
+  "sizing": "s2",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 672.0,
+   "win_rate": 0.2671,
+   "avg_win": 215.4,
+   "avg_loss": -82.29,
+   "max_dd": -4458.0,
+   "best_trade": 948.0,
+   "worst_trade": -810.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 537.16,
+   "win_rate": 0.2671,
+   "avg_win": 214.9,
+   "avg_loss": -75.82,
+   "max_dd": -4511.22,
+   "best_trade": 946.95,
+   "worst_trade": -810.85,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2498.84,
+   "win_rate": 0.2295,
+   "avg_win": 237.68,
+   "avg_loss": -81.88,
+   "max_dd": -6213.38,
+   "best_trade": 926.35,
+   "worst_trade": -830.85,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 5.2,
+  "total_contracts": 1518,
+  "conc_gross_vs_prod": {
+   "total_delta": 357.0,
+   "top_trade_share": 0.7899,
+   "top_day_share": 1.6835,
+   "top3_day_share": 3.3838
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 199.72,
+   "top_trade_share": 1.3807,
+   "top_day_share": 2.5716,
+   "top3_day_share": 5.1664
+  }
+ },
+ "OTM+2|s2|e1": {
+  "cell": "OTM+2",
+  "sizing": "s2",
+  "exit": "e1",
+  "gross": {
+   "n": 292,
+   "total": 606.0,
+   "win_rate": 0.2466,
+   "avg_win": 271.43,
+   "avg_loss": -97.11,
+   "max_dd": -6171.0,
+   "best_trade": 1357.0,
+   "worst_trade": -966.0,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 359.46,
+   "win_rate": 0.2466,
+   "avg_win": 270.5,
+   "avg_loss": -86.89,
+   "max_dd": -6310.5,
+   "best_trade": 1355.84,
+   "worst_trade": -967.18,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -5372.54,
+   "win_rate": 0.2055,
+   "avg_win": 300.93,
+   "avg_loss": -100.98,
+   "max_dd": -9584.5,
+   "best_trade": 1329.84,
+   "worst_trade": -995.18,
+   "n_days_positive": 9,
+   "n_days": 35
+  },
+  "avg_contracts": 9.82,
+  "total_contracts": 2866,
+  "conc_gross_vs_prod": {
+   "total_delta": 291.0,
+   "top_trade_share": 1.8866,
+   "top_day_share": 7.6564,
+   "top3_day_share": 11.0034
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": -2673.98,
+   "top_trade_share": 0.1066,
+   "top_day_share": 0.4657,
+   "top3_day_share": 1.0872
+  }
+ },
+ "AS_TRADED|s2|e2": {
+  "cell": "AS_TRADED",
+  "sizing": "s2",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 683.5,
+   "win_rate": 0.2842,
+   "avg_win": 183.05,
+   "avg_loss": -75.97,
+   "max_dd": -4045.0,
+   "best_trade": 1088.0,
+   "worst_trade": -595.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 562.03,
+   "win_rate": 0.2842,
+   "avg_win": 182.65,
+   "avg_loss": -69.85,
+   "max_dd": -4098.16,
+   "best_trade": 1087.28,
+   "worst_trade": -595.63,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2159.97,
+   "win_rate": 0.2363,
+   "avg_win": 210.1,
+   "avg_loss": -74.69,
+   "max_dd": -5297.44,
+   "best_trade": 1071.28,
+   "worst_trade": -609.63,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 4.66,
+  "total_contracts": 1361,
+  "conc_gross_vs_prod": {
+   "total_delta": 368.5,
+   "top_trade_share": 1.3948,
+   "top_day_share": 1.057,
+   "top3_day_share": 1.9851
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 538.59,
+   "top_trade_share": 0.9543,
+   "top_day_share": 0.7464,
+   "top3_day_share": 1.4124
+  }
+ },
+ "ITM-2|s2|e2": {
+  "cell": "ITM-2",
+  "sizing": "s2",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 1590.0,
+   "win_rate": 0.3253,
+   "avg_win": 102.33,
+   "avg_loss": -42.79,
+   "max_dd": -1705.0,
+   "best_trade": 634.0,
+   "worst_trade": -332.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1545.75,
+   "win_rate": 0.3253,
+   "avg_win": 102.19,
+   "avg_loss": -41.43,
+   "max_dd": -1717.21,
+   "best_trade": 633.8,
+   "worst_trade": -332.36,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": 725.75,
+   "win_rate": 0.2877,
+   "avg_win": 112.79,
+   "avg_loss": -42.06,
+   "max_dd": -2058.12,
+   "best_trade": 629.8,
+   "worst_trade": -340.36,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 1.4,
+  "total_contracts": 410,
+  "conc_gross_vs_prod": {
+   "total_delta": 1275.0,
+   "top_trade_share": 0.298,
+   "top_day_share": 1.1224,
+   "top3_day_share": 2.4831
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 3424.31,
+   "top_trade_share": 0.1134,
+   "top_day_share": 0.4544,
+   "top3_day_share": 1.006
+  }
+ },
+ "ITM-1|s2|e2": {
+  "cell": "ITM-1",
+  "sizing": "s2",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 1843.0,
+   "win_rate": 0.3048,
+   "avg_win": 136.92,
+   "avg_loss": -53.31,
+   "max_dd": -2345.5,
+   "best_trade": 996.0,
+   "worst_trade": -430.0,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1788.12,
+   "win_rate": 0.3048,
+   "avg_win": 136.74,
+   "avg_loss": -51.14,
+   "max_dd": -2365.6,
+   "best_trade": 995.45,
+   "worst_trade": -430.46,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": 686.12,
+   "win_rate": 0.2705,
+   "avg_win": 150.24,
+   "avg_loss": -52.5,
+   "max_dd": -2797.6,
+   "best_trade": 983.45,
+   "worst_trade": -440.46,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 1.89,
+  "total_contracts": 551,
+  "conc_gross_vs_prod": {
+   "total_delta": 1528.0,
+   "top_trade_share": 0.3102,
+   "top_day_share": 0.6839,
+   "top3_day_share": 1.3632
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 3384.68,
+   "top_trade_share": 0.1407,
+   "top_day_share": 0.3401,
+   "top3_day_share": 0.7201
+  }
+ },
+ "ATM|s2|e2": {
+  "cell": "ATM",
+  "sizing": "s2",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 1349.5,
+   "win_rate": 0.2808,
+   "avg_win": 177.61,
+   "avg_loss": -66.4,
+   "max_dd": -3974.0,
+   "best_trade": 1088.0,
+   "worst_trade": -595.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1267.78,
+   "win_rate": 0.2808,
+   "avg_win": 177.33,
+   "avg_loss": -63.21,
+   "max_dd": -4017.63,
+   "best_trade": 1087.28,
+   "worst_trade": -595.63,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -480.22,
+   "win_rate": 0.2534,
+   "avg_win": 190.09,
+   "avg_loss": -66.73,
+   "max_dd": -4988.91,
+   "best_trade": 1071.28,
+   "worst_trade": -609.63,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 2.99,
+  "total_contracts": 874,
+  "conc_gross_vs_prod": {
+   "total_delta": 1034.5,
+   "top_trade_share": 0.4969,
+   "top_day_share": 0.5466,
+   "top3_day_share": 0.9435
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 2218.34,
+   "top_trade_share": 0.2317,
+   "top_day_share": 0.2821,
+   "top3_day_share": 0.4897
+  }
+ },
+ "OTM+1|s2|e2": {
+  "cell": "OTM+1",
+  "sizing": "s2",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 982.5,
+   "win_rate": 0.274,
+   "avg_win": 201.43,
+   "avg_loss": -78.0,
+   "max_dd": -4170.0,
+   "best_trade": 1080.0,
+   "worst_trade": -625.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 847.66,
+   "win_rate": 0.274,
+   "avg_win": 200.92,
+   "avg_loss": -71.82,
+   "max_dd": -4245.38,
+   "best_trade": 1078.95,
+   "worst_trade": -625.86,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -2188.34,
+   "win_rate": 0.2363,
+   "avg_win": 220.47,
+   "avg_loss": -78.03,
+   "max_dd": -5981.38,
+   "best_trade": 1054.95,
+   "worst_trade": -645.86,
+   "n_days_positive": 11,
+   "n_days": 35
+  },
+  "avg_contracts": 5.2,
+  "total_contracts": 1518,
+  "conc_gross_vs_prod": {
+   "total_delta": 667.5,
+   "top_trade_share": 1.203,
+   "top_day_share": 0.9873,
+   "top3_day_share": 2.1251
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": 510.22,
+   "top_trade_share": 1.5616,
+   "top_day_share": 1.2957,
+   "top3_day_share": 2.6087
+  }
+ },
+ "OTM+2|s2|e2": {
+  "cell": "OTM+2",
+  "sizing": "s2",
+  "exit": "e2",
+  "gross": {
+   "n": 292,
+   "total": 1376.5,
+   "win_rate": 0.2637,
+   "avg_win": 238.83,
+   "avg_loss": -89.54,
+   "max_dd": -4980.0,
+   "best_trade": 1080.0,
+   "worst_trade": -666.0,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees": {
+   "n": 292,
+   "total": 1129.98,
+   "win_rate": 0.2637,
+   "avg_win": 237.91,
+   "avg_loss": -79.95,
+   "max_dd": -5129.24,
+   "best_trade": 1078.45,
+   "worst_trade": -669.13,
+   "n_days_positive": 12,
+   "n_days": 35
+  },
+  "net_fees_slip": {
+   "n": 292,
+   "total": -4602.02,
+   "win_rate": 0.2192,
+   "avg_win": 263.19,
+   "avg_loss": -94.06,
+   "max_dd": -8633.24,
+   "best_trade": 1042.45,
+   "worst_trade": -743.13,
+   "n_days_positive": 10,
+   "n_days": 35
+  },
+  "avg_contracts": 9.82,
+  "total_contracts": 2866,
+  "conc_gross_vs_prod": {
+   "total_delta": 1061.5,
+   "top_trade_share": 0.7725,
+   "top_day_share": 1.3114,
+   "top3_day_share": 2.781
+  },
+  "conc_netcost_vs_prod": {
+   "total_delta": -1903.46,
+   "top_trade_share": 0.1692,
+   "top_day_share": 0.9453,
+   "top3_day_share": 1.6897
+  }
+ }
+}
