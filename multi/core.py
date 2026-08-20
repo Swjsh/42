@@ -56,6 +56,7 @@ from multi.lib import position_state as mps  # noqa: E402
 from multi.lib import watchlist as mw  # noqa: E402
 from multi.lib import positions as mp  # noqa: E402
 from multi.lib import risk as mr  # noqa: E402
+from multi.lib import scanners as msc  # noqa: E402
 from multi.lib import signal as ms  # noqa: E402
 from multi.lib import sizing as msz  # noqa: E402
 
@@ -346,8 +347,57 @@ def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: 
     return out
 
 
+def merge_scanner_attention(base: dict, params: dict, creds) -> dict:
+    """Fold the free Alpaca scanners into the bar-derived attention facts.
+
+    The scanners answer a question bars cannot: is anything happening to this name that the
+    market at large has noticed? movers/most-actives are corroboration; news is the only
+    source that says WHY. Measured 2026-08-19: the stack put MRNA at 9.8x relative volume with
+    all four scanners firing, on the day its $120 call ran open-to-high +1,121%.
+
+    FAILS SOFT BY DESIGN, and this is a deliberate asymmetry: a scanner outage must not blind
+    the lane, because the bar-derived relative volume (the highest-signal field) is already in
+    `base` and stands on its own. So a scanner failure DEGRADES ranking quality rather than
+    halting the tick. The failure is recorded on the returned dict, never swallowed silently.
+    """
+    merged = {k: dict(v) for k, v in (base or {}).items()}
+    try:
+        results = msc.run_all_scanners(params, creds.key, creds.secret)
+    except Exception as e:  # noqa: BLE001 -- see docstring: degrade, do not halt
+        merged["_scanner_status"] = {"ok": False, "error": type(e).__name__}
+        return merged
+
+    failed = []
+    for name, res in (results or {}).items():
+        if not getattr(res, "ok", False):
+            failed.append(name)
+            continue
+        for cand in getattr(res, "candidates", ()) or ():
+            sym = (cand.get("symbol") if isinstance(cand, dict)
+                   else getattr(cand, "symbol", None))
+            if not sym:
+                continue
+            row = merged.setdefault(str(sym).upper(), {})
+            row["scanner_hits"] = int(row.get("scanner_hits") or 0) + 1
+            get = (cand.get if isinstance(cand, dict) else lambda k, d=None: getattr(cand, k, d))
+            if row.get("pct_change") in (None, 0.0):
+                pc = get("percent_change", None) or get("pct_change", None)
+                if pc is not None:
+                    row["pct_change"] = float(pc)
+            if not row.get("headline"):
+                hl = get("headline", None)
+                if hl:
+                    row["headline"] = str(hl)[:120]
+                    row["news_class"] = get("news_class", None) or get("klass", None)
+
+    merged["_scanner_status"] = {"ok": not failed, "failed": failed,
+                                 "scanners": sorted((results or {}).keys())}
+    return merged
+
+
 def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
-         dry_bars: dict | None = None) -> tuple[list[dict], Counter]:
+         dry_bars: dict | None = None,
+         attention_override: dict | None = None) -> tuple[list[dict], Counter]:
     """One evaluation pass over `symbols`. Returns (rows, cascade_counter).
 
     Writes nothing and sends nothing — the caller persists. `dry_bars` lets tests inject bar
@@ -375,7 +425,11 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     # not. Running them on 72 names would be ~72x the API cost for the same decisions, and the
     # rate limit is a real constraint. Narrowing by RANKING (never thresholding) means this
     # cannot silently yield an empty watchlist on a quiet day -- the L199 failure.
-    attention = attention_from_bars(dry_bars or {})
+    attention = attention_override if attention_override is not None \
+        else attention_from_bars(dry_bars or {})
+    scan_status = (attention or {}).pop("_scanner_status", None)
+    if scan_status and not scan_status.get("ok", True):
+        cascade["scanner_degraded"] = 1
     watch, stage_counts = mw.build_watchlist(symbols, attention=attention)
     cascade["funnel_universe"] = stage_counts.get("universe", 0)
     cascade["funnel_liquidity"] = stage_counts.get("liquidity", 0)
@@ -590,7 +644,14 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    [bars] {sym}: {type(e).__name__}: {str(e)[:60]}", file=sys.stderr)
     print(f"[multi_core] bars fetched for {len(live_bars)}/{len(syms)} symbols", file=sys.stderr)
 
-    rows, cascade = tick(params, creds, syms, dry_bars=live_bars)
+    base_attention = attention_from_bars(live_bars)
+    attention = merge_scanner_attention(base_attention, params, creds)
+    st = attention.get("_scanner_status") or {}
+    print(f"[multi_core] scanners: {st.get('scanners', [])} "
+          f"ok={st.get('ok')} failed={st.get('failed', [])}", file=sys.stderr)
+
+    rows, cascade = tick(params, creds, syms, dry_bars=live_bars,
+                         attention_override=attention)
     if not args.no_write:
         write_rows(rows, cascade)
 
