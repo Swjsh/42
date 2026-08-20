@@ -1,3 +1,22 @@
+
+## 2026-08-19 — MULTI-SYMBOL OPTIONS LANE created (J-directed)
+
+J: *"copy the entire spy engine and then paste it... you don't touch the original, and then you
+make it so we trade other names... nothing should say hard coded for spy."*
+
+- **New LANE `multi-symbol`, ARM `multi-1`** — a symbol-generic FORK of the SPY engine. The SPY
+  engine is never imported or modified; AST-verified zero literal `"SPY"` in executable code.
+  Every SPY-dollar constant converted to ATR-relative, pinned by a scale-invariance test.
+- **Taxonomy made explicit: LANE vs ARM.** A lane is an instrument/universe program with its own
+  engine and evidence; an arm is a risk profile inside a lane. Resolves the strain on "arms are
+  risk profiles, not strategies" — `multi-1` is not a sixth SPY risk profile.
+- **Account `PA38EG1JTFBT`** (highest paper balance, $9,628, options L3), shared with the crypto
+  twin. Enforced in code: OCC-only position filters mean neither program can see or flatten the
+  other. **Account equity is not evidence for either lane** — each reads its own ledger.
+- **The noise funnel**: ~72 names → ≤3, narrowing by RANKING at every stage, never thresholding
+  (a threshold can match nothing on a quiet day; L199 is the scar). RED-proofed.
+- Status: SHADOW. No order path exists in the tick loop (AST-verified). Nothing armed.
+
 ﻿# CHANGELOG â€” Project Gamma
 
 > The full evolution log. Every doctrine change, backtest iteration, infrastructure ship, and live lesson. Append-only. Newest entries at the bottom.
