@@ -1,3 +1,81 @@
+## [2026-08-19 ~23:5x ET] OK -- THE COMMAND CENTER shipped: one HTML page, the six repeated questions pre-answered
+
+**J directive:** "review everything regarding an app / home base / command center, find the Gamma Journal calendar, consolidate everything into one. I'd prefer a localhost HTML page -- more editable and we can make it look how I want it."
+
+**Recon first (5 prior embodiments, per `markdown/planning/GAMMA-WORKER.md`):** Next.js Trade House · Electron gamma-companion :4317 · Discord voicebot · GAMMA HQ terminal · Next.js /gamma. Their own post-mortem names the common thread -- "presence kept getting solved as an ADD-ON channel instead of upgrading the ONE surface J might actually open." **Verified live: `localhost:3000/gamma` is DEAD** (no response) despite `Gamma_DashboardKeepalive` existing; `:4317` still answers. A home base that needs a babysat Node server is offline exactly when it is needed.
+
+**Shipped -- NOT a sixth channel, the consolidation:** `setup/scripts/gamma_home.py` -> `analysis/home/index.html`. One self-contained file, no server, no port, cannot be "down". Same pattern J built himself hours earlier in `journal_calendar.py`.
+- **THE ANSWERS** -- the six questions J repeats, pre-answered from live state: are we good to trade (engine+unattended+self-check) · what's the status (newest STATUS entry) · what are we theorizing (today-bias falsifiable claims) · what's our edge (winner SIGNATURE, real fills) · where's the money (BOOK net, calendar). **This is autonomy item #1: the answer is there before he asks.**
+- **The journal calendar is IN it** -- month grid, per-arm + BOOK, gross/net toggle, link to the full calendar. Zero duplicated logic: money from `calendar-data.json`, presence from `gamma_hq.py --json`.
+- **Every card names its source file and age.** A missing source renders a visible NO DATA card -- never a plausible default (C7).
+
+**Verified, quoted:** `Gamma_Home` task registered and **proven by deleting index.html and firing it** -- regenerated 27,642 bytes, LastTaskResult 0. Live DOM check: 13 populated August days, month -$223, all-time -$1,941/35 days, 6 arms, 3 clocks, 3 wants, 4 ships, 5 answers, 0 NO DATA. 33 guard tests green (home + verifier + J's existing calendar suite, no regression).
+
+**Two real bugs caught by LOOKING at the page, not by tests:** (1) `subprocess(text=True)` decodes with the cp1252 locale on this box -- every em-dash/middot rendered as `Â·`/`â€"`; proven directly (`text=True, no encoding -> "Wednesday 2026-08-19 Â· 23:56 ET"`) and fixed with an explicit `encoding="utf-8"`. (2) raw markdown leaked onto cards (`> **Signal J wakes to...**`) and falsifiable predictions dumped as raw JSON; added a markdown cleaner -- whose first cut over-reached and turned `recency_check.py` into `recencycheck.py`, now guarded.
+
+**Open:** `LAUNCH-GAMMA-HOME.vbs` regenerates-then-opens but has NOT been double-click tested by J. Autonomy items #2 (a translator that says "what this means for you") and #3 (numeric-claim verification) remain queued.
+
+## [2026-08-19] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-15..2026-08-18), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-18). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=RED
+> - **Books:** Safe2_ATM_1+2+4=RED ($-141.35); Bold_ATM_1+2=CONFIRM ($584.4)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: #4 ATM, Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+## [2026-08-19 ~20:49 ET] conductor: OK -- closed a THIRD entry-claim race (atomic-entry-claim RED -> GREEN), commit `da8fb973`
+
+**Picked via STAGE 1 priority-2 (Engine RED flag) -- outranks queue.md/inbox items.** Budget gate PROCEED ($7.41/$30 pre-fire, 2/4 fires used). Engine health GREEN, but `incident_fix_status.py --alert` (the 2026-08-14 -$1,569 double-entry incident roster) showed `atomic-entry-claim` RED: the storm-contention guard test measured a real 1/40 multi-winner outcome (ship-time baseline for that exact test was 0/300) -- a residual double-entry race on the EXACT incident path this roster exists to guard, so this outranked everything else in the queue.
+
+**Root cause (two stacked races, not one).** `_acquire_claim()`'s rename-based stale-takeover had: (1) a **TOCTOU** -- staleness was judged from a READ taken *before* the takeover rename, so a slow contender could act on a stale verdict and steal a claim a fast contender had *just* legitimately won (`test_toctou_steals_a_legitimately_fresh_claim_from_under_a_new_owner`, new, reproduces this deterministically 2/2 on pre-fix code); (2) a **separate gap** -- the winner's rename-away step leaves the claim file briefly absent from the directory, letting an unrelated contender's own independent `O_CREAT|O_EXCL` fast path slip in. **The trap:** fixing (1) alone widened (2) -- measured LIVE via a traced `os.rename` call log that fixing the TOCTOU took the storm-test failure rate from 1/40 to **39/40**, with the smoking gun being a "winner" that never called `os.rename` at all (it won purely through the untouched fast path while the file sat empty during the now-longer critical section).
+
+**Shipped:** replaced the rename dance entirely with an OS-level exclusive lock (`msvcrt.locking`, Windows) -- every contender past the very first claim locks the *existing* file and overwrites content in place; the file is never removed from the directory again, so there is exactly ONE arbiter (the lock) instead of two racing primitives. Windows releases the lock automatically on process crash/exit, so no separate stale-lock recovery logic (with its own smaller TOCTOU) is needed. 11/11 guard tests green, re-run 5x clean (55 executions, 0 failures); broader `heartbeat_core`/`claim` test slice 167 passed, 1 skipped. `incident_fix_status.py`'s static mechanism-presence checker updated to look for the new lock-based identifying strings instead of the retired rename-based one (was flagging a false "MISSING: rename-takeover" RED for the right reason -- mechanism legitimately changed -- caught and fixed before it could confuse the next fire). Lesson filed: `_lesson-inbox/narrowing-a-race-window-can-widen-a-different-one-2026-08-19.md` (the general pattern: fixing one race's window can widen a different one when two independent primitives contend for the same resource; only removing a primitive, not narrowing a window, actually closes it).
+
+**Verified:** `incident_fix_status.py --alert` re-run post-fix: `atomic-entry-claim` OK/GREEN (`O_EXCL create + OS-level lock-arbitrated stale takeover + placement gated`). Two OTHER pre-existing RED items on this same roster (`conviction-c4-c5`, `no-console-popups`) remain untouched -- out of this fire's bounded scope, already independently tracked across prior days' STATUS entries.
+
+**Rail 4 (PAPER trading-path edit):** guard test suite is the regression guard (a); revert is a single clean commit (b); this entry is the REVOKE report (c) -- also pinged to Discord. Zero LIVE-money surfaces touched. **Revert:** `git revert da8fb973` (3 modified files + 1 new lesson-inbox doc; reintroduces the 1/40 residual race, not the original -$1,569 double-entry, since the prior rename-based fix stays in git history).
+
+## [2026-08-19 20:47 ET] RED -- INCIDENT FIX ROSTER REGRESSED (2 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.70s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.40s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-19 20:45 ET] RED -- INCIDENT FIX ROSTER REGRESSED (3 RED, 0 unguarded)
+
+- **atomic-entry-claim** -- closes: double entry (two processes, 21ms apart)
+  - code: MISSING: rename-takeover
+  - guard: 11 passed in 0.75s
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.69s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.32s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-19 20:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (3 RED, 0 unguarded)
+
+- **atomic-entry-claim** -- closes: double entry (two processes, 21ms apart)
+  - code: O_EXCL create + rename-arbitrated stale takeover + placement gated
+  - guard: 1 failed, 9 passed in 0.83s
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.74s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.40s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## [2026-08-19 ~17:5x ET] OK -- agent-orchestration research + the master/worker org chart made enforceable
 
 **J directive:** research current agent-orchestration best practices, turn Gamma into the master, turn the repeated asks into workers with tools. Success bar J set: a fully autonomous Gamma. Full report: `analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md` (109-agent deep-research fan-out, every claim 3-vote adversarially verified).
@@ -74,16 +152,6 @@ Zero trading-path files touched (queue.md + a new archive file + a new pytest gu
 **Bonus find, filed as a lesson (not fixed — observational, no code touched):** `gamma_manager`'s free-tier "strategist" role independently fabricated a completion report for this SAME task (`analysis/manager/2026-08-18-2253-strategist-weekly-options-build.md`, untracked, never committed) — fake artifact paths (`expiry_selector.py`, `blast_radius.json`), fabricated Monte Carlo numbers, "✅ Validated/Passed/Active" status claims — while explicitly stating in its own first paragraph "I lack direct access to your filesystem... I cannot physically execute file modifications." A live example of exactly the failure class OP-32's free-model trust gate exists to catch. Filed: `strategy/candidates/_lesson-inbox/2026-08-19-gamma-manager-strategist-fabricated-completion-2026-08-19.md`.
 
 Zero trading-path files touched (queue.md + STATUS.md bookkeeping + one lesson-inbox file). Revert: n/a, doc-only; the underlying 9 commits are each independently revertible per their own messages.
-
-## [2026-08-18] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-14..2026-08-17), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=RED
-> - **Books:** Safe2_ATM_1+2+4=RED ($-141.35); Bold_ATM_1+2=CONFIRM ($584.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: #4 ATM, Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-08-18 ~20:5x ET] conductor: OK -- self-audit gap-extractor root-caused + fixed, commit `0d3ee153`
 
@@ -422,266 +490,41 @@ No params file touched, no filter changed, no threshold moved. The defensible ne
 pre-registered **VIX-regime standdown** — the effect 18× larger than the knob asked about —
 with OOS split, permutation null and a matched suppress-k-at-random control.
 
-## [2026-08-17T16:15:02 ET] RED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-17 -- 4 GREEN / 0 YELLOW / 1 RED / 1 NOT_EXERCISED
 
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 391 RTH fires logged (09:35-16:14 ET, vs ~405 expected), 52 tick(s) showed in_trade>0. 37 real fill(s) dated 2026-08-17: risky-3@09:53, risky-3@09:56, safe-2@10:01, risky-3@10:23, bold-2@13:06, bold-2@13:07, bold-2@13:08, bold-2@13:09, bold-2@13:10, bold-2@13:13, bold-2@13:14, bold-2@13:15, bold-2@… |
-| WS6 regime stamp | RED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-17, generated_at_et=2026-08-17T09:35:24-04:00 (hhmm=09:35, in 08:15-08:40 window=False). today-bias.json date=2026-08-17, regime_context.stamp_date=None (present=False, dates_match=False). one_liner='Yesterday 2026-08-14 (Fri) = range-chop (range 0.43%, gap +0.10%, cl… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 54 distinct near-price levels. Worst: 775.09 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 82 level-refresh run(s) logged (82 ok), hysteresis_held fired 19 time(s) across 6 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-17 window_end=2026-08-14 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=26 (delta +16 vs baseline n=10) exp=$-36.62/tr, verdict_moved=False. bull now: GREEN n=23 exp=$3.13/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-17T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 56 theta-clock row(s) dated 2026-08-17 across 2 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=56, unavailable=0. still… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-17 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-17`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-17 09:3x-09:5x ET] 🚨 OPEN INCIDENT — box slept 10h, engine traded BLIND for 5 min. Zero orders. Repaired live.
-
-**Second occurrence of the 2026-08-14 shape.** No trading rule touched (Rule 9), no params
-edited. Commit: `4dcb4f01`.
-
-### What happened — system event log, exact
-
-```
-8/16 21:25:05 local   system entered sleep
-8/17 07:29:22 local   returned from low power state   (= 09:29 ET — ONE MINUTE before the open)
-```
-
-The box slept through **all three** protective layers:
-
-| task | fires | result |
-|---|---|---|
-| `Gamma_LaunchTV` | 06:00 local (08:00 ET) | never fired → **TV CDP DOWN** → "no TV = no trades" |
-| `Gamma_Premarket` | 06:30 local (08:30 ET) | never fired → today-bias stuck at **08-14** |
-| `Gamma_MarketKeepAwake` | 07:10 local (09:10 ET) | never fired — **the task meant to wake it** |
-
-At 09:31 ET: key-levels **608m** stale, sight-beacon **1021m** dark, today-bias **3 sessions**
-stale. That is the 2026-07-30 blind-engine condition, whose documented consequence is
-`levels_active==[]` → fall through to the **trendline-only cohort (−$15/trade)**.
-
-### Measured damage: NONE
-
-20 ticks 09:30:18–09:39:04, **10 of them with ZERO levels**, and **0 ENTER verdicts / 0 orders
-placed**. The engine was blind but did not buy. Recovery is exact — 0 levels through 09:34:04,
-**8–9 levels from 09:35:03**, the minute the producer re-fired.
-
-### Repaired, in order
-
-Started `Gamma_LaunchTV` (CDP back, Chrome/140) → re-fired `SightBeacon` + `LevelRefresh` once
-TV was live → ran `premarket_deterministic_fallback` (auth-independent by design) to date
-today-bias 08-17. Kill switch re-armed 09:35:24, `tripped: false`, limit −$1,566.26 on
-$5,220.87 (Rule 5 Safe −30% ✓).
-
-### Root-cause fix shipped
-
-`Gamma_MarketKeepAwake` started at **07:10 local — AFTER both tasks it exists to protect**.
-Moved to **05:45 local (07:45 ET)**, Mon–Fri, so it now covers LaunchTV (06:00) and Premarket
-(06:30). Next run 8/18 05:45.
-
-### Fixed my own instrument too
-
-`check_llm_auth_outage` had a 7-day lookback and **no recovery signal** — so once J restored the
-login this morning it would have screamed BROKEN until 08-23. An alarm that cannot go green is
-one people learn to ignore, which is the exact failure it was built to end. It now clears on
-**proof** (a clean `exit=0` fire on/after the newest failure), never on a timer — a weekend has
-no fires, and silence is not recovery. Verified: CLI answers `AUTH_OK`, alarm silent, still
-fires on an unrecovered outage.
-
-### ⚠️ Still J's call — system setting, not mine to change
-
-Wake timers are **ENABLED on AC, DISABLED on DC**:
-
-```
-powercfg /setdcvalueindex SCHEME_CURRENT SUB_SLEEP BD3B718A-0680-4D9D-8AB2-E1D2B4AC806D 1
-```
-
-The 10h sleep itself was **manual** (idle timeouts are `never` on both AC and DC), so the
-durable guarantee is *waking reliably*, not *never sleeping*.
-
-## [2026-08-16 17:4x ET] conductor: OK — committed the sitting-uncommitted CLAUDE.md context-leanness trim (`7cec203d`)
-
-Engine health GREEN (weekend, quiet OK). Budget gate PROCEED ($2.81/$30, 3/4 fires used).
-Found the working tree had a verified-but-never-committed CLAUDE.md trim from an earlier
-fire: TP1 source-of-truth prose + OP-16 setup-scope/bull-reeval prose relocated out of
-CLAUDE.md into `COST-RECOVERY-SIZING-2026-08-13.md` and `edge-master-doctrine.md`,
-addressing this session's own injected RED context-budget flag (9633/9000 tok). Per
-OP-33 (verify, don't claim) I did NOT trust the "relocated verbatim" claim on sight —
-grepped both target anchors, confirmed the full prose landed intact with working links
-before staging anything. Pure relocation, zero rule/decision content changed (not a
-doctrine edit in the substantive sense the propose-only rail guards against). Pathspec
-commit of exactly the 3 touched files (CLAUDE.md + 2 target docs), curated safety gate
-59/59 PASS. CLAUDE.md 34,376 -> 33,310 bytes (~266 tok saved; RED persists, smaller RED —
-another trim pass is still owed). **REVOKE:** `git revert 7cec203d` (doc-only, clean).
-
-`queue.md` and the lesson-inbox drain item the prior fire also flagged as uncommitted
-were in fact already committed (checked — clean). Zero trading-path files touched.
-
-Next fire: CLAUDE.md is still over the 9K budget — another leanness pass is the fastest
-next win (`markdown/infra/CONTEXT-LEANNESS.md` has the scoring method); otherwise
-chef-inbox (77+ open, oldest 2026-07-10) is the largest untriaged surface, or
-`GATE-RECENCY-REVALIDATION` (HIGH, 3 pre-sketched A/Bs ready) if a fire wants engine-edge
-work instead of inbox drain.
-
-## [2026-08-16T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-16 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-16 -- no RTH session evidence (non-trading day or engine idle). |
-| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | 2026-08-16 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
-| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | no core-decisions.jsonl ticks dated 2026-08-16. |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-16 window_end=2026-08-14 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=26 (delta +16 vs baseline n=10) exp=$-36.62/tr, verdict_moved=False. bull now: GREEN n=23 exp=$3.13/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | no core-decisions.jsonl ticks dated 2026-08-16 -- non-trading day. |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-16 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-16`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-
-### DEGRADED: self-check 2026-08-19T05:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-- [2026-08-19 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-08-19 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-08-19 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-19.md
-
-### DEGRADED: self-check 2026-08-19T06:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T06:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T07:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+### DEGRADED: self-check 2026-08-19T20:39:56
+- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ## Kitchen
-Kitchen: alive, queue 49 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 49 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-### DEGRADED: self-check 2026-08-19T07:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T08:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T08:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T09:09:56
+### DEGRADED: self-check 2026-08-19T21:09:56
 - TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### DEGRADED: self-check 2026-08-19T09:39:56
+### DEGRADED: self-check 2026-08-19T21:39:56
 - TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### DEGRADED: self-check 2026-08-19T10:09:56
+### DEGRADED: self-check 2026-08-19T22:09:56
 - TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### DEGRADED: self-check 2026-08-19T10:39:56
+### DEGRADED: self-check 2026-08-19T22:39:56
 - TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### DEGRADED: self-check 2026-08-19T11:09:56
+### DEGRADED: self-check 2026-08-19T23:09:56
 - TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CANDIDATES-UNTRACKED: 22 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T11:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T12:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T12:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T13:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T13:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T14:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T14:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T15:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T15:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-08-19T20:00:25+00:00
-- task: eod-summary
-- date_et: 2026-08-19
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-08-19T16:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-19T16:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-08-19T20:45:25+00:00
-- task: analyst
-- date_et: 2026-08-19
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-08-19 21:00:01] gym-session (2026-08-19) → **YELLOW** :: see `automation\state\gym-scorecard-2026-08-19.json`
-### DEGRADED: self-check 2026-08-19T17:09:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-## Known broken
-- [2026-08-19T17:25:41 ET] shadow_signal_audit: newly ORPHANED/DRIFTED: trendlines_live. A detector produces output no decision path consumes (C7 at architecture scale). See analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md.
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-08-19T21:30:20+00:00
-- task: manager
-- date_et: 2026-08-19
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-08-19T17:39:56
-- TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ### WARN: spend-summary threshold breach
-- ts: 2026-08-19T21:50:01+00:00
+- ts: 2026-08-20T03:30:10+00:00
 - date_et: 2026-08-19
-- total: $461.47 (threshold $50.00)
-- claude: $461.42  minimax: $0.04
-- claude_sessions: 10
+- total: $649.79 (threshold $30.00)
+- claude: $649.75  minimax: $0.04
+- claude_sessions: 12
 
-### DEGRADED: self-check 2026-08-19T18:09:56
+### DEGRADED: self-check 2026-08-19T23:39:56
 - TRENDLINE-DRAW never marked today (2026-08-19) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 4x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 5x), run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.

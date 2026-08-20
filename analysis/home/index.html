@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gamma — Command Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg:#0b0d12; --panel:#12151c; --panel2:#171b24; --border:#262b38;
+    --text:#e7e9ee; --muted:#8b93a7; --green:#33c17a; --green-dim:#1c6a44;
+    --red:#ef5350; --red-dim:#7a2426; --amber:#e0a63a; --accent:#5b8def;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);margin:0;padding:24px;
+       font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 2px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);
+     margin:30px 0 12px;font-weight:600}
+  .sub{color:var(--muted);font-size:13px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .hero{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .chip{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;
+        letter-spacing:.06em;border:1px solid var(--border);background:var(--panel2)}
+  .chip.GREEN,.chip.OK,.chip.EDGE{color:var(--green);border-color:var(--green-dim)}
+  .chip.RED{color:var(--red);border-color:var(--red-dim)}
+  .chip.YELLOW,.chip.DEGRADED{color:var(--amber);border-color:#6b5220}
+  .chip.NODATA{color:var(--amber);border-color:#6b5220}
+  .rightnow{font-size:19px;margin:10px 0 4px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+  .q{font-size:13px;color:var(--muted);margin-bottom:6px}
+  .a{font-size:16px;font-weight:600;margin-bottom:6px}
+  .d{font-size:13px;color:var(--muted);margin-bottom:8px;word-break:break-word}
+  .means{font-size:13px;color:#b9c0d0;border-left:2px solid var(--accent);padding-left:10px;margin-top:8px}
+  .src{margin-top:10px;font-size:11px;color:#5f677c}
+  .src span{margin-right:10px;white-space:nowrap}
+  .stale{color:var(--amber)}
+  .nodata{border-color:#6b5220}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .cal .dow{font-size:11px;color:var(--muted);text-align:center;padding-bottom:4px}
+  /* flex column, not absolute positioning: at narrow widths the absolutely
+     positioned P&L collided with the day number. min-height keeps empty cells
+     the same size as populated ones. */
+  .cell{min-height:56px;border:1px solid var(--border);border-radius:7px;background:var(--panel2);
+        padding:4px 5px;font-size:11px;overflow:hidden;
+        display:flex;flex-direction:column;justify-content:space-between}
+  .cell.empty{background:transparent;border-color:transparent}
+  .cell .dnum{color:var(--muted);line-height:1}
+  /* clamp so the number shrinks on a narrow window instead of ellipsing to "+$..." */
+  .cell .pnl{font-weight:700;font-size:clamp(9px,1.35vw,12px);line-height:1.1;
+             white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell.win{border-color:var(--green-dim)} .cell.win .pnl{color:var(--green)}
+  .cell.loss{border-color:var(--red-dim)} .cell.loss .pnl{color:var(--red)}
+  .cell.flat .pnl{color:var(--muted)}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--muted);font-size:12px;white-space:nowrap}
+  .bar{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:5px}
+  .bar>i{display:block;height:100%;background:var(--accent)}
+  a{color:var(--accent)}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+  select{background:var(--panel2);color:var(--text);border:1px solid var(--border);
+         border-radius:6px;padding:5px 9px;font-size:13px}
+  footer{margin-top:34px;color:#5f677c;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div style="flex:1;min-width:320px">
+      <h1>Gamma</h1>
+      <div class="sub" id="stamp"></div>
+      <div class="rightnow" id="rightnow"></div>
+      <div class="sub" id="focus"></div>
+      <div class="sub" style="margin-top:8px" id="goal"></div>
+    </div>
+    <div style="text-align:right"><span class="chip" id="statechip"></span></div>
+  </div>
+
+  <h2>The answers <span style="text-transform:none;letter-spacing:0;font-weight:400">— you shouldn't have to ask</span></h2>
+  <div class="grid2" id="answers"></div>
+
+  <h2>This month</h2>
+  <div class="card">
+    <div class="controls">
+      <select id="arm"></select>
+      <select id="basis"><option value="n">net of fees</option><option value="g">gross</option></select>
+      <span class="sub" id="calsum"></span>
+      <span style="flex:1"></span>
+      <a id="fullcal" href="../journal/calendar.html">full calendar &rarr;</a>
+    </div>
+    <div class="cal" id="dow"></div>
+    <div class="cal" id="calgrid" style="margin-top:5px"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="card">
+      <h2 style="margin-top:0">Shadow clocks</h2>
+      <div id="clocks"></div>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">What I want</h2>
+      <div id="wants"></div>
+    </div>
+  </div>
+
+  <h2>Recent ships</h2>
+  <div class="card" id="ships"></div>
+
+  <footer id="footer"></footer>
+</div>
+<script>
+const D = {"generated_et": "2026-08-19 23:53:51 Wednesday EDT", "today": "2026-08-19", "stale_hours": 24.0, "hq": {"now_et_label": "Wednesday 2026-08-19 \u00b7 23:53 ET", "state_word": "RESEARCHING", "goal_line": "$100\u2013200/day \u2014 one clean level trade pays the day (FOCUS-DOCTRINE)", "todays_focus": "115 open research items; tomorrow I'm on the top one.", "tape_headline": "Market closed \u2014 research mode.", "tape_segments": [], "right_now": "Grinding research queue; last fire 15:50 ET", "clocks": [{"label": "SSR shadow", "have": 15, "need": 20, "extra": "", "explain": "15 round trips \u00b7 +$25,099 total (+$1,673/trip avg) \u00b7 beats its buy-and-hold null \u00b7 not yet armable"}, {"label": "MES mirror", "have": 59, "need": 20, "extra": "", "explain": "59 round trips \u00b7 +$1,269 total (+$22/trip avg) \u00b7 beats its buy-and-hold null \u00b7 armable"}, {"label": "Cap re-check", "have": 20, "need": 20, "extra": "", "explain": "20 catastrophe-cap shadow exits logged since the last 20-trade re-check."}], "wants": ["Rotate the Tastytrade PROD tokens (owed since 06-22) \u2014 it unlocks mes-mnq-div, a validated +$71/trade futures edge\u2026", "The Bold ATM strike tier (shipped 2026-07-18, commit 718e0809) failed its own auto-ratify gate at ship time and has\u2026", "Decide the open PDT memo (PDT-ACCOUNT-TYPE-DECISION-2026-08-06): Bold sat out a +$1,465 book day Thursday because of\u2026"], "recent_ships": ["Auto-commit 12 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)", "Auto-commit 17 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)", "Close a third entry-claim race -- lock-based takeover replaces rename dance", "Catch plain-prose artifact claims; 9 -> 12 fabricated reports found"]}, "hq_source": {"path": "setup/scripts/gamma_hq.py --json", "age_h": 0.0, "ok": true}, "calendar": {"generated_et": "2026-08-19T18:05:41.020228", "roster": ["safe-2", "bold-2", "safe-3", "risky-1", "risky-3"], "views": {"safe-2": {"days": {"2026-07-02": {"g": -331.0, "n": -333.25, "t": 8}, "2026-07-06": {"g": -72.0, "n": -74.25, "t": 8}, "2026-07-15": {"g": -117.0, "n": -117.29, "t": 1}, "2026-07-16": {"g": -83.0, "n": -83.85, "t": 3}, "2026-07-17": {"g": 151.0, "n": 149.59, "t": 5}, "2026-07-20": {"g": -141.0, "n": -142.41, "t": 5}, "2026-07-21": {"g": -76.0, "n": -77.13, "t": 4}, "2026-07-22": {"g": -108.0, "n": -108.85, "t": 3}, "2026-07-27": {"g": -216.0, "n": -216.57, "t": 2}, "2026-07-28": {"g": -18.0, "n": -18.57, "t": 2}, "2026-08-03": {"g": 68.0, "n": 67.71, "t": 1}, "2026-08-04": {"g": 662.0, "n": 661.13, "t": 3}, "2026-08-05": {"g": -339.0, "n": -339.57, "t": 2}, "2026-08-06": {"g": 339.0, "n": 338.42, "t": 2}, "2026-08-07": {"g": -375.0, "n": -375.85, "t": 3}, "2026-08-10": {"g": -141.0, "n": -141.29, "t": 1}, "2026-08-11": {"g": 102.0, "n": 101.15, "t": 3}, "2026-08-12": {"g": -141.0, "n": -142.41, "t": 5}, "2026-08-13": {"g": 444.0, "n": 443.14, "t": 3}, "2026-08-14": {"g": -390.0, "n": -391.09, "t": 3}, "2026-08-17": {"g": -36.0, "n": -36.29, "t": 1}, "2026-08-18": {"g": 82.0, "n": 81.71, "t": 1}, "2026-08-19": {"g": -114.0, "n": -114.85, "t": 3}}, "summary": {"total_pnl_gross": -850.0, "total_pnl_net": -870.67, "total_fees": 20.67, "trading_days": 23, "total_trades": 72, "win_rate_by_day_gross": 0.3043, "win_rate_by_day_net": 0.3043, "win_rate_by_trade_gross": 0.2222, "win_rate_by_trade_net": 0.2222, "best_day_gross": {"date": "2026-08-04", "pnl": 662.0}, "worst_day_gross": {"date": "2026-08-14", "pnl": -390.0}, "best_day_net": {"date": "2026-08-04", "pnl": 661.13}, "worst_day_net": {"date": "2026-08-14", "pnl": -391.09}, "current_streak_gross": {"type": "losing", "length": 1, "since_date": "2026-08-19", "through_date": "2026-08-19"}, "current_streak_net": {"type": "losing", "length": 1, "since_date": "2026-08-19", "through_date": "2026-08-19"}}}, "bold-2": {"days": {"2026-06-26": {"g": -15.0, "n": -15.46, "t": 1}, "2026-07-02": {"g": 230.0, "n": 229.08, "t": 2}, "2026-07-17": {"g": 191.0, "n": 190.54, "t": 1}, "2026-07-23": {"g": -305.0, "n": -305.46, "t": 1}, "2026-07-27": {"g": -355.0, "n": -355.46, "t": 1}, "2026-07-28": {"g": -295.0, "n": -295.46, "t": 1}, "2026-08-04": {"g": 479.0, "n": 477.6, "t": 3}, "2026-08-10": {"g": -270.0, "n": -270.46, "t": 1}, "2026-08-11": {"g": 7.0, "n": 5.63, "t": 3}, "2026-08-12": {"g": -228.0, "n": -230.26, "t": 5}, "2026-08-13": {"g": 249.0, "n": 247.62, "t": 3}, "2026-08-14": {"g": -620.0, "n": -621.32, "t": 2}, "2026-08-17": {"g": 360.0, "n": 359.53, "t": 1}, "2026-08-18": {"g": 80.0, "n": 79.54, "t": 1}, "2026-08-19": {"g": 90.0, "n": 88.63, "t": 3}}, "summary": {"total_pnl_gross": -402.0, "total_pnl_net": -415.71, "total_fees": 13.71, "trading_days": 15, "total_trades": 29, "win_rate_by_day_gross": 0.5333, "win_rate_by_day_net": 0.5333, "win_rate_by_trade_gross": 0.2759, "win_rate_by_trade_net": 0.2759, "best_day_gross": {"date": "2026-08-04", "pnl": 479.0}, "worst_day_gross": {"date": "2026-08-14", "pnl": -620.0}, "best_day_net": {"date": "2026-08-04", "pnl": 477.6}, "worst_day_net": {"date": "2026-08-14", "pnl": -621.32}, "current_streak_gross": {"type": "winning", "length": 3, "since_date": "2026-08-17", "through_date": "2026-08-19"}, "current_streak_net": {"type": "winning", "length": 3, "since_date": "2026-08-17", "through_date": "2026-08-19"}}}, "safe-3": {"days": {"2026-06-29": {"g": -8.0, "n": -8.69, "t": 1}, "2026-06-30": {"g": -72.0, "n": -73.69, "t": 6}, "2026-07-01": {"g": -12.0, "n": -12.29, "t": 1}, "2026-07-02": {"g": -15.0, "n": -15.29, "t": 1}, "2026-07-06": {"g": -15.0, "n": -16.41, "t": 5}, "2026-07-08": {"g": -84.0, "n": -84.85, "t": 3}, "2026-07-09": {"g": -66.0, "n": -66.57, "t": 2}, "2026-07-15": {"g": -42.0, "n": -42.29, "t": 1}, "2026-07-17": {"g": 0.0, "n": -0.57, "t": 2}, "2026-07-27": {"g": -87.0, "n": -87.29, "t": 1}, "2026-07-28": {"g": -33.0, "n": -33.29, "t": 1}, "2026-07-29": {"g": 337.0, "n": 336.41, "t": 2}, "2026-07-31": {"g": 75.0, "n": 74.71, "t": 1}, "2026-08-03": {"g": 145.0, "n": 144.71, "t": 1}, "2026-08-04": {"g": 637.0, "n": 635.29, "t": 6}, "2026-08-07": {"g": -1048.0, "n": -1050.06, "t": 3}, "2026-08-10": {"g": -156.0, "n": -156.57, "t": 2}, "2026-08-12": {"g": -102.0, "n": -103.13, "t": 4}, "2026-08-13": {"g": 457.0, "n": 456.14, "t": 3}, "2026-08-14": {"g": -287.0, "n": -287.64, "t": 1}, "2026-08-19": {"g": 186.0, "n": 185.14, "t": 3}}, "summary": {"total_pnl_gross": -190.0, "total_pnl_net": -206.23, "total_fees": 16.23, "trading_days": 21, "total_trades": 50, "win_rate_by_day_gross": 0.2857, "win_rate_by_day_net": 0.2857, "win_rate_by_trade_gross": 0.24, "win_rate_by_trade_net": 0.24, "best_day_gross": {"date": "2026-08-04", "pnl": 637.0}, "worst_day_gross": {"date": "2026-08-07", "pnl": -1048.0}, "best_day_net": {"date": "2026-08-04", "pnl": 635.29}, "worst_day_net": {"date": "2026-08-07", "pnl": -1050.06}, "current_streak_gross": {"type": "winning", "length": 1, "since_date": "2026-08-19", "through_date": "2026-08-19"}, "current_streak_net": {"type": "winning", "length": 1, "since_date": "2026-08-19", "through_date": "2026-08-19"}}}, "risky-1": {"days": {"2026-06-29": {"g": -48.0, "n": -49.02, "t": 1}, "2026-06-30": {"g": -148.0, "n": -150.71, "t": 6}, "2026-07-01": {"g": -20.0, "n": -20.46, "t": 1}, "2026-07-02": {"g": -25.0, "n": -25.46, "t": 1}, "2026-07-06": {"g": -25.0, "n": -27.26, "t": 5}, "2026-07-08": {"g": -110.0, "n": -111.36, "t": 3}, "2026-07-09": {"g": -110.0, "n": -110.91, "t": 2}, "2026-07-15": {"g": -75.0, "n": -75.46, "t": 1}, "2026-07-17": {"g": 0.0, "n": -0.91, "t": 2}, "2026-07-27": {"g": -85.0, "n": -85.46, "t": 1}, "2026-07-29": {"g": 418.0, "n": 417.53, "t": 1}, "2026-08-03": {"g": 145.0, "n": 144.54, "t": 1}, "2026-08-04": {"g": 1041.0, "n": 1038.67, "t": 5}, "2026-08-05": {"g": -138.0, "n": -140.82, "t": 6}, "2026-08-06": {"g": 296.0, "n": 295.53, "t": 1}, "2026-08-07": {"g": -640.0, "n": -641.37, "t": 3}, "2026-08-10": {"g": -465.0, "n": -465.92, "t": 2}, "2026-08-11": {"g": -109.0, "n": -111.74, "t": 6}, "2026-08-12": {"g": -133.0, "n": -140.26, "t": 16}, "2026-08-13": {"g": 402.0, "n": 400.63, "t": 3}, "2026-08-14": {"g": -468.0, "n": -469.03, "t": 1}, "2026-08-19": {"g": 254.0, "n": 252.63, "t": 3}}, "summary": {"total_pnl_gross": -43.0, "total_pnl_net": -76.62, "total_fees": 33.62, "trading_days": 22, "total_trades": 71, "win_rate_by_day_gross": 0.2727, "win_rate_by_day_net": 0.2727, "win_rate_by_trade_gross": 0.2394, "win_rate_by_trade_net": 0.2394, "best_day_gross": {"date": "2026-08-04", "pnl": 1041.0}, "worst_day_gross": {"date": "2026-08-07", "pnl": -640.0}, "best_day_net": {"date": "2026-08-04", "pnl": 1038.67}, "worst_day_net": {"date": "2026-08-07", "pnl": -641.37}, "current_streak_gross": {"type": "winning", "length": 1, "since_date": "2026-08-19", "through_date": "2026-08-19"}, "current_streak_net": {"type": "winning", "length": 1, "since_date": "2026-08-19", "through_date": "2026-08-19"}}}, "risky-3": {"days": {"2026-06-29": {"g": -48.0, "n": -49.02, "t": 1}, "2026-06-30": {"g": -105.0, "n": -107.71, "t": 6}, "2026-07-01": {"g": -20.0, "n": -20.46, "t": 1}, "2026-07-02": {"g": 234.0, "n": 231.95, "t": 4}, "2026-07-06": {"g": -65.0, "n": -68.94, "t": 5}, "2026-07-07": {"g": -60.0, "n": -61.36, "t": 3}, "2026-07-08": {"g": -110.0, "n": -111.81, "t": 4}, "2026-07-09": {"g": -100.0, "n": -101.36, "t": 3}, "2026-07-13": {"g": -25.0, "n": -25.46, "t": 1}, "2026-07-15": {"g": -75.0, "n": -75.46, "t": 1}, "2026-07-17": {"g": 248.0, "n": 247.09, "t": 2}, "2026-07-27": {"g": -85.0, "n": -85.46, "t": 1}, "2026-07-29": {"g": 586.0, "n": 585.07, "t": 2}, "2026-07-30": {"g": -275.0, "n": -275.91, "t": 2}, "2026-07-31": {"g": 46.0, "n": 45.09, "t": 2}, "2026-08-03": {"g": 176.0, "n": 175.54, "t": 1}, "2026-08-04": {"g": 805.0, "n": 800.09, "t": 8}, "2026-08-05": {"g": -1458.0, "n": -1462.24, "t": 6}, "2026-08-06": {"g": 830.0, "n": 829.28, "t": 1}, "2026-08-07": {"g": -624.0, "n": -627.05, "t": 3}, "2026-08-10": {"g": 274.0, "n": 272.0, "t": 3}, "2026-08-11": {"g": 43.0, "n": 39.75, "t": 4}, "2026-08-12": {"g": -286.0, "n": -292.0, "t": 8}, "2026-08-13": {"g": 196.0, "n": 193.43, "t": 3}, "2026-08-14": {"g": -72.0, "n": -73.02, "t": 1}, "2026-08-17": {"g": -200.0, "n": -202.07, "t": 3}, "2026-08-19": {"g": -150.0, "n": -151.71, "t": 2}}, "summary": {"total_pnl_gross": -320.0, "total_pnl_net": -371.75, "total_fees": 51.75, "trading_days": 27, "total_trades": 81, "win_rate_by_day_gross": 0.3704, "win_rate_by_day_net": 0.3704, "win_rate_by_trade_gross": 0.2099, "win_rate_by_trade_net": 0.2099, "best_day_gross": {"date": "2026-08-06", "pnl": 830.0}, "worst_day_gross": {"date": "2026-08-05", "pnl": -1458.0}, "best_day_net": {"date": "2026-08-06", "pnl": 829.28}, "worst_day_net": {"date": "2026-08-05", "pnl": -1462.24}, "current_streak_gross": {"type": "losing", "length": 3, "since_date": "2026-08-14", "through_date": "2026-08-19"}, "current_streak_net": {"type": "losing", "length": 3, "since_date": "2026-08-14", "through_date": "2026-08-19"}}}, "BOOK": {"days": {"2026-06-26": {"g": -15.0, "n": -15.46, "t": 1}, "2026-06-29": {"g": -104.0, "n": -106.73, "t": 3}, "2026-06-30": {"g": -325.0, "n": -332.11, "t": 18}, "2026-07-01": {"g": -52.0, "n": -53.21, "t": 3}, "2026-07-02": {"g": 93.0, "n": 87.03, "t": 16}, "2026-07-06": {"g": -177.0, "n": -186.86, "t": 23}, "2026-07-07": {"g": -60.0, "n": -61.36, "t": 3}, "2026-07-08": {"g": -304.0, "n": -308.02, "t": 10}, "2026-07-09": {"g": -276.0, "n": -278.84, "t": 7}, "2026-07-13": {"g": -25.0, "n": -25.46, "t": 1}, "2026-07-15": {"g": -309.0, "n": -310.5, "t": 4}, "2026-07-16": {"g": -83.0, "n": -83.85, "t": 3}, "2026-07-17": {"g": 590.0, "n": 585.74, "t": 12}, "2026-07-20": {"g": -141.0, "n": -142.41, "t": 5}, "2026-07-21": {"g": -76.0, "n": -77.13, "t": 4}, "2026-07-22": {"g": -108.0, "n": -108.85, "t": 3}, "2026-07-23": {"g": -305.0, "n": -305.46, "t": 1}, "2026-07-27": {"g": -828.0, "n": -830.24, "t": 6}, "2026-07-28": {"g": -346.0, "n": -347.32, "t": 4}, "2026-07-29": {"g": 1341.0, "n": 1339.01, "t": 5}, "2026-07-30": {"g": -275.0, "n": -275.91, "t": 2}, "2026-07-31": {"g": 121.0, "n": 119.8, "t": 3}, "2026-08-03": {"g": 534.0, "n": 532.5, "t": 4}, "2026-08-04": {"g": 3624.0, "n": 3612.78, "t": 25}, "2026-08-05": {"g": -1935.0, "n": -1942.63, "t": 14}, "2026-08-06": {"g": 1465.0, "n": 1463.23, "t": 4}, "2026-08-07": {"g": -2687.0, "n": -2694.33, "t": 12}, "2026-08-10": {"g": -758.0, "n": -762.24, "t": 9}, "2026-08-11": {"g": 43.0, "n": 34.79, "t": 16}, "2026-08-12": {"g": -890.0, "n": -908.06, "t": 38}, "2026-08-13": {"g": 1748.0, "n": 1740.96, "t": 15}, "2026-08-14": {"g": -1837.0, "n": -1842.1, "t": 8}, "2026-08-17": {"g": 124.0, "n": 121.17, "t": 5}, "2026-08-18": {"g": 162.0, "n": 161.25, "t": 2}, "2026-08-19": {"g": 266.0, "n": 259.84, "t": 14}}, "summary": {"total_pnl_gross": -1805.0, "total_pnl_net": -1940.98, "total_fees": 135.98, "trading_days": 35, "total_trades": 303, "win_rate_by_day_gross": 0.3429, "win_rate_by_day_net": 0.3429, "win_rate_by_trade_gross": 0.231, "win_rate_by_trade_net": 0.231, "best_day_gross": {"date": "2026-08-04", "pnl": 3624.0}, "worst_day_gross": {"date": "2026-08-07", "pnl": -2687.0}, "best_day_net": {"date": "2026-08-04", "pnl": 3612.78}, "worst_day_net": {"date": "2026-08-07", "pnl": -2694.33}, "current_streak_gross": {"type": "winning", "length": 3, "since_date": "2026-08-17", "through_date": "2026-08-19"}, "current_streak_net": {"type": "winning", "length": 3, "since_date": "2026-08-17", "through_date": "2026-08-19"}}}}}, "calendar_source": {"path": "analysis/journal/calendar-data.json", "age_h": 5.8028666825, "ok": true}, "answers": [{"q": "Are we good to trade today?", "verdict": "YELLOW", "answer": "engine GREEN \u00b7 unattended YELLOW \u00b7 self-check DEGRADED", "detail": "problems: TRENDLINE-DRAW never marked today (2026-08-19) \u00b7 RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-19.log shows 6 real non-zero exit(s)\u2026", "means": "Something upstream is degraded. Read the detail before trusting a quiet tape.", "sources": [{"path": "automation/state/engine-health.json", "age_h": 0.013433382222222222, "ok": true}, {"path": "automation/state/unattended-health.json", "age_h": 0.0295073725, "ok": true}, {"path": "automation/state/self-check-last.json", "age_h": 0.23109568611111111, "ok": true}]}, {"q": "What's the status?", "verdict": "INFO", "answer": "RECENCY-CONFIRMATION (confirm-before-capital gate) \u2014 RED-BLOCKED on the freshest 25 trading days (2026-07-15..2026-08-18), real OPRA fills, floor n>=10", "detail": "Signal J wakes to (OP-25). Weekly recency check (reusable backtest/autoresearch/recency_check.py, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-18). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED;", "means": "This is the newest thing any autonomous fire wrote about itself.", "sources": [{"path": "automation/overnight/STATUS.md", "age_h": 0.23109603166666665, "ok": true}]}, {"q": "What are we theorizing today?", "verdict": "BULLISH", "answer": "TV connected, no self-heal needed. SPY 767.61 premarket, flat vs prior close 767.42 (+0.19). VIX 15.64 LOW regime (near flat vs open 15.63) -- BELOW the 17.2 bull-block threshold and BELOW the 17.3 bear-eligibility floor, so bull entries are UNBLOCKED and bear entries are VIX-BLOCKED today\u2026", "detail": "SPY reclaims 768.24 (today's PMH/resistance) with a confirmed 5m closed-bar close above it, pushing toward 769.5 (09:35-11:00 ET) \u00b7 SPY breaks below 766.92 (prior day low) with a confirmed 5m closed-bar close below it, continuing toward 765.86 (09:35-11:00 ET) \u00b7 VIX stays under 17.2 through 11:00 ET, keeping bear entries VIX-blocked and bull entries eligible all morning (09:35-11:00 ET)", "means": "These are falsifiable calls written BEFORE the session \u2014 they get graded, not forgotten.", "sources": [{"path": "automation/state/today-bias.json", "age_h": 0.0017906083333333333, "ok": true}], "stamp": "2026-08-19"}, {"q": "What's our edge \u2014 what's actually working?", "verdict": "EDGE", "answer": "443 real fills across 6 arms and 41 sessions (2026-04-29 \u2192 2026-08-19).", "detail": "Collapsed to 107 independent impulse waves (>15 min gap = new wave). This is the honest denominator. \u00b7 Engine decision context recovered for 98% of fills (the shortfall is fills predating core-decisions.jsonl; \u00b7 Trade level: 135 winners / 308 losers \u00b7 WR 30.5% \u00b7 net $-240.", "means": "Mined from real fills only \u2014 the winner signature, not a backtest.", "sources": [{"path": "analysis/winner-autopsies/SIGNATURE.md", "age_h": 7.363661969722222, "ok": true}]}, {"q": "Where's the money?", "verdict": "RED", "answer": "BOOK net -$1,941 over 35 trading days (303 trades)", "detail": "day win-rate 34% \u00b7 best 2026-08-04 +$3,613 \u00b7 worst 2026-08-07 -$2,694 \u00b7 $136 fees", "means": "Net of fees, real fills, all five arms. The calendar below is the same data day by day.", "sources": [{"path": "analysis/journal/calendar-data.json", "age_h": 5.802880480833333, "ok": true}]}]};
+
+function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e;}
+function cls(v){return String(v||'').replace(/[^A-Z]/gi,'').toUpperCase()||'NODATA';}
+function money(v){if(v===null||v===undefined||isNaN(v))return '—';
+  const s=v>=0?'+':'-';return s+'$'+Math.abs(v).toLocaleString(undefined,{maximumFractionDigits:0});}
+
+// ---- presence
+const hq = D.hq || {};
+document.getElementById('stamp').textContent = hq.now_et_label || D.generated_et || '';
+document.getElementById('rightnow').textContent = hq.right_now || 'state librarian unavailable';
+document.getElementById('focus').textContent = hq.todays_focus || '';
+document.getElementById('goal').textContent = hq.goal_line || '';
+const sc = document.getElementById('statechip');
+sc.textContent = hq.state_word || 'NO DATA'; sc.className = 'chip ' + cls(hq.state_word);
+
+// ---- the answers
+const ans = document.getElementById('answers');
+(D.answers||[]).forEach(a=>{
+  const nodata = cls(a.verdict)==='NODATA';
+  const c = el('div','card'+(nodata?' nodata':''));
+  c.appendChild(el('div','q',a.q));
+  const head = el('div','a');
+  head.innerHTML = '<span class="chip '+cls(a.verdict)+'" style="margin-right:8px">'+
+                   (a.verdict||'—')+'</span>'+(a.answer||'');
+  c.appendChild(head);
+  if(a.detail) c.appendChild(el('div','d',a.detail));
+  if(a.means) c.appendChild(el('div','means',a.means));
+  const src = el('div','src');
+  (a.sources||[]).forEach(s=>{
+    const stale = s.age_h===null||s.age_h===undefined||s.age_h>D.stale_hours;
+    src.appendChild(el('span',stale?'stale':'',
+      (s.ok?'':'⚠ ')+s.path+(s.age_h==null?'':' · '+s.age_h.toFixed(1)+'h')));
+  });
+  c.appendChild(src);
+  ans.appendChild(c);
+});
+
+// ---- calendar
+const cal = D.calendar||{}; const views = cal.views||{};
+const armSel=document.getElementById('arm'), basisSel=document.getElementById('basis');
+Object.keys(views).sort((a,b)=>a==='BOOK'?-1:b==='BOOK'?1:a.localeCompare(b))
+  .forEach(a=>armSel.appendChild(new Option(a,a)));
+if([...armSel.options].some(o=>o.value==='BOOK')) armSel.value='BOOK';
+
+function drawCal(){
+  const v=views[armSel.value]||{days:{},summary:{}}, key=basisSel.value;
+  const dow=document.getElementById('dow'); dow.innerHTML='';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>dow.appendChild(el('div','dow',d)));
+  const dates=Object.keys(v.days).sort();
+  const last=dates.length?dates[dates.length-1]:(D.today||'');
+  const [Y,M]=last.split('-').map(Number);
+  const first=new Date(Y,M-1,1), days=new Date(Y,M,0).getDate();
+  const g=document.getElementById('calgrid'); g.innerHTML='';
+  for(let i=0;i<first.getDay();i++) g.appendChild(el('div','cell empty'));
+  let mtot=0;
+  for(let d=1;d<=days;d++){
+    const iso=Y+'-'+String(M).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const row=v.days[iso];
+    const p=row?row[key]:null;
+    if(p!==null&&p!==undefined) mtot+=p;
+    const k=row?(p>0?'win':p<0?'loss':'flat'):'';
+    const c=el('div','cell '+k);
+    c.appendChild(el('div','dnum',String(d)));
+    if(row){
+      c.appendChild(el('div','pnl',money(p)));
+      c.title=iso+' · '+row.t+' trades · '+money(p);
+    }
+    g.appendChild(c);
+  }
+  const s=v.summary||{};
+  document.getElementById('calsum').textContent =
+    Y+'-'+String(M).padStart(2,'0')+' '+money(mtot)+'   ·   all-time '+
+    money(key==='n'?s.total_pnl_net:s.total_pnl_gross)+' over '+(s.trading_days||'?')+' days';
+}
+armSel.onchange=basisSel.onchange=drawCal;
+if(Object.keys(views).length) drawCal();
+else document.getElementById('calsum').innerHTML='<span class="stale">⚠ calendar-data.json unavailable</span>';
+
+// ---- clocks / wants / ships
+const ck=document.getElementById('clocks');
+(hq.clocks||[]).forEach(c=>{
+  const pct=Math.min(100,100*(c.have||0)/Math.max(1,c.need||1));
+  const d=el('div');
+  d.appendChild(el('div','row','<span>'+c.label+'</span><span class="k">'+c.have+' / '+c.need+'</span>'));
+  const b=el('div','bar'); b.appendChild(el('i')); b.firstChild.style.width=pct+'%'; d.appendChild(b);
+  if(c.explain) d.appendChild(el('div','d',c.explain));
+  ck.appendChild(d);
+});
+if(!(hq.clocks||[]).length) ck.innerHTML='<span class="stale">⚠ no clock data</span>';
+
+const w=document.getElementById('wants');
+(hq.wants||[]).forEach((t,i)=>w.appendChild(el('div','row','<span>'+(i+1)+'. '+t+'</span>')));
+if(!(hq.wants||[]).length) w.innerHTML='<span class="stale">⚠ no wants data</span>';
+
+const sh=document.getElementById('ships');
+(hq.recent_ships||[]).forEach(t=>sh.appendChild(el('div','row','<span>'+t+'</span>')));
+if(!(hq.recent_ships||[]).length) sh.innerHTML='<span class="stale">⚠ no recent ships</span>';
+
+document.getElementById('footer').innerHTML =
+  'Generated '+(D.generated_et||'?')+' by setup/scripts/gamma_home.py · presence from gamma_hq.py --json · '+
+  'money from journal_calendar.py · every card names its source file and age. Nothing here is inferred.';
+</script>
+</body>
+</html>
