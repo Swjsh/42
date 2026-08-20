@@ -44,9 +44,9 @@
   TZ RULE: this rig is Mountain (ET = local + 2h). 16:40 ET -> 14:40 MT. NEVER pass an ET
   literal to -At.
 
-  REAPER EXEMPTION (setup/scripts/_shared.ps1#Stop-StaleClaudeProcesses reaps stale
-  python.exe referencing this repo every ~3-5 min): 'pythonw.exe' is outside that function's
-  Win32_Process Name filter entirely (primary exemption), PLUS the launch path contains the
+  REAPER EXEMPTION (setup/scripts/_shared.ps1#Stop-StaleClaudeProcesses reaps stale bare
+  interpreter processes (python.exe) referencing this repo every ~3-5 min): 'pythonw.exe' is
+  outside that function's Win32_Process Name filter entirely (primary exemption), PLUS the launch path contains the
   literal 'backtest\.venv', an existing $EXEMPT_DAEMONS entry (defense in depth). Same shape
   as install-ledger-archive.ps1 / install-free-model-audit.ps1.
 

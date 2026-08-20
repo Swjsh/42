@@ -55,6 +55,9 @@ REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
 OUT_HTML = REPO / "analysis" / "home" / "index.html"
 
+# OP-27 L41 / C8: never let a headless (pythonw) scheduled task flash a conhost window.
+NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
 CALENDAR_JSON = REPO / "analysis" / "journal" / "calendar-data.json"
 CALENDAR_HTML = REPO / "analysis" / "journal" / "calendar.html"
 STATUS_MD = REPO / "automation" / "overnight" / "STATUS.md"
@@ -200,7 +203,7 @@ def _hq_json() -> tuple:
         r = subprocess.run(
             [sys.executable, str(REPO / "setup" / "scripts" / "gamma_hq.py"), "--json"],
             cwd=str(REPO), capture_output=True, text=True, timeout=180,
-            encoding="utf-8", errors="replace",
+            encoding="utf-8", errors="replace", creationflags=NO_WINDOW,
         )
         if r.returncode == 0 and r.stdout.strip():
             meta["ok"] = True
@@ -506,7 +509,7 @@ def _et_label() -> str:
     try:
         r = subprocess.run([sys.executable, str(REPO / "setup" / "scripts" / "et_clock.py")],
                            cwd=str(REPO), capture_output=True, text=True, timeout=30,
-                           encoding="utf-8", errors="replace")
+                           encoding="utf-8", errors="replace", creationflags=NO_WINDOW)
         if r.returncode == 0 and r.stdout.strip():
             return r.stdout.strip().splitlines()[0]
     except (OSError, subprocess.SubprocessError):

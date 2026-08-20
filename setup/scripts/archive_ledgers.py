@@ -103,6 +103,9 @@ import fills_fifo  # noqa: E402
 PRIMARY_ROOT = Path(r"D:\GammaArchive")
 FALLBACK_ROOT = REPO / "automation" / "archive" / "custody"
 
+# OP-27 L41 / C8: never let a headless (pythonw) scheduled task flash a conhost window.
+NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
 SCHEMA = 1
 
 # The 5 arms whose real fills constitute the book. safe-1 is EXCLUDED from the P&L
@@ -535,7 +538,7 @@ def restore_drill(root: Path, repo: Path, *, deep: bool = False,
                 proc = subprocess.run(
                     [sys.executable, str(tree / "setup/scripts/trade_matrix_build.py"),
                      "--no-fetch", "--no-broker", "--out", str(out_json)],
-                    capture_output=True, text=True, timeout=600,
+                    capture_output=True, text=True, timeout=600, creationflags=NO_WINDOW,
                 )
                 if proc.returncode != 0 or not out_json.is_file():
                     result["deep_build"] = {"status": "FAILED", "rc": proc.returncode,

@@ -46,9 +46,10 @@ def _et_offset_h() -> float:
     off = 0.0
     try:
         import subprocess, sys, re as _re
+        _no_window = getattr(subprocess, "CREATE_NO_WINDOW", 0)  # OP-27 L41 / C8
         r = subprocess.run([sys.executable, str(REPO / "setup" / "scripts" / "et_clock.py")],
                            cwd=str(REPO), capture_output=True, text=True, timeout=30,
-                           encoding="utf-8", errors="replace")
+                           encoding="utf-8", errors="replace", creationflags=_no_window)
         m = _re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", r.stdout or "")
         if m:
             et = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S")

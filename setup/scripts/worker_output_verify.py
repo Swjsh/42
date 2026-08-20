@@ -59,6 +59,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 
+# OP-27 L41 / C8: never let a headless (pythonw) scheduled task flash a conhost window.
+NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
 # Extensions worth verifying. A claim about foo.py is checkable; prose is not.
 _EXTS = (
     "py", "md", "json", "jsonl", "csv", "ps1", "psm1", "txt", "yml", "yaml",
@@ -124,7 +127,7 @@ def _sha_exists(sha: str) -> bool:
     try:
         r = subprocess.run(
             ["git", "cat-file", "-t", sha],
-            cwd=str(REPO), capture_output=True, text=True, timeout=10,
+            cwd=str(REPO), capture_output=True, text=True, timeout=10, creationflags=NO_WINDOW,
         )
         return r.returncode == 0 and r.stdout.strip() in {"commit", "blob", "tree", "tag"}
     except (OSError, subprocess.SubprocessError):
@@ -168,7 +171,7 @@ def _basename_index() -> set:
     for args in (["git", "ls-files"], ["git", "ls-files", "--others"]):
         try:
             r = subprocess.run(args, cwd=str(REPO), capture_output=True,
-                               text=True, timeout=120, errors="replace")
+                               text=True, timeout=120, errors="replace", creationflags=NO_WINDOW)
             if r.returncode != 0:
                 continue
             for line in r.stdout.splitlines():
