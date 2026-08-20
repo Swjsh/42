@@ -248,7 +248,7 @@ coded for spy."* A fork, not a refactor. The SPY engine is never imported or mod
 |---|---|
 | Account **PA38EG1JTFBT** ($9,628 — highest paper balance, options L3) | ✅ wired by REFERENCE (no secret copied); `verify_account()` refuses on account mismatch |
 | Shared-account crypto safety | ✅ enforced in code — OCC-only filters; this lane cannot see or close the twin's BTC, and vice versa |
-| ~70-name universe + LIVE liquidity gate | ✅ (static screens fail on catalyst days — MRNA: 1 contract Mon, 30,314 Wed) |
+| ~70-name universe + LIVE liquidity gate | ✅ **SCREENED 2026-08-20: 11 TIER1 + 31 TIER2 = ~42 of 70 workable.** This CORRECTS §2b's "the tradeable universe is small (5 names)" — that was a 19-name screen at a 5% gate; a 70-name screen at the lane's 8% gate is far broader. TIER1: SPY 1.2%, SLV 1.8%, GLD 2.6%, NFLX 2.7%, PLTR 2.8%, SOFI 3.7%, IWM 3.8%, HOOD 3.8%, QQQ 3.9%, BAC 4.3%, RIVN 4.8%. Several are cheap enough to hold concurrently (SOFI $162/3-lot, RIVN $188, BAC $279, SLV $342). **RIVN screens TIER1 here after being parked in §2b** — that parking was based on a single after-hours snapshot at a different expiry. Prices spot-verified against daily bars. |
 | Scanner stack (movers / actives / news / gap+RVOL / composite) | ✅ 31 tests; flagged MRNA on all 4 scanners at 9.8x RVOL |
 | Broker + position layer | ✅ 39 tests; crypto-safety + fail-loud RED-proofed |
 | Signal/scoring core (SPY score, symbol-generic) | 🔄 building |
