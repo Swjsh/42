@@ -293,3 +293,56 @@ def test_fleet_clock_fallback_is_a_REJECTED_sentinel_not_local_time() -> None:
             "the sentinel was ACCEPTED as a valid equity timestamp"
         )
         assert r["allowed"] is True, "must still fail OPEN"
+
+
+def test_fleet_state_dir_has_a_TEST_SEAM() -> None:
+    """SCAR (2026-08-20). _BX_STATE hardcoded the production state dir with no override, so
+    ANY test driving finalize() wrote into LIVE risk state. Proven, not theorised: running the
+    fleet suites injected a phantom {"test-arm": $2,000} row into book-equity-snapshot.json --
+    and it came BACK after being cleaned, which is what identified the seam as the defect
+    rather than the stray row.
+
+    It was harmless only because book_exposure.read_book_state iterates the accounts.json
+    roster and never reads a non-roster key. "Harmless because a DIFFERENT module happens to
+    filter it" is luck, not design: a test must not be able to write the file a live risk gate
+    divides by.
+    """
+    import os
+    import subprocess
+    import sys
+    probe = (
+        "import sys; sys.path.insert(0, r'" + str(REPO / "automation" / "state" / "fleet") + "');"
+        "import fleet_executor as fe; print(fe._BX_STATE)"
+    )
+    env = dict(os.environ)
+    env["GAMMA_BX_STATE"] = str(REPO / "nonexistent-test-sandbox")
+    out = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True,
+                         env=env, cwd=str(REPO))
+    assert out.returncode == 0, out.stderr[:400]
+    assert "nonexistent-test-sandbox" in out.stdout, (
+        "GAMMA_BX_STATE did not override the state dir -- tests can still write live risk state"
+    )
+
+    env.pop("GAMMA_BX_STATE", None)
+    out2 = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True,
+                          env=env, cwd=str(REPO))
+    assert out2.returncode == 0, out2.stderr[:400]
+    assert out2.stdout.strip().endswith(str(Path("automation") / "state")), (
+        f"default is not the production state dir: {out2.stdout.strip()!r}"
+    )
+
+
+def test_live_snapshot_contains_only_roster_arms() -> None:
+    """Standing tripwire: a non-roster key in the live snapshot means a test (or a stray
+    script) wrote into production risk state again."""
+    snap_path = REPO / "automation" / "state" / be.EQUITY_SNAPSHOT_NAME
+    if not snap_path.exists():
+        return
+    import json as _j
+    snap = _j.loads(snap_path.read_text(encoding="utf-8"))
+    roster = {a["arm_id"] for a in be.active_spy_arms()}
+    strays = sorted(set(snap) - roster)
+    assert not strays, (
+        f"non-roster keys in the LIVE book-equity snapshot: {strays}. Something outside the "
+        "fleet wrote production risk state -- check the GAMMA_BX_STATE seam."
+    )

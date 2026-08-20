@@ -26,6 +26,7 @@ import importlib.util
 import json
 import sys
 from dataclasses import asdict, dataclass
+import os
 from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence
 
@@ -1169,7 +1170,18 @@ def floor_rescue_plan(
 
 
 # --- phase B: risk gate (reuses the single authority) ------------------------
-_BX_STATE = Path(__file__).resolve().parents[3] / "automation" / "state"
+# TEST SEAM (2026-08-20). This hardcoded the production state dir with no override, so ANY
+# test driving finalize() wrote into LIVE risk state -- proven: running the fleet suites
+# injected a phantom {"test-arm": $2,000} row into book-equity-snapshot.json, twice (it came
+# back after being cleaned, which is what identified the seam as the real defect rather than
+# the stray row). Harmless today only because book_exposure.read_book_state iterates the
+# accounts.json roster and never reads a non-roster key -- but "harmless because a DIFFERENT
+# module happens to filter it" is luck, not design. A test must not be able to write the
+# file a live risk gate divides by.
+_BX_STATE = Path(
+    os.environ.get("GAMMA_BX_STATE")
+    or (Path(__file__).resolve().parents[3] / "automation" / "state")
+)
 
 
 def _bx_now_iso() -> str:
