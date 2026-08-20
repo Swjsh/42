@@ -224,7 +224,19 @@ def _load_fleet_executor():
     return fleet_executor
 
 
-def test_fleet_state_path_resolves_to_the_real_state_dir() -> None:
+def test_fleet_state_path_DIVERTS_under_pytest() -> None:
+    """Under pytest the state dir MUST NOT be production -- that is the whole fix. An earlier
+    version of this test asserted the opposite (that _BX_STATE equals the production dir), which
+    was correct for the env-var-only seam and became wrong the moment auto-divert landed. Kept
+    as a named test rather than deleted, because 'the guard that encodes the OLD behaviour' is
+    itself a failure mode worth pinning."""
+    fe = _load_fleet_executor()
+    assert Path(fe._BX_STATE) != REPO / "automation" / "state", (
+        "running under pytest and still pointed at PRODUCTION risk state"
+    )
+
+
+def _unused_test_fleet_state_path_resolves_to_the_real_state_dir() -> None:
     """SCAR (2026-08-18): the first cut used parents[2] from
     automation/state/fleet/fleet_executor.py, which is <repo>/automation -- so _BX_STATE
     became <repo>/automation/automation/state (nonexistent) AND the sibling et_clock import
@@ -323,12 +335,31 @@ def test_fleet_state_dir_has_a_TEST_SEAM() -> None:
         "GAMMA_BX_STATE did not override the state dir -- tests can still write live risk state"
     )
 
+    # Production branch: strip BOTH the override AND every pytest marker, otherwise the
+    # subprocess inherits PYTEST_CURRENT_TEST from us and takes the auto-divert branch --
+    # which would make this assertion silently test the wrong thing.
     env.pop("GAMMA_BX_STATE", None)
+    env.pop("PYTEST_CURRENT_TEST", None)
     out2 = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True,
                           env=env, cwd=str(REPO))
     assert out2.returncode == 0, out2.stderr[:400]
     assert out2.stdout.strip().endswith(str(Path("automation") / "state")), (
         f"default is not the production state dir: {out2.stdout.strip()!r}"
+    )
+
+
+def test_pytest_autodivert_needs_no_env_var() -> None:
+    """THE LOAD-BEARING GUARD. An env-var seam alone is not a fix: it offers the ability to
+    divert while relying on every test -- and every FUTURE test -- to remember to set it. My
+    first cut did exactly that, and the standing roster tripwire caught a phantom arm written
+    straight back into production risk state inside one run. Defaulting to safe beats
+    documenting a footgun."""
+    import re
+    src = (REPO / "automation" / "state" / "fleet" / "fleet_executor.py").read_text(encoding="utf-8")
+    fn = src[src.index("def _resolve_bx_state"):]
+    fn = fn[:fn.index(chr(10) + "_BX_STATE")]
+    assert "PYTEST_CURRENT_TEST" in fn or '"pytest" in sys.modules' in fn, (
+        "no automatic pytest divert -- the seam depends on every test remembering an env var"
     )
 
 

@@ -1178,10 +1178,30 @@ def floor_rescue_plan(
 # accounts.json roster and never reads a non-roster key -- but "harmless because a DIFFERENT
 # module happens to filter it" is luck, not design. A test must not be able to write the
 # file a live risk gate divides by.
-_BX_STATE = Path(
-    os.environ.get("GAMMA_BX_STATE")
-    or (Path(__file__).resolve().parents[3] / "automation" / "state")
-)
+def _resolve_bx_state() -> Path:
+    """Where the book-exposure equity snapshot lives.
+
+    Precedence: explicit env override > AUTOMATIC pytest divert > production.
+
+    The auto-divert is the load-bearing part. An env-var seam ALONE is not a fix -- it offers
+    the ability to divert but relies on every test (and every FUTURE test) remembering to set
+    it. My first cut did exactly that, and the standing tripwire in
+    test_book_exposure_2026_08_18.py caught it inside one run: a fleet suite wrote a phantom
+    arm straight back into production risk state. Defaulting to safe beats documenting a
+    footgun.
+    """
+    override = os.environ.get("GAMMA_BX_STATE")
+    if override:
+        return Path(override)
+    if "PYTEST_CURRENT_TEST" in os.environ or "pytest" in sys.modules:
+        import tempfile
+        d = Path(tempfile.gettempdir()) / "gamma-bx-test-state"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+    return Path(__file__).resolve().parents[3] / "automation" / "state"
+
+
+_BX_STATE = _resolve_bx_state()
 
 
 def _bx_now_iso() -> str:
