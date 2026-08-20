@@ -262,6 +262,77 @@ by the live SPY executor); own params, own state dir, own ledger. Its P&L is nev
 and vice versa. Because the account is shared with the crypto twin, **account equity is not
 evidence for either program** — each reads its own ledger.
 
+## 9c. CLASSIFICATION, AWARENESS, AND THE NOISE FUNNEL (J's questions, 2026-08-19)
+
+### What is this thing called, and how does it classify?
+
+J: *"how does this new arm get classified? ...obviously we can say the spy arm or whatever."*
+
+The existing taxonomy had one level and it was overloaded. Made explicit now — **two levels:**
+
+| Level | Meaning | Members |
+|---|---|---|
+| **LANE** | an instrument/universe PROGRAM — its own engine, state, ledger, evidence | `spy-0dte` · `multi-symbol` (new) · `futures` · `crypto-twin` · `kalshi` |
+| **ARM** | a RISK PROFILE inside one lane — differs ONLY by sizing/gates/stop | spy-0dte: safe-2, bold-2, safe-3, risky-1, risky-3 |
+
+This matters because the standing rule *"arms are risk profiles, NOT strategies"* was being
+strained: the new lane is not a sixth risk profile on SPY, it is a different **lane** with a
+different instrument universe. Inside it, `multi-1` is currently its only arm; future
+`multi-safe` / `multi-bold` arms would be risk-profile variants **within** the lane, exactly
+like the SPY fleet.
+
+**Formally:** LANE `multi-symbol` · ARM `multi-1` · instrument class `MULTI_SYMBOL_OPTION` ·
+account `PA38EG1JTFBT` (shared with the crypto-twin lane; see the equity-is-not-evidence note in
+§9a) · status SHADOW.
+
+### How does Gamma become aware of it?
+
+Four surfaces, in order of what a fresh session actually reads:
+
+1. **`CLAUDE.md` tech-stack table** — one row, the minimum for a cold-start session to know the
+   lane exists (context-budget-constrained; a pointer, not a description).
+2. **This program doc** — the canonical home (§9a status, §9c design). MAP.md picks it up via
+   `markdown/README.md` on the next vault sync; MAP.md is GENERATED and never hand-edited.
+3. **`automation/state/multi/params.json`** — the machine-readable truth an engine reads.
+4. **Its own ledgers** — `shadow-ledger.jsonl`, `participation-cascade.jsonl`, `watchlist.json`.
+   Per the non-comparability doctrine these are the lane's ONLY evidence; account equity is not,
+   because two programs share that curve.
+
+### How does it pick what to trade out of ~72 names?
+
+J: *"how does it filter out the noise of seventy different names?"* — **a funnel that narrows by
+RANKING, never by thresholding** (`multi/lib/watchlist.py`):
+
+| Stage | Keeps | Ranked on |
+|---|---|---|
+| 0 · universe | ~72 | static membership |
+| 1 · liquidity | ≤40 | tightest live spread (measured NOW, not from a screen) |
+| 2 · attention | ≤15 | **relative volume**, + %-move and scanner corroboration |
+| 3 · setup | ≤5 | the engine's own 0–11 score |
+| 4 · admission | ≤3 | risk / correlation / sector caps |
+
+**Why ranked and not thresholded** — the two failure modes are opposite and both have bitten
+this shop. Too loose is the "shotgun not sniper" problem (J, 2026-07-09). Too tight is L199 —
+*"6 arms, 700 signals, 0 trades."* A threshold cut can match NOTHING on a quiet day; a ranked
+cut always yields something to look at. **Guard:** `test_funnel_is_never_empty_on_a_quiet_day`,
+RED-proofed — replacing the stage-2 ranked cut with a threshold immediately empties the
+watchlist and the test names the failure.
+
+**Why relative volume carries stage 2:** it is the only field comparable across a $18 stock and
+a $700 ETF. A 5% day means something entirely different for SOFI than for JNJ; a 9.8× RVOL
+reading means the same thing for both. Measured 2026-08-19: the scanner stack put MRNA at 9.8×
+with all four scanners firing, on the day its $120 call ran open-to-high **+1,121%**.
+
+Expensive per-symbol work happens on **5 names, not 72**. `stage_counts` is the funnel's own
+participation cascade — "why is the watchlist empty" is a one-read answer, not an investigation.
+
+### What it deliberately does NOT do
+
+It does not predict. Every field is a backward-looking measured fact. Ranking by attention says
+*"something is happening here"* — never *"this will continue."* Whether attention-ranked names
+continue or fade is an open empirical question, unproven, and the entry decision still belongs
+to the engine's own blockers.
+
 ## 9b. NIGHT RUN 2026-08-18 → 08-19 — the work order + progress ledger
 
 > J went to bed 2026-08-18 ~21:44 ET with explicit standing authorization: *"do you have
