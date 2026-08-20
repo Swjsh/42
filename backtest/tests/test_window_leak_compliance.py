@@ -78,3 +78,24 @@ def test_bite_detector_flags_bare_subprocess(tmp_path, monkeypatch):
     flagged = {Path(f["file"]).name for f in flags}
     assert "leaker.py" in flagged, "detector failed to flag a bare subprocess.run — guard is hollow"
     assert "clean.py" not in flagged, "detector wrongly flagged a wrapped subprocess.run"
+
+
+def test_comment_mentioning_subprocess_run_is_not_flagged(tmp_path, monkeypatch):
+    """Regression guard (2026-08-20): a doc comment that merely PROSE-mentions
+    `subprocess.run() call` (e.g. explaining why creationflags is defined) was
+    matched by the bare-text regex and false-flagged as a real, uncovered call
+    site — it re-REDded `mcp_audit_probe.py` right after the fix landed. A
+    full-line `#` comment must never count as a call site."""
+    commented = tmp_path / "commented.py"
+    commented.write_text(
+        "import subprocess, sys\n"
+        "# Every subprocess.run() call in this module carries creationflags.\n"
+        "_CNW = 0x08000000 if sys.platform == 'win32' else 0\n"
+        "def go():\n"
+        "    return subprocess.run(['git', 'status'], capture_output=True, creationflags=_CNW)\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(AUD, "PY_AUDIT_ROOTS", [tmp_path])
+    monkeypatch.setattr(AUD, "REPO", tmp_path)
+    flags = AUD._audit_py_missing_creationflags()
+    assert flags == [], f"a comment-only mention was wrongly flagged as a call site: {flags}"

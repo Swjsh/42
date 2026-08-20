@@ -187,6 +187,13 @@ def _audit_py_missing_creationflags() -> list[dict]:
             continue
         for m in SUBPROC_CALL_RE.finditer(text):
             start = m.start()
+            # Skip matches inside a full-line comment -- a prose mention like
+            # "# ...subprocess.run() call..." is not a real call site
+            # (2026-08-20: false-flagged automation/scripts/mcp_audit_probe.py's
+            # own doc comment describing the fix it had just applied).
+            line_start = text.rfind("\n", 0, start) + 1
+            if text[line_start:start].lstrip().startswith("#"):
+                continue
             # Look at the next ~600 chars of the call expression. Heuristic: the call
             # ends at the matching `)` (we don't fully parse, so we approximate by
             # capturing up to the next blank line OR until paren depth returns to 0).
