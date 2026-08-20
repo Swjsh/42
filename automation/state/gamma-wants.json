@@ -3,8 +3,9 @@
   "wants": [
     {
       "priority": 1,
-      "id": "tastytrade-token-rotation",
-      "text": "Rotate the Tastytrade PROD tokens (owed since 06-22) — it unlocks mes-mnq-div, a validated +$71/trade futures edge that's been parked for 6 weeks"
+      "id": "mes-mnq-div-sandbox-buying-power",
+      "text": "mes-mnq-div (validated OOS +$71.46/trade) is still dormant -- but NOT on credentials. Probe 2026-08-20 00:05 ET authenticated to the Tastytrade SANDBOX account 5WW73759, resolved front month /MESU6 and returned dry_run_ok:true. The real blockers are (a) futures_buying_power = $0.00 and is_futures_approved = false on that sandbox account, and (b) the arm's own enabled:false flag in automation/state/fleet/accounts.json. Nothing here needs a token rotation and nothing here needs J.",
+      "_correction_2026_08_19": "Prior text asked J to 'rotate the Tastytrade PROD tokens (owed since 06-22)'. That was wrong on its face -- this arm uses the sandbox, not PROD -- and it nagged J on the home page for 8 weeks for an action that would not have unblocked anything. J: 'why do I need to rotate the key? it's a fucking training [account]. Can you just use it? Shut up about it.' Corrected by running the probe instead of repeating the claim."
     },
     {
       "priority": 2,

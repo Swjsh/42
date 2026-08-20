@@ -115,6 +115,39 @@ def _claim_of(x) -> str:
     return _clean(x)
 
 
+GAMMA_WANTS = STATE / "gamma-wants.json"
+
+
+def _wants_full() -> list:
+    """Full-text wants, straight from source.
+
+    gamma_hq.py runs every want through `_sanitize_line(max_len=120)` because an
+    80-column ANSI window has to bound one bad field or the layout blows out.
+    A web page has no such constraint, and inheriting it cut every want mid-
+    sentence -- J (2026-08-19) on want #2: "it's cut off. I don't know what it
+    is." So the page reads the registry directly and falls back to the
+    librarian's truncated copy only if the file is unreadable.
+    """
+    try:
+        raw = json.loads(GAMMA_WANTS.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    items = raw.get("wants") if isinstance(raw, dict) else raw
+    if not isinstance(items, list):
+        return []
+    rows = []
+    for w in items:
+        if isinstance(w, dict):
+            text = str(w.get("text", "")).strip()
+            pri = w.get("priority", 99)
+        else:
+            text, pri = str(w).strip(), 99
+        if text:
+            rows.append({"priority": pri, "text": _clean(text)})
+    rows.sort(key=lambda r: r["priority"])
+    return rows[:3]
+
+
 def _age_h(p: Path):
     try:
         return (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).total_seconds() / 3600.0
@@ -402,6 +435,10 @@ _TEMPLATE = r"""<!doctype html>
   .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
   .row:last-child{border-bottom:none}
   .row .k{color:var(--muted);font-size:12px;white-space:nowrap}
+  .want{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .want:last-child{border-bottom:none}
+  .want .wnum{color:var(--accent);font-weight:700;font-size:13px;min-width:14px}
+  .want .wtxt{font-size:13.5px;line-height:1.5;word-break:break-word}
   .bar{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:5px}
   .bar>i{display:block;height:100%;background:var(--accent)}
   a{color:var(--accent)}
@@ -549,8 +586,17 @@ const ck=document.getElementById('clocks');
 if(!(hq.clocks||[]).length) ck.innerHTML='<span class="stale">⚠ no clock data</span>';
 
 const w=document.getElementById('wants');
-(hq.wants||[]).forEach((t,i)=>w.appendChild(el('div','row','<span>'+(i+1)+'. '+t+'</span>')));
-if(!(hq.wants||[]).length) w.innerHTML='<span class="stale">⚠ no wants data</span>';
+// Full text from gamma-wants.json; hq.wants is the terminal's 120-char cut and is
+// only a fallback. These wrap - a want J cannot finish reading is a want he ignores.
+const wantRows = (D.wants_full||[]).map(x=>x.text);
+const wantsSrc = wantRows.length ? wantRows : (hq.wants||[]);
+wantsSrc.forEach((t,i)=>{
+  const r=el('div','want');
+  r.appendChild(el('div','wnum',(i+1)));
+  r.appendChild(el('div','wtxt',t));
+  w.appendChild(r);
+});
+if(!wantsSrc.length) w.innerHTML='<span class="stale">⚠ no wants data</span>';
 
 const sh=document.getElementById('ships');
 (hq.recent_ships||[]).forEach(t=>sh.appendChild(el('div','row','<span>'+t+'</span>')));
@@ -577,6 +623,9 @@ def build(quiet: bool = False) -> dict:
         "calendar": compact_calendar(cal or {}),
         "calendar_source": cal_meta,
         "answers": build_answers(),
+        "wants_full": _wants_full(),
+        "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),
+                         "age_h": _age_h(GAMMA_WANTS), "ok": GAMMA_WANTS.exists()},
     }
     if not quiet:
         if not hq_meta["ok"]:
