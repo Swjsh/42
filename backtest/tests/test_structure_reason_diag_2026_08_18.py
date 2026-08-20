@@ -154,3 +154,61 @@ def test_reason_vocabulary_is_closed() -> None:
         assert reason in ok_exact or reason.startswith("error:") or reason.startswith("unknown:error:"), (
             f"unclassifiable reason {reason!r} -- extend the vocabulary deliberately"
         )
+
+
+def test_repo_root_is_on_path_at_module_level_not_by_side_effect() -> None:
+    """SCAR (2026-08-20) — the root cause of the safe/bold asymmetry, found after a day of it
+    looking like a per-account bug.
+
+    heartbeat_core inserted four SUBDIRECTORIES (crypto/lib, automation/state/fleet,
+    setup/scripts, backtest/lib) but never the REPO ROOT. `_sameday_structure_diag` does an
+    absolute `from backtest.lib.engine.engine_cli import ...`, which needs the root to resolve
+    the `backtest` PACKAGE. `setup_dispatch` (~line 1602) adds the root as a SIDE EFFECT, but
+    the conviction call runs at ~line 597 — about a thousand lines earlier.
+
+    Result: whichever account was scored FIRST hit ModuleNotFoundError, and the second silently
+    inherited the repaired path. Live on 2026-08-19 that was 12/12 SAFE failing and 0/12 BOLD,
+    because safe leads the ACCOUNTS loop. C5 had been silently docked for the first-scored arm
+    since the component was born.
+
+    This pins the fix at module level so it can never again depend on an unrelated import
+    happening first.
+    """
+    import re
+    src = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
+    head = src[: src.index("import pandas as pd")]
+    assert re.search(r"sys\.path\.append\(str\(REPO\)\)", head), (
+        "repo root is not added to sys.path in heartbeat_core's module-level path block — "
+        "the absolute `backtest.lib.engine` import will resolve only by side effect again"
+    )
+    # And it must be APPENDED, never inserted: the existing ordering comment is load-bearing
+    # (backtest/lib's `ribbon` must keep winning over crypto/lib's same-named module).
+    assert not re.search(r"sys\.path\.insert\(0,\s*str\(REPO\)\)", head), (
+        "repo root was INSERTED at position 0 — that outranks backtest/lib and can shadow "
+        "`ribbon`; it must be appended at lowest precedence"
+    )
+
+
+def test_first_scored_account_resolves_the_classifier_import() -> None:
+    """The behavioural half: with only the venv on the path and setup_dispatch NOT preloaded,
+    a freshly-imported heartbeat_core must still resolve the classifier."""
+    import subprocess
+    import sys as _s
+    probe = (
+        "import sys, importlib.util, datetime as dt;"
+        "spec=importlib.util.spec_from_file_location('hc', r'"
+        + str(REPO / "setup" / "scripts" / "heartbeat_core.py") + "');"
+        "hc=importlib.util.module_from_spec(spec); spec.loader.exec_module(hc);"
+        "assert 'setup_dispatch' not in sys.modules;"
+        "ET=dt.timezone(dt.timedelta(hours=-4));"
+        "bars=[{'open':700+i*0.5,'high':700+i*0.5+0.2,'low':700+i*0.5-0.2,'close':700+i*0.5,"
+        "'volume':1000.0,'timestamp_iso':(dt.datetime(2026,8,20,9,30,tzinfo=ET)+"
+        "dt.timedelta(minutes=5*i)).isoformat()} for i in range(60)];"
+        "print(hc._sameday_structure_diag({'sameday_5m_bars':bars})[1])"
+    )
+    out = subprocess.run([_s.executable, "-c", probe], capture_output=True, text=True,
+                         cwd=str(REPO))
+    assert out.returncode == 0, out.stderr[-500:]
+    assert "ModuleNotFound" not in out.stdout, (
+        f"first-scored account still cannot import the classifier: {out.stdout.strip()!r}"
+    )

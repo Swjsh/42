@@ -50,6 +50,23 @@ REPO = Path(__file__).resolve().parents[1].parent
 # (the exact backtest ribbon, spread=max-min) must win over crypto/lib's same-named module.
 for p in ("crypto/lib", "automation/state/fleet", "setup/scripts", "backtest/lib"):
     sys.path.insert(0, str(REPO / p))
+# REPO ROOT, appended LAST so it has the LOWEST precedence and cannot shadow any of the
+# four entries above (the ordering comment there is load-bearing -- backtest/lib's `ribbon`
+# must keep winning over crypto/lib's same-named module).
+#
+# SCAR (2026-08-20). Without this, `_sameday_structure_diag`'s absolute import
+# `from backtest.lib.engine.engine_cli import _classify_sameday_5m` cannot resolve the
+# `backtest` PACKAGE -- only its subdirectory was on the path. `setup_dispatch` (imported at
+# ~line 1602) inserts the repo root as a side effect, but the conviction call runs at ~line
+# 597, about a thousand lines earlier. So whichever account is scored FIRST hit
+# ModuleNotFoundError and the second one silently inherited the repaired path.
+#
+# Live proof on 2026-08-19: structure_reason was "error:ModuleNotFoundError" on 12 of 12 SAFE
+# ticks and 0 of 12 BOLD ticks -- safe is first in the ACCOUNTS loop. It looked like a
+# per-account bug for a day; it was import ordering the whole time. C5 has therefore been
+# silently docked for whichever arm scores first since the component was born.
+if str(REPO) not in sys.path:
+    sys.path.append(str(REPO))
 
 import pandas as pd  # noqa: E402
 from ribbon import compute_ribbon as _ribbon_compute_df  # lib.ribbon — EXACT backtest ribbon  # noqa: E402
