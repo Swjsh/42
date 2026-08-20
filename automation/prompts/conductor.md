@@ -91,7 +91,9 @@ RTH_LIGHT already exited above; everything from here on is AFTERHOURS or WEEKEND
 
 ## STAGE 1 — PICK THE SINGLE HIGHEST-VALUE READY ITEM
 
-You pick **ONE.** First run `python setup/scripts/task_scorer.py` — it parses the Active backlog and ranks ready items by **ROI** (value ÷ cost: leverage + engine-benefit + quick-win + readiness, minus bookkeeping and expensive-design cost). Use its ranking to choose WITHIN a tier and to break ties; the hard priority order below still wins ACROSS tiers (an Engine-RED flag outranks a high-ROI LOW item). `--top` gives the single best ready id.
+**STEP 1a — WHICH DESK (added 2026-08-20).** Run `python setup/scripts/desk_allocator.py` FIRST. The firm has four desks (`spy-0dte` / `futures` / `multi-sector` / `prediction-markets`) and this queue is FLAT — which structurally starves whichever desk nobody happened to write a queue item for. That is not hypothetical: the futures desk's MES mirror reached `armable: true` (59/20 round trips, +$1,269, beating its own −$4,934 null) and sat unnoticed until J asked "SO IS FUTURES WORKING". The allocator reads each desk's OWN pre-registered scoreboard and ranks who deserves this fire, with its reasons printed. **A `DECISION ROTTING` desk — one that has CLEARED its arming bar and is not armed — outranks everything below except an Engine-RED.** If the allocator's winner has no matching queue item, that IS the finding: write the item for that desk and work it. Desk definitions live in `automation/state/worker-registry.json`; a desk NEVER grades its own homework — ship/kill adjudication and the risk authority stay here with you.
+
+**STEP 1b — WHICH ITEM.** Then run `python setup/scripts/task_scorer.py` — it parses the Active backlog and ranks ready items by **ROI** (value ÷ cost: leverage + engine-benefit + quick-win + readiness, minus bookkeeping and expensive-design cost). Use its ranking to choose WITHIN a tier and to break ties; the hard priority order below still wins ACROSS tiers (an Engine-RED flag outranks a high-ROI LOW item). `--top` gives the single best ready id.
 
 Priority order (first ready, eligible item wins):
 

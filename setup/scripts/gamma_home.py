@@ -163,6 +163,90 @@ def _wants_full() -> list:
     return rows[:3]
 
 
+REGISTRY = STATE / "worker-registry.json"
+
+
+def build_desks() -> dict:
+    """The org, by DESK — the decomposition J asked for and the one the research backs.
+
+    Desks are split by INSTRUMENT, which is a real context boundary: the futures
+    desk never needs SPY's ribbon width, the multi-sector desk never needs a 0DTE
+    expiry. (The nine workers in the registry are split by ROLE, which is the
+    anti-pattern Anthropic names — kept as SHARED FUNCTIONS a desk invokes, not
+    as context owners.)
+
+    Each desk's headline number comes from that desk's OWN scoreboard file. No
+    desk grades its own homework here — this only reads what each already wrote.
+    """
+    reg, reg_meta = _load_json(REGISTRY)
+    desks = (reg or {}).get("desks", [])
+    out = []
+
+    for d in desks:
+        did = d.get("id")
+        metric, sub, chip = "—", "", d.get("status", "")
+
+        if did == "spy-0dte":
+            cal, _m = _load_json(CALENDAR_JSON)
+            s = ((cal or {}).get("views", {}).get("BOOK", {}) or {}).get("summary", {})
+            if s:
+                metric = "%s net" % _money(s.get("total_pnl_net"))
+                sub = "%s trading days · %s trades · %.0f%% day WR" % (
+                    s.get("trading_days", "?"), s.get("total_trades", "?"),
+                    100 * float(s.get("win_rate_by_day_net") or 0))
+            chip = "REAL FILLS"
+
+        elif did == "futures":
+            fut = STATE / "futures"
+            mirror, _ = _load_json(fut / "shadow-progress.json")
+            edge3, _ = _load_json(fut / "edge3-sim-progress.json")
+            live = sum(1 for f in ("trader/heartbeat.json", "trader-broker/heartbeat.json",
+                                   "shadow-progress.json", "edge3-sim-progress.json",
+                                   "ssr-shadow-progress.json")
+                       if (_age_h(fut / f) or 1e9) <= 24)
+            bar = (mirror or {}).get("arming_bar", {})
+            metric = "%d/5 lanes live" % live
+            sub = "MES mirror %s/%s trips %s%s" % (
+                bar.get("round_trips_have", "?"), bar.get("round_trips_needed", "?"),
+                _money((mirror or {}).get("total_pnl_usd")),
+                " · ARMABLE" if bar.get("armable") else "")
+            if edge3:
+                sub += " · edge3 %s/%s" % (edge3.get("n_closed_round_trips", "?"),
+                                           edge3.get("falsification_floor", "?"))
+            chip = "SIM ONLY"
+
+        elif did == "multi-sector":
+            wk = STATE / "weekly"
+            n_var = _rows(wk / "variant-daily-ledger.jsonl")
+            n_exp = _rows(wk / "expiry-experiment-shadow-ledger.jsonl")
+            metric = "%d shadow rows" % (n_var + n_exp)
+            sub = "v1 signal FAILED its random-entry null on every arm — nothing ships"
+            chip = "SIGNAL KILLED"
+
+        elif did == "prediction-markets":
+            metric = "%d shadow rows" % _rows(STATE / "kalshi" / "shadow-ledger.jsonl")
+            sub = "per-city bar: >=20 settled days, >=45% hit, err <=1.6F"
+            chip = "SHADOW"
+
+        out.append({
+            "id": did, "name": d.get("name"), "instrument": d.get("instrument"),
+            "chip": chip, "metric": metric, "sub": sub,
+            "arms": d.get("arms", []), "arming_bar": d.get("arming_bar", ""),
+            "functions": d.get("functions_it_invokes", []),
+        })
+
+    return {"desks": out, "source": reg_meta,
+            "master": (reg or {}).get("master", {}).get("name", "gamma"),
+            "functions": [w.get("name") for w in (reg or {}).get("workers", [])]}
+
+
+def _rows(p: Path) -> int:
+    try:
+        return sum(1 for l in p.open(encoding="utf-8", errors="replace") if l.strip())
+    except OSError:
+        return 0
+
+
 def _age_h(p: Path):
     try:
         return (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).total_seconds() / 3600.0
@@ -697,6 +781,7 @@ def build(quiet: bool = False) -> dict:
         "calendar": compact_calendar(cal or {}),
         "calendar_source": cal_meta,
         "answers": build_answers(),
+        "desks": build_desks(),
         "wants_full": _wants_full(),
         "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),
                          "age_h": _age_h(GAMMA_WANTS), "ok": GAMMA_WANTS.exists()},

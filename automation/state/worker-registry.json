@@ -28,7 +28,12 @@
   },
   "delegation_contract": {
     "_doc": "Anthropic, 'How we built our multi-agent research system': 'Each subagent needs an objective, an output format, guidance on the tools and sources to use, and clear task boundaries. Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information.' Verified 3-0. Enforced by setup/scripts/worker_registry.py --contract.",
-    "required_fields": ["objective", "output_format", "tools_and_sources", "boundaries"],
+    "required_fields": [
+      "objective",
+      "output_format",
+      "tools_and_sources",
+      "boundaries"
+    ],
     "effort_scaling": {
       "_doc": "Anthropic's published tiers. Treat as a ceiling, not a target — every subagent is billed to the same pool the heartbeat ticks on.",
       "simple_fact_find": "1 worker, 3-10 tool calls",
@@ -42,7 +47,13 @@
     "deterministic": {
       "cost": "$0",
       "rule": "If the step is decidable without a model, it MUST be a script. This is the largest tier by design and the only tier allowed on the live trading hot path.",
-      "examples": ["heartbeat_core.py", "risk_gate.py", "filters.py", "worker_output_verify.py", "sight_beacon.py"]
+      "examples": [
+        "heartbeat_core.py",
+        "risk_gate.py",
+        "filters.py",
+        "worker_output_verify.py",
+        "sight_beacon.py"
+      ]
     },
     "free": {
       "cost": "$0 (free lanes + local ollama floor)",
@@ -165,39 +176,74 @@
     "_doc": "The repeated things J actually asks for, mined from automation/state/j-question-ledger.jsonl (29 genuine prompts of 52 rows; the other 23 are audit-harness pollution — see queue item T-JQL-CLASSIFIER-2026-08-18). A repeated question is a MISSING INSTRUMENT, not a query (OP-33e). Every intent needs an owner AND a push surface — an intent with machinery but no delivery is still an open intent, which is why J keeps asking.",
     "is_everything_running": {
       "asked": 4,
-      "examples": ["engine firing on all cylinders?", "so engine is working well and on its own today?", "Is everything up and running so that we're able to successfully trade today?"],
+      "examples": [
+        "engine firing on all cylinders?",
+        "so engine is working well and on its own today?",
+        "Is everything up and running so that we're able to successfully trade today?"
+      ],
       "owner": "coach",
-      "machinery": ["connectivity-gate skill", "preflight-gate skill", "Gamma_PreopenReadiness", "Gamma_PremarketReadiness", "automation/state/unattended-health.json"],
+      "machinery": [
+        "connectivity-gate skill",
+        "preflight-gate skill",
+        "Gamma_PreopenReadiness",
+        "Gamma_PremarketReadiness",
+        "automation/state/unattended-health.json"
+      ],
       "delivery_status": "PULL_ONLY",
       "gap": "every check exists and passes; none of them PUSH a green/red line to J before the open, so he asks."
     },
     "status_tldr": {
       "asked": 3,
-      "examples": ["whats the status of everything tldr bullets emoji", "whats the status talk to me concise", "whats the status on all the engine fixes that stemmed from todays losses"],
+      "examples": [
+        "whats the status of everything tldr bullets emoji",
+        "whats the status talk to me concise",
+        "whats the status on all the engine fixes that stemmed from todays losses"
+      ],
       "owner": "coach",
-      "machinery": ["Gamma_FirmBrief", "Gamma_MorningBrief", "Gamma_EodBrief", "automation/overnight/STATUS.md"],
+      "machinery": [
+        "Gamma_FirmBrief",
+        "Gamma_MorningBrief",
+        "Gamma_EodBrief",
+        "automation/overnight/STATUS.md"
+      ],
       "delivery_status": "PULL_ONLY",
       "gap": "STATUS.md is append-only and long; the briefs are written but J has to go find them."
     },
     "edge_review": {
       "asked": 2,
-      "examples": ["review all the trades that we've done with the engine, and focus on the winners? What is our edge?", "Make sure we learned how to be profitable"],
+      "examples": [
+        "review all the trades that we've done with the engine, and focus on the winners? What is our edge?",
+        "Make sure we learned how to be profitable"
+      ],
       "owner": "analyst",
-      "machinery": ["Gamma_TradeAutopsy", "Gamma_WinnerAutopsy", "Gamma_WinnerSignature", "j-winner-audit skill"],
+      "machinery": [
+        "Gamma_TradeAutopsy",
+        "Gamma_WinnerAutopsy",
+        "Gamma_WinnerSignature",
+        "j-winner-audit skill"
+      ],
       "delivery_status": "PARTIAL",
       "gap": "autopsies run nightly; the cumulative 'here is our edge' answer is re-derived by hand each time J asks."
     },
     "todays_theory": {
       "asked": 1,
-      "examples": ["Has the engine reviewed today's levels? And what are we theorizing?"],
+      "examples": [
+        "Has the engine reviewed today's levels? And what are we theorizing?"
+      ],
       "owner": "scout",
-      "machinery": ["Gamma_Premarket", "automation/state/today-bias.json", "automation/state/key-levels.json"],
+      "machinery": [
+        "Gamma_Premarket",
+        "automation/state/today-bias.json",
+        "automation/state/key-levels.json"
+      ],
       "delivery_status": "PULL_ONLY",
       "gap": "today-bias.json holds falsifiable predictions; nothing narrates them to J pre-open."
     },
     "explain_for_me": {
       "asked": 1,
-      "examples": ["I need you to break this down for me a little better with how this helps me and what exactly you recommend that I should do"],
+      "examples": [
+        "I need you to break this down for me a little better with how this helps me and what exactly you recommend that I should do"
+      ],
       "owner": "UNOWNED",
       "machinery": [],
       "delivery_status": "NONE",
@@ -205,9 +251,17 @@
     },
     "new_lane": {
       "asked": 3,
-      "examples": ["we should be trading futures today as well", "have it running twenty four seven", "I wanna explore trading, like, the different weekly Friday expirations of other stocks"],
+      "examples": [
+        "we should be trading futures today as well",
+        "have it running twenty four seven",
+        "I wanna explore trading, like, the different weekly Friday expirations of other stocks"
+      ],
       "owner": "chef",
-      "machinery": ["Gamma_Prospector", "the Kitchen", "markdown/planning/WEEKLY-OPTIONS-PROGRAM.md"],
+      "machinery": [
+        "Gamma_Prospector",
+        "the Kitchen",
+        "markdown/planning/WEEKLY-OPTIONS-PROGRAM.md"
+      ],
       "delivery_status": "PARTIAL",
       "gap": "lanes get built and killed correctly; the kill result reaches J only if a session happens to write a brief."
     }
@@ -216,5 +270,80 @@
     "explain_for_me has no owner — the only J-intent with zero machinery.",
     "4 of 6 J-intents are PULL_ONLY: the answer exists on disk before J asks, and he still has to ask. Delivery, not machinery, is the binding constraint on 'fully autonomous'.",
     "fanout_caps above are the DECIDED values; they are not yet wired into the conductor's launch point."
-  ]
+  ],
+  "_desk_model": "ADDED 2026-08-20 (J: 'wouldn't there be one for the SPY 0DTEs, one for futures, one for the multisector options part... how does that fit into the agent orchestration flow?'). J's axis is the CORRECT one and it is not the axis this registry originally used. Anthropic's verified 2026 guidance is to decompose by CONTEXT BOUNDARY, never by role -- 'when agents are split by problem type, they engage in a telephone game.' The nine workers below are split by ROLE (research, post-trade, risk, infra, authoring), which is the named anti-pattern. DESKS are split by instrument, and instruments genuinely share no context: the futures desk never needs SPY's ribbon width; the multi-sector desk never needs a 0DTE expiry. So the org is a MATRIX: desks own CONTEXT, workers are SHARED FUNCTIONS a desk invokes with its own context passed in, and Gamma allocates between desks. COST RAIL: a desk is a DETERMINISTIC SCOREBOARD first ($0, always on); an LLM agent is spawned for a desk only when that desk needs judgment. Four always-on desk agents would multiply a burn already measured at $430-$1,554/day.",
+  "desks": [
+    {
+      "id": "spy-0dte",
+      "name": "SPY 0DTE",
+      "instrument": "SPY_0DTE_OPTION",
+      "status": "LIVE_PAPER_REAL_FILLS",
+      "context_boundary": "SPY 5m bars, key-levels.json, the 0DTE option chain, v15 rules",
+      "arms": [
+        "safe-2",
+        "bold-2",
+        "safe-3",
+        "risky-1",
+        "risky-3"
+      ],
+      "engine": "setup/scripts/heartbeat_core.py (deterministic, $0, no LLM on the tick)",
+      "scoreboard": "analysis/journal/calendar-data.json (BOOK view)",
+      "arming_bar": "already live on paper; live-money arming needs J (OP-0 #1)",
+      "functions_it_invokes": [
+        "analyst",
+        "treasurer",
+        "chef",
+        "coach"
+      ]
+    },
+    {
+      "id": "futures",
+      "name": "Futures",
+      "instrument": "MES/MNQ",
+      "status": "SHADOW_SIM_ONLY_ZERO_REAL_FILLS",
+      "context_boundary": "MES/MNQ quotes, CME session phases, point-based stops, ATR trails",
+      "arms": [
+        "mes-linear-sim (pending_build)",
+        "mes-mnq-div-futures (dormant)"
+      ],
+      "engine": "5 lanes: trader fillsim + trader broker + MES mirror + edge3 sim + SSR shadow",
+      "scoreboard": "automation/state/futures/*-progress.json (each lane self-scores vs its own arming bar)",
+      "arming_bar": "MES mirror has CLEARED it (59/20 trips, +$1,269, beats null) -- a decision waiting",
+      "functions_it_invokes": [
+        "chef",
+        "treasurer"
+      ]
+    },
+    {
+      "id": "multi-sector",
+      "name": "Multi-sector options",
+      "instrument": "WEEKLY_OPTIONS (non-SPY)",
+      "status": "SHADOW_V1_SIGNAL_KILLED",
+      "context_boundary": "per-ticker weekly chains (IWM/NVDA/AAPL/XOM/TSLA/CVX...), weekly expiries, sector heat, earnings blackouts",
+      "arms": [
+        "weekly-1 (NOT created -- deliberately withheld behind the kill-gate result)"
+      ],
+      "engine": "automation/state/weekly/ (shadow only)",
+      "scoreboard": "weekly/variant-daily-ledger.jsonl (470 rows) + expiry-experiment-shadow-ledger.jsonl (593 rows)",
+      "arming_bar": "NOT MET -- the v1 signal FAILED the random-entry null on every arm (-8% to -14% mean). Nothing ships; the machinery lives, the signal is dead.",
+      "functions_it_invokes": [
+        "chef"
+      ]
+    },
+    {
+      "id": "prediction-markets",
+      "name": "Prediction markets",
+      "instrument": "KALSHI_EVENT_CONTRACTS",
+      "status": "SHADOW_PER_CITY_GATE",
+      "context_boundary": "NOAA GHCN settled weather vs per-city forecast scorecards",
+      "arms": [
+        "kalshi weather (shadow until GAMMA_KALSHI_ARMED=1 AND the per-city bar passes)"
+      ],
+      "engine": "Gamma_KalshiAuto (18:10 ET daily, $0)",
+      "scoreboard": "automation/state/kalshi/shadow-ledger.jsonl",
+      "arming_bar": "per city: >=20 settled days, >=45% hit, mean err <=1.6F",
+      "functions_it_invokes": []
+    }
+  ],
+  "_matrix_rule": "A desk NEVER grades its own homework. Desks self-score, but ship/kill adjudication and the risk authority stay central with the master -- that is the 'interpret worker response' arm of the diagram, and it is the arm this rig was actually missing (12/690 fabricated worker reports before worker_output_verify.py). Shared functions are invoked BY a desk WITH that desk's context; they never hold desk context of their own, which is what keeps the telephone game out."
 }
