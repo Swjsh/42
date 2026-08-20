@@ -2452,3 +2452,20 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 
 **Claim:** every view, drawer, the Cmd-K palette and the keyboard nav are verified programmatically (72 guards, live DOM assertions), but nobody has actually double-clicked `LAUNCH-GAMMA-HOME.vbs` or pressed Cmd-K as a human. Built != used. **Evidence:** verification in this session was `javascript_exec` against the rendered DOM in a preview pane, which serves the file from a `data:` URL -- a context that already masked one real routing bug (hash mutation being a no-op).
 **Action:** J opens it once and reports anything that misbehaves; specifically worth checking on a real `file://` load: hash deep-links (`#engine`), the `g`-then-key jumps, and whether the 30s age repaint is visible. Any failure here is a guard gap, so fix the guard too, not just the page :: depends:none :: status:proposed
+
+- [ ] ESCALATION (manager_flagged) [de1729896fd3c872] — T-KALSHI-DEAD-2026-08-20: Critical system component (Kalshi lane) has been dead for 10+ days with no alerts; root cause must be diagnosed before re-arming. Validator role has access to logs and can su _(gamma_manager 2026-08-20 17:13 ET)_
+
+### T-FILTER8-PROVENANCE-2026-08-20 HIGH -- VIX-regime filter gated 89% of a correctly-called trend day, twice running
+
+**Claim:** 2026-08-20 was a clean one-way bear day (768.74 -> 763.04, ribbon+15m BEAR on 772/772 ticks, pre-registered bias BEARISH and 4/4 directionally correct). Filter 8 (VIX regime: not low AND not falling) blocked bear entries on **344 of 386 safe ticks (89%)** with VIX pinned 15.49-16.13 all session. Only 40 ticks -- 12:56 to 15:40 -- had zero bear blockers, and ENTER fired on all 40. At **11:11 bear score hit 9 with filter 8 as the SOLE remaining blocker** at SPY 766.57; SPY went on to 763.04. Same pattern the prior session. **Evidence:** `analysis/eod-deep/eod-deep-2026-08-20.md` sections 3 and 5.
+**Action:** do NOT relax the threshold on this narrative -- the counterfactual is unknown and an 11:11 entry could equally have chopped for 90 minutes. Run a CONSTRAINT PROVENANCE AUDIT first (what evidence armed the current threshold, when, and against what n), then a pre-registered A/B on the relaxed variant that must clear OOS + the random-entry null + anchor-no-regression before anything ships :: depends:none :: status:proposed
+
+### T-BOLD-FILLBAR-GATE-2026-08-20 MED -- bold-2 was blocked 16x by an entry gate safe-2 does not have
+
+**Claim:** at 12:56-13:12 safe-2 entered on ENTER_BEAR while bold-2 logged `SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY` -- "blocked by entry gate require_bearish_fill_bar" -- and only entered 20 minutes later. Both arms won today so this cost nothing, but per doctrine **arms differ by RISK PROFILE (sizing/stops/caps), not by signal access**. **Evidence:** 16 SKIP verdicts in `core-decisions.jsonl` for 2026-08-20, all account=bold.
+**Action:** confirm whether `require_bearish_fill_bar` is deliberately bold-only and, if so, record WHERE that was ratified. If it is unintentional divergence, it is the same class as the strike-tier split that produced the 2026-07-18 ATM ship :: depends:none :: status:proposed
+
+### T-CORE-TICK-TIMEOUT-COUNTER-2026-08-20 LOW -- one silent ERROR tick, no counter behind it
+
+**Claim:** `14:40:02 bold verdict=ERROR error="The read operation timed out"` -- one core tick lost, no position at risk, nothing raised. One timeout is noise; a PATTERN of them is a blind engine, and today there is no instrument that would distinguish the two. **Evidence:** single ERROR row in `core-decisions.jsonl` for 2026-08-20.
+**Action:** count ERROR verdicts per session into the existing self-check surface and flag only on a threshold (e.g. >3/session or 2 consecutive). Do not alert on one :: depends:none :: status:proposed
