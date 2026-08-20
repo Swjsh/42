@@ -1,0 +1,4262 @@
+{
+ "generated_at_et": "2026-08-19T22:33:22",
+ "gates": {
+  "G1": "beats REALIZED after fees+slippage",
+  "G2": "delta vs NO_STOP positive under BOTH upside shapes",
+  "G3": "delta vs NO_STOP survives dropping its best day",
+  "G4": "chronological halves agree in sign",
+  "G5": "top day < 50% of summed |delta|",
+  "G6": "passes on BOTH populations"
+ },
+ "reference_note": "NO_STOP = identical harness, identical upside rule, zero downside management. Delta vs NO_STOP is the pure stop lever.",
+ "harness_fidelity": {
+  "STRUCTABLE|RIBBON": {
+   "realized_gross": 736.0,
+   "sim_STRUCTURE_gross": -4668.55,
+   "gap": -5404.55,
+   "reading": "the simulated structure stop is a RE-IMPLEMENTATION and does not reproduce the traded book; it is therefore NOT used as the delta baseline"
+  },
+  "STRUCTABLE|SAFE": {
+   "realized_gross": 736.0,
+   "sim_STRUCTURE_gross": -1337.41,
+   "gap": -2073.41,
+   "reading": "the simulated structure stop is a RE-IMPLEMENTATION and does not reproduce the traded book; it is therefore NOT used as the delta baseline"
+  }
+ },
+ "realized": {
+  "STRUCTABLE": {
+   "n": 183,
+   "gross": 736.0,
+   "net_fees": 657.8,
+   "net_fees_slip": -236.24
+  },
+  "FULL": {
+   "n": 303,
+   "gross": -1805.0,
+   "net_fees": -1939.9,
+   "net_fees_slip": -3486.96
+  }
+ },
+ "cells": {
+  "STRUCTABLE": {
+   "NO_STOP (15:40 time stop only)": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -1890.12,
+      "net_fees": -1968.65,
+      "net_fees_slip": -2862.69,
+      "win_rate": 0.4208,
+      "avg_loss": -290.84,
+      "worst_loss": -1320.0,
+      "max_drawdown": -10268.85,
+      "winner_dollars": 28938.87,
+      "loser_dollars": -30828.99,
+      "vs_realized_gross": -2626.12,
+      "vs_realized_net_fees_slip": -2626.45,
+      "vs_NO_STOP": {
+       "delta": 0.0,
+       "top_day": null,
+       "top_day_value": 0.0,
+       "top_day_share": 0.0,
+       "top_trade_share": 0.0,
+       "drop_best_day": 0.0,
+       "days_positive": 0,
+       "days_total": 25
+      },
+      "half1": 0.0,
+      "half2": 0.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 38.24,
+      "net_fees": -40.29,
+      "net_fees_slip": -934.33,
+      "win_rate": 0.5847,
+      "avg_loss": -289.25,
+      "worst_loss": -1320.0,
+      "max_drawdown": -9742.6,
+      "winner_dollars": 22021.23,
+      "loser_dollars": -21982.99,
+      "vs_realized_gross": -697.76,
+      "vs_realized_net_fees_slip": -698.09,
+      "vs_NO_STOP": {
+       "delta": 0.0,
+       "top_day": null,
+       "top_day_value": 0.0,
+       "top_day_share": 0.0,
+       "top_trade_share": 0.0,
+       "drop_best_day": 0.0,
+       "days_positive": 0,
+       "days_total": 25
+      },
+      "half1": 0.0,
+      "half2": 0.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": false,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_10": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -1683.75,
+      "net_fees": -1761.91,
+      "net_fees_slip": -2655.95,
+      "win_rate": 0.0929,
+      "avg_loss": -42.35,
+      "worst_loss": -150.0,
+      "max_drawdown": -3442.4,
+      "winner_dollars": 5346.15,
+      "loser_dollars": -7029.9,
+      "vs_realized_gross": -2419.75,
+      "vs_realized_net_fees_slip": -2419.71,
+      "vs_NO_STOP": {
+       "delta": 206.37,
+       "top_day": "2026-08-04",
+       "top_day_value": -8508.45,
+       "top_day_share": 0.1621,
+       "top_trade_share": 0.0226,
+       "drop_best_day": 8714.82,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -7222.53,
+      "half2": 7428.9,
+      "halves_agree": false,
+      "stop_fill_share": 0.9071
+     },
+     "SAFE": {
+      "gross": 11.71,
+      "net_fees": -66.51,
+      "net_fees_slip": -960.55,
+      "win_rate": 0.1803,
+      "avg_loss": -41.91,
+      "worst_loss": -150.0,
+      "max_drawdown": -1399.55,
+      "winner_dollars": 6298.41,
+      "loser_dollars": -6286.7,
+      "vs_realized_gross": -724.29,
+      "vs_realized_net_fees_slip": -724.31,
+      "vs_NO_STOP": {
+       "delta": -26.53,
+       "top_day": "2026-08-12",
+       "top_day_value": 5137.25,
+       "top_day_share": 0.135,
+       "top_trade_share": 0.0311,
+       "drop_best_day": -5163.78,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -3549.0,
+      "half2": 3522.47,
+      "halves_agree": false,
+      "stop_fill_share": 0.8197
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 1,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_15": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -25.1,
+      "net_fees": -103.31,
+      "net_fees_slip": -997.35,
+      "win_rate": 0.1475,
+      "avg_loss": -60.26,
+      "worst_loss": -201.6,
+      "max_drawdown": -3409.85,
+      "winner_dollars": 9375.6,
+      "loser_dollars": -9400.7,
+      "vs_realized_gross": -761.1,
+      "vs_realized_net_fees_slip": -761.11,
+      "vs_NO_STOP": {
+       "delta": 1865.02,
+       "top_day": "2026-08-04",
+       "top_day_value": -6354.35,
+       "top_day_share": 0.1348,
+       "top_trade_share": 0.0237,
+       "drop_best_day": 8219.37,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -4986.48,
+      "half2": 6851.5,
+      "halves_agree": false,
+      "stop_fill_share": 0.8525
+     },
+     "SAFE": {
+      "gross": 596.08,
+      "net_fees": 517.83,
+      "net_fees_slip": -376.21,
+      "win_rate": 0.2404,
+      "avg_loss": -59.43,
+      "worst_loss": -201.6,
+      "max_drawdown": -2161.51,
+      "winner_dollars": 8856.78,
+      "loser_dollars": -8260.7,
+      "vs_realized_gross": -139.92,
+      "vs_realized_net_fees_slip": -139.97,
+      "vs_NO_STOP": {
+       "delta": 557.84,
+       "top_day": "2026-08-12",
+       "top_day_value": 4827.25,
+       "top_day_share": 0.1378,
+       "top_trade_share": 0.0319,
+       "drop_best_day": -4269.41,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -2190.65,
+      "half2": 2748.49,
+      "halves_agree": false,
+      "stop_fill_share": 0.7596
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_20": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 146.15,
+      "net_fees": 67.92,
+      "net_fees_slip": -826.12,
+      "win_rate": 0.1858,
+      "avg_loss": -79.98,
+      "worst_loss": -268.8,
+      "max_drawdown": -4312.65,
+      "winner_dollars": 12062.75,
+      "loser_dollars": -11916.6,
+      "vs_realized_gross": -589.85,
+      "vs_realized_net_fees_slip": -589.88,
+      "vs_NO_STOP": {
+       "delta": 2036.27,
+       "top_day": "2026-08-04",
+       "top_day_value": -5504.15,
+       "top_day_share": 0.1277,
+       "top_trade_share": 0.0262,
+       "drop_best_day": 7540.42,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -3726.08,
+      "half2": 5762.35,
+      "halves_agree": false,
+      "stop_fill_share": 0.8142
+     },
+     "SAFE": {
+      "gross": 117.57,
+      "net_fees": 39.3,
+      "net_fees_slip": -854.74,
+      "win_rate": 0.2842,
+      "avg_loss": -78.21,
+      "worst_loss": -268.8,
+      "max_drawdown": -3105.99,
+      "winner_dollars": 10362.77,
+      "loser_dollars": -10245.2,
+      "vs_realized_gross": -618.43,
+      "vs_realized_net_fees_slip": -618.5,
+      "vs_NO_STOP": {
+       "delta": 79.33,
+       "top_day": "2026-08-12",
+       "top_day_value": 4406.0,
+       "top_day_share": 0.1339,
+       "top_trade_share": 0.0319,
+       "drop_best_day": -4326.67,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -2273.58,
+      "half2": 2352.91,
+      "halves_agree": false,
+      "stop_fill_share": 0.7158
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_25": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 1236.0,
+      "net_fees": 1157.72,
+      "net_fees_slip": 263.68,
+      "win_rate": 0.2295,
+      "avg_loss": -101.39,
+      "worst_loss": -336.0,
+      "max_drawdown": -6296.05,
+      "winner_dollars": 15531.75,
+      "loser_dollars": -14295.75,
+      "vs_realized_gross": 500.0,
+      "vs_realized_net_fees_slip": 499.92,
+      "vs_NO_STOP": {
+       "delta": 3126.12,
+       "top_day": "2026-08-12",
+       "top_day_value": 4028.25,
+       "top_day_share": 0.1059,
+       "top_trade_share": 0.0308,
+       "drop_best_day": -902.13,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -1103.18,
+      "half2": 4229.3,
+      "halves_agree": false,
+      "stop_fill_share": 0.7705
+     },
+     "SAFE": {
+      "gross": 506.75,
+      "net_fees": 428.46,
+      "net_fees_slip": -465.58,
+      "win_rate": 0.3443,
+      "avg_loss": -98.52,
+      "worst_loss": -336.0,
+      "max_drawdown": -4374.74,
+      "winner_dollars": 12329.5,
+      "loser_dollars": -11822.75,
+      "vs_realized_gross": -229.25,
+      "vs_realized_net_fees_slip": -229.34,
+      "vs_NO_STOP": {
+       "delta": 468.51,
+       "top_day": "2026-08-12",
+       "top_day_value": 3950.5,
+       "top_day_share": 0.1328,
+       "top_trade_share": 0.0331,
+       "drop_best_day": -3481.99,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -1152.24,
+      "half2": 1620.75,
+      "halves_agree": false,
+      "stop_fill_share": 0.6557
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_30": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 1443.85,
+      "net_fees": 1365.57,
+      "net_fees_slip": 471.53,
+      "win_rate": 0.2568,
+      "avg_loss": -120.71,
+      "worst_loss": -403.2,
+      "max_drawdown": -8452.9,
+      "winner_dollars": 17859.75,
+      "loser_dollars": -16415.9,
+      "vs_realized_gross": 707.85,
+      "vs_realized_net_fees_slip": 707.77,
+      "vs_NO_STOP": {
+       "delta": 3333.97,
+       "top_day": "2026-08-12",
+       "top_day_value": 3550.5,
+       "top_day_share": 0.1045,
+       "top_trade_share": 0.0359,
+       "drop_best_day": -216.53,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": 646.72,
+      "half2": 2687.25,
+      "halves_agree": true,
+      "stop_fill_share": 0.7432
+     },
+     "SAFE": {
+      "gross": 1035.08,
+      "net_fees": 956.78,
+      "net_fees_slip": 62.74,
+      "win_rate": 0.3825,
+      "avg_loss": -116.6,
+      "worst_loss": -403.2,
+      "max_drawdown": -5890.54,
+      "winner_dollars": 14210.38,
+      "loser_dollars": -13175.3,
+      "vs_realized_gross": 299.08,
+      "vs_realized_net_fees_slip": 298.98,
+      "vs_NO_STOP": {
+       "delta": 996.84,
+       "top_day": "2026-08-12",
+       "top_day_value": 3495.0,
+       "top_day_share": 0.1316,
+       "top_trade_share": 0.0345,
+       "drop_best_day": -2498.16,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": 7.23,
+      "half2": 989.61,
+      "halves_agree": true,
+      "stop_fill_share": 0.6175
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_40": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 1988.85,
+      "net_fees": 1910.49,
+      "net_fees_slip": 1016.45,
+      "win_rate": 0.306,
+      "avg_loss": -158.91,
+      "worst_loss": -537.6,
+      "max_drawdown": -8179.55,
+      "winner_dollars": 22170.45,
+      "loser_dollars": -20181.6,
+      "vs_realized_gross": 1252.85,
+      "vs_realized_net_fees_slip": 1252.69,
+      "vs_NO_STOP": {
+       "delta": 3878.97,
+       "top_day": "2026-08-14",
+       "top_day_value": 2894.2,
+       "top_day_share": 0.1121,
+       "top_trade_share": 0.0512,
+       "drop_best_day": 984.77,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -770.58,
+      "half2": 4649.55,
+      "halves_agree": false,
+      "stop_fill_share": 0.694
+     },
+     "SAFE": {
+      "gross": 2094.6,
+      "net_fees": 2016.23,
+      "net_fees_slip": 1122.19,
+      "win_rate": 0.4536,
+      "avg_loss": -151.02,
+      "worst_loss": -537.6,
+      "max_drawdown": -5732.14,
+      "winner_dollars": 17197.0,
+      "loser_dollars": -15102.4,
+      "vs_realized_gross": 1358.6,
+      "vs_realized_net_fees_slip": 1358.43,
+      "vs_NO_STOP": {
+       "delta": 2056.36,
+       "top_day": "2026-08-14",
+       "top_day_value": 2857.0,
+       "top_day_share": 0.141,
+       "top_trade_share": 0.0464,
+       "drop_best_day": -800.64,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -1104.82,
+      "half2": 3161.18,
+      "halves_agree": false,
+      "stop_fill_share": 0.5464
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_50": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 3402.9,
+      "net_fees": 3324.45,
+      "net_fees_slip": 2430.41,
+      "win_rate": 0.3607,
+      "avg_loss": -194.55,
+      "worst_loss": -672.0,
+      "max_drawdown": -6719.8,
+      "winner_dollars": 26165.4,
+      "loser_dollars": -22762.5,
+      "vs_realized_gross": 2666.9,
+      "vs_realized_net_fees_slip": 2666.65,
+      "vs_NO_STOP": {
+       "delta": 5293.02,
+       "top_day": "2026-08-14",
+       "top_day_value": 2367.0,
+       "top_day_share": 0.1343,
+       "top_trade_share": 0.0454,
+       "drop_best_day": 2926.02,
+       "days_positive": 15,
+       "days_total": 25
+      },
+      "half1": -162.58,
+      "half2": 5455.6,
+      "halves_agree": false,
+      "stop_fill_share": 0.612
+     },
+     "SAFE": {
+      "gross": 3125.24,
+      "net_fees": 3046.8,
+      "net_fees_slip": 2152.76,
+      "win_rate": 0.5301,
+      "avg_loss": -191.44,
+      "worst_loss": -672.0,
+      "max_drawdown": -5897.1,
+      "winner_dollars": 19589.24,
+      "loser_dollars": -16464.0,
+      "vs_realized_gross": 2389.24,
+      "vs_realized_net_fees_slip": 2389.0,
+      "vs_NO_STOP": {
+       "delta": 3087.0,
+       "top_day": "2026-08-14",
+       "top_day_value": 2344.5,
+       "top_day_share": 0.1632,
+       "top_trade_share": 0.0754,
+       "drop_best_day": 742.5,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -697.5,
+      "half2": 3784.5,
+      "halves_agree": false,
+      "stop_fill_share": 0.4699
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_60": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 774.45,
+      "net_fees": 695.98,
+      "net_fees_slip": -198.06,
+      "win_rate": 0.3825,
+      "avg_loss": -233.98,
+      "worst_loss": -806.4,
+      "max_drawdown": -8598.9,
+      "winner_dollars": 27214.65,
+      "loser_dollars": -26440.2,
+      "vs_realized_gross": 38.45,
+      "vs_realized_net_fees_slip": 38.18,
+      "vs_NO_STOP": {
+       "delta": 2664.57,
+       "top_day": "2026-08-14",
+       "top_day_value": 1839.8,
+       "top_day_share": 0.1333,
+       "top_trade_share": 0.0413,
+       "drop_best_day": 824.77,
+       "days_positive": 13,
+       "days_total": 25
+      },
+      "half1": -1335.98,
+      "half2": 4000.55,
+      "halves_agree": false,
+      "stop_fill_share": 0.5683
+     },
+     "SAFE": {
+      "gross": 2723.09,
+      "net_fees": 2644.6,
+      "net_fees_slip": 1750.56,
+      "win_rate": 0.5519,
+      "avg_loss": -220.57,
+      "worst_loss": -806.4,
+      "max_drawdown": -7102.4,
+      "winner_dollars": 20809.49,
+      "loser_dollars": -18086.4,
+      "vs_realized_gross": 1987.09,
+      "vs_realized_net_fees_slip": 1986.8,
+      "vs_NO_STOP": {
+       "delta": 2684.85,
+       "top_day": "2026-08-14",
+       "top_day_value": 1832.0,
+       "top_day_share": 0.1823,
+       "top_trade_share": 0.0844,
+       "drop_best_day": 852.85,
+       "days_positive": 13,
+       "days_total": 25
+      },
+      "half1": 7.15,
+      "half2": 2677.7,
+      "halves_agree": true,
+      "stop_fill_share": 0.4262
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_75": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -2006.9,
+      "net_fees": -2085.37,
+      "net_fees_slip": -2979.41,
+      "win_rate": 0.3989,
+      "avg_loss": -273.45,
+      "worst_loss": -1008.0,
+      "max_drawdown": -10535.05,
+      "winner_dollars": 28072.1,
+      "loser_dollars": -30079.0,
+      "vs_realized_gross": -2742.9,
+      "vs_realized_net_fees_slip": -2743.17,
+      "vs_NO_STOP": {
+       "delta": -116.78,
+       "top_day": "2026-08-07",
+       "top_day_value": -2218.25,
+       "top_day_share": 0.2633,
+       "top_trade_share": 0.0779,
+       "drop_best_day": 2101.47,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": -2512.53,
+      "half2": 2395.75,
+      "halves_agree": false,
+      "stop_fill_share": 0.4426
+     },
+     "SAFE": {
+      "gross": 1505.86,
+      "net_fees": 1427.35,
+      "net_fees_slip": 533.31,
+      "win_rate": 0.5738,
+      "avg_loss": -258.27,
+      "worst_loss": -1008.0,
+      "max_drawdown": -7884.1,
+      "winner_dollars": 21650.61,
+      "loser_dollars": -20144.75,
+      "vs_realized_gross": 769.86,
+      "vs_realized_net_fees_slip": 769.55,
+      "vs_NO_STOP": {
+       "delta": 1467.62,
+       "top_day": "2026-08-14",
+       "top_day_value": 1063.25,
+       "top_day_share": 0.2083,
+       "top_trade_share": 0.0921,
+       "drop_best_day": 404.37,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -327.63,
+      "half2": 1795.25,
+      "halves_agree": false,
+      "stop_fill_share": 0.3224
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TIME_5m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 3068.0,
+      "net_fees": 2989.74,
+      "net_fees_slip": 2095.7,
+      "win_rate": 0.541,
+      "avg_loss": -44.78,
+      "worst_loss": -215.0,
+      "max_drawdown": -516.0,
+      "winner_dollars": 6695.0,
+      "loser_dollars": -3627.0,
+      "vs_realized_gross": 2332.0,
+      "vs_realized_net_fees_slip": 2331.94,
+      "vs_NO_STOP": {
+       "delta": 4958.12,
+       "top_day": "2026-08-04",
+       "top_day_value": -8573.45,
+       "top_day_share": 0.147,
+       "top_trade_share": 0.0265,
+       "drop_best_day": 13531.57,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -3128.73,
+      "half2": 8086.85,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 2934.45,
+      "net_fees": 2856.19,
+      "net_fees_slip": 1962.15,
+      "win_rate": 0.541,
+      "avg_loss": -44.78,
+      "worst_loss": -215.0,
+      "max_drawdown": -516.0,
+      "winner_dollars": 6561.45,
+      "loser_dollars": -3627.0,
+      "vs_realized_gross": 2198.45,
+      "vs_realized_net_fees_slip": 2198.39,
+      "vs_NO_STOP": {
+       "delta": 2896.21,
+       "top_day": "2026-08-12",
+       "top_day_value": 5867.1,
+       "top_day_share": 0.1418,
+       "top_trade_share": 0.0374,
+       "drop_best_day": -2970.89,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -1960.16,
+      "half2": 4856.37,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_10m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 2510.2,
+      "net_fees": 2431.98,
+      "net_fees_slip": 1537.94,
+      "win_rate": 0.4372,
+      "avg_loss": -63.94,
+      "worst_loss": -260.0,
+      "max_drawdown": -1881.0,
+      "winner_dollars": 8904.21,
+      "loser_dollars": -6394.01,
+      "vs_realized_gross": 1774.2,
+      "vs_realized_net_fees_slip": 1774.18,
+      "vs_NO_STOP": {
+       "delta": 4400.32,
+       "top_day": "2026-08-04",
+       "top_day_value": -8479.45,
+       "top_day_share": 0.1555,
+       "top_trade_share": 0.0249,
+       "drop_best_day": 12879.77,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -3755.53,
+      "half2": 8155.85,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 1856.09,
+      "net_fees": 1777.87,
+      "net_fees_slip": 883.83,
+      "win_rate": 0.4536,
+      "avg_loss": -64.69,
+      "worst_loss": -260.0,
+      "max_drawdown": -1881.0,
+      "winner_dollars": 8196.1,
+      "loser_dollars": -6340.01,
+      "vs_realized_gross": 1120.09,
+      "vs_realized_net_fees_slip": 1120.07,
+      "vs_NO_STOP": {
+       "delta": 1817.85,
+       "top_day": "2026-08-12",
+       "top_day_value": 5537.1,
+       "top_day_share": 0.146,
+       "top_trade_share": 0.0358,
+       "drop_best_day": -3719.25,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -2599.52,
+      "half2": 4417.37,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_15m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 4010.1,
+      "net_fees": 3931.73,
+      "net_fees_slip": 3037.69,
+      "win_rate": 0.4863,
+      "avg_loss": -82.41,
+      "worst_loss": -280.0,
+      "max_drawdown": -2313.0,
+      "winner_dollars": 11592.1,
+      "loser_dollars": -7582.0,
+      "vs_realized_gross": 3274.1,
+      "vs_realized_net_fees_slip": 3273.93,
+      "vs_NO_STOP": {
+       "delta": 5900.22,
+       "top_day": "2026-08-04",
+       "top_day_value": -7709.45,
+       "top_day_share": 0.147,
+       "top_trade_share": 0.0277,
+       "drop_best_day": 13609.67,
+       "days_positive": 13,
+       "days_total": 25
+      },
+      "half1": -3564.53,
+      "half2": 9464.75,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 3771.2,
+      "net_fees": 3692.83,
+      "net_fees_slip": 2798.79,
+      "win_rate": 0.4863,
+      "avg_loss": -82.41,
+      "worst_loss": -280.0,
+      "max_drawdown": -1865.63,
+      "winner_dollars": 11353.2,
+      "loser_dollars": -7582.0,
+      "vs_realized_gross": 3035.2,
+      "vs_realized_net_fees_slip": 3035.03,
+      "vs_NO_STOP": {
+       "delta": 3732.96,
+       "top_day": "2026-08-12",
+       "top_day_value": 5471.1,
+       "top_day_share": 0.1688,
+       "top_trade_share": 0.0448,
+       "drop_best_day": -1738.14,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -1999.53,
+      "half2": 5732.49,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_20m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 6216.95,
+      "net_fees": 6138.56,
+      "net_fees_slip": 5244.52,
+      "win_rate": 0.4973,
+      "avg_loss": -110.21,
+      "worst_loss": -496.0,
+      "max_drawdown": -3628.0,
+      "winner_dollars": 16355.95,
+      "loser_dollars": -10139.0,
+      "vs_realized_gross": 5480.95,
+      "vs_realized_net_fees_slip": 5480.76,
+      "vs_NO_STOP": {
+       "delta": 8107.07,
+       "top_day": "2026-08-04",
+       "top_day_value": -6493.45,
+       "top_day_share": 0.1276,
+       "top_trade_share": 0.0321,
+       "drop_best_day": 14600.52,
+       "days_positive": 13,
+       "days_total": 25
+      },
+      "half1": -2845.78,
+      "half2": 10952.85,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 3814.82,
+      "net_fees": 3736.49,
+      "net_fees_slip": 2842.45,
+      "win_rate": 0.5137,
+      "avg_loss": -112.76,
+      "worst_loss": -496.0,
+      "max_drawdown": -3281.39,
+      "winner_dollars": 13850.82,
+      "loser_dollars": -10036.0,
+      "vs_realized_gross": 3078.82,
+      "vs_realized_net_fees_slip": 3078.69,
+      "vs_NO_STOP": {
+       "delta": 3776.58,
+       "top_day": "2026-08-14",
+       "top_day_value": 5517.25,
+       "top_day_share": 0.185,
+       "top_trade_share": 0.0547,
+       "drop_best_day": -1740.67,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -2248.53,
+      "half2": 6025.11,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_30m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 4509.95,
+      "net_fees": 4431.6,
+      "net_fees_slip": 3537.56,
+      "win_rate": 0.459,
+      "avg_loss": -115.88,
+      "worst_loss": -496.0,
+      "max_drawdown": -3837.0,
+      "winner_dollars": 15749.95,
+      "loser_dollars": -11240.0,
+      "vs_realized_gross": 3773.95,
+      "vs_realized_net_fees_slip": 3773.8,
+      "vs_NO_STOP": {
+       "delta": 6400.07,
+       "top_day": "2026-08-04",
+       "top_day_value": -5916.45,
+       "top_day_share": 0.1319,
+       "top_trade_share": 0.0262,
+       "drop_best_day": 12316.52,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -3721.83,
+      "half2": 10121.9,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 2760.75,
+      "net_fees": 2682.42,
+      "net_fees_slip": 1788.38,
+      "win_rate": 0.4918,
+      "avg_loss": -120.15,
+      "worst_loss": -496.0,
+      "max_drawdown": -3756.74,
+      "winner_dollars": 13814.75,
+      "loser_dollars": -11054.0,
+      "vs_realized_gross": 2024.75,
+      "vs_realized_net_fees_slip": 2024.62,
+      "vs_NO_STOP": {
+       "delta": 2722.51,
+       "top_day": "2026-08-12",
+       "top_day_value": 4336.0,
+       "top_day_share": 0.1703,
+       "top_trade_share": 0.0462,
+       "drop_best_day": -1613.49,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -2314.12,
+      "half2": 5036.63,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_45m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 2622.5,
+      "net_fees": 2544.13,
+      "net_fees_slip": 1650.09,
+      "win_rate": 0.4317,
+      "avg_loss": -138.14,
+      "worst_loss": -768.0,
+      "max_drawdown": -3963.2,
+      "winner_dollars": 16850.5,
+      "loser_dollars": -14228.0,
+      "vs_realized_gross": 1886.5,
+      "vs_realized_net_fees_slip": 1886.33,
+      "vs_NO_STOP": {
+       "delta": 4512.62,
+       "top_day": "2026-08-04",
+       "top_day_value": -4744.05,
+       "top_day_share": 0.1271,
+       "top_trade_share": 0.0243,
+       "drop_best_day": 9256.67,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -1297.93,
+      "half2": 5810.55,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 3008.87,
+      "net_fees": 2930.45,
+      "net_fees_slip": 2036.41,
+      "win_rate": 0.5246,
+      "avg_loss": -155.88,
+      "worst_loss": -768.0,
+      "max_drawdown": -5056.35,
+      "winner_dollars": 16414.87,
+      "loser_dollars": -13406.0,
+      "vs_realized_gross": 2272.87,
+      "vs_realized_net_fees_slip": 2272.65,
+      "vs_NO_STOP": {
+       "delta": 2970.63,
+       "top_day": "2026-08-12",
+       "top_day_value": 3316.0,
+       "top_day_share": 0.1855,
+       "top_trade_share": 0.0352,
+       "drop_best_day": -345.37,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": 516.25,
+      "half2": 2454.38,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_60m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 667.15,
+      "net_fees": 588.79,
+      "net_fees_slip": -305.25,
+      "win_rate": 0.3989,
+      "avg_loss": -168.99,
+      "worst_loss": -700.0,
+      "max_drawdown": -6192.45,
+      "winner_dollars": 19256.15,
+      "loser_dollars": -18589.0,
+      "vs_realized_gross": -68.85,
+      "vs_realized_net_fees_slip": -69.01,
+      "vs_NO_STOP": {
+       "delta": 2557.27,
+       "top_day": "2026-08-04",
+       "top_day_value": -3302.05,
+       "top_day_share": 0.112,
+       "top_trade_share": 0.0286,
+       "drop_best_day": 5859.32,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -1417.48,
+      "half2": 3974.75,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 2880.12,
+      "net_fees": 2801.65,
+      "net_fees_slip": 1907.61,
+      "win_rate": 0.5246,
+      "avg_loss": -181.4,
+      "worst_loss": -700.0,
+      "max_drawdown": -6369.6,
+      "winner_dollars": 18662.12,
+      "loser_dollars": -15782.0,
+      "vs_realized_gross": 2144.12,
+      "vs_realized_net_fees_slip": 2143.85,
+      "vs_NO_STOP": {
+       "delta": 2841.88,
+       "top_day": "2026-08-14",
+       "top_day_value": 2334.0,
+       "top_day_share": 0.178,
+       "top_trade_share": 0.0476,
+       "drop_best_day": 507.88,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": 947.5,
+      "half2": 1894.38,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_90m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 3539.95,
+      "net_fees": 3461.47,
+      "net_fees_slip": 2567.43,
+      "win_rate": 0.4699,
+      "avg_loss": -219.32,
+      "worst_loss": -1020.0,
+      "max_drawdown": -7584.45,
+      "winner_dollars": 24813.95,
+      "loser_dollars": -21274.0,
+      "vs_realized_gross": 2803.95,
+      "vs_realized_net_fees_slip": 2803.67,
+      "vs_NO_STOP": {
+       "delta": 5430.07,
+       "top_day": "2026-08-17",
+       "top_day_value": -3498.2,
+       "top_day_share": 0.1616,
+       "top_trade_share": 0.0556,
+       "drop_best_day": 8928.27,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": 2539.47,
+      "half2": 2890.6,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 933.49,
+      "net_fees": 855.03,
+      "net_fees_slip": -39.01,
+      "win_rate": 0.5574,
+      "avg_loss": -231.63,
+      "worst_loss": -1020.0,
+      "max_drawdown": -8227.6,
+      "winner_dollars": 19695.49,
+      "loser_dollars": -18762.0,
+      "vs_realized_gross": 197.49,
+      "vs_realized_net_fees_slip": 197.23,
+      "vs_NO_STOP": {
+       "delta": 895.25,
+       "top_day": "2026-08-17",
+       "top_day_value": -2113.5,
+       "top_day_share": 0.2094,
+       "top_trade_share": 0.0692,
+       "drop_best_day": 3008.75,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": 419.75,
+      "half2": 475.5,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 5,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_10": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -2073.8,
+      "net_fees": -2151.95,
+      "net_fees_slip": -3045.99,
+      "win_rate": 0.3005,
+      "avg_loss": -34.92,
+      "worst_loss": -150.0,
+      "max_drawdown": -2231.9,
+      "winner_dollars": 2395.7,
+      "loser_dollars": -4469.5,
+      "vs_realized_gross": -2809.8,
+      "vs_realized_net_fees_slip": -2809.75,
+      "vs_NO_STOP": {
+       "delta": -183.68,
+       "top_day": "2026-08-04",
+       "top_day_value": -9435.15,
+       "top_day_share": 0.1598,
+       "top_trade_share": 0.0212,
+       "drop_best_day": 9251.47,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -6453.63,
+      "half2": 6269.95,
+      "halves_agree": false,
+      "stop_fill_share": 1.0
+     },
+     "SAFE": {
+      "gross": -2010.08,
+      "net_fees": -2088.23,
+      "net_fees_slip": -2982.27,
+      "win_rate": 0.3005,
+      "avg_loss": -34.92,
+      "worst_loss": -150.0,
+      "max_drawdown": -2173.13,
+      "winner_dollars": 2459.42,
+      "loser_dollars": -4469.5,
+      "vs_realized_gross": -2746.08,
+      "vs_realized_net_fees_slip": -2746.03,
+      "vs_NO_STOP": {
+       "delta": -2048.32,
+       "top_day": "2026-08-12",
+       "top_day_value": 5474.0,
+       "top_day_share": 0.1278,
+       "top_trade_share": 0.0292,
+       "drop_best_day": -7522.32,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -5087.79,
+      "half2": 3039.47,
+      "halves_agree": false,
+      "stop_fill_share": 0.9781
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 1,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_15": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 535.65,
+      "net_fees": 457.43,
+      "net_fees_slip": -436.61,
+      "win_rate": 0.3224,
+      "avg_loss": -46.43,
+      "worst_loss": -189.0,
+      "max_drawdown": -1503.35,
+      "winner_dollars": 6247.05,
+      "loser_dollars": -5711.4,
+      "vs_realized_gross": -200.35,
+      "vs_realized_net_fees_slip": -200.37,
+      "vs_NO_STOP": {
+       "delta": 2425.77,
+       "top_day": "2026-08-04",
+       "top_day_value": -8128.2,
+       "top_day_share": 0.1448,
+       "top_trade_share": 0.021,
+       "drop_best_day": 10553.97,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -4446.33,
+      "half2": 6872.1,
+      "halves_agree": false,
+      "stop_fill_share": 0.9836
+     },
+     "SAFE": {
+      "gross": 287.83,
+      "net_fees": 209.59,
+      "net_fees_slip": -684.45,
+      "win_rate": 0.3224,
+      "avg_loss": -46.43,
+      "worst_loss": -189.0,
+      "max_drawdown": -1315.4,
+      "winner_dollars": 5999.23,
+      "loser_dollars": -5711.4,
+      "vs_realized_gross": -448.17,
+      "vs_realized_net_fees_slip": -448.21,
+      "vs_NO_STOP": {
+       "delta": 249.59,
+       "top_day": "2026-08-12",
+       "top_day_value": 5294.1,
+       "top_day_share": 0.1333,
+       "top_trade_share": 0.0297,
+       "drop_best_day": -5044.51,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -3449.98,
+      "half2": 3699.57,
+      "halves_agree": false,
+      "stop_fill_share": 0.9016
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_20": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 2371.4,
+      "net_fees": 2293.16,
+      "net_fees_slip": 1399.12,
+      "win_rate": 0.3497,
+      "avg_loss": -55.3,
+      "worst_loss": -252.0,
+      "max_drawdown": -2165.2,
+      "winner_dollars": 8952.6,
+      "loser_dollars": -6581.2,
+      "vs_realized_gross": 1635.4,
+      "vs_realized_net_fees_slip": 1635.36,
+      "vs_NO_STOP": {
+       "delta": 4261.52,
+       "top_day": "2026-08-04",
+       "top_day_value": -5888.25,
+       "top_day_share": 0.1121,
+       "top_trade_share": 0.0249,
+       "drop_best_day": 10149.77,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -2856.53,
+      "half2": 7118.05,
+      "halves_agree": false,
+      "stop_fill_share": 0.9344
+     },
+     "SAFE": {
+      "gross": 1543.88,
+      "net_fees": 1465.61,
+      "net_fees_slip": 571.57,
+      "win_rate": 0.3497,
+      "avg_loss": -55.3,
+      "worst_loss": -252.0,
+      "max_drawdown": -1617.08,
+      "winner_dollars": 8125.08,
+      "loser_dollars": -6581.2,
+      "vs_realized_gross": 807.88,
+      "vs_realized_net_fees_slip": 807.81,
+      "vs_NO_STOP": {
+       "delta": 1505.64,
+       "top_day": "2026-08-12",
+       "top_day_value": 5109.1,
+       "top_day_share": 0.1369,
+       "top_trade_share": 0.0351,
+       "drop_best_day": -3603.46,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -1928.73,
+      "half2": 3434.37,
+      "halves_agree": false,
+      "stop_fill_share": 0.8197
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_25": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 4974.4,
+      "net_fees": 4896.07,
+      "net_fees_slip": 4002.03,
+      "win_rate": 0.3497,
+      "avg_loss": -61.62,
+      "worst_loss": -256.0,
+      "max_drawdown": -2400.25,
+      "winner_dollars": 12307.15,
+      "loser_dollars": -7332.75,
+      "vs_realized_gross": 4238.4,
+      "vs_realized_net_fees_slip": 4238.27,
+      "vs_NO_STOP": {
+       "delta": 6864.52,
+       "top_day": "2026-08-04",
+       "top_day_value": -5507.8,
+       "top_day_share": 0.1116,
+       "top_trade_share": 0.0258,
+       "drop_best_day": 12372.32,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -1406.13,
+      "half2": 8270.65,
+      "halves_agree": false,
+      "stop_fill_share": 0.8689
+     },
+     "SAFE": {
+      "gross": 3511.4,
+      "net_fees": 3433.08,
+      "net_fees_slip": 2539.04,
+      "win_rate": 0.3497,
+      "avg_loss": -61.62,
+      "worst_loss": -256.0,
+      "max_drawdown": -2054.13,
+      "winner_dollars": 10844.15,
+      "loser_dollars": -7332.75,
+      "vs_realized_gross": 2775.4,
+      "vs_realized_net_fees_slip": 2775.28,
+      "vs_NO_STOP": {
+       "delta": 3473.16,
+       "top_day": "2026-08-12",
+       "top_day_value": 5023.0,
+       "top_day_share": 0.1506,
+       "top_trade_share": 0.0381,
+       "drop_best_day": -1549.84,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -130.36,
+      "half2": 3603.52,
+      "halves_agree": false,
+      "stop_fill_share": 0.7213
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_30": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 7352.75,
+      "net_fees": 7274.38,
+      "net_fees_slip": 6380.34,
+      "win_rate": 0.3497,
+      "avg_loss": -74.45,
+      "worst_loss": -252.0,
+      "max_drawdown": -2605.85,
+      "winner_dollars": 16212.55,
+      "loser_dollars": -8859.8,
+      "vs_realized_gross": 6616.75,
+      "vs_realized_net_fees_slip": 6616.58,
+      "vs_NO_STOP": {
+       "delta": 9242.87,
+       "top_day": "2026-08-12",
+       "top_day_value": 4847.6,
+       "top_day_share": 0.1098,
+       "top_trade_share": 0.0268,
+       "drop_best_day": 4395.27,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": 1025.52,
+      "half2": 8217.35,
+      "halves_agree": true,
+      "stop_fill_share": 0.8142
+     },
+     "SAFE": {
+      "gross": 3160.44,
+      "net_fees": 3082.13,
+      "net_fees_slip": 2188.09,
+      "win_rate": 0.3497,
+      "avg_loss": -74.45,
+      "worst_loss": -252.0,
+      "max_drawdown": -2520.44,
+      "winner_dollars": 12020.24,
+      "loser_dollars": -8859.8,
+      "vs_realized_gross": 2424.44,
+      "vs_realized_net_fees_slip": 2424.33,
+      "vs_NO_STOP": {
+       "delta": 3122.2,
+       "top_day": "2026-08-12",
+       "top_day_value": 4599.6,
+       "top_day_share": 0.148,
+       "top_trade_share": 0.0381,
+       "drop_best_day": -1477.4,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -727.61,
+      "half2": 3849.81,
+      "halves_agree": false,
+      "stop_fill_share": 0.6776
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_40": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 5120.0,
+      "net_fees": 5041.59,
+      "net_fees_slip": 4147.55,
+      "win_rate": 0.3115,
+      "avg_loss": -101.46,
+      "worst_loss": -396.0,
+      "max_drawdown": -5297.45,
+      "winner_dollars": 17802.2,
+      "loser_dollars": -12682.2,
+      "vs_realized_gross": 4384.0,
+      "vs_realized_net_fees_slip": 4383.79,
+      "vs_NO_STOP": {
+       "delta": 7010.12,
+       "top_day": "2026-08-19",
+       "top_day_value": 3850.4,
+       "top_day_share": 0.1019,
+       "top_trade_share": 0.0317,
+       "drop_best_day": 3159.72,
+       "days_positive": 13,
+       "days_total": 25
+      },
+      "half1": 1020.97,
+      "half2": 5989.15,
+      "halves_agree": true,
+      "stop_fill_share": 0.765
+     },
+     "SAFE": {
+      "gross": 2360.48,
+      "net_fees": 2282.11,
+      "net_fees_slip": 1388.07,
+      "win_rate": 0.3934,
+      "avg_loss": -111.41,
+      "worst_loss": -396.0,
+      "max_drawdown": -5061.19,
+      "winner_dollars": 14726.88,
+      "loser_dollars": -12366.4,
+      "vs_realized_gross": 1624.48,
+      "vs_realized_net_fees_slip": 1624.31,
+      "vs_NO_STOP": {
+       "delta": 2322.24,
+       "top_day": "2026-08-12",
+       "top_day_value": 3561.8,
+       "top_day_share": 0.1386,
+       "top_trade_share": 0.0394,
+       "drop_best_day": -1239.56,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -743.14,
+      "half2": 3065.38,
+      "halves_agree": false,
+      "stop_fill_share": 0.6066
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$0.40": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -2054.6,
+      "net_fees": -2132.75,
+      "net_fees_slip": -3026.79,
+      "win_rate": 0.2842,
+      "avg_loss": -60.82,
+      "worst_loss": -560.0,
+      "max_drawdown": -4414.35,
+      "winner_dollars": 5669.39,
+      "loser_dollars": -7723.99,
+      "vs_realized_gross": -2790.6,
+      "vs_realized_net_fees_slip": -2790.55,
+      "vs_NO_STOP": {
+       "delta": -164.48,
+       "top_day": "2026-08-04",
+       "top_day_value": -9643.45,
+       "top_day_share": 0.1857,
+       "top_trade_share": 0.0252,
+       "drop_best_day": 9478.97,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": -7739.08,
+      "half2": 7574.6,
+      "halves_agree": false,
+      "stop_fill_share": 0.8907
+     },
+     "SAFE": {
+      "gross": -1396.36,
+      "net_fees": -1474.51,
+      "net_fees_slip": -2368.55,
+      "win_rate": 0.3169,
+      "avg_loss": -52.01,
+      "worst_loss": -300.0,
+      "max_drawdown": -2593.11,
+      "winner_dollars": 4896.63,
+      "loser_dollars": -6292.99,
+      "vs_realized_gross": -2132.36,
+      "vs_realized_net_fees_slip": -2132.31,
+      "vs_NO_STOP": {
+       "delta": -1434.6,
+       "top_day": "2026-08-04",
+       "top_day_value": -5389.55,
+       "top_day_share": 0.1388,
+       "top_trade_share": 0.0337,
+       "drop_best_day": 3954.95,
+       "days_positive": 10,
+       "days_total": 25
+      },
+      "half1": -4167.61,
+      "half2": 2733.01,
+      "halves_agree": false,
+      "stop_fill_share": 0.8852
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$0.60": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 4671.65,
+      "net_fees": 4593.28,
+      "net_fees_slip": 3699.24,
+      "win_rate": 0.3497,
+      "avg_loss": -101.06,
+      "worst_loss": -560.0,
+      "max_drawdown": -5124.8,
+      "winner_dollars": 16596.64,
+      "loser_dollars": -11924.99,
+      "vs_realized_gross": 3935.65,
+      "vs_realized_net_fees_slip": 3935.48,
+      "vs_NO_STOP": {
+       "delta": 6561.77,
+       "top_day": "2026-08-13",
+       "top_day_value": -3661.0,
+       "top_day_share": 0.1035,
+       "top_trade_share": 0.0285,
+       "drop_best_day": 10222.77,
+       "days_positive": 15,
+       "days_total": 25
+      },
+      "half1": -832.68,
+      "half2": 7394.45,
+      "halves_agree": false,
+      "stop_fill_share": 0.7322
+     },
+     "SAFE": {
+      "gross": 1629.67,
+      "net_fees": 1551.38,
+      "net_fees_slip": 657.34,
+      "win_rate": 0.4153,
+      "avg_loss": -91.44,
+      "worst_loss": -496.0,
+      "max_drawdown": -5115.74,
+      "winner_dollars": 11322.66,
+      "loser_dollars": -9692.99,
+      "vs_realized_gross": 893.67,
+      "vs_realized_net_fees_slip": 893.58,
+      "vs_NO_STOP": {
+       "delta": 1591.43,
+       "top_day": "2026-08-12",
+       "top_day_value": 3444.0,
+       "top_day_share": 0.1257,
+       "top_trade_share": 0.0368,
+       "drop_best_day": -1852.57,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -1080.57,
+      "half2": 2672.0,
+      "halves_agree": false,
+      "stop_fill_share": 0.694
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$0.80": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 5404.05,
+      "net_fees": 5325.65,
+      "net_fees_slip": 4431.61,
+      "win_rate": 0.3497,
+      "avg_loss": -121.15,
+      "worst_loss": -580.0,
+      "max_drawdown": -5259.6,
+      "winner_dollars": 19700.04,
+      "loser_dollars": -14295.99,
+      "vs_realized_gross": 4668.05,
+      "vs_realized_net_fees_slip": 4667.85,
+      "vs_NO_STOP": {
+       "delta": 7294.17,
+       "top_day": "2026-08-12",
+       "top_day_value": 2972.0,
+       "top_day_share": 0.1065,
+       "top_trade_share": 0.0361,
+       "drop_best_day": 4322.17,
+       "days_positive": 15,
+       "days_total": 25
+      },
+      "half1": -228.03,
+      "half2": 7522.2,
+      "halves_agree": false,
+      "stop_fill_share": 0.6393
+     },
+     "SAFE": {
+      "gross": 3887.41,
+      "net_fees": 3809.06,
+      "net_fees_slip": 2915.02,
+      "win_rate": 0.459,
+      "avg_loss": -108.81,
+      "worst_loss": -580.0,
+      "max_drawdown": -4805.6,
+      "winner_dollars": 14550.4,
+      "loser_dollars": -10662.99,
+      "vs_realized_gross": 3151.41,
+      "vs_realized_net_fees_slip": 3151.26,
+      "vs_NO_STOP": {
+       "delta": 3849.17,
+       "top_day": "2026-08-12",
+       "top_day_value": 2972.0,
+       "top_day_share": 0.142,
+       "top_trade_share": 0.0378,
+       "drop_best_day": 877.17,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": -396.33,
+      "half2": 4245.5,
+      "halves_agree": false,
+      "stop_fill_share": 0.5738
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$1.00": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 3791.9,
+      "net_fees": 3713.48,
+      "net_fees_slip": 2819.44,
+      "win_rate": 0.3716,
+      "avg_loss": -167.72,
+      "worst_loss": -770.0,
+      "max_drawdown": -6117.6,
+      "winner_dollars": 23079.89,
+      "loser_dollars": -19287.99,
+      "vs_realized_gross": 3055.9,
+      "vs_realized_net_fees_slip": 3055.68,
+      "vs_NO_STOP": {
+       "delta": 5682.02,
+       "top_day": "2026-08-12",
+       "top_day_value": 2815.0,
+       "top_day_share": 0.1333,
+       "top_trade_share": 0.0318,
+       "drop_best_day": 2867.02,
+       "days_positive": 15,
+       "days_total": 25
+      },
+      "half1": -480.18,
+      "half2": 6162.2,
+      "halves_agree": false,
+      "stop_fill_share": 0.5519
+     },
+     "SAFE": {
+      "gross": 4473.41,
+      "net_fees": 4394.99,
+      "net_fees_slip": 3500.95,
+      "win_rate": 0.5246,
+      "avg_loss": -153.16,
+      "worst_loss": -770.0,
+      "max_drawdown": -5795.6,
+      "winner_dollars": 17798.4,
+      "loser_dollars": -13324.99,
+      "vs_realized_gross": 3737.41,
+      "vs_realized_net_fees_slip": 3737.19,
+      "vs_NO_STOP": {
+       "delta": 4435.17,
+       "top_day": "2026-08-12",
+       "top_day_value": 2815.0,
+       "top_day_share": 0.1949,
+       "top_trade_share": 0.0391,
+       "drop_best_day": 1620.17,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": 12.17,
+      "half2": 4423.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.4481
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$1.50": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 5158.9,
+      "net_fees": 5080.36,
+      "net_fees_slip": 4186.32,
+      "win_rate": 0.4098,
+      "avg_loss": -211.14,
+      "worst_loss": -750.0,
+      "max_drawdown": -6339.8,
+      "winner_dollars": 27961.9,
+      "loser_dollars": -22803.0,
+      "vs_realized_gross": 4422.9,
+      "vs_realized_net_fees_slip": 4422.56,
+      "vs_NO_STOP": {
+       "delta": 7049.02,
+       "top_day": "2026-08-14",
+       "top_day_value": 1847.0,
+       "top_day_share": 0.1835,
+       "top_trade_share": 0.0584,
+       "drop_best_day": 5202.02,
+       "days_positive": 14,
+       "days_total": 25
+      },
+      "half1": 2425.02,
+      "half2": 4624.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.3716
+     },
+     "SAFE": {
+      "gross": 4079.74,
+      "net_fees": 4001.25,
+      "net_fees_slip": 3107.21,
+      "win_rate": 0.5574,
+      "avg_loss": -200.49,
+      "worst_loss": -750.0,
+      "max_drawdown": -6665.6,
+      "winner_dollars": 20319.74,
+      "loser_dollars": -16240.0,
+      "vs_realized_gross": 3343.74,
+      "vs_realized_net_fees_slip": 3343.45,
+      "vs_NO_STOP": {
+       "delta": 4041.5,
+       "top_day": "2026-08-14",
+       "top_day_value": 1847.0,
+       "top_day_share": 0.2021,
+       "top_trade_share": 0.0712,
+       "drop_best_day": 2194.5,
+       "days_positive": 13,
+       "days_total": 25
+      },
+      "half1": 692.5,
+      "half2": 3349.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.3005
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 5,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$2.00": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 122.9,
+      "net_fees": 44.41,
+      "net_fees_slip": -849.63,
+      "win_rate": 0.4044,
+      "avg_loss": -255.05,
+      "worst_loss": -1128.0,
+      "max_drawdown": -8660.8,
+      "winner_dollars": 27922.9,
+      "loser_dollars": -27800.0,
+      "vs_realized_gross": -613.1,
+      "vs_realized_net_fees_slip": -613.39,
+      "vs_NO_STOP": {
+       "delta": 2013.02,
+       "top_day": "2026-07-16",
+       "top_day_value": -1111.78,
+       "top_day_share": 0.1675,
+       "top_trade_share": 0.0842,
+       "drop_best_day": 3124.8,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": 259.02,
+      "half2": 1754.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.2842
+     },
+     "SAFE": {
+      "gross": 36.74,
+      "net_fees": -41.7,
+      "net_fees_slip": -935.74,
+      "win_rate": 0.5519,
+      "avg_loss": -246.88,
+      "worst_loss": -1128.0,
+      "max_drawdown": -8260.6,
+      "winner_dollars": 20280.74,
+      "loser_dollars": -20244.0,
+      "vs_realized_gross": -699.26,
+      "vs_realized_net_fees_slip": -699.5,
+      "vs_NO_STOP": {
+       "delta": -1.5,
+       "top_day": "2026-08-07",
+       "top_day_value": -2202.25,
+       "top_day_share": 0.2873,
+       "top_trade_share": 0.1266,
+       "drop_best_day": 2200.75,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -1483.5,
+      "half2": 1482.0,
+      "halves_agree": false,
+      "stop_fill_share": 0.2514
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "STRUCTURE+cap50": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -4668.55,
+      "net_fees": -4746.74,
+      "net_fees_slip": -5640.78,
+      "win_rate": 0.2623,
+      "avg_loss": -131.44,
+      "worst_loss": -660.0,
+      "max_drawdown": -8074.85,
+      "winner_dollars": 12812.94,
+      "loser_dollars": -17481.49,
+      "vs_realized_gross": -5404.55,
+      "vs_realized_net_fees_slip": -5404.54,
+      "vs_NO_STOP": {
+       "delta": -2778.43,
+       "top_day": "2026-08-04",
+       "top_day_value": -6470.05,
+       "top_day_share": 0.1701,
+       "top_trade_share": 0.0277,
+       "drop_best_day": 3691.62,
+       "days_positive": 15,
+       "days_total": 25
+      },
+      "half1": -6149.18,
+      "half2": 3370.75,
+      "halves_agree": false,
+      "stop_fill_share": 0.7978
+     },
+     "SAFE": {
+      "gross": -1337.41,
+      "net_fees": -1415.72,
+      "net_fees_slip": -2309.76,
+      "win_rate": 0.3825,
+      "avg_loss": -116.6,
+      "worst_loss": -440.0,
+      "max_drawdown": -6019.74,
+      "winner_dollars": 11605.08,
+      "loser_dollars": -12942.49,
+      "vs_realized_gross": -2073.41,
+      "vs_realized_net_fees_slip": -2073.52,
+      "vs_NO_STOP": {
+       "delta": -1375.65,
+       "top_day": "2026-08-12",
+       "top_day_value": 3658.5,
+       "top_day_share": 0.1341,
+       "top_trade_share": 0.0369,
+       "drop_best_day": -5034.15,
+       "days_positive": 11,
+       "days_total": 25
+      },
+      "half1": -2391.28,
+      "half2": 1015.63,
+      "halves_agree": false,
+      "stop_fill_share": 0.6831
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 1,
+    "SURVIVES_ALL": false
+   },
+   "STRUCTURE+cap75": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -4440.1,
+      "net_fees": -4518.31,
+      "net_fees_slip": -5412.35,
+      "win_rate": 0.2842,
+      "avg_loss": -141.54,
+      "worst_loss": -560.0,
+      "max_drawdown": -8548.85,
+      "winner_dollars": 13818.64,
+      "loser_dollars": -18258.74,
+      "vs_realized_gross": -5176.1,
+      "vs_realized_net_fees_slip": -5176.11,
+      "vs_NO_STOP": {
+       "delta": -2549.98,
+       "top_day": "2026-08-04",
+       "top_day_value": -6470.05,
+       "top_day_share": 0.1827,
+       "top_trade_share": 0.0297,
+       "drop_best_day": 3920.07,
+       "days_positive": 12,
+       "days_total": 25
+      },
+      "half1": -6576.68,
+      "half2": 4026.7,
+      "halves_agree": false,
+      "stop_fill_share": 0.7322
+     },
+     "SAFE": {
+      "gross": -1879.16,
+      "net_fees": -1957.48,
+      "net_fees_slip": -2851.52,
+      "win_rate": 0.3934,
+      "avg_loss": -127.21,
+      "worst_loss": -496.0,
+      "max_drawdown": -6389.74,
+      "winner_dollars": 11986.58,
+      "loser_dollars": -13865.74,
+      "vs_realized_gross": -2615.16,
+      "vs_realized_net_fees_slip": -2615.28,
+      "vs_NO_STOP": {
+       "delta": -1917.4,
+       "top_day": "2026-08-12",
+       "top_day_value": 3466.0,
+       "top_day_share": 0.1364,
+       "top_trade_share": 0.0397,
+       "drop_best_day": -5383.4,
+       "days_positive": 9,
+       "days_total": 25
+      },
+      "half1": -3120.78,
+      "half2": 1203.38,
+      "halves_agree": false,
+      "stop_fill_share": 0.6448
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 1,
+    "SURVIVES_ALL": false
+   }
+  },
+  "FULL": {
+   "NO_STOP (15:40 time stop only)": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -13169.46,
+      "net_fees": -13304.61,
+      "net_fees_slip": -14851.67,
+      "win_rate": 0.4026,
+      "avg_loss": -318.44,
+      "worst_loss": -1872.0,
+      "max_drawdown": -28104.0,
+      "winner_dollars": 44467.52,
+      "loser_dollars": -57636.98,
+      "vs_realized_gross": -11364.46,
+      "vs_realized_net_fees_slip": -11364.71,
+      "vs_NO_STOP": {
+       "delta": 0.0,
+       "top_day": null,
+       "top_day_value": 0.0,
+       "top_day_share": 0.0,
+       "top_trade_share": 0.0,
+       "drop_best_day": 0.0,
+       "days_positive": 0,
+       "days_total": 35
+      },
+      "half1": 0.0,
+      "half2": 0.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -15549.99,
+      "net_fees": -15685.03,
+      "net_fees_slip": -17232.09,
+      "win_rate": 0.5644,
+      "avg_loss": -355.73,
+      "worst_loss": -1872.0,
+      "max_drawdown": -25334.37,
+      "winner_dollars": 31405.99,
+      "loser_dollars": -46955.98,
+      "vs_realized_gross": -13744.99,
+      "vs_realized_net_fees_slip": -13745.13,
+      "vs_NO_STOP": {
+       "delta": 0.0,
+       "top_day": null,
+       "top_day_value": 0.0,
+       "top_day_share": 0.0,
+       "top_trade_share": 0.0,
+       "drop_best_day": 0.0,
+       "days_positive": 0,
+       "days_total": 35
+      },
+      "half1": 0.0,
+      "half2": 0.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": false,
+     "G3": false,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_10": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -4644.85,
+      "net_fees": -4779.68,
+      "net_fees_slip": -6326.74,
+      "win_rate": 0.066,
+      "avg_loss": -42.1,
+      "worst_loss": -205.0,
+      "max_drawdown": -6370.8,
+      "winner_dollars": 7269.35,
+      "loser_dollars": -11914.2,
+      "vs_realized_gross": -2839.85,
+      "vs_realized_net_fees_slip": -2839.78,
+      "vs_NO_STOP": {
+       "delta": 8524.61,
+       "top_day": "2026-08-04",
+       "top_day_value": -14459.6,
+       "top_day_share": 0.1585,
+       "top_trade_share": 0.0185,
+       "drop_best_day": 22984.21,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": -6819.09,
+      "half2": 15343.7,
+      "halves_agree": false,
+      "stop_fill_share": 0.934
+     },
+     "SAFE": {
+      "gross": -3111.69,
+      "net_fees": -3246.58,
+      "net_fees_slip": -4793.64,
+      "win_rate": 0.1353,
+      "avg_loss": -42.26,
+      "worst_loss": -205.0,
+      "max_drawdown": -3218.63,
+      "winner_dollars": 7959.41,
+      "loser_dollars": -11071.1,
+      "vs_realized_gross": -1306.69,
+      "vs_realized_net_fees_slip": -1306.68,
+      "vs_NO_STOP": {
+       "delta": 12438.3,
+       "top_day": "2026-08-05",
+       "top_day_value": 13260.1,
+       "top_day_share": 0.191,
+       "top_trade_share": 0.0243,
+       "drop_best_day": -821.8,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": -1783.68,
+      "half2": 14221.98,
+      "halves_agree": false,
+      "stop_fill_share": 0.8647
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_15": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -2364.85,
+      "net_fees": -2499.72,
+      "net_fees_slip": -4046.78,
+      "win_rate": 0.1056,
+      "avg_loss": -58.33,
+      "worst_loss": -282.0,
+      "max_drawdown": -7261.15,
+      "winner_dollars": 13442.9,
+      "loser_dollars": -15807.75,
+      "vs_realized_gross": -559.85,
+      "vs_realized_net_fees_slip": -559.82,
+      "vs_NO_STOP": {
+       "delta": 10804.61,
+       "top_day": "2026-08-05",
+       "top_day_value": 13255.55,
+       "top_day_share": 0.1601,
+       "top_trade_share": 0.0192,
+       "drop_best_day": -2450.94,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": -4583.69,
+      "half2": 15388.3,
+      "halves_agree": false,
+      "stop_fill_share": 0.8944
+     },
+     "SAFE": {
+      "gross": -2691.82,
+      "net_fees": -2826.71,
+      "net_fees_slip": -4373.77,
+      "win_rate": 0.1848,
+      "avg_loss": -58.65,
+      "worst_loss": -282.0,
+      "max_drawdown": -4848.26,
+      "winner_dollars": 11795.03,
+      "loser_dollars": -14486.85,
+      "vs_realized_gross": -886.82,
+      "vs_realized_net_fees_slip": -886.81,
+      "vs_NO_STOP": {
+       "delta": 12858.17,
+       "top_day": "2026-08-05",
+       "top_day_value": 12519.65,
+       "top_day_share": 0.1947,
+       "top_trade_share": 0.0247,
+       "drop_best_day": 338.52,
+       "days_positive": 14,
+       "days_total": 35
+      },
+      "half1": -788.78,
+      "half2": 13646.95,
+      "halves_agree": false,
+      "stop_fill_share": 0.8152
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_20": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 273.7,
+      "net_fees": 138.77,
+      "net_fees_slip": -1408.29,
+      "win_rate": 0.1419,
+      "avg_loss": -74.92,
+      "worst_loss": -376.0,
+      "max_drawdown": -9331.85,
+      "winner_dollars": 19751.7,
+      "loser_dollars": -19478.0,
+      "vs_realized_gross": 2078.7,
+      "vs_realized_net_fees_slip": 2078.67,
+      "vs_NO_STOP": {
+       "delta": 13443.16,
+       "top_day": "2026-08-05",
+       "top_day_value": 12382.4,
+       "top_day_share": 0.1682,
+       "top_trade_share": 0.0203,
+       "drop_best_day": 1060.76,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": 25.61,
+      "half2": 13417.55,
+      "halves_agree": true,
+      "stop_fill_share": 0.8581
+     },
+     "SAFE": {
+      "gross": -2231.88,
+      "net_fees": -2366.8,
+      "net_fees_slip": -3913.86,
+      "win_rate": 0.2277,
+      "avg_loss": -74.98,
+      "worst_loss": -376.0,
+      "max_drawdown": -6984.79,
+      "winner_dollars": 15312.52,
+      "loser_dollars": -17544.4,
+      "vs_realized_gross": -426.88,
+      "vs_realized_net_fees_slip": -426.9,
+      "vs_NO_STOP": {
+       "delta": 13318.11,
+       "top_day": "2026-08-05",
+       "top_day_value": 11779.2,
+       "top_day_share": 0.2004,
+       "top_trade_share": 0.0255,
+       "drop_best_day": 1538.91,
+       "days_positive": 14,
+       "days_total": 35
+      },
+      "half1": 1445.07,
+      "half2": 11873.04,
+      "halves_agree": true,
+      "stop_fill_share": 0.7723
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_25": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -76.55,
+      "net_fees": -211.49,
+      "net_fees_slip": -1758.55,
+      "win_rate": 0.1716,
+      "avg_loss": -93.73,
+      "worst_loss": -470.0,
+      "max_drawdown": -12411.8,
+      "winner_dollars": 23450.7,
+      "loser_dollars": -23527.25,
+      "vs_realized_gross": 1728.45,
+      "vs_realized_net_fees_slip": 1728.41,
+      "vs_NO_STOP": {
+       "delta": 13092.91,
+       "top_day": "2026-08-05",
+       "top_day_value": 11509.25,
+       "top_day_share": 0.1708,
+       "top_trade_share": 0.0208,
+       "drop_best_day": 1583.66,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": 229.01,
+      "half2": 12863.9,
+      "halves_agree": true,
+      "stop_fill_share": 0.8284
+     },
+     "SAFE": {
+      "gross": -2793.0,
+      "net_fees": -2927.9,
+      "net_fees_slip": -4474.96,
+      "win_rate": 0.2772,
+      "avg_loss": -93.76,
+      "worst_loss": -470.0,
+      "max_drawdown": -9374.24,
+      "winner_dollars": 17740.25,
+      "loser_dollars": -20533.25,
+      "vs_realized_gross": -988.0,
+      "vs_realized_net_fees_slip": -988.0,
+      "vs_NO_STOP": {
+       "delta": 12756.99,
+       "top_day": "2026-08-05",
+       "top_day_value": 11038.75,
+       "top_day_share": 0.2039,
+       "top_trade_share": 0.0259,
+       "drop_best_day": 1718.24,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 2252.74,
+      "half2": 10504.25,
+      "halves_agree": true,
+      "stop_fill_share": 0.7228
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_30": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -1621.8,
+      "net_fees": -1756.72,
+      "net_fees_slip": -3303.78,
+      "win_rate": 0.1947,
+      "avg_loss": -112.52,
+      "worst_loss": -564.0,
+      "max_drawdown": -15746.8,
+      "winner_dollars": 25833.7,
+      "loser_dollars": -27455.5,
+      "vs_realized_gross": 183.2,
+      "vs_realized_net_fees_slip": 183.18,
+      "vs_NO_STOP": {
+       "delta": 11547.66,
+       "top_day": "2026-08-05",
+       "top_day_value": 10636.1,
+       "top_day_share": 0.1708,
+       "top_trade_share": 0.021,
+       "drop_best_day": 911.56,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": -635.54,
+      "half2": 12183.2,
+      "halves_agree": false,
+      "stop_fill_share": 0.8053
+     },
+     "SAFE": {
+      "gross": -3934.57,
+      "net_fees": -4069.46,
+      "net_fees_slip": -5616.52,
+      "win_rate": 0.3069,
+      "avg_loss": -112.33,
+      "worst_loss": -564.0,
+      "max_drawdown": -12092.34,
+      "winner_dollars": 19655.13,
+      "loser_dollars": -23589.7,
+      "vs_realized_gross": -2129.57,
+      "vs_realized_net_fees_slip": -2129.56,
+      "vs_NO_STOP": {
+       "delta": 11615.42,
+       "top_day": "2026-08-05",
+       "top_day_value": 10298.3,
+       "top_day_share": 0.2058,
+       "top_trade_share": 0.0261,
+       "drop_best_day": 1317.12,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 1444.41,
+      "half2": 10171.01,
+      "halves_agree": true,
+      "stop_fill_share": 0.6931
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_40": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -879.45,
+      "net_fees": -1014.48,
+      "net_fees_slip": -2561.54,
+      "win_rate": 0.2673,
+      "avg_loss": -151.62,
+      "worst_loss": -752.0,
+      "max_drawdown": -17884.75,
+      "winner_dollars": 32780.75,
+      "loser_dollars": -33660.2,
+      "vs_realized_gross": 925.55,
+      "vs_realized_net_fees_slip": 925.42,
+      "vs_NO_STOP": {
+       "delta": 12290.01,
+       "top_day": "2026-08-05",
+       "top_day_value": 8889.8,
+       "top_day_share": 0.1841,
+       "top_trade_share": 0.0274,
+       "drop_best_day": 3400.21,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": 981.01,
+      "half2": 11309.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.7327
+     },
+     "SAFE": {
+      "gross": -3835.85,
+      "net_fees": -3970.82,
+      "net_fees_slip": -5517.88,
+      "win_rate": 0.3894,
+      "avg_loss": -150.36,
+      "worst_loss": -752.0,
+      "max_drawdown": -13961.54,
+      "winner_dollars": 23980.75,
+      "loser_dollars": -27816.6,
+      "vs_realized_gross": -2030.85,
+      "vs_realized_net_fees_slip": -2030.92,
+      "vs_NO_STOP": {
+       "delta": 11714.14,
+       "top_day": "2026-08-05",
+       "top_day_value": 8817.4,
+       "top_day_share": 0.2233,
+       "top_trade_share": 0.0284,
+       "drop_best_day": 2896.74,
+       "days_positive": 18,
+       "days_total": 35
+      },
+      "half1": 1589.01,
+      "half2": 10125.13,
+      "halves_agree": true,
+      "stop_fill_share": 0.6106
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_50": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -2717.3,
+      "net_fees": -2852.36,
+      "net_fees_slip": -4399.42,
+      "win_rate": 0.3102,
+      "avg_loss": -189.35,
+      "worst_loss": -940.0,
+      "max_drawdown": -18634.1,
+      "winner_dollars": 36856.7,
+      "loser_dollars": -39574.0,
+      "vs_realized_gross": -912.3,
+      "vs_realized_net_fees_slip": -912.46,
+      "vs_NO_STOP": {
+       "delta": 10452.16,
+       "top_day": "2026-08-05",
+       "top_day_value": 7143.5,
+       "top_day_share": 0.1897,
+       "top_trade_share": 0.0251,
+       "drop_best_day": 3308.66,
+       "days_positive": 21,
+       "days_total": 35
+      },
+      "half1": -284.29,
+      "half2": 10736.45,
+      "halves_agree": false,
+      "stop_fill_share": 0.6733
+     },
+     "SAFE": {
+      "gross": -5856.51,
+      "net_fees": -5991.49,
+      "net_fees_slip": -7538.55,
+      "win_rate": 0.4488,
+      "avg_loss": -193.4,
+      "worst_loss": -940.0,
+      "max_drawdown": -15054.62,
+      "winner_dollars": 26440.99,
+      "loser_dollars": -32297.5,
+      "vs_realized_gross": -4051.51,
+      "vs_realized_net_fees_slip": -4051.59,
+      "vs_NO_STOP": {
+       "delta": 9693.48,
+       "top_day": "2026-08-05",
+       "top_day_value": 7336.5,
+       "top_day_share": 0.2341,
+       "top_trade_share": 0.0345,
+       "drop_best_day": 2356.98,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": 777.73,
+      "half2": 8915.75,
+      "halves_agree": true,
+      "stop_fill_share": 0.5512
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_60": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -8694.44,
+      "net_fees": -8829.47,
+      "net_fees_slip": -10376.53,
+      "win_rate": 0.3234,
+      "avg_loss": -227.32,
+      "worst_loss": -1128.0,
+      "max_drawdown": -23158.7,
+      "winner_dollars": 37905.95,
+      "loser_dollars": -46600.39,
+      "vs_realized_gross": -6889.44,
+      "vs_realized_net_fees_slip": -6889.57,
+      "vs_NO_STOP": {
+       "delta": 4475.02,
+       "top_day": "2026-08-05",
+       "top_day_value": 5397.2,
+       "top_day_share": 0.1712,
+       "top_trade_share": 0.0321,
+       "drop_best_day": -922.18,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": -1416.18,
+      "half2": 5891.2,
+      "halves_agree": false,
+      "stop_fill_share": 0.6271
+     },
+     "SAFE": {
+      "gross": -9204.45,
+      "net_fees": -9339.43,
+      "net_fees_slip": -10886.49,
+      "win_rate": 0.4917,
+      "avg_loss": -239.98,
+      "worst_loss": -1128.0,
+      "max_drawdown": -17371.17,
+      "winner_dollars": 27752.74,
+      "loser_dollars": -36957.19,
+      "vs_realized_gross": -7399.45,
+      "vs_realized_net_fees_slip": -7399.53,
+      "vs_NO_STOP": {
+       "delta": 6345.54,
+       "top_day": "2026-08-05",
+       "top_day_value": 5855.6,
+       "top_day_share": 0.2369,
+       "top_trade_share": 0.0343,
+       "drop_best_day": 489.94,
+       "days_positive": 18,
+       "days_total": 35
+      },
+      "half1": -389.36,
+      "half2": 6734.9,
+      "halves_agree": false,
+      "stop_fill_share": 0.495
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "PREMIUM_75": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -10498.89,
+      "net_fees": -10633.95,
+      "net_fees_slip": -12181.01,
+      "win_rate": 0.363,
+      "avg_loss": -272.69,
+      "worst_loss": -1410.0,
+      "max_drawdown": -23896.95,
+      "winner_dollars": 42131.1,
+      "loser_dollars": -52629.99,
+      "vs_realized_gross": -8693.89,
+      "vs_realized_net_fees_slip": -8694.05,
+      "vs_NO_STOP": {
+       "delta": 2670.57,
+       "top_day": "2026-08-05",
+       "top_day_value": 3634.25,
+       "top_day_share": 0.2144,
+       "top_trade_share": 0.0387,
+       "drop_best_day": -963.68,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": -1983.18,
+      "half2": 4653.75,
+      "halves_agree": false,
+      "stop_fill_share": 0.5116
+     },
+     "SAFE": {
+      "gross": -10835.62,
+      "net_fees": -10970.63,
+      "net_fees_slip": -12517.69,
+      "win_rate": 0.5347,
+      "avg_loss": -291.44,
+      "worst_loss": -1410.0,
+      "max_drawdown": -18173.87,
+      "winner_dollars": 30258.12,
+      "loser_dollars": -41093.74,
+      "vs_realized_gross": -9030.62,
+      "vs_realized_net_fees_slip": -9030.73,
+      "vs_NO_STOP": {
+       "delta": 4714.37,
+       "top_day": "2026-08-05",
+       "top_day_value": 3634.25,
+       "top_day_share": 0.2904,
+       "top_trade_share": 0.0396,
+       "drop_best_day": 1080.12,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": -1172.88,
+      "half2": 5887.25,
+      "halves_agree": false,
+      "stop_fill_share": 0.3927
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TIME_5m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 838.01,
+      "net_fees": 703.06,
+      "net_fees_slip": -844.0,
+      "win_rate": 0.4356,
+      "avg_loss": -54.01,
+      "worst_loss": -520.0,
+      "max_drawdown": -2609.0,
+      "winner_dollars": 9264.01,
+      "loser_dollars": -8426.0,
+      "vs_realized_gross": 2643.01,
+      "vs_realized_net_fees_slip": 2642.96,
+      "vs_NO_STOP": {
+       "delta": 14007.47,
+       "top_day": "2026-08-04",
+       "top_day_value": -14887.8,
+       "top_day_share": 0.1511,
+       "top_trade_share": 0.0174,
+       "drop_best_day": 28895.27,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": -4813.08,
+      "half2": 18820.55,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": 1010.33,
+      "net_fees": 875.37,
+      "net_fees_slip": -671.69,
+      "win_rate": 0.4455,
+      "avg_loss": -54.01,
+      "worst_loss": -520.0,
+      "max_drawdown": -2609.0,
+      "winner_dollars": 9436.33,
+      "loser_dollars": -8426.0,
+      "vs_realized_gross": 2815.33,
+      "vs_realized_net_fees_slip": 2815.27,
+      "vs_NO_STOP": {
+       "delta": 16560.32,
+       "top_day": "2026-08-05",
+       "top_day_value": 11847.0,
+       "top_day_share": 0.1638,
+       "top_trade_share": 0.0237,
+       "drop_best_day": 4713.32,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": 757.11,
+      "half2": 15803.21,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "TIME_10m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -665.79,
+      "net_fees": -800.64,
+      "net_fees_slip": -2347.7,
+      "win_rate": 0.3663,
+      "avg_loss": -70.28,
+      "worst_loss": -544.0,
+      "max_drawdown": -5098.0,
+      "winner_dollars": 11915.22,
+      "loser_dollars": -12581.01,
+      "vs_realized_gross": 1139.21,
+      "vs_realized_net_fees_slip": 1139.26,
+      "vs_NO_STOP": {
+       "delta": 12503.67,
+       "top_day": "2026-08-05",
+       "top_day_value": 13966.0,
+       "top_day_share": 0.1509,
+       "top_trade_share": 0.0184,
+       "drop_best_day": -1462.33,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": -4216.88,
+      "half2": 16720.55,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -472.78,
+      "net_fees": -607.64,
+      "net_fees_slip": -2154.7,
+      "win_rate": 0.4026,
+      "avg_loss": -72.68,
+      "worst_loss": -544.0,
+      "max_drawdown": -4797.0,
+      "winner_dollars": 11883.23,
+      "loser_dollars": -12356.01,
+      "vs_realized_gross": 1332.22,
+      "vs_realized_net_fees_slip": 1332.26,
+      "vs_NO_STOP": {
+       "delta": 15077.21,
+       "top_day": "2026-08-05",
+       "top_day_value": 11595.0,
+       "top_day_share": 0.1725,
+       "top_trade_share": 0.0253,
+       "drop_best_day": 3482.21,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 1499.0,
+      "half2": 13578.21,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_15m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -554.49,
+      "net_fees": -689.5,
+      "net_fees_slip": -2236.56,
+      "win_rate": 0.3795,
+      "avg_loss": -94.04,
+      "worst_loss": -656.0,
+      "max_drawdown": -6934.0,
+      "winner_dollars": 16184.51,
+      "loser_dollars": -16739.0,
+      "vs_realized_gross": 1250.51,
+      "vs_realized_net_fees_slip": 1250.4,
+      "vs_NO_STOP": {
+       "delta": 12614.97,
+       "top_day": "2026-08-05",
+       "top_day_value": 13084.0,
+       "top_day_share": 0.1512,
+       "top_trade_share": 0.0193,
+       "drop_best_day": -469.03,
+       "days_positive": 18,
+       "days_total": 35
+      },
+      "half1": -4009.48,
+      "half2": 16624.45,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -56.17,
+      "net_fees": -191.19,
+      "net_fees_slip": -1738.25,
+      "win_rate": 0.4026,
+      "avg_loss": -94.39,
+      "worst_loss": -656.0,
+      "max_drawdown": -6212.63,
+      "winner_dollars": 16367.83,
+      "loser_dollars": -16424.0,
+      "vs_realized_gross": 1748.83,
+      "vs_realized_net_fees_slip": 1748.71,
+      "vs_NO_STOP": {
+       "delta": 15493.82,
+       "top_day": "2026-08-05",
+       "top_day_value": 10987.0,
+       "top_day_share": 0.1888,
+       "top_trade_share": 0.0287,
+       "drop_best_day": 4506.82,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": 1345.62,
+      "half2": 14148.2,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_20m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 1852.36,
+      "net_fees": 1717.29,
+      "net_fees_slip": 170.23,
+      "win_rate": 0.3927,
+      "avg_loss": -114.23,
+      "worst_loss": -768.0,
+      "max_drawdown": -9292.0,
+      "winner_dollars": 22642.35,
+      "loser_dollars": -20789.99,
+      "vs_realized_gross": 3657.36,
+      "vs_realized_net_fees_slip": 3657.19,
+      "vs_NO_STOP": {
+       "delta": 15021.82,
+       "top_day": "2026-08-05",
+       "top_day_value": 12608.0,
+       "top_day_share": 0.1534,
+       "top_trade_share": 0.0203,
+       "drop_best_day": 2413.82,
+       "days_positive": 18,
+       "days_total": 35
+      },
+      "half1": -1838.73,
+      "half2": 16860.55,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -1140.42,
+      "net_fees": -1275.41,
+      "net_fees_slip": -2822.47,
+      "win_rate": 0.429,
+      "avg_loss": -119.15,
+      "worst_loss": -768.0,
+      "max_drawdown": -9192.39,
+      "winner_dollars": 19234.57,
+      "loser_dollars": -20374.99,
+      "vs_realized_gross": 664.58,
+      "vs_realized_net_fees_slip": 664.49,
+      "vs_NO_STOP": {
+       "delta": 14409.57,
+       "top_day": "2026-08-05",
+       "top_day_value": 9927.0,
+       "top_day_share": 0.1847,
+       "top_trade_share": 0.0311,
+       "drop_best_day": 4482.57,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": 1651.75,
+      "half2": 12757.82,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "TIME_30m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -3525.79,
+      "net_fees": -3660.72,
+      "net_fees_slip": -5207.78,
+      "win_rate": 0.3597,
+      "avg_loss": -139.9,
+      "worst_loss": -976.0,
+      "max_drawdown": -13334.0,
+      "winner_dollars": 23195.2,
+      "loser_dollars": -26720.99,
+      "vs_realized_gross": -1720.79,
+      "vs_realized_net_fees_slip": -1720.82,
+      "vs_NO_STOP": {
+       "delta": 9643.67,
+       "top_day": "2026-08-05",
+       "top_day_value": 9396.0,
+       "top_day_share": 0.1331,
+       "top_trade_share": 0.0167,
+       "drop_best_day": 247.67,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": -2737.93,
+      "half2": 12381.6,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -6379.99,
+      "net_fees": -6514.87,
+      "net_fees_slip": -8061.93,
+      "win_rate": 0.4224,
+      "avg_loss": -148.26,
+      "worst_loss": -976.0,
+      "max_drawdown": -12791.74,
+      "winner_dollars": 19417.0,
+      "loser_dollars": -25796.99,
+      "vs_realized_gross": -4574.99,
+      "vs_realized_net_fees_slip": -4574.97,
+      "vs_NO_STOP": {
+       "delta": 9170.0,
+       "top_day": "2026-08-12",
+       "top_day_value": 7866.0,
+       "top_day_share": 0.171,
+       "top_trade_share": 0.0256,
+       "drop_best_day": 1304.0,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": 130.87,
+      "half2": 9039.13,
+      "halves_agree": true,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TIME_45m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -6953.44,
+      "net_fees": -7088.4,
+      "net_fees_slip": -8635.46,
+      "win_rate": 0.3432,
+      "avg_loss": -165.38,
+      "worst_loss": -1216.0,
+      "max_drawdown": -15171.05,
+      "winner_dollars": 25626.55,
+      "loser_dollars": -32579.99,
+      "vs_realized_gross": -5148.44,
+      "vs_realized_net_fees_slip": -5148.5,
+      "vs_NO_STOP": {
+       "delta": 6216.02,
+       "top_day": "2026-08-12",
+       "top_day_value": 7416.0,
+       "top_day_share": 0.1272,
+       "top_trade_share": 0.0169,
+       "drop_best_day": -1199.98,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": -2499.63,
+      "half2": 8715.65,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -7861.37,
+      "net_fees": -7996.33,
+      "net_fees_slip": -9543.39,
+      "win_rate": 0.4554,
+      "avg_loss": -188.06,
+      "worst_loss": -1216.0,
+      "max_drawdown": -14268.49,
+      "winner_dollars": 22792.62,
+      "loser_dollars": -30653.99,
+      "vs_realized_gross": -6056.37,
+      "vs_realized_net_fees_slip": -6056.43,
+      "vs_NO_STOP": {
+       "delta": 7688.62,
+       "top_day": "2026-08-12",
+       "top_day_value": 6720.0,
+       "top_day_share": 0.1957,
+       "top_trade_share": 0.024,
+       "drop_best_day": 968.62,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": -494.51,
+      "half2": 8183.13,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TIME_60m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -9832.59,
+      "net_fees": -9967.52,
+      "net_fees_slip": -11514.58,
+      "win_rate": 0.3333,
+      "avg_loss": -190.7,
+      "worst_loss": -1392.0,
+      "max_drawdown": -18363.1,
+      "winner_dollars": 28497.4,
+      "loser_dollars": -38329.99,
+      "vs_realized_gross": -8027.59,
+      "vs_realized_net_fees_slip": -8027.62,
+      "vs_NO_STOP": {
+       "delta": 3336.87,
+       "top_day": "2026-08-12",
+       "top_day_value": 6105.0,
+       "top_day_share": 0.1243,
+       "top_trade_share": 0.0213,
+       "drop_best_day": -2768.13,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": -3311.98,
+      "half2": 6648.85,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -8639.12,
+      "net_fees": -8774.12,
+      "net_fees_slip": -10321.18,
+      "win_rate": 0.4653,
+      "avg_loss": -212.3,
+      "worst_loss": -1392.0,
+      "max_drawdown": -15375.49,
+      "winner_dollars": 25540.87,
+      "loser_dollars": -34179.99,
+      "vs_realized_gross": -6834.12,
+      "vs_realized_net_fees_slip": -6834.22,
+      "vs_NO_STOP": {
+       "delta": 6910.87,
+       "top_day": "2026-08-12",
+       "top_day_value": 5577.0,
+       "top_day_share": 0.2001,
+       "top_trade_share": 0.0278,
+       "drop_best_day": 1333.87,
+       "days_positive": 17,
+       "days_total": 35
+      },
+      "half1": -781.51,
+      "half2": 7692.38,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TIME_90m": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -7457.39,
+      "net_fees": -7592.42,
+      "net_fees_slip": -9139.48,
+      "win_rate": 0.3795,
+      "avg_loss": -225.68,
+      "worst_loss": -1656.0,
+      "max_drawdown": -20413.0,
+      "winner_dollars": 34970.6,
+      "loser_dollars": -42427.99,
+      "vs_realized_gross": -5652.39,
+      "vs_realized_net_fees_slip": -5652.52,
+      "vs_NO_STOP": {
+       "delta": 5712.07,
+       "top_day": "2026-08-12",
+       "top_day_value": 5527.0,
+       "top_day_share": 0.1569,
+       "top_trade_share": 0.0342,
+       "drop_best_day": 185.07,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": -1927.93,
+      "half2": 7640.0,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     },
+     "SAFE": {
+      "gross": -11722.75,
+      "net_fees": -11857.7,
+      "net_fees_slip": -13404.76,
+      "win_rate": 0.495,
+      "avg_loss": -252.23,
+      "worst_loss": -1656.0,
+      "max_drawdown": -18559.37,
+      "winner_dollars": 26868.24,
+      "loser_dollars": -38590.99,
+      "vs_realized_gross": -9917.75,
+      "vs_realized_net_fees_slip": -9917.8,
+      "vs_NO_STOP": {
+       "delta": 3827.24,
+       "top_day": "2026-08-12",
+       "top_day_value": 5079.0,
+       "top_day_share": 0.2557,
+       "top_trade_share": 0.0352,
+       "drop_best_day": -1251.76,
+       "days_positive": 17,
+       "days_total": 35
+      },
+      "half1": -695.26,
+      "half2": 4522.5,
+      "halves_agree": false,
+      "stop_fill_share": 0.0
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_10": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -3882.59,
+      "net_fees": -4017.42,
+      "net_fees_slip": -5564.48,
+      "win_rate": 0.2838,
+      "avg_loss": -35.17,
+      "worst_loss": -205.0,
+      "max_drawdown": -4129.5,
+      "winner_dollars": 3644.4,
+      "loser_dollars": -7526.99,
+      "vs_realized_gross": -2077.59,
+      "vs_realized_net_fees_slip": -2077.52,
+      "vs_NO_STOP": {
+       "delta": 9286.87,
+       "top_day": "2026-08-04",
+       "top_day_value": -16840.6,
+       "top_day_share": 0.1666,
+       "top_trade_share": 0.0186,
+       "drop_best_day": 26127.47,
+       "days_positive": 21,
+       "days_total": 35
+      },
+      "half1": -7926.48,
+      "half2": 17213.35,
+      "halves_agree": false,
+      "stop_fill_share": 1.0
+     },
+     "SAFE": {
+      "gross": -3851.47,
+      "net_fees": -3986.3,
+      "net_fees_slip": -5533.36,
+      "win_rate": 0.2838,
+      "avg_loss": -35.17,
+      "worst_loss": -205.0,
+      "max_drawdown": -4065.78,
+      "winner_dollars": 3675.52,
+      "loser_dollars": -7526.99,
+      "vs_realized_gross": -2046.47,
+      "vs_realized_net_fees_slip": -2046.4,
+      "vs_NO_STOP": {
+       "delta": 11698.52,
+       "top_day": "2026-08-05",
+       "top_day_value": 12775.7,
+       "top_day_share": 0.1678,
+       "top_trade_share": 0.0247,
+       "drop_best_day": -1077.18,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": -2564.89,
+      "half2": 14263.41,
+      "halves_agree": false,
+      "stop_fill_share": 0.9736
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_15": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -1622.04,
+      "net_fees": -1756.95,
+      "net_fees_slip": -3304.01,
+      "win_rate": 0.297,
+      "avg_loss": -46.68,
+      "worst_loss": -250.8,
+      "max_drawdown": -3640.9,
+      "winner_dollars": 8133.41,
+      "loser_dollars": -9755.45,
+      "vs_realized_gross": 182.96,
+      "vs_realized_net_fees_slip": 182.95,
+      "vs_NO_STOP": {
+       "delta": 11547.42,
+       "top_day": "2026-08-05",
+       "top_day_value": 15031.2,
+       "top_day_share": 0.1562,
+       "top_trade_share": 0.0184,
+       "drop_best_day": -3483.78,
+       "days_positive": 21,
+       "days_total": 35
+      },
+      "half1": -5336.18,
+      "half2": 16883.6,
+      "halves_agree": false,
+      "stop_fill_share": 0.9868
+     },
+     "SAFE": {
+      "gross": -2233.51,
+      "net_fees": -2368.43,
+      "net_fees_slip": -3915.49,
+      "win_rate": 0.297,
+      "avg_loss": -46.68,
+      "worst_loss": -250.8,
+      "max_drawdown": -3350.75,
+      "winner_dollars": 7521.94,
+      "loser_dollars": -9755.45,
+      "vs_realized_gross": -428.51,
+      "vs_realized_net_fees_slip": -428.53,
+      "vs_NO_STOP": {
+       "delta": 13316.48,
+       "top_day": "2026-08-05",
+       "top_day_value": 12660.2,
+       "top_day_share": 0.1768,
+       "top_trade_share": 0.0248,
+       "drop_best_day": 656.28,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": -709.93,
+      "half2": 14026.41,
+      "halves_agree": false,
+      "stop_fill_share": 0.9208
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_20": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -464.99,
+      "net_fees": -599.88,
+      "net_fees_slip": -2146.94,
+      "win_rate": 0.3003,
+      "avg_loss": -56.01,
+      "worst_loss": -334.4,
+      "max_drawdown": -5113.2,
+      "winner_dollars": 11240.6,
+      "loser_dollars": -11705.59,
+      "vs_realized_gross": 1340.01,
+      "vs_realized_net_fees_slip": 1340.02,
+      "vs_NO_STOP": {
+       "delta": 12704.47,
+       "top_day": "2026-08-05",
+       "top_day_value": 14053.6,
+       "top_day_share": 0.1542,
+       "top_trade_share": 0.0183,
+       "drop_best_day": -1349.13,
+       "days_positive": 21,
+       "days_total": 35
+      },
+      "half1": -5143.88,
+      "half2": 17848.35,
+      "halves_agree": false,
+      "stop_fill_share": 0.9538
+     },
+     "SAFE": {
+      "gross": -1693.54,
+      "net_fees": -1828.46,
+      "net_fees_slip": -3375.52,
+      "win_rate": 0.3003,
+      "avg_loss": -56.01,
+      "worst_loss": -334.4,
+      "max_drawdown": -4565.08,
+      "winner_dollars": 10012.05,
+      "loser_dollars": -11705.59,
+      "vs_realized_gross": 111.46,
+      "vs_realized_net_fees_slip": 111.44,
+      "vs_NO_STOP": {
+       "delta": 13856.45,
+       "top_day": "2026-08-05",
+       "top_day_value": 11682.6,
+       "top_day_share": 0.1727,
+       "top_trade_share": 0.0247,
+       "drop_best_day": 2173.85,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": -344.25,
+      "half2": 14200.7,
+      "halves_agree": false,
+      "stop_fill_share": 0.8614
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_25": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 6257.41,
+      "net_fees": 6122.36,
+      "net_fees_slip": 4575.3,
+      "win_rate": 0.2904,
+      "avg_loss": -64.15,
+      "worst_loss": -418.0,
+      "max_drawdown": -6431.0,
+      "winner_dollars": 19984.65,
+      "loser_dollars": -13727.24,
+      "vs_realized_gross": 8062.41,
+      "vs_realized_net_fees_slip": 8062.26,
+      "vs_NO_STOP": {
+       "delta": 19426.87,
+       "top_day": "2026-08-05",
+       "top_day_value": 13460.0,
+       "top_day_share": 0.1661,
+       "top_trade_share": 0.0193,
+       "drop_best_day": 5966.87,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": 1417.37,
+      "half2": 18009.5,
+      "halves_agree": true,
+      "stop_fill_share": 0.8944
+     },
+     "SAFE": {
+      "gross": 2225.41,
+      "net_fees": 2090.41,
+      "net_fees_slip": 543.35,
+      "win_rate": 0.2904,
+      "avg_loss": -64.15,
+      "worst_loss": -418.0,
+      "max_drawdown": -5493.88,
+      "winner_dollars": 15952.65,
+      "loser_dollars": -13727.24,
+      "vs_realized_gross": 4030.41,
+      "vs_realized_net_fees_slip": 4030.31,
+      "vs_NO_STOP": {
+       "delta": 17775.4,
+       "top_day": "2026-08-05",
+       "top_day_value": 11680.0,
+       "top_day_share": 0.1978,
+       "top_trade_share": 0.0265,
+       "drop_best_day": 6095.4,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 3215.38,
+      "half2": 14560.02,
+      "halves_agree": true,
+      "stop_fill_share": 0.7756
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 5,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_30": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 6635.91,
+      "net_fees": 6500.86,
+      "net_fees_slip": 4953.8,
+      "win_rate": 0.2739,
+      "avg_loss": -77.27,
+      "worst_loss": -511.2,
+      "max_drawdown": -8036.35,
+      "winner_dollars": 23558.5,
+      "loser_dollars": -16922.59,
+      "vs_realized_gross": 8440.91,
+      "vs_realized_net_fees_slip": 8440.76,
+      "vs_NO_STOP": {
+       "delta": 19805.37,
+       "top_day": "2026-08-05",
+       "top_day_value": 12456.8,
+       "top_day_share": 0.1658,
+       "top_trade_share": 0.0194,
+       "drop_best_day": 7348.57,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": 662.97,
+      "half2": 19142.4,
+      "halves_agree": true,
+      "stop_fill_share": 0.8614
+     },
+     "SAFE": {
+      "gross": 150.4,
+      "net_fees": 15.45,
+      "net_fees_slip": -1531.61,
+      "win_rate": 0.2739,
+      "avg_loss": -77.27,
+      "worst_loss": -511.2,
+      "max_drawdown": -7139.94,
+      "winner_dollars": 17072.99,
+      "loser_dollars": -16922.59,
+      "vs_realized_gross": 1955.4,
+      "vs_realized_net_fees_slip": 1955.35,
+      "vs_NO_STOP": {
+       "delta": 15700.39,
+       "top_day": "2026-08-05",
+       "top_day_value": 10896.8,
+       "top_day_share": 0.1947,
+       "top_trade_share": 0.0261,
+       "drop_best_day": 4803.59,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 2330.38,
+      "half2": 13370.01,
+      "halves_agree": true,
+      "stop_fill_share": 0.7459
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 5,
+    "SURVIVES_ALL": false
+   },
+   "TRAIL_40": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 1393.06,
+      "net_fees": 1258.01,
+      "net_fees_slip": -289.05,
+      "win_rate": 0.2409,
+      "avg_loss": -106.99,
+      "worst_loss": -697.6,
+      "max_drawdown": -13674.25,
+      "winner_dollars": 25786.85,
+      "loser_dollars": -24393.79,
+      "vs_realized_gross": 3198.06,
+      "vs_realized_net_fees_slip": 3197.91,
+      "vs_NO_STOP": {
+       "delta": 14562.52,
+       "top_day": "2026-08-05",
+       "top_day_value": 10450.4,
+       "top_day_share": 0.1595,
+       "top_trade_share": 0.0191,
+       "drop_best_day": 4112.12,
+       "days_positive": 18,
+       "days_total": 35
+      },
+      "half1": -745.38,
+      "half2": 15307.9,
+      "halves_agree": false,
+      "stop_fill_share": 0.8185
+     },
+     "SAFE": {
+      "gross": -4094.06,
+      "net_fees": -4229.02,
+      "net_fees_slip": -5776.08,
+      "win_rate": 0.3069,
+      "avg_loss": -114.37,
+      "worst_loss": -697.6,
+      "max_drawdown": -12325.79,
+      "winner_dollars": 19923.13,
+      "loser_dollars": -24017.19,
+      "vs_realized_gross": -2289.06,
+      "vs_realized_net_fees_slip": -2289.12,
+      "vs_NO_STOP": {
+       "delta": 11455.93,
+       "top_day": "2026-08-05",
+       "top_day_value": 9330.4,
+       "top_day_share": 0.1924,
+       "top_trade_share": 0.0258,
+       "drop_best_day": 2125.53,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 457.45,
+      "half2": 10998.48,
+      "halves_agree": true,
+      "stop_fill_share": 0.6931
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 3,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$0.40": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 1822.26,
+      "net_fees": 1687.33,
+      "net_fees_slip": 140.27,
+      "win_rate": 0.3201,
+      "avg_loss": -63.41,
+      "worst_loss": -560.0,
+      "max_drawdown": -6970.0,
+      "winner_dollars": 14378.25,
+      "loser_dollars": -12555.99,
+      "vs_realized_gross": 3627.26,
+      "vs_realized_net_fees_slip": 3627.23,
+      "vs_NO_STOP": {
+       "delta": 14991.72,
+       "top_day": "2026-08-05",
+       "top_day_value": 13376.0,
+       "top_day_share": 0.1582,
+       "top_trade_share": 0.0246,
+       "drop_best_day": 1615.72,
+       "days_positive": 21,
+       "days_total": 35
+      },
+      "half1": -327.58,
+      "half2": 15319.3,
+      "halves_agree": false,
+      "stop_fill_share": 0.8515
+     },
+     "SAFE": {
+      "gross": -322.35,
+      "net_fees": -457.22,
+      "net_fees_slip": -2004.28,
+      "win_rate": 0.3729,
+      "avg_loss": -59.87,
+      "worst_loss": -376.0,
+      "max_drawdown": -4993.11,
+      "winner_dollars": 10573.64,
+      "loser_dollars": -10895.99,
+      "vs_realized_gross": 1482.65,
+      "vs_realized_net_fees_slip": 1482.68,
+      "vs_NO_STOP": {
+       "delta": 15227.64,
+       "top_day": "2026-08-05",
+       "top_day_value": 13376.0,
+       "top_day_share": 0.2009,
+       "top_trade_share": 0.0312,
+       "drop_best_day": 1851.64,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 2165.79,
+      "half2": 13061.85,
+      "halves_agree": true,
+      "stop_fill_share": 0.8416
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$0.60": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 6894.91,
+      "net_fees": 6759.78,
+      "net_fees_slip": 5212.72,
+      "win_rate": 0.3201,
+      "avg_loss": -91.44,
+      "worst_loss": -560.0,
+      "max_drawdown": -9013.8,
+      "winner_dollars": 25548.9,
+      "loser_dollars": -18653.99,
+      "vs_realized_gross": 8699.91,
+      "vs_realized_net_fees_slip": 8699.68,
+      "vs_NO_STOP": {
+       "delta": 20064.37,
+       "top_day": "2026-08-05",
+       "top_day_value": 13259.0,
+       "top_day_share": 0.2008,
+       "top_trade_share": 0.0315,
+       "drop_best_day": 6805.37,
+       "days_positive": 20,
+       "days_total": 35
+      },
+      "half1": -1637.23,
+      "half2": 21701.6,
+      "halves_agree": false,
+      "stop_fill_share": 0.7327
+     },
+     "SAFE": {
+      "gross": 1830.43,
+      "net_fees": 1695.43,
+      "net_fees_slip": 148.37,
+      "win_rate": 0.4191,
+      "avg_loss": -89.51,
+      "worst_loss": -496.0,
+      "max_drawdown": -7806.74,
+      "winner_dollars": 17405.42,
+      "loser_dollars": -15574.99,
+      "vs_realized_gross": 3635.43,
+      "vs_realized_net_fees_slip": 3635.33,
+      "vs_NO_STOP": {
+       "delta": 17380.42,
+       "top_day": "2026-08-05",
+       "top_day_value": 13259.0,
+       "top_day_share": 0.2472,
+       "top_trade_share": 0.0388,
+       "drop_best_day": 4121.42,
+       "days_positive": 15,
+       "days_total": 35
+      },
+      "half1": 1454.79,
+      "half2": 15925.63,
+      "halves_agree": true,
+      "stop_fill_share": 0.6799
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$0.80": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 4807.76,
+      "net_fees": 4672.63,
+      "net_fees_slip": 3125.57,
+      "win_rate": 0.3201,
+      "avg_loss": -118.64,
+      "worst_loss": -616.0,
+      "max_drawdown": -11571.15,
+      "winner_dollars": 29010.75,
+      "loser_dollars": -24202.99,
+      "vs_realized_gross": 6612.76,
+      "vs_realized_net_fees_slip": 6612.53,
+      "vs_NO_STOP": {
+       "delta": 17977.22,
+       "top_day": "2026-08-05",
+       "top_day_value": 13259.0,
+       "top_day_share": 0.2396,
+       "top_trade_share": 0.0376,
+       "drop_best_day": 4718.22,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": -1429.58,
+      "half2": 19406.8,
+      "halves_agree": false,
+      "stop_fill_share": 0.6304
+     },
+     "SAFE": {
+      "gross": 1217.42,
+      "net_fees": 1082.39,
+      "net_fees_slip": -464.67,
+      "win_rate": 0.4488,
+      "avg_loss": -118.53,
+      "worst_loss": -616.0,
+      "max_drawdown": -8976.49,
+      "winner_dollars": 20775.41,
+      "loser_dollars": -19557.99,
+      "vs_realized_gross": 3022.42,
+      "vs_realized_net_fees_slip": 3022.29,
+      "vs_NO_STOP": {
+       "delta": 16767.41,
+       "top_day": "2026-08-05",
+       "top_day_value": 13259.0,
+       "top_day_share": 0.2992,
+       "top_trade_share": 0.0469,
+       "drop_best_day": 3508.41,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": 1926.03,
+      "half2": 14841.38,
+      "halves_agree": true,
+      "stop_fill_share": 0.5578
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$1.00": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -478.39,
+      "net_fees": -613.49,
+      "net_fees_slip": -2160.55,
+      "win_rate": 0.3201,
+      "avg_loss": -159.14,
+      "worst_loss": -770.0,
+      "max_drawdown": -14417.45,
+      "winner_dollars": 32303.59,
+      "loser_dollars": -32781.98,
+      "vs_realized_gross": 1326.61,
+      "vs_realized_net_fees_slip": 1326.41,
+      "vs_NO_STOP": {
+       "delta": 12691.07,
+       "top_day": "2026-08-05",
+       "top_day_value": 12648.0,
+       "top_day_share": 0.2757,
+       "top_trade_share": 0.0453,
+       "drop_best_day": 43.07,
+       "days_positive": 18,
+       "days_total": 35
+      },
+      "half1": -3559.43,
+      "half2": 16250.5,
+      "halves_agree": false,
+      "stop_fill_share": 0.5677
+     },
+     "SAFE": {
+      "gross": -1127.58,
+      "net_fees": -1262.64,
+      "net_fees_slip": -2809.7,
+      "win_rate": 0.4785,
+      "avg_loss": -159.95,
+      "worst_loss": -770.0,
+      "max_drawdown": -10624.6,
+      "winner_dollars": 24144.4,
+      "loser_dollars": -25271.98,
+      "vs_realized_gross": 677.42,
+      "vs_realized_net_fees_slip": 677.26,
+      "vs_NO_STOP": {
+       "delta": 14422.41,
+       "top_day": "2026-08-05",
+       "top_day_value": 12648.0,
+       "top_day_share": 0.3562,
+       "top_trade_share": 0.0586,
+       "drop_best_day": 1774.41,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": -97.59,
+      "half2": 14520.0,
+      "halves_agree": false,
+      "stop_fill_share": 0.4752
+     }
+    },
+    "gates": {
+     "G1": true,
+     "G2": true,
+     "G3": true,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$1.50": {
+    "shapes": {
+     "RIBBON": {
+      "gross": 2280.36,
+      "net_fees": 2145.08,
+      "net_fees_slip": 598.02,
+      "win_rate": 0.363,
+      "avg_loss": -202.85,
+      "worst_loss": -976.0,
+      "max_drawdown": -14567.95,
+      "winner_dollars": 41431.35,
+      "loser_dollars": -39150.99,
+      "vs_realized_gross": 4085.36,
+      "vs_realized_net_fees_slip": 4084.98,
+      "vs_NO_STOP": {
+       "delta": 15449.82,
+       "top_day": "2026-08-05",
+       "top_day_value": 9372.0,
+       "top_day_share": 0.3746,
+       "top_trade_share": 0.0681,
+       "drop_best_day": 6077.82,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": 355.82,
+      "half2": 15094.0,
+      "halves_agree": true,
+      "stop_fill_share": 0.3861
+     },
+     "SAFE": {
+      "gross": -2340.0,
+      "net_fees": -2475.14,
+      "net_fees_slip": -4022.2,
+      "win_rate": 0.5149,
+      "avg_loss": -210.33,
+      "worst_loss": -976.0,
+      "max_drawdown": -12783.62,
+      "winner_dollars": 28577.99,
+      "loser_dollars": -30917.99,
+      "vs_realized_gross": -535.0,
+      "vs_realized_net_fees_slip": -535.24,
+      "vs_NO_STOP": {
+       "delta": 13209.99,
+       "top_day": "2026-08-05",
+       "top_day_value": 9372.0,
+       "top_day_share": 0.4076,
+       "top_trade_share": 0.0741,
+       "drop_best_day": 3837.99,
+       "days_positive": 19,
+       "days_total": 35
+      },
+      "half1": 1585.24,
+      "half2": 11624.75,
+      "halves_agree": true,
+      "stop_fill_share": 0.3234
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": true,
+     "G4": true,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 4,
+    "SURVIVES_ALL": false
+   },
+   "SPYMOVE_$2.00": {
+    "shapes": {
+     "RIBBON": {
+      "gross": -4981.84,
+      "net_fees": -5116.99,
+      "net_fees_slip": -6664.05,
+      "win_rate": 0.3696,
+      "avg_loss": -244.79,
+      "worst_loss": -1128.0,
+      "max_drawdown": -19663.95,
+      "winner_dollars": 41773.15,
+      "loser_dollars": -46754.99,
+      "vs_realized_gross": -3176.84,
+      "vs_realized_net_fees_slip": -3177.09,
+      "vs_NO_STOP": {
+       "delta": 8187.62,
+       "top_day": "2026-08-05",
+       "top_day_value": 6832.0,
+       "top_day_share": 0.3795,
+       "top_trade_share": 0.0551,
+       "drop_best_day": 1355.62,
+       "days_positive": 16,
+       "days_total": 35
+      },
+      "half1": -390.38,
+      "half2": 8578.0,
+      "halves_agree": false,
+      "stop_fill_share": 0.297
+     },
+     "SAFE": {
+      "gross": -8728.87,
+      "net_fees": -8863.88,
+      "net_fees_slip": -10410.94,
+      "win_rate": 0.5215,
+      "avg_loss": -258.83,
+      "worst_loss": -1128.0,
+      "max_drawdown": -17985.62,
+      "winner_dollars": 28802.12,
+      "loser_dollars": -37530.99,
+      "vs_realized_gross": -6923.87,
+      "vs_realized_net_fees_slip": -6923.98,
+      "vs_NO_STOP": {
+       "delta": 6821.12,
+       "top_day": "2026-08-05",
+       "top_day_value": 6832.0,
+       "top_day_share": 0.3786,
+       "top_trade_share": 0.055,
+       "drop_best_day": -10.88,
+       "days_positive": 14,
+       "days_total": 35
+      },
+      "half1": 709.37,
+      "half2": 6111.75,
+      "halves_agree": true,
+      "stop_fill_share": 0.2574
+     }
+    },
+    "gates": {
+     "G1": false,
+     "G2": true,
+     "G3": false,
+     "G4": false,
+     "G5": true,
+     "G6": false
+    },
+    "gates_passed": 2,
+    "SURVIVES_ALL": false
+   }
+  }
+ }
+}

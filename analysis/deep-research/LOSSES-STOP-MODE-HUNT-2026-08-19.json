@@ -1,0 +1,2083 @@
+{
+ "generated_at_et": "2026-08-19T22:31:27",
+ "selection_bias": {
+  "STRUCTABLE (trigger_level present)": {
+   "n": 183,
+   "gross": 736.0,
+   "wins": 55,
+   "wr": 0.3005,
+   "winner_dollars": 13378.0,
+   "n_days": 25,
+   "date_span": [
+    "2026-07-13",
+    "2026-08-19"
+   ],
+   "setups": [
+    "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "VWAP_RECLAIM_FAILED_BREAK",
+    "bollinger_squeeze",
+    "vix_regime_dayside",
+    "vwap_continuation",
+    "vwap_reclaim_failed_break"
+   ],
+   "arms": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ]
+  },
+  "EXCLUDED (no trigger_level)": {
+   "n": 120,
+   "gross": -2541.0,
+   "wins": 15,
+   "wr": 0.125,
+   "winner_dollars": 2306.0,
+   "n_days": 15,
+   "date_span": [
+    "2026-06-26",
+    "2026-08-12"
+   ],
+   "setups": [
+    "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "VWAP_CONTINUATION",
+    "bollinger_squeeze",
+    "vwap_continuation"
+   ],
+   "arms": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ]
+  },
+  "FULL": {
+   "n": 303,
+   "gross": -1805.0,
+   "wins": 70,
+   "wr": 0.231,
+   "winner_dollars": 15684.0,
+   "n_days": 35,
+   "date_span": [
+    "2026-06-26",
+    "2026-08-19"
+   ],
+   "setups": [
+    "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "VWAP_CONTINUATION",
+    "VWAP_RECLAIM_FAILED_BREAK",
+    "bollinger_squeeze",
+    "vix_regime_dayside",
+    "vwap_continuation",
+    "vwap_reclaim_failed_break"
+   ],
+   "arms": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ]
+  },
+  "verdict_note": "If the two halves differ materially in realized P&L or date span, the STRUCTABLE matrix is scored on a non-representative slice and its levels do not generalise to the book."
+ },
+ "cells": {
+  "STRUCTABLE": {
+   "NO_STOP (15:40 time stop only)": {
+    "RIBBON": {
+     "gross": -1890.12,
+     "vs_realized": -2626.12,
+     "stop_fills": 0,
+     "delta_vs_prod": 2778.43,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6470.05,
+     "delta_top_day_share": 0.1701,
+     "delta_top_trade_share": 0.0277,
+     "delta_days_positive": 8,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -3691.62,
+     "half1": 6149.18,
+     "half2": -3370.75,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 38.24,
+     "vs_realized": -697.76,
+     "stop_fills": 0,
+     "delta_vs_prod": 1375.65,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": -3658.5,
+     "delta_top_day_share": 0.1341,
+     "delta_top_trade_share": 0.0369,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 5034.15,
+     "half1": 2391.28,
+     "half2": -1015.63,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": true,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_10": {
+    "RIBBON": {
+     "gross": -1683.75,
+     "vs_realized": -2419.75,
+     "stop_fills": 166,
+     "delta_vs_prod": 2984.8,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 2270.1,
+     "delta_top_day_share": 0.0916,
+     "delta_top_trade_share": 0.042,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 714.7,
+     "half1": -1073.35,
+     "half2": 4058.15,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 413.1,
+     "top5_kept_frac": 0.1433
+    },
+    "SAFE": {
+     "gross": 11.71,
+     "vs_realized": -724.29,
+     "stop_fills": 150,
+     "delta_vs_prod": 1349.12,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1539.2,
+     "delta_top_day_share": 0.087,
+     "delta_top_trade_share": 0.032,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -190.08,
+     "half1": -1157.72,
+     "half2": 2506.84,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 159.48,
+     "top5_kept_frac": 0.0553
+    },
+    "shape_flip_fragile": true,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_15": {
+    "RIBBON": {
+     "gross": -25.1,
+     "vs_realized": -761.1,
+     "stop_fills": 156,
+     "delta_vs_prod": 4643.45,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 2526.85,
+     "delta_top_day_share": 0.1118,
+     "delta_top_trade_share": 0.048,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2116.6,
+     "half1": 1162.7,
+     "half2": 3480.75,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1691.0,
+     "top5_kept_frac": 0.5865
+    },
+    "SAFE": {
+     "gross": 596.08,
+     "vs_realized": -139.92,
+     "stop_fills": 139,
+     "delta_vs_prod": 1933.49,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1653.05,
+     "delta_top_day_share": 0.1013,
+     "delta_top_trade_share": 0.0379,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 280.44,
+     "half1": 200.63,
+     "half2": 1732.86,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 985.28,
+     "top5_kept_frac": 0.3418
+    },
+    "shape_flip_fragile": true,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_20": {
+    "RIBBON": {
+     "gross": 146.15,
+     "vs_realized": -589.85,
+     "stop_fills": 149,
+     "delta_vs_prod": 4814.7,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 2397.7,
+     "delta_top_day_share": 0.1159,
+     "delta_top_trade_share": 0.0545,
+     "delta_days_positive": 17,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2417.0,
+     "half1": 2423.1,
+     "half2": 2391.6,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1639.8,
+     "top5_kept_frac": 0.5688
+    },
+    "SAFE": {
+     "gross": 117.57,
+     "vs_realized": -618.43,
+     "stop_fills": 131,
+     "delta_vs_prod": 1454.98,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1523.9,
+     "delta_top_day_share": 0.1047,
+     "delta_top_trade_share": 0.046,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -68.92,
+     "half1": 117.7,
+     "half2": 1337.28,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 934.08,
+     "top5_kept_frac": 0.324
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_25": {
+    "RIBBON": {
+     "gross": 1236.0,
+     "vs_realized": 500.0,
+     "stop_fills": 141,
+     "delta_vs_prod": 5904.55,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 3656.75,
+     "delta_top_day_share": 0.1714,
+     "delta_top_trade_share": 0.0549,
+     "delta_days_positive": 17,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2247.8,
+     "half1": 5046.0,
+     "half2": 858.55,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1588.6,
+     "top5_kept_frac": 0.551
+    },
+    "SAFE": {
+     "gross": 506.75,
+     "vs_realized": -229.25,
+     "stop_fills": 120,
+     "delta_vs_prod": 1844.16,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1394.75,
+     "delta_top_day_share": 0.0973,
+     "delta_top_trade_share": 0.0502,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 449.41,
+     "half1": 1239.04,
+     "half2": 605.12,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 882.88,
+     "top5_kept_frac": 0.3062
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_30": {
+    "RIBBON": {
+     "gross": 1443.85,
+     "vs_realized": 707.85,
+     "stop_fills": 136,
+     "delta_vs_prod": 6112.4,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6274.45,
+     "delta_top_day_share": 0.2699,
+     "delta_top_trade_share": 0.0524,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -162.05,
+     "half1": 6795.9,
+     "half2": -683.5,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1537.4,
+     "top5_kept_frac": 0.5333
+    },
+    "SAFE": {
+     "gross": 1035.08,
+     "vs_realized": 299.08,
+     "stop_fills": 113,
+     "delta_vs_prod": 2372.49,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1827,
+     "delta_top_trade_share": 0.0472,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -614.3,
+     "half1": 2398.51,
+     "half2": -26.02,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 831.68,
+     "top5_kept_frac": 0.2885
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_40": {
+    "RIBBON": {
+     "gross": 1988.85,
+     "vs_realized": 1252.85,
+     "stop_fills": 127,
+     "delta_vs_prod": 6657.4,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6201.25,
+     "delta_top_day_share": 0.2942,
+     "delta_top_trade_share": 0.0627,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 456.15,
+     "half1": 5378.6,
+     "half2": 1278.8,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1435.0,
+     "top5_kept_frac": 0.4977
+    },
+    "SAFE": {
+     "gross": 2094.6,
+     "vs_realized": 1358.6,
+     "stop_fills": 100,
+     "delta_vs_prod": 3432.01,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1984,
+     "delta_top_trade_share": 0.058,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 445.22,
+     "half1": 1286.46,
+     "half2": 2145.55,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 729.28,
+     "top5_kept_frac": 0.253
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_50": {
+    "RIBBON": {
+     "gross": 3402.9,
+     "vs_realized": 2666.9,
+     "stop_fills": 112,
+     "delta_vs_prod": 8071.45,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6470.05,
+     "delta_top_day_share": 0.2791,
+     "delta_top_trade_share": 0.0454,
+     "delta_days_positive": 5,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1601.4,
+     "half1": 5986.6,
+     "half2": 2084.85,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 3125.24,
+     "vs_realized": 2389.24,
+     "stop_fills": 86,
+     "delta_vs_prod": 4462.65,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1807,
+     "delta_top_trade_share": 0.0278,
+     "delta_days_positive": 7,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1475.86,
+     "half1": 1693.78,
+     "half2": 2768.87,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_60": {
+    "RIBBON": {
+     "gross": 774.45,
+     "vs_realized": 38.45,
+     "stop_fills": 104,
+     "delta_vs_prod": 5443.0,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6470.05,
+     "delta_top_day_share": 0.2234,
+     "delta_top_trade_share": 0.0363,
+     "delta_days_positive": 7,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -1027.05,
+     "half1": 4813.2,
+     "half2": 629.8,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 2723.09,
+     "vs_realized": 1987.09,
+     "stop_fills": 78,
+     "delta_vs_prod": 4060.5,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1449,
+     "delta_top_trade_share": 0.0316,
+     "delta_days_positive": 10,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1073.71,
+     "half1": 2398.43,
+     "half2": 1662.07,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "PREMIUM_75": {
+    "RIBBON": {
+     "gross": -2006.9,
+     "vs_realized": -2742.9,
+     "stop_fills": 81,
+     "delta_vs_prod": 2661.65,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6470.05,
+     "delta_top_day_share": 0.1847,
+     "delta_top_trade_share": 0.03,
+     "delta_days_positive": 8,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -3808.4,
+     "half1": 3636.65,
+     "half2": -975.0,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 1505.86,
+     "vs_realized": 769.86,
+     "stop_fills": 59,
+     "delta_vs_prod": 2843.27,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": -3069.5,
+     "delta_top_day_share": 0.1233,
+     "delta_top_trade_share": 0.028,
+     "delta_days_positive": 10,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 5912.77,
+     "half1": 2063.65,
+     "half2": 779.62,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": true,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_5m": {
+    "RIBBON": {
+     "gross": 3068.0,
+     "vs_realized": 2332.0,
+     "stop_fills": 0,
+     "delta_vs_prod": 7736.55,
+     "delta_top_day": "2026-08-07",
+     "delta_top_day_value": 2950.5,
+     "delta_top_day_share": 0.1013,
+     "delta_top_trade_share": 0.0329,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 4786.05,
+     "half1": 3020.45,
+     "half2": 4716.1,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 402.0,
+     "top5_kept_frac": 0.1394
+    },
+    "SAFE": {
+     "gross": 2934.45,
+     "vs_realized": 2198.45,
+     "stop_fills": 0,
+     "delta_vs_prod": 4271.86,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": 2208.6,
+     "delta_top_day_share": 0.0995,
+     "delta_top_trade_share": 0.0245,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2063.26,
+     "half1": 431.12,
+     "half2": 3840.74,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 402.0,
+     "top5_kept_frac": 0.1394
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_10m": {
+    "RIBBON": {
+     "gross": 2510.2,
+     "vs_realized": 1774.2,
+     "stop_fills": 0,
+     "delta_vs_prod": 7178.75,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": 2248.5,
+     "delta_top_day_share": 0.0784,
+     "delta_top_trade_share": 0.0368,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 4930.25,
+     "half1": 2393.65,
+     "half2": 4785.1,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 341.0,
+     "top5_kept_frac": 0.1183
+    },
+    "SAFE": {
+     "gross": 1856.09,
+     "vs_realized": 1120.09,
+     "stop_fills": 0,
+     "delta_vs_prod": 3193.5,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": 1878.6,
+     "delta_top_day_share": 0.1,
+     "delta_top_trade_share": 0.0324,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1314.9,
+     "half1": -208.24,
+     "half2": 3401.74,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 285.38,
+     "top5_kept_frac": 0.099
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_15m": {
+    "RIBBON": {
+     "gross": 4010.1,
+     "vs_realized": 3274.1,
+     "stop_fills": 0,
+     "delta_vs_prod": 8678.65,
+     "delta_top_day": "2026-08-05",
+     "delta_top_day_value": 2495.5,
+     "delta_top_day_share": 0.0905,
+     "delta_top_trade_share": 0.0428,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 6183.15,
+     "half1": 2584.65,
+     "half2": 6094.0,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 776.0,
+     "top5_kept_frac": 0.2692
+    },
+    "SAFE": {
+     "gross": 3771.2,
+     "vs_realized": 3035.2,
+     "stop_fills": 0,
+     "delta_vs_prod": 5108.61,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": 1812.6,
+     "delta_top_day_share": 0.114,
+     "delta_top_trade_share": 0.0279,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3296.01,
+     "half1": 391.75,
+     "half2": 4716.86,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 665.38,
+     "top5_kept_frac": 0.2308
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_20m": {
+    "RIBBON": {
+     "gross": 6216.95,
+     "vs_realized": 5480.95,
+     "stop_fills": 0,
+     "delta_vs_prod": 10885.5,
+     "delta_top_day": "2026-08-05",
+     "delta_top_day_value": 3007.5,
+     "delta_top_day_share": 0.1,
+     "delta_top_trade_share": 0.0485,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 7878.0,
+     "half1": 3303.4,
+     "half2": 7582.1,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1216.0,
+     "top5_kept_frac": 0.4218
+    },
+    "SAFE": {
+     "gross": 3814.82,
+     "vs_realized": 3078.82,
+     "stop_fills": 0,
+     "delta_vs_prod": 5152.23,
+     "delta_top_day": "2026-08-14",
+     "delta_top_day_value": 2286.5,
+     "delta_top_day_share": 0.1337,
+     "delta_top_trade_share": 0.0365,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2865.73,
+     "half1": 142.75,
+     "half2": 5009.48,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 835.38,
+     "top5_kept_frac": 0.2898
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_30m": {
+    "RIBBON": {
+     "gross": 4509.95,
+     "vs_realized": 3773.95,
+     "stop_fills": 0,
+     "delta_vs_prod": 9178.5,
+     "delta_top_day": "2026-08-19",
+     "delta_top_day_value": 2555.5,
+     "delta_top_day_share": 0.0965,
+     "delta_top_trade_share": 0.0423,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 6623.0,
+     "half1": 2427.35,
+     "half2": 6751.15,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 935.0,
+     "top5_kept_frac": 0.3243
+    },
+    "SAFE": {
+     "gross": 2760.75,
+     "vs_realized": 2024.75,
+     "stop_fills": 0,
+     "delta_vs_prod": 4098.16,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 1352.79,
+     "delta_top_day_share": 0.0875,
+     "delta_top_trade_share": 0.0435,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2745.37,
+     "half1": 77.16,
+     "half2": 4021.0,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 681.38,
+     "top5_kept_frac": 0.2363
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_45m": {
+    "RIBBON": {
+     "gross": 2622.5,
+     "vs_realized": 1886.5,
+     "stop_fills": 0,
+     "delta_vs_prod": 7291.05,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 2094.3,
+     "delta_top_day_share": 0.0863,
+     "delta_top_trade_share": 0.0374,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 5196.75,
+     "half1": 4851.25,
+     "half2": 2439.8,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1956.6,
+     "top5_kept_frac": 0.6787
+    },
+    "SAFE": {
+     "gross": 3008.87,
+     "vs_realized": 2272.87,
+     "stop_fills": 0,
+     "delta_vs_prod": 4346.28,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2133.79,
+     "delta_top_day_share": 0.1205,
+     "delta_top_trade_share": 0.0367,
+     "delta_days_positive": 11,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2212.49,
+     "half1": 2907.53,
+     "half2": 1438.75,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1250.88,
+     "top5_kept_frac": 0.4339
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_60m": {
+    "RIBBON": {
+     "gross": 667.15,
+     "vs_realized": -68.85,
+     "stop_fills": 0,
+     "delta_vs_prod": 5335.7,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 3168.0,
+     "delta_top_day_share": 0.1258,
+     "delta_top_trade_share": 0.0335,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2167.7,
+     "half1": 4731.7,
+     "half2": 604.0,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2300.6,
+     "top5_kept_frac": 0.798
+    },
+    "SAFE": {
+     "gross": 2880.12,
+     "vs_realized": 2144.12,
+     "stop_fills": 0,
+     "delta_vs_prod": 4217.53,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1531,
+     "delta_top_trade_share": 0.0333,
+     "delta_days_positive": 11,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1230.74,
+     "half1": 3338.78,
+     "half2": 878.75,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TIME_90m": {
+    "RIBBON": {
+     "gross": 3539.95,
+     "vs_realized": 2803.95,
+     "stop_fills": 0,
+     "delta_vs_prod": 8208.5,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6443.05,
+     "delta_top_day_share": 0.1945,
+     "delta_top_trade_share": 0.0363,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1765.45,
+     "half1": 8688.65,
+     "half2": -480.15,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 933.49,
+     "vs_realized": 197.49,
+     "stop_fills": 0,
+     "delta_vs_prod": 2270.9,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1239,
+     "delta_top_trade_share": 0.0294,
+     "delta_days_positive": 10,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -715.89,
+     "half1": 2811.03,
+     "half2": -540.13,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TRAIL_10": {
+    "RIBBON": {
+     "gross": -2073.8,
+     "vs_realized": -2809.8,
+     "stop_fills": 183,
+     "delta_vs_prod": 2594.75,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": -2965.1,
+     "delta_top_day_share": 0.1024,
+     "delta_top_trade_share": 0.0356,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 5559.85,
+     "half1": -304.45,
+     "half2": 2899.2,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": -182.4,
+     "top5_kept_frac": -0.0633
+    },
+    "SAFE": {
+     "gross": -2010.08,
+     "vs_realized": -2746.08,
+     "stop_fills": 179,
+     "delta_vs_prod": -672.67,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": -2127.06,
+     "delta_top_day_share": 0.0984,
+     "delta_top_trade_share": 0.0262,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1454.39,
+     "half1": -2696.51,
+     "half2": 2023.84,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": -182.4,
+     "top5_kept_frac": -0.0633
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": false
+   },
+   "TRAIL_15": {
+    "RIBBON": {
+     "gross": 535.65,
+     "vs_realized": -200.35,
+     "stop_fills": 180,
+     "delta_vs_prod": 5204.2,
+     "delta_top_day": "2026-08-05",
+     "delta_top_day_value": 2243.75,
+     "delta_top_day_share": 0.0777,
+     "delta_top_trade_share": 0.0369,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2960.45,
+     "half1": 1702.85,
+     "half2": 3501.35,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 495.4,
+     "top5_kept_frac": 0.1718
+    },
+    "SAFE": {
+     "gross": 287.83,
+     "vs_realized": -448.17,
+     "stop_fills": 165,
+     "delta_vs_prod": 1625.24,
+     "delta_top_day": "2026-08-12",
+     "delta_top_day_value": 1635.6,
+     "delta_top_day_share": 0.0789,
+     "delta_top_trade_share": 0.0298,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -10.36,
+     "half1": -1058.7,
+     "half2": 2683.94,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 241.78,
+     "top5_kept_frac": 0.0839
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TRAIL_20": {
+    "RIBBON": {
+     "gross": 2371.4,
+     "vs_realized": 1635.4,
+     "stop_fills": 171,
+     "delta_vs_prod": 7039.95,
+     "delta_top_day": "2026-08-06",
+     "delta_top_day_value": -2102.7,
+     "delta_top_day_share": 0.0765,
+     "delta_top_trade_share": 0.0406,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 9142.65,
+     "half1": 3292.65,
+     "half2": 3747.3,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1639.8,
+     "top5_kept_frac": 0.5688
+    },
+    "SAFE": {
+     "gross": 1543.88,
+     "vs_realized": 807.88,
+     "stop_fills": 150,
+     "delta_vs_prod": 2881.29,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1663.1,
+     "delta_top_day_share": 0.0875,
+     "delta_top_trade_share": 0.0352,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 1218.19,
+     "half1": 462.55,
+     "half2": 2418.74,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 934.08,
+     "top5_kept_frac": 0.324
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TRAIL_25": {
+    "RIBBON": {
+     "gross": 4974.4,
+     "vs_realized": 4238.4,
+     "stop_fills": 159,
+     "delta_vs_prod": 9642.95,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 2399.05,
+     "delta_top_day_share": 0.0937,
+     "delta_top_trade_share": 0.0456,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 7243.9,
+     "half1": 4743.05,
+     "half2": 4899.9,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1588.6,
+     "top5_kept_frac": 0.551
+    },
+    "SAFE": {
+     "gross": 3511.4,
+     "vs_realized": 2775.4,
+     "stop_fills": 132,
+     "delta_vs_prod": 4848.81,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1525.25,
+     "delta_top_day_share": 0.0938,
+     "delta_top_trade_share": 0.0443,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3323.56,
+     "half1": 2260.92,
+     "half2": 2587.89,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 882.88,
+     "top5_kept_frac": 0.3062
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TRAIL_30": {
+    "RIBBON": {
+     "gross": 7352.75,
+     "vs_realized": 6616.75,
+     "stop_fills": 149,
+     "delta_vs_prod": 12021.3,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 3792.75,
+     "delta_top_day_share": 0.1399,
+     "delta_top_trade_share": 0.0398,
+     "delta_days_positive": 18,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 8228.55,
+     "half1": 7174.7,
+     "half2": 4846.6,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1677.4,
+     "top5_kept_frac": 0.5818
+    },
+    "SAFE": {
+     "gross": 3160.44,
+     "vs_realized": 2424.44,
+     "stop_fills": 124,
+     "delta_vs_prod": 4497.85,
+     "delta_top_day": "2026-08-13",
+     "delta_top_day_value": 1387.4,
+     "delta_top_day_share": 0.0866,
+     "delta_top_trade_share": 0.0394,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3110.45,
+     "half1": 1663.67,
+     "half2": 2834.18,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 971.68,
+     "top5_kept_frac": 0.337
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "TRAIL_40": {
+    "RIBBON": {
+     "gross": 5120.0,
+     "vs_realized": 4384.0,
+     "stop_fills": 140,
+     "delta_vs_prod": 9788.55,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6312.85,
+     "delta_top_day_share": 0.2415,
+     "delta_top_trade_share": 0.0458,
+     "delta_days_positive": 17,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3475.7,
+     "half1": 7170.15,
+     "half2": 2618.4,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1559.8,
+     "top5_kept_frac": 0.541
+    },
+    "SAFE": {
+     "gross": 2360.48,
+     "vs_realized": 1624.48,
+     "stop_fills": 111,
+     "delta_vs_prod": 3697.89,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1836,
+     "delta_top_trade_share": 0.046,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 711.1,
+     "half1": 1648.14,
+     "half2": 2049.75,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 854.08,
+     "top5_kept_frac": 0.2962
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "SPYMOVE_$0.40": {
+    "RIBBON": {
+     "gross": -2054.6,
+     "vs_realized": -2790.6,
+     "stop_fills": 163,
+     "delta_vs_prod": 2613.95,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": -3173.4,
+     "delta_top_day_share": 0.1553,
+     "delta_top_trade_share": 0.0493,
+     "delta_days_positive": 19,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 5787.35,
+     "half1": -1589.9,
+     "half2": 4203.85,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": -66.0,
+     "top5_kept_frac": -0.0229
+    },
+    "SAFE": {
+     "gross": -1396.36,
+     "vs_realized": -2132.36,
+     "stop_fills": 162,
+     "delta_vs_prod": -58.95,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": -2402.76,
+     "delta_top_day_share": 0.1399,
+     "delta_top_trade_share": 0.0326,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2343.81,
+     "half1": -1776.33,
+     "half2": 1717.38,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": -66.0,
+     "top5_kept_frac": -0.0229
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": false
+   },
+   "SPYMOVE_$0.60": {
+    "RIBBON": {
+     "gross": 4671.65,
+     "vs_realized": 3935.65,
+     "stop_fills": 134,
+     "delta_vs_prod": 9340.2,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 5143.05,
+     "delta_top_day_share": 0.2107,
+     "delta_top_trade_share": 0.0431,
+     "delta_days_positive": 18,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 4197.15,
+     "half1": 5316.5,
+     "half2": 4023.7,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1165.6,
+     "top5_kept_frac": 0.4043
+    },
+    "SAFE": {
+     "gross": 1629.67,
+     "vs_realized": 893.67,
+     "stop_fills": 127,
+     "delta_vs_prod": 2967.08,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2276.03,
+     "delta_top_day_share": 0.1393,
+     "delta_top_trade_share": 0.0343,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 691.05,
+     "half1": 1310.71,
+     "half2": 1656.37,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 713.5,
+     "top5_kept_frac": 0.2475
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "SPYMOVE_$0.80": {
+    "RIBBON": {
+     "gross": 5404.05,
+     "vs_realized": 4668.05,
+     "stop_fills": 117,
+     "delta_vs_prod": 10072.6,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 5167.05,
+     "delta_top_day_share": 0.1884,
+     "delta_top_trade_share": 0.0383,
+     "delta_days_positive": 16,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 4905.55,
+     "half1": 5921.15,
+     "half2": 4151.45,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1165.6,
+     "top5_kept_frac": 0.4043
+    },
+    "SAFE": {
+     "gross": 3887.41,
+     "vs_realized": 3151.41,
+     "stop_fills": 105,
+     "delta_vs_prod": 5224.82,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2276.03,
+     "delta_top_day_share": 0.1254,
+     "delta_top_trade_share": 0.0309,
+     "delta_days_positive": 15,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2948.79,
+     "half1": 1994.95,
+     "half2": 3229.87,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 713.5,
+     "top5_kept_frac": 0.2475
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "SPYMOVE_$1.00": {
+    "RIBBON": {
+     "gross": 3791.9,
+     "vs_realized": 3055.9,
+     "stop_fills": 101,
+     "delta_vs_prod": 8460.45,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 5167.05,
+     "delta_top_day_share": 0.1863,
+     "delta_top_trade_share": 0.0379,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3293.4,
+     "half1": 5669.0,
+     "half2": 2791.45,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2172.95,
+     "top5_kept_frac": 0.7537
+    },
+    "SAFE": {
+     "gross": 4473.41,
+     "vs_realized": 3737.41,
+     "stop_fills": 82,
+     "delta_vs_prod": 5810.82,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2276.03,
+     "delta_top_day_share": 0.1215,
+     "delta_top_trade_share": 0.0271,
+     "delta_days_positive": 14,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3534.79,
+     "half1": 2403.45,
+     "half2": 3407.37,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1273.5,
+     "top5_kept_frac": 0.4417
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "SPYMOVE_$1.50": {
+    "RIBBON": {
+     "gross": 5158.9,
+     "vs_realized": 4422.9,
+     "stop_fills": 68,
+     "delta_vs_prod": 9827.45,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6470.05,
+     "delta_top_day_share": 0.2171,
+     "delta_top_trade_share": 0.0353,
+     "delta_days_positive": 11,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 3357.4,
+     "half1": 8574.2,
+     "half2": 1253.25,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 4079.74,
+     "vs_realized": 3343.74,
+     "stop_fills": 55,
+     "delta_vs_prod": 5417.15,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1517,
+     "delta_top_trade_share": 0.0258,
+     "delta_days_positive": 13,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 2430.36,
+     "half1": 3083.78,
+     "half2": 2333.37,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "SPYMOVE_$2.00": {
+    "RIBBON": {
+     "gross": 122.9,
+     "vs_realized": -613.1,
+     "stop_fills": 52,
+     "delta_vs_prod": 4791.45,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 6470.05,
+     "delta_top_day_share": 0.1907,
+     "delta_top_trade_share": 0.031,
+     "delta_days_positive": 10,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -1678.6,
+     "half1": 6408.2,
+     "half2": -1616.75,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": 36.74,
+     "vs_realized": -699.26,
+     "stop_fills": 46,
+     "delta_vs_prod": 1374.15,
+     "delta_top_day": "2026-08-04",
+     "delta_top_day_value": 2986.79,
+     "delta_top_day_share": 0.1292,
+     "delta_top_trade_share": 0.0353,
+     "delta_days_positive": 12,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -1612.64,
+     "half1": 907.78,
+     "half2": 466.37,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "STRUCTURE+cap50": {
+    "RIBBON": {
+     "gross": -4668.55,
+     "vs_realized": -5404.55,
+     "stop_fills": 146,
+     "delta_vs_prod": 0.0,
+     "delta_top_day": "2026-07-13",
+     "delta_top_day_value": 0.0,
+     "delta_top_day_share": null,
+     "delta_top_trade_share": null,
+     "delta_days_positive": 0,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 0.0,
+     "half1": 0.0,
+     "half2": 0.0,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": -1337.41,
+     "vs_realized": -2073.41,
+     "stop_fills": 125,
+     "delta_vs_prod": 0.0,
+     "delta_top_day": "2026-07-13",
+     "delta_top_day_value": 0.0,
+     "delta_top_day_share": null,
+     "delta_top_trade_share": null,
+     "delta_days_positive": 0,
+     "delta_days_total": 25,
+     "delta_drop_best_day": 0.0,
+     "half1": 0.0,
+     "half2": 0.0,
+     "halves_agree_sign": true,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": true
+   },
+   "STRUCTURE+cap75": {
+    "RIBBON": {
+     "gross": -4440.1,
+     "vs_realized": -5176.1,
+     "stop_fills": 134,
+     "delta_vs_prod": 228.45,
+     "delta_top_day": "2026-08-17",
+     "delta_top_day_value": 1135.7,
+     "delta_top_day_share": 0.313,
+     "delta_top_trade_share": 0.2204,
+     "delta_days_positive": 5,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -907.25,
+     "half1": -427.5,
+     "half2": 655.95,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 2755.95,
+     "top5_kept_frac": 0.9559
+    },
+    "SAFE": {
+     "gross": -1879.16,
+     "vs_realized": -2615.16,
+     "stop_fills": 118,
+     "delta_vs_prod": -541.75,
+     "delta_top_day": "2026-08-17",
+     "delta_top_day_value": 756.0,
+     "delta_top_day_share": 0.3432,
+     "delta_top_trade_share": 0.2306,
+     "delta_days_positive": 2,
+     "delta_days_total": 25,
+     "delta_drop_best_day": -1297.75,
+     "half1": -729.5,
+     "half2": 187.75,
+     "halves_agree_sign": false,
+     "top5_realized_winner_dollars": 2883.0,
+     "top5_in_this_cell": 1602.88,
+     "top5_kept_frac": 0.556
+    },
+    "shape_flip_fragile": false,
+    "delta_sign_agrees_across_shapes": false
+   }
+  },
+  "FULL": {
+   "NO_STOP (15:40 time stop only)": {
+    "RIBBON": {
+     "gross": -13169.46,
+     "vs_realized": -11364.46,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -15549.99,
+     "vs_realized": -13744.99,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_10": {
+    "RIBBON": {
+     "gross": -4644.85,
+     "vs_realized": -2839.85,
+     "stop_fills": 283,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1062.1,
+     "top5_kept_frac": 0.3015
+    },
+    "SAFE": {
+     "gross": -3111.69,
+     "vs_realized": -1306.69,
+     "stop_fills": 262,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 554.86,
+     "top5_kept_frac": 0.1575
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_15": {
+    "RIBBON": {
+     "gross": -2364.85,
+     "vs_realized": -559.85,
+     "stop_fills": 271,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2340.0,
+     "top5_kept_frac": 0.6642
+    },
+    "SAFE": {
+     "gross": -2691.82,
+     "vs_realized": -886.82,
+     "stop_fills": 247,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1380.66,
+     "top5_kept_frac": 0.3919
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_20": {
+    "RIBBON": {
+     "gross": 273.7,
+     "vs_realized": 2078.7,
+     "stop_fills": 260,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2288.8,
+     "top5_kept_frac": 0.6497
+    },
+    "SAFE": {
+     "gross": -2231.88,
+     "vs_realized": -426.88,
+     "stop_fills": 234,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1329.46,
+     "top5_kept_frac": 0.3774
+    },
+    "shape_flip_fragile": true
+   },
+   "PREMIUM_25": {
+    "RIBBON": {
+     "gross": -76.55,
+     "vs_realized": 1728.45,
+     "stop_fills": 251,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2237.6,
+     "top5_kept_frac": 0.6351
+    },
+    "SAFE": {
+     "gross": -2793.0,
+     "vs_realized": -988.0,
+     "stop_fills": 219,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1278.26,
+     "top5_kept_frac": 0.3628
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_30": {
+    "RIBBON": {
+     "gross": -1621.8,
+     "vs_realized": 183.2,
+     "stop_fills": 244,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2186.4,
+     "top5_kept_frac": 0.6206
+    },
+    "SAFE": {
+     "gross": -3934.57,
+     "vs_realized": -2129.57,
+     "stop_fills": 210,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1227.06,
+     "top5_kept_frac": 0.3483
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_40": {
+    "RIBBON": {
+     "gross": -879.45,
+     "vs_realized": 925.55,
+     "stop_fills": 222,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2084.0,
+     "top5_kept_frac": 0.5915
+    },
+    "SAFE": {
+     "gross": -3835.85,
+     "vs_realized": -2030.85,
+     "stop_fills": 185,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1124.66,
+     "top5_kept_frac": 0.3192
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_50": {
+    "RIBBON": {
+     "gross": -2717.3,
+     "vs_realized": -912.3,
+     "stop_fills": 204,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -5856.51,
+     "vs_realized": -4051.51,
+     "stop_fills": 167,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_60": {
+    "RIBBON": {
+     "gross": -8694.44,
+     "vs_realized": -6889.44,
+     "stop_fills": 190,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -9204.45,
+     "vs_realized": -7399.45,
+     "stop_fills": 150,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   },
+   "PREMIUM_75": {
+    "RIBBON": {
+     "gross": -10498.89,
+     "vs_realized": -8693.89,
+     "stop_fills": 155,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -10835.62,
+     "vs_realized": -9030.62,
+     "stop_fills": 119,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_5m": {
+    "RIBBON": {
+     "gross": 838.01,
+     "vs_realized": 2643.01,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 392.0,
+     "top5_kept_frac": 0.1113
+    },
+    "SAFE": {
+     "gross": 1010.33,
+     "vs_realized": 2815.33,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 392.0,
+     "top5_kept_frac": 0.1113
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_10m": {
+    "RIBBON": {
+     "gross": -665.79,
+     "vs_realized": 1139.21,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 461.0,
+     "top5_kept_frac": 0.1309
+    },
+    "SAFE": {
+     "gross": -472.78,
+     "vs_realized": 1332.22,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 405.38,
+     "top5_kept_frac": 0.1151
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_15m": {
+    "RIBBON": {
+     "gross": -554.49,
+     "vs_realized": 1250.51,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1151.0,
+     "top5_kept_frac": 0.3267
+    },
+    "SAFE": {
+     "gross": -56.17,
+     "vs_realized": 1748.83,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1040.38,
+     "top5_kept_frac": 0.2953
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_20m": {
+    "RIBBON": {
+     "gross": 1852.36,
+     "vs_realized": 3657.36,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1661.0,
+     "top5_kept_frac": 0.4715
+    },
+    "SAFE": {
+     "gross": -1140.42,
+     "vs_realized": 664.58,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1230.76,
+     "top5_kept_frac": 0.3493
+    },
+    "shape_flip_fragile": true
+   },
+   "TIME_30m": {
+    "RIBBON": {
+     "gross": -3525.79,
+     "vs_realized": -1720.79,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1584.0,
+     "top5_kept_frac": 0.4496
+    },
+    "SAFE": {
+     "gross": -6379.99,
+     "vs_realized": -4574.99,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1076.76,
+     "top5_kept_frac": 0.3056
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_45m": {
+    "RIBBON": {
+     "gross": -6953.44,
+     "vs_realized": -5148.44,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2605.6,
+     "top5_kept_frac": 0.7396
+    },
+    "SAFE": {
+     "gross": -7861.37,
+     "vs_realized": -6056.37,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1646.26,
+     "top5_kept_frac": 0.4673
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_60m": {
+    "RIBBON": {
+     "gross": -9832.59,
+     "vs_realized": -8027.59,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2949.6,
+     "top5_kept_frac": 0.8372
+    },
+    "SAFE": {
+     "gross": -8639.12,
+     "vs_realized": -6834.12,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   },
+   "TIME_90m": {
+    "RIBBON": {
+     "gross": -7457.39,
+     "vs_realized": -5652.39,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -11722.75,
+     "vs_realized": -9917.75,
+     "stop_fills": 0,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   },
+   "TRAIL_10": {
+    "RIBBON": {
+     "gross": -3882.59,
+     "vs_realized": -2077.59,
+     "stop_fills": 303,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": -125.9,
+     "top5_kept_frac": -0.0357
+    },
+    "SAFE": {
+     "gross": -3851.47,
+     "vs_realized": -2046.47,
+     "stop_fills": 295,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": -125.9,
+     "top5_kept_frac": -0.0357
+    },
+    "shape_flip_fragile": false
+   },
+   "TRAIL_15": {
+    "RIBBON": {
+     "gross": -1622.04,
+     "vs_realized": 182.96,
+     "stop_fills": 299,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 510.15,
+     "top5_kept_frac": 0.1448
+    },
+    "SAFE": {
+     "gross": -2233.51,
+     "vs_realized": -428.51,
+     "stop_fills": 279,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 256.53,
+     "top5_kept_frac": 0.0728
+    },
+    "shape_flip_fragile": false
+   },
+   "TRAIL_20": {
+    "RIBBON": {
+     "gross": -464.99,
+     "vs_realized": 1340.01,
+     "stop_fills": 289,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1612.8,
+     "top5_kept_frac": 0.4578
+    },
+    "SAFE": {
+     "gross": -1693.54,
+     "vs_realized": 111.46,
+     "stop_fills": 261,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 907.08,
+     "top5_kept_frac": 0.2575
+    },
+    "shape_flip_fragile": false
+   },
+   "TRAIL_25": {
+    "RIBBON": {
+     "gross": 6257.41,
+     "vs_realized": 8062.41,
+     "stop_fills": 271,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2237.6,
+     "top5_kept_frac": 0.6351
+    },
+    "SAFE": {
+     "gross": 2225.41,
+     "vs_realized": 4030.41,
+     "stop_fills": 235,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1278.26,
+     "top5_kept_frac": 0.3628
+    },
+    "shape_flip_fragile": false
+   },
+   "TRAIL_30": {
+    "RIBBON": {
+     "gross": 6635.91,
+     "vs_realized": 8440.91,
+     "stop_fills": 261,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2326.4,
+     "top5_kept_frac": 0.6603
+    },
+    "SAFE": {
+     "gross": 150.4,
+     "vs_realized": 1955.4,
+     "stop_fills": 226,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1367.06,
+     "top5_kept_frac": 0.388
+    },
+    "shape_flip_fragile": false
+   },
+   "TRAIL_40": {
+    "RIBBON": {
+     "gross": 1393.06,
+     "vs_realized": 3198.06,
+     "stop_fills": 248,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2208.8,
+     "top5_kept_frac": 0.627
+    },
+    "SAFE": {
+     "gross": -4094.06,
+     "vs_realized": -2289.06,
+     "stop_fills": 210,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1249.46,
+     "top5_kept_frac": 0.3547
+    },
+    "shape_flip_fragile": true
+   },
+   "SPYMOVE_$0.40": {
+    "RIBBON": {
+     "gross": 1822.26,
+     "vs_realized": 3627.26,
+     "stop_fills": 258,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 583.0,
+     "top5_kept_frac": 0.1655
+    },
+    "SAFE": {
+     "gross": -322.35,
+     "vs_realized": 1482.65,
+     "stop_fills": 255,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 329.38,
+     "top5_kept_frac": 0.0935
+    },
+    "shape_flip_fragile": true
+   },
+   "SPYMOVE_$0.60": {
+    "RIBBON": {
+     "gross": 6894.91,
+     "vs_realized": 8699.91,
+     "stop_fills": 222,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1814.6,
+     "top5_kept_frac": 0.5151
+    },
+    "SAFE": {
+     "gross": 1830.43,
+     "vs_realized": 3635.43,
+     "stop_fills": 206,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1108.88,
+     "top5_kept_frac": 0.3148
+    },
+    "shape_flip_fragile": false
+   },
+   "SPYMOVE_$0.80": {
+    "RIBBON": {
+     "gross": 4807.76,
+     "vs_realized": 6612.76,
+     "stop_fills": 191,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1814.6,
+     "top5_kept_frac": 0.5151
+    },
+    "SAFE": {
+     "gross": 1217.42,
+     "vs_realized": 3022.42,
+     "stop_fills": 169,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1108.88,
+     "top5_kept_frac": 0.3148
+    },
+    "shape_flip_fragile": false
+   },
+   "SPYMOVE_$1.00": {
+    "RIBBON": {
+     "gross": -478.39,
+     "vs_realized": 1326.61,
+     "stop_fills": 172,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 2821.95,
+     "top5_kept_frac": 0.801
+    },
+    "SAFE": {
+     "gross": -1127.58,
+     "vs_realized": 677.42,
+     "stop_fills": 144,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1668.88,
+     "top5_kept_frac": 0.4737
+    },
+    "shape_flip_fragile": false
+   },
+   "SPYMOVE_$1.50": {
+    "RIBBON": {
+     "gross": 2280.36,
+     "vs_realized": 4085.36,
+     "stop_fills": 117,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -2340.0,
+     "vs_realized": -535.0,
+     "stop_fills": 98,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": true
+   },
+   "SPYMOVE_$2.00": {
+    "RIBBON": {
+     "gross": -4981.84,
+     "vs_realized": -3176.84,
+     "stop_fills": 90,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 3404.95,
+     "top5_kept_frac": 0.9665
+    },
+    "SAFE": {
+     "gross": -8728.87,
+     "vs_realized": -6923.87,
+     "stop_fills": 78,
+     "top5_realized_winner_dollars": 3523.0,
+     "top5_in_this_cell": 1998.26,
+     "top5_kept_frac": 0.5672
+    },
+    "shape_flip_fragile": false
+   }
+  }
+ },
+ "realized_day_concentration": {
+  "n_days": 35,
+  "total": -1805.0,
+  "top5_days": [
+   [
+    "2026-08-04",
+    3624.0
+   ],
+   [
+    "2026-08-07",
+    -2687.0
+   ],
+   [
+    "2026-08-05",
+    -1935.0
+   ],
+   [
+    "2026-08-14",
+    -1837.0
+   ],
+   [
+    "2026-08-13",
+    1748.0
+   ]
+  ],
+  "top_day_share_of_abs": 0.1645,
+  "days_positive": 12
+ },
+ "realized_right_tail": {
+  "winner_dollars": 15684.0,
+  "top5_share_of_winner_dollars": 0.2246,
+  "top5": [
+   {
+    "date": "2026-08-06",
+    "arm": "risky-3",
+    "symbol": "SPY260806P00770000",
+    "pnl": 830.0,
+    "exit_stage": "tp1",
+    "mfe_pct": 1.007812
+   },
+   {
+    "date": "2026-08-04",
+    "arm": "risky-3",
+    "symbol": "SPY260804C00769000",
+    "pnl": 788.0,
+    "exit_stage": "tp1",
+    "mfe_pct": 2.227273
+   },
+   {
+    "date": "2026-08-04",
+    "arm": "risky-1",
+    "symbol": "SPY260804C00769000",
+    "pnl": 651.0,
+    "exit_stage": "tp1",
+    "mfe_pct": 2.203008
+   },
+   {
+    "date": "2026-08-04",
+    "arm": "risky-1",
+    "symbol": "SPY260804C00763000",
+    "pnl": 640.0,
+    "exit_stage": "tp1",
+    "mfe_pct": 2.611511
+   },
+   {
+    "date": "2026-08-04",
+    "arm": "bold-2",
+    "symbol": "SPY260804C00763000",
+    "pnl": 614.0,
+    "exit_stage": "tp1",
+    "mfe_pct": 1.173913
+   }
+  ]
+ }
+}
