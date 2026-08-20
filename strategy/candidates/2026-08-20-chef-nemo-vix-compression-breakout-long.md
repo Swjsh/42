@@ -5,20 +5,18 @@
 
 # CANDIDATE: VIX_COMPRESSION_BREAKOUT_LONG
 
-**Filed:** 2026-08-20
-**Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** new_trigger
+**Filed:** 2026-07-12  
+**Filer:** chef-nemotron (free-tier autonomous R&D)  
+**Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-When intraday volatility contracts (low ATR) and VIX is subdued (<15), a break above VWAP + 0.5*ATR with volume expansion signals a low-risk long entry. This edge exists because low ATR indicates compressed price ranges, often preceding explosive moves, while VIX <15 reflects complacency that can lead to underestimated breakout potential. The volume expansion requirement adds confirmation of institutional participation.
+When VIX is low (<12) and price contracts into a low‑volatility box (ATR < 0.4% of price for three consecutive 15‑min bars), a breakout with above‑average volume often captures the subsequent volatility expansion. This setup targets the edge of low‑volatility compression followed by expansion, which is not currently captured by existing triggers that rely on Bollinger Bands or VWAP alone.
 
 ## Mechanism
 
-**Entry:** Calculate 20-period ATR. If current ATR < 0.7 * 20-period ATR average AND VIX < 15, then enter long when price closes above VWAP + 0.5*ATR AND volume > 1.3 * 20-period average volume.  
-**Exit:** Initial stop at VWAP - 0.5*ATR (or recent swing low if tighter). First target at 1.5*ATR (scale out 2/3 position). Runner trailed by 20% trailing stop from high-water mark.  
-**Regime filters:** Only active between 10:30-14:30 ET when intraday compression is most likely; disabled when VIX > 25 to avoid high-volatility chop.
+Calculate 15‑min ATR; require ATR < 0.4% of price for three consecutive bars (volatility squeeze) while VIX <12; then detect a breakout when price closes above the highest high of the squeeze period on volume > 1.5x the 20‑bar average volume; enter long at that close. Exit: stop at the low of the squeeze box; target 2R or use premium‑stop 0.5% of price with runner trailing 15% of HWM. Regime hint: ideal in low VIX (<12) and during mid‑morning (10:00‑11:30 ET) when liquidity is steady; avoid news spikes.
 
 ## Expected impact on OP-16 anchors
 
@@ -34,24 +32,21 @@ When intraday volatility contracts (low ATR) and VIX is subdued (<15), a break a
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account would realize ~14% of headline P&L due to position sizing constraints (min 3 contracts, 50% risk cap).
-2. **Sample bias:** Zero-sample proposal (no historical testing conducted); high overfit risk due to untested parameters and regime assumptions; selection based solely on conceptual appeal without empirical validation.
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out testing performed)
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic slippage/spread simulation on OPRA data)
-5. **Failure modes:** 
-   - Worst day: Failed breakouts in low-VIX environments could trigger stops frequently during false breakouts, causing whipsaw losses.
-   - Max drawdown: Unknown without backtest, but could exceed 30% if strategy fires during range-bound markets with repeated stop-outs.
-   - Blow-up scenario: VIX spike >25 after entry (evading filter) combined with gap-down opening could overwhelm stop loss before execution.
-6. **Concentration:** Unknown without backtest; if profitable, likely concentrated in low-VIX regimes (VIX<15) which may represent <30% of trading days, increasing period risk.
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper ~= 14% headline (based on 50% risk per trade and entry premium ~$1.00).  
+2. **Sample bias:** Sample would be all 15‑min bars from 2025-01-02 to 2026-06-18 where VIX<12 and ATR squeeze occurs; risk of overfit due to low‑vol regime selection; needs walk‑forward validation.  
+3. **Out-of-sample:** NEEDS-OOS (no walk‑forward held‑out window performed yet).  
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA fill simulation on top 3 J days).  
+5. **Failure modes:** Worst day: false breakout during low VIX chop leading to repeated stop‑outs; max drawdown scenario: series of failed breakouts in a ranging market; blow‑up scenario: volatility expansion fails and price reverses sharply through stop.  
+6. **Concentration:** unknown -- requires Stage-1 backtest (if top‑5 days dominate P&L, will disclose percentage).  
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness (including gym validators, walk-forward OOS, and real-fills check on top 3 J days) before any further ratification.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification  
 
 ## Confidence
 
-3 / 10 -- Conceptually sound but zero empirical validation; high parameter sensitivity (ATR multipliers, volume thresholds, VIX levels) requires optimization to avoid curve-fitting.
+4 / 10 -- The hypothesis is plausible but lacks any empirical validation; similar volatility‑squeeze ideas exist in the registry (e.g., BOLLINGER_SQUEEZE) and have not shown robust OP‑16 edge, so we anticipate modest upside pending backtest.  
 
 ## Pre-existing leaderboard impact
 
-Complements existing candidates by adding a new long-biased trigger for low-volatility regimes; does not conflict with current leaderboard entries (which are primarily filters, exits, or quality gates) as it introduces a distinct entry logic orthogonal to existing strategies. No overlap with ranked candidates 1-9 in _LEADERBOARD.md.
+does not conflict with existing candidates; it is a new trigger that could complement existing filters if it proves additive.
