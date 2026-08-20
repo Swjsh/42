@@ -32,6 +32,15 @@ if ($isWeekday -and $marketOpen) {
 }
 
 Add-Content -Path $log -Value ("[" + (Get-Date -Format o) + "] START engine-stress-swarm batch (ET " + $etNow.ToString("HH:mm") + ")")
-# One bounded batch per fire. Full variant grid for the richest overnight coverage.
-& $py $harness --seeds 8 --full-variants --max-minutes 25 *>> $log
+# One bounded batch per fire. BREADTH over DEPTH (2026-08-19 re-seed, J directive): a data-
+# file selection bug (sorted(glob)[-1] picking a 1-day supplement CSV over the real 63-day
+# cache) silently pinned every batch to ONE seed day for 76 consecutive fires 2026-08-10
+# onward (analysis/stress-swarm/_ledger.jsonl rows 112-187) -- 120 perturbations of a single
+# session measures robustness to PERTURBATION, not across market conditions. Fixed in
+# engine_stress_swarm.py; --seeds 15 (up from 8, was ~1-day effective) spans the full cached
+# calendar (2026-05-19..today) at roughly the SAME total run budget as the old 8-seed x
+# full-variant-grid normal (~960) by trading variant-grid depth for seed-day breadth: 15
+# seeds x 8 perturbations x 10 base variants = 1,200 runs (dropped --full-variants' extra 5
+# tuning-axis variants, kept every perturbation -- the harness's core "what if" dimension).
+& $py $harness --seeds 15 --max-minutes 25 *>> $log
 Add-Content -Path $log -Value ("[" + (Get-Date -Format o) + "] END (exit " + $LASTEXITCODE + ")")

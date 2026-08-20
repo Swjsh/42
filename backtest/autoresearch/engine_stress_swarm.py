@@ -84,14 +84,50 @@ def _et_now() -> dt.datetime:
 # ────────────────────────────────────────────────────────────────────────────
 # Data loading + diverse seed-day selection
 # ────────────────────────────────────────────────────────────────────────────
+def _pick_broadest(files: list[Path]) -> Path:
+    """Pick the FRESHEST spy_5m_{start}_{end}[...].csv -- latest filename-encoded end date
+    first (so the cache actually reaches "today"), earliest start as the tiebreak (maximize
+    coverage among equally-fresh files) -- NOT naive alphabetical-last, and NOT bare widest-
+    span-by-start either. Two distinct traps live in backtest/data right now, caught live
+    2026-08-19 testing this exact function:
+      1. sorted(glob)[-1] (alphabetical-last) picked spy_5m_2026-07-23_supplement.csv from
+         2026-08-10 onward -- a ONE-DAY patch file that string-sorts after every full-history
+         file ('07' > '05' at the year-month position) -- silently capping 76 consecutive
+         stress-swarm batches to a single seed day. See analysis/stress-swarm/_ledger.jsonl
+         rows 112-187.
+      2. Naively preferring the widest [earliest-start, latest-end] span instead picks
+         spy_5m_2024-01-18_2026-07-22.csv (628 days, 2024-01-18..2026-07-22) over the far
+         more useful spy_5m_2026-05-19_2026-08-19.csv (63 days, ..2026-08-19) -- more NOMINAL
+         span but stale by 4 weeks, missing the tail of the live trading window entirely.
+    Freshness (latest end) has to win first for this harness -- it exists to stress-test the
+    engine against conditions close to what it trades NOW. Falls back to largest-by-size if
+    no candidate parses as spy_5m_{start}_{end}[...].csv."""
+    candidates: list[tuple[str, str, Path]] = []
+    for p in files:
+        parts = p.stem.split("_")
+        if len(parts) >= 4:
+            start, end = parts[2], parts[3]
+            if len(start) == 10 and len(end) == 10 and start[4] == "-" and end[4] == "-":
+                candidates.append((start, end, p))
+    if not candidates:
+        return max(files, key=lambda p: p.stat().st_size)
+    latest_end = max(c[1] for c in candidates)
+    same_end = [c for c in candidates if c[1] == latest_end]
+    best = min(same_end, key=lambda c: c[0])
+    return best[2]
+
+
 def _load_frames() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Newest SPY/VIX 5m CSVs in backtest/data. Returns (spy, vix) with a 'date' col."""
-    spy_files = sorted(DATA.glob("spy_5m_*.csv"))
-    vix_files = sorted(DATA.glob("vix_5m_*.csv"))
+    """Broadest-coverage SPY/VIX 5m CSVs in backtest/data. Returns (spy, vix) with a 'date' col."""
+    spy_files = list(DATA.glob("spy_5m_*.csv"))
+    vix_files = list(DATA.glob("vix_5m_*.csv"))
     if not spy_files or not vix_files:
         raise FileNotFoundError(f"no spy_5m_*/vix_5m_* CSVs in {DATA}")
-    spy = pd.read_csv(spy_files[-1])
-    vix = pd.read_csv(vix_files[-1])
+    spy_path = _pick_broadest(spy_files)
+    vix_path = _pick_broadest(vix_files)
+    print(f"[stress] data: spy={spy_path.name} vix={vix_path.name}")
+    spy = pd.read_csv(spy_path)
+    vix = pd.read_csv(vix_path)
     for df in (spy, vix):
         df["date"] = df["timestamp_et"].str[:10]
     return spy, vix
@@ -431,37 +467,67 @@ def run_batch(*, n_seeds: int, full_variants: bool, max_minutes: float,
         seeds = seeds[:2]
         variants = variants[:3]
 
-    deadline = time.monotonic() + max_minutes * 60.0
-    results: list[StressResult] = []
-    n_planned = len(seeds) * len(perts) * len(variants)
-    print(f"[stress] grid: {len(seeds)} seeds x {len(perts)} perts x {len(variants)} variants = {n_planned} runs")
-
+    # Precompute each (seed, pert) window once -- cheap slicing, reused across every variant.
+    windows: dict[tuple[str, str], tuple[pd.DataFrame, pd.DataFrame]] = {}
+    valid_seeds: list[str] = []
     for seed in seeds:
         spy_w, vix_w, _ = _window_for(spy, vix, seed)
         if spy_w.empty:
             continue
+        valid_seeds.append(seed)
         for pert in perts:
-            ps, pv = _perturb_seed(spy_w, vix_w, seed, pert)
-            for variant in variants:
-                results.append(_run_one(ps, pv, seed, pert, variant))
-                if time.monotonic() > deadline:
-                    print(f"[stress] hit max-minutes after {len(results)} runs")
-                    break
-            else:
-                continue
+            windows[(seed, pert)] = _perturb_seed(spy_w, vix_w, seed, pert)
+
+    # BREADTH-FIRST run order: seed is the FASTEST-varying axis so a max-minutes cutoff
+    # trims grid DEPTH (fewer pert/variant combos) rather than grid BREADTH (fewer days).
+    # The old seed-major nesting (seed outer, pert/variant inner, single `break` on deadline)
+    # exhausted one seed's entire pert x variant grid before ever touching the next seed --
+    # exactly the failure mode that let the 2026-08-10 supplement-file bug hide for 76 fires:
+    # even with multiple seeds requested, only ever one showed up as fully processed. This
+    # ordering makes every batch degrade gracefully under a time cap instead of silently
+    # collapsing to single-day coverage.
+    plan = [(seed, pert, variant) for pert in perts for variant in variants for seed in valid_seeds]
+
+    deadline = time.monotonic() + max_minutes * 60.0
+    results: list[StressResult] = []
+    n_planned = len(plan)
+    print(f"[stress] grid: {len(valid_seeds)} seeds x {len(perts)} perts x {len(variants)} variants "
+          f"= {n_planned} runs (breadth-first: seed cycles fastest)")
+
+    for seed, pert, variant in plan:
+        ps, pv = windows[(seed, pert)]
+        results.append(_run_one(ps, pv, seed, pert, variant))
+        if time.monotonic() > deadline:
+            print(f"[stress] hit max-minutes after {len(results)}/{n_planned} runs")
             break
-        else:
-            continue
-        break
 
     ok = [r for r in results if not r.error]
     errs = [r for r in results if r.error]
+
+    # Per-day breakdown (the actual ask: don't smear a bad day into one grand average).
+    by_day: dict[str, dict] = {}
+    for r in ok:
+        d = by_day.setdefault(r.seed, {
+            "runs": 0, "total_pnl": 0.0, "trades": 0,
+            "baseline_pnl": 0.0, "baseline_runs": 0,
+        })
+        d["runs"] += 1
+        d["total_pnl"] += r.total_pnl
+        d["trades"] += r.n_trades
+        if r.perturbation == "baseline":
+            d["baseline_pnl"] += r.total_pnl
+            d["baseline_runs"] += 1
+    for d in by_day.values():
+        d["total_pnl"] = round(d["total_pnl"], 1)
+        d["baseline_pnl"] = round(d["baseline_pnl"], 1)
+
     grid_summary = {
         "runs": len(results), "ok": len(ok), "errors": len(errs),
         "total_pnl_all": round(sum(r.total_pnl for r in ok), 1),
         "trades_all": sum(r.n_trades for r in ok),
-        "seeds": seeds, "perturbations": perts, "variants": [v.name for v in variants],
+        "seeds": valid_seeds, "perturbations": perts, "variants": [v.name for v in variants],
         "err_samples": [r.error for r in errs[:3]],
+        "by_day": by_day,
     }
     anomalies = find_anomalies(results)
     swarm = swarm_evaluate(anomalies, grid_summary) if do_swarm else {"skipped": True}
@@ -505,8 +571,28 @@ def _write_report(batch: dict) -> None:
         f"- Variants: {', '.join(gs['variants'])}",
         f"- Aggregate BS-sim P&L (ranking-only): ${gs['total_pnl_all']} over {gs['trades_all']} trades",
         "",
-        f"## Anomalies surfaced: {batch['anomaly_count']}",
+        "## By day (breadth check -- is a bad total real, or one bad day smeared in?)",
     ]
+    by_day = gs.get("by_day", {})
+    if by_day:
+        n_days = len(by_day)
+        n_neg = sum(1 for d in by_day.values() if d["total_pnl"] < 0)
+        total = sum(d["total_pnl"] for d in by_day.values())
+        worst = min(by_day.items(), key=lambda kv: kv[1]["total_pnl"])
+        best = max(by_day.items(), key=lambda kv: kv[1]["total_pnl"])
+        lines.append(f"- {n_days} days sampled, {n_neg} net-negative ({round(100*n_neg/n_days, 1) if n_days else 0}%)")
+        lines.append(f"- Worst day: {worst[0]} total_pnl=${worst[1]['total_pnl']}"
+                     + (f" ({round(100*worst[1]['total_pnl']/total, 1)}% of aggregate)" if total else ""))
+        lines.append(f"- Best day: {best[0]} total_pnl=${best[1]['total_pnl']}")
+        lines.append("")
+        lines.append("| date | runs | total_pnl (full grid) | baseline_pnl (unperturbed only) |")
+        lines.append("|---|---|---|---|")
+        for d in sorted(by_day.keys()):
+            v = by_day[d]
+            lines.append(f"| {d} | {v['runs']} | ${v['total_pnl']} | ${v['baseline_pnl']} |")
+    else:
+        lines.append("_(no per-day data -- 0 seeds produced results)_")
+    lines += ["", f"## Anomalies surfaced: {batch['anomaly_count']}"]
     for a in batch["anomalies"][:20]:
         lines.append(f"- **{a.get('kind')}** seed={a.get('seed')} pert={a.get('perturbation')} "
                      f"variant={a.get('variant', a.get('best_variant',''))} "
