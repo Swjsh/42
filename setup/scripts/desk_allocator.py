@@ -120,12 +120,28 @@ def assess_futures() -> dict:
 
 
 def assess_multi_sector() -> dict:
-    wk = STATE / "weekly"
-    n = _rows(wk / "variant-daily-ledger.jsonl") + _rows(wk / "expiry-experiment-shadow-ledger.jsonl")
+    """Two lanes live here and conflating them mis-ranks the desk.
+
+    The weekly-options v1 signal IS dead (failed its random-entry null). But
+    multi-1 (Gamma_MultiCore, ~72 names, 15-min RTH shadow) is LIVE and ticking.
+    Scoring the whole desk dead_signal=True applied a -50 to a desk that is
+    actively gathering evidence -- found 2026-08-20 when the doc guard surfaced
+    the undocumented task.
+    """
+    mu, wk = STATE / "multi", STATE / "weekly"
+    n_multi = _rows(mu / "shadow-ledger.jsonl")
+    n_weekly = _rows(wk / "variant-daily-ledger.jsonl") + _rows(wk / "expiry-experiment-shadow-ledger.jsonl")
+    age = _age_h(mu / "shadow-ledger.jsonl")
+    live = age is not None and age <= STALE_H
     return {
-        "real_fills": False, "armable_unarmed": False, "dead_signal": True,
-        "progress": 0.0, "broken": [],
-        "headline": "%d shadow rows; v1 signal failed its random-entry null" % n,
+        "real_fills": False, "armable_unarmed": False,
+        # dead only if the live lane is not running; the retired weekly signal
+        # alone must not condemn the desk.
+        "dead_signal": not live,
+        "progress": min(1.0, n_multi / 20.0) if live else 0.0,
+        "broken": [] if live else ["multi/shadow-ledger.jsonl stale"],
+        "headline": "multi-1 %d shadow rows%s; weekly v1 killed (%d archived)" % (
+            n_multi, "" if live else " STALE", n_weekly),
     }
 
 

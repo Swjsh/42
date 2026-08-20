@@ -216,12 +216,19 @@ def build_desks() -> dict:
             chip = "SIM ONLY"
 
         elif did == "multi-sector":
+            # Two things live here and they are NOT the same: a LIVE multi-symbol
+            # shadow lane (multi-1, Gamma_MultiCore, ~72 names, 15-min RTH) and the
+            # RETIRED weekly-options v1 signal that failed its null. Reporting only
+            # the dead half is how this desk read as "killed" while it was ticking.
+            mu = STATE / "multi"
             wk = STATE / "weekly"
-            n_var = _rows(wk / "variant-daily-ledger.jsonl")
-            n_exp = _rows(wk / "expiry-experiment-shadow-ledger.jsonl")
-            metric = "%d shadow rows" % (n_var + n_exp)
-            sub = "v1 signal FAILED its random-entry null on every arm — nothing ships"
-            chip = "SIGNAL KILLED"
+            n_multi = _rows(mu / "shadow-ledger.jsonl")
+            n_weekly = _rows(wk / "variant-daily-ledger.jsonl") + _rows(wk / "expiry-experiment-shadow-ledger.jsonl")
+            fresh = (_age_h(mu / "shadow-ledger.jsonl") or 1e9) <= 24
+            metric = "%d multi-1 shadow rows" % n_multi
+            sub = ("multi-1 ticking (%s) · weekly v1 signal killed on its null, %d archived rows"
+                   % ("fresh" if fresh else "STALE >24h", n_weekly))
+            chip = "SHADOW" if fresh else "STALE"
 
         elif did == "prediction-markets":
             metric = "%d shadow rows" % _rows(STATE / "kalshi" / "shadow-ledger.jsonl")
