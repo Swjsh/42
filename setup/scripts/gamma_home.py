@@ -367,6 +367,60 @@ def build_answers() -> list:
         "sources": [cal_m],
     })
 
+    # 6. Is futures working? ------------------------------------------------
+    # ADDED 2026-08-20. J: "SO IS FUTURES WORKING" — the third time a state
+    # question about a lane with no home-page line forced him to ask. OP-33(e):
+    # a repeated question is a missing instrument. The readiness card above only
+    # ever covered the SPY engine; futures runs five separate lanes and none of
+    # them had a glanceable line anywhere.
+    fut = REPO / "automation" / "state" / "futures"
+    lanes, live, stale_lanes = [], 0, []
+    LANES = [
+        ("trader (fillsim)", fut / "trader" / "heartbeat.json"),
+        ("trader (broker)", fut / "trader-broker" / "heartbeat.json"),
+        ("MES mirror", fut / "shadow-progress.json"),
+        ("MES->MNQ edge3", fut / "edge3-sim-progress.json"),
+        ("SSR shadow", fut / "ssr-shadow-progress.json"),
+    ]
+    for label, path in LANES:
+        a = _age_h(path)
+        # 24h: these lanes only write during a session, so an overnight read is
+        # expected to be ~8h old. Anything past a day means it missed a session.
+        if a is not None and a <= 24:
+            live += 1
+            lanes.append("%s ok" % label)
+        else:
+            stale_lanes.append("%s %s" % (label, ("%.0fh" % a) if a is not None else "MISSING"))
+    mirror, _mm = _load_json(fut / "shadow-progress.json")
+    edge3, _em = _load_json(fut / "edge3-sim-progress.json")
+    bar = (mirror or {}).get("arming_bar", {})
+    armable = bool(bar.get("armable"))
+    detail_bits = []
+    if mirror:
+        detail_bits.append("MES mirror %s/%s round trips, %s, %s null%s" % (
+            bar.get("round_trips_have", "?"), bar.get("round_trips_needed", "?"),
+            _money(mirror.get("total_pnl_usd")),
+            "beats" if bar.get("beats_null") else "fails",
+            " -- ARMABLE" if armable else ""))
+    if edge3:
+        detail_bits.append("edge3 %s/%s trips, %s (%s/trip vs validated $%s)" % (
+            edge3.get("n_closed_round_trips", "?"), edge3.get("falsification_floor", "?"),
+            _money(edge3.get("total_pnl_usd_mnq")), _money(edge3.get("mean_pnl_usd_mnq")),
+            edge3.get("validated_oos_per_trade", "?")))
+    if stale_lanes:
+        detail_bits.append("STALE: " + ", ".join(stale_lanes))
+    answers.append({
+        "q": "Is futures working?",
+        "verdict": ("GREEN" if live == len(LANES) else "YELLOW") if live else "RED",
+        "answer": "%d of %d lanes live -- ALL shadow/sim, zero real fills" % (live, len(LANES)),
+        "detail": " · ".join(detail_bits),
+        "means": ("Running and self-scoring. MES mirror has cleared its arming bar -- that is a "
+                  "decision waiting, not a bug." if armable else
+                  "Running and self-scoring; nothing has cleared its arming bar yet."),
+        "sources": [{"path": "automation/state/futures/", "age_h": _age_h(fut / "trader" / "heartbeat.json"),
+                     "ok": live > 0}],
+    })
+
     return answers
 
 
