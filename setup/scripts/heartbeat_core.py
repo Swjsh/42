@@ -1391,6 +1391,67 @@ LADDER_LEVEL_TIED = frozenset({"level_rejection", "fhh_level_rejection", "conflu
 LEVEL_ANCHOR_TRIGGERS = frozenset(LADDER_LEVEL_TIED | {"level_reclaim", "sequence_reclaim"})
 
 
+# TRIGGER-BAR FRESHNESS (2026-08-20). On 2026-08-20 the first SIX ticks of the
+# session carried trigger_bar_et = 2026-08-19T15:50/15:55 -- YESTERDAY's closing
+# bars -- reporting spy 768.74/769.09 against a real last-closed-bar of 765.94, a
+# +$3.15 drift, with blind=False on every one of them. Nothing detected it.
+#
+# WHY THE EXISTING GUARDS DID NOT CATCH IT:
+#   * _sight_staleness_check compares against a LIVE quote but only runs when an
+#     ENTER verdict is already on the table. Those six ticks were HOLD, so it
+#     never ran -- the drift was invisible on the decision rows.
+#   * The 09:35 entry floor covers 09:30-09:34 by accident of timing, leaving the
+#     09:35 tick itself both entry-legal AND reading a yesterday bar.
+#   * Neither guard looks at the bar's TIMESTAMP. A stale bar whose price happens
+#     to sit within $1.00 of the tape passes both.
+#
+# This check is free (no REST call, no quote spend): the trigger bar's own
+# timestamp is already on every payload. A trigger bar from a PRIOR SESSION can
+# never authorize a decision about today's tape.
+TRIGGER_BAR_MAX_AGE_MIN = 20.0     # ~4 bars; generous enough for a slow feed, tight
+                                   # enough that a prior-session bar can never pass
+
+
+def _trigger_bar_stale(bar_ctx: dict, now_et=None) -> dict:
+    """Is this tick deciding on a stale trigger bar? Always safe to log verbatim.
+
+    Returns {checked, bar_et, age_min, prior_session, stale}. FAIL-CLOSED for the
+    prior-session case (that one is unambiguous) and fail-OPEN when the timestamp
+    is unparseable -- an auxiliary check must never become a new single point of
+    failure (NEVER-BLIND doctrine).
+    """
+    out = {"checked": False, "bar_et": None, "age_min": None,
+           "prior_session": False, "stale": False}
+    raw = (bar_ctx or {}).get("trigger_bar_et") or ((bar_ctx or {}).get("bar") or {}).get("timestamp_et")
+    if not raw:
+        return out
+    out["bar_et"] = str(raw)
+    try:
+        import datetime as _dt
+        s = str(raw).strip()
+        bar = _dt.datetime.fromisoformat(s)
+        if bar.tzinfo is not None:
+            bar = bar.replace(tzinfo=None)
+        now = now_et or _et_clock_now()   # the module's real DST-aware ET clock
+        if getattr(now, "tzinfo", None) is not None:
+            now = now.replace(tzinfo=None)
+        out["checked"] = True
+        out["age_min"] = round((now - bar).total_seconds() / 60.0, 2)
+        # A bar from a previous CALENDAR DAY can never describe today's tape.
+        out["prior_session"] = bar.date() < now.date()
+        out["stale"] = bool(out["prior_session"] or out["age_min"] > TRIGGER_BAR_MAX_AGE_MIN)
+    except AttributeError:
+        # A MISSING SYMBOL IS A BUG, NOT A DATA PROBLEM. The first cut of this
+        # function called a clock helper that does not exist in this module, and a
+        # broad `except Exception` swallowed the AttributeError into a silent
+        # fail-open -- the guard would have been permanently inert in production
+        # and nothing would have said so. Re-raise: wiring errors must be loud.
+        raise
+    except Exception:                            # noqa: BLE001 - fail OPEN on real parse trouble
+        return out
+    return out
+
+
 def _is_blind(bar_ctx: dict) -> bool:
     """True when the engine has NO usable key levels this tick.
 
@@ -1400,7 +1461,13 @@ def _is_blind(bar_ctx: dict) -> bool:
     absence only ever means a synthetic/partial payload, and a payload that cannot state
     what the engine can see must never be allowed to authorize an entry.
     """
-    return not (bar_ctx.get("levels_active") or [])
+    if not (bar_ctx.get("levels_active") or []):
+        return True
+    # A tick deciding on a PRIOR-SESSION bar is blind about today by definition,
+    # however many levels it can name. Only the unambiguous prior-session case
+    # feeds blindness; a merely-old bar is logged (see _trigger_bar_stale) but
+    # left to the existing age/entry gates so this cannot mass-block on a slow feed.
+    return bool(_trigger_bar_stale(bar_ctx).get("prior_session"))
 
 
 def _level_anchored(verdict: dict) -> bool:
@@ -1559,6 +1626,9 @@ def run_account(account: str, core_tick_id: str | None = None) -> dict:
            # unblocked ticks alike (it is logged independently of whether the block fired,
            # so a revoked flag still leaves the evidence trail intact).
            "blind": _is_blind(bc),
+           # Logged on EVERY row (HOLD included) so a stale-bar window is visible
+           # in the ledger without an entry having to be attempted first.
+           "bar_freshness": _trigger_bar_stale(bc),
            # LEVEL PROVENANCE (G12, 2026-07-09 night): the EXACT level the winning side's
            # entry trigger fired against -- ground truth from filters.detect_level_rejection/
            # detect_level_reclaim (backtest/lib/filters.py), threaded verbatim through

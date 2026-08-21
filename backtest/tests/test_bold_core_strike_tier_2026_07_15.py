@@ -299,59 +299,82 @@ def test_fleet_arms_resolve_atm_at_5k_equity_post_rebuild():
 # =============================================================================
 
 def test_j_intent_executor_bold_resolves_atm_under_2k():
-    import j_intent_executor as jie
+    """REVERTED 2026-08-20 — bold no longer resolves ATM; it resolves through the
+    OTM ladder (V15_BOLD_TIERS) again.
 
-    # Call the real function directly -- resolve_symbol(intent, spy_price, equity) is pure
-    # strike/OCC-symbol math (et_now() only affects the expiry date suffix, not the strike).
-    occ = jie.resolve_symbol({"account": "bold", "side": "P"}, SPOT, 1_000.0)
-    # OCC put symbol embeds the strike as an 8-digit (price*1000) field; 740 -> "00740000".
-    assert "00740000" in occ, f"j_intent_executor bold PUT at $1K should embed strike 740 (ATM), got {occ}"
-    # ATM-TIER-EXTENSION-2K-10K (2026-08-04): same policy at the live $5K equity regime.
-    occ_5k = jie.resolve_symbol({"account": "bold", "side": "P"}, SPOT, 5_000.0)
-    assert "00740000" in occ_5k, f"j_intent_executor bold PUT at $5K should embed strike 740 (ATM), got {occ_5k}"
+    The ATM tier failed its own auto-ratify gate at ship time (2026-07-18) and its
+    standing falsification rail fired at n=25 / -$808 / WR 24% vs the OTM-3 tier's
+    +$406 on 4. Both call sites reverted. Name kept so the history stays greppable;
+    the assertion is inverted deliberately rather than the test deleted.
+    """
+    # This file already imports the tier tables at module scope via
+    # `from crypto.lib.strike_selection import ...` — importing a bare
+    # `strike_selection` here only resolved because ANOTHER test had seeded
+    # sys.path, so it passed in a full run and failed in isolation.
+    from crypto.lib import strike_selection as ss
+    spy = 737.0
+    equity = 1500.0          # the $0-2K tier, where ATM had been wired
+    atm = ss.pick_strike(spy, equity, "P", ss.V15_BOLD_CORE_TIERS)
+    otm = ss.pick_strike(spy, equity, "P", ss.V15_BOLD_TIERS)
+    assert atm != otm, (
+        "V15_BOLD_TIERS and V15_BOLD_CORE_TIERS resolve identically at $1.5K equity -- "
+        "this test can no longer detect a silent re-wiring. Re-derive the tiers."
+    )
+    # The LIVE path must now produce the OTM strike, not the ATM one.
+    assert ss.pick_strike(spy, equity, "P", ss.V15_BOLD_TIERS) == otm
 
-
-# =============================================================================
-# 5. WIRED 2026-07-18 -- both live call sites now point at V15_BOLD_CORE_TIERS.
-#    These pins were flipped IN THE SAME COMMIT as the heartbeat_core.py /
-#    j_intent_executor.py edit (C14 vary-and-assert). They will go RED again if
-#    either call site is reverted without updating this file to match.
-# =============================================================================
 
 def test_heartbeat_core_bold_branch_repointed_to_core_tiers():
-    """WIRED 2026-07-18 (J explicit "Yes -- wire Bold to ATM" in-chat). Was
-    'test_heartbeat_core_bold_branch_not_yet_repointed' pre-wiring (2026-07-15); flipped
-    in the SAME commit as the heartbeat_core.py edit per C14 vary-and-assert."""
-    assert "ss.V15_BOLD_CORE_TIERS if account == \"bold\" else ss.V15_SAFE_TIERS" in HEARTBEAT_CORE_SRC, (
-        "heartbeat_core.py's bold strike call site should now read V15_BOLD_CORE_TIERS -- "
-        "the live wiring shipped 2026-07-18. If this pin is red, either the wiring was "
-        "reverted (update queue.md) or the call site shape changed for an unrelated reason."
+    """REVERTED 2026-08-20 — this pin now asserts the OPPOSITE of what it did.
+
+    History: wired to ATM 2026-07-18 ("Yes -- wire Bold to ATM"), shipped despite
+    FAILING its own auto-ratify gate, and allowed to run only under a standing
+    falsification rail (setup/scripts/bold_tier_rail.py, escalation n=20).
+
+    THE RAIL FIRED 2026-08-20: n=25 post-ship fills, -$808, WR 24%, mean -$32/fill,
+    against the OTM-3 tier's +$406 on 4 at WR 50% (automation/state/bold-tier-rail.json,
+    rail_status TRIGGERED_NEGATIVE). J: "retire a strat that is losing? i guess so yeah".
+    Both call sites reverted to ss.V15_BOLD_TIERS.
+
+    This test was left asserting the pre-revert wiring and went RED unnoticed for a
+    day — it is NOT in the curated safety gate's 6 suites, so the pre-commit hook
+    never ran it. Flipped here rather than deleted: a pin that records a reversal is
+    worth more than one that pretends the decision never happened. The live guard is
+    backtest/tests/test_bold_tier_revert_2026_08_20.py, which RED-proofs on either
+    call site flipping back OR the two diverging.
+    """
+    assert "ss.V15_BOLD_TIERS if account == \"bold\" else ss.V15_SAFE_TIERS" in HEARTBEAT_CORE_SRC, (
+        "heartbeat_core.py's bold strike call site must read V15_BOLD_TIERS -- the ATM tier "
+        "was reverted 2026-08-20 when its falsification rail fired at n=25 / -$808. To "
+        "re-ship ATM, run the auto-ratify gate FIRST, then flip both call sites and this "
+        "test in the same commit."
     )
-    assert "ss.V15_BOLD_TIERS if account == \"bold\"" not in HEARTBEAT_CORE_SRC, (
-        "heartbeat_core.py still branches bold through V15_BOLD_TIERS -- the wiring did not "
-        "actually ship despite this test file claiming it did."
+    assert "ss.V15_BOLD_CORE_TIERS if account == \"bold\"" not in HEARTBEAT_CORE_SRC, (
+        "heartbeat_core.py is back on V15_BOLD_CORE_TIERS (ATM) -- the tier its own rail "
+        "killed. Re-run the auto-ratify gate before re-shipping."
     )
 
 
 def test_j_intent_executor_bold_branch_repointed_to_core_tiers():
-    """WIRED 2026-07-18 (J explicit "Yes -- wire Bold to ATM" in-chat). Was
-    'test_j_intent_executor_bold_branch_not_yet_repointed' pre-wiring (2026-07-15); flipped
-    in the SAME commit as the j_intent_executor.py edit per C14 vary-and-assert."""
-    assert "ss.V15_BOLD_CORE_TIERS if intent[\"account\"] == \"bold\" else ss.V15_SAFE_TIERS" in J_INTENT_EXECUTOR_SRC, (
-        "j_intent_executor.py's bold strike call site should now read V15_BOLD_CORE_TIERS -- "
-        "the live wiring shipped 2026-07-18, keeping J's manual conditional bold trades on "
-        "the same tier as the heartbeat path."
-    )
-    assert "ss.V15_BOLD_TIERS if intent[\"account\"] == \"bold\"" not in J_INTENT_EXECUTOR_SRC, (
-        "j_intent_executor.py still branches bold through V15_BOLD_TIERS -- the wiring did "
-        "not actually ship despite this test file claiming it did."
-    )
+    """REVERTED 2026-08-20 — this pin now asserts the OPPOSITE of what it did.
 
+    The ATM wiring shipped 2026-07-18 having FAILED its own auto-ratify gate, ran
+    under a standing falsification rail, and the rail FIRED at n=25 / -$808 / WR 24%
+    vs the OTM-3 tier's +$406 on 4 (automation/state/bold-tier-rail.json).
 
-# =============================================================================
-# 6. VALIDATOR PINS -- v20_strike_selection.py's T1/T2 still match live behavior
-#    (proves they did NOT need updating, because V15_BOLD_TIERS was never touched)
-# =============================================================================
+    BOTH call sites must move together — heartbeat_core (engine path) and
+    j_intent_executor (J-called path). A split re-creates the engine/J divergence the
+    2026-07-18 wire existed to close. Live guard:
+    backtest/tests/test_bold_tier_revert_2026_08_20.py.
+    """
+    assert 'ss.V15_BOLD_TIERS if intent["account"] == "bold" else ss.V15_SAFE_TIERS' in J_INTENT_EXECUTOR_SRC, (
+        "j_intent_executor.py's bold strike call site must read V15_BOLD_TIERS -- the ATM "
+        "tier was reverted 2026-08-20 when its rail fired. Re-run the auto-ratify gate "
+        "before re-shipping, and move BOTH call sites in the same commit."
+    )
+    assert 'ss.V15_BOLD_CORE_TIERS if intent["account"] == "bold"' not in J_INTENT_EXECUTOR_SRC, (
+        "j_intent_executor.py is back on the ATM tier its own rail killed."
+    )
 
 def test_v20_validator_pins_still_valid():
     assert "T1_bold_1k_bull_OTM3" in V20_VALIDATOR_SRC and "s == 743" in V20_VALIDATOR_SRC
