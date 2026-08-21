@@ -1,5 +1,21 @@
 # OPUS WORKPACKAGE — finish the multi-symbol lane (2026-08-20, authored by Fable)
 
+> ## ⛔ OUTCOME (2026-08-20 night): **WP-0–4 COMPLETE. WP-4 RETURNED A NULL — THE LANE IS STOPPED.**
+>
+> 7,489 signals across 9 symbols (149× the pre-registered minimum) on the 5-minute timebase
+> with full context parity. **Fails the random-entry null at every horizon**; hit rate
+> 49.1–49.4%; only 2/9 symbols positive. Abs-move lift is positive (+7.6 to +12.6%) while
+> signed return is zero — a VOLATILITY detector, which the prereg pre-committed is **not a
+> pass** for a lane that trades long directional premium.
+>
+> **WP-5 does NOT proceed** — it was absolutely gated on a Stage-A pass. Per this document's
+> own definition of done, *“either WP-4 passes and WP-5 journals real paper round-trips, or
+> WP-4 returns null and the lane is stopped with the verdict written — both are completed
+> outcomes.”* This is the second outcome, and the programme is therefore COMPLETE.
+>
+> Verdict: [`MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md`](../../analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md)
+
+
 > **For the executing worker.** Audit behind this plan:
 > `analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20.md` — read it first. One-line
 > diagnosis: *the fork is faithful code in an unfaithful world; we copied the brain and forgot

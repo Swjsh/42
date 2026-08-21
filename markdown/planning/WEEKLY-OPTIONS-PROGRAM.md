@@ -342,6 +342,23 @@ It does not predict. Every field is a backward-looking measured fact. Ranking by
 continue or fade is an open empirical question, unproven, and the entry decision still belongs
 to the engine's own blockers.
 
+## 9e. MULTI LANE — STOPPED ON A NULL (2026-08-20 night, WP-4 verdict)
+
+> The six-WP programme ran to completion. WP-0–3 fixed the fidelity gaps (intraday identity,
+> 5m timebase, VIX/HTF/level-memory parity, named blockers). **WP-4's frozen null gate then
+> stopped the lane**: 7,489 signals / 9 symbols / all horizons FAIL, hit rate ~49%, 2 of 9
+> symbols positive. The trigger is a **volatility** detector, not a direction detector — which
+> the pre-registration pre-committed is not a pass for long directional premium.
+>
+> **Second independent confirmation** that this signal family carries no directional edge:
+> the weekly lane failed it at 1H/multi-day, this failed it at 5m/intraday with full context
+> and 16× the signals. The timeframe-mismatch excuse is now closed.
+>
+> **WP-5 (paper orders) did not proceed — correctly gated.** Nothing was ever armed.
+> What survives is the apparatus: a no-look-ahead intraday replay + random-entry null that
+> adjudicates ANY future signal on ANY symbol set in one session.
+> Verdict: [`MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md`](../../analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md)
+
 ## 9d. FIDELITY AUDIT + OPUS WORKPACKAGE (2026-08-20 night — the current marching orders)
 
 > J asked for an end-to-end audit of why the multi lane is “in its infancy, nothing going on.”

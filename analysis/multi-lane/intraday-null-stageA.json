@@ -1,0 +1,143 @@
+{
+  "stage": "A_underlying",
+  "prereg": "prereg-multi-intraday-null-2026-08-20.json",
+  "verdict": "FAIL_stop_the_lane",
+  "_verdict_rule": {
+    "_committed_in_advance": true,
+    "PASS_to_stage_B": "Stage A shows >=50 signals AND signal forward return beats the null's MAX at the headline horizon AND >= half the symbols individually show the same sign.",
+    "FAIL_stop_the_lane": "Any of: <50 signals; fails the null MAX; or the effect is carried by fewer than half the symbols. Result written as a verdict, lane stopped, machinery retained.",
+    "VOLATILITY_NOT_DIRECTION": "If absolute-move lift is significant while signed return is not, the signal is a volatility detector. That is NOT a pass -- this lane trades long directional premium only, and the weekly lane already proved that reading can be a single-symbol artifact. It would be recorded as a finding, not acted on.",
+    "what_no_result_authorizes": "Nothing here can arm live money, change SPY parameters, or alter the 10 rules. Maximum authority: permit WP-5 (paper orders behind a human-set flag)."
+  },
+  "signals_total": 7489,
+  "min_required": 50,
+  "symbols_tested": 9,
+  "symbols_with_positive_mean": 2,
+  "headline_horizon_bars": 6,
+  "per_horizon": {
+    "2": {
+      "n": 7489,
+      "mean_signed_return_pct": -0.00409,
+      "median_signed_return_pct": -0.00259,
+      "hit_rate_pct": 49.06,
+      "mean_abs_move_pct": 0.20712,
+      "baseline_abs_move_pct": 0.19243,
+      "abs_move_lift_pct": 7.63
+    },
+    "6": {
+      "n": 7489,
+      "mean_signed_return_pct": -0.00222,
+      "median_signed_return_pct": -0.00387,
+      "hit_rate_pct": 49.35,
+      "mean_abs_move_pct": 0.39663,
+      "baseline_abs_move_pct": 0.35245,
+      "abs_move_lift_pct": 12.54
+    },
+    "12": {
+      "n": 7489,
+      "mean_signed_return_pct": -0.00731,
+      "median_signed_return_pct": -0.00848,
+      "hit_rate_pct": 49.17,
+      "mean_abs_move_pct": 0.58019,
+      "baseline_abs_move_pct": 0.51529,
+      "abs_move_lift_pct": 12.59
+    }
+  },
+  "random_entry_null": {
+    "2": {
+      "draws": 40,
+      "null_mean_of_means": -0.00015,
+      "null_MAX_of_means": 0.0087
+    },
+    "6": {
+      "draws": 40,
+      "null_mean_of_means": -0.00014,
+      "null_MAX_of_means": 0.01261
+    },
+    "12": {
+      "draws": 40,
+      "null_mean_of_means": 0.00141,
+      "null_MAX_of_means": 0.02299
+    }
+  },
+  "null_gate": {
+    "2": {
+      "real": -0.00409,
+      "null_MAX": 0.0087,
+      "beats_null_MAX": false
+    },
+    "6": {
+      "real": -0.00222,
+      "null_MAX": 0.01261,
+      "beats_null_MAX": false
+    },
+    "12": {
+      "real": -0.00731,
+      "null_MAX": 0.02299,
+      "beats_null_MAX": false
+    }
+  },
+  "per_symbol_headline": {
+    "NVDA": {
+      "n": 1079,
+      "mean_signed_return_pct": -0.01547,
+      "hit_rate_pct": 48.84
+    },
+    "QQQ": {
+      "n": 860,
+      "mean_signed_return_pct": -0.00258,
+      "hit_rate_pct": 50.23
+    },
+    "GLD": {
+      "n": 494,
+      "mean_signed_return_pct": -0.01919,
+      "hit_rate_pct": 46.76
+    },
+    "IWM": {
+      "n": 750,
+      "mean_signed_return_pct": -0.00239,
+      "hit_rate_pct": 50.8
+    },
+    "AAPL": {
+      "n": 847,
+      "mean_signed_return_pct": -0.01243,
+      "hit_rate_pct": 46.28
+    },
+    "TSLA": {
+      "n": 983,
+      "mean_signed_return_pct": 0.05509,
+      "hit_rate_pct": 51.58
+    },
+    "SPY": {
+      "n": 799,
+      "mean_signed_return_pct": -0.00711,
+      "hit_rate_pct": 49.81
+    },
+    "MSFT": {
+      "n": 788,
+      "mean_signed_return_pct": 0.02624,
+      "hit_rate_pct": 47.97
+    },
+    "AMD": {
+      "n": 889,
+      "mean_signed_return_pct": -0.05068,
+      "hit_rate_pct": 50.62
+    }
+  },
+  "evaluated_bars": {
+    "NVDA": 8013,
+    "QQQ": 8544,
+    "GLD": 7592,
+    "IWM": 7794,
+    "AAPL": 8051,
+    "TSLA": 7972,
+    "SPY": 8084,
+    "MSFT": 7920,
+    "AMD": 7764
+  },
+  "_disclosures": [
+    "Stage A measures the SIGNAL on the UNDERLYING -- no option pricing, no spread, no theta. A pass here is necessary, not sufficient.",
+    "No look-ahead: levels/context at bar i come from bars[:i+1] only; forward returns are read strictly after i and never enter the decision.",
+    "Per-symbol results are DESCRIPTIVE and excluded from the corrected family."
+  ]
+}
