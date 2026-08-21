@@ -60,24 +60,59 @@ def _et_offset_h() -> float:
     return off
 
 
-# Blocker indices are filter numbers from backtest/lib/filters.py. Bare integers
-# on a screen are noise; these are what each one actually vetoed.
-BLOCKER_NAMES = {
-    1: "time gate (pre-09:35 or no-trade window)",
-    5: "ribbon not stacked",
-    6: "spread too wide (>=30c)",
+# Blocker indices are filter numbers from backtest/lib/filters.py.
+#
+# ⚠ THE TRAP THIS FIXES (found 2026-08-20, in code shipped the same day):
+# evaluate_bearish_setup and evaluate_bullish_setup REUSE THE SAME INDICES FOR
+# DIFFERENT FILTERS. The first version of this map was transcribed from the BULL
+# function and applied to both, which mislabelled every bear tick on the cockpit
+# AND in that day's EOD audit:
+#     index 9  bull = "VIX < 22 hard cap"   bear = breakdown-bar VOLUME confirmation
+#     index 10 bull = buyer pressure         bear = not enough triggers
+#     index 11 bull = triggers/level-tied    bear = liquidity sweep at the level
+# Filter 6 was also inverted in BOTH directions: it requires ribbon spread
+# >= 30c, so it blocks when the ribbon is too NARROW (compressed/chop), not when
+# a spread is "too wide". And note filter 6 reads the SATY RIBBON spread, not an
+# option bid-ask spread — reading it as bid-ask produced a bogus "112c median
+# spread" finding before this was traced.
+#
+# Verified by parsing each blockers.append(N) site inside its own function.
+BEAR_BLOCKER_NAMES = {
+    1: "time gate (pre-09:35 / no-trade window)",
+    5: "ribbon not BEAR-stacked",
+    6: "ribbon too narrow (needs spread >= 30c)",
+    7: "volume divergence failed",
+    8: "VIX gate (needs VIX > 17.30 AND rising)",
+    9: "no breakdown bar (volume confirmation)",
+    10: "not enough triggers",
+    11: "liquidity sweep at the level",
+}
+
+BULL_BLOCKER_NAMES = {
+    1: "time gate (pre-09:35 / no-trade window)",
+    5: "ribbon not BULL-stacked",
+    6: "ribbon too narrow (needs spread >= 30c)",
     7: "volume divergence",
-    8: "VIX regime (not low, not falling)",
-    9: "VIX >= 22 hard stop",
-    10: "no buyer/seller pressure",
+    8: "VIX gate (needs VIX < 17.20 OR falling)",
+    9: "VIX >= 22 hard cap",
+    10: "no buyer pressure",
     11: "not enough triggers / none level-tied",
     12: "liquidity sweep at the level",
 }
 
+# Kept as the bear map so any legacy caller stays correct for the bear path,
+# which is the one the cockpit renders by default.
+BLOCKER_NAMES = BEAR_BLOCKER_NAMES
 
-def blocker_name(b) -> str:
+
+def blocker_name(b, side: str = "bear") -> str:
+    """Name one blocker index. `side` MUST be supplied for bull ticks.
+
+    An unknown index degrades to itself rather than inventing a name.
+    """
+    table = BULL_BLOCKER_NAMES if str(side).lower().startswith("bull") else BEAR_BLOCKER_NAMES
     try:
-        return "%s · %s" % (b, BLOCKER_NAMES[int(b)])
+        return "%s · %s" % (b, table[int(b)])
     except (ValueError, TypeError, KeyError):
         return str(b)
 
@@ -126,8 +161,10 @@ def _spy_tick(r: dict) -> dict:
     The engine already records WHY: bull/bear scores and the named blockers that
     vetoed. That is the thinking; it just never reached a surface.
     """
-    blockers = (r.get("bear_blockers") or []) if (r.get("bear_score", 0) >= r.get("bull_score", 0)) \
-        else (r.get("bull_blockers") or [])
+    # Which side's blockers we are reading determines which NAME TABLE applies —
+    # the two functions reuse indices for different filters.
+    side = "bear" if (r.get("bear_score", 0) >= r.get("bull_score", 0)) else "bull"
+    blockers = (r.get("bear_blockers") or []) if side == "bear" else (r.get("bull_blockers") or [])
     if isinstance(blockers, str):
         blockers = [blockers]
     return {
@@ -136,7 +173,8 @@ def _spy_tick(r: dict) -> dict:
         "account": r.get("account"),
         "px": r.get("spy"),
         "why": r.get("reason") or "",
-        "blockers": [blocker_name(b) for b in blockers][:4],
+        "blockers": [blocker_name(b, side) for b in blockers][:4],
+        "blocker_side": side,
         "scores": {"bull": r.get("bull_score"), "bear": r.get("bear_score")},
         "ctx": {"ribbon": r.get("ribbon"), "htf": r.get("htf_15m"), "vix": r.get("vix"),
                 "spread_c": round(r["spread_cents"], 1) if isinstance(r.get("spread_cents"), (int, float)) else None},
