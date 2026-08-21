@@ -342,6 +342,20 @@ It does not predict. Every field is a backward-looking measured fact. Ranking by
 continue or fade is an open empirical question, unproven, and the entry decision still belongs
 to the engine's own blockers.
 
+## 9d. FIDELITY AUDIT + OPUS WORKPACKAGE (2026-08-20 night — the current marching orders)
+
+> J asked for an end-to-end audit of why the multi lane is “in its infancy, nothing going on.”
+> **Verdict: the fork is faithful CODE in an unfaithful WORLD — we copied the brain and forgot
+> the eyes.** Production scores closed **5-minute** bars every minute with VIX + HTF-15m +
+> level-state memory; the lane scores **1-hour** bars every 15 minutes with all three of those
+> inputs literally `None`. 178/178 HOLD is the arithmetic consequence, not a market condition.
+>
+> Full audit: `analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20.md`
+> Execution plan (6 ordered WPs, acceptance criteria, guards):
+> [`OPUS-WORKPACKAGE-MULTI-LANE-2026-08-20.md`](OPUS-WORKPACKAGE-MULTI-LANE-2026-08-20.md)
+> — WP-0 identity (intraday_v1, per J's directive) → WP-1 5m timebase → WP-2 context parity
+> → WP-3 blocker visibility → WP-4 **null-gate evidence** (absolute gate) → WP-5 paper orders.
+
 ## 9b. NIGHT RUN 2026-08-18 → 08-19 — the work order + progress ledger
 
 > J went to bed 2026-08-18 ~21:44 ET with explicit standing authorization: *"do you have
