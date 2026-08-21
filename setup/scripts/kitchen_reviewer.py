@@ -478,35 +478,66 @@ def main() -> int:
 
     # FREE POOL FIRST: route triage through the lane pool (chef role = Groq-70B
     # primary, big-ctx + no-train). Removes the OpenRouter-429 failure + paid tier;
-    # falls back to the original ladder only if the pool returns nothing usable.
+    # falls back to the ladder if the pool returns nothing usable OR nothing
+    # PARSEABLE -- 2026-08-20: the primary free model (nemotron) is a reasoning
+    # model that sometimes burns its whole max_tokens budget on chain-of-thought
+    # prose before ever emitting the required JSON object, returning ok=True with
+    # unparseable/truncated content. The old gate only checked ok+non-empty, so
+    # that case was accepted as "usable" and the ladder (which has 3 more free
+    # tiers, none reasoning-heavy) was never tried -- 3/9 fires exited 1 on
+    # 2026-08-20 from exactly this shape. Gate on JSON-parseability instead, for
+    # BOTH the pool result and each ladder tier, so a garbled response from one
+    # model falls through to the next rather than aborting the whole fire.
     result = None
+    last_unparsed = None  # keep the best raw attempt around for the debug dump
     try:
         import swarm_client as _swarm  # noqa: E402
-        result = _swarm.call_role("chef", prompt, system=REVIEWER_SYSTEM_PROMPT,
-                                  max_tokens=12000, temperature=0.3,
-                                  timeout=140, remote_timeout=110, task_id="kitchen.reviewer")
-        if result.get("ok") and (result.get("content") or "").strip():
-            _log(f"reviewer via pool lane={result.get('lane')}")
+        pool_result = _swarm.call_role("chef", prompt, system=REVIEWER_SYSTEM_PROMPT,
+                                       max_tokens=12000, temperature=0.3,
+                                       timeout=140, remote_timeout=110, task_id="kitchen.reviewer")
+        if pool_result.get("ok") and (pool_result.get("content") or "").strip():
+            obj = _extract_json_object(pool_result.get("content", ""))
+            if obj and "decisions" in obj:
+                result = pool_result
+                _log(f"reviewer via pool lane={result.get('lane')}")
+            else:
+                last_unparsed = pool_result
+                _log(f"pool lane={pool_result.get('lane')} returned unparseable/truncated "
+                     f"content ({len(pool_result.get('content') or '')} chars); trying ladder")
     except Exception as exc:  # noqa: BLE001
         _log(f"swarm reviewer path failed: {type(exc).__name__}: {exc}; trying ladder")
-        result = None
-    if not (result and result.get("ok") and (result.get("content") or "").strip()):
+
+    if result is None:
         for tier_idx, model in enumerate(MODEL_LADDER):
             _log(f"ladder attempt tier={tier_idx} model={model}")
-            result = call_minimax(prompt, system=REVIEWER_SYSTEM_PROMPT, model=model,
-                                  max_tokens=12000, temperature=0.3, timeout=300,
-                                  task_id=f"kitchen.reviewer.tier{tier_idx}")
-            if result.get("ok") and (result.get("content") or "").strip():
-                result["ladder_used"] = tier_idx
-                break
-            _log(f"  tier {tier_idx} failed: {result.get('error', 'unknown')}")
+            candidate = call_minimax(prompt, system=REVIEWER_SYSTEM_PROMPT, model=model,
+                                     max_tokens=12000, temperature=0.3, timeout=300,
+                                     task_id=f"kitchen.reviewer.tier{tier_idx}")
+            if candidate.get("ok") and (candidate.get("content") or "").strip():
+                obj = _extract_json_object(candidate.get("content", ""))
+                if obj and "decisions" in obj:
+                    candidate["ladder_used"] = tier_idx
+                    result = candidate
+                    break
+                last_unparsed = candidate
+                _log(f"  tier {tier_idx} returned unparseable/truncated content; trying next tier")
+                continue
+            _log(f"  tier {tier_idx} failed: {candidate.get('error', 'unknown')}")
 
     if not result or not result.get("ok"):
-        _log("all paths failed; aborting this review fire")
+        _log("all paths failed to produce parseable JSON; aborting this review fire")
+        dump = last_unparsed or {}
+        raw_path = STATE_DIR / "logs" / f"reviewer-bad-response-{_et_now().strftime('%Y%m%dT%H%M%S')}.txt"
+        try:
+            raw_path.write_text(dump.get("content", ""), encoding="utf-8")
+        except OSError:
+            pass
         return 1
 
     obj = _extract_json_object(result.get("content", ""))
     if not obj or "decisions" not in obj:
+        # Should be unreachable now (result is only set once parsed) -- kept as
+        # a safety net in case a future edit changes the gating above.
         _log("could not extract JSON object; raw saved")
         raw_path = STATE_DIR / "logs" / f"reviewer-bad-response-{_et_now().strftime('%Y%m%dT%H%M%S')}.txt"
         try:
