@@ -145,22 +145,70 @@ def assess_multi_sector() -> dict:
     }
 
 
+def _kalshi_weather_scorecard(preds_path: Path) -> dict:
+    """Minimal re-derivation of automation/kalshi/kalshi_auto.py#scorecard() -- kept
+    INLINE (stdlib json only) rather than imported, because that module pulls in
+    `requests` + `cryptography` for its live-trading path, which this allocator (by
+    its own design: "Pure Python, $0, no LLM, no orders") should not need just to
+    read a scorecard. Bar constants (20 days / 45% hit / 1.6F err) mirror that
+    module's MIN_SCORED_DAYS / MIN_HIT_RATE / MAX_MEAN_ABS_ERR -- if either drifts,
+    both must be checked (flagged in the 2026-08-21 lesson-inbox item)."""
+    out: dict[str, dict] = {}
+    try:
+        lines = preds_path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return out
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+        except ValueError:
+            continue
+        if r.get("observed") is None:
+            continue
+        s = out.setdefault(r.get("series", "?"), {"n": 0, "hits": 0, "err_sum": 0.0})
+        s["n"] += 1
+        s["hits"] += 1 if r.get("pick_won") else 0
+        s["err_sum"] += r.get("abs_err", 0.0)
+    for s in out.values():
+        s["hit_rate"] = s["hits"] / s["n"] if s["n"] else 0.0
+        s["mean_abs_err"] = s["err_sum"] / s["n"] if s["n"] else float("inf")
+        s["earned"] = s["n"] >= 20 and s["hit_rate"] >= 0.45 and s["mean_abs_err"] <= 1.6
+    return out
+
+
 def assess_prediction_markets() -> dict:
     """DEFECT FIXED 2026-08-20: this counted rows and never asked whether the lane
     was still RUNNING. Kalshi's last tick was 10.3 DAYS old while the desk was
     being reported as a healthy shadow lane progressing toward its bar. A row
-    count is a measure of history, not of life."""
+    count is a measure of history, not of life.
+
+    SECOND DEFECT FIXED 2026-08-21: the liveness check above still read the WRONG
+    producer. `last-tick.json` / `shadow-ledger.jsonl` belong to kalshi_tick.py, the
+    original SPY-directional Kalshi lane -- superseded the SAME DAY (2026-08-09) by
+    kalshi_auto.py, the weather lane that is the one actually scheduled
+    (`Gamma_KalshiAuto`, 18:10 ET daily; confirmed via Get-ScheduledTask that no task
+    for kalshi_tick.py exists at all). last-tick.json has sat frozen since 2026-08-09
+    BY DESIGN (its lane was retired, not broken), so this desk was permanently
+    reporting BROKEN against a dead sibling while the real lane
+    (weather-predictions.jsonl) ran clean the entire time -- the SAME bug class the
+    2026-08-20 fix above already caught once, on assess_multi_sector's two lanes."""
     k = STATE / "kalshi"
-    n = _rows(k / "shadow-ledger.jsonl")
-    age = _age_h(k / "last-tick.json")
+    preds = k / "weather-predictions.jsonl"
+    age = _age_h(preds)
     live = age is not None and age <= 48        # daily lane: two missed days is dead
+    card = _kalshi_weather_scorecard(preds) if live else {}
+    best_n = max((c["n"] for c in card.values()), default=0)
+    earned = sum(1 for c in card.values() if c.get("earned"))
     return {
         "real_fills": False, "armable_unarmed": False, "dead_signal": False,
-        "progress": min(1.0, n / 20.0) if live else 0.0,
-        "broken": [] if live else ["kalshi last-tick %s" % (
+        "progress": min(1.0, best_n / 20.0) if live else 0.0,
+        "broken": [] if live else ["kalshi weather-predictions.jsonl %s" % (
             "%.0fh stale" % age if age is not None else "MISSING")],
-        "headline": "%d shadow rows toward the per-city bar%s" % (
-            n, "" if live else " — LANE NOT TICKING"),
+        "headline": "%d cities scored, best n=%d/20, %d earned%s" % (
+            len(card), best_n, earned, "" if live else " — LANE NOT TICKING"),
     }
 
 
