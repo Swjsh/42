@@ -229,10 +229,22 @@ def fetch_chain(creds, symbol: str, right: str, max_dte: int = 45) -> list:
 
 
 def fetch_option_quote(creds, occ: str):
-    """Live quote for ONE contract. Returns None rather than a default when the quote is
-    missing -- a fabricated mid would silently pass the liquidity gate."""
-    d = _data_get(creds, "/v1beta1/options/snapshots/" + occ, {"feed": "indicative"})
-    snap = (d.get("snapshots") or {}).get(occ) or d.get("snapshot") or {}
+    """Live quote for ONE contract. Returns None when there genuinely is no quote.
+
+    ENDPOINT FORM IS LOAD-BEARING (fixed 2026-08-20, cost a full trading day):
+    the snapshot endpoint takes the contract as a `symbols=` QUERY PARAM, not as a path
+    segment. `/v1beta1/options/snapshots/{OCC}` returns HTTP 400 for every contract;
+    `/v1beta1/options/snapshots?symbols={OCC}` returns the quote. Verified live on
+    NVDA260824P00217500 mid-session: path form -> 400, query form -> bid 2.65 / ask 2.71.
+
+    WHY THIS WENT UNNOTICED FOR A DAY: the caller wrapped this in a bare `except` that
+    turned the 400 into `quote = None`, which `liquidity_ok` then reported as the entirely
+    plausible "no two-sided quote" -- and that was misread as "the market is closed". A hard
+    endpoint failure wearing the costume of a soft market condition. The caller now
+    distinguishes the two; see `fetch_option_quote_checked`.
+    """
+    d = _data_get(creds, "/v1beta1/options/snapshots", {"symbols": occ, "feed": "indicative"})
+    snap = (d.get("snapshots") or {}).get(occ) or {}
     q = snap.get("latestQuote") or {}
     bid, ask = q.get("bp"), q.get("ap")
     if not bid or not ask:
@@ -240,6 +252,20 @@ def fetch_option_quote(creds, occ: str):
     return {"bid": float(bid), "ask": float(ask),
             "open_interest": snap.get("openInterest"),
             "volume": (snap.get("dailyBar") or {}).get("v")}
+
+
+def fetch_option_quote_checked(creds, occ: str) -> tuple:
+    """(quote_or_None, error_or_None).
+
+    Separates "the venue has no quote right now" from "our request was malformed / the API
+    errored". Collapsing those two is what cost a trading day: a 400 read as an absent quote,
+    and an absent quote read as a closed market. Callers must record the error rather than
+    letting it decay into a market-condition story.
+    """
+    try:
+        return fetch_option_quote(creds, occ), None
+    except Exception as e:  # noqa: BLE001 -- classified, not swallowed
+        return None, f"{type(e).__name__}: {str(e)[:120]}"
 
 
 def _num(v):
@@ -304,13 +330,11 @@ def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: 
         row = {"ts_et": now_et().isoformat(timespec="seconds"), "kind": "exit_eval",
                "contract": contract, "symbol": getattr(rec, "symbol", None),
                "shadow": True, "feed": "indicative"}
-        try:
-            quote = fetch_option_quote(creds, contract)
-        except Exception:  # noqa: BLE001
-            quote = None
-        if not quote:
-            row.update(decision="BLOCKED", gate="quote",
-                       reason="no two-sided quote for an OPEN position")
+        quote, qerr = fetch_option_quote_checked(creds, contract)
+        if qerr or not quote:
+            row.update(decision="BLOCKED",
+                       gate="quote_error" if qerr else "quote",
+                       reason=qerr or "no two-sided quote for an OPEN position")
             out.append(row)
             continue
 
@@ -559,10 +583,14 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
         cascade["strike_selected"] += 1
         row.update(strike=strike, contract=occ)
 
-        try:
-            quote = fetch_option_quote(creds, occ)
-        except Exception:  # noqa: BLE001
-            quote = None
+        quote, qerr = fetch_option_quote_checked(creds, occ)
+        if qerr:
+            # An API/transport failure is NOT a market condition. Record it as its own gate so
+            # it can never be misread as "no quote available".
+            row.update(decision="BLOCKED", gate="quote_error", reason=qerr)
+            cascade["quote_error"] += 1
+            rows.append(row)
+            continue
         ok, why, facts = liquidity_ok(quote, params)
         for k, v in facts.items():
             if k != "feed":
