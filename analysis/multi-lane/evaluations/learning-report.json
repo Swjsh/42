@@ -1,0 +1,27 @@
+{
+  "rows_total": 0,
+  "rows_with_directional_lean": 0,
+  "_reading": "Every cut reports n. Nothing here is evidence until n is large and the sigma is meaningful; these are OBSERVATIONS accumulating toward a question, not a result. The lane remains STOPPED.",
+  "overall": {
+    "10m": {
+      "n": 0
+    },
+    "30m": {
+      "n": 0
+    },
+    "60m": {
+      "n": 0
+    }
+  },
+  "by_symbol_30m": {},
+  "by_lean_score_30m": {},
+  "by_blocker_30m": {},
+  "shelf_vs_not_30m": {
+    "nearest_is_shelf": {
+      "n": 0
+    },
+    "not_a_shelf": {
+      "n": 0
+    }
+  }
+}

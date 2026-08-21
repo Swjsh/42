@@ -1,5 +1,5 @@
 {
-  "as_of_et": "2026-08-21T01:38:33-04:00",
+  "as_of_et": "2026-08-21T10:30:48-04:00",
   "lane_status": {
     "state": "STOPPED_ON_NULL",
     "stopped_at_et": "2026-08-20",
@@ -11,79 +11,135 @@
   "n_evaluated": 8,
   "counts": {
     "TRADE_CANDIDATE": 0,
-    "WATCH": 7,
-    "BLOCKED": 1,
+    "WATCH": 8,
+    "BLOCKED": 0,
     "EXCLUDED": 0
   },
   "cards": [
     {
       "symbol": "SPY",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 762.72,
-      "atr14_5m": 0.467,
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 764.64,
+      "atr14_5m": 0.645,
       "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
         "vix_degraded": false,
         "vix_note": null,
-        "htf_15m_bars": 413
+        "htf_15m_bars": 419
       },
       "attention": {
-        "rel_volume": 4.629,
-        "pct_change": -0.101,
-        "dollar_volume": 57830447.36,
+        "rel_volume": 1.027,
+        "pct_change": 0.034,
+        "dollar_volume": 13118291.28,
         "scanner_hits": 0
       },
       "structure": {
         "status": "OK",
-        "trend": "downtrend",
-        "n_swings": 35,
+        "trend": "uptrend",
+        "n_swings": 37,
         "last_swings": [
-          {
-            "kind": "swing_low",
-            "label": "HL",
-            "price": 765.36
-          },
-          {
-            "kind": "swing_low",
-            "label": "LL",
-            "price": 763.21
-          },
-          {
-            "kind": "swing_low",
-            "label": "LL",
-            "price": 763.18
-          },
           {
             "kind": "swing_high",
             "label": "LH",
             "price": 763.8
+          },
+          {
+            "kind": "swing_low",
+            "label": "LL",
+            "price": 762.07
+          },
+          {
+            "kind": "swing_high",
+            "label": "HH",
+            "price": 766.43
+          },
+          {
+            "kind": "swing_low",
+            "label": "HL",
+            "price": 764.18
           }
         ],
-        "last_event": {
-          "kind": "BOS",
-          "direction": "bearish",
-          "broken_price": 763.18
-        }
+        "last_event": null
       },
       "zones": {
         "status": "OK",
-        "n_levels": 6,
+        "n_levels": 10,
         "n_shelves": 6,
         "nearest": {
-          "price": 768.92,
-          "label": "SHELF_768.12_769.72_2026-08-21",
+          "price": 764.5,
+          "label": "INTRADAY_SWING_LOW_2026-08-21",
           "tier": "Active",
-          "role": "resistance",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": 6.2,
-          "distance_pct": 0.813,
-          "distance_atr": 13.28,
-          "side": "above"
+          "role": "support",
+          "source": "intraday_swing_low",
+          "is_shelf": false,
+          "distance_dollars": -0.14,
+          "distance_pct": -0.018,
+          "distance_atr": -0.22,
+          "side": "below"
         },
         "levels": [
+          {
+            "price": 764.5,
+            "label": "INTRADAY_SWING_LOW_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "intraday_swing_low",
+            "is_shelf": false,
+            "distance_dollars": -0.14,
+            "distance_pct": -0.018,
+            "distance_atr": -0.22,
+            "side": "below"
+          },
+          {
+            "price": 764.18,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -0.46,
+            "distance_pct": -0.06,
+            "distance_atr": -0.71,
+            "side": "below"
+          },
+          {
+            "price": 765.51,
+            "label": "INTRADAY_SWING_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_swing_high",
+            "is_shelf": false,
+            "distance_dollars": 0.87,
+            "distance_pct": 0.114,
+            "distance_atr": 1.35,
+            "side": "above"
+          },
+          {
+            "price": 765.99,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 1.35,
+            "distance_pct": 0.177,
+            "distance_atr": 2.09,
+            "side": "above"
+          },
+          {
+            "price": 767.23,
+            "label": "SHELF_766.43_768.03_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 2.59,
+            "distance_pct": 0.339,
+            "distance_atr": 4.01,
+            "side": "above"
+          },
           {
             "price": 768.92,
             "label": "SHELF_768.12_769.72_2026-08-21",
@@ -91,9 +147,9 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 6.2,
-            "distance_pct": 0.813,
-            "distance_atr": 13.28,
+            "distance_dollars": 4.28,
+            "distance_pct": 0.56,
+            "distance_atr": 6.63,
             "side": "above"
           },
           {
@@ -103,9 +159,9 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 9.19,
-            "distance_pct": 1.205,
-            "distance_atr": 19.69,
+            "distance_dollars": 7.27,
+            "distance_pct": 0.951,
+            "distance_atr": 11.27,
             "side": "above"
           },
           {
@@ -115,9 +171,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -13.06,
-            "distance_pct": -1.712,
-            "distance_atr": -27.98,
+            "distance_dollars": -14.98,
+            "distance_pct": -1.959,
+            "distance_atr": -23.21,
             "side": "below"
           },
           {
@@ -127,9 +183,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -14.67,
-            "distance_pct": -1.923,
-            "distance_atr": -31.43,
+            "distance_dollars": -16.59,
+            "distance_pct": -2.17,
+            "distance_atr": -25.71,
             "side": "below"
           },
           {
@@ -139,305 +195,23 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -17.67,
-            "distance_pct": -2.317,
-            "distance_atr": -37.85,
-            "side": "below"
-          },
-          {
-            "price": 742.95,
-            "label": "SHELF_742.15_743.75_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -19.77,
-            "distance_pct": -2.592,
-            "distance_atr": -42.35,
+            "distance_dollars": -19.59,
+            "distance_pct": -2.562,
+            "distance_atr": -30.36,
             "side": "below"
           }
         ],
         "active": [
-          742.95,
           745.05,
           748.05,
           749.66,
+          764.18,
+          764.5,
+          765.51,
+          765.99,
+          767.23,
           768.92,
           771.91
-        ],
-        "multi_day": []
-      },
-      "setup": {
-        "status": "OK",
-        "action": "HOLD",
-        "bear": {
-          "score": 8,
-          "triggers": [],
-          "blockers": [
-            "F9:breakdown_bar",
-            "F10:level_tied_trigger"
-          ]
-        },
-        "bull": {
-          "score": 7,
-          "triggers": [],
-          "blockers": [
-            "F5:ribbon_stack",
-            "F10:level_tied_trigger",
-            "F11:sweep_or_htf"
-          ]
-        },
-        "level_tied_to": {
-          "price": 768.92,
-          "label": "SHELF_768.12_769.72_2026-08-21",
-          "tier": "Active",
-          "role": "resistance",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": 6.2,
-          "distance_pct": 0.813,
-          "distance_atr": 13.28,
-          "side": "above"
-        }
-      },
-      "verdict": "WATCH",
-      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F10:level_tied_trigger, F11:sweep_or_htf, F9:breakdown_bar"
-    },
-    {
-      "symbol": "QQQ",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 710.84,
-      "atr14_5m": 0.564,
-      "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
-        "vix_degraded": false,
-        "vix_note": null,
-        "htf_15m_bars": 459
-      },
-      "attention": {
-        "rel_volume": 2.422,
-        "pct_change": -0.001,
-        "dollar_volume": 10714135.9,
-        "scanner_hits": 0
-      },
-      "structure": {
-        "status": "OK",
-        "trend": "range",
-        "n_swings": 37,
-        "last_swings": [
-          {
-            "kind": "swing_high",
-            "label": "LH",
-            "price": 713.0
-          },
-          {
-            "kind": "swing_high",
-            "label": "LH",
-            "price": 711.41
-          },
-          {
-            "kind": "swing_low",
-            "label": "LL",
-            "price": 708.58
-          },
-          {
-            "kind": "swing_high",
-            "label": "HH",
-            "price": 711.63
-          }
-        ],
-        "last_event": null
-      },
-      "zones": {
-        "status": "OK",
-        "n_levels": 13,
-        "n_shelves": 13,
-        "nearest": {
-          "price": 710.28,
-          "label": "SHELF_709.48_711.08_2026-08-21",
-          "tier": "Active",
-          "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.56,
-          "distance_pct": -0.079,
-          "distance_atr": -0.99,
-          "side": "below"
-        },
-        "levels": [
-          {
-            "price": 710.28,
-            "label": "SHELF_709.48_711.08_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -0.56,
-            "distance_pct": -0.079,
-            "distance_atr": -0.99,
-            "side": "below"
-          },
-          {
-            "price": 712.17,
-            "label": "SHELF_711.37_712.97_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 1.33,
-            "distance_pct": 0.187,
-            "distance_atr": 2.36,
-            "side": "above"
-          },
-          {
-            "price": 708.41,
-            "label": "SHELF_707.61_709.21_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -2.43,
-            "distance_pct": -0.342,
-            "distance_atr": -4.31,
-            "side": "below"
-          },
-          {
-            "price": 714.35,
-            "label": "SHELF_713.55_715.15_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 3.51,
-            "distance_pct": 0.494,
-            "distance_atr": 6.23,
-            "side": "above"
-          },
-          {
-            "price": 716.35,
-            "label": "SHELF_715.55_717.15_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 5.51,
-            "distance_pct": 0.775,
-            "distance_atr": 9.78,
-            "side": "above"
-          },
-          {
-            "price": 705.31,
-            "label": "SHELF_704.51_706.11_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -5.53,
-            "distance_pct": -0.778,
-            "distance_atr": -9.81,
-            "side": "below"
-          },
-          {
-            "price": 718.5,
-            "label": "SHELF_717.70_719.30_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 7.66,
-            "distance_pct": 1.078,
-            "distance_atr": 13.59,
-            "side": "above"
-          },
-          {
-            "price": 702.35,
-            "label": "SHELF_701.55_703.15_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -8.49,
-            "distance_pct": -1.194,
-            "distance_atr": -15.06,
-            "side": "below"
-          },
-          {
-            "price": 720.51,
-            "label": "SHELF_719.71_721.31_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 9.67,
-            "distance_pct": 1.36,
-            "distance_atr": 17.16,
-            "side": "above"
-          },
-          {
-            "price": 722.19,
-            "label": "SHELF_721.39_722.99_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 11.35,
-            "distance_pct": 1.597,
-            "distance_atr": 20.14,
-            "side": "above"
-          },
-          {
-            "price": 723.85,
-            "label": "SHELF_723.05_724.65_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 13.01,
-            "distance_pct": 1.83,
-            "distance_atr": 23.08,
-            "side": "above"
-          },
-          {
-            "price": 696.11,
-            "label": "SHELF_695.31_696.91_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -14.73,
-            "distance_pct": -2.072,
-            "distance_atr": -26.14,
-            "side": "below"
-          },
-          {
-            "price": 726.12,
-            "label": "SHELF_725.32_726.92_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 15.28,
-            "distance_pct": 2.15,
-            "distance_atr": 27.11,
-            "side": "above"
-          }
-        ],
-        "active": [
-          696.11,
-          702.35,
-          705.31,
-          708.41,
-          710.28,
-          712.17,
-          714.35,
-          716.35,
-          718.5,
-          720.51,
-          722.19,
-          723.85,
-          726.12
         ],
         "multi_day": []
       },
@@ -465,15 +239,15 @@
           ]
         },
         "level_tied_to": {
-          "price": 710.28,
-          "label": "SHELF_709.48_711.08_2026-08-21",
+          "price": 764.5,
+          "label": "INTRADAY_SWING_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.56,
-          "distance_pct": -0.079,
-          "distance_atr": -0.99,
+          "source": "intraday_swing_low",
+          "is_shelf": false,
+          "distance_dollars": -0.14,
+          "distance_pct": -0.018,
+          "distance_atr": -0.22,
           "side": "below"
         }
       },
@@ -481,39 +255,340 @@
       "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F6:ribbon_spread, F7:volume_divergence, F10:level_tied_trigger"
     },
     {
-      "symbol": "IWM",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 297.61,
-      "atr14_5m": 0.201,
+      "symbol": "QQQ",
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 710.59,
+      "atr14_5m": 1.31,
       "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
         "vix_degraded": false,
         "vix_note": null,
-        "htf_15m_bars": 383
+        "htf_15m_bars": 467
       },
       "attention": {
-        "rel_volume": 3.291,
-        "pct_change": -0.007,
-        "dollar_volume": 11521276.73,
+        "rel_volume": 1.193,
+        "pct_change": 0.024,
+        "dollar_volume": 5288921.37,
         "scanner_hits": 0
       },
       "structure": {
         "status": "OK",
-        "trend": "downtrend",
-        "n_swings": 35,
+        "trend": "uptrend",
+        "n_swings": 36,
         "last_swings": [
           {
             "kind": "swing_low",
             "label": "LL",
-            "price": 297.37
+            "price": 708.58
           },
           {
             "kind": "swing_high",
-            "label": "LH",
-            "price": 297.92
+            "label": "HH",
+            "price": 711.63
           },
+          {
+            "kind": "swing_low",
+            "label": "HL",
+            "price": 710.49
+          },
+          {
+            "kind": "swing_high",
+            "label": "HH",
+            "price": 716.23
+          }
+        ],
+        "last_event": null
+      },
+      "zones": {
+        "status": "OK",
+        "n_levels": 16,
+        "n_shelves": 13,
+        "nearest": {
+          "price": 710.28,
+          "label": "SHELF_709.48_711.08_2026-08-21",
+          "tier": "Active",
+          "role": "support",
+          "source": "daily_context_shelf",
+          "is_shelf": true,
+          "distance_dollars": -0.31,
+          "distance_pct": -0.044,
+          "distance_atr": -0.24,
+          "side": "below"
+        },
+        "levels": [
+          {
+            "price": 710.28,
+            "label": "SHELF_709.48_711.08_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -0.31,
+            "distance_pct": -0.044,
+            "distance_atr": -0.24,
+            "side": "below"
+          },
+          {
+            "price": 711.87,
+            "label": "INTRADAY_SWING_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_swing_high",
+            "is_shelf": false,
+            "distance_dollars": 1.28,
+            "distance_pct": 0.18,
+            "distance_atr": 0.98,
+            "side": "above"
+          },
+          {
+            "price": 709.29,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -1.3,
+            "distance_pct": -0.183,
+            "distance_atr": -0.99,
+            "side": "below"
+          },
+          {
+            "price": 712.17,
+            "label": "SHELF_711.37_712.97_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 1.58,
+            "distance_pct": 0.222,
+            "distance_atr": 1.21,
+            "side": "above"
+          },
+          {
+            "price": 708.41,
+            "label": "SHELF_707.61_709.21_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -2.18,
+            "distance_pct": -0.307,
+            "distance_atr": -1.66,
+            "side": "below"
+          },
+          {
+            "price": 714.35,
+            "label": "SHELF_713.55_715.15_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 3.76,
+            "distance_pct": 0.529,
+            "distance_atr": 2.87,
+            "side": "above"
+          },
+          {
+            "price": 715.26,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 4.67,
+            "distance_pct": 0.657,
+            "distance_atr": 3.57,
+            "side": "above"
+          },
+          {
+            "price": 705.31,
+            "label": "SHELF_704.51_706.11_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -5.28,
+            "distance_pct": -0.743,
+            "distance_atr": -4.03,
+            "side": "below"
+          },
+          {
+            "price": 716.35,
+            "label": "SHELF_715.55_717.15_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 5.76,
+            "distance_pct": 0.811,
+            "distance_atr": 4.4,
+            "side": "above"
+          },
+          {
+            "price": 718.5,
+            "label": "SHELF_717.70_719.30_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 7.91,
+            "distance_pct": 1.113,
+            "distance_atr": 6.04,
+            "side": "above"
+          },
+          {
+            "price": 702.35,
+            "label": "SHELF_701.55_703.15_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -8.24,
+            "distance_pct": -1.16,
+            "distance_atr": -6.29,
+            "side": "below"
+          },
+          {
+            "price": 720.51,
+            "label": "SHELF_719.71_721.31_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 9.92,
+            "distance_pct": 1.396,
+            "distance_atr": 7.57,
+            "side": "above"
+          },
+          {
+            "price": 722.19,
+            "label": "SHELF_721.39_722.99_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 11.6,
+            "distance_pct": 1.632,
+            "distance_atr": 8.86,
+            "side": "above"
+          },
+          {
+            "price": 723.85,
+            "label": "SHELF_723.05_724.65_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 13.26,
+            "distance_pct": 1.866,
+            "distance_atr": 10.12,
+            "side": "above"
+          },
+          {
+            "price": 696.11,
+            "label": "SHELF_695.31_696.91_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -14.48,
+            "distance_pct": -2.038,
+            "distance_atr": -11.06,
+            "side": "below"
+          },
+          {
+            "price": 726.12,
+            "label": "SHELF_725.32_726.92_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 15.53,
+            "distance_pct": 2.186,
+            "distance_atr": 11.86,
+            "side": "above"
+          }
+        ],
+        "active": [
+          696.11,
+          702.35,
+          705.31,
+          708.41,
+          709.29,
+          710.28,
+          711.87,
+          712.17,
+          714.35,
+          715.26,
+          716.35,
+          718.5,
+          720.51,
+          722.19,
+          723.85,
+          726.12
+        ],
+        "multi_day": []
+      },
+      "setup": {
+        "status": "OK",
+        "action": "HOLD",
+        "bear": {
+          "score": 8,
+          "triggers": [],
+          "blockers": [
+            "F9:breakdown_bar",
+            "F10:level_tied_trigger"
+          ]
+        },
+        "bull": {
+          "score": 9,
+          "triggers": [],
+          "blockers": [
+            "F5:ribbon_stack"
+          ]
+        },
+        "level_tied_to": {
+          "price": 710.28,
+          "label": "SHELF_709.48_711.08_2026-08-21",
+          "tier": "Active",
+          "role": "support",
+          "source": "daily_context_shelf",
+          "is_shelf": true,
+          "distance_dollars": -0.31,
+          "distance_pct": -0.044,
+          "distance_atr": -0.24,
+          "side": "below"
+        }
+      },
+      "verdict": "WATCH",
+      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F9:breakdown_bar, F10:level_tied_trigger"
+    },
+    {
+      "symbol": "IWM",
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 298.89,
+      "atr14_5m": 0.565,
+      "context": {
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
+        "vix_degraded": false,
+        "vix_note": null,
+        "htf_15m_bars": 388
+      },
+      "attention": {
+        "rel_volume": 1.475,
+        "pct_change": -0.174,
+        "dollar_volume": 5268783.1,
+        "scanner_hits": 0
+      },
+      "structure": {
+        "status": "OK",
+        "trend": "uptrend",
+        "n_swings": 36,
+        "last_swings": [
           {
             "kind": "swing_low",
             "label": "LL",
@@ -523,49 +598,47 @@
             "kind": "swing_high",
             "label": "LH",
             "price": 297.89
+          },
+          {
+            "kind": "swing_low",
+            "label": "HL",
+            "price": 297.4
+          },
+          {
+            "kind": "swing_high",
+            "label": "HH",
+            "price": 300.08
           }
         ],
         "last_event": null
       },
       "zones": {
         "status": "OK",
-        "n_levels": 7,
+        "n_levels": 9,
         "n_shelves": 7,
         "nearest": {
-          "price": 297.44,
-          "label": "SHELF_296.64_298.24_2026-08-21",
+          "price": 298.42,
+          "label": "INTRADAY_RTH_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.17,
-          "distance_pct": -0.057,
-          "distance_atr": -0.84,
+          "source": "intraday_rth_low",
+          "is_shelf": false,
+          "distance_dollars": -0.47,
+          "distance_pct": -0.157,
+          "distance_atr": -0.83,
           "side": "below"
         },
         "levels": [
           {
-            "price": 297.44,
-            "label": "SHELF_296.64_298.24_2026-08-21",
+            "price": 298.42,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
             "tier": "Active",
             "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -0.17,
-            "distance_pct": -0.057,
-            "distance_atr": -0.84,
-            "side": "below"
-          },
-          {
-            "price": 295.48,
-            "label": "SHELF_294.68_296.28_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -2.13,
-            "distance_pct": -0.716,
-            "distance_atr": -10.57,
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -0.47,
+            "distance_pct": -0.157,
+            "distance_atr": -0.83,
             "side": "below"
           },
           {
@@ -575,10 +648,34 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 2.19,
-            "distance_pct": 0.736,
-            "distance_atr": 10.87,
+            "distance_dollars": 0.91,
+            "distance_pct": 0.304,
+            "distance_atr": 1.61,
             "side": "above"
+          },
+          {
+            "price": 299.98,
+            "label": "INTRADAY_SWING_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_swing_high",
+            "is_shelf": false,
+            "distance_dollars": 1.09,
+            "distance_pct": 0.365,
+            "distance_atr": 1.93,
+            "side": "above"
+          },
+          {
+            "price": 297.44,
+            "label": "SHELF_296.64_298.24_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -1.45,
+            "distance_pct": -0.485,
+            "distance_atr": -2.57,
+            "side": "below"
           },
           {
             "price": 302.04,
@@ -587,21 +684,21 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 4.43,
-            "distance_pct": 1.489,
-            "distance_atr": 21.99,
+            "distance_dollars": 3.15,
+            "distance_pct": 1.054,
+            "distance_atr": 5.58,
             "side": "above"
           },
           {
-            "price": 293.12,
-            "label": "SHELF_292.32_293.92_2026-08-21",
+            "price": 295.48,
+            "label": "SHELF_294.68_296.28_2026-08-21",
             "tier": "Active",
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -4.49,
-            "distance_pct": -1.509,
-            "distance_atr": -22.29,
+            "distance_dollars": -3.41,
+            "distance_pct": -1.141,
+            "distance_atr": -6.04,
             "side": "below"
           },
           {
@@ -611,10 +708,22 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 6.23,
-            "distance_pct": 2.093,
-            "distance_atr": 30.93,
+            "distance_dollars": 4.95,
+            "distance_pct": 1.656,
+            "distance_atr": 8.76,
             "side": "above"
+          },
+          {
+            "price": 293.12,
+            "label": "SHELF_292.32_293.92_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -5.77,
+            "distance_pct": -1.93,
+            "distance_atr": -10.21,
+            "side": "below"
           },
           {
             "price": 290.99,
@@ -623,9 +732,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -6.62,
-            "distance_pct": -2.224,
-            "distance_atr": -32.87,
+            "distance_dollars": -7.9,
+            "distance_pct": -2.643,
+            "distance_atr": -13.98,
             "side": "below"
           }
         ],
@@ -634,7 +743,9 @@
           293.12,
           295.48,
           297.44,
+          298.42,
           299.8,
+          299.98,
           302.04,
           303.84
         ],
@@ -644,56 +755,56 @@
         "status": "OK",
         "action": "HOLD",
         "bear": {
-          "score": 7,
+          "score": 6,
           "triggers": [],
           "blockers": [
             "F5:ribbon_stack",
+            "F7:volume_divergence",
             "F9:breakdown_bar",
             "F10:level_tied_trigger"
           ]
         },
         "bull": {
-          "score": 7,
+          "score": 9,
           "triggers": [],
           "blockers": [
-            "F5:ribbon_stack",
             "F10:level_tied_trigger",
             "F11:sweep_or_htf"
           ]
         },
         "level_tied_to": {
-          "price": 297.44,
-          "label": "SHELF_296.64_298.24_2026-08-21",
+          "price": 298.42,
+          "label": "INTRADAY_RTH_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.17,
-          "distance_pct": -0.057,
-          "distance_atr": -0.84,
+          "source": "intraday_rth_low",
+          "is_shelf": false,
+          "distance_dollars": -0.47,
+          "distance_pct": -0.157,
+          "distance_atr": -0.83,
           "side": "below"
         }
       },
       "verdict": "WATCH",
-      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F10:level_tied_trigger, F11:sweep_or_htf, F5:ribbon_stack"
+      "verdict_reason": "no directional trigger; blocking filters: F10:level_tied_trigger, F11:sweep_or_htf, F5:ribbon_stack, F7:volume_divergence"
     },
     {
       "symbol": "DIA",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 527.49,
-      "atr14_5m": 0.214,
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 530.7,
+      "atr14_5m": 0.666,
       "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
         "vix_degraded": false,
         "vix_note": null,
-        "htf_15m_bars": 371
+        "htf_15m_bars": 376
       },
       "attention": {
-        "rel_volume": 2.711,
-        "pct_change": -0.113,
-        "dollar_volume": 1088299.78,
+        "rel_volume": 1.273,
+        "pct_change": 0.086,
+        "dollar_volume": 525034.25,
         "scanner_hits": 0
       },
       "structure": {
@@ -701,11 +812,6 @@
         "trend": "downtrend",
         "n_swings": 32,
         "last_swings": [
-          {
-            "kind": "swing_low",
-            "label": "LL",
-            "price": 529.56
-          },
           {
             "kind": "swing_high",
             "label": "LH",
@@ -720,65 +826,70 @@
             "kind": "swing_high",
             "label": "LH",
             "price": 528.1
+          },
+          {
+            "kind": "swing_low",
+            "label": "LL",
+            "price": 527.26
           }
         ],
         "last_event": {
-          "kind": "BOS",
-          "direction": "bearish",
-          "broken_price": 527.58
+          "kind": "CHoCH",
+          "direction": "bullish",
+          "broken_price": 528.1
         }
       },
       "zones": {
         "status": "OK",
-        "n_levels": 9,
+        "n_levels": 12,
         "n_shelves": 9,
         "nearest": {
-          "price": 527.23,
-          "label": "SHELF_526.43_528.03_2026-08-21",
+          "price": 530.17,
+          "label": "INTRADAY_SWING_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.26,
-          "distance_pct": -0.049,
-          "distance_atr": -1.21,
+          "source": "intraday_swing_low",
+          "is_shelf": false,
+          "distance_dollars": -0.53,
+          "distance_pct": -0.099,
+          "distance_atr": -0.79,
           "side": "below"
         },
         "levels": [
           {
-            "price": 527.23,
-            "label": "SHELF_526.43_528.03_2026-08-21",
+            "price": 530.17,
+            "label": "INTRADAY_SWING_LOW_2026-08-21",
             "tier": "Active",
             "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -0.26,
-            "distance_pct": -0.049,
-            "distance_atr": -1.21,
+            "source": "intraday_swing_low",
+            "is_shelf": false,
+            "distance_dollars": -0.53,
+            "distance_pct": -0.099,
+            "distance_atr": -0.79,
             "side": "below"
           },
           {
-            "price": 529.05,
-            "label": "SHELF_528.25_529.85_2026-08-21",
+            "price": 531.26,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
             "tier": "Active",
             "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 1.56,
-            "distance_pct": 0.296,
-            "distance_atr": 7.28,
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 0.56,
+            "distance_pct": 0.106,
+            "distance_atr": 0.85,
             "side": "above"
           },
           {
-            "price": 524.52,
-            "label": "SHELF_523.72_525.32_2026-08-21",
+            "price": 529.45,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
             "tier": "Active",
             "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -2.97,
-            "distance_pct": -0.563,
-            "distance_atr": -13.86,
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -1.25,
+            "distance_pct": -0.235,
+            "distance_atr": -1.87,
             "side": "below"
           },
           {
@@ -788,45 +899,33 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 4.48,
-            "distance_pct": 0.849,
-            "distance_atr": 20.91,
+            "distance_dollars": 1.27,
+            "distance_pct": 0.24,
+            "distance_atr": 1.92,
             "side": "above"
           },
           {
-            "price": 522.35,
-            "label": "SHELF_521.55_523.15_2026-08-21",
+            "price": 529.05,
+            "label": "SHELF_528.25_529.85_2026-08-21",
             "tier": "Active",
-            "role": "support",
+            "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -5.14,
-            "distance_pct": -0.974,
-            "distance_atr": -23.99,
+            "distance_dollars": -1.65,
+            "distance_pct": -0.31,
+            "distance_atr": -2.47,
             "side": "below"
           },
           {
-            "price": 520.47,
-            "label": "SHELF_519.67_521.27_2026-08-21",
+            "price": 527.23,
+            "label": "SHELF_526.43_528.03_2026-08-21",
             "tier": "Active",
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -7.02,
-            "distance_pct": -1.331,
-            "distance_atr": -32.76,
-            "side": "below"
-          },
-          {
-            "price": 518.68,
-            "label": "SHELF_517.88_519.48_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -8.81,
-            "distance_pct": -1.67,
-            "distance_atr": -41.11,
+            "distance_dollars": -3.47,
+            "distance_pct": -0.653,
+            "distance_atr": -5.2,
             "side": "below"
           },
           {
@@ -836,10 +935,58 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 9.01,
-            "distance_pct": 1.708,
-            "distance_atr": 42.05,
+            "distance_dollars": 5.8,
+            "distance_pct": 1.094,
+            "distance_atr": 8.72,
             "side": "above"
+          },
+          {
+            "price": 524.52,
+            "label": "SHELF_523.72_525.32_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -6.18,
+            "distance_pct": -1.164,
+            "distance_atr": -9.28,
+            "side": "below"
+          },
+          {
+            "price": 522.35,
+            "label": "SHELF_521.55_523.15_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -8.35,
+            "distance_pct": -1.572,
+            "distance_atr": -12.54,
+            "side": "below"
+          },
+          {
+            "price": 520.47,
+            "label": "SHELF_519.67_521.27_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -10.23,
+            "distance_pct": -1.927,
+            "distance_atr": -15.36,
+            "side": "below"
+          },
+          {
+            "price": 518.68,
+            "label": "SHELF_517.88_519.48_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -12.02,
+            "distance_pct": -2.264,
+            "distance_atr": -18.05,
+            "side": "below"
           },
           {
             "price": 516.22,
@@ -848,9 +995,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -11.27,
-            "distance_pct": -2.137,
-            "distance_atr": -52.59,
+            "distance_dollars": -14.48,
+            "distance_pct": -2.728,
+            "distance_atr": -21.74,
             "side": "below"
           }
         ],
@@ -862,6 +1009,9 @@
           524.52,
           527.23,
           529.05,
+          529.45,
+          530.17,
+          531.26,
           531.97,
           536.5
         ],
@@ -871,72 +1021,62 @@
         "status": "OK",
         "action": "HOLD",
         "bear": {
-          "score": 9,
+          "score": 7,
           "triggers": [],
           "blockers": [
+            "F5:ribbon_stack",
+            "F9:breakdown_bar",
             "F10:level_tied_trigger"
           ]
         },
         "bull": {
-          "score": 6,
+          "score": 8,
           "triggers": [],
           "blockers": [
-            "F5:ribbon_stack",
-            "F7:volume_divergence",
             "F10:level_tied_trigger",
             "F11:sweep_or_htf"
           ]
         },
         "level_tied_to": {
-          "price": 527.23,
-          "label": "SHELF_526.43_528.03_2026-08-21",
+          "price": 530.17,
+          "label": "INTRADAY_SWING_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.26,
-          "distance_pct": -0.049,
-          "distance_atr": -1.21,
+          "source": "intraday_swing_low",
+          "is_shelf": false,
+          "distance_dollars": -0.53,
+          "distance_pct": -0.099,
+          "distance_atr": -0.79,
           "side": "below"
         }
       },
       "verdict": "WATCH",
-      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F7:volume_divergence, F10:level_tied_trigger, F11:sweep_or_htf"
+      "verdict_reason": "no directional trigger; blocking filters: F10:level_tied_trigger, F11:sweep_or_htf, F5:ribbon_stack, F9:breakdown_bar"
     },
     {
       "symbol": "XLK",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 183.3,
-      "atr14_5m": 0.166,
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 182.41,
+      "atr14_5m": 0.486,
       "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
         "vix_degraded": false,
         "vix_note": null,
-        "htf_15m_bars": 366
+        "htf_15m_bars": 370
       },
       "attention": {
-        "rel_volume": 3.248,
-        "pct_change": -0.011,
-        "dollar_volume": 2935702.25,
+        "rel_volume": 1.631,
+        "pct_change": -0.312,
+        "dollar_volume": 1492144.2,
         "scanner_hits": 0
       },
       "structure": {
         "status": "OK",
-        "trend": "range",
+        "trend": "uptrend",
         "n_swings": 38,
         "last_swings": [
-          {
-            "kind": "swing_low",
-            "label": "HL",
-            "price": 183.15
-          },
-          {
-            "kind": "swing_high",
-            "label": "LH",
-            "price": 183.44
-          },
           {
             "kind": "swing_low",
             "label": "LL",
@@ -946,49 +1086,63 @@
             "kind": "swing_high",
             "label": "HH",
             "price": 183.45
+          },
+          {
+            "kind": "swing_low",
+            "label": "HL",
+            "price": 182.88
+          },
+          {
+            "kind": "swing_high",
+            "label": "HH",
+            "price": 184.24
           }
         ],
-        "last_event": null
+        "last_event": {
+          "kind": "CHoCH",
+          "direction": "bearish",
+          "broken_price": 182.88
+        }
       },
       "zones": {
         "status": "OK",
-        "n_levels": 9,
+        "n_levels": 11,
         "n_shelves": 9,
         "nearest": {
-          "price": 183.02,
-          "label": "SHELF_182.22_183.82_2026-08-21",
+          "price": 181.96,
+          "label": "INTRADAY_RTH_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.28,
-          "distance_pct": -0.153,
-          "distance_atr": -1.68,
+          "source": "intraday_rth_low",
+          "is_shelf": false,
+          "distance_dollars": -0.45,
+          "distance_pct": -0.247,
+          "distance_atr": -0.93,
           "side": "below"
         },
         "levels": [
           {
-            "price": 183.02,
-            "label": "SHELF_182.22_183.82_2026-08-21",
+            "price": 181.96,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
             "tier": "Active",
             "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -0.28,
-            "distance_pct": -0.153,
-            "distance_atr": -1.68,
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -0.45,
+            "distance_pct": -0.247,
+            "distance_atr": -0.93,
             "side": "below"
           },
           {
-            "price": 184.96,
-            "label": "SHELF_184.16_185.76_2026-08-21",
+            "price": 183.02,
+            "label": "SHELF_182.22_183.82_2026-08-21",
             "tier": "Active",
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 1.66,
-            "distance_pct": 0.906,
-            "distance_atr": 9.97,
+            "distance_dollars": 0.61,
+            "distance_pct": 0.334,
+            "distance_atr": 1.25,
             "side": "above"
           },
           {
@@ -998,21 +1152,33 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -2.14,
-            "distance_pct": -1.167,
-            "distance_atr": -12.86,
+            "distance_dollars": -1.25,
+            "distance_pct": -0.685,
+            "distance_atr": -2.57,
             "side": "below"
           },
           {
-            "price": 186.69,
-            "label": "SHELF_185.89_187.49_2026-08-21",
+            "price": 184.24,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 1.83,
+            "distance_pct": 1.003,
+            "distance_atr": 3.76,
+            "side": "above"
+          },
+          {
+            "price": 184.96,
+            "label": "SHELF_184.16_185.76_2026-08-21",
             "tier": "Active",
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 3.39,
-            "distance_pct": 1.849,
-            "distance_atr": 20.37,
+            "distance_dollars": 2.55,
+            "distance_pct": 1.398,
+            "distance_atr": 5.25,
             "side": "above"
           },
           {
@@ -1022,10 +1188,22 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -4.61,
-            "distance_pct": -2.515,
-            "distance_atr": -27.7,
+            "distance_dollars": -3.72,
+            "distance_pct": -2.039,
+            "distance_atr": -7.65,
             "side": "below"
+          },
+          {
+            "price": 186.69,
+            "label": "SHELF_185.89_187.49_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 4.28,
+            "distance_pct": 2.346,
+            "distance_atr": 8.81,
+            "side": "above"
           },
           {
             "price": 188.5,
@@ -1034,21 +1212,9 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 5.2,
-            "distance_pct": 2.837,
-            "distance_atr": 31.24,
-            "side": "above"
-          },
-          {
-            "price": 190.38,
-            "label": "SHELF_189.58_191.18_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 7.08,
-            "distance_pct": 3.863,
-            "distance_atr": 42.54,
+            "distance_dollars": 6.09,
+            "distance_pct": 3.339,
+            "distance_atr": 12.53,
             "side": "above"
           },
           {
@@ -1058,10 +1224,22 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -7.44,
-            "distance_pct": -4.059,
-            "distance_atr": -44.7,
+            "distance_dollars": -6.55,
+            "distance_pct": -3.591,
+            "distance_atr": -13.48,
             "side": "below"
+          },
+          {
+            "price": 190.38,
+            "label": "SHELF_189.58_191.18_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 7.97,
+            "distance_pct": 4.369,
+            "distance_atr": 16.4,
+            "side": "above"
           },
           {
             "price": 192.13,
@@ -1070,9 +1248,9 @@
             "role": "resistance",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": 8.83,
-            "distance_pct": 4.817,
-            "distance_atr": 53.06,
+            "distance_dollars": 9.72,
+            "distance_pct": 5.329,
+            "distance_atr": 20.0,
             "side": "above"
           }
         ],
@@ -1080,7 +1258,9 @@
           175.86,
           178.69,
           181.16,
+          181.96,
           183.02,
+          184.24,
           184.96,
           186.69,
           188.5,
@@ -1093,10 +1273,9 @@
         "status": "OK",
         "action": "HOLD",
         "bear": {
-          "score": 6,
+          "score": 7,
           "triggers": [],
           "blockers": [
-            "F5:ribbon_stack",
             "F7:volume_divergence",
             "F9:breakdown_bar",
             "F10:level_tied_trigger"
@@ -1111,38 +1290,38 @@
           ]
         },
         "level_tied_to": {
-          "price": 183.02,
-          "label": "SHELF_182.22_183.82_2026-08-21",
+          "price": 181.96,
+          "label": "INTRADAY_RTH_LOW_2026-08-21",
           "tier": "Active",
           "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -0.28,
-          "distance_pct": -0.153,
-          "distance_atr": -1.68,
+          "source": "intraday_rth_low",
+          "is_shelf": false,
+          "distance_dollars": -0.45,
+          "distance_pct": -0.247,
+          "distance_atr": -0.93,
           "side": "below"
         }
       },
       "verdict": "WATCH",
-      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F11:sweep_or_htf, F5:ribbon_stack, F7:volume_divergence"
+      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F11:sweep_or_htf, F7:volume_divergence, F9:breakdown_bar"
     },
     {
       "symbol": "XLE",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 63.76,
-      "atr14_5m": 0.08,
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 63.97,
+      "atr14_5m": 0.172,
       "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
         "vix_degraded": false,
         "vix_note": null,
-        "htf_15m_bars": 367
+        "htf_15m_bars": 371
       },
       "attention": {
-        "rel_volume": 2.14,
-        "pct_change": 0.024,
-        "dollar_volume": 3693595.55,
+        "rel_volume": 1.452,
+        "pct_change": -0.047,
+        "dollar_volume": 2543990.94,
         "scanner_hits": 0
       },
       "structure": {
@@ -1150,11 +1329,6 @@
         "trend": "downtrend",
         "n_swings": 33,
         "last_swings": [
-          {
-            "kind": "swing_low",
-            "label": "HL",
-            "price": 64.33
-          },
           {
             "kind": "swing_high",
             "label": "LH",
@@ -1169,31 +1343,68 @@
             "kind": "swing_high",
             "label": "LH",
             "price": 64.0
+          },
+          {
+            "kind": "swing_low",
+            "label": "LL",
+            "price": 63.79
           }
         ],
-        "last_event": {
-          "kind": "BOS",
-          "direction": "bearish",
-          "broken_price": 63.81
-        }
+        "last_event": null
       },
       "zones": {
         "status": "OK",
-        "n_levels": 4,
+        "n_levels": 7,
         "n_shelves": 4,
         "nearest": {
-          "price": 61.14,
-          "label": "SHELF_60.34_61.94_2026-08-21",
+          "price": 64.02,
+          "label": "INTRADAY_SWING_HIGH_2026-08-21",
           "tier": "Active",
-          "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -2.62,
-          "distance_pct": -4.109,
-          "distance_atr": -32.75,
-          "side": "below"
+          "role": "resistance",
+          "source": "intraday_swing_high",
+          "is_shelf": false,
+          "distance_dollars": 0.05,
+          "distance_pct": 0.078,
+          "distance_atr": 0.29,
+          "side": "above"
         },
         "levels": [
+          {
+            "price": 64.02,
+            "label": "INTRADAY_SWING_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_swing_high",
+            "is_shelf": false,
+            "distance_dollars": 0.05,
+            "distance_pct": 0.078,
+            "distance_atr": 0.29,
+            "side": "above"
+          },
+          {
+            "price": 63.79,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -0.18,
+            "distance_pct": -0.281,
+            "distance_atr": -1.05,
+            "side": "below"
+          },
+          {
+            "price": 64.28,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 0.31,
+            "distance_pct": 0.485,
+            "distance_atr": 1.8,
+            "side": "above"
+          },
           {
             "price": 61.14,
             "label": "SHELF_60.34_61.94_2026-08-21",
@@ -1201,9 +1412,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -2.62,
-            "distance_pct": -4.109,
-            "distance_atr": -32.75,
+            "distance_dollars": -2.83,
+            "distance_pct": -4.424,
+            "distance_atr": -16.44,
             "side": "below"
           },
           {
@@ -1213,9 +1424,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -4.32,
-            "distance_pct": -6.775,
-            "distance_atr": -54.0,
+            "distance_dollars": -4.53,
+            "distance_pct": -7.081,
+            "distance_atr": -26.32,
             "side": "below"
           },
           {
@@ -1225,9 +1436,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -6.0,
-            "distance_pct": -9.41,
-            "distance_atr": -75.0,
+            "distance_dollars": -6.21,
+            "distance_pct": -9.708,
+            "distance_atr": -36.07,
             "side": "below"
           },
           {
@@ -1237,9 +1448,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -9.53,
-            "distance_pct": -14.947,
-            "distance_atr": -119.13,
+            "distance_dollars": -9.74,
+            "distance_pct": -15.226,
+            "distance_atr": -56.58,
             "side": "below"
           }
         ],
@@ -1247,7 +1458,10 @@
           54.23,
           57.76,
           59.44,
-          61.14
+          61.14,
+          63.79,
+          64.02,
+          64.28
         ],
         "multi_day": []
       },
@@ -1255,9 +1469,13 @@
         "status": "OK",
         "action": "HOLD",
         "bear": {
-          "score": 9,
+          "score": 5,
           "triggers": [],
           "blockers": [
+            "F5:ribbon_stack",
+            "F6:ribbon_spread",
+            "F7:volume_divergence",
+            "F9:breakdown_bar",
             "F10:level_tied_trigger"
           ]
         },
@@ -1266,56 +1484,221 @@
           "triggers": [],
           "blockers": [
             "F5:ribbon_stack",
-            "F7:volume_divergence",
+            "F6:ribbon_spread",
             "F10:level_tied_trigger",
             "F11:sweep_or_htf"
           ]
         },
         "level_tied_to": {
-          "price": 61.14,
-          "label": "SHELF_60.34_61.94_2026-08-21",
+          "price": 64.02,
+          "label": "INTRADAY_SWING_HIGH_2026-08-21",
           "tier": "Active",
-          "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -2.62,
-          "distance_pct": -4.109,
-          "distance_atr": -32.75,
-          "side": "below"
+          "role": "resistance",
+          "source": "intraday_swing_high",
+          "is_shelf": false,
+          "distance_dollars": 0.05,
+          "distance_pct": 0.078,
+          "distance_atr": 0.29,
+          "side": "above"
         }
       },
       "verdict": "WATCH",
-      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F7:volume_divergence, F10:level_tied_trigger, F11:sweep_or_htf"
+      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F6:ribbon_spread, F10:level_tied_trigger, F11:sweep_or_htf"
+    },
+    {
+      "symbol": "XLF",
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 57.57,
+      "atr14_5m": 0.128,
+      "context": {
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
+        "vix_degraded": false,
+        "vix_note": null,
+        "htf_15m_bars": 369
+      },
+      "attention": {
+        "rel_volume": 1.174,
+        "pct_change": 0.078,
+        "dollar_volume": 1880955.82,
+        "scanner_hits": 0
+      },
+      "structure": {
+        "status": "OK",
+        "trend": "range",
+        "n_swings": 24,
+        "last_swings": [
+          {
+            "kind": "swing_low",
+            "label": "LL",
+            "price": 57.23
+          },
+          {
+            "kind": "swing_high",
+            "label": "LH",
+            "price": 57.3
+          },
+          {
+            "kind": "swing_low",
+            "label": "LL",
+            "price": 56.91
+          },
+          {
+            "kind": "swing_high",
+            "label": "HH",
+            "price": 57.7
+          }
+        ],
+        "last_event": null
+      },
+      "zones": {
+        "status": "OK",
+        "n_levels": 5,
+        "n_shelves": 3,
+        "nearest": {
+          "price": 57.7,
+          "label": "INTRADAY_RTH_HIGH_2026-08-21",
+          "tier": "Active",
+          "role": "resistance",
+          "source": "intraday_rth_high",
+          "is_shelf": false,
+          "distance_dollars": 0.13,
+          "distance_pct": 0.226,
+          "distance_atr": 1.01,
+          "side": "above"
+        },
+        "levels": [
+          {
+            "price": 57.7,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 0.13,
+            "distance_pct": 0.226,
+            "distance_atr": 1.01,
+            "side": "above"
+          },
+          {
+            "price": 57.24,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -0.33,
+            "distance_pct": -0.573,
+            "distance_atr": -2.57,
+            "side": "below"
+          },
+          {
+            "price": 56.95,
+            "label": "SHELF_56.15_57.75_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -0.62,
+            "distance_pct": -1.077,
+            "distance_atr": -4.84,
+            "side": "below"
+          },
+          {
+            "price": 58.56,
+            "label": "SHELF_57.76_59.36_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": 0.99,
+            "distance_pct": 1.72,
+            "distance_atr": 7.72,
+            "side": "above"
+          },
+          {
+            "price": 54.81,
+            "label": "SHELF_54.01_55.61_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "daily_context_shelf",
+            "is_shelf": true,
+            "distance_dollars": -2.76,
+            "distance_pct": -4.794,
+            "distance_atr": -21.53,
+            "side": "below"
+          }
+        ],
+        "active": [
+          54.81,
+          56.95,
+          57.24,
+          57.7,
+          58.56
+        ],
+        "multi_day": []
+      },
+      "setup": {
+        "status": "OK",
+        "action": "HOLD",
+        "bear": {
+          "score": 7,
+          "triggers": [],
+          "blockers": [
+            "F5:ribbon_stack",
+            "F9:breakdown_bar",
+            "F10:level_tied_trigger"
+          ]
+        },
+        "bull": {
+          "score": 9,
+          "triggers": [],
+          "blockers": [
+            "F10:level_tied_trigger",
+            "F11:sweep_or_htf"
+          ]
+        },
+        "level_tied_to": {
+          "price": 57.7,
+          "label": "INTRADAY_RTH_HIGH_2026-08-21",
+          "tier": "Active",
+          "role": "resistance",
+          "source": "intraday_rth_high",
+          "is_shelf": false,
+          "distance_dollars": 0.13,
+          "distance_pct": 0.226,
+          "distance_atr": 1.01,
+          "side": "above"
+        }
+      },
+      "verdict": "WATCH",
+      "verdict_reason": "no directional trigger; blocking filters: F10:level_tied_trigger, F11:sweep_or_htf, F5:ribbon_stack, F9:breakdown_bar"
     },
     {
       "symbol": "XLV",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 172.43,
-      "atr14_5m": 0.179,
+      "as_of_et": "2026-08-21T10:30:48-04:00",
+      "spot": 174.66,
+      "atr14_5m": 0.413,
       "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
+        "vix": 15.42,
+        "vix_5d_ma": 15.47,
+        "vix_20d_ma": 16.018,
         "vix_degraded": false,
         "vix_note": null,
-        "htf_15m_bars": 364
+        "htf_15m_bars": 369
       },
       "attention": {
-        "rel_volume": 3.268,
-        "pct_change": -0.318,
-        "dollar_volume": 5551153.94,
+        "rel_volume": 0.901,
+        "pct_change": 0.642,
+        "dollar_volume": 1582232.01,
         "scanner_hits": 0
       },
       "structure": {
         "status": "OK",
         "trend": "downtrend",
-        "n_swings": 26,
+        "n_swings": 25,
         "last_swings": [
-          {
-            "kind": "swing_low",
-            "label": "LL",
-            "price": 173.79
-          },
           {
             "kind": "swing_low",
             "label": "LL",
@@ -1330,31 +1713,60 @@
             "kind": "swing_high",
             "label": "LH",
             "price": 173.91
+          },
+          {
+            "kind": "swing_low",
+            "label": "LL",
+            "price": 171.89
           }
         ],
         "last_event": {
-          "kind": "BOS",
-          "direction": "bearish",
-          "broken_price": 173.65
+          "kind": "CHoCH",
+          "direction": "bullish",
+          "broken_price": 173.91
         }
       },
       "zones": {
         "status": "OK",
-        "n_levels": 6,
+        "n_levels": 8,
         "n_shelves": 6,
         "nearest": {
-          "price": 167.82,
-          "label": "SHELF_167.02_168.62_2026-08-21",
+          "price": 175.08,
+          "label": "INTRADAY_RTH_HIGH_2026-08-21",
           "tier": "Active",
-          "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -4.61,
-          "distance_pct": -2.674,
-          "distance_atr": -25.71,
-          "side": "below"
+          "role": "resistance",
+          "source": "intraday_rth_high",
+          "is_shelf": false,
+          "distance_dollars": 0.42,
+          "distance_pct": 0.238,
+          "distance_atr": 1.01,
+          "side": "above"
         },
         "levels": [
+          {
+            "price": 175.08,
+            "label": "INTRADAY_RTH_HIGH_2026-08-21",
+            "tier": "Active",
+            "role": "resistance",
+            "source": "intraday_rth_high",
+            "is_shelf": false,
+            "distance_dollars": 0.42,
+            "distance_pct": 0.238,
+            "distance_atr": 1.01,
+            "side": "above"
+          },
+          {
+            "price": 171.89,
+            "label": "INTRADAY_RTH_LOW_2026-08-21",
+            "tier": "Active",
+            "role": "support",
+            "source": "intraday_rth_low",
+            "is_shelf": false,
+            "distance_dollars": -2.78,
+            "distance_pct": -1.589,
+            "distance_atr": -6.73,
+            "side": "below"
+          },
           {
             "price": 167.82,
             "label": "SHELF_167.02_168.62_2026-08-21",
@@ -1362,9 +1774,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -4.61,
-            "distance_pct": -2.674,
-            "distance_atr": -25.71,
+            "distance_dollars": -6.84,
+            "distance_pct": -3.919,
+            "distance_atr": -16.59,
             "side": "below"
           },
           {
@@ -1374,9 +1786,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -7.21,
-            "distance_pct": -4.181,
-            "distance_atr": -40.22,
+            "distance_dollars": -9.44,
+            "distance_pct": -5.407,
+            "distance_atr": -22.9,
             "side": "below"
           },
           {
@@ -1386,9 +1798,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -9.39,
-            "distance_pct": -5.446,
-            "distance_atr": -52.37,
+            "distance_dollars": -11.62,
+            "distance_pct": -6.656,
+            "distance_atr": -28.18,
             "side": "below"
           },
           {
@@ -1398,9 +1810,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -11.37,
-            "distance_pct": -6.594,
-            "distance_atr": -63.42,
+            "distance_dollars": -13.6,
+            "distance_pct": -7.789,
+            "distance_atr": -32.98,
             "side": "below"
           },
           {
@@ -1410,9 +1822,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -13.12,
-            "distance_pct": -7.609,
-            "distance_atr": -73.18,
+            "distance_dollars": -15.35,
+            "distance_pct": -8.791,
+            "distance_atr": -37.22,
             "side": "below"
           },
           {
@@ -1422,9 +1834,9 @@
             "role": "support",
             "source": "daily_context_shelf",
             "is_shelf": true,
-            "distance_dollars": -15.45,
-            "distance_pct": -8.96,
-            "distance_atr": -86.18,
+            "distance_dollars": -17.69,
+            "distance_pct": -10.125,
+            "distance_atr": -42.87,
             "side": "below"
           }
         ],
@@ -1434,7 +1846,9 @@
           161.06,
           163.04,
           165.22,
-          167.82
+          167.82,
+          171.89,
+          175.08
         ],
         "multi_day": []
       },
@@ -1442,194 +1856,37 @@
         "status": "OK",
         "action": "HOLD",
         "bear": {
-          "score": 9,
-          "triggers": [],
-          "blockers": [
-            "F10:level_tied_trigger"
-          ]
-        },
-        "bull": {
           "score": 7,
           "triggers": [],
           "blockers": [
             "F5:ribbon_stack",
-            "F7:volume_divergence",
+            "F9:breakdown_bar",
+            "F10:level_tied_trigger"
+          ]
+        },
+        "bull": {
+          "score": 9,
+          "triggers": [],
+          "blockers": [
             "F10:level_tied_trigger",
             "F11:sweep_or_htf"
           ]
         },
         "level_tied_to": {
-          "price": 167.82,
-          "label": "SHELF_167.02_168.62_2026-08-21",
+          "price": 175.08,
+          "label": "INTRADAY_RTH_HIGH_2026-08-21",
           "tier": "Active",
-          "role": "support",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": -4.61,
-          "distance_pct": -2.674,
-          "distance_atr": -25.71,
-          "side": "below"
+          "role": "resistance",
+          "source": "intraday_rth_high",
+          "is_shelf": false,
+          "distance_dollars": 0.42,
+          "distance_pct": 0.238,
+          "distance_atr": 1.01,
+          "side": "above"
         }
       },
       "verdict": "WATCH",
-      "verdict_reason": "no directional trigger; blocking filters: F5:ribbon_stack, F7:volume_divergence, F10:level_tied_trigger, F11:sweep_or_htf"
-    },
-    {
-      "symbol": "XLF",
-      "as_of_et": "2026-08-21T01:38:33-04:00",
-      "spot": 56.94,
-      "atr14_5m": 0.048,
-      "context": {
-        "vix": 16.01,
-        "vix_5d_ma": 15.236,
-        "vix_20d_ma": 16.311,
-        "vix_degraded": false,
-        "vix_note": null,
-        "htf_15m_bars": 365
-      },
-      "attention": {
-        "rel_volume": 4.311,
-        "pct_change": -0.306,
-        "dollar_volume": 6667038.17,
-        "scanner_hits": 0
-      },
-      "structure": {
-        "status": "OK",
-        "trend": "downtrend",
-        "n_swings": 25,
-        "last_swings": [
-          {
-            "kind": "swing_low",
-            "label": "HL",
-            "price": 57.31
-          },
-          {
-            "kind": "swing_high",
-            "label": "HH",
-            "price": 57.42
-          },
-          {
-            "kind": "swing_low",
-            "label": "LL",
-            "price": 57.23
-          },
-          {
-            "kind": "swing_high",
-            "label": "LH",
-            "price": 57.3
-          }
-        ],
-        "last_event": {
-          "kind": "BOS",
-          "direction": "bearish",
-          "broken_price": 57.23
-        }
-      },
-      "zones": {
-        "status": "OK",
-        "n_levels": 3,
-        "n_shelves": 3,
-        "nearest": {
-          "price": 56.95,
-          "label": "SHELF_56.15_57.75_2026-08-21",
-          "tier": "Active",
-          "role": "resistance",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": 0.01,
-          "distance_pct": 0.018,
-          "distance_atr": 0.21,
-          "side": "above"
-        },
-        "levels": [
-          {
-            "price": 56.95,
-            "label": "SHELF_56.15_57.75_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 0.01,
-            "distance_pct": 0.018,
-            "distance_atr": 0.21,
-            "side": "above"
-          },
-          {
-            "price": 58.56,
-            "label": "SHELF_57.76_59.36_2026-08-21",
-            "tier": "Active",
-            "role": "resistance",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": 1.62,
-            "distance_pct": 2.845,
-            "distance_atr": 33.6,
-            "side": "above"
-          },
-          {
-            "price": 54.81,
-            "label": "SHELF_54.01_55.61_2026-08-21",
-            "tier": "Active",
-            "role": "support",
-            "source": "daily_context_shelf",
-            "is_shelf": true,
-            "distance_dollars": -2.13,
-            "distance_pct": -3.741,
-            "distance_atr": -44.18,
-            "side": "below"
-          }
-        ],
-        "active": [
-          54.81,
-          56.95,
-          58.56
-        ],
-        "multi_day": []
-      },
-      "setup": {
-        "status": "OK",
-        "action": "ENTER_BEAR",
-        "bear": {
-          "score": 10,
-          "triggers": [],
-          "blockers": []
-        },
-        "bull": {
-          "score": 6,
-          "triggers": [],
-          "blockers": [
-            "F5:ribbon_stack",
-            "F7:volume_divergence",
-            "F10:level_tied_trigger",
-            "F11:sweep_or_htf"
-          ]
-        },
-        "level_tied_to": {
-          "price": 56.95,
-          "label": "SHELF_56.15_57.75_2026-08-21",
-          "tier": "Active",
-          "role": "resistance",
-          "source": "daily_context_shelf",
-          "is_shelf": true,
-          "distance_dollars": 0.01,
-          "distance_pct": 0.018,
-          "distance_atr": 0.21,
-          "side": "above"
-        }
-      },
-      "risk_admission": {
-        "allowed": true,
-        "code": "ALLOW",
-        "reason": "PA38EG1JTFBT/XLF: all admission gates passed"
-      },
-      "prospective_trade": {
-        "side": "P",
-        "right": "put",
-        "status": "BLOCKED",
-        "reason": "expiry: XLF: no expiries supplied by the live chain read"
-      },
-      "verdict": "BLOCKED",
-      "verdict_reason": "ENTER_BEAR but expiry: XLF: no expiries supplied by the live chain read"
+      "verdict_reason": "no directional trigger; blocking filters: F10:level_tied_trigger, F11:sweep_or_htf, F5:ribbon_stack, F9:breakdown_bar"
     }
   ]
 }

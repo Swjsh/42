@@ -68,6 +68,10 @@ except Exception:  # noqa: BLE001 -- structure is enrichment; its absence is rep
     mstruct = None
 
 OUT_DIR = REPO / "analysis" / "multi-lane" / "evaluations"
+# Append-only card history: the LEARNING surface. The dated JSON below is a snapshot and is
+# overwritten on every run; this file never is. multi/outcomes.py stamps forward results onto
+# these rows, which is what turns a dashboard into evidence.
+HISTORY = OUT_DIR / "card-history.jsonl"
 STATE_DIR = REPO / "automation" / "state" / "multi"
 PARAMS = STATE_DIR / "params.json"
 MULTI_DAY_TIERS = ("Carry", "Reference")
@@ -501,6 +505,21 @@ def main(argv=None) -> int:
 
     rank = {"TRADE_CANDIDATE": 0, "WATCH": 1, "BLOCKED": 2, "EXCLUDED": 3}
     cards.sort(key=lambda c: rank.get(c.get("verdict"), 9))
+
+    # APPEND-ONLY HISTORY -- this is the learning surface, and the JSON below is only the
+    # latest snapshot. The dated JSON is overwritten on every run: with a 30-minute cadence
+    # that silently discarded 4 of 5 observations per day, leaving a dashboard with no memory.
+    # A read surface you cannot look BACK at teaches nothing; outcomes get stamped onto these
+    # rows later by multi/outcomes.py, which is what turns observation into evidence.
+    try:
+        HISTORY.parent.mkdir(parents=True, exist_ok=True)
+        with HISTORY.open("a", encoding="utf-8") as fh:
+            for c in cards:
+                fh.write(json.dumps(c, default=str) + "\n")
+    except OSError as e:
+        print(f"[evaluate] WARNING: history append FAILED ({e}) -- this run is not learnable",
+              file=sys.stderr)
+
     out = args.out or (OUT_DIR / f"evaluation-{mcore.now_et().strftime('%Y-%m-%d')}.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({
