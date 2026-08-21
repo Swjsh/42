@@ -48,6 +48,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from multi.lib import broker as mb  # noqa: E402
+from multi.lib import context as mctx  # noqa: E402
 from multi.lib import creds as mc  # noqa: E402
 from multi.lib import expiry as mx  # noqa: E402
 from multi.lib import exits as mex  # noqa: E402
@@ -537,6 +538,19 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
                   file=sys.stderr)
     cascade["tier2_symbols"] = len(score_bars)
 
+    # WP-2 CONTEXT PARITY: the inputs the filters were designed against. Degraded never silent.
+    vix = mctx.fetch_vix()
+    if vix.degraded:
+        cascade["context_degraded_vix"] = 1
+        print(f"    [context] VIX DEGRADED: {vix.reason}", file=sys.stderr)
+    htf_bars: dict = {}
+    if watch_syms:
+        try:
+            htf_bars = fetch_bars_batch(creds, watch_syms, "15Min", limit=2000)
+        except Exception as e:  # noqa: BLE001
+            cascade["context_degraded_htf"] = 1
+            print(f"    [context] HTF 15m DEGRADED: {type(e).__name__}", file=sys.stderr)
+
     for sym in symbols:
         cascade["evaluated"] += 1
         if sym not in watch_syms:
@@ -572,9 +586,14 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
             continue
         row["n_levels_active"] = len(active_lv)
         try:
+            lvl_states = mctx.update_level_states(sym, active_lv, bars)
+            row["n_level_states"] = len(lvl_states)
             sig = ms.build_signal(sym, bars, params=params,
                                   candidate_levels=active_lv,
-                                  candidate_multi_day_levels=multi_lv)
+                                  candidate_multi_day_levels=multi_lv,
+                                  level_states=lvl_states,
+                                  htf_15m_bars=htf_bars.get(sym),
+                                  **vix.as_kwargs())
         except (ms.SignalBuildError, ValueError) as e:
             row.update(decision="BLOCKED", gate="signal_scored", reason=f"signal error: {e}")
             rows.append(row)
@@ -762,8 +781,8 @@ def main(argv: list[str] | None = None) -> int:
         write_rows(rows, cascade)
 
     print(f"[multi_core] {ts_summary(cascade)}", file=sys.stderr)
-    for g in ("exit_evaluations", "evaluated", "funnel_filtered_out", "bars_ok",
-              "signal_scored",
+    for g in ("exit_evaluations", "evaluated", "funnel_filtered_out",
+              "context_degraded_vix", "context_degraded_htf", "bars_ok", "signal_scored",
               "action_directional",
               "risk_admitted", "expiry_available", "strike_selected", "liquidity_ok",
               "sized_ok", "would_place"):
