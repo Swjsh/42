@@ -1471,13 +1471,27 @@ def _is_blind(bar_ctx: dict) -> bool:
     absence only ever means a synthetic/partial payload, and a payload that cannot state
     what the engine can see must never be allowed to authorize an entry.
     """
-    if not (bar_ctx.get("levels_active") or []):
-        return True
-    # A tick deciding on a PRIOR-SESSION bar is blind about today by definition,
-    # however many levels it can name. Only the unambiguous prior-session case
-    # feeds blindness; a merely-old bar is logged (see _trigger_bar_stale) but
-    # left to the existing age/entry gates so this cannot mass-block on a slow feed.
-    return bool(_trigger_bar_stale(bar_ctx).get("prior_session"))
+    return not (bar_ctx.get("levels_active") or [])
+    # DELIBERATELY NOT ALSO GATED ON BAR FRESHNESS -- see below.
+    #
+    # A prior-session clause used to live here: "a tick deciding on a previous session's
+    # bar is blind about today by definition". The idea is sound; the implementation was
+    # not, and it was only ever reachable dead code because `_trigger_bar_stale` read the
+    # wrong payload key and always returned early (fixed 2026-08-21).
+    #
+    # The moment that key was fixed, the clause came alive and broke 10 tests across
+    # test_blind_no_levels_2026_07_30, test_gate_provenance_ordering_2026_07_10 and the
+    # rail-parity fences. The mechanism: `_trigger_bar_stale` compares against the REAL
+    # DST-aware clock, so in ANY replay, backtest or unit test built on historical bars
+    # every tick is "prior session" -> blind=True -> every entry blocked. That is far worse
+    # than the inert guard it replaced: it silently disables the entire simulation lane,
+    # and it would have shipped looking like a safety improvement.
+    #
+    # Freshness IS now genuinely measured and logged on every row (`bar_freshness`, which
+    # is what the fix was for). Turning that measurement into a BLOCK is a live behaviour
+    # change with real blast radius, so it needs OP-11 evidence and an injected clock --
+    # not a boolean quietly ORed into the blindness check.
+    # Queue: T-OPEN-TICK-STALE-QUOTE-2026-08-20 stays open for that decision.
 
 
 def _level_anchored(verdict: dict) -> bool:

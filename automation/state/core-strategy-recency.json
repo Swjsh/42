@@ -1,9 +1,9 @@
 {
   "instrument": "CORE-STRATEGY RECENCY (WS11 2026-08-01) -- the revalidation clock for the strategy itself, per J's 2026-07-31 recency rule",
-  "run_date": "2026-08-03",
+  "run_date": "2026-08-21",
   "window": {
-    "start": "2026-06-29",
-    "end": "2026-08-03",
+    "start": "2026-07-20",
+    "end": "2026-08-21",
     "n_trading_days": 25,
     "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
   },
@@ -23,151 +23,157 @@
   "verdicts": {
     "bear": {
       "verdict": "RED",
-      "n": 10,
-      "exp_per_trade": -60.9,
-      "reason": "real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=12 exp=$8.17/tr recent",
-      "headline": "bear RED n=10"
+      "n": 31,
+      "exp_per_trade": -16.71,
+      "reason": "real-fills exp $-16.71/tr NEGATIVE-or-flat, n=31 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=21 exp=$116.89/tr recent",
+      "headline": "bear RED n=31"
     },
     "bull": {
-      "verdict": "UNDERPOWERED",
-      "n": 1,
-      "exp_per_trade": -295.0,
-      "reason": "n=1 < floor 10 on real fills (negative $-295.0/tr) -- no verdict manufactured; see replay supplement; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=5 exp=$-69.48/tr recent",
-      "headline": "bull UNDERPOWERED n=1"
+      "verdict": "GREEN",
+      "n": 31,
+      "exp_per_trade": 2.45,
+      "reason": "real-fills exp +$2.45/tr, n=31 >= floor 10; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=3 exp=$-131.33/tr recent",
+      "headline": "bull GREEN n=31"
     }
   },
-  "headline": "core strategy recency: bear RED n=10, bull UNDERPOWERED n=1 (floor 10, 25d to 2026-08-03)",
+  "headline": "core strategy recency: bear RED n=31, bull GREEN n=31 (floor 10, 25d to 2026-08-21)",
   "strata": {
     "broker_core": {
       "bear": {
-        "n": 10,
-        "total_dollar": -609.0,
-        "exp_per_trade": -60.9,
-        "wr_pct": 20.0,
-        "n_days": 5,
-        "first_fill": "2026-07-17",
-        "last_fill": "2026-07-27"
+        "n": 31,
+        "total_dollar": -518.0,
+        "exp_per_trade": -16.71,
+        "wr_pct": 35.5,
+        "n_days": 14,
+        "first_fill": "2026-07-20",
+        "last_fill": "2026-08-21"
       },
       "bull": {
-        "n": 1,
-        "total_dollar": -295.0,
-        "exp_per_trade": -295.0,
-        "wr_pct": 0.0,
-        "n_days": 1,
+        "n": 31,
+        "total_dollar": 76.0,
+        "exp_per_trade": 2.45,
+        "wr_pct": 25.8,
+        "n_days": 9,
         "first_fill": "2026-07-28",
-        "last_fill": "2026-07-28"
+        "last_fill": "2026-08-21"
       },
       "by_account": {
         "core Safe/bear": {
-          "n": 7,
-          "total_dollar": -140.0,
-          "exp_per_trade": -20.0,
-          "wr_pct": 14.3,
-          "n_days": 4,
-          "first_fill": "2026-07-17",
-          "last_fill": "2026-07-27"
+          "n": 17,
+          "total_dollar": 105.0,
+          "exp_per_trade": 6.18,
+          "wr_pct": 35.3,
+          "n_days": 12,
+          "first_fill": "2026-07-20",
+          "last_fill": "2026-08-21"
         },
         "core Safe/bull": {
-          "n": 0
+          "n": 15,
+          "total_dollar": 152.0,
+          "exp_per_trade": 10.13,
+          "wr_pct": 26.7,
+          "n_days": 8,
+          "first_fill": "2026-08-04",
+          "last_fill": "2026-08-21"
         },
         "core Bold/bear": {
-          "n": 3,
-          "total_dollar": -469.0,
-          "exp_per_trade": -156.33,
-          "wr_pct": 33.3,
-          "n_days": 3,
-          "first_fill": "2026-07-17",
-          "last_fill": "2026-07-27"
+          "n": 14,
+          "total_dollar": -623.0,
+          "exp_per_trade": -44.5,
+          "wr_pct": 35.7,
+          "n_days": 10,
+          "first_fill": "2026-07-23",
+          "last_fill": "2026-08-21"
         },
         "core Bold/bull": {
-          "n": 1,
-          "total_dollar": -295.0,
-          "exp_per_trade": -295.0,
-          "wr_pct": 0.0,
-          "n_days": 1,
+          "n": 16,
+          "total_dollar": -76.0,
+          "exp_per_trade": -4.75,
+          "wr_pct": 25.0,
+          "n_days": 8,
           "first_fill": "2026-07-28",
-          "last_fill": "2026-07-28"
+          "last_fill": "2026-08-21"
         }
       }
     },
     "broker_fleet_context": {
       "bear": {
-        "n": 32,
-        "total_dollar": -103.0,
-        "exp_per_trade": -3.22,
-        "wr_pct": 18.8,
-        "n_days": 8,
-        "first_fill": "2026-07-02",
-        "last_fill": "2026-07-30"
+        "n": 27,
+        "total_dollar": 537.0,
+        "exp_per_trade": 19.89,
+        "wr_pct": 40.7,
+        "n_days": 9,
+        "first_fill": "2026-07-27",
+        "last_fill": "2026-08-21"
       },
       "bull": {
-        "n": 86,
-        "total_dollar": 223.0,
-        "exp_per_trade": 2.59,
-        "wr_pct": 11.6,
+        "n": 80,
+        "total_dollar": 1320.0,
+        "exp_per_trade": 16.5,
+        "wr_pct": 37.5,
         "n_days": 12,
-        "first_fill": "2026-06-29",
-        "last_fill": "2026-08-03"
+        "first_fill": "2026-07-28",
+        "last_fill": "2026-08-21"
       },
       "note": "same RIDE_THE_RIBBON family on the fleet arms (roster-driven ids) -- real fills, different risk shells; CONTEXT only, not verdict"
     },
     "replay_supplement_safe_shape": {
-      "frame": "2025-01-02..2026-08-03",
-      "recent_window": "2026-06-29..2026-08-03",
-      "n_frame_trading_days": 395,
+      "frame": "2025-01-02..2026-08-21",
+      "recent_window": "2026-07-20..2026-08-21",
+      "n_frame_trading_days": 409,
       "excluded": {
         "no_opra": 0,
         "no_spy_day": 0
       },
       "shape": "core Safe (SAFE_BASE_LIVE) -- no production-parity Bold replay harness exists (engine_fullhist_replay.py scope disclosure)",
       "basis": "engine-sim (orchestrator entry + walk_exit_manager exit, real OPRA only) -- NEVER blended into broker-fills n",
-      "runtime_seconds": 74.6,
+      "runtime_seconds": 92.2,
       "recent": {
         "bear": {
-          "n": 12,
-          "total_dollar": 98.0,
-          "exp_per_trade": 8.17,
-          "wr_pct": 25.0,
-          "n_days": 9,
-          "first_fill": "2026-07-02",
-          "last_fill": "2026-07-27"
+          "n": 21,
+          "total_dollar": 2454.6,
+          "exp_per_trade": 116.89,
+          "wr_pct": 47.6,
+          "n_days": 14,
+          "first_fill": "2026-07-20",
+          "last_fill": "2026-08-20"
         },
         "bull": {
-          "n": 5,
-          "total_dollar": -347.4,
-          "exp_per_trade": -69.48,
-          "wr_pct": 20.0,
-          "n_days": 4,
-          "first_fill": "2026-06-29",
-          "last_fill": "2026-07-15"
+          "n": 3,
+          "total_dollar": -394.0,
+          "exp_per_trade": -131.33,
+          "wr_pct": 33.3,
+          "n_days": 3,
+          "first_fill": "2026-08-07",
+          "last_fill": "2026-08-13"
         }
       },
       "full": {
         "bear": {
-          "n": 154,
-          "total_dollar": 2343.55,
-          "exp_per_trade": 15.22,
-          "wr_pct": 26.0,
-          "n_days": 115,
+          "n": 169,
+          "total_dollar": 5957.75,
+          "exp_per_trade": 35.25,
+          "wr_pct": 34.9,
+          "n_days": 125,
           "first_fill": "2025-01-06",
-          "last_fill": "2026-07-27"
+          "last_fill": "2026-08-20"
         },
         "bull": {
-          "n": 40,
-          "total_dollar": 2079.4,
-          "exp_per_trade": 51.98,
-          "wr_pct": 40.0,
-          "n_days": 38,
+          "n": 43,
+          "total_dollar": 1385.6,
+          "exp_per_trade": 32.22,
+          "wr_pct": 44.2,
+          "n_days": 41,
           "first_fill": "2025-01-16",
-          "last_fill": "2026-07-15"
+          "last_fill": "2026-08-13"
         }
       }
     }
   },
   "exclusions": {
     "bad_date": 0,
-    "outside_window": 17,
-    "non_family": 39,
+    "outside_window": 179,
+    "non_family": 90,
     "bad_side": 0,
     "bad_pnl": 0,
     "unattributed_account": 0,

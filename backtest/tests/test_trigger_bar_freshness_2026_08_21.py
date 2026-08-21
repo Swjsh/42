@@ -21,7 +21,9 @@ field that was False when it should have been True.
 WHAT IS PINNED
   1. The function reads the key bar_ctx ACTUALLY carries (`timestamp_et`).
   2. `checked` is True for any parseable stamp -- the inertness itself is the regression.
-  3. Prior-session bars set `prior_session` AND feed `_is_blind`.
+  3. Prior-session bars are FLAGGED but do NOT blind -- freshness is measured,
+     never enforced. Enforcing it broke 10 tests the moment the key was fixed,
+     because historical bars always read 'prior session' against the real clock.
   4. Same-day-but-old bars are LOGGED stale but do NOT set blind. That asymmetry is
      deliberate (docstring: "a merely-old bar is logged but left to the existing
      age/entry gates so this cannot mass-block on a slow feed"). Arming a same-day
@@ -92,12 +94,33 @@ def test_same_day_old_bar_is_stale_but_not_prior_session():
     assert r["prior_session"] is False
 
 
-def test_prior_session_bar_sets_prior_session_and_blinds():
+def test_prior_session_bar_is_flagged_but_does_NOT_blind():
+    """Freshness is MEASURED, not enforced -- and that separation is load-bearing.
+
+    An earlier cut ORed prior_session into `_is_blind`. The clause was unreachable while
+    the payload-key bug made _trigger_bar_stale always return early; the moment the key was
+    fixed it came alive and broke 10 tests, because _trigger_bar_stale compares against the
+    REAL clock -- so in any replay/backtest built on historical bars EVERY tick reads
+    "prior session", blinds, and blocks every entry. Turning this measurement into a block
+    needs OP-11 evidence and an injected clock, not a boolean in the blindness check."""
     ctx = _ctx("2026-08-20T15:55:00-04:00")
     r = hc._trigger_bar_stale(ctx, now_et=NOW)
-    assert r["prior_session"] is True and r["stale"] is True
-    assert hc._is_blind(ctx) is True, (
-        "a tick deciding on a PREVIOUS SESSION's bar is blind about today by definition"
+    assert r["prior_session"] is True and r["stale"] is True, "must still be MEASURED"
+    assert hc._is_blind(ctx) is False, (
+        "_is_blind must depend on levels_active ONLY. Gating it on wall-clock freshness "
+        "silently disables the entire replay/backtest lane."
+    )
+
+
+def test_is_blind_never_consults_the_wall_clock():
+    """The structural guarantee behind the test above."""
+    src = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
+    fn = src[src.index("def _is_blind"):]
+    fn = fn[:fn.index(chr(10) + "def ")]
+    body = chr(10).join(l for l in fn.splitlines() if not l.strip().startswith("#"))
+    assert "_trigger_bar_stale" not in body, (
+        "_is_blind consults the freshness check again -- that re-breaks every replay, "
+        "because historical bars are always 'prior session' against the real clock."
     )
 
 
