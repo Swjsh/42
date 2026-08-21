@@ -81,7 +81,7 @@ FORWARD_BAR = {"min_sessions": 10, "extras_net_gt": 0.0, "no_session_worse_than"
                "negative_session_avg_no_worse_than": -300.0, "qty": lrr.QTY_LEDGER}
 
 
-def run_for_date(date_iso: str) -> int:
+def run_for_date(date_iso: str, retally: bool = False) -> int:
     """Replay LANE 1's frozen rule for ONE date on real OPRA, append per-arm rows. Returns
     0 always (fail-open) -- a no-data date (weekend/holiday, or a day whose safe-account
     ledger hasn't landed yet) is a silent no-op, not an error."""
@@ -108,9 +108,18 @@ def run_for_date(date_iso: str) -> int:
         return 0
 
     LEDGER_OUT.parent.mkdir(parents=True, exist_ok=True)
+    already = existing_keys()
+    todo = [a for a in lrr.ARMS if (date_iso, a["id"]) not in already]
+    if not todo and not retally:
+        print(f"[ladder-rung-shadow] {date_iso} already tallied for "
+              f"{', '.join(a['id'] for a in lrr.ARMS)} -- refusing to duplicate. "
+              "Pass --retally to append a superseding row.")
+        return 0
+    if retally:
+        todo = list(lrr.ARMS)
     rows_written = 0
     with open(LEDGER_OUT, "a", encoding="utf-8") as f:
-        for arm in lrr.ARMS:
+        for arm in todo:
             cfg = lrr.arm_day_config(arm["id"], date_iso)
             binary = lrr.walk_day(arm, events, bars, cfg, include_rescues=False, qty=lrr.QTY_LEDGER)
             ladder = lrr.walk_day(arm, events, bars, cfg, include_rescues=True, qty=lrr.QTY_LEDGER)
@@ -125,6 +134,9 @@ def run_for_date(date_iso: str) -> int:
                 "sod_equity": cfg.get("sod_equity"), "pdt_enforced": cfg.get("pdt_enforced"),
                 "prereg": "analysis/recommendations/prereg-score-ladder-rung-2026-08-07.md (a780122e)",
                 "hold_decision": "analysis/deep-research/CLOSE-EXECUTION-2026-08-07.md",
+                # Marks a deliberate re-tally so read_deduped's last-wins rule is
+                # auditable rather than accidental.
+                "supersedes_prior": bool(retally and (date_iso, arm["id"]) in already),
             }
             f.write(json.dumps(row, default=str) + "\n")
             rows_written += 1
@@ -135,11 +147,71 @@ def run_for_date(date_iso: str) -> int:
     return 0
 
 
+
+# --- IDEMPOTENCY (T6, 2026-08-20) --------------------------------------------
+# The tally appended unconditionally, so every re-run of a date wrote duplicate
+# rows: 2026-08-07 landed EIGHT times and 08-13 twice. Raw cumulative added_pnl
+# read -$21,735 against a deduped ~-$3,380 / -$3,235 — a 6x inflation for anyone
+# summing the file naively. The VERDICT never changed (8 of 9 live days negative),
+# but a shadow whose own bookkeeping is wrong cannot be allowed to gate anything.
+#
+# History is NOT rewritten: this ledger is append-only by doctrine and the dupes
+# are an honest record of re-runs. Instead: refuse to re-append by default, and
+# give every consumer read_deduped() so naive summing is impossible to get wrong.
+
+def existing_keys(path: Path = None) -> set:
+    """(date, arm_id) pairs already tallied."""
+    p = path or LEDGER_OUT
+    keys = set()
+    try:
+        for line in p.open(encoding="utf-8", errors="replace"):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if r.get("date") and r.get("arm_id"):
+                keys.add((r["date"], r["arm_id"]))
+    except OSError:
+        pass
+    return keys
+
+
+def read_deduped(path: Path = None) -> list:
+    """Ledger rows with one entry per (date, arm_id) — the LAST tally wins.
+
+    Use this anywhere you would otherwise sum the raw file. The raw file is the
+    audit trail; this is the answer.
+    """
+    p = path or LEDGER_OUT
+    latest = {}
+    try:
+        for line in p.open(encoding="utf-8", errors="replace"):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            k = (r.get("date"), r.get("arm_id"))
+            if k[0] and k[1]:
+                latest[k] = r          # later line supersedes earlier
+    except OSError:
+        return []
+    return [latest[k] for k in sorted(latest)]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", default=dt.date.today().isoformat())
+    ap.add_argument("--retally", action="store_true",
+                    help="append a SUPERSEDING row for a date already tallied "
+                         "(default: refuse, to keep the ledger free of accidental dupes)")
     args = ap.parse_args()
-    return run_for_date(args.date)
+    return run_for_date(args.date, retally=args.retally)
 
 
 if __name__ == "__main__":
