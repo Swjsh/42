@@ -1,0 +1,47 @@
+{
+  "rule_id": "prereg-spy-production-calibration-2026-08-20",
+  "title": "Is the null harness CALIBRATED? Run it on the known-positive control: the production SPY engine.",
+  "status": "FROZEN_BEFORE_ANY_RESULT",
+  "frozen_at_et": "2026-08-20T22:2x",
+  "_no_results_seen": "Written before the calibration harness has been run even once. Only the POPULATION was counted beforehand (886 verdict=ENTER_* rows over 33 days) -- counting rows is not a result.",
+
+  "why_this_test_exists": {
+    "the_uncomfortable_fact": "The multi-lane Stage A harness scored SPY itself at -0.007% / 49.8% hit -- statistically nothing -- over the same window in which the PRODUCTION SPY engine booked three consecutive green sessions. Those two facts cannot both be casually true. Either the fork's signal differs materially from production's, or the metric does not measure where this engine's money comes from.",
+    "why_it_is_not_a_re_slice": "This is a POSITIVE-CONTROL calibration of the instrument, not a re-test of the dead multi-lane signal. It runs on a DIFFERENT population (production's own decision ledger, real curated levels behind it) and answers a DIFFERENT question (does my measuring device detect a known-good edge?). The kill-list forbids threshold sweeps, 'try more names', and re-slices of the failed data -- this is none of those. No outcome here revives the multi-lane signal.",
+    "provenance_audit": "OP-32 P2 Constraint Provenance Audit. The constraint every gate in this shop has operated under is 'a tradeable signal must predict the direction of the underlying.' That constraint was ASSUMED, never measured against this engine. Two lanes have now died under it. Before optimizing under a constraint a third time, audit where it came from."
+  },
+
+  "populations": {
+    "A_raw_trigger": {
+      "definition": "Every row in automation/state/core-decisions.jsonl with verdict in {ENTER_BEAR, ENTER_BULL}, deduped by (ts_et, verdict) across the safe/bold accounts.",
+      "expected_n": "~500-886 after dedupe, 33 distinct days, both directions",
+      "_why_this_is_the_clean_one": "verdict is UPSTREAM of the entry gates. 815 of these 886 were BLOCKED from trading by some gate. Scoring all of them tests the TRIGGER with no survivorship and no conditioning on the profitable subset."
+    },
+    "B_gates_passed": {
+      "definition": "The subset with action == PLACED (n=71).",
+      "_why_separate": "This is where money was actually risked. Reported SEPARATELY and never as the headline: n=71 is thin, and it is conditioned on gates that were tuned during this same window."
+    }
+  },
+
+  "method": {
+    "metric": "IDENTICAL to multi-lane Stage A, deliberately unchanged so the comparison is apples-to-apples: signed forward return of the UNDERLYING in the signal's own direction at +2/+6/+12 five-minute bars. Headline horizon +6 bars (30 min).",
+    "bars": "SPY 5-minute bars over the ledger's span, fetched with the same pagination/explicit-start path the multi lane uses.",
+    "null": "Random entries drawn from the SAME session-bar population, same count, same direction mix, N>=30 draws. Signal must beat the null's MAX, not its mean.",
+    "multiple_comparison": "Holm across the 3 horizons. Population B is descriptive, not added to the corrected family."
+  },
+
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "CALIBRATED": "Population A beats the null MAX at the headline horizon. => The instrument WORKS and detects a real directional edge when one is present. The multi-lane null therefore stands as a true negative, and the fork's failure is a genuine difference in SIGNAL INPUTS -- prime suspect the curated key-levels/trendlines/multi-day memory the fork replaced with lane-computed levels. Next step: identify and transplant the missing INPUT, not more code.",
+    "INSTRUMENT_MISMATCH": "Population A also fails the null. => Directional forward return of the underlying does NOT capture this engine's edge. The multi-lane verdict remains true as written ('no directional edge') but must NOT be read as 'no tradeable edge' -- and the gate every future candidate is judged by has to be rebuilt around premium-path / right-tail economics, because that is where the real fills say the money is (102 waves, exits >=1.3x entry premium). This would be the most consequential finding of the three lanes.",
+    "GATES_ARE_THE_EDGE": "A fails but B clearly beats its own null. => The information lives in the ENTRY GATES, not the trigger. Gates are transplantable, and that becomes the thing to port to other names.",
+    "_none_of_these_revive_the_multi_lane_signal": "No outcome authorizes a threshold sweep, a re-slice, or re-enabling Gamma_MultiCore. A new candidate needs a new signal and its own pre-registration.",
+    "what_no_result_authorizes": "Nothing here arms live money, changes any SPY parameter, touches the 10 rules, or modifies the production engine. This test is READ-ONLY against a ledger."
+  },
+
+  "known_confounds_stated_upfront": [
+    "The production engine's gates were tuned over roughly this same window. Population A mitigates this by scoring the trigger UPSTREAM of the gates and including the 815 blocked signals; population B does not, and is labeled accordingly.",
+    "886 signals over 33 days is fewer distinct days than the multi-lane run's window; day-level clustering is a real risk and per-day dispersion is reported alongside the pooled mean (C4).",
+    "A PASS on population A is NOT proof the production engine is profitable -- profitability is a fills question answered by journal/trades.csv, not by this harness. This test only asks whether the INSTRUMENT can see a directional edge."
+  ]
+}
