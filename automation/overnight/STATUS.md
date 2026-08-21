@@ -12,6 +12,8 @@
 
 **Not fixed this fire (unrelated, out of bounded scope):** `conviction-c4-c5` remains RED on the incident roster (C5 entry-quality signal still None) — has recurred across ~6+ fires today without resolution; likely needs real design work (a signal doesn't exist yet), not a mechanical patch. Flagging for a future fire or FABLE-ESCALATION if it keeps recurring without progress.
 
+**Autonomy metric (`conductor_outcome.py metric`, 20-fire window): `trend: regressing`** — net_improvement=17/total_regressions=0 (healthy, no shipped work is being undone), but `cost_per_drained_usd=$2.00` over the window is the flagged signal per OP-22. Noted, not investigated further this fire (bounded-task rail); worth a look if it persists past a few more fires.
+
 ## [2026-08-20 18:40 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
 
 - **conviction-c4-c5** -- closes: no entry-quality signal existed at all
