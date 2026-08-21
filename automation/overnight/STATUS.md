@@ -1,3 +1,19 @@
+## [2026-08-21 01:43 ET] MULTI-TICKER: evaluation surface LIVE for Friday; levels hypothesis KILLED; entries NOT armed
+
+**J's goal: "set up to trade other tickers Friday, with a complex evaluation system for each ticker and its prospective trade."** Half delivered in full, half honestly refused.
+
+**DELIVERED -- `Gamma_MultiEvaluate`, verified END TO END** (not merely registered): fired the real scheduled action, 48KB artifact written, zero errors, 8 tickers evaluated. Fires 09:00 ET premarket then every 30 min to 15:30 ET. Per ticker: tiered ZONE MAP (supply/demand shelves, pivots, PDH/PDL/PDC, premarket + intraday extremes) with distance in percent AND ATR, market structure (HH/HL/BOS/CHoCH), relative volume, VIX regime, per-side score with **named** triggers and **named** blocking filters, and for the top names the concrete prospective trade -- contract, strike, expiry, premium, spread, size, dollar risk, catastrophe cap. Every field is a real measurement or an explicit UNAVAILABLE with a reason; nothing defaults to a plausible number.
+
+**NOT DELIVERED, and it should not be: entries on non-SPY names.** No validated signal exists for them. Tonight did not weaken that -- it strengthened it by killing the most plausible fix. Arming would break Rule 1 (no setup, no trade) and Rule 10. Lane stays STOPPED, `Gamma_MultiCore` stays disabled, and every card prints the STOPPED state so an evaluation cannot be mistaken for an authorization.
+
+**CORRECTION I OWE J:** earlier tonight I said *"the levels ARE the edge."* That was a hypothesis reported as a finding, and it is now falsified. SPY control, 3 arms, zero errors: fork 51.08% / prod_base 48.90% / **prod_full (all four level families) 48.97%**. All 9 symbols paired, every arm, fails its null -- largest sigma anywhere +0.55, level-swap deltas -3.61 to +2.56 with no consistent sign. Four families of production-grade levels moved the forked trigger by **nothing**.
+
+**What that leaves standing:** production's trigger really does carry direction (58.23% at +10min, **+4.89 sigma**, n=881). The fork's does not (~49% across 12,800 signals and three level sources). By elimination the gap is the **filter stack** -- `multi/lib/filters.py` is a *re-implementation*, and one scoring 49% where the original scores 58% is a different strategy wearing the same filter names. Next hypothesis, and it gets its own prereg and null gate before anything is built on it.
+
+**THREE REAL BUGS the verification caught, every one of which would have hit at 09:00 on a live morning:** (a) **timezone** -- the box runs Mountain and Task Scheduler fires on LOCAL wall-clock, so my "09:00" would have produced the premarket card at 11:00 ET, ninety minutes after the open; now 07:00 local with a verify block that PROVES the mapping rather than asserting it. (b) **silent success** -- the first fire returned `LastTaskResult=0` and wrote nothing, because `run_cmd_hidden` discards stdout without `--log` and the wscript hop swallows the exit code; `--log` is now wired and is not optional. (c) **a latent crash** the log immediately exposed -- `evaluate_admission()` missing required keyword `correlations`, which no hand-test hit because every symbol I tested resolved to WATCH and never reached that line; fixed and generalized into a static call-site signature-contract test over all five composed modules.
+
+**REVOKE:** `Unregister-ScheduledTask -TaskName Gamma_MultiEvaluate` removes the surface; the commit is one clean revert. 13 guards green (5 new, 3 RED-proofed and restored). Zero live-money, secret, or SPY-engine surfaces touched.
+
 ﻿## Known broken
 
 - [2026-08-21] TRENDLINE-SHADOW BLIND :: no usable 5m bars for 2026-08-21 (cumulative spy_5m file did not refresh) :: EOD trendline section will read BLIND :: re-run: backtest/.venv/Scripts/python.exe setup/scripts/trendline_shadow.py --date 2026-08-21
@@ -334,7 +350,7 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 
 ## Kitchen
-Kitchen: alive, queue 76 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+Kitchen: alive, queue 68 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 
 
