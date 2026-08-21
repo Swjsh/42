@@ -356,7 +356,14 @@ def evaluate_symbol(symbol: str, *, params: dict, creds, bars5: pd.DataFrame,
     adm = mrisk.evaluate_admission(
         account=(params.get("account") or {}).get("account_number"), symbol=symbol,
         start_of_day_equity=equity, realized_pnl_today=0.0, kill_switch_tripped=False,
-        open_positions=open_positions, params=params)
+        open_positions=open_positions,
+        # None = "no correlation matrix supplied", which the correlation gate treats as
+        # unknown rather than as zero-correlation. This is a required keyword, not an optional
+        # one; omitting it raised TypeError on the FIRST symbol that actually triggered -- a
+        # crash no hand-test caught, because the hand-tested symbols all resolved to WATCH and
+        # never reached this line.
+        correlations=None,
+        params=params)
     card["risk_admission"] = {"allowed": adm.allowed, "code": adm.code, "reason": adm.reason}
     if not adm.allowed:
         card["verdict"] = "BLOCKED"

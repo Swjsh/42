@@ -1,0 +1,106 @@
+{
+  "symbol": "SPY",
+  "headline_horizon_bars": 2,
+  "production_trigger_reference_hit_at_10min": 58.23,
+  "arms": {
+    "fork": {
+      "signals": 601,
+      "diagnostics": {
+        "evaluated": 5715,
+        "lvl_err": 0,
+        "lvl_empty": 0,
+        "lvl_sum": 189474,
+        "curated_hits": 0,
+        "refreshes": 477
+      },
+      "summary": {
+        "n": 601,
+        "h2": {
+          "n": 601,
+          "hit": 51.08,
+          "sigma": 0.53,
+          "mean_pct": -0.00411
+        },
+        "h6": {
+          "n": 601,
+          "hit": 48.75,
+          "sigma": -0.61,
+          "mean_pct": -0.01487
+        },
+        "h12": {
+          "n": 601,
+          "hit": 50.92,
+          "sigma": 0.45,
+          "mean_pct": -0.02288
+        }
+      },
+      "trustworthy": true
+    },
+    "prod_base": {
+      "signals": 591,
+      "diagnostics": {
+        "evaluated": 5643,
+        "lvl_err": 0,
+        "lvl_empty": 72,
+        "lvl_sum": 55500,
+        "curated_hits": 0,
+        "refreshes": 477
+      },
+      "summary": {
+        "n": 591,
+        "h2": {
+          "n": 591,
+          "hit": 48.9,
+          "sigma": -0.53,
+          "mean_pct": -0.00774
+        },
+        "h6": {
+          "n": 591,
+          "hit": 47.55,
+          "sigma": -1.19,
+          "mean_pct": -0.01763
+        },
+        "h12": {
+          "n": 591,
+          "hit": 49.07,
+          "sigma": -0.45,
+          "mean_pct": -0.0306
+        }
+      },
+      "trustworthy": true
+    },
+    "prod_full": {
+      "signals": 631,
+      "diagnostics": {
+        "evaluated": 5631,
+        "lvl_err": 0,
+        "lvl_empty": 84,
+        "lvl_sum": 56127,
+        "curated_hits": 0,
+        "refreshes": 477
+      },
+      "summary": {
+        "n": 631,
+        "h2": {
+          "n": 631,
+          "hit": 48.97,
+          "sigma": -0.52,
+          "mean_pct": -0.00815
+        },
+        "h6": {
+          "n": 631,
+          "hit": 47.39,
+          "sigma": -1.31,
+          "mean_pct": -0.01879
+        },
+        "h12": {
+          "n": 631,
+          "hit": 48.49,
+          "sigma": -0.76,
+          "mean_pct": -0.03056
+        }
+      },
+      "trustworthy": true
+    }
+  }
+}

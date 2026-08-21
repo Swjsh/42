@@ -1167,16 +1167,29 @@
   },
   {
    "id": "multi-symbol-lane",
-   "name": "Multi-symbol lane (STOPPED)",
+   "name": "Multi-symbol lane (lane STOPPED; evaluation surface LIVE)",
    "group": "RESEARCH",
    "criticality": "low",
-   "what": "Symbol-generic fork of the SPY intraday engine over ~72 names, arm multi-1, shadow-only. STOPPED 2026-08-20 on WP-4's frozen random-entry null gate.",
-   "breaks": "Nothing trading-critical -- the lane never placed an order and is now stopped. Registered so its Disabled tick task is recorded as off-BY-DESIGN with a written reason, rather than surfacing forever as an UNREGISTERED orphan bubble or, worse, quietly ticking on for a programme whose verdict already came in.",
-   "tasks": [],
+   "what": "Per-ticker EVALUATION surface for the multi-symbol universe (zone map, structure, blockers, prospective trade). The lane's TRADING signal is STOPPED on a null verdict; the evaluation surface runs read-only and cannot place an order.",
+   "breaks": "J loses the daily per-ticker read -- zone maps, named blockers and prospective trade pricing for the non-SPY universe. Nothing trading-critical: this surface has no order path and the lane is not armed.",
+   "tasks": [
+    "Gamma_MultiEvaluate"
+   ],
    "expect_disabled": {
     "Gamma_MultiCore": "Lane STOPPED 2026-08-20: WP-4 Stage A returned a null (7,489 signals / 9 symbols, fails the random-entry null at every horizon; volatility detector, not direction). Verdict: analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md. Reviving the lane requires a NEW signal and a NEW pre-registration, not re-enabling this task."
    },
-   "artifacts": []
+   "artifacts": [
+    {
+     "path": "automation/state/multi/status.json",
+     "writer": "setup/scripts/multi_status.py",
+     "task": "Gamma_MultiEvaluate",
+     "criticality": "low",
+     "max_age_min": 2160,
+     "date_field": null,
+     "window_et": null,
+     "weekdays_only": true
+    }
+   ]
   }
  ],
  "external_units": [

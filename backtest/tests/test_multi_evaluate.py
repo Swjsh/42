@@ -122,3 +122,58 @@ def test_quote_error_and_absent_quote_are_distinguishable_in_source():
     bare = [n.lineno for n in ast.walk(tree)
             if isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "fetch_option_quote"]
     assert not bare, f"bare fetch_option_quote cannot distinguish API error from illiquidity: {bare}"
+
+
+# --- 4. call-site signature contract --------------------------------------------------------
+# WHY THIS EXISTS. evaluate.py composes seven other modules. A missing required keyword raises
+# TypeError only when that line is REACHED -- and the risk-admission line is reached only for a
+# symbol that actually triggers, which no hand-test happened to hit. The result was a scheduled
+# run that crashed while reporting LastTaskResult=0. This guard checks every composed call site
+# STATICALLY, so the whole class fails at test time instead of at 09:00 on a live morning.
+
+import inspect  # noqa: E402
+
+
+def _call_kwargs_by_target(src: str) -> dict:
+    """{'module.func': [set_of_kwarg_names, ...]} for every attribute call in the source."""
+    out: dict = {}
+    for node in ast.walk(ast.parse(src)):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+            continue
+        mod = getattr(node.func.value, "id", None)
+        if not mod:
+            continue
+        key = f"{mod}.{node.func.attr}"
+        names = {kw.arg for kw in (node.keywords or []) if kw.arg}
+        has_splat = any(kw.arg is None for kw in (node.keywords or []))
+        out.setdefault(key, []).append((names, has_splat))
+    return out
+
+
+COMPOSED = {
+    "mrisk.evaluate_admission": ("multi.lib.risk", "evaluate_admission"),
+    "msize.size_entry": ("multi.lib.sizing", "size_entry"),
+    "msize.select_strike": ("multi.lib.sizing", "select_strike"),
+    "mexp.select_expiry": ("multi.lib.expiry", "select_expiry"),
+    "msig.build_signal": ("multi.lib.signal", "build_signal"),
+}
+
+
+@pytest.mark.parametrize("call_name", sorted(COMPOSED))
+def test_every_composed_call_supplies_all_required_keywords(call_name):
+    mod_name, fn_name = COMPOSED[call_name]
+    fn = getattr(__import__(mod_name, fromlist=[fn_name]), fn_name)
+    required = {
+        p.name for p in inspect.signature(fn).parameters.values()
+        if p.kind is inspect.Parameter.KEYWORD_ONLY and p.default is inspect.Parameter.empty
+    }
+    sites = _call_kwargs_by_target(SRC).get(call_name)
+    assert sites, f"{call_name} is listed as composed but never called -- update COMPOSED"
+    for supplied, has_splat in sites:
+        if has_splat:
+            continue  # **kwargs splat: cannot be checked statically, skip rather than false-fail
+        missing = required - supplied
+        assert not missing, (
+            f"{call_name} call in multi/evaluate.py omits required keyword(s) {sorted(missing)}. "
+            f"This raises TypeError only when the line is REACHED -- exactly how a crash reached "
+            f"a scheduled run while reporting exit code 0.")

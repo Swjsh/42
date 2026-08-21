@@ -1,0 +1,58 @@
+{
+  "rule_id": "prereg-multi-levels-transplant-2026-08-20",
+  "title": "Does the fork's trigger recover when it reads PRODUCTION-GRADE levels instead of its own?",
+  "status": "FROZEN_BEFORE_ANY_RESULT",
+  "frozen_at_et": "2026-08-20T23:3x",
+  "_no_results_seen": "Written before the transplant harness has been run even once. Only FEASIBILITY was smoke-tested beforehand (reconstruct_levels runs symbol-generic in 14ms and emits sane tiered levels for SPY) -- feasibility is not a result.",
+
+  "hypothesis": {
+    "mechanism": "The multi-lane fork replaced the engine's curated level system with a hand-rolled one (swing pivots + prior day/week + price-scaled round numbers). The calibration run showed the production trigger reading curated levels hits 58.23% at +10min (n=881, +4.89 sigma) while the identical filter stack reading fork levels hits 49.06% (n=7489, -1.63 sigma). If levels are the missing input, restoring them should restore the trigger.",
+    "specific_missing_ingredient": "Production levels include daily_context SHELVES -- supply/demand bands where price actually spent time -- plus tiering (Active/Carry/Reference), sourcing, and expiry. The fork's level set contained NO shelf concept whatsoever. This is the exact object J's market philosophy names: 'supply/demand zones, wait for the return to the zone, structure shift at the zone.'",
+    "null": "The trigger does not recover. Levels were not the missing input, and the signal family is dead for a third and final time."
+  },
+
+  "why_this_is_not_the_forbidden_re_slice": "The kill-list forbids threshold sweeps, 'try more names', and re-slicing the SAME failed data. This changes the INPUT the signal reads -- a different mechanism with a named ingredient and its own frozen prereg. Nothing about the filter thresholds, the symbol set, or the scoring code changes. One variable moves.",
+
+  "method": {
+    "levels_source": "backtest/lib/reconstruct_levels_asof.reconstruct_levels -- pure, no I/O, slices internally to <= as_of_et, already RED-proofed causal by test_reconstruct_levels_asof.py. Verified symbol-generic (0 SPY literals) across the whole chain: reconstruct_levels_asof / refresh_levels_intraday / daily_context / compute_levels.",
+    "replay": "Bar-by-bar over 5-minute history per symbol. At each evaluation bar, levels are reconstructed as-of THAT bar and the fork's build_signal is scored against them. No look-ahead: the reconstructor's own causality guard plus strict bars.iloc[:i+1] slicing.",
+    "symbols": ["SPY", "QQQ", "IWM", "NVDA", "AAPL", "TSLA", "MSFT", "AMD", "GLD"],
+    "_spy_is_the_internal_positive_control": "SPY scored 49.8% hit with fork levels. With production-grade levels it should recover materially toward the 58% the production trigger achieves. SPY is therefore the CONTROL that tells us whether the PORT WORKS, separately from whether the edge TRANSFERS to other names. Without this control, a null result is uninterpretable -- broken port and absent edge look identical."
+  },
+
+  "metric_changes_from_the_prior_prereg_and_their_justification": {
+    "_why_this_section_exists": "Changing a metric after a failure is exactly how motivated reasoning launders a null into a pass. Both changes below were derived from the PRODUCTION CONTROL POPULATION (a different dataset -- production's own decision ledger), not from the multi-lane data under test. That is the distinction between a principled respecification and horizon-shopping, and it is stated here BEFORE any result is seen.",
+    "headline_horizon": {
+      "was": "+6 bars (30 min)",
+      "now": "+2 bars (10 min)",
+      "justification": "The prior 30-min headline was ASSUMED, never measured. The production control shows the engine's directional edge peaks at +10min (58.23%) and is entirely gone by +60min (49.13%). The horizon is now set by measurement on an independent population."
+    },
+    "primary_channel": {
+      "was": "mean signed forward return vs null MAX",
+      "now": "DIRECTION HIT RATE vs null MAX, with mean return reported alongside and never suppressed",
+      "justification": "The control demonstrated mean-of-underlying structurally cannot see this engine's edge: production is right ~58% of the time while its mean underlying move is ~0.01%, because the money is a right tail in OPTION premium harvested by exits. Hit rate separated production (+4.89 sigma) from the fork (-1.63 sigma) cleanly. Mean return stays in the report so a hit-rate win with catastrophic mean cannot hide."
+    }
+  },
+
+  "statistics": {
+    "min_signals_required_per_symbol": 50,
+    "null": "Random entries from the SAME symbol-session bar population, same count, same direction mix, N>=200 draws. Signal must beat the null's MAX, not its mean.",
+    "multiple_comparison": "Holm across the 3 horizons. Per-symbol results are descriptive.",
+    "alpha": 0.05
+  },
+
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "CONTROL_FAILS_PORT_IS_BROKEN": "SPY does NOT recover materially above its 49.8% fork baseline. => The transplant did not actually take. This says NOTHING about the other symbols and must NOT be reported as a verdict on them. Action: debug the port, re-run. A broken port and an absent edge are indistinguishable without this control, which is why it exists.",
+    "PASS": "SPY recovers materially (>=54% hit at +10min) AND at least half the remaining 8 symbols beat their own null MAX on hit rate at +10min. => The levels were the missing input AND the edge transfers. Authorizes: paper shadow trading on the passing symbols, with the per-ticker evaluation scorecard, behind an explicit human-set flag. Does NOT authorize live money.",
+    "PARTIAL_SPY_ONLY": "SPY recovers but fewer than half the others beat their null. => Levels are the edge, but the edge is SPY-specific. Report honestly; do NOT arm other names. The correct read is that SPY's curation quality (months of it) is itself the moat, and other names would need equivalent curation history.",
+    "FAIL": "SPY recovers and the others are null, or nothing recovers with a verified-good port. => The signal family is dead for the third and final time. No fourth variant. Written verdict, lane stays stopped.",
+    "what_no_result_authorizes": "Nothing here arms live money (J alone, OP-0 #1), changes any SPY production parameter, or modifies the production engine. Paper is the ceiling."
+  },
+
+  "known_confounds_stated_upfront": [
+    "reconstruct_levels was built and validated for SPY. Running it on NVDA/TSLA/etc is its first use off-symbol; sane-looking output is not proof of sane calibration, and its distance-from-spot band is a SPY-dollar constant that must be ATR-relative before any non-SPY result is trusted.",
+    "SPY's production levels benefit from months of curation and multi-day memory the other names have never had. A SPY-only recovery is therefore the EXPECTED outcome under one plausible reading, and is pre-committed above as PARTIAL, not as a pass.",
+    "Stage A measures the SIGNAL on the UNDERLYING. It does not price spread or theta, which only makes a real result worse, never better."
+  ]
+}
