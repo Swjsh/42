@@ -5,67 +5,57 @@
 
 # CANDIDATE: SHOTGUN_SCALPER_STAGE4_TOP_KEEPER
 
-**Filed:** 2026-08-20  
+**Filed:** 2026-07-22  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** exit_change  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We aim to improve edge capture by tightening exit parameters (stop loss and take profit) to reduce loser impact and lock profits earlier, while adding a volume filter to avoid low-quality trades. The chandelier profit lock is adjusted to arm later (60% premium) to allow more room for runners before trailing begins. Strike offset increased to 2 (further OTM) to potentially capture larger moves, though this requires validation.
+The shotgun scalper stage4 keeper uses tight exit parameters (75% TP, 35% stop, 12-min time stop, 60% chandelier arm) that limit winner day capture, especially on high-momentum days like 5/04. The hypothesis is that loosening these exits will increase winner day P&L without significantly increasing loser day losses, thereby improving edge_capture above the OP-16 floor.
 
 ## Mechanism
 
-- **Entry:** Baseline trigger logic (unchanged) with added volume filter: current 3-min volume must be ≥1.2× 20-bar average volume.
-- **Exit:** 
-  - Take profit at 75% of entry premium (full position exit).
-  - Stop loss at 35% of entry premium (catastrophe cap; chart-stop remains primary invalidation per C2).
-  - Time stop: exit after 12 minutes if no other exit triggered.
-  - Chandelier profit lock: arms at 60% of entry premium profit, then trails at 15% of high-water mark (HWM × 0.85).
-- **Contract selection:** Strike offset = 2 (e.g., 2nd OTM put for bearish setups).
+Entry logic remains unchanged from the baseline shotgun scalper (which uses vol_ratio_threshold and strike_offset for entry, and likely other filters). Exit logic: 
+- Take profit at 75% of entry premium (tp_premium_pct=0.75) 
+- Stop loss at 35% of entry premium (stop_premium_pct=-0.35) 
+- Time stop at 12 minutes after entry (time_stop_min=12) 
+- Chandelier profit-lock arms at 60% gain (chandelier_arm_pct=0.6) and trails 15% (implied by v15 doctrine). 
+We propose to test looser exits: e.g., increase tp_premium_pct to 1.00, increase stop_premium_pct to -0.50, increase time_stop_min to 30, and increase chandelier_arm_pct to 0.8.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | 297.0 | unknown -- requires Stage-1 backtest |
-| 5/01 winner | unknown -- requires Stage-1 backtest | 231.0 | unknown -- requires Stage-1 backtest |
-| 5/04 winner | unknown -- requires Stage-1 backtest | 177.0 | unknown -- requires Stage-1 backtest |
-| 5/05 loser | unknown -- requires Stage-1 backtest | -3.0 | unknown -- requires Stage-1 backtest |
-| 5/06 loser | unknown -- requires Stage-1 backtest | 231.0 | unknown -- requires Stage-1 backtest |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | 95.85 (combined for 5/07) | unknown -- requires Stage-1 backtest |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | 95.85 (combined for 5/07) | unknown -- requires Stage-1 backtest |
+| 4/29 winner | 297.0 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | 231.0 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | 177.0 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | -3.0 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | 231.0 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser | 95.85 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
-(Note: 5/07 has two J loser trades; the keeper's by_day shows a single P&L value for the date. Current engine behavior unknown without Stage-1 backtest.)
+(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** Backtest appears to use fixed qty=1 contract/trade (inferred from wide_pnl=22084.2 and wide_n_trades=1199 → expectancy=$18.42/trade). For $1K paper account: assumes entry premium ~$1.00 (typical 0DTE OTM put), 35% stop risks $0.35/contract → 50% risk cap=$500 allows ~1,428 contracts. Playbook minimum=3 contracts; actual scaling depends on entry premium and risk rules. Headline P&L requires sufficient capital to fit risk-per-trade; $1K paper would realize <14% of headline if entry premium=$1.00 and qty scales linearly (but constrained by risk rules).
-
-2. **Sample bias:** Sample includes data from 2025-Q1 through at least 2026-05-15 (per quarter_pnl and by_day). Selection method: Stage 4 grinder output (top keeper of 5). High overfit risk due to grid search selection without out-of-sample validation; keeper may capture noise in-sample.
-
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window tested).
-
-4. **Real-fills:** NEEDS-REAL-FILLS (no validation of top 3 J days against real OPRA fills; BS-sim may overestimate ITM 0DTE entry premium per L23).
-
+1. **Account-size assumption:** The wide_pnl of $22084.2 is simulated with 1 contract per trade. For a $1K paper account, the 50% risk cap limits trade size based on entry premium and stop distance. Without exact entry premium distribution, we cannot provide a precise scaling factor, but note that the strategy's average expectancy per trade is $18.42, so a $1K account trading 1 contract would realize ~$18.42 per trade in simulation, but real-money slippage and position sizing may reduce this.
+2. **Sample bias:** The keeper was selected as the top performer by wide_pnl over the entire dataset (16 months). This selection process may overfit to non-J day patterns. The J day performance (edge_capture=506.55) is below the OP-16 floor of 771, indicating that the selection criterion (wide_pnl) does not align with the J edge objective.
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window performed in the grinder output).
+4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills check performed on the top 3 J days).
 5. **Failure modes:** 
-   - Worst day: -$195.45 (2026-05-15 per by_day; actual worst may be worse).
-   - Max drawdown: unknown (not provided in keeper JSON).
-   - Blow-up scenario: Consecutive losses could erode account; tight stop (35%) limits per-trade loss but many losses in a row still harmful (e.g., 10 losses = -$3.50/contract at $1.00 entry).
-
-6. **Concentration:** top5_pct=0.139 → top 5 days contribute 13.9% of P&L (low concentration; favorable).
+   - Worst day observed in the provided by_day: -$195.45 (2026-05-15). 
+   - Max drawdown: unknown -- requires full equity curve analysis. 
+   - Blow-up scenario: The strategy uses a tight 35% premium stop and a 12-minute time stop. In a fast-reversing market, these stops could be hit frequently, turning potential winners into losers. Additionally, the strike_offset=2 (OTM-2) may suffer from poor liquidity and wide spreads, leading to slippage that exacerbates losses.
+6. **Concentration:** top5_pct=13.9%, indicating the P&L is not heavily concentrated in a few days.
 
 ## Pre-merge gate
 
-- Gym validators must pass (strategy/autoresearch/*_grinder.py tests).
-- Walk-forward OOS test required (edge_capture ≥ 771 per OP-16 floor).
-- Real-fills validation on top 3 J days (diff < ±20% vs BS-sim).
-- OP-16 anchor regression test: must not lose on any J winner day vs baseline.
+<what tests need to pass: gym validators, walk-forward, real-fills>
 
 ## Confidence
 
-2 / 10 -- Edge_capture=506.55 < OP-16 floor of 771 (50% of max 1542), indicating insufficient edge on J's source-of-truth trades. High overfit risk from sampler selection; requires OOS validation to confirm robustness.
+3 / 10 -- <brief reasoning>
 
 ## Pre-existing leaderboard impact
 
-Does not appear on current leaderboard (edge_capture < 771 floor). No direct conflict with existing candidates (ranked by final_score). May complement if it improves exit dynamics, but current edge_capture deficit suggests unlikely to improve aggregate Sharpe enough to offset edge loss. Requires OOS walk-forward to assess true potential.
+<does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
