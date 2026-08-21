@@ -1,0 +1,72 @@
+{
+  "date": "2026-08-20",
+  "rows_total": 231,
+  "rows_scored": 5,
+  "would_place": 0,
+  "top_blocker": {
+    "blocker": "F5:ribbon_stack",
+    "count": 5,
+    "pct_of_scored": 100.0,
+    "side": "bear"
+  },
+  "top_blocker_bear": {
+    "blocker": "F5:ribbon_stack",
+    "count": 5,
+    "pct_of_scored": 100.0
+  },
+  "top_blocker_bull": {
+    "blocker": "F10:level_tied_trigger",
+    "count": 5,
+    "pct_of_scored": 100.0
+  },
+  "bear_blockers": [
+    {
+      "blocker": "F5:ribbon_stack",
+      "count": 5,
+      "pct_of_scored": 100.0
+    },
+    {
+      "blocker": "F9:breakdown_bar",
+      "count": 3,
+      "pct_of_scored": 60.0
+    },
+    {
+      "blocker": "F10:level_tied_trigger",
+      "count": 3,
+      "pct_of_scored": 60.0
+    },
+    {
+      "blocker": "F6:ribbon_spread",
+      "count": 1,
+      "pct_of_scored": 20.0
+    }
+  ],
+  "bull_blockers": [
+    {
+      "blocker": "F10:level_tied_trigger",
+      "count": 5,
+      "pct_of_scored": 100.0
+    },
+    {
+      "blocker": "F11:sweep_or_htf",
+      "count": 3,
+      "pct_of_scored": 60.0
+    },
+    {
+      "blocker": "F7:volume_divergence",
+      "count": 2,
+      "pct_of_scored": 40.0
+    },
+    {
+      "blocker": "F6:ribbon_spread",
+      "count": 1,
+      "pct_of_scored": 20.0
+    }
+  ],
+  "gate_counts": {
+    "action_directional": 193,
+    "liquidity_ok": 37,
+    "position_state": 1
+  },
+  "_reading": "A blocker at ~100% of scored rows is the binding constraint. F5:ribbon_stack at 100% on ONE side is usually correct (the ribbon can only stack one way). F10:level_tied_trigger at 100% with EMPTY triggers means no level interaction occurred -- on a closed market that is a flat-bar artifact, during RTH it is a real signal-design finding."
+}

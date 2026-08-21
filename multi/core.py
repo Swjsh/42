@@ -74,6 +74,27 @@ GATES = (
 )
 
 
+# WP-3: filter numbers are unreadable in a ledger six weeks from now. Names are not.
+# Sourced from multi/lib/filters.py's own blocker sites (bear then bull mirror).
+FILTER_NAMES = {
+    1: "level_proximity", 5: "ribbon_stack", 6: "ribbon_spread",
+    7: "volume_divergence", 8: "vix_regime_LOGGED_ONLY", 9: "breakdown_bar",
+    10: "level_tied_trigger", 11: "sweep_or_htf", 12: "buyer_pressure",
+}
+
+
+def name_blockers(nums) -> list:
+    """[9, 10] -> ['F9:breakdown_bar', 'F10:level_tied_trigger']."""
+    out = []
+    for n in (nums or []):
+        try:
+            i = int(n)
+        except (TypeError, ValueError):
+            continue
+        out.append(f"F{i}:{FILTER_NAMES.get(i, 'unknown')}")
+    return out
+
+
 class TickError(RuntimeError):
     """Fail loud. A tick that cannot complete must never write a row implying it did."""
 
@@ -531,7 +552,7 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     score_bars: dict = {}
     if watch_syms:
         try:
-            score_bars = fetch_bars_batch(creds, watch_syms, "5Min", limit=10000)
+            score_bars = fetch_bars_batch(creds, watch_syms, "5Min", limit=400)
         except Exception as e:  # noqa: BLE001
             cascade["score_bars_error"] = 1
             print(f"    [tier2] 5Min batch failed: {type(e).__name__}: {str(e)[:70]}",
@@ -546,7 +567,7 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     htf_bars: dict = {}
     if watch_syms:
         try:
-            htf_bars = fetch_bars_batch(creds, watch_syms, "15Min", limit=2000)
+            htf_bars = fetch_bars_batch(creds, watch_syms, "15Min", limit=200)
         except Exception as e:  # noqa: BLE001
             cascade["context_degraded_htf"] = 1
             print(f"    [context] HTF 15m DEGRADED: {type(e).__name__}", file=sys.stderr)
@@ -601,9 +622,18 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
         cascade["signal_scored"] += 1
 
         action = str(sig.get("action") or "HOLD").upper()
+        bear, bull = (sig.get("bear") or {}), (sig.get("bull") or {})
+        # WP-3: stamp WHY. A HOLD row without blockers is an unanswerable question -- yesterday's
+        # 178 HOLDs required manual probes to diagnose, which is how a dead lane stays dead.
         row.update(action=action, spot=sig.get("spot"),
-                   bear_score=(sig.get("bear") or {}).get("score"),
-                   bull_score=(sig.get("bull") or {}).get("score"))
+                   bear_score=bear.get("score"), bull_score=bull.get("score"),
+                   bear_blockers=name_blockers(bear.get("blockers")),
+                   bull_blockers=name_blockers(bull.get("blockers")),
+                   bear_triggers=list(bear.get("triggers") or []),
+                   bull_triggers=list(bull.get("triggers") or []),
+                   vix_now=sig.get("vix"), vix_regime=sig.get("vix_regime"),
+                   htf_15m_stack=sig.get("htf_15m_stack"),
+                   ribbon_stack=sig.get("ribbon_stack"))
         if action not in ("ENTER_BEAR", "ENTER_BULL", "BEAR", "BULL"):
             row.update(decision="HOLD", gate="action_directional", reason=f"action={action}")
             rows.append(row)
