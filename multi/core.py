@@ -136,8 +136,70 @@ def liquidity_ok(quote: dict | None, params: dict) -> tuple[bool, str, dict]:
 # (2) the response PAGINATES via next_page_token well below a large `limit`, and with sort=desc
 # the truncation is invisible at the tail. Both cost a debugging cycle on 2026-08-18.
 
-_BARS_PER_SESSION = {"1Day": 1.0, "1Hour": 6.5}
+_BARS_PER_SESSION = {"1Day": 1.0, "1Hour": 6.5, "15Min": 26.0, "5Min": 78.0}
+_TIMEFRAME_SPAN = {"1Day": dt.timedelta(days=1), "1Hour": dt.timedelta(hours=1),
+                   "15Min": dt.timedelta(minutes=15), "5Min": dt.timedelta(minutes=5)}
 _CALENDAR_SLACK = 1.75
+
+
+def fetch_bars_batch(creds, symbols: list, timeframe: str = "5Min", limit: int = 10000) -> dict:
+    """Bars for MANY symbols in ONE request. Returns {symbol: DataFrame}, closed bars only.
+
+    WHY BATCH (WP-1): the per-symbol loop cost 72 requests for bars alone every tick. The
+    batch endpoint takes `symbols=A,B,C` and returns a {symbol: [...]} map. See this module's
+    WP-1 rate math -- batch puts the whole tick at ~2.4 req/min against a 200/min limit.
+
+    Both Alpaca traps stay encoded: an explicit `start` (an omitted one defaults to today-only
+    and returns ZERO bars), and pagination via next_page_token (which silently truncates below
+    a large `limit`, invisibly at the tail under sort=desc).
+    """
+    import pandas as pd
+    from urllib.parse import urlencode
+    from urllib.request import Request, urlopen
+
+    if not symbols:
+        return {}
+    per_session = _BARS_PER_SESSION.get(timeframe, 78.0)
+    sessions = max(2.0, (limit / max(per_session, 1.0)))
+    start = (now_et() - dt.timedelta(days=int(sessions * _CALENDAR_SLACK) + 7)).date().isoformat()
+
+    out_raw: dict = {}
+    # 100-symbol chunks: the endpoint's documented cap.
+    for i in range(0, len(symbols), 100):
+        chunk = symbols[i:i + 100]
+        token = None
+        while True:
+            q = {"symbols": ",".join(chunk), "timeframe": timeframe, "limit": limit,
+                 "feed": "iex", "adjustment": "raw", "sort": "desc", "start": start}
+            if token:
+                q["page_token"] = token
+            url = f"https://data.alpaca.markets/v2/stocks/bars?{urlencode(q)}"
+            req = Request(url, headers={"APCA-API-KEY-ID": creds.key,
+                                        "APCA-API-SECRET-KEY": creds.secret})
+            with urlopen(req, timeout=45) as resp:  # noqa: S310 -- fixed https host
+                payload = json.loads(resp.read())
+            for sym, rows in (payload.get("bars") or {}).items():
+                out_raw.setdefault(sym, []).extend(rows)
+            token = payload.get("next_page_token")
+            if not token:
+                break
+
+    cutoff = now_et()
+    span = _TIMEFRAME_SPAN.get(timeframe, dt.timedelta(minutes=5))
+    out: dict = {}
+    for sym, rows in out_raw.items():
+        if not rows:
+            continue
+        rows = list(reversed(rows))  # desc -> asc
+        df = pd.DataFrame([{"open": b["o"], "high": b["h"], "low": b["l"], "close": b["c"],
+                            "volume": b["v"],
+                            "timestamp_et": pd.Timestamp(b["t"]).tz_convert(ET)} for b in rows])
+        df = df.set_index("timestamp_et")
+        # C6: drop any bar whose close time has not passed.
+        df = df[df.index + span <= cutoff]
+        if len(df):
+            out[sym] = df
+    return out
 
 
 def fetch_bars(creds, symbol: str, timeframe: str = "1Hour", limit: int = 400):
@@ -462,6 +524,19 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     watch_syms = [c.symbol for c in watch]
     watch_facts = {c.symbol: c for c in watch}
 
+    # TIER 2 (WP-1): the SCORING timebase. Production evaluates closed 5-MINUTE bars; the lane
+    # previously scored 1-HOUR bars, a 12x coarser timebase that alone predicts a near-zero
+    # entry rate regardless of edge (audit root cause #1). One batch call for <=5 names.
+    score_bars: dict = {}
+    if watch_syms:
+        try:
+            score_bars = fetch_bars_batch(creds, watch_syms, "5Min", limit=10000)
+        except Exception as e:  # noqa: BLE001
+            cascade["score_bars_error"] = 1
+            print(f"    [tier2] 5Min batch failed: {type(e).__name__}: {str(e)[:70]}",
+                  file=sys.stderr)
+    cascade["tier2_symbols"] = len(score_bars)
+
     for sym in symbols:
         cascade["evaluated"] += 1
         if sym not in watch_syms:
@@ -475,11 +550,15 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
                      "rel_volume": getattr(wf, "rel_volume", None),
                      "attention_score": getattr(wf, "attention_score", None)}
 
-        bars = (dry_bars or {}).get(sym)
+        # Score on the 5-MINUTE frame (tier 2), never the daily funnel frame.
+        bars = score_bars.get(sym)
         if bars is None or len(bars) < 60:
-            row.update(decision="BLOCKED", gate="bars_ok", reason="insufficient closed bars")
+            row.update(decision="BLOCKED", gate="bars_ok",
+                       reason=f"insufficient closed 5Min bars ({0 if bars is None else len(bars)})")
             rows.append(row)
             continue
+        row["timeframe"] = "5Min"
+        row["trigger_bar_et"] = bars.index[-1].isoformat()
         cascade["bars_ok"] += 1
 
         # Per-symbol levels. Without these, filter 10 (level-tied trigger required) vetoes
@@ -662,15 +741,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.limit:
         syms = syms[: args.limit]
 
-    live_bars = {}
-    for sym in syms:
-        try:
-            b = fetch_bars(creds, sym, "1Hour", 400)
-            if b is not None:
-                live_bars[sym] = b
-        except Exception as e:  # noqa: BLE001 -- per-symbol fetch failure must not kill the tick
-            print(f"    [bars] {sym}: {type(e).__name__}: {str(e)[:60]}", file=sys.stderr)
-    print(f"[multi_core] bars fetched for {len(live_bars)}/{len(syms)} symbols", file=sys.stderr)
+    # TIER 1 (cheap, whole universe): daily bars in ONE batch call -> funnel + attention.
+    try:
+        funnel_bars = fetch_bars_batch(creds, syms, "1Day", limit=400)
+    except Exception as e:  # noqa: BLE001 -- a batch failure must not silently empty the tick
+        raise TickError(f"funnel-tier batch bar fetch failed: {type(e).__name__}: {e}") from e
+    print(f"[multi_core] tier1 daily bars: {len(funnel_bars)}/{len(syms)} symbols (1 batch call)",
+          file=sys.stderr)
+    live_bars = funnel_bars
 
     base_attention = attention_from_bars(live_bars)
     attention = merge_scanner_attention(base_attention, params, creds)
