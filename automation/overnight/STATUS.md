@@ -1,3 +1,37 @@
+## [2026-08-21 01:20 ET] conductor: OK — registered `Gamma_EarningsCalendar`, closed a BROKEN self-check verdict, commit `6c5f0900`
+
+**Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/4 fires used) + STAGE 1a (`desk_allocator.py`: Futures #1 "DECISION ROTTING" but already `MES_MIRROR_ARMED_PAPER_2026_08-20`, first real sandbox fill still pending market hours — a repeat of the last 2 fires' note, not new work tonight) + STAGE 1 priority-1 (function-first: `self_check.py` returned `BROKEN`).** Engine health GREEN (19/19).
+
+**Root cause:** `self_check.py` flagged `EARNINGS-CALENDAR STALE (RED)`: `automation/state/weekly/earnings-blackout.json` was 49.4h old vs the 48h fail-closed threshold (`params.json#entry.earnings_feed_stale_hours_fail_closed`). The producer (`setup/scripts/earnings_calendar.py`) and its freshness guard were both built + fully guard-tested on 2026-08-18, but **no scheduled task was ever registered** to re-run the producer — it had been hand-run exactly once. A working sibling installer (`install-macro-calendar.ps1` → `Gamma_MacroCalendar`) sat in the same directory the whole time and was never copied.
+
+**Fix:** new `setup/scripts/install-earnings-calendar.ps1`, mirrors `Gamma_MacroCalendar`'s exact wiring (`wscript→run_exe_hidden.vbs→pythonw→run_cmd_hidden.py→earnings_calendar.py`), registered `Gamma_EarningsCalendar` at 07:50 ET weekdays (before `Gamma_Premarket` 08:30 ET).
+
+**Verified, quoted:** manually ran the producer once to clear tonight's staleness immediately (`generated_at_et` refreshed to `2026-08-21T01:02:55`). Registered the task, then `Start-ScheduledTask -TaskName Gamma_EarningsCalendar` fired through the REAL hidden-relay chain — `LastTaskResult=0`, feed refreshed a second time proving the chain (not just the manual run) works. `self_check.py` re-run: `[self-check] GREEN — 0 problem(s)` (was BROKEN). `pytest backtest/tests/test_self_check_earnings_calendar_freshness.py backtest/tests/test_earnings_calendar_producer.py`: 46/46 green (no code changed, only scheduler wiring). Curated safety gate (`run_safety_gate.py`): 59/59 green — caught and fixed the Active-task-count drift guard (129→130) as part of the same fire.
+
+**Rail 4 not strictly triggered (infra scheduling fix, not a trading-path params/heartbeat_core/filters/placement edit) — ships per OP-22/OP-26 engine-benefit authoring path.** Revert: `git revert 6c5f0900` (one clean commit, 3 files) + `Unregister-ScheduledTask -TaskName Gamma_EarningsCalendar`. Zero live-money, secret, or CLAUDE.md surfaces touched.
+
+**Lesson filed:** `strategy/candidates/_lesson-inbox/guard-tested-feed-with-no-scheduled-producer-2026-08-21.md` — the generalizable pattern (a fail-closed consumer contract is only as good as its producer's cron; "I wrote the check" and "I wired the producer" are two different verbs) plus a suggested next step: audit every `self_check.py#check_*_freshness` for a matching scheduled producer before each one independently goes BROKEN on its own clock.
+
+**Not investigated further this fire (out of bounded scope):** `conviction-c4-c5` remains RED on the 2026-08-14 incident roster (C5 entry-quality signal still None) — recurring across 8+ fires now with zero progress; genuinely needs new-signal design work, not a mechanical patch. Flagging again for FABLE-ESCALATION if a future fire has top-tier judgment budget to spend on it.
+
+## [2026-08-21 01:01 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.96s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-20] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-16..2026-08-19), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-19). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=RED
+> - **Books:** Safe2_ATM_1+2+4=RED ($-141.35); Bold_ATM_1+2=CONFIRM ($584.4)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: #4 ATM, Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-20 22:07 ET] MULTI-SYMBOL LANE: **STOPPED ON A NULL** — WP-4 verdict, commits `985c5860` + WP-6
 
 **The six-WP Opus workpackage ran to completion. WP-4's frozen gate returned a FAIL, so the lane is stopped. Nothing was ever armed; no order was ever placed.** This is the REVOKE report.
@@ -178,16 +212,6 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 **Open:** `LAUNCH-GAMMA-HOME.vbs` regenerates-then-opens but has NOT been double-click tested by J. Autonomy items #2 (a translator that says "what this means for you") and #3 (numeric-claim verification) remain queued.
 
-## [2026-08-19] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-15..2026-08-18), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-18). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=RED
-> - **Books:** Safe2_ATM_1+2+4=RED ($-141.35); Bold_ATM_1+2=CONFIRM ($584.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: #4 ATM, Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## [2026-08-19 ~20:49 ET] conductor: OK -- closed a THIRD entry-claim race (atomic-entry-claim RED -> GREEN), commit `da8fb973`
 
 **Picked via STAGE 1 priority-2 (Engine RED flag) -- outranks queue.md/inbox items.** Budget gate PROCEED ($7.41/$30 pre-fire, 2/4 fires used). Engine health GREEN, but `incident_fix_status.py --alert` (the 2026-08-14 -$1,569 double-entry incident roster) showed `atomic-entry-claim` RED: the storm-contention guard test measured a real 1/40 multi-winner outcome (ship-time baseline for that exact test was 0/300) -- a residual double-entry race on the EXACT incident path this roster exists to guard, so this outranked everything else in the queue.
@@ -287,56 +311,3 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
-## [2026-08-19 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (2 RED, 0 unguarded)
-
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.45s
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 2 passed in 1.77s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-19 ~05:30-05:40 ET] conductor: OK — queue.md OP-22 consolidation pass (598,612 -> 348,523 bytes) + retention-cap guard, commit `60eb232e`
-
-**Picked via loop-closing tiebreak (OP-22).** Budget gate PROCEED ($0.76/$30 pre-fire), engine health GREEN. `task_scorer.py --top` named `TWIN-DOCTRINE-FIRST-DEPLOY` again — already re-pinged twice (2026-08-18 05:33 verified-landed, and again per the ~01:xx fire's own note as "spam, not loop-closing" with zero new evidence) — skipped a third re-ping for the same reason. `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` (#2, score 6.0) is 5 passes deep with its core ask deliberately gated behind its own `/fable-blast-radius` pass per the last 2 fires that touched it — a 6th incremental slice was lower value than closing a genuinely stale loop. Self-audit gaps queue (`new-gaps-flagged.md`) fully triaged through 2026-08-18, nothing new.
-
-**The find:** `automation/overnight/queue.md` — the conductor's own external memory — had silently regrown to 598,612 bytes (2.3x the Read tool's 256KB limit) in the 10 days since the last consolidation (2026-08-09), with 119 fully-resolved `[x] status:done/closed/resolved/cancelled/decided` items (each a multi-hundred-word writeup) crowding the live backlog instead of an archive. OP-22 says "every append-only producer has a retention cap; hitting it triggers CONSOLIDATION" — but the cap for this specific file lived only in a one-time 2026-08-09 archive note's prose, not in anything that runs again, so it silently failed a second time with zero warning.
-
-**Fixed:** extracted all 119 resolved items verbatim, original order, to `automation/overnight/queue-archive-2026-08-19.md` (header documents the selection method: checked `[x]` AND last `status:` token resolves to a terminal state, OR a bold `**DONE/CLOSED/RESOLVED/CANCELLED/DECIDED**` marker with no explicit status token — 6 checked-but-`status:pending` items deliberately LEFT in place as genuinely open follow-ups). Verified BEFORE removal that none of the 69 top-level archived item IDs are referenced by a `depends:` clause in any still-active item (programmatic check, zero hits — no dependency chain broken). `task_scorer.py --all` re-verified post-consolidation: 91 items parse, 51 ready, same top item (`TWIN-DOCTRINE-FIRST-DEPLOY`) still surfaces correctly. Curated safety gate 59/59 PASS.
-
-**Graduated to a guard (STAGE 4.5):** `backtest/tests/test_queue_md_retention_cap.py` — RED-fails once `queue.md` crosses 450,000 bytes (headroom above today's 348,523), and separately asserts the 2026-08-19 archive file exists and is non-trivial (so a future fix for a failing size test can't just delete the overflow instead of archiving it). Lesson filed: `_lesson-inbox/queue-md-retention-cap-was-prose-not-code-2026-08-19.md`, with a suggested follow-up inventory sweep of other append-only files (`journal/mistakes.md`, `STATUS.md` itself) that may carry the same prose-only-cap risk.
-
-Zero trading-path files touched (queue.md + a new archive file + a new pytest guard + a lesson-inbox item). Rail-4 n/a (not a trading-path change). **Revert:** `git revert 60eb232e` (3 files: 1 new archive file + queue.md trim + 1 new guard test — cleanly revertible, though reverting would re-introduce the exact regrowth this fire fixed).
-
-## [2026-08-19 ~01:xx ET] conductor: OK — surfaced the weekly-options overnight program (9 commits, never on J's wake-signal surfaces), morning brief: NULL result, nothing armed
-
-**Picked via loop-closing tiebreak (OP-22): closing a silent loop over creating a new artifact.** Engine health GREEN, budget gate PROCEED ($0/$30 pre-fire). `task_scorer.py --top` named the stale `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping (already re-pinged 2026-08-18 05:33, ~20h ago — re-pinging again with zero new evidence is spam, not loop-closing, per the prior fire's own note); skipped it in favor of re-deriving the `queue.md` `WEEKLY-OPTIONS-BUILD` entry's `status:pending` label rather than trusting it.
-
-**Found:** J gave standing overnight authorization 2026-08-18 ~21:44 ET ("build all night... put yourself into a loop and get it done"). A separate session executed the ENTIRE weekly-options program — not just Phase 0, but the full expiry experiment (684 real positions, 862,000 real option bars, frozen pre-registration BEFORE any result) — across 9 real commits (verified each exists via `git cat-file -t`, not trusted from prose): `e4f949ca b89e5f6c 68c0e239 a346f111 031094a7 8992d743 0d7fe5a1 8295f376 1136bed0 36827ccd`. **Verdict: the v1 weekly signal is DEAD** — every expiry arm (same-week/next-week/2-week/monthly) loses (−8% to −14% mean) and every arm FAILS the random-entry null gate. 6 real bugs caught and fixed along the way (zero-bar fetch, silent 1-month history cap, option-ingest truncation, fail-open capital-commitment gate, IV-solver fabricated vols, wrong paper-API host). Nothing armed: no account created, no live money, `weekly-1` deliberately NOT added to `accounts.json` (correct order — a pending arm for a killed signal is inventory, not progress). Full brief already written: `analysis/daily-brief/2026-08-19-WEEKLY-LANE-MORNING-BRIEF.md` (4 things needing J, 4 ranked next experiments).
-
-**The actual gap this fire closed:** all of that was 100% committed but had ZERO `STATUS.md` lines and ZERO Discord/companion pings — J's two primary wake-signal channels were silent on a 9-commit, 862K-bar overnight build. Fixed: this entry, `queue.md`'s `WEEKLY-OPTIONS-BUILD` moved to `status:done` with the full evidence trail, and one Discord ping (below) pointing at the brief.
-
-**Bonus find, filed as a lesson (not fixed — observational, no code touched):** `gamma_manager`'s free-tier "strategist" role independently fabricated a completion report for this SAME task (`analysis/manager/2026-08-18-2253-strategist-weekly-options-build.md`, untracked, never committed) — fake artifact paths (`expiry_selector.py`, `blast_radius.json`), fabricated Monte Carlo numbers, "✅ Validated/Passed/Active" status claims — while explicitly stating in its own first paragraph "I lack direct access to your filesystem... I cannot physically execute file modifications." A live example of exactly the failure class OP-32's free-model trust gate exists to catch. Filed: `strategy/candidates/_lesson-inbox/2026-08-19-gamma-manager-strategist-fabricated-completion-2026-08-19.md`.
-
-Zero trading-path files touched (queue.md + STATUS.md bookkeeping + one lesson-inbox file). Revert: n/a, doc-only; the underlying 9 commits are each independently revertible per their own messages.
-
-
-### DEGRADED: self-check 2026-08-20T20:39:57
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
-- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-20T21:09:57
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
-- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-20T21:39:57
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
-- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-## Kitchen
-Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
