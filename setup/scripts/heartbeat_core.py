@@ -1422,7 +1422,17 @@ def _trigger_bar_stale(bar_ctx: dict, now_et=None) -> dict:
     """
     out = {"checked": False, "bar_et": None, "age_min": None,
            "prior_session": False, "stale": False}
-    raw = (bar_ctx or {}).get("trigger_bar_et") or ((bar_ctx or {}).get("bar") or {}).get("timestamp_et")
+    # `timestamp_et` FIRST -- that is the key bar_ctx actually carries. The original cut
+    # of this function looked only for "trigger_bar_et" (the name the LOGGED ROW uses,
+    # written at :1665 from bc["timestamp_et"]) and a nested "bar" dict that does not
+    # exist. Neither key is ever present on bar_ctx, so `raw` was always None, the
+    # function returned early, and `checked` was False on all 772 ticks of 2026-08-21 --
+    # the prior-session guard had never once evaluated since the day it shipped.
+    # Confusing a field's LOG name for its PAYLOAD name is how a guard ships inert and
+    # still looks wired: it fails open, so nothing ever complains.
+    _bc = bar_ctx or {}
+    raw = (_bc.get("timestamp_et") or _bc.get("trigger_bar_et")
+           or (_bc.get("bar") or {}).get("timestamp_et"))
     if not raw:
         return out
     out["bar_et"] = str(raw)

@@ -60,8 +60,28 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "backtest"))
 sys.path.insert(0, str(REPO / "backtest" / "lib"))
 
-import pandas as pd                                     # noqa: E402
-from lib.trendlines import detect_trendlines            # noqa: E402
+# PANDAS IS IMPORTED LAZILY, NOT HERE (fixed 2026-08-21, day 1 of this ledger).
+# `eod_full_audit.py` runs under SYSTEM python -- which has no pandas -- and calls
+# daily_rollup()/week_audit()/baseline() to render its mandatory "do we see any trend
+# lines?" section. A module-scope `import pandas` made that import raise
+# ModuleNotFoundError, so the section J explicitly asked for reported
+# "trendline shadow FAILED to report" on its very first night while the ledger itself
+# was perfectly healthy (the scheduled task runs under the backtest venv and logged 63
+# events that same afternoon).
+#
+# The three EOD-facing functions read the JSONL ledger ONLY -- they never touch a
+# DataFrame. Only bar-loading and event detection need pandas, so those pay the import.
+# Keeping this lazy is what lets ONE module serve both interpreters.
+def _pd():
+    """pandas, imported on demand. Only the bar-walking paths need it."""
+    import pandas as pd
+    return pd
+
+
+def _detect_trendlines():
+    """backtest/lib/trendlines.detect_trendlines, imported on demand (it needs pandas)."""
+    from lib.trendlines import detect_trendlines
+    return detect_trendlines
 
 # A NEW spy_5m_2026-05-19_<date>.csv is written every session at ~14:16 MT / 16:16 ET,
 # so pinning ONE filename would have frozen this shadow at 2026-08-20: every later fire
@@ -78,7 +98,7 @@ FORWARD_WINDOWS = (3, 6, 12)  # 15m / 30m / 60m in 5m bars
 
 
 
-def load_bars() -> pd.DataFrame:
+def load_bars():
     """The newest CUMULATIVE daily bar file -- one stratum, never a merge.
 
     WHY NOT MERGE EVERY spy_5m_*.csv: backtest/data holds ~78 of them and they are a
@@ -112,6 +132,7 @@ def load_bars() -> pd.DataFrame:
             best, best_end = f, m.group(1)
     if best is None:
         raise SystemExit(f"[trendline-shadow] FATAL: no offset-aware bar file matched {BARS_GLOB}")
+    pd = _pd()
     d = pd.read_csv(best)
     d["ts"] = pd.to_datetime(d["timestamp_et"])
     d = d.drop_duplicates(subset=["ts"]).sort_values("ts").reset_index(drop=True)
@@ -120,7 +141,7 @@ def load_bars() -> pd.DataFrame:
     return d
 
 
-def _events_for_session(day: pd.DataFrame, date_iso: str) -> list:
+def _events_for_session(day, date_iso: str) -> list:
     """Walk one session forward, emitting geometry events with no look-ahead."""
     day = day.reset_index(drop=True)
     day["timestamp_unix"] = (day["ts"].astype("int64") // 10**9)
@@ -130,7 +151,7 @@ def _events_for_session(day: pd.DataFrame, date_iso: str) -> list:
         # ---- refit on PRIOR bars only (C6: never include the bar being judged)
         if i >= MIN_BARS_BEFORE_FIT and i % REFIT_EVERY_BARS == 0:
             try:
-                lines = detect_trendlines(day.iloc[:i])
+                lines = _detect_trendlines()(day.iloc[:i])
             except Exception:                            # noqa: BLE001 - shadow must never crash a run
                 lines = []
 

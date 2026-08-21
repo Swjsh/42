@@ -1,0 +1,68 @@
+{
+  "_doc": "Standing real-fills tally for the trendline-only bypass cohort. See setup/scripts/trendline_tier_rail.py docstring for the three conflicting prior measurements and why this one fixes ONE population.",
+  "generated_at_et": "2026-08-21T17:28:08",
+  "population": {
+    "decisions": "automation/state/core-decisions.jsonl",
+    "fills": "automation/state/fills-ledger.jsonl",
+    "arms": [
+      "safe-2",
+      "bold-2"
+    ],
+    "cohort_rule": "action==\"PLACED\" AND triggers==[\"trendline_rejection\"] (STRICT)",
+    "join": "decision exec.broker.id (+ extra_exec[].exec.broker.id) == fills order_id",
+    "position_def": "exit_shape_parity_study.reconstruct_positions",
+    "note": "filters.py's bypass shape also permits a co-occurring ribbon_flip, so this STRICT population is a subset. gates.py uses len(trigs)==1."
+  },
+  "escalation_n": 20,
+  "drop_best_mean_floor": -25.0,
+  "trendline_only": {
+    "n": 31,
+    "net_usd": 464.0,
+    "mean_usd": 14.97,
+    "win_rate": 0.3871,
+    "days": 15,
+    "days_positive": 6,
+    "drop_best_day_net_usd": -49.0,
+    "drop_best_day_mean_usd": -1.88,
+    "top_day": "2026-08-20",
+    "top3_share_of_net": 2.69
+  },
+  "rest_of_book": {
+    "n": 83,
+    "net_usd": -1652.99,
+    "mean_usd": -19.92,
+    "win_rate": 0.2048,
+    "days": 26,
+    "days_positive": 5,
+    "drop_best_day_net_usd": -2793.99,
+    "drop_best_day_mean_usd": -36.29,
+    "top_day": "2026-08-04",
+    "top3_share_of_net": -1.246
+  },
+  "rest_of_book_same_sessions": {
+    "n": 44,
+    "net_usd": -1038.98,
+    "mean_usd": -23.61,
+    "win_rate": 0.1818,
+    "days": 14,
+    "days_positive": 3,
+    "drop_best_day_net_usd": -1800.98,
+    "drop_best_day_mean_usd": -46.18,
+    "top_day": "2026-08-13",
+    "top3_share_of_net": -0.975
+  },
+  "rail_status": "HOLDING",
+  "verdict": "TRENDLINE-only cohort: n=31 over 15 sessions, $+464 net ($+14.97/trade, WR 38.7%); DROP-BEST-DAY $-1.88/trade. Rest of book: $-19.92/trade (drop-best $-36.29/trade), WR 20.5%. Holding -- not negative on a drop-best-day basis.",
+  "escalation": {
+    "posted_this_run": false,
+    "last_escalated_status": "HOLDING",
+    "finding": null,
+    "posted_at_et": null,
+    "revert_instruction": "There is NO one-line live revert: trendline_bypass_scope (filters.py:1436) is backtest-only and production always runs 'trendline_only'. The live lever is midday_trendline_gate (gates.py:361-369, currently false), which blocks trendline-only entries 11:30-14:00 ET. Arming it is a live behaviour change and needs OP-11 gates, not a flip."
+  },
+  "warnings": [
+    "Concentration is severe in BOTH cohorts -- always read drop_best_day_mean_usd, never net_usd alone.",
+    "Real fills only. Contradicts two replay/attribution populations (PNL-ATTRIBUTION-2026-07-28; LADDER T2 2026-08-20) that measured different windows and different definitions -- see the module docstring.",
+    "SHADOW: this rail never blocks, sizes, or edits params."
+  ]
+}

@@ -55,7 +55,7 @@ Account numbers below are **broker-verified live 2026-08-18**; `automation/state
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
 | **Account 1** | Gamma-Safe-2 (fleet `safe-2`) | `PA3POKNV46VG` | **$5,266.38 (2026-08-18, broker-verified)** | Conservative — ATM, 30% risk, CONFIRMED setups | `params.json` |
-| **Account 2** | Gamma-Bold-2 (fleet `bold-2`) | `PA3WEBXJU67N` | **$5,048.40 (2026-08-18, broker-verified)** | Aggressive — ITM-2, 50% risk, ALL setups | `aggressive/params.json` |
+| **Account 2** | Gamma-Bold-2 (fleet `bold-2`) | `PA3WEBXJU67N` | **$5,048.40 (2026-08-18, broker-verified)** | Aggressive — OTM-2 at this equity tier, 50% risk, ALL setups | `aggressive/params.json` |
 
 > ⚠️ **TP1 IS NOT A PER-ACCOUNT SETTING — it comes from the STRATEGY** (`ribbon_ride` hardcodes
 > +100%/sell-66%; per-arm overrides exist). **Read the arm's `exit-state.json` for live truth,
