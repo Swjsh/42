@@ -1,3 +1,17 @@
+## [2026-08-20 20:36 ET] conductor: OK — fixed kitchen_reviewer masked-exit flapping (3/9 fires today), commit `84ccfde5`
+
+**Picked via STAGE 0 budget gate PROCEED ($24.95/$30, 3/4 fires used, $5.05 paced allowance) + STAGE 1a (`desk_allocator.py`: futures #1 but already armed/stale per prior fires tonight, SPY 0DTE #2 flagged BROKEN via self-check DEGRADED) + STAGE 1 priority-1 (function-first: self-check's own "RUN-PS1-HIDDEN MASKED EXIT" problem, a live Kitchen-loop defect no one had traced).** Engine health GREEN (19/19). `desk_allocator.py`'s SPY 0DTE flag traced NOT to a fill-funnel break (funnel is fine) but to a Kitchen R&D infra bug self-check surfaced: `run-kitchen-reviewer.ps1` exited 1 on 3 of 9 fires today (00:46, 04:47, 06:46 ET) — invisible to Task Scheduler's LastTaskResult because the outer wscript hop swallows it (the exact class self-check exists to catch).
+
+**Root cause:** `kitchen_reviewer.py`'s pool-vs-ladder fallback gated "usable" on `ok=True` + non-empty content only. The primary free model (nvidia/nemotron, a reasoning model) sometimes burns its whole 12000-token budget on chain-of-thought prose (confirmed via the saved raw dumps: `reviewer-bad-response-20260820T084643.txt`, 41.8KB of numbered-list reasoning, zero `{` reached) before ever emitting the required JSON object. That response still satisfies `ok=True` + non-empty, so the 3-tier ladder fallback (which exists for exactly this failure mode, and has 2 non-reasoning free models on it) was never attempted — the fire just aborted. 3/9 = 33% of today's reviewer fires hit this exact shape.
+
+**Fix:** gate "usable" on JSON-parseability (`_extract_json_object` succeeds AND has a `decisions` key), not just `ok`+non-empty, for BOTH the pool result and each ladder tier — a garbled response from one model now falls through to the next instead of aborting the whole review fire.
+
+**Verified, quoted:** `py_compile` clean. New guard `test_kitchen_reviewer_ladder_fallback_2026_08_20.py` 3/3 green — covers (a) pool-unparseable → ladder tier 0 also unparseable → tier 1 valid JSON → success, asserting BOTH tiers were actually called in order; (b) all-paths-unparseable → exit 1 + raw debug dump written (not a crash, still fail-loud); (c) happy-path pool-parses-clean → ladder never touched (no added cost/latency to the common case). Existing `test_kitchen_reviewer_numeric_evidence.py` 5/5 still green (no regression to the OP-16 promote-evidence gate). Commit-time curated safety gate: 59/59 passed.
+
+**Rail 4 not strictly triggered (Kitchen R&D infra, not a trading-path params/heartbeat_core/filters/placement edit) — ships per OP-22/OP-26 engine-benefit authoring path.** Guard test is the regression check (a); revert is `git revert 84ccfde5`, one clean commit, 2 files (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched. Kitchen daemon itself untouched (OP-31: this fixes a review-fire caller, not the daemon's own trading-path exclusion).
+
+**Not fixed this fire (unrelated, out of bounded scope):** `conviction-c4-c5` remains RED on the incident roster (C5 entry-quality signal still None) — has recurred across ~6+ fires today without resolution; likely needs real design work (a signal doesn't exist yet), not a mechanical patch. Flagging for a future fire or FABLE-ESCALATION if it keeps recurring without progress.
+
 ## [2026-08-20 18:40 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
 
 - **conviction-c4-c5** -- closes: no entry-quality signal existed at all
@@ -286,51 +300,3 @@ Zero trading-path files touched (queue.md + a new archive file + a new pytest gu
 
 Zero trading-path files touched (queue.md + STATUS.md bookkeeping + one lesson-inbox file). Revert: n/a, doc-only; the underlying 9 commits are each independently revertible per their own messages.
 
-## [2026-08-18 ~20:5x ET] conductor: OK -- self-audit gap-extractor root-caused + fixed, commit `0d3ee153`
-
-**Picked from STAGE 1 priority-3 (self-audit gaps -- outranks queue.md HIGH items).** Engine
-health GREEN, budget gate PROCEED ($12.42/$30 pre-fire, 2/4 fires used). TWIN-DOCTRINE-FIRST-
-DEPLOY scored #1 on `task_scorer.py` (6.5) but was already re-pinged this SAME morning at
-05:33 ET with a verified landed ping on both Discord + companion channels -- re-pinging again
-15 hours later with zero new evidence would be spam, not loop-closing (OP-22), so skipped in
-favor of the next-highest genuinely-actionable item.
-
-**The real find:** `new-gaps-flagged.md`'s 2026-08-15/16/17/18 batches each got the SAME
-hand-triage note ("scaffold-crowding class as prior batches") without anyone ever reading the
-extractor code -- 4 consecutive nights of correctly diagnosing the symptom and never fixing
-the mechanism. Root cause: `self_audit.py`'s perspective bold-bullet regexes captured ONLY the
-text inside `**...**` and discarded the explanation on the rest of the line -- so genuinely
-readable source markdown ("**Implement the watcher scripts** (`order-quality-watcher.py`,
-...) as lightweight services that publish events to `automation/state/`") extracted down to
-the unreadable fragment "Implement the watcher scripts". Synthesis bullets got the equivalent
-full-line-capture fix on 2026-08-02; perspective bullets never did, and the two extraction
-paths silently diverged. Also caught a genuinely NEW noise variant in the same batch ("The
-most rigorous view is Perspective 5 because...") that neither existing cross-reference filter
-matched, plus two LATENT bugs the join would otherwise have newly exposed: known prompt-
-template labels (Role:/Task:/Context:) leaking once trailing text defeated the old trailing-
-colon check, and `_norm()` silently fusing words across U+202F narrow no-break spaces
-(verified against the real 06-29 fixture's "Rule 10" text -- was defeating the "rule 9"/
-"rule 10" scaffold-prefix match, previously masked by the old short-capture behavior).
-
-**Shipped:** `_join_bold_bullet()` (recombine, don't discard), extended `_CONSENSUS_LEADIN_RE`,
-`_KNOWN_TEMPLATE_LABELS` guard, unicode-whitespace-safe `_norm()`. 5 new regression tests
-reproducing all 4 sub-bugs verbatim, RED-proofed via git-stash (fail on pre-fix code, pass
-restored); updated one now-stale exact-match assertion in the existing 06-29 fixture test to
-prefix-match (the extractor correctly returns MORE text now, not less). Verified end-to-end
-against the real 2026-08-18 consult fixture: all 4 fragments now read as complete sentences,
-the 5th (perspective-rating noise) correctly dropped. 79/79 self-audit suite green, curated
-safety gate 59/59 PASS. Marked the 2026-08-18 batch DONE in `new-gaps-flagged.md` with the
-full writeup; filed `_lesson-inbox/2026-08-18-self-audit-extractor-headline-fragments.md` on
-the meta-pattern (a repeated hand-triage note is itself the bug to fix -- read the producer
-before writing another consumer-side triage). Zero trading-path file touched (pure Python
-extraction logic + tests + docs). **REVOKE:** `git revert 0d3ee153` (4 files, additive:
-new helper functions + 5 new tests + one updated assertion + doc annotations, no existing
-behavior removed). **Autonomy-metric trend: `regressing`** (cost/drained $1.95 over the last
-20 fires) -- noted per OP-22, not investigated this fire (bounded-task scope); next fire
-should prefer a loop-closing item over a new artifact to help correct it.
-
-
-### DEGRADED: self-check 2026-08-20T18:39:57
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
-- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
