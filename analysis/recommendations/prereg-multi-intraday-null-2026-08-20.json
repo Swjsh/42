@@ -1,0 +1,74 @@
+{
+  "rule_id": "prereg-multi-intraday-null-2026-08-20",
+  "title": "Does the forked SPY engine's 5-minute signal have a directional edge on non-SPY names?",
+  "status": "FROZEN_BEFORE_ANY_RESULT",
+  "frozen_at_et": "2026-08-20T22:0x",
+  "frozen_by": "Opus worker executing OPUS-WORKPACKAGE-MULTI-LANE-2026-08-20.md WP-4",
+  "_no_results_seen": "Written before the harness has been run even once. No signal's outcome is known to the author at freeze time. Only FEASIBILITY was checked beforehand (does intraday option data exist at all) -- feasibility is not a result.",
+
+  "provenance": {
+    "why": "WP-4 is the absolute gate. The lane has zero evidence its scoring pays on non-SPY names. The same gate killed the weekly lane's signal honestly across five independent cuts (WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md); nothing ships around it.",
+    "code_frozen_at_commit": "HEAD at freeze (WP-0..WP-3 complete: intraday_v1 identity, 5m timebase, VIX/HTF/level-state context, named blockers)",
+    "audit": "analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20.md"
+  },
+
+  "data_feasibility_established_before_freeze": {
+    "intraday_option_bars": "EXIST but are SPARSE and volume-gated. Measured: a liquid NVDA weekly (NVDA260814C00185000) returned 61 5-min bars across 4 sessions where full RTH coverage would be ~312 (~20%). Options print only where trades occurred; even liquid contracts do not trade every 5 minutes.",
+    "consequence": "An option-level intraday walk carries real gaps. This is why the test is staged: STAGE A needs no option data at all."
+  },
+
+  "hypothesis": {
+    "primary": "The forked engine's 5-minute ENTER_BULL/ENTER_BEAR signal predicts the direction of the underlying's next move on non-SPY names, beyond what random entry on the same names and sessions achieves.",
+    "null": "It does not. The signal's forward returns are indistinguishable from random entries drawn from the same symbol-session population.",
+    "null_is_shippable": true,
+    "_null_action": "A null result STOPS the lane with a written verdict -- it does not trigger a re-slice, a threshold sweep, or a 'try more names' loop. Explicitly forbidden by the workpackage kill-list: no threshold-tuning to make the signal fire (that is a dead-knob dressed as progress)."
+  },
+
+  "staged_design": {
+    "STAGE_A_underlying": {
+      "_doc": "The cheap decisive cut. Needs NO option data, so sparse option bars cannot confound it.",
+      "method": "Replay the WP-1/WP-2 signal bar-by-bar over 5-minute underlying history for the test symbols. At each bar, levels/level-states/context are computed from STRICTLY EARLIER data (the no-look-ahead slicing pattern proven in weekly_signal_density_probe.py). Record every ENTER_BULL/ENTER_BEAR with its forward underlying return at +2, +6, +12 bars (10/30/60 minutes).",
+      "primary_metric": "signed forward return IN THE SIGNAL'S OWN DIRECTION (positive = the trigger was right), at +6 bars (30 min) as the headline horizon",
+      "secondary": ["direction hit rate", "absolute-move lift vs baseline (is it a volatility detector rather than a direction detector -- the exact trap the weekly lane fell into)", "per-symbol breakdown"],
+      "gate": "Signal forward return must beat the RANDOM-ENTRY NULL at the null's MAX, not its mean."
+    },
+    "STAGE_B_option": {
+      "_doc": "Only run if STAGE A passes. Adds option-expression reality (spread, theta, strike choice).",
+      "method": "For surviving signals, walk the delta-matched contract through real intraday option bars where they exist; where a bar is absent, mark the interval UNPRICED and exclude rather than forward-fill (forward-filling a sparse option series fabricates a price path).",
+      "required_disclosure": "per-symbol %-of-intervals actually priced vs unpriced. A result computed on 20%-covered data must say so on the same line as the number."
+    }
+  },
+
+  "test_symbols": {
+    "set": ["NVDA", "QQQ", "GLD", "IWM", "AAPL", "TSLA", "SPY", "MSFT", "AMD"],
+    "_why_9": "The weekly lane's hardest-won lesson: a 2-symbol sample manufactured a clean 'volatility detector' conclusion that 9 symbols destroyed -- the whole effect was ONE name (GLD) dominating the average. Nine symbols minimum, and the per-symbol spread is reported ALONGSIDE the pooled mean, never instead of it.",
+    "_lesson": "strategy/candidates/_lesson-inbox/small-n-symbol-sample-manufactures-a-mechanism-2026-08-18.md"
+  },
+
+  "statistics": {
+    "min_signals_required": 50,
+    "_min_n_rationale": "Below 50 the forward-return distribution cannot separate a real effect from noise at plausible effect sizes. Fewer than 50 => 'insufficient evidence', reported as such, NOT as a weak positive.",
+    "random_entry_null": {
+      "construction": "Draw entries uniformly at random from the SAME symbol-session-bar population the signal drew from, with the same direction mix, same count per draw. Repeat for N>=30 draws.",
+      "comparison": "The signal's mean forward return must exceed the MAXIMUM of the draws' means. Comparing against the null's MEAN is too weak when several horizons and symbols are examined.",
+      "_why_max": "With multiple horizons x 9 symbols, beating an average null is easy by chance."
+    },
+    "multiple_comparison": "Holm correction across the 3 horizons (+2/+6/+12 bars). Per-symbol results are DESCRIPTIVE and are not added to the corrected family.",
+    "alpha": 0.05
+  },
+
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "PASS_to_stage_B": "Stage A shows >=50 signals AND signal forward return beats the null's MAX at the headline horizon AND >= half the symbols individually show the same sign.",
+    "FAIL_stop_the_lane": "Any of: <50 signals; fails the null MAX; or the effect is carried by fewer than half the symbols. Result written as a verdict, lane stopped, machinery retained.",
+    "VOLATILITY_NOT_DIRECTION": "If absolute-move lift is significant while signed return is not, the signal is a volatility detector. That is NOT a pass -- this lane trades long directional premium only, and the weekly lane already proved that reading can be a single-symbol artifact. It would be recorded as a finding, not acted on.",
+    "what_no_result_authorizes": "Nothing here can arm live money, change SPY parameters, or alter the 10 rules. Maximum authority: permit WP-5 (paper orders behind a human-set flag)."
+  },
+
+  "known_limitations_stated_upfront": [
+    "Stage A measures the SIGNAL, not the traded P&L: spread, theta and strike choice are Stage B's job. A Stage A pass is necessary, not sufficient.",
+    "Intraday option coverage is sparse (~20% measured); Stage B results carry per-symbol coverage disclosure or they are not reported.",
+    "Alpaca 5-minute underlying history depth is finite; the achieved window is reported with the result rather than assumed.",
+    "The quote feed is 'indicative' (no OPRA agreement on this account) -- a permanent ceiling on any spread number this lane produces."
+  ]
+}
