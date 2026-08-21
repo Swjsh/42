@@ -138,3 +138,33 @@ def test_summary_reports_joint_pass_rate_from_would_place():
 def test_summary_handles_zero_evaluated_without_dividing_by_zero():
     from collections import Counter
     assert "0.0%" in core.ts_summary(Counter())
+
+
+# --- WP-6 (2026-08-20): the liquidity gate must bind on VOLUME, not on a dead OI knob --------
+# Verified live: the free "indicative" feed returns openInterest=None for every contract while
+# supplying real volume (NVDA 10,408 / QQQ 27,475). A gate keyed only to OI could never bind.
+
+_VOL_PARAMS = {"entry": {"liquidity_gate": {"max_spread_pct_of_premium": 8.0,
+                                            "min_open_interest": 250,
+                                            "min_contract_volume_today": 100,
+                                            "feed": "indicative"}}}
+
+
+def test_thin_contract_volume_is_refused_even_when_OI_is_None():
+    ok, why, _ = core.liquidity_ok(
+        {"bid": 2.00, "ask": 2.04, "open_interest": None, "volume": 12}, _VOL_PARAMS)
+    assert ok is False and "volume" in why.lower(), why
+
+
+def test_missing_volume_is_refused_not_waved_through():
+    """Absent liquidity evidence is not evidence of liquidity."""
+    ok, why, _ = core.liquidity_ok(
+        {"bid": 2.00, "ask": 2.04, "open_interest": None, "volume": None}, _VOL_PARAMS)
+    assert ok is False and "unavailable" in why.lower(), why
+
+
+def test_real_traded_contract_passes_on_volume_with_OI_absent():
+    ok, why, facts = core.liquidity_ok(
+        {"bid": 2.65, "ask": 2.71, "open_interest": None, "volume": 10408}, _VOL_PARAMS)
+    assert ok is True, why
+    assert facts["spread_pct"] < 8.0

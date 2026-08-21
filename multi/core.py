@@ -145,9 +145,24 @@ def liquidity_ok(quote: dict | None, params: dict) -> tuple[bool, str, dict]:
     max_spread = float(gate.get("max_spread_pct_of_premium", 8.0))
     if spread_pct > max_spread:
         return False, f"spread {spread_pct:.1f}% > {max_spread}%", facts
+    # OPEN INTEREST IS A DEAD KNOB ON THIS FEED (WP-6, verified 2026-08-20): the free
+    # "indicative" feed returns openInterest=None for every contract, and this check only fires
+    # when oi is not None -- so min_open_interest could never bind, on any contract, ever. It is
+    # kept (not deleted) because it WOULD bind if this account ever gets an OPRA agreement, but
+    # it is no longer the liquidity story.
     min_oi = gate.get("min_open_interest")
     if min_oi is not None and oi is not None and oi < min_oi:
         return False, f"OI {oi} < {min_oi}", facts
+
+    # CONTRACT VOLUME is what this feed actually supplies (measured: NVDA 10,408 / QQQ 27,475
+    # while OI was None on both), and it is the real liquidity evidence -- a contract that
+    # traded today can be traded today. It was configured in params but never checked.
+    min_vol = gate.get("min_contract_volume_today")
+    if min_vol is not None:
+        if vol is None:
+            return False, "contract volume unavailable (cannot verify tradeability)", facts
+        if vol < min_vol:
+            return False, f"contract volume {int(vol)} < {min_vol}", facts
     return True, "ok", facts
 
 
