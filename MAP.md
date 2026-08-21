@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-18 08:48:58 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-20 22:09:08 Thursday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -49,7 +49,7 @@ flowchart LR
 - **Sight beacon** → `setup/scripts/sight_beacon.py` — never-blind price feed; REST + fallback
 - **Market structure** → `crypto/lib/market_structure.py` — HH/HL/BOS/CHoCH — the structure-shift detector. NOTE the path: it lives under crypto/lib but is instrument-agnostic and used by the SPY engine
 - **Structure watcher** → `backtest/lib/watchers/market_structure_watcher.py` — the watcher wrapper the engine actually calls
-- **Trendlines** → `automation/state/trendlines.json` — SHADOW only; producer was dead 47 days, revived 08-06, zero consumers by design
+- **Trendlines** → `automation/state/trendlines.json` — SHADOW only, zero consumers by design; manual (J-drawn) lines now refresh intraday every 5m RTH via trendline_manual.py, piggybacked on Gamma_Trendlines (08-18)
 
 ## 🧠 DECIDE — scoring and gates
 
@@ -87,7 +87,9 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **722** · broken wikilinks: **51** · orphans (no links either way): **1**
+- visible notes: **777** · broken wikilinks: **52** · orphans (no links either way): **1**
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-multi-intraday-null-2026-08-20` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-pre-tp1-ratchet-cost-2026-08-15` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-chasing-filter-2026-08-14` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-entry-range-context-2026-08-14` unresolved
@@ -96,9 +98,7 @@ flowchart LR
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-fill-model-unification-2026-08-13` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-slippage-rebaseline-2026-08-12` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-recency-qty-clamp-2026-08-11` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-ladder-vwap-2026-08-11` unresolved
-  - … +41 more
+  - … +42 more
 
 ## ⏰ The daily loop (live task state)
 
@@ -111,8 +111,8 @@ flowchart LR
 | /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Ready (last=0) |
 | 15:55 | `Gamma_EodFlatten` | nothing 0DTE survives the close | Ready (last=0) |
 | 16:08 | `Gamma_ChopMeter` | did we trade chop today | Ready (last=0) |
-| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=267011) |
-| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=267011) |
+| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=0) |
+| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=0) |
 | 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Ready (last=0) |
 | 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Ready (last=0) |
 

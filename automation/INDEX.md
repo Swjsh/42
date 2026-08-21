@@ -1,6 +1,6 @@
 # 🤖 automation/ — top-level docs
 
-> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-08-20 22:09:08 Thursday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## topic docs (undated)
 
