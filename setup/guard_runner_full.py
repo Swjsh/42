@@ -50,7 +50,12 @@ STATE = ROOT / "automation" / "state"
 STATUS = ROOT / "automation" / "overnight" / "STATUS.md"
 WATCH = STATE / "guard-watch-full.json"
 
-DEFAULT_TIMEOUT_SEC = 1500          # generous; the suite measured well under this
+# MEASURED 2026-08-20, not guessed: the suite reached 26% in ~10 minutes on this
+# box, implying ~40 min end to end. The first draft shipped 1500s (25 min), which
+# would have TIMED OUT every single night and reported a false alarm forever.
+# 3600s gives ~50% headroom; the task's ExecutionTimeLimit is set wider (60 min)
+# so pytest's own timeout fires first and produces a clean, reportable result.
+DEFAULT_TIMEOUT_SEC = 3600
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)   # OP-27 L41 / C8
 _SUMMARY_RE = re.compile(r"(\d+) (passed|failed|error|errors|skipped|xfailed|xpassed)")
 

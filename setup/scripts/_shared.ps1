@@ -356,6 +356,15 @@ function Stop-StaleClaudeProcesses {
         # -$1,569 via a wake-storm double entry + a stale-level top-tick buy). BY DESIGN a
         # long-running RTH daemon; reaping it silently re-enables mid-session sleep.
         'market_hours_keepawake.py',
+        # guard_runner_slow.py / guard_runner_full.py (2026-08-20): both spawn a
+        # `python -m pytest` child that runs for MINUTES -- the slow graduated guards
+        # load the 16-month master CSV, and the full suite is ~9,895 tests. The reaper
+        # kills project python older than 5 minutes, so without this exemption the
+        # nightly guard runs would be silently truncated and would report whatever
+        # partial result they had reached. Matching on the runner name covers the
+        # parent AND the pytest child, since Stop-ProcessTree walks the subtree.
+        'guard_runner_slow.py',
+        'guard_runner_full.py',
         'sniper_pipeline.py',
         'sniper_overnight_grinder.py',
         'sniper_stage2_grinder.py',
