@@ -66,6 +66,7 @@ PARAMS_PATH = STATE_DIR / "params.json"
 SHADOW_LEDGER = STATE_DIR / "shadow-ledger.jsonl"
 CASCADE_PATH = STATE_DIR / "participation-cascade.jsonl"
 STATUS_OUT = STATE_DIR / "status.json"
+HISTOGRAM_DIR = REPO_ROOT / "analysis" / "multi-lane"   # WP-3 nightly blocker rollups
 TASK_NAME = "Gamma_MultiCore"
 
 # The funnel stages (multi/lib/watchlist.py) precede the per-symbol gate stack (multi/core.py's
@@ -146,6 +147,44 @@ def top_blocking_gate(cascade: Optional[dict]) -> Optional[dict]:
         return {"gate": None, "dropped": 0,
                 "note": "no symbols were lost between any two measured stages this tick"}
     return {"gate": worst_label, "dropped": worst_drop}
+
+
+def read_blocker_histogram(now: dt.datetime, hist_dir: Path = HISTOGRAM_DIR) -> Optional[dict]:
+    """WP-3's nightly rollup, read back for the status surface: *which named filter* is the
+    binding constraint, not merely which cascade stage lost the most symbols.
+
+    `top_blocking_gate` above answers "where did symbols disappear"; this answers "which of the
+    scoring filters said no". They are different questions and a lane needs both -- a cascade
+    that reaches `action_directional` with 193 symbols and still places nothing is opaque until
+    you know it was F5:ribbon_stack refusing every bear and F10:level_tied_trigger refusing
+    every bull.
+
+    Prefers today's file; falls back to the most recent one on disk and SAYS SO via `date`, so
+    an off-hours read is never mistaken for a fresh one. Absence is `None`, never an exception.
+    """
+    if not hist_dir.exists():
+        return None
+    today = hist_dir / f"blocker-histogram-{now.date().isoformat()}.json"
+    path = today if today.exists() else None
+    if path is None:
+        candidates = sorted(hist_dir.glob("blocker-histogram-*.json"))
+        if not candidates:
+            return None
+        path = candidates[-1]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    return {
+        "date": data.get("date"),
+        "is_today": path == today,
+        "rows_scored": data.get("rows_scored"),
+        "would_place": data.get("would_place"),
+        "top_blocker_bear": data.get("top_blocker_bear"),
+        "top_blocker_bull": data.get("top_blocker_bull"),
+    }
 
 
 def read_watchlist_top(path: Path = SHADOW_LEDGER, top_n: int = 8) -> list[dict]:
@@ -296,13 +335,22 @@ def build_status(
 
     try:
         params = load_params(params_path)
+        mode_block = params.get("mode") or {}
         result["mode"] = {
             "shadow_only": bool(params.get("shadow_only", True)),
             "live": bool(params.get("live", False)),
             "account": (params.get("account") or {}).get("account_number"),
+            # WP-0 identity: WHICH business this lane is in. A reader who does not know whether
+            # this is the intraday machine or the (dormant) multi-day one cannot interpret a
+            # single number below it.
+            "name": mode_block.get("name"),
+            "same_day_exit": mode_block.get("same_day_exit"),
+            "time_stop_et": mode_block.get("time_stop_et"),
         }
+        result["lane_status"] = params.get("lane_status")
     except (OSError, json.JSONDecodeError) as e:
         result["mode"] = {"error": f"{type(e).__name__}: {e}", "shadow_only": True, "live": False}
+        result["lane_status"] = None
 
     positions, committed = _open_position_rows(now, journal_path, quote_fn)
     result["open_positions"] = positions
@@ -329,6 +377,7 @@ def build_status(
     result["cascade"] = cascade
     result["top_blocking_gate"] = top_blocking_gate(cascade)
     result["watchlist_top"] = read_watchlist_top(ledger_path)
+    result["blocker_histogram"] = read_blocker_histogram(now)
     result["ledger_health"] = ledger_freshness(now, ledger_path)
     result["scheduled_task"] = TASK_NAME
 
@@ -356,6 +405,16 @@ def format_table(status: dict) -> str:
     lines.append(f"MULTI-SYMBOL LANE STATUS -- arm {status.get('arm')} -- as of {status.get('as_of_et')}")
     lines.append("=" * W)
 
+    # The lane's terminal state comes FIRST. A stopped research lane whose status surface reads
+    # like a healthy one is how a dead programme gets silently re-litigated a month later.
+    ls = status.get("lane_status") or {}
+    if str(ls.get("state") or "").startswith("STOPPED"):
+        lines.append(f"*** LANE STOPPED ({ls.get('state')}, {ls.get('stopped_at_et')}) -- "
+                     f"NOT AN ACTIVE PROGRAMME ***")
+        lines.append(f"  verdict: {ls.get('verdict')}")
+        lines.append("  Numbers below are the final shadow state, retained for provenance.")
+        lines.append("=" * W)
+
     mode = status.get("mode") or {}
     shadow = mode.get("shadow_only", True)
     live = mode.get("live", False)
@@ -365,6 +424,9 @@ def format_table(status: dict) -> str:
     lines.append(f"MODE: {banner}")
     lines.append(f"  shadow_only={shadow}  live={live}  account={mode.get('account') or 'N/A'} "
                  f"(SHARED with crypto twin -- see CAPITAL section)")
+    lines.append(f"  IDENTITY: {mode.get('name') or 'UNKNOWN'}  "
+                 f"same_day_exit={mode.get('same_day_exit')}  "
+                 f"time_stop_et={mode.get('time_stop_et') or 'N/A'}")
     lines.append("")
 
     lines.append("OPEN POSITIONS (source: journal/trades-multi.csv -- this lane's own book)")
@@ -409,6 +471,23 @@ def format_table(status: dict) -> str:
             lines.append(f"  TOP BLOCKING GATE: {tbg['gate']}  (dropped {tbg['dropped']})")
         elif tbg:
             lines.append(f"  TOP BLOCKING GATE: {tbg.get('note', 'n/a')}")
+
+    hist = status.get("blocker_histogram")
+    if not hist:
+        lines.append("  TOP BLOCKING FILTER: (no blocker histogram written yet)")
+    else:
+        stamp = "today" if hist.get("is_today") else f"most recent: {hist.get('date')}"
+
+        def _b(side_key: str) -> str:
+            b = hist.get(side_key) or {}
+            if not b.get("blocker"):
+                return "n/a"
+            return f"{b['blocker']} ({b.get('pct_of_scored')}% of scored)"
+
+        lines.append(f"  TOP BLOCKING FILTER ({stamp}, {hist.get('rows_scored')} scored / "
+                     f"{hist.get('would_place')} would-place)")
+        lines.append(f"    bear: {_b('top_blocker_bear')}")
+        lines.append(f"    bull: {_b('top_blocker_bull')}")
     lines.append("")
 
     lines.append("WATCHLIST TOP (last tick, ranked by relative volume)")

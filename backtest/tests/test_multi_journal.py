@@ -453,3 +453,93 @@ def test_watchlist_top_uses_only_latest_tick_ranked_by_rvol(tmp_path):
     top = ms.read_watchlist_top(path, top_n=2)
     assert [t["symbol"] for t in top] == ["AVGO", "GLD"]  # ranked desc by rel_volume
     assert all(t["symbol"] != "OLD" for t in top)  # older tick excluded entirely
+
+
+# =========================================================================================
+# WP-6 (2026-08-20) -- the status surface must answer three questions it previously could not:
+#   * is this lane still a live programme, or was it STOPPED?
+#   * which business is it in (intraday vs the dormant multi-day model)?
+#   * which named FILTER refused -- not merely which cascade stage lost symbols?
+# The first matters most: after WP-4's null verdict, a status surface that still reads like a
+# healthy research lane is how a dead programme gets silently re-litigated a month later.
+# =========================================================================================
+
+def _params_with(tmp_path: Path, **extra) -> Path:
+    base = {
+        "shadow_only": True, "live": False,
+        "account": {"account_number": "PA38EG1JTFBT"},
+        "mode": {"name": "intraday_v1", "same_day_exit": True, "time_stop_et": "15:50"},
+    }
+    base.update(extra)
+    p = tmp_path / "params.json"
+    p.write_text(json.dumps(base), encoding="utf-8")
+    return p
+
+
+def _status_at(tmp_path: Path, params_path: Path) -> dict:
+    return ms.build_status(
+        now=_et(2026, 8, 20, 16, 5),
+        params_path=params_path,
+        ledger_path=tmp_path / "ledger.jsonl",
+        cascade_path=tmp_path / "cascade.jsonl",
+        journal_path=tmp_path / "trades.csv",
+    )
+
+
+def test_stopped_lane_says_so_at_the_top_of_the_report(tmp_path):
+    params = _params_with(tmp_path, lane_status={
+        "state": "STOPPED_ON_NULL", "stopped_at_et": "2026-08-20",
+        "verdict": "analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md"})
+    status = _status_at(tmp_path, params)
+    assert status["lane_status"]["state"] == "STOPPED_ON_NULL"
+    table = ms.format_table(status)
+    head = table.splitlines()[:8]
+    assert any("LANE STOPPED" in ln for ln in head), "stopped state must be in the first lines"
+    assert "MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md" in table, "must point at the verdict"
+
+
+def test_an_active_lane_shows_no_stopped_banner(tmp_path):
+    """RED-proofs the banner: it must key off real state, not print unconditionally."""
+    table = ms.format_table(_status_at(tmp_path, _params_with(tmp_path)))
+    assert "LANE STOPPED" not in table
+
+
+def test_mode_identity_is_reported_not_just_shadow_flags(tmp_path):
+    """WP-0: 'shadow_only=True' does not say WHICH strategy is in shadow."""
+    status = _status_at(tmp_path, _params_with(tmp_path))
+    assert status["mode"]["name"] == "intraday_v1"
+    assert status["mode"]["time_stop_et"] == "15:50"
+    assert "intraday_v1" in ms.format_table(status)
+
+
+def test_blocker_histogram_reports_named_filters_per_side(tmp_path):
+    hist = tmp_path / "hist"
+    hist.mkdir()
+    (hist / "blocker-histogram-2026-08-20.json").write_text(json.dumps({
+        "date": "2026-08-20", "rows_scored": 5, "would_place": 0,
+        "top_blocker_bear": {"blocker": "F5:ribbon_stack", "pct_of_scored": 100.0},
+        "top_blocker_bull": {"blocker": "F10:level_tied_trigger", "pct_of_scored": 100.0},
+    }), encoding="utf-8")
+    out = ms.read_blocker_histogram(_et(2026, 8, 20, 16, 5), hist_dir=hist)
+    assert out["is_today"] is True
+    assert out["top_blocker_bear"]["blocker"] == "F5:ribbon_stack"
+    assert out["top_blocker_bull"]["blocker"] == "F10:level_tied_trigger"
+
+
+def test_stale_histogram_is_flagged_not_passed_off_as_today(tmp_path):
+    """A yesterday-shaped file read today must SAY it is yesterday's (C7: silent success is
+    failure). Falling back is fine; falling back quietly is not."""
+    hist = tmp_path / "hist"
+    hist.mkdir()
+    (hist / "blocker-histogram-2026-08-14.json").write_text(
+        json.dumps({"date": "2026-08-14", "rows_scored": 3, "would_place": 0}), encoding="utf-8")
+    out = ms.read_blocker_histogram(_et(2026, 8, 20, 16, 5), hist_dir=hist)
+    assert out["is_today"] is False and out["date"] == "2026-08-14"
+
+
+def test_missing_or_corrupt_histogram_is_none_never_an_exception(tmp_path):
+    assert ms.read_blocker_histogram(_et(2026, 8, 20), hist_dir=tmp_path / "nope") is None
+    hist = tmp_path / "hist"
+    hist.mkdir()
+    (hist / "blocker-histogram-2026-08-20.json").write_text("{not json", encoding="utf-8")
+    assert ms.read_blocker_histogram(_et(2026, 8, 20), hist_dir=hist) is None

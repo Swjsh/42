@@ -1164,6 +1164,19 @@
    "tasks": [
     "Gamma_LicenseMonitor"
    ]
+  },
+  {
+   "id": "multi-symbol-lane",
+   "name": "Multi-symbol lane (STOPPED)",
+   "group": "RESEARCH",
+   "criticality": "low",
+   "what": "Symbol-generic fork of the SPY intraday engine over ~72 names, arm multi-1, shadow-only. STOPPED 2026-08-20 on WP-4's frozen random-entry null gate.",
+   "breaks": "Nothing trading-critical -- the lane never placed an order and is now stopped. Registered so its Disabled tick task is recorded as off-BY-DESIGN with a written reason, rather than surfacing forever as an UNREGISTERED orphan bubble or, worse, quietly ticking on for a programme whose verdict already came in.",
+   "tasks": [],
+   "expect_disabled": {
+    "Gamma_MultiCore": "Lane STOPPED 2026-08-20: WP-4 Stage A returned a null (7,489 signals / 9 symbols, fails the random-entry null at every horizon; volatility detector, not direction). Verdict: analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md. Reviving the lane requires a NEW signal and a NEW pre-registration, not re-enabling this task."
+   },
+   "artifacts": []
   }
  ],
  "external_units": [
