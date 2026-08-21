@@ -1,3 +1,23 @@
+## [2026-08-20 22:07 ET] MULTI-SYMBOL LANE: **STOPPED ON A NULL** — WP-4 verdict, commits `985c5860` + WP-6
+
+**The six-WP Opus workpackage ran to completion. WP-4's frozen gate returned a FAIL, so the lane is stopped. Nothing was ever armed; no order was ever placed.** This is the REVOKE report.
+
+**What J asked for, and what he got.** The directive was literal — *"copy the entire spy engine and then paste it… you don't touch the original, and then you make it so we trade other names."* That fork was built and is faithful: AST-verified zero `"SPY"` in the code, scale-invariance proven at $40 and $700 underlyings, credentials by reference, never importing or touching the original engine. Then it was measured, and **the signal does not pay on other names.** The build succeeded; the signal failed. Those are different sentences and both are true.
+
+**The result** (`analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md`, run exactly as frozen in `analysis/recommendations/prereg-multi-intraday-null-2026-08-20.json`): **7,489 signals across 9 symbols** on the 5-minute timebase with full context parity (real VIX + MAs, HTF-15m, per-symbol level-state memory). **Fails the random-entry null at MAX at every horizon** — +10 min −0.0041%, +30 min −0.0022%, +60 min −0.0073%; hit rate 49.06 / 49.35 / 49.17%; **only 2 of 9 symbols positive-mean.** Sample size is not the excuse: **149× the pre-registered minimum of 50.**
+
+**What it is actually detecting:** abs-move lift is positive and consistent (+7.6 / +12.5 / +12.6%) while signed return is zero. It marks *"something is about to move"* without saying which way. **The prereg named this outcome in advance and pre-committed to rejecting it** — a direction-blind signal expressed as long directional premium loses the spread and the theta every time. Arithmetic, not opinion. It is not a consolation prize: the weekly lane's identical-looking "volatility detector" read turned out to be GLD alone.
+
+**⛔ Second independent kill of the same signal family.** Weekly lane: 1H trigger / multi-day hold / 463 signals → fails. Multi lane: 5m trigger / intraday hold / full context / 7,489 signals → fails. **The "timeframe mismatch" hypothesis was the leading excuse for the first null, was tested here, and is now closed.** Level-interaction + structure-shift as a standalone trigger carries no directional information.
+
+**NOT adjudicated — deliberately kept separate:** the production SPY engine. SPY sits in this sample at −0.007%, but that is the FORKED scoring on 5m bars with lane-computed levels, not production with its curated key-levels, trendlines and multi-day memory — whose own recent evidence (08-17 +$448, 08-18 +$324, 08-19 +$356) stands on its own ledger. Conflating them is the evidence-blending the workpackage kill-list forbids.
+
+**What the frozen decision rule authorized, and what was done:** WP-5 (paper orders) **did NOT proceed** — absolutely gated on a Stage-A pass. Stage B did not run. **No threshold sweep, no "try more names", no re-slice** — all three pre-committed as forbidden. `Gamma_MultiCore` is **Disabled** (verified `State: Disabled` from Get-ScheduledTask, not assumed), registered under `unattended-registry.json` unit `multi-symbol-lane` so it reads `[off ]` and never a false RED — which also closed a pre-existing gap, since that task had been in NO health unit the whole time it was running.
+
+**What survives, and is the actual asset:** `backtest/tools/multi_intraday_null_harness.py` — a no-look-ahead intraday replay + random-entry null that **adjudicates any future signal on any symbol set in one session**. Plus the symbol-generic fork, the 5m two-tier batch pipeline (~2.4 req/min against a 200/min limit), context parity, named-blocker diagnosis + nightly histogram, crypto-safe shared-account handling (OCC-only filters so neither program can flatten the other), **312 multi-lane guards green**, 2 newly RED-proofed and restored.
+
+**REVOKE:** `git revert 985c5860` undoes the verdict docs; the WP-6 commit undoes the status-surface changes; `Enable-ScheduledTask -TaskName Gamma_MultiCore` restarts the shadow tick. **Re-enabling the task does not revive the lane** — that needs a NEW signal and a NEW pre-registration. Zero live-money, secret, or SPY-engine surfaces touched at any point.
+
 ## [2026-08-20 20:36 ET] conductor: OK — fixed kitchen_reviewer masked-exit flapping (3/9 fires today), commit `84ccfde5`
 
 **Picked via STAGE 0 budget gate PROCEED ($24.95/$30, 3/4 fires used, $5.05 paced allowance) + STAGE 1a (`desk_allocator.py`: futures #1 but already armed/stale per prior fires tonight, SPY 0DTE #2 flagged BROKEN via self-check DEGRADED) + STAGE 1 priority-1 (function-first: self-check's own "RUN-PS1-HIDDEN MASKED EXIT" problem, a live Kitchen-loop defect no one had traced).** Engine health GREEN (19/19). `desk_allocator.py`'s SPY 0DTE flag traced NOT to a fill-funnel break (funnel is fine) but to a Kitchen R&D infra bug self-check surfaced: `run-kitchen-reviewer.ps1` exited 1 on 3 of 9 fires today (00:46, 04:47, 06:46 ET) — invisible to Task Scheduler's LastTaskResult because the outer wscript hop swallows it (the exact class self-check exists to catch).
@@ -302,3 +322,21 @@ Zero trading-path files touched (queue.md + a new archive file + a new pytest gu
 
 Zero trading-path files touched (queue.md + STATUS.md bookkeeping + one lesson-inbox file). Revert: n/a, doc-only; the underlying 9 commits are each independently revertible per their own messages.
 
+
+### DEGRADED: self-check 2026-08-20T20:39:57
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
+- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-20T21:09:57
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
+- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-20T21:39:57
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,151.33, $3,780.33 remaining, 5 entries placed today).
+- TRENDLINE-DRAW SKIPPED today (2026-08-20): context budget - premarket USD cap. Non-load-bearing (visibility only); run the trendline-draw skill by hand if J wants the chart populated.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-20.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+## Kitchen
+Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
