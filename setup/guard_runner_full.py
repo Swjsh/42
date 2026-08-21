@@ -91,7 +91,16 @@ def _append_status(status: str, summary: str, names: list) -> None:
         return
     marker = "## Known broken"
     if marker not in text:
-        return
+        # DO NOT return here. Until 2026-08-20 this silently DISCARDED the report.
+        # The section had rolled into STATUS-archive-2026-06.md -- status_retention.py
+        # rebuilds STATUS.md as `preamble + newest entries`, and the heading sat inside
+        # a dated entry that eventually aged out -- so from June onward every failure
+        # raised here vanished without a trace while this runner still exited cleanly.
+        # Position cannot be relied on either: the conductor PREPENDS new entries above
+        # the preamble. So recreate the section instead of trusting it to be there.
+        # A failure report that goes nowhere is worse than no report -- it manufactures
+        # the belief that something is watching.
+        text = marker + "\n\n" + text
     detail = (" :: " + ", ".join(names)) if names else ""
     line = (f"- [{_now()}] FULL-SUITE {status.upper()} :: {summary}{detail} :: "
             "re-run: cd backtest && python -m pytest tests/ -q -m \"not slow\"")

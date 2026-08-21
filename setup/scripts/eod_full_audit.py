@@ -228,6 +228,72 @@ def build() -> str:
     else:
         L.append("- (spend-summary not yet run for today)")
 
+    # TRENDLINES -- J directed 2026-08-20: "we need to check EVERY SINGLE DAY.
+    # Do we see any trend lines? How do we act on them?" This section is mandatory
+    # and must speak up when it has nothing, because a silent trendline section is
+    # indistinguishable from a day with no lines (C7).
+    L.append(section("TRENDLINES — do we see any? how would we act?"))
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        import trendline_shadow as _tls
+        roll = _tls.daily_rollup(TODAY)
+        if not roll.get("logged"):
+            L.append(f"- ⚠️ **NO TRENDLINE DATA for {TODAY}** — {roll.get('reason')}. "
+                     "The shadow did not run or found nothing; treat as BLIND, not as "
+                     "'no lines today'. Re-run: `backtest/.venv/Scripts/python.exe "
+                     "setup/scripts/trendline_shadow.py --date " + TODAY + "`")
+        else:
+            L.append(f"- **Yes — {roll['distinct_lines']} distinct line(s), "
+                     f"{roll['events']} event(s)** "
+                     f"({roll['ascending']} ascending / {roll['descending']} descending; "
+                     f"{roll['breaks']} break, {roll['rejects']} reject)")
+            if roll["theo_trades"]:
+                L.append(f"- **How we'd act:** {roll['theo_trades']} theoretical trade(s) "
+                         f"— WR {roll['theo_wr']:.0%}, {roll['theo_points']:+.2f} SPY pts "
+                         f"({roll['theo_points_per_trade']:+.3f}/trade, "
+                         f"best {roll['best']:+.2f} / worst {roll['worst']:+.2f})")
+            else:
+                L.append("- **How we'd act:** no line met the quality bar "
+                         f"(>= {_tls.THEO_MIN_TOUCHES} touches, R² >= {_tls.THEO_MIN_R2}) "
+                         "— we would have stood down.")
+            wk = _tls.week_audit(TODAY)
+            if wk.get("theo_trades"):
+                L.append(f"- **Trailing {wk['sessions']} sessions** "
+                         f"({wk['from']} → {wk['to']}): {wk['theo_trades']} trades, "
+                         f"WR {wk['theo_wr']:.0%}, {wk['theo_points']:+.2f} pts "
+                         f"({wk['theo_points_per_trade']:+.3f}/trade)")
+                L.append("  - per session: " + ", ".join(
+                    f"{d} {v:+.1f}" for d, v in wk["by_session"].items()))
+                # A trailing window with no baseline re-cherry-picks itself every
+                # day. Percentile + concentration ship WITH the number, never after.
+                bl = _tls.baseline(TODAY)
+                if bl.get("ok"):
+                    pct = bl["window_percentile"]
+                    share = bl["top_session_share_of_window"]
+                    bits = []
+                    if pct is not None:
+                        bits.append(f"that window ranks **{pct:.0%}ile** of "
+                                    f"{bl['windows']} comparable windows "
+                                    f"({bl['windows_negative']} of them negative)")
+                    if share:
+                        bits.append(f"one session supplied **{share:.0%}** of it")
+                    if bits:
+                        L.append("  - ⚠️ context: " + "; ".join(bits))
+                    L.append(f"  - whole sample ({bl['sessions_total']} sessions, "
+                             f"{bl['all_trades']} trades): WR {bl['all_wr']:.0%}, "
+                             f"**{bl['all_points_per_trade']:+.3f}/trade** — "
+                             f"{bl['sessions_positive']}/{bl['sessions_total']} sessions "
+                             f"positive, top 3 sessions = "
+                             f"{bl['top3_share_of_total']:.0%} of all profit. "
+                             "**The whole-sample number is the honest one.**")
+        L.append("- _SHADOW ONLY — no order was placed and no live gate saw this. "
+                 "Standing verdict 2026-08-20: above a random-entry null, but the "
+                 "session-clustered 95% CI straddles zero and the per-trade edge is "
+                 "smaller than the 0DTE bid-ask spread. Evidence accumulating; "
+                 "NOT a green light._")
+    except Exception as exc:  # noqa: BLE001 — a broken shadow must be VISIBLE, not silent
+        L.append(f"- ⚠️ **trendline shadow FAILED to report**: {type(exc).__name__}: {exc}")
+
     # BROKEN
     L.append(section("KNOWN BROKEN / FLAGS"))
     st = (REPO / "automation" / "overnight" / "STATUS.md")
