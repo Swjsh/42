@@ -92,6 +92,7 @@ STAGE_EXPIRY_HARD = "expiry_hard"
 STAGE_EXPIRY_LAST_RESORT = "expiry_last_resort"
 STAGE_THETA_BUDGET = "theta_budget"
 STAGE_DAYS_TO_LIVE = "days_to_live"
+STAGE_TIME_STOP = "same_day_time_stop"
 STAGE_TP1 = "tp1"
 STAGE_RUNNER_TARGET = "runner_target"
 STAGE_TRAIL_STOP = "trail_stop"
@@ -179,6 +180,35 @@ def _parse_atr_mult(thesis_progress_definition: Any) -> float:
 
 
 # --- trading-session counting (never calendar days) -----------------------------------------
+def mode_name(params: dict) -> str:
+    """Which business this lane is in. Defaults to intraday_v1 -- the mode J directed.
+
+    Deliberately NOT a silent default to the multi-day model: a params file without a mode
+    block is far more likely to be a fresh/partial config than a considered choice to hold
+    positions overnight, and defaulting to the riskier hold model would be the wrong direction
+    to be wrong in.
+    """
+    m = params.get("mode")
+    if isinstance(m, dict) and m.get("name"):
+        return str(m["name"])
+    return "intraday_v1"
+
+
+def is_intraday(params: dict) -> bool:
+    return mode_name(params) == "intraday_v1"
+
+
+def _time_stop_et(params: dict) -> str:
+    m = params.get("mode")
+    if isinstance(m, dict) and m.get("time_stop_et"):
+        return str(m["time_stop_et"])
+    raise ExitConfigError(
+        "mode.time_stop_et missing while running intraday_v1 -- refusing to guess a "
+        "same-day flatten time. An intraday lane with no time stop holds overnight, which is "
+        "exactly what this mode forbids."
+    )
+
+
 def trading_sessions_elapsed(entry_date: dt.date, today: dt.date) -> int:
     """Count of weekday (Mon-Fri) sessions strictly AFTER `entry_date` up to and including
     `today`. Entry day itself is session 0 (not yet "held" any session). A Friday entry
@@ -354,8 +384,22 @@ def evaluate_exit(
             return d
 
     # ── 3. DAYS-TO-LIVE BUDGET (trading sessions) ────────────────────────────────────────
-    days_to_live = int(_require(exits_cfg, "days_to_live", "exits"))
-    if sessions_elapsed >= days_to_live:
+    # MODE BRANCH (WP-0). Intraday: a same-day time stop replaces the days-to-live budget --
+    # "how many sessions has this lived" is meaningless when it may not survive one.
+    if is_intraday(params):
+        stop_hhmm = _time_stop_et(params)
+        hh, mm = (int(x) for x in stop_hhmm.split(":")[:2])
+        if (now_et.hour, now_et.minute) >= (hh, mm):
+            return ExitDecision(
+                action=ACTION_SELL_ALL, stage=STAGE_TIME_STOP, qty=open_qty,
+                reason=(f"same-day time stop {stop_hhmm} ET reached "
+                        f"(mode={mode_name(params)}; this lane does not hold overnight)"),
+                facts={**base_facts, "time_stop_et": stop_hhmm}, record=base_record,
+            )
+        days_to_live = None
+    else:
+        days_to_live = int(_require(exits_cfg, "days_to_live", "exits"))
+    if days_to_live is not None and sessions_elapsed >= days_to_live:
         return ExitDecision(
             action=ACTION_SELL_ALL, stage=STAGE_DAYS_TO_LIVE, qty=open_qty,
             reason=(f"days-to-live budget: {sessions_elapsed} trading session(s) held >= "

@@ -3,11 +3,19 @@
   "_status": "SHADOW_BUILD",
   "_rule_version": "multi-v1",
   "_separation": "This lane NEVER imports, modifies, or shares state with the SPY engine. Its P&L is never SPY evidence and vice versa (crypto-twin non-comparability doctrine).",
-
   "arm": "multi-1",
   "live": false,
   "shadow_only": true,
-
+  "mode": {
+    "name": "intraday_v1",
+    "_doc": "WHAT BUSINESS THIS LANE IS IN. J directive 2026-08-19/20: replicate the engine that has recent green evidence -- the INTRADAY SPY machine -- on more names. The multi-day model this lane originally carried was inherited from the weekly lane, whose signal died a five-cut null-gate death (WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md). Multi-day is not forbidden forever; it is DORMANT until intraday replication has evidence. See _dormant_multiday below -- kept, not deleted, so reviving it is a config change not an archaeology project.",
+    "same_day_exit": true,
+    "overnight_holds": false,
+    "weekend_holds": false,
+    "time_stop_et": "15:50",
+    "_time_stop_doc": "Mirrors the SPY engine's own hard time-stop. The expiry-day flatten schedule (flatten_schedule_et 14:45/14:50/14:55) still takes precedence when the position's contract expires TODAY -- that is a safety cutoff, not a profit rule, and it fires first.",
+    "_audit": "analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20.md (root cause #3)"
+  },
   "account": {
     "account_number": "PA38EG1JTFBT",
     "key_source": "crypto-twin",
@@ -15,27 +23,106 @@
     "_shared_account_caveat": "This account also runs the crypto twin (BTC/USD, 1/min). Flat-checks and position filters in this lane MUST scope to equity-option symbols only and never touch or count crypto positions -- and the twin's own crypto flat-check must never see these options. Equity-curve P&L on this account is therefore a BLEND of two programs: read per-program ledgers, never the account equity line, for either program's evidence.",
     "starting_equity_note": "9628.45 observed 2026-08-19; the crypto twin's dust BTC position (~$0.0002) is immaterial."
   },
-
   "universe": {
     "_doc": "A BROAD optionable universe. Membership is NOT a promise of tradeability -- every name passes a LIVE liquidity gate at decision time (see entry.liquidity_gate). J directive: 'more names than I just said... we can trade a lot of different names.'",
     "_selection_basis": "Liquid US optionable names across sectors: mega-cap tech, semis, index/sector ETFs, financials, energy, healthcare, consumer, high-beta retail favourites. Screened live before any entry.",
-    "index_etf": ["SPY", "QQQ", "IWM", "DIA"],
-    "sector_etf": ["XLK", "XLE", "XLF", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB", "XLRE", "XLC", "SMH", "GDX", "XBI", "TLT", "SLV", "GLD", "USO"],
-    "mega_tech": ["AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA", "AVGO", "AMD", "NFLX"],
-    "semis_hardware": ["MU", "INTC", "QCOM", "TXN", "ARM", "MRVL"],
-    "financials": ["JPM", "BAC", "GS", "MS", "WFC", "C"],
-    "energy": ["XOM", "CVX", "COP", "SLB", "OXY"],
-    "healthcare": ["LLY", "UNH", "JNJ", "MRK", "PFE", "ABBV", "MRNA"],
-    "consumer_industrial": ["WMT", "COST", "HD", "DIS", "NKE", "BA", "CAT", "UBER"],
-    "high_beta": ["PLTR", "COIN", "MSTR", "HOOD", "SOFI", "RIVN", "SMCI", "AFRM"],
+    "index_etf": [
+      "SPY",
+      "QQQ",
+      "IWM",
+      "DIA"
+    ],
+    "sector_etf": [
+      "XLK",
+      "XLE",
+      "XLF",
+      "XLV",
+      "XLI",
+      "XLY",
+      "XLP",
+      "XLU",
+      "XLB",
+      "XLRE",
+      "XLC",
+      "SMH",
+      "GDX",
+      "XBI",
+      "TLT",
+      "SLV",
+      "GLD",
+      "USO"
+    ],
+    "mega_tech": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "AMZN",
+      "GOOGL",
+      "META",
+      "TSLA",
+      "AVGO",
+      "AMD",
+      "NFLX"
+    ],
+    "semis_hardware": [
+      "MU",
+      "INTC",
+      "QCOM",
+      "TXN",
+      "ARM",
+      "MRVL"
+    ],
+    "financials": [
+      "JPM",
+      "BAC",
+      "GS",
+      "MS",
+      "WFC",
+      "C"
+    ],
+    "energy": [
+      "XOM",
+      "CVX",
+      "COP",
+      "SLB",
+      "OXY"
+    ],
+    "healthcare": [
+      "LLY",
+      "UNH",
+      "JNJ",
+      "MRK",
+      "PFE",
+      "ABBV",
+      "MRNA"
+    ],
+    "consumer_industrial": [
+      "WMT",
+      "COST",
+      "HD",
+      "DIS",
+      "NKE",
+      "BA",
+      "CAT",
+      "UBER"
+    ],
+    "high_beta": [
+      "PLTR",
+      "COIN",
+      "MSTR",
+      "HOOD",
+      "SOFI",
+      "RIVN",
+      "SMCI",
+      "AFRM"
+    ],
     "_total_note": "~70 names. The live liquidity gate is what decides what is actually tradeable on any given day -- an event can make a normally-illiquid chain deeply liquid (MRNA 2026-08-19: 1 contract Monday, 30,314 Wednesday)."
   },
-
   "entry": {
-    "min_dte_at_entry": 3,
-    "expiry_rule": "this_friday_if_dte_ge_3_else_next_friday",
-    "target_delta_min": 0.40,
-    "target_delta_max": 0.70,
+    "min_dte_at_entry": 0,
+    "expiry_rule": "nearest_listed",
+    "target_delta_min": 0.4,
+    "target_delta_max": 0.7,
     "structure": "long_premium_only",
     "max_concurrent_symbols": 3,
     "liquidity_gate": {
@@ -46,21 +133,29 @@
       "min_underlying_dollar_volume": 20000000,
       "feed": "indicative",
       "_feed_note": "No OPRA agreement on this account: every spread number is from the free indicative feed. Permanent disclosure on every row."
-    }
+    },
+    "_dormant_multiday": {
+      "min_dte_at_entry": 3,
+      "expiry_rule": "this_friday_if_dte_ge_3_else_next_friday",
+      "_why_dormant": "multi-day hold model; revive only with intraday evidence in hand"
+    },
+    "_expiry_doc": "INTRADAY: take the nearest LISTED expiry (0-3 DTE typical). Still read from the live chain, never a computed calendar -- an expiry can be absent because earnings land that day (verified: NVDA had no 2026-08-26 listing)."
   },
-
   "risk": {
-    "per_trade_risk_cap_pct": 0.20,
+    "per_trade_risk_cap_pct": 0.2,
     "_cap_note": "Lower than the SPY lane's 30% because this lane spreads across many names; per-trade cap x max_concurrent must stay well inside equity.",
     "min_contracts": 3,
     "max_concurrent_positions": 3,
     "daily_loss_kill_switch_pct": 0.25,
     "kill_switch_semantics": "blocks_new_entries_only",
-    "correlation_gate": {"deny_abs_r_gte": 0.75, "lookback_days": 60, "fail_mode": "closed"},
+    "correlation_gate": {
+      "deny_abs_r_gte": 0.75,
+      "lookback_days": 60,
+      "fail_mode": "closed"
+    },
     "max_positions_per_sector": 1,
     "weekend_holds": false
   },
-
   "exits": {
     "_label": "COPIED_FROM_SPY_ENGINE_UNVALIDATED_ON_THESE_NAMES",
     "_doc": "Starting values ported from the SPY engine's shapes. They were fitted on SPY 0DTE fills and are NOT validated on these underlyings or these DTEs. Paired shadow-clock logs the ported shape alongside any variant from the first signal.",
@@ -75,25 +170,42 @@
       "max_premium_bleed_pct_without_progress": 30.0,
       "thesis_progress_definition": "underlying has moved >= 0.5 * ATR(14) in the trade's direction from entry"
     },
-    "days_to_live": 3
+    "_dormant_multiday": {
+      "days_to_live": 3,
+      "_why_dormant": "same-day exits under intraday_v1; days-to-live is meaningless intraday"
+    },
+    "_mode_note": "Under mode.intraday_v1 the exit ladder is: expiry-day flatten (safety, first) -> theta budget (BEFORE the catastrophe cap) -> same-day time stop -> TP1/runner/trail -> catastrophe cap. days_to_live and the weekend guard are dormant, not deleted."
   },
-
   "flatten_schedule_et": {
     "_doc": "Expiration-day cutoffs. Alpaca rejects option orders after ~3:15pm ET on expiration day for most names and the do-not-exercise cutoff is 3:00pm ET. A long option left to auto-exercise would deliver shares this account cannot afford.",
     "soft_time_stop": "14:45",
     "hard_backstop": "14:50",
     "last_resort_dne_sweep": "14:55"
   },
-
   "scanners": {
     "_doc": "Free Alpaca surfaces, all verified working 2026-08-19. These SELECT candidates; they never place or gate a trade on their own.",
-    "movers": {"enabled": true, "endpoint": "/v1beta1/screener/stocks/movers", "min_abs_pct": 8.0},
-    "most_actives": {"enabled": true, "endpoint": "/v1beta1/screener/stocks/most-actives", "top": 25},
-    "news": {"enabled": true, "endpoint": "/v1beta1/news", "lookback_hours": 24},
-    "gap": {"enabled": true, "min_gap_pct": 5.0, "min_rel_volume": 3.0},
+    "movers": {
+      "enabled": true,
+      "endpoint": "/v1beta1/screener/stocks/movers",
+      "min_abs_pct": 8.0
+    },
+    "most_actives": {
+      "enabled": true,
+      "endpoint": "/v1beta1/screener/stocks/most-actives",
+      "top": 25
+    },
+    "news": {
+      "enabled": true,
+      "endpoint": "/v1beta1/news",
+      "lookback_hours": 24
+    },
+    "gap": {
+      "enabled": true,
+      "min_gap_pct": 5.0,
+      "min_rel_volume": 3.0
+    },
     "_verified": "movers returned MRNA +177.0% on 2026-08-19, matching the independently derived figure exactly."
   },
-
   "promotion": {
     "min_signals": 20,
     "min_distinct_sessions": 15,

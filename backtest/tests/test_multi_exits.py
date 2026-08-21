@@ -38,8 +38,16 @@ def _et(y: int, m: int, d: int, hh: int, mm: int) -> dt.datetime:
 def _params() -> dict:
     """A fresh, independent params dict each call (never a shared mutable literal) -- mirrors
     the exact shape of automation/state/multi/params.json's exits/flatten_schedule_et/risk
-    blocks. Tests that need a variant mutate the RETURNED dict directly."""
+    blocks. Tests that need a variant mutate the RETURNED dict directly.
+
+    MODE IS DECLARED EXPLICITLY (WP-0, 2026-08-20). These tests validate the MULTI-DAY exit
+    semantics (days_to_live, weekend guard) which are now the DORMANT path -- the live lane
+    runs mode.intraday_v1. Declaring the mode here keeps these tests honest about which path
+    they exercise, rather than relying on a default. exits.mode_name() deliberately defaults to
+    intraday_v1 when no mode block exists, because a config with no mode is far more likely to
+    be partial than to be a considered choice to hold positions overnight."""
     return {
+        "mode": {"name": "multiday_v1", "same_day_exit": False},
         "exits": {
             "tp1_premium_pct": 45.0,
             "tp1_qty_fraction": 0.5,
@@ -461,3 +469,120 @@ def test_atomic_write_survives_mid_write_failure(tmp_path, monkeypatch):
     # no orphaned temp file left in the directory.
     leftovers = [p for p in tmp_path.iterdir() if p != path]
     assert leftovers == [], f"orphaned temp file(s) left behind: {leftovers}"
+
+
+# ============================================================================================
+# WP-0 (2026-08-20): INTRADAY MODE. The lane's identity per J's directive -- replicate the
+# INTRADAY SPY machine, not the multi-day model inherited from the weekly lane whose signal
+# died a five-cut null-gate death. Multi-day is dormant, not deleted.
+# ============================================================================================
+
+import json as _json
+from pathlib import Path as _Path
+
+_REPO = _Path(__file__).resolve().parents[2]
+_REAL_PARAMS = _REPO / "automation" / "state" / "multi" / "params.json"
+
+
+def _intraday_params() -> dict:
+    p = _params()
+    p["mode"] = {"name": "intraday_v1", "same_day_exit": True,
+                 "overnight_holds": False, "weekend_holds": False,
+                 "time_stop_et": "15:50"}
+    p["exits"].pop("days_to_live", None)   # dormant intraday
+    return p
+
+
+def test_intraday_flattens_at_the_same_day_time_stop():
+    p = _intraday_params()
+    rec = _record()
+    d = ex.evaluate_exit(
+        rec, now_et=_et(2026, 8, 20, 15, 51), best_premium=1.05, worst_premium=1.00,
+        open_qty=3, underlying_price=130.0, atr14=2.0, params=p,
+    )
+    assert d.stage == ex.STAGE_TIME_STOP, f"expected same-day time stop, got {d.stage}"
+    assert d.qty == 3, "a same-day time stop must close the WHOLE position"
+
+
+def test_intraday_does_not_flatten_before_the_time_stop():
+    p = _intraday_params()
+    d = ex.evaluate_exit(
+        _record(), now_et=_et(2026, 8, 20, 12, 0), best_premium=1.05, worst_premium=1.00,
+        open_qty=3, underlying_price=130.0, atr14=2.0, params=p,
+    )
+    assert d.stage != ex.STAGE_TIME_STOP
+
+
+def test_intraday_never_uses_days_to_live():
+    """days_to_live is meaningless intraday. Its ABSENCE must not raise, and a position held
+    'many sessions' (impossible intraday, but assert the branch) must not exit via that stage."""
+    p = _intraday_params()
+    rec = _record(entry_session_date="2026-08-10")  # ancient by multi-day standards
+    d = ex.evaluate_exit(
+        rec, now_et=_et(2026, 8, 20, 12, 0), best_premium=1.05, worst_premium=1.00,
+        open_qty=3, underlying_price=130.0, atr14=2.0, params=p,
+    )
+    assert d.stage != ex.STAGE_DAYS_TO_LIVE, "intraday mode used the dormant days-to-live path"
+
+
+def test_intraday_with_no_time_stop_RAISES_rather_than_holding_overnight():
+    """An intraday lane with no configured flatten time would hold overnight -- exactly what
+    the mode forbids. Refuse loudly instead of guessing a time."""
+    p = _intraday_params()
+    p["mode"].pop("time_stop_et")
+    with pytest.raises(ex.ExitConfigError, match="time_stop_et"):
+        ex.evaluate_exit(
+            _record(), now_et=_et(2026, 8, 20, 12, 0), best_premium=1.05, worst_premium=1.00,
+            open_qty=3, underlying_price=130.0, atr14=2.0, params=p,
+        )
+
+
+def test_missing_mode_block_defaults_to_INTRADAY_not_overnight():
+    """The safety-direction test. A partial config must not silently become a lane that holds
+    positions overnight."""
+    p = _params()
+    p.pop("mode", None)
+    assert ex.mode_name(p) == "intraday_v1"
+    assert ex.is_intraday(p) is True
+
+
+def test_expiry_flatten_still_outranks_the_intraday_time_stop():
+    """Ordering: the expiry-day SAFETY cutoff (14:45) fires before the 15:50 profit-rule stop.
+    A contract expiring today left past 15:00 risks auto-exercise this account cannot cover."""
+    p = _intraday_params()
+    rec = _record(expiry="2026-08-20")          # expires TODAY
+    d = ex.evaluate_exit(
+        rec, now_et=_et(2026, 8, 20, 14, 46), best_premium=1.05, worst_premium=1.00,
+        open_qty=3, underlying_price=130.0, atr14=2.0, params=p,
+    )
+    assert d.stage.startswith("expiry_"), f"expiry safety must outrank the time stop, got {d.stage}"
+
+
+# --- THE CONFIG-CONTRACT TEST -------------------------------------------------------------
+# Every other test in this file uses a FIXTURE. That is why removing days_to_live from the
+# real params.json broke nothing here while leaving the live lane unable to evaluate an exit
+# at all (_require would have raised on the first open position). A fixture-only suite cannot
+# see a config/code contract break. This test loads the REAL file.
+
+def test_REAL_params_json_can_actually_drive_an_exit_evaluation():
+    real = _json.loads(_REAL_PARAMS.read_text(encoding="utf-8"))
+    d = ex.evaluate_exit(
+        _record(), now_et=_et(2026, 8, 20, 12, 0), best_premium=1.05, worst_premium=1.00,
+        open_qty=3, underlying_price=130.0, atr14=2.0, params=real,
+    )
+    assert d is not None and d.stage, "real params.json could not drive an exit evaluation"
+
+
+def test_REAL_params_declares_a_mode_and_it_is_intraday():
+    real = _json.loads(_REAL_PARAMS.read_text(encoding="utf-8"))
+    assert ex.mode_name(real) == "intraday_v1"
+    assert real["mode"]["overnight_holds"] is False
+    assert real["mode"]["weekend_holds"] is False
+
+
+def test_REAL_params_keeps_multiday_dormant_not_deleted():
+    """Provenance: reviving multi-day should be a config change, not archaeology."""
+    real = _json.loads(_REAL_PARAMS.read_text(encoding="utf-8"))
+    assert "_dormant_multiday" in real["exits"]
+    assert real["exits"]["_dormant_multiday"]["days_to_live"] == 3
+    assert "_dormant_multiday" in real["entry"]
