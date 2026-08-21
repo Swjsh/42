@@ -12,11 +12,12 @@
 
 ## Hypothesis
 
-When the EMA ribbon (8,13,21,34,55) compresses to a narrow width (<0.3% of price) for at least 4 consecutive bars, it indicates a period of low volatility and equilibrium. A breakout above the highest EMA accompanied by a volume surge (>1.3x 20-bar average) signals the start of a short-term trend, allowing capture of directional momentum.
+When the EMA ribbon (9,20,50) contracts to a narrow band (width < 0.3% for three consecutive 5-minute bars), price often breaks out in the direction of the ribbon’s slope, providing a low-volatility breakout edge. This setup captures compression breakouts that precede significant moves, which is not currently captured by existing ribbon-ride strategies requiring price to already be outside the ribbon.
 
 ## Mechanism
 
-Calculate the 8,13,21,34,55 EMA on 5-minute bars. Compute ribbon width as (max(EMA) - min(EMA)) / close. Require ribbon width < 0.003 for at least 4 consecutive bars. On the bar where close > highest EMA and volume > 1.3 * 20-bar average volume, enter long at the close. Exit: initial stop at the lowest EMA of the ribbon at entry (chart-stop), target at 2R (twice the risk), then trail with a 20% chandelier trail from the highest high. Regime filter: only consider entries when VIX < 18 and time between 09:45-12:00 EST; avoid 12:00-13:30 EST when ribbon often re-expands.
+Entry: Calculate ribbon width as (highest EMA – lowest EMA) / close. When width < 0.003 for three consecutive 5-minute bars and the ribbon is either ascending (9>20>50) or descending (9<20<50), enter long on a close above the highest EMA or short on a close below the lowest EMA, provided the breakout bar’s volume exceeds the 20-bar average volume.  
+Exit: Stop placed at the opposite edge of the ribbon (below lowest EMA for longs, above highest EMA for shorts); take profit at 2× ribbon width projected from entry, or trail with a chandelier exit (3× ATR, 22 period).
 
 ## Expected impact on OP-16 anchors
 
@@ -32,21 +33,21 @@ Calculate the 8,13,21,34,55 EMA on 5-minute bars. Compute ribbon width as (max(E
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The strategy assumes a minimum account size of $25K+ to trade the suggested qty of 28 contracts (based on risk-per-trade of 50% and entry premium ~$1.00). A $1K paper account would realize approximately 14% of the headline P&L due to position sizing constraints.  
-2. **Sample bias:** The concept is derived from price action theory and has not been backtested on any historical data. Sample size is zero; there is high overfit risk until a Stage-1 backtest is performed.  
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window has been evaluated).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic simulator validation on top 3 J days has been performed).  
-5. **Failure modes:** Worst day: entering during false breakout in choppy market could trigger stop loss repeatedly; max drawdown scenario: series of losing trades during low-VIX, ranging markets; blow-up scenario: volatility expansion causing gap through stop before execution.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to determine what percentage of P&L comes from top-5 days.  
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on 3-contract minimum at $1.00 entry premium).  
+2. **Sample bias:** Sample size and selection method not yet determined; overfit risk high without walk-forward validation.  
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window performed yet).  
+4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills check on top 3 J days performed yet).  
+5. **Failure modes:** Worst day: whipsaw in choppy market causing multiple false breakouts; max drawdown: could exceed 50% per trade if stop is hit; blow-up scenario: persistent low-volatility environment with no breakouts leading to missed opportunities and cumulative losses from repeated small stops.  
+6. **Concentration:** unknown -- requires Stage-1 backtest (if top-5 days = X% of P&L, state X after backtest).  
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.  
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-3 / 10 -- The hypothesis is plausible but untested; the EMA ribbon compression is a known volatility proxy, but the specific parameters (width threshold, consecutive bars, volume multiplier) are speculative without validation.  
+5 / 10 -- The hypothesis is plausible and novel relative to existing ribbon-ride strategies, but requires validation on historical data to confirm edge and parameters.
 
 ## Pre-existing leaderboard impact
 
-This candidate is a novel trigger type and does not directly conflict with existing candidates in the leaderboard. It complements volatility-based approaches like BOLLINGER_SQUEEZE by using an EMA ribbon instead of Bollinger Bands. No overlap with existing watchers or gates is expected.
+This candidate complements existing ribbon-ride strategies (BULLISH_RECLAIM_RIDE_THE_RIBBON and BEARISH_REJECTION_RIDE_THE_RIBBON) by targeting the compression phase rather than the ride phase. It does not conflict with any existing candidates in the leaderboard as it is a new trigger type.
