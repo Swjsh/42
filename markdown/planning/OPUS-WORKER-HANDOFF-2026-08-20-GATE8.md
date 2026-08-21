@@ -4,6 +4,21 @@
 >
 > **This document is the work package.** It encodes what is already settled (do NOT retest it), what is genuinely open, and the exact matrices to run. Nothing in here ships to the entry path without a pre-registered A/B clearing the standing bar (OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression, per OP-11), plus a random-entry null.
 
+
+---
+
+> ## ⛔ EXECUTED 2026-08-20 EVENING — READ THIS BEFORE DOING ANYTHING BELOW
+>
+> **T0 and T2 are DONE. T2's pre-registered kill criterion FIRED. T3 IS DEAD — do not build the seven-arm matrix.**
+>
+> Results: [`analysis/recommendations/GATE8-T0-T2-RESULTS-2026-08-20.md`](../../analysis/recommendations/GATE8-T0-T2-RESULTS-2026-08-20.md)
+>
+> - **T2:** entries blocked by gate 8 ALONE lose **−$36.79/trade** (n=137, WR 22.6%) vs **−$19.10** for entries missing 2+ filters (n=1,338, WR 30.4%). The isolated cell is **2× worse** than the pooled cohort. Gate 8 is the most discriminating filter in the bear stack, not a nuisance.
+> - **Level-quality stratum (J's addition): REFUTED.** Stronger levels performed *worse* — medium-strength levels are the worst bucket in both the gate-8 cohort (−$102.71/trade, WR 11.8%) and the full population (−$42.78). This rediscovers **L142 / C25** from the other side: high touch_count marks an *exhausted* level, not a respected one.
+> - **T0:** no feed disagreement — the engine correctly reads the last CLOSED bar (median error 1.5¢). **My earlier OHLC-discrepancy claim is RETRACTED.** But T0 found a real defect: the first six ticks of the session ran on a **~3h-stale premarket quote (+$3.15)** with `blind=False`.
+>
+> **Still open:** T4 (bypass `trendline_present` — corroboration currently BLOCKS entry) and T6 (ladder-ledger dedupe). T1 demoted to documentation-only; T5 demoted. **The package shrank from 6 tasks to 2.**
+
 ---
 
 ## Part A — WHY one gate can hold the whole book out (the mechanism chain)
