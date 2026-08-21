@@ -1069,18 +1069,40 @@ def _parse_run_cmd_hidden_log(text: str) -> list[dict]:
     """PURE. Parse run_cmd_hidden.py's own per-fire launcher log (automation/state/logs/
     run-cmd-hidden-<date>.log) into completed [{"cmd": str, "exit": int}] records.
 
-    Each fire writes a 'launching: <cmd>' line, zero or more 'cwd=.../WARN ...' lines, then
-    exactly one '  exit=<N>' (or '  exit=<N> (off-desktop)') line once the child returns.
-    Pairs each 'launching:' with the NEXT 'exit=' line seen; an unpaired trailing
-    'launching:' (process still running, or the launcher itself crashed before it could log
-    an exit) is dropped, not guessed at -- this only reports COMPLETED, evidenced outcomes."""
+    Each fire writes a 'launching: <cmd>  [pid=<N>]' line, zero or more 'cwd=.../WARN ...'
+    lines, then exactly one '  exit=<N>  [pid=<N>]' (or '  exit=<N> (off-desktop)') line
+    once the child returns.
+
+    2026-08-21 CONCURRENCY-MISATTRIBUTION FIX: the old parser paired each 'launching:' with
+    the NEXT 'exit=' line seen, i.e. a FIFO-of-1 -- correct only if run_cmd_hidden.py fires
+    were strictly sequential. Live evidence this fire proved otherwise: this relay routinely
+    has 5+ overlapping run_cmd_hidden.py processes writing to the SAME shared per-date log
+    file, so their launching/exit lines interleave. Measured on 2026-08-21's real log: 3208
+    'launching:' lines produced only 1944 completed pairings under the old FIFO-of-1 logic
+    (a ~40% loss rate) -- and worse, several of the survivors could have been silently
+    mis-attributed to whichever OTHER script's launch happened to be most recent when an
+    unrelated exit line landed. run_cmd_hidden.py now tags both lines with its own PID;
+    this parser pairs PID-tagged lines by PID (unambiguous under any interleaving) and
+    falls back to the original FIFO-of-1 behavior for legacy/pid-less lines (older log
+    files, and this file's own test fixtures) so nothing already depending on the old
+    format breaks. An unpaired trailing 'launching:' (process still running, launcher
+    crashed before logging an exit, or its PID's exit line never lands) is dropped, not
+    guessed at -- this only reports COMPLETED, evidenced outcomes."""
     records: list[dict] = []
     pending_cmd: str | None = None
+    pending_by_pid: dict[str, str] = {}
+    pid_re = re.compile(r"\s*\[pid=(\d+)\]\s*$")
     for line in text.splitlines():
         if "] launching: " in line:
-            pending_cmd = line.split("] launching: ", 1)[1].strip()
+            raw = line.split("] launching: ", 1)[1].strip()
+            m = pid_re.search(raw)
+            if m:
+                pending_by_pid[m.group(1)] = pid_re.sub("", raw).strip()
+            else:
+                pending_cmd = raw
             continue
-        if pending_cmd is not None and "exit=" in line:
+        if "exit=" in line:
+            m_pid = pid_re.search(line)
             after = line.split("exit=", 1)[1].strip()
             code_str = after.split()[0] if after.split() else after
             try:
@@ -1088,8 +1110,11 @@ def _parse_run_cmd_hidden_log(text: str) -> list[dict]:
             except ValueError:
                 pending_cmd = None
                 continue
-            records.append({"cmd": pending_cmd, "exit": code})
-            pending_cmd = None
+            if m_pid and m_pid.group(1) in pending_by_pid:
+                records.append({"cmd": pending_by_pid.pop(m_pid.group(1)), "exit": code})
+            elif pending_cmd is not None:
+                records.append({"cmd": pending_cmd, "exit": code})
+                pending_cmd = None
     return records
 
 

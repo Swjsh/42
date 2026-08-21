@@ -116,7 +116,15 @@ def main(argv: list[str]) -> int:
         log_path = Path(args.log)
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    _log(f"launching: {' '.join(cmd)}")
+    # 2026-08-21 CONCURRENCY-MISATTRIBUTION FIX: this relay routinely has 5+ overlapping
+    # run_cmd_hidden.py processes writing to the SAME shared per-date log file (verified
+    # live 2026-08-21: 3208 'launching:' lines vs only 1944 completed pairings under the
+    # old FIFO-of-1 parser -- a ~40% loss/misattribution rate, and a real risk of blaming
+    # a script for a DIFFERENT concurrently-running script's non-zero exit). Tag both the
+    # launching and exit lines with this process's own PID so self_check.py's parser can
+    # pair them unambiguously instead of assuming strict line adjacency.
+    _pid_tag = f"[pid={_os.getpid()}]"
+    _log(f"launching: {' '.join(cmd)}  {_pid_tag}")
     _log(f"  cwd={cwd}  env_overrides={args.env}  log={args.log}")
 
     try:
@@ -138,7 +146,7 @@ def main(argv: list[str]) -> int:
                 capture_output=True,
                 creationflags=_CREATE_NO_WINDOW,
             )
-        _log(f"  exit={proc.returncode}")
+        _log(f"  exit={proc.returncode}  {_pid_tag}")
         return proc.returncode
     except FileNotFoundError as e:
         _log(f"  FATAL (FileNotFoundError): {e}")

@@ -18,10 +18,13 @@ from __future__ import annotations
 
 import datetime as dt
 import importlib.util
+import subprocess
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 MOD_PATH = REPO / "setup" / "scripts" / "self_check.py"
+RUN_CMD_HIDDEN = REPO / "setup" / "scripts" / "run_cmd_hidden.py"
 
 _spec = importlib.util.spec_from_file_location("self_check", MOD_PATH)
 sc = importlib.util.module_from_spec(_spec)
@@ -143,6 +146,116 @@ def test_two_distinct_failing_scripts_named_separately(tmp_path):
     problems = sc.check_run_cmd_hidden_masked_exit(now, log_path=p)
     assert len(problems) == 1
     assert "a.py" in problems[0] and "b.py" in problems[0]
+
+
+# ---- PID-aware pairing (2026-08-21 CONCURRENCY-MISATTRIBUTION FIX) ----
+# Live evidence this fire: the shared log has 5+ overlapping run_cmd_hidden.py processes
+# writing interleaved 'launching:'/'exit=' lines. The old FIFO-of-1 parser (pair each
+# 'launching:' with the NEXT 'exit=' line seen) both dropped completions (3208 launches
+# -> only 1944 pairings) and risked attributing one script's exit code to a totally
+# different concurrently-running script. run_cmd_hidden.py now tags both lines with its
+# own PID; these tests pin that the parser uses the tag instead of line adjacency.
+
+def test_parse_pid_tagged_lines_pair_by_pid_not_adjacency():
+    """Two concurrent fires interleave: A launches, B launches, B exits, A exits.
+    Adjacency (old behavior) would wrongly pair A's launch with B's exit. PID pairing
+    must attribute each exit to its OWN script regardless of interleaving order."""
+    text = (
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\a.py  [pid=100]\n"
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\b.py  [pid=200]\n"
+        "[t]   exit=2  [pid=200]\n"
+        "[t]   exit=1  [pid=100]\n"
+    )
+    records = sc._parse_run_cmd_hidden_log(text)
+    by_cmd = {sc._run_cmd_hidden_script_label(r["cmd"]): r["exit"] for r in records}
+    assert by_cmd == {"a.py": 1, "b.py": 2}, (
+        "exit codes must attribute to the PID that produced them, not to whichever "
+        "'launching:' line happened to appear most recently in the interleaved log"
+    )
+
+
+def test_parse_pid_tagged_deeply_interleaved_three_concurrent_fires():
+    text = (
+        "[t] launching: a.py  [pid=1]\n"
+        "[t] launching: b.py  [pid=2]\n"
+        "[t] launching: c.py  [pid=3]\n"
+        "[t]   exit=0  [pid=2]\n"
+        "[t]   exit=5  [pid=1]\n"
+        "[t]   exit=7  [pid=3]\n"
+    )
+    records = sc._parse_run_cmd_hidden_log(text)
+    by_cmd = {r["cmd"]: r["exit"] for r in records}
+    assert by_cmd == {"a.py": 5, "b.py": 0, "c.py": 7}
+
+
+def test_parse_pid_tag_stripped_from_reported_cmd():
+    text = "[t] launching: C:\\v\\pythonw.exe C:\\s\\broker_fills.py  [pid=42]\n[t]   exit=1  [pid=42]\n"
+    records = sc._parse_run_cmd_hidden_log(text)
+    assert records == [{"cmd": "C:\\v\\pythonw.exe C:\\s\\broker_fills.py", "exit": 1}]
+    assert "[pid=" not in records[0]["cmd"]
+
+
+def test_parse_legacy_pidless_lines_still_use_fifo_fallback():
+    """Old log files (written before this fix) have no [pid=] tags at all. The parser
+    must fall back to the original adjacency behavior so historical logs still parse."""
+    text = "[t] launching: legacy.py\n[t]   exit=3\n"
+    assert sc._parse_run_cmd_hidden_log(text) == [{"cmd": "legacy.py", "exit": 3}]
+
+
+def test_parse_unmatched_pid_exit_is_dropped_not_misattributed():
+    """An exit line whose PID never had a matching launching line (e.g. log rotation
+    mid-fire) must be dropped, never guessed at via adjacency fallback."""
+    text = "[t] launching: a.py  [pid=1]\n[t]   exit=9  [pid=999]\n"
+    assert sc._parse_run_cmd_hidden_log(text) == []
+
+
+def test_run_cmd_hidden_producer_actually_emits_matching_pid_tags(tmp_path):
+    """End-to-end producer check: invoke the REAL run_cmd_hidden.py (not a fixture) and
+    confirm its own log output round-trips through the parser correctly -- closes the
+    loop between the 2026-08-21 producer fix and the consumer fix above."""
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    # run_cmd_hidden.py derives its own launcher-log path from today's date, relative to
+    # the repo, so point its cwd at a throwaway dir won't work -- instead just invoke it
+    # for real and read the REPO's actual today-dated launcher log for the new pairing.
+    today_log = REPO / "automation" / "state" / "logs" / f"run-cmd-hidden-{dt.date.today().isoformat()}.log"
+    # Diff by DECODED TEXT length, not stat().st_size (byte count) -- the log accumulates
+    # multi-byte UTF-8 chars from other fires, so a byte-offset slice into read_text()'s
+    # character-indexed string silently drifts and can slice past the new content entirely.
+    before_text = today_log.read_text(encoding="utf-8") if today_log.exists() else ""
+    marker = "self_check_pid_guard_probe"
+    subprocess.run(
+        [sys.executable, str(RUN_CMD_HIDDEN), "--", sys.executable, "-c", f"print('{marker}')"],
+        cwd=str(REPO),
+        check=False,
+        capture_output=True,
+    )
+    assert today_log.exists(), "run_cmd_hidden.py did not write its launcher log"
+    after_text = today_log.read_text(encoding="utf-8")
+    new_text = after_text[len(before_text):]
+    assert "[pid=" in new_text, "producer must tag its own launching/exit lines with [pid=N]"
+    records = sc._parse_run_cmd_hidden_log(new_text)
+    matches = [r for r in records if marker in r["cmd"] or "-c" in r["cmd"]]
+    assert matches, f"parser found no record for the probe invocation in: {new_text!r}"
+    assert matches[-1]["exit"] == 0
+
+
+def test_check_masked_exit_correctly_attributes_under_real_concurrency(tmp_path):
+    """End-to-end: two scripts fire concurrently, one fails. The DEGRADED finding must
+    name the script that ACTUALLY failed, not whichever launched most recently."""
+    now = dt.datetime(2026, 8, 21, 12, 0)
+    p = tmp_path / "log.log"
+    p.write_text(
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\healthy_script.py  [pid=10]\n"
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\failing_script.py  [pid=20]\n"
+        "[t]   exit=0  [pid=10]\n"
+        "[t]   exit=1  [pid=20]\n",
+        encoding="utf-8",
+    )
+    problems = sc.check_run_cmd_hidden_masked_exit(now, log_path=p)
+    assert len(problems) == 1
+    assert "failing_script.py" in problems[0]
+    assert "healthy_script.py" not in problems[0]
 
 
 def test_wired_into_run_verdict(tmp_path, monkeypatch):
