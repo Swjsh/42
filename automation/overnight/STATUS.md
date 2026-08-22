@@ -1,5 +1,21 @@
-﻿## Known broken
+## [2026-08-21] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-17..2026-08-20), real OPRA fills, floor n>=10
 
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-20). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-148.85); Bold_ATM_1+2=CONFIRM ($631.9)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+﻿## Known broken
+
+- [2026-08-21] FULL-SUITE TRIAGE :: 18 REDs -> 7 remain, none newly introduced. **GENUINE, NOT FIXED (2):** `test_replay_fleet_arms::test_no_arm_overtrades` + `::test_three_arms_entry_faithful` -- risky-1 replay fires **extra=1 missed=0 (matched=8/8)**: the replay simulates one entry the live arm never took. Deliberately left RED -- an over-firing replay inflates trade counts in every study built on it, so loosening the assertion would be worse than the failure. Needs the fleet-replay owner. :: re-run: cd backtest && python -m pytest tests/test_replay_fleet_arms.py -q
+- [2026-08-21] TEST POLLUTION (5+2) :: `test_setup_dispatch` (5 tests), `test_graduated_guards::test_free_model_cost_estimate_is_zero`, `test_kitchen_reviewer_ladder_fallback_2026_08_20` all **PASS standalone** and fail only in-suite -- order-dependent state leaking between modules, a different defect class from the 8 fixed tonight. Not a product bug; the suite cannot currently be trusted to attribute these. :: re-run each alone to confirm still-passing
+
+
+- [2026-08-21 22:47 ET] FULL-SUITE RED :: 9976 passed, 11 failed, 11 skipped :: tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage, tests/test_replay_fleet_arms.py::test_no_arm_overtrades, tests/test_replay_fleet_arms.py::test_three_arms_entry_faithful, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises, tests/test_trigger_bar_freshness_2026_08_20.py::test_a_prior_session_bar_makes_the_tick_blind :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-08-21 22:41 ET] FULL-SUITE RED :: 9973 passed, 14 failed, 11 skipped :: tests/test_ccr_interactive_isolation.py::test_router_port_only_appears_in_allowlisted_repo_files, tests/test_claude_md_account_ids_2026_08_18.py::test_claude_md_names_only_known_accounts, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage, tests/test_regime_reslice_2026_07_28.py::test_min_triggers_bear2_reconstruction_join_is_exact, tests/test_replay_fleet_arms.py::test_no_arm_overtrades, tests/test_replay_fleet_arms.py::test_three_arms_entry_faithful, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-08-21] TRENDLINE-SHADOW BLIND :: no usable 5m bars for 2026-08-21 (cumulative spy_5m file did not refresh) :: EOD trendline section will read BLIND :: re-run: backtest/.venv/Scripts/python.exe setup/scripts/trendline_shadow.py --date 2026-08-21
 
 
@@ -60,16 +76,6 @@
   - guard: 17 passed in 1.96s
 
 Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-20] RECENCY-CONFIRMATION (confirm-before-capital gate) â€” RED-BLOCKED on the freshest 25 trading days (2026-07-16..2026-08-19), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-19). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=RED
-> - **Books:** Safe2_ATM_1+2+4=RED ($-141.35); Bold_ATM_1+2=CONFIRM ($584.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: #4 ATM, Safe2_ATM_1+2+4 â€” no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-08-20 22:07 ET] MULTI-SYMBOL LANE: **STOPPED ON A NULL** â€” WP-4 verdict, commits `985c5860` + WP-6
 
@@ -325,3 +331,21 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 ### DEGRADED: self-check 2026-08-21T20:39:56
 - TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-21T21:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-21T22:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-21T22:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-21.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-21T23:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-21.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
