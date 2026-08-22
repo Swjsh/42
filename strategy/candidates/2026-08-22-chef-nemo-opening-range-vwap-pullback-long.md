@@ -12,18 +12,18 @@
 
 ## Hypothesis
 
-In low‑volatility mornings, price often pulls back to the intraday VWAP within the opening range before resuming the day‑trend, offering a high‑probability long entry. The edge exists because tight opening ranges reflect institutional balance, and a VWAP pullback on a bullish bar signals that short‑term pressure has exhausted while the longer‑term intraday trend remains intact.
+After the opening range (first 5‑min bar after 09:30) is established, a pullback to the intraday VWAP within the first 30 minutes that finds support at the OR midpoint offers a high‑probability long entry. The VWAP acting as dynamic support inside the OR captures institutional order flow that tends to push price back toward the OR high.
 
 ## Mechanism
 
-1. Calculate the opening range (OR) high and low from the first 5‑minute bar after 09:30 ET.  
-2. Compute the session VWAP from the open.  
-3. On each 1‑minute bar, if the close is between OR low and OR high, the absolute distance to VWAP is less than 0.1% of price (`|close‑VWAP|/close < 0.001`), and the bar is bullish (`close > open`), trigger a long entry at the next bar’s open.  
-4. Initial stop is placed at the OR low.  
-5. Initial target is 1.5× risk, where risk is measured by the ATR(14) of the same day (using the ATR value at entry).  
-6. If the target is not hit, trail the stop with a distance of 10% of ATR below the highest high since entry.  
-7. Additionally, exit if price exceeds OR high + 0.2% (a breakout of the opening range).  
-8. Regime filters: only take the trade when VIX < 18 and the first 30‑minute range width is <0.3% of SPY price. Avoid entries during major news windows (FOMC, CPI, NFP, mega‑cap earnings).
+1. Compute OR high and low from the first 5‑min bar after 09:30.  
+2. Calculate the OR midpoint = (OR_high + OR_low)/2 and OR range = OR_high - OR_low.  
+3. For each bar between 09:35 and 10:00 ET, check if the bar’s close equals the VWAP (within 0.01% tolerance) and the VWAP lies within OR_midpoint ±0.1% of the OR range.  
+4. Additionally require the bar to be bullish (close > open) and its volume > average volume of the prior 10 bars.  
+5. Enter long at the close of that bar.  
+6. Stop loss placed just below OR_low (e.g., OR_low - 0.02*OR_range).  
+7. Initial target set at OR_high or 1.5R (whichever is reached first); if the target is hit, trail the remaining runner with a stop that trails the high by 10% of ATR(20).  
+8. Only consider trades when OR width is between 0.2% and 0.8% of SPY price and VIX < 20; avoid the first 15 min after 10:00 am (major news window).
 
 ## Expected impact on OP-16 anchors
 
@@ -39,24 +39,24 @@ In low‑volatility mornings, price often pulls back to the intraday VWAP within
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The strategy assumes a minimum of 28 contracts to realize the headline P&L, which requires a $25K+ account under the 50% per‑trade risk cap. A $1K paper account would realize roughly 14% of the headline P&L (≈3‑4 contracts after scaling).  
-2. **Sample bias:** No historical backtest has been performed; any sample would be drawn from the same data used to form the hypothesis, creating high overfit risk. The proposal is purely conceptual until a Stage‑1 backtest is completed.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test conducted).  
-4. **Real‑fills:** NEEDS-REAL‑FILLS (no realistic OPRA fill simulation has been run on the top‑3 J days).  
+1. **Account-size assumption:** qty=28 contracts requires approximately $25K+ account to risk 50% per trade at typical entry premiums (~$1.00). A $1K paper account would realize roughly 14% of headline P&L (3 contracts max).  
+2. **Sample bias:** The idea is derived from intraday price action principles; no historical sample has been evaluated yet. High overfit risk if parameters (OR width bounds, VWAP tolerance, volume filter) are tuned to anecdotal observations.  
+3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test performed).  
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA slippage/spread check on the top three J days).  
 5. **Failure modes:**  
-   - Worst day: a sharp intraday reversal after entry could hit the OR low stop before the VWAP pullback resolves, resulting in a 100% loss of risked premium.  
-   - Max drawdown: a string of low‑vol days where price never pulls back to VWAP could produce zero trades, while sudden volatility expansions could trigger stops on false pullbacks.  
-   - Blow‑up scenario: trading during a hidden news event (e.g., unscheduled Fed speaker) could cause a gap through the OR low, bypassing the stop and causing a loss larger than the predefined risk.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to determine what percentage of P&L comes from the top‑5 days.
+   - Worst day: a strong trend day where price never pulls back to VWAP within the OR, causing repeated missed entries and potential whipsaw if stop is hit on breakout failures.  
+   - Max drawdown: could exceed 30% of allocated capital if a series of losses occur during low‑volatility, choppy markets where OR width is outside the 0.2‑0.8% band but the filter fails to reject.  
+   - Blow‑up scenario: entering on a false VWAP pullback during a news‑driven spike, then reversing sharply through the OR low stop, amplified by high volume and low liquidity.  
+6. **Concentration:** unknown -- requires Stage-1 backtest to determine what fraction of P&L comes from the top‑5 days.
 
 ## Pre-merge gate
 
-Needs a Stage‑1 backtest via the autoresearch grinder harness before any further ratification. The backtest must produce OP‑16 anchor‑day statistics, out‑of‑sample performance, and real‑fills validation on the top‑3 J anchor days.
+Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-4 / 10 -- The hypothesis is intuitive and aligns with common intraday price behavior, but without any empirical validation the confidence remains low. The regime filters (VIX < 18, tight OR) are designed to reduce false signals, yet the strategy has not been tested.
+4 / 10 -- The hypothesis is grounded in common intraday concepts (opening range, VWAP support) but lacks any empirical validation on the specific OP-16 anchor days; numerous degrees of freedom (OR width bounds, VWAP tolerance, volume average length) increase overfit risk.
 
 ## Pre-existing leaderboard impact
 
-This candidate is a **new_trigger** that does not directly modify any existing logic in the leaderboard. It is complementary to existing VWAP‑based and opening‑range candidates (e.g., VWAP_CONTINUATION, ORB_RETEST_LONG) because it adds a conjunctive condition (price inside OR + bullish bar + VWAP proximity) rather than replacing them. No conflict is expected; it would occupy a distinct niche in the trigger space.
+This candidate does not conflict with any of the current leaderboard entries (ranks I‑★★‑HOLD‑WS4‑★‑RV‑REJ). Those are primarily watcher gates, DTE overrides, or structural filters that operate on existing setups; this proposal introduces a new long‑side trigger based on opening‑range/VWAP dynamics. It could complement existing watcher gates if they are used to filter regime (e.g., OR width, VIX) but otherwise stands independently. No direct duplication or contradiction with the leaderboard is observed.
