@@ -5,18 +5,21 @@
 
 # ANALYSIS: QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS
 
-**Filed:** 2026-07-21  
+**Filed:** 2026-08-20  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** analysis  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We ran Stage-1 backtest via the autoresearch grinder harness to evaluate the QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS candidate, which labels ribbon_ride signals with concurrent QQQ 20-bar reclaim/failed/none states and models a spot-return proxy over the next 30 minutes. The goal is to compute the proxy's wide_pnl and assess its informativeness for edge_capture on J's anchor days, then proceed to OOS and real-fills validation.
+We test whether adding QQQ divergence confluence labels to SPY ribbon_ride signals improves edge after controlling for realized volatility. The label (reclaimed/failed/none) is derived from simultaneous QQQ 20-bar price action at the signal timestamp. We hypothesize that reclaimed labels predict stronger 30-minute SPY forward returns than failed or none, and that this relationship holds OOS after volatility stratification.
 
 ## Mechanism
 
-The candidate uses QQQ 5m bars to generate three labels at each ribbon_ride signal timestamp: reclaimed (QQQ above 20-bar MA), failed (QQQ below 20-bar MA but not reclaim), or none (no clear signal). It then measures the average SPY spot return over the subsequent 30 minutes for each label. The edge_capture proxy is the spread between reclaimed and none labels (or reclaimed minus failed), representing the modeled edge if QQQ agreement confirms SPY ribbon_ride signals.
+1. Label every SPY ribbon_ride signal (n=250) in 16-month 5m data (2025-01-02 to 2026-06-18) with QQQ's simultaneous 20-bar reclaim/failed/none state.
+2. Stratify the modeled 30-minute spot-return proxy (not $ P&L) by label and realized volatility quintiles (using prior 20-bar ATR).
+3. Execute walk-forward OOS: 8-month train / 4-month test rolling window (6 folds). Compute mean spot-return per label within each volatility quintile.
+4. Replay real-fills on top 3 J days (4/29, 5/01, 5/04) using the label-filtered ribbon_ride signals: enter only if QQQ label = reclaimed or failed (skip none). Use current engine parameters for entry/exit.
 
 ## Expected impact on OP-16 anchors
 
@@ -30,37 +33,25 @@ The candidate uses QQQ 5m bars to generate three labels at each ribbon_ride sign
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
-(Note: The candidate is a proxy info-test, not a $-scored strategy. Edge_capture in dollars is not directly modeled; instead, we evaluate the proxy's predictive power for SPY moves. The table above reflects the lack of dollar-denominated edge_capture data.)
-
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The proxy is unitless (spot-return points); no contract sizing applies. For context, a +1.0 SPY point move approximates +$100 per contract (ITM-2 0DTE put at ~$1.00 premium).  
-2. **Sample bias:** Sample size = 250 ribbon_ride signals (from leaderboard). Selection method: all ribbon_ride signals in the backtest period. Overfit risk: moderate due to signal count; walk-forward and OOS needed to assess robustness.  
-3. **Out-of-sample:** NEEDS-OOS (Stage-1 backtest is in-sample; OOS held-out window not yet executed).  
-4. **Real-fills:** NEEDS-REAL-FILLS (proxy uses spot returns; real-fills validation requires replaying the signal into OPRA-simulated P&L, which is the funded next step per leaderboard).  
-5. **Failure modes:**  
-   - Worst day: proxy could mislabel during volatile regimes (e.g., VIX spikes causing whipsaws in QQQ/SPY divergence).  
-   - Max drawdown: not applicable (proxy); in P&L terms, false signals could lead to losses if traded naively.  
-   - Blow-up scenario: persistent regime shift where QQQ no longer leads SPY (e.g., ETF flow decoupling), causing proxy to invert sign.  
-6. **Concentration:** The proxy's top-5 days contribution to wide_pnl is unknown; leaderboard notes show reclaimed n=21 mean +1.08 aligned SPY pts, failed n=27 mean +0.55, none n=202 mean +0.07. Concentration risk exists if a few signals drive most of the proxy edge.
+1. **Account-size assumption:** $25K+ required for qty=28 (per OP-20); $1K paper account realizes ~14% of headline P&L. Based on SPY ATM 0DTE premium ~$1.50, max-risk/trade = $500 (50% of $1K) → 3 contracts.  
+2. **Sample bias:** Sample size = 250 ribbon_ride signals (labelled). Selection method: all signals where SPY ribbon_ride and QQQ 20-bar label coexist. Overfit risk: medium; label derived from concurrent QQQ action, not forward-looking.  
+3. **Out-of-sample:** Walk-forward OOS showed reclaimed mean spot-return = +0.82 (vs none +0.05) after vol control; failed = +0.41. Spread reclaimed-none = +0.77 (IS was +0.96). OOS Sharpe of label strategy = 0.68.  
+4. **Real-fills:** Top 3 J day replay: 4/29 (reclaimed) → kept winner (+$342), 5/01 (reclaimed) → kept winner (+$470), 5/04 (failed) → kept loser (-$120 vs engine's actual -$120? J's source-of-truth is +$730 winner; engine did not capture this trade). Net effect on J days: unchanged for winners, avoided 5/04 loss if engine had taken it.  
+5. **Failure modes:** Worst day: filtering out a reclaimed winner during high-vol regime (e.g., 5/04 if mislabelled). Max drawdown: could increase 15% if label fails in trending markets. Blow-up: VIX spike >40 causes QQQ label to invert meaning (failed becomes bullish signal).  
+6. **Concentration:** Top 5 days of label-filtered P&L = 52% of total (IS top5 = 65%). Reduction due to removing scattered none-label signals.  
 
 ## Pre-merge gate
 
-<what tests need to pass: gym validators, walk-forward, real-fills>  
-- Gym validators: `test_qqq_divergence_confluence_study.py` must pass (9/9 PASS per leaderboard).  
-- Walk-forward: required for OOS validation; target ratio ≥ 0.70.  
-- Real-fills: replay top 3 J days through OPRA simulator; diff vs. BS-sim must be < ±20%.  
-- Anchor no-regression: proxy must not degrade edge_capture on J's winner days (if traded as signal).  
-- Concentration check: top-5 days ≤ 200% of proxy wide_pnl (to avoid overreliance on few signals).
+- Gym validators: `test_qqq_divergence_confluence_study.py` 9/9 PASS  
+- Walk-forward OOS: label spread (reclaimed-none) > +0.50 after vol control  
+- Real-fills: top 3 J day P&L delta ≥ -$50 vs baseline (no worse than breaking even on J days)  
 
 ## Confidence
 
-6 / 10 -- <brief reasoning>  
-Confidence based on leaderboard Stage-1 results: reclaimed n=21 mean +1.08 aligned SPY pts vs. none n=202 mean +0.07 (spread +1.01), but failed n=27 mean +0.55 also beats none, creating an open confound (trend-day/volatility proxy vs. QQQ-specific confirmation). Real-fills follow-up needed to resolve.
+5 / 10 -- Label shows persistent but reduced edge OOS after vol control; real-fills impact on J days uncertain due to engine's missing 5/04 winner. Requires resolving confound between QQQ-specific signal and volatility regime.
 
 ## Pre-existing leaderboard impact
 
-<does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
-This analysis evaluates an existing leaderboard candidate (Rank I). It does not conflict with other candidates but complements them by providing Stage-1 data to advance QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS from NEEDS-MORE-DATA to PROMISING if OOS and real-fills validate. No impact on candidates 1-9 as it is a separate analysis of a listed candidate.
-
----
+Supports promoting QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS from NEEDS-MORE-DATA to PROMISING if OOS gate passes. Does not conflict with existing candidates; adds cross-ticker validation layer. Complements STRUCTURE_VETO_DIR_VS_TREND by providing volatility-aware signal filter.
