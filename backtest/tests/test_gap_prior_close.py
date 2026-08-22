@@ -11,7 +11,16 @@ def test_dispatch_prior_close_fallback(tmp_path, monkeypatch):
         if str(p) not in sys.path:
             sys.path.insert(0, str(p))
     import setup_dispatch as sd
-    importlib.reload(sd)
+    # NOTE (2026-08-22): do NOT importlib.reload(sd) here. reload() re-executes the
+    # module's class statements in place, rebinding setup_dispatch.SetupDispatcher /
+    # DispatchResult to BRAND NEW class objects on the shared sys.modules["setup_dispatch"]
+    # entry. Any OTHER test file that already did `from setup_dispatch import SetupDispatcher`
+    # at collection time (before this test executes) keeps the OLD class object, while
+    # `patch("setup_dispatch.SetupDispatcher.<method>", ...)` (a string lookup) patches the
+    # NEW post-reload class -- so the mock never intercepts the call the old-class instance
+    # makes, and assert_called_once() fails downstream in test_setup_dispatch.py. This test
+    # only needs a clean `_REPO` for the duration of the test, which monkeypatch.setattr
+    # below already provides without touching the shared module singleton at all.
     st = tmp_path / "automation" / "state"
     st.mkdir(parents=True)
     (st / "prior-rth-close.json").write_text(json.dumps({"prior_rth_close": 751.31}), encoding="utf-8")
