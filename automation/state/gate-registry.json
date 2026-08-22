@@ -30,9 +30,17 @@
       "params_key": "block_level_rejection",
       "skip_action": "SKIP_LEVEL_REJECTION_GATE",
       "scope": "core",
-      "accounts_armed": {"safe": true, "bold": false},
-      "armed_date": {"safe": "2026-06-18 (Wave C bulk commit 26775b19)", "bold": null},
-      "evidence_artifact": ["analysis/recommendations/level-rejection-gate-01.json"],
+      "accounts_armed": {
+        "safe": true,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-18 (Wave C bulk commit 26775b19)",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/level-rejection-gate-01.json"
+      ],
       "cohort_validated_on": "Safe bear LEVEL-tier level_rejection, ratified 2026-06-17 (IS +$13,181 / OOS +$682)",
       "last_revalidated": "2026-06-17 (never revalidated since; both exit-shape changes 06-18 chart-stop-primary and 07-09 SS-B postdate this evidence)",
       "revalidation_interval_days": 21,
@@ -48,8 +56,14 @@
       "params_key": "trendline_requires_ribbon_flip",
       "skip_action": "SKIP_TRENDLINE_NO_RIBBON_FLIP",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": null, "bold": null},
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": null,
+        "bold": null
+      },
       "evidence_artifact": [],
       "cohort_validated_on": null,
       "last_revalidated": null,
@@ -66,9 +80,43 @@
       "params_key": "block_elite_bull",
       "skip_action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": "2026-06-18 (Wave C bulk commit 26775b19); disarmed 2026-08-03 for lift-gate trial 2", "bold": "2026-06-19 (bd524570); briefly disarmed 2026-08-01 for a lift-gate trial, RE-BLOCKED same session on disconfirming evidence (711420f4); disarmed again 2026-08-03 for lift-gate trial 2"},
-      "trial": {"name": "block_elite_bull_trial_2_both_accounts", "status": "ARMED", "armed": "2026-08-03 (after-close)", "scope": "BOTH safe-2 and bold-2 -- Trial 1 (2026-08-01) was bold-2 only", "why_armed": "TRADE-TO-LEARN, not a validated-edge claim; paper, sizing unchanged, one-line-revertible each account. AGAINST (unchanged, stated fairly -- this is still the strongest case): bull-gate-f5class-requal-2026-08-01.json 391-day feed-uncontaminated Cell A -- n=103, WR 18.5%, -$44.18/tr, -$4,550.70 total, ALL 4 pre-registered gates FAIL, drop-best -$5,428.70, recent-25 also negative; block-elite-bull-ssb-revalidation.json (2026-07-10, n=28): OLD -$560.00 -> SS-B -$3,873.60, ~6.9x worse under this exact exit shape; Trial 1's own revert (711420f4) on Bold's true-sizing cohort: +$7.80 n=5 drop-best -$535.00, a coin flip. FOR (new evidence since Trial 1's revert): 3 consecutive post-fix REAL FLEET FILL sessions on the exact refused ELITE+level_reclaim BULL class -- Friday 2026-07-31 fleet real fills +$120.48 day-total (e3 alone: risky-3 +$126 real, safe-3 +$75 real, on the 12:16 ET 11/11 setup refused x111 by this gate same session, analysis/deep-research/FRIDAY-DIAL-IN-2026-07-31.md); Monday 2026-08-03 fleet real fills verified via broker equity delta since this morning's $5,000.00 starting equity: safe-3 +$144.85, risky-1 +$144.76, risky-3 +$175.76 (16 core SKIPs same session); C1 doctrine (real fills are the only WR authority); J's 2026-07-31 recency-over-aggregate directive; the gate-expiry instrument (Gamma_GateExpiryCheck, automation/state/gate-registry-status.json) reads this gate OVERALL=RED -- combined refused-cohort recent-window (2026-06-26..2026-07-31, 17 days) n=97, +$18.99/tr, +$1,841.62 total, POSITIVE (safe n=49 +$13.80/tr +$676.12; bold n=48 +$24.28/tr +$1,165.50). Full reconciliation, including the DISTINCT '+$1,242 net' figure already cited below (a broader 4-day cohort-replay number, never conflated with the single-day real-fill figures above): analysis/staged/AFTER-CLOSE-PACKAGE-2026-08-03.md.", "kill_criterion": "n>=10 elite-bull fills per arm OR 10 sessions, whichever first; net realized < 0 -> re-block same day (identical bar to Trial 1)", "revert": "automation/state/params.json AND automation/state/aggressive/params.json block_elite_bull -> true (one key each, byte-identical to before this trial)", "tracking": "Gamma_GateExpiryCheck nightly + this row", "prior_trials": [{"name": "block_elite_bull_bold_trial", "status": "REVERTED_SAME_SESSION_2026-08-01", "armed": "2026-08-01 (b6a9db67)", "reverted": "2026-08-01 (711420f4)", "why_reverted": "(1) the +$867/n=5 basis was SAFE's cohort misattributed to Bold -- bold_fullhist_replay.py at Bold's true sizing gives +$7.80 n=5, drop-best -$535.00; (2) bull_gate_f5class_requal over the full 391-day population: unblocking adds n=103 at -$44.18/tr, all 4 pre-registered gates fail, drop-best -$5,428.70, recent-25 also negative (-$74.45, n=11). Backtest levels come from lib.levels._detect_from_history, not the buggy live key-levels pipeline, so this cell is NOT broken-feed-contaminated.", "lesson": "a per-account gate needs a per-account cohort cell; a sign-only verdict rule graded 'a' on $7.80 -- kept here, not deleted, as the still-valid AGAINST case Trial 2 must answer to", "evidence": ["analysis/recommendations/bull-gate-f5class-requal-2026-08-01.json", "analysis/recommendations/bold-fullhist-replay-2026-08-01.json"]}], "evidence": ["analysis/deep-research/FRIDAY-DIAL-IN-2026-07-31.md", "automation/state/gate-registry-status.json (gate-expiry RED read, evidence_age_days=1)", "analysis/staged/AFTER-CLOSE-PACKAGE-2026-08-03.md"]},
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-18 (Wave C bulk commit 26775b19); disarmed 2026-08-03 for lift-gate trial 2",
+        "bold": "2026-06-19 (bd524570); briefly disarmed 2026-08-01 for a lift-gate trial, RE-BLOCKED same session on disconfirming evidence (711420f4); disarmed again 2026-08-03 for lift-gate trial 2"
+      },
+      "trial": {
+        "name": "block_elite_bull_trial_2_both_accounts",
+        "status": "ARMED",
+        "armed": "2026-08-03 (after-close)",
+        "scope": "BOTH safe-2 and bold-2 -- Trial 1 (2026-08-01) was bold-2 only",
+        "why_armed": "TRADE-TO-LEARN, not a validated-edge claim; paper, sizing unchanged, one-line-revertible each account. AGAINST (unchanged, stated fairly -- this is still the strongest case): bull-gate-f5class-requal-2026-08-01.json 391-day feed-uncontaminated Cell A -- n=103, WR 18.5%, -$44.18/tr, -$4,550.70 total, ALL 4 pre-registered gates FAIL, drop-best -$5,428.70, recent-25 also negative; block-elite-bull-ssb-revalidation.json (2026-07-10, n=28): OLD -$560.00 -> SS-B -$3,873.60, ~6.9x worse under this exact exit shape; Trial 1's own revert (711420f4) on Bold's true-sizing cohort: +$7.80 n=5 drop-best -$535.00, a coin flip. FOR (new evidence since Trial 1's revert): 3 consecutive post-fix REAL FLEET FILL sessions on the exact refused ELITE+level_reclaim BULL class -- Friday 2026-07-31 fleet real fills +$120.48 day-total (e3 alone: risky-3 +$126 real, safe-3 +$75 real, on the 12:16 ET 11/11 setup refused x111 by this gate same session, analysis/deep-research/FRIDAY-DIAL-IN-2026-07-31.md); Monday 2026-08-03 fleet real fills verified via broker equity delta since this morning's $5,000.00 starting equity: safe-3 +$144.85, risky-1 +$144.76, risky-3 +$175.76 (16 core SKIPs same session); C1 doctrine (real fills are the only WR authority); J's 2026-07-31 recency-over-aggregate directive; the gate-expiry instrument (Gamma_GateExpiryCheck, automation/state/gate-registry-status.json) reads this gate OVERALL=RED -- combined refused-cohort recent-window (2026-06-26..2026-07-31, 17 days) n=97, +$18.99/tr, +$1,841.62 total, POSITIVE (safe n=49 +$13.80/tr +$676.12; bold n=48 +$24.28/tr +$1,165.50). Full reconciliation, including the DISTINCT '+$1,242 net' figure already cited below (a broader 4-day cohort-replay number, never conflated with the single-day real-fill figures above): analysis/staged/AFTER-CLOSE-PACKAGE-2026-08-03.md.",
+        "kill_criterion": "n>=10 elite-bull fills per arm OR 10 sessions, whichever first; net realized < 0 -> re-block same day (identical bar to Trial 1)",
+        "revert": "automation/state/params.json AND automation/state/aggressive/params.json block_elite_bull -> true (one key each, byte-identical to before this trial)",
+        "tracking": "Gamma_GateExpiryCheck nightly + this row",
+        "prior_trials": [
+          {
+            "name": "block_elite_bull_bold_trial",
+            "status": "REVERTED_SAME_SESSION_2026-08-01",
+            "armed": "2026-08-01 (b6a9db67)",
+            "reverted": "2026-08-01 (711420f4)",
+            "why_reverted": "(1) the +$867/n=5 basis was SAFE's cohort misattributed to Bold -- bold_fullhist_replay.py at Bold's true sizing gives +$7.80 n=5, drop-best -$535.00; (2) bull_gate_f5class_requal over the full 391-day population: unblocking adds n=103 at -$44.18/tr, all 4 pre-registered gates fail, drop-best -$5,428.70, recent-25 also negative (-$74.45, n=11). Backtest levels come from lib.levels._detect_from_history, not the buggy live key-levels pipeline, so this cell is NOT broken-feed-contaminated.",
+            "lesson": "a per-account gate needs a per-account cohort cell; a sign-only verdict rule graded 'a' on $7.80 -- kept here, not deleted, as the still-valid AGAINST case Trial 2 must answer to",
+            "evidence": [
+              "analysis/recommendations/bull-gate-f5class-requal-2026-08-01.json",
+              "analysis/recommendations/bold-fullhist-replay-2026-08-01.json"
+            ]
+          }
+        ],
+        "evidence": [
+          "analysis/deep-research/FRIDAY-DIAL-IN-2026-07-31.md",
+          "automation/state/gate-registry-status.json (gate-expiry RED read, evidence_age_days=1)",
+          "analysis/staged/AFTER-CLOSE-PACKAGE-2026-08-03.md"
+        ]
+      },
       "evidence_artifact": [
         "analysis/recommendations/safe_block_elite_bull_all_vix.json (2026-06-18, Safe ratify, VIX band [0,25))",
         "analysis/recommendations/block_elite_bull_vix_high_18.json (2026-06-18, Bold ratify, VIX band [15,18))",
@@ -91,8 +139,14 @@
       "params_key": "block_bull_ribbon_flip",
       "skip_action": "SKIP_BULL_RIBBON_FLIP",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": null, "bold": null},
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": null,
+        "bold": null
+      },
       "evidence_artifact": [],
       "cohort_validated_on": null,
       "last_revalidated": null,
@@ -109,14 +163,28 @@
       "params_key": "block_bull_1100_1200",
       "skip_action": "SKIP_BULL_1100_1200",
       "scope": "core",
-      "accounts_armed": {"safe": true, "bold": false},
-      "armed_date": {"safe": "2026-06-18 (Wave C bulk commit 26775b19)", "bold": null},
-      "evidence_artifact": ["analysis/recommendations/safe_bull_1100_1200_gate.json"],
+      "accounts_armed": {
+        "safe": true,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-18 (Wave C bulk commit 26775b19)",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/safe_bull_1100_1200_gate.json"
+      ],
       "cohort_validated_on": "Safe BULL entries 11:00-12:00 ET, ratified 2026-06-18 (IS n=11 WR=9.1% total=-$89, worst TOD bucket; OOS n=1 +$42)",
       "last_revalidated": "2026-06-18 (never revalidated)",
       "revalidation_interval_days": 21,
       "provenance_type": "backtest_evidence",
-      "notes": "Thin evidence (IS n=11, OOS n=1) from inception. 2026-07-10 sweep found 6 confirmed-live fires on a maxed SUPER-tier (bull_score=11) signal -- the first genuinely-live test since ratification, on higher-quality signal than the original evidence base ever covered. Flagged REVALIDATE twice, never actioned. probe_arm's PROBE_ALLOWED_VERDICTS explicitly bypasses ONLY this one gate (not block_elite_bull) as of the 2026-07-10 sweep's narrowed allowlist."
+      "notes": "Thin evidence (IS n=11, OOS n=1) from inception. 2026-07-10 sweep found 6 confirmed-live fires on a maxed SUPER-tier (bull_score=11) signal -- the first genuinely-live test since ratification, on higher-quality signal than the original evidence base ever covered. Flagged REVALIDATE twice, never actioned. probe_arm's PROBE_ALLOWED_VERDICTS explicitly bypasses ONLY this one gate (not block_elite_bull) as of the 2026-07-10 sweep's narrowed allowlist.",
+      "revalidation_filed": {
+        "filed_at_et": "2026-08-21",
+        "filing": "analysis/recommendations/GATE-REVALIDATION-FILING-2026-08-21.md",
+        "outcome": "YELLOW - staleness filed; n=4 events < floor 10 and 79% of the refused-cohort P&L is one day. Gate stays ARMED. Re-read at n>=10.",
+        "live_behaviour_changed": false
+      }
     },
     {
       "id": "block_bull_morning_agg",
@@ -127,9 +195,17 @@
       "params_key": "block_bull_morning_agg",
       "skip_action": "SKIP_BULL_MORNING_AGG",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": null, "bold": "2026-06-19 (bd524570), J-killed 2026-06-24"},
-      "evidence_artifact": ["analysis/recommendations/agg_block_bull_morning_afternoon_ab.json"],
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": null,
+        "bold": "2026-06-19 (bd524570), J-killed 2026-06-24"
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/agg_block_bull_morning_afternoon_ab.json"
+      ],
       "cohort_validated_on": "Bold BULL entries in the two blocked windows",
       "last_revalidated": "2026-06-24 (J directly ordered removed after it vetoed an 11/11 setup mid-session)",
       "revalidation_interval_days": null,
@@ -145,14 +221,28 @@
       "params_key": "require_bearish_fill_bar",
       "skip_action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": true},
-      "armed_date": {"safe": "REJECTED 2026-06-17 (anchor FAIL, never armed)", "bold": "2026-06-19 (bd524570), J-ratified 2026-06-17 ('i apprve to ad d this')"},
-      "evidence_artifact": ["analysis/recommendations/fill-bar-gate-sweep.json"],
+      "accounts_armed": {
+        "safe": false,
+        "bold": true
+      },
+      "armed_date": {
+        "safe": "REJECTED 2026-06-17 (anchor FAIL, never armed)",
+        "bold": "2026-06-19 (bd524570), J-ratified 2026-06-17 ('i apprve to ad d this')"
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/fill-bar-gate-sweep.json"
+      ],
       "cohort_validated_on": "Bold BEAR entries, ratified 2026-06-17 (IS +$363 / OOS +$1,153, WF 18.5)",
       "last_revalidated": "2026-06-17 (never revalidated)",
       "revalidation_interval_days": 21,
       "provenance_type": "backtest_evidence",
-      "notes": "Also propagates into the fleet lane via build_shared_signal._HARD_SKIP_VERDICTS (a GLOBAL constant, not per-arm) -- every fleet arm except risky-3 (which opted out via gate_params.hard_skip_verdicts=[] on 2026-07-23) inherits this hard block even though it was validated on Bold ONLY, never on the fleet's own tighter/looser cohorts. 2026-07-02 audit's top-5 scenario #3: 3 blocked bear signals same session, all 3 would have won (SPY -2.10/-2.34/-2.32 next 60m) -- correct call per the standing scorecard, wrong day."
+      "notes": "Also propagates into the fleet lane via build_shared_signal._HARD_SKIP_VERDICTS (a GLOBAL constant, not per-arm) -- every fleet arm except risky-3 (which opted out via gate_params.hard_skip_verdicts=[] on 2026-07-23) inherits this hard block even though it was validated on Bold ONLY, never on the fleet's own tighter/looser cohorts. 2026-07-02 audit's top-5 scenario #3: 3 blocked bear signals same session, all 3 would have won (SPY -2.10/-2.34/-2.32 next 60m) -- correct call per the standing scorecard, wrong day.",
+      "revalidation_filed": {
+        "filed_at_et": "2026-08-21",
+        "filing": "analysis/recommendations/GATE-REVALIDATION-FILING-2026-08-21.md",
+        "outcome": "RED - refused cohort +$60.28/tr (n=37, 16 days), +$24/tr drop-best-day, 9/16 days positive. Survives its own best day. NOT flipped: the refused-cohort counterfactual ignores NOT_FLAT crowding-out and is an UPPER BOUND on the gate's cost. Whole-book A/B pre-registration queued.",
+        "live_behaviour_changed": false
+      }
     },
     {
       "id": "min_ribbon_momentum_cents",
@@ -163,9 +253,17 @@
       "params_key": "min_ribbon_momentum_cents",
       "skip_action": "SKIP_RIBBON_MOMENTUM_GATE",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": "correctly OFF (null) since 2026-07-08 fix", "bold": null},
-      "evidence_artifact": ["markdown/doctrine/LESSONS-LEARNED.md#L107"],
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "correctly OFF (null) since 2026-07-08 fix",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "markdown/doctrine/LESSONS-LEARNED.md#L107"
+      ],
       "cohort_validated_on": "J-reverted per L107: real-fills baseline WF=-1.308, gate removed profitable trades",
       "last_revalidated": "2026-07-08 (SEMI-ARMED bug found and fixed -- 0 vs None both now correctly mean off, per gates.py:322-330's own guard)",
       "revalidation_interval_days": null,
@@ -181,9 +279,17 @@
       "params_key": "max_ribbon_duration_bars",
       "skip_action": "SKIP_RIBBON_DURATION_GATE",
       "scope": "core",
-      "accounts_armed": {"safe": "999 (truly inert, window < 999)", "bold": false},
-      "armed_date": {"safe": "2026-06-16 (L107 revert, pinned inert)", "bold": null},
-      "evidence_artifact": ["markdown/doctrine/LESSONS-LEARNED.md#L107"],
+      "accounts_armed": {
+        "safe": "999 (truly inert, window < 999)",
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-16 (L107 revert, pinned inert)",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "markdown/doctrine/LESSONS-LEARNED.md#L107"
+      ],
       "cohort_validated_on": "J-reverted per L107 alongside min_ribbon_momentum_cents",
       "last_revalidated": "2026-06-16",
       "revalidation_interval_days": null,
@@ -199,9 +305,18 @@
       "params_key": "midday_trendline_gate",
       "skip_action": "SKIP_MIDDAY_TRENDLINE_GATE",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": "OFF since 2026-06-16 (L107)", "bold": "OFF since 2026-06-18 (agg_wf_gate_removal, WF 0/6 folds)"},
-      "evidence_artifact": ["markdown/doctrine/LESSONS-LEARNED.md#L107", "analysis/recommendations/agg_wf_gate_removal_2026_06_18.json"],
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "OFF since 2026-06-16 (L107)",
+        "bold": "OFF since 2026-06-18 (agg_wf_gate_removal, WF 0/6 folds)"
+      },
+      "evidence_artifact": [
+        "markdown/doctrine/LESSONS-LEARNED.md#L107",
+        "analysis/recommendations/agg_wf_gate_removal_2026_06_18.json"
+      ],
       "cohort_validated_on": "negative on both accounts",
       "last_revalidated": "2026-06-18",
       "revalidation_interval_days": null,
@@ -217,9 +332,17 @@
       "params_key": "block_conf_lvl_rej_midday_afternoon",
       "skip_action": "SKIP_CONF_LVL_REJ_MIDDAY_AFTERNOON",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": null, "bold": "OFF since 2026-06-18 (removed, WF 0/6 folds)"},
-      "evidence_artifact": ["analysis/recommendations/agg_wf_gate_removal_2026_06_18.json"],
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": null,
+        "bold": "OFF since 2026-06-18 (removed, WF 0/6 folds)"
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/agg_wf_gate_removal_2026_06_18.json"
+      ],
       "cohort_validated_on": "negative, removed",
       "last_revalidated": "2026-06-18",
       "revalidation_interval_days": null,
@@ -235,9 +358,17 @@
       "params_key": "block_conf_lvl_rec_afternoon",
       "skip_action": "SKIP_CONF_LVL_REC_AFTERNOON",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": true},
-      "armed_date": {"safe": null, "bold": "2026-06-19 (bd524570), ratified 2026-06-18"},
-      "evidence_artifact": ["analysis/recommendations/agg_wf_gate_removal_2026_06_18.json (or sibling study; census could not re-locate a standalone file distinct from #11's)"],
+      "accounts_armed": {
+        "safe": false,
+        "bold": true
+      },
+      "armed_date": {
+        "safe": null,
+        "bold": "2026-06-19 (bd524570), ratified 2026-06-18"
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/agg_wf_gate_removal_2026_06_18.json (or sibling study; census could not re-locate a standalone file distinct from #11's)"
+      ],
       "cohort_validated_on": "Bold confluence+level_reclaim BULL >=14:00 ET, ratified 2026-06-18 (IS +$468 / OOS +$176) -- doc-string as of 06-18 downgrades this to 'KEPT but DEAD (0 impact)... fully superseded by block_conf_lvl_rej_midday_afternoon'",
       "last_revalidated": "2026-06-18",
       "revalidation_interval_days": 21,
@@ -253,9 +384,17 @@
       "params_key": "entry_bar_body_pct_min",
       "skip_action": "SKIP_DOJI_ENTRY_BAR",
       "scope": "core",
-      "accounts_armed": {"safe": "0.2", "bold": false},
-      "armed_date": {"safe": "2026-06-18 (Wave C bulk commit 26775b19)", "bold": null},
-      "evidence_artifact": ["analysis/recommendations/safe_entry_body_gate.json"],
+      "accounts_armed": {
+        "safe": "0.2",
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-18 (Wave C bulk commit 26775b19)",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/safe_entry_body_gate.json"
+      ],
       "cohort_validated_on": "Safe BEAR entries, ratified 2026-06-18 (OOS +$566, n=24->20)",
       "last_revalidated": "2026-06-18 (never revalidated)",
       "revalidation_interval_days": 21,
@@ -271,8 +410,14 @@
       "params_key": "entry_bar_body_pct_min_bull",
       "skip_action": "SKIP_DOJI_ENTRY_BAR_BULL",
       "scope": "core",
-      "accounts_armed": {"safe": false, "bold": false},
-      "armed_date": {"safe": null, "bold": null},
+      "accounts_armed": {
+        "safe": false,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": null,
+        "bold": null
+      },
       "evidence_artifact": [],
       "cohort_validated_on": null,
       "last_revalidated": null,
@@ -289,9 +434,17 @@
       "params_key": "vix_bear_hard_cap",
       "skip_action": "SKIP_VIX_BEAR_HIGH",
       "scope": "core",
-      "accounts_armed": {"safe": "23.0", "bold": false},
-      "armed_date": {"safe": "2026-06-18 (Wave C bulk commit 26775b19)", "bold": null},
-      "evidence_artifact": ["analysis/recommendations/safe_vix_bear_hard_cap.json"],
+      "accounts_armed": {
+        "safe": "23.0",
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-18 (Wave C bulk commit 26775b19)",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/safe_vix_bear_hard_cap.json"
+      ],
       "cohort_validated_on": "Safe BEAR entries VIX>=23, ratified 2026-06-18 (IS 100%->0% WR removed n=9, OOS +$420, cleanest gate in the census, SW 0/3)",
       "last_revalidated": "2026-06-18 (never revalidated)",
       "revalidation_interval_days": 21,
@@ -306,9 +459,17 @@
       "params_key": "structure_veto_enabled",
       "skip_action": "SKIP_STRUCTURE_VETO",
       "scope": "core",
-      "accounts_armed": {"safe": true, "bold": false},
-      "armed_date": {"safe": "2026-06-26 (26832c07, Wave 2 ship)", "bold": null},
-      "evidence_artifact": ["analysis/recommendations/structure-veto-ab-2026-06-26.json"],
+      "accounts_armed": {
+        "safe": true,
+        "bold": false
+      },
+      "armed_date": {
+        "safe": "2026-06-26 (26832c07, Wave 2 ship)",
+        "bold": null
+      },
+      "evidence_artifact": [
+        "analysis/recommendations/structure-veto-ab-2026-06-26.json"
+      ],
       "cohort_validated_on": "Safe only, born from a 2026-06-26 -$237 wrong-way incident. Full +$583 (2 wrong-way losers removed, 0 winners removed), OOS delta $0 -- all effect is IS/2025Q1.",
       "last_revalidated": "2026-06-26 (never revalidated)",
       "revalidation_interval_days": 21,
@@ -323,8 +484,14 @@
       "params_key": null,
       "skip_action": "VETOED_BY_MODELS",
       "scope": "core",
-      "accounts_armed": {"safe": true, "bold": true},
-      "armed_date": {"safe": "2026-06-25 design", "bold": "2026-06-25 design"},
+      "accounts_armed": {
+        "safe": true,
+        "bold": true
+      },
+      "armed_date": {
+        "safe": "2026-06-25 design",
+        "bold": "2026-06-25 design"
+      },
       "evidence_artifact": [],
       "cohort_validated_on": null,
       "last_revalidated": "2026-07-09 (payload bug fixed -- see notes; no P&L revalidation of the veto's OWN judgment quality has ever run)",
@@ -340,8 +507,14 @@
       "params_key": null,
       "skip_action": "RISK_DENY_* / NOT_FLAT",
       "scope": "core+fleet",
-      "accounts_armed": {"safe": true, "bold": true},
-      "armed_date": {"safe": "J's 10 rules (standing)", "bold": "J's 10 rules (standing)"},
+      "accounts_armed": {
+        "safe": true,
+        "bold": true
+      },
+      "armed_date": {
+        "safe": "J's 10 rules (standing)",
+        "bold": "J's 10 rules (standing)"
+      },
       "evidence_artifact": [],
       "cohort_validated_on": null,
       "last_revalidated": null,
@@ -357,8 +530,14 @@
       "params_key": "gate_override.min_triggers / gate_override.require_confluence_or_sequence",
       "skip_action": "fleet-local (not a GATE_ORDER SKIP_* action; the tick never reaches the arm's own executor)",
       "scope": "fleet",
-      "accounts_armed": {"safe-3": true, "risky-1": true},
-      "armed_date": {"safe-3": "2026-06-25 grid rebuild", "risky-1": "2026-06-25 grid rebuild"},
+      "accounts_armed": {
+        "safe-3": true,
+        "risky-1": true
+      },
+      "armed_date": {
+        "safe-3": "2026-06-25 grid rebuild",
+        "risky-1": "2026-06-25 grid rebuild"
+      },
       "evidence_artifact": [],
       "cohort_validated_on": "J-sanctioned grid design (2026-06-25) -- the arm IS the experiment (champion/challenger), not a single-study-backed gate",
       "last_revalidated": null,
@@ -374,9 +553,20 @@
       "params_key": "gate_override.score_ladder_floor",
       "skip_action": "n/a (this is a participation WIDENER, not a refusal -- included because its ABSENCE on safe-3/risky-1 is itself a live-evidence-backed disarm decision with its own expiry risk)",
       "scope": "fleet",
-      "accounts_armed": {"safe-3": "DISARMED 2026-07-27", "risky-1": "DISARMED 2026-07-27", "risky-3": "ARMED 2026-07-27 (floor=7)"},
-      "armed_date": {"safe-3": "armed 2026-07-27 ~evening, disarmed same night ~23:30 ET", "risky-1": "armed 2026-07-27, disarmed same night ~23:30 ET", "risky-3": "armed 2026-07-27, still armed"},
-      "evidence_artifact": ["analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.md", "analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md"],
+      "accounts_armed": {
+        "safe-3": "DISARMED 2026-07-27",
+        "risky-1": "DISARMED 2026-07-27",
+        "risky-3": "ARMED 2026-07-27 (floor=7)"
+      },
+      "armed_date": {
+        "safe-3": "armed 2026-07-27 ~evening, disarmed same night ~23:30 ET",
+        "risky-1": "armed 2026-07-27, disarmed same night ~23:30 ET",
+        "risky-3": "armed 2026-07-27, still armed"
+      },
+      "evidence_artifact": [
+        "analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.md",
+        "analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md"
+      ],
       "cohort_validated_on": "safe-3/risky-1: 390-day full-history replay at floor=8/9 -- ALL floors lose (safe-3 floor=9 -$10,903/332tr vs baseline +$5,307; risky-1 floor=8 -$16,642/725tr). risky-3: 10-anchor small-n set at floor=7, no new loser admitted -- the live fleet ledger IS the forward A/B.",
       "last_revalidated": "2026-07-27",
       "revalidation_interval_days": 14,
@@ -391,9 +581,15 @@
       "params_key": "gate_params.hard_skip_verdicts",
       "skip_action": "n/a (opt-out of an inherited hard skip, not its own refusal)",
       "scope": "fleet",
-      "accounts_armed": {"risky-3": true},
-      "armed_date": {"risky-3": "2026-07-23 (GATE-TIERS-IMPLEMENT, audit rank #3)"},
-      "evidence_artifact": ["markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md (rank #3 recommendation: make _HARD_SKIP_VERDICTS per-arm)"],
+      "accounts_armed": {
+        "risky-3": true
+      },
+      "armed_date": {
+        "risky-3": "2026-07-23 (GATE-TIERS-IMPLEMENT, audit rank #3)"
+      },
+      "evidence_artifact": [
+        "markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md (rank #3 recommendation: make _HARD_SKIP_VERDICTS per-arm)"
+      ],
       "cohort_validated_on": "Design-level fix for E2 in the 2026-07-02 audit; no dedicated P&L study of risky-3 specifically since",
       "last_revalidated": "2026-07-23",
       "revalidation_interval_days": 21,
@@ -408,8 +604,14 @@
       "params_key": "setups_allowed (params.json / aggressive/params.json)",
       "skip_action": "n/a (not a refusal gate -- category routed to core_strategy_recency.evaluate_for_registry)",
       "scope": "core",
-      "accounts_armed": {"safe": true, "bold": true},
-      "armed_date": {"safe": "strategy inception (v14/v15 lineage; SS-B exit shape 2026-07-09/10)", "bold": "same lineage (Bold v15.2 by design)"},
+      "accounts_armed": {
+        "safe": true,
+        "bold": true
+      },
+      "armed_date": {
+        "safe": "strategy inception (v14/v15 lineage; SS-B exit shape 2026-07-09/10)",
+        "bold": "same lineage (Bold v15.2 by design)"
+      },
       "evidence_artifact": [
         "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (fullhist production-parity replay: bear +$2,729/151tr, Safe shape, window ..2026-07-22)",
         "automation/state/core-strategy-recency.json (this clock's standing output, refreshed by the nightly checker)"
@@ -418,7 +620,13 @@
       "last_revalidated": "2026-08-01 (WS11 first standing run; prior standing anchors: SS-B exit ratification 2026-07-09/10, level-tied-entries study 2026-08-01)",
       "revalidation_interval_days": 14,
       "provenance_type": "core_strategy",
-      "notes": "WS11 (2026-08-01), J's recency rule applied to the strategy itself. VERDICT SEMANTICS INVERTED vs the gate rows: RED = the strategy is LOSING on the recent-window real fills (n >= floor), UNDERPOWERED->YELLOW = n below floor with the Safe-shape replay supplement quoted alongside (never blended). Fleet same-family fills are disclosed context only."
+      "notes": "WS11 (2026-08-01), J's recency rule applied to the strategy itself. VERDICT SEMANTICS INVERTED vs the gate rows: RED = the strategy is LOSING on the recent-window real fills (n >= floor), UNDERPOWERED->YELLOW = n below floor with the Safe-shape replay supplement quoted alongside (never blended). Fleet same-family fills are disclosed context only.",
+      "revalidation_filed": {
+        "filed_at_et": "2026-08-21",
+        "filing": "analysis/recommendations/GATE-REVALIDATION-FILING-2026-08-21.md",
+        "outcome": "RED - strategy-level, not a gate. Real fills -$16.71/tr (n=31) vs engine-sim +$116.89/tr (n=21) over comparable windows. The divergence must be reconciled before ANY bear-side change (OP-16).",
+        "live_behaviour_changed": false
+      }
     },
     {
       "id": "core_strategy_bull",
@@ -428,8 +636,14 @@
       "params_key": "enable_bullish + setups_allowed",
       "skip_action": "n/a (not a refusal gate -- category routed to core_strategy_recency.evaluate_for_registry)",
       "scope": "core",
-      "accounts_armed": {"safe": true, "bold": true},
-      "armed_date": {"safe": "2026-06-28 (OP-16 unlock)", "bold": "2026-06-28 (OP-16 unlock)"},
+      "accounts_armed": {
+        "safe": true,
+        "bold": true
+      },
+      "armed_date": {
+        "safe": "2026-06-28 (OP-16 unlock)",
+        "bold": "2026-06-28 (OP-16 unlock)"
+      },
       "evidence_artifact": [
         "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (fullhist replay bull +$2,335/39tr -- ENGINE-SIM, Safe shape, disclosed as such)",
         "markdown/deep-research 2026-07-11 bull evidence correction (live n=80 WR 1.2% -$1,573; see CLAUDE.md OP-16)",
