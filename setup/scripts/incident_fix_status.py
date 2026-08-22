@@ -115,18 +115,34 @@ def _chk_conviction_k() -> tuple[bool, str]:
 def _chk_conviction_components() -> tuple[bool, str]:
     s = _read("setup/scripts/heartbeat_core.py")
     env = 'bc.get("session_high")' in s and '"session_high": session_hi' in s
-    struct = "_sameday_structure_side(payload)" in s
     # AST, NOT SUBSTRING. The first version of this check did `'"bars_prior"' in s` and
     # reported "TRANSPOSED KEY BACK" -- against a file where the only occurrence is the COMMENT
     # explaining that the transposed key was the bug. That is trap #1 from the entry-quality
     # handoff ("a claim and its retraction look identical to grep"), hit inside the instrument
     # built to stop me hand-assembling answers. A status tool that cries wolf is worse than no
     # tool, so this reads string CONSTANTS out of the parsed module and ignores prose entirely.
+    #
+    # SECOND BITE OF THE SAME TRAP (found 2026-08-22): the `struct` check itself was a literal
+    # substring `"_sameday_structure_side(payload)" in s`. The 2026-08-18 alignment review
+    # refactored the live call site to `_sameday_structure_diag(payload)` (adds a diagnosable
+    # reason string; `_sameday_structure_side` survives only as an unused facade) -- so the
+    # substring stopped matching and this check reported "C5 still None" for 4+ days across 8+
+    # conductor fires while the guard test (`test_conviction_c4_c5_wiring_2026_08_14.py`, all
+    # green throughout) and the live decision ledger both showed C5 fully wired and scoring:
+    # 164/164 `conviction` rows since 2026-08-19 carry a real, diverse `structure_reason`
+    # (range 65 / uptrend 48 / downtrend 24 / unknown 15 / error 12 -- zero None). Fixed the
+    # same way as the transposed-key check: walk the AST for an actual call to either name with
+    # a `payload` argument, so a future rename doesn't retrip this exact trap a third time.
     import ast
     try:
         tree = ast.parse(s)
         transposed = any(isinstance(n, ast.Constant) and n.value == "bars_prior"
                          for n in ast.walk(tree))
+        struct = any(
+            isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+            and n.func.id in ("_sameday_structure_side", "_sameday_structure_diag")
+            and any(isinstance(a, ast.Name) and a.id == "payload" for a in n.args)
+            for n in ast.walk(tree))
     except SyntaxError:
         return False, "heartbeat_core.py does not parse"
     if env and struct and not transposed:

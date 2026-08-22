@@ -18,6 +18,7 @@ week (once inside incident_fix_status.py itself).
 from __future__ import annotations
 
 import ast
+import importlib.util
 import json
 import subprocess
 import sys
@@ -30,6 +31,11 @@ HC = REPO / "setup" / "scripts" / "heartbeat_core.py"
 HEALER = REPO / "setup" / "scripts" / "heal-engine.ps1"
 KEEPAWAKE = REPO / "setup" / "scripts" / "market_hours_keepawake.py"
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+_IFS_PATH = REPO / "setup" / "scripts" / "incident_fix_status.py"
+_ifs_spec = importlib.util.spec_from_file_location("incident_fix_status", _IFS_PATH)
+ifs = importlib.util.module_from_spec(_ifs_spec)
+_ifs_spec.loader.exec_module(ifs)
 
 
 def _hc_src() -> str:
@@ -154,6 +160,66 @@ def test_keepawake_is_REGISTERED_as_a_scheduled_task():
     assert state, ("Gamma_MarketKeepAwake is NOT registered -- the fix for 'the box slept "
                    "04:27-09:46 ET' will not fire")
     assert state.lower() != "disabled", f"Gamma_MarketKeepAwake is {state} -- it will not fire"
+
+
+# ---------------------------------------------------------------- conviction-c4-c5 checker
+# (2026-08-22) `incident_fix_status.py`'s OWN `_chk_conviction_components` heuristic fell into
+# its own documented trap: the 2026-08-18 alignment review moved the live C5 call site from
+# `_sameday_structure_side(payload)` to `_sameday_structure_diag(payload)` (adds a diagnosable
+# reason string), and the checker's substring `"_sameday_structure_side(payload)" in s` stopped
+# matching -- reporting "C5 still None" on every one of 8+ conductor fires across 4+ days while
+# the guard test above it (`test_conviction_c4_c5_wiring_2026_08_14.py`) stayed green throughout
+# and the live decision ledger showed C5 scoring a real, diverse `structure_reason` on 164/164
+# rows since 2026-08-19. Fixed to walk the AST for a call to either name with a `payload` arg.
+# These tests pin BOTH directions: the real repo must read GREEN, and a synthetic regression
+# (call removed, or re-hardcoded to a literal None) must still read RED -- so the fix cannot
+# regress into "always True" the way the healer/keepawake substring traps did.
+def test_conviction_c4_c5_checker_is_green_on_the_real_repo():
+    ok, msg = ifs._chk_conviction_components()
+    assert ok, (
+        f"incident_fix_status.py's own conviction-c4-c5 check is RED on the real repo: {msg!r} "
+        "-- this is the exact false-positive class fixed 2026-08-22 (stale substring for a "
+        "renamed call site); re-run and diff against heartbeat_core.py's live C5 call")
+
+
+def test_conviction_c4_c5_checker_still_catches_a_missing_structure_call(monkeypatch):
+    """Vacuity check: strip the structure call entirely and the checker must go RED again."""
+    real_src = HC.read_text(encoding="utf-8", errors="replace")
+    # Nuke EVERY occurrence of both call spellings (the facade `_sameday_structure_side` calls
+    # `_sameday_structure_diag(payload)` internally too, so a fixture that only strips the
+    # direct call site leaves that indirect call behind and the checker correctly stays green
+    # -- caught by this test on first write; do not narrow this back to a single `.replace`).
+    stripped = (real_src
+                .replace("_sameday_structure_diag(payload)", "(None, 'stripped')")
+                .replace("_sameday_structure_side(payload)", "None"))
+    assert stripped != real_src, "fixture no-op -- the call site text moved, update this test"
+    ast.parse(stripped)  # must still be syntactically valid Python
+
+    def _fake_read(rel):
+        return stripped if rel.endswith("heartbeat_core.py") else ifs._read(rel)
+
+    monkeypatch.setattr(ifs, "_read", _fake_read)
+    ok, msg = ifs._chk_conviction_components()
+    assert not ok and "C5" in msg, (
+        f"checker stayed GREEN ({ok!r}, {msg!r}) after the structure call was stripped -- the "
+        "AST walk is not actually reading the call site, it degenerated into a vacuous pass")
+
+
+def test_conviction_c4_c5_checker_recognizes_either_call_site_name():
+    """Robustness check for the fix itself: both the pre- and post-2026-08-18 call spellings
+    must be recognized, since a future refactor could plausibly go back to the facade name."""
+    real_src = HC.read_text(encoding="utf-8", errors="replace")
+    renamed = real_src.replace(
+        "_structure_side, _structure_reason = _sameday_structure_diag(payload)",
+        "_structure_side = _sameday_structure_side(payload); _structure_reason = 'facade'")
+    assert renamed != real_src, "fixture no-op -- the call site text moved, update this test"
+    tree = ast.parse(renamed)  # must still be valid Python
+    struct = any(
+        isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+        and n.func.id in ("_sameday_structure_side", "_sameday_structure_diag")
+        and any(isinstance(a, ast.Name) and a.id == "payload" for a in n.args)
+        for n in ast.walk(tree))
+    assert struct, "the facade-name call spelling is no longer recognized by the AST walk"
 
 
 # ---------------------------------------------------------------- the instrument itself
