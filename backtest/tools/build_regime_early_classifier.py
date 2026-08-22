@@ -140,7 +140,26 @@ def build_dataset(cutoff_name: str = "09:45"):
     AND a prior day available."""
     spy_days, _vix_days, _inputs = bda.load_sessions()
     lib = load_library()["days"]
-    dates_sorted = sorted(spy_days.keys())
+
+    # INTERSECT the two sources (fixed 2026-08-21). `spy_days` comes from the bar feed and
+    # `lib` from the regime library, and they refresh on DIFFERENT schedules -- bars land
+    # ~14:16 MT, the library later. Between those two moments the newest session exists in
+    # one source and not the other, and `_vix_rolling_ma`'s `library_days[d]` died with a
+    # bare KeyError on that date every single day in that window.
+    #
+    # A day needs BOTH a session and a library record to be scoreable, which is already this
+    # builder's stated population rule ("every day-archetypes.json day with session !=
+    # data-incomplete ... AND a prior day available"). Dropping the unscoreable tail is
+    # therefore the rule, not a workaround -- but it is DISCLOSED in meta rather than done
+    # in silence, so a library that stops refreshing shows up as a growing number instead of
+    # looking like a quiet success.
+    _all_sorted = sorted(spy_days.keys())
+    dates_sorted = [d for d in _all_sorted if d.isoformat() in lib]
+    n_no_library = len(_all_sorted) - len(dates_sorted)
+    if not dates_sorted:
+        raise RuntimeError(
+            "no session date has a regime-library record -- the library is empty or its "
+            "date keys changed shape; refusing to build a classifier on nothing")
     dates_iso = [d.isoformat() for d in dates_sorted]
     vix_ctx = _vix_rolling_ma(lib, dates_iso)
 
@@ -190,6 +209,11 @@ def build_dataset(cutoff_name: str = "09:45"):
         "n_data_incomplete_excluded": n_incomplete,
         "n_insufficient_early_bars_excluded": n_insufficient,
         "n_no_prior_day_excluded": 1, "n_usable": len(df),
+        # Sessions the bar feed has but the regime library does not (see the intersect
+        # above). Normally 0 or 1 -- 1 is the ordinary same-day gap between the ~14:16 MT
+        # bar drop and the later library refresh. A number that keeps climbing means the
+        # library producer has stalled, which would otherwise be invisible here.
+        "n_no_library_record_excluded": n_no_library,
         "date_range": [used_dates[0], used_dates[-1]] if used_dates else None,
         "feature_columns": list(df.columns),
     }
