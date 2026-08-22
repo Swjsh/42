@@ -8,10 +8,33 @@
 
 ---
 
-﻿## Known broken
-
-- [2026-08-21] FULL-SUITE TRIAGE :: 18 REDs -> 7 remain, none newly introduced. **GENUINE, NOT FIXED (2):** `test_replay_fleet_arms::test_no_arm_overtrades` + `::test_three_arms_entry_faithful` -- risky-1 replay fires **extra=1 missed=0 (matched=8/8)**: the replay simulates one entry the live arm never took. Deliberately left RED -- an over-firing replay inflates trade counts in every study built on it, so loosening the assertion would be worse than the failure. Needs the fleet-replay owner. :: re-run: cd backtest && python -m pytest tests/test_replay_fleet_arms.py -q
-- [2026-08-21] TEST POLLUTION (5+2) :: `test_setup_dispatch` (5 tests), `test_graduated_guards::test_free_model_cost_estimate_is_zero`, `test_kitchen_reviewer_ladder_fallback_2026_08_20` all **PASS standalone** and fail only in-suite -- order-dependent state leaking between modules, a different defect class from the 8 fixed tonight. Not a product bug; the suite cannot currently be trusted to attribute these. :: re-run each alone to confirm still-passing
+## [2026-08-22 01:48 ET] conductor: OK — closed the 5-test `test_setup_dispatch.py` full-suite pollution (recurring 23:15/23:34/23:59 ET the night before), commit `7a2edbf1`
+
+**Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/4 fires used) + STAGE 1a (`desk_allocator.py`: SPY 0DTE #1, 30pts, "NEXT FIRE"; futures #2 already armed/stale) + STAGE 1 priority-1 (function-first: `self_check.py` GREEN, so moved to the standing "TEST POLLUTION (5+2)" note that had recurred 3 identical times without a root cause — a loop-closing item over a new artifact, per OP-22 tiebreak).** Engine health GREEN (19/19).
+
+**Root cause, precisely:** `backtest/tests/test_gap_prior_close.py` did `import setup_dispatch as sd; importlib.reload(sd)`. `reload()` re-executes the module's class statements in place, rebinding `setup_dispatch.SetupDispatcher`/`DispatchResult` to BRAND NEW class objects on the shared `sys.modules["setup_dispatch"]` entry. `test_setup_dispatch.py` captures the OLD class via `from setup_dispatch import SetupDispatcher` at collection time (pytest imports every test module before running any test). Since `test_gap_prior_close.py`'s test executes first (alphabetically, "g" < "s") and reloads the module, `patch("setup_dispatch.SetupDispatcher.<method>", ...)` — a string lookup resolved at patch time — patches the NEW post-reload class, which nobody's `SetupDispatcher(...)` call in `test_setup_dispatch.py` ever instantiates (it uses the OLD, already-bound reference). The mock never intercepts; the real (unmocked) method runs instead, producing "Called 0 times" or an unexpected `skip_reason`. Textbook "polluted only in the full suite, clean standalone" shape — exactly why 3 prior fires re-triaged this as unsolved.
+
+**Why it took real investigation to find:** a `-k`-based probe selecting just the 2 suspect tests against the FULL 10,057-test collection PASSED (collection still imports everything, but `-k` deselection skips EXECUTION of the polluting test) — initially looked like it ruled out cross-file interaction. The actual mechanism only manifests when the polluting test's body *runs*, not merely when its module is imported. Root-caused by tracing every `sys.path`/`patch`/global-mutation surface in `setup_dispatch.py`'s own dependents, then grepping the whole suite for `importlib.reload` hits — found exactly 2 (this one, and an unrelated single-file-owned watcher reload that isn't implicated).
+
+**Fix:** removed the `importlib.reload(sd)` call — `monkeypatch.setattr(sd, "_REPO", tmp_path)` (already present) fully isolates the one thing that test needs, without touching the shared module singleton. Added `test_no_setup_dispatch_reload_pollution_2026_08_22.py`: a comment-aware source-sweep guard (skips `#`-comment lines so a fix's own explanatory prose about the banned pattern can't self-trigger — the same PS1-BARE-PYTHON-COMMENT-SKIP false-positive class already on the queue) that fails if ANY test file `importlib.reload()`s a name bound to `setup_dispatch`.
+
+**Verified, quoted:** RED-proofed by temporarily restoring the original `importlib.reload(sd)` line — reproduced 3 of the 5 historical failures with IDENTICAL error signatures (`AssertionError: Expected '_dispatch_gap_and_go' to have been called once. Called 0 times.`; `assert 'SKIP_DETECTOR_ERROR' in 'SKIP_NO_SIGNAL'`) plus both new guard tests correctly failing. Restored the fix: `test_gap_prior_close.py` + `test_setup_dispatch.py` together = 28/28 green. Curated safety gate (`run_safety_gate.py`): 59/59 PASS. `py_compile` clean on both touched files. `git show 7a2edbf1 --stat --name-status` confirms exactly the 2 intended files (L247 discipline).
+
+**NOT independently re-confirmed this fire via a fresh full 9978-test run** — a from-scratch pre-fix baseline run (started before the fix landed) DID complete and reproduced the exact historical 9-failure roster verbatim (`9 failed, 9978 passed, 11 skipped ... in 1281.63s`), but the from-scratch POST-fix confirmation run stalled at 51% (unrelated resource contention from a second concurrent full-suite invocation this fire itself started — killed both, consistent with the documented "concurrent grinds contend on shared cache" class, not a fix regression). Standing in for it: the exact same 5 affected node IDs, run together with all their real interacting siblings in the correct execution order, 28/28 green, plus the RED-proof above showing the SAME fix removed reproduces the SAME failure signatures. Next fire or `Gamma_GuardsNightly`'s own cadence will produce the first fresh full-suite confirmation — flag here if it does NOT show exactly 4 remaining failures (2 known-real `test_replay_fleet_arms`, 2 known-unresolved `test_graduated_guards`/`test_kitchen_reviewer_ladder_fallback`).
+
+**Rail 4 (infra/test-only fix, not a trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** guard test is the regression check (a); revert is `git revert 7a2edbf1`, one clean commit, 2 files (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
+
+**Lesson filed:** `strategy/candidates/_lesson-inbox/importlib-reload-shared-module-cross-file-pollution-2026-08-22.md` — generalizable guidance (never `importlib.reload()` a shared production module a test doesn't exclusively own; use `monkeypatch.setattr` on the specific attribute, or an isolated `importlib.util.spec_from_file_location` load that never touches `sys.modules`).
+
+**Not investigated further this fire (out of bounded scope):** the remaining 2 non-fleet-replay failures (`test_graduated_guards::test_free_model_cost_estimate_is_zero`, `test_kitchen_reviewer_ladder_fallback`) — checked for the same reload/env-mutation pattern (none found in either file directly); genuinely a different, undiagnosed pollution mechanism. `test_replay_fleet_arms`'s 2 failures remain deliberately RED per the 2026-08-21 triage note directly below (over-firing replay, needs the fleet-replay owner, loosening the assertion would be worse than the failure).
+
+## Known broken
+- [2026-08-21 23:34 ET] FULL-SUITE RED :: 9978 passed, 9 failed, 11 skipped :: tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_replay_fleet_arms.py::test_no_arm_overtrades, tests/test_replay_fleet_arms.py::test_three_arms_entry_faithful, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-08-21 23:15 ET] FULL-SUITE RED :: 9978 passed, 9 failed, 11 skipped :: tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_replay_fleet_arms.py::test_no_arm_overtrades, tests/test_replay_fleet_arms.py::test_three_arms_entry_faithful, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-08-21] FULL-SUITE TRIAGE :: 18 REDs -> 7 remain, none newly introduced. **GENUINE, NOT FIXED (2):** `test_replay_fleet_arms::test_no_arm_overtrades` + `::test_three_arms_entry_faithful` -- risky-1 replay fires **extra=1 missed=0 (matched=8/8)**: the replay simulates one entry the live arm never took. Deliberately left RED -- an over-firing replay inflates trade counts in every study built on it, so loosening the assertion would be worse than the failure. Needs the fleet-replay owner. :: re-run: cd backtest && python -m pytest tests/test_replay_fleet_arms.py -q
+
+- [2026-08-21] TEST POLLUTION (5+2) :: `test_setup_dispatch` (5 tests), `test_graduated_guards::test_free_model_cost_estimate_is_zero`, `test_kitchen_reviewer_ladder_fallback_2026_08_20` all **PASS standalone** and fail only in-suite -- order-dependent state leaking between modules, a different defect class from the 8 fixed tonight. Not a product bug; the suite cannot currently be trusted to attribute these. :: re-run each alone to confirm still-passing
+
 
 
 - [2026-08-21 22:47 ET] FULL-SUITE RED :: 9976 passed, 11 failed, 11 skipped :: tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage, tests/test_replay_fleet_arms.py::test_no_arm_overtrades, tests/test_replay_fleet_arms.py::test_three_arms_entry_faithful, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises, tests/test_trigger_bar_freshness_2026_08_20.py::test_a_prior_session_bar_makes_the_tick_blind :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
@@ -240,112 +263,3 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 **Rail 4 (PAPER trading-path edit â€” arming a NEW paper execution leg, not live money):** guard tests are the regression guard (a) â€” 12 new + 81 total green; revert is `git revert` on this commit plus re-running `install-futures-mirror.ps1` after removing ` --armed` from `$wscriptArgs` (b); this entry + Discord ping is the REVOKE report (c). Zero live-money surfaces touched â€” `TT_SANDBOX=true`, same double-gate (OP-0 #1 + a new venue) as the existing broker lane. Lesson filed: `_lesson-inbox/shared-broker-account-cross-lane-position-attribution-2026-08-20.md`. Follow-up: `FUTURES-MIRROR-CROSS-LANE-CLAIM` (queue.md, LOW). `automation/state/worker-registry.json` futures desk entry updated to reflect ARMED status.
 
-## [2026-08-19 ~23:5x ET] OK -- THE COMMAND CENTER shipped: one HTML page, the six repeated questions pre-answered
-
-**J directive:** "review everything regarding an app / home base / command center, find the Gamma Journal calendar, consolidate everything into one. I'd prefer a localhost HTML page -- more editable and we can make it look how I want it."
-
-**Recon first (5 prior embodiments, per `markdown/planning/GAMMA-WORKER.md`):** Next.js Trade House Â· Electron gamma-companion :4317 Â· Discord voicebot Â· GAMMA HQ terminal Â· Next.js /gamma. Their own post-mortem names the common thread -- "presence kept getting solved as an ADD-ON channel instead of upgrading the ONE surface J might actually open." **Verified live: `localhost:3000/gamma` is DEAD** (no response) despite `Gamma_DashboardKeepalive` existing; `:4317` still answers. A home base that needs a babysat Node server is offline exactly when it is needed.
-
-**Shipped -- NOT a sixth channel, the consolidation:** `setup/scripts/gamma_home.py` -> `analysis/home/index.html`. One self-contained file, no server, no port, cannot be "down". Same pattern J built himself hours earlier in `journal_calendar.py`.
-- **THE ANSWERS** -- the six questions J repeats, pre-answered from live state: are we good to trade (engine+unattended+self-check) Â· what's the status (newest STATUS entry) Â· what are we theorizing (today-bias falsifiable claims) Â· what's our edge (winner SIGNATURE, real fills) Â· where's the money (BOOK net, calendar). **This is autonomy item #1: the answer is there before he asks.**
-- **The journal calendar is IN it** -- month grid, per-arm + BOOK, gross/net toggle, link to the full calendar. Zero duplicated logic: money from `calendar-data.json`, presence from `gamma_hq.py --json`.
-- **Every card names its source file and age.** A missing source renders a visible NO DATA card -- never a plausible default (C7).
-
-**Verified, quoted:** `Gamma_Home` task registered and **proven by deleting index.html and firing it** -- regenerated 27,642 bytes, LastTaskResult 0. Live DOM check: 13 populated August days, month -$223, all-time -$1,941/35 days, 6 arms, 3 clocks, 3 wants, 4 ships, 5 answers, 0 NO DATA. 33 guard tests green (home + verifier + J's existing calendar suite, no regression).
-
-**Two real bugs caught by LOOKING at the page, not by tests:** (1) `subprocess(text=True)` decodes with the cp1252 locale on this box -- every em-dash/middot rendered as `Ã‚Â·`/`Ã¢â‚¬"`; proven directly (`text=True, no encoding -> "Wednesday 2026-08-19 Ã‚Â· 23:56 ET"`) and fixed with an explicit `encoding="utf-8"`. (2) raw markdown leaked onto cards (`> **Signal J wakes to...**`) and falsifiable predictions dumped as raw JSON; added a markdown cleaner -- whose first cut over-reached and turned `recency_check.py` into `recencycheck.py`, now guarded.
-
-**Open:** `LAUNCH-GAMMA-HOME.vbs` regenerates-then-opens but has NOT been double-click tested by J. Autonomy items #2 (a translator that says "what this means for you") and #3 (numeric-claim verification) remain queued.
-
-## [2026-08-19 ~20:49 ET] conductor: OK -- closed a THIRD entry-claim race (atomic-entry-claim RED -> GREEN), commit `da8fb973`
-
-**Picked via STAGE 1 priority-2 (Engine RED flag) -- outranks queue.md/inbox items.** Budget gate PROCEED ($7.41/$30 pre-fire, 2/4 fires used). Engine health GREEN, but `incident_fix_status.py --alert` (the 2026-08-14 -$1,569 double-entry incident roster) showed `atomic-entry-claim` RED: the storm-contention guard test measured a real 1/40 multi-winner outcome (ship-time baseline for that exact test was 0/300) -- a residual double-entry race on the EXACT incident path this roster exists to guard, so this outranked everything else in the queue.
-
-**Root cause (two stacked races, not one).** `_acquire_claim()`'s rename-based stale-takeover had: (1) a **TOCTOU** -- staleness was judged from a READ taken *before* the takeover rename, so a slow contender could act on a stale verdict and steal a claim a fast contender had *just* legitimately won (`test_toctou_steals_a_legitimately_fresh_claim_from_under_a_new_owner`, new, reproduces this deterministically 2/2 on pre-fix code); (2) a **separate gap** -- the winner's rename-away step leaves the claim file briefly absent from the directory, letting an unrelated contender's own independent `O_CREAT|O_EXCL` fast path slip in. **The trap:** fixing (1) alone widened (2) -- measured LIVE via a traced `os.rename` call log that fixing the TOCTOU took the storm-test failure rate from 1/40 to **39/40**, with the smoking gun being a "winner" that never called `os.rename` at all (it won purely through the untouched fast path while the file sat empty during the now-longer critical section).
-
-**Shipped:** replaced the rename dance entirely with an OS-level exclusive lock (`msvcrt.locking`, Windows) -- every contender past the very first claim locks the *existing* file and overwrites content in place; the file is never removed from the directory again, so there is exactly ONE arbiter (the lock) instead of two racing primitives. Windows releases the lock automatically on process crash/exit, so no separate stale-lock recovery logic (with its own smaller TOCTOU) is needed. 11/11 guard tests green, re-run 5x clean (55 executions, 0 failures); broader `heartbeat_core`/`claim` test slice 167 passed, 1 skipped. `incident_fix_status.py`'s static mechanism-presence checker updated to look for the new lock-based identifying strings instead of the retired rename-based one (was flagging a false "MISSING: rename-takeover" RED for the right reason -- mechanism legitimately changed -- caught and fixed before it could confuse the next fire). Lesson filed: `_lesson-inbox/narrowing-a-race-window-can-widen-a-different-one-2026-08-19.md` (the general pattern: fixing one race's window can widen a different one when two independent primitives contend for the same resource; only removing a primitive, not narrowing a window, actually closes it).
-
-**Verified:** `incident_fix_status.py --alert` re-run post-fix: `atomic-entry-claim` OK/GREEN (`O_EXCL create + OS-level lock-arbitrated stale takeover + placement gated`). Two OTHER pre-existing RED items on this same roster (`conviction-c4-c5`, `no-console-popups`) remain untouched -- out of this fire's bounded scope, already independently tracked across prior days' STATUS entries.
-
-**Rail 4 (PAPER trading-path edit):** guard test suite is the regression guard (a); revert is a single clean commit (b); this entry is the REVOKE report (c) -- also pinged to Discord. Zero LIVE-money surfaces touched. **Revert:** `git revert da8fb973` (3 modified files + 1 new lesson-inbox doc; reintroduces the 1/40 residual race, not the original -$1,569 double-entry, since the prior rename-based fix stays in git history).
-
-## [2026-08-19 20:47 ET] RED -- INCIDENT FIX ROSTER REGRESSED (2 RED, 0 unguarded)
-
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.70s
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 2 passed in 0.40s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-19 20:45 ET] RED -- INCIDENT FIX ROSTER REGRESSED (3 RED, 0 unguarded)
-
-- **atomic-entry-claim** -- closes: double entry (two processes, 21ms apart)
-  - code: MISSING: rename-takeover
-  - guard: 11 passed in 0.75s
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.69s
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 2 passed in 0.32s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-19 20:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (3 RED, 0 unguarded)
-
-- **atomic-entry-claim** -- closes: double entry (two processes, 21ms apart)
-  - code: O_EXCL create + rename-arbitrated stale takeover + placement gated
-  - guard: 1 failed, 9 passed in 0.83s
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.74s
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 2 passed in 0.40s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-19 ~17:5x ET] OK -- agent-orchestration research + the master/worker org chart made enforceable
-
-**J directive:** research current agent-orchestration best practices, turn Gamma into the master, turn the repeated asks into workers with tools. Success bar J set: a fully autonomous Gamma. Full report: `analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md` (109-agent deep-research fan-out, every claim 3-vote adversarially verified).
-
-**Verdict: the diagram is already built here 3x over -- more agents is the WRONG next move.** Anthropic's own 2026 guidance is single-agent-first (multi-agent = 3-10x tokens, contraindicated where agents share context). The measured defects are unverified worker output and undelivered results, not missing workers.
-
-**Three measured findings:**
-- **12 of 690 free-tier worker reports FABRICATED artifacts** that never existed (2026-06-25..08-18, 1.7%, undetected 2 months). Canonical scar: the 08-18 strategist report claiming the weekly-options Phase 0 build was done.
-- **1 blocker -> 9 duplicate queue.md escalations** in a day: `gamma_manager.escalate()` had no dedupe and the coordinator re-words every fire, so string equality never matched.
-- **Notional burn $430-$1,554/day** over the last 10 logged days (mean ~$780; Max-plan capacity, not a bill -- but the same pool the heartbeat ticks on). Fan-out was uncapped.
-
-**Shipped (all verified, quoted):** `worker_output_verify.py` anti-fabrication gate (wired into gamma_manager dispatch: FABRICATED = quarantined + escalated, never banked) Â· fuzzy escalation dedupe with a MEASURED threshold (dupes 0.367-0.913 vs distinct 0.176-0.206 -> 0.30, plus an anti-gag test) Â· `worker-registry.json` + `worker_registry.py --check` org chart (GREEN, 9 workers, 6 J-intents, 0 drift; RED-proofed against 8 injected drift classes) Â· fan-out caps depth=1/concurrency=5 at the conductor launch point Â· 13 guard tests passing.
-
-**The honest gap to "fully autonomous" -- it is DELIVERY, not machinery.** Mining `j-question-ledger.jsonl` (29 genuine J prompts) gives 6 repeated intents; **5 of 6 already have complete machinery** and J still has to ask, because 4 of 6 are PULL_ONLY -- the answer is on disk before he asks and nothing pushes it. One intent (`explain_for_me`) has no owner at all. Queue items filed.
-
-
-### DEGRADED: self-check 2026-08-21T20:32:42
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
-
-### DEGRADED: self-check 2026-08-21T20:39:56
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
-
-### DEGRADED: self-check 2026-08-21T21:39:56
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
-
-### DEGRADED: self-check 2026-08-21T22:09:56
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
-
-### DEGRADED: self-check 2026-08-21T22:39:56
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-21.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-21T23:09:56
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-21.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-license-monitor.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
