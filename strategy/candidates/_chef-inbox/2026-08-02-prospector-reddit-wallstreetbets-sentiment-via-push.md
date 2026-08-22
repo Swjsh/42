@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:reddit-walls
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-14-prospector-reddit-rwallstreetbets-sentiment-via-pus.md, 2026-08-18-prospector-wallstreetbets-sentiment-via-pushshift-r.md -->

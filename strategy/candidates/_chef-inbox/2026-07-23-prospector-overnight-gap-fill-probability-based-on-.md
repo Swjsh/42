@@ -23,3 +23,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: academic_intraday_anomalies:
 depends:none
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the overnight gap-fill family, all 3 instances self-label $0 (gap size + VIX regime, computable from existing SPY bars). Genuinely viable, unresearched. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-07-prospector-overnight-gapfill-partial-fill-of-opento.md, 2026-08-16-prospector-overnight-gapfill-in-equity-index-future.md, 2026-08-20-prospector-overnight-gapfill-a-large-portion-of-the.md -->

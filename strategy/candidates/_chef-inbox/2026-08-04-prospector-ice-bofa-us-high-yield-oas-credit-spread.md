@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:ice-bofa
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-08-prospector-highyield-credit-spread-relative-to-trea.md, 2026-08-21-prospector-highyield-corporate-bond-spread-baaaaa-a.md -->

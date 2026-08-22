@@ -419,6 +419,88 @@ FAMILY_KEYWORDS: dict[str, tuple[str, ...]] = {
         "volume-at-price", "volume at price", "high-volume node",
         "high volume node", "high-volume-node",
     ),
+    # ── Added 2026-08-22 (conductor fire, chef-inbox backlog drain) ──
+    # The 2026-07-22 fix above (2 families) stopped the bleeding for VIX1D/
+    # Volume-Profile but was never MAINTAINED as new duplicate families kept
+    # arriving weekly from the free-swarm beat -- live count on 2026-08-22:
+    # 106 open chef-inbox items reduce to ~20 distinct THEMES. TRIN, NYSE
+    # TICK, DXY, ORB, gap-fill, turn-of-month, VWAP reversion, the 10Y-2Y
+    # spread, max pain, put/call ratio, IV skew, COT positioning, market
+    # profile/TPO, FRED macro, WSB sentiment, auto support/resistance,
+    # harmonic patterns, order-flow/cumulative-delta, FINRA short volume,
+    # credit spreads, EIA crude inventory, WTI price, CME open interest,
+    # futures curve/basis, and the lunch-lull/advance-decline pair each
+    # independently resurfaced 2-4x under a fresh dedupe_key because the
+    # allowlist was never extended after the first fix. Same allowlist
+    # discipline as above: hand-curated, concept-specific, extend on sight.
+    # NOTE: bare "trin" was tried first and produced a false positive --
+    # "doc-**trin**-e" (doctrine) contains it as a substring. "arms index"
+    # (the formal name) plus specific TRIN-prefixed phrases are safe.
+    "trin_arms_index": ("arms index", "trin (arms index)", "trin index", "trin<0.7", "trin below"),
+    "nyse_tick_index": ("nyse tick", "tick index", "tick5", "tick-index"),
+    "dxy_dollar_index": ("dxy", "dollar index"),
+    "opening_range_breakout": ("opening range breakout", " orb ", "orb –", "orb -", "orb ("),
+    "overnight_gap_fill": ("gap-fill", "gap fill", "gap‑fill", "gapfill"),
+    "turn_of_month": (
+        "turn-of-month", "turn of month", "turn‑of‑month",
+        "turn-of-the-month", "turn of the month", "turn‑of‑the‑month",
+        "turnofmonth", "turnofthemonth", "tom effect", "tom anomaly",
+        "(tom)",
+    ),
+    "vwap_reversion": (
+        "vwap reversion", "vwap mean-reversion", "vwap mean‑reversion",
+        "vwap mean reversion", "vwap meanreversion", "revert toward the vwap",
+        "revert toward the day", "revert toward the volume",
+    ),
+    # NOTE: "10-year treasury yield" alone was tried first and false-matched a
+    # generic FRED-macro-feed item that merely cited it as an example (folded
+    # into fred_macro instead) -- kept spread-specific phrases only.
+    "treasury_yield_spread_10y2y": (
+        "10y-2y", "10y‑2y", "10y2y", "10-year vs 2-year",
+        "10‑year vs 2‑year", "10year vs 2year", "ust10y", "10y - 2y",
+        "10 year vs 2 year",
+    ),
+    "max_pain": ("max pain", "max‑pain", "maxpain", "max-pain"),
+    "put_call_ratio": ("put/call ratio", "put call ratio", " pcr ", "pcr)", "pcr for"),
+    "iv_skew": ("iv skew", "implied volatility skew"),
+    "cot_positioning": ("commitments of traders", "cot large", "cot ("),
+    "market_profile_tpo": ("market profile", " tpo ", "(tpo)", "tpo)"),
+    "fred_macro": ("fred macro", "fred publishes", "fred releases"),
+    "reddit_sentiment": ("wallstreetbets", "pushshift", "r/wallstreetbets"),
+    # NOTE: "auto fibonacci" was deliberately left OUT -- auto-drawn Fib
+    # retracements are a distinct technique from auto-drawn S/R zones, even
+    # though both are "TV community auto-level" indicators; kept separate to
+    # avoid over-merging two different testable hypotheses.
+    "auto_support_resistance": ("auto support", "auto supportresistance"),
+    "harmonic_pattern": ("harmonic pattern",),
+    "order_flow_delta": (
+        "order flow imbalance", "cumulative delta", "order flow heatmap",
+        " ofi ", "ofi)", "ofi by",
+    ),
+    "finra_short_volume": ("finra", "short-sale volume", "short sale volume"),
+    "credit_spread": ("high-yield", "high yield", "credit spread", " oas ", "oas)"),
+    "eia_crude_inventory": ("eia", "crude-oil inventory", "crude oil inventory", "crude inventory"),
+    "wti_crude_price": ("wti crude oil", "wti crude"),
+    # NOTE: bare "cme group" was tried and false-matched a lunch-lull item
+    # that merely cited "CME Group" as a generic data-source attribution --
+    # kept only open-interest-specific phrases.
+    "cme_open_interest": (
+        "cme open interest", "cme daily open interest", "nymex cme",
+        "cme group daily open interest",
+    ),
+    "futures_curve_basis": (
+        "futures curve", "calendar spread", "basis between", "basis) between",
+        "front-month to second-month", "frontmonth to secondmonth",
+        "term structure) of mes",
+    ),
+    "globex_overnight_range": ("globex overnight", "globex session", "globex (u.s. night)"),
+    "lunch_lull": (
+        "lunch lull", "lunch-lull", "lunchlull", "lunchtime lull",
+        "midday volatility compression",
+    ),
+    "advance_decline_line": ("advance-decline", "advance decline", "advance‑decline"),
+    "dealer_gamma_exposure": ("dealer gamma exposure", "gamma concentration index", "(dge)"),
+    "iex_cloud": ("iex cloud", "iex tops"),
 }
 
 

@@ -423,13 +423,53 @@ def test_promote_top1_uses_generic_spec_for_unknown_idea(tmp_path):
 def test_idea_family_matches_vix1d_variants():
     assert pr.idea_family("CBOE VIX1D Index as a Volatility Gauge") == "vix1d"
     assert pr.idea_family("Track the VIX Term Structure: VIX1D minus VIX30") == "vix1d"
-    assert pr.idea_family("A totally unrelated idea about FINRA short volume") is None
+    # NOTE 2026-08-22: this used to be the "unrelated" control string, but the
+    # chef-inbox backlog drain fire added a real "finra_short_volume" family
+    # this exact text now correctly matches -- swapped the control to a topic
+    # with no family entry (earnings-calendar freshness, unrelated to any beat).
+    assert pr.idea_family("A totally unrelated idea about earnings blackout dates") is None
 
 
 def test_idea_family_matches_volume_profile_variants():
     assert pr.idea_family("Volume Profile Visible Range (VPVR) shelves") == "volume_profile"
     assert pr.idea_family("Read TradingView's high-volume-node shelves") == "volume_profile"
     assert pr.idea_family("") is None
+
+
+def test_idea_family_matches_new_2026_08_22_families():
+    # 106-item chef-inbox backlog drain (2026-08-22): the 2026-07-22 allowlist
+    # (2 families) was never maintained as new duplicate families kept
+    # arriving weekly. Spot-check a representative sample of the ~26 families
+    # added this fire -- see FAMILY_KEYWORDS comment for the full list/why.
+    assert pr.idea_family("TRIN (Arms Index) computed from NYSE breadth") == "trin_arms_index"
+    assert pr.idea_family("NYSE TICK Index real-time net uptick/downtick") == "nyse_tick_index"
+    assert pr.idea_family("DXY dollar index momentum") == "dxy_dollar_index"
+    assert pr.idea_family("Opening Range Breakout (ORB) predictive power") == "opening_range_breakout"
+    assert pr.idea_family("Overnight Gap-Fill probability based on gap size") == "overnight_gap_fill"
+    assert pr.idea_family("Turn-of-the-month effect in equity futures") == "turn_of_month"
+    assert pr.idea_family("VWAP Reversion -- price reverts toward the VWAP") == "vwap_reversion"
+    assert pr.idea_family("10Y-2Y Treasury yield spread momentum indicator") == "treasury_yield_spread_10y2y"
+    assert pr.idea_family("SPY 0DTE Max Pain Level derived from open interest") == "max_pain"
+    assert pr.idea_family("SPY 0DTE Put/Call Ratio by strike") == "put_call_ratio"
+    assert pr.idea_family("SPY 0DTE Implied Volatility Skew at 25-delta") == "iv_skew"
+    assert pr.idea_family("CFTC Commitments of Traders large-speculator positioning") == "cot_positioning"
+    assert pr.idea_family("Market Profile (TPO) built-in indicator") == "market_profile_tpo"
+    assert pr.idea_family("Reddit WallStreetBets sentiment via Pushshift API") == "reddit_sentiment"
+    assert pr.idea_family("Auto Support/Resistance Zones by LuxAlgo") == "auto_support_resistance"
+    assert pr.idea_family("Harmonic Pattern Finder by ChrisMoody") == "harmonic_pattern"
+    assert pr.idea_family("Order Flow Imbalance (OFI) by @Sanjay") == "order_flow_delta"
+    assert pr.idea_family("FINRA Daily Short-Sale Volume total shares") == "finra_short_volume"
+    assert pr.idea_family("ICE BofA US High Yield OAS credit spread") == "credit_spread"
+    assert pr.idea_family("Weekly EIA crude-oil inventory surprise delta") == "eia_crude_inventory"
+    assert pr.idea_family("Front-month WTI crude oil price change") == "wti_crude_price"
+    assert pr.idea_family("NYMEX CME Daily Open Interest for E-mini futures") == "cme_open_interest"
+    assert pr.idea_family("Futures curve and basis between E-mini contracts") == "futures_curve_basis"
+    assert pr.idea_family("Overnight Globex session high/low/range for MES") == "globex_overnight_range"
+    assert pr.idea_family("Lunch-Lull volatility compression around midday") == "lunch_lull"
+    assert pr.idea_family("Advance-Decline Line market breadth indicator") == "advance_decline_line"
+    assert pr.idea_family("Dealer Gamma Exposure (DGE) for SPY 0DTE") == "dealer_gamma_exposure"
+    assert pr.idea_family("IEX Cloud free delayed US equity quotes") == "iex_cloud"
+    assert pr.idea_family("A totally unrelated idea about earnings blackout dates") is None
 
 
 def test_family_already_covered_finds_existing_open_item(tmp_path):

@@ -23,3 +23,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:cftc-com
 depends:none
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 2 newer near-duplicate(s) folded in this fire -- 2026-07-31-prospector-cftc-commitment-of-traders-cot-large-spe.md (same CFTC COT idea, 2nd recurrence); 2026-08-04-prospector-cftc-cot-large-speculator-net-positionin.md (same idea, 3rd recurrence). Canonical status unchanged: CONSOLIDATED -- canonical for the CFTC COT large-speculator-positioning family. All 3 instances self-label $0 (CFTC's own weekly COT report is genuinely free, no vendor needed). Unresearched, genuinely viable -- weekly (not daily) cadence limits sample size for a 0DTE-scale backtest, flagged for chef.. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-08-prospector-cftc-commitments-of-traders-cot-largespe.md, 2026-08-16-prospector-cftc-commitments-of-traders-largespecula.md -->

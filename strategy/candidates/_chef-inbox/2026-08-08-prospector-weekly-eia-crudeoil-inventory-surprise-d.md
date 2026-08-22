@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:weekly-e
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 1 fold-in(s) from the same family, no new information -- 2026-08-21-prospector-us-crude-oil-inventory-changes-from-eia-.md -->

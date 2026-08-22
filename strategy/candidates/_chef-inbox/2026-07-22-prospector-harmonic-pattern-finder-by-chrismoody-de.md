@@ -34,3 +34,6 @@ the pure zigzag+ratio detector + immediately run the C27 fire-rate sanity check 
 spending real-fills budget on it. -->
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the harmonic-pattern-detector family (Gartley/Bat/Butterfly/ABCD, different Pine Script authors, same underlying idea). Both instances self-label $0. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-06-prospector-harmonic-pattern-indicator-by-alex-grove.md, 2026-08-19-prospector-hm-pattern-scanner-public-pine-script-by.md -->

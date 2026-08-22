@@ -23,3 +23,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: academic_intraday_anomalies:
 depends:none
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the intraday VWAP-mean-reversion family, self-labels $0. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-06-prospector-vwap-reversion-price-tends-to-revert-tow.md, 2026-08-16-prospector-vwap-reversion-anomaly-prices-tend-to-re.md, 2026-08-20-prospector-vwap-meanreversion-intraday-price-tends-.md -->

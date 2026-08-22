@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:sp
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-06-prospector-intraday-spy-0dte-putcall-ratio-pcr-by-s.md, 2026-08-15-prospector-spy-0dte-putcall-ratio-pcr-calculated-fr.md, 2026-08-19-prospector-intraday-spy-putcall-ratio-pcr-for-0dte-.md -->

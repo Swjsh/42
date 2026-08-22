@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:intraday
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 4 fold-in(s) from the same family, no new information -- 2026-08-07-prospector-dxy-dollar-index-momentum.md, 2026-08-12-prospector-us-dollar-index-dxy-strengthweakness-as-.md, 2026-08-16-prospector-intraday-moves-of-the-us-dollar-index-dx.md, 2026-08-21-prospector-ice-dollar-index-dxy-relative-strength.md -->

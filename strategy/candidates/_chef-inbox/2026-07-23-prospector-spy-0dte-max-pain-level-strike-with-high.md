@@ -33,3 +33,6 @@ max-pain-strike calc, real new work) -- flagged as the likely free path before a
 vendor ask reaches J. -->
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CORRECTED + CONSOLIDATED -- canonical for the Max Pain family. Original ask self-labeled paid; the 07-28 recurrence claims $0 via free CBOE OI. Not independently verified this fire (no live curl probe run against CBOE OI endpoints) -- flag the $0 claim for verification before backtest, same discipline as the FINRA/CME probes elsewhere in this pass. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-06-prospector-spy-0dte-max-pain-pin-level.md, 2026-08-15-prospector-spy-0dte-max-pain-level-derived-from-dai.md, 2026-08-19-prospector-spy-maxpain-strike-for-the-current-tradi.md -->

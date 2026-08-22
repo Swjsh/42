@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: microstructure_internals:nys
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-12-prospector-nyse-tick-index-real-time-difference-bet.md, 2026-08-17-prospector-nyse-tick-index-tick5-realtime-net-buyse.md, 2026-08-21-prospector-nyse-tick-index-real-time-uptick-downtic.md -->

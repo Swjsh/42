@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:0d
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 1 fold-in(s) from the same family, no new information -- 2026-08-15-prospector-dealer-gamma-exposure-dge-for-spy-0dte-b.md -->

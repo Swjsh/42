@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:fred-macroec
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-09-prospector-fred-macroeconomic-releases-eg-initial-j.md, 2026-08-13-prospector-fred-macroeconomic-indicators-feed-eg-10.md -->

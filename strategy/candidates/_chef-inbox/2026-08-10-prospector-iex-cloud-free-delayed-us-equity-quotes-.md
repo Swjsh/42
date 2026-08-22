@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:iex-cloud-fr
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-13-prospector-iex-cloud-free-realtime-lastsale-and-nbb.md, 2026-08-18-prospector-realtime-trade-and-quote-data-from-iex-t.md -->

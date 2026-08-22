@@ -23,3 +23,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: academic_intraday_anomalies:
 depends:none
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the turn-of-month-effect family. Genuinely $0/self-contained: a calendar-day-of-month pattern computable from our own price history, no external data needed regardless of what either instance's Data-source line claims. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-07-prospector-turnofmonth-tom-effect-higher-returns-on.md, 2026-08-16-prospector-turnofmonth-futures-momentum-mesmnq-exhi.md, 2026-08-20-prospector-turnofmonth-tom-anomaly-elevated-returns.md -->

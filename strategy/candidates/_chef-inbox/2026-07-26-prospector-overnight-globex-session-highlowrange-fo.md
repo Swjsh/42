@@ -23,3 +23,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:overnigh
 depends:none
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): CONSOLIDATED -- canonical for the Globex overnight-session-range family, self-labels $0. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 1 fold-in(s) from the same family, no new information -- 2026-08-08-prospector-globex-overnight-us-night-highlowrange-f.md -->

@@ -46,3 +46,6 @@ the two live options are still: (a) test the bar-volume proxy explicitly labeled
 claim, lower bar, or (b) source real tick/quote data (new vendor, cost/vendor decision, flag to J
 before any paid vendor). -->
 
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 4 fold-in(s) from the same family, no new information -- 2026-08-05-prospector-order-flow-heatmap-by-luxalgo-public-pin.md, 2026-08-10-prospector-cumulative-delta-order-flow-by-lazybear-.md, 2026-08-14-prospector-order-flow-imbalance-ofi-by-luxalgo-publ.md, 2026-08-18-prospector-cumulative-delta-public-pine-script-by-l.md -->

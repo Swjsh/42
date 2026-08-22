@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:10year-v
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-12-prospector-10year-vs-2year-treasury-yield-spread-10.md, 2026-08-16-prospector-10y-2y-us-treasury-yield-spread-ust10y-u.md, 2026-08-20-prospector-10y2y-treasury-yield-spread-dynamics.md -->

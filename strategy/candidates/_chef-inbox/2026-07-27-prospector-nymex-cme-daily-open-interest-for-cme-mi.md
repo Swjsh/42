@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:nymex-cme-da
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-08-prospector-cme-daily-open-interest-and-change-for-e.md, 2026-08-12-prospector-daily-change-in-cme-open-interest-for-me.md, 2026-08-21-prospector-cme-group-daily-open-interest-changes-fo.md -->

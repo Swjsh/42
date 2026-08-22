@@ -32,3 +32,6 @@ Python from cached OHLCV (find local swing pivots, cluster by price proximity wi
 band per the levels-are-zones doctrine, weight by touch recency/count). Next bounded step:
 build the pure-Python clusterer and null-test it the same way as level_memory.py before any
 wiring proposal -- do not chase the specific TV script, build the equivalent primitive. -->
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 2 fold-in(s) from the same family, no new information -- 2026-08-05-prospector-auto-support-resistance-zones-by-zeiierm.md, 2026-08-15-prospector-auto-support-and-resistance-levels-by-ze.md -->

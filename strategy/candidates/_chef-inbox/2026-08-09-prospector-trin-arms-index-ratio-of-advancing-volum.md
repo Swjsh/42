@@ -21,3 +21,6 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: microstructure_internals:tri
 
 ## Priority / Dependencies
 depends:none
+
+
+<!-- NOTE 2026-08-22 ~04:xx ET conductor (WEEKEND, acting as chef, CHEF-INBOX-BACKLOG-DRAIN family-dedupe sweep): received 3 fold-in(s) from the same family, no new information -- 2026-08-13-prospector-trin-arms-index-advancing-issues-declini.md, 2026-08-17-prospector-trin-arms-index-volumeweighted-breadth-m.md, 2026-08-22-prospector-trin-arms-index-computed-from-nyse-advan.md -->
