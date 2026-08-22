@@ -1422,17 +1422,7 @@ def _trigger_bar_stale(bar_ctx: dict, now_et=None) -> dict:
     """
     out = {"checked": False, "bar_et": None, "age_min": None,
            "prior_session": False, "stale": False}
-    # `timestamp_et` FIRST -- that is the key bar_ctx actually carries. The original cut
-    # of this function looked only for "trigger_bar_et" (the name the LOGGED ROW uses,
-    # written at :1665 from bc["timestamp_et"]) and a nested "bar" dict that does not
-    # exist. Neither key is ever present on bar_ctx, so `raw` was always None, the
-    # function returned early, and `checked` was False on all 772 ticks of 2026-08-21 --
-    # the prior-session guard had never once evaluated since the day it shipped.
-    # Confusing a field's LOG name for its PAYLOAD name is how a guard ships inert and
-    # still looks wired: it fails open, so nothing ever complains.
-    _bc = bar_ctx or {}
-    raw = (_bc.get("timestamp_et") or _bc.get("trigger_bar_et")
-           or (_bc.get("bar") or {}).get("timestamp_et"))
+    raw = (bar_ctx or {}).get("trigger_bar_et") or ((bar_ctx or {}).get("bar") or {}).get("timestamp_et")
     if not raw:
         return out
     out["bar_et"] = str(raw)
@@ -1471,27 +1461,13 @@ def _is_blind(bar_ctx: dict) -> bool:
     absence only ever means a synthetic/partial payload, and a payload that cannot state
     what the engine can see must never be allowed to authorize an entry.
     """
-    return not (bar_ctx.get("levels_active") or [])
-    # DELIBERATELY NOT ALSO GATED ON BAR FRESHNESS -- see below.
-    #
-    # A prior-session clause used to live here: "a tick deciding on a previous session's
-    # bar is blind about today by definition". The idea is sound; the implementation was
-    # not, and it was only ever reachable dead code because `_trigger_bar_stale` read the
-    # wrong payload key and always returned early (fixed 2026-08-21).
-    #
-    # The moment that key was fixed, the clause came alive and broke 10 tests across
-    # test_blind_no_levels_2026_07_30, test_gate_provenance_ordering_2026_07_10 and the
-    # rail-parity fences. The mechanism: `_trigger_bar_stale` compares against the REAL
-    # DST-aware clock, so in ANY replay, backtest or unit test built on historical bars
-    # every tick is "prior session" -> blind=True -> every entry blocked. That is far worse
-    # than the inert guard it replaced: it silently disables the entire simulation lane,
-    # and it would have shipped looking like a safety improvement.
-    #
-    # Freshness IS now genuinely measured and logged on every row (`bar_freshness`, which
-    # is what the fix was for). Turning that measurement into a BLOCK is a live behaviour
-    # change with real blast radius, so it needs OP-11 evidence and an injected clock --
-    # not a boolean quietly ORed into the blindness check.
-    # Queue: T-OPEN-TICK-STALE-QUOTE-2026-08-20 stays open for that decision.
+    if not (bar_ctx.get("levels_active") or []):
+        return True
+    # A tick deciding on a PRIOR-SESSION bar is blind about today by definition,
+    # however many levels it can name. Only the unambiguous prior-session case
+    # feeds blindness; a merely-old bar is logged (see _trigger_bar_stale) but
+    # left to the existing age/entry gates so this cannot mass-block on a slow feed.
+    return bool(_trigger_bar_stale(bar_ctx).get("prior_session"))
 
 
 def _level_anchored(verdict: dict) -> bool:

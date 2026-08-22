@@ -255,7 +255,11 @@ class TastytradeBroker:
                    in ("FUTURE", "FUTURES")
             ]
         except Exception as e:
-            log.error("get_positions failed: %s", e)
+            # 2026-08-21 DIAGNOSABILITY FIX: some SDK/network exceptions (confirmed live in
+            # today's sandbox log) have an EMPTY str(e) -- "get_positions failed: " with
+            # nothing after the colon. Always include the exception TYPE so a future failure
+            # is at least classifiable, even when the message body is blank.
+            log.error("get_positions failed: %s: %s", type(e).__name__, e)
             return []
 
     def is_flat(self, instrument: str) -> bool:
@@ -275,7 +279,8 @@ class TastytradeBroker:
             bal = _run(_get())
             return float(bal.net_liquidating_value)
         except Exception as e:
-            log.error("get_account_equity failed: %s", e)
+            # Same empty-str(e) diagnosability fix as get_positions above.
+            log.error("get_account_equity failed: %s: %s", type(e).__name__, e)
             return None
 
     # ── Orders ──────────────────────────────────────────────────────────────────
@@ -360,6 +365,19 @@ class TastytradeBroker:
                 mag = Decimal(str(magnitude))
                 return -mag if action == OrderAction.BUY else mag
 
+            def _leg_failure_detail(resp) -> str:
+                """2026-08-21 DIAGNOSABILITY FIX: the mirror's first-ever real armed order
+                attempt today (2026-08-21T11:10 ET, MIRROR_ARMED=1, Tastytrade sandbox)
+                returned placed=False, order_ids=[] with ZERO diagnostic trail -- `if r.order`
+                silently skipped appending an id and no leg ever logged WHY. Best-effort
+                extraction of the SDK response's own error/warning fields so the NEXT attempt
+                is classifiable instead of a second silent empty list. Never raises."""
+                for attr in ("errors", "error", "warnings"):
+                    val = getattr(resp, attr, None)
+                    if val:
+                        return f"{attr}={val!r}"
+                return repr(resp)
+
             async def _place():
                 ids = []
 
@@ -376,6 +394,8 @@ class TastytradeBroker:
                 )
                 if r.order:
                     ids.append(r.order.id)
+                else:
+                    log.warning("entry leg rejected, no order id: %s", _leg_failure_detail(r))
 
                 # 2. TP1 exit LIMIT (GTC) — tp1_q contracts
                 r = await self._account.place_order(
@@ -390,6 +410,8 @@ class TastytradeBroker:
                 )
                 if r.order:
                     ids.append(r.order.id)
+                else:
+                    log.warning("tp1 leg rejected, no order id: %s", _leg_failure_detail(r))
 
                 # 3. Stop STOP (GTC) — full qty; heartbeat trims to runner qty after TP1 fills
                 r = await self._account.place_order(
@@ -404,6 +426,8 @@ class TastytradeBroker:
                 )
                 if r.order:
                     ids.append(r.order.id)
+                else:
+                    log.warning("stop leg rejected, no order id: %s", _leg_failure_detail(r))
 
                 # 4. Runner TP LIMIT (GTC) — optional
                 if runner_price and run_q > 0:
@@ -419,6 +443,8 @@ class TastytradeBroker:
                     )
                     if r.order:
                         ids.append(r.order.id)
+                    else:
+                        log.warning("runner leg rejected, no order id: %s", _leg_failure_detail(r))
 
                 return ids
 

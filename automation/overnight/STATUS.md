@@ -1,92 +1,6 @@
-## [2026-08-21T17:52:00 ET] conductor: OK — fixed run-cmd-hidden log concurrency-misattribution bug in self_check's masked-exit instrument, commit `ea0ba538`
+﻿## Known broken
 
-**Picked via STAGE 0 budget gate PROCEED ($9.05/$30, 2/4 fires used) + STAGE 1a (`desk_allocator.py`: Futures #1 but repeat-stale DECISION ROTTING note matching every prior fire tonight, no new evidence; SPY 0DTE #2 flagged `BROKEN (real-fills desk): self-check-last.json=DEGRADED`) + STAGE 1 priority-1/2 (self-check DEGRADED = an engine-health/observability defect).** Engine health GREEN (19/19, market closed quiet-OK).
-
-**Root cause:** `self_check.check_run_cmd_hidden_masked_exit()` (shipped 2026-08-04, the FIRST HALF of the long-running VBS-WRAPPER-EXIT-CODE-BLIND-SPOT thread) used a FIFO-of-1 parser — pair each `launching:` line with the NEXT `exit=` line seen. Correct only if `run_cmd_hidden.py` fires never overlap. Live evidence this fire: today's real log had **3208** `launching:` lines but the old parser produced only **1944** completed pairings (~40% loss) — this relay routinely runs 5+ concurrent `run_cmd_hidden.py` processes writing interleaved lines into the SAME shared per-date log file (confirmed via manual pairing trace: raw `exit=1` count was 27, the sibling `run_ps1_hidden.py` parser was deliberately built single-line-self-contained to AVOID this exact class, but this one wasn't). Worse than undercounting: adjacency pairing risks attributing one script's exit code to a totally different concurrently-running script.
-
-**Fix:** `run_cmd_hidden.py` now tags both its `launching:` and `exit=` log lines with `[pid=<N>]` (its own PID). `self_check.py#_parse_run_cmd_hidden_log` pairs PID-tagged lines by PID (unambiguous under any interleaving) and falls back to the original FIFO-of-1 behavior for legacy/pid-less lines, so historical logs and every existing test fixture still parse unchanged.
-
-**Verified, quoted:** 21/21 guard tests green (14 pre-existing unmodified + 7 new — interleaved-pairing, deep-3-way-interleaving, pid-tag-stripped-from-cmd, legacy-fallback, unmatched-pid-dropped, correct-attribution-under-concurrency end-to-end, and a live producer round-trip that invokes the REAL `run_cmd_hidden.py` and confirms its own output re-parses correctly). `py_compile` clean both files. Curated safety gate (`run_safety_gate.py`): 59/59 green. One pre-existing UNRELATED failure confirmed via `git stash` (`test_guard_cmd_popup_fix_ws6.py::test_run_hidden_vbs_still_recognized`, a legacy `run_hidden.vbs` pattern check — fails identically on the pre-change tree, not touched by or caused by this commit). `git show ea0ba538 --stat` confirms exactly the 3 intended files.
-
-**Rail 4 not strictly triggered (infra/observability accuracy fix — not a trading-path params/heartbeat_core/filters/placement edit) — ships per OP-22/OP-26 engine-benefit authoring path.** Guard tests are the regression check (a); revert is one clean commit, 3 files (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
-
-**Not fixed this fire (follow-up filed, `queue.md` `GUARDS-NIGHTLY-STALE-CADENCE`, LOW):** self-check still correctly reports DEGRADED post-fix — `unattended_health.py`'s exit=1 is now measured ACCURATELY and it's a real finding: `Gamma_GuardsNightly`'s output is ~40h stale vs its 36h budget. That's a genuine cadence gap in a different task (same silent-stall class this thread has fixed 3x before for other tasks), kept out of scope to stay bounded.
-
-Full thread history (5 prior passes on the same masked-exit/relay theme): `queue.md` under `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`.
-
-## [2026-08-21T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-21 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 159 tick(s) showed in_trade>0. 49 real fill(s) dated 2026-08-21: safe-2@09:51, safe-2@09:52, bold-2@09:52, risky-3@09:52, safe-2@09:53, bold-2@09:53, safe-2@09:59, safe-2@10:00, bold-2@11:06, bold-2@11:07, safe-3@11:07, risky-1@11:07, risky-3… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-21, generated_at_et=2026-08-21T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-21, regime_context.stamp_date=2026-08-21 (present=True, dates_match=True). one_liner='Yesterday 2026-08-20 (Thu) = gap-go (range 0.80%, gap -0.40%, clo… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 70 distinct near-price levels. Worst: 765.88 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 74 time(s) across 12 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-21 window_end=2026-08-20 (baseline window_end=2026-07-31, advanced=True). bear now: GREEN n=34 (delta +24 vs baseline n=10) exp=$2.44/tr, verdict_moved=True. bull now: GREEN n=28 exp=$3.21/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-21T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 425 theta-clock row(s) dated 2026-08-21 across 4 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=425, unavailable=0. sti… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-21 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-21`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-21 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
-
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.46s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-21 05:36 ET] conductor: OK — fixed desk_allocator's prediction-markets desk reading a RETIRED Kalshi lane's dead files, commit pending this fire
-
-**Picked via STAGE 0 budget gate PROCEED ($0.76/$30, 1/4 fires used) + STAGE 1a (`desk_allocator.py`): Futures still #1 but confirmed stale-re-flag (already `MES_MIRROR_ARMED_PAPER_2026_08_20`, no fill yet — no new evidence, matches every prior fire tonight) + Prediction-markets #3, flagged `+40 BROKEN (shadow desk): kalshi last-tick 274h stale`.** Engine health GREEN (19/19).
-
-**Root cause:** `assess_prediction_markets()` checked `automation/state/kalshi/last-tick.json` / `shadow-ledger.jsonl` — files belonging to `kalshi_tick.py`, the ORIGINAL SPY-directional Kalshi lane. That lane was superseded the SAME DAY it shipped (2026-08-09) by `kalshi_auto.py`, the weather lane — the only one actually scheduled (`Gamma_KalshiAuto`, 18:10 ET daily; confirmed live via `Get-ScheduledTask` that no task for `kalshi_tick.py` exists at all). `last-tick.json` has sat frozen since 2026-08-09 BY DESIGN (retired, not broken) — so this desk was permanently reporting BROKEN/0-progress against a dead sibling while the real lane (`weather-predictions.jsonl`, 84 rows, most recent write 2026-08-20T22:10 UTC) ran clean the entire time. **Same bug class caught once already in this exact file, one function up:** `assess_multi_sector()`'s 2026-08-20 fix for the identical "two lanes share a desk, check the wrong one" shape.
-
-**Fix:** `assess_prediction_markets()` now reads liveness + progress from `weather-predictions.jsonl`, via a small inline stdlib-only scorecard re-derivation (`_kalshi_weather_scorecard()`) — deliberately NOT importing `kalshi_auto.py`'s own `scorecard()`, since that module pulls in `requests`+`cryptography` for its live-trading path and `desk_allocator.py`'s own docstring promises "Pure Python, $0, no LLM, no orders" with zero external deps.
-
-**Verified, quoted:** manual before/after run — pre-fix the desk showed `+40 BROKEN (shadow desk): kalshi last-tick 274h stale`; post-fix: `4. Prediction markets  0 pts  7 cities scored, best n=7/20, 0 earned` with `+10 PROGRESS toward the arming bar (35%)`, `broken: []`. 7 new guard tests (`test_desk_allocator_kalshi_lane_fix_2026_08_21.py`) — stale-dead-sibling-no-longer-poisons-liveness, genuinely-stale-weather-lane-still-flags, missing-file-reports-missing, progress-tracks-scorecard-not-dead-row-count, city-earning-the-bar-is-counted, plus a live-state canary against real repo state. All 7 green + existing 8-test `test_desk_allocator_2026_08_20.py` suite green (15/15 total, no regression). `py_compile` clean. Curated safety gate (`run_safety_gate.py`): 59/59 green.
-
-**Rail 4 not strictly triggered (infra/observability fix — not a trading-path params/heartbeat_core/filters/placement edit) — ships per OP-22/OP-26 engine-benefit authoring path.** Guard tests are the regression check (a); revert is a single clean commit, 2 files (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
-
-**Lesson filed:** `strategy/candidates/_lesson-inbox/desk-health-check-must-follow-the-lane-pivot-2026-08-21.md` — generalizable rule (grep every consumer of a retired lane's output files before calling a pivot shipped) + a suggested guard pattern (retired producers should write a terminal `{"retired": true}` marker).
-
-**Not fixed this fire (follow-up filed, `queue.md` `KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE`, LOW):** `gamma_cockpit_data.py`'s kalshi engine-tick block has the identical stale-file read — display-only surface, lower urgency than the allocator's decision-input role, kept this fire bounded.
-
-## [2026-08-21 01:43 ET] MULTI-TICKER: evaluation surface LIVE for Friday; levels hypothesis KILLED; entries NOT armed
-
-**J's goal: "set up to trade other tickers Friday, with a complex evaluation system for each ticker and its prospective trade."** Half delivered in full, half honestly refused.
-
-**DELIVERED -- `Gamma_MultiEvaluate`, verified END TO END** (not merely registered): fired the real scheduled action, 48KB artifact written, zero errors, 8 tickers evaluated. Fires 09:00 ET premarket then every 30 min to 15:30 ET. Per ticker: tiered ZONE MAP (supply/demand shelves, pivots, PDH/PDL/PDC, premarket + intraday extremes) with distance in percent AND ATR, market structure (HH/HL/BOS/CHoCH), relative volume, VIX regime, per-side score with **named** triggers and **named** blocking filters, and for the top names the concrete prospective trade -- contract, strike, expiry, premium, spread, size, dollar risk, catastrophe cap. Every field is a real measurement or an explicit UNAVAILABLE with a reason; nothing defaults to a plausible number.
-
-**NOT DELIVERED, and it should not be: entries on non-SPY names.** No validated signal exists for them. Tonight did not weaken that -- it strengthened it by killing the most plausible fix. Arming would break Rule 1 (no setup, no trade) and Rule 10. Lane stays STOPPED, `Gamma_MultiCore` stays disabled, and every card prints the STOPPED state so an evaluation cannot be mistaken for an authorization.
-
-**CORRECTION I OWE J:** earlier tonight I said *"the levels ARE the edge."* That was a hypothesis reported as a finding, and it is now falsified. SPY control, 3 arms, zero errors: fork 51.08% / prod_base 48.90% / **prod_full (all four level families) 48.97%**. All 9 symbols paired, every arm, fails its null -- largest sigma anywhere +0.55, level-swap deltas -3.61 to +2.56 with no consistent sign. Four families of production-grade levels moved the forked trigger by **nothing**.
-
-**What that leaves standing:** production's trigger really does carry direction (58.23% at +10min, **+4.89 sigma**, n=881). The fork's does not (~49% across 12,800 signals and three level sources). By elimination the gap is the **filter stack** -- `multi/lib/filters.py` is a *re-implementation*, and one scoring 49% where the original scores 58% is a different strategy wearing the same filter names. Next hypothesis, and it gets its own prereg and null gate before anything is built on it.
-
-**THREE REAL BUGS the verification caught, every one of which would have hit at 09:00 on a live morning:** (a) **timezone** -- the box runs Mountain and Task Scheduler fires on LOCAL wall-clock, so my "09:00" would have produced the premarket card at 11:00 ET, ninety minutes after the open; now 07:00 local with a verify block that PROVES the mapping rather than asserting it. (b) **silent success** -- the first fire returned `LastTaskResult=0` and wrote nothing, because `run_cmd_hidden` discards stdout without `--log` and the wscript hop swallows the exit code; `--log` is now wired and is not optional. (c) **a latent crash** the log immediately exposed -- `evaluate_admission()` missing required keyword `correlations`, which no hand-test hit because every symbol I tested resolved to WATCH and never reached that line; fixed and generalized into a static call-site signature-contract test over all five composed modules.
-
-**REVOKE:** `Unregister-ScheduledTask -TaskName Gamma_MultiEvaluate` removes the surface; the commit is one clean revert. 13 guards green (5 new, 3 RED-proofed and restored). Zero live-money, secret, or SPY-engine surfaces touched.
-
-﻿## Live watch
-
-- [2026-08-21T12:44:01 ET] THETA STALL :: safe-3 SPY260821C00766000 qty=3 :: est theta burn -6.87 vs est delta gain -10.50 over last 15min (mid=0.945, unrealized=-5.0%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-21T12:37:01 ET] THETA STALL :: safe-2 SPY260821C00766000 qty=3 :: est theta burn -5.19 vs est delta gain -42.00 over last 15min (mid=0.885, unrealized=-8.33%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-21T12:36:01 ET] THETA STALL :: risky-1 SPY260821C00766000 qty=5 :: est theta burn -6.40 vs est delta gain -85.00 over last 15min (mid=0.855, unrealized=-16.16%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-21T11:43:01 ET] THETA STALL :: risky-3 SPY260821C00768000 qty=10 :: est theta burn -5.40 vs est delta gain +0.00 over last 15min (mid=0.495, unrealized=11.91%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-21T10:07:01 ET] THETA STALL :: safe-2 SPY260821P00765000 qty=3 :: est theta burn -6.75 vs est delta gain -66.00 over last 15min (mid=0.975, unrealized=-18.8%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-21T10:05:01 ET] THETA STALL :: risky-3 SPY260821P00763000 qty=5 :: est theta burn -5.10 vs est delta gain +0.00 over last 15min (mid=0.445, unrealized=-24.19%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-08-21T10:05:01 ET] THETA STALL :: bold-2 SPY260821P00763000 qty=5 :: est theta burn -5.05 vs est delta gain +0.00 over last 15min (mid=0.475, unrealized=-21.31%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
-
----
-
-## Known broken
-
-- [2026-08-21T15:32:55] GATE-EXPIRY RED :: core_strategy_bear :: CORE STRATEGY BEAR recency RED: real-fills exp $-16.71/tr NEGATIVE-or-flat, n=31 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=21 exp=$116.89/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money] :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate core_strategy_bear
+- [2026-08-21] TRENDLINE-SHADOW BLIND :: no usable 5m bars for 2026-08-21 (cumulative spy_5m file did not refresh) :: EOD trendline section will read BLIND :: re-run: backtest/.venv/Scripts/python.exe setup/scripts/trendline_shadow.py --date 2026-08-21
 
 
 
@@ -302,15 +216,126 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 **Rail 4 (PAPER trading-path edit â€” arming a NEW paper execution leg, not live money):** guard tests are the regression guard (a) â€” 12 new + 81 total green; revert is `git revert` on this commit plus re-running `install-futures-mirror.ps1` after removing ` --armed` from `$wscriptArgs` (b); this entry + Discord ping is the REVOKE report (c). Zero live-money surfaces touched â€” `TT_SANDBOX=true`, same double-gate (OP-0 #1 + a new venue) as the existing broker lane. Lesson filed: `_lesson-inbox/shared-broker-account-cross-lane-position-attribution-2026-08-20.md`. Follow-up: `FUTURES-MIRROR-CROSS-LANE-CLAIM` (queue.md, LOW). `automation/state/worker-registry.json` futures desk entry updated to reflect ARMED status.
 
+## [2026-08-19 ~23:5x ET] OK -- THE COMMAND CENTER shipped: one HTML page, the six repeated questions pre-answered
 
-### DEGRADED: self-check 2026-08-21T17:39:18
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 8x). Check the named script's own stderr log for the real cause.
+**J directive:** "review everything regarding an app / home base / command center, find the Gamma Journal calendar, consolidate everything into one. I'd prefer a localhost HTML page -- more editable and we can make it look how I want it."
 
-### DEGRADED: self-check 2026-08-21T17:39:56
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 8x). Check the named script's own stderr log for the real cause.
+**Recon first (5 prior embodiments, per `markdown/planning/GAMMA-WORKER.md`):** Next.js Trade House Â· Electron gamma-companion :4317 Â· Discord voicebot Â· GAMMA HQ terminal Â· Next.js /gamma. Their own post-mortem names the common thread -- "presence kept getting solved as an ADD-ON channel instead of upgrading the ONE surface J might actually open." **Verified live: `localhost:3000/gamma` is DEAD** (no response) despite `Gamma_DashboardKeepalive` existing; `:4317` still answers. A home base that needs a babysat Node server is offline exactly when it is needed.
 
-### DEGRADED: self-check 2026-08-21T17:46:15
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-21) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-21.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- earnings_calendar.py (exit=[1], 1x), unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+**Shipped -- NOT a sixth channel, the consolidation:** `setup/scripts/gamma_home.py` -> `analysis/home/index.html`. One self-contained file, no server, no port, cannot be "down". Same pattern J built himself hours earlier in `journal_calendar.py`.
+- **THE ANSWERS** -- the six questions J repeats, pre-answered from live state: are we good to trade (engine+unattended+self-check) Â· what's the status (newest STATUS entry) Â· what are we theorizing (today-bias falsifiable claims) Â· what's our edge (winner SIGNATURE, real fills) Â· where's the money (BOOK net, calendar). **This is autonomy item #1: the answer is there before he asks.**
+- **The journal calendar is IN it** -- month grid, per-arm + BOOK, gross/net toggle, link to the full calendar. Zero duplicated logic: money from `calendar-data.json`, presence from `gamma_hq.py --json`.
+- **Every card names its source file and age.** A missing source renders a visible NO DATA card -- never a plausible default (C7).
+
+**Verified, quoted:** `Gamma_Home` task registered and **proven by deleting index.html and firing it** -- regenerated 27,642 bytes, LastTaskResult 0. Live DOM check: 13 populated August days, month -$223, all-time -$1,941/35 days, 6 arms, 3 clocks, 3 wants, 4 ships, 5 answers, 0 NO DATA. 33 guard tests green (home + verifier + J's existing calendar suite, no regression).
+
+**Two real bugs caught by LOOKING at the page, not by tests:** (1) `subprocess(text=True)` decodes with the cp1252 locale on this box -- every em-dash/middot rendered as `Ã‚Â·`/`Ã¢â‚¬"`; proven directly (`text=True, no encoding -> "Wednesday 2026-08-19 Ã‚Â· 23:56 ET"`) and fixed with an explicit `encoding="utf-8"`. (2) raw markdown leaked onto cards (`> **Signal J wakes to...**`) and falsifiable predictions dumped as raw JSON; added a markdown cleaner -- whose first cut over-reached and turned `recency_check.py` into `recencycheck.py`, now guarded.
+
+**Open:** `LAUNCH-GAMMA-HOME.vbs` regenerates-then-opens but has NOT been double-click tested by J. Autonomy items #2 (a translator that says "what this means for you") and #3 (numeric-claim verification) remain queued.
+
+## [2026-08-19 ~20:49 ET] conductor: OK -- closed a THIRD entry-claim race (atomic-entry-claim RED -> GREEN), commit `da8fb973`
+
+**Picked via STAGE 1 priority-2 (Engine RED flag) -- outranks queue.md/inbox items.** Budget gate PROCEED ($7.41/$30 pre-fire, 2/4 fires used). Engine health GREEN, but `incident_fix_status.py --alert` (the 2026-08-14 -$1,569 double-entry incident roster) showed `atomic-entry-claim` RED: the storm-contention guard test measured a real 1/40 multi-winner outcome (ship-time baseline for that exact test was 0/300) -- a residual double-entry race on the EXACT incident path this roster exists to guard, so this outranked everything else in the queue.
+
+**Root cause (two stacked races, not one).** `_acquire_claim()`'s rename-based stale-takeover had: (1) a **TOCTOU** -- staleness was judged from a READ taken *before* the takeover rename, so a slow contender could act on a stale verdict and steal a claim a fast contender had *just* legitimately won (`test_toctou_steals_a_legitimately_fresh_claim_from_under_a_new_owner`, new, reproduces this deterministically 2/2 on pre-fix code); (2) a **separate gap** -- the winner's rename-away step leaves the claim file briefly absent from the directory, letting an unrelated contender's own independent `O_CREAT|O_EXCL` fast path slip in. **The trap:** fixing (1) alone widened (2) -- measured LIVE via a traced `os.rename` call log that fixing the TOCTOU took the storm-test failure rate from 1/40 to **39/40**, with the smoking gun being a "winner" that never called `os.rename` at all (it won purely through the untouched fast path while the file sat empty during the now-longer critical section).
+
+**Shipped:** replaced the rename dance entirely with an OS-level exclusive lock (`msvcrt.locking`, Windows) -- every contender past the very first claim locks the *existing* file and overwrites content in place; the file is never removed from the directory again, so there is exactly ONE arbiter (the lock) instead of two racing primitives. Windows releases the lock automatically on process crash/exit, so no separate stale-lock recovery logic (with its own smaller TOCTOU) is needed. 11/11 guard tests green, re-run 5x clean (55 executions, 0 failures); broader `heartbeat_core`/`claim` test slice 167 passed, 1 skipped. `incident_fix_status.py`'s static mechanism-presence checker updated to look for the new lock-based identifying strings instead of the retired rename-based one (was flagging a false "MISSING: rename-takeover" RED for the right reason -- mechanism legitimately changed -- caught and fixed before it could confuse the next fire). Lesson filed: `_lesson-inbox/narrowing-a-race-window-can-widen-a-different-one-2026-08-19.md` (the general pattern: fixing one race's window can widen a different one when two independent primitives contend for the same resource; only removing a primitive, not narrowing a window, actually closes it).
+
+**Verified:** `incident_fix_status.py --alert` re-run post-fix: `atomic-entry-claim` OK/GREEN (`O_EXCL create + OS-level lock-arbitrated stale takeover + placement gated`). Two OTHER pre-existing RED items on this same roster (`conviction-c4-c5`, `no-console-popups`) remain untouched -- out of this fire's bounded scope, already independently tracked across prior days' STATUS entries.
+
+**Rail 4 (PAPER trading-path edit):** guard test suite is the regression guard (a); revert is a single clean commit (b); this entry is the REVOKE report (c) -- also pinged to Discord. Zero LIVE-money surfaces touched. **Revert:** `git revert da8fb973` (3 modified files + 1 new lesson-inbox doc; reintroduces the 1/40 residual race, not the original -$1,569 double-entry, since the prior rename-based fix stays in git history).
+
+## [2026-08-19 20:47 ET] RED -- INCIDENT FIX ROSTER REGRESSED (2 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.70s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.40s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-19 20:45 ET] RED -- INCIDENT FIX ROSTER REGRESSED (3 RED, 0 unguarded)
+
+- **atomic-entry-claim** -- closes: double entry (two processes, 21ms apart)
+  - code: MISSING: rename-takeover
+  - guard: 11 passed in 0.75s
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.69s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.32s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-19 20:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (3 RED, 0 unguarded)
+
+- **atomic-entry-claim** -- closes: double entry (two processes, 21ms apart)
+  - code: O_EXCL create + rename-arbitrated stale takeover + placement gated
+  - guard: 1 failed, 9 passed in 0.83s
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.74s
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 2 passed in 0.40s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-19 ~17:5x ET] OK -- agent-orchestration research + the master/worker org chart made enforceable
+
+**J directive:** research current agent-orchestration best practices, turn Gamma into the master, turn the repeated asks into workers with tools. Success bar J set: a fully autonomous Gamma. Full report: `analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md` (109-agent deep-research fan-out, every claim 3-vote adversarially verified).
+
+**Verdict: the diagram is already built here 3x over -- more agents is the WRONG next move.** Anthropic's own 2026 guidance is single-agent-first (multi-agent = 3-10x tokens, contraindicated where agents share context). The measured defects are unverified worker output and undelivered results, not missing workers.
+
+**Three measured findings:**
+- **12 of 690 free-tier worker reports FABRICATED artifacts** that never existed (2026-06-25..08-18, 1.7%, undetected 2 months). Canonical scar: the 08-18 strategist report claiming the weekly-options Phase 0 build was done.
+- **1 blocker -> 9 duplicate queue.md escalations** in a day: `gamma_manager.escalate()` had no dedupe and the coordinator re-words every fire, so string equality never matched.
+- **Notional burn $430-$1,554/day** over the last 10 logged days (mean ~$780; Max-plan capacity, not a bill -- but the same pool the heartbeat ticks on). Fan-out was uncapped.
+
+**Shipped (all verified, quoted):** `worker_output_verify.py` anti-fabrication gate (wired into gamma_manager dispatch: FABRICATED = quarantined + escalated, never banked) Â· fuzzy escalation dedupe with a MEASURED threshold (dupes 0.367-0.913 vs distinct 0.176-0.206 -> 0.30, plus an anti-gag test) Â· `worker-registry.json` + `worker_registry.py --check` org chart (GREEN, 9 workers, 6 J-intents, 0 drift; RED-proofed against 8 injected drift classes) Â· fan-out caps depth=1/concurrency=5 at the conductor launch point Â· 13 guard tests passing.
+
+**The honest gap to "fully autonomous" -- it is DELIVERY, not machinery.** Mining `j-question-ledger.jsonl` (29 genuine J prompts) gives 6 repeated intents; **5 of 6 already have complete machinery** and J still has to ask, because 4 of 6 are PULL_ONLY -- the answer is on disk before he asks and nothing pushes it. One intent (`explain_for_me`) has no owner at all. Queue items filed.
+
+## [2026-08-19T16:15:02 ET] YELLOW -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-19 -- 4 GREEN / 1 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 56 tick(s) showed in_trade>0. 31 real fill(s) dated 2026-08-19: safe-2@10:41, bold-2@10:41, safe-2@10:42, bold-2@10:42, safe-3@10:42, risky-1@10:42, safe-2@10:43, risky-3@10:43, bold-2@10:43, safe-2@10:44, bold-2@10:44, safe-2@10:45, bold-2@1â€¦ |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual reâ€¦ | regime-stamp.json date=2026-08-19, generated_at_et=2026-08-19T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-19, regime_context.stamp_date=2026-08-19 (present=True, dates_match=True). one_liner='Yesterday 2026-08-18 (Tue) = gap-go (range 0.34%, gap -0.52%, cloâ€¦ |
+| WS3 level hysteresis | YELLOW | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing wheneverâ€¦ | 386 safe core ticks, 68 distinct near-price levels. Worst: 770.59 flipped 13x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 154 time(s) across 27 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-19 window_end=2026-08-18 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=29 (delta +19 vs baseline n=10) exp=$-14.83/tr, verdict_moved=False. bull now: GREEN n=23 exp=$3.13/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STILâ€¦ | snapshot ts_et=2026-08-19T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 173 theta-clock row(s) dated 2026-08-19 across 5 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=173, unavailable=0. stiâ€¦ |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_corâ€¦ | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-19 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-19`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## Live watch
+
+- [2026-08-20T15:09:01 ET] THETA STALL :: safe-2 SPY260820P00764000 qty=3 :: est theta burn -11.13 vs est delta gain -9.00 over last 15min (mid=0.725, unrealized=-10.13%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-20T14:11:01 ET] THETA STALL :: bold-2 SPY260820P00763000 qty=5 :: est theta burn -5.20 vs est delta gain +0.00 over last 15min (mid=0.665, unrealized=88.23%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-20T14:08:01 ET] THETA STALL :: risky-3 SPY260820P00763000 qty=10 :: est theta burn -6.10 vs est delta gain +0.00 over last 15min (mid=0.485, unrealized=37.14%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-20T13:27:01 ET] THETA STALL :: bold-2 SPY260820P00764000 qty=5 :: est theta burn -5.30 vs est delta gain +0.00 over last 15min (mid=0.395, unrealized=8.82%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-20T13:22:01 ET] THETA STALL :: risky-3 SPY260820P00764000 qty=10 :: est theta burn -5.30 vs est delta gain +0.00 over last 15min (mid=0.375, unrealized=2.94%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-20T13:06:01 ET] THETA STALL :: safe-2 SPY260820P00766000 qty=3 :: est theta burn -5.22 vs est delta gain +0.00 over last 15min (mid=0.735, unrealized=4.29%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-19T11:59:01 ET] THETA STALL :: bold-2 SPY260819C00770000 qty=5 :: est theta burn -5.55 vs est delta gain -230.00 over last 15min (mid=1.125, unrealized=-21.01%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-19T11:59:01 ET] THETA STALL :: risky-1 SPY260819C00770000 qty=5 :: est theta burn -5.35 vs est delta gain -75.00 over last 15min (mid=1.125, unrealized=-2.68%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-19T10:50:01 ET] THETA STALL :: risky-1 SPY260819C00771000 qty=5 :: est theta burn -5.85 vs est delta gain -5.00 over last 15min (mid=0.855, unrealized=-17.93%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-19T10:49:01 ET] THETA STALL :: bold-2 SPY260819C00771000 qty=5 :: est theta burn -5.15 vs est delta gain -17.50 over last 15min (mid=0.965, unrealized=-12.5%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
+
+---
+
+
+## Kitchen
+Kitchen: alive, queue 76 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+
+
+
+

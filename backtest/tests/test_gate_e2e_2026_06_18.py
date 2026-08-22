@@ -412,17 +412,7 @@ def test_parity_gate_values_present_in_params() -> None:
     assert p["block_level_rejection"] is True
     assert p["entry_bar_body_pct_min"] == 0.20
     assert p["block_bull_1100_1200"] is True
-    # STALE PIN CORRECTED 2026-08-21. This asserted True, but block_elite_bull was
-    # DELIBERATELY LIFTED on both cores on 2026-08-03 (commit f4890edb, "trade-to-learn
-    # trial 2 (SHIP B)") -- so the param is right and this pin had been wrong for 18 days,
-    # sitting RED in the full suite while every commit passed the curated safety gate.
-    # Same class as the three stale pins the 2026-08-20 ATM revert left behind: a guard
-    # that pins LIVE WIRING rots the moment that wiring legitimately changes.
-    # The gate itself is still asserted to EXIST as a key -- only its armed value moved.
-    assert p["block_elite_bull"] is False, (
-        "block_elite_bull was lifted 2026-08-03 (f4890edb). If it has been re-armed, "
-        "update this pin AND cite the ratification that re-armed it."
-    )
+    assert p["block_elite_bull"] is True
     assert isinstance(a["block_bull_morning_agg"], bool)  # J disabled to False 2026-06-24; value tested in test_heartbeat_param_annotation_drift.py
 
 

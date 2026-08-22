@@ -69,12 +69,7 @@ def test_the_only_file_it_writes_is_its_own_ledger():
 
 # ---------------------------------------------------------------- no look-ahead
 def test_the_fit_uses_only_prior_bars():
-    # Asserts the SLICE, not the call spelling. The original pinned the literal
-    # "detect_trendlines(day.iloc[:i])" and went RED on 2026-08-21 when the import was
-    # made lazy (`_detect_trendlines()(day.iloc[:i])`) -- a pure import-shape change that
-    # cannot affect look-ahead. A guard should pin the PROPERTY it protects; pinning the
-    # spelling makes it fire on refactors and stay silent on real regressions.
-    assert "(day.iloc[:i])" in SRC, (
+    assert "detect_trendlines(day.iloc[:i])" in SRC, (
         "the fit must slice bars[0:i] — including bar i leaks the bar being judged (C6)"
     )
     assert "day.iloc[:i + 1]" not in SRC and "day.iloc[:i+1]" not in SRC

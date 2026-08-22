@@ -314,17 +314,7 @@ def main() -> int:
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(out, encoding="utf-8")
     print(f"wrote {dest.relative_to(REPO)} ({len(out)} chars)")
-    # The report is written UTF-8 and is already safe on disk by this point. Echoing a
-    # preview to a cp1252 console, however, raised UnicodeEncodeError on the em-dashes
-    # and emoji -- so this task exited 1 EVERY night despite writing a perfect file.
-    # An exit code that reports failure on success is the same C7 class as one that
-    # reports success on failure: it trains everyone to ignore it. The preview is a
-    # convenience, so it degrades; the write is the product, so it decides the code.
-    try:
-        print(out[:1200])
-    except UnicodeEncodeError:
-        sys.stdout.reconfigure(errors="replace")
-        print(out[:1200])
+    print(out[:1200])
     return 0
 
 

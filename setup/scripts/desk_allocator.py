@@ -110,11 +110,24 @@ def assess_futures() -> dict:
     bar = mirror.get("arming_bar", {})
     have, need = bar.get("round_trips_have", 0), max(1, bar.get("round_trips_needed", 20))
     armable = bool(bar.get("armable"))
+    # 2026-08-21 FALSE-POSITIVE FIX: this flag used to be a bare re-read of the arming bar's
+    # OWN "armable" field, so it kept screaming "DECISION ROTTING: not armed" every fire even
+    # after the mirror WAS armed (Gamma_FuturesMirror --armed, registered 2026-08-20) -- cost
+    # >=2 conductor fires (2026-08-21 01:20 ET, and this one) re-deriving "already armed" by
+    # hand from worker-registry.json prose. mirror-broker-orders.jsonl is written ONLY from
+    # the real armed code path (_broker_execute_entry in futures_mirror_shadow.py, gated on
+    # MIRROR_ARMED=1) -- ANY row in it, regardless of outcome (placed/skipped/error), is
+    # hard evidence the lane is already armed and has actually executed. Presence there, not
+    # the bar's static "armable" flag, is what should silence the rotting alarm.
+    already_armed = (fut / "mirror-broker-orders.jsonl").exists() and \
+        (fut / "mirror-broker-orders.jsonl").stat().st_size > 0
     return {
-        "real_fills": False, "armable_unarmed": armable, "dead_signal": False,
+        "real_fills": False, "armable_unarmed": armable and not already_armed,
+        "dead_signal": False,
         "progress": min(1.0, have / need), "broken": broken,
         "headline": "MES mirror %s/%s trips, %s%s" % (
             have, need, _money(mirror.get("total_pnl_usd")),
+            ", ARMED (awaiting live fills)" if armable and already_armed else
             ", ARMABLE" if armable else ""),
     }
 
