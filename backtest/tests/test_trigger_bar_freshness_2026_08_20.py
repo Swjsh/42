@@ -59,12 +59,34 @@ def test_the_actual_stale_bars_from_the_open_are_caught(bar_et):
     assert r["age_min"] > 1000, r
 
 
-def test_a_prior_session_bar_makes_the_tick_blind():
-    """blind must mean DO NOT TRADE. A yesterday bar is blind about today however
-    many levels the tick can name."""
+def test_a_prior_session_bar_is_FLAGGED_but_does_not_blind():
+    """SUPERSEDED 2026-08-21. This asserted `_is_blind(stale) is True`.
+
+    That was the intent when this file was written, and it was never actually reachable:
+    `_trigger_bar_stale` read the wrong payload key (`trigger_bar_et`, the LOG field name,
+    instead of `timestamp_et`), so it returned early on every real tick and the clause in
+    `_is_blind` never fired. The bug was found on 2026-08-21 by reading a live row --
+    `bar_freshness.checked` was False on all 772 of that session's ticks.
+
+    Fixing the key made the clause live, and it immediately broke 10 tests across
+    test_blind_no_levels_2026_07_30, test_gate_provenance_ordering_2026_07_10 and the
+    rail-parity fences. Root cause: `_trigger_bar_stale` compares against the REAL
+    DST-aware clock with no injection, so in ANY replay, backtest or unit test built on
+    historical bars every tick reads "prior session" -> blind -> every entry blocked. It
+    would have silently disabled the entire simulation lane while looking like a safety
+    improvement (verified against a true baseline: 1 pre-existing failure before the fix,
+    11 after).
+
+    So freshness is now MEASURED and logged on every row -- which was the real defect --
+    and `_is_blind` stays levels_active-only. Turning the measurement into a BLOCK needs
+    OP-11 evidence and an injected clock. Queue: T-OPEN-TICK-STALE-QUOTE-2026-08-20.
+    """
     stale = ctx("2026-08-19T15:50:00-04:00")
-    assert hc._trigger_bar_stale(stale)["prior_session"] is True
-    assert hc._is_blind(stale) is True
+    assert hc._trigger_bar_stale(stale)["prior_session"] is True, "must still be MEASURED"
+    assert hc._is_blind(stale) is False, (
+        "_is_blind consults wall-clock freshness again -- that blinds every replay, "
+        "because historical bars are always 'prior session' against the real clock"
+    )
 
 
 # ------------------------------------------------- no false positives

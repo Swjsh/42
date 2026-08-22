@@ -42,7 +42,24 @@ TRACKED: dict[str, str] = {
         "unconditional trendline-break baseline; TRENDLINE-BREAK-AT-LEVEL's G1 control",
     "analysis/pain-ledger/mae-mfe.json":
         "MAE/MFE scored positions; ribbon_flipback_ab_v2's frozen 219-row population "
-        "(APPEND-ONLY -- tracked by frozen-prefix count, see record_count_note)",
+        "(APPEND-ONLY -- tracked by frozen-prefix count, see APPEND_ONLY below)",
+}
+
+# APPEND-ONLY datasets: rel -> the number of leading records that are FROZEN.
+#
+# The manifest has claimed "tracked by frozen-prefix count" since 2026-08-15, but verify()
+# only ever compared a WHOLE-FILE hash -- so this file DRIFTED every single trading day the
+# producer appended to it (303 -> 350 by 2026-08-21), and the nightly suite carried a
+# permanent RED that meant "we traded today". A guard that fires on normal operation is one
+# everybody learns to skip, which is exactly how the 190->191 replay corruption nearly got
+# waved through as a stale pin.
+#
+# What actually needs protecting is the FROZEN PREFIX a published conclusion stands on --
+# ribbon_flipback_ab_v2's first 219 rows. Later rows are new trades, not tampering. So the
+# prefix is hashed and the tail is allowed to grow; shrinking, reordering or editing any
+# frozen row still DRIFTS.
+APPEND_ONLY: dict[str, int] = {
+    "analysis/pain-ledger/mae-mfe.json": 219,
 }
 
 
@@ -80,7 +97,36 @@ def fingerprint(rel: str) -> dict:
     canon = json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
     out["sha256_16"] = hashlib.sha256(canon).hexdigest()[:16]
     out["n_records"] = _records(obj)
+    n_frozen = APPEND_ONLY.get(rel)
+    if n_frozen is not None:
+        out["frozen_prefix_n"] = n_frozen
+        out["frozen_prefix_sha256_16"] = _prefix_hash(obj, n_frozen)
     return out
+
+
+def _record_list(obj: Any) -> "list | None":
+    """The record list itself -- same key order _records() counts."""
+    if isinstance(obj, list):
+        return obj
+    if isinstance(obj, dict):
+        for k in ("trades", "rows", "positions", "records", "entries"):
+            v = obj.get(k)
+            if isinstance(v, list):
+                return v
+    return None
+
+
+def _prefix_hash(obj: Any, n: int) -> "str | None":
+    """Canonical hash of the FIRST n records. None when the file is too short.
+
+    Too-short is NOT silently OK: verify() treats a missing prefix hash as DRIFTED,
+    because a file that can no longer produce its own frozen prefix has been truncated.
+    """
+    rows = _record_list(obj)
+    if rows is None or len(rows) < n:
+        return None
+    canon = json.dumps(rows[:n], sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(canon).hexdigest()[:16]
 
 
 def load_manifest() -> dict:
@@ -103,6 +149,28 @@ def verify(strict_paths: "list[str] | None" = None) -> dict:
             results[rel] = {"status": "UNRECORDED", "now": now}
         elif not now.get("present"):
             results[rel] = {"status": "MISSING", "was": was}
+        elif rel in APPEND_ONLY:
+            # Append-only: the frozen prefix must be byte-identical and the file must not
+            # shrink. Growth past the prefix is the producer doing its job.
+            pre_now, pre_was = now.get("frozen_prefix_sha256_16"), was.get("frozen_prefix_sha256_16")
+            grew = (now.get("n_records") or 0) >= (was.get("n_records") or 0)
+            if pre_now is None:
+                results[rel] = {"status": "DRIFTED", "was": was, "now": now,
+                                "reason": f"file can no longer produce its frozen "
+                                          f"{APPEND_ONLY[rel]}-record prefix -- truncated?"}
+            elif pre_was is not None and pre_now != pre_was:
+                results[rel] = {"status": "DRIFTED", "was": was, "now": now,
+                                "reason": "the FROZEN PREFIX changed -- a published "
+                                          "population was edited, not merely appended to"}
+            elif not grew:
+                results[rel] = {"status": "DRIFTED", "was": was, "now": now,
+                                "reason": "append-only dataset SHRANK"}
+            else:
+                results[rel] = {"status": "OK", "sha256_16": now["sha256_16"],
+                                "n_records": now.get("n_records"),
+                                "append_only_prefix_n": APPEND_ONLY[rel],
+                                "appended_since_record": (now.get("n_records") or 0)
+                                                         - (was.get("n_records") or 0)}
         elif now["sha256_16"] != was.get("sha256_16"):
             results[rel] = {
                 "status": "DRIFTED", "was": was, "now": now,

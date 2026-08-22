@@ -347,14 +347,43 @@ def test_live_ledger_still_reproduces_the_canonical_book():
 
     This is the tripwire for silent ledger truncation or rewrite. Measured 2026-08-19:
     303 round trips, gross -$1,805.00.
+
+    WINDOW-BOUNDED 2026-08-21. The original compared the WHOLE live ledger against a
+    DATED SNAPSHOT (trade-matrix.json, generated 2026-08-19, date_range 06-26..08-19).
+    The ledger is append-only, so that comparison was guaranteed to go RED on the next
+    trading day and did: 329 reconstructed vs 303 claimed, purely because we traded on
+    08-20 and 08-21.
+
+    That failure mode is worse than useless -- "the ledger grew" and "the ledger was
+    truncated or rewritten" reported IDENTICALLY, so the tripwire fired constantly and
+    said nothing. Same bug the bold_tier_rail regression anchor had (it drifted to n=20
+    and sat RED for days catching nothing) and it has the same fix: bound the live side
+    to the window the snapshot actually covers, using the snapshot's OWN declared
+    date_range rather than a second hardcoded date that can drift from it.
+
+    Trades after the snapshot's window are not evidence of corruption; they are evidence
+    of trading. Re-running trade_matrix_build.py extends the window and this keeps working.
     """
     tm_path = REPO / "analysis" / "recommendations" / "trade-matrix.json"
     if not tm_path.is_file():
         pytest.skip("canonical trade-matrix.json not present")
     tm = json.loads(tm_path.read_text(encoding="utf-8"))
-    sem = al.ledger_semantics(REPO / al.CRITICAL)
-    assert sem["round_trips"] == tm["row_count"], (
-        f"ledger reconstructs {sem['round_trips']} round trips but the canonical table "
-        f"claims {tm['row_count']} -- the ledger may have been truncated or rewritten")
-    assert abs(sem["gross_pnl"] - tm["totals"]["gross"]) < 0.005, (
-        f"ledger gross {sem['gross_pnl']} != canonical {tm['totals']['gross']}")
+    lo, hi = tm["date_range"]
+
+    sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
+    import fills_fifo  # noqa: E402
+
+    trips, gross = 0, 0.0
+    for arm in al.ACTIVE_ARMS:
+        for t in fills_fifo.mine_real_arm_fills(arm, REPO / al.CRITICAL):
+            if lo <= t["date"] <= hi:          # the snapshot's OWN window, not a copy of it
+                trips += 1
+                gross += float(t["real_pnl"])
+    gross = round(gross, 2)
+
+    assert trips == tm["row_count"], (
+        f"over the canonical window {lo}..{hi} the ledger reconstructs {trips} round trips "
+        f"but the table claims {tm['row_count']} -- the ledger may have been truncated or "
+        "rewritten. (Trades AFTER that window are expected and are excluded here.)")
+    assert abs(gross - tm["totals"]["gross"]) < 0.005, (
+        f"over {lo}..{hi} ledger gross {gross} != canonical {tm['totals']['gross']}")

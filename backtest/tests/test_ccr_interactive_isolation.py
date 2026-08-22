@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -320,6 +321,29 @@ def _iter_repo_text_files():
         yield path
 
 
+# ARCHIVES OF ALLOWLISTED NARRATIVE FILES ARE ALLOWLISTED TOO (added 2026-08-21).
+#
+# `automation/overnight/queue.md` and `STATUS.md` are both sanctioned narrative surfaces,
+# and both are ROLLED OFF into dated archive siblings by retention
+# (queue-archive-YYYY-MM-DD.md, STATUS-archive-YYYY-MM.md). So the ordinary act of
+# archiving MOVES sanctioned text out of an allowlisted file and into an unlisted one,
+# and the scan goes RED for a reason that is pure housekeeping -- exactly what happened
+# with queue-archive-2026-08-19.md.
+#
+# Listing each archive by name would mean editing this test every time retention runs.
+# The rule is derived instead: if <dir>/<stem>.md is allowlisted, its
+# <dir>/<stem>-archive-*.md siblings inherit that sanction. Nothing else does -- an archive
+# of a file that was never allowlisted still fails, and code files never match this.
+_ARCHIVE_RE = re.compile(r"^(?P<base>.+?)-archive-[\d-]+\.md$")
+
+
+def _is_allowlisted(rel: str) -> bool:
+    if rel in _ALLOWLIST:
+        return True
+    m = _ARCHIVE_RE.match(rel)
+    return bool(m) and f"{m.group('base')}.md" in _ALLOWLIST
+
+
 def test_router_port_only_appears_in_allowlisted_repo_files():
     hits: dict[str, list[str]] = {}
     for path in _iter_repo_text_files():
@@ -329,7 +353,7 @@ def test_router_port_only_appears_in_allowlisted_repo_files():
             continue
         if "127.0.0.1:3456" in text or "localhost:3456" in text:
             rel = path.relative_to(REPO).as_posix()
-            if rel not in _ALLOWLIST:
+            if not _is_allowlisted(rel):
                 hits.setdefault(rel, []).append("router-port string found outside allowlist")
 
     assert not hits, (

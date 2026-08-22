@@ -37,17 +37,35 @@ ACCT_RE = re.compile(r"PA[A-Z0-9]{10}")
 KEY_RE = re.compile(r"PK[A-Z0-9]{6}")
 
 
+# The FLEET registry is not the only account registry. The multi-symbol lane
+# (2026-08-19) is a deliberate FORK of the SPY engine that never imports it, and it
+# carries its own config under automation/state/multi/ -- including its account. Reading
+# only fleet/accounts.json therefore reported the multi lane's REAL, configured account
+# (PA38EG1JTFBT) as "absent from the registry", which is the opposite of true.
+#
+# Corrected 2026-08-21: consult every account registry the repo actually has. The guard's
+# purpose is "CLAUDE.md must not name an account nothing is wired to" -- so the question
+# is whether ANY live config knows the number, not whether one specific file does.
+LANE_REGISTRIES = (
+    REPO / "automation" / "state" / "multi" / "params.json",
+)
+
+
 def _registry_accounts() -> set[str]:
     data = json.loads(ACCOUNTS.read_text(encoding="utf-8"))
     found: set[str] = set()
     for arm in data.get("arms", []):
         acct = arm.get("account_number")
-        if isinstance(acct, str) and ACCT_RE.fullmatch(acct):
+        if isinstance(arm, dict) and isinstance(acct, str) and ACCT_RE.fullmatch(acct):
             found.add(acct)
     # repoint/retirement notes carry historical numbers; accept those too so a
     # deliberate history reference in CLAUDE.md does not fail the guard.
     for blob in (json.dumps(data),):
         found.update(ACCT_RE.findall(blob))
+    # ...plus every non-fleet lane that owns its own account config.
+    for lane in LANE_REGISTRIES:
+        if lane.is_file():
+            found.update(ACCT_RE.findall(lane.read_text(encoding="utf-8", errors="replace")))
     return found
 
 

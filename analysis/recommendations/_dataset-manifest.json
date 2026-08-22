@@ -16,10 +16,12 @@
   },
   "analysis/pain-ledger/mae-mfe.json": {
    "present": true,
-   "sha256_16": "896bbee2d91f30a7",
-   "bytes": 276587,
-   "n_records": 303,
-   "purpose": "MAE/MFE scored positions; ribbon_flipback_ab_v2's frozen 219-row population (APPEND-ONLY -- tracked by frozen-prefix count, see record_count_note)"
+   "sha256_16": "f8675b09e9c425d6",
+   "bytes": 319369,
+   "n_records": 350,
+   "frozen_prefix_n": 219,
+   "frozen_prefix_sha256_16": "0eb89a10070acc6f",
+   "purpose": "MAE/MFE scored positions; ribbon_flipback_ab_v2's frozen 219-row population (APPEND-ONLY -- tracked by frozen-prefix count, see APPEND_ONLY below)"
   }
  },
  "_doc": "Content hashes for frozen research datasets. Written by setup/scripts/dataset_integrity.py --record. A DRIFT here means a published conclusion's population changed after publication."

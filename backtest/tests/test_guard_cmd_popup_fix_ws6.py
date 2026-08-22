@@ -194,11 +194,28 @@ class TestExistingApprovedPatternsNonRegression:
     """Lock in the 2026-05-18 fix (24 false-positive VISIBLE_WINDOW flags) and
     ensure WS6 changes did not break it."""
 
-    def test_run_hidden_vbs_still_recognized(self) -> None:
-        """Older wscript + run_hidden.vbs pattern must still pass."""
-        assert _is_hidden(
+    def test_run_hidden_vbs_is_NO_LONGER_recognized(self) -> None:
+        """STALE PIN CORRECTED 2026-08-21 — this asserted the OPPOSITE and had been RED
+        since 2026-07-14.
+
+        `run_hidden.vbs` was DELIBERATELY DEMOTED from approved to NOT-hidden that day,
+        on J's "stop the fkin popups on my screen" directive: it uses
+        WScript.Shell.Run (ShellExecute), which still leaks WindowsTerminal -Embedding
+        windows on Win11 default-terminal configs. `Gamma_DiscordBridge` was firing
+        through this exact chain every 5 minutes, 24/7 — the highest-frequency violator
+        on the box, invisible precisely because `_is_hidden` approved it.
+
+        The demotion is the fix. This test was written before it and kept asserting the
+        pre-fix behaviour, so the suite has been carrying a RED that says "the popup fix
+        regressed" when the popup fix is exactly what is in place. A guard that fails
+        because the bug was FIXED is worse than no guard: it trains readers to skip the
+        file. Now pinned in the correct direction, so a genuine re-approval would RED."""
+        assert not _is_hidden(
             execute="wscript.exe",
             arguments='//nologo "C:\\path\\run_hidden.vbs" "C:\\path\\some-script.ps1"',
+        ), (
+            "run_hidden.vbs is being approved as hidden again — it leaks console windows "
+            "(demoted 2026-07-14). If it was deliberately re-approved, cite the evidence."
         )
 
     def test_run_exe_hidden_vbs_ps1_still_recognized(self) -> None:
