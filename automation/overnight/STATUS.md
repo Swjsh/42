@@ -1,3 +1,29 @@
+## [2026-08-22 02:00 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.66s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-22 02:15 ET] conductor: OK — closed the 4-day-recurring conviction-c4-c5 false RED (stale substring for a renamed C5 call site), commit `6774b7cf`
+
+**Picked via STAGE 0 budget gate PROCEED ($17.93/$30, 1/4 fires used) + STAGE 1a (`desk_allocator.py`: SPY 0DTE #1, 30pts, "NEXT FIRE") + STAGE 1 priority-2 (`incident_fix_status.py --alert`: `[RED] conviction-c4-c5 ... C5 still None`, recurring 8+ fires per STATUS history without resolution — a loop-closing item over a new artifact per OP-22 tiebreak).** Engine health GREEN (19/19), self-check GREEN (0 problems).
+
+**Root cause, precisely:** the checker's `_chk_conviction_components` asserted C5 wiring via literal substring `"_sameday_structure_side(payload)" in s`. The 2026-08-18 alignment review refactored the LIVE call site in `heartbeat_core.py` to `_sameday_structure_diag(payload)` (adds a diagnosable reason string; the old name survives only as an unused façade). The substring stopped matching a strictly-better wiring, not a regression — the checker's own docstring names this exact trap ("AST, NOT SUBSTRING") for the adjacent transposed-key check in the SAME function, but the fix was never applied to the `struct` half three lines below.
+
+**Evidence C5 was never actually broken:** the comprehensive pytest guard for this fix (`test_conviction_c4_c5_wiring_2026_08_14.py`, all AST-based assertions) stayed green throughout — `incident_fix_status.py`'s own report even showed `guard GREEN` next to the false `RED` verdict, a visible self-contradiction nobody had read closely before this fire. Live decision ledger: 164/164 `conviction` rows in `automation/state/core-decisions.jsonl` since 2026-08-19 carry a real, diverse `structure_reason` (range 65 / uptrend 48 / downtrend 24 / unknown 15 / error 12 — zero `None`); the 206 pre-2026-08-19 rows with `structure_reason: None` predate the field's introduction, not a live failure.
+
+**Fix:** walk the AST for a `Call` to either `_sameday_structure_side` or `_sameday_structure_diag` with a `payload` argument, instead of a fixed-spelling substring — matching the file's own stated doctrine and recognizing either the pre- or post-2026-08-18 call shape.
+
+**Verified, quoted:** `incident_fix_status.py --alert` before: `1 RED: conviction-c4-c5`; after: all 10 rows `[OK]`, `conviction-c4-c5` message now `"C4 session envelope + C5 structure threaded; no transposed key"`. New guards (`test_incident_fix_roster_2026_08_15.py`, +3 tests): real-repo-is-green, AND a synthetic vacuity check (both call spellings stripped -> must go RED again) so the fix can't quietly degenerate into an always-true pass — the second stripped case initially still read GREEN because the façade's own internal call to `_sameday_structure_diag` survived a narrower fixture, caught immediately by the vacuity test itself and fixed by stripping both spellings everywhere. 29/29 green (`test_incident_fix_roster_2026_08_15.py` + `test_conviction_c4_c5_wiring_2026_08_14.py`). `py_compile` clean on both touched files. Curated safety gate (`run_safety_gate.py`): 59/59 PASS. `git show 6774b7cf --stat --name-status` confirms exactly the 2 intended files.
+
+**Rail 4 (infra/test-only fix, not a trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** guard tests are the regression check (a); revert is `git revert 6774b7cf`, one clean commit, 2 files (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched. `heartbeat_core.py` itself was NOT edited — only the status instrument that reads it.
+
+**Lesson filed:** `strategy/candidates/_lesson-inbox/incident-checker-stale-substring-second-bite-2026-08-22.md` — a lesson learned about one half of a function (AST vs substring) doesn't automatically protect the other half of the same function; a status checker's raw-substring assertion is coupled to the checked file's exact current spelling, not its behavior, and will silently flip RED on a correct refactor.
+
+**Not investigated further this fire (out of bounded scope):** did not re-run a fresh full 9978-test suite this fire (prior fire's confirmation run is still the standing evidence for the test-pollution fix; unrelated to tonight's change, which touches only `incident_fix_status.py` + its own test file). `test_replay_fleet_arms`'s 2 known-real over-firing failures remain deliberately RED per the 2026-08-21 triage note below.
+
 ## [2026-08-21] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-17..2026-08-20), real OPRA fills, floor n>=10
 
 > **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-20). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
@@ -229,37 +255,4 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 **Rail 4 not strictly triggered (infra/guard fix, not a trading-path params/heartbeat_core/filters/placement edit)** â€” ships per OP-22/OP-26 engine-benefit authoring path. Guard test is the regression check (a); revert is `git revert d2204b53`, one clean commit, 6 files (b); this STATUS entry is the report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
 
 **Autonomy metric (`conductor_outcome.py metric`, 20-fire window): `trend: regressing`** â€” net_improvement=20/total_regressions=0 (healthy), but flagged per OP-22 for the next fire to weigh: `cost_per_drained_usd=$1.87` over the window. Not investigated further this fire (bounded-task rail) â€” worth a look if the trend persists past a few more fires.
-
-## [2026-08-20 05:34 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
-
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.50s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-20 05:31 ET] RED -- INCIDENT FIX ROSTER REGRESSED (2 RED, 0 unguarded)
-
-- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
-  - code: C5 still None
-  - guard: 17 passed in 1.60s
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 2 failed, 1 passed in 0.50s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-20 ~01:15 ET] conductor: OK â€” MES mirror lane ARMED for real (paper) execution: `Gamma_FuturesMirror --armed`, 91 guard tests green
-
-**Picked via STAGE 1a (`desk_allocator.py`): Futures desk flagged DECISION ROTTING (+100 pts, top of all 4 desks) â€” the MES mirror-shadow lane cleared its arming bar 2026-08-19 (59/20 closed round trips, +$1,268.66, beats an ES=F buy-and-hold null; `automation/state/futures/shadow-progress.json`) and sat un-acted-on.** Budget gate PROCEED ($0/$30 pre-fire). Engine health GREEN. This outranked the stale `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping and every queue/inbox item â€” an armed-bar desk decision is the allocator's explicit #1 priority under an Engine-RED.
-
-**Real architectural hazard found and resolved before shipping, not after:** `Gamma_FuturesBrokerLane` (the `should_take_v3` signal) already places REAL sandbox orders on the SAME account (`5WW73759`) and SAME instrument (`MES`) â€” confirmed live via `trader-broker/open-position.json` (2 contracts held 2026-08-19). A naive "just flip the switch" would have created two independent execution lanes with no coordination on a shared account. Resolved WITHOUT a new coordination primitive: `broker.is_flat(instrument)` is already account-truth (not lane-local), so both lanes gating new entries on it naturally refuse to stack on each other's position â€” verified by test, not assumed. Residual same-5-minute-window TOCTOU race disclosed, not solved (bounded by paper money + per-trade dollar caps); follow-up filed (`FUTURES-MIRROR-CROSS-LANE-CLAIM`, queue.md) to reuse the 2026-08-19 SPY-engine atomic-entry-claim lock pattern if ever needed.
-
-**Shipped** (`setup/scripts/futures_mirror_shadow.py`): `_broker_execute_entry()` â€” strictly additive, gated by `MIRROR_ARMED` (env, read fresh at call time, default OFF). Reuses, never reimplements: `compute_entry_levels`'s already-computed entry/stop/tp1, `futures_risk_rails.FuturesRiskRails` (same dollar/points rails the broker lane uses, `per_trade_risk_cap=$150` sized for the frozen spec's 2-lot ATR stop), and `futures_trader_core.make_broker("tastytrade")`/credential-loading (the SAME `place_bracket()` proven end-to-end live 2026-08-09: dry run, resting order, filled marketable order). Frozen spec qty (2 in/1 off at TP1) is NEVER resized by the rails â€” a rail failure rejects the trade rather than deploying an unvalidated variant. Entry is a marketable LIMIT (ES proxy quote Â± 2.0pt buffer), not price-perfect. Journals to a NEW disjoint ledger `mirror-broker-orders.jsonl` (fills=BROKER) â€” `mirror-would-be.jsonl` (fills=SIMULATED, the arming-bar evidence) is completely untouched by arming, same convention as the existing trader/ vs trader-broker/ split.
-
-**Verified, quoted:** 12 new guard tests (`TestArmedExecution`) + all 69 pre-existing tests green (81/81 total, `test_futures_mirror_shadow.py`), covering: default-off zero-behavior-change, env read fresh not cached, buffered-limit sign correctness (long buffers up/short buffers down), broker-not-connected fail-open, per-trade-risk-cap rejection (never resized), internal-exception fail-open, cross-lane no-stack refusal, and the full `run_once()` integration proving shadow+broker ledgers are written independently. Full futures suite re-run for regression: 263/263 passed. Live production smoke test (unarmed `--once` against real state): exit 0, arming-bar evidence untouched (still 59 round trips). Re-registered `Gamma_FuturesMirror` with `--armed` (`install-futures-mirror.ps1`) â€” `NextRun ET: 2026-08-20 09:30` (does not fire again until RTH, giving a review window). Confirmed `.env.tastytrade` present for credential loading.
-
-**Self-caught cleanup:** an ad-hoc `python -c` debug probe during investigation (unmonkeypatched `STATE_DIR`) wrote one throwaway skip-row into the REAL `automation/state/futures/mirror-broker-orders.jsonl` before the task existed â€” caught before reporting (OP-33), deleted, file confirmed absent again. No real order was placed (the debug row was itself a rail-rejection skip, `place_bracket` was never called).
-
-**Rail 4 (PAPER trading-path edit â€” arming a NEW paper execution leg, not live money):** guard tests are the regression guard (a) â€” 12 new + 81 total green; revert is `git revert` on this commit plus re-running `install-futures-mirror.ps1` after removing ` --armed` from `$wscriptArgs` (b); this entry + Discord ping is the REVOKE report (c). Zero live-money surfaces touched â€” `TT_SANDBOX=true`, same double-gate (OP-0 #1 + a new venue) as the existing broker lane. Lesson filed: `_lesson-inbox/shared-broker-account-cross-lane-position-attribution-2026-08-20.md`. Follow-up: `FUTURES-MIRROR-CROSS-LANE-CLAIM` (queue.md, LOW). `automation/state/worker-registry.json` futures desk entry updated to reflect ARMED status.
 
