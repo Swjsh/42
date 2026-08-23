@@ -161,9 +161,9 @@
     "require_bearish_fill_bar": {
       "id": "require_bearish_fill_bar",
       "category": "core_gate_order",
-      "evidence_age_days": 67,
+      "evidence_age_days": 0,
       "revalidation_interval_days": 21,
-      "evidence_stale": true,
+      "evidence_stale": false,
       "pnl_check": {
         "by_account": {
           "bold": {
