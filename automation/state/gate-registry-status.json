@@ -50,7 +50,11 @@
           "win_days": 0,
           "loss_days": 1,
           "first_fill": "2026-07-23",
-          "last_fill": "2026-07-23"
+          "last_fill": "2026-07-23",
+          "drop_top1": -297.0,
+          "n_dropped_for_drop_top1": 0,
+          "drop_top3": -297.0,
+          "n_dropped_for_drop_top3": 0
         },
         "verdict": "GREEN",
         "reason": "refused cohort would have LOST $-297.0/tr, n=1 -- still justified on recent data",
@@ -137,7 +141,11 @@
           "win_days": 2,
           "loss_days": 2,
           "first_fill": "2026-08-04",
-          "last_fill": "2026-08-21"
+          "last_fill": "2026-08-21",
+          "drop_top1": -226.5,
+          "n_dropped_for_drop_top1": 1,
+          "drop_top3": -373.5,
+          "n_dropped_for_drop_top3": 3
         },
         "verdict": "GREEN",
         "reason": "refused cohort would have LOST $-3.85/tr, n=6 -- still justified on recent data",
@@ -200,14 +208,18 @@
           "win_days": 8,
           "loss_days": 8,
           "first_fill": "2026-07-20",
-          "last_fill": "2026-08-21"
+          "last_fill": "2026-08-21",
+          "drop_top1": 669.0,
+          "n_dropped_for_drop_top1": 1,
+          "drop_top3": -242.2,
+          "n_dropped_for_drop_top3": 3
         },
-        "verdict": "RED",
-        "reason": "refused cohort would have EARNED $46.15/tr, n=34 >= floor 10 -- COSTING money",
+        "verdict": "NAIVE_RED_CONCENTRATED",
+        "reason": "NAIVE-RED (battery required): refused cohort reads +$46.15/tr, n=34 >= floor 10, but drop-top3=$-242.2 -- the positive mean does NOT survive dropping its top 3 winning trade(s), so this naive read is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) must ratify before this gate is treated as costing money.",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
-      "overall": "RED"
+      "overall": "NAIVE_RED_CONCENTRATED"
     },
     "min_ribbon_momentum_cents": {
       "id": "min_ribbon_momentum_cents",
@@ -312,7 +324,11 @@
           "win_days": 2,
           "loss_days": 4,
           "first_fill": "2026-07-21",
-          "last_fill": "2026-08-13"
+          "last_fill": "2026-08-13",
+          "drop_top1": -1251.2,
+          "n_dropped_for_drop_top1": 1,
+          "drop_top3": -1565.0,
+          "n_dropped_for_drop_top3": 2
         },
         "verdict": "GREEN",
         "reason": "refused cohort would have LOST $-7.2/tr, n=10 -- still justified on recent data",
@@ -363,7 +379,11 @@
           "win_days": 2,
           "loss_days": 3,
           "first_fill": "2026-07-23",
-          "last_fill": "2026-08-18"
+          "last_fill": "2026-08-18",
+          "drop_top1": -150.0,
+          "n_dropped_for_drop_top1": 1,
+          "drop_top3": -246.0,
+          "n_dropped_for_drop_top3": 2
         },
         "verdict": "YELLOW",
         "reason": "refused cohort positive ($9.4/tr) but n=6 < floor 10 -- watch, not yet actionable",
@@ -451,14 +471,18 @@
           "win_days": 2,
           "loss_days": 7,
           "first_fill": "2026-07-20",
-          "last_fill": "2026-08-21"
+          "last_fill": "2026-08-21",
+          "drop_top1": -281.5,
+          "n_dropped_for_drop_top1": 1,
+          "drop_top3": -546.0,
+          "n_dropped_for_drop_top3": 3
         },
-        "verdict": "RED",
-        "reason": "refused cohort would have EARNED $2.15/tr, n=10 >= floor 10 -- COSTING money",
+        "verdict": "NAIVE_RED_CONCENTRATED",
+        "reason": "NAIVE-RED (battery required): refused cohort reads +$2.15/tr, n=10 >= floor 10, but drop-top3=$-546.0 -- the positive mean does NOT survive dropping its top 3 winning trade(s), so this naive read is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) must ratify before this gate is treated as costing money.",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
-      "overall": "RED"
+      "overall": "NAIVE_RED_CONCENTRATED"
     },
     "free_model_veto": {
       "id": "free_model_veto",

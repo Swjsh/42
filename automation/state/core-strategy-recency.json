@@ -1,6 +1,6 @@
 {
   "instrument": "CORE-STRATEGY RECENCY (WS11 2026-08-01) -- the revalidation clock for the strategy itself, per J's 2026-07-31 recency rule",
-  "run_date": "2026-08-21",
+  "run_date": "2026-08-23",
   "window": {
     "start": "2026-07-20",
     "end": "2026-08-21",
@@ -127,7 +127,7 @@
       },
       "shape": "core Safe (SAFE_BASE_LIVE) -- no production-parity Bold replay harness exists (engine_fullhist_replay.py scope disclosure)",
       "basis": "engine-sim (orchestrator entry + walk_exit_manager exit, real OPRA only) -- NEVER blended into broker-fills n",
-      "runtime_seconds": 92.2,
+      "runtime_seconds": 73.0,
       "recent": {
         "bear": {
           "n": 21,

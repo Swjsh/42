@@ -141,10 +141,43 @@ def test_bar_idx_for_ts_before_all_bars_returns_none():
     assert stale is True
 
 
-def test_costing_verdict_red_when_positive_and_over_floor():
-    verdict, reason = gec.costing_verdict({"n": 12, "exp_per_trade": 50.0}, floor=10)
+def test_costing_verdict_red_when_positive_over_floor_and_survives_drop_top3():
+    """UPDATED 2026-08-23 (concentration-term fix -- see gate_expiry_check.py's costing_verdict
+    docstring): this test used to pass a bare {"n", "exp_per_trade"} dict and expect RED. That
+    encoded the exact naive-mean-only bug two independent G-batteries disproved this weekend
+    (structure_veto_enabled, require_bearish_fill_bar). RED is now only reachable when the
+    cohort's drop_top3 figure is supplied AND positive (survives dropping its top-3 winners) --
+    the test now supplies that field explicitly instead of relying on its absence."""
+    verdict, reason = gec.costing_verdict(
+        {"n": 12, "exp_per_trade": 50.0, "drop_top3": 80.0, "n_dropped_for_drop_top3": 3},
+        floor=10,
+    )
     assert verdict == "RED"
     assert "COSTING" in reason
+
+
+def test_costing_verdict_naive_red_when_concentration_data_missing():
+    """FAIL-CLOSED (2026-08-23): a bare {"n", "exp_per_trade"} dict -- no drop_top3 field at
+    all -- can no longer earn an actionable RED. Unknown concentration is treated as UNPROVEN,
+    never as an automatic pass; this is the exact silent-pass shape that produced both false
+    alarms (naive mean-only, no robustness check)."""
+    verdict, reason = gec.costing_verdict({"n": 12, "exp_per_trade": 50.0}, floor=10)
+    assert verdict == "NAIVE_RED_CONCENTRATED"
+    assert "battery" in reason.lower()
+    assert "UNKNOWN" in reason
+
+
+def test_costing_verdict_naive_red_when_fails_drop_top3():
+    """Mirrors the real 2026-08-23 incident numbers (structure_veto_enabled: n=15, mean
+    +$7.43/tr, drop_top3=-$588.00) -- a positive over-floor mean that does NOT survive dropping
+    its top-3 winners must downgrade to NAIVE_RED_CONCENTRATED, never a bare RED."""
+    verdict, reason = gec.costing_verdict(
+        {"n": 15, "exp_per_trade": 7.43, "drop_top3": -588.0, "n_dropped_for_drop_top3": 3},
+        floor=10,
+    )
+    assert verdict == "NAIVE_RED_CONCENTRATED"
+    assert "NAIVE-RED" in reason
+    assert "battery" in reason.lower()
 
 
 def test_costing_verdict_yellow_when_positive_but_under_floor():
@@ -384,6 +417,19 @@ class _FakeSoundReplayModule:
     def build_ribbon_lookup(self, spy):
         return "FAKE_RIBBON_LOOKUP"
 
+    def drop_top_n(self, pnls: list[float], n_drop: int = 3) -> tuple[float, int]:
+        """Mirrors backtest/tools/gate_revalidation_ab.py::drop_top_n's real semantics EXACTLY
+        (2026-08-23 concentration-term fix): only drops actual winners (pnl > 0), never the
+        least-negative losers. evaluate_gate_pnl calls this via `grab.drop_top_n(...)` on the
+        real module -- this fake must behave identically or the wiring tests below would pass
+        for the wrong reason."""
+        if not pnls:
+            return 0.0, 0
+        winners = sorted([p for p in pnls if p > 0], reverse=True)
+        k = min(n_drop, len(winners))
+        dropped_sum = sum(winners[:k])
+        return round(sum(pnls) - dropped_sum, 2), k
+
     def replay_row(self, row, *, spy, spy_ts, spy_by_date, ribbon_lookup, cfg):
         self.replay_calls.append({"row": row, "cfg": cfg, "ribbon_lookup": ribbon_lookup})
         ts = row["ts_et"]
@@ -437,7 +483,13 @@ def test_evaluate_gate_pnl_uses_sound_replay_never_simulate_trade_real(monkeypat
     assert fake_grab.replay_calls[0]["cfg"]["qty"] == 3, "must pass the SAFE account's live cfg, not a hardcoded qty"
     assert result["combined"]["n"] == 1
     assert result["combined"]["exp_per_trade"] == 42.0
-    assert result["verdict"] == "RED"  # positive EV, n>=floor=1
+    # UPDATED 2026-08-23 (concentration-term fix): a cohort of exactly ONE trade can never
+    # survive drop-top3 (dropping its only winner leaves $0.00) -- this is the correct,
+    # honest outcome, not a bug. Wiring proof: drop_top3 was actually computed (0.0, not
+    # missing) and costing_verdict correctly downgraded it instead of emitting a bare RED
+    # off a single lucky fill.
+    assert result["combined"]["drop_top3"] == 0.0
+    assert result["verdict"] == "NAIVE_RED_CONCENTRATED"
 
 
 def test_evaluate_gate_pnl_stamps_replay_provenance_on_every_ev_record():

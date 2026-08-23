@@ -146,6 +146,12 @@ STRIKE_OFFSET_ATM = 0
 # consecutive same-gate fires within this many minutes are ONE tradeable event, not N.
 EVENT_CLUSTER_GAP_MINUTES = 15
 
+# concentration term (2026-08-23, see costing_verdict docstring): a refused cohort's positive
+# mean must survive dropping its top-N winning trades before it can earn a bare actionable RED.
+# 3 matches the G-battery's own drop_top3 methodology (gate_revalidation_ab.py::drop_top_n),
+# so this instrument's smoke-alarm threshold and the ratifying battery's pass bar agree.
+CONCENTRATION_DROP_TOP_N = 3
+
 # categories this checker deliberately does NOT run a costing verdict against (disclosed,
 # not silently skipped -- see check_gate()).
 _NOT_MEASURED_CATEGORIES = {
@@ -314,14 +320,60 @@ def simulate_event(row: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: p
 
 def costing_verdict(m: dict, floor: int) -> tuple[str, str]:
     """RED = the refused cohort would have EARNED money recently (gate is costing). Mirror of
-    recency_check.verdict_for's shape, INVERTED semantics (see module docstring)."""
+    recency_check.verdict_for's shape, INVERTED semantics (see module docstring).
+
+    CONCENTRATION TERM (added 2026-08-23, J directive, OP-25 self-correction): this used to be
+    a NAIVE MEAN ONLY check -- n>=floor AND mean>0 => bare RED, no drop-topN, no OOS split, no
+    BH-FDR, no bootstrap null. Two independent full G-battery revalidations this same weekend
+    proved that wrong BOTH times it fired: structure_veto_enabled (naive: n=10, +$2.15/tr =>
+    RED; battery: n=15, mean +$7.43/tr, drop_top3=-$588.00, BH-FDR p=0.836 => NOT-UNBLOCK-
+    ELIGIBLE -- see analysis/recommendations/gate-revalidation-structure_veto-2026-08-23-
+    extended.json) and require_bearish_fill_bar (naive: n=34, +$46.15/tr => RED; battery: n=57,
+    mean +$23.11/tr, drop_top3=-$958.00, BH-FDR p=0.5374, bootstrap-null p=0.3311 => NOT-
+    UNBLOCK-ELIGIBLE -- gate-revalidation-bearish_fill_bar-2026-08-23-extended.json). In both
+    cases a handful of outlier winners carried the whole positive mean. A bare actionable RED
+    can no longer be emitted for a cohort like that: `m["drop_top3"]` (the refused cohort's
+    per-trade P&L total AFTER dropping its top-3 winning trades -- see
+    backtest/tools/gate_revalidation_ab.py::drop_top_n, REUSED here, never reimplemented) must
+    be POSITIVE for the mean-positive/over-floor read to earn a bare RED. Missing/unknown
+    concentration data (m has no "drop_top3" key) is treated as UNPROVEN, never as an automatic
+    pass -- this check fails CLOSED, exactly the class of silent-pass bug that produced both
+    false alarms. A concentration-carried cohort downgrades to NAIVE_RED_CONCENTRATED, labeled
+    "NAIVE-RED (battery required)" in its reason -- explicitly NOT actionable on its own; it
+    can never again be misread as a finished finding. A cohort that DOES survive drop-top3
+    keeps RED, but its reason now also says a full G-battery is still the ratifying instrument
+    before any params.json flip -- this checker was never meant to be the final word, only the
+    smoke alarm that says "go run the battery."
+    """
     n = m.get("n", 0)
     if n == 0:
         return "INSUFFICIENT_DATA", "no refused signals survived mining in the recent window"
     exp = m.get("exp_per_trade")
     if exp is not None and exp > 0:
         if n >= floor:
-            return "RED", f"refused cohort would have EARNED ${exp}/tr, n={n} >= floor {floor} -- COSTING money"
+            drop_top3 = m.get("drop_top3")
+            n_dropped = m.get("n_dropped_for_drop_top3", CONCENTRATION_DROP_TOP_N)
+            if drop_top3 is None or drop_top3 <= 0:
+                concentration_note = (
+                    f"drop-top{n_dropped}=${drop_top3}" if drop_top3 is not None
+                    else "drop-topN concentration UNKNOWN (no per-trade P&L supplied to costing_verdict)"
+                )
+                return (
+                    "NAIVE_RED_CONCENTRATED",
+                    f"NAIVE-RED (battery required): refused cohort reads +${exp}/tr, n={n} >= "
+                    f"floor {floor}, but {concentration_note} -- the positive mean does NOT "
+                    f"survive dropping its top {n_dropped} winning trade(s), so this naive read "
+                    f"is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + "
+                    f"bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) "
+                    f"must ratify before this gate is treated as costing money."
+                )
+            return (
+                "RED",
+                f"refused cohort would have EARNED ${exp}/tr, n={n} >= floor {floor} -- COSTING "
+                f"money AND survives drop-top{n_dropped} (${drop_top3}). A full G-battery is "
+                f"still the ratifying instrument before any params.json flip -- this is the "
+                f"smoke alarm, not the verdict."
+            )
         return "YELLOW", f"refused cohort positive (${exp}/tr) but n={n} < floor {floor} -- watch, not yet actionable"
     return "GREEN", f"refused cohort would have LOST ${exp}/tr, n={n} -- still justified on recent data"
 
@@ -377,6 +429,20 @@ def evaluate_gate_pnl(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_t
         all_ok_rows.extend(ok_rows)
 
     combined = window_metrics(all_ok_rows, recent_start, recent_end) if all_ok_rows else {"n": 0}
+    if all_ok_rows:
+        # CONCENTRATION TERM (2026-08-23, see costing_verdict docstring): drop-top1 and
+        # drop-top3 on the refused cohort's own per-trade P&L, via the SAME drop_top_n the
+        # ratifying G-battery uses (backtest/tools/gate_revalidation_ab.py) -- reused through
+        # the already-lazily-imported `grab`, never reimplemented. drop_top3 is what gates
+        # costing_verdict's actionability; drop_top1 is carried for visibility only.
+        pnls = [float(r["pnl"]) for r in all_ok_rows]
+        drop_top1, n_dropped_1 = grab.drop_top_n(pnls, 1)
+        drop_top3, n_dropped_3 = grab.drop_top_n(pnls, CONCENTRATION_DROP_TOP_N)
+        combined = {
+            **combined,
+            "drop_top1": drop_top1, "n_dropped_for_drop_top1": n_dropped_1,
+            "drop_top3": drop_top3, "n_dropped_for_drop_top3": n_dropped_3,
+        }
     verdict, reason = costing_verdict(combined, floor)
     return {
         "by_account": by_account, "combined": combined, "verdict": verdict, "reason": reason,
@@ -437,6 +503,13 @@ def check_gate(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: pd.S
     pv = pnl_check["verdict"]
     if pv == "RED":
         overall = "RED"
+    elif pv == "NAIVE_RED_CONCENTRATED":
+        # 2026-08-23 concentration term: measured, found concentration-carried -- distinct from
+        # STALE_UNVERIFIED (which means "never checked"). Deliberately NEVER "RED": this is the
+        # exact field compute_newly_red/flag_status_md gate on (r["overall"] == "RED") to decide
+        # whether to scream in STATUS.md's "## Known broken" -- a concentration-carried naive
+        # read must never trip that alarm again.
+        overall = "NAIVE_RED_CONCENTRATED"
     elif pv == "ERROR":
         overall = "ERROR"
     elif evidence_stale and pv in ("INSUFFICIENT_DATA", "INERT", "NOT_MEASURED"):
@@ -493,6 +566,21 @@ def flag_status_md(new_red: list[dict]) -> None:
     STATUS_MD.write_text(f"{head}{marker}\n\n{block}\n{tail.lstrip(chr(10))}", encoding="utf-8")
 
 
+def merge_gate_results(results: dict[str, dict], prior_gates: dict) -> dict:
+    """Merge this run's freshly-computed `results` into whatever gates already exist in the
+    status file (`prior_gates`) instead of blindly replacing the whole "gates" object.
+
+    FIXES the 2026-08-23 truncation bug (found by this weekend's G-battery run, disclosed
+    alongside the naive-RED costing_verdict defect): a `--gate <id>` single-gate debug/
+    revalidation run only ever computes ONE gate's row, but main() used to write `results`
+    (that one gate) as the entire "gates" object in automation/state/gate-registry-status.json
+    -- destroying the other ~22 gates' rows on every filtered run. A full (unfiltered) nightly
+    run still recomputes every registry gate each time, so `results` already covers every id
+    and this merge is a no-op equivalent to the old full-replace behavior -- only a `--gate`-
+    filtered run's blast radius changes (from "wipes the file" to "updates one row")."""
+    return {**prior_gates, **results}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Gate-expiry instrument: nightly recency check for every armed entry gate/veto")
     ap.add_argument("--lookback", type=int, default=RECENCY_LOOKBACK_TRADING_DAYS)
@@ -547,16 +635,21 @@ def main() -> int:
         "lookback_trading_days": args.lookback,
         "event_cluster_gap_minutes": EVENT_CLUSTER_GAP_MINUTES,
         "never_blocks_never_kills": True,
-        "gates": results,
+        # MERGE, never replace (2026-08-23 truncation-bug fix -- see merge_gate_results
+        # docstring): a --gate <id> filtered run must update ONLY that gate's row, not wipe
+        # every other gate this file has ever recorded.
+        "gates": merge_gate_results(results, prior_gates),
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     flag_status_md(new_red)
 
     n_red = sum(1 for r in results.values() if r["overall"] == "RED")
+    n_naive_red = sum(1 for r in results.values() if r["overall"] == "NAIVE_RED_CONCENTRATED")
     n_stale = sum(1 for r in results.values() if r["overall"] == "STALE_UNVERIFIED")
     print(f"\n[gate-expiry] wrote {OUT_JSON}", flush=True)
-    print(f"[gate-expiry] {n_red} gate(s) RED (costing money), {n_stale} STALE_UNVERIFIED, "
+    print(f"[gate-expiry] {n_red} gate(s) RED (costing money), {n_naive_red} NAIVE_RED_CONCENTRATED "
+          f"(naive-RED, battery required -- NOT actionable), {n_stale} STALE_UNVERIFIED, "
           f"{len(new_red)} newly-RED this run", flush=True)
     return 0
 
