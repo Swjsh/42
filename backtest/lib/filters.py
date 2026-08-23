@@ -493,6 +493,93 @@ def detect_sequence_reclaim(
     return last_three_lows[0] < last_three_lows[1] < last_three_lows[2]
 
 
+def _level_state_recency(state: "LevelState") -> int:
+    """Latest bar index this LevelState was touched (-1 when never touched).
+
+    A level's freshness is the LATER of (a) the bar its role flipped and (b) the
+    bar of its most recent bounce_history entry. Used to rank a stale level frozen
+    on a prior session BELOW today's live level at the same price.
+    """
+    recency = -1
+    broken = getattr(state, "broken_at_bar_idx", None)
+    if isinstance(broken, (int, float)):
+        recency = int(broken)
+    history = getattr(state, "bounce_history", None) or []
+    if history:
+        last = history[-1]
+        if isinstance(last, dict) and isinstance(last.get("bar_idx"), (int, float)):
+            recency = max(recency, int(last["bar_idx"]))
+    return recency
+
+
+def resolve_level_state(
+    level_states: dict,
+    target_price: "Optional[float]",
+    wanted_role: "Optional[str]" = None,
+    tolerance: float = 0.05,
+) -> "Optional[LevelState]":
+    """Resolve a trigger PRICE to its LevelState object, deterministically.
+
+    Replaces the pre-2026-08-23 scan that returned the FIRST entry within $0.05 in
+    DICT-INSERTION ORDER. That scan silently picked whichever matching level was
+    inserted first. The offline orchestrator never resets its level_states dict
+    across a multi-day replay, so a STALE level from a prior session (frozen role,
+    empty bounce_history) could shadow the real same-day level and turn a genuine
+    sequence_rejection into a FALSE NEGATIVE — bar 1801, 2026-06-23 15:35 ET, where
+    a stale 735.0300 (role=broken_to_support, bh=0, last touched 2026-06-15) beat the
+    real 735.0000 (role=broken_to_resistance, bh=7, broken today). See
+    analysis/deep-research/SEQUENCE-REJECTION-PARITY-PROBE-2026-08-23.md.
+
+    The live brain rebuilds its dict per tick and so escaped the defect only by
+    ACCIDENT: it routinely holds two entries within $0.05 (measured: 1,238 of 13,879
+    live ticks) and was protected purely by argument ordering in heartbeat_core plus
+    a $0.10 dedupe threshold living in a DIFFERENT file
+    (setup/scripts/refresh_levels_intraday.py ROLE_EPSILON). Neither is asserted here.
+
+    Resolution order — a TOTAL order, never dependent on dict insertion order:
+      1. Exact key match (``f"{price:.4f}"``) wins outright — the key IS the level's
+         identity. Falls through if that entry is somehow outside `tolerance`.
+      2. Otherwise, among entries within `tolerance`, rank by:
+         a. role applicable to the setup being evaluated (`wanted_role`) first,
+         b. most recently touched first (stale frozen level loses to today's),
+         c. smallest absolute price distance,
+         d. key string, as the final tie-break.
+
+    Returns None when `target_price` is None or nothing matches within `tolerance`.
+    """
+    if not level_states or target_price is None:
+        return None
+
+    target = float(target_price)
+    exact = level_states.get(f"{target:.4f}")
+    if exact is not None:
+        price = getattr(exact, "price", None)
+        if price is None or abs(float(price) - target) <= tolerance:
+            return exact
+
+    best = None
+    best_rank: "Optional[tuple]" = None
+    for key, state in level_states.items():
+        price = getattr(state, "price", None)
+        if price is None:
+            continue
+        distance = abs(float(price) - target)
+        if distance > tolerance:
+            continue
+        role_applicable = (
+            wanted_role is not None and getattr(state, "role", None) == wanted_role
+        )
+        rank = (
+            0 if role_applicable else 1,
+            -_level_state_recency(state),
+            distance,
+            str(key),
+        )
+        if best_rank is None or rank < best_rank:
+            best_rank, best = rank, state
+    return best
+
+
 def volume_divergence_failed(prior_bars: pd.DataFrame, idx: int) -> bool:
     """Setup invalidated when a breakdown bar at idx-1 or idx-2 is followed within
     1-2 bars by a recovery bar that closes UP and has volume >= breakdown bar volume.
@@ -1244,13 +1331,13 @@ def evaluate_bullish_setup(
     ribbon_flipped = detect_ribbon_flip_bullish(ctx.ribbon_history)
     # confluence already computed above (moved to pre-sweep position for carve-out check)
 
-    # Look up level state for sequence_reclaim check
-    level_state = None
-    if reclaim_level is not None and ctx.level_states:
-        for state in ctx.level_states.values():
-            if abs(state.price - reclaim_level) <= 0.05:
-                level_state = state
-                break
+    # Look up level state for sequence_reclaim check.
+    # 2026-08-23: same deterministic resolution as the bearish mirror — see
+    # resolve_level_state(). GT bars 1573/1578/1581/1584/1597/1599 (2026-06-18) were
+    # mis-resolved here too, discarding a 10-entry same-day bounce_history.
+    level_state = resolve_level_state(
+        ctx.level_states, reclaim_level, wanted_role="broken_to_support"
+    )
     sequence_reclaimed = detect_sequence_reclaim(level_state) if level_state else False
 
     if reclaim_level is not None:
@@ -1575,14 +1662,13 @@ def evaluate_bearish_setup(
         close_tolerance_above_level=WICK_CLOSE_TOLERANCE,
     )
 
-    # Look up level state for sequence_rejection check
-    level_state = None
-    if rejection_level is not None and ctx.level_states:
-        # Find LevelState by approximate price match (within $0.05)
-        for state in ctx.level_states.values():
-            if abs(state.price - rejection_level) <= 0.05:
-                level_state = state
-                break
+    # Look up level state for sequence_rejection check.
+    # 2026-08-23: resolution is now DETERMINISTIC (exact key, then role-applicable +
+    # most-recently-touched). The previous first-within-$0.05-in-insertion-order scan
+    # let a stale near-price level shadow the real one — see resolve_level_state().
+    level_state = resolve_level_state(
+        ctx.level_states, rejection_level, wanted_role="broken_to_resistance"
+    )
     sequence_rejected = detect_sequence_rejection(level_state) if level_state else False
 
     # Candlestick pattern detection (NEW 2026-05-07).

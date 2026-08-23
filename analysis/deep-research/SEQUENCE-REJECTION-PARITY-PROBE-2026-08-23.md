@@ -93,3 +93,153 @@ Reading the raw bars: 735.00 breaks (bar 1791, close 733.96 < 734.90 = 735.00-0.
 ## Live-production scope note (not part of the H1/H2 call, flagged for the adjudicator)
 
 The SAME shared lookup bug (filters.py:1578-1586) exists in the code path LIVE production runs too — `heartbeat_core._rebuild_level_states` is not immune by construction, only by *reduced exposure*: its window is 150 bars (`heartbeat_core.py:874`), which its own docstring notes spans "~1.9 RTH sessions," so a same-window cross-day collision (two distinct levels within $0.05 of each other, one from today and one from yesterday, both alive in the same 150-bar rebuild) is structurally possible in live, just far less likely than in an 8-day-accumulated GT dict. This probe did not find or test such a case — it is a residual risk to note, not a claim that live has ever mis-fired this way. The clean, falsifiable finding of this probe is scoped to bar 1801: GT's much-longer accumulation window is what turned a low-probability collision into an actual one here.
+
+---
+
+# RESOLUTION SHIPPED — 2026-08-23 (append per OP-22; REVOKE surface)
+
+The "natural next verification step" this probe flagged as out-of-scope has been run,
+and it landed exactly as predicted: an exact-key-first lookup flips GT's decision at
+bar 1801 to include `sequence_rejection` while LIVE's decision stays byte-identical.
+That **confirms** the mechanism rather than falsifying it.
+
+## What changed
+
+`backtest/lib/filters.py` — the arbitrary insertion-order scan is replaced by one
+shared, deterministic resolver, `resolve_level_state()`, used by BOTH lookup sites:
+
+| Site | Function | `wanted_role` |
+|---|---|---|
+| `filters.py` bearish | `evaluate_bearish_setup` | `broken_to_resistance` |
+| `filters.py` bullish | `evaluate_bullish_setup` | `broken_to_support` |
+
+Resolution is a TOTAL order and never depends on dict insertion order:
+1. **Exact key match** (`f"{price:.4f}"`) wins outright — the key IS the level's identity.
+2. Otherwise, among entries within `$0.05`: role applicable to the setup → most
+   recently touched → smallest price distance → key string.
+
+**Neither engine's windowing was touched.** Live's ~150-bar window is unchanged and
+the orchestrator's dict is still never reset — the defect was the RESOLVER, so only
+the resolver moved. (The probe's original "live is protected by its 150-bar window"
+note is superseded: the window controls only `bounce_history` replay, not which KEYS
+exist. Live routinely holds colliding keys — 1,238 of 13,879 measured ticks — and was
+protected instead by `refresh_levels_intraday.ROLE_EPSILON=0.10` plus `eff =
+levels_active + [fhh]` argument ordering. Both are coincidences in OTHER files, which
+is precisely why the resolver now guarantees the outcome itself.)
+
+## Vary-and-assert (C14 — prove the knob is live, and bounded)
+
+Old scan and new resolver run side by side over every collision the exposure sweep
+enumerated:
+
+| Population | Picks changed | Verdict flips |
+|---|---|---|
+| **GT / offline replay** (never-reset dict) | **5 / 5** | fix bites here |
+| **LIVE / heartbeat_core** (per-tick dict) | **0 / 9** | **0** |
+
+Bar 1801 before/after, through the real `evaluate_bearish_setup`:
+
+```
+GT-shaped dict (stale 735.0300 inserted FIRST, then real 735.0000):
+  PRE-FIX   triggers_fired = ['level_rejection']                        <- FALSE NEGATIVE
+  POST-FIX  triggers_fired = ['level_rejection', 'sequence_rejection']
+LIVE-shaped dict (real 735.0000 only):
+  PRE/POST  triggers_fired = ['level_rejection', 'sequence_rejection']  <- unchanged
+```
+
+Both resolver tiers are non-vacuous. Tier 1 (exact key) decides every collision
+observed in real data. Tier 2 (role → recency) is exercised whenever the target has
+no exact key — e.g. target `735.015` against keys `735.0000`(stale)/`735.0100`(fresh):
+old scan → `735.00`, new resolver → `735.01`. Honest scope note: **in the currently
+observed live + GT data, tier 1 does all the work**; tier 2 is defense-in-depth for
+non-canonical keys (`engine_cli` rebuilds keys from a JSON payload; some callers key
+the dict as `str(price)`), not a knob with measured production impact today.
+
+## Blast radius — every consumer of the resolver / `ctx.level_states`
+
+| Consumer | Behaviour after the fix |
+|---|---|
+| `backtest/lib/filters.py` (bear + bull sites) | **CHANGED by design** — deterministic resolution |
+| `backtest/lib/orchestrator.py:869/981/1000` (never-reset GT dict) | **CHANGED** — bar 1801 false negative corrected |
+| `setup/scripts/heartbeat_core.py:782-825/919-942` (**LIVE brain**) | **UNCHANGED** — 0/9 documented ambiguous states move |
+| `backtest/lib/engine/engine_cli.py:397-438` (JSON→LevelState rebuild) | **UNCHANGED** — keys stay canonical, so tier 1 applies |
+| `backtest/autoresearch/*` (15 scripts resetting per day) | **UNCHANGED** — within-day dicts don't collide |
+| `backtest/autoresearch/*` (accumulating dicts) | inherits the same GT correction |
+| `crypto/validators/*`, `autoresearch` gate sweeps passing `level_states={}` | **UNCHANGED** — resolver short-circuits to `None` |
+| `setup/scripts/conviction.py:278-290` | **UNCHANGED** — has its OWN independent scan (see open items) |
+| `multi/lib/filters.py:1006,1152` | **UNCHANGED** — forked copy, still defective (see open items) |
+
+## Open items NOT fixed here (deliberately out of scope, disclosed not buried)
+
+1. **`multi/lib/filters.py:1006 & 1152`** carries the identical insertion-order scan
+   with an ATR-scaled tolerance. `multi/` is a deliberate symbol-generic FORK that
+   never imports the SPY engine, and the lane is SHADOW/STOPPED — so it was left
+   alone rather than widening this diff into another lane. It WILL need the same fix
+   if that lane is ever revived.
+2. **`setup/scripts/conviction.py` C3 `fresh_test`** does its own
+   first-within-`LEVEL_MATCH_TOL` scan over raw Mappings (not `LevelState` objects),
+   so it shares the defect CLASS but not the code path. Untouched.
+3. **`refresh_levels_intraday._normalize_levels` returns `out + expired`**, and
+   `tier="expired"` entries bypass the producer-side dedup entirely. Not observed in
+   the 21-day sample (0 of 1,144 level records) but structurally reachable. The
+   resolver now makes this benign at the lookup, but the producer hole remains.
+
+## Revert
+
+One line:
+
+```
+git revert <commit-sha>       # or: git checkout <parent-sha> -- backtest/lib/filters.py
+```
+
+Reverting restores the arbitrary insertion-order scan and re-REDs
+`backtest/tests/test_level_state_resolution_determinism_2026_08_23.py` (the golden
+tests fail on a real assertion — `sequence_rejection` stops firing — not merely on a
+missing import; the resolver is imported lazily in that file specifically so the
+regression names the BEHAVIOUR).
+
+## Test results (all quoted verbatim from this session)
+
+**Guard suite — PRE-FIX (proving it REDs), `git show HEAD:...filters.py` restored:**
+```
+E  AssertionError: assert 'sequence_rejection' in ['level_rejection']
+E   +  where ['level_rejection'] = SetupResult(passed=True, bear_score=10, blockers=[],
+E        triggers_fired=['level_rejection'], rejection_level=735.0, ...).triggers_fired
+E  AssertionError: assert ['level_rejection'] == ['level_rejec...ce_rejection']
+E    Right contains one more item: 'sequence_rejection'
+E  AssertionError: assert 'sequence_reclaim' in ['level_reclaim']
+12 failed, 1 passed in 0.54s
+```
+The 1 pre-fix PASS is `test_bite_real_state_fires_and_stale_state_does_not` — the
+non-vacuity bite, which SHOULD pass pre-fix (it proves the fixtures really drive the
+detectors, so the goldens pin a real flip rather than inert data).
+
+**Guard suite — POST-FIX:** `13 passed in 0.36s`
+
+**`backtest/tests/test_replay_fleet_arms.py` — the two previously-RED tests:**
+```
+7 passed in 1690.80s (0:28:10)
+```
+All 7 collected tests ran, zero skips. `test_no_arm_overtrades` and
+`test_three_arms_entry_faithful` — the two REDs this work targeted — **went green ON
+THEIR OWN. No test was edited, weakened, skipped, or xfailed, and `KNOWN_MAX_EXTRA`
+was NOT raised.** This confirms the exposure sweep's prediction that both assertions
+were the same single defect surfacing twice, with no second independent cause.
+
+**`backtest/tests/run_safety_gate.py`:**
+```
+[safety-gate] running curated safety gate (6 suites) via python.exe ...
+59 passed in 5.75s
+[safety-gate] PASS -- curated safety gate (6 suites) green ({'passed': 59}). Safe to commit.
+```
+
+**Other suites touching `filters.py`:** `106 passed in 2.08s`
+(`test_structure_veto`, `test_structure_veto_classifier_live`,
+`test_structure_veto_explicit_2026_08_12`, `test_trigger_bar_freshness_2026_08_20`,
+`test_trigger_bar_freshness_2026_08_21`, `test_bull_sequence_reclaim_coupling`,
+`test_wick_rejection_trigger`, `test_trendline_trigger`, `test_multi_filters`)
+
+**Engine parity suites:** `35 passed in 4.02s`
+(`test_engine_cli_parity`, `test_engine_score_parity`)
+
+Nothing is RED.
