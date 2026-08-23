@@ -156,6 +156,59 @@ The first pass ranked "watcher lane bleeding −$2,139 = 110% of the deficit" as
 - **The one live hypothesis (filed `MULTI-SIGNAL-PORT-BUILD-SHARED-SIGNAL`):** port production `build_shared_signal.py` to a symbol argument and adjudicate through the retained harness under a fresh prereg — with a right-tail channel in the gate, per the calibration doc's own finding that mean-return-only gates under-measure this engine's edge class.
 - **Kalshi (filed `KALSHI-RTH-LIQUIDITY-RERUN`):** shadow idle since 08-09 (no task ever registered). $0 RTH liquidity re-run settles whether the index series is genuinely spread-blocked before J spends effort on an API key; BTC dailies are the fallback venue.
 
+## ⛔ §3 — THE BEAR-SIDE BLEED DOES NOT EXIST (13-agent adjudication, 2026-08-23)
+
+This doc's own §1 opened with "bear core flipped RED (−$16.71/tr, n=31) while bull went GREEN (+$2.45/tr) — the
+bleed is directional." **That is retracted.** A 4-lens sweep with adversarial verification (13 agents, 8 findings,
+**6 refuted, 2 survivors — and both survivors are refutations**) found no bear-specific mechanism, because there
+is no bear-specific effect to explain.
+
+| Cut — real fills `journal/trades.csv`, 2026-07-20..08-21, core safe+bold, RIDE_THE_RIBBON | BEAR | BULL | gap |
+|---|---|---|---|
+| raw | −$16.71/tr (n=31, WR **35.5%**) | +$2.45/tr (n=31, WR **25.8%**) | +$19.16 |
+| drop-top1 trade | −$29.77 | −$17.93 | +$11.84 |
+| **drop-top3 trades** | **−$55.36** | **−$51.96** | **$3.40** |
+| drop-best-2 **days** | −$56.24 | −$101.35 | −$45.11 |
+| **shared days only (4 both sides traded)** | −$85.64 (n=11) | −$2.93 (n=14) | −$82.71 |
+
+- **Bull's entire +$76 net is two days** (2026-08-04 +$1,141 · 2026-08-13 +$962 = +$2,103 = 2,767% of net).
+  The GREEN label dies on ONE trade. **Bear's win rate is HIGHER than bull's** (35.5% vs 25.8%, perm p=0.291).
+- **Day-block bootstrap** (B=20,000, day as the unit): gap 95% CI **[−$145.08, +$154.75]**, **P(gap≤0)=0.410**.
+  Within-day side-label permutation p=0.256. The sign of the gap is not determined by this data.
+- **Confound the source claim missed:** the sides trade near-disjoint days — 10 bear-only, 5 bull-only, only 4
+  shared; bull has ZERO fills before 2026-07-28, so bear alone absorbs the 07-20..07-27 level-feed-outage stretch.
+  **"Side" is confounded with calendar.**
+- ⚠️ Correct statement of the result: not "proven identical" (n=31/side ≈ 15 day-blocks has little power), but
+  **"this data cannot distinguish them, and the labels that claimed it could were computed without a
+  concentration guard."** The adjudication struck down parts of its own surviving finding to stay honest.
+
+**ROOT CAUSE — the same defect class, third instance this weekend:** `backtest/autoresearch/core_strategy_recency.py`
+scores GREEN as `exp>0 AND n>=10` with **no concentration guard**, so it stamps a 2-day fluke GREEN and an
+evenly-spread bleed RED. Identical in shape to `gate_expiry_check.py::costing_verdict` (naive mean-only), which
+produced the two false gate REDs adjudicated earlier tonight. **Three instances = a class, not an accident.**
+Fix dispatched: concentration terms in the recency scorer + a shared `concentration` helper both instruments call.
+
+**Notable kills** (each looked compelling and each died):
+- *"Bear stops fire at −8% vs bull −43% at the same minute"* → **Simpson's paradox on `stop_mode`**: bear-open is
+  19 premium / **0 structure**, bull-open 17/27. Within each mode the sides match. No put-vs-call stop asymmetry.
+- *"Bear triggers carry no level anchor"* (6.4% vs 96.3% attach — structurally TRUE) → mechanism **reverses**:
+  farther from the level predicts BETTER P&L on both sides; bear `level_rejection` is the worst cell measured
+  (−$55.83). Giving bear a level makes bear worse.
+- *"Bear is right about direction more often; the deficit is a truncated right tail"* → the flagship 42.2% vs
+  35.8% counted 8 unevaluable rows (a 1m file ending 12:01 ET) as "wrong". Honest denominators: **41.7% vs 40.6%,
+  p=0.86.**
+
+**Two residuals named, neither actionable:** `ribbon_flip_back` is a put-only exit path (31/116 bear exits,
+0/187 bull — the predicate is code-symmetric, the tape was bull-stacked) but it is net **+$258.72**, so it cuts a
+quarter of the bear book at a scratch rather than destroying profit; and 2026-07-29, the only genuine trend-down
+day in 25 (RTH −1.414%), drew **ZERO bear entries** — non-participation on its best day, which recovers $0
+realized because no fill exists to score.
+
+**WHAT THIS MEANS:** the bleed is **direction-independent and roughly 5× larger than the entire bear-vs-bull
+question**. Every entry-side lever tested this weekend (structure_veto, require_bearish_fill_bar, conviction
+ladder, and now direction itself) came back negative, already-closed, or non-existent. Combined with §Cross-sector
+below, the evidence keeps pointing at one place: **the exits.**
+
 ## Cross-sector strategic read
 
 ### ⭐ THE PATTERN BOTH LANES SHARE: the EXITS are destroying the value
