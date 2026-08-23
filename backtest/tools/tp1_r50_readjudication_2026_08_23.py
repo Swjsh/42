@@ -97,6 +97,7 @@ import elite_bear_level_reject_gate_ab as eb  # noqa: E402 -- entry_date, classi
 from lib.orchestrator import run_backtest  # noqa: E402
 from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
 from lib.option_pricing_real import load_contract_bars, option_symbol  # noqa: E402
+from lib.et_frame import parse_timestamp_et as _sanctioned_parse_timestamp_et, FRAME_WALL_V1  # noqa: E402
 from recency_check import read_cache_last_date  # noqa: E402
 
 PREREG = REPO / "analysis" / "recommendations" / "prereg-tp1-reachability-2026-08-06.json"
@@ -143,15 +144,20 @@ def _parse_timestamp_et(col: pd.Series) -> pd.Series:
     constant, NOT a real UTC offset. Every existing consumer in this codebase (engine_fullhist_
     replay.py, tp1_reachability_2026_08_06.py, gate_revalidation_ab.py) therefore does a NAIVE
     parse + tz_localize(None) (drop the label, keep the digits) rather than a true UTC round-
-    trip. A real utc=True/tz_convert('America/New_York') conversion (tried first in this file
-    and reverted -- see commit message / VOID-check post-mortem) SHIFTS every winter-month
-    (EST) bar by 1 hour relative to that convention, desynchronizing the ribbon/price alignment
-    for winter entries and breaking the VOID reconciliation. This function reproduces the
-    established (deliberately DST-naive) convention exactly."""
-    parsed = pd.to_datetime(col)
-    if getattr(parsed.dt, "tz", None) is not None:
-        parsed = parsed.dt.tz_localize(None)
-    return parsed
+    trip. A real utc=True + tz_convert-to-New-York conversion (tried first in this file and
+    reverted -- produced 16 mismatches, all on winter dates, in the VOID reconciliation check)
+    SHIFTS every winter-month (EST) bar by 1 hour relative to that convention, desynchronizing
+    the ribbon/price alignment for winter entries and breaking the VOID reconciliation.
+
+    ROUTED (2026-08-23, DST-FRAME graduated-guard remediation -- test_graduated_guards.py::
+    test_dst_frame_no_new_unguarded_opra_join_consumers) through the SANCTIONED
+    lib.et_frame.parse_timestamp_et helper with frame=FRAME_WALL_V1 instead of hand-rolling
+    the same wall-v1 parse locally. et_frame.py's wall-v1 branch is byte-identical to what
+    this function used to do inline (bare pd.to_datetime + conditional tz_localize(None)) --
+    this is a code-path compliance fix only, NOT an arithmetic change; the extended
+    re-adjudication was re-run after this edit and produced byte-identical output to the
+    published verdict (see commit message)."""
+    return _sanctioned_parse_timestamp_et(col, frame=FRAME_WALL_V1)
 
 
 def load_extended_spy_vix() -> tuple[pd.DataFrame, pd.DataFrame]:

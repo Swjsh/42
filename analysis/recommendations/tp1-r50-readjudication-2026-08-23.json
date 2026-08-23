@@ -1,6 +1,6 @@
 {
   "_doc": "EXTENDED RE-ADJUDICATION of frozen prereg cell R_tp100_f50 (analysis/recommendations/prereg-tp1-reachability-2026-08-06.json). Assembled from backtest/tools/tp1_r50_readjudication_2026_08_23.py (Part 2, extended popA gate re-run) + backtest/tools/tp1_r50_live_arm_2026_08_23.py (Part 1 forward-clock, Part 3 live-arm corroboration) + carried-forward G6/G7/G8 from the original 2026-08-06 scorecard (week-population-B-scope + cross-cell BH-FDR family scope, NOT re-run this session -- disclosed below, not silently presented as fresh).",
-  "generated_at_et": "2026-08-23T15:44:04.642935",
+  "generated_at_et": "2026-08-23T16:02:08.186487",
   "prereg_id": "TP1-REACHABILITY-2026-08-06",
   "cell_readjudicated": "R_tp100_f50 (ribbon_ride, tp1_premium_pct=1.0, tp1_qty_fraction=0.5)",
   "control_null_cell": "R_tp100_f667 (== live registry AS OF 2026-08-06 -- see drift_disclosure)",
@@ -43,7 +43,7 @@
       "n_excluded_no_opra_cache": 0,
       "n_excluded_no_spy_day": 0,
       "n_excluded_out_of_window_guard": 0,
-      "entry_layer_seconds": 5.6
+      "entry_layer_seconds": 4.9
     },
     "combined_popA_n": 213,
     "void_check": {
