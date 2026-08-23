@@ -204,6 +204,35 @@ quarter of the bear book at a scratch rather than destroying profit; and 2026-07
 day in 25 (RTH −1.414%), drew **ZERO bear entries** — non-participation on its best day, which recovers $0
 realized because no fill exists to score.
 
+### §3a — REFINEMENT (same evening, from the concentration-guard fix `0a51b817`)
+
+The 13-agent sweep characterised bear as "an evenly-spread bleed" vs bull's "2-day fluke." **That asymmetry is
+wrong.** Once `core_strategy_recency.py` computes concentration on BOTH tails, both labels collapse:
+
+```
+bear -> RED_CONCENTRATED    exp=-$16.71/tr   drop-worst3 = +$397    drop-worst-2-days = +$363   (SIGN FLIPS)
+bull -> GREEN_CONCENTRATED  exp=+$2.45/tr    drop-top3   = -$1,455  drop-best-2-days  = -$2,027 (SIGN FLIPS)
+```
+
+**Neither direction is a broad bleed. Both are dominated by a handful of extreme trades** — bull's positive dies
+on its best days, bear's negative dies on its worst trades. The sweep only ran drop-TOP (which makes a losing
+cohort look worse); running drop-WORST on bear reverses it. Both checks are legitimate; they answer different
+questions, and only together do they show the real shape.
+
+**This redirects the search a third time.** If the deficit is carried by a few catastrophic losers rather than a
+broad bleed, then the lever is **loss MAGNITUDE**, and there are only three ways to attack that:
+- (a) don't take those trades → entry selection, **exhausted** (§1a/§1b/§3, every lever negative);
+- (b) cut them sooner → stop tightening, **settled dead** (0/34 cells; destroys $3,034.88 of eventual winners);
+- (c) **size them smaller** → *never tested on this book.*
+
+(c) is the untested axis, and doctrine already points at it: **C31 / L168 / L203** — across J's 667 real trades,
+1–2 lots made **+$4,576** while 3+ lots lost **−$17,461**, and the recoverable money was the no-add +
+catastrophe-cap PACKAGE. Meanwhile the live per-trade risk caps are **30% of equity (Safe) and 50% (Bold)** —
+enormous — and the −50% catastrophe cap is validated as correctly placed, so these losers are hitting a working
+cap at a very large size. The cap bounds the PERCENTAGE; nothing bounds the DOLLARS.
+⚠️ Filed as a thread, NOT a finding: this is a re-reading of two concentration numbers, has had no null test, and
+sizing changes are the single easiest way to manufacture a backtest illusion. It needs its own frozen prereg.
+
 **WHAT THIS MEANS:** the bleed is **direction-independent and roughly 5× larger than the entire bear-vs-bull
 question**. Every entry-side lever tested this weekend (structure_veto, require_bearish_fill_bar, conviction
 ladder, and now direction itself) came back negative, already-closed, or non-existent. Combined with §Cross-sector

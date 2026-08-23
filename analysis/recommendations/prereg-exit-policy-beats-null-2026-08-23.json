@@ -1,0 +1,99 @@
+{
+  "prereg_id": "EXIT-POLICY-BEATS-NULL-2026-08-23",
+  "_doc": "FROZEN PRE-REGISTRATION -- committed BEFORE any runner tool exists and BEFORE any exploratory exit analysis is run (git-provable via commit ordering: `git merge-base --is-ancestor <this commit> <runner commit>`). Authored by the Opus adjudication session of 2026-08-23 as the direct successor to that session's cross-lane finding. ANALYSIS produces a scorecard; NOTHING ships unless the full auto-ratify bar clears. The bar is NOT softened to ship.",
+  "clock_verified_et": "2026-08-23 18:14:48 Sunday EDT (market_hours=False), via setup/scripts/et_clock.py",
+
+  "WHY_THIS_EXISTS": {
+    "origin": "Three independent adjudications on 2026-08-23 each concluded the ENTRY side is exhausted, and two independent lanes each showed the EXIT side subtracting value. See analysis/deep-research/PROFITABILITY-ORDER-2026-08-23.md sections 1a/1b/1c/3 and 'THE PATTERN BOTH LANES SHARE'.",
+    "observation_0dte": "Across 303 round trips (2026-06-26..08-19): tp1 exits +$14,514, ribbon_flip +$273, structure_stop -$5,998, premium_stop -$10,090. Exactly ONE exit stage makes money; stops subtract $16,088.",
+    "observation_futures": "SSR-v1 futures shadow reached n=17 round trips with POSITIVE absolute expectancy (+$27,335.69) yet FAILED its own beats_null gate: an unmanaged hold to the same closing bar returned +$30,828.09. The managed exits subtract ~$3,500.",
+    "the_question": "Does the 0DTE managed-exit policy also fail a beats_null test -- i.e. would a naive hold to the existing time stop, on the SAME entries, have returned more than the managed exits actually returned?",
+    "why_it_matters": "If yes, the book's deficit is not an entry-selection problem at all and every entry-gate lever tested to date was aimed at the wrong half of the trade. If no, the exit policy is earning its keep and the cross-lane pattern is a coincidence -- which is an equally valuable and publishable result.",
+    "entry_side_levers_already_exhausted_2026_08_23": [
+      "structure_veto_enabled -- full G-battery NOT-UNBLOCK-ELIGIBLE (drop-top3 -$588, BH p=0.836)",
+      "require_bearish_fill_bar -- full G-battery NOT-UNBLOCK-ELIGIBLE (n=57, drop-top3 -$958, BH p=0.5374, bootstrap p=0.3311)",
+      "conviction/score ladder -- arming would have cost -$675 on its own population; underlying C5 signal broken",
+      "watcher-lane families -- worst offender already disarmed 2026-07-25, leak predates the measurement window",
+      "DIRECTION ITSELF -- bear-vs-bull adjudicated a concentration artifact: drop-top3 gap $3.40/tr, day-block bootstrap P(gap<=0)=0.410"
+    ]
+  },
+
+  "GRAVEYARD_DECLARED_BEFORE_RUNNING": {
+    "_rule": "Everything in this list is SETTLED. This prereg does NOT re-test any of it. Any cell that amounts to one of these is out of scope by construction.",
+    "stop_tightening_all_forms": "0 of 34 stop-mode/width cells passed all 6 pre-registered honesty gates (LOSSES-STOP-MODE-MATRIX-2026-08-19). Winner-dollars rise MONOTONICALLY with stop width in every family; PREMIUM_10 has the best avg loss and destroys $12,483 of winner-dollars vs PREMIUM_20, net -$4,919 WORSE. Eventual winners carrying MAE past -20% hold $3,034.88 = 1.56x the entire book deficit.",
+    "catastrophe_cap": "-50% cap re-validated 2026-08-09 on 13 real fires; CONTROL beats CAP_60/CAP_70/NO_CAP on every pre-registered gate. Zero eventual winners in the whole 303-trip book ever dug past -50%. Watch CLOSED.",
+    "profit_lock_arm_scope_full": "Died FIVE times, last on live machine n=190 (runner cohort -$7,758.85, 22 worse / 0 better). PERMANENT graveyard.",
+    "be_floor_instead_of_chandelier": "BE-floor alternative loses -$1,095 ex-week and -$907 on the 2026-07-29 trend day. The chandelier trail IS the policy.",
+    "earlier_profit_taking": "'take-profit-earlier' x3 in the settled graveyard; every tp1_premium_pct cell below the registry value failed (catcap axis D, popA deltas -$1,733 to -$4,095).",
+    "THEREFORE_THE_UNTESTED_DIRECTION": "Every exit knob ever tested here was tested in the TIGHTENING direction (earlier, smaller, safer) and every one destroyed more right-tail than it saved. The direction this prereg tests is the opposite one: DOES THE MANAGEMENT ITSELF, IN AGGREGATE, COST MORE THAN IT SAVES? That is a different question from 'which stop width is best' and has never been asked on this book."
+  },
+
+  "population": {
+    "P_realfills": {
+      "source": "journal/trades.csv -- REAL BROKER FILLS ONLY. The only win-rate authority in this repo (lesson C1). All 5 arms.",
+      "window": "2026-06-26 .. the latest complete session on disk at run time, resolved via recency_check.read_cache_last_date(). NEVER a hardcoded end date (that was the documented defect in the original gate_revalidation tool).",
+      "required_columns": ["date", "dollar_pnl", "cf_time_stop_pnl", "cf_high_water_pnl", "hold_minutes", "c_or_p", "setup", "account_id", "qty"],
+      "exclusions_frozen": "Rows with null/blank cf_time_stop_pnl are EXCLUDED and their count DISCLOSED as a coverage figure. If coverage is below 80% of round trips the scorecard is reported as UNDERPOWERED and no cell may ship.",
+      "provenance_caveat": "The fleet-replay harness carried 2 known REDs (risky-1 sequence_rejection parity, bar 1801) resolved 2026-08-23 as a GT-side lookup-collision defect. This study uses REAL FILLS ONLY and is therefore NOT exposed to that harness; state that explicitly in the output rather than inheriting the quarantine."
+    },
+    "P_futures_replication": {
+      "source": "automation/state/futures/ssr-shadow-progress.json legacy ssr-v1 ledger (n=17 round trips) + its null_check.",
+      "role": "CROSS-LANE REPLICATION ONLY. n=17 is far too small to adjudicate anything on its own and it is a different asset class. It can CORROBORATE or CONTRADICT the 0DTE direction; it can never be the reason a cell ships."
+    }
+  },
+
+  "cells_frozen": {
+    "CONTROL": "Realized dollar_pnl exactly as the broker filled it. Never re-walked, never modeled.",
+    "NULL_A_hold_to_time_stop": {
+      "definition": "cf_time_stop_pnl -- what the same entry would have realized held to the existing 15:50 ET time stop with NO managed exit.",
+      "ship_eligible": true,
+      "note": "This is the direct 0DTE analogue of the futures beats_null gate. It is TRADEABLE by construction (no look-ahead: the time stop is a fixed clock, not a chosen moment)."
+    },
+    "NULL_B_high_water": {
+      "definition": "cf_high_water_pnl -- what the entry would have realized exiting at its best moment.",
+      "ship_eligible": false,
+      "SHIP_INELIGIBILITY_IS_STRUCTURAL": "This is a LOOK-AHEAD benchmark. Nobody can trade it. It is carried ONLY to size the theoretical ceiling and to bound how much of the gap is even addressable. Quoting NULL_B as an achievable improvement would be the exact 'too-good result' anti-pattern this repo has been burned by; it is frozen here as DESCRIPTIVE-ONLY so no downstream reader can promote it."
+    },
+    "STRATIFICATIONS_REQUIRED": {
+      "by_stop_mode": "MANDATORY. On 2026-08-23 a compelling 'bear stops fire at -8% vs bull -43%' finding turned out to be pure SIMPSON'S PARADOX on stop_mode (bear-open was 19 premium / 0 structure, bull 17/27). Any aggregate exit number that is not stratified by stop_mode is presumed confounded.",
+      "by_winner_loser": "MANDATORY. The hypothesis is specifically about the RIGHT TAIL. Report the delta separately for CONTROL-winners and CONTROL-losers. An aggregate that nets a large winner-side gain against a large loser-side loss hides the entire mechanism.",
+      "by_direction": "REPORT ONLY, NEVER AS A FILTER. Direction was adjudicated a non-effect on 2026-08-23 (drop-top3 gap $3.40/tr, P(gap<=0)=0.410). Any cell that conditions on side is out of scope."
+    }
+  },
+
+  "gates_frozen": {
+    "_design_note": "These gates are built directly from the failure modes that killed findings on 2026-08-23. Concentration is first-class, not an afterthought.",
+    "G1_aggregate": "Mean per-trade delta (NULL_A minus CONTROL) > $0.005 to claim the managed exit is COSTING money; < -$0.005 to claim it is EARNING its keep. Between those, INCONCLUSIVE.",
+    "G2_drop_top3_trades": "The G1 sign must SURVIVE removing the 3 largest-magnitude per-trade deltas. A sign that flips at drop-top3 is REFUTED. (This single check killed both gate REDs and the entire bear-side story on 2026-08-23.)",
+    "G3_drop_best_2_days": "The G1 sign must SURVIVE removing the 2 most extreme DAY-level summed deltas. Day-level concentration -- not trade-level -- produced the phantom bull-GREEN label (2 days = 2,767% of net).",
+    "G4_equal_N_bucket_stability": "Split the population into 4 buckets of EQUAL CHANGED-TRADE COUNT (not fixed calendar windows) ordered by date. PASS = same sign in >= 3 of 4 buckets. RATIONALE, frozen now: fixed-calendar sub-window gates structurally starve low-fire-rate effects -- R_tp100_f50 could never clear its G4 because 2 of its 4 calendar windows were permanently stuck at n_changed=4. Equal-N buckets test the same stability property with adequate power in every bucket. This is a FORWARD design choice for a NEW prereg, never a retroactive re-spec of an existing one.",
+    "G5_day_block_bootstrap": "B=20,000 resamples with the DAY as the resampling unit (the 5 arms share one signal, r=0.846, 95.7% sign agreement -- trade-level resampling would be pseudo-replication). Report the 95% CI and P(delta<=0). PASS requires P(delta<=0) <= 0.05 for a costing claim.",
+    "G6_stop_mode_stratified": "The G1 sign must hold WITHIN each stop_mode stratum that carries >= 10 trades. A sign that exists only in the pooled number and not within strata is Simpson's paradox and is REFUTED.",
+    "G7_n_effective": "Report n_effective at date x side x setup granularity alongside raw n. If n_effective < 30 the result is labeled UNDERPOWERED regardless of raw n.",
+    "G8_coverage_honesty": "Report what fraction of round trips had a usable cf_time_stop_pnl. Missing-data must never be silently treated as zero-delta -- on 2026-08-23 a flagship direction-correct claim counted 8 unevaluable rows as 'wrong' and its p-value went from apparently-significant to 0.86 once the denominator was honest."
+  },
+
+  "auto_ratify_bar_frozen": {
+    "_scope": "This prereg is DIAGNOSTIC. Clearing the bar authorizes writing a FOLLOW-ON prereg for a specific exit change; it does NOT itself authorize any trading-path edit.",
+    "FINDING_ESTABLISHED": "G1 AND G2 AND G3 AND G4 AND G5 AND G6 all pass, with G7 not UNDERPOWERED and G8 coverage >= 80%.",
+    "SHIP_rule": "NOTHING in this prereg ships to the trading path. Not one parameter. The deliverable is a verdict + a decision about whether a follow-on intervention prereg is justified. Any session that reads this result and edits an exit parameter without a new frozen prereg is violating this document.",
+    "cross_lane_note": "If the 0DTE result AGREES with the futures SSR beats_null failure, report it as a cross-lane pattern with BOTH sample sizes stated. Two small samples agreeing is suggestive, not confirmatory."
+  },
+
+  "directional_predictions_frozen": {
+    "P1": "On CONTROL-LOSERS the delta will be NEGATIVE (holding a losing 0DTE to the time stop decays toward zero; the managed stop genuinely saves money there). This is the half of the policy that works.",
+    "P2": "On CONTROL-WINNERS the delta will be POSITIVE (managed exits truncate the right tail that pays for the book -- 44 TP1 exits are the entire P&L). This is the hypothesized defect.",
+    "P3": "The NET sign is genuinely uncertain and I am not predicting it. That uncertainty is the reason this study is worth running. Anyone who reports a confident prior here after the fact is back-filling.",
+    "P4": "Concentration will be severe -- I expect the aggregate to move substantially at drop-top3 and drop-best-2-days. Every headline finding examined on 2026-08-23 did.",
+    "P5": "NULL_B (high-water) will look spectacular and will be meaningless. Stated in advance so nobody reports it as an opportunity."
+  },
+
+  "kill_criterion_for_the_hypothesis": "If G1 is INCONCLUSIVE, or the sign fails G2/G3/G5, the 'exits are destroying value' hypothesis is REFUTED on this book and must be recorded as such in PROFITABILITY-ORDER-2026-08-23.md -- not quietly reframed or re-cut until it passes. A refutation here is a genuinely useful result: it would mean the deficit is neither entry-selection nor exit-management, which redirects the search entirely.",
+
+  "forward_clock_if_inconclusive": "Re-adjudicate when the real-fills population grows by >= 50 additional round trips beyond the run-time n, or by 2026-10-01, whichever comes first. Do NOT re-run on the same population hoping for a different cut -- that is the garden of forking paths and this repo has a documented history of it.",
+
+  "outputs": [
+    "analysis/recommendations/exit-policy-beats-null-2026-08-23.json (the scorecard, every cell and stratum disclosed)",
+    "analysis/deep-research/EXIT-POLICY-BEATS-NULL-2026-08-23.md (verdict line at the top, mechanism, and what it means for the next prereg)"
+  ]
+}
