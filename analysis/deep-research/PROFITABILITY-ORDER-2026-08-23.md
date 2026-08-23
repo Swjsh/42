@@ -36,13 +36,40 @@
 
 | Instrument | Verdict | Evidence |
 |---|---|---|
-| R_tp100_f50 | **RE-ADJUDICATE + SHIP path** (clock expired, unactioned) | synthesis §2/#1 |
+| R_tp100_f50 | **RE-ADJUDICATE** — one gate short, and it's a POWER gate (see §1a) | synthesis §2/#1 + prereg scorecard |
 | Catastrophe cap −50% | **KEEP, watch CLOSED** | CATASTROPHE-CAP-DECISION-2026-08-09 (n=13, control beats all variants) |
 | Strike clamp / MINCON / TRAIL_25 / re-entry cooldown | **ALL REFUTED** (3 of 4 died at leave-best-2-out) | synthesis §3 |
 | stop_mode structure-vs-premium | **PENDING** (n=10/20; current +$498 but sign has flipped twice in a week; date-paired live split favors structure +$4.48 vs −$24.60/tr) | stop-mode-shadow-summary.json |
 | Day-throttle T-2/T-6 | **PENDING 11 sessions**; forward reading currently NEGATIVE (−$306) vs in-sample hope | day-throttle-shadow-summary.json |
 | Conviction ladder | **NOT SHIP-ELIGIBLE** — 98.1% block rate, arming = −$675; underlying C5 signal broken | conviction-shadow-report.json |
 | Entry-quality V-d1/V-e3 | shadow-only, thin (+$65 n=161 / +$449 n=4 fails F3) | entry-quality/shadow-summary.json |
+
+### §1a — CORRECTION (Opus review pass, same evening): what R_tp100_f50 actually failed on
+
+The first pass of this doc said "clock expired, re-adjudicate → ship." Reading the frozen cell record
+directly (`analysis/recommendations/tp1-reachability-2026-08-06.json`, cell `R_tp100_f50`) sharpens it,
+and the sharper version changes the ACTION:
+
+- **It fails exactly ONE gate: `G4_subwindow_stable`.** G1, G2, G3, G5, G6, G7, G8 all pass; bar
+  components `OOS_positive`, `WF_ge_0.70` (0.80), `anchor_no_regression` all pass. `p_value_raw=0.002617`.
+- **G4 failed for lack of POWER, not for instability.** All four sub-windows are POSITIVE:
+  2025H1 +$228.95 (n=4) · 2025H2 +$333.20 (n=13) · 2026Q1 +$253.20 (n=4) · 2026Q2p +$94.70 (n=10).
+  G4 requires delta ≥ 0 in **≥3 windows holding ≥5 changed trades** — only TWO windows qualify, so a
+  pass is arithmetically unreachable. Cause: `popA_tp1_fire_rate = 0.2042` — TP1@+100% touches ~1 trade in 5.
+- **`G3_runner_anchor` is +$628.05** — the prereg's declared "operative veto" is not merely survived, it is
+  positive. This cell does not damage the runner cohort that pays for the book.
+- **Therefore the resolution is MORE DATA, never a softer gate.** The prereg is explicit ("the bar is not
+  softened to ship"; P4 predicted no cell would clear). Re-reading a failed gate as "only technically failed"
+  is the forking-paths anti-pattern. The legitimate move — already precedented THIS WEEKEND on
+  `structure_veto_enabled` — is to extend the population past the frozen end date through the live OPRA
+  cache date, leave all 8 gate definitions byte-identical, and let G4 pass or fail with adequate power.
+- **The prereg's own named resolution instrument is risky-1's LIVE +50% arm**, not a replay re-run — which
+  usefully routes around the fleet-replay quarantine. ⚠️ But note the **axis mismatch**: risky-1's live arm
+  varies the TP1 LEVEL (+50% vs +100%); the frozen cell varies the QTY FRACTION (0.5 vs 0.667) at a fixed
+  +100% TP1. They share the "early extraction damages runners" risk, they are NOT the same knob. Live
+  corroboration is a bounding proxy and must be reported as one.
+
+Dispatched accordingly (extend-population re-run under frozen gates + live-arm corroboration + VOID check).
 
 **Queue items filed:** `TP1-R50-READJUDICATION` (HIGH) · `WATCHER-LANE-PROVENANCE-AUDIT` (HIGH) · `BEARISH-FILL-BAR-G-BATTERY` (MED-HIGH). Pre-existing `FABLE-ESCALATION-RISKY1-SEQUENCE-REJECTION-PARITY-GAP` stays ranked with them — risky-1 is the worst arm on the 10-day window (−$571) and the parity gap sits on its entry-quality gate.
 
