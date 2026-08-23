@@ -158,6 +158,35 @@ The first pass ranked "watcher lane bleeding −$2,139 = 110% of the deficit" as
 
 ## Cross-sector strategic read
 
+### ⭐ THE PATTERN BOTH LANES SHARE: the EXITS are destroying the value
+
+Surfaced by running the 0DTE and futures adjudications side by side on 2026-08-23. Neither lane's evidence was
+collected to answer this, and both answer it anyway:
+
+- **0DTE SPY:** of $14,514 made at TP1, stops give back **$16,088** (premium_stop −$10,090, structure_stop
+  −$5,998); ribbon_flip ≈ 0. Only ONE exit stage makes money. And 0/34 stop-mode/width cells pass their gates —
+  tightening destroys more winner-dollars than it saves ($3,034.88 of eventual winners dug past −20% MAE).
+- **Futures SSR:** absolute expectancy is POSITIVE (+$27,335.69 over 17 round trips) but it **FAILS beats_null**
+  — an unmanaged hold to the same closing bar returns **+$30,828.09**. The exit management subtracts ~$3,500.
+- **Same signature, two independent instruments, different asset classes:** entries find something; the exit
+  policy hands a chunk of it back. In 0DTE the right tail (44 TP1 exits) is the entire P&L; in SSR the right tail
+  is what the managed exit truncates.
+
+This reframes where the remaining edge work belongs. Both lanes have been optimising ENTRY gates (structure_veto,
+require_bearish_fill_bar, conviction ladder, entry-quality tiers — and this weekend all three of the entry-side
+levers came back negative or already-closed). The measurement keeps pointing at exits, and the exit knobs that
+have been tested were mostly tested as *tightening* (stops, throttles, earlier profit-taking), which is the
+direction that kills the right tail. **The untested direction is exits that protect the right tail rather than
+truncate it** — and note that R_tp100_f50, the one cell that survived 7/8 gates with a POSITIVE runner anchor,
+is exactly a right-tail-preserving change (bank less at TP1, leave more runner). That is a coincidence worth
+treating as a hypothesis, not a conclusion.
+
+⚠️ Honest caveat: this is a PATTERN across two lanes, not a validated finding. It has not been through a null
+test, and "exits are the problem" is an easy story to tell about any losing book. It earns a pre-registered
+investigation, not a parameter change.
+
+## Cross-sector strategic read (original)
+
 The SPY-calibration finding is the biggest single takeaway of the weekend: **the engine's edge is not direction-prediction, it's right-tail premium harvest** (direction ~58% @ +10min and gone by +60min, while the P&L lives in 44 TP1 exits). Two lanes (weekly, multi) were killed by mean-return/direction null gates that under-measure exactly that edge class. Verdicts stand (they failed at every horizon), but **every future lane's prereg gets a right-tail/hit-rate channel alongside mean-return** — encoded in the MULTI-SIGNAL-PORT queue item's spec.
 
 ---
