@@ -1,0 +1,70 @@
+# PROFITABILITY ORDER — three sectors, one ranking (2026-08-23)
+
+> Written Sunday 2026-08-23 (weekend window) by the Fable session J asked: "figure out what we
+> need to do to become profitable in the three sectors — futures, 0DTE SPY, other option trading."
+> Synthesized from three independent lane audits (0DTE / futures / other-options) run fresh this
+> session against on-disk evidence. Every number below carries its source file. Actionable items
+> filed in `automation/overnight/queue.md` (six new entries, 2026-08-23) so the conductor drains
+> them; this doc is the adjudication record.
+
+---
+
+## FOR J — the verdict in 10 lines
+
+- **Nobody is profitable today.** 0DTE book **−$1,941 over 35 sessions** (303 trips, WR 23.10% vs 25.24% breakeven — a 2.14pp gap). Futures sim **−$100/8 trades**, both edges sub-threshold. Other-options: every v1 signal correctly killed.
+- **All the near-term profit leverage is in 0DTE SPY.** Futures and other-options have no matured positive edge to ship; 0DTE has one matured lever + one governance leak worth ~170% of the deficit combined.
+- **#1 SHIP: `R_tp100_f50`** (TP1 sell-half at +100%) — its re-open clock EXPIRED (risky-1 n=31≥30) and sat unactioned. Sole BH survivor of 28 cells, **+$1,174 scaled ≈ 60% of the WR gap**, pre-written kill bar. Re-adjudicate → paper-ship any evening.
+- **#2 STOP THE LEAK: watcher lane.** Non-ribbon setups are **−$2,139 = 110% of the whole deficit** (VWAP_CONTINUATION alone −$1,470) with **no ratification record** on the only deep population we own. Provenance audit → no record ⇒ SHADOW. This is your own gate-provenance rule, not a P&L filter.
+- **#3 GATES COSTING MONEY NOW:** `require_bearish_fill_bar` refuses a cohort earning **+$46.15/tr (n=34)** — full G-battery before any flip. Bear core itself is RED on the fresh window (**−$16.71/tr, n=31**) while bull flipped GREEN (+$2.45/tr).
+- **DO NOT TOUCH:** stops (0/34 cells pass; tightening decapitates $3,035 of winners), the −50% cat-cap (validated KEEP, watch closed), conviction ladder (arming would have cost $675), day-throttle (forward reading is negative), chop-blocking (kills the best cohort).
+- **Futures = let the clocks run, fix the spec.** Edge #3 at 11/20 trips, mean **$23.84 vs $71.46 validated** (flashing amber, verdict at n=20 by its own rail). SSR shadow 17/20 but **fails beats_null** and is scored on unfundable full-size NQ/GC → respec to MNQ/MGC (ssr-v2). No live-arming path exists regardless (OP-0 #1 + new venue, double-gated).
+- **Other options = one hypothesis left, everything else stays dead.** Port `build_shared_signal.py` (the real 58%/+4.9σ signal) symbol-generic through the retained null harness under a fresh prereg. Weekly/multi v1 signals stay killed; no account provisioning until a signal clears null. Kalshi: $0 RTH liquidity re-run decides the venue before you spend a key.
+- **Trust repair that gates everything:** the fleet-replay harness has 2 known REDs (risky-1 sequence_rejection parity, bar 1801) — FABLE-ESCALATION already filed; until adjudicated, all replay-derived evidence (incl. #1's scaling) reads with a quarantine caveat.
+- **Your only J-steps:** none this weekend. Kalshi API key only IF the RTH survey clears the spread gate. Everything else ships autonomously under the standing rails.
+
+---
+
+## Sector 1 — 0DTE SPY: the profit center (all ranked actions live here)
+
+**Where the money actually goes** (canonical: `analysis/deep-research/WINNERS-AND-LOSSES-SYNTHESIS-2026-08-19.md`, 303 trips):
+
+- Only **44 TP1 exits** make money (+$14,514). Stops subtract **$16,088** (premium −$10,090, structure −$5,998). Ribbon flip ≈ 0.
+- Core ribbon setups (n=228): **+$198**. Watcher setups (n=75): **−$2,139**. Same WR — a payoff-shape problem, not a hit-rate problem.
+- Day dispersion >> arm dispersion: one day (08-04, +$3,613) = 186% of the deficit; 5 losing days in the last 15 sum to −$8,692. Confirms the standing doctrine: the day can't be pre-selected; damage control + right-tail capture are the levers, not day-picking.
+
+**Matured instrument verdicts this weekend** (full table in the audit; sources inline):
+
+| Instrument | Verdict | Evidence |
+|---|---|---|
+| R_tp100_f50 | **RE-ADJUDICATE + SHIP path** (clock expired, unactioned) | synthesis §2/#1 |
+| Catastrophe cap −50% | **KEEP, watch CLOSED** | CATASTROPHE-CAP-DECISION-2026-08-09 (n=13, control beats all variants) |
+| Strike clamp / MINCON / TRAIL_25 / re-entry cooldown | **ALL REFUTED** (3 of 4 died at leave-best-2-out) | synthesis §3 |
+| stop_mode structure-vs-premium | **PENDING** (n=10/20; current +$498 but sign has flipped twice in a week; date-paired live split favors structure +$4.48 vs −$24.60/tr) | stop-mode-shadow-summary.json |
+| Day-throttle T-2/T-6 | **PENDING 11 sessions**; forward reading currently NEGATIVE (−$306) vs in-sample hope | day-throttle-shadow-summary.json |
+| Conviction ladder | **NOT SHIP-ELIGIBLE** — 98.1% block rate, arming = −$675; underlying C5 signal broken | conviction-shadow-report.json |
+| Entry-quality V-d1/V-e3 | shadow-only, thin (+$65 n=161 / +$449 n=4 fails F3) | entry-quality/shadow-summary.json |
+
+**Queue items filed:** `TP1-R50-READJUDICATION` (HIGH) · `WATCHER-LANE-PROVENANCE-AUDIT` (HIGH) · `BEARISH-FILL-BAR-G-BATTERY` (MED-HIGH). Pre-existing `FABLE-ESCALATION-RISKY1-SEQUENCE-REJECTION-PARITY-GAP` stays ranked with them — risky-1 is the worst arm on the 10-day window (−$571) and the parity gap sits on its entry-quality gate.
+
+## Sector 2 — Futures: mature the clocks, don't force them
+
+- **Edge #3 (MES→MNQ divergence):** 11/20 round trips, mean **$23.84 vs $71.46 validated** (33% — under the 50% kill line, but its rail only adjudicates at n≥20). No action except let it fill. `AUTONOMOUS-FUTURES-LANE.md` is stale (still shows n=6/$134 — the drift went from too-good to shortfall).
+- **SSR shadow:** 17/20, +$27,336 absolute BUT **fails beats_null** (unmanaged hold +$30,828 — the managed exits subtract) AND is scored on unfundable full-size NQ/GC. Filed `FUTURES-SSR-V2-RESPEC`. A v2 respec restarts a fundable clock; it does not rescue v1's null fail.
+- **Broker (real-fills) lane:** venue approval is settled (`H2_SESSION_ARTIFACT` = the zero-BP field is a cert-env red herring; a real /MESU6 fill exists 08-09) but the lane is thrashing: 1 order attempt `placed=false` with empty diagnostics, **36 `broker_position_vanished` / 0 `filled`** (24h cert wipe). The 08-21 diagnosability patch needs one live-session re-attempt Monday to classify the rejection.
+- **Bookkeeping bugs found (fix dispatched this session):** HOME.md shows SSR "0 round trips" — key mismatch in `obsidian_vault_sync.py` (`n_closed_round_trips` vs the file's `n_round_trips`); `journal/futures/trades.csv` is missing 3 of 8 sim trades (all of 08-10, including the first stop-out).
+- **Live-arming:** blocked by standing doctrine (OP-0 #1 + new venue, double-gated) independent of performance. Correct; unchanged.
+
+## Sector 3 — Other options: stop spending until there's a new question
+
+- **Weekly (GLD/QQQ):** v1 + variant-1 both dead by their own preregs (all 4 expiry arms lose −8..−14%, fail null; variant-1 strictly worse). No weekly-1 account exists and none should until a signal clears null. Machinery + doctrine doc stay.
+- **Multi-symbol:** STOPPED_ON_NULL stands. Levels-transplant hypothesis **falsified** ("the levels ARE the edge" was wrong); the harness itself proven calibrated via SPY control (58.23%/+4.89σ @ +10min). Salvage = the null harness + symbol-generic infra + `multi/evaluate.py` read surface. Banned: sweeps, more names, re-slices.
+- **The one live hypothesis (filed `MULTI-SIGNAL-PORT-BUILD-SHARED-SIGNAL`):** port production `build_shared_signal.py` to a symbol argument and adjudicate through the retained harness under a fresh prereg — with a right-tail channel in the gate, per the calibration doc's own finding that mean-return-only gates under-measure this engine's edge class.
+- **Kalshi (filed `KALSHI-RTH-LIQUIDITY-RERUN`):** shadow idle since 08-09 (no task ever registered). $0 RTH liquidity re-run settles whether the index series is genuinely spread-blocked before J spends effort on an API key; BTC dailies are the fallback venue.
+
+## Cross-sector strategic read
+
+The SPY-calibration finding is the biggest single takeaway of the weekend: **the engine's edge is not direction-prediction, it's right-tail premium harvest** (direction ~58% @ +10min and gone by +60min, while the P&L lives in 44 TP1 exits). Two lanes (weekly, multi) were killed by mean-return/direction null gates that under-measure exactly that edge class. Verdicts stand (they failed at every horizon), but **every future lane's prereg gets a right-tail/hit-rate channel alongside mean-return** — encoded in the MULTI-SIGNAL-PORT queue item's spec.
+
+---
+
+*Successor context: WINNERS-AND-LOSSES-SYNTHESIS-2026-08-19 (0DTE canonical), MULTI-LANE-STAGE-A-VERDICT-2026-08-20 + MULTI-LEVELS-TRANSPLANT-VERDICT-2026-08-21 (multi kills), WEEKLY-EXPIRY-EXPERIMENT-2026-08-18 (weekly kill), AUTONOMOUS-FUTURES-LANE.md (futures, partially stale — see §2).*
