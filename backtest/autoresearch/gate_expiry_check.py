@@ -132,6 +132,7 @@ from autoresearch._edgehunt_vwap_continuation import _normalize_spy, _align_vix 
 from autoresearch._b5_vix_regime_dayside import _swing_stop  # noqa: E402
 from lib.ribbon import compute_ribbon  # noqa: E402
 from lib.simulator_real import simulate_trade_real  # noqa: E402
+from lib.concentration import drop_top_n  # noqa: E402
 
 REGISTRY = ROOT / "automation" / "state" / "gate-registry.json"
 OUT_JSON = ROOT / "automation" / "state" / "gate-registry-status.json"
@@ -431,13 +432,18 @@ def evaluate_gate_pnl(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_t
     combined = window_metrics(all_ok_rows, recent_start, recent_end) if all_ok_rows else {"n": 0}
     if all_ok_rows:
         # CONCENTRATION TERM (2026-08-23, see costing_verdict docstring): drop-top1 and
-        # drop-top3 on the refused cohort's own per-trade P&L, via the SAME drop_top_n the
-        # ratifying G-battery uses (backtest/tools/gate_revalidation_ab.py) -- reused through
-        # the already-lazily-imported `grab`, never reimplemented. drop_top3 is what gates
-        # costing_verdict's actionability; drop_top1 is carried for visibility only.
-        pnls = [float(r["pnl"]) for r in all_ok_rows]
-        drop_top1, n_dropped_1 = grab.drop_top_n(pnls, 1)
-        drop_top3, n_dropped_3 = grab.drop_top_n(pnls, CONCENTRATION_DROP_TOP_N)
+        # drop-top3 on the refused cohort's own per-trade P&L, via the shared
+        # backtest/lib/concentration.py::drop_top_n helper (2026-08-23 fold -- this used to
+        # call backtest/tools/gate_revalidation_ab.py's own drop_top_n through the
+        # already-lazily-imported `grab`; now BOTH this instrument and
+        # core_strategy_recency.py's direction_verdict call the ONE shared implementation so
+        # there is no third copy of this math. Identical algorithm/rounding -- this refactor
+        # is behavior-preserving, pinned by test_gate_expiry_naive_red_guard_2026_08_23.py
+        # staying green unchanged). drop_top3 is what gates costing_verdict's actionability;
+        # drop_top1 is carried for visibility only.
+        records = [(str(r.get("date")), float(r["pnl"])) for r in all_ok_rows]
+        drop_top1, n_dropped_1 = drop_top_n(records, 1)
+        drop_top3, n_dropped_3 = drop_top_n(records, CONCENTRATION_DROP_TOP_N)
         combined = {
             **combined,
             "drop_top1": drop_top1, "n_dropped_for_drop_top1": n_dropped_1,
@@ -510,6 +516,17 @@ def check_gate(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: pd.S
         # whether to scream in STATUS.md's "## Known broken" -- a concentration-carried naive
         # read must never trip that alarm again.
         overall = "NAIVE_RED_CONCENTRATED"
+    elif pv in ("GREEN_CONCENTRATED", "RED_CONCENTRATED"):
+        # 2026-08-23, 3rd instance of the same defect (core_strategy_recency.py's
+        # direction_verdict): a category=="core_strategy" row can now report a
+        # concentration-carried GREEN or RED (see core_strategy_recency.py docstring --
+        # the bull "+$2.45/tr GREEN" that was actually 2 days out of 31 trades). Both pass
+        # straight through, distinct from plain "GREEN"/"RED" and from NAIVE_RED_CONCENTRATED
+        # (a different instrument's vocabulary) -- and, critically, distinct from the literal
+        # string "RED" that compute_newly_red/flag_status_md key off, so a concentration-
+        # carried core-strategy verdict never trips the STATUS.md "## Known broken" alarm
+        # in either direction.
+        overall = pv
     elif pv == "ERROR":
         overall = "ERROR"
     elif evidence_stale and pv in ("INSUFFICIENT_DATA", "INERT", "NOT_MEASURED"):

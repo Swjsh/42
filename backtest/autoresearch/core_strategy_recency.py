@@ -41,9 +41,38 @@ supplement with the fullhist replay's recent window, disclosed separately"):
 
 VERDICT PER DIRECTION (rules inherited from recency_check's documented floor semantics,
 frozen here BEFORE the first run; the floor is CONFIRM_N_FLOOR, imported not copied):
-  GREEN        broker-core expectancy/trade > 0 AND n >= floor
-  RED          broker-core expectancy/trade <= 0 AND n >= floor  (a losing core strategy
-               on real recent fills is the loudest possible signal)
+  GREEN        broker-core expectancy/trade > 0 AND n >= floor AND the sign SURVIVES
+               concentration (see below)
+  RED          broker-core expectancy/trade <= 0 AND n >= floor AND the sign SURVIVES
+               concentration (a losing core strategy on real recent fills is the loudest
+               possible signal -- but only when it is a genuinely BROAD signal)
+  GREEN_CONCENTRATED / RED_CONCENTRATED  (added 2026-08-23, J directive, OP-25 self-
+               correction -- 3rd confirmed instance of the naive-mean-only defect this same
+               weekend, after gate_expiry_check.py's costing_verdict, commit 71c39545): this
+               used to be a NAIVE MEAN ONLY check -- n>=floor AND sign(mean) => a bare
+               actionable GREEN or RED, no drop-topN, no day-level term, no robustness check
+               at all. Measured 2026-07-20..08-21 (core safe+bold, n=31/side): BULL read a
+               clean GREEN at +$2.45/tr when its ENTIRE +$76 net was TWO DAYS (2026-08-04
+               +$1,141 and 2026-08-13 +$962 = +$2,103, i.e. 2,767% of net -- the label dies on
+               dropping ONE of those days), while BEAR read a clean RED at -$16.71/tr for an
+               evenly-spread bleed whose win rate is actually HIGHER (35.5% vs 25.8%). At
+               drop-top3 the two were statistically indistinguishable (-$55.36 vs -$51.96,
+               gap $3.40; day-block bootstrap B=20,000 gives P(gap<=0)=0.410) yet read as
+               opposite, confident labels -- an OP-25 violation this fix closes. A sign no
+               longer earns a bare GREEN/RED unless it SURVIVES concentration on BOTH axes:
+               drop_top3/drop_bottom3 (per-trade, via backtest/lib/concentration.py, the SAME
+               shared helper gate_expiry_check.py's costing_verdict uses) AND
+               drop_best2_days/drop_worst2_days (per-DAY -- the term that matters MOST here,
+               since instance 3's artifact was 2 DAYS, not 3 trades: a single outsized session
+               can spread across several entries that no per-trade drop would catch alone).
+               Missing/unknown concentration data is treated as UNPROVEN, never an automatic
+               pass -- fails CLOSED, exactly like costing_verdict's drop_top3 rule. A
+               concentration-carried GREEN downgrades to GREEN_CONCENTRATED ("not actionable
+               on its own"); a concentration-carried RED downgrades to RED_CONCENTRATED ("not
+               a broad systemic signal, read in context") -- neither can ever again be
+               misread as a finished finding, and NEITHER trips gate_expiry_check.py's
+               STATUS.md "## Known broken" alarm (that field checks the literal string "RED"
+               only -- see check_gate's overall-mapping).
   UNDERPOWERED 0 < n < floor -- no verdict manufactured; supplement quoted alongside
   NO_FILLS     n == 0
 NOTE the semantics differ from gate_expiry_check's per-GATE verdicts (there RED = the
@@ -107,6 +136,19 @@ from autoresearch.recency_check import (  # noqa: E402
     CONFIRM_N_FLOOR,
     _latest_rolling,
 )
+from lib.concentration import (  # noqa: E402
+    drop_top_n,
+    drop_bottom_n,
+    drop_best_days,
+    drop_worst_days,
+    top_day_share,
+)
+
+# concentration terms (2026-08-23, see module docstring's GREEN_CONCENTRATED / RED_CONCENTRATED
+# paragraph): trade-level drop-N and day-level drop-N-days, shared with gate_expiry_check.py's
+# CONCENTRATION_DROP_TOP_N via backtest/lib/concentration.py.
+CONCENTRATION_DROP_TOP_N = 3
+CONCENTRATION_DROP_BEST_DAYS = 2
 
 TRADES_CSV = ROOT / "journal" / "trades.csv"
 FLEET_ACCOUNTS = FLEET_DIR / "accounts.json"
@@ -224,11 +266,25 @@ def group_fills(rows: list[dict], window_start: dt.date, window_end: dt.date,
 
 
 def cell_metrics(events: list[dict]) -> dict:
-    """n / total / expectancy / WR / day-count for one cohort cell. Pure."""
+    """n / total / expectancy / WR / day-count for one cohort cell, PLUS concentration
+    diagnostics (2026-08-23, see module docstring): drop_top3/drop_bottom3 (per-trade) and
+    drop_best2_days/drop_worst2_days (per-day, via backtest/lib/concentration.py -- the SAME
+    shared helper gate_expiry_check.py's costing_verdict uses) and top_day_share (disclosure).
+    Computed here, once, so every caller (broker_core, broker_fleet_context, the replay
+    supplement, by_account sub-cells) carries the same fields -- direction_verdict reads them
+    straight off the cell it's handed, exactly like costing_verdict reads drop_top3 off `m`.
+    Pure."""
     if not events:
         return {"n": 0}
     pnls = [e["pnl"] for e in events]
     total = round(sum(pnls), 2)
+    records = [(e["date"], e["pnl"]) for e in events]
+    drop_top3, n_dropped_top3 = drop_top_n(records, CONCENTRATION_DROP_TOP_N)
+    drop_bottom3, n_dropped_bottom3 = drop_bottom_n(records, CONCENTRATION_DROP_TOP_N)
+    drop_best2_days, n_days_dropped_best, dropped_best_dates = drop_best_days(
+        records, CONCENTRATION_DROP_BEST_DAYS)
+    drop_worst2_days, n_days_dropped_worst, dropped_worst_dates = drop_worst_days(
+        records, CONCENTRATION_DROP_BEST_DAYS)
     return {
         "n": len(events),
         "total_dollar": total,
@@ -237,12 +293,53 @@ def cell_metrics(events: list[dict]) -> dict:
         "n_days": len({e["date"] for e in events}),
         "first_fill": min(e["date"] for e in events),
         "last_fill": max(e["date"] for e in events),
+        "drop_top3": drop_top3, "n_dropped_for_drop_top3": n_dropped_top3,
+        "drop_bottom3": drop_bottom3, "n_dropped_for_drop_bottom3": n_dropped_bottom3,
+        "drop_best2_days": drop_best2_days, "n_days_dropped_for_drop_best2_days": n_days_dropped_best,
+        "dropped_best_days": dropped_best_dates,
+        "drop_worst2_days": drop_worst2_days, "n_days_dropped_for_drop_worst2_days": n_days_dropped_worst,
+        "dropped_worst_days": dropped_worst_dates,
+        "top_day_share": top_day_share(records),
     }
+
+
+def _concentration_survives(cell: dict, positive: bool) -> tuple[bool, str]:
+    """(survives, note) -- CONCENTRATION TERM (2026-08-23, see module docstring's
+    GREEN_CONCENTRATED / RED_CONCENTRATED paragraph). For a positive-mean cell, 'survives'
+    means the total stays POSITIVE after dropping BOTH its top-3 winning trades AND its best
+    2 days. For a negative-mean cell, 'survives' (as a genuinely broad RED, not a couple of
+    blowup days) means the total stays NEGATIVE after dropping its bottom-3 losing trades AND
+    its worst 2 days. Missing concentration data (cell has no drop_top3/drop_best2_days key,
+    e.g. drop_bottom3/drop_worst2_days) is UNPROVEN, never an automatic pass -- fails CLOSED,
+    mirroring gate_expiry_check.costing_verdict's identical drop_top3 rule."""
+    if positive:
+        t3, d2 = cell.get("drop_top3"), cell.get("drop_best2_days")
+        if t3 is None or d2 is None:
+            return False, "concentration UNKNOWN (drop-top3/drop-best2-days not supplied)"
+        if t3 <= 0 or d2 <= 0:
+            return False, (f"drop-top3=${t3}, drop-best2-days=${d2} -- does NOT survive "
+                           f"(sign flips or zeroes out)")
+        return True, f"drop-top3=${t3}, drop-best2-days=${d2} -- survives, broad signal"
+    b3, w2 = cell.get("drop_bottom3"), cell.get("drop_worst2_days")
+    if b3 is None or w2 is None:
+        return False, "concentration UNKNOWN (drop-bottom3/drop-worst2-days not supplied)"
+    if b3 > 0 or w2 > 0:
+        return False, (f"drop-bottom3=${b3}, drop-worst2-days=${w2} -- sign flips positive "
+                       f"once concentration is removed")
+    return True, f"drop-bottom3=${b3}, drop-worst2-days=${w2} -- still negative, broad signal"
 
 
 def direction_verdict(cell: dict, floor: int) -> tuple[str, str]:
     """The frozen verdict rules (module docstring). Applied to the BROKER-CORE cell ONLY --
-    the replay supplement never lifts n over the floor (the never-blend rail)."""
+    the replay supplement never lifts n over the floor (the never-blend rail).
+
+    CONCENTRATION TERM (added 2026-08-23, J directive, OP-25 self-correction, 3rd confirmed
+    instance of the naive-mean-only defect -- see module docstring for the full incident: bull
+    read a clean GREEN carried by 2 days out of 31 trades while bear read a clean RED for an
+    evenly-spread, higher-win-rate bleed indistinguishable from bull at drop-top3). n>=floor
+    plus sign(mean) alone can no longer earn a bare GREEN or RED -- the sign must SURVIVE
+    _concentration_survives (both the per-trade and the per-day term) or it downgrades to
+    GREEN_CONCENTRATED / RED_CONCENTRATED, explicitly NOT actionable/broad on its own."""
     n = cell.get("n", 0)
     exp = cell.get("exp_per_trade")
     if n == 0:
@@ -252,9 +349,22 @@ def direction_verdict(cell: dict, floor: int) -> tuple[str, str]:
         return "UNDERPOWERED", (f"n={n} < floor {floor} on real fills ({sign} "
                                 f"${exp}/tr) -- no verdict manufactured; see replay supplement")
     if exp is not None and exp > 0:
-        return "GREEN", f"real-fills exp +${exp}/tr, n={n} >= floor {floor}"
+        survives, note = _concentration_survives(cell, positive=True)
+        if not survives:
+            return "GREEN_CONCENTRATED", (
+                f"NOT ACTIONABLE (concentration-carried): real-fills exp +${exp}/tr, n={n} "
+                f">= floor {floor}, but {note} -- this positive mean is NOT a broad edge; "
+                f"treat as unproven until a fuller sample supports it.")
+        return "GREEN", f"real-fills exp +${exp}/tr, n={n} >= floor {floor} -- {note}"
+    survives, note = _concentration_survives(cell, positive=False)
+    if not survives:
+        return "RED_CONCENTRATED", (
+            f"NOT A BROAD SIGNAL (concentration-carried): real-fills exp ${exp}/tr, n={n} "
+            f">= floor {floor}, but {note} -- read this in context, not as a clean systemic "
+            f"RED; a handful of days/trades are carrying the whole loss.")
     return "RED", (f"real-fills exp ${exp}/tr NEGATIVE-or-flat, n={n} >= floor {floor} "
-                   f"-- the core strategy itself is losing on the freshest window")
+                   f"-- the core strategy itself is losing on the freshest window, and this "
+                   f"read is broad ({note})")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -442,6 +552,15 @@ def evaluate(lookback: int = RECENCY_LOOKBACK_TRADING_DAYS,
             "exp_per_trade": cell.get("exp_per_trade"),
             "reason": reason + supp,
             "headline": f"{name} {verdict} n={cell.get('n', 0)}",
+            # CONCENTRATION DISCLOSURE (2026-08-23, additive fields only -- existing consumers
+            # (monday_verify.py, firm_brief.py, gate_recency_report.py) read verdict/n/
+            # exp_per_trade/reason/headline unchanged; these are new, so this cohort's
+            # concentration numbers are visible on the same surface every reader already uses,
+            # never buried in a field nobody reads):
+            "drop_top3": cell.get("drop_top3"), "drop_bottom3": cell.get("drop_bottom3"),
+            "drop_best2_days": cell.get("drop_best2_days"),
+            "drop_worst2_days": cell.get("drop_worst2_days"),
+            "top_day_share": cell.get("top_day_share"),
         }
 
     headline = ("core strategy recency: "
@@ -509,9 +628,15 @@ def evaluate(lookback: int = RECENCY_LOOKBACK_TRADING_DAYS,
 _REGISTRY_DIRECTION = {"core_strategy_bear": "bear", "core_strategy_bull": "bull"}
 # checker-surface vocabulary: RED flows to the newly-RED STATUS flag; UNDERPOWERED maps
 # to YELLOW (watch, not actionable); NO_FILLS to INSUFFICIENT_DATA (so an evidence-stale
-# no-data row surfaces as STALE_UNVERIFIED exactly like any other gate).
+# no-data row surfaces as STALE_UNVERIFIED exactly like any other gate). GREEN_CONCENTRATED/
+# RED_CONCENTRATED (2026-08-23) pass straight through the checker vocabulary unchanged --
+# check_gate's overall-mapping (gate_expiry_check.py) already gives both their own `overall`
+# branch, distinct from the literal string "RED" compute_newly_red/flag_status_md key off, so
+# neither can ever trip the STATUS.md "## Known broken" alarm.
 _VERDICT_TO_CHECKER = {"GREEN": "GREEN", "RED": "RED",
-                       "UNDERPOWERED": "YELLOW", "NO_FILLS": "INSUFFICIENT_DATA"}
+                       "UNDERPOWERED": "YELLOW", "NO_FILLS": "INSUFFICIENT_DATA",
+                       "GREEN_CONCENTRATED": "GREEN_CONCENTRATED",
+                       "RED_CONCENTRATED": "RED_CONCENTRATED"}
 
 
 def evaluate_for_registry(gate: dict, floor: int = CONFIRM_N_FLOOR,

@@ -114,9 +114,33 @@ def test_group_fills_counts_unattributed_and_mismatch_and_bad_pnl():
     ({"n": 0}, "NO_FILLS"),
     ({"n": 3, "exp_per_trade": 50.0}, "UNDERPOWERED"),
     ({"n": 9, "exp_per_trade": -50.0}, "UNDERPOWERED"),      # floor-1 boundary
-    ({"n": 10, "exp_per_trade": 5.0}, "GREEN"),              # n==floor counts
-    ({"n": 10, "exp_per_trade": 0.0}, "RED"),                # exact zero is NOT green
-    ({"n": 15, "exp_per_trade": -40.6}, "RED"),
+    # UPDATED 2026-08-23 (concentration-term fix -- see core_strategy_recency.py's
+    # direction_verdict / module docstring): these three used to pass a bare {"n",
+    # "exp_per_trade"} cell and expect a clean GREEN/RED. That encoded the exact
+    # naive-mean-only bug that stamped bull a clean GREEN off 2 days out of 31 trades while
+    # bear read a clean RED for a genuinely broad, higher-win-rate bleed -- the third
+    # confirmed instance of the defect gate_expiry_check.py's costing_verdict fixed in commit
+    # 71c39545. n>=floor + sign(mean) alone no longer earns a bare GREEN/RED: concentration
+    # data (drop_top3/drop_best2_days for positive, drop_bottom3/drop_worst2_days for
+    # negative) must be supplied AND survive, or the cell fails CLOSED to the *_CONCENTRATED
+    # verdict (mirrors costing_verdict's "missing concentration = UNPROVEN" rule).
+    ({"n": 10, "exp_per_trade": 5.0}, "GREEN_CONCENTRATED"),   # concentration data missing
+    ({"n": 10, "exp_per_trade": 0.0,                            # exact zero is NOT green,
+      "drop_bottom3": -20.0, "drop_worst2_days": -15.0}, "RED"),  # and survives concentration
+    ({"n": 15, "exp_per_trade": -40.6,
+      "drop_bottom3": -100.0, "drop_worst2_days": -60.0}, "RED"),  # genuinely broad negative
+    # a positive mean that SURVIVES both concentration terms still reads a clean GREEN --
+    # proves the fix doesn't neuter every GREEN, only concentration-carried ones.
+    ({"n": 12, "exp_per_trade": 23.3,
+      "drop_top3": 130.0, "drop_best2_days": 180.0}, "GREEN"),
+    # a positive mean carried by 2 days (real bull shape: net dies once either term is
+    # dropped) downgrades to GREEN_CONCENTRATED even though drop_top3 alone might look fine.
+    ({"n": 12, "exp_per_trade": 5.0,
+      "drop_top3": 12.0, "drop_best2_days": -900.0}, "GREEN_CONCENTRATED"),
+    # a negative mean carried by 1-2 catastrophic days (sign flips positive once dropped)
+    # downgrades to RED_CONCENTRATED -- "never reads as a clean RED" applies symmetrically.
+    ({"n": 12, "exp_per_trade": -5.0,
+      "drop_bottom3": 40.0, "drop_worst2_days": 20.0}, "RED_CONCENTRATED"),
 ])
 def test_direction_verdict_matrix(cell, expected):
     verdict, _ = csr.direction_verdict(cell, floor=10)
@@ -256,6 +280,9 @@ def test_check_gate_core_strategy_fail_open_on_eval_exception(monkeypatch):
 @pytest.mark.parametrize("core_verdict,checker_verdict", [
     ("GREEN", "GREEN"), ("RED", "RED"),
     ("UNDERPOWERED", "YELLOW"), ("NO_FILLS", "INSUFFICIENT_DATA"),
+    # 2026-08-23: concentration-qualified verdicts pass straight through, distinct from the
+    # literal string "RED" gate_expiry_check.compute_newly_red keys off.
+    ("GREEN_CONCENTRATED", "GREEN_CONCENTRATED"), ("RED_CONCENTRATED", "RED_CONCENTRATED"),
 ])
 def test_verdict_vocabulary_mapping(monkeypatch, core_verdict, checker_verdict):
     fake_block = {
