@@ -12,16 +12,50 @@ NEVER PLACES AN ORDER. NEVER TOUCHES A BROKER. NO ACCOUNT, NO CREDS, NO ALPACA I
 ANYWHERE IN THIS FILE. This is a synthetic own-book ledger only -- see CLAUDE.md's standing
 refusal list; futures has no live-arming path here regardless (Alpaca has zero futures).
 
-FROZEN SHADOW SPEC v1 (SPEC_VERSION="ssr-v1"; bump + update this docstring on ANY change to
-the constants/configs below):
+FROZEN SHADOW SPEC v1 (SPEC_VERSION="ssr-v1"; SUPERSEDED 2026-08-23 -- see RESPEC v1->v2
+below. Kept verbatim as the historical record of what actually ran and produced the round
+trips retained as `legacy_evidence`, non-arming, in the progress JSON):
 
   Config NQ: symbol NQ=F, bars 15m (fetch period 8d), SHORT signals only,
              SSRParams(zone_atr_mult=0.5, sweep_atr_mult=0.1), h4_anchor='2000',
-             include_running=True.
+             include_running=True. FULL-SIZE NQ (point_value $20.00/pt) -- ~326x this
+             book's own equity at qty=3 (see the 2026-08-13 FUNDABILITY DISCLOSURE that
+             flagged this and forced the RESPEC below). NEVER a live CONFIGS key again.
   Config GC: symbol GC=F, bars 1h (fetch period 60d), SHORT signals only, same params/
-             anchor/running.
+             anchor/running. FULL-SIZE GC (point_value $100.00/pt) -- same problem. NEVER a
+             live CONFIGS key again.
   (Both are the RESULTS.md v1-family PULSE cells J named -- see CONFIGS below for the
-  literal dict this script runs.)
+  CURRENT (v2) dict this script runs; the v1 dict is preserved above for provenance only.)
+
+RESPEC v1 -> v2 (2026-08-23, SPEC_VERSION="ssr-v2"): the 2026-08-13 fundability disclosure
+(`_fundability`, called from `compute_progress`) measured full-size NQ/GC at qty=3 against
+this book's own recorded equity (automation/state/futures/account.json) and found a ~326x
+notional/equity ratio -- arithmetically correct, operationally impossible (nobody can margin
+3 full NQ contracts on this account). CONFIGS below now key on MNQ/MGC (Micro E-mini
+Nasdaq-100 / Micro Gold, both VERIFIED exactly 1/10th their full-size sibling's point_value
+-- backtest/futures/instruments.py for MNQ ($2.00/pt vs NQ's $20.00), backtest/futures/ssr/
+ssr_instruments.py for MGC ($10.00/pt vs GC's $100.00)). NOTHING about the detector,
+entry/exit math, ATR, levels, or the arming bar's THREE conditions (n>=20 AND
+positive_expectancy AND beats_null) changed -- ONLY the $-per-point multiplier used to price
+each fill. beats_null was FALSE under v1 (an unmanaged hold to the same closing bar
+out-earned the managed exits) and stays exactly as broken under v2 -- this respec fixes a
+SIZING problem, not an EXIT-QUALITY problem; the two are independent and nobody should read
+a green fundability disclosure as evidence the exit logic improved.
+
+FRESH FORWARD CLOCK (hard rule, guarded by backtest/tests/test_ssr_shadow_v2_respec.py):
+every round trip scored under CONFIGS' pre-respec keys ("NQ"/"GC" literally -- every row
+already in the ledger before this commit, which never carried a `spec_version` field at
+all, since that field did not exist pre-respec) is retained VERBATIM in the SAME
+ssr-shadow-would-be.jsonl ledger and reported by `compute_progress` as `legacy_evidence`:
+historical, clearly labeled ssr-v1, EXCLUDED from n_round_trips/total_pnl_usd/
+positive_expectancy/beats_null/armable. The arming bar's n resets to 0 for v2 and only
+counts round trips whose rows carry `spec_version=="ssr-v2"` (every row `_entry_event`/
+`_row` writes from this commit onward stamps that field automatically -- absence of the
+field is itself how a legacy row is recognized). One already-OPEN v1 position
+(config="NQ") at the moment of this respec is not orphaned: LEGACY_CONFIG_ALIASES lets it
+keep being walked forward to its own natural close using ITS OWN (full-size) instrument
+spec -- see `_run_once_unlocked` -- while new entries only ever open under the CONFIGS keys
+(MNQ/MGC). LEGACY_CONFIG_ALIASES is NEVER a source for opening a NEW position.
 
   REUSE (imported, never reimplemented -- backtest/futures/ssr/* is READ-ONLY, HARD RULE):
     futures.ssr.levels.build_levels        -- causal session/day/week/4H (+RUN_*) levels
@@ -133,6 +167,9 @@ the constants/configs below):
     with coverage disclosed (e.g. "18/20") -- mirrors futures_shadow_progress.py's own
     disclosure convention. `armable=true` only once all three conditions hold; this script
     never arms anything itself (arming stays a documented separate J/doctrine step).
+    AS OF ssr-v2 (2026-08-23): round trips are filtered to `spec_version==SPEC_VERSION`
+    BEFORE any of the above is computed -- see RESPEC v1->v2 above. Legacy (pre-respec)
+    trips are reported separately as `legacy_evidence` and never mixed into this count.
 
   ALL DATETIMES ARE TZ-AWARE ET (task-explicit override of this repo's usual naive-ET
     convention -- see et_clock.py's own docstring for why naive-ET is normally the house
@@ -183,21 +220,34 @@ from futures.ssr.ssr_instruments import get_ssr  # noqa: E402
 from futures.swing_sim import wilder_atr  # noqa: E402
 
 # ── frozen spec constants ────────────────────────────────────────────────────────────────
-SPEC_VERSION = "ssr-v1"
+SPEC_VERSION = "ssr-v2"
 ET_ZONE = "America/New_York"
 
+# CONFIGS keys are the get_ssr() instrument symbol looked up to price every fill -- MUST be
+# the MICRO symbols (see RESPEC v1->v2, module docstring). `symbol` (the yfinance fetch
+# ticker) is UNCHANGED from v1: MNQ tracks NQ's own index price 1:1 (only the $-multiplier
+# differs -- backtest/futures/instruments.py), MGC tracks GC's own price/oz 1:1 (backtest/
+# futures/ssr/ssr_instruments.py) -- so "NQ=F"/"GC=F" bars are byte-identical price data for
+# either sizing and there is no separate "MNQ=F" feed to fetch.
 CONFIGS: dict[str, dict[str, Any]] = {
-    "NQ": {
+    "MNQ": {
         "symbol": "NQ=F", "interval": "15m", "period": "8d",
         "zone_atr_mult": 0.5, "sweep_atr_mult": 0.1,
         "h4_anchor": "2000", "include_running": True,
     },
-    "GC": {
+    "MGC": {
         "symbol": "GC=F", "interval": "1h", "period": "60d",
         "zone_atr_mult": 0.5, "sweep_atr_mult": 0.1,
         "h4_anchor": "2000", "include_running": True,
     },
 }
+
+# LEGACY_CONFIG_ALIASES: ssr-v1's full-size config keys, kept ONLY so a position still open
+# under the v1 spec (config="NQ"/"GC" literally, recorded in the live state file BEFORE this
+# respec) keeps being walked forward to its OWN natural close using ITS OWN (full-size)
+# instrument spec -- see `_run_once_unlocked`'s legacy-alias walk. NEVER used to open a NEW
+# position -- new entries only ever use the CONFIGS keys above (MNQ/MGC).
+LEGACY_CONFIG_ALIASES: dict[str, str] = {"MNQ": "NQ", "MGC": "GC"}
 
 ATR_PERIOD = 14
 LOOKBACK_BARS = 3          # "within the last 3 completed bars" -- frozen spec
@@ -232,27 +282,37 @@ PROGRESS_FILE = STATE_DIR / "ssr-shadow-progress.json"
 
 STATE_DOC = (
     "ssr_shadow.py watermark + open-position state. spec_version pins the FROZEN SPEC "
-    "(module docstring). configs = {NQ,GC: {watermark_bar_ts_et, last_run_et}} -- the newest "
-    "bar timestamp each config has ever scanned; a signal at/before this ts can never open a "
-    "NEW position (never-backfill guard). positions = {signal_ref: {...}}, keyed "
-    "'{config}|{direction}|{level_name}|{signal_minute}'. See ssr_shadow.py module docstring "
-    "for the full frozen spec + arming bar."
+    "(module docstring, currently ssr-v2 -- see RESPEC section). configs = {MNQ,MGC: "
+    "{watermark_bar_ts_et, last_run_et}} -- the newest bar timestamp each config has ever "
+    "scanned; a signal at/before this ts can never open a NEW position (never-backfill "
+    "guard). positions = {signal_ref: {...}}, keyed "
+    "'{config}|{direction}|{level_name}|{signal_minute}' -- config is either a live CONFIGS "
+    "key (MNQ/MGC) or, for a position still open at the moment of the ssr-v2 respec, a "
+    "LEGACY_CONFIG_ALIASES value (NQ/GC) settled under its OWN full-size spec. See "
+    "ssr_shadow.py module docstring for the full frozen spec + arming bar."
 )
 LEDGER_DOC = (
     "ssr_shadow.py append-only lifecycle ledger. Event vocabulary: entry | tp1 | closed "
     "(closed carries reason in {stopped_pre_tp1, stopped_be, runner, time_flat}). Every row "
     "records bar_close (the completed bar's own OHLC close at that event, used by the arming "
-    "bar's buy-and-hold null -- never a network refetch) and qty_open_after (0 on the row "
-    "that completes a round trip). ARMING BAR: >=20 closed round trips (by signal_ref), "
-    "positive expectancy (sum pnl_usd), beats_null (same-direction unmanaged hold to the "
-    "trip's own closing bar_close). See ssr_shadow.py module docstring for the full spec. "
-    "NO BROKER. NO ORDERS. Own-book synthetic ledger only."
+    "bar's buy-and-hold null -- never a network refetch), qty_open_after (0 on the row that "
+    "completes a round trip), and spec_version (ssr-v2 for every row written from the "
+    "2026-08-23 respec onward; rows written before that respec never carry this field -- its "
+    "absence IS the ssr-v1 marker, see module docstring RESPEC section). ARMING BAR: >=20 "
+    "CURRENT-spec_version closed round trips (by signal_ref), positive expectancy (sum "
+    "pnl_usd), beats_null (same-direction unmanaged hold to the trip's own closing "
+    "bar_close) -- retired-spec_version round trips are reported separately as "
+    "legacy_evidence and never counted here. See ssr_shadow.py module docstring for the full "
+    "spec. NO BROKER. NO ORDERS. Own-book synthetic ledger only."
 )
 PROGRESS_DOC = (
-    "ssr_shadow.py SSR-v1 PULSE forward-shadow arming-bar progress. Bar: >=20 closed round "
-    "trips AND positive_expectancy (total_pnl_usd > 0) AND beats_null (same-horizon "
-    "same-direction unmanaged hold, computed from the ledger's own recorded bar_close -- see "
-    "module docstring ARMING BAR). armable=true only when all three hold. Read/derived from "
+    "ssr_shadow.py SSR PULSE forward-shadow arming-bar progress (spec_version ssr-v2, "
+    "respec'd 2026-08-23 -- see module docstring RESPEC section). Bar: >=20 CURRENT-spec "
+    "closed round trips AND positive_expectancy (total_pnl_usd > 0) AND beats_null "
+    "(same-horizon same-direction unmanaged hold, computed from the ledger's own recorded "
+    "bar_close -- see module docstring ARMING BAR). armable=true only when all three hold. "
+    "Retired-spec (ssr-v1) round trips are excluded from all of the above and reported "
+    "separately under legacy_evidence, clearly labeled, non-arming. Read/derived from "
     "ssr-shadow-would-be.jsonl; places no order, arms nothing."
 )
 
@@ -435,6 +495,18 @@ def _signal_ref(config_name: str, signal: SSRSignal) -> str:
     return f"{config_name}|{signal.direction}|{signal.level_name}|{signal.ts_et.strftime('%Y-%m-%dT%H:%M')}"
 
 
+def _spec_version_for_config(config_name: str) -> str:
+    """A row's spec_version is DERIVED from its own `config` value, never from a stamped
+    field that could be missing/stale on an old in-memory position dict (see module
+    docstring RESPEC section). A position whose `config` is a LEGACY_CONFIG_ALIASES value
+    (the retired full-size "NQ"/"GC" literals) is always ssr-v1, regardless of what
+    SPEC_VERSION this running code currently is -- a legacy position never "graduates" to
+    the current spec just because it's still being walked forward under this build."""
+    if config_name in LEGACY_CONFIG_ALIASES.values():
+        return "ssr-v1"
+    return SPEC_VERSION
+
+
 def open_position(config_name: str, signal: SSRSignal, snapshot, instrument) -> dict:
     """PURE. Builds a brand-new position dict (never mutates `signal`/`snapshot`). Entry =
     signal's own reaction-bar close +/- 1 tick slippage (module docstring step 7). Deadline =
@@ -473,6 +545,7 @@ def _entry_event(position: dict) -> dict:
         "runner": position["runner"], "fill_price": position["entry"],
         "bar_close": position["entry"], "exit_qty": 0,
         "qty_open_after": position["qty_open"], "pnl_pts": 0.0, "pnl_usd": 0.0,
+        "spec_version": _spec_version_for_config(position["config"]),
     }
 
 
@@ -523,6 +596,7 @@ def decide_bar_events(position: dict, bar: dict, instrument) -> tuple[list[dict]
             "tp1": pos["tp1"], "runner": pos["runner"], "fill_price": round(fill_price, 6),
             "bar_close": round(close, 6), "exit_qty": qty, "qty_open_after": qty_open_after,
             "pnl_pts": pts, "pnl_usd": usd,
+            "spec_version": _spec_version_for_config(pos["config"]),
         }
 
     if not pos["tp1_filled"]:
@@ -651,7 +725,15 @@ def group_by_signal(rows: list[dict]) -> dict:
 
 def compute_round_trips(rows: list[dict]) -> list[dict]:
     """PURE. One entry per signal_ref with a CLOSED row bringing qty_open_after to 0. Sums
-    pnl_usd across every row for that signal_ref (captures the tp1 leg + final leg)."""
+    pnl_usd across every row for that signal_ref (captures the tp1 leg + final leg).
+
+    Each trip carries a `spec_version`: preferred from the row's own `spec_version` field
+    (every row `_entry_event`/`_row` write from the ssr-v2 respec onward stamps this); rows
+    written BEFORE that respec never carried the field at all, so it falls back to deriving
+    it from the row's own `config` value via `_spec_version_for_config` (a LEGACY_CONFIG_
+    ALIASES value -- the retired "NQ"/"GC" literals -- is always "ssr-v1"). This is the ONLY
+    mechanism `compute_progress` uses to tell fresh ssr-v2 evidence apart from retired ssr-v1
+    evidence -- see module docstring RESPEC section."""
     trips = []
     for ref, events in group_by_signal(rows).items():
         closing = [e for e in events if e.get("event") == EV_CLOSED and e.get("qty_open_after") == 0]
@@ -660,6 +742,7 @@ def compute_round_trips(rows: list[dict]) -> list[dict]:
         last_close = closing[-1]
         total_pnl = round(sum(float(e.get("pnl_usd") or 0.0) for e in events), 2)
         entry_row = next((e for e in events if e.get("event") == EV_ENTRY), events[0])
+        spec_version = entry_row.get("spec_version") or _spec_version_for_config(entry_row.get("config"))
         trips.append({
             "signal_ref": ref, "config": entry_row.get("config"),
             "direction": entry_row.get("direction"), "entry": entry_row.get("entry"),
@@ -667,6 +750,7 @@ def compute_round_trips(rows: list[dict]) -> list[dict]:
             "closed_at_et": last_close.get("ts_et"), "close_reason": last_close.get("reason"),
             "close_bar_close": last_close.get("bar_close"),
             "level_name": entry_row.get("level_name"),
+            "spec_version": spec_version,
         })
     trips.sort(key=lambda t: t.get("closed_at_et") or "")
     return trips
@@ -694,12 +778,23 @@ def compute_null_pnl(trip: dict, instrument_lookup: Callable[[str], Any]) -> Opt
 
 
 def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] = None,
-                     now_et: Optional[pd.Timestamp] = None) -> dict:
-    """PURE given `rows`/`instrument_lookup`/`now_et`. Never raises."""
+                     now_et: Optional[pd.Timestamp] = None,
+                     latest_close_by_config: Optional[dict[str, float]] = None) -> dict:
+    """PURE given `rows`/`instrument_lookup`/`now_et`/`latest_close_by_config`. Never raises.
+
+    RESPEC (ssr-v2, 2026-08-23): the arming bar is a FRESH FORWARD CLOCK for THIS spec
+    version only -- round trips scored under a retired spec_version (ssr-v1's full-size
+    NQ/GC contracts, ~326x this book's own equity per the pre-respec fundability disclosure)
+    NEVER count toward armable=true again, no matter how many close. They are retained
+    verbatim in the SAME ledger and reported below as `legacy_evidence`, clearly labeled,
+    for transparency only -- see module docstring RESPEC section."""
     if now_et is None:
         now_et = _et_now()
     instrument_lookup = instrument_lookup or get_ssr
-    trips = compute_round_trips(rows)
+    all_trips = compute_round_trips(rows)
+    trips = [t for t in all_trips if t.get("spec_version") == SPEC_VERSION]
+    legacy_trips = [t for t in all_trips if t.get("spec_version") != SPEC_VERSION]
+
     n = len(trips)
     total_pnl = round(sum(t["total_pnl_usd"] for t in trips), 2)
     avg_pnl = round(total_pnl / n, 2) if n else None
@@ -727,6 +822,11 @@ def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] 
                      "reason": f"null unavailable for all {n} round trips"}
 
     armable = bool(n >= ARMING_MIN_ROUND_TRIPS and positive_expectancy and beats_null is True)
+
+    legacy_n = len(legacy_trips)
+    legacy_total_pnl = round(sum(t["total_pnl_usd"] for t in legacy_trips), 2)
+    legacy_versions = sorted({t.get("spec_version") or "ssr-v1" for t in legacy_trips})
+
     return {
         "_doc": PROGRESS_DOC, "updated_et": now_et.isoformat(), "spec_version": SPEC_VERSION,
         "n_round_trips": n, "total_pnl_usd": total_pnl, "avg_pnl_usd_per_trip": avg_pnl,
@@ -734,41 +834,127 @@ def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] 
         "arming_bar": {"round_trips_needed": ARMING_MIN_ROUND_TRIPS, "round_trips_have": n,
                        "expectancy_positive": positive_expectancy, "beats_null": beats_null,
                        "armable": armable},
-        "fundability": _fundability(total_pnl),
+        "legacy_evidence": {
+            "spec_versions": legacy_versions,
+            "n_round_trips": legacy_n,
+            "total_pnl_usd": legacy_total_pnl,
+            "status": "HISTORICAL -- NOT counted toward the arming_bar above",
+            "note": ("scored under a RETIRED spec (full-size NQ/GC contracts -- ~326x this "
+                    "book's fundable size at qty=3; see fundability below for the ssr-v2 "
+                    "recompute). Retained verbatim in the same ledger for audit "
+                    "transparency; excluded from n_round_trips/total_pnl_usd/"
+                    "positive_expectancy/beats_null/armable above by spec_version, never "
+                    "deleted, never rescored, never silently merged in.") if legacy_n else
+                    "no legacy (pre-respec) round trips in the ledger.",
+        },
+        "fundability": _fundability(total_pnl, latest_close_by_config or {}),
     }
 
 
-# ── FUNDABILITY DISCLOSURE (2026-08-13) ───────────────────────────────────────────────────
-# total_pnl_usd above is scored on FULL-SIZE NQ (point_value 20.0) and GC (100.0), because the
-# CONFIGS are keyed "NQ"/"GC" and get_ssr resolves those to the full contracts.
+# ── FUNDABILITY DISCLOSURE ─────────────────────────────────────────────────────────────────
+# ORIGINAL FINDING (2026-08-13): total_pnl_usd was scored on FULL-SIZE NQ (point_value 20.0)
+# and GC (100.0), because CONFIGS was keyed "NQ"/"GC" and get_ssr resolved those to the full
+# contracts. One full NQ at ~29,850 is ~$597,000 of notional; at qty=3 that's ~$1.79M against
+# a book holding a few thousand dollars -- a ratio of ~300x+: arithmetically correct, and
+# operationally impossible. That finding is WHY the RESPEC (module docstring) switched
+# CONFIGS to MNQ/MGC as spec_version ssr-v2 (2026-08-23).
 #
-# One full NQ at ~29,850 is ~$597,000 of notional. The shadow trades qty=3 => ~$1.79M. The book
-# behind this program holds ~$5,500. That is a ratio of ~326x: the headline USD figure is
-# arithmetically correct and operationally impossible, and the ARMING BAR reads that figure.
-#
-# This does NOT change the frozen spec (spec_version stays ssr-v1) and does NOT rewrite the 8
-# round trips already scored -- mixing units inside one study's ledger would be worse than the
-# disclosure. It makes the gap VISIBLE so nobody arms on a number the account cannot trade.
-# Switching CONFIGS to MNQ/MGC is a spec change (ssr-v2) and needs its own decision + a
-# recompute of the historical rows from their recorded points.
-MICRO_OF = {"NQ": "MNQ", "GC": "MGC"}
-_FULL_TO_MICRO_POINT_RATIO = 10.0   # NQ 20.0 -> MNQ 2.0 ; GC 100.0 -> MGC 10.0 (both exactly 10x)
+# _fundability() below no longer hand-types a snapshot number -- it recomputes the SAME
+# notional/equity ratio LIVE every poll, using (a) REAL prices observed THIS poll
+# (`latest_close_by_config`, sourced from the very bars `_run_once_unlocked` already fetched
+# -- never a stale comment, never a second network call) and (b) this book's OWN recorded
+# equity (automation/state/futures/account.json -- never a guessed/hand-typed number). The
+# point-value figures come straight from get_ssr()'s live registry, so this can never drift
+# out of sync with backtest/futures/instruments.py or backtest/futures/ssr/ssr_instruments.py
+# the way a bare module-level ratio constant could have.
+FUTURES_ACCOUNT_FILE = STATE_DIR / "account.json"
 
 
-def _fundability(total_pnl_usd: float) -> dict:
-    """Report what the same POINTS would be worth on the micro contracts the book can fund.
-    Approximate: it scales by the point-value ratio only and does NOT re-derive per-trip
-    round-turn fees (NQ 4.00 -> MNQ 1.24, GC 6.00 -> MGC 3.00), which makes the micro figure
-    very slightly conservative. Labelled approximate rather than presented as exact."""
+def _load_futures_equity() -> tuple[Optional[float], str]:
+    """Fail-open equity lookup against the tastytrade-sandbox futures book (account_id
+    5WW73759) futures_mirror_shadow.py already trades against (its own docstring names this
+    account directly) -- NEVER a hardcoded/guessed number. Returns (equity, source_label);
+    (None, 'unavailable') if the file can't be read/parsed -- callers must handle None, never
+    fabricate a fallback (C7)."""
+    try:
+        data = json.loads(FUTURES_ACCOUNT_FILE.read_text(encoding="utf-8"))
+        eq = data.get("equity")
+        if isinstance(eq, (int, float)) and eq > 0:
+            broker = data.get("broker", "?")
+            acct = data.get("account_id", "?")
+            return float(eq), f"{FUTURES_ACCOUNT_FILE.name}:equity ({broker} {acct})"
+    except (OSError, json.JSONDecodeError):
+        pass
+    return None, "unavailable"
+
+
+def _fundability(total_pnl_usd: float, latest_close_by_config: dict[str, float]) -> dict:
+    """Recomputes notional at qty=3 under the CURRENT CONFIGS (MNQ/MGC) using real prices
+    observed THIS poll and this book's own recorded equity. `still_leveraged_by_design`
+    matters: futures are ALWAYS a margined/leveraged product, so notional will always exceed
+    equity by a large multiple -- that is not itself a red flag. What this disclosure claims
+    is narrower and fully grounded in this repo's own numbers: the SAME ratio methodology
+    that flagged ssr-v1 as impossible (~300x+) drops by exactly the point-value ratio
+    (derived live, not hand-typed) under ssr-v2 -- NOT a claim that any specific broker's
+    margin table approves this size (unverified in-repo)."""
+    equity, equity_source = _load_futures_equity()
+    per_config: dict[str, Any] = {}
+    total_notional = 0.0
+    any_price_missing = False
+    for cfg_name in CONFIGS:
+        try:
+            micro = get_ssr(cfg_name)
+        except Exception as e:  # noqa: BLE001
+            per_config[cfg_name] = {"notional_usd": None,
+                                    "reason": f"instrument_lookup_failed:{type(e).__name__}"}
+            any_price_missing = True
+            continue
+        full_alias = LEGACY_CONFIG_ALIASES.get(cfg_name)
+        full_point_value = None
+        if full_alias:
+            try:
+                full_point_value = get_ssr(full_alias).point_value
+            except Exception:  # noqa: BLE001
+                full_point_value = None
+        price = latest_close_by_config.get(cfg_name)
+        if price is None:
+            per_config[cfg_name] = {
+                "symbol": micro.symbol, "point_value": micro.point_value,
+                "notional_usd": None, "reason": "no_price_observed_this_poll",
+            }
+            any_price_missing = True
+            continue
+        notional = round(price * micro.point_value * QTY, 2)
+        total_notional += notional
+        point_ratio = (round(full_point_value / micro.point_value, 2)
+                       if full_point_value else None)
+        per_config[cfg_name] = {
+            "symbol": micro.symbol, "point_value": micro.point_value, "last_price": price,
+            "qty": QTY, "notional_usd": notional,
+            "point_value_ratio_vs_full_size": point_ratio,
+        }
+
+    ratio = round(total_notional / equity, 1) if equity else None
     return {
-        "scored_on": "FULL-SIZE NQ (point_value 20.0) and GC (100.0)",
-        "book_can_fund": "MNQ (2.0) / MGC (10.0) at this account size",
-        "point_value_ratio": _FULL_TO_MICRO_POINT_RATIO,
-        "micro_equivalent_total_pnl_usd_approx": round(total_pnl_usd / _FULL_TO_MICRO_POINT_RATIO, 2),
-        "approximation": "scales point value only; per-trip round-turn fees not re-derived",
-        "why_it_matters": ("the arming bar reads total_pnl_usd, which is scored on contracts "
-                           "this account cannot fund -- ~$1.79M notional at qty=3 vs ~$5,500 equity"),
-        "to_fix_properly": "switch CONFIGS to MNQ/MGC as spec_version ssr-v2 and recompute history from points",
+        "_doc": ("RESPEC'd 2026-08-23 for ssr-v2 -- see setup/scripts/ssr_shadow.py module "
+                "docstring RESPEC section."),
+        "scored_on": f"micro contracts per live CONFIGS ({', '.join(CONFIGS)})",
+        "per_config": per_config,
+        "equity_usd": equity, "equity_source": equity_source,
+        "combined_worst_case_notional_usd": (None if any_price_missing
+                                             else round(total_notional, 2)),
+        "combined_notional_to_equity_ratio": ratio,
+        "any_price_missing": any_price_missing,
+        "still_leveraged_by_design": ("futures are margined/leveraged instruments -- notional "
+                                      "exceeding equity is EXPECTED, not itself a red flag; "
+                                      "this figure is not a broker-verified margin approval "
+                                      "(unverified in-repo), only a like-for-like recompute of "
+                                      "the same ratio that flagged ssr-v1 as impossible."),
+        "why_it_matters": (f"total_pnl_usd ({total_pnl_usd}) above is scored on contracts this "
+                           "book can actually hold at qty=3 -- point_value_ratio_vs_full_size "
+                           "above (derived live from the Instrument registry, not hardcoded) "
+                           "is the same ~10x reduction vs the pre-respec disclosure archived "
+                           "in the module docstring's RESPEC section."),
     }
 
 
@@ -824,6 +1010,7 @@ def _run_once_unlocked(*, now_et: pd.Timestamp,
         "skipped_degenerate": 0, "skipped_long_signal": 0, "cold_start_configs": [],
         "positions_open": 0, "errors": errors,
     }
+    latest_close_by_config: dict[str, float] = {}  # fed to _fundability -- see that fn's doc
 
     _ensure_ledger_doc_header()
 
@@ -859,6 +1046,35 @@ def _run_once_unlocked(*, now_et: pd.Timestamp,
 
         n_bars = len(bars)
         last_bar_ts = bars["timestamp_et"].iloc[-1]
+        latest_close_by_config[cfg_name] = float(bars["close"].iloc[-1])
+
+        # ── legacy-alias open-position walk (RESPEC, ssr-v2, 2026-08-23) ──────────────────
+        # Runs UNCONDITIONALLY (even through this config's own cold start below) so a
+        # position still open under the RETIRED ssr-v1 full-size config (its `config` field
+        # is literally "NQ"/"GC") at the moment this respec ships is never orphaned or
+        # stalled waiting on MNQ/MGC's own fresh watermark. The bars fetched under cfg_name's
+        # OWN `cfg["symbol"]` are byte-identical to what the legacy position needs (MNQ
+        # tracks NQ's index price 1:1, only the $-multiplier differs -- module docstring
+        # RESPEC section). Each position settles under ITS OWN recorded `config` value's
+        # instrument spec (get_ssr(pos["config"])) -- a legacy NQ position keeps being priced
+        # in full-size $ terms to its natural close; only NEW entries (below) ever use the
+        # MNQ/MGC micro spec. LEGACY_CONFIG_ALIASES is never a source for opening a NEW
+        # position.
+        legacy_alias = LEGACY_CONFIG_ALIASES.get(cfg_name)
+        walk_keys = [k for k, p in positions.items() if p.get("status") == "open"
+                    and p.get("config") in (cfg_name, legacy_alias)]
+        for key in walk_keys:
+            pos_cfg = positions[key].get("config")
+            try:
+                pos_instrument = get_ssr(pos_cfg)
+                events, new_pos = walk_open_position(positions[key], bars, pos_instrument)
+                positions[key] = new_pos
+                for ev in events:
+                    _append_jsonl(LEDGER_FILE, ev)
+                summary["events"] += len(events)
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"manage_failed:{pos_cfg}:{key}:{type(e).__name__}:{e}")
+
         cfg_state = configs_state.get(cfg_name)
         watermark_ts = None
         if cfg_state and cfg_state.get("watermark_bar_ts_et"):
@@ -870,6 +1086,7 @@ def _run_once_unlocked(*, now_et: pd.Timestamp,
         if watermark_ts is None:
             # cold start (module docstring step 5): never backfill -- seed the watermark and
             # open nothing this poll, mirroring futures_mirror_shadow.py's own discipline.
+            # (The legacy-alias walk above already ran regardless of this cold start.)
             configs_state[cfg_name] = {"watermark_bar_ts_et": last_bar_ts.isoformat(),
                                        "last_run_et": now_et.isoformat()}
             summary["cold_start_configs"].append(cfg_name)
@@ -879,7 +1096,8 @@ def _run_once_unlocked(*, now_et: pd.Timestamp,
         summary["new_signals"] += len(new_signals)
 
         open_key = next((k for k, p in positions.items()
-                         if p.get("config") == cfg_name and p.get("status") == "open"), None)
+                         if p.get("config") in (cfg_name, legacy_alias)
+                         and p.get("status") == "open"), None)
 
         try:
             instrument = get_ssr(cfg_name)
@@ -910,17 +1128,6 @@ def _run_once_unlocked(*, now_et: pd.Timestamp,
             summary["opened"] += 1
             open_key = pos["signal_ref"]
 
-        for key in [k for k, p in positions.items()
-                   if p.get("config") == cfg_name and p.get("status") == "open"]:
-            try:
-                events, new_pos = walk_open_position(positions[key], bars, instrument)
-                positions[key] = new_pos
-                for ev in events:
-                    _append_jsonl(LEDGER_FILE, ev)
-                summary["events"] += len(events)
-            except Exception as e:  # noqa: BLE001
-                errors.append(f"manage_failed:{cfg_name}:{key}:{type(e).__name__}:{e}")
-
         configs_state[cfg_name] = {"watermark_bar_ts_et": last_bar_ts.isoformat(),
                                    "last_run_et": now_et.isoformat()}
 
@@ -936,7 +1143,8 @@ def _run_once_unlocked(*, now_et: pd.Timestamp,
         errors.append(f"state_write_failed:{type(e).__name__}:{e}")
 
     try:
-        progress = compute_progress(load_ledger_rows(), now_et=now_et)
+        progress = compute_progress(load_ledger_rows(), now_et=now_et,
+                                    latest_close_by_config=latest_close_by_config)
         _atomic_write_json(PROGRESS_FILE, progress)
     except Exception as e:  # noqa: BLE001
         errors.append(f"progress_failed:{type(e).__name__}:{e}")

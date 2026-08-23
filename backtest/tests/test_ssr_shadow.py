@@ -77,15 +77,16 @@ def _make_signal(bars: pd.DataFrame, bar_index: int, *, direction: str = "short"
 
 # ── spec constants pinned ──────────────────────────────────────────────────────────────
 def test_spec_constants_pinned():
-    assert ssr_shadow.SPEC_VERSION == "ssr-v1"
-    nq = ssr_shadow.CONFIGS["NQ"]
-    assert nq["symbol"] == "NQ=F" and nq["interval"] == "15m" and nq["period"] == "8d"
-    assert nq["zone_atr_mult"] == 0.5 and nq["sweep_atr_mult"] == 0.1
-    assert nq["h4_anchor"] == "2000" and nq["include_running"] is True
-    gc = ssr_shadow.CONFIGS["GC"]
-    assert gc["symbol"] == "GC=F" and gc["interval"] == "1h" and gc["period"] == "60d"
-    assert gc["zone_atr_mult"] == 0.5 and gc["sweep_atr_mult"] == 0.1
-    assert gc["h4_anchor"] == "2000" and gc["include_running"] is True
+    assert ssr_shadow.SPEC_VERSION == "ssr-v2"
+    mnq = ssr_shadow.CONFIGS["MNQ"]
+    assert mnq["symbol"] == "NQ=F" and mnq["interval"] == "15m" and mnq["period"] == "8d"
+    assert mnq["zone_atr_mult"] == 0.5 and mnq["sweep_atr_mult"] == 0.1
+    assert mnq["h4_anchor"] == "2000" and mnq["include_running"] is True
+    mgc = ssr_shadow.CONFIGS["MGC"]
+    assert mgc["symbol"] == "GC=F" and mgc["interval"] == "1h" and mgc["period"] == "60d"
+    assert mgc["zone_atr_mult"] == 0.5 and mgc["sweep_atr_mult"] == 0.1
+    assert mgc["h4_anchor"] == "2000" and mgc["include_running"] is True
+    assert ssr_shadow.LEGACY_CONFIG_ALIASES == {"MNQ": "NQ", "MGC": "GC"}
     assert ssr_shadow.QTY == 3
     assert ssr_shadow.TP1_QTY == 2
     assert ssr_shadow.RUN_QTY == 1
@@ -111,13 +112,13 @@ def test_cold_start_sets_watermark_and_opens_nothing():
 
     summary = ssr_shadow.run_once(now_et=now, bar_fetcher=fetcher, signal_fn=signal_fn)
 
-    assert set(summary["cold_start_configs"]) == {"NQ", "GC"}
+    assert set(summary["cold_start_configs"]) == {"MNQ", "MGC"}
     assert summary["opened"] == 0
     assert summary["positions_open"] == 0
 
     state = json.loads(ssr_shadow.STATE_FILE.read_text(encoding="utf-8"))
     expected_watermark = bars["timestamp_et"].iloc[-2].isoformat()  # last bar is dropped (in-progress)
-    for cfg in ("NQ", "GC"):
+    for cfg in ("MNQ", "MGC"):
         assert state["configs"][cfg]["watermark_bar_ts_et"] == expected_watermark
     assert state["positions"] == {}
 
@@ -293,7 +294,7 @@ def test_no_event_on_bar_that_hits_nothing():
 
 # ── SHORT-only enforcement + concurrency (run_once, injected signal_fn) ──────────────────
 def test_short_only_long_signal_ignored_and_counted(monkeypatch):
-    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"NQ": ssr_shadow.CONFIGS["NQ"]})
+    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"MNQ": ssr_shadow.CONFIGS["MNQ"]})
     poll1_bars = _make_bars(30)   # cold start; post-drop 29 rows (indices 0..28)
     poll2_bars = _make_bars(32)   # same start/freq -> rows 0..28 identical to poll1's;
                                   # post-drop 31 rows (indices 0..30) -- index 30 is genuinely
@@ -316,7 +317,7 @@ def test_short_only_long_signal_ignored_and_counted(monkeypatch):
 
     now1 = poll1_bars["timestamp_et"].iloc[-1]
     summary1 = ssr_shadow.run_once(now_et=now1, bar_fetcher=fetcher, signal_fn=signal_fn)
-    assert summary1["cold_start_configs"] == ["NQ"]
+    assert summary1["cold_start_configs"] == ["MNQ"]
 
     now2 = poll2_bars["timestamp_et"].iloc[-1]
     summary2 = ssr_shadow.run_once(now_et=now2, bar_fetcher=fetcher, signal_fn=signal_fn)
@@ -331,7 +332,7 @@ def test_short_only_long_signal_ignored_and_counted(monkeypatch):
 
 
 def test_concurrency_skip_while_open(monkeypatch):
-    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"NQ": ssr_shadow.CONFIGS["NQ"]})
+    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"MNQ": ssr_shadow.CONFIGS["MNQ"]})
     bars = _make_bars(30)
 
     def fetcher(symbol, interval, period):
@@ -348,7 +349,7 @@ def test_concurrency_skip_while_open(monkeypatch):
     now = bars["timestamp_et"].iloc[-1]
     # seed the watermark BEFORE both signals so this poll is not a cold start.
     ssr_shadow._atomic_write_json(ssr_shadow.STATE_FILE, {
-        "configs": {"NQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[5].isoformat()}},
+        "configs": {"MNQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[5].isoformat()}},
         "positions": {},
     })
     summary = ssr_shadow.run_once(now_et=now, bar_fetcher=fetcher, signal_fn=signal_fn)
@@ -357,7 +358,7 @@ def test_concurrency_skip_while_open(monkeypatch):
 
 
 def test_degenerate_r_points_skipped(monkeypatch):
-    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"NQ": ssr_shadow.CONFIGS["NQ"]})
+    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"MNQ": ssr_shadow.CONFIGS["MNQ"]})
     bars = _make_bars(30)
     # stop within a fraction of a tick of the post-slippage entry -- sub-tick R, degenerate.
     sig = _make_signal(bars, 27, direction="short", entry_ref_close=15000.0, stop_price=14999.9)
@@ -369,7 +370,7 @@ def test_degenerate_r_points_skipped(monkeypatch):
         return [sig]
 
     ssr_shadow._atomic_write_json(ssr_shadow.STATE_FILE, {
-        "configs": {"NQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[5].isoformat()}},
+        "configs": {"MNQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[5].isoformat()}},
         "positions": {},
     })
     now = bars["timestamp_et"].iloc[-1]
@@ -435,17 +436,19 @@ def test_fail_open_signal_fn_raises_does_not_crash_run_once():
 # ── arming-bar progress ────────────────────────────────────────────────────────────────
 def test_compute_round_trips_and_progress_positive_expectancy():
     rows = [
-        {"ts_et": "2026-08-03T10:00:00-04:00", "config": "NQ", "signal_ref": "NQ|short|PDH|2026-08-03T09:45",
+        {"ts_et": "2026-08-03T10:00:00-04:00", "config": "MNQ", "signal_ref": "MNQ|short|PDH|2026-08-03T09:45",
         "direction": "short", "event": "entry", "entry": 15000.0, "fill_price": 15000.0,
-        "bar_close": 15000.0, "exit_qty": 0, "qty_open_after": 3, "pnl_usd": 0.0},
-        {"ts_et": "2026-08-03T11:00:00-04:00", "config": "NQ", "signal_ref": "NQ|short|PDH|2026-08-03T09:45",
+        "bar_close": 15000.0, "exit_qty": 0, "qty_open_after": 3, "pnl_usd": 0.0,
+        "spec_version": "ssr-v2"},
+        {"ts_et": "2026-08-03T11:00:00-04:00", "config": "MNQ", "signal_ref": "MNQ|short|PDH|2026-08-03T09:45",
         "direction": "short", "event": "closed", "reason": "runner", "entry": 15000.0,
         "fill_price": 14900.0, "bar_close": 14900.0, "exit_qty": 3, "qty_open_after": 0,
-        "pnl_usd": 500.0},
+        "pnl_usd": 500.0, "spec_version": "ssr-v2"},
     ]
     trips = ssr_shadow.compute_round_trips(rows)
     assert len(trips) == 1
     assert trips[0]["total_pnl_usd"] == 500.0
+    assert trips[0]["spec_version"] == "ssr-v2"
 
     def fake_lookup(cfg):
         return _FakeInstrument(point_value=20.0, tick_size=0.25, round_turn_usd=4.0)
@@ -539,7 +542,7 @@ def test_overlapping_invocation_blocked_by_lock_no_duplicate_entry():
     # this the first unblocked call would cold-start and open nothing by design.
     seeded = {
         "_doc": "test", "spec_version": ssr_shadow.SPEC_VERSION,
-        "configs": {"NQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[5].isoformat()}},
+        "configs": {"MNQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[5].isoformat()}},
         "positions": {}, "last_run_et": now.isoformat(), "errors": [],
     }
     ssr_shadow._atomic_write_json(ssr_shadow.STATE_FILE, seeded)
@@ -567,7 +570,7 @@ def test_overlapping_invocation_blocked_by_lock_no_duplicate_entry():
     assert s2["opened"] == 0, "watermark + real (non-stale) state prevent re-entry"
     entry_rows_for_sig = [r for r in ssr_shadow.load_ledger_rows()
                           if r.get("event") == "entry"
-                          and r.get("signal_ref") == ssr_shadow._signal_ref("NQ", sig)]
+                          and r.get("signal_ref") == ssr_shadow._signal_ref("MNQ", sig)]
     assert len(entry_rows_for_sig) == 1, "exactly one ledger entry row for one real signal"
 
     # Stale-lock recovery: a crashed holder's lock older than LOCK_STALE_S gets broken.
@@ -585,7 +588,7 @@ def test_weekend_or_holiday_no_new_bars_is_a_clean_noop(monkeypatch):
     after the last real session close) must be a silent no-op: zero new signals, zero opens,
     zero errors -- never a crash, never a spurious 'insufficient_bars' error just because the
     tail of the window didn't move."""
-    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"NQ": ssr_shadow.CONFIGS["NQ"]})
+    monkeypatch.setattr(ssr_shadow, "CONFIGS", {"MNQ": ssr_shadow.CONFIGS["MNQ"]})
     bars = _make_bars(30)  # e.g. Friday's close, unchanged across a weekend's worth of fires
 
     def fetcher(symbol, interval, period):
@@ -596,7 +599,7 @@ def test_weekend_or_holiday_no_new_bars_is_a_clean_noop(monkeypatch):
 
     now = bars["timestamp_et"].iloc[-1]
     ssr_shadow._atomic_write_json(ssr_shadow.STATE_FILE, {
-        "configs": {"NQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[-2].isoformat()}},
+        "configs": {"MNQ": {"watermark_bar_ts_et": bars["timestamp_et"].iloc[-2].isoformat()}},
         "positions": {},
     })
     summary = ssr_shadow.run_once(now_et=now, bar_fetcher=fetcher, signal_fn=signal_fn)
