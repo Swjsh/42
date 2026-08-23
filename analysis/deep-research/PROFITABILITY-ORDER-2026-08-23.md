@@ -151,6 +151,18 @@ The first pass ranked "watcher lane bleeding −$2,139 = 110% of the deficit" as
 
 ## Sector 3 — Other options: stop spending until there's a new question
 
+> **§3-UPDATE (Opus adjudication, same evening): the multi-symbol signal port is DEFERRED, on a premise failure.**
+> The first pass called porting `build_shared_signal.py` symbol-generic "the one untested hypothesis left" and
+> ranked it MEDIUM. That rested on: *the production SPY signal is the real edge, so it may transfer.* Tonight
+> falsified the premise — **the SPY engine itself is not currently profitable** (−$1,940.98 / 303 trips, WR 23.10%
+> vs 25.24% breakeven) and every entry-side lever came back negative or already-closed. Porting an unprofitable
+> engine onto ~72 more names spreads the deficit across more symbols and more spread cost; it does not create
+> edge. A directional hit rate that beats a null at +10min is **not** the same thing as a profitable engine, and
+> the gap between those two is exactly what this whole document measures.
+> **Un-defer condition:** SPY 0DTE shows positive expectancy on real fills that survives drop-top3 AND
+> drop-best-2-days. Nothing is lost by waiting — the null harness and symbol-generic infra survive and can
+> adjudicate any future signal in one session.
+
 - **Weekly (GLD/QQQ):** v1 + variant-1 both dead by their own preregs (all 4 expiry arms lose −8..−14%, fail null; variant-1 strictly worse). No weekly-1 account exists and none should until a signal clears null. Machinery + doctrine doc stay.
 - **Multi-symbol:** STOPPED_ON_NULL stands. Levels-transplant hypothesis **falsified** ("the levels ARE the edge" was wrong); the harness itself proven calibrated via SPY control (58.23%/+4.89σ @ +10min). Salvage = the null harness + symbol-generic infra + `multi/evaluate.py` read surface. Banned: sweeps, more names, re-slices.
 - **The one live hypothesis (filed `MULTI-SIGNAL-PORT-BUILD-SHARED-SIGNAL`):** port production `build_shared_signal.py` to a symbol argument and adjudicate through the retained harness under a fresh prereg — with a right-tail channel in the gate, per the calibration doc's own finding that mean-return-only gates under-measure this engine's edge class.
