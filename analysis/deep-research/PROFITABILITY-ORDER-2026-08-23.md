@@ -250,6 +250,58 @@ question**. Every entry-side lever tested this weekend (structure_veto, require_
 ladder, and now direction itself) came back negative, already-closed, or non-existent. Combined with §Cross-sector
 below, the evidence keeps pointing at one place: **the exits.**
 
+## §4 — A LATENT LIVE DEFECT, found by chasing a failing test (commit `4249d95e`, SHIP 3/3 reviewers)
+
+Not a profitability lever — a **correctness** finding, and the most consequential safety result of the weekend.
+Full detail: [SEQUENCE-REJECTION-PARITY-PROBE-2026-08-23](SEQUENCE-REJECTION-PARITY-PROBE-2026-08-23.md).
+
+**The bug:** `backtest/lib/filters.py` resolved a trigger PRICE to a `LevelState` OBJECT by scanning the dict in
+**insertion order** and taking the first entry within $0.05 — no exact-key match, no tie-break. Whichever level
+happened to be inserted first won, arbitrarily. The helper is SHARED by the live brain and the offline GT.
+
+**It surfaced as a failing test** (`test_no_arm_overtrades`, risky-1 `extra=1` at bar 1801) that had been RED and
+un-adjudicated. Ground-truth OHLCV confirmed the rejection pattern was REAL (735.28 → 735.21 → 735.19, each
+closing back below the broken 735.00), so **live was right and the harness was the false negative** — a stale
+`735.0300` from five sessions earlier shadowed the real same-day `735.0000` in GT's never-reset dict.
+
+**⚠️ The part that matters: LIVE WAS GENUINELY EXPOSED.** Measured directly against the live ledger
+(`core-decisions.jsonl`, 21 sessions): **1,238 of 13,879 live decision ticks (8.9%), across 6 real sessions,**
+held two `level_states` entries inside the $0.05 band. **Zero decisions and zero dollars were affected** — 0 of
+120 live multi-candidate resolutions ever had two candidates drawn from `levels_active`.
+
+**But the reason live escaped was NOT the reason anyone assumed.** It was not the ~150-bar window (that governs
+`bounce_history` replay, not which keys exist). Live was saved by two unrelated coincidences, **neither asserted
+anywhere near the bug**:
+
+| Accidental guard | Where it lives | Why it worked |
+|---|---|---|
+| `ROLE_EPSILON = 0.10` | `setup/scripts/refresh_levels_intraday.py:99` — **a different file** | producer-side dedupe WIDER than the $0.05 lookup band → at most one ACTIVE level can match |
+| `eff = levels_active + [fhh]` | `heartbeat_core.py:790` — argument **ordering** | the ACTIVE entry is always inserted before FHH, so it always won the arbitrary race |
+
+Narrow that epsilon, reorder that list, or let a non-normalising writer touch `key-levels.json`, and **live
+silently inherits the exact GT defect with real money behind it.** Worst observed near-miss: **2026-08-19 12:35
+ET**, trigger 770.59, candidates `770.5900` (role=`broken_to_support`, bh=3) vs `770.6300` (FHH, role=None,
+bh=0) — FHH-first ordering would have produced the GT failure shape on the live trading path.
+Post-fix, live is correct **by construction** (exact-key tier always hits), not by coincidence.
+
+**Verification was genuinely adversarial**, not self-reported: a reviewer reproduced the pre-fix RED in a
+detached worktree at `4249d95e~1` with the **UNMODIFIED** test file (`2 failed, 5 passed in 648s`), confirmed
+`git diff` on the test file is **0 lines**, and confirmed `KNOWN_MAX_EXTRA` still reads `risky-1: 0` with a
+shrinks-only ratchet that `pytest.fail`s if `extra < cap` — so the green is not slack. Reviewers also caught the
+implementer overclaiming ("12 behavioural pre-fix failures" — actually 3 behavioural, 9 ImportError).
+
+**Ten objections raised, none blocking, all real** — NaN reachability, a NaN-admittance regression introduced by
+the diff, silent-degradation via `getattr(...)→continue` (C7), an undisclosed GT movement (BOLD 8-day replay
+$578.89 → $696.06, **+$117.17** — numbers computed before this commit are NOT comparable to numbers after), a
+stale comment claiming bar 1801 was "CLOSED 2026-08-06" (disproven — a textbook "we already fixed this" tell),
+and surviving cross-day `bounce_history` contamination (pre-existing, not introduced). All dispatched as
+bounded cleanups. **The single most valuable one: nothing pins the two accidental invariants above** — the
+entire live-safety argument currently has no RED behind it.
+
+**LESSON, generalisable:** a shared resolver whose correctness depends on dict insertion order is a bug in
+waiting, and "our other engine happens to be windowed differently" is not a safety property. Two engines sharing
+a helper but not sharing state discipline WILL diverge; the only durable fix is deterministic resolution.
+
 ## Cross-sector strategic read
 
 ### ⭐ THE PATTERN BOTH LANES SHARE: the EXITS are destroying the value
