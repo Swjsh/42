@@ -5,18 +5,18 @@
 
 # ANALYSIS: BASELINE_ENGINE_STAGE1_BACKTEST
 
-**Filed:** 2026-07-21
+**Filed:** 2026-08-20
 **Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** analysis
+**Type:** baseline_validation
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We aim to evaluate the baseline engine's performance on the full 16-month SPY 5m dataset to compute edge_capture and aggregate Sharpe per OP-16, then validate with walk-forward OOS and real-fills on the three J anchor days.
+We are validating the baseline engine's performance via Stage-1 backtest to confirm edge_capture and wide_pnl, then check walk-forward OOS and real-fills on top 3 J days.
 
 ## Mechanism
 
-Run the autoresearch grinder harness for Stage-1 backtest on the baseline engine (no changes) over the full 16-month SPY 5m dataset. Compute edge_capture (sum of engine P&L on J winners minus sum of max(0, engine loss on J losers)) and aggregate Sharpe. Then perform walk-forward OOS (80/20 split) and real-fills validation on the three J anchor days (4/29, 5/01, 5/04 winners and 5/05, 5/06, 5/07 losers).
+Run the autoresearch grinder on the baseline engine (no changes) over the full history to compute edge_capture and wide_pnl. Then run walk-forward OOS to check Sharpe >=0.70 and per-month rate consistency >=0.6. Finally, check real-fills on the top 3 J days (4/29, 5/01, 5/04) showing <=20% P&L deviation from BS-sim.
 
 ## Expected impact on OP-16 anchors
 
@@ -33,22 +33,20 @@ Run the autoresearch grinder harness for Stage-1 backtest on the baseline engine
 ## OP-20 disclosures
 
 1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline
-2. **Sample bias:** full 16-month SPY 5m dataset (approx. 345 trading days), selection method: all available data, overfit risk: mitigated by walk-forward OOS and real-fills on anchor days
-3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window to be performed)
-4. **Real-fills:** NEEDS-REAL-FILLS (to be done on top 3 J days)
-5. **Failure modes:** worst day: unknown -- requires Stage-1 backtest; max drawdown: unknown -- requires Stage-1 backtest; blow-up scenario: unknown -- requires Stage-1 backtest
-6. **Concentration:** unknown -- requires Stage-1 backtest (if top-5 days = X% of P&L, state X)
+2. **Sample bias:** full history available (2025-01-02..2026-06-18), no selection bias in backtest period
+3. **Out-of-sample:** NEEDS-OOS (walk-forward test pending)
+4. **Real-fills:** NEEDS-REAL-FILLS (real-fills check on top 3 J days pending)
+5. **Failure modes:** worst day: 5/07 (combined -$165), max drawdown: unknown, blow-up scenario: consecutive loser days
+6. **Concentration:** unknown -- requires Stage-1 backtest (top-5 days concentration)
 
 ## Pre-merge gate
 
-<what tests need to pass: gym validators, walk-forward, real-fills>
-We require: Stage-1 backtest to complete, walk-forward OOS to show positive edge_capture and Sharpe, real-fills on anchor days to match simulated P&L within ±20%.
+Gym validators must pass, walk-forward OOS must show Sharpe >=0.70 and per-month rate consistency >=0.6, real-fills on top 3 J days must show <=20% P&L deviation from BS-sim.
 
 ## Confidence
 
-5 / 10 -- <brief reasoning> We are proposing to run the grinder but have not yet seen the results. Confidence will be set after examining the backtest output.
+5 / 10 -- awaiting Stage-1 backtest results
 
 ## Pre-existing leaderboard impact
 
-<does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
-This analysis does not propose a change to the engine, so it does not conflict with any candidate. It complements by providing a baseline evaluation for future candidates to compare against.
+This analysis is for the baseline engine, which is the reference for all candidates in the leaderboard. It does not conflict but provides the base case.
