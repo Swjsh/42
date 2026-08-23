@@ -468,13 +468,15 @@
         "bold": null
       },
       "evidence_artifact": [
-        "analysis/recommendations/structure-veto-ab-2026-06-26.json"
+        "analysis/recommendations/structure-veto-ab-2026-06-26.json",
+        "analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json (frozen-window G-battery: window 2026-06-26..2026-08-07, n=11, NOT-UNBLOCK-ELIGIBLE -- fails G_oos/G_drop3/G_bhfdr/G_n)",
+        "analysis/recommendations/gate-revalidation-structure_veto-2026-08-23-extended.json (EXTENDED G-battery re-run, window 2026-06-26..2026-08-21, n=15 events -- now clears G_n and G_mean, still NOT-UNBLOCK-ELIGIBLE: fails G_drop3 (removing the 3 biggest refused-cohort winners flips +$111.50 total to -$588.00) and G_bhfdr (p=0.836, no better than chance). Same conclusion as 08-08 on 4 more trading weeks of data.)"
       ],
       "cohort_validated_on": "Safe only, born from a 2026-06-26 -$237 wrong-way incident. Full +$583 (2 wrong-way losers removed, 0 winners removed), OOS delta $0 -- all effect is IS/2025Q1.",
-      "last_revalidated": "2026-06-26 (never revalidated)",
+      "last_revalidated": "2026-08-23 (EXTENDED G-battery re-run answering gate_expiry_check.py's recurring naive-mean RED, 2026-08-22T23:01:45 STATUS flag: n=15 refused events now meet the n>=15 floor and mean is positive, but 3 lucky winners (incl. one $303 day) are carrying the whole cohort -- drop-top3 and BH-FDR both fail. KEEP structure_veto_enabled=True; do not flip on this signal.)",
       "revalidation_interval_days": 21,
       "provenance_type": "backtest_evidence",
-      "notes": "Asymmetric: armed Safe only, Bold core lane has NO wrong-way protection at all. Thin historical n=2 in every audit since; 2026-07-09/07-10 audits both found its only 'fires' were off-hours diagnostic/gym-harness calls (armed=false, spy pinned flat), not live RTH activity. Also gates the extra-setup dispatch path (bollinger_squeeze blocked 2026-07-10), a scope its original A/B evidence never covered."
+      "notes": "Asymmetric: armed Safe only, Bold core lane has NO wrong-way protection at all. Also gates the extra-setup dispatch path (bollinger_squeeze blocked 2026-07-10), a scope its original A/B evidence never covered. KNOWN RECURRING FALSE-ALARM SHAPE (documented here so a future fire does not re-run the full G-battery from scratch every time): gate_expiry_check.py's own costing_verdict() is mean-only (no drop-top-N/OOS/BH-FDR), so this cell will likely keep reading nightly RED again whenever the refused cohort happens to include one more big winner -- that is expected given its small-n, occasional-big-win shape, NOT evidence the gate has become wrong. Re-run the FULL G-battery (backtest/tools/gate_revalidation_structure_veto_extended_2026_08_23.py, or a freshly-dated copy of it with an updated window) only when either (a) evidence_age exceeds this row's revalidation_interval_days, or (b) the refused-cohort n has grown by >=10 new events since this run -- not on every nightly naive-RED alone."
     },
     {
       "id": "free_model_veto",

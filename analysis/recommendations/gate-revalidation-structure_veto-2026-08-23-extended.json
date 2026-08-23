@@ -1,0 +1,262 @@
+{
+  "prereg_id": "GATE-RECENCY-REVALIDATION-2026-08-23-EXTENDED",
+  "supersedes_for_recency": "analysis/recommendations/gate-revalidation-structure_veto-2026-08-08.json (window 2026-06-26..2026-08-07, verdict NOT-UNBLOCK-ELIGIBLE) -- this file does NOT retract that scorecard, it extends it 15 more trading days to answer the gate-expiry instrument's nightly RED using the SAME sound methodology, not the naive mean-only read.",
+  "trigger": "STATUS.md GATE-EXPIRY RED 2026-08-22T23:01:45 (n=10, $2.15/tr in the 25-trading-day gate_expiry_check window) -- gate_expiry_check.py's costing_verdict() is mean-only and has no drop-top-N/OOS/BH-FDR robustness check, so it cannot by itself distinguish a real recovering edge from a single lucky trade padding the mean.",
+  "cell_id": "CELL_1_structure_veto_enabled",
+  "account": "safe",
+  "params_key": "structure_veto_enabled",
+  "skip_action": "SKIP_STRUCTURE_VETO",
+  "window": "2026-06-26..2026-08-21",
+  "replay_method": "backtest/lib/exit_manager_walk.walk_exit_manager (production exit_manager.plan_exit_actions core) -- NOT simulator_real, same sound path as the 2026-08-08 prereg",
+  "n_raw_fires": 124,
+  "n_events_clustered": 15,
+  "status_counts": {
+    "ok": 15
+  },
+  "cohort": {
+    "n": 15,
+    "total": 111.5,
+    "mean": 7.43,
+    "wr_pct": 40.0,
+    "drop_top3": -588.0,
+    "n_dropped_for_drop_top3": 3,
+    "best": 303.0,
+    "worst": -174.0
+  },
+  "is_half": {
+    "n": 7,
+    "total": 84.0,
+    "mean": 12.0,
+    "wr_pct": 57.1,
+    "drop_top3": -159.0,
+    "n_dropped_for_drop_top3": 3,
+    "best": 162.0,
+    "worst": -141.0
+  },
+  "oos_half": {
+    "n": 8,
+    "total": 27.5,
+    "mean": 3.44,
+    "wr_pct": 25.0,
+    "drop_top3": -510.0,
+    "n_dropped_for_drop_top3": 2,
+    "best": 303.0,
+    "worst": -174.0
+  },
+  "one_sample_p": 0.8361,
+  "bootstrap_null_vs_random_entry": {
+    "B_requested": 150,
+    "B_effective": 150,
+    "universe_size": 2640,
+    "side_mix": {
+      "C": 6,
+      "P": 9
+    },
+    "observed_mean": 7.43,
+    "null_mean_of_means": 4.57,
+    "null_p_one_sided": 0.4503,
+    "interpretation": "fraction of random-entry (side-matched, same window, same v15.1 09:35-15:00 ET entry window) draws whose mean net P&L >= the refused cohort's own mean -- add-one-smoothed permutation p"
+  },
+  "g_battery": {
+    "gates": {
+      "G_mean": true,
+      "G_oos": true,
+      "G_drop3": false,
+      "G_bhfdr": false,
+      "G_n": true
+    },
+    "verdict": "NOT-UNBLOCK-ELIGIBLE",
+    "pval": 0.8361
+  },
+  "kill_criterion": "NOT APPLICABLE -- did not clear the auto-ratify bar this pass; no live flip is proposed. If a future re-run DOES clear the bar: cell-attributable net <= -$150 over the first 5 live sessions after the flip -> revert same day (one-line params.json diff back to true).",
+  "guard_test_snippet": "def test_structure_veto_enabled_unchanged_pending_reratification():\n    # GATE-RECENCY-REVALIDATION-2026-08-23-EXTENDED: still NOT-UNBLOCK-ELIGIBLE on the\n    # extended window. Pins the CURRENT (correct) value.\n    import json\n    params = json.loads(open('automation/state/params.json', encoding='utf-8').read())\n    assert params['structure_veto_enabled'] is True",
+  "params_diff": {
+    "key": "structure_veto_enabled",
+    "current": true,
+    "proposed": false,
+    "recommendation": "DO NOT FLIP -- fails G_drop3/G_bhfdr"
+  },
+  "generated_at": "2026-08-23T02:05:20.749347",
+  "trades": [
+    {
+      "status": "ok",
+      "date": "2026-07-06",
+      "side": "C",
+      "strike": 751,
+      "entry_premium": 0.8,
+      "entry_time_et": "2026-07-06T13:15:00",
+      "pnl": -141.0,
+      "exit_reason": "structure_stop @ 750.3699951171875",
+      "hold_minutes": 20,
+      "ts_et": "2026-07-06T13:11:27"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-07",
+      "side": "P",
+      "strike": 749,
+      "entry_premium": 0.75,
+      "entry_time_et": "2026-07-07T14:35:00",
+      "pnl": -12.0,
+      "exit_reason": "ribbon_flip_back",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-07T14:31:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-07",
+      "side": "P",
+      "strike": 747,
+      "entry_premium": 0.58,
+      "entry_time_et": "2026-07-07T15:25:00",
+      "pnl": 33.0,
+      "exit_reason": "time_stop_15:40",
+      "hold_minutes": 15,
+      "ts_et": "2026-07-07T15:21:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-14",
+      "side": "P",
+      "strike": 752,
+      "entry_premium": 0.34,
+      "entry_time_et": "2026-07-14T14:40:00",
+      "pnl": 48.0,
+      "exit_reason": "ribbon_flip_back",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-14T14:36:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-15",
+      "side": "C",
+      "strike": 753,
+      "entry_premium": 0.59,
+      "entry_time_et": "2026-07-15T15:35:00",
+      "pnl": 162.0,
+      "exit_reason": "time_stop_15:40",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-15T15:31:04"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-20",
+      "side": "P",
+      "strike": 748,
+      "entry_premium": 1.45,
+      "entry_time_et": "2026-07-20T09:35:00",
+      "pnl": 30.0,
+      "exit_reason": "ribbon_flip_back",
+      "hold_minutes": 10,
+      "ts_et": "2026-07-20T09:31:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-20",
+      "side": "P",
+      "strike": 743,
+      "entry_premium": 0.94,
+      "entry_time_et": "2026-07-20T14:50:00",
+      "pnl": -36.0,
+      "exit_reason": "structure_stop @ 743.0",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-20T14:46:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-21",
+      "side": "C",
+      "strike": 748,
+      "entry_premium": 0.75,
+      "entry_time_et": "2026-07-21T14:50:00",
+      "pnl": -30.0,
+      "exit_reason": "structure_stop @ 748.55",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-21T14:46:02"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-27",
+      "side": "P",
+      "strike": 737,
+      "entry_premium": 1.3,
+      "entry_time_et": "2026-07-27T13:00:00",
+      "pnl": -174.0,
+      "exit_reason": "structure_stop @ 737.72",
+      "hold_minutes": 60,
+      "ts_et": "2026-07-27T12:57:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-28",
+      "side": "C",
+      "strike": 741,
+      "entry_premium": 0.93,
+      "entry_time_et": "2026-07-28T14:05:00",
+      "pnl": -117.0,
+      "exit_reason": "structure_stop @ 741.0",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-28T14:04:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-07-29",
+      "side": "P",
+      "strike": 732,
+      "entry_premium": 1.5,
+      "entry_time_et": "2026-07-29T15:50:00",
+      "pnl": 303.0,
+      "exit_reason": "time_stop_15:40",
+      "hold_minutes": 5,
+      "ts_et": "2026-07-29T15:48:46"
+    },
+    {
+      "status": "ok",
+      "date": "2026-08-07",
+      "side": "C",
+      "strike": 772,
+      "entry_premium": 1.12,
+      "entry_time_et": "2026-08-07T12:40:00",
+      "pnl": -168.0,
+      "exit_reason": "premium_stop @ 0.56",
+      "hold_minutes": 95,
+      "ts_et": "2026-08-07T12:36:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-08-12",
+      "side": "P",
+      "strike": 773,
+      "entry_premium": 0.67,
+      "entry_time_et": "2026-08-12T13:05:00",
+      "pnl": -15.0,
+      "exit_reason": "structure_stop @ 772.91",
+      "hold_minutes": 5,
+      "ts_et": "2026-08-12T13:01:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-08-17",
+      "side": "P",
+      "strike": 775,
+      "entry_premium": 0.73,
+      "entry_time_et": "2026-08-17T13:10:00",
+      "pnl": 234.5,
+      "exit_reason": "runner_stop @ 1.61",
+      "hold_minutes": 35,
+      "ts_et": "2026-08-17T13:06:03"
+    },
+    {
+      "status": "ok",
+      "date": "2026-08-21",
+      "side": "C",
+      "strike": 766,
+      "entry_premium": 0.41,
+      "entry_time_et": "2026-08-21T13:35:00",
+      "pnl": -6.0,
+      "exit_reason": "structure_stop @ 765.71",
+      "hold_minutes": 5,
+      "ts_et": "2026-08-21T13:34:03"
+    }
+  ]
+}
