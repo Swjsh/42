@@ -71,6 +71,48 @@ and the sharper version changes the ACTION:
 
 Dispatched accordingly (extend-population re-run under frozen gates + live-arm corroboration + VOID check).
 
+### §1c — RESULT of the extended re-adjudication: DO_NOT_ARM STANDS, and the path is closed
+
+Run: `analysis/recommendations/tp1-r50-readjudication-2026-08-23.json` (tools
+`backtest/tools/tp1_r50_readjudication_2026_08_23.py` + `_live_arm_` + `_assemble_`). Commit `97f3c864`.
+
+- **Forward clock legitimately MET** — risky-1's live +50% arm (`exit_patch={tp1_premium_pct:0.5,
+  stop_mode:structure}`) has **n=35** ribbon fills post-2026-08-03 in `journal/trades.csv`, cross-validated
+  against n=35 `placed=true` ENTER rows in the arm's `decisions.jsonl` (34/35 matched within 15s). Not premature.
+- **popA extended 191 → 213** (22 new entries, 2026-07-23..2026-08-21 via `read_cache_last_date()`).
+- **VOID check PASS, 0 mismatches** — after the runner self-caught and fixed a real DST bug: a DST-aware UTC
+  conversion shifted every winter bar 1h against this repo's deliberately DST-naive fixed `-04:00` convention,
+  producing 16 winter-dated mismatches. Exactly the documented DST-frame artifact class. The VOID tripwire worked.
+- **G4 STILL FAILS**, and the finding is now structural, not statistical:
+
+| Window | Delta | n_changed | Qualifies (≥5)? |
+|---|---:|---:|:---:|
+| 2025H1 | +$228.95 | 4 | no |
+| 2025H2 | +$333.20 | 13 | yes |
+| 2026Q1 | +$253.20 | 4 | no |
+| 2026Q2p_ext | +$151.95 | 14 | yes |
+
+  **2025H1 and 2026Q1 are CLOSED calendar windows permanently stuck at n_changed=4.** A forward extension can
+  only ever grow the newest window, so **at most 2 of 4 windows can ever qualify against a ≥3 requirement**.
+  G4 is unreachable for this cell by construction — not data-starved, structurally impossible. All four windows
+  remain positive; the cell is still positive everywhere it is measured. It simply cannot be certified by G4.
+- **Live-arm proxy weakly CONTRADICTS the damage risk** (risky-1 ahead +$1,050 on n=25 shared signals; +$513 on
+  the n=6 runner-leg proxy) — but n=6 and the level-vs-fraction axis mismatch make this suggestive, not evidence.
+- **Disclosed gap:** G6/G7/G8 were carried forward from the 2026-08-06 scorecard, not re-run on population B.
+  Immaterial to the verdict (G4 blocks regardless) but it means the week-population gates are not fresh.
+
+**ADJUDICATION (Opus): DO NOT SHIP. Do NOT re-spec G4 to let this cell through.** Rewriting a gate after seeing
+which cell it blocked is the forking-paths anti-pattern, and the prereg is explicit that the bar is not softened.
+The cell is EXHAUSTED via this prereg. Two follow-ons filed instead, both honest:
+1. **Forward shadow instrument** — R_tp100_f50 has the profile of a real candidate (7/8 gates, positive in all 4
+   windows, runner-anchor **+$628**, p=0.0026, sole BH survivor) blocked only by an unreachable power gate. The
+   uncontaminated way to resolve it is FORWARD counterfactual evidence on data nobody has seen, following the
+   established stop_mode / day-throttle shadow pattern. Any new backtest prereg on this same data is already
+   contaminated — we have seen the answer.
+2. **G4 design question, forward-only** — fixed-calendar-window stability gates have a structural blind spot for
+   low-fire-rate knobs (this cell fires on 20.4% of trades). An equal-N window split would test the same property
+   with adequate power. That is a change for FUTURE preregs; it must never be applied retroactively to this one.
+
 ### §1b — CORRECTION (Opus review pass): the watcher-lane leak was already mostly closed
 
 The first pass ranked "watcher lane bleeding −$2,139 = 110% of the deficit" as action #2. The provenance audit
