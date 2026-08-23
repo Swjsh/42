@@ -14,6 +14,8 @@
 
 **Not investigated this fire (out of bounded scope, self_check-produced, unrelated to this task):** two NEW `### BROKEN:` self-check entries accumulated between fires tonight (EARNINGS-CALENDAR STALE now 50.6h old; RUN-CMD-HIDDEN masked exit on `twin_chaos_drill.py`, exit=1) — committed as part of this fire's STATUS.md write for visibility (OP-33), not diagnosed.
 
+**`conductor_outcome.py metric`: `net_improvement=76`, `cost_per_drained=$0.49`, `trend=regressing` (20-fire window) — flagging per OP-22.** Next fire should prefer a loop-closing item (drain > add) over a new artifact.
+
 ---
 
 ## [2026-08-23 02:00 ET] conductor: OK — closed a stale-verified queue item, root-caused (not fixed) a real risky-1 over-trade signal + FABLE-ESCALATED it, commit pending
