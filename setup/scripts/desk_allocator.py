@@ -53,7 +53,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -69,6 +69,85 @@ def _age_h(p: Path):
         return (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).total_seconds() / 3600.0
     except OSError:
         return None
+
+
+# ---------------------------------------------------------------------------
+# WEEKEND FALSE-POSITIVE FIX (2026-08-23): a raw `age_h > STALE_H` check on a
+# weekday-market-hours-only lane (futures shadow ticks, multi-1 15-min RTH
+# shadow) is GUARANTEED to fire every Saturday+Sunday fire -- Friday's last
+# write is always >24h old by Sunday, purely because the market was closed,
+# not because anything broke. Caught 2026-08-23 (WEEKEND mode, ~12 fires/
+# weekend): this inflated the futures desk's score by +40 "BROKEN" points and
+# forced multi-sector's `dead_signal=True` ("do not polish a corpse") every
+# single weekend, on a desk that is neither broken nor dead -- it is just
+# quiet outside trading days. Same false-positive CLASS as the 2026-08-21
+# armable_unarmed fix (a static/wall-clock signal misread as "still true"),
+# on a different field.
+#
+# Fix: judge staleness against the most recently COMPLETED trading day, not
+# wall-clock hours -- mirrors self_check.py's `_last_completed_trading_day`
+# (deliberately duplicated here, not imported: self_check.py runs import-time
+# stdout/stderr redirection under pythonw, engine_health.py doesn't but this
+# script's own header commits to "pure Python, $0" with no cross-module
+# coupling -- same precedent as `_kalshi_weather_scorecard`'s inline
+# duplication a few lines below). A lane is broken only if it failed to write
+# during a trading session that has ALREADY closed -- accepts the same
+# 1-calendar-day detection lag self_check.py's sibling check documents as
+# intentional (intraday RTH liveness is owned by faster checks: engine-health
+# heartbeat_safe/heartbeat_bold, self_check's live-tick checks).
+# ---------------------------------------------------------------------------
+
+def _et_offset_hours(dt_utc: datetime) -> int:
+    """EDT (UTC-4) from 2nd Sun Mar 02:00 local thru 1st Sun Nov 02:00 local; EST (UTC-5)
+    otherwise. Duplicated from engine_health.py's own helper -- pure stdlib math, no import
+    coupling."""
+    y = dt_utc.year
+    march = datetime(y, 3, 1, tzinfo=timezone.utc)
+    days_to_sun = (6 - march.weekday()) % 7
+    dst_start = (march + timedelta(days=days_to_sun + 7)).replace(hour=7)
+    nov = datetime(y, 11, 1, tzinfo=timezone.utc)
+    days_to_sun = (6 - nov.weekday()) % 7
+    dst_end = (nov + timedelta(days=days_to_sun)).replace(hour=6)
+    return -4 if (dst_start <= dt_utc < dst_end) else -5
+
+
+def _et_date(dt_utc: datetime) -> str:
+    """dt_utc (tz-aware UTC) -> its ET calendar date as YYYY-MM-DD."""
+    return (dt_utc + timedelta(hours=_et_offset_hours(dt_utc))).strftime("%Y-%m-%d")
+
+
+def _now_utc() -> datetime:
+    """Extracted (not inlined) so tests can monkeypatch `da._now_utc` to pin "now" without
+    touching the wall clock -- matches engine_health.py's identical seam."""
+    return datetime.now(timezone.utc)
+
+
+def _load_holidays() -> set:
+    d = _json(STATE / "calendar.json")
+    return set((d or {}).get("holidays", []))
+
+
+def _last_completed_trading_day(et_today: str, holidays: set) -> str:
+    """The most recent weekday, non-holiday date strictly before et_today (a day that has
+    fully closed). Mirrors self_check.py's `_last_completed_trading_day` exactly."""
+    d = datetime.strptime(et_today, "%Y-%m-%d").date() - timedelta(days=1)
+    while d.weekday() >= 5 or d.strftime("%Y-%m-%d") in holidays:
+        d -= timedelta(days=1)
+    return d.strftime("%Y-%m-%d")
+
+
+def _lane_missed_trading_day(p: Path) -> bool:
+    """True iff `p` is missing, OR its last-write ET calendar date is strictly before the
+    most recently COMPLETED trading day -- i.e. it failed to update during a real session
+    that has already closed. A weekend/holiday gap alone never trips this."""
+    try:
+        mtime_utc = datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc)
+    except OSError:
+        return True
+    now_utc = _now_utc()
+    holidays = _load_holidays()
+    last_completed = _last_completed_trading_day(_et_date(now_utc), holidays)
+    return _et_date(mtime_utc) < last_completed
 
 
 def _json(p: Path):
@@ -105,7 +184,7 @@ def assess_futures() -> dict:
     fut = STATE / "futures"
     lanes = ["trader/heartbeat.json", "trader-broker/heartbeat.json", "shadow-progress.json",
              "edge3-sim-progress.json", "ssr-shadow-progress.json"]
-    broken = [l for l in lanes if (_age_h(fut / l) or 1e9) > STALE_H]
+    broken = [l for l in lanes if _lane_missed_trading_day(fut / l)]
     mirror = _json(fut / "shadow-progress.json") or {}
     bar = mirror.get("arming_bar", {})
     have, need = bar.get("round_trips_have", 0), max(1, bar.get("round_trips_needed", 20))
@@ -144,8 +223,7 @@ def assess_multi_sector() -> dict:
     mu, wk = STATE / "multi", STATE / "weekly"
     n_multi = _rows(mu / "shadow-ledger.jsonl")
     n_weekly = _rows(wk / "variant-daily-ledger.jsonl") + _rows(wk / "expiry-experiment-shadow-ledger.jsonl")
-    age = _age_h(mu / "shadow-ledger.jsonl")
-    live = age is not None and age <= STALE_H
+    live = not _lane_missed_trading_day(mu / "shadow-ledger.jsonl")
     return {
         "real_fills": False, "armable_unarmed": False,
         # dead only if the live lane is not running; the retired weekly signal
