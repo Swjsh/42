@@ -1,27 +1,165 @@
 {
-  "rows_total": 0,
-  "rows_with_directional_lean": 0,
+  "rows_total": 88,
+  "rows_with_directional_lean": 75,
   "_reading": "Every cut reports n. Nothing here is evidence until n is large and the sigma is meaningful; these are OBSERVATIONS accumulating toward a question, not a result. The lane remains STOPPED.",
   "overall": {
     "10m": {
-      "n": 0
+      "n": 75,
+      "hit_rate_pct": 45.33,
+      "sigma": -0.81,
+      "mean_pct": -0.0167
     },
     "30m": {
-      "n": 0
+      "n": 75,
+      "hit_rate_pct": 49.33,
+      "sigma": -0.12,
+      "mean_pct": -0.0126
     },
     "60m": {
-      "n": 0
+      "n": 69,
+      "hit_rate_pct": 42.03,
+      "sigma": -1.32,
+      "mean_pct": -0.0163
     }
   },
-  "by_symbol_30m": {},
-  "by_lean_score_30m": {},
-  "by_blocker_30m": {},
+  "by_symbol_30m": {
+    "DIA": {
+      "n": 10,
+      "hit_rate_pct": 90.0,
+      "sigma": 2.53,
+      "mean_pct": 0.0316
+    },
+    "IWM": {
+      "n": 11,
+      "hit_rate_pct": 72.73,
+      "sigma": 1.51,
+      "mean_pct": 0.0429
+    },
+    "QQQ": {
+      "n": 9,
+      "hit_rate_pct": 55.56,
+      "sigma": 0.33,
+      "mean_pct": 0.0557
+    },
+    "SPY": {
+      "n": 10,
+      "hit_rate_pct": 40.0,
+      "sigma": -0.63,
+      "mean_pct": -0.0183
+    },
+    "XLE": {
+      "n": 10,
+      "hit_rate_pct": 40.0,
+      "sigma": -0.63,
+      "mean_pct": -0.1182
+    },
+    "XLF": {
+      "n": 8,
+      "hit_rate_pct": 37.5,
+      "sigma": -0.71,
+      "mean_pct": -0.05
+    },
+    "XLK": {
+      "n": 7,
+      "hit_rate_pct": 28.57,
+      "sigma": -1.13,
+      "mean_pct": -0.0068
+    },
+    "XLV": {
+      "n": 10,
+      "hit_rate_pct": 20.0,
+      "sigma": -1.9,
+      "mean_pct": -0.0418
+    }
+  },
+  "by_lean_score_30m": {
+    "6": {
+      "n": 1,
+      "hit_rate_pct": 0.0,
+      "sigma": -1.0,
+      "mean_pct": -0.0458
+    },
+    "7": {
+      "n": 4,
+      "hit_rate_pct": 25.0,
+      "sigma": -1.0,
+      "mean_pct": -0.2651
+    },
+    "8": {
+      "n": 26,
+      "hit_rate_pct": 53.85,
+      "sigma": 0.39,
+      "mean_pct": 0.0082
+    },
+    "9": {
+      "n": 33,
+      "hit_rate_pct": 48.48,
+      "sigma": -0.17,
+      "mean_pct": -0.0022
+    },
+    "10": {
+      "n": 10,
+      "hit_rate_pct": 50.0,
+      "sigma": 0.0,
+      "mean_pct": -0.0018
+    },
+    "11": {
+      "n": 1,
+      "hit_rate_pct": 100.0,
+      "sigma": 1.0,
+      "mean_pct": 0.0423
+    }
+  },
+  "by_blocker_30m": {
+    "F11:sweep_or_htf": {
+      "n": 47,
+      "hit_rate_pct": 44.68,
+      "sigma": -0.73,
+      "mean_pct": -0.0304
+    },
+    "F10:level_tied_trigger": {
+      "n": 41,
+      "hit_rate_pct": 41.46,
+      "sigma": -1.09,
+      "mean_pct": -0.0367
+    },
+    "F5:ribbon_stack": {
+      "n": 23,
+      "hit_rate_pct": 56.52,
+      "sigma": 0.63,
+      "mean_pct": 0.0021
+    },
+    "F6:ribbon_spread": {
+      "n": 22,
+      "hit_rate_pct": 45.45,
+      "sigma": -0.43,
+      "mean_pct": -0.0445
+    },
+    "F9:breakdown_bar": {
+      "n": 8,
+      "hit_rate_pct": 37.5,
+      "sigma": -0.71,
+      "mean_pct": -0.081
+    },
+    "F7:volume_divergence": {
+      "n": 8,
+      "hit_rate_pct": 50.0,
+      "sigma": 0.0,
+      "mean_pct": 0.024
+    }
+  },
   "shelf_vs_not_30m": {
     "nearest_is_shelf": {
-      "n": 0
+      "n": 10,
+      "hit_rate_pct": 50.0,
+      "sigma": 0.0,
+      "mean_pct": 0.0288
     },
     "not_a_shelf": {
-      "n": 0
+      "n": 65,
+      "hit_rate_pct": 49.23,
+      "sigma": -0.12,
+      "mean_pct": -0.0189
     }
   }
 }

@@ -61,7 +61,10 @@ $action = New-ScheduledTaskAction -Execute "wscript.exe" `
 # 07:00 local = 09:00 ET premarket card, then every 30 min through 13:30 local = 15:30 ET. The
 # premarket run is the important one: the read J can act on before the session, with the
 # overnight zone map already built.
-$trigger = New-ScheduledTaskTrigger -Daily -At "07:00" -DaysInterval 1
+# WEEKDAYS ONLY. A Saturday fire evaluates stale Friday bars and produces a card that can
+# never be stamped with an outcome (no forward bars exist), so it is pure API burn: 216 junk
+# cards and ~860 wasted calls accumulated over one weekend before this was caught.
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "07:00"
 $trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "07:00" `
   -RepetitionInterval (New-TimeSpan -Minutes 30) `
   -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 30)).Repetition

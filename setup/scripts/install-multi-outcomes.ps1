@@ -36,7 +36,8 @@ $action = New-ScheduledTaskAction -Execute "wscript.exe" `
   -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --cwd `"$Root`" -- `"$pythonw`" -m multi.outcomes"
 
 # 14:45 LOCAL = 16:45 ET. Do not "correct" this to 16:45.
-$trigger = New-ScheduledTaskTrigger -Daily -At "14:45" -DaysInterval 1
+# WEEKDAYS ONLY -- nothing to stamp on a day with no session.
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "14:45"
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
   -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 10) `
   -MultipleInstances IgnoreNew
