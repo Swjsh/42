@@ -71,6 +71,32 @@ and the sharper version changes the ACTION:
 
 Dispatched accordingly (extend-population re-run under frozen gates + live-arm corroboration + VOID check).
 
+### §1b — CORRECTION (Opus review pass): the watcher-lane leak was already mostly closed
+
+The first pass ranked "watcher lane bleeding −$2,139 = 110% of the deficit" as action #2. The provenance audit
+([WATCHER-LANE-PROVENANCE-2026-08-23](WATCHER-LANE-PROVENANCE-2026-08-23.md)) falsifies the premise:
+
+- **Only 2 of the 4 families can place live orders.** `vwap_continuation` (the −$1,469.94 worst offender) and
+  `vix_regime_dayside` were **DISARMED 2026-07-25** (`params.json#extra_setup_exec_armed=false`), fleet-path leak
+  closed 2026-08-12. `journal/trades.csv` confirms **zero fills since** — the params read is not stale.
+- The −$2,139 was measured over 2026-06-26..08-19, a window that mostly **predates** those disarms. The forward
+  dollar value of "shadow the watcher lane" is therefore far smaller than ranked. **Action #2 is DEMOTED.**
+- **BOLLINGER_SQUEEZE = RATIFIED** and stays armed: it is the only watcher family with a population-scale study
+  (373-day, n=303–325, IS/OOS, WF 1.44–1.59, dir-null PASS).
+- **The one genuinely contestable armed family is `VWAP_RECLAIM_FAILED_BREAK`** (Safe-2 + risky-1/-3 + safe-3):
+  ratified on n=76 real fills only, and live WR has diverged to **12.5% (n=8) vs its 55.3% backtest**. n=8 is
+  FAR too small to act on — disarming on that would be acting on noise, the same error this audit just corrected.
+  It gets a forward clock, not a disarm.
+
+**Two structural findings worth more than the original action:**
+1. **No deep population exists for ANY non-ribbon family.** popA (391-day, n=191) is ribbon-only, and the TP1
+   prereg states it explicitly: *"popA cannot test vwap (ribbon-family population)... ineligible to ship from this
+   study REGARDLESS of gates."* Every non-ribbon family is structurally condemned to thin, real-fills-scale
+   evidence. That is a systemic evidence gap, not a per-family oversight.
+2. **A prereg is deadlocked.** `vwap-family-killcheck-prereg-2026-08-18` requires 20 live sessions or n≥25 forward
+   positions, but its strategy was disarmed six days BEFORE the prereg was frozen — zero fills, so it can never
+   resolve. A forward clock that cannot tick is not evidence-in-progress, it is a dead instrument.
+
 **Queue items filed:** `TP1-R50-READJUDICATION` (HIGH) · `WATCHER-LANE-PROVENANCE-AUDIT` (HIGH) · `BEARISH-FILL-BAR-G-BATTERY` (MED-HIGH). Pre-existing `FABLE-ESCALATION-RISKY1-SEQUENCE-REJECTION-PARITY-GAP` stays ranked with them — risky-1 is the worst arm on the 10-day window (−$571) and the parity gap sits on its entry-quality gate.
 
 ## Sector 2 — Futures: mature the clocks, don't force them
