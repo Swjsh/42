@@ -5,25 +5,22 @@
 
 # CANDIDATE: OPENING_RANGE_VWAP_PULLBACK_LONG
 
-**Filed:** 2026-07-09  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** new_trigger  
+**Filed:** 2026-07-09
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** new_trigger
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-After the opening range (first 5‑min bar after 09:30) is established, a pullback to the intraday VWAP within the first 30 minutes that finds support at the OR midpoint offers a high‑probability long entry. The VWAP acting as dynamic support inside the OR captures institutional order flow that tends to push price back toward the OR high.
+After an early opening range break, a pullback to VWAP with bullish closure signals mean-reverting upward momentum. The opening range often sets intraday support/resistance; a return to VWAP with bullish confirmation suggests the break was valid and buying interest is returning.
 
 ## Mechanism
 
-1. Compute OR high and low from the first 5‑min bar after 09:30.  
-2. Calculate the OR midpoint = (OR_high + OR_low)/2 and OR range = OR_high - OR_low.  
-3. For each bar between 09:35 and 10:00 ET, check if the bar’s close equals the VWAP (within 0.01% tolerance) and the VWAP lies within OR_midpoint ±0.1% of the OR range.  
-4. Additionally require the bar to be bullish (close > open) and its volume > average volume of the prior 10 bars.  
-5. Enter long at the close of that bar.  
-6. Stop loss placed just below OR_low (e.g., OR_low - 0.02*OR_range).  
-7. Initial target set at OR_high or 1.5R (whichever is reached first); if the target is hit, trail the remaining runner with a stop that trails the high by 10% of ATR(20).  
-8. Only consider trades when OR width is between 0.2% and 0.8% of SPY price and VIX < 20; avoid the first 15 min after 10:00 am (major news window).
+Define ORH/ORL from 09:30-09:45 ET. After 09:45, enter long when:
+- Price touches VWAP ±0.05% (i.e., |close - VWAP|/VWAP ≤ 0.0005)
+- Current 5-min bar closes bullish (close > open)
+- Prior 5-min bar closed below VWAP
+Exit: Chart-stop at ORH if price breaks below it, TP1 at 1.5R (risk = entry - ORH), runner trailed 15% off highest-water-mark using ATR-based chandelier trail (ATR(14) × 1.5). Regime filters: Only trade when VIX < 20 and time between 10:00-12:00 ET; skip during FOMC, CPI, NFP windows.
 
 ## Expected impact on OP-16 anchors
 
@@ -39,24 +36,24 @@ After the opening range (first 5‑min bar after 09:30) is established, a pullba
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 contracts requires approximately $25K+ account to risk 50% per trade at typical entry premiums (~$1.00). A $1K paper account would realize roughly 14% of headline P&L (3 contracts max).  
-2. **Sample bias:** The idea is derived from intraday price action principles; no historical sample has been evaluated yet. High overfit risk if parameters (OR width bounds, VWAP tolerance, volume filter) are tuned to anecdotal observations.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test performed).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA slippage/spread check on the top three J days).  
-5. **Failure modes:**  
-   - Worst day: a strong trend day where price never pulls back to VWAP within the OR, causing repeated missed entries and potential whipsaw if stop is hit on breakout failures.  
-   - Max drawdown: could exceed 30% of allocated capital if a series of losses occur during low‑volatility, choppy markets where OR width is outside the 0.2‑0.8% band but the filter fails to reject.  
-   - Blow‑up scenario: entering on a false VWAP pullback during a news‑driven spike, then reversing sharply through the OR low stop, amplified by high volume and low liquidity.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to determine what fraction of P&L comes from the top‑5 days.
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline
+2. **Sample bias:** Zero-sample proposal; high overfit risk due to multiple tuned parameters (OR window, VWAP tolerance, bullish close, regime filters) without empirical validation
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out testing performed)
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic bid/ask/slippage simulation on anchor days)
+5. **Failure modes:** 
+   - Worst day: Entering on false VWAP pullback during distribution day, stopped at ORH for full risk
+   - Max drawdown: Potential for consecutive losses if regime filters fail (e.g., low VIX breakdown day)
+   - Blow-up scenario: Ignoring FOMC filter and taking multiple losses during volatile news event
+6. **Concentration:** Unknown -- requires Stage-1 backtest to determine if top-5 days drive P&L
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
 
 ## Confidence
 
-4 / 10 -- The hypothesis is grounded in common intraday concepts (opening range, VWAP support) but lacks any empirical validation on the specific OP-16 anchor days; numerous degrees of freedom (OR width bounds, VWAP tolerance, volume average length) increase overfit risk.
+3 / 10 -- Plausible intraday mean-reversion concept but untested; high parameter sensitivity risks overfit without empirical validation
 
 ## Pre-existing leaderboard impact
 
-This candidate does not conflict with any of the current leaderboard entries (ranks I‑★★‑HOLD‑WS4‑★‑RV‑REJ). Those are primarily watcher gates, DTE overrides, or structural filters that operate on existing setups; this proposal introduces a new long‑side trigger based on opening‑range/VWAP dynamics. It could complement existing watcher gates if they are used to filter regime (e.g., OR width, VIX) but otherwise stands independently. No direct duplication or contradiction with the leaderboard is observed.
+No direct conflict with existing candidates (mostly watcher gates, DTE studies, or specific setups like VWAP_CONTINUATION). May complement by providing directional long entries during morning sessions, but impact unknown without backtest. Does not overlap with any ranked candidate mechanics in _LEADERBOARD.md.
