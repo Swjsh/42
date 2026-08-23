@@ -208,6 +208,23 @@ def test_folder_hub_respects_vault_visibility(tmp_path, monkeypatch):
     assert "hidden" not in out, "hub linked a vault-hidden file -> broken link factory"
 
 
+def test_ssr_shadow_round_trips_read_producer_key(tmp_path, monkeypatch):
+    """ssr_shadow.py (the producer) writes 'n_round_trips' to ssr-shadow-progress.json, NOT
+    'n_closed_round_trips'. render_other_lanes() must read the real key -- reading the wrong
+    one silently renders '0 round trips' on HOME.md forever even as the ledger accrues real
+    trips (regression: 17 round trips on disk, 0 shown on HOME, 2026-08-23)."""
+    m = _load()
+    state = tmp_path / "automation" / "state"
+    (state / "futures").mkdir(parents=True)
+    import json
+    (state / "futures" / "ssr-shadow-progress.json").write_text(
+        json.dumps({"n_round_trips": 17, "total_pnl_usd": 27335.69}), encoding="utf-8")
+    monkeypatch.setattr(m, "STATE", state)
+    out = "\n".join(m.render_other_lanes())
+    assert "17 round trips" in out, f"SSR shadow round-trip count not rendered from producer key:\n{out}"
+    assert "0 round trips" not in out
+
+
 def test_memory_mirror_is_gitignored():
     """PUBLIC repo: the memory mirror carries J's preferences and must never be pushable."""
     gi = (REPO / ".gitignore").read_text(encoding="utf-8", errors="replace")

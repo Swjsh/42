@@ -81,13 +81,27 @@ Document each MISSED or PHANTOM in the EOD reflection section.
 
 ## Step 4 — update trades.csv
 
-Append one row per completed trade to `journal/futures/trades.csv`:
-```
-date,instrument,direction,entry,stop,tp1,runner,qty,tp1_qty,setup,watcher,confidence,vix,entry_time,tp1_time,exit_time,exit_price,exit_reason,pnl_pts,pnl_usd,hold_bars,thesis,rule_break
-```
+`journal/futures/trades.csv` is owned by `backtest/futures/futures_journal.py` (canonical
+schema = its `TRADE_COLUMNS` list). **NEVER hand-write a CSV header or row into this file
+and never recreate/overwrite it.** A stale hardcoded schema here previously caused the code
+writer's own `_ensure_csv()` mismatch-guard to rotate the live file aside as "legacy" —
+silently destroying every unrecorded round trip written since the last rotation (lost the
+2026-08-10 session's 3 trades this way; see `journal/futures/trades.legacy-*.csv` for the
+scar tissue). If this file's schema and `futures_journal.TRADE_COLUMNS` ever disagree again,
+whichever writer runs second wins and the other's rows vanish without an error.
 
-For WATCH_ONLY trades: fill what's known, leave exit fields blank if no outcome yet.
-For open trades at EOD: exit_reason=EOD_FLATTEN, use last known price.
+For any completed round trip this review needs to record, call the real writer instead of
+typing a row:
+```
+python -c "
+import sys; sys.path.insert(0, 'backtest')
+from futures.futures_journal import record_trade
+record_trade({...})  # keys = futures_journal.TRADE_COLUMNS; missing keys default to ''
+"
+```
+This guarantees the row lands under the current schema no matter how it has evolved. If a
+round trip is already in `journal/futures/trades.csv` (the live trader journals its own
+closes every tick — check first), do not re-record it.
 
 ---
 

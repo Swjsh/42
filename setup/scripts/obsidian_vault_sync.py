@@ -267,7 +267,10 @@ def render_other_lanes() -> list[str]:
                  f"${edge3.get('validated_oos_per_trade', 0):,.2f} · "
                  f"**{edge3.get('falsification', '?')}**")
     if ssr:
-        L.append(f"- **SSR shadow** {ssr.get('n_closed_round_trips', 0)} round trips · "
+        # producer (ssr_shadow.py) writes "n_round_trips"; accept the older
+        # "n_closed_round_trips" key too for backward compat with any other producer.
+        ssr_trips = ssr.get('n_round_trips', ssr.get('n_closed_round_trips', 0))
+        L.append(f"- **SSR shadow** {ssr_trips} round trips · "
                  f"{ssr.get('verdict', ssr.get('falsification', 'forward clock running'))}")
     else:
         L.append("- **SSR shadow** — 0 round trips so far (forward clock running)")
