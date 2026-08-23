@@ -1,0 +1,699 @@
+{
+  "_doc": "EXTENDED RE-ADJUDICATION of frozen prereg cell R_tp100_f50 (analysis/recommendations/prereg-tp1-reachability-2026-08-06.json). Assembled from backtest/tools/tp1_r50_readjudication_2026_08_23.py (Part 2, extended popA gate re-run) + backtest/tools/tp1_r50_live_arm_2026_08_23.py (Part 1 forward-clock, Part 3 live-arm corroboration) + carried-forward G6/G7/G8 from the original 2026-08-06 scorecard (week-population-B-scope + cross-cell BH-FDR family scope, NOT re-run this session -- disclosed below, not silently presented as fresh).",
+  "generated_at_et": "2026-08-23T15:44:04.642935",
+  "prereg_id": "TP1-REACHABILITY-2026-08-06",
+  "cell_readjudicated": "R_tp100_f50 (ribbon_ride, tp1_premium_pct=1.0, tp1_qty_fraction=0.5)",
+  "control_null_cell": "R_tp100_f667 (== live registry AS OF 2026-08-06 -- see drift_disclosure)",
+  "part1_forward_clock": {
+    "risky1_exit_patch_verified": {
+      "tp1_premium_pct": 0.5,
+      "stop_mode": "structure"
+    },
+    "journal_primary": {
+      "source": "journal/trades.csv, account_id=='risky-1', date > 2026-08-03, setup contains RIDE_THE_RIBBON",
+      "n_position_level": 35,
+      "n_leg_rows": 51
+    },
+    "decisions_crosscheck": {
+      "source": "automation/state/fleet/risky-1/decisions.jsonl, action ENTER_BEAR/ENTER_BULL, placement.placed==true, ts_et > 2026-08-03, setup_name contains RIDE_THE_RIBBON",
+      "n": 35
+    },
+    "cross_validation": {
+      "matched_by_date_strike_side_within_15s": 34,
+      "divergence_pct_journal_vs_decisions": 0.0,
+      "note": "journal position-count runs slightly ahead of decisions' placed=true count because a handful of entries fill as 2 broker orders ~1s apart (liquidity split), landing as 2 journal rows within the same 15s cluster window but only 1 engine ENTER decision; both sources independently clear the n>=30 floor regardless of which is used."
+    },
+    "n_used_for_clock": 35,
+    "n_floor": 30,
+    "clock_n_met": true,
+    "clock_calendar_deadline": "2026-09-05",
+    "clock_calendar_met": false,
+    "clock_triggered": true,
+    "verdict": "CLOCK MET (n-floor)"
+  },
+  "premature_clock": false,
+  "part2_extended_population": {
+    "drift_disclosure": "automation/state/fleet/strategies.py's LIVE ribbon_ride exit shape has CHANGED since 2026-08-06 (commits 658ecc79 2026-08-10, 20a9e792/e3a44956 2026-08-11/12 armed pre_tp1_ladder=[[0.50,0.30],[0.75,0.60]] + pre_tp1_trail_arm_pct=0.75 on the LIVE registry). This study's REGISTRY_SHAPES snapshot (imported verbatim from tp1_reachability_2026_08_06.py, per the frozen-cell prohibition) does NOT include those keys -- R_tp100_f667 in this scorecard is the null cell AS DEFINED BY THE FROZEN PREREG, not a re-measurement of what is armed live today. Not folded into this study; a separate future study would be needed to re-baseline against the ladder-augmented shape.",
+    "cache_last_date": "2026-08-21",
+    "original_popA_window": "2025-01-06..2026-07-21 (n=191, FROZEN, unchanged)",
+    "extension_window": "2026-07-23..2026-08-21",
+    "extension_stats": {
+      "n_raw_entries": 22,
+      "n_replayed": 22,
+      "n_excluded_no_opra_cache": 0,
+      "n_excluded_no_spy_day": 0,
+      "n_excluded_out_of_window_guard": 0,
+      "entry_layer_seconds": 5.6
+    },
+    "combined_popA_n": 213,
+    "void_check": {
+      "void": false,
+      "n_mismatches": 0,
+      "rule": "CONTROL cell (re-walked via tp1r.walk_population_a, an INDEPENDENT code path from this file's own reference-P&L generation) must reconcile to each trade's own dollar_pnl/src_pnl with ZERO mismatches > $0.005 -- for the original 191 this reproduces the 2026-08-06 study's own 0-mismatch result; for the extension entries this is a genuine (non-tautological) parity check between two independently-coded walk_exit_manager call sites.",
+      "mismatches_sample": []
+    },
+    "runner_cohort_extended": {
+      "n": 39,
+      "control_total": 17446.25,
+      "note": "recomputed on the COMBINED (191 + extension) population; original study's own figure was n=35 $15,497.25"
+    },
+    "g4_subwindow_boundaries_extended": [
+      [
+        "2025H1",
+        "2025-01-01",
+        "2025-06-30"
+      ],
+      [
+        "2025H2",
+        "2025-07-01",
+        "2025-12-31"
+      ],
+      [
+        "2026Q1",
+        "2026-01-01",
+        "2026-03-31"
+      ],
+      [
+        "2026Q2p",
+        "2026-04-01",
+        "2026-07-22"
+      ]
+    ],
+    "cells": {
+      "R_tp100_f667": {
+        "popA": {
+          "aggregate_delta": 0.0,
+          "n_changed": 0,
+          "ex_best_trade": 0.0,
+          "drop_best_day": 0.0,
+          "runner_cohort_delta": 0.0,
+          "sub_windows": [
+            {
+              "window": "2025H1",
+              "delta": 0.0,
+              "n_changed": 0
+            },
+            {
+              "window": "2025H2",
+              "delta": 0.0,
+              "n_changed": 0
+            },
+            {
+              "window": "2026Q1",
+              "delta": 0.0,
+              "n_changed": 0
+            },
+            {
+              "window": "2026Q2p_ext",
+              "delta": 0.0,
+              "n_changed": 0
+            }
+          ],
+          "sub_window_stable": false,
+          "wf_months_qualifying": 0,
+          "wf_fraction": null,
+          "wf_pass": false,
+          "oos_2026_delta": 0.0,
+          "p_value_raw": 1.0,
+          "tp1_fire_rate": 0.2066
+        },
+        "gates_popA_scope": {
+          "G1_popA_aggregate": false,
+          "G2_ex_best_trade": false,
+          "G3_runner_anchor": true,
+          "G4_subwindow_stable": false,
+          "G5_drop_best_day": false
+        },
+        "bar_popA_scope": {
+          "OOS_positive": false,
+          "WF_ge_0.70": false,
+          "sub_window_stable": false,
+          "anchor_no_regression": true
+        }
+      },
+      "R_tp100_f50": {
+        "popA": {
+          "aggregate_delta": 967.3,
+          "n_changed": 35,
+          "ex_best_trade": 782.35,
+          "drop_best_day": 782.35,
+          "runner_cohort_delta": 685.3,
+          "sub_windows": [
+            {
+              "window": "2025H1",
+              "delta": 228.95,
+              "n_changed": 4
+            },
+            {
+              "window": "2025H2",
+              "delta": 333.2,
+              "n_changed": 13
+            },
+            {
+              "window": "2026Q1",
+              "delta": 253.2,
+              "n_changed": 4
+            },
+            {
+              "window": "2026Q2p_ext",
+              "delta": 151.95,
+              "n_changed": 14
+            }
+          ],
+          "sub_window_stable": false,
+          "wf_months_qualifying": 6,
+          "wf_fraction": 0.833,
+          "wf_pass": true,
+          "oos_2026_delta": 405.15,
+          "p_value_raw": 0.001638,
+          "tp1_fire_rate": 0.2066
+        },
+        "gates_popA_scope": {
+          "G1_popA_aggregate": true,
+          "G2_ex_best_trade": true,
+          "G3_runner_anchor": true,
+          "G4_subwindow_stable": false,
+          "G5_drop_best_day": true
+        },
+        "bar_popA_scope": {
+          "OOS_positive": true,
+          "WF_ge_0.70": true,
+          "sub_window_stable": false,
+          "anchor_no_regression": true
+        }
+      }
+    },
+    "g4_structural_finding": "G4 requires >=3 of the sub-windows (among those with >=5 changed trades) to be delta>=-$0.005, AND at least 2 windows must qualify (>=5 changed trades) at all. 2025H1 and 2026Q1 are FIXED CALENDAR-PAST windows sitting at n_changed=4 each (both original 2026-08-06 run and this extended run) -- a forward extension of popA's END date can only ever add trades to the newest (4th) window; it cannot retroactively add trades to a window that is entirely in the past. Only 2 of the 4 windows (2025H2 n=13, 2026Q2p_ext n=14) can ever qualify under this population-extension approach, so the >=3-qualifying-and-positive requirement is STRUCTURALLY UNREACHABLE via this lever alone -- extending popA's window further forward (e.g. through a later cache date) would grow the 4th window further but still cannot create a 3rd qualifying window. G4 did not fail this run for the same reason it failed originally (power/dispersion, all windows positive) -- it fails now for a DIFFERENT, sharper reason: the gate's own qualification structure caps out at 2 qualifying windows for this population, permanently, under any forward-only extension."
+  },
+  "full_gate_table": {
+    "G1_popA_aggregate": true,
+    "G2_ex_best_trade": true,
+    "G3_runner_anchor": true,
+    "G4_subwindow_stable": false,
+    "G5_drop_best_day": true,
+    "G6_week_tuesday_HARD": true,
+    "G7_week_total": true,
+    "G8_bh_fdr": true
+  },
+  "full_gate_table_summary": "FAILS: G4_subwindow_stable",
+  "g6_g7_g8_carried_forward_disclosure": "G6_week_tuesday_HARD, G7_week_total, G8_bh_fdr are CARRIED FORWARD verbatim from the original 2026-08-06 scorecard (all TRUE there, orig_r50.gates) -- this extension did NOT re-pull population B's real broker week-book (2026-08-03..06 is a closed, already-settled real-fills week; nothing new to re-derive) and did NOT re-run the full 28-cell BH-FDR family (out of scope for a single-cell re-adjudication of R_tp100_f50). Original values: G6=True G7=True G8=True (bh_family_size=28, bh_survivors=1).",
+  "auto_ratify_bar_full": {
+    "OOS_positive": true,
+    "WF_ge_0.70": true,
+    "sub_window_stable": false,
+    "anchor_no_regression": true
+  },
+  "clears_full_auto_ratify_bar": false,
+  "part3_live_arm_corroboration": {
+    "axis_mismatch_disclosure": "risky-1 varies TP1 LEVEL (+50% vs siblings' +100%) at a FIXED qty_fraction (registry 0.667, unchanged by risky-1's exit_patch). Cell R_tp100_f50 varies QTY FRACTION (0.5 vs 0.667) at a FIXED +100% TP1. Different knobs; this section is a PROXY on the shared 'early extraction damages runners' risk only, never direct evidence for/against R_tp100_f50's own axis.",
+    "n_shared_signals_with_sibling": 25,
+    "per_sibling_coarse_total_position": {
+      "safe-2": {
+        "n_pairs": 2,
+        "risky1_total": 641.0,
+        "sibling_total": 369.0,
+        "delta_risky1_minus_sibling": 272.0,
+        "n_risky1_better": 1,
+        "n_sibling_better": 1,
+        "n_tie": 0
+      },
+      "bold-2": {
+        "n_pairs": 2,
+        "risky1_total": -230.0,
+        "sibling_total": -155.0,
+        "delta_risky1_minus_sibling": -75.0,
+        "n_risky1_better": 0,
+        "n_sibling_better": 1,
+        "n_tie": 1
+      },
+      "safe-3": {
+        "n_pairs": 20,
+        "risky1_total": 28.0,
+        "sibling_total": -521.0,
+        "delta_risky1_minus_sibling": 549.0,
+        "n_risky1_better": 9,
+        "n_sibling_better": 11,
+        "n_tie": 0
+      },
+      "risky-3": {
+        "n_pairs": 5,
+        "risky1_total": 1119.0,
+        "sibling_total": 815.0,
+        "delta_risky1_minus_sibling": 304.0,
+        "n_risky1_better": 1,
+        "n_sibling_better": 3,
+        "n_tie": 1
+      }
+    },
+    "per_sibling_runner_leg_proxy": {
+      "safe-2": {
+        "n_pairs": 1,
+        "risky1_runner_leg_total": 392.0,
+        "sibling_runner_leg_total": 121.0,
+        "delta_risky1_minus_sibling": 271.0
+      },
+      "bold-2": {
+        "n_pairs": 0
+      },
+      "safe-3": {
+        "n_pairs": 3,
+        "risky1_runner_leg_total": 674.0,
+        "sibling_runner_leg_total": 275.0,
+        "delta_risky1_minus_sibling": 399.0
+      },
+      "risky-3": {
+        "n_pairs": 2,
+        "risky1_runner_leg_total": 472.0,
+        "sibling_runner_leg_total": 629.0,
+        "delta_risky1_minus_sibling": -157.0
+      }
+    },
+    "total_coarse_delta_risky1_minus_siblings": 1050.0,
+    "total_runner_proxy_delta_risky1_minus_siblings": 513.0,
+    "n_runner_proxy_pairs": 6,
+    "verdict": "CONTRADICTS the risk on this small live sample (risky-1 ahead on both cuts)",
+    "detail_rows": [
+      {
+        "date": "2026-08-04",
+        "strike": "768",
+        "side": "C",
+        "signal_minute": "11:27",
+        "risky1_total_pnl": -65.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -65.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -39.0,
+            "n_legs": 2,
+            "last_leg_pnl": -26.0
+          },
+          "risky-3": {
+            "total_pnl": -29.0,
+            "n_legs": 2,
+            "last_leg_pnl": -5.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-04",
+        "strike": "769",
+        "side": "C",
+        "signal_minute": "11:52",
+        "risky1_total_pnl": -110.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -110.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -66.0,
+            "n_legs": 3,
+            "last_leg_pnl": -22.0
+          },
+          "risky-3": {
+            "total_pnl": -110.0,
+            "n_legs": 1,
+            "last_leg_pnl": -110.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-04",
+        "strike": "769",
+        "side": "C",
+        "signal_minute": "12:28",
+        "risky1_total_pnl": 651.0,
+        "risky1_n_legs": 3,
+        "risky1_last_leg_pnl": 392.0,
+        "siblings": {
+          "safe-2": {
+            "total_pnl": 375.0,
+            "n_legs": 2,
+            "last_leg_pnl": 121.0
+          },
+          "safe-3": {
+            "total_pnl": 378.0,
+            "n_legs": 2,
+            "last_leg_pnl": 122.0
+          },
+          "risky-3": {
+            "total_pnl": 788.0,
+            "n_legs": 2,
+            "last_leg_pnl": 404.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-05",
+        "strike": "772",
+        "side": "P",
+        "signal_minute": "11:48",
+        "risky1_total_pnl": 347.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 68.0,
+        "siblings": {
+          "risky-3": {
+            "total_pnl": -664.0,
+            "n_legs": 1,
+            "last_leg_pnl": -664.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-06",
+        "strike": "770",
+        "side": "P",
+        "signal_minute": "10:32",
+        "risky1_total_pnl": 296.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 80.0,
+        "siblings": {
+          "risky-3": {
+            "total_pnl": 830.0,
+            "n_legs": 2,
+            "last_leg_pnl": 225.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-07",
+        "strike": "772",
+        "side": "C",
+        "signal_minute": "09:47",
+        "risky1_total_pnl": -95.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -76.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -176.0,
+            "n_legs": 1,
+            "last_leg_pnl": -176.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-07",
+        "strike": "772",
+        "side": "C",
+        "signal_minute": "12:37",
+        "risky1_total_pnl": -240.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -48.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -384.0,
+            "n_legs": 1,
+            "last_leg_pnl": -384.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-07",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "12:07",
+        "risky1_total_pnl": -305.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -305.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -488.0,
+            "n_legs": 2,
+            "last_leg_pnl": -366.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-10",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "09:35",
+        "risky1_total_pnl": -25.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -10.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -15.0,
+            "n_legs": 1,
+            "last_leg_pnl": -15.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-11",
+        "strike": "771",
+        "side": "P",
+        "signal_minute": "13:32",
+        "risky1_total_pnl": -145.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -145.0,
+        "siblings": {
+          "bold-2": {
+            "total_pnl": -145.0,
+            "n_legs": 1,
+            "last_leg_pnl": -145.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "774",
+        "side": "C",
+        "signal_minute": "09:55",
+        "risky1_total_pnl": -85.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -85.0,
+        "siblings": {
+          "bold-2": {
+            "total_pnl": -10.0,
+            "n_legs": 1,
+            "last_leg_pnl": -10.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "772",
+        "side": "P",
+        "signal_minute": "11:27",
+        "risky1_total_pnl": -10.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -10.0,
+        "siblings": {
+          "safe-2": {
+            "total_pnl": -6.0,
+            "n_legs": 1,
+            "last_leg_pnl": -6.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "12:58",
+        "risky1_total_pnl": -50.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -20.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -33.0,
+            "n_legs": 1,
+            "last_leg_pnl": -33.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "14:17",
+        "risky1_total_pnl": 122.0,
+        "risky1_n_legs": 3,
+        "risky1_last_leg_pnl": 40.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 45.0,
+            "n_legs": 1,
+            "last_leg_pnl": 45.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-13",
+        "strike": "777",
+        "side": "C",
+        "signal_minute": "09:52",
+        "risky1_total_pnl": 405.0,
+        "risky1_n_legs": 3,
+        "risky1_last_leg_pnl": 226.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 348.0,
+            "n_legs": 3,
+            "last_leg_pnl": 112.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-13",
+        "strike": "777",
+        "side": "C",
+        "signal_minute": "14:37",
+        "risky1_total_pnl": 152.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 56.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 199.0,
+            "n_legs": 2,
+            "last_leg_pnl": 41.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-13",
+        "strike": "776",
+        "side": "C",
+        "signal_minute": "11:42",
+        "risky1_total_pnl": -155.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -155.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -90.0,
+            "n_legs": 1,
+            "last_leg_pnl": -90.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-14",
+        "strike": "778",
+        "side": "C",
+        "signal_minute": "09:47",
+        "risky1_total_pnl": -468.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -468.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -287.0,
+            "n_legs": 1,
+            "last_leg_pnl": -287.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-19",
+        "strike": "771",
+        "side": "C",
+        "signal_minute": "10:42",
+        "risky1_total_pnl": -45.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -45.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -24.0,
+            "n_legs": 1,
+            "last_leg_pnl": -24.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-19",
+        "strike": "771",
+        "side": "C",
+        "signal_minute": "12:37",
+        "risky1_total_pnl": 0.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": 0.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 3.0,
+            "n_legs": 1,
+            "last_leg_pnl": 3.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-19",
+        "strike": "770",
+        "side": "C",
+        "signal_minute": "11:50",
+        "risky1_total_pnl": 299.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 140.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 207.0,
+            "n_legs": 1,
+            "last_leg_pnl": 207.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "11:07",
+        "risky1_total_pnl": -100.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -100.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -63.0,
+            "n_legs": 1,
+            "last_leg_pnl": -63.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "11:37",
+        "risky1_total_pnl": 262.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 58.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 90.0,
+            "n_legs": 1,
+            "last_leg_pnl": 90.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "12:27",
+        "risky1_total_pnl": -230.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -230.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -141.0,
+            "n_legs": 1,
+            "last_leg_pnl": -141.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "13:35",
+        "risky1_total_pnl": 25.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": 25.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 15.0,
+            "n_legs": 1,
+            "last_leg_pnl": 15.0
+          }
+        }
+      }
+    ]
+  },
+  "verdict": "R_tp100_f50 STILL FAILS G4_subwindow_stable on the extended population -- DO_NOT_ARM stands. Prereg stays FROZEN."
+}

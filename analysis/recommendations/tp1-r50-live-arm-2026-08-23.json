@@ -1,0 +1,522 @@
+{
+  "_doc": "TP1-R50-READJUDICATION-2026-08-23 -- PART 1 (forward-clock trigger count) + PART 3\n(live-arm corroboration / proxy-gap analysis), companion to tp1_r50_readjudication_2026_08_23.py\n(which handles PART 2, the extended popA gate re-run). Kept as a separate script because this\npart reads REAL broker/live data sources (journal/trades.csv, fleet decisions.jsonl) rather than\nre-running the backtest harness -- different inputs, different code path, no shared state.\n\nPART 1: count risky-1's LIVE ribbon-family (BEARISH_REJECTION_RIDE_THE_RIBBON /\nBULLISH_RECLAIM_RIDE_THE_RIBBON) fills under its +50% TP1 exit_patch\n(automation/state/fleet/accounts.json risky-1.params_patch.exit_patch.tp1_premium_pct=0.5),\nentries strictly after 2026-08-03, against the prereg's forward_clock_if_frozen: \"n>=30 ribbon\nfills post-2026-08-03, or by 2026-09-05, whichever first.\"\n\nTWO SOURCES, cross-validated (per brief -- state which is primary and why):\n  PRIMARY: journal/trades.csv, account_id=='risky-1' -- the REAL-FILL ledger (C1 doctrine:\n    \"Real-fills is the only WR authority\"). Position-level count via clustering same\n    date+strike+side rows within a tight time window (multi-leg TP1+runner exits of ONE entry\n    land as separate CSV rows).\n  CROSS-CHECK: automation/state/fleet/risky-1/decisions.jsonl, action in\n    {ENTER_BEAR,ENTER_BULL}, placement.placed==true -- the ENGINE's own per-tick placement\n    record. Matched to the journal by (date, strike, side, time within 15s).\n  Any material (>10%) divergence between the two is DISCLOSED, not silently resolved.\n\nPART 3: for the SAME risky-1 post-2026-08-03 ribbon fills, find sibling-arm fills on the SAME\nsignal (all 5 SPY fleet/core arms consume ONE shared_signal per\nautomation/state/fleet/build_shared_signal.py -- MAP.md's DECIDE layer) via journal/trades.csv,\nmatched on (date, strike, side, entry minute). Siblings: safe-2(csv alias 'safe'),\nbold-2(csv alias 'bold'), safe-3, risky-3 -- all four run tp1_premium_pct=1.0 (registry\ndefault; NONE of their exit_patch dicts touch tp1_premium_pct, verified against accounts.json\nthis session), so risky-1 (tp1=0.5) is the ONLY arm banking a partial early on these exact\nsignals. Reports: (a) total per-position $ per arm on shared signals -- coarse cut; (b) for\nmulti-leg positions on both risky-1 and a sibling, the LAST-leg (runner-outcome proxy) $ per\narm -- refined cut, clearly labeled a proxy.\n\nAXIS-MISMATCH DISCLOSURE (required by brief): risky-1's live A/B varies the TP1 LEVEL (+50% vs\nsiblings' +100%) at whatever tp1_qty_fraction the registry carries (0.667, unchanged by\nrisky-1's exit_patch). Cell R_tp100_f50 (Part 2) varies the QTY FRACTION (0.5 vs 0.667) at a\nFIXED +100% TP1 level. These are NOT the same knob. They share only the qualitative\n\"early profit extraction may damage the runner cohort\" risk (prereg's shared_risk_declared).\nPart 3's verdict is read as a PROXY on that shared risk, never as direct evidence for/against\nR_tp100_f50's specific qty-fraction axis.\n\nANALYSIS ONLY. Writes analysis/recommendations/tp1-r50-live-arm-2026-08-23.json (merged into\nthe final companion doc by the assembly step). No trading-path file touched.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/tp1_r50_live_arm_2026_08_23.py\n",
+  "generated_at_et": "2026-08-23T15:42:39.691699",
+  "part1_forward_clock": {
+    "risky1_exit_patch_verified": {
+      "tp1_premium_pct": 0.5,
+      "stop_mode": "structure"
+    },
+    "journal_primary": {
+      "source": "journal/trades.csv, account_id=='risky-1', date > 2026-08-03, setup contains RIDE_THE_RIBBON",
+      "n_position_level": 35,
+      "n_leg_rows": 51
+    },
+    "decisions_crosscheck": {
+      "source": "automation/state/fleet/risky-1/decisions.jsonl, action ENTER_BEAR/ENTER_BULL, placement.placed==true, ts_et > 2026-08-03, setup_name contains RIDE_THE_RIBBON",
+      "n": 35
+    },
+    "cross_validation": {
+      "matched_by_date_strike_side_within_15s": 34,
+      "divergence_pct_journal_vs_decisions": 0.0,
+      "note": "journal position-count runs slightly ahead of decisions' placed=true count because a handful of entries fill as 2 broker orders ~1s apart (liquidity split), landing as 2 journal rows within the same 15s cluster window but only 1 engine ENTER decision; both sources independently clear the n>=30 floor regardless of which is used."
+    },
+    "n_used_for_clock": 35,
+    "n_floor": 30,
+    "clock_n_met": true,
+    "clock_calendar_deadline": "2026-09-05",
+    "clock_calendar_met": false,
+    "clock_triggered": true,
+    "verdict": "CLOCK MET (n-floor)"
+  },
+  "part3_live_arm_corroboration": {
+    "axis_mismatch_disclosure": "risky-1 varies TP1 LEVEL (+50% vs siblings' +100%) at a FIXED qty_fraction (registry 0.667, unchanged by risky-1's exit_patch). Cell R_tp100_f50 varies QTY FRACTION (0.5 vs 0.667) at a FIXED +100% TP1. Different knobs; this section is a PROXY on the shared 'early extraction damages runners' risk only, never direct evidence for/against R_tp100_f50's own axis.",
+    "n_shared_signals_with_sibling": 25,
+    "per_sibling_coarse_total_position": {
+      "safe-2": {
+        "n_pairs": 2,
+        "risky1_total": 641.0,
+        "sibling_total": 369.0,
+        "delta_risky1_minus_sibling": 272.0,
+        "n_risky1_better": 1,
+        "n_sibling_better": 1,
+        "n_tie": 0
+      },
+      "bold-2": {
+        "n_pairs": 2,
+        "risky1_total": -230.0,
+        "sibling_total": -155.0,
+        "delta_risky1_minus_sibling": -75.0,
+        "n_risky1_better": 0,
+        "n_sibling_better": 1,
+        "n_tie": 1
+      },
+      "safe-3": {
+        "n_pairs": 20,
+        "risky1_total": 28.0,
+        "sibling_total": -521.0,
+        "delta_risky1_minus_sibling": 549.0,
+        "n_risky1_better": 9,
+        "n_sibling_better": 11,
+        "n_tie": 0
+      },
+      "risky-3": {
+        "n_pairs": 5,
+        "risky1_total": 1119.0,
+        "sibling_total": 815.0,
+        "delta_risky1_minus_sibling": 304.0,
+        "n_risky1_better": 1,
+        "n_sibling_better": 3,
+        "n_tie": 1
+      }
+    },
+    "per_sibling_runner_leg_proxy": {
+      "safe-2": {
+        "n_pairs": 1,
+        "risky1_runner_leg_total": 392.0,
+        "sibling_runner_leg_total": 121.0,
+        "delta_risky1_minus_sibling": 271.0
+      },
+      "bold-2": {
+        "n_pairs": 0
+      },
+      "safe-3": {
+        "n_pairs": 3,
+        "risky1_runner_leg_total": 674.0,
+        "sibling_runner_leg_total": 275.0,
+        "delta_risky1_minus_sibling": 399.0
+      },
+      "risky-3": {
+        "n_pairs": 2,
+        "risky1_runner_leg_total": 472.0,
+        "sibling_runner_leg_total": 629.0,
+        "delta_risky1_minus_sibling": -157.0
+      }
+    },
+    "total_coarse_delta_risky1_minus_siblings": 1050.0,
+    "total_runner_proxy_delta_risky1_minus_siblings": 513.0,
+    "n_runner_proxy_pairs": 6,
+    "verdict": "CONTRADICTS the risk on this small live sample (risky-1 ahead on both cuts)",
+    "detail_rows": [
+      {
+        "date": "2026-08-04",
+        "strike": "768",
+        "side": "C",
+        "signal_minute": "11:27",
+        "risky1_total_pnl": -65.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -65.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -39.0,
+            "n_legs": 2,
+            "last_leg_pnl": -26.0
+          },
+          "risky-3": {
+            "total_pnl": -29.0,
+            "n_legs": 2,
+            "last_leg_pnl": -5.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-04",
+        "strike": "769",
+        "side": "C",
+        "signal_minute": "11:52",
+        "risky1_total_pnl": -110.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -110.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -66.0,
+            "n_legs": 3,
+            "last_leg_pnl": -22.0
+          },
+          "risky-3": {
+            "total_pnl": -110.0,
+            "n_legs": 1,
+            "last_leg_pnl": -110.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-04",
+        "strike": "769",
+        "side": "C",
+        "signal_minute": "12:28",
+        "risky1_total_pnl": 651.0,
+        "risky1_n_legs": 3,
+        "risky1_last_leg_pnl": 392.0,
+        "siblings": {
+          "safe-2": {
+            "total_pnl": 375.0,
+            "n_legs": 2,
+            "last_leg_pnl": 121.0
+          },
+          "safe-3": {
+            "total_pnl": 378.0,
+            "n_legs": 2,
+            "last_leg_pnl": 122.0
+          },
+          "risky-3": {
+            "total_pnl": 788.0,
+            "n_legs": 2,
+            "last_leg_pnl": 404.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-05",
+        "strike": "772",
+        "side": "P",
+        "signal_minute": "11:48",
+        "risky1_total_pnl": 347.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 68.0,
+        "siblings": {
+          "risky-3": {
+            "total_pnl": -664.0,
+            "n_legs": 1,
+            "last_leg_pnl": -664.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-06",
+        "strike": "770",
+        "side": "P",
+        "signal_minute": "10:32",
+        "risky1_total_pnl": 296.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 80.0,
+        "siblings": {
+          "risky-3": {
+            "total_pnl": 830.0,
+            "n_legs": 2,
+            "last_leg_pnl": 225.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-07",
+        "strike": "772",
+        "side": "C",
+        "signal_minute": "09:47",
+        "risky1_total_pnl": -95.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -76.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -176.0,
+            "n_legs": 1,
+            "last_leg_pnl": -176.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-07",
+        "strike": "772",
+        "side": "C",
+        "signal_minute": "12:37",
+        "risky1_total_pnl": -240.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -48.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -384.0,
+            "n_legs": 1,
+            "last_leg_pnl": -384.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-07",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "12:07",
+        "risky1_total_pnl": -305.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -305.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -488.0,
+            "n_legs": 2,
+            "last_leg_pnl": -366.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-10",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "09:35",
+        "risky1_total_pnl": -25.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -10.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -15.0,
+            "n_legs": 1,
+            "last_leg_pnl": -15.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-11",
+        "strike": "771",
+        "side": "P",
+        "signal_minute": "13:32",
+        "risky1_total_pnl": -145.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -145.0,
+        "siblings": {
+          "bold-2": {
+            "total_pnl": -145.0,
+            "n_legs": 1,
+            "last_leg_pnl": -145.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "774",
+        "side": "C",
+        "signal_minute": "09:55",
+        "risky1_total_pnl": -85.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -85.0,
+        "siblings": {
+          "bold-2": {
+            "total_pnl": -10.0,
+            "n_legs": 1,
+            "last_leg_pnl": -10.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "772",
+        "side": "P",
+        "signal_minute": "11:27",
+        "risky1_total_pnl": -10.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -10.0,
+        "siblings": {
+          "safe-2": {
+            "total_pnl": -6.0,
+            "n_legs": 1,
+            "last_leg_pnl": -6.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "12:58",
+        "risky1_total_pnl": -50.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": -20.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -33.0,
+            "n_legs": 1,
+            "last_leg_pnl": -33.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-12",
+        "strike": "773",
+        "side": "C",
+        "signal_minute": "14:17",
+        "risky1_total_pnl": 122.0,
+        "risky1_n_legs": 3,
+        "risky1_last_leg_pnl": 40.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 45.0,
+            "n_legs": 1,
+            "last_leg_pnl": 45.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-13",
+        "strike": "777",
+        "side": "C",
+        "signal_minute": "09:52",
+        "risky1_total_pnl": 405.0,
+        "risky1_n_legs": 3,
+        "risky1_last_leg_pnl": 226.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 348.0,
+            "n_legs": 3,
+            "last_leg_pnl": 112.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-13",
+        "strike": "777",
+        "side": "C",
+        "signal_minute": "14:37",
+        "risky1_total_pnl": 152.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 56.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 199.0,
+            "n_legs": 2,
+            "last_leg_pnl": 41.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-13",
+        "strike": "776",
+        "side": "C",
+        "signal_minute": "11:42",
+        "risky1_total_pnl": -155.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -155.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -90.0,
+            "n_legs": 1,
+            "last_leg_pnl": -90.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-14",
+        "strike": "778",
+        "side": "C",
+        "signal_minute": "09:47",
+        "risky1_total_pnl": -468.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -468.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -287.0,
+            "n_legs": 1,
+            "last_leg_pnl": -287.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-19",
+        "strike": "771",
+        "side": "C",
+        "signal_minute": "10:42",
+        "risky1_total_pnl": -45.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -45.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -24.0,
+            "n_legs": 1,
+            "last_leg_pnl": -24.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-19",
+        "strike": "771",
+        "side": "C",
+        "signal_minute": "12:37",
+        "risky1_total_pnl": 0.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": 0.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 3.0,
+            "n_legs": 1,
+            "last_leg_pnl": 3.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-19",
+        "strike": "770",
+        "side": "C",
+        "signal_minute": "11:50",
+        "risky1_total_pnl": 299.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 140.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 207.0,
+            "n_legs": 1,
+            "last_leg_pnl": 207.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "11:07",
+        "risky1_total_pnl": -100.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -100.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -63.0,
+            "n_legs": 1,
+            "last_leg_pnl": -63.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "11:37",
+        "risky1_total_pnl": 262.0,
+        "risky1_n_legs": 2,
+        "risky1_last_leg_pnl": 58.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 90.0,
+            "n_legs": 1,
+            "last_leg_pnl": 90.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "12:27",
+        "risky1_total_pnl": -230.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": -230.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": -141.0,
+            "n_legs": 1,
+            "last_leg_pnl": -141.0
+          }
+        }
+      },
+      {
+        "date": "2026-08-21",
+        "strike": "766",
+        "side": "C",
+        "signal_minute": "13:35",
+        "risky1_total_pnl": 25.0,
+        "risky1_n_legs": 1,
+        "risky1_last_leg_pnl": 25.0,
+        "siblings": {
+          "safe-3": {
+            "total_pnl": 15.0,
+            "n_legs": 1,
+            "last_leg_pnl": 15.0
+          }
+        }
+      }
+    ]
+  }
+}
