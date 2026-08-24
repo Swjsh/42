@@ -45,6 +45,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 REPO = Path(__file__).resolve().parents[2]
 BACKTEST = REPO / "backtest"
@@ -369,3 +370,110 @@ def test_single_candidate_still_resolves_under_a_non_canonical_key():
     resolved = resolve_level_state({str(745.0): state}, 745.0,
                                    wanted_role="broken_to_support")
     assert resolved is state
+
+
+# ---------------------------------------------------------------------------
+# NaN safety (adversarial-review cleanup, 2026-08-23) -- TWO real defects, one
+# pre-existing (1a) and one a REGRESSION introduced by resolve_level_state
+# itself (1b). Both paths are unreachable in production (broken_at_bar_idx and
+# bounce_history bar_idx are always integers in practice; a NaN-priced
+# LevelState never occurs live), which is why this is cleanup and not a hold --
+# but a resolver that can raise ValueError inside the live brain, or silently
+# ADMIT a candidate the old scan excluded, is worse than the bug it replaced.
+# ---------------------------------------------------------------------------
+def test_nan_broken_at_bar_idx_does_not_raise_inside_recency():
+    """1a: `_level_state_recency` used to do bare `int(broken_at_bar_idx)` ->
+    `ValueError: cannot convert float NaN to integer` whenever that field held
+    NaN. Must not raise; the NaN recency signal is treated as UNINFORMATIVE
+    (never claims to be "most recent"), so the real, non-NaN candidate wins the
+    recency tie-break instead of crashing the lookup."""
+    nan_state = LevelState(price=735.02, role="broken_to_resistance",
+                            broken_at_bar_idx=float("nan"), bounce_history=[])
+    real_state = LevelState(price=735.00, role="broken_to_resistance",
+                            broken_at_bar_idx=1791, bounce_history=[])
+    resolved = resolve_level_state(
+        {"735.0200": nan_state, "735.0000": real_state},
+        735.01, wanted_role="broken_to_resistance",
+    )
+    assert resolved is real_state
+
+
+def test_nan_bounce_history_bar_idx_does_not_raise_inside_recency():
+    """1a mirror: the SAME `int(...)` crash via the bounce_history branch of
+    `_level_state_recency` (`last["bar_idx"]` holding NaN)."""
+    nan_history_state = LevelState(
+        price=735.02, role="broken_to_resistance", broken_at_bar_idx=1000,
+        bounce_history=[{"bar_idx": float("nan"), "high_reached": 735.2}],
+    )
+    real_state = LevelState(price=735.00, role="broken_to_resistance",
+                            broken_at_bar_idx=1791, bounce_history=[])
+    resolved = resolve_level_state(
+        {"735.0200": nan_history_state, "735.0000": real_state},
+        735.01, wanted_role="broken_to_resistance",
+    )
+    assert resolved is real_state
+
+
+def test_nan_priced_candidate_is_excluded_not_admitted():
+    """1b REGRESSION (introduced by this diff, not pre-existing): the tier-2
+    scan's `distance > tolerance` test silently evaluates False for a NaN price
+    (NaN comparisons are always False), so a NaN-priced LevelState was ADMITTED
+    into the ranking where the pre-2026-08-23 linear scan's own
+    `abs(state.price - target) <= 0.05` excluded it cleanly (also False for
+    NaN, but sitting on the admitting `if` instead of a `continue` guard).
+    Must resolve to the real candidate, and to None when the NaN candidate is
+    the ONLY one present -- never to the NaN-priced object."""
+    nan_state = LevelState(price=float("nan"), role="broken_to_resistance",
+                            broken_at_bar_idx=1791, bounce_history=[])
+    real_state = LevelState(price=735.00, role="broken_to_resistance",
+                            broken_at_bar_idx=1791, bounce_history=[])
+    resolved = resolve_level_state(
+        {"nan": nan_state, "735.0000": real_state},
+        735.00, wanted_role="broken_to_resistance",
+    )
+    assert resolved is real_state
+
+    assert resolve_level_state(
+        {"nan": nan_state}, 735.00, wanted_role="broken_to_resistance"
+    ) is None
+
+
+def test_nan_priced_exact_key_falls_through_not_admitted():
+    """Same 1b regression via the exact-key branch: a NaN price stored under the
+    CANONICAL exact key (`"735.0000"`) must not be returned outright -- it
+    fails closed and falls through to the (here, empty) tier-2 scan."""
+    nan_state = LevelState(price=float("nan"), role="broken_to_resistance",
+                            broken_at_bar_idx=1791, bounce_history=[])
+    assert resolve_level_state(
+        {"735.0000": nan_state}, 735.00, wanted_role="broken_to_resistance"
+    ) is None
+
+
+# ---------------------------------------------------------------------------
+# Loud, consistent failure on a malformed object (adversarial-review item C7).
+# ---------------------------------------------------------------------------
+class _NoPriceAttr:
+    """Duck-types nothing. Pre-cleanup, the tier-2 scan silently `continue`d
+    past this (getattr(..., "price", None) -> None -> skip) while the
+    exact-key branch was ASYMMETRIC and returned it raw -- exploding
+    downstream in detect_sequence_rejection/_reclaim's `.role`/`.bounce_history`
+    access instead of at the resolver boundary."""
+    role = "broken_to_resistance"
+
+
+def test_malformed_object_raises_in_tier2_scan_not_silently_skipped():
+    with pytest.raises(AttributeError):
+        resolve_level_state(
+            {"735.0100": _NoPriceAttr()}, 735.00, wanted_role="broken_to_resistance"
+        )
+
+
+def test_malformed_object_raises_via_exact_key_not_returned_raw():
+    """The asymmetric half of C7: pre-cleanup, THIS branch returned the
+    malformed object outright with no tolerance check at all, instead of even
+    the tier-2 scan's quiet skip. Must now raise, loud and consistent with the
+    tier-2 branch."""
+    with pytest.raises(AttributeError):
+        resolve_level_state(
+            {"735.0000": _NoPriceAttr()}, 735.00, wanted_role="broken_to_resistance"
+        )

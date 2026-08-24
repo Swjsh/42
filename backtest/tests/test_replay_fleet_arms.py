@@ -63,15 +63,28 @@ KNOWN_MAX_MISSED = {
 # Shrinks-only ratchet for the KNOWN max `extra` per arm. extra>0 is safety-critical
 # (arm over-trades vs backtest), so this is strictly bounded. A non-zero entry documents
 # a known pre-existing engine/orchestrator trigger-detection discrepancy.
-# risky-1 extra=1 (bar 1801, 2026-06-23 15:35 ET) — CLOSED 2026-08-06 conductor fire
-# (REPLAY-FLEET-ARMS-SCORE-PEAK-MISSING, see _score_peak_passed_for_verdict in
-# replay_fleet_arms.py): the bar-1801 mismatch was never a window-truncation edge case —
-# _synth_signal never populated 'score_peak_passed' on the bull/bear blocks, so any bar
-# whose triggers_fired/setup_name/confluence depended on the PEAK-not-just-passed gating
-# (production's own build_shared_signal._bold_passed_blocks_from_row field-gating) could
-# drift. Fixing the missing field (which was built to unblock risky-3's separate
-# hard_skip_verdicts-rescue path, see KNOWN_MAX_MISSED note below) incidentally restored
-# byte-faithful trigger visibility at bar 1801 too. extra now 0 — ratchet tightened.
+# risky-1 extra=1 (bar 1801, 2026-06-23 15:35 ET) — TWO INDEPENDENT MECHANISMS have now
+# produced this exact symptom at this exact bar. DO NOT treat a future recurrence as
+# "we already fixed this" without re-diagnosing from scratch.
+#   Mechanism #1, "CLOSED" 2026-08-06 conductor fire (REPLAY-FLEET-ARMS-SCORE-PEAK-MISSING,
+#   see _score_peak_passed_for_verdict in replay_fleet_arms.py): _synth_signal never
+#   populated 'score_peak_passed' on the bull/bear blocks, so any bar whose
+#   triggers_fired/setup_name/confluence depended on the PEAK-not-just-passed gating
+#   (production's own build_shared_signal._bold_passed_blocks_from_row field-gating)
+#   could drift. Fixing the missing field incidentally restored byte-faithful trigger
+#   visibility at bar 1801 too — AT THE TIME. This comment previously claimed this fix
+#   closed bar 1801 outright; that claim is DISPROVEN (see mechanism #2) and is a
+#   textbook "we already fixed this" tell — corrected here 2026-08-23.
+#   Mechanism #2, CLOSED 2026-08-23 (commit 4249d95e, deterministic LevelState
+#   resolution): extra=1 at bar 1801 was STILL PRESENT at HEAD~1 (i.e. mechanism #1's
+#   fix did not durably close it) — a stale 735.0300 level from 5 sessions earlier
+#   shadowed the real same-day 735.0000 in GT's never-reset level_states dict, an
+#   entirely different bug in the SAME shared lookup helper (backtest/lib/filters.py,
+#   pre-2026-08-23 insertion-order scan) that both mechanisms happen to route through.
+#   See analysis/deep-research/SEQUENCE-REJECTION-PARITY-PROBE-2026-08-23.md. extra now
+#   0, verified via a fresh full-suite re-run this same 2026-08-23 follow-up.
+# If bar 1801 produces extra>0 a THIRD time, treat it as a NEW, undiagnosed mechanism —
+# two prior "closures" at this exact bar have each turned out to be partial or coincidental.
 #
 # safe-1 extra=1 (bar 1761, 2026-06-23 12:15 ET) — 2026-07-18 conductor fire, RESOLVED
 # a DIFFERENT prior mismatch (safe-1 missed=1 at bar 1394) but surfaced this ONE as
@@ -89,7 +102,8 @@ KNOWN_MAX_MISSED = {
 KNOWN_MAX_EXTRA = {
     "safe-1": 1,  # KNOWN: score-parity edge at bar 1761 (bear_score 10 vs 9), see above
     "safe-3": 0,
-    "risky-1": 0,  # CLOSED 2026-08-06: score_peak_passed fix, see comment above
+    "risky-1": 0,  # CLOSED 2026-08-23 (commit 4249d95e) -- 2026-08-06's score_peak_passed
+                   # fix did NOT durably close this; see the two-mechanism comment above
     "risky-3": 0,
 }
 

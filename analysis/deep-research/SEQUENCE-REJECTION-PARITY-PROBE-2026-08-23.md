@@ -173,9 +173,19 @@ the dict as `str(price)`), not a knob with measured production impact today.
 
 1. **`multi/lib/filters.py:1006 & 1152`** carries the identical insertion-order scan
    with an ATR-scaled tolerance. `multi/` is a deliberate symbol-generic FORK that
-   never imports the SPY engine, and the lane is SHADOW/STOPPED — so it was left
-   alone rather than widening this diff into another lane. It WILL need the same fix
-   if that lane is ever revived.
+   never imports the SPY engine, and its TRADING signal is STOPPED (killed on a null
+   verdict, see `MULTI-LANE-STAGE-A-VERDICT-2026-08-20` / `MULTI-LEVELS-TRANSPLANT-
+   VERDICT-2026-08-21` — no order path exists in `multi/evaluate.py`, AST-guarded) —
+   so widening this diff into that lane was correctly left alone.
+   **Label correction (2026-08-23 adversarial review):** "stopped" describes only the
+   ARMING/order path, not the code. `Gamma_MultiEvaluate` is a REGISTERED DAILY
+   scheduled task (`automation/state/SCHEDULED-TASKS.md`) that runs `multi/evaluate.py`,
+   which imports `multi.lib.filters` and DOES reach this exact scan (inside
+   `evaluate_bearish_setup`/`evaluate_bullish_setup`) on every fire, producing the
+   per-ticker zone-map/structure/blocker evaluation surface — read-only, but live and
+   exercised daily, not dormant. It WILL need the same resolver fix if the trading
+   signal is ever revived, and arguably sooner if a human is reading its
+   sequence_rejection/reclaim output as evaluation signal today.
 2. **`setup/scripts/conviction.py` C3 `fresh_test`** does its own
    first-within-`LEVEL_MATCH_TOL` scan over raw Mappings (not `LevelState` objects),
    so it shares the defect CLASS but not the code path. Untouched.
@@ -241,5 +251,149 @@ were the same single defect surfacing twice, with no second independent cause.
 
 **Engine parity suites:** `35 passed in 4.02s`
 (`test_engine_cli_parity`, `test_engine_score_parity`)
+
+Nothing is RED.
+
+---
+
+# ADVERSARIAL REVIEW FOLLOW-UPS — 2026-08-23 (append per OP-22; this is the living doc)
+
+3-reviewer adversarial pass on `4249d95e` returned **SHIP 3/3** (verdict unchanged, not
+revisited here — see `analysis/deep-research/PROFITABILITY-ORDER-2026-08-23.md` §4 for the
+full review). Ten objections were raised, none blocking; five were bounded cleanups (NaN
+reachability + a NaN-admittance regression, silent-degradation via `getattr(...)->continue`,
+missing invariant guards, this GT-movement disclosure, two stale-comment corrections) and were
+closed same-session in `backtest/lib/filters.py`, `backtest/tests/
+test_level_state_resolution_determinism_2026_08_23.py` (+19 tests), a new `backtest/tests/
+test_level_state_live_safety_invariants_2026_08_23.py` (5 tests), and `backtest/tests/
+test_replay_fleet_arms.py` / `multi/lib/filters.py` comment fixes. The other five (surviving
+cross-day `bounce_history` contamination; `multi/lib/filters.py`'s identical scan; `conviction.py`'s
+independent scan; `refresh_levels_intraday`'s `tier="expired"` producer-dedup bypass) were
+already disclosed above as deliberately out of scope and remain so.
+
+## GT movement — UNDISCLOSED in the original commit, disclosed here
+
+`4249d95e` changed backtest GROUND TRUTH, not just live decisions. Measured by the reviewers:
+**BOLD 8-day replay P&L moved $578.89 -> $696.06, a swing of +$117.17.** This number is taken
+as reported by the adversarial review (`PROFITABILITY-ORDER-2026-08-23.md` §4) — it was not
+independently re-derived in this follow-up session (re-running the full 8-day BOLD backtest to
+reproduce it end-to-end was judged out of scope for a bounded cleanup pass; if it is ever needed
+as load-bearing evidence rather than disclosure, re-run it fresh rather than trusting this
+citation transitively).
+
+**What this means for anyone reading OLDER GT numbers**: any backtest P&L, win-rate, or
+trigger-count artifact **computed before `4249d95e` landed is NOT comparable to the same metric
+computed after** — the sequence_rejection/sequence_reclaim trigger population itself changed
+(GT picks up genuine same-day patterns it was previously mis-resolving to a stale level, see the
+"Vary-and-assert" table above: 5/5 GT picks changed, 0/9 LIVE picks changed). A GT-only artifact
+dated before 2026-08-23 that is silently re-used as if it were still current is exactly the kind
+of comparison this note exists to prevent. Anything downstream of a pre-fix GT run (rankings,
+lever sweeps, A/B scorecards that included BOLD/risky-1/risky-3 GT replay in the 2026-05-19..
+06-24 window or overlapping it) should be treated as **stale relative to this fix** unless it was
+re-run after `4249d95e`.
+
+## risky-3 replay evidence — was it "previously quarantined", and is it un-quarantined now?
+
+**Two DIFFERENT quarantine axes exist for risky-3, and this fix only touches one of them.**
+
+1. **Entry-fidelity (what `4249d95e` fixed):** `backtest/tests/test_replay_fleet_arms.py`'s
+   `test_no_arm_overtrades` / `test_three_arms_entry_faithful` check whether the signal-driven
+   entry stream (`extra`/`missed` trade counts) matches each arm's OWN `run_backtest` GT, for
+   all 4 loose arms including risky-3 (`ARMS_UNDER_TEST = ("safe-1", "safe-3", "risky-1",
+   "risky-3")`, `replay_fleet_arms.py:77`). Both were RED before this fix (risky-1 `extra=1` at
+   bar 1801) and went green as a direct, undisclosed-until-now side effect of the resolver fix —
+   confirmed in this follow-up session by re-running the full suite fresh (see "Test results,
+   this follow-up session" below).
+2. **Anchor / exit-walk fidelity (a SEPARATE mechanism `4249d95e` never touches):**
+   `analysis/deep-research/WEEK-ORDER-2026-08-10.md:203-206` quarantined fleet-replay evidence
+   for risky-3 specifically because "risky-3 produced 75% of Wednesday and its replay harness
+   currently cannot verify that lane" — pointing at `test_anchor_pass_rate_clears_threshold` /
+   `test_anchor_pass_rate_denominator_excludes_data_gaps` in `backtest/tests/
+   test_fleet_arm_replay.py`, which replay each arm's REAL option-premium fills against an OPRA
+   cache to check EXIT-walk fidelity (stop/TP mechanics against real fills-ledger.jsonl anchors).
+   This is a structurally different code path from `sequence_rejection`/`sequence_reclaim`
+   trigger evaluation — it never calls `resolve_level_state` or touches `ctx.level_states` at
+   all. `4249d95e` cannot have fixed it and does not claim to.
+
+**Verified fresh this session (2026-08-23):** all 6 anchor-fidelity tests
+(`test_anchor_pass_rate_clears_threshold` x3 arms + `test_anchor_pass_rate_denominator_excludes_
+data_gaps` x3 arms, including risky-3) **PASS** —
+`6 passed in 2.77s`. So the literal quarantine CONDITION stated in WEEK-ORDER-2026-08-10.md ("if
+the 3 anchor-fidelity REDs... are still unowned") does not hold today; those tests are green.
+
+**Honest read:** the entry-fidelity axis for risky-3 (and all 4 arms) is newly trustworthy
+because of `4249d95e` — that is a real, verified, in-scope restoration of trust. The
+anchor/exit-fidelity axis is *also* green today, but **`4249d95e` did not cause that and this
+follow-up did not investigate why or since when** — it was found green as a side observation,
+not audited. Do not conflate the two: "risky-3's entry triggers now match its own backtest GT"
+(true, and now true because of this fix) is a different claim from "risky-3's exit-walk fidelity
+against real fills is trustworthy" (also currently true, but on evidence this fix has nothing to
+do with, and which was not re-derived or root-caused in this session). Anyone citing "risky-3 is
+un-quarantined" should cite the anchor-fidelity test run directly, not this fix.
+
+## Test results, this follow-up session (all quoted verbatim, 2026-08-23)
+
+**New/extended resolver guard suite** (`test_level_state_resolution_determinism_2026_08_23.py`,
++6 tests: NaN safety items 1a/1b + loud-failure item C7 -- 13 pre-existing + 6 new):
+```
+19 passed in 0.37s
+```
+Each of the 6 new tests independently confirmed to RED against the pre-cleanup resolver (stashed
+`backtest/lib/filters.py`, re-ran `-k "nan or malformed"`): 4 raised the exact pre-fix defects
+(`ValueError: cannot convert float NaN to integer` x2, a NaN-priced object silently ADMITTED and
+returned instead of `None` x2) and 2 failed with `DID NOT RAISE <class 'AttributeError'>` (the C7
+silent-skip / raw-return asymmetry). Restored immediately after (`git stash pop`); suite re-ran
+green at `19 passed in 0.42s`.
+
+**New live-safety invariant suite** (`test_level_state_live_safety_invariants_2026_08_23.py`,
+new file, 5 tests -- item 3, ROLE_EPSILON / eff-ordering / 2dp+4dp keying):
+```
+5 passed in 0.38s
+```
+Both order/threshold guards independently proven to RED against a genuinely violated invariant
+via an IN-MEMORY fixture (never the file on disk): monkeypatching `rli.ROLE_EPSILON` down to
+the resolver's own tolerance (0.05) REDs the "strictly greater than" assertion; monkeypatching
+`hc._rebuild_level_states` with a reversed (`fhh`-first) `eff` construction REDs the
+active-before-fhh key-order assertion (`['735.0700', '735.0300']` vs the expected
+`['735.0300', '735.0700']`). The 2dp/4dp keying guard's own `assert active_price == 735.03` line
+is the discriminator: a producer that skipped 2dp rounding would carry sub-cent precision and
+fail that line directly.
+
+**`backtest/tests/run_safety_gate.py`** (curated 6-suite gate):
+```
+[safety-gate] running curated safety gate (6 suites) via python.exe ...
+59 passed in 8.80s
+[safety-gate] PASS -- curated safety gate (6 suites) green ({'passed': 59}). Safe to commit.
+```
+Same count (59) as the original commit's own quoted run -- no regression.
+
+**Filters-touching + engine-parity suites** (the same 11 suites the original commit quoted as
+106 + 35 = 141):
+```
+141 passed in 7.61s
+```
+Matches the original commit's totals exactly -- live-path behaviour is unchanged by this
+follow-up's NaN-safety/loud-failure cleanup (expected: the new checks only activate on
+NaN/malformed inputs, which do not occur in any live or GT-shaped fixture here).
+
+**`backtest/tests/test_replay_fleet_arms.py`** (the heavy, non-curated suite; ~28 min):
+```
+.......                                                                  [100%]
+7 passed in 1695.83s (0:28:15)
+```
+All 7 tests green, matching the original commit's quoted `7 passed in 1690.80s` to within normal
+timing variance -- **re-confirms, fresh this session and independent of the original commit's own
+report, that the entry-fidelity restoration (including risky-1's bar-1801 `extra=1` -> `0`) holds
+after this follow-up's filters.py edits.** `KNOWN_MAX_EXTRA` and `KNOWN_MAX_MISSED` values were
+not touched by this follow-up (only their comments were corrected) and the ratchet still enforces
+`risky-1: 0`.
+
+**`backtest/tests/test_fleet_arm_replay.py`** anchor-fidelity tests (risky-3 quarantine check,
+run fresh for this follow-up's honest-read section above):
+```
+6 passed in 2.77s
+```
+All 3 arms (`safe-3`, `risky-1`, `risky-3`) clear both `test_anchor_pass_rate_clears_threshold`
+and `test_anchor_pass_rate_denominator_excludes_data_gaps`.
 
 Nothing is RED.

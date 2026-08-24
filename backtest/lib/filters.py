@@ -21,6 +21,7 @@ Filters (per `automation/prompts/heartbeat.md`):
 from __future__ import annotations
 
 import datetime as dt
+import math
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -499,17 +500,76 @@ def _level_state_recency(state: "LevelState") -> int:
     A level's freshness is the LATER of (a) the bar its role flipped and (b) the
     bar of its most recent bounce_history entry. Used to rank a stale level frozen
     on a prior session BELOW today's live level at the same price.
+
+    2026-08-23 cleanup (adversarial review item 1a): `int(broken)` / `int(bar_idx)`
+    raised `ValueError: cannot convert float NaN to integer` when either field held
+    NaN -- unreachable in production today (both fields are always integer bar
+    indices in practice) but a resolver that can raise inside the live brain on a
+    malformed-but-plausible input is worse than the bug it replaced. A NaN
+    recency signal is treated as UNINFORMATIVE (skipped, not crashed on) rather
+    than claimed as "most recent" -- the fail-closed direction for a ranking axis.
     """
     recency = -1
     broken = getattr(state, "broken_at_bar_idx", None)
-    if isinstance(broken, (int, float)):
+    if isinstance(broken, (int, float)) and math.isfinite(broken):
         recency = int(broken)
     history = getattr(state, "bounce_history", None) or []
     if history:
         last = history[-1]
-        if isinstance(last, dict) and isinstance(last.get("bar_idx"), (int, float)):
-            recency = max(recency, int(last["bar_idx"]))
+        if isinstance(last, dict):
+            bar_idx = last.get("bar_idx")
+            if isinstance(bar_idx, (int, float)) and math.isfinite(bar_idx):
+                recency = max(recency, int(bar_idx))
     return recency
+
+
+def _is_finite_price(price) -> bool:
+    """True only for a real, finite number.
+
+    2026-08-23 cleanup (adversarial review item 1b): the tier-2 scan's own
+    `distance > tolerance` test silently evaluates False for a NaN price (NaN
+    comparisons are always False), which ADMITTED a NaN-priced candidate that the
+    pre-2026-08-23 linear scan excluded (its `abs(state.price - target) <= 0.05`
+    is equally False for NaN, but that sits on the admitting `if`, so NaN fails
+    OUT cleanly there). Fail CLOSED here instead: a non-finite/absent price is
+    never a match, checked BEFORE the distance arithmetic runs.
+    """
+    return isinstance(price, (int, float)) and math.isfinite(price)
+
+
+def _level_state_price(state: "LevelState", key: str):
+    """Return `state.price`, raising loudly if the object doesn't have one.
+
+    2026-08-23 cleanup (adversarial review item C7 -- silent degradation). The
+    resolver used to call `getattr(state, "price", None)` and quietly `continue`
+    past a malformed object in the tier-2 scan, while the pre-2026-08-23 linear
+    scan raised AttributeError on the identical input (`state.price`, unguarded).
+    Worse, the exact-key branch was ASYMMETRIC with its own sibling: it returned
+    the raw malformed object outright instead of even that quiet skip, so a caller
+    missing `price` exploded three frames downstream in
+    detect_sequence_rejection/detect_sequence_reclaim (`.role`/`.bounce_history`
+    access) instead of at the resolver boundary. Fail LOUD and CONSISTENT in both
+    branches, matching the old scan's behaviour, and name the offending key so the
+    error is diagnosable at the raise site rather than the crash site.
+
+    Verified 2026-08-23: no current caller passes plain dicts or other
+    non-LevelState objects into `level_states` on any path that reaches
+    `resolve_level_state` -- engine_cli.build_bar_context reconstructs JSON into
+    real LevelState instances, orchestrator/heartbeat_core build LevelState (or
+    dict-shaped state consumed only by heartbeat_core's OWN reader) directly, and
+    every autoresearch/test caller either passes real LevelState objects or an
+    empty dict. `setup/scripts/conviction.py` has its own INDEPENDENT scan over
+    raw Mappings and never calls this resolver. So this should never fire in
+    practice; it exists so a FUTURE malformed caller fails at the boundary instead
+    of downstream.
+    """
+    if not hasattr(state, "price"):
+        raise AttributeError(
+            f"resolve_level_state: level_states[{key!r}] = {state!r} has no "
+            "'price' attribute -- expected a LevelState (or a duck-typed "
+            "equivalent exposing .price)"
+        )
+    return state.price
 
 
 def resolve_level_state(
@@ -546,23 +606,33 @@ def resolve_level_state(
          d. key string, as the final tie-break.
 
     Returns None when `target_price` is None or nothing matches within `tolerance`.
+
+    Malformed input (item C7, 2026-08-23): an object in `level_states` lacking a
+    `.price` attribute raises `AttributeError` at the boundary here rather than
+    being silently skipped or, worse, returned raw to explode downstream. A
+    present-but-non-finite price (NaN/inf, item 1b) is excluded like any other
+    out-of-tolerance candidate — it fails CLOSED, never gets silently admitted.
     """
     if not level_states or target_price is None:
         return None
 
     target = float(target_price)
-    exact = level_states.get(f"{target:.4f}")
+    key = f"{target:.4f}"
+    exact = level_states.get(key)
     if exact is not None:
-        price = getattr(exact, "price", None)
-        if price is None or abs(float(price) - target) <= tolerance:
+        price = _level_state_price(exact, key)
+        if _is_finite_price(price) and abs(float(price) - target) <= tolerance:
             return exact
+        # else: NaN/inf price, or an exact-key entry that's somehow outside
+        # tolerance — falls through to the tier-2 scan, which re-applies the same
+        # finiteness + tolerance checks to every candidate (including this one).
 
     best = None
     best_rank: "Optional[tuple]" = None
-    for key, state in level_states.items():
-        price = getattr(state, "price", None)
-        if price is None:
-            continue
+    for cand_key, state in level_states.items():
+        price = _level_state_price(state, cand_key)
+        if not _is_finite_price(price):
+            continue  # NaN/inf/absent price -- fail CLOSED, exclude the candidate
         distance = abs(float(price) - target)
         if distance > tolerance:
             continue
@@ -573,7 +643,7 @@ def resolve_level_state(
             0 if role_applicable else 1,
             -_level_state_recency(state),
             distance,
-            str(key),
+            str(cand_key),
         )
         if best_rank is None or rank < best_rank:
             best_rank, best = rank, state
