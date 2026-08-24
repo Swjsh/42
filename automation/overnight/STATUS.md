@@ -1,3 +1,19 @@
+## [2026-08-24 06:15 ET] PRE-OPEN READINESS (J-requested, Monday 08-24) — GREEN to trade, 1 RED healed live
+
+**Verdict: cleared for the 09:30 open.** All 5 arms flat (0 positions / 0 open orders, live REST), full 5-day NYSE week (Alpaca calendar 08-24..08-28, all 09:30–16:00), rule_version `v15.3` matches CLAUDE.md, curated safety gate 59/59 PASS, `self_check.py` GREEN (0 problems), `engine_health.py` 0 REDs.
+
+**RED found and healed this session — TradingView CDP was hung, not down.** Port 9222 was *listening* (owner pid 14136, TradingView) but every HTTP `/json/version` request timed out (10.05s via urllib, 2x 15s via Invoke-WebRequest). All 9 TV processes 11.3h old (started 2026-08-23 18:31 ET), 22–50MB working set — consistent with MSIX app suspension holding the socket while the CDP HTTP server stopped answering. A port-open-only check would have read GREEN. Healed by `setup\launch_tv_debug.ps1 -Kill`; re-probe now returns `{"Browser":"Chrome/140.0.7339.133", ... TradingView/3.3.0 Electron/38.2.2}`. **No code change needed** — `run-launch-tv.ps1` (08:00 ET) and `run-tv-watchdog.ps1` (08:05–16:00 /5min) both use a 3s functional CDP timeout, not a port check, and would have kill+relaunched at 08:00; healing at 06:00 just removes the 2h blind window ahead of the 08:30 premarket level draw.
+
+**Scheduler verified (times below are LOCAL/MT = ET-2):** `Gamma_HeartbeatCore` next 07:30 MT = 09:30 ET, rc=0 · `Gamma_LaunchTV` 06:00 = 08:00 ET · `Gamma_TvWatchdog` 06:05 = 08:05 ET · `Gamma_Premarket` 06:30 = 08:30 ET · `Gamma_EodFlatten`(+`_Aggressive`) 13:55 = 15:55 ET · `Gamma_FleetExecutor` 07:31 = 09:31 ET. `Gamma_Heartbeat`/`_Aggressive` Disabled is correct (LLM heartbeats retired 2026-08-12). Engine ticked all 5 sessions last week at full density (core 772/day, each fleet arm 384/day, `blind:false`, armed:true through 15:55 Friday).
+
+**Last week measured from the broker, not from memory** (portfolio history 1D, ET-corrected — the raw UTC timestamps read one day late): Mon +$121.02 · Tue +$161.21 · Wed +$259.96 · Thu +$807.00 · Fri −$592.72 → **book-wide +$756.47, 4 green / 1 red.** J's recollection is confirmed. **But per-account (the OP lens, not the book number): bold-2 +$634.57, risky-1 +$207.91, safe-3 +$85.10, risky-3 −$53.43, safe-2 −$117.68 — 2 of 5 arms LOST money last week**, and per-account average was ~$30/day against the $100–200/day/account target. The book number flatters two losing arms; do not quote it alone.
+
+**Not changed, deliberately:** no params/gate/strategy edit on a trading morning (rule 9 + no pre-open unvalidated change). The two standing strategy REDs are unchanged and still report-only: `core_strategy_bear` (real-fills exp −$16.71/tr, n=31, freshest window) and `Safe2_ATM_1+2+4` book RED from the 2026-08-23 recency check — both re-validated 2026-08-23 with DO-NOT-FLIP findings, and no new OPRA data lands until tonight, so re-running today would return the identical verdict.
+
+**False alarms cleared:** `state_freshness` YELLOW is `automation/state/futures/eod-summary.json`, written Friday 16:12 ET by `Gamma_FuturesEod2` — correct latest for a Monday morning, weekend arithmetic only, and a futures-lane file with no SPY entry-path role. `test_status_known_broken_section_2026_08_20.py` 8/8 PASS — the escalation channel's behavioural fix is intact despite `## Known broken` sitting below the first `## [` entry.
+
+---
+
 ## [2026-08-24 05:39 ET] conductor: OK — no-console-popups guard RED fixed + 2 latent bugs (hardcoded secrets, 401 auth root-cause) closed same file, commit `2d703a27`
 
 **Picked via STAGE 0 budget gate PROCEED ($1.62/$30, 1/4 fires, AFTERHOURS mode) + `desk_allocator.py` (SPY 0DTE #1 "NEXT FIRE", 30pts) + engine health YELLOW-only (`state_freshness`, non-critical) + self_check.py GREEN (0 problems) + STAGE 1 priority-2 (`incident_fix_status.py --alert`: fresh `[RED] no-console-popups`, first appearance this cadence).**
