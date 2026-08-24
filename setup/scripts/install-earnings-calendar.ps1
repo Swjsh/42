@@ -1,7 +1,7 @@
 # Registers Gamma_EarningsCalendar -- daily premarket earnings-blackout feed refresh.
-# Producer: setup/scripts/earnings_calendar.py (yfinance + Nasdaq cross-check, system
-# pythonw, $0, fail-closed on the CONSUMER side -- weekly-1's non-exempt single-name
-# entries are BLOCKED whenever this feed is missing/stale/failed).
+# Producer: setup/scripts/earnings_calendar.py (yfinance + Nasdaq cross-check, $0,
+# fail-closed on the CONSUMER side -- weekly-1's non-exempt single-name entries are
+# BLOCKED whenever this feed is missing/stale/failed).
 #
 # WHY THIS TASK EXISTS (2026-08-21 conductor fire): the feed + its freshness guard
 # (self_check.py#check_earnings_calendar_freshness, backtest/tests/
@@ -14,18 +14,34 @@
 # loop the same way Gamma_MacroCalendar closes it for the macro/event feed -- mirrors that
 # installer's exact wiring (see setup/scripts/install-macro-calendar.ps1).
 #
+# 2026-08-24 CONDUCTOR FIX: the ORIGINAL install script (2026-08-21) copied
+# install-macro-calendar.ps1's wiring VERBATIM, including "system pythonw" for the INNER
+# script call -- correct for macro_calendar.py (stdlib-only) but WRONG for this script,
+# which does `import yfinance` (only installed in backtest\.venv, not system Python313).
+# Root cause, verified live: every single 07:50 ET fire since registration crashed
+# "FATAL earnings_calendar.py: No module named 'yfinance'" (confirmed reproducing the
+# EXACT error by running system Python313 directly) -- masked from Task Scheduler by the
+# wscript fire-and-forget hop (LastTaskResult stayed 0) but visible in
+# automation/state/logs/run-cmd-hidden-<date>.log as "exit=1" the whole time, unread until
+# now. Fix: inner hop now uses backtest\.venv\Scripts\pythonw.exe (has yfinance 0.2.66),
+# matching install-ledger-archive.ps1's proven split-interpreter pattern (system pythonw
+# for the outer run_cmd_hidden.py relay hop only, venv pythonw for the actual script).
+#
 # 05:50 MT = 07:50 ET weekdays -- before Gamma_Premarket (08:30 ET) and well inside the 48h
 # fail-closed window every single weekday, so the feed can never age past ~24h in practice.
 # wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
-#   -- system pythonw -> earnings_calendar.py
+#   -- backtest-venv pythonw -> earnings_calendar.py
 $ErrorActionPreference = "Stop"
 $repo = "C:\Users\jackw\Desktop\42"
 $vbs = Join-Path $repo "setup\scripts\run_exe_hidden.vbs"
 $pyw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pywVenv = Join-Path $repo "backtest\.venv\Scripts\pythonw.exe"
 $runCmdHidden = Join-Path $repo "setup\scripts\run_cmd_hidden.py"
 $script = Join-Path $repo "setup\scripts\earnings_calendar.py"
 
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$vbs`" `"$pyw`" `"$runCmdHidden`" --cwd `"$repo`" -- `"$pyw`" `"$script`""
+if (-not (Test-Path $pywVenv)) { throw "backtest venv pythonw.exe not found at $pywVenv" }
+
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$vbs`" `"$pyw`" `"$runCmdHidden`" --cwd `"$repo`" -- `"$pywVenv`" `"$script`""
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "05:50"
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 5) -MultipleInstances IgnoreNew -StartWhenAvailable
 Register-ScheduledTask -TaskName "Gamma_EarningsCalendar" -Action $action -Trigger $trigger -Settings $settings -Force | Out-Null
