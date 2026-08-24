@@ -1,0 +1,475 @@
+{
+  "prereg_id": "EXIT-POLICY-BEATS-NULL-2026-08-23",
+  "prereg_file": "analysis/recommendations/prereg-exit-policy-beats-null-2026-08-23.json",
+  "prereg_frozen_in_commit": "5c1836d5 (predates this runner -- git-provable)",
+  "generated_et": "2026-08-23 18:58:26",
+  "VERDICT": "UNDERPOWERED",
+  "VERDICT_LINE": "UNDERPOWERED -- NOT RUN ON THE FROZEN POPULATION. cf_time_stop_pnl is populated on 0 of 493 in-window round-trip rows (0.00% coverage vs an 80% floor). The NULL_A column exists in the schema but was never computed for any trade in the window. No gate can be called; the beats_null hypothesis is neither confirmed nor refuted.",
+  "UNDERPOWERED": true,
+  "SHIP_STATUS": "NOTHING SHIPS. Diagnostic prereg; no trading-path edit authorized.",
+  "G8_coverage_honesty": {
+    "status": "COMPUTED",
+    "round_trips_in_window": 493,
+    "usable_cf_time_stop_pnl": 0,
+    "coverage_pct": 0.0,
+    "threshold_pct": 80.0,
+    "pass": false,
+    "note": "Missing cf_time_stop_pnl is EXCLUDED and disclosed -- never silently treated as zero-delta."
+  },
+  "population": {
+    "source": "journal/trades.csv (REAL BROKER FILLS, lesson C1)",
+    "window": "2026-06-26 .. 2026-08-21 (latest complete session on disk)",
+    "rows_in_window": 493,
+    "rows_total_in_file": 508,
+    "usable_deltas_in_window": 0,
+    "harness_quarantine_note": "REAL FILLS ONLY -- this study is NOT exposed to the fleet-replay harness and does not inherit its 2 known REDs."
+  },
+  "DATA_INTEGRITY_FINDING": {
+    "severity": "BLOCKING for this prereg",
+    "cf_time_stop_pnl_populated_rows_whole_file": 3,
+    "cf_time_stop_pnl_populated_rows_in_window": 0,
+    "writer_evidence": "setup/scripts/fleet_journal_bridge.py writes the literal empty string for cf_time_stop_pnl (and cf_high_water_pnl) on every row it emits. The columns are SCHEMA PLACEHOLDERS, never a populated counterfactual. A column existing is not the same as a column being populated.",
+    "csv_structural_audit": {
+      "header_columns": 44,
+      "data_rows": 508,
+      "field_count_distribution": {
+        "42": 3,
+        "43": 164,
+        "44": 317,
+        "45": 3,
+        "46": 2,
+        "47": 19
+      },
+      "rows_with_exact_header_field_count": 317,
+      "column_shift_corrupted_rows": 8,
+      "column_shift_note": "account_id (col 42) holds free-text notes on these rows, i.e. a real left-shift, not a missing trailing column. Flagged, not silently used."
+    },
+    "stop_mode_column": "ABSENT from journal/trades.csv entirely. Even with full NULL_A coverage, G6 (stop_mode-stratified) could not be computed from this source alone -- and the prereg presumes any unstratified aggregate confounded (Simpson's paradox scar)."
+  },
+  "ARITHMETIC_SANITY_CHECK": {
+    "_purpose": "A column existing is not the same as a column being populated correctly. This repo has been burned by synthetic/placeholder ledger values before, so the few populated values are audited.",
+    "rows_audited": 3,
+    "I1_control_arithmetic_passes": 3,
+    "I2_high_water_bound_violations": 1,
+    "degenerate_copy_rows": 2,
+    "VERDICT": "COUNTERFACTUAL VALUES ARE NOT TRUSTWORTHY -- 2 of 3 populated rows fail a structural invariant or are a degenerate copy of dollar_pnl.",
+    "hand_verified_rows": [
+      {
+        "date": "2026-05-07",
+        "contract": "SPY 2026-05-07 734C",
+        "qty": 3.0,
+        "entry_px": 0.73,
+        "exit_px": 0.58,
+        "control_dollar_pnl": -45.0,
+        "null_a_cf_time_stop_pnl": -210.0,
+        "null_b_cf_high_water_pnl": 15.0,
+        "hand_recomputed_control_(exit-entry)*qty*100": -45.0,
+        "I1_control_arithmetic_ok": true,
+        "delta_null_a_minus_control": -165.0,
+        "I2_high_water_is_upper_bound": true,
+        "degenerate_null_a_equals_control": false,
+        "degenerate_null_b_equals_control": false
+      },
+      {
+        "date": "2026-05-14",
+        "contract": "SPY 2026-05-14 745C",
+        "qty": 10.0,
+        "entry_px": 1.67,
+        "exit_px": 3.17,
+        "control_dollar_pnl": 1500.0,
+        "null_a_cf_time_stop_pnl": 1500.0,
+        "null_b_cf_high_water_pnl": 2650.0,
+        "hand_recomputed_control_(exit-entry)*qty*100": 1500.0,
+        "I1_control_arithmetic_ok": true,
+        "delta_null_a_minus_control": 0.0,
+        "I2_high_water_is_upper_bound": true,
+        "degenerate_null_a_equals_control": true,
+        "degenerate_null_b_equals_control": false
+      },
+      {
+        "date": "2026-05-15",
+        "contract": "SPY 2026-05-15 740P",
+        "qty": 10.0,
+        "entry_px": 3.14,
+        "exit_px": 2.37,
+        "control_dollar_pnl": -770.0,
+        "null_a_cf_time_stop_pnl": 410.0,
+        "null_b_cf_high_water_pnl": -770.0,
+        "hand_recomputed_control_(exit-entry)*qty*100": -770.0,
+        "I1_control_arithmetic_ok": true,
+        "delta_null_a_minus_control": 1180.0,
+        "I2_high_water_is_upper_bound": false,
+        "degenerate_null_a_equals_control": false,
+        "degenerate_null_b_equals_control": true
+      }
+    ]
+  },
+  "PRIMARY_frozen_population_battery": {
+    "cohort": "PRIMARY_frozen_population",
+    "G1_aggregate": {
+      "status": "NOT_COMPUTABLE",
+      "reason": "n=0 usable deltas",
+      "n": 0,
+      "mean_delta": null,
+      "total_delta": null,
+      "sign": "NA"
+    },
+    "G2_drop_top3": {
+      "status": "NOT_COMPUTABLE",
+      "reason": "n<=3, removing 3 trades leaves nothing",
+      "n": 0
+    },
+    "G3_drop_best2_days": {
+      "status": "NOT_COMPUTABLE",
+      "reason": "n=0"
+    },
+    "G4_equal_n_buckets": {
+      "status": "NOT_COMPUTABLE",
+      "reason": "n_changed<8, cannot form 4 buckets with >=2 each",
+      "n_changed": 0
+    },
+    "G5_day_block_bootstrap": {
+      "status": "NOT_COMPUTABLE",
+      "reason": "n=0"
+    },
+    "G6_stop_mode_stratified": {
+      "status": "NOT_COMPUTABLE",
+      "reason": "no stop_mode stratum carries >=10 usable trades",
+      "strata": {}
+    },
+    "G7_n_effective": {
+      "status": "NOT_COMPUTABLE",
+      "n_raw": 0,
+      "n_effective": 0,
+      "granularity": "date x side x setup",
+      "underpowered": true,
+      "note": "n_effective<30 => UNDERPOWERED regardless of raw n (G7)."
+    },
+    "winner_loser_split": {
+      "control_winners": {
+        "n": 0,
+        "mean_delta": null,
+        "total_delta": null,
+        "sign": "NA"
+      },
+      "control_losers": {
+        "n": 0,
+        "mean_delta": null,
+        "total_delta": null,
+        "sign": "NA"
+      }
+    },
+    "direction_report_only": {
+      "C": {
+        "n": 0,
+        "mean_delta": null
+      },
+      "P": {
+        "n": 0,
+        "mean_delta": null
+      },
+      "_scope_note": "REPORT ONLY. Direction is never a filter (prereg by_direction)."
+    }
+  },
+  "PRE_WINDOW_DESCRIPTIVE_n3": {
+    "LABEL": "OUT OF FROZEN WINDOW (May 2026). Descriptive only, gate-ineligible.",
+    "n": 3,
+    "rows": [
+      {
+        "date": "2026-05-07",
+        "control": -45.0,
+        "null_a": -210.0,
+        "delta": -165.0,
+        "null_b": 15.0,
+        "side": "C",
+        "qty": 3.0
+      },
+      {
+        "date": "2026-05-14",
+        "control": 1500.0,
+        "null_a": 1500.0,
+        "delta": 0.0,
+        "null_b": 2650.0,
+        "side": "C",
+        "qty": 10.0
+      },
+      {
+        "date": "2026-05-15",
+        "control": -770.0,
+        "null_a": 410.0,
+        "delta": 1180.0,
+        "null_b": -770.0,
+        "side": "P",
+        "qty": 10.0
+      }
+    ],
+    "mean_delta": 338.33
+  },
+  "NULL_B_high_water_descriptive_only": {
+    "SHIP_ELIGIBLE": false,
+    "LABEL": "LOOK-AHEAD / UNACHIEVABLE -- exit-at-the-best-moment. Nobody can trade it. Carried ONLY to size the theoretical ceiling.",
+    "n": 3,
+    "mean_null_b_minus_control": 403.33,
+    "rows": [
+      {
+        "date": "2026-05-07",
+        "control": -45.0,
+        "null_b": 15.0
+      },
+      {
+        "date": "2026-05-14",
+        "control": 1500.0,
+        "null_b": 2650.0
+      },
+      {
+        "date": "2026-05-15",
+        "control": -770.0,
+        "null_b": -770.0
+      }
+    ]
+  },
+  "SUPPLEMENTARY_winners_only_autopsy": {
+    "cohort": "SUPPLEMENTARY_winners_only_autopsy",
+    "G1_aggregate": {
+      "status": "COMPUTED",
+      "n": 84,
+      "mean_delta": 90.2679,
+      "total_delta": 7582.5,
+      "sign": "+",
+      "interpretation": "COSTING (holding beat managed)"
+    },
+    "G2_drop_top3": {
+      "status": "COMPUTED",
+      "drop_top3_largest_magnitude": {
+        "n": 81,
+        "mean_delta": -68.6235,
+        "sign": "-"
+      },
+      "drop_worst3_most_negative": {
+        "n": 81,
+        "mean_delta": 121.2346,
+        "sign": "+"
+      },
+      "drop_best3_most_positive": {
+        "n": 81,
+        "mean_delta": -68.6235,
+        "sign": "-"
+      },
+      "removed_top3_deltas": [
+        6100.0,
+        3536.0,
+        3505.0
+      ],
+      "pass": false
+    },
+    "G3_drop_best2_days": {
+      "status": "COMPUTED",
+      "n_days": 20,
+      "drop_best2_days": {
+        "days": [
+          "2026-08-03",
+          "2026-08-04"
+        ],
+        "n": 70,
+        "mean_delta": -220.6929,
+        "sign": "-"
+      },
+      "drop_worst2_days": {
+        "days": [
+          "2026-08-13",
+          "2026-08-12"
+        ],
+        "n": 65,
+        "mean_delta": 213.5,
+        "sign": "+"
+      },
+      "best2_days_pct_of_net": 303.7,
+      "single_worst_concentration": {
+        "_why": "Reported because a single day can exceed 100% of net; the 2-day gate can then look survivable while one day carries everything.",
+        "top1_day": "2026-08-04",
+        "top1_day_sum": 18645.0,
+        "top1_day_pct_of_net": 245.9,
+        "mean_delta_excluding_top1_day": -149.4932,
+        "sign_excluding_top1_day": "-"
+      },
+      "median_delta": -137.0,
+      "pass": false
+    },
+    "G4_equal_n_buckets": {
+      "status": "COMPUTED",
+      "n_changed": 84,
+      "buckets": [
+        {
+          "bucket": 1,
+          "n_changed": 21,
+          "date_range": [
+            "2026-07-02",
+            "2026-07-31"
+          ],
+          "mean_delta": -187.1667,
+          "sign": "-"
+        },
+        {
+          "bucket": 2,
+          "n_changed": 21,
+          "date_range": [
+            "2026-08-03",
+            "2026-08-11"
+          ],
+          "mean_delta": 1005.881,
+          "sign": "+"
+        },
+        {
+          "bucket": 3,
+          "n_changed": 21,
+          "date_range": [
+            "2026-08-11",
+            "2026-08-13"
+          ],
+          "mean_delta": -301.0714,
+          "sign": "-"
+        },
+        {
+          "bucket": 4,
+          "n_changed": 21,
+          "date_range": [
+            "2026-08-13",
+            "2026-08-21"
+          ],
+          "mean_delta": -156.5714,
+          "sign": "-"
+        }
+      ],
+      "buckets_agreeing_with_aggregate": 1,
+      "pass": false
+    },
+    "G5_day_block_bootstrap": {
+      "status": "COMPUTED",
+      "B": 20000,
+      "n_days": 20,
+      "resampling_unit": "day",
+      "ci95_mean_delta": [
+        -262.5341,
+        576.209
+      ],
+      "p_delta_le_0": 0.387,
+      "pass_for_costing_claim": false
+    },
+    "G6_stop_mode_stratified": {
+      "status": "COMPUTED",
+      "strata": {
+        "UNKNOWN": {
+          "n": 13,
+          "mean_delta": -165.5769,
+          "sign": "-",
+          "evaluated_for_gate": true
+        },
+        "premium": {
+          "n": 18,
+          "mean_delta": 273.5833,
+          "sign": "+",
+          "evaluated_for_gate": true
+        },
+        "structure": {
+          "n": 53,
+          "mean_delta": 90.7642,
+          "sign": "+",
+          "evaluated_for_gate": true
+        }
+      },
+      "strata_evaluated": 3,
+      "strata_agreeing": 2,
+      "pass": false
+    },
+    "G7_n_effective": {
+      "status": "COMPUTED",
+      "n_raw": 84,
+      "n_effective": 28,
+      "granularity": "date x side x setup",
+      "underpowered": true,
+      "note": "n_effective<30 => UNDERPOWERED regardless of raw n (G7)."
+    },
+    "winner_loser_split": {
+      "control_winners": {
+        "n": 84,
+        "mean_delta": 90.2679,
+        "total_delta": 7582.5,
+        "sign": "+"
+      },
+      "control_losers": {
+        "n": 0,
+        "mean_delta": null,
+        "total_delta": null,
+        "sign": "NA"
+      }
+    },
+    "direction_report_only": {
+      "C": {
+        "n": 38,
+        "mean_delta": 127.75
+      },
+      "P": {
+        "n": 29,
+        "mean_delta": -129.5345
+      },
+      "_scope_note": "REPORT ONLY. Direction is never a filter (prereg by_direction)."
+    },
+    "GATE_ELIGIBILITY": "INELIGIBLE",
+    "WHY_INELIGIBLE": "This cohort is CONTROL-WINNERS BY CONSTRUCTION (all 84 rows realized_pnl>0). It is a different source from the frozen population.P_realfills and it is survivorship-selected, so it CANNOT address G1 (aggregate) -- the loser side, which prediction P1 says is where the managed stop earns its keep, is absent entirely. Reported as a DESCRIPTIVE read on prediction P2 only. No gate is called from it and nothing ships on it.",
+    "coverage_within_its_own_cohort": {
+      "autopsy_rows": 84,
+      "with_hold_to_time_stop": 84
+    },
+    "PSEUDO_REPLICATION_AUDIT": {
+      "_why": "The 5 arms trade ONE shared signal (r=0.846, 95.7% sign agreement). If the concentration drivers are the same contract on the same day across arms, they are ONE decision counted N times, not N observations.",
+      "top3_delta_rows": [
+        {
+          "date": "2026-08-04",
+          "arm": "risky-3",
+          "setup": "VWAP_CONTINUATION",
+          "qty": 8.0,
+          "control": 524.0,
+          "null_a": 6624.0,
+          "delta": 6100.0
+        },
+        {
+          "date": "2026-08-04",
+          "arm": "bold-2",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 5.0,
+          "control": 614.0,
+          "null_a": 4150.0,
+          "delta": 3536.0
+        },
+        {
+          "date": "2026-08-04",
+          "arm": "risky-1",
+          "setup": "VWAP_CONTINUATION",
+          "qty": 5.0,
+          "control": 640.0,
+          "null_a": 4145.0,
+          "delta": 3505.0
+        }
+      ],
+      "top3_all_same_date": true,
+      "top3_distinct_dates": [
+        "2026-08-04"
+      ],
+      "finding": "All three largest deltas are the SAME DAY across three different arms -- one decision, triple-counted."
+    }
+  },
+  "PREDICTIONS_ADJUDICATED": {
+    "P1_losers_delta_negative": "NOT TESTABLE -- zero loser rows carry NULL_A.",
+    "P2_winners_delta_positive": "DESCRIPTIVELY CONSISTENT on the survivorship-selected autopsy cohort (mean +$90.27/trade, n=84) but 60 of 84 individual deltas are NEGATIVE; the positive mean is concentration, not a broad tendency. NOT a gate result.",
+    "P3_net_sign_uncertain": "REMAINS UNRESOLVED. Coverage prevented the test.",
+    "P4_concentration_severe": "CONFIRMED where measurable (see supplementary G2/G3).",
+    "P5_null_b_spectacular_and_meaningless": "CONFIRMED. Reported descriptive-only."
+  },
+  "WHAT_I_COULD_NOT_CHECK": [
+    "The beats_null question itself on the frozen population -- 0% NULL_A coverage.",
+    "P1 (loser-side delta) -- no loser row carries a counterfactual.",
+    "G6 stop_mode stratification from trades.csv -- the column does not exist there.",
+    "Whether the 3 pre-window populated values were computed by the same method as any future backfill would use -- their provenance is undocumented."
+  ],
+  "FORWARD_CLOCK": "Per the prereg: do NOT re-cut this population hoping for a different answer. The blocker is missing data, not an unlucky slice. The unblocking action is a BACKFILL: replay each in-window entry against OPRA minute bars for its own contract to its 15:50 ET time-stop mark, populate cf_time_stop_pnl for BOTH winners and losers, then re-run this exact runner unchanged."
+}
