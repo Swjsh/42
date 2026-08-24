@@ -377,8 +377,27 @@ figure**. The +$30,828.09 was real when the futures audit first read it — **th
 earlier in this same session (commit `77442e70`) destroyed it.** My respec spec said "quarantine v1 evidence,
 don't count it toward v2's arming n"; the implementation preserved v1's P&L and dropped v1's null comparison.
 That is a data-loss bug in my own instruction, and it silently un-sourced a claim I then built a prereg on.
-**Fix dispatched** (restore `null_check` into `legacy_evidence` + guard). Until it lands, treat the futures
-half of the cross-lane pattern as UNSOURCED.
+
+**RESOLVED — and the figure was CORRECT** (commit `ed301289`). Git could not diff a pre-respec revision because
+`ssr-shadow-progress.json` was ADDED, not modified, by `77442e70` (never tracked before — confirmed via
+`git log --follow`, `-S` searches, reflog, and `git fsck --unreachable`). So it was recomputed independently:
+the raw ledger `automation/state/futures/ssr-shadow-would-be.jsonl` had retained **all 17 v1 round trips
+verbatim** by the script's own quarantine design, and re-running the script's PURE
+`compute_round_trips`/`compute_null_pnl` over them reproduces **n=17, total $27,335.69, null $30,828.09,
+beats_null False — an exact match to every downstream citation. No discrepancy.**
+
+So the correct reading is narrower than the audit's "appears in NO ledger": the **summary** lost it, the **raw
+ledger never did**, and the number was recomputable and accurate throughout. What was real was the DATA-LOSS
+defect, not a fabrication. Fixed by factoring a shared `_null_check_block()` used for BOTH the v2 arming bar and
+`legacy_evidence` (so the two can never drift apart again), plus a guard test (proven RED pre-fix: 5 of 6 cases
+`KeyError: 'null_check'`) and a `QUARANTINE-INTEGRITY RULE` comment in the source stating the general rule:
+**preserve the whole evidence pair or none of it — a quarantine that keeps retired evidence's flattering half
+and drops the null it failed leaves a citable number with its refutation removed.**
+(Legacy trips have since advanced 17→18 as an open legacy position closed on fresh bars; beats_null remains
+False at $37,476.09 vs $32,140.01, so the v1 finding holds. v2's own clock still reads n=0 / not-evaluated.)
+
+⚠️ Note this does NOT revive the cross-lane pattern — §5c refutes the 0DTE half on its own merits, and one
+lane's n=17 retired-spec result is not a pattern by itself.
 
 ### 5c — THE HYPOTHESIS ITSELF: dead on every computable cut
 
