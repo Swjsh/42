@@ -304,7 +304,13 @@ a helper but not sharing state discipline WILL diverge; the only durable fix is 
 
 ## Cross-sector strategic read
 
-### ⭐ THE PATTERN BOTH LANES SHARE: the EXITS are destroying the value
+### ⛔⛔ RETRACTED — READ §5 BEFORE READING THE SECTION BELOW ⛔⛔
+
+**The "exits are destroying value" pattern below is REFUTED and its futures half is UNSOURCED.** It is left
+in place unedited, as the record of a wrong call, with the refutation in [§5](#5--the-exit-hypothesis-is-refuted-and-i-broke-two-rules-getting-there).
+Do not cite it. Do not build on it.
+
+### ⭐ THE PATTERN BOTH LANES SHARE: the EXITS are destroying the value  ⛔ RETRACTED, see §5
 
 Surfaced by running the 0DTE and futures adjudications side by side on 2026-08-23. Neither lane's evidence was
 collected to answer this, and both answer it anyway:
@@ -338,3 +344,96 @@ The SPY-calibration finding is the biggest single takeaway of the weekend: **the
 ---
 
 *Successor context: WINNERS-AND-LOSSES-SYNTHESIS-2026-08-19 (0DTE canonical), MULTI-LANE-STAGE-A-VERDICT-2026-08-20 + MULTI-LEVELS-TRANSPLANT-VERDICT-2026-08-21 (multi kills), WEEKLY-EXPIRY-EXPERIMENT-2026-08-18 (weekly kill), AUTONOMOUS-FUTURES-LANE.md (futures, partially stale — see §2).*
+
+---
+
+## §5 — THE EXIT HYPOTHESIS IS REFUTED, AND I BROKE TWO RULES GETTING THERE
+
+> Written by the same Opus session that proposed it, after running the frozen prereg
+> (`prereg-exit-policy-beats-null-2026-08-23.json`, commit `5c1836d5`) under 3 adversarial lenses.
+> The prereg pre-committed to recording a refutation rather than re-cutting until it passed. This is that record.
+
+### 5a — MY OWN ERROR, stated plainly
+
+**I asserted a data premise without verifying it, and froze a prereg on top of it.** The prereg and
+`queue.md` both state *"THE DATA IS ALREADY ON DISK — journal/trades.csv carries cf_time_stop_pnl."*
+Measured: **3 of 508 rows populated, 0 of 493 in-window.** Both writers
+(`setup/scripts/fleet_journal_bridge.py:671`, `backtest/autoresearch/webull_winner_journal.py:414`) emit the
+literal empty string. **Nothing has ever computed that column.** I read a schema header and reported it as
+populated data — the exact C7 failure (audit the OUTPUT, not the existence) that I spent this same session
+warning five workers about. A prereg's data-availability premise must be VERIFIED BEFORE freezing.
+
+Of the 3 populated rows, one has `cf_time_stop_pnl == dollar_pnl` exactly and one has
+`cf_high_water (−770) < cf_time_stop (+410)` — impossible for a high-water bound. So the column is not merely
+empty, it is **untrustworthy where populated**. The frozen-population cell is **VOID: not "no result", but
+"no instrument."**
+
+### 5b — THE CROSS-LANE CLAIM'S FUTURES HALF IS NO LONGER SOURCEABLE (self-inflicted)
+
+The retracted section above cites futures SSR as *"+$27,335.69 managed vs +$30,828.09 held."* Current ledger
+(`automation/state/futures/ssr-shadow-progress.json`): `null_check = {"evaluated": false, "coverage": "0/0"}`,
+and `legacy_evidence` preserves v1's `n_round_trips: 17` and `total_pnl_usd: 27335.69` but **NOT the null
+figure**. The +$30,828.09 was real when the futures audit first read it — **the ssr-v2 respec commissioned
+earlier in this same session (commit `77442e70`) destroyed it.** My respec spec said "quarantine v1 evidence,
+don't count it toward v2's arming n"; the implementation preserved v1's P&L and dropped v1's null comparison.
+That is a data-loss bug in my own instruction, and it silently un-sourced a claim I then built a prereg on.
+**Fix dispatched** (restore `null_check` into `legacy_evidence` + guard). Until it lands, treat the futures
+half of the cross-lane pattern as UNSOURCED.
+
+### 5c — THE HYPOTHESIS ITSELF: dead on every computable cut
+
+The frozen population was unmeasurable, so the study fell back to the only loser-inclusive cohort in the repo,
+`analysis/autopsies/*.jsonl` (n=263, 28 days, 2026-07-08..08-21). **Coverage 53.3% — below the prereg's 80%
+floor, so NO cell is formally called.** But every computable number points one way:
+
+| Half | mean Δ/tr | median Δ | drop-top3 | drop-best-2-days |
+|---|---:|---:|---:|---:|
+| Losers (n=179) | +$104.73 | **−$93.00** | −$9.22 | **−$167.42** |
+| Winners (n=73) | +$52.91 | **−$156.90** | −$132.55 | **−$260.80** |
+| All (n=263) | +$79.03 | −$119.25 | +$1.60 | **−$187.59** |
+
+- **P2 — the hypothesized defect (exits truncate the right tail) — IS NOT SUPPORTED.** 49 of 73 winner deltas
+  are NEGATIVE, median −$156.90, and the positive mean flips at both trims. The half I predicted is the half
+  that failed.
+- **P1 (stops genuinely save money on losers) SURVIVES** its trims. The policy's defensive half works.
+- **G2 drop-top3: +$79.03 → +$1.60. G3 drop-best-2-days: +$79.03 → −$187.59 (SIGN FLIPS). G4: 1 of 4 buckets
+  (needs ≥3) FAIL. G5 day-block bootstrap B=20,000: P(Δ≤0)=0.385 vs a 0.05 bar, FAIL.**
+- **2026-08-04 alone is +$59,374 against a +$20,785 net (286%). Top-5 deltas are all `risky-3`, all that one
+  day.** One arm, one session, the entire effect — the same concentration disease as every other headline
+  killed this weekend.
+- Per the prereg's own kill criterion ("if the sign fails G2/G3/G5 the hypothesis is REFUTED"), it fails all
+  three. It escapes *formal* refutation only on the technicality that the frozen population was never
+  measurable. **Directionally it is dead. Do NOT write an exit-intervention prereg.**
+
+### 5d — Two further defects the run exposed
+
+- **G6 is permanently uncomputable from either source.** Neither `journal/trades.csv` nor `analysis/autopsies/`
+  carries `stop_mode` — so the mandated Simpson's-paradox stratification, the exact check that unmasked the
+  fake "bear stops fire at −8%" finding, cannot be run. Any future exit study must source `stop_mode` from the
+  decisions ledger.
+- **"The null" is not unmanaged in ANY implementation on disk.** On identical rows: `no_stop_ride` +$22.86,
+  `wide_stop_-50` +$65.40, `hold_to_time` +$79.03 per trade — a **3.5× spread driven by the graveyarded −50%
+  cap sitting INSIDE the null.** A beats_null test whose null silently contains a validated intervention is
+  measuring the wrong thing. (One adversarial lens tried to rescue P1 via `exit-shape-parity`'s
+  `no_trail_hold_to_time_stop`; the verdict agent killed it — that variant exits via `premium_stop` on 73 of
+  79 positions, so it is "remove the trail", not "hold to the clock". Discarded.)
+
+### 5e — WHAT REPLACES IT
+
+**Not an intervention prereg — a DATA prereg.** The question to freeze next:
+
+> *Backfilled from OPRA minute bars at POSITION level (not per exit leg — 124 of 250 in-window positions exited
+> in more than one piece, which is precisely why the column was never computable), with the null defined as
+> TRULY unmanaged (no premium cap, since the −50% cap is graveyarded as validated-KEEP and out of scope), and
+> with `stop_mode` sourced from the decisions ledger so G6 is computable: on both CONTROL-winners and
+> CONTROL-losers, does hold-to-15:50 beat the realized managed exit at ≥80% coverage?*
+
+**Forward clock (from the original prereg, unchanged): do NOT re-cut this population. Re-adjudicate at +50
+round trips or 2026-10-01.**
+
+### 5f — What this does to the session's conclusion
+
+The entry side was exhausted, and now the exit side is refuted as well. What survives is **§3a: the deficit is
+carried by a handful of extreme trades**, and of the three levers that can attack loss magnitude, two are dead
+(entry selection, stop tightening) and one has never been tested on this book — **sizing**. That is now the
+only live thread, and it is filed as a THREAD requiring its own frozen prereg, not a finding.
