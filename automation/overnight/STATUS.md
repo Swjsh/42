@@ -1,3 +1,29 @@
+## [2026-08-24 05:39 ET] conductor: OK — no-console-popups guard RED fixed + 2 latent bugs (hardcoded secrets, 401 auth root-cause) closed same file, commit `2d703a27`
+
+**Picked via STAGE 0 budget gate PROCEED ($1.62/$30, 1/4 fires, AFTERHOURS mode) + `desk_allocator.py` (SPY 0DTE #1 "NEXT FIRE", 30pts) + engine health YELLOW-only (`state_freshness`, non-critical) + self_check.py GREEN (0 problems) + STAGE 1 priority-2 (`incident_fix_status.py --alert`: fresh `[RED] no-console-popups`, first appearance this cadence).**
+
+**Root cause, precisely:** `backtest/tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags` failed on 3 `subprocess.run()` calls in `setup/scripts/mcp_audit_probe.py` missing `creationflags=CREATE_NO_WINDOW` (C8 console-flash class). Investigating that file surfaced two more, more valuable bugs in the same never-before-committed script: (1) two Alpaca account key/secret pairs hardcoded in plaintext (file was untracked — never pushed to the public repo — but sat as a landmine for any future broad `git add`); (2) `probe_alpaca()` accepted a `secret` parameter but never put it in the request headers, so every probe 401'd regardless of real account health — this is the exact root cause of the still-open `## Known broken` entry `[2026-08-23T22:30:35Z] MCP_AUDIT_RED: Alpaca Safe/Bold MCP servers offline or unreachable (401 auth error)`. Not a real outage.
+
+**Fix:** added `creationflags=CREATE_NO_WINDOW` to all 3 calls; replaced hardcoded secrets with a `_load_alpaca_keys()` reader off the gitignored `.mcp.json` (same pattern as `fast_path_executor.py`); added the missing `APCA-API-SECRET-KEY` header.
+
+**Verified, quoted:** `test_window_leak_compliance.py` 4/4 PASS (was 1 FAILED, 3 passed). `incident_fix_status.py --alert`: `ALL GREEN` (was 1 RED). Live re-run of the fixed script: `{"verdict": "GREEN", "alpaca_safe": {"ok": true, "account": "PA3POKNV46VG", "note": "ok"}, "alpaca_bold": {"ok": true, "account": "PA3WEBXJU67N", "note": "ok"}, "tradingview": {"ok": true, ...}}` — end-to-end functional confirmation, not just guard-green. Curated safety gate (`run_safety_gate.py`): 59/59 PASS both before and after. `py_compile` clean. `git show 2d703a27 --stat --name-status`: exactly the 1 intended file (new file, first commit — was untracked since creation).
+
+**Rail 4 (infra fix, not a live trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** the guard test (already existed, now green) is the regression check (a); revert is `git revert 2d703a27`, one clean commit, 1 file (b); this STATUS entry is the REVOKE report (c). Zero live-money or CLAUDE.md surfaces touched — a secret-exposure risk was CLOSED (2 keys removed from source, never having reached the public repo), not created or rotated.
+
+**`## Known broken` MCP_AUDIT_RED entry annotated RESOLVED below** (never overwritten, per L-channel discipline).
+
+**Not investigated further this fire (out of bounded scope):** `mcp_audit_probe.py` is not wired to any scheduled task or caller yet (only referenced from its own test/audit files and one prior `conductor-outcomes.jsonl` log line) — whoever built it in an earlier fire didn't finish wiring it into a `Gamma_*` task. Left as-is; wiring it up is a separate, larger decision (new scheduled cadence) outside this fire's one-bounded-task scope. The 3 unrelated `### BROKEN:`-class GATE-EXPIRY RED entries in `## Known broken` (structure_veto_enabled, core_strategy_bear, require_bearish_fill_bar) are pre-existing report-only instruments (already re-validated 2026-08-23, DO NOT FLIP per that fire's own finding) — not re-touched.
+
+---
+
+## [2026-08-24 05:31 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 3 passed in 9.11s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## [2026-08-24 01:08 ET] conductor: OK — EARNINGS-CALENDAR STALE root-caused + fixed (system-pythonw lacked yfinance), commit pending
 
 **Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/4 fires used, AFTERHOURS mode) + STAGE 1 priority-1 (function-first: `self_check.py` reported `BROKEN — 2 problem(s)`: EARNINGS-CALENDAR STALE (RED, 72.0h old vs 48h fail-closed threshold) + CANDIDATES-UNTRACKED (23 files, threshold 20) — this outranks `desk_allocator`/`task_scorer`'s top-ranked items (`TWIN-DOCTRINE-FIRST-DEPLOY`, a stale J-ping not due for re-ping for another ~8 days; `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`, 6 prior passes, diminishing-returns infra hygiene) per STAGE 1's function-first rule.** Engine health GREEN-ish (YELLOW overall, only `state_freshness` flagged, unrelated).
@@ -182,6 +208,7 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 ## Known broken
 - [2026-08-23T22:30:35Z] MCP_AUDIT_RED: Alpaca Safe/Bold MCP servers offline or unreachable (401 auth error); TradingView CDP OK
+  - **RESOLVED [2026-08-24 05:30 ET]**: root cause was `setup/scripts/mcp_audit_probe.py`'s own `probe_alpaca()` never putting the `secret` param into request headers (missing `APCA-API-SECRET-KEY`) -- every probe call 401'd regardless of real account health. Not a real Alpaca/MCP outage. Fixed in commit `2d703a27`; live re-run confirms `verdict=GREEN, safe=ok, bold=ok, tv=ok`. Same commit also fixed a RED guard (`test_no_py_subprocess_missing_creationflags`, 3 subprocess.run calls in this same file lacked `creationflags=CREATE_NO_WINDOW`) and removed 2 hardcoded Alpaca key/secret pairs the file had carried in plaintext since it was written (file was untracked/never committed, so never exposed in the public repo -- now loads from gitignored `.mcp.json` at runtime, matching `fast_path_executor.py`'s pattern).
 
 - [2026-08-23T02:10:40] GATE-EXPIRY RED :: require_bearish_fill_bar :: refused cohort would have EARNED $46.15/tr, n=34 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate require_bearish_fill_bar
 - [2026-08-23T02:10:40] GATE-EXPIRY RED :: core_strategy_bear :: CORE STRATEGY BEAR recency RED: real-fills exp $-16.71/tr NEGATIVE-or-flat, n=31 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=21 exp=$116.89/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money] :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate core_strategy_bear
@@ -217,7 +244,7 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 
 ## Kitchen
-Kitchen: alive, queue 60 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 64 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 ### BROKEN: self-check 2026-08-24T01:01:08
 - EARNINGS-CALENDAR STALE (RED): earnings-blackout.json is 72.0h old (fail-closed threshold 48h, params.json#entry.earnings_feed_stale_hours_fail_closed) -- per its own fail-closed contract, every non-exempt weekly-1 single-name symbol must be treated as BLOCKED until setup/scripts/earnings_calendar.py runs again.
@@ -227,4 +254,7 @@ Kitchen: alive, queue 60 pending, last cook 0 min ago, today $0.00, model=openro
 - CANDIDATES-UNTRACKED: 23 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
 
 ### DEGRADED: self-check 2026-08-24T01:09:56
+- CANDIDATES-UNTRACKED: 27 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+### DEGRADED: self-check 2026-08-24T01:39:56
 - CANDIDATES-UNTRACKED: 27 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
