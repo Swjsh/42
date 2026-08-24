@@ -777,6 +777,33 @@ def compute_null_pnl(trip: dict, instrument_lookup: Callable[[str], Any]) -> Opt
     return round(pts * instrument.point_value * QTY - instrument.round_turn_usd * QTY, 2)
 
 
+def _null_check_block(trips: list[dict], total_pnl: float,
+                      instrument_lookup: Callable[[str], Any]) -> dict:
+    """PURE. Same shape/semantics for ANY trip population (current-spec OR legacy) -- shared
+    by `compute_progress` for both the v2 arming-bar null_check and the legacy_evidence
+    null_check, so the two can never independently drift apart (the defect this function
+    fixes: they DID drift, when the legacy block was first written without ever calling this
+    logic at all -- see the QUARANTINE-INTEGRITY comment at the `legacy_evidence` call site)."""
+    n = len(trips)
+    null_pnls: list[float] = []
+    unavailable = 0
+    for t in trips:
+        v = compute_null_pnl(t, instrument_lookup)
+        if v is None:
+            unavailable += 1
+        else:
+            null_pnls.append(v)
+    if n == 0:
+        return {"evaluated": False, "coverage": "0/0", "unavailable": 0}
+    if null_pnls:
+        null_total = round(sum(null_pnls), 2)
+        return {"evaluated": True, "null_total_pnl_usd": null_total,
+               "beats_null": bool(total_pnl > null_total),
+               "coverage": f"{len(null_pnls)}/{n}", "unavailable": unavailable}
+    return {"evaluated": False, "coverage": f"0/{n}", "unavailable": unavailable,
+           "reason": f"null unavailable for all {n} round trips"}
+
+
 def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] = None,
                      now_et: Optional[pd.Timestamp] = None,
                      latest_close_by_config: Optional[dict[str, float]] = None) -> dict:
@@ -800,32 +827,23 @@ def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] 
     avg_pnl = round(total_pnl / n, 2) if n else None
     positive_expectancy = bool(n > 0 and total_pnl > 0)
 
-    null_pnls: list[float] = []
-    unavailable = 0
-    for t in trips:
-        v = compute_null_pnl(t, instrument_lookup)
-        if v is None:
-            unavailable += 1
-        else:
-            null_pnls.append(v)
-
-    beats_null: Optional[bool] = None
-    if n == 0:
-        null_check = {"evaluated": False, "coverage": "0/0", "unavailable": 0}
-    elif null_pnls:
-        null_total = round(sum(null_pnls), 2)
-        beats_null = bool(total_pnl > null_total)
-        null_check = {"evaluated": True, "null_total_pnl_usd": null_total,
-                     "coverage": f"{len(null_pnls)}/{n}", "unavailable": unavailable}
-    else:
-        null_check = {"evaluated": False, "coverage": f"0/{n}", "unavailable": unavailable,
-                     "reason": f"null unavailable for all {n} round trips"}
+    null_check = _null_check_block(trips, total_pnl, instrument_lookup)
+    beats_null: Optional[bool] = null_check.get("beats_null") if null_check.get("evaluated") else None
 
     armable = bool(n >= ARMING_MIN_ROUND_TRIPS and positive_expectancy and beats_null is True)
 
     legacy_n = len(legacy_trips)
     legacy_total_pnl = round(sum(t["total_pnl_usd"] for t in legacy_trips), 2)
     legacy_versions = sorted({t.get("spec_version") or "ssr-v1" for t in legacy_trips})
+    # QUARANTINE-INTEGRITY RULE (2026-08-23, post-mortem on commit 77442e70's own defect): a
+    # quarantine that retires HALF of an evidence pair -- keeping the flattering P&L figure
+    # while dropping the null comparison it failed -- is WORSE than deleting both. It leaves a
+    # citable number with its refutation silently removed, which is exactly what happened here
+    # (v1's beats_null=False / null_total_pnl_usd=30828.09 was dropped when this legacy block
+    # was first written, un-sourcing a figure already cited in analysis/deep-research/
+    # PROFITABILITY-ORDER-2026-08-23.md). The rule for the next respec: preserve the WHOLE
+    # legacy evidence record (P&L AND its null comparison) or none of it -- never split them.
+    legacy_null_check = _null_check_block(legacy_trips, legacy_total_pnl, instrument_lookup)
 
     return {
         "_doc": PROGRESS_DOC, "updated_et": now_et.isoformat(), "spec_version": SPEC_VERSION,
@@ -839,12 +857,21 @@ def compute_progress(rows: list[dict], *, instrument_lookup: Optional[Callable] 
             "n_round_trips": legacy_n,
             "total_pnl_usd": legacy_total_pnl,
             "status": "HISTORICAL -- NOT counted toward the arming_bar above",
+            "null_check": {
+                **legacy_null_check,
+                "label": "ssr-v1 / HISTORICAL -- NOT counted toward the v2 arming_bar above; "
+                         "the arming_bar's beats_null is computed exclusively from THIS spec "
+                         "version's own fresh evidence (see arming_bar block).",
+            },
             "note": ("scored under a RETIRED spec (full-size NQ/GC contracts -- ~326x this "
                     "book's fundable size at qty=3; see fundability below for the ssr-v2 "
                     "recompute). Retained verbatim in the same ledger for audit "
                     "transparency; excluded from n_round_trips/total_pnl_usd/"
                     "positive_expectancy/beats_null/armable above by spec_version, never "
-                    "deleted, never rescored, never silently merged in.") if legacy_n else
+                    "deleted, never rescored, never silently merged in. Its null_check is "
+                    "retained on the SAME terms -- a quarantine keeps the whole evidence pair "
+                    "(P&L and the null it was measured against) or none of it, never one "
+                    "half.") if legacy_n else
                     "no legacy (pre-respec) round trips in the ledger.",
         },
         "fundability": _fundability(total_pnl, latest_close_by_config or {}),

@@ -1,6 +1,6 @@
 {
   "_doc": "ssr_shadow.py SSR PULSE forward-shadow arming-bar progress (spec_version ssr-v2, respec'd 2026-08-23 -- see module docstring RESPEC section). Bar: >=20 CURRENT-spec closed round trips AND positive_expectancy (total_pnl_usd > 0) AND beats_null (same-horizon same-direction unmanaged hold, computed from the ledger's own recorded bar_close -- see module docstring ARMING BAR). armable=true only when all three hold. Retired-spec (ssr-v1) round trips are excluded from all of the above and reported separately under legacy_evidence, clearly labeled, non-arming. Read/derived from ssr-shadow-would-be.jsonl; places no order, arms nothing.",
-  "updated_et": "2026-08-23T17:50:33.953955-04:00",
+  "updated_et": "2026-08-23T21:28:38.351184-04:00",
   "spec_version": "ssr-v2",
   "n_round_trips": 0,
   "total_pnl_usd": 0,
@@ -22,10 +22,18 @@
     "spec_versions": [
       "ssr-v1"
     ],
-    "n_round_trips": 17,
-    "total_pnl_usd": 27335.69,
+    "n_round_trips": 18,
+    "total_pnl_usd": 32140.01,
     "status": "HISTORICAL -- NOT counted toward the arming_bar above",
-    "note": "scored under a RETIRED spec (full-size NQ/GC contracts -- ~326x this book's fundable size at qty=3; see fundability below for the ssr-v2 recompute). Retained verbatim in the same ledger for audit transparency; excluded from n_round_trips/total_pnl_usd/positive_expectancy/beats_null/armable above by spec_version, never deleted, never rescored, never silently merged in."
+    "null_check": {
+      "evaluated": true,
+      "null_total_pnl_usd": 37476.09,
+      "beats_null": false,
+      "coverage": "18/18",
+      "unavailable": 0,
+      "label": "ssr-v1 / HISTORICAL -- NOT counted toward the v2 arming_bar above; the arming_bar's beats_null is computed exclusively from THIS spec version's own fresh evidence (see arming_bar block)."
+    },
+    "note": "scored under a RETIRED spec (full-size NQ/GC contracts -- ~326x this book's fundable size at qty=3; see fundability below for the ssr-v2 recompute). Retained verbatim in the same ledger for audit transparency; excluded from n_round_trips/total_pnl_usd/positive_expectancy/beats_null/armable above by spec_version, never deleted, never rescored, never silently merged in. Its null_check is retained on the SAME terms -- a quarantine keeps the whole evidence pair (P&L and the null it was measured against) or none of it, never one half."
   },
   "fundability": {
     "_doc": "RESPEC'd 2026-08-23 for ssr-v2 -- see setup/scripts/ssr_shadow.py module docstring RESPEC section.",
@@ -34,24 +42,24 @@
       "MNQ": {
         "symbol": "MNQ",
         "point_value": 2.0,
-        "last_price": 29385.25,
+        "last_price": 29435.0,
         "qty": 3,
-        "notional_usd": 176311.5,
+        "notional_usd": 176610.0,
         "point_value_ratio_vs_full_size": 10.0
       },
       "MGC": {
         "symbol": "MGC",
         "point_value": 10.0,
-        "last_price": 4674.7001953125,
+        "last_price": 4678.7998046875,
         "qty": 3,
-        "notional_usd": 140241.01,
+        "notional_usd": 140363.99,
         "point_value_ratio_vs_full_size": 10.0
       }
     },
     "equity_usd": 2000.0,
     "equity_source": "account.json:equity (tastytrade_sandbox 5WW73759)",
-    "combined_worst_case_notional_usd": 316552.51,
-    "combined_notional_to_equity_ratio": 158.3,
+    "combined_worst_case_notional_usd": 316973.99,
+    "combined_notional_to_equity_ratio": 158.5,
     "any_price_missing": false,
     "still_leveraged_by_design": "futures are margined/leveraged instruments -- notional exceeding equity is EXPECTED, not itself a red flag; this figure is not a broker-verified margin approval (unverified in-repo), only a like-for-like recompute of the same ratio that flagged ssr-v1 as impossible.",
     "why_it_matters": "total_pnl_usd (0) above is scored on contracts this book can actually hold at qty=3 -- point_value_ratio_vs_full_size above (derived live from the Instrument registry, not hardcoded) is the same ~10x reduction vs the pre-respec disclosure archived in the module docstring's RESPEC section."
