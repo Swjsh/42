@@ -1,3 +1,52 @@
+## [2026-08-25 19:30 ET] REVIEW+FIX: V-d1 KILLED on its own prereg · 5 defects fixed · 2 of my own morning claims REFUTED — commit `6de467e7`
+
+**Day result first: −$220 book** (risky-1 −100, safe-2 −60, safe-3 −60; bold-2 and risky-3 flat, 0 rule breaks, funnel GREEN). One signal cloned three ways at 13:16:03 ET — `BULLISH_RECLAIM_RIDE_THE_RIBBON`, tier ELITE, bull 11, the only moment all day the timeframes agreed. SPY went 765.29 → 765.05 in ten minutes (−0.03%) and the ATM 765C lost 29%; SPY closed at 765.475, **above the entry**. Direction was not wrong — theta and spread on a 2.5-handle tape were.
+
+### THE ADJUDICATION THAT WAS OWED AND HAD NEVER RUN
+
+`entry-structure-forward-prereg-2026-08-06.json` froze five gates and stated F4/F5 would be "adjudicated by a future session". `entry_shadow_counter.py` measured F1–F3 nightly for 14 sessions. **Nobody ever rendered the verdict.** New re-runnable adjudicator: `setup/scripts/entry_structure_forward_adjudicate.py`.
+
+- **V-d1 → KILL.** F1/F2/F3/F5 pass. **F4 FAILS on pooled: within-day permutation p=0.6661** vs the frozen p≤0.10 bar (20,000 draws, seed 20260825, n=398 / 39 days). Random within-day selection of the same per-day block count reaches the observed delta about two thirds of the time — the rule has **no entry-selection skill**. The prereg's own falsification clause agrees and then some: forward blocked-cohort WR **42.1%** vs forward population WR **30.5%** — it blocks *better-than-average* entries. Per-block value decayed ~95% from in-sample ($37.6/block → $1.71/block).
+- **V-e3 → EXTEND.** F3 fails (n_blocked=4 < 8 after 14 sessions); the prereg says judge nothing, so nothing was judged. Disclosed, **not** a verdict: pooled F4 p=0.1252. Re-run the adjudicator when n_blocked hits 8 (~14 more sessions at the current rate). The precommitted 20-session both-fail kill criterion is NOT yet reached.
+- **Integrity gate:** flags were re-derived and checked row-for-row against the frozen single-source implementation — **167/167 match**; a mismatch VOIDS the run (L251). Population differs from the prereg's stated n=230 by one event; disclosed in the scorecard rather than quietly pooled.
+
+Scorecard: `analysis/recommendations/entry-structure-forward-2026-08-06.json`. Frozen prereg stamped with a pointer block only — no cell or threshold edited.
+
+### ⚠️ TWO OF MY OWN CLAIMS FROM THIS MORNING WERE WRONG
+
+1. **"The conviction gate went 1-for-1 against a real losing trade; arming it is the highest-value thing on the board."** Its own scorecard says the opposite: **98.1% block rate** (263 of 268), `delta_if_armed_usd` **−$675**, and the score *anti-correlates* — the 0-score bucket is n=10, +$671, **70% WR**. An n=1 anecdote lost to n=18 measured. This is the L107 shape (a prior conviction gate ratified on sim, reverted on real fills) and it does not get armed.
+2. **"Premarket built its thesis on a spot 3.26 handles stale."** REFUTED. The 09:30–09:35 rows I compared against carry `bar_freshness.stale=true, prior_session=true` and were correctly `SKIP_STALE_TRIGGER`'d by the engine's own guard. First **fresh** tick was 09:36:03 at **766.72** — premarket's 767.00 was accurate to **$0.28**. Corrected day tape: fresh range 764.19–766.72, close 765.475. The stale-bar guard did its job; I read a flag I should have read.
+
+### FIXED (each guard RED-PROOFED by reintroducing the bug, then independently re-reproduced by a second reviewer)
+
+| Defect | Root cause | Fix |
+|---|---|---|
+| bold-2 "dark" | NOT dark. `V15_BOLD_TIERS` = OTM-2 at $5K → strike 767 vs spot 765 → premium **0.07–0.11** < `min_entry_premium` 0.30 → `SKIP_MIN_PREMIUM_FLOOR` at plan time, before risk_gate/broker. Refusal WAS journaled; `fill_funnel.py` buried it as anonymous `NOT_ATTEMPTED`. | `fill_funnel.py` now names the status with its numbers. Reporting only — stages/verdicts byte-identical. |
+| trades.csv times ET−4 | The reconcile step is an **LLM** told to write `time_exit={fill_time}` from Alpaca's UTC payload with **no conversion rule** → wrote 09:16 for a 13:16 ET fill. | Both eod-flatten twins get an explicit UTC→ET rule + worked example + pre-write RTH check, backed by a deterministic guard. 4-row historical backlog **pinned, not hidden**, deliberately not rewritten. |
+| ledger silent-zero | `_log()` emits `ts_et` but no `date`; filtering on `date` returns zero rows and exits clean (C7). Latent — no current consumer does it. | Additive `date` key. New dict, never mutates `rec`, never overwrites, never raises. Zero decision/gate/strike/placement change. |
+| premarket Step 5 blind | Chart wipe+redraw has **zero** self_check coverage; `key-levels.json#chart_drawing_summary.as_of` = **2026-06-29**, ~2 months stale, no alarm anywhere. | `check_chart_wipe_redraw_freshness` mirroring the trendline precedent; guarded against escalating itself to BROKEN. Fires today. |
+| FULL-SUITE RED (08-23) | The 08-23 session tombstoned `ccr_keepalive.py` with a module-level `sys.exit(0)` above its functions, **never committed it**, and never fixed the sibling suite → 13 RED tests logged as an anonymous batch. **The casualty: the ONLY automated check on J's real `~/.claude/settings.json` — the interactive-surface lockout scar guard — was silently DOWN for two days.** | Detector reimplemented locally (module copy is unreachable dead code), all detector + live-acceptance tests preserved and broadened to every host spelling of the gateway. Only the 7 tests of the deliberately-retired auto-fixer dropped, labelled. 08-23's uncommitted tombstone also landed. |
+
+### 🚨 SEPARATE FIND — a risk control was armed in code and blind in practice for 6 days
+
+`Gamma_BookEquityRefresh` — the task that feeds `book-equity-snapshot.json`, the denominator `book_exposure.py` divides by — was **Disabled**, last run 2026-08-19, the day it was created. Enabling it alone did nothing: `NextRunTime` stayed empty because it was registered with a **one-shot `TimeTrigger`** whose 10-hour repetition window expired that same day (the `scheduled_task_onetime_trigger_dark` scar). Converted to a daily `CalendarTrigger` + 30-min repetition, then **verified end-to-end, not just scheduled**: all 5 arms restamped fresh, book $24,714.66, cap reports `OK -- exposure 0.0% of $24,715 (ceiling 25%)`. Next run 18:30 ET.
+
+### NOT SHIPPED, ON PURPOSE
+
+- **bold floor-rescue** → pre-registered at `analysis/recommendations/bold-floor-rescue-prereg-2026-08-25.json` (FROZEN_PREREG, shadow_only). New live order-placement behaviour that partially re-litigates the 2026-08-20 tier revert — needs its A/B, not a blind port of the fleet code. The prereg also notes the 08-20 rail's −$808/n=25 measured a MIXED population, so the A/B must compare against a $0 counterfactual, not that aggregate.
+- **core-decisions.jsonl size bound** → NOT implemented, and my morning "ticking retention bomb" framing was overstated. Three confirmed production readers do unrestricted full-history scans (`broker_fills.py:126`, `backfill_fills_enriched.py`, `trade_matrix_build.py`); rotating under them is a silent-correctness regression, which is worse than unbounded growth. Custody **already exists** via `ledger_archive.py` (30-day local) and `archive_ledgers.py` (checksummed off-volume, read-back verified). The file is archived — just not bounded. Bounding it is a separate lane that must teach those three readers a live+archive view first.
+
+### OPEN — found while verifying, NOT fixed (nobody owns these yet)
+
+- **`bold_tier_rail.py` is misattributing fills.** `split_cohorts()` buckets purely on `date_et >= ship_date_et` with **no revert-date cutoff**, so post-2026-08-20 OTM-2 fills keep landing in the ATM cohort: the frozen trigger snapshot n=25/−$808 has drifted to **n=30/−$699**. This rail judges strategy ship/kill decisions, so it is an evidence-integrity bug, not cosmetic.
+- `core_strategy_bear` GATE-EXPIRY **RED** still stands from 08-23: real-fills expectancy **−$16.71/tr on n=31**. Bear was blocked all day 2026-08-25 by VIX F8 — accidental protection, not a fix.
+- `Safe2_ATM_1+2+4` book **RED** (−$148.85) — no live flip. The recency clamp it drives is what sized risky-1 12→5 and safe-3 8→3 today; it paid for itself.
+- `bold-floor-rescue-prereg-2026-08-25.json` is not yet linked from the recommendations queue/INDEX — orphan risk per the Obsidian-brain rule.
+
+**VERIFIED:** curated safety gate **59/59 PASS** (also re-run by the pre-commit hook). All six new/repaired suites **65/65 PASS**. Every lane independently reviewed by a second agent; all five approved, RED-proofs re-reproduced. Secrets scan clean on the full diff. **Commit `6de467e7` is local only — not pushed.**
+
+---
+
 ## [2026-08-25 08:22 ET] conductor: OK — MACRO-CALENDAR STALE root-caused + self-heal window shipped for macro+earnings calendar triggers, commit `956252ec`
 
 **Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/4 fires, AFTERHOURS mode) + engine health YELLOW-only (`state_freshness`: news.json) + STAGE 1 priority-1/2 (`self_check.py`: `BROKEN — 2 problem(s)`: MACRO-CALENDAR STALE (RED) + RUN-CMD-HIDDEN MASKED EXIT on `unattended_health.py`) — function-first outranks `desk_allocator`'s #1 SPY-0DTE pick.**
@@ -217,8 +266,91 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 
 ## Kitchen
-Kitchen: alive, queue 71 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 48 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 ### BROKEN: self-check 2026-08-25T08:12:32
 - MACRO-CALENDAR STALE (RED): freshness_stamp 2026-08-24T07:45:01.586630 predates the expected 2026-08-25T07:45:00 ET fire (~24.5h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T08:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 3x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T09:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CANDIDATES-UNTRACKED: 29 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 6x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T09:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CANDIDATES-UNTRACKED: 47 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 9x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T10:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 12 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 12x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T10:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 15x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T11:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 18 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 18x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T11:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 21 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 21x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T12:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 24 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 24x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T12:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 27 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 27x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T13:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 30 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 30x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T13:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 33 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 33x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T14:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 36 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 36x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T14:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 39 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 39x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T15:09:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 42 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 42x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-25T15:39:57
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 45 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 45x). Check the named script's own stderr log for the real cause.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-08-25T20:00:44+00:00
+- task: eod-summary
+- date_et: 2026-08-25
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-08-25T18:23:18
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-08-24, not today 2026-08-25 -- Gamma_ParticipationDaily likely did not fire.
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-25) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 48 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 48x). Check the named script's own stderr log for the real cause.
+- SELF-AUDIT STALE: gap-log.jsonl newest entry dated '2026-08-24', today=2026-08-25 -- Gamma_SelfAudit's swarm consult likely failed silently (exit-0 on TimeoutExpired is by design in self_audit.py's except-block; check self-audit.stdout.log for 'swarm run failed'). Non-load-bearing (visibility only); python setup/scripts/self_audit.py to catch up.
+
+### BROKEN: self-check 2026-08-25T18:23:38
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-08-24, not today 2026-08-25 -- Gamma_ParticipationDaily likely did not fire.
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-25) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-25) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-25.log shows 48 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 48x). Check the named script's own stderr log for the real cause.
+- SELF-AUDIT STALE: gap-log.jsonl newest entry dated '2026-08-24', today=2026-08-25 -- Gamma_SelfAudit's swarm consult likely failed silently (exit-0 on TimeoutExpired is by design in self_audit.py's except-block; check self-audit.stdout.log for 'swarm run failed'). Non-load-bearing (visibility only); python setup/scripts/self_audit.py to catch up.
