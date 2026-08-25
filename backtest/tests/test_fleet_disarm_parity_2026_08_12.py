@@ -188,9 +188,22 @@ def test_the_core_setup_is_never_disarmed_by_absence(strat, core_setup):
         "extra_setup_exec_armed and has switched off the core engine")
 
 
-def test_an_explicitly_armed_setup_still_fires(strat):
-    armed = json.loads(PARAMS.read_text(encoding="utf-8")).get("extra_setup_exec_armed", {})
-    assert armed.get("vwap_reclaim_failed_break") is True, "fixture assumption broken"
+def test_an_explicitly_armed_setup_still_fires(strat, monkeypatch):
+    """Vehicle switched 2026-08-24: vwap_reclaim_failed_break -> double_bottom_base_quiet.
+
+    reclaim_fb was disarmed 2026-08-24 (extra-setup lane n=26 / -$1,055 real fills, never
+    net positive), so it stopped satisfying this test's own fixture assumption. The point of
+    the test is that an EXPLICITLY-armed extra setup still fires -- it needs whichever setup
+    doctrine currently arms, not a hardcoded one. double_bottom_base_quiet is the remaining
+    armed cell (zero live placements to date).
+    """
+    # 2026-08-24: this used to hardcode vwap_reclaim_failed_break, which was disarmed that
+    # night (extra-setup lane n=26 / -$1,055 real fills). Every REGISTRY extra setup is now
+    # disarmed in live params, so there is no live vehicle left to assert against -- and
+    # binding the test to whichever setup happens to be armed is exactly the fixture-rot that
+    # already forced one vehicle switch. Inject the armed state instead: the invariant under
+    # test is "explicitly armed => fires", not "today's doctrine arms X".
+    monkeypatch.setattr(strat, "_disarmed_setups", lambda: set())
     assert _fired(strat, "VWAP_RECLAIM_FAILED_BREAK") == ["vwap_reclaim_failed_break"]
 
 

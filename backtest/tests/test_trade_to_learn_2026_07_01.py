@@ -80,6 +80,21 @@ _CREDS = {"key": "k", "secret": "s", "base_url": "https://paper-api.example.inva
 # CURRENT execution-arm state see TestParamsArming.test_safe_arming_matches_current_doctrine.
 THE_THREE = ("vwap_reclaim_failed_break", "vix_regime_dayside", "double_bottom_base_quiet")
 
+# ROUTING_PARAMS: the live params with every routing vehicle force-armed.
+#
+# TestRouting exercises the ROUTING MECHANISM (one-entry-per-tick, eval accounting,
+# non-placing-first-fire), which is orthogonal to which setups doctrine happens to arm
+# today. Binding it to live SAFE_PARAMS made it break on every arming change and silently
+# stop exercising anything past the first row -- that already happened once (2026-08-01,
+# vix_regime_dayside) and again on the 2026-08-24 disarm. The doctrine state itself stays
+# pinned against LIVE SAFE_PARAMS in TestParamsArming; only the mechanism tests use this.
+ROUTING_PARAMS = json.loads(json.dumps(SAFE_PARAMS))
+ROUTING_PARAMS["extra_setup_exec_armed"] = dict(
+    ROUTING_PARAMS.get("extra_setup_exec_armed") or {},
+    vwap_reclaim_failed_break=True,
+    double_bottom_base_quiet=True,
+)
+
 
 @pytest.fixture()
 def hc():
@@ -169,13 +184,24 @@ class TestParamsArming:
         """
         armed = SAFE_PARAMS.get("extra_setup_exec_armed")
         assert isinstance(armed, dict)
-        # Still armed for execution -- unchanged 2026-07-01 validated cells.
-        for s in ("vwap_reclaim_failed_break", "double_bottom_base_quiet"):
+        # Still armed for execution -- 2026-07-01 validated cell, zero live placements to date.
+        for s in ("double_bottom_base_quiet",):
             assert armed.get(s) is True, f"Safe must keep {s} armed (still-validated cell)"
             assert hc._extra_exec_armed(SAFE_PARAMS, s) is True
         # Disarmed 2026-07-25 on live falsification -- must stay off until re-validated.
         for s in ("vix_regime_dayside", "vwap_continuation"):
             assert armed.get(s) is False, f"{s} disarmed 2026-07-25 (0-for-12 live, -$357)"
+            assert hc._extra_exec_armed(SAFE_PARAMS, s) is False
+        # Disarmed 2026-08-24 (EOD review) -- the lane is n=26 / -$1,055 since arming and has
+        # never been net positive. bollinger_squeeze n=13 WR 38% -$451; vwap_reclaim_failed_break
+        # n=6 WR 17% -$54 (one +$260 winner carries it; the other 5 sum -$314). Both carry MORE
+        # live evidence than either 2026-07-25 disarm did. A <$1.00 entry-premium cap was the
+        # obvious alternative and was rejected: >=$1.00 is 0-for-6 (-$539) on these two, but
+        # ~$1.40 IS the median premium both cells were validated at, so capping below it would
+        # trade only where no validation exists (C29). See params.json
+        # `_extra_setup_exec_armed_disarm_doc_2026_08_24` for the full cut + re-arm precondition.
+        for s in ("vwap_reclaim_failed_break", "bollinger_squeeze"):
+            assert armed.get(s) is False, f"{s} disarmed 2026-08-24 (lane n=26 -$1,055 real fills)"
             assert hc._extra_exec_armed(SAFE_PARAMS, s) is False
         assert armed.get("gap_and_go") is not True, \
             "gap_and_go must NOT be armed (0 robust cells on 06-28 re-validation)"
@@ -244,7 +270,7 @@ class TestRouting:
         monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 11, 0))
         extra = [{"setup_name": setup, "fired": True, "direction": direction,
                   "triggers": [setup]}]
-        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, ROUTING_PARAMS)
         assert captured["verdict"]["verdict"] == expected_verdict
         assert captured["verdict"]["setup_name"] == setup
         assert out[0]["action"] == "WOULD_PLACE"
@@ -264,7 +290,7 @@ class TestRouting:
         monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 11, 0))
         extra = [{"setup_name": setup, "fired": True, "direction": "long",
                   "triggers": [setup]}]
-        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, ROUTING_PARAMS)
         assert out == [{"setup": setup, "action": "WATCH_NOT_ARMED"}]
 
     def test_one_entry_per_tick_second_fire_is_skipped(self, hc, monkeypatch):
@@ -288,7 +314,7 @@ class TestRouting:
             {"setup_name": "double_bottom_base_quiet", "fired": True, "direction": "long",
              "triggers": ["double_bottom_base_quiet"]},
         ]
-        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, ROUTING_PARAMS)
         assert executed == ["vwap_reclaim_failed_break"], "only the FIRST fire may place"
         assert evals["n"] == 1, "the skipped row must not spend a model eval"
         assert out[0]["action"] == "WOULD_PLACE"
@@ -318,7 +344,7 @@ class TestRouting:
             {"setup_name": "double_bottom_base_quiet", "fired": True, "direction": "long",
              "triggers": ["y"]},
         ]
-        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, ROUTING_PARAMS)
         assert executed == ["vwap_reclaim_failed_break", "double_bottom_base_quiet"]
         assert [r["action"] for r in out] == ["NOT_FLAT", "WOULD_PLACE"]
 

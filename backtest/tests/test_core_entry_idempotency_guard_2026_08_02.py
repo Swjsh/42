@@ -418,7 +418,15 @@ def test_extra_setup_route_shares_the_same_guard(hc, monkeypatch, tmp_path):
 
     extra = [{"setup_name": "vwap_reclaim_failed_break", "fired": True, "direction": "short",
              "triggers": ["level_rejection"], "rejection_level": 620.5}]
-    out = hc._route_extra_setups("safe", extra, dict(_PAYLOAD), SAFE_PARAMS)
+    # Force-arm the vehicle: this guard tests the SHARED idempotency path, not which
+    # setups doctrine arms today. vwap_reclaim_failed_break was disarmed 2026-08-24
+    # (lane n=26 / -$1,055 real fills; see params.json
+    # `_extra_setup_exec_armed_disarm_doc_2026_08_24`), which would otherwise short-
+    # circuit this to WATCH_NOT_ARMED and silently stop exercising the guard.
+    routing_params = json.loads(json.dumps(SAFE_PARAMS))
+    routing_params["extra_setup_exec_armed"] = dict(
+        routing_params.get("extra_setup_exec_armed") or {}, vwap_reclaim_failed_break=True)
+    out = hc._route_extra_setups("safe", extra, dict(_PAYLOAD), routing_params)
     assert out and out[0]["action"] == "SKIP_ORDER_STILL_OPEN_AFTER_CANCEL", out
     assert not fake.posts
 

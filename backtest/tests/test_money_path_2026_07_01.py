@@ -53,6 +53,16 @@ for _p in (str(BACKTEST), str(ROOT), str(_SCRIPTS), str(_FLEET)):
 SAFE_PARAMS_PATH = ROOT / "automation" / "state" / "params.json"
 BOLD_PARAMS_PATH = ROOT / "automation" / "state" / "aggressive" / "params.json"
 SAFE_PARAMS = json.loads(SAFE_PARAMS_PATH.read_text(encoding="utf-8"))
+
+# ROUTING_PARAMS: live params with the routing vehicle force-armed. The mechanism guards
+# below test the ARMED routing path itself, which is orthogonal to which setups doctrine
+# arms today -- binding them to live SAFE_PARAMS has now forced a "vehicle switch" on every
+# arming change (2026-08-01 vwap_continuation -> vwap_reclaim_failed_break; 2026-08-24
+# again). The arming map itself stays pinned against LIVE SAFE_PARAMS in
+# test_safe_params_arming_matches_current_doctrine.
+ROUTING_PARAMS = json.loads(json.dumps(SAFE_PARAMS))
+ROUTING_PARAMS["extra_setup_exec_armed"] = dict(
+    ROUTING_PARAMS.get("extra_setup_exec_armed") or {}, vwap_reclaim_failed_break=True)
 BOLD_PARAMS = json.loads(BOLD_PARAMS_PATH.read_text(encoding="utf-8"))
 
 _CREDS = {"key": "k", "secret": "s", "base_url": "https://paper-api.example.invalid"}
@@ -183,7 +193,7 @@ class TestEntryCeiling:
         monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
         extra = [{"setup_name": "vwap_reclaim_failed_break", "fired": True, "direction": "short",
                   "triggers": ["vwap_reclaim_failed_break"]}]
-        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, ROUTING_PARAMS)
         assert out[0]["action"] == "SKIP_LATE_ENTRY"
 
     def test_fleet_place_live_skip_late_entry(self, fl, monkeypatch):
@@ -412,13 +422,20 @@ class TestExtraSetupArming:
             "vwap_continuation disarmed 2026-07-25 (0-for-12 live); re-arming needs a fresh scorecard"
         assert armed.get("vix_regime_dayside") is False, \
             "vix_regime_dayside disarmed 2026-07-25 (0-for-12 live)"
-        # Still armed at their validated cells.
-        assert armed.get("vwap_reclaim_failed_break") is True
+        # Disarmed 2026-08-24 (EOD review): the extra-setup lane is n=26 / -$1,055 on real
+        # fills since arming and has never been net positive (bollinger_squeeze n=13 WR 38%
+        # -$451; vwap_reclaim_failed_break n=6 WR 17% -$54, one +$260 winner carrying five
+        # losers). Both carry MORE live evidence than either 2026-07-25 disarm did. See
+        # params.json `_extra_setup_exec_armed_disarm_doc_2026_08_24`.
+        assert armed.get("vwap_reclaim_failed_break") is False,             "vwap_reclaim_failed_break disarmed 2026-08-24 (lane n=26 -$1,055 real fills)"
+        assert armed.get("bollinger_squeeze") is False,             "bollinger_squeeze disarmed 2026-08-24 (n=13 WR 38% -$451 real fills)"
+        # Still armed at its validated cell (zero live placements to date).
+        assert armed.get("double_bottom_base_quiet") is True
         # Never armed.
         assert armed.get("gap_and_go") is not True, \
             "gap_and_go must NOT be armed (0 robust cells on 06-28 re-validation + broken feed)"
         assert hc._extra_exec_armed(SAFE_PARAMS, "vwap_continuation") is False
-        assert hc._extra_exec_armed(SAFE_PARAMS, "vwap_reclaim_failed_break") is True
+        assert hc._extra_exec_armed(SAFE_PARAMS, "vwap_reclaim_failed_break") is False
         assert hc._extra_exec_armed(SAFE_PARAMS, "gap_and_go") is False
 
     def test_bold_params_not_armed(self, hc):
@@ -448,7 +465,7 @@ class TestExtraSetupArming:
         monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 11, 0))
         extra = [{"setup_name": "vwap_reclaim_failed_break", "fired": True, "direction": "short",
                   "triggers": ["vwap_reclaim_failed_break"]}]
-        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, ROUTING_PARAMS)
         assert captured["verdict"]["verdict"] == "ENTER_BEAR"
         assert captured["verdict"]["setup_name"] == "vwap_reclaim_failed_break"
         assert out[0]["action"] == "WOULD_PLACE"

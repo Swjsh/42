@@ -109,10 +109,19 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="25000.0",
 # Params pins — SAFE armed at the validated cell; Bold NOT armed
 # =============================================================================
 class TestParamsArming:
-    def test_safe_enabled_and_armed(self, hc):
-        assert SAFE_PARAMS["bollinger_squeeze_enabled"] is True
-        assert SAFE_PARAMS["extra_setup_exec_armed"].get(SETUP) is True
-        assert hc._extra_exec_armed(SAFE_PARAMS, SETUP) is True
+    def test_safe_detector_enabled_but_exec_disarmed_2026_08_24(self, hc):
+        """DISARMED 2026-08-24 (EOD review): order routing off, DETECTOR still on.
+
+        bollinger_squeeze went n=13 WR 38% -$451 on real fills since arming (whole
+        extra-setup lane: n=26 / -$1,055, never net positive) -- more live evidence than
+        either 2026-07-25 disarm carried. The `_enabled` flag stays True on purpose so the
+        watcher keeps evaluating and logging WATCH_NOT_ARMED (perception preserved). See
+        params.json `_extra_setup_exec_armed_disarm_doc_2026_08_24` for the full cut and the
+        re-arm precondition (fresh walk-forward on the >=$1.00 cell specifically).
+        """
+        assert SAFE_PARAMS["bollinger_squeeze_enabled"] is True,             "detector must stay enabled -- this is an ORDER kill, not a perception kill"
+        assert SAFE_PARAMS["extra_setup_exec_armed"].get(SETUP) is False,             "bollinger_squeeze disarmed 2026-08-24 (n=13 WR 38% -$451 real fills)"
+        assert hc._extra_exec_armed(SAFE_PARAMS, SETUP) is False
 
     def test_bold_not_armed(self, hc):
         assert hc._extra_exec_armed(BOLD_PARAMS, SETUP) is False, \
