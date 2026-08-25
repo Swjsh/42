@@ -223,7 +223,23 @@ def _is_service_rooted(ancestry: list[dict]) -> bool:
     names = [a.get("image_name", "") for a in ancestry[:4]]
     if "explorer.exe" in names:
         return False
-    return any(n in ("svchost.exe", "services.exe", "wininit.exe") for n in names)
+    if any(n in ("svchost.exe", "services.exe", "wininit.exe") for n in names):
+        return True
+    # UNRESOLVABLE ANCESTRY = TREAT AS SERVICE-ROOTED (2026-08-24 fix).
+    #
+    # THE BUG THIS CLOSES. A leaked WindowsTerminal window is enumerated within ~0.5s of
+    # spawning, often before WMI can resolve its parent chain; _ancestry() then returns a
+    # single stub entry with an empty image_name. The old gate read that as "not
+    # service-rooted" and skipped the hide, so the window stayed ON SCREEN. Evidence: every
+    # mitigated=false row in window-leaks.jsonl has ancestry == [{pid, image_name: ""}]
+    # while every mitigated=true row has the full 5-deep svchost->services->wininit chain.
+    #
+    # WHY THIS IS SAFE. We only reach here for a console-host image that already FAILED the
+    # title allowlist, and hiding never kills -- a window J actually opened is exempted by
+    # title ("Windows PowerShell", "Claude Code", ...) before ancestry is ever consulted.
+    if not any(n for n in names):
+        return True
+    return False
 
 
 # Images a TITLE-substring allowlist may exempt (2026-08-13 SCOPE FIX).
