@@ -1,20 +1,27 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-08-20 22:09:08 Thursday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-08-25 18:43:20 Tuesday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
-- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 36 session rows; latest: `{"date": "2026-08-20", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-20T14:40:05.568307", "est": false, "n_added": 29, "added_pnl": -320.0, "binary_day_pnl": 530.4, "ladde`
-- **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl`
+- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 40 session rows; latest: `{"date": "2026-08-24", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-24T14:40:03.212177", "est": false, "n_added": 25, "added_pnl": 115.0, "binary_day_pnl": 0.0, "ladder_d`
+- **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl` — ADJUDICATED: V-d1 **KILL** (pooled F4 p=0.6661) · V-e3 **EXTEND** (pooled F4 p=0.1252)
 - **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — artifact appears after the next close.
 
-- **stop_mode premium-vs-structure** (16:25 fold) — n=116 trades / 8 days, cum Δ **$-594.20** (-5.12/tr), mechanism FAILS, 12 days to bar
+- **stop_mode premium-vs-structure** (16:25 fold) — n=143 trades / 10 days, cum Δ **$497.60** (3.48/tr), mechanism HOLDS, 10 days to bar
 - **Direction symmetry** (16:25 fold) — **RED**: 4 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
 
 ## Frozen preregs — auto-discovered
 
+- `entry-structure-forward-prereg-2026-08-06` — [[analysis/recommendations/entry-structure-forward-prereg-2026-08-06]]
+- `bold-floor-rescue-prereg-2026-08-25` — [[analysis/recommendations/bold-floor-rescue-prereg-2026-08-25]]
+- `EXIT-POLICY-BEATS-NULL-2026-08-23` — [[analysis/recommendations/prereg-exit-policy-beats-null-2026-08-23]]
+- `prereg-multi-levels-transplant-2026-08-20` — [[analysis/recommendations/prereg-multi-levels-transplant-2026-08-20]]
+- `prereg-spy-production-calibration-2026-08-20` — [[analysis/recommendations/prereg-spy-production-calibration-2026-08-20]]
 - `prereg-multi-intraday-null-2026-08-20` — [[analysis/recommendations/prereg-multi-intraday-null-2026-08-20]]
 - `prereg-weekly-expiry-comparison-2026-08-18` — [[analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18]]
+- `vwap-family-killcheck-prereg-2026-08-18` — [[analysis/recommendations/vwap-family-killcheck-prereg-2026-08-18]]
+- `day-throttle-forward-prereg-2026-08-18` — [[analysis/recommendations/day-throttle-forward-prereg-2026-08-18]]
 - `PRE-TP1-RATCHET-COST-2026-08-15` — [[analysis/recommendations/prereg-pre-tp1-ratchet-cost-2026-08-15]]
 - `CHASING-FILTER-2026-08-14` — [[analysis/recommendations/prereg-chasing-filter-2026-08-14]]
 - `ENTRY-RANGE-CONTEXT-2026-08-14` — [[analysis/recommendations/prereg-entry-range-context-2026-08-14]]
@@ -31,14 +38,7 @@
 - `REGIME-CONDITIONAL-EXIT-2026-08-11` — [[analysis/recommendations/prereg-regime-conditional-exit-2026-08-11]]
 - `GIVEBACK-RATCHET-2026-08-10` — [[analysis/recommendations/prereg-giveback-ratchet-2026-08-10]] · does **not** ship on its own evidence
 - `TRIGGER-PARITY-BULL-2026-08-09` — [[analysis/recommendations/prereg-trigger-parity-2026-08-09]] · does **not** ship on its own evidence
-- `LADDER-X-PREMIUM-2026-08-09` — [[analysis/recommendations/prereg-ladder-x-premium-2026-08-09]] · **blocked**, deliberately unrun
-- `CATASTROPHE-CAP-DECISION-2026-08-09` — [[analysis/recommendations/prereg-catastrophe-cap-decision-2026-08-09]] · does **not** ship on its own evidence
-- `STOP-MODE-LIVE-ARM-RISKY3-2026-08-09` — [[analysis/recommendations/prereg-stop-mode-live-arm-risky3-2026-08-09]]
-- `STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09` — [[analysis/recommendations/prereg-stop-mode-structure-vs-premium-2026-08-09]]
-- `TRENDLINE-ENGINE-VALIDATION-2026-08-09` — [[analysis/recommendations/prereg-trendline-engine-validation-2026-08-09]]
-- `prereg-entry-exit-matrix-2026-08-09` — [[analysis/recommendations/prereg-entry-exit-matrix-2026-08-09]]
-- `prereg-profitability-2026-08-08` — [[analysis/recommendations/prereg-profitability-2026-08-08]]
-- _+42 older preregs on disk (see `analysis/recommendations/prereg-*.json`)_
+- _+93 older preregs on disk (see `analysis/recommendations/*prereg*.json`)_
 
 ## Frozen preregs — curated (richer write-ups)
 

@@ -555,8 +555,28 @@ def build_preregs_board(stamp: str) -> str:
         L.append("- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — no rows yet; first fire is the "
                  "next weekday close.")
     hits = sorted(REPO.glob("analysis/entry-quality/*tally*"))
+    # 2026-08-25: the tally artifact alone said nothing about whether the window had been
+    # JUDGED. V-d1 was killed on 2026-08-25 by its own pre-registered F4 (pooled within-day
+    # permutation p=0.6661 vs a p<=0.10 bar) and still read here as a live instrument. A
+    # board that shows a dead rule as accruing is worse than one that omits it, so the
+    # verdict is now read straight off the adjudication scorecard.
+    adj = REPO / "analysis" / "recommendations" / "entry-structure-forward-2026-08-06.json"
+    verdicts = ""
+    if adj.exists():
+        try:
+            _a = json.loads(adj.read_text(encoding="utf-8", errors="replace"))
+            parts = []
+            for _name, _r in (_a.get("results") or {}).items():
+                _v = _r.get("verdict")
+                _p = (_r.get("F4_within_day_permutation_pooled") or {}).get("p_value")
+                parts.append(f"{_name} **{_v}**" + (f" (pooled F4 p={_p})" if _p is not None else ""))
+            if parts:
+                verdicts = " — ADJUDICATED: " + " · ".join(parts)
+        except Exception:  # noqa: BLE001
+            verdicts = " — adjudication scorecard unreadable"
     L.append(f"- **V-d1 / V-e3 entry shadow** (16:25 fold) — "
-             + (f"artifact: `{hits[-1].relative_to(REPO)}`" if hits else "no tally artifact found yet."))
+             + (f"artifact: `{hits[-1].relative_to(REPO)}`" if hits else "no tally artifact found yet.")
+             + verdicts)
     chop = sorted(REPO.glob("analysis/**/chop-meter*"), key=lambda p: p.stat().st_mtime) if REPO.exists() else []
     L.append(f"- **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — "
              + (f"latest: `{chop[-1].relative_to(REPO)}`" if chop else "artifact appears after the next close."))
@@ -615,7 +635,14 @@ def build_preregs_board(stamp: str) -> str:
     # same evening whose names start with an early letter (catastrophe-cap, ladder-x-premium
     # fell outside the cap while zone-* survived) -- a board about what is accruing NOW must
     # rank by when, not by spelling.
-    for p in sorted(REPO.glob("analysis/recommendations/prereg-*.json"),
+    # 2026-08-25: the glob was "prereg-*.json" -- PREFIX-anchored -- so it only ever saw the
+    # 71 files whose names START with "prereg-". The other 48 frozen preregs on disk spell it
+    # in the middle or use the long form (entry-structure-forward-prereg-*.json,
+    # bold-floor-rescue-prereg-*.json, *-preregistration.json) and were invisible on the one
+    # board whose entire purpose is that a prereg can never go invisible. Same lesson as the
+    # hardcoded-list bug above, one layer down: the discovery mechanism itself was narrower
+    # than the thing it discovers. Matching "*prereg*" covers every spelling in use.
+    for p in sorted(REPO.glob("analysis/recommendations/*prereg*.json"),
                     key=lambda q: q.stat().st_mtime, reverse=True):
         try:
             d = json.loads(p.read_text(encoding="utf-8", errors="replace"))
@@ -638,7 +665,7 @@ def build_preregs_board(stamp: str) -> str:
         L.append(line)
     if len(rows) > 25:
         L.append(f"- _+{len(rows) - 25} older preregs on disk (see "
-                 f"`analysis/recommendations/prereg-*.json`)_")
+                 f"`analysis/recommendations/*prereg*.json`)_")
     L.append("")
     L.append("## Frozen preregs — curated (richer write-ups)")
     L.append("")
