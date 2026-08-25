@@ -60,6 +60,34 @@ scheduled fire.
 """
 from __future__ import annotations
 
+# ══════════════════════════════════════════════════════════════════════════════════════
+# ⛔ TOMBSTONE 2026-08-23 -- THIS KEEPALIVE IS RETIRED. DO NOT RE-ENABLE.
+#
+# Second occurrence of the interactive-surface lockout scar (first: 2026-07-14, cost J a
+# full workday). On 2026-07-14 CCR was audited to have ZERO production benefit (nothing
+# routes through port 3456 -- kitchen/swarm/veto reach ollama and OpenRouter on their own
+# ports) and Gamma_CcrKeepalive was DISABLED. The task was later re-enabled and had been
+# resurrecting the gateway every 10 min ever since, leaving 3456 LISTENING with an
+# ollama-only Router.default.
+#
+# What changed since July: Claude Desktop now has its OWN third-party-inference setting
+# ("Connection: Gateway" + gateway base URL). That app-side config is invisible to this
+# script's _check_and_fix_interactive_settings() guard -- which only watches
+# ~/.claude/settings.json -- so keeping the gateway ALIVE is what let J's desktop app sit
+# broken across every restart ("Your gateway couldn't serve claude-sonnet-4-5").
+#
+# The doctrine (memory: interactive-surfaces-never-gatewayed) is that J's interactive
+# surfaces must not have our components as dependencies AT ALL. A dead port fails loudly
+# and is fixed in one click; a live port serving the wrong models fails silently.
+#
+# Exits 0 immediately so any stale re-registration of Gamma_CcrKeepalive is inert rather
+# than a broken fire. If a future automation lane genuinely needs routed models, it opts
+# in PER-FIRE in its own launch chain -- it does not resurrect a machine-wide gateway.
+# ══════════════════════════════════════════════════════════════════════════════════════
+import sys as _tombstone_sys
+print("ccr_keepalive: RETIRED 2026-08-23 (interactive-surface lockout scar #2) -- no-op.")
+_tombstone_sys.exit(0)
+
 # === HEADLESS STDIO REDIRECT (OP-27 L41 layer 3) ========================================
 import os as _os
 import sys as _sys

@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "generated_at_et": "2026-08-16T13:16:32",
+  "generated_at_et": "2026-08-24T16:30:24",
   "builder": "setup/scripts/conviction_shadow_report.py",
   "armed": false,
   "shadow_only": "[DISARMED] MEASUREMENT ONLY -- no SKIP_LOW_CONVICTION branch exists; no row here refused an entry.",
@@ -14,17 +14,258 @@
    "automation/state/fleet/safe-1/decisions.jsonl",
    "automation/state/fleet/safe-3/decisions.jsonl"
   ],
-  "status": "POST-FIX POPULATION IS EMPTY. The C4/C5 fix landed after the last session's final tick, so no conviction row has yet been scored with those components live. This is not a finding about the ratchet -- there is no evidence yet. First rows arrive on the next session with an ENTER verdict."
+  "status": "268 post-fix row(s) across 5 session(s). Block rate 98.1%."
  },
  "post_fix": {
-  "n": 0
+  "n": 268,
+  "n_scored": 268,
+  "n_errored": 0,
+  "would_block": 263,
+  "would_allow": 5,
+  "block_rate_pct": 98.1,
+  "dates": [
+   "2026-08-17",
+   "2026-08-18",
+   "2026-08-19",
+   "2026-08-20",
+   "2026-08-21"
+  ],
+  "arms": [
+   "core"
+  ],
+  "score_histogram": {
+   "0": 164,
+   "1": 30,
+   "3": 4,
+   "4": 24,
+   "5": 36,
+   "6": 10
+  },
+  "floor_effective_histogram": {
+   "5": 23,
+   "6": 145,
+   "7": 51,
+   "8": 25,
+   "9": 5,
+   "10": 19
+  },
+  "component_hit_rate_pct": {
+   "named_level": 27.6,
+   "multi_day_memory": 16.4,
+   "fresh_test": 12.7,
+   "range_extreme": 0.0,
+   "structure_agreement": 29.1,
+   "elite_trigger": 27.6,
+   "zone_stack": 0.0
+  },
+  "degraded_components": {
+   "structure": 169
+  },
+  "by_k": {
+   "0": {
+    "n": 23,
+    "blocked": 23,
+    "block_rate_pct": 100.0
+   },
+   "1": {
+    "n": 145,
+    "blocked": 140,
+    "block_rate_pct": 96.6
+   },
+   "2": {
+    "n": 51,
+    "blocked": 51,
+    "block_rate_pct": 100.0
+   },
+   "3": {
+    "n": 25,
+    "blocked": 25,
+    "block_rate_pct": 100.0
+   },
+   "4": {
+    "n": 5,
+    "blocked": 5,
+    "block_rate_pct": 100.0
+   },
+   "5": {
+    "n": 19,
+    "blocked": 19,
+    "block_rate_pct": 100.0
+   }
+  },
+  "by_date": {
+   "2026-08-17": {
+    "n": 58,
+    "blocked": 58,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-18": {
+    "n": 46,
+    "blocked": 46,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-19": {
+    "n": 24,
+    "blocked": 24,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-20": {
+    "n": 80,
+    "blocked": 80,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-21": {
+    "n": 60,
+    "blocked": 55,
+    "block_rate_pct": 91.7
+   }
+  }
  },
  "post_fix_outcomes": {
-  "n_joined": 0,
-  "note": "no conviction row joined to a real round trip -- no outcome evidence"
+  "n_joined": 18,
+  "n_unjoined": 250,
+  "WOULD_BLOCK": {
+   "n": 18,
+   "total_pnl": 675.0,
+   "mean_pnl": 37.5,
+   "win_rate_pct": 50.0
+  },
+  "WOULD_ALLOW": {
+   "n": 0
+  },
+  "delta_if_armed_usd": -675.0,
+  "by_score": {
+   "0": {
+    "n": 10,
+    "total_pnl": 671.0,
+    "mean_pnl": 67.1,
+    "win_rate_pct": 70.0
+   },
+   "4": {
+    "n": 5,
+    "total_pnl": -227.0,
+    "mean_pnl": -45.4,
+    "win_rate_pct": 0.0
+   },
+   "5": {
+    "n": 2,
+    "total_pnl": 72.0,
+    "mean_pnl": 36.0,
+    "win_rate_pct": 50.0
+   },
+   "6": {
+    "n": 1,
+    "total_pnl": 159.0,
+    "mean_pnl": 159.0,
+    "win_rate_pct": 100.0
+   }
+  },
+  "_reading": "delta_if_armed_usd is what the book would have gained (+) or given up (-) had conviction been ARMED over this population -- descriptive, and NOT a scorecard: it carries no OOS split, no permutation null, and no matched suppress-k-at-random control."
  },
  "weekly_last_5_sessions": {
-  "n": 0
+  "n": 268,
+  "n_scored": 268,
+  "n_errored": 0,
+  "would_block": 263,
+  "would_allow": 5,
+  "block_rate_pct": 98.1,
+  "dates": [
+   "2026-08-17",
+   "2026-08-18",
+   "2026-08-19",
+   "2026-08-20",
+   "2026-08-21"
+  ],
+  "arms": [
+   "core"
+  ],
+  "score_histogram": {
+   "0": 164,
+   "1": 30,
+   "3": 4,
+   "4": 24,
+   "5": 36,
+   "6": 10
+  },
+  "floor_effective_histogram": {
+   "5": 23,
+   "6": 145,
+   "7": 51,
+   "8": 25,
+   "9": 5,
+   "10": 19
+  },
+  "component_hit_rate_pct": {
+   "named_level": 27.6,
+   "multi_day_memory": 16.4,
+   "fresh_test": 12.7,
+   "range_extreme": 0.0,
+   "structure_agreement": 29.1,
+   "elite_trigger": 27.6,
+   "zone_stack": 0.0
+  },
+  "degraded_components": {
+   "structure": 169
+  },
+  "by_k": {
+   "0": {
+    "n": 23,
+    "blocked": 23,
+    "block_rate_pct": 100.0
+   },
+   "1": {
+    "n": 145,
+    "blocked": 140,
+    "block_rate_pct": 96.6
+   },
+   "2": {
+    "n": 51,
+    "blocked": 51,
+    "block_rate_pct": 100.0
+   },
+   "3": {
+    "n": 25,
+    "blocked": 25,
+    "block_rate_pct": 100.0
+   },
+   "4": {
+    "n": 5,
+    "blocked": 5,
+    "block_rate_pct": 100.0
+   },
+   "5": {
+    "n": 19,
+    "blocked": 19,
+    "block_rate_pct": 100.0
+   }
+  },
+  "by_date": {
+   "2026-08-17": {
+    "n": 58,
+    "blocked": 58,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-18": {
+    "n": 46,
+    "blocked": 46,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-19": {
+    "n": 24,
+    "blocked": 24,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-20": {
+    "n": 80,
+    "blocked": 80,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-21": {
+    "n": 60,
+    "blocked": 55,
+    "block_rate_pct": 91.7
+   }
+  }
  },
  "pre_fix_DO_NOT_POOL": {
   "n": 102,

@@ -1,0 +1,128 @@
+{
+ "rule_id": "entry-structure-forward-2026-08-06",
+ "title": "ADJUDICATION of the V-d1 / V-e3 forward pre-registration (F1-F5 ladder)",
+ "adjudicated_from_ledger_generated_at_et": "2026-08-25T17:50:01.652172",
+ "adjudicator": "setup/scripts/entry_structure_forward_adjudicate.py",
+ "prereg": "analysis/recommendations/entry-structure-forward-prereg-2026-08-06.json",
+ "shadow_only": "No rule here ever refused a live entry. This is the verdict, not a deployment.",
+ "population": {
+  "source": "analysis/entry-quality/entry-quality-ledger.json (LIVE-ENGINE-REAL-FILLS-v2, broker-truth FIFO P&L)",
+  "pooled_n": 398,
+  "pooled_days": 39,
+  "in_sample_n": 231,
+  "in_sample_days": 25,
+  "forward_n": 167,
+  "forward_days": 14,
+  "forward_first_date": "2026-08-06",
+  "DISCLOSURE_in_sample_n_vs_prereg": "the prereg quotes an in-sample population of 230 entries / 25 days; this ledger's in-sample slice is 231 entries / 25 days (population_id LIVE-ENGINE-REAL-FILLS-v2, rebuilt since). The day count matches exactly; the entry count differs by a single event and cannot move a p-value of this size."
+ },
+ "integrity_gate": {
+  "tally_rows": 167,
+  "matched": 167,
+  "missing_from_ledger": 0,
+  "mismatches": {
+   "V-d1": 0,
+   "V-e3": 0
+  },
+  "ok": true,
+  "meaning": "re-derived would_block flags were checked row-for-row against shadow-tally.jsonl, which carries the single frozen implementation. A mismatch voids the run."
+ },
+ "method_F4": "within-day permutation on the POOLED population: each day's number of blocked entries is held FIXED and WHICH entries are blocked is randomised, 20,000 draws, seed 20260825. p = P(random selection reaches the observed pooled delta). It asks 'did the rule pick the bad ENTRY', not 'did the rule sit out a bad DAY'.",
+ "results": {
+  "V-d1": {
+   "rule_id": "V-d1",
+   "forward": {
+    "n": 167,
+    "n_blocked": 38,
+    "n_abstain": 0,
+    "delta_usd": 65.0,
+    "blocked_winner_usd": 1970.0,
+    "blocked_loser_usd": 2035.0,
+    "blocked_wr_pct": 42.1,
+    "population_wr_pct": 30.5
+   },
+   "pooled": {
+    "n": 398,
+    "n_blocked": 71,
+    "n_abstain": 4,
+    "delta_usd": 1307.0,
+    "blocked_winner_usd": 1985.0,
+    "blocked_loser_usd": 3292.0,
+    "blocked_wr_pct": 23.9,
+    "population_wr_pct": 23.4
+   },
+   "F4_within_day_permutation_pooled": {
+    "observed_delta_usd": 1307.0,
+    "fixed_contribution_usd": 783.0,
+    "days_with_freedom": 20,
+    "draws": 20000,
+    "p_value": 0.6661
+   },
+   "F5_regime_split_forward": {
+    "best_session": "2026-08-13",
+    "best_session_book_usd": 1748.0,
+    "best_session_rule_delta_usd": 0.0,
+    "worst_session": "2026-08-07",
+    "worst_session_book_usd": -2687.0,
+    "worst_session_rule_delta_usd": 39.0
+   },
+   "gates": {
+    "F1_direction": true,
+    "F2_not_winner_killer": true,
+    "F3_frequency": true,
+    "F4_discrimination": false,
+    "F5_regime_neutral": true
+   },
+   "verdict": "KILL",
+   "verdict_basis": "KILL per the prereg ladder -- F4 failed."
+  },
+  "V-e3": {
+   "rule_id": "V-e3",
+   "forward": {
+    "n": 167,
+    "n_blocked": 4,
+    "n_abstain": 19,
+    "delta_usd": 449.0,
+    "blocked_winner_usd": 0,
+    "blocked_loser_usd": 449.0,
+    "blocked_wr_pct": 0.0,
+    "population_wr_pct": 30.5
+   },
+   "pooled": {
+    "n": 398,
+    "n_blocked": 32,
+    "n_abstain": 32,
+    "delta_usd": 2660.0,
+    "blocked_winner_usd": 0,
+    "blocked_loser_usd": 2660.0,
+    "blocked_wr_pct": 0.0,
+    "population_wr_pct": 23.4
+   },
+   "F4_within_day_permutation_pooled": {
+    "observed_delta_usd": 2660.0,
+    "fixed_contribution_usd": 0.0,
+    "days_with_freedom": 9,
+    "draws": 20000,
+    "p_value": 0.1252
+   },
+   "F5_regime_split_forward": {
+    "best_session": "2026-08-13",
+    "best_session_book_usd": 1748.0,
+    "best_session_rule_delta_usd": 0.0,
+    "worst_session": "2026-08-07",
+    "worst_session_book_usd": -2687.0,
+    "worst_session_rule_delta_usd": 0.0
+   },
+   "gates": {
+    "F1_direction": true,
+    "F2_not_winner_killer": true,
+    "F3_frequency": false,
+    "F4_discrimination": false,
+    "F5_regime_neutral": true
+   },
+   "verdict": "EXTEND",
+   "verdict_basis": "F3 FAIL: n_blocked=4 < 8 forward. The prereg says extend the window and judge nothing."
+  }
+ },
+ "verdict_ladder_source": "the prereg's own forward_gates.verdict_ladder -- not re-invented here"
+}

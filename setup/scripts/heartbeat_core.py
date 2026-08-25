@@ -1160,6 +1160,33 @@ def _free_model_eval(account: str, payload: dict, verdict: dict) -> dict:
 
 # ----- persistence -----------------------------------------------------------
 def _log(rec: dict) -> None:
+    """Append one ledger row to core-decisions.jsonl.
+
+    ADDITIVE FIX (2026-08-25, DEFECT-A -- silent-zero-trap, L3 lane): injects a "date"
+    key (YYYY-MM-DD, sliced from this row's own "ts_et") alongside the existing "ts_et"
+    field whenever the row doesn't already carry one. The sibling writer for
+    core-decisions-tick.json (_write_tick_marker, above) has emitted "date" since
+    inception; this ledger's rows never did, so any consumer that filters this file on a
+    "date" key silently returns ZERO rows and exits clean -- confirmed today via manual
+    inspection, no live consumer currently does this (grepped repo-wide), so this closes
+    a LATENT trap before it bites, not a live outage.
+    Every rec dict built by run_account()/main() already stamps ts_et as
+    "%Y-%m-%dT%H:%M:%S" (ET, no offset), so ts_et[:10] is always the correct ET calendar
+    date -- identical derivation to _write_tick_marker's et.strftime("%Y-%m-%d") a few
+    lines up, just read off the row's own timestamp instead of a fresh et_now() call so
+    a row's "date" can never disagree with its own "ts_et".
+    Never overwrites a caller-supplied "date" (no current caller sets one; this is
+    belt-and-suspenders) and never raises on a missing/malformed ts_et -- that row is
+    logged without a "date", exactly as before this fix, never a crash on the live
+    trading path. A new dict is built (immutable-update pattern) rather than mutating
+    the caller's rec in place.
+    Existing fields are untouched: nothing is removed, renamed, or reinterpreted.
+    Guard: backtest/tests/test_core_ledger_schema_and_retention_2026_08_25.py
+    """
+    if "date" not in rec:
+        ts_et = rec.get("ts_et")
+        if isinstance(ts_et, str) and len(ts_et) >= 10:
+            rec = {**rec, "date": ts_et[:10]}
     LEDGER.parent.mkdir(parents=True, exist_ok=True)
     with open(LEDGER, "a", encoding="utf-8") as f:
         f.write(json.dumps(rec) + "\n")

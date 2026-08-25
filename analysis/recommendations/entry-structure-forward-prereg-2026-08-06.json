@@ -5,21 +5,28 @@
   "frozen_at_et": "2026-08-06 pre-dawn (market CLOSED, et_clock verified market_hours=False)",
   "parent_study": "analysis/deep-research/EOD-2026-08-05-ENTRIES.md + .json (LENS 2)",
   "parent_prereg": "analysis/recommendations/entry-improvement-variants-prereg-2026-08-05.json (b9cd7a6e)",
-
   "why_forward_and_not_now": "Both candidates below produce a large in-sample dollar edge on the 25-day live-fills population, and NEITHER separates from chance on the discriminating test. The within-day permutation -- hold each day's number of blocked entries fixed, randomise WHICH entries inside that day are blocked, 20,000 draws -- returns p=0.145 (V-d1) and p=0.063 (V-e3) across 17 cells tested, uncorrected. That test asks 'did the rule pick the bad ENTRY' rather than 'did the rule sit out a bad DAY', and the honest reading is that most of the measured edge is the second thing. Arming an entry filter on that evidence is exactly how this repo's entry-filter graveyard was filled, and it cuts against J's standing correction that on paper we bias toward TAKING the trade.",
-
   "candidates": [
     {
       "id": "V-d1",
       "provenance": "PRE-REGISTERED (brief variant d), frozen b9cd7a6e before any scoring",
       "rule": "Refuse an entry when the LAST FULLY CLOSED 5m bar closed AGAINST the trade direction (close <= open for a long; close >= open for a short).",
-      "in_sample": {"population": "230 live engine entries / 25 days",
-                    "n_blocked": 33, "delta_usd": 1242, "drop_top2_days": 726,
-                    "blocked_cohort_WR_pct": 3.0, "population_WR_pct": 18.3,
-                    "blocked_winner_usd": 15, "blocked_loser_usd": 1257,
-                    "delta_2026_08_04": 179, "delta_2026_08_05": 145,
-                    "days_touched": 14, "days_negative": 1, "worst_day_usd": -15,
-                    "p_within_day": 0.145},
+      "in_sample": {
+        "population": "230 live engine entries / 25 days",
+        "n_blocked": 33,
+        "delta_usd": 1242,
+        "drop_top2_days": 726,
+        "blocked_cohort_WR_pct": 3.0,
+        "population_WR_pct": 18.3,
+        "blocked_winner_usd": 15,
+        "blocked_loser_usd": 1257,
+        "delta_2026_08_04": 179,
+        "delta_2026_08_05": 145,
+        "days_touched": 14,
+        "days_negative": 1,
+        "worst_day_usd": -15,
+        "p_within_day": 0.145
+      },
       "survives_both_regimes": true
     },
     {
@@ -28,15 +35,22 @@
       "rule": "Refuse an entry when crypto/lib/market_structure.analyze_structure(window=5) over the session's CLOSED 1-MINUTE RTH bars (strictly before the fill) reports NO BOS and NO CHoCH -- i.e. the tape has produced no confirmed structure at all. Abstain (never block) with fewer than 20 closed 1m bars.",
       "why_1m_not_5m": "the 5m structure read is BLIND for the first ~40 minutes: 54 of 230 live entries (23%), every entry between 09:30 and 10:06 ET, occur before 8 closed 5m bars exist. On 2026-08-05 a 5m gate abstained on the first six 776C entries. 1m reaches quorum by ~09:50.",
       "why_PRESENCE_not_AGREEMENT": "bucketing the population by the 5m structure read: AGREES n=120 +$344 (WR 18.3%); DISAGREES n=18 +$559 (WR 27.8%); NO EVENT AT ALL n=38 -$1,366 (WR 10.5%). The disagree cohort is the most profitable in the book. Absence of structure is the killer, not conflict -- so the brief's variant (a) as written gates on the wrong property.",
-      "in_sample": {"n_blocked": 41, "delta_usd": 2357, "delta_ex_2026_08_05": 994,
-                    "drop_top2_days": 637, "blocked_cohort_WR_pct": 7.3,
-                    "delta_h1": 1101, "delta_h2": 1256,
-                    "delta_2026_08_04": 179, "delta_2026_08_05": 1363,
-                    "days_negative": 1, "p_within_day": 0.063},
+      "in_sample": {
+        "n_blocked": 41,
+        "delta_usd": 2357,
+        "delta_ex_2026_08_05": 994,
+        "drop_top2_days": 637,
+        "blocked_cohort_WR_pct": 7.3,
+        "delta_h1": 1101,
+        "delta_h2": 1256,
+        "delta_2026_08_04": 179,
+        "delta_2026_08_05": 1363,
+        "days_negative": 1,
+        "p_within_day": 0.063
+      },
       "survives_both_regimes": true
     }
   ],
-
   "measurement_protocol": {
     "mode": "SHADOW ONLY. Neither gate may refuse a live entry during this window. Both are logged as would_block booleans alongside every entry the engine actually takes.",
     "where": "one boolean pair per ENTER decision row, alongside the existing entry ledger fields",
@@ -44,7 +58,6 @@
     "no_peeking_rule": "no interim arming, no cell edits, no threshold tweaks inside the window. If either rule needs a change, this pre-registration is void and a new one is written.",
     "cost": "$0 -- pure Python on data the tick already has in memory."
   },
-
   "forward_gates": {
     "F1_direction": "forward delta_usd > 0 over the shadow window",
     "F2_not_a_winner_killer": "blocked_winner_dollars < blocked_loser_dollars forward",
@@ -57,8 +70,24 @@
       "KILL": "F1 or F2 fails, or F4 still fails on the pooled population"
     }
   },
-
   "kill_criterion_precommitted": "If, after 20 pooled sessions, F4 still fails for both candidates, BOTH go to the graveyard as 'entry filters that only ever reduced exposure on bad days' and the entry-selection lens is closed for this population. That is a real possible outcome and is being written down now, before the data exists.",
-
-  "what_would_falsify_the_whole_idea": "If the forward blocked cohort's win rate is indistinguishable from the population win rate (18.3%), then the rules are not selecting bad entries at all and every in-sample dollar was day-level exposure reduction."
+  "what_would_falsify_the_whole_idea": "If the forward blocked cohort's win rate is indistinguishable from the population win rate (18.3%), then the rules are not selecting bad entries at all and every in-sample dollar was day-level exposure reduction.",
+  "adjudication": {
+    "adjudicated_on": "2026-08-25",
+    "adjudicator": "setup/scripts/entry_structure_forward_adjudicate.py",
+    "scorecard": "analysis/recommendations/entry-structure-forward-2026-08-06.json",
+    "note": "F4/F5 were owed to a 'future session' by this prereg's own words and had never been run; entry_shadow_counter.py only ever measured F1-F3. This block is a POINTER only -- no cell, threshold, or candidate definition above was edited.",
+    "V-d1": {
+      "verdict": "KILL",
+      "why": "F1/F2/F3/F5 pass but F4 FAILS on the pooled population: within-day permutation p=0.6661 vs the frozen p<=0.10 bar (20,000 draws, seed 20260825). Random within-day selection of the same per-day block count reaches the observed delta about two thirds of the time, so the rule shows no entry-selection skill. The prereg's ladder says KILL when F4 still fails on pooled.",
+      "corroborating": "the prereg's own falsification clause -- forward blocked-cohort WR 42.1% vs forward population WR 30.5%: the blocked cohort wins MORE often than the population, the opposite of selecting bad entries. Forward per-block value also decayed ~95% from in-sample ($37.6/block in-sample -> $1.71/block forward).",
+      "window_closed": true
+    },
+    "V-e3": {
+      "verdict": "EXTEND",
+      "why": "F3 FAILS forward: n_blocked=4 < the frozen floor of 8 after 14 sessions. The prereg says extend and judge nothing, so nothing is judged. Disclosed for the next session, NOT a verdict: pooled F4 p=0.1252, also short of the 0.10 bar.",
+      "window_closed": false,
+      "next_step": "keep the nightly counter running; re-run the adjudicator when n_blocked reaches 8 forward. At the current rate (4 blocks / 14 sessions) that is roughly another 14 sessions. The prereg's precommitted kill criterion (F4 still failing for both after 20 pooled sessions) is NOT yet reached."
+    }
+  }
 }

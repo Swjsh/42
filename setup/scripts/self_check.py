@@ -859,6 +859,53 @@ def check_trendline_draw_freshness(now, path=None) -> list:
     return []
 
 
+KEY_LEVELS_CHART_DRAW = STATE / "key-levels.json"
+
+
+def check_chart_wipe_redraw_freshness(now, path=None) -> list:
+    """VISIBILITY instrument for premarket Step 5 (chart wipe + redraw of J's price levels,
+    automation/prompts/premarket.md) -- the sibling gap to Step 5c's trendline draw
+    (check_trendline_draw_freshness immediately above, whose exact posture this mirrors).
+    Step 5 stamps key-levels.json -> chart_drawing_summary.as_of every time it runs (drawn
+    or deferred); THIS producer's stamp sat at 2026-06-29T08:39:00-04:00 -- ~2 MONTHS stale
+    -- with ZERO alarm anywhere (self_check/STATUS.md/Discord) before this check existed. J's
+    chart has silently been carrying June's levels since, the same class of invisible miss
+    Step 5c already had covered.
+
+    DEGRADED, never BROKEN: like Step 5c, chart wipe+redraw is additive visibility for J's
+    manual chart-reading -- the deterministic engine reads key-levels.json's `levels` array
+    directly for entries/exits, never chart_drawing_summary, so a miss costs J's eyeball
+    context, not trading correctness. Message deliberately says "CHART-DRAWING" (matching the
+    JSON field name), never the word "redraw" in upper case, because the literal substring
+    "RED" (as in "REDRAW") would wrongly trip _problem_is_broken's bare "RED" check and
+    misclassify this visibility gap as BROKEN -- outranking real trading-critical work in the
+    conductor's triage. Same weekend/before-slack handling as check_trendline_draw_freshness."""
+    if now.weekday() >= 5:
+        return []  # no premarket fire on weekends -- nothing to check
+    if now.strftime("%H:%M") < "09:00":
+        return []  # give Step 5 (08:30 ET) its slack window before judging today stale
+    p = path or KEY_LEVELS_CHART_DRAW
+    today = now.strftime("%Y-%m-%d")
+    try:
+        data = json.loads(p.read_text(encoding="utf-8-sig"))
+    except Exception:  # noqa: BLE001
+        data = {}
+    summary = data.get("chart_drawing_summary") if isinstance(data, dict) else None
+    as_of = summary.get("as_of") if isinstance(summary, dict) else None
+    if not as_of:
+        return [f"CHART-DRAWING never marked today ({today}) -- premarket Step 5 (chart wipe + "
+                f"level draw) may have silently skipped, leaving J's chart on stale levels with "
+                f"no trace. Non-load-bearing (visibility only); re-run premarket Step 5 by hand "
+                f"to catch up."]
+    as_of_date = str(as_of)[:10]
+    if as_of_date != today:
+        return [f"CHART-DRAWING STALE: last chart_drawing_summary.as_of was {as_of_date}, not "
+                f"today ({today}) -- premarket Step 5 (chart wipe + level draw) likely didn't "
+                f"fire this morning. Non-load-bearing (visibility only); re-run premarket Step "
+                f"5 by hand to catch up."]
+    return []
+
+
 TRENDLINES_FEED = STATE / "trendlines.json"
 TRENDLINES_LIVE = STATE / "trendlines-live.json"
 
@@ -1671,6 +1718,10 @@ def run() -> dict:
     # Step 5c in 2 days went to journal only, invisible to J until he noticed a bare chart.
     problems.extend(check_trendline_draw_freshness(now))
     problems.extend(check_trendline_feed_freshness(now))  # D9 liveness (2026-08-06)
+
+    # 13a. CHART-DRAWING (Step 5 wipe+redraw) FRESHNESS -- sibling gap to 13's Step 5c: the
+    # chart_drawing_summary.as_of stamp sat 2 MONTHS stale (2026-06-29) with zero alarm.
+    problems.extend(check_chart_wipe_redraw_freshness(now))
 
     # 13b. REGIME-STAMP DRIFT -- the 2026-08-02/08-03 self-audit recurrence: only
     # monday_verify.py's WS6 check verified the Gamma_RegimeStamp -> Gamma_Premarket

@@ -176,11 +176,41 @@ _WHY_PROSE = {
 }
 
 
+# DARK-ARM FIX (2026-08-25, REFUSED-CORE-ENTRY-SHOWS-REASON): a real 2026-08-25
+# ground truth (5x bold ENTER_BULL, exec.status=SKIP_MIN_PREMIUM_FLOOR, premium
+# 0.07-0.11 vs floor 0.30) folded into the generic ENTRY_GATE_SKIP bucket read as
+# "dominant cause ENTRY_GATE_SKIP (11x): refused by an entry gate" -- a human
+# cannot tell "correctly refused an 11-cent lottery ticket" from "the arm is
+# dark". An exec.status SKIP_* is a POST-SCORING placement-stage refusal (the
+# row passed scoring + every entry gate and reached _execute, then bailed at the
+# LAST pre-broker check: SKIP_MIN_PREMIUM_FLOOR / SKIP_QUALITY_LOCK /
+# SKIP_DUPLICATE_CLAIM) -- a DIFFERENT failure stage from the generic PRE-execute
+# action-level entry-gate skips (SKIP_LATE_ENTRY/SKIP_EARLY_ENTRY/
+# SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY/...), which never populate `exec` at all.
+# It is now reported by its OWN exact status name so the funnel line reads as a
+# decision, not an absence. Checked BEFORE the generic `action` scan because
+# heartbeat_core.py mirrors the placement-stage status into `action` too (a real
+# refusal carries the SAME string in both fields) -- scanning action first would
+# re-swallow it into the generic bucket. Guard: test_fill_funnel_skip_reason_2026_08_25.py.
+_PLACEMENT_SKIP_PROSE = ("passed scoring and every entry gate, then was refused at "
+                         "the last pre-broker placement check")
+
+
+def _cause_prose(cause: str) -> str:
+    """Human prose for a `why` cause -- the fixed taxonomy's own text, or the
+    generic placement-skip prose for a dynamic named exec-status SKIP_* cause."""
+    return _WHY_PROSE.get(cause, _PLACEMENT_SKIP_PROSE)
+
+
 def _why_core(row: dict) -> str:
-    """Terminal cause for ONE core (heartbeat_core) tick. Fail-open -> NO_SETUP."""
+    """Terminal cause for ONE core (heartbeat_core) tick. Fail-open -> NO_SETUP.
+    See the DARK-ARM FIX comment above for the exec.status SKIP_* named-cause rule."""
     action = str(row.get("action") or "").upper()
-    status = str(((row.get("exec") or {}).get("status")) or "").upper()
-    for s in (action, status):
+    exec_status_raw = str((row.get("exec") or {}).get("status") or "")
+    exec_status = exec_status_raw.upper()
+    if exec_status.startswith("SKIP_"):
+        return exec_status_raw
+    for s in (action, exec_status):
         if not s:
             continue
         if s.startswith("PLACED") or s == "ACCEPTED":
@@ -198,6 +228,35 @@ def _why_core(row: dict) -> str:
         if s == "ERROR" or s.startswith("PLACE_FAIL"):
             return _WHY_ERROR
     return _WHY_NO_SETUP
+
+
+# Fixed taxonomy constants -- anything `_why_core`/`_why_fleet` returns that is NOT
+# in this set is a dynamic named exec-status SKIP_* cause (core only, see above).
+_FIXED_WHY_CAUSES = frozenset({
+    _WHY_NO_SETUP, _WHY_NO_FEED, _WHY_GATE, _WHY_MODEL_VETO, _WHY_PDT, _WHY_RISK,
+    _WHY_NOT_FLAT, _WHY_KILLED, _WHY_SKIP, _WHY_ERROR, _WHY_TRADED,
+})
+
+
+def _skip_detail(ex: dict) -> str:
+    """Discriminating numbers/text a CORE SKIP_* exec dict carries (e.g. premium vs
+    the min_entry_premium floor) so a refusal renders as a decision, not a bare
+    status name. Prefers the exec dict's OWN human 'reason'/'detail' string
+    (SKIP_QUALITY_LOCK/SKIP_DUPLICATE_CLAIM carry one); falls back to generic
+    key=value scalars (SKIP_MIN_PREMIUM_FLOOR's premium/min_entry_premium) --
+    nested dicts/lists are excluded as noise, not signal. Fail-open -> ''."""
+    for key in ("reason", "detail"):
+        v = ex.get(key)
+        if isinstance(v, str) and v:
+            return v
+    parts = []
+    for k, v in ex.items():
+        if k in ("status", "symbol", "broker") or v is None:
+            continue
+        if isinstance(v, (dict, list)):
+            continue
+        parts.append(f"{k}={v}")
+    return ", ".join(parts)
 
 
 def _why_fleet(row: dict) -> str:
@@ -245,7 +304,17 @@ def _silence_diagnosis(rows: list[dict], kind: str, f: dict) -> dict:
         except Exception:  # noqa: BLE001 -- one bad row must never blind the instrument
             cause = _WHY_NO_SETUP
         counts[cause] += 1
-        if cause in (_WHY_GATE, _WHY_RISK, _WHY_SKIP, _WHY_ERROR):
+        # a dynamic named exec-status SKIP_* cause (2026-08-25 fix, core only --
+        # _why_fleet never returns one) gets its OWN discriminating-numbers detail
+        # (premium vs floor, etc.) instead of the setup-pass `reason` text, which
+        # narrates a DIFFERENT stage (scoring) and would misleadingly suggest the
+        # row wasn't refused at all.
+        named_skip = kind == "core" and cause not in _FIXED_WHY_CAUSES
+        if named_skip:
+            sd = _skip_detail(r.get("exec") or {})
+            txt = (cause + (f" ({sd})" if sd else ""))[:90]
+            detail.setdefault(cause, Counter())[txt] += 1
+        elif cause in (_WHY_GATE, _WHY_RISK, _WHY_SKIP, _WHY_ERROR):
             txt = str(r.get("reason") or (r.get("exec") or {}).get("reason")
                       or r.get("action") or "")[:90]
             detail.setdefault(cause, Counter())[txt] += 1
@@ -282,7 +351,7 @@ def _silence_diagnosis(rows: list[dict], kind: str, f: dict) -> dict:
     else:
         top, n_top = blockers[0]
         extra = ", ".join(f"{n}x {c}" for c, n in blockers[1:3])
-        head = (f"DID NOT TRADE -- dominant cause {top} ({n_top}x): {_WHY_PROSE.get(top, top)}"
+        head = (f"DID NOT TRADE -- dominant cause {top} ({n_top}x): {_cause_prose(top)}"
                 + (f"; then {extra}" if extra else "")
                 + f". {quiet} of {len(rows)} ticks had no setup at all.")
         ex = detail.get(top)
@@ -459,15 +528,32 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
         if sym and (entry_filled or broker.get("filled_at")):
             filled_syms.add(sym)
         hhmm = _hhmm(str(r.get("ts_et", "")))
+        # DARK-ARM FIX (2026-08-25): a core ENTER whose exec.status is a named
+        # placement-stage SKIP_* (SKIP_MIN_PREMIUM_FLOOR/SKIP_QUALITY_LOCK/
+        # SKIP_DUPLICATE_CLAIM) is neither `attempted` nor `rule_blocked` (see the
+        # comment above -- it bails BEFORE the broker, correctly), so it used to
+        # fall through to the generic "NOT_ATTEMPTED" bucket here -- indistinguishable
+        # from a truly dark/silent arm. Report the ACTUAL status by name instead, plus
+        # the discriminating numbers it carries (premium vs floor, etc.), so the line
+        # reads as a decision ("refused an 11-cent lottery ticket"), not an absence.
+        # Fleet handling is untouched (kind == "core" only). Guard:
+        # test_fill_funnel_skip_reason_2026_08_25.py.
+        core_skip_status = None
+        if kind == "core" and not (attempted or rule_blocked):
+            st_raw = str(ex.get("status") or "")
+            if st_raw.upper().startswith("SKIP_"):
+                core_skip_status = st_raw
         ev = {
             "ts_et": r.get("ts_et"), "hhmm": hhmm, "verdict": v,
             "setup": r.get("setup") or r.get("setup_name"),
             "symbol": sym, "qty": ex.get("qty") or r.get("qty"),
             "status": ("ACCEPTED" if accepted
                        else (str(ex.get("status") or "PLACE_FAIL")
-                             if (attempted or rule_blocked) else "NOT_ATTEMPTED")),
+                             if (attempted or rule_blocked)
+                             else (core_skip_status or "NOT_ATTEMPTED"))),
             "order_id": broker.get("id"),
             "reason": r.get("reason"),
+            "skip_detail": _skip_detail(ex) if core_skip_status else None,
         }
         f["enter_events"].append(ev)
         # FALSE-CEILING-ALARM FIX (2026-07-20): a row whose `verdict` is ENTER_BEAR/
@@ -815,6 +901,7 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
             out.append(f"- {ev['hhmm']} ET [{name}] {ev['verdict']} {ev.get('symbol') or '?'} "
                        f"x{ev.get('qty') or '?'} -> {ev['status']}"
                        + (f" (order {str(ev['order_id'])[:8]})" if ev.get("order_id") else "")
+                       + (f" [{ev['skip_detail']}]" if ev.get("skip_detail") else "")
                        + (f" -- {ev['reason']}" if ev.get("reason") else ""))
     else:
         out.append("- none")
