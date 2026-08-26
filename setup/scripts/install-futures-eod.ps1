@@ -35,6 +35,21 @@
   (retired LLM-wrapper architecture) still occupies the original name. Deliberately not
   deleted here -- removing another era's task is a decision to make on purpose, not a side
   effect of installing this one.
+
+  2026-08-26 CONDUCTOR FIX -- MISSED-TRIGGER SELF-HEAL (3rd instance of the class fixed
+  2026-08-25 on Gamma_MacroCalendar/Gamma_EarningsCalendar). Live incident: this task's
+  single 14:12 MT daily trigger silently did not fire on 2026-08-25 (`Get-ScheduledTaskInfo`
+  showed `LastRunTime` stuck on 2026-08-24, `NumberOfMissedRuns=1`, `NextRunTime` already
+  advanced past 2026-08-25 to 2026-08-26) despite `.Repetition` being present-but-empty
+  (`Duration`/`Interval` both null) -- the exact same no-repetition single-fire shape as the
+  macro/earnings-calendar incident, just on a different producer. Detected via
+  engine-health.json's `state_freshness` check reading `automation/state/futures/
+  eod-summary.json` two calendar days stale. Fix: same self-heal pattern -- the primary
+  `-Weekly -At "14:12"` trigger keeps firing once, but now also carries a 15-min-interval /
+  30-min-duration repetition window (steals `.Repetition` from a throwaway `-Once` trigger,
+  the only working PowerShell idiom -- direct assignment on a `-Weekly` trigger's null
+  Repetition CIM instance throws PropertyNotFound). futures_eod.py is read-only and
+  idempotent, so the extra fires change nothing on a normal day.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -62,6 +77,11 @@ $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs 
 
 # 14:12 MT = 16:12 ET, just after the lane's final RTH tick at 16:00 ET.
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "14:12"
+# -Weekly triggers come back with a null .Repetition CIM instance -- steal one from a
+# throwaway -Once trigger built with the repetition params (same documented workaround as
+# install-macro-calendar.ps1 / install-earnings-calendar.ps1; direct property assignment on
+# the null instance throws PropertyNotFound). Self-heals a single missed fire within 30 min.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "14:12" -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 5) `

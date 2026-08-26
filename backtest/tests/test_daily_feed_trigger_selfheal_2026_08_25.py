@@ -1,6 +1,18 @@
-"""Regression guard: Gamma_MacroCalendar + Gamma_EarningsCalendar's daily-once triggers
-must carry a bounded repetition window, so a single missed Windows Task Scheduler fire
-self-heals without depending on external detection (self_check.py / conductor).
+"""Regression guard: Gamma_MacroCalendar + Gamma_EarningsCalendar + Gamma_FuturesEod2's
+daily-once triggers must carry a bounded repetition window, so a single missed Windows Task
+Scheduler fire self-heals without depending on external detection (self_check.py / conductor).
+
+THIRD INSTANCE (found live, 2026-08-26 conductor fire, extending the 2026-08-25 fix to
+Gamma_FuturesEod2). `engine-health.json`'s `state_freshness` check flagged
+`automation/state/futures/eod-summary.json` as 2 calendar days stale on a Wednesday premarket
+read. `Get-ScheduledTaskInfo -TaskName Gamma_FuturesEod2` showed the identical signature:
+`LastRunTime` stuck on 2026-08-24, `NumberOfMissedRuns=1`, `NextRunTime` already advanced past
+2026-08-25 straight to 2026-08-26, and `.Triggers[0].Repetition` present-but-empty
+(`Duration`/`Interval` both null) -- the task had simply never been given the fix applied to
+its two siblings the day before. Same fix, same mechanism: add the 15-min/30-min repetition
+window via the `-Once`-donor-trigger workaround. `futures_eod.py` is read-only and idempotent
+(re-running with `--date` just regrades that session), so the extra fires are free and change
+nothing on a normal day.
 
 THE BUG THIS GUARDS (found live, 2026-08-25 conductor fire). Gamma_MacroCalendar's single
 05:45 MT daily trigger silently did not fire: `Get-ScheduledTaskInfo` showed
@@ -44,7 +56,13 @@ _REPO = Path(__file__).resolve().parents[2]
 _TARGETS = [
     ("macro_calendar", _REPO / "setup" / "scripts" / "install-macro-calendar.ps1", "05:45"),
     ("earnings_calendar", _REPO / "setup" / "scripts" / "install-earnings-calendar.ps1", "05:50"),
+    ("futures_eod2", _REPO / "setup" / "scripts" / "install-futures-eod.ps1", "14:12"),
 ]
+
+# The premarket-gap test below is specific to producers that feed Gamma_Premarket's 08:30 ET
+# read (05:xx MT primary fires). futures_eod2 fires at 14:12 MT (16:12 ET, AFTER RTH close)
+# with no premarket-style downstream deadline -- it gets its own bound check instead.
+_PREMARKET_TARGETS = [t for t in _TARGETS if t[0] != "futures_eod2"]
 
 
 def _source(path: Path) -> str:
@@ -87,7 +105,7 @@ def test_weekly_trigger_carries_a_repetition_window(name, path, at_time):
     )
 
 
-@pytest.mark.parametrize("name,path,at_time", _TARGETS, ids=[t[0] for t in _TARGETS])
+@pytest.mark.parametrize("name,path,at_time", _PREMARKET_TARGETS, ids=[t[0] for t in _PREMARKET_TARGETS])
 def test_repetition_window_is_bounded_and_shorter_than_premarket_gap(name, path, at_time):
     """The repetition duration must be well inside the gap to Gamma_Premarket (08:30 ET) --
     a self-heal window that runs right up to (or past) the consumer's own read time defeats
@@ -109,6 +127,23 @@ def test_repetition_window_is_bounded_and_shorter_than_premarket_gap(name, path,
         f"{name}: repetition duration {duration_min}m leaves less than 10m margin before "
         f"Gamma_Premarket's 08:30 ET read (gap from {at_time} MT primary fire to 06:30 MT "
         f"Premarket-equivalent is {gap_min}m) -- tighten the duration"
+    )
+
+
+def test_futures_eod2_repetition_window_is_bounded():
+    """futures_eod2 has no premarket-style consumer deadline (it fires after RTH close), but
+    its repetition window still must be small and bounded -- a runaway/unbounded window would
+    mean the 'idempotent, cheap, no behavior change on a normal day' assumption stops holding
+    (repeated ~5min task-exec-time-limit runs stacking indefinitely)."""
+    src = _source(_REPO / "setup" / "scripts" / "install-futures-eod.ps1")
+
+    duration_match = re.search(r"-RepetitionDuration\s*\(New-TimeSpan\s+-Minutes\s+(\d+)\)", src)
+    assert duration_match, "futures_eod2: could not find -RepetitionDuration (New-TimeSpan -Minutes N)"
+    duration_min = int(duration_match.group(1))
+    assert 0 < duration_min <= 60, (
+        f"futures_eod2: repetition duration {duration_min}m should stay well under an hour "
+        "-- this producer is read-only/idempotent but a long window still risks overlapping "
+        "the next day's activity"
     )
 
 
