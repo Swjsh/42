@@ -2127,6 +2127,25 @@ Built: setup/scripts/param_provenance.py, automation/state/param-provenance.json
   > 9000 RED" concern is now moot; the proposal's ~75-tok addition would land
   > ~8386/9000, comfortably YELLOW. Still did not self-apply -- CLAUDE.md remains
   > J-first (rail 4). :: depends:TWIN-B1 :: status:pending
+
+  > **RE-PING BUG FIXED 2026-08-26T01:xx ET (conductor, AFTERHOURS), commit
+  > `d6e3ebaf` -- this item's OWN re-ping history was the reproducer.**
+  > `task_scorer.py --top` had ranked this #1 as "STALE J-PING" on every fire
+  > since ~2026-08-08 despite the 2026-08-18 re-ping (only 8 days before this
+  > fire) -- `_proposal_age_days()` measured staleness only from `created_at`
+  > (2026-07-23, never moves), so the resurfacing branch fired forever past
+  > day 14 regardless of how recently a real re-ping happened. Fixed
+  > `task_scorer.py` to also check `discord-outbox.jsonl` for the newest
+  > actual ping naming this proposal id; a recent real re-ping now suppresses
+  > re-surfacing instead of spamming again. **Verified: `--top` no longer
+  > returns this item** (now `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`). Did NOT
+  > re-ping J again this fire -- 8 days since the last real ping is well
+  > under the 14d threshold, and re-pinging now would be the exact spam this
+  > fix exists to prevent. This item itself is UNCHANGED: still
+  > `status:pending`, still genuinely awaiting J's reply, still J-first
+  > (CLAUDE.md doctrine, rail-4 propose-only). Lesson filed:
+  > `_lesson-inbox/2026-08-26-task-scorer-staleness-from-creation-not-last-action.md`.
+  > :: depends:TWIN-B1 :: status:pending
 - [ ] TWIN-B5-GRAMMAR-TELEMETRY (MED, twin-program) :: Pattern-grammar rules shadow/log-only on live crypto bars -- firing rates, repaint-safety, C6 discipline telemetry; never edge claims. Spec: TWIN-PROGRAM.md stream 5. :: depends:TWIN-B1 :: status:pending
 > **CLOSED 2026-07-21 ~16:45-17:35 ET (conductor, AFTERHOURS): SUPERSEDED, not executed as
 > originally specced.** Verified `mass-grind-v2-progress.jsonl` (10.4MB, mtime 07-09 18:14) and
