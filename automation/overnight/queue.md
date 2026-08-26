@@ -1855,6 +1855,14 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260826-100133 (LOW) :: v09_regime TREND_DOWN dominant: 60/81 bars (74%) | last_regime=CHOP atr_14=141 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-25T12:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260826-100134 (LOW) :: v09_regime TREND_DOWN dominant: 70/81 bars (86%) | last_regime=TREND_DOWN atr_14=171 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-25T13:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260826-100135 (LOW) :: v09_regime TREND_DOWN dominant: 74/81 bars (91%) | last_regime=TREND_DOWN atr_14=255 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-25T14:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260826-100136 (LOW) :: v09_regime TREND_DOWN dominant: 66/81 bars (81%) | last_regime=TREND_UP atr_14=229 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-25T15:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-RIBBONFLIP-20260826-100137 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=301.63>100 | recent dist BULL=54 BEAR=33 MIXED=113 :: key=EDGE_RIBBON_FLIP:2026-08-26T09:00:00+00:00:BEAR :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260826-100138 (MED) :: v14_sweep liquidity-grab at level=79000 dir=up bar_idx=170 | wick_excess=0.0389% close_back=0.0867% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-26T09:57:01.807552+00:00:79000:up:170 :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260826-100139 (MED) :: v14_sweep liquidity-grab at level=79000 dir=up bar_idx=175 | wick_excess=0.0702% close_back=0.0607% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-26T09:57:01.807552+00:00:79000:up:175 :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260826-100140 (MED) :: v14_sweep liquidity-grab at level=79000 dir=up bar_idx=183 | wick_excess=0.0263% close_back=0.0937% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-26T09:57:01.807552+00:00:79000:up:183 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260824-100128 (LOW) :: v09_regime TREND_UP dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-23T13:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260824-100129 (LOW) :: v09_regime TREND_UP dominant: 67/80 bars (84%) | last_regime=TREND_UP atr_14=139 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-23T14:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260824-100130 (LOW) :: v09_regime TREND_UP dominant: 76/81 bars (94%) | last_regime=TREND_DOWN atr_14=162 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-23T15:00:00+00:00:TREND_UP :: depends:none :: status:queued
@@ -1862,14 +1870,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260824-100132 (LOW) :: v09_regime TREND_UP dominant: 61/80 bars (76%) | last_regime=CHOP atr_14=108 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-23T17:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260824-100133 (MED) :: BTC v03_indicators rsi_14=82.39 (overbought) at last_close=77965.82 bin=2026-08-23T21:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-23T21:20:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260824-100134 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=151 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-24T05:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-BRKCLUSTER-20260824-100135 (MED) :: v11_breakout 3 breaks in 99-bar window (up=0 down=3) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-24T08:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-RIBBONFLIP-20260824-100136 (MED) :: v08_ribbon flip MIXED -> BULL | spread=130.34>100 | recent dist BULL=36 BEAR=62 MIXED=101 :: key=EDGE_RIBBON_FLIP:2026-08-24T09:00:00+00:00:BULL :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260824-100137 (MED) :: v14_sweep liquidity-grab at level=77000 dir=down bar_idx=136 | wick_excess=0.1667% close_back=0.1413% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-24T09:57:03.248900+00:00:77000:down:136 :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260824-100138 (MED) :: v14_sweep liquidity-grab at level=77000 dir=down bar_idx=144 | wick_excess=0.0661% close_back=0.0943% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-24T09:57:03.248900+00:00:77000:down:144 :: depends:none :: status:queued
-- [ ] HARVEST-BRKCLUSTER-20260823-100130 (MED) :: v11_breakout 3 breaks in 100-bar window (up=0 down=3) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-08-22T11:00:00+00:00 :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260823-100131 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=125 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-23T08:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260823-100132 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_UP atr_14=120 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-23T09:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-RIBBONFLIP-20260823-100133 (MED) :: v08_ribbon flip MIXED -> BULL | spread=114.72>100 | recent dist BULL=22 BEAR=98 MIXED=80 :: key=EDGE_RIBBON_FLIP:2026-08-23T09:00:00+00:00:BULL :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -2581,3 +2581,35 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 **Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
 
 - [ ] ESCALATION (manager_flagged) [3d39213a9cf0493f] (seen 71x since 2026-08-21) — ESCALATION (manager_flagged): Critical high-priority bug in tick processing (T-OPEN-TICK-STALE-QUOTE-2026-08-20) allows gap-and-go entries on 3h-stale quotes; fixing this prevents silent failures that _(gamma_manager 2026-08-25 08:53 ET)_
+
+- [ ] ESCALATION (manager_flagged) [0cefff7389fa6e35] — Modify the tick validation module to include timestamp freshness check with 2-bar buffer, then backtest against 2026-08-20 data to confirm stale quote detection: T-OPEN-TICK-STALE-QUOTE-2026-08-20 is  _(gamma_manager 2026-08-26 06:13 ET)_
+
+## 2026-08-26 — three items from the 08-26 session review
+
+### [HIGH] ENTRY-FILL-STALENESS — measure, do not fix yet
+safe-2 reached ENTER_BULL 14:56:03 (bull 11/11), placed `limit buy 3 SPY260826C00766000 @1.43`,
+**filled_qty 0**, cancelled 14:59:05. safe-3 filled the identical contract @1.50 and made +$39.
+`fleet_broker.marketable_limit_price` = `ask + buffer` off a placement-time quote; the ask ran
+past 1.43 before the order reached the book, so a marketable limit arrived non-marketable.
+Adversely selected by construction: only fails to cross when price moves away — fills losers,
+misses winners. 08-25 same account filled a loser at 0.70 vs safe-3's 0.68; 08-26 missed a
+winner entirely.
+**n=1 in live history** (`SKIP_ORDER_STILL_OPEN_AFTER_CANCEL` has fired once, ever, today).
+NOT evidence of a systematic leak. DO NOT tune the buffer on one observation.
+TASK: (a) revive `shadow_entry_actuator.py` -> `entry-shadow.jsonl`, dark since 2026-07-06
+(98 rows) — it is the instrument built for exactly this question; (b) instrument
+signal-quote -> placement-quote drift on every entry; (c) revisit only at n>=15.
+
+### [HIGH] GATE-REVALIDATE-CONF-LVL-REC-AFTERNOON
+`block_conf_lvl_rec_afternoon` skipped bold-2 **20 consecutive ticks** 14:56-15:55 ET, every one
+`bull_score 11` (max) with `level_reclaim + confluence`, SPY 766.49 -> 767.12. The unblocked
+lane traded the same signal green. **20 of the gate's 84 lifetime firings (24%) were today.**
+`gate_expiry_check` grades it `evidence_age=68d`.
+Per J 2026-07-31 (recency > aggregate; every armed gate needs a revalidation clock) this is the
+`block_elite_bull` shape. TASK: pre-registered A/B on the recent window before any disarm.
+A gate comes off on evidence, never on one day's regret.
+
+### [MED] EOD-DEEPDIVE-SILENT-SUCCESS (C7)
+`Gamma_EodDeepDive` fired 16:30 ET with LastTaskResult=0 but wrote no dated output —
+`analysis/eod-deep/` still ends at 2026-08-21. Exit code is not evidence of work.
+TASK: make `run-eod-deep-dive.ps1` fail loud when it produces no dated artifact.
