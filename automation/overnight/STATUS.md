@@ -1,3 +1,23 @@
+## [2026-08-26 05:30 ET] conductor: OK — live_readiness.py gets a concentration guard (4th confirmed instance of the mean-only-verdict defect), commit `650ef9c8`
+
+**Picked via STAGE 0 budget gate PROCEED ($7.02/$30, 2/4 fires, AFTERHOURS mode) + engine health GREEN (19/19 checks) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 + `task_scorer.py --top` advisory (correctly warned "trace before executing" on `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT" — traced it, found the core ask deliberately still gated behind its own `/fable-blast-radius` pass, live-trading-wrapper blast radius, not a bounded sonnet-tier pick this fire) — fell back to the queue's HIGH tier and found `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS`'s own candidate list named `live_readiness.py` (CLAUDE.md's live-money readiness instrument) as unaudited.
+
+**Root cause, precisely:** `setup/scripts/live_readiness.py::score_round_trips` computed its 4-condition CLAUDE.md PASS verdict off `statistics.fmean(pnls) > 0` with no concentration term — the identical shape already caught and fixed 3x this same week in `gate_expiry_check.py::costing_verdict` (commit `71c39545`) and `core_strategy_recency.py::direction_verdict` (the 2,767%-of-net-from-2-days false BULL GREEN). This is the highest-stakes instance of the class: a PASS here is the evidence base CLAUDE.md cites for a live-money conversation with J, and it sat unaudited despite being named explicitly in the tracking queue item filed 3 days ago.
+
+**Fix:** an otherwise-clean 4-condition PASS now downgrades to `PASS_CONCENTRATED` when expectancy does not survive dropping the top 3 winning trades, via `backtest/lib/concentration.py::drop_top_n` (reused, never reimplemented — same shared helper `gate_expiry_check.py` already uses). Downgrade-only: never touches FAIL/UNKNOWN/INSUFFICIENT. `_book_wide_rollup` counts `arms_pass_concentrated` on its own key, never folded into `arms_pass`.
+
+**Verified, quoted:** `pytest backtest/tests/test_live_readiness.py -q` → `23 passed` (18 existing + 5 new). RED-proofed via `git stash push -- setup/scripts/live_readiness.py`: 3 new tests correctly `KeyError` pre-fix; `git stash pop` restores 23/23. Curated safety gate (`run_safety_gate.py`) `59 passed` both before and after. `py_compile` clean on both files. Live smoke run against the real ledger (`python setup/scripts/live_readiness.py`): no crash, and **zero live verdict change today** — all 5 real arms currently read `UNKNOWN` off unattributed rule-breaks, which short-circuits before the concentration term is even consulted; this is a forward-looking correction, not a live flip. `git show 650ef9c8 --stat --name-status`: exactly the 4 intended files.
+
+**Also closed** `GATE-EXPIRY-NAIVE-VERDICT-IS-2-FOR-2-WRONG` in queue.md as a duplicate of already-shipped work (`71c39545`) — verified live against current `gate_expiry_check.py` before touching anything (the exact `NAIVE_RED_CONCENTRATED` label + `drop_top3` computation the item asked for already exist), per the 2026-07-18 stale-queue-item lesson. No re-work performed.
+
+**Rail 4 (engine-benefit authoring, reporting-only instrument — arms nothing, changes no gate, places no orders):** the 4 new guard tests are the regression check (a); revert is `git revert 650ef9c8` (4 files, fully additive, zero live-trading-path touch — `live_readiness.py` is read-only reporting, not part of the ENTER/exit/order path) (b); this STATUS entry is the REVOKE report (c).
+
+**Lesson filed:** `strategy/candidates/_lesson-inbox/2026-08-26-live-readiness-gate-lacked-concentration-guard.md` — this is now a confirmed 4-instance CLASS (mean-without-concentration-guard verdicts), not a one-off; flags the remaining unaudited candidates (desk_allocator.py scoring, chop meter, ladder-rung tally, entry-quality scorers, shadow-tally/summary writers, the general `*_verdict`/`*_check.py` sweep) for a future fire.
+
+---
+
+[2026-08-26 05:30:05] scout: HIGH catalyst @ 08:30 ET — GDP 2nd est. + Core PCE + Personal Income/Spending + Durable Goods (triple-print) — Premarket should set no-trade window 08:15-09:00 ET. NVDA earnings also HIGH tonight after close (16:20 ET, outside 3h window).
+
 ## [2026-08-26 01:06 ET] conductor: OK — task_scorer re-ping staleness fixed (created_at-only clock made TWIN-DOCTRINE-FIRST-DEPLOY perma-#1 "STALE J-PING" despite an 8-day-old real re-ping), commit `d6e3ebaf`
 
 **Picked via STAGE 0 budget gate PROCEED ($6.26/$30, 1/4 fires, AFTERHOURS mode) + engine health GREEN (all 19 checks) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 (no matching queue item) + `task_scorer.py --top` → `TWIN-DOCTRINE-FIRST-DEPLOY`.**
@@ -195,33 +215,6 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 **Lesson filed:** `strategy/candidates/_lesson-inbox/install-script-copied-wiring-assumed-stdlib-only-2026-08-24.md` — an install-script installer that copies a sibling's wiring verbatim inherits that sibling's `system pythonw` (or venv pythonw) choice without re-verifying the NEW target script's own import list; any script with a venv-only dependency (yfinance, pandas, numpy, etc.) launched via system Python313 will crash on every single fire, silently, if routed through the fire-and-forget wscript hop. Generalizable check for a future fire: grep all `install-*.ps1` files whose inner target script is NOT already in `EXPECTED_RELAY_TASKS`' venv-confirmed set for a mismatched system-pythonw-only wiring against a script with third-party imports.
 
 **Not investigated further this fire (out of bounded scope):** `CANDIDATES-UNTRACKED` (23 files, self_check DEGRADED not BROKEN — `Gamma_AutoCommitCandidates` should self-clear this on its own 2h cadence; flagging only in case it doesn't by the next fire). `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`'s own remaining ~22-task scope (task_scorer's #2 ranked item, HIGH) deliberately left for a future fire — this fire found a concrete NEW live instance of the exact same masking class instead of continuing the general migration sweep.
-
----
-
-## [2026-08-23] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-20..2026-08-21), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-21). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-148.85); Bold_ATM_1+2=CONFIRM ($631.9)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
-﻿## [2026-08-23T16:15:02 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-23 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-23 -- no RTH session evidence (non-trading day or engine idle). |
-| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual reâ€¦ | 2026-08-23 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
-| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing wheneverâ€¦ | no core-decisions.jsonl ticks dated 2026-08-23. |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-23 window_end=2026-08-21 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=31 (delta +21 vs baseline n=10) exp=$-16.71/tr, verdict_moved=False. bull now: GREEN n=31 exp=$2.45/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STILâ€¦ | no core-decisions.jsonl ticks dated 2026-08-23 -- non-trading day. |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_corâ€¦ | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-23 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-23`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
 
 ---
 
