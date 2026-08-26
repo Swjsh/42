@@ -118,6 +118,66 @@ def test_score_round_trips_expectancy_exactly_zero_end_to_end():
 
 
 # ------------------------------------------------------------------------------------- #
+# 3b. CONCENTRATION TERM (added 2026-08-26, OP-25 fold -- mirrors gate_expiry_check.py's
+#     costing_verdict fix; live_readiness.py was explicitly named as a candidate in
+#     MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS). A positive mean that does NOT
+#     survive dropping the top-3 winning trades must downgrade PASS -> PASS_CONCENTRATED,
+#     and must NEVER touch a FAIL/UNKNOWN/INSUFFICIENT verdict (downgrade-only).
+# ------------------------------------------------------------------------------------- #
+def test_score_round_trips_concentration_downgrades_pass():
+    """20 trades: 3 big winners (+100 each) + 6 small winners (+1 each) = 9 wins (45.0% WR,
+    passes), 11 losses (-27 each). Raw expectancy = 9/20 = +$0.45/tr (positive, passes) --
+    but dropping the top 3 winning trades flips the cohort to -$291, so this must NOT read
+    as a clean PASS."""
+    wins_big = [_trip(100.0, f"2026-06-{i + 1:02d}T09:00:00") for i in range(3)]
+    wins_small = [_trip(1.0, f"2026-06-{i + 4:02d}T09:00:00") for i in range(6)]
+    losses = [_trip(-27.0, f"2026-06-{i + 10:02d}T10:00:00") for i in range(11)]
+    trips = wins_big + wins_small + losses
+    scored = lr.score_round_trips(trips, 0, "clean")
+    assert scored["n_trades"] == 20
+    assert scored["expectancy"] == 0.45
+    assert scored["criteria"]["n_trades"]["pass"] is True
+    assert scored["criteria"]["win_rate"]["pass"] is True
+    assert scored["criteria"]["expectancy"]["pass"] is True
+    assert scored["criteria"]["concentration"]["value"] == -291.0
+    assert scored["criteria"]["concentration"]["pass"] is False
+    assert scored["overall_verdict"] == "PASS_CONCENTRATED"
+
+
+def test_score_round_trips_concentration_survives_stays_plain_pass():
+    """20 identical +$10 winners -- dropping the top 3 still leaves +$170, comfortably
+    positive, so the plain PASS (not PASS_CONCENTRATED) must be preserved. Guards against
+    the concentration term over-firing on an evenly-distributed, genuinely clean book."""
+    trips = [_trip(10.0, f"2026-06-{(i % 28) + 1:02d}T10:00:00") for i in range(20)]
+    scored = lr.score_round_trips(trips, 0, "clean")
+    assert scored["criteria"]["concentration"]["pass"] is True
+    assert scored["overall_verdict"] == "PASS"
+
+
+def test_score_round_trips_concentration_never_upgrades_a_fail():
+    """A concentration-carried mean that ALSO fails win_rate must stay FAIL -- the
+    concentration term is a downgrade-only guard, never an upgrade path."""
+    wins_big = [_trip(100.0, f"2026-06-{i + 1:02d}T09:00:00") for i in range(3)]
+    losses = [_trip(-10.0, f"2026-06-{i + 4:02d}T10:00:00") for i in range(17)]
+    trips = wins_big + losses  # win_rate = 3/20 = 15% -- fails outright
+    scored = lr.score_round_trips(trips, 0, "clean")
+    assert scored["criteria"]["win_rate"]["pass"] is False
+    assert scored["overall_verdict"] == "FAIL"
+
+
+def test_book_wide_rollup_counts_pass_concentrated_separately():
+    """arms_pass_concentrated must be counted on its own key, never silently folded into
+    arms_pass (that would erase the exact distinction the verdict exists to draw)."""
+    arms_out = [
+        {"overall_verdict": "PASS", "n_trades": 20, "context": {"total_pnl": 10.0}},
+        {"overall_verdict": "PASS_CONCENTRATED", "n_trades": 20, "context": {"total_pnl": 9.0}},
+    ]
+    rollup = lr._book_wide_rollup(arms_out)
+    assert rollup["arms_pass"] == 1
+    assert rollup["arms_pass_concentrated"] == 1
+
+
+# ------------------------------------------------------------------------------------- #
 # 4. rule_breaks boundary -- 2 vs 3
 # ------------------------------------------------------------------------------------- #
 def test_criterion_rule_breaks_boundary():

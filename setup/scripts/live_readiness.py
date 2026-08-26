@@ -61,12 +61,27 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO / "setup" / "scripts"
 FLEET_DIR = REPO / "automation" / "state" / "fleet"
-for _p in (SCRIPTS_DIR, FLEET_DIR):
+BACKTEST_DIR = REPO / "backtest"
+for _p in (SCRIPTS_DIR, FLEET_DIR, BACKTEST_DIR):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
 from et_clock import et_now  # noqa: E402
 from fills_fifo import mine_real_arm_fills  # noqa: E402
+from lib.concentration import drop_top_n  # noqa: E402
+
+# Trade-level concentration term (2026-08-26, OP-25 fold -- this is the "live_readiness.py"
+# candidate NAMED explicitly in the MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS queue
+# item; the 4th confirmed instance of the same defect class as gate_expiry_check.py's
+# costing_verdict and core_strategy_recency.py's direction_verdict). This is THE gate CLAUDE.md
+# cites as the evidence base for a live-money conversation with J -- a bare PASS earned purely
+# because 2-3 outlier winners carried an otherwise-flat book is exactly the shape that produced
+# two false G-battery-triggering RED alarms elsewhere this same week. `_context_stats` already
+# discloses a DAY-level concentration share (best_day/share_of_total_pnl); this constant/import
+# adds the TRADE-level drop-topN term to the criteria the verdict itself is computed from,
+# reusing the shared backtest/lib/concentration.py helper (never reimplemented locally, per the
+# fold this module exists to close).
+CONCENTRATION_DROP_TOP_N = 3
 
 ACCOUNTS_PATH = FLEET_DIR / "accounts.json"
 RULE_BREAKS_PATH = REPO / "automation" / "state" / "rule-breaks.jsonl"
@@ -282,6 +297,18 @@ def score_round_trips(trips: list[dict], rule_breaks_count: int | None,
     threshold, plus CONTEXT metrics. `trips` is the exact return shape of
     fills_fifo.mine_real_arm_fills -- each dict needs at least real_pnl, entry_ts_et, date.
     Pass synthetic dicts directly in tests; no I/O happens in this function.
+
+    CONCENTRATION TERM (added 2026-08-26, OP-25 self-correction, mirrors
+    gate_expiry_check.py::costing_verdict's fix verbatim): a bare "PASS" on the 4-condition
+    AND is no longer emitted when the (already-passing) positive expectancy does NOT survive
+    dropping this arm's top CONCENTRATION_DROP_TOP_N winning trades
+    (backtest/lib/concentration.py::drop_top_n, reused, never reimplemented) -- that shape
+    downgrades to "PASS_CONCENTRATED" instead. This is a DOWNGRADE ONLY: it can never turn a
+    FAIL/UNKNOWN/INSUFFICIENT into a PASS, and it never touches the 4 CLAUDE.md criteria
+    themselves (each still scored and reported exactly as before). A concentration-carried
+    arm is not disqualified -- it is correctly labeled as "clears the mean bar on a handful of
+    outlier trades", which is not the same evidence as a broad, repeatable edge, and that
+    distinction matters most on precisely the gate that feeds a live-money conversation.
     """
     n = len(trips)
     rb_pass = criterion_rule_breaks(rule_breaks_count)
@@ -314,10 +341,15 @@ def score_round_trips(trips: list[dict], rule_breaks_count: int | None,
     n_pass = criterion_n_trades(n)
     wr_pass = criterion_win_rate(win_rate)
     exp_pass = criterion_expectancy(expectancy)
+
+    records = [(str(t["date"]), float(t["real_pnl"])) for t in trips_sorted]
+    drop_top3, n_dropped = drop_top_n(records, CONCENTRATION_DROP_TOP_N)
+    concentration_survives = drop_top3 > 0
+
     if rb_pass is None:
         overall = "UNKNOWN"
     elif n_pass and wr_pass and exp_pass and rb_pass:
-        overall = "PASS"
+        overall = "PASS" if concentration_survives else "PASS_CONCENTRATED"
     else:
         overall = "FAIL"
     return {
@@ -332,6 +364,16 @@ def score_round_trips(trips: list[dict], rule_breaks_count: int | None,
             "expectancy": {"value": round(expectancy, 2),
                            "threshold": "> $0.00 (exactly $0.00 FAILS)", "pass": exp_pass},
             "rule_breaks": rb_criterion,
+            "concentration": {
+                "value": drop_top3, "n_dropped": n_dropped,
+                "threshold": f"drop-top{CONCENTRATION_DROP_TOP_N} winners must stay > $0.00",
+                "pass": concentration_survives,
+                "note": (
+                    "informational only when the arm already FAILS/UNKNOWN on the 4 CLAUDE.md "
+                    "criteria -- only DOWNGRADES an otherwise-clean PASS to PASS_CONCENTRATED, "
+                    "never the reverse"
+                ),
+            },
         },
         "overall_verdict": overall,
         "context": _context_stats(trips_sorted),
@@ -396,7 +438,12 @@ def _book_wide_rollup(arms_out: list[dict]) -> dict:
     return {
         "_label": "CORRELATED ROLLUP -- NOT independent evidence. " + _CORRELATION_DISCLOSURE,
         "arms_scored": len(arms_out),
+        # PASS_CONCENTRATED (2026-08-26) is counted SEPARATELY, never folded into arms_pass --
+        # collapsing it back into "PASS" would silently erase the exact distinction this
+        # verdict exists to draw (clears the mean bar on a handful of outlier trades vs a
+        # broad, repeatable edge).
         "arms_pass": verdicts.get("PASS", 0),
+        "arms_pass_concentrated": verdicts.get("PASS_CONCENTRATED", 0),
         "arms_fail": verdicts.get("FAIL", 0),
         "arms_unknown": verdicts.get("UNKNOWN", 0),
         "arms_insufficient": verdicts.get("INSUFFICIENT", 0),
