@@ -4,7 +4,8 @@ J directive 2026-08-24: "everything needs to be turned off after market hours."
 Popups and a 4-worker backtest grind pegging four cores were landing on top of
 his gaming session. This is the standing instrument that retires the question.
 
-WHAT IT DOES, in the quiet window (default 16:00 ET -> 08:00 ET, plus all weekend):
+WHAT IT DOES, in the quiet window (weekday 18:00-23:00 ET, plus weekend 08:00-23:00;
+23:00-08:00 is a LOUD maintenance band -- see the band comment below):
   * Disables every non-essential Gamma_* scheduled task, recording each one's
     prior state first so restore is exact.
   * Stops the Kitchen daemon and any project-owned worker pool it spawned, so no
@@ -49,8 +50,20 @@ LOG_FILE = STATE_DIR / "quiet-mode.log"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from et_clock import ET_TZ as ET  # noqa: E402
 
-QUIET_START_HOUR = 16  # 16:00 ET, right after the cash close
-QUIET_END_HOUR = 8     # 08:00 ET, when Gamma_LaunchTV opens the trading day
+# The blackout exists to keep the rig off J's EVENING (popups + a 4-worker grind on
+# top of his gaming session). It was never meant to be a 16-hour outage.
+#
+# 2026-08-26 STARVATION FIX. The original 16:00->08:00 window disabled 68 tasks whose
+# ONLY trigger falls inside that window -- the entire EOD pipeline, the nightly guard
+# suite, the GitHub secrets audit, unattended-health itself. Those tasks could never
+# run again: quiet mode disabled them before their trigger time and restored them
+# after it, every single night, silently. Two bands fix it without touching J's evening:
+#   * a post-close GRACE to 18:00 so the 16:00-17:45 EOD chain completes, and
+#   * a LOUD MAINTENANCE band 23:00->08:00, when J is asleep and a popup costs nothing,
+#     so the nightly safety/learning layer runs.
+QUIET_START_HOUR = 18       # 18:00 ET -- after the EOD chain has finished writing
+MAINTENANCE_START_HOUR = 23  # 23:00 ET -- blackout lifts, nightly work runs
+MAINTENANCE_END_HOUR = 8     # 08:00 ET -- when Gamma_LaunchTV opens the trading day
 
 # Tasks that stay alive even in the blackout.
 #   - the trading chain, so a market day is never lost to quiet mode
@@ -117,10 +130,23 @@ def _ps(script: str) -> str:
 
 
 def in_quiet_window(now: dt.datetime | None = None) -> bool:
+    """True when the rig must stay off J's machine.
+
+    Bands, in precedence order:
+      23:00-08:00 any day  -> LOUD  (maintenance: J is asleep, nightly work runs)
+      weekend              -> quiet
+      weekday 18:00-23:00  -> quiet (J's evening)
+      weekday 08:00-18:00  -> LOUD  (trading day + the post-close EOD chain)
+    """
     now = now or dt.datetime.now(ET)
-    if now.weekday() >= 5:  # all weekend is quiet
+    hour = now.hour
+    # Maintenance band wins over everything, weekends included: a nightly guard that
+    # only runs Mon-Fri is a guard that misses every weekend regression.
+    if hour >= MAINTENANCE_START_HOUR or hour < MAINTENANCE_END_HOUR:
+        return False
+    if now.weekday() >= 5:  # weekend daytime + evening stays quiet
         return True
-    return now.hour >= QUIET_START_HOUR or now.hour < QUIET_END_HOUR
+    return hour >= QUIET_START_HOUR
 
 
 def _gamma_tasks() -> dict[str, str]:
@@ -217,7 +243,11 @@ def _write_status(active: bool, detail: dict) -> None:
     STATUS_FILE.write_text(json.dumps({
         "quiet_active": active,
         "updated_at": dt.datetime.now(ET).isoformat(),
-        "quiet_window_et": f"{QUIET_START_HOUR:02d}:00 -> {QUIET_END_HOUR:02d}:00 + all weekend",
+        "quiet_window_et": (
+            f"weekday {QUIET_START_HOUR:02d}:00-{MAINTENANCE_START_HOUR:02d}:00 ET + weekend "
+            f"{MAINTENANCE_END_HOUR:02d}:00-{MAINTENANCE_START_HOUR:02d}:00; "
+            f"LOUD maintenance band {MAINTENANCE_START_HOUR:02d}:00-{MAINTENANCE_END_HOUR:02d}:00"
+        ),
         **detail,
     }, indent=2), encoding="utf-8")
 

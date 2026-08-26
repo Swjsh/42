@@ -1,1208 +1,1209 @@
 {
- "_doc": "THE UNATTENDED REGISTRY -- one row per unattended UNIT (a pipeline, an audit, a daemon, an engine). This is the declarative input to setup/scripts/unattended_health.py, which fuses it with live Windows Task Scheduler state, daemon liveness and output-artifact freshness into ONE traffic light per unit (automation/state/unattended-health.json) plus an append-only transition ledger (automation/state/unattended-events.jsonl) so a unit that went dark on a Tuesday is still visibly dark, with its down_since timestamp, the following Sunday.",
- "_why": "J 2026-08-09: 'find, consolidate and document all running processes, audits, pipelines -- anything unattended -- then turn it into a traffic-light tile. I want to know if things break when they go down, days after the fact.' The rig had ~124 registered Windows tasks + 6 long-lived daemons and NO single surface answering 'is all of it alive'. audit_scheduled_tasks.py checked registry-vs-reality bookkeeping; state_freshness_audit.py checked 17 decision-path files; engine_health.py checked the live trading path. None of them covered research, audit, comms or infra units, and none of them REMEMBERED an outage after it ended.",
- "_fields": {
-  "id": "stable kebab-case key -- also the bubble's identity in the events ledger. NEVER rename without migrating the ledger.",
-  "name": "human label on the bubble",
-  "group": "TRADING | DATA | AUDIT | RESEARCH | REPORTING | INFRA -- the tile's section",
-  "criticality": "critical|high|medium|low -- critical/high staleness is RED, medium/low is YELLOW (same ladder as state_freshness_audit)",
-  "what": "one line: what this unit actually does",
-  "breaks": "THE LOAD-BEARING FIELD. One line: what silently degrades while this unit is down. If you cannot name a consequence, the unit probably should not exist.",
-  "tasks": "Windows scheduled task names owned by this unit. Coverage is audited: any live Gamma_* task claimed by NO unit surfaces as an UNREGISTERED bubble, so this registry cannot silently rot behind the rig.",
-  "expect_disabled": "task names that are DELIBERATELY off (retired/superseded). Listed so their Disabled state is not a RED -- and so the reason is written down.",
-  "artifacts": "output freshness contracts. A string = a path already contracted in state-freshness-manifest.json (single source of truth, never duplicated here). An object = a full inline contract in the same schema.",
-  "daemons": "long-lived processes: {pid_file, name}. Liveness = pid file exists AND that pid is a live process."
- },
- "units": [
-  {
-   "id": "engine-core",
-   "name": "Engine core",
-   "group": "TRADING",
-   "criticality": "critical",
-   "what": "The deterministic 1-min live trading engine (heartbeat_core) + the never-blind sight beacon.",
-   "breaks": "No entries, no exits, no management -- on ANY account. The day just looks 'flat', which is indistinguishable from 'no setup fired'.",
-   "tasks": [
-    "Gamma_HeartbeatCore",
-    "Gamma_SightBeacon"
-   ],
-   "expect_disabled": {
-    "Gamma_Heartbeat": "LLM heartbeat RETIRED 2026-06-25, superseded by Gamma_HeartbeatCore",
-    "Gamma_Heartbeat_Aggressive": "LLM heartbeat RETIRED 2026-06-25, superseded by Gamma_HeartbeatCore"
-   },
-   "artifacts": [
-    "automation/state/core-decisions.jsonl",
-    "automation/state/sight-beacon.json"
-   ]
+  "_doc": "THE UNATTENDED REGISTRY -- one row per unattended UNIT (a pipeline, an audit, a daemon, an engine). This is the declarative input to setup/scripts/unattended_health.py, which fuses it with live Windows Task Scheduler state, daemon liveness and output-artifact freshness into ONE traffic light per unit (automation/state/unattended-health.json) plus an append-only transition ledger (automation/state/unattended-events.jsonl) so a unit that went dark on a Tuesday is still visibly dark, with its down_since timestamp, the following Sunday.",
+  "_why": "J 2026-08-09: 'find, consolidate and document all running processes, audits, pipelines -- anything unattended -- then turn it into a traffic-light tile. I want to know if things break when they go down, days after the fact.' The rig had ~124 registered Windows tasks + 6 long-lived daemons and NO single surface answering 'is all of it alive'. audit_scheduled_tasks.py checked registry-vs-reality bookkeeping; state_freshness_audit.py checked 17 decision-path files; engine_health.py checked the live trading path. None of them covered research, audit, comms or infra units, and none of them REMEMBERED an outage after it ended.",
+  "_fields": {
+    "id": "stable kebab-case key -- also the bubble's identity in the events ledger. NEVER rename without migrating the ledger.",
+    "name": "human label on the bubble",
+    "group": "TRADING | DATA | AUDIT | RESEARCH | REPORTING | INFRA -- the tile's section",
+    "criticality": "critical|high|medium|low -- critical/high staleness is RED, medium/low is YELLOW (same ladder as state_freshness_audit)",
+    "what": "one line: what this unit actually does",
+    "breaks": "THE LOAD-BEARING FIELD. One line: what silently degrades while this unit is down. If you cannot name a consequence, the unit probably should not exist.",
+    "tasks": "Windows scheduled task names owned by this unit. Coverage is audited: any live Gamma_* task claimed by NO unit surfaces as an UNREGISTERED bubble, so this registry cannot silently rot behind the rig.",
+    "expect_disabled": "task names that are DELIBERATELY off (retired/superseded). Listed so their Disabled state is not a RED -- and so the reason is written down.",
+    "artifacts": "output freshness contracts. A string = a path already contracted in state-freshness-manifest.json (single source of truth, never duplicated here). An object = a full inline contract in the same schema.",
+    "daemons": "long-lived processes: {pid_file, name}. Liveness = pid file exists AND that pid is a live process."
   },
-  {
-   "id": "fleet-executor",
-   "name": "Fleet executor",
-   "group": "TRADING",
-   "criticality": "critical",
-   "what": "Builds the shared perception signal every RTH minute and runs each enabled fleet arm off it.",
-   "breaks": "All 5 real-fills arms stop trading while the core engine keeps going -- the book silently shrinks to one arm.",
-   "tasks": [
-    "Gamma_FleetExecutor"
-   ],
-   "artifacts": [
-    "automation/state/fleet/shared-signal.json"
-   ]
-  },
-  {
-   "id": "eod-flatten",
-   "name": "EOD flatten",
-   "group": "TRADING",
-   "criticality": "critical",
-   "what": "15:52-15:55 ET force-close of any 0DTE position still open, on every account.",
-   "breaks": "A 0DTE position rides into expiry unmanaged. This is the single most expensive unattended failure in the rig.",
-   "tasks": [
-    "Gamma_EodFlatten",
-    "Gamma_EodFlatten_Aggressive",
-    "Gamma_EodFlattenCore"
-   ]
-  },
-  {
-   "id": "tv-eyes",
-   "name": "TradingView eyes",
-   "group": "TRADING",
-   "criticality": "high",
-   "what": "Launches TradingView Desktop with CDP on :9222 at 08:00 and keeps it alive every 5 min.",
-   "breaks": "No TV = no chart reads for premarket/levels/trendlines. Historically the 'no TV = no trades' outage class.",
-   "tasks": [
-    "Gamma_LaunchTV",
-    "Gamma_TvWatchdog"
-   ]
-  },
-  {
-   "id": "j-intent",
-   "name": "J intent executor",
-   "group": "TRADING",
-   "criticality": "high",
-   "what": "The standing deterministic path that arms a J-called trade without an LLM in the loop.",
-   "breaks": "J calls a live entry and nothing picks it up -- the <60s arm path is dead and he finds out by watching nothing happen.",
-   "tasks": [
-    "Gamma_JIntentExecutor"
-   ]
-  },
-  {
-   "id": "broker-fills",
-   "name": "Broker fills / P&L",
-   "group": "TRADING",
-   "criticality": "high",
-   "what": "Pulls real broker fills every 10 min + at EOD into the C1 real-fills authority.",
-   "breaks": "Every downstream P&L, win-rate and autopsy number quietly reports a stale book as current.",
-   "tasks": [
-    "Gamma_BrokerFills"
-   ],
-   "artifacts": [
-    "automation/state/pnl-statement.json"
-   ]
-  },
-  {
-   "id": "ghost-orders",
-   "name": "Ghost-order reconciler",
-   "group": "TRADING",
-   "criticality": "high",
-   "what": "Reconciles broker order state against local position state; clears orphaned/ghost orders.",
-   "breaks": "A ghost order leaves the engine believing it is NOT flat, which blocks every subsequent entry (C11).",
-   "tasks": [
-    "Gamma_GhostOrderReconciler"
-   ]
-  },
-  {
-   "id": "entry-block-watch",
-   "name": "Entry-block watch",
-   "group": "TRADING",
-   "criticality": "medium",
-   "what": "Records WHY entries were blocked each session so a silently-gated engine is visible.",
-   "breaks": "A gate cascade that blocks 100% of entries looks identical to a quiet tape (C15).",
-   "tasks": [
-    "Gamma_EntryBlockWatch"
-   ]
-  },
-  {
-   "id": "level-refresh",
-   "name": "Level refresh",
-   "group": "DATA",
-   "criticality": "critical",
-   "what": "Rewrites key-levels.json every 5 min (intraday) + snapshots the level set.",
-   "breaks": "THE 2026-07-30 INCIDENT. Levels expire, the read returns empty, and the engine falls through to its worst cohort (trendline-only) instead of halting. 772 blind ticks before anyone noticed.",
-   "tasks": [
-    "Gamma_LevelRefresh",
-    "Gamma_KeyLevelsSnapshot"
-   ],
-   "artifacts": [
-    "automation/state/key-levels.json"
-   ]
-  },
-  {
-   "id": "level-memory",
-   "name": "Level memory (G11)",
-   "group": "DATA",
-   "criticality": "high",
-   "what": "Multi-day level memory + prior RTH close, merged into the live level set.",
-   "breaks": "Multi-day levels silently stop appearing; gap_and_go measures the gap off a stale prior close.",
-   "tasks": [
-    "Gamma_LevelMemory"
-   ],
-   "artifacts": [
-    "automation/state/key-levels-memory.json",
-    "automation/state/prior-rth-close.json"
-   ]
-  },
-  {
-   "id": "premarket",
-   "name": "Premarket pipeline",
-   "group": "DATA",
-   "criticality": "critical",
-   "what": "08:30 ET bias + levels + loss budget + circuit-breaker re-arm, plus the 08:20 EMA pre-seed.",
-   "breaks": "The daily-loss kill switch anchors to a PRIOR day's equity and the bias file reads yesterday as today.",
-   "tasks": [
-    "Gamma_Premarket",
-    "Gamma_EmaSnapshot"
-   ],
-   "artifacts": [
-    "automation/state/today-bias.json",
-    "automation/state/circuit-breaker.json",
-    "automation/state/aggressive/circuit-breaker.json",
-    "automation/state/ema-snapshot.json"
-   ]
-  },
-  {
-   "id": "premarket-readiness",
-   "name": "Premarket readiness gate",
-   "group": "DATA",
-   "criticality": "high",
-   "what": "09:00 ET go/no-go gate, including the levels_sanity check built after the blind-engine incident.",
-   "breaks": "The gate not running looks EXACTLY like the gate passing. This unit exists because that already happened once.",
-   "tasks": [
-    "Gamma_PremarketReadiness",
-    "Gamma_PreopenReadiness"
-   ],
-   "artifacts": [
-    "automation/state/premarket-readiness.json"
-   ]
-  },
-  {
-   "id": "context-bundle",
-   "name": "Context bundle",
-   "group": "DATA",
-   "criticality": "medium",
-   "what": "Every-5-min RTH bundle of the engine's analytical context.",
-   "breaks": "Tick analysis quality degrades (the tick logs an absent bundle -- this one degrades LOUDLY by design).",
-   "tasks": [
-    "Gamma_ContextBundle"
-   ],
-   "artifacts": [
-    "automation/state/context-bundle.json"
-   ]
-  },
-  {
-   "id": "trendlines",
-   "name": "Trendline engine",
-   "group": "DATA",
-   "criticality": "medium",
-   "what": "Wick-anchored trendline detection every 5 min RTH.",
-   "breaks": "Confluence zones get built from yesterday's lines with no marker on them.",
-   "tasks": [
-    "Gamma_Trendlines",
-    "Gamma_ChartAutoDraw"
-   ],
-   "artifacts": [
-    "automation/state/trendlines-live.json"
-   ]
-  },
-  {
-   "id": "confluence",
-   "name": "Confluence zones",
-   "group": "DATA",
-   "criticality": "medium",
-   "what": "Fuses level memory + trendlines + prior close into ranked zones every 10 min.",
-   "breaks": "COMPOUNDING failure: emits plausible-looking zones even when all three inputs are a day old.",
-   "tasks": [
-    "Gamma_Confluence"
-   ],
-   "artifacts": [
-    "automation/state/confluence-zones.json"
-   ]
-  },
-  {
-   "id": "macro-news",
-   "name": "Macro calendar / scout",
-   "group": "DATA",
-   "criticality": "medium",
-   "what": "05:45 ET macro calendar + 03:30 ET premarket scout sweep.",
-   "breaks": "A stale calendar reads as 'no events today' -- the rig trades an FOMC print blind.",
-   "tasks": [
-    "Gamma_MacroCalendar",
-    "Gamma_ScoutPremarket"
-   ],
-   "artifacts": [
-    "automation/state/news.json"
-   ]
-  },
-  {
-   "id": "trade-today",
-   "name": "Trade-today watcher",
-   "group": "DATA",
-   "criticality": "high",
-   "what": "Every 2 min RTH: did we actually trade today, and what filled.",
-   "breaks": "J's 'did it trade today' surface reports an ACTIVE day as IDLE (this is L244, already burned once).",
-   "tasks": [
-    "Gamma_TradeToday"
-   ],
-   "artifacts": [
-    "automation/state/trade-today.json"
-   ]
-  },
-  {
-   "id": "regime-meters",
-   "name": "Regime meters",
-   "group": "DATA",
-   "criticality": "low",
-   "what": "Chop meter, regime stamp, regime attribution, violin metric.",
-   "breaks": "Regime stratification in analysis silently runs on a stale stamp (C5).",
-   "tasks": [
-    "Gamma_ChopMeter",
-    "Gamma_RegimeStamp",
-    "Gamma_RegimeAttribution",
-    "Gamma_ViolinMetric"
-   ],
-   "artifacts": [
+  "units": [
     {
-     "path": "automation/state/regime-stamp.json",
-     "writer": "setup/scripts/regime_stamp.py",
-     "task": "Gamma_RegimeStamp",
-     "criticality": "low",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "options-data",
-   "name": "Options/OI data bank",
-   "group": "DATA",
-   "criticality": "low",
-   "what": "CBOE open-interest banking + theta clock.",
-   "breaks": "GEX/OI-derived context goes stale without saying so.",
-   "tasks": [
-    "Gamma_CboeOiBank",
-    "Gamma_ThetaClock"
-   ]
-  },
-  {
-   "id": "watcher-fleet",
-   "name": "Watcher fleet",
-   "group": "DATA",
-   "criticality": "medium",
-   "what": "Live watcher observations + nightly grading of watcher calls.",
-   "breaks": "The shadow observation stream that feeds promotion gates stops accruing evidence.",
-   "tasks": [
-    "Gamma_WatcherLive",
-    "Gamma_WatcherGrader"
-   ]
-  },
-  {
-   "id": "live-watch",
-   "name": "Live watch surface",
-   "group": "DATA",
-   "criticality": "low",
-   "what": "The dashboard's live-watch state producer.",
-   "breaks": "The dashboard's live panel freezes on a stale frame with no staleness marker.",
-   "tasks": [
-    "Gamma_LiveWatch"
-   ]
-  },
-  {
-   "id": "engine-health",
-   "name": "Engine health beacon",
-   "group": "AUDIT",
-   "criticality": "critical",
-   "what": "Every-minute fused health verdict over 18 live-path checks.",
-   "breaks": "THE WATCHER ITSELF. While this is down every other RED in the rig is invisible.",
-   "tasks": [
-    "Gamma_HealthBeacon"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/engine-health.json",
-     "writer": "setup/scripts/engine_health.py",
-     "task": "Gamma_HealthBeacon",
-     "criticality": "critical",
-     "max_age_min": 15,
-     "date_field": "checked_at_et",
-     "date_expected_after_et": "09:35",
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "self-check",
-   "name": "Self check",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "Every-30-min broad self-consistency sweep across state and config.",
-   "breaks": "Config/state drift accumulates undetected between sessions.",
-   "tasks": [
-    "Gamma_SelfCheck"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/self-check-last.json",
-     "writer": "setup/scripts/self_check.py",
-     "task": "Gamma_SelfCheck",
-     "criticality": "high",
-     "max_age_min": 120,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "task-state-guard",
-   "name": "Task-state guard",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "Every 30 min: detects tasks flipped Disabled or whose triggers stopped repeating.",
-   "breaks": "A task silently flipped to Disabled goes unnoticed -- the exact mechanism behind the blind-engine incident.",
-   "tasks": [
-    "Gamma_TaskStateGuard"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/task-state-guard.json",
-     "writer": "setup/scripts/task_state_guard.py",
-     "task": "Gamma_TaskStateGuard",
-     "criticality": "high",
-     "max_age_min": 120,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "scheduled-task-audit",
-   "name": "Scheduled-task audit",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "Daily registry-vs-reality reconciliation of every Gamma_* task (fires under Gamma_CryptoDaily).",
-   "breaks": "Orphan/stale/window-leak task drift accumulates silently in SCHEDULED-TASKS.md.",
-   "tasks": [],
-   "artifacts": [
-    {
-     "path": "automation/state/scheduled-tasks-audit.json",
-     "writer": "setup/scripts/audit_scheduled_tasks.py",
-     "task": "Gamma_CryptoDaily",
-     "criticality": "medium",
-     "max_age_min": 1800,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "gym-session",
-   "name": "Gym session",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "17:00 ET daily physical exam -- 7 audits fused into one scorecard.",
-   "breaks": "The daily correctness/latency exam stops running; validator regressions land unseen.",
-   "tasks": [
-    "Gamma_GymSession"
-   ]
-  },
-  {
-   "id": "guards-nightly",
-   "name": "Guard suite (nightly)",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "22:30 ET run of the graduated-guard pytest suite, including the slow live-trigger guards.",
-   "breaks": "Every regression a guard was written to catch can re-land silently -- guards are only real while they run.",
-   "tasks": [
-    "Gamma_GuardsNightly"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/guard-watch.json",
-     "writer": "guard suite runner",
-     "task": "Gamma_GuardsNightly",
-     "criticality": "high",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "gate-governance",
-   "name": "Gate recency / expiry",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "Every armed gate carries a revalidation clock; this checks recency and expiry nightly.",
-   "breaks": "A gate stays armed on stale evidence -- J 2026-07-31: block_elite_bull blocked a perfect 11/11 setup 111 times.",
-   "tasks": [
-    "Gamma_GateRecency",
-    "Gamma_GateExpiryCheck"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/gate-registry-status.json",
-     "writer": "gate recency runner",
-     "task": "Gamma_GateExpiryCheck",
-     "criticality": "high",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "free-model-audit",
-   "name": "Free-model audit",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "Periodic Claude-grading of every free-model decision touchpoint (>=85% bar).",
-   "breaks": "Free models keep vetoing live decisions with no measured accuracy behind them.",
-   "tasks": [
-    "Gamma_FreeModelAudit"
-   ]
-  },
-  {
-   "id": "mcp-audit",
-   "name": "MCP audit",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "Daily MCP wiring + credential reachability audit.",
-   "breaks": "A stale/401 key reads as 'connected' until an order fails at the worst moment.",
-   "tasks": [
-    "Gamma_McpDailyAudit"
-   ]
-  },
-  {
-   "id": "github-audit",
-   "name": "GitHub secrets audit",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "Nightly secret + privacy scan of every tracked file before anything reaches the PUBLIC repo.",
-   "breaks": "A credential can reach a public GitHub repo unreviewed. Irreversible.",
-   "tasks": [
-    "Gamma_GitHubAudit"
-   ]
-  },
-  {
-   "id": "window-leak",
-   "name": "Window-leak detector",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "Watches for console windows flashing on J's screen from automation fires.",
-   "breaks": "Popups start flashing on J's desktop again -- the #1 'don't disturb the user' regression.",
-   "tasks": [
-    "Gamma_WindowLeakDetectorKeepalive"
-   ],
-   "daemons": [
-    {
-     "name": "window-leak-detector",
-     "pid_file": "automation/state/window-leak-detector.pid"
+      "id": "engine-core",
+      "name": "Engine core",
+      "group": "TRADING",
+      "criticality": "critical",
+      "what": "The deterministic 1-min live trading engine (heartbeat_core) + the never-blind sight beacon.",
+      "breaks": "No entries, no exits, no management -- on ANY account. The day just looks 'flat', which is indistinguishable from 'no setup fired'.",
+      "tasks": [
+        "Gamma_HeartbeatCore",
+        "Gamma_SightBeacon"
+      ],
+      "expect_disabled": {
+        "Gamma_Heartbeat": "LLM heartbeat RETIRED 2026-06-25, superseded by Gamma_HeartbeatCore",
+        "Gamma_Heartbeat_Aggressive": "LLM heartbeat RETIRED 2026-06-25, superseded by Gamma_HeartbeatCore"
+      },
+      "artifacts": [
+        "automation/state/core-decisions.jsonl",
+        "automation/state/sight-beacon.json"
+      ]
     },
     {
-     "name": "window-leak-hook",
-     "pid_file": "automation/state/window-leak-hook.pid"
-    }
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/window-leak-summary.json",
-     "writer": "setup/scripts/audit_window_leak_compliance.py",
-     "task": "Gamma_WindowLeakDetectorKeepalive",
-     "criticality": "medium",
-     "max_age_min": 1440,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "context-budget",
-   "name": "Context budget guard",
-   "group": "AUDIT",
-   "criticality": "low",
-   "what": "Daily check that CLAUDE.md stays under its 9K token budget.",
-   "breaks": "The always-loaded prefix bloats and every session's attention degrades.",
-   "tasks": [
-    "Gamma_ContextGuard"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/context-budget.json",
-     "writer": "setup/scripts/context_audit.py",
-     "task": "Gamma_ContextGuard",
-     "criticality": "low",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "unattended-health",
-   "name": "Unattended health (this)",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "The every-10-min collector that produces these traffic lights.",
-   "breaks": "EVERY OTHER BUBBLE FREEZES on its last known value and the tile quietly lies. The outer guard is the snapshot-age banner on the tile itself -- a monitor cannot be its own last line of defence.",
-   "tasks": [
-    "Gamma_UnattendedHealth"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/unattended-health.json",
-     "writer": "setup/scripts/unattended_health.py",
-     "task": "Gamma_UnattendedHealth",
-     "criticality": "high",
-     "max_age_min": 40,
-     "date_field": "checked_at_et",
-     "date_expected_after_et": "00:10",
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "self-audit",
-   "name": "Self audit (gap finder)",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "Daily sweep for gaps between what doctrine claims and what the rig does.",
-   "breaks": "Doctrine-vs-reality drift accumulates -- the class that produced 'the rig never traded' in 2026-06.",
-   "tasks": [
-    "Gamma_SelfAudit"
-   ]
-  },
-  {
-   "id": "manager-verify",
-   "name": "Manager daily verify",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "15:30 ET verification that every phase of the daily loop actually ran.",
-   "breaks": "A missing phase in the daily loop goes unreported -- silence reads as success (C7).",
-   "tasks": [
-    "Gamma_ManagerDailyVerify"
-   ]
-  },
-  {
-   "id": "oos-check",
-   "name": "OOS check",
-   "group": "AUDIT",
-   "criticality": "medium",
-   "what": "Nightly out-of-sample re-check of ratified edges.",
-   "breaks": "A ratified edge decays out-of-sample with nothing measuring it.",
-   "tasks": [
-    "Gamma_OosCheck"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/core-strategy-recency.json",
-     "writer": "setup/scripts/oos_check_runner.py",
-     "task": "Gamma_OosCheck",
-     "criticality": "medium",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "kitchen",
-   "name": "Kitchen (R&D loop)",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "24/7 free-tier autonomous R&D: keepalive daemon + :20 seeder + 2h reviewer.",
-   "breaks": "The continuous strategy-search loop stops. Silent: kitchen-status.json keeps serving its last payload.",
-   "tasks": [
-    "Gamma_KitchenDaemonKeepalive",
-    "Gamma_KitchenSeeder",
-    "Gamma_KitchenReviewer"
-   ],
-   "daemons": [
-    {
-     "name": "kitchen-daemon",
-     "pid_file": "automation/state/kitchen-daemon.pid"
-    }
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/kitchen-status.json",
-     "writer": "setup/scripts/kitchen_daemon.py",
-     "task": "Gamma_KitchenDaemonKeepalive",
-     "criticality": "medium",
-     "max_age_min": 60,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "prospector",
-   "name": "Prospector",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Every-4h idea prospecting into the ideas ledger.",
-   "breaks": "The idea intake dries up and the queue empties without anyone noticing (OP-25 requires a non-empty queue).",
-   "tasks": [
-    "Gamma_Prospector"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/prospector-last.json",
-     "writer": "prospector runner",
-     "task": "Gamma_Prospector",
-     "criticality": "low",
-     "max_age_min": 720,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "swarm",
-   "name": "Free swarm",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Engine-stress swarm (2h) + premarket swarm consult -- free-tier adversarial review.",
-   "breaks": "Second-order review of engine changes stops; premarket context loses its adversarial pass.",
-   "tasks": [
-    "Gamma_EngineStressSwarm",
-    "Gamma_SwarmPremarket"
-   ]
-  },
-  {
-   "id": "crypto-twin",
-   "name": "Crypto twin",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "24/7 engine twin on Alpaca crypto paper + sentinel + weekly chaos drill.",
-   "breaks": "The only 24/7 mechanism-validation ground goes dark; engine bugs lose their fastest detector.",
-   "tasks": [
-    "Gamma_CryptoTwin",
-    "Gamma_TwinSentinel",
-    "Gamma_TwinChaos"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/twin-health.json",
-     "writer": "setup/scripts/crypto_twin_health.py",
-     "task": "Gamma_TwinSentinel",
-     "criticality": "medium",
-     "max_age_min": 60,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "crypto-gym",
-   "name": "Crypto gym",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "Validator gym: daily full run, grinder keepalive, 30-min regression.",
-   "breaks": "The 42-validator harness stops proving the chart-reading pipeline still reads charts correctly.",
-   "tasks": [
-    "Gamma_CryptoDaily",
-    "Gamma_CryptoGrinderKeepalive",
-    "Gamma_CryptoRegression"
-   ]
-  },
-  {
-   "id": "shadow-eval",
-   "name": "Shadow eval",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "Nemotron shadow scoring, shadow-signal audit, live shadow validator.",
-   "breaks": "Shadow candidates stop accruing graded evidence -- promotion decisions lose their clock.",
-   "tasks": [
-    "Gamma_ShadowEval",
-    "Gamma_ShadowSignalAudit",
-    "Gamma_LiveShadowValidator"
-   ]
-  },
-  {
-   "id": "shadow-rails",
-   "name": "Shadow rails",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Bold tier rail + ladder-rung + ER30 regime shadow pre-registrations.",
-   "breaks": "Pre-registered shadow arms stop recording would-be decisions; their clocks silently stop -- and a stopped clock is indistinguishable from a clock with nothing to record (the 2026-08-15 stop_mode finding).",
-   "tasks": [
-    "Gamma_BoldTierRail",
-    "Gamma_LadderRungShadow",
-    "Gamma_RegimeShadow"
-   ]
-  },
-  {
-   "id": "incident-roster",
-   "name": "Incident fix roster",
-   "group": "AUDIT",
-   "criticality": "high",
-   "what": "Daily 07:30 re-verification that the fixes from the 2026-08-14 loss morning are STILL landed (incident_fix_status.py). Silent unless one regresses.",
-   "breaks": "A shipped incident fix can silently un-land -- reverted, refactored away, or half-landed across call sites -- and nothing notices until the same loss repeats. UNREGISTERED until 2026-08-15: this task guarded the roster while nothing guarded the task.",
-   "tasks": [
-    "Gamma_IncidentFixStatus"
-   ]
-  },
-  {
-   "id": "kalshi",
-   "name": "Kalshi lane",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Autonomous Kalshi weather lane: scores its own settled predictions against NOAA GHCN and trades ONLY cities past a per-city scorecard bar.",
-   "breaks": "An unproven city silently stays in shadow (the design intent) OR the lane stops scoring entirely and nobody notices -- the whole point of the per-city bar is that it advances without anyone remembering to check it.",
-   "tasks": [
-    "Gamma_KalshiAuto"
-   ]
-  },
-  {
-   "id": "futures",
-   "name": "Futures program",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "MES/MNQ mirror-shadow + SSR forward shadow + edge-3 sim + the autonomous intraday lane (fillsim book lane + tastytrade SANDBOX real-fill parity lane) and its EOD.",
-   "breaks": "The futures forward-shadow clock stops accruing -- the whole program's only live evidence source. With the intraday lane dark, the real-fill parity question (the thing that unblocked this program) stops accumulating evidence too.",
-   "tasks": [
-    "Gamma_FuturesMirror",
-    "Gamma_SsrShadow",
-    "Gamma_FuturesEdge3Sim",
-    "Gamma_FuturesTrader",
-    "Gamma_FuturesBrokerLane",
-    "Gamma_FuturesBrokerProbe",
-    "Gamma_FuturesEod2"
-   ],
-   "expect_disabled": {
-    "Gamma_FuturesHeartbeat": "futures trading loop not armed -- shadow only",
-    "Gamma_FuturesEod": "paired with the disabled futures heartbeat",
-    "Gamma_FuturesPremarket": "paired with the disabled futures heartbeat"
-   }
-  },
-  {
-   "id": "conductor",
-   "name": "Conductor",
-   "group": "RESEARCH",
-   "criticality": "high",
-   "what": "The autonomous after-hours driver: 3 daily fires + 5-min wake watch + weekend loop.",
-   "breaks": "Nothing self-drives after hours. Work stops compounding and J becomes the prompter again (OP-22).",
-   "tasks": [
-    "Gamma_Conductor",
-    "Gamma_ConductorWake",
-    "Gamma_ConductorWeekend"
-   ],
-   "expect_disabled": {
-    "Gamma_ConductorRTH": "DISABLED 2026-07-25 cost pass -- job covered by the $0 deterministic path",
-    "Gamma_Drive": "superseded by the conductor wake loop"
-   },
-   "artifacts": [
-    {
-     "path": "automation/state/conductor-outcomes.jsonl",
-     "writer": "automation/prompts/conductor.md",
-     "task": "Gamma_Conductor",
-     "criticality": "high",
-     "max_age_min": 1440,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "autonomy-actuator",
-   "name": "Autonomy actuator",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "AutoApply approval->apply->commit->revert loop + candidate auto-commit.",
-   "breaks": "Approved changes never land, and 1000+ generated candidate files sit untracked (L242/L252).",
-   "tasks": [
-    "Gamma_AutoApply",
-    "Gamma_AutoCommitCandidates"
-   ]
-  },
-  {
-   "id": "free-autonomy",
-   "name": "Free manager loop",
-   "group": "RESEARCH",
-   "criticality": "medium",
-   "what": "Free-tier manager loop driving queue triage every 20 min.",
-   "breaks": "The $0 autonomy layer stops triaging -- work backs up onto paid fires.",
-   "tasks": [
-    "Gamma_FreeManager"
-   ],
-   "expect_disabled": {
-    "Gamma_ManagerOverseer": "superseded by Gamma_FreeManager"
-   }
-  },
-  {
-   "id": "research-ranking",
-   "name": "Contender ranker",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Every-30-min ranking of strategy contenders.",
-   "breaks": "Candidates stop being ranked; the shortlist J reads goes stale.",
-   "tasks": [
-    "Gamma_ContenderRank"
-   ]
-  },
-  {
-   "id": "dress-rehearsal",
-   "name": "Dress rehearsal",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Nightly end-to-end rehearsal of the trading path against replayed conditions.",
-   "breaks": "The nightly end-to-end proof that the path still places+fills stops running.",
-   "tasks": [
-    "Gamma_DressRehearsal"
-   ]
-  },
-  {
-   "id": "dojo",
-   "name": "Dojo manifest",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Builds the daily bar-replay training manifest.",
-   "breaks": "Replay training loses its daily source manifest.",
-   "tasks": [
-    "Gamma_EodDojoManifest"
-   ]
-  },
-  {
-   "id": "participation",
-   "name": "Participation daily",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Daily participation-rate accrual (how much of the tape the engine actually acts on).",
-   "breaks": "The engine's participation trend stops accruing.",
-   "tasks": [
-    "Gamma_ParticipationDaily"
-   ]
-  },
-  {
-   "id": "grind-pipeline",
-   "name": "Grind pipeline",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "On-demand multi-worker backtest grind + funnel workers. Off between grinds by design.",
-   "breaks": "Nothing while idle -- this unit is expected OFF. It is listed so its 'off' is documented rather than mysterious.",
-   "tasks": [],
-   "expect_disabled": {
-    "Gamma_Grind_all": "on-demand only -- enabled per grind",
-    "Gamma_Grind_Vwap": "on-demand only",
-    "Gamma_Grind_Watchdog": "on-demand only",
-    "Gamma_Funnel_0": "on-demand only",
-    "Gamma_Funnel_1": "on-demand only",
-    "Gamma_Funnel_2": "on-demand only",
-    "Gamma_Funnel_3": "on-demand only",
-    "Gamma_Funnel_4": "on-demand only",
-    "Gamma_Funnel_5": "on-demand only"
-   }
-  },
-  {
-   "id": "eod-pipeline",
-   "name": "EOD pipeline",
-   "group": "REPORTING",
-   "criticality": "high",
-   "what": "16:00-16:30 ET: summary, brief, deep dive, full audit, analyst review, trade + winner autopsy, winner signature.",
-   "breaks": "The learn-from-the-day loop stops. No autopsy, no hypothesis queue, no graded digest (OP-25).",
-   "tasks": [
-    "Gamma_EodSummary",
-    "Gamma_EodBrief",
-    "Gamma_EodDeepDive",
-    "Gamma_EodFullAudit",
-    "Gamma_AnalystEodReview",
-    "Gamma_TradeAutopsy",
-    "Gamma_WinnerAutopsy",
-    "Gamma_WinnerSignature",
-    "Gamma_DayThrottleShadow"
-   ],
-   "expect_disabled": {
-    "Gamma_EveningNarrative": "DISABLED 2026-07-25 -- duplicate of Gamma_EodBrief",
-    "Gamma_DailyReview": "superseded by the EOD pipeline"
-   },
-   "artifacts": [
-    {
-     "path": "automation/state/winner-autopsy-last.json",
-     "writer": "winner autopsy runner",
-     "task": "Gamma_WinnerAutopsy",
-     "criticality": "medium",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
+      "id": "fleet-executor",
+      "name": "Fleet executor",
+      "group": "TRADING",
+      "criticality": "critical",
+      "what": "Builds the shared perception signal every RTH minute and runs each enabled fleet arm off it.",
+      "breaks": "All 5 real-fills arms stop trading while the core engine keeps going -- the book silently shrinks to one arm.",
+      "tasks": [
+        "Gamma_FleetExecutor"
+      ],
+      "artifacts": [
+        "automation/state/fleet/shared-signal.json"
+      ]
     },
     {
-     "path": "analysis/winner-autopsies/signature.json",
-     "writer": "winner signature (winner_signature.py)",
-     "task": "Gamma_WinnerSignature",
-     "criticality": "medium",
-     "max_age_min": 2160,
-     "date_field": "_meta.generated_at_et",
-     "window_et": null,
-     "weekdays_only": false
+      "id": "eod-flatten",
+      "name": "EOD flatten",
+      "group": "TRADING",
+      "criticality": "critical",
+      "what": "15:52-15:55 ET force-close of any 0DTE position still open, on every account.",
+      "breaks": "A 0DTE position rides into expiry unmanaged. This is the single most expensive unattended failure in the rig.",
+      "tasks": [
+        "Gamma_EodFlatten",
+        "Gamma_EodFlatten_Aggressive",
+        "Gamma_EodFlattenCore"
+      ]
     },
     {
-     "path": "analysis/recommendations/day-throttle-shadow-summary.json",
-     "writer": "day-throttle shadow counter (day_throttle_shadow.py)",
-     "task": "Gamma_DayThrottleShadow",
-     "criticality": "medium",
-     "max_age_min": 2160,
-     "date_field": "_meta.generated_at_et",
-     "window_et": null,
-     "weekdays_only": false
+      "id": "tv-eyes",
+      "name": "TradingView eyes",
+      "group": "TRADING",
+      "criticality": "high",
+      "what": "Launches TradingView Desktop with CDP on :9222 at 08:00 and keeps it alive every 5 min.",
+      "breaks": "No TV = no chart reads for premarket/levels/trendlines. Historically the 'no TV = no trades' outage class.",
+      "tasks": [
+        "Gamma_LaunchTV",
+        "Gamma_TvWatchdog"
+      ]
     },
     {
-     "_why_these_five": "ADDED 2026-08-15. The fold contract is 'fail-open, never fatal', so a folded shadow producer can error every night -- or never be wired at all -- while winner-autopsy-last.json above stays perfectly fresh and this unit reads OK. Watching only the PARENT is exactly how entry-quality-ledger.json sat frozen at 2026-08-06 for five trading days and pinned an ARMED prereg's forward clock at n_trades=0 / ARMED_AWAITING_FILLS, a state indistinguishable from a real absence of fills. criticality=medium on purpose (YELLOW, never RED -- a dead research clock is not a trading emergency and a tile that REDs for one gets ignored). date_field is each artifact's OWN BUILD STAMP, never a data-derived date: a data date parks on the last day WITH fills, so keying freshness off it would alarm every time the engine correctly sat out.",
-     "path": "analysis/entry-quality/entry-quality-ledger.json",
-     "writer": "setup/scripts/entry_quality_ledger.py#build_ledger",
-     "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
-     "consumer": "stop_mode_shadow_ledger reads this ENRICHED artifact deliberately (build_population() carries no trigger_level, so structure stops could never fire). SILENT DEGRADE: the artifact freezes and the forward clock accrues 0 trades forever while reporting ARMED_AWAITING_FILLS. THE 2026-08-15 FINDING.",
-     "criticality": "medium",
-     "max_age_min": null,
-     "date_field": "_meta.generated_at_et",
-     "date_expected_after_et": "18:00",
-     "window_et": null,
-     "weekdays_only": true
+      "id": "j-intent",
+      "name": "J intent executor",
+      "group": "TRADING",
+      "criticality": "high",
+      "what": "The standing deterministic path that arms a J-called trade without an LLM in the loop.",
+      "breaks": "J calls a live entry and nothing picks it up -- the <60s arm path is dead and he finds out by watching nothing happen.",
+      "tasks": [
+        "Gamma_JIntentExecutor"
+      ]
     },
     {
-     "path": "analysis/recommendations/stop-mode-shadow-summary.json",
-     "writer": "setup/scripts/stop_mode_shadow_ledger.py#run",
-     "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
-     "consumer": "the STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 forward clock toward its 20-day bar. SILENT DEGRADE: a frozen clock never reaches the bar, so a pre-registered A/B simply never becomes runnable and nothing says why.",
-     "criticality": "medium",
-     "max_age_min": null,
-     "date_field": "generated_at_et",
-     "date_expected_after_et": "18:00",
-     "window_et": null,
-     "weekdays_only": true
+      "id": "broker-fills",
+      "name": "Broker fills / P&L",
+      "group": "TRADING",
+      "criticality": "high",
+      "what": "Pulls real broker fills every 10 min + at EOD into the C1 real-fills authority.",
+      "breaks": "Every downstream P&L, win-rate and autopsy number quietly reports a stale book as current.",
+      "tasks": [
+        "Gamma_BrokerFills"
+      ],
+      "artifacts": [
+        "automation/state/pnl-statement.json"
+      ]
     },
     {
-     "path": "analysis/entry-quality/shadow-summary.json",
-     "writer": "setup/scripts/entry_shadow_counter.py#run_nightly",
-     "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
-     "consumer": "the V-d1/V-e3 forward prereg's F1-F5 gates. SILENT DEGRADE: the forward window stops advancing and the gates are adjudicated on a short count that looks complete.",
-     "criticality": "medium",
-     "max_age_min": null,
-     "date_field": "_meta.generated_at_et",
-     "date_expected_after_et": "18:00",
-     "window_et": null,
-     "weekdays_only": true
+      "id": "ghost-orders",
+      "name": "Ghost-order reconciler",
+      "group": "TRADING",
+      "criticality": "high",
+      "what": "Reconciles broker order state against local position state; clears orphaned/ghost orders.",
+      "breaks": "A ghost order leaves the engine believing it is NOT flat, which blocks every subsequent entry (C11).",
+      "tasks": [
+        "Gamma_GhostOrderReconciler"
+      ]
     },
     {
-     "path": "analysis/entry-quality/conviction-shadow-report.json",
-     "writer": "setup/scripts/conviction_shadow_report.py#run",
-     "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
-     "consumer": "the weekly conviction would_block distribution (DISARMED / measurement only). SILENT DEGRADE: the post-fix population stops growing and the weekly read reports an old window as current.",
-     "criticality": "medium",
-     "max_age_min": null,
-     "date_field": "_meta.generated_at_et",
-     "date_expected_after_et": "18:00",
-     "window_et": null,
-     "weekdays_only": true
+      "id": "entry-block-watch",
+      "name": "Entry-block watch",
+      "group": "TRADING",
+      "criticality": "medium",
+      "what": "Records WHY entries were blocked each session so a silently-gated engine is visible.",
+      "breaks": "A gate cascade that blocks 100% of entries looks identical to a quiet tape (C15).",
+      "tasks": [
+        "Gamma_EntryBlockWatch"
+      ]
     },
     {
-     "path": "analysis/pain-ledger/mae-mfe.json",
-     "writer": "setup/scripts/pain_ledger.py#build_ledger",
-     "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
-     "consumer": "entry_quality_ledger.load_pain_index() joins MFE/MAE from here (the ONE frozen excursion implementation, L251). SILENT DEGRADE: the enriched ledger keeps building but every new event loses its MFE join, so excursion analysis quietly narrows to the old population.",
-     "criticality": "medium",
-     "max_age_min": null,
-     "date_field": "_meta.generated_at_et",
-     "date_expected_after_et": "18:00",
-     "window_et": null,
-     "weekdays_only": true
+      "id": "level-refresh",
+      "name": "Level refresh",
+      "group": "DATA",
+      "criticality": "critical",
+      "what": "Rewrites key-levels.json every 5 min (intraday) + snapshots the level set.",
+      "breaks": "THE 2026-07-30 INCIDENT. Levels expire, the read returns empty, and the engine falls through to its worst cohort (trendline-only) instead of halting. 772 blind ticks before anyone noticed.",
+      "tasks": [
+        "Gamma_LevelRefresh",
+        "Gamma_KeyLevelsSnapshot"
+      ],
+      "artifacts": [
+        "automation/state/key-levels.json"
+      ]
+    },
+    {
+      "id": "level-memory",
+      "name": "Level memory (G11)",
+      "group": "DATA",
+      "criticality": "high",
+      "what": "Multi-day level memory + prior RTH close, merged into the live level set.",
+      "breaks": "Multi-day levels silently stop appearing; gap_and_go measures the gap off a stale prior close.",
+      "tasks": [
+        "Gamma_LevelMemory"
+      ],
+      "artifacts": [
+        "automation/state/key-levels-memory.json",
+        "automation/state/prior-rth-close.json"
+      ]
+    },
+    {
+      "id": "premarket",
+      "name": "Premarket pipeline",
+      "group": "DATA",
+      "criticality": "critical",
+      "what": "08:30 ET bias + levels + loss budget + circuit-breaker re-arm, plus the 08:20 EMA pre-seed.",
+      "breaks": "The daily-loss kill switch anchors to a PRIOR day's equity and the bias file reads yesterday as today.",
+      "tasks": [
+        "Gamma_Premarket",
+        "Gamma_EmaSnapshot"
+      ],
+      "artifacts": [
+        "automation/state/today-bias.json",
+        "automation/state/circuit-breaker.json",
+        "automation/state/aggressive/circuit-breaker.json",
+        "automation/state/ema-snapshot.json"
+      ]
+    },
+    {
+      "id": "premarket-readiness",
+      "name": "Premarket readiness gate",
+      "group": "DATA",
+      "criticality": "high",
+      "what": "09:00 ET go/no-go gate, including the levels_sanity check built after the blind-engine incident.",
+      "breaks": "The gate not running looks EXACTLY like the gate passing. This unit exists because that already happened once.",
+      "tasks": [
+        "Gamma_PremarketReadiness",
+        "Gamma_PreopenReadiness"
+      ],
+      "artifacts": [
+        "automation/state/premarket-readiness.json"
+      ]
+    },
+    {
+      "id": "context-bundle",
+      "name": "Context bundle",
+      "group": "DATA",
+      "criticality": "medium",
+      "what": "Every-5-min RTH bundle of the engine's analytical context.",
+      "breaks": "Tick analysis quality degrades (the tick logs an absent bundle -- this one degrades LOUDLY by design).",
+      "tasks": [
+        "Gamma_ContextBundle"
+      ],
+      "artifacts": [
+        "automation/state/context-bundle.json"
+      ]
+    },
+    {
+      "id": "trendlines",
+      "name": "Trendline engine",
+      "group": "DATA",
+      "criticality": "medium",
+      "what": "Wick-anchored trendline detection every 5 min RTH.",
+      "breaks": "Confluence zones get built from yesterday's lines with no marker on them.",
+      "tasks": [
+        "Gamma_Trendlines",
+        "Gamma_ChartAutoDraw"
+      ],
+      "artifacts": [
+        "automation/state/trendlines-live.json"
+      ]
+    },
+    {
+      "id": "confluence",
+      "name": "Confluence zones",
+      "group": "DATA",
+      "criticality": "medium",
+      "what": "Fuses level memory + trendlines + prior close into ranked zones every 10 min.",
+      "breaks": "COMPOUNDING failure: emits plausible-looking zones even when all three inputs are a day old.",
+      "tasks": [
+        "Gamma_Confluence"
+      ],
+      "artifacts": [
+        "automation/state/confluence-zones.json"
+      ]
+    },
+    {
+      "id": "macro-news",
+      "name": "Macro calendar / scout",
+      "group": "DATA",
+      "criticality": "medium",
+      "what": "05:45 ET macro calendar + 03:30 ET premarket scout sweep.",
+      "breaks": "A stale calendar reads as 'no events today' -- the rig trades an FOMC print blind.",
+      "tasks": [
+        "Gamma_MacroCalendar",
+        "Gamma_ScoutPremarket"
+      ],
+      "artifacts": [
+        "automation/state/news.json"
+      ]
+    },
+    {
+      "id": "trade-today",
+      "name": "Trade-today watcher",
+      "group": "DATA",
+      "criticality": "high",
+      "what": "Every 2 min RTH: did we actually trade today, and what filled.",
+      "breaks": "J's 'did it trade today' surface reports an ACTIVE day as IDLE (this is L244, already burned once).",
+      "tasks": [
+        "Gamma_TradeToday"
+      ],
+      "artifacts": [
+        "automation/state/trade-today.json"
+      ]
+    },
+    {
+      "id": "regime-meters",
+      "name": "Regime meters",
+      "group": "DATA",
+      "criticality": "low",
+      "what": "Chop meter, regime stamp, regime attribution, violin metric.",
+      "breaks": "Regime stratification in analysis silently runs on a stale stamp (C5).",
+      "tasks": [
+        "Gamma_ChopMeter",
+        "Gamma_RegimeStamp",
+        "Gamma_RegimeAttribution",
+        "Gamma_ViolinMetric"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/regime-stamp.json",
+          "writer": "setup/scripts/regime_stamp.py",
+          "task": "Gamma_RegimeStamp",
+          "criticality": "low",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "options-data",
+      "name": "Options/OI data bank",
+      "group": "DATA",
+      "criticality": "low",
+      "what": "CBOE open-interest banking + theta clock.",
+      "breaks": "GEX/OI-derived context goes stale without saying so.",
+      "tasks": [
+        "Gamma_CboeOiBank",
+        "Gamma_ThetaClock"
+      ]
+    },
+    {
+      "id": "watcher-fleet",
+      "name": "Watcher fleet",
+      "group": "DATA",
+      "criticality": "medium",
+      "what": "Live watcher observations + nightly grading of watcher calls.",
+      "breaks": "The shadow observation stream that feeds promotion gates stops accruing evidence.",
+      "tasks": [
+        "Gamma_WatcherLive",
+        "Gamma_WatcherGrader"
+      ]
+    },
+    {
+      "id": "live-watch",
+      "name": "Live watch surface",
+      "group": "DATA",
+      "criticality": "low",
+      "what": "The dashboard's live-watch state producer.",
+      "breaks": "The dashboard's live panel freezes on a stale frame with no staleness marker.",
+      "tasks": [
+        "Gamma_LiveWatch"
+      ]
+    },
+    {
+      "id": "engine-health",
+      "name": "Engine health beacon",
+      "group": "AUDIT",
+      "criticality": "critical",
+      "what": "Every-minute fused health verdict over 18 live-path checks.",
+      "breaks": "THE WATCHER ITSELF. While this is down every other RED in the rig is invisible.",
+      "tasks": [
+        "Gamma_HealthBeacon"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/engine-health.json",
+          "writer": "setup/scripts/engine_health.py",
+          "task": "Gamma_HealthBeacon",
+          "criticality": "critical",
+          "max_age_min": 15,
+          "date_field": "checked_at_et",
+          "date_expected_after_et": "09:35",
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "self-check",
+      "name": "Self check",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "Every-30-min broad self-consistency sweep across state and config.",
+      "breaks": "Config/state drift accumulates undetected between sessions.",
+      "tasks": [
+        "Gamma_SelfCheck"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/self-check-last.json",
+          "writer": "setup/scripts/self_check.py",
+          "task": "Gamma_SelfCheck",
+          "criticality": "high",
+          "max_age_min": 120,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "task-state-guard",
+      "name": "Task-state guard",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "Every 30 min: detects tasks flipped Disabled or whose triggers stopped repeating.",
+      "breaks": "A task silently flipped to Disabled goes unnoticed -- the exact mechanism behind the blind-engine incident.",
+      "tasks": [
+        "Gamma_TaskStateGuard"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/task-state-guard.json",
+          "writer": "setup/scripts/task_state_guard.py",
+          "task": "Gamma_TaskStateGuard",
+          "criticality": "high",
+          "max_age_min": 120,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "scheduled-task-audit",
+      "name": "Scheduled-task audit",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "Daily registry-vs-reality reconciliation of every Gamma_* task (fires under Gamma_CryptoDaily).",
+      "breaks": "Orphan/stale/window-leak task drift accumulates silently in SCHEDULED-TASKS.md.",
+      "tasks": [],
+      "artifacts": [
+        {
+          "path": "automation/state/scheduled-tasks-audit.json",
+          "writer": "setup/scripts/audit_scheduled_tasks.py",
+          "task": "Gamma_CryptoDaily",
+          "criticality": "medium",
+          "max_age_min": 1800,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "gym-session",
+      "name": "Gym session",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "17:00 ET daily physical exam -- 7 audits fused into one scorecard.",
+      "breaks": "The daily correctness/latency exam stops running; validator regressions land unseen.",
+      "tasks": [
+        "Gamma_GymSession"
+      ]
+    },
+    {
+      "id": "guards-nightly",
+      "name": "Guard suite (nightly)",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "22:30 ET run of the graduated-guard pytest suite, including the slow live-trigger guards.",
+      "breaks": "Every regression a guard was written to catch can re-land silently -- guards are only real while they run.",
+      "tasks": [
+        "Gamma_GuardsNightly"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/guard-watch-slow.json",
+          "writer": "setup/guard_runner_slow.py (nightly SLOW guards)",
+          "task": "Gamma_GuardsNightly",
+          "criticality": "high",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false,
+          "note": "Was pointed at guard-watch.json until 2026-08-26 -- that file is written by the per-EDIT PostToolUse hook (guard_runner.py), NOT by Gamma_GuardsNightly. The unit therefore reported on whether someone had recently edited a file, not on whether the nightly suite ran (C7: measuring motion, not function)."
+        }
+      ]
+    },
+    {
+      "id": "gate-governance",
+      "name": "Gate recency / expiry",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "Every armed gate carries a revalidation clock; this checks recency and expiry nightly.",
+      "breaks": "A gate stays armed on stale evidence -- J 2026-07-31: block_elite_bull blocked a perfect 11/11 setup 111 times.",
+      "tasks": [
+        "Gamma_GateRecency",
+        "Gamma_GateExpiryCheck"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/gate-registry-status.json",
+          "writer": "gate recency runner",
+          "task": "Gamma_GateExpiryCheck",
+          "criticality": "high",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "free-model-audit",
+      "name": "Free-model audit",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "Periodic Claude-grading of every free-model decision touchpoint (>=85% bar).",
+      "breaks": "Free models keep vetoing live decisions with no measured accuracy behind them.",
+      "tasks": [
+        "Gamma_FreeModelAudit"
+      ]
+    },
+    {
+      "id": "mcp-audit",
+      "name": "MCP audit",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "Daily MCP wiring + credential reachability audit.",
+      "breaks": "A stale/401 key reads as 'connected' until an order fails at the worst moment.",
+      "tasks": [
+        "Gamma_McpDailyAudit"
+      ]
+    },
+    {
+      "id": "github-audit",
+      "name": "GitHub secrets audit",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "Nightly secret + privacy scan of every tracked file before anything reaches the PUBLIC repo.",
+      "breaks": "A credential can reach a public GitHub repo unreviewed. Irreversible.",
+      "tasks": [
+        "Gamma_GitHubAudit"
+      ]
+    },
+    {
+      "id": "window-leak",
+      "name": "Window-leak detector",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "Watches for console windows flashing on J's screen from automation fires.",
+      "breaks": "Popups start flashing on J's desktop again -- the #1 'don't disturb the user' regression.",
+      "tasks": [
+        "Gamma_WindowLeakDetectorKeepalive"
+      ],
+      "daemons": [
+        {
+          "name": "window-leak-detector",
+          "pid_file": "automation/state/window-leak-detector.pid"
+        },
+        {
+          "name": "window-leak-hook",
+          "pid_file": "automation/state/window-leak-hook.pid"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/window-leak-summary.json",
+          "writer": "setup/scripts/audit_window_leak_compliance.py",
+          "task": "Gamma_WindowLeakDetectorKeepalive",
+          "criticality": "medium",
+          "max_age_min": 1440,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "context-budget",
+      "name": "Context budget guard",
+      "group": "AUDIT",
+      "criticality": "low",
+      "what": "Daily check that CLAUDE.md stays under its 9K token budget.",
+      "breaks": "The always-loaded prefix bloats and every session's attention degrades.",
+      "tasks": [
+        "Gamma_ContextGuard"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/context-budget.json",
+          "writer": "setup/scripts/context_audit.py",
+          "task": "Gamma_ContextGuard",
+          "criticality": "low",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "unattended-health",
+      "name": "Unattended health (this)",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "The every-10-min collector that produces these traffic lights.",
+      "breaks": "EVERY OTHER BUBBLE FREEZES on its last known value and the tile quietly lies. The outer guard is the snapshot-age banner on the tile itself -- a monitor cannot be its own last line of defence.",
+      "tasks": [
+        "Gamma_UnattendedHealth"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/unattended-health.json",
+          "writer": "setup/scripts/unattended_health.py",
+          "task": "Gamma_UnattendedHealth",
+          "criticality": "high",
+          "max_age_min": 40,
+          "date_field": "checked_at_et",
+          "date_expected_after_et": "00:10",
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "self-audit",
+      "name": "Self audit (gap finder)",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "Daily sweep for gaps between what doctrine claims and what the rig does.",
+      "breaks": "Doctrine-vs-reality drift accumulates -- the class that produced 'the rig never traded' in 2026-06.",
+      "tasks": [
+        "Gamma_SelfAudit"
+      ]
+    },
+    {
+      "id": "manager-verify",
+      "name": "Manager daily verify",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "15:30 ET verification that every phase of the daily loop actually ran.",
+      "breaks": "A missing phase in the daily loop goes unreported -- silence reads as success (C7).",
+      "tasks": [
+        "Gamma_ManagerDailyVerify"
+      ]
+    },
+    {
+      "id": "oos-check",
+      "name": "OOS check",
+      "group": "AUDIT",
+      "criticality": "medium",
+      "what": "Nightly out-of-sample re-check of ratified edges.",
+      "breaks": "A ratified edge decays out-of-sample with nothing measuring it.",
+      "tasks": [
+        "Gamma_OosCheck"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/core-strategy-recency.json",
+          "writer": "setup/scripts/oos_check_runner.py",
+          "task": "Gamma_OosCheck",
+          "criticality": "medium",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen (R&D loop)",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "24/7 free-tier autonomous R&D: keepalive daemon + :20 seeder + 2h reviewer.",
+      "breaks": "The continuous strategy-search loop stops. Silent: kitchen-status.json keeps serving its last payload.",
+      "tasks": [
+        "Gamma_KitchenDaemonKeepalive",
+        "Gamma_KitchenSeeder",
+        "Gamma_KitchenReviewer"
+      ],
+      "daemons": [
+        {
+          "name": "kitchen-daemon",
+          "pid_file": "automation/state/kitchen-daemon.pid"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/kitchen-status.json",
+          "writer": "setup/scripts/kitchen_daemon.py",
+          "task": "Gamma_KitchenDaemonKeepalive",
+          "criticality": "medium",
+          "max_age_min": 60,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "prospector",
+      "name": "Prospector",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Every-4h idea prospecting into the ideas ledger.",
+      "breaks": "The idea intake dries up and the queue empties without anyone noticing (OP-25 requires a non-empty queue).",
+      "tasks": [
+        "Gamma_Prospector"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/prospector-last.json",
+          "writer": "prospector runner",
+          "task": "Gamma_Prospector",
+          "criticality": "low",
+          "max_age_min": 720,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "swarm",
+      "name": "Free swarm",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Engine-stress swarm (2h) + premarket swarm consult -- free-tier adversarial review.",
+      "breaks": "Second-order review of engine changes stops; premarket context loses its adversarial pass.",
+      "tasks": [
+        "Gamma_EngineStressSwarm",
+        "Gamma_SwarmPremarket"
+      ]
+    },
+    {
+      "id": "crypto-twin",
+      "name": "Crypto twin",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "24/7 engine twin on Alpaca crypto paper + sentinel + weekly chaos drill.",
+      "breaks": "The only 24/7 mechanism-validation ground goes dark; engine bugs lose their fastest detector.",
+      "tasks": [
+        "Gamma_CryptoTwin",
+        "Gamma_TwinSentinel",
+        "Gamma_TwinChaos"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/twin-health.json",
+          "writer": "setup/scripts/crypto_twin_health.py",
+          "task": "Gamma_TwinSentinel",
+          "criticality": "medium",
+          "max_age_min": 60,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "crypto-gym",
+      "name": "Crypto gym",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "Validator gym: daily full run, grinder keepalive, 30-min regression.",
+      "breaks": "The 42-validator harness stops proving the chart-reading pipeline still reads charts correctly.",
+      "tasks": [
+        "Gamma_CryptoDaily",
+        "Gamma_CryptoGrinderKeepalive",
+        "Gamma_CryptoRegression"
+      ]
+    },
+    {
+      "id": "shadow-eval",
+      "name": "Shadow eval",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "Nemotron shadow scoring, shadow-signal audit, live shadow validator.",
+      "breaks": "Shadow candidates stop accruing graded evidence -- promotion decisions lose their clock.",
+      "tasks": [
+        "Gamma_ShadowEval",
+        "Gamma_ShadowSignalAudit",
+        "Gamma_LiveShadowValidator"
+      ]
+    },
+    {
+      "id": "shadow-rails",
+      "name": "Shadow rails",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Bold tier rail + ladder-rung + ER30 regime shadow pre-registrations.",
+      "breaks": "Pre-registered shadow arms stop recording would-be decisions; their clocks silently stop -- and a stopped clock is indistinguishable from a clock with nothing to record (the 2026-08-15 stop_mode finding).",
+      "tasks": [
+        "Gamma_BoldTierRail",
+        "Gamma_LadderRungShadow",
+        "Gamma_RegimeShadow"
+      ]
+    },
+    {
+      "id": "incident-roster",
+      "name": "Incident fix roster",
+      "group": "AUDIT",
+      "criticality": "high",
+      "what": "Daily 07:30 re-verification that the fixes from the 2026-08-14 loss morning are STILL landed (incident_fix_status.py). Silent unless one regresses.",
+      "breaks": "A shipped incident fix can silently un-land -- reverted, refactored away, or half-landed across call sites -- and nothing notices until the same loss repeats. UNREGISTERED until 2026-08-15: this task guarded the roster while nothing guarded the task.",
+      "tasks": [
+        "Gamma_IncidentFixStatus"
+      ]
+    },
+    {
+      "id": "kalshi",
+      "name": "Kalshi lane",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Autonomous Kalshi weather lane: scores its own settled predictions against NOAA GHCN and trades ONLY cities past a per-city scorecard bar.",
+      "breaks": "An unproven city silently stays in shadow (the design intent) OR the lane stops scoring entirely and nobody notices -- the whole point of the per-city bar is that it advances without anyone remembering to check it.",
+      "tasks": [
+        "Gamma_KalshiAuto"
+      ]
+    },
+    {
+      "id": "futures",
+      "name": "Futures program",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "MES/MNQ mirror-shadow + SSR forward shadow + edge-3 sim + the autonomous intraday lane (fillsim book lane + tastytrade SANDBOX real-fill parity lane) and its EOD.",
+      "breaks": "The futures forward-shadow clock stops accruing -- the whole program's only live evidence source. With the intraday lane dark, the real-fill parity question (the thing that unblocked this program) stops accumulating evidence too.",
+      "tasks": [
+        "Gamma_FuturesMirror",
+        "Gamma_SsrShadow",
+        "Gamma_FuturesEdge3Sim",
+        "Gamma_FuturesTrader",
+        "Gamma_FuturesBrokerLane",
+        "Gamma_FuturesBrokerProbe",
+        "Gamma_FuturesEod2"
+      ],
+      "expect_disabled": {
+        "Gamma_FuturesHeartbeat": "futures trading loop not armed -- shadow only",
+        "Gamma_FuturesEod": "paired with the disabled futures heartbeat",
+        "Gamma_FuturesPremarket": "paired with the disabled futures heartbeat"
+      }
+    },
+    {
+      "id": "conductor",
+      "name": "Conductor",
+      "group": "RESEARCH",
+      "criticality": "high",
+      "what": "The autonomous after-hours driver: 3 daily fires + 5-min wake watch + weekend loop.",
+      "breaks": "Nothing self-drives after hours. Work stops compounding and J becomes the prompter again (OP-22).",
+      "tasks": [
+        "Gamma_Conductor",
+        "Gamma_ConductorWake",
+        "Gamma_ConductorWeekend"
+      ],
+      "expect_disabled": {
+        "Gamma_ConductorRTH": "DISABLED 2026-07-25 cost pass -- job covered by the $0 deterministic path",
+        "Gamma_Drive": "superseded by the conductor wake loop"
+      },
+      "artifacts": [
+        {
+          "path": "automation/state/conductor-outcomes.jsonl",
+          "writer": "automation/prompts/conductor.md",
+          "task": "Gamma_Conductor",
+          "criticality": "high",
+          "max_age_min": 1440,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "autonomy-actuator",
+      "name": "Autonomy actuator",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "AutoApply approval->apply->commit->revert loop + candidate auto-commit.",
+      "breaks": "Approved changes never land, and 1000+ generated candidate files sit untracked (L242/L252).",
+      "tasks": [
+        "Gamma_AutoApply",
+        "Gamma_AutoCommitCandidates"
+      ]
+    },
+    {
+      "id": "free-autonomy",
+      "name": "Free manager loop",
+      "group": "RESEARCH",
+      "criticality": "medium",
+      "what": "Free-tier manager loop driving queue triage every 20 min.",
+      "breaks": "The $0 autonomy layer stops triaging -- work backs up onto paid fires.",
+      "tasks": [
+        "Gamma_FreeManager"
+      ],
+      "expect_disabled": {
+        "Gamma_ManagerOverseer": "superseded by Gamma_FreeManager"
+      }
+    },
+    {
+      "id": "research-ranking",
+      "name": "Contender ranker",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Every-30-min ranking of strategy contenders.",
+      "breaks": "Candidates stop being ranked; the shortlist J reads goes stale.",
+      "tasks": [
+        "Gamma_ContenderRank"
+      ]
+    },
+    {
+      "id": "dress-rehearsal",
+      "name": "Dress rehearsal",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Nightly end-to-end rehearsal of the trading path against replayed conditions.",
+      "breaks": "The nightly end-to-end proof that the path still places+fills stops running.",
+      "tasks": [
+        "Gamma_DressRehearsal"
+      ]
+    },
+    {
+      "id": "dojo",
+      "name": "Dojo manifest",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Builds the daily bar-replay training manifest.",
+      "breaks": "Replay training loses its daily source manifest.",
+      "tasks": [
+        "Gamma_EodDojoManifest"
+      ]
+    },
+    {
+      "id": "participation",
+      "name": "Participation daily",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Daily participation-rate accrual (how much of the tape the engine actually acts on).",
+      "breaks": "The engine's participation trend stops accruing.",
+      "tasks": [
+        "Gamma_ParticipationDaily"
+      ]
+    },
+    {
+      "id": "grind-pipeline",
+      "name": "Grind pipeline",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "On-demand multi-worker backtest grind + funnel workers. Off between grinds by design.",
+      "breaks": "Nothing while idle -- this unit is expected OFF. It is listed so its 'off' is documented rather than mysterious.",
+      "tasks": [],
+      "expect_disabled": {
+        "Gamma_Grind_all": "on-demand only -- enabled per grind",
+        "Gamma_Grind_Vwap": "on-demand only",
+        "Gamma_Grind_Watchdog": "on-demand only",
+        "Gamma_Funnel_0": "on-demand only",
+        "Gamma_Funnel_1": "on-demand only",
+        "Gamma_Funnel_2": "on-demand only",
+        "Gamma_Funnel_3": "on-demand only",
+        "Gamma_Funnel_4": "on-demand only",
+        "Gamma_Funnel_5": "on-demand only"
+      }
+    },
+    {
+      "id": "eod-pipeline",
+      "name": "EOD pipeline",
+      "group": "REPORTING",
+      "criticality": "high",
+      "what": "16:00-16:30 ET: summary, brief, deep dive, full audit, analyst review, trade + winner autopsy, winner signature.",
+      "breaks": "The learn-from-the-day loop stops. No autopsy, no hypothesis queue, no graded digest (OP-25).",
+      "tasks": [
+        "Gamma_EodSummary",
+        "Gamma_EodBrief",
+        "Gamma_EodDeepDive",
+        "Gamma_EodFullAudit",
+        "Gamma_AnalystEodReview",
+        "Gamma_TradeAutopsy",
+        "Gamma_WinnerAutopsy",
+        "Gamma_WinnerSignature",
+        "Gamma_DayThrottleShadow"
+      ],
+      "expect_disabled": {
+        "Gamma_EveningNarrative": "DISABLED 2026-07-25 -- duplicate of Gamma_EodBrief",
+        "Gamma_DailyReview": "superseded by the EOD pipeline"
+      },
+      "artifacts": [
+        {
+          "path": "automation/state/winner-autopsy-last.json",
+          "writer": "winner autopsy runner",
+          "task": "Gamma_WinnerAutopsy",
+          "criticality": "medium",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        },
+        {
+          "path": "analysis/winner-autopsies/signature.json",
+          "writer": "winner signature (winner_signature.py)",
+          "task": "Gamma_WinnerSignature",
+          "criticality": "medium",
+          "max_age_min": 2160,
+          "date_field": "_meta.generated_at_et",
+          "window_et": null,
+          "weekdays_only": false
+        },
+        {
+          "path": "analysis/recommendations/day-throttle-shadow-summary.json",
+          "writer": "day-throttle shadow counter (day_throttle_shadow.py)",
+          "task": "Gamma_DayThrottleShadow",
+          "criticality": "medium",
+          "max_age_min": 2160,
+          "date_field": "_meta.generated_at_et",
+          "window_et": null,
+          "weekdays_only": false
+        },
+        {
+          "_why_these_five": "ADDED 2026-08-15. The fold contract is 'fail-open, never fatal', so a folded shadow producer can error every night -- or never be wired at all -- while winner-autopsy-last.json above stays perfectly fresh and this unit reads OK. Watching only the PARENT is exactly how entry-quality-ledger.json sat frozen at 2026-08-06 for five trading days and pinned an ARMED prereg's forward clock at n_trades=0 / ARMED_AWAITING_FILLS, a state indistinguishable from a real absence of fills. criticality=medium on purpose (YELLOW, never RED -- a dead research clock is not a trading emergency and a tile that REDs for one gets ignored). date_field is each artifact's OWN BUILD STAMP, never a data-derived date: a data date parks on the last day WITH fills, so keying freshness off it would alarm every time the engine correctly sat out.",
+          "path": "analysis/entry-quality/entry-quality-ledger.json",
+          "writer": "setup/scripts/entry_quality_ledger.py#build_ledger",
+          "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
+          "consumer": "stop_mode_shadow_ledger reads this ENRICHED artifact deliberately (build_population() carries no trigger_level, so structure stops could never fire). SILENT DEGRADE: the artifact freezes and the forward clock accrues 0 trades forever while reporting ARMED_AWAITING_FILLS. THE 2026-08-15 FINDING.",
+          "criticality": "medium",
+          "max_age_min": null,
+          "date_field": "_meta.generated_at_et",
+          "date_expected_after_et": "18:00",
+          "window_et": null,
+          "weekdays_only": true
+        },
+        {
+          "path": "analysis/recommendations/stop-mode-shadow-summary.json",
+          "writer": "setup/scripts/stop_mode_shadow_ledger.py#run",
+          "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
+          "consumer": "the STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 forward clock toward its 20-day bar. SILENT DEGRADE: a frozen clock never reaches the bar, so a pre-registered A/B simply never becomes runnable and nothing says why.",
+          "criticality": "medium",
+          "max_age_min": null,
+          "date_field": "generated_at_et",
+          "date_expected_after_et": "18:00",
+          "window_et": null,
+          "weekdays_only": true
+        },
+        {
+          "path": "analysis/entry-quality/shadow-summary.json",
+          "writer": "setup/scripts/entry_shadow_counter.py#run_nightly",
+          "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
+          "consumer": "the V-d1/V-e3 forward prereg's F1-F5 gates. SILENT DEGRADE: the forward window stops advancing and the gates are adjudicated on a short count that looks complete.",
+          "criticality": "medium",
+          "max_age_min": null,
+          "date_field": "_meta.generated_at_et",
+          "date_expected_after_et": "18:00",
+          "window_et": null,
+          "weekdays_only": true
+        },
+        {
+          "path": "analysis/entry-quality/conviction-shadow-report.json",
+          "writer": "setup/scripts/conviction_shadow_report.py#run",
+          "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
+          "consumer": "the weekly conviction would_block distribution (DISARMED / measurement only). SILENT DEGRADE: the post-fix population stops growing and the weekly read reports an old window as current.",
+          "criticality": "medium",
+          "max_age_min": null,
+          "date_field": "_meta.generated_at_et",
+          "date_expected_after_et": "18:00",
+          "window_et": null,
+          "weekdays_only": true
+        },
+        {
+          "path": "analysis/pain-ledger/mae-mfe.json",
+          "writer": "setup/scripts/pain_ledger.py#build_ledger",
+          "task": "Gamma_WinnerAutopsy (16:25 ET fold)",
+          "consumer": "entry_quality_ledger.load_pain_index() joins MFE/MAE from here (the ONE frozen excursion implementation, L251). SILENT DEGRADE: the enriched ledger keeps building but every new event loses its MFE join, so excursion analysis quietly narrows to the old population.",
+          "criticality": "medium",
+          "max_age_min": null,
+          "date_field": "_meta.generated_at_et",
+          "date_expected_after_et": "18:00",
+          "window_et": null,
+          "weekdays_only": true
+        }
+      ]
+    },
+    {
+      "id": "briefs",
+      "name": "Briefs & standups",
+      "group": "REPORTING",
+      "criticality": "medium",
+      "what": "Morning brief, firm brief, AM/EOD standup, open-bell status.",
+      "breaks": "J wakes up to no signal. OP-25: every fire must ship work OR a flagged failure.",
+      "tasks": [
+        "Gamma_MorningBrief",
+        "Gamma_FirmBrief",
+        "Gamma_StandupAM",
+        "Gamma_StandupEOD",
+        "Gamma_OpenBellStatus"
+      ]
+    },
+    {
+      "id": "weekly",
+      "name": "Weekly reviews",
+      "group": "REPORTING",
+      "criticality": "medium",
+      "what": "Weekly review, treasurer portfolio review, Monday verify, risky-divergence weekly.",
+      "breaks": "Sizing/risk drift goes a full week+ unreviewed; the weekly cadence silently skips.",
+      "tasks": [
+        "Gamma_WeeklyReview",
+        "Gamma_TreasurerWeekly",
+        "Gamma_MondayVerify",
+        "Gamma_RiskyDivergenceWeekly"
+      ]
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian vault sync",
+      "group": "REPORTING",
+      "criticality": "low",
+      "what": "Regenerates the vault's hubs, maps and indices -- J's reading surface.",
+      "breaks": "MAP.md / HOME.md / SHADOW.md freeze; every session's routing table goes stale.",
+      "tasks": [
+        "Gamma_ObsidianSync"
+      ]
+    },
+    {
+      "id": "spend",
+      "name": "Spend summary",
+      "group": "REPORTING",
+      "criticality": "medium",
+      "what": "Nightly token/API spend census.",
+      "breaks": "Cost blows up unmeasured -- exactly how the $160/day conductor burn hid for weeks.",
+      "tasks": [
+        "Gamma_SpendSummary"
+      ]
+    },
+    {
+      "id": "discord",
+      "name": "Discord presence",
+      "group": "INFRA",
+      "criticality": "medium",
+      "what": "Bridge + responder + watcher daemons -- the two-way channel to J.",
+      "breaks": "J's only push channel goes silent; approvals and REVOKEs never reach him.",
+      "tasks": [
+        "Gamma_DiscordBridge",
+        "Gamma_DiscordResponder"
+      ],
+      "daemons": [
+        {
+          "name": "discord-bridge",
+          "pid_file": "automation/state/discord-bridge.pid"
+        },
+        {
+          "name": "discord-watcher",
+          "pid_file": "automation/state/discord-watcher.pid"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/discord-bridge-heartbeat.json",
+          "writer": "discord bridge daemon",
+          "task": "Gamma_DiscordBridge",
+          "criticality": "medium",
+          "max_age_min": 30,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "infra-keepalives",
+      "name": "Infra keepalives",
+      "group": "INFRA",
+      "criticality": "medium",
+      "what": "Dashboard, companion UI and claude-code-router keepalives (every 5 min) + the market-hours keep-awake that stops the box sleeping through a session.",
+      "breaks": "The dashboard/companion die quietly; CCR death once silently killed a whole premarket. If the keep-awake dies the box can sleep through RTH -- the 2026-08-14 04:27-09:46 sleep produced a double entry and a blind first tick.",
+      "tasks": [
+        "Gamma_DashboardKeepalive",
+        "Gamma_CompanionKeepalive",
+        "Gamma_CcrKeepalive",
+        "Gamma_MarketKeepAwake"
+      ],
+      "artifacts": [
+        {
+          "path": "automation/state/ccr-keepalive.json",
+          "writer": "ccr keepalive",
+          "task": "Gamma_CcrKeepalive",
+          "criticality": "medium",
+          "max_age_min": 30,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": false
+        }
+      ]
+    },
+    {
+      "id": "retention",
+      "name": "Ledger retention",
+      "group": "INFRA",
+      "criticality": "low",
+      "what": "Daily archive/prune of append-only ledgers (OP-22 consolidation).",
+      "breaks": "Append-only ledgers grow unbounded until a reader chokes on them.",
+      "tasks": [
+        "Gamma_LedgerArchive"
+      ]
+    },
+    {
+      "id": "license-monitor",
+      "name": "License monitor",
+      "group": "INFRA",
+      "criticality": "low",
+      "what": "Notify-only recency detector for external license/entitlement state.",
+      "breaks": "An entitlement lapse (e.g. a data plan) is discovered by a failing fetch instead of a warning.",
+      "tasks": [
+        "Gamma_LicenseMonitor"
+      ]
+    },
+    {
+      "id": "multi-symbol-lane",
+      "name": "Multi-symbol lane (lane STOPPED; evaluation surface LIVE)",
+      "group": "RESEARCH",
+      "criticality": "low",
+      "what": "Per-ticker EVALUATION surface for the multi-symbol universe (zone map, structure, blockers, prospective trade). The lane's TRADING signal is STOPPED on a null verdict; the evaluation surface runs read-only and cannot place an order.",
+      "breaks": "J loses the daily per-ticker read -- zone maps, named blockers and prospective trade pricing for the non-SPY universe. Nothing trading-critical: this surface has no order path and the lane is not armed.",
+      "tasks": [
+        "Gamma_MultiEvaluate"
+      ],
+      "expect_disabled": {
+        "Gamma_MultiCore": "Lane STOPPED 2026-08-20: WP-4 Stage A returned a null (7,489 signals / 9 symbols, fails the random-entry null at every horizon; volatility detector, not direction). Verdict: analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md. Reviving the lane requires a NEW signal and a NEW pre-registration, not re-enabling this task."
+      },
+      "artifacts": [
+        {
+          "path": "automation/state/multi/status.json",
+          "writer": "setup/scripts/multi_status.py",
+          "task": "Gamma_MultiEvaluate",
+          "criticality": "low",
+          "max_age_min": 2160,
+          "date_field": null,
+          "window_et": null,
+          "weekdays_only": true
+        }
+      ]
     }
-   ]
-  },
-  {
-   "id": "briefs",
-   "name": "Briefs & standups",
-   "group": "REPORTING",
-   "criticality": "medium",
-   "what": "Morning brief, firm brief, AM/EOD standup, open-bell status.",
-   "breaks": "J wakes up to no signal. OP-25: every fire must ship work OR a flagged failure.",
-   "tasks": [
-    "Gamma_MorningBrief",
-    "Gamma_FirmBrief",
-    "Gamma_StandupAM",
-    "Gamma_StandupEOD",
-    "Gamma_OpenBellStatus"
-   ]
-  },
-  {
-   "id": "weekly",
-   "name": "Weekly reviews",
-   "group": "REPORTING",
-   "criticality": "medium",
-   "what": "Weekly review, treasurer portfolio review, Monday verify, risky-divergence weekly.",
-   "breaks": "Sizing/risk drift goes a full week+ unreviewed; the weekly cadence silently skips.",
-   "tasks": [
-    "Gamma_WeeklyReview",
-    "Gamma_TreasurerWeekly",
-    "Gamma_MondayVerify",
-    "Gamma_RiskyDivergenceWeekly"
-   ]
-  },
-  {
-   "id": "obsidian",
-   "name": "Obsidian vault sync",
-   "group": "REPORTING",
-   "criticality": "low",
-   "what": "Regenerates the vault's hubs, maps and indices -- J's reading surface.",
-   "breaks": "MAP.md / HOME.md / SHADOW.md freeze; every session's routing table goes stale.",
-   "tasks": [
-    "Gamma_ObsidianSync"
-   ]
-  },
-  {
-   "id": "spend",
-   "name": "Spend summary",
-   "group": "REPORTING",
-   "criticality": "medium",
-   "what": "Nightly token/API spend census.",
-   "breaks": "Cost blows up unmeasured -- exactly how the $160/day conductor burn hid for weeks.",
-   "tasks": [
-    "Gamma_SpendSummary"
-   ]
-  },
-  {
-   "id": "discord",
-   "name": "Discord presence",
-   "group": "INFRA",
-   "criticality": "medium",
-   "what": "Bridge + responder + watcher daemons -- the two-way channel to J.",
-   "breaks": "J's only push channel goes silent; approvals and REVOKEs never reach him.",
-   "tasks": [
-    "Gamma_DiscordBridge",
-    "Gamma_DiscordResponder"
-   ],
-   "daemons": [
+  ],
+  "external_units": [
     {
-     "name": "discord-bridge",
-     "pid_file": "automation/state/discord-bridge.pid"
-    },
-    {
-     "name": "discord-watcher",
-     "pid_file": "automation/state/discord-watcher.pid"
+      "id": "swjshak-brainsync",
+      "name": "SwjshAK brain sync",
+      "group": "INFRA",
+      "criticality": "low",
+      "what": "Daily git sync of the read-only SwjshAlgoKnife strategy reservoir.",
+      "breaks": "The reservoir stops updating; extracted patterns go stale.",
+      "tasks": [
+        "SwjshAK-BrainSync"
+      ]
     }
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/discord-bridge-heartbeat.json",
-     "writer": "discord bridge daemon",
-     "task": "Gamma_DiscordBridge",
-     "criticality": "medium",
-     "max_age_min": 30,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "infra-keepalives",
-   "name": "Infra keepalives",
-   "group": "INFRA",
-   "criticality": "medium",
-   "what": "Dashboard, companion UI and claude-code-router keepalives (every 5 min) + the market-hours keep-awake that stops the box sleeping through a session.",
-   "breaks": "The dashboard/companion die quietly; CCR death once silently killed a whole premarket. If the keep-awake dies the box can sleep through RTH -- the 2026-08-14 04:27-09:46 sleep produced a double entry and a blind first tick.",
-   "tasks": [
-    "Gamma_DashboardKeepalive",
-    "Gamma_CompanionKeepalive",
-    "Gamma_CcrKeepalive",
-    "Gamma_MarketKeepAwake"
-   ],
-   "artifacts": [
-    {
-     "path": "automation/state/ccr-keepalive.json",
-     "writer": "ccr keepalive",
-     "task": "Gamma_CcrKeepalive",
-     "criticality": "medium",
-     "max_age_min": 30,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": false
-    }
-   ]
-  },
-  {
-   "id": "retention",
-   "name": "Ledger retention",
-   "group": "INFRA",
-   "criticality": "low",
-   "what": "Daily archive/prune of append-only ledgers (OP-22 consolidation).",
-   "breaks": "Append-only ledgers grow unbounded until a reader chokes on them.",
-   "tasks": [
-    "Gamma_LedgerArchive"
-   ]
-  },
-  {
-   "id": "license-monitor",
-   "name": "License monitor",
-   "group": "INFRA",
-   "criticality": "low",
-   "what": "Notify-only recency detector for external license/entitlement state.",
-   "breaks": "An entitlement lapse (e.g. a data plan) is discovered by a failing fetch instead of a warning.",
-   "tasks": [
-    "Gamma_LicenseMonitor"
-   ]
-  },
-  {
-   "id": "multi-symbol-lane",
-   "name": "Multi-symbol lane (lane STOPPED; evaluation surface LIVE)",
-   "group": "RESEARCH",
-   "criticality": "low",
-   "what": "Per-ticker EVALUATION surface for the multi-symbol universe (zone map, structure, blockers, prospective trade). The lane's TRADING signal is STOPPED on a null verdict; the evaluation surface runs read-only and cannot place an order.",
-   "breaks": "J loses the daily per-ticker read -- zone maps, named blockers and prospective trade pricing for the non-SPY universe. Nothing trading-critical: this surface has no order path and the lane is not armed.",
-   "tasks": [
-    "Gamma_MultiEvaluate"
-   ],
-   "expect_disabled": {
-    "Gamma_MultiCore": "Lane STOPPED 2026-08-20: WP-4 Stage A returned a null (7,489 signals / 9 symbols, fails the random-entry null at every horizon; volatility detector, not direction). Verdict: analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md. Reviving the lane requires a NEW signal and a NEW pre-registration, not re-enabling this task."
-   },
-   "artifacts": [
-    {
-     "path": "automation/state/multi/status.json",
-     "writer": "setup/scripts/multi_status.py",
-     "task": "Gamma_MultiEvaluate",
-     "criticality": "low",
-     "max_age_min": 2160,
-     "date_field": null,
-     "window_et": null,
-     "weekdays_only": true
-    }
-   ]
-  }
- ],
- "external_units": [
-  {
-   "id": "swjshak-brainsync",
-   "name": "SwjshAK brain sync",
-   "group": "INFRA",
-   "criticality": "low",
-   "what": "Daily git sync of the read-only SwjshAlgoKnife strategy reservoir.",
-   "breaks": "The reservoir stops updating; extracted patterns go stale.",
-   "tasks": [
-    "SwjshAK-BrainSync"
-   ]
-  }
- ]
+  ]
 }
