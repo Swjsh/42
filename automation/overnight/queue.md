@@ -2613,3 +2613,39 @@ A gate comes off on evidence, never on one day's regret.
 `Gamma_EodDeepDive` fired 16:30 ET with LastTaskResult=0 but wrote no dated output —
 `analysis/eod-deep/` still ends at 2026-08-21. Exit code is not evidence of work.
 TASK: make `run-eod-deep-dive.ps1` fail loud when it produces no dated artifact.
+
+### [CRITICAL] ZONE-ENTRY-BLIND-SPOT — the bull vocabulary cannot express a support bounce
+2026-08-26. J read the 15m by eye and called "double bottom call entry around 12:45, right off
+that 763 level." **Actual day low: 763.99 at 12:46 ET — one minute out.**
+
+At 12:45 the engine had `ribbon=BEAR, bull=7, bull_triggers=[]` and
+`bear_triggers=[level_rejection, confluence, trendline_rejection]`. At the exact bottom every
+bull input was dark and every bear input lit. The engine read the demand-zone bounce INVERTED.
+
+Cost: available move low->high +3.26 pts. Engine entered 766.49 @14:56 = **+2.50 pts above the
+low, 130 min late**, with only 0.76 pts left. Captured +0.36 pts = **11% of the move**. That is
+why a 43-minute hold made $39 -- the entry was not too early, it was structurally LATE.
+
+ROOT CAUSE (`backtest/lib/filters.py:908`):
+    detect_level_reclaim -> `if bar["low"] < lvl and bar["close"] > lvl`   # SINGLE BAR
+The only bullish level trigger requires ONE bar to break BELOW a level and close back above.
+Consequences: (a) a bounce that RESPECTS support never fires -- no bar dips under the level;
+(b) a MULTI-BAR double bottom never fires -- the detector is single-bar; (c) the ribbon is a
+lagging MA stack and was BEAR at the low. The engine can only go long AFTER price has climbed
+back above a level, i.e. after the move.
+
+Same blind-spot CLASS as the trendline lane (entry path reads pivot HIGHS, so ascending support
+is invisible by construction). Same doctrine target: J's philosophy is zone -> return ->
+STRUCTURE SHIFT AT THE ZONE. There is no "at the zone" trigger in the engine at all.
+Lesson theme C16 (multi-bar reversal vs single-bar continuation) predicted this.
+
+DO NOT WRITE A DETECTOR YET. n=1 day; J's eye is a hypothesis with one excellent data point,
+not a measured edge. TASK, in order:
+1. Harvest J-style demand-zone bounces across history (multi-bar reversal at a named level,
+   structure shift confirming) -- a LABELLING pass, no trading logic.
+2. Pre-register the null FIRST: does "structure shift at the zone" beat "reclaim after the
+   move" on REAL FILLS, net of the extra losers that entering earlier at a zone must produce?
+   The obvious failure mode is catching falling knives -- the null must be able to kill it.
+3. Only on a pass: shadow lane, then arm. Never straight to the entry path.
+Related dead ends to read first: MULTI-LANE-STAGE-A-VERDICT-2026-08-20 (level+structure-shift
+family already KILLED twice) -- this proposal MUST explain why it differs or it is dead on arrival.
