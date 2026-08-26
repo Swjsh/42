@@ -69,6 +69,19 @@ PROPOSALS_STATE = REPO_ROOT / "automation" / "state" / "conductor-proposals.json
 # threshold it is suppressed entirely (spam avoidance on a fresh ask).
 PROPOSAL_STALE_DAYS = 14.0
 
+# Discord approve/revoke bus (see discord-responder). Used ONLY to find the
+# most recent actual re-ping of a J-gated proposal — see _last_ping_days().
+# Bug found 2026-08-26 (conductor): staleness above was measured ONLY from
+# conductor-proposals.jsonl's `created_at`, which never moves. TWIN-DOCTRINE-
+# FIRST-DEPLOY (gp-2026-07-23-twin-doctrine-001) was created 2026-07-23 and
+# WAS re-pinged on 2026-08-18 (26d later) -- but because created_at is fixed,
+# `task_scorer --top` kept re-ranking it #1 as "STALE J-PING" on every single
+# fire past day 14 forever, regardless of how recently it was actually
+# re-pinged -- the exact spam this gate exists to prevent (queue.md's own
+# 2026-08-04 fix note: "would be spam ... not progress"). By 2026-08-26 (8
+# days after the last real re-ping) it still ranked #1, proving the loop.
+DISCORD_OUTBOX_STATE = REPO_ROOT / "automation" / "state" / "discord-outbox.jsonl"
+
 # ---------------------------------------------------------------------------
 # Section parsing markers.
 #  - Active items start at "## Active backlog" and run to EOF.
@@ -287,6 +300,47 @@ def _proposal_age_days(row: dict) -> float | None:
         return (datetime.now(timezone.utc) - ts).total_seconds() / 86400.0
     except Exception:
         return None
+
+
+def _last_ping_days(proposal_id: str, path: Path | None = None) -> float | None:
+    """Days since the most recent Discord ping that actually named this
+    proposal id, scanning ``discord-outbox.jsonl`` (the real send queue, not
+    a STATUS.md sentence claiming a ping happened -- see the 2026-08-18
+    "conductor claimed re-ping never landed" lesson). Returns the age of the
+    NEWEST matching row. None when the id was never pinged there, or the
+    outbox is missing/garbled -- callers must treat None as "no re-ping
+    evidence", i.e. fall back to created_at staleness alone. Never raises.
+    """
+    p = path or DISCORD_OUTBOX_STATE
+    newest: datetime | None = None
+    try:
+        for raw in p.read_text(encoding="utf-8").splitlines():
+            raw = raw.strip()
+            if not raw or proposal_id not in raw:
+                continue
+            try:
+                row = json.loads(raw)
+            except Exception:
+                continue
+            content = row.get("content") if isinstance(row, dict) else None
+            if not isinstance(content, str) or proposal_id not in content:
+                continue
+            ts_raw = row.get("queued_at") or row.get("ts")
+            if not isinstance(ts_raw, str):
+                continue
+            try:
+                ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+            except Exception:
+                continue
+            if newest is None or ts > newest:
+                newest = ts
+    except Exception:
+        return None
+    if newest is None:
+        return None
+    return (datetime.now(timezone.utc) - newest).total_seconds() / 86400.0
 
 
 def _j_gated_proposal(block_text: str, proposals: dict) -> dict | None:
@@ -612,14 +666,27 @@ def parse_queue(text: str) -> list[Task]:
             gated = _j_gated_proposal(block_text, proposals) if ready else None
             if gated is not None:
                 age = _proposal_age_days(gated)
-                if age is None or age <= PROPOSAL_STALE_DAYS:
+                pid = gated.get("proposal_id")
+                last_ping_age = _last_ping_days(pid) if isinstance(pid, str) else None
+                stale_since_ask = age is not None and age > PROPOSAL_STALE_DAYS
+                # A real re-ping (found in discord-outbox.jsonl, not just
+                # claimed in prose) resets the spam-avoidance clock. Without
+                # this, `created_at` never moving means a proposal re-pinged
+                # 8 days ago would STILL rank as "STALE J-PING" today and
+                # every fire hereafter, forever -- see DISCORD_OUTBOX_STATE
+                # comment above for the live incident that surfaced this.
+                recently_repinged = (
+                    last_ping_age is not None and last_ping_age <= PROPOSAL_STALE_DAYS
+                )
+                if not stale_since_ask or recently_repinged:
                     ready = False
                     reason += (
                         f"; awaiting-j: proposal {gated.get('proposal_id')} "
                         "status:pending, no eval_bar_cleared -- J-gated "
                         "(doctrine/live-money/secret/irreversible), not a "
                         "conductor task until J replies or it goes stale "
-                        f"(>{PROPOSAL_STALE_DAYS:g}d)"
+                        f"(>{PROPOSAL_STALE_DAYS:g}d since ask AND since last "
+                        "actual re-ping)"
                     )
                 else:
                     reason += (

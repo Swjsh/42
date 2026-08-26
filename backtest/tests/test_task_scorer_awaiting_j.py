@@ -142,11 +142,125 @@ def test_stale_j_gated_proposal_resurfaces_as_reping(tmp_path, monkeypatch):
             ],
         ),
     )
+    # Isolate from the REAL discord-outbox.jsonl -- it happens to contain a
+    # row for this exact real proposal id (the fixture reuses the live id on
+    # purpose, see module docstring); without this, _last_ping_days() would
+    # read live data and this synthetic "never re-pinged" case would collide
+    # with production history. No outbox file here == "never re-pinged".
+    monkeypatch.setattr(tsk, "DISCORD_OUTBOX_STATE", tmp_path / "no-outbox.jsonl")
     t = _by_id(tsk.parse_queue(_QUEUE), "TWIN-DOCTRINE-FIRST-DEPLOY")
     assert t is not None
     assert t.ready is True
     assert "STALE J-PING" in t.reason
     assert "RE-PING J" in t.reason
+
+
+# ---------------------------------------------------------------------------
+# a >14d-old ask THAT WAS ACTUALLY RE-PINGED within the last 14 days must NOT
+# resurface again -- the bug found live 2026-08-26: created_at never moves,
+# so the OLD logic re-triggered "STALE J-PING" on every fire past day 14
+# forever, even 8 days after a real re-ping, which is exactly the spam this
+# gate exists to prevent (queue.md 2026-08-04: "would be spam ... not
+# progress").
+# ---------------------------------------------------------------------------
+def test_recently_repinged_proposal_does_not_resurface(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        tsk,
+        "PROPOSALS_STATE",
+        _write_proposals(
+            tmp_path,
+            [
+                {
+                    "proposal_id": "gp-2026-07-23-twin-doctrine-001",
+                    "created_at": _iso(34),
+                    "status": "pending",
+                }
+            ],
+        ),
+    )
+    outbox = tmp_path / "discord-outbox.jsonl"
+    outbox.write_text(
+        json.dumps(
+            {
+                "queued_at": _iso(8),
+                "content": "RE-PING (26d stale) gp-2026-07-23-twin-doctrine-001: ...",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(tsk, "DISCORD_OUTBOX_STATE", outbox)
+    t = _by_id(tsk.parse_queue(_QUEUE), "TWIN-DOCTRINE-FIRST-DEPLOY")
+    assert t is not None
+    assert t.ready is False
+    assert "awaiting-j" in t.reason
+    assert "STALE J-PING" not in t.reason
+
+
+def test_old_repinged_proposal_still_resurfaces(tmp_path, monkeypatch):
+    """A re-ping that is ITSELF >14d stale must still resurface -- the fix
+    resets the clock on a real re-ping, it does not suppress forever."""
+    monkeypatch.setattr(
+        tsk,
+        "PROPOSALS_STATE",
+        _write_proposals(
+            tmp_path,
+            [
+                {
+                    "proposal_id": "gp-2026-07-23-twin-doctrine-001",
+                    "created_at": _iso(40),
+                    "status": "pending",
+                }
+            ],
+        ),
+    )
+    outbox = tmp_path / "discord-outbox.jsonl"
+    outbox.write_text(
+        json.dumps(
+            {
+                "queued_at": _iso(25),
+                "content": "RE-PING gp-2026-07-23-twin-doctrine-001: ...",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(tsk, "DISCORD_OUTBOX_STATE", outbox)
+    t = _by_id(tsk.parse_queue(_QUEUE), "TWIN-DOCTRINE-FIRST-DEPLOY")
+    assert t is not None
+    assert t.ready is True
+    assert "STALE J-PING" in t.reason
+
+
+def test_last_ping_days_ignores_non_matching_rows(tmp_path):
+    outbox = tmp_path / "discord-outbox.jsonl"
+    outbox.write_text(
+        "\n".join(
+            [
+                json.dumps({"queued_at": _iso(5), "content": "unrelated ping"}),
+                json.dumps(
+                    {
+                        "queued_at": _iso(3),
+                        "content": "ping about gp-2026-07-23-twin-doctrine-001",
+                    }
+                ),
+            ]
+        ),
+        encoding="utf-8",
+    )
+    age = tsk._last_ping_days("gp-2026-07-23-twin-doctrine-001", path=outbox)
+    assert age is not None
+    assert 2.5 < age < 3.5
+
+
+def test_last_ping_days_missing_file_returns_none(tmp_path):
+    assert tsk._last_ping_days("gp-nope", path=tmp_path / "nope.jsonl") is None
+
+
+def test_last_ping_days_garbled_file_returns_none(tmp_path):
+    p = tmp_path / "discord-outbox.jsonl"
+    p.write_text("not json {{{ gp-nope\n", encoding="utf-8")
+    assert tsk._last_ping_days("gp-nope", path=p) is None
 
 
 # ---------------------------------------------------------------------------
@@ -279,6 +393,15 @@ def test_live_twin_doctrine_proposal_still_gated_or_resolved():
     if row is None or row.get("status") != "pending" or row.get("eval_bar_cleared"):
         return  # proposal resolved -- item's readiness is no longer gated by this rule
     age = tsk._proposal_age_days(row)
+    last_ping_age = tsk._last_ping_days("gp-2026-07-23-twin-doctrine-001")
+    recently_repinged = last_ping_age is not None and last_ping_age <= tsk.PROPOSAL_STALE_DAYS
     if age is not None and age <= tsk.PROPOSAL_STALE_DAYS:
         assert t.ready is False
         assert "awaiting-j" in t.reason
+    elif recently_repinged:
+        # 2026-08-26 fix: an old ask that WAS actually re-pinged within the
+        # last PROPOSAL_STALE_DAYS must not resurface as spam. Live-verifies
+        # the exact production bug this fire found and fixed.
+        assert t.ready is False
+        assert "awaiting-j" in t.reason
+        assert "STALE J-PING" not in t.reason
