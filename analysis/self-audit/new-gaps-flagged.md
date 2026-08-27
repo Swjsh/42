@@ -1039,3 +1039,77 @@ recurring un-actioned brainstorm, not a single-fire-boundable new claim") -- no 
 action taken on their content; the extractor fix IS this fire's action. Zero trading-path
 file touched. Revert: `git revert <this commit>` (2 files: self_audit.py + its test file,
 additive only). -->
+
+## 2026-08-19T17:33:58 -- 8 new gap(s) Gamma self-identified
+- No automated exit on theta‑stall Theta‑clock only logs alerts; positions can decay to max loss without intervention.
+- Static hysteresis N=5 Level‑hysteresis does not adapt to recent flip‑count or volatility, leaving the system prone to whipsaw when market regimes shift.
+- Conviction signal regression (C5 = None) The “conviction‑c4‑c5” incident shows the entry‑quality signal generator is broken and not self‑healing.
+- Risk‑model mis‑calibration Unchecked spreads distort the implied‑vol surface used for Greeks
+- – P1, P2, and P3 all flag that the system only logs theta‑stall alerts and never acts on them.
+- – P1 and P2 explicitly note the “conviction‑c4‑c5” incident (C5 = None) and call for a self‑healing fix.
+- – P1 shows persistent flips (worst‑case 13×/session) despite N=5; P2 calls the static N=5 a weakness.
+- – P1’s “candidate parameter loop not closed” and P3’s “automated back‑testing pipeline for new candidates” both demand an automated path from proposal → validation → shadow‑trade → promotion/demote.
+
+## 2026-08-20T17:32:22 -- 12 new gap(s) Gamma self-identified
+- What’s missing: No self‑healing check that timestamps the last successful pull; if a feed stalls > Δt (e.g., 60 min for Kalshi, 5 min for Alpaca Greeks) the system continues to use stale values and only surfaces the issue in a manual [...]
+- Actionable fix: Add a lightweight watchdog (run every minute) that writes `feed‑health.json` with `last_ok_ts_et` and a boolean `stale`. If `stale==true`, automatically switch the corresponding consumer (e.g., conviction‑C4/C5, [...]
+- Operator will point at next: When the next Kalshi outage occurs, J will see the cockpit still showing “Kalshi healthy” while the P&L drifts, and ask why the system didn’t self‑isolate.
+- What’s missing: The incident‑fix roster showed a RED flag for “conviction‑c4‑c5” because `C5` stayed `None`. The guard only checks that the script runs, not that its output contains a non‑null conviction score.
+- Actionable fix: Extend the conviction module to emit a JSON schema‑validated output (`{c4: number, c5: number}`) and have a post‑run validator (`verify_conviction.py`) that fails the guard if any field is missing or outside plausible [...]
+- Operator will point at next: The next time a sys.path or import issue causes C5 to be None, the trade will be blocked before entry, and J will see a clear “conviction validation failed” entry in the incident roster instead of a silent RED.
+- What’s missing: Core recency, level hysteresis, and theta‑clock parameters are treated as static after a weekend‑ratified change. No process watches for performance degradation (e.g., theta source flipping from model to “unavailable” for [...]
+- Actionable fix: Implement a rolling‑window performance monitor that computes, per engine, a simple metric (e.g., mean absolute theta error vs. broker snapshot when available, hysteresis flip rate, core‑bias P&L). If the metric exceeds a [...]
+- Operator will point at next: When the theta model starts returning `{}` more often, the cockpit will still show “sqrt_time_decay_model_est=160” while the P&L bleeds; J will ask why the system didn’t throttle trading.
+- What’s missing: WS7 shows 401 RTH ticks vs. ~405 expected and 106 ticks with `in_trade>0`. The live‑watch process does not verify that every field in `REQUIRED_POSITION_FIELDS` is non‑null after a fill; missing fields are only caught later [...]
+- Actionable fix: After each fill, live‑watch should run a schema validator against `REQUIRED_POSITION_FIELDS`. If any field is null, automatically attempt a re‑fetch from the broker (up to 2 retries) and, if still missing, mark the position [...]
+- Operator will point at next: When a fill arrives with a missing `delta` field, the system will silently propagate a zero delta, causing mis‑sized hedges; J will see a sudden P&L jump and ask why the position wasn’t flagged.
+
+## 2026-08-21T17:33:28 -- 12 new gap(s) Gamma self-identified
+- No automated validation of critical market‑data feeds options‑greeks endpoint returns `{}`; system silently falls back to a sqrt‑time model without alerting or pausing.
+- Stale‑lane detection is not generic the desk_allocator fix addressed one retired Kalshi lane, but gamma_cockpit_data.py and other consumers still read dead files; no centralized “lane‑health” service that auto‑flags retired producers.
+- Missing circuit‑breaker on strategy‑signal quality conviction‑c4‑c5 RED shows a strategy with zero entry‑quality signal yet the engine continues to route capital to it; no automatic pause or re‑weighting when signal‑quality metrics drop [...]
+- No real‑time slippage/fill‑quality analytics fills are logged but never compared to expected mid‑price or to the theoretical edge used in position sizing; degradation in execution quality can go unnoticed for days.
+- Self‑improvement engine lacks drift detection new strategy candidates are auto‑committed but there is no automated monitoring of feature distribution shift or performance decay that would trigger a retraining flag.
+- State‑file versioning and backup are ad‑hoc live‑watch.json, regime‑stamp.json, etc., are overwritten in‑place; a corrupted write or partial update can leave the engine with inconsistent state and no rollback point.
+- Event‑driven risk adjustment is manual earnings, Fed announcements, or macro releases are not ingested to automatically tighten stops or reduce size; the operator must intervene.
+- Test generation for new strategies is optional auto‑commit of strategy/candidates runs no enforced unit‑test or property‑test gate; a flawed candidate can reach the allocation desk without verification.
+- OP‑22/OP‑26 (engine‑benefit authoring path) The theta fallback is being used as a permanent workaround rather than a temporary, reviewed benefit, bypassing the OP‑22/OP‑26 review pathway.
+- focuses on specific lane‑management debt (the cockpit still reads retired Kalshi ticks) and on timing slips in regime‑stamp generation; it treats these as symptoms of a broader neglect.
+- provides a broad, ranked checklist of eight systemic gaps (data‑feed validation, generic stale‑lane detection, circuit‑breaker on signal quality, slippage analytics, drift detection, state‑file versioning, event‑driven risk adjustment, [...]
+- zeroes in on a single recent patch (weather‑prediction scorecard) and argues that the absence of a defensive pre‑check/try‑catch creates a single‑point‑of‑failure that can halt the entire desk‑allocation routine.
+
+## 2026-08-22T17:31:21 -- 3 new gap(s) Gamma self-identified
+- Both perspectives agree that Project Gamma must autonomously detect and remediate systemic operational drifts (e.g., stale author inboxes, unmaintained allowlists) without manual intervention.
+- Both acknowledge that existing guards and self-checks are insufficient to prevent recurrence of known failure modes (e.g., conviction‑c4‑c5 regression, chef‑inbox starvation).
+- Consequently, there is no disagreement on substance, but Perspective 2 lacks the rigor and specificity needed to prioritize remediation.
+
+## 2026-08-23T17:31:24 -- 12 new gap(s) Gamma self-identified
+- Autonomous gate revalidation triggering Because if a gate's evidence is stale and it is incorrectly blocking or allowing trades, it could lead to Rule 10 violations (trade not happening when it should, or happening when it shouldn't). The [...]
+- Weekend infrastructure maintenance To ensure that the system is ready for the next trading day. If critical infrastructure tasks are not run on weekends, the system might start the trading day in a degraded state (e.g., stale data, [...]
+- Automated diagnosis and remediation of self-check BROKEN items Because the system currently notes these for visibility but does not fix them. This leads to accumulating technical debt and potential future failures. Self-healing is a core [...]
+- Closing the loop on technical debt The conductor outcome shows a regressing trend. The system should prioritize fixing existing issues over adding new features to avoid accumulating debt that could eventually break the system.
+- Automated OPRA cache freshness monitoring The TRENDLINE-SHADOW BLIND issue was due to a stale cache. This could lead to incorrect trendline calculations and thus incorrect trade decisions. Monitoring and automatic refresh would prevent [...]
+- Self-healing for API burn on weekends To adhere to cost discipline (free-tier first) and avoid unnecessary expenses and potential rate limits.
+- Enhancing the gate validation to be more robust Although they built a tool for revalidation, the default gate check might still be naive. The system should use the robust validation as the default for gate checks to avoid false RED/GREEN [...]
+- Automated backfill of missing data To ensure data integrity for backtesting and live trading.
+- Gap Gamma does not autonomously trigger gate revalidation when `evidence_age_days` exceeds the threshold (21 days) for any gate in `gate-registry.json`. It should monitor the registry and automatically run the appropriate revalidation tool [...]
+- Gap On non-trading days (weekends/holidays), Gamma does not run a standardized infrastructure maintenance cycle to update critical caches (OPRA, futures sim data), validate data feed health, and perform self-checks, leaving the system [...]
+- Gap Gamma logs self-check BROKEN items (e.g., EARNINGS-CALENDAR STALE, RUN-CMD-HIDDEN) but does not autonomously attempt to diagnose or remediate them, requiring manual conductor intervention and violating the self-healing principle.
+- Gap Gamma's conductor outcome metric shows a regressing trend (net_improvement positive but cost_per_drained high and trend regressing), indicating it is accumulating technical debt faster than it is resolving; it should autonomously [...]
+
+## 2026-08-24T17:32:16 -- 8 new gap(s) Gamma self-identified
+- Both perspectives agree that Gamma lacks an automated mechanism to detect and halt losing arms/strategies in real‑time (i.e., a circuit‑breaker based on per‑account P&L).
+- Both agree that the absence of such a guard leads to continued capital allocation to losing strategies, potential Rule 9/Rule 10 violations, and erodes confidence in the system’s autonomy.
+- additionally flags two concrete, observable infrastructure gaps: (a) the missing historical archive for `live-watch.json` (no post‑close field verification) and (b) the Alpaca options‑Greeks endpoint returning `{}` 100 % of the time, [...]
+- does not mention those gaps; it focuses exclusively on the need for real‑time P&L alerts and the downstream effects of not having them (drawdown compounding, manual intervention, etc.).
+- The disagreement is therefore one of **scope and priority**: Perspective 1 treats the live‑watch archive and Greeks endpoint as *critical* (evidence‑driven from WS7 and Theta cockpit), while Perspective 2 treats the losing‑arm circuit [...]
+- No new `ENTER` rows for any arm/strategy that was flagged as losing by the guard (i.e., the guard’s block flags prevented entries), **and**
+- The live‑watch archive check passes (append‑only file exists with ≈ expected tick count), **and**
+- The Greeks endpoint probe returns non‑empty data for at least one 0DTE contract (or, if still empty, the guard correctly blocks new entries and logs `greeks_source = 'UNAVAILABLE'`).
+
+## 2026-08-26T17:31:25 -- 4 new gap(s) Gamma self-identified
+- Both perspectives flag a *concentration‑guard* deficiency: verdict/scoring functions are accepting strategies based on raw mean PnL without checking that the edge survives removal of top winners.
+- Both note a *self‑healing* breakdown: Perspective 2 warns that a faulty verdict can trigger OP‑32 pop‑ups/lockouts (violating the “no pop‑ups during market hours” rule); Perspective 5 points to the EOD pipeline darkness where self‑heal [...]
+- Both imply that unchecked violations could lead to Rule 9/Rule 10 breaches (mid‑session parameter changes or disallowed trades) and erode operator trust.
+- – Because Perspective 5 supplies verifiable, timestamped evidence and a broader systems view, it is the more rigorous take; Perspective 2’s scenario, while valid, is narrower and less substantiated.
+<!-- DONE 2026-08-27T05:30 ET conductor AFTERHOURS -- concentration-guard gap actioned via queue.md MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS: live_readiness.py fixed 2026-08-26 (commit 650ef9c8), 5 more candidates audited-clear 2026-08-27 (desk_allocator/chop_meter/shadow-summary writers/entry_quality_ledger/ladder-shadow-nightly), doctrine folded into BACKTESTING-PLAYBOOK.md#4.3. Item downgraded HIGH->MED, residual scope narrowed to a named 14-file hygiene sweep, not closed outright. -->
