@@ -1,3 +1,40 @@
+## [2026-08-26T23:26:00 ET] conductor: OK — DRESS-REHEARSAL STALE (RED) fixed + latent doc-untracked landmine closed, commits `12f4a907` + `e0a6711f`
+
+**Picked via STAGE 0 budget gate PROCEED ($8.21/$30, 3/4 fires, AFTERHOURS mode) + market-hours gate closed + engine_health.json GREEN (19/19) + `desk_allocator.py` SPY-0DTE #1 ("NEXT FIRE") + `self_check.py` FUNCTION-FIRST priority-1: fresh run returned BROKEN, 5 problems — `DRESS-REHEARSAL STALE (RED)` was the only RED-severity item (others are non-load-bearing visibility/YELLOW).**
+
+**Root cause, precisely:** `Gamma_DressRehearsal` (the nightly real-broker pre-open sanity check) missed 3 consecutive nights (2026-08-24/25/26, `NumberOfMissedRuns=3`). Kernel-Power event log shows the box reboots most evenings in the 18:00-22:00 MT window, landing directly in the single 20:45 ET (21:44 MT) daily trigger's slot; `StartWhenAvailable=True` was already set but Task Scheduler's catch-up doesn't reliably recover multi-day misses. The SAME evening-window pattern is visible across ~15 other `Gamma_*` tasks (not flagged by self_check, non-critical) — named as a follow-up, not chased this fire.
+
+**Fix:** `dress_rehearsal.py` now skips real work by default when today's ET-date artifact already exists (`--force` overrides); two extra DAILY trigger slots (19:00 MT, 23:15 MT) added to the EXISTING `Gamma_DressRehearsal` task via `Set-ScheduledTask`, alongside the unchanged 21:44 MT primary — 3 chances/evening for the idempotent script to land while the box is up, collapsing to one real options+crypto round-trip/day regardless of how many slots fire.
+
+**Blocked path, worth recording:** the original plan (a separate at-startup task) hit `Access Denied` on `Register-ScheduledTask` AND `schtasks /Create /SC ONLOGON` — isolated via disposable dummy-task A/B probes to a **trigger-TYPE permission boundary** (this session's token can create/modify DAILY/ONCE triggers freely, denied for ONLOGON/ONSTART, on both new-task and modify-existing paths). Documented in `markdown/infra/POWERSHELL-COMPAT.md` + lesson-inbox item so a future fire doesn't re-derive it via another round of probing.
+
+**Verified, quoted:** manual `--force`-equivalent (default, no flag, today's artifact absent) ran for real — `overall=GREEN next_trading_day=2026-08-27`, all 4 checks GREEN. Immediate re-run correctly no-op'd (`already ran today (2026-08-26) — no-op`). `self_check.py`: BROKEN(5 problems) → DEGRADED(4 problems), `DRESS-REHEARSAL` no longer listed. `pytest backtest/tests/test_dress_rehearsal.py`: 47/47 PASS (was 40, +7 new guards for the skip/force/artifact-freshness logic). Curated safety gate (`run_safety_gate.py`): 59/59 PASS. `py_compile` clean. `git show 12f4a907 --stat --name-status`: exactly the 2 intended files.
+
+**Side-effect fix:** `markdown/infra/POWERSHELL-COMPAT.md` was referenced from CLAUDE.md but had never actually been `git add`-ed (existed on disk, untracked) — now tracked as of `e0a6711f` (a landmine closed, not created).
+
+**Rail 4 (infra/scheduler fix, not a live trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** guard tests are the regression check (a) — `TestIdempotentSkipByDefault` (5 new tests) + preserved existing 40; revert is `git revert 12f4a907` + manually resetting `Gamma_DressRehearsal`'s triggers to the single 21:44 MT original via `Set-ScheduledTask` (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
+
+**Not investigated further this fire (out of bounded scope):** the ~15 other evening-window tasks showing `NumberOfMissedRuns>0` in the `Get-ScheduledTaskInfo` sweep — mostly research/kitchen/visibility tasks, none self_check-critical the way DressRehearsal was. Named as a follow-up in the lesson-inbox item, not chased.
+
+---
+
+## [2026-08-26T16:15:02 ET] YELLOW -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-26 -- 4 GREEN / 1 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 43 tick(s) showed in_trade>0. 23 real fill(s) dated 2026-08-26: safe-2@14:56, safe-2@14:57, safe-3@14:57, risky-1@14:57, risky-3@14:57, safe-2@14:58, safe-2@14:59, safe-2@15:00, safe-2@15:01, safe-2@15:02, safe-2@15:03, safe-2@15:04, safe-2@1… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-26, generated_at_et=2026-08-26T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-26, regime_context.stamp_date=2026-08-26 (present=True, dates_match=True). one_liner='Yesterday 2026-08-25 (Tue) = gap-fade (range 0.49%, gap +0.35%, c… |
+| WS3 level hysteresis | YELLOW | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 66 distinct near-price levels. Worst: 766.43 flipped 10x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 91 time(s) across 14 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-26 window_end=2026-08-25 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=29 (delta +19 vs baseline n=10) exp=$-16.21/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=32 exp=$0.5/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-26T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 43 theta-clock row(s) dated 2026-08-26 across 1 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=43, unavailable=0. still… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-26 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-26`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-26 05:30 ET] conductor: OK — live_readiness.py gets a concentration guard (4th confirmed instance of the mean-only-verdict defect), commit `650ef9c8`
 
 **Picked via STAGE 0 budget gate PROCEED ($7.02/$30, 2/4 fires, AFTERHOURS mode) + engine health GREEN (19/19 checks) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 + `task_scorer.py --top` advisory (correctly warned "trace before executing" on `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT" — traced it, found the core ask deliberately still gated behind its own `/fable-blast-radius` pass, live-trading-wrapper blast radius, not a bounded sonnet-tier pick this fire) — fell back to the queue's HIGH tier and found `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS`'s own candidate list named `live_readiness.py` (CLAUDE.md's live-money readiness instrument) as unaudited.
@@ -192,29 +229,26 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-24 05:31 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
 
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 3 passed in 9.11s
+### BROKEN: self-check 2026-08-26T23:12:52
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- DRESS-REHEARSAL STALE (RED): last rehearsal '2026-08-23T20:45:01' is >24h old on a weekday evening -- Gamma_DressRehearsal likely not firing.
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-26) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-26) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-26.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+### DEGRADED: self-check 2026-08-26T23:19:43
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-26) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-26) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-26.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 
-## [2026-08-24 01:08 ET] conductor: OK — EARNINGS-CALENDAR STALE root-caused + fixed (system-pythonw lacked yfinance), commit pending
+## Known broken
 
-**Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/4 fires used, AFTERHOURS mode) + STAGE 1 priority-1 (function-first: `self_check.py` reported `BROKEN — 2 problem(s)`: EARNINGS-CALENDAR STALE (RED, 72.0h old vs 48h fail-closed threshold) + CANDIDATES-UNTRACKED (23 files, threshold 20) — this outranks `desk_allocator`/`task_scorer`'s top-ranked items (`TWIN-DOCTRINE-FIRST-DEPLOY`, a stale J-ping not due for re-ping for another ~8 days; `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`, 6 prior passes, diminishing-returns infra hygiene) per STAGE 1's function-first rule.** Engine health GREEN-ish (YELLOW overall, only `state_freshness` flagged, unrelated).
+[2026-08-26T23:20:04-04:00] MCP_AUDIT_YELLOW: All MCPs healthy. TradingView required self-heal relaunch (after-hours expected).
 
-**Root cause, precisely:** `Get-ScheduledTaskInfo -TaskName Gamma_EarningsCalendar` showed `LastRunTime=8/21 05:50 AM MT, LastTaskResult=0` (Task Scheduler thinks it succeeded), but `automation/state/weekly/earnings-blackout.json`'s `generated_at_et` had not advanced past the one-time manual verification run 3 days earlier — a mismatch. Traced to `automation/state/logs/run-cmd-hidden-2026-08-21.log` line 1776: `[2026-08-21 05:50:00]   exit=1` for `earnings_calendar.py` — the wscript fire-and-forget hop (the exact VBS-WRAPPER-EXIT-CODE-BLIND-SPOT class, still open elsewhere in the fleet) masked the real non-zero exit from Task Scheduler. Reproduced directly: system Python313 `python.exe setup/scripts/earnings_calendar.py` → `FATAL earnings_calendar.py: No module named 'yfinance'`. `install-earnings-calendar.ps1` (built 2026-08-21) had copied `install-macro-calendar.ps1`'s wiring VERBATIM — correct for `macro_calendar.py` (stdlib-only) but wrong here: `earnings_calendar.py` does `import yfinance` (confirmed present in `backtest\.venv`, 0.2.66; absent from system Python313). Every single 07:50 ET scheduled fire since registration (08-21 through 08-23, no run on weekend) crashed identically, invisibly.
-
-**Fix:** `install-earnings-calendar.ps1`'s inner hop now routes through `backtest\.venv\Scripts\pythonw.exe` (matching `install-ledger-archive.ps1`'s proven split-interpreter pattern: system pythonw for the outer `run_cmd_hidden.py` relay hop only, venv pythonw for the actual script), with a `Test-Path`+`throw` guard so a missing venv fails loudly at install time instead of silently.
-
-**Verified, quoted, end-to-end (not just LastTaskResult, which already lied once here):** re-registered the task, `Start-ScheduledTask` fired it live → `run-cmd-hidden-2026-08-23.log`: `[23:04:47] launching: ...backtest\.venv\Scripts\pythonw.exe ...earnings_calendar.py [pid=32720]` → `[23:05:02]   exit=0 [pid=32720]` → `earnings-blackout.json`'s `generated_at_et` advanced to `2026-08-24T01:04:47` (the real producer output changed, not just the exit code). Re-ran `self_check.py`: `EARNINGS-CALENDAR STALE` cleared — down to the pre-existing unrelated `CANDIDATES-UNTRACKED` (23 files, self-clearing via `Gamma_AutoCommitCandidates` once ≥10 accrue, not investigated further this fire — routine cadence gap, not a new finding). New guard `backtest/tests/test_earnings_calendar_install_wiring_2026_08_24.py` (4 tests, statically pins the `$pywVenv` inner-hop wiring) — RED-proofed by swapping in the exact pre-fix 2026-08-21 source and confirming 2/4 correctly fail (`inner_hop_uses_backtest_venv_pythonw`, `venv_pythonw_variable_is_declared_and_checked`), restored the fix, re-confirmed 4/4 green. Curated safety gate (`run_safety_gate.py`): 59/59 PASS. `py_compile` clean.
-
-**Rail 4 (infra/producer wiring fix, not a trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** the new guard test is the regression check (a); revert is `git revert` this fire's commit, 2 files, byte-revertible (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched. `earnings_calendar.py` itself was NOT edited — only the install-script wiring that launches it.
-
-**Lesson filed:** `strategy/candidates/_lesson-inbox/install-script-copied-wiring-assumed-stdlib-only-2026-08-24.md` — an install-script installer that copies a sibling's wiring verbatim inherits that sibling's `system pythonw` (or venv pythonw) choice without re-verifying the NEW target script's own import list; any script with a venv-only dependency (yfinance, pandas, numpy, etc.) launched via system Python313 will crash on every single fire, silently, if routed through the fire-and-forget wscript hop. Generalizable check for a future fire: grep all `install-*.ps1` files whose inner target script is NOT already in `EXPECTED_RELAY_TASKS`' venv-confirmed set for a mismatched system-pythonw-only wiring against a script with third-party imports.
-
-**Not investigated further this fire (out of bounded scope):** `CANDIDATES-UNTRACKED` (23 files, self_check DEGRADED not BROKEN — `Gamma_AutoCommitCandidates` should self-clear this on its own 2h cadence; flagging only in case it doesn't by the next fire). `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`'s own remaining ~22-task scope (task_scorer's #2 ranked item, HIGH) deliberately left for a future fire — this fire found a concrete NEW live instance of the exact same masking class instead of continuing the general migration sweep.
-
----
-
+### DEGRADED: self-check 2026-08-26T23:25:08
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-26) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-26) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-26.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
