@@ -11,6 +11,22 @@ trendline detector on the entry path -- reads pivot HIGHS and hard-rejects any
 non-decreasing slope. Ascending support, its break, and its retest are invisible to
 it by construction.
 
+SECOND OCCURRENCE (J, 2026-08-27) -- the lane worked as designed
+  Same shape, one week later: J hand-drew an ascending support through the 11:50
+  low (769.665) and the 12:30 low (770.82), slope +$1.73/hr; it broke ~13:25-13:35
+  and price faded 772.36 -> 769.43 (-$2.93). The entry path was blind again (and
+  additionally could not have taken a bear entry at all: F5 -- ribbon not BEAR and
+  no bear structure-shift -- is in STRUCTURAL_REQUIRED, and the ribbon printed BULL
+  on all 772 ticks that session). THIS ledger caught it: an ascending wick BREAK at
+  13:30, one fit at slope +1.77/hr against J's +1.73, theo_qualifies=True,
+  theo_outcome=tp, theo_points=+1.00, mfe30 1.27 / mae30 0.19.
+  Also learned that day: the MANUAL (hand-drawn) reader is RTH-only -- Gamma_Trendlines
+  is 09:30 ET + PT5M x PT6H30M, a hard stop at 16:00 -- so a line J draws after the
+  close is invisible until the next 09:30 fire. Full audit: journal/2026-08-27.md
+  "Post-close audit -- J's hand-drawn trendline".
+  Evidence posture UNCHANGED: whole sample 69 sessions / 1388 trades = WR 40%,
+  +0.044/trade, smaller than the 0DTE spread. Accumulating, NOT arming.
+
 But `backtest/lib/trendlines.py::detect_trendlines` ALREADY fits ascending lines
 from swing lows, is well-tested, and has ZERO consumers anywhere in the engine.
 Fed the 2026-08-20 session up to 12:40 it returns J's line as its top-ranked
