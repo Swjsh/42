@@ -1,3 +1,27 @@
+## [2026-08-27T01:10 ET] conductor: OK — FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01 scored: DISCLOSED_NULL_STRUCTURALLY_UNREACHABLE, item downgraded dormant (no code change, no revert)
+
+**Picked via STAGE 0 budget gate PROCEED ($0/$30, 0/4 fires) + market-hours gate closed + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 + `task_scorer.py --top` returned the already-flagged-gated `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` (unchanged since 2026-08-26 05:30's assessment — still correctly gated behind its own live-trading blast-radius pass, not a bounded pick) — fell to the next ready item, `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, whose `n>=20 fills` dependency now reads satisfied (139 real fills since 2026-08-01).**
+
+**What the naive read would have gotten wrong:** scoring the prereg's 5 frozen gates against those 139 fills directly. Lane-scoping first: all 73 of risky-1's fills are 100% `FULL_SEND`-lane (provably inert to `strike_tier_table` per the prereg's own 2026-08-02 addendum), leaving risky-3's 66. But a check the original gate text never named — the `equity` field on every one of the 504 risky-3 + 607 risky-1 named-setup decision-rows since 2026-08-01 — shows **zero** rows in the $0-2K bracket this specific prereg's code change touched; all sit in $2K-10K (both arms started near $5K and never approached $2K, one brief exception on 2026-08-01 with zero trading that day). risky-3's real 66 fills were actually priced by a DIFFERENT, already-adjudicated tier row (`atm-tier-extension-2k10k-prereg-2026-08-03.json`, killed for risky-3 on 2026-08-06, commit `3ac1d7b2`, n=14/-$653) — scoring them here would have double-counted a closed decision under the wrong rule_id.
+
+**Verdict: n=0 mechanism-relevant fills. DISCLOSED_NULL, not a kill.** No revert — nothing has fired, nothing to undo. Filed the scorecard `analysis/recommendations/fleet-strike-tier-atm-extension-2026-08-27.json` with full derivation (naive-read → lane-scoping → equity-bucket check → consequence). Queue item's readiness criterion corrected in-place: re-check only if either arm's live `equity` drops back below $2,000, not on raw fill count — downgraded to dormant so future fires stop re-reading it as active evidence-accrual.
+
+**Lesson filed:** `strategy/candidates/_lesson-inbox/sample-floor-gate-must-scope-to-mechanism-not-total-fills-2026-08-27.md` — generalizable: any "n>=N fills since arming" gate needs a condition predicate (the specific bracket/regime/quality-tier the change actually engages), or a structurally-unreachable change can sit "ready to evaluate" indefinitely while a naive scorer misattributes an unrelated, already-closed decision's fills to it. Flags `task_scorer.py`'s dependency check (raw fill count) as sharing the same naivety — not fixed this fire (bounded scope), named for a future sweep.
+
+**Rail (reporting/evidence-authoring only — zero code, zero live-trading-path touch, zero params/accounts.json edit):** this is not a rail-4 trading-path change (no revert needed, no guard test applicable — nothing was armed or disarmed). Ships per OP-22/OP-26 engine-benefit authoring path. Files touched: `automation/overnight/queue.md` (verdict block appended, item's own `[ ]` line kept, readiness note updated), new scorecard JSON, new lesson-inbox file. Revert: `git revert <this-fire's-commit>` (fully additive except the one-line readiness-criterion edit in queue.md).
+
+---
+
+## [2026-08-26] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-22..2026-08-25), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-25). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-126.35); Bold_ATM_1+2=CONFIRM ($414.4)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-26T23:26:00 ET] conductor: OK — DRESS-REHEARSAL STALE (RED) fixed + latent doc-untracked landmine closed, commits `12f4a907` + `e0a6711f`
 
 **Picked via STAGE 0 budget gate PROCEED ($8.21/$30, 3/4 fires, AFTERHOURS mode) + market-hours gate closed + engine_health.json GREEN (19/19) + `desk_allocator.py` SPY-0DTE #1 ("NEXT FIRE") + `self_check.py` FUNCTION-FIRST priority-1: fresh run returned BROKEN, 5 problems — `DRESS-REHEARSAL STALE (RED)` was the only RED-severity item (others are non-load-bearing visibility/YELLOW).**
@@ -195,60 +219,3 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-24 06:15 ET] PRE-OPEN READINESS (J-requested, Monday 08-24) — GREEN to trade, 1 RED healed live
-
-**Verdict: cleared for the 09:30 open.** All 5 arms flat (0 positions / 0 open orders, live REST), full 5-day NYSE week (Alpaca calendar 08-24..08-28, all 09:30–16:00), rule_version `v15.3` matches CLAUDE.md, curated safety gate 59/59 PASS, `self_check.py` GREEN (0 problems), `engine_health.py` 0 REDs.
-
-**RED found and healed this session — TradingView CDP was hung, not down.** Port 9222 was *listening* (owner pid 14136, TradingView) but every HTTP `/json/version` request timed out (10.05s via urllib, 2x 15s via Invoke-WebRequest). All 9 TV processes 11.3h old (started 2026-08-23 18:31 ET), 22–50MB working set — consistent with MSIX app suspension holding the socket while the CDP HTTP server stopped answering. A port-open-only check would have read GREEN. Healed by `setup\launch_tv_debug.ps1 -Kill`; re-probe now returns `{"Browser":"Chrome/140.0.7339.133", ... TradingView/3.3.0 Electron/38.2.2}`. **No code change needed** — `run-launch-tv.ps1` (08:00 ET) and `run-tv-watchdog.ps1` (08:05–16:00 /5min) both use a 3s functional CDP timeout, not a port check, and would have kill+relaunched at 08:00; healing at 06:00 just removes the 2h blind window ahead of the 08:30 premarket level draw.
-
-**Scheduler verified (times below are LOCAL/MT = ET-2):** `Gamma_HeartbeatCore` next 07:30 MT = 09:30 ET, rc=0 · `Gamma_LaunchTV` 06:00 = 08:00 ET · `Gamma_TvWatchdog` 06:05 = 08:05 ET · `Gamma_Premarket` 06:30 = 08:30 ET · `Gamma_EodFlatten`(+`_Aggressive`) 13:55 = 15:55 ET · `Gamma_FleetExecutor` 07:31 = 09:31 ET. `Gamma_Heartbeat`/`_Aggressive` Disabled is correct (LLM heartbeats retired 2026-08-12). Engine ticked all 5 sessions last week at full density (core 772/day, each fleet arm 384/day, `blind:false`, armed:true through 15:55 Friday).
-
-**Last week measured from the broker, not from memory** (portfolio history 1D, ET-corrected — the raw UTC timestamps read one day late): Mon +$121.02 · Tue +$161.21 · Wed +$259.96 · Thu +$807.00 · Fri −$592.72 → **book-wide +$756.47, 4 green / 1 red.** J's recollection is confirmed. **But per-account (the OP lens, not the book number): bold-2 +$634.57, risky-1 +$207.91, safe-3 +$85.10, risky-3 −$53.43, safe-2 −$117.68 — 2 of 5 arms LOST money last week**, and per-account average was ~$30/day against the $100–200/day/account target. The book number flatters two losing arms; do not quote it alone.
-
-**Not changed, deliberately:** no params/gate/strategy edit on a trading morning (rule 9 + no pre-open unvalidated change). The two standing strategy REDs are unchanged and still report-only: `core_strategy_bear` (real-fills exp −$16.71/tr, n=31, freshest window) and `Safe2_ATM_1+2+4` book RED from the 2026-08-23 recency check — both re-validated 2026-08-23 with DO-NOT-FLIP findings, and no new OPRA data lands until tonight, so re-running today would return the identical verdict.
-
-**False alarms cleared:** `state_freshness` YELLOW is `automation/state/futures/eod-summary.json`, written Friday 16:12 ET by `Gamma_FuturesEod2` — correct latest for a Monday morning, weekend arithmetic only, and a futures-lane file with no SPY entry-path role. `test_status_known_broken_section_2026_08_20.py` 8/8 PASS — the escalation channel's behavioural fix is intact despite `## Known broken` sitting below the first `## [` entry.
-
----
-
-## [2026-08-24 05:39 ET] conductor: OK — no-console-popups guard RED fixed + 2 latent bugs (hardcoded secrets, 401 auth root-cause) closed same file, commit `2d703a27`
-
-**Picked via STAGE 0 budget gate PROCEED ($1.62/$30, 1/4 fires, AFTERHOURS mode) + `desk_allocator.py` (SPY 0DTE #1 "NEXT FIRE", 30pts) + engine health YELLOW-only (`state_freshness`, non-critical) + self_check.py GREEN (0 problems) + STAGE 1 priority-2 (`incident_fix_status.py --alert`: fresh `[RED] no-console-popups`, first appearance this cadence).**
-
-**Root cause, precisely:** `backtest/tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags` failed on 3 `subprocess.run()` calls in `setup/scripts/mcp_audit_probe.py` missing `creationflags=CREATE_NO_WINDOW` (C8 console-flash class). Investigating that file surfaced two more, more valuable bugs in the same never-before-committed script: (1) two Alpaca account key/secret pairs hardcoded in plaintext (file was untracked — never pushed to the public repo — but sat as a landmine for any future broad `git add`); (2) `probe_alpaca()` accepted a `secret` parameter but never put it in the request headers, so every probe 401'd regardless of real account health — this is the exact root cause of the still-open `## Known broken` entry `[2026-08-23T22:30:35Z] MCP_AUDIT_RED: Alpaca Safe/Bold MCP servers offline or unreachable (401 auth error)`. Not a real outage.
-
-**Fix:** added `creationflags=CREATE_NO_WINDOW` to all 3 calls; replaced hardcoded secrets with a `_load_alpaca_keys()` reader off the gitignored `.mcp.json` (same pattern as `fast_path_executor.py`); added the missing `APCA-API-SECRET-KEY` header.
-
-**Verified, quoted:** `test_window_leak_compliance.py` 4/4 PASS (was 1 FAILED, 3 passed). `incident_fix_status.py --alert`: `ALL GREEN` (was 1 RED). Live re-run of the fixed script: `{"verdict": "GREEN", "alpaca_safe": {"ok": true, "account": "PA3POKNV46VG", "note": "ok"}, "alpaca_bold": {"ok": true, "account": "PA3WEBXJU67N", "note": "ok"}, "tradingview": {"ok": true, ...}}` — end-to-end functional confirmation, not just guard-green. Curated safety gate (`run_safety_gate.py`): 59/59 PASS both before and after. `py_compile` clean. `git show 2d703a27 --stat --name-status`: exactly the 1 intended file (new file, first commit — was untracked since creation).
-
-**Rail 4 (infra fix, not a live trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** the guard test (already existed, now green) is the regression check (a); revert is `git revert 2d703a27`, one clean commit, 1 file (b); this STATUS entry is the REVOKE report (c). Zero live-money or CLAUDE.md surfaces touched — a secret-exposure risk was CLOSED (2 keys removed from source, never having reached the public repo), not created or rotated.
-
-**`## Known broken` MCP_AUDIT_RED entry annotated RESOLVED below** (never overwritten, per L-channel discipline).
-
-**Not investigated further this fire (out of bounded scope):** `mcp_audit_probe.py` is not wired to any scheduled task or caller yet (only referenced from its own test/audit files and one prior `conductor-outcomes.jsonl` log line) — whoever built it in an earlier fire didn't finish wiring it into a `Gamma_*` task. Left as-is; wiring it up is a separate, larger decision (new scheduled cadence) outside this fire's one-bounded-task scope. The 3 unrelated `### BROKEN:`-class GATE-EXPIRY RED entries in `## Known broken` (structure_veto_enabled, core_strategy_bear, require_bearish_fill_bar) are pre-existing report-only instruments (already re-validated 2026-08-23, DO NOT FLIP per that fire's own finding) — not re-touched.
-
----
-
-
-### BROKEN: self-check 2026-08-26T23:12:52
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
-- DRESS-REHEARSAL STALE (RED): last rehearsal '2026-08-23T20:45:01' is >24h old on a weekday evening -- Gamma_DressRehearsal likely not firing.
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-26) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-26) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-26.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-
-### DEGRADED: self-check 2026-08-26T23:19:43
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-26) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-26) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-26.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-
-## Known broken
-
-[2026-08-26T23:20:04-04:00] MCP_AUDIT_YELLOW: All MCPs healthy. TradingView required self-heal relaunch (after-hours expected).
-
-### DEGRADED: self-check 2026-08-26T23:25:08
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-20 (skipped), not today (2026-08-26) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-26) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-26.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
