@@ -5,50 +5,59 @@
 
 # CANDIDATE: STRUCTURE_VETO_DIR_VS_TREND
 
-**Filed:** 2026-08-20  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** quality_gate  
+**Filed:** 2026-07-23
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** quality_gate
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Wiring `crypto.lib.market_structure.classify_trend` (5m-sameday) into the entry path to block P-in-uptrend / C-in-downtrend entries removes wrong-way trades without affecting legitimate bearish setups. The edge exists because the engine currently enters some bearish trades during temporary bullish 5m trends (countertrend noise) that fail to follow through.
+The STRUCTURE_VETO_DIR_VS_TREND gate, which blocks PUT entries in confirmed 5m uptrends and CALL entries in confirmed 5m downtrends, preserves the edge capture on J's anchor days (all PUT winners) while removing losing trades caused by wrong-way entries. We hypothesize that this behavior holds in the most recent 4-month OOS window and that real-fills on the top 3 J days deviate by less than ±20% from BS-simulated P&L.
 
 ## Mechanism
 
-At each 5m bar, compute `classify_trend` using the prior 5m bars (same day only). If `side=="P"` and trend=="uptrend", block entry. If `side=="C"` and trend=="downtrend", block entry. For range/unknown trend, no veto. This is a pure veto that only removes trades; it does not alter entry timing or parameters for allowed trades.
+Entry path: after `_derive_routing` in `engine_cli.decide_payload`, evaluate `market_structure.classify_trend` on the current 5m bar (same-day). If `side=="P"` and trend=="uptrend", veto the entry. If `side=="C"` and trend=="downtrend", veto the entry. Otherwise, allow entry. Exit logic remains unchanged (chandelier profit-lock, chart stop, time stop). The gate is controlled by `gate_params["structure_veto_enabled"]` (default OFF for this validation).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | Takes SPY 710P x 6 -> +$342 | Same take (trend=downtrend at entry) | $0 |
-| 5/01 winner | Takes SPY 721P x 20 -> +$470 | Same take (trend=downtrend at entry) | $0 |
-| 5/04 winner | Takes SPY 721P x 10 -> +$730 | Same take (trend=range at entry -> no veto) | $0 |
-| 5/05 loser | Skips or loses less on SPY 722P x 20 -> -$260 | Same skip (trend=uptrend at entry -> veto blocks) | $0 (avoids loss) |
-| 5/06 loser | Skips or loses less on SPY 730P x 10 -> -$300 | Same skip (trend=uptrend at entry -> veto blocks) | $0 (avoids loss) |
-| 5/07 loser 1 | Skips or loses less on SPY 734C x 3 -> -$45 | Same skip (trend=downtrend at entry -> veto blocks call) | $0 (avoids loss) |
-| 5/07 loser 2 | Skips or loses less on SPY 737C x 10 -> -$120 | Same skip (trend=downtrend at entry -> veto blocks call) | $0 (avoids loss) |
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
-(Note: Anchor day behavior is unchanged because all J anchor days either have bearish trend (no put veto) or are range/unknown (no veto). The veto only blocks countertrend calls on loser days and wrong-way puts on other days.)
+(Note: Current engine behavior refers to the base engine without the gate. Proposed behavior is with the gate enabled. We lack Stage-1 backtest results for the specified OOS window and real-fills validation.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (same as base engine; gate reduces trade count but not per-trade risk).
-2. **Sample bias:** 16-month sample (2025-01-02 to 2026-06-18), selection method: all RTH bars, overfit risk: low (structural veto with guard tests; no parameter fitting).
-3. **Out-of-sample:** OOS Sharpe=4.728 (walk-forward held-out window: 4.3 months OIS, ratio=1.09 vs IS).
-4. **Real-fills:** Real-fills on top 3 J days show 0% difference from BS sim (anchor days unchanged; NEEDS-REAL-FILLS for non-anchor days but veto only affects non-anchor days).
-5. **Failure modes:** Worst day: -$412 (single-day loss, same as base); max drawdown: -$2,273 (same as base); blow-up scenario: prolonged sideways market where veto blocks legitimate pullback entries (mitigated by range/unknown=no-veto).
-6. **Concentration:** Top-5 days = 22% of P&L (based on full P&L +$8,138; top 5 days sum to +$1,790).
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (per OP-20 disclosure #1).
+2. **Sample bias:** Using last 4 months (2026-03-01 to 2026-06-30) as OOS window risks overfit to recent regime (low volatility, upward drift). Selection method: fixed time window. Overfit risk: medium due to potential regime shift.
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet performed).
+4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J days validation not yet performed).
+5. **Failure modes:** 
+   - Worst day: misclassifying a strong trend as range (or vice versa) could block a winning trade or allow a losing trade.
+   - Max drawdown: potential increase if winning trades are incorrectly vetoed during strong trends.
+   - Blow-up scenario: persistent misclassification in a choppy market could cause excessive whipsaws, increasing transaction costs and slippage.
+6. **Concentration:** If top-5 days = X% of P&L, state X: unknown -- requires Stage-1 backtest (current leaderboard shows base strategy concentration not disclosed for this candidate).
 
 ## Pre-merge gate
 
-Gym validators (97/98 PASS), walk-forward OOS (Sharpe>=0.70), real-fills A/B on top 3 J days (<20% diff), concentration disclosure.
+<what tests need to pass: gym validators, walk-forward, real-fills>
+- Gym validators: `backtest/tests/test_structure_veto.py` must pass (29/29).
+- Walk-forward OOS: positive edge_capture and Sharpe ratio on 2026-03-01 to 2026-06-30.
+- Real-fills: P&L on 4/29, 5/01, 5/04 must be within ±20% of BS-simulated P&L.
+- Anchor no-regression: edge_capture on J days must not decrease below baseline (780).
+- OP-20 disclosures: all items must be addressed (real-fills and OOS results filled in).
 
 ## Confidence
 
-7 / 10 -- Strong structural rationale, guard tests pass, anchor days preserved, OOS Sharpe robust. Main uncertainty: concentration in live trading (top-5 days may drift).
+6 / 10 -- Based on existing real-fills A/B showing anchor preservation and P&L increase, but lacking OOS validation on the specified 4-month window and real-fills accuracy check.
 
 ## Pre-existing leaderboard impact
 
-Complements and does not conflict with existing candidates. Replaces base engine behavior with strict structural veto; may interact with other gates (e.g., midday_trendline_gate) but guards confirm no adverse impact on anchor days. Current rank ★ (PROMISING) would improve if re-scored with validated OOS Sharpe and real-fills.
+<does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
+Complements existing PROMISING candidates (e.g., WEEKLY_DTE_NOT_0DTE, ORB_NARROW_OR_GATE) as it is a orthogonal quality gate. No direct conflict with top-ranked candidates (BEARISH_SWEEP_BLOCKER is REJECTED, LIVE_PRICE_FIRST_BAR_TRIGGER is NEEDS-MORE-DATA). May conflict with overly aggressive filters that remove similar trades, but structure-based veto targets a different defect class (wrong-way entries) than trigger-based gates.
