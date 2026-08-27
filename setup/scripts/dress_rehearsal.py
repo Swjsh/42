@@ -30,10 +30,26 @@ VERDICTS: per-check GREEN / RED / INCONCLUSIVE_AFTER_HOURS; overall GREEN only w
 every check is GREEN (INCONCLUSIVE propagates to overall INCONCLUSIVE — J's green-light
 is never softened). Fail-open: any crash writes a RED artifact and exits 0.
 
+IDEMPOTENT-BY-DEFAULT + AtLogOn BACKUP TRIGGER (added 2026-08-26): the primary 20:45 ET
+daily trigger was found to land in a reboot gap on several nights (2026-08-24/25/26 all
+missed — J's machine reboots most evenings in the 18:00-22:00 MT window per Kernel-Power
+event log, and Windows Task Scheduler's StartWhenAvailable catch-up does not reliably
+recover more than one missed occurrence). Fix: every run now SKIPS real work by default if
+today's ET-date rehearsal already succeeded in writing an artifact (see
+_ran_today_already) — pass --force to override (used by an operator manually re-running).
+This makes it safe to add a SECOND trigger (AtLogOn, +10min delay) to the SAME
+Gamma_DressRehearsal task as a backup: if the 20:45 ET trigger was missed, the next login
+catches it up for real; if it already ran, the login-trigger fire is a fast no-op. (A
+brand-new SEPARATE task would have been cleaner, but Register-ScheduledTask/schtasks
+/Create both returned Access Denied from this session's shell context — Set-ScheduledTask
+on the EXISTING task, i.e. a modify not a create, is what this session's ACLs permit.)
+
 Guards: backtest/tests/test_dress_rehearsal.py (payload parity engine vs replica, OCC
-parity, $10 crypto cap, overall-verdict logic, self_check reader).
-Run:   backtest/.venv/Scripts/python.exe setup/scripts/dress_rehearsal.py
-Task:  Gamma_DressRehearsal nightly 20:45 ET (18:45 MT local).
+parity, $10 crypto cap, overall-verdict logic, self_check reader, idempotent-skip).
+Run:   backtest/.venv/Scripts/python.exe setup/scripts/dress_rehearsal.py [--force]
+Task:  Gamma_DressRehearsal — daily 20:45 ET trigger (primary) + AtLogOn +10min (backup,
+       added 2026-08-26). Both fire the identical no-arg action; the skip-if-already-ran
+       default makes duplicate fires a no-op.
 """
 from __future__ import annotations
 
@@ -446,8 +462,32 @@ def _write_result(result: dict) -> None:
     tmp.replace(OUT)
 
 
-def main() -> int:
+def _ran_today_already(now: datetime) -> bool:
+    """True if OUT already reflects a run from TODAY's ET calendar date. Used ONLY by
+    --catchup (the backup startup trigger) so a boot-time recovery run never duplicates a
+    real options+crypto round-trip that already happened tonight via the primary trigger
+    (or an earlier boot). Unreadable/missing artifact -> False (safe default: do the work)."""
+    if not OUT.exists():
+        return False
+    try:
+        data = json.loads(OUT.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 — fail-open toward doing the work, not skipping it
+        return False
+    return str(data.get("ran_at_et", ""))[:10] == now.strftime("%Y-%m-%d")
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force", action="store_true",
+                        help="skip the idempotent already-ran-today check and always do "
+                             "real work (manual re-run / debugging)")
+    args = parser.parse_args(argv)
     now = et_now()
+    if not args.force and _ran_today_already(now):
+        print(f"[dress-rehearsal] already ran today ({now.strftime('%Y-%m-%d')}) — no-op "
+              f"(pass --force to override)")
+        return 0
     checks: dict = {}
     result = {"ran_at_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "next_trading_day": None,
               "placement_source": None, "overall": "RED", "checks": checks}

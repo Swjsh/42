@@ -294,6 +294,74 @@ class TestArtifactSchema:
             assert isinstance(c["evidence"], list)
 
 
+# ── idempotent-by-default + --force (backup AtLogOn trigger, 2026-08-26) ───────
+# Root cause: J's machine reboots most evenings in the 18:00-22:00 MT window
+# (Kernel-Power event log), landing directly in the primary 20:45 ET trigger's
+# window on 2026-08-24/25/26 (3 consecutive missed runs, self_check RED). The fix
+# adds a backup AtLogOn trigger to the SAME task, made safe by making every run
+# skip real work by default when today's artifact already exists (--force overrides).
+# These guards pin that the skip never eats a genuine daily run and that --force
+# always does real work regardless of an existing artifact.
+
+class TestIdempotentSkipByDefault:
+    def test_ran_today_already_true_when_artifact_dated_today(self, dr, tmp_path, monkeypatch):
+        p = tmp_path / "dress-rehearsal.json"
+        p.write_text(json.dumps({"ran_at_et": "2026-08-26T20:45:01", "overall": "GREEN"}),
+                     encoding="utf-8")
+        monkeypatch.setattr(dr, "OUT", p)
+        assert dr._ran_today_already(dt.datetime(2026, 8, 26, 22, 10)) is True
+
+    def test_ran_today_already_false_when_artifact_dated_yesterday(self, dr, tmp_path, monkeypatch):
+        p = tmp_path / "dress-rehearsal.json"
+        p.write_text(json.dumps({"ran_at_et": "2026-08-23T20:45:01", "overall": "GREEN"}),
+                     encoding="utf-8")
+        monkeypatch.setattr(dr, "OUT", p)
+        assert dr._ran_today_already(dt.datetime(2026, 8, 26, 22, 10)) is False
+
+    def test_ran_today_already_false_when_artifact_missing(self, dr, tmp_path, monkeypatch):
+        monkeypatch.setattr(dr, "OUT", tmp_path / "does-not-exist.json")
+        assert dr._ran_today_already(dt.datetime(2026, 8, 26, 22, 10)) is False
+
+    def test_ran_today_already_false_when_artifact_unreadable(self, dr, tmp_path, monkeypatch):
+        p = tmp_path / "dress-rehearsal.json"
+        p.write_text("{not json", encoding="utf-8")
+        monkeypatch.setattr(dr, "OUT", p)
+        assert dr._ran_today_already(dt.datetime(2026, 8, 26, 22, 10)) is False
+
+    def test_default_run_skips_real_work_when_already_ran(self, dr, tmp_path, monkeypatch):
+        p = tmp_path / "dress-rehearsal.json"
+        p.write_text(json.dumps({"ran_at_et": dr.et_now().strftime("%Y-%m-%dT%H:%M:%S"),
+                                 "overall": "GREEN"}), encoding="utf-8")
+        monkeypatch.setattr(dr, "OUT", p)
+        called = {"n": 0}
+        monkeypatch.setattr(dr.fb, "load_creds", lambda: called.update(n=called["n"] + 1) or {})
+        rc = dr.main([])
+        assert rc == 0
+        assert called["n"] == 0, "a plain re-fire (e.g. the AtLogOn backup trigger) must not " \
+                                  "touch the broker when today already ran"
+
+    def test_default_run_does_real_work_when_not_yet_run_today(self, dr, tmp_path, monkeypatch):
+        p = tmp_path / "dress-rehearsal.json"
+        p.write_text(json.dumps({"ran_at_et": "2026-08-23T20:45:01", "overall": "GREEN"}),
+                     encoding="utf-8")
+        monkeypatch.setattr(dr, "OUT", p)
+        called = {"n": 0}
+        monkeypatch.setattr(dr.fb, "load_creds", lambda: called.update(n=called["n"] + 1) or {})
+        dr.main([])
+        assert called["n"] == 1, "the primary nightly trigger must always do real work " \
+                                  "the first time today"
+
+    def test_force_flag_always_does_real_work(self, dr, tmp_path, monkeypatch):
+        p = tmp_path / "dress-rehearsal.json"
+        p.write_text(json.dumps({"ran_at_et": dr.et_now().strftime("%Y-%m-%dT%H:%M:%S"),
+                                 "overall": "GREEN"}), encoding="utf-8")
+        monkeypatch.setattr(dr, "OUT", p)
+        called = {"n": 0}
+        monkeypatch.setattr(dr.fb, "load_creds", lambda: called.update(n=called["n"] + 1) or {})
+        dr.main(["--force"])
+        assert called["n"] == 1, "--force must bypass the already-ran-today skip"
+
+
 # ── self_check reader ──────────────────────────────────────────────────────────
 
 _EVENING = dt.datetime(2026, 7, 1, 21, 30)   # Wednesday 21:30 ET
