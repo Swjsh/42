@@ -22,6 +22,10 @@
 
 **Lesson:** not filed as a new L## — this fire's finding IS the lesson-graduation step for the existing `2026-08-26-live-readiness-gate-lacked-concentration-guard.md` inbox item (now folded into doctrine directly rather than needing a separate lesson-author pass).
 
+**Autonomy metric:** `conductor_outcome.py metric` → `trend: regressing` (net_improvement 9 / 20-fire window, cost_per_drained $2.36). This fire closed a loop (audited-clear on 5 named candidates + doctrine fold, item downgraded not left open-ended) rather than adding a fresh artifact — the right shape to counter the trend per OP-22; next fire should prefer another loop-close over a new artifact too.
+
+**Next fire should pick up:** `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS` (now MED) has a precisely-scoped residual — the 14 named `setup/scripts` files + `backtest/autoresearch/` — if it's the highest-ROI item again. `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` remains correctly gated behind its own blast-radius pass (3 consecutive fires now) — if it keeps winning `task_scorer.py --top`, consider filing it as a standing `FABLE-ESCALATION` so a top-tier session actually runs the blast-radius pass instead of every sonnet fire re-confirming the same gate.
+
 ---
 
 ## [2026-08-27T01:10 ET] conductor: OK — FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01 scored: DISCLOSED_NULL_STRUCTURALLY_UNREACHABLE, item downgraded dormant (no code change, no revert)
@@ -230,6 +234,6 @@ Scorecard: `analysis/recommendations/entry-structure-forward-2026-08-06.json`. F
 
 
 ## Kitchen
-Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 55 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 [2026-08-27 05:30:04] scout: HIGH catalyst @ 08:30 ET -- GDP Q2 2nd estimate + initial jobless claims -- Premarket should set no-trade window 08:25-08:45
