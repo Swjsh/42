@@ -1,3 +1,29 @@
+## [2026-08-27T05:40 ET] conductor: OK — MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS: 5 more candidates audited-clear + doctrine folded, commit `192b47e2`
+
+**Picked via STAGE 0 budget gate PROCEED ($8.99/$30, 1/4 fires) + market-hours gate closed (05:30 ET, weekday, pre-open) + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 "NEXT FIRE" (futures desk checked and confirmed NOT decision-rotting: MES mirror 84/20 round trips but `beats_null=false` against the current +$7,121 buy-and-hold null, so `armable=false` — correctly quiet) + `task_scorer.py --top` returned `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` again (3rd consecutive fire; re-confirmed it is still correctly gated behind its own `/fable-blast-radius` pass, touches `Gamma_HeartbeatCore`'s wrapper — not a bounded sonnet-tier pick) — fell to `queue.md` HIGH tier: `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS`, whose own text named 5 specific unaudited candidates plus an open doctrine-encode step.**
+
+**What I did:** read each named candidate's ACTUAL verdict-computation code (not its name/docstring alone) for the bare-mean-without-concentration-term defect that already hit `gate_expiry_check.py` (2x) and `live_readiness.py` this week. Result — **zero additional defects**, all 5 are correctly built:
+- `desk_allocator.py::assess_spy/assess_futures` — NOT susceptible. Its own module docstring states "DELIBERATELY NOT SCORED: P&L level" — P&L is informational headline text only, never gates the allocation decision.
+- `chop_exposure_meter.py` — NOT susceptible. Docstring: "the meter measures exposure; it does not judge" — no PASS/FAIL/verdict field exists in its output at all.
+- `day_throttle_shadow.py` / `stop_mode_shadow_ledger.py` (the two real producers behind "shadow-tally/summary writers") — NOT susceptible, both emit `verdict_ready` (an n>=threshold readiness flag), never a PASS/FAIL judgment from a mean.
+- `entry_quality_ledger.py` — NOT susceptible, ALREADY gates its 3-way verdict on `delta_drop_top2 > 0` (its G3 criterion).
+- `score_ladder_shadow_nightly.py`'s frozen forward-arm bar — NOT susceptible, the prereg (frozen 2026-08-07, 16 days before this lesson was named) already requires "no session worse than -$500" + "chop-day average not worse than -$300" alongside the mean — a tail-risk term baked in independently.
+- Spot-checked 7 more `*verdict*`/`*_check(`-matching files via a `grep -l` sweep of `setup/scripts` (`gate_recency_report.py`, `oos_check_runner.py`, `regime_attribution.py` [has its own named `concentration()` function], `risky1_lane_composition_check.py`, `exit_policy_beats_null_2026_08_23.py` [two-tailed drop-top3/drop-worst3 already first-class], `bold_tier_rail.py`, `trendline_tier_rail.py`) — zero bare-`fmean`-without-concentration hits.
+
+**Doctrine-encode step (was still open on the item) — DONE:** folded a generalized paragraph into `markdown/research/BACKTESTING-PLAYBOOK.md` §4.3 (Concentration gate): the rule applies to ANY verdict-producing function repo-wide, not just backtest strategy evaluators, naming the shared `backtest/lib/concentration.py::drop_top_n` helper and all 3 real incidents + all 5 audited-clear candidates as the reference list, so a future `*_verdict`/`*_check.py` author has doctrine to grep before writing a bare-mean gate.
+
+**Not exhaustive, disclosed as such:** 14 of the 21 `*verdict*`/`*_check(`-matching files in `setup/scripts` were not individually opened this fire (named explicitly in the queue item: `heartbeat_core.py`, `monday_verify.py`, `kitchen_reviewer.py`, `engine_health.py`, `firm_brief.py`, `crypto_twin_core.py`, `autonomy_report.py`, `task_state_guard.py`, `crypto_twin_ladder_sim.py`, `crypto_twin_scenarios.py`, `participation_daily.py`, `free_model_audit_prospector.py`, `twin_gauntlet_conductor_hook.py`, `free_model_audit_twin_review.py`), nor was `backtest/autoresearch/` swept — a genuine sweep of ~35+ files is not one bounded fire. Downgraded the queue item **HIGH → MED** and re-scoped it to exactly that residual list rather than closing it.
+
+**Also closed:** the matching 2026-08-26T17:31 self-audit gap (`analysis/self-audit/new-gaps-flagged.md`, concentration-guard deficiency) marked `<!-- DONE -->` with a pointer to this fire — it was the swarm re-flagging a gap that `live_readiness.py` (650ef9c8) had already substantially addressed the day before.
+
+**Verified, quoted:** curated safety gate (`run_safety_gate.py`) `59 passed` both before and after (doc-only change, no code touched, no regression possible). `git show 192b47e2 --stat --name-status`: exactly the 3 intended files (`analysis/self-audit/new-gaps-flagged.md`, `automation/overnight/queue.md`, `markdown/research/BACKTESTING-PLAYBOOK.md`).
+
+**Rail (reporting/doctrine-authoring only — zero code, zero live-trading-path touch, zero params/accounts.json edit):** ships per OP-22/OP-26 engine-benefit authoring path, no guard test applicable (nothing executable changed). Revert: `git revert 192b47e2` (fully additive across all 3 files).
+
+**Lesson:** not filed as a new L## — this fire's finding IS the lesson-graduation step for the existing `2026-08-26-live-readiness-gate-lacked-concentration-guard.md` inbox item (now folded into doctrine directly rather than needing a separate lesson-author pass).
+
+---
+
 ## [2026-08-27T01:10 ET] conductor: OK — FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01 scored: DISCLOSED_NULL_STRUCTURALLY_UNREACHABLE, item downgraded dormant (no code change, no revert)
 
 **Picked via STAGE 0 budget gate PROCEED ($0/$30, 0/4 fires) + market-hours gate closed + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 + `task_scorer.py --top` returned the already-flagged-gated `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` (unchanged since 2026-08-26 05:30's assessment — still correctly gated behind its own live-trading blast-radius pass, not a bounded pick) — fell to the next ready item, `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, whose `n>=20 fills` dependency now reads satisfied (139 real fills since 2026-08-01).**
@@ -202,20 +228,8 @@ Scorecard: `analysis/recommendations/entry-structure-forward-2026-08-06.json`. F
 
 ---
 
-## [2026-08-24T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-24 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
 
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+## Kitchen
+Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 16 tick(s) showed in_trade>0. 2 real fill(s) dated 2026-08-24: safe-2@10:06, safe-2@13:26. Field-level population NOT re-verifiable post-close (live-watch.json holds only the latest snapshot, no historical archive) -- corroborated only via th… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-24, generated_at_et=2026-08-24T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-24, regime_context.stamp_date=2026-08-24 (present=True, dates_match=True). one_liner='Yesterday 2026-08-21 (Fri) = pin-day (range 0.48%, gap +0.45%, cl… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 59 distinct near-price levels. Worst: 750.82 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 27 time(s) across 7 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-24 window_end=2026-08-21 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=31 (delta +21 vs baseline n=10) exp=$-16.71/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=31 exp=$2.45/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-24T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 16 theta-clock row(s) dated 2026-08-24 across 2 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=16, unavailable=0. still… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-24 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-24`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
+[2026-08-27 05:30:04] scout: HIGH catalyst @ 08:30 ET -- GDP Q2 2nd estimate + initial jobless claims -- Premarket should set no-trade window 08:25-08:45
