@@ -1,230 +1,310 @@
 {
- "_doc": "Champion/challenger fleet registry, schema fleet-v2 (2026-06-25 grid rebuild). AN ACCOUNT IS NOT A STRATEGY. Every account is a (gate-strictness x contract-sizing) profile; EVERY validated strategy in automation/state/fleet/strategies.py runs on EVERY account via fleet_executor.plan_all. The account only decides how SELECTIVE the entry gate is (gate_override) and how BIG the position is (sizing = strike depth + qty + risk cap). NO direction locks, NO per-account strategy silos (the old PUT_ONLY / loose-aggressive-as-a-strategy framing was the bug J flagged). NEVER store secrets here -- key_ref points to the GITIGNORED secrets.json. Account#/equity broker-verified 2026-06-20.",
- "_display_name_doc": "DISPLAY NAMES ADDED 2026-07-17 (J: the safe-1/2/3, risky-1/3, bold-2 scheme is confusing on its own numbers-mean-nothing/risky-vs-bold-inconsistent merits AND unsafe -- safe-1 and safe-2 point at the SAME account (PA3POKNV46VG) and caused a real double-count in reporting). Each arm below gained a `display_name` field: CORE-SAFE (46VG)=safe-2, CORE-BOLD (U67N)=bold-2, FLEET-TIGHT-S (T20H)=safe-3, FLEET-TIGHT-R (8G19)=risky-1, FLEET-LOOSE-R (5H6Z)=risky-3, RETIRED (=CORE-SAFE acct 46VG)=safe-1, FUTURES-DIV (dormant, 3759)=mes-mnq-div-futures, FUTURES-LINEAR (pending, 3759)=mes-linear-sim. Arm IDs are UNCHANGED and remain the load-bearing key everywhere (80+ consumers grepped 2026-07-17 across automation/setup/backtest -- executor/ledger/state-file keying was NOT touched); display_name is READ-SURFACE ONLY, resolved via setup/scripts/arm_display.py. Full mapping table + rationale: markdown/infra/ARM-DISPLAY-NAMES.md. Guard: automation/state/fleet/test_arm_display_names.py.",
- "schema": "fleet-v2-grid",
- "created": "2026-06-20",
- "updated": "2026-07-11",
- "update_note": "GRID REBUILD 2026-06-25: 6 SPY arms recast as a clean 2x3 matrix -- SIZING {safe, risky} x GATE {tight, base, loose}. safe-2 + bold-2 stay the mcp_heartbeat CONTROLS (production params, base gate). The 4 fleet_rest arms are the gate variants. Stripped risky-1's PUT_ONLY and all per-account 'hypothesis' strategy framing. Strategies now live in strategies.py and run on all arms. WATCH-SAFE preserved: every fleet_rest arm INERT until build_shared_signal emits passed=true (the separate SCORING_PEAK_LIVE producer flip). Pre-grid config saved at accounts.json.bak-2026-06-25-pre-grid.",
- "update_note_2026_07_11": "SAFE-1 RETIRED, MERGED INTO SAFE-2: core Safe's account (PA3S2PYAS2WQ) was deleted 2026-07-10; repointed core Safe at fleet arm safe-1's account (PA3POKNV46VG) and retired safe-1 (status active->retired) to avoid two execution paths sharing one broker account. Active fleet_rest roster: {safe-3, risky-1, risky-3} (3, was 4). See each arm's own _repoint_2026_07_11 / _retired_doc field for the full mechanism + revert path.",
- "update_note_2026_07_20": "EXIT-PARAMETER A/B (J directive: 'every fleet arm takes the SAME engine signals but with DIFFERENT exit/risk parameters -- one gets stopped out on the ribbon, one plays the rejection outside the ribbon, one rides it better'). NEW per-arm `params_patch.exit_patch` key (fleet_executor._exit_shape_dict merges it shallow OVER the strategies.py REGISTRY exit shape at every ENTER call site -- see that function's 2026-07-20 docstring). Schema = EXACTLY strategies.ExitShape's dataclass fields (fleet_executor.EXIT_PATCH_ALLOWED_KEYS); any other key raises ValueError at accounts.json load (fleet_executor.validate_accounts_exit_patches) AND at merge time -- fail loud, never a silently-ignored knob (C14/L201). Assigned tonight: safe-3=RIBBON (chart-stop-primary + trailing lock forced onto EVERY strategy, not just ribbon_ride's own default), risky-1=UNTOUCHED CONTROL (no exit_patch -- today's exact trigger-level structure stop), risky-3=WIDER TRAIL (same chart-stop lane as safe-3 but a looser 0.20 chandelier trail so the runner rides longer before the trailing floor exits it). SCHEMA GAP DISCLOSED: there is no 'stop referenced to a DIFFERENT (nearby, non-entry) key level' knob in ExitShape today -- stop_mode='structure' only ever references THIS position's own entry trigger_level (exit_manager.ExitState.from_entry/_structure_stop_hit). risky-3's 'rides it longer' is therefore approximated via a wider trail_pct, not a true zone-band-referenced stop. NOT a pending build -- automation/overnight/queue.md's STRUCTURE-STOP-REFERENCE-LEVEL item investigated exactly this reference-level knob (REF-ZONE) the SAME evening (~17:00-17:35 ET) and closed NO-SHIP (pre-reg A/B: single-anchor-trade artifact, sub-window sign-flip); exit_manager.py/strategies.py deliberately left unchanged by that fire. Revisit only if a future pre-reg A/B on a different reference-level formulation clears. This intentionally supersedes the pre-2026-07-20 'exit is a property of the strategy, not the account, no per-account exit drift' invariant for arms carrying an exit_patch -- test_six_account_exit_shapes.py updated same-session to assert per-arm-aware expectations (registry-verbatim for unpatched arms, registry+patch for patched ones) rather than weakened. Display-surface label (RIBBON/TRIG-EXACT/ZONE-RIDE/CORE) added to setup/scripts/trade_today_watcher.py's per-fill ping + trade-today.json fill records. Guard: automation/state/fleet/test_exit_patch_overlay.py.",
- "grid": {
-  "axes": {"sizing": ["safe", "risky"], "gate": ["tight", "base", "loose"]},
-  "sizing_profiles": {
-   "safe": "SAFE risk cap (30%), qty 5/8 at $2K, OTM strikes (params_patch strike_tier_table='bold' to fit the $600 notional cap at $2K -- ATM doesn't place this small).",
-   "risky": "BOLD risk cap (50%), qty 8/12 at $2K, OTM strikes (bold table default)."
+  "_doc": "Champion/challenger fleet registry, schema fleet-v2 (2026-06-25 grid rebuild). AN ACCOUNT IS NOT A STRATEGY. Every account is a (gate-strictness x contract-sizing) profile; EVERY validated strategy in automation/state/fleet/strategies.py runs on EVERY account via fleet_executor.plan_all. The account only decides how SELECTIVE the entry gate is (gate_override) and how BIG the position is (sizing = strike depth + qty + risk cap). NO direction locks, NO per-account strategy silos (the old PUT_ONLY / loose-aggressive-as-a-strategy framing was the bug J flagged). NEVER store secrets here -- key_ref points to the GITIGNORED secrets.json. Account#/equity broker-verified 2026-06-20.",
+  "_display_name_doc": "DISPLAY NAMES ADDED 2026-07-17 (J: the safe-1/2/3, risky-1/3, bold-2 scheme is confusing on its own numbers-mean-nothing/risky-vs-bold-inconsistent merits AND unsafe -- safe-1 and safe-2 point at the SAME account (PA3POKNV46VG) and caused a real double-count in reporting). Each arm below gained a `display_name` field: CORE-SAFE (46VG)=safe-2, CORE-BOLD (U67N)=bold-2, FLEET-TIGHT-S (T20H)=safe-3, FLEET-TIGHT-R (8G19)=risky-1, FLEET-LOOSE-R (5H6Z)=risky-3, RETIRED (=CORE-SAFE acct 46VG)=safe-1, FUTURES-DIV (dormant, 3759)=mes-mnq-div-futures, FUTURES-LINEAR (pending, 3759)=mes-linear-sim. Arm IDs are UNCHANGED and remain the load-bearing key everywhere (80+ consumers grepped 2026-07-17 across automation/setup/backtest -- executor/ledger/state-file keying was NOT touched); display_name is READ-SURFACE ONLY, resolved via setup/scripts/arm_display.py. Full mapping table + rationale: markdown/infra/ARM-DISPLAY-NAMES.md. Guard: automation/state/fleet/test_arm_display_names.py.",
+  "schema": "fleet-v2-grid",
+  "created": "2026-06-20",
+  "updated": "2026-07-11",
+  "update_note": "GRID REBUILD 2026-06-25: 6 SPY arms recast as a clean 2x3 matrix -- SIZING {safe, risky} x GATE {tight, base, loose}. safe-2 + bold-2 stay the mcp_heartbeat CONTROLS (production params, base gate). The 4 fleet_rest arms are the gate variants. Stripped risky-1's PUT_ONLY and all per-account 'hypothesis' strategy framing. Strategies now live in strategies.py and run on all arms. WATCH-SAFE preserved: every fleet_rest arm INERT until build_shared_signal emits passed=true (the separate SCORING_PEAK_LIVE producer flip). Pre-grid config saved at accounts.json.bak-2026-06-25-pre-grid.",
+  "update_note_2026_07_11": "SAFE-1 RETIRED, MERGED INTO SAFE-2: core Safe's account (PA3S2PYAS2WQ) was deleted 2026-07-10; repointed core Safe at fleet arm safe-1's account (PA3POKNV46VG) and retired safe-1 (status active->retired) to avoid two execution paths sharing one broker account. Active fleet_rest roster: {safe-3, risky-1, risky-3} (3, was 4). See each arm's own _repoint_2026_07_11 / _retired_doc field for the full mechanism + revert path.",
+  "update_note_2026_07_20": "EXIT-PARAMETER A/B (J directive: 'every fleet arm takes the SAME engine signals but with DIFFERENT exit/risk parameters -- one gets stopped out on the ribbon, one plays the rejection outside the ribbon, one rides it better'). NEW per-arm `params_patch.exit_patch` key (fleet_executor._exit_shape_dict merges it shallow OVER the strategies.py REGISTRY exit shape at every ENTER call site -- see that function's 2026-07-20 docstring). Schema = EXACTLY strategies.ExitShape's dataclass fields (fleet_executor.EXIT_PATCH_ALLOWED_KEYS); any other key raises ValueError at accounts.json load (fleet_executor.validate_accounts_exit_patches) AND at merge time -- fail loud, never a silently-ignored knob (C14/L201). Assigned tonight: safe-3=RIBBON (chart-stop-primary + trailing lock forced onto EVERY strategy, not just ribbon_ride's own default), risky-1=UNTOUCHED CONTROL (no exit_patch -- today's exact trigger-level structure stop), risky-3=WIDER TRAIL (same chart-stop lane as safe-3 but a looser 0.20 chandelier trail so the runner rides longer before the trailing floor exits it). SCHEMA GAP DISCLOSED: there is no 'stop referenced to a DIFFERENT (nearby, non-entry) key level' knob in ExitShape today -- stop_mode='structure' only ever references THIS position's own entry trigger_level (exit_manager.ExitState.from_entry/_structure_stop_hit). risky-3's 'rides it longer' is therefore approximated via a wider trail_pct, not a true zone-band-referenced stop. NOT a pending build -- automation/overnight/queue.md's STRUCTURE-STOP-REFERENCE-LEVEL item investigated exactly this reference-level knob (REF-ZONE) the SAME evening (~17:00-17:35 ET) and closed NO-SHIP (pre-reg A/B: single-anchor-trade artifact, sub-window sign-flip); exit_manager.py/strategies.py deliberately left unchanged by that fire. Revisit only if a future pre-reg A/B on a different reference-level formulation clears. This intentionally supersedes the pre-2026-07-20 'exit is a property of the strategy, not the account, no per-account exit drift' invariant for arms carrying an exit_patch -- test_six_account_exit_shapes.py updated same-session to assert per-arm-aware expectations (registry-verbatim for unpatched arms, registry+patch for patched ones) rather than weakened. Display-surface label (RIBBON/TRIG-EXACT/ZONE-RIDE/CORE) added to setup/scripts/trade_today_watcher.py's per-fill ping + trade-today.json fill records. Guard: automation/state/fleet/test_exit_patch_overlay.py.",
+  "grid": {
+    "axes": {
+      "sizing": [
+        "safe",
+        "risky"
+      ],
+      "gate": [
+        "tight",
+        "base",
+        "loose"
+      ]
+    },
+    "sizing_profiles": {
+      "safe": "SAFE risk cap (30%), qty 5/8 at $2K, OTM strikes (params_patch strike_tier_table='bold' to fit the $600 notional cap at $2K -- ATM doesn't place this small).",
+      "risky": "BOLD risk cap (50%), qty 8/12 at $2K, OTM strikes (bold table default)."
+    },
+    "gate_profiles": {
+      "tight": {
+        "min_triggers": 2,
+        "require_confluence_or_sequence": true
+      },
+      "base": "production default (no gate_override) -- the control",
+      "loose": {
+        "min_triggers": 1
+      }
+    },
+    "map": {
+      "safe-3": "safe x tight",
+      "safe-2": "safe x base (CONTROL)",
+      "safe-1": "safe x loose",
+      "risky-1": "risky x FULL-SEND",
+      "bold-2": "risky x base (CONTROL)",
+      "risky-3": "risky x loose"
+    },
+    "map_doc": "CORRECTED 2026-08-02 (risky1_lane_composition_check.py): risky-1's row here read 'risky x tight' -- stale since commit e28d210c (2026-07-31 16:21) REPLACED risky-1's gate_override with {\"full_send\": true}, deleting min_triggers/require_confluence_or_sequence rather than layering under them. The arm's own `cell` field was updated in that same commit; this display-only metadata block was not, and a 2026-08-02 audit (analysis/recommendations/fleet-strike-tier-atm-2026-08-02.md) read this stale value and mischaracterized risky-1's normal lane as 'tight-gated' when it is in fact UNGATED (same as risky-3, confirmed independently the same night by FLEET-PARITY-TESTS-READ-LIVE-STATE, commit dea5b2e2). Guard: automation/state/fleet/test_risky1_lane_composition_check.py::test_grid_map_metadata_matches_the_arms_own_cell_field."
   },
-  "gate_profiles": {
-   "tight": {"min_triggers": 2, "require_confluence_or_sequence": true},
-   "base": "production default (no gate_override) -- the control",
-   "loose": {"min_triggers": 1}
+  "strategy_set": "automation/state/fleet/strategies.py (ribbon_ride, vwap_continuation) -- run on ALL arms via plan_all",
+  "shared_signal_path": "automation/state/fleet/shared-signal.json",
+  "arms": [
+    {
+      "id": "safe-3",
+      "display_name": "FLEET-TIGHT-S (T20H)",
+      "cell": "safe x tight",
+      "status": "active",
+      "execution": "fleet_rest",
+      "live": true,
+      "fidelity": "real_fills",
+      "broker": "alpaca",
+      "account_number": "PA32T7Q1O20H",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-3",
+      "instrument": "SPY_0DTE_OPTION",
+      "starting_equity": 5000.0,
+      "frozen_at": "2026-06-25",
+      "gate_override": {
+        "min_triggers": 2,
+        "require_confluence_or_sequence": true
+      },
+      "score_ladder_doc": "SCORE_LADDER DISARMED 2026-07-27 ~23:30 ET on evidence, hours after arming: the 390-day replay (analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.md, e65ed269) measured the armed rule at floor=9 as -$10,903 over 332 trades vs baseline +$5,307 -- all floors lose, day-majority fails, drop-best fails. Machinery + guards stay intact and inert; the why-not provenance rows ARE the forward shadow ledger ($0). Pre-registered NARROW hypothesis queued (LADDER-SUBSET-PREREG in queue.md) before any slicing. RE-ARM (J override): restore score_ladder_floor: 9 here.",
+      "params_patch": {
+        "strike_tier_table": "bold_core",
+        "exit_patch": {
+          "stop_mode": "structure",
+          "profit_lock_mode": "trailing"
+        }
+      },
+      "strike_tier_table_doc": "FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3 (2026-08-03, ARM-PARTICIPATION-AND-GROWTH-2026-08-03.md #1): 'bold_core' -- _tiers_for_arm now resolves V15_BOLD_CORE_TIERS (ATM under $2K, the SAME table core Bold has used since 2026-07-17/18 and risky-1/risky-3 since 2026-08-01) instead of the OLD 'bold' default (V15_BOLD_TIERS, OTM-3 under $2K). safe-3 was DELIBERATELY EXCLUDED from the 2026-08-01 risky-1/risky-3 extension (own documented $600-notional-at-$2K reason) -- the participation study measured safe-3 carries 48 of the fleet's 159 min_premium_floor blocks (the single largest per-arm bucket, larger than risky-1's 50 or risky-3's 56 individually once normalized against safe-3's smaller signal count), confirming the same OTM-strike/floor collision applies here too, not just to the bold-sized arms. HONEST FRAMING (verbatim per the deciding doc, carried forward -- do not oversell): this is a MACHINERY/PARTICIPATION claim, not a P&L-validated-edge claim. bold-strike-axis-2026-07-15.json verdicts ALL 6 strike cells (OTM-3..ITM-2), INCLUDING ATM, ship_ready:false / 'WATCH -- NOT ship-ready', failing the walk-forward gate (structurally null for this whole cohort+shape, every cell's in-sample mean negative). risky-1/risky-3's own 2026-08-01 extension is the precedent this mirrors, not a new pattern. EVIDENCE STATUS: risky-1/risky-3's fix landed 2026-08-01, a SATURDAY -- 2026-07-31 is the last real trading day in the participation study's dataset, so there are ZERO LIVE TRADING DAYS OF EVIDENCE on the risky-1/risky-3 fix as of this safe-3 extension, let alone on safe-3's own copy of it. This ships under the SAME TRADE-TO-LEARN standing as its siblings (paper, guarded, one-line-revertible, forward-evidence-pending), not a cleared P&L bar. Pre-registered BEFORE arming: analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json (mirrors the risky-1/risky-3 prereg's n>=20-fill gates, frozen before any evidence). Falsification rail: if the first 10-15 real sessions under this fix do NOT show a material drop in safe-3's SKIP_MIN_PREMIUM_FLOOR rate (baseline ~48 events / ~25 trading days in the participation window, i.e. roughly 1.9/day) OR net real-fill P&L reads worse than safe-3's pre-fix near-breakeven baseline (-$22 over 13 real-fill days), REVERT -- do not extend the diagnosis further before re-checking this arm specifically. Revert: delete 'strike_tier_table':'bold_core' from params_patch below and this doc field (byte-identical to before; matches risky-1/risky-3's own revert shape).",
+      "exit_profile": "RIBBON",
+      "note": "SAFE sizing, TIGHT gate. Most selective safe arm: only multi-trigger confluence/sequence setups, smallest qty. Trades the full strategy set. EXIT A/B (2026-07-20): exit_patch forces stop_mode=structure (chart-level/ribbon-flip-break stop, v15.3 chart-stop-primary) + trailing profit-lock onto EVERY strategy this arm trades -- for ribbon_ride this is a no-op (already the REGISTRY default), for vwap_continuation it's a real change from that strategy's default premium/fixed shape. See update_note_2026_07_20 for the full A/B design + schema disclosure."
+    },
+    {
+      "id": "safe-2",
+      "display_name": "CORE-SAFE (46VG)",
+      "exit_profile": "CORE",
+      "cell": "safe x base (CONTROL)",
+      "status": "active",
+      "execution": "mcp_heartbeat",
+      "fidelity": "real_fills",
+      "broker": "alpaca",
+      "account_number": "PA3POKNV46VG",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-2",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "automation/state/params.json",
+      "starting_equity": 5000.0,
+      "frozen_at": "2026-06-20",
+      "gate_override": {},
+      "params_patch": {},
+      "note": "CONTROL -- production v15 Safe, traded by the live heartbeat (mcp_heartbeat, NOT fleet_rest). The untouched safe baseline the grid is measured against.",
+      "_repoint_2026_07_11": "Original safe-2 account PA3S2PYAS2WQ was accidentally deleted by J 2026-07-10 evening (status=ACCOUNT_CLOSED, live-verified 401 on /v2/account) while making room for the crypto-twin account. Rather than wait on J to provision a new dedicated account (queue.md SAFE-2-ACCOUNT-REPLACEMENT), repointed core Safe at the fleet's OWN 'safe-1' arm account (PA3POKNV46VG, real ACTIVE Alpaca paper account, equity live-verified $1,746.75 at time of repoint) and retired the safe-1 fleet arm (see its entry below) to free it for this reuse -- one account, one execution path, no double-fill risk. Paper-only, fully reversible. Credentials updated in .mcp.json's `alpaca` server env + fleet/secrets.json's safe-2 entry (now = former safe-1 creds). REVERT: see automation/overnight/STATUS.md 2026-07-11 REVOKE-report entry for the full un-repoint + un-retire steps (harder than a flag flip -- restores 2 files' credentials AND un-retires this arm)."
+    },
+    {
+      "id": "safe-1",
+      "display_name": "RETIRED (=CORE-SAFE acct 46VG)",
+      "cell": "safe x loose",
+      "status": "retired",
+      "execution": "fleet_rest",
+      "live": false,
+      "fidelity": "real_fills",
+      "broker": "alpaca",
+      "account_number": "PA3POKNV46VG",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-1",
+      "instrument": "SPY_0DTE_OPTION",
+      "starting_equity": 5000.0,
+      "frozen_at": "2026-06-25",
+      "retired_at": "2026-07-11",
+      "gate_override": {
+        "min_triggers": 1
+      },
+      "params_patch": {
+        "strike_tier_table": "bold"
+      },
+      "note": "SAFE sizing, LOOSE gate. Broadest safe participation (any single fired trigger), smallest qty. Trades the full strategy set.",
+      "_retired_doc": "RETIRED 2026-07-11 -- this arm's broker account (PA3POKNV46VG) was reassigned to core Safe (the 'safe-2' arm above) after Safe-2's original account (PA3S2PYAS2WQ) was accidentally deleted 2026-07-10. status flipped active->retired (NOT deleted -- fleet_live._arm_is_processable / fleet_executor.run_dry both gate dispatch on status=='active', so this alone stops new orders; the arm definition, its historical decisions.jsonl, and its own circuit-breaker.json under automation/state/fleet/safe-1/ are preserved as real trading history, unedited). The active fleet_rest roster is now {safe-3, risky-1, risky-3} (3 arms, was 4). live flipped true->false as a second belt-and-suspenders signal (fleet code gates on status, not live, but this documents intent for any future reader). Gate/sizing config (gate_override, params_patch) left untouched -- still a valid frozen shape for replay_fleet_arms.py's entry-fidelity fixture (safe-1 stays in ARMS_UNDER_TEST there; that's a historical-parity check against a fixed 2026-05-19..06-24 window, unaffected by today's status). REVERT (harder than a flag flip -- also needs the safe-2 credential un-repoint, see that entry's _repoint_2026_07_11 doc): flip status back to 'active' + live back to true HERE, AND move core Safe's credentials in .mcp.json + fleet/secrets.json's safe-2 entry back to a distinct account (either restore PA3S2PYAS2WQ if J un-deletes it, or provision a fresh one) -- do not run both safe-2 and safe-1 live off the SAME account simultaneously (that reintroduces the double-fill/misattribution risk this repoint exists to avoid)."
+    },
+    {
+      "id": "risky-1",
+      "display_name": "FLEET-FULLSEND-R (V0A4)",
+      "cell": "risky x FULL-SEND",
+      "status": "active",
+      "execution": "fleet_rest",
+      "live": true,
+      "fidelity": "real_fills",
+      "broker": "custom_rest",
+      "account_number": "PA3S9N1IV0A4",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-1",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "inherit bold",
+      "starting_equity": 5000.0,
+      "frozen_at": "2026-06-25",
+      "gate_override": {
+        "full_send": true,
+        "min_triggers": 2,
+        "require_confluence_or_sequence": true
+      },
+      "_gate_restore_2026_08_12": "RESTORED the two selectivity keys commit e28d210c (2026-07-31 16:21) deleted. That commit's INTENT was to ADD the full-send producer lane; it SWAPPED the whole gate_override dict instead, silently removing this arm's entry gate. accounts.json's own map_doc recorded the accident on 2026-08-02 and nothing repaired it. The key families are ORTHOGONAL in source -- fleet_executor._gate_check reads ONLY min_triggers / require_confluence_or_sequence / min_setup_quality and never sees full_send; _is_full_send:175 reads ONLY full_send -- so restoring these does NOT de-arm the FULL-SEND experiment, it layers the gate back UNDER it exactly as the original commit intended. NOT a de-arm: the full_send_doc's pre-committed kill criterion (n>=10 sessions) governs removing full_send, which this does not touch. WHY NOW: on 2026-08-12 risky-1 took 16 of the book's 38 positions while its live twin safe-3 -- running THESE EXACT keys -- blocked 49 of the 83 identical signal-ticks. DO NOT SELL THIS ON PAPER DOLLARS: the same-day counterfactual is only +$70, which is WORSE than removing 12 random waves (+$281 expected on a day whose mean wave was -$23.42). The real case is (a) it reverts an unintended deletion, (b) it removes 12 entries of REAL spread friction that Alpaca paper does not charge (measured latent live spread $196-292/day at this entry rate -- the figure that makes the book unviable at GAMMA_CORE_ARMED=1), and (c) it makes an unfalsifiable experiment falsifiable: the FULL-SEND lane has produced 0 of 66 lifetime placements and fired 0 times in 6,553 ticks, so its fill-keyed kill criterion could never trigger while the normal lane was ungated. REVERT: delete the two added keys; next tick picks it up. Guard: automation/state/fleet/test_full_send_arm.py::test_risky1_selectivity_gate_survives_full_send (would have gone RED on e28d210c). Evidence: analysis/deep-research/2026-08-12-churn/ (15-agent teardown, 4 lanes survived adversarial verification).",
+      "strike_tier_table_doc": "FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01, conductor AFTERHOURS): params_patch.strike_tier_table='bold_core' repoints this arm's NORMAL (non-full-send) lane -- _tiers_for_arm now resolves V15_BOLD_CORE_TIERS (ATM under $2K, the SAME table core Bold uses since 2026-07-17/18) instead of the default V15_BOLD_TIERS (OTM-3 under $2K). CORRECTED PROVENANCE (2026-08-02, day+1 audit fleet-strike-tier-atm-2026-08-02.md #1): 'the same table core Bold uses' is a MACHINERY claim, not a P&L-validated-edge claim -- bold-strike-axis-2026-07-15.json verdicts ALL 6 strike cells (OTM-3..ITM-2), including ATM, ship_ready:false / 'WATCH -- NOT ship-ready', failing the walk-forward gate (structurally null for this whole cohort+shape, every cell's in-sample mean negative). Core Bold's own 2026-07-17/18 wire was an explicit J-authorized PARTICIPATION fix (afternoon floor-clearance 33.76%->96.88%), not a same-night P&L ratification. This extension inherits that same TRADE-TO-LEARN standing (paper, guarded, one-line-revertible, forward-evidence-pending), not a cleared P&L bar. INERT for full-send entries specifically: _full_send_plan prices via PROBE_STRIKE_TIERS directly and never calls _tiers_for_arm, so this key only matters if this arm's normal (gated) lane ever fires alongside/instead of full-send. Pre-registered BEFORE arming: analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json (n>=20-fill gates, frozen before any evidence). Revert: delete 'strike_tier_table':'bold_core' from params_patch below (byte-identical to before).",
+      "full_send_doc": "FULL-SEND ARM -- ARMED 2026-07-31 evening as an EXPLICITLY UNMEASURED FORWARD-PAPER EXPERIMENT. NOT a validated ship. Read this whole field before deciding; it is the revoke lever and it is meant to be sufficient on its own. || WHAT IT IS: a RISK PROFILE, not a strategy. It trades the SAME validated setups (ribbon_ride's entry_setups, nothing new). What differs: it does NOT inherit the five COHORT-LEVEL vetoes, it sizes at the MINIMUM (params.min_contracts = 5), and it prices an ATM strike. Loose on SELECTION, never loose on RISK. J's directive 2026-07-31: 'we're paper trading. We have six arms, and we should just be getting in shit and seeing if it works.' || ACCOUNT: PA3S9N1IV0A4 -- ALPACA PAPER. No live money in this lane. || STRIKE = ATM, AND THIS IS DELIBERATE. Entries price fleet_executor.PROBE_STRIKE_TIERS (strike_offset 0 = ATM at $2K equity) via _full_send_plan, NOT the arm's own far-OTM bold table from _tiers_for_arm. Instrumented at spot 744.10 / $2K: full-send lane -> strike 744 (ATM); the arm's normal lane -> 746 (OTM-2). REASON: ATM is what clears the UNTOUCHED $0.30 min_entry_premium floor on its own merits -- that floor refused this arm on 15 of its 16 named-setup ticks on 2026-07-31 and is the actual cause of its 128 straight HOLDs. CORRECTION OF RECORD: commit e28d210c and the first draft of the scorecard both said the ATM override was REVERTED. That was FALSE on the shipped path -- the revert reached only _tiers_for_arm, which this lane never calls. Corrected 2026-07-31 evening; ATM kept on purpose rather than repointing production to make a stale measurement look valid. || EVIDENCE STATUS -- UNMEASURED AT THIS STRIKE (OP-16 sim-accuracy). The pre-registered A/B's headline cell was measured at strike_offset=2 (OTM-2). Production trades offset=0. That cell DOES NOT APPLY to the trades this lane adds. The only cells at production's strike apply ATM to the WHOLE book (not just this lane's ~17 marginal ticks per 28 days), and they are negative in every configuration. NET: the incremental trades this arm takes have NO valid backtest measurement. Its FORWARD PAPER LEDGER is the evidence, and nothing else is. || MIN-SIZE P&L EXPECTATION IS NEGATIVE. The arm hard-clamps every entry to min size, so the min-size column IS the forward expectation. Corrected per-trade estimator 5*sum(pnl_i/qty_i): full population 387 sessions = -$1,010; recent 51 sessions = -$734. At the ATM (production) strike: -$5,044 full / -$1,878 recent. THE ORIGINAL +$1,951 / +$63 FIGURES WERE WRONG -- they used a biased ratio estimator (scale_factor = 5/mean_qty applied to a SUM, over a qty range of 3-22) and BOTH SIGNS INVERTED on correction. The original F4-override rationale's third leg -- a claim that the profile was profitable at min size rather than merely bounded -- is DELETED, not softened: the corrected expectation is NEGATIVE in every window and at both strikes. What the arm buys is LEARNING RATE (idle days 65.1%->42.4% full, 33.3%->9.8% recent; trades 157->332), and it is expected to PAY for that in P&L. || PRE-REGISTERED CHECKS: TWO OF THREE FAILED. F1 (kill switch) passes both windows (worst min-size day -$470 vs a -$1,000 switch). F2 (per-trade tail) FAILS both windows (-$487.50 vs baseline -$477 / -$397.50) -- it only ever 'passed' on the biased numbers. F4 (>=2.0x uplift) passes full population (2.115x), FAILS recent (1.902x). Shipped anyway on judgment, disclosed not massaged: paper account, min-size clamp, every risk guard proven binding by execution, one-line revert. A pre-registration you override on judgment is not a pre-registration -- this is a FAILURE CARRIED, not a pass. || FIRES LESS OFTEN THAN THE UPLIFT SUGGESTS. At $2K equity the 50% per-trade risk cap REFUSES any full-send entry priced above $2.00 premium, and ATM 0DTE SPY midday frequently prices above that. Verified by execution through the real finalize(): premium 0.29 -> SKIP_MIN_PREMIUM_FLOOR; 0.31 and 1.99 -> ALLOW; >=2.01 -> RISK_CAP. So the 2.115x figure is an UPPER BOUND on realized fills, not a forecast. || MECHANISM: build_shared_signal.FULL_SEND_ALLOWED_VERDICTS (producer, explicit 5-verdict allowlist) -> fleet_executor._full_send_plan (consumer; fires ONLY when no other lane produced an ENTER this tick). || GUARDS THAT STAY FULLY ON (guard-tested, RED-proofed): daily kill switch, risk_gate per-trade cap (Rule 6), PDT (Rule 7), no-add/one-position NOT_FLAT (Rule 4), min_entry_premium floor, entry-time floor/ceiling, EOD flatten, broker-flat verification, SKIP_NO_LEVELS sight-failure block, and no-level-no-trade. || KILL CRITERION (pre-committed, so this is not open-ended): DE-ARM if over the first n >= 10 forward paper sessions the arm's realized P&L is negative AND its fill count is not materially above the gated arms -- i.e. it is paying the cost without buying the learning rate. Re-check with: python setup/scripts/full_send_vs_gated.py --since || DE-ARM PROCEDURE (ONE LINE, byte-identical revert, takes effect next tick): set this arm's gate_override back to {\"min_triggers\": 2, \"require_confluence_or_sequence\": true}. The producer block then goes inert with no consumer. Belt-and-suspenders producer kill: set build_shared_signal.FULL_SEND_LIVE = False. || OTHER CAVEATS: (1) the A/B measured the PACKAGE of five cohort gates with NO per-gate attribution, so de-arming is all-or-nothing -- never gate-pick on this same data; (2) it is a real-OPRA SIM, not broker fills; (3) this arm keeps its 2026-07-29 REACHABLE-TP1 exit_patch, so exits are NOT a control against the other arms (disclosed confound, deliberately not touched). || ARTIFACTS: prereg analysis/recommendations/prereg-full-send-arm-2026-07-31.json (frozen 2026-07-31T17:35:46-04:00 BEFORE the run); scorecard analysis/recommendations/full-send-arm-2026-07-31.json (see its _corrections[] block) + .md; harness backtest/full_send_arm_ab.py; guard automation/state/fleet/test_full_send_arm.py.",
+      "score_ladder_doc": "SCORE_LADDER DISARMED 2026-07-27 ~23:30 ET on evidence (see safe-3's doc above for the full replay citation: floor=8 lane -$16,642 over 725 trades vs baseline +$5,307). RE-ARM (J override): restore score_ladder_floor: 8 here.",
+      "params_patch": {
+        "strike_tier_table": "bold_core",
+        "exit_patch": {
+          "tp1_premium_pct": 0.5,
+          "stop_mode": "structure"
+        }
+      },
+      "exit_profile": "REACHABLE-TP1",
+      "exit_profile_doc_be_floor_REVERTED": "BE-FLOOR was armed ~10:0x ET 2026-07-29 and REVERTED ~11:0x the same session when its backtest returned (analysis/recommendations/be-floor-ab-2026-07-29.md, commit ff3929b3): profit_lock_mode='fixed' is a CONFOUNDED change -- it is read by BOTH the pre-TP1 arm branch AND the post-TP1 runner branch (exit_manager.py:442-444, 465-468), so it silently DISABLES post-TP1 ratcheting. 25 of 27 degraded runner trades came from that side effect, not from the pre-TP1 floor being tested; runner cohort -$3,208 to -$7,805 across arm_pct 0.20/0.30/0.50. The hypothesis (a BE floor cannot clip a runner) was HALF right -- the whipsaw mechanism did shrink to 2/27 at arm=0.50 -- but 'fixed' mode cannot express it cleanly. The isolated 4th candidate (queued: EXIT-HYBRID-PRETP1-FLOOR) keeps profit_lock_mode='trailing' for post-TP1 (runner engine untouched) and adds a SEPARATE pre-TP1-only BE floor knob, which does not exist in ExitShape today. Arming happened before the backtest returned -- a deliberate challenger-arm bet that the evidence then refused; reverting is the rule, not an exception.",
+      "exit_profile_doc": "EXIT LANE = REACHABLE-TP1 (2026-07-29). The ONE surviving piece of the BE-FLOOR experiment: tp1_premium_pct 1.0 -> 0.5. RATIONALE INDEPENDENT OF THE REVERTED LOCK CHANGE: the registry's +100% TP1 is effectively unreachable on 0DTE, which means the TP1-partial mechanism never fires AND the post_tp1-scoped profit lock never arms -- the 2026-07-28 Bold trade peaked +56% with zero protection by design and closed -42%. A reachable TP1 restores BOTH mechanisms. HONEST CAVEAT: a uniform tp1 1.0->0.5 tested NEGATIVE in isolation (cell E2, exit-armscope-tp1-ab-2026-07-28: -$2,491 aggregate, runner -$5,616), so this is NOT a validated win -- it is a deliberate live-paper CHALLENGER on one arm while the core arms hold the registry shape as control, which is exactly what the fleet exists for. Its forward P&L is the evidence. REVOKE: set params_patch to {} and exit_profile back to 'TRIG-EXACT'. ORIGINAL BE-FLOOR DOC (reverted, kept for audit): 'EXIT LANE = BE-FLOOR (armed 2026-07-29 ~10:0x ET; J directive: all five arms still share one exit shape -- rip it apart'). THE FLEET IS THE A/B: each fleet arm now runs a DIFFERENT exit philosophy on the SAME entries, so the paper ledger measures which style wins instead of us predicting the day. THIS LANE: profit_lock_mode='fixed' = a BREAKEVEN floor (exit_manager.py:364-371, runner_stop=max(runner_stop, entry)) armed PRE-TP1 at +30% MFE, plus a REACHABLE tp1 (0.5 vs the registry's unreachable 1.0). STRUCTURAL ARGUMENT: a BE floor cannot fire above entry, so unlike the trailing lock it cannot clip a runner -- it only converts a round-trip-to-loss into a scratch. MOTIVATING INCIDENT: 2026-07-28 Bold peaked +56% with TP1 at +100% unreachable, so the post_tp1-scoped lock never armed and the trade closed -42% with SPY FLAT (theta). PRIOR ART: the TRAILING lock pre-TP1 was tested at arm_pct 0.05/0.20/0.30/0.40 and clipped the runner cohort at every point (-$7,759 -> -$3,898); the BE-floor shape is UNTESTED and its backtest (prereg-be-floor-2026-07-29) is IN FLIGHT -- this arm runs it live-paper as the challenger in parallel. This REPLACES the arm's prior role as the untouched TRIG-EXACT control; safe-2/bold-2 (core, registry-verbatim) are now the control. REVOKE: set params_patch back to {} and exit_profile back to 'TRIG-EXACT'.",
+      "note": "RISKY sizing, TIGHT gate. PUT_ONLY REMOVED -- trades BOTH directions on the full strategy set; the account only adds selectivity + bold sizing. EXIT A/B (2026-07-20): deliberately NO exit_patch -- the untouched control lane, each strategy's REGISTRY exit shape verbatim (today's exact trigger-level structure/premium stop, unchanged). See update_note_2026_07_20."
+    },
+    {
+      "id": "bold-2",
+      "display_name": "CORE-BOLD (U67N)",
+      "exit_profile": "CORE",
+      "cell": "risky x base (CONTROL)",
+      "status": "active",
+      "execution": "mcp_heartbeat",
+      "fidelity": "real_fills",
+      "broker": "alpaca_aggressive",
+      "account_number": "PA3WEBXJU67N",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.bold-2",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "automation/state/aggressive/params.json",
+      "starting_equity": 5000.0,
+      "frozen_at": "2026-06-20",
+      "gate_override": {},
+      "params_patch": {},
+      "note": "CONTROL -- production v15 Bold, traded by the live aggressive heartbeat (mcp_heartbeat). The untouched risky baseline."
+    },
+    {
+      "id": "risky-3",
+      "display_name": "FLEET-LOOSE-R (5H6Z)",
+      "cell": "risky x loose",
+      "status": "retired",
+      "execution": "fleet_rest",
+      "live": false,
+      "fidelity": "real_fills",
+      "broker": "custom_rest",
+      "account_number": "PA3V7JT25H6Z",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-3",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "inherit bold",
+      "consumes_scoring_peak": true,
+      "starting_equity": 5000.0,
+      "frozen_at": "2026-06-25",
+      "gate_override": {
+        "min_triggers": 1
+      },
+      "score_ladder_doc": "SCORE_LADDER armed 2026-07-27 (J directive after the bear_score-9 miss: 'the riskiest arm can hop in at a seven out of ten'). This arm enters MIN-SIZE on scoring-failed ticks when bear_score >= 7 AND a raw level-tied trigger + its own level exist (signal['ladder'] from build_shared_signal._ladder_block, fail-closed producer -- rows before 2026-07-28 lack the raw fields and produce no entries). BEAR ONLY at ship; bull waits for its own pre-registered evidence (2026-07-27's bull-9 fired mid-fade, would have lost). Consumed by fleet_executor._ladder_plan: PROBE_STRIKE_TIERS strike, min_contracts qty, risk_gate/finalize downstream untouched, raw rejection level rides as the chart-stop anchor. Evidence at arm: analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md (A5 today IN@9; A3 05-04 +$730 IN@8; no loser newly admitted at 7 across the 10-anchor set -- n SMALL, the fleet paper ledger IS the forward A/B). REVOKE: delete score_ladder_floor from gate_override -- next tick reverts, byte-identical.",
+      "gate_params": {
+        "hard_skip_verdicts": []
+      },
+      "gate_params_doc": "GATE-TIERS-IMPLEMENT (2026-07-23, audit rank #3): this arm is the live RISKY/minimum-viable-gate tier (safe-1's loose cell retired 2026-07-11, leaving risky-3 the only active RISKY-tier arm) -- an empty hard_skip_verdicts list means it does NOT inherit build_shared_signal.py's GLOBAL _HARD_SKIP_VERDICTS (require_bearish_fill_bar's SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY) the way bold-2/risky-1 still do. Fill-bar quality stays a hard block on Bold control (validated OOS +$1,153/WF 18.5) and on risky-1 (tight/SAFE-analog tier) -- only the loose tier trades through it, per fleet_executor._effective_passed. Revert: delete this key (byte-identical to before).",
+      "params_patch": {
+        "cheap_contract_qty_boost": {
+          "premium_below": 0.5,
+          "qty": 10
+        },
+        "_cheap_contract_qty_boost_doc": "SHIP C 2026-08-03 (J verbatim: qty 10 when contract < $0.50; single-arm trade-to-learn A/B vs min-size siblings on identical signals). Consumer: fleet_executor.finalize() boost block (after min-premium floor, before shrink-not-deny + risk_gate -- Rule 6 stays authoritative). Max notional 10 x $0.49 x 100 = $490 = 9.8% of $5K equity vs 50% cap. Kill: n>=10 boosted fills or 10 sessions, net<0 -> delete these two keys (one-line revert, byte-identical). Guard: backtest/tests/test_cheap_contract_qty_boost_2026_08_03.py.",
+        "strike_tier_table": "bold_core_pre_ext",
+        "exit_patch": {
+          "stop_mode": "premium"
+        },
+        "_exit_patch_doc": "STOP-MODE LIVE A/B -- ARMED 2026-08-09 18:28 ET (Sunday, rule-9 compliant), effective Monday 2026-08-10 open. PAPER ONLY (PA3V7JT25H6Z); no live-money change is implied. Prereg FROZEN BEFORE this edit, git-provable: analysis/recommendations/prereg-stop-mode-live-arm-risky3-2026-08-09.json, commit a2d7c3e4. || WHAT CHANGED: exit_patch {stop_mode:structure, profit_lock_mode:trailing, trail_pct:0.20} -> {stop_mode:premium}. Resulting shape = ribbon_ride REGISTRY verbatim except stop_mode, so the operative stop becomes the registry's already-configured hard -20% premium_stop_pct instead of trigger-level structure invalidation. Dropping trail_pct 0.20 back to the registry 0.15 REMOVES a second variable -- this is deliberately ONE variable against the registry. || WHY: the entry x exit matrix (96 cells) + its /fable-too-good audit + a pre-registered confirmatory A/B found stop_mode structure->premium worth +$24-61/trade on a 399-day replay, 8/8 entry rows, all 16 premium cells surviving BH-FDR q=0.10, mechanism signature holding 8/8. BUT on the 26-day real-fills book the same comparison is positive in dollars yet FAILS its own mechanism gate 0/4 (win rate does not fall), with zero BH survivors -- reproduced independently by the paired shadow clock (+$26.55/tr, WR rising). Two retrospective instruments, same contradiction, and they cannot break the tie because they share one 26-day fill book. Forward real fills under premium mode are the only discriminating evidence. || GAP THIS CLOSES (verified 2026-08-09): EVERY fleet arm currently resolves stop_mode='structure' (safe-3/risky-3/bold-2 patched, risky-1 + core via registry default) and params.structure_stop_enabled=true on both params files -- so the whole live book is chart-stop-primary and the premium lane has NEVER traded. || WHY THIS ARM: loosest gate in the fleet (min_triggers=1) => highest fill frequency => fastest n, the binding constraint on every forward clock. Already the designated probe arm. Its outgoing ZONE-RIDE lane was, by the update_note_2026_07_20 text above, an ADMITTED PROXY (trail_pct 0.20 standing in for a reference-level knob that was investigated and closed NO-SHIP) -- the weakest-evidence lane in the fleet, not a validated one. CONTROL -- CORRECTED 2026-08-09 before any data: risky-1 is NOT the control (it carries tp1_premium_pct 0.5, REACHABLE-TP1, since 2026-07-29; the update_note_2026_07_20 text above is STALE on this point). Only THREE fleet arms are live: safe-3 (registry-verbatim, but a different cell -- safe x tight -- so confounded as a comparator), risky-1 (tp1 0.5), risky-3 (this). The AUTHORITATIVE control is the PAIRED SHADOW CLOCK (setup/scripts/stop_mode_shadow_ledger.py, commit 1d2f5cbc), which prices BOTH exit shapes on risky-3's OWN fills -- within-trade, no cell/sizing/gate confound. safe-3 and risky-3's own pre-change history are CONTEXT ONLY. safe-2/bold-2 are CORE accounts (heartbeat_core + params.json), not fleet arms, and are untouched. || MECHANISM VERIFIED, NOT ASSUMED: exit_manager.ExitState.from_entry resolves structure stops as (shape_mode=='structure' AND caller structure_stop_enabled) -- an AND -- so shape_mode='premium' de-arms the structure stop for THIS ARM ONLY, with no global flag touched. || KILL: expectancy negative AND below risky-1 over n>=20 days; or any kill-switch breach with the premium stop as proximate cause (revert immediately, do not wait for n); or the mechanism signature fails forward (win rate must FALL while dollars rise -- if it rises, the result is unexplained and advances nowhere). || REVERT (one line, byte-identical, next tick, no restart): set exit_patch back to {\"stop_mode\": \"structure\", \"profit_lock_mode\": \"trailing\", \"trail_pct\": 0.20} and exit_profile back to \"ZONE-RIDE\". || GUARD: backtest/tests/test_stop_mode_live_arm_risky3_2026_08_09.py (vary-and-assert: risky-3 resolves premium, structure resolution False for it, every sibling still resolves structure)."
+      },
+      "strike_tier_table_doc": "ATM-TIER-EXTENSION-2K-10K PER-ARM KILL (2026-08-06 evening, PRE-REGISTERED KILL EXECUTED): 'bold_core_pre_ext' -- _tiers_for_arm resolves V15_BOLD_CORE_PRE_EXT_TIERS ($0-2K ATM unchanged from the 2026-08-01 extension; $2K-10K back to OTM-2, the pre-2026-08-04 value). The 2026-08-04 $2K-10K ATM extension's own frozen kill criterion (atm-tier-extension-2k10k-prereg-2026-08-03.json: n>=10 fills/arm, net<0 -> revert) was MET by THIS ARM: n=14 fills under the extension, net -$653. risky-1 did NOT meet it (n=11, +$903) and KEEPS 'bold_core'; safe-3 + core bold-2 also keep the extension -- which is why the prereg's shared-table one-line revert was NOT used (it would have killed every consumer; see V15_BOLD_CORE_PRE_EXT_TIERS' comment in crypto/lib/strike_selection.py). HISTORY: the 2026-08-01 FLEET-STRIKE-TIER-ATM-EXTENSION ('bold_core', $0-2K ATM) remains in effect for this arm -- only the 2K-10K band reverted. Guard (vary-and-assert): backtest/tests/test_atm_tier_extension_risky3_kill_2026_08_06.py. Un-kill (one line): set strike_tier_table above back to 'bold_core'.",
+      "exit_profile": "PREMIUM-STOP",
+      "note": "RISKY sizing, LOOSE gate. Highest-frequency arm (any single trigger, bold qty). Trades the full strategy set, both directions. Every hard floor still binds (one-position, -50% kill-switch, EOD flatten). NOTE: the earlier replay_fleet_arms entry-fidelity miss (single-trendline_rejection bears dropped because trendline_rejection was absent from build_shared_signal.ENTRY_TRIGGERS) is a PRODUCER perception gap, not an arm defect -- under the grid model every arm runs every strategy, so it is fixed in the producer (FIX2 / ENTRY_TRIGGERS), never by benching the required risky x loose cell. PROBE ARM (2026-07-10, top-level 'probe_arm' block): also this fleet's designated cohort-block-bypass arm -- trades tier/cohort-gated setups (block_elite_bull etc) at min_contracts when its normal pass HOLDs. Already the loosest+riskiest fleet_rest cell, so it was the obvious pick (see probe_arm._doc). EXIT A/B (2026-07-20): exit_patch puts this arm on the SAME chart-stop-primary lane as safe-3 but with a LOOSER 0.20 chandelier trail (vs the registry's 0.15 for ribbon_ride / 0.125 default for vwap_continuation) so the runner rides longer before the trailing floor exits it -- the intended 'rides it better' arm. SCHEMA GAP (see update_note_2026_07_20): the ideal 'stop referenced to the nearest key level ABOVE the entry trigger' knob does not exist in ExitShape yet (stop_mode=structure only references THIS position's own entry trigger_level). NOT simply unbuilt -- automation/overnight/queue.md's STRUCTURE-STOP-REFERENCE-LEVEL item investigated exactly this (REF-ZONE) tonight ~17:00-17:35 ET and closed NO-SHIP (pre-reg A/B: single-anchor-trade artifact, sub-window sign-flip, worse fresh-slice expectancy) -- exit_manager.py/strategies.py deliberately UNCHANGED. trail_pct=0.20 here is the disclosed proxy given that rejection, not a placeholder awaiting a build; revisit only if a FUTURE pre-reg A/B on a different reference-level formulation clears.",
+      "retired_at": "2026-08-28",
+      "retired_reason": "J-approved 2026-08-28 ('data wins it can be closed'). This cell's question was 'is a PREMIUM stop better than a CHART stop?' -- and it was already answered on 2026-06-18 when the repo moved to chart-stop-primary (lesson cluster C2). risky-3 kept re-running the settled question and paying for it: lifetime -$590 while the other four cells are positive, 72 re-entries at -3.0% ROI, and 0-for-5 on 2026-08-28 for -$410 on $1,735 of turnover. THE CLEANEST SINGLE PROOF, 2026-08-28: bold-2 and risky-3 bought the IDENTICAL contract (SPY 773C) 65 seconds apart. bold-2 (stop_mode=structure) rode it to +195%; risky-3 (stop_mode=premium) was stopped out at -19% two minutes in. Same signal, same strike, same direction -- the stop was the only difference. SECOND, INDEPENDENT INDICTMENT: min_triggers=1. On 338 entries joined to their decision context, 1 trigger = 35.9% WR / -1.9% ROI vs 2 triggers = 41.2% WR / +17.5% ROI. It is why risky-3 alone took the losing 13:02 bear entry on 2026-08-28 that safe-3 and risky-1's 2-trigger gate refused. The account (PA3V7JT25H6Z) is being repurposed as the weekly-1 non-SPY options arm per markdown/planning/WEEKLY-OPTIONS-PROGRAM.md, which was specced needing exactly one dedicated paper account and had none. Retiring this cell is a HARD PREREQUISITE for that reuse: the SPY flat-check filters on symbol.startswith('SPY'), so a GLD or QQQ position sitting in an account the SPY fleet still scans would be INVISIBLE to it and the engine could trade on top of it. REVERT (two fields): status -> 'active', live -> true. But do NOT revert while the account is wired to weekly-1 -- un-wire weekly-1 first or the two lanes will both trade PA3V7JT25H6Z."
+    },
+    {
+      "id": "mes-linear-sim",
+      "display_name": "FUTURES-LINEAR (pending, 3759)",
+      "status": "pending_build",
+      "fidelity": "bs_sim_ranking_only",
+      "broker": "futures_sandbox_TT",
+      "account_number": "5WW73759",
+      "key_ref": "docs/futures/ (TT sandbox wiring)",
+      "instrument": "MES_FUTURES",
+      "stop_model": "point_based",
+      "config_source": "same strategy set, linear expression",
+      "frozen_at": null,
+      "note": "THE OPTION TAX IS THE KILLER, NOT THE READ -- same strategy set on a linear instrument; if MES captures the move the edge is real and the fix is the instrument."
+    },
+    {
+      "id": "mes-mnq-div-futures",
+      "display_name": "FUTURES-DIV (dormant, 3759)",
+      "status": "dormant",
+      "fidelity": "point_pnl_validated",
+      "broker": "futures_sandbox_TT",
+      "account_number": "5WW73759",
+      "key_ref": "docs/futures/ (TT sandbox wiring)",
+      "instrument": "MNQ_FUTURES",
+      "stop_model": "atr_trail_eod_flat",
+      "config_source": "automation/state/fleet/edge3_mesmnq_div.py :: FROZEN_CONFIG",
+      "frozen_config": {
+        "edge_id": "edge3_mesmnq_div",
+        "leader": "MES",
+        "laggard": "MNQ",
+        "threshold": 0.0015,
+        "min_persistence_bars": 2,
+        "qty_micros": 1,
+        "exit_mode": "atr_trail",
+        "entry_cutoff_et": "13:00:00"
+      },
+      "frozen_at": "2026-06-21",
+      "enabled": false,
+      "source_recommendation": "analysis/recommendations/b5-mesmnq-div-rescue.json",
+      "validated_oos_per_trade": 71.46,
+      "note": "EDGE #3 -- MES leads -> trade MNQ laggard on a >=2-bar divergence. VALIDATED OOS +$71.46/tr, 8/8 gates. DORMANT (enabled=false); no live order path until a human flips enabled. A distinct futures-pair strategy, kept as its own arm because the instrument differs.",
+      "tt_credential_dependency_RETIRED_2026_07_18": "The broker=futures_sandbox_TT / key_ref=docs/futures/ fields above are HISTORICAL -- that TT sandbox credential was never wired (docs/futures/ never existed on disk, confirmed 2026-07-18) and this arm sat dormant 4 weeks waiting on it. PM decision (Fable/Opus, 2026-07-18): stop waiting on an external account. Checked Alpaca honestly first (live keys, real Safe-2 account PA3POKNV46VG): get_all_assets(asset_class='us_future') returns zero assets (the SAME call with asset_class='crypto' returns 80+ real pairs, proving the query path works); Alpaca's documented AssetClass enum is {us_equity, us_option, crypto} only -- NO Alpaca futures path exists, paper or live, as of this date. Built the honest equivalent instead: setup/scripts/futures_edge3_sim.py (own-book SIM lane, Gamma_FuturesEdge3Sim scheduled task, every 5 min 09:30-16:00 ET weekdays -- RTH only, since this frozen edge is RTH-scoped by construction) drives this SAME FROZEN_CONFIG (byte-identical, never tuned) against REAL live ES=F/NQ=F quotes with a SIM fill ledger (automation/state/futures/edge3-sim-fills.jsonl, every row tagged fidelity=sim_fill_vs_real_quote). This is mechanism-validation forward evidence (same tier as the crypto twin's SIM lane), not real fills -- enabled stays false here, no live order path exists or is implied. Falsification rail: after 20 closed sim round-trips, compare mean pnl to the $71.46/tr validated figure; a material shortfall investigates quote/sim-fill quality before doubting the signal. UPGRADE PATH if Alpaca ever ships futures: re-run the asset_class probe above -- a non-empty result is the trigger to migrate this SIM lane onto real Alpaca paper orders instead."
+    },
+    {
+      "id": "weekly-1",
+      "display_name": "WEEKLY-BASKET (paper, PENDING SIGNAL)",
+      "cell": "weekly multi-underlying",
+      "status": "pending_build",
+      "execution": "weekly_rest",
+      "live": false,
+      "fidelity": "real_fills",
+      "broker": "alpaca_weekly",
+      "account_number": "PA3V7JT25H6Z",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.weekly-1",
+      "instrument": "WEEKLY_OPTION_MULTI",
+      "underlyings": [
+        "GLD",
+        "QQQ",
+        "NVDA",
+        "TSLA",
+        "AAPL"
+      ],
+      "config_source": "automation/state/weekly/params.json",
+      "starting_equity": 4283.92,
+      "starting_equity_note": "Broker-verified 2026-08-28 17:5x ET via fleet_broker.get_account: equity $4,283.92, cash $4,283.92, 0 open positions. NOT the 5000.0 placeholder in the program doc's template -- this account carries the retired risky-3 cell's realised P&L, which is correct and must not be reset (evidence-trail preservation, the 2026-07-11 repoint scar).",
+      "account_provenance": "Formerly the risky-3 'risky x loose' SPY 0DTE cell, retired 2026-08-28 after its premium-stop question was settled against it. J directed the reuse: 'we'll use that api key to trade non SPY options'. This is NOT a repointed SPY arm in the 2026-07-11 sense -- risky-3's row, history and ledger all stay exactly where they are; only the ACCOUNT is re-tasked, and only after the SPY lane stopped scanning it.",
+      "why_status_is_pending_build": "The ACCOUNT is now wired and credential-verified, but the LANE is not tradeable: the weekly v1 signal is REFUTED -- all four expiry arms lose and every one FAILS the random-entry null (analysis/deep-research/WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md). fleet_executor/fleet_live skip any arm whose status != 'active', so nothing trades here. Flipping to 'active' requires a signal that clears its own null first. An account is not an edge.",
+      "hard_prerequisite_met": "risky-3 status -> 'retired' in the SAME change. This is load-bearing, not tidiness: fleet_broker.is_flat_spy_options / close_all_spy_options (+4 duplicate sites) filter symbol.startswith('SPY'), so a GLD or QQQ position in an account the SPY fleet still scanned would be INVISIBLE to the flat-check and to EOD-flatten -- an automated, permanent C11 violation. Verified before wiring: broker reports 0 open positions.",
+      "note": "Edge-search lane. Crypto-twin non-comparability doctrine: weekly-1 P&L is NEVER evidence for or against the SPY book. Multi-day holds -- EXEMPT from same-day EodFlatten by design. Needs its OWN symbol-scoped flat-check before it can ever be armed; the SPY one does not cover it. Kill criteria: WEEKLY-OPTIONS-PROGRAM.md section 8."
+    }
+  ],
+  "promotion_gate": {
+    "oos_positive": true,
+    "wf_min": 0.7,
+    "sub_window_stable": true,
+    "anchor_no_regression": true,
+    "min_clean_trades": 30,
+    "beat_baseline_margin_note": "a strategy or gate/sizing cell must beat the frozen control by a margin surviving multiple-comparison correction across the active arms"
   },
-  "map": {"safe-3": "safe x tight", "safe-2": "safe x base (CONTROL)", "safe-1": "safe x loose", "risky-1": "risky x FULL-SEND", "bold-2": "risky x base (CONTROL)", "risky-3": "risky x loose"},
-  "map_doc": "CORRECTED 2026-08-02 (risky1_lane_composition_check.py): risky-1's row here read 'risky x tight' -- stale since commit e28d210c (2026-07-31 16:21) REPLACED risky-1's gate_override with {\"full_send\": true}, deleting min_triggers/require_confluence_or_sequence rather than layering under them. The arm's own `cell` field was updated in that same commit; this display-only metadata block was not, and a 2026-08-02 audit (analysis/recommendations/fleet-strike-tier-atm-2026-08-02.md) read this stale value and mischaracterized risky-1's normal lane as 'tight-gated' when it is in fact UNGATED (same as risky-3, confirmed independently the same night by FLEET-PARITY-TESTS-READ-LIVE-STATE, commit dea5b2e2). Guard: automation/state/fleet/test_risky1_lane_composition_check.py::test_grid_map_metadata_matches_the_arms_own_cell_field."
- },
- "strategy_set": "automation/state/fleet/strategies.py (ribbon_ride, vwap_continuation) -- run on ALL arms via plan_all",
- "shared_signal_path": "automation/state/fleet/shared-signal.json",
- "arms": [
-  {
-   "id": "safe-3",
-   "display_name": "FLEET-TIGHT-S (T20H)",
-   "cell": "safe x tight",
-   "status": "active",
-   "execution": "fleet_rest",
-   "live": true,
-   "fidelity": "real_fills",
-   "broker": "alpaca",
-   "account_number": "PA32T7Q1O20H",
-   "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-3",
-   "instrument": "SPY_0DTE_OPTION",
-   "starting_equity": 5000.0,
-   "frozen_at": "2026-06-25",
-   "gate_override": {"min_triggers": 2, "require_confluence_or_sequence": true},
-   "score_ladder_doc": "SCORE_LADDER DISARMED 2026-07-27 ~23:30 ET on evidence, hours after arming: the 390-day replay (analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.md, e65ed269) measured the armed rule at floor=9 as -$10,903 over 332 trades vs baseline +$5,307 -- all floors lose, day-majority fails, drop-best fails. Machinery + guards stay intact and inert; the why-not provenance rows ARE the forward shadow ledger ($0). Pre-registered NARROW hypothesis queued (LADDER-SUBSET-PREREG in queue.md) before any slicing. RE-ARM (J override): restore score_ladder_floor: 9 here.",
-   "params_patch": {
-    "strike_tier_table": "bold_core",
-    "exit_patch": {"stop_mode": "structure", "profit_lock_mode": "trailing"}
-   },
-   "strike_tier_table_doc": "FLEET-STRIKE-TIER-ATM-EXTENSION-SAFE3 (2026-08-03, ARM-PARTICIPATION-AND-GROWTH-2026-08-03.md #1): 'bold_core' -- _tiers_for_arm now resolves V15_BOLD_CORE_TIERS (ATM under $2K, the SAME table core Bold has used since 2026-07-17/18 and risky-1/risky-3 since 2026-08-01) instead of the OLD 'bold' default (V15_BOLD_TIERS, OTM-3 under $2K). safe-3 was DELIBERATELY EXCLUDED from the 2026-08-01 risky-1/risky-3 extension (own documented $600-notional-at-$2K reason) -- the participation study measured safe-3 carries 48 of the fleet's 159 min_premium_floor blocks (the single largest per-arm bucket, larger than risky-1's 50 or risky-3's 56 individually once normalized against safe-3's smaller signal count), confirming the same OTM-strike/floor collision applies here too, not just to the bold-sized arms. HONEST FRAMING (verbatim per the deciding doc, carried forward -- do not oversell): this is a MACHINERY/PARTICIPATION claim, not a P&L-validated-edge claim. bold-strike-axis-2026-07-15.json verdicts ALL 6 strike cells (OTM-3..ITM-2), INCLUDING ATM, ship_ready:false / 'WATCH -- NOT ship-ready', failing the walk-forward gate (structurally null for this whole cohort+shape, every cell's in-sample mean negative). risky-1/risky-3's own 2026-08-01 extension is the precedent this mirrors, not a new pattern. EVIDENCE STATUS: risky-1/risky-3's fix landed 2026-08-01, a SATURDAY -- 2026-07-31 is the last real trading day in the participation study's dataset, so there are ZERO LIVE TRADING DAYS OF EVIDENCE on the risky-1/risky-3 fix as of this safe-3 extension, let alone on safe-3's own copy of it. This ships under the SAME TRADE-TO-LEARN standing as its siblings (paper, guarded, one-line-revertible, forward-evidence-pending), not a cleared P&L bar. Pre-registered BEFORE arming: analysis/recommendations/fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json (mirrors the risky-1/risky-3 prereg's n>=20-fill gates, frozen before any evidence). Falsification rail: if the first 10-15 real sessions under this fix do NOT show a material drop in safe-3's SKIP_MIN_PREMIUM_FLOOR rate (baseline ~48 events / ~25 trading days in the participation window, i.e. roughly 1.9/day) OR net real-fill P&L reads worse than safe-3's pre-fix near-breakeven baseline (-$22 over 13 real-fill days), REVERT -- do not extend the diagnosis further before re-checking this arm specifically. Revert: delete 'strike_tier_table':'bold_core' from params_patch below and this doc field (byte-identical to before; matches risky-1/risky-3's own revert shape).",
-   "exit_profile": "RIBBON",
-   "note": "SAFE sizing, TIGHT gate. Most selective safe arm: only multi-trigger confluence/sequence setups, smallest qty. Trades the full strategy set. EXIT A/B (2026-07-20): exit_patch forces stop_mode=structure (chart-level/ribbon-flip-break stop, v15.3 chart-stop-primary) + trailing profit-lock onto EVERY strategy this arm trades -- for ribbon_ride this is a no-op (already the REGISTRY default), for vwap_continuation it's a real change from that strategy's default premium/fixed shape. See update_note_2026_07_20 for the full A/B design + schema disclosure."
+  "probe_arm": {
+    "_doc": "PROBE ARM (2026-07-10 ship, amended TWICE same-session). J directive 2026-07-10: '6 arms and nothing took a trade... why isn't 1 arm set to take riskier trades?' Diagnosis: every fleet arm's gate_override only ADDS selectivity on top of an already-passed=True shared-signal tick (fleet_executor._gate_check never rescues a passed=False tick) -- so the COHORT/TIER gates baked into build_shared_signal.py's passed-derivation apply UNIFORMLY to every arm regardless of how loose its OWN gate_override is. ONE designated arm trades ONE specific, gate-provenance-reviewed blocked cohort at the account's MINIMUM size plus a nearer strike, converting blocked signals into forward evidence instead of silence. AMENDMENT 1 (automation/state/participation-cascade.json evidence): min_entry_premium -- NOT the cohort gates -- is the real #1 blocker in practice (18 of 31 arm-events on 07-10 alone), because the fleet's own far-OTM/bold sizing tiers price their natural 0DTE contracts under the $0.30 floor. The floor is NEVER bypassed (its anti-spread-noise evidence is real and stays fully intact) -- fleet_executor.PROBE_STRIKE_TIERS gives the probe's OWN contracts a nearer (ATM-class, standalone table) strike than the arm's normal bold/OTM table, so they clear the SAME floor on their own merits. AMENDMENT 2 (markdown/audits/GATE-PROVENANCE-SWEEP-2026-07-10.md, commit 54d5840): a rigorous, pre-registered, hash-pinned, 19/19-test-covered per-gate audit NARROWED the bypass from a broad blocklist to an explicit allowlist, build_shared_signal.PROBE_ALLOWED_VERDICTS = {'SKIP_BULL_1100_1200'} exactly. block_elite_bull is EXPLICITLY NOT bypassed -- its SS-B revalidation (SAME session, frozen pre-registration, `analysis/recommendations/block-elite-bull-ssb-revalidation.json`) proved KEEP: n=28, OLD total -$560.00 -> SS-B total -$3,873.60, ~6.9x WORSE under the SAME structure-stop exit shape this probe arm's own ribbon_ride entries use -- probing it would spend real paper capital re-testing a question the codebase just answered with hash-pinned rigor. SKIP_BULL_1100_1200 IS bypassed -- REVALIDATE verdict: thin (IS n=11 WR=9.1%, OOS n=1), pre-dates SS-B, and 07-10 was the first genuinely-live block of a SUPER-tier (not just ELITE) signal since ratification -- exactly the shape of gate a min-size forward probe should test. block_bull_ribbon_flip independently reconfirmed (3rd audit) ABSENT/unarmed -- no bypass built for it. Mechanism: build_shared_signal.py's _probe_passed_blocks() (PROBE_COHORT_LIVE flag) emits signal['probe'] off the SAFE ledger (PROBE_LEDGER_ACCOUNT; FIXED 2026-07-11 -- was hardcoded BOLD at ship, which meant the arm's one allowlisted cohort, SKIP_BULL_1100_1200, could never be read since its gate is Safe-only and Bold's ledger structurally never emits that verdict -- dead on arrival, silently, from ship until this fix; see build_shared_signal.py's PROBE_ALLOWED_VERDICTS module comment for the full evidence): passed=True ONLY when action is in PROBE_ALLOWED_VERDICTS AND a real named ENTRY_TRIGGERS-member trigger fired. fleet_executor.py's _probe_plan() consumes it ONLY for this arm_id, ONLY when the arm's NORMAL plan_all pass produced no ENTER this tick (never double-fires alongside a normal entry), ONLY for ribbon_ride (vwap_continuation is a live REST detector, not core-gated -- no cohort block to bypass). qty is HARD-CLAMPED to params.min_contracts (ignores _qty_for's sizing tiers and _apply_recency_min_sizing -- already at floor). Every OTHER gate stays fully on: kill-switch, PDT, min_entry_premium floor (unweakened), per-trade risk cap, entry-time floor/ceiling, one-position -- all run downstream in fleet_executor.finalize()/risk_gate.check_order/fleet_live._place_live, untouched by this block. Reason tag 'PROBE_ARM cohort=<bypassed verdict, SKIP_ prefix stripped>' makes every fill attributable. Instant de-arm: set enabled=false here (byte-identical revert -- _is_probe_active short-circuits False, the arm falls back to its normal risky-x-loose gate_override path unchanged). Guards: automation/state/fleet/test_probe_arm.py (41/41, +2 for the 2026-07-11 ledger-source fix: a non-vacuity test proving the fix changed behavior + a drift guard on future allowlist additions).",
+    "enabled": true,
+    "arm_id": "risky-3",
+    "daily_cap": 3,
+    "daily_cap_note": "counts ALLOWED probe entries only (risk_gate-cleared ENTER_BULL/ENTER_BEAR with a PROBE_ARM-tagged reason), not attempted/denied plans -- persisted per-day in automation/state/fleet/risky-3/probe-count.json, reset on date rollover (same pattern as fleet_live._load_or_arm_breaker's daily kill-switch)."
   },
-  {
-   "id": "safe-2",
-   "display_name": "CORE-SAFE (46VG)",
-   "exit_profile": "CORE",
-   "cell": "safe x base (CONTROL)",
-   "status": "active",
-   "execution": "mcp_heartbeat",
-   "fidelity": "real_fills",
-   "broker": "alpaca",
-   "account_number": "PA3POKNV46VG",
-   "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-2",
-   "instrument": "SPY_0DTE_OPTION",
-   "config_source": "automation/state/params.json",
-   "starting_equity": 5000.0,
-   "frozen_at": "2026-06-20",
-   "gate_override": {},
-   "params_patch": {},
-   "note": "CONTROL -- production v15 Safe, traded by the live heartbeat (mcp_heartbeat, NOT fleet_rest). The untouched safe baseline the grid is measured against.",
-   "_repoint_2026_07_11": "Original safe-2 account PA3S2PYAS2WQ was accidentally deleted by J 2026-07-10 evening (status=ACCOUNT_CLOSED, live-verified 401 on /v2/account) while making room for the crypto-twin account. Rather than wait on J to provision a new dedicated account (queue.md SAFE-2-ACCOUNT-REPLACEMENT), repointed core Safe at the fleet's OWN 'safe-1' arm account (PA3POKNV46VG, real ACTIVE Alpaca paper account, equity live-verified $1,746.75 at time of repoint) and retired the safe-1 fleet arm (see its entry below) to free it for this reuse -- one account, one execution path, no double-fill risk. Paper-only, fully reversible. Credentials updated in .mcp.json's `alpaca` server env + fleet/secrets.json's safe-2 entry (now = former safe-1 creds). REVERT: see automation/overnight/STATUS.md 2026-07-11 REVOKE-report entry for the full un-repoint + un-retire steps (harder than a flag flip -- restores 2 files' credentials AND un-retires this arm)."
-  },
-  {
-   "id": "safe-1",
-   "display_name": "RETIRED (=CORE-SAFE acct 46VG)",
-   "cell": "safe x loose",
-   "status": "retired",
-   "execution": "fleet_rest",
-   "live": false,
-   "fidelity": "real_fills",
-   "broker": "alpaca",
-   "account_number": "PA3POKNV46VG",
-   "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-1",
-   "instrument": "SPY_0DTE_OPTION",
-   "starting_equity": 5000.0,
-   "frozen_at": "2026-06-25",
-   "retired_at": "2026-07-11",
-   "gate_override": {"min_triggers": 1},
-   "params_patch": {"strike_tier_table": "bold"},
-   "note": "SAFE sizing, LOOSE gate. Broadest safe participation (any single fired trigger), smallest qty. Trades the full strategy set.",
-   "_retired_doc": "RETIRED 2026-07-11 -- this arm's broker account (PA3POKNV46VG) was reassigned to core Safe (the 'safe-2' arm above) after Safe-2's original account (PA3S2PYAS2WQ) was accidentally deleted 2026-07-10. status flipped active->retired (NOT deleted -- fleet_live._arm_is_processable / fleet_executor.run_dry both gate dispatch on status=='active', so this alone stops new orders; the arm definition, its historical decisions.jsonl, and its own circuit-breaker.json under automation/state/fleet/safe-1/ are preserved as real trading history, unedited). The active fleet_rest roster is now {safe-3, risky-1, risky-3} (3 arms, was 4). live flipped true->false as a second belt-and-suspenders signal (fleet code gates on status, not live, but this documents intent for any future reader). Gate/sizing config (gate_override, params_patch) left untouched -- still a valid frozen shape for replay_fleet_arms.py's entry-fidelity fixture (safe-1 stays in ARMS_UNDER_TEST there; that's a historical-parity check against a fixed 2026-05-19..06-24 window, unaffected by today's status). REVERT (harder than a flag flip -- also needs the safe-2 credential un-repoint, see that entry's _repoint_2026_07_11 doc): flip status back to 'active' + live back to true HERE, AND move core Safe's credentials in .mcp.json + fleet/secrets.json's safe-2 entry back to a distinct account (either restore PA3S2PYAS2WQ if J un-deletes it, or provision a fresh one) -- do not run both safe-2 and safe-1 live off the SAME account simultaneously (that reintroduces the double-fill/misattribution risk this repoint exists to avoid)."
-  },
-  {
-   "id": "risky-1",
-   "display_name": "FLEET-FULLSEND-R (V0A4)",
-   "cell": "risky x FULL-SEND",
-   "status": "active",
-   "execution": "fleet_rest",
-   "live": true,
-   "fidelity": "real_fills",
-   "broker": "custom_rest",
-   "account_number": "PA3S9N1IV0A4",
-   "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-1",
-   "instrument": "SPY_0DTE_OPTION",
-   "config_source": "inherit bold",
-   "starting_equity": 5000.0,
-   "frozen_at": "2026-06-25",
-   "gate_override": {"full_send": true, "min_triggers": 2, "require_confluence_or_sequence": true},
-   "_gate_restore_2026_08_12": "RESTORED the two selectivity keys commit e28d210c (2026-07-31 16:21) deleted. That commit's INTENT was to ADD the full-send producer lane; it SWAPPED the whole gate_override dict instead, silently removing this arm's entry gate. accounts.json's own map_doc recorded the accident on 2026-08-02 and nothing repaired it. The key families are ORTHOGONAL in source -- fleet_executor._gate_check reads ONLY min_triggers / require_confluence_or_sequence / min_setup_quality and never sees full_send; _is_full_send:175 reads ONLY full_send -- so restoring these does NOT de-arm the FULL-SEND experiment, it layers the gate back UNDER it exactly as the original commit intended. NOT a de-arm: the full_send_doc's pre-committed kill criterion (n>=10 sessions) governs removing full_send, which this does not touch. WHY NOW: on 2026-08-12 risky-1 took 16 of the book's 38 positions while its live twin safe-3 -- running THESE EXACT keys -- blocked 49 of the 83 identical signal-ticks. DO NOT SELL THIS ON PAPER DOLLARS: the same-day counterfactual is only +$70, which is WORSE than removing 12 random waves (+$281 expected on a day whose mean wave was -$23.42). The real case is (a) it reverts an unintended deletion, (b) it removes 12 entries of REAL spread friction that Alpaca paper does not charge (measured latent live spread $196-292/day at this entry rate -- the figure that makes the book unviable at GAMMA_CORE_ARMED=1), and (c) it makes an unfalsifiable experiment falsifiable: the FULL-SEND lane has produced 0 of 66 lifetime placements and fired 0 times in 6,553 ticks, so its fill-keyed kill criterion could never trigger while the normal lane was ungated. REVERT: delete the two added keys; next tick picks it up. Guard: automation/state/fleet/test_full_send_arm.py::test_risky1_selectivity_gate_survives_full_send (would have gone RED on e28d210c). Evidence: analysis/deep-research/2026-08-12-churn/ (15-agent teardown, 4 lanes survived adversarial verification).",
-   "strike_tier_table_doc": "FLEET-STRIKE-TIER-ATM-EXTENSION (2026-08-01, conductor AFTERHOURS): params_patch.strike_tier_table='bold_core' repoints this arm's NORMAL (non-full-send) lane -- _tiers_for_arm now resolves V15_BOLD_CORE_TIERS (ATM under $2K, the SAME table core Bold uses since 2026-07-17/18) instead of the default V15_BOLD_TIERS (OTM-3 under $2K). CORRECTED PROVENANCE (2026-08-02, day+1 audit fleet-strike-tier-atm-2026-08-02.md #1): 'the same table core Bold uses' is a MACHINERY claim, not a P&L-validated-edge claim -- bold-strike-axis-2026-07-15.json verdicts ALL 6 strike cells (OTM-3..ITM-2), including ATM, ship_ready:false / 'WATCH -- NOT ship-ready', failing the walk-forward gate (structurally null for this whole cohort+shape, every cell's in-sample mean negative). Core Bold's own 2026-07-17/18 wire was an explicit J-authorized PARTICIPATION fix (afternoon floor-clearance 33.76%->96.88%), not a same-night P&L ratification. This extension inherits that same TRADE-TO-LEARN standing (paper, guarded, one-line-revertible, forward-evidence-pending), not a cleared P&L bar. INERT for full-send entries specifically: _full_send_plan prices via PROBE_STRIKE_TIERS directly and never calls _tiers_for_arm, so this key only matters if this arm's normal (gated) lane ever fires alongside/instead of full-send. Pre-registered BEFORE arming: analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json (n>=20-fill gates, frozen before any evidence). Revert: delete 'strike_tier_table':'bold_core' from params_patch below (byte-identical to before).",
-   "full_send_doc": "FULL-SEND ARM -- ARMED 2026-07-31 evening as an EXPLICITLY UNMEASURED FORWARD-PAPER EXPERIMENT. NOT a validated ship. Read this whole field before deciding; it is the revoke lever and it is meant to be sufficient on its own. || WHAT IT IS: a RISK PROFILE, not a strategy. It trades the SAME validated setups (ribbon_ride's entry_setups, nothing new). What differs: it does NOT inherit the five COHORT-LEVEL vetoes, it sizes at the MINIMUM (params.min_contracts = 5), and it prices an ATM strike. Loose on SELECTION, never loose on RISK. J's directive 2026-07-31: 'we're paper trading. We have six arms, and we should just be getting in shit and seeing if it works.' || ACCOUNT: PA3S9N1IV0A4 -- ALPACA PAPER. No live money in this lane. || STRIKE = ATM, AND THIS IS DELIBERATE. Entries price fleet_executor.PROBE_STRIKE_TIERS (strike_offset 0 = ATM at $2K equity) via _full_send_plan, NOT the arm's own far-OTM bold table from _tiers_for_arm. Instrumented at spot 744.10 / $2K: full-send lane -> strike 744 (ATM); the arm's normal lane -> 746 (OTM-2). REASON: ATM is what clears the UNTOUCHED $0.30 min_entry_premium floor on its own merits -- that floor refused this arm on 15 of its 16 named-setup ticks on 2026-07-31 and is the actual cause of its 128 straight HOLDs. CORRECTION OF RECORD: commit e28d210c and the first draft of the scorecard both said the ATM override was REVERTED. That was FALSE on the shipped path -- the revert reached only _tiers_for_arm, which this lane never calls. Corrected 2026-07-31 evening; ATM kept on purpose rather than repointing production to make a stale measurement look valid. || EVIDENCE STATUS -- UNMEASURED AT THIS STRIKE (OP-16 sim-accuracy). The pre-registered A/B's headline cell was measured at strike_offset=2 (OTM-2). Production trades offset=0. That cell DOES NOT APPLY to the trades this lane adds. The only cells at production's strike apply ATM to the WHOLE book (not just this lane's ~17 marginal ticks per 28 days), and they are negative in every configuration. NET: the incremental trades this arm takes have NO valid backtest measurement. Its FORWARD PAPER LEDGER is the evidence, and nothing else is. || MIN-SIZE P&L EXPECTATION IS NEGATIVE. The arm hard-clamps every entry to min size, so the min-size column IS the forward expectation. Corrected per-trade estimator 5*sum(pnl_i/qty_i): full population 387 sessions = -$1,010; recent 51 sessions = -$734. At the ATM (production) strike: -$5,044 full / -$1,878 recent. THE ORIGINAL +$1,951 / +$63 FIGURES WERE WRONG -- they used a biased ratio estimator (scale_factor = 5/mean_qty applied to a SUM, over a qty range of 3-22) and BOTH SIGNS INVERTED on correction. The original F4-override rationale's third leg -- a claim that the profile was profitable at min size rather than merely bounded -- is DELETED, not softened: the corrected expectation is NEGATIVE in every window and at both strikes. What the arm buys is LEARNING RATE (idle days 65.1%->42.4% full, 33.3%->9.8% recent; trades 157->332), and it is expected to PAY for that in P&L. || PRE-REGISTERED CHECKS: TWO OF THREE FAILED. F1 (kill switch) passes both windows (worst min-size day -$470 vs a -$1,000 switch). F2 (per-trade tail) FAILS both windows (-$487.50 vs baseline -$477 / -$397.50) -- it only ever 'passed' on the biased numbers. F4 (>=2.0x uplift) passes full population (2.115x), FAILS recent (1.902x). Shipped anyway on judgment, disclosed not massaged: paper account, min-size clamp, every risk guard proven binding by execution, one-line revert. A pre-registration you override on judgment is not a pre-registration -- this is a FAILURE CARRIED, not a pass. || FIRES LESS OFTEN THAN THE UPLIFT SUGGESTS. At $2K equity the 50% per-trade risk cap REFUSES any full-send entry priced above $2.00 premium, and ATM 0DTE SPY midday frequently prices above that. Verified by execution through the real finalize(): premium 0.29 -> SKIP_MIN_PREMIUM_FLOOR; 0.31 and 1.99 -> ALLOW; >=2.01 -> RISK_CAP. So the 2.115x figure is an UPPER BOUND on realized fills, not a forecast. || MECHANISM: build_shared_signal.FULL_SEND_ALLOWED_VERDICTS (producer, explicit 5-verdict allowlist) -> fleet_executor._full_send_plan (consumer; fires ONLY when no other lane produced an ENTER this tick). || GUARDS THAT STAY FULLY ON (guard-tested, RED-proofed): daily kill switch, risk_gate per-trade cap (Rule 6), PDT (Rule 7), no-add/one-position NOT_FLAT (Rule 4), min_entry_premium floor, entry-time floor/ceiling, EOD flatten, broker-flat verification, SKIP_NO_LEVELS sight-failure block, and no-level-no-trade. || KILL CRITERION (pre-committed, so this is not open-ended): DE-ARM if over the first n >= 10 forward paper sessions the arm's realized P&L is negative AND its fill count is not materially above the gated arms -- i.e. it is paying the cost without buying the learning rate. Re-check with: python setup/scripts/full_send_vs_gated.py --since || DE-ARM PROCEDURE (ONE LINE, byte-identical revert, takes effect next tick): set this arm's gate_override back to {\"min_triggers\": 2, \"require_confluence_or_sequence\": true}. The producer block then goes inert with no consumer. Belt-and-suspenders producer kill: set build_shared_signal.FULL_SEND_LIVE = False. || OTHER CAVEATS: (1) the A/B measured the PACKAGE of five cohort gates with NO per-gate attribution, so de-arming is all-or-nothing -- never gate-pick on this same data; (2) it is a real-OPRA SIM, not broker fills; (3) this arm keeps its 2026-07-29 REACHABLE-TP1 exit_patch, so exits are NOT a control against the other arms (disclosed confound, deliberately not touched). || ARTIFACTS: prereg analysis/recommendations/prereg-full-send-arm-2026-07-31.json (frozen 2026-07-31T17:35:46-04:00 BEFORE the run); scorecard analysis/recommendations/full-send-arm-2026-07-31.json (see its _corrections[] block) + .md; harness backtest/full_send_arm_ab.py; guard automation/state/fleet/test_full_send_arm.py.",
-   "score_ladder_doc": "SCORE_LADDER DISARMED 2026-07-27 ~23:30 ET on evidence (see safe-3's doc above for the full replay citation: floor=8 lane -$16,642 over 725 trades vs baseline +$5,307). RE-ARM (J override): restore score_ladder_floor: 8 here.",
-   "params_patch": {"strike_tier_table": "bold_core", "exit_patch": {"tp1_premium_pct": 0.5, "stop_mode": "structure"}},
-   "exit_profile": "REACHABLE-TP1",
-   "exit_profile_doc_be_floor_REVERTED": "BE-FLOOR was armed ~10:0x ET 2026-07-29 and REVERTED ~11:0x the same session when its backtest returned (analysis/recommendations/be-floor-ab-2026-07-29.md, commit ff3929b3): profit_lock_mode='fixed' is a CONFOUNDED change -- it is read by BOTH the pre-TP1 arm branch AND the post-TP1 runner branch (exit_manager.py:442-444, 465-468), so it silently DISABLES post-TP1 ratcheting. 25 of 27 degraded runner trades came from that side effect, not from the pre-TP1 floor being tested; runner cohort -$3,208 to -$7,805 across arm_pct 0.20/0.30/0.50. The hypothesis (a BE floor cannot clip a runner) was HALF right -- the whipsaw mechanism did shrink to 2/27 at arm=0.50 -- but 'fixed' mode cannot express it cleanly. The isolated 4th candidate (queued: EXIT-HYBRID-PRETP1-FLOOR) keeps profit_lock_mode='trailing' for post-TP1 (runner engine untouched) and adds a SEPARATE pre-TP1-only BE floor knob, which does not exist in ExitShape today. Arming happened before the backtest returned -- a deliberate challenger-arm bet that the evidence then refused; reverting is the rule, not an exception.",
-   "exit_profile_doc": "EXIT LANE = REACHABLE-TP1 (2026-07-29). The ONE surviving piece of the BE-FLOOR experiment: tp1_premium_pct 1.0 -> 0.5. RATIONALE INDEPENDENT OF THE REVERTED LOCK CHANGE: the registry's +100% TP1 is effectively unreachable on 0DTE, which means the TP1-partial mechanism never fires AND the post_tp1-scoped profit lock never arms -- the 2026-07-28 Bold trade peaked +56% with zero protection by design and closed -42%. A reachable TP1 restores BOTH mechanisms. HONEST CAVEAT: a uniform tp1 1.0->0.5 tested NEGATIVE in isolation (cell E2, exit-armscope-tp1-ab-2026-07-28: -$2,491 aggregate, runner -$5,616), so this is NOT a validated win -- it is a deliberate live-paper CHALLENGER on one arm while the core arms hold the registry shape as control, which is exactly what the fleet exists for. Its forward P&L is the evidence. REVOKE: set params_patch to {} and exit_profile back to 'TRIG-EXACT'. ORIGINAL BE-FLOOR DOC (reverted, kept for audit): 'EXIT LANE = BE-FLOOR (armed 2026-07-29 ~10:0x ET; J directive: all five arms still share one exit shape -- rip it apart'). THE FLEET IS THE A/B: each fleet arm now runs a DIFFERENT exit philosophy on the SAME entries, so the paper ledger measures which style wins instead of us predicting the day. THIS LANE: profit_lock_mode='fixed' = a BREAKEVEN floor (exit_manager.py:364-371, runner_stop=max(runner_stop, entry)) armed PRE-TP1 at +30% MFE, plus a REACHABLE tp1 (0.5 vs the registry's unreachable 1.0). STRUCTURAL ARGUMENT: a BE floor cannot fire above entry, so unlike the trailing lock it cannot clip a runner -- it only converts a round-trip-to-loss into a scratch. MOTIVATING INCIDENT: 2026-07-28 Bold peaked +56% with TP1 at +100% unreachable, so the post_tp1-scoped lock never armed and the trade closed -42% with SPY FLAT (theta). PRIOR ART: the TRAILING lock pre-TP1 was tested at arm_pct 0.05/0.20/0.30/0.40 and clipped the runner cohort at every point (-$7,759 -> -$3,898); the BE-floor shape is UNTESTED and its backtest (prereg-be-floor-2026-07-29) is IN FLIGHT -- this arm runs it live-paper as the challenger in parallel. This REPLACES the arm's prior role as the untouched TRIG-EXACT control; safe-2/bold-2 (core, registry-verbatim) are now the control. REVOKE: set params_patch back to {} and exit_profile back to 'TRIG-EXACT'.",
-   "note": "RISKY sizing, TIGHT gate. PUT_ONLY REMOVED -- trades BOTH directions on the full strategy set; the account only adds selectivity + bold sizing. EXIT A/B (2026-07-20): deliberately NO exit_patch -- the untouched control lane, each strategy's REGISTRY exit shape verbatim (today's exact trigger-level structure/premium stop, unchanged). See update_note_2026_07_20."
-  },
-  {
-   "id": "bold-2",
-   "display_name": "CORE-BOLD (U67N)",
-   "exit_profile": "CORE",
-   "cell": "risky x base (CONTROL)",
-   "status": "active",
-   "execution": "mcp_heartbeat",
-   "fidelity": "real_fills",
-   "broker": "alpaca_aggressive",
-   "account_number": "PA3WEBXJU67N",
-   "key_ref": "automation/state/fleet/secrets.json :: accounts.bold-2",
-   "instrument": "SPY_0DTE_OPTION",
-   "config_source": "automation/state/aggressive/params.json",
-   "starting_equity": 5000.0,
-   "frozen_at": "2026-06-20",
-   "gate_override": {},
-   "params_patch": {},
-   "note": "CONTROL -- production v15 Bold, traded by the live aggressive heartbeat (mcp_heartbeat). The untouched risky baseline."
-  },
-  {
-   "id": "risky-3",
-   "display_name": "FLEET-LOOSE-R (5H6Z)",
-   "cell": "risky x loose",
-   "status": "active",
-   "execution": "fleet_rest",
-   "live": true,
-   "fidelity": "real_fills",
-   "broker": "custom_rest",
-   "account_number": "PA3V7JT25H6Z",
-   "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-3",
-   "instrument": "SPY_0DTE_OPTION",
-   "config_source": "inherit bold",
-   "consumes_scoring_peak": true,
-   "starting_equity": 5000.0,
-   "frozen_at": "2026-06-25",
-   "gate_override": {"min_triggers": 1},
-   "score_ladder_doc": "SCORE_LADDER armed 2026-07-27 (J directive after the bear_score-9 miss: 'the riskiest arm can hop in at a seven out of ten'). This arm enters MIN-SIZE on scoring-failed ticks when bear_score >= 7 AND a raw level-tied trigger + its own level exist (signal['ladder'] from build_shared_signal._ladder_block, fail-closed producer -- rows before 2026-07-28 lack the raw fields and produce no entries). BEAR ONLY at ship; bull waits for its own pre-registered evidence (2026-07-27's bull-9 fired mid-fade, would have lost). Consumed by fleet_executor._ladder_plan: PROBE_STRIKE_TIERS strike, min_contracts qty, risk_gate/finalize downstream untouched, raw rejection level rides as the chart-stop anchor. Evidence at arm: analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md (A5 today IN@9; A3 05-04 +$730 IN@8; no loser newly admitted at 7 across the 10-anchor set -- n SMALL, the fleet paper ledger IS the forward A/B). REVOKE: delete score_ladder_floor from gate_override -- next tick reverts, byte-identical.",
-   "gate_params": {"hard_skip_verdicts": []},
-   "gate_params_doc": "GATE-TIERS-IMPLEMENT (2026-07-23, audit rank #3): this arm is the live RISKY/minimum-viable-gate tier (safe-1's loose cell retired 2026-07-11, leaving risky-3 the only active RISKY-tier arm) -- an empty hard_skip_verdicts list means it does NOT inherit build_shared_signal.py's GLOBAL _HARD_SKIP_VERDICTS (require_bearish_fill_bar's SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY) the way bold-2/risky-1 still do. Fill-bar quality stays a hard block on Bold control (validated OOS +$1,153/WF 18.5) and on risky-1 (tight/SAFE-analog tier) -- only the loose tier trades through it, per fleet_executor._effective_passed. Revert: delete this key (byte-identical to before).",
-   "params_patch": {
-    "cheap_contract_qty_boost": {"premium_below": 0.5, "qty": 10},
-    "_cheap_contract_qty_boost_doc": "SHIP C 2026-08-03 (J verbatim: qty 10 when contract < $0.50; single-arm trade-to-learn A/B vs min-size siblings on identical signals). Consumer: fleet_executor.finalize() boost block (after min-premium floor, before shrink-not-deny + risk_gate -- Rule 6 stays authoritative). Max notional 10 x $0.49 x 100 = $490 = 9.8% of $5K equity vs 50% cap. Kill: n>=10 boosted fills or 10 sessions, net<0 -> delete these two keys (one-line revert, byte-identical). Guard: backtest/tests/test_cheap_contract_qty_boost_2026_08_03.py.",
-    "strike_tier_table": "bold_core_pre_ext",
-    "exit_patch": {"stop_mode": "premium"},
-    "_exit_patch_doc": "STOP-MODE LIVE A/B -- ARMED 2026-08-09 18:28 ET (Sunday, rule-9 compliant), effective Monday 2026-08-10 open. PAPER ONLY (PA3V7JT25H6Z); no live-money change is implied. Prereg FROZEN BEFORE this edit, git-provable: analysis/recommendations/prereg-stop-mode-live-arm-risky3-2026-08-09.json, commit a2d7c3e4. || WHAT CHANGED: exit_patch {stop_mode:structure, profit_lock_mode:trailing, trail_pct:0.20} -> {stop_mode:premium}. Resulting shape = ribbon_ride REGISTRY verbatim except stop_mode, so the operative stop becomes the registry's already-configured hard -20% premium_stop_pct instead of trigger-level structure invalidation. Dropping trail_pct 0.20 back to the registry 0.15 REMOVES a second variable -- this is deliberately ONE variable against the registry. || WHY: the entry x exit matrix (96 cells) + its /fable-too-good audit + a pre-registered confirmatory A/B found stop_mode structure->premium worth +$24-61/trade on a 399-day replay, 8/8 entry rows, all 16 premium cells surviving BH-FDR q=0.10, mechanism signature holding 8/8. BUT on the 26-day real-fills book the same comparison is positive in dollars yet FAILS its own mechanism gate 0/4 (win rate does not fall), with zero BH survivors -- reproduced independently by the paired shadow clock (+$26.55/tr, WR rising). Two retrospective instruments, same contradiction, and they cannot break the tie because they share one 26-day fill book. Forward real fills under premium mode are the only discriminating evidence. || GAP THIS CLOSES (verified 2026-08-09): EVERY fleet arm currently resolves stop_mode='structure' (safe-3/risky-3/bold-2 patched, risky-1 + core via registry default) and params.structure_stop_enabled=true on both params files -- so the whole live book is chart-stop-primary and the premium lane has NEVER traded. || WHY THIS ARM: loosest gate in the fleet (min_triggers=1) => highest fill frequency => fastest n, the binding constraint on every forward clock. Already the designated probe arm. Its outgoing ZONE-RIDE lane was, by the update_note_2026_07_20 text above, an ADMITTED PROXY (trail_pct 0.20 standing in for a reference-level knob that was investigated and closed NO-SHIP) -- the weakest-evidence lane in the fleet, not a validated one. CONTROL -- CORRECTED 2026-08-09 before any data: risky-1 is NOT the control (it carries tp1_premium_pct 0.5, REACHABLE-TP1, since 2026-07-29; the update_note_2026_07_20 text above is STALE on this point). Only THREE fleet arms are live: safe-3 (registry-verbatim, but a different cell -- safe x tight -- so confounded as a comparator), risky-1 (tp1 0.5), risky-3 (this). The AUTHORITATIVE control is the PAIRED SHADOW CLOCK (setup/scripts/stop_mode_shadow_ledger.py, commit 1d2f5cbc), which prices BOTH exit shapes on risky-3's OWN fills -- within-trade, no cell/sizing/gate confound. safe-3 and risky-3's own pre-change history are CONTEXT ONLY. safe-2/bold-2 are CORE accounts (heartbeat_core + params.json), not fleet arms, and are untouched. || MECHANISM VERIFIED, NOT ASSUMED: exit_manager.ExitState.from_entry resolves structure stops as (shape_mode=='structure' AND caller structure_stop_enabled) -- an AND -- so shape_mode='premium' de-arms the structure stop for THIS ARM ONLY, with no global flag touched. || KILL: expectancy negative AND below risky-1 over n>=20 days; or any kill-switch breach with the premium stop as proximate cause (revert immediately, do not wait for n); or the mechanism signature fails forward (win rate must FALL while dollars rise -- if it rises, the result is unexplained and advances nowhere). || REVERT (one line, byte-identical, next tick, no restart): set exit_patch back to {\"stop_mode\": \"structure\", \"profit_lock_mode\": \"trailing\", \"trail_pct\": 0.20} and exit_profile back to \"ZONE-RIDE\". || GUARD: backtest/tests/test_stop_mode_live_arm_risky3_2026_08_09.py (vary-and-assert: risky-3 resolves premium, structure resolution False for it, every sibling still resolves structure)."
-   },
-   "strike_tier_table_doc": "ATM-TIER-EXTENSION-2K-10K PER-ARM KILL (2026-08-06 evening, PRE-REGISTERED KILL EXECUTED): 'bold_core_pre_ext' -- _tiers_for_arm resolves V15_BOLD_CORE_PRE_EXT_TIERS ($0-2K ATM unchanged from the 2026-08-01 extension; $2K-10K back to OTM-2, the pre-2026-08-04 value). The 2026-08-04 $2K-10K ATM extension's own frozen kill criterion (atm-tier-extension-2k10k-prereg-2026-08-03.json: n>=10 fills/arm, net<0 -> revert) was MET by THIS ARM: n=14 fills under the extension, net -$653. risky-1 did NOT meet it (n=11, +$903) and KEEPS 'bold_core'; safe-3 + core bold-2 also keep the extension -- which is why the prereg's shared-table one-line revert was NOT used (it would have killed every consumer; see V15_BOLD_CORE_PRE_EXT_TIERS' comment in crypto/lib/strike_selection.py). HISTORY: the 2026-08-01 FLEET-STRIKE-TIER-ATM-EXTENSION ('bold_core', $0-2K ATM) remains in effect for this arm -- only the 2K-10K band reverted. Guard (vary-and-assert): backtest/tests/test_atm_tier_extension_risky3_kill_2026_08_06.py. Un-kill (one line): set strike_tier_table above back to 'bold_core'.",
-   "exit_profile": "PREMIUM-STOP",
-   "note": "RISKY sizing, LOOSE gate. Highest-frequency arm (any single trigger, bold qty). Trades the full strategy set, both directions. Every hard floor still binds (one-position, -50% kill-switch, EOD flatten). NOTE: the earlier replay_fleet_arms entry-fidelity miss (single-trendline_rejection bears dropped because trendline_rejection was absent from build_shared_signal.ENTRY_TRIGGERS) is a PRODUCER perception gap, not an arm defect -- under the grid model every arm runs every strategy, so it is fixed in the producer (FIX2 / ENTRY_TRIGGERS), never by benching the required risky x loose cell. PROBE ARM (2026-07-10, top-level 'probe_arm' block): also this fleet's designated cohort-block-bypass arm -- trades tier/cohort-gated setups (block_elite_bull etc) at min_contracts when its normal pass HOLDs. Already the loosest+riskiest fleet_rest cell, so it was the obvious pick (see probe_arm._doc). EXIT A/B (2026-07-20): exit_patch puts this arm on the SAME chart-stop-primary lane as safe-3 but with a LOOSER 0.20 chandelier trail (vs the registry's 0.15 for ribbon_ride / 0.125 default for vwap_continuation) so the runner rides longer before the trailing floor exits it -- the intended 'rides it better' arm. SCHEMA GAP (see update_note_2026_07_20): the ideal 'stop referenced to the nearest key level ABOVE the entry trigger' knob does not exist in ExitShape yet (stop_mode=structure only references THIS position's own entry trigger_level). NOT simply unbuilt -- automation/overnight/queue.md's STRUCTURE-STOP-REFERENCE-LEVEL item investigated exactly this (REF-ZONE) tonight ~17:00-17:35 ET and closed NO-SHIP (pre-reg A/B: single-anchor-trade artifact, sub-window sign-flip, worse fresh-slice expectancy) -- exit_manager.py/strategies.py deliberately UNCHANGED. trail_pct=0.20 here is the disclosed proxy given that rejection, not a placeholder awaiting a build; revisit only if a FUTURE pre-reg A/B on a different reference-level formulation clears."
-  },
-  {
-   "id": "mes-linear-sim",
-   "display_name": "FUTURES-LINEAR (pending, 3759)",
-   "status": "pending_build",
-   "fidelity": "bs_sim_ranking_only",
-   "broker": "futures_sandbox_TT",
-   "account_number": "5WW73759",
-   "key_ref": "docs/futures/ (TT sandbox wiring)",
-   "instrument": "MES_FUTURES",
-   "stop_model": "point_based",
-   "config_source": "same strategy set, linear expression",
-   "frozen_at": null,
-   "note": "THE OPTION TAX IS THE KILLER, NOT THE READ -- same strategy set on a linear instrument; if MES captures the move the edge is real and the fix is the instrument."
-  },
-  {
-   "id": "mes-mnq-div-futures",
-   "display_name": "FUTURES-DIV (dormant, 3759)",
-   "status": "dormant",
-   "fidelity": "point_pnl_validated",
-   "broker": "futures_sandbox_TT",
-   "account_number": "5WW73759",
-   "key_ref": "docs/futures/ (TT sandbox wiring)",
-   "instrument": "MNQ_FUTURES",
-   "stop_model": "atr_trail_eod_flat",
-   "config_source": "automation/state/fleet/edge3_mesmnq_div.py :: FROZEN_CONFIG",
-   "frozen_config": {
-    "edge_id": "edge3_mesmnq_div",
-    "leader": "MES",
-    "laggard": "MNQ",
-    "threshold": 0.0015,
-    "min_persistence_bars": 2,
-    "qty_micros": 1,
-    "exit_mode": "atr_trail",
-    "entry_cutoff_et": "13:00:00"
-   },
-   "frozen_at": "2026-06-21",
-   "enabled": false,
-   "source_recommendation": "analysis/recommendations/b5-mesmnq-div-rescue.json",
-   "validated_oos_per_trade": 71.46,
-   "note": "EDGE #3 -- MES leads -> trade MNQ laggard on a >=2-bar divergence. VALIDATED OOS +$71.46/tr, 8/8 gates. DORMANT (enabled=false); no live order path until a human flips enabled. A distinct futures-pair strategy, kept as its own arm because the instrument differs.",
-   "tt_credential_dependency_RETIRED_2026_07_18": "The broker=futures_sandbox_TT / key_ref=docs/futures/ fields above are HISTORICAL -- that TT sandbox credential was never wired (docs/futures/ never existed on disk, confirmed 2026-07-18) and this arm sat dormant 4 weeks waiting on it. PM decision (Fable/Opus, 2026-07-18): stop waiting on an external account. Checked Alpaca honestly first (live keys, real Safe-2 account PA3POKNV46VG): get_all_assets(asset_class='us_future') returns zero assets (the SAME call with asset_class='crypto' returns 80+ real pairs, proving the query path works); Alpaca's documented AssetClass enum is {us_equity, us_option, crypto} only -- NO Alpaca futures path exists, paper or live, as of this date. Built the honest equivalent instead: setup/scripts/futures_edge3_sim.py (own-book SIM lane, Gamma_FuturesEdge3Sim scheduled task, every 5 min 09:30-16:00 ET weekdays -- RTH only, since this frozen edge is RTH-scoped by construction) drives this SAME FROZEN_CONFIG (byte-identical, never tuned) against REAL live ES=F/NQ=F quotes with a SIM fill ledger (automation/state/futures/edge3-sim-fills.jsonl, every row tagged fidelity=sim_fill_vs_real_quote). This is mechanism-validation forward evidence (same tier as the crypto twin's SIM lane), not real fills -- enabled stays false here, no live order path exists or is implied. Falsification rail: after 20 closed sim round-trips, compare mean pnl to the $71.46/tr validated figure; a material shortfall investigates quote/sim-fill quality before doubting the signal. UPGRADE PATH if Alpaca ever ships futures: re-run the asset_class probe above -- a non-empty result is the trigger to migrate this SIM lane onto real Alpaca paper orders instead."
-  }
- ],
- "promotion_gate": {
-  "oos_positive": true,
-  "wf_min": 0.7,
-  "sub_window_stable": true,
-  "anchor_no_regression": true,
-  "min_clean_trades": 30,
-  "beat_baseline_margin_note": "a strategy or gate/sizing cell must beat the frozen control by a margin surviving multiple-comparison correction across the active arms"
- },
- "probe_arm": {
-  "_doc": "PROBE ARM (2026-07-10 ship, amended TWICE same-session). J directive 2026-07-10: '6 arms and nothing took a trade... why isn't 1 arm set to take riskier trades?' Diagnosis: every fleet arm's gate_override only ADDS selectivity on top of an already-passed=True shared-signal tick (fleet_executor._gate_check never rescues a passed=False tick) -- so the COHORT/TIER gates baked into build_shared_signal.py's passed-derivation apply UNIFORMLY to every arm regardless of how loose its OWN gate_override is. ONE designated arm trades ONE specific, gate-provenance-reviewed blocked cohort at the account's MINIMUM size plus a nearer strike, converting blocked signals into forward evidence instead of silence. AMENDMENT 1 (automation/state/participation-cascade.json evidence): min_entry_premium -- NOT the cohort gates -- is the real #1 blocker in practice (18 of 31 arm-events on 07-10 alone), because the fleet's own far-OTM/bold sizing tiers price their natural 0DTE contracts under the $0.30 floor. The floor is NEVER bypassed (its anti-spread-noise evidence is real and stays fully intact) -- fleet_executor.PROBE_STRIKE_TIERS gives the probe's OWN contracts a nearer (ATM-class, standalone table) strike than the arm's normal bold/OTM table, so they clear the SAME floor on their own merits. AMENDMENT 2 (markdown/audits/GATE-PROVENANCE-SWEEP-2026-07-10.md, commit 54d5840): a rigorous, pre-registered, hash-pinned, 19/19-test-covered per-gate audit NARROWED the bypass from a broad blocklist to an explicit allowlist, build_shared_signal.PROBE_ALLOWED_VERDICTS = {'SKIP_BULL_1100_1200'} exactly. block_elite_bull is EXPLICITLY NOT bypassed -- its SS-B revalidation (SAME session, frozen pre-registration, `analysis/recommendations/block-elite-bull-ssb-revalidation.json`) proved KEEP: n=28, OLD total -$560.00 -> SS-B total -$3,873.60, ~6.9x WORSE under the SAME structure-stop exit shape this probe arm's own ribbon_ride entries use -- probing it would spend real paper capital re-testing a question the codebase just answered with hash-pinned rigor. SKIP_BULL_1100_1200 IS bypassed -- REVALIDATE verdict: thin (IS n=11 WR=9.1%, OOS n=1), pre-dates SS-B, and 07-10 was the first genuinely-live block of a SUPER-tier (not just ELITE) signal since ratification -- exactly the shape of gate a min-size forward probe should test. block_bull_ribbon_flip independently reconfirmed (3rd audit) ABSENT/unarmed -- no bypass built for it. Mechanism: build_shared_signal.py's _probe_passed_blocks() (PROBE_COHORT_LIVE flag) emits signal['probe'] off the SAFE ledger (PROBE_LEDGER_ACCOUNT; FIXED 2026-07-11 -- was hardcoded BOLD at ship, which meant the arm's one allowlisted cohort, SKIP_BULL_1100_1200, could never be read since its gate is Safe-only and Bold's ledger structurally never emits that verdict -- dead on arrival, silently, from ship until this fix; see build_shared_signal.py's PROBE_ALLOWED_VERDICTS module comment for the full evidence): passed=True ONLY when action is in PROBE_ALLOWED_VERDICTS AND a real named ENTRY_TRIGGERS-member trigger fired. fleet_executor.py's _probe_plan() consumes it ONLY for this arm_id, ONLY when the arm's NORMAL plan_all pass produced no ENTER this tick (never double-fires alongside a normal entry), ONLY for ribbon_ride (vwap_continuation is a live REST detector, not core-gated -- no cohort block to bypass). qty is HARD-CLAMPED to params.min_contracts (ignores _qty_for's sizing tiers and _apply_recency_min_sizing -- already at floor). Every OTHER gate stays fully on: kill-switch, PDT, min_entry_premium floor (unweakened), per-trade risk cap, entry-time floor/ceiling, one-position -- all run downstream in fleet_executor.finalize()/risk_gate.check_order/fleet_live._place_live, untouched by this block. Reason tag 'PROBE_ARM cohort=<bypassed verdict, SKIP_ prefix stripped>' makes every fill attributable. Instant de-arm: set enabled=false here (byte-identical revert -- _is_probe_active short-circuits False, the arm falls back to its normal risky-x-loose gate_override path unchanged). Guards: automation/state/fleet/test_probe_arm.py (41/41, +2 for the 2026-07-11 ledger-source fix: a non-vacuity test proving the fix changed behavior + a drift guard on future allowlist additions).",
-  "enabled": true,
-  "arm_id": "risky-3",
-  "daily_cap": 3,
-  "daily_cap_note": "counts ALLOWED probe entries only (risk_gate-cleared ENTER_BULL/ENTER_BEAR with a PROBE_ARM-tagged reason), not attempted/denied plans -- persisted per-day in automation/state/fleet/risky-3/probe-count.json, reset on date rollover (same pattern as fleet_live._load_or_arm_breaker's daily kill-switch)."
- },
- "next_steps": [
-  "ENGINE: build_shared_signal must emit the strategies[] set (each validated edge evaluated independently) so plan_all sees all strategies -- the grid is wired but currently fed only the production-mirror bull/bear blocks.",
-  "DEPLOY (after-close, flagged): flip build_shared_signal SCORING_PEAK_LIVE on so the fleet_rest arms place; gate on tests green + a fleet_live --quiet WATCH eyeball.",
-  "WIRE: mes-linear-sim to the TT futures sandbox harness (docs/futures/)."
- ]
+  "next_steps": [
+    "ENGINE: build_shared_signal must emit the strategies[] set (each validated edge evaluated independently) so plan_all sees all strategies -- the grid is wired but currently fed only the production-mirror bull/bear blocks.",
+    "DEPLOY (after-close, flagged): flip build_shared_signal SCORING_PEAK_LIVE on so the fleet_rest arms place; gate on tests green + a fleet_live --quiet WATCH eyeball.",
+    "WIRE: mes-linear-sim to the TT futures sandbox harness (docs/futures/)."
+  ]
 }

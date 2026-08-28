@@ -1,5 +1,16 @@
 # WEEKLY-OPTIONS PROGRAM — the second lane (living doc)
 
+> **Status (2026-08-28 ~18:00 ET): ACCOUNT NOW EXISTS — `weekly-1` is wired to `PA3POKNV46VG`'s
+> sibling `PA3V7JT25H6Z`, the account freed by retiring the risky-3 SPY cell (J: "we'll use that
+> api key to trade non SPY options"). Broker-verified: equity $4,283.92, cash $4,283.92, 0 open
+> positions. `status: pending_build` and `live: false` — the executor skips anything not `active`,
+> so NOTHING TRADES. The blocker is unchanged and is the signal, not the plumbing: v1 still fails
+> its random-entry null. §3's "no account exists" is now closed; §9b phases 8+ (signal diagnosis)
+> is still the whole remaining job. Hard prerequisite met in the same change: risky-3 →
+> `status: retired`, because `is_flat_spy_options` filters `startswith("SPY")` and would be blind
+> to a GLD/QQQ position in an account the SPY fleet still scanned. Invariant pinned by
+> `backtest/tests/test_weekly1_account_reuse_2026_08_28.py` (6/6, RED-proofed both directions).**
+>
 > **Status (2026-08-18 ~23:00 ET): MACHINERY BUILT + FIRST VERDICT IN — the v1 signal is DEAD.**
 > Ingestion, multi-day walk, delta-matched selection, exits, gates and the null harness are all
 > built, guarded and committed. Their first act was to kill the v1 signal: all four expiry arms
@@ -16,6 +27,7 @@
 > [`CROSS-TICKER-BRAINSTORM-2026-07-10.md`](CROSS-TICKER-BRAINSTORM-2026-07-10.md) (banner added there).
 >
 > **Update log:** 2026-08-18 — created (design ratified by J's directive; nothing armed, no code shipped yet).
+> 2026-08-28 — `weekly-1` account wired (reused from the retired risky-3 cell); still unarmed, signal still refuted.
 
 ---
 
