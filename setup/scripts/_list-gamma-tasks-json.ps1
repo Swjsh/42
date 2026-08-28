@@ -49,12 +49,25 @@ foreach ($t in $allTasks) {
             if (($tr.PSObject.Properties.Name -contains 'DaysOfWeek') -and ($null -ne $tr.DaysOfWeek)) {
                 $dow = [int]$tr.DaysOfWeek
             }
+            # DAYS-INTERVAL (2026-08-28, GITHUB-AUDIT-FALSE-RED incident): a DailyTrigger's
+            # DaysInterval (e.g. "every 2 days") was never emitted here, so
+            # unattended_health.py's expected_gap_minutes() had no way to see it and
+            # silently treated EVERY DailyTrigger as a 1-day cadence -- an every-N-day task
+            # got a budget of exactly 2*1440min regardless of N, i.e. ZERO slack for a
+            # single missed run once N>=2 (contradicting this file's own stated design:
+            # "daily/weekly ones get 2, which tolerates EXACTLY ONE missed run"). Purely
+            # additive field; only DailyTrigger carries DaysInterval.
+            $daysInterval = $null
+            if (($tr.PSObject.Properties.Name -contains 'DaysInterval') -and ($null -ne $tr.DaysInterval)) {
+                $daysInterval = [int]$tr.DaysInterval
+            }
             $trigs += [PSCustomObject]@{
                 type = $cls
                 start_boundary = if ($tr.StartBoundary) { [string]$tr.StartBoundary } else { $null }
                 repetition_interval = $repInt
                 repetition_duration = $repDur
                 days_of_week = $dow
+                days_interval = $daysInterval
                 enabled = [bool]$tr.Enabled
             }
         }

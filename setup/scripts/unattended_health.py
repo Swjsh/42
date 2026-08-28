@@ -255,7 +255,17 @@ def expected_gap_minutes(triggers: list[dict]) -> tuple[Optional[float], str]:
             else:
                 cadence, label = interval, f"repeats every {interval:.0f}m"
         elif "Daily" in ttype:
-            cadence, label = 1440.0, "daily trigger"
+            # 2026-08-28 GITHUB-AUDIT-FALSE-RED fix: a DailyTrigger's DaysInterval
+            # ("every N days") was previously ignored -- every DailyTrigger was scored
+            # as a 1-day cadence regardless of N, so an every-2-day task got a budget
+            # of exactly 2*1440min = zero slack for a single missed run (contradicting
+            # this module's own design: daily/weekly cadences tolerate ONE missed run).
+            days_interval = t.get("days_interval")
+            n = days_interval if isinstance(days_interval, (int, float)) and days_interval and days_interval > 0 else 1
+            if n > 1:
+                cadence, label = 1440.0 * n, f"every {n:.0f}-day trigger"
+            else:
+                cadence, label = 1440.0, "daily trigger"
         elif "Weekly" in ttype:
             # A WeeklyTrigger carrying a DaysOfWeek mask is NOT a 7-day cadence --
             # most of this rig's "weekly" triggers are Mon-Fri (mask 62), i.e. a

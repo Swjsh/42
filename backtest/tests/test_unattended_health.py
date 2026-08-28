@@ -93,6 +93,45 @@ def test_intraday_repetition_window_is_scored_at_the_daily_rearm():
     assert "daily window" in why
 
 
+def test_every_n_day_trigger_scored_at_its_real_cadence():
+    """RED-PROOF (GITHUB-AUDIT-FALSE-RED, 2026-08-28): a DailyTrigger with DaysInterval=2
+    ("every 2 days", e.g. Gamma_GitHubAudit) must be scored at a 2-day cadence, not a
+    1-day one. Before this fix, expected_gap_minutes() ignored DaysInterval entirely and
+    scored every DailyTrigger at 1440min regardless of N -- so an every-N-day task's
+    2x-multiplier budget (_MULT_DAILY_PLUS) collapsed to exactly N=1's budget, leaving
+    ZERO slack for a single missed run once the real interval was >1 day."""
+    trig = {"type": "MSFT_TaskDailyTrigger", "start_boundary": "2026-06-24T21:00:00-06:00",
+            "repetition_interval": None, "repetition_duration": None,
+            "days_of_week": None, "days_interval": 2, "enabled": True}
+    cadence, why = uh.expected_gap_minutes([trig])
+    assert cadence == 2880
+    assert "2-day" in why
+
+
+def test_missing_days_interval_defaults_to_plain_daily():
+    """A DailyTrigger with no days_interval field (older PS payloads, or a genuine
+    every-1-day task) must fall back to the original 1440min cadence -- this fix must
+    not regress every ordinary daily task in the fleet."""
+    trig = {"type": "MSFT_TaskDailyTrigger", "start_boundary": "2026-01-01T06:00:00-06:00",
+            "repetition_interval": None, "repetition_duration": None,
+            "days_of_week": None, "enabled": True}
+    cadence, why = uh.expected_gap_minutes([trig])
+    assert cadence == 1440
+    assert why == "daily trigger"
+
+
+def test_every_n_day_budget_tolerates_one_missed_run():
+    """The whole point: an every-2-day task's budget (cadence * _MULT_DAILY_PLUS) must
+    be 4 days, so missing exactly one scheduled run (a ~2.2-day gap, the live
+    Gamma_GitHubAudit incident on 2026-08-28) reads as within-budget, not RED."""
+    trig = {"type": "MSFT_TaskDailyTrigger", "start_boundary": "2026-06-24T21:00:00-06:00",
+            "repetition_interval": None, "repetition_duration": None,
+            "days_of_week": None, "days_interval": 2, "enabled": True}
+    cadence, _ = uh.expected_gap_minutes([trig])
+    budget = uh._budget_minutes(cadence, slack=0.0)
+    assert budget == pytest.approx(2880 * 2)  # 4 days, not 2
+
+
 def test_no_cadence_contract_for_oneshot_triggers():
     cadence, _ = uh.expected_gap_minutes(
         [{"type": "MSFT_TaskBootTrigger", "start_boundary": None, "repetition_interval": None,
