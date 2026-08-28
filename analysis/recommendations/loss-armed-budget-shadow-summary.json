@@ -1,0 +1,194 @@
+{
+  "_meta": {
+    "generated_at_et": "2026-08-28T17:17:52.119058",
+    "builder": "setup/scripts/loss_armed_budget_shadow.py",
+    "prereg": "analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28.json",
+    "prereg_status": "FROZEN_PREREG_FORWARD",
+    "shadow_only": "MEASUREMENT ONLY -- no candidate refuses a live entry. The live gate risk_gate.check_daily_premium_budget is INERT (params.daily_premium_budget_dollars absent everywhere).",
+    "trigger": "arm's realized session P&L < $0 from already-EXITED trades only",
+    "candidates_cap_usd": {
+      "B-500": 500.0,
+      "B-700": 700.0,
+      "B-1000": 1000.0
+    },
+    "threshold_provenance_warning": "B-700 was chosen as the IN-SAMPLE argmax. F5 band-coherence is the gate that tests whether that is a curve-fit.",
+    "forward_window": {
+      "first_date": "2026-08-29",
+      "sessions_required": 15,
+      "sessions_elapsed": 0,
+      "dates": [],
+      "verdict_ready": false
+    }
+  },
+  "forward": {
+    "B-500": {
+      "n_kept": 0,
+      "n_blocked": 0,
+      "n_abstain": 0,
+      "delta_usd": 0,
+      "premium_not_deployed_usd": 0,
+      "blocked_winner_usd": 0,
+      "blocked_loser_usd": 0,
+      "blocked_wr_pct": null,
+      "delta_ex_best_session_usd": 0.0,
+      "sessions_touched": 0,
+      "f_gates": {
+        "F1_direction_positive": false,
+        "F2_not_a_winner_killer": false,
+        "F3_frequency_n_blocked_ge_10": false,
+        "F4_survives_dropping_best_session": false
+      }
+    },
+    "B-700": {
+      "n_kept": 0,
+      "n_blocked": 0,
+      "n_abstain": 0,
+      "delta_usd": 0,
+      "premium_not_deployed_usd": 0,
+      "blocked_winner_usd": 0,
+      "blocked_loser_usd": 0,
+      "blocked_wr_pct": null,
+      "delta_ex_best_session_usd": 0.0,
+      "sessions_touched": 0,
+      "f_gates": {
+        "F1_direction_positive": false,
+        "F2_not_a_winner_killer": false,
+        "F3_frequency_n_blocked_ge_10": false,
+        "F4_survives_dropping_best_session": false
+      }
+    },
+    "B-1000": {
+      "n_kept": 0,
+      "n_blocked": 0,
+      "n_abstain": 0,
+      "delta_usd": 0,
+      "premium_not_deployed_usd": 0,
+      "blocked_winner_usd": 0,
+      "blocked_loser_usd": 0,
+      "blocked_wr_pct": null,
+      "delta_ex_best_session_usd": 0.0,
+      "sessions_touched": 0,
+      "f_gates": {
+        "F1_direction_positive": false,
+        "F2_not_a_winner_killer": false,
+        "F3_frequency_n_blocked_ge_10": false,
+        "F4_survives_dropping_best_session": false
+      }
+    },
+    "F5_band_coherence": {
+      "all_three_caps_F1_positive": false,
+      "per_cap_delta_usd": {
+        "B-500": 0,
+        "B-700": 0,
+        "B-1000": 0
+      },
+      "_meaning": "If only the in-sample argmax (B-700) is positive, the finding is a curve-fit and the study is REFUTED regardless of B-700's own number."
+    },
+    "H-TIER": {
+      "_observation_only": "In-sample the conviction label did NOT rank outcomes (ELITE 23.2% WR vs BASE 28.6%; entry score vs return r=+0.052). Logged to see whether that holds forward. No rule is proposed from this."
+    }
+  },
+  "in_sample_NOT_EVIDENCE": {
+    "B-500": {
+      "n_kept": 260,
+      "n_blocked": 116,
+      "n_abstain": 0,
+      "delta_usd": 2887.0,
+      "premium_not_deployed_usd": 56446.0,
+      "blocked_winner_usd": 5364.0,
+      "blocked_loser_usd": -8251.0,
+      "blocked_wr_pct": 29.3,
+      "delta_ex_best_session_usd": 828.0,
+      "sessions_touched": 25,
+      "f_gates": {
+        "F1_direction_positive": true,
+        "F2_not_a_winner_killer": true,
+        "F3_frequency_n_blocked_ge_10": true,
+        "F4_survives_dropping_best_session": true
+      }
+    },
+    "B-700": {
+      "n_kept": 279,
+      "n_blocked": 97,
+      "n_abstain": 0,
+      "delta_usd": 3539.0,
+      "premium_not_deployed_usd": 51985.0,
+      "blocked_winner_usd": 4060.0,
+      "blocked_loser_usd": -7599.0,
+      "blocked_wr_pct": 28.9,
+      "delta_ex_best_session_usd": 1480.0,
+      "sessions_touched": 19,
+      "f_gates": {
+        "F1_direction_positive": true,
+        "F2_not_a_winner_killer": true,
+        "F3_frequency_n_blocked_ge_10": true,
+        "F4_survives_dropping_best_session": true
+      }
+    },
+    "B-1000": {
+      "n_kept": 298,
+      "n_blocked": 78,
+      "n_abstain": 0,
+      "delta_usd": 2236.0,
+      "premium_not_deployed_usd": 46135.0,
+      "blocked_winner_usd": 3871.0,
+      "blocked_loser_usd": -6107.0,
+      "blocked_wr_pct": 32.1,
+      "delta_ex_best_session_usd": 408.0,
+      "sessions_touched": 17,
+      "f_gates": {
+        "F1_direction_positive": true,
+        "F2_not_a_winner_killer": true,
+        "F3_frequency_n_blocked_ge_10": true,
+        "F4_survives_dropping_best_session": true
+      }
+    },
+    "F5_band_coherence": {
+      "all_three_caps_F1_positive": true,
+      "per_cap_delta_usd": {
+        "B-500": 2887.0,
+        "B-700": 3539.0,
+        "B-1000": 2236.0
+      },
+      "_meaning": "If only the in-sample argmax (B-700) is positive, the finding is a curve-fit and the study is REFUTED regardless of B-700's own number."
+    },
+    "H-TIER": {
+      "BASE": {
+        "n": 78,
+        "usd": -349.0,
+        "wr_pct": 28.2
+      },
+      "CORRECT": {
+        "n": 5,
+        "usd": 2272.0,
+        "wr_pct": 80.0
+      },
+      "ELITE": {
+        "n": 220,
+        "usd": 3534.0,
+        "wr_pct": 25.9
+      },
+      "LEVEL": {
+        "n": 1,
+        "usd": -305.0,
+        "wr_pct": 0.0
+      },
+      "SUPER": {
+        "n": 7,
+        "usd": -730.0,
+        "wr_pct": 0.0
+      },
+      "TRENDLINE": {
+        "n": 35,
+        "usd": 122.0,
+        "wr_pct": 40.0
+      },
+      "WRONG": {
+        "n": 4,
+        "usd": -725.0,
+        "wr_pct": 0.0
+      },
+      "_observation_only": "In-sample the conviction label did NOT rank outcomes (ELITE 23.2% WR vs BASE 28.6%; entry score vs return r=+0.052). Logged to see whether that holds forward. No rule is proposed from this."
+    }
+  }
+}
