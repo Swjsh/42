@@ -1,12 +1,12 @@
 # Go-Live Gate -- RED
 
-_generated 2026-08-28T13:41:23 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
+_generated 2026-08-28T17:45:22 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
 
 | Criterion | Verdict |
 |---|---|
 | 1. Statistical (per-arm CI-lower>1.0, as-traded + ex-best-day + cost-adjusted) | FAIL |
 | 2. Operational (guardrail tests pinned+green) | FAIL |
-| 3. Reconciliation (ledger vs live broker equity, all 5 arms) | FAIL |
+| 3. Reconciliation (ledger vs live broker equity, all 5 arms) | PASS |
 | 4. Behavioural (rule breaks / manual overrides in trailing window) | PASS |
 | 5. Prod-shadow (dedicated shadow arm net of costs) | FAIL (NOT_WIRED) |
 
@@ -14,21 +14,21 @@ _generated 2026-08-28T13:41:23 ET by `setup/scripts/go_live_gate.py`. Reporting 
 
 | Arm | n_days | as-traded CI_lo | ex-best-day CI_lo | cost-adj CI_lo | Verdict |
 |---|---|---|---|---|---|
-| safe-2 | 28 | 0.24 | 0.166 | 0.237 | FAIL |
-| bold-2 | 18 | 0.299 | 0.224 | 0.295 | FAIL |
-| safe-3 | 25 | 0.257 | 0.177 | 0.255 | FAIL |
-| risky-1 | 25 | 0.288 | 0.192 | 0.283 | FAIL |
-| risky-3 | 30 | 0.301 | 0.223 | 0.295 | FAIL |
+| safe-2 | 29 | 0.292 | 0.209 | 0.289 | FAIL |
+| bold-2 | 19 | 0.358 | 0.282 | 0.354 | FAIL |
+| safe-3 | 26 | 0.356 | 0.259 | 0.353 | FAIL |
+| risky-1 | 26 | 0.412 | 0.285 | 0.407 | FAIL |
+| risky-3 | 31 | 0.278 | 0.208 | 0.273 | FAIL |
 
 ## Reconciliation -- per arm
 
 | Arm | Window | Broker P&L | Ledger P&L | Est. fees | Diff (fee-adj) | Verdict |
 |---|---|---|---|---|---|---|
-| safe-2 | 2026-07-30..2026-08-27 | $306.66 | $320.00 | $12.52 | $-0.82 | PASS |
-| bold-2 | 2026-07-30..2026-08-27 | $456.36 | $470.00 | $14.12 | $0.48 | PASS |
-| safe-3 | 2026-07-30..2026-08-27 | $290.00 | $375.00 | $10.73 | $-74.27 | FAIL |
-| risky-1 | 2026-07-30..2026-08-27 | $845.60 | $870.00 | $25.36 | $0.96 | PASS |
-| risky-3 | 2026-07-30..2026-08-27 | $-254.34 | $-445.00 | $40.73 | $231.39 | FAIL |
+| safe-2 | 2026-08-03..2026-08-27 | $306.66 | $320.00 | $12.52 | $-0.82 | PASS |
+| bold-2 | 2026-08-03..2026-08-27 | $456.36 | $470.00 | $14.12 | $0.48 | PASS |
+| safe-3 | 2026-08-03..2026-08-27 | $290.00 | $300.00 | $10.44 | $0.44 | PASS |
+| risky-1 | 2026-08-03..2026-08-27 | $845.60 | $870.00 | $25.36 | $0.96 | PASS |
+| risky-3 | 2026-08-03..2026-08-27 | $-254.34 | $-216.00 | $38.91 | $0.57 | PASS |
 
 ## Operational guardrails
 

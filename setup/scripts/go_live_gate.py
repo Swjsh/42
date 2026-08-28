@@ -346,6 +346,38 @@ def _fetch_portfolio_history(arm_id: str, secrets: dict) -> dict:
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
+def _fetch_account_created_date(arm_id: str, secrets: dict) -> "str | None":
+    """The account's TRUE creation date (ET), live from /v2/account.created_at.
+
+    ADDED 2026-08-28 (TASK B3): base_value_asof from portfolio/history is NOT a
+    reliable reset-point marker -- verified live this run, all 5 arms returned the
+    SAME base_value_asof=2026-07-30, but /v2/account.created_at for every one of
+    them is actually 2026-08-03T13:00-13:03Z (a same-day, ~3-minute-apart batch
+    rebuild -- each paired with a $5,000 JNLC cash-journal deposit that date,
+    confirmed via /v2/account/activities). base_value_asof undershoots the true
+    reset by 4 calendar days (07-30, 07-31 are trading days). Returns None on any
+    fetch failure (fail-open -- the caller falls back to base_value_asof alone,
+    same behavior as before this fix existed)."""
+    a = secrets.get(arm_id, {})
+    key = a.get("api_key") or a.get("ALPACA_API_KEY") or a.get("key", "")
+    sec = a.get("secret_key") or a.get("ALPACA_SECRET_KEY") or a.get("secret", "")
+    base = a.get("base_url", "https://paper-api.alpaca.markets")
+    if not key:
+        return None
+    url = base.rstrip("/") + "/v2/account"
+    req = urllib.request.Request(url, headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": sec})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            d = json.loads(r.read())
+        created = d.get("created_at")
+        if not created:
+            return None
+        dt_utc = datetime.fromisoformat(str(created).replace("Z", "+00:00"))
+        return dt_utc.astimezone(ET_TZ).strftime("%Y-%m-%d")
+    except Exception:  # noqa: BLE001 -- fail-open, never break the gate on this extra check
+        return None
+
+
 def reconciliation_criterion(rows: list[dict]) -> dict:
     secrets = json.loads(SECRETS_PATH.read_text(encoding="utf-8")).get("accounts", {})
     per_arm = {}
@@ -375,9 +407,29 @@ def reconciliation_criterion(rows: list[dict]) -> dict:
         # the exact cause was not chased further this run -- the RESET FACT is what matters
         # here). Clamping window_start to base_value_asof (when present) keeps this criterion
         # honest: it reconciles only the days broker history can actually attest to.
+        #
+        # BUG FOUND + FIXED 2026-08-28 (TASK B3, root-caused the safe-3/-$74.27 and
+        # risky-3/+$231.39 reconciliation FAILs): base_value_asof alone UNDERSHOOTS the true
+        # reset point. All 5 accounts were actually recreated 2026-08-03T13:00-13:03Z (live
+        # /v2/account.created_at, each with a same-day $5,000 JNLC deposit) -- 4 calendar
+        # days (07-30, 07-31 trading days; 08-01/08-02 weekend) AFTER the base_value_asof
+        # date this endpoint reports. Portfolio-history's pl for those 4 phantom days is
+        # correctly 0 either way, but ledger_pnl below was still summing real
+        # engine-attributed trips dated 07-30/07-31 that fired against the OLD, now-defunct
+        # pre-rebuild account under the SAME arm_id -- safe-3 (+$75, one 07-31 trip) and
+        # risky-3 (-$229, two 07-30 + one 07-31 trip) happened to trade in that phantom
+        # window; safe-2/bold-2/risky-1 carry the identical stale clamp but have ZERO
+        # engine trips there, which is why the bug was silent for them (verified: their
+        # reconciled=true was NOT because their window was correct, it was luck of trade
+        # timing). Clamping ALSO to the live account-creation date closes this for every
+        # arm, not just the two that happened to expose it. Verified this run: safe-3
+        # diff_vs_fee_adjusted_ledger -$74.27 -> $0.44, risky-3 +$231.39 -> $0.57, both
+        # inside the $10 tolerance.
         base_asof = hist.get("base_value_asof")
+        acct_created = _fetch_account_created_date(arm_id, secrets)
         raw_start, window_end = min(by_date), max(by_date)
-        window_start = max(raw_start, base_asof) if base_asof else raw_start
+        candidates = [raw_start] + [d for d in (base_asof, acct_created) if d]
+        window_start = max(candidates)
         pre_reset_dropped = window_start != raw_start
         broker_pnl = round(sum(v for d, v in by_date.items() if d >= window_start), 2)
         # ledger sum for THIS arm over the SAME (possibly clamped) window, engine-attributed
@@ -431,6 +483,7 @@ def reconciliation_criterion(rows: list[dict]) -> dict:
             "tolerance": round(tol, 2),
             "n_ledger_trips": len(ledger_rows),
             "base_value_asof": base_asof,
+            "account_created_et": acct_created,
             "reconciled": reconciled,
         }
         if not reconciled:
