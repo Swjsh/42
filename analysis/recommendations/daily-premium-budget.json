@@ -1,0 +1,706 @@
+{
+  "rule_id": "daily-premium-budget",
+  "title": "Per-arm daily option-premium deployment budget (loss-armed)",
+  "generated_at_utc": "2026-08-28T19:16:06.056174+00:00",
+  "script": "backtest/autoresearch/daily_premium_budget_battery.py",
+  "source_ledger": "automation/state/pnl-statement.json (T1 broker-truth round_trips)",
+  "source_generated_at_utc": "2026-08-28T19:10:04.797273+00:00",
+  "method": "Subtractive policy overlay on REALIZED broker fills: an entry is skipped when the arm's premium already deployed that session plus this entry's premium exceeds the cap. Variant C additionally requires the arm to be ALREADY RED on the day (from exits closed strictly before this entry's timestamp) before the cap engages. Causal -- both spend-so-far and realized-so-far are knowable live. No resizing, no counterfactual price paths. Net of OCC/ORF/TAF/SEC fees (A1-cost-rebuild-2026-08-28 rates).",
+  "disclosed_limits": [
+    "Freed settled cash is NOT recycled into later sizing (held as-traded).",
+    "n=42 trading days, paper fills, 5 active arms -- small sample (C4).",
+    "Slippage not swept here; A1 puts August breakeven at 146c/contract.",
+    "Walk-forward on 42 days is weak by construction; folds are held to 5+ trading days but n_folds is small. Corroborating, not decisive.",
+    "Anchor set is the 5 best realised days. A flat cap is EXPECTED to stress it -- that is the tradeoff variant C exists to avoid."
+  ],
+  "prior_coverage": [
+    "analysis/recommendations/B3-loss-anatomy-2026-08-28.json",
+    "analysis/recommendations/B3-bounded-config-2026-08-28.json",
+    "analysis/recommendations/A1-cost-rebuild-2026-08-28.json"
+  ],
+  "window": {
+    "start": "2026-06-26",
+    "end": "2026-08-28",
+    "trading_days": 42
+  },
+  "baseline_no_rule": {
+    "entries_taken": 427,
+    "deployed": 141641.0,
+    "net_pnl": 1316.88,
+    "roi_pct": 0.9297,
+    "max_drawdown": 4907.51,
+    "profit_factor": 1.0846,
+    "worst_day": -2694.08,
+    "best_day": 3613.42,
+    "green_day_pct": 40.5,
+    "arm_days": 143,
+    "arm_days_ge_100": 43
+  },
+  "armed_population": {
+    "entries_placed_while_arm_already_red": 205,
+    "total_entries": 427,
+    "pct": 48.0,
+    "note": "The population variant C acts on."
+  },
+  "variants": [
+    {
+      "variant": "A_flat",
+      "label": "Flat per-arm daily premium cap (engages from the first entry)",
+      "loss_armed": false,
+      "candidate_cap_dollars": 700,
+      "candidate_chosen_by": "max net P&L over the in-sample first 25 of 42 days",
+      "headline": {
+        "entries_taken": 267,
+        "deployed": 59331.0,
+        "net_pnl": 3914.99,
+        "roi_pct": 6.5986,
+        "max_drawdown": 2440.12,
+        "profit_factor": 1.4722,
+        "worst_day": -860.96,
+        "best_day": 1870.81,
+        "green_day_pct": 38.1,
+        "arm_days": 136,
+        "arm_days_ge_100": 37
+      },
+      "benefit_vs_baseline": 2598.11,
+      "cap_grid": {
+        "400": {
+          "entries_taken": 189,
+          "deployed": 31034.0,
+          "net_pnl": 291.97,
+          "roi_pct": 0.9408,
+          "max_drawdown": 2155.96,
+          "profit_factor": 1.053,
+          "worst_day": -488.77,
+          "best_day": 1048.69,
+          "green_day_pct": 33.3,
+          "arm_days": 117,
+          "arm_days_ge_100": 20,
+          "benefit_vs_baseline": -1024.91
+        },
+        "500": {
+          "entries_taken": 212,
+          "deployed": 39764.0,
+          "net_pnl": 630.29,
+          "roi_pct": 1.5851,
+          "max_drawdown": 2184.11,
+          "profit_factor": 1.0961,
+          "worst_day": -779.44,
+          "best_day": 1041.52,
+          "green_day_pct": 35.7,
+          "arm_days": 122,
+          "arm_days_ge_100": 24,
+          "benefit_vs_baseline": -686.59
+        },
+        "600": {
+          "entries_taken": 245,
+          "deployed": 49580.0,
+          "net_pnl": 2996.12,
+          "roi_pct": 6.043,
+          "max_drawdown": 1899.48,
+          "profit_factor": 1.4136,
+          "worst_day": -677.35,
+          "best_day": 2165.16,
+          "green_day_pct": 38.1,
+          "arm_days": 130,
+          "arm_days_ge_100": 31,
+          "benefit_vs_baseline": 1679.24
+        },
+        "700": {
+          "entries_taken": 267,
+          "deployed": 59331.0,
+          "net_pnl": 3914.99,
+          "roi_pct": 6.5986,
+          "max_drawdown": 2440.12,
+          "profit_factor": 1.4722,
+          "worst_day": -860.96,
+          "best_day": 1870.81,
+          "green_day_pct": 38.1,
+          "arm_days": 136,
+          "arm_days_ge_100": 37,
+          "benefit_vs_baseline": 2598.11
+        },
+        "800": {
+          "entries_taken": 284,
+          "deployed": 66491.0,
+          "net_pnl": 2452.38,
+          "roi_pct": 3.6883,
+          "max_drawdown": 2864.46,
+          "profit_factor": 1.2625,
+          "worst_day": -925.71,
+          "best_day": 1843.64,
+          "green_day_pct": 38.1,
+          "arm_days": 138,
+          "arm_days_ge_100": 38,
+          "benefit_vs_baseline": 1135.5
+        },
+        "1000": {
+          "entries_taken": 312,
+          "deployed": 77350.0,
+          "net_pnl": 3063.48,
+          "roi_pct": 3.9605,
+          "max_drawdown": 2841.34,
+          "profit_factor": 1.291,
+          "worst_day": -1173.71,
+          "best_day": 2178.04,
+          "green_day_pct": 40.5,
+          "arm_days": 140,
+          "arm_days_ge_100": 41,
+          "benefit_vs_baseline": 1746.6
+        },
+        "1200": {
+          "entries_taken": 333,
+          "deployed": 86670.0,
+          "net_pnl": 2466.39,
+          "roi_pct": 2.8457,
+          "max_drawdown": 3051.18,
+          "profit_factor": 1.2176,
+          "worst_day": -1310.31,
+          "best_day": 1790.47,
+          "green_day_pct": 40.5,
+          "arm_days": 141,
+          "arm_days_ge_100": 40,
+          "benefit_vs_baseline": 1149.51
+        },
+        "1500": {
+          "entries_taken": 359,
+          "deployed": 99450.0,
+          "net_pnl": 2131.55,
+          "roi_pct": 2.1433,
+          "max_drawdown": 2988.89,
+          "profit_factor": 1.1674,
+          "worst_day": -1681.48,
+          "best_day": 1891.7,
+          "green_day_pct": 40.5,
+          "arm_days": 143,
+          "arm_days_ge_100": 42,
+          "benefit_vs_baseline": 814.67
+        },
+        "2000": {
+          "entries_taken": 381,
+          "deployed": 109510.0,
+          "net_pnl": 2305.35,
+          "roi_pct": 2.1051,
+          "max_drawdown": 3627.62,
+          "profit_factor": 1.1708,
+          "worst_day": -2309.41,
+          "best_day": 2222.62,
+          "green_day_pct": 40.5,
+          "arm_days": 143,
+          "arm_days_ge_100": 43,
+          "benefit_vs_baseline": 988.47
+        },
+        "3000": {
+          "entries_taken": 396,
+          "deployed": 118150.0,
+          "net_pnl": 1078.62,
+          "roi_pct": 0.9129,
+          "max_drawdown": 4361.5,
+          "profit_factor": 1.0752,
+          "worst_day": -2694.08,
+          "best_day": 1992.9,
+          "green_day_pct": 40.5,
+          "arm_days": 143,
+          "arm_days_ge_100": 42,
+          "benefit_vs_baseline": -238.26
+        }
+      },
+      "battery": {
+        "in_sample_out_of_sample": {
+          "is_days": 25,
+          "oos_days": 17,
+          "is_chosen_cap": 700,
+          "is_benefit": 490.12,
+          "oos_baseline_net": 1013.58,
+          "oos_capped_net": 3121.57,
+          "oos_benefit": 2107.99
+        },
+        "walk_forward": {
+          "min_fold_days": 5,
+          "folds": [
+            {
+              "fold": 1,
+              "train_days": 25,
+              "test_days": 5,
+              "chosen_cap": 700,
+              "train_benefit": 490.12,
+              "test_benefit": 2251.29,
+              "wf_efficiency": 1.0
+            },
+            {
+              "fold": 2,
+              "train_days": 30,
+              "test_days": 5,
+              "chosen_cap": 700,
+              "train_benefit": 2741.41,
+              "test_benefit": 1135.09,
+              "wf_efficiency": 1.0
+            },
+            {
+              "fold": 3,
+              "train_days": 35,
+              "test_days": 5,
+              "chosen_cap": 700,
+              "train_benefit": 3876.5,
+              "test_benefit": -396.75,
+              "wf_efficiency": -0.7164
+            }
+          ],
+          "wf_median_efficiency": 1.0
+        },
+        "sub_windows": [
+          {
+            "window": 1,
+            "days": 14,
+            "baseline_net": -1415.25,
+            "capped_net": -863.72,
+            "benefit": 551.53
+          },
+          {
+            "window": 2,
+            "days": 14,
+            "baseline_net": -274.18,
+            "capped_net": 1320.3,
+            "benefit": 1594.48
+          },
+          {
+            "window": 3,
+            "days": 14,
+            "baseline_net": 3006.31,
+            "capped_net": 3458.42,
+            "benefit": 452.11
+          }
+        ],
+        "anchor": {
+          "anchor_days": [
+            "2026-08-04",
+            "2026-08-06",
+            "2026-08-13",
+            "2026-08-27",
+            "2026-08-28"
+          ],
+          "baseline_anchor_net": 10279.02,
+          "capped_anchor_net": 6963.36,
+          "regression_pct": -32.26,
+          "tolerance_pct": 0.1,
+          "passes": false
+        }
+      },
+      "artifact_hunts": {
+        "drop_best_day": {
+          "dropped": "2026-08-04",
+          "benefit": 4340.72,
+          "note": "Benefit must survive removing the single best day."
+        },
+        "leave_one_day_out": {
+          "full_sample_benefit": 2598.11,
+          "min": 369.71,
+          "median": 2598.11,
+          "max": 4340.72,
+          "folds_with_non_positive_benefit": 0,
+          "n_folds": 42
+        },
+        "per_day_delta_worst5": [
+          {
+            "date": "2026-08-04",
+            "delta": -1742.61
+          },
+          {
+            "date": "2026-08-27",
+            "delta": -835.03
+          },
+          {
+            "date": "2026-08-06",
+            "delta": -793.04
+          },
+          {
+            "date": "2026-08-19",
+            "delta": -452.78
+          },
+          {
+            "date": "2026-07-29",
+            "delta": -379.3
+          }
+        ],
+        "per_day_delta_best5": [
+          {
+            "date": "2026-07-02",
+            "delta": 395.38
+          },
+          {
+            "date": "2026-08-12",
+            "delta": 605.33
+          },
+          {
+            "date": "2026-08-14",
+            "delta": 1348.88
+          },
+          {
+            "date": "2026-08-05",
+            "delta": 1858.06
+          },
+          {
+            "date": "2026-08-07",
+            "delta": 2228.39
+          }
+        ],
+        "days_helped": 16,
+        "days_hurt": 10
+      },
+      "op11_gate": {
+        "oos_positive": true,
+        "wf_median_ge_0.70": true,
+        "sub_window_stable": true,
+        "anchor_no_regression": false
+      },
+      "auto_ratify": false
+    },
+    {
+      "variant": "C_loss_armed",
+      "label": "Loss-armed per-arm daily premium cap (engages only after the arm books a losing exit that session)",
+      "loss_armed": true,
+      "candidate_cap_dollars": 700,
+      "candidate_chosen_by": "max net P&L over the in-sample first 25 of 42 days",
+      "headline": {
+        "entries_taken": 315,
+        "deployed": 87744.0,
+        "net_pnl": 5161.31,
+        "roi_pct": 5.8822,
+        "max_drawdown": 2544.3,
+        "profit_factor": 1.5093,
+        "worst_day": -1572.98,
+        "best_day": 2635.95,
+        "green_day_pct": 35.7,
+        "arm_days": 143,
+        "arm_days_ge_100": 41
+      },
+      "benefit_vs_baseline": 3844.43,
+      "cap_grid": {
+        "400": {
+          "entries_taken": 277,
+          "deployed": 80730.0,
+          "net_pnl": 4780.54,
+          "roi_pct": 5.9216,
+          "max_drawdown": 2866.06,
+          "profit_factor": 1.5019,
+          "worst_day": -1572.98,
+          "best_day": 2635.95,
+          "green_day_pct": 33.3,
+          "arm_days": 143,
+          "arm_days_ge_100": 36,
+          "benefit_vs_baseline": 3463.66
+        },
+        "500": {
+          "entries_taken": 291,
+          "deployed": 82664.0,
+          "net_pnl": 4511.51,
+          "roi_pct": 5.4576,
+          "max_drawdown": 3051.42,
+          "profit_factor": 1.4541,
+          "worst_day": -1572.98,
+          "best_day": 2635.95,
+          "green_day_pct": 35.7,
+          "arm_days": 143,
+          "arm_days_ge_100": 37,
+          "benefit_vs_baseline": 3194.63
+        },
+        "600": {
+          "entries_taken": 305,
+          "deployed": 85080.0,
+          "net_pnl": 5038.78,
+          "roi_pct": 5.9224,
+          "max_drawdown": 2615.12,
+          "profit_factor": 1.5126,
+          "worst_day": -1572.98,
+          "best_day": 2635.95,
+          "green_day_pct": 35.7,
+          "arm_days": 143,
+          "arm_days_ge_100": 39,
+          "benefit_vs_baseline": 3721.9
+        },
+        "700": {
+          "entries_taken": 315,
+          "deployed": 87744.0,
+          "net_pnl": 5161.31,
+          "roi_pct": 5.8822,
+          "max_drawdown": 2544.3,
+          "profit_factor": 1.5093,
+          "worst_day": -1572.98,
+          "best_day": 2635.95,
+          "green_day_pct": 35.7,
+          "arm_days": 143,
+          "arm_days_ge_100": 41,
+          "benefit_vs_baseline": 3844.43
+        },
+        "800": {
+          "entries_taken": 328,
+          "deployed": 90943.0,
+          "net_pnl": 4670.59,
+          "roi_pct": 5.1357,
+          "max_drawdown": 2968.65,
+          "profit_factor": 1.4438,
+          "worst_day": -1572.98,
+          "best_day": 2635.95,
+          "green_day_pct": 38.1,
+          "arm_days": 143,
+          "arm_days_ge_100": 41,
+          "benefit_vs_baseline": 3353.71
+        },
+        "1000": {
+          "entries_taken": 342,
+          "deployed": 95319.0,
+          "net_pnl": 4033.01,
+          "roi_pct": 4.2311,
+          "max_drawdown": 2792.85,
+          "profit_factor": 1.3588,
+          "worst_day": -1621.31,
+          "best_day": 2635.95,
+          "green_day_pct": 35.7,
+          "arm_days": 143,
+          "arm_days_ge_100": 41,
+          "benefit_vs_baseline": 2716.13
+        },
+        "1200": {
+          "entries_taken": 358,
+          "deployed": 100598.0,
+          "net_pnl": 3582.83,
+          "roi_pct": 3.5615,
+          "max_drawdown": 3002.69,
+          "profit_factor": 1.2988,
+          "worst_day": -1681.48,
+          "best_day": 2635.95,
+          "green_day_pct": 38.1,
+          "arm_days": 143,
+          "arm_days_ge_100": 42,
+          "benefit_vs_baseline": 2265.95
+        },
+        "1500": {
+          "entries_taken": 373,
+          "deployed": 106977.0,
+          "net_pnl": 3727.79,
+          "roi_pct": 3.4847,
+          "max_drawdown": 2949.59,
+          "profit_factor": 1.3062,
+          "worst_day": -1681.48,
+          "best_day": 2635.95,
+          "green_day_pct": 40.5,
+          "arm_days": 143,
+          "arm_days_ge_100": 43,
+          "benefit_vs_baseline": 2410.91
+        },
+        "2000": {
+          "entries_taken": 389,
+          "deployed": 114320.0,
+          "net_pnl": 3212.82,
+          "roi_pct": 2.8104,
+          "max_drawdown": 3773.04,
+          "profit_factor": 1.2404,
+          "worst_day": -2309.41,
+          "best_day": 3275.5,
+          "green_day_pct": 40.5,
+          "arm_days": 143,
+          "arm_days_ge_100": 43,
+          "benefit_vs_baseline": 1895.94
+        },
+        "3000": {
+          "entries_taken": 401,
+          "deployed": 121247.0,
+          "net_pnl": 2320.53,
+          "roi_pct": 1.9139,
+          "max_drawdown": 4361.5,
+          "profit_factor": 1.1637,
+          "worst_day": -2694.08,
+          "best_day": 3234.81,
+          "green_day_pct": 40.5,
+          "arm_days": 143,
+          "arm_days_ge_100": 43,
+          "benefit_vs_baseline": 1003.65
+        }
+      },
+      "battery": {
+        "in_sample_out_of_sample": {
+          "is_days": 25,
+          "oos_days": 17,
+          "is_chosen_cap": 700,
+          "is_benefit": 1308.24,
+          "oos_baseline_net": 1013.58,
+          "oos_capped_net": 3549.77,
+          "oos_benefit": 2536.19
+        },
+        "walk_forward": {
+          "min_fold_days": 5,
+          "folds": [
+            {
+              "fold": 1,
+              "train_days": 25,
+              "test_days": 5,
+              "chosen_cap": 700,
+              "train_benefit": 1308.24,
+              "test_benefit": 2651.36,
+              "wf_efficiency": 1.0
+            },
+            {
+              "fold": 2,
+              "train_days": 30,
+              "test_days": 5,
+              "chosen_cap": 700,
+              "train_benefit": 3959.6,
+              "test_benefit": -44.59,
+              "wf_efficiency": -0.0676
+            },
+            {
+              "fold": 3,
+              "train_days": 35,
+              "test_days": 5,
+              "chosen_cap": 700,
+              "train_benefit": 3915.01,
+              "test_benefit": -498.94,
+              "wf_efficiency": -0.8921
+            }
+          ],
+          "wf_median_efficiency": -0.0676
+        },
+        "sub_windows": [
+          {
+            "window": 1,
+            "days": 14,
+            "baseline_net": -1415.25,
+            "capped_net": -967.9,
+            "benefit": 447.35
+          },
+          {
+            "window": 2,
+            "days": 14,
+            "baseline_net": -274.18,
+            "capped_net": 2870.94,
+            "benefit": 3145.12
+          },
+          {
+            "window": 3,
+            "days": 14,
+            "baseline_net": 3006.31,
+            "capped_net": 3258.27,
+            "benefit": 251.96
+          }
+        ],
+        "anchor": {
+          "anchor_days": [
+            "2026-08-04",
+            "2026-08-06",
+            "2026-08-13",
+            "2026-08-27",
+            "2026-08-28"
+          ],
+          "baseline_anchor_net": 10279.02,
+          "capped_anchor_net": 9729.91,
+          "regression_pct": -5.34,
+          "tolerance_pct": 0.1,
+          "passes": true
+        }
+      },
+      "artifact_hunts": {
+        "drop_best_day": {
+          "dropped": "2026-08-04",
+          "benefit": 4821.9,
+          "note": "Benefit must survive removing the single best day."
+        },
+        "leave_one_day_out": {
+          "full_sample_benefit": 3844.43,
+          "min": 1780.72,
+          "median": 3844.42,
+          "max": 4821.9,
+          "folds_with_non_positive_benefit": 0,
+          "n_folds": 42
+        },
+        "per_day_delta_worst5": [
+          {
+            "date": "2026-08-04",
+            "delta": -977.47
+          },
+          {
+            "date": "2026-08-21",
+            "delta": -498.94
+          },
+          {
+            "date": "2026-08-19",
+            "delta": -450.88
+          },
+          {
+            "date": "2026-08-11",
+            "delta": -225.44
+          },
+          {
+            "date": "2026-06-26",
+            "delta": 0.0
+          }
+        ],
+        "per_day_delta_best5": [
+          {
+            "date": "2026-08-14",
+            "delta": 268.92
+          },
+          {
+            "date": "2026-08-28",
+            "delta": 387.52
+          },
+          {
+            "date": "2026-08-12",
+            "delta": 592.58
+          },
+          {
+            "date": "2026-08-05",
+            "delta": 1635.92
+          },
+          {
+            "date": "2026-08-07",
+            "delta": 2063.7
+          }
+        ],
+        "days_helped": 18,
+        "days_hurt": 4
+      },
+      "op11_gate": {
+        "oos_positive": true,
+        "wf_median_ge_0.70": false,
+        "sub_window_stable": true,
+        "anchor_no_regression": true
+      },
+      "auto_ratify": false
+    }
+  ],
+  "per_arm_attribution_for_candidate": {
+    "bold-2": {
+      "baseline_net": 309.32,
+      "candidate_net": 343.72,
+      "delta": 34.4
+    },
+    "risky-1": {
+      "baseline_net": 1257.17,
+      "candidate_net": 1084.44,
+      "delta": -172.73
+    },
+    "risky-3": {
+      "baseline_net": -589.62,
+      "candidate_net": 1309.68,
+      "delta": 1899.3
+    },
+    "safe-1": {
+      "baseline_net": -250.71,
+      "candidate_net": -250.71,
+      "delta": 0.0
+    },
+    "safe-2": {
+      "baseline_net": -233.21,
+      "candidate_net": 951.62,
+      "delta": 1184.83
+    },
+    "safe-3": {
+      "baseline_net": 823.93,
+      "candidate_net": 1722.55,
+      "delta": 898.62
+    }
+  },
+  "winner": null,
+  "auto_ratify": false,
+  "verdict": "NO VARIANT AUTO-RATIFIES -- escalate to J with the tradeoff quantified."
+}

@@ -41,6 +41,12 @@ testable. The rules, with their doctrine source:
                      The tighter of (RISK_CAP, this tier %) is the effective cap.
   MIN_CONTRACTS      CLAUDE.md Rule 6 + params `min_contracts` (>=3: 2 TP + 1
                      runner). A proposal below the floor is denied.
+  DAILY_PREMIUM_BUDGET
+                     NEW 2026-08-28. params `daily_premium_budget_dollars`
+                     (absent -> rule OFF) caps total premium DEPLOYED by one arm
+                     in one session. `daily_premium_budget_loss_armed` (default
+                     True) makes it bind only once the arm is already red on the
+                     day. Scorecard: analysis/recommendations/daily-premium-budget.json
   PDT / SETTLEMENT   CLAUDE.md Rule 7. Two mutually-exclusive gate modes, selected
                      by params.pdt_gate_mode (per-account, params.json):
                        "margin_pdt" (LEGACY, function-level default when the key
@@ -135,6 +141,7 @@ CODE_MIN_CONTRACTS = "MIN_CONTRACTS"
 CODE_PDT = "PDT"
 CODE_SETTLEMENT = "SETTLEMENT"  # NEW 2026-07-14 -- cash-settlement/GFV-aware Rule 7 gate
 CODE_FIRST_ENTRY_LOCK = "FIRST_ENTRY_LOCK"  # RETIRED 2026-07-02 (kept for old-log readers)
+CODE_DAILY_PREMIUM_BUDGET = "DAILY_PREMIUM_BUDGET"  # NEW 2026-08-28 -- session deployment budget
 CODE_NOT_FLAT = "NOT_FLAT"
 CODE_UNREADABLE_INPUT = "UNREADABLE_INPUT"
 
@@ -362,6 +369,136 @@ def check_settlement(
     return None
 
 
+# --- DAILY PREMIUM BUDGET (2026-08-28) ---------------------------------------
+#
+# WHY: over 42 days the book deployed $141,641 of premium to net +$1,317. 48% of
+# all entries were placed while that arm was ALREADY RED on the day, and those
+# re-deployments carry the losses. Battery + full OP-11 scorecard:
+# analysis/recommendations/daily-premium-budget.json
+# (script: backtest/autoresearch/daily_premium_budget_battery.py).
+#
+# TWO SHAPES, selected by params.daily_premium_budget_loss_armed:
+#   loss_armed=True  (DEFAULT) -- the budget binds only once the arm has booked a
+#       net-negative realised P&L this session. A winning trend day is untouched.
+#       This is the shape that passes anchor-no-regression (-5.3% vs the flat
+#       cap's -32.3%): a flat cap trims size on exactly the trend days where the
+#       right-tail edge lives.
+#   loss_armed=False -- flat cap from the session's first entry.
+#
+# OFF BY DEFAULT. With `daily_premium_budget_dollars` absent from params this
+# function returns None on every call and check_order is byte-identical to its
+# pre-2026-08-28 behavior. Pinned by
+# backtest/tests/test_daily_premium_budget_2026_08_28.py.
+#
+# FAIL-CLOSED, but only once armed: the two new inputs are REQUIRED (deny on
+# unreadable) exactly when the budget param is present -- the same conditional-
+# requirement pattern `check_settlement` uses for settled_cash_available. That
+# keeps every existing caller working unchanged while refusing to guess at a
+# spend total when the rule is live.
+#
+# Extracted as a standalone pure function (not inlined) so fleet_executor.py can
+# call the IDENTICAL math for the fleet arms, which do not route through
+# check_order's cash_settlement branch -- L184 "reuse the ONE implementation,
+# never re-inline", the same bug class check_settlement was extracted to close.
+def check_daily_premium_budget(
+    account: str,
+    *,
+    premium: Any,
+    proposed_qty: Any,
+    premium_spent_today: Any,
+    realized_pnl_today: Any,
+    params: Optional[Mapping[str, Any]],
+) -> Optional[RiskDecision]:
+    """Deny when this entry would push the arm past its session premium budget.
+
+    Returns None when the rule is OFF or the order passes; a `Deny` otherwise,
+    so callers can chain it like `check_settlement`.
+
+    Args:
+        account: account alias, for the message only.
+        premium: option mid price per contract (dollars).
+        proposed_qty: contracts requested.
+        premium_spent_today: premium ALREADY deployed by this arm this session
+            (dollars, entries only). Required once the rule is on.
+        realized_pnl_today: this arm's realised P&L so far this session
+            (dollars, net). Required once the rule is on AND loss_armed.
+        params: the account's params mapping.
+    """
+    if params is None or not isinstance(params, Mapping):
+        return Deny(CODE_UNREADABLE_INPUT, "params is missing or not a mapping")
+
+    budget_raw = params.get("daily_premium_budget_dollars")
+    if budget_raw is None:
+        return None  # rule OFF -- no new input requirements, no behavior change
+
+    if _is_bad_number(budget_raw):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            "params.daily_premium_budget_dollars present but unreadable "
+            f"({budget_raw!r})",
+        )
+    budget = _as_float(budget_raw)
+    if budget <= 0:
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"params.daily_premium_budget_dollars must be > 0 (got {budget})",
+        )
+
+    for name, value in (("premium", premium), ("proposed_qty", proposed_qty)):
+        if _is_bad_number(value):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"{name} is missing/NaN/unparseable ({value!r})",
+            )
+    if premium_spent_today is None or _is_bad_number(premium_spent_today):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            "premium_spent_today is required when "
+            "params.daily_premium_budget_dollars is set and must be a readable "
+            f"number (got {premium_spent_today!r})",
+        )
+    spent = _as_float(premium_spent_today)
+    if spent < 0:
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            f"premium_spent_today must be >= 0 (got {spent})",
+        )
+
+    # loss_armed: the budget only binds once the session is already red.
+    loss_armed = params.get("daily_premium_budget_loss_armed", True)
+    if not isinstance(loss_armed, bool):
+        return Deny(
+            CODE_UNREADABLE_INPUT,
+            "params.daily_premium_budget_loss_armed must be a bool (got "
+            f"{type(loss_armed).__name__})",
+        )
+    if loss_armed:
+        if realized_pnl_today is None or _is_bad_number(realized_pnl_today):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "realized_pnl_today is required when the daily premium budget is "
+                "loss-armed and must be a readable number (got "
+                f"{realized_pnl_today!r})",
+            )
+        if _as_float(realized_pnl_today) >= 0:
+            return None  # session not red yet -- budget does not bind
+
+    notional = _as_float(premium) * _as_float(proposed_qty) * 100.0
+    if spent + notional > budget:
+        armed_note = (
+            " (armed: arm is already red today)"
+            if loss_armed
+            else " (flat budget)"
+        )
+        return Deny(
+            CODE_DAILY_PREMIUM_BUDGET,
+            f"{account}: ${spent:,.0f} premium already deployed today + this "
+            f"order's ${notional:,.0f} exceeds the session budget ${budget:,.0f}"
+            f"{armed_note}",
+        )
+    return None
+
+
 def check_order(
     account: str,
     *,
@@ -377,6 +514,8 @@ def check_order(
     params: Optional[Mapping[str, Any]],
     settled_cash_available: Any = None,
     same_day_entries_used: Any = None,
+    premium_spent_today: Any = None,
+    realized_pnl_today: Any = None,
 ) -> RiskDecision:
     """Decide whether ONE proposed option order may be placed.
 
@@ -415,6 +554,12 @@ def check_order(
         same_day_entries_used: count of entries already placed today.
             REQUIRED (fail-closed) when params.pdt_gate_mode ==
             "cash_settlement"; ignored in "margin_pdt" mode.
+        premium_spent_today: dollars of option premium this arm has ALREADY
+            deployed this session (entries only). REQUIRED (fail-closed) when
+            params.daily_premium_budget_dollars is set; ignored when absent.
+        realized_pnl_today: this arm's net realised P&L so far this session.
+            REQUIRED (fail-closed) when the budget is set AND
+            params.daily_premium_budget_loss_armed (its default) is True.
 
     Returns:
         RiskDecision — Allow on a clean order, else Deny with a stable code.
@@ -614,6 +759,19 @@ def check_order(
             f"{account}: v15_max_premium_pct_of_account present but no tier covers "
             f"equity ${equity_f:,.0f} (or a tier row is malformed)",
         )
+
+    # Session deployment budget (2026-08-28). No-op unless
+    # params.daily_premium_budget_dollars is set -- see check_daily_premium_budget.
+    _denial = check_daily_premium_budget(
+        account,
+        premium=premium_f,
+        proposed_qty=qty_i,
+        premium_spent_today=premium_spent_today,
+        realized_pnl_today=realized_pnl_today,
+        params=params,
+    )
+    if _denial is not None:
+        return _denial
 
     # Risk cap first (Rule 6 is the blanket rule)...
     if notional > risk_cap_dollars:

@@ -1,3 +1,70 @@
+## [2026-08-28 14:30 ET] J-DIRECTED BUILD - daily premium budget: battery run, rule built INERT, **3-of-4 OP-11 gates - needs J's call**
+
+**J asked "how do we spend less and still hit our daily target".** Answering the second half first, because it
+reframes the first: **we do not have a daily-target edge.** Under every policy tested the median arm-day is
+NEGATIVE (-$41 at best) and only 24% of arm-days clear +$100. The top 10 arm-days carry 154% of all profit; the
+other 120 sum to -$1,658. $100-200/arm/DAY is not a quota this edge can fill - it is a monthly average. Judging
+single days against it will produce cut winners and chased losers.
+
+**What CAN be fixed is the carrying cost of waiting for that tail.** 42 days, T1 broker-truth tape, net of A1
+fees: the book deployed **$141,641** to net **+$1,317** (0.93%). **205 of 427 entries (48%) were placed while
+that arm was already RED on the day.**
+
+**Built + battery-run:** `check_daily_premium_budget()` in `backtest/lib/risk_gate.py`, two shapes.
+`C_loss_armed` @ $700/arm/session - the cap binds ONLY after the arm books a losing exit that session:
+net **+1317 -> +5161**, deployed **$141,641 -> $87,744**, maxDD **4908 -> 2544**, PF **1.08 -> 1.51**,
+worst day **-2694 -> -1573**. Per-arm: risky-3 -590->+1310, safe-2 -233->+952, safe-3 +824->+1723,
+bold-2 +309->+344, risky-1 +1257->+1084 (-173, the only arm it hurts).
+
+**OP-11 gate: 3 of 4.** PASS oos_positive (+2536 on 17 OOS days), sub_window_stable (all 3 windows positive),
+anchor_no_regression (-5.3%). **FAIL wf_median_ge_0.70** (median -0.068; folds [1.0, -0.0676, -0.8921]).
+The obvious flat-cap variant is the mirror image - passes WF, **fails anchor at -32.3%** because a flat cap trims
+size on exactly the trend days the right-tail edge lives on. **Neither auto-ratifies, so nothing shipped armed.**
+WF here is 3 folds of 5 trading days on n=42; the scorecard discloses WF as corroborating-not-decisive at this n,
+and the flat cap's WF "pass" comes from two folds clipping to 1.0. That is context, not a reason to waive a gate.
+
+**Verified, quoted:** `pytest backtest/tests/test_daily_premium_budget_2026_08_28.py -q` -> `25 passed`;
+`pytest backtest/tests/test_risk_gate.py -q` -> `96 passed`; 5 consumer suites (cap_admission,
+entry_block_watch_risk_deny, fast_path_pdt_gap, core_entry_idempotency, fill_funnel_why) -> `58 passed`.
+Two self-caught errors worth recording: (1) my first variant-C sweep returned a flat no-op because I passed
+`(date, arm)` into a function taking `(arm, date)` - caught by a sanity assert on the armed population, re-run
+corrected; (2) the risky-3 replay test asserted 2 surviving entries when the gate correctly allows only 1
+($395 + $340 = $735 > $700). The gate was right and my expectation was wrong - the test was corrected, not the gate.
+
+**RULE IS OFF.** `daily_premium_budget_dollars` is absent from every params file, so the gate returns None on
+every call and `check_order` is byte-identical to its pre-today behavior - the FIRST test class pins exactly that.
+Arming is a one-key params edit and is an after-hours action under Rule 9.
+
+**J's call, filed as `DAILY-PREMIUM-BUDGET-J-CALL` in queue.md:** arm on 3-of-4 plus the mechanism argument, or
+hold for more OOS data. Recommendation: arm risky-3 + safe-2 first (the two arms it flips negative->positive),
+leave risky-1 alone. Revalidation clock: re-run the battery weekly; if WF clears it becomes auto-ratifiable.
+
+**Also surfaced, NOT acted on (out of scope this fire):** conviction tiers do not predict outcomes
+(SUPER 0-for-7, LEVEL 0-for-1, ELITE 24.2% WR / +2.5% ROI) - worth its own audit. And risky-3 went 0-for-5 today
+(-$410 on $1,735 deployed); it is the premium-stop control cell re-proving a June-settled question (C2,
+chart-stop-primary). Closing that cell is J's REVOKE, not mine.
+
+Scorecard: `analysis/recommendations/daily-premium-budget.json`.
+Battery: `backtest/autoresearch/daily_premium_budget_battery.py`.
+Prior coverage read BEFORE building (Obsidian-brain rule): B3-loss-anatomy, B3-bounded-config, A1-cost-rebuild.
+Revert: `git revert <this commit>` (4 files; risk_gate.py changes are additive plus one call site).
+
+## [2026-08-28 13:06 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 3 passed in 0.32s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-28 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 3 passed in 4.55s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## [2026-08-28T05:30 ET] conductor: OK — GITHUB-AUDIT-FALSE-RED-DAYS-INTERVAL fixed at the monitoring-instrument root, commit `fcfeaf74`
 
 **Picked via STAGE 0 budget gate PROCEED ($3.78/$30, 1/4 fires, AFTERHOURS mode) + market-hours gate closed (05:30 ET, weekday, pre-open) + `desk_allocator.py` SPY-0DTE #1 ("NEXT FIRE" — 80pts BROKEN, `self-check-last.json=DEGRADED`, futures desk confirmed `armable=false` no proven edge) + `self-check-last.json` (FUNCTION-FIRST priority): `RUN-CMD-HIDDEN MASKED EXIT ... unattended_health.py (exit=[1], 19x)`.**
@@ -70,6 +137,13 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ## Live watch
 
+- [2026-08-28T13:14:00 ET] THETA STALL :: safe-2 SPY260828P00770000 qty=3 :: est theta burn -6.78 vs est delta gain -48.00 over last 15min (mid=1.565, unrealized=-13.07%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-28T13:07:01 ET] THETA STALL :: risky-3 SPY260828P00768000 qty=5 :: est theta burn -5.15 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=4.44%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-28T13:07:01 ET] THETA STALL :: bold-2 SPY260828P00768000 qty=5 :: est theta burn -6.05 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=10.59%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-28T10:35:00 ET] THETA STALL :: safe-3 SPY260828C00771000 qty=3 :: est theta burn -5.16 vs est delta gain -6.00 over last 15min (mid=1.9995, unrealized=7.07%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-28T10:32:01 ET] THETA STALL :: bold-2 SPY260828C00773000 qty=5 :: est theta burn -5.45 vs est delta gain +0.00 over last 15min (mid=0.525, unrealized=-24.66%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-28T10:32:01 ET] THETA STALL :: safe-2 SPY260828C00771000 qty=3 :: est theta burn -5.04 vs est delta gain -180.00 over last 15min (mid=1.48, unrealized=-16.09%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-08-28T10:30:02 ET] THETA STALL :: risky-1 SPY260828C00771000 qty=5 :: est theta burn -5.10 vs est delta gain -420.00 over last 15min (mid=1.505, unrealized=-21.08%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-27T12:15:00 ET] THETA STALL :: bold-2 SPY260827C00772000 qty=5 :: est theta burn -5.30 vs est delta gain +0.00 over last 15min (mid=0.295, unrealized=-20.59%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-27T12:09:00 ET] THETA STALL :: risky-1 SPY260827C00770000 qty=5 :: est theta burn -11.70 vs est delta gain -52.50 over last 15min (mid=1.125, unrealized=-3.45%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
 - [2026-08-27T12:09:00 ET] THETA STALL :: safe-3 SPY260827C00770000 qty=3 :: est theta burn -6.75 vs est delta gain -31.50 over last 15min (mid=1.145, unrealized=-0.89%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
@@ -276,7 +350,7 @@ Scorecard: `analysis/recommendations/entry-structure-forward-2026-08-06.json`. F
 
 
 ## Kitchen
-Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 52 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-28T02:09:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
@@ -304,3 +378,110 @@ Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-08-28T05:39:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-08-28 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-08-28 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-28.md
+
+### DEGRADED: self-check 2026-08-28T06:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T06:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T07:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T07:39:56
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T08:09:56
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T08:39:56
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T09:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T09:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T10:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T10:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 08:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 86.84% in last 24h (33/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T11:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 09:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 84.21% in last 24h (32/38) | stage v15_three_source_parity.live pass rate dropped to 92.11% in last 24h (35/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T11:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 09:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.58% in last 24h (31/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T12:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 10:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 78.95% in last 24h (30/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T12:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 10:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 76.32% in last 24h (29/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T13:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+- [2026-08-28 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 73.68% in last 24h (28/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T13:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+- [2026-08-28 11:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 71.05% in last 24h (27/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-28T14:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-28T14:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-28T15:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
