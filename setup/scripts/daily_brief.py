@@ -19,6 +19,10 @@ Modes:
                   via fill_funnel.trades_pnl_today, the T1 broker-truth source), fills + setups
                   traded, an honest wins/losses one-liner (no sugar), top of tonight's active
                   backlog (queue.md), film-room availability (dojo session-brief for today).
+                  TAIL CALL (2026-08-27): after composing the brief text, best-effort rebuilds
+                  analysis/trades-enriched.jsonl (setup/scripts/trades_enriched.py, the
+                  canonical per-trade ledger) -- same chain, no new scheduled task. Failure
+                  there is logged, never breaks the brief (_rebuild_trades_enriched).
 
 Every reader below is FAIL-OPEN: a missing/garbled state file degrades to "no data" phrasing,
 never a crash (C7). NO broker imports anywhere in the import chain (fill_funnel / et_clock /
@@ -597,6 +601,25 @@ def queue_discord_delivery(content: str, wav_path: Optional[Path], *, source: st
     return {"queued": True}
 
 
+def _rebuild_trades_enriched() -> None:
+    """Best-effort tail call (2026-08-27): rebuild analysis/trades-enriched.jsonl, the
+    canonical per-trade ledger (setup/scripts/trades_enriched.py), at the end of the same
+    16:20 ET eod chain that already reads fill_funnel's T1 broker-truth. Deterministic,
+    $0, idempotent full rebuild, no broker imports. Fail-open (C7): any failure here must
+    never break the brief itself -- logged, not raised. Placed at the END of the eod
+    branch per instruction (smallest diff, no new scheduled task)."""
+    try:
+        import trades_enriched as te  # noqa: PLC0415 -- lazy, mirrors other optional deps above
+        result = te.rebuild(REPO)
+        meta = result["meta"]
+        ok = te.run_verification(result["rows"], quiet=True)
+        print(f"[daily_brief:eod] trades_enriched rebuilt: {meta['n_rows']} rows, "
+              f"ctx_match_rate={meta['ctx_match_rate']}, verify={'PASS' if ok else 'FAIL'}")
+    except Exception as exc:  # noqa: BLE001 -- never let this break the EOD brief
+        print(f"[daily_brief:eod] trades_enriched rebuild FAILED (non-fatal): "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+
 # --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
@@ -636,6 +659,7 @@ def main() -> int:
             dojo_info=_dojo_brief_info(day),
         )
         text = compose_eod_text(facts)
+        _rebuild_trades_enriched()
 
     caption = build_caption(args.mode, day, facts)
     n_words = len(text.split())
