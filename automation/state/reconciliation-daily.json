@@ -1,0 +1,107 @@
+{
+  "checked_date_et": "2026-08-28",
+  "checked_at_et": "2026-08-28T17:52:14",
+  "pass": true,
+  "per_arm": {
+    "safe-2": {
+      "window": [
+        "2026-08-03",
+        "2026-08-27"
+      ],
+      "pre_reset_window_dropped": true,
+      "pre_reset_ledger_pnl_unreconcilable": -1011.0,
+      "pre_reset_ledger_trips_unreconcilable": 41,
+      "broker_pnl_sum": 306.66,
+      "ledger_pnl_sum_engine_attributed": 320.0,
+      "estimated_fees_ex_cat_plus_cat": 12.52,
+      "ledger_pnl_fee_adjusted": 307.48,
+      "diff_raw_vs_ledger": -13.34,
+      "diff_vs_fee_adjusted_ledger": -0.82,
+      "tolerance": 10.0,
+      "n_ledger_trips": 43,
+      "base_value_asof": "2026-07-30",
+      "account_created_et": "2026-08-03",
+      "reconciled": true
+    },
+    "bold-2": {
+      "window": [
+        "2026-08-03",
+        "2026-08-27"
+      ],
+      "pre_reset_window_dropped": true,
+      "pre_reset_ledger_pnl_unreconcilable": -549.0,
+      "pre_reset_ledger_trips_unreconcilable": 7,
+      "broker_pnl_sum": 456.36,
+      "ledger_pnl_sum_engine_attributed": 470.0,
+      "estimated_fees_ex_cat_plus_cat": 14.12,
+      "ledger_pnl_fee_adjusted": 455.88,
+      "diff_raw_vs_ledger": -13.64,
+      "diff_vs_fee_adjusted_ledger": 0.48,
+      "tolerance": 10.0,
+      "n_ledger_trips": 30,
+      "base_value_asof": "2026-07-30",
+      "account_created_et": "2026-08-03",
+      "reconciled": true
+    },
+    "safe-3": {
+      "window": [
+        "2026-08-03",
+        "2026-08-27"
+      ],
+      "pre_reset_window_dropped": true,
+      "pre_reset_ledger_pnl_unreconcilable": -22.0,
+      "pre_reset_ledger_trips_unreconcilable": 27,
+      "broker_pnl_sum": 290.0,
+      "ledger_pnl_sum_engine_attributed": 300.0,
+      "estimated_fees_ex_cat_plus_cat": 10.44,
+      "ledger_pnl_fee_adjusted": 289.56,
+      "diff_raw_vs_ledger": -10.0,
+      "diff_vs_fee_adjusted_ledger": 0.44,
+      "tolerance": 10.0,
+      "n_ledger_trips": 31,
+      "base_value_asof": "2026-07-30",
+      "account_created_et": "2026-08-03",
+      "reconciled": true
+    },
+    "risky-1": {
+      "window": [
+        "2026-08-03",
+        "2026-08-27"
+      ],
+      "pre_reset_window_dropped": true,
+      "pre_reset_ledger_pnl_unreconcilable": -228.0,
+      "pre_reset_ledger_trips_unreconcilable": 24,
+      "broker_pnl_sum": 845.6,
+      "ledger_pnl_sum_engine_attributed": 870.0,
+      "estimated_fees_ex_cat_plus_cat": 25.36,
+      "ledger_pnl_fee_adjusted": 844.64,
+      "diff_raw_vs_ledger": -24.4,
+      "diff_vs_fee_adjusted_ledger": 0.96,
+      "tolerance": 16.91,
+      "n_ledger_trips": 54,
+      "base_value_asof": "2026-07-30",
+      "account_created_et": "2026-08-03",
+      "reconciled": true
+    },
+    "risky-3": {
+      "window": [
+        "2026-08-03",
+        "2026-08-27"
+      ],
+      "pre_reset_window_dropped": true,
+      "pre_reset_ledger_pnl_unreconcilable": 146.0,
+      "pre_reset_ledger_trips_unreconcilable": 38,
+      "broker_pnl_sum": -254.34,
+      "ledger_pnl_sum_engine_attributed": -216.0,
+      "estimated_fees_ex_cat_plus_cat": 38.91,
+      "ledger_pnl_fee_adjusted": -254.91,
+      "diff_raw_vs_ledger": -38.34,
+      "diff_vs_fee_adjusted_ledger": 0.57,
+      "tolerance": 10.0,
+      "n_ledger_trips": 52,
+      "base_value_asof": "2026-07-30",
+      "account_created_et": "2026-08-03",
+      "reconciled": true
+    }
+  }
+}

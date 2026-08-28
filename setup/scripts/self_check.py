@@ -114,6 +114,82 @@ def check_broker_keys() -> list[str]:
     return out
 
 
+# ---- STANDING DAILY BROKER RECONCILIATION (2026-08-28, TASK B3) -----------------------
+# Ledger P&L (trades-enriched.jsonl, engine-attributed) vs REAL broker equity change, all 5
+# active arms, net of the A1 fee model -- reuses go_live_gate.reconciliation_criterion()
+# (the SAME instrument the go-live readiness gate reports on) rather than a second,
+# divergent implementation. RED here means J is looking at a go-live number this session
+# cannot independently verify against the broker -- worth a real, non-silent flag, same
+# tier as a stale broker key.
+#
+# ONCE-PER-ET-DAY gate: reconciliation_criterion() makes 10 live Alpaca REST calls
+# (portfolio-history + account, x5 arms) and re-derives daily P&L from the full ledger --
+# too much to repeat on self_check's ~30-min cadence for a number that only moves once a
+# trading day settles. Persists the last checked-date + full per-arm payload to
+# reconciliation-daily.json (also the audit trail a human can read directly) and skips
+# the network + recompute entirely once today's check has already run.
+RECONCILIATION_STATE = STATE / "reconciliation-daily.json"
+
+
+def check_broker_reconciliation(now, *, force: bool = False) -> list[str]:
+    """Ledger-vs-broker P&L reconciliation, all 5 active arms, once per ET day.
+
+    A `reconciled: False` arm (broker vs ledger P&L, net of estimated fees, differs by
+    more than max($10, 2% of |broker P&L|) -- the SAME tolerance go_live_gate.py itself
+    gates on) is a real, unexplained accounting gap and reports BROKEN (RED). A fetch
+    failure (`reconciled: None` -- network/auth, not a data problem) reports DEGRADED,
+    distinctly. Fail-open throughout: any unexpected error returns [] rather than
+    fabricating or hiding a problem; a prior day's cached PASS is never treated as
+    still valid past midnight ET."""
+    today = now.strftime("%Y-%m-%d")
+    if not force and RECONCILIATION_STATE.exists():
+        try:
+            prior = json.loads(RECONCILIATION_STATE.read_text(encoding="utf-8"))
+            if prior.get("checked_date_et") == today:
+                return []  # already checked today -- don't re-hit the broker every ~30 min
+        except Exception:  # noqa: BLE001
+            pass  # unreadable cache -> fall through and recompute
+    try:
+        import go_live_gate as glg
+        rows = glg.load_ledger_rows()
+        engine_rows = [r for r in rows if r.get("attribution") == "engine"]
+        result = glg.reconciliation_criterion(engine_rows)
+    except Exception as e:  # noqa: BLE001 -- never break the scheduler on this extra check
+        return [f"RECONCILIATION CHECK ERROR: {type(e).__name__}: {e} -- broker reconciliation "
+                f"could not be computed this run (transient/import failure, not itself a drift)."]
+
+    out: list[str] = []
+    for arm_id, r in sorted(result.get("per_arm", {}).items()):
+        reconciled = r.get("reconciled")
+        if reconciled is True:
+            continue
+        if reconciled is None:
+            out.append(f"RECONCILIATION UNAVAILABLE: {arm_id} -- {r.get('note', 'live fetch failed')}.")
+            continue
+        diff = r.get("diff_vs_fee_adjusted_ledger")
+        tol = r.get("tolerance")
+        window = r.get("window")
+        try:
+            detail_path = RECONCILIATION_STATE.relative_to(REPO).as_posix()
+        except ValueError:
+            detail_path = str(RECONCILIATION_STATE)  # e.g. under a test's tmp_path
+        out.append(
+            f"RECONCILIATION RED: {arm_id} ledger vs broker P&L diverge by ${diff:,.2f} "
+            f"(tolerance +/-${tol:,.2f}) over {window[0]}..{window[1]} -- broker="
+            f"${r.get('broker_pnl_sum'):,.2f} ledger_fee_adj="
+            f"${r.get('ledger_pnl_fee_adjusted'):,.2f}. Full detail: {detail_path}."
+        )
+
+    try:
+        RECONCILIATION_STATE.write_text(json.dumps(
+            {"checked_date_et": today, "checked_at_et": now.strftime("%Y-%m-%dT%H:%M:%S"),
+             "pass": result.get("pass"), "per_arm": result.get("per_arm", {})},
+            indent=2), encoding="utf-8")
+    except Exception:  # noqa: BLE001 -- the problems list already computed is what matters
+        pass
+    return out
+
+
 # ---- PDT (Rule 7) VISIBILITY (2026-07-14) ---------------------------------------------
 # The 2026-07-13 scar: core Safe was silently PDT-blocked ALL DAY on a day-trade count it
 # INHERITED from an account repoint (commit 61cfca0, safe-2 repointed onto the former
@@ -1692,6 +1768,11 @@ def run() -> dict:
 
     # 4. broker key / account health (the 401-stale-key class)
     problems.extend(check_broker_keys())
+
+    # 4b. STANDING DAILY RECONCILIATION (TASK B3, 2026-08-28) -- ledger P&L vs real broker
+    # equity change, all 5 arms, once per ET day. RED here means the ledger a go-live
+    # decision would rest on cannot be trusted against the broker's own numbers.
+    problems.extend(check_broker_reconciliation(now))
 
     # 5. premarket bias freshness -- catches Gamma_Premarket silent-failure (06-30: the LLM task
     # fired 08:30 ET, exited 0, but wrote NO bias; today-bias sat stale-dated until caught by hand).
