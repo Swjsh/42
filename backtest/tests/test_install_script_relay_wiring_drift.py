@@ -97,11 +97,13 @@ EXPECTED_RELAY_TASKS: dict[str, str] = {
     # Get-ScheduledTask) but their OWN install-*.ps1 templates were never updated to
     # match -- the identical CryptoTwin-class drift regression this whole guard exists to
     # prevent, just against a newer relay. Gamma_ChartAutoDraw had NO prior install script
-    # at all (newly created: install-chart-auto-draw.ps1). Gamma_JIntentExecutor and
-    # Gamma_RegimeShadow are ALSO on this relay live but deliberately left OUT of this map
-    # -- JIntentExecutor per the standing safety-critical-daemon exclusion (same reasoning
-    # as EodFlattenCore above), RegimeShadow because no install script could be found for
-    # it (registered by something other than a dedicated file; not silently claimed here).
+    # at all (newly created: install-chart-auto-draw.ps1). Gamma_JIntentExecutor is
+    # ALSO on this relay live but deliberately left OUT of this map -- standing
+    # safety-critical-daemon exclusion (same reasoning as EodFlattenCore above; both
+    # already have independent, arguably-stronger real-outcome monitoring --
+    # EodFlattenCore via preopen_readiness.assess_eod_flatten_reality's per-arm JSONL
+    # outcome check, fail-toward-RED on missing evidence). Gamma_RegimeShadow (below)
+    # previously had no install script at all -- fixed 2026-08-28, see its own entry.
     "Gamma_ChartAutoDraw": "install-chart-auto-draw.ps1",
     "Gamma_EodBrief": "scripts/install-daily-brief.ps1",
     "Gamma_EodDojoManifest": "install-eod-dojo-manifest.ps1",
@@ -112,6 +114,12 @@ EXPECTED_RELAY_TASKS: dict[str, str] = {
     "Gamma_RiskyDivergenceWeekly": "install-risky-divergence-weekly.ps1",
     "Gamma_ShadowSignalAudit": "install-shadow-signal-audit.ps1",
     "Gamma_WinnerAutopsy": "install-winner-autopsy.ps1",
+    # 2026-08-28 SEVENTH PASS -- RegimeShadow was live-correct on the relay since
+    # 2026-08-11 but had NO install script anywhere in the repo (the exact
+    # no-declarative-source-of-truth gap this guard exists to prevent from going
+    # undetected). install-regime-shadow.ps1 newly created, reproducing the live
+    # registration verbatim (verified via Get-ScheduledTaskInfo before writing it).
+    "Gamma_RegimeShadow": "install-regime-shadow.ps1",
 }
 
 
