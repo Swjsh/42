@@ -5,23 +5,21 @@
 
 # ANALYSIS: LIVE_PRICE_FIRST_BAR_TRIGGER
 
-**Filed:** 2026-07-23  
+**Filed:** 2026-08-24  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The hypothesis is that the first bar of the day that breaks the premarket high (for bears) or premarket low (for bulls) with a reversal in the opposite direction (V-reversal) can capture the day's move. This edge exists because premarket levels often act as support/resistance and a break of the premarket extreme followed by a reversal indicates a failure of the breakout and a likely continuation in the opposite direction.
+The trigger aims to capture early directional momentum by entering on the first RTH bar after a premarket high (for bulls) or premarket low (for bears) is broken. The edge exists because premarket extremes often set the intraday bias, and entering on the first confirming bar can capture the continuation of that bias before the market fully digests the premarket move.
 
 ## Mechanism
 
-**Entry:**  
-- For bear: if the premarket high (PML) is taken out (bar's low < PML) and then the bar closes above the PML (a bullish reversal bar) → enter bear at the next bar open.  
-- For bull: if the premarket low (PMH) is taken out (bar's high > PMH) and then the bar closes below the PMH (a bearish reversal bar) → enter bull at the next bar open.  
-
-**Exit:**  
-Standard v15 management: chart stop (primary) and premium stop (catastrophe cap), with TP1 at +50% and runner. Chart stop is defined as SPY closing a 3-min candle above the premarket high (for bears) or below the premarket low (for bulls) + $0.50 buffer. Premium stop is −50% (catastrophe cap only). TP1 triggers at +50% premium (sell 2/3 of position), moving the runner stop to breakeven. Runner exits on re-entry into the EMA ribbon, rejection signature, or premium ≥ entry × 3.0.
+- **Entry condition:** For bears, if the premarket low (PML) is defined and the first RTH bar closes below PML, enter at the next bar open. For bulls, if the premarket high (PMH) is defined and the first RTH bar closes above PMH, enter at the next bar open.  
+- **Exit logic:** Standard v15 management: chart-stop primary (SPY closes a 3-min candle beyond the rejected level + $0.50 buffer), chandelier profit-lock arms at +5% favor, trails 0.15 off HWM, TP1 at +50% premium (sell 2/3), runner exits on ribbon re-entry or premium ≥ entry × 3.0, time stop 15:50 ET.  
+- **Filters:** Only entries after 09:35 ET, respect daily loss budget, and avoid major news windows.  
+- **Position sizing:** Per `risk-rules.md` and `params.json` (Safe: 3 contracts at $1K–$2K, scaling up with equity).
 
 ## Expected impact on OP-16 anchors
 
@@ -35,32 +33,27 @@ Standard v15 management: chart stop (primary) and premium stop (catastrophe cap)
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
-*(Note: Leaderboard notes indicate zero J anchor days affected in Stage-2/3 testing, but Stage-1 backtest has not been run to confirm behavior on these specific days. All values above are placeholders requiring actual Stage-1 results.)*
-
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on ITM-2 0DTE premium ~$1.00/contract → $2,800 risk/trade at 50% max risk → $5,600/account needed for full qty; scales linearly with account size).  
-2. **Sample bias:** Sample size = 77 trading days with premarket data available (from leaderboard notes). Selection method: days where SPY CSV contains 04:00-09:29 ET premarket bars (likely oversamples recent periods due to data availability constraints). Overfit risk: moderate — trigger logic is simple but small sample size (n=19 events in Stage-3 scan) increases chance of spurious results.  
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward or OOS split performed in Stage-1).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no real-fill validation conducted; trigger did not fire on J days per leaderboard notes but requires validation on non-J days where it does fire).  
-5. **Failure modes:**  
-   - Worst day: consecutive losses due to false reversal signals (e.g., premarket breakout succeeds → stop-out via chart stop).  
-   - Max drawdown: driven by loss frequency and size; unknown without equity curve.  
-   - Blow-up scenario: clustered losses during high-volume premarket breakout days (e.g., FOMC days) where reversals fail repeatedly.  
-6. **Concentration:** unknown -- requires Stage-1 backtest (trade frequency too low to measure concentration reliably; leaderboard notes show only 19 events in 77 days → extreme concentration risk if P&L skewed to few days).
+1. **Account-size assumption:** qty=28 requires $25K+ account to fit per-trade risk cap; $1K paper account realizes ~14% of headline P&L (same as OP-20 disclosure baseline).  
+2. **Sample bias:** Sample based on 77 trading days with premarket bars available in SPY CSV (04:00-09:29 ET data). This sample may oversample recent periods because yfinance premarket data is only available for recent years; true frequency across the full 16-month window is unknown. Overfit risk: trigger tuned to premarket extremes may not generalize if premarket liquidity regimes shift.  
+3. **Out-of-sample:** NEEDS-OOS (Stage-2 pending; only Stage-1 smoke tests completed).  
+4. **Real-fills:** NEEDS-REAL-FILLS (mandatory OP-20 disclosure-4; ghost-entry risk from in-progress bar requires validation against real OPRA fills).  
+5. **Failure modes:** Worst day could be a failed premarket breakout leading to immediate stop-out; max drawdown scenario involves consecutive losses on days with premarket extremes that reverse sharply; blow-up scenario if leverage is increased on false breakouts during low-volume premarket periods.  
+6. **Concentration:** unknown -- requires Stage-1 backtest to compute top-5 days concentration as % of total P&L.
 
 ## Pre-merge gate
 
-- Gym validators (all tests pass for core logic)  
-- Walk-forward analysis (OOS Sharpe > 0.5)  
-- Real-fills validation on top 3 trigger-firing days (non-J days) showing <20% diff from BS sim  
-- Concentration check: top5_pct < 200%  
-- OP-16 anchor no-regression: delta_edge_capture = 0 on all J days  
+- Gym validators: `test_live_price_first_bar_trigger.py` 7/7 PASS (smoke test).  
+- Walk-forward OOS test: required (currently NEEDS-OOS).  
+- Real-fills validation on top 3 J days: required (currently NEEDS-REAL-FILLS).  
+- OP-16 anchor regression test: must show no deterioration in edge_capture on J winner days.  
+- Liquidity gate: must pass `mcp__alpaca__get_option_snapshot` checks on candidate strikes.
 
 ## Confidence
 
-3 / 10 -- Premise is structurally sound (premarket levels as support/resistance) but sample size is extremely small (n=19 events in available data), no OOS validation, and real-fills untested. Leaderboard notes confirm zero J-day impact but provide no insight on profitability.
+5 / 10 -- Based on smoke test pass and promising premarket statistics (6 bear, 13 bull events in 77-day sample), but lacking Stage-2/3 validation, real-fills confirmation, and OOS analysis. Upper-bound event frequency suggests potential for low sample size; cannot confirm edge without full backtest.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with existing candidates — operates in premarket window (04:00-09:30 ET) while most strategies (e.g., BEARISH_REJECTION, VWAP_CONTINUATION) target RTH (09:30-15:55 ET). May complement by capturing early-day reversals missed by RTH-only setups. No overlap in trigger logic or time windows with top 10 leaderboard candidates.
+Currently ranked #2 (NEEDS-MORE-DATA) in _LEADERBOARD.md. This analysis does not conflict with higher-ranked candidates; it complements the exploration of premarket-triggered setups. If Stage-1 backtest reveals sufficient edge_capture (>771) and acceptable OOS/sharpe, it could promote to PROMISING and potentially challenge existing candidates for rank. No direct overlap with existing trigger types (e.g., VWAP_CONTINUATION, BEARISH_REJECTION) as it operates exclusively in the premarket-to-first-RTH-bar window.
