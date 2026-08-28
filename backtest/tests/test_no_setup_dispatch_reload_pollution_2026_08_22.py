@@ -43,6 +43,20 @@ _IMPORT_SETUP_DISPATCH_RE = re.compile(
     re.MULTILINE,
 )
 
+# BROADENED 2026-08-28 (full-suite RED recurrence, same defect class via a DIFFERENT API
+# than importlib.reload()): `del sys.modules["setup_dispatch"]` followed by a fresh
+# `import`/`importlib.import_module(...)` forces the SAME re-execution and re-minting of
+# brand-new SetupDispatcher/DispatchResult class objects that reload() does -- the
+# original regex above never matched this shape (no literal `reload(` call), which is
+# exactly how test_g_db_base_quiet_wiring.py's `sd_mod` fixture reintroduced this bug
+# under this guard's nose. Matches `del sys.modules["setup_dispatch"]` / `del
+# sys.modules['setup_dispatch']` and the equivalent `sys.modules.pop("setup_dispatch"...)`
+# eviction form, either quote style.
+_EVICT_SETUP_DISPATCH_RE = re.compile(
+    r"""(?:del\s+sys\.modules\[\s*["']setup_dispatch["']\s*\]"""
+    r"""|sys\.modules\.pop\(\s*["']setup_dispatch["'])""",
+)
+
 
 def _strip_full_line_comments(src: str) -> str:
     """Drop lines that are pure `#` comments so prose ABOUT this pattern (e.g. this
@@ -59,7 +73,14 @@ def _strip_full_line_comments(src: str) -> str:
 
 
 def _reload_targets_setup_dispatch(src: str) -> bool:
-    """True if `src` reloads a name that was bound to the setup_dispatch module.
+    """True if `src` forces a re-execution of the shared setup_dispatch module -- either
+    via `importlib.reload()` on a name bound to it, OR by evicting it from sys.modules
+    (`del sys.modules["setup_dispatch"]` / `sys.modules.pop("setup_dispatch")`) ahead of
+    a fresh import. Both mint brand-new SetupDispatcher/DispatchResult class objects on
+    the shared module entry -- identical corrupting effect, two different APIs (the
+    eviction shape is how the 2026-08-22 fix's own guard got walked around on
+    2026-08-28: test_g_db_base_quiet_wiring.py's `sd_mod` fixture never called
+    `reload()`, so the reload-only regex below missed it).
 
     Only inspects code lines (docstrings/comments describing this pattern are exempt --
     checked by scanning line-by-line and skipping full `#`-comment lines; the risk of a
@@ -67,6 +88,10 @@ def _reload_targets_setup_dispatch(src: str) -> bool:
     don't write executable-looking prose inside triple-quoted strings without a comment
     marker in this codebase's style)."""
     code = _strip_full_line_comments(src)
+
+    if _EVICT_SETUP_DISPATCH_RE.search(code):
+        return True
+
     bound_names = {"setup_dispatch"}
     for m in _IMPORT_SETUP_DISPATCH_RE.finditer(code):
         alias = m.group(1)
@@ -84,18 +109,22 @@ def test_no_test_file_reloads_setup_dispatch() -> None:
         if path.name == Path(__file__).name:
             continue  # this guard file itself references the pattern in prose/regex form
         src = path.read_text(encoding="utf-8", errors="ignore")
-        if "reload" not in src or "setup_dispatch" not in src:
+        if "setup_dispatch" not in src:
             continue  # cheap prefilter before the regex pass
+        if "reload" not in src and "sys.modules" not in src:
+            continue  # neither corrupting-API surface is present at all
         if _reload_targets_setup_dispatch(src):
             offenders.append(path.name)
 
     assert offenders == [], (
-        "The following test file(s) importlib.reload() the shared setup_dispatch "
-        f"module, which corrupts SetupDispatcher/DispatchResult for every other test "
+        "The following test file(s) force a re-execution of the shared setup_dispatch "
+        f"module (importlib.reload(), or evicting it from sys.modules before a fresh "
+        f"import), which corrupts SetupDispatcher/DispatchResult for every other test "
         f"file that captured the class via `from setup_dispatch import ...` at "
-        f"collection time: {offenders}. Use monkeypatch.setattr on the specific "
-        "module-level name you need to isolate instead (see test_gap_prior_close.py's "
-        "2026-08-22 fix for the pattern)."
+        f"collection time: {offenders}. Use monkeypatch.setattr / patch.object on the "
+        "specific module-level name or class method you need to isolate instead (see "
+        "test_gap_prior_close.py's 2026-08-22 fix, or test_g_db_base_quiet_wiring.py's "
+        "2026-08-28 fix, for the pattern)."
     )
 
 
@@ -109,3 +138,23 @@ def test_gap_prior_close_no_longer_reloads() -> None:
     """
     src = (TESTS_DIR / "test_gap_prior_close.py").read_text(encoding="utf-8")
     assert _reload_targets_setup_dispatch(src) is False
+
+
+def test_g_db_base_quiet_wiring_no_longer_evicts() -> None:
+    """Direct regression pin on the SECOND scarred file (2026-08-28 recurrence).
+
+    test_g_db_base_quiet_wiring.py's `sd_mod` fixture used to `del
+    sys.modules["setup_dispatch"]` before every import -- the eviction shape the sweep
+    above now also detects. Pinned separately so a future re-introduction of a hard
+    reimport in THIS file fails fast and by name, the same way the gap_prior_close pin
+    does for the original 2026-08-22 scar.
+    """
+    src = (TESTS_DIR / "test_g_db_base_quiet_wiring.py").read_text(encoding="utf-8")
+    assert _reload_targets_setup_dispatch(src) is False
+
+
+def test_evict_pattern_is_detected_when_present() -> None:
+    """Non-vacuity check: the eviction-shape detector must actually fire on the exact
+    code shape that caused the 2026-08-28 recurrence, not just fail to false-positive."""
+    sample = 'if "setup_dispatch" in sys.modules:\n    del sys.modules["setup_dispatch"]\nimportlib.import_module("setup_dispatch")\n'
+    assert _reload_targets_setup_dispatch(sample) is True

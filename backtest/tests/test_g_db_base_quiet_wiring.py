@@ -45,9 +45,29 @@ if str(_ROOT) not in sys.path:
 
 @pytest.fixture()
 def sd_mod():
-    """Import setup_dispatch fresh each test (avoids cross-test state leakage)."""
-    if "setup_dispatch" in sys.modules:
-        del sys.modules["setup_dispatch"]
+    """Import setup_dispatch (idempotent -- no sys.modules eviction).
+
+    FIXED 2026-08-28 (full-suite RED recurrence of the 2026-08-22 scar, same shape as
+    test_gap_prior_close.py's importlib.reload() but a DIFFERENT mechanism the existing
+    guard (test_no_setup_dispatch_reload_pollution_2026_08_22.py) never covered: this
+    fixture used to evict the setup_dispatch entry from sys.modules before every import
+    (`del sys.modules[` + the module's name + `]`), which forces
+    Python to re-execute the module and mint BRAND-NEW SetupDispatcher/DispatchResult
+    class objects on the shared sys.modules entry -- identical corrupting effect to
+    importlib.reload(), just via a different API. test_setup_dispatch.py captures
+    `SetupDispatcher`/`DispatchResult` via `from setup_dispatch import ...` at
+    COLLECTION time (before any test runs); once a test in THIS file (alphabetically
+    "test_g_..." < "test_setup_dispatch.py", so it collects/runs first) executed and
+    evicted+reimported the module, `patch("setup_dispatch.SetupDispatcher.<method>", ...)`
+    over there patched a class test_setup_dispatch.py's tests never actually instantiate
+    -- reproduced in isolation: `pytest test_g_db_base_quiet_wiring.py test_setup_dispatch.py`
+    -> the exact same 5 failures the 2026-08-27T23:41 ET full-suite RED logged.
+    None of this file's 4 sd_mod-using tests actually needs a fresh module object: every
+    mutation they make goes through `patch.object(sd_mod.SetupDispatcher, ...)`, which
+    already self-reverts on context exit. A plain (cached, idempotent) import gives them
+    the same clean per-test class state without evicting the module every other test
+    file's collection-time import already depends on -- matches the sibling hc_mod
+    fixture just below, which never deleted from sys.modules in the first place."""
     return importlib.import_module("setup_dispatch")
 
 

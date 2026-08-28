@@ -62,17 +62,21 @@ def sd_mod():
     no dangerous module-level mutable state, only per-instance self._params/self._payload/
     self._ctx_cache, so a fresh reimport is not needed for isolation).
 
-    DELIBERATELY does NOT del sys.modules["setup_dispatch"] before reimporting. That
-    del-then-reimport pattern (used by test_g_db_base_quiet_wiring.py's identically-named
-    fixture) creates a NEW module object each time it runs; any OTHER test file that already
-    did `from setup_dispatch import X` at collection time keeps holding the OLD module's
-    objects, while a later `unittest.mock.patch("setup_dispatch.Y", ...)` resolves
-    sys.modules["setup_dispatch"] fresh and patches the NEW object -- the patch silently
-    never takes effect on the code path the other file's tests actually exercise. Confirmed
-    by a controlled A/B this session: test_g_db_base_quiet_wiring.py ALONE (pre-existing,
-    unrelated to LBFS) already breaks 5 of test_setup_dispatch.py's mock-based tests when run
-    in the same pytest session, byte-identical with or without this file present. That is a
-    pre-existing cross-file test-isolation bug, not something to compound here.
+    DELIBERATELY does NOT evict the setup_dispatch entry from sys.modules before
+    reimporting. That evict-then-reimport pattern (used by test_g_db_base_quiet_wiring.py's
+    identically-named fixture until its 2026-08-28 fix) creates a NEW module object each
+    time it runs; any OTHER test file that already did `from setup_dispatch import X` at
+    collection time keeps holding the OLD module's objects, while a later
+    `unittest.mock.patch("setup_dispatch.Y", ...)` resolves the sys.modules entry fresh
+    and patches the NEW object -- the patch silently never takes effect on the code path
+    the other file's tests actually exercise. Confirmed by a controlled A/B when this note
+    was written: test_g_db_base_quiet_wiring.py ALONE (pre-existing, unrelated to LBFS)
+    already broke 5 of test_setup_dispatch.py's mock-based tests when run in the same
+    pytest session, byte-identical with or without this file present -- i.e. a
+    pre-existing cross-file test-isolation bug this file's own fixture correctly avoided
+    compounding but did not fix at the source. FIXED AT THE SOURCE 2026-08-28: see
+    test_g_db_base_quiet_wiring.py's sd_mod fixture and
+    test_no_setup_dispatch_reload_pollution_2026_08_22.py's broadened sweep.
     """
     return importlib.import_module("setup_dispatch")
 
