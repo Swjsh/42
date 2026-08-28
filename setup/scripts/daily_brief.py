@@ -601,6 +601,23 @@ def queue_discord_delivery(content: str, wav_path: Optional[Path], *, source: st
     return {"queued": True}
 
 
+def _rebuild_prod_shadow() -> None:
+    """Best-effort tail call (2026-08-28, TASK C1): rebuild the PROD-1 shadow
+    (analysis/prod-shadow/{ledger,summary}.json via setup/scripts/prod_shadow.py) right
+    after trades_enriched so it always runs against the freshest source ledger. Fail-open
+    (C7): any failure here must never break the brief itself -- logged, not raised. No new
+    scheduled task, placed at the END of the eod chain per instruction."""
+    try:
+        import prod_shadow as psh  # noqa: PLC0415 -- lazy, mirrors other optional deps above
+        result = psh.run(write=True)
+        fh = result["summary"]["full_history"]
+        print(f"[daily_brief:eod] prod_shadow rebuilt: {len(result['ledger'])} ledger rows, "
+              f"full-history net={fh.get('total_pnl_net')} over {fh.get('n_trading_days')} days")
+    except Exception as exc:  # noqa: BLE001 -- never let this break the EOD brief
+        print(f"[daily_brief:eod] prod_shadow rebuild FAILED (non-fatal): "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+
 def _rebuild_trades_enriched() -> None:
     """Best-effort tail call (2026-08-27): rebuild analysis/trades-enriched.jsonl, the
     canonical per-trade ledger (setup/scripts/trades_enriched.py), at the end of the same
@@ -660,6 +677,7 @@ def main() -> int:
         )
         text = compose_eod_text(facts)
         _rebuild_trades_enriched()
+        _rebuild_prod_shadow()
 
     caption = build_caption(args.mode, day, facts)
     n_words = len(text.split())
