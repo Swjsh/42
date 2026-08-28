@@ -1,0 +1,23 @@
+{
+  "schema": "quote-recorder-status/1",
+  "started_at_et": "2026-08-28T17:18:48.938492",
+  "pid": 11404,
+  "last_cycle_ts_et": "2026-08-28T17:18:48.939072",
+  "last_cycle_ok": true,
+  "last_cycle_mode": "idle",
+  "last_cycle_rows_written": 0,
+  "last_cycle_errors": {},
+  "last_success_ts_et": "2026-08-28T17:18:48.939072",
+  "consecutive_cycle_failures": 0,
+  "arms_configured": [
+    "safe-2",
+    "bold-2",
+    "safe-3",
+    "risky-1",
+    "risky-3"
+  ],
+  "arms_open_last_cycle": [],
+  "retention_days": 90,
+  "pruned_files_last_cycle": [],
+  "skip_reason": null
+}

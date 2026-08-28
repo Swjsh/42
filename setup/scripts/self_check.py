@@ -1515,6 +1515,52 @@ def check_participation_daily(now, path=None) -> list:
     return []
 
 
+QUOTE_RECORDER_STATUS = STATE / "quote-recorder-status.json"
+
+
+def check_quote_recorder_alive(now, status_path=None) -> list[str]:
+    """DAILY liveness check for quote_recorder.py's own independent exit-quote side-channel
+    (Task B1, built 2026-08-28 -- 'we log NBBO on ~25 of 128 entry events and ZERO on exits;
+    every slippage number in every analysis is therefore an ASSUMPTION'). Reads ONLY the
+    recorder's own status file (automation/state/quote-recorder-status.json) -- nothing on
+    the trading path writes or reads that file, so this check can never see a false read.
+
+    SILENT UNTIL DEPLOYED: a status file that has NEVER been written means the recorder's
+    scheduled task has not been registered yet (B1 proposed the wiring -- wscript ->
+    run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py -> pythonw ->
+    quote_recorder.py --loop, matching the ccr_keepalive/window-leak-detector daemon
+    pattern -- but did not register it; arming a new always-on scheduled task is J's call).
+    That is a "not yet turned on" state, not a fault, so it stays silent -- the moment the
+    file exists for the first time (the daemon's own first real cycle), this check starts
+    holding it to account.
+
+    RED (BROKEN): the status file EXISTED (proving the daemon ran at least once) and has now
+    gone stale past any plausible cadence (idle=60s, active=20s, off-hours-skip=300s, +buffer)
+    -- the process died. Zero exit-quote evidence accumulates while this is red, directly
+    starving the exact slippage-measurement gap this instrument exists to close.
+
+    DEGRADED: the daemon is alive (fresh status writes) but failing most of its cycles (a bad
+    key, a broker outage, a dead symbol) -- producing status, but not producing rows."""
+    sp = status_path or QUOTE_RECORDER_STATUS
+    if not sp.exists():
+        return []  # never deployed yet -- see SILENT UNTIL DEPLOYED above
+    age = _age_min(sp)
+    if age is not None and age > 8:
+        return [f"QUOTE-RECORDER RED: status file {age:.0f}m stale (cadence is <=60s idle / "
+                f"<=20s active / <=5m off-hours) -- Gamma_QuoteRecorder has stopped. Zero "
+                f"exit-side NBBO is being captured; every slippage number stays an assumption "
+                f"until this is relaunched (setup/scripts/quote_recorder.py --loop)."]
+    try:
+        d = json.loads(sp.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return [f"QUOTE-RECORDER DEGRADED: status file unreadable/corrupt at {sp}."]
+    fails = d.get("consecutive_cycle_failures", 0) or 0
+    if isinstance(fails, (int, float)) and fails >= 5:
+        return [f"QUOTE-RECORDER DEGRADED: {int(fails)} consecutive cycle failures "
+                f"(last_error={d.get('last_cycle_errors')}) -- process alive, data gap growing."]
+    return []
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -1773,6 +1819,12 @@ def run() -> dict:
     # Watches the dedup ledger (gap-log.jsonl) directly so a future recurrence surfaces
     # within a day instead of a month.
     problems.extend(check_self_audit_organ_alive(now))
+
+    # 19. QUOTE-RECORDER ALIVE -- Task B1 (2026-08-28): the independent exit-quote
+    # side-channel that closes the "zero exit NBBO logged, every slippage number is an
+    # assumption" gap. Silent until first deployed (see the check's own docstring); once a
+    # status file exists, holds the daemon to its own <=60s/20s cadence.
+    problems.extend(check_quote_recorder_alive(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,

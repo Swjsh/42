@@ -464,6 +464,135 @@ def _exit_reason_for(trip: dict, exit_events: dict) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------- #
+# EXIT-QUOTE JOIN (Task B1, 2026-08-28) -- attaches the nearest real NBBO snapshot
+# before/after each row's exit fill, from analysis/quote-tape/YYYY-MM-DD.jsonl (written by
+# the INDEPENDENT setup/scripts/quote_recorder.py side-channel; see that module's docstring
+# for the read-only-broker / never-touches-engine-state contract). Additive only: every new
+# field defaults to None when no quote-tape data exists for that (date, arm, symbol) -- a
+# repo with zero quote-tape files (true for every row before the recorder's first live day)
+# rebuilds byte-identical to the pre-join output on every OTHER field. This is the step that
+# turns quote-tape into "slippage accumulates automatically into the canonical ledger" per
+# the B1 brief -- nothing downstream has to re-derive the join.
+# --------------------------------------------------------------------------- #
+
+QUOTE_TAPE_DIR = REPO / "analysis" / "quote-tape"
+MAX_QUOTE_MATCH_LAG_S = 180  # a snapshot farther than this from the fill is still RECORDED
+# (never dropped -- C7) but callers should treat exit_slippage_* as low-confidence past this.
+
+
+def load_quote_tape(quote_tape_dir: Path, dates: "set[str]") -> "dict[tuple, list]":
+    """{(date, arm, symbol): [(ts_et_datetime, row), ...]} sorted by ts_et, built ONLY from
+    the dates actually present in this run's rows (never a full-history scan -- one date's
+    file is typically a few hundred KB at most, but there is no reason to read a date this
+    rebuild will never use). A missing/corrupt file for a date simply contributes nothing for
+    that date (fail-open; a corrupt line is skipped, never fatal to the whole rebuild)."""
+    index: "dict[tuple, list]" = {}
+    for date in dates:
+        p = quote_tape_dir / f"{date}.jsonl"
+        if not p.exists():
+            continue
+        try:
+            lines = p.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        for ln in lines:
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                row = json.loads(ln)
+            except json.JSONDecodeError:
+                continue
+            ts = _parse_ts(row.get("ts_et"))
+            arm, symbol = row.get("arm"), row.get("symbol")
+            if ts is None or not arm or not symbol:
+                continue
+            index.setdefault((date, arm, symbol), []).append((ts, row))
+    for key in index:
+        index[key].sort(key=lambda pair: pair[0])
+    return index
+
+
+def _nearest_before_after(snapshots: list, at: datetime) -> "tuple[Optional[tuple], Optional[tuple]]":
+    """PURE: (before, after) = the snapshot with the latest ts <= at, and the one with the
+    earliest ts >= at, each as (ts, row) or None. `snapshots` must already be ts-sorted."""
+    before = None
+    after = None
+    for ts, row in snapshots:
+        if ts <= at:
+            before = (ts, row)  # keep advancing -- last one <= at wins (latest-before)
+        elif after is None:
+            after = (ts, row)  # first one > at -- snapshots is sorted, so this is nearest-after
+            break
+    return before, after
+
+
+def join_exit_quote(row: dict, quote_tape_index: "dict[tuple, list]") -> dict:
+    """PURE: returns the exit_quote_* / exit_slippage_* fields for ONE enriched-trade row.
+    Never mutates `row`. All fields default to None -- a row with no exit_ts_et, no symbol,
+    or no quote-tape coverage for its (date, arm, symbol) gets an all-None block, not a
+    fabricated one.
+
+    SLIPPAGE SIGN CONVENTION: every exit in this ledger is a SELL closing a long option. The
+    economically-honest "what could we have expected" price at the moment of exit is the BID
+    just before the fill (selling crosses the bid) -- so exit_slippage_vs_bid_before_dollars =
+    (exit_px_avg - bid_before) * qty * 100. Positive = realized AT OR ABOVE the pre-fill bid
+    (no adverse slippage this row); negative = realized below it (the exact cost this
+    instrument exists to start measuring). exit_slippage_vs_mid_before_dollars is also
+    computed (vs the pre-fill mid) as the reference other cost-model scripts in this repo
+    already use (cost_model.py, exit_fill_realism.py) -- both are disclosed, neither is hidden
+    as "the" number."""
+    out = {
+        "exit_quote_bid_before": None, "exit_quote_ask_before": None,
+        "exit_quote_mid_before": None, "exit_quote_lag_before_s": None,
+        "exit_quote_ts_before": None,
+        "exit_quote_bid_after": None, "exit_quote_ask_after": None,
+        "exit_quote_mid_after": None, "exit_quote_lag_after_s": None,
+        "exit_quote_ts_after": None,
+        "exit_slippage_vs_bid_before_dollars": None,
+        "exit_slippage_vs_mid_before_dollars": None,
+        "exit_slippage_source": None,
+    }
+    exit_ts = _parse_ts(row.get("exit_ts_et"))
+    date, arm, symbol = row.get("date"), row.get("arm"), row.get("symbol")
+    qty = row.get("qty")
+    exit_px = row.get("exit_px_avg")
+    if exit_ts is None or not date or not arm or not symbol:
+        return out
+    snapshots = quote_tape_index.get((date, arm, symbol))
+    if not snapshots:
+        return out
+
+    before, after = _nearest_before_after(snapshots, exit_ts)
+    if before is not None:
+        ts_b, row_b = before
+        lag = (exit_ts - ts_b).total_seconds()
+        out["exit_quote_bid_before"] = row_b.get("bid")
+        out["exit_quote_ask_before"] = row_b.get("ask")
+        out["exit_quote_mid_before"] = row_b.get("mid")
+        out["exit_quote_lag_before_s"] = round(lag, 1)
+        out["exit_quote_ts_before"] = ts_b.isoformat()
+        if qty is not None and exit_px is not None:
+            if row_b.get("bid") is not None:
+                out["exit_slippage_vs_bid_before_dollars"] = round(
+                    (exit_px - row_b["bid"]) * qty * 100, 2)
+            if row_b.get("mid") is not None:
+                out["exit_slippage_vs_mid_before_dollars"] = round(
+                    (exit_px - row_b["mid"]) * qty * 100, 2)
+        out["exit_slippage_source"] = (
+            "quote_recorder" if lag <= MAX_QUOTE_MATCH_LAG_S
+            else f"quote_recorder_low_confidence_lag_{lag:.0f}s")
+    if after is not None:
+        ts_a, row_a = after
+        out["exit_quote_bid_after"] = row_a.get("bid")
+        out["exit_quote_ask_after"] = row_a.get("ask")
+        out["exit_quote_mid_after"] = row_a.get("mid")
+        out["exit_quote_lag_after_s"] = round((ts_a - exit_ts).total_seconds(), 1)
+        out["exit_quote_ts_after"] = ts_a.isoformat()
+    return out
+
+
+# --------------------------------------------------------------------------- #
 # Step 3: join + write
 # --------------------------------------------------------------------------- #
 
@@ -489,10 +618,12 @@ def _premium_stop_suspect(row: dict) -> Optional[bool]:
     return False
 
 
-def enrich(trips: list, ctx_by_order: dict, ctx_by_key: dict, exit_events: dict) -> tuple:
+def enrich(trips: list, ctx_by_order: dict, ctx_by_key: dict, exit_events: dict,
+           quote_tape_index: "dict[tuple, list] | None" = None) -> tuple:
     matched = 0
     unmatched_keys = []
     rows = []
+    quote_tape_index = quote_tape_index or {}
     for t in trips:
         ctx = None
         for oid in t["entry_order_ids"]:
@@ -514,6 +645,7 @@ def enrich(trips: list, ctx_by_order: dict, ctx_by_key: dict, exit_events: dict)
         row["ctx_extras"] = (ctx or {}).get("ctx_extras")
         row["exit_reason"] = _exit_reason_for(t, exit_events)
         row["exit_reason_premium_stop_suspect"] = _premium_stop_suspect(row)
+        row.update(join_exit_quote(row, quote_tape_index))
         rows.append(row)
     rows.sort(key=lambda r: (r["date"], r["arm"], r["symbol"]))
     return rows, matched, unmatched_keys
@@ -528,13 +660,20 @@ def rebuild(repo: Path = REPO) -> dict:
     fills = load_fills(fills_path)
     trips = build_round_trips(fills)
     ctx_by_order, ctx_by_key, exit_events = load_context(core_path, fleet_dir)
-    rows, matched, unmatched = enrich(trips, ctx_by_order, ctx_by_key, exit_events)
+    trip_dates = {t["date"] for t in trips if t.get("date")}
+    quote_tape_index = load_quote_tape(repo / "analysis" / "quote-tape", trip_dates)
+    rows, matched, unmatched = enrich(trips, ctx_by_order, ctx_by_key, exit_events,
+                                       quote_tape_index)
 
     n_engine = sum(1 for r in rows if r["attribution"] == "engine")
     n_with_exit_reason = sum(1 for r in rows if r.get("exit_reason"))
     n_unbalanced = sum(1 for r in rows if r["unbalanced"])
     n_premium_stop_tagged = sum(1 for r in rows if "premium_stop" in (r.get("exit_reason") or "").split("+"))
     n_premium_stop_suspect = sum(1 for r in rows if r.get("exit_reason_premium_stop_suspect") is True)
+
+    n_exit_quote_matched = sum(1 for r in rows if r.get("exit_quote_bid_before") is not None)
+    slippage_vs_bid = [r["exit_slippage_vs_bid_before_dollars"] for r in rows
+                        if r.get("exit_slippage_vs_bid_before_dollars") is not None]
 
     fifo_trip_count_total = sum(r.get("fifo_trip_count") or 0 for r in rows)
     flat_pnl_total = sum(r["pnl_dollars"] for r in rows if r.get("pnl_dollars") is not None)
@@ -560,6 +699,19 @@ def rebuild(repo: Path = REPO) -> dict:
             "KNOWN UPSTREAM LABEL BUG -- not fixed here, disclosed per row instead)."
         ),
         "unmatched": unmatched,
+        # EXIT-QUOTE JOIN (Task B1, 2026-08-28) -- coverage from analysis/quote-tape/*.jsonl,
+        # written by the independent quote_recorder.py side-channel. n=0 here is EXPECTED and
+        # HONEST until that recorder has actually run live during market hours at least once
+        # (it captures forward from its own first deployed day; it cannot retroactively see a
+        # quote for a trade that already closed before it existed) -- never backfilled, never
+        # estimated. See setup/scripts/quote_recorder.py for the capture mechanism.
+        "exit_quote_matched": n_exit_quote_matched,
+        "exit_quote_match_rate": round(n_exit_quote_matched / len(rows), 4) if rows else None,
+        "exit_slippage_vs_bid_before_n": len(slippage_vs_bid),
+        "exit_slippage_vs_bid_before_sum_dollars": (
+            round(sum(slippage_vs_bid), 2) if slippage_vs_bid else None),
+        "exit_slippage_vs_bid_before_mean_dollars": (
+            round(sum(slippage_vs_bid) / len(slippage_vs_bid), 2) if slippage_vs_bid else None),
         # BASIS RECONCILIATION (AUDIT-CORRECTIONS-2026-08-27 -- adversarial audit found a THIRD,
         # already-refuted "merged-bucket" basis had leaked into 4 A/B scorecards + an overlap
         # matrix as phantom positions up to $8,816, when the true max single-position cost in this
