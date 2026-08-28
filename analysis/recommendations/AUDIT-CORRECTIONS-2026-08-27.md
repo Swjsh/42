@@ -200,8 +200,9 @@ PASS: no scorecard cell contains a position cost > $1,880
 `pytest backtest/tests/test_trades_enriched.py backtest/tests/test_scorecard_guards.py -q`:
 **31 passed**. Full-tree `pytest --collect-only` (10,241 tests) confirms no collection/import
 errors introduced anywhere in the tree. `backtest/tests/test_graduated_guards.py` (repo-wide
-pattern-scan guard, incl. the L160 anchor-formula check this module's `anchor_check` logic
-does NOT reuse the broken form of) run separately — result appended below once complete.
+pattern-scan + backtest-simulation guard suite, 5,080 lines, incl. the L160 anchor-formula
+check this module's `anchor_check` logic does NOT reuse the broken form of) run separately in
+the background — **129 passed, 1 skipped in 1168.13s (19m28s), exit code 0**, no failures.
 
 ## 7. Commit
 
