@@ -205,4 +205,6 @@ does NOT reuse the broken form of) run separately — result appended below once
 
 ## 7. Commit
 
-`<filled in after pathspec-commit — see final report>`
+`ee8adbe0` — pathspec-commit of exactly the 13 files listed in §5 (verified via `git status
+--porcelain` before commit: no other paths staged). Pre-commit's curated safety gate (6 suites,
+59 tests) ran automatically and passed.
