@@ -1,3 +1,23 @@
+## [2026-08-28T05:30 ET] conductor: OK — GITHUB-AUDIT-FALSE-RED-DAYS-INTERVAL fixed at the monitoring-instrument root, commit `fcfeaf74`
+
+**Picked via STAGE 0 budget gate PROCEED ($3.78/$30, 1/4 fires, AFTERHOURS mode) + market-hours gate closed (05:30 ET, weekday, pre-open) + `desk_allocator.py` SPY-0DTE #1 ("NEXT FIRE" — 80pts BROKEN, `self-check-last.json=DEGRADED`, futures desk confirmed `armable=false` no proven edge) + `self-check-last.json` (FUNCTION-FIRST priority): `RUN-CMD-HIDDEN MASKED EXIT ... unattended_health.py (exit=[1], 19x)`.**
+
+**Traced past the symptom to the real cause (not the masked-exit surface):** `unattended_health.py`'s exit=1 was itself just a side-effect of its own **RED verdict** on the `github-audit` unit (`Gamma_GitHubAudit: HAS NOT FIRED in 2.2d -- daily trigger, budget 2.0d`). Read `automation/state/unattended-health.json` directly (not just self_check's summary) to find the actual RED. `Get-ScheduledTaskInfo`: last run 8/25 22:46, `NumberOfMissedRuns=1`, `NextRunTime` skipped to 8/29 (not 8/27) — the SAME evening-reboot-window pattern (Kernel-Power reboots 18:00-22:00 MT) already root-caused for `Gamma_DressRehearsal` on 2026-08-26. But then went one layer deeper: the task's live trigger is `DaysInterval=2` ("every 2 days"), and `unattended_health.py::expected_gap_minutes()` **never reads DaysInterval at all** — it scores every `DailyTrigger` at a flat 1440min cadence regardless of N, so the module's own `_MULT_DAILY_PLUS=2.0` design (stated intent: "tolerates EXACTLY ONE missed run") collapsed to a 2.0-day budget for an every-2-day task — i.e. ZERO real slack for a single missed run, contradicting the module's own documented design. This is a genuine monitoring-instrument bug, not a task-scheduling bug: any current or future every-N-day (N>=2) Gamma task would get the same false-RED treatment on its first missed run.
+
+**Fixed both layers:** `_list-gamma-tasks-json.ps1` now emits `days_interval` for `DailyTrigger` entries (previously dropped silently); `expected_gap_minutes()` multiplies cadence by it (`n>1 -> cadence=1440*n`), defaulting to `n=1` (byte-identical behavior) when absent. Swept live for other N>1 DailyTrigger tasks (only `Gamma_GitHubAudit`) and N>1 `WeeksInterval` on WeeklyTrigger (none) — both verified via live `Get-ScheduledTask` queries, not assumed.
+
+**Verified, quoted:** `pytest backtest/tests/test_unattended_health.py -q` → `37 passed` (34 pre-existing + 3 new: every-N-day cadence correct, missing-field default unchanged, budget tolerates one missed run). Live re-run `python setup/scripts/unattended_health.py --json`: `github-audit` unit RED → GREEN, overall verdict RED → YELLOW (all other units byte-identical). Curated safety gate (`run_safety_gate.py`) 59/59 PASS. `git show fcfeaf74 --stat --name-status`: exactly the 4 intended files.
+
+**Not fully cleared:** `self_check.py` still reads DEGRADED this run (`RUN-CMD-HIDDEN MASKED EXIT ... 22x`) — that count is the CUMULATIVE non-zero-exit tally already written to today's `run-cmd-hidden-2026-08-28.log` from BEFORE this fix landed (10 more ticks fired while I was diagnosing); it cannot retroactively un-write history and will clear naturally once today's log rolls over, or once enough fresh GREEN ticks land. This is expected log-rollover lag, not a residual bug — the underlying cause (the false RED itself) is fixed and verified live.
+
+**Lesson filed:** `_lesson-inbox/2026-08-28-daily-trigger-cadence-ignored-days-interval.md` — generalizable: any instrument classifying a Windows scheduled task purely by CimClassName without reading its interval-refining property (DaysInterval/WeeksInterval) will mis-budget any "every N" task. Flags the WeeksInterval blind spot as latent-but-currently-inert (verified empty).
+
+**Rail (infra/monitoring fix, zero live-trading-path touch — no params/heartbeat_core/filters/placement/exit code edited):** guard tests are the regression check (a) — 3 new + 34 preserved; revert is `git revert fcfeaf74` (4 files, fully additive except the one `elif "Daily"` branch, verified reversible) (b); this STATUS entry + the matching queue.md item are the REVOKE report (c).
+
+**Next fire should pick up:** whatever `task_scorer.py --top` / `desk_allocator.py` return fresh — `self_check.py` DEGRADED should read GREEN again once today's `run-cmd-hidden` log stops accumulating historical exit=1 lines (check, don't assume); `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` is CLOSED (prior fire) so should no longer resurface; `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS` (MED, residual scope: 14 named `setup/scripts` files + `backtest/autoresearch/`) remains a reasonable next pick if nothing higher-value surfaces.
+
+---
+
 ## [2026-08-28T01:15 ET] conductor: OK — VBS-WRAPPER-EXIT-CODE-BLIND-SPOT CLOSED (SEVENTH PASS), commit `fc739d03`
 
 **Picked via STAGE 0 budget gate PROCEED ($0/$30, 0/4 fires, AFTERHOURS mode) + market-hours gate closed + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 (NEXT FIRE, futures desk checked and correctly `armable=false` -- no proven edge) + `task_scorer.py --top` returned `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` for the 4th consecutive fire (08-25/26/27/28) with the advisory "trace before executing."**
@@ -254,3 +274,33 @@ Scorecard: `analysis/recommendations/entry-structure-forward-2026-08-06.json`. F
 
 ---
 
+
+## Kitchen
+Kitchen: alive, queue 59 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-08-28T02:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T02:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 4x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T03:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 7 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 7x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T03:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 10 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 10x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T04:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 13x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T04:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 16 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 16x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T05:09:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 19x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T05:36:16
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+
+### DEGRADED: self-check 2026-08-28T05:39:57
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
