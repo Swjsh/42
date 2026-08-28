@@ -9,9 +9,16 @@ deterministically, and writes the result to analysis/trades-enriched.jsonl so no
 has to re-derive it. $0, stdlib only, no broker imports, no LLM.
 
 JOIN MECHANICS (C9 -- anchored to __file__, never CWD):
-  1. Round trips: group option fills from fills-ledger.jsonl by (date_et, arm, symbol).
-     Balanced (sum buy qty == sum sell qty) -> a closed round trip. Unbalanced -> still
-     emitted with unbalanced=true (never dropped -- C7 audit outputs, not exit codes).
+  1. Round trips: group option fills from fills-ledger.jsonl by (date_et, arm, symbol), THEN
+     split that bucket into separate trips at every buy-to-flat-to-buy boundary (a symbol
+     re-entered same day, e.g. vwap_continuation firing 3x on one strike, is 3 trips, not 1
+     -- AUDIT FIX 2026-08-27: the pre-fix version merged all fills for a (date,arm,symbol)
+     key into one row; pnl stayed correct (additive) but hold_min/entry_px/entry_hour_et/
+     ctx-setup were silently wrong for merged rows -- confirmed real case: 2026-06-30 safe-1
+     SPY260630C00750000 reported hold_min=170 for two actual <35min 0DTE scalps. 62 of 268
+     buckets / 109 trips were affected). Balanced (sum buy qty == sum sell qty) -> a closed
+     round trip. Unbalanced -> still emitted with unbalanced=true (never dropped -- C7 audit
+     outputs, not exit codes).
   2. Context join: PRIMARY by entry order_id -- any buy fill's order_id matched against the
      entry decision row's broker order id (core: exec.broker.id after mapping account
      safe|bold -> arm safe-2|bold-2; fleet: placement.broker.id, arm from arm_id).
@@ -20,6 +27,27 @@ JOIN MECHANICS (C9 -- anchored to __file__, never CWD):
      timestamp falls inside [entry_ts, exit_ts] (+/- 2 min slack), collecting the SELL_ALL /
      SELL_PARTIAL stage names (premium_stop, tp1, trail, structure_stop, ribbon_flip,
      time_stop, runner_target). Never fabricated -- null when nothing matches.
+
+     KNOWN UPSTREAM LABEL BUG, DISCLOSED NOT FIXED HERE (2026-08-27 A3 audit):
+     exit_manager.py's stage="premium_stop" is a HARDCODED label whenever the pre-TP1
+     exit-ALL check fires (worst_premium <= runner_stop), and it is only disambiguated from
+     a ratcheted profit-lock floor exit (stage="profit_lock_floor") when floor_active checks
+     TRUE -- which only covers profit_lock_arm_scope=="full" or pre_tp1_be_floor_arm_pct
+     (the 2026-07-23 fix, commit c4ee425a). It was never extended to cover the LADDER/TRAIL
+     knobs added 2026-08-10 (pre_tp1_ladder, pre_tp1_trail_arm_pct/pre_tp1_trail_pct -- LIVE
+     on ribbon_ride, the strategy every account trades). So a pre-TP1 exit whose floor was
+     raised ONLY by the ladder/trail still gets tagged stage="premium_stop" even when it
+     closed at a PROFIT. Real-tape proof (2026-08-27 audit, no exit_manager.py change made):
+     17 of 268 rows with exit_reason containing "premium_stop" closed with POSITIVE
+     pnl_dollars (up to +$285 / +57.6% return) -- mathematically impossible for a genuine
+     catastrophe/premium-floor hit. This script surfaces that fact via the
+     `exit_reason_premium_stop_suspect` field (true when the row's own pnl/exit-vs-planned-
+     stop data PROVES the tag can't be a raw stop hit) rather than silently trusting or
+     silently rewriting the upstream label -- the real fix belongs in exit_manager.py's
+     floor_active check, which is a live-order-path file outside this audit's authorized
+     scope (blast-radius review needed: exit_manager_walk.py, t4_exit_matrix.py,
+     hold_posture_ab_study.py, catastrophe_cap_shadow_ledger.py, pain_ledger.py all consume
+     ExitAction.stage today, per the 2026-07-23 fix's own blast-radius note).
 
 Idempotent full rebuild every run: reads all history in fills-ledger.jsonl (from 2026-06-29),
 writes the WHOLE output fresh each time (no incremental merge, no accumulation drift).
@@ -103,6 +131,94 @@ def load_fills(path: Path = FILLS_PATH) -> list:
     return fills
 
 
+def _split_same_symbol_fills_into_trips(fs: list) -> list:
+    """AUDIT FIX (2026-08-27, A3 code audit): a (date,arm,symbol) bucket can contain MORE
+    than one real round trip -- e.g. vwap_continuation firing 3 separate entries on the same
+    strike in one session (buy->flat->buy->flat->buy->flat). The pre-fix version bucketed
+    ALL fills for a (date,arm,symbol) key into ONE merged 'trip': pnl_dollars stayed correct
+    (additive), but hold_min, entry_hour_et, entry_px, ctx/setup attribution, and qty were all
+    silently WRONG (hold_min could span the gap between unrelated trips -- confirmed real
+    case 2026-06-30 safe-1 SPY260630C00750000: reported hold_min=170 for what were actually
+    two <15-min 0DTE scalps). Real-tape audit: 62 of 268 (date,arm,symbol) buckets contained
+    >1 real trip, 109 trips were being silently merged away.
+
+    This walks fills (already ts-sorted by the caller) and starts a NEW trip group whenever a
+    buy arrives while the running position is flat (0) -- i.e. every buy-to-flat-to-buy cycle
+    becomes its own group. Never drops a fill (C7): a stray fill before any buy (e.g. an
+    unmatched sell) still opens a group rather than being discarded."""
+    groups: list = []
+    current: list = []
+    pos = 0.0
+    for f in fs:
+        q = f.get("qty", 0) or 0
+        if not current:
+            current = [f]
+            pos = q if f["side"] == "buy" else -q
+            continue
+        current.append(f)
+        pos += q if f["side"] == "buy" else -q
+        if abs(pos) < 1e-9:
+            groups.append(current)
+            current = []
+            pos = 0.0
+    if current:
+        groups.append(current)
+    return groups
+
+
+def _trip_from_fills(date: str, arm: str, symbol: str, fs: list) -> dict:
+    buys = [f for f in fs if f["side"] == "buy"]
+    sells = [f for f in fs if f["side"] == "sell"]
+    buy_qty = sum(f["qty"] for f in buys)
+    sell_qty = sum(f["qty"] for f in sells)
+    unbalanced = (not buys) or (not sells) or abs(buy_qty - sell_qty) > 1e-6
+
+    right, strike = parse_symbol(symbol)
+    # multiplier is constant per contract (100 for every real SPY/equity option fill in this
+    # ledger) -- sourced from the FIRST sell fill itself, never a stray loop-leaked variable
+    # (AUDIT FIX: the pre-fix version read a bare `f` here that was left over from the
+    # module-level `for f in fills:` bucketing loop, i.e. an unrelated fill from the END of
+    # the ENTIRE input list, not this trip's own sells -- latent because multiplier is always
+    # 100 in practice for this instrument, but a real correctness bug, not a nicety).
+    multiplier = (sells[0].get("multiplier", 100) if sells else
+                  (buys[0].get("multiplier", 100) if buys else 100))
+    cost = sum(f["qty"] * f["price"] * f.get("multiplier", 100) for f in buys)
+    proceeds = sum(f["qty"] * f["price"] * f.get("multiplier", 100) for f in sells)
+    pnl = round(proceeds - cost, 2) if not unbalanced else None
+    entry_ts = _parse_ts(buys[0]["ts_et"]) if buys else None
+    exit_ts = _parse_ts(sells[-1]["ts_et"]) if sells else None
+    hold_min = (
+        round((exit_ts - entry_ts).total_seconds() / 60, 1)
+        if entry_ts and exit_ts else None
+    )
+    attribution = "manual" if any(f.get("attribution") != "engine" for f in fs) else "engine"
+    if any(f.get("attribution") == "engine" for f in fs) and attribution == "manual":
+        attribution = "mixed"
+
+    return {
+        "date": date,
+        "arm": arm,
+        "symbol": symbol,
+        "right": right,
+        "strike": strike,
+        "qty": buy_qty if buys else sell_qty,
+        "entry_ts_et": buys[0]["ts_et"] if buys else None,
+        "exit_ts_et": sells[-1]["ts_et"] if sells else None,
+        "entry_hour_et": (entry_ts.hour + entry_ts.minute / 60) if entry_ts else None,
+        "hold_min": hold_min,
+        "entry_px": buys[0]["price"] if buys else None,
+        "exit_px_avg": round(proceeds / multiplier / sell_qty, 4) if sells and sell_qty else None,
+        "cost_dollars": round(cost, 2) if buys else None,
+        "pnl_dollars": pnl,
+        "ret_pct_of_premium": round(100 * (proceeds - cost) / cost, 2) if (not unbalanced and cost) else None,
+        "attribution": attribution,
+        "entry_order_ids": [f.get("order_id") for f in buys],
+        "unbalanced": unbalanced,
+        "_entry_ts_parsed": entry_ts,
+        "_exit_ts_parsed": exit_ts,
+    }
+
+
 def build_round_trips(fills: list) -> list:
     buckets = collections.defaultdict(list)
     for f in fills:
@@ -112,48 +228,8 @@ def build_round_trips(fills: list) -> list:
     trips = []
     for (date, arm, symbol), fs in buckets.items():
         fs = sorted(fs, key=lambda x: x.get("ts_utc") or x.get("ts_et") or "")
-        buys = [f for f in fs if f["side"] == "buy"]
-        sells = [f for f in fs if f["side"] == "sell"]
-        buy_qty = sum(f["qty"] for f in buys)
-        sell_qty = sum(f["qty"] for f in sells)
-        unbalanced = (not buys) or (not sells) or abs(buy_qty - sell_qty) > 1e-6
-
-        right, strike = parse_symbol(symbol)
-        cost = sum(f["qty"] * f["price"] * f.get("multiplier", 100) for f in buys)
-        proceeds = sum(f["qty"] * f["price"] * f.get("multiplier", 100) for f in sells)
-        pnl = round(proceeds - cost, 2) if not unbalanced else None
-        entry_ts = _parse_ts(buys[0]["ts_et"]) if buys else None
-        exit_ts = _parse_ts(sells[-1]["ts_et"]) if sells else None
-        hold_min = (
-            round((exit_ts - entry_ts).total_seconds() / 60, 1)
-            if entry_ts and exit_ts else None
-        )
-        attribution = "manual" if any(f.get("attribution") != "engine" for f in fs) else "engine"
-        if any(f.get("attribution") == "engine" for f in fs) and attribution == "manual":
-            attribution = "mixed"
-
-        trips.append({
-            "date": date,
-            "arm": arm,
-            "symbol": symbol,
-            "right": right,
-            "strike": strike,
-            "qty": buy_qty if buys else sell_qty,
-            "entry_ts_et": buys[0]["ts_et"] if buys else None,
-            "exit_ts_et": sells[-1]["ts_et"] if sells else None,
-            "entry_hour_et": (entry_ts.hour + entry_ts.minute / 60) if entry_ts else None,
-            "hold_min": hold_min,
-            "entry_px": buys[0]["price"] if buys else None,
-            "exit_px_avg": round(proceeds / (f.get("multiplier", 100)) / sell_qty, 4) if sells and sell_qty else None,
-            "cost_dollars": round(cost, 2) if buys else None,
-            "pnl_dollars": pnl,
-            "ret_pct_of_premium": round(100 * (proceeds - cost) / cost, 2) if (not unbalanced and cost) else None,
-            "attribution": attribution,
-            "entry_order_ids": [f.get("order_id") for f in buys],
-            "unbalanced": unbalanced,
-            "_entry_ts_parsed": entry_ts,
-            "_exit_ts_parsed": exit_ts,
-        })
+        for leg in _split_same_symbol_fills_into_trips(fs):
+            trips.append(_trip_from_fills(date, arm, symbol, leg))
     return trips
 
 
@@ -331,6 +407,28 @@ def _exit_reason_for(trip: dict, exit_events: dict) -> Optional[str]:
 # Step 3: join + write
 # --------------------------------------------------------------------------- #
 
+def _premium_stop_suspect(row: dict) -> Optional[bool]:
+    """True when the row's OWN pnl/price data PROVES an exit_reason "premium_stop" tag
+    cannot be a raw catastrophe/premium-floor hit (see the module docstring's KNOWN
+    UPSTREAM LABEL BUG section) -- i.e. exit_manager.py's stage label is disclosed-suspect
+    for this row. None when exit_reason doesn't carry "premium_stop" at all (not applicable).
+    False when it does carry the tag but nothing in this row's own data disproves it (most
+    genuine catastrophe-cap hits land here -- this is NOT proof the tag IS correct, only that
+    this cheap check found no contradiction). Never fabricated: only flags what the row's own
+    numbers can prove, using no strategy-specific knowledge of the raw stop pct."""
+    reason = row.get("exit_reason") or ""
+    if "premium_stop" not in reason.split("+"):
+        return None
+    pnl = row.get("pnl_dollars")
+    if pnl is not None and pnl > 0:
+        return True  # a raw premium/catastrophe stop can never close at a profit
+    exit_px = row.get("exit_px_avg")
+    planned_stop = row.get("planned_stop")
+    if exit_px is not None and planned_stop is not None and exit_px > planned_stop + 1e-6:
+        return True  # exit filled ABOVE the raw stop level set at entry -> floor had ratcheted
+    return False
+
+
 def enrich(trips: list, ctx_by_order: dict, ctx_by_key: dict, exit_events: dict) -> tuple:
     matched = 0
     unmatched_keys = []
@@ -355,6 +453,7 @@ def enrich(trips: list, ctx_by_order: dict, ctx_by_key: dict, exit_events: dict)
             row[f] = (ctx or {}).get(f)
         row["ctx_extras"] = (ctx or {}).get("ctx_extras")
         row["exit_reason"] = _exit_reason_for(t, exit_events)
+        row["exit_reason_premium_stop_suspect"] = _premium_stop_suspect(row)
         rows.append(row)
     rows.sort(key=lambda r: (r["date"], r["arm"], r["symbol"]))
     return rows, matched, unmatched_keys
@@ -374,6 +473,8 @@ def rebuild(repo: Path = REPO) -> dict:
     n_engine = sum(1 for r in rows if r["attribution"] == "engine")
     n_with_exit_reason = sum(1 for r in rows if r.get("exit_reason"))
     n_unbalanced = sum(1 for r in rows if r["unbalanced"])
+    n_premium_stop_tagged = sum(1 for r in rows if "premium_stop" in (r.get("exit_reason") or "").split("+"))
+    n_premium_stop_suspect = sum(1 for r in rows if r.get("exit_reason_premium_stop_suspect") is True)
     meta = {
         "_meta": True,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -385,6 +486,14 @@ def rebuild(repo: Path = REPO) -> dict:
         "ctx_match_rate": round(matched / len(rows), 4) if rows else None,
         "exit_reason_matched": n_with_exit_reason,
         "exit_reason_match_rate": round(n_with_exit_reason / len(rows), 4) if rows else None,
+        "exit_reason_premium_stop_tagged": n_premium_stop_tagged,
+        "exit_reason_premium_stop_suspect": n_premium_stop_suspect,
+        "exit_reason_premium_stop_suspect_doc": (
+            "count of rows whose exit_reason contains 'premium_stop' but whose OWN "
+            "pnl_dollars/exit_px_avg PROVES it cannot be a raw catastrophe/premium-floor "
+            "hit (upstream exit_manager.py stage-label gap, see module docstring "
+            "KNOWN UPSTREAM LABEL BUG -- not fixed here, disclosed per row instead)."
+        ),
         "unmatched": unmatched,
     }
 
