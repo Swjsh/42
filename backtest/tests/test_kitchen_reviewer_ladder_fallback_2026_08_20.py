@@ -34,18 +34,39 @@ _VALID_JSON = (
 
 
 def _load_kitchen_reviewer(model_ladder):
-    """Load kitchen_reviewer with heavy siblings stubbed (no real LLM/daemon)."""
-    fakes = {}
+    """Load kitchen_reviewer with heavy siblings stubbed (no real LLM/daemon).
+
+    FIXED 2026-08-28 (full-suite RED, test-order pollution): the stubbing used to be
+    conditional on `name not in sys.modules`, which silently did nothing whenever some
+    OTHER test file (test_kitchen_grader_crashloop_guards.py does `importlib.import_module
+    ("kitchen_daemon")` -- entirely normal, correct behavior on ITS part) had already
+    cached the REAL module first. kitchen_reviewer.py is loaded here as a fresh, isolated
+    module object (spec_from_file_location under a unique name), but its own `import
+    kitchen_daemon` during exec_module() still resolves through the ONE shared
+    sys.modules cache -- so whichever module got there first wins, real or fake,
+    regardless of which one THIS test intends. Reproduced in isolation:
+    `pytest test_kitchen_grader_crashloop_guards.py
+    test_kitchen_reviewer_ladder_fallback_2026_08_20.py` -> tier-0 fired the REAL
+    kitchen_daemon.MODEL_LADDER's live model id instead of this test's
+    ["ladder-tier-0", "ladder-tier-1"], and the fake call_minimax raised
+    "unexpected model nvidia/nemotron-3-super-120b-a12b:free".
+
+    Fix: ALWAYS install the fake for the duration of this load (never conditional on
+    prior state), saving whatever sys.modules[name] held before -- real module, a
+    DIFFERENT test's fake, or nothing -- and restoring exactly that in `finally`. This
+    is isolation, not a one-shot claim on an empty slot; it holds no matter what any
+    other test file already did to sys.modules."""
+    prior: dict[str, object] = {}
+    _MISSING = object()
     for name in ("run_minimax", "kitchen_daemon"):
-        if name not in sys.modules:
-            mod = types.ModuleType(name)
-            if name == "run_minimax":
-                mod.call_minimax = lambda *a, **k: {"ok": False, "error": "unset-stub"}
-            else:
-                mod.enqueue_task = lambda *a, **k: "stub-task-id"
-                mod.MODEL_LADDER = model_ladder
-            sys.modules[name] = mod
-            fakes[name] = mod
+        prior[name] = sys.modules.get(name, _MISSING)
+        mod = types.ModuleType(name)
+        if name == "run_minimax":
+            mod.call_minimax = lambda *a, **k: {"ok": False, "error": "unset-stub"}
+        else:
+            mod.enqueue_task = lambda *a, **k: "stub-task-id"
+            mod.MODEL_LADDER = model_ladder
+        sys.modules[name] = mod
     spec = importlib.util.spec_from_file_location(
         "kitchen_reviewer_ladder_fallback_under_test", _MOD_PATH
     )
@@ -53,8 +74,11 @@ def _load_kitchen_reviewer(model_ladder):
     try:
         spec.loader.exec_module(m)
     finally:
-        for name in fakes:
-            sys.modules.pop(name, None)
+        for name, was in prior.items():
+            if was is _MISSING:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = was
     return m
 
 
