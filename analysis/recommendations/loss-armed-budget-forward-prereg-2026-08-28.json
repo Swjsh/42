@@ -1,69 +1,59 @@
 {
   "rule_id": "loss-armed-budget-forward-2026-08-28",
-  "title": "FORWARD pre-registration -- shadow-measure a LOSS-ARMED per-arm session premium BUDGET before arming it",
+  "title": "FORWARD pre-registration -- shadow-measure a LOSS-ARMED per-arm session premium BUDGET, sized as a PERCENT OF START-OF-DAY EQUITY, before arming it",
   "status": "FROZEN_PREREG_FORWARD",
-  "frozen_at_et": "2026-08-28 17:11 ET (market CLOSED -- et_clock.py verified market_hours=False at freeze time)",
-  "shadow_only": "MEASUREMENT ONLY -- no candidate in this file refuses a live entry during the window. The live gate (risk_gate.check_daily_premium_budget) exists but is INERT: params.daily_premium_budget_dollars is absent from every params file.",
-
+  "frozen_at_et": "2026-08-28 17:40 ET (market CLOSED -- et_clock.py verified market_hours=False). RE-FROZEN from the 17:11 ET dollar-denominated version, see refreeze_note.",
+  "shadow_only": "MEASUREMENT ONLY -- no candidate in this file refuses a live entry during the window. The live gate (risk_gate.check_daily_premium_budget) exists but is INERT: BOTH daily_premium_budget_pct_of_equity and daily_premium_budget_dollars are absent from every params file.",
   "relationship_to_the_sibling_study": {
     "sibling": "analysis/recommendations/day-throttle-forward-prereg-2026-08-18.json",
     "why_this_is_not_a_duplicate": "The sibling tests a HARD STOP triggered at -2% / -6% of start-of-day equity: once realized loss crosses the threshold the arm takes no further entries that session. This file tests a different ACTION (a spend budget, not a stop) fired by a different TRIGGER (any realized loss, not a % threshold). On the in-sample tape the two choices matter: a hard stop at ~-$300 returned +3431 vs baseline +1317, while the loss-armed budget returned +5161. Both studies read the same trades.csv tape and share the F-gate scoring shape, deliberately, so their forward windows are directly comparable.",
     "do_not_merge": "The sibling's window is FROZEN and already 9 sessions in. Adding a candidate to it post-hoc would be exactly the p-hacking its no_peeking_rule forbids. This study therefore opens its OWN window, dated from its own freeze."
   },
-
   "the_finding_in_one_paragraph": "Over 42 sessions and 428 entries the book turned over $141,641 of option premium to net +$1,317 (0.93% ROI, net of A1 regulatory fees). That figure is TURNOVER, not exposure -- the arms are ~$5,000 each and peak concurrent open premium per arm-day is a median $350 (7.0% of account), p90 $774, worst-ever $1,880; sizing sat inside the Rule 6 caps throughout. The leak is not position size, it is churn: 205 of 428 entries (48%) were placed while that arm was ALREADY RED on the session. A subtractive overlay on the realized tape (entries only ever removed, never resized, so no counterfactual price path is assumed) shows that capping further deployment once an arm is red takes net P&L from +1,317 to +5,161 on $87,744 of turnover instead of $141,641, cuts max drawdown from $4,908 to $2,544, and lifts profit factor from 1.08 to 1.51. Full battery: analysis/recommendations/daily-premium-budget.json.",
-
   "mechanism": "Identical in spirit to the sibling's: the entry trigger fires on impulse ATTEMPTS and cannot tell one that will run from one that will be absorbed. Realized intraday loss is the cheapest honest read-out of 'today is an absorbing tape'. Where this study differs is the response. A hard stop discards the rest of the session including its right tail -- and the tail is where all the money is (38 of 143 episodes are profitable; the top 10 arm-days carry 154% of all profit). A BUDGET keeps the arm in the game for one more properly-sized attempt while removing the third, fourth and fifth re-buy. It is a brake, not a kill switch.",
-
   "why_loss_armed_rather_than_a_flat_cap": "A flat cap that binds from the session's first entry FAILS anchor-no-regression at -32.3% on the 5 best realised days: it trims size on exactly the trend days the right-tail edge lives on. The loss-armed shape regressed those same days only -5.3% and PASSED the anchor gate. Preserving winning days is the design constraint, not an afterthought.",
-
   "HONESTY_DISCLOSURE_THIS_IS_THE_LOAD_BEARING_CAVEAT": {
-    "threshold_provenance": "IN-SAMPLE SELECTED. Unlike the sibling's T-2/T-6 (which claim to be untuned), the $700 figure was chosen as the argmax of net P&L over the in-sample first 60% of days. It is therefore NOT pre-registered in the strong sense and MUST NOT be read as validated by the in-sample number.",
-    "mitigation": "Three thresholds are registered, not one. The in-sample sweep showed the ENTIRE any-loss row positive from $400 to $1,500 (+3,583 to +5,161 vs a +1,317 baseline), so the claim under test is 'the shape works across the band', not 'the argmax works'. If only $700 survives forward and $500/$1000 do not, that is evidence of curve-fit, and this study should be read as REFUTED regardless of what B-700 alone does.",
-    "why_a_forward_window_is_required": "The full OP-11 battery returned 3 of 4 gates. It passed oos_positive (+2,536 over 17 OOS days), sub_window_stable (all three windows positive) and anchor_no_regression (-5.3%). It FAILED wf_median_ge_0.70 (median -0.068; folds [1.0, -0.0676, -0.8921]) on 3 walk-forward folds of 5 trading days each. At n=42 sessions that walk-forward is weak by construction -- but a failed gate is a failed gate, so the rule does not auto-ratify and this forward window is how it earns the missing evidence."
+    "threshold_provenance": "The BAND (8-16%) was read off an IN-SAMPLE sweep. No single value inside it is claimed to be optimal, and none was selected as an argmax -- which is a materially stronger position than the superseded dollar version, whose headline $700 WAS the in-sample argmax.",
+    "mitigation": "Three points across the band are registered. The in-sample sweep put every value from 6% to 16% within ~$320 of each other, so the claim under test is 'the shape works across the band', not 'this number works'. If only one of the three survives forward, that is evidence of curve-fit and the study is REFUTED regardless.",
+    "why_a_forward_window_is_required": "The full OP-11 battery on the dollar form returned 3 of 4 gates: PASS oos_positive, sub_window_stable, anchor_no_regression (-5.3%); FAIL wf_median_ge_0.70 (median -0.068 on 3 folds of 5 sessions). At n=42 that walk-forward is weak by construction, but a failed gate is a failed gate -- the rule does not auto-ratify and this window is how it earns the missing evidence."
   },
-
   "candidates": [
     {
-      "id": "B-500",
-      "rule": "Once an arm's REALIZED session P&L (counting ONLY trades already EXITED at the moment the new entry would be placed) is strictly below $0, that arm may not place an entry whose premium would push its CUMULATIVE session premium deployed above $500. Entries placed while the arm is flat or green are unconstrained.",
-      "provenance": "band-robustness sibling of B-700, registered to test curve-fit"
+      "id": "P-08",
+      "pct_of_start_of_day_equity": 0.08,
+      "rule": "Once an arm's REALIZED session P&L (counting ONLY trades already EXITED at the moment the new entry would be placed) is strictly below $0, that arm may not place an entry whose premium would push its CUMULATIVE session premium deployed above 8% of that arm's start-of-day equity. Entries placed while flat or green are unconstrained.",
+      "provenance": "lower edge of the flat band"
     },
     {
-      "id": "B-700",
-      "rule": "Same rule, $700 cumulative session premium.",
-      "provenance": "IN-SAMPLE ARGMAX -- see HONESTY_DISCLOSURE. The headline candidate, and the one most at risk of being an artifact."
+      "id": "P-12",
+      "pct_of_start_of_day_equity": 0.12,
+      "rule": "Same rule, 12% of start-of-day equity.",
+      "provenance": "centre of the flat band; ~$600 on a $5,000 account"
     },
     {
-      "id": "B-1000",
-      "rule": "Same rule, $1,000 cumulative session premium.",
-      "provenance": "band-robustness sibling of B-700, registered to test curve-fit"
+      "id": "P-16",
+      "pct_of_start_of_day_equity": 0.16,
+      "rule": "Same rule, 16% of start-of-day equity.",
+      "provenance": "upper edge of the flat band"
     }
   ],
-
   "budget_counts_ENTRY_premium_only": "Cumulative premium DEPLOYED via entries in that session for that arm. Proceeds from exits do NOT replenish the budget -- this is a spend cap, not a margin calculation. An entry is the unit; partial exits of one entry are one spend.",
-
   "abstain_rule": "If an entry's premium_paid or its arm's realized-before-entry cannot be read from the tape, the candidate records None (abstain) for that fill. Abstentions are counted and reported separately and NEVER silently folded into 'not blocked'.",
-
   "forward_window": {
     "first_date": "2026-08-29",
     "note": "The window opens the first session AFTER the freeze. 2026-08-28 and everything before it is IN-SAMPLE and is scored separately, clearly labelled, and is NOT evidence.",
     "sessions_required": 15
   },
-
   "f_gates": {
     "F1_direction_positive": "delta_usd > 0 -- the blocked fills were net losers.",
     "F2_not_a_winner_killer": "blocked winners < |blocked losers| in dollars.",
     "F3_frequency_n_blocked_ge_10": "at least 10 fills actually blocked, or there is nothing to conclude.",
     "F4_survives_dropping_best_session": "delta minus the single best session's contribution is still > 0.",
-    "F5_band_coherence": "NEW, specific to this study: B-500, B-700 and B-1000 must all show F1 positive. If only the in-sample argmax survives, the finding is a curve-fit and the study is REFUTED. This is the gate that makes the honesty disclosure above testable rather than decorative.",
+    "F5_band_coherence": "P-08, P-12 and P-16 must ALL show F1 positive. If only one point in the band survives, the finding is a curve-fit and the study is REFUTED. This is the gate that makes the honesty disclosure testable rather than decorative.",
     "F6_regime_split": "Adjudicated by a session reading the window, not computed nightly -- needs the realized-range classification per session."
   },
-
   "kill_condition": "If after 15 forward sessions F1 or F5 fails, this rule is DEAD and the inert gate should be deleted from risk_gate.py rather than left as decoration. A rule that cannot earn its window is not 'awaiting more data'.",
-
   "no_peeking_rule": "The three thresholds, the trigger (realized < 0), the F-gates and the 15-session requirement are FROZEN by this file. Changing any of them VOIDS the window and requires a new freeze with a new first_date.",
-
   "observation_only_hypotheses": [
     {
       "id": "H-TIER",
@@ -72,17 +62,15 @@
       "measured_from": "setup_quality column in journal/trades.csv"
     }
   ],
-
   "named_gaps_not_measured_here": {
     "VIX_regime": "In-sample, VIX 14-16 gave 39.3% WR / +11.1% ROI while VIX >= 18 gave 9.1% WR / -33.1% ROI (n=11). NOT registered as a candidate: n=11 is far below any honest gating threshold, and journal/trades.csv carries no VIX column, so measuring it forward needs a decisions.jsonl join this study deliberately does not attempt (a fragile cross-source timestamp match would be a worse instrument than no instrument).",
     "trigger_count": "In-sample, 2 triggers gave 41.2% WR / +17.5% ROI vs 1 trigger 35.9% / -1.9% and 3 triggers 0% / -30.7% (n=11). Same problem: not in trades.csv. Note this CORROBORATES the min_triggers=2 gate already live on safe-3/risky-1 and indicts risky-3's min_triggers=1 -- but corroborating an existing gate is not grounds for a new one.",
     "how_to_close_these": "Both need the entry-decision context persisted onto the trade row at journaling time (fleet_journal_bridge.py), not a retrospective join. Filed as the honest next build rather than faked here."
   },
-
   "provenance": {
     "battery": "backtest/autoresearch/daily_premium_budget_battery.py",
     "scorecard": "analysis/recommendations/daily-premium-budget.json",
-    "live_gate_INERT": "backtest/lib/risk_gate.py :: check_daily_premium_budget",
+    "live_gate_INERT": "backtest/lib/risk_gate.py :: check_daily_premium_budget -- reads daily_premium_budget_pct_of_equity (preferred, scales) and/or daily_premium_budget_dollars (absolute); when both are set the TIGHTER wins. Both absent -> rule OFF. Currently absent from every params file.",
     "guard": "backtest/tests/test_daily_premium_budget_2026_08_28.py",
     "builder": "setup/scripts/loss_armed_budget_shadow.py",
     "prior_coverage_read_first": [
@@ -91,5 +79,21 @@
       "analysis/recommendations/B3-bounded-config-2026-08-28.json",
       "analysis/recommendations/A1-cost-rebuild-2026-08-28.json"
     ]
+  },
+  "refreeze_note": {
+    "what_changed": "Candidates were fixed DOLLAR caps (B-500/B-700/B-1000). They are now PERCENT of that arm's start-of-day equity (P-08/P-12/P-16).",
+    "why": "J's correction, and he is right: a fixed $700 is 14% of a $5,000 account but 7% of a $10,000 one. A dollar-only budget silently TIGHTENS as an account grows -- the rule would punish success. The budget has to scale with the account it protects.",
+    "why_re-freezing_is_legitimate_here": "ZERO forward sessions had elapsed when this change was made (window was to open 2026-08-29; re-frozen the evening of 2026-08-28). No forward data existed to peek at, so nothing was selected on. Making this same change after even one forward session would have been p-hacking and would have required abandoning the window instead.",
+    "superseded_candidates": {
+      "B-500": 500.0,
+      "B-700": 700.0,
+      "B-1000": 1000.0
+    },
+    "in_sample_evidence_for_the_band": "On the realized tape the percentage form is FLATTER across its band than the dollar form: 6%/8%/10%/12%/14%/16% delta = +2967/+3158/+3145/+3119/+2836/+2947 (a ~$320 spread), where dollars spike at $700 (+3539) and decay to +2135 by $1,200. A flat response curve is the less curve-fit parameterisation -- the exact reason to prefer this form beyond the scaling argument."
+  },
+  "equity_source": {
+    "field": "account_equity_pre in journal/trades.csv",
+    "coverage": "369 of 376 entries (98%) on the in-sample tape",
+    "abstain_rule": "An entry with no readable start-of-day equity ABSTAINS (None) for every candidate rather than falling back to a dollar default. Never guess the denominator."
   }
 }

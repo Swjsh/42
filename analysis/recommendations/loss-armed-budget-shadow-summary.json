@@ -1,17 +1,17 @@
 {
   "_meta": {
-    "generated_at_et": "2026-08-28T17:17:52.119058",
+    "generated_at_et": "2026-08-28T17:43:52.821669",
     "builder": "setup/scripts/loss_armed_budget_shadow.py",
     "prereg": "analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28.json",
     "prereg_status": "FROZEN_PREREG_FORWARD",
     "shadow_only": "MEASUREMENT ONLY -- no candidate refuses a live entry. The live gate risk_gate.check_daily_premium_budget is INERT (params.daily_premium_budget_dollars absent everywhere).",
     "trigger": "arm's realized session P&L < $0 from already-EXITED trades only",
-    "candidates_cap_usd": {
-      "B-500": 500.0,
-      "B-700": 700.0,
-      "B-1000": 1000.0
+    "candidates_pct_of_start_of_day_equity": {
+      "P-08": 0.08,
+      "P-12": 0.12,
+      "P-16": 0.16
     },
-    "threshold_provenance_warning": "B-700 was chosen as the IN-SAMPLE argmax. F5 band-coherence is the gate that tests whether that is a curve-fit.",
+    "threshold_provenance_warning": "The 8-16% BAND was read off an in-sample sweep; no single value is claimed optimal. F5 band-coherence is the gate that tests whether the shape is a curve-fit.",
     "forward_window": {
       "first_date": "2026-08-29",
       "sessions_required": 15,
@@ -21,7 +21,7 @@
     }
   },
   "forward": {
-    "B-500": {
+    "P-08": {
       "n_kept": 0,
       "n_blocked": 0,
       "n_abstain": 0,
@@ -39,7 +39,7 @@
         "F4_survives_dropping_best_session": false
       }
     },
-    "B-700": {
+    "P-12": {
       "n_kept": 0,
       "n_blocked": 0,
       "n_abstain": 0,
@@ -57,7 +57,7 @@
         "F4_survives_dropping_best_session": false
       }
     },
-    "B-1000": {
+    "P-16": {
       "n_kept": 0,
       "n_blocked": 0,
       "n_abstain": 0,
@@ -78,9 +78,9 @@
     "F5_band_coherence": {
       "all_three_caps_F1_positive": false,
       "per_cap_delta_usd": {
-        "B-500": 0,
-        "B-700": 0,
-        "B-1000": 0
+        "P-08": 0,
+        "P-12": 0,
+        "P-16": 0
       },
       "_meaning": "If only the in-sample argmax (B-700) is positive, the finding is a curve-fit and the study is REFUTED regardless of B-700's own number."
     },
@@ -89,16 +89,34 @@
     }
   },
   "in_sample_NOT_EVIDENCE": {
-    "B-500": {
-      "n_kept": 260,
-      "n_blocked": 116,
-      "n_abstain": 0,
-      "delta_usd": 2887.0,
-      "premium_not_deployed_usd": 56446.0,
-      "blocked_winner_usd": 5364.0,
-      "blocked_loser_usd": -8251.0,
-      "blocked_wr_pct": 29.3,
-      "delta_ex_best_session_usd": 828.0,
+    "P-08": {
+      "n_kept": 213,
+      "n_blocked": 156,
+      "n_abstain": 7,
+      "delta_usd": 3158.0,
+      "premium_not_deployed_usd": 59241.0,
+      "blocked_winner_usd": 5677.0,
+      "blocked_loser_usd": -8835.0,
+      "blocked_wr_pct": 23.1,
+      "delta_ex_best_session_usd": 1099.0,
+      "sessions_touched": 27,
+      "f_gates": {
+        "F1_direction_positive": true,
+        "F2_not_a_winner_killer": true,
+        "F3_frequency_n_blocked_ge_10": true,
+        "F4_survives_dropping_best_session": true
+      }
+    },
+    "P-12": {
+      "n_kept": 227,
+      "n_blocked": 142,
+      "n_abstain": 7,
+      "delta_usd": 3119.0,
+      "premium_not_deployed_usd": 57541.0,
+      "blocked_winner_usd": 5479.0,
+      "blocked_loser_usd": -8598.0,
+      "blocked_wr_pct": 23.9,
+      "delta_ex_best_session_usd": 1060.0,
       "sessions_touched": 25,
       "f_gates": {
         "F1_direction_positive": true,
@@ -107,35 +125,17 @@
         "F4_survives_dropping_best_session": true
       }
     },
-    "B-700": {
-      "n_kept": 279,
-      "n_blocked": 97,
-      "n_abstain": 0,
-      "delta_usd": 3539.0,
-      "premium_not_deployed_usd": 51985.0,
-      "blocked_winner_usd": 4060.0,
-      "blocked_loser_usd": -7599.0,
-      "blocked_wr_pct": 28.9,
-      "delta_ex_best_session_usd": 1480.0,
-      "sessions_touched": 19,
-      "f_gates": {
-        "F1_direction_positive": true,
-        "F2_not_a_winner_killer": true,
-        "F3_frequency_n_blocked_ge_10": true,
-        "F4_survives_dropping_best_session": true
-      }
-    },
-    "B-1000": {
-      "n_kept": 298,
-      "n_blocked": 78,
-      "n_abstain": 0,
-      "delta_usd": 2236.0,
-      "premium_not_deployed_usd": 46135.0,
-      "blocked_winner_usd": 3871.0,
-      "blocked_loser_usd": -6107.0,
-      "blocked_wr_pct": 32.1,
-      "delta_ex_best_session_usd": 408.0,
-      "sessions_touched": 17,
+    "P-16": {
+      "n_kept": 247,
+      "n_blocked": 122,
+      "n_abstain": 7,
+      "delta_usd": 2947.0,
+      "premium_not_deployed_usd": 52869.0,
+      "blocked_winner_usd": 4726.0,
+      "blocked_loser_usd": -7673.0,
+      "blocked_wr_pct": 24.6,
+      "delta_ex_best_session_usd": 1119.0,
+      "sessions_touched": 25,
       "f_gates": {
         "F1_direction_positive": true,
         "F2_not_a_winner_killer": true,
@@ -146,9 +146,9 @@
     "F5_band_coherence": {
       "all_three_caps_F1_positive": true,
       "per_cap_delta_usd": {
-        "B-500": 2887.0,
-        "B-700": 3539.0,
-        "B-1000": 2236.0
+        "P-08": 3158.0,
+        "P-12": 3119.0,
+        "P-16": 2947.0
       },
       "_meaning": "If only the in-sample argmax (B-700) is positive, the finding is a curve-fit and the study is REFUTED regardless of B-700's own number."
     },

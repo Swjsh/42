@@ -52,13 +52,17 @@ def test_prereg_file_exists():
 def test_candidate_caps_match_the_frozen_prereg():
     spec = json.loads(mod.PREREG.read_text(encoding="utf-8"))
     frozen_ids = {c["id"] for c in spec["candidates"]}
+    frozen_pcts = {c["id"]: c["pct_of_start_of_day_equity"] for c in spec["candidates"]}
+    assert mod.CANDIDATES == frozen_pcts, (
+        f"pct drift: script {mod.CANDIDATES} vs prereg {frozen_pcts}")
     assert set(mod.CANDIDATES) == frozen_ids, (
         f"candidate drift: script has {sorted(mod.CANDIDATES)}, prereg froze "
         f"{sorted(frozen_ids)} -- changing either VOIDS the window"
     )
-    # the cap value must be recoverable from the id, so a typo cannot pass silently
-    for cid, cap in mod.CANDIDATES.items():
-        assert float(cid.split("-")[1]) == cap, f"{cid} does not encode cap {cap}"
+    # the pct must be recoverable from the id, so a typo cannot pass silently
+    for cid, pct in mod.CANDIDATES.items():
+        assert int(cid.split("-")[1]) / 100.0 == pct, f"{cid} does not encode pct {pct}"
+        assert 0 < pct <= 1, f"{cid}={pct} is not a fraction -- 12 vs 0.12 foot-gun"
 
 
 def test_forward_window_matches_the_frozen_prereg():
@@ -68,8 +72,8 @@ def test_forward_window_matches_the_frozen_prereg():
 
 
 def test_prereg_discloses_the_in_sample_threshold_provenance():
-    """The $700 cap was chosen in-sample. If that disclosure is ever deleted the
-    study starts reading as pre-registered when it is not."""
+    """The 8-16% BAND was read off an in-sample sweep. If that disclosure is ever
+    deleted the study starts reading as pre-registered when it is not."""
     spec = json.loads(mod.PREREG.read_text(encoding="utf-8"))
     disc = spec["HONESTY_DISCLOSURE_THIS_IS_THE_LOAD_BEARING_CAVEAT"]
     assert "IN-SAMPLE" in disc["threshold_provenance"].upper()
@@ -79,8 +83,9 @@ def test_prereg_discloses_the_in_sample_threshold_provenance():
 # ---------------------------------------------------------------------------
 # 2 + 6 + 7. the replay semantics
 # ---------------------------------------------------------------------------
-def _entry(date, arm, sec, cost, pnl, xsec, contract=None):
+def _entry(date, arm, sec, cost, pnl, xsec, contract=None, sod_equity=5000.0):
     return {
+        "sod_equity": sod_equity,
         "date": date,
         "arm": arm,
         "sec": sec,
@@ -107,7 +112,7 @@ def test_open_loser_does_not_arm_the_budget():
     second = [r for r in rows if r["time_entry_s"] == 2000][0]
     assert second["realized_before_entry"] == 0.0
     assert second["armed"] is False
-    assert second["would_block_B-500"] is False
+    assert second["would_block_P-08"] is False
 
 
 def test_closed_loser_does_arm_the_budget():
@@ -120,8 +125,8 @@ def test_closed_loser_does_arm_the_budget():
     second = [r for r in rows if r["time_entry_s"] == 2000][0]
     assert second["realized_before_entry"] == -500.0
     assert second["armed"] is True
-    # 600 already spent + 600 > 500 cap -> blocked
-    assert second["would_block_B-500"] is True
+    # 600 already spent + 600 > 400 cap (8% of $5k) -> blocked
+    assert second["would_block_P-08"] is True
 
 
 def test_green_session_is_never_constrained():
@@ -148,8 +153,8 @@ def test_blocked_entry_does_not_consume_budget():
     )
     big = [r for r in rows if r["time_entry_s"] == 2000][0]
     small = [r for r in rows if r["time_entry_s"] == 3000][0]
-    assert big["would_block_B-500"] is True
-    assert small["would_block_B-500"] is False, (
+    assert big["would_block_P-08"] is True
+    assert small["would_block_P-08"] is False, (
         "the blocked oversized entry consumed budget it never spent"
     )
 
@@ -165,7 +170,7 @@ def test_budget_is_per_arm_and_per_day():
             _entry("2026-09-02", "safe-2", 2000, 600.0, -10.0, xsec=2100),
         ]
     )
-    blocked = {(r["date"], r["arm"], r["time_entry_s"]): r["would_block_B-500"] for r in rows}
+    blocked = {(r["date"], r["arm"], r["time_entry_s"]): r["would_block_P-08"] for r in rows}
     assert blocked[("2026-09-01", "safe-2", 2000)] is True
     assert blocked[("2026-09-01", "risky-1", 2000)] is True   # own budget, own arming
     assert blocked[("2026-09-02", "safe-2", 2000)] is False   # fresh day, session flat
@@ -191,8 +196,8 @@ def test_abstentions_are_counted_separately_and_not_as_kept():
     e["cost_readable"] = False
     rows = mod.evaluate([e])
     s = mod.score(rows)
-    assert s["B-500"]["n_abstain"] == 1
-    assert s["B-500"]["n_kept"] == 0
+    assert s["P-08"]["n_abstain"] == 1
+    assert s["P-08"]["n_kept"] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -228,8 +233,8 @@ def test_in_sample_is_labelled_so_it_cannot_be_mistaken_for_evidence():
     )
     s_all = mod.score(rows, since=None)
     s_fwd = mod.score(rows, since=mod.FORWARD_FIRST_DATE)
-    assert s_all["B-500"]["n_kept"] + s_all["B-500"]["n_blocked"] == 1
-    assert s_fwd["B-500"]["n_kept"] + s_fwd["B-500"]["n_blocked"] == 0, (
+    assert s_all["P-08"]["n_kept"] + s_all["P-08"]["n_blocked"] == 1
+    assert s_fwd["P-08"]["n_kept"] + s_fwd["P-08"]["n_blocked"] == 0, (
         "a pre-freeze row leaked into the forward window"
     )
 
@@ -244,8 +249,7 @@ def test_summary_keys_name_the_in_sample_block_explicitly():
 # F5 band coherence -- the gate that tests the in-sample-argmax disclosure
 # ---------------------------------------------------------------------------
 def test_f5_band_coherence_is_computed_and_fails_when_only_one_cap_works():
-    """Synthetic: make B-500 block a big winner (negative delta) while B-1000
-    blocks nothing. F5 must go False."""
+    """Synthetic: make P-08 block a big winner (negative delta). F5 must go False."""
     rows = mod.evaluate(
         [
             _entry("2026-09-01", "safe-2", 1000, 100.0, -50.0, xsec=1100),
@@ -253,7 +257,7 @@ def test_f5_band_coherence_is_computed_and_fails_when_only_one_cap_works():
         ]
     )
     s = mod.score(rows)
-    assert s["B-500"]["delta_usd"] < 0          # blocked a winner
+    assert s["P-08"]["delta_usd"] < 0          # blocked a winner
     assert s["F5_band_coherence"]["all_three_caps_F1_positive"] is False
 
 
@@ -274,3 +278,35 @@ def test_reuses_the_sibling_helpers_rather_than_copying_them():
             f"{helper} was re-inlined instead of imported from day_throttle_shadow "
             "-- L184, reuse the ONE implementation"
         )
+
+
+# ---------------------------------------------------------------------------
+# EQUITY-AWARENESS (J 2026-08-28) -- the budget is a PERCENT, so the denominator
+# is now a second thing that can be missing, and a second thing to never guess.
+# ---------------------------------------------------------------------------
+def test_missing_start_of_day_equity_abstains():
+    """No equity = no denominator = no verdict. Must NOT fall back to a dollar
+    default, and must NOT quietly count as 'not blocked'."""
+    e = _entry("2026-09-01", "safe-2", 2000, 600.0, -10.0, xsec=2100, sod_equity=None)
+    rows = mod.evaluate(
+        [_entry("2026-09-01", "safe-2", 1000, 100.0, -50.0, xsec=1100), e]
+    )
+    bad = [r for r in rows if r["time_entry_s"] == 2000][0]
+    for cid in mod.CANDIDATES:
+        assert bad[f"would_block_{cid}"] is None, f"{cid} guessed a denominator"
+
+
+def test_budget_scales_with_the_account():
+    """THE POINT OF THE PERCENT FORM: identical spend and identical entry, but a
+    bigger account -> the cap grows and the entry survives."""
+    def blocked_at(equity):
+        rows = mod.evaluate([
+            _entry("2026-09-01", "safe-2", 1000, 100.0, -50.0, xsec=1100, sod_equity=equity),
+            _entry("2026-09-01", "safe-2", 2000, 600.0, -10.0, xsec=2100, sod_equity=equity),
+        ])
+        return [r for r in rows if r["time_entry_s"] == 2000][0]["would_block_P-12"]
+
+    # 12% of $5,000 = $600; 100 spent + 600 = 700 > 600 -> blocked
+    assert blocked_at(5000.0) is True
+    # 12% of $20,000 = $2,400 -> same order sails through
+    assert blocked_at(20000.0) is False

@@ -42,11 +42,15 @@ testable. The rules, with their doctrine source:
   MIN_CONTRACTS      CLAUDE.md Rule 6 + params `min_contracts` (>=3: 2 TP + 1
                      runner). A proposal below the floor is denied.
   DAILY_PREMIUM_BUDGET
-                     NEW 2026-08-28. params `daily_premium_budget_dollars`
-                     (absent -> rule OFF) caps total premium DEPLOYED by one arm
-                     in one session. `daily_premium_budget_loss_armed` (default
-                     True) makes it bind only once the arm is already red on the
-                     day. Scorecard: analysis/recommendations/daily-premium-budget.json
+                     NEW 2026-08-28. Caps total premium DEPLOYED by one arm in
+                     one session. Set EITHER
+                     `daily_premium_budget_pct_of_equity` (preferred -- scales
+                     with the account, so the rule does not tighten as equity
+                     grows) OR `daily_premium_budget_dollars` (absolute), or
+                     both, in which case the TIGHTER wins. Both absent -> OFF.
+                     `daily_premium_budget_loss_armed` (default True) makes it
+                     bind only once the arm is already red on the day.
+                     Scorecard: analysis/recommendations/daily-premium-budget.json
   PDT / SETTLEMENT   CLAUDE.md Rule 7. Two mutually-exclusive gate modes, selected
                      by params.pdt_gate_mode (per-account, params.json):
                        "margin_pdt" (LEGACY, function-level default when the key
@@ -385,6 +389,13 @@ def check_settlement(
 #       right-tail edge lives.
 #   loss_armed=False -- flat cap from the session's first entry.
 #
+# EQUITY-AWARE (J 2026-08-28): prefer `daily_premium_budget_pct_of_equity`. A
+# fixed $700 is 14% of a $5k account but 7% of a $10k one -- a dollar-only budget
+# silently TIGHTENS as the account grows, which is backwards. On the real-fills
+# tape the percentage form is also FLATTER across its band (6-16% all land within
+# ~$320 of each other) where the dollar form spikes at $700 and decays either
+# side; a flat response curve is the less curve-fit parameterisation.
+#
 # OFF BY DEFAULT. With `daily_premium_budget_dollars` absent from params this
 # function returns None on every call and check_order is byte-identical to its
 # pre-2026-08-28 behavior. Pinned by
@@ -408,6 +419,7 @@ def check_daily_premium_budget(
     premium_spent_today: Any,
     realized_pnl_today: Any,
     params: Optional[Mapping[str, Any]],
+    start_of_day_equity: Any = None,
 ) -> Optional[RiskDecision]:
     """Deny when this entry would push the arm past its session premium budget.
 
@@ -427,22 +439,63 @@ def check_daily_premium_budget(
     if params is None or not isinstance(params, Mapping):
         return Deny(CODE_UNREADABLE_INPUT, "params is missing or not a mapping")
 
-    budget_raw = params.get("daily_premium_budget_dollars")
-    if budget_raw is None:
+    pct_raw = params.get("daily_premium_budget_pct_of_equity")
+    dollars_raw = params.get("daily_premium_budget_dollars")
+    if pct_raw is None and dollars_raw is None:
         return None  # rule OFF -- no new input requirements, no behavior change
 
-    if _is_bad_number(budget_raw):
-        return Deny(
-            CODE_UNREADABLE_INPUT,
-            "params.daily_premium_budget_dollars present but unreadable "
-            f"({budget_raw!r})",
-        )
-    budget = _as_float(budget_raw)
-    if budget <= 0:
-        return Deny(
-            CODE_UNREADABLE_INPUT,
-            f"params.daily_premium_budget_dollars must be > 0 (got {budget})",
-        )
+    # PCT is the preferred form: a fixed dollar budget is a different fraction of
+    # a $2k account than a $10k one, so a $-only rule silently tightens as the
+    # account grows. When BOTH are set the TIGHTER wins -- the same "tighter of
+    # the two" convention RISK_CAP and the v15 tier gate already use, so a
+    # dollar figure can act as an absolute ceiling on top of the percentage.
+    caps: list[tuple[float, str]] = []
+
+    if pct_raw is not None:
+        if _is_bad_number(pct_raw):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.daily_premium_budget_pct_of_equity present but unreadable "
+                f"({pct_raw!r})",
+            )
+        pct = _as_float(pct_raw)
+        if not (0 < pct <= 1):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.daily_premium_budget_pct_of_equity must be a fraction in "
+                f"(0, 1] -- got {pct}. (0.12 means 12%, not 12.)",
+            )
+        if start_of_day_equity is None or _is_bad_number(start_of_day_equity):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "start_of_day_equity is required when "
+                "params.daily_premium_budget_pct_of_equity is set and must be a "
+                f"readable number (got {start_of_day_equity!r})",
+            )
+        sod = _as_float(start_of_day_equity)
+        if sod <= 0:
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"start_of_day_equity must be > 0 (got {sod})",
+            )
+        caps.append((pct * sod, f"{pct:.0%} of ${sod:,.0f} start-of-day equity"))
+
+    if dollars_raw is not None:
+        if _is_bad_number(dollars_raw):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.daily_premium_budget_dollars present but unreadable "
+                f"({dollars_raw!r})",
+            )
+        budget_d = _as_float(dollars_raw)
+        if budget_d <= 0:
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"params.daily_premium_budget_dollars must be > 0 (got {budget_d})",
+            )
+        caps.append((budget_d, f"${budget_d:,.0f} absolute"))
+
+    budget, budget_basis = min(caps, key=lambda c: c[0])
 
     for name, value in (("premium", premium), ("proposed_qty", proposed_qty)):
         if _is_bad_number(value):
@@ -453,9 +506,8 @@ def check_daily_premium_budget(
     if premium_spent_today is None or _is_bad_number(premium_spent_today):
         return Deny(
             CODE_UNREADABLE_INPUT,
-            "premium_spent_today is required when "
-            "params.daily_premium_budget_dollars is set and must be a readable "
-            f"number (got {premium_spent_today!r})",
+            "premium_spent_today is required when a daily premium budget is set "
+            f"and must be a readable number (got {premium_spent_today!r})",
         )
     spent = _as_float(premium_spent_today)
     if spent < 0:
@@ -493,8 +545,8 @@ def check_daily_premium_budget(
         return Deny(
             CODE_DAILY_PREMIUM_BUDGET,
             f"{account}: ${spent:,.0f} premium already deployed today + this "
-            f"order's ${notional:,.0f} exceeds the session budget ${budget:,.0f}"
-            f"{armed_note}",
+            f"order's ${notional:,.0f} exceeds the session budget ${budget:,.0f} "
+            f"({budget_basis}){armed_note}",
         )
     return None
 
@@ -769,6 +821,7 @@ def check_order(
         premium_spent_today=premium_spent_today,
         realized_pnl_today=realized_pnl_today,
         params=params,
+        start_of_day_equity=sod_equity_f,
     )
     if _denial is not None:
         return _denial

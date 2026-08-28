@@ -13,10 +13,14 @@ WHAT IT MEASURES
 Once an arm's REALIZED session P&L goes below $0 -- counting only trades already
 EXITED at the moment a new entry would be placed -- that arm may not place an
 entry whose premium would push its CUMULATIVE session premium deployed past the
-candidate's cap. Entries placed while flat or green are unconstrained. Three caps
-are registered ($500 / $700 / $1,000) so the forward window tests the BAND, not
-the in-sample argmax. See the prereg's HONESTY_DISCLOSURE: $700 was chosen
-in-sample and is the candidate most likely to be an artifact.
+candidate's cap. Entries placed while flat or green are unconstrained. Three points
+across the band are registered (8% / 12% / 16% of that arm's START-OF-DAY
+EQUITY) so the forward window tests the BAND, not a single number.
+
+The budget is a PERCENTAGE, not a dollar figure: a fixed $700 is 14% of a $5,000
+account but 7% of a $10,000 one, so a dollar budget silently tightens as the
+account grows (J's correction, 2026-08-28). An entry with no readable
+start-of-day equity ABSTAINS rather than falling back to a dollar default.
 
 REUSE (L184 -- one implementation, never re-inline)
 ---------------------------------------------------
@@ -59,7 +63,9 @@ LEDGER = OUT_DIR / "loss-armed-budget-shadow-ledger.jsonl"
 SUMMARY = OUT_DIR / "loss-armed-budget-shadow-summary.json"
 
 # Frozen by the pre-registration. Changing any of these VOIDS the window.
-CANDIDATES = {"B-500": 500.0, "B-700": 700.0, "B-1000": 1000.0}
+# Frozen by the pre-registration. PERCENT of the arm's start-of-day equity --
+# NOT dollars. A fixed-dollar budget tightens as an account grows (J 2026-08-28).
+CANDIDATES = {"P-08": 0.08, "P-12": 0.12, "P-16": 0.16}
 FORWARD_FIRST_DATE = "2026-08-29"
 SESSIONS_REQUIRED = 15
 
@@ -91,6 +97,7 @@ def load_entries() -> list[dict]:
                     "side": r.get("c_or_p"),
                     "setup": r.get("setup"),
                     "quality": r.get("setup_quality") or None,
+                    "sod_equity": _num(r.get("account_equity_pre")),
                     "pnl": 0.0,
                     "cost": 0.0,
                     "cost_readable": True,
@@ -136,13 +143,17 @@ def evaluate(entries: list[dict]) -> list[dict]:
                 "quality": e["quality"],
                 "pnl": round(e["pnl"], 2),
                 "premium_paid": round(e["cost"], 2) if e["cost_readable"] else None,
+                "sod_equity": e["sod_equity"],
                 "realized_before_entry": round(realized, 2),
                 "armed": realized < 0,
             }
-            for cid, cap in CANDIDATES.items():
-                if not e["cost_readable"]:
+            for cid, pct in CANDIDATES.items():
+                # Abstain on EITHER unreadable input -- never guess a spend, and
+                # never guess the denominator the budget is a percentage OF.
+                if not e["cost_readable"] or not e["sod_equity"]:
                     rec[f"would_block_{cid}"] = None  # abstain
                     continue
+                cap = pct * e["sod_equity"]
                 if realized < 0 and spent[cid] + e["cost"] > cap:
                     rec[f"would_block_{cid}"] = True
                 else:
@@ -262,9 +273,10 @@ def main() -> int:
             "gate risk_gate.check_daily_premium_budget is INERT "
             "(params.daily_premium_budget_dollars absent everywhere).",
             "trigger": "arm's realized session P&L < $0 from already-EXITED trades only",
-            "candidates_cap_usd": CANDIDATES,
-            "threshold_provenance_warning": "B-700 was chosen as the IN-SAMPLE argmax. F5 "
-            "band-coherence is the gate that tests whether that is a curve-fit.",
+            "candidates_pct_of_start_of_day_equity": CANDIDATES,
+            "threshold_provenance_warning": "The 8-16% BAND was read off an in-sample "
+            "sweep; no single value is claimed optimal. F5 band-coherence is the gate that "
+            "tests whether the shape is a curve-fit.",
             "forward_window": {
                 "first_date": FORWARD_FIRST_DATE,
                 "sessions_required": SESSIONS_REQUIRED,

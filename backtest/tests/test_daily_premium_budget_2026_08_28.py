@@ -154,6 +154,123 @@ class TestLossArmed:
 
 
 # ---------------------------------------------------------------------------
+# 2b. EQUITY-AWARE (J 2026-08-28) -- the budget must SCALE with the account
+# ---------------------------------------------------------------------------
+class TestEquityAware:
+    """A fixed dollar budget is a different fraction of a $2k account than a
+    $10k one, so a $-only rule silently TIGHTENS as the account grows. The
+    percentage form is the preferred shape and must track equity."""
+
+    PCT = {**BASE_PARAMS, "daily_premium_budget_pct_of_equity": 0.12}
+
+    def test_same_spend_blocked_on_a_small_account(self):
+        # 12% of $5,000 = $600; $500 already spent + $450 notional = $950
+        decision = _order(
+            params=self.PCT,
+            equity=5000.0,
+            start_of_day_equity=5000.0,
+            premium_spent_today=500.0,
+            realized_pnl_today=-100.0,
+        )
+        assert not decision.allowed
+        assert decision.code == CODE_DAILY_PREMIUM_BUDGET
+
+    def test_same_spend_allowed_on_a_large_account(self):
+        """THE POINT OF THE WHOLE CHANGE: identical order + identical spend, but
+        a bigger account -> the budget scales and does not bind."""
+        decision = _order(
+            params=self.PCT,
+            equity=20000.0,
+            start_of_day_equity=20000.0,
+            premium_spent_today=500.0,
+            realized_pnl_today=-100.0,
+        )
+        assert decision.allowed, decision.reason
+
+    def test_budget_scales_linearly_with_equity(self):
+        """Walk equity up; the last-blocking equity must be where 12% crosses."""
+        blocked_at = []
+        for eq in (4000.0, 6000.0, 8000.0, 10000.0):
+            d = _order(
+                params=self.PCT,
+                equity=eq,
+                start_of_day_equity=eq,
+                premium_spent_today=500.0,
+                realized_pnl_today=-100.0,
+            )
+            blocked_at.append((eq, not d.allowed))
+        # $950 needed; 12% of 8000 = 960 -> first allowed at 8000
+        assert blocked_at == [(4000.0, True), (6000.0, True), (8000.0, False), (10000.0, False)]
+
+    def test_pct_requires_start_of_day_equity_fail_closed(self):
+        denial = check_daily_premium_budget(
+            "X",
+            premium=1.5,
+            proposed_qty=3,
+            premium_spent_today=500.0,
+            realized_pnl_today=-100.0,
+            params={"daily_premium_budget_pct_of_equity": 0.12},
+        )
+        assert denial is not None
+        assert denial.code == CODE_UNREADABLE_INPUT
+        assert "start_of_day_equity" in denial.reason
+
+    @pytest.mark.parametrize("bad", [12, 100, 1.5, 0, -0.1, float("nan"), "12%"])
+    def test_pct_outside_0_1_is_rejected(self, bad):
+        """The 'wrote 12 meaning 12%' foot-gun must fail closed, not silently
+        become a 1200%-of-equity budget (i.e. no budget at all)."""
+        denial = check_daily_premium_budget(
+            "X",
+            premium=1.5,
+            proposed_qty=3,
+            premium_spent_today=500.0,
+            realized_pnl_today=-100.0,
+            params={"daily_premium_budget_pct_of_equity": bad},
+            start_of_day_equity=5000.0,
+        )
+        assert denial is not None
+        assert denial.code == CODE_UNREADABLE_INPUT
+
+    def test_when_both_forms_are_set_the_tighter_wins(self):
+        """Same convention RISK_CAP and the v15 tier gate already use, so a
+        dollar figure can act as an absolute ceiling on top of the percentage."""
+        # 50% of $5,000 = $2,500 (loose) vs $600 absolute (tight) -> $600 binds
+        decision = _order(
+            params={
+                **BASE_PARAMS,
+                "daily_premium_budget_pct_of_equity": 0.50,
+                "daily_premium_budget_dollars": 600.0,
+            },
+            equity=5000.0,
+            start_of_day_equity=5000.0,
+            premium_spent_today=500.0,
+            realized_pnl_today=-100.0,
+        )
+        assert not decision.allowed
+        assert "600" in decision.reason
+
+    def test_denial_names_the_basis_so_logs_are_diagnosable(self):
+        decision = _order(
+            params=self.PCT,
+            equity=5000.0,
+            start_of_day_equity=5000.0,
+            premium_spent_today=500.0,
+            realized_pnl_today=-100.0,
+        )
+        assert "start-of-day equity" in decision.reason
+
+    def test_green_session_still_unconstrained_under_pct(self):
+        decision = _order(
+            params=self.PCT,
+            equity=5000.0,
+            start_of_day_equity=5000.0,
+            premium_spent_today=99999.0,
+            realized_pnl_today=+50.0,
+        )
+        assert decision.allowed, decision.reason
+
+
+# ---------------------------------------------------------------------------
 # 3. FLAT shape (loss_armed=False) -- kept available, not the default
 # ---------------------------------------------------------------------------
 class TestFlatShape:
