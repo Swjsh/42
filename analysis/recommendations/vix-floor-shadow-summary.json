@@ -1,0 +1,96 @@
+{
+  "generated_at_utc": "2026-08-28T00:12:30.726232+00:00",
+  "prereg": "analysis\\recommendations\\VIX-FLOOR-SHADOW-PREREG-2026-08-27.md",
+  "population": {
+    "raw_bear_blockers_eq_8_rows": 665,
+    "skipped_during_hold": 501,
+    "shadow_entries_attempted": 164,
+    "n_valid": 164,
+    "n_excluded": 0,
+    "exclude_reasons": {}
+  },
+  "totals": {
+    "n": 164,
+    "win_rate": 0.378,
+    "total_pnl": -335.0,
+    "profit_factor": 0.917,
+    "avg_pnl": -2.04
+  },
+  "is_oos_split_date": "2026-08-14",
+  "is": {
+    "n": 61,
+    "pnl": 235.0,
+    "profit_factor": 1.112
+  },
+  "oos": {
+    "n": 103,
+    "pnl": -570.0,
+    "profit_factor": 0.704
+  },
+  "per_day": {
+    "2026-07-29": {
+      "n": 19,
+      "pnl": 447.0
+    },
+    "2026-08-05": {
+      "n": 12,
+      "pnl": -258.0
+    },
+    "2026-08-06": {
+      "n": 6,
+      "pnl": -150.0
+    },
+    "2026-08-11": {
+      "n": 24,
+      "pnl": 196.0
+    },
+    "2026-08-14": {
+      "n": 4,
+      "pnl": -108.0
+    },
+    "2026-08-17": {
+      "n": 22,
+      "pnl": 78.0
+    },
+    "2026-08-18": {
+      "n": 2,
+      "pnl": 402.0
+    },
+    "2026-08-19": {
+      "n": 10,
+      "pnl": 6.0
+    },
+    "2026-08-20": {
+      "n": 35,
+      "pnl": -336.0
+    },
+    "2026-08-21": {
+      "n": 10,
+      "pnl": 18.0
+    },
+    "2026-08-24": {
+      "n": 18,
+      "pnl": -426.0
+    },
+    "2026-08-26": {
+      "n": 2,
+      "pnl": -204.0
+    }
+  },
+  "max_single_day_pnl_share_of_total": 1.334,
+  "gates": {
+    "n_gte_15": true,
+    "oos_pf_gt_1": false,
+    "wf_stability_gte_0.70": false,
+    "sub_window_stable_max_day_lte_0.50": false,
+    "anchor_no_regression": "N/A_shadow_only_never_pooled_with_real_bear_cohort"
+  },
+  "verdict": "NOT_PROMOTED",
+  "disclosures": [
+    "Selection is on entry-time information only (C6 no look-ahead).",
+    "Synthetic fills are mechanism evidence, not P&L truth -- no real order was placed.",
+    "August 2026 VIX regime concentration (14-16 band) -- speaks only to that regime.",
+    "This population is a DIFFERENT setup shape than the real trendline-bypass bear cohort and is never pooled with it."
+  ],
+  "schedule_hint": "backtest/.venv/Scripts/python.exe setup/scripts/vix_floor_shadow.py --today (suggested daily, e.g. 16:10 ET after EOD flatten; NOT registered by this build -- see prereg Step 3)."
+}
