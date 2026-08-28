@@ -702,5 +702,6 @@
   },
   "winner": null,
   "auto_ratify": false,
-  "verdict": "NO VARIANT AUTO-RATIFIES -- escalate to J with the tradeoff quantified."
+  "verdict": "NO VARIANT AUTO-RATIFIES -- escalate to J with the tradeoff quantified.",
+  "_metric_warning": "'deployed' is CUMULATIVE PREMIUM TURNOVER (sum of entry notionals), NOT capital at risk and NOT account size. The arms are ~$5,000 each; the same capital is recycled ~8x over the 42-day window. Real exposure, measured as peak concurrent open premium per arm per day: median $350 (7.0% of a $5k account), p90 $774 (15.5%), worst-ever $1,880 (37.6%, risky-3 2026-08-05) -- comfortably inside the Rule 6 per-trade caps (Safe 30% / Bold 50%) throughout. Per-entry ticket: median $276, mean $332. This rule therefore caps TURNOVER (churn), not position size; position sizing was never the problem. Its benefit shows up as drawdown reduction (maxDD 4908 -> 2544), not as reduced exposure."
 }

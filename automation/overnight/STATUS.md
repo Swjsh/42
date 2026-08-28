@@ -1,3 +1,20 @@
+## [2026-08-28T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-28 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 188 tick(s) showed in_trade>0. 57 real fill(s) dated 2026-08-28: safe-2@10:21, bold-2@10:21, safe-2@10:22, bold-2@10:22, safe-3@10:22, risky-1@10:22, risky-3@10:22, safe-2@10:23, bold-2@10:23, safe-2@10:24, bold-2@10:24, safe-2@10:25, bold-2@… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-28, generated_at_et=2026-08-28T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-28, regime_context.stamp_date=2026-08-28 (present=True, dates_match=True). one_liner='Yesterday 2026-08-27 (Thu) = gap-go (range 0.68%, gap +0.32%, clo… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 61 distinct near-price levels. Worst: 769.49 flipped 7x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 41 time(s) across 6 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-28 window_end=2026-08-27 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=28 (delta +18 vs baseline n=10) exp=$-5.89/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=37 exp=$14.92/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-28T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 384 theta-clock row(s) dated 2026-08-28 across 6 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=384, unavailable=0. sti… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-28 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-28`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
 ## [2026-08-28 14:30 ET] J-DIRECTED BUILD - daily premium budget: battery run, rule built INERT, **3-of-4 OP-11 gates - needs J's call**
 
 **J asked "how do we spend less and still hit our daily target".** Answering the second half first, because it
@@ -7,8 +24,14 @@ other 120 sum to -$1,658. $100-200/arm/DAY is not a quota this edge can fill - i
 single days against it will produce cut winners and chased losers.
 
 **What CAN be fixed is the carrying cost of waiting for that tail.** 42 days, T1 broker-truth tape, net of A1
-fees: the book deployed **$141,641** to net **+$1,317** (0.93%). **205 of 427 entries (48%) were placed while
-that arm was already RED on the day.**
+fees: the book turned over **$141,641** of premium to net **+$1,317** (0.93%). **205 of 427 entries (48%) were
+placed while that arm was already RED on the day.**
+
+**READ THAT NUMBER CORRECTLY:** $141,641 is cumulative TURNOVER across 428 entries x 42 days x ~5 arms -- the
+same ~$5k per arm recycled ~8x. It is NOT capital at risk. Actual peak concurrent open premium per arm per
+day: median **$350 (7.0% of a $5k account)**, p90 $774 (15.5%), worst-ever $1,880 (37.6%) -- inside the Rule 6
+caps throughout. Per-entry ticket: median $276. **Position sizing was never the problem; churn is.** This rule
+caps turnover, not size, which is why its benefit lands as drawdown reduction rather than lower exposure.
 
 **Built + battery-run:** `check_daily_premium_budget()` in `backtest/lib/risk_gate.py`, two shapes.
 `C_loss_armed` @ $700/arm/session - the cap binds ONLY after the arm books a losing exit that session:
@@ -367,7 +390,7 @@ Scorecard: `analysis/recommendations/entry-structure-forward-2026-08-06.json`. F
 
 
 ## Kitchen
-Kitchen: alive, queue 52 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-08-28T02:09:57
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
@@ -508,3 +531,31 @@ Kitchen: alive, queue 52 pending, last cook 0 min ago, today $0.00, model=openro
 - CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-08-28T20:00:26+00:00
+- task: eod-summary
+- date_et: 2026-08-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-08-28T16:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-28T16:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-08-28T20:45:39+00:00
+- task: analyst
+- date_et: 2026-08-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
