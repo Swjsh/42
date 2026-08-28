@@ -1,0 +1,362 @@
+{
+  "_doc": "Counterfactual A/B scorecard for candidate 'lunch_window_gate_1200_1300' (block entries with entry time 12:00-12:59 ET). Removes/rescales trades matching the rule from the engine-attribution population; delta = counterfactual - baseline realized P&L. NO LOOK-AHEAD: this rule conditions ONLY on entry-time information (setup name / entry cost / ribbon-at-entry / entry clock time), all of which are known before the order is placed.",
+  "generated_at_utc": "2026-08-27T23:59:05.055436Z",
+  "rule_id": "lunch_window_gate_1200_1300",
+  "population": "engine-attribution option round trips, 2026-07-01..2026-08-27 (full window, not August-only)",
+  "IS_window": "2026-07-01..2026-08-14",
+  "OOS_window": "2026-08-17..2026-08-27",
+  "baseline": {
+    "n": 246,
+    "pnl": 377.0,
+    "wr_pct": 29.3
+  },
+  "counterfactual": {
+    "n": 222,
+    "pnl": 1795.0,
+    "wr_pct": 29.7
+  },
+  "delta_pnl": 1418.0,
+  "n_blocked": 24,
+  "blocked_winners_n": 6,
+  "blocked_winners_pnl": 1241.0,
+  "blocked_losers_n": 18,
+  "blocked_losers_pnl": -2659.0,
+  "is_oos": {
+    "IS_n": 196,
+    "IS_n_blocked": 20,
+    "IS_delta": 1628.0,
+    "OOS_n": 50,
+    "OOS_n_blocked": 4,
+    "OOS_delta": -210.0
+  },
+  "sub_window_weekly": {
+    "2026-W27": {
+      "n": 20,
+      "n_blocked": 2,
+      "delta": -221.0
+    },
+    "2026-W28": {
+      "n": 35,
+      "n_blocked": 2,
+      "delta": 59.0
+    },
+    "2026-W29": {
+      "n": 17,
+      "n_blocked": 1,
+      "delta": 25.0
+    },
+    "2026-W30": {
+      "n": 8,
+      "n_blocked": 0,
+      "delta": 0.0
+    },
+    "2026-W31": {
+      "n": 19,
+      "n_blocked": 6,
+      "delta": 411.0
+    },
+    "2026-W32": {
+      "n": 43,
+      "n_blocked": 5,
+      "delta": 817.0
+    },
+    "2026-W33": {
+      "n": 54,
+      "n_blocked": 4,
+      "delta": 537.0
+    },
+    "2026-W34": {
+      "n": 32,
+      "n_blocked": 3,
+      "delta": -26.0
+    },
+    "2026-W35": {
+      "n": 18,
+      "n_blocked": 1,
+      "delta": -184.0
+    }
+  },
+  "anchor_check": {
+    "anchor_cohort_n": 33,
+    "anchor_winners_n": 11,
+    "removed_anchor_winners_n": 2,
+    "removed_anchor_winners": [
+      {
+        "date": "2026-08-04",
+        "arm": "safe-2",
+        "sym": "SPY260804C00769000",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "pnl": 375.0,
+        "cost": 402.0,
+        "entry_hhmm": "12:28",
+        "ribbon": "BULL"
+      },
+      {
+        "date": "2026-08-27",
+        "arm": "safe-2",
+        "sym": "SPY260827C00771000",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "pnl": 184.0,
+        "cost": 213.0,
+        "entry_hhmm": "12:31",
+        "ribbon": "BULL"
+      }
+    ],
+    "anchor_no_regression": false
+  },
+  "concentration_warning": null,
+  "n_blocked_full_list": [
+    {
+      "date": "2026-07-02",
+      "arm": "bold-2",
+      "sym": "SPY260702P00740000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": 290.0,
+      "cost": 210.0,
+      "entry_hhmm": "12:51",
+      "ribbon": "BEAR"
+    },
+    {
+      "date": "2026-07-02",
+      "arm": "safe-2",
+      "sym": "SPY260702P00743000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -69.0,
+      "cost": 408.0,
+      "entry_hhmm": "12:51",
+      "ribbon": "BEAR"
+    },
+    {
+      "date": "2026-07-07",
+      "arm": "safe-1",
+      "sym": "SPY260707P00746000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -24.0,
+      "cost": 105.0,
+      "entry_hhmm": "12:37",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-07",
+      "arm": "risky-3",
+      "sym": "SPY260707P00746000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -35.0,
+      "cost": 170.0,
+      "entry_hhmm": "12:37",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-13",
+      "arm": "risky-3",
+      "sym": "SPY260713P00747000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -25.0,
+      "cost": 135.0,
+      "entry_hhmm": "12:40",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-27",
+      "arm": "bold-2",
+      "sym": "SPY260727P00737000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -355.0,
+      "cost": 685.0,
+      "entry_hhmm": "12:57",
+      "ribbon": "BEAR"
+    },
+    {
+      "date": "2026-07-27",
+      "arm": "safe-3",
+      "sym": "SPY260727P00734000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -87.0,
+      "cost": 132.0,
+      "entry_hhmm": "12:58",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-27",
+      "arm": "risky-1",
+      "sym": "SPY260727P00734000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -85.0,
+      "cost": 215.0,
+      "entry_hhmm": "12:58",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-27",
+      "arm": "risky-3",
+      "sym": "SPY260727P00734000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -85.0,
+      "cost": 215.0,
+      "entry_hhmm": "12:58",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-31",
+      "arm": "risky-3",
+      "sym": "SPY260731C00746000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": 126.0,
+      "cost": 165.0,
+      "entry_hhmm": "12:19",
+      "ribbon": null
+    },
+    {
+      "date": "2026-07-31",
+      "arm": "safe-3",
+      "sym": "SPY260731C00747000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": 75.0,
+      "cost": 90.0,
+      "entry_hhmm": "12:31",
+      "ribbon": null
+    },
+    {
+      "date": "2026-08-04",
+      "arm": "safe-2",
+      "sym": "SPY260804C00769000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": 375.0,
+      "cost": 402.0,
+      "entry_hhmm": "12:28",
+      "ribbon": "BULL"
+    },
+    {
+      "date": "2026-08-07",
+      "arm": "safe-3",
+      "sym": "SPY260807C00773000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": -488.0,
+      "cost": 880.0,
+      "entry_hhmm": "12:07",
+      "ribbon": null
+    },
+    {
+      "date": "2026-08-07",
+      "arm": "risky-1",
+      "sym": "SPY260807C00773000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": -305.0,
+      "cost": 545.0,
+      "entry_hhmm": "12:07",
+      "ribbon": null
+    },
+    {
+      "date": "2026-08-07",
+      "arm": "risky-3",
+      "sym": "SPY260807C00775000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": -216.0,
+      "cost": 372.0,
+      "entry_hhmm": "12:07",
+      "ribbon": null
+    },
+    {
+      "date": "2026-08-07",
+      "arm": "safe-2",
+      "sym": "SPY260807C00773000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": -183.0,
+      "cost": 333.0,
+      "entry_hhmm": "12:06",
+      "ribbon": "BULL"
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "bold-2",
+      "sym": "SPY260813P00776000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -200.0,
+      "cost": 320.0,
+      "entry_hhmm": "12:41",
+      "ribbon": "MIXED"
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-2",
+      "sym": "SPY260813P00776000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -69.0,
+      "cost": 189.0,
+      "entry_hhmm": "12:41",
+      "ribbon": "MIXED"
+    },
+    {
+      "date": "2026-08-14",
+      "arm": "safe-2",
+      "sym": "SPY260814P00776000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -108.0,
+      "cost": 336.0,
+      "entry_hhmm": "12:14",
+      "ribbon": "BEAR"
+    },
+    {
+      "date": "2026-08-14",
+      "arm": "bold-2",
+      "sym": "SPY260814P00776000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": -160.0,
+      "cost": 340.0,
+      "entry_hhmm": "12:58",
+      "ribbon": "BEAR"
+    },
+    {
+      "date": "2026-08-19",
+      "arm": "safe-2",
+      "sym": "SPY260819P00770000",
+      "setup": null,
+      "pnl": -42.0,
+      "cost": 291.0,
+      "entry_hhmm": "12:56",
+      "ribbon": null
+    },
+    {
+      "date": "2026-08-20",
+      "arm": "safe-2",
+      "sym": "SPY260820P00766000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": 191.0,
+      "cost": 210.0,
+      "entry_hhmm": "12:56",
+      "ribbon": "BEAR"
+    },
+    {
+      "date": "2026-08-21",
+      "arm": "safe-2",
+      "sym": "SPY260821C00766000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": -123.0,
+      "cost": 288.0,
+      "entry_hhmm": "12:26",
+      "ribbon": "BULL"
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "safe-2",
+      "sym": "SPY260827C00771000",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "pnl": 184.0,
+      "cost": 213.0,
+      "entry_hhmm": "12:31",
+      "ribbon": "BULL"
+    }
+  ],
+  "gates": {
+    "OOS_positive": false,
+    "WF_proxy_OOS_over_IS": -0.129,
+    "WF_proxy_ge_0_70": false,
+    "sub_window_stable": true,
+    "sub_window_weeks_helped": "5/8",
+    "anchor_no_regression": false,
+    "evidence_n": 24,
+    "evidence_n_ge_15_advisory": true,
+    "auto_ratify_eligible": false,
+    "reason": "BLOCKED: OOS_delta<=0; WF-proxy=-0.129 <0.70; removes an anchor-cohort winner"
+  }
+}

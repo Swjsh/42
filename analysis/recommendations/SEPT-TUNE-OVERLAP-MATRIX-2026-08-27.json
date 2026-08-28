@@ -1,0 +1,53 @@
+{
+  "_doc": "Pairwise overlap of blocked-trade sets across the 4 candidates, plus the marginal value of premium_cost_cap_1200 once vwap_family_demotion has already removed its trades (rules 1 and 2 overlap heavily because most VWAP-family entries also carry high entry cost).",
+  "pairwise": {
+    "vwap_family_demotion & premium_cost_cap_1200": {
+      "n_shared": 11,
+      "n_a": 17,
+      "n_b": 20
+    },
+    "vwap_family_demotion & mixed_ribbon_gate": {
+      "n_shared": 0,
+      "n_a": 17,
+      "n_b": 7
+    },
+    "vwap_family_demotion & lunch_window_gate_1200_1300": {
+      "n_shared": 0,
+      "n_a": 17,
+      "n_b": 24
+    },
+    "premium_cost_cap_1200 & mixed_ribbon_gate": {
+      "n_shared": 0,
+      "n_a": 20,
+      "n_b": 7
+    },
+    "premium_cost_cap_1200 & lunch_window_gate_1200_1300": {
+      "n_shared": 0,
+      "n_a": 20,
+      "n_b": 24
+    },
+    "mixed_ribbon_gate & lunch_window_gate_1200_1300": {
+      "n_shared": 2,
+      "n_a": 7,
+      "n_b": 24
+    }
+  },
+  "rule2_marginal_after_rule1": {
+    "n_blocked_marginal": 9,
+    "n_blocked_standalone": 20,
+    "delta_pnl_marginal": 1185.0,
+    "delta_pnl_standalone": 2454.0,
+    "gates": {
+      "OOS_positive": true,
+      "WF_proxy_OOS_over_IS": 0.038,
+      "WF_proxy_ge_0_70": false,
+      "sub_window_stable": true,
+      "sub_window_weeks_helped": "5/5",
+      "anchor_no_regression": true,
+      "evidence_n": 9,
+      "evidence_n_ge_15_advisory": false,
+      "auto_ratify_eligible": false,
+      "reason": "BLOCKED: WF-proxy=0.038 <0.70; evidence_n=9 <15 (advisory)"
+    }
+  }
+}
