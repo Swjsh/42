@@ -68,7 +68,19 @@ def _heal_nulls_from_beacon(ls: dict, state_dir: Path) -> bool:
     The aggressive variant was orphaned when the LLM heartbeat retired (2026-06-25)
     and carried spy.last=null + ribbon=null, violating LoopStateModel. The beacon
     is the never-blind truth source, so a null here is strictly worse than beacon
-    data of any age. Returns True if anything was patched. Fail-open."""
+    data of any age. Returns True if anything was patched. Fail-open.
+
+    SHAPE FIX (2026-08-28, full-suite RED --
+    test_state_contracts.py::test_live_json_file_validates[automation/state/loop-state.json]):
+    the ORIGINAL orphaned shape this was written against had `ribbon` entirely absent/None.
+    The CORE file's actual current shape is `ribbon: {"fast": null, ..., "stack": null}` --
+    a present dict whose LEAVES are null, not a null ribbon key -- so `ls.get("ribbon") is
+    None` never matched it and `stack` (LoopStateModel's one non-Optional ribbon field)
+    stayed null forever even with a fresh, populated sight-beacon.json sitting right there
+    (confirmed live: beacon carried ribbon_stack='BEAR' + real ema_fast/pivot/slow while
+    loop-state.json's ribbon.stack sat null). Broadened to treat "ribbon present but its
+    stack is falsy" the same as "ribbon missing" -- both are the same underlying gap from
+    this refresher's point of view."""
     try:
         beacon = json.loads((state_dir / "sight-beacon.json").read_text(encoding="utf-8-sig"))
     except Exception:  # noqa: BLE001
@@ -78,7 +90,9 @@ def _heal_nulls_from_beacon(ls: dict, state_dir: Path) -> bool:
     if isinstance(spy, dict) and spy.get("last") is None and isinstance(beacon.get("spy"), (int, float)):
         spy["last"] = beacon["spy"]
         changed = True
-    if ls.get("ribbon") is None and beacon.get("ribbon_stack"):
+    ribbon = ls.get("ribbon")
+    ribbon_needs_heal = ribbon is None or (isinstance(ribbon, dict) and not ribbon.get("stack"))
+    if ribbon_needs_heal and beacon.get("ribbon_stack"):
         ls["ribbon"] = {
             "fast": beacon.get("ema_fast"), "pivot": beacon.get("ema_pivot"),
             "slow": beacon.get("ema_slow"), "spread_cents": beacon.get("spread_cents"),
