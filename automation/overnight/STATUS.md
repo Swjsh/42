@@ -25,11 +25,27 @@ and the flat cap's WF "pass" comes from two folds clipping to 1.0. That is conte
 
 **Verified, quoted:** `pytest backtest/tests/test_daily_premium_budget_2026_08_28.py -q` -> `25 passed`;
 `pytest backtest/tests/test_risk_gate.py -q` -> `96 passed`; 5 consumer suites (cap_admission,
-entry_block_watch_risk_deny, fast_path_pdt_gap, core_entry_idempotency, fill_funnel_why) -> `58 passed`.
-Two self-caught errors worth recording: (1) my first variant-C sweep returned a flat no-op because I passed
+entry_block_watch_risk_deny, fast_path_pdt_gap, core_entry_idempotency, fill_funnel_why) -> `58 passed`;
+`run_safety_gate.py` -> `59/59 PASS`; **`pytest backtest/tests/test_graduated_guards.py -q` ->
+`129 passed, 1 skipped in 1102.73s (0:18:22)`, real pytest `exit=0`.**
+
+**CORRECTION to commit `4b636ee3`'s message (which is immutable, hence this note).** That message says the full
+graduated-guards suite was "NOT run -- it hangs on an unrelated tree-scanning test." Both halves are wrong. It
+does not hang: it takes **18m22s**, and my 600s/900s command timeouts kept killing it mid-run. It has now been
+run to completion and PASSES. The reason I wrongly believed it had passed once, then wrongly believed it hung,
+is the same defect both times: the runs were piped (`pytest ... | tail -12`), and bash returns the LAST pipeline
+stage's exit status -- so the `exit code 0` the harness reported was `tail`'s, not pytest's. Demonstrated:
+`python -c "import sys; sys.exit(3)" | tail -1` -> `0`, unpiped -> `3`. The re-run above was unpiped
+(`> file 2>&1; echo "exit=$?"`) and carries a real summary line. This is the repo's own C7 class and is
+mechanically identical to `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`; the rule (quote the `N passed` line, never the
+exit code) is filed at `_lesson-inbox/2026-08-28-piping-pytest-to-tail-masks-the-exit-code.md`.
+
+Three self-caught errors worth recording: (1) my first variant-C sweep returned a flat no-op because I passed
 `(date, arm)` into a function taking `(arm, date)` - caught by a sanity assert on the armed population, re-run
 corrected; (2) the risky-3 replay test asserted 2 surviving entries when the gate correctly allows only 1
-($395 + $340 = $735 > $700). The gate was right and my expectation was wrong - the test was corrected, not the gate.
+($395 + $340 = $735 > $700). The gate was right and my expectation was wrong - the test was corrected, not the gate;
+(3) the piped-exit-code error described in the CORRECTION above, which produced a false "the guards suite passed"
+claim to J that had to be retracted, then a false "it hangs" claim that also had to be retracted.
 
 **RULE IS OFF.** `daily_premium_budget_dollars` is absent from every params file, so the gate returns None on
 every call and `check_order` is byte-identical to its pre-today behavior - the FIRST test class pins exactly that.
@@ -47,7 +63,8 @@ chart-stop-primary). Closing that cell is J's REVOKE, not mine.
 Scorecard: `analysis/recommendations/daily-premium-budget.json`.
 Battery: `backtest/autoresearch/daily_premium_budget_battery.py`.
 Prior coverage read BEFORE building (Obsidian-brain rule): B3-loss-anatomy, B3-bounded-config, A1-cost-rebuild.
-Revert: `git revert <this commit>` (4 files; risk_gate.py changes are additive plus one call site).
+Revert: `git revert 4b636ee3` (6 files -- risk_gate.py + guard + battery + scorecard + queue.md + STATUS.md;
+risk_gate.py changes are additive plus one call site). ("4 files" in the original draft of this entry was wrong.)
 
 ## [2026-08-28 13:06 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
 
@@ -481,6 +498,12 @@ Kitchen: alive, queue 52 pending, last cook 0 min ago, today $0.00, model=openro
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
 ### DEGRADED: self-check 2026-08-28T15:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-28T15:39:56
 - TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
