@@ -380,6 +380,82 @@ Current grinder varies 7 knobs. Unexplored (rough list):
 
 ---
 
+## NEW 2026-08-27 -- Loser-size audit (week of 08/20-08/27, fills-ledger truth)
+
+### [LOSER-AUDIT-1] Catastrophe-cap leakage: 7 engine losers worse than -55% of premium since 07-20
+**Filed:** 2026-08-27 evening, from J-directed "keep losers smaller" audit.
+**Finding:** the -50% premium catastrophe cap leaked 7 times in ~5.5 weeks (~$364 total beyond-cap loss). Worst: 2026-08-10 risky-1 SPY260810P00773000, bought 5x @ 1.08 09:54 ET, sold 0.20 at 15:45 ET EOD flatten = **-81.5% — the cap never fired at all** (not slippage). The -55%..-58% cluster (08-07 x3, 08-13, 08-21) is plausibly cap-fired-with-slippage on wide spreads; the -81.5% and 07-27 -65.9% are not.
+**ROOT-CAUSED (2026-08-27 evening, Sonnet investigation):** the 08-10 loss was a **fill-lag vs flat-prune race** — the entry limit sat `pending_new` 2m43s; D5's 2-read flat streak pruned the exit state at 09:54:05, **44 seconds before the 09:54:49 fill**, leaving the position unmanaged (it was a VWAP_CONTINUATION with a -6% premium stop that never existed in tracking). **Already closed the same night** by two live-path fixes: pending-fill guard (flat reads don't count while an open BUY is working, `exit_actuator.py` ~L576) + orphan-position adoption (`adopt_untracked_positions`, wired into `manage_tick`), pinned by `backtest/tests/test_orphan_position_adoption_2026_08_10.py`. **08-13 bold-2 -62.5% was a DIFFERENT mechanism** — bold-2's broker endpoints hung ~17 min (journal 2026-08-13), exit-state stale; connection-isolation issue, not the prune race. **07-27 safe-3 -65.9% remains unconfirmed** — check that day's decisions.jsonl for FLAT_PRUNED on SPY260727P00734000 before assuming either mechanism.
+**Remaining open:** (a) 07-27 classification; (b) broker-API-hang staleness (08-13 shape) has no dedicated guard — a stale exit-state watchdog (alert/act if exit-state.json age > N ticks while position open) is the candidate.
+
+### [LOSER-AUDIT-2] Losing-day loser hold-time: chop days bleed 60-70 min before stop-out
+**Filed:** 2026-08-27 evening.
+**Finding:** on winning days (08/20, 08/27) losers are cut in 9-14 min median (-14..-16% of premium). On the week's losing day 08/21 losers were held 59-70 min and averaged **-32% of premium** — the chart-stop is slow specifically in chop, where structure invalidation is ambiguous. Dollar loser size already shrank this week (avg -$78 vs -$139/-$150 in prior windows) but that came from the recency-RED qty clamp (12->5 lots), NOT tighter exits — avg loss as % of premium is flat (~-23%) across all windows.
+**Counter-evidence (do not over-tighten):** catastrophe-cap shadow ledger 2026-08-27 rows show all sampled winners would have made MORE held to EOD (+140/+159/+327 deltas) — the week's larger leak is early winner exits, not oversized losers. Any loser time-stop A/B must also score its effect on winners that start red.
+**Candidate lever (research-only, needs pre-reg per pain-ledger PREREG rules):** time-boxed scratch — if position <= breakeven at N minutes in a non-trending tape, exit; sweep N on real fills with the exit_manager_walk harness (PARITY-GAP-2 iteration 6 machinery), OOS + WF gates per OP-11 before any ship.
+
+---
+
+## NEW 2026-08-27 -- SEPTEMBER TUNE LIST (from August full-month matrix, J-directed step-back)
+
+> Source: month matrix over fills-ledger (147 engine round trips, Aug 03-27) joined to decision
+> ledgers by entry order_id (137/147 matched). August book: **+$1,744** (12 green / 12 red / 3 flat).
+> Core finding: **ribbon_ride both directions + structure stop = +$3,148 PF 1.35 (n=102) — the edge.
+> Everything else subtracted.** Candidates below are pre-reg A/B items for weekend ratification
+> (Rule 9), NOT tonight flips. All n's disclosed; several are small.
+>
+> **RESULTS (same evening, 2026-08-27 — A/B scorecards run, commits `12f86c11`/`b8cc527b`/`c74b7204`/`bbceabe0`):**
+> **NONE auto-ratified.** TUNE-1 VWAP (+$1,296 but WF 0.18 — benefit is IS-concentrated, recency clamp already
+> strangled the leak), TUNE-2 cost-cap (mostly TUNE-1 in disguise, 11/17 overlap, marginal +$1,185 fails gates),
+> TUNE-3 MIXED-ribbon (**passes all hard gates incl. OOS+, n=7 — shadow with pre-reg promotion at n>=15**),
+> TUNE-4 lunch gate (OOS NEGATIVE −$210 + removes an anchor winner — weakest, likely dead).
+> Full detail: `analysis/recommendations/SEPT-TUNE-AB-2026-08-27.md` + 5 JSONs.
+> **TUNE-6 VIX bear gate: RESOLVED as a clean NULL.** Provenance audit found Filter 8 (`filters.py:1671`,
+> VIX>17.30 AND rising, added 2026-05-05 from prose, never ratified) blocked 665 raw / 164 collapsed
+> quad-trigger bear signals in Aug — but the pre-registered shadow backfill through the ratified
+> exit-manager harness scored them **PF 0.917, −$335, OOS PF 0.70, NOT_PROMOTED (3/4 gates fail)**.
+> The gate stays; no case to loosen off this evidence. Prereg committed BEFORE results (`c74b7204`);
+> a repricing bug caught in hand-verification (premium_stop label reuse) was fixed before reporting.
+> Ledger: `analysis/recommendations/vix-floor-shadow-{ledger.jsonl,summary.json}`.
+> **SEPT-DATA-1 item 1+2 SHIPPED:** `setup/scripts/trades_enriched.py` → `analysis/trades-enriched.jsonl`
+> (268 trips, ctx 90.3% / exit-reason 96.6%), nightly via daily_brief.py EOD tail, guard test green.
+> **AUDIT-CORRECTIONS-2026-08-27:** adversarial audit found the 4 scorecards above + the overlap
+> matrix were built on a REFUTED merged-bucket round-trip basis (phantom positions up to $8,816;
+> true max is $1,880) — regenerated on the corrected `flat_to_flat` basis with 4 new structural
+> guard fields (day-level bootstrap, ex-best-day sign-flip, signal-cluster count, BH-FDR q=0.10)
+> via new `setup/scripts/lib/scorecard_guards.py`. Verdict unchanged (hold all 4, ship none) except
+> `mixed_ribbon_gate` now FAILS anchor-no-regression (previously the one candidate passing all
+> hard gates) — and zero cells survive FDR across the 6-cell sweep. Full writeup + basis
+> reconciliation (147 refuted-merged / 210 flat_to_flat / 293 FIFO, all reproduce August's
+> +$1,744): `analysis/recommendations/AUDIT-CORRECTIONS-2026-08-27.md`.
+
+### [SEPT-TUNE-1] VWAP family demotion/re-size — August's biggest destroyer (HIGH)
+VWAP_CONTINUATION: **-$1,096 over 15 trades, PF 0.50, WR 27%, avg entry cost $2,313 (4x book avg)**, premium-stop mode. Plus VWAP_RECLAIM_FAILED_BREAK 0/2 -$200. The premium-stop cohort (-$1,013, PF 0.69) IS essentially the VWAP cohort; structure-stop cohort is +$3,148 PF 1.35. VWAP also produced the month's two biggest $ losers (-$794/-$485 on 08-05, cost $8.8K/$5.5K) and the 08-10 unmanaged incident. **Options (A/B against real fills): (a) kill family, (b) keep signal but cap entry cost at book-avg (~$600), (c) keep + switch to structure stop.** n=15 is small — but the risk-adjusted shape (4x size at PF 0.5) makes doing NOTHING the worst option.
+
+### [SEPT-TUNE-2] Per-position entry-cost cap (~$1,200) (MED-HIGH)
+Cost >$1200 bucket: **-$2,245, PF 0.43, n=18** (heavily VWAP-overlapping — dedupe vs TUNE-1 before shipping both). <$600 buckets: PF 1.28-1.72. Candidate: hard premium-notional cap per position, sized to equity tier.
+
+### [SEPT-TUNE-3] MIXED-ribbon entry gate (MED, n=5)
+Entries taken while ribbon=MIXED: **0-for-5, -$888, avg exit -52% of premium** (they ride to the cap). Mechanism-coherent (ride-the-ribbon with no ribbon side is thesis-incoherent). n tiny — A/B on shadow first.
+
+### [SEPT-TUNE-4] 12:00-13:00 ET window (MED, n=13)
+Lunch-hour entries: **-$1,144, PF 0.40, avg loser exits at -46% of premium** — worst per-loser bleed of any hour. Existing SKIP_BULL_1100_1200 gate covers 11-12 only. Candidate: extend no-trade or force tighter management 12-13h. Check C15 gate-interaction + L-series time-gate lessons before sweeping.
+
+### [SEPT-TUNE-5] Deep-loser time bleed (= LOSER-AUDIT-2, restated with month numbers)
+20 losers exited ≥-35% of premium = **-$5,460** (43% of August's gross losses) with median holds 31-60 min; the 72 scratch/chart-stop losers exit in 10-15 min median and are healthy. The money is in the 35%+ bleed tail, not in tightening every stop.
+
+### [SEPT-TUNE-6] Bear side under-allocated (research, not a knob)
+BEAR_REJECTION: PF 1.46, WR 50% (n=34) vs bull PF 1.29 (n=86); ribbon-BEAR-at-entry cohort PF 3.51. VIX<15 cohort is NET NEGATIVE (PF 0.73, n=19) while 15-17 is PF 1.79 (n=34) — and current VIX gating makes bear ineligible in low VIX. Re-examine the VIX bear-eligibility gate's provenance (gate-provenance rule) — it may be blocking the better side in the regime we're actually in.
+
+### [SEPT-DATA-1] Data-enrichment gaps found while building the matrix (the "are we logging right" answer)
+1. **No canonical per-trade enriched table** — decision→order→fills→exit join exists via order_id but nothing materializes it; every analysis re-hand-rolls it (this audit included). Build a nightly `analysis/trades-enriched.jsonl` (one row per round trip: full entry context + exit anatomy). Highest-leverage data task for September.
+2. **Exit reason is not first-class per round trip** — exit_pass entries don't join cleanly to fills; EOD has only aggregate counters (HOLD×710 etc.). Add reason (TP1/structure/cap/ribbon-flip/EOD) + %-from-HWM to the per-trade row at close time.
+3. **context_bundle is logged-only** — a month of multi-TF trend/events/RVOL/level-distance context recorded, grading path "spec only, not built". September: score it against outcomes (that's the flywheel).
+4. **bold-2 reliability pair:** heartbeat missed journaling 3 round trips on 08-27 (caught by reconcile) + 08-13 17-min broker-API hang left exit-state stale. Candidate: stale-exit-state watchdog.
+5. 10/147 August round trips have no matching ENTER decision row (ledger completeness) — enumerate and classify.
+
+---
+
 ## Tracking
 
 When starting any item:

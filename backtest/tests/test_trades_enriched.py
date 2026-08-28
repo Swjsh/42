@@ -313,3 +313,127 @@ def test_real_tape_verification_passes():
     from pathlib import Path
     result = te.rebuild(Path(REAL_REPO_ROOT))
     assert te.run_verification(result["rows"], quiet=True) is True
+
+
+# --------------------------------------------------------------------------- #
+# AUDIT-CORRECTIONS-2026-08-27: basis reconciliation between flat_to_flat
+# (this module's own round-trip unit) and FIFO (broker_fills.fifo_round_trips,
+# the basis behind pnl-statement.json and every journal EOD block). The
+# adversarial audit that day found phantom merged-bucket positions (a THIRD,
+# already-refuted basis) leaking into A/B scorecards -- these tests pin that
+# the two LEGITIMATE bases always reconcile so a future regression can't
+# silently reintroduce basis confusion.
+# --------------------------------------------------------------------------- #
+
+def test_every_row_carries_basis_flat_to_flat(tmp_path):
+    repo, state, fleet = _mk_repo(tmp_path)
+    fills = [
+        {"arm": "safe-2", "symbol": "SPY260827C00768000", "side": "buy", "qty": 3,
+         "price": 0.50, "multiplier": 100, "order_id": "OID-1", "activity_id": "ACT-1",
+         "is_option": True, "ts_utc": "2026-08-27T14:00:00Z", "ts_et": "2026-08-27T10:00:00",
+         "date_et": "2026-08-27", "attribution": "engine"},
+        {"arm": "safe-2", "symbol": "SPY260827C00768000", "side": "sell", "qty": 3,
+         "price": 0.70, "multiplier": 100, "order_id": "OID-2", "activity_id": "ACT-2",
+         "is_option": True, "ts_utc": "2026-08-27T14:10:00Z", "ts_et": "2026-08-27T10:10:00",
+         "date_et": "2026-08-27", "attribution": "engine"},
+    ]
+    _write_jsonl(state / "fills-ledger.jsonl", fills)
+    _write_jsonl(state / "core-decisions.jsonl", [])
+
+    result = te.rebuild(repo)
+    rows = [r for r in result["rows"] if not r.get("_meta")]
+    assert len(rows) == 1
+    assert rows[0]["basis"] == "flat_to_flat"
+    assert result["meta"]["basis"] == "flat_to_flat"
+
+
+def test_fifo_split_partial_exit_reconciles_to_flat_to_flat_pnl(tmp_path):
+    """A single flat_to_flat trip (TP1 partial + runner exit -- one buy, TWO sell fills)
+    must decompose into 2 FIFO legs whose pnl SUMS to this row's own pnl_dollars exactly.
+    This is the mechanism proof for the basis-reconciliation claim: flat_to_flat is the
+    coarser behavioral unit, FIFO is the finer P&L-accounting unit, and they must always
+    foot to the same total for the same fills (fill-additive)."""
+    repo, state, fleet = _mk_repo(tmp_path)
+    fills = [
+        {"arm": "bold-2", "symbol": "SPY260827C00770000", "side": "buy", "qty": 10,
+         "price": 0.40, "multiplier": 100, "order_id": "OID-B", "activity_id": "ACT-B",
+         "is_option": True, "ts_utc": "2026-08-27T14:00:00Z", "ts_et": "2026-08-27T10:00:00",
+         "date_et": "2026-08-27", "attribution": "engine"},
+        # TP1 partial: sell 6 of 10 at a profit
+        {"arm": "bold-2", "symbol": "SPY260827C00770000", "side": "sell", "qty": 6,
+         "price": 0.80, "multiplier": 100, "order_id": "OID-S1", "activity_id": "ACT-S1",
+         "is_option": True, "ts_utc": "2026-08-27T14:20:00Z", "ts_et": "2026-08-27T10:20:00",
+         "date_et": "2026-08-27", "attribution": "engine"},
+        # runner: sell remaining 4 later at a smaller gain
+        {"arm": "bold-2", "symbol": "SPY260827C00770000", "side": "sell", "qty": 4,
+         "price": 0.50, "multiplier": 100, "order_id": "OID-S2", "activity_id": "ACT-S2",
+         "is_option": True, "ts_utc": "2026-08-27T15:30:00Z", "ts_et": "2026-08-27T11:30:00",
+         "date_et": "2026-08-27", "attribution": "engine"},
+    ]
+    _write_jsonl(state / "fills-ledger.jsonl", fills)
+    _write_jsonl(state / "core-decisions.jsonl", [])
+
+    result = te.rebuild(repo)
+    rows = [r for r in result["rows"] if not r.get("_meta")]
+    assert len(rows) == 1, "TP1-partial + runner is ONE flat_to_flat position, not two"
+    row = rows[0]
+
+    assert row["fifo_trip_count"] == 2, "FIFO must split the partial exit into 2 legs"
+    assert len(row["fifo_trip_ids"]) == 2
+    # leg 1: 6 @ (0.80-0.40)*100 = 240.0 ; leg 2: 4 @ (0.50-0.40)*100 = 40.0
+    assert row["fifo_trip_pnl_sum"] == 280.0
+    assert row["pnl_dollars"] == 280.0
+    assert row["fifo_trip_pnl_sum"] == row["pnl_dollars"], (
+        "flat_to_flat pnl and the sum of its own FIFO legs must reconcile exactly"
+    )
+
+
+@pytest.mark.skipif(not os.path.exists(_real_fills), reason="real fills-ledger.jsonl not present")
+def test_both_bases_reproduce_august_1744():
+    """Both LEGITIMATE bases -- this module's flat_to_flat (n=210 engine option trips) and
+    broker_fills.fifo_round_trips (n=293 engine option trips) -- must reproduce the SAME
+    August 2026 engine total (+$1,744), because P&L is fill-additive regardless of how fills
+    are grouped into trips. WR/payoff differ by basis (34.8% flat_to_flat vs 44.0% FIFO,
+    payoff ~2.04x vs ~1.38x, verified 2026-08-27) -- P&L does not."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, os.path.join(ROOT, "setup", "scripts"))
+    import broker_fills as bf  # noqa: E402
+
+    result = te.rebuild(Path(REAL_REPO_ROOT))
+    flat_rows = te._engine_rows_for(result["rows"], lo="2026-08-01", hi="2026-08-31")
+    flat_pnl = sum(r["pnl_dollars"] for r in flat_rows)
+    assert abs(flat_pnl - 1744.0) <= 10, f"flat_to_flat August pnl {flat_pnl} not within $10 of $1744"
+
+    fills = bf.load_existing_ledger(Path(_real_fills))[0]
+    opt_fills = [f for f in fills if f.get("is_option")]
+    round_trips, _ = bf.fifo_round_trips(opt_fills)
+    fifo_aug = [r for r in round_trips
+                if r["attribution"] == "engine" and r["date_et"].startswith("2026-08")]
+    fifo_pnl = sum(r["pnl"] for r in fifo_aug)
+    assert abs(fifo_pnl - 1744.0) <= 10, f"FIFO August pnl {fifo_pnl} not within $10 of $1744"
+
+    assert abs(flat_pnl - fifo_pnl) <= 0.5, (
+        f"the two bases must reconcile to the same August total: "
+        f"flat_to_flat={flat_pnl} vs FIFO={fifo_pnl}"
+    )
+
+
+@pytest.mark.skipif(not os.path.exists(_real_fills), reason="real fills-ledger.jsonl not present")
+def test_journal_08_12_47_trips_reproduce_under_fifo():
+    """journal/2026-08-12.md's EOD block reports 47 trips for that day -- broker_fills.py's
+    FIFO method is the canonical one already feeding pnl-statement.json and every journal EOD
+    block, so it must reproduce that count exactly on the real ledger (any attribution --
+    the journal's day total is not engine-only)."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, os.path.join(ROOT, "setup", "scripts"))
+    import broker_fills as bf  # noqa: E402
+
+    fills = bf.load_existing_ledger(Path(_real_fills))[0]
+    opt_fills = [f for f in fills if f.get("is_option")]
+    round_trips, _ = bf.fifo_round_trips(opt_fills)
+    day_trips = [r for r in round_trips if r["date_et"] == "2026-08-12"]
+    assert len(day_trips) == 47, (
+        f"expected 47 FIFO round trips on 2026-08-12 (journal EOD block), got {len(day_trips)}"
+    )

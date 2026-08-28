@@ -1,10 +1,22 @@
 {
-  "_doc": "Pairwise overlap of blocked-trade sets across the 4 candidates, plus the marginal value of premium_cost_cap_1200 once vwap_family_demotion has already removed its trades (rules 1 and 2 overlap heavily because most VWAP-family entries also carry high entry cost).",
+  "_doc": "Pairwise overlap of blocked-trade sets across the 4 candidates, plus the marginal value of premium_cost_cap_1200 once vwap_family_demotion has already removed its trades. REGENERATED 2026-08-27 on corrected flat_to_flat basis (AUDIT-CORRECTIONS-2026-08-27) -- see superseded_by_audit_2026_08_27 for the original phantom-position-corrupted values.",
+  "generated_at_utc": "2026-08-28T02:10:27.212095+00:00",
+  "basis": "flat_to_flat",
   "pairwise": {
-    "vwap_family_demotion & premium_cost_cap_1200": {
-      "n_shared": 11,
-      "n_a": 17,
-      "n_b": 20
+    "premium_cost_cap_1200 & vwap_family_demotion": {
+      "n_shared": 3,
+      "n_a": 6,
+      "n_b": 17
+    },
+    "premium_cost_cap_1200 & mixed_ribbon_gate": {
+      "n_shared": 0,
+      "n_a": 6,
+      "n_b": 7
+    },
+    "premium_cost_cap_1200 & lunch_window_gate_1200_1300": {
+      "n_shared": 0,
+      "n_a": 6,
+      "n_b": 43
     },
     "vwap_family_demotion & mixed_ribbon_gate": {
       "n_shared": 0,
@@ -14,40 +26,146 @@
     "vwap_family_demotion & lunch_window_gate_1200_1300": {
       "n_shared": 0,
       "n_a": 17,
-      "n_b": 24
-    },
-    "premium_cost_cap_1200 & mixed_ribbon_gate": {
-      "n_shared": 0,
-      "n_a": 20,
-      "n_b": 7
-    },
-    "premium_cost_cap_1200 & lunch_window_gate_1200_1300": {
-      "n_shared": 0,
-      "n_a": 20,
-      "n_b": 24
+      "n_b": 43
     },
     "mixed_ribbon_gate & lunch_window_gate_1200_1300": {
       "n_shared": 2,
       "n_a": 7,
-      "n_b": 24
+      "n_b": 43
     }
   },
   "rule2_marginal_after_rule1": {
-    "n_blocked_marginal": 9,
-    "n_blocked_standalone": 20,
-    "delta_pnl_marginal": 1185.0,
-    "delta_pnl_standalone": 2454.0,
+    "n_blocked_marginal": 3,
+    "n_blocked_standalone": 10,
+    "delta_pnl_marginal": 1592.0,
+    "delta_pnl_standalone": 2634.0,
     "gates": {
-      "OOS_positive": true,
-      "WF_proxy_OOS_over_IS": 0.038,
+      "OOS_positive": false,
+      "WF_proxy_OOS_over_IS": 0.0,
       "WF_proxy_ge_0_70": false,
       "sub_window_stable": true,
-      "sub_window_weeks_helped": "5/5",
+      "sub_window_weeks_helped": "2/2",
       "anchor_no_regression": true,
-      "evidence_n": 9,
+      "auto_fail_sign_flips_ex_best_day": false,
+      "evidence_n": 3,
+      "signal_cluster_n": 2,
       "evidence_n_ge_15_advisory": false,
       "auto_ratify_eligible": false,
-      "reason": "BLOCKED: WF-proxy=0.038 <0.70; evidence_n=9 <15 (advisory)"
+      "reason": "BLOCKED: OOS_delta<=0; WF-proxy=0.0 <0.70; evidence_n=3 <15 (advisory)"
+    }
+  },
+  "fdr_across_sweep": {
+    "q": 0.1,
+    "m_cells_tested": 6,
+    "cells": [
+      "lunch_window_gate_1200_1300",
+      "mixed_ribbon_gate",
+      "premium_cost_cap_1200@1200",
+      "premium_cost_cap_1200@1600",
+      "premium_cost_cap_1200@800",
+      "vwap_family_demotion"
+    ],
+    "p_values": {
+      "premium_cost_cap_1200@1200": 0.0455,
+      "premium_cost_cap_1200@800": 0.175,
+      "premium_cost_cap_1200@1600": 0.362,
+      "vwap_family_demotion": 0.2105,
+      "mixed_ribbon_gate": 0.261,
+      "lunch_window_gate_1200_1300": 0.369
+    },
+    "rejected_significant": [],
+    "results": {
+      "premium_cost_cap_1200@1200": {
+        "p": 0.0455,
+        "rank": 1,
+        "bh_critical": 0.016667,
+        "significant": false
+      },
+      "premium_cost_cap_1200@800": {
+        "p": 0.175,
+        "rank": 2,
+        "bh_critical": 0.033333,
+        "significant": false
+      },
+      "vwap_family_demotion": {
+        "p": 0.2105,
+        "rank": 3,
+        "bh_critical": 0.05,
+        "significant": false
+      },
+      "mixed_ribbon_gate": {
+        "p": 0.261,
+        "rank": 4,
+        "bh_critical": 0.066667,
+        "significant": false
+      },
+      "premium_cost_cap_1200@1600": {
+        "p": 0.362,
+        "rank": 5,
+        "bh_critical": 0.083333,
+        "significant": false
+      },
+      "lunch_window_gate_1200_1300": {
+        "p": 0.369,
+        "rank": 6,
+        "bh_critical": 0.1,
+        "significant": false
+      }
+    },
+    "excluded_no_pvalue": [],
+    "doc": "One-sided bootstrap p-value per cell = P(day-resampled delta_pnl<=0) (scorecard_guards.day_level_bootstrap on the -blocked-pnl-per-day series, 2000 resamples, seed 1337). Benjamini-Hochberg step-up, q=0.10, across all 6 cells scanned in this sweep (4 rules + 3-point cap sweep = 6 distinct threshold cells; the base premium_cost_cap_1200 rule and its @1200 sweep point are the same test, counted once)."
+  },
+  "superseded_by_audit_2026_08_27": {
+    "_doc": "Pairwise overlap of blocked-trade sets across the 4 candidates, plus the marginal value of premium_cost_cap_1200 once vwap_family_demotion has already removed its trades (rules 1 and 2 overlap heavily because most VWAP-family entries also carry high entry cost).",
+    "pairwise": {
+      "vwap_family_demotion & premium_cost_cap_1200": {
+        "n_shared": 11,
+        "n_a": 17,
+        "n_b": 20
+      },
+      "vwap_family_demotion & mixed_ribbon_gate": {
+        "n_shared": 0,
+        "n_a": 17,
+        "n_b": 7
+      },
+      "vwap_family_demotion & lunch_window_gate_1200_1300": {
+        "n_shared": 0,
+        "n_a": 17,
+        "n_b": 24
+      },
+      "premium_cost_cap_1200 & mixed_ribbon_gate": {
+        "n_shared": 0,
+        "n_a": 20,
+        "n_b": 7
+      },
+      "premium_cost_cap_1200 & lunch_window_gate_1200_1300": {
+        "n_shared": 0,
+        "n_a": 20,
+        "n_b": 24
+      },
+      "mixed_ribbon_gate & lunch_window_gate_1200_1300": {
+        "n_shared": 2,
+        "n_a": 7,
+        "n_b": 24
+      }
+    },
+    "rule2_marginal_after_rule1": {
+      "n_blocked_marginal": 9,
+      "n_blocked_standalone": 20,
+      "delta_pnl_marginal": 1185.0,
+      "delta_pnl_standalone": 2454.0,
+      "gates": {
+        "OOS_positive": true,
+        "WF_proxy_OOS_over_IS": 0.038,
+        "WF_proxy_ge_0_70": false,
+        "sub_window_stable": true,
+        "sub_window_weeks_helped": "5/5",
+        "anchor_no_regression": true,
+        "evidence_n": 9,
+        "evidence_n_ge_15_advisory": false,
+        "auto_ratify_eligible": false,
+        "reason": "BLOCKED: WF-proxy=0.038 <0.70; evidence_n=9 <15 (advisory)"
+      }
     }
   }
 }

@@ -1,19 +1,20 @@
 {
-  "_doc": "Counterfactual A/B scorecard for candidate 'mixed_ribbon_gate' (block entries where ribbon=='MIXED' at ENTER (core arms only)). Removes/rescales trades matching the rule from the engine-attribution population; delta = counterfactual - baseline realized P&L. NO LOOK-AHEAD: this rule conditions ONLY on entry-time information (setup name / entry cost / ribbon-at-entry / entry clock time), all of which are known before the order is placed.",
-  "generated_at_utc": "2026-08-27T23:59:05.053218Z",
+  "_doc": "Counterfactual A/B scorecard for candidate 'mixed_ribbon_gate' (block entries where ribbon=='MIXED' at ENTER, core arms only). REGENERATED 2026-08-27 on corrected flat_to_flat basis (AUDIT-CORRECTIONS-2026-08-27). NO LOOK-AHEAD. Population restricted to core arms (safe-2/bold-2) -- fleet arms carry no ribbon field at entry.",
+  "generated_at_utc": "2026-08-28T02:10:26.995155+00:00",
+  "basis": "flat_to_flat",
   "rule_id": "mixed_ribbon_gate",
-  "population": "engine-attribution option round trips, 2026-07-01..2026-08-27 (full window, not August-only)",
+  "population": "engine-attribution option round trips (flat_to_flat basis), 2026-07-01..2026-08-27 (full window, not August-only)",
   "IS_window": "2026-07-01..2026-08-14",
   "OOS_window": "2026-08-17..2026-08-27",
   "baseline": {
-    "n": 70,
-    "pnl": 141.0,
-    "wr_pct": 37.1
+    "n": 120,
+    "pnl": -755.0,
+    "wr_pct": 27.5
   },
   "counterfactual": {
-    "n": 63,
-    "pnl": 597.0,
-    "wr_pct": 38.1
+    "n": 113,
+    "pnl": -299.0,
+    "wr_pct": 27.4
   },
   "delta_pnl": 456.0,
   "n_blocked": 7,
@@ -22,79 +23,91 @@
   "blocked_losers_n": 5,
   "blocked_losers_pnl": -888.0,
   "is_oos": {
-    "IS_n": 49,
+    "IS_n": 90,
     "IS_n_blocked": 5,
     "IS_delta": 92.0,
-    "OOS_n": 21,
+    "OOS_n": 30,
     "OOS_n_blocked": 2,
     "OOS_delta": 364.0
   },
   "sub_window_weekly": {
     "2026-W27": {
-      "n": 4,
+      "n": 10,
       "n_blocked": 0,
-      "delta": 0.0
+      "delta": 0
     },
     "2026-W28": {
-      "n": 1,
+      "n": 8,
       "n_blocked": 0,
-      "delta": 0.0
+      "delta": 0
     },
     "2026-W29": {
-      "n": 6,
+      "n": 10,
       "n_blocked": 2,
       "delta": -432.0
     },
     "2026-W30": {
-      "n": 3,
+      "n": 13,
       "n_blocked": 0,
-      "delta": 0.0
+      "delta": 0
     },
     "2026-W31": {
-      "n": 3,
+      "n": 6,
       "n_blocked": 0,
-      "delta": 0.0
+      "delta": 0
     },
     "2026-W32": {
-      "n": 10,
+      "n": 14,
       "n_blocked": 1,
       "delta": 255.0
     },
     "2026-W33": {
-      "n": 22,
+      "n": 29,
       "n_blocked": 2,
       "delta": 269.0
     },
     "2026-W34": {
-      "n": 15,
+      "n": 22,
       "n_blocked": 2,
       "delta": 364.0
     },
     "2026-W35": {
-      "n": 6,
+      "n": 8,
       "n_blocked": 0,
-      "delta": 0.0
+      "delta": 0
     }
   },
   "anchor_check": {
-    "anchor_cohort_n": 33,
-    "anchor_winners_n": 11,
-    "removed_anchor_winners_n": 0,
-    "removed_anchor_winners": [],
-    "anchor_no_regression": true
+    "anchor_cohort_definition": "engine trades, setup in BULLISH_RECLAIM_RIDE_THE_RIBBON/BEARISH_REJECTION_RIDE_THE_RIBBON, stop_mode=='structure' (current v15.3 chart-stop-primary production strategy -- the cohort FUTURE-IMPROVEMENTS.md's SEPT-TUNE intro names as 'the edge... everything else subtracted'). REDEFINED 2026-08-27: the original scorecards' anchor_cohort_n=33/winners=11 has no recoverable definition (no committed generator, no doc) -- this is a disclosed new definition, not a reproduction.",
+    "anchor_cohort_n": 177,
+    "anchor_winners_n": 68,
+    "removed_anchor_winners_n": 2,
+    "removed_anchor_winners": [
+      {
+        "date": "2026-07-17",
+        "arm": "bold-2",
+        "sym": "SPY260717P00743000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": 191.0,
+        "cost": 190.0,
+        "entry_hhmm": "13:51",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-07-17",
+        "arm": "safe-2",
+        "sym": "SPY260717P00746000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": 241.0,
+        "cost": 234.0,
+        "entry_hhmm": "13:01",
+        "ribbon": "MIXED"
+      }
+    ],
+    "anchor_no_regression": false
   },
-  "concentration_warning": "SMALL SAMPLE: only 7 trades blocked. Any positive delta here is NOT robust -- do not oversell a single-digit-n result.",
+  "concentration_warning": "SMALL SAMPLE: only 7 trades blocked (6 independent signal clusters). Any positive delta here is NOT robust -- do not oversell a single-digit-n result.",
   "n_blocked_full_list": [
-    {
-      "date": "2026-07-17",
-      "arm": "safe-2",
-      "sym": "SPY260717P00746000",
-      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
-      "pnl": 241.0,
-      "cost": 234.0,
-      "entry_hhmm": "13:01",
-      "ribbon": "MIXED"
-    },
     {
       "date": "2026-07-17",
       "arm": "bold-2",
@@ -103,6 +116,16 @@
       "pnl": 191.0,
       "cost": 190.0,
       "entry_hhmm": "13:51",
+      "ribbon": "MIXED"
+    },
+    {
+      "date": "2026-07-17",
+      "arm": "safe-2",
+      "sym": "SPY260717P00746000",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "pnl": 241.0,
+      "cost": 234.0,
+      "entry_hhmm": "13:01",
       "ribbon": "MIXED"
     },
     {
@@ -156,27 +179,277 @@
       "ribbon": "MIXED"
     }
   ],
+  "guards": {
+    "day_level_bootstrap_counterfactual": {
+      "n_days": 29,
+      "n_boot": 2000,
+      "seed": 1337,
+      "ci_level": 0.9,
+      "pnl_mean": -302.03,
+      "pnl_ci_low": -3805.0,
+      "pnl_ci_high": 3450.0,
+      "p_pnl_le_0": 0.5705,
+      "pf_mean": 0.991,
+      "pf_ci_low": 0.4835,
+      "pf_ci_high": 1.6812,
+      "p_pf_le_1": 0.5705,
+      "insufficient_days": false,
+      "pf_undefined_resamples": 0
+    },
+    "day_level_bootstrap_delta": {
+      "n_days": 29,
+      "n_boot": 2000,
+      "seed": 1337,
+      "ci_level": 0.9,
+      "pnl_mean": 439.72,
+      "pnl_ci_low": -609.0,
+      "pnl_ci_high": 1521.0,
+      "p_pnl_le_0": 0.261,
+      "pf_mean": 1.5691,
+      "pf_ci_low": 0.2076,
+      "pf_ci_high": 3.5532,
+      "p_pf_le_1": 0.377,
+      "insufficient_days": false,
+      "pf_undefined_resamples": 687
+    },
+    "ex_best_day": {
+      "total_pnl": 456.0,
+      "best_day": "2026-08-21",
+      "best_day_pnl": 364.0,
+      "ex_best_day_pnl": 92.0,
+      "auto_fail_sign_flips_ex_best_day": false,
+      "n_days": 4
+    },
+    "signal_cluster": {
+      "fill_n": 7,
+      "signal_cluster_n": 6,
+      "window_s": 60.0,
+      "cluster_sizes": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "doc": "day_level_bootstrap_counterfactual bootstraps the POST-RULE population's day totals (is the resulting book profitable/PF>1 under day resampling); day_level_bootstrap_delta bootstraps the RULE'S OWN claimed benefit (-sum(blocked pnl) per day, zero-filled on days the rule never fired) -- its p_pnl_le_0 is the p-value fed into this sweep's BH-FDR (see the sibling SEPT-TUNE-OVERLAP-MATRIX-2026-08-27.json fdr_across_sweep block). ex_best_day is computed on the delta series. signal_cluster is computed on the BLOCKED trades (n_blocked's fill count vs its true independent-signal count, 60s same-symbol clustering -- see scorecard_guards.py)."
+  },
   "gates": {
     "OOS_positive": true,
     "WF_proxy_OOS_over_IS": 3.957,
     "WF_proxy_ge_0_70": true,
     "sub_window_stable": true,
     "sub_window_weeks_helped": "3/4",
-    "anchor_no_regression": true,
+    "anchor_no_regression": false,
+    "auto_fail_sign_flips_ex_best_day": false,
     "evidence_n": 7,
+    "signal_cluster_n": 6,
     "evidence_n_ge_15_advisory": false,
-    "auto_ratify_eligible": true,
-    "reason": "PASSES all hard gates"
+    "auto_ratify_eligible": false,
+    "reason": "BLOCKED: removes 2 anchor-cohort winner(s); evidence_n=7 <15 (advisory)"
   },
   "fleet_disclosure": {
-    "_doc": "Fleet arm decisions.jsonl rows do not carry a ribbon field at entry -- this rule is UNKNOWN/unenforceable for fleet arms as-is, not zero-effect. Fleet population reported separately, untouched by this rule.",
-    "fleet_eng_n": 155,
+    "_doc": "Fleet arm decisions.jsonl rows do not carry this field at entry -- UNKNOWN/unenforceable for fleet arms as-is, not zero-effect. Fleet population reported separately, untouched by this rule.",
+    "fleet_eng_n": 225,
     "fleet_eng_pnl": 1132.0,
-    "fleet_ribbon_field_present_n": 0
+    "fleet_field_present_n": 0
   },
-  "ribbon_distribution_core": {
-    "BEAR": 26,
-    "BULL": 37,
-    "MIXED": 7
+  "fdr_across_sweep": {
+    "q": 0.1,
+    "m": 6,
+    "this_cell_p_value": 0.261,
+    "significant_after_fdr": false,
+    "all_cells_tested": [
+      "lunch_window_gate_1200_1300",
+      "mixed_ribbon_gate",
+      "premium_cost_cap_1200@1200",
+      "premium_cost_cap_1200@1600",
+      "premium_cost_cap_1200@800",
+      "vwap_family_demotion"
+    ],
+    "doc": "See SEPT-TUNE-OVERLAP-MATRIX-2026-08-27.json for the full cross-sweep FDR block."
+  },
+  "superseded_by_audit_2026_08_27": {
+    "_doc": "Counterfactual A/B scorecard for candidate 'mixed_ribbon_gate' (block entries where ribbon=='MIXED' at ENTER (core arms only)). Removes/rescales trades matching the rule from the engine-attribution population; delta = counterfactual - baseline realized P&L. NO LOOK-AHEAD: this rule conditions ONLY on entry-time information (setup name / entry cost / ribbon-at-entry / entry clock time), all of which are known before the order is placed.",
+    "generated_at_utc": "2026-08-27T23:59:05.053218Z",
+    "rule_id": "mixed_ribbon_gate",
+    "population": "engine-attribution option round trips, 2026-07-01..2026-08-27 (full window, not August-only)",
+    "IS_window": "2026-07-01..2026-08-14",
+    "OOS_window": "2026-08-17..2026-08-27",
+    "baseline": {
+      "n": 70,
+      "pnl": 141.0,
+      "wr_pct": 37.1
+    },
+    "counterfactual": {
+      "n": 63,
+      "pnl": 597.0,
+      "wr_pct": 38.1
+    },
+    "delta_pnl": 456.0,
+    "n_blocked": 7,
+    "blocked_winners_n": 2,
+    "blocked_winners_pnl": 432.0,
+    "blocked_losers_n": 5,
+    "blocked_losers_pnl": -888.0,
+    "is_oos": {
+      "IS_n": 49,
+      "IS_n_blocked": 5,
+      "IS_delta": 92.0,
+      "OOS_n": 21,
+      "OOS_n_blocked": 2,
+      "OOS_delta": 364.0
+    },
+    "sub_window_weekly": {
+      "2026-W27": {
+        "n": 4,
+        "n_blocked": 0,
+        "delta": 0.0
+      },
+      "2026-W28": {
+        "n": 1,
+        "n_blocked": 0,
+        "delta": 0.0
+      },
+      "2026-W29": {
+        "n": 6,
+        "n_blocked": 2,
+        "delta": -432.0
+      },
+      "2026-W30": {
+        "n": 3,
+        "n_blocked": 0,
+        "delta": 0.0
+      },
+      "2026-W31": {
+        "n": 3,
+        "n_blocked": 0,
+        "delta": 0.0
+      },
+      "2026-W32": {
+        "n": 10,
+        "n_blocked": 1,
+        "delta": 255.0
+      },
+      "2026-W33": {
+        "n": 22,
+        "n_blocked": 2,
+        "delta": 269.0
+      },
+      "2026-W34": {
+        "n": 15,
+        "n_blocked": 2,
+        "delta": 364.0
+      },
+      "2026-W35": {
+        "n": 6,
+        "n_blocked": 0,
+        "delta": 0.0
+      }
+    },
+    "anchor_check": {
+      "anchor_cohort_n": 33,
+      "anchor_winners_n": 11,
+      "removed_anchor_winners_n": 0,
+      "removed_anchor_winners": [],
+      "anchor_no_regression": true
+    },
+    "concentration_warning": "SMALL SAMPLE: only 7 trades blocked. Any positive delta here is NOT robust -- do not oversell a single-digit-n result.",
+    "n_blocked_full_list": [
+      {
+        "date": "2026-07-17",
+        "arm": "safe-2",
+        "sym": "SPY260717P00746000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": 241.0,
+        "cost": 234.0,
+        "entry_hhmm": "13:01",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-07-17",
+        "arm": "bold-2",
+        "sym": "SPY260717P00743000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": 191.0,
+        "cost": 190.0,
+        "entry_hhmm": "13:51",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-08-05",
+        "arm": "safe-2",
+        "sym": "SPY260805P00772000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": -255.0,
+        "cost": 489.0,
+        "entry_hhmm": "11:49",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-08-13",
+        "arm": "bold-2",
+        "sym": "SPY260813P00776000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": -200.0,
+        "cost": 320.0,
+        "entry_hhmm": "12:41",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-08-13",
+        "arm": "safe-2",
+        "sym": "SPY260813P00776000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": -69.0,
+        "cost": 189.0,
+        "entry_hhmm": "12:41",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-08-21",
+        "arm": "bold-2",
+        "sym": "SPY260821P00763000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": -175.0,
+        "cost": 305.0,
+        "entry_hhmm": "09:52",
+        "ribbon": "MIXED"
+      },
+      {
+        "date": "2026-08-21",
+        "arm": "safe-2",
+        "sym": "SPY260821P00765000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "pnl": -189.0,
+        "cost": 351.0,
+        "entry_hhmm": "09:51",
+        "ribbon": "MIXED"
+      }
+    ],
+    "gates": {
+      "OOS_positive": true,
+      "WF_proxy_OOS_over_IS": 3.957,
+      "WF_proxy_ge_0_70": true,
+      "sub_window_stable": true,
+      "sub_window_weeks_helped": "3/4",
+      "anchor_no_regression": true,
+      "evidence_n": 7,
+      "evidence_n_ge_15_advisory": false,
+      "auto_ratify_eligible": true,
+      "reason": "PASSES all hard gates"
+    },
+    "fleet_disclosure": {
+      "_doc": "Fleet arm decisions.jsonl rows do not carry a ribbon field at entry -- this rule is UNKNOWN/unenforceable for fleet arms as-is, not zero-effect. Fleet population reported separately, untouched by this rule.",
+      "fleet_eng_n": 155,
+      "fleet_eng_pnl": 1132.0,
+      "fleet_ribbon_field_present_n": 0
+    },
+    "ribbon_distribution_core": {
+      "BEAR": 26,
+      "BULL": 37,
+      "MIXED": 7
+    }
   }
 }

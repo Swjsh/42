@@ -166,6 +166,50 @@ def _split_same_symbol_fills_into_trips(fs: list) -> list:
     return groups
 
 
+def _fifo_legs_for_trip(fs: list) -> list:
+    """FIFO-pair a single flat-to-flat trip's OWN fills, using the identical algorithm as
+    broker_fills.fifo_round_trips (deliberately re-implemented, not imported -- this module
+    stays free of broker_fills's fleet_broker/et_clock network-credential imports, and the
+    AUDIT-CORRECTIONS-2026-08-27 guard test asserts the two implementations agree).
+
+    WHY THIS IS SAFE TO SCOPE PER-TRIP (basis-reconciliation note, AUDIT-CORRECTIONS-2026-08-27):
+    a flat-to-flat trip's fills, by construction, return the running position to exactly zero at
+    the trip's own start and end -- so no fill in this trip can ever FIFO-match against a fill in
+    a DIFFERENT flat-to-flat trip for the same (date,arm,symbol). Running FIFO on just this trip's
+    fills therefore reproduces EXACTLY the subset of broker_fills.fifo_round_trips's rows that
+    belong to this trip -- this is the reconciliation between the two round-trip bases (see module
+    docstring's BASIS section): flat-to-flat is the coarser, behavioral unit (one row per position);
+    FIFO is the finer, P&L-accounting unit (one row per matched entry/exit chunk, so a TP1-partial +
+    runner exit is 2 FIFO legs inside 1 flat-to-flat trip). Both sum to the identical total pnl for
+    any trip (fill-additive) -- WR/payoff/trade-count differ because the two bases COUNT differently,
+    not because either is wrong.
+    """
+    from collections import deque
+    fs_sorted = sorted(fs, key=lambda x: x.get("ts_utc") or x.get("ts_et") or "")
+    open_lots: "deque" = deque()
+    legs: list = []
+    for f in fs_sorted:
+        remaining = f.get("qty", 0) or 0
+        while remaining > 1e-9 and open_lots and open_lots[0]["side"] != f["side"]:
+            lot = open_lots[0]
+            matched = min(lot["qty"], remaining)
+            entry, exitf = (lot, f) if lot["side"] == "buy" else (f, lot)
+            pnl = (exitf["price"] - entry["price"]) * matched * f.get("multiplier", 100)
+            legs.append({
+                "entry_activity_id": entry.get("activity_id") or entry.get("order_id"),
+                "exit_activity_id": exitf.get("activity_id") or exitf.get("order_id"),
+                "qty": matched,
+                "pnl": round(pnl, 2),
+            })
+            lot["qty"] -= matched
+            remaining -= matched
+            if lot["qty"] <= 1e-9:
+                open_lots.popleft()
+        if remaining > 1e-9:
+            open_lots.append({**f, "qty": remaining})
+    return legs
+
+
 def _trip_from_fills(date: str, arm: str, symbol: str, fs: list) -> dict:
     buys = [f for f in fs if f["side"] == "buy"]
     sells = [f for f in fs if f["side"] == "sell"]
@@ -195,6 +239,9 @@ def _trip_from_fills(date: str, arm: str, symbol: str, fs: list) -> dict:
     if any(f.get("attribution") == "engine" for f in fs) and attribution == "manual":
         attribution = "mixed"
 
+    fifo_legs = _fifo_legs_for_trip(fs)
+    fifo_pnl_sum = round(sum(leg["pnl"] for leg in fifo_legs), 2) if fifo_legs else None
+
     return {
         "date": date,
         "arm": arm,
@@ -214,6 +261,19 @@ def _trip_from_fills(date: str, arm: str, symbol: str, fs: list) -> dict:
         "attribution": attribution,
         "entry_order_ids": [f.get("order_id") for f in buys],
         "unbalanced": unbalanced,
+        # BASIS FIELDS (AUDIT-CORRECTIONS-2026-08-27): this row is a "flat_to_flat" round trip
+        # (one row per buy-to-flat-to-buy position cycle -- the right unit for BEHAVIORAL
+        # analysis: hold time, MAE/MFE, "how did this position behave"). It is NOT the same
+        # unit as broker_fills.fifo_round_trips's FIFO trips (the right unit for P&L
+        # ACCOUNTING: a TP1-partial + runner exit is 2 FIFO legs inside this 1 flat_to_flat
+        # row). fifo_trip_ids / fifo_trip_count / fifo_trip_pnl_sum let any consumer
+        # reconcile the two bases: sum(fifo leg pnls) always equals this row's pnl_dollars
+        # (fill-additive) even though WR/payoff/trade-count differ by basis. See module
+        # docstring BASIS section and _fifo_legs_for_trip's own docstring.
+        "basis": "flat_to_flat",
+        "fifo_trip_ids": [f"{leg['entry_activity_id']}:{leg['exit_activity_id']}" for leg in fifo_legs],
+        "fifo_trip_count": len(fifo_legs),
+        "fifo_trip_pnl_sum": fifo_pnl_sum,
         "_entry_ts_parsed": entry_ts,
         "_exit_ts_parsed": exit_ts,
     }
@@ -475,6 +535,11 @@ def rebuild(repo: Path = REPO) -> dict:
     n_unbalanced = sum(1 for r in rows if r["unbalanced"])
     n_premium_stop_tagged = sum(1 for r in rows if "premium_stop" in (r.get("exit_reason") or "").split("+"))
     n_premium_stop_suspect = sum(1 for r in rows if r.get("exit_reason_premium_stop_suspect") is True)
+
+    fifo_trip_count_total = sum(r.get("fifo_trip_count") or 0 for r in rows)
+    flat_pnl_total = sum(r["pnl_dollars"] for r in rows if r.get("pnl_dollars") is not None)
+    fifo_pnl_total = sum(r["fifo_trip_pnl_sum"] for r in rows if r.get("fifo_trip_pnl_sum") is not None)
+
     meta = {
         "_meta": True,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -495,6 +560,33 @@ def rebuild(repo: Path = REPO) -> dict:
             "KNOWN UPSTREAM LABEL BUG -- not fixed here, disclosed per row instead)."
         ),
         "unmatched": unmatched,
+        # BASIS RECONCILIATION (AUDIT-CORRECTIONS-2026-08-27 -- adversarial audit found a THIRD,
+        # already-refuted "merged-bucket" basis had leaked into 4 A/B scorecards + an overlap
+        # matrix as phantom positions up to $8,816, when the true max single-position cost in this
+        # ledger is $1,880). This file's rows are "flat_to_flat" (every row's basis field says so):
+        # one row per buy-to-flat-to-buy position -- the right unit for BEHAVIORAL analysis (hold
+        # time, MAE/MFE). broker_fills.py's fifo_round_trips (backing pnl-statement.json / every
+        # journal EOD block) is a DIFFERENT, equally valid basis -- one row per FIFO-matched
+        # entry/exit chunk (a TP1-partial + runner is 2 FIFO rows inside 1 flat_to_flat row) -- the
+        # right unit for P&L ACCOUNTING. Both bases are fill-additive so TOTAL P&L (and profit
+        # factor, verified empirically 2026-08-27 -- see AUDIT-CORRECTIONS-2026-08-27.md) always
+        # reconciles across bases; WIN RATE and PAYOFF RATIO do NOT (FIFO splits partial exits
+        # into extra legs, inflating WR and shrinking payoff vs flat_to_flat) -- always state
+        # which basis a WR/payoff number uses, never compare WR/payoff figures computed on
+        # different bases.
+        "basis": "flat_to_flat",
+        "fifo_trip_count_total": fifo_trip_count_total,
+        "flat_to_flat_pnl_total": round(flat_pnl_total, 2),
+        "fifo_pnl_total_via_flat_to_flat_rows": round(fifo_pnl_total, 2),
+        "basis_reconciliation_doc": (
+            "flat_to_flat_pnl_total and fifo_pnl_total_via_flat_to_flat_rows must be equal "
+            "(within float rounding) -- both sum the SAME underlying fills, just grouped "
+            "differently (position-cycle vs FIFO-matched-chunk). fifo_trip_count_total "
+            ">= n_rows always (a flat_to_flat row is >=1 FIFO legs, never fewer). WR/payoff "
+            "computed on flat_to_flat rows will differ from WR/payoff computed by grouping "
+            "fifo_trip_ids -- this is basis-dependent by construction, not an error; pinned "
+            "by backtest/tests/test_trades_enriched.py::test_basis_reconciliation_*."
+        ),
     }
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
