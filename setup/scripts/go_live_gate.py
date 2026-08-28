@@ -79,6 +79,10 @@ BACKTEST_PY = BACKTEST_DIR / ".venv" / "Scripts" / "python.exe"
 OUT_JSON = REPO / "analysis" / "go-live-gate.json"
 OUT_MD = REPO / "analysis" / "go-live-gate.md"
 
+# CREATE_NO_WINDOW: BACKTEST_PY is console-subsystem, which flashes a console on J's
+# desktop without the flag when this script is spawned headlessly (OP-27 L41).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 # --------------------------------------------------------------------------------------- #
 # Roster + assumptions -- disclosed, never silently baked in.
 # --------------------------------------------------------------------------------------- #
@@ -259,6 +263,7 @@ def _run_pytest(rel_paths: list[str]) -> dict:
         proc = subprocess.run(
             [str(BACKTEST_PY), "-m", "pytest", *abs_paths, "-q"],
             cwd=str(BACKTEST_DIR), capture_output=True, text=True, timeout=180,
+            creationflags=_CREATE_NO_WINDOW,
         )
     except Exception as e:  # noqa: BLE001 -- a guard-runner crash must never crash the gate
         return {"ran": False, "error": f"{type(e).__name__}: {e}"}
