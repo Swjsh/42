@@ -45,6 +45,38 @@ TRACKED: dict[str, str] = {
         "(APPEND-ONLY -- tracked by frozen-prefix count, see APPEND_ONLY below)",
 }
 
+# VOLATILE DERIVED FIELDS: per-record keys that are RECOMPUTED against the CURRENT dataset
+# every time a producer rewrites an append-only file, so a frozen row's OWN measured values
+# never change but this key's value can still flip as new rows are appended after it.
+# Excluded from the frozen-prefix hash below (2026-08-28 fix, full-suite RED): mae-mfe.json's
+# `recency` is a rolling "recent25 vs older" classification relative to the trailing 25
+# trading days AS OF THE MOST RECENT ROW -- diagnosed by diffing the manifest's committed
+# baseline against the live file: of 219 frozen-prefix rows, 110 differed, and in EVERY
+# differing row `recency` was the ONLY key that changed (entry_price/pnl/mae/mfe/stop/qty/etc.
+# byte-identical) -- confirmed against the producer itself: pain_ledger.recent_older_split()
+# takes the most recent RECENT_N_DATES (25) DISTINCT dates in the WHOLE CURRENT population
+# as "recent25" and everything else "older" -- a row's own date is fixed, but whether that
+# date still ranks in the current top-25 depends on how many newer dates now exist, so every
+# append can silently roll older frozen rows from recent25 to older. Not assumed. This is the expected, benign side effect of an append-only file carrying a
+# rolling-window derived column, NOT the 190->191 class of silent data mutation this module
+# exists to catch. Hashing it as part of "frozen and immutable" was simply the wrong contract
+# for this one field; stripping it from the prefix hash restores what verify() is actually
+# supposed to test (the trade-substantive population is unedited) without re-flagging on
+# every trading day the way the pre-2026-08-21 whole-file hash did.
+_VOLATILE_DERIVED_FIELDS: dict[str, "set[str]"] = {
+    "analysis/pain-ledger/mae-mfe.json": {"recency"},
+}
+
+
+def _strip_volatile(rel: str, row: Any) -> Any:
+    """Return `row` with this dataset's volatile derived fields removed, for hashing only.
+    Never mutates the original; rows that are not dicts pass through unchanged."""
+    fields = _VOLATILE_DERIVED_FIELDS.get(rel)
+    if not fields or not isinstance(row, dict):
+        return row
+    return {k: v for k, v in row.items() if k not in fields}
+
+
 # APPEND-ONLY datasets: rel -> the number of leading records that are FROZEN.
 #
 # The manifest has claimed "tracked by frozen-prefix count" since 2026-08-15, but verify()
@@ -100,7 +132,7 @@ def fingerprint(rel: str) -> dict:
     n_frozen = APPEND_ONLY.get(rel)
     if n_frozen is not None:
         out["frozen_prefix_n"] = n_frozen
-        out["frozen_prefix_sha256_16"] = _prefix_hash(obj, n_frozen)
+        out["frozen_prefix_sha256_16"] = _prefix_hash(rel, obj, n_frozen)
     return out
 
 
@@ -116,8 +148,9 @@ def _record_list(obj: Any) -> "list | None":
     return None
 
 
-def _prefix_hash(obj: Any, n: int) -> "str | None":
-    """Canonical hash of the FIRST n records. None when the file is too short.
+def _prefix_hash(rel: str, obj: Any, n: int) -> "str | None":
+    """Canonical hash of the FIRST n records, with `rel`'s volatile derived fields (see
+    _VOLATILE_DERIVED_FIELDS) stripped from each row first. None when the file is too short.
 
     Too-short is NOT silently OK: verify() treats a missing prefix hash as DRIFTED,
     because a file that can no longer produce its own frozen prefix has been truncated.
@@ -125,7 +158,8 @@ def _prefix_hash(obj: Any, n: int) -> "str | None":
     rows = _record_list(obj)
     if rows is None or len(rows) < n:
         return None
-    canon = json.dumps(rows[:n], sort_keys=True, separators=(",", ":")).encode("utf-8")
+    stripped = [_strip_volatile(rel, r) for r in rows[:n]]
+    canon = json.dumps(stripped, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(canon).hexdigest()[:16]
 
 
