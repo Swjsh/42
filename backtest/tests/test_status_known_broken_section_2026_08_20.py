@@ -81,6 +81,29 @@ def _writers():
         out.append(("monday_verify", _monday))
     except Exception:                                     # noqa: BLE001
         pass
+    try:
+        import intervention_counter as ivc  # TASK B2, 2026-08-28
+
+        def _intervention(p):
+            ivc._flag_status_md({
+                "generated_at_et": "2026-08-20T10:00:00", "date_et": "2026-08-20",
+                "today": {"n_round_trips": 1, "by_category": {"manual_both": 1},
+                          "by_arm": {"safe-2": 1}, "realized_pnl": -12.0}}, status_md=p)
+        out.append(("intervention_counter", _intervention))
+    except Exception:                                     # noqa: BLE001
+        pass
+    try:
+        import itm_at_expiry_assertion as itm  # TASK B2, 2026-08-28
+
+        def _itm(p):
+            itm._flag_status_md({
+                "generated_at_et": "2026-08-20T10:00:00", "n_violations": 1,
+                "violations": [{"arm": "safe-2", "symbol": "SPY260820C00770000",
+                                 "net_qty": 3.0, "itm_by_usd": 1.0, "notional_usd": 231000.0}],
+            }, status_md=p)
+        out.append(("itm_at_expiry_assertion", _itm))
+    except Exception:                                     # noqa: BLE001
+        pass
     return out
 
 

@@ -637,6 +637,51 @@ def _rebuild_trades_enriched() -> None:
               f"{type(exc).__name__}: {exc}", file=sys.stderr)
 
 
+def _rebuild_intervention_counter() -> None:
+    """Best-effort tail call (2026-08-28, TASK B2): rebuild analysis/interventions/
+    summary.json (setup/scripts/intervention_counter.py) at the end of the same eod
+    chain, right after trades_enriched/prod_shadow. Reads fills-ledger.jsonl directly
+    (broker-truth, T1) -- no dependency on trades_enriched's own output. Fail-open
+    (C7): any failure here must never break the brief itself -- logged, not raised.
+    No new scheduled task."""
+    try:
+        import intervention_counter as ivc  # noqa: PLC0415 -- lazy, mirrors other optional deps
+        summary = ivc.run()
+        print(f"[daily_brief:eod] {ivc.one_liner(summary)}")
+    except Exception as exc:  # noqa: BLE001 -- never let this break the EOD brief
+        print(f"[daily_brief:eod] intervention_counter FAILED (non-fatal): "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+
+def _rebuild_itm_at_expiry_assertion() -> None:
+    """Best-effort tail call (2026-08-28, TASK B2): rebuild analysis/itm-expiry/
+    summary.json (setup/scripts/itm_at_expiry_assertion.py). Fail-open (C7): any
+    failure here must never break the brief itself -- logged, not raised. No new
+    scheduled task."""
+    try:
+        import itm_at_expiry_assertion as itm  # noqa: PLC0415 -- lazy
+        summary = itm.run()
+        print(f"[daily_brief:eod] {itm.one_liner(summary)}")
+    except Exception as exc:  # noqa: BLE001 -- never let this break the EOD brief
+        print(f"[daily_brief:eod] itm_at_expiry_assertion FAILED (non-fatal): "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+
+def _rebuild_data_tier_check() -> None:
+    """Best-effort tail call (2026-08-28, TASK B2): rebuild analysis/data-tier/
+    summary.json (setup/scripts/data_tier_check.py) -- read-only market-data GETs
+    only, never changes a subscription, never places an order. Fail-open (C7): any
+    failure here must never break the brief itself -- logged, not raised. No new
+    scheduled task."""
+    try:
+        import data_tier_check as dtc  # noqa: PLC0415 -- lazy
+        summary = dtc.run()
+        print(f"[daily_brief:eod] {dtc.one_liner(summary)}")
+    except Exception as exc:  # noqa: BLE001 -- never let this break the EOD brief
+        print(f"[daily_brief:eod] data_tier_check FAILED (non-fatal): "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+
 # --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
@@ -678,6 +723,9 @@ def main() -> int:
         text = compose_eod_text(facts)
         _rebuild_trades_enriched()
         _rebuild_prod_shadow()
+        _rebuild_intervention_counter()
+        _rebuild_itm_at_expiry_assertion()
+        _rebuild_data_tier_check()
 
     caption = build_caption(args.mode, day, facts)
     n_words = len(text.split())

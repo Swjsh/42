@@ -1,0 +1,14 @@
+{
+ "generated_at_et": "2026-08-28T17:29:35.189804",
+ "n_symbol_arm_pairs_seen": 278,
+ "n_judged": 0,
+ "n_violations": 0,
+ "violations": [],
+ "has_ever_happened": false,
+ "held_to_close_otm_count": 0,
+ "held_to_close_otm": [],
+ "coverage_gaps": [],
+ "n_coverage_gaps": 0,
+ "still_open_not_yet_judgable": [],
+ "note": "Settlement reference = last <=16:00 ET 1-minute SPY bar close from backtest/data/spy_sip_cache (real SIP data, 664 trading dates on disk). A symbol/date with no cache file is a COVERAGE GAP, reported separately -- never silently assumed OTM. Standard OCC equity-option settlement rule: closing price, not a special AM value (that convention is index-option-only, e.g. SPX, and does not apply to SPY)."
+}

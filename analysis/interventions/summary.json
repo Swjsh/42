@@ -1,0 +1,171 @@
+{
+ "generated_at_et": "2026-08-28T17:29:35.185007",
+ "date_et": "2026-08-28",
+ "target_start_date": "2026-09-01",
+ "target": "ZERO new SPY-0DTE interventions from target_start_date forward (J directive)",
+ "all_time": {
+  "n_round_trips": 10,
+  "by_category": {
+   "manual_both": 9,
+   "engine_entered_manual_exit": 1
+  },
+  "by_arm": {
+   "bold-2": 3,
+   "safe-2": 7
+  },
+  "realized_pnl": 66.0
+ },
+ "since_target_start": {
+  "n_round_trips": 0,
+  "by_category": {},
+  "by_arm": {},
+  "realized_pnl": 0.0
+ },
+ "today": {
+  "n_round_trips": 0,
+  "by_category": {},
+  "by_arm": {},
+  "realized_pnl": 0.0
+ },
+ "fully_engine_round_trips": 526,
+ "crypto_excluded": {
+  "n_round_trips": 244,
+  "by_category": {
+   "crypto_excluded": 244
+  },
+  "by_arm": {
+   "safe-1": 26,
+   "bold-2": 21,
+   "safe-3": 20,
+   "risky-1": 15,
+   "risky-3": 15,
+   "safe-2": 147
+  },
+  "realized_pnl": -2.49
+ },
+ "events": [
+  {
+   "date_et": "2026-06-26",
+   "arm": "safe-2",
+   "symbol": "SPY260626P00732000",
+   "category": "engine_entered_manual_exit",
+   "qty": 3.0,
+   "pnl": -237.0,
+   "entry_ts_et": "2026-06-26T14:54:12.429674",
+   "exit_ts_et": "2026-06-26T15:45:07.950326",
+   "entry_attribution": "engine",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-01",
+   "arm": "bold-2",
+   "symbol": "SPY260701P00742000",
+   "category": "manual_both",
+   "qty": 5.0,
+   "pnl": -215.0,
+   "entry_ts_et": "2026-07-01T09:45:21.881195",
+   "exit_ts_et": "2026-07-01T09:51:35.157823",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-07",
+   "arm": "safe-2",
+   "symbol": "SPY260707P00747000",
+   "category": "manual_both",
+   "qty": 1.0,
+   "pnl": 43.0,
+   "entry_ts_et": "2026-07-07T10:00:26.342813",
+   "exit_ts_et": "2026-07-07T10:14:39.853149",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-07",
+   "arm": "safe-2",
+   "symbol": "SPY260707P00747000",
+   "category": "manual_both",
+   "qty": 3.0,
+   "pnl": 132.0,
+   "entry_ts_et": "2026-07-07T10:00:26.342813",
+   "exit_ts_et": "2026-07-07T10:14:40.012586",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-07",
+   "arm": "bold-2",
+   "symbol": "SPY260707P00750000",
+   "category": "manual_both",
+   "qty": 2.0,
+   "pnl": 202.0,
+   "entry_ts_et": "2026-07-07T10:00:29.223705",
+   "exit_ts_et": "2026-07-07T10:14:42.735674",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-07",
+   "arm": "bold-2",
+   "symbol": "SPY260707P00750000",
+   "category": "manual_both",
+   "qty": 1.0,
+   "pnl": 125.0,
+   "entry_ts_et": "2026-07-07T10:00:29.223705",
+   "exit_ts_et": "2026-07-07T15:45:05.243473",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-07",
+   "arm": "safe-2",
+   "symbol": "SPY260707P00747000",
+   "category": "manual_both",
+   "qty": 1.0,
+   "pnl": -13.0,
+   "entry_ts_et": "2026-07-07T10:00:26.342813",
+   "exit_ts_et": "2026-07-07T15:45:05.946984",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-15",
+   "arm": "safe-2",
+   "symbol": "SPY260715P00752000",
+   "category": "manual_both",
+   "qty": 3.0,
+   "pnl": -60.0,
+   "entry_ts_et": "2026-07-15T13:16:56.933443",
+   "exit_ts_et": "2026-07-15T13:20:57.083969",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-17",
+   "arm": "safe-2",
+   "symbol": "SPY260717C00746000",
+   "category": "manual_both",
+   "qty": 2.0,
+   "pnl": 68.0,
+   "entry_ts_et": "2026-07-17T12:04:29.884350",
+   "exit_ts_et": "2026-07-17T12:10:17.841969",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  },
+  {
+   "date_et": "2026-07-17",
+   "arm": "safe-2",
+   "symbol": "SPY260717C00746000",
+   "category": "manual_both",
+   "qty": 1.0,
+   "pnl": 21.0,
+   "entry_ts_et": "2026-07-17T12:04:29.884350",
+   "exit_ts_et": "2026-07-17T12:12:20.749544",
+   "entry_attribution": "manual",
+   "exit_attribution": "manual"
+  }
+ ],
+ "counterfactual_pnl": null,
+ "counterfactual_note": "what the engine would have done on the SAME leg is NOT reconstructable from fills alone -- reported realized_pnl above is the ACTUAL P&L of the intervention trades themselves, never a fabricated counterfactual (C7).",
+ "caveat": "'manual' on safe-2/bold-2 means: the fill's order_id has never matched a known engine placement in core-decisions.jsonl, across every promote-only self-heal pass to date. This is the best available proxy for a human-placed order but cannot fully rule out an engine order whose core-decisions.jsonl row was lost or rotated."
+}
