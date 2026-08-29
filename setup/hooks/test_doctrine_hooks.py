@@ -345,6 +345,152 @@ def test_generated_surface_edit_is_blocked_end_to_end():
     assert "obsidian_vault_sync" in (stdout + stderr)
 
 
+# ---------------------------------------------------------------------------------------
+# end-to-end frozen-path block, real subprocess, real clock -- simulated via
+# GAMMA_FREEZE_TODAY_OVERRIDE (test-only env var). Before this seam existed, the ONLY
+# thing proving the freeze block worked was the pure freeze_active()/frozen_path_hit()
+# predicates in isolation -- nothing exercised the actual PreToolUse dispatcher with the
+# freeze genuinely active, because the real ET clock cannot be pointed at a date inside
+# the window until the calendar gets there.
+# ---------------------------------------------------------------------------------------
+def test_frozen_path_edit_is_blocked_end_to_end_during_freeze():
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Edit",
+            "tool_input": {"file_path": "automation/state/params.json", "new_string": "x"},
+        },
+        env=env,
+    )
+    assert code == BLOCK
+    assert "frozen trading path" in (stdout + stderr)
+
+
+def test_frozen_path_edit_allowed_before_freeze_opens_end_to_end():
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-08-30"}
+    code, _, _ = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Edit",
+            "tool_input": {"file_path": "automation/state/params.json", "new_string": "x"},
+        },
+        env=env,
+    )
+    assert code == ALLOW
+
+
+def test_frozen_path_edit_with_real_override_token_is_allowed_end_to_end():
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
+    code, _, _ = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Edit",
+            "tool_input": {
+                "file_path": "automation/state/params.json",
+                "old_string": "x",
+                "new_string": "y  # GAMMA_FREEZE_OVERRIDE pre-registered kill-type reduction",
+            },
+        },
+        env=env,
+    )
+    assert code == ALLOW
+
+
+def test_frozen_path_override_token_only_in_old_string_does_not_count_end_to_end():
+    """Bug (found stress-testing 2026-08-29): GAMMA_FREEZE_OVERRIDE sitting only in
+    the text being REMOVED (old_string), never landing in the resulting file, used to
+    satisfy the override check -- a session could fake a pre-registered override while
+    leaving no trace of one in the diff. Only text that actually reaches disk may
+    count."""
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Edit",
+            "tool_input": {
+                "file_path": "automation/state/params.json",
+                "old_string": "# GAMMA_FREEZE_OVERRIDE placeholder, never actually written",
+                "new_string": "tp1_premium_pct = 0.99  # no override annotation left behind",
+            },
+        },
+        env=env,
+    )
+    assert code == BLOCK
+    assert "frozen trading path" in (stdout + stderr)
+
+
+def test_frozen_path_multiedit_nested_new_string_can_carry_a_real_override_end_to_end():
+    """MultiEdit nests its changes under edits: [{old_string, new_string}, ...] rather
+    than top-level keys. A legitimate override placed in a nested new_string (text that
+    DOES reach disk) must be honoured, not silently ignored."""
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
+    code, _, _ = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "MultiEdit",
+            "tool_input": {
+                "file_path": "automation/state/params.json",
+                "edits": [
+                    {"old_string": "a", "new_string": "b  # GAMMA_FREEZE_OVERRIDE kill-type"}
+                ],
+            },
+        },
+        env=env,
+    )
+    assert code == ALLOW
+
+
+def test_frozen_path_notebookedit_and_multiedit_are_blocked_end_to_end():
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
+    code_nb, _, _ = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "NotebookEdit",
+            "tool_input": {"notebook_path": "automation/state/params.json", "new_source": "x"},
+        },
+        env=env,
+    )
+    assert code_nb == BLOCK
+
+    code_me, _, _ = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "MultiEdit",
+            "tool_input": {
+                "file_path": "automation/state/params.json",
+                "edits": [{"old_string": "a", "new_string": "b"}],
+            },
+        },
+        env=env,
+    )
+    assert code_me == BLOCK
+
+
+def test_bash_write_to_frozen_path_is_a_known_unresolved_gap():
+    """Documented, NOT fixed: the Bash/PowerShell branch of the guard only scans for
+    the 3 named scarred-command patterns (TZ=, git checkout/reset --hard, git push
+    --force) -- it never inspects whether the command's target is a frozen or
+    generated path. `cat`/`tee`/`python -c open(...).write()` writing straight to
+    automation/state/params.json is allowed straight through. A real fix needs
+    parsing shell redirect/heredoc targets, which is out of scope for a narrow,
+    denylist-only guard (README: 'a guard that can block general work is an OP-32
+    lockout scar waiting to happen') -- recorded here so the gap stays visible
+    instead of silently assumed-covered."""
+    env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
+    code, _, _ = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "tool_input": {
+                "command": "cat > automation/state/params.json <<'EOF'\n{}\nEOF"
+            },
+        },
+        env=env,
+    )
+    assert code == ALLOW  # documents the gap; flip to BLOCK if this is ever closed
+
+
 def test_stop_blocks_permission_question_once_only(tmp_path):
     # The one-block-per-session ledger is a real file keyed by session_id, so the test
     # needs a session id no previous run has used -- otherwise it reads the ledger from
@@ -416,6 +562,18 @@ def test_pulse_classifies_only_edge_worthy_tools(tool, expected):
 def test_pulse_message_edge_carries_recipient():
     row = P._target("SendMessage", {"to": "42-d3", "message": "hi"})
     assert row == "42-d3"
+
+
+def test_pulse_target_to_field_is_bounded():
+    """A SendMessage `to` field is untrusted-ish (caller-controlled) and every OTHER row
+    field is truncated (_detail caps at 100-120 chars) -- `to` must be too, or a single
+    oversized value produces an unbounded JSONL row that defeats MAX_ROWS' byte budget
+    and taxes every later PreToolUse call (_trim reads the whole file every time).
+    Verified 2026-08-29: an unbounded `to` grew one row past 1MB; fixed by capping it."""
+    huge = "x" * 1_000_000
+    assert len(P._target("SendMessage", {"to": huge})) <= P._TARGET_MAX_LEN
+    assert len(P._target("Agent", {"subagent_type": huge})) <= P._TARGET_MAX_LEN
+    assert len(P._target("Workflow", {"name": huge})) <= P._TARGET_MAX_LEN
 
 
 def test_pulse_act_edge_has_no_recipient():

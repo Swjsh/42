@@ -60,14 +60,26 @@ def classify(tool_name: str) -> str | None:
     return None
 
 
+_TARGET_MAX_LEN = 120  # matches _detail's cap; see test_pulse_target_to_field_is_bounded
+
+
 def _target(tool_name: str, tool_input: dict) -> str:
-    """Who the edge points at. Empty string means a self-glow, not a travelling pulse."""
+    """Who the edge points at. Empty string means a self-glow, not a travelling pulse.
+
+    Bounded like every other row field: an oversized `to` (bug, or a payload built from
+    untrusted/attacker-controlled text) must not produce an unbounded JSONL row. MAX_ROWS
+    caps row COUNT, not bytes -- an unbounded single row defeats that cap's byte budget,
+    and since _trim() reads the whole file on every call, an inflated file quietly taxes
+    every later PreToolUse hook for the rest of the session. Verified 2026-08-29: an
+    unbounded `to` field grew one row past 1MB and pushed per-call hook overhead from
+    ~8ms at an empty file to ~30ms at 20MB, scaling linearly with file size.
+    """
     if tool_name == "SendMessage":
-        return str(tool_input.get("to") or "")
+        return str(tool_input.get("to") or "")[:_TARGET_MAX_LEN]
     if tool_name in ("Agent", "Task"):
-        return str(tool_input.get("subagent_type") or tool_input.get("description") or "agent")
+        return str(tool_input.get("subagent_type") or tool_input.get("description") or "agent")[:_TARGET_MAX_LEN]
     if tool_name == "Workflow":
-        return str(tool_input.get("name") or "workflow")
+        return str(tool_input.get("name") or "workflow")[:_TARGET_MAX_LEN]
     return ""
 
 
