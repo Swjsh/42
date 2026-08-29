@@ -14,6 +14,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import subprocess
+import uuid
 import sys
 from pathlib import Path
 
@@ -117,6 +118,32 @@ def test_ordinary_shell_commands_pass(cmd):
     assert D.bash_guard_hit(cmd) is None
 
 
+def test_heredoc_bodies_are_data_not_commands():
+    """Regression: the guard denied its own commit for quoting a banned command in the
+    commit message. Heredoc bodies are documentation, never executed."""
+    commit = (
+        "git commit -F - <<'EOF'\n"
+        "docs: explain the clock guard\n"
+        "\n"
+        "Verified live: `TZ=America/New_York date` is blocked, and `git reset --hard`\n"
+        "is refused because it reverts live state backward.\n"
+        "EOF\n"
+        "git log --oneline -1"
+    )
+    assert D.bash_guard_hit(commit) is None
+
+
+def test_real_command_after_a_heredoc_is_still_caught():
+    """The stripper must not become a bypass: a banned command outside the body still hits."""
+    cmd = "cat > note.md <<'EOF'\nharmless text\nEOF\ngit reset --hard origin/main"
+    assert D.bash_guard_hit(cmd) is not None
+
+
+def test_unterminated_heredoc_does_not_swallow_the_rest():
+    cmd = "cat <<'EOF'\nbody line\n"
+    assert D.bash_guard_hit(cmd) is None
+
+
 @pytest.mark.parametrize(
     "msg",
     [
@@ -191,11 +218,13 @@ def test_generated_surface_edit_is_blocked_end_to_end():
     assert "obsidian_vault_sync" in (stdout + stderr)
 
 
-def test_stop_blocks_permission_question_once_only(tmp_path):
+def test_stop_blocks_permission_question_once_only():
     # The one-block-per-session ledger is a real file keyed by session_id, so the test
     # needs a session id no previous run has used -- otherwise it reads the ledger from
     # the last run and asserts against a session that has already spent its block.
-    session_id = f"pytest-op0-{tmp_path.name}"
+    # pytest's tmp_path is NOT unique enough here: its name derives from the test name
+    # and so repeats every run.
+    session_id = f"pyt-{uuid.uuid4().hex[:10]}"
     payload = {
         "hook_event_name": "Stop",
         "session_id": session_id,

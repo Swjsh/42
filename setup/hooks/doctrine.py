@@ -204,12 +204,42 @@ def generated_surface_hit(file_path: str) -> str | None:
     return None
 
 
+_HEREDOC_START = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+
+
+def strip_heredocs(command: str) -> str:
+    """Drop heredoc BODIES, keeping the command lines that open them.
+
+    Caught in the wild 2026-08-29, first live use: this guard denied its own commit
+    because the commit message -- passed via `git commit -F - <<'EOF'` -- quoted the
+    string `TZ=America/New_York date` while documenting the guard. Heredoc bodies are
+    data (commit messages, file content, docs), never commands, so scanning them
+    produces false positives on any text that merely *describes* a banned command.
+    A guard that blocks writing about itself is a guard that gets torn out.
+    """
+    lines = command.split("\n")
+    kept: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        kept.append(line)
+        match = _HEREDOC_START.search(line)
+        if match:
+            delimiter = match.group(2)
+            i += 1
+            while i < len(lines) and lines[i].strip() != delimiter:
+                i += 1  # body is data -- drop it
+        i += 1
+    return "\n".join(kept)
+
+
 def bash_guard_hit(command: str) -> str | None:
     """Return the guard message for a denied shell command, or None."""
     if not command:
         return None
+    scanned = strip_heredocs(command)
     for pattern, message in BASH_GUARDS:
-        if pattern.search(command):
+        if pattern.search(scanned):
             return message
     return None
 
