@@ -90,7 +90,22 @@ def _log(record: dict, payload: dict | None = None) -> None:
 
 
 def _et_today() -> dt.date:
-    """ET date via the DST-aware project clock. Falls back to local date."""
+    """ET date via the DST-aware project clock. Falls back to local date.
+
+    GAMMA_FREEZE_TODAY_OVERRIDE (test-only, "YYYY-MM-DD") lets a test simulate a
+    date inside the September freeze window without waiting for the real clock to
+    reach it -- before this seam existed, nothing could prove end-to-end (real
+    subprocess, real dispatcher) that the frozen-path PreToolUse block actually
+    fires once FREEZE_START arrives; only the pure freeze_active()/frozen_path_hit()
+    predicates were exercised. Mirrors the existing GAMMA_ACTIVE_GOAL_PATH /
+    GAMMA_PULSE_PATH test-seam pattern in this same module. Unset in production.
+    """
+    override = os.environ.get("GAMMA_FREEZE_TODAY_OVERRIDE")
+    if override:
+        try:
+            return dt.date.fromisoformat(override)
+        except Exception:
+            pass
     try:
         sys.path.insert(0, str(_REPO / "setup" / "scripts"))
         from et_clock import et_now  # type: ignore
@@ -351,15 +366,33 @@ def _handle_user_prompt(payload: dict) -> int:
     return _ALLOW
 
 
+def _added_content(tool: str, tin: dict) -> str:
+    """Text this edit actually ADDS to the file -- never text being replaced away.
+
+    Bug (found stress-testing 2026-08-29): the override-token check used to scan
+    `old_string` too, so GAMMA_FREEZE_OVERRIDE sitting only in the text being
+    DELETED (never landing in the resulting file) satisfied the check -- a session
+    could claim a pre-registered override while leaving no trace of one in the
+    diff. Only text that actually reaches disk may count. MultiEdit nests its
+    changes under `edits: [{old_string, new_string}, ...]` rather than top-level
+    keys, so it needs its own extraction -- read from `edits` scans nothing there
+    and would ALWAYS deny an override.
+    """
+    if tool == "MultiEdit":
+        edits = tin.get("edits")
+        if isinstance(edits, list):
+            return "".join(str(e.get("new_string") or "") for e in edits if isinstance(e, dict))
+        return ""
+    return "".join(str(tin.get(k) or "") for k in ("new_string", "content", "new_source"))
+
+
 def _handle_pre_tool(payload: dict) -> int:
     tool = payload.get("tool_name") or ""
     tin = payload.get("tool_input") or {}
 
     if tool in ("Edit", "Write", "NotebookEdit", "MultiEdit"):
         file_path = str(tin.get("file_path") or tin.get("notebook_path") or "")
-        body = "".join(
-            str(tin.get(k) or "") for k in ("new_string", "content", "old_string", "new_source")
-        )
+        body = _added_content(tool, tin)
 
         surface = D.generated_surface_hit(file_path)
         if surface:
