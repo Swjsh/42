@@ -1,6 +1,6 @@
 {
   "_doc": "compound_matrix.py -- THE COMPOUNDING-PATH MATRIX (2026-08-29).\n\nTHE QUESTION (J, verbatim): \"we should be shooting for like 3-10% of our account in profit\nper day and compound it over time -- we will eventually get to that number of $2k a day.\"\n$2k/day is an OUTPUT of compounding, not a target. This answers: what compounding path is\nactually AVAILABLE, and what BINDS it? Analysis-path only -- writes analysis/compound/*,\nnever touches params*.json / heartbeat_core.py / risk_gate.py / filters.py / strategies.py /\nfleet_executor.py / exit_manager.py / fleet_broker.py, never arms anything.\n\nMEASURED INPUTS (re-derived HERE from analysis/trades-enriched.jsonl, not assumed):\n  * The \"4 live arms\" roster (safe-2, bold-2, safe-3, risky-1) matches\n    automation/state/fleet/accounts.json's CURRENT active-arm set, not J's original 5-arm\n    history: risky-3 (account PA3V7JT25H6Z) was RETIRED 2026-08-28 (accounts.json\n    retired_reason: \"data wins it can be closed\" -- lifetime -$590 while the other four cells\n    are positive, 0-for-5 on its last day; the account is being repurposed for the weekly-1\n    non-SPY lane). Using J's 4-arm roster for ALL THREE regimes (not just post-fix) is\n    therefore the FORWARD-LOOKING correct choice, not an inconsistency -- confirmed by\n    reproducing his exact n=23 arm-days / 8 sessions / 61% green for the post-fix window\n    with exactly this roster (this script's own regime construction, see build_regime()).\n  * Reconciliation vs J's stated post-fix stats: this script's own equity-path\n    reconstruction (backward from the CURRENT broker-adjacent equity J supplied, subtracting\n    each day's realized trade pnl) reproduces J's n/sessions/green% EXACTLY but differs on\n    mean/median/sd by roughly 0.3-1.1 percentage points (this script: mean +3.60%/median\n    +3.62%/sd 6.21% vs J's +2.99%/+3.21%/5.14%). Root cause of the residual gap is NOT fully\n    resolved -- most likely a different equity-denominator convention (this script uses\n    reconstructed start-of-day equity per arm-day; J's number likely used a different\n    anchor/date convention) or fees/manual adjustments this file's pnl_dollars does not\n    carry. This script's numbers are used throughout because they are the ones this exact\n    code reproduces from the checked-in data; the discrepancy is disclosed, not hidden.\n  * THE CAPACITY MODEL WAS CORRECTED MID-BUILD (2026-08-29, J catching his own brief):\n    the ORIGINAL framing (\"max ~20 contracts / ~$2,000 regardless of account size, so %\n    return decays as equity grows past that\") is WRONG -- max_contracts_per_entry=5 /\n    max_position_dollars=$1,000 / max_same_day_roundtrips=4 (shipped 2026-08-29,\n    PREREG-TIGHT-LADDER-2026-08-28.md) are config CHOICES sized for a ~$5K account, not\n    properties of the strategy, and get rescaled as equity grows (config_rescale_table\n    below). The REAL wall is MARKET DEPTH: measured NBBO displayed bid size is a median 638\n    contracts at $0.00-0.20 premium but only 46 at $1.50-2.50 (source:\n    analysis/recommendations/_b2_depth_2026_08_28.json), and this repo's own right-tail\n    winners land in exactly that thin bucket (this script's own re-derivation: winners\n    exiting in the $1.50-2.50 bucket, n=28, all arms/all history, median entry $1.15 / median\n    exit $1.795 -- close to, not exactly, the $1.72 cited; consistent with the same \"thin\n    exit liquidity\" story). THAT depth measurement is 3 snapshots from ONE session (n=33\n    contract-quotes total, feed explicitly tagged \"indicative (OPRA 403: agreement not\n    signed)\" in its own file) -- thin, uncertain evidence for a load-bearing constant, and\n    every capacity-bend number below is reported with that caveat attached, not as a fact.\n\nMODEL SHAPE:\n  * Below the depth-implied equity E*, contracts scale proportionally with equity (deployment\n    held at a roughly constant fraction of equity, per J's stated $10K-on-$50K=20% mental\n    model, matching this script's own measured ~16-17% median daily deployment fraction) --\n    so % returns are NOT adjusted with equity in this regime; the historical bootstrap pool\n    applies as-is.\n  * Above E*, the market cannot absorb more contracts at good prices without walking a\n    thin book, so DEPLOYABLE equity is capped at E* (effective_equity = min(equity, E_star));\n    dollar P&L on the marginal equity above E* is modeled as zero. This reproduces the\n    \"bends from exponential toward linear\" shape the original brief wanted, driven by DEPTH,\n    not by the (rescalable) config caps.\n\nBootstrap: sample REAL historical arm-days with replacement (never a fitted/normal\ndistribution) -- preserves the measured fat tail / right-skew (mean > median at every\nregime; the all-history MEDIAN arm-day is a LOSS). Fixed seed -> byte-reproducible.\n$0, stdlib only (matches this repo's setup/scripts/ convention -- no numpy dependency).\n\nRun: backtest/.venv/Scripts/python.exe setup/scripts/compound_matrix.py\nOutputs: analysis/compound/matrix.json (data) + analysis/compound/MATRIX.md (readable).\nGuard: backtest/tests/test_compound_matrix_2026_08_29.py.\n",
-  "generated_at_et": "2026-08-29T14:28:00.130591",
+  "generated_at_et": "2026-08-29T16:14:32.535718",
   "seed": 20260829,
   "n_sims_paths": 2000,
   "n_sims_milestones": 1000,
@@ -85,7 +85,69 @@
       "daily_loss_kill_switch_pct": 0.5
     }
   },
-  "market_depth_measurement": {
+  "capacity_volume": {
+    "_doc": "TRADED-VOLUME capacity model (2026-08-29). Supersedes the displayed-depth wall: top-of-book size is a quote, not available liquidity. Allowed size = participation_rate x (traded volume over a 5-minute exit window), priced off the 25th-percentile minute in the $1.50-$2.50 exit band for conservatism.",
+    "opra_evidence": {
+      "n_contract_days": 319,
+      "exit_band": [
+        1.5,
+        2.5
+      ],
+      "per_day_median": 443750,
+      "per_day_p25": 272818.0,
+      "band_minute_n": 19623,
+      "band_minute_median": 357,
+      "band_minute_p25": 151.0,
+      "band_minute_p10": 65.0
+    },
+    "exit_window_minutes": 5,
+    "participation_grid": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "contracts_available_in_window_p25": 755.0,
+    "winner_cohort_n": 28,
+    "winner_cohort_median_entry_premium": 1.15,
+    "e_star_grid": {
+      "0.1": {
+        "0.05": 43412.0,
+        "0.1": 86825.0,
+        "0.2": 173650.0
+      },
+      "0.15": {
+        "0.05": 28942.0,
+        "0.1": 57883.0,
+        "0.2": 115767.0
+      },
+      "0.17": {
+        "0.05": 25537.0,
+        "0.1": 51074.0,
+        "0.2": 102147.0
+      },
+      "0.2": {
+        "0.05": 21706.0,
+        "0.1": 43412.0,
+        "0.2": 86825.0
+      },
+      "0.25": {
+        "0.05": 17365.0,
+        "0.1": 34730.0,
+        "0.2": 69460.0
+      }
+    },
+    "headline_central": {
+      "deployment_fraction": 0.17,
+      "participation_rate": 0.1,
+      "E_star": 51074.0
+    },
+    "comparison_to_refuted_depth_model": {
+      "displayed_depth_contracts": 46.0,
+      "traded_contracts_in_exit_window_p25": 755.0,
+      "ratio": 16.4
+    }
+  },
+  "market_depth_measurement_REFUTED": {
     "_doc": "Corrected model (J, 2026-08-29): the real capacity wall is MARKET DEPTH, not the config caps (those rescale with equity, see config_rescale_table). contracts_per_entry(E) = deployment_fraction*E / (entry_premium*100); the wall E* is the equity where that count first becomes a 'meaningful fraction' of the displayed bid depth at the premium where right-tail winners actually exit.",
     "depth_thin_bucket_1_50_2_50_contracts": 46.0,
     "depth_deep_bucket_0_00_0_20_contracts": 638.0,
@@ -174,6 +236,19 @@
       "E_star_observed": 15559.0,
       "interpretation": "Central estimate: the market-depth wall likely starts binding somewhere between roughly $7.8K (conservative: one entry claims the whole day's deployment) and $15.6K (using the observed ~2 entries/day to split it) -- i.e. 1.5x-3x current equity, not $50K-$200K. Thin evidence (see above); treat as 'probably closer than it looks', not as a precise number."
     }
+  },
+  "traded_volume_evidence": {
+    "n_contract_days": 319,
+    "exit_band": [
+      1.5,
+      2.5
+    ],
+    "per_day_median": 443750,
+    "per_day_p25": 272818.0,
+    "band_minute_n": 19623,
+    "band_minute_median": 357,
+    "band_minute_p25": 151.0,
+    "band_minute_p10": 65.0
   },
   "deployment_fraction": {
     "median_arm_day_notional": 801.0,
@@ -297,8 +372,8 @@
       "median_day_equity_for_2000_depth_capped": {
         "reachable": false,
         "naive_equity_for_median_2000": 55310.0,
-        "capped_median_dollar_ceiling": 281.29,
-        "reason": "naive math says $55,310 equity, but the depth wall caps deployable equity at ~$7,779, so the median day's dollar P&L plateaus at ~$281/day -- BELOW $2,000 at ANY equity under this depth constraint. Scaling THIS account cannot reach $2,000/day as the median day; only more market depth (more names, slower/limit execution, or a bigger per-contract edge) can."
+        "capped_median_dollar_ceiling": 1846.84,
+        "reason": "naive math says $55,310 equity, but the depth wall caps deployable equity at ~$51,074, so the median day's dollar P&L plateaus at ~$1,847/day -- BELOW $2,000 at ANY equity under this depth constraint. Scaling THIS account cannot reach $2,000/day as the median day; only more market depth (more names, slower/limit execution, or a bigger per-contract edge) can."
       },
       "j_stated": {
         "n_arm_days": 23,
@@ -342,8 +417,8 @@
       "median_day_equity_for_2000_depth_capped": {
         "reachable": false,
         "naive_equity_for_median_2000": 167504.0,
-        "capped_median_dollar_ceiling": 92.88,
-        "reason": "naive math says $167,504 equity, but the depth wall caps deployable equity at ~$7,779, so the median day's dollar P&L plateaus at ~$93/day -- BELOW $2,000 at ANY equity under this depth constraint. Scaling THIS account cannot reach $2,000/day as the median day; only more market depth (more names, slower/limit execution, or a bigger per-contract edge) can."
+        "capped_median_dollar_ceiling": 609.82,
+        "reason": "naive math says $167,504 equity, but the depth wall caps deployable equity at ~$51,074, so the median day's dollar P&L plateaus at ~$610/day -- BELOW $2,000 at ANY equity under this depth constraint. Scaling THIS account cannot reach $2,000/day as the median day; only more market depth (more names, slower/limit execution, or a bigger per-contract edge) can."
       },
       "j_stated": {
         "n_arm_days": 60,
@@ -403,41 +478,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7251.07,
-                "p25": 8534.85,
-                "p50": 9968.66,
-                "p75": 11540.58,
-                "p90": 12840.76
+                "p10": 7250.2,
+                "p25": 8545.01,
+                "p50": 10135.4,
+                "p75": 12262.35,
+                "p90": 14361.06
               },
               "3mo": {
-                "p10": 17102.42,
-                "p25": 19355.87,
-                "p50": 21844.86,
-                "p75": 24260.77,
-                "p90": 26312.02
+                "p10": 23851.83,
+                "p25": 31350.72,
+                "p50": 42290.85,
+                "p75": 56648.39,
+                "p90": 70747.07
               },
               "6mo": {
-                "p10": 32417.26,
-                "p25": 35762.74,
-                "p50": 39311.25,
-                "p75": 42733.58,
-                "p90": 45949.05
+                "p10": 109907.37,
+                "p25": 132116.1,
+                "p50": 155536.46,
+                "p75": 178150.26,
+                "p90": 199489.46
               },
               "12mo": {
-                "p10": 64928.27,
-                "p25": 69540.66,
-                "p50": 74420.79,
-                "p75": 79454.66,
-                "p90": 83530.54
+                "p10": 323797.32,
+                "p25": 353871.38,
+                "p50": 386038.78,
+                "p75": 418856.14,
+                "p90": 446168.13
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 7.0,
-              "max_dd_pct_p90": 12.34,
-              "max_dd_dollars_median": 1117.69,
-              "max_dd_dollars_p90": 1574.22,
+              "max_dd_pct_median": 10.28,
+              "max_dd_pct_p90": 15.24,
+              "max_dd_dollars_median": 6833.12,
+              "max_dd_dollars_p90": 9893.0,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -448,41 +523,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 13120.38,
-                "p25": 14455.9,
-                "p50": 15786.53,
-                "p75": 17270.31,
-                "p90": 18684.85
+                "p10": 14505.72,
+                "p25": 16985.47,
+                "p50": 20071.98,
+                "p75": 23998.95,
+                "p90": 28436.25
               },
               "3mo": {
-                "p10": 22770.75,
-                "p25": 25013.56,
-                "p50": 27486.7,
-                "p75": 30131.08,
-                "p90": 32232.46
+                "p10": 45935.63,
+                "p25": 60375.56,
+                "p50": 77109.74,
+                "p75": 94389.81,
+                "p90": 108475.55
               },
               "6mo": {
-                "p10": 38601.41,
-                "p25": 41436.41,
-                "p50": 45175.96,
-                "p75": 48772.51,
-                "p90": 52027.29
+                "p10": 149516.95,
+                "p25": 168413.11,
+                "p50": 193044.87,
+                "p75": 216847.39,
+                "p90": 238270.05
               },
               "12mo": {
-                "p10": 70986.92,
-                "p25": 75126.04,
-                "p50": 80053.48,
-                "p75": 85537.05,
-                "p90": 89869.52
+                "p10": 362086.01,
+                "p25": 389650.15,
+                "p50": 422422.83,
+                "p75": 458103.98,
+                "p90": 486639.05
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 4.72,
-              "max_dd_pct_p90": 7.9,
-              "max_dd_dollars_median": 1116.5,
-              "max_dd_dollars_p90": 1591.53,
+              "max_dd_pct_median": 9.24,
+              "max_dd_pct_p90": 14.51,
+              "max_dd_dollars_median": 6930.11,
+              "max_dd_dollars_p90": 9927.44,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -496,40 +571,40 @@
             "equity_paths": {
               "1mo": {
                 "p10": 6604.45,
-                "p25": 7554.5,
-                "p50": 8835.09,
-                "p75": 10092.41,
-                "p90": 11338.95
+                "p25": 7550.49,
+                "p50": 8858.37,
+                "p75": 10322.08,
+                "p90": 12019.86
               },
               "3mo": {
-                "p10": 13926.17,
-                "p25": 16033.23,
-                "p50": 18434.97,
-                "p75": 20529.01,
-                "p90": 22396.57
+                "p10": 16278.29,
+                "p25": 21108.96,
+                "p50": 28290.41,
+                "p75": 36636.05,
+                "p90": 46014.83
               },
               "6mo": {
-                "p10": 26553.82,
-                "p25": 29301.11,
-                "p50": 32535.9,
-                "p75": 35814.62,
-                "p90": 38591.47
+                "p10": 71686.29,
+                "p25": 90311.83,
+                "p50": 111527.78,
+                "p75": 133551.48,
+                "p90": 151949.37
               },
               "12mo": {
-                "p10": 52691.28,
-                "p25": 56401.28,
-                "p50": 60973.54,
-                "p75": 64975.91,
-                "p90": 68813.68
+                "p10": 243433.4,
+                "p25": 267368.35,
+                "p50": 298407.48,
+                "p75": 325211.46,
+                "p90": 350086.56
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 8.13,
-              "max_dd_pct_p90": 13.51,
-              "max_dd_dollars_median": 1161.57,
-              "max_dd_dollars_p90": 1652.37,
+              "max_dd_pct_median": 11.58,
+              "max_dd_pct_p90": 17.1,
+              "max_dd_dollars_median": 7104.15,
+              "max_dd_dollars_p90": 10331.23,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.001,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 8.0
@@ -540,41 +615,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 12363.42,
-                "p25": 13430.82,
-                "p50": 14659.22,
-                "p75": 15968.42,
-                "p90": 17214.44
+                "p10": 13207.01,
+                "p25": 15094.38,
+                "p50": 17614.43,
+                "p75": 20646.89,
+                "p90": 24046.31
               },
               "3mo": {
-                "p10": 20025.22,
-                "p25": 21985.64,
-                "p50": 24110.04,
-                "p75": 26305.28,
-                "p90": 28471.03
+                "p10": 33461.04,
+                "p25": 42356.45,
+                "p50": 55207.04,
+                "p75": 69920.63,
+                "p90": 83912.68
               },
               "6mo": {
-                "p10": 32546.22,
-                "p25": 35271.48,
-                "p50": 38396.51,
-                "p75": 41409.43,
-                "p90": 44504.52
+                "p10": 109992.16,
+                "p25": 128285.62,
+                "p50": 149120.37,
+                "p75": 168952.63,
+                "p90": 189515.89
               },
               "12mo": {
-                "p10": 58258.0,
-                "p25": 62467.36,
-                "p50": 66794.42,
-                "p75": 70971.86,
-                "p90": 75317.13
+                "p10": 279461.46,
+                "p25": 306861.63,
+                "p50": 335253.02,
+                "p75": 363037.58,
+                "p90": 391762.03
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 5.48,
-              "max_dd_pct_p90": 9.05,
-              "max_dd_dollars_median": 1167.36,
-              "max_dd_dollars_p90": 1650.5,
+              "max_dd_pct_median": 10.39,
+              "max_dd_pct_p90": 16.21,
+              "max_dd_dollars_median": 7338.32,
+              "max_dd_dollars_p90": 10469.13,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0015,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 8.0
@@ -590,40 +665,40 @@
             "equity_paths": {
               "1mo": {
                 "p10": 7115.12,
-                "p25": 8213.13,
-                "p50": 9668.3,
-                "p75": 11151.67,
-                "p90": 12470.61
+                "p25": 8193.81,
+                "p50": 9794.89,
+                "p75": 11726.32,
+                "p90": 13705.5
               },
               "3mo": {
-                "p10": 16344.58,
-                "p25": 18507.43,
-                "p50": 21149.56,
-                "p75": 23674.0,
-                "p90": 25875.62
+                "p10": 21619.61,
+                "p25": 28275.0,
+                "p50": 38810.8,
+                "p75": 52883.72,
+                "p90": 67658.93
               },
               "6mo": {
-                "p10": 31772.6,
-                "p25": 34773.23,
-                "p50": 38143.71,
-                "p75": 41746.52,
-                "p90": 45144.45
+                "p10": 105535.82,
+                "p25": 125230.2,
+                "p50": 147898.55,
+                "p75": 171724.37,
+                "p90": 193496.19
               },
               "12mo": {
-                "p10": 63082.68,
-                "p25": 67443.3,
-                "p50": 72112.08,
-                "p75": 77202.86,
-                "p90": 82261.93
+                "p10": 311357.82,
+                "p25": 340197.15,
+                "p50": 370930.24,
+                "p75": 404135.94,
+                "p90": 437458.03
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 7.51,
-              "max_dd_pct_p90": 12.77,
-              "max_dd_dollars_median": 1146.06,
-              "max_dd_dollars_p90": 1645.41,
+              "max_dd_pct_median": 10.75,
+              "max_dd_pct_p90": 16.48,
+              "max_dd_dollars_median": 7075.1,
+              "max_dd_dollars_p90": 10386.27,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -634,41 +709,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 12995.9,
-                "p25": 14208.53,
-                "p50": 15616.51,
-                "p75": 17077.03,
-                "p90": 18331.01
+                "p10": 14207.62,
+                "p25": 16547.36,
+                "p50": 19707.95,
+                "p75": 23514.22,
+                "p90": 27284.78
               },
               "3mo": {
-                "p10": 22335.3,
-                "p25": 24502.18,
-                "p50": 27058.11,
-                "p75": 29458.6,
-                "p90": 32016.16
+                "p10": 43463.09,
+                "p25": 56922.83,
+                "p50": 73700.01,
+                "p75": 89629.36,
+                "p90": 106886.92
               },
               "6mo": {
-                "p10": 37421.27,
-                "p25": 40453.87,
-                "p50": 43996.18,
-                "p75": 47367.65,
-                "p90": 50744.74
+                "p10": 141858.52,
+                "p25": 161762.99,
+                "p50": 185178.12,
+                "p75": 207200.58,
+                "p90": 229707.5
               },
               "12mo": {
-                "p10": 68610.81,
-                "p25": 73090.83,
-                "p50": 78591.27,
-                "p75": 83405.8,
-                "p90": 88120.82
+                "p10": 346326.68,
+                "p25": 376109.31,
+                "p50": 411855.21,
+                "p75": 443775.34,
+                "p90": 474657.8
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 5.07,
-              "max_dd_pct_p90": 8.81,
-              "max_dd_dollars_median": 1162.01,
-              "max_dd_dollars_p90": 1652.69,
+              "max_dd_pct_median": 9.99,
+              "max_dd_pct_p90": 15.34,
+              "max_dd_dollars_median": 7414.06,
+              "max_dd_dollars_p90": 10434.57,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -682,40 +757,40 @@
             "equity_paths": {
               "1mo": {
                 "p10": 6485.91,
-                "p25": 7387.98,
-                "p50": 8591.45,
-                "p75": 9943.5,
-                "p90": 11203.51
+                "p25": 7386.08,
+                "p50": 8593.5,
+                "p75": 10140.31,
+                "p90": 11806.47
               },
               "3mo": {
-                "p10": 13638.82,
-                "p25": 15589.86,
-                "p50": 17929.32,
-                "p75": 20036.6,
-                "p90": 21926.02
+                "p10": 15684.99,
+                "p25": 19926.53,
+                "p50": 26446.01,
+                "p75": 34401.3,
+                "p90": 43383.66
               },
               "6mo": {
-                "p10": 25638.29,
-                "p25": 28494.77,
-                "p50": 31551.11,
-                "p75": 34478.73,
-                "p90": 37586.69
+                "p10": 65461.8,
+                "p25": 84664.34,
+                "p50": 105175.19,
+                "p75": 124639.97,
+                "p90": 145118.46
               },
               "12mo": {
-                "p10": 50555.55,
-                "p25": 54552.85,
-                "p50": 58901.81,
-                "p75": 63549.85,
-                "p90": 67189.15
+                "p10": 229315.19,
+                "p25": 256078.12,
+                "p50": 284426.19,
+                "p75": 315289.83,
+                "p90": 339173.46
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 8.35,
-              "max_dd_pct_p90": 14.12,
-              "max_dd_dollars_median": 1214.45,
-              "max_dd_dollars_p90": 1728.69,
+              "max_dd_pct_median": 11.89,
+              "max_dd_pct_p90": 18.26,
+              "max_dd_dollars_median": 7354.78,
+              "max_dd_dollars_p90": 10628.68,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.001,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 8.0
@@ -726,41 +801,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 12325.81,
-                "p25": 13309.6,
-                "p50": 14507.84,
-                "p75": 15779.54,
-                "p90": 16930.46
+                "p10": 13159.98,
+                "p25": 14854.63,
+                "p50": 17256.19,
+                "p75": 20189.5,
+                "p90": 23253.97
               },
               "3mo": {
-                "p10": 19373.26,
-                "p25": 21384.95,
-                "p50": 23535.3,
-                "p75": 25878.34,
-                "p90": 27932.37
+                "p10": 30823.01,
+                "p25": 39407.09,
+                "p50": 51347.85,
+                "p75": 67083.98,
+                "p90": 80480.45
               },
               "6mo": {
-                "p10": 31286.33,
-                "p25": 33913.2,
-                "p50": 37174.12,
-                "p75": 40466.81,
-                "p90": 43245.94
+                "p10": 101858.16,
+                "p25": 119375.15,
+                "p50": 140791.84,
+                "p75": 162803.61,
+                "p90": 181035.96
               },
               "12mo": {
-                "p10": 56227.27,
-                "p25": 60312.82,
-                "p50": 64677.45,
-                "p75": 68868.81,
-                "p90": 72707.05
+                "p10": 265639.61,
+                "p25": 292271.07,
+                "p50": 321535.46,
+                "p75": 349282.29,
+                "p90": 374838.31
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 5.58,
-              "max_dd_pct_p90": 9.6,
-              "max_dd_dollars_median": 1222.79,
-              "max_dd_dollars_p90": 1723.28,
+              "max_dd_pct_median": 10.91,
+              "max_dd_pct_p90": 17.2,
+              "max_dd_dollars_median": 7510.37,
+              "max_dd_dollars_p90": 10681.85,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0025,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 8.0
@@ -776,40 +851,40 @@
             "equity_paths": {
               "1mo": {
                 "p10": 7064.58,
-                "p25": 8269.68,
-                "p50": 9667.45,
-                "p75": 11163.55,
-                "p90": 12522.93
+                "p25": 8240.97,
+                "p50": 9776.02,
+                "p75": 11697.14,
+                "p90": 13782.48
               },
               "3mo": {
-                "p10": 15949.81,
-                "p25": 18095.68,
-                "p50": 20715.97,
-                "p75": 23138.92,
-                "p90": 25730.23
+                "p10": 20592.71,
+                "p25": 26698.65,
+                "p50": 36755.58,
+                "p75": 49434.88,
+                "p90": 66591.03
               },
               "6mo": {
-                "p10": 30467.0,
-                "p25": 33594.19,
-                "p50": 37175.35,
-                "p75": 40825.44,
-                "p90": 44473.56
+                "p10": 96972.48,
+                "p25": 117514.18,
+                "p50": 141228.8,
+                "p75": 165478.7,
+                "p90": 189788.71
               },
               "12mo": {
-                "p10": 60807.23,
-                "p25": 65438.0,
-                "p50": 70707.81,
-                "p75": 75639.81,
-                "p90": 80448.23
+                "p10": 296414.69,
+                "p25": 326529.96,
+                "p50": 361224.06,
+                "p75": 393879.14,
+                "p90": 425499.6
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 7.74,
-              "max_dd_pct_p90": 13.12,
-              "max_dd_dollars_median": 1183.77,
-              "max_dd_dollars_p90": 1683.51,
+              "max_dd_pct_median": 11.29,
+              "max_dd_pct_p90": 17.05,
+              "max_dd_dollars_median": 7294.26,
+              "max_dd_dollars_p90": 10565.16,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0005,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -820,41 +895,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 12726.42,
-                "p25": 13945.0,
-                "p50": 15501.54,
-                "p75": 17006.8,
-                "p90": 18455.2
+                "p10": 13786.93,
+                "p25": 16077.81,
+                "p50": 19388.18,
+                "p75": 23183.28,
+                "p90": 27698.51
               },
               "3mo": {
-                "p10": 21773.06,
-                "p25": 24087.19,
-                "p50": 26556.39,
-                "p75": 29133.76,
-                "p90": 31390.67
+                "p10": 40789.07,
+                "p25": 54154.91,
+                "p50": 70619.29,
+                "p75": 87610.27,
+                "p90": 102733.18
               },
               "6mo": {
-                "p10": 36351.11,
-                "p25": 39522.63,
-                "p50": 43236.44,
-                "p75": 46815.57,
-                "p90": 50372.61
+                "p10": 134702.15,
+                "p25": 155459.74,
+                "p50": 180050.32,
+                "p75": 203770.59,
+                "p90": 226993.54
               },
               "12mo": {
-                "p10": 66773.32,
-                "p25": 71237.04,
-                "p50": 76133.71,
-                "p75": 81349.13,
-                "p90": 86380.92
+                "p10": 334256.83,
+                "p25": 363904.85,
+                "p50": 396203.55,
+                "p75": 430673.19,
+                "p90": 463679.82
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 5.29,
-              "max_dd_pct_p90": 9.2,
-              "max_dd_dollars_median": 1216.43,
-              "max_dd_dollars_p90": 1711.95,
+              "max_dd_pct_median": 10.18,
+              "max_dd_pct_p90": 16.18,
+              "max_dd_dollars_median": 7572.21,
+              "max_dd_dollars_p90": 10767.75,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -869,39 +944,39 @@
               "1mo": {
                 "p10": 6359.92,
                 "p25": 7225.87,
-                "p50": 8457.43,
-                "p75": 9709.15,
-                "p90": 10846.1
+                "p50": 8447.04,
+                "p75": 9828.2,
+                "p90": 11299.9
               },
               "3mo": {
-                "p10": 13251.69,
-                "p25": 15101.74,
-                "p50": 17340.7,
-                "p75": 19428.09,
-                "p90": 21447.46
+                "p10": 14968.56,
+                "p25": 18819.73,
+                "p50": 24691.74,
+                "p75": 31951.46,
+                "p90": 40977.25
               },
               "6mo": {
-                "p10": 24449.88,
-                "p25": 27268.65,
-                "p50": 30430.68,
-                "p75": 33631.11,
-                "p90": 36406.52
+                "p10": 57697.85,
+                "p25": 76521.12,
+                "p50": 97637.52,
+                "p75": 119010.51,
+                "p90": 137085.08
               },
               "12mo": {
-                "p10": 48662.07,
-                "p25": 52413.82,
-                "p50": 56797.9,
-                "p75": 61096.93,
-                "p90": 65282.05
+                "p10": 216867.44,
+                "p25": 241276.2,
+                "p50": 270350.85,
+                "p75": 298881.57,
+                "p90": 326475.46
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 8.7,
-              "max_dd_pct_p90": 14.58,
-              "max_dd_dollars_median": 1251.0,
-              "max_dd_dollars_p90": 1827.24,
+              "max_dd_pct_median": 12.66,
+              "max_dd_pct_p90": 18.69,
+              "max_dd_dollars_median": 7572.21,
+              "max_dd_dollars_p90": 11102.55,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0035,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 8.0
@@ -912,41 +987,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 11997.17,
-                "p25": 13151.93,
-                "p50": 14462.39,
-                "p75": 15782.57,
-                "p90": 16893.87
+                "p10": 12626.17,
+                "p25": 14588.87,
+                "p50": 17145.43,
+                "p75": 20211.04,
+                "p90": 23124.86
               },
               "3mo": {
-                "p10": 19087.1,
-                "p25": 20967.25,
-                "p50": 23089.88,
-                "p75": 25344.99,
-                "p90": 27439.31
+                "p10": 29565.97,
+                "p25": 37349.64,
+                "p50": 48684.28,
+                "p75": 63318.6,
+                "p90": 77148.41
               },
               "6mo": {
-                "p10": 30563.23,
-                "p25": 33316.38,
-                "p50": 36418.04,
-                "p75": 39546.96,
-                "p90": 42301.74
+                "p10": 96489.34,
+                "p25": 115096.43,
+                "p50": 135631.13,
+                "p75": 156378.93,
+                "p90": 174572.39
               },
               "12mo": {
-                "p10": 54739.78,
-                "p25": 58610.39,
-                "p50": 62833.49,
-                "p75": 67312.05,
-                "p90": 71357.56
+                "p10": 255542.55,
+                "p25": 281383.28,
+                "p50": 309318.99,
+                "p75": 338672.98,
+                "p90": 365543.15
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 5.92,
-              "max_dd_pct_p90": 10.08,
-              "max_dd_dollars_median": 1285.7,
-              "max_dd_dollars_p90": 1799.94,
+              "max_dd_pct_median": 11.69,
+              "max_dd_pct_p90": 18.01,
+              "max_dd_dollars_median": 7904.44,
+              "max_dd_dollars_p90": 11306.91,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0025,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 8.0
@@ -962,40 +1037,40 @@
             "equity_paths": {
               "1mo": {
                 "p10": 6623.28,
-                "p25": 7815.93,
-                "p50": 9282.53,
-                "p75": 10775.25,
-                "p90": 12246.98
+                "p25": 7808.37,
+                "p50": 9315.13,
+                "p75": 11173.39,
+                "p90": 13332.65
               },
               "3mo": {
-                "p10": 14821.8,
-                "p25": 17237.12,
-                "p50": 19744.18,
-                "p75": 22333.38,
-                "p90": 24869.95
+                "p10": 18086.73,
+                "p25": 24087.7,
+                "p50": 32619.16,
+                "p75": 44906.77,
+                "p90": 60484.21
               },
               "6mo": {
-                "p10": 28611.2,
-                "p25": 31824.16,
-                "p50": 35315.84,
-                "p75": 39205.78,
-                "p90": 42526.56
+                "p10": 84565.4,
+                "p25": 105422.0,
+                "p50": 128479.45,
+                "p75": 154441.26,
+                "p90": 176488.89
               },
               "12mo": {
-                "p10": 56852.2,
-                "p25": 61835.15,
-                "p50": 67055.24,
-                "p75": 71845.5,
-                "p90": 76354.81
+                "p10": 270059.72,
+                "p25": 302576.65,
+                "p50": 336913.08,
+                "p75": 368689.67,
+                "p90": 398930.15
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 8.59,
-              "max_dd_pct_p90": 14.35,
-              "max_dd_dollars_median": 1282.01,
-              "max_dd_dollars_p90": 1823.95,
+              "max_dd_pct_median": 12.19,
+              "max_dd_pct_p90": 18.67,
+              "max_dd_dollars_median": 7841.66,
+              "max_dd_dollars_p90": 11274.75,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0015,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -1006,41 +1081,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 12516.01,
-                "p25": 13799.27,
-                "p50": 15142.06,
-                "p75": 16625.35,
-                "p90": 18073.14
+                "p10": 13409.04,
+                "p25": 15725.82,
+                "p50": 18522.54,
+                "p75": 22227.69,
+                "p90": 26411.45
               },
               "3mo": {
-                "p10": 20811.09,
-                "p25": 23092.26,
-                "p50": 25712.62,
-                "p75": 28300.55,
-                "p90": 30620.73
+                "p10": 36083.45,
+                "p25": 47640.11,
+                "p50": 64755.81,
+                "p75": 82129.98,
+                "p90": 97557.94
               },
               "6mo": {
-                "p10": 34753.07,
-                "p25": 37708.34,
-                "p50": 41435.03,
-                "p75": 45071.88,
-                "p90": 48587.56
+                "p10": 123851.54,
+                "p25": 143062.36,
+                "p50": 168160.84,
+                "p75": 192312.82,
+                "p90": 215139.19
               },
               "12mo": {
-                "p10": 62915.81,
-                "p25": 67573.77,
-                "p50": 72730.63,
-                "p75": 77803.03,
-                "p90": 82635.28
+                "p10": 308636.48,
+                "p25": 338940.65,
+                "p50": 373623.92,
+                "p75": 406945.68,
+                "p90": 438926.33
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 5.84,
-              "max_dd_pct_p90": 9.87,
-              "max_dd_dollars_median": 1317.18,
-              "max_dd_dollars_p90": 1871.28,
+              "max_dd_pct_median": 11.27,
+              "max_dd_pct_p90": 17.39,
+              "max_dd_dollars_median": 8184.04,
+              "max_dd_dollars_p90": 11727.46,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.0045,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -1055,39 +1130,39 @@
               "1mo": {
                 "p10": 6092.94,
                 "p25": 7017.78,
-                "p50": 8161.53,
-                "p75": 9496.38,
-                "p90": 10651.91
+                "p50": 8142.23,
+                "p75": 9586.05,
+                "p90": 11040.58
               },
               "3mo": {
-                "p10": 11940.33,
-                "p25": 14089.22,
-                "p50": 16185.74,
-                "p75": 18591.45,
-                "p90": 20483.88
+                "p10": 12675.29,
+                "p25": 16599.89,
+                "p50": 21412.45,
+                "p75": 28747.28,
+                "p90": 36291.76
               },
               "6mo": {
-                "p10": 22689.71,
-                "p25": 25622.0,
-                "p50": 28648.24,
-                "p75": 31777.79,
-                "p90": 34589.15
+                "p10": 46079.08,
+                "p25": 65385.52,
+                "p50": 85605.19,
+                "p75": 106379.15,
+                "p90": 125117.56
               },
               "12mo": {
-                "p10": 44948.89,
-                "p25": 48780.32,
-                "p50": 53366.91,
-                "p75": 57600.92,
-                "p90": 61392.11
+                "p10": 191099.94,
+                "p25": 217555.55,
+                "p50": 247637.8,
+                "p75": 275916.91,
+                "p90": 301312.99
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 9.78,
-              "max_dd_pct_p90": 16.12,
-              "max_dd_dollars_median": 1377.07,
-              "max_dd_dollars_p90": 1932.31,
+              "max_dd_pct_median": 13.84,
+              "max_dd_pct_p90": 20.59,
+              "max_dd_dollars_median": 8114.03,
+              "max_dd_dollars_p90": 11906.04,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.004,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 5.0,
               "longest_losing_streak_p90_days": 7.0
@@ -1098,41 +1173,41 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 11704.73,
-                "p25": 12780.72,
-                "p50": 14058.85,
-                "p75": 15290.6,
-                "p90": 16395.57
+                "p10": 12184.13,
+                "p25": 13913.46,
+                "p50": 16299.36,
+                "p75": 18995.85,
+                "p90": 21728.87
               },
               "3mo": {
-                "p10": 17909.94,
-                "p25": 19738.7,
-                "p50": 22228.12,
-                "p75": 24320.45,
-                "p90": 26267.37
+                "p10": 25501.11,
+                "p25": 32046.28,
+                "p50": 43493.51,
+                "p75": 56696.2,
+                "p90": 69667.33
               },
               "6mo": {
-                "p10": 28581.7,
-                "p25": 31161.19,
-                "p50": 34294.14,
-                "p75": 37448.99,
-                "p90": 40281.22
+                "p10": 83290.2,
+                "p25": 100779.92,
+                "p50": 121755.57,
+                "p75": 142565.59,
+                "p90": 161223.15
               },
               "12mo": {
-                "p10": 50740.6,
-                "p25": 54616.9,
-                "p50": 58825.45,
-                "p75": 63317.11,
-                "p90": 67363.44
+                "p10": 228991.74,
+                "p25": 254837.7,
+                "p50": 282236.58,
+                "p75": 312329.81,
+                "p90": 339083.88
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 6.55,
-              "max_dd_pct_p90": 11.22,
-              "max_dd_dollars_median": 1384.33,
-              "max_dd_dollars_p90": 2022.87,
+              "max_dd_pct_median": 12.92,
+              "max_dd_pct_p90": 19.82,
+              "max_dd_dollars_median": 8456.04,
+              "max_dd_dollars_p90": 12498.43,
               "p_50pct_drawdown": 0.0,
-              "p_3000_dollar_drawdown": 0.009,
+              "p_3000_dollar_drawdown": 1.0,
               "p_below_start_after_12mo": 0.0,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 8.0
@@ -1150,41 +1225,41 @@
             "equity_paths": {
               "1mo": {
                 "p10": 4193.16,
-                "p25": 5054.77,
-                "p50": 6528.01,
-                "p75": 8310.57,
-                "p90": 10105.02
+                "p25": 5052.26,
+                "p50": 6512.03,
+                "p75": 8257.22,
+                "p90": 10202.13
               },
               "3mo": {
-                "p10": 4959.36,
-                "p25": 7493.8,
-                "p50": 11104.46,
-                "p75": 14490.52,
-                "p90": 17436.79
+                "p10": 4952.42,
+                "p25": 7253.0,
+                "p50": 10786.86,
+                "p75": 16247.75,
+                "p90": 23454.61
               },
               "6mo": {
-                "p10": 8752.27,
-                "p25": 13518.35,
-                "p50": 18358.58,
-                "p75": 23057.49,
-                "p90": 27336.33
+                "p10": 7828.18,
+                "p25": 13327.41,
+                "p50": 23247.9,
+                "p75": 40892.53,
+                "p90": 69866.36
               },
               "12mo": {
-                "p10": 19805.24,
-                "p25": 26491.07,
-                "p50": 33837.42,
-                "p75": 40286.33,
-                "p90": 46462.86
+                "p10": 21661.91,
+                "p25": 50318.84,
+                "p50": 103143.46,
+                "p75": 150159.43,
+                "p90": 191955.96
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 33.2,
-              "max_dd_pct_p90": 55.89,
-              "max_dd_dollars_median": 4351.51,
-              "max_dd_dollars_p90": 6754.04,
-              "p_50pct_drawdown": 0.163,
-              "p_3000_dollar_drawdown": 0.8975,
-              "p_below_start_after_12mo": 0.005,
+              "max_dd_pct_median": 45.68,
+              "max_dd_pct_p90": 64.24,
+              "max_dd_dollars_median": 19451.34,
+              "max_dd_dollars_p90": 33260.72,
+              "p_50pct_drawdown": 0.37,
+              "p_3000_dollar_drawdown": 0.9995,
+              "p_below_start_after_12mo": 0.0075,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1194,42 +1269,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 8856.22,
-                "p25": 10609.83,
-                "p50": 12584.15,
-                "p75": 14441.75,
-                "p90": 16093.16
+                "p10": 8123.68,
+                "p25": 10242.26,
+                "p50": 13085.66,
+                "p75": 16467.55,
+                "p90": 20344.53
               },
               "3mo": {
-                "p10": 10964.31,
-                "p25": 14230.11,
-                "p50": 17272.35,
-                "p75": 20924.73,
-                "p90": 23971.38
+                "p10": 9592.0,
+                "p25": 14230.47,
+                "p50": 21115.08,
+                "p75": 33533.68,
+                "p90": 49297.47
               },
               "6mo": {
-                "p10": 16610.45,
-                "p25": 20725.33,
-                "p50": 25182.88,
-                "p75": 29730.47,
-                "p90": 34164.47
+                "p10": 15799.6,
+                "p25": 27218.89,
+                "p50": 48766.24,
+                "p75": 82162.73,
+                "p90": 113975.15
               },
               "12mo": {
-                "p10": 27744.58,
-                "p25": 33339.03,
-                "p50": 40126.91,
-                "p75": 46679.03,
-                "p90": 52335.32
+                "p10": 50573.64,
+                "p25": 96340.03,
+                "p50": 146519.12,
+                "p75": 190939.19,
+                "p90": 231809.51
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 22.67,
-              "max_dd_pct_p90": 42.76,
-              "max_dd_dollars_median": 4609.54,
-              "max_dd_dollars_p90": 7138.28,
-              "p_50pct_drawdown": 0.054,
-              "p_3000_dollar_drawdown": 0.93,
-              "p_below_start_after_12mo": 0.0005,
+              "max_dd_pct_median": 42.4,
+              "max_dd_pct_p90": 62.34,
+              "max_dd_dollars_median": 23691.64,
+              "max_dd_dollars_p90": 38932.21,
+              "p_50pct_drawdown": 0.3145,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.0045,
               "longest_losing_streak_median_days": 6.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1242,41 +1317,41 @@
             "equity_paths": {
               "1mo": {
                 "p10": 3941.83,
-                "p25": 4865.36,
-                "p50": 6118.96,
-                "p75": 7678.16,
-                "p90": 9283.07
+                "p25": 4864.22,
+                "p50": 6118.15,
+                "p75": 7637.66,
+                "p90": 9241.68
               },
               "3mo": {
                 "p10": 4270.79,
-                "p25": 6161.38,
-                "p50": 9380.75,
-                "p75": 12803.99,
-                "p90": 15284.75
+                "p25": 6084.71,
+                "p50": 8973.43,
+                "p75": 13435.86,
+                "p90": 18225.23
               },
               "6mo": {
-                "p10": 5502.83,
-                "p25": 9641.93,
-                "p50": 14906.69,
-                "p75": 19497.23,
-                "p90": 23345.44
+                "p10": 5311.84,
+                "p25": 8672.86,
+                "p50": 15365.68,
+                "p75": 27374.61,
+                "p90": 44692.04
               },
               "12mo": {
-                "p10": 12088.58,
-                "p25": 19315.55,
-                "p50": 25970.08,
-                "p75": 32785.99,
-                "p90": 38458.89
+                "p10": 9840.0,
+                "p25": 21690.3,
+                "p50": 49381.98,
+                "p75": 98511.78,
+                "p90": 140047.68
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 37.46,
-              "max_dd_pct_p90": 63.0,
-              "max_dd_dollars_median": 4623.61,
-              "max_dd_dollars_p90": 7300.94,
-              "p_50pct_drawdown": 0.2645,
-              "p_3000_dollar_drawdown": 0.923,
-              "p_below_start_after_12mo": 0.0275,
+              "max_dd_pct_median": 50.34,
+              "max_dd_pct_p90": 69.95,
+              "max_dd_dollars_median": 15897.27,
+              "max_dd_dollars_p90": 30662.22,
+              "p_50pct_drawdown": 0.5105,
+              "p_3000_dollar_drawdown": 0.998,
+              "p_below_start_after_12mo": 0.0345,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1286,42 +1361,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 8461.41,
-                "p25": 10119.21,
-                "p50": 12008.01,
-                "p75": 13677.41,
-                "p90": 15309.4
+                "p10": 7780.81,
+                "p25": 9601.72,
+                "p50": 12206.8,
+                "p75": 15227.41,
+                "p90": 18637.35
               },
               "3mo": {
-                "p10": 9535.33,
-                "p25": 12581.42,
-                "p50": 15628.48,
-                "p75": 18895.31,
-                "p90": 21745.39
+                "p10": 8183.99,
+                "p25": 11823.13,
+                "p50": 17371.71,
+                "p75": 26294.7,
+                "p90": 37634.07
               },
               "6mo": {
-                "p10": 12880.17,
-                "p25": 17130.12,
-                "p50": 21363.07,
-                "p75": 25647.96,
-                "p90": 29760.53
+                "p10": 10655.01,
+                "p25": 17861.99,
+                "p50": 30912.33,
+                "p75": 55874.78,
+                "p90": 84157.95
               },
               "12mo": {
-                "p10": 21025.59,
-                "p25": 26713.15,
-                "p50": 32930.15,
-                "p75": 39380.49,
-                "p90": 44545.51
+                "p10": 20913.26,
+                "p25": 45915.28,
+                "p50": 95322.61,
+                "p75": 142406.13,
+                "p90": 179216.53
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 25.98,
-              "max_dd_pct_p90": 50.06,
-              "max_dd_dollars_median": 4962.5,
-              "max_dd_dollars_p90": 7700.98,
-              "p_50pct_drawdown": 0.101,
-              "p_3000_dollar_drawdown": 0.951,
-              "p_below_start_after_12mo": 0.0115,
+              "max_dd_pct_median": 47.86,
+              "max_dd_pct_p90": 68.23,
+              "max_dd_dollars_median": 21984.6,
+              "max_dd_dollars_p90": 36335.2,
+              "p_50pct_drawdown": 0.4495,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.0285,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1337,40 +1412,40 @@
               "1mo": {
                 "p10": 4074.05,
                 "p25": 4957.99,
-                "p50": 6378.12,
-                "p75": 7999.48,
-                "p90": 9847.42
+                "p50": 6365.81,
+                "p75": 7922.91,
+                "p90": 9892.89
               },
               "3mo": {
-                "p10": 4749.76,
-                "p25": 6910.08,
-                "p50": 10546.9,
-                "p75": 14129.88,
-                "p90": 17300.05
+                "p10": 4714.14,
+                "p25": 6726.13,
+                "p50": 10197.39,
+                "p75": 15509.14,
+                "p90": 22992.94
               },
               "6mo": {
-                "p10": 7331.72,
-                "p25": 12079.04,
-                "p50": 17412.55,
-                "p75": 22409.57,
-                "p90": 26358.45
+                "p10": 6911.91,
+                "p25": 11171.1,
+                "p50": 20584.08,
+                "p75": 37794.08,
+                "p90": 63168.1
               },
               "12mo": {
-                "p10": 17394.98,
-                "p25": 24236.39,
-                "p50": 30771.25,
-                "p75": 37758.68,
-                "p90": 43724.21
+                "p10": 16531.84,
+                "p25": 36085.15,
+                "p50": 81751.83,
+                "p75": 131205.27,
+                "p90": 173778.01
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 34.34,
-              "max_dd_pct_p90": 57.83,
-              "max_dd_dollars_median": 4530.76,
-              "max_dd_dollars_p90": 7049.44,
-              "p_50pct_drawdown": 0.1935,
-              "p_3000_dollar_drawdown": 0.928,
-              "p_below_start_after_12mo": 0.01,
+              "max_dd_pct_median": 47.94,
+              "max_dd_pct_p90": 67.07,
+              "max_dd_dollars_median": 19441.27,
+              "max_dd_dollars_p90": 33444.83,
+              "p_50pct_drawdown": 0.434,
+              "p_3000_dollar_drawdown": 0.998,
+              "p_below_start_after_12mo": 0.011,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1380,42 +1455,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 8601.21,
-                "p25": 10447.44,
-                "p50": 12320.9,
-                "p75": 14209.93,
-                "p90": 15949.74
+                "p10": 7895.62,
+                "p25": 10001.22,
+                "p50": 12685.52,
+                "p75": 16045.41,
+                "p90": 20024.04
               },
               "3mo": {
-                "p10": 10285.11,
-                "p25": 13333.52,
-                "p50": 16732.47,
-                "p75": 20113.93,
-                "p90": 23428.39
+                "p10": 8748.54,
+                "p25": 12711.29,
+                "p50": 19663.66,
+                "p75": 29797.91,
+                "p90": 45008.36
               },
               "6mo": {
-                "p10": 14466.37,
-                "p25": 18689.34,
-                "p50": 23623.97,
-                "p75": 28782.18,
-                "p90": 32654.96
+                "p10": 12561.88,
+                "p25": 21202.44,
+                "p50": 40057.4,
+                "p75": 75383.1,
+                "p90": 102959.59
               },
               "12mo": {
-                "p10": 24206.31,
-                "p25": 30544.95,
-                "p50": 37580.04,
-                "p75": 44215.58,
-                "p90": 49938.36
+                "p10": 31558.15,
+                "p25": 73368.0,
+                "p50": 127353.36,
+                "p75": 174944.71,
+                "p90": 215295.91
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 24.7,
-              "max_dd_pct_p90": 46.94,
-              "max_dd_dollars_median": 4800.7,
-              "max_dd_dollars_p90": 7603.22,
-              "p_50pct_drawdown": 0.0765,
-              "p_3000_dollar_drawdown": 0.9525,
-              "p_below_start_after_12mo": 0.006,
+              "max_dd_pct_median": 44.68,
+              "max_dd_pct_p90": 66.95,
+              "max_dd_dollars_median": 23720.37,
+              "max_dd_dollars_p90": 38002.21,
+              "p_50pct_drawdown": 0.3735,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.019,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1429,40 +1504,40 @@
               "1mo": {
                 "p10": 3830.7,
                 "p25": 4701.18,
-                "p50": 5932.61,
-                "p75": 7607.97,
-                "p90": 9164.64
+                "p50": 5920.78,
+                "p75": 7568.86,
+                "p90": 9116.18
               },
               "3mo": {
-                "p10": 3850.84,
-                "p25": 5559.65,
-                "p50": 8624.31,
-                "p75": 12012.02,
-                "p90": 14702.46
+                "p10": 3826.4,
+                "p25": 5544.04,
+                "p50": 8201.75,
+                "p75": 12184.34,
+                "p90": 16934.33
               },
               "6mo": {
-                "p10": 5141.03,
-                "p25": 8307.83,
-                "p50": 13347.28,
-                "p75": 17840.52,
-                "p90": 21883.71
+                "p10": 4915.07,
+                "p25": 7500.45,
+                "p50": 13051.67,
+                "p75": 22225.8,
+                "p90": 36591.38
               },
               "12mo": {
-                "p10": 9620.94,
-                "p25": 16384.96,
-                "p50": 22994.2,
-                "p75": 29746.17,
-                "p90": 35520.5
+                "p10": 7282.2,
+                "p25": 14963.96,
+                "p50": 34495.06,
+                "p75": 77375.55,
+                "p90": 119435.88
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 41.49,
-              "max_dd_pct_p90": 66.49,
-              "max_dd_dollars_median": 4877.42,
-              "max_dd_dollars_p90": 7830.52,
-              "p_50pct_drawdown": 0.32,
-              "p_3000_dollar_drawdown": 0.949,
-              "p_below_start_after_12mo": 0.038,
+              "max_dd_pct_median": 54.03,
+              "max_dd_pct_p90": 72.94,
+              "max_dd_dollars_median": 14510.55,
+              "max_dd_dollars_p90": 29644.95,
+              "p_50pct_drawdown": 0.6015,
+              "p_3000_dollar_drawdown": 0.999,
+              "p_below_start_after_12mo": 0.0495,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 10.0
             }
@@ -1472,42 +1547,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 8112.65,
-                "p25": 9905.23,
-                "p50": 11675.8,
-                "p75": 13433.24,
-                "p90": 15132.91
+                "p10": 7509.89,
+                "p25": 9355.52,
+                "p50": 11732.93,
+                "p75": 14632.37,
+                "p90": 18176.45
               },
               "3mo": {
-                "p10": 8909.51,
-                "p25": 11983.68,
-                "p50": 15131.28,
-                "p75": 18122.22,
-                "p90": 20798.89
+                "p10": 7524.19,
+                "p25": 10934.86,
+                "p50": 16300.14,
+                "p75": 23945.82,
+                "p90": 33606.42
               },
               "6mo": {
-                "p10": 11224.16,
-                "p25": 15676.26,
-                "p50": 19694.8,
-                "p75": 24285.91,
-                "p90": 28245.53
+                "p10": 8756.58,
+                "p25": 14903.51,
+                "p50": 24759.37,
+                "p75": 45194.67,
+                "p90": 73766.87
               },
               "12mo": {
-                "p10": 17929.84,
-                "p25": 23400.12,
-                "p50": 30262.87,
-                "p75": 36499.6,
-                "p90": 42539.69
+                "p10": 15288.99,
+                "p25": 28876.65,
+                "p50": 73646.57,
+                "p75": 121888.8,
+                "p90": 165429.39
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 28.5,
-              "max_dd_pct_p90": 53.39,
-              "max_dd_dollars_median": 5199.71,
-              "max_dd_dollars_p90": 8448.86,
-              "p_50pct_drawdown": 0.131,
-              "p_3000_dollar_drawdown": 0.961,
-              "p_below_start_after_12mo": 0.018,
+              "max_dd_pct_median": 51.43,
+              "max_dd_pct_p90": 71.78,
+              "max_dd_dollars_median": 20938.47,
+              "max_dd_dollars_p90": 36716.6,
+              "p_50pct_drawdown": 0.5335,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.0445,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1523,40 +1598,40 @@
               "1mo": {
                 "p10": 3847.56,
                 "p25": 4779.35,
-                "p50": 6134.74,
-                "p75": 7906.83,
-                "p90": 9644.93
+                "p50": 6124.25,
+                "p75": 7854.72,
+                "p90": 9630.64
               },
               "3mo": {
-                "p10": 4219.36,
-                "p25": 6184.19,
-                "p50": 9620.92,
-                "p75": 13203.76,
-                "p90": 16505.14
+                "p10": 4198.45,
+                "p25": 6114.28,
+                "p50": 9128.8,
+                "p75": 13913.85,
+                "p90": 20734.64
               },
               "6mo": {
-                "p10": 5505.86,
-                "p25": 10609.59,
-                "p50": 15745.45,
-                "p75": 20414.02,
-                "p90": 24825.46
+                "p10": 5361.05,
+                "p25": 9548.07,
+                "p50": 17003.32,
+                "p75": 29927.34,
+                "p90": 50801.72
               },
               "12mo": {
-                "p10": 14622.04,
-                "p25": 20936.05,
-                "p50": 28105.69,
-                "p75": 34888.98,
-                "p90": 41036.04
+                "p10": 12241.35,
+                "p25": 24753.08,
+                "p50": 62280.97,
+                "p75": 111645.85,
+                "p90": 157154.55
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 37.3,
-              "max_dd_pct_p90": 62.61,
-              "max_dd_dollars_median": 4742.11,
-              "max_dd_dollars_p90": 7196.42,
-              "p_50pct_drawdown": 0.247,
-              "p_3000_dollar_drawdown": 0.9345,
-              "p_below_start_after_12mo": 0.019,
+              "max_dd_pct_median": 50.91,
+              "max_dd_pct_p90": 68.53,
+              "max_dd_dollars_median": 17702.27,
+              "max_dd_dollars_p90": 32886.36,
+              "p_50pct_drawdown": 0.53,
+              "p_3000_dollar_drawdown": 0.9995,
+              "p_below_start_after_12mo": 0.0235,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1566,42 +1641,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 8453.05,
-                "p25": 10167.07,
-                "p50": 12009.89,
-                "p75": 13744.58,
-                "p90": 15562.08
+                "p10": 7710.59,
+                "p25": 9631.61,
+                "p50": 12215.95,
+                "p75": 15137.94,
+                "p90": 19079.75
               },
               "3mo": {
-                "p10": 9435.98,
-                "p25": 12659.86,
-                "p50": 15953.35,
-                "p75": 19270.79,
-                "p90": 22304.99
+                "p10": 7996.5,
+                "p25": 11654.61,
+                "p50": 17794.14,
+                "p75": 26996.0,
+                "p90": 39920.72
               },
               "6mo": {
-                "p10": 13348.81,
-                "p25": 17821.49,
-                "p50": 22291.86,
-                "p75": 26997.73,
-                "p90": 31546.52
+                "p10": 10900.63,
+                "p25": 18871.23,
+                "p50": 33545.07,
+                "p75": 63092.5,
+                "p90": 94712.43
               },
               "12mo": {
-                "p10": 22162.25,
-                "p25": 28361.89,
-                "p50": 35516.57,
-                "p75": 41999.73,
-                "p90": 47878.9
+                "p10": 23771.39,
+                "p25": 54388.42,
+                "p50": 111182.83,
+                "p75": 158464.87,
+                "p90": 200587.0
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 26.31,
-              "max_dd_pct_p90": 51.39,
-              "max_dd_dollars_median": 5112.65,
-              "max_dd_dollars_p90": 7871.77,
-              "p_50pct_drawdown": 0.1085,
-              "p_3000_dollar_drawdown": 0.965,
-              "p_below_start_after_12mo": 0.01,
+              "max_dd_pct_median": 47.96,
+              "max_dd_pct_p90": 69.35,
+              "max_dd_dollars_median": 23113.47,
+              "max_dd_dollars_p90": 38750.13,
+              "p_50pct_drawdown": 0.447,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.026,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1615,40 +1690,40 @@
               "1mo": {
                 "p10": 3694.85,
                 "p25": 4582.4,
-                "p50": 5791.06,
-                "p75": 7191.88,
-                "p90": 8885.0
+                "p50": 5786.04,
+                "p75": 7167.65,
+                "p90": 8818.46
               },
               "3mo": {
-                "p10": 3518.22,
-                "p25": 5038.73,
-                "p50": 7902.2,
-                "p75": 11220.65,
-                "p90": 14195.7
+                "p10": 3503.47,
+                "p25": 5011.31,
+                "p50": 7612.05,
+                "p75": 11197.56,
+                "p90": 15816.96
               },
               "6mo": {
-                "p10": 3965.12,
-                "p25": 6789.31,
-                "p50": 12021.79,
-                "p75": 16866.98,
-                "p90": 20807.23
+                "p10": 3886.84,
+                "p25": 6465.65,
+                "p50": 11066.46,
+                "p75": 19732.36,
+                "p90": 32632.53
               },
               "12mo": {
-                "p10": 6325.12,
-                "p25": 13432.97,
-                "p50": 20692.9,
-                "p75": 27610.04,
-                "p90": 33040.41
+                "p10": 5331.63,
+                "p25": 10963.54,
+                "p50": 24930.74,
+                "p75": 59988.73,
+                "p90": 100470.66
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 45.43,
-              "max_dd_pct_p90": 70.85,
-              "max_dd_dollars_median": 5000.11,
-              "max_dd_dollars_p90": 7936.03,
-              "p_50pct_drawdown": 0.4125,
-              "p_3000_dollar_drawdown": 0.954,
-              "p_below_start_after_12mo": 0.0725,
+              "max_dd_pct_median": 56.63,
+              "max_dd_pct_p90": 76.82,
+              "max_dd_dollars_median": 12584.88,
+              "max_dd_dollars_p90": 28567.37,
+              "p_50pct_drawdown": 0.682,
+              "p_3000_dollar_drawdown": 0.998,
+              "p_below_start_after_12mo": 0.0885,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 10.0
             }
@@ -1658,42 +1733,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7966.42,
-                "p25": 9713.04,
-                "p50": 11518.66,
-                "p75": 13320.64,
-                "p90": 14884.33
+                "p10": 7296.49,
+                "p25": 9101.32,
+                "p50": 11507.82,
+                "p75": 14516.59,
+                "p90": 17662.07
               },
               "3mo": {
-                "p10": 8531.28,
-                "p25": 11654.13,
-                "p50": 14678.98,
-                "p75": 17724.75,
-                "p90": 20582.52
+                "p10": 7130.8,
+                "p25": 10502.84,
+                "p50": 15404.51,
+                "p75": 22681.1,
+                "p90": 32960.71
               },
               "6mo": {
-                "p10": 10284.31,
-                "p25": 14458.14,
-                "p50": 19155.29,
-                "p75": 23667.72,
-                "p90": 27591.45
+                "p10": 7866.47,
+                "p25": 12827.54,
+                "p50": 23151.14,
+                "p75": 41820.16,
+                "p90": 68434.95
               },
               "12mo": {
-                "p10": 15605.08,
-                "p25": 21669.44,
-                "p50": 27915.96,
-                "p75": 34284.81,
-                "p90": 39988.6
+                "p10": 10969.74,
+                "p25": 23423.34,
+                "p50": 55153.81,
+                "p75": 105204.93,
+                "p90": 146256.82
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 30.63,
-              "max_dd_pct_p90": 57.44,
-              "max_dd_dollars_median": 5614.55,
-              "max_dd_dollars_p90": 8863.85,
-              "p_50pct_drawdown": 0.1605,
-              "p_3000_dollar_drawdown": 0.9695,
-              "p_below_start_after_12mo": 0.033,
+              "max_dd_pct_median": 54.22,
+              "max_dd_pct_p90": 75.06,
+              "max_dd_dollars_median": 20614.94,
+              "max_dd_dollars_p90": 38313.6,
+              "p_50pct_drawdown": 0.5945,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.0865,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1709,40 +1784,40 @@
               "1mo": {
                 "p10": 3708.18,
                 "p25": 4607.72,
-                "p50": 5923.23,
-                "p75": 7645.62,
-                "p90": 9490.67
+                "p50": 5917.32,
+                "p75": 7608.94,
+                "p90": 9497.3
               },
               "3mo": {
-                "p10": 3521.92,
-                "p25": 5242.07,
-                "p50": 8387.54,
-                "p75": 11951.96,
-                "p90": 14971.37
+                "p10": 3512.14,
+                "p25": 5201.96,
+                "p50": 7875.96,
+                "p75": 11983.29,
+                "p90": 17215.58
               },
               "6mo": {
-                "p10": 3863.33,
-                "p25": 7345.83,
-                "p50": 13032.51,
-                "p75": 18018.29,
-                "p90": 22473.72
+                "p10": 3828.4,
+                "p25": 6779.13,
+                "p50": 12195.77,
+                "p75": 22194.68,
+                "p90": 37263.25
               },
               "12mo": {
-                "p10": 7002.09,
-                "p25": 15303.57,
-                "p50": 22926.42,
-                "p75": 30228.02,
-                "p90": 37153.82
+                "p10": 5714.74,
+                "p25": 13197.03,
+                "p50": 31293.93,
+                "p75": 77766.36,
+                "p90": 125722.11
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 43.3,
-              "max_dd_pct_p90": 71.29,
-              "max_dd_dollars_median": 5075.41,
-              "max_dd_dollars_p90": 7944.32,
-              "p_50pct_drawdown": 0.367,
-              "p_3000_dollar_drawdown": 0.966,
-              "p_below_start_after_12mo": 0.072,
+              "max_dd_pct_median": 56.01,
+              "max_dd_pct_p90": 75.82,
+              "max_dd_dollars_median": 14938.22,
+              "max_dd_dollars_p90": 31216.65,
+              "p_50pct_drawdown": 0.6615,
+              "p_3000_dollar_drawdown": 0.998,
+              "p_below_start_after_12mo": 0.0835,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1752,42 +1827,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7990.46,
-                "p25": 9784.52,
-                "p50": 11667.76,
-                "p75": 13669.87,
-                "p90": 15348.79
+                "p10": 7329.27,
+                "p25": 9155.61,
+                "p50": 11680.03,
+                "p75": 14985.43,
+                "p90": 18657.35
               },
               "3mo": {
-                "p10": 8456.26,
-                "p25": 11484.35,
-                "p50": 15196.91,
-                "p75": 18470.38,
-                "p90": 21275.47
+                "p10": 7001.15,
+                "p25": 10139.09,
+                "p50": 16024.84,
+                "p75": 24319.76,
+                "p90": 34721.42
               },
               "6mo": {
-                "p10": 10488.63,
-                "p25": 15201.16,
-                "p50": 20211.2,
-                "p75": 24931.11,
-                "p90": 29358.36
+                "p10": 7774.49,
+                "p25": 13715.98,
+                "p50": 25480.52,
+                "p75": 47388.64,
+                "p90": 79174.58
               },
               "12mo": {
-                "p10": 17224.53,
-                "p25": 23394.85,
-                "p50": 30276.61,
-                "p75": 37194.82,
-                "p90": 43129.93
+                "p10": 13359.64,
+                "p25": 27014.05,
+                "p50": 70993.56,
+                "p75": 122697.41,
+                "p90": 168006.47
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 30.53,
-              "max_dd_pct_p90": 57.29,
-              "max_dd_dollars_median": 5755.14,
-              "max_dd_dollars_p90": 8848.09,
-              "p_50pct_drawdown": 0.165,
-              "p_3000_dollar_drawdown": 0.98,
-              "p_below_start_after_12mo": 0.029,
+              "max_dd_pct_median": 54.62,
+              "max_dd_pct_p90": 74.61,
+              "max_dd_dollars_median": 22670.03,
+              "max_dd_dollars_p90": 40286.94,
+              "p_50pct_drawdown": 0.6005,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.068,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1801,40 +1876,40 @@
               "1mo": {
                 "p10": 3471.68,
                 "p25": 4247.57,
-                "p50": 5429.19,
-                "p75": 6793.22,
-                "p90": 8467.18
+                "p50": 5427.0,
+                "p75": 6788.06,
+                "p90": 8381.9
               },
               "3mo": {
-                "p10": 2904.51,
-                "p25": 4260.14,
-                "p50": 6504.02,
-                "p75": 9849.83,
-                "p90": 13105.3
+                "p10": 2902.36,
+                "p25": 4240.92,
+                "p50": 6375.34,
+                "p75": 9535.1,
+                "p90": 13978.46
               },
               "6mo": {
-                "p10": 2643.5,
-                "p25": 4575.11,
-                "p50": 9068.56,
-                "p75": 14065.1,
-                "p90": 18510.01
+                "p10": 2613.73,
+                "p25": 4382.75,
+                "p50": 8126.16,
+                "p75": 14175.01,
+                "p90": 24386.36
               },
               "12mo": {
-                "p10": 3061.39,
-                "p25": 7031.48,
-                "p50": 15209.99,
-                "p75": 22595.44,
-                "p90": 29512.12
+                "p10": 2898.96,
+                "p25": 5867.44,
+                "p50": 13499.38,
+                "p75": 30209.22,
+                "p90": 75387.78
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 53.67,
-              "max_dd_pct_p90": 80.08,
-              "max_dd_dollars_median": 5254.77,
-              "max_dd_dollars_p90": 8373.2,
-              "p_50pct_drawdown": 0.571,
-              "p_3000_dollar_drawdown": 0.9805,
-              "p_below_start_after_12mo": 0.1865,
+              "max_dd_pct_median": 62.32,
+              "max_dd_pct_p90": 82.05,
+              "max_dd_dollars_median": 9416.05,
+              "max_dd_dollars_p90": 25258.77,
+              "p_50pct_drawdown": 0.796,
+              "p_3000_dollar_drawdown": 0.999,
+              "p_below_start_after_12mo": 0.2115,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 10.0
             }
@@ -1844,42 +1919,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7578.44,
-                "p25": 9127.25,
-                "p50": 11030.73,
-                "p75": 12890.36,
-                "p90": 14541.32
+                "p10": 6916.31,
+                "p25": 8459.9,
+                "p50": 10802.05,
+                "p75": 13716.53,
+                "p90": 16863.76
               },
               "3mo": {
-                "p10": 6919.06,
-                "p25": 10031.68,
-                "p50": 13426.24,
-                "p75": 16515.96,
-                "p90": 19270.6
+                "p10": 6010.04,
+                "p25": 8598.57,
+                "p50": 13154.13,
+                "p75": 19427.0,
+                "p90": 27313.04
               },
               "6mo": {
-                "p10": 7043.21,
-                "p25": 11792.41,
-                "p50": 16781.52,
-                "p75": 21034.13,
-                "p90": 25199.23
+                "p10": 5535.28,
+                "p25": 9257.04,
+                "p50": 16926.95,
+                "p75": 29476.91,
+                "p90": 50245.49
               },
               "12mo": {
-                "p10": 9965.59,
-                "p25": 16360.27,
-                "p50": 23193.88,
-                "p75": 29369.72,
-                "p90": 35146.32
+                "p10": 6007.31,
+                "p25": 12022.22,
+                "p50": 27697.42,
+                "p75": 68452.37,
+                "p90": 110272.83
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 36.29,
-              "max_dd_pct_p90": 69.36,
-              "max_dd_dollars_median": 6274.15,
-              "max_dd_dollars_p90": 9777.94,
-              "p_50pct_drawdown": 0.2755,
-              "p_3000_dollar_drawdown": 0.988,
-              "p_below_start_after_12mo": 0.1005,
+              "max_dd_pct_median": 60.58,
+              "max_dd_pct_p90": 80.32,
+              "max_dd_dollars_median": 17686.61,
+              "max_dd_dollars_p90": 36910.15,
+              "p_50pct_drawdown": 0.749,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.2085,
               "longest_losing_streak_median_days": 7.0,
               "longest_losing_streak_p90_days": 9.0
             }
@@ -1898,39 +1973,39 @@
                 "p10": 3766.11,
                 "p25": 4410.36,
                 "p50": 5331.5,
-                "p75": 6493.14,
-                "p90": 7890.49
+                "p75": 6483.94,
+                "p90": 7849.15
               },
               "3mo": {
                 "p10": 3362.03,
-                "p25": 4525.09,
-                "p50": 6358.31,
-                "p75": 9199.75,
-                "p90": 11959.45
+                "p25": 4512.51,
+                "p50": 6278.48,
+                "p75": 8903.8,
+                "p90": 12335.13
               },
               "6mo": {
-                "p10": 3096.88,
-                "p25": 4736.65,
-                "p50": 8413.61,
-                "p75": 13177.55,
-                "p90": 16691.97
+                "p10": 3089.64,
+                "p25": 4674.88,
+                "p50": 7883.59,
+                "p75": 13208.72,
+                "p90": 20291.42
               },
               "12mo": {
-                "p10": 3366.71,
-                "p25": 6892.08,
-                "p50": 13815.7,
-                "p75": 20100.76,
-                "p90": 25267.97
+                "p10": 3265.2,
+                "p25": 6275.76,
+                "p50": 12571.42,
+                "p75": 25723.26,
+                "p90": 49574.18
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 46.2,
-              "max_dd_pct_p90": 71.87,
-              "max_dd_dollars_median": 4485.9,
-              "max_dd_dollars_p90": 7113.48,
-              "p_50pct_drawdown": 0.439,
-              "p_3000_dollar_drawdown": 0.9,
-              "p_below_start_after_12mo": 0.181,
+              "max_dd_pct_median": 54.88,
+              "max_dd_pct_p90": 74.57,
+              "max_dd_dollars_median": 7315.62,
+              "max_dd_dollars_p90": 18032.12,
+              "p_50pct_drawdown": 0.6345,
+              "p_3000_dollar_drawdown": 0.98,
+              "p_below_start_after_12mo": 0.1985,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -1940,42 +2015,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7980.22,
-                "p25": 9307.62,
-                "p50": 10849.19,
-                "p75": 12477.26,
-                "p90": 13916.79
+                "p10": 7378.19,
+                "p25": 8799.69,
+                "p50": 10708.89,
+                "p75": 13140.96,
+                "p90": 15641.41
               },
               "3mo": {
-                "p10": 7386.85,
-                "p25": 9986.16,
-                "p50": 12786.21,
-                "p75": 15308.62,
-                "p90": 17918.4
+                "p10": 6574.08,
+                "p25": 8903.83,
+                "p50": 12617.42,
+                "p75": 17434.07,
+                "p90": 23982.58
               },
               "6mo": {
-                "p10": 7423.24,
-                "p25": 11301.89,
-                "p50": 15406.03,
-                "p75": 19329.27,
-                "p90": 22690.92
+                "p10": 6135.61,
+                "p25": 9381.14,
+                "p50": 15585.5,
+                "p75": 25407.24,
+                "p90": 39142.48
               },
               "12mo": {
-                "p10": 9585.07,
-                "p25": 15258.75,
-                "p50": 20903.46,
-                "p75": 26545.76,
-                "p90": 31754.76
+                "p10": 6515.05,
+                "p25": 12563.78,
+                "p50": 24664.31,
+                "p75": 52912.75,
+                "p90": 91577.68
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 33.48,
-              "max_dd_pct_p90": 63.69,
-              "max_dd_dollars_median": 5365.19,
-              "max_dd_dollars_p90": 8788.54,
-              "p_50pct_drawdown": 0.211,
-              "p_3000_dollar_drawdown": 0.956,
-              "p_below_start_after_12mo": 0.109,
+              "max_dd_pct_median": 54.26,
+              "max_dd_pct_p90": 75.58,
+              "max_dd_dollars_median": 13915.87,
+              "max_dd_dollars_p90": 27991.44,
+              "p_50pct_drawdown": 0.6155,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.195,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -1990,39 +2065,39 @@
                 "p10": 3590.71,
                 "p25": 4303.75,
                 "p50": 5238.05,
-                "p75": 6272.49,
-                "p90": 7410.83
+                "p75": 6266.01,
+                "p90": 7383.44
               },
               "3mo": {
-                "p10": 2957.33,
-                "p25": 3983.12,
-                "p50": 5682.58,
-                "p75": 7887.0,
-                "p90": 10417.82
+                "p10": 2949.9,
+                "p25": 3976.59,
+                "p50": 5669.52,
+                "p75": 7708.44,
+                "p90": 10366.08
               },
               "6mo": {
-                "p10": 2513.67,
-                "p25": 3890.6,
-                "p50": 6401.92,
-                "p75": 10338.61,
-                "p90": 13768.03
+                "p10": 2510.68,
+                "p25": 3881.78,
+                "p50": 6227.71,
+                "p75": 9877.45,
+                "p90": 14691.86
               },
               "12mo": {
-                "p10": 2273.39,
-                "p25": 4320.88,
-                "p50": 8985.14,
-                "p75": 14829.37,
-                "p90": 19497.22
+                "p10": 2234.12,
+                "p25": 4078.43,
+                "p50": 7817.75,
+                "p75": 14802.66,
+                "p90": 25789.92
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 53.66,
-              "max_dd_pct_p90": 78.05,
-              "max_dd_dollars_median": 4572.05,
-              "max_dd_dollars_p90": 7216.76,
-              "p_50pct_drawdown": 0.5695,
-              "p_3000_dollar_drawdown": 0.934,
-              "p_below_start_after_12mo": 0.2975,
+              "max_dd_pct_median": 59.15,
+              "max_dd_pct_p90": 79.5,
+              "max_dd_dollars_median": 5995.55,
+              "max_dd_dollars_p90": 13442.53,
+              "p_50pct_drawdown": 0.715,
+              "p_3000_dollar_drawdown": 0.9795,
+              "p_below_start_after_12mo": 0.319,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2032,42 +2107,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7821.0,
-                "p25": 9085.39,
-                "p50": 10536.93,
-                "p75": 12067.83,
-                "p90": 13390.57
+                "p10": 7314.75,
+                "p25": 8568.51,
+                "p50": 10339.92,
+                "p75": 12509.47,
+                "p90": 14724.73
               },
               "3mo": {
-                "p10": 6538.78,
-                "p25": 9022.17,
-                "p50": 11633.17,
-                "p75": 14328.0,
-                "p90": 16346.65
+                "p10": 5907.49,
+                "p25": 7988.06,
+                "p50": 11108.19,
+                "p75": 15435.56,
+                "p90": 20115.41
               },
               "6mo": {
-                "p10": 5985.86,
-                "p25": 9789.67,
-                "p50": 13522.01,
-                "p75": 17081.78,
-                "p90": 20012.62
+                "p10": 5168.96,
+                "p25": 7844.72,
+                "p50": 12602.22,
+                "p75": 19646.43,
+                "p90": 28424.02
               },
               "12mo": {
-                "p10": 5807.34,
-                "p25": 11193.39,
-                "p50": 16709.97,
-                "p75": 21699.5,
-                "p90": 26344.75
+                "p10": 4400.78,
+                "p25": 7976.98,
+                "p50": 15094.08,
+                "p75": 28415.92,
+                "p90": 53197.01
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 38.67,
-              "max_dd_pct_p90": 70.52,
-              "max_dd_dollars_median": 5894.45,
-              "max_dd_dollars_p90": 9338.23,
-              "p_50pct_drawdown": 0.3125,
-              "p_3000_dollar_drawdown": 0.9735,
-              "p_below_start_after_12mo": 0.212,
+              "max_dd_pct_median": 58.49,
+              "max_dd_pct_p90": 78.68,
+              "max_dd_dollars_median": 11791.91,
+              "max_dd_dollars_p90": 23588.57,
+              "p_50pct_drawdown": 0.6995,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.3285,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2083,40 +2158,40 @@
               "1mo": {
                 "p10": 3664.82,
                 "p25": 4355.64,
-                "p50": 5274.64,
-                "p75": 6355.17,
-                "p90": 7680.69
+                "p50": 5274.16,
+                "p75": 6352.39,
+                "p90": 7637.03
               },
               "3mo": {
                 "p10": 3074.54,
                 "p25": 4077.0,
-                "p50": 5952.47,
-                "p75": 8361.29,
-                "p90": 11156.55
+                "p50": 5897.49,
+                "p75": 8182.58,
+                "p90": 11099.26
               },
               "6mo": {
-                "p10": 2814.89,
-                "p25": 4265.5,
-                "p50": 7225.51,
-                "p75": 11450.12,
-                "p90": 15047.56
+                "p10": 2796.4,
+                "p25": 4223.63,
+                "p50": 6800.59,
+                "p75": 10855.71,
+                "p90": 16672.99
               },
               "12mo": {
-                "p10": 2579.81,
-                "p25": 5109.61,
-                "p50": 11036.73,
-                "p75": 17323.35,
-                "p90": 22476.69
+                "p10": 2539.22,
+                "p25": 4597.35,
+                "p50": 9255.32,
+                "p75": 18408.3,
+                "p90": 34042.71
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 52.45,
-              "max_dd_pct_p90": 76.4,
-              "max_dd_dollars_median": 4669.33,
-              "max_dd_dollars_p90": 7446.2,
-              "p_50pct_drawdown": 0.553,
-              "p_3000_dollar_drawdown": 0.934,
-              "p_below_start_after_12mo": 0.2445,
+              "max_dd_pct_median": 58.73,
+              "max_dd_pct_p90": 78.01,
+              "max_dd_dollars_median": 6627.13,
+              "max_dd_dollars_p90": 15763.31,
+              "p_50pct_drawdown": 0.724,
+              "p_3000_dollar_drawdown": 0.983,
+              "p_below_start_after_12mo": 0.267,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2126,42 +2201,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7629.75,
-                "p25": 9132.44,
-                "p50": 10663.78,
-                "p75": 12220.09,
-                "p90": 13792.84
+                "p10": 7160.42,
+                "p25": 8601.23,
+                "p50": 10488.58,
+                "p75": 12723.91,
+                "p90": 15403.46
               },
               "3mo": {
-                "p10": 6638.85,
-                "p25": 9353.89,
-                "p50": 12309.52,
-                "p75": 15075.71,
-                "p90": 17515.34
+                "p10": 5942.21,
+                "p25": 8291.35,
+                "p50": 11938.57,
+                "p75": 16662.45,
+                "p90": 22779.17
               },
               "6mo": {
-                "p10": 6456.5,
-                "p25": 10385.39,
-                "p50": 14311.67,
-                "p75": 18281.68,
-                "p90": 21995.22
+                "p10": 5350.0,
+                "p25": 8457.33,
+                "p50": 13560.53,
+                "p75": 22072.37,
+                "p90": 34879.45
               },
               "12mo": {
-                "p10": 6768.32,
-                "p25": 12858.72,
-                "p50": 18533.22,
-                "p75": 24630.11,
-                "p90": 29591.66
+                "p10": 4816.16,
+                "p25": 9284.8,
+                "p50": 18388.88,
+                "p75": 39221.55,
+                "p90": 76080.69
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 37.1,
-              "max_dd_pct_p90": 69.48,
-              "max_dd_dollars_median": 5750.34,
-              "max_dd_dollars_p90": 9321.88,
-              "p_50pct_drawdown": 0.294,
-              "p_3000_dollar_drawdown": 0.9745,
-              "p_below_start_after_12mo": 0.1605,
+              "max_dd_pct_median": 57.35,
+              "max_dd_pct_p90": 79.12,
+              "max_dd_dollars_median": 13408.26,
+              "max_dd_dollars_p90": 27184.55,
+              "p_50pct_drawdown": 0.6765,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.2745,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2177,38 +2252,38 @@
                 "p25": 4165.07,
                 "p50": 5026.4,
                 "p75": 6140.18,
-                "p90": 7264.52
+                "p90": 7254.01
               },
               "3mo": {
                 "p10": 2848.6,
-                "p25": 3771.68,
-                "p50": 5270.43,
-                "p75": 7412.48,
-                "p90": 9834.88
+                "p25": 3769.32,
+                "p50": 5261.26,
+                "p75": 7316.15,
+                "p90": 9676.17
               },
               "6mo": {
                 "p10": 2322.8,
-                "p25": 3507.99,
-                "p50": 5544.39,
-                "p75": 9362.92,
-                "p90": 12916.5
+                "p25": 3483.14,
+                "p50": 5433.95,
+                "p75": 8813.03,
+                "p90": 13330.19
               },
               "12mo": {
-                "p10": 1753.26,
-                "p25": 3092.41,
-                "p50": 6698.11,
-                "p75": 12868.0,
-                "p90": 17669.07
+                "p10": 1726.2,
+                "p25": 2969.28,
+                "p50": 6068.37,
+                "p75": 11484.85,
+                "p90": 20123.37
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 58.58,
-              "max_dd_pct_p90": 81.0,
-              "max_dd_dollars_median": 4623.82,
-              "max_dd_dollars_p90": 7492.29,
-              "p_50pct_drawdown": 0.65,
-              "p_3000_dollar_drawdown": 0.9335,
-              "p_below_start_after_12mo": 0.4085,
+              "max_dd_pct_median": 62.67,
+              "max_dd_pct_p90": 81.71,
+              "max_dd_dollars_median": 5539.15,
+              "max_dd_dollars_p90": 12134.0,
+              "p_50pct_drawdown": 0.7695,
+              "p_3000_dollar_drawdown": 0.9755,
+              "p_below_start_after_12mo": 0.426,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2218,42 +2293,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7613.46,
-                "p25": 8914.82,
-                "p50": 10383.21,
-                "p75": 11800.69,
-                "p90": 13293.5
+                "p10": 7118.11,
+                "p25": 8460.15,
+                "p50": 10110.45,
+                "p75": 12125.99,
+                "p90": 14519.01
               },
               "3mo": {
-                "p10": 6048.4,
-                "p25": 8351.38,
-                "p50": 11077.51,
-                "p75": 13712.59,
-                "p90": 16259.01
+                "p10": 5511.19,
+                "p25": 7361.21,
+                "p50": 10334.08,
+                "p75": 14359.1,
+                "p90": 19778.57
               },
               "6mo": {
-                "p10": 5162.05,
-                "p25": 8149.12,
-                "p50": 12238.03,
-                "p75": 15949.43,
-                "p90": 19382.29
+                "p10": 4415.26,
+                "p25": 6649.63,
+                "p50": 10746.42,
+                "p75": 17080.83,
+                "p90": 26362.16
               },
               "12mo": {
-                "p10": 4223.81,
-                "p25": 8344.55,
-                "p50": 14351.75,
-                "p75": 19452.74,
-                "p90": 24220.89
+                "p10": 3391.98,
+                "p25": 5868.1,
+                "p50": 11316.71,
+                "p75": 21224.9,
+                "p90": 39735.03
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 44.34,
-              "max_dd_pct_p90": 76.51,
-              "max_dd_dollars_median": 6479.86,
-              "max_dd_dollars_p90": 9905.56,
-              "p_50pct_drawdown": 0.414,
-              "p_3000_dollar_drawdown": 0.9865,
-              "p_below_start_after_12mo": 0.3075,
+              "max_dd_pct_median": 62.85,
+              "max_dd_pct_p90": 82.3,
+              "max_dd_dollars_median": 10968.36,
+              "max_dd_dollars_p90": 23156.68,
+              "p_50pct_drawdown": 0.7815,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.446,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2270,39 +2345,39 @@
                 "p10": 3551.94,
                 "p25": 4222.08,
                 "p50": 5097.54,
-                "p75": 6206.89,
-                "p90": 7461.53
+                "p75": 6206.74,
+                "p90": 7435.2
               },
               "3mo": {
                 "p10": 2911.75,
                 "p25": 3876.53,
-                "p50": 5451.46,
-                "p75": 7881.32,
-                "p90": 10856.63
+                "p50": 5439.31,
+                "p75": 7688.96,
+                "p90": 10787.3
               },
               "6mo": {
                 "p10": 2495.92,
-                "p25": 3738.89,
-                "p50": 6137.05,
-                "p75": 10232.83,
-                "p90": 14504.95
+                "p25": 3707.86,
+                "p50": 5866.49,
+                "p75": 9641.21,
+                "p90": 15565.51
               },
               "12mo": {
-                "p10": 2012.37,
-                "p25": 3613.78,
-                "p50": 8519.24,
-                "p75": 15038.06,
-                "p90": 20417.03
+                "p10": 1968.62,
+                "p25": 3534.69,
+                "p50": 7323.59,
+                "p75": 14404.27,
+                "p90": 27209.03
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 56.88,
-              "max_dd_pct_p90": 79.66,
-              "max_dd_dollars_median": 4801.62,
-              "max_dd_dollars_p90": 7639.95,
-              "p_50pct_drawdown": 0.6265,
-              "p_3000_dollar_drawdown": 0.938,
-              "p_below_start_after_12mo": 0.344,
+              "max_dd_pct_median": 61.62,
+              "max_dd_pct_p90": 80.87,
+              "max_dd_dollars_median": 6053.08,
+              "max_dd_dollars_p90": 14675.95,
+              "p_50pct_drawdown": 0.7865,
+              "p_3000_dollar_drawdown": 0.9745,
+              "p_below_start_after_12mo": 0.366,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2312,42 +2387,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7644.43,
-                "p25": 9030.06,
-                "p50": 10609.8,
-                "p75": 12124.68,
-                "p90": 13626.49
+                "p10": 7143.75,
+                "p25": 8480.56,
+                "p50": 10392.25,
+                "p75": 12596.16,
+                "p90": 15113.09
               },
               "3mo": {
-                "p10": 6239.67,
-                "p25": 8739.16,
-                "p50": 11640.69,
-                "p75": 14359.73,
-                "p90": 17026.85
+                "p10": 5544.84,
+                "p25": 7754.34,
+                "p50": 10918.51,
+                "p75": 15332.08,
+                "p90": 21275.11
               },
               "6mo": {
-                "p10": 5646.86,
-                "p25": 9110.68,
-                "p50": 13232.9,
-                "p75": 17190.3,
-                "p90": 20807.91
+                "p10": 4793.65,
+                "p25": 7319.4,
+                "p50": 11881.02,
+                "p75": 19554.23,
+                "p90": 30449.82
               },
               "12mo": {
-                "p10": 5198.77,
-                "p25": 10686.69,
-                "p50": 16420.54,
-                "p75": 22432.89,
-                "p90": 27145.24
+                "p10": 3925.31,
+                "p25": 7230.6,
+                "p50": 13971.67,
+                "p75": 29923.58,
+                "p90": 58173.76
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 41.46,
-              "max_dd_pct_p90": 74.48,
-              "max_dd_dollars_median": 6355.8,
-              "max_dd_dollars_p90": 9708.47,
-              "p_50pct_drawdown": 0.3675,
-              "p_3000_dollar_drawdown": 0.9835,
-              "p_below_start_after_12mo": 0.225,
+              "max_dd_pct_median": 61.09,
+              "max_dd_pct_p90": 81.12,
+              "max_dd_dollars_median": 12278.43,
+              "max_dd_dollars_p90": 26050.63,
+              "p_50pct_drawdown": 0.764,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.3615,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2362,39 +2437,39 @@
                 "p10": 3468.46,
                 "p25": 4083.34,
                 "p50": 4955.23,
-                "p75": 5960.54,
-                "p90": 7066.44
+                "p75": 5959.44,
+                "p90": 7063.07
               },
               "3mo": {
                 "p10": 2580.7,
                 "p25": 3486.87,
-                "p50": 4879.04,
-                "p75": 6755.32,
-                "p90": 9314.17
+                "p50": 4853.53,
+                "p75": 6683.34,
+                "p90": 9096.37
               },
               "6mo": {
-                "p10": 1974.79,
-                "p25": 2964.01,
-                "p50": 4626.53,
-                "p75": 7723.72,
-                "p90": 11239.97
+                "p10": 1961.46,
+                "p25": 2956.96,
+                "p50": 4577.34,
+                "p75": 7367.07,
+                "p90": 10870.38
               },
               "12mo": {
                 "p10": 1281.79,
-                "p25": 2248.69,
-                "p50": 4538.1,
-                "p75": 9977.6,
-                "p90": 15575.44
+                "p25": 2214.34,
+                "p50": 4321.67,
+                "p75": 8497.19,
+                "p90": 15665.78
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 64.36,
-              "max_dd_pct_p90": 84.35,
-              "max_dd_dollars_median": 4715.0,
-              "max_dd_dollars_p90": 7413.43,
-              "p_50pct_drawdown": 0.75,
-              "p_3000_dollar_drawdown": 0.938,
-              "p_below_start_after_12mo": 0.5345,
+              "max_dd_pct_median": 66.68,
+              "max_dd_pct_p90": 84.83,
+              "max_dd_dollars_median": 5270.53,
+              "max_dd_dollars_p90": 10749.34,
+              "p_50pct_drawdown": 0.8425,
+              "p_3000_dollar_drawdown": 0.964,
+              "p_below_start_after_12mo": 0.557,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2404,42 +2479,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7437.68,
-                "p25": 8738.73,
-                "p50": 10246.29,
-                "p75": 11670.67,
-                "p90": 13038.23
+                "p10": 6969.5,
+                "p25": 8202.96,
+                "p50": 9928.22,
+                "p75": 11961.95,
+                "p90": 14113.61
               },
               "3mo": {
-                "p10": 5667.92,
-                "p25": 7892.8,
-                "p50": 10652.09,
-                "p75": 13413.62,
-                "p90": 15659.18
+                "p10": 5111.29,
+                "p25": 6924.04,
+                "p50": 9812.58,
+                "p75": 13840.07,
+                "p90": 18330.06
               },
               "6mo": {
-                "p10": 4231.67,
-                "p25": 7015.63,
-                "p50": 11121.37,
-                "p75": 15108.15,
-                "p90": 18673.24
+                "p10": 3819.17,
+                "p25": 5892.29,
+                "p50": 9431.21,
+                "p75": 15376.49,
+                "p90": 23694.16
               },
               "12mo": {
-                "p10": 2840.2,
-                "p25": 5858.04,
-                "p50": 12011.14,
-                "p75": 17644.9,
-                "p90": 22267.79
+                "p10": 2382.27,
+                "p25": 4320.16,
+                "p50": 8727.61,
+                "p75": 16989.49,
+                "p90": 30138.19
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 50.4,
-              "max_dd_pct_p90": 82.0,
-              "max_dd_dollars_median": 7048.85,
-              "max_dd_dollars_p90": 10384.26,
-              "p_50pct_drawdown": 0.5075,
-              "p_3000_dollar_drawdown": 0.9915,
-              "p_below_start_after_12mo": 0.4155,
+              "max_dd_pct_median": 66.84,
+              "max_dd_pct_p90": 85.77,
+              "max_dd_dollars_median": 10773.65,
+              "max_dd_dollars_p90": 21772.02,
+              "p_50pct_drawdown": 0.8465,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.552,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2457,38 +2532,38 @@
                 "p25": 4043.88,
                 "p50": 4904.62,
                 "p75": 6009.15,
-                "p90": 7174.4
+                "p90": 7168.03
               },
               "3mo": {
                 "p10": 2487.16,
-                "p25": 3371.78,
-                "p50": 4756.42,
-                "p75": 6726.22,
-                "p90": 8926.28
+                "p25": 3368.71,
+                "p50": 4750.36,
+                "p75": 6639.41,
+                "p90": 8741.59
               },
               "6mo": {
                 "p10": 1719.46,
-                "p25": 2710.9,
-                "p50": 4532.36,
-                "p75": 7631.05,
-                "p90": 11457.19
+                "p25": 2707.14,
+                "p50": 4480.44,
+                "p75": 7204.8,
+                "p90": 10925.31
               },
               "12mo": {
-                "p10": 1080.97,
-                "p25": 1985.91,
-                "p50": 4166.19,
-                "p75": 9574.95,
-                "p90": 15274.83
+                "p10": 1070.63,
+                "p25": 1962.17,
+                "p50": 3896.09,
+                "p75": 7765.76,
+                "p90": 14744.68
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 67.11,
-              "max_dd_pct_p90": 86.81,
-              "max_dd_dollars_median": 4995.44,
-              "max_dd_dollars_p90": 7805.72,
-              "p_50pct_drawdown": 0.7925,
-              "p_3000_dollar_drawdown": 0.968,
-              "p_below_start_after_12mo": 0.5635,
+              "max_dd_pct_median": 69.54,
+              "max_dd_pct_p90": 87.15,
+              "max_dd_dollars_median": 5448.63,
+              "max_dd_dollars_p90": 11122.9,
+              "p_50pct_drawdown": 0.891,
+              "p_3000_dollar_drawdown": 0.9815,
+              "p_below_start_after_12mo": 0.5875,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2498,42 +2573,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7072.82,
-                "p25": 8489.43,
-                "p50": 10069.23,
-                "p75": 11570.25,
-                "p90": 13152.61
+                "p10": 6639.96,
+                "p25": 7937.67,
+                "p50": 9701.35,
+                "p75": 11686.52,
+                "p90": 14292.49
               },
               "3mo": {
-                "p10": 5413.32,
-                "p25": 7752.96,
-                "p50": 10564.24,
-                "p75": 13332.12,
-                "p90": 15543.39
+                "p10": 4911.59,
+                "p25": 6824.57,
+                "p50": 9530.03,
+                "p75": 13435.67,
+                "p90": 17751.61
               },
               "6mo": {
-                "p10": 3940.89,
-                "p25": 6664.07,
-                "p50": 11058.61,
-                "p75": 15173.31,
-                "p90": 18794.65
+                "p10": 3495.4,
+                "p25": 5557.08,
+                "p50": 9097.81,
+                "p75": 14935.26,
+                "p90": 23541.01
               },
               "12mo": {
-                "p10": 2567.59,
-                "p25": 5188.84,
-                "p50": 11671.18,
-                "p75": 17597.04,
-                "p90": 23124.5
+                "p10": 2123.46,
+                "p25": 3946.8,
+                "p50": 7998.78,
+                "p75": 15942.75,
+                "p90": 31557.05
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 52.98,
-              "max_dd_pct_p90": 84.0,
-              "max_dd_dollars_median": 7473.72,
-              "max_dd_dollars_p90": 10700.78,
-              "p_50pct_drawdown": 0.543,
-              "p_3000_dollar_drawdown": 0.995,
-              "p_below_start_after_12mo": 0.4335,
+              "max_dd_pct_median": 69.73,
+              "max_dd_pct_p90": 87.8,
+              "max_dd_dollars_median": 11248.41,
+              "max_dd_dollars_p90": 22040.21,
+              "p_50pct_drawdown": 0.881,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.583,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2554,33 +2629,33 @@
               "3mo": {
                 "p10": 2244.1,
                 "p25": 2998.39,
-                "p50": 4186.35,
-                "p75": 5898.22,
-                "p90": 8153.89
+                "p50": 4184.14,
+                "p75": 5869.48,
+                "p90": 8005.14
               },
               "6mo": {
                 "p10": 1465.52,
-                "p25": 2283.31,
-                "p50": 3563.57,
-                "p75": 5756.25,
-                "p90": 9194.32
+                "p25": 2279.42,
+                "p50": 3546.57,
+                "p75": 5645.25,
+                "p90": 8457.27
               },
               "12mo": {
-                "p10": 770.59,
-                "p25": 1362.59,
-                "p50": 2646.59,
-                "p75": 5161.28,
-                "p90": 9829.42
+                "p10": 767.64,
+                "p25": 1357.69,
+                "p50": 2607.55,
+                "p75": 4763.62,
+                "p90": 8454.4
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 73.68,
-              "max_dd_pct_p90": 90.3,
-              "max_dd_dollars_median": 4959.85,
-              "max_dd_dollars_p90": 7642.76,
-              "p_50pct_drawdown": 0.897,
-              "p_3000_dollar_drawdown": 0.9815,
-              "p_below_start_after_12mo": 0.7415,
+              "max_dd_pct_median": 74.55,
+              "max_dd_pct_p90": 90.33,
+              "max_dd_dollars_median": 5133.22,
+              "max_dd_dollars_p90": 8916.66,
+              "p_50pct_drawdown": 0.9435,
+              "p_3000_dollar_drawdown": 0.984,
+              "p_below_start_after_12mo": 0.7665,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2590,42 +2665,42 @@
             "n_sims": 2000,
             "equity_paths": {
               "1mo": {
-                "p10": 7062.93,
-                "p25": 8345.26,
-                "p50": 9794.84,
-                "p75": 11315.29,
-                "p90": 12601.69
+                "p10": 6638.36,
+                "p25": 7808.44,
+                "p50": 9369.89,
+                "p75": 11377.78,
+                "p90": 13399.76
               },
               "3mo": {
-                "p10": 4908.34,
-                "p25": 6796.14,
-                "p50": 9403.43,
-                "p75": 12021.91,
-                "p90": 14455.05
+                "p10": 4511.46,
+                "p25": 6075.55,
+                "p50": 8328.15,
+                "p75": 11535.26,
+                "p90": 15739.36
               },
               "6mo": {
-                "p10": 3200.96,
-                "p25": 5090.51,
-                "p50": 8782.99,
-                "p75": 12611.65,
-                "p90": 16278.0
+                "p10": 2905.21,
+                "p25": 4434.36,
+                "p50": 7120.37,
+                "p75": 11138.92,
+                "p90": 17536.15
               },
               "12mo": {
-                "p10": 1674.21,
-                "p25": 3096.19,
-                "p50": 7167.68,
-                "p75": 13169.94,
-                "p90": 17996.88
+                "p10": 1459.64,
+                "p25": 2593.59,
+                "p50": 5180.1,
+                "p75": 9972.32,
+                "p90": 17718.94
               }
             },
             "drawdown": {
-              "max_dd_pct_median": 64.69,
-              "max_dd_pct_p90": 88.13,
-              "max_dd_dollars_median": 8168.83,
-              "max_dd_dollars_p90": 11080.63,
-              "p_50pct_drawdown": 0.6915,
-              "p_3000_dollar_drawdown": 0.9985,
-              "p_below_start_after_12mo": 0.6185,
+              "max_dd_pct_median": 75.08,
+              "max_dd_pct_p90": 90.53,
+              "max_dd_dollars_median": 10159.91,
+              "max_dd_dollars_p90": 17944.49,
+              "p_50pct_drawdown": 0.9335,
+              "p_3000_dollar_drawdown": 1.0,
+              "p_below_start_after_12mo": 0.751,
               "longest_losing_streak_median_days": 10.0,
               "longest_losing_streak_p90_days": 14.0
             }
@@ -2642,23 +2717,71 @@
             "10k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 14.0,
+              "days_p10": 13.0,
               "days_p50": 22.0,
-              "days_p90": 35.0
+              "days_p90": 36.0
             },
             "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 60.0,
-              "days_p50": 79.0,
-              "days_p90": 101.0
+              "days_p10": 36.9,
+              "days_p50": 51.0,
+              "days_p90": 72.0
             },
             "100k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 323.9,
-              "days_p50": 364.0,
-              "days_p90": 411.0
+              "days_p10": 82.0,
+              "days_p50": 103.0,
+              "days_p90": 128.0
+            }
+          },
+          "start_10000": {
+            "10k": {
+              "p_reached_within_horizon": 1.0,
+              "horizon_days": 2520,
+              "days_p10": 1.0,
+              "days_p50": 1.0,
+              "days_p90": 3.0
+            },
+            "25k": {
+              "p_reached_within_horizon": 1.0,
+              "horizon_days": 2520,
+              "days_p10": 19.0,
+              "days_p50": 29.0,
+              "days_p90": 44.0
+            },
+            "100k": {
+              "p_reached_within_horizon": 1.0,
+              "horizon_days": 2520,
+              "days_p10": 61.0,
+              "days_p50": 79.0,
+              "days_p90": 103.0
+            }
+          }
+        },
+        "drop_best_day": {
+          "start_5000": {
+            "10k": {
+              "p_reached_within_horizon": 1.0,
+              "horizon_days": 2520,
+              "days_p10": 17.0,
+              "days_p50": 28.0,
+              "days_p90": 43.0
+            },
+            "25k": {
+              "p_reached_within_horizon": 1.0,
+              "horizon_days": 2520,
+              "days_p10": 47.0,
+              "days_p50": 64.0,
+              "days_p90": 87.0
+            },
+            "100k": {
+              "p_reached_within_horizon": 1.0,
+              "horizon_days": 2520,
+              "days_p10": 102.0,
+              "days_p50": 126.5,
+              "days_p90": 156.0
             }
           },
           "start_10000": {
@@ -2672,64 +2795,16 @@
             "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 41.0,
-              "days_p50": 57.0,
-              "days_p90": 76.0
+              "days_p10": 24.0,
+              "days_p50": 36.0,
+              "days_p90": 52.0
             },
             "100k": {
-              "p_reached_within_horizon": 1.0,
-              "horizon_days": 2520,
-              "days_p10": 304.0,
-              "days_p50": 340.0,
-              "days_p90": 385.0
-            }
-          }
-        },
-        "drop_best_day": {
-          "start_5000": {
-            "10k": {
-              "p_reached_within_horizon": 1.0,
-              "horizon_days": 2520,
-              "days_p10": 17.0,
-              "days_p50": 27.0,
-              "days_p90": 44.0
-            },
-            "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
               "days_p10": 78.0,
-              "days_p50": 99.0,
-              "days_p90": 128.0
-            },
-            "100k": {
-              "p_reached_within_horizon": 1.0,
-              "horizon_days": 2520,
-              "days_p10": 410.0,
-              "days_p50": 456.0,
-              "days_p90": 509.0
-            }
-          },
-          "start_10000": {
-            "10k": {
-              "p_reached_within_horizon": 1.0,
-              "horizon_days": 2520,
-              "days_p10": 1.0,
-              "days_p50": 1.0,
-              "days_p90": 5.0
-            },
-            "25k": {
-              "p_reached_within_horizon": 1.0,
-              "horizon_days": 2520,
-              "days_p10": 52.0,
-              "days_p50": 70.0,
-              "days_p90": 94.0
-            },
-            "100k": {
-              "p_reached_within_horizon": 1.0,
-              "horizon_days": 2520,
-              "days_p10": 381.0,
-              "days_p50": 428.5,
-              "days_p90": 484.0
+              "days_p50": 100.0,
+              "days_p90": 125.0
             }
           }
         }
@@ -2743,22 +2818,22 @@
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
               "days_p10": 21.0,
-              "days_p50": 55.0,
-              "days_p90": 154.0
+              "days_p50": 53.0,
+              "days_p90": 155.1
             },
             "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 120.0,
-              "days_p50": 199.0,
-              "days_p90": 356.0
+              "days_p10": 69.0,
+              "days_p50": 140.0,
+              "days_p90": 298.3
             },
             "100k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 744.7,
-              "days_p50": 951.0,
-              "days_p90": 1237.1
+              "days_p10": 174.0,
+              "days_p50": 292.0,
+              "days_p90": 512.3
             }
           },
           "start_10000": {
@@ -2767,21 +2842,21 @@
               "horizon_days": 2520,
               "days_p10": 1.0,
               "days_p50": 1.0,
-              "days_p90": 12.0
+              "days_p90": 13.0
             },
             "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 77.0,
-              "days_p50": 139.0,
-              "days_p90": 247.1
+              "days_p10": 32.9,
+              "days_p50": 76.0,
+              "days_p90": 193.0
             },
             "100k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 673.9,
-              "days_p50": 882.0,
-              "days_p90": 1148.1
+              "days_p10": 124.9,
+              "days_p50": 228.0,
+              "days_p90": 410.1
             }
           }
         },
@@ -2790,23 +2865,23 @@
             "10k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 26.0,
-              "days_p50": 73.0,
-              "days_p90": 245.4
+              "days_p10": 24.0,
+              "days_p50": 69.0,
+              "days_p90": 236.0
             },
             "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 154.0,
-              "days_p50": 284.5,
-              "days_p90": 551.1
+              "days_p10": 89.9,
+              "days_p50": 193.5,
+              "days_p90": 464.6
             },
             "100k": {
-              "p_reached_within_horizon": 0.995,
+              "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 978.4,
-              "days_p50": 1306.0,
-              "days_p90": 1767.6
+              "days_p10": 234.0,
+              "days_p50": 420.5,
+              "days_p90": 767.3
             }
           },
           "start_10000": {
@@ -2815,21 +2890,21 @@
               "horizon_days": 2520,
               "days_p10": 1.0,
               "days_p50": 2.0,
-              "days_p90": 12.0
+              "days_p90": 13.0
             },
             "25k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 95.9,
-              "days_p50": 182.0,
-              "days_p90": 360.0
+              "days_p10": 36.0,
+              "days_p50": 101.0,
+              "days_p90": 309.5
             },
             "100k": {
               "p_reached_within_horizon": 1.0,
               "horizon_days": 2520,
-              "days_p10": 894.0,
-              "days_p50": 1217.5,
-              "days_p90": 1616.0
+              "days_p10": 162.9,
+              "days_p50": 310.5,
+              "days_p90": 680.4
             }
           }
         }
@@ -2840,48 +2915,48 @@
         "all_days": {
           "start_5000": {
             "10k": {
-              "p_reached_within_horizon": 0.958,
+              "p_reached_within_horizon": 0.957,
               "horizon_days": 2520,
-              "days_p10": 40.0,
-              "days_p50": 160.5,
-              "days_p90": 956.8
+              "days_p10": 38.0,
+              "days_p50": 153.0,
+              "days_p90": 913.6
             },
             "25k": {
-              "p_reached_within_horizon": 0.905,
+              "p_reached_within_horizon": 0.885,
               "horizon_days": 2520,
-              "days_p10": 310.2,
-              "days_p50": 721.0,
-              "days_p90": 1713.8
+              "days_p10": 168.0,
+              "days_p50": 555.0,
+              "days_p90": 1679.4
             },
             "100k": {
-              "p_reached_within_horizon": 0.129,
+              "p_reached_within_horizon": 0.713,
               "horizon_days": 2520,
-              "days_p10": 1813.8,
-              "days_p50": 2218.0,
-              "days_p90": 2492.8
+              "days_p10": 518.0,
+              "days_p50": 1178.0,
+              "days_p90": 2102.8
             }
           },
           "start_10000": {
             "10k": {
-              "p_reached_within_horizon": 0.999,
+              "p_reached_within_horizon": 0.997,
               "horizon_days": 2520,
               "days_p10": 1.0,
               "days_p50": 2.0,
-              "days_p90": 20.0
+              "days_p90": 33.4
             },
             "25k": {
-              "p_reached_within_horizon": 0.957,
+              "p_reached_within_horizon": 0.946,
               "horizon_days": 2520,
-              "days_p10": 190.0,
-              "days_p50": 442.0,
-              "days_p90": 1133.0
+              "days_p10": 69.0,
+              "days_p50": 247.0,
+              "days_p90": 1128.5
             },
             "100k": {
-              "p_reached_within_horizon": 0.213,
+              "p_reached_within_horizon": 0.814,
               "horizon_days": 2520,
-              "days_p10": 1672.8,
-              "days_p50": 2184.0,
-              "days_p90": 2455.6
+              "days_p10": 345.6,
+              "days_p50": 850.5,
+              "days_p90": 1980.1
             }
           }
         },
@@ -2890,46 +2965,46 @@
             "10k": {
               "p_reached_within_horizon": 0.729,
               "horizon_days": 2520,
-              "days_p10": 45.8,
-              "days_p50": 197.0,
-              "days_p90": 1232.8
+              "days_p10": 45.0,
+              "days_p50": 212.0,
+              "days_p90": 1166.8
             },
             "25k": {
-              "p_reached_within_horizon": 0.449,
+              "p_reached_within_horizon": 0.452,
               "horizon_days": 2520,
-              "days_p10": 391.6,
-              "days_p50": 940.0,
-              "days_p90": 2038.2
+              "days_p10": 189.3,
+              "days_p50": 622.0,
+              "days_p90": 1737.4
             },
             "100k": {
-              "p_reached_within_horizon": 0.005,
+              "p_reached_within_horizon": 0.221,
               "horizon_days": 2520,
-              "days_p10": 2046.0,
-              "days_p50": 2390.0,
-              "days_p90": 2480.6
+              "days_p10": 606.0,
+              "days_p50": 1204.0,
+              "days_p90": 2023.0
             }
           },
           "start_10000": {
             "10k": {
-              "p_reached_within_horizon": 0.988,
+              "p_reached_within_horizon": 0.972,
               "horizon_days": 2520,
               "days_p10": 1.0,
               "days_p50": 2.0,
-              "days_p90": 27.0
+              "days_p90": 29.9
             },
             "25k": {
-              "p_reached_within_horizon": 0.669,
+              "p_reached_within_horizon": 0.624,
               "horizon_days": 2520,
-              "days_p10": 206.0,
-              "days_p50": 602.0,
-              "days_p90": 1590.8
+              "days_p10": 75.9,
+              "days_p50": 316.0,
+              "days_p90": 1357.8
             },
             "100k": {
-              "p_reached_within_horizon": 0.004,
+              "p_reached_within_horizon": 0.299,
               "horizon_days": 2520,
-              "days_p10": 2080.3,
-              "days_p50": 2268.0,
-              "days_p90": 2395.5
+              "days_p10": 413.8,
+              "days_p50": 1052.0,
+              "days_p90": 2098.6
             }
           }
         }
@@ -2939,81 +3014,81 @@
   "naive_vs_capacity_comparison": {
     "post_fix": {
       "start_5000": {
-        "depth_capped_12mo_p50": 70628.64,
+        "depth_capped_12mo_p50": 360691.39,
         "naive_uncapped_12mo_p50": 14809230.26,
-        "capacity_bend_cost_12mo_p50": 14738601.62
+        "capacity_bend_cost_12mo_p50": 14448538.87
       },
       "start_10000": {
-        "depth_capped_12mo_p50": 76209.49,
+        "depth_capped_12mo_p50": 396336.44,
         "naive_uncapped_12mo_p50": 28367177.21,
-        "capacity_bend_cost_12mo_p50": 28290967.72
+        "capacity_bend_cost_12mo_p50": 27970840.77
       }
     },
     "august": {
       "start_5000": {
-        "depth_capped_12mo_p50": 28039.14,
+        "depth_capped_12mo_p50": 61067.61,
         "naive_uncapped_12mo_p50": 56949.73,
-        "capacity_bend_cost_12mo_p50": 28910.59
+        "capacity_bend_cost_12mo_p50": -4117.88
       },
       "start_10000": {
-        "depth_capped_12mo_p50": 34856.26,
+        "depth_capped_12mo_p50": 105724.41,
         "naive_uncapped_12mo_p50": 112924.32,
-        "capacity_bend_cost_12mo_p50": 78068.06
+        "capacity_bend_cost_12mo_p50": 7199.91
       }
     },
     "all_history": {
       "start_5000": {
-        "depth_capped_12mo_p50": 8580.12,
+        "depth_capped_12mo_p50": 7226.95,
         "naive_uncapped_12mo_p50": 7226.95,
-        "capacity_bend_cost_12mo_p50": -1353.17
+        "capacity_bend_cost_12mo_p50": 0.0
       },
       "start_10000": {
-        "depth_capped_12mo_p50": 16653.92,
+        "depth_capped_12mo_p50": 14408.18,
         "naive_uncapped_12mo_p50": 14408.18,
-        "capacity_bend_cost_12mo_p50": -2245.74
+        "capacity_bend_cost_12mo_p50": 0.0
       }
     }
   },
   "withdrawal_vs_reinvest": {
     "below_wall": {
-      "withdraw_threshold": 6600.0,
-      "threshold_vs_depth_wall": "BELOW the ~$7,779 depth wall -- withdrawing here forgoes real compounding",
+      "withdraw_threshold": 43400.0,
+      "threshold_vs_depth_wall": "BELOW the ~$51,074 depth wall -- withdrawing here forgoes real compounding",
       "policy_100pct_reinvest": {
-        "median_combined_wealth_12mo": 70333.3
+        "median_combined_wealth_12mo": 359209.21
       },
       "policy_withdraw_above_threshold_monthly": {
-        "median_combined_wealth_12mo": 68101.23
+        "median_combined_wealth_12mo": 348490.39
       },
-      "cost_of_withdrawing": 2232.07,
-      "note": "Same random draws for both policies (paired comparison). Withdraw policy caps the TRADING account at $6,600 monthly and sweeps the excess to cash (0% yield assumed); 'combined wealth' = trading equity + cash swept out. Reinvesting keeps compounding the swept cash INSIDE the trading account instead."
+      "cost_of_withdrawing": 10718.82,
+      "note": "Same random draws for both policies (paired comparison). Withdraw policy caps the TRADING account at $43,400 monthly and sweeps the excess to cash (0% yield assumed); 'combined wealth' = trading equity + cash swept out. Reinvesting keeps compounding the swept cash INSIDE the trading account instead."
     },
     "at_or_above_wall": {
       "withdraw_threshold": 10000.0,
-      "threshold_vs_depth_wall": "AT/ABOVE the ~$7,779 depth wall -- capital past the wall is already capped/idle inside the trading account, so withdrawing it costs ~nothing",
+      "threshold_vs_depth_wall": "BELOW the ~$51,074 depth wall -- withdrawing here forgoes real compounding",
       "policy_100pct_reinvest": {
-        "median_combined_wealth_12mo": 70333.3
+        "median_combined_wealth_12mo": 359209.21
       },
       "policy_withdraw_above_threshold_monthly": {
-        "median_combined_wealth_12mo": 70333.3
+        "median_combined_wealth_12mo": 118966.4
       },
-      "cost_of_withdrawing": 0.0,
+      "cost_of_withdrawing": 240242.81,
       "note": "Same random draws for both policies (paired comparison). Withdraw policy caps the TRADING account at $10,000 monthly and sweeps the excess to cash (0% yield assumed); 'combined wealth' = trading equity + cash swept out. Reinvesting keeps compounding the swept cash INSIDE the trading account instead."
     }
   },
   "ranked_constraints": [
     {
       "rank": 1,
-      "type": "market_depth",
-      "constraint": "Displayed exit-side liquidity at the $1.50-2.50 premium band (median 46.0 contracts) where right-tail winners actually exit.",
-      "binds_at": "~$7,779-$15,559 equity (1.5x-3x current), central assumption -- NOT a config number.",
-      "fix": "Not fixable by more capital. Needs more market depth: trade across more names (the multi-symbol lane already ships this), execute with limit patience instead of market orders at size, or find a bigger per-contract edge so fewer contracts are needed for the same dollars."
+      "type": "which_regime_is_real",
+      "constraint": "Whether August's +1.55%/day is the true rate or a favourable 20-session sample. All-history's MEDIAN day is a LOSS (-0.77%).",
+      "binds_at": "Every projection in this file. It is the only assumption that changes the answer by orders of magnitude.",
+      "fix": "The September scoring window measures exactly this. Nothing else to do but run it clean and let go_live_gate.py score it."
     },
     {
       "rank": 2,
-      "type": "evidence_quality",
-      "constraint": "The depth measurement itself: 1 session, 3 snapshots, 33 quotes, an 'indicative' (not confirmed OPRA) feed.",
-      "binds_at": "Confidence in constraint #1's exact dollar value, not the path itself.",
-      "fix": "Run the multi-session depth study named in capacity_bend.evidence_quality before treating any specific E* number as more than an order of magnitude."
+      "type": "market_depth_REFUTED",
+      "constraint": "\u26d4 WAS rank 1. The claim that displayed exit-side liquidity (median 46.0 contracts at $1.50-2.50) caps deployable equity at $7.8K-$15.6K. REFUTED 2026-08-29: displayed top-of-book size is a quote at an instant, not available liquidity, and the measurement was 33 quotes from 3 snapshots in one ~4-minute window.",
+      "binds_at": "Nothing at this scale. Real 1-minute OPRA bars for the contracts we traded: median daily volume ~443,750 contracts; the median MINUTE in that same $1.50-2.50 band trades ~357 contracts against an alleged 46.0-contract wall; our largest order ever is 12, and only 1.6% of minutes in that band trade fewer than 12.",
+      "fix": "Superseded by the traded-volume model (capacity_volume). Revisit only if order size approaches a few percent of per-minute traded volume."
     },
     {
       "rank": 3,

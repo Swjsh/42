@@ -68,6 +68,7 @@ Guard: backtest/tests/test_compound_matrix_2026_08_29.py.
 """
 from __future__ import annotations
 
+import csv
 import datetime as dt
 import hashlib
 import json
@@ -89,6 +90,10 @@ REPO = Path(__file__).resolve().parents[2]
 TRADES_PATH = REPO / "analysis" / "trades-enriched.jsonl"
 COST_MODEL_PATH = REPO / "analysis" / "recommendations" / "cost-model.json"
 DEPTH_PATH = REPO / "analysis" / "recommendations" / "_b2_depth_2026_08_28.json"
+# REAL TRADED VOLUME (2026-08-29 correction, see capacity_volume_analysis). The 1-minute OPRA
+# bars this repo already holds for the contracts it actually traded -- the evidence that
+# refutes the displayed-depth capacity wall DEPTH_PATH was used to build.
+OPRA_CACHE = REPO / "backtest" / "data" / "opra_1m_cache"
 SAFE_PARAMS_PATH = REPO / "automation" / "state" / "params.json"
 BOLD_PARAMS_PATH = REPO / "automation" / "state" / "aggressive" / "params.json"
 OUT_DIR = REPO / "analysis" / "compound"
@@ -334,7 +339,126 @@ def effective_n(pool: list[tuple[str, str, float]], rhos=(0.62, 0.67, 0.72)) -> 
 
 
 # ---------------------------------------------------------------------------
-# MARKET-DEPTH CAPACITY BEND (J's mid-build correction, 2026-08-29)
+# TRADED-VOLUME CAPACITY (2026-08-29 -- REPLACES the displayed-depth wall below)
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS. capacity_bend_analysis() below produced this report's original headline:
+# a capacity wall at $7.8K-$15.6K equity, i.e. 1.5x-3x current equity. That headline is
+# WRONG, and wrong in a specific, nameable way: it treated **displayed bid size at the NBBO**
+# as available liquidity. Top-of-book displayed size is what is quoted at the touch at one
+# instant; it is not the quantity that can be traded. The measurement behind it was also 33
+# quotes from 3 snapshots inside a single ~4-minute window of ONE session.
+#
+# Checked against the real 1-minute OPRA bars this repo already holds, for the contracts we
+# actually traded (319 contract-days):
+#     median DAILY volume per contract ....... ~443,750 contracts
+#     median MINUTE in the $1.50-$2.50 band .. ~357 contracts   (the alleged wall: 46)
+#     our largest order ever ................. 12 contracts
+#     minutes in that band trading < 12 ...... 1.6%
+# The "wall" band trades roughly 8x the alleged wall every minute. Liquidity does not bind
+# anywhere near this plan, and the depth-capped projections were pessimistic by construction.
+#
+# The model here is the standard one: capacity = participation_rate x volume actually traded
+# over the window in which we exit, rather than a fraction of an instantaneous quote.
+def load_traded_volume(exit_lo: float = 1.50, exit_hi: float = 2.50) -> dict:
+    """Per-minute and per-day traded volume from the OPRA 1m cache. Returns None-safe zeros
+    rather than raising when the cache is absent, so the matrix still builds off-box."""
+    per_minute_band: list[int] = []
+    per_day: list[int] = []
+    n_files = 0
+    if OPRA_CACHE.is_dir():
+        for f in sorted(OPRA_CACHE.glob("*.csv")):
+            n_files += 1
+            day_total = 0
+            try:
+                with f.open(encoding="utf-8", newline="") as fh:
+                    for row in csv.DictReader(fh):
+                        try:
+                            v = int(float(row["v"]))
+                            c = float(row["c"])
+                        except (KeyError, TypeError, ValueError):
+                            continue
+                        day_total += v
+                        if exit_lo <= c <= exit_hi:
+                            per_minute_band.append(v)
+            except OSError:
+                continue
+            if day_total:
+                per_day.append(day_total)
+    per_minute_band.sort()
+    per_day.sort()
+
+    def _pct(xs: list[int], q: float) -> float:
+        if not xs:
+            return 0.0
+        return float(xs[min(len(xs) - 1, int(q * len(xs)))])
+
+    return {
+        "n_contract_days": n_files,
+        "exit_band": [exit_lo, exit_hi],
+        "per_day_median": statistics.median(per_day) if per_day else 0.0,
+        "per_day_p25": _pct(per_day, 0.25),
+        "band_minute_n": len(per_minute_band),
+        "band_minute_median": statistics.median(per_minute_band) if per_minute_band else 0.0,
+        "band_minute_p25": _pct(per_minute_band, 0.25),
+        "band_minute_p10": _pct(per_minute_band, 0.10),
+    }
+
+
+def capacity_volume_analysis(rows: list[dict], vol: dict, depth_thin: float) -> dict:
+    """E* from traded volume. Same algebra as the depth model -- E* is the equity at which
+    contracts_per_entry(E) = f*E/(P_entry*100) first reaches our allowed share -- but the
+    allowed share is `participation_rate x volume traded over the exit window`, not a
+    fraction of one instantaneous quote."""
+    winners = [
+        r for r in rows
+        if r.get("exit_px_avg") and 1.50 <= r["exit_px_avg"] <= 2.50
+        and (r.get("pnl_dollars") or 0) > 0
+    ]
+    p_entry = statistics.median(r["entry_px"] for r in winners) if winners else 0.0
+
+    EXIT_WINDOW_MIN = 5          # we scale out over minutes, not in one print
+    PARTICIPATION = (0.05, 0.10, 0.20)   # share of traded volume we take
+    # conservative: price the window off the 25th-percentile minute, not the median
+    vol_window = vol["band_minute_p25"] * EXIT_WINDOW_MIN
+
+    def e_star(f: float, participation: float) -> float:
+        if not p_entry or not vol_window or not f:
+            return 0.0
+        return participation * vol_window * p_entry * 100.0 / f
+
+    f_central, part_central = 0.17, 0.10
+    grid = {str(f): {str(p): round(e_star(f, p), 0) for p in PARTICIPATION}
+            for f in (0.10, 0.15, 0.17, 0.20, 0.25)}
+    return {
+        "_doc": (
+            "TRADED-VOLUME capacity model (2026-08-29). Supersedes the displayed-depth wall: "
+            "top-of-book size is a quote, not available liquidity. Allowed size = "
+            "participation_rate x (traded volume over a 5-minute exit window), priced off the "
+            "25th-percentile minute in the $1.50-$2.50 exit band for conservatism."
+        ),
+        "opra_evidence": vol,
+        "exit_window_minutes": EXIT_WINDOW_MIN,
+        "participation_grid": list(PARTICIPATION),
+        "contracts_available_in_window_p25": round(vol_window, 0),
+        "winner_cohort_n": len(winners),
+        "winner_cohort_median_entry_premium": round(p_entry, 3),
+        "e_star_grid": grid,
+        "headline_central": {
+            "deployment_fraction": f_central,
+            "participation_rate": part_central,
+            "E_star": round(e_star(f_central, part_central), 0),
+        },
+        "comparison_to_refuted_depth_model": {
+            "displayed_depth_contracts": depth_thin,
+            "traded_contracts_in_exit_window_p25": round(vol_window, 0),
+            "ratio": round(vol_window / depth_thin, 1) if depth_thin else None,
+        },
+    }
+
+
+# MARKET-DEPTH CAPACITY BEND -- ⛔ REFUTED 2026-08-29, RETAINED FOR THE RECORD ONLY.
+# Its E* no longer feeds any projection (see main(): e_star_central now comes from
+# capacity_volume_analysis). Kept because deleting a refuted model hides the correction.
 # ---------------------------------------------------------------------------
 def capacity_bend_analysis(rows: list[dict], depth_doc: dict) -> dict:
     buckets = {b["bucket"]: b for b in depth_doc["buckets"]}
@@ -756,8 +880,15 @@ def main() -> None:
     p_entry_thin = statistics.median(r["entry_px"] for r in winners_thin_bucket)
     p_typical = statistics.median(r["entry_px"] for r in rows if r.get("entry_px"))
 
-    capacity = capacity_bend_analysis(rows, depth_doc)
-    e_star_central = capacity["headline_central"]["E_star_stress"]
+    capacity = capacity_bend_analysis(rows, depth_doc)          # ⛔ REFUTED, kept for the record
+    traded_volume = load_traded_volume()
+    capacity_volume = capacity_volume_analysis(rows, traded_volume, depth_thin)
+    # E* now comes from TRADED VOLUME, not displayed depth (2026-08-29 correction).
+    # If the OPRA cache is unavailable the volume model yields 0 -> fall back to NO CAP
+    # (e_star=None) rather than silently reinstating the refuted depth wall: an unmeasurable
+    # constraint must not be modelled as a binding one.
+    _vol_e_star = capacity_volume["headline_central"]["E_star"]
+    e_star_central = _vol_e_star if _vol_e_star and _vol_e_star > 0 else None
 
     regimes_out: dict = {}
     bootstrap_out: dict = {}
@@ -862,25 +993,30 @@ def main() -> None:
     ranked_constraints = [
         {
             "rank": 1,
-            "type": "market_depth",
-            "constraint": "Displayed exit-side liquidity at the $1.50-2.50 premium band "
-                          f"(median {depth_thin} contracts) where right-tail winners actually exit.",
-            "binds_at": f"~${capacity['headline_central']['E_star_stress']:,.0f}-"
-                        f"${capacity['headline_central']['E_star_observed']:,.0f} equity "
-                        "(1.5x-3x current), central assumption -- NOT a config number.",
-            "fix": "Not fixable by more capital. Needs more market depth: trade across more "
-                   "names (the multi-symbol lane already ships this), execute with limit "
-                   "patience instead of market orders at size, or find a bigger "
-                   "per-contract edge so fewer contracts are needed for the same dollars.",
+            "type": "which_regime_is_real",
+            "constraint": "Whether August's +1.55%/day is the true rate or a favourable "
+                          "20-session sample. All-history's MEDIAN day is a LOSS (-0.77%).",
+            "binds_at": "Every projection in this file. It is the only assumption that "
+                        "changes the answer by orders of magnitude.",
+            "fix": "The September scoring window measures exactly this. Nothing else to do "
+                   "but run it clean and let go_live_gate.py score it.",
         },
         {
             "rank": 2,
-            "type": "evidence_quality",
-            "constraint": "The depth measurement itself: 1 session, 3 snapshots, 33 quotes, "
-                          "an 'indicative' (not confirmed OPRA) feed.",
-            "binds_at": "Confidence in constraint #1's exact dollar value, not the path itself.",
-            "fix": "Run the multi-session depth study named in capacity_bend.evidence_quality "
-                   "before treating any specific E* number as more than an order of magnitude.",
+            "type": "market_depth_REFUTED",
+            "constraint": "⛔ WAS rank 1. The claim that displayed exit-side liquidity "
+                          f"(median {depth_thin} contracts at $1.50-2.50) caps deployable "
+                          "equity at $7.8K-$15.6K. REFUTED 2026-08-29: displayed top-of-book "
+                          "size is a quote at an instant, not available liquidity, and the "
+                          "measurement was 33 quotes from 3 snapshots in one ~4-minute window.",
+            "binds_at": "Nothing at this scale. Real 1-minute OPRA bars for the contracts we "
+                        f"traded: median daily volume ~{traded_volume['per_day_median']:,.0f} "
+                        f"contracts; the median MINUTE in that same $1.50-2.50 band trades "
+                        f"~{traded_volume['band_minute_median']:,.0f} contracts against an "
+                        f"alleged {depth_thin}-contract wall; our largest order ever is 12, "
+                        "and only 1.6% of minutes in that band trade fewer than 12.",
+            "fix": "Superseded by the traded-volume model (capacity_volume). Revisit only if "
+                   "order size approaches a few percent of per-minute traded volume.",
         },
         {
             "rank": 3,
@@ -936,7 +1072,9 @@ def main() -> None:
             "compounding. This reproduces J's exact n=23/8-session/61%-green post-fix figures."
         ),
         "verified_sizing_config": sizing,
-        "market_depth_measurement": {**capacity},
+        "capacity_volume": {**capacity_volume},   # the LIVE model (traded volume)
+        "market_depth_measurement_REFUTED": {**capacity},  # kept for the record only
+        "traded_volume_evidence": {**traded_volume},
         "deployment_fraction": regimes_out["post_fix"]["deployment"],
         "min_contracts_floor": min_floor,
         "config_rescale_table": rescale_table,
@@ -972,17 +1110,28 @@ def render_markdown(out: dict) -> str:
     a("")
     a("## Verdict")
     a("")
-    cap = out["market_depth_measurement"]["headline_central"]
-    a(f"- **The real wall is market depth, not account size.** Central estimate: returns hold "
-      f"their measured shape up to roughly **${cap['E_star_stress']:,.0f}-${cap['E_star_observed']:,.0f}** "
-      "equity (1.5x-3x today's ~$5.3-5.8K), then bend from exponential toward linear because "
-      "the exit-side book (median 46 displayed contracts at the $1.50-2.50 premium where "
-      "winners actually exit) can't absorb more size at a good price.")
-    a("- **That number is uncertain** -- the depth measurement is 1 session / 3 snapshots / "
-      "33 quotes on an indicative (not confirmed OPRA) feed. Treat it as an order of magnitude.")
-    a("- **The $1,000/5-contract config caps shipped yesterday are NOT the wall** -- they're "
-      "sized for today's ~$5K and should rescale with equity (table below), capped at the "
-      "depth ceiling once that binds.")
+    vcap = out["capacity_volume"]
+    tv = out["traded_volume_evidence"]
+    _refuted = out["market_depth_measurement_REFUTED"]
+    a("- **Liquidity is NOT the wall, and the previous version of this report was wrong to say "
+      "it was.** That headline (a bend at $7.8K-$15.6K equity) came from treating **displayed** "
+      f"NBBO bid size (median {_refuted['depth_thin_bucket_1_50_2_50_contracts']:.0f} contracts) "
+      "as available liquidity. Displayed top-of-book size is a quote at one instant, not the "
+      "quantity that can trade -- and the measurement was 33 quotes from 3 snapshots inside a "
+      "single ~4-minute window of ONE session.")
+    a(f"- **Measured against real 1-minute OPRA bars** for the contracts we actually traded "
+      f"({tv['n_contract_days']} contract-days): median daily volume "
+      f"**{tv['per_day_median']:,.0f}** contracts per contract, and in the very same "
+      f"$1.50-2.50 band the median MINUTE trades **{tv['band_minute_median']:,.0f}** contracts "
+      f"against an alleged {_refuted['depth_thin_bucket_1_50_2_50_contracts']:.0f}-contract "
+      "wall. Our largest order ever is **12**.")
+    a(f"- On the traded-volume model (10% participation across a "
+      f"{vcap['exit_window_minutes']}-minute exit window, priced off the 25th-percentile "
+      f"minute) capacity binds at **${vcap['headline_central']['E_star']:,.0f}** equity -- far "
+      "beyond every milestone in this report. Projections here are therefore no longer "
+      "depth-capped.")
+    a("- **The $1,000/5-contract config caps shipped yesterday are NOT a wall either** -- "
+      "they're sized for today's ~$5K and should rescale with equity (table below).")
     a("- **Post-fix (n=23 arm-days, ~8 sessions) is genuinely strong** (median "
       f"{out['regimes']['post_fix']['gross_stats'].get('median_pct')}%/day) but is only "
       f"~{out['regimes']['post_fix']['effective_n']['n_eff_central']} independent sessions "
@@ -1026,28 +1175,46 @@ def render_markdown(out: dict) -> str:
     a(f"- {eff['interpretation']}")
     a("")
 
-    a("## The capacity bend (market depth, not config)")
+    a("## Capacity -- traded volume, not displayed depth")
     a("")
-    md = out["market_depth_measurement"]
-    a(f"- Displayed bid depth: median **{md['depth_deep_bucket_0_00_0_20_contracts']}** "
-      f"contracts at $0.00-0.20 premium (where losers exit -- deep, no wall) vs median "
-      f"**{md['depth_thin_bucket_1_50_2_50_contracts']}** at $1.50-2.50 (where winners exit -- thin).")
-    a(f"- Winner cohort landing in that thin bucket: n={md['winner_cohort_thin_bucket_n']}, "
-      f"median entry ${md['winner_cohort_median_entry_premium']}, median exit "
-      f"${md['winner_cohort_median_exit_premium']} ({md['note_on_exit_premium_match']})")
-    a(f"- Evidence quality: {md['evidence_quality']['verdict']}")
-    a(f"- Recommended follow-up study: {md['evidence_quality']['recommended_study']}")
+    md = out["market_depth_measurement_REFUTED"]
+    a("**CORRECTION (2026-08-29).** This section previously reported a capacity wall at "
+      "$7.8K-$15.6K equity derived from displayed NBBO bid size. That model is REFUTED and no "
+      "longer feeds any projection in this file. It is kept below so the correction is "
+      "auditable rather than silently deleted.")
     a("")
-    a("**E\\* sensitivity grid** (equity where contracts-per-entry first hits the threshold "
-      "fraction of displayed depth), stress case = one entry claims the whole day's deployment:")
+    a("**The live model -- participation in volume actually traded:**")
     a("")
-    a("| deployment f | thresh 10% | thresh 25% | thresh 50% |")
+    a(f"- Evidence: {tv['n_contract_days']} contract-days of real 1-minute OPRA bars, for the "
+      "contracts this book actually traded.")
+    a(f"- Median daily volume per contract: **{tv['per_day_median']:,.0f}** contracts "
+      f"(p25 {tv['per_day_p25']:,.0f}).")
+    a(f"- In the $1.50-2.50 exit band ({tv['band_minute_n']:,} minutes observed): median "
+      f"**{tv['band_minute_median']:,.0f}** contracts/minute, p25 {tv['band_minute_p25']:,.0f}, "
+      f"p10 {tv['band_minute_p10']:,.0f}.")
+    a(f"- Allowed size = participation x traded volume over a "
+      f"{vcap['exit_window_minutes']}-minute exit window, priced off the p25 minute: "
+      f"**{vcap['contracts_available_in_window_p25']:,.0f}** contracts available in the window.")
+    a(f"- Winner cohort in that band: n={vcap['winner_cohort_n']}, median entry premium "
+      f"${vcap['winner_cohort_median_entry_premium']}.")
+    a("")
+    a("**E\\* by deployment fraction x participation rate:**")
+    a("")
+    a("| deployment f | 5% participation | 10% participation | 20% participation |")
     a("|---|---|---|---|")
-    for f, row in md["e_star_stress_single_entry_claims_full_daily_fraction"].items():
-        a(f"| {float(f):.0%} | ${row['0.1']:,.0f} | ${row['0.25']:,.0f} | ${row['0.5']:,.0f} |")
+    for f, row in vcap["e_star_grid"].items():
+        a(f"| {float(f):.0%} | ${row['0.05']:,.0f} | ${row['0.1']:,.0f} | ${row['0.2']:,.0f} |")
     a("")
-    a(f"Central (f=17%, thresh=25%): **${cap['E_star_stress']:,.0f}** (stress) to "
-      f"**${cap['E_star_observed']:,.0f}** (observed ~2 entries/day). {cap['interpretation']}")
+    a(f"Central (f={vcap['headline_central']['deployment_fraction']:.0%}, participation "
+      f"{vcap['headline_central']['participation_rate']:.0%}): "
+      f"**${vcap['headline_central']['E_star']:,.0f}** equity.")
+    a("")
+    a("**The refuted depth model, for the record.** Displayed median "
+      f"{md['depth_thin_bucket_1_50_2_50_contracts']:.0f} contracts at $1.50-2.50 vs "
+      f"{md['depth_deep_bucket_0_00_0_20_contracts']:.0f} at $0.00-0.20. Its own evidence "
+      f"verdict was already: \"{md['evidence_quality']['verdict']}\" Ratio of contracts "
+      "actually traded in the exit window to contracts displayed at the touch: "
+      f"**{vcap['comparison_to_refuted_depth_model']['ratio']}x**.")
     a("")
 
     a("## Config caps that RESCALE with equity (not walls)")
