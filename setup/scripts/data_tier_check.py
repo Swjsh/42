@@ -71,7 +71,28 @@ OUT_PATH = OUT_DIR / "summary.json"
 
 KNOWN_BROKEN_MARKER = "## Known broken"
 DATA_HOST = "https://data.alpaca.markets"
-ACTIVE_ARMS = ("safe-2", "bold-2", "safe-3", "risky-1", "risky-3")  # accounts.json status=active
+ACCOUNTS_PATH = STATE / "fleet" / "accounts.json"
+_FALLBACK_ACTIVE_ARMS = ("safe-2", "bold-2", "safe-3", "risky-1")  # last-known-good fallback
+
+
+def _load_active_arms() -> tuple:
+    """Derived from accounts.json (status=='active', SPY_0DTE_OPTION), never hardcoded --
+    checking a retired arm's live market-data feed wastes an API call against an account
+    that no longer trades this instrument (risky-3, retired 2026-08-28, repurposed for the
+    weekly-1 non-SPY lane). Falls back to _FALLBACK_ACTIVE_ARMS on any read error."""
+    try:
+        cfg = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
+        arms = tuple(
+            str(a["id"]) for a in cfg.get("arms", [])
+            if isinstance(a, dict) and a.get("status") == "active"
+            and a.get("instrument") == "SPY_0DTE_OPTION"
+        )
+        return arms or _FALLBACK_ACTIVE_ARMS
+    except (OSError, ValueError, KeyError):
+        return _FALLBACK_ACTIVE_ARMS
+
+
+ACTIVE_ARMS = _load_active_arms()  # accounts.json status=active, SPY_0DTE_OPTION
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))

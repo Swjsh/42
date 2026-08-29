@@ -86,7 +86,31 @@ _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 # --------------------------------------------------------------------------------------- #
 # Roster + assumptions -- disclosed, never silently baked in.
 # --------------------------------------------------------------------------------------- #
-ACTIVE_ARMS = ["safe-2", "bold-2", "safe-3", "risky-1", "risky-3"]  # accounts.json status=active
+_FALLBACK_ACTIVE_ARMS = ["safe-2", "bold-2", "safe-3", "risky-1"]  # last-known-good, used only
+# if accounts.json is unreadable at import time -- fail-open with a stale-but-plausible roster
+# rather than crashing this reporting-only instrument (never touches the live path).
+
+
+def _load_active_arms() -> list:
+    """Derived from accounts.json (status=='active', SPY_0DTE_OPTION), never hardcoded --
+    OP-25 fix for the class of bug that made this a STALE hardcoded 5-arm tuple through
+    risky-3's 2026-08-28 retirement (silently reconciling a retired arm's now-frozen ledger
+    against live broker history going forward -- see this script's OWN STATUS.md entry from
+    that session for the incident). Falls back to _FALLBACK_ACTIVE_ARMS on any read error,
+    matching this module's reporting-only fail-open posture (never crashes, never blocks)."""
+    try:
+        cfg = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
+        arms = [
+            str(a["id"]) for a in cfg.get("arms", [])
+            if isinstance(a, dict) and a.get("status") == "active"
+            and a.get("instrument") == "SPY_0DTE_OPTION"
+        ]
+        return arms or list(_FALLBACK_ACTIVE_ARMS)
+    except (OSError, ValueError, KeyError):
+        return list(_FALLBACK_ACTIVE_ARMS)
+
+
+ACTIVE_ARMS = _load_active_arms()  # accounts.json status=active, SPY_0DTE_OPTION -- live-derived
 
 # ASSUMPTION (stated per Judgment Guards -- not independently confirmed against a per-fleet-arm
 # params file this run): CLAUDE.md Rule 6 states the per-trade risk cap explicitly ONLY for the

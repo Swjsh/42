@@ -734,7 +734,13 @@ def render_tomorrow_exits_lines() -> list[str]:
         ribbon = _st.by_name("ribbon_ride")
         for arm in accounts.get("arms", []):
             aid = arm.get("id", "?")
-            if aid in ("safe-1", "kalshi-1") or str(aid).startswith("mes-"):
+            # STATUS-DERIVED (2026-08-28 fix, was a hardcoded name blocklist that missed
+            # risky-3's SAME-DAY retirement and kept rendering a retired arm's resolved exit
+            # shape as if it would trade tomorrow): only arms actually accepting new SPY 0DTE
+            # entries belong in "Tomorrow's exits" -- status!='active' covers safe-1/risky-3/
+            # weekly-1(pending_build)/mes-*(pending_build|dormant) without new exclusions
+            # needed the next time a roster changes.
+            if arm.get("status") != "active" or arm.get("instrument") != "SPY_0DTE_OPTION":
                 continue
             sh = _fx._exit_shape_dict(ribbon, arm)
             ladder = sh.get("pre_tp1_ladder")

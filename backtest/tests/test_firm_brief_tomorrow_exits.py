@@ -15,6 +15,7 @@ What must never rot:
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -25,7 +26,22 @@ if str(SCRIPTS) not in sys.path:
 
 import firm_brief as fb  # noqa: E402
 
-ACTIVE_ARMS = ("safe-2", "bold-2", "safe-3", "risky-1", "risky-3")
+ACCOUNTS_PATH = REPO / "automation" / "state" / "fleet" / "accounts.json"
+
+
+def _live_active_spy_arms() -> tuple:
+    """Derived from accounts.json, NEVER hardcoded (2026-08-28 fix -- the old hardcoded
+    5-tuple silently included risky-3 after its SAME-DAY retirement, since this test's
+    fixed list and firm_brief.py's old name-blocklist agreed with each other while both
+    were equally stale). Mirrors firm_brief.render_tomorrow_exits_lines()'s own filter."""
+    cfg = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
+    return tuple(
+        str(a["id"]) for a in cfg.get("arms", [])
+        if a.get("status") == "active" and a.get("instrument") == "SPY_0DTE_OPTION"
+    )
+
+
+ACTIVE_ARMS = _live_active_spy_arms()
 
 
 def test_every_active_arm_renders_with_ladder():
