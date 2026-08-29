@@ -30,28 +30,54 @@ better *and* dramatically more expensive. The architecture below spends the 15×
 That is most of what this repo does. Engine work, exit-manager changes, gate wiring — one
 context, many dependencies. **Spawning agents at those is paying 15× for a worse answer.**
 
-### The cost reality on this box
-Claude runs on the **$200/mo Max pool, shared with the live heartbeat** (already a documented
-scar: interactive hours starve the heartbeat). A "Sonnet army" during RTH is not a budget
-question, it is a **trading-outage** question. J's own prior lesson — *multi-agent = 3-10×
-tokens, split by context* — was right and, per Anthropic's measurement, **understated**.
+### The cost reality on this box — corrected 2026-08-29
+> ⚠️ **This section's first draft was wrong, and J caught it within the hour.** It claimed a
+> Sonnet army during RTH was a "trading-outage question" because the heartbeat shares the Max
+> pool. **That mechanism is dead.** Classic gate-provenance failure: I optimised under a
+> constraint without auditing where it came from.
+
+**The live engine spends zero Anthropic tokens.** `heartbeat_core.py` is 3,267 lines of
+deterministic Python; its docstring states *"No LLM on the hot path"*, and its only model layer
+(2 **free** models via groq/cerebras/gemini) has been disabled since 2026-08-12
+(`GAMMA_FREE_MODEL_VETO` defaults `0`). The LLM heartbeat was retired **2026-06-25** — the
+"shared pool starves ticks" line in CLAUDE.md outlived the thing it described by two months.
+
+**The only paid process inside 09:30–15:55 ET** is `Gamma_ConductorRTH`: Sonnet, low effort,
+**$0.50/day cap**, 13 fires, and by its own registration it *"NEVER fans out an agent, NEVER
+ships, NEVER places an order."*
+
+**So: nothing a Claude session does can starve the trading engine.** The market-hours discipline
+rule stands on **Rule 9** (no mid-session rule changes) — a real reason — not on tokens.
+
+What survives unchanged: the **15× token multiple is Anthropic's own measurement**, and the
++90.2% applies to *breadth-first research*, not shared-context coding. That is a spend-efficiency
+argument, not a safety one. Spend is J's call; the engine is not at risk either way.
 
 ---
 
 ## The tier map — who does what
 
-| Tier | Runs on | Cost | Job | Never |
-|---|---|---|---|---|
-| **Judgment** | Opus/Fable, 1 session | high | Decompose, adjudicate, synthesise, ship/kill calls | Mechanical execution |
-| **Execution** | Sonnet subagents, **≤5**, bounded | 15× multiplier | Isolated verbose work whose output must NOT flood main context | Anything needing back-and-forth |
-| **The army** | **Ollama, local, `$0`** — `qwen3:14b`, `qwen3.6:35b`, `claude-local` | free | Breadth: sweeps, candidate generation, adversarial refutation, scoring at n=hundreds | Any hot path or live-trade decision |
-| **The spine** | Deterministic Python + hooks + Task Scheduler (152 tasks) | `$0` | Everything on a clock; all glue and routing | — |
+**J directive 2026-08-29: "Opus orchestrator with Sonnet, Ollama only for menial small tasks."**
+This is the shape Anthropic measured the +90.2% on, and with the heartbeat myth dead there is no
+safety argument against it.
 
-**The army is Ollama, not Sonnet.** That is the answer to "army of Sonnet or bigger swarm": a
-free local swarm can run 100 refutation passes for the token cost of zero Sonnet subagents, and
-[`automation/swarm/`](../../automation/swarm/) is already wired for it. Sonnet is a *scalpel* —
-five of them, each with a hard boundary. Paid breadth is the failure mode Anthropic names first:
-> Early systems exhibited: spawning "50 subagents for simple queries".
+| Tier | Runs on | Job | Never |
+|---|---|---|---|
+| **Orchestrator** | **Opus/Fable — exactly one** | Decompose, set task boundaries, adjudicate, synthesise, ship/kill | Mechanical execution — it writes the spec, workers run it |
+| **The army** | **Sonnet subagents** — the real workers, scaled to task complexity | Parallel investigation, review, sweeps, per-item verification, migration | Work needing tight back-and-forth with the orchestrator |
+| **Menial** | Ollama local `$0` — `qwen3:14b`, `qwen3.6:35b` | Small mechanical jobs: classify, extract, dedupe, summarise-one-file, format | Judgment, adjudication, anything on a live-trade path |
+| **The spine** | Deterministic Python + hooks + Task Scheduler (152 tasks) | Everything on a clock; all glue and routing | — |
+
+**Sizing, per Anthropic — scale effort to complexity, do not fix a number:**
+> simple fact-finding needs one agent with 3-10 tool calls; complex research may use "more than
+> 10 subagents with clearly divided responsibilities."
+
+The named failure mode is the opposite of caution — it is *indiscriminate* fan-out:
+> Early systems exhibited: spawning "50 subagents for simple queries", agents "scouring the web
+> endlessly for nonexistent sources", and subagent work duplication from vague task descriptions.
+
+So the discipline is **boundaries, not headcount.** Ten Sonnets with disjoint, well-specified
+scopes is cheap and correct; three with overlapping vague scopes is waste at any size.
 
 ---
 
@@ -122,14 +148,20 @@ capped instead of estimated.
 
 ## The rules that keep this from bankrupting the pool
 
-1. **Default is ONE context.** Delegate only when a side task would flood main context, or needs
-   tool restriction. "It feels parallel" is not a reason.
-2. **Breadth goes to Ollama. Judgment goes to Opus. Sonnet is 5 scalpels, never an army.**
-3. **No paid fan-out during 09:30–15:55 ET.** The heartbeat shares the pool.
-4. **Every delegation carries the four things.** No objective + schema + boundaries → no spawn.
-5. **Every autonomous fire states its $/day before it is scheduled** (OP-3), now measurable via
-   `total_cost_usd`.
-6. **A goal without a completion test is not a goal.**
+1. **Opus orchestrates, Sonnet works, Ollama does menial.** Opus never does mechanical execution;
+   Ollama never makes a judgment call.
+2. **Fan out on breadth, stay single-context on depth.** Independent parallel investigation →
+   agents. Shared-context engine work with many dependencies → one context. This is Anthropic's
+   own boundary, and it is about answer *quality*, not cost.
+3. **Every delegation carries the four things**: objective · exact return schema · which
+   tools/files · what NOT to touch. No boundaries → no spawn. Vague scopes are the documented
+   cause of duplicated work.
+4. **Size to the task, not to a constant.** 1 agent for a fact; 10+ for a real sweep.
+5. **Every autonomous fire states its $/day before it is scheduled** (OP-3) — now *measurable*,
+   not estimated, via `--output-format json` → `total_cost_usd`.
+6. **A goal without a falsifiable completion test is not a goal.**
+7. **Audit a constraint's provenance before optimising under it.** This file's own first draft
+   failed that test within an hour of being written (see the corrected cost section).
 
 ## Related
 

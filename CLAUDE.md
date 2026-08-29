@@ -6,7 +6,7 @@
 >
 > **Audit history & doctrine evolution:** [CHANGELOG.md](CHANGELOG.md). Don't touch CLAUDE.md when fixing a typo'd update entry — touch the changelog.
 
-> **J discipline reminder:** No interactive Claude sessions during 09:30–15:55 ET — load-bearing. Heartbeat runs on the Max subscription (shared pool); a market-hours interactive session can starve ticks. No automated guard after OP-32 removal (2026-05-23) — discipline is the only guard.
+> **J discipline reminder:** No interactive Claude sessions during 09:30–15:55 ET — load-bearing, but for **Rule 9 (no mid-session rule changes), not for tokens.** ⚠️ Provenance corrected 2026-08-29 (J challenged it; he was right): the "heartbeat shares the Max pool, a session can starve ticks" rationale **died on 2026-06-25** when the LLM heartbeat was retired. `heartbeat_core.py` is 3,267 lines of deterministic Python — its own docstring says *"No LLM on the hot path"* — and its only model layer (2 FREE models, groq/cerebras/gemini) has been OFF since 2026-08-12. **The live engine spends ZERO Anthropic tokens; nothing you do in a Claude session can starve it.** The sole RTH pool consumer is `Gamma_ConductorRTH` (Sonnet, low effort, **$0.50/day cap**, 13 fires, never fans out an agent). No automated guard after OP-32 removal (2026-05-23) — discipline is the only guard.
 
 ---
 
