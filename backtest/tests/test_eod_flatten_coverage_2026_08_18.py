@@ -50,13 +50,16 @@ def test_every_active_spy_arm_is_covered() -> None:
 
 
 def test_the_three_fleet_arms_specifically_are_covered() -> None:
-    """Pins the exact arms that were missing, so a regression names itself."""
-    for arm in ("safe-3", "risky-1", "risky-3"):
+    """Pins the exact arms that were missing, so a regression names itself.
+    risky-3 dropped 2026-08-28 (accounts.json status active->retired, account repurposed for
+    the weekly-1 non-SPY lane) -- was 3 fleet arms covered here, now 2 (safe-3, risky-1)."""
+    for arm in ("safe-3", "risky-1"):
         assert arm in ef.ACCOUNTS, f"{arm} lost EOD flatten coverage (it was added 2026-08-18)"
 
 
 def test_retired_and_futures_arms_are_excluded() -> None:
     assert "safe-1" not in ef.ACCOUNTS, "retired arm should not be flattened"
+    assert "risky-3" not in ef.ACCOUNTS, "retired arm should not be flattened"
     assert not any(str(a).startswith("mes") for a in ef.ACCOUNTS), "futures arm is not SPY options"
 
 

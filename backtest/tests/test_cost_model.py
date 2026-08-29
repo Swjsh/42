@@ -224,15 +224,19 @@ def test_fee_breakdown_spread_adjustment_uses_repo_standing_slippage_constant():
 # load_roster -- derived from accounts.json, never hardcoded (task requirement)
 # =============================================================================
 
-def test_load_roster_matches_the_5_active_real_fills_arms():
+def test_load_roster_matches_the_4_active_real_fills_arms():
+    # risky-3 retired 2026-08-28 (accounts.json status active->retired, account repurposed
+    # for the weekly-1 non-SPY lane) -- was 5 arms, now 4. See accounts.json's risky-3
+    # `retired_reason` field for the full rationale.
     roster = m.load_roster()
-    assert set(roster) == {"safe-2", "bold-2", "safe-3", "risky-1", "risky-3"}
+    assert set(roster) == {"safe-2", "bold-2", "safe-3", "risky-1"}
 
 
 def test_load_roster_excludes_retired_and_non_real_fills_arms():
     roster = m.load_roster()
-    # safe-1 is status=retired; mes-linear-sim/mes-mnq-div-futures are not real_fills
+    # safe-1 and risky-3 are status=retired; mes-linear-sim/mes-mnq-div-futures are not real_fills
     assert "safe-1" not in roster
+    assert "risky-3" not in roster
     assert "mes-linear-sim" not in roster
     assert "mes-mnq-div-futures" not in roster
 

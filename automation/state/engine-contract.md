@@ -10,12 +10,12 @@ Every validated strategy in §2 runs on EVERY active arm via `fleet_executor.pla
 
 | arm | cell | execution | live | gate | strike | note |
 |---|---|---|---|---|---|---|
-| `safe-3` | safe x tight | fleet_rest | ✅ | min_triggers=2, confluence/sequence | bold tier table (patch) | active |
+| `safe-3` | safe x tight | fleet_rest | ✅ | min_triggers=2, confluence/sequence | bold_core | active |
 | `safe-2` **(CONTROL)** | safe x base (CONTROL) | mcp_heartbeat | ✅ | base (production default) | safe params.json v15 tier | active |
 | `safe-1` | safe x loose | fleet_rest | — | min_triggers=1 | bold tier table (patch) | retired |
-| `risky-1` | risky x FULL-SEND | fleet_rest | ✅ | {"full_send": true} | inherit bold | active |
+| `risky-1` | risky x FULL-SEND | fleet_rest | ✅ | min_triggers=2, confluence/sequence | inherit bold | active |
 | `bold-2` **(CONTROL)** | risky x base (CONTROL) | mcp_heartbeat | ✅ | base (production default) | bold params.json | active |
-| `risky-3` | risky x loose | fleet_rest | ✅ | min_triggers=1 | inherit bold | active |
+| `risky-3` | risky x loose | fleet_rest | — | min_triggers=1 | inherit bold | retired |
 
 Futures arms (not in the SPY 0DTE loop): `mes-linear-sim` (pending_build), `mes-mnq-div-futures` (dormant).
 
@@ -27,6 +27,7 @@ The exit shape is a property of the STRATEGY (the grind proved it), realized by 
 |---|---|---|
 | `ribbon_ride` | BEARISH_REJECTION_RIDE_THE_RIBBON<br>BULLISH_RECLAIM_RIDE_THE_RIBBON | stop -20% · TP1 +100% · sell 67% · trailing · runner 99.0x · trail 15% · arm +5% (post-TP1) · mode STRUCTURE (cat -50%) |
 | `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -6% · TP1 +40% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% (post-TP1) · mode premium |
+| `vwap_reclaim_failed_break` | VWAP_RECLAIM_FAILED_BREAK<br>vwap_reclaim_failed_break | stop -8% · TP1 +30% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% (post-TP1) · mode premium |
 
 Direction: both — the side comes from which side-block (bull/bear) fired; `enable_bullish=True` (safe). No per-strategy direction lock.
 

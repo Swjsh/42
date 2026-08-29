@@ -378,7 +378,8 @@ def test_fetch_active_arms_excludes_retired_safe1_and_pending_futures():
     arms = pr.fetch_active_arms()
     ids = {a["id"] for a in arms}
     assert "safe-1" not in ids, "frozen safe-1 (status=retired) must never be treated as enabled"
+    assert "risky-3" not in ids, "retired risky-3 (2026-08-28, status=retired) must never be treated as enabled"
     assert "mes-linear-sim" not in ids
     assert "mes-mnq-div-futures" not in ids
-    # The 5 real active equity arms as of this build (2026-07-27) must all be present.
-    assert {"safe-2", "safe-3", "bold-2", "risky-1", "risky-3"} <= ids
+    # The 4 real active equity arms as of this build (2026-08-28, risky-3 retired) must all be present.
+    assert {"safe-2", "safe-3", "bold-2", "risky-1"} <= ids

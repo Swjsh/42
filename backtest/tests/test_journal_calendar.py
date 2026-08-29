@@ -226,8 +226,9 @@ def test_summary_empty_view_reports_none_not_zero_rates():
 # =============================================================================
 
 def test_load_roster_matches_current_accounts_json_active_pa_arms():
+    # risky-3 retired 2026-08-28 (accounts.json status active->retired) -- was 5 arms, now 4.
     roster = jc.load_roster()
-    assert roster == ["safe-2", "bold-2", "safe-3", "risky-1", "risky-3"], (
+    assert roster == ["safe-2", "bold-2", "safe-3", "risky-1"], (
         "if this fails, accounts.json's active/PA roster changed -- update the arms, "
         "don't hardcode around this guard"
     )

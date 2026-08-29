@@ -203,23 +203,34 @@ def test_fleet_arms_are_wired_never_fabricated(day_bars):
 
 
 def test_fleet_arms_reflect_their_own_gate_strictness(day_bars):
-    """The 3 fleet arms carry DIFFERENT gate_override strictness (safe-3/risky-1 =
-    min_triggers=2+confluence-or-sequence, risky-3 = min_triggers=1) -- proves the wiring
-    threads each arm's OWN accounts.json config through plan_all, not one shared default.
-    Sampled at a handful of representative RTH times (not a full 5-min stride -- each bar
-    already costs 2 engine_cli subprocess spawns via the real safe/bold decide path, and
+    """The fleet arms carry DIFFERENT gate_override strictness (safe-3/risky-1 =
+    min_triggers=2+confluence-or-sequence) -- proves the wiring threads each arm's OWN
+    accounts.json config through plan_all, not one shared default. Sampled at a handful of
+    representative RTH times (not a full 5-min stride -- each bar already costs 2 engine_cli
+    subprocess spawns via the real safe/bold decide path, and
     test_real_enter_bear_call_is_reproduced_2026_07_17 already exercises the full-day sweep
-    elsewhere in this file) including the known 13:56 ENTER_BEAR ground-truth bar."""
+    elsewhere in this file), including 11:35/12:05 -- real risky-1 ENTER_BEAR bars, verified via
+    a full-day sweep this session (`python -c` one-off, not committed) after risky-3's
+    2026-08-28 retirement (accounts.json status->'retired') made the OLD sample
+    (9:35/10:30/13:56/14:30/15:30) go permanently HOLD-only: those 5 bars only ever cleared
+    risky-1's tight gate via risky-3's now-retired loose gate riding along, never on their own.
+    risky-3 is DELIBERATELY EXCLUDED from the arm loop below -- _decide_for_fleet_arm's own
+    status!='active' check (engine_step.py:447) means it now resolves FLEET_VIEW_PENDING FOREVER
+    (present-status read, not point-in-time -- a disclosed limitation, not a bug this test
+    should paper over) regardless of which historical day is replayed; asserting on it here
+    would be asserting a permanent tautology, not wiring fidelity. See risky-3's own
+    `retired_reason` field in accounts.json for the retirement rationale."""
     any_fleet_verdict_seen = False
-    for h, m in ((9, 35), (10, 30), (13, 56), (14, 30), (15, 30)):
+    for h, m in ((9, 35), (10, 30), (11, 35), (12, 5), (13, 56), (14, 30), (15, 30)):
         bar_et = dt.datetime(2026, 7, 17, h, m, tzinfo=ET)
         decisions = {d.arm: d for d in engine_step.step(REPLAY_DAY, bar_et, day_bars)}
-        for arm in ("fleet_safe_3", "fleet_risky_1", "fleet_risky_3"):
+        for arm in ("fleet_safe_3", "fleet_risky_1"):
             if decisions[arm].verdict in ("ENTER_BEAR", "ENTER_BULL"):
                 any_fleet_verdict_seen = True
     assert any_fleet_verdict_seen, (
-        "expected at least one fleet-arm ENTER across the sampled 2026-07-17 RTH bars -- "
-        "if this ever goes False, the wiring likely regressed to a permanently-inert HOLD"
+        "expected at least one active fleet-arm (safe-3/risky-1) ENTER across the sampled "
+        "2026-07-17 RTH bars -- if this ever goes False, the wiring likely regressed to a "
+        "permanently-inert HOLD"
     )
 
 

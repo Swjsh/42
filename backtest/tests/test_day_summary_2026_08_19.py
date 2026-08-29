@@ -341,9 +341,11 @@ def test_et_day_window_is_dst_aware_not_a_hardcoded_offset():
 
 
 def test_active_arms_are_derived_from_accounts_json_not_hardcoded():
+    # risky-3 retired 2026-08-28 (accounts.json status active->retired) -- was 5 arms, now 4.
     arms = ds.active_arms()
-    assert set(arms) == {"safe-2", "bold-2", "safe-3", "risky-1", "risky-3"}
+    assert set(arms) == {"safe-2", "bold-2", "safe-3", "risky-1"}
     assert "safe-1" not in arms, "retired arm must not be counted"
+    assert "risky-3" not in arms, "retired arm must not be counted"
 
 
 def test_option_vs_crypto_classification():
