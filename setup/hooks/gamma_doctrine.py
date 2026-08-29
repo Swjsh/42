@@ -216,9 +216,25 @@ def _check_goal_continuation(state: dict) -> int | None:
 
 
 def _session_state(session_id: str) -> tuple[Path, dict]:
+    """(path, state dict). A missing file, unreadable file, or malformed JSON all
+    return {} -- the common empty-state case. A file holding syntactically VALID
+    JSON that is not an object (a list, a number, a bare string) used to be
+    returned as-is: every caller immediately does `state.setdefault(...)`, which
+    raises on a non-dict and is swallowed by main()'s top-level fail-open catch --
+    so the call falls back to _ALLOW, but SILENTLY and PERMANENTLY for that
+    session_id, since nothing ever repairs the file. Confirmed live 2026-08-29:
+    a session-*.json containing `["not","a","dict"]` made the OP-0 Stop guard
+    return 0 on a message that should have been denied (2 on a clean session),
+    with no visible signal beyond a generic hook_error log row. Coercing to {}
+    here, matching the same isinstance guard _load_active_goal already uses for
+    the sibling goal-file case, makes a malformed state file behave exactly like
+    a missing one -- state resets for that session rather than the Stop guard
+    going dark for its remaining lifetime.
+    """
     path = _STATE_DIR / f"session-{(session_id or 'unknown')[:16]}.json"
     try:
-        return path, json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return path, data if isinstance(data, dict) else {}
     except Exception:
         return path, {}
 
