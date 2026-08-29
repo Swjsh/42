@@ -116,18 +116,12 @@ KNOWN_DEAD: dict[str, str] = {
     # by name on the live or sim exit surface. RESTORE (thread into exit_manager) or REMOVE.
     "runner_be_stop_after_tp1": "exit flag; runner BE behavior hardcoded in exit path (RESTORE-or-REMOVE)",
     "exit_all_on_runner_signal_if_tp1_unfired": "exit flag; hardcoded in exit path (RESTORE-or-REMOVE)",
-    # Macro bias inheritance v2: documented in params but never wired into a live consumer.
-    "macro_hard_veto_minutes": "macro-bias v2; not wired to any consumer (RESTORE-or-REMOVE)",
-    "macro_soft_modifier_minutes": "macro-bias v2; not wired to any consumer (RESTORE-or-REMOVE)",
-    "macro_soft_bull_threshold": "macro-bias v2; not wired to any consumer (RESTORE-or-REMOVE)",
-    "macro_soft_bear_threshold": "macro-bias v2; not wired to any consumer (RESTORE-or-REMOVE)",
-    # Liquidity gate: the live liquidity check is prose-approximate; these named thresholds
-    # are not read by the order path. RESTORE (drive pre_order_gate) or REMOVE.
-    "bid_ask_spread_max_cents": "liquidity gate; not read by order path (RESTORE-or-REMOVE)",
-    "bid_ask_spread_max_pct_of_mid": "liquidity gate; not read by order path (RESTORE-or-REMOVE)",
-    "delta_min_abs": "liquidity gate; not read by order path (RESTORE-or-REMOVE)",
-    "delta_max_abs": "liquidity gate; not read by order path (RESTORE-or-REMOVE)",
-    "liquidity_strike_retries_max": "liquidity gate; not read by order path (RESTORE-or-REMOVE)",
+    # Macro bias inheritance v2 (4 keys) + liquidity gate (6 keys, incl. open_interest_min
+    # which never made it into this dict -- see the audit note) were REMOVED from params.json
+    # entirely 2026-08-29 (conductor-weekend, GATE-RECENCY-REVALIDATION queue item,
+    # gate-recency-audit-2026-08-08.md ranks 14/15 CONFIRMED_DEAD) rather than restored --
+    # RESTORE-or-REMOVE resolved to REMOVE. See params.json's own
+    # _macro_section_RETIRED_2026_08_29 / _liquidity_gate_section_RETIRED_2026_08_29 doc keys.
     # Catalyst / journaling flags: aware-only toggles never consumed by code.
     "enable_news_no_trade_windows": "catalyst flag; no live consumer (RESTORE-or-REMOVE)",
     "enable_dealer_level_journaling": "journaling flag; no live consumer (RESTORE-or-REMOVE)",

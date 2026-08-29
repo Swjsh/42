@@ -98,10 +98,11 @@ _GATE_KEY_SUFFIXES = ("_gate", "_min", "_hard_cap", "_required")  # suffix famil
 # (These are enforced elsewhere by prose/constant, so a name-grep of the prompt
 #  is the wrong check for them. They are covered by other asserts where it matters.)
 _PRESENCE_EXCLUSIONS: dict[str, str] = {
-    # Liquidity-gate threshold — enforced in the heartbeat's liquidity section in
-    # PROSE ("open interest >= 500"), wired through params_overrides, not by literal
-    # key-name. Not a block-style entry gate.
-    "open_interest_min": "liquidity threshold, prose-referenced not key-named",
+    # open_interest_min RETIRED from params.json 2026-08-29 (conductor-weekend,
+    # GATE-RECENCY-REVALIDATION queue item) -- it was CONFIRMED_DEAD (zero real
+    # consumers; this exclusion entry's own "prose-referenced" claim was the only
+    # thing keeping it out of the dead-knob ratchet). No longer a params.json key,
+    # so no exclusion is needed -- entry removed rather than left dangling.
     # Filter-10 sub-knob — the heartbeat enforces it in prose ("Defensive level-tied
     # requirement still applies"); the boolean is consumed inside filters.py, not by
     # literal key-name in the prompt. Covered structurally by the filter_10 logic.
