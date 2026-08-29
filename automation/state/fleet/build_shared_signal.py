@@ -57,6 +57,10 @@ CORE_DECISIONS = REPO_ROOT / "automation" / "state" / "core-decisions.jsonl"
 TICK_MARKER = REPO_ROOT / "automation" / "state" / "core-decisions-tick.json"
 BEACON = REPO_ROOT / "automation" / "state" / "sight-beacon.json"
 OUT = FLEET_DIR / "shared-signal.json"
+# SUPER-TIER DAY WARNING LEDGER (2026-08-29, TWO-ACCOUNT-CONSOLIDATION handoff Section 3/6.3).
+# Append-only, one row per (date, side, setup) -- NOT per tick. Observation only: nothing
+# reads this to gate, size, or veto an entry. See _note_super_tier_day() for the why.
+SUPER_DAYS = FLEET_DIR / "super-tier-days.jsonl"
 
 _ENTERS = {"ENTER_BEAR", "ENTER_BULL"}
 
@@ -373,6 +377,110 @@ def _nearest_level(prices: list[float], spot, side: str, max_distance: float = 2
     return best
 
 
+def _classify_tier(triggers) -> str:
+    """The codebase's ONE tier vocabulary: SUPER / ELITE / LEVEL / TRENDLINE / BASE.
+
+    VERBATIM from `backtest/tools/elite_bear_level_reject_gate_ab.classify_tier`, which is
+    itself the extracted form of `backtest/lib/orchestrator.py`'s inline tier logic and the
+    convention every tier study in this repo re-implements. Copied rather than imported on
+    purpose: this producer runs on the 1-minute live path and must not take a backtest-tree
+    import (that tree pulls pandas/numpy). C14 drift guard:
+    `backtest/tests/test_super_tier_label_2026_08_29.py` asserts this function stays
+    byte-equivalent in BEHAVIOUR to the canonical one across the full trigger power-set.
+
+    WHY IT EXISTS HERE (TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29 Section 3):
+    the SUPER label is currently computed ONLY on the core path, so it is visible only on
+    safe-2 / bold-2 -- the two arms scheduled for retirement. All 13 historical SUPER rows
+    sit on those arms. The fleet path collapses the same signals to "ELITE" because
+    `_ribbon_strategy_entries` only asks `bool(confluence)`, and every SUPER row carries
+    confluence. Retiring the arms would delete the only place the label is observable.
+
+    ⚠ CALIBRATION -- READ BEFORE QUOTING A p-VALUE OFF THIS LOG. Two different events get
+    called "a SUPER day", and they are NOT interchangeable:
+
+      (a) FILL-flagged  -- a SUPER-tier signal was actually TAKEN by an arm. This is the
+          event the handoff measured: on the survivor pair (safe-3 + risky-1), 6 such days
+          gave n=48 / -$2,394 / WR 22.9% against 23 other days at +$4,527 / WR 32.2%,
+          day-label permutation p = 0.021 (N=200,000), clean negative control (TRENDLINE
+          days, k=11, p = 0.495). Reproduced independently 2026-08-29.
+      (b) PRODUCER-flagged -- a SUPER-tier signal PASSED here, filled or not. This is what
+          this module can see and therefore what gets logged. Measured by replaying the
+          paired safe+bold core ledger (17,526 ticks, 50 days) through build_from_rows:
+          flags 11/50 days (22%), recovers 6 of the 7 historical SUPER-fill dates (misses
+          2026-07-27), and on the survivor pair gives 8 days at n=59 / -$1,661 / WR 23.7%
+          vs 21 days at +$3,794 / WR 32.9% -- SAME DIRECTION, but p = 0.077, i.e. NOT
+          significant on its own. The dilution is days where a SUPER signal passed and
+          nobody filled it.
+
+    So: this log preserves a CANDIDATE warning, not the p=0.02 result. The forward
+    evaluation must join these rows to fills on (date, side, setup) -- which is exactly why
+    those three fields are written -- to reconstruct definition (a) out of sample. Do not
+    cite p=0.021 for anything derived from this file alone.
+    """
+    trig = set(triggers or [])
+    has_conf = "confluence" in trig
+    has_seq = "sequence_rejection" in trig or "sequence_reclaim" in trig
+    has_flip = "ribbon_flip" in trig
+    has_level = any(t in ("level_rejection", "level_reclaim") for t in trig)
+    has_trendline = "trendline_rejection" in trig
+    n = len(trig)
+    if (has_conf and has_flip) or n >= 3:
+        return "SUPER"
+    elif has_conf or has_seq:
+        return "ELITE"
+    elif has_level:
+        return "LEVEL"
+    elif has_trendline:
+        return "TRENDLINE"
+    else:
+        return "BASE"
+
+
+def _note_super_tier_day(now: datetime, side: str, setup: str, triggers: list) -> None:
+    """Day-level WARNING sink for SUPER-tier signals. Observation only -- by design.
+
+    ⚠ THIS IS NOT AN ENTRY FILTER AND MUST NOT BECOME ONE without its own pre-registered
+    A/B. The evidence behind it is a 6-day, day-level association (p = 0.021), not a
+    validated per-trade veto: the survivors' own trades on those days are the sample, so
+    turning it into a gate would be fitting the filter on the data that motivated it.
+    It is written so that the signal SURVIVES the retirement of safe-2 / bold-2 and can be
+    evaluated forward on clean out-of-sample days.
+
+    Deduped per (date, side, setup) so the 1-minute producer appends at most a handful of
+    rows a day, never one per tick. Fail-safe: any IO/serialisation problem is swallowed --
+    a warning sink must never be able to take down the live signal producer.
+    """
+    try:
+        day = now.date().isoformat()
+        key = f"{day}|{side}|{setup}"
+        if SUPER_DAYS.exists():
+            with SUPER_DAYS.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    if not line.strip():
+                        continue
+                    try:
+                        prev = json.loads(line)
+                    except ValueError:
+                        continue
+                    if f"{prev.get('date')}|{prev.get('side')}|{prev.get('setup')}" == key:
+                        return  # already flagged this (date, side, setup)
+        row = {
+            "date": day,
+            "ts_et": now.isoformat(),
+            "side": side,
+            "setup": setup,
+            "tier": "SUPER",
+            "triggers": sorted(str(t) for t in (triggers or [])),
+            "kind": "day_warning",
+            "effect": "none (observation only; not a gate)",
+            "provenance": "TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29 s3/s6.3",
+        }
+        with SUPER_DAYS.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row) + "\n")
+    except Exception:
+        return  # never let the warning sink break the producer
+
+
 def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None = None) -> list[dict]:
     """ribbon_ride strategy-set entries re-keyed from the core row's passed side-blocks.
     One entry per passed side. Pure restructuring of data build() already mapped, PLUS a
@@ -387,6 +495,13 @@ def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None 
             continue
         trigs = list(blk.get("triggers_fired") or [])
         elite = bool(blk.get("confluence")) or any("sequence" in str(t).lower() for t in trigs)
+        # SUPER-TIER LABEL (2026-08-29). Computed ADDITIVELY into `quality_tier`; `quality`
+        # above is deliberately UNTOUCHED because fleet_executor._gate_block_for_entry tests
+        # `quality == "ELITE"` to synthesise confluence -- writing "SUPER" into `quality`
+        # would silently flip that to False and change gating. `quality_tier` is read by
+        # nothing in the execution path (blast-radius checked 2026-08-29: the executor reads
+        # only name/side/setup/triggers/quality/confidence/spot from each entry).
+        _tier = _classify_tier(trigs)
         # LEVEL PROVENANCE (G12, 2026-07-09 night): trigger_level_exact rides the side-block
         # (bear/bull dict already carries it, see build()/comment above) -- pure passthrough,
         # None-safe. trigger_level (the _nearest_level proximity heuristic) is UNCHANGED and
@@ -400,11 +515,14 @@ def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None 
                 else "BULLISH_RECLAIM_RIDE_THE_RIBBON"),
             "triggers": trigs,
             "quality": "ELITE" if elite else "BASE",
+            "quality_tier": _tier,
             "est_premium": None,
             "spot": spot,
             "trigger_level": _nearest_level(levels, spot, side),
             "trigger_level_exact": (float(_tl_exact) if _tl_exact is not None else None),
         })
+        if _tier == "SUPER":
+            _note_super_tier_day(now, side, out[-1]["setup"], trigs)
     return out
 
 
