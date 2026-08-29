@@ -454,6 +454,32 @@ BEAR_REJECTION: PF 1.46, WR 50% (n=34) vs bull PF 1.29 (n=86); ribbon-BEAR-at-en
 4. **bold-2 reliability pair:** heartbeat missed journaling 3 round trips on 08-27 (caught by reconcile) + 08-13 17-min broker-API hang left exit-state stale. Candidate: stale-exit-state watchdog.
 5. 10/147 August round trips have no matching ENTER decision row (ledger completeness) — enumerate and classify.
 
+### [PORTFOLIO-1] One scoreboard before any second lane goes live (2026-08-29)
+J's ask: *"Gamma needs to be doing everything — futures, crypto, SPY 0DTE, non-SPY, managing
+it all, monitoring, improving, money-motivated but cautious and cost-conscious."*
+
+**The rig does not lack activity — 152 scheduled tasks already fire.** It lacks one number per
+lane in one currency. Today's reality from `accounts.json`: SPY paper arms trade; FUTURES-LINEAR
+is `pending`, FUTURES-DIV `enabled:false`, WEEKLY-BASKET `PENDING SIGNAL`, multi-1 stopped on its
+own frozen gate, crypto is gym-only, Kalshi needs J's key. Five lanes parked, one lane live.
+
+**Turning parked lanes on now is the expensive answer.** Every added live lane during the
+September window adds correlated risk to the same book and dilutes attention from the one gate
+that decides whether real money gets armed at all. Cost-conscious = the opposite of breadth here.
+
+**What "doing everything" should mean instead — build in this order:**
+1. `analysis/portfolio-scoreboard.json`, nightly, deterministic: per lane → expected $/day **net
+   of costs**, PF with bootstrap CI-lower, n, days-since-last-signal, $/day of compute burned.
+   One currency, so lanes are comparable. Reuses [SEPT-DATA-1]'s enriched trade table.
+2. Lanes compete for **attention**, not capital. Nothing leaves shadow until it clears the same
+   `go_live_gate.py` PF CI-lower > 1.0 bar SPY must clear. A parked lane's job is to produce
+   evidence on a clock, not to trade.
+3. After the freeze lifts (~09-29) and the gate returns a verdict, **exactly one** lane gets
+   promoted — chosen by the scoreboard, not by enthusiasm.
+
+Prereq now satisfied: the freeze is enforced rather than requested — see
+[`../infra/DOCTRINE-HOOKS.md`](../infra/DOCTRINE-HOOKS.md).
+
 ---
 
 ## Tracking
