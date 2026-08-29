@@ -2694,6 +2694,28 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                 "min_entry_premium": _min_prem}
     # sizing: tier base qty, then cap-aware clamp (L180/C11)
     qty = int(params.get("min_contracts", 3))
+    # TIGHT-LADDER PER-ENTRY CAPS (PREREG-TIGHT-LADDER-2026-08-28 controls #1/#2/#3,
+    # 2026-08-29): max_contracts_per_entry + max_position_dollars, BOTH OFF unless
+    # set in params.json/aggressive/params.json. Runs BEFORE the existing
+    # affordability clamp so a CONFLICT (even min_contracts breaches the dollar
+    # cap) short-circuits with its own distinct, countable status instead of
+    # falling through to a sub-floor qty or a generic risk-gate deny. See
+    # backtest/lib/risk_gate.py#cap_entry_qty for the full mechanism.
+    _cap = rg.cap_entry_qty(proposed_qty=qty, premium=mid, params=params)
+    if _cap["skip"]:
+        return {"status": "SKIP_MAX_POSITION_CONFLICT", "symbol": symbol, "premium": mid,
+                "reason": _cap["reason"]}
+    # VISIBILITY (OP-33): additive-only note, mirrors fleet_executor.finalize's own
+    # breadcrumb convention for the same mechanism -- most core ticks never clamp
+    # here (qty starts at min_contracts, already <= max_contracts_per_entry), but
+    # a future min_contracts bump or a high-premium dollar-cap clamp should still
+    # be visible in the returned row, not just in the final qty number.
+    _tight_ladder_note = None
+    if _cap["capped_by_contracts"] or _cap["capped_by_dollars"]:
+        _bits = [b for b, flag in (("max_contracts_per_entry", _cap["capped_by_contracts"]),
+                                    ("max_position_dollars", _cap["capped_by_dollars"])) if flag]
+        _tight_ladder_note = f"qty capped {qty}->{_cap['qty']}: tight-ladder {'+'.join(_bits)}"
+    qty = _cap["qty"]
     afford = rg.max_affordable_qty(equity=equity, premium=mid, params=params)
     if afford and qty > afford:
         qty = afford
@@ -2782,6 +2804,8 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     plan = {"status": "WOULD_PLACE" if dry else "PLACING", "symbol": symbol, "side": side,
             "strike": strike, "qty": qty, "premium": mid, "tp": tp, "stop": stop, "equity": equity,
             "setup": setup_name, "nbbo": nbbo}
+    if _tight_ladder_note:
+        plan["tight_ladder_note"] = _tight_ladder_note
     if dry:
         plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only (no fill in dry mode)
         return plan

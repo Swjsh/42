@@ -206,7 +206,15 @@ class TestRule6AndKillSwitch:
 
     def test_risk_cap_still_binds_at_floor3_for_an_oversized_proposal(self):
         """Lowering the FLOOR does not raise the CEILING -- a qty that exceeds what
-        equity*risk_cap allows must still be denied at floor=3."""
+        equity*risk_cap allows must still be denied at floor=3.
+
+        UPDATED 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28.md control #1):
+        aggressive/params.json now also carries max_contracts_per_entry=5, a
+        check_order rule (section 5b) checked BEFORE RISK_CAP (section 6). A
+        20-lot proposal trips that flat ceiling before it ever reaches the
+        pct-of-equity cap this test originally targeted. The thesis is
+        unchanged (an oversized proposal must still be denied); the SPECIFIC
+        ceiling that catches qty=20 first has changed."""
         p = dict(_agg_params())
         p["min_contracts"] = 3
         d = rg.check_order(
@@ -223,7 +231,7 @@ class TestRule6AndKillSwitch:
             settled_cash_available=100_000.0, same_day_entries_used=0,
         )
         assert d.allowed is False
-        assert d.code == rg.CODE_RISK_CAP
+        assert d.code == rg.CODE_MAX_CONTRACTS_PER_ENTRY
 
 
 # --------------------------------------------------------------------------------------

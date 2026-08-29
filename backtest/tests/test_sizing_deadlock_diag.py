@@ -50,7 +50,15 @@ EQ_BOLD_2 = 1197.52
 
 
 def _check_order_denies_for_cap(equity, premium, qty, params) -> bool:
-    """True iff the REAL gate refuses this order for a per-order SIZING reason."""
+    """True iff the REAL gate refuses this order for a per-order SIZING reason.
+
+    UPDATED 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28.md controls #1/#2): both
+    live params files now carry max_contracts_per_entry/max_position_dollars,
+    two NEW check_order sizing-deny codes. Omitting them here would make this
+    helper's own "any_qty_ok" ground truth WRONG (it would treat a qty denied
+    ONLY by one of these two new codes as "fine"), which is precisely the
+    silent-divergence class this file's anti-divergence guard exists to catch
+    -- the bug was in this helper's code allowlist, not in explain_block."""
     d = rg.check_order(
         "test", equity=equity, start_of_day_equity=equity, proposed_qty=qty,
         premium=premium, setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
@@ -58,7 +66,8 @@ def _check_order_denies_for_cap(equity, premium, qty, params) -> bool:
         prior_stops_today=[], params={**params, "pdt_gate_mode": "margin_pdt"},
     )
     return (not d.allowed) and d.code in (
-        rg.CODE_RISK_CAP, rg.CODE_MAX_PREMIUM_TIER, rg.CODE_MIN_CONTRACTS)
+        rg.CODE_RISK_CAP, rg.CODE_MAX_PREMIUM_TIER, rg.CODE_MIN_CONTRACTS,
+        rg.CODE_MAX_CONTRACTS_PER_ENTRY, rg.CODE_MAX_POSITION_DOLLARS)
 
 
 # --- 1. ANTI-DIVERGENCE: the diagnostic must agree with the real gate ---------

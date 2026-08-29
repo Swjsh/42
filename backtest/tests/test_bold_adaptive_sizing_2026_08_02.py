@@ -205,6 +205,12 @@ class TestKillSwitchAndRiskCapIndependence:
             assert d.code == rg.CODE_KILL_SWITCH
 
     def test_risk_cap_still_binds_at_the_fallback_tier_for_an_oversized_proposal(self):
+        """UPDATED 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28.md control #1):
+        aggressive/params.json now also carries max_contracts_per_entry=5, a
+        check_order rule (section 5b) checked BEFORE RISK_CAP (section 6). A
+        20-lot proposal trips that flat ceiling before it ever reaches the
+        pct-of-equity cap this test originally targeted -- same thesis (an
+        oversized proposal must still be denied), different ceiling."""
         p = dict(_agg_params()); p["min_contracts"] = 3
         d = rg.check_order(
             "bold-2", equity=1197.52, start_of_day_equity=1197.52, proposed_qty=20,
@@ -221,7 +227,7 @@ class TestKillSwitchAndRiskCapIndependence:
             settled_cash_available=100_000.0, same_day_entries_used=0,
         )
         assert d.allowed is False
-        assert d.code == rg.CODE_RISK_CAP
+        assert d.code == rg.CODE_MAX_CONTRACTS_PER_ENTRY
 
     def test_risk_cap_re_derives_notional_against_the_ACTUAL_resolved_qty_not_a_stale_one(self):
         """A premium in the unlocked band resolves qty=3 adaptively; check_order at qty=5

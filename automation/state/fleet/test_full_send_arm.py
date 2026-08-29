@@ -325,9 +325,20 @@ def test_no_add_one_position_rule_still_blocks_a_full_send_entry():
 
 
 def test_per_trade_risk_cap_still_blocks_a_full_send_entry():
-    """Rule 6 -- min-size does not exempt the notional cap."""
+    """Rule 6 -- min-size does not exempt the notional cap.
+
+    UPDATED 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28.md control #2/#3):
+    at premium $9.99, min_contracts(5)*$9.99*100=$4,995 breaches BOTH the old
+    equity-pct RISK_CAP AND the NEW flat $1,000 max_position_dollars cap --
+    and the new cap's conflict rule (risk_gate.cap_entry_qty) now fires FIRST,
+    inside finalize(), before risk_gate.check_order (and its RISK_CAP branch)
+    is ever reached: even min_contracts can't fit under $1,000 at this premium,
+    so the order is a control-#3 SKIP, not a control-#6 size-down-refused. The
+    thesis this test guards -- min-size does not exempt a full-send entry from
+    a notional cap -- is UNCHANGED; the specific cap that binds first at this
+    premium has changed from the equity-pct RISK_CAP to the flat dollar cap."""
     d = _finalize(_fs_plan(), premium=9.99)
-    assert d.action == "HOLD" and d.risk_code == "RISK_CAP"
+    assert d.action == "HOLD" and d.risk_code == "MAX_POSITION_CONFLICT"
 
 
 def test_pdt_rule_still_blocks_a_full_send_entry():

@@ -152,11 +152,30 @@ def test_deny_before_shrink_after_at_risky3_real_equity():
     BEFORE (quoted): finalize()'s pre-2026-08-03 shape called risk_gate.check_order directly
     on plan.qty with no affordability pre-check -- reproduced here by calling check_order
     directly with the UNSHRUNK tiered qty, which is byte-identical to what finalize() used to
-    send. This must DENY (RISK_CAP): notional $1,200.00 > cap $1,060.805 (50% of $2,121.61).
+    send. This must DENY: notional $1,200.00 > cap $1,060.805 (50% of $2,121.61).
 
     AFTER (quoted): the REAL, current fleet_executor.finalize() (not a mock, not a
-    reimplementation) on the identical inputs. This must ALLOW at the shrunk qty=7: notional
-    $1,050.00 <= cap $1,060.805.
+    reimplementation) on the identical inputs. This must ALLOW at a shrunk qty.
+
+    UPDATED 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28.md controls #1/#2, backtest/
+    lib/risk_gate.py#cap_entry_qty): aggressive/params.json now also carries
+    max_contracts_per_entry=5 and max_position_dollars=1000. Both the BEFORE and
+    AFTER numbers below moved as a DIRECT, understood, and correct consequence:
+      BEFORE now denies MAX_CONTRACTS_PER_ENTRY (qty=8 > 5), not RISK_CAP -- that
+        newer check_order rule (section 5b) is checked before RISK_CAP (section 6)
+        and 8 trips it regardless of premium.
+      AFTER now ALLOWs at qty=5 (not 7): cap_entry_qty clamps 8->5 BEFORE
+        _shrink_qty_to_affordable ever runs, and 5 contracts @ $1.50 = $750
+        already clears BOTH the $1,060.805 pct-cap and the $1,000 flat cap
+        without any further pct-based shrink being needed -- the ORIGINAL
+        2026-08-03 shrink-not-deny mechanism has nothing left to do at this
+        specific qty/premium once the newer, tighter cap has already acted.
+      This does NOT mean shrink-not-deny is dead: test_safe_arm_at_2k_boundary_
+        also_shrinks_not_denies (below) uses a tiered qty (5) that the new caps
+        don't touch, and still demonstrates the pct-cap shrink 5->4 exactly as
+        before -- confirming the OLDER mechanism is untouched by this ship, only
+        this ONE scenario's numbers moved because a NEWER, tighter cap now acts
+        first.
     """
     equity = RISKY3_LIVE_EQUITY
     premium = 1.50
@@ -179,9 +198,10 @@ def test_deny_before_shrink_after_at_risky3_real_equity():
           f"allowed={before_decision.allowed} code={getattr(before_decision, 'code', None)} "
           f"reason={before_decision.reason!r}")
     assert before_decision.allowed is False, "pre-fix semantics must DENY this exact order"
-    assert before_decision.code == "RISK_CAP", (
-        f"expected RISK_CAP, got {before_decision.code} -- re-derive the scenario if params "
-        f"or risk_gate's own cap math changed"
+    assert before_decision.code == "MAX_CONTRACTS_PER_ENTRY", (
+        f"expected MAX_CONTRACTS_PER_ENTRY (2026-08-29: qty 8 > max_contracts_per_entry 5, "
+        f"checked before RISK_CAP), got {before_decision.code} -- re-derive the scenario if "
+        f"params or risk_gate's own cap math changed"
     )
 
     # --- AFTER: the REAL, current finalize() (this repo's actual shipped code) -------------
@@ -199,8 +219,11 @@ def test_deny_before_shrink_after_at_risky3_real_equity():
         f"risk_code={after_decision.risk_code} reason={after_decision.reason}"
     )
     assert after_decision.risk_code == "ALLOW"
-    assert after_decision.qty == 7, f"expected shrunk qty=7, got {after_decision.qty}"
-    assert "shrunk 8->7" in after_decision.reason
+    # 2026-08-29: cap_entry_qty clamps 8->5 (max_contracts_per_entry) before the
+    # pct-cap shrink ever runs; 5 @ $1.50 already fits, so the qty stops at 5,
+    # not the pre-tight-ladder 7.
+    assert after_decision.qty == 5, f"expected tight-ladder-capped qty=5, got {after_decision.qty}"
+    assert "qty capped 8->5: tight-ladder max_contracts_per_entry" in after_decision.reason
 
     # --- Cross-check: the shrunk order really is legal (never below Rule 6's floor, and its
     #     own notional really does clear the cap it was denied against above) -------------
@@ -243,7 +266,14 @@ def test_genuine_deadlock_still_denies_both_before_and_after():
     print(f"[shrink-not-deny deadlock proof] qty={tiered_qty} @ ${premium}: "
           f"action={after_decision.action} risk_code={after_decision.risk_code}")
     assert after_decision.action == "HOLD", "a genuine deadlock must still HOLD after this fix"
-    assert after_decision.risk_code in ("RISK_CAP", "MAX_PREMIUM_TIER")
+    # 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28.md control #3): at $3.00 premium,
+    # cap_entry_qty's OWN conflict rule now identifies this exact deadlock EARLIER
+    # than check_order would -- even min_contracts(5) would cost $1,500, breaching
+    # BOTH max_contracts_per_entry (12>5) and max_position_dollars ($1,500>$1,000)
+    # -- so finalize() returns MAX_POSITION_CONFLICT before check_order (and its
+    # RISK_CAP/MAX_PREMIUM_TIER branches) is ever reached. Still a deadlock, still
+    # a HOLD, still never a sub-floor order -- only WHICH layer names it moved.
+    assert after_decision.risk_code in ("RISK_CAP", "MAX_PREMIUM_TIER", "MAX_POSITION_CONFLICT")
     assert after_decision.qty == tiered_qty, "a denied deadlock must report the ORIGINAL (unshrunk) qty"
 
 
@@ -254,15 +284,26 @@ def test_genuine_deadlock_still_denies_both_before_and_after():
 
 def test_shrink_note_appears_in_the_real_finalize_reason_string():
     """The decisions.jsonl reason field is what J's REVOKE surface and every downstream
-    monitor actually reads -- confirm the shrink is VISIBLE there, not just internally
-    tracked."""
+    monitor actually reads -- confirm a qty adjustment is VISIBLE there, not just
+    internally tracked.
+
+    UPDATED 2026-08-29: at this qty(8)/premium($1.50) scenario, the NEWER tight-
+    ladder cap (max_contracts_per_entry=5) now fully resolves the sizing before
+    the OLDER pct-cap shrink mechanism gets a chance to act (see
+    test_deny_before_shrink_after_at_risky3_real_equity's updated docstring for
+    the full arithmetic) -- so the breadcrumb visible here is the NEW mechanism's
+    own note (added same-commit specifically so this property -- a qty change is
+    always visible in `reason`, never silent -- holds for the new cap too, not
+    just the old one). The OLD "shrunk N->M: RISK_CAP shrink-not-deny" breadcrumb
+    is still emitted and still tested by test_safe_arm_at_2k_boundary_also_
+    shrinks_not_denies, whose numbers the new caps don't intercept."""
     plan = fx.EntryPlan(
         arm_id="risky-3", action="ENTER", side="P",
         setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON", strike=746, qty=BOLD_TIER_BASE_QTY,
         quality="BASE", reason="clean P entry (BASE)",
     )
     d = _final(plan, 1.50, RISKY3_LIVE_EQUITY, BOLD_PARAMS, account_label="risky-3-TEST")
-    assert "shrunk" in d.reason and "RISK_CAP shrink-not-deny" in d.reason
+    assert "qty capped 8->5" in d.reason and "tight-ladder max_contracts_per_entry" in d.reason
 
 
 def test_safe_arm_at_2k_boundary_also_shrinks_not_denies():

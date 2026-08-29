@@ -51,6 +51,26 @@ testable. The rules, with their doctrine source:
                      `daily_premium_budget_loss_armed` (default True) makes it
                      bind only once the arm is already red on the day.
                      Scorecard: analysis/recommendations/daily-premium-budget.json
+                     NOTE: this is a DIFFERENT, separately-owned mechanism from
+                     the three PREREG-TIGHT-LADDER rules below -- do not conflate
+                     them; see cap_entry_qty()'s module comment for why.
+  MAX_CONTRACTS_PER_ENTRY / MAX_POSITION_DOLLARS
+                     NEW 2026-08-29, PREREG-TIGHT-LADDER-2026-08-28.md controls
+                     #1/#2. Flat per-entry ceilings on contract count
+                     (`max_contracts_per_entry`) and notional dollars
+                     (`max_position_dollars`), ADDITIONAL to RISK_CAP/
+                     MAX_PREMIUM_TIER above (all bind, tightest wins). Both
+                     absent -> OFF. Callers pre-shrink qty via the standalone
+                     `cap_entry_qty()` helper (see its own module comment for
+                     the CONFLICT/SKIP rule, control #3) so these two check_order
+                     rules are a backstop, not the primary enforcement point.
+  DAILY_LOSS_DOLLARS
+                     NEW 2026-08-29, PREREG-TIGHT-LADDER-2026-08-28.md control
+                     #5. A THIRD, independent KILL_SWITCH trigger alongside the
+                     two already documented above: `daily_loss_kill_switch_dollars`
+                     (absolute $ floor on top of the existing pct floor -- both
+                     armed simultaneously, neither replaces the other). Absent
+                     key -> OFF.
   PDT / SETTLEMENT   CLAUDE.md Rule 7. Two mutually-exclusive gate modes, selected
                      by params.pdt_gate_mode (per-account, params.json):
                        "margin_pdt" (LEGACY, function-level default when the key
@@ -115,7 +135,10 @@ DECISION CODES (stable — callers + logs key off these strings)
   KILL_SWITCH, RISK_CAP, MAX_PREMIUM_TIER, MIN_CONTRACTS, PDT, SETTLEMENT,
   NOT_FLAT, UNREADABLE_INPUT, ALLOW
   (FIRST_ENTRY_LOCK retired 2026-07-02 — constant kept for old-log readers.
-   SETTLEMENT added 2026-07-14 — fires only under pdt_gate_mode="cash_settlement".)
+   SETTLEMENT added 2026-07-14 — fires only under pdt_gate_mode="cash_settlement".
+   MAX_CONTRACTS_PER_ENTRY, MAX_POSITION_DOLLARS, DAILY_LOSS_DOLLARS added
+   2026-08-29 — PREREG-TIGHT-LADDER-2026-08-28.md controls #1/#2/#5, all OFF
+   unless their params key is present.)
 
 EVALUATION ORDER
   Safety/uncertainty first (UNREADABLE_INPUT), then the hard halts that mean "no
@@ -148,6 +171,13 @@ CODE_FIRST_ENTRY_LOCK = "FIRST_ENTRY_LOCK"  # RETIRED 2026-07-02 (kept for old-l
 CODE_DAILY_PREMIUM_BUDGET = "DAILY_PREMIUM_BUDGET"  # NEW 2026-08-28 -- session deployment budget
 CODE_NOT_FLAT = "NOT_FLAT"
 CODE_UNREADABLE_INPUT = "UNREADABLE_INPUT"
+# PREREG-TIGHT-LADDER-2026-08-28 controls (added 2026-08-29). See cap_entry_qty's
+# own module comment for the full mechanism; these three codes are backstops
+# inside check_order (defense-in-depth -- callers are expected to pre-shrink via
+# cap_entry_qty so these fire only if a caller skips that pre-check).
+CODE_MAX_CONTRACTS_PER_ENTRY = "MAX_CONTRACTS_PER_ENTRY"  # control #1: 5 contracts/entry ceiling
+CODE_MAX_POSITION_DOLLARS = "MAX_POSITION_DOLLARS"  # control #2: $1,000/position ceiling
+CODE_DAILY_LOSS_DOLLARS = "DAILY_LOSS_DOLLARS"  # control #5: -$400/day realized-loss stop
 
 # PDT (margin_pdt mode only) models FINRA's PRE-2026-06-04 margin-account rule
 # (CLAUDE.md Rule 7, legacy) -- $25K threshold, 3-day-trades/5-business-days.
@@ -724,6 +754,41 @@ def check_order(
             f"{account}: equity ${equity_f:,.0f} <= kill floor ${kill_floor:,.0f} "
             f"({kill_pct:.0%} of SoD ${sod_equity_f:,.0f}) — day closed, no revenge trades",
         )
+    # THIRD, independent trigger (PREREG-TIGHT-LADDER-2026-08-28 control #5,
+    # 2026-08-29): an absolute-dollar floor ALONGSIDE the pct floor above --
+    # this does not replace or weaken it, both stay armed. Rationale (from the
+    # prereg): daily_loss_kill_switch_pct=0.30 is ~$1,590 on a $5.3K account,
+    # far looser than the -$400 control the prereg specifies. Reuses
+    # equity_f/sod_equity_f -- already mandatory, already-validated inputs on
+    # EVERY existing caller (unlike DAILY_PREMIUM_BUDGET's realized_pnl_today,
+    # which NO caller wires with real data today) -- so arming this key cannot
+    # newly deny every order the way a fresh REQUIRED kwarg would. Rule 4 (no
+    # adding without a new trigger) keeps the book flat before any new entry is
+    # evaluated, so in the common case equity_f at this point carries no open-
+    # position mark -- i.e. equity_f - sod_equity_f already reads as today's
+    # realized P&L without a second, separately-computed realized-only feed.
+    # Absent key = OFF, byte-identical to before this ship.
+    dollar_stop_raw = params.get("daily_loss_kill_switch_dollars")
+    if dollar_stop_raw is not None:
+        if _is_bad_number(dollar_stop_raw):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.daily_loss_kill_switch_dollars present but unreadable",
+            )
+        dollar_stop = _as_float(dollar_stop_raw)
+        if dollar_stop <= 0:
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"params.daily_loss_kill_switch_dollars must be > 0 (got {dollar_stop})",
+            )
+        dollar_floor = sod_equity_f - dollar_stop
+        if equity_f <= dollar_floor:
+            return Deny(
+                CODE_DAILY_LOSS_DOLLARS,
+                f"{account}: equity ${equity_f:,.0f} <= dollar-loss floor ${dollar_floor:,.0f} "
+                f"(${dollar_stop:,.0f} daily loss stop from SoD ${sod_equity_f:,.0f}) — day "
+                "closed, no revenge trades",
+            )
 
     # ---------------------------------------------------------------------
     # 2. DAY-TRADE / SETTLEMENT AWARENESS (CLAUDE.md Rule 7). Mode selected by
@@ -790,6 +855,29 @@ def check_order(
         )
 
     # ---------------------------------------------------------------------
+    # 5b. MAX CONTRACTS PER ENTRY (PREREG-TIGHT-LADDER-2026-08-28 control #1,
+    #     2026-08-29). BACKSTOP ONLY -- callers are expected to pre-shrink qty
+    #     via cap_entry_qty() (see that function's module comment) so this
+    #     should never fire in normal operation; it exists so a caller that
+    #     skips the pre-check still cannot place an oversized order. Absent
+    #     key = OFF, byte-identical to before this ship.
+    # ---------------------------------------------------------------------
+    max_contracts_raw = params.get("max_contracts_per_entry")
+    if max_contracts_raw is not None:
+        if _is_bad_number(max_contracts_raw):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.max_contracts_per_entry present but unreadable",
+            )
+        max_contracts_per_entry = int(_as_float(max_contracts_raw))
+        if qty_i > max_contracts_per_entry:
+            return Deny(
+                CODE_MAX_CONTRACTS_PER_ENTRY,
+                f"{account}: proposed_qty {qty_i} > max_contracts_per_entry "
+                f"{max_contracts_per_entry}",
+            )
+
+    # ---------------------------------------------------------------------
     # 6. PER-TRADE RISK CAP (CLAUDE.md Rule 6) AND v15 per-tier MAX-PREMIUM
     #    hard gate. Notional = premium * qty * 100. The EFFECTIVE cap is the
     #    tighter (smaller) of the two — premium tier may be stricter than the
@@ -841,6 +929,31 @@ def check_order(
                 CODE_MAX_PREMIUM_TIER,
                 f"{account}: notional ${notional:,.0f} exceeds v15 tier max-premium "
                 f"${tier_cap_dollars:,.0f} ({tier_pct:.0%} of ${equity_f:,.0f})",
+            )
+
+    # ---------------------------------------------------------------------
+    # 6b. MAX POSITION DOLLARS (PREREG-TIGHT-LADDER-2026-08-28 control #2,
+    #     2026-08-29). Flat $ ceiling on notional, ADDITIONAL to and typically
+    #     tighter than the pct-of-equity RISK_CAP above at current ($5K-ish)
+    #     account sizes -- both bind, tighter wins (same AND convention RISK_CAP
+    #     and MAX_PREMIUM_TIER already use with each other). BACKSTOP ONLY, see
+    #     cap_entry_qty()'s module comment -- callers pre-shrink via that
+    #     function so this should never fire in normal operation. Absent key =
+    #     OFF, byte-identical to before this ship.
+    # ---------------------------------------------------------------------
+    max_position_raw = params.get("max_position_dollars")
+    if max_position_raw is not None:
+        if _is_bad_number(max_position_raw):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.max_position_dollars present but unreadable",
+            )
+        max_position_dollars = _as_float(max_position_raw)
+        if notional > max_position_dollars:
+            return Deny(
+                CODE_MAX_POSITION_DOLLARS,
+                f"{account}: notional ${notional:,.0f} exceeds max_position_dollars "
+                f"${max_position_dollars:,.0f}",
             )
 
     return Allow(
@@ -960,6 +1073,187 @@ def max_affordable_qty(
     return max_qty
 
 
+# --- TIGHT-LADDER PER-ENTRY CAPS (2026-08-29) --------------------------------
+#
+# PREREG-TIGHT-LADDER-2026-08-28.md section 2 + Addendum 1 (S1.1-1.3): the
+# forward-test window opening 2026-09-01 09:30 ET is written against controls
+# this engine did not yet enforce. Two ADDITIONAL, INDEPENDENT ceilings on top
+# of the existing per_trade_risk_cap_pct / v15_max_premium_pct_of_account
+# (both caps bind -- tighter wins, same "AND" convention those two already use
+# with each other):
+#   control #1  max_contracts_per_entry -- e.g. 5. A flat contract-count
+#               ceiling; the existing caps are all %-of-equity/$-of-account and
+#               none of them bound *count* directly (position_sizing_tiers'
+#               elite_qty reaches 8/12/15/20 well above 5 at current equity).
+#   control #2  max_position_dollars -- e.g. 1000. A flat $ ceiling on
+#               premium*qty*100, tighter in practice than the 30%/50%-of-
+#               equity risk cap at current ($5K-ish) account sizes.
+#   control #3  the CONFLICT rule: if even min_contracts contracts would
+#               breach max_position_dollars (premium > max_position_dollars /
+#               (min_contracts*100), e.g. > $3.33 at $1,000/3), do not shrink
+#               below min_contracts (Rule 6: 2 sold at TP1 + 1 runner needs the
+#               floor) -- SKIP the entry instead.
+#
+# Both keys OFF by default (absent = the function is a pure passthrough, byte-
+# identical to before this ship -- neither key exists in any params file until
+# this exact commit arms them).
+#
+# WHY THIS IS A SEPARATE FUNCTION, NOT check_daily_premium_budget or
+# max_affordable_qty: check_daily_premium_budget (2026-08-28) caps CUMULATIVE
+# premium DEPLOYED across a whole SESSION and is reserved for a different,
+# already-pre-registered, currently-shadow-only forward test (loss-armed-
+# budget-forward-prereg-2026-08-28.json, forward window opens the SAME date as
+# this ship) -- arming its params keys here would silently graduate THAT
+# experiment out of shadow mid-window, which is exactly the kind of
+# uncoordinated collision OP-33/C15 exist to prevent. max_affordable_qty caps
+# against the EXISTING pct-of-equity rule; this function's caps are NEW,
+# additive, flat-dollar/flat-count rules with their own floor-conflict
+# semantics (SKIP, never a sub-floor entry) that max_affordable_qty does not
+# have (it silently returns 0 on a deadlock; callers here need to know WHY, to
+# log a distinct, countable reason -- Addendum 1's own point that this must be
+# "logged... so it is countable").
+#
+# CALLERS: setup/scripts/heartbeat_core.py#_execute (core safe-2/bold-2) and
+# automation/state/fleet/fleet_executor.py#finalize (fleet safe-3/risky-1) both
+# call this BEFORE the existing max_affordable_qty-based shrink and BEFORE
+# check_order, so a SKIP short-circuits without ever proposing an order. The
+# MAX_CONTRACTS_PER_ENTRY / MAX_POSITION_DOLLARS rules inside check_order below
+# are a backstop for any FUTURE caller that forgets this pre-check -- they
+# should never fire in normal operation (mirrors how RISK_CAP is both pre-
+# shrunk via max_affordable_qty AND independently re-checked inside
+# check_order).
+#
+# INVARIANT (matches max_affordable_qty's own documented contract): the `qty`
+# this returns is always EITHER None with skip=True (no legal qty exists), OR
+# an int >= params.min_contracts. It can never return a qty in (0,
+# min_contracts) -- composing this with the existing affordability shrink
+# (which has the identical invariant) can therefore never produce a qty < 3
+# entry; the two either agree on a legal qty >= min_contracts or one of them
+# refuses the whole order. Cross-checked by
+# test_tight_ladder_controls_2026_08_29.py::test_never_produces_a_sub_floor_qty.
+def cap_entry_qty(
+    *, proposed_qty: Any, premium: Any, params: Optional[Mapping[str, Any]],
+) -> dict:
+    """Clamp `proposed_qty` DOWN to fit max_contracts_per_entry AND
+    max_position_dollars (both params-gated, both OFF when absent). Never
+    raises qty. Returns a dict:
+        qty: int|None -- the (possibly clamped) qty, or None when skip=True.
+        skip: bool -- True means the CONFLICT rule fired: do not place this
+            order at ANY qty >= min_contracts under these caps.
+        reason: str|None -- human-readable, set whenever skip=True or an input
+            was unreadable.
+        capped_by_contracts / capped_by_dollars: bool -- which cap(s) actually
+            reduced qty below the input value (both False on a pure passthrough).
+
+    proposed_qty is passed through UNCHANGED (skip=False) when:
+      * both params keys are absent (rule OFF), or
+      * proposed_qty is None (no sizing tier matched -- a pre-existing, unrelated
+        condition; check_order's own rule-0 denies UNREADABLE_INPUT on this
+        downstream exactly as it did before this function existed -- mirrors
+        _shrink_qty_to_affordable's identical None-passthrough contract).
+
+    premium is required (fails to skip=True) ONLY when max_position_dollars is
+    armed AND actually needed to evaluate it. When premium is None (fleet's
+    finalize() can be called before a live quote resolves -- SAME contract as
+    _shrink_qty_to_affordable), the dollar cap is deferred (not evaluated) and
+    only the contract-count cap applies; check_order's rule 0 denies a
+    genuinely-missing premium downstream regardless, so this never silently
+    permits an unpriced order through.
+    """
+    _off = {"qty": proposed_qty, "skip": False, "reason": None,
+            "capped_by_contracts": False, "capped_by_dollars": False}
+    if params is None or not isinstance(params, Mapping):
+        return _off
+    max_contracts_raw = params.get("max_contracts_per_entry")
+    max_dollars_raw = params.get("max_position_dollars")
+    if max_contracts_raw is None and max_dollars_raw is None:
+        return _off  # rule OFF -- byte-identical, no input validation performed
+    if proposed_qty is None:
+        return _off  # no tier matched -- unrelated to these caps, pass through
+
+    if _is_bad_number(proposed_qty):
+        return {"qty": None, "skip": True,
+                "reason": f"proposed_qty is missing/NaN/unparseable ({proposed_qty!r})",
+                "capped_by_contracts": False, "capped_by_dollars": False}
+    qty_f = _as_float(proposed_qty)
+    if qty_f != int(qty_f) or qty_f <= 0:
+        return {"qty": None, "skip": True,
+                "reason": f"proposed_qty must be a positive whole number (got {proposed_qty!r})",
+                "capped_by_contracts": False, "capped_by_dollars": False}
+    qty = int(qty_f)
+
+    min_contracts_raw = params.get("min_contracts")
+    if _is_bad_number(min_contracts_raw):
+        return {"qty": None, "skip": True,
+                "reason": "params.min_contracts missing/unreadable",
+                "capped_by_contracts": False, "capped_by_dollars": False}
+    min_contracts = int(_as_float(min_contracts_raw))
+
+    capped_by_contracts = False
+    if max_contracts_raw is not None:
+        if _is_bad_number(max_contracts_raw):
+            return {"qty": None, "skip": True,
+                    "reason": "params.max_contracts_per_entry present but unreadable",
+                    "capped_by_contracts": False, "capped_by_dollars": False}
+        max_contracts = int(_as_float(max_contracts_raw))
+        if max_contracts < 1:
+            return {"qty": None, "skip": True,
+                    "reason": f"params.max_contracts_per_entry must be >= 1 (got {max_contracts})",
+                    "capped_by_contracts": False, "capped_by_dollars": False}
+        if qty > max_contracts:
+            qty = max_contracts
+            capped_by_contracts = True
+
+    capped_by_dollars = False
+    premium_f = None
+    if max_dollars_raw is not None and premium is not None:
+        if _is_bad_number(max_dollars_raw):
+            return {"qty": None, "skip": True,
+                    "reason": "params.max_position_dollars present but unreadable",
+                    "capped_by_contracts": capped_by_contracts, "capped_by_dollars": False}
+        max_dollars = _as_float(max_dollars_raw)
+        if max_dollars <= 0:
+            return {"qty": None, "skip": True,
+                    "reason": f"params.max_position_dollars must be > 0 (got {max_dollars})",
+                    "capped_by_contracts": capped_by_contracts, "capped_by_dollars": False}
+        if _is_bad_number(premium):
+            return {"qty": None, "skip": True,
+                    "reason": f"premium is missing/NaN/unparseable ({premium!r}) -- required "
+                              "once max_position_dollars is set",
+                    "capped_by_contracts": capped_by_contracts, "capped_by_dollars": False}
+        premium_f = _as_float(premium)
+        if premium_f <= 0:
+            return {"qty": None, "skip": True,
+                    "reason": f"premium must be > 0 (got {premium_f})",
+                    "capped_by_contracts": capped_by_contracts, "capped_by_dollars": False}
+        dollar_max_qty = int(max_dollars // (premium_f * 100.0))
+        if dollar_max_qty < qty:
+            qty = dollar_max_qty
+            capped_by_dollars = True
+    # else: dollar cap absent, OR premium not yet resolved -- deferred (see docstring).
+
+    if qty < min_contracts:
+        # CONFLICT RULE (control #3): never take fewer than min_contracts --
+        # the ladder needs 2 sold at TP1 + 1 riding. SKIP instead of under-sizing.
+        binds = []
+        if capped_by_contracts:
+            binds.append(f"max_contracts_per_entry={int(_as_float(max_contracts_raw))}")
+        if capped_by_dollars:
+            binds.append(
+                f"max_position_dollars=${_as_float(max_dollars_raw):,.0f} at "
+                f"premium ${premium_f:.2f} (min_contracts would cost "
+                f"${min_contracts * premium_f * 100.0:,.2f})"
+            )
+        return {"qty": None, "skip": True,
+                "reason": (f"conflict: min_contracts={min_contracts} would violate "
+                           f"{' and '.join(binds) or 'a configured cap'} -- SKIP rather than "
+                           "under-size below the ladder floor"),
+                "capped_by_contracts": capped_by_contracts, "capped_by_dollars": capped_by_dollars}
+
+    return {"qty": qty, "skip": False, "reason": None,
+            "capped_by_contracts": capped_by_contracts, "capped_by_dollars": capped_by_dollars}
+
+
 # --- SIZING-DEADLOCK DIAGNOSTIC (2026-07-30) ---------------------------------
 #
 # WHY THIS EXISTS. `check_order` already returns an arithmetically honest RISK_CAP
@@ -1017,11 +1311,17 @@ def explain_block(
 
     Returns a dict that always carries `available`. When True it additionally has:
         min_contracts, risk_cap_pct, risk_cap_dollars, tier_pct, tier_cap_dollars,
-        effective_cap_dollars, binding_cap ("risk_cap"|"max_premium_tier"),
+        effective_cap_dollars, binding_cap ("risk_cap"|"max_premium_tier"|
+        "max_contracts_per_entry"|"max_position_dollars" -- the last two added
+        2026-08-29, PREREG-TIGHT-LADDER-2026-08-28.md controls #1/#2),
         max_affordable_qty, premium_ceiling, deadlock, headline.
 
     `deadlock` is True iff max_affordable_qty == 0 — i.e. not even `min_contracts`
     fits under the effective cap, so no legal order exists at this premium.
+    `effective_cap_dollars`/`risk_cap_dollars`/`tier_cap_dollars` stay PCT-cap-only
+    (unchanged by this ship) for backward compatibility; `max_affordable_qty`,
+    `deadlock`, `binding_cap`, and `headline` reflect the FULL picture including
+    max_contracts_per_entry/max_position_dollars when either is set.
     """
     try:
         if params is None or not isinstance(params, Mapping):
@@ -1055,26 +1355,90 @@ def explain_block(
                        else "risk_cap")
 
         afford = max_affordable_qty(equity=equity_f, premium=premium_f, params=params)
+        ceiling_cap_dollars = cap  # used only for premium_ceiling below
+
+        # PREREG-TIGHT-LADDER-2026-08-28 controls #1/#2 (2026-08-29): `afford` and
+        # `cap`/`binding_cap` above are DELIBERATELY unaware of max_contracts_per_entry
+        # / max_position_dollars -- max_affordable_qty/_effective_per_trade_cap_dollars
+        # are ALSO simulator_real.py's own backtest-side affordability math (WP-10 doc,
+        # module top; 19 repo-wide callers as of this ship, several backtest/tools/
+        # edge_matrix_*.py research scripts among them). Folding a LIVE-only control
+        # into those shared functions would silently change historical backtest
+        # results for every one of those callers -- a far larger, unreviewed blast
+        # radius than this function's own job (explain a LIVE deny to a human/log).
+        # So the tight-ladder awareness is applied HERE ONLY, mirroring
+        # cap_entry_qty's own min-contracts-floor logic, exactly so `deadlock` /
+        # `headline` / `max_affordable_qty` (this function's OWN output, read by
+        # heartbeat_core.py's and fleet_executor.py's live deny telemetry) tell the
+        # truth about what check_order will actually do live. Cross-checked by
+        # test_sizing_deadlock_diag.py's anti-divergence grid (both directions: a
+        # tight-ladder cap can turn a non-deadlock into one, and vice versa it must
+        # never SILENTLY widen availability beyond what check_order itself allows).
+        if afford > 0:
+            max_contracts_raw = params.get("max_contracts_per_entry")
+            if max_contracts_raw is not None and not _is_bad_number(max_contracts_raw):
+                _mce = int(_as_float(max_contracts_raw))
+                if _mce < afford:
+                    afford = _mce
+                    binding_cap = "max_contracts_per_entry"
+        if afford > 0:
+            max_position_raw = params.get("max_position_dollars")
+            if max_position_raw is not None and not _is_bad_number(max_position_raw):
+                _mpd = _as_float(max_position_raw)
+                if _mpd > 0:
+                    ceiling_cap_dollars = min(ceiling_cap_dollars, _mpd)
+                    _dollar_qty = int(_mpd // (premium_f * 100.0))
+                    if _dollar_qty < afford:
+                        afford = _dollar_qty
+                        binding_cap = "max_position_dollars"
+        if 0 < afford < min_contracts:
+            # CONFLICT (control #3): a ladder cap admits SOME qty but not even
+            # min_contracts -- Rule 6 forbids taking fewer, so this is a deadlock
+            # exactly like affordability hitting 0, not a smaller legal order.
+            afford = 0
+
         deadlock = (afford == 0)
         # The highest premium at which min_contracts still fits under the cap.
-        premium_ceiling = cap / (min_contracts * 100.0)
+        # Only max_position_dollars (a $ cap) can move this; max_contracts_per_entry
+        # (a count ceiling) never affects whether min_contracts itself is eligible.
+        premium_ceiling = ceiling_cap_dollars / (min_contracts * 100.0)
         # Quote-safe display value: FLOOR to the cent, never round. Rounding up would
         # print a premium the gate actually refuses (bold-2: ceiling 1.1975 renders as
         # "$1.20", but 5 x $1.20 x 100 = $600 > the $598.76 cap -> still a deadlock).
         ceiling_cents = math.floor(premium_ceiling * 100.0) / 100.0
 
+        # Dollar figure shown in the headline: use whichever cap `binding_cap` names
+        # (ceiling_cap_dollars already folds in max_position_dollars; `cap` is the
+        # unmodified pct-based figure for the two OLD binding_cap values) -- never
+        # print `cap` next to a binding_cap it does not actually describe, and
+        # max_contracts_per_entry is a COUNT, not a dollar figure, so it gets its
+        # own non-dollar phrasing entirely.
+        _headline_cap_dollars = ceiling_cap_dollars if binding_cap == "max_position_dollars" else cap
         if deadlock:
-            headline = (
-                f"DEADLOCK: min_contracts {min_contracts} x ${premium_f:.2f} x 100 = "
-                f"${premium_f * min_contracts * 100.0:,.0f} > effective cap ${cap:,.0f} "
-                f"({binding_cap}) -- NO legal qty exists at this premium. "
-                f"Ceiling at this equity: ${ceiling_cents:.2f}/contract."
-            )
+            if binding_cap == "max_contracts_per_entry":
+                headline = (
+                    f"DEADLOCK: min_contracts {min_contracts} > max_contracts_per_entry "
+                    f"{int(_as_float(params.get('max_contracts_per_entry')))} -- NO legal qty "
+                    f"exists (min_contracts itself exceeds the contract ceiling)."
+                )
+            else:
+                headline = (
+                    f"DEADLOCK: min_contracts {min_contracts} x ${premium_f:.2f} x 100 = "
+                    f"${premium_f * min_contracts * 100.0:,.0f} > effective cap "
+                    f"${_headline_cap_dollars:,.0f} ({binding_cap}) -- NO legal qty exists at "
+                    f"this premium. Ceiling at this equity: ${ceiling_cents:.2f}/contract."
+                )
         else:
-            headline = (
-                f"SIZING: up to {afford} contracts fit under the ${cap:,.0f} cap "
-                f"({binding_cap}) at ${premium_f:.2f}."
-            )
+            if binding_cap == "max_contracts_per_entry":
+                headline = (
+                    f"SIZING: up to {afford} contracts fit (max_contracts_per_entry ceiling) "
+                    f"at ${premium_f:.2f}."
+                )
+            else:
+                headline = (
+                    f"SIZING: up to {afford} contracts fit under the ${_headline_cap_dollars:,.0f} "
+                    f"cap ({binding_cap}) at ${premium_f:.2f}."
+                )
 
         out = {
             "available": True,

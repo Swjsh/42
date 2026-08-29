@@ -1312,7 +1312,39 @@ def finalize(
         if (_b_below is not None and _b_qty is not None and _prem_f is not None
                 and _prem_f < _b_below and _b_qty > _boosted_qty):
             _boosted_qty = _b_qty
-    _qty, _shrink_note = _shrink_qty_to_affordable(_boosted_qty, equity, premium, _fleet_params)
+    # TIGHT-LADDER PER-ENTRY CAPS (PREREG-TIGHT-LADDER-2026-08-28 controls #1/#2/#3,
+    # 2026-08-29): max_contracts_per_entry + max_position_dollars, BOTH OFF unless
+    # set in the arm's base params file (params.json for safe-*, aggressive/
+    # params.json for bold-2/risky-*). Runs BEFORE the EXISTING affordability
+    # shrink (_shrink_qty_to_affordable, which caps against the pct-of-equity
+    # RISK_CAP -- a DIFFERENT, independent cap) so a CONFLICT here short-circuits
+    # with its own distinct, countable risk_code instead of falling through to a
+    # sub-floor qty or a generic risk-gate deny. Composing this with the
+    # existing shrink can never produce a qty < min_contracts entry -- both
+    # helpers share the identical "skip/deadlock or >= min_contracts, never
+    # between" invariant (see risk_gate.cap_entry_qty's own module comment).
+    # NOTE: named _ladder_cap (not _cap) -- this function later reuses the name
+    # `_cap` for the UNRELATED book_exposure_cap_pct float; keeping ours distinct
+    # avoids a same-scope shadow that would otherwise read fine (this dict is
+    # fully consumed before that reassignment) but is a landmine for a future
+    # edit that moves code around.
+    _ladder_cap = risk_gate.cap_entry_qty(proposed_qty=_boosted_qty, premium=premium, params=_fleet_params)
+    if _ladder_cap["skip"]:
+        return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
+                           _boosted_qty, premium, plan.quality, "MAX_POSITION_CONFLICT",
+                           f"tight-ladder cap: {_ladder_cap['reason']}")
+    # VISIBILITY (OP-33): a silent qty clamp is exactly the gap
+    # test_shrink_note_appears_in_the_real_finalize_reason_string exists to catch
+    # for the OLDER pct-cap shrink -- mirror that same breadcrumb convention here
+    # so a tight-ladder clamp is equally visible in decisions.jsonl's reason field,
+    # not just in the final qty number.
+    _cap_note = None
+    if _ladder_cap["capped_by_contracts"] or _ladder_cap["capped_by_dollars"]:
+        _bits = [b for b, flag in (("max_contracts_per_entry", _ladder_cap["capped_by_contracts"]),
+                                    ("max_position_dollars", _ladder_cap["capped_by_dollars"])) if flag]
+        _cap_note = (f"qty capped {_boosted_qty}->{_ladder_cap['qty']}: "
+                     f"tight-ladder {'+'.join(_bits)}")
+    _qty, _shrink_note = _shrink_qty_to_affordable(_ladder_cap["qty"], equity, premium, _fleet_params)
     # FLEET SETTLEMENT GATE (2026-08-18, RULE-ENGINE-ALIGNMENT-2026-08-18.md fix) --------
     # Gives fleet BOTH protections core has and fleet lacked: a pre-order settled-cash
     # check (Rule 7) and a same-day entries-per-day cap -- WITHOUT flipping pdt_gate_mode
@@ -1440,7 +1472,8 @@ def finalize(
         pass
 
     action = "ENTER_BEAR" if plan.side == "P" else "ENTER_BULL"
-    _reason = plan.reason if not _shrink_note else f"{plan.reason}; {_shrink_note}"
+    _notes = [n for n in (_cap_note, _shrink_note) if n]
+    _reason = plan.reason if not _notes else f"{plan.reason}; " + "; ".join(_notes)
     return ArmDecision(plan.arm_id, action, plan.side, plan.setup_name, plan.strike,
                        _qty, premium, plan.quality, "ALLOW", _reason,
                        trigger_level=plan.trigger_level)
