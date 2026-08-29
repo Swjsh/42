@@ -95,6 +95,73 @@ def test_non_generated_markdown_is_allowed(path):
     assert D.generated_surface_hit(path) is None
 
 
+# ---------------------------------------------------------------------------------------
+# path-matching bypass hunt (2026-08-29 stress test): a suffix comparison on a raw
+# string is exact-text matching, not filesystem resolution -- these prove the paths a
+# real Edit/Write tool call would resolve to the SAME on-disk frozen/generated file
+# still get caught even when the string is spelled a different way.
+# ---------------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "path",
+    [
+        # ".."/"." segments resolve away on any real filesystem access -- a raw suffix
+        # match missed this before normalise_path ran posixpath.normpath.
+        "automation/state/dummy/../params.json",
+        "automation/x/../state/params.json",
+        "x/../../setup/scripts/heartbeat_core.py",
+        # doubled separators collapse to one on disk.
+        "automation//state/params.json",
+        # trailing "." / " " / "/" -- VERIFIED empirically on this box (2026-08-29):
+        # writing through "x.txt." or "x.txt " mutates "x.txt" itself, so a path
+        # spelled with a trailing dot/space/slash is the SAME file to the OS and must
+        # be caught the same as the bare name.
+        "automation/state/params.json.",
+        "automation/state/params.json ",
+        "automation/state/params.json/",
+        "automation/state/params.json. . ",
+    ],
+)
+def test_frozen_path_traversal_and_windows_quirks_cannot_bypass(path):
+    assert D.frozen_path_hit(path) is not None
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "some/dir/../../MAP.md",
+        "MAP.md.",
+        "MAP.md ",
+        "journal/2026-08-29.md.",
+        "journal/2026-08-29.md ",
+    ],
+)
+def test_generated_surface_traversal_and_windows_quirks_cannot_bypass(path):
+    assert D.generated_surface_hit(path) is not None
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        # Documented, NOT fixed here: the PreToolUse payload carries only the string
+        # the tool was called with, never the session's working directory, so a
+        # relative path with no "automation/state/" prefix at all cannot be resolved
+        # to the frozen file from the string alone. A session with cwd already inside
+        # automation/state/ could name the frozen file this way and slip through.
+        "params.json",
+        "state/params.json",
+        # A homoglyph filename does not exist on disk under that name, so this is a
+        # non-match by construction, not a resolvable bypass -- kept as a documented
+        # boundary, not a claimed fix.
+        "automation/state/ｐarams.json",
+    ],
+)
+def test_frozen_path_hit_known_unresolved_limitations(path):
+    """Two things that do NOT get caught, on purpose documented rather than silently
+    left as a surprise: a bare/partial relative path (no cwd in the payload to resolve
+    it against) and a non-ASCII lookalike (no such file exists under that name)."""
+    assert D.frozen_path_hit(path) is None
+
+
 def test_freeze_window_boundaries():
     assert not D.freeze_active(dt.date(2026, 8, 30))
     assert D.freeze_active(dt.date(2026, 8, 31))
@@ -153,6 +220,30 @@ def test_real_command_after_a_heredoc_is_still_caught():
 def test_unterminated_heredoc_does_not_swallow_the_rest():
     cmd = "cat <<'EOF'\nbody line\n"
     assert D.bash_guard_hit(cmd) is None
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        # Regression (2026-08-29): caught live while writing THIS test suite -- the
+        # guard denied its own test-authoring session for echoing a JSON fixture
+        # that quoted a banned phrase as DATA, never executed. Same failure shape as
+        # the heredoc bug above, one quoting style over.
+        'echo \'{"tool_input":{"command":"git push --force origin main"}}\'',
+        'git commit -m "docs: note that git push --force is banned here"',
+        'printf "reminder: never run git reset --hard on shared state\\n"',
+        "git commit -m 'TZ=America/New_York date is 2h wrong on this box'",
+    ],
+)
+def test_quoted_strings_are_data_not_commands(cmd):
+    assert D.bash_guard_hit(cmd) is None
+
+
+def test_real_command_inside_double_quotes_is_still_not_a_bypass_for_unquoted_use():
+    """The stripper only blanks QUOTED content -- an unquoted banned command right
+    next to a quoted string must still be caught."""
+    cmd = 'echo "just a note" && git reset --hard origin/main'
+    assert D.bash_guard_hit(cmd) is not None
 
 
 @pytest.mark.parametrize(
@@ -446,6 +537,54 @@ def test_goal_next_open_item_handles_missing_or_empty_text():
     assert D.goal_next_open_item(None) is None  # type: ignore[arg-type]
 
 
+def test_goal_next_open_item_heading_case_insensitive():
+    assert D.goal_next_open_item("## queue\n- [ ] lower item\n") == "lower item"
+
+
+def test_goal_next_open_item_heading_wrong_level_still_recognized():
+    """A goal file's `## QUEUE` typo'd to H1 or H3 must not silently blind the
+    parser -- before this fix, only an exact `##` heading toggled in_queue, so
+    `# QUEUE` / `### QUEUE` matched no heading at all and every real open item
+    under them was invisible (goal_next_open_item returned None)."""
+    assert D.goal_next_open_item("### QUEUE\n- [ ] h3 item\n") == "h3 item"
+    assert D.goal_next_open_item("# QUEUE\n- [ ] h1 item\n") == "h1 item"
+
+
+def test_goal_next_open_item_crlf_line_endings():
+    md = "## QUEUE\r\n- [x] done\r\n- [ ] crlf item\r\n"
+    assert D.goal_next_open_item(md) == "crlf item"
+
+
+def test_goal_next_open_item_ignores_indented_nested_sub_bullets():
+    """An indented `  - [ ]` sub-bullet under a parent item is NOT recognized
+    as a queue item (the regex anchors `-` to column 0) -- only top-level
+    checkboxes drive continuation. Documents current behavior."""
+    md = "## QUEUE\n- [x] parent done\n  - [ ] nested child (not picked up)\n- [ ] top-level open\n"
+    assert D.goal_next_open_item(md) == "top-level open"
+
+
+def test_goal_next_open_item_multiple_queue_sections_scans_both():
+    md = (
+        "## QUEUE\n- [x] first section done\n"
+        "## Other\n- [ ] other section item (must NOT count)\n"
+        "## QUEUE\n- [ ] second queue section item\n"
+    )
+    assert D.goal_next_open_item(md) == "second queue section item"
+
+
+def test_goal_next_open_item_item_text_containing_literal_checkbox_markup():
+    md = "## QUEUE\n- [ ] fix parser bug where a line like '- [ ] foo' appears in prose\n"
+    assert (
+        D.goal_next_open_item(md)
+        == "fix parser bug where a line like '- [ ] foo' appears in prose"
+    )
+
+
+def test_goal_next_open_item_unknown_marker_not_treated_as_open():
+    md = "## QUEUE\n- [?] unknown marker item\n- [ ] the real open item\n"
+    assert D.goal_next_open_item(md) == "the real open item"
+
+
 def test_goal_expired_no_expiry_set_is_not_expired():
     assert not D.goal_expired("", dt.datetime(2026, 8, 29, 12, 0))
     assert not D.goal_expired(None, dt.datetime(2026, 8, 29, 12, 0))  # type: ignore[arg-type]
@@ -643,6 +782,21 @@ def test_goal_continuation_allows_after_max_continuations(tmp_path):
 
     assert codes[:3] == [BLOCK, BLOCK, BLOCK], codes
     assert codes[3] == ALLOW, "4th continuation must be denied by the hard counter"
+
+
+def test_goal_continuation_blocks_end_to_end_when_queue_heading_is_wrong_level(tmp_path):
+    """End-to-end (real subprocess, not the pure predicate) proof that a goal file
+    whose QUEUE heading is typo'd to a non-H2 level still drives continuation --
+    before the _HEADING_LINE fix this silently ALLOWED the stop with real open
+    work still queued, because goal_next_open_item saw no heading at all."""
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T8", "active": True, "expires_at_et": "2099-01-01"},
+        "# GOAL: G8\n### QUEUE\n- [ ] item under an H3 QUEUE heading\n## PROGRESS LOG\n",
+    )
+    code, stdout, stderr = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == BLOCK
+    assert "item under an H3 QUEUE heading" in (stdout + stderr)
 
 
 def test_goal_continuation_convergence_stop_same_item_twice(tmp_path):

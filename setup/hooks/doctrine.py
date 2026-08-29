@@ -19,6 +19,7 @@ DESIGN CONTRACT (every function here):
 from __future__ import annotations
 
 import datetime as dt
+import posixpath
 import re
 from typing import Iterable
 
@@ -167,8 +168,26 @@ PROMPT_ROUTES: tuple[tuple[re.Pattern[str], str], ...] = (
 
 
 def normalise_path(raw: str) -> str:
-    """Lowercase, forward-slashed path for suffix matching."""
-    return (raw or "").replace("\\", "/").lower()
+    """Lowercase, forward-slashed, dot/slash-collapsed path for suffix matching.
+
+    Two aliasing primitives get folded into the same string the OS will actually
+    touch, otherwise a frozen/generated path can be spelled a second way that a raw
+    suffix comparison misses while the write still lands on the real file:
+      * "." / ".." segments and doubled separators resolve away on any real
+        filesystem access (`a/b/../c` and `a/c` are the same file) -- collapsed
+        with posixpath.normpath before comparison.
+      * a trailing run of "." and/or " " is silently stripped by the Win32 path
+        layer this box's tools ultimately call (verified empirically 2026-08-29:
+        writing through "x.txt." or "x.txt " mutates "x.txt" itself) -- stripped
+        after normpath so only the Windows-quirk trailing run is affected, never a
+        meaningful ".."/"." segment earlier in the path.
+    """
+    norm = (raw or "").replace("\\", "/").lower()
+    if not norm:
+        return ""
+    norm = posixpath.normpath(norm)
+    stripped = norm.rstrip(". ")
+    return stripped if stripped else norm
 
 
 def freeze_active(today: dt.date) -> bool:
@@ -233,11 +252,68 @@ def strip_heredocs(command: str) -> str:
     return "\n".join(kept)
 
 
+def strip_quoted_strings(command: str) -> str:
+    """Blank the CONTENTS of quoted string literals, keeping quotes and structure.
+
+    Regression (2026-08-29, caught live testing this very hook): the guard blocked
+    `echo '{"command":"git push --force origin main"}'` -- a fixture being built for
+    a test, never executed -- because the banned phrase sat verbatim inside a quoted
+    string. Same principle as strip_heredocs above: a git commit message (`-m "..."`),
+    an echoed/printf'd sentence, or a JSON string literal is DATA, not a command run
+    by the shell, and must not trip a guard meant for commands actually executed.
+
+    Bash-only quoting rules: single quotes are fully literal (no escapes possible
+    inside them); double quotes honour a backslash escape. An unterminated quote
+    blanks to the end of the string rather than raising -- a malformed shell
+    fragment fails toward "not a command", the same fail-open direction as every
+    other guard in this module.
+
+    Known, accepted trade-off: a command deliberately smuggled entirely inside
+    quotes (e.g. `bash -c 'git push --force origin main'`) is no longer caught by
+    this narrow footgun guard. That is intentional under this module's own
+    contract -- "Denylists are NARROW... a guard that can block general work is
+    an OP-32 lockout scar waiting to happen" -- and the false-positive block this
+    fixes was actively happening, not hypothetical, while the quote-wrapped-evasion
+    case is not the failure mode this guard exists to catch (see OP-0 for the real
+    backstop on irreversible actions).
+    """
+    out: list[str] = []
+    i = 0
+    n = len(command)
+    while i < n:
+        ch = command[i]
+        if ch == "'":
+            out.append(ch)
+            i += 1
+            while i < n and command[i] != "'":
+                out.append(" ")
+                i += 1
+            if i < n:
+                out.append(command[i])
+                i += 1
+        elif ch == '"':
+            out.append(ch)
+            i += 1
+            while i < n and command[i] != '"':
+                if command[i] == "\\" and i + 1 < n:
+                    out.append(" ")
+                    i += 1
+                out.append(" ")
+                i += 1
+            if i < n:
+                out.append(command[i])
+                i += 1
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out)
+
+
 def bash_guard_hit(command: str) -> str | None:
     """Return the guard message for a denied shell command, or None."""
     if not command:
         return None
-    scanned = strip_heredocs(command)
+    scanned = strip_quoted_strings(strip_heredocs(command))
     for pattern, message in BASH_GUARDS:
         if pattern.search(scanned):
             return message
@@ -327,7 +403,16 @@ def join_notes(notes: Iterable[str]) -> str:
 DEFAULT_MAX_CONTINUATIONS = 3
 
 _QUEUE_OPEN_ITEM = re.compile(r"^-\s*\[ \]\s*(.+?)\s*$")
-_HEADING_LINE = re.compile(r"^\s*##\s+(.*)$")
+# Any ATX heading level (# through ######), not just "##" -- a goal file's
+# `## QUEUE` heading typo'd to a different level (H1 `# QUEUE`, H3 `### QUEUE`)
+# previously matched NO heading at all, so `in_queue` never turned on and
+# goal_next_open_item silently returned None even with real open items below
+# it -- the same silent-scope-boundary failure class as task_scorer.py's
+# _active_lines heading bug (C7 / L245-L246). Matching any level here is safe:
+# the goal schema (SKILL.md) never nests a "###" sub-heading inside QUEUE, so
+# widening the level can only ever RECOGNIZE a heading that this narrower
+# pattern used to miss, never mis-fire on QUEUE body content.
+_HEADING_LINE = re.compile(r"^\s*#{1,6}\s+(.*)$")
 
 
 def goal_next_open_item(goal_md: str | None) -> str | None:
