@@ -149,3 +149,76 @@ Stated up front so it cannot be rationalized later:
 ---
 
 *Frozen 2026-08-28 evening ET. Addenda below this line only; the sections above are immutable.*
+
+---
+
+## ADDENDUM 1 — 2026-08-28 evening ET, BEFORE the window opens
+
+**Trigger:** J asked whether the $1,000 cap was per-day, and observed it would permit ten $0.75
+contracts. Both points expose genuine ambiguity in §2. Clarified here rather than left to
+interpretation. **The window has not opened; no data in the test period exists.** This addendum
+resolves an ambiguity and adds a missing control — it does not change the hypothesis, the metric,
+the window, or the decision rule.
+
+### 1.1 — The $1,000 cap is PER POSITION, not per day
+
+§2's row read "Hard dollar cap per position: $1,000" but was easy to misread. Restated:
+
+- **Per single entry.** It bounds one position's premium outlay, nothing else.
+- **J's example resolved:** ten contracts at $0.75 = $750, which passes the dollar cap — but the
+  **5-contract cap binds first**, yielding 5 contracts for $375. The two caps are AND-ed; whichever
+  is tighter wins.
+
+**Measured on all 382 engine round trips** (entry premium: min $0.02, p25 $0.36, median $0.70,
+p75 $1.13, p90 $1.41, max $2.37):
+
+| Premium band | Which cap binds | Share of trades |
+|---|---|---:|
+| under $2.00 | contract cap (5) — spend $150–$1,000 | **97.4%** |
+| $2.00–$3.33 | dollar cap — 3–4 contracts | 2.6% |
+| over $3.33 | conflict: cannot hold 3 contracts under $1,000 → **SKIP** | **0.0%** |
+
+The contract cap is the operative control in ~97% of cases. The dollar cap exists to bound the
+tail, and the skip rule to resolve the conflict case — which has never yet occurred.
+
+### 1.2 — Conflict rule (was undefined)
+
+If premium is high enough that 3 contracts would breach the $1,000 position cap (premium > $3.33),
+**skip the trade.** Do not breach the dollar cap, and do not take fewer than 3 contracts — below 3
+the ladder cannot scale out (TP1 needs to sell 2 and leave 1 riding), so the position would no
+longer be the strategy under test.
+
+### 1.3 — Daily controls (MISSING from §2 — added here)
+
+§2 bounded a position and never bounded a day. Observed post-fix behaviour, per arm per day:
+median deployed **$810**, p75 $1,320, p90 $1,520, **max $1,955**; median **2** entries, max 5.
+
+Added, chosen to sit just above observed behaviour so they bound the tail without altering normal
+operation:
+
+| Control | Value | Rationale |
+|---|---|---|
+| Max concurrent open positions | **1 per arm** | Already the engine's behaviour (NOT_FLAT blocks). Stated so it cannot drift. |
+| Max entries per arm per day | **4** | Observed median 2, max 5. Bounds a churn day like 2026-08-28's risky-3 (5 entries, −$460). |
+| Max premium deployed per arm per day | **$2,500** | ~1.3× the observed max. Binds only an abnormal day. |
+| **Daily loss stop per arm** | **−$400** | The real control. See below. |
+
+**Why the loss stop is the meaningful one:** deployment is not loss. Post-fix losers exit at mean
+**−25%** of premium (median −21%, worst −57%) because stops cut before total loss. So three
+maximum-size positions losing simultaneously is ≈ **−$757**, not −$3,000. A **−$400** daily stop
+sits below that and above a normal bad day, and it is a hard floor that does not depend on any
+stop firing correctly.
+
+**Worst-case arithmetic under these controls, per arm per day:** 4 entries × $1,000 max = $4,000
+gross deployed, but the −$400 daily stop binds first, so **the arm cannot lose more than ~$400 in a
+day** absent a mechanical failure (process death with an open position — the known unbounded path,
+tracked separately and NOT closed by this prereg).
+
+### 1.4 — Effect on the test
+
+None of these controls binds on normal observed behaviour (they sit above median and near the
+observed max), so they do not alter the strategy under test. They bound the tail. If any of them
+binds more than **twice in the window**, that is itself a finding to report — it would mean live
+behaviour left the envelope the test assumed.
+
+*Addendum 1 frozen 2026-08-28 evening ET, before window open.*
