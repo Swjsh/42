@@ -270,3 +270,80 @@ def test_session_start_emits_valid_envelope():
     out = json.loads(stdout)
     assert out["hookSpecificOutput"]["hookEventName"] == "SessionStart"
     assert "OP-0" in out["hookSpecificOutput"]["additionalContext"]
+
+
+# ---------------------------------------------------------------------------------------
+# pulse telemetry -- the Army view's event stream
+# ---------------------------------------------------------------------------------------
+import pulse as P  # noqa: E402
+
+
+@pytest.mark.parametrize(
+    "tool,expected",
+    [
+        ("SendMessage", "message"),
+        ("Agent", "spawn"),
+        ("Task", "spawn"),
+        ("Workflow", "spawn"),
+        ("Edit", "act"),
+        ("Bash", "act"),
+        ("Read", None),
+        ("Grep", None),
+        ("", None),
+    ],
+)
+def test_pulse_classifies_only_edge_worthy_tools(tool, expected):
+    assert P.classify(tool) == expected
+
+
+def test_pulse_message_edge_carries_recipient():
+    row = P._target("SendMessage", {"to": "42-d3", "message": "hi"})
+    assert row == "42-d3"
+
+
+def test_pulse_act_edge_has_no_recipient():
+    """An 'act' is a self-glow on its own box, never a travelling pulse."""
+    assert P._target("Edit", {"file_path": "x.py"}) == ""
+
+
+def test_pulse_detail_is_short_and_human():
+    assert P._detail("Edit", {"file_path": "C:/a/b/filters.py"}) == "Editing filters.py"
+    assert P._detail("Bash", {"command": "git status"}).startswith("Ran: git status")
+    assert len(P._detail("SendMessage", {"summary": "x" * 500})) <= 120
+
+
+def test_pulse_row_carries_session_and_agent_id(tmp_path, monkeypatch):
+    """Without BOTH ids every worker in a fan-out collapses onto its parent session node."""
+    monkeypatch.setattr(P, "_STATE_DIR", tmp_path)
+    monkeypatch.setattr(P, "_PULSE", tmp_path / "pulse.jsonl")
+    P.record_tool(
+        {
+            "session_id": "sess-123",
+            "agent_id": "agent-abc",
+            "tool_name": "SendMessage",
+            "tool_input": {"to": "42-d3", "summary": "schema done"},
+        }
+    )
+    row = json.loads((tmp_path / "pulse.jsonl").read_text(encoding="utf-8").strip())
+    assert row["event"] == "message"
+    assert row["session_id"] == "sess-123"
+    assert row["agent_id"] == "agent-abc"
+    assert row["to"] == "42-d3"
+
+
+def test_pulse_ring_cap_holds(tmp_path, monkeypatch):
+    monkeypatch.setattr(P, "_STATE_DIR", tmp_path)
+    monkeypatch.setattr(P, "_PULSE", tmp_path / "pulse.jsonl")
+    monkeypatch.setattr(P, "MAX_ROWS", 50)
+    monkeypatch.setattr(P, "_TRIM_SLACK", 10)
+    for i in range(200):
+        P.record({"session_id": "s", "tool_name": "Edit"}, "act", detail=str(i))
+    n = len((tmp_path / "pulse.jsonl").read_text(encoding="utf-8").strip().splitlines())
+    assert n <= 60, f"ring cap leaked: {n} rows"
+
+
+def test_pulse_never_raises_on_garbage():
+    """Telemetry must never be the reason a tool call fails."""
+    P.record_tool({"tool_name": "SendMessage", "tool_input": "not-a-dict"})
+    P.record_tool({})
+    P.record_tool({"tool_name": None, "tool_input": None})

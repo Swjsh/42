@@ -39,6 +39,7 @@ _REPO = _HERE.parent.parent
 sys.path.insert(0, str(_HERE))
 
 import doctrine as D  # noqa: E402
+import pulse as P  # noqa: E402
 
 _STATE_DIR = _REPO / "automation" / "state" / "hooks"
 _LOG = _STATE_DIR / "doctrine-hooks.jsonl"
@@ -52,12 +53,28 @@ _BLOCK = 2
 # ---------------------------------------------------------------------------------------
 # infrastructure -- none of it may ever raise into the caller
 # ---------------------------------------------------------------------------------------
-def _log(record: dict) -> None:
+_LOG_MAX_ROWS = 2000
+
+
+def _log(record: dict, payload: dict | None = None) -> None:
+    """Append to the doctrine log.
+
+    `payload` is threaded through so every row carries session_id/agent_id: without them,
+    8 concurrent workers all write timestamp-only rows and per-box attribution in the Army
+    view is impossible (they collapse onto one node). Ring-capped per OP-22 -- this
+    producer had no retention cap when first shipped, which was a defect.
+    """
     try:
         _STATE_DIR.mkdir(parents=True, exist_ok=True)
         record["ts"] = dt.datetime.now().isoformat(timespec="seconds")
+        if payload:
+            record.setdefault("session_id", (payload.get("session_id") or "")[:36])
+            record.setdefault("agent_id", (payload.get("agent_id") or "")[:36])
         with _LOG.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
+        lines = _LOG.read_text(encoding="utf-8", errors="replace").splitlines()
+        if len(lines) > _LOG_MAX_ROWS + 400:
+            _LOG.write_text("\n".join(lines[-_LOG_MAX_ROWS:]) + "\n", encoding="utf-8")
     except OSError:
         pass
 
@@ -258,6 +275,9 @@ def _handle_pre_tool(payload: dict) -> int:
         if message:
             return _deny("PreToolUse", message)
 
+    # Emit the army-view edge only for calls that survived the guards: a DENIED edit must
+    # not pulse as though it happened.
+    P.record_tool(payload)
     return _ALLOW
 
 
@@ -280,7 +300,8 @@ def _handle_post_tool_failure(payload: dict) -> int:
         f"thing. Silent death with clean stderr on this box means an EXTERNAL kill "
         f"(_shared.ps1#Stop-StaleClaudeProcesses reaps python.exe older than 5 min).",
     )
-    _log({"event": "PostToolUseFailure", "signature": signature[:80], "count": count})
+    _log({"event": "PostToolUseFailure", "signature": signature[:80], "count": count}, payload)
+    P.record(payload, "fail", detail=f"{payload.get('tool_name')} failed x{count}")
     return _ALLOW
 
 
@@ -321,6 +342,7 @@ def _handle_stop(payload: dict) -> int:
             )
 
     _save_session_state(path, state)
+    P.record(payload, "idle", detail="turn ended")
     return _ALLOW
 
 
@@ -328,7 +350,8 @@ def _handle_subagent_start(payload: dict) -> int:
     # Built-in Explore and Plan agents skip CLAUDE.md entirely; custom agents load it but
     # not the parent's auto memory. Either way the prime card has to arrive here.
     _emit("SubagentStart", D.PRIME_CARD.rstrip())
-    _log({"event": "SubagentStart", "agent_type": payload.get("agent_type")})
+    _log({"event": "SubagentStart", "agent_type": payload.get("agent_type")}, payload)
+    P.record(payload, "spawn", to=str(payload.get("agent_type") or "agent"), detail="subagent started")
     return _ALLOW
 
 
