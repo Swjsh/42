@@ -1,5 +1,5 @@
 {
-  "generated_et": "2026-08-18T22:20:17",
+  "generated_et": "2026-08-29T11:39:13",
   "instrument": "setup/scripts/live_readiness.py",
   "gate_source": "CLAUDE.md account-context table: \"Live threshold (per account independently): >= 20 trades, WR >= 45%, positive expectancy, <= 2 rule breaks.\"",
   "thresholds": {
@@ -15,59 +15,66 @@
   "arms": [
     {
       "insufficient_data": false,
-      "n_trades": 47,
-      "win_rate": 0.2128,
-      "expectancy": -8.0,
+      "n_trades": 59,
+      "win_rate": 0.3051,
+      "expectancy": 14.25,
       "criteria": {
         "n_trades": {
-          "value": 47,
+          "value": 59,
           "threshold": ">=20",
           "pass": true
         },
         "win_rate": {
-          "value": 0.2128,
+          "value": 0.3051,
           "threshold": ">=45.0%",
           "pass": false
         },
         "expectancy": {
-          "value": -8.0,
+          "value": 14.25,
           "threshold": "> $0.00 (exactly $0.00 FAILS)",
-          "pass": false
+          "pass": true
         },
         "rule_breaks": {
           "value": null,
           "threshold": "<=2",
           "pass": null,
           "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'safe-3' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        },
+        "concentration": {
+          "value": -473.0,
+          "n_dropped": 3,
+          "threshold": "drop-top3 winners must stay > $0.00",
+          "pass": false,
+          "note": "informational only when the arm already FAILS/UNKNOWN on the 4 CLAUDE.md criteria -- only DOWNGRADES an otherwise-clean PASS to PASS_CONCENTRATED, never the reverse"
         }
       },
       "overall_verdict": "UNKNOWN",
       "context": {
-        "total_pnl": -376.0,
-        "fees_total": 15.17,
-        "total_pnl_net_of_fees": -391.17,
-        "expectancy_net_of_fees": -8.32,
-        "breakeven_win_rate": 0.2444,
-        "win_rate_margin_pp": -3.17,
-        "expectancy_sem": 22.36,
-        "expectancy_t_stat": -0.36,
+        "total_pnl": 841.0,
+        "fees_total": 18.6,
+        "total_pnl_net_of_fees": 822.4,
+        "expectancy_net_of_fees": 13.94,
+        "breakeven_win_rate": 0.2486,
+        "win_rate_margin_pp": 5.65,
+        "expectancy_sem": 21.88,
+        "expectancy_t_stat": 0.65,
         "expectancy_distinguishable_from_zero": false,
-        "median_trade": -9.0,
-        "largest_win": 378.0,
+        "median_trade": -6.0,
+        "largest_win": 563.0,
         "largest_loss": -488.0,
-        "avg_win": 190.9,
-        "avg_loss": -61.76,
-        "payoff_ratio": 3.091,
+        "avg_win": 189.67,
+        "avg_loss": -62.76,
+        "payoff_ratio": 3.022,
         "max_consecutive_losses": 24,
         "date_range": [
           "2026-06-29",
-          "2026-08-14"
+          "2026-08-28"
         ],
-        "trading_days_represented": 20,
+        "trading_days_represented": 26,
         "concentration": {
           "best_day": "2026-08-04",
           "best_day_pnl": 637.0,
-          "share_of_total_pnl": -1.6941,
+          "share_of_total_pnl": 0.7574,
           "note": null
         }
       },
@@ -77,22 +84,22 @@
     },
     {
       "insufficient_data": false,
-      "n_trades": 69,
-      "win_rate": 0.2319,
-      "expectancy": -10.67,
+      "n_trades": 86,
+      "win_rate": 0.2442,
+      "expectancy": -5.05,
       "criteria": {
         "n_trades": {
-          "value": 69,
+          "value": 86,
           "threshold": ">=20",
           "pass": true
         },
         "win_rate": {
-          "value": 0.2319,
+          "value": 0.2442,
           "threshold": ">=45.0%",
           "pass": false
         },
         "expectancy": {
-          "value": -10.67,
+          "value": -5.05,
           "threshold": "> $0.00 (exactly $0.00 FAILS)",
           "pass": false
         },
@@ -101,35 +108,42 @@
           "threshold": "<=2",
           "pass": null,
           "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'safe-2' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        },
+        "concentration": {
+          "value": -1719.0,
+          "n_dropped": 3,
+          "threshold": "drop-top3 winners must stay > $0.00",
+          "pass": false,
+          "note": "informational only when the arm already FAILS/UNKNOWN on the 4 CLAUDE.md criteria -- only DOWNGRADES an otherwise-clean PASS to PASS_CONCENTRATED, never the reverse"
         }
       },
       "overall_verdict": "UNKNOWN",
       "context": {
-        "total_pnl": -736.0,
-        "fees_total": 19.6,
-        "total_pnl_net_of_fees": -755.6,
-        "expectancy_net_of_fees": -10.95,
-        "breakeven_win_rate": 0.2827,
-        "win_rate_margin_pp": -5.08,
-        "expectancy_sem": 14.84,
-        "expectancy_t_stat": -0.72,
+        "total_pnl": -434.0,
+        "fees_total": 24.4,
+        "total_pnl_net_of_fees": -458.4,
+        "expectancy_net_of_fees": -5.33,
+        "breakeven_win_rate": 0.2657,
+        "win_rate_margin_pp": -2.15,
+        "expectancy_sem": 14.66,
+        "expectancy_t_stat": -0.34,
         "expectancy_distinguishable_from_zero": false,
-        "median_trade": -28.0,
-        "largest_win": 383.0,
+        "median_trade": -27.5,
+        "largest_win": 527.0,
         "largest_loss": -282.0,
-        "avg_win": 150.56,
-        "avg_loss": -59.34,
-        "payoff_ratio": 2.537,
+        "avg_win": 172.52,
+        "avg_loss": -62.42,
+        "payoff_ratio": 2.764,
         "max_consecutive_losses": 10,
         "date_range": [
           "2026-07-02",
-          "2026-08-18"
+          "2026-08-28"
         ],
-        "trading_days_represented": 22,
+        "trading_days_represented": 29,
         "concentration": {
           "best_day": "2026-08-04",
           "best_day_pnl": 662.0,
-          "share_of_total_pnl": -0.8995,
+          "share_of_total_pnl": -1.5253,
           "note": null
         }
       },
@@ -139,59 +153,66 @@
     },
     {
       "insufficient_data": false,
-      "n_trades": 68,
-      "win_rate": 0.2353,
-      "expectancy": -4.37,
+      "n_trades": 79,
+      "win_rate": 0.2785,
+      "expectancy": 16.35,
       "criteria": {
         "n_trades": {
-          "value": 68,
+          "value": 79,
           "threshold": ">=20",
           "pass": true
         },
         "win_rate": {
-          "value": 0.2353,
+          "value": 0.2785,
           "threshold": ">=45.0%",
           "pass": false
         },
         "expectancy": {
-          "value": -4.37,
+          "value": 16.35,
           "threshold": "> $0.00 (exactly $0.00 FAILS)",
-          "pass": false
+          "pass": true
         },
         "rule_breaks": {
           "value": null,
           "threshold": "<=2",
           "pass": null,
           "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'risky-1' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        },
+        "concentration": {
+          "value": -649.0,
+          "n_dropped": 3,
+          "threshold": "drop-top3 winners must stay > $0.00",
+          "pass": false,
+          "note": "informational only when the arm already FAILS/UNKNOWN on the 4 CLAUDE.md criteria -- only DOWNGRADES an otherwise-clean PASS to PASS_CONCENTRATED, never the reverse"
         }
       },
       "overall_verdict": "UNKNOWN",
       "context": {
-        "total_pnl": -297.0,
-        "fees_total": 32.04,
-        "total_pnl_net_of_fees": -329.04,
-        "expectancy_net_of_fees": -4.84,
-        "breakeven_win_rate": 0.2499,
-        "win_rate_margin_pp": -1.46,
-        "expectancy_sem": 22.29,
-        "expectancy_t_stat": -0.2,
+        "total_pnl": 1292.0,
+        "fees_total": 37.07,
+        "total_pnl_net_of_fees": 1254.93,
+        "expectancy_net_of_fees": 15.89,
+        "breakeven_win_rate": 0.2295,
+        "win_rate_margin_pp": 4.9,
+        "expectancy_sem": 22.94,
+        "expectancy_t_stat": 0.71,
         "expectancy_distinguishable_from_zero": false,
         "median_trade": -20.0,
         "largest_win": 651.0,
         "largest_loss": -468.0,
-        "avg_win": 224.81,
-        "avg_loss": -74.88,
-        "payoff_ratio": 3.002,
+        "avg_win": 257.32,
+        "avg_loss": -76.65,
+        "payoff_ratio": 3.357,
         "max_consecutive_losses": 23,
         "date_range": [
           "2026-06-29",
-          "2026-08-14"
+          "2026-08-28"
         ],
-        "trading_days_represented": 21,
+        "trading_days_represented": 26,
         "concentration": {
           "best_day": "2026-08-04",
           "best_day_pnl": 1041.0,
-          "share_of_total_pnl": -3.5051,
+          "share_of_total_pnl": 0.8057,
           "note": null
         }
       },
@@ -201,137 +222,83 @@
     },
     {
       "insufficient_data": false,
-      "n_trades": 26,
-      "win_rate": 0.2692,
-      "expectancy": -18.92,
+      "n_trades": 39,
+      "win_rate": 0.359,
+      "expectancy": 5.51,
       "criteria": {
         "n_trades": {
-          "value": 26,
+          "value": 39,
           "threshold": ">=20",
           "pass": true
         },
         "win_rate": {
-          "value": 0.2692,
+          "value": 0.359,
           "threshold": ">=45.0%",
           "pass": false
         },
         "expectancy": {
-          "value": -18.92,
+          "value": 5.51,
           "threshold": "> $0.00 (exactly $0.00 FAILS)",
-          "pass": false
+          "pass": true
         },
         "rule_breaks": {
           "value": null,
           "threshold": "<=2",
           "pass": null,
           "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'bold-2' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
+        },
+        "concentration": {
+          "value": -1442.0,
+          "n_dropped": 3,
+          "threshold": "drop-top3 winners must stay > $0.00",
+          "pass": false,
+          "note": "informational only when the arm already FAILS/UNKNOWN on the 4 CLAUDE.md criteria -- only DOWNGRADES an otherwise-clean PASS to PASS_CONCENTRATED, never the reverse"
         }
       },
       "overall_verdict": "UNKNOWN",
       "context": {
-        "total_pnl": -492.0,
-        "fees_total": 12.2,
-        "total_pnl_net_of_fees": -504.2,
-        "expectancy_net_of_fees": -19.39,
-        "breakeven_win_rate": 0.308,
-        "win_rate_margin_pp": -3.87,
-        "expectancy_sem": 50.62,
-        "expectancy_t_stat": -0.37,
+        "total_pnl": 215.0,
+        "fees_total": 18.07,
+        "total_pnl_net_of_fees": 196.93,
+        "expectancy_net_of_fees": 5.05,
+        "breakeven_win_rate": 0.3452,
+        "win_rate_margin_pp": 1.38,
+        "expectancy_sem": 38.07,
+        "expectancy_t_stat": 0.14,
         "expectancy_distinguishable_from_zero": false,
-        "median_trade": -67.5,
+        "median_trade": -40.0,
         "largest_win": 614.0,
         "largest_loss": -460.0,
-        "avg_win": 338.0,
-        "avg_loss": -150.42,
-        "payoff_ratio": 2.247,
+        "avg_win": 261.29,
+        "avg_loss": -137.72,
+        "payoff_ratio": 1.897,
         "max_consecutive_losses": 5,
         "date_range": [
           "2026-06-26",
-          "2026-08-18"
+          "2026-08-28"
         ],
-        "trading_days_represented": 14,
+        "trading_days_represented": 19,
         "concentration": {
           "best_day": "2026-08-04",
           "best_day_pnl": 479.0,
-          "share_of_total_pnl": -0.9736,
+          "share_of_total_pnl": 2.2279,
           "note": null
         }
       },
       "arm_id": "bold-2",
       "display_name": "CORE-BOLD (U67N)",
       "account_number": "PA3WEBXJU67N"
-    },
-    {
-      "insufficient_data": false,
-      "n_trades": 79,
-      "win_rate": 0.2152,
-      "expectancy": -2.15,
-      "criteria": {
-        "n_trades": {
-          "value": 79,
-          "threshold": ">=20",
-          "pass": true
-        },
-        "win_rate": {
-          "value": 0.2152,
-          "threshold": ">=45.0%",
-          "pass": false
-        },
-        "expectancy": {
-          "value": -2.15,
-          "threshold": "> $0.00 (exactly $0.00 FAILS)",
-          "pass": false
-        },
-        "rule_breaks": {
-          "value": null,
-          "threshold": "<=2",
-          "pass": null,
-          "note": "1 total rule break(s) logged book-wide (1 carrying no arm/account key); rule-breaks.jsonl's schema does not guarantee attribution -- cannot assign to 'risky-3' specifically. Reported as book-level, unattributed, never silently assigned to an arm or dropped."
-        }
-      },
-      "overall_verdict": "UNKNOWN",
-      "context": {
-        "total_pnl": -170.0,
-        "fees_total": 49.78,
-        "total_pnl_net_of_fees": -219.78,
-        "expectancy_net_of_fees": -2.78,
-        "breakeven_win_rate": 0.2213,
-        "win_rate_margin_pp": -0.61,
-        "expectancy_sem": 23.33,
-        "expectancy_t_stat": -0.09,
-        "expectancy_distinguishable_from_zero": false,
-        "median_trade": -30.0,
-        "largest_win": 830.0,
-        "largest_loss": -664.0,
-        "avg_win": 276.41,
-        "avg_loss": -78.53,
-        "payoff_ratio": 3.52,
-        "max_consecutive_losses": 18,
-        "date_range": [
-          "2026-06-29",
-          "2026-08-17"
-        ],
-        "trading_days_represented": 26,
-        "concentration": {
-          "best_day": "2026-08-06",
-          "best_day_pnl": 830.0,
-          "share_of_total_pnl": -4.8824,
-          "note": null
-        }
-      },
-      "arm_id": "risky-3",
-      "display_name": "FLEET-LOOSE-R (5H6Z)",
-      "account_number": "PA3V7JT25H6Z"
     }
   ],
   "book_wide_rollup": {
     "_label": "CORRELATED ROLLUP -- NOT independent evidence. The 5 active SPY arms trade ONE shared signal: r=0.846 (r^2=0.716), 95.7% sign agreement, 139 matched trade pairs, every one of 15 pairwise daily correlations positive (analysis/deep-research/LEVER-CORRELATION-2026-08-06.md, 2026-08-16 forward-checked). A book-wide n is NOT 5x independent evidence -- read per-arm rows first; any aggregate below is a CORRELATED ROLLUP.",
-    "arms_scored": 5,
+    "arms_scored": 4,
     "arms_pass": 0,
+    "arms_pass_concentrated": 0,
     "arms_fail": 0,
-    "arms_unknown": 5,
+    "arms_unknown": 4,
     "arms_insufficient": 0,
-    "total_closed_round_trips": 289,
-    "total_real_pnl": -2071.0
+    "total_closed_round_trips": 263,
+    "total_real_pnl": 1914.0
   }
 }

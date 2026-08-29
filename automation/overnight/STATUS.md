@@ -1,3 +1,28 @@
+## [2026-08-29T12:00 ET] fable full review: OK — whole-project adjudication shipped (J-directed), gate re-run 4-arm, 7 queue items filed, 5 J-decisions surfaced
+
+**Entered on J's direct ask: "full fable 5 review on entire project… advise based on facts and data… how do we start trading futures and other stocks… I want to be making money before next year." Clock verified `2026-08-29 11:36:02 Saturday EDT market_hours=False`. Judgment work done at Fable tier; both data fan-outs ran as Sonnet workers per §1 model routing.**
+
+**Deliverable:** `analysis/deep-research/FABLE-FULL-REVIEW-2026-08-29.md` — full adjudication: measured truth (fresh gate + per-arm economics), working/not-working mechanisms, the live-threshold doctrine contradiction, all 8 expansion lanes fact-packed, and the dated path to real money (freeze → September clean window → gate → J arms ONE account in October if GREEN).
+
+**Verified, quoted (OP-33):** fresh `go_live_gate.py` run 11:42 ET (4-arm roster) → RED, but **operational now 5/6 PASS** — yesterday's `eod_flatten_coverage` FAIL was stale risky-3-retirement breakage (`pytest test_eod_flatten_coverage_2026_08_18.py -q` → `8 passed`); the only operational gap left is the dead-man's-switch (`NO TEST FOUND`, confirmed real). Statistical FAIL all 4 arms (CI_lo 0.292–0.412 vs 1.0 bar; book **P(PF≤1)=0.372**); recon PASS ×4 (broker-verified Aug: safe-2 +$563.04 / bold-2 +$749.47 / safe-3 +$852.70 / risky-1 +$1,495.12); behavioural PASS (0 rule breaks). `live_readiness.py` re-run 11:39 ET: WR 24.4–35.9% on all arms — the CLAUDE.md WR≥45% bar structurally mismatches the validated right-tail engine (exits ≥1.3× = 26% of fills carrying $23,236 of $24,879 winner dollars, SIGNATURE.md). Recency split: safe-3 improving (+$51.32/trade last 10 sessions), safe-2 deteriorating (−$1.91/trade) with mechanism identified (unreachable +100% TP1 vs risky-1's reachable +50% patch — proxy +$1,050 on 25 shared signals, UNVERIFIED single-variable). Green days 08-27/08-28 checked for config cause: none landed — tape, not us. Quiet-mode weekend blackout diagnosed BEFORE acting: BY DESIGN (114 tasks in `quiet-mode-restore.json`, restore 23:00 ET tonight; trading chain exempt) — no tasks touched.
+
+**Expansion adjudication (J's ask):** every non-SPY lane that has run a null has FAILED it (weekly v1 + daily variant, multi-symbol WP-4, MES mirror vs buy-and-hold; SSR v2 losing outright −$2,280/11 trips). Futures real-fills lane: the "H1_PERMISSIONS" blocker is partly a **mislabeled ReadTimeout** (probe fallback-else defect, broker-probe.jsonl rows 20-21) and a real MES fill DID happen 2026-08-09 — decisive next step is one real small sandbox order, filed. Kalshi weather: best city 15/20 days toward its bar, 0 trades, needs J's API key to ever arm. Weekly-1 account wired ($4,283.92, ex-risky-3), zero trades by design pending a signal that clears a null.
+
+**Filed to queue.md (7 items):** DEAD-MANS-SWITCH-POSITION-FLATTENER (HIGH) · PROD-SHADOW-ARM-DESIGNATION (HIGH) · SAFE-2-EXIT-SHAPE-AB-PREREG (HIGH, trading-path, prereg-first, must ship before Mon 08-31 open or wait out the freeze) · GO-LIVE-GATE-TRAILING-WINDOW-VIEW (MED) · FUTURES-PROBE-TAXONOMY-AND-SILENT-SKIPS (MED) · WEEK-ORDER-CADENCE-REVIVAL (MED, cadence lapsed since 08-06) · TRENDLINE-SHADOW-VERDICT-RECOMPUTE (LOW). Also CLOSED stale T-KALSHI-DEAD-2026-08-20 (false positive per desk_allocator 08-21 fix). `task_scorer.py --all` re-parses post-edit; `test_queue_md_retention_cap.py` → `3 passed`.
+
+**⛔ CONFIG FREEZE declared for the September scoring window (08-31 → ~09-29):** no trading-path changes after Monday's open except pre-registered kill-type risk reductions — the window exists to give the gate 20 clean days to score. The SAFE-2 exit A/B ships before the window opens or not at all.
+
+**OPEN for J (the only 5 things that need you — everything else is queued for fires):**
+1. Ratify the live-threshold rewording (replace WR≥45% with the go-live gate's PF-CI criterion — draft wording in the review §3; Rule 9 weekend change).
+2. Ratify one-account consolidation for the live flip (ROADMAP Gate 4; recommendation YES — r=0.846 says the fleet is one bet in five sizes).
+3. Kalshi API key + .pem when you want that lane armable (~5 days out from its first city clearing).
+4. Futures: only if the queued sandbox re-test fails — 2 min in the tastytrade dashboard (futures approval?) or open a free Tradovate demo.
+5. Confirm whether you disabled Gamma_CryptoTwin/Gamma_KitchenSeeder on 08-28 ~21:20 MT (quiet-mode restores them 23:00 ET tonight; if that disable was yours and deliberate, say so and we pin them off).
+
+**Rail (review + queue + STATUS docs only; the gate/live-readiness JSON regenerations are reporting instruments — zero trading-path files touched, no tasks enabled/disabled):** guards are the quoted pytest runs above (a); revert is `git revert <this commit>` (b); this entry is the REVOKE report (c).
+
+---
+
 ## [2026-08-29T04:16 ET] conductor: OK — GATE-RECENCY-REVALIDATION RETIRE-CANDIDATES closed, 10 CONFIRMED_DEAD params keys removed, commit `e25c4548`
 
 **Picked via STAGE 0 budget gate PROCEED ($16.35/$30, 3/4 fires, WEEKEND mode) + market closed (Saturday 04:00 ET) + engine-health.json GREEN (19/19) + self_check.py DEGRADED (1 non-critical, pre-existing: RUN-PS1-HIDDEN masked exit on `run-dashboard-keepalive.ps1`, not trading-path, not actioned this fire) + `desk_allocator.py` SPY-0DTE #1 + `task_scorer.py --top` → `GATE-RECENCY-REVALIDATION` (HIGH), re-verified against current reality per its own advisory before executing (the tool's own warning about stale queue items — this one held up).**
@@ -323,3 +348,33 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 ### DEGRADED: self-check 2026-08-29T04:09:56
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 27 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 27x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-29T04:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 33 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 33x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+## Kitchen
+Kitchen: alive, queue 47 pending, last cook 0 min ago, today $0.00, model=grinder-python
+
+### DEGRADED: self-check 2026-08-29T05:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 39 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 39x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-29T05:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 45 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 45x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+- [2026-08-29 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-08-29 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-29.md
+
+### DEGRADED: self-check 2026-08-29T06:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 51 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 51x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+- [2026-08-29 04:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 78.95% in last 24h (30/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-08-29T06:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 57 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 57x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-29T07:09:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 63 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 63x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+
+### DEGRADED: self-check 2026-08-29T07:39:56
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 69 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 69x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
