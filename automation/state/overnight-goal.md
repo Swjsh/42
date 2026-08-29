@@ -15,4 +15,4 @@ This goal reached its terminal state 2026-07-08 (see that file's `## HONEST STAT
 
 🚫 Do not write new goal state here. Any future durable multi-fire goal is
 `automation/state/goals/GOAL-<ID>.md`, opened via `/goal open "<quote>"`
-(`.claude/skills/goal/SKILL.md`) — never a new ad-hoc `*-goal.md`.
+(`.claude/skills/gamma-goal/SKILL.md`) — never a new ad-hoc `*-goal.md`.

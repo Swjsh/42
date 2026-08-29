@@ -1,6 +1,6 @@
 # `automation/state/goals/` — the ONE home for durable multi-fire goals
 
-Opened/read/closed via `/goal` (`.claude/skills/goal/SKILL.md`). One `GOAL-<ID>.md`
+Opened/read/closed via `/gamma-goal` (`.claude/skills/gamma-goal/SKILL.md`). One `GOAL-<ID>.md`
 per goal, schema: `## DONE-WHEN` / `## OPERATING RULES` / `## QUEUE` /
 `## J-DECISIONS` / `## PROGRESS LOG` / `## HONEST STATE`.
 

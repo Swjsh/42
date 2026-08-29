@@ -85,7 +85,7 @@ spec is used instead — not silently dropped.
 - [ ] Step 4 — Action cards, read-only. `setup/scripts/gamma_cockpit_cards.py` and
     `automation/state/action-cards.json` do not exist yet (checked 2026-08-29).
 - [ ] Step 5 — Cards fire. Depends on Step 4.
-- [x] Step 6 — `/goal`. THIS delivery: `.claude/skills/goal/SKILL.md`,
+- [x] Step 6 — `/gamma-goal`. THIS delivery: `.claude/skills/gamma-goal/SKILL.md`,
     `automation/state/goals/` (+ 3 legacy files folded, tombstones left),
     `automation/state/active-goal.json` pointing at this file, the queue.md row
     below, `automation/prompts/conductor.md` STAGE 1 clause 0a. Verify command:
