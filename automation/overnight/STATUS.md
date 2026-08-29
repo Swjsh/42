@@ -1,3 +1,21 @@
+## [2026-08-29T01:00 ET] conductor: OK — queue.md consolidated (QUEUE-MD-RETENTION-CAP step 3), commit `bb110777`
+
+**Picked via STAGE 0 budget gate PROCEED ($14.52/$30, 1/4 fires, AFTERHOURS mode) + market-hours gate N/A (Saturday) + engine_health.json GREEN (19/19) + self_check.py GREEN (0 problems) + desk_allocator SPY-0DTE #1 "NEXT FIRE" + task_scorer's top pick (`FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`) confirmed explicitly DORMANT per its own 2026-08-27 verdict (blocked on equity <$2K, condition unmet) — chose the queue's own self-named next bounded step instead: `QUEUE-MD-RETENTION-CAP` step 3, which its own body explicitly names as the next fire's job ("the 138 checklist items are lower-risk ... could go first").**
+
+`queue.md` had regrown to 443,702 bytes — past the Read tool's 256KB limit for the third time since the 2026-08-09/08-19 archival passes. Archived 29 fully-resolved top-level items (explicit `[x]` checkbox or CLOSED/DONE status, each spot-verified by reading its own closing text, not trusting the checkbox alone) + 16 duplicate `gamma_manager` ESCALATION auto-harvest lines (per the file's own header rule) to `queue-archive-2026-08-29.md`. The one real finding buried in the noise (T-OPEN-TICK-STALE-QUOTE-2026-08-20, tick-freshness gap, flagged 71x and never actioned) was extracted and re-filed as its own visible item, `TICK-FRESHNESS-VALIDATION-2026-08-20`.
+
+**Foot-gun caught and fixed mid-fire, before writing anything:** a naive "archive from bullet-start to next-bullet-start" boundary would have swallowed the `## Active backlog` heading and both 2026-08-09/08-19 archive-note paragraphs into an unrelated closed item's block (verified live: `FLEET-ARM-REPLAY-HARNESS`'s naive block spanned lines 71-80, eating the section heading). Fixed by adding markdown headings AND existing `> **Archive note` lines as additional hard boundaries, dry-run-verified via per-block first/last-line printout before any write.
+
+**Verified, quoted (OP-33):** formal byte-exact round-trip — reconstructed the archive body from the same block-boundary computation applied to a fresh git-HEAD read and confirmed it matches the written archive file character-for-character (`removed_str == reconstructed archive content: True`); zero live `depends:` references any archived id (grepped first); a same-session concurrent-process addition to queue.md (`TWIN-ESCALATION-20260829-...`, appended by another running process between HEAD and my read — confirms this checkout is live/shared, C34) survived untouched. `pytest backtest/tests/test_queue_md_retention_cap.py -q` → `3 passed`. `run_safety_gate.py` (6 curated suites) → `59 passed, PASS`, run twice (pre- and post-commit hook). `task_scorer.py --all` re-parses cleanly post-edit.
+
+**Result:** `queue.md` 443,702 → 342,852 bytes (still >256KB single-read but well under the 450,000-byte `test_queue_md_retention_cap.py` guard). New archive: `queue-archive-2026-08-29.md` (107,348 bytes). **Rail 4 not applicable (pure doc/archival hygiene, zero trading-path file touched — same class as prior authoring-only queue-hygiene ships):** guard is `test_queue_md_retention_cap.py` (a); revert is `git revert bb110777` (2 files, additive+subtractive, fully reversible) (b); this STATUS entry is the REVOKE report (c).
+
+**Remaining work (step 4, next fire):** the `### `-level dated sections below `## Active backlog` — the 57-item population the step-2 note's automated classifier came back 54/57 UNKNOWN on. Needs a per-section human-grade read, same discipline as this fire, not a keyword heuristic.
+
+**Autonomy metric:** loop-closing (archived real debt per the queue's own named plan, guard-tested, byte-verified, zero data loss) — the trend-aware priority the instructions call for.
+
+---
+
 ## [2026-08-29T00:05 ET] conductor: OK — FULL-SUITE RED (23:46 ET, 15 failed) root-caused to risky-3's retirement and fixed at the class level, commits `e911499e` + `68ab8d0c`
 
 **Picked via STAGE 0 budget gate PROCEED ($5.51/$30, 3/4 fires, AFTERHOURS mode) + market-hours gate closed (23:47 ET, weekday, well after 15:55) + engine_health.json GREEN (19/19) + `desk_allocator.py` SPY-0DTE #1 "NEXT FIRE" (self-check DEGRADED) + FUNCTION-FIRST priority: the freshest STATUS.md line was a FULL-SUITE RED filed at 23:46 ET (10336 passed, 15 failed) by the immediately-preceding fire's own Task B3 work — a fresher, more urgent signal than `self_check.py`'s 4 already-flagged non-load-bearing problems.**
@@ -216,6 +234,7 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 ## Known broken
 
+- [2026-08-28T22:53:06] GRADUATED-GUARDS-SLOW FAIL :: 1 failed, 35 passed, 124 deselected in 1383.61s (0:23:03) :: re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -m slow -q
 - [2026-08-28 23:46 ET] FULL-SUITE RED :: 10336 passed, 15 failed, 11 skipped :: tests/test_book_exposure_2026_08_18.py::test_live_snapshot_contains_only_roster_arms, tests/test_cost_model.py::test_load_roster_matches_the_5_active_real_fills_arms, tests/test_day_summary_2026_08_19.py::test_active_arms_are_derived_from_accounts_json_not_hardcoded, tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541587Z], tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541602+00:00], tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541606], tests/test_dojo_engine_step.py::test_fleet_arms_reflect_their_own_gate_strictness, tests/test_engine_contract_drift.py::test_no_drift_vs_committed, tests/test_eod_flatten_coverage_2026_08_18.py::test_the_three_fleet_arms_specifically_are_covered, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_journal_calendar.py::test_load_roster_matches_current_accounts_json_active_pa_arms, tests/test_premarket_readiness.py::test_fetch_active_arms_excludes_retired_safe1_and_pending_futures :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-08-27 23:41 ET] FULL-SUITE RED :: 10165 passed, 11 failed, 12 skipped :: tests/test_dataset_integrity_2026_08_15.py::test_current_tree_verifies_clean, tests/test_dataset_integrity_append_only_2026_08_21.py::test_the_real_tree_verifies_clean_today, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises, tests/test_state_contracts.py::test_live_json_file_validates[automation/state/loop-state.json], tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 ## [2026-08-27T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-27 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
@@ -256,49 +275,3 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
-## [2026-08-27 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
-
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 3 passed in 4.32s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-27T05:40 ET] conductor: OK — MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS: 5 more candidates audited-clear + doctrine folded, commit `192b47e2`
-
-**Picked via STAGE 0 budget gate PROCEED ($8.99/$30, 1/4 fires) + market-hours gate closed (05:30 ET, weekday, pre-open) + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 "NEXT FIRE" (futures desk checked and confirmed NOT decision-rotting: MES mirror 84/20 round trips but `beats_null=false` against the current +$7,121 buy-and-hold null, so `armable=false` — correctly quiet) + `task_scorer.py --top` returned `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` again (3rd consecutive fire; re-confirmed it is still correctly gated behind its own `/fable-blast-radius` pass, touches `Gamma_HeartbeatCore`'s wrapper — not a bounded sonnet-tier pick) — fell to `queue.md` HIGH tier: `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS`, whose own text named 5 specific unaudited candidates plus an open doctrine-encode step.**
-
-**What I did:** read each named candidate's ACTUAL verdict-computation code (not its name/docstring alone) for the bare-mean-without-concentration-term defect that already hit `gate_expiry_check.py` (2x) and `live_readiness.py` this week. Result — **zero additional defects**, all 5 are correctly built:
-- `desk_allocator.py::assess_spy/assess_futures` — NOT susceptible. Its own module docstring states "DELIBERATELY NOT SCORED: P&L level" — P&L is informational headline text only, never gates the allocation decision.
-- `chop_exposure_meter.py` — NOT susceptible. Docstring: "the meter measures exposure; it does not judge" — no PASS/FAIL/verdict field exists in its output at all.
-- `day_throttle_shadow.py` / `stop_mode_shadow_ledger.py` (the two real producers behind "shadow-tally/summary writers") — NOT susceptible, both emit `verdict_ready` (an n>=threshold readiness flag), never a PASS/FAIL judgment from a mean.
-- `entry_quality_ledger.py` — NOT susceptible, ALREADY gates its 3-way verdict on `delta_drop_top2 > 0` (its G3 criterion).
-- `score_ladder_shadow_nightly.py`'s frozen forward-arm bar — NOT susceptible, the prereg (frozen 2026-08-07, 16 days before this lesson was named) already requires "no session worse than -$500" + "chop-day average not worse than -$300" alongside the mean — a tail-risk term baked in independently.
-- Spot-checked 7 more `*verdict*`/`*_check(`-matching files via a `grep -l` sweep of `setup/scripts` (`gate_recency_report.py`, `oos_check_runner.py`, `regime_attribution.py` [has its own named `concentration()` function], `risky1_lane_composition_check.py`, `exit_policy_beats_null_2026_08_23.py` [two-tailed drop-top3/drop-worst3 already first-class], `bold_tier_rail.py`, `trendline_tier_rail.py`) — zero bare-`fmean`-without-concentration hits.
-
-**Doctrine-encode step (was still open on the item) — DONE:** folded a generalized paragraph into `markdown/research/BACKTESTING-PLAYBOOK.md` §4.3 (Concentration gate): the rule applies to ANY verdict-producing function repo-wide, not just backtest strategy evaluators, naming the shared `backtest/lib/concentration.py::drop_top_n` helper and all 3 real incidents + all 5 audited-clear candidates as the reference list, so a future `*_verdict`/`*_check.py` author has doctrine to grep before writing a bare-mean gate.
-
-**Not exhaustive, disclosed as such:** 14 of the 21 `*verdict*`/`*_check(`-matching files in `setup/scripts` were not individually opened this fire (named explicitly in the queue item: `heartbeat_core.py`, `monday_verify.py`, `kitchen_reviewer.py`, `engine_health.py`, `firm_brief.py`, `crypto_twin_core.py`, `autonomy_report.py`, `task_state_guard.py`, `crypto_twin_ladder_sim.py`, `crypto_twin_scenarios.py`, `participation_daily.py`, `free_model_audit_prospector.py`, `twin_gauntlet_conductor_hook.py`, `free_model_audit_twin_review.py`), nor was `backtest/autoresearch/` swept — a genuine sweep of ~35+ files is not one bounded fire. Downgraded the queue item **HIGH → MED** and re-scoped it to exactly that residual list rather than closing it.
-
-**Also closed:** the matching 2026-08-26T17:31 self-audit gap (`analysis/self-audit/new-gaps-flagged.md`, concentration-guard deficiency) marked `<!-- DONE -->` with a pointer to this fire — it was the swarm re-flagging a gap that `live_readiness.py` (650ef9c8) had already substantially addressed the day before.
-
-**Verified, quoted:** curated safety gate (`run_safety_gate.py`) `59 passed` both before and after (doc-only change, no code touched, no regression possible). `git show 192b47e2 --stat --name-status`: exactly the 3 intended files (`analysis/self-audit/new-gaps-flagged.md`, `automation/overnight/queue.md`, `markdown/research/BACKTESTING-PLAYBOOK.md`).
-
-**Rail (reporting/doctrine-authoring only — zero code, zero live-trading-path touch, zero params/accounts.json edit):** ships per OP-22/OP-26 engine-benefit authoring path, no guard test applicable (nothing executable changed). Revert: `git revert 192b47e2` (fully additive across all 3 files).
-
-**Lesson:** not filed as a new L## — this fire's finding IS the lesson-graduation step for the existing `2026-08-26-live-readiness-gate-lacked-concentration-guard.md` inbox item (now folded into doctrine directly rather than needing a separate lesson-author pass).
-
-**Autonomy metric:** `conductor_outcome.py metric` → `trend: regressing` (net_improvement 9 / 20-fire window, cost_per_drained $2.36). This fire closed a loop (audited-clear on 5 named candidates + doctrine fold, item downgraded not left open-ended) rather than adding a fresh artifact — the right shape to counter the trend per OP-22; next fire should prefer another loop-close over a new artifact too.
-
-**Next fire should pick up:** `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS` (now MED) has a precisely-scoped residual — the 14 named `setup/scripts` files + `backtest/autoresearch/` — if it's the highest-ROI item again. `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` remains correctly gated behind its own blast-radius pass (3 consecutive fires now) — if it keeps winning `task_scorer.py --top`, consider filing it as a standing `FABLE-ESCALATION` so a top-tier session actually runs the blast-radius pass instead of every sonnet fire re-confirming the same gate.
-
----
-
-
-### DEGRADED: self-check 2026-08-28T23:47:37
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x), unattended_health.py (exit=[1], 24x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-- [2026-08-28 21:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 76.32% in last 24h (29/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
