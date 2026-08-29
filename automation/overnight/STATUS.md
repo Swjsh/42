@@ -1,3 +1,38 @@
+## [2026-08-29T00:05 ET] conductor: OK — FULL-SUITE RED (23:46 ET, 15 failed) root-caused to risky-3's retirement and fixed at the class level, commits `e911499e` + `68ab8d0c`
+
+**Picked via STAGE 0 budget gate PROCEED ($5.51/$30, 3/4 fires, AFTERHOURS mode) + market-hours gate closed (23:47 ET, weekday, well after 15:55) + engine_health.json GREEN (19/19) + `desk_allocator.py` SPY-0DTE #1 "NEXT FIRE" (self-check DEGRADED) + FUNCTION-FIRST priority: the freshest STATUS.md line was a FULL-SUITE RED filed at 23:46 ET (10336 passed, 15 failed) by the immediately-preceding fire's own Task B3 work — a fresher, more urgent signal than `self_check.py`'s 4 already-flagged non-load-bearing problems.**
+
+**Root cause (one mechanism, 12 of the 15 named failures + 2 more found by extension): risky-3 was legitimately retired in accounts.json earlier the SAME session (J-approved 2026-08-28, premium-stop question settled against it — see accounts.json's own `retired_reason` field — account repurposed for the weekly-1 non-SPY lane). Every production consumer (`load_roster`/`active_arms`/`ACCOUNTS`/`fetch_active_arms`/`_decide_for_fleet_arm`) already correctly derives the roster from accounts.json's live `status` field — these were the ONLY places still pinning the old 5-arm shape verbatim, and several of the failing tests' own docstrings said exactly this: "if this fails, accounts.json's active/PA roster changed -- update the arms, don't hardcode around this guard."**
+
+**Fixed in two commits:**
+- `e911499e` — the 6 tests pytest actually caught (`test_cost_model`/`test_day_summary`/`test_journal_calendar`/`test_premarket_readiness`/`test_eod_flatten_coverage`: updated 5-arm→4-arm hardcoded expectations + added risky-3 to each file's retired-exclusion check) plus `test_dojo_engine_step.py::test_fleet_arms_reflect_their_own_gate_strictness`, which needed real diagnosis, not a mechanical count bump: its 5-bar sample (9:35/10:30/13:56/14:30/15:30) only ever cleared risky-1's tight gate via risky-3's now-permanently-retired loose gate riding along. Verified via a full-day sweep that safe-3/risky-1 never entered on their own at those exact bars, but risky-1 DID at 11:35 and 12:05 (real ENTER_BEAR) — added those bars, dropped `fleet_risky_3` from the checked-arm loop with a documented rationale (`engine_step.py` reads accounts.json's CURRENT status, not point-in-time, so a retired arm resolves FLEET_VIEW_PENDING forever regardless of replay day). Also regenerated the stale `engine-contract.md` and removed an orphaned `risky-3` key from the live (untracked) `book-equity-snapshot.json` that was tripping `test_book_exposure_2026_08_18.py`'s stray-key tripwire.
+- `68ab8d0c` — extended the fix to close the exact OPEN follow-up the immediately-prior fire flagged tonight ("go_live_gate.ACTIVE_ARMS is a hardcoded tuple, not accounts.json-status-aware ... will keep reconciling a retired arm going forward"): grepped for the same `ACTIVE_ARMS` pattern repo-wide and found 2 more (`data_tier_check.py`, plus `firm_brief.py`'s "Tomorrow's exits" section using an equally-stale name-blocklist). All 3 now derive live from accounts.json (`status=='active' AND instrument=='SPY_0DTE_OPTION'`), fail-open to a last-known-good fallback. **Deliberately left `archive_ledgers.py`'s ACTIVE_ARMS unchanged** — its semantics are historical P&L archival (summing real past round-trips), not "who trades tomorrow"; risky-3's real historical fills must keep counting there the same way retired safe-1's rows still archive. Recorded so a future grep-and-fix pass doesn't "complete the pattern" incorrectly.
+
+**Verified, quoted:** `pytest` on all 8 files touched by commit 1 → `161 passed`; on all 4 files touched by commit 2 → `41 passed`; `run_safety_gate.py` (6 curated suites) → `59 passed, PASS` (run twice, once per commit). Live re-import: `go_live_gate.ACTIVE_ARMS` and `data_tier_check.ACTIVE_ARMS` both resolve to `{safe-2, bold-2, safe-3, risky-1}`. Full-suite re-run (`pytest tests/ -q -m "not slow"`) launched to confirm zero remaining failures — in progress at time of writing, will self-report via the next FULL-SUITE producer cycle if it surfaces anything new.
+
+**Rail 4 (paper trading-path + reporting-instrument fixes; none of the touched files places orders or touches params*.json/heartbeat_core.py/filters.py/risk_gate.py/exit_manager.py):** guard is the 12 touched test files + pytest results above (a); revert is `git revert 68ab8d0c` then `git revert e911499e` (both clean, no registered task to unwind) (b); this STATUS entry is the REVOKE report (c).
+
+**Autonomy metric:** this fire was loop-closing (a fresh RED root-caused to ONE class, fixed comprehensively including the extension the prior fire pre-flagged, guard-tested, live-verified) — the trend-aware priority the instructions call for after last fire's `regressing` reading.
+
+## [2026-08-28] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   double_bottom_base_quiet (armed 2026-07-01, 58d ago): 0 fills since arm — no live signal yet
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-08-28] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-24..2026-08-27), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-27). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-3.35); Bold_ATM_1+2=CONFIRM ($269.4)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-08-28T18:00 ET] TASK B3: FULL-SUITE RED (2026-08-27T23:41 ET, 11 failures) triaged and fixed at the root; reconciliation FAILs root-caused and fixed
 
 **All 11 named failures diagnosed individually with reproducing before/after evidence (never reordering hacks, never xfail on a real bug):**
@@ -179,18 +214,9 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 ---
 
-## [2026-08-27] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-23..2026-08-26), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-26). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-207.35); Bold_ATM_1+2=CONFIRM ($269.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## Known broken
 
+- [2026-08-28 23:46 ET] FULL-SUITE RED :: 10336 passed, 15 failed, 11 skipped :: tests/test_book_exposure_2026_08_18.py::test_live_snapshot_contains_only_roster_arms, tests/test_cost_model.py::test_load_roster_matches_the_5_active_real_fills_arms, tests/test_day_summary_2026_08_19.py::test_active_arms_are_derived_from_accounts_json_not_hardcoded, tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541587Z], tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541602+00:00], tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541606], tests/test_dojo_engine_step.py::test_fleet_arms_reflect_their_own_gate_strictness, tests/test_engine_contract_drift.py::test_no_drift_vs_committed, tests/test_eod_flatten_coverage_2026_08_18.py::test_the_three_fleet_arms_specifically_are_covered, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_journal_calendar.py::test_load_roster_matches_current_accounts_json_active_pa_arms, tests/test_premarket_readiness.py::test_fetch_active_arms_excludes_retired_safe1_and_pending_futures :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-08-27 23:41 ET] FULL-SUITE RED :: 10165 passed, 11 failed, 12 skipped :: tests/test_dataset_integrity_2026_08_15.py::test_current_tree_verifies_clean, tests/test_dataset_integrity_append_only_2026_08_21.py::test_the_real_tree_verifies_clean_today, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises, tests/test_state_contracts.py::test_live_json_file_validates[automation/state/loop-state.json], tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 ## [2026-08-27T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-27 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
 
@@ -268,66 +294,11 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 ---
 
-## [2026-08-27T01:10 ET] conductor: OK — FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01 scored: DISCLOSED_NULL_STRUCTURALLY_UNREACHABLE, item downgraded dormant (no code change, no revert)
 
-**Picked via STAGE 0 budget gate PROCEED ($0/$30, 0/4 fires) + market-hours gate closed + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 + `task_scorer.py --top` returned the already-flagged-gated `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` (unchanged since 2026-08-26 05:30's assessment — still correctly gated behind its own live-trading blast-radius pass, not a bounded pick) — fell to the next ready item, `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, whose `n>=20 fills` dependency now reads satisfied (139 real fills since 2026-08-01).**
-
-**What the naive read would have gotten wrong:** scoring the prereg's 5 frozen gates against those 139 fills directly. Lane-scoping first: all 73 of risky-1's fills are 100% `FULL_SEND`-lane (provably inert to `strike_tier_table` per the prereg's own 2026-08-02 addendum), leaving risky-3's 66. But a check the original gate text never named — the `equity` field on every one of the 504 risky-3 + 607 risky-1 named-setup decision-rows since 2026-08-01 — shows **zero** rows in the $0-2K bracket this specific prereg's code change touched; all sit in $2K-10K (both arms started near $5K and never approached $2K, one brief exception on 2026-08-01 with zero trading that day). risky-3's real 66 fills were actually priced by a DIFFERENT, already-adjudicated tier row (`atm-tier-extension-2k10k-prereg-2026-08-03.json`, killed for risky-3 on 2026-08-06, commit `3ac1d7b2`, n=14/-$653) — scoring them here would have double-counted a closed decision under the wrong rule_id.
-
-**Verdict: n=0 mechanism-relevant fills. DISCLOSED_NULL, not a kill.** No revert — nothing has fired, nothing to undo. Filed the scorecard `analysis/recommendations/fleet-strike-tier-atm-extension-2026-08-27.json` with full derivation (naive-read → lane-scoping → equity-bucket check → consequence). Queue item's readiness criterion corrected in-place: re-check only if either arm's live `equity` drops back below $2,000, not on raw fill count — downgraded to dormant so future fires stop re-reading it as active evidence-accrual.
-
-**Lesson filed:** `strategy/candidates/_lesson-inbox/sample-floor-gate-must-scope-to-mechanism-not-total-fills-2026-08-27.md` — generalizable: any "n>=N fills since arming" gate needs a condition predicate (the specific bracket/regime/quality-tier the change actually engages), or a structurally-unreachable change can sit "ready to evaluate" indefinitely while a naive scorer misattributes an unrelated, already-closed decision's fills to it. Flags `task_scorer.py`'s dependency check (raw fill count) as sharing the same naivety — not fixed this fire (bounded scope), named for a future sweep.
-
-**Rail (reporting/evidence-authoring only — zero code, zero live-trading-path touch, zero params/accounts.json edit):** this is not a rail-4 trading-path change (no revert needed, no guard test applicable — nothing was armed or disarmed). Ships per OP-22/OP-26 engine-benefit authoring path. Files touched: `automation/overnight/queue.md` (verdict block appended, item's own `[ ]` line kept, readiness note updated), new scorecard JSON, new lesson-inbox file. Revert: `git revert <this-fire's-commit>` (fully additive except the one-line readiness-criterion edit in queue.md).
-
----
-
-## [2026-08-26T23:26:00 ET] conductor: OK — DRESS-REHEARSAL STALE (RED) fixed + latent doc-untracked landmine closed, commits `12f4a907` + `e0a6711f`
-
-**Picked via STAGE 0 budget gate PROCEED ($8.21/$30, 3/4 fires, AFTERHOURS mode) + market-hours gate closed + engine_health.json GREEN (19/19) + `desk_allocator.py` SPY-0DTE #1 ("NEXT FIRE") + `self_check.py` FUNCTION-FIRST priority-1: fresh run returned BROKEN, 5 problems — `DRESS-REHEARSAL STALE (RED)` was the only RED-severity item (others are non-load-bearing visibility/YELLOW).**
-
-**Root cause, precisely:** `Gamma_DressRehearsal` (the nightly real-broker pre-open sanity check) missed 3 consecutive nights (2026-08-24/25/26, `NumberOfMissedRuns=3`). Kernel-Power event log shows the box reboots most evenings in the 18:00-22:00 MT window, landing directly in the single 20:45 ET (21:44 MT) daily trigger's slot; `StartWhenAvailable=True` was already set but Task Scheduler's catch-up doesn't reliably recover multi-day misses. The SAME evening-window pattern is visible across ~15 other `Gamma_*` tasks (not flagged by self_check, non-critical) — named as a follow-up, not chased this fire.
-
-**Fix:** `dress_rehearsal.py` now skips real work by default when today's ET-date artifact already exists (`--force` overrides); two extra DAILY trigger slots (19:00 MT, 23:15 MT) added to the EXISTING `Gamma_DressRehearsal` task via `Set-ScheduledTask`, alongside the unchanged 21:44 MT primary — 3 chances/evening for the idempotent script to land while the box is up, collapsing to one real options+crypto round-trip/day regardless of how many slots fire.
-
-**Blocked path, worth recording:** the original plan (a separate at-startup task) hit `Access Denied` on `Register-ScheduledTask` AND `schtasks /Create /SC ONLOGON` — isolated via disposable dummy-task A/B probes to a **trigger-TYPE permission boundary** (this session's token can create/modify DAILY/ONCE triggers freely, denied for ONLOGON/ONSTART, on both new-task and modify-existing paths). Documented in `markdown/infra/POWERSHELL-COMPAT.md` + lesson-inbox item so a future fire doesn't re-derive it via another round of probing.
-
-**Verified, quoted:** manual `--force`-equivalent (default, no flag, today's artifact absent) ran for real — `overall=GREEN next_trading_day=2026-08-27`, all 4 checks GREEN. Immediate re-run correctly no-op'd (`already ran today (2026-08-26) — no-op`). `self_check.py`: BROKEN(5 problems) → DEGRADED(4 problems), `DRESS-REHEARSAL` no longer listed. `pytest backtest/tests/test_dress_rehearsal.py`: 47/47 PASS (was 40, +7 new guards for the skip/force/artifact-freshness logic). Curated safety gate (`run_safety_gate.py`): 59/59 PASS. `py_compile` clean. `git show 12f4a907 --stat --name-status`: exactly the 2 intended files.
-
-**Side-effect fix:** `markdown/infra/POWERSHELL-COMPAT.md` was referenced from CLAUDE.md but had never actually been `git add`-ed (existed on disk, untracked) — now tracked as of `e0a6711f` (a landmine closed, not created).
-
-**Rail 4 (infra/scheduler fix, not a live trading-path params/heartbeat_core/filters/placement edit — ships per OP-22/OP-26 engine-benefit authoring path):** guard tests are the regression check (a) — `TestIdempotentSkipByDefault` (5 new tests) + preserved existing 40; revert is `git revert 12f4a907` + manually resetting `Gamma_DressRehearsal`'s triggers to the single 21:44 MT original via `Set-ScheduledTask` (b); this STATUS entry is the REVOKE report (c). Zero live-money, secret, or CLAUDE.md surfaces touched.
-
-**Not investigated further this fire (out of bounded scope):** the ~15 other evening-window tasks showing `NumberOfMissedRuns>0` in the `Get-ScheduledTaskInfo` sweep — mostly research/kitchen/visibility tasks, none self_check-critical the way DressRehearsal was. Named as a follow-up in the lesson-inbox item, not chased.
-
----
-
-## [2026-08-26T16:15:02 ET] YELLOW -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-26 -- 4 GREEN / 1 YELLOW / 0 RED / 1 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 43 tick(s) showed in_trade>0. 23 real fill(s) dated 2026-08-26: safe-2@14:56, safe-2@14:57, safe-3@14:57, risky-1@14:57, risky-3@14:57, safe-2@14:58, safe-2@14:59, safe-2@15:00, safe-2@15:01, safe-2@15:02, safe-2@15:03, safe-2@15:04, safe-2@1… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-26, generated_at_et=2026-08-26T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-26, regime_context.stamp_date=2026-08-26 (present=True, dates_match=True). one_liner='Yesterday 2026-08-25 (Tue) = gap-fade (range 0.49%, gap +0.35%, c… |
-| WS3 level hysteresis | YELLOW | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 66 distinct near-price levels. Worst: 766.43 flipped 10x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 91 time(s) across 14 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-26 window_end=2026-08-25 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=29 (delta +19 vs baseline n=10) exp=$-16.21/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=32 exp=$0.5/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-26T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 43 theta-clock row(s) dated 2026-08-26 across 1 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=43, unavailable=0. still… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-26 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-26`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-
-### DEGRADED: self-check 2026-08-28T17:47:39
+### DEGRADED: self-check 2026-08-28T23:47:37
 - TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 - CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x), unattended_health.py (exit=[1], 24x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 
-### DEGRADED: self-check 2026-08-28T17:47:45
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-08-28) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-08-28) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-28.log shows 22 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 22x). Check the named script's own stderr log for the real cause.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-28.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- [2026-08-28 21:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 76.32% in last 24h (29/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
