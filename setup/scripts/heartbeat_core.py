@@ -140,11 +140,43 @@ CORE_MANAGES_EXITS = os.environ.get("GAMMA_CORE_MANAGES_EXITS", "0") == "1"
 #                   ARMED (this chooses who places, not whether live).
 CORE_PLACES_ORDERS = os.environ.get("GAMMA_CORE_PLACES", "1") == "1"
 
+FLEET_ACCOUNTS = STATE / "fleet" / "accounts.json"
+
 ACCOUNTS = {
     "safe": {"params": STATE / "params.json", "mcp_server": "alpaca", "fleet_arm": "safe-2"},
     "bold": {"params": STATE / "aggressive" / "params.json", "mcp_server": "alpaca_aggressive",
              "fleet_arm": "bold-2"},
 }
+# FLEET-STATUS ROUTING (2026-08-29) -- closes the gap named in
+# markdown/planning/TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29.md section 5.1:
+# ACCOUNTS above is HARDCODED and the tick loop iterated it directly, so flipping an arm's
+# `status` to "retired" in fleet/accounts.json did NOTHING -- this engine kept placing SPY
+# 0DTE orders on that account every minute. The 2026-08-28 risky-3 retirement worked only
+# because risky-3 runs the fleet_executor path, which DOES check status; safe-2 and bold-2
+# are the two arms this file drives directly, and neither was reachable by that switch.
+#
+# INERT WHEN THIS SHIPPED: safe-2 and bold-2 are both status="active", so active_accounts()
+# returns exactly ACCOUNTS and every downstream comparison is byte-identical. Guard:
+# backtest/tests/test_core_accounts_respect_fleet_status_2026_08_29.py pins that.
+#
+# FAILS OPEN, DELIBERATELY. An unreadable/absent/malformed accounts.json returns the full
+# ACCOUNTS set rather than an empty one: a config-read failure must never silently stop the
+# live engine trading (OP-25 -- guards fail open). The failure mode this accepts is "keeps
+# trading during a config outage"; the failure mode it refuses is "silently goes dark".
+def active_accounts() -> "dict[str, dict]":
+    """ACCOUNTS filtered to arms whose fleet/accounts.json status is 'active'."""
+    try:
+        arms = json.loads(FLEET_ACCOUNTS.read_text(encoding="utf-8")).get("arms", [])
+        status = {a.get("id"): a.get("status") for a in arms if isinstance(a, dict)}
+        if not status:
+            return dict(ACCOUNTS)
+        out = {k: v for k, v in ACCOUNTS.items()
+               # an arm absent from accounts.json keeps trading (fail-open); only an arm
+               # PRESENT and explicitly not-active is dropped.
+               if status.get(v["fleet_arm"], "active") == "active"}
+        return out if out else dict(ACCOUNTS)
+    except Exception:  # noqa: BLE001 -- see FAILS OPEN above
+        return dict(ACCOUNTS)
 # Gate knobs engine_cli reads from params.json (pass-through; missing -> engine default).
 # FIX3 (2026-07-01): block_elite_bull_vix_low/high were OMITTED here, so gates.py ran its
 # defaults [0.0, 999.0) and the elite-bull block applied at ALL VIX instead of the ratified
@@ -1192,7 +1224,8 @@ def _log(rec: dict) -> None:
         f.write(json.dumps(rec) + "\n")
 
 
-def _write_tick_marker(core_tick_id: str, et: datetime) -> None:
+def _write_tick_marker(core_tick_id: str, et: datetime,
+                       accounts: "list[str] | None" = None) -> None:
     """RACE FIX (2026-08-01, WEEKEND-TWELVE #4). Called from main() ONLY after BOTH accounts
     logged a real (non-exception) row this invocation -- see main()'s ok_accounts check. That
     ordering is what makes the marker trustworthy: by the time this runs, both `_log()` calls
@@ -1211,7 +1244,10 @@ def _write_tick_marker(core_tick_id: str, et: datetime) -> None:
     try:
         STATE.mkdir(parents=True, exist_ok=True)
         payload = {"core_tick_id": core_tick_id, "date": et.strftime("%Y-%m-%d"),
-                   "ts_et": et.strftime("%Y-%m-%dT%H:%M:%S"), "accounts": sorted(ACCOUNTS)}
+                   "ts_et": et.strftime("%Y-%m-%dT%H:%M:%S"),
+                   # the accounts THIS tick owed (fleet-status filtered), not the
+                   # hardcoded set -- consumers pair on exactly what was produced.
+                   "accounts": sorted(accounts) if accounts else sorted(ACCOUNTS)}
         tmp = TICK_MARKER.with_name(TICK_MARKER.name + ".tmp")
         tmp.write_text(json.dumps(payload), encoding="utf-8")
         os.replace(tmp, TICK_MARKER)
@@ -3238,7 +3274,10 @@ def main() -> int:
     core_tick_id = et.strftime("%Y-%m-%dT%H:%M:%S.%f")
     out = {}
     ok_accounts = []
-    for account in ACCOUNTS:
+    # FLEET-STATUS ROUTING (2026-08-29): resolve ONCE per tick, so the loop below and the
+    # completeness check further down can never disagree about which accounts this tick owed.
+    tick_accounts = active_accounts()
+    for account in tick_accounts:
         try:
             out[account] = run_account(account, core_tick_id=core_tick_id)
             ok_accounts.append(account)
@@ -3258,8 +3297,11 @@ def main() -> int:
     # Mark this tick COMPLETE only when BOTH accounts logged a real row this invocation -- an
     # errored account withholds the marker update entirely, so every consumer keeps reading
     # the last GOOD paired tick until this one recovers (never a half-tick surfaced).
-    if set(ok_accounts) == set(ACCOUNTS):
-        _write_tick_marker(core_tick_id, et)
+    # Compared against the accounts this tick actually OWED (active_accounts()), not the
+    # hardcoded ACCOUNTS -- otherwise retiring one arm would permanently withhold the tick
+    # marker and every paired-read consumer would freeze on the last complete tick forever.
+    if set(ok_accounts) == set(tick_accounts):
+        _write_tick_marker(core_tick_id, et, accounts=sorted(tick_accounts))
     return 0
 
 
