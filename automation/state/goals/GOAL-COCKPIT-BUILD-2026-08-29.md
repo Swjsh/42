@@ -77,11 +77,18 @@ spec is used instead — not silently dropped.
     confirm `agent_id` actually lands on a real payload, per SPEC.md's own flagged
     UNVERIFIED #3) — the next fire touching this goal should do that one check
     before assuming step 1 is airtight.
-- [ ] Step 2 — Army payload + static Army view. `setup/scripts/gamma_cockpit_army.py`
-    does not exist yet (checked 2026-08-29). Not started.
-- [ ] Step 3 — Live mode + the pulse. `gamma-companion/server.js` has no `/api/army`
-    route yet; `gamma-companion/public/cockpit.html` does not exist yet (checked
-    2026-08-29). Depends on Step 2.
+- [x] Step 2 — Army payload + static Army view. VERIFIED 2026-08-29 16:10 by running
+    the generator, not by file existence: `setup/scripts/gamma_cockpit_army.py` (15,241
+    bytes) is imported by `gamma_home.py`, `payload["army"]` is set, `id:'army'` is in the
+    VIEWS[] registry, and a renderer exists in `gamma_cockpit_views_js.py`.
+    `python setup/scripts/gamma_home.py` -> "answers: 6 rendered, 0 NO DATA" and the
+    emitted HTML carries 92 `army` references.
+
+- [x] Step 3 — Live mode + the pulse. VERIFIED 2026-08-29 16:10: `/api/army` appears 4x
+    in `gamma-companion/server.js`, and the generator dual-writes BOTH
+    `analysis/home/index.html` and `gamma-companion/public/cockpit.html` (501,192 bytes
+    each, identical size = same payload, file:// snapshot + served live mode).
+
 - [ ] Step 4 — Action cards, read-only. `setup/scripts/gamma_cockpit_cards.py` and
     `automation/state/action-cards.json` do not exist yet (checked 2026-08-29).
 - [ ] Step 5 — Cards fire. Depends on Step 4.
@@ -111,6 +118,7 @@ spec is used instead — not silently dropped.
 OP-0 four-things-route-to-J item has come up in this goal's scope so far)
 
 ## PROGRESS LOG
+- 2026-08-29 16:11 ET — Reconciled QUEUE against disk: steps 2+3 were `[ ]` with "does not exist yet" while already shipped and wired. Verified by RUNNING `gamma_home.py` (6 answers rendered, 0 NO DATA, 92 army refs, dual-write 501,192 B to both index.html and public/cockpit.html), not by file existence. Steps 4+5 remain open and are in flight in wf_8c658368-df0. Root cause: parallel lanes + a QUEUE item written as a point-in-time observation; skill rule added to prevent recurrence.
 - 2026-08-29 ~17:36 ET: goal opened by the /goal build itself (this fire). Surveyed
   steps 1-8 via file-existence checks (see QUEUE for exact evidence per step).
   Steps 1 and 7 found already shipped by parallel lanes; steps 2-5 not started;

@@ -28,6 +28,23 @@ disable-model-invocation: true
 > session grind on it without prompting. The ledger is what a fresh session reads tomorrow;
 > native `/goal` is what keeps tonight's session moving.
 
+> ### ⛔ QUEUE items state a DELIVERABLE + how to CHECK it — never a point-in-time observation
+> Caught live 2026-08-29, first hour of use. The QUEUE contained
+> *"Step 2 — `gamma_cockpit_army.py` does not exist yet (checked 2026-08-29). Not started."*
+> Two lanes were running in parallel; that claim was true for about three minutes, and the
+> file was 15KB on disk by the time anything read the line. The Stop hook then correctly
+> blocked a session to demand work that was already shipped.
+>
+> A goal file is read by fires that run HOURS or DAYS later. An existence check is a fact
+> about one instant; writing it as a QUEUE item makes it a lie by the time it matters.
+>
+> - ✅ `- [ ] Step 2 — Army payload + static view. DONE-WHEN: gamma_home.py runs and the`
+>   `emitted HTML contains the army view.`
+> - ❌ `- [ ] Step 2 — gamma_cockpit_army.py does not exist yet (checked <date>). Not started.`
+>
+> Same rule when TICKING an item: verify by RUNNING the check, not by `ls`. A file existing
+> is not the same as a file being wired in.
+
 A GOAL is for work that needs more than one fire/session to finish and must survive
 compaction, a crashed session, or a scheduled-task wake. It is **not** for anything
 that fits in one turn — use TodoWrite for that. One goal is active at a time; opening
