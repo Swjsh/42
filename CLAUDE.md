@@ -272,6 +272,21 @@ These are non-negotiable, second only to the 10 rules above.
 > The loop is **ACT → VERIFY → report only the VERIFIED truth.** Acting without verifying, then declaring victory, is the #1 trust-killer. Full (a)-(f) text (proof-quoting standard, built≠running, visibility-is-the-product, THINK LIKE JACK, repeated-question=missing-instrument, lean output) relocated verbatim: [`OP-33-verify-visibility.md`](markdown/doctrine/OP-33-verify-visibility.md). Same force as if inline — read it before any "it works" claim.
 ---
 
+## Compact instructions
+
+> Anthropic's documented home for these. They were previously in `~/.claude/settings.json` as an
+> `autoCompact.instructions` field, which is **not a real settings key** (the real ones are
+> `autoCompactEnabled` / `autoCompactWindow`) — so they were silently doing nothing. Fixed 2026-08-29.
+
+When compacting, preserve: the active goal + its next open QUEUE item; what was VERIFIED this
+session and the command output that proved it; open loops and what is blocked on whom; file paths
+and commit SHAs already touched; any correction J gave. Discard: superseded reasoning, intermediate
+searches, duplicate file reads, and tool output already summarised. A compaction that drops the
+verification evidence turns a verified claim into an unverified one — re-label it rather than
+carrying the claim forward bare.
+
+---
+
 ## Update log
 
 All doctrine evolution in [CHANGELOG.md](CHANGELOG.md). Append new entries there — never inline in CLAUDE.md.
