@@ -358,12 +358,26 @@ class TestPositionsShape:
         assert broker.is_flat("MNQ") is True
         assert broker.get_positions() == []
 
-    def test_pending_entry_is_still_flat(self, tmp_path):
-        """A resting limit order is NOT a position yet (matches real-broker semantics)."""
+    def test_pending_entry_occupies_the_slot_but_is_not_a_position(self, tmp_path):
+        """CORRECTED 2026-08-29 (was `test_pending_entry_is_still_flat`, asserting
+        `is_flat() is True` here). That assertion was the bug itself, not a spec: a
+        resting pending_entry is not a REALIZED position (get_positions() correctly
+        stays empty -- unchanged below), but place_bracket() has ALWAYS refused a second
+        order while one is pending (see TestPlaceBracket.test_refuses_when_already_pending
+        above). The old is_flat()==True here meant the engine's OWN flatness check
+        disagreed with what place_bracket() would actually do one line later -- exactly
+        the 2026-08-14 pending_entry deadlock (is_flat() said FLAT, the engine went
+        looking for and rails-cleared a new signal, and place_bracket() then silently
+        refused it, every tick, for 15 sessions). is_flat() now means "available for a
+        new place_bracket() call", matching place_bracket()'s own refusal condition via
+        the shared _is_active_position() predicate -- see fill_sim_broker.py and
+        test_fillsim_pending_entry_deadlock_2026_08_29.py for the full guard."""
         broker = FillSimBroker(state_dir=tmp_path, start_equity=2000.0)
         broker.place_bracket("MNQ", "BUY", 4, 21000.0, 21030.0, 20980.0)
-        assert broker.is_flat("MNQ") is True
-        assert broker.get_positions() == []
+        assert broker.is_flat("MNQ") is False
+        assert broker.get_positions() == [], (
+            "a pending_entry is still not a REALIZED position -- get_positions() is "
+            "OPEN-only and must stay unaffected by the is_flat() fix")
 
     def test_open_short_reports_negative_qty(self, tmp_path):
         broker = FillSimBroker(state_dir=tmp_path, start_equity=2000.0)

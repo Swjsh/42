@@ -34,6 +34,8 @@ import datetime as dt
 import json
 import logging
 import os
+import sys
+import time
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
@@ -48,6 +50,9 @@ STATE_DIR.mkdir(parents=True, exist_ok=True)
 POSITION_FILE = STATE_DIR / "position.json"
 ACCOUNT_FILE  = STATE_DIR / "account.json"
 WOULD_BE_FILE = STATE_DIR / "would-be-trades.jsonl"
+BROKER_TRANSPORT_FILE = STATE_DIR / "broker-transport.jsonl"  # 2026-08-29 diagnosability fix --
+                                                                # see module docstring / helpers
+                                                                # below "Transport diagnosability"
 
 WATCH_ONLY = True  # DEFAULT-SAFE, and every caller may still override per instance.
 #
@@ -94,6 +99,141 @@ def _run(coro):
             return pool.submit(asyncio.run, coro).result()
     except RuntimeError:
         return _get_loop().run_until_complete(coro)
+
+
+# ── Transport diagnosability (2026-08-29) ───────────────────────────────────────
+#
+# WHY THIS EXISTS: the MES mirror lane (armed 2026-08-20) has placed 8 order attempts, 0
+# placed. 7 of 8 rows in mirror-broker-orders.jsonl read {"order_ids": [], "placed": false}
+# with NO reason field. automation/state/logs/futures-mirror-shadow.stderr.log shows the root
+# cause -- the Tastytrade SANDBOX is intermittently unavailable:
+#     get_positions failed: TastytradeError: Couldn't parse response: <html>502 Bad
+#         Gateway</html> nginx/1.31.0
+#     get_account_equity failed: ReadTimeout:
+#     Tastytrade connect failed: (x6)
+# `log = logging.getLogger(__name__)` (module top) has NO handler configured anywhere in this
+# repo -- log.warning/log.error calls (including the 2026-08-21 _leg_failure_detail() fix)
+# never reach disk. This section bypasses that dead logger entirely with direct, fail-open
+# file writes, and fixes a second bug in the same incident: `str(exc)` is EMPTY for several of
+# these exceptions ("ReadTimeout: " with nothing after the colon) -- every check below
+# classifies by exception TYPE/repr, never str(exc) alone.
+
+_TRANSPORT_STATUS_MARKERS = ("502", "503", "504", "429")
+_RETRY_DELAYS_SEC = (1.0, 3.0, 9.0)   # exponential backoff, deterministic (no jitter). The
+                                        # default max_attempts=3 (see _with_retry / place_bracket
+                                        # below) consumes only delays[0:2] (1s, 3s) -- two sleeps
+                                        # between three total tries. The 9s figure is kept in the
+                                        # tuple (task spec named all three) so a future caller
+                                        # raising max_attempts to 4 picks it up with no code change.
+
+
+def _et_now_str() -> str:
+    """ET wall-clock timestamp for diagnostic logging, DST-aware via the repo's shared clock --
+    never a naive local read (this box runs Mountain time, CLAUDE.md TZ scar). Self-contained
+    (matches this file's existing zero-sibling-import design -- no other backtest/futures/*.py
+    module is imported here) rather than depending on a sibling futures.* module: inserts
+    setup/scripts onto sys.path exactly like futures_session.et_now() does, then lazily imports
+    et_clock so a test's monkeypatch of et_clock.et_now is honored. Fail-open to naive local
+    time on any import/lookup failure -- this is a diagnostic log timestamp, never a trading
+    decision input, so best-effort beats blocking the log write."""
+    try:
+        p = str(REPO / "setup" / "scripts")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        import et_clock  # noqa: PLC0415
+
+        return et_clock.et_now().replace(tzinfo=None).strftime("%Y-%m-%dT%H:%M:%S")
+    except Exception:  # noqa: BLE001 -- best-effort timestamp, never blocks the caller
+        return dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+
+def _is_transport_error(exc: BaseException) -> bool:
+    """True iff `exc` looks like a TRANSPORT failure (timeout / gateway / connection reset --
+    something that never reached the broker's own order-matching/validation logic) rather than
+    a genuine broker-side answer. Drives (a) whether connect/get_positions/get_account_equity/a
+    leg placement is safe to retry, and (b) the `outcome` field on every broker-transport.jsonl
+    row. Must NEVER return True for a clean response that merely carries `errors`/`warnings` --
+    that already reached the broker and answered; retrying it would spam a real rejection.
+
+    Classify by TYPE first: str(exc) is EMPTY for some httpx timeouts seen live ("ReadTimeout: "
+    with nothing after the colon) -- a message-only check would miss exactly the case this
+    fixes."""
+    try:
+        import httpx  # noqa: PLC0415 -- only reachable once tastytrade (its own dependency) is
+        if isinstance(exc, httpx.RequestError):   # covers Timeout*/Connect*/Network*/Protocol*
+            return True
+    except ImportError:
+        pass
+    cls_name = type(exc).__name__.lower()
+    if any(marker in cls_name for marker in ("timeout", "connecterror", "connectionerror")):
+        return True
+    text = f"{exc!r} {exc}".lower()
+    if "couldn't parse response" in text or "could not parse response" in text:
+        return True
+    if any(code in text for code in _TRANSPORT_STATUS_MARKERS):
+        return True
+    return False
+
+
+def _extract_http_status(exc: BaseException) -> Optional[str]:
+    """Best-effort HTTP status extraction from an exception's repr/str -- 502/503/504/429 are
+    the ones actually seen live (gateway/rate-limit class). None if nothing matches; never
+    raises."""
+    text = f"{exc!r} {exc}"
+    for code in _TRANSPORT_STATUS_MARKERS:
+        if code in text:
+            return code
+    return None
+
+
+def _log_broker_transport(call: str, outcome: str, *, exc: Optional[BaseException] = None,
+                          detail: Optional[str] = None) -> None:
+    """Appends ONE structured row to broker-transport.jsonl for a leg rejection or transport
+    exception -- see "Transport diagnosability" above. `call` is one of: place_bracket_entry /
+    tp1 / stop / runner / connect / get_positions / get_account_equity / place_bracket (the
+    last for a structural failure before any leg was attempted). `outcome` is one of:
+    leg_rejected / transport_error / transport_error_not_retried_ambiguous. NEVER raises --
+    this is a diagnostic side channel; a logging hiccup must not break the caller's own
+    fail-open contract (mirrors WOULD_BE_FILE's append pattern elsewhere in this file)."""
+    try:
+        row = {
+            "ts_et": _et_now_str(),
+            "call": call,
+            "outcome": outcome,
+            "error_class": type(exc).__name__ if exc is not None else None,
+            "error_repr": repr(exc)[:500] if exc is not None else None,
+            "http_status": _extract_http_status(exc) if exc is not None else None,
+            "detail": detail,
+        }
+        BROKER_TRANSPORT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(BROKER_TRANSPORT_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, default=str) + "\n")
+    except Exception:  # noqa: BLE001 -- logging must never raise
+        pass
+
+
+def _with_retry(fn, *, max_attempts: int = 3, delays: tuple = _RETRY_DELAYS_SEC):
+    """Runs `fn()` (a zero-arg callable performing ONE network call) with up to `max_attempts`
+    TOTAL tries, retrying ONLY on a transport-classified failure (`_is_transport_error`) -- a
+    non-transport exception (e.g. a genuine auth/permissions TastytradeError, or a KeyError) is
+    re-raised immediately on its first occurrence, never retried. Deterministic, jitter-free
+    backoff: sleeps `delays[i]` before attempt i+2. Re-raises the LAST exception once attempts
+    are exhausted -- never invents a return value.
+
+    For NON-ORDER read calls ONLY (connect / get_positions / get_account_equity) -- CLAUDE.md
+    2026-08-29: "non-order read calls are safe to retry freely." place_bracket's own leg
+    placements deliberately do NOT use this wrapper -- see place_bracket's `_place_leg`, which
+    adds the duplicate-order confirm-before-retry safety gate this generic wrapper has no
+    concept of (retrying an ORDER write risks placing a genuine duplicate if the first attempt
+    actually reached the broker and only the response was lost; a read call carries no such
+    risk, so it may retry unconditionally)."""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return fn()
+        except Exception as e:  # noqa: BLE001 -- classification decides retry, not a blanket catch
+            if not _is_transport_error(e) or attempt >= max_attempts:
+                raise
+            time.sleep(delays[min(attempt - 1, len(delays) - 1)])
 
 
 # ── State dataclasses (identical to ibkr_paper.py for compatibility) ───────────
@@ -186,6 +326,11 @@ class TastytradeBroker:
         self._account   = None
         self._connected = False
         self._sandbox   = os.getenv("TT_SANDBOX", "false").lower() != "false"
+        # 2026-08-29 diagnosability fix: structured detail from the LAST place_bracket call,
+        # set on every call (None on full success) -- see "Transport diagnosability" above.
+        # Callers (e.g. futures_mirror_shadow._broker_execute_entry) read this when the
+        # returned id list is empty/short, instead of getting a reasonless [].
+        self.last_failure_detail: Optional[dict] = None
 
     # ── Connection ──────────────────────────────────────────────────────────────
 
@@ -203,7 +348,16 @@ class TastytradeBroker:
             target_account = os.getenv("TT_ACCOUNT", "")
 
             async def _conn():
-                session  = tt.Session(client_secret, refresh_token, is_test=self._sandbox)
+                # timeout= is forwarded to httpx.AsyncClient (Session.__init__'s own docstring:
+                # "additional keyword arguments to pass to the httpx AsyncClient, such as
+                # timeout") -- httpx's own default is 5.0s (DEFAULT_TIMEOUT_CONFIG,
+                # httpx/_config.py) if unset, which this method's `timeout` PARAMETER never
+                # actually reached before this fix (dead parameter -- accepted, never used).
+                # 2026-08-29: wired through, raising the effective timeout from httpx's 5.0s
+                # default to this method's own existing default of 10.0s against a sandbox
+                # that has shown 502s / ReadTimeouts under load.
+                session  = tt.Session(client_secret, refresh_token, is_test=self._sandbox,
+                                      timeout=timeout)
                 accounts = await tt.Account.get(session)   # returns list[Account]
                 if not accounts:
                     raise RuntimeError("No accounts found on this Tastytrade login")
@@ -214,7 +368,7 @@ class TastytradeBroker:
                     acct = accounts[0]
                 return session, acct
 
-            self._session, self._account = _run(_conn())
+            self._session, self._account = _with_retry(lambda: _run(_conn()))
             self._connected = True
             log.info("Tastytrade connected (sandbox=%s) acct=%s",
                      self._sandbox, self._account.account_number)
@@ -224,7 +378,9 @@ class TastytradeBroker:
             log.error("Missing env var %s — set TT_SECRET and TT_REFRESH (see file docstring)", e)
             return False
         except Exception as e:
-            log.error("Tastytrade connect failed: %s", e)
+            log.error("Tastytrade connect failed: %s: %s", type(e).__name__, e)
+            if _is_transport_error(e):
+                _log_broker_transport("connect", "transport_error", exc=e)
             return False
 
     def disconnect(self):
@@ -244,13 +400,14 @@ class TastytradeBroker:
             async def _get():
                 return await self._account.get_positions(self._session)
 
+            positions = _with_retry(lambda: _run(_get()))
             return [
                 {
                     "symbol":   p.symbol,
                     "qty":      p.quantity,
                     "avg_cost": float(p.average_open_price or 0),
                 }
-                for p in _run(_get())
+                for p in positions
                 if getattr(p.instrument_type, "value", str(p.instrument_type)).upper()
                    in ("FUTURE", "FUTURES")
             ]
@@ -260,6 +417,12 @@ class TastytradeBroker:
             # nothing after the colon. Always include the exception TYPE so a future failure
             # is at least classifiable, even when the message body is blank.
             log.error("get_positions failed: %s: %s", type(e).__name__, e)
+            # 2026-08-29: retried transparently above (_with_retry) on a transport failure --
+            # reaching here means either a non-transport exception, or retries exhausted. Only
+            # the latter is worth a broker-transport.jsonl row (a non-transport failure here,
+            # e.g. a parse error, isn't the sandbox-flakiness class this file exists to catch).
+            if _is_transport_error(e):
+                _log_broker_transport("get_positions", "transport_error", exc=e)
             return []
 
     def is_flat(self, instrument: str) -> bool:
@@ -276,11 +439,13 @@ class TastytradeBroker:
             async def _get():
                 return await self._account.get_balances(self._session)
 
-            bal = _run(_get())
+            bal = _with_retry(lambda: _run(_get()))
             return float(bal.net_liquidating_value)
         except Exception as e:
             # Same empty-str(e) diagnosability fix as get_positions above.
             log.error("get_account_equity failed: %s: %s", type(e).__name__, e)
+            if _is_transport_error(e):
+                _log_broker_transport("get_account_equity", "transport_error", exc=e)
             return None
 
     # ── Orders ──────────────────────────────────────────────────────────────────
@@ -378,11 +543,107 @@ class TastytradeBroker:
                         return f"{attr}={val!r}"
                 return repr(resp)
 
-            async def _place():
-                ids = []
+            def _leg_already_working_or_filled() -> Optional[bool]:
+                """DUPLICATE-ORDER SAFETY (2026-08-29): before retrying ANY leg placement after
+                a transport-class failure, confirm the PRIOR attempt did not actually reach the
+                broker. A transport failure means we lost the RESPONSE, not necessarily the
+                REQUEST -- the order may already be resting (visible in get_live_orders) or
+                already filled into the account's position (visible in get_positions). Retrying
+                blind risks placing a genuine duplicate order -- for the entry leg specifically
+                this would DOUBLE the position size; for an exit leg (tp1/stop/runner) it risks
+                two live orders both authorized to close the same qty. Matches this contract's
+                symbol only (same loose-match convention as this class's own is_flat()) --
+                broad enough to fail closed on ANY doubt.
 
-                # 1. Entry LIMIT (DAY) — full qty
-                r = await self._account.place_order(
+                Returns:
+                  True  -- confirmed a matching working order OR position already exists ->
+                           caller must NOT retry (would duplicate).
+                  False -- confirmed absent in both live orders and positions -> safe to retry.
+                  None  -- the confirmation query itself failed (broker unreachable again right
+                           now, same as the failure being investigated) -> INCONCLUSIVE. Treated
+                           by the caller as "do NOT retry" -- a duplicate live order is a
+                           strictly worse outcome than abandoning one diagnostic retry, so this
+                           check fails CLOSED on any doubt, unlike the rest of this file's
+                           fail-OPEN logging/diagnostics (CLAUDE.md C11: broker is source of
+                           truth; verify flat before entry)."""
+                try:
+                    symbol = getattr(contract, "symbol", None)
+
+                    async def _check():
+                        orders = await self._account.get_live_orders(self._session)
+                        positions = await self._account.get_positions(self._session)
+                        return orders, positions
+
+                    orders, positions = _run(_check())
+                    for o in orders:
+                        for leg in (getattr(o, "legs", None) or []):
+                            leg_symbol = getattr(leg, "symbol", "") or ""
+                            if symbol and symbol in leg_symbol:
+                                return True
+                    for p in positions:
+                        p_symbol = getattr(p, "symbol", "") or ""
+                        p_qty = getattr(p, "quantity", 0) or 0
+                        if symbol and symbol in p_symbol and abs(p_qty) > 0:
+                            return True
+                    return False
+                except Exception:  # noqa: BLE001 -- inconclusive, not a crash
+                    return None
+
+            def _place_leg(build_coro, *, call_name: str) -> Optional[str]:
+                """Places ONE bracket leg with transport-retry + duplicate-order safety.
+                Returns the placed order id, or None if the leg was abandoned (a clean
+                rejection, a transport failure that exhausted retries, or the ambiguous-
+                landed-state guard). EVERY non-success path is journaled to
+                broker-transport.jsonl so an empty order_ids=[] is never reasonless again
+                (2026-08-29 diagnosability fix -- see module-level "Transport diagnosability").
+                Max 3 total attempts (see _RETRY_DELAYS_SEC) -- deliberately NOT using the
+                generic _with_retry helper, because an order WRITE needs the confirm-before-
+                retry safety check that helper intentionally omits (see its own docstring)."""
+                attempt = 0
+                while True:
+                    attempt += 1
+                    try:
+                        resp = _run(build_coro())
+                    except Exception as e:  # noqa: BLE001
+                        if not _is_transport_error(e):
+                            # Not a network blip -- e.g. a pydantic validation error building
+                            # the request itself. Never reached the broker at all; retrying an
+                            # identical malformed request would just fail identically forever.
+                            _log_broker_transport(call_name, "leg_rejected", exc=e,
+                                                  detail="exception_before_response")
+                            log.warning("%s leg raised non-transport exception: %s: %s",
+                                       call_name, type(e).__name__, e)
+                            return None
+                        if attempt >= 3:
+                            _log_broker_transport(call_name, "transport_error", exc=e)
+                            log.warning("%s leg exhausted %d transport retries: %s: %s",
+                                       call_name, attempt, type(e).__name__, e)
+                            return None
+                        landed = _leg_already_working_or_filled()
+                        if landed is not False:   # True (confirmed landed) OR None (ambiguous)
+                            _log_broker_transport(
+                                call_name, "transport_error_not_retried_ambiguous", exc=e,
+                                detail=("confirmed_order_already_landed" if landed is True
+                                       else "confirmation_query_itself_failed"))
+                            log.warning("%s leg transport failure NOT retried (landed=%s, "
+                                       "duplicate-order risk): %s: %s",
+                                       call_name, landed, type(e).__name__, e)
+                            return None
+                        time.sleep(_RETRY_DELAYS_SEC[min(attempt - 1, len(_RETRY_DELAYS_SEC) - 1)])
+                        continue
+                    if resp.order:
+                        return resp.order.id
+                    detail = _leg_failure_detail(resp)
+                    _log_broker_transport(call_name, "leg_rejected", detail=detail)
+                    log.warning("%s leg rejected, no order id: %s", call_name, detail)
+                    return None
+
+            ids: list = []
+            leg_failures: list = []
+
+            # 1. Entry LIMIT (DAY) — full qty
+            async def _entry_coro():
+                return await self._account.place_order(
                     self._session,
                     NewOrder(
                         time_in_force=OrderTimeInForce.DAY,
@@ -392,13 +653,15 @@ class TastytradeBroker:
                     ),
                     dry_run=False,
                 )
-                if r.order:
-                    ids.append(r.order.id)
-                else:
-                    log.warning("entry leg rejected, no order id: %s", _leg_failure_detail(r))
+            entry_id = _place_leg(_entry_coro, call_name="place_bracket_entry")
+            if entry_id:
+                ids.append(entry_id)
+            else:
+                leg_failures.append("place_bracket_entry")
 
-                # 2. TP1 exit LIMIT (GTC) — tp1_q contracts
-                r = await self._account.place_order(
+            # 2. TP1 exit LIMIT (GTC) — tp1_q contracts
+            async def _tp1_coro():
+                return await self._account.place_order(
                     self._session,
                     NewOrder(
                         time_in_force=OrderTimeInForce.GTC,
@@ -408,13 +671,15 @@ class TastytradeBroker:
                     ),
                     dry_run=False,
                 )
-                if r.order:
-                    ids.append(r.order.id)
-                else:
-                    log.warning("tp1 leg rejected, no order id: %s", _leg_failure_detail(r))
+            tp1_id = _place_leg(_tp1_coro, call_name="tp1")
+            if tp1_id:
+                ids.append(tp1_id)
+            else:
+                leg_failures.append("tp1")
 
-                # 3. Stop STOP (GTC) — full qty; heartbeat trims to runner qty after TP1 fills
-                r = await self._account.place_order(
+            # 3. Stop STOP (GTC) — full qty; heartbeat trims to runner qty after TP1 fills
+            async def _stop_coro():
+                return await self._account.place_order(
                     self._session,
                     NewOrder(
                         time_in_force=OrderTimeInForce.GTC,
@@ -424,14 +689,16 @@ class TastytradeBroker:
                     ),
                     dry_run=False,
                 )
-                if r.order:
-                    ids.append(r.order.id)
-                else:
-                    log.warning("stop leg rejected, no order id: %s", _leg_failure_detail(r))
+            stop_id = _place_leg(_stop_coro, call_name="stop")
+            if stop_id:
+                ids.append(stop_id)
+            else:
+                leg_failures.append("stop")
 
-                # 4. Runner TP LIMIT (GTC) — optional
-                if runner_price and run_q > 0:
-                    r = await self._account.place_order(
+            # 4. Runner TP LIMIT (GTC) — optional
+            if runner_price and run_q > 0:
+                async def _runner_coro():
+                    return await self._account.place_order(
                         self._session,
                         NewOrder(
                             time_in_force=OrderTimeInForce.GTC,
@@ -441,20 +708,32 @@ class TastytradeBroker:
                         ),
                         dry_run=False,
                     )
-                    if r.order:
-                        ids.append(r.order.id)
-                    else:
-                        log.warning("runner leg rejected, no order id: %s", _leg_failure_detail(r))
+                runner_id = _place_leg(_runner_coro, call_name="runner")
+                if runner_id:
+                    ids.append(runner_id)
+                else:
+                    leg_failures.append("runner")
 
-                return ids
-
-            ids = _run(_place())
             log.info("Bracket placed %s %s %d @ %.2f TP=%.2f ST=%.2f IDs=%s",
                      side, instrument, qty, entry_price, tp1_price, stop_price, ids)
+            # 2026-08-29: structured, instance-level failure detail -- see __init__ and module
+            # docstring "Transport diagnosability". None on a fully clean bracket; otherwise a
+            # summary a caller (e.g. futures_mirror_shadow._broker_execute_entry) can read
+            # without cross-referencing broker-transport.jsonl by hand.
+            self.last_failure_detail = (
+                {"instrument": instrument, "placed_ids": list(ids), "leg_failures": leg_failures}
+                if leg_failures else None)
             return ids
 
         except Exception as e:
-            log.error("place_bracket failed: %s", e)
+            log.error("place_bracket failed: %s: %s", type(e).__name__, e)
+            self.last_failure_detail = {
+                "call": "place_bracket", "error_class": type(e).__name__,
+                "error_repr": repr(e)[:500],
+            }
+            _log_broker_transport(
+                "place_bracket", "transport_error" if _is_transport_error(e) else "leg_rejected",
+                exc=e, detail="exception_before_any_leg_attempted")
             return []
 
     def cancel_all(self, instrument: str) -> bool:

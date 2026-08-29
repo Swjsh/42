@@ -192,6 +192,42 @@ ARMED EXECUTION (added 2026-08-20, desk_allocator.py "DECISION ROTTING" -- the b
     Journals to `mirror-broker-orders.jsonl` (fills=BROKER) -- disjoint from `mirror-would-
     be.jsonl` (fills=SIMULATED) so the two classes can never be aggregated by accident, same
     convention as futures_trader_core's trader/ vs trader-broker/ split.
+
+ARMED EXECUTION -- INTRADAY-ONLY DEVIATION (2026-08-29 risk-reduction fix). The armed leg's
+  entry path above was built inheriting this module's 2-SESSION shadow horizon (flat by
+  15:55 ET the NEXT trading day) with no flatten path of its own -- entry + TP1 + stop were
+  placed as GTC broker orders and simply left to ride if neither filled by session end. Per
+  MARGIN-LEVERAGE-RISK.md: day-margin only applies if flat before the CME settlement cutoff;
+  holding a real position past it snaps the full overnight/initial margin back, and on this
+  $2K sandbox account "holding overnight could exceed account equity... Stay intraday, stay
+  in micros." An overnight horizon is FREE for the would-be shadow ledger (no capital at
+  risk) but is real solvency risk for the armed leg -- so the two ledgers now DELIBERATELY
+  DIVERGE on horizon: the ARMED broker leg is INTRADAY-ONLY (flattens itself before CME's
+  daily 17:00 ET settlement/maintenance stop, via `FuturesRiskRails.must_flatten` --
+  MINUTES_BEFORE_MAINTENANCE_FLATTEN=10 -- and refuses new armed entries inside
+  MINUTES_BEFORE_MAINTENANCE_BLOCK=30 of it, both reused from futures_risk_rails.py, not
+  reimplemented), while `mirror-would-be.jsonl` keeps its ORIGINAL 2-session spec unchanged
+  so the 94-round-trip arming-bar evidence series is never corrupted mid-stream. ENTRY_QTY
+  stays 2 -- the defect was the horizon, not the size; per-trade loss is still bounded by the
+  stop and `check_liquidation_distance` still runs on every entry.
+    Every row this module writes to `mirror-broker-orders.jsonl` (placed, skipped, error, AND
+    the new forced-flatten event below) carries an explicit `armed_spec` field
+    (ARMED_SPEC = "intraday_only_v1") naming this deviation, so the two ledgers can never be
+    silently compared as one strategy -- they measure DIFFERENT things (a bounded-overnight
+    forward signal vs. a real intraday-only sandbox position).
+    On EVERY armed poll, BEFORE any new-entry consideration, `_broker_maintenance_flatten()`
+    asks `FuturesRiskRails().must_flatten(now_et)` (the SAME rail futures_trader_core's own
+    EOD-flatten step uses) whether the armed leg's real broker position (if any, for
+    ARM_INSTRUMENT) must close right now; if so it cancels any working orders
+    (`broker.cancel_all`) and closes the position (`broker.close_position`), logging an
+    explicit `action: "ARMED_MAINTENANCE_FLATTEN"` row (reason/rail/outcome) to
+    `mirror-broker-orders.jsonl` -- never the would-be ledger. New entries inside the
+    maintenance-BLOCK window are already refused by the existing `rails.check_entry()` call
+    in `_broker_execute_entry` (it runs `check_session_window`, which encodes
+    MINUTES_BEFORE_MAINTENANCE_BLOCK), logging the same generic skip-row shape used for every
+    other rail rejection. Fail-open throughout: any broker failure during the flatten is
+    logged into the row, never raised -- the armed leg's "must never break the shadow poll"
+    contract holds here exactly as it does for the entry path.
 """
 from __future__ import annotations
 
@@ -258,6 +294,10 @@ ARM_INSTRUMENT = "MES"
 BROKER_ENTRY_SLIPPAGE_PTS = 2.0    # LIMIT entry buffered beyond the ES proxy quote so it is
                                     # marketable against MES's own real quote, not price-perfect.
 BROKER_PER_TRADE_RISK_CAP = 150.0  # sized for the frozen spec's 2-lot ATR stop; see docstring.
+ARMED_SPEC = "intraday_only_v1"    # 2026-08-29 -- names the armed leg's deliberate horizon
+                                    # deviation from the 2-session shadow spec; see module
+                                    # docstring "ARMED EXECUTION -- INTRADAY-ONLY DEVIATION".
+                                    # Stamped on EVERY mirror-broker-orders.jsonl row.
 
 SPEC_VERSION = "v2"               # bump on ANY change to the constants below -- see module
                                    # docstring "SPEC VERSION" + "SPEC v1 -> v2" for the
@@ -659,9 +699,9 @@ def _broker_execute_entry(sig: dict, pos: dict, now_et: dt.datetime) -> Optional
         os.environ.setdefault("FUTURES_ARMED", "1")
         broker = make_broker("tastytrade")
         if not broker.connect():
-            return {"skipped": "broker_not_connected"}
+            return {"skipped": "broker_not_connected", "armed_spec": ARMED_SPEC}
         if not broker.is_flat(ARM_INSTRUMENT):
-            return {"skipped": "position_open_no_stack"}
+            return {"skipped": "position_open_no_stack", "armed_spec": ARMED_SPEC}
 
         equity = broker.get_account_equity() or rails.start_equity
         session_pnl = _session_realized_pnl(broker, now_et)
@@ -672,7 +712,8 @@ def _broker_execute_entry(sig: dict, pos: dict, now_et: dt.datetime) -> Optional
         if not verdict.allow:
             row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
                   "signal_ref": pos["signal_ref"], "placed": False,
-                  "skipped": verdict.rail, "reason": verdict.reason, "fills": "BROKER"}
+                  "skipped": verdict.rail, "reason": verdict.reason, "fills": "BROKER",
+                  "armed_spec": ARMED_SPEC}
             _append_jsonl(BROKER_ORDERS_FILE, row)
             return row
 
@@ -682,19 +723,97 @@ def _broker_execute_entry(sig: dict, pos: dict, now_et: dt.datetime) -> Optional
         ids = broker.place_bracket(
             ARM_INSTRUMENT, side, ENTRY_QTY, entry_limit, pos["tp1"], pos["stop"],
             tp1_qty=TP1_QTY)
+        placed = bool(ids)
         row = {
             "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "signal_ref": pos["signal_ref"],
             "direction": pos["direction"], "side": side, "qty": ENTRY_QTY,
             "entry_limit": round(entry_limit, 4), "stop": pos["stop"], "tp1": pos["tp1"],
-            "order_ids": ids, "placed": bool(ids), "equity_at_entry": equity,
-            "fills": "BROKER",
+            "order_ids": ids, "placed": placed, "equity_at_entry": equity,
+            "fills": "BROKER", "armed_spec": ARMED_SPEC,
         }
+        if not placed:
+            # 2026-08-29 diagnosability fix: a non-placement must never again be reasonless --
+            # 7 of 8 real armed attempts came back {"order_ids": [], "placed": false} with NO
+            # reason field. `last_failure_detail` is the broker's own structured explanation
+            # (tastytrade_paper.TastytradeBroker, set on every place_bracket() call); duck-typed
+            # via getattr so a broker backend that predates this field (or a test double) still
+            # gets the explicit fallback string rather than a KeyError/AttributeError.
+            row["failure_detail"] = (getattr(broker, "last_failure_detail", None)
+                                     or "unknown_no_detail_from_broker")
         _append_jsonl(BROKER_ORDERS_FILE, row)
         return row
     except Exception as e:  # noqa: BLE001 -- armed execution must never break the shadow poll
         row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
               "signal_ref": pos.get("signal_ref"), "placed": False,
-              "error": f"{type(e).__name__}: {e}", "fills": "BROKER"}
+              "error": f"{type(e).__name__}: {e}", "fills": "BROKER",
+              "armed_spec": ARMED_SPEC}
+        try:
+            _append_jsonl(BROKER_ORDERS_FILE, row)
+        except Exception:  # noqa: BLE001
+            pass
+        return row
+
+
+def _broker_maintenance_flatten(now_et: dt.datetime, quote_fetcher=None) -> Optional[dict]:
+    """Armed-leg-only forced flatten, run once per poll BEFORE any new-entry consideration.
+    See module docstring "ARMED EXECUTION -- INTRADAY-ONLY DEVIATION". Uses
+    `FuturesRiskRails().must_flatten(now_et)` (the SAME rail futures_trader_core's own
+    EOD-flatten step uses -- reused, not reimplemented) to decide WHEN a real broker position
+    for ARM_INSTRUMENT must close; NEVER touches the would-be shadow ledger, which keeps its
+    own frozen 2-session horizon regardless of what this function does.
+
+    Returns None when: not armed, the rail says no flatten is due, the broker cannot connect
+    (next poll retries), or the broker already reports flat (nothing to log -- a no-op is not
+    an event). Returns the logged row dict when a flatten was attempted (success or failure).
+    NEVER raises -- any broker failure here is caught and logged into the row; the armed leg's
+    'must never break the shadow poll' contract holds exactly as it does for the entry path."""
+    if not _mirror_armed():
+        return None
+    try:
+        from futures.futures_risk_rails import FuturesRiskRails  # noqa: PLC0415
+        from futures.futures_trader_core import make_broker  # noqa: PLC0415
+
+        flat_call = FuturesRiskRails().must_flatten(now_et)
+        if not flat_call.allow:
+            return None
+
+        os.environ.setdefault("FUTURES_ARMED", "1")
+        broker = make_broker("tastytrade")
+        if not broker.connect():
+            return None  # can't confirm a position exists to flatten; next poll retries
+        if broker.is_flat(ARM_INSTRUMENT):
+            return None  # already flat -- nothing to log
+
+        positions = {p["symbol"]: p for p in broker.get_positions()}
+        pos = next((p for s, p in positions.items() if ARM_INSTRUMENT in s), None)
+        if pos is None:
+            return None
+
+        raw_qty = float(pos.get("qty", 0))
+        qty = abs(int(raw_qty))
+        side = "SELL" if raw_qty > 0 else "BUY"
+        fetcher = quote_fetcher or fetch_es_quote_1m
+        price = fetcher()
+        if price is None:
+            avg_cost = pos.get("avg_cost")
+            price = float(avg_cost) if avg_cost else None
+
+        cancel_ok = broker.cancel_all(ARM_INSTRUMENT)
+        close_ok = (broker.close_position(ARM_INSTRUMENT, qty, side, price)
+                   if price is not None else False)
+        row = {
+            "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "action": "ARMED_MAINTENANCE_FLATTEN",
+            "instrument": ARM_INSTRUMENT, "qty": qty, "side": side, "price": price,
+            "reason": flat_call.reason, "rail": flat_call.rail,
+            "cancel_all_ok": cancel_ok, "close_ok": close_ok, "fills": "BROKER",
+            "armed_spec": ARMED_SPEC,
+        }
+        _append_jsonl(BROKER_ORDERS_FILE, row)
+        return row
+    except Exception as e:  # noqa: BLE001 -- armed flatten must never break the shadow poll
+        row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+              "action": "ARMED_MAINTENANCE_FLATTEN", "error": f"{type(e).__name__}: {e}",
+              "fills": "BROKER", "armed_spec": ARMED_SPEC}
         try:
             _append_jsonl(BROKER_ORDERS_FILE, row)
         except Exception:  # noqa: BLE001
@@ -899,6 +1018,17 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
         wm_state = {**wm_state, "spec_version": SPEC_VERSION}
     _ensure_would_be_doc_header()
     positions = dict(load_positions_state().get("positions", {}))
+
+    # 0) ARMED MAINTENANCE FLATTEN (see module docstring "ARMED EXECUTION -- INTRADAY-ONLY
+    #    DEVIATION") -- runs BEFORE any new-entry consideration this poll, so a due flatten is
+    #    never raced by a same-poll new entry. No-op (returns None, writes nothing) unless
+    #    MIRROR_ARMED=1 AND the rails say a real broker position must close right now.
+    try:
+        flatten_result = _broker_maintenance_flatten(now_et)
+        if flatten_result is not None and flatten_result.get("error"):
+            errors.append(f"broker_flatten_failed:{flatten_result['error']}")
+    except Exception as e:  # noqa: BLE001 -- belt-and-braces; the function already catches
+        errors.append(f"broker_flatten_unexpected:{type(e).__name__}:{e}")  # internally
 
     # 1) scan every fleet arm's decisions.jsonl past its watermark, dedupe cross-arm.
     #    COLD START (an arm never watermarked before): jump straight to end-of-file with

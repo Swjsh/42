@@ -1737,6 +1737,52 @@ def check_llm_auth_outage(now, logs_dir=None, lookback_days: int = 7) -> list[st
     ]
 
 
+FUTURES_HEALTH_JSON = STATE / "futures" / "health.json"
+
+
+def check_futures_health(now, path=None) -> list[str]:
+    """Fold futures_health.py's own verdict into the ONE health surface (2026-08-29 go-live
+    audit gap: this file had ZERO futures awareness before this check, so a multi-week
+    futures-lane outage could never reach STATUS.md/Discord no matter how loud
+    futures_health.py itself was).
+
+    DO NOT RECOMPUTE the futures logic here -- read the artifact futures_health.py already
+    wrote (its own docstring carries the full mechanism: ghost pending_entry deadlock,
+    ENTER_REFUSED patterns, broker-transport error rate, data freshness, task liveness).
+    This is a thin passthrough, same shape as check_llm_auth_outage/check_quote_recorder_alive.
+
+    SILENT UNTIL DEPLOYED: a missing/unreadable health.json means futures_health.py has not
+    fired yet (or was deleted) -- that is a "not yet turned on" state, not a fault, so it
+    stays silent (fail-open). A top-level UNKNOWN never happens (futures_health.py's own
+    contract guarantees GREEN/YELLOW/RED only) but is treated the same way defensively --
+    per the task spec, a futures UNKNOWN must NEVER turn an otherwise-GREEN self_check RED.
+
+    RED -> a problem string containing the substring "RED" (matches _problem_is_broken,
+    same convention as the existing `engine-health RED: ...` problem in run() item 3) so a
+    genuine futures-lane outage classifies BROKEN, not just DEGRADED.
+    YELLOW -> DEGRADED-only (never contains "RED"), so a soft futures issue can never spuriously
+    escalate self_check's own verdict past DEGRADED.
+    GREEN -> silent, no problem appended."""
+    p = path or FUTURES_HEALTH_JSON
+    if not p.exists():
+        return []  # never deployed / not yet fired -- see SILENT UNTIL DEPLOYED above
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 -- an unreadable artifact is a fail-open no-op, not a crash
+        return []
+    if not isinstance(data, dict):
+        return []
+    verdict = data.get("verdict")
+    reasons = data.get("reasons") or []
+    reason_str = "; ".join(str(r) for r in reasons[:4]) or "(no reasons listed)"
+    if verdict == "RED":
+        return [f"FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- {reason_str}"]
+    if verdict == "YELLOW":
+        return [f"FUTURES-HEALTH DEGRADED: {reason_str}"]
+    # GREEN, or an unrecognized/missing verdict field (defensive: never a problem) -> silent
+    return []
+
+
 def run() -> dict:
     now = et_now(); hm = now.strftime("%H:%M")
     rth = ("09:30" <= hm <= "15:55") and now.weekday() < 5
@@ -1906,6 +1952,14 @@ def run() -> dict:
     # assumption" gap. Silent until first deployed (see the check's own docstring); once a
     # status file exists, holds the daemon to its own <=60s/20s cadence.
     problems.extend(check_quote_recorder_alive(now))
+
+    # 20. FUTURES-LANE HEALTH -- 2026-08-29 go-live audit gap: this file had ZERO futures
+    # awareness before this line (a multi-week fillsim ghost-order deadlock and a multi-week
+    # tastytrade-broker ReadTimeout outage both went undetected on every existing surface).
+    # Thin passthrough of futures_health.py's own verdict -- never recomputed here. Silent
+    # until futures_health.py has fired at least once; a futures UNKNOWN/missing artifact
+    # never turns an otherwise-GREEN self_check RED (see the check's own docstring).
+    problems.extend(check_futures_health(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,

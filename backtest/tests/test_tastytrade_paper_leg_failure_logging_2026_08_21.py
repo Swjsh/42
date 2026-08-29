@@ -27,6 +27,17 @@ sys.path.insert(0, str(REPO))
 from backtest.futures import tastytrade_paper as tp  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _isolate_broker_transport_file(monkeypatch, tmp_path):
+    """2026-08-29: this file's leg-rejection tests exercise place_bracket's REAL
+    _log_broker_transport() call (test_rejected_leg_* below), which appends to
+    tastytrade_paper.BROKER_TRANSPORT_FILE unconditionally -- an unpatched run of this test
+    file wrote fake rows into the real automation/state/futures/broker-transport.jsonl ledger.
+    Redirect it to a tmp path for every test in this module, same isolation shape used
+    throughout this repo's other broker/state guard files."""
+    monkeypatch.setattr(tp, "BROKER_TRANSPORT_FILE", tmp_path / "broker-transport.jsonl")
+
+
 class _FakeOrder:
     def __init__(self, order_id):
         self.id = order_id

@@ -65,6 +65,73 @@ def _load_env() -> None:
             os.environ.setdefault(k.strip(), v.strip())
 
 
+# ── verdict taxonomy (2026-08-29 fix) ────────────────────────────────────────────
+#
+# WHY THIS EXISTS: rows 20-21 of broker-probe.jsonl are literal `"error": "ReadTimeout: "`
+# (an httpx network timeout, EMPTY message) labelled H1_PERMISSIONS -- the old bare `else`
+# below mapped ANY non-session exception to H1_PERMISSIONS, so a network timeout got
+# misdiagnosed as a permissions rejection and sent three weeks of investigation down the
+# wrong path. Fixed by classifying transport-layer noise (H3_TRANSPORT) FIRST, keeping
+# H1_PERMISSIONS only for a response that genuinely came back from the broker carrying a
+# permissions/authorization error, and reporting anything else as H4_UNKNOWN rather than
+# silently defaulting to H1. SESSION_NOT_ACTIVE's existing (live-verified) check is untouched.
+_TRANSPORT_STATUS_MARKERS = ("502", "503", "504", "429")
+
+
+def _is_probe_transport_error(e: Exception) -> bool:
+    """TRANSPORT-class failure (timeout / gateway / connection reset) that never reached the
+    broker's own order-validation logic -- as opposed to a genuine broker-answered rejection.
+    Classify by TYPE first: str(e) is EMPTY for httpx timeouts (confirmed live -- rows 20-21
+    read literal "ReadTimeout: " with nothing after the colon), so a message-only check would
+    miss exactly the case this fixes."""
+    try:
+        import httpx  # noqa: PLC0415 -- only reachable once tastytrade (its own dependency) is
+        if isinstance(e, httpx.RequestError):
+            return True
+    except ImportError:
+        pass
+    cls_name = type(e).__name__.lower()
+    if any(marker in cls_name for marker in ("timeout", "connecterror", "connectionerror")):
+        return True
+    text = f"{e!r} {e}".lower()
+    if "couldn't parse response" in text or "could not parse response" in text:
+        return True
+    if any(code in text for code in _TRANSPORT_STATUS_MARKERS):
+        return True
+    return False
+
+
+def _is_broker_answered_error(e: Exception) -> bool:
+    """True iff `e` is the SDK's own TastytradeError carrying a REAL parsed broker response
+    (tastytrade.utils.validate_response's normal code/message path) -- i.e. genuinely reached
+    the broker and got answered (permissions, buying power, order-shape, etc.), as opposed to
+    a transport failure or an unrelated bug in this script. This is the POSITIVE evidence
+    H1_PERMISSIONS now requires -- the old bare `else` used to default ANY exception here,
+    transport noise included."""
+    try:
+        from tastytrade.utils import TastytradeError  # noqa: PLC0415
+        return isinstance(e, TastytradeError)
+    except ImportError:
+        return False
+
+
+def _classify_probe_verdict(e: Exception) -> str:
+    """Maps a probe dry-run exception to a verdict string. Order matters: transport noise is
+    checked FIRST (a gateway's HTML error page fails JSON parsing and gets wrapped in a
+    generic TastytradeError by validate_response's own fallback, so it must be caught before
+    the broker-answered check below), then the EXISTING (live-verified) session-hours-artifact
+    check, UNCHANGED, then a genuine broker-answered rejection, with anything left over
+    reported as H4_UNKNOWN rather than silently defaulted to H1_PERMISSIONS."""
+    if _is_probe_transport_error(e):
+        return "H3_TRANSPORT"
+    msg = str(e).lower()
+    if "session" in msg and "active" in msg:
+        return "SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open)"
+    if _is_broker_answered_error(e):
+        return "H1_PERMISSIONS"
+    return "H4_UNKNOWN"
+
+
 async def _probe() -> dict:
     from tastytrade import Account, Session  # noqa: PLC0415
     from tastytrade.instruments import Future as TTFuture  # noqa: PLC0415
@@ -119,11 +186,8 @@ async def _probe() -> dict:
     except Exception as e:  # noqa: BLE001 -- the error TEXT is the evidence here
         out["dry_run_ok"] = False
         out["error"] = f"{type(e).__name__}: {e}"
-        msg = str(e).lower()
-        if "session" in msg and "active" in msg:
-            out["verdict"] = "SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open)"
-        else:
-            out["verdict"] = "H1_PERMISSIONS"
+        out["error_repr"] = repr(e)[:500]
+        out["verdict"] = _classify_probe_verdict(e)
     return out
 
 

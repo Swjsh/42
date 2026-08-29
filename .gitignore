@@ -242,6 +242,11 @@ automation/state/futures/trader/heartbeat.json
 automation/state/futures/data-freshness.json
 automation/state/futures/eod-summary.json
 automation/state/futures/trader-broker/heartbeat.json
+# 2026-08-29: broker-transport.jsonl (tastytrade_paper.py's leg-rejection/transport-failure
+# diagnostic side channel) is a new runtime artifact that was NOT gitignored -- same
+# tracked-but-rarely-committed reversion hazard as every other futures runtime-state file
+# above; untracking it up front closes the gap before it can ever be caught in an `add -A`.
+automation/state/futures/broker-transport.jsonl
 
 # SELF-AUDIT-GAP-LOG-REVERSION (2026-08-11, conductor AFTERHOURS): 5th round of the SAME
 # tracked-but-rarely-committed hazard class (2026-07-14/07-20/07-21/08-10 rounds above), a

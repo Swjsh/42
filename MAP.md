@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-20 22:09:08 Thursday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-08-29 16:19:18 Saturday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -12,6 +12,7 @@
 | How does a decision get made? | MAP.md §SEE → §DECIDE → §ACT (this file), then filters.py |
 | What broke before? | markdown/doctrine/LESSONS-LEARNED.md (L-numbered, themed C1-C36) |
 | What are the rules? | CLAUDE.md — the 10 rules + OP-0/3/11/16/22/25/31/32/33 |
+| Is the futures lane alive / why didn't it trade? | automation/state/futures/health.json + analysis/futures-eod/<date>.md |
 
 **Do not read the whole repo.** 6,777 markdown files exist; ~479 are human-written and the rest is machine output. This map plus the four ORIENT docs is the whole system at the level most questions need.
 
@@ -87,18 +88,18 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **777** · broken wikilinks: **52** · orphans (no links either way): **1**
+- visible notes: **825** · broken wikilinks: **56** · orphans (no links either way): **3**
+  - ⛔ `SHADOW.md` → `analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/entry-structure-forward-prereg-2026-08-06` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/bold-floor-rescue-prereg-2026-08-25` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-exit-policy-beats-null-2026-08-23` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-multi-levels-transplant-2026-08-20` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-spy-production-calibration-2026-08-20` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-multi-intraday-null-2026-08-20` unresolved
   - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-pre-tp1-ratchet-cost-2026-08-15` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-chasing-filter-2026-08-14` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-entry-range-context-2026-08-14` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-entry-location-gate-2026-08-14` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-trendline-break-at-level-2026-08-13` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-fill-model-unification-2026-08-13` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-slippage-rebaseline-2026-08-12` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-recency-qty-clamp-2026-08-11` unresolved
-  - … +42 more
+  - ⛔ `SHADOW.md` → `analysis/recommendations/vwap-family-killcheck-prereg-2026-08-18` unresolved
+  - ⛔ `SHADOW.md` → `analysis/recommendations/day-throttle-forward-prereg-2026-08-18` unresolved
+  - … +46 more
 
 ## ⏰ The daily loop (live task state)
 
@@ -108,13 +109,13 @@ flowchart LR
 | 08:05/5m | `Gamma_TvWatchdog` | keeps CDP alive; heals in ~67s | Ready (last=0) |
 | 08:30 | `Gamma_Premarket` | levels, bias, hypothesis → journal note | Ready (last=0) |
 | 09:30–15:55 | `Gamma_HeartbeatCore` | THE engine, 1/min | Ready (last=0) |
-| /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Ready (last=0) |
+| /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Disabled (last=0) |
 | 15:55 | `Gamma_EodFlatten` | nothing 0DTE survives the close | Ready (last=0) |
-| 16:08 | `Gamma_ChopMeter` | did we trade chop today | Ready (last=0) |
-| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=0) |
-| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=0) |
-| 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Ready (last=0) |
-| 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Ready (last=0) |
+| 16:08 | `Gamma_ChopMeter` | did we trade chop today | Disabled (last=0) |
+| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Disabled (last=0) |
+| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Disabled (last=0) |
+| 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Disabled (last=0) |
+| 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Disabled (last=0) |
 
 ## 💰 The arms — risk profiles, NOT strategies
 

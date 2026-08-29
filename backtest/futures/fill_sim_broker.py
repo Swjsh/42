@@ -59,6 +59,8 @@ from futures.futures_exit_manager import (  # noqa: E402
     FuturesExitState, decide_exit, HOLD, FULL_STOP, TP1_PARTIAL, RUNNER_TARGET, RUNNER_BE_STOP,
     TIME_STOP,
 )
+from futures.futures_risk_rails import MINUTES_BEFORE_MAINTENANCE_FLATTEN  # noqa: E402
+from futures.futures_session import MAINTENANCE_START  # noqa: E402
 
 
 def _et_now() -> dt.datetime:
@@ -81,6 +83,12 @@ EV_FILLED = "filled"
 EV_TP1 = "tp1"
 EV_STOP = "stop"
 EV_CLOSED = "closed"
+# 2026-08-29 pending_entry deadlock fix: a stale resting limit that expires unfilled gets
+# its own explicit, greppable event -- see _expire_pending(). Deliberately loud/uppercase
+# (matches futures_trader_core's ENTER_REFUSED action-code style) so it stands out from the
+# lowercase lifecycle events above in a jsonl grep -- silence is what let the 2026-08-14
+# order sit stuck for 15 sessions with nothing ever written about WHY it never cleared.
+EV_PENDING_ENTRY_EXPIRED = "PENDING_ENTRY_EXPIRED"
 
 # decide_exit() action code -> would-be-trades.jsonl event name.
 _ACTION_TO_EVENT = {
@@ -90,6 +98,74 @@ _ACTION_TO_EVENT = {
     RUNNER_TARGET: EV_CLOSED,
     TIME_STOP: EV_CLOSED,
 }
+
+# ── position/order status vocabulary + the shared "is this slot occupied" predicate ────
+# Named here, once, so is_flat() and place_bracket() can consult the SAME predicate
+# instead of two hand-maintained status lists that can silently drift apart -- which is
+# exactly what happened: is_flat() (pre-fix) only recognized "open" while place_bracket()
+# refused on "pending_entry" OR "open". The engine trusted is_flat()'s FLAT answer, went
+# looking for (and found, and rails-cleared) a new signal, and place_bracket() then
+# silently refused it -- every tick, for 15 sessions (2026-08-14 -> 2026-08-29).
+STATUS_PENDING_ENTRY = "pending_entry"
+STATUS_OPEN = "open"
+
+# A configurable max age for a resting (unfilled) limit entry, as a single named module
+# constant -- never a magic number re-typed at each call site. Default 30 minutes: this
+# lane's setups are intraday-momentum triggers sourced from 5m bars (SEE step), so a limit
+# still untouched half an hour later has already outlived the bar that produced it several
+# times over -- the market context that justified the order is gone even though the order
+# itself is still sitting there.
+PENDING_ENTRY_MAX_AGE_MINUTES = 30
+
+
+def _is_active_position(p: Optional[dict]) -> bool:
+    """True when `p` is a working order or an open position -- i.e. the one-slot-per-
+    instrument that place_bracket() enforces is OCCUPIED. This is the ONE predicate both
+    is_flat() and place_bracket() consult; do not reintroduce a second hand-maintained
+    status check anywhere else in this file for the same question -- that duplication IS
+    the 2026-08-29 pending_entry deadlock bug (see module-level comment above).
+
+    A pending_entry counts as active even though it has no `qty_open` field yet (that only
+    exists once FuturesExitState.to_dict() has run, on fill) -- it is not a realized
+    position, but it still occupies the slot.
+    """
+    if not p:
+        return False
+    if p.get("status") == STATUS_OPEN:
+        return int(p.get("qty_open", 0)) > 0
+    return p.get("status") == STATUS_PENDING_ENTRY
+
+
+def _minutes_to_maintenance_stop(now: dt.datetime) -> float:
+    """Minutes until today's 17:00 ET maintenance/settlement stop (negative once past).
+    Mirrors FuturesRiskRails.must_flatten()'s own arithmetic exactly -- two independent
+    "is it time to force-clear" computations quietly using different math would be the
+    same drift-apart failure this file just got bitten by, one level up."""
+    return (dt.datetime.combine(now.date(), MAINTENANCE_START) - now).total_seconds() / 60.0
+
+
+def _pending_expiry_reason(p: dict, now: dt.datetime) -> Optional[str]:
+    """None if the pending entry `p` should keep resting; else the reason it must be
+    cancelled right now (Task 1b -- the EARLIER of two triggers):
+
+      "max_age"           -- resting >= PENDING_ENTRY_MAX_AGE_MINUTES unfilled.
+      "maintenance_cutoff" -- inside MINUTES_BEFORE_MAINTENANCE_FLATTEN of the 17:00 ET
+                              settlement stop (imported from futures_risk_rails, never
+                              re-typed), regardless of age -- a resting order carried into
+                              the maintenance reset is exactly how a NEW ghost order would
+                              be born, even one placed thirty seconds ago.
+
+    Age is checked first: an order already past its max age has earned cancellation on
+    its own merits and does not need the clock's help to justify it.
+    """
+    placed = dt.datetime.fromisoformat(p["placed_time_et"])
+    age_minutes = (now - placed).total_seconds() / 60.0
+    if age_minutes >= PENDING_ENTRY_MAX_AGE_MINUTES:
+        return "max_age"
+    minutes_to_stop = _minutes_to_maintenance_stop(now)
+    if 0 <= minutes_to_stop <= MINUTES_BEFORE_MAINTENANCE_FLATTEN:
+        return "maintenance_cutoff"
+    return None
 
 
 def _atomic_write_json(path: Path, data: dict) -> None:
@@ -260,9 +336,16 @@ class FillSimBroker:
         return out
 
     def is_flat(self, instrument: str) -> bool:
-        """L76-style ghost-prevention: verify flat from PERSISTED state, not caller memory."""
+        """L76-style ghost-prevention: verify flat from PERSISTED state, not caller memory.
+
+        "Flat" means "available for a new place_bracket() call", not "zero realized
+        exposure" -- a resting pending_entry limit order is not a position, but it DOES
+        occupy the one-order-per-instrument slot place_bracket() enforces, so it must
+        read as NOT flat. Consults the SAME _is_active_position() predicate
+        place_bracket() uses (2026-08-29 fix -- see that function's docstring for why
+        these two disagreeing was a 15-session-long silent deadlock)."""
         p = self._load_all_positions().get(instrument)
-        return not (p and p.get("status") == "open" and int(p.get("qty_open", 0)) > 0)
+        return not _is_active_position(p)
 
     # ── orders: entry ───────────────────────────────────────────────────────
     def place_bracket(self, instrument: str, side: str, qty: int, entry_price: float,
@@ -276,7 +359,7 @@ class FillSimBroker:
         decide_skip=position_open_no_stack discipline)."""
         all_pos = self._load_all_positions()
         existing = all_pos.get(instrument)
-        if existing and existing.get("status") in ("pending_entry", "open"):
+        if _is_active_position(existing):
             self._log_event(instrument, "placed_refused", {
                 "reason": f"existing_{existing.get('status')}", "side": side, "qty": qty})
             return []
@@ -287,7 +370,7 @@ class FillSimBroker:
         now = _et_now()
         oid = _order_id(instrument, "BRK")
         pending = {
-            "status": "pending_entry", "instrument": instrument, "direction": direction,
+            "status": STATUS_PENDING_ENTRY, "instrument": instrument, "direction": direction,
             "side": side, "qty": int(qty), "entry": float(entry_price),
             "stop": float(stop_price), "tp1": float(tp1_price),
             "runner": (None if runner_price is None else float(runner_price)),
@@ -359,6 +442,14 @@ class FillSimBroker:
         return self._check_open_exit(instrument, all_pos, p, price, bar_open, bar_high, bar_low)
 
     def _check_pending_fill(self, instrument, all_pos, p, price, bar_high, bar_low, now) -> dict:
+        # Expiry is checked BEFORE the touch check (Task 1b): a stale order has earned
+        # cancellation regardless of whether price happens to be sitting on its limit
+        # this exact tick, and the maintenance-cutoff trigger must fire even on an order
+        # that would otherwise fill right now.
+        expiry_reason = _pending_expiry_reason(p, now)
+        if expiry_reason is not None:
+            return self._expire_pending(instrument, all_pos, p, now, expiry_reason)
+
         long = p["direction"] == "long"
         hi = bar_high if bar_high is not None else price
         lo = bar_low if bar_low is not None else price
@@ -379,6 +470,28 @@ class FillSimBroker:
             "direction": p["direction"]})
         return {"event": EV_FILLED, "instrument": instrument, "fill_price": fill_price,
                 "qty": p["qty"]}
+
+    def _expire_pending(self, instrument: str, all_pos: dict, p: dict, now: dt.datetime,
+                        reason: str) -> dict:
+        """Cancel a stale resting entry and log it EXPLICITLY (Task 1b). The 2026-08-14
+        order sat silent for 15 sessions precisely because nothing in this file ever
+        wrote a line saying an order had gone stale -- an expiry that doesn't log is the
+        same silent failure with extra steps. Clears the slot so the NEXT is_flat() /
+        place_bracket() call in this same tick (futures_trader_core.run_tick calls
+        process_quote before its is_flat() no-stack check) sees a genuinely flat book.
+        """
+        placed = dt.datetime.fromisoformat(p["placed_time_et"])
+        age_minutes = round((now - placed).total_seconds() / 60.0, 1)
+        all_pos[instrument] = None
+        self._save_all_positions(all_pos)
+        detail = {
+            "reason": reason, "age_minutes": age_minutes,
+            "original_entry_price": p.get("entry"), "order_id": p.get("order_id"),
+            "side": p.get("side"), "qty": p.get("qty"),
+            "placed_time_et": p.get("placed_time_et"),
+        }
+        self._log_event(instrument, EV_PENDING_ENTRY_EXPIRED, detail)
+        return {"event": EV_PENDING_ENTRY_EXPIRED, "instrument": instrument, **detail}
 
     def _check_open_exit(self, instrument, all_pos, p, price, bar_open, bar_high, bar_low) -> dict:
         state = FuturesExitState.from_dict(p)

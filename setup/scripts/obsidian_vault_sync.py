@@ -237,6 +237,20 @@ def render_other_lanes() -> list[str]:
 
     L.append("### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)")
     L.append("")
+
+    # Fused liveness verdict (futures_health.py, 2026-08-29) -- the "is this lane actually
+    # ALIVE, not just producing P&L numbers" answer. Two multi-week outages (a ghost
+    # pending_entry deadlock and a broker ReadTimeout blackout) both went undetected on every
+    # OTHER surface here, so this reads first, before any P&L/count line, on purpose.
+    fh_health = read_json(STATE / "futures" / "health.json") or {}
+    if fh_health:
+        reasons = fh_health.get("reasons") or []
+        top_reason = f" — {reasons[0]}" if reasons else ""
+        L.append(f"- **lane health** `{fh_health.get('verdict', '?')}` "
+                 f"(as of `{fh_health.get('checked_at_et', '?')}`){top_reason}")
+    else:
+        L.append("- **lane health** — not yet run (setup/scripts/futures_health.py)")
+
     if hb:
         L.append(f"- **book lane** (fillsim) `{hb.get('verdict', '?')}` — last tick "
                  f"`{hb.get('last_tick_et', '?')}` · session {hb.get('session_phase', '?')}")
@@ -785,6 +799,8 @@ CLAUDE_ROUTING = [
     ("How does a decision get made?", "MAP.md §SEE → §DECIDE → §ACT (this file), then filters.py"),
     ("What broke before?", "markdown/doctrine/LESSONS-LEARNED.md (L-numbered, themed C1-C36)"),
     ("What are the rules?", "CLAUDE.md — the 10 rules + OP-0/3/11/16/22/25/31/32/33"),
+    ("Is the futures lane alive / why didn't it trade?",
+     "automation/state/futures/health.json + analysis/futures-eod/<date>.md"),
 ]
 
 

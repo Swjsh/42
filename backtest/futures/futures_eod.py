@@ -24,6 +24,16 @@ WHAT IT GRADES, and why each one is here rather than "nice to have":
     of the pre-trade gate. A gate that is bypassed or mis-wired shows up as a post-hoc
     violation, which a pre-trade-only check can never reveal.
 
+  REFUSAL (added 2026-08-29) -- did a signal clear every rail and then have the BROKER
+    itself refuse the placement? Distinct from "no signal" (nothing to act on) and from
+    "rejected by a rail" (the pipeline correctly said no) -- a REFUSAL means the pipeline
+    worked, the engine tried to act, and place_bracket() said no anyway. Most often a stuck
+    resting order: this grading exists because of the 2026-08-14 pending_entry deadlock --
+    15 sessions, 60 refusals, 0 fills, every single day of it reported GREEN because
+    nothing before today graded refusals at all. Sitting out on a genuinely quiet day is
+    NOT this -- that stays GREEN, per standing doctrine (a losing/quiet day is not itself
+    a failure). See REFUSAL_RED_SESSIONS below for the exact grading rule.
+
 DISCLOSURE: the digest states its fill class on every P&L line. Simulated fills are
 mechanism evidence, never edge evidence.
 
@@ -56,6 +66,11 @@ from futures import futures_journal as fj  # noqa: E402
 
 STATE_DIR = REPO / "automation" / "state" / "futures" / "trader"
 LEDGER = STATE_DIR / "decisions.jsonl"
+# The broker's OWN event ledger -- the only place a placement refusal's REASON lives.
+# decisions.jsonl's ENTER_REFUSED rows say a placement was refused, never WHY (the "why"
+# is in fill_sim_broker.place_bracket()'s "placed_refused" event). Same directory as
+# LEDGER: fill_sim_broker's default state_dir for this (fillsim/intraday) lane.
+WOULD_BE_LEDGER = STATE_DIR / "would-be-trades.jsonl"
 DIGEST_DIR = REPO / "analysis" / "futures-eod"
 STATE_OUT = REPO / "automation" / "state" / "futures" / "eod-summary.json"
 
@@ -65,6 +80,24 @@ EXPECTED_TICKS = int(6.5 * 60 / TICK_INTERVAL_MIN)   # 78
 # Below this fraction of expected ticks the lane was not meaningfully awake.
 COVERAGE_RED = 0.70
 COVERAGE_YELLOW = 0.90
+
+# Task 2 (2026-08-29 pending_entry deadlock) -- refusal grading thresholds.
+#
+# A single session with a REFUSED placement is surprising enough to flag (a signal
+# cleared every rail and the broker still said no -- see the module docstring's REFUSAL
+# bullet) but is not yet distinguishable from a one-off broker hiccup, so on its own it
+# only degrades the verdict to YELLOW.
+#
+# The SAME refusal reason repeating on REFUSAL_RED_SESSIONS or more CONSECUTIVE sessions
+# is not a hiccup -- a transient cause does not reproduce identically day after day -- so
+# that degrades to RED. 3 was chosen as "one session could be noise, two could be a bad
+# coincidence, three in a row is a pattern", and it is 1/5th of the 15 sessions the real
+# deadlock ran silently before anyone graded it -- this threshold would have caught THAT
+# failure five times faster than it was actually caught.
+REFUSAL_RED_SESSIONS = 3
+# How many calendar days build() will scan backward looking for that streak. Generous
+# enough to bridge a weekend + a one-day holiday without truncating a real 3-session run.
+REFUSAL_LOOKBACK_SESSIONS = 10
 
 
 def _read_ledger(date: str) -> list[dict]:
@@ -124,6 +157,62 @@ def funnel(rows: list[dict]) -> dict:
         "errors": [r.get("see_error") or r.get("exit_error")
                    for r in rows if r.get("see_error") or r.get("exit_error")],
     }
+
+
+def _placed_refused_by_date() -> dict[str, Counter]:
+    """One pass over would-be-trades.jsonl, bucketing 'placed_refused' events by date
+    (from ts_et) into a reason Counter. Read once and reused for both today's reason
+    breakdown and the backward consecutive-session scan in refusal_history() -- walking
+    N days back must not mean N full re-reads of an append-only log that only grows.
+    """
+    out: dict[str, Counter] = {}
+    try:
+        for line in WOULD_BE_LEDGER.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                r = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if r.get("event") != "placed_refused":
+                continue
+            day = str(r.get("ts_et", ""))[:10]
+            if not day:
+                continue
+            out.setdefault(day, Counter())[r.get("reason", "?")] += 1
+    except OSError:
+        pass
+    return out
+
+
+def refusal_history(date: str, by_date: Optional[dict] = None) -> dict:
+    """Refusal reason breakdown for `date`, plus how many CONSECUTIVE sessions (walking
+    backward from `date`) shared at least one of those reasons -- "the same refusal
+    repeating" (Task 2 / REFUSAL_RED_SESSIONS). Weekends/holidays are skipped WITHOUT
+    breaking the streak (the lane simply did not run those days -- a Friday-to-Monday
+    refusal streak is still a streak); bounded by REFUSAL_LOOKBACK_SESSIONS calendar days
+    so a bad/garbled date can never spin the scan forever.
+
+    `by_date` is an injection point for tests (`_placed_refused_by_date()`'s real return
+    shape, keyed by 'YYYY-MM-DD') so a guard never has to write a real would-be-trades.jsonl.
+    """
+    by_date = _placed_refused_by_date() if by_date is None else by_date
+    today_reasons = by_date.get(date, Counter())
+    if not today_reasons:
+        return {"sessions": 0, "reasons": {}}
+
+    run = 0
+    cur = dt.datetime.fromisoformat(date)
+    scanned = 0
+    while scanned < REFUSAL_LOOKBACK_SESSIONS:
+        if cur.weekday() <= 4 and not is_holiday(cur):
+            day_reasons = by_date.get(cur.strftime("%Y-%m-%d"), Counter())
+            if not (day_reasons.keys() & today_reasons.keys()):
+                break
+            run += 1
+        cur -= dt.timedelta(days=1)
+        scanned += 1
+    return {"sessions": run, "reasons": dict(today_reasons)}
 
 
 def round_trips(date: str, fills: str = "SIMULATED") -> dict:
@@ -193,13 +282,32 @@ def build(date: Optional[str] = None, fills: str = "SIMULATED") -> dict:
     fun = funnel(rows)
     trades = round_trips(date, fills)
     breaks = rule_audit(rows, trades)
+    refusals = refusal_history(date)
+    # "n" and "by_setup" come from decisions.jsonl (the engine's own record of having
+    # tried and been refused) -- authoritative even if would-be-trades.jsonl is missing
+    # or unreadable, which is why refusals["sessions"]/"reasons" (would-be-trades-sourced)
+    # are read separately above rather than gating this count on that file's presence.
+    refusals["n"] = fun["actions"].get("ENTER_REFUSED", 0)
+    refusals["by_setup"] = dict(Counter(
+        r.get("reason", "?") for r in rows if r.get("action") == "ENTER_REFUSED"))
 
     # The digest verdict leads with coverage on purpose: if the lane was dark, a clean
-    # trade record is an artifact of silence, not evidence of discipline.
+    # trade record is an artifact of silence, not evidence of discipline. A REFUSAL
+    # streak grades ABOVE rule breaks -- it is evidence of a STRUCTURAL inability to
+    # trade at all, worse than one day's rule violation. A single-session refusal ranks
+    # below a rule break (still just a possible one-off) but above plain coverage YELLOW
+    # (a refusal is a positive signal something is wrong; a coverage gap is merely
+    # incomplete information). Sitting out on NO signal never reaches this branch at all
+    # -- refusals["n"] is 0 whenever place_bracket() was never even called, which is the
+    # entire point: silence is fine, being refused after clearing every rail is not.
     if cov["verdict"] in ("DARK", "RED"):
+        verdict = "RED"
+    elif refusals["sessions"] >= REFUSAL_RED_SESSIONS:
         verdict = "RED"
     elif breaks:
         verdict = "RULE_BREAK"
+    elif refusals["n"] > 0:
+        verdict = "YELLOW"
     elif cov["verdict"] == "YELLOW":
         verdict = "YELLOW"
     elif cov["verdict"] in ("WEEKEND", "HOLIDAY"):
@@ -209,11 +317,12 @@ def build(date: Optional[str] = None, fills: str = "SIMULATED") -> dict:
 
     return {"date": date, "generated_at_et": et_now().isoformat(timespec="seconds"),
             "verdict": verdict, "coverage": cov, "funnel": fun, "trades": trades,
-            "rule_breaks": breaks, "fill_class": fills}
+            "rule_breaks": breaks, "refusals": refusals, "fill_class": fills}
 
 
 def render(d: dict) -> str:
     cov, fun, tr = d["coverage"], d["funnel"], d["trades"]
+    ref = d.get("refusals", {"n": 0, "sessions": 0, "reasons": {}, "by_setup": {}})
     L = [f"# Futures EOD — {d['date']}", "",
          f"> Generated `{d['generated_at_et']}` · verdict **{d['verdict']}**",
          f"> Fill class **{d['fill_class']}**"
@@ -226,6 +335,14 @@ def render(d: dict) -> str:
     if cov["verdict"] in ("DARK", "RED"):
         L += ["> ⚠️ Everything below is conditional on the engine having run. It mostly "
               "did not, so read the numbers as *unknown*, not as *zero*.", ""]
+    if ref.get("sessions", 0) >= REFUSAL_RED_SESSIONS:
+        L += [f"> 🚨 **{ref['sessions']}-session refusal streak** — the same placement "
+              f"reason has now been refused {ref['sessions']} consecutive sessions in a "
+              f"row. This is not discipline, it is stuck.", ""]
+    elif ref.get("n", 0):
+        L += [f"> ⚠️ **{ref['n']} placement(s) refused** after clearing every rail this "
+              f"session. Sitting out on no signal is fine; being refused after clearing "
+              f"the rails is not.", ""]
 
     L += ["## Funnel", "",
           f"- **{fun['signals_seen']}** signals seen → **{fun['entries']}** entries "
@@ -240,6 +357,22 @@ def render(d: dict) -> str:
         L.append("- feed: " + " · ".join(f"`{k}` {v}" for k, v in fun["feed_verdicts"].items()))
     if fun["errors"]:
         L.append(f"- ⚠️ **{len(fun['errors'])} errors** — {fun['errors'][:3]}")
+    L.append("")
+
+    L += ["## Refusals", ""]
+    if ref.get("n"):
+        streak_note = (f" · **{ref['sessions']}-session streak**"
+                       if ref.get("sessions", 0) > 1 else "")
+        L.append(f"- **{ref['n']}** `ENTER_REFUSED`{streak_note}")
+        if ref.get("reasons"):
+            L.append("- by reason: " + " · ".join(
+                f"`{k}` {v}" for k, v in sorted(ref["reasons"].items(),
+                                                key=lambda kv: -kv[1])))
+        if ref.get("by_setup"):
+            L.append("- by setup: " + " · ".join(
+                f"`{k}` {v}" for k, v in ref["by_setup"].items()))
+    else:
+        L.append("✅ no refused placements")
     L.append("")
 
     L += [f"## Round trips ({tr['fills']})", ""]
