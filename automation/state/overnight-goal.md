@@ -1,60 +1,18 @@
-# OVERNIGHT GOAL — improve the system per the Fable gap-audit (J: "work all night, don't stop")
+# 📦 TOMBSTONE — this file moved
 
-**Started:** 2026-07-07 ~23:00 ET (Opus, J directive). **Source of truth:**
-`markdown/audits/FABLE-GAP-AUDIT-2026-07-07.md` + `markdown/audits/FABLE-DECISIONS-2026-07-07.md`.
-This file is the DURABLE state: each loop wake reads it, does the top todo item, updates it. Survives compaction.
+**Folded into the `/goal` schema 2026-08-29 (OP-22).** This ad-hoc goal file (and two
+siblings, `automation/state/engine-vision-goal.md` +
+`automation/overnight/GOAL-REPLAY-TODAY-GREEN.md`) predated the standing `/goal`
+mechanism and were the reason it was built — three parallel, structurally-similar
+"durable loop state" files with no shared schema and no consumer wiring.
 
-## OPERATING RULES (obey EVERY iteration — read before touching anything)
-1. **Check `et_clock` first.** MARKET HOURS (09:30–15:55 ET, Mon–Fri): READ-ONLY only — research/analysis/docs, NO live-engine edits, NO heavy grinds (the heartbeat shares the Max pool). AFTER-HOURS/weekend: full build allowed.
-2. Pick the TOP `[ ]` item. Read its gap-audit spec + any flagged **TRAP** BEFORE editing. Re-verify the pointer (this repo's disease is inherited claims).
-3. Every code change ships with a **red-proofed guard** (revert change → guard RED → restore) + a **path-scoped commit**. The pre-commit curated safety gate MUST pass. If it RED-blocks: **REVERT the change, mark the item `[B]` BLOCKED with the reason — never force past a red gate.**
-4. **Live-path / entry-blast-radius items (G4, G11):** A/B or replay-validate BEFORE shipping. If not cleanly validated → mark `[B]` BLOCKED-NEEDS-REVIEW (don't ship tired/unsupervised).
-5. **Never** do the OP-0 J-first four: arm live money, rotate/expose a secret, irreversible-external, or a genuine no-default fork. Those are `[B-J]` — flag the exact ask, move on.
-6. After each item: update its checkbox + a one-line result here; append a one-line note to `STATUS.md` on any commit.
-7. **STOP** the loop when: all items `[x]`/`[B]`, OR the safety gate red-blocks twice in a row (halt + flag `## HALTED`), OR market opens and only live-path items remain (go read-only / idle-tick).
+➡️ **Full content now lives at**
+[`automation/state/goals/GOAL-OVERNIGHT-IMPROVE-2026-07-07.md`](goals/GOAL-OVERNIGHT-IMPROVE-2026-07-07.md)
+(reformatted into the DONE-WHEN / OPERATING RULES / QUEUE / J-DECISIONS / PROGRESS
+LOG / HONEST STATE schema — content preserved, not summarized).
 
-## QUEUE (ordered; `[ ]`todo `[~]`wip `[x]`done `[B]`blocked)
-- [x] G1 adopted-position CAP-ONLY (commit 55fd164) + 3-test red-proofed guard
-- [x] G2 production-interpreter import verified (system-python + venv PYTHONPATH; pandas 2.3.3)
-- [x] G3 runner close-out + corrected EOD +$489 (commit fc8ee27)
-- [x] G16 et_clock health — added runnable CLI (`python et_clock.py` -> ET + `market_hours` bool) + canonical `is_market_hours()` gate (Mon-Fri 09:30<=ET<15:55). Root: it was a pure library w/ no `__main__` (empty output = by-design, not a bug). 2 red-proofed guards; safety gate PASS. (commit 54ce9b6)
-- [x] G7 armability gate — `backtest/lib/armability.py` primitive + `pipeline_promoter` emits an `armability` disclosure per promoted cell (per-acct budget + break-even premium + transparent sweep; disclose-only). Safe-2 floor affordable <=$2.00/contract, Bold <=$2.78 -> ITM-2 ~$3 flagged unaffordable. Playbook 5.8 doc. 9 red-proofed tests. (commit d553fe5)
-- [x] G8 greeks/IV capture — engine fetched NONE. Added `fleet_broker.get_option_greeks` (snapshots feed, fail-open) + `heartbeat_core._capture_greeks` -> `plan['greeks']` into core-decisions.jsonl. Called only in dry branch + AFTER placement (never slows a fill). 6 red-proofed tests. UNVERIFIED: live snapshots URL form confirmed only on first real fill (fail-open => wrong URL is a no-op). (commit addb959)
-- [x] G9 sim-vs-live parity ledger — `setup/scripts/sim_live_parity.py` diffs each reconciled fill vs the assumed entry (entry_px/mid) per setup -> slippage+latency; reads core + 6 fleet arms, read-only. **FINDING: filled_avg_price is null EVERYWHERE -> 0 reconciled fills ever** (rig places, never fills — audit-confirmed). Ledger doubles as a fill-existence monitor. 4 red-proofed tests. (commit 412ec93)
-- [x] G15 hygiene — fixed 2 stale vwap_cont docs (said DORMANT while LIVE-ARMED; C7 drift) + new doc/flag guard (red-proofed); queue.md OP-22 pass (25 done items -> Completed, counts preserved); SIP price web-verified = $99/mo (see D-SIP). (commit dd84573)
-- [x] G17 ET-derivation dedup (C14) — `autonomy_actuator._et_now`/`_market_is_open` now delegate to `et_clock.et_now`/`is_market_hours` (was a verbatim hand-rolled DST + window copy). Byte-identical parity verified; guard red-proofed. (commit 8c672c0)
-- [x] G5 alert/capture flywheel — DETECT (`level_memory.emit_reject_alert` on high-memory reject) -> ALERT (delivered) -> CAPTURE (`j_call_capture` -> anchors.jsonl, OP-16 corpus). **BONUS FINDING+FIX: discord-bridge dropped 113 `message`-schema alerts (spend WARN, self-check DEGRADED) — J never saw them; consumer now accepts both schemas.** 6 red-proofed tests. (commit 327479e)
-- [x] G10 audit-tail recovery — RECOVERED (better than blocked): read all 27 finder findings + 12 verifier verdicts VERBATIM from the workflow journal on disk (no re-run, 1 disk read). 6 NEW queued; standout **F1 CRITICAL re-verified live: min_ribbon_momentum_cents=0 arms a "disabled" gate blocking Safe entries on a contracting ribbon.** Doc: markdown/audits/RECOVERED-AUDIT-TAIL-2026-07-08.md. (commit HEAD)
-- [x] G12 htf_15m suppression measurement — MEASURED (9d/708 morning ticks): htf contradicts realized trend 35%; ~16 near-threshold bear ticks (score 7 vs bar 8, small moves) plausibly suppressed. Verdict: real but NOT clearly costly (benefit side unmeasured) -> don't fix, filed 35% as monitoring datapoint. analysis/htf-suppression-2026-07-08.md.
-- [B] G4 fleet divergence PHASE 1 [NEEDS-REVIEW: entry-path fleet-producer keystone; spec markdown/audits/G4-FLEET-DIVERGENCE-SPEC.md; enable SCORING_PEAK_LIVE + core-decisions wiring + frame-fix keystone BITE; validate via replay_fleet_arms.py; J nod] — per-arm gate-strictness on the SHARED perception. **TRAP: `test_fleet_producer_keystone::test_scoring_peak_off_reverts_fleet_to_inert_BITE` PINS the inert design — frame-fix it in the SAME commit (L197).** Validate via `replay_fleet_arms.py` before ship. Uncertain → `[B]` BLOCKED-NEEDS-REVIEW.
-- [B] G11 level_memory -> key-levels producer [NEEDS-REVIEW: entry-path level-feed (filter-10); A/B first; spec G11-LEVEL-MEMORY-PRODUCER-SPEC.md; NOTE the DETECT/ALERT half already ships via G5]. Orig: **TRAP: entry-path blast radius (filter-10) — A/B via the feed harness FIRST.** Not cleanly validated → `[B]` BLOCKED-NEEDS-REVIEW.
-- [x] G6 J-exact weekly-spec battery — OTM weekly put + UNDERLYING-level stop (e.g. "750.20") + hold-to-Friday, on the 3-4DTE cache. One PRE-REGISTERED battery. **VERDICT: KILL** — hold-to-Friday fails the random-entry null (p 0.075/0.105 @ 3-4DTE), bleeds -$4-6K on overnight gaps, and doesn't even hold (held% 17-26%). Honest prior (gap-exposed) confirmed. By-product: DTE lever 0->2DTE OOS $36->$66 real but already HOLD (WF-fail). Doc: markdown/audits/G6-WEEKLY-HOLD-2026-07-08.md.
-- [x] G13 treasurer review (via treasurer agent) — VERIFIED: Safe-2 real equity $1,513 (trough $1,351 = -32.43%, now -24.35%). NOT the engine (G9 0-fills holds) -> drawdown is J's MANUAL trades: 11-fill same-contract averaging-down (07-06), qty=5 breaking qty=3 tier, + OUT-OF-SCOPE crypto (UNI/BTC) contradicting the gym-only lock. Floor disqualifies edges at trough, not at current. Strengthens D4 (account contaminated as a measurement instrument). Doc: markdown/audits/G13-TREASURER-SAFE2-2026-07-08.md.
+This goal reached its terminal state 2026-07-08 (see that file's `## HONEST STATE`).
 
-## J-DECISIONS (loop does NOT execute — flag + wait)
-- [B-J] D4 Safe-2 paper-reset to $2K w/ epoch ledger (rec: **YES, strengthened by G13** — the account is contaminated by off-scope manual activity (crypto scalps + averaging-down + qty-5), so its equity no longer measures the ENGINE; reset restores it as a clean instrument, epoch ledger keeps the manual-P&L on record).
-- [B-J] D5 min-1 contract for single-exit shapes (his Rule 6)
-- [B-J] D6 activate G7-EOD-flatten backstop cd-2026-06-27-001 (rec: yes)
-- [B-J] Provision futures on Tastytrade 5WW73759 → MNQ live-paper
-- [B-J] Paid SIP data = **$99/mo CONFIRMED** (Alpaca Algo Trader Plus: real-time SIP, 100% volume, full options greeks/quotes; free Basic = IEX-only + options indicative). -> volume-shelf lens (D-SIP). J: yes/no.
-
-## FLAGS FOR J
-- **Crypto activity in Safe-2 paper (UNI/USD, BTC/USD scalps)** contradicts the CLAUDE.md scope lock (crypto = gym-only). If that's you manually scalping — fine, but it contaminates Safe-2 as an engine-measurement account (see D4). If it's NOT you, a rogue process is placing crypto orders — investigate. (G13, 2026-07-08)
-
-## PROGRESS LOG (append one line per iteration)
-- 2026-07-07 ~22:45 ET: Tier 1 (G1/G2/G3) DONE + verified (129 graduated-guards passed). Loop armed for Tier 2–4.
-- 2026-07-07 ~23:00 ET (loop armed, iter 1): goal file + self-paced /loop set up. Pre-findings: NO armability/min-lot check exists anywhere (G7 premise confirmed); `et_clock.py` returns EMPTY -> added G16 (verify FIRST). After-hours confirmed (build-safe). Real items (G16->G7->...) fire on the loop wakes with fresh context.
-- 2026-07-08 00:33 ET (iter 2, G16 DONE): et_clock CLI + is_market_hours shipped 54ce9b6; gate PASS (5 suites/31). Found autonomy_actuator ET dup -> queued G17. Next: G7 armability.
-- 2026-07-08 00:45 ET (iter 3, G7 DONE): armability primitive + promoter disclosure + playbook 5.8; d553fe5, gate PASS. Verified: no $ premium persisted in ratification artifacts -> disclosure sweeps, exact capture deferred to G8/G9. Next: G8 greeks/IV capture.
-- 2026-07-08 00:58 ET (iter 4, G8 DONE): per-entry greeks/IV capture shipped addb959, gate PASS. Log-only + fail-open (2 red-proofed properties). HONEST UNVERIFIED: live snapshots URL form proven only when a real entry logs a non-empty greeks dict -> watch on first fill / G9. Next: G9 sim-vs-live parity ledger.
-- 2026-07-08 01:05 ET (iter 5, G9 DONE): parity ledger shipped 412ec93. **KEY FINDING (known, now MONITORED): 0 reconciled fills across core + all 6 fleet arms — the rig has never recorded a filled entry.** Ledger surfaces per-setup slippage the moment one fills. Next: G15 hygiene.
-- 2026-07-08 01:15 ET (iter 6, G15 DONE): hygiene x3 shipped dd84573, gate PASS. vwap docs de-staled + graduated to a guard; queue consolidated; SIP=$99/mo handed to J. Next: G17 et_clock dedup.
-- 2026-07-08 01:20 ET (iter 7, G17 DONE): autonomy_actuator deduped onto et_clock 8c672c0, gate PASS. C14 duplicate eliminated + guarded. Next: G5 alert/capture flywheel.
-- 2026-07-08 01:30 ET (iter 8, G5 DONE): alert/capture flywheel shipped 327479e. **KEY FIX: 113 alerts were silently dropped by the bridge (message vs content schema) — now delivered.** level_memory ping + j-call anchor capture built. Next: G10 audit-tail recovery.
-- 2026-07-08 01:38 ET (iter 9, G10 DONE-RECOVERED): read the truncated audit tail off disk (27 findings) instead of blocking. F1 (min_ribbon_momentum_cents=0 arms a supposedly-disabled Safe gate) re-verified LIVE + queued for J/A-B. 6 new backlog items. Next: G12.
-- 2026-07-08 01:44 ET (iter 10, G12 DONE): htf suppression measured -> real but not costly, no fix (correct per 'measure before fixing'). Also confirmed F1's SKIP_RIBBON_MOMENTUM_GATE fired 29x live. Next: G4 (fleet divergence — CAREFUL entry-path).
-- 2026-07-08 01:50 ET (iter 11, G4 IN-PROGRESS): fleet-divergence investigated — keystone = build_shared_signal derives passed off Safe's verdict (arms only ever TIGHTER); the divergence lever exists (SCORING_PEAK_LIVE + _bold_passed_blocks, default OFF, pinned by test_scoring_peak_off...BITE). G4 replay validation kicked off (backtest/replay_fleet_arms.py, read-only). DECISION: entry-path fleet-keystone -> BLOCK-NEEDS-REVIEW regardless of replay (won't auto-ship a producer keystone unsupervised); capturing replay data for J's review packet.
-- 2026-07-08 00:14 ET (iter 11 cont, G4 -> BLOCKED-NEEDS-REVIEW): spec written (G4-FLEET-DIVERGENCE-SPEC.md). Entry-path fleet keystone -> J-supervised A/B + nod, not an autonomous ship. Replay re-running for the review packet. Moving to G11.
-- 2026-07-08 00:16 ET (iter 12, G11 -> BLOCKED-NEEDS-REVIEW): spec written. Entry-path level-feed (filter-10 blast radius) -> supervised A/B + J nod. The multi-day-level AWARENESS already ships safely via G5's reject-ping (notify-only); only feed-into-entries is gated. Next: G13 treasurer (no OPRA).
-- 2026-07-08 00:19 ET (G13 DONE via treasurer agent): Safe-2 $1,513 real, -24% (trough -32%); drawdown = J manual (averaging-down + qty-5 + off-scope crypto), NOT engine. Strengthens D4. Crypto-in-Safe-2 flagged for J. Remaining: G6 (weekly battery, waiting on OPRA/replay).
-- 2026-07-08 00:30 ET (G6 DONE — KILL): weekly-put hold-to-Friday killed (null-failed + gap-exposed + doesn't-hold). GAP-AUDIT COMPLETE. Loop terminating.
+🚫 Do not write new goal state here. Any future durable multi-fire goal is
+`automation/state/goals/GOAL-<ID>.md`, opened via `/goal open "<quote>"`
+(`.claude/skills/goal/SKILL.md`) — never a new ad-hoc `*-goal.md`.

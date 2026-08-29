@@ -215,8 +215,17 @@ def test_prompt_router_is_quiet_by_default():
         {"hook_event_name": "Stop", "last_assistant_message": "Shipped it, reverting is one command."},
     ],
 )
-def test_dispatcher_fails_open(payload):
-    code, _, _ = run_hook(payload)
+def test_dispatcher_fails_open(payload, tmp_path):
+    # Isolated from the REAL automation/state/active-goal.json on purpose: this test
+    # asserts the dispatcher fails open on messy/unexpected payloads in general, not on
+    # goal-continuation behavior specifically (that's covered by the dedicated
+    # test_goal_continuation_* cases below). Without this override, a genuinely active
+    # goal in the real repo (the normal state once /goal is in use) would correctly
+    # BLOCK the Stop-payload case here -- that's the goal mechanism working as
+    # designed, not a dispatcher regression, so this test must not depend on the
+    # repo's live goal state either way.
+    env = {"GAMMA_ACTIVE_GOAL_PATH": str(tmp_path / "does-not-exist.json")}
+    code, _, _ = run_hook(payload, env=env)
     assert code == ALLOW
 
 
@@ -239,7 +248,7 @@ def test_generated_surface_edit_is_blocked_end_to_end():
     assert "obsidian_vault_sync" in (stdout + stderr)
 
 
-def test_stop_blocks_permission_question_once_only():
+def test_stop_blocks_permission_question_once_only(tmp_path):
     # The one-block-per-session ledger is a real file keyed by session_id, so the test
     # needs a session id no previous run has used -- otherwise it reads the ledger from
     # the last run and asserts against a session that has already spent its block.
@@ -251,8 +260,14 @@ def test_stop_blocks_permission_question_once_only():
         "session_id": session_id,
         "last_assistant_message": "Here's the plan. Want me to implement it?",
     }
-    first, _, _ = run_hook(payload)
-    second, _, _ = run_hook(payload)
+    # Isolated from the REAL active-goal.json for the same reason as
+    # test_dispatcher_fails_open above: this asserts the op0 once-per-session ledger,
+    # not goal-continuation (that's the third, independent Stop clause -- a real active
+    # goal would correctly re-block the second call for its OWN reason, which would
+    # make this assertion fail for a reason unrelated to what it's testing).
+    env = {"GAMMA_ACTIVE_GOAL_PATH": str(tmp_path / "does-not-exist.json")}
+    first, _, _ = run_hook(payload, env=env)
+    second, _, _ = run_hook(payload, env=env)
     assert first == BLOCK, "first permission-question turn must be blocked"
     assert second == ALLOW, "guard must never loop: one block per session per rule"
 

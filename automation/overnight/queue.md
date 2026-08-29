@@ -1583,6 +1583,8 @@
 
 ### OPTION-CACHE-ITM-COVERAGE-GAP (LOW, spec-only, adjacent finding, filed 2026-08-02 from OPTION-BAR-RESOLUTION-BIAS-2026-08-02)
 
+- [ ] GOAL-COCKPIT-BUILD-2026-08-29 (HIGH, goal) :: ship the Gamma Orchestrator Cockpit build order (Army View, Heartbeat Pulse, Action Cards, /goal) across its 8 steps — file: automation/state/goals/GOAL-COCKPIT-BUILD-2026-08-29.md :: depends:none :: status:in_progress
+
 ## Blocked
 (none active — Rule-9 J-ruling items live in Active Tier 2, which are decisions not blocks)
 
