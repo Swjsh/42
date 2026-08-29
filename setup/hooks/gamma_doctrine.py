@@ -8,8 +8,11 @@ piece of context or hard-blocks an action doctrine says must never happen.
   UserPromptSubmit    keyword-routed situational rule (usually nothing)
   PreToolUse          HARD BLOCK: frozen trading path, generated surfaces, scarred shell cmds
   PostToolUseFailure  repeated-identical-failure -> the stop-repeating-it rule
-  Stop                HARD BLOCK: turn ends on a permission question (OP-0) or an
-                      unverified success claim (OP-33)
+  Stop                HARD BLOCK: turn ends on a permission question (OP-0), an
+                      unverified success claim (OP-33), or an active unexpired
+                      goal (automation/state/active-goal.json) still has an open
+                      QUEUE item -- bounded by a hard per-session counter and a
+                      convergence stop (see _check_goal_continuation)
   SubagentStart       prime card (built-in Explore/Plan agents skip CLAUDE.md entirely)
   InstructionsLoaded  append-only log of what doctrine actually loaded, and when
 
@@ -45,6 +48,13 @@ _STATE_DIR = _REPO / "automation" / "state" / "hooks"
 _LOG = _STATE_DIR / "doctrine-hooks.jsonl"
 _INSTR_LOG = _STATE_DIR / "instructions-loaded.jsonl"
 _OFF_FILE = _STATE_DIR / "OFF"
+
+# GAMMA_ACTIVE_GOAL_PATH lets tests point this at a throwaway file instead of the real
+# automation/state/active-goal.json -- so a goal-continuation test run never risks a
+# real conductor fire reading a stray test fixture off disk.
+_ACTIVE_GOAL = Path(
+    os.environ.get("GAMMA_ACTIVE_GOAL_PATH") or str(_REPO / "automation" / "state" / "active-goal.json")
+)
 
 _ALLOW = 0
 _BLOCK = 2
@@ -102,6 +112,92 @@ def _et_now_parts() -> tuple[str, bool]:
         return now.strftime("%Y-%m-%d %H:%M ET (%a)"), is_open
     except Exception:
         return dt.datetime.now().strftime("%Y-%m-%d %H:%M local"), False
+
+
+def _et_now_datetime() -> dt.datetime:
+    """Naive ET wall-clock datetime, DST-aware. Falls back to local time -- an
+    unreadable clock must never be the reason a goal reads as expired-or-not
+    incorrectly; goal_expired() itself still fails toward "expired" on any
+    downstream parse error, so this fallback is a second, cheap safety net."""
+    try:
+        sys.path.insert(0, str(_REPO / "setup" / "scripts"))
+        from et_clock import et_now  # type: ignore
+
+        return et_now().replace(tzinfo=None)
+    except Exception:
+        return dt.datetime.now()
+
+
+def _load_active_goal() -> dict | None:
+    """Read + validate active-goal.json. Missing file, malformed JSON, a non-dict
+    body, or `active` not truthy all mean the same thing: no goal work is owed."""
+    try:
+        if not _ACTIVE_GOAL.is_file():
+            return None
+        goal = json.loads(_ACTIVE_GOAL.read_text(encoding="utf-8"))
+        if not isinstance(goal, dict) or not goal.get("active"):
+            return None
+        return goal
+    except Exception:
+        return None
+
+
+def _load_goal_file_text(goal: dict) -> str:
+    """The goal .md body, or "" on anything unreadable (unset field, missing file,
+    permission error) -- an unreadable goal file has no open item, by construction."""
+    try:
+        rel = str(goal.get("file") or "")
+        if not rel:
+            return ""
+        candidate = Path(rel)
+        path = candidate if candidate.is_absolute() else _REPO / rel
+        return path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return ""
+
+
+def _write_goal_last_item(item: str) -> None:
+    """Persist the item just named in active-goal.json so the NEXT block (this
+    session or a later one) can tell whether the goal actually moved -- the
+    convergence brake. Best-effort: a failure here must not turn into a block."""
+    try:
+        goal = json.loads(_ACTIVE_GOAL.read_text(encoding="utf-8"))
+        if not isinstance(goal, dict):
+            return
+        goal["last_next_item"] = item
+        _ACTIVE_GOAL.write_text(json.dumps(goal), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def _check_goal_continuation(state: dict) -> int | None:
+    """Stop hook, third clause. Returns a _deny() block code, or None to let the
+    stop fall through to _ALLOW. Every step fails toward None -- absence of
+    active-goal.json is the common case on most machines/sessions and must never
+    read as a block."""
+    try:
+        goal = _load_active_goal()
+        if goal is None:
+            return None
+        if D.goal_expired(str(goal.get("expires_at_et") or ""), _et_now_datetime()):
+            return None
+        item = D.goal_next_open_item(_load_goal_file_text(goal))
+        if not item:
+            return None
+        n = int(state.get("goal_continuations") or 0)
+        max_n = D.goal_max_continuations(goal)
+        last_next_item = goal.get("last_next_item")
+        if not D.goal_should_continue(item, last_next_item, n, max_n):
+            return None
+        state["goal_continuations"] = n + 1
+        _write_goal_last_item(item)
+        reason = D.goal_continuation_reason(
+            str(goal.get("id") or "GOAL"), item, str(goal.get("file") or ""), n + 1, max_n
+        )
+        _log({"event": "Stop", "rule": "goal-continuation", "n": n + 1})
+        return _deny("Stop", reason)
+    except Exception:
+        return None
 
 
 def _session_state(session_id: str) -> tuple[Path, dict]:
@@ -340,6 +436,11 @@ def _handle_stop(payload: dict) -> int:
                 "call to check. OP-33: quote a check run this session, or label the claim "
                 "UNVERIFIED.",
             )
+
+    goal_block = _check_goal_continuation(state)
+    if goal_block is not None:
+        _save_session_state(path, state)
+        return goal_block
 
     _save_session_state(path, state)
     P.record(payload, "idle", detail="turn ended")

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import subprocess
 import uuid
 import sys
@@ -30,13 +31,17 @@ _HOOK = _HERE / "gamma_doctrine.py"
 ALLOW, BLOCK = 0, 2
 
 
-def run_hook(payload: dict) -> tuple[int, str, str]:
+def run_hook(payload: dict, env: dict | None = None) -> tuple[int, str, str]:
+    full_env = dict(os.environ)
+    if env:
+        full_env.update(env)
     proc = subprocess.run(
         [sys.executable, str(_HOOK)],
         input=json.dumps(payload),
         capture_output=True,
         text=True,
         timeout=60,
+        env=full_env,
     )
     return proc.returncode, proc.stdout, proc.stderr
 
@@ -347,3 +352,272 @@ def test_pulse_never_raises_on_garbage():
     P.record_tool({"tool_name": "SendMessage", "tool_input": "not-a-dict"})
     P.record_tool({})
     P.record_tool({"tool_name": None, "tool_input": None})
+
+
+# ---------------------------------------------------------------------------------------
+# goal continuation -- Stop hook third clause (pure predicates)
+# ---------------------------------------------------------------------------------------
+_GOAL_MD_OPEN = """\
+# GOAL: G1
+> J verbatim: "test"
+## DONE-WHEN
+Something falsifiable.
+## OPERATING RULES
+Config freeze applies.
+## QUEUE
+- [x] done item
+- [~] wip item
+- [B] blocked item
+- [ ] the real next item
+- [ ] a later item
+## J-DECISIONS
+## PROGRESS LOG
+## HONEST STATE
+"""
+
+_GOAL_MD_NO_OPEN = """\
+# GOAL: G1
+## QUEUE
+- [x] done item
+- [~] wip item
+- [B-J] blocked on J
+## PROGRESS LOG
+"""
+
+_GOAL_MD_NO_QUEUE_SECTION = """\
+# GOAL: G1
+## DONE-WHEN
+- [ ] this looks like an item but is NOT under QUEUE
+"""
+
+
+def test_goal_next_open_item_finds_first_unchecked_under_queue():
+    assert D.goal_next_open_item(_GOAL_MD_OPEN) == "the real next item"
+
+
+def test_goal_next_open_item_skips_wip_done_and_blocked_markers():
+    assert D.goal_next_open_item(_GOAL_MD_NO_OPEN) is None
+
+
+def test_goal_next_open_item_ignores_checkboxes_outside_queue_section():
+    assert D.goal_next_open_item(_GOAL_MD_NO_QUEUE_SECTION) is None
+
+
+def test_goal_next_open_item_handles_missing_or_empty_text():
+    assert D.goal_next_open_item("") is None
+    assert D.goal_next_open_item(None) is None  # type: ignore[arg-type]
+
+
+def test_goal_expired_no_expiry_set_is_not_expired():
+    assert not D.goal_expired("", dt.datetime(2026, 8, 29, 12, 0))
+    assert not D.goal_expired(None, dt.datetime(2026, 8, 29, 12, 0))  # type: ignore[arg-type]
+
+
+def test_goal_expired_past_date_is_expired():
+    assert D.goal_expired("2026-08-01", dt.datetime(2026, 8, 29, 12, 0))
+
+
+def test_goal_expired_future_date_is_not_expired():
+    assert not D.goal_expired("2026-12-31", dt.datetime(2026, 8, 29, 12, 0))
+
+
+def test_goal_expired_same_day_end_of_day_not_yet_expired():
+    assert not D.goal_expired("2026-08-29", dt.datetime(2026, 8, 29, 12, 0))
+
+
+def test_goal_expired_malformed_expiry_fails_open_as_expired():
+    """A goal that says nonsense about its own expiry must never block J forever --
+    it fails toward 'treat as expired' (allow the stop), not toward 'block forever'."""
+    assert D.goal_expired("not-a-date", dt.datetime(2026, 8, 29, 12, 0))
+
+
+def test_goal_max_continuations_default_and_override():
+    assert D.goal_max_continuations({}) == D.DEFAULT_MAX_CONTINUATIONS
+    assert D.goal_max_continuations({"max_continuations_per_session": 5}) == 5
+    assert D.goal_max_continuations({"max_continuations_per_session": 0}) == D.DEFAULT_MAX_CONTINUATIONS
+    assert D.goal_max_continuations({"max_continuations_per_session": -1}) == D.DEFAULT_MAX_CONTINUATIONS
+    assert D.goal_max_continuations({"max_continuations_per_session": "3"}) == D.DEFAULT_MAX_CONTINUATIONS
+
+
+def test_goal_should_continue_true_with_open_item_and_budget():
+    assert D.goal_should_continue("next item", None, 0, 3)
+    assert D.goal_should_continue("next item", "a different earlier item", 1, 3)
+
+
+def test_goal_should_continue_false_when_no_item():
+    assert not D.goal_should_continue(None, None, 0, 3)
+    assert not D.goal_should_continue("", None, 0, 3)
+
+
+def test_goal_should_continue_false_when_counter_at_or_over_max():
+    assert not D.goal_should_continue("next item", None, 3, 3)
+    assert not D.goal_should_continue("next item", None, 4, 3)
+
+
+def test_goal_should_continue_false_when_item_unchanged_convergence():
+    """The third brake: an item identical to the one named at the last block means
+    the last continuation did not move the goal -- stop, don't loop."""
+    assert not D.goal_should_continue("same item", "same item", 0, 3)
+
+
+# ---------------------------------------------------------------------------------------
+# goal continuation -- Stop hook third clause, end-to-end via the real hook process
+# ---------------------------------------------------------------------------------------
+def _goal_env(tmp_path: Path, goal_json: dict | None, goal_md: str | None) -> dict:
+    """Point the hook at a throwaway active-goal.json + goal file for this test only.
+    Never touches the real automation/state/active-goal.json."""
+    env = {}
+    if goal_json is not None:
+        goal_file = tmp_path / "GOAL-TEST.md"
+        if goal_md is not None:
+            goal_file.write_text(goal_md, encoding="utf-8")
+        goal_json = dict(goal_json)
+        goal_json.setdefault("file", str(goal_file))
+        active_goal_path = tmp_path / "active-goal.json"
+        active_goal_path.write_text(json.dumps(goal_json), encoding="utf-8")
+        env["GAMMA_ACTIVE_GOAL_PATH"] = str(active_goal_path)
+    else:
+        # Point at a path that does not exist -- the "no goal file at all" case.
+        env["GAMMA_ACTIVE_GOAL_PATH"] = str(tmp_path / "does-not-exist.json")
+    return env
+
+
+def _stop_payload(session_id: str) -> dict:
+    return {
+        "hook_event_name": "Stop",
+        "session_id": session_id,
+        "last_assistant_message": "Continuing.",
+    }
+
+
+def test_goal_continuation_blocks_when_open_item_exists(tmp_path):
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T1", "active": True, "expires_at_et": "2099-01-01"},
+        _GOAL_MD_OPEN,
+    )
+    code, stdout, stderr = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == BLOCK
+    assert "the real next item" in (stdout + stderr)
+    assert "GOAL-T1" in (stdout + stderr)
+
+
+def test_goal_continuation_allows_when_no_active_goal_file(tmp_path):
+    env = _goal_env(tmp_path, None, None)
+    code, _, _ = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_allows_when_goal_inactive(tmp_path):
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T2", "active": False, "expires_at_et": "2099-01-01"},
+        _GOAL_MD_OPEN,
+    )
+    code, _, _ = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_allows_when_goal_expired(tmp_path):
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T3", "active": True, "expires_at_et": "2020-01-01"},
+        _GOAL_MD_OPEN,
+    )
+    code, _, _ = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_allows_when_goal_md_path_missing(tmp_path):
+    active_goal_path = tmp_path / "active-goal.json"
+    active_goal_path.write_text(
+        json.dumps(
+            {
+                "id": "GOAL-T4",
+                "active": True,
+                "expires_at_et": "2099-01-01",
+                "file": str(tmp_path / "does-not-exist.md"),
+            }
+        ),
+        encoding="utf-8",
+    )
+    env = {"GAMMA_ACTIVE_GOAL_PATH": str(active_goal_path)}
+    code, _, _ = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_allows_when_active_goal_json_malformed(tmp_path):
+    active_goal_path = tmp_path / "active-goal.json"
+    active_goal_path.write_text("}{not json", encoding="utf-8")
+    env = {"GAMMA_ACTIVE_GOAL_PATH": str(active_goal_path)}
+    code, _, _ = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_allows_when_queue_has_no_open_item(tmp_path):
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T5", "active": True, "expires_at_et": "2099-01-01"},
+        _GOAL_MD_NO_OPEN,
+    )
+    code, _, _ = run_hook(_stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}"), env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_honours_stop_hook_active(tmp_path):
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T6", "active": True, "expires_at_et": "2099-01-01"},
+        _GOAL_MD_OPEN,
+    )
+    payload = _stop_payload(f"pyt-goal-{uuid.uuid4().hex[:8]}")
+    payload["stop_hook_active"] = True
+    code, _, _ = run_hook(payload, env=env)
+    assert code == ALLOW
+
+
+def test_goal_continuation_allows_after_max_continuations(tmp_path):
+    """Brake 2: the hard counter. Each fire in this test edits the goal file so the
+    NEXT item differs each time (so convergence never masks the counter), and stays
+    under one session id so the ledger accumulates."""
+    session_id = f"pyt-goal-{uuid.uuid4().hex[:8]}"
+    goal_json = {
+        "id": "GOAL-T7",
+        "active": True,
+        "expires_at_et": "2099-01-01",
+        "max_continuations_per_session": 3,
+    }
+    goal_file = tmp_path / "GOAL-T7.md"
+    active_goal_path = tmp_path / "active-goal.json"
+    env = {"GAMMA_ACTIVE_GOAL_PATH": str(active_goal_path)}
+
+    codes = []
+    for i in range(4):
+        goal_file.write_text(
+            f"# GOAL: G7\n## QUEUE\n- [ ] item number {i}\n## PROGRESS LOG\n",
+            encoding="utf-8",
+        )
+        gj = dict(goal_json)
+        gj["file"] = str(goal_file)
+        active_goal_path.write_text(json.dumps(gj), encoding="utf-8")
+        code, _, _ = run_hook(_stop_payload(session_id), env=env)
+        codes.append(code)
+
+    assert codes[:3] == [BLOCK, BLOCK, BLOCK], codes
+    assert codes[3] == ALLOW, "4th continuation must be denied by the hard counter"
+
+
+def test_goal_continuation_convergence_stop_same_item_twice(tmp_path):
+    """Brake 3: if the item named at the last block is unchanged, the next Stop
+    allows -- this is also the 'never blocks twice for the same reason' guarantee."""
+    session_id = f"pyt-goal-{uuid.uuid4().hex[:8]}"
+    env = _goal_env(
+        tmp_path,
+        {"id": "GOAL-T8", "active": True, "expires_at_et": "2099-01-01"},
+        _GOAL_MD_OPEN,
+    )
+    first, _, _ = run_hook(_stop_payload(session_id), env=env)
+    # Goal file is untouched -- the next open item is identical to the one just named.
+    second, _, _ = run_hook(_stop_payload(session_id), env=env)
+    assert first == BLOCK
+    assert second == ALLOW, "unchanged next item must not block again (convergence)"

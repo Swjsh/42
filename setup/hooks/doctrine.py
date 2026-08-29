@@ -309,3 +309,106 @@ def freeze_banner(today: dt.date, days_left: int | None = None) -> str:
 
 def join_notes(notes: Iterable[str]) -> str:
     return "\n".join(f"- {n}" for n in notes)
+
+
+# --------------------------------------------------------------------------------------
+# Goal continuation (Stop hook, third clause) -- automation/state/active-goal.json.
+#
+# Three independent brakes are the WHOLE safety argument here (SPEC.md section 6):
+#   1. payload["stop_hook_active"] -- handled entirely by the caller, before any of
+#      this runs. Never chains within a single continuation.
+#   2. a hard per-session counter (goal_should_continue's continuations_so_far/max).
+#   3. a convergence stop -- an item identical to the one named at the LAST block
+#      means that continuation did not move the goal, so continuing again would
+#      loop rather than help. Same no-op logic as run-gamma-drive.ps1's
+#      Test-OutcomeNoop, restated for a single field instead of a metrics row.
+# All three are pure here; the caller owns the clock, the files, and FAIL OPEN.
+# --------------------------------------------------------------------------------------
+DEFAULT_MAX_CONTINUATIONS = 3
+
+_QUEUE_OPEN_ITEM = re.compile(r"^-\s*\[ \]\s*(.+?)\s*$")
+_HEADING_LINE = re.compile(r"^\s*##\s+(.*)$")
+
+
+def goal_next_open_item(goal_md: str | None) -> str | None:
+    """First unchecked `- [ ]` line under the `## QUEUE` heading, or None.
+
+    Only the bare `[ ]` marker counts as open -- `[~]` (wip), `[x]` (done), and
+    `[B]`/`[B-J]` (blocked) are deliberately excluded, matching the goal schema
+    (SPEC.md section 5). A blocked item must never keep re-triggering a
+    continuation; that is what the B/B-J markers exist to prevent.
+    """
+    in_queue = False
+    for line in (goal_md or "").splitlines():
+        heading = _HEADING_LINE.match(line)
+        if heading:
+            in_queue = heading.group(1).strip().upper().startswith("QUEUE")
+            continue
+        if not in_queue:
+            continue
+        m = _QUEUE_OPEN_ITEM.match(line)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
+def goal_expired(expires_at_et: str | None, now_et: dt.datetime) -> bool:
+    """True when the goal's expiry has passed, or its expiry can't be read.
+
+    A malformed or unparseable expiry fails toward "treat as expired" (i.e. allow
+    the stop) rather than "block forever" -- same fail-open direction as every
+    other guard in this module. An EMPTY expiry means "no expiry was set" and is
+    the one case that does NOT count as expired.
+    """
+    raw = (expires_at_et or "").strip()
+    if not raw:
+        return False
+    try:
+        if len(raw) == 10:  # "YYYY-MM-DD" -- expires at end of that day
+            exp = dt.datetime.strptime(raw, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
+        else:
+            exp = dt.datetime.fromisoformat(raw.replace("Z", "+00:00")).replace(tzinfo=None)
+        return now_et > exp
+    except Exception:
+        return True
+
+
+def goal_max_continuations(goal: dict) -> int:
+    """The per-session continuation budget from active-goal.json, or the default.
+
+    Any non-positive or non-int value (missing key, 0, negative, a string) falls
+    back to DEFAULT_MAX_CONTINUATIONS -- a malformed budget must never mean
+    "unlimited continuations".
+    """
+    raw = goal.get("max_continuations_per_session")
+    if isinstance(raw, bool) or not isinstance(raw, int) or raw <= 0:
+        return DEFAULT_MAX_CONTINUATIONS
+    return raw
+
+
+def goal_should_continue(
+    item: str | None,
+    last_next_item: str | None,
+    continuations_so_far: int,
+    max_continuations: int,
+) -> bool:
+    """Brakes 2 and 3 together. True only when there is an open item, the
+    session hasn't spent its continuation budget, and that item is not a
+    repeat of the one the last block already named."""
+    if not item:
+        return False
+    if continuations_so_far >= max_continuations:
+        return False
+    if last_next_item and item == last_next_item:
+        return False
+    return True
+
+
+def goal_continuation_reason(goal_id: str, item: str, goal_file: str, n: int, max_n: int) -> str:
+    """The Stop-block message: names the item, tells the session what to do next."""
+    return (
+        f"Goal {goal_id} still has open work. Next item: {item}. Do it, then append one "
+        f"PROGRESS LOG line to {goal_file}, record the outcome via "
+        f"`python setup/scripts/conductor_outcome.py record ...`, then stop. "
+        f"Continuation {n}/{max_n}."
+    )
