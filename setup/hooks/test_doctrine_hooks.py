@@ -370,6 +370,34 @@ def test_dispatcher_fails_open(payload, tmp_path):
     assert code == ALLOW
 
 
+# ---------------------------------------------------------------------------------------
+# malformed tool_input TYPE (not just malformed JSON) -- found stress-testing 2026-08-29.
+# A raw string or a non-empty list for tool_input used to make _handle_pre_tool's
+# `tin.get(...)` calls raise AttributeError, caught only by main()'s top-level fail-open
+# catch. The call still exited 0 (correct outcome), but silently: bash_guard_hit /
+# frozen_path_hit never actually ran for it (they never got the chance), and
+# P.record_tool() never fired, so the call vanished from the army-view pulse with no
+# signal beyond a generic hook_error log row. Fix coerces non-dict tool_input to {},
+# matching the isinstance guard _session_state/_load_active_goal already use for their
+# own non-dict-JSON case -- same ALLOW outcome, reached without an exception, guards
+# actually invoked (against nothing, so they no-op), and telemetry still fires.
+# ---------------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "tool_input",
+    ["just a raw string", ["a", "b"], ["automation/state/params.json"], None, []],
+)
+@pytest.mark.parametrize("tool_name", ["Bash", "Edit"])
+def test_malformed_tool_input_type_fails_open_end_to_end(tool_input, tool_name):
+    code, stdout, stderr = run_hook(
+        {"hook_event_name": "PreToolUse", "tool_name": tool_name, "tool_input": tool_input}
+    )
+    assert code == ALLOW
+    # No hook_error / exception trace should leak onto either channel for this case --
+    # the crash-then-fail-open path is exactly what the fix removes.
+    assert "Traceback" not in stderr
+    assert "AttributeError" not in (stdout + stderr)
+
+
 def test_malformed_stdin_fails_open():
     proc = subprocess.run(
         [sys.executable, str(_HOOK)], input="}{not json", capture_output=True, text=True, timeout=60

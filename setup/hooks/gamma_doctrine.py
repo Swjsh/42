@@ -404,7 +404,19 @@ def _added_content(tool: str, tin: dict) -> str:
 
 def _handle_pre_tool(payload: dict) -> int:
     tool = payload.get("tool_name") or ""
-    tin = payload.get("tool_input") or {}
+    # tool_input is normally a dict, but a malformed/adversarial payload can hand this a
+    # raw string or a list. `tin.get(...)` below would then raise AttributeError, which
+    # used to propagate all the way to main()'s top-level fail-open catch -- the call
+    # still exits 0, but silently: bash_guard_hit/frozen_path_hit never ran for it (they
+    # never got a chance to inspect anything), P.record_tool() at the bottom of this
+    # function never fired (a real tool call goes missing from the army-view pulse), and
+    # the only trace is a generic hook_error log row indistinguishable from any other
+    # crash. Coercing to {} here -- same isinstance guard as _session_state/
+    # _load_active_goal use for their own non-dict-JSON case -- makes a malformed
+    # tool_input behave exactly like a missing one: guards run (against nothing, so they
+    # no-op, same as any call with no useful fields), and P.record_tool() still fires.
+    raw_tin = payload.get("tool_input")
+    tin = raw_tin if isinstance(raw_tin, dict) else {}
 
     if tool in ("Edit", "Write", "NotebookEdit", "MultiEdit"):
         file_path = str(tin.get("file_path") or tin.get("notebook_path") or "")
