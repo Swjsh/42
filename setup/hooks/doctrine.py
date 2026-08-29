@@ -254,9 +254,31 @@ def is_permission_question(message: str, tail_chars: int = 400) -> bool:
     return not _ESCALATION_MARKERS.search(message)
 
 
-def is_unverified_claim(message: str, tool_calls_this_turn: int) -> bool:
-    """True when the turn claims success but ran no tool at all (OP-33)."""
+# A turn that was ASKED to summarise cannot be expected to re-run its tools. Caught on the
+# guard's first day (2026-08-29): it blocked a "tldr" that restated checks already quoted
+# earlier in the same session. OP-33 governs NEW claims, not recaps of verified ones.
+_RECAP_REQUEST = re.compile(
+    r"^\W*(?:tl;?dr|recap|summar(?:y|ise|ize)|shorter|condense|in\s+short|eli5"
+    r"|what\s+did\s+you\s+(?:do|change|ship)|explain|why\b|how\s+come)",
+    re.IGNORECASE,
+)
+
+
+def is_recap_request(user_prompt: str) -> bool:
+    """True when this turn was asked to restate, not to act."""
+    text = (user_prompt or "").strip()
+    if not text:
+        return False
+    return bool(_RECAP_REQUEST.match(text)) or len(text) <= 12 and "tldr" in text.lower()
+
+
+def is_unverified_claim(
+    message: str, tool_calls_this_turn: int, user_prompt: str = ""
+) -> bool:
+    """True when the turn makes a NEW success claim but ran no tool at all (OP-33)."""
     if tool_calls_this_turn > 0:
+        return False
+    if is_recap_request(user_prompt):
         return False
     return bool(_CLAIM_PATTERNS.search(message or ""))
 

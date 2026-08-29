@@ -176,6 +176,22 @@ def test_unverified_claim_needs_zero_tool_calls():
     assert not D.is_unverified_claim("Here is the design.", 0)
 
 
+@pytest.mark.parametrize(
+    "prompt", ["tldr", "TL;DR", "recap please", "summarise that", "what did you change?", "why?"]
+)
+def test_recap_turns_are_exempt_from_op33(prompt):
+    """Regression: on day one the guard blocked a 'tldr' that restated checks already
+    quoted earlier in the same session. OP-33 governs NEW claims, not recaps."""
+    assert D.is_recap_request(prompt)
+    assert not D.is_unverified_claim("Verified: 52/52 pass.", 0, prompt)
+
+
+@pytest.mark.parametrize("prompt", ["ship the exit patch", "fix the heartbeat", "run the gate"])
+def test_action_turns_still_need_verification(prompt):
+    assert not D.is_recap_request(prompt)
+    assert D.is_unverified_claim("Fixed it, all tests passing.", 0, prompt)
+
+
 def test_prompt_router_is_quiet_by_default():
     assert D.route_prompt("what did we learn from yesterday's journal") == []
     assert D.route_prompt("bump tp1_premium_pct on safe-2") != []

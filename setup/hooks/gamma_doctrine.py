@@ -142,13 +142,26 @@ def _deny(event: str, reason: str) -> int:
     return _BLOCK
 
 
-def _count_tool_calls_this_turn(transcript_path: str) -> int:
-    """Tool calls since the last human message. Used only to catch a claim made with
-    zero verification; on any doubt it returns 1 (= 'assume verified', fail open)."""
+def _text_of(content) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return " ".join(
+            b.get("text", "") for b in content if isinstance(b, dict) and b.get("type") == "text"
+        )
+    return ""
+
+
+def _turn_context(transcript_path: str) -> tuple[int, str]:
+    """(tool calls since the last human message, that human message's text).
+
+    Used only to catch a success claim made with zero verification. On ANY doubt it
+    returns (1, "") -- "assume verified", i.e. fail open.
+    """
     try:
         path = Path(transcript_path)
         if not path.is_file():
-            return 1
+            return 1, ""
         lines = path.read_text(encoding="utf-8", errors="replace").splitlines()[-400:]
         calls = 0
         for line in reversed(lines):
@@ -164,14 +177,14 @@ def _count_tool_calls_this_turn(transcript_path: str) -> int:
                 if not any(
                     isinstance(b, dict) and b.get("type") == "tool_result" for b in blocks
                 ):
-                    return calls  # reached the human turn boundary
+                    return calls, _text_of(content)  # reached the human turn boundary
             if isinstance(content, list):
                 calls += sum(
                     1 for b in content if isinstance(b, dict) and b.get("type") == "tool_use"
                 )
-        return calls
+        return calls, ""
     except Exception:
-        return 1
+        return 1, ""
 
 
 # ---------------------------------------------------------------------------------------
@@ -295,8 +308,8 @@ def _handle_stop(payload: dict) -> int:
         )
 
     if not blocked.get("op33"):
-        calls = _count_tool_calls_this_turn(payload.get("transcript_path") or "")
-        if D.is_unverified_claim(message, calls):
+        calls, user_prompt = _turn_context(payload.get("transcript_path") or "")
+        if D.is_unverified_claim(message, calls, user_prompt):
             blocked["op33"] = True
             _save_session_state(path, state)
             _log({"event": "Stop", "rule": "OP-33"})
