@@ -316,3 +316,142 @@ Both verified in source by the workflow; both are prerequisites, not options.
 `analysis/deep-research/FABLE-FULL-REVIEW-2026-08-29.md` (parallel session, sets the freeze) ·
 `setup/scripts/go_live_gate.py` (RED) · `setup/scripts/lib/scorecard_guards.py` (required guard
 fields) · `automation/overnight/queue.md` · `MAP.md` (route here before any repo-wide search).
+
+---
+
+## 9. EXECUTION LOG — 2026-08-29 evening (appended by the implementing session)
+
+Everything below was verified this session against cold reality, not carried from §0–§8.
+**Two of this handoff's own claims did not survive verification.** Both are corrected here.
+
+### 9.1 What shipped
+
+| # | Item | Commit | Status |
+|---|---|---|---|
+| 0 | `SAFE-2-EXIT-SHAPE-AB-PREREG` killed before the freeze | `f15f2bc8` | done |
+| 1 | SUPER tier label computed in the fleet producer + day-warning sink | `137a1abc` | done |
+| 2 | risky-1 `full_send` investigated → **producer lane disarmed** | `a9c157a9` | done |
+| 3 | Compound matrix regenerated without the refuted depth cap | `3e730f5f` | done |
+| 4 | Slippage columns mined → **found empty; root-caused; filed** | `9b2856cc` | done |
+| 5 | §5.1 `heartbeat_core.ACCOUNTS` gap closed **early, while inert** | see §9.6 | done |
+
+### 9.2 ⚠️ CORRECTION 1 — §0.2 is wrong on mechanism, and it inverts the recommended action
+
+§0.2 reports a `FULL_SEND` lane on risky-1 at n=27 / −$427 and recommends disarming
+`gate_override.full_send`. Verified against the ledgers:
+
+- **The full_send LANE has placed 0 orders in its lifetime.** 0 of risky-1's 141 lifetime
+  `ENTER` rows carry a `FULL_SEND` reason; lane mix is `{'normal': 141}`. The official
+  instrument (`full_send_vs_gated.py`) independently reports `lanes={'normal': 109}` since
+  arming. `accounts.json`'s own `_gate_restore_2026_08_12` note already said it: *"0 of 66
+  lifetime placements … fired 0 times in 6,553 ticks."*
+- **The ~27–30 rows that MENTION `FULL_SEND` are the size CLAMP, not the lane.** Their reason
+  reads `qty clamped 8->5: FULL_SEND min size`. That clamp removed **102 of 252 contracts
+  (40%)** and turned a −$2,063 unclamped outcome into −$1,042 — it **saved ≈ +$1,021**.
+- **So "disarm full_send" as written would be a risk INCREASE.** `gate_override.full_send` is
+  KEPT. What was disarmed is `build_shared_signal.FULL_SEND_LIVE` — the producer half, named
+  by `full_send_doc` itself as the belt-and-suspenders kill.
+- **Why it still had to be closed tonight:** the lane is not dormant upstream. The producer
+  emits an `available` block with a real trigger level on **126 replayed ticks**, and
+  `passed_full_send()` holds on **213 ticks across 13 days**, most recently 08-26. The only
+  thing that ever stopped it is the per-trade risk cap, and `full_send_doc` states that block
+  explicitly: *"At $2K equity the 50% per-trade risk cap REFUSES any full-send entry priced
+  above $2.00 premium."* That ceiling is `(equity × 50%) / (min_contracts × 100)`. Equity has
+  gone **$2,000 → $6,495** and `min_contracts_equity_scaled` is **false**, so the ceiling rose
+  **$2.00 → $6.50** — admitting essentially every ATM 0DTE entry. The measurement that
+  justified leaving it armed had silently expired.
+
+### 9.3 ⚠️ CORRECTION 2 — §6.7's premise is false: there is nothing to mine
+
+§6.7 says `analysis/trades-enriched.jsonl` "already carries"
+`exit_slippage_vs_mid_before_dollars`, `exit_quote_bid/ask/mid_before/after` and
+`exit_quote_lag_before_s` on real fills. **Those columns are 0 of 388 populated — null on
+every row.** The file's own `_meta` said so all along (`exit_quote_matched: 0`,
+`exit_quote_match_rate: 0.0`); nobody read it (C7).
+
+Root cause: the join reads `analysis/quote-tape/*.jsonl`, and **that directory does not
+exist**. `quote_recorder.py` only writes while an arm holds an open position during RTH, was
+first launched 2026-08-28 17:47 ET (after Friday's close) on a 24h bounded duration, and so
+has **never been alive for a single RTH session** — 0 rows written across its whole life. That
+duration expired ~17:47 today; pid 27940 is confirmed dead. Its keepalive is `Disabled` with
+124 missed runs (weekend quiet mode) and *is* named in `quiet-mode-restore.json`, so it should
+return Monday. Filed as `QUOTE-TAPE-HAS-NEVER-CAPTURED-A-SESSION` (HIGH) — **verify Monday,
+do not build a second lane.**
+
+### 9.4 SUPER label — shipped, but it preserves a WEAKER signal than §3 claims
+
+§3 calls this the highest-value item and cites p = 0.021. Reproduced exactly (n=48 / −$2,394 /
+WR 22.9% on 6 days vs +$4,527 / WR 32.2% on 23; permutation p = 0.0212; TRENDLINE negative
+control p = 0.4948). **But that p-value belongs to a FILL-flagged day** (a SUPER signal was
+actually taken), and the producer can only see a **PASSED** signal. Replaying the paired core
+ledger (17,526 ticks / 50 days) through the shipped code: it flags **11/50 days (22%)**,
+recovers **6 of the 7** historical SUPER-fill dates, and on the survivors gives −$1,661 /
+WR 23.7% vs +$3,794 / WR 32.9% — **same direction, p = 0.077, not significant alone.**
+The rows carry `(date, side, setup)` precisely so the forward evaluation can join to fills and
+reconstruct the narrower definition out of sample. **Do not cite p = 0.021 off this log.**
+
+### 9.5 §4 compound matrix — the depth cap is refuted on its own turf
+
+Independently confirmed from the real 1-minute OPRA bars (319 contract-days): median daily
+volume **443,750** contracts per contract. And measured at the exact band the wall was claimed
+in — **the median MINUTE in $1.50–2.50 trades 357 contracts against an alleged 46-contract
+wall**, with only **1.6%** of minutes trading fewer than our largest-ever order of 12.
+
+Replaced with a traded-volume participation model (10% participation, 5-minute exit window,
+priced off the **p25** minute). E\* moves **$7,779 → $51,074**. The refuted model is retained
+in the output under `market_depth_measurement_REFUTED` rather than deleted.
+
+**12-month projections from $5K at $1.00/contract slippage (p50):**
+
+| Regime | old (depth-capped) | new | **new, ex-best-day** |
+|---|---:|---:|---:|
+| August | $28,106 | $62,281 | **$24,931** |
+| All-history | $8,519 | $7,324 | **$4,322** |
+| Post-fix | $70,708 | $361,224 | $270,351 |
+
+August's new p50 converges on §4's independent naive ~$57K — a good consistency check — and
+all-history barely moves, confirming the cap only bound where it should not have.
+**The number to plan against is the ex-best-day column:** August compounds $5K → **≈$25K**,
+not $57–62K, and dropping ONE session out of twenty costs 60% of the year. All-history
+ex-best-day **loses money**. Liquidity is not the constraint; concentration still is, and the
+binding unknown remains *which regime is real* — now ranked #1 in the report's own constraint
+list, where market depth used to sit.
+
+### 9.6 §5.1 ACCOUNTS gap — closed EARLY, while it is provably inert
+
+Confirmed: `for account in ACCOUNTS:` iterated the hardcoded dict and nothing read
+`fleet/accounts.json`, so flipping safe-2 to `retired` would have changed nothing.
+Added `heartbeat_core.active_accounts()`, which filters `ACCOUNTS` by fleet status.
+
+Landed **now rather than at window close** because safe-2 and bold-2 are both `active` today,
+so it is byte-identical in behaviour — a guard pins exactly that. Doing it in September would
+mean a behaviour-changing trading-path edit inside the scoring window.
+
+Second-order trap caught: `main()` gated the tick-completeness marker on
+`set(ok_accounts) == set(ACCOUNTS)`. Filtering only the loop would have made a retired arm
+**permanently withhold the tick marker**, freezing every paired-read consumer on the last
+complete tick — a worse outage than the bug being fixed. Both the comparison and the marker
+payload now use the filtered set. Fails **open** on an unreadable config (OP-25) but
+**closed** on any status that is not literally `"active"`.
+
+### 9.7 A dojo fidelity gap, found in passing
+
+`test_dojo_engine_step::test_fleet_arms_reflect_their_own_gate_strictness` went RED on the
+disarm. Root cause: its only assertion was "at least one ENTER somewhere", and that was
+satisfied **exclusively by the full-send lane** — a test named for gate strictness was green
+only because of the gate *bypass*. Rewritten to assert the per-arm difference (lane on → only
+risky-1 enters, at 11:35/12:05; lane off → neither does), which is strictly stronger and now
+fails if `_full_send_plan` stops consulting the arm's own config.
+
+Switching replay days was not available: **2026-08-07, 08-13, 08-19 and 08-21 all produce ZERO
+gated-lane ENTERs through the dojo path**, despite safe-3 having real live fills on all four.
+That is an unresolved dojo replay-fidelity gap worth its own item.
+
+### 9.8 What is NOT done, and stays for window close (~2026-09-29)
+
+- **safe-2 retirement itself.** Not touched. §5.1's prerequisite is now closed, so the
+  retirement is a config flip plus fixture work.
+- **bold-2 stays.** Per §1/§9 — no mechanism finding against it, best arm in 26.9% of
+  day-bootstraps. Not retired; no cut-bar pre-registered yet.
+- **Full-suite baseline:** captured this session — `10,888 passed / 13 failed` (41m).
+  Re-capture immediately before and after the retirement per §5.3.
