@@ -1,0 +1,92 @@
+{
+  "$comment": [
+    "Project-scoped Gamma doctrine hooks (2026-08-29). Git-tracked ON PURPOSE: the older",
+    "hook set lives in .claude/settings.local.json, which is gitignored, so it is neither",
+    "versioned nor reviewable. Hooks merge across settings scopes, so both sets fire.",
+    "Implementation + rationale: markdown/infra/DOCTRINE-HOOKS.md.",
+    "Off-switch, in order of reversibility: GAMMA_HOOKS_OFF=1 env var -> touch",
+    "automation/state/hooks/OFF -> git revert this file. Every handler fails OPEN."
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 15,
+            "statusMessage": "Loading Gamma doctrine..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 15,
+            "statusMessage": "Checking doctrine guards..."
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe \"${CLAUDE_PROJECT_DIR}/setup/hooks/gamma_doctrine.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -340,3 +340,9 @@ automation/state/multi/key-levels-*.json
 # launcher (LAUNCH-GAMMA-HOME.vbs) regenerates before opening, so a fresh
 # checkout is one double-click from a current page.
 analysis/home/index.html
+
+# Doctrine-hook runtime state (2026-08-29). Per-session ledgers + append-only logs written
+# by setup/hooks/gamma_doctrine.py. Machine-local telemetry, never decision-gating: tracking
+# it would churn history on every session and re-run the L214/C34 "git ops revert live state"
+# hazard. The hooks themselves are tracked (.claude/settings.json + setup/hooks/).
+automation/state/hooks/
