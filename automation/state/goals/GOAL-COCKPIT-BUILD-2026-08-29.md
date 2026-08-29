@@ -89,9 +89,23 @@ spec is used instead — not silently dropped.
     `analysis/home/index.html` and `gamma-companion/public/cockpit.html` (501,192 bytes
     each, identical size = same payload, file:// snapshot + served live mode).
 
-- [ ] Step 4 — Action cards, read-only. `setup/scripts/gamma_cockpit_cards.py` and
-    `automation/state/action-cards.json` do not exist yet (checked 2026-08-29).
-- [ ] Step 5 — Cards fire. Depends on Step 4.
+- [x] Step 4 — Action cards, read-only. VERIFIED 2026-08-29 16:16 by wiring, not by
+    file existence: `gamma_cockpit_cards.py` is imported by `gamma_home.py`,
+    `payload["cards"]` is set, a `cards` entry is in the VIEWS[] registry, and the
+    renderer lives in `gamma_cockpit_cards_js.py`. Quiet-mode is genuinely honoured —
+    11 references to `quiet_active`/`quiet-mode` in the generator, so tasks that are
+    deliberately held down render as quiesced instead of manufacturing false REDs.
+    `action-cards.json` holds 9 ranked cards sourced from STATUS.md + queue.md.
+
+- [x] Step 5 — Cards fire. VERIFIED 2026-08-29 16:16. The fire path lives in
+    `setup/scripts/gamma_cockpit_cards_js.py` (NOT in views_js — a first grep missed it
+    and wrongly called this step incomplete): `fetch('/api/approve')` with the
+    `x-gamma-token` meta header, and the SSE drawer on `/api/ask-stream`. Both strings
+    appear in the rendered `analysis/home/index.html`. Server-side prompt-lookup
+    hardening is in `gamma-companion/server.js` (reads `action-cards.json` rather than
+    trusting the client's task), RTH gating is in the generator (6 `rth`/`et_clock`
+    references), and 4 card guard-test files exist.
+
 - [x] Step 6 — `/gamma-goal`. THIS delivery: `.claude/skills/gamma-goal/SKILL.md`,
     `automation/state/goals/` (+ 3 legacy files folded, tombstones left),
     `automation/state/active-goal.json` pointing at this file, the queue.md row
@@ -106,18 +120,30 @@ spec is used instead — not silently dropped.
     `goal continuation` sections) — `pytest setup/hooks/test_doctrine_hooks.py -q`
     was 100 passed before this fire touched anything. Built by a parallel lane;
     not this fire's work, credited honestly rather than re-claimed.
-- [~] Step 8 — Reachable. Partially true already: `Gamma_Home` IS listed in
-    `automation/state/quiet-mode-restore.json` (checked 2026-08-29 — SPEC.md's
-    claim that it is absent is stale as of this fire). `Gamma_CompanionKeepalive`'s
-    live Enabled/Disabled state and the Desktop shortcut were NOT checked this fire
-    (out of scope for the /goal delivery) — next fire under this goal should verify
-    both with `Get-ScheduledTask` / `Test-Path` before claiming step 8 done.
+- [x] Step 8 — Reachable. VERIFIED 2026-08-29 16:20 with live commands:
+    `Get-ScheduledTask Gamma_CompanionKeepalive` -> **Ready** (re-enabled);
+    `Gamma_Home` and `Gamma_CompanionKeepalive` both present in
+    `quiet-mode-restore.json`; `~/Desktop/Gamma Cockpit.lnk` exists;
+    `curl 127.0.0.1:4317` -> HTTP 200. `Gamma_Home` currently reads **Disabled**,
+    which is quiet mode holding it down BY DESIGN (quiet_active:true, 115 tasks held,
+    weekend 08:00-23:00 ET) — it restores at 23:00 ET because it is in the restore list.
+    Not a defect; the page is stale on purpose until then.
+- [ ] VERIFY-A — pulse visibly travels on a REAL cross-session message. 13 `message`
+    rows exist in pulse.jsonl but every one came from the test suite (now fixed so it
+    writes to a temp path). No genuine `SendMessage` has been sent, because the only
+    reachable peers are J's own live interactive windows and messaging them would inject
+    text into whatever he is doing. Needs either a Gamma-spawned session to message, or
+    J's say-so to ping one of his own.
+- [ ] VERIFY-B — one card click spawns exactly ONE escalation, and a double-tap spawns
+    none extra (`r.already` idempotency guard). Requires actually firing a card, which
+    starts a real Sonnet session. J's first click is the test.
 
 ## J-DECISIONS
 (none yet — every item above is either build work or a file-existence check, no
 OP-0 four-things-route-to-J item has come up in this goal's scope so far)
 
 ## PROGRESS LOG
+- 2026-08-29 16:20 ET — Steps 4, 5 and 8 verified and ticked; all 8 build steps are built and wired. Resolved SPEC.md UNVERIFIED #3: `agent_id` DOES populate — 319 of 713 pulse rows carry it (subagent rows only, exactly as documented), so worker-level attribution works. Fixed two defects found while verifying: the Stop-hook block message garbled non-ASCII on the Windows console (`_ascii_safe` + guards), and the test suite was writing ~10 fake `message` rows per run into PRODUCTION pulse.jsonl (GAMMA_PULSE_PATH redirect; proven +0 rows across two suite runs). Goal stays OPEN on VERIFY-A and VERIFY-B — both need a real side effect (a live message, a live escalation) that is J's call, not mine. 103 guards green.
 - 2026-08-29 16:11 ET — Reconciled QUEUE against disk: steps 2+3 were `[ ]` with "does not exist yet" while already shipped and wired. Verified by RUNNING `gamma_home.py` (6 answers rendered, 0 NO DATA, 92 army refs, dual-write 501,192 B to both index.html and public/cockpit.html), not by file existence. Steps 4+5 remain open and are in flight in wf_8c658368-df0. Root cause: parallel lanes + a QUEUE item written as a point-in-time observation; skill rule added to prevent recurrence.
 - 2026-08-29 ~17:36 ET: goal opened by the /goal build itself (this fire). Surveyed
   steps 1-8 via file-existence checks (see QUEUE for exact evidence per step).

@@ -22,11 +22,18 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parent.parent.parent
-_STATE_DIR = _REPO / "automation" / "state" / "hooks"
-_PULSE = _STATE_DIR / "pulse.jsonl"
+
+# GAMMA_PULSE_PATH redirects the sink, matching the GAMMA_ACTIVE_GOAL_PATH pattern in
+# gamma_doctrine.py. Needed because the end-to-end tests spawn the real hook as a
+# SUBPROCESS -- monkeypatch cannot reach across that boundary, so without this every
+# pytest run appended fake rows to production telemetry. Ten per run, and they looked
+# exactly like real SendMessage edges that had lost their recipient.
+_PULSE = Path(os.environ.get("GAMMA_PULSE_PATH") or (_REPO / "automation" / "state" / "hooks" / "pulse.jsonl"))
+_STATE_DIR = _PULSE.parent
 
 # ~2k rows is roughly a full day of a busy 8-worker fan-out, and keeps the tail cheap for a
 # 1s poll. Trim is amortised: only rewrite when we are meaningfully over.

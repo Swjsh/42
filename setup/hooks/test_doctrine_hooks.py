@@ -15,6 +15,7 @@ import datetime as dt
 import json
 import os
 import subprocess
+import tempfile
 import uuid
 import sys
 from pathlib import Path
@@ -33,6 +34,11 @@ ALLOW, BLOCK = 0, 2
 
 def run_hook(payload: dict, env: dict | None = None) -> tuple[int, str, str]:
     full_env = dict(os.environ)
+    # The hook runs as a real SUBPROCESS, so monkeypatch cannot redirect its telemetry
+    # sink. GAMMA_PULSE_PATH is the only way to keep the suite out of production
+    # pulse.jsonl -- without it each run appended ~10 rows indistinguishable from real
+    # message edges that had lost their recipient. Overridable by an explicit env arg.
+    full_env.setdefault("GAMMA_PULSE_PATH", str(Path(tempfile.gettempdir()) / "gamma-test-pulse.jsonl"))
     if env:
         full_env.update(env)
     proc = subprocess.run(
@@ -362,11 +368,28 @@ def test_pulse_ring_cap_holds(tmp_path, monkeypatch):
     assert n <= 60, f"ring cap leaked: {n} rows"
 
 
-def test_pulse_never_raises_on_garbage():
-    """Telemetry must never be the reason a tool call fails."""
+def test_pulse_never_raises_on_garbage(tmp_path, monkeypatch):
+    """Telemetry must never be the reason a tool call fails.
+
+    Redirected to tmp_path: the first version of this test wrote to the REAL
+    automation/state/hooks/pulse.jsonl, so every pytest run injected fake `message` rows
+    with an empty recipient into production telemetry. 13 of them accumulated and briefly
+    looked like evidence that real SendMessage edges were losing their `to` field. A test
+    that pollutes the data it is meant to protect is worse than no test.
+    """
+    monkeypatch.setattr(P, "_STATE_DIR", tmp_path)
+    monkeypatch.setattr(P, "_PULSE", tmp_path / "pulse.jsonl")
     P.record_tool({"tool_name": "SendMessage", "tool_input": "not-a-dict"})
     P.record_tool({})
     P.record_tool({"tool_name": None, "tool_input": None})
+
+
+def test_pulse_module_paths_are_redirectable():
+    """The guard that makes the fix above possible: both sinks must be monkeypatchable
+    module attributes, not values baked into record()'s body. If a refactor inlines the
+    path, tests silently start writing to production telemetry again."""
+    assert isinstance(P._PULSE, Path) and P._PULSE.name == "pulse.jsonl"
+    assert isinstance(P._STATE_DIR, Path)
 
 
 # ---------------------------------------------------------------------------------------
@@ -636,3 +659,22 @@ def test_goal_continuation_convergence_stop_same_item_twice(tmp_path):
     second, _, _ = run_hook(_stop_payload(session_id), env=env)
     assert first == BLOCK
     assert second == ALLOW, "unchanged next item must not block again (convergence)"
+
+
+def test_block_messages_are_ascii_safe():
+    """Regression: goal-file prose is copied verbatim into the Stop-hook block message,
+    which lands on a non-UTF-8 Windows console. An em-dash arrived as a replacement glyph
+    twice on 2026-08-29 -- garbling the loop's PRIMARY instruction channel."""
+    import gamma_doctrine as G
+
+    folded = G._ascii_safe("Step 4 — Action cards · “quoted” · 5 ≥ 3 → done…")
+    assert folded.isascii(), folded
+    assert "--" in folded and "->" in folded and ">=" in folded
+    assert '"quoted"' in folded
+
+
+def test_ascii_safe_never_raises_on_none_or_empty():
+    import gamma_doctrine as G
+
+    assert G._ascii_safe("") == ""
+    assert G._ascii_safe(None) == ""

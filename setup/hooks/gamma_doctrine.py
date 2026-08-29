@@ -230,6 +230,24 @@ def _emit(event: str, context: str = "", system_message: str = "") -> None:
         pass
 
 
+# The stderr channel lands on a Windows console whose codepage is not UTF-8, so a smart
+# dash or curly quote arrives as a replacement glyph. Observed twice on 2026-08-29: the
+# goal-continuation block rendered "Step 4 <?> Action cards", because goal-file prose is
+# copied verbatim into the message. A garbled instruction in the loop's PRIMARY feedback
+# channel is a real defect, not a cosmetic one -- this is how an autonomous session is told
+# what to do next. json.dumps() already escapes the stdout copy (ensure_ascii defaults True).
+_ASCII_FOLD = str.maketrans({
+    "—": "--", "–": "-", "‘": "'", "’": "'",
+    "“": '"', "”": '"', "…": "...", " ": " ",
+    "→": "->", "≥": ">=", "≤": "<=", "×": "x",
+})
+
+
+def _ascii_safe(text: str) -> str:
+    """Fold typographic characters, then drop anything still non-ASCII."""
+    return (text or "").translate(_ASCII_FOLD).encode("ascii", "ignore").decode("ascii")
+
+
 def _deny(event: str, reason: str) -> int:
     """Block, using both signalling channels (JSON reason wins; stderr is the fallback)."""
     try:
@@ -248,7 +266,7 @@ def _deny(event: str, reason: str) -> int:
     except Exception:
         pass
     try:
-        sys.stderr.write(reason)
+        sys.stderr.write(_ascii_safe(reason))
         sys.stderr.flush()
     except Exception:
         pass
