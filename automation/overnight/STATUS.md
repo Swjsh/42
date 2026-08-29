@@ -18,6 +18,8 @@
 
 **Next fire should pick up:** confirm the background full-suite run (`bztg2ze3b`) landed 0 unexpected failures once it completes, mark both FULL-SUITE RED entries in `## Known broken` as resolved/pruned once confirmed, then fall through to `task_scorer.py --top` / `desk_allocator.py` fresh (SPY-0DTE desk was #1 this fire, engine GREEN, no other broken flags).
 
+**Autonomy metric (this fire):** `conductor_outcome.py metric` → `net_improvement=13`, `total_regressions=0` over last 20 fires, but `trend="regressing"` (cost_per_drained rising vs the window average). Flagging per OP-22 — not actioned this fire (out of scope for a test-flake triage), but the next fire choosing a task should weigh loop-closing work over new-artifact work to correct it.
+
 ---
 
 ## [2026-08-29T01:41 ET] audit fire: OK — free-model roster revived (3/6 dead lanes) + 1.7GB/day disk leak killed, commit `2e2f6989`
