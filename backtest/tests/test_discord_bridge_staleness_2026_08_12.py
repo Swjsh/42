@@ -73,14 +73,26 @@ def test_a_fresh_message_is_not_stale(bridge):
     assert age is not None and age < bridge.MAX_MESSAGE_AGE_MIN
 
 
-@pytest.mark.parametrize("stamp", [
-    _ago(minutes=30).isoformat().replace("+00:00", "Z"),   # ...Z
-    _ago(minutes=30).isoformat(),                          # ...+00:00
-    _ago(minutes=30).replace(tzinfo=None).isoformat(),     # NAIVE -- seen on disk from real producers
-])
-def test_all_three_on_disk_timestamp_formats_parse(bridge, stamp):
+@pytest.mark.parametrize("fmt", ["z", "offset", "naive"])
+def test_all_three_on_disk_timestamp_formats_parse(bridge, fmt):
     """Producers write a mix of '...Z', '...+00:00' and naive stamps -- all three appear in the
-    real outbox. A format this misses would be silently treated as undateable."""
+    real outbox. A format this misses would be silently treated as undateable.
+
+    2026-08-29 (n-th full-suite run): the stamp used to be computed once at
+    parametrize-collection time (`_ago(minutes=30)` evaluated when pytest COLLECTED this
+    module), then asserted against at TEST-EXECUTION time with only a +-5min window. In a
+    10k+ test full-suite run (20+ min wall clock), any file that happens to execute more
+    than ~5min after collection flakes with a false "format not parsed"-adjacent failure
+    -- not a real regression, a self-inflicted time bomb. Computing `_ago()` HERE, inside
+    the test body, means it is evaluated at execution time, so the assertion window is
+    always measured against the instant it actually needs to hold for.
+    """
+    base = _ago(minutes=30)
+    stamp = {
+        "z": base.isoformat().replace("+00:00", "Z"),
+        "offset": base.isoformat(),
+        "naive": base.replace(tzinfo=None).isoformat(),
+    }[fmt]
     age = bridge._row_age_min({"queued_at": stamp})
     assert age is not None, f"format not parsed: {stamp!r}"
     assert 25 < age < 35, f"expected ~30min, got {age}"
