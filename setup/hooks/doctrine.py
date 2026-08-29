@@ -116,6 +116,141 @@ BASH_GUARDS = (
     ),
 )
 
+# --------------------------------------------------------------------------------------
+# Shell WRITES to protected paths.
+#
+# Found 2026-08-29 by the adversarial stress campaign, and reproduced directly: the freeze
+# and generated-surface guards were dispatched only inside the Edit/Write/NotebookEdit/
+# MultiEdit branch, so they guarded TOOL NAMES, not FILES.
+#
+#     Edit  automation/state/params.json          -> exit 2   (blocked)
+#     sed -i s/0.8/0.5/ automation/state/params.json -> exit 0 (SAILED THROUGH)
+#     echo x > MAP.md                              -> exit 0  (SAILED THROUGH)
+#
+# The freeze window opens 2026-08-31 and exists to give go_live_gate.py 20 clean scoring
+# days; a single shell write to params.json silently invalidates it, and pulse telemetry
+# records shell calls without a path, so nobody would find out afterwards.
+#
+# Worse, the campaign named the mechanism that makes this likely rather than theoretical:
+# under OP-0 ("act, don't ask") a blocked Edit does not produce an escalation -- it
+# produces a workaround. The deny message was actively CHANNELLING agents toward the
+# unguarded route. Guarding the tool and not the file is therefore not a partial defence;
+# it is a signpost to the bypass.
+#
+# Detection is deliberately position-aware to avoid the OP-32 failure mode of blocking
+# ordinary work: a protected path must appear where the command WRITES it, not merely be
+# mentioned. `grep params.json`, `cat filters.py`, `cp filters.py /tmp/backup` all pass.
+# --------------------------------------------------------------------------------------
+_REDIRECT_WRITE = re.compile(r"(?<![0-9&2])>>?\s*(?!&)([^\s;&|<>]+)")
+_SED_INPLACE = re.compile(r"\b(?:sed|perl)\s+(?:-[a-zA-Z]*i[a-zA-Z]*|--in-place)\b([^;&|]*)")
+_TEE_WRITE = re.compile(r"\btee\b(?:\s+-[a-zA-Z-]+)*\s+([^\s;&|]+)")
+_DD_WRITE = re.compile(r"\bof=([^\s;&|]+)")
+_PS_WRITE = re.compile(
+    r"\b(?:Set-Content|Add-Content|Out-File|Clear-Content|Copy-Item|Move-Item)\b"
+    r"(?:\s+-\w+)*\s+(?:-Path\s+)?['\"]?([^\s;&|'\"]+)",
+    re.IGNORECASE,
+)
+# cp/mv/install write only to their LAST operand, so copying a protected file elsewhere
+# stays legal while copying something ONTO one does not.
+_COPY_MOVE = re.compile(r"\b(?:cp|mv|install)\s+([^;&|]+)")
+
+
+def _protected_path_in(token: str) -> str | None:
+    """The protected path this shell token writes to, or None."""
+    if not token:
+        return None
+    cleaned = token.strip().strip("'\"")
+    hit = frozen_path_hit(cleaned)
+    if hit:
+        return hit
+    return generated_surface_hit(cleaned)
+
+
+def _strip_multiword_quoted(command: str) -> str:
+    """Blank out quoted spans that contain whitespace.
+
+    Caught immediately, by this guard blocking its own verification command: a loop like
+    `for c in "sed -i ... params.json" "echo x > MAP.md"` carries whole COMMANDS inside
+    quotes as data. Scanning them finds writes that never happen -- and a guard that
+    blocks ordinary work is the OP-32 lockout scar, the one failure mode forbidden here.
+
+    Whitespace is the discriminator, and it is exact rather than heuristic: every
+    protected path is a single space-free token, so a quoted span containing a space
+    cannot BE one. That keeps genuinely quoted targets -- `> "MAP.md"`, `sed -i
+    's/a/b/' 'automation/state/params.json'` -- fully in scope, while quoted prose and
+    nested command strings drop out. Whole-string stripping (what bash_guard_hit does)
+    would have thrown the quoted targets away too.
+
+    Implemented as a quote-state scanner, not a regex. The regex first written here --
+    ``(['"])([^'"]*\\s[^'"]*)\\1`` -- broke on the very next command that used it: a commit
+    message in double quotes containing apostrophes ("the guard's own") ended the character
+    class early, so the span never closed and unquoted-looking fragments leaked through.
+    Scanning for the matching close of the SAME quote character handles nesting correctly.
+    """
+    text = command or ""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        if ch in ("'", '"'):
+            # Find the matching close, skipping backslash escapes. Without this the
+            # scanner closed early on an escaped inner quote (\") and leaked the rest of
+            # the span -- which is exactly how the guard blocked its own commit twice.
+            close, k = -1, i + 1
+            while k < n:
+                if text[k] == "\\" and ch == '"':
+                    k += 2
+                    continue
+                if text[k] == ch:
+                    close = k
+                    break
+                k += 1
+            if close == -1:  # unterminated quote: keep the rest verbatim
+                out.append(text[i:])
+                break
+            span = text[i + 1 : close]
+            out.append(ch + (" " if any(c.isspace() for c in span) else span) + ch)
+            i = close + 1
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out)
+
+
+def shell_write_hit(command: str) -> str | None:
+    """Protected path this shell command WRITES to, or None.
+
+    Only write positions are inspected; a path merely mentioned is not a hit.
+    """
+    if not command:
+        return None
+    scanned = _strip_multiword_quoted(strip_heredocs(command))
+    if FREEZE_OVERRIDE_TOKEN in scanned:
+        return None  # same escape hatch the Edit path honours
+
+    for pattern in (_REDIRECT_WRITE, _TEE_WRITE, _DD_WRITE, _PS_WRITE):
+        for match in pattern.finditer(scanned):
+            hit = _protected_path_in(match.group(1))
+            if hit:
+                return hit
+
+    # sed -i / perl -i take the file as an operand anywhere after the flag.
+    for match in _SED_INPLACE.finditer(scanned):
+        for token in match.group(1).split():
+            hit = _protected_path_in(token)
+            if hit:
+                return hit
+
+    # cp/mv/install: destination is the final operand only.
+    for match in _COPY_MOVE.finditer(scanned):
+        operands = match.group(1).split()
+        if len(operands) >= 2:
+            hit = _protected_path_in(operands[-1])
+            if hit:
+                return hit
+    return None
+
+
 # Turn-ending framings that OP-0 names as the failed-turn shape.
 _ASK_PATTERNS = re.compile(
     r"(?:"

@@ -539,18 +539,19 @@ def test_frozen_path_notebookedit_and_multiedit_are_blocked_end_to_end():
     assert code_me == BLOCK
 
 
-def test_bash_write_to_frozen_path_is_a_known_unresolved_gap():
-    """Documented, NOT fixed: the Bash/PowerShell branch of the guard only scans for
-    the 3 named scarred-command patterns (TZ=, git checkout/reset --hard, git push
-    --force) -- it never inspects whether the command's target is a frozen or
-    generated path. `cat`/`tee`/`python -c open(...).write()` writing straight to
-    automation/state/params.json is allowed straight through. A real fix needs
-    parsing shell redirect/heredoc targets, which is out of scope for a narrow,
-    denylist-only guard (README: 'a guard that can block general work is an OP-32
-    lockout scar waiting to happen') -- recorded here so the gap stays visible
-    instead of silently assumed-covered."""
+def test_bash_write_to_frozen_path_is_now_closed():
+    """CLOSED 2026-08-29, same day it was documented. This test previously asserted
+    ALLOW and carried the note 'flip to BLOCK if this is ever closed' -- doing exactly
+    that now, rather than deleting the case.
+
+    The gap was judged out of scope on the grounds that parsing shell targets risks the
+    OP-32 lockout. That trade-off was real but resolvable: `shell_write_hit()` inspects
+    only WRITE POSITIONS (redirect target, sed -i operand, tee/dd operand, the final
+    operand of cp/mv), so a path merely mentioned -- `grep params.json`, `cat
+    filters.py`, `cp filters.py /tmp/backup` -- still passes. See
+    test_shell_write_guard.py, whose second half is entirely ordinary-work cases."""
     env = {"GAMMA_FREEZE_TODAY_OVERRIDE": "2026-09-05"}
-    code, _, _ = run_hook(
+    code, stdout, stderr = run_hook(
         {
             "hook_event_name": "PreToolUse",
             "tool_name": "Bash",
@@ -560,7 +561,8 @@ def test_bash_write_to_frozen_path_is_a_known_unresolved_gap():
         },
         env=env,
     )
-    assert code == ALLOW  # documents the gap; flip to BLOCK if this is ever closed
+    assert code == BLOCK
+    assert "frozen trading path" in (stdout + stderr)
 
 
 def test_stop_blocks_permission_question_once_only(tmp_path):
