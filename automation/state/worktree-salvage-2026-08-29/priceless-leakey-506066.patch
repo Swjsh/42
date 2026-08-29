@@ -1,0 +1,175 @@
+diff --git a/backtest/tests/test_firm_brief_autopsy_staleness.py b/backtest/tests/test_firm_brief_autopsy_staleness.py
+index dd41f58a..58916b8b 100644
+--- a/backtest/tests/test_firm_brief_autopsy_staleness.py
++++ b/backtest/tests/test_firm_brief_autopsy_staleness.py
+@@ -43,3 +43,83 @@ def test_weekend_expects_friday():
+ 
+ def test_monday_premarket_expects_friday_not_sunday():
+     assert fb.autopsy_staleness_note("2026-07-10", _et(2026, 7, 13, 8, 35)) is None
++
++
++# ---------- render_autopsy_lines: INCOMPLETE vs genuine-flat-day (2026-07-09 evening gap) -----
++# trade_autopsy.py's own render_md()/queue_ping() already distinguish "0 positions found" (a
++# real flat day) from "positions found but 0 replayable" (INCOMPLETE, e.g. bars unavailable --
++# see trade-autopsy-last.json's n_positions_found vs n_positions). firm_brief's one-liner is
++# the ONLY thing J actually reads day to day, so it must carry the same distinction -- an
++# INCOMPLETE run must never render identically to a quiet flat day (OP-33/C7).
++
++def test_incomplete_run_renders_distinct_line_not_flat_day():
++    autopsy = {"date": "2026-07-09", "n_positions_found": 10, "n_positions": 0,
++              "n_no_bars": 10, "net_pnl": 0.0, "n_stopped_then_paid": 0,
++              "new_hypotheses": [], "md": "analysis/autopsies/2026-07-09.md"}
++    lines = fb.render_autopsy_lines(autopsy, _et(2026, 7, 9, 17, 0))
++    text = "\n".join(lines)
++    assert "INCOMPLETE" in text
++    assert "10" in text
++    assert "not a flat day" in text.lower()
++    assert "0 engine positions" not in text
++    assert "analysis/autopsies/2026-07-09.md" in text
++
++
++def test_genuine_flat_day_still_renders_normally():
++    autopsy = {"date": "2026-07-09", "n_positions_found": 0, "n_positions": 0,
++              "n_no_bars": 0, "net_pnl": 0.0, "n_stopped_then_paid": 0,
++              "new_hypotheses": [], "md": "analysis/autopsies/2026-07-09.md"}
++    lines = fb.render_autopsy_lines(autopsy, _et(2026, 7, 9, 17, 0))
++    text = "\n".join(lines)
++    assert "INCOMPLETE" not in text
++    assert "0 engine positions" in text
++
++
++def test_normal_day_with_positions_unaffected():
++    autopsy = {"date": "2026-07-09", "n_positions_found": 3, "n_positions": 3,
++              "n_no_bars": 0, "net_pnl": 125.5, "n_stopped_then_paid": 1,
++              "new_hypotheses": ["H-2026-07-09-stop-noise"],
++              "md": "analysis/autopsies/2026-07-09.md"}
++    lines = fb.render_autopsy_lines(autopsy, _et(2026, 7, 9, 17, 0))
++    text = "\n".join(lines)
++    assert "INCOMPLETE" not in text
++    assert "3 engine positions" in text
++    assert "+$125.50" in text
++    assert "H-2026-07-09-stop-noise" in text
++
++
++def test_error_branch_takes_priority_over_incomplete_check():
++    # error must win even if n_positions_found/n_positions happen to also be present
++    autopsy = {"date": "2026-07-09", "error": "boom", "n_positions_found": 5, "n_positions": 0}
++    lines = fb.render_autopsy_lines(autopsy, _et(2026, 7, 9, 17, 0))
++    text = "\n".join(lines)
++    assert "FAILED" in text
++    assert "INCOMPLETE" not in text
++
++
++def test_never_ran_branch_takes_priority_over_incomplete_check():
++    lines = fb.render_autopsy_lines({}, _et(2026, 7, 9, 17, 0))
++    text = "\n".join(lines)
++    assert "no autopsy yet" in text
++    assert "INCOMPLETE" not in text
++
++
++def test_incomplete_plus_stale_both_lines_present():
++    # last autopsy is Wednesday's AND it was INCOMPLETE -- both instruments must fire together,
++    # neither masking the other.
++    autopsy = {"date": "2026-07-08", "n_positions_found": 4, "n_positions": 0,
++              "n_no_bars": 4, "net_pnl": 0.0, "n_stopped_then_paid": 0,
++              "new_hypotheses": [], "md": "analysis/autopsies/2026-07-08.md"}
++    lines = fb.render_autopsy_lines(autopsy, _et(2026, 7, 9, 17, 0))  # Thu 17:00, last = Wed
++    assert len(lines) == 2
++    assert "STALE" in lines[0]
++    assert "INCOMPLETE" in lines[1]
++
++
++def test_build_brief_still_includes_autopsy_section_header():
++    """Integration: build_brief() must still include the section header regardless of
++    whatever automation/state/trade-autopsy-last.json currently holds on disk -- load_json
++    is fail-open, so a missing/incomplete/errored file degrades the line, never the header
++    or the rest of the brief. Mirrors test_firm_brief_prospector_section.py's equivalent check."""
++    brief = fb.build_brief({}, {}, [], _et(2026, 7, 9, 21, 0))
++    assert "## Gamma's read (trade autopsy)" in brief
+diff --git a/setup/scripts/firm_brief.py b/setup/scripts/firm_brief.py
+index 85b14522..bc302c15 100644
+--- a/setup/scripts/firm_brief.py
++++ b/setup/scripts/firm_brief.py
+@@ -244,13 +244,49 @@ def find_queue_j_markers(path: Path) -> list:
+     return out
+ 
+ 
++def render_autopsy_lines(autopsy: dict, now_et) -> list[str]:
++    """PURE: render the trade-autopsy section body (Gamma_TradeAutopsy 16:15 ET --
++    the hypothesis organ J asked for 2026-07-08, "why doesn't Gamma think 'maybe
++    we're stopping out too early'") from its last-run snapshot
++    (automation/state/trade-autopsy-last.json). A MISSED FIRE is rendered LOUDLY
++    via autopsy_staleness_note (OP-33b: registered != firing). An INCOMPLETE run --
++    positions existed in the broker-truth ledger but none could be replayed, e.g.
++    bars data unavailable (trade_autopsy.py's render_md()/queue_ping() INCOMPLETE
++    branch, 2026-07-09 evening fix) -- gets its OWN distinct line and must never
++    fall through to the normal "N positions" line: n_positions==0 there is NOT a
++    flat day and must never read like one (OP-33/C7 silent-success-is-failure --
++    the exact failure mode the 07-09 fix closed on the .md side; this closes it
++    on the one-line brief J actually reads). Guard: test_firm_brief_autopsy_staleness.py."""
++    out = []
++    stale_note = autopsy_staleness_note(autopsy.get("date"), now_et)
++    if stale_note:
++        out.append(stale_note)
++    if not autopsy:
++        out.append("- no autopsy yet (Gamma_TradeAutopsy fires 16:15 ET).")
++    elif autopsy.get("error"):
++        out.append(f"- {autopsy.get('date', '?')}: autopsy FAILED ({autopsy['error'][:100]}) -- fix me.")
++    elif autopsy.get("n_positions_found", 0) > 0 and autopsy.get("n_positions", 0) == 0:
++        out.append(f"- {autopsy.get('date', '?')}: INCOMPLETE -- {autopsy.get('n_positions_found', 0)} "
++                   f"closed engine position(s) found in the broker-truth ledger but bars data was "
++                   f"unavailable for all {autopsy.get('n_no_bars', 0)} of them (NOT a flat day) "
++                   f"({autopsy.get('md', 'analysis/autopsies/')})")
++    else:
++        hyp = autopsy.get("new_hypotheses") or []
++        hyp_s = f"; NEW hypotheses: {', '.join(hyp)}" if hyp else "; no new hypotheses"
++        out.append(f"- {autopsy.get('date', '?')}: {autopsy.get('n_positions', 0)} engine positions, "
++                   f"net {_fmt_money(float(autopsy.get('net_pnl', 0)))}, "
++                   f"{autopsy.get('n_stopped_then_paid', 0)} stopped-then-paid{hyp_s} "
++                   f"({autopsy.get('md', 'analysis/autopsies/')})")
++    return out
++
++
+ def render_prospector_lines(data: dict) -> list[str]:
+     """PURE: render the Prospector (exogenous-idea organ, J 2026-07-09: "gamma
+     hasn't introduced a single new idea like this at all yet") section body
+     from its last-run snapshot (automation/state/prospector-last.json). Mirrors
+-    the trade-autopsy section's fail-open shape immediately below it in
+-    build_brief() -- a missing/errored/never-run source degrades this section's
+-    text only, never the rest of the brief. Guard: test_firm_brief_prospector_section.py."""
++    render_autopsy_lines()'s fail-open shape (the section immediately above this
++    one in build_brief()) -- a missing/errored/never-run source degrades this
++    section's text only, never the rest of the brief. Guard: test_firm_brief_prospector_section.py."""
+     if not data:
+         return ["- no scan yet (Gamma_Prospector fires 21:30 ET nightly)."]
+     if data.get("error"):
+@@ -321,25 +357,12 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et)
+ 
+     # Gamma's own read of its trades (trade_autopsy.py, Gamma_TradeAutopsy 16:15 ET) -- the
+     # hypothesis organ J asked for 2026-07-08 ("why doesn't Gamma think 'maybe we're stopping
+-    # out too early'"). One line; full report in analysis/autopsies/. Fail-open. A MISSED FIRE
+-    # is rendered LOUDLY (OP-33b: registered != firing; the clock trigger is only provable by
+-    # its own fires, so the brief -- not anyone's memory -- carries the staleness tell).
++    # out too early'"). One line; full report in analysis/autopsies/. Fail-open. Rendering
++    # (missed-fire staleness + INCOMPLETE-vs-flat-day distinction) lives in the pure
++    # render_autopsy_lines() helper so it's directly unit-testable.
+     autopsy = load_json(STATE / "trade-autopsy-last.json")
+     lines.append("## Gamma's read (trade autopsy)")
+-    stale_note = autopsy_staleness_note(autopsy.get("date"), now_et)
+-    if stale_note:
+-        lines.append(stale_note)
+-    if not autopsy:
+-        lines.append("- no autopsy yet (Gamma_TradeAutopsy fires 16:15 ET).")
+-    elif autopsy.get("error"):
+-        lines.append(f"- {autopsy.get('date', '?')}: autopsy FAILED ({autopsy['error'][:100]}) -- fix me.")
+-    else:
+-        hyp = autopsy.get("new_hypotheses") or []
+-        hyp_s = f"; NEW hypotheses: {', '.join(hyp)}" if hyp else "; no new hypotheses"
+-        lines.append(f"- {autopsy.get('date', '?')}: {autopsy.get('n_positions', 0)} engine positions, "
+-                     f"net {_fmt_money(float(autopsy.get('net_pnl', 0)))}, "
+-                     f"{autopsy.get('n_stopped_then_paid', 0)} stopped-then-paid{hyp_s} "
+-                     f"({autopsy.get('md', 'analysis/autopsies/')})")
++    lines.extend(render_autopsy_lines(autopsy, now_et))
+     lines.append("")
+ 
+     # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single

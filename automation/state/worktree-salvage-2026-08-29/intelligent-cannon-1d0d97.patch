@@ -1,0 +1,30 @@
+diff --git a/backtest/lib/watchers/runner.py b/backtest/lib/watchers/runner.py
+index e8aa836b..a191e71f 100644
+--- a/backtest/lib/watchers/runner.py
++++ b/backtest/lib/watchers/runner.py
+@@ -72,6 +72,7 @@ from .double_top_watcher import detect_double_top_setup  # 2026-06-20 bearish mi
+ from .market_structure_watcher import detect_market_structure_setup  # 2026-06-20 BOS/CHoCH Insight stream (WATCH_ONLY)
+ from .vwap_reclaim_failed_break_watcher import detect_vwap_reclaim_failed_break_setup  # 2026-06-21 J_VWAP_RECLAIM_FB edge #2 (DORMANT)
+ from .vix_regime_dayside_watcher import detect_vix_regime_dayside_setup  # 2026-06-21 J_VIX_DAYSIDE edge #4 (DORMANT)
++from .bollinger_squeeze_watcher import detect_bollinger_squeeze_setup  # 2026-07-02 WIRE-BOLLINGER (validated, LIVE Safe-2 paper)
+ from ..filters import BarContext
+ 
+ REPO = Path(__file__).resolve().parents[2]
+@@ -299,6 +300,17 @@ WATCHERS: list[WatcherSpec] = [
+     # wrapper reads an OPTIONAL ctx.vix_intraday and SKIPS (returns None — never guesses)
+     # when absent, so the live wiring stays inert until the feed threads the VIX series in.
+     _ctx_spec("vix_regime_dayside_watcher", "detect_vix_regime_dayside_setup", detect_vix_regime_dayside_setup),
++    # BOLLINGER_SQUEEZE — family-grind survivor promoted via the WIRE-BOLLINGER
++    # conductor proposal (wire-2026-07-02-bollinger-squeeze, applied). BB(20,2)
++    # bandwidth squeeze followed by a volume-confirmed expansion breakout;
++    # validated ATM|stop-8 cell (n=316, exp +$34.9/tr, OOS +$43.6/tr, WF 1.431,
++    # dir-null SURVIVES, two-sided). LIVE on Safe-2 paper via setup_dispatch's
++    # extra-setup path (params.bollinger_squeeze_enabled); registered here too
++    # so the observation/backtest fleet sees it like every other watcher
++    # (fleet registry parity, test_watcher_registry.py). ctx-only (needs
++    # today's full RTH history in prior_bars for the BB(20) + 20-bar
++    # squeeze-percentile warmup).
++    _ctx_spec("bollinger_squeeze_watcher", "detect_bollinger_squeeze_setup", detect_bollinger_squeeze_setup),
+     # H2b data-discovered survivor (2026-06-19). Ratified: analysis/recommendations/
+     # gap-and-go-LIVE.json (chart-stop-only: exp +$41.6/WR 72.6%, DSR PASS, WF_PASS
+     # all cuts, causality 96/96 PASS, both dirs +). Once-per-day OPEN-bar setup: fires

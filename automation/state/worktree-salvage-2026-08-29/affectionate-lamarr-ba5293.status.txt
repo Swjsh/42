@@ -1,0 +1,4 @@
+ M automation/state/discord-outbox.jsonl
+ M backtest/tests/test_g_db_base_quiet_wiring.py
+ M backtest/tests/test_gap_prior_close.py
+?? backtest/tests/test_setup_dispatch_module_isolation.py

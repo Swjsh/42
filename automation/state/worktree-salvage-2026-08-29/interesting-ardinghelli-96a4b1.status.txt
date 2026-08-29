@@ -1,0 +1,5 @@
+ M automation/overnight/STATUS.md
+ M automation/prompts/weekly-review.md
+ M automation/state/macro-calendar.json
+ M setup/scripts/self_check.py
+?? backtest/tests/test_self_check_macro_calendar.py

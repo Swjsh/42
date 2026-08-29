@@ -1,0 +1,7 @@
+ M dashboard/app/page.tsx
+ M dashboard/lib/state.ts
+ M dashboard/lib/workspace.ts
+ M dashboard/tsconfig.tsbuildinfo
+?? dashboard/app/api/gamma-narrative/
+?? dashboard/app/api/gamma-voice/
+?? dashboard/components/GammaSpeaksPanel.tsx

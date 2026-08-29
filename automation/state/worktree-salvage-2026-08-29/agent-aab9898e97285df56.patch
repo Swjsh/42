@@ -1,0 +1,15 @@
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index fdabd35b..d1254b1c 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -59,7 +59,9 @@
+       "PowerShell($content = Get-Content \"C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\CLAUDE.md\" -Raw; \"Chars: $\\($content.Length\\)\"; \"Lines: $\\(\\(Get-Content 'C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\CLAUDE.md'\\).Count\\)\")",
+       "Bash(Get-Date *)",
+       "PowerShell(Write-Output \"=== NODE PROCESSES ===\"; Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Select-Object ProcessId, CommandLine | Format-List; Write-Output \"=== PORT 4317 ===\"; Get-NetTCPConnection -LocalPort 4317 -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,State,OwningProcess | Format-Table; Write-Output \"=== LOCAL 4317 HTTP ===\"; try { \\(Invoke-WebRequest -Uri \"http://127.0.0.1:4317/api/state\" -TimeoutSec 5 -UseBasicParsing\\).StatusCode } catch { \"FAIL: $\\($_.Exception.Message\\)\" })",
+-      "PowerShell($ts = \"C:\\\\Program Files\\\\Tailscale\\\\tailscale.exe\"; if \\(-not \\(Test-Path $ts\\)\\) { $ts = \\(Get-Command tailscale.exe -ErrorAction SilentlyContinue\\).Source }; Write-Output \"TS path: $ts\"; if \\($ts\\) { Write-Output \"=== STATUS ===\"; & $ts status 2>&1 | Select-Object -First 8; Write-Output \"=== SERVE STATUS ===\"; & $ts serve status 2>&1; Write-Output \"=== FUNNEL STATUS ===\"; & $ts funnel status 2>&1 })"
++      "PowerShell($ts = \"C:\\\\Program Files\\\\Tailscale\\\\tailscale.exe\"; if \\(-not \\(Test-Path $ts\\)\\) { $ts = \\(Get-Command tailscale.exe -ErrorAction SilentlyContinue\\).Source }; Write-Output \"TS path: $ts\"; if \\($ts\\) { Write-Output \"=== STATUS ===\"; & $ts status 2>&1 | Select-Object -First 8; Write-Output \"=== SERVE STATUS ===\"; & $ts serve status 2>&1; Write-Output \"=== FUNNEL STATUS ===\"; & $ts funnel status 2>&1 })",
++      "Bash(\"C:/Users/jackw/AppData/Local/Programs/Python/Python313/python.exe\" \"C:/Users/jackw/Desktop/42/automation/scripts/sniper_shadow_eod.py\" --days 2)",
++      "mcp__alpaca_aggressive__get_stock_snapshot"
+     ]
+   },
+   "enabledMcpjsonServers": [

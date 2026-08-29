@@ -1,0 +1,70 @@
+diff --git a/automation/state/discord-outbox.jsonl b/automation/state/discord-outbox.jsonl
+index e647dfac..7f7c2961 100644
+--- a/automation/state/discord-outbox.jsonl
++++ b/automation/state/discord-outbox.jsonl
+@@ -1101,3 +1101,11 @@
+ {"ts": "2026-07-01T19:56:00.033416", "channel": "gamma-ops", "message": "PIPELINE PROMOTE: **shotgun_scalper** cleared all 5 gates.\nWF ratio=0.90 (gate=0.7) | OOS quarters=2 pos | dir_score=3 | top5=16% | wide_pnl=$18339.75 | exp/trade=$15.23\nNO dispatcher entry in setup_dispatch.py \u2014 no params key written.\nFiled WIRE-DETECTOR-shotgun_scalper proposal in conductor-proposals.jsonl instead.\nScorecard: analysis/recommendations/promote_shotgun_scalper.json", "source": "pipeline_promoter"}
+ {"ts": "2026-07-01T20:09:57", "channel": "gamma-ops", "source": "self_check", "message": "SELF-CHECK BROKEN: FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex; FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 5 ENTER after 15:00 ET: ['15:51 ENTER_BEAR SPY260701P00744000', '15:52 ENTER_BEAR SPY260701P00744000', '15:53 ENTER_BEAR SPY260701P00744000']; FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bra"}
+ {"ts": "2026-07-02T00:28:16.347166", "channel": "gamma-ops", "source": "conductor", "message": "REVOKE-report gp-2026-07-01-g14: v15.3 PRIMARY exit was SILENTLY DEAD. _ribbon_flip_fn compared ribbon stack vs 'BULLISH'/'BEARISH' but the producer only emits 'BULL'/'BEAR' -> the chart-stop-primary ribbon-flip-back exit never fired on ANY live position (only the -50% cap/target/time stops ran). Hidden by a vacuous guard. Prod fix landed via concurrent fire 4e71618; I closed the guard hole (f76ac48, non-vacuous). Graduated_guards 105/1skip, curated gate 31+5 PASS. Rail-4 paper fix -- REVOKE = `git revert f76ac48`. Money path now verified both halves (entry funnel + exit); tomorrow's tape is the final proof."}
++{"content": "[PROSPECTOR] 2026-07-10 beat=data_feeds_free: 0 new idea(s); promoted `pre_existing` -> _chef-inbox (no free lane up tonight).", "source": "prospector", "queued_at": "2026-07-10T11:08:02.713649"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=data_feeds_free: 0 new idea(s) (no free lane up tonight).", "source": "prospector", "queued_at": "2026-07-10T11:08:02.717220"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=options_structure_metrics: 1 new idea(s); promoted `options_structure_metrics:read-vix1d` -> _chef-inbox.", "source": "prospector", "queued_at": "2026-07-10T11:08:02.725643"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=data_feeds_free: 0 new idea(s) (no free lane up tonight).", "source": "prospector", "queued_at": "2026-07-10T11:08:02.732528"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=data_feeds_free: 0 new idea(s); promoted `pre_existing` -> _chef-inbox (no free lane up tonight).", "source": "prospector", "queued_at": "2026-07-10T11:57:57.957051"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=data_feeds_free: 0 new idea(s) (no free lane up tonight).", "source": "prospector", "queued_at": "2026-07-10T11:57:57.960084"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=options_structure_metrics: 1 new idea(s); promoted `options_structure_metrics:read-vix1d` -> _chef-inbox.", "source": "prospector", "queued_at": "2026-07-10T11:57:57.968221"}
++{"content": "[PROSPECTOR] 2026-07-10 beat=data_feeds_free: 0 new idea(s) (no free lane up tonight).", "source": "prospector", "queued_at": "2026-07-10T11:57:57.976055"}
+diff --git a/backtest/tests/test_g_db_base_quiet_wiring.py b/backtest/tests/test_g_db_base_quiet_wiring.py
+index 95b31def..5c1ae315 100644
+--- a/backtest/tests/test_g_db_base_quiet_wiring.py
++++ b/backtest/tests/test_g_db_base_quiet_wiring.py
+@@ -45,10 +45,25 @@ if str(_ROOT) not in sys.path:
+ 
+ @pytest.fixture()
+ def sd_mod():
+-    """Import setup_dispatch fresh each test (avoids cross-test state leakage)."""
+-    if "setup_dispatch" in sys.modules:
++    """Import setup_dispatch fresh for this test, then restore prior sys.modules state.
++
++    A previous version deleted setup_dispatch from sys.modules and re-imported it with
++    no teardown, which permanently replaced sys.modules['setup_dispatch'] with a new
++    module/class object for the rest of the pytest process. test_setup_dispatch.py binds
++    SetupDispatcher/dispatch_extra_setups at collection time but patches them via STRING
++    targets (unittest.mock.patch("setup_dispatch.SetupDispatcher....")), which re-resolve
++    through sys.modules at patch-time, not collection-time -- so those patches silently
++    landed on the swapped-in (never-instantiated) class while the real, unpatched class
++    kept running. Regression guard: test_setup_dispatch_module_isolation.py.
++    """
++    original = sys.modules.pop("setup_dispatch", None)
++    module = importlib.import_module("setup_dispatch")
++    try:
++        yield module
++    finally:
+         del sys.modules["setup_dispatch"]
+-    return importlib.import_module("setup_dispatch")
++        if original is not None:
++            sys.modules["setup_dispatch"] = original
+ 
+ 
+ @pytest.fixture()
+diff --git a/backtest/tests/test_gap_prior_close.py b/backtest/tests/test_gap_prior_close.py
+index 0eccd9ec..edd8571a 100644
+--- a/backtest/tests/test_gap_prior_close.py
++++ b/backtest/tests/test_gap_prior_close.py
+@@ -1,7 +1,7 @@
+ """Guard: gap_and_go prior-close fallback (V2, 2026-07-08). The dispatch reads prior-rth-close.json
+ when today-bias.json lacks the key -> gap_and_go stops SKIP_NO_FEED (F22/F25)."""
+ from __future__ import annotations
+-import importlib, json, sys
++import json, sys
+ from pathlib import Path
+ REPO = Path(__file__).resolve().parents[2]
+ 
+@@ -11,7 +11,6 @@ def test_dispatch_prior_close_fallback(tmp_path, monkeypatch):
+         if str(p) not in sys.path:
+             sys.path.insert(0, str(p))
+     import setup_dispatch as sd
+-    importlib.reload(sd)
+     st = tmp_path / "automation" / "state"
+     st.mkdir(parents=True)
+     (st / "prior-rth-close.json").write_text(json.dumps({"prior_rth_close": 751.31}), encoding="utf-8")

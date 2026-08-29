@@ -1,0 +1,228 @@
+diff --git a/automation/overnight/STATUS.md b/automation/overnight/STATUS.md
+index a7efff78..7f83d499 100644
+--- a/automation/overnight/STATUS.md
++++ b/automation/overnight/STATUS.md
+@@ -1,3 +1,15 @@
++## [2026-07-06 ~10:25 ET] interactive (J-directed task): OK -- ROOT-CAUSED + FIXED THE MACRO-CALENDAR STALENESS (calendar_freshness_days 22d -> 0d): Section 8a was silently timeout-starved out of Gamma_WeeklyReview for 3+ consecutive Sundays. Moved it earlier + added a same-day self_check alarm so it can't drift silently again.
++
++> **Signal J wakes to (OP-33 verify-don't-claim): the "no confirmed events today" gap flagged in this morning's premarket entry had a NAMED mechanism, not just a symptom-level re-run.** J tasked: find the script responsible for the stale macro/news calendar, root-cause WHY (not just re-run-and-declare-fixed), fix it, and make the failure loud next time. Read-only/data-refresh scope only -- no params.json/heartbeat_core.py/order-placement touched.
++> - **ROOT CAUSE (every claim evidenced, not assumed):** `automation/prompts/premarket.md` Step 1b derives `today-bias.json#news_calendar.calendar_freshness_days` / `.stale` / `.catalyst_narrative` entirely from `automation/state/macro-calendar.json#refresh_log[]`'s last timestamp (confirmed by params.json's own `_calendar_freshness_section` comment). The ONLY writer of that log is `Gamma_WeeklyReview`'s Sunday-18:00-ET fire of `automation/prompts/weekly-review.md` Section 8a (3-5 WebFetch calls to federalreserve.gov/bls.gov/bea.gov). That fire runs as ONE `claude --print` process under a hard 720s wall-clock cap (`Invoke-Claude` in `setup/scripts/_shared.ps1` -- tree-kills the whole process + all descendants on timeout, logs only to an internal per-day log file nothing reads, `run-weekly-review.ps1` propagates the exit code via a bare `exit $exit` with no downstream check). Section 8a sits at ~87% through a 578-line prompt, AFTER 8 heavy sections (Monte-Carlo random-baseline sim needing per-day OHLCV pulls, 3 mechanical backtests, a `recency_check.py` subprocess, loss-pattern mining over `journal/losses/*.md`). Evidence the starvation is real: `analysis/2026-W25.md` (the 06-21 fire) exists in FULL -- proving the heavy content-generation steps completed -- but `refresh_log`'s last entry is still 2026-06-14 (W24), proving Section 8a's write never ran that week. The next two Sundays (06-28, 07-05) produced NO analysis file at all -- the whole fire timed out even earlier as the prompt kept growing (Section 6.5's recency-confirmation subprocess was itself only added 2026-06-21). `Invoke-Claude`'s own docstring documents this exact failure class from 2026-05-07 as the reason the hard timeout exists in the first place -- the timeout protects against runaway budget burn, but its side effect is a fully-silent kill.
++> - **SHIPPED (rail-4 CLEAR -- data-refresh/read-only, touches NO params/heartbeat/orders):** (1) Moved Section 8a's execution to a new early **Step 2a** in `weekly-review.md` (right after required-file reads, before the heavy analytical sections) so it survives the timeout going forward -- only the WHEN moved, the HOW is unchanged. (2) Added `self_check.py#check_macro_calendar_freshness` (wired into `Gamma_SelfCheck`, fires ~every 30 min) so a future recurrence surfaces to `STATUS.md` same-day instead of drifting silently for weeks -- classifies DEGRADED (a missing risk-safety input, not an active money-path fault). (3) Ran the ACTUAL Section 8a procedure by hand as a one-time catch-up: WebFetch confirmed FOMC 2026-07-29/09-16/10-28 (matches the existing `fomc_meeting_dates_2026` array exactly); bls.gov direct fetch 403'd (same recurring block logged since 05-14) so CPI 07-14, PPI 07-15, NFP 08-07 were confirmed via WebSearch cross-reference to BLS's own news-release archive pages instead of the weaker scheduled_recurring fallback; PCE 07-30 confirmed via BEA/FRED. Pruned 3 stale past events, appended an honest `refresh_log` entry (full source/warnings trail, same schema as prior entries).
++> - **ADJACENT FINDING (not fixed, flagging for awareness):** `automation/state/news.json` (a separate legacy "catalyst narrative" file, last touched 2026-06-15 by an interactive session) is ALSO stale, but is NOT the mechanism behind the reported `calendar_freshness_days`/`catalyst_narrative` fields in practice -- those are both sourced from `macro-calendar.json` alone. Separately, `Gamma_ScoutPremarket`'s daily output (`automation/scout/state/scout_output.json`) is never read anywhere in `premarket.md` -- Scout's macro/news scan is currently fully orphaned from `today-bias.json`. Neither touched (out of the scoped fix); worth a follow-up if J wants Scout's daily scan actually wired in.
++> - **VALIDATED (OP-33, quoted not claimed):** `check_macro_calendar_freshness` run against a reconstructed pre-fix state (refresh_log ending at the real 2026-06-14 entry) reproduces the EXACT reported incident: `"MACRO-CALENDAR STALE: refresh_log last entry '2026-06-14T18:00:00-04:00' is 22d old (threshold 7d)..."`. Run against the real post-fix file: `GREEN -- no problems`; computed `calendar_freshness_days = 0.0011` (last refresh_log entry now `2026-07-06T10:23:24-04:00` vs et_clock `2026-07-06T10:24:57`). New guard suite `test_self_check_macro_calendar.py` 8/8 pass (pins the 22d/DEGRADED-not-BROKEN incident value, both `ran_at`/`refreshed_at` key spellings, missing-file/empty-log fail-open, default-7d-threshold, and non-vacuous "actually wired into run()" bite). Sibling `test_self_check_tradeability.py` still 8/8 (no regression). `macro-calendar.json` re-parses clean.
++> - **REVERT:** `git revert` the weekly-review.md reorder + self_check.py addition + macro-calendar.json data refresh (3 files) restores the prior (broken) state.
++> - Files: `automation/prompts/weekly-review.md` (Section 8a moved to Step 2a), `setup/scripts/self_check.py` (+`check_macro_calendar_freshness`, wired into `run()`), `backtest/tests/test_self_check_macro_calendar.py` (new, 8/8), `automation/state/macro-calendar.json` (events_30d refreshed + refresh_log/fetch_failures appended), this STATUS entry.
++
++---
++
+ ## [2026-07-02 ~05:56 ET] conductor: OK -- SHIPPED THE GENERAL FORM OF THE DEAD-KNOB CLASS: a BROAD params<->consumer reconciliation ratchet that REDs on ANY ratified-but-unread params key. Measured the real gap: 24 of 114 ratified knobs have ZERO live reader (audit break #7's whole class, one of which -- entry_no_trade_after_et -- caused 10 PLACE_FAIL late ENTER_BEARs on 07-01). Commit 95a603b.
+ 
+ > **Signal J wakes to (OP-33 verify-don't-claim + FUNCTION-adjacent): the C14 dead-knob class is now GUARDED at build time, not audited by hand. A newly-ratified-but-unwired params key can no longer sit silent and mis-steer the money path -- it REDs LOUD.** After-hours conductor fire, market CLOSED (Thu 05:56 ET; engine-health **GREEN**, both accounts flat, reds:[]; self-check **GREEN**, problems:[] -> FUNCTION-first satisfied, no funnel BROKEN; last trading day calendar-gated on 07-02's real tape). task_scorer had 8 HIGH items tied at 6.0 -> picked PARAMS-CONSUMER-RECONCILE-TEST: the last ~5 fires' persistent signal was "trend regressing on small loop-closers, prefer a genuine needle-mover," the 03:55 fire EXPLICITLY named it "the RIGHT general form of tonight's finding," and it's the structural fix for the whole C14 class rather than one knob.
+diff --git a/automation/prompts/weekly-review.md b/automation/prompts/weekly-review.md
+index d7c4396b..51b9817f 100644
+--- a/automation/prompts/weekly-review.md
++++ b/automation/prompts/weekly-review.md
+@@ -503,7 +503,9 @@ Each recommendation flows into section 0 with urgency/evidence-weight.
+ 
+ ## Section 8a — Macro-calendar 30-day refresh (NEW 2026-05-07; daily freshness check moved to premarket Step 1b on 2026-05-08)
+ 
+-After the weekly review is written but BEFORE the dashboard ticker writes, refresh `automation/state/macro-calendar.json` with the next 30 days of high-impact events. **This was a critical gap on 2026-05-07** — FOMC 5/7 was absent from the calendar, the `news_calendar.no_trade_window` was empty all day, and the system entered a counter-trend BULL at 12:30 ET 90 min before the FOMC decision (-$45 chop trap).
++**NOTE (root-caused 2026-07-06): this now runs EARLY, at Step 2a — right after required-file reads, BEFORE the heavy analytical sections.** It used to run here (after Step 7, "after the weekly review is written"). Root cause: this whole fire has a hard 720s wall-clock cap (`Invoke-Claude` in `setup/scripts/_shared.ps1`); the heavy sections below (3/3a random-baseline Monte Carlo + simple-rules backtests + recency-confirmation subprocess) reliably consume the budget first, so this section was silently timeout-killed before it ever ran for 3+ consecutive Sundays (last successful `refresh_log` entry: 2026-06-14 — 06-21 produced a full `analysis/2026-W25.md` with NO new refresh_log entry; 06-28 and 07-05 produced no analysis file at all, i.e. the whole fire timed out even earlier). `calendar_freshness_days` in `today-bias.json` silently crept up by 7 every unfixed Sunday with nothing escalating it until a human noticed. The procedure below is UNCHANGED — only the execution order moved (see Step 2a). `self_check.py#check_macro_calendar_freshness` now also re-surfaces this same signal every ~30 min via `STATUS.md ## Known broken` if it ever recurs, instead of waiting on a human to spot the number creeping in a premarket journal entry.
++
++Refresh `automation/state/macro-calendar.json` with the next 30 days of high-impact events. **This was a critical gap on 2026-05-07** — FOMC 5/7 was absent from the calendar, the `news_calendar.no_trade_window` was empty all day, and the system entered a counter-trend BULL at 12:30 ET 90 min before the FOMC decision (-$45 chop trap).
+ 
+ **Division of responsibility (added 2026-05-08):**
+ - **THIS SECTION (Sunday weekly):** the 30-day forward fetch via WebFetch from federalreserve.gov / bls.gov / bea.gov. Slow (~30-60s Sonnet), heavy network. Once a week is the right cadence.
+@@ -559,6 +561,7 @@ This paragraph also gets written to `automation/state/dashboard-dialogue.json#ti
+ 
+ 1. Compute the week's date range from "today" (Sunday) → last_friday → mon_of_week.
+ 2. Read all required files. If any are missing, write the dependent section with placeholder "no data" and note in the log.
++2a. **Run Section 8a (macro-calendar refresh) NOW — moved here 2026-07-06.** Section 8a used to run near the end of this prompt (after Step 7). Root cause: this fire has a hard 720s wall-clock cap (`Invoke-Claude` in `_shared.ps1`); the heavy sections below (3/3a random-baseline Monte Carlo + simple-rules backtests + recency-confirmation subprocess) routinely consume the full budget, so the calendar refresh was silently starved for 3+ consecutive Sundays (06-21/06-28/07-05) even on weeks where the rest of the review completed. Doing it here — cheap, independent of the analytical sections, ~3-5 WebFetch calls — guarantees it completes even if a later section gets cut off by the timeout. Full procedure in Section 8a below; only the WHEN moved, not the HOW.
+ 3. **Compute all metrics first** (random baseline simulation, simple-rules backtests, calibration aggregation) so section 0's executive block reflects the strongest evidence.
+ 3a. **Run the recency-confirmation tracker (Section 6.5):** `backtest/.venv/Scripts/python.exe backtest/autoresearch/recency_check.py`. Read `automation/state/recency-confirmation.json` — any RED edge slated for a live flip becomes a CRITICAL DO-NOT-FLIP note; any live edge not yet CONFIRM blocks a capital-scale recommendation.
+ 4. **Generate recommendations** by applying the urgency rubric (S6.3) to: rule-break costs, setup hit rates, baseline gaps, calibration deltas, deployment regressions, AND the recency-confirmation gate (Section 6.5).
+diff --git a/automation/state/macro-calendar.json b/automation/state/macro-calendar.json
+index 178c4e16..e665ab29 100644
+--- a/automation/state/macro-calendar.json
++++ b/automation/state/macro-calendar.json
+@@ -91,30 +91,49 @@
+   },
+   "events_30d": [
+     {
+-      "date": "2026-06-17",
++      "date": "2026-07-14",
+       "time_et": "08:30",
+-      "event": "Advance Monthly Retail Trade Sales (May 2026)",
+-      "type": "retail_sales",
++      "event": "Consumer Price Index (June 2026)",
++      "type": "cpi_release",
+       "severity": "high",
+-      "source_url": "https://www.census.gov/economic-indicators/calendar-listview.html"
++      "source_url": "https://www.bls.gov/schedule/news_release/cpi.htm",
++      "notes": "Confirmed via WebSearch cross-reference to BLS news-release archive (direct bls.gov schedule fetch 403'd -- same recurring block documented in fetch_failures)."
+     },
+     {
+-      "date": "2026-06-17",
++      "date": "2026-07-15",
++      "time_et": "08:30",
++      "event": "Producer Price Index (June 2026)",
++      "type": "ppi_release",
++      "severity": "med",
++      "source_url": "https://www.bls.gov/schedule/news_release/ppi.htm",
++      "notes": "Confirmed via WebSearch cross-reference to BLS news-release archive."
++    },
++    {
++      "date": "2026-07-29",
+       "time_et": "14:00",
+-      "event": "FOMC Rate Decision (June 2026 meeting)",
++      "event": "FOMC Rate Decision (July 2026 meeting)",
+       "type": "fomc_decision",
+       "severity": "high",
+       "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+-      "notes": "Statement at 14:00 ET; Powell press conference at 14:30 ET. Two-day meeting 6/16-6/17 -- decision day is 6/17. Block 13:30-15:00 hard. SEP release this meeting."
++      "notes": "Statement at 14:00 ET; Powell press conference at 14:30 ET. Two-day meeting 7/28-7/29 -- decision day is 7/29. Block 13:30-15:00 hard. CONFIRMED via live WebFetch 2026-07-06, matches existing fomc_meeting_dates_2026 array entry."
+     },
+     {
+-      "date": "2026-06-25",
++      "date": "2026-07-30",
+       "time_et": "08:30",
+-      "event": "PCE Price Index (May 2026)",
++      "event": "PCE Price Index (June 2026)",
+       "type": "pce_release",
+       "severity": "high",
+-      "source_url": "https://www.guggenheiminvestments.com/services/advisor-resources/us-economic-calendar",
+-      "notes": "Guggenheim calendar confirms June 25. Fed's preferred inflation gauge -- final May read before July FOMC. Pre-market release."
++      "source_url": "https://www.bea.gov/news/schedule",
++      "notes": "Fed's preferred inflation gauge -- final June read after the July FOMC this cycle. Pre-market release."
++    },
++    {
++      "date": "2026-08-07",
++      "time_et": "08:30",
++      "event": "Employment Situation / Nonfarm Payrolls (July 2026)",
++      "type": "nfp_release",
++      "severity": "high",
++      "source_url": "https://www.bls.gov/schedule/news_release/empsit.htm",
++      "notes": "Confirmed via WebSearch cross-reference to BLS news-release archive. NOTE: the June-2026-data NFP release fell on Thu 2026-07-02 (shifted off the usual first-Friday pattern by the Fri 2026-07-03 pre-Independence-Day observed holiday) -- a reminder that scheduled_recurring is a fallback approximation, not a substitute for the live date."
+     }
+   ],
+   "earnings_30d": [],
+@@ -160,6 +179,13 @@
+       "http_status": 403,
+       "purpose": "Mega-cap earnings dates 2026-05-15 to 2026-06-15",
+       "fallback": "Used stockanalysis.com per-ticker pages for NVDA + WMT confirmation."
++    },
++    {
++      "fetched_at": "2026-07-06T10:23:24-04:00",
++      "url": "https://www.bls.gov/schedule/news_release/2026_sched.htm",
++      "http_status": 403,
++      "purpose": "CPI/PPI/NFP release dates July-August 2026",
++      "fallback": "Same recurring bls.gov WebFetch block seen in every prior refresh (05-14, and implicitly since). Used WebSearch cross-reference to BLS news-release archive pages instead (empsit/cpi/ppi .htm results with confirmed specific dates), NOT the scheduled_recurring inference this time -- higher-confidence than the 05-14 fallback."
+     }
+   ],
+   "refresh_log": [
+@@ -222,6 +248,27 @@
+       ],
+       "next_critical_event": "FOMC 2026-06-17 14:00ET",
+       "coverage_thru": "2026-06-25"
++    },
++    {
++      "ran_at": "2026-07-06T10:23:24-04:00",
++      "by": "interactive-session-root-cause-fix-2026-07-06",
++      "source": "WebFetch federalreserve.gov (live) + WebSearch cross-reference for BLS CPI/PPI/NFP + BEA PCE (direct bls.gov schedule fetch 403'd again)",
++      "fetched_count": 5,
++      "added_count": 5,
++      "pruned_count": 3,
++      "changes": [
++        "ROOT CAUSE FOUND: this refresh_log had NOT been appended to since 2026-06-14 (22 days / 3+ Sundays) because Gamma_WeeklyReview's Section 8a sits at ~90% of a 578-line, 720s-wall-clock-capped prompt -- heavier earlier sections (Monte-Carlo random baseline, 3 mechanical backtests, a recency_check.py subprocess) reliably exhausted the budget first. Evidence: analysis/2026-W25.md (06-21 fire) exists in full but added NO refresh_log entry; 06-28 and 07-05 produced no analysis file at all (the whole fire timed out even earlier).",
++        "FIX SHIPPED: Section 8a's execution moved to a new early Step 2a in automation/prompts/weekly-review.md (runs right after required-file reads, before the heavy analytical sections) so it survives the timeout going forward. self_check.py#check_macro_calendar_freshness added (wired into Gamma_SelfCheck, fires ~every 30 min) to re-surface this exact staleness to STATUS.md same-day if it ever recurs, instead of drifting silently for weeks.",
++        "This entry is the one-time manual catch-up so calendar_freshness_days reads fresh immediately; Gamma_WeeklyReview resumes writing this log every Sunday from here.",
++        "Pruned 3 past events (Retail Sales 06-17, FOMC 06-17, PCE 06-25 -- all now >7d stale)",
++        "Added CPI 2026-07-14, PPI 2026-07-15, FOMC 2026-07-29 (CONFIRMED live vs existing fomc_meeting_dates_2026 entry), PCE 2026-07-30, NFP 2026-08-07 (60d forward window)"
++      ],
++      "warnings": [
++        "bls.gov schedule pages 403'd on direct WebFetch again (same recurring block as every prior attempt) -- CPI/PPI/NFP confirmed via WebSearch cross-reference to BLS news-release archive pages instead of the scheduled_recurring inference fallback, so confidence is higher than a typical 403-fallback entry.",
++        "NFP date-shift note: the June-2026-data release fell Thu 2026-07-02 (not the usual first-Friday) because of the observed Fri 2026-07-03 pre-July-4th holiday -- scheduled_recurring.first_friday_of_month is an approximation, the live date can shift around holidays."
++      ],
++      "next_critical_event": "CPI 2026-07-14 08:30ET",
++      "coverage_thru": "2026-08-07"
+     }
+   ],
+   "scheduled_recurring": {
+diff --git a/setup/scripts/self_check.py b/setup/scripts/self_check.py
+index 2c263566..78e56f9a 100644
+--- a/setup/scripts/self_check.py
++++ b/setup/scripts/self_check.py
+@@ -272,6 +272,60 @@ def check_dress_rehearsal(now, path=None) -> list:
+     return out
+ 
+ 
++def check_macro_calendar_freshness(now, calendar_path=None, params_path=None) -> list[str]:
++    """MACRO-CALENDAR STALENESS (content, not mtime). Root-caused 2026-07-06:
++    Gamma_WeeklyReview's Section 8a (Sunday 18:00 ET) is the ONLY writer of
++    macro-calendar.json#refresh_log[] -- premarket Step 1b derives today-bias.json's
++    calendar_freshness_days / catalyst_narrative / news_calendar.stale entirely from
++    that log's last timestamp (params.json#_calendar_freshness_section documents this
++    exact division of responsibility). Section 8a sat at ~90% of a long, 720s-timeout-
++    capped weekly-review prompt, so heavier earlier sections routinely starved it out --
++    refresh_log silently stopped growing after 2026-06-14 for 3+ consecutive Sundays
++    (06-21 produced a full analysis/2026-W25.md with no new refresh_log entry; 06-28
++    and 07-05 produced no analysis file at all) while calendar_freshness_days quietly
++    grew by 7 every unfixed Sunday. This check re-derives the SAME staleness signal
++    every ~30 min (this fire's cadence) instead of waiting for a human to notice the
++    number creeping in a once-a-day premarket journal entry. Section 8a's execution
++    was also moved earlier in weekly-review.md (Step 2a) so it survives the timeout
++    going forward -- this check is the loud backstop if it ever regresses. Fail-open."""
++    out: list[str] = []
++    p = calendar_path or (STATE / "macro-calendar.json")
++    pp = params_path or (STATE / "params.json")
++    try:
++        d = json.loads(p.read_text(encoding="utf-8"))
++    except Exception:  # noqa: BLE001
++        return out  # missing/unreadable -- not this check's job to invent a problem
++    log = d.get("refresh_log") or []
++    if not log:
++        out.append("MACRO-CALENDAR NEVER REFRESHED: refresh_log is empty -- Gamma_WeeklyReview Section 8a has never completed.")
++        return out
++    ts_raw = log[-1].get("ran_at") or log[-1].get("refreshed_at")
++    if not ts_raw:
++        return out
++    try:
++        last_dt = dt.datetime.fromisoformat(ts_raw)
++        if last_dt.tzinfo is not None:
++            # ts_raw carries an explicit ET offset (e.g. -04:00/-05:00) -- the wall-clock
++            # portion IS already ET local time (matches et_now()'s naive-ET convention),
++            # so drop tzinfo rather than convert.
++            last_dt = last_dt.replace(tzinfo=None)
++    except ValueError:
++        return out  # unparseable timestamp -- don't fabricate a problem
++    days_stale = (now - last_dt).total_seconds() / 86400.0
++    threshold = 7
++    try:
++        threshold = json.loads(pp.read_text(encoding="utf-8")).get("macro_calendar_max_staleness_days", 7)
++    except Exception:  # noqa: BLE001
++        pass
++    if days_stale > threshold:
++        out.append(f"MACRO-CALENDAR STALE: refresh_log last entry '{ts_raw}' is {days_stale:.0f}d old "
++                   f"(threshold {threshold}d) -- Gamma_WeeklyReview Section 8a has not completed for "
++                   f"{max(1, int(days_stale // 7))}+ Sunday(s). No-trade windows around FOMC/CPI/NFP may be "
++                   f"silently absent from today-bias.json. Run setup/scripts/run-weekly-review.ps1 manually "
++                   f"or wait for next Sunday fire.")
++    return out
++
++
+ def _problem_is_broken(p: str) -> bool:
+     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
+     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
+@@ -334,7 +388,11 @@ def run() -> dict:
+     # 9. NIGHTLY DRESS REHEARSAL (real broker boundary) -- "are we good for tomorrow" reader
+     problems.extend(check_dress_rehearsal(now))
+ 
+-    # 10. loop-state tick truth -- keep the legacy artifact honest for its readers
++    # 10. MACRO-CALENDAR FRESHNESS (content) -- Section 8a's refresh_log staleness,
++    # re-surfaced every ~30 min instead of once/day in a premarket journal entry.
++    problems.extend(check_macro_calendar_freshness(now))
++
++    # 11. loop-state tick truth -- keep the legacy artifact honest for its readers
+     # (dashboard, companion, EOD prompts). Fail-open; a failure is a note, not a raise.
+     try:
+         import loop_state_refresh

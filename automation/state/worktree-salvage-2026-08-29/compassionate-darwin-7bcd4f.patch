@@ -1,0 +1,201 @@
+diff --git a/automation/state/SCHEDULED-TASKS.md b/automation/state/SCHEDULED-TASKS.md
+index 98003718..547e6f7b 100644
+--- a/automation/state/SCHEDULED-TASKS.md
++++ b/automation/state/SCHEDULED-TASKS.md
+@@ -14,6 +14,8 @@
+ 
+ **Consolidate-hard 2026-07-01:** the dead grind pipeline was disabled (never delete) and its 8 rows moved to "## Disabled tasks" below — `Gamma_Grind_all` (0x41306, dead since 06-25), `Gamma_Grind_Vwap` (registered but never ran — dark one-time trigger), `Gamma_Funnel_0`–`_5` (nothing since 06-26, no NextRunTime). Live registered count after the move: 50 active + 17 disabled (67 total per `Get-ScheduledTask Gamma_*`). Revive any of them via `Enable-ScheduledTask` when grinder work resumes.
+ 
++**Registry-hygiene reconciliation 2026-07-06:** `audit_scheduled_tasks.py` only diffs task NAMES against this doc (registered-vs-not) — it never checked whether a task documented under "## Active" is actually `State=Enabled` in Windows, so 9 tasks had drifted disabled-in-reality while still sitting in the Active table (`registry_disabled` read 9, matching the Disabled table, while `Get-ScheduledTask -TaskName 'Gamma_*' | Where State -eq Disabled` verified 18 — the audit's own summary counts, `active_registered`/`disabled_registered` vs `registry_active`/`registry_disabled`, had been showing this drift all along without a dedicated flag for it). 3 of the 9 (`Gamma_Heartbeat`, `Gamma_Heartbeat_Aggressive`, `Gamma_FuturesHeartbeat`) already carried a "DISABLED" note in their Why-column but were never physically moved down; the other 6 (`Gamma_Conductor`, `Gamma_DailyReview`, `Gamma_Drive`, `Gamma_ManagerOverseer`, `Gamma_FuturesPremarket`, `Gamma_FuturesEod`) had no disabled annotation at all. Root causes, verified: (a) `Gamma_Conductor`/`Gamma_DailyReview`/`Gamma_ManagerOverseer`/`Gamma_Drive` — J's 2026-07-02 token-saving-mode order (protect the shared Max pool for his Unreal session + Fable EOD-reviews); re-enable when J lifts the crunch, nothing lost. (b) `Gamma_FuturesPremarket`/`Gamma_FuturesEod` — original LLM futures architecture, verified NEVER successfully fired (`267011` = `SCHED_S_TASK_HAS_NOT_RUN`), superseded by the 07-02 futures revival's NEW deterministic swing design — stays dead pending that build, not a simple re-enable. All 9 moved into "## Disabled tasks" below with verified last-run evidence (ET times converted from the box's Mountain-local `Get-ScheduledTaskInfo` output via `et_clock.py`'s live +2h offset, not hand-rolled). Live trading path (`Gamma_HeartbeatCore`, `Gamma_SightBeacon`, `Gamma_LaunchTV`, `Gamma_TvWatchdog`, `Gamma_LevelRefresh`, `Gamma_HealthBeacon`, `Gamma_EodFlatten`/`_Aggressive`) independently confirmed `State=Ready` throughout this pass — none of the 9 touch it. Post-fix: `registry_disabled` 9→18 (now matches reality); registry active-table row count drops by 9 correspondingly.
++
+ | Task | Cadence | Cost/fire | Why it exists |
+ |---|---|---|---|
+ | `Gamma_LaunchTV` | 08:00 ET weekdays | $0 | Launches TradingView + CDP:9222. No-op if already live. |
+@@ -21,8 +23,6 @@
+ | `Gamma_EmaSnapshot` | 08:20 ET weekdays | $0 | Phase 2 C1 fix (2026-06-18): computes EMA 13/20/48 + SMA 50 from SPY CSV → `automation/state/ema-snapshot.json` → patches today-bias.json key_levels EMA fields. Premarket TradingView read is primary; this is fallback + pre-seeder. |
+ | `Gamma_PreopenReadiness` | 08:25 ET weekdays | $0 | **W26 ritual graduated (2026-06-29).** `preopen_readiness.py` verifies the LIVE chain (HeartbeatCore + SightBeacon + EodFlatten) + broker auth before open; writes `preopen-readiness.json`; pings J once on a transition into RED. Read-only/notify-only, NEVER trade-halts (rail-2 fail-open). |
+ | `Gamma_Premarket` | 08:30 ET weekdays | ~$0.20 | Daily bias, levels, journal seed, rule-pin check. |
+-| `Gamma_Heartbeat` | every 3 min, 09:30-15:55 ET | ~$0.05/tick | ~~THE engine — Gamma-Safe-1.~~ **RETIRED 2026-06-25 → DISABLED.** The LLM heartbeat is superseded by the deterministic `Gamma_HeartbeatCore` (see below); kept registered-but-disabled as a rollback fallback. |
+-| `Gamma_Heartbeat_Aggressive` | every 3 min, 09:31-15:55 ET *(staggered +1 min vs Safe — applied 2026-06-24)* | ~$0.05/tick | ~~THE engine — Gamma-Risky-2.~~ **RETIRED 2026-06-25 → DISABLED.** Superseded by `Gamma_HeartbeatCore` (both accounts in one fire). |
+ | `Gamma_EodFlatten` | 15:55 ET weekdays | ~$0.10 | Force-close open 0DTE (Safe). |
+ | `Gamma_EodFlatten_Aggressive` | 15:55 ET weekdays | ~$0.10 | Force-close open 0DTE (Bold). |
+ | `Gamma_GhostOrderReconciler` | every 1 min, 09:30-15:55 ET wd | $0 | Detects ENTER decisions with no matching Alpaca fill (silent MCP order failures). Alert-only, never places orders. Re-added 2026-06-01. |
+@@ -36,7 +36,6 @@
+ | `Gamma_SwarmPremarket` | 08:15 ET weekdays | ~$0.25 | 13-agent ensemble bias vote → Premarket. Re-added 2026-06-01. |
+ | `Gamma_EodSummary` | 16:00 ET weekdays | ~$0.50 | Daily EOD reflection + backtest sync. Re-added 2026-06-01. |
+ | `Gamma_EodDeepDive` | 16:30 ET weekdays | $0 | 13-stage Phase-2 EOD analysis. Re-added 2026-06-01. |
+-| `Gamma_DailyReview` | 16:30 ET weekdays | ~$0.10 | Predictions-vs-actual + tomorrow's levels. Re-added 2026-06-01. |
+ | `Gamma_AnalystEodReview` | 16:45 ET weekdays | ~$0.40 | OP-28 Analyst post-trade review → Chef inbox + mistakes log. Re-added 2026-06-01. |
+ | `Gamma_GymSession` | 17:00 ET weekdays | $0 | OP-29 daily chart-reading "physical exam" GREEN/YELLOW/RED. Re-added 2026-06-01. |
+ | `Gamma_ManagerDailyVerify` | 17:30 ET weekdays | ~$0.50 | OP-28 Manager verifies the daily loop, writes J's brief. Re-added 2026-06-01. |
+@@ -51,17 +50,12 @@
+ | `Gamma_KitchenDaemonKeepalive` | every 5 min, 24/7 | $0 (daemon free-tier, $3/day cap) | OP-31 keeps `kitchen_daemon.py` alive. |
+ | `Gamma_KitchenSeeder` | hourly @ :20, 24/7 | $0 | OP-31 generates cook tasks. Skipped if backlog >= 25. |
+ | `Gamma_KitchenReviewer` | every 2h @ :45, 24/7 | $0 | OP-31 triages cook outputs. |
+-| `Gamma_FuturesHeartbeat` | every 3 min, 09:30-15:55 ET weekdays | **DISABLED** — shares Max plan rate-limit pool with interactive sessions. Re-enable when shadow loop validates a free-tier model OR a dedicated API key is added. |
+-| `Gamma_FuturesPremarket` | 08:30 ET weekdays | ~$0.30 | MNQ key levels, VIX gate, bias, journal seed. Registered 2026-06-17. |
+-| `Gamma_FuturesEod` | 16:05 ET weekdays | ~$0.30 | Daily review: replay vs heartbeat, trades.csv update, running WR/expectancy. Registered 2026-06-17. |
+ | `Gamma_GitHubAudit` | every 2 days, 21:00 MT (~23:00 ET) | $0 | Secrets + privacy scan of all tracked files in public repo Swjsh/42. GREEN=silent. RED=Discord ping with file:line findings. Pure Python. Install: `setup/install-github-audit.ps1`. |
+ | `Gamma_SpendSummary` | 23:30 ET daily | $0 | OP-3 cost discipline: walks Claude Code session JSONL + MiniMax telemetry -> `automation/state/spend-{date}.json` + `spend-daily.jsonl`; STATUS.md WARN if >$50/day. Pure Python. Install: `setup/install-spend-summary.ps1`. Documented 2026-06-18. |
+ | `Gamma_OosCheck` | 20:30 ET daily (18:30 MT) | $0 | **Nightly OOS validation — REGISTERED 2026-07-01 (PIPELINE-AUDIT break #4: promote_keeper proposals stranded forever with no scheduled `contender_oos_check` runner).** `setup/scripts/oos_check_runner.py`: (1) refreshes the proposal from the newest contender-rank via `promote_keeper` (idempotent), (2) runs `contender_oos_check.py` (real OPRA fills, 5 OP-11 gates incl. CONFIRM-BEFORE-CAPITAL recency) per still-current pending proposal in a hidden backtest-venv subprocess, (3) flips `eval_bar_cleared=true` + attaches the scorecard on the `conductor-proposals.jsonl` row ONLY on all-gates-pass. NEVER edits params / arms / trades. Fail-open exit 0; log `automation/state/logs/oos-check-{date}.log`. Guards: `backtest/tests/test_oos_check_runner.py`. Install: `setup/install-oos-check.ps1`. |
+ | `Gamma_LicenseMonitor` | 22:30 ET daily (20:30 MT) | $0 | **Nightly recency-transition monitor — REGISTERED 2026-06-28.** `backtest/autoresearch/license_monitor.py` reads `recency-confirmation.json`, detects RED->YELLOW->LICENSED verdict transitions, pings J via Discord so the first eligible day after a drawdown is never missed. Calls `recency_check.py` inline (`--run`) to refresh verdicts from cached OPRA ($0). Writes snapshot to `automation/state/license-monitor-last.json`. Pure Python (backtest/.venv), window-leak-safe wscript chain. Install: `setup/scripts/register-license-monitor.ps1`. Wrapper: `setup/scripts/run-license-monitor.ps1`. |
+ | `Gamma_GuardsNightly` | 22:30 MT (00:30 ET) daily | $0 | **Nightly SLOW graduated-guards (2026-06-19).** Runs the ~35 data-heavy backtests the per-edit hook excludes (`-m slow`) so that regression coverage isn't silently dropped by the fast/slow hook split; writes `automation/state/guard-watch-slow.json`, flags STATUS.md on a new break (OP-25). Install: `setup/install-guards-nightly.ps1`. Pure Python. |
+ | `Gamma_EngineStressSwarm` | every 2h, overnight/after-hours only | $0 (free 5-model swarm) | **Counterfactual engine-stress "tenfold the swarm" — REGISTERED 2026-06-28 (J: "put our engine through the test, cook all night").** `backtest/autoresearch/engine_stress_swarm.py` perturbs real SPY days ("what if the bars did this": trend_flip/amplify/dampen/gap/vix-shift/noise) × sizing/exit/direction variants, runs each through the REAL engine (`run_backtest`, deterministic ground truth), then the 5-model free swarm (incl. GLM via Cerebras) adversarially critiques the anomalies. C1: perturbed bars → BS-sim → RANKING-ONLY (guarded). Runner's market-hours guard skips 09:30–15:55 ET so it never overlaps live trading. backtest/.venv (reaper-exempt), window-leak-safe wscript chain. Report → `markdown/research/ENGINE-STRESS-SWARM-LATEST.md`, ledger → `analysis/stress-swarm/_ledger.jsonl`. Install: `setup/install-engine-stress-swarm.ps1`. |
+-| `Gamma_Conductor` | hourly 18:00–07:00 ET (after-hours ONLY) | ~$1.50/fire (opus) | **The "Gamma drives" engine (Phase 1a) — ENABLED 2026-06-20 (had never once fired before — this was the autonomy gap).** Each fire = ONE bounded task: read `engine-health.json` + STATUS + the prioritized queue, pick the single highest-value ready item, fan out the right specialist persona via the Agent tool, validate (gym/tests), SHIP only if it clears the auto-ratify gate ELSE propose-and-ping-J via Discord. Prompt: `automation/prompts/conductor.md` (opus, `--agent gamma`). Rails: after-hours ONLY (never 09:30–15:55 ET — L54), FAIL-OPEN (never blocks J — OP-32 scar), one-task-per-fire, doctrine/params/orders PROPOSE-only. Install: `setup/install-conductor-task.ps1`. |
+-| `Gamma_Drive` | ONE daily fire 20:00 ET (18:00 MT) | ≤$24/night ceiling, ~$3-6 real (opus) | **The nightly bounded "Gamma drives like J" loop — REGISTERED 2026-06-24 (J: "stop being the prompter").** The invocable-driver sibling of the hourly conductor: `run-gamma-drive.ps1` runs a BOUNDED loop of up to 3 fresh `claude --print` fires, each doing ONE gamma-drive initiative's workstreams (`automation/prompts/gamma-drive.md`, opus, `--agent gamma`). FRESH context per fire = leak-proof (vs in-session `/loop` which bloats). All hard caps WRAPPER-enforced: iteration=3, $8/fire, convergence=2 consecutive no-ops, wall-clock deadline 08:15 ET, single-instance lock, **off-switch** = drop `automation/state/gamma-drive-stop.flag`. After-hours re-gated EVERY iteration (never RTH — L54), FAIL-OPEN (never blocks J — OP-32 scar), doctrine/params/orders PROPOSE-only. Anti-leak retention (`status_retention.py` + `loop_retention.py`) runs before the loop. Coexists with `Gamma_Conductor` via the queue's in_progress/Completed idempotency. Program: `.claude/skills/gamma-drive/SKILL.md`. Install: `setup/install-gamma-drive-task.ps1`. |
+ | `Gamma_DiscordResponder` | every 15 min 16:00–09:30 ET (after-hours) | ~$0.15/fire (haiku) | **The async approve/revoke bus (Phase 1c) — ENABLED 2026-06-20.** Consumes J's `ship <id>` / `shelve <id>` Discord replies -> resolves `conductor-proposals.jsonl`, appends `conductor-approvals.jsonl` (pure Python, $0, anytime). Also consumes `revert <id>` -> dispatches the actuator to undo an applied change. Free-form J Q&A via `claude --print` Haiku, after-hours only (self-gates RTH per L54). Needs `Gamma_DiscordBridge` alive. Fail-open. Install: `setup/install-discord-responder-task.ps1`. |
+ | `Gamma_AutoApply` | every 30 min 16:00–09:30 ET (after-hours) | $0 (pure Python — no model) | **The Actuator (autonomy Phase 1) — closes the approval→apply loop.** Each fire runs `autonomy_actuator.py apply`: reads J-`approved` rows in `conductor-proposals.jsonl`, applies each one's structured `apply_ops` (exact unique find/replace), snapshots first, runs the fast safety gate, and on green git-commits it; on red restores the snapshot + flags. Only acts on J-approved proposals; Rule-9 self-gates RTH. Reversible: `autonomy_actuator.py revert <id>` / Discord `revert <id>`. Audit: `autonomy-changelog.jsonl`. Fail-open. Install: `setup/install-autoapply-task.ps1`. |
+ | `Gamma_CompanionKeepalive` | every 5 min, 24/7 | $0 | Keepalive for the gamma-companion desktop-presence server (`gamma-companion/`, Node, localhost:4317 — the little-robot face that reads live state + relays Approve/Reject to `companion-decisions.jsonl`). HTTP `/api/state` liveness probe, CreateNoWindow node spawn, no-kill-on-port-conflict. Registered 2026-06-21; documented in the readiness audit (was a live ORPHAN_TASK). Install: `LAUNCH-COMPANION.vbs` / `setup/install-companion-keepalive.ps1`. |
+@@ -72,7 +66,6 @@
+ | `Gamma_SightBeacon` | every 1 min, 09:00-16:30 ET wd (07:00 MT +7h30m) | $0 | **The NEVER-BLIND eye — documented 2026-06-27 (audit ORPHAN).** `setup/scripts/sight_beacon.py` (backtest/.venv pythonw) reads SPY 5m price + Saty ribbon via direct Alpaca REST + yfinance fallback → `automation/state/sight-beacon.json`, the un-blockable price/ribbon that `engine-health.json` and the heartbeats fall back to when their primary read fails. Window-leak-safe wscript→pythonw chain. |
+ | `Gamma_SelfAudit` | 17:30 ET daily (15:30 MT) | $0 (free swarm) | **The proactive GAP-FINDER organ — documented 2026-06-27 (audit ORPHAN; was wrongly listed as retired under ## Reference).** `setup/scripts/self_audit.py` (backtest/.venv pythonw) fans "what gaps should Gamma have caught itself?" to the free swarm and appends to `analysis/self-audit/gap-log.jsonl` + `new-gaps-flagged.md` → feeds the conductor's priority-2 queue (so J doesn't have to point gaps out). NOT superseded by Gamma_CryptoDaily — it is the distinct self-improvement organ. |
+ | `Gamma_FreeManager` | every 20 min, ~24/7 (01:13 MT start +23h59m) | $0 (free pool) | **The FREE autonomous Manager tier — documented 2026-06-27 (audit ORPHAN).** `setup/scripts/gamma_manager.py` — one bounded recon+dispatch cycle per fire on $0 free models (Groq→local fallback), the cheap sibling of the opus `Gamma_Conductor`. |
+-| `Gamma_ManagerOverseer` | every 2h, ~24/7 (08:03 ET start) | ~$0.10 (Sonnet) | **Training-wheels reviewer for the free Manager — documented 2026-06-27 (audit ORPHAN).** `setup/scripts/manager_overseer.py` — Sonnet (after-hours, cheap) reviews the free Manager's recent outputs for quality problems (repetition/token-salad/vagueness) and writes corrective guidance. |
+ | `Gamma_LiveShadowValidator` | every 15 min, RTH-gated (08:24 ET start) | $0 (free pool) | **Intra-day proof the free agents see+decide right — documented 2026-06-27 (audit ORPHAN).** `setup/scripts/live_shadow_validator.py` — READ-ONLY; for each new heartbeat decision tick, feeds a free agent the same snapshot (engine's read hidden) and checks agreement. Free pool, does NOT contend with the Max heartbeat pool. |
+ | `Gamma_ContenderRank` | every 30 min, ~24/7 (08:33 ET start) | $0 | **Grind/sweep contender ranker — documented 2026-06-27 (audit ORPHAN).** `setup/scripts/rank_contenders.py` — READ-ONLY; ranks every scored grind contender against the OP-16 J-edge bar (`edge_capture >= 771` reject floor). |
+ | `Gamma_EodFullAudit` | 16:30 ET daily (14:30 MT) | $0 | **"Everything Gamma did/thought/logged today" in one report — documented 2026-06-27 (audit ORPHAN).** `setup/scripts/eod_full_audit.py` — READ-ONLY; aggregates every append-only ledger into `analysis/daily-brief/{date}-FULL-AUDIT.md` so nothing is invisible (OP-25). |
+@@ -113,6 +106,15 @@
+ | `Gamma_Funnel_3` | ON-DEMAND (no trigger) | **DISABLED 2026-07-01 (consolidate-hard).** See `Gamma_Funnel_0`. |
+ | `Gamma_Funnel_4` | ON-DEMAND (no trigger) | **DISABLED 2026-07-01 (consolidate-hard).** See `Gamma_Funnel_0`. |
+ | `Gamma_Funnel_5` | ON-DEMAND (no trigger) | **DISABLED 2026-07-01 (consolidate-hard).** See `Gamma_Funnel_0`. |
++| `Gamma_Heartbeat` | every 3 min, 09:30-15:55 ET | **DISABLED 2026-06-25** (verified last run 2026-06-25 13:36 ET, result 0). ~~THE engine — Gamma-Safe-1.~~ The LLM heartbeat is superseded by the deterministic `Gamma_HeartbeatCore` (both accounts, one fire, $0, no LLM/MCP on the hot path). Kept registered-but-disabled as a rollback fallback only — not an active re-enable candidate. Was miscategorized under "## Active" until the 2026-07-06 reconciliation (see note above). |
++| `Gamma_Heartbeat_Aggressive` | every 3 min, 09:31-15:55 ET | **DISABLED 2026-06-25** (verified last run 2026-06-25 13:37 ET, result 0). Gamma-Risky-2 side of the retired LLM heartbeat pair; same disposition as `Gamma_Heartbeat`. Superseded by `Gamma_HeartbeatCore`. |
++| `Gamma_FuturesHeartbeat` | every 3 min, 09:30-15:55 ET weekdays | **DISABLED** (verified last run 2026-06-17 19:42 ET, result 0 — ran once at registration, never since). Shares the Max-plan rate-limit pool with interactive sessions. Re-enable when the shadow loop validates a free-tier model OR a dedicated API key is added. Same original-LLM-architecture bucket as `Gamma_FuturesPremarket`/`Gamma_FuturesEod` below. |
++| `Gamma_FuturesPremarket` | 08:30 ET weekdays | **DISABLED** — registered 2026-06-17 as part of the original LLM futures architecture; verified NEVER successfully fired (LastTaskResult `267011` = `SCHED_S_TASK_HAS_NOT_RUN`). Superseded by the 2026-07-02 futures revival (`markdown/futures/FUTURES-REVIVAL-PLAN-2026-07-02.md`), whose Phase 1-3 build targets a NEW deterministic daily/4h swing-decision fire — not a re-enable of this task. Stays dead by design. |
++| `Gamma_FuturesEod` | 16:05 ET weekdays | **DISABLED** — same bucket as `Gamma_FuturesPremarket`: registered 2026-06-17, verified NEVER successfully fired (LastTaskResult `267011`). Superseded by the 07-02 revival plan; stays dead pending the new swing engine. |
++| `Gamma_Conductor` | hourly 18:00–07:00 ET (after-hours ONLY) | **DISABLED 2026-07-02 evening** (verified last run 2026-07-02 15:48 ET, result 0). J's token-saving-mode order — protect the shared Max pool for his Unreal game-design session + Fable EOD-reviews (07-03/07-04). The "Gamma drives" engine (Phase 1a): reads `engine-health.json` + STATUS + the queue, fans the highest-value item to a specialist persona, ships-or-proposes. Prompt `automation/prompts/conductor.md` (rerouted opus→sonnet 2026-07-02 per commit `4177817`, J quota directive — the reroute stays regardless of enable state). Re-enable with `Enable-ScheduledTask Gamma_Conductor` when J lifts the crunch — the paused overnight queue (`queue.md` Tier 0.1: gate tiers, FDR-16, RRW-veto, audit bugs) is intact, nothing lost. |
++| `Gamma_Drive` | ONE daily fire 20:00 ET (18:00 MT) | **DISABLED ~2026-07-01** (verified last run 2026-06-30 20:00 ET, result 0 — no fire since). Same token/cost-discipline bucket as `Gamma_Conductor`; per J's 07-02 token-saving-mode note this one was "already off" before that order formalized the other three (the exact disabling action predates any commit message that names it — window overlaps the 07-01 16:26 MT "consolidate-hard" pass, though that commit names only the 8 grind/funnel tasks). The invocable-driver sibling of the hourly conductor — bounded nightly loop, up to 3 fresh `claude --print` fires via `automation/prompts/gamma-drive.md`. Re-enable when J lifts the crunch. |
++| `Gamma_ManagerOverseer` | every 2h, ~24/7 (08:03 ET start) | **DISABLED 2026-07-02 evening** (verified last run 2026-07-02 16:03 ET, result 0). Same token-saving-mode order as `Gamma_Conductor`. Training-wheels Sonnet reviewer for the free Manager tier — reviews its recent outputs for repetition/token-salad/vagueness. Re-enable when J lifts the crunch. |
++| `Gamma_DailyReview` | 16:30 ET weekdays | **DISABLED 2026-07-02 evening** (verified last run 2026-07-02 16:30 ET, result 0). Same token-saving-mode order as `Gamma_Conductor`. Predictions-vs-actual + tomorrow's levels. Re-enable when J lifts the crunch. |
+ 
+ ## Reference — still removed since the 2026-05-23 reset (NOT registered; not parsed by audit)
+ 
+diff --git a/automation/state/scheduled-tasks-audit.json b/automation/state/scheduled-tasks-audit.json
+index f2850a3d..07834b30 100644
+--- a/automation/state/scheduled-tasks-audit.json
++++ b/automation/state/scheduled-tasks-audit.json
+@@ -1,91 +1,56 @@
+ {
+-  "audited_at": "2026-06-26T21:09:25.000741+00:00",
+-  "total_registered": 61,
+-  "active_registered": 53,
+-  "disabled_registered": 8,
+-  "registry_active": 46,
+-  "registry_disabled": 0,
+-  "flags_count": 16,
++  "audited_at": "2026-07-06T14:41:37.641667+00:00",
++  "total_registered": 69,
++  "active_registered": 51,
++  "disabled_registered": 18,
++  "registry_active": 51,
++  "registry_disabled": 18,
++  "flags_count": 9,
+   "flags": [
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_ContenderRank",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_EodFullAudit",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_FreeManager",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Funnel_0",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Funnel_1",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Funnel_2",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Funnel_3",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
+-    },
+-    {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Funnel_4",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_AnalystEodReview",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Funnel_5",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_CboeOiBank",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Grind_Watchdog",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_EodDeepDive",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_Grind_all",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_EodSummary",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_HeartbeatCore",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_GitHubAudit",
++      "note": "last ran 35.7h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_LiveShadowValidator",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_GymSession",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_ManagerOverseer",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_ManagerDailyVerify",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+-      "flag": "ORPHAN_TASK",
+-      "task": "Gamma_SightBeacon",
+-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
++      "flag": "SILENT_TASK",
++      "task": "Gamma_ShadowEval",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     },
+     {
+       "flag": "SILENT_TASK",
+-      "task": "Gamma_GitHubAudit",
+-      "note": "last ran 42.2h ago \u2014 expected within 26h"
++      "task": "Gamma_WatcherGrader",
++      "note": "last ran 59.6h ago \u2014 expected within 26h"
+     }
+   ],
+   "health": "RED"

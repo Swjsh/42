@@ -60,10 +60,38 @@ if (Test-Path $grinderPath) {
     $size = (Get-Item $grinderPath).Length
     Write-Log ("grinder.jsonl size: " + [math]::Round($size / 1MB, 2) + " MB")
     if ($size -gt 5MB) {
+        # ROTATION BUG FIXED 2026-08-29 (audit fire). The old line was:
+        #     Get-Content $grinderPath -Tail 100 | Set-Content $grinderPath -Encoding utf8
+        # which reads and writes THE SAME FILE in one pipeline -- Set-Content cannot open
+        # the file for writing while Get-Content still holds it, so the truncation failed
+        # EVERY DAY while the log still printed "rotated ... (kept last 100 lines)". Silent
+        # success (C7). Consequence measured 2026-08-29: grinder.jsonl never shrank, so each
+        # daily Copy-Item wrote a fresh ~1.5 GB near-duplicate. 67 archives / 58.69 GB had
+        # accumulated (each byte-verified as an exact PREFIX of the next), and C: was down to
+        # 7.5 GB free -- ~4.6 days from a full system volume.
+        # Fix: stage to a temp file, then atomically Move-Item over the original. Also prune
+        # dated archives past retention, which ledger_archive.py never did here because it
+        # only prunes date-named DIRECTORIES and these are date-named FILES.
         $archive = Join-Path $projectRoot "crypto\data\scorecards\grinder-archive-$today.jsonl"
         Copy-Item $grinderPath $archive
-        Get-Content $grinderPath -Tail 100 | Set-Content $grinderPath -Encoding utf8
-        Write-Log "rotated -> $archive (kept last 100 lines)"
+        $tail = Get-Content $grinderPath -Tail 100
+        $tmp = "$grinderPath.rotate.tmp"
+        $tail | Set-Content $tmp -Encoding utf8
+        Move-Item $tmp $grinderPath -Force
+        $newSize = (Get-Item $grinderPath).Length
+        if ($newSize -ge $size) {
+            Write-Log "ROTATION FAILED -- grinder.jsonl still $([math]::Round($newSize/1MB,2)) MB after truncate; removing the archive copy so we do not burn disk on a no-op"
+            Remove-Item $archive -Force -ErrorAction SilentlyContinue
+        } else {
+            Write-Log ("rotated -> $archive (kept last 100 lines; " + [math]::Round($size/1MB,2) + " MB -> " + [math]::Round($newSize/1MB,2) + " MB)")
+        }
+        # Retention: keep 14 days of dated archives. Without this the directory regrows.
+        $cutoff = (Get-Date).AddDays(-14)
+        Get-ChildItem (Join-Path $projectRoot "crypto\data\scorecards") -Filter "grinder-archive-*.jsonl" -ErrorAction SilentlyContinue |
+            Where-Object { $_.LastWriteTime -lt $cutoff } | ForEach-Object {
+                Write-Log "pruned stale archive $($_.Name) ($([math]::Round($_.Length/1MB,2)) MB)"
+                Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
+            }
     }
 }
 
