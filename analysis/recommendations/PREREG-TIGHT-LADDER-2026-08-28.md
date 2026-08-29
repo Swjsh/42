@@ -222,3 +222,67 @@ binds more than **twice in the window**, that is itself a finding to report — 
 behaviour left the envelope the test assumed.
 
 *Addendum 1 frozen 2026-08-28 evening ET, before window open.*
+
+---
+
+## ADDENDUM 2 — 2026-08-28 evening ET, BEFORE the window opens
+
+**Trigger:** J's objection — *"I don't want to get into a con and get chopped out then sit out from a
+winner for the day; there has to be some sort of decision making, a variable that changes."*
+Recording the evidence behind Addendum 1's −$400 daily stop so it is on the record as
+evidence-chosen rather than picked, and so the kill rule can be applied to it honestly.
+
+### 2.1 — Loss-COUNT throttles lose money; loss-DOLLAR stops do not
+
+These are different controls and the distinction is the whole answer to J's objection.
+
+| Control | Winners blocked | Losers blocked | Net effect |
+|---|---:|---:|---|
+| Loss-count "stop after 2 losses" (T-2, measured forward) | **$589** | $283 | **−$306 — costs money** |
+| −$200 / arm / day (dollars) | $2,762 | $3,688 | +$926 |
+| **−$400 / arm / day (dollars)** | **$347** | $1,948 | **+$1,601** |
+| −$600 / arm / day (dollars) | **$0** | $1,048 | +$1,048 |
+
+Mechanism: a loss-count throttle fires on two trivial scratches and then blocks a real winner. A
+dollar stop only fires after actual bleeding. **−$400 blocked $347 of winners across the entire
+382-trade record.**
+
+### 2.2 — Trading after losses is bad at every quality tier
+
+Trades taken AFTER the day's first loss (all history): **n=311, −$5,115, WR 21%.** After the second
+loss: n=271, −$3,104. Split by conviction tier, post-first-loss:
+
+| Tier | n | Total | WR |
+|---|---:|---:|---:|
+| ELITE | 174 | −$2,714 | 18% |
+| BASE | 65 | −$1,073 | 28% |
+| TRENDLINE | 36 | −$283 | 31% |
+| SUPER | 9 | −$423 | 0% |
+
+**Raising the quality bar after losses does NOT rescue post-loss trading** — ELITE, the tier that
+carries the book overall (+$2,540 in August), still loses after the day has turned. This kills the
+otherwise-attractive idea of "after N losses, only take ELITE." Getting chopped is information
+about the DAY, not about the next setup.
+
+### 2.3 — The big winners arrive early, which is why the stop is cheap
+
+Of 30 trades making ≥ +$300, **18 (60%) entered before 11:00 ET** (by hour: 09h=12, 10h=6, 11h=5,
+12h=4, 13h=1, 14h=2). A daily dollar stop typically triggers after the window in which the day's
+best trade would already have been taken. This is the direct answer to J's concern: **the stop
+mostly fires on days whose winner never existed, not on days whose winner is still ahead.**
+
+### 2.4 — Disclosure and status
+
+- The −$400 stop triggered **9 times in 42 days** — small n. It is retained as a **bound on the
+  tail**, not as a tuned parameter, and it is NOT part of hypothesis H1. If it binds more than
+  twice in the window, that is reported as a finding (per §1.4).
+- The −$600 variant blocked zero winners on this record and is the more conservative choice; −$400
+  is retained because it bounds the day nearer the observed loss distribution (post-fix losers exit
+  at mean −25% of premium, so three max positions ≈ −$757).
+- **Not tested and explicitly out of scope:** a time-varying threshold (looser before 11:00 ET when
+  the winner may still be ahead, tighter after). The 60%-early finding suggests it, the sample does
+  not support fitting it, and adding it now would make the config a tuned artifact of the same data
+  that produced the hypothesis. It is logged here as a candidate for a LATER, separately
+  pre-registered test.
+
+*Addendum 2 frozen 2026-08-28 evening ET, before window open.*
