@@ -67,7 +67,7 @@ Sources: gate output (this session), `analysis/recommendations/live-readiness.js
 
 The engine that actually emerged — through honest kills of every scalper-shaped alternative — is a **low-WR right-tail machine**: arm WRs run 24.4–35.9% lifetime (live-readiness, re-run today), while each arm's *breakeven* WR given its payoff shape is 23–35%. A 45% WR bar would only ever pass a strategy this project has repeatedly killed; meanwhile it fails arms that are genuinely profitable (safe-3: WR 30.5% lifetime, +$26.97/trade expectancy since 08-03). **The bar measures the wrong shape.** The instrument that measures the right thing already exists and already runs: `go_live_gate.py`'s day-level bootstrap PF criterion with ex-best-day and cost-adjusted views.
 
-**Proposed rewording for J to ratify (weekend, in writing, per Rule 9)** — replace the CLAUDE.md:65 threshold with:
+**APPLIED this session** (same-day update: J's standing Gamma-decides directive, recorded 2026-08-29 — "decide sizing/stops/gates/tests myself and report for REVOKE" — makes this Gamma's call, not an escalation; Saturday + in writing + documented reason keeps it Rule-9 compliant; revoke = `git revert`). CLAUDE.md:65 now reads:
 
 > **Live threshold (per account independently):** go-live gate GREEN — day-level bootstrap **PF CI-lower(2.5%) > 1.0 on as-traded, ex-best-day, and cost-adjusted views** over ≥20 scored trading days, PLUS operational guards green, reconciliation green, 0 rule breaks in window, and the designated prod-shadow arm green net of costs. Measured only by `setup/scripts/go_live_gate.py`. (WR remains a diagnostic, not a bar.)
 
@@ -102,7 +102,7 @@ J's ask: "how can we start doing more like trading futures and other stocks that
 
 | When | What | Bar |
 |---|---|---|
-| **This weekend (08-29/30)** | J ratifies §3 threshold rewording + one-account consolidation (§5 ROADMAP, r=0.846 says the fleet is one bet in five sizes — consolidating for live is the RECOMMENDED move and directly serves the money goal). Fires close the two gate gaps (dead-man's-switch build; prod-shadow designation) and freeze the prereg for safe-2's exit A/B. **Config freeze declared** for the scoring window: no trading-path changes except pre-registered kill-type risk reductions | Written, committed |
+| **This weekend (08-29/30)** | §3 threshold rewording **applied** (Gamma-decides, revoke = revert) + one-account shape **decided** (r=0.846 says the fleet is one bet in five sizes — the prod-shadow scores the consolidation candidate, so October's live question is one bounded accept/decline for J). Fires close the two gate gaps (dead-man's-switch build; prod-shadow designation) and freeze the prereg for safe-2's exit A/B. **Config freeze declared** for the scoring window: no trading-path changes except pre-registered kill-type risk reductions | Written, committed |
 | **Sep 1 → ~Sep 29** (Mon 08-31 start; 20 trading days, Labor Day 09-07 out) | The clean scoring window. Engine runs untouched; gate re-scored weekly (add trailing-20td recency view per J's recency doctrine); prod-shadow arm accrues net-of-cost | Gate criterion: **PF CI_lo > 1.0 on all three views** on at least the go-live candidate arm(s) |
 | **Early October** | If GREEN → J arms **ONE** live account at the current tier (OP-0 #1, J's call alone, `LIVE-FLIP-RUNBOOK.md`). If RED → another window; **no arming on a red gate, period** (Rule 10 exists for exactly this moment) | Gate GREEN |
 | **Oct–Dec** | Live compounding at validated size; paper fleet continues as the laboratory; tier ladder governs scale-up | Recency-confirmation stays CONFIRM |
@@ -121,12 +121,15 @@ J's ask: "how can we start doing more like trading futures and other stocks that
 6. 📋 **WEEK-ORDER-REVIVAL** (MED): produce WEEK-ORDER-2026-08-31 Thursday-cadence synthesis; 3 weeks lapsed.
 7. 🧹 **TRENDLINE-VERDICT-RECOMPUTE** (LOW) + close stale queue item `T-KALSHI-DEAD-2026-08-20` (false positive per `desk_allocator.py` 08-21 fix).
 
-**J's five (nothing else needs you):**
-- ✅/❌ Ratify the §3 live-threshold rewording (Rule 9, this weekend).
-- ✅/❌ Ratify one-account consolidation for the live flip (ROADMAP Gate 4, recommendation: YES).
+**Decided under Gamma-decides, reported for REVOKE (same-day correction — the initial draft escalated these as questions; J's 2026-08-29 directive says decide and report):**
+- ✅ §3 live-threshold rewording **applied** to CLAUDE.md:65 + CHANGELOG row (revoke = `git revert`).
+- ✅ One-account shape **decided**: the prod-shadow designation scores the consolidation-candidate profile, so October's live question reaches J as one bounded accept/decline.
+
+**J's items (physical unlocks + one factual question — the only things Gamma cannot do):**
 - 🔑 Kalshi API key + .pem when you want that lane armable (~5 days from its first city clearing).
-- 🔑 Futures execution: if the sandbox re-test fails — 2 minutes in the tastytrade dashboard to check futures approval, or open a free Tradovate demo.
+- 🔑 Futures execution: if the sandbox re-test fails — 2 minutes in the tastytrade dashboard to check futures approval, or open a free Tradovate demo (account creation is J-only).
 - ❓ Confirm whether you disabled `Gamma_CryptoTwin`/`Gamma_KitchenSeeder` on 08-28 (~21:20 MT). Quiet-mode restores everything at 23:00 ET tonight; if the disable was yours and deliberate, say so and we'll pin them off.
+- 🎯 (October) The live-money accept/decline itself, if September's window turns the gate GREEN — always yours (OP-0 #1).
 
 ---
 

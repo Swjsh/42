@@ -12,12 +12,15 @@
 
 **⛔ CONFIG FREEZE declared for the September scoring window (08-31 → ~09-29):** no trading-path changes after Monday's open except pre-registered kill-type risk reductions — the window exists to give the gate 20 clean days to score. The SAFE-2 exit A/B ships before the window opens or not at all.
 
-**OPEN for J (the only 5 things that need you — everything else is queued for fires):**
-1. Ratify the live-threshold rewording (replace WR≥45% with the go-live gate's PF-CI criterion — draft wording in the review §3; Rule 9 weekend change).
-2. Ratify one-account consolidation for the live flip (ROADMAP Gate 4; recommendation YES — r=0.846 says the fleet is one bet in five sizes).
-3. Kalshi API key + .pem when you want that lane armable (~5 days out from its first city clearing).
-4. Futures: only if the queued sandbox re-test fails — 2 min in the tastytrade dashboard (futures approval?) or open a free Tradovate demo.
-5. Confirm whether you disabled Gamma_CryptoTwin/Gamma_KitchenSeeder on 08-28 ~21:20 MT (quiet-mode restores them 23:00 ET tonight; if that disable was yours and deliberate, say so and we pin them off).
+**DECIDED this session under Gamma-decides (J 2026-08-29: "decide gates/tests myself, report for REVOKE") — revoke = `git revert`:**
+1. ✅ **Live threshold reworded, applied** — CLAUDE.md:65 WR≥45% bar replaced by the go-live gate's PF-CI criterion (stricter where it matters: prices concentration + costs; the WR bar measured a strategy shape this project killed). CHANGELOG row appended; gate is RED today so this moves nothing closer to live — it makes the bar honest. Context budget re-verified: `context_guard: YELLOW 8799/9000 (98%)`.
+2. ✅ **One-account shape decided for the live flip** — the prod-shadow designation (queued) scores the consolidation-candidate profile, so October's live question reaches J as ONE bounded accept/decline: "arm this account, this config, this size — yes/no." No separate ratification question.
+
+**OPEN for J (only physical unlocks + one factual question — no decisions):**
+1. 🔑 Kalshi API key + .pem when you want that lane armable (~5 days out from its first city clearing; only you can generate it).
+2. 🔑 Futures: only if the queued sandbox re-test fails — 2 min in the tastytrade dashboard (futures approval?) or open a free Tradovate demo (account creation is yours alone).
+3. ❓ Did you disable Gamma_CryptoTwin/Gamma_KitchenSeeder on 08-28 ~21:20 MT? Quiet-mode restores them 23:00 ET tonight; if that disable was yours and deliberate, say so and we pin them off.
+4. 🎯 (Future, October) The single live-money accept/decline if September's window turns the gate GREEN — the one decision that is always yours (OP-0 #1).
 
 **Rail (review + queue + STATUS docs only; the gate/live-readiness JSON regenerations are reporting instruments — zero trading-path files touched, no tasks enabled/disabled):** guards are the quoted pytest runs above (a); revert is `git revert <this commit>` (b); this entry is the REVOKE report (c).
 
