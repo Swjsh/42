@@ -8,6 +8,8 @@
 //   POST /api/chat         { message, history } -> free-model face reply (may escalate)
 //   GET  /api/ask-result   ?id=...  poll a Claude escalation result
 //   POST /api/approve      { id, decision, note?, action? }
+//   GET  /api/army         ?since=<iso ts> -- pulse.jsonl rows after cursor, READ-ONLY,
+//                          for the cockpit's Army view (live pulse animation)
 //
 // Bound to 127.0.0.1 only. Port 4317 by default (never collides with the
 // Next.js dashboard on 3000).
@@ -111,6 +113,30 @@ function authed(req) {
 const ROOT = process.env.GAMMA_WORKSPACE || path.resolve(__dirname, "..");
 const PORT = Number(process.env.GAMMA_COMPANION_PORT || 4317);
 const PUBLIC = path.join(__dirname, "public");
+
+// setup/hooks/pulse.py's ring-capped send-side log -- the ONLY source for the Army
+// view's pulses (GET /api/army below). Read-only here; this process never writes it.
+const PULSE_JSONL = path.join(ROOT, "automation", "state", "hooks", "pulse.jsonl");
+function readPulseRows() {
+  let raw;
+  try {
+    raw = fs.readFileSync(PULSE_JSONL, "utf8");
+  } catch {
+    return []; // no file yet (fresh checkout, or no tool has fired) -- not an error
+  }
+  const rows = [];
+  for (const line of raw.split("\n")) {
+    const t = line.trim();
+    if (!t) continue;
+    try {
+      const row = JSON.parse(t);
+      if (row && typeof row === "object") rows.push(row);
+    } catch {
+      /* one malformed line must not drop the rest of the tail */
+    }
+  }
+  return rows;
+}
 function pickPython() {
   if (process.env.GAMMA_PYTHON) return process.env.GAMMA_PYTHON;
   const known =
@@ -646,6 +672,29 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && u === "/api/claude") {
     if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
     return sendJSON(res, 200, { ok: true, claude: getTasks(), done: recentResults(6) });
+  }
+
+  // GET /api/army?since=<iso ts> -- the cockpit's Army view live-poll (1s cadence).
+  // READ-ONLY: this route accepts no body and writes nothing. `since` is compared as
+  // a plain string (pulse.py's ISO timestamps sort lexicographically, so this needs
+  // no date parsing); ties within the same second can replay or skip a row, which is
+  // acceptable for a visual telemetry feed and never load-bearing. Rows come straight
+  // from automation/state/hooks/pulse.jsonl -- see that file's own honesty contract
+  // (SENDS, never confirmed deliveries), which the Army view's legend states verbatim.
+  if (req.method === "GET" && u === "/api/army") {
+    if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
+    try {
+      const m = /[?&]since=([^&]*)/.exec(req.url);
+      const since = m ? decodeURIComponent(m[1]) : "";
+      const rows = readPulseRows();
+      const fresh = since ? rows.filter((r) => String(r.ts || "") > since) : [];
+      const cursor = fresh.length
+        ? fresh[fresh.length - 1].ts
+        : since || (rows.length ? rows[rows.length - 1].ts : "");
+      return sendJSON(res, 200, { ok: true, rows: fresh, cursor });
+    } catch (e) {
+      return sendJSON(res, 500, { ok: false, error: String((e && e.message) || e) });
+    }
   }
 
   // ── Live transcript stream (Server-Sent Events) ──

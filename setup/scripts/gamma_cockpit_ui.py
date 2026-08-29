@@ -230,6 +230,22 @@ section+section{margin-top:var(--s8)}
 .armpill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--r-pill);
   background:var(--bg-2);border:1px solid var(--bd);font-size:12px;color:var(--tx-2)}
 .armpill b{color:var(--tx-1);font-variant-numeric:tabular-nums}
+/* ---------------- army (orchestrator + sessions + workers + pulse) ---------------- */
+/* State dots reuse the health() ok/warn/bad -> pos/warn/neg vocabulary the engine-room
+   and org graph already use for system health (see .chip.ok/.warn/.bad above) -- that
+   is the resolved reading of "traffic-light, never a P&L fill": the dot is a small
+   indicator, not a big number reporting money. */
+.armywrap{overflow-x:auto}
+.army-node{cursor:pointer}
+.army-ring{animation:armyring 2s ease-in-out infinite}
+@keyframes armyring{0%,100%{opacity:.35}50%{opacity:.85}}
+.army-glow{animation:armyglow .6s ease-out}
+@keyframes armyglow{from{filter:drop-shadow(0 0 7px var(--acc))}to{filter:none}}
+.armyledger{max-height:240px;overflow:auto;margin-top:var(--s5);padding-top:var(--s4);
+  border-top:1px solid var(--bd-subtle);font-size:11px;color:var(--tx-3)}
+.armyledger div{display:flex;gap:var(--s3);padding:3px 0;white-space:nowrap;overflow:hidden}
+.armyledger .t{color:var(--tx-4);font-family:var(--mono);flex:none}
+
 /* ---------------- table ---------------- */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-4);

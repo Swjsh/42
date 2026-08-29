@@ -54,6 +54,13 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
 OUT_HTML = REPO / "analysis" / "home" / "index.html"
+# Dual-write target (spec sec 1's "one architectural tension"): identical bytes to
+# OUT_HTML, but served by gamma-companion (:4317) instead of opened as a file. The
+# server injects <meta name="gamma-token"> into THIS copy only (server.js's
+# serveStatic), which is what lets the page's own JS tell file:// (snapshot mode,
+# no network) apart from served-over-http (live mode, 1s poll). Never hand-edit --
+# same generator, same OUT_HTML.gitignore reasoning, see .gitignore.
+COMPANION_HTML = REPO / "gamma-companion" / "public" / "cockpit.html"
 
 # OP-27 L41 / C8: never let a headless (pythonw) scheduled task flash a conhost window.
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -451,6 +458,13 @@ def _cd():
     return gamma_cockpit_data
 
 
+def _army():
+    """The Army view's orchestrator/session/worker/pulse builder lives in its
+    own module -- same 800-line-ceiling reasoning as gamma_cockpit_data."""
+    import gamma_cockpit_army
+    return gamma_cockpit_army
+
+
 def _money(v) -> str:
     try:
         v = float(v)
@@ -488,7 +502,14 @@ def build(quiet: bool = False) -> dict:
         "wants_full": _wants_full(),
         "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),
                          "age_h": _age_h(GAMMA_WANTS), "ok": GAMMA_WANTS.exists()},
+        "army": None,   # filled below; a presence-telemetry failure must not lose the page
     }
+    try:
+        payload["army"] = _army().build_army()
+    except Exception as e:                       # noqa: BLE001 - Army view must degrade, not 500 the page
+        payload["army"] = {"orchestrator": None, "sessions": [], "workers": [], "pulses": [],
+                            "session_overflow": 0, "legend": "", "scope_note": "", "source": {},
+                            "error": str(e)[:160]}
     # The briefing reads the already-built desks/allocation/answers so it never
     # re-derives a number a card already shows.
     try:
@@ -532,9 +553,23 @@ def main() -> int:
     a = ap.parse_args()
 
     payload = build(quiet=a.quiet)
+    html = render(payload)
     OUT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    OUT_HTML.write_text(render(payload), encoding="utf-8")
+    OUT_HTML.write_text(html, encoding="utf-8")
     print(OUT_HTML.relative_to(REPO) if a.quiet else "wrote -> %s" % OUT_HTML.relative_to(REPO))
+
+    # Companion copy is a bonus (live pulses), never a dependency: OUT_HTML above is
+    # the surface that must always succeed. gamma-companion/ may be absent on a
+    # fresh checkout (npm install not run yet) -- that is not a reason to fail this
+    # script's primary job.
+    try:
+        COMPANION_HTML.parent.mkdir(parents=True, exist_ok=True)
+        COMPANION_HTML.write_text(html, encoding="utf-8")
+        if not a.quiet:
+            print("wrote -> %s" % COMPANION_HTML.relative_to(REPO))
+    except OSError as e:
+        if not a.quiet:
+            print("WARN: companion copy not written (%s) -> %s" % (COMPANION_HTML, e), file=sys.stderr)
 
     if not a.quiet:
         nodata = [x["q"] for x in payload["answers"] if str(x.get("verdict")).upper() in ("NO DATA", "NODATA")]
