@@ -72,6 +72,11 @@ MAINTENANCE_END_HOUR = 8     # 08:00 ET -- when Gamma_LaunchTV opens the trading
 ESSENTIAL = {
     "Gamma_QuietMode",
     "Gamma_WindowLeakDetectorKeepalive",
+    # Cockpit action-cards/army-view fire path (build spec sec 4/7 step 8, 2026-08-29) posts
+    # to the companion at :4317 -- disabling it mid-quiet-window silently breaks that path
+    # with no error surfaced to J (the click just does nothing). Node process, $0, read-only
+    # liveness probe -- no reason to hold it down like the LLM/CPU producers below.
+    "Gamma_CompanionKeepalive",
     "Gamma_LaunchTV",
     "Gamma_TvWatchdog",
     "Gamma_Premarket",
