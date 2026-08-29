@@ -196,6 +196,50 @@ def test_ordinary_shell_commands_pass(cmd):
     assert D.bash_guard_hit(cmd) is None
 
 
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        # Regression (2026-08-29 probe): the guard had NO pattern for either of these --
+        # a raw Bash `rm -rf automation/state` or `export GAMMA_CORE_ARMED=1` sailed
+        # through with bash_guard_hit() returning None. GAMMA_CORE_ARMED=1 is OP-0 #1
+        # (arming live money, the one thing that always routes to J); automation/state
+        # holds the same class of live decision-gating state git reset --hard protects
+        # (lesson cluster C34).
+        "export GAMMA_CORE_ARMED=1",
+        "$env:GAMMA_CORE_ARMED=1",
+        "set GAMMA_CORE_ARMED=1",
+        "rm -rf automation/state",
+        "rm -fr automation/state",
+        "rm -Rf automation/state",
+        "rm --recursive --force automation/state",
+        "rm -rf ./automation/state/params.json",
+    ],
+)
+def test_rm_rf_and_live_arm_export_are_caught(cmd):
+    assert D.bash_guard_hit(cmd) is not None
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        # Narrow by design: unarming, reading the flag, or an rm -rf elsewhere (e.g. a
+        # dead worktree/scratch dir) must NOT be caught -- OP-25 sanctions that cleanup,
+        # and a guard that blocks general work is the OP-32 lockout scar repeating.
+        "echo $GAMMA_CORE_ARMED",
+        "export GAMMA_CORE_ARMED=0",
+        "rm -rf node_modules",
+        "rm -rf /tmp/scratch-worktree",
+        "git worktree remove --force ../dead-branch",
+        # Known, accepted trade-off (same contract as strip_quoted_strings' documented
+        # quoting bypass above): a value smuggled inside quotes reads as DATA, not a
+        # command literal, so `'1'` inside a PowerShell assignment is not caught.
+        "$env:GAMMA_CORE_ARMED = '1'",
+    ],
+)
+def test_rm_rf_and_arm_guard_does_not_overreach(cmd):
+    assert D.bash_guard_hit(cmd) is None
+
+
 def test_heredoc_bodies_are_data_not_commands():
     """Regression: the guard denied its own commit for quoting a banned command in the
     commit message. Heredoc bodies are documentation, never executed."""
@@ -513,6 +557,36 @@ def test_stop_blocks_permission_question_once_only(tmp_path):
     second, _, _ = run_hook(payload, env=env)
     assert first == BLOCK, "first permission-question turn must be blocked"
     assert second == ALLOW, "guard must never loop: one block per session per rule"
+
+
+def test_stop_survives_a_session_state_file_shaped_as_a_list():
+    """Regression (2026-08-29): a session-*.json holding syntactically valid JSON
+    that is not an object -- e.g. `["not","a","dict"]` -- made every downstream
+    `state.setdefault(...)` raise, which main()'s top-level catch swallows into
+    ALLOW. That fails open (never over-blocks, per this module's own contract),
+    but it means the OP-0 guard goes silently and PERMANENTLY dark for that one
+    session_id, since nothing ever repairs the file. Confirmed before the fix:
+    this same payload returned ALLOW instead of the BLOCK the clean-session test
+    above proves for byte-identical input. _session_state() now coerces a non-dict
+    body to {}, so a malformed state file behaves like a missing one -- state
+    resets, and the guard keeps working for the rest of that session."""
+    session_id = f"pyt-{uuid.uuid4().hex[:10]}"
+    state_path = _HOOK.parent.parent / "automation" / "state" / "hooks" / f"session-{session_id[:16]}.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text('["not","a","dict"]', encoding="utf-8")
+    try:
+        env = {"GAMMA_ACTIVE_GOAL_PATH": str(state_path.parent / "does-not-exist.json")}
+        code, _, _ = run_hook(
+            {
+                "hook_event_name": "Stop",
+                "session_id": session_id,
+                "last_assistant_message": "Here's the plan. Want me to implement it?",
+            },
+            env=env,
+        )
+        assert code == BLOCK, "a malformed session-state file must not silently disable OP-0"
+    finally:
+        state_path.unlink(missing_ok=True)
 
 
 def test_stop_respects_stop_hook_active():

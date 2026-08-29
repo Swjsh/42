@@ -96,6 +96,24 @@ BASH_GUARDS = (
         re.compile(r"\bgit\s+push\b.*(?:--force|-f)(?:\s|$)"),
         "Force-push to the public Swjsh/42 remote is irreversible and routes to J (OP-0 #3).",
     ),
+    (
+        re.compile(r"\bGAMMA_CORE_ARMED\s*=\s*['\"]?1\b"),
+        "Setting GAMMA_CORE_ARMED=1 arms LIVE money -- OP-0 #1, the one thing that always "
+        "routes to J. A Bash/PowerShell export cannot do this on J's behalf; name the "
+        "escalation and stop instead of exporting it.",
+    ),
+    (
+        re.compile(
+            r"\brm\s+(?:-[a-zA-Z]*[rR][a-zA-Z]*[fF][a-zA-Z]*\b"
+            r"|-[a-zA-Z]*[fF][a-zA-Z]*[rR][a-zA-Z]*\b"
+            r"|--recursive\b(?:[^\n;&|]*)--force\b"
+            r"|--force\b(?:[^\n;&|]*)--recursive\b)"
+            r"[^\n;&|]{0,80}\bautomation[\\/]state\b"
+        ),
+        "rm -rf against automation/state deletes live decision-gating state (params, "
+        "pulse log, active-goal, kill-switches) -- the same class of harm as a tree-wide "
+        "git reset (lesson cluster C34). Delete the specific stale file by name instead.",
+    ),
 )
 
 # Turn-ending framings that OP-0 names as the failed-turn shape.
