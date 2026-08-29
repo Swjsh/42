@@ -219,19 +219,60 @@ def test_fleet_arms_reflect_their_own_gate_strictness(day_bars):
     (present-status read, not point-in-time -- a disclosed limitation, not a bug this test
     should paper over) regardless of which historical day is replayed; asserting on it here
     would be asserting a permanent tautology, not wiring fidelity. See risky-3's own
-    `retired_reason` field in accounts.json for the retirement rationale."""
-    any_fleet_verdict_seen = False
-    for h, m in ((9, 35), (10, 30), (11, 35), (12, 5), (13, 56), (14, 30), (15, 30)):
-        bar_et = dt.datetime(2026, 7, 17, h, m, tzinfo=ET)
-        decisions = {d.arm: d for d in engine_step.step(REPLAY_DAY, bar_et, day_bars)}
-        for arm in ("fleet_safe_3", "fleet_risky_1"):
-            if decisions[arm].verdict in ("ENTER_BEAR", "ENTER_BULL"):
-                any_fleet_verdict_seen = True
-    assert any_fleet_verdict_seen, (
-        "expected at least one active fleet-arm (safe-3/risky-1) ENTER across the sampled "
-        "2026-07-17 RTH bars -- if this ever goes False, the wiring likely regressed to a "
-        "permanently-inert HOLD"
-    )
+    `retired_reason` field in accounts.json for the retirement rationale.
+
+    REWRITTEN 2026-08-29. The previous version asserted only `any_fleet_verdict_seen`
+    (at least one ENTER somewhere). That assertion was satisfied EXCLUSIVELY by risky-1's
+    FULL-SEND lane -- the one lane that BYPASSES the cohort gates -- so a test named "arms
+    reflect their own gate strictness" was, in fact, only ever green because of the bypass.
+    Verified this session: on 2026-07-17 with the full-send lane OFF, safe-3 and risky-1
+    produce ZERO ENTERs across the entire 5-minute RTH sweep; with it ON, exactly risky-1
+    enters, at exactly 11:35 and 12:05. That DIFFERENCE is the real evidence of per-arm
+    config threading, so it is now what gets asserted -- a strictly stronger claim than the
+    old one, not a relaxed one. It also pins the 2026-08-29 producer disarm end-to-end
+    through the dojo path (see build_shared_signal.FULL_SEND_LIVE and
+    backtest/tests/test_full_send_producer_disarm_2026_08_29.py).
+    """
+    import build_shared_signal as bss
+
+    bars = ((11, 35), (12, 5))
+    original = bss.FULL_SEND_LIVE
+    try:
+        # --- lane ON: risky-1's OWN gate_override.full_send is consulted; safe-3's is not.
+        bss.FULL_SEND_LIVE = True
+        on = collections.defaultdict(set)
+        for h, m in bars:
+            bar_et = dt.datetime(2026, 7, 17, h, m, tzinfo=ET)
+            decisions = {d.arm: d for d in engine_step.step(REPLAY_DAY, bar_et, day_bars)}
+            for arm in ("fleet_safe_3", "fleet_risky_1"):
+                if decisions[arm].verdict in ("ENTER_BEAR", "ENTER_BULL"):
+                    on[arm].add(f"{h:02d}:{m:02d}")
+
+        # --- lane OFF (production, since 2026-08-29): the same bars go quiet.
+        bss.FULL_SEND_LIVE = False
+        off = collections.defaultdict(set)
+        for h, m in bars:
+            bar_et = dt.datetime(2026, 7, 17, h, m, tzinfo=ET)
+            decisions = {d.arm: d for d in engine_step.step(REPLAY_DAY, bar_et, day_bars)}
+            for arm in ("fleet_safe_3", "fleet_risky_1"):
+                if decisions[arm].verdict in ("ENTER_BEAR", "ENTER_BULL"):
+                    off[arm].add(f"{h:02d}:{m:02d}")
+    finally:
+        bss.FULL_SEND_LIVE = original
+
+    # Per-arm config threading: ONLY risky-1 carries gate_override.full_send, so only
+    # risky-1 may enter on these bars. If safe-3 ever enters here, plan_all is applying one
+    # shared config instead of each arm's own -- the exact regression this test exists for.
+    assert on["fleet_risky_1"] == {"11:35", "12:05"}, on["fleet_risky_1"]
+    assert on["fleet_safe_3"] == set(), on["fleet_safe_3"]
+
+    # Wiring liveness: with the lane armed the path still produces real ENTERs, so a future
+    # all-HOLD result means a wiring regression, not merely the disarm.
+    assert on["fleet_risky_1"], "dojo fleet wiring regressed to permanently-inert HOLD"
+
+    # And the production disarm is effective through this same path.
+    assert off["fleet_risky_1"] == set(), off["fleet_risky_1"]
+    assert off["fleet_safe_3"] == set(), off["fleet_safe_3"]
 
 
 def test_step_rejects_naive_bar_et(day_bars):

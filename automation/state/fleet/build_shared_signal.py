@@ -1171,7 +1171,41 @@ FULL_SEND_LEDGER_ACCOUNT = "bold"
 # DEFAULT ON: like `probe`/`ladder`, the emitted block is pure additive data. Every reader that
 # does not know the key ignores it; ONLY an arm carrying gate_override.full_send acts on it.
 # Set False (or build(full_send=False)) for a byte-identical producer-side revert.
-FULL_SEND_LIVE = True
+#
+# ⛔ DISARMED 2026-08-29 (was True since 2026-07-31). This is the producer-side kill the arm's
+# own `full_send_doc` in accounts.json pre-registers by name ("Belt-and-suspenders producer
+# kill: set build_shared_signal.FULL_SEND_LIVE = False"), taken as a kill-type risk reduction
+# before the September scoring window opens 08-31.
+#
+# WHY -- the lane's documented safety catch expired without anyone noticing:
+#   * The FULL-SEND LANE has placed 0 orders in its ENTIRE LIFETIME -- 0 of risky-1's 141
+#     ENTER rows carry a FULL_SEND reason. Not "rarely fires": never fired.
+#   * It is NOT dormant upstream. Replaying the paired core ledger, the producer emits an
+#     `available` full_send block WITH a real trigger level on 126 ticks, and the full
+#     passed_full_send() condition holds on 213 ticks across 13 days, most recently 08-26.
+#   * The ONLY thing that ever stopped it was consumer economics, and full_send_doc states
+#     that block explicitly: "At $2K equity the 50% per-trade risk cap REFUSES any full-send
+#     entry priced above $2.00 premium, and ATM 0DTE SPY midday frequently prices above
+#     that." That ceiling is (equity x 50%) / (min_contracts x 100). risky-1's equity has
+#     gone $2,000 -> $6,495 and `min_contracts_equity_scaled` is FALSE, so min_contracts is
+#     still 5 and the ceiling has risen $2.00 -> $6.50 -- which admits essentially every ATM
+#     0DTE entry. The measurement that justified leaving the lane armed no longer holds.
+# So this is a never-validated secondary entry channel that bypasses the five cohort vetoes,
+# was kept safe only by an equity-dependent accident, and is now closer to firing than at any
+# point since it was armed. That is the exact defect class as safe-2's `extra_setup_exec_armed`
+# lane (-$896), caught BEFORE it placed its first order rather than after.
+#
+# ⚠ WHAT THIS DOES **NOT** DO -- and the distinction is the whole point:
+# it does NOT touch `gate_override.full_send` on the arm. That key is ORTHOGONAL in source
+# (fleet_executor._is_full_send reads it; nothing reads FULL_SEND_LIVE) and today its only
+# live effect is `_apply_full_send_min_sizing`, which clamps qty DOWN to min_contracts
+# ("min() is a ceiling, never a floor-raise"). Measured on the 30 entries where it fired:
+# it removed 102 of 252 contracts (40%) and turned a -$2,063 unclamped outcome into -$1,042,
+# i.e. it SAVED ~+$1,021. Deleting that key -- which is what "disarm full_send" sounds like --
+# would be a risk INCREASE, not a reduction. Guard: test_full_send_producer_disarm_2026_08_29.
+#
+# REVERT (one line, byte-identical): set this back to True.
+FULL_SEND_LIVE = False
 
 _FULL_SEND_EMPTY = {"available": False, "score": 0, "triggers_fired": [], "setup_name": None,
                     "blocked_verdict": None, "level": None}
