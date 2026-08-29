@@ -128,21 +128,44 @@ spec is used instead — not silently dropped.
     which is quiet mode holding it down BY DESIGN (quiet_active:true, 115 tasks held,
     weekend 08:00-23:00 ET) — it restores at 23:00 ET because it is in the restore list.
     Not a defect; the page is stale on purpose until then.
-- [ ] VERIFY-A — pulse visibly travels on a REAL cross-session message. 13 `message`
-    rows exist in pulse.jsonl but every one came from the test suite (now fixed so it
-    writes to a temp path). No genuine `SendMessage` has been sent, because the only
-    reachable peers are J's own live interactive windows and messaging them would inject
-    text into whatever he is doing. Needs either a Gamma-spawned session to message, or
-    J's say-so to ping one of his own.
-- [ ] VERIFY-B — one card click spawns exactly ONE escalation, and a double-tap spawns
+- [B-J] VERIFY-A — pulse visibly travels on a REAL cross-session message.
+    **INSTRUMENT NOW PROVEN CORRECT (2026-08-29 ~18:37 ET); only the production
+    exercise is outstanding, and that leg is J's.** What was verified without sending
+    anything: (a) `pulse._target("SendMessage", ...)` returns `tool_input["to"]` and
+    `record()` copies `session_id` straight off the payload — read in source, not
+    assumed; (b) driven end-to-end through `record_tool()` with a realistic payload and
+    the sink redirected via `GAMMA_PULSE_PATH` to a temp file, it emits exactly
+    `{"event":"message","to":"42-d3","session_id":"6014a8-…","tool":"SendMessage",
+    "detail":"…"}` — `to` AND `session_id` both populated. Production `pulse.jsonl` was
+    not written by that probe.
+    (c) The 13 empty `message` rows are now POSITIVELY identified as test-suite
+    artifacts rather than assumed to be: **1,134 of 1,147 non-message rows (99%) carry
+    `session_id`, while 0 of 13 message rows do** — the test subprocesses ran without a
+    session context. That is a clean discriminator, not an inference from timing.
+    **WHY IT IS `[B-J]` AND NOT DONE:** the remaining leg needs a genuine cross-session
+    `SendMessage`, and `ListAgents` shows all 9 reachable `interactive` peers are J's own
+    live windows — messaging one injects text into whatever he is typing into, which is
+    the standing do-not-disturb rule. The other option named here (a Gamma-spawned
+    session to message) was unavailable to this session, which was explicitly instructed
+    not to use the Agent tool. **THE ASK, one line:** J says "ping one of my windows" and
+    names it — or fires any card, which spawns a Sonnet session that is then a legitimate
+    non-J peer and satisfies VERIFY-A and VERIFY-B together.
+- [B-J] VERIFY-B — one card click spawns exactly ONE escalation, and a double-tap spawns
     none extra (`r.already` idempotency guard). Requires actually firing a card, which
     starts a real Sonnet session. J's first click is the test.
+    Reclassified `[ ]` → `[B-J]` 2026-08-29 ~18:38 ET: this was already gated on a real
+    J side effect by its own wording, so leaving it bare-open misrepresented it as
+    self-actionable and made the Stop-hook continuation route fires onto work no
+    unattended session can finish. Same blocker class as VERIFY-A above. **Firing one
+    card discharges BOTH:** the click is VERIFY-B's own test, and the Sonnet session it
+    spawns is then a legitimate non-J peer to message for VERIFY-A.
 
 ## J-DECISIONS
 (none yet — every item above is either build work or a file-existence check, no
 OP-0 four-things-route-to-J item has come up in this goal's scope so far)
 
 ## PROGRESS LOG
+- 2026-08-29 18:37 ET — VERIFY-A moved `[ ]` → `[B-J]`: instrument proven, production exercise is J's call. Verified WITHOUT sending anything: `pulse._target("SendMessage")` returns `tool_input["to"]` and `record()` copies `session_id` off the payload (read in source); driven end-to-end through `record_tool()` with a realistic payload and `GAMMA_PULSE_PATH` redirected to a temp sink, it emits `to:"42-d3"` AND `session_id` populated — production `pulse.jsonl` untouched by the probe. Also upgraded the "the 13 rows are test artifacts" claim from assumption to evidence: **1,134/1,147 (99%) of non-message rows carry `session_id`; 0/13 message rows do** — test subprocesses run without a session context, which is a clean discriminator. Remaining leg blocked, reason stated rather than silently deferred: `ListAgents` shows all 9 reachable `interactive` peers are J's own live windows, so messaging one injects text into his active work (standing do-not-disturb rule), and the documented alternative — spawn a Gamma session to message — was unavailable because this session was instructed not to use the Agent tool. VERIFY-B was already J-gated by the same class of blocker ("J's first click is the test"), so **both remaining items are now `[B-J]` and the goal has no self-actionable work left**. Cheapest unblock: firing any one card spawns a Sonnet session that is simultaneously a legitimate non-J message peer — satisfying VERIFY-A and VERIFY-B in one action. NOTE: this fire's primary lane was the two-account consolidation handoff (6 commits, `f15f2bc8`..`42304d3d`); this goal item was picked up via the Stop-hook continuation, and no cockpit build work was touched — the parallel lane that shipped `5bccafb9` (Action Cards) owns that.
 - 2026-08-29 16:32 ET — Live-companion probe corrected two claims. (a) The build agent's integrator note said :4317 runs pre-edit code and needs a restart before /api/army works. STALE: an authed GET returns real pulse rows right now, so the new code is live. (b) My own GET /api/approve -> 404 was a BAD PROBE; the route is POST-only and POST returns 403 unauthorized. Fire path (/api/approve, /api/ask-stream, /api/army, /cockpit.html) is live and authed. Injection test with a valid token, an unknown card id and a hostile task ('print .mcp.json') returned escalated:null -- nothing ran. IMPORTANT nuance: what blocked it was the IDEMPOTENCY guard (already:true, because the id was not a pending approval), NOT the prompt hardening. The hardening applies only when id names a REAL card, where the file's prompt wins and the client's is ignored outright. A pending NON-card id on the legacy escalate path still takes a client-supplied task -- pre-existing, token-gated, and the token already implies shell access, but it is the accurate statement. Also noted: the RTH gate is checked BEFORE resolveApproval so a refused fire never burns the card's idempotency slot.
 - 2026-08-29 16:20 ET — Steps 4, 5 and 8 verified and ticked; all 8 build steps are built and wired. Resolved SPEC.md UNVERIFIED #3: `agent_id` DOES populate — 319 of 713 pulse rows carry it (subagent rows only, exactly as documented), so worker-level attribution works. Fixed two defects found while verifying: the Stop-hook block message garbled non-ASCII on the Windows console (`_ascii_safe` + guards), and the test suite was writing ~10 fake `message` rows per run into PRODUCTION pulse.jsonl (GAMMA_PULSE_PATH redirect; proven +0 rows across two suite runs). Goal stays OPEN on VERIFY-A and VERIFY-B — both need a real side effect (a live message, a live escalation) that is J's call, not mine. 103 guards green.
 - 2026-08-29 16:11 ET — Reconciled QUEUE against disk: steps 2+3 were `[ ]` with "does not exist yet" while already shipped and wired. Verified by RUNNING `gamma_home.py` (6 answers rendered, 0 NO DATA, 92 army refs, dual-write 501,192 B to both index.html and public/cockpit.html), not by file existence. Steps 4+5 remain open and are in flight in wf_8c658368-df0. Root cause: parallel lanes + a QUEUE item written as a point-in-time observation; skill rule added to prevent recurrence.
