@@ -246,6 +246,22 @@ section+section{margin-top:var(--s8)}
 .armyledger div{display:flex;gap:var(--s3);padding:3px 0;white-space:nowrap;overflow:hidden}
 .armyledger .t{color:var(--tx-4);font-family:var(--mono);flex:none}
 
+/* ---------------- action cards ---------------- */
+/* Deterministic, ranked, fire-or-read. The fire button is the ONE control on
+   this whole page that can spawn a headless Claude session -- it gets its own
+   disabled-state styling rather than reusing a generic button so a greyed-out
+   RTH-blocked button reads unmistakably as "not now", not as broken chrome. */
+.actioncard .row .chip:first-child{font-variant-numeric:tabular-nums}
+.fire-btn{transition:opacity .14s var(--e-hover),background .14s var(--e-hover)}
+.fire-btn:disabled{opacity:.4;cursor:not-allowed;background:var(--bg-3)!important;
+  border-color:var(--bd)!important;color:var(--tx-3)!important}
+.fire-btn:not(:disabled):hover{background:var(--acc)!important;color:#fff!important}
+.askstream{max-height:60vh;overflow:auto;font-family:var(--mono);font-size:12px;
+  line-height:1.6;color:var(--tx-2);white-space:pre-wrap;word-break:break-word;
+  background:var(--bg-inset);border:1px solid var(--bd-subtle);border-radius:var(--r-md);
+  padding:var(--s4)}
+.askstream div{padding:1px 0}
+
 /* ---------------- table ---------------- */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-4);

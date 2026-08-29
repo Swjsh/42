@@ -17,7 +17,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { spawn } = require("child_process");
+const { spawn, spawnSync } = require("child_process");
 const { buildState, summarize } = require("./lib/state");
 const { resolveApproval, isCardSnoozed } = require("./lib/approvals");
 const { runEscalation, getTasks, getTaskStatus, cancelTask, subscribeAskStream, unsubscribeAskStream, askFeedPath } = require("./lib/escalate");
@@ -150,6 +150,54 @@ function pickPython() {
 }
 const PY = pickPython();
 const STATE = (...p) => path.join(ROOT, "automation", "state", ...p);
+
+// setup/scripts/gamma_cockpit_cards.py's deterministic, no-LLM ranker is the
+// AUTHORITATIVE source of what a card fire actually does -- this route reads
+// its output file, never a client-supplied task string. See PROMPT HARDENING
+// in POST /api/approve below (closes prompt-injection-by-card: whoever can
+// POST here picks WHICH card fires, never WHAT it says once it does).
+const ACTION_CARDS_JSON = STATE("action-cards.json");
+function actionCardById(id) {
+  if (!id) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(ACTION_CARDS_JSON, "utf8"));
+    const cards = Array.isArray(raw && raw.cards) ? raw.cards : [];
+    return cards.find((c) => c && c.id === id) || null;
+  } catch {
+    return null; // no file yet / malformed -> not a card id, falls through untouched
+  }
+}
+
+// RTH GATE (SPEC.md sec 4 security note 2), load-bearing not cosmetic: a card
+// fire runs on the SAME shared Max pool as Gamma_HeartbeatCore, and a click
+// storm during the live session window can starve the engine. et_clock.py is
+// the ONE DST-aware ET source on this box -- Bash `TZ=America/New_York date`
+// returns UTC here (CLAUDE.md), so this shells to the canonical script rather
+// than re-deriving the 09:30-15:55 window from Date()/a system TZ read. A
+// synchronous subprocess is fine here: this only runs on a user-initiated
+// approve click, never on the 1s Army poll.
+function isRTHNow() {
+  try {
+    const r = spawnSync(PY, [path.join(ROOT, "setup", "scripts", "et_clock.py")], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 10000,
+      windowsHide: true,
+    });
+    if (r.status === 0 && r.stdout) {
+      const m = /market_hours=(True|False)/.exec(r.stdout);
+      if (m) return m[1] === "True";
+    }
+  } catch {
+    /* fall through to the fail-closed-for-firing default below */
+  }
+  // Cannot positively rule out RTH -> refuse the fire, not the other way round.
+  // This is the opposite of every other fail-open guard in this codebase on
+  // purpose: those guards protect J's OWN session from ever being blocked;
+  // this one only blocks an OPTIONAL card fire, so "can't tell" must resolve
+  // toward not competing with the heartbeat, never toward guessing it's safe.
+  return true;
+}
 
 // Obligation rising-edge push. We persist the set of obligation ids that were
 // red on the LAST poll (+ when we last pushed each), so we push ONLY on the
@@ -915,15 +963,38 @@ const server = http.createServer((req, res) => {
       if (!id || (decision !== "approve" && decision !== "reject")) {
         return sendJSON(res, 400, { ok: false, error: "need id and decision approve|reject" });
       }
+
+      // Action Cards only, from here: `id` naming a row in action-cards.json is
+      // gamma_cockpit_cards.py's own doing, never a client's -- this is the ONE
+      // signal that distinguishes a cockpit card-fire from every other caller of
+      // this same route (chat escalate, diagram build, ...), which are untouched.
+      const actionCard = actionCardById(id);
+
+      // RTH GATE (see isRTHNow's own comment for why this fails closed-for-firing).
+      // Checked BEFORE resolveApproval so a refused fire never consumes the card's
+      // idempotency slot -- J can retry the same card after 15:55 ET with no
+      // "already: true" false-lockout.
+      if (decision === "approve" && actionCard && isRTHNow()) {
+        return sendJSON(res, 403, { ok: false, error: "rth-fire-disabled" });
+      }
+
       // Validate + clamp the action shape before it can reach the escalation
       // (rank 20): a non-string / empty task is dropped; model is clamped to the
       // known set; the task is length-capped. An invalid action just means "no
       // escalate", the decision still logs.
       let act = null;
       if (decision === "approve" && action && action.type === "escalate") {
-        const t = typeof action.task === "string" ? action.task.trim() : "";
+        // PROMPT HARDENING (SPEC.md sec 4 security note 1): when `id` names a
+        // real action card, THAT FILE'S prompt/model are authoritative and the
+        // client-supplied action.task/model are ignored outright -- a POST here
+        // can pick WHICH card fires, never WHAT it says once it does.
+        const rawTask = actionCard
+          ? (typeof actionCard.prompt === "string" ? actionCard.prompt : "")
+          : (typeof action.task === "string" ? action.task : "");
+        const rawModel = actionCard ? actionCard.model : action.model;
+        const t = rawTask.trim();
         if (t.length > 3) {
-          const m = ["opus", "sonnet", "haiku"].indexOf(String(action.model || "")) >= 0 ? action.model : "sonnet";
+          const m = ["opus", "sonnet", "haiku"].indexOf(String(rawModel || "")) >= 0 ? rawModel : "sonnet";
           act = { type: "escalate", model: m, task: t.slice(0, 8000) };
         }
       }

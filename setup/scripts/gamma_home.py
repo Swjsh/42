@@ -465,6 +465,16 @@ def _army():
     return gamma_cockpit_army
 
 
+def _cards():
+    """Action Cards' deterministic ranker lives in its own module -- same
+    800-line-ceiling reasoning, and it ALSO persists automation/state/
+    action-cards.json as a side effect (gamma-companion/server.js reads that
+    file at fire-time so a card's stored prompt is authoritative over
+    whatever the client POSTs -- see gamma_cockpit_cards.py's own docstring)."""
+    import gamma_cockpit_cards
+    return gamma_cockpit_cards
+
+
 def _money(v) -> str:
     try:
         v = float(v)
@@ -503,6 +513,7 @@ def build(quiet: bool = False) -> dict:
         "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),
                          "age_h": _age_h(GAMMA_WANTS), "ok": GAMMA_WANTS.exists()},
         "army": None,   # filled below; a presence-telemetry failure must not lose the page
+        "cards": None,  # filled below; a card-generation failure must not lose the page
     }
     try:
         payload["army"] = _army().build_army()
@@ -510,6 +521,13 @@ def build(quiet: bool = False) -> dict:
         payload["army"] = {"orchestrator": None, "sessions": [], "workers": [], "pulses": [],
                             "session_overflow": 0, "legend": "", "scope_note": "", "source": {},
                             "error": str(e)[:160]}
+    try:
+        # write=True: this IS the generation point that keeps action-cards.json
+        # (server.js's authoritative prompt store) in sync with what the page shows.
+        payload["cards"] = _cards().build_cards(write=True)
+    except Exception as e:                        # noqa: BLE001 - Cards view must degrade, not 500 the page
+        payload["cards"] = {"cards": [], "rth_now": False, "quiet_active": False,
+                             "legend": "", "source": {}, "error": str(e)[:160]}
     # The briefing reads the already-built desks/allocation/answers so it never
     # re-derives a number a card already shows.
     try:

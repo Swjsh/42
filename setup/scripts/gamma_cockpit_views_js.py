@@ -14,6 +14,7 @@ render a number without its source and its age.
 from __future__ import annotations
 
 from gamma_cockpit_army_js import ARMY_JS
+from gamma_cockpit_cards_js import CARDS_JS
 
 VIEWS_JS = r"""
 /* ---------- OVERVIEW: verdict -> desks -> agents -> exceptions ---------- */
@@ -532,4 +533,4 @@ function vActivity(h){
   if(!(hq.recent_ships||[]).length)sc.appendChild(el('div','note','no recent ships'));
   h.appendChild(sc);
 }
-""" + ARMY_JS
+""" + ARMY_JS + CARDS_JS

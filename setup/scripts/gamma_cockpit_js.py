@@ -192,6 +192,7 @@ const VIEWS=[
  {id:'engine',ic:'❥',label:'Engine room',key:'e'},
  {id:'agents',ic:'✦',label:'Agents',key:'w'},
  {id:'army',ic:'⌁',label:'Army',key:'m'},
+ {id:'cards',ic:'⚑',label:'Cards',key:'c'},
  {id:'journal',ic:'▤',label:'Journal',key:'j'},
  {id:'answers',ic:'✔',label:'Answers',key:'a'},
  {id:'activity',ic:'⟡',label:'Activity',key:'v'},
@@ -235,7 +236,7 @@ function navBuild(){
     n.appendChild(a);
   });
 }
-const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,journal:vJournal,answers:vAnswers,activity:vActivity};
+const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
 let CUR='overview';
 function route(want){
   const id=want||(location.hash||'#overview').slice(1).split('?')[0];
