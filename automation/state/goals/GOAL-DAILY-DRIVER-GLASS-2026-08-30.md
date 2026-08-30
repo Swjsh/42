@@ -117,13 +117,13 @@ A null result on any item is reported as a null, not silently shipped around.
   Marked done on source-code evidence (humanizer functions correct + all render call
   sites now route through them); live-DOM regex check against DONE-WHEN(c) is
   UNVERIFIED, disclosed per OP-33 rather than claimed.
-- [ ] B3 — Message-flow events: drive beam packets + feed sentences from companion
+- [x] B3 — Message-flow events: drive beam packets + feed sentences from companion
   pulse rows (the real agent→orchestrator traffic). DONE-WHEN: DONE-WHEN (d) verified
   with a live spawned agent.
-- [ ] B4 — Console knows trading: /api/ask prepends a compact live-state block
+- [x] B4 — Console knows trading: /api/ask prepends a compact live-state block
   (positions, day P&L, bias, heartbeat verdict, lane states) so the web console answers
   trading questions cold. DONE-WHEN: DONE-WHEN (e) demonstrated in the page.
-- [ ] B5 — Fit + verify pass at 1600×950 and 1440×900; screenshot to J. DONE-WHEN:
+- [x] B5 — Fit + verify pass at 1600×950 and 1440×900; screenshot to J. DONE-WHEN:
   DONE-WHEN (b) at both sizes.
 - [B-J] Firebase credential, admin/multi-user boundary, `/` root repoint — carried over
   from GOAL-APP-REBUILD, still J's.
@@ -195,6 +195,16 @@ A null result on any item is reported as a null, not silently shipped around.
   prior continuations — could not independently confirm the live behavior either way.
   Leaving B3 unmarked; the concurrent session is the one positioned to close it with
   an actual screenshot/DOM check. Disclosed per OP-33 rather than claiming it done.
+
+- 2026-08-30 ~13:20 ET (orchestrator session 42-dd) - B3/B4/B5 VERIFIED live, measured:
+  B3: 6 packet sightings in 3 bursts on the beams from headless session 42-e5's REAL
+  pulses, the same events printing feed sentences; root-caused two losses en route
+  (roster froze at load-time -> refreshDesk; packet aimed at detached pre-swap box ->
+  resolve from document). B4: console with tools forbidden answered FLAT / no-trade /
+  futures-RED purely from escalate.js liveTradingContext(), 10s. B5: 1600x950 and
+  1440x900 both: 193/190 visible text nodes, ZERO under 12px, page scroll false.
+  Wire polls only while the tab is visible (by design; verified via __wireForce since
+  headless panes report hidden). Committed: feat(app) research-grounded rebuild.
 
 ## HONEST STATE
 R1 (external-reference dossier) is DONE and verified — 11 real, source-cited entries
