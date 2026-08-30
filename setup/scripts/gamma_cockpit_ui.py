@@ -115,6 +115,22 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
 .armywrap{position:relative}
 /* the stage's starfield canvas sits under the SVG, over the bloom */
 .army-stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.85}
+/* THE ANSWER BAR -- one sentence at the F-pattern origin, replacing a lone LIVE chip
+   that said nothing J had asked about. */
+.ansbar{display:flex;align-items:center;gap:var(--s5);height:44px;flex:none;
+  margin-bottom:var(--s4);padding:0 var(--s5);border-radius:var(--r-md);
+  background:var(--bg-inset);box-shadow:inset 0 0 0 1px var(--bd-subtle)}
+.ansbar__say{font:500 14px/1 var(--font);color:var(--tx-3);letter-spacing:-.005em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ansbar__say b{color:var(--tx-1);font-weight:600;font-variant-numeric:tabular-nums}
+.ansbar__say b.live{color:var(--st-live)}
+.ansbar__say s{text-decoration:none;color:var(--tx-4)}
+.ansbar__key{margin-left:auto;display:flex;gap:var(--s5);align-items:center;flex:none}
+.ansbar__key .k{display:inline-flex;align-items:center;gap:6px;
+  font:500 10px/1 var(--font);letter-spacing:.085em;text-transform:uppercase;color:var(--tx-4)}
+.ansbar__key .k em{font-style:normal;text-transform:none;letter-spacing:0}
+.ag__dot{width:7px;height:7px;border-radius:50%;background:var(--tx-4);flex:none}
+.ag__dot[data-s="live"]{background:var(--st-live)}
 .armywrap svg{position:relative;z-index:1}
 /* Beam comets (Aceternity recipe): the dash is the comet, the per-edge spatial gradient
    colours it as it travels. AMBIENT class -- slow, linear, never the interaction curve. */

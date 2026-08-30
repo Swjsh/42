@@ -707,6 +707,14 @@ def build_army() -> dict:
         "workers": worker_out,
         "session_overflow": overflow,
         "pulses": pulses,
+        # When this snapshot was taken, as a UNIX epoch -- the SAME clock as
+        # worker.last_write, so the page can age itself. The existing built_at_et is an
+        # ET wall-clock STRING and this box runs Mountain time, so Date.parse() on it is
+        # two hours wrong; a page opened from file:// used it to keep claiming "running
+        # right now" about a world that had moved on. A present-tense claim needs a
+        # comparable clock or it is not a claim, it is a guess.
+        "generated_epoch": int(time.time()),
+        "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
         # NON-NEGOTIABLE HONESTY (pulse.py's own contract, carried through):
         # this is SENDS, never confirmed deliveries.
         "legend": ("Pulses show messages SENT, not delivered — a held, expired, refused, or "

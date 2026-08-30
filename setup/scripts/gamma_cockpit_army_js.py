@@ -304,7 +304,7 @@ function armySvg(a){
         'stroke-width':1.5,class:'army-trace2','stroke-linecap':'round','pathLength':'1000',
         'pointer-events':'none'}));
     }
-    const dot=mk('circle',{cx:L+26,cy:T+33,r:7.5,fill:armyDotColour(s,lastSeen)});
+    const dot=mk('circle',{cx:L+26,cy:T+33,r:7.5,fill:armyDotColour(s)});
     dot.id='armydot-'+s.session_id;
     if(s.activity==='active'){
       /* radar ping: an expanding fading ring says LIVE without a single word */
@@ -319,9 +319,9 @@ function armySvg(a){
     /* A just-spawned session has no title yet, so the label fell back to the 8-hex session
        id -- reproducing the exact "wtf is 42-dd" unreadability this view was fixed for. Say
        what it IS instead until it names itself. */
-    const untitled=!s.title&&/^[0-9a-f]{6,}$/i.test(String(s.name||''));
-    const bigLabel=untitled?'New session — starting up':fitTxt(s.title||s.name||'untitled',CW-96,19);
-    g.appendChild(ltxt(L+42,T+34,bigLabel,'var(--tx-1)',19,700));
+    const untitled=!s.title;
+    const bigLabel=untitled?'Untitled chat':fitTxt(s.title,CW-96,19);
+    g.appendChild(ltxt(L+42,T+34,bigLabel,untitled?'var(--tx-3)':'var(--tx-1)',19,untitled?500:700));
     /* HANDLE + KIND, always in the same slot. The heading used to mean two different
        things -- a window title when one existed, the id-name when it didn't -- so
        "Engine performance today" read as a metric panel rather than a Claude window.
@@ -654,15 +654,68 @@ function armyPurpose(task){
   return t||'(no task recorded)';
 }
 
-function armyDotColour(s,lastSeen){
-  /* Spec move #3: ALIVE is cyan (--st-live), its own hue. Green is reserved for P&L, and
-     "recently talked" was borrowing it -- a canvas of green dots also hides the one that
-     matters. Quiet-but-alive is a neutral, not amber: quiet is not degraded. */
-  if(!s.alive)return'var(--neg)';
-  const seen=lastSeen[s.session_id];
-  const age=seen?agoOf(seen):null;                 // hours
-  if(age!=null&&age*3600<=300)return'var(--st-live)';  // talked within 5 min
-  return'var(--warn)';
+/* THE ANSWER BAR. J has asked three times what he is looking at. The page could only
+   answer by being read tile-by-tile; this says it in one sentence, at the first place
+   the eye lands, before he clicks anything.
+
+   Present tense comes from worker_active ONLY. worker_count is a lifetime count of
+   transcript files and may be spoken of strictly in the past -- that distinction is the
+   whole reason the old "8 workers +43" was a lie. */
+function armyAnswerBar(a,live){
+  const S=a.sessions||[];
+  const sum=(f)=>S.reduce((n,s)=>n+(s[f]||0),0);
+  const liveAg=sum('worker_active'), everAg=sum('worker_count');
+  const working=S.filter(s=>s.activity==='active').length;
+  const idle=S.filter(s=>s.activity==='idle').length;
+  const closed=S.filter(s=>s.activity==='stale'||s.activity==='unknown').length;
+  const orcLive=(a.orchestrator||{}).worker_active||0;
+  const where=!liveAg?'':(orcLive===liveAg?' — <b>all in this window</b>'
+    :' — <b>'+orcLive+' in this window</b>');
+  const head=liveAg
+    ? '<b class="live">'+liveAg+'</b> agent'+(liveAg===1?'':'s')+' running right now'+where
+    : '<b>Nothing</b> is running right now';
+  const sep='<s> · </s>';
+  const bar=el('div','ansbar');
+  bar.appendChild(el('p','ansbar__say',head+sep+
+    '<b>'+working+'</b> chat'+(working===1?'':'s')+' working'+sep+
+    '<b>'+idle+'</b> waiting for you'+sep+
+    '<b>'+closed+'</b> closed'+
+    (everAg?sep+'<b>'+everAg+'</b> agents finished earlier':'')));
+  bar.appendChild(el('div','ansbar__key',
+    '<span class="k"><i class="ag__dot" data-s="live"></i>running</span>'+
+    '<span class="k"><i class="ag__dot" data-s="done"></i>finished</span>'+
+    '<span class="k">boxes are chat windows — agents live <em>inside</em> them</span>'));
+  /* FRESHNESS, honestly. A page opened from file:// is a snapshot, and so is a served
+     page whose payload has aged out: "running right now" is only supportable while the
+     data is fresh. generated_epoch shares worker.last_write's clock; built_at_et is an
+     ET wall-clock string on a Mountain-time box, so parsing THAT would be 2h wrong. */
+  const ageS=a.generated_epoch?(Date.now()/1000-a.generated_epoch):Infinity;
+  const snap=!live||ageS>120;
+  bar.appendChild(el('span','chip'+(snap?'':' ok'),'<i class="dot"></i>'+
+    (snap?'SNAPSHOT '+esc(String(a.generated_at||'').slice(11,16)):'LIVE')));
+  if(snap)bar.setAttribute('title','Taken '+esc(String(a.generated_at||'unknown'))+
+    ' — counts describe that moment, not this one.');
+  return bar;
+}
+
+function armyDotColour(s){
+  /* ALIVE is cyan (--st-live), its own hue. Green is reserved for P&L, and quiet is not
+     degraded -- that was always the intent, and the code did the opposite.
+
+     THE BUG (verified 2026-08-30): the dot keyed off `lastSeen`, which is built purely
+     from pulses[], and ALL 60 pulse rows belong to the orchestrator -- which is the
+     command strip and has no tile. So lastSeen held exactly one key that no tile could
+     ever match, and EVERY peer tile fell through to amber: a "something is degraded"
+     dot sitting beside its own grey "idle" text, on every card, forever. Red was worse
+     still -- a dead process is not a loss, and red belongs to P&L.
+
+     The fix is to colour the dot from the SAME fields as the words next to it, so the
+     two can never disagree again. */
+  if(!s.alive)return'var(--tx-4)';                 // process gone: dim, never red
+  if((s.worker_active||0)>0)return'var(--st-live)';
+  if(s.activity==='active')return'var(--st-live)';
+  if(s.activity==='idle')return'var(--tx-3)';
+  return'var(--tx-4)';
 }
 
 function armyLedgerRow(row){
@@ -757,7 +810,7 @@ function armyApplyRow(row,animate){
   if(row.ts)st.lastSeen[row.session_id]=row.ts;
   const s=(D.army&&D.army.sessions||[]).find(x=>x.session_id===row.session_id);
   const dot=document.getElementById('armydot-'+row.session_id);
-  if(dot&&s)dot.setAttribute('fill',armyDotColour(s,st.lastSeen));
+  if(dot&&s)dot.setAttribute('fill',armyDotColour(s));
   const actEl=document.getElementById('armyact-'+row.session_id);
   if(actEl&&row.detail)actEl.textContent=armyHumanAct(row.detail).slice(0,36);
   armyLedgerRow(row);
@@ -956,9 +1009,7 @@ function vArmy(h){
   const live=location.protocol!=='file:';
   /* The topbar already says "Army" -- repeating it as an h2 directly underneath was the
      view introducing itself twice. One slim status line carries what is actually new. */
-  const shead=el('div','shead',
-    `<span class="chip ${live?'ok':''}" title="${esc(a.scope_note||'')}"><i class="dot"></i>${live?'LIVE':'SNAPSHOT'}</span>`);
-  h.appendChild(shead);
+  h.appendChild(armyAnswerBar(a,live));
 
   /* Two-column shell. align-self:start is load-bearing, not cosmetic: grid's default
      `stretch` makes the short rail column match its taller sibling's height, which
