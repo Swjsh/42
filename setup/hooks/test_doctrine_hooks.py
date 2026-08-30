@@ -1140,3 +1140,44 @@ def test_instructional_if_you_want_to_is_not_an_ask(msg):
     """'if you want to <verb>' teaches J how to act; 'if you want it' asks J whether
     Gamma should. Only the second is the OP-0 anti-pattern."""
     assert not D.is_permission_question(msg)
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        # The 2026-08-30 escape, verbatim. J: "why did you violate operating
+        # principles and not just build it. i thought we had hooks in place."
+        "The load test I can force by spawning agents; the control surface is a real "
+        "build. Say which and I'll go.",
+        "Which one do you want?",
+        "Tell me which and I start.",
+        "Pick one and I'll build it.",
+        "Let me know which lane to take.",
+        "Two options — your pick.",
+    ],
+)
+def test_choice_requests_are_permission_questions(msg):
+    """A MENU is the same failed turn as asking permission.
+
+    _ASK_PATTERNS was built entirely around permission verbs (want me to, shall I,
+    your call), and a menu does not ask permission -- it asks for a SELECTION. So the
+    whole "say which / pick one / which do you want" family walked past a table that
+    had no concept of it, which is how a rule already on file as re-violated
+    ("ranked list + say go IS a menu") got violated again.
+    """
+    assert D.is_permission_question(msg)
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "Revert with git revert if you want to undo it.",
+        "I picked the second one and shipped it; revert with git revert abc1234.",
+        "Which file it reads is decided by the payload, not the client.",
+        "It will go through the LOUD band from now on.",
+    ],
+)
+def test_declarative_which_is_not_a_menu(msg):
+    """"Which" as a relative pronoun, and a reported decision, must stay legal --
+    otherwise the guard blocks the very reports OP-0 asks for."""
+    assert not D.is_permission_question(msg)

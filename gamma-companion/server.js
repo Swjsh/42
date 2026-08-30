@@ -1198,6 +1198,71 @@ const server = http.createServer((req, res) => {
     });
   }
 
+  // ── Autonomy controls ─────────────────────────────────────────────────────
+  // J: "give it the ability to do actions". He could WATCH the loop and not touch
+  // it, which makes the panel a poster. Two controls, both operating the mechanisms
+  // that already exist rather than inventing a parallel switch:
+  //
+  //   halt  -- writes/removes automation/state/companion-halt.flag, the SAME global
+  //            kill-switch guard.js already refuses every escalation on and that
+  //            autofire_cards.py already checks before firing. One flag, one meaning.
+  //   run   -- runs the autofire pass NOW instead of waiting for its 23:30 ET
+  //            trigger. It is spawned with the runner's own arguments, so every
+  //            guard still applies: RTH refusal, quiet mode, per-run and per-day
+  //            caps, and the dangerous-prompt re-check at fire time. This cannot
+  //            fire anything the schedule could not have fired on its own.
+  //
+  // Deliberately absent: any control that RAISES a cap or bypasses a guard. A page
+  // that can widen its own limits is how a glance becomes an accident.
+  if (req.method === "POST" && u === "/api/autonomy") {
+    if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
+    return readBody(req, res, (b) => {
+      const action = String((b && b.action) || "");
+      const flag = path.join(ROOT, "automation", "state", "companion-halt.flag");
+      if (action === "halt" || action === "resume") {
+        try {
+          if (action === "halt") {
+            fs.writeFileSync(flag, "halted from the desk at " + new Date().toISOString() + "\n");
+          } else if (fs.existsSync(flag)) {
+            fs.unlinkSync(flag);
+          }
+          return sendJSON(res, 200, { ok: true, halted: fs.existsSync(flag) });
+        } catch (e) {
+          return sendJSON(res, 200, { ok: false, error: String((e && e.message) || e).slice(0, 160) });
+        }
+      }
+      if (action === "run-autofire") {
+        const script = path.join(ROOT, "setup", "scripts", "autofire_cards.py");
+        let out = "", child;
+        try {
+          child = spawn(PY, [script, "--live"], { cwd: ROOT, windowsHide: true });
+        } catch {
+          return sendJSON(res, 200, { ok: false, error: "python not found" });
+        }
+        const timer = setTimeout(() => { try { child.kill(); } catch { /* gone */ } }, 120000);
+        child.stdout.on("data", (d) => { out += d.toString(); });
+        child.stderr.on("data", (d) => { out += d.toString(); });
+        child.on("close", (code) => {
+          clearTimeout(timer);
+          // The runner's own stdout is the honest report -- including when it
+          // refuses, which is the common and correct outcome.
+          return sendJSON(res, 200, { ok: code === 0, exit: code, output: out.slice(-1200) });
+        });
+        return undefined;
+      }
+      return sendJSON(res, 400, { ok: false, error: "unknown action" });
+    });
+  }
+
+  // ── halt state, for the desk to render ────────────────────────────────────
+  if (req.method === "GET" && u === "/api/autonomy") {
+    if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
+    const flag = path.join(ROOT, "automation", "state", "companion-halt.flag");
+    let halted = false;
+    try { halted = fs.existsSync(flag); } catch { halted = false; }
+    return sendJSON(res, 200, { ok: true, halted });
+  }
+
   // ── Live desk slice ───────────────────────────────────────────────────────
   // The app polls payload.json, which is only rewritten when gamma_home.py runs on
   // its schedule -- and that task is disabled during quiet hours. Measured 2026-08-30:

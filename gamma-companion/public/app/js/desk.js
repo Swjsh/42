@@ -91,7 +91,8 @@
     }));
     og.appendChild(txt(PAD + 48, 51, orc ? orc.name : '—', 'var(--ink)', 20, 700));
     og.appendChild(txt(PAD + 48 + (orc ? orc.name.length * 12 + 14 : 30), 51,
-      'ORCHESTRATOR — the session you are talking to', 'var(--acc)', 11.5, 600));
+      'ORCHESTRATOR — your Claude window. The console below is its own session.',
+      'var(--acc)', 11.5, 600));
     og.appendChild(txt(PAD + 48, 74,
       fit(orc && orc.title ? orc.title : 'no title yet', W - PAD * 2 - 300, 12.5),
       'var(--ink-4)', 12.5, 500));
@@ -226,17 +227,30 @@
     }
     const q = au.quiet || {}, af = au.autofire || {}, w = au.watcher || {};
     const bud = au.budget || {};
-    const awake = au.awake === true;
     const until = q.next_loud ? String(q.next_loud).slice(11, 16) : null;
+    /* THREE STATES, not two. `awake` reports only whether quiet-mode is muting the
+       SCHEDULER -- it says nothing about whether work is happening right now. Under a
+       real load test the header read "RESTING" while three agents were running and
+       the strip below it said "3 agents running now", which is the page contradicting
+       itself. Live work outranks the schedule. */
+    const liveNow = ((D.S.army || {}).sessions || [])
+      .reduce((n, x) => n + (x.worker_active || 0), 0);
+    const scheduled = au.awake === true;
+    const awake = liveNow > 0 || scheduled;
 
     /* The headline is a STATE, not a number: asleep-by-schedule and asleep-because-
        something-broke look identical from a task list and mean opposite things. */
     const head = el('div'); head.className = 'auto__head';
     head.innerHTML =
       '<span class="auto__dot"' + (awake ? ' data-on' : '') + '></span>' +
-      '<span class="auto__state">' + (awake ? 'AWAKE — working' : 'RESTING') + '</span>' +
-      '<span class="auto__sub">' + (awake
-        ? 'Running its own loop right now.'
+      '<span class="auto__state">' + (liveNow ? 'WORKING'
+        : (scheduled ? 'AWAKE — idle' : 'RESTING')) + '</span>' +
+      '<span class="auto__sub">' + (liveNow
+        ? '<b>' + liveNow + '</b> agent' + (liveNow === 1 ? '' : 's') + ' running right now' +
+          (scheduled ? '.' : ' — and its scheduled jobs are muted, so this is work you or ' +
+           'the console started, not the overnight loop.')
+        : scheduled
+        ? 'Scheduled jobs are live; nothing is running this second.'
         : 'Quiet hours' + (until ? ' until <b>' + esc(until) + ' ET</b>' : '') +
           (q.held_down ? ' · ' + esc(String(q.held_down)) + ' scheduled jobs held down' : '') +
           '. This is on purpose, not a fault — it works through the night.') + '</span>';
@@ -296,6 +310,81 @@
       : '<span class="dim">never run</span>', w.ok === false ? 'warn' : ''));
 
     wrap.appendChild(grid);
+
+    /* CONTROLS. J: "give it the ability to do actions". Watching a loop you cannot
+       touch makes the panel a poster. Both buttons drive mechanisms that already
+       exist -- the same halt flag guard.js refuses every escalation on, and the same
+       autofire runner the 23:30 trigger invokes -- so neither can do anything the
+       schedule could not already have done. Nothing here can raise a cap or bypass a
+       guard: a page that widens its own limits is how a glance becomes an accident. */
+    const bar = el('div'); bar.className = 'auto__bar';
+    const halt = document.createElement('button');
+    halt.className = 'ghost'; halt.type = 'button'; halt.textContent = 'checking…';
+    halt.disabled = true;
+    const runb = document.createElement('button');
+    runb.className = 'ghost'; runb.type = 'button'; runb.textContent = 'Run a card pass now';
+    const say = el('span', ''); say.className = 'auto__say';
+
+    const tok = () => (document.querySelector('meta[name="gamma-token"]') || {}).content || '';
+    const post = (action) => fetch('/api/autonomy', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-gamma-token': tok() },
+      body: JSON.stringify({ action }),
+    }).then((r) => r.json());
+
+    const paintHalt = (halted) => {
+      halt.disabled = false;
+      halt.textContent = halted ? 'Resume Gamma' : 'Halt everything';
+      halt.style.color = halted ? 'var(--warn)' : '';
+      say.textContent = halted
+        ? 'HALTED — every escalation and every card fire is refused until you resume.'
+        : '';
+    };
+    fetch('/api/autonomy', { headers: { 'x-gamma-token': tok() } })
+      .then((r) => r.json()).then((j) => paintHalt(j && j.halted))
+      .catch(() => { halt.textContent = 'no companion'; });
+
+    halt.onclick = () => {
+      const goingDown = halt.textContent.indexOf('Halt') === 0;
+      halt.disabled = true;
+      post(goingDown ? 'halt' : 'resume')
+        .then((j) => paintHalt(j && j.halted))
+        .catch(() => { halt.disabled = false; say.textContent = 'could not reach the companion'; });
+    };
+    /* Two-step. This spawns the same runner the 23:30 trigger does, so a single
+       stray click starts real autonomous work; the audit flagged that it read like a
+       status/preview control. */
+    runb.onclick = () => {
+      if (!runb.dataset.armed) {
+        runb.dataset.armed = '1';
+        runb.textContent = 'Confirm — this fires cards';
+        runb.style.color = 'var(--warn)';
+        setTimeout(() => {
+          if (runb.dataset.armed) {
+            delete runb.dataset.armed;
+            runb.textContent = 'Run a card pass now';
+            runb.style.color = '';
+          }
+        }, 4000);
+        return;
+      }
+      delete runb.dataset.armed; runb.style.color = '';
+      runb.disabled = true; runb.textContent = 'Running…';
+      say.textContent = '';
+      post('run-autofire').then((j) => {
+        runb.disabled = false; runb.textContent = 'Run a card pass now';
+        /* The runner's own words, refusal included -- refusing IS the common and
+           correct outcome, and paraphrasing it into "done" would be the lie. */
+        say.textContent = (j && j.output
+          ? String(j.output).trim().split('\n').pop()
+          : 'no output').slice(0, 200);
+      }).catch(() => {
+        runb.disabled = false; runb.textContent = 'Run a card pass now';
+        say.textContent = 'could not reach the companion';
+      });
+    };
+    bar.appendChild(halt); bar.appendChild(runb); bar.appendChild(say);
+    wrap.appendChild(bar);
 
     const fires = au.recent_fires || [];
     if (fires.length) {

@@ -358,6 +358,18 @@ _ASK_PATTERNS = re.compile(
     r"|if\s+you(?:'|’)?d\s+like\b"
     r"|if\s+that(?:'|’)?s\s+what\s+you\s+want\b"
     r"|happy\s+to\s+(?:do|build|add|wire|make|ship|run)\s"
+    # CHOICE requests. A menu asks J to SELECT rather than to permit, so none of the
+    # permission verbs above ever match it -- "Say which and I'll go" passed both
+    # detectors on 2026-08-30. Handing over a decision is the same failed turn as
+    # asking for one.
+    r"|say\s+which\b"
+    r"|tell\s+me\s+which\b"
+    r"|let\s+me\s+know\s+which\b"
+    r"|which\s+(?:one|do|would|should)\b"
+    r"|pick\s+(?:one|which|either)\b"
+    r"|your\s+(?:pick|choice)\b"
+    # ...and the tail that turns any list into a menu: "<options>, and I'll go".
+    r"|and\s+i\s*(?:(?:'|\u2019)ll|\s+will)\s+(?:go|start|build|do|run|ship|take)\b"
     r")",
     re.IGNORECASE,
 )
