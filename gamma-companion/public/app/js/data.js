@@ -32,8 +32,15 @@
       if (!r.ok) throw new Error('payload ' + r.status);
       S.payload = await r.json();
       S.at = Date.now();
+      S.err = null;
+      S.up = true;
     } catch (e) {
-      S.err = String(e && e.message || e);
+      /* The companion is down, or the payload has never been generated. Either way
+         the app keeps whatever it last had and SAYS the numbers are from then --
+         it must never silently present a stale figure as current, and it must never
+         blank a view it could still draw. */
+      S.err = String((e && e.message) || e);
+      S.up = false;
     }
     /* The session/worker ROSTER lives in the payload. /api/army is NOT a roster
        endpoint -- it returns {ok, rows, cursor}, a delta feed of pulses since a
@@ -41,6 +48,12 @@
        that has no `sessions`, so the Agents panel read "no data yet" while the
        data sat in memory. Verified against the live endpoint 2026-08-30. */
     S.army = (S.payload || {}).army || null;
+    /* Announce every load so the chrome reacts to THIS load rather than to the next
+       poll tick. Polling for the answer meant the offline banner could linger up to
+       30s after the companion came back -- a stale "we are down" is the same class
+       of lie as a stale number. */
+    try { dispatchEvent(new CustomEvent('gamma:data', { detail: { up: S.up } })); }
+    catch (_) { /* CustomEvent is ancient; a failure here must not break loading */ }
     return S;
   }
 

@@ -104,12 +104,24 @@ named — not silently dropped and not faked with a worse imitation.
   server behaviours the cockpit does: the RTH gate (fires refused 09:30-15:55 ET) and
   idempotency (a repeat approve returns ok WITHOUT an `escalated` id, which is a
   double-tap absorbed, not a success).
-- [ ] The app degrades honestly when the companion is down. DONE-WHEN: with the
-  companion stopped, every view still renders and says the companion is unreachable
-  rather than showing a blank region or a stale number presented as current.
-- [ ] J can install it. DONE-WHEN: `gamma-companion/public/app/` ships its own web
-  manifest + icon and a headless load shows no 404s in the network log, so the app can
-  be pinned like a native one.
+- [x] The app degrades honestly when the companion is down. VERIFIED 2026-08-30 04:0x
+  by actually stopping it. With the companion killed: the view still rendered (2157
+  chars, nothing blanked), the app kept its last payload, and an amber banner appeared
+  reading "The companion is not answering. Everything below is from 01:59 AM and is
+  not being updated." On restart it cleared. Amber not red — red belongs to P&L and a
+  dead companion is degraded, not a loss. Made EVENT-DRIVEN mid-test: the banner was
+  first tied to the 30s poll, so it could linger up to 30 seconds after the companion
+  came back, and a stale "we are down" is the same class of lie as a stale number.
+  data.load() now dispatches gamma:data and the chrome reacts to THAT load; both
+  directions verified to flip within 120ms.
+- [x] J can install it. VERIFIED 2026-08-30 04:0x: all 13 assets return 200
+  (`app/`, manifest, icon, one css, nine js, payload.json). One SVG serves every icon
+  size — no icon set to keep in sync — padded to ~78% so it survives a maskable crop.
+  BUG CAUGHT IN THE SAME CHECK: the manifest was served as
+  `application/octet-stream`, which Chrome IGNORES, so the app would have been
+  silently NOT installable while every asset still returned 200 and nothing looked
+  wrong. `.webmanifest` added to the server's MIME map; now
+  `application/manifest+json`.
 - [B-J] Firebase sign-in. Needs J's GCP project. DONE-WHEN:
   `automation/state/.firebase-config.json` exists and an email/password sign-in
   returns a token. Everything else is built — `auth.js` speaks the Identity Toolkit
@@ -145,21 +157,43 @@ named — not silently dropped and not faked with a worse imitation.
 
 - 2026-08-30 03:51 ET — calendar shipped.
 - 2026-08-30 03:54 ET — card firing verified by pressing it; found and fixed a
-  404 (the button pointed at a route that does not exist). Next: honest
-  degradation when the companion is down.
+  404 (the button pointed at a route that does not exist).
+- 2026-08-30 04:05 ET — offline degradation and installability both shipped and
+  verified against a really-stopped companion. ALL non-[B-J] items are now [x];
+  every remaining item is genuinely J's.
 
 ## HONEST STATE
 
-The site exists, is committed, and works. What is NOT yet true, stated plainly:
+**Updated 2026-08-30 04:05 ET. Every open `[ ]` item is done; everything left is
+genuinely J's.** The five DONE-WHEN checks:
 
-- **`#/profit` is a bar strip, not the calendar J asked for.** Closest gap to his
-  literal words, and the top open item.
-- **The Fire button on action cards has never actually been pressed from this app.**
-  It is wired to the same `/api/ask` the cockpit uses, and that path was verified
-  from the cockpit — but "the same endpoint works elsewhere" is not evidence about
-  this button, and it will not be claimed until one real fire is observed.
-- **Sign-in cannot authenticate anyone** and says so on the page. That is by design
-  until J supplies a Firebase config; it is also why multi-user is blocked on more
-  than a credential.
-- The cockpit at `analysis/home/index.html` is unchanged and still generated — this
-  app is additive, and nothing was deleted to make room for it.
+1. **Every view renders or names its file** — MET. Six routes walked with an onerror
+   trap, `errors: []`.
+2. **The console is a working daily driver** — MET. Verified twice by sending real
+   messages: resumed the stored session, ran a real Glob, streamed markdown that
+   rendered as markup, terminal frame, state back to ready.
+3. **Nothing on it lies** — MET, and this is where the night's real work went. Four
+   bugs were found by LOOKING that code review would not have caught: `/api/army` is
+   a pulse-delta feed and not a roster; the sign-in art's reveal left an empty panel;
+   every tool logged twice; the stop button never hid. Two more were found by
+   PRESSING: the Fire button pointed at `/api/ask`, a route that does not exist, and
+   the manifest was served as octet-stream, which Chrome ignores — both would have
+   looked fine forever while being broken.
+4. **375px has no overflow** — MET by direct measurement
+   (`scrollWidth === innerWidth`). A 430px headless screenshot LOOKED clipped; that
+   is Chrome's minimum window width in headless, not a layout bug. Noted so nobody
+   "fixes" a phantom.
+5. **Reachable without ceremony** — MET. `http://127.0.0.1:4317/app/`, companion
+   auto-started by its existing keepalive, and now installable.
+
+**What is still NOT true, plainly:**
+
+- **Sign-in cannot authenticate anyone**, by design, until J supplies a Firebase
+  config. The page says so rather than accepting anything.
+- **There is no authorization boundary.** The companion does not verify the Firebase
+  ID token, so friends access and the admin portal are blocked on real work, not on a
+  credential. Do not ship multi-user before that exists.
+- **`/` is still the phone PWA.** Deliberate: swapping it would silently repoint J's
+  installed app, which is his call, not mine.
+- The two carried human-in-the-loop verifications (a pulse observed travelling; a
+  card double-tap observed by a person) still need eyes on the screen.

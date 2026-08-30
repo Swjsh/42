@@ -1,0 +1,19 @@
+{
+  "name": "Gamma — 0DTE research desk",
+  "short_name": "Gamma",
+  "description": "The desk that runs while you sleep. Paper 0DTE SPY, graded against the ten rules.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a0b",
+  "theme_color": "#0a0a0b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

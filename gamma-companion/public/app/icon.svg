@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gamma">
+  <!-- One SVG serves every size, so there is no icon set to keep in sync and no
+       raster to regenerate when the mark changes. Padded to ~78% so it survives a
+       maskable/circular crop on Android without losing the glyph. -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+    <radialGradient id="s" cx="34%" cy="26%" r="62%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="#0a0a0b"/>
+  <rect x="56" y="56" width="400" height="400" rx="104" fill="url(#g)"/>
+  <rect x="56" y="56" width="400" height="400" rx="104" fill="url(#s)"/>
+  <!-- Γ — the Greek letter the desk is named for -->
+  <path d="M186 172h150v42H232v134h-46z" fill="#fff" fill-opacity=".96"/>
+</svg>

@@ -577,3 +577,12 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
    .chat__send sets display:grid, so the stop button rendered beside send at all
    times -- caught in a screenshot, not by reading the code. */
 [hidden]{display:none!important}
+
+/* The data source is gone. Amber, not red: red belongs to P&L, and a dead companion
+   is a degraded state rather than a loss. */
+.offbar{position:relative;z-index:30;margin:0 auto;max-width:var(--shell);
+  padding:11px var(--s5);font-size:12.5px;color:var(--warn);
+  border-bottom:1px solid color-mix(in oklch,var(--warn) 30%,transparent);
+  background:color-mix(in oklch,var(--warn) 9%,transparent)}
+.offbar b{font-weight:700}
+.offbar .mono{color:var(--ink-4);margin-left:6px}
