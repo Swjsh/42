@@ -1120,6 +1120,44 @@ additive only). -->
 - Intra‑session risk controls are insufficient; the daily‑premium‑budget gate alone does not prevent large intra‑session losses or gamma/vega blow‑outs.
 - State management needs improvement – snapshots/rollback or a clear graduation path for shadow systems are missing.
 
+<!-- DONE 2026-08-30T05:xx ET conductor (AFTERHOURS): TRIAGED, all 4 disposed -- live-checked
+against the actual codebase, not re-derived from the swarm's prose. Item 1 (no rigorous
+validation / walk-forward-gate for candidates) is DUPLICATE of standing doctrine + working
+code: CLAUDE.md OP-11's auto-ratify gate (OOS+WF-median>=0.70+sub-window-stable+anchor-
+no-regression+filed scorecard) IS the walk-forward/test-gate for new candidates, and it is
+not just prose -- backtest/autoresearch/daily_premium_budget_battery.py,
+backtest/tools/gate_revalidation_structure_veto_extended_2026_08_23.py, and
+backtest/tools/gate_revalidation_bearish_fill_bar_wholebook_2026_08_30.py all implement the
+identical G-battery (G_mean/G_oos/G_drop3/G_bhfdr/G_n) independently. Real residual, filed as
+its own LOW item (BATTERY-LOGIC-DUPLICATED-ACROSS-TOOLS in queue.md): the G-battery is
+copy-pasted per tool rather than a shared backtest/lib/canonical_battery.py -- a
+maintenance/consistency risk, not a missing capability. Item 2 (regime-stamp reliability) is
+FALSE as stated -- a DAILY drift detector already exists and runs:
+setup/scripts/self_check.py's check_regime_stamp_daily() (added for the 2026-08-02/08-03
+recurrence), wired into self_check.py's main sweep, DEGRADED-not-BROKEN by design because
+regime_context is explicitly documented as "never a live entry input" (visibility-only, per
+regime_stamp.py's own docstring). Not a gap; the swarm's perspectives 2/3 described a problem
+this project already has an instrument for. Item 3 (intra-session risk controls insufficient)
+is LARGELY closed by the SAME-NIGHT PREREG-TIGHT-LADDER-2026-08-28 ship (STATUS.md
+2026-08-29T12:21 ET, commit 4245d4ce): max_contracts_per_entry, max_position_dollars,
+daily_loss_kill_switch_dollars (-$400), and max_same_day_roundtrips directly bound "large
+intra-session losses" on both accounts. daily_premium_budget_dollars (the mechanism this gap
+names) remains its own separate, already-filed, already-battery-tested J-judgment-call item
+(DAILY-PREMIUM-BUDGET-J-CALL, queue.md line 83, status:awaiting-J) -- not re-filed. Residual
+not covered: no real-time gamma/vega exposure monitor exists for 0DTE positions; genuinely
+true, but out of scope for a 0DTE book capped at 3-5 contracts/entry with a hard dollar/loss
+ceiling -- greeks blowout risk is bounded by the position-size caps that already shipped, not
+eliminated by a dedicated greeks monitor. Not filed as a new queue item; no evidence any
+existing position has produced an unbounded greeks loss. Item 4 (state management /
+snapshots-rollback / shadow graduation) is FALSE as stated for the mechanism that actually
+applies changes: setup/scripts/autonomy_actuator.py snapshots every target file before
+editing (.autonomy-snapshots/<id>/), restores on any RED gate or exception (fail-open,
+atomic), and exposes `revert <id>` to restore + commit a revert -- a real, tested
+snapshot/rollback substrate, not a missing one. Shadow graduation path also exists as working
+doctrine + code: P1 free-swarm -> real-fills -> task_scorer.py/desk_allocator.py -> arm,
+gated by the same OP-11 bar. No new code action needed beyond the one LOW item filed above;
+this triage closes the loop so the batch stops reading as open. -->
+
 ## 2026-08-30T00:21:47 -- 12 new gap(s) Gamma self-identified
 - Futures premarket producer NEVER fired This is explicitly called out. Gamma_FuturesPremarket has NEVER fired (rc=267011, no successor). This means no premarket analysis for futures.
 - No post-trade autopsy for futures Explicitly called out as "none exists"
