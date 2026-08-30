@@ -57,3 +57,38 @@ the process, and reasoning about the code without checking that is wasted.
 curl shape, reads its body fine on the same process. Ruled out by test: route shadowing (there
 was a real one, since fixed), handler nesting, position, stale process, and `authed()`
 consuming the stream. Not root-caused.
+
+---
+
+## RE-VIOLATED 2026-08-30 — twice more, and the second one HUNG the commit
+
+Same file, same day, two more incidents. That makes this a missing guardrail, not a
+memory failure, so it now has code behind it.
+
+**Incident 3.** A commit message explained a bug using the field names in backticks:
+`...because `input` is not on the wire -- only the server-humanised `label` is.`
+Inside a double-quoted bash argument those are COMMAND SUBSTITUTION. `input` printed
+"command not found"; `label` invoked the Windows volume-label prompt, which then sat
+waiting on stdin a non-interactive shell never provides. The commit hung until it was
+killed 2 minutes later, and the working tree sat uncommitted the whole time.
+
+**Why "escape it next time" is the wrong fix.** Backticks around an identifier are
+*correct prose* in a commit message about code. A rule that says "write worse commit
+messages" will be broken the moment a message needs to name a field. The real defect
+is that a long piece of prose was being handed to a shell parser at all.
+
+**The guardrail (shipped):** `setup/scripts/commit_msgfile.py`. It reads the message
+as bytes from a file the shell never sees and execs `commit_scoped.py` with a real
+argv list (`shell=False`), so no character in the message can be interpreted.
+
+```
+python setup/scripts/commit_msgfile.py <msgfile> <path> [<path>...]
+```
+
+Write the message with the Write tool (which does no shell parsing), then pass the
+path. Use this for ANY commit message longer than one line.
+
+**Generalised rule:** never interpolate prose into a shell command. If a payload is
+authored text -- a commit message, a card body, a journal entry, a prompt -- it goes
+through a file or a real argv list, never through quoting. The three characters that
+break it (backtick, `$`, `\`) are all ordinary punctuation in technical writing.
