@@ -174,8 +174,11 @@ a:hover{text-decoration:underline}
   color:var(--tx-4);transition:color .15s var(--e-hover)}
 .tabs a:hover{color:var(--tx-2);text-decoration:none}
 .tabs a.on{color:var(--tx-1)}
-.tabs a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;
-  background:var(--acc);box-shadow:0 0 10px var(--acc);border-radius:2px}
+/* the per-tab underline is replaced by ONE gliding cursor (see navBuild) */
+.tabs{position:relative}
+.tabcursor{position:absolute;bottom:-1px;height:2px;border-radius:2px;background:var(--acc);
+  box-shadow:0 0 12px var(--acc);opacity:0;pointer-events:none;
+  transition:left .25s cubic-bezier(.34,1.2,.4,1),width .25s cubic-bezier(.34,1.2,.4,1),opacity .15s}
 .tabs a .badge{margin-left:7px;font-size:9.5px;font-weight:600;padding:2px 6px;
   border-radius:var(--r-pill);background:var(--bg-3);color:var(--tx-3)}
 .tabs a .badge.hot{background:var(--warn-dim);color:var(--warn)}

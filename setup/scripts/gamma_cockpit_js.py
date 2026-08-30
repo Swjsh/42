@@ -238,6 +238,19 @@ function navBuild(){
     }
     n.appendChild(a);
   });
+  /* The gliding indicator -- the canonical 21st.dev menu animation ("Slide Tabs" /
+     "Glow menu" family): ONE underline that TRAVELS between tabs on hover and settles on
+     the active one, instead of appearing per-tab. Interaction class: 250ms. */
+  const cur=document.createElement('span');
+  cur.className='tabcursor'; n.appendChild(cur);
+  const moveCur=(elm)=>{ if(!elm){cur.style.opacity='0';return;}
+    cur.style.opacity='1';
+    cur.style.left=(elm.offsetLeft+12)+'px';
+    cur.style.width=Math.max(14,elm.offsetWidth-24)+'px'; };
+  n.addEventListener('mouseover',e=>{const a=e.target.closest('a');if(a)moveCur(a);});
+  n.addEventListener('mouseleave',()=>moveCur(n.querySelector('a.on')));
+  navCursorSync=()=>moveCur(n.querySelector('a.on'));
+  setTimeout(navCursorSync,50);
   const more=document.createElement('button');
   more.type='button'; more.className='more'; more.textContent='···';
   more.title='Everything else — or press Cmd-K';
@@ -246,11 +259,13 @@ function navBuild(){
 }
 const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
 let CUR='overview';
+let navCursorSync=null;
 function route(want){
   const id=want||(location.hash||'#overview').slice(1).split('?')[0];
   const v=VIEWS.find(x=>x.id===id)||VIEWS[0];
   CUR=v.id;
   $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v.id));
+  if(navCursorSync)navCursorSync();
   $('#vtitle').textContent=v.label;
   const host=$('#view'); host.innerHTML=''; RENDER[v.id](host);
   host.classList.remove('anim'); void host.offsetWidth; host.classList.add('anim');

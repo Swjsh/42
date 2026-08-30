@@ -79,7 +79,11 @@ function armySvg(a){
      scales to 0.56 -- which is the exact tininess this layout was rewritten to kill. So
      pick the widest column count that still FITS, and let the graph get taller instead of
      smaller. Falls back to 3 when the width cannot be read (file:// pre-layout). */
-  const BW=330, BH=164, GAPX=26, GAPY=26, PAD=34;
+  /* SCALE PASS (J: "do u see how fkn tiny it is"). At 1920 the stage column is ~1500px
+     and the old 330px boxes + 380px hero used barely 40% of it -- a postage stamp on a
+     billboard. Boxes 430x200, hero 560x120, type up a full step. fitCols() already adapts
+     column count to what fits, so smaller windows degrade to 2/1 columns, never to tiny. */
+  const BW=430, BH=200, GAPX=32, GAPY=32, PAD=34;
   const fitCols=(avail)=>{
     for(let c=3;c>1;c--){ if(PAD*2+c*BW+(c-1)*GAPX<=avail) return c; }
     return 1;
@@ -108,7 +112,7 @@ function armySvg(a){
   const hiddenCount=Math.max(0,peers.length-shown.length);
   const rows=Math.max(1,Math.ceil(shown.length/COLS));
   const W=PAD*2+COLS*BW+(COLS-1)*GAPX;
-  const ocy=62, SESS_TOP=196;
+  const ocy=84, SESS_TOP=280;
   const H=SESS_TOP+rows*(BH+GAPY)+56;
   /* Bleed the viewBox by 8px on every side. Measured after the grid rewrite: the content
      bbox started at (-6,-6) because strokes and text ascenders sit outside their nominal
@@ -150,9 +154,9 @@ function armySvg(a){
   /* Meridian rings: two faint circles centred on the hero give the stage a command-map
      structure the eye reads instantly; the aura beneath the hero breathes on the ambient
      clock -- the rig's heartbeat, literally. */
-  const aura=mk('ellipse',{cx:ocx,cy:ocy,rx:260,ry:96,fill:'url(#orcAura)',class:'army-aura'});
+  const aura=mk('ellipse',{cx:ocx,cy:ocy,rx:360,ry:130,fill:'url(#orcAura)',class:'army-aura'});
   svg.appendChild(aura);
-  [150,260].forEach(r=>svg.appendChild(mk('circle',{cx:ocx,cy:ocy,r,fill:'none',
+  [210,360].forEach(r=>svg.appendChild(mk('circle',{cx:ocx,cy:ocy,r,fill:'none',
     stroke:'var(--tx-1)','stroke-width':1,opacity:.04})));
   const ag=mk('radialGradient',{id:'orcAura'});
   ag.appendChild(mk('stop',{offset:'0%','stop-color':'#6344F5','stop-opacity':'.16'}));
@@ -160,16 +164,16 @@ function armySvg(a){
   defs.appendChild(ag);
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node army-enter',id:'army-orc'});
-  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
-  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
+  og.appendChild(mk('rect',{x:ocx-280,y:ocy-60,width:560,height:120,rx:20,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
+  og.appendChild(mk('rect',{x:ocx-280,y:ocy-60,width:560,height:120,rx:20,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
   /* Tracing border: an ~80px accent comet orbits the hero's ~895px perimeter -- lit and
      alive without a static heavy stroke shouting. */
-  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'none',
-    stroke:'var(--acc)','stroke-width':1.6,class:'army-trace','stroke-linecap':'round'}));
-  og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--st-live)',class:'army-ring'}));
-  og.appendChild(ltxt(ocx-150,ocy-8,orc?orc.name:'—','var(--tx-1)',21,700));
-  og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',11.5,600));
-  if(orc&&orc.title)og.appendChild(ltxt(ocx-166,ocy+34,orc.title.slice(0,52),'var(--tx-4)',11,400));
+  og.appendChild(mk('rect',{x:ocx-280,y:ocy-60,width:560,height:120,rx:20,fill:'none',
+    stroke:'var(--acc)','stroke-width':2,class:'army-trace','stroke-linecap':'round'}));
+  og.appendChild(mk('circle',{cx:ocx-248,cy:ocy-20,r:8,fill:'var(--st-live)',class:'army-ring'}));
+  og.appendChild(ltxt(ocx-228,ocy-10,orc?orc.name:'—','var(--tx-1)',30,700));
+  og.appendChild(ltxt(ocx-248,ocy+22,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',13,600));
+  if(orc&&orc.title)og.appendChild(ltxt(ocx-248,ocy+44,orc.title.slice(0,60),'var(--tx-4)',12.5,400));
   if(orc){og.style.cursor='pointer';og.onclick=()=>armySessionDrawer(orc,byWorkerSession[orc.session_id]||[]);}
   svg.appendChild(og);
 
@@ -189,7 +193,7 @@ function armySvg(a){
     const sy=SESS_TOP+row*(BH+GAPY)+BH/2;
     const L=sx-BW/2, T=sy-BH/2;                    // box left / top, for readable labels
     centers['s:'+s.session_id]={x:sx,y:sy};
-    const dPath=`M ${ocx} ${ocy+44} C ${ocx} ${(ocy+T)/2}, ${sx} ${(ocy+T)/2}, ${sx} ${T}`;
+    const dPath=`M ${ocx} ${ocy+60} C ${ocx} ${(ocy+T)/2}, ${sx} ${(ocy+T)/2}, ${sx} ${T}`;
     /* Ghost rail: Aceternity's measured base -- ~.5px stroke at 5% -- wiring that is
        present but silent until something moves along it. */
     const edge=mk('path',{d:dPath,fill:'none',stroke:'var(--tx-1)','stroke-width':.6,opacity:.055});
@@ -202,11 +206,11 @@ function armySvg(a){
        feedback to a click. */
     const gid='beam-'+i;
     const bg=mk('linearGradient',{id:gid,gradientUnits:'userSpaceOnUse',
-      x1:ocx,y1:ocy+44,x2:sx,y2:T});
+      x1:ocx,y1:ocy+60,x2:sx,y2:T});
     [['0%','#18CCFC','0'],['12%','#18CCFC','.9'],['32.5%','#6344F5','.9'],['100%','#AE48FF','0']]
       .forEach(([o,c,op])=>bg.appendChild(mk('stop',{offset:o,'stop-color':c,'stop-opacity':op})));
     defs.appendChild(bg);
-    const beam=mk('path',{d:dPath,fill:'none',stroke:'url(#'+gid+')','stroke-width':1.6,
+    const beam=mk('path',{d:dPath,fill:'none',stroke:'url(#'+gid+')','stroke-width':2.2,
       class:'army-beam','stroke-linecap':'round'});
     beam.style.animationDelay=(i*1.1)+'s';
     svg.appendChild(beam);
@@ -220,7 +224,7 @@ function armySvg(a){
     g.addEventListener('mouseleave',()=>{beam.classList.remove('lit');edge.style.opacity=.055;});
     g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
     g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
-    const dot=mk('circle',{cx:L+22,cy:T+27,r:6,fill:armyDotColour(s,lastSeen)});
+    const dot=mk('circle',{cx:L+26,cy:T+33,r:7.5,fill:armyDotColour(s,lastSeen)});
     dot.id='armydot-'+s.session_id;
     g.appendChild(dot);
     /* TITLE FIRST, handle second. `42-dd` is auto-derived from the project folder plus a
@@ -231,8 +235,8 @@ function armySvg(a){
        id -- reproducing the exact "wtf is 42-dd" unreadability this view was fixed for. Say
        what it IS instead until it names itself. */
     const untitled=!s.title&&/^[0-9a-f]{6,}$/i.test(String(s.name||''));
-    const bigLabel=untitled?'New session — starting up':(s.title||s.name||'untitled').slice(0,34);
-    g.appendChild(ltxt(L+38,T+33,bigLabel,'var(--tx-1)',17,700));
+    const bigLabel=untitled?'New session — starting up':(s.title||s.name||'untitled').slice(0,36);
+    g.appendChild(ltxt(L+46,T+40,bigLabel,'var(--tx-1)',21,700));
     // handle (42-xx) lives in the drawer now -- five text rows read as a form, not a card
     /* Say WHEN, not just what. "a Claude window YOU have open" was flatly untrue for a
        chat closed two days ago whose process merely lingered. */
@@ -242,11 +246,11 @@ function armySvg(a){
     const act=s.activity||'unknown';
     const actWord=act==='active'?'ACTIVE NOW':(act==='idle'?'idle':(act==='stale'?'old chat':'unknown'));
     const actCol=act==='active'?'var(--pos)':(act==='idle'?'var(--tx-3)':'var(--tx-4)');
-    g.appendChild(ltxt(L+18,T+76,actWord+(ago?' · '+ago:''),actCol,12,act==='active'?700:500));
+    g.appendChild(ltxt(L+22,T+94,actWord+(ago?' · '+ago:''),actCol,14,act==='active'?700:500));
     const wc=(byWorkerSession[s.session_id]||[]).length;
-    g.appendChild(ltxt(L+18,T+100,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
-      (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
-    const actEl=ltxt(L+18,T+120,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id;
+    g.appendChild(ltxt(L+22,T+124,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
+      (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',13,500));
+    const actEl=ltxt(L+22,T+150,'','var(--tx-4)',12.5,400); actEl.id='armyact-'+s.session_id;
     actEl.setAttribute('data-humanize','1');   // armyApplyRow reads this and trims shell noise
     g.appendChild(actEl);
     /* CONTEXT GAUGE along the base of the card. J asked for "a context bar that changes in
@@ -263,16 +267,16 @@ function armySvg(a){
     const cknown=cpct!==null&&s.context_source&&s.context_source!=='unknown';
     if(cknown){
       const frac=Math.max(0,Math.min(100,cpct))/100;
-      const cy=T+BH-6;
-      g.appendChild(mk('rect',{x:L+1,y:cy,width:BW-2,height:4,rx:2,
+      const cy=T+BH-8;
+      g.appendChild(mk('rect',{x:L+1,y:cy,width:BW-2,height:6,rx:3,
         fill:'color-mix(in oklch,white 8%,transparent)'}));
       // warn/neg rather than the accent: nearing a compact is a STATE, and severity is not
       // what the purple means anywhere else on this page.
       const col=cpct>=90?'var(--neg)':(cpct>=75?'var(--warn)':'var(--acc)');
-      const fill=mk('rect',{x:L+1,y:cy,width:Math.max(2,(BW-2)*frac),height:4,rx:2,fill:col});
+      const fill=mk('rect',{x:L+1,y:cy,width:Math.max(2,(BW-2)*frac),height:6,rx:3,fill:col});
       fill.id='armyctx-'+s.session_id;
       g.appendChild(fill);
-      const lab=stxt(L+BW-16,T+56,Math.round(cpct)+'% ctx',col,10.5,600,'end');
+      const lab=stxt(L+BW-20,T+40,Math.round(cpct)+'% ctx',col,13,600,'end');
       lab.id='armyctxlab-'+s.session_id;
       g.appendChild(lab);
     }
@@ -280,7 +284,7 @@ function armySvg(a){
     // Explicit affordance: the whole box was already clickable but nothing said so.
     // Bottom-right, not beside the title: at 17px a 34-char title runs to ~L+320 and
     // collided with an affordance sitting at the same baseline (seen in a headless shot).
-    g.appendChild(stxt(L+BW-16,T+BH-12,'open ▸','var(--acc)',11,600,'end'));
+    g.appendChild(stxt(L+BW-20,T+BH-14,'open ▸','var(--acc)',13,600,'end'));
     g.onclick=()=>armySessionDrawer(s,byWorkerSession[s.session_id]||[]);
     svg.appendChild(g);
 
@@ -288,11 +292,11 @@ function armySvg(a){
        grid rows -- so they read as loose confetti belonging to nothing, which a headless
        screenshot made obvious immediately. */
     (byWorkerSession[s.session_id]||[]).slice(0,5).forEach((w,j)=>{
-      const wx=L+26+j*24, wy=T+BH-30;
+      const wx=L+32+j*30, wy=T+BH-36;
       centers['w:'+w.agent_id]={x:wx,y:wy};
       const wg=mk('g',{class:'army-node'});
       wg.style.cursor='pointer';
-      const wc2=mk('circle',{cx:wx,cy:wy,r:9,
+      const wc2=mk('circle',{cx:wx,cy:wy,r:11,
         fill:w.active?'var(--acc-dim)':'var(--bg-3)',stroke:w.active?'var(--acc)':'var(--bd)','stroke-width':1.4});
       wc2.id='armyworker-'+w.agent_id;
       wg.appendChild(wc2);
