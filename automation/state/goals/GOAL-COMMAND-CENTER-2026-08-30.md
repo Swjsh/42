@@ -73,9 +73,9 @@ A null result is reported as a null.
   last close, engine cadence and last verdict. DONE-WHEN: matches positions.arms.
 - [x] C5 (VERIFIED: M1 keyframe-pair alternation proven flash-dn1->flash-dn2; roll writes truth before rAF; dossier R12-R19) — Motion + polish pass from the verified findings; dossier updated with new
   entries. DONE-WHEN: DONE-WHEN (e) + (f).
-- [ ] C6 — Adversarial review fan-out (agents that did not build it) + fix what they
+- [x] C6 (29 agents, 6 lenses, 23 raised / 21 confirmed / 2 refuted; ALL 21 fixed, incl. 2 criticals) — Adversarial review fan-out (agents that did not build it) + fix what they
   confirm. DONE-WHEN: DONE-WHEN (g), findings triaged, real ones fixed.
-- [ ] C7 — Final assertion sweep at both sizes + screenshot to J. DONE-WHEN: (a)-(e) all
+- [x] C7 (VERIFIED at 1600x950 AND 1440x900 in one run) — Final assertion sweep at both sizes + screenshot to J. DONE-WHEN: (a)-(e) all
   green in one run.
 - [B-J] Firebase credential, admin/multi-user boundary, `/` root repoint — carried from
   the prior two goals, still J's.
@@ -112,3 +112,45 @@ desks, engine_room, org, agents, thinking, wants_full, cost_meter. Several are
 duplicates of what the glass now shows (thinking == bias; desks/engine_room overlap the
 lanes rail), but cards and cost_meter are genuinely absent and are honest gaps, not
 oversights — recorded here rather than closed around.
+
+
+## CLOSE (2026-08-30 ~14:35 ET)
+
+DONE-WHEN, every item measured in the running page, both mandated viewports:
+
+| # | criterion | 1600x950 | 1440x900 |
+|---|---|---|---|
+| a | trading on the glass (equity/net/position/bias/arms) | all true, 4 arms | all true |
+| b | no regression: <12px type / page scroll / centre overflow | 0 / false / 0 | 0 / false / 0 |
+| c | payload coverage >= 12 of 18 sections reachable | 14 reachable | same |
+| d | every number sourced or absent | 0 raw rows, 0 fabrication guards failing | same |
+| e | motion encodes state | M1/M2/M3/M6/M9/M10, keyframe-pair alternation proven | same |
+| f | research-grounded, dossier updated | 51 findings / 17 verified, dossier R12-R19 | -- |
+| g | survives adversarial review | 23 raised / 21 confirmed / ALL fixed | -- |
+
+Nine commits. 132 guards green.
+
+WHAT THIS GOAL ACTUALLY CHANGED: the desk went from rendering 3 of 18 payload sections to
+carrying the whole trading state -- book $23,660, +$1,815 net over 39 sessions with its
+equity curve, position, live tape, per-arm roster, the engine's verdict WITH the numbered
+gates that blocked it, a P&L-by-session sheet behind the NET cell, and the decision queue
+with its fire button. `hasEquity:false, hasPosition:false` this morning; both true now.
+
+THE FINDINGS THAT MATTERED MOST were not the features:
+* guard.js enforced the config freeze on only 2 of the 5 files it names -- the companion
+  chat could have written heartbeat_core.py, risk_gate.py or fleet/* mid-freeze.
+* The tape's "live" badge could never say stale (age_s is a hardcoded 0), so the page
+  could claim the engine was watching the market while it was blind.
+* Three regexes were silently dead from literal 0x08 bytes that every tool renders as
+  "" -- including the one meant to stop a real failure reading as "did some work".
+* An rAF number-roll could leave a STALE figure on a trading cell.
+Each is now fixed AND guarded by a test that fails if it returns.
+
+HONEST GAPS, recorded rather than closed around:
+* cost_meter is still not on the page. It is real data and it is absent by choice --
+  the rails were full and spend is not a glance-critical number.
+* The org cards render other Claude sessions' chat TITLES, which reads oddly beside
+  trading rows. Accurate, just not beautiful.
+* The autofire loop's first real unattended fire is still unproven (Mon 23:30 ET).
+* [B-J] Firebase credential, the admin/multi-user boundary, and whether `/` becomes this
+  app all remain J's calls, carried across three goals now.

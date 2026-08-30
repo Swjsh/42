@@ -645,8 +645,13 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .ev{display:flex;align-items:baseline;gap:9px;padding:7px 0;
   border-bottom:1px solid var(--line);font-size:12.5px}
 .ev:last-child{border-bottom:none}
-.ev__k{flex:none;width:52px;font:700 12px/1.6 var(--sans);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--acc)}
+/* The verb chip was a fixed 52px, which fit "BUILT" and "FIXED" and overflowed the
+   moment the humanizer produced "REWORKED" -- the word ran straight under the
+   sentence beside it. Fixed-width columns only work when every value is known; the
+   verb vocabulary grows with the humanizer, so this wraps its own text instead. */
+.ev__k{flex:0 0 58px;font:700 12px/1.35 var(--sans);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--acc);
+  overflow-wrap:anywhere;align-self:flex-start;padding-top:1px}
 .ev[data-t="neg"] .ev__k{color:var(--alarm)}
 .ev[data-t="warn"] .ev__k{color:var(--warn)}
 .ev[data-auto] .ev__k{color:var(--ink-4)}
