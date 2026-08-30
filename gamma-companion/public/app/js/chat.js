@@ -268,6 +268,50 @@
     es.onerror = () => { /* EventSource retries; the durable feed replays on reconnect */ };
   }
 
+
+  /* ---- WATCH A RUN THAT DID NOT START HERE --------------------------------
+   * J, 2026-08-30: "when i click run now on a card how do i know whats going on
+   * or what the orch or agents are doing".
+   *
+   * He could not. fireCard() got an ask id and a stream token back from the
+   * server and put the id in a TOOLTIP -- while this file already had a live
+   * tool-timeline renderer for exactly that stream. Both halves existed and
+   * nothing joined them.
+   *
+   * adopt() is that join: it opens a turn in the console with the card's title,
+   * attaches the same EventSource the chat uses, and from there a fired card is
+   * watched exactly like something typed. */
+  function adopt(askId, streamToken, label) {
+    if (!askId || !streamToken) return false;
+    const me = push('me', label || 'Running an action card');
+    const b = document.getElementById('b-' + me.id);
+    if (b) b.innerHTML = '<span class="turn__card">card fired</span> ' + esc(label || '');
+    const turn = push('gamma', '');
+    step(turn.id, 'picked up the card — watching it run', 'dim');
+    busy(true);
+    st.askId = askId;
+    openStream(turn, { ask_id: askId, stream_token: streamToken });
+    scroll();
+    return true;
+  }
+
+
+  /* A one-shot note in the console: the outcome of a run this page did not
+     stream. Used when a card was already fired, so "Already ran" has somewhere
+     to put the answer. Not a chat turn -- there was no question. */
+  function note(title, text, ok) {
+    const e = document.getElementById('cempty'); if (e) e.remove();
+    const b = body(); if (!b) return;
+    const n = el('div'); n.className = 'turn turn--note';
+    if (ok === false) n.setAttribute('data-t', 'bad');
+    n.innerHTML =
+      '<div class="turn__w">' + (ok === false ? 'Ran — failed' : 'Earlier run') + '</div>' +
+      '<div class="turn__b"><b class="turn__card">card</b>' + esc(title || '') +
+      '<div class="turn__note">' + esc(text || '') + '</div></div>';
+    b.appendChild(n);
+    scroll();
+  }
+
   function stop(natural) {
     if (st.es) { try { st.es.close(); } catch (_) { /* already closed */ } st.es = null; }
     if (!natural && st.askId) {
@@ -386,5 +430,5 @@
     return e;
   }
 
-  G.chat = { view, panel, send, stop };
+  G.chat = { view, panel, send, stop, adopt, note };
 })(window.G = window.G || {});

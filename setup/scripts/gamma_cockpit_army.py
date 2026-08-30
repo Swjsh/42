@@ -235,6 +235,19 @@ def _unescape_json_str(s: str) -> str:
         return s
 
 
+def _fallback_name(raw: dict, sid: str) -> str:
+    """A readable stand-in for a session that never named itself.
+
+    The companion's own escalations (card fires, console turns, diagram builds)
+    arrive as kind "sdk-ts" with no name, and an eight-character hash reads as
+    noise in "<name> ran a check" on the activity wire.
+    """
+    kind = str(raw.get("kind") or "")
+    if kind.startswith("sdk"):
+        return "a Gamma run"
+    return sid[:8]
+
+
 def _pid_alive(pid) -> bool:
     """True only if a live process currently holds this PID.
 
@@ -312,7 +325,13 @@ def _load_sessions() -> list[dict]:
         out.append({
             "session_id": sid,
             "pid": raw.get("pid"),
-            "name": raw.get("name") or sid[:8],
+            # A session with no name of its own falls back to eight hex characters,
+            # which then appears on the glass as "b927427f ran a check" -- a raw id
+            # in a sentence meant to be read by a human. Sessions the COMPANION
+            # spawns (kind sdk-*) are always nameless, so they get named for what
+            # they are; anything else still shows its short id, which at least
+            # matches what the session list calls it.
+            "name": raw.get("name") or _fallback_name(raw, sid),
             "kind": raw.get("kind") or "",
             "entrypoint": raw.get("entrypoint") or "",
             "version": raw.get("version") or "",

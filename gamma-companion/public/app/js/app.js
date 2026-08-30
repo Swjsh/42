@@ -96,6 +96,51 @@
        · IDEMPOTENCY — a second approve for the same id returns ok WITHOUT an
          `escalated` id. That is a double-tap being absorbed, not a failure, and
          reporting it as success would imply a second session that never spawned. */
+  /* The card's title reaches the console the same way it reaches the rail: as a
+     sentence, not as the guard code it was emitted with. Without this the console
+     was the one place on the page still printing "EARNINGS-CALENDAR STALE (RED):". */
+  function cardLabel(card) {
+    const raw = String((card && card.title) || 'action card');
+    return (G.human && G.human.broken) ? G.human.broken(raw).text : raw;
+  }
+
+  /* What did the earlier fire of this card actually do? The companion keeps a
+     small in-memory registry of recent escalations, each tagged with the card_id
+     that spawned it, and /api/state exposes it as `claude`. Look the run up and
+     print its outcome into the console, so the answer lands where J is already
+     looking instead of in a refusal he cannot act on.
+
+     NOTE: a still-running prior fire is reported, not re-attached. Attaching
+     would need a stream token for an ask this page did not start, and there is no
+     endpoint that mints one — inventing `/api/ask-token` here would have been a
+     fabricated API, so this says "still running" honestly instead. */
+  function showPriorRun(card, btn, tok, say) {
+    fetch('/api/state', { cache: 'no-store', headers: { 'x-gamma-token': tok } })
+      .then((r) => r.json()).then((st) => {
+        const c = (st && st.claude) || {};
+        const mine = [].concat(c.running || [], c.recent || [])
+          .filter((t) => t && t.card_id === card.id);
+        if (!mine.length) {
+          btn.title = 'This card already fired, but its run is no longer in the ' +
+            'companion’s recent list.';
+          return;
+        }
+        const t = mine[0];
+        if (!G.chat || !G.chat.note) return;
+        if (t.status === 'running') {
+          G.chat.note(cardLabel(card),
+            'still running — started ' + String(t.started || '').slice(11, 16) +
+            (t.lastStep ? ' · ' + t.lastStep : ''), null);
+          say('Still running ↓', 'live');
+          return;
+        }
+        G.chat.note(cardLabel(card),
+          t.summary || t.lastStep || ('finished ' + (t.ok ? 'ok' : 'with an error')),
+          t.ok !== false);
+        say('Ran ↓', 'warn');
+      }).catch(function () { /* leave the plain "already ran" message */ });
+  }
+
   G.fireCard = function (card, btn) {
     const tok = (document.querySelector('meta[name="gamma-token"]') || {}).content || '';
     const say = (text, tone) => {
@@ -121,12 +166,29 @@
         return;
       }
       if (!j.escalated) {
-        say('Already fired', 'warn');
-        btn.title = 'This card was already actioned — no second session was spawned.';
+        /* "Already fired" was a dead end: J clicked Run, got a message, and still
+           could not see what the earlier run DID. The run is in the companion's
+           task registry keyed by card_id, so look it up and show its outcome
+           instead of just refusing. */
+        say('Already ran', 'warn');
+        btn.title = 'This card already fired — no second session was spawned.';
+        showPriorRun(card, btn, tok, say);
         return;
       }
-      say('Working…', 'live');
-      btn.title = 'ask ' + String(j.escalated).slice(0, 14);
+      /* HAND THE RUN TO THE CONSOLE. The ask id used to go into a tooltip, which
+         is the same as nowhere: J clicked Run and had no way to see what the
+         session was doing. The server already returns a stream_token here and
+         chat.js already renders that stream as a live tool timeline. */
+      const watching = G.chat && G.chat.adopt &&
+        G.chat.adopt(j.escalated, j.stream_token, cardLabel(card));
+      say(watching ? 'Running ↓' : 'Working…', 'live');
+      btn.title = watching
+        ? 'Running now — watch it in the console below.'
+        : 'ask ' + String(j.escalated).slice(0, 14);
+      if (watching) {
+        const c = document.querySelector('.deskmain__chat');
+        if (c && c.scrollIntoView) c.scrollIntoView({ block: 'nearest', behavior: G.RM ? 'auto' : 'smooth' });
+      }
     }).catch(() => {
       say('No companion', 'neg');
       btn.disabled = false;

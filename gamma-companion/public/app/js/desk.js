@@ -72,9 +72,10 @@
     if (typeof s.context_pct === 'number' && s.context_source !== 'unknown') {
       const pct = Math.max(0, Math.min(100, s.context_pct));
       const tone = pct >= 90 ? 'neg' : (pct >= 75 ? 'warn' : '');
-      mem = '<div class="org__mem" data-t="' + tone + '">' +
+      mem = '<div class="org__mem" data-t="' + tone + '" title="how full this ' +
+        'session’s context window is — at 100% it must compact and loses detail">' +
         '<i style="width:' + Math.round(pct) + '%"></i>' +
-        '<span class="num">' + Math.round(pct) + '%</span></div>';
+        '<span class="num">' + Math.round(pct) + '% memory</span></div>';
     }
 
     card.innerHTML =
@@ -183,7 +184,8 @@
       '<span class="org__beacon' + (orcLive ? ' is-on' : '') + '"></span>' +
       '<div class="org__id">' +
         '<b class="org__name">' + esc(orc ? orc.name : 'Gamma') + '</b>' +
-        '<span class="org__role">Gamma · the orchestrator</span>' +
+        '<span class="org__role" title="the session that reads this repo, spawns ' +
+        'the agents, and answers in the console below">Gamma · the orchestrator</span>' +
         '<p class="org__doing">' + esc(orc && orc.title ? orc.title : 'quiet right now') + '</p>' +
       '</div>' +
       '<div class="org__ostats">' + memHtml +
@@ -196,6 +198,15 @@
     box.appendChild(wire);
 
     if (sessions.length) {
+      /* J: "some things idk what i am looking at". These cards are the OTHER
+         Claude windows open on this machine -- obvious once you know, invisible
+         until someone says it. One line, above the grid, rather than a legend
+         box that would cost more height than it explains. */
+      const cap = el('org__cap');
+      cap.innerHTML = '<b>' + sessions.length + ' other Claude window' +
+        (sessions.length === 1 ? '' : 's') + '</b> open on this machine · ' +
+        'a line lights up when one talks to Gamma';
+      box.appendChild(cap);
       const grid = el('org__grid');
       sessions.forEach(function (x) { grid.appendChild(orgCard(x, workers)); });
       box.appendChild(grid);
