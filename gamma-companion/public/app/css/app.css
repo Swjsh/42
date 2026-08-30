@@ -555,7 +555,10 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .pal{position:fixed;inset:0;z-index:90;display:grid;place-items:start center;
   padding-top:14vh;background:oklch(0% 0 0/.62);backdrop-filter:blur(5px);
   animation:palin .18s var(--ease)}
-@keyframes palin{from{opacity:0}}
+/* .25 not 0, by the rule the P&L sheet taught: a suspended animation holds its
+   from-state, so an opacity-0 entrance means an invisible palette wherever
+   animations do not advance. Visually indistinguishable over 180ms. */
+@keyframes palin{from{opacity:.25}}
 .pal__box{width:min(600px,92vw);border-radius:var(--r2);overflow:hidden;
   background:var(--bg-1);border:1px solid var(--line-3);
   box-shadow:0 40px 90px -40px oklch(0% 0 0/.95);animation:rise .26s var(--jelly)}
@@ -1230,3 +1233,66 @@ kbd{font-size:12px;padding:3px 6px}
   .gcal__c:hover{transform:none}
 }
 .gcal__when{font-style:normal;font-size:12px;color:var(--ink-4);margin-left:4px}
+
+/* === MOTION THAT ENCODES STATE (spec §4) ===================================
+   Every rule below fires on a real event. Nothing here loops for decoration.
+
+   M1 — the tick flash. Byte-identical keyframe PAIRS, alternated by motion.js,
+   because a CSS animation does not restart when an already-present class is
+   re-added: two consecutive up-ticks would otherwise flash once. */
+@keyframes flashUp1{from{background:color-mix(in oklch,var(--pos) 20%,transparent)}to{background:transparent}}
+@keyframes flashUp2{from{background:color-mix(in oklch,var(--pos) 20%,transparent)}to{background:transparent}}
+@keyframes flashDn1{from{background:color-mix(in oklch,var(--neg) 20%,transparent)}to{background:transparent}}
+@keyframes flashDn2{from{background:color-mix(in oklch,var(--neg) 20%,transparent)}to{background:transparent}}
+.flash-up1{animation:flashUp1 700ms var(--ease)}
+.flash-up2{animation:flashUp2 700ms var(--ease)}
+.flash-dn1{animation:flashDn1 700ms var(--ease)}
+.flash-dn2{animation:flashDn2 700ms var(--ease)}
+/* The flash paints a background on an inline number, so it needs a box to paint in. */
+.g-big.flash-up1,.g-big.flash-up2,.g-big.flash-dn1,.g-big.flash-dn2{
+  border-radius:6px;padding:0 6px;margin:0 -6px}
+
+/* M10 — POSITION flipped. The one place the jelly overshoot is spent, because
+   FLAT -> IN A TRADE is the most consequential change this page can show. */
+@keyframes gpop{0%{transform:scale(1)}45%{transform:scale(1.13)}100%{transform:scale(1)}}
+.g-pop{animation:gpop 420ms var(--jelly)}
+
+/* M3 — the sparkline endpoint says "this point is NOW, the rest is history". */
+@keyframes dotRing{
+  0%,100%{r:2.6;opacity:1}
+  50%    {r:3.6;opacity:.72}
+}
+@media (prefers-reduced-motion:no-preference){
+  .g-spark circle{animation:dotRing 2.4s var(--ease) infinite}
+}
+
+/* M6 — a live session card sweeps a conic highlight around its border while its
+   agents are actually working. @property makes the angle animatable at all;
+   without it the conic-gradient jumps rather than rotates. Violet/cyan only —
+   the money colours are never borrowed for machine state. */
+@property --sweep{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes sweep{to{--sweep:360deg}}
+@media (prefers-reduced-motion:no-preference){
+  .org__card.is-live{
+    position:relative;
+    background:
+      linear-gradient(var(--bg-1),var(--bg-1)) padding-box,
+      conic-gradient(from var(--sweep),
+        transparent 0turn,
+        color-mix(in oklch,var(--live) 55%,transparent) .08turn,
+        transparent .2turn,
+        transparent 1turn) border-box;
+    border:1px solid transparent;
+    animation:sweep 3.2s linear infinite;
+  }
+}
+
+/* M9 — feed rows arrived TOGETHER, in THIS order. The entrance starts at 0.25
+   opacity, never 0: a suspended animation holds its from-state, and an invisible
+   from-state means invisible forever wherever animations do not advance. */
+@keyframes rowIn{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:no-preference){
+  .ev--wire{animation:rowIn 320ms var(--ease)}
+  .garm{animation:rowIn 300ms var(--ease)}
+  .lane{animation:rowIn 300ms var(--ease)}
+}

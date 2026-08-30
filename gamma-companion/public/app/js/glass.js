@@ -188,6 +188,34 @@
     /* The NET cell is a real button, not a div with a click handler: role, tabindex
        and Enter/Space, because a number you can only reach with a mouse is a number
        half the operators of this page cannot reach at all. */
+    /* MOTION (spec M1/M2/M10). The tracker keys on a NAME, not a node, because
+       refreshDesk() replaces these nodes on every data tick — so "did the book
+       move?" survives the re-render that would otherwise reset it every 30s. */
+    const M = G.motion;
+    if (M) {
+      const bookN = wrap.querySelector('.g-cell--book .g-big');
+      if (bookN && eq.total != null) {
+        M.track('book', eq.total, bookN, function (v) { return money(v); });
+      }
+      const netN = wrap.querySelector('.g-cell--net .g-big');
+      if (netN && pnl.net_all != null) {
+        M.track('net', pnl.net_all, netN, function (v) { return money(v, { signed: true }); });
+      }
+      if (pnl.traded_today && pnl.today != null) {
+        const tN = wrap.querySelector('.g-cell--today .g-big');
+        if (tN) M.track('today', pnl.today, tN, function (v) { return money(v, { signed: true }); });
+      }
+      if (bias.spy != null) {
+        const spyN = wrap.querySelector('.g-cell--tape .g-big');
+        if (spyN) M.track('spy', bias.spy, spyN, function (v) { return Number(v).toFixed(2); });
+      }
+      // The position word FLIPS rather than counts — and it is the single most
+      // important fact on the page, so it is the one place the jelly overshoot
+      // is spent (spec M10).
+      const stN = wrap.querySelector('.g-state');
+      if (stN && M.changed('pos', (pos || {}).state)) stN.classList.add('g-pop');
+    }
+
     const tap = wrap.querySelector('.g-cell--tap');
     if (tap && ((g.calendar || {}).rows || []).length) {
       tap.setAttribute('role', 'button');
