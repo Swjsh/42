@@ -265,3 +265,57 @@ def test_wired_into_run_verdict(tmp_path, monkeypatch):
     import inspect
     src = inspect.getsource(sc.run)
     assert "check_run_cmd_hidden_masked_exit" in src
+
+
+# ---- NONZERO_BY_DESIGN allowlist (2026-08-30) ----
+# Scripts that deliberately exit non-zero to signal found problems are excluded from
+# the masked-exit alert. Their signal already travels via JSON/STATUS.md; re-reporting
+# it as a crash is redundant noise and buries actionable findings.
+
+def test_unattended_health_nonzero_exit_not_flagged(tmp_path):
+    """unattended_health.py exits 1 when verdict=RED by design. The masked-exit check
+    must NOT flag it -- health is already reported via unattended-health.json and the
+    FUTURES-HEALTH self_check bullet."""
+    now = dt.datetime(2026, 8, 30, 12, 0)
+    p = tmp_path / "log.log"
+    p.write_text(
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\unattended_health.py  [pid=10]\n"
+        "[t]   exit=1  [pid=10]\n",
+        encoding="utf-8",
+    )
+    assert sc.check_run_cmd_hidden_masked_exit(now, log_path=p) == [], (
+        "unattended_health.py exits 1 by design when verdict=RED; must be in the allowlist"
+    )
+
+
+def test_roster_liveness_nonzero_exit_not_flagged(tmp_path):
+    """roster_liveness.py exits 1 when dead lanes found by design. The masked-exit check
+    must NOT flag it -- dead lanes are flagged directly to STATUS.md ## Known broken."""
+    now = dt.datetime(2026, 8, 30, 12, 0)
+    p = tmp_path / "log.log"
+    p.write_text(
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\roster_liveness.py  [pid=20]\n"
+        "[t]   exit=1  [pid=20]\n",
+        encoding="utf-8",
+    )
+    assert sc.check_run_cmd_hidden_masked_exit(now, log_path=p) == [], (
+        "roster_liveness.py exits 1 by design when dead lanes found; must be in the allowlist"
+    )
+
+
+def test_allowlisted_scripts_not_counted_in_total(tmp_path):
+    """When an allowlisted script exits 1 alongside a real failing script, only the real
+    failure is reported and the count is accurate (allowlisted exits not in the total)."""
+    now = dt.datetime(2026, 8, 30, 12, 0)
+    p = tmp_path / "log.log"
+    p.write_text(
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\unattended_health.py  [pid=1]\n"
+        "[t] launching: C:\\v\\pythonw.exe C:\\s\\broker_fills.py  [pid=2]\n"
+        "[t]   exit=1  [pid=1]\n"
+        "[t]   exit=1  [pid=2]\n",
+        encoding="utf-8",
+    )
+    problems = sc.check_run_cmd_hidden_masked_exit(now, log_path=p)
+    assert len(problems) == 1
+    assert "broker_fills.py" in problems[0]
+    assert "unattended_health.py" not in problems[0]

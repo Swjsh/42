@@ -112,10 +112,6 @@
           "model": "nvidia/nemotron-3-super-120b-a12b:free"
         },
         {
-          "provider": "openrouter",
-          "model": "nvidia/nemotron-3-ultra-550b-a55b:free"
-        },
-        {
           "provider": "ollama",
           "model": "qwen3:14b"
         }

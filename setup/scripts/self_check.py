@@ -1278,7 +1278,18 @@ def check_run_cmd_hidden_masked_exit(now, log_path=None) -> list[str]:
 
     DEGRADED, never BROKEN: every task on this relay today is R&D/telemetry/analysis,
     not the live trading path (rail-2 fail-open discipline). Fail-open: missing/
-    unreadable log, or today's log simply not written yet -> []."""
+    unreadable log, or today's log simply not written yet -> [].
+
+    ALLOWLIST -- scripts that exit non-zero BY DESIGN when they find problems, not
+    because they crashed. Their signal is already captured via their own JSON output or
+    via STATUS.md writes; re-reporting it as a masked-exit alert is redundant noise that
+    buries actionable findings. The wscript hop swallows their exit code from Task
+    Scheduler's LastTaskResult anyway, so the non-zero exit carries no additional signal.
+      unattended_health.py -- exits 1 when verdict=RED; health written to
+                              unattended-health.json and FUTURES-HEALTH surfaced separately.
+      roster_liveness.py   -- exits 1 when dead lanes found; dead lanes flagged to
+                              STATUS.md ## Known broken directly by flag_known_broken()."""
+    _NONZERO_BY_DESIGN: frozenset[str] = frozenset({"unattended_health.py", "roster_liveness.py"})
     lp = log_path or (STATE / "logs" / f"run-cmd-hidden-{now.strftime('%Y-%m-%d')}.log")
     if not lp.exists():
         return []
@@ -1286,7 +1297,8 @@ def check_run_cmd_hidden_masked_exit(now, log_path=None) -> list[str]:
         text = lp.read_text(encoding="utf-8", errors="replace")
     except Exception:  # noqa: BLE001
         return []
-    bad = [r for r in _parse_run_cmd_hidden_log(text) if r["exit"] != 0]
+    bad = [r for r in _parse_run_cmd_hidden_log(text)
+           if r["exit"] != 0 and _run_cmd_hidden_script_label(r["cmd"]) not in _NONZERO_BY_DESIGN]
     if not bad:
         return []
     # One line per distinct failing script (not per-fire) -- a frequent-cadence task
