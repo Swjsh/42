@@ -20,7 +20,7 @@ const path = require("path");
 const { spawn, spawnSync } = require("child_process");
 const { buildState, summarize } = require("./lib/state");
 const { resolveApproval, isCardSnoozed } = require("./lib/approvals");
-const { runEscalation, getTasks, getTaskStatus, cancelTask, subscribeAskStream, unsubscribeAskStream, askFeedPath } = require("./lib/escalate");
+const { runEscalation, getTasks, getTaskStatus, cancelTask, subscribeAskStream, unsubscribeAskStream, askFeedPath, loadChatSession } = require("./lib/escalate");
 // isHalted was referenced by the orchestrator-chat route but NEVER imported -- the
 // resulting ReferenceError was swallowed by readBody's old catch and re-surfaced as a
 // fake "empty message" (see readBody's comment). Root cause of the 2026-08-29 chat bug.
@@ -1071,13 +1071,27 @@ const server = http.createServer((req, res) => {
       // Model is clamped to the known set exactly like the card path; an unknown value
       // silently becomes sonnet rather than being forwarded to the SDK.
       const model = ["opus", "sonnet", "haiku"].indexOf(String((b && b.model) || "")) >= 0 ? b.model : "opus";
-      const resume = (b && typeof b.resume === "string" && /^[A-Za-z0-9-]{8,64}$/.test(b.resume)) ? b.resume : null;
+      let resume = (b && typeof b.resume === "string" && /^[A-Za-z0-9-]{8,64}$/.test(b.resume)) ? b.resume : null;
+      let resumedFrom = resume ? "client" : null;
+      // PERSISTENT ORCHESTRATOR: a client with no session (fresh page load, other
+      // browser) auto-resumes the stored one, so the conversation is continuous
+      // across reloads instead of per-tab. `fresh:true` (model switch, or a turn
+      // after a resume error) is the explicit way to start over. Guarded to the
+      // same model — resuming a conversation onto a different model is a lie
+      // about continuity, per the client's own model-switch comment.
+      if (!resume && !(b && b.fresh)) {
+        const stored = loadChatSession(ROOT);
+        if (stored && stored.sessionId && stored.model === model && /^[A-Za-z0-9-]{8,64}$/.test(stored.sessionId)) {
+          resume = stored.sessionId;
+          resumedFrom = "store";
+        }
+      }
       const askId = mintAskId("chat");
       logAsk({ id: askId, model, task: message, ts: new Date().toISOString(), origin: "cockpit-chat" });
       runEscalation(ROOT, { id: askId, model, task: message, origin: "cockpit-chat", resume })
         .catch((e) => logCrash("runEscalation/chat", e));
       return sendJSON(res, 200, {
-        ok: true, ask_id: askId, model, resumed: !!resume,
+        ok: true, ask_id: askId, model, resumed: !!resume, resumed_from: resumedFrom,
         stream_token: push.mintStreamToken(ROOT, askId),
       });
     });

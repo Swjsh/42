@@ -22,7 +22,41 @@ from __future__ import annotations
 
 CHAT_JS = r"""
 /* ---------- COCKPIT CHAT: a real orchestrator session, in the page ---------- */
-let chatState={turns:[],session:null,busy:false,es:null,pinned:true,model:'opus'};
+let chatState={turns:[],session:null,busy:false,es:null,pinned:true,model:'opus',freshNext:false,saved:[]};
+
+/* PERSISTENCE: the conversation survives a reload. Session + model + transcript go to
+   localStorage (per-viewer convenience — the SERVER holds the durable sessionId in
+   orchestrator-chat.json and auto-resumes it, so even a cold browser continues the same
+   orchestrator). Every read/write is try/caught: private windows and cleared site data
+   must degrade to an empty chat, never a broken one. */
+function chatSave(){
+  try{
+    localStorage.setItem('gamma-chat-v1',JSON.stringify({
+      session:chatState.session,model:chatState.model,
+      turns:chatState.turns.slice(-40).map(t=>({role:t.role,text:t.text,model:t.model})),
+    }));
+  }catch(_){ }
+}
+/* State half restores at parse time so the model select + resume are right from the first
+   render; the DOM half (chatRestoreTurns) waits until the pane exists. */
+(function(){
+  try{
+    const s=JSON.parse(localStorage.getItem('gamma-chat-v1')||'null');
+    if(!s)return;
+    if(s.session)chatState.session=s.session;
+    if(s.model)chatState.model=s.model;
+    chatState.saved=(s.turns||[]).filter(t=>t&&t.text);
+  }catch(_){ }
+})();
+function chatRestoreTurns(){
+  if(!chatState.saved.length)return;
+  const box=chatEl(); if(!box)return;
+  for(const t of chatState.saved)chatPush(t.role,t.text,t.model);
+  chatState.saved=[];
+  const mark=el('div','chatstep dim'); mark.style.padding='2px 0 8px';
+  mark.textContent='— restored · same session continues —';
+  box.appendChild(mark);
+}
 
 function chatEl(){ return document.getElementById('chatbody'); }
 
@@ -79,6 +113,9 @@ function chatFlush(){
 }
 function chatAppendText(turnId,chunk){
   chatBuf[turnId]=(chatBuf[turnId]||'')+chunk;
+  // Mirror into the turn object too — the DOM was the only copy, so a transcript
+  // saved for reload restore had empty gamma replies.
+  const t=chatState.turns.find(x=>x.id===turnId); if(t)t.text+=chunk;
   if(!chatTick)chatTick=setTimeout(chatFlush,16);
 }
 function chatAppendStep(turnId,label,cls){
@@ -119,17 +156,21 @@ function chatSend(){
   ta.value=''; ta.style.height='auto';
   chatPush('user',msg);
   const turn=chatPush('gamma','',chatState.model);
+  chatSave();
   chatSetBusy(true);
 
   fetch('/api/orchestrator-chat',{
     method:'POST',
     headers:{'content-type':'application/json','x-gamma-token':cardsGammaToken()},
-    body:JSON.stringify({message:msg,model:chatState.model,resume:chatState.session||undefined}),
+    body:JSON.stringify({message:msg,model:chatState.model,resume:chatState.session||undefined,
+      fresh:chatState.freshNext||undefined}),
   }).then(r=>r.json()).then(j=>{
     if(!j||j.ok===false){
       chatAppendStep(turn.id,'✕ '+((j&&j.error)||'failed'),'bad');
       chatSetBusy(false); return;
     }
+    chatState.freshNext=false;
+    if(j.resumed_from==='store')chatAppendStep(turn.id,'↻ continuing the stored session','dim');
     const url='/api/ask-stream?id='+encodeURIComponent(j.ask_id)+'&tok='+encodeURIComponent(j.stream_token);
     let es=null;
     try{ es=new EventSource(url); }catch(e){ chatAppendStep(turn.id,'✕ stream unavailable','bad'); chatSetBusy(false); return; }
@@ -140,6 +181,7 @@ function chatSend(){
       if(d.step==='session'&&d.sessionId){
         // Captured so the NEXT turn resumes this session instead of starting cold.
         chatState.session=d.sessionId;
+        chatSave();
         chatAppendStep(turn.id,(j.resumed?'↻ resumed':'● session')+' '+String(d.sessionId).slice(0,8),'dim');
       } else if(d.step==='delta'){
         turn.sawDelta=true;
@@ -157,6 +199,13 @@ function chatSend(){
         chatAppendStep(turn.id,'   '+(d.preview||(d.ok?'ok':'error')),'dim');
       } else if(d.step==='result'){
         chatAppendStep(turn.id,(d.ok===false?'✕ ':'✓ ')+(d.summary||''),d.ok===false?'bad':'ok');
+        // A resume that ERRORED (expired session) would fail identically forever —
+        // drop it and start clean next turn. Halt/busy/cancel keep the session:
+        // the conversation itself is fine, only this attempt was refused.
+        if(d.ok===false&&/error|timeout/.test(d.subtype||'')&&j.resumed){
+          chatState.session=null; chatState.freshNext=true;
+        }
+        chatSave();
         chatStop();
       }
     };
@@ -179,8 +228,11 @@ function chatPane(){
   sel.onchange=()=>{
     chatState.model=sel.value;
     // Switching model starts a NEW session: resume ties a conversation to the model it began
-    // on, and silently resuming a different one would be a lie about continuity.
+    // on, and silently resuming a different one would be a lie about continuity. freshNext
+    // also stops the SERVER from auto-resuming its stored session on the next turn.
     chatState.session=null;
+    chatState.freshNext=true;
+    chatSave();
     chatAppendStep((chatState.turns[chatState.turns.length-1]||{}).id||'','model → '+sel.value+' (new session)','dim');
   };
   head.appendChild(sel);
@@ -220,6 +272,9 @@ function chatPane(){
     ? 'Snapshot mode — open 127.0.0.1:4317/cockpit.html to chat.'
     : 'Its own session, not one of your Desktop windows. It appears above as its own box.';
   wrap.appendChild(note);
+  // Deferred one tick: the caller appends `wrap` synchronously right after this returns,
+  // so by the time the timeout runs, chatEl() resolves and the saved transcript renders.
+  if(chatState.saved.length)setTimeout(chatRestoreTurns,0);
   return wrap;
 }
 """

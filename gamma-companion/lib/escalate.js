@@ -34,6 +34,35 @@ function askFeedPath(root, id) {
   return path.join(askFeedDir(root), String(id).replace(/[^a-zA-Z0-9._-]/g, "_") + ".jsonl");
 }
 
+// ── Persistent orchestrator session ─────────────────────────────────────────
+// The cockpit chat resumes ONE continuous session. Client-side memory alone dies
+// on every page reload (chatState is JS memory), which made "remembers the
+// conversation" true only until F5 — every visit spawned an amnesiac orchestrator
+// and a fresh Army box. The server therefore remembers the last chat sessionId on
+// disk and the route auto-resumes it when the client arrives cold.
+function chatStorePath(root) {
+  return path.join(root, "automation", "state", "orchestrator-chat.json");
+}
+function saveChatSession(root, sessionId, model) {
+  try {
+    fs.writeFileSync(chatStorePath(root), JSON.stringify({ sessionId, model, updated: new Date().toISOString() }));
+  } catch { /* telemetry write must never break the escalation */ }
+}
+function clearChatSession(root, sessionId) {
+  // Only clear the id that failed — a concurrent newer session must survive.
+  try {
+    const s = JSON.parse(fs.readFileSync(chatStorePath(root), "utf8"));
+    if (!sessionId || s.sessionId === sessionId) fs.unlinkSync(chatStorePath(root));
+  } catch { /* absent file is the goal state */ }
+}
+function loadChatSession(root) {
+  try {
+    return JSON.parse(fs.readFileSync(chatStorePath(root), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 // OP-22 hygiene: the per-ask feed files (companion-ask-feed/<id>.jsonl) are
 // appended once per build and NOTHING ever deleted them, so the dir leaked disk
 // forever. Best-effort prune: keep the ~50 most-recently-modified files, drop the
@@ -355,6 +384,10 @@ async function runEscalation(root, { id, model, task, origin, card_id, resume })
       try {
         if (m.type === "system" && m.subtype === "init") {
           setTask(id, { sessionId: m.session_id });
+          // Chat turns land here on every turn (resumed sessions mint a NEW session_id
+          // per turn) — saving each one keeps the store pointing at the freshest link
+          // in the conversation chain.
+          if (org === "cockpit-chat") saveChatSession(root, m.session_id, model);
           emit(root, id, { step: "session", sessionId: m.session_id, model: m.model, tools: (m.tools || []).length });
         } else if (m.type === "assistant") {
           for (const b of (m.message && m.message.content) || []) {
@@ -418,6 +451,9 @@ async function runEscalation(root, { id, model, task, origin, card_id, resume })
       : userCancel
       ? "(cancelled by you)"
       : "(escalation error -- " + String((e && e.message) || e).slice(0, 200) + ")";
+    // A resume that threw (expired/invalid session) must not keep poisoning the
+    // store — drop it so the next chat turn starts clean instead of failing forever.
+    if (org === "cockpit-chat" && resume && !userCancel) clearChatSession(root, String(resume));
     setTask(id, { status: userCancel ? "cancelled" : "failed", finished: new Date().toISOString(), ok: false, summary: String(failSummary).replace(/\s+/g, " ").trim().slice(0, 200) });
     // Terminal frame so a watching SSE client closes cleanly (the SDK `result`
     // message never arrived on the throw/abort path).
@@ -523,4 +559,4 @@ async function runEscalation(root, { id, model, task, origin, card_id, resume })
   pruneFeedDir(root, 50);
 }
 
-module.exports = { runEscalation, getTasks, getTaskStatus, cancelTask, MODEL_MAP, subscribeAskStream, unsubscribeAskStream, askFeedPath };
+module.exports = { runEscalation, getTasks, getTaskStatus, cancelTask, MODEL_MAP, subscribeAskStream, unsubscribeAskStream, askFeedPath, loadChatSession };
