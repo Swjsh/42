@@ -290,9 +290,17 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
     # end up in a ledger whose entire interpretability rests on that column being true.
     # Refuse the tick outright rather than degrade quietly into a half-lane (C7).
     if not connected and not is_simulated(broker):
+        # 2026-08-30 diagnosability fix: carry the adapter's OWN failure detail (exception
+        # class/repr/http_status, set by TastytradeBroker.connect()'s except blocks) into
+        # this ledger row. Before this, "why" lived only in a log.error() call that
+        # pythonw's no-console deployment discards outright -- 76% of 2026-08-28's ticks
+        # refused with zero recoverable reason. connect_failure is None for a broker that
+        # has no such attribute (e.g. a future backend) -- never assumed present.
+        connect_failure = getattr(broker, "last_failure_detail", None)
         record.update(action="HOLD", reason="broker_not_connected",
                       detail="adapter did not authenticate -- refusing to act or journal "
-                             "as a BROKER lane. Check .env.tastytrade is readable.")
+                             "as a BROKER lane. Check .env.tastytrade is readable.",
+                      connect_failure=connect_failure)
         _write_heartbeat(now_et, "ERROR_NOT_CONNECTED", {"backend": backend_name(broker)}, paths)
         _append_ledger(record, paths)
         _atomic_write_json(paths["last_tick"], record)

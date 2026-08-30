@@ -370,17 +370,38 @@ class TastytradeBroker:
 
             self._session, self._account = _with_retry(lambda: _run(_conn()))
             self._connected = True
+            self.last_failure_detail = None  # clear any stale failure from a prior connect()
             log.info("Tastytrade connected (sandbox=%s) acct=%s",
                      self._sandbox, self._account.account_number)
             return True
 
         except KeyError as e:
+            # 2026-08-30 diagnosability fix: log.error() alone is a dead end under this
+            # lane's real deployment shape -- pythonw has no stdout/stderr and nothing in
+            # this call chain ever attaches a logging.Handler, so every connect() failure
+            # reason was being computed and then discarded (C7: silent success is failure).
+            # Mirror the same durable trail place_bracket already uses: last_failure_detail
+            # (read by callers) + one row in broker-transport.jsonl (read by
+            # futures_health.py's broker_transport check) -- for BOTH the transport-error
+            # and the non-transport (auth/config) case, not just the former.
             log.error("Missing env var %s — set TT_SECRET and TT_REFRESH (see file docstring)", e)
+            self.last_failure_detail = {
+                "call": "connect", "outcome": "missing_env_var",
+                "error_class": type(e).__name__, "error_repr": repr(e),
+                "detail": f"missing env var {e}",
+            }
+            _log_broker_transport("connect", "missing_env_var", exc=e,
+                                   detail=f"missing env var {e}")
             return False
         except Exception as e:
             log.error("Tastytrade connect failed: %s: %s", type(e).__name__, e)
-            if _is_transport_error(e):
-                _log_broker_transport("connect", "transport_error", exc=e)
+            outcome = "transport_error" if _is_transport_error(e) else "auth_or_permission_error"
+            self.last_failure_detail = {
+                "call": "connect", "outcome": outcome,
+                "error_class": type(e).__name__, "error_repr": repr(e)[:500],
+                "http_status": _extract_http_status(e),
+            }
+            _log_broker_transport("connect", outcome, exc=e)
             return False
 
     def disconnect(self):
