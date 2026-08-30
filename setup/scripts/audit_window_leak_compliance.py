@@ -607,13 +607,42 @@ def _audit_hook_commands() -> tuple[list[dict], int]:
                 # rule was double-counting it against the launcher instead of the callee.
                 continue
             if launcher in HOOK_CONSOLE_LAUNCHERS or launcher.startswith("python"):
+                # A hook we own is a hard violation: we can fix it, so it is RED.
+                # A hook shipped INSIDE a third-party plugin is reported but does not set
+                # health RED. Two reasons, both measured on 2026-08-30 rather than assumed:
+                #   1. There is no fix available to us. The command lives in the plugin's own
+                #      cache directory, which is overwritten on every plugin update, so
+                #      "route it through the hidden wrapper" is not an action anyone can take
+                #      here. The only lever is disabling the plugin, which costs its commands.
+                #   2. It was not observed to paint. btsc's PostToolUse hook fires a bash
+                #      hook on EVERY Bash tool call and was captured live spawning bash.exe +
+                #      conhost.exe at 2026-08-30T20:00Z -- yet across dozens of Bash calls
+                #      that session, window_leak_hook.py logged ZERO hides outside the 14:00
+                #      scheduled-task burst. These hooks allocate a console; on this box that
+                #      console does not become a visible window.
+                # A permanent un-actionable RED is not free: it is exactly how a real popup
+                # storm hides in the noise (the 2026-08-09 incident shipped under a green-ish
+                # audit). Keep the finding, drop the false alarm.
+                # RE-ESCALATE if window-leak-hook-*.log ever logs hides correlated with tool
+                # calls rather than with :00/:30 task fires -- that is the same evidence that
+                # made the 2026-08-09 bare-`npx` hook a genuine RED.
+                third_party = "plugins" in str(path).replace("\\", "/").split("/")
                 flags.append({
-                    "file": str(path), "line": 0, "flag": "HOOK_BARE_CONSOLE_LAUNCHER",
+                    "file": str(path), "line": 0,
+                    "flag": ("HOOK_BARE_CONSOLE_LAUNCHER_THIRDPARTY" if third_party
+                             else "HOOK_BARE_CONSOLE_LAUNCHER"),
+                    "severity": "info" if third_party else "violation",
                     "detail": f"[{event}] launcher {launcher!r} spawns a console on every "
-                              f"tool call: {cmd[:110]}",
-                    "fix": "Route through pythonw + a hidden wrapper, e.g. "
-                           "`<pythonw.exe> ~/.claude/scripts/hidden_hook.py <cmd...>` "
-                           "(or setup/scripts/run_hook_hidden.py for a .ps1).",
+                              f"tool call: {cmd[:110]}"
+                              + (" -- third-party plugin hook: reported, not RED (no fix "
+                                 "available here; not observed to paint on this box)"
+                                 if third_party else ""),
+                    "fix": ("Disable the plugin in ~/.claude/settings.json `enabledPlugins` "
+                            "if it ever IS shown to paint; otherwise informational."
+                            if third_party else
+                            "Route through pythonw + a hidden wrapper, e.g. "
+                            "`<pythonw.exe> ~/.claude/scripts/hidden_hook.py <cmd...>` "
+                            "(or setup/scripts/run_hook_hidden.py for a .ps1)."),
                 })
     return flags, scanned
 
@@ -660,9 +689,14 @@ def main() -> int:
 
     all_flags = (ps1_flags + py_flags + mcp_flags + task_flags + hook_flags
                  + hider_flags + empty_scan_flags)
+    # Health is driven ONLY by findings someone can act on. Informational findings stay in
+    # the report (never silently dropped) but must not hold the audit permanently RED.
+    violations = [f for f in all_flags if f.get("severity") != "info"]
     report = {
         "audited_at": datetime.now(timezone.utc).isoformat(),
-        "health": "RED" if all_flags else "GREEN",
+        "health": "RED" if violations else "GREEN",
+        "violation_count": len(violations),
+        "info_count": len(all_flags) - len(violations),
         "ps1_bare_python_count": len(ps1_flags),
         "py_subprocess_no_creationflags_count": len(py_flags),
         "mcp_unwrapped_launcher_count": len(mcp_flags),
@@ -696,7 +730,7 @@ def main() -> int:
         if len(all_flags) > 25:
             print(f"    ... and {len(all_flags) - 25} more (full list in {AUDIT_OUT.relative_to(REPO)})")
     print(f"\n  report: {AUDIT_OUT.relative_to(REPO)}")
-    return 0 if not all_flags else 1
+    return 0 if not violations else 1
 
 
 if __name__ == "__main__":

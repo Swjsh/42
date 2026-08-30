@@ -232,3 +232,48 @@ def test_setup_mcp_is_in_scan_roots(audit):
     roots = {str(r).replace("\\", "/").lower() for r in audit.PY_AUDIT_ROOTS}
     assert any(r.endswith("setup/mcp") for r in roots), (
         "setup/mcp must be in PY_AUDIT_ROOTS -- it spawns every stdio MCP server")
+
+
+# --- third-party hook severity must not become a blanket escape hatch ------------------
+# A bare console launcher in a hook WE own stays a hard RED. Only a hook shipped inside a
+# third-party plugin is downgraded to informational, because (a) its command lives in a
+# cache dir overwritten on plugin update so no fix is available here, and (b) it was not
+# observed to paint: btsc's PostToolUse bash hook fires on every Bash tool call and
+# window_leak_hook.py logged ZERO hides outside the :00 scheduled-task burst.
+
+
+def _hook_flags_for(audit, monkeypatch, tmp_path, path_name: str, command: str):
+    import json as _json
+    cfg = {"hooks": {"Stop": [{"hooks": [{"type": "command", "command": command}]}]}}
+    f = tmp_path / path_name
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(_json.dumps(cfg), encoding="utf-8")
+    monkeypatch.setattr(audit, "HOOK_CONFIG_SOURCES", [f])
+    flags, scanned = audit._audit_hook_commands()
+    assert scanned == 1
+    return flags
+
+
+def test_our_own_bare_hook_is_a_hard_violation(audit, monkeypatch, tmp_path):
+    """RED-PROOF: a hook in a settings file we control must stay a real violation."""
+    flags = _hook_flags_for(audit, monkeypatch, tmp_path, "settings.json", 'bash "x.sh"')
+    assert len(flags) == 1
+    assert flags[0]["flag"] == "HOOK_BARE_CONSOLE_LAUNCHER"
+    assert flags[0].get("severity") != "info", "our own bare launcher must not be downgraded"
+
+
+def test_third_party_plugin_hook_is_informational(audit, monkeypatch, tmp_path):
+    """A plugin-shipped hook is reported but must not hold the audit permanently RED."""
+    flags = _hook_flags_for(
+        audit, monkeypatch, tmp_path, "plugins/cache/x/1.0/hooks/hooks.json", 'bash "x.sh"')
+    assert len(flags) == 1, "the finding must still be REPORTED, never silently dropped"
+    assert flags[0]["flag"] == "HOOK_BARE_CONSOLE_LAUNCHER_THIRDPARTY"
+    assert flags[0]["severity"] == "info"
+
+
+def test_compliant_hook_is_not_flagged(audit, monkeypatch, tmp_path):
+    """Sanity: the wrapper chain must still pass, or the check is just noise."""
+    flags = _hook_flags_for(
+        audit, monkeypatch, tmp_path, "settings.json",
+        r'C:\pythonw.exe C:\Users\jackw\.claude\scripts\hidden_hook.py npx thing')
+    assert flags == [], f"the approved hidden-wrapper chain must not be flagged: {flags}"
