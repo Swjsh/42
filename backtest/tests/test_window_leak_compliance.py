@@ -99,3 +99,37 @@ def test_comment_mentioning_subprocess_run_is_not_flagged(tmp_path, monkeypatch)
     monkeypatch.setattr(AUD, "REPO", tmp_path)
     flags = AUD._audit_py_missing_creationflags()
     assert flags == [], f"a comment-only mention was wrongly flagged as a call site: {flags}"
+
+
+# --- hook launcher rule (corrected 2026-08-29) -----------------------------------------
+# The rule used to demand a hidden wrapper around EVERY python-ish hook launcher,
+# including pythonw. That flagged 7 compliant hooks, and its prescribed "fix" would have
+# added an extra process spawn to every PreToolUse -- i.e. every tool call -- to prevent
+# a window that a GUI-subsystem binary cannot open. These two tests pin the corrected
+# rule from both sides: pythonw is clean, a real console launcher is still caught.
+
+def _hook_flags(tmp_path, monkeypatch, command: str):
+    import json
+    settings = tmp_path / "settings.json"
+    settings.write_text(json.dumps(
+        {"hooks": {"PreToolUse": [{"hooks": [{"type": "command", "command": command}]}]}}),
+        encoding="utf-8")
+    monkeypatch.setattr(AUD, "HOOK_CONFIG_SOURCES", [settings])
+    flags, scanned = AUD._audit_hook_commands()
+    assert scanned == 1, f"fixture not scanned in isolation (scanned={scanned})"
+    return flags
+
+
+def test_bare_pythonw_hook_is_compliant(tmp_path, monkeypatch):
+    """pythonw.exe is PE subsystem 2 -- the loader gives it no console to flash."""
+    flags = _hook_flags(tmp_path, monkeypatch,
+                        'C:/Python313/pythonw.exe "${CLAUDE_PROJECT_DIR}/setup/hooks/x.py"')
+    assert flags == [], f"bare pythonw wrongly flagged: {flags}"
+
+
+def test_console_launcher_hook_is_still_flagged(tmp_path, monkeypatch):
+    """The BITE: python.exe/npx/cmd genuinely do allocate a console. Still caught."""
+    for launcher in ("C:/Python313/python.exe script.py", "npx -y some-pkg", "cmd /c foo"):
+        flags = _hook_flags(tmp_path, monkeypatch, launcher)
+        assert flags, f"console launcher slipped through: {launcher!r}"
+        assert flags[0]["flag"] == "HOOK_BARE_CONSOLE_LAUNCHER"

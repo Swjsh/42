@@ -426,8 +426,19 @@ def _audit_hook_commands() -> tuple[list[dict], int]:
         for event, cmd in _hook_commands(cfg):
             scanned += 1
             launcher = _first_token(cmd)
-            if launcher.startswith("pythonw") and any(w in cmd for w in HOOK_APPROVED_WRAPPERS):
-                continue  # compliant: pythonw + a CREATE_NO_WINDOW wrapper
+            if launcher.startswith("pythonw"):
+                # pythonw.exe is a GUI-subsystem binary (PE subsystem 2, verified
+                # 2026-08-29 against Python313\pythonw.exe) -- the loader gives it no
+                # console, so it CANNOT flash a window no matter what it runs. Requiring a
+                # wrapper here flagged 7 compliant hooks and, worse, the "fix" would have
+                # added a whole extra process spawn to EVERY PreToolUse -- i.e. on every
+                # tool call -- to prevent a window that cannot appear.
+                #
+                # The residual risk is a pythonw hook that shells out to a console child
+                # without CREATE_NO_WINDOW. That is real, but it is already covered by
+                # PY_SUBPROCESS_NO_CREATIONFLAGS, which scans every .py in the tree. This
+                # rule was double-counting it against the launcher instead of the callee.
+                continue
             if launcher in HOOK_CONSOLE_LAUNCHERS or launcher.startswith("python"):
                 flags.append({
                     "file": str(path), "line": 0, "flag": "HOOK_BARE_CONSOLE_LAUNCHER",
