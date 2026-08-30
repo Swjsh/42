@@ -1311,3 +1311,20 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .turn--note .turn__b{border-left:2px solid var(--line-2);padding-left:10px}
 .turn--note[data-t="bad"] .turn__b{border-left-color:var(--alarm)}
 .turn__note{margin-top:4px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+
+/* One line telling the reader what the cards below the hero actually are. J:
+   "some things idk what i am looking at" — obvious once said, invisible until
+   someone says it. A line, not a legend box, which would cost more height than
+   it explains.
+
+   It sits ON the beam layer, so it carries the page background: without that the
+   connector strokes run straight through the text. Centred and small so it reads
+   as a caption rather than a heading competing with the hero above it. */
+.org__cap{
+  position:relative;z-index:2;align-self:center;
+  font-size:12px;line-height:1.5;color:var(--ink-4);text-align:center;
+  margin:-26px auto -10px;padding:2px 12px;border-radius:999px;
+  background:var(--void);width:fit-content;max-width:100%;
+}
+.org__cap b{color:var(--ink-3);font-weight:640}
+@media (max-width:1180px){ .org__cap{display:none} }
