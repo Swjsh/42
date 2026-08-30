@@ -391,7 +391,7 @@ def _session_title(slug: str, session_id: str) -> str:
     return ""
 
 
-def _first_user_text(jsonl_path: Path) -> str:
+def _first_user_text(jsonl_path: Path, cap: int = 180) -> str:
     """A worker's task label = the first user message of its own transcript
     (spec sec 2c). Reads only the first line -- that record IS the task, so a
     full-file scan is unnecessary work every poll would otherwise pay for."""
@@ -408,11 +408,11 @@ def _first_user_text(jsonl_path: Path) -> str:
         return ""
     content = ((rec.get("message") or {}) if isinstance(rec.get("message"), dict) else {}).get("content")
     if isinstance(content, str):
-        return _clip(content, 180)
+        return _clip(content, cap)
     if isinstance(content, list):
         for block in content:
             if isinstance(block, dict) and block.get("type") == "text" and block.get("text"):
-                return _clip(str(block["text"]), 180)
+                return _clip(str(block["text"]), cap)
     return ""
 
 
@@ -440,10 +440,128 @@ def _worker_row(path: Path, session_id: str) -> dict | None:
         "workflow_id": path.parent.name if path.parent.name.startswith("wf_") else "",
         "agent_type": meta.get("agentType") or "",
         "model": meta.get("model") or "",
+        # The Agent tool's own one-line `description` ("Mine dashboard craft techniques").
+        # It was being dropped on the floor while the cockpit rendered 180 chars of shared
+        # prompt preamble instead -- the single best label available, ignored.
+        "description": _clip(meta.get("description") or "", 90),
         "task": task or (meta.get("agentType") or ""),  # degrade to type, never blank
+        # Kept only long enough to strip boilerplate shared with siblings; dropped
+        # before shipping so the page never carries it. Must exceed the shared
+        # header a workflow fan-out prepends (~2.6KB in the run this was built
+        # against) or the common prefix eats the whole string and there is nothing
+        # distinguishing left to find. The first line is read in full regardless,
+        # so a larger cap costs no extra I/O.
+        "_task_full": _first_user_text(path, 6000),
         "last_write": dt.datetime.fromtimestamp(mtime).isoformat(timespec="seconds"),
         "active": age_s <= WORKER_ACTIVE_S,
     }
+
+
+def _skip_data_prefix(text: str) -> str:
+    """Drop a leading `LABEL:` header and any JSON blob handed to the agent as input.
+
+    A later-phase workflow agent is often prompted with the previous phase's findings
+    first, so its prompt OPENS with data rather than instruction and the card rendered
+    `AUTOPSY: [ { "summary": ...` as the agent's purpose. That blob is the agent's
+    input, never its job. Bounded to four peels so a pathological prompt cannot spin,
+    and if a blob never closes inside what was read we stop rather than guess.
+    """
+    t = text
+    for _ in range(4):
+        t = t.lstrip()
+        header = re.match(r"^[A-Z][A-Z0-9 _\-]{2,40}:\s*", t)
+        if header:
+            t = t[header.end():]
+            continue
+        if t[:1] not in "[{":
+            break
+        depth, in_str, esc, end = 0, False, False, -1
+        for i, ch in enumerate(t):
+            if esc:
+                esc = False
+                continue
+            if ch == "\\":
+                esc = True
+                continue
+            if ch == '"':
+                in_str = not in_str
+                continue
+            if in_str:
+                continue
+            if ch in "[{":
+                depth += 1
+            elif ch in "]}":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if end < 0:
+            break
+        t = t[end + 1:]
+    return re.sub(r"\s+", " ", t).strip(" .,:;-—")
+
+
+def _derive_purposes(workers: list[dict]) -> None:
+    """Give every worker a `purpose`: one short line saying what THIS agent is for.
+
+    Three sources, best first:
+      1. the Agent tool's own `description` ("Mine dashboard craft techniques") --
+         written by whoever spawned it, for exactly this job;
+      2. for a workflow fan-out, the part of the prompt that DIFFERS from its
+         siblings. Workflow subagents share a large context header, so the first
+         180 chars of every sibling's prompt were byte-identical boilerplate and
+         the cockpit rendered the same "REPO: C:\\Users\\jackw\\Desktop\\42 ..."
+         on every row -- the anonymous-grey-circle problem in text form. Stripping
+         the longest common prefix leaves precisely the distinguishing instruction;
+      3. the plain first line of the prompt, when neither applies.
+
+    Never invents: if nothing distinguishing survives, purpose stays the raw task.
+    """
+    # NEAREST sibling, not all siblings. A prefix common to EVERY agent in the group is
+    # usually empty, because one workflow's phases have different prompt shapes: an
+    # early phase opens "Worker task in repo C:\\..." while a later one is handed the
+    # previous phase's findings and opens "AUTOPSY: [{...". The universal prefix across
+    # those is ~0 characters, so nothing was stripped and the JSON blob went to screen.
+    # Comparing each agent against its single closest sibling strips whatever boilerplate
+    # THAT pair actually shares, which is the thing that makes them look alike.
+    candidates = [w for w in workers if not w.get("description")]
+    for w in candidates:
+        mine = w.get("_task_full") or ""
+        if not mine:
+            continue
+        best = 0
+        for other in candidates:
+            if other is w or other["session_id"] != w["session_id"]:
+                continue
+            theirs = other.get("_task_full") or ""
+            n = 0
+            for a, b in zip(mine, theirs):
+                if a != b:
+                    break
+                n += 1
+            best = max(best, n)
+        rest = mine
+        if best >= 60:
+            # cut back to a word boundary so a purpose never opens mid-word
+            rest = mine[len(mine[:best].rsplit(" ", 1)[0]):]
+        rest = _skip_data_prefix(rest)
+        if len(rest) >= 24:
+            w["_distinct"] = rest
+    for w in workers:
+        # Last resort still gets the header/blob peel: when several agents were given
+        # a genuinely identical prompt there IS nothing distinguishing to find, and
+        # repeating that fact is honest -- but it should start at the instruction
+        # rather than at "REPO: C:\Users\...".
+        w["purpose"] = _clip(
+            w.get("description")
+            or w.get("_distinct")
+            or _skip_data_prefix(w.get("_task_full") or w.get("task") or "")
+            or w.get("task")
+            or "",
+            130,
+        )
+        w.pop("_task_full", None)
+        w.pop("_distinct", None)
 
 
 def _worker_rows_for_session(slug: str, session_id: str) -> list[dict]:
@@ -457,6 +575,9 @@ def _worker_rows_for_session(slug: str, session_id: str) -> list[dict]:
     except OSError:
         return []
     rows = [r for r in (_worker_row(p, session_id) for p in files) if r]
+    # Purposes are derived across the WHOLE set, not per row: a workflow sibling's
+    # distinguishing text is only knowable by comparison with its siblings.
+    _derive_purposes(rows)
     rows.sort(key=lambda r: r["last_write"], reverse=True)
     return rows
 

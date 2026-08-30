@@ -178,3 +178,60 @@ def test_payload_separates_workers_ever_spawned_from_workers_running_now():
             f"{s.get('name')}: payload ships {shipped_live} live workers but claims "
             f"{s['worker_active']}"
         )
+
+
+def test_every_worker_carries_a_human_purpose():
+    """The card says what each agent is FOR, so it must always have something to say.
+
+    Before this, the Army view rendered subagents as five identical grey circles: the
+    agent_type, model, task text and live/done state were all in the payload and none
+    reached the screen. `purpose` is the field the row is built on, so an empty one
+    puts a blank line where the answer to J's question belongs.
+    """
+    from gamma_cockpit_army import build_army
+
+    for w in build_army().get("workers") or []:
+        assert w.get("purpose"), f"worker {w['agent_id']} has no purpose to show"
+        assert not w["purpose"].lstrip().startswith(("[", "{")), (
+            f"worker {w['agent_id']} purpose opens with a data blob, not an instruction: "
+            f"{w['purpose'][:60]!r}"
+        )
+        # Internal scratch fields must never reach the page.
+        assert "_task_full" not in w and "_distinct" not in w
+
+
+def test_purpose_prefers_the_spawners_own_description():
+    """The Agent tool's `description` is a human label written for exactly this job.
+
+    It was being ignored while the page rendered 180 chars of shared prompt preamble.
+    """
+    from gamma_cockpit_army import _derive_purposes
+
+    rows = [{"session_id": "s", "workflow_id": "", "description": "Mine design skills",
+             "task": "You are a researcher. Go read a hundred repos and report back.",
+             "_task_full": "You are a researcher. Go read a hundred repos and report back."}]
+    _derive_purposes(rows)
+    assert rows[0]["purpose"] == "Mine design skills"
+
+
+def test_siblings_sharing_boilerplate_get_distinguishing_purposes():
+    """Workflow fan-outs share a long context header; the row must show what DIFFERS.
+
+    Rendering the common prefix gave every sibling the same label -- the anonymous
+    grey circle problem in text form.
+    """
+    from gamma_cockpit_army import _derive_purposes
+
+    shared = "CONTEXT: " + ("the same long shared preamble every sibling receives. " * 3)
+    rows = [
+        {"session_id": "s", "workflow_id": "wf_1", "description": "",
+         "task": shared, "_task_full": shared + "Audit the login flow for races."},
+        {"session_id": "s", "workflow_id": "wf_1", "description": "",
+         "task": shared, "_task_full": shared + "Benchmark the cache eviction policy."},
+    ]
+    _derive_purposes(rows)
+    purposes = [r["purpose"] for r in rows]
+    assert purposes[0] != purposes[1], "siblings still share one label"
+    assert "Audit the login flow" in purposes[0]
+    assert "Benchmark the cache" in purposes[1]
+    assert "shared preamble" not in purposes[0]

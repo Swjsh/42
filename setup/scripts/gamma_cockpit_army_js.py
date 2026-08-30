@@ -113,7 +113,7 @@ function armySvg(a){
   const hiddenCount=Math.max(0,peers.length-shown.length);
   const rows=1; // recomputed below once bento seats exist
   const W=PAD*2+COLS*BW+(COLS-1)*GAPX;
-  const ocy=54, SESS_TOP=150;
+  const ocy=52, ORCH_H=146, SESS_TOP=218;
   // H depends on bento rows, which depend on which tile is featured -- computed after
   // seating, so declared with let and patched below.
   let H=SESS_TOP+1*(BH+GAPY)+40;
@@ -165,17 +165,55 @@ function armySvg(a){
   defs.appendChild(ag);
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node army-enter',id:'army-orc'});
-  og.appendChild(mk('rect',{x:PAD,y:16,width:W-PAD*2,height:76,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
-  og.appendChild(mk('rect',{x:PAD,y:16,width:W-PAD*2,height:76,rx:16,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
-  /* Tracing border: an ~80px accent comet orbits the hero's ~895px perimeter -- lit and
-     alive without a static heavy stroke shouting. */
-  og.appendChild(mk('rect',{x:PAD,y:16,width:W-PAD*2,height:76,rx:16,fill:'none',
+  const OW=W-PAD*2;
+  [{fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1},
+   {fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}]
+    .forEach(o=>og.appendChild(mk('rect',Object.assign({x:PAD,y:16,width:OW,height:ORCH_H,rx:16},o))));
+  /* Tracing border: an accent comet orbits the hero's perimeter -- lit and alive
+     without a static heavy stroke shouting. */
+  og.appendChild(mk('rect',{x:PAD,y:16,width:OW,height:ORCH_H,rx:16,fill:'none',
     stroke:'var(--acc)','stroke-width':2,class:'army-trace','stroke-linecap':'round','pathLength':'1000'}));
-  og.appendChild(mk('circle',{cx:PAD+30,cy:54,r:9,fill:'none',stroke:'var(--st-live)','stroke-width':1.5,class:'army-ping'}));
-  og.appendChild(mk('circle',{cx:PAD+30,cy:54,r:8,fill:'var(--st-live)',class:'army-ring'}));
-  og.appendChild(ltxt(PAD+52,62,orc?orc.name:'—','var(--tx-1)',26,700));
-  og.appendChild(ltxt(PAD+170,62,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',12.5,600));
-  if(orc&&orc.title)og.appendChild(stxt(W-PAD-20,62,orc.title.slice(0,48),'var(--tx-4)',12,400,'end'));
+  og.appendChild(mk('circle',{cx:PAD+30,cy:52,r:9,fill:'none',stroke:'var(--st-live)','stroke-width':1.5,class:'army-ping'}));
+  og.appendChild(mk('circle',{cx:PAD+30,cy:52,r:8,fill:'var(--st-live)',class:'army-ring'}));
+  og.appendChild(ltxt(PAD+52,60,orc?orc.name:'—','var(--tx-1)',26,700));
+  og.appendChild(ltxt(PAD+170,60,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',12.5,600));
+  if(orc&&orc.title)og.appendChild(stxt(W-PAD-20,60,orc.title.slice(0,48),'var(--tx-4)',12,400,'end'));
+
+  /* THE ORCHESTRATOR'S OWN AGENTS. This strip is the session J is actually talking to,
+     and it was the ONE box on the page that showed nothing about its subagents -- so
+     "what are my subagents doing" was unanswerable for the only session he was in.
+     The strip is ~1340px wide, so its agents get TWO columns and four of them fit at
+     full width: the same row grammar as the tiles, so there is one pattern to learn. */
+  if(orc){
+    const ow=(byWorkerSession[orc.session_id]||[]).slice()
+      .sort((x,y)=>(y.active?1:0)-(x.active?1:0)||String(y.last_write||'').localeCompare(String(x.last_write||'')));
+    const oLive=orc.worker_active||0, oEver=orc.worker_count||0;
+    og.appendChild(mk('line',{x1:PAD+22,y1:78,x2:PAD+OW-22,y2:78,
+      stroke:'var(--bd)','stroke-width':1,opacity:.5}));
+    const ohead=oLive?(oLive+' agent'+(oLive===1?'':'s')+' running now')
+      :(oEver?'no agents running · '+oEver+' finished earlier':'no agents');
+    og.appendChild(ltxt(PAD+22,98,ohead,oLive?'var(--st-live)':'var(--tx-3)',12.5,oLive?700:500));
+    if(oLive)og.appendChild(stxt(PAD+OW-22,98,'click any row for its full prompt','var(--tx-4)',11,500,'end'));
+    const colW=(OW-52)/2;
+    ow.slice(0,4).forEach((w,j)=>{
+      const cx0=PAD+22+(j%2)*colW, ry=118+Math.floor(j/2)*19;
+      const rg=mk('g',{class:'army-node'}); rg.style.cursor='pointer';
+      centers['w:'+w.agent_id]={x:cx0+5,y:ry-4};
+      const rdot=mk('circle',{cx:cx0+5,cy:ry-4,r:3.5,fill:w.active?'var(--st-live)':'var(--tx-4)'});
+      rdot.id='armyworker-'+w.agent_id;
+      rg.appendChild(rdot);
+      const tag=armyTypeWord(w.agent_type)+(w.model?'·'+w.model:'');
+      rg.appendChild(ltxt(cx0+16,ry,fitTxt(tag,120,10.5,true),
+        w.active?'var(--tx-2)':'var(--tx-4)',10.5,600));
+      rg.appendChild(ltxt(cx0+144,ry,fitTxt(w.purpose||armyPurpose(w.task),colW-160,11.5),
+        w.active?'var(--tx-3)':'var(--tx-4)',11.5,400));
+      const tt=mk('title',{}); tt.textContent=(w.agent_type||'agent')+' · '+(w.model||'?')+
+        ' · '+(w.active?'running':'finished')+'\n'+(w.task||''); rg.appendChild(tt);
+      rg.onclick=(e)=>{e.stopPropagation();armyWorkerDrawer(w);};
+      og.appendChild(rg);
+    });
+    if(oEver>4)og.appendChild(ltxt(PAD+22,157,'+'+(oEver-4)+' more this session','var(--tx-4)',11,500));
+  }
   if(orc){og.style.cursor='pointer';og.onclick=()=>armySessionDrawer(orc,byWorkerSession[orc.session_id]||[]);}
   svg.appendChild(og);
 
@@ -223,9 +261,10 @@ function armySvg(a){
     const w=seat.span*BW+(seat.span-1)*GAPX;
     const L=PAD+seat.col*(BW+GAPX);
     const T=SESS_TOP+seat.row*(BH+GAPY);
+    const CW=w-44;                      // usable content width inside the card padding
     const sx=L+w/2, sy=T+BH/2;
     centers['s:'+s.session_id]={x:sx,y:sy};
-    const dPath=`M ${sx} ${92} C ${sx} ${(92+T)/2}, ${sx} ${(92+T)/2}, ${sx} ${T}`;
+    const dPath=`M ${sx} ${ORCH_H+16} C ${sx} ${(ORCH_H+16+T)/2}, ${sx} ${(ORCH_H+16+T)/2}, ${sx} ${T}`;
     /* Ghost rail: Aceternity's measured base -- ~.5px stroke at 5% -- wiring that is
        present but silent until something moves along it. */
     const edge=mk('path',{d:dPath,fill:'none',stroke:'var(--tx-1)','stroke-width':.6,opacity:.055});
@@ -238,7 +277,7 @@ function armySvg(a){
        feedback to a click. */
     const gid='beam-'+i;
     const bg=mk('linearGradient',{id:gid,gradientUnits:'userSpaceOnUse',
-      x1:sx,y1:92,x2:sx,y2:T});
+      x1:sx,y1:ORCH_H+16,x2:sx,y2:T});
     [['0%','#18CCFC','0'],['12%','#18CCFC','.9'],['32.5%','#6344F5','.9'],['100%','#AE48FF','0']]
       .forEach(([o,c,op])=>bg.appendChild(mk('stop',{offset:o,'stop-color':c,'stop-opacity':op})));
     defs.appendChild(bg);
@@ -281,9 +320,14 @@ function armySvg(a){
        id -- reproducing the exact "wtf is 42-dd" unreadability this view was fixed for. Say
        what it IS instead until it names itself. */
     const untitled=!s.title&&/^[0-9a-f]{6,}$/i.test(String(s.name||''));
-    const bigLabel=untitled?'New session — starting up':(s.title||s.name||'untitled').slice(0,36);
-    g.appendChild(ltxt(L+46,T+40,bigLabel,'var(--tx-1)',21,700));
-    // handle (42-xx) lives in the drawer now -- five text rows read as a form, not a card
+    const bigLabel=untitled?'New session — starting up':fitTxt(s.title||s.name||'untitled',CW-96,19);
+    g.appendChild(ltxt(L+42,T+34,bigLabel,'var(--tx-1)',19,700));
+    /* HANDLE + KIND, always in the same slot. The heading used to mean two different
+       things -- a window title when one existed, the id-name when it didn't -- so
+       "Engine performance today" read as a metric panel rather than a Claude window.
+       Title is now always the heading and this line always answers "which one, and
+       what kind of thing is it". */
+    g.appendChild(ltxt(L+42,T+53,s.name+' · '+armyKindWord(s),'var(--tx-4)',11.5,500));
     /* Say WHEN, not just what. "a Claude window YOU have open" was flatly untrue for a
        chat closed two days ago whose process merely lingered. */
     const lw=s.last_write_min;
@@ -291,12 +335,64 @@ function armySvg(a){
       (lw<1440?Math.round(lw/60)+'h ago':Math.round(lw/1440)+'d ago')));
     const act=s.activity||'unknown';
     const actWord=act==='active'?'ACTIVE NOW':(act==='idle'?'idle':(act==='stale'?'old chat':'unknown'));
-    const actCol=act==='active'?'var(--pos)':(act==='idle'?'var(--tx-3)':'var(--tx-4)');
-    g.appendChild(ltxt(L+22,T+94,actWord+(ago?' · '+ago:''),actCol,14,act==='active'?700:500));
-    const wc=(byWorkerSession[s.session_id]||[]).length;
-    g.appendChild(ltxt(L+22,T+124,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
-      (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',13,500));
-    const actEl=ltxt(L+22,T+150,'','var(--tx-4)',12.5,400); actEl.id='armyact-'+s.session_id;
+    // ALIVE is cyan. This read var(--pos) -- GREEN -- which the ratified spec reserves
+    // for P&L; a green "ACTIVE NOW" beside a red one would have read as a winning desk.
+    const actCol=act==='active'?'var(--st-live)':(act==='idle'?'var(--tx-3)':'var(--tx-4)');
+    g.appendChild(ltxt(L+22,T+76,actWord+(ago?' · '+ago:''),actCol,13,act==='active'?700:500));
+
+    /* ── THE AGENT BLOCK ── J, third ask: "i still dont know what im looking at like
+       subagent wise on the screen." Every field he needed -- agent_type, model, the
+       full task prompt, live-or-done -- was already in the payload and was being
+       rendered as five identical grey circles labelled "workers". The data was one
+       click away behind a dot that announced neither its clickability nor its
+       contents, so he was never going to find it. Now it is on the face of the card. */
+    const wl=(byWorkerSession[s.session_id]||[]).slice()
+      .sort((x,y)=>(y.active?1:0)-(x.active?1:0)||String(y.last_write||'').localeCompare(String(x.last_write||'')));
+    const liveN=s.worker_active||0, everN=s.worker_count||0;
+    /* HONEST HEADLINE. The old line said "8 workers +43", where 8 was
+       MAX_WORKERS_PER_SESSION -- the display cap, not a quantity -- so it read
+       cap+overflow and implied a standing army. 42-c9 showed it while all 51 of its
+       agents had been finished for 9.3 hours. Present tense comes from worker_active
+       ONLY; worker_count is spoken of strictly in the past. */
+    const headline=liveN?(liveN+' agent'+(liveN===1?'':'s')+' running now')
+      :(everN?'no agents running':'no agents');
+    g.appendChild(ltxt(L+22,T+119,headline,liveN?'var(--st-live)':'var(--tx-3)',12.5,liveN?700:500));
+    if(!liveN&&everN)
+      g.appendChild(ltxt(L+22+armyTextW(headline,12.5)+8,T+119,
+        '· '+everN+' finished earlier','var(--tx-4)',12.5,500));
+
+    /* One row per agent: status, what KIND of agent, which model, and what it was
+       actually told to do. Three rows at rest; the drawer holds the full prompt. */
+    const rows=wl.slice(0,2);
+    rows.forEach((w,j)=>{
+      const ry=T+138+j*19;
+      const rg=mk('g',{class:'army-node'}); rg.style.cursor='pointer';
+      /* The pulse layer addresses workers by BOTH of these: centers['w:id'] is where a
+         message travelling to this agent lands, and #armyworker-id is what flashes on
+         arrival. Dropping them with the old circles would have rerouted every
+         worker-bound pulse to the off-box -- rendering a delivered message as
+         undeliverable, which is a lie, not a layout change. */
+      centers['w:'+w.agent_id]={x:L+27,y:ry-4};
+      const rdot=mk('circle',{cx:L+27,cy:ry-4,r:3.5,
+        fill:w.active?'var(--st-live)':'var(--tx-4)'});
+      rdot.id='armyworker-'+w.agent_id;
+      rg.appendChild(rdot);
+      const tag=armyTypeWord(w.agent_type)+(w.model?'·'+w.model:'');
+      rg.appendChild(ltxt(L+38,ry,fitTxt(tag,120,10.5,true),
+        w.active?'var(--tx-2)':'var(--tx-4)',10.5,600));
+      /* `purpose` is derived in the payload, where the full prompt and the agent's
+         sibling set are both in hand -- the browser can see neither. */
+      rg.appendChild(ltxt(L+166,ry,fitTxt(w.purpose||armyPurpose(w.task),CW-144,11.5),
+        w.active?'var(--tx-3)':'var(--tx-4)',11.5,400));
+      const tt=mk('title',{}); tt.textContent=(w.agent_type||'agent')+' · '+(w.model||'?')+
+        ' · '+(w.active?'running':'finished')+'\n'+(w.task||''); rg.appendChild(tt);
+      rg.onclick=(e)=>{e.stopPropagation();armyWorkerDrawer(w);};
+      g.appendChild(rg);
+    });
+    if(wl.length>rows.length||s.worker_overflow)
+      g.appendChild(ltxt(L+38,T+175,
+        '+'+(everN-rows.length)+' more not shown','var(--tx-4)',11,500));
+    const actEl=ltxt(L+22,T+97,'','var(--tx-4)',11.5,400); actEl.id='armyact-'+s.session_id;
     actEl.setAttribute('data-humanize','1');   // armyApplyRow reads this and trims shell noise
     g.appendChild(actEl);
     /* CONTEXT GAUGE along the base of the card. J asked for "a context bar that changes in
@@ -328,14 +424,13 @@ function armySvg(a){
           fill:i<lit?col:'color-mix(in oklch,white 8%,transparent)'}));
       }
       g.appendChild(meter);
-      /* ctx as a bento STAT: big numeral, small unit -- the Stats-Bento look.
-         Numerals COUNT UP on load (existing countUp helper; RM gets the final value
-         instantly inside it) -- the cockpit reads as coming online, not as a print. */
-      const lab=stxt(L+w-20,T+44,Math.round(cpct)+'%',col,24,600,'end');
-      setTimeout(()=>{ if(lab.isConnected)countUp(lab,cpct,v=>Math.round(v)+'%'); },380);
-      const unit=stxt(L+w-20,T+62,'context',col,10,500,'end');
-      unit.setAttribute('opacity','.6'); unit.id='armyctxunit-'+s.session_id;
-      g.appendChild(unit);
+      /* The numeral now sits WITH the meter it labels, at the foot of the card, and is
+         demoted from 24px to 15px. It was the biggest thing on the tile while the
+         subagents -- the thing J has asked about three times -- were 11px anonymous
+         dots: the least-asked-about number had the most ink. "memory used" rather than
+         "context", because context% is jargon for a window J never chose. */
+      const lab=stxt(L+w-22,T+BH-14,Math.round(cpct)+'% memory used',col,11,600,'end');
+      setTimeout(()=>{ if(lab.isConnected)countUp(lab,cpct,v=>Math.round(v)+'% memory used'); },380);
       lab.id='armyctxlab-'+s.session_id;
       g.appendChild(lab);
     }
@@ -343,27 +438,16 @@ function armySvg(a){
     // Explicit affordance: the whole box was already clickable but nothing said so.
     // Bottom-right, not beside the title: at 17px a 34-char title runs to ~L+320 and
     // collided with an affordance sitting at the same baseline (seen in a headless shot).
-    g.appendChild(stxt(L+w-20,T+BH-14,'open ▸','var(--acc)',13,600,'end'));
+    // Rides the status line: the card's foot now belongs to the memory meter, and two
+    // right-anchored labels 6px apart overprinted each other.
+    g.appendChild(stxt(L+w-22,T+76,'open ▸','var(--acc)',12.5,600,'end'));
     g.onclick=()=>armySessionDrawer(s,byWorkerSession[s.session_id]||[]);
     svg.appendChild(g);
 
-    /* Worker chips INSIDE the card. They used to sit at T+BH+17 -- in the GAP between
-       grid rows -- so they read as loose confetti belonging to nothing, which a headless
-       screenshot made obvious immediately. */
-    (byWorkerSession[s.session_id]||[]).slice(0,5).forEach((w,j)=>{
-      const wx=L+32+j*30, wy=T+BH-36;
-      centers['w:'+w.agent_id]={x:wx,y:wy};
-      const wg=mk('g',{class:'army-node'});
-      wg.style.cursor='pointer';
-      const wc2=mk('circle',{cx:wx,cy:wy,r:11,
-        fill:w.active?'var(--acc-dim)':'var(--bg-3)',stroke:w.active?'var(--acc)':'var(--bd)','stroke-width':1.4});
-      wc2.id='armyworker-'+w.agent_id;
-      wg.appendChild(wc2);
-      const tt=mk('title',{}); tt.textContent=w.task||w.agent_type||'worker'; wg.appendChild(tt);
-      wg.onclick=()=>armyWorkerDrawer(w);
-      g.appendChild(wg);
-    });
-    if(wc)g.appendChild(ltxt(L+52+Math.min(wc,5)*30,T+BH-31,'workers','var(--tx-4)',11.5,500));
+    /* The five anonymous grey circles that used to sit here are GONE. They carried no
+       type, no model, no purpose and no honest live/done state -- five identical dots
+       were the entire visual vocabulary for 66 subagents. Their replacement is the
+       named agent rows above, which say all four things on the face of the card. */
   });
 
   if(hiddenCount){
@@ -520,6 +604,54 @@ function armyFlicker(canvas){
     ctx.globalAlpha=1;
   }
   requestAnimationFrame(frame);
+}
+
+/* ── Text fitting for SVG ──────────────────────────────────────────────────────
+   SVG <text> does not wrap or ellipsize, so a label that overflows silently paints
+   across its neighbour. These estimate advance width from the font size (the page
+   ships no webfont, so the system stack's metrics are stable enough for a cap) and
+   cut on a word boundary. Deliberately conservative: under-filling leaves a gap,
+   over-filling corrupts the card. */
+function armyTextW(str,size,mono){ return String(str||'').length*size*(mono?0.60:0.52); }
+function fitTxt(str,px,size,mono){
+  const s=String(str||''); if(armyTextW(s,size,mono)<=px)return s;
+  const per=size*(mono?0.60:0.52), cap=Math.max(1,Math.floor(px/per)-1);
+  const cut=s.slice(0,cap);
+  const sp=cut.lastIndexOf(' ');
+  return (sp>cap*0.6?cut.slice(0,sp):cut).replace(/[ ,;:.\-]+$/,'')+'…';
+}
+
+/* What KIND of thing is this box? J has asked three times. "interactive" +
+   "claude-desktop" is how the session registry says it, which answers the machine's
+   question, not his: he wants to know whether HE opened it or the rig spawned it. */
+function armyKindWord(s){
+  const ep=String(s.entrypoint||''), k=String(s.kind||'');
+  if(/desktop|cli|vscode|jetbrains|terminal/i.test(ep)||k==='interactive')return 'your window';
+  if(/cron|schedule|task/i.test(ep+k))return 'scheduled task';
+  if(/sdk|headless|api/i.test(ep+k))return 'headless run';
+  return ep||k||'session';
+}
+
+/* "general-purpose"/"workflow-subagent" are the spawn API's words. The row has ~120px
+   for type AND model, and the full type name ate the model -- so J could not see whether
+   an agent was on opus or haiku, which is the part that costs him money. */
+function armyTypeWord(t){
+  const s=String(t||'agent');
+  if(s==='general-purpose')return 'general';
+  if(s==='workflow-subagent')return 'workflow';
+  return s;
+}
+
+/* A worker's task is the FULL prompt -- hundreds of characters that usually open with
+   a role preamble ("You are a design researcher. Deep-research GitHub repos ..."). The
+   preamble is identical across agents and carries no information about THIS one, so it
+   is dropped and the real instruction shown. The untouched prompt stays in the drawer;
+   this is a label, never a substitute for the source. */
+function armyPurpose(task){
+  let t=String(task||'').replace(/\s+/g,' ').trim();
+  const pre=t.match(/^You are [^.]{0,80}\.\s+/i);
+  if(pre&&t.length-pre[0].length>24)t=t.slice(pre[0].length);
+  return t||'(no task recorded)';
 }
 
 function armyDotColour(s,lastSeen){
