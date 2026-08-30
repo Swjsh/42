@@ -66,6 +66,154 @@ SESSION_RECENT_S = 300.0
 # tens of MB; the title record is always near the tail, so read only that.
 TITLE_TAIL_BYTES = 200_000
 
+# Same bound for context-usage: the last assistant message's usage object is
+# always near the tail (verified 2026-08-29 against 10 live transcripts:
+# furthest hit was 10.4KB from EOF), so a wide-margin tail read is still tiny
+# next to files that run tens of MB, and never touches the whole file.
+CONTEXT_TAIL_BYTES = 400_000
+
+# ---------------------------------------------------------------------------
+# Per-session context-usage bar (spec: J wants a real-time "how full is this
+# window" bar on every Army-view session card).
+#
+# TOKEN COUNT: the transcript records a `usage` object on every assistant
+# message (`message.usage`: input_tokens, cache_creation_input_tokens,
+# cache_read_input_tokens, output_tokens, ...). `input_tokens` ALONE is not
+# a context-fullness proxy -- it is only the newly-uncached slice of that
+# turn's prompt (observed as low single digits on a warm cache in every
+# sampled transcript). The actual size of the context window as of the last
+# turn is the full prompt sent that turn: input_tokens +
+# cache_creation_input_tokens + cache_read_input_tokens. output_tokens is
+# deliberately excluded -- it is the reply being generated, not context
+# already occupied as of that request.
+#
+# DENOMINATOR: NOT the raw model context window. Auto-compaction fires at
+# `autoCompactWindow` (global default 800_000, ~/.claude/settings.json;
+# project-local .claude/settings.json can override per session's cwd, same
+# override precedence the client itself uses) -- THAT is the number the bar
+# means, per spec: the raw window (1M for the `opus[1m]` alias configured
+# here, and for every current-generation model per the claude-api skill's
+# model cache -- unverified via a live Models-API call in this session) would
+# under-report how close a session is to actually compacting.
+#
+# HONESTY: context_source is the literal string "unknown" whenever either
+# half (token count or limit) could not be resolved. A fabricated percentage
+# on a bar is worse than an absent bar -- never guess a number here.
+CONTEXT_UNKNOWN = "unknown"
+GLOBAL_SETTINGS_PATH = Path.home() / ".claude" / "settings.json"
+
+
+def _read_tail_text(path: Path, cap: int) -> tuple[str, bool] | None:
+    """(text, truncated) for the last `cap` bytes of `path`, decoded
+    leniently. `truncated` is True only when the file was actually larger
+    than `cap` (a real seek happened, so the first line may be a partial
+    record cut mid-line) -- False means the whole file was read and every
+    line is intact. None on any I/O failure (missing file, permission
+    error) -- callers treat that as "unknown"."""
+    try:
+        size = path.stat().st_size
+        truncated = size > cap
+        with path.open("rb") as fh:
+            if truncated:
+                fh.seek(-cap, os.SEEK_END)
+            raw = fh.read()
+    except OSError:
+        return None
+    return raw.decode("utf-8", errors="replace"), truncated
+
+
+def _last_context_tokens(slug: str, session_id: str) -> tuple[int | None, str]:
+    """(tokens, reason). tokens is None when unresolvable -- caller maps that
+    to context_source="unknown" rather than ever emitting a guessed number."""
+    if not slug:
+        return None, "no_cwd"
+    path = PROJECTS_DIR / slug / f"{session_id}.jsonl"
+    result = _read_tail_text(path, CONTEXT_TAIL_BYTES)
+    if result is None:
+        return None, "transcript_unreadable"
+    text, truncated = result
+    lines = text.split("\n")
+    if truncated and len(lines) > 1:
+        lines = lines[1:]  # first line is a partial record cut mid-line by the seek
+    last_tokens: int | None = None
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rec = json.loads(line)
+        except ValueError:
+            continue  # corrupt/truncated line -- skip, never abort the scan
+        if not isinstance(rec, dict) or rec.get("type") != "assistant":
+            continue
+        message = rec.get("message")
+        if not isinstance(message, dict):
+            continue
+        usage = message.get("usage")
+        if not isinstance(usage, dict):
+            continue
+        try:
+            inp = int(usage.get("input_tokens") or 0)
+            cwrite = int(usage.get("cache_creation_input_tokens") or 0)
+            cread = int(usage.get("cache_read_input_tokens") or 0)
+        except (TypeError, ValueError):
+            continue
+        last_tokens = inp + cwrite + cread  # rows are chronological -> last write wins
+    if last_tokens is None:
+        return None, "no_usage_in_tail"
+    return last_tokens, "transcript_tail"
+
+
+def _auto_compact_window_for(cwd: str, cache: dict) -> tuple[int | None, str]:
+    """autoCompactWindow with the client's own override precedence: a
+    project-local .claude/settings.json beats the global one. `cache` is a
+    plain dict the caller owns for the duration of one build_army() call --
+    settings files are small, but there is no reason to re-stat/re-parse them
+    once per visible session when they're the same handful of files."""
+    key = cwd or ""
+    if key in cache:
+        return cache[key]
+    candidates = []
+    if cwd:
+        candidates.append((Path(cwd) / ".claude" / "settings.json", "project"))
+    candidates.append((GLOBAL_SETTINGS_PATH, "global"))
+    result: tuple[int | None, str] = (None, "settings_unreadable")
+    for path, origin in candidates:
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(raw, dict):
+            continue
+        val = raw.get("autoCompactWindow")
+        if isinstance(val, (int, float)) and val > 0:
+            result = (int(val), origin)
+            break
+    cache[key] = result
+    return result
+
+
+def _context_usage(slug: str, session_id: str, cwd: str, cache: dict) -> dict:
+    """Returns the four context-bar fields for one session dict. Never
+    raises; degrades to the unknown state on any failure of either half."""
+    tokens, tok_reason = _last_context_tokens(slug, session_id)
+    limit, limit_reason = _auto_compact_window_for(cwd, cache)
+    if tokens is None or limit is None:
+        return {
+            "context_tokens": 0,
+            "context_limit": 0,
+            "context_pct": 0.0,
+            "context_source": CONTEXT_UNKNOWN,
+        }
+    pct = max(0.0, min(100.0, round((tokens / limit) * 100.0, 1)))
+    return {
+        "context_tokens": tokens,
+        "context_limit": limit,
+        "context_pct": pct,
+        "context_source": f"{tok_reason}+{limit_reason}_autoCompactWindow",
+    }
+
+
 _TITLE_RE_CUSTOM = re.compile(r'"customTitle":"((?:[^"\\]|\\.)*)"')
 _TITLE_RE_AI = re.compile(r'"aiTitle":"((?:[^"\\]|\\.)*)"')
 
@@ -329,10 +477,12 @@ def build_army() -> dict:
     now_iso = dt.datetime.now().isoformat(timespec="seconds")
     session_out: list[dict] = []
     worker_out: list[dict] = []
+    settings_cache: dict = {}  # autoCompactWindow lookups, scoped to this one build
     for s in visible:
         slug = _slug_for(s["cwd"])
         title = _session_title(slug, s["session_id"])
         workers = _worker_rows_for_session(slug, s["session_id"])
+        context = _context_usage(slug, s["session_id"], s["cwd"], settings_cache)
         seen = last_seen.get(s["session_id"])
         recent = False
         if seen:
@@ -355,6 +505,10 @@ def build_army() -> dict:
             "is_orchestrator": s["session_id"] == orchestrator_sid,
             "worker_count": len(workers),
             "worker_overflow": max(0, len(workers) - MAX_WORKERS_PER_SESSION),
+            "context_tokens": context["context_tokens"],
+            "context_limit": context["context_limit"],
+            "context_pct": context["context_pct"],
+            "context_source": context["context_source"],
         })
         worker_out.extend(workers[:MAX_WORKERS_PER_SESSION])
 
