@@ -47,8 +47,14 @@ function armySvg(a){
      size and type size never depend on how many sessions are alive. */
   const COLS=3, BW=330, BH=132, GAPX=26, GAPY=30, PAD=34;
   const MAX_BOXES=9;
-  const shown=sessions.slice(0,MAX_BOXES);
-  const hiddenCount=Math.max(0,(a.sessions||[]).length-shown.length);
+  /* The orchestrator was ALSO drawn in the grid below itself, so 42-dd appeared twice and
+     the page silently implied there was one more window than exists. J: "wtf is 42-dd?
+     does that mean i have 9 subagnts open right now??" -- no, and the duplicate was a big
+     part of why that was unanswerable. */
+  const orcSid=(a.orchestrator||{}).session_id;
+  const peers=sessions.filter(s=>s.session_id!==orcSid);
+  const shown=peers.slice(0,MAX_BOXES);
+  const hiddenCount=Math.max(0,peers.length-shown.length);
   const rows=Math.max(1,Math.ceil(shown.length/COLS));
   const W=PAD*2+COLS*BW+(COLS-1)*GAPX;
   const ocy=62, SESS_TOP=196;
@@ -72,7 +78,7 @@ function armySvg(a){
   og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--acc)','stroke-width':2}));
   og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--acc)',class:'army-ring'}));
   og.appendChild(ltxt(ocx-150,ocy-8,orc?orc.name:'—','var(--tx-1)',21,700));
-  og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — the one giving orders','var(--acc)',11.5,600));
+  og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',11.5,600));
   if(orc&&orc.title)og.appendChild(ltxt(ocx-166,ocy+34,orc.title.slice(0,52),'var(--tx-4)',11,400));
   if(orc){og.style.cursor='pointer';og.onclick=()=>armySessionDrawer(orc,byWorkerSession[orc.session_id]||[]);}
   svg.appendChild(og);
@@ -106,12 +112,18 @@ function armySvg(a){
     const dot=mk('circle',{cx:L+22,cy:T+27,r:6,fill:armyDotColour(s,lastSeen)});
     dot.id='armydot-'+s.session_id;
     g.appendChild(dot);
-    g.appendChild(ltxt(L+38,T+33,s.name,'var(--tx-1)',19,700));
-    // Say what the box IS, not just what it is called -- the screenshot complaint was
-    // "what box is what", and a bare session handle answers that for nobody.
-    g.appendChild(ltxt(L+18,T+56,(s.kind==='interactive'?'your window':'background')+
-      (s.entrypoint?' · '+String(s.entrypoint).replace('claude-','') : ''),'var(--tx-4)',11,600));
-    if(s.title)g.appendChild(ltxt(L+18,T+76,s.title.slice(0,42),'var(--tx-3)',12,500));
+    /* TITLE FIRST, handle second. `42-dd` is auto-derived from the project folder plus a
+       hash -- it identifies a session to the machine and to nobody else. What J recognises
+       is what the window is ABOUT. So the big line is the title and the handle drops to a
+       small monospace tag. */
+    const bigLabel=(s.title||s.name||'untitled').slice(0,34);
+    g.appendChild(ltxt(L+38,T+33,bigLabel,'var(--tx-1)',17,700));
+    const tag=ltxt(L+18,T+56,s.name,'var(--tx-4)',11,600);
+    tag.setAttribute('font-family','var(--mono, ui-monospace, monospace)');
+    g.appendChild(tag);
+    g.appendChild(ltxt(L+18,T+76,
+      (s.kind==='interactive'?'a Claude window YOU have open':'background session'),
+      'var(--tx-3)',12,500));
     const wc=(byWorkerSession[s.session_id]||[]).length;
     g.appendChild(ltxt(L+18,T+98,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
       (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
@@ -167,11 +179,29 @@ function armySvg(a){
     pauseBtn.textContent=armyState.paused?'Resume pulses':'Pause pulses';
   });
   bar.appendChild(pauseBtn);
-  const hint=document.createElement('span');
-  hint.style.cssText='font:500 11.5px/1.4 var(--font);color:var(--tx-4);margin-left:6px';
-  hint.textContent='Click any box to see what that session is doing.';
-  bar.appendChild(hint);
   wrap.appendChild(bar);
+
+  /* LEGEND -- the page has to answer "how do I read this" without J asking a human.
+     Counts are computed, never hard-coded, so the sentence cannot drift from the graph. */
+  const wct=(a.workers||[]).length;
+  const legend=el('div','armylegend');
+  legend.style.cssText='display:flex;flex-wrap:wrap;gap:18px;align-items:baseline;margin:0 0 16px;'+
+    'padding:12px 16px;border:1px solid var(--bd);border-radius:10px;background:var(--bg-inset);'+
+    'font:500 12.5px/1.6 var(--font);color:var(--tx-3)';
+  const li=(strong,rest)=>{
+    const d=document.createElement('div');
+    d.innerHTML='<b style="color:var(--tx-1);font-weight:700">'+strong+'</b> '+rest;
+    return d;
+  };
+  legend.appendChild(li('Top box = this page.',
+    'The Claude session you are talking to right now.'));
+  legend.appendChild(li(shown.length+' box'+(shown.length===1?'':'es')+' below =',
+    'other Claude windows <em>you</em> have open. Not subagents.'));
+  legend.appendChild(li(wct+' worker'+(wct===1?'':'s')+' =',
+    'the small circles. <em>Those</em> are the subagents.'));
+  legend.appendChild(li('Click any box',
+    'to see what it is doing.'));
+  wrap.appendChild(legend);
   wrap.appendChild(svg);
   return {wrap,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
 }
