@@ -143,6 +143,34 @@ function armySvg(a){
     g.appendChild(ltxt(L+18,T+100,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
       (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
     const actEl=ltxt(L+18,T+120,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id; g.appendChild(actEl);
+    /* CONTEXT GAUGE along the base of the card. J asked for "a context bar that changes in
+       real time for every card that is a session".
+
+       Drawn only when gamma_cockpit_army.py could actually compute it: context_source is the
+       literal string "unknown" when either the token count or the limit was unresolvable, and
+       a fabricated percentage on a progress bar is worse than an absent bar -- the bar is the
+       one element here a person reads without reading any words.
+
+       The denominator is autoCompactWindow, not the raw model window, because compaction is
+       the event that actually costs the user something. */
+    const cpct=(typeof s.context_pct==='number')?s.context_pct:null;
+    const cknown=cpct!==null&&s.context_source&&s.context_source!=='unknown';
+    if(cknown){
+      const frac=Math.max(0,Math.min(100,cpct))/100;
+      const cy=T+BH-6;
+      g.appendChild(mk('rect',{x:L+1,y:cy,width:BW-2,height:4,rx:2,
+        fill:'color-mix(in oklch,white 8%,transparent)'}));
+      // warn/neg rather than the accent: nearing a compact is a STATE, and severity is not
+      // what the purple means anywhere else on this page.
+      const col=cpct>=90?'var(--neg)':(cpct>=75?'var(--warn)':'var(--acc)');
+      const fill=mk('rect',{x:L+1,y:cy,width:Math.max(2,(BW-2)*frac),height:4,rx:2,fill:col});
+      fill.id='armyctx-'+s.session_id;
+      g.appendChild(fill);
+      const lab=stxt(L+BW-16,T+56,Math.round(cpct)+'% ctx',col,10.5,600,'end');
+      lab.id='armyctxlab-'+s.session_id;
+      g.appendChild(lab);
+    }
+
     // Explicit affordance: the whole box was already clickable but nothing said so.
     // Bottom-right, not beside the title: at 17px a 34-char title runs to ~L+320 and
     // collided with an affordance sitting at the same baseline (seen in a headless shot).
