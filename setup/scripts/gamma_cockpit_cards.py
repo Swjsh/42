@@ -142,34 +142,85 @@ def _rel(p: Path) -> str:
 
 
 _SAFETY_FOOTER = (
-    "\n\nHard rules for this fire (non-negotiable, not a suggestion):\n"
-    "- Never touch automation/state/params*.json, backtest/lib/filters.py, "
-    "backtest/lib/risk_gate.py, automation/state/fleet/*.py, or "
-    "setup/scripts/heartbeat_core.py -- CONFIG FREEZE 2026-08-31 -> 2026-09-29 "
-    "(automation/overnight/STATUS.md).\n"
-    "- Never set GAMMA_CORE_ARMED or a fleet live:true flag. Never place, cancel, "
-    "close, replace, or exercise a live Alpaca order.\n"
-    "- Never rotate, print, or read a *.key / .vapid.json / push-subscriptions.json "
-    "secret.\n"
-    "- Never git push --force, never recursively delete anything.\n"
-    "- Name the root cause in one sentence before fixing (setup/hooks/gamma_doctrine.py, "
-    "CLAUDE.md OP-33). Apply the smallest correct change. Verify with a freshly-run "
-    "command and quote its output -- do not claim 'fixed' on anything else."
+    "\n\nBOUNDARIES (non-negotiable, not a suggestion):\n"
+    "- CONFIG FREEZE 2026-08-31 -> ~2026-09-29 (automation/overnight/STATUS.md "
+    "'## Known broken' banner, verbatim): \"no trading-path changes after Monday's "
+    "open except pre-registered kill-type risk reductions -- the window exists to "
+    "give the gate 20 clean days to score.\" Never touch automation/state/params*.json, "
+    "backtest/lib/filters.py, backtest/lib/risk_gate.py, automation/state/fleet/*.py, "
+    "or setup/scripts/heartbeat_core.py for the duration of that window.\n"
+    "- NO LIVE ARMING: never set GAMMA_CORE_ARMED or a fleet live:true flag. Never "
+    "place, cancel, close, replace, or exercise a live Alpaca order. Paper/shadow "
+    "changes never need J; arming live money is one of the only four things that do "
+    "(CLAUDE.md OP-0).\n"
+    "- NO SECRETS: never rotate, print, or read a *.key / .vapid.json / "
+    "push-subscriptions.json secret, and never hardcode or echo a credential.\n"
+    "- NO PUSH DURING MARKET HOURS: never `git push` between 09:30-15:55 ET -- that "
+    "window shares the Max subscription pool with the live heartbeat and a push can "
+    "starve a tick. After-hours push is fine; committing locally is always fine.\n"
+    "- NO OTHER IRREVERSIBLE ACTION: never `git push --force`, never recursively "
+    "delete anything.\n\n"
+    "MODEL ROUTING (2026-07-23 scar, cost-verified): if this fire spawns ANY "
+    "sub-agent or Workflow agent() call, pass model=\"sonnet\" explicitly on every "
+    "single call site. An in-prompt instruction telling a spawned session to run "
+    "\"/model sonnet\" first is a NO-OP -- subagents cannot switch their own model. "
+    "An 11-agent matrix workflow that relied on that in-prompt instruction instead of "
+    "pinning the tier inherited the parent's top-tier model and burned 2.2M tokens on "
+    "mechanical grid work. If you are reading this prompt as the orchestrator itself "
+    "and your own model tier exceeds sonnet, that is a routing mismatch worth noting "
+    "in your report, not a reason to stop.\n\n"
+    "VERIFICATION: name the root cause in one sentence before fixing "
+    "(setup/hooks/gamma_doctrine.py, CLAUDE.md OP-33). Apply the smallest correct "
+    "change -- no drive-by refactors. Verify with a freshly-run command and quote its "
+    "output; do not claim 'fixed', 'done', or 'works' on anything you did not verify "
+    "this session.\n\n"
+    "RECORD THE OUTCOME: when you stop (shipped, blocked, or determined no action "
+    "needed), run `setup/scripts/conductor_outcome.py record --task-id %(card_id)s "
+    "--note \"<one line: what happened>\"` (see that script's own --help for the full "
+    "flag set) so this fire counts toward the conductor's net-improvement metric -- an "
+    "outcome that is not recorded does not count as done."
 )
 
 
-def _prompt(card_id: str, title: str, why: list[str], source_path: str) -> str:
-    body = "Task: %s\nSource: %s\nWhy this card fired:\n%s\n" % (
-        card_id, source_path, "\n".join("- %s" % w for w in why),
+def _prompt(card_id: str, objective: str, why: list[str], source_path: str,
+            done_when: str) -> str:
+    """Build a complete, self-contained brief. A fresh orchestrator session with
+    NO other context must be able to act on this alone: what to accomplish, the
+    exact evidence that surfaced it (quoted, with its source file), how to know
+    the work is actually finished, and the hard boundaries it may never cross."""
+    why_lines = "\n".join(
+        '- "%s" (from %s)' % (w, source_path) for w in why
     )
-    return body + _SAFETY_FOOTER
+    body = (
+        "OBJECTIVE: %s\n\n"
+        "WHY THIS CARD FIRED (evidence, quoted verbatim from the source file):\n"
+        "%s\n\n"
+        "DONE-WHEN (this work is finished ONLY when this is true, and you have "
+        "quoted the fresh check that proves it):\n"
+        "%s\n"
+    ) % (objective, why_lines, done_when)
+    footer = _SAFETY_FOOTER % {"card_id": card_id}
+    return body + footer
 
 
 def _card(card_id: str, title: str, why: list[str], source_path: str,
-          source_age_h, gated: bool = False) -> dict | None:
+          source_age_h, objective: str | None = None, done_when: str | None = None,
+          gated: bool = False) -> dict | None:
     """The one constructor every source below funnels through -- the single
-    point where the denylist actually runs, so no source can bypass it."""
-    untrusted = title + " " + " ".join(why)
+    point where the denylist actually runs, so no source can bypass it.
+
+    `objective` and `done_when` are optional so existing/ad-hoc callers (and
+    the guard tests) keep working with a sane fallback derived from title/why;
+    every real source below passes both explicitly."""
+    objective = objective or ("Resolve the condition described in: %s" % title)
+    done_when = done_when or (
+        "The condition described in the title above no longer holds, verified by "
+        "re-reading %s fresh and quoting the changed state." % source_path
+    )
+    # Scan EVERY untrusted, state-derived field -- title, why, AND the two new
+    # fields, since objective/done_when are themselves built from title/why by
+    # the call sites below and can carry the same injected substrings.
+    untrusted = " ".join([title, " ".join(why), objective, done_when])
     hit = _looks_dangerous(untrusted)
     if hit:
         print("WARN: dropped card %s -- denylist hit (%s)" % (card_id, hit), file=sys.stderr)
@@ -183,7 +234,7 @@ def _card(card_id: str, title: str, why: list[str], source_path: str,
         "source_age_h": round(source_age_h, 2) if isinstance(source_age_h, (int, float)) else None,
         "model": MODEL,
         "gated": bool(gated),
-        "prompt": _prompt(card_id, title, why, source_path),
+        "prompt": _prompt(card_id, _clip(objective, 400), why, source_path, _clip(done_when, 400)),
     }
 
 
@@ -209,6 +260,11 @@ def _cards_engine_health() -> list[dict]:
             why=[_clip(chk.get("detail", "")), "engine-health.json checked_at_et %s" % checked_at],
             source_path=_rel(ENGINE_HEALTH_JSON),
             source_age_h=age,
+            objective="Restore the critical engine-health.json check '%s' to GREEN "
+                      "(it currently reads %s)." % (name, status),
+            done_when="Re-run `python setup/scripts/engine_health.py`, re-read the fresh "
+                      "automation/state/engine-health.json, and quote the line for check "
+                      "'%s' showing status GREEN." % name,
         )
         if c:
             out.append(c)
@@ -290,6 +346,12 @@ def _cards_status_md() -> list[dict]:
             why=[_clip(e["text"], 260)],
             source_path=_rel(STATUS_MD),
             source_age_h=age,
+            objective="Root-cause and resolve the STATUS.md entry '%s' so it no longer "
+                      "reads as broken." % title,
+            done_when="Re-read %s fresh: either the exact bullet quoted above is gone "
+                      "from '## Known broken' / the '### BROKEN:' block, or it has been "
+                      "edited in place to record the verified fix and the commit that "
+                      "made it. Quote the updated section." % _rel(STATUS_MD),
         )
         if c:
             out.append(c)
@@ -328,6 +390,11 @@ def _cards_task_scorer() -> list[dict]:
             why=why,
             source_path=_rel(task_scorer.QUEUE),
             source_age_h=age,
+            objective="Drain backlog item '%s' (%s): %s" % (t.id, t.priority, desc or t.id),
+            done_when="Per queue.md's own header convention, the '- [ ] %s (...)' line is "
+                      "moved out of the active backlog into '## Completed' (or its "
+                      "':: status:' field is updated to reflect the outcome) in a fresh "
+                      "read of %s. Quote the updated line." % (t.id, _rel(task_scorer.QUEUE)),
         )
         if c:
             out.append(c)
@@ -362,12 +429,17 @@ def _cards_active_goal() -> list[dict]:
             break
     if not item:
         return []
+    goal_id = str(goal.get("id", "?"))
     c = _card(
-        card_id="card-goal-%s" % re.sub(r"[^a-z0-9]+", "-", str(goal.get("id", "goal")).lower()).strip("-"),
-        title="Goal %s: %s" % (goal.get("id", "?"), _clip(item, 90)),
+        card_id="card-goal-%s" % re.sub(r"[^a-z0-9]+", "-", goal_id.lower()).strip("-"),
+        title="Goal %s: %s" % (goal_id, _clip(item, 90)),
         why=[_clip(item, 260), "next open '- [ ]' item in the goal's own QUEUE"],
         source_path=_rel(goal_file),
         source_age_h=_age_h(goal_file),
+        objective="Complete the next open step of goal %s: %s" % (goal_id, _clip(item, 300)),
+        done_when="Re-read %s: the exact line '- [ ] %s' is changed to '- [x] %s' (or "
+                  "otherwise recorded as done per the goal file's own convention). Quote "
+                  "the updated line." % (_rel(goal_file), _clip(item, 150), _clip(item, 150)),
         gated=False,  # a literal '- [ ]' item is by construction not '[B]'/'[B-J]' blocked
     )
     return [c] if c else []
@@ -432,12 +504,20 @@ def _cards_unattended(quiesced: set[str]) -> list[dict]:
             remaining = [p for p in remaining if "stale by age" not in str(p).lower()]
         if not remaining:
             continue  # fully explained by quiet mode -- quiesced, never a card
+        unit_id = str(unit.get("id", "unit"))
+        unit_name = str(unit.get("name", unit_id))
         c = _card(
-            card_id="card-unit-%s" % re.sub(r"[^a-z0-9]+", "-", str(unit.get("id", "unit")).lower()).strip("-"),
-            title="%s is %s" % (unit.get("name", unit.get("id", "unit")), unit.get("status")),
+            card_id="card-unit-%s" % re.sub(r"[^a-z0-9]+", "-", unit_id.lower()).strip("-"),
+            title="%s is %s" % (unit_name, unit.get("status")),
             why=remaining[:3],
             source_path=_rel(UNATTENDED_HEALTH_JSON),
             source_age_h=age,
+            objective="Restore unattended-health unit '%s' (%s) to GREEN -- resolve the "
+                      "problem(s) quoted above, not just the symptom." % (unit_name, unit_id),
+            done_when="Re-run `python setup/scripts/unattended_health.py`, re-read the "
+                      "fresh automation/state/unattended-health.json, and quote the entry "
+                      "for unit '%s' showing status GREEN (or every one of the problems "
+                      "above independently resolved)." % unit_id,
         )
         if c:
             out.append(c)
