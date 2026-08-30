@@ -13,7 +13,8 @@
   const ITEMS = [
     { k: 'go', label: 'Home', hint: 'hero', to: '#/' },
     { k: 'go', label: 'Total profit — the calendar', hint: 'profit', to: '#/profit' },
-    { k: 'go', label: 'The agents', hint: 'agents', to: '#/agents' },
+    { k: 'go', label: 'The desk', hint: 'desk', to: '#/desk' },
+    { k: 'go', label: 'P&L by session — every arm, every day', hint: 'pnl', to: '#/pnl' },
     { k: 'go', label: 'Needs a decision — action cards', hint: 'cards', to: '#/cards' },
     { k: 'go', label: 'The orchestrator', hint: 'console', to: '#/chat' },
     { k: 'go', label: 'Sign in', hint: 'auth', to: '#/signin' },

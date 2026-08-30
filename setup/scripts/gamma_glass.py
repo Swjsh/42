@@ -361,6 +361,54 @@ def group_arms() -> dict:
     return {"ok": bool(rows), "arms": rows, "source": _src(FLEET_FILE)}
 
 
+def group_calendar(days_back: int = 90) -> dict:
+    """The per-arm daily P&L grid that sits behind the NET cell.
+
+    J asked for exactly this placement on 2026-08-29: "the total profit we can click
+    into and the calendar page is behind that". So it is not on the glass by default --
+    it is one click deep, which is what keeps a single pane single.
+
+    Ships the raw per-day nets per arm plus the file's OWN precomputed BOOK summary.
+    That summary is carried rather than recomputed on purpose: it is an independent
+    cross-check of this module's aggregation, and the two agreeing to the cent
+    (1814.86) is the only reason to trust either.
+    """
+    views = _calendar_views()
+    if not views:
+        return {"ok": False, "source": _src(CALENDAR_FILE)}
+
+    cutoff = (dt.datetime.now(ET) - dt.timedelta(days=days_back)).strftime("%Y-%m-%d")
+    roster = [k for k in views if k != BOOK_VIEW]
+    dates = sorted({d for k in roster for d in (views[k].get("days") or {}) if d >= cutoff})
+
+    rows = []
+    for arm in sorted(roster):
+        days = views[arm].get("days") or {}
+        cells = []
+        for d in dates:
+            row = days.get(d)
+            n = _day_net(row)
+            cells.append({"d": d, "n": (round(n, 2) if n is not None else None),
+                          "t": (row or {}).get("trade_count") if isinstance(row, dict) else None})
+        cells_traded = [c for c in cells if c["n"] is not None]
+        rows.append({
+            "arm": arm, "cells": cells,
+            "net": round(sum(c["n"] for c in cells_traded), 2) if cells_traded else None,
+        })
+
+    book = views.get(BOOK_VIEW) or {}
+    bdays = book.get("days") or {}
+    book_cells = []
+    for d in dates:
+        n = _day_net(bdays.get(d))
+        book_cells.append({"d": d, "n": round(n, 2) if n is not None else None,
+                           "t": (bdays.get(d) or {}).get("trade_count")})
+    return {"ok": bool(dates), "dates": dates, "rows": rows,
+            "book": {"arm": "BOOK", "cells": book_cells},
+            "summary": book.get("summary"),
+            "source": _src(CALENDAR_FILE)}
+
+
 def build() -> dict:
     out = {"generated_at": dt.datetime.now(ET).isoformat(),
            "market_open": False}
@@ -373,7 +421,7 @@ def build() -> dict:
 
     for name, fn in (("equity", group_equity), ("pnl", group_pnl),
                      ("position", group_position), ("bias", group_bias),
-                     ("arms", group_arms)):
+                     ("arms", group_arms), ("calendar", group_calendar)):
         try:
             out[name] = fn()
         except Exception as exc:  # noqa: BLE001

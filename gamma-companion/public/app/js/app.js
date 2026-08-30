@@ -20,6 +20,17 @@
     '/desk': () => G.desk.view(),
     '/agents': () => G.desk.view(),
     '/chat': () => G.desk.view(),
+    /* Deep link straight to the P&L sheet. The desk renders underneath, then the
+       sheet opens over it — so the link lands on the same one page rather than a
+       separate report, and back/Escape returns to the desk instead of nowhere. */
+    '/pnl': () => {
+      const node = G.desk.view();
+      // Synchronous: the sheet appends to <body>, so it does not need the desk node
+      // mounted first. The deferred version flashed the bare desk for a frame and
+      // was invisible to any capture that finished inside that window.
+      if (G.glass && G.glass.openCalendar) G.glass.openCalendar();
+      return node;
+    },
     '/console': () => G.chat.view(),
     '/signin': () => G.views.signin(),
   };

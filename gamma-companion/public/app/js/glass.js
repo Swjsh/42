@@ -175,7 +175,8 @@
       cell('Book', bookVal, armCount ? armCount + ' arms · ' +
         esc(String(eq.as_of || '').slice(11, 16)) + ' ET' : null, 'g-cell--book') +
       cell('Net · all time', netVal,
-        (pnl.days ? pnl.days + ' sessions' : null), 'g-cell--net') +
+        (pnl.days ? pnl.days + ' sessions · <span class="g-open">every session ›</span>' : null),
+        'g-cell--net g-cell--tap') +
       (sk ? '<div class="g-cell g-cell--spark"><span class="g-lab">Equity curve</span>' +
         '<div class="g-sparkwrap">' + sk + '</div>' +
         '<span class="g-sub">' + esc(pnl.days ? 'last ' + Math.min(60, pnl.days) + ' sessions' : '') +
@@ -183,7 +184,161 @@
       cell('Today', todayVal, todaySub, 'g-cell--today') +
       positionCell(pos) +
       cell('SPY', tapeVal, tapeSub, 'g-cell--tape');
+
+    /* The NET cell is a real button, not a div with a click handler: role, tabindex
+       and Enter/Space, because a number you can only reach with a mouse is a number
+       half the operators of this page cannot reach at all. */
+    const tap = wrap.querySelector('.g-cell--tap');
+    if (tap && ((g.calendar || {}).rows || []).length) {
+      tap.setAttribute('role', 'button');
+      tap.setAttribute('tabindex', '0');
+      tap.addEventListener('click', openCalendar);
+      tap.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCalendar(); }
+      });
+    }
     return wrap;
+  }
+
+
+  /* ---- THE CALENDAR, one click behind the NET cell ------------------------
+   * J, 2026-08-29: "the total profit we can click into and the calendar page is
+   * behind that or something, dont clutter it go for a minamilist vibe". That is
+   * the placement rule for this entire page: a single pane stays single by putting
+   * depth BEHIND the number it belongs to, never beside it.
+   *
+   * Small multiples (dossier: GitHub-heatmap-in-CSS-grid, verified): one row per
+   * arm, one cell per session, colour by signed magnitude. The reader sees WHICH
+   * arm carries the book and WHEN, as shape, before reading a figure.
+   *
+   * CSS grid rather than SVG because every cell is interactive (hover gives the
+   * exact day) and because text must never live inside a scaled viewBox. */
+  function heat(v, peak) {
+    if (v == null) return '';          // no session — empty, which is not zero
+    const mag = Math.min(1, Math.abs(v) / (peak || 1));
+    // sqrt, not linear: two +$1.7k outliers flattened every ordinary session to
+    // invisible on a linear ramp, which hid 37 of the 39 days being described.
+    const a = 0.16 + Math.sqrt(mag) * 0.68;
+    return 'background:color-mix(in oklch,var(--' + (v >= 0 ? 'pos' : 'neg') +
+      ') ' + Math.round(a * 100) + '%,transparent)';
+  }
+
+  function calendar(glass) {
+    const c = (glass || {}).calendar || {};
+    const wrap = el('gcal');
+    if (!c.ok) {
+      wrap.appendChild(D.miss('No calendar', 'analysis/journal/calendar-data.json'));
+      return wrap;
+    }
+    const all = [];
+    (c.rows || []).forEach(function (r) {
+      (r.cells || []).forEach(function (x) { if (x.n != null) all.push(Math.abs(x.n)); });
+    });
+    const peak = all.length ? Math.max.apply(null, all) : 1;
+    const dates = c.dates || [];
+    const sum = c.summary || {};
+
+    function rowHtml(r, isBook) {
+      let cells = '';
+      (r.cells || []).forEach(function (x) {
+        const t = x.n == null
+          ? x.d + ' · no session'
+          : x.d + ' · ' + money(x.n, { signed: true, cents: true }) +
+            (x.t ? ' · ' + x.t + ' trade' + (x.t === 1 ? '' : 's') : '');
+        cells += '<i class="gcal__c' + (x.n == null ? ' is-off' : '') +
+          '" title="' + esc(t) + '" style="' + heat(x.n, peak) + '"></i>';
+      });
+      const net = isBook ? sum.total_pnl_net : r.net;
+      return '<div class="gcal__row' + (isBook ? ' is-book' : '') + '">' +
+        '<b class="gcal__arm">' + esc(r.arm) + '</b>' +
+        '<div class="gcal__cells">' + cells + '</div>' +
+        '<span class="gcal__net num" data-t="' + tone(net) + '">' +
+          (net != null ? esc(money(net, { signed: true })) : dash('never traded')) +
+        '</span></div>';
+    }
+
+    /* best_day_net / worst_day_net are {date, pnl} objects, not numbers -- passing
+       the object straight to money() returned null and the footer rendered the word
+       "best" followed by nothing. The date earns its place: an outlier is a story,
+       and knowing WHEN it happened is most of it. */
+    function day(label, obj, t) {
+      if (!obj || obj.pnl == null) return '';
+      return '<span>' + esc(label) + ' <b class="num" data-t="' + t + '">' +
+        esc(money(obj.pnl, { signed: true })) + '</b>' +
+        (obj.date ? '<i class="gcal__when">' + esc(String(obj.date).slice(5)) + '</i>' : '') +
+        '</span>';
+    }
+
+    /* current_streak_net is {type, length, since_date, through_date} -- rendering it
+       as a number printed "[object Object]". Every summary field in this file turned
+       out to be an object; the lesson is to read the value, never the key name. */
+    function streak(st) {
+      if (!st || !st.length) return '';
+      const win = st.type === 'winning';
+      return '<span>streak <b class="num" data-t="' + (win ? 'pos' : 'neg') + '">' +
+        esc(st.length + (win ? ' green' : ' red')) + '</b>' +
+        (st.through_date ? '<i class="gcal__when">to ' +
+          esc(String(st.through_date).slice(5)) + '</i>' : '') + '</span>';
+    }
+
+    const wr = sum.win_rate_by_day_net;
+    wrap.innerHTML =
+      '<header class="gcal__h"><b>Every session, every arm</b><span>' +
+        esc((dates[0] || '') + ' → ' + (dates[dates.length - 1] || '')) +
+        ' · ' + dates.length + ' sessions</span></header>' +
+      '<div class="gcal__grid">' +
+        (c.rows || []).map(function (r) { return rowHtml(r, false); }).join('') +
+        (c.book ? rowHtml(c.book, true) : '') +
+      '</div>' +
+      '<footer class="gcal__f">' +
+        (sum.total_trades != null ? '<span><b class="num">' + esc(String(sum.total_trades)) +
+          '</b> trades</span>' : '') +
+        (wr != null ? '<span><b class="num">' + esc(Math.round(wr * 100) + '%') +
+          '</b> of days green</span>' : '') +
+        day('best', sum.best_day_net, 'pos') +
+        day('worst', sum.worst_day_net, 'neg') +
+        streak(sum.current_streak_net) +
+        (sum.total_fees != null ? '<span><b class="num">' +
+          esc(money(sum.total_fees, { cents: true })) + '</b> fees paid</span>' : '') +
+      '</footer>';
+    return wrap;
+  }
+
+  /* The sheet. Escape closes, backdrop closes, focus moves in and returns on close —
+     a panel that traps the keyboard is a bug on a page meant to be lived in. */
+  function openCalendar() {
+    if (document.querySelector('.gsheet')) return;      // never stack two
+    const prev = document.activeElement;
+    const back = el('gsheet');
+    const panel = el('gsheet__p');
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-label', 'Profit and loss by session');
+    const x = el('gsheet__x');
+    x.textContent = '✕';
+    x.setAttribute('aria-label', 'Close');
+    panel.appendChild(x);
+    panel.appendChild(calendar((D.S.payload || {}).glass));
+    back.appendChild(panel);
+    document.body.appendChild(back);
+    /* No arming step. A CSS transition needs a style change on a rendered frame,
+       which never lands in a hidden tab (rAF suspended, timers throttled to ~1s) or
+       under headless virtual time -- the sheet measured opacity 0 in both. Keyframe
+       animations run from insertion, so the sheet is correct the moment it exists. */
+
+    function shut() {
+      back.setAttribute('data-out', '');
+      removeEventListener('keydown', onKey);
+      setTimeout(function () {
+        try { document.body.removeChild(back); } catch (_) { /* already gone */ }
+      }, 180);
+      if (prev && prev.focus) prev.focus();
+    }
+    function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); shut(); } }
+    addEventListener('keydown', onKey);
+    back.addEventListener('click', function (e) { if (e.target === back) shut(); });
+    x.addEventListener('click', shut);
+    x.focus();
   }
 
   /* ---- THE ENGINE'S MIND --------------------------------------------------
@@ -263,5 +418,5 @@
     return wrap;
   }
 
-  G.glass = { strip, mind, arms, spark, money, dash, tone };
+  G.glass = { strip, mind, arms, spark, money, dash, tone, calendar, openCalendar };
 })(window.G = window.G || {});

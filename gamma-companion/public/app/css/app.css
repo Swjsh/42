@@ -1151,3 +1151,82 @@ kbd{font-size:12px;padding:3px 6px}
 .rail--l .lane__d{-webkit-line-clamp:1}
 .rail--l .lane__do{display:none}       /* the "doing" line is hover detail here */
 .rail--l .lane__f{margin-top:0}
+
+/* === THE P&L CALENDAR, one click behind NET ================================
+   J, 2026-08-29: "the total profit we can click into and the calendar page is
+   behind that or something, dont clutter it go for a minamilist vibe." That is
+   the placement rule for the whole page — depth goes BEHIND the number it
+   belongs to, never beside it. */
+.g-cell--tap{cursor:pointer;transition:background var(--t) var(--ease)}
+.g-cell--tap:hover{background:var(--bg-1)}
+.g-cell--tap:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.g-open{color:var(--acc);font-weight:640}
+
+.gsheet{
+  position:fixed;inset:0;z-index:120;display:grid;place-items:center;
+  padding:var(--s5);background:color-mix(in oklch,var(--void) 76%,transparent);
+  backdrop-filter:blur(10px);
+  /* NEVER ANIMATE A PROPERTY WHOSE FROM-STATE IS INVISIBLE.
+     Removing fill-mode was not enough and the reason is worth keeping: during an
+     animation's ACTIVE period the animated value applies regardless of fill-mode,
+     and a suspended animation -- hidden tab, headless virtual time -- never leaves
+     that period. So `from{opacity:0}` pinned the sheet at invisible in every
+     non-foreground context. Measured three times: sheet present, 195 cells,
+     computed opacity 0.
+     The backdrop is therefore opaque from the first frame and never animates
+     opacity at all; the entrance is carried by the panel's TRANSFORM, whose
+     from-state is a 12px offset -- still fully visible if it never advances. */
+  opacity:1;
+}
+.gsheet[data-out]{animation:sheetOut 160ms var(--ease) forwards}
+@keyframes sheetOut{from{opacity:1}to{opacity:0}}
+.gsheet__p{
+  position:relative;width:min(1180px,100%);max-height:min(84vh,860px);overflow:auto;
+  background:var(--bg-1);border:1px solid var(--line-2);border-radius:var(--r3);
+  padding:var(--s6);box-shadow:0 40px 120px -20px rgb(0 0 0 / .7);
+  animation:sheetPop 260ms var(--jelly);
+}
+@keyframes sheetPop{from{transform:translateY(12px) scale(.984)}to{transform:none}}
+.gsheet[data-out] .gsheet__p{animation:none}
+.gsheet__x{
+  position:absolute;top:var(--s4);right:var(--s4);width:32px;height:32px;
+  border-radius:50%;background:var(--bg-2);color:var(--ink-3);font-size:13px;
+  display:grid;place-items:center;transition:background var(--t) var(--ease)}
+.gsheet__x:hover{background:var(--bg-3,var(--bg-2));color:var(--ink)}
+
+.gcal__h{display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap;
+  margin-bottom:var(--s5)}
+.gcal__h b{font-size:19px;font-weight:680;letter-spacing:-.02em}
+.gcal__h span{font-size:12.5px;color:var(--ink-4)}
+.gcal__grid{display:flex;flex-direction:column;gap:6px}
+.gcal__row{display:grid;grid-template-columns:74px minmax(0,1fr) 92px;
+  align-items:center;gap:var(--s3)}
+.gcal__row.is-book{margin-top:8px;padding-top:10px;border-top:1px solid var(--line)}
+.gcal__arm{font-size:12.5px;font-weight:640;color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcal__row.is-book .gcal__arm{color:var(--ink);letter-spacing:.06em}
+/* One column per session — auto-fit so 39 sessions or 90 both fill the width
+   without a horizontal scrollbar appearing inside a modal. */
+.gcal__cells{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px}
+.gcal__c{
+  height:26px;border-radius:4px;background:color-mix(in oklch,white 5%,transparent);
+  cursor:help;transition:transform 120ms var(--ease),outline-color 120ms var(--ease);
+  outline:1px solid transparent;
+}
+.gcal__c:hover{transform:scaleY(1.18);outline-color:var(--ink-3)}
+.gcal__c.is-off{background:color-mix(in oklch,white 3%,transparent)}
+.gcal__row.is-book .gcal__c{height:32px}
+.gcal__net{font-size:13px;font-weight:660;text-align:right}
+.gcal__net[data-t="pos"]{color:var(--pos)}
+.gcal__net[data-t="neg"]{color:var(--neg)}
+.gcal__f{display:flex;gap:var(--s5);flex-wrap:wrap;margin-top:var(--s5);
+  padding-top:var(--s4);border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--ink-4)}
+.gcal__f b{color:var(--ink-2);font-weight:660;font-size:14px}
+.gcal__f b[data-t="pos"]{color:var(--pos)} .gcal__f b[data-t="neg"]{color:var(--neg)}
+
+@media (prefers-reduced-motion:reduce){
+  .gsheet,.gsheet__p{animation:none}
+  .gcal__c:hover{transform:none}
+}
+.gcal__when{font-style:normal;font-size:12px;color:var(--ink-4);margin-left:4px}

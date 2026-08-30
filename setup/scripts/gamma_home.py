@@ -567,6 +567,15 @@ def build(quiet: bool = False) -> dict:
         "autonomy": None,
         "army": None,   # filled below; a presence-telemetry failure must not lose the page
         "cards": None,  # filled below; a card-generation failure must not lose the page
+        # THE TRADING HALF. Added 2026-08-30 after a research pass read payload.json cold
+        # and found no `glass` key: the app was getting it ONLY from /api/desk, so with
+        # the companion down the trading band degraded to named-empty-states -- the very
+        # blindness this page was rebuilt to end. The live path stays authoritative
+        # (equity and position at payload age are wrong answers, not stale ones); this is
+        # the floor beneath it.
+        "glass": None,
+        # Standing research lanes, same reasoning as glass.
+        "lanes": None,
     }
     try:
         sys.path.insert(0, str(REPO / "setup" / "scripts"))
@@ -574,6 +583,13 @@ def build(quiet: bool = False) -> dict:
         payload["autonomy"] = _au.build()
     except Exception as e:                       # noqa: BLE001 - status must never 500 the page
         payload["autonomy"] = {"error": str(e)[:160], "awake": None}
+
+    for _key, _mod in (("glass", "gamma_glass"), ("lanes", "gamma_lanes")):
+        try:
+            sys.path.insert(0, str(REPO / "setup" / "scripts"))
+            payload[_key] = __import__(_mod).build()
+        except Exception as e:                   # noqa: BLE001 - never lose the page over a slice
+            payload[_key] = {"error": str(e)[:160]}
 
     try:
         sys.path.insert(0, str(REPO / "setup" / "scripts"))
