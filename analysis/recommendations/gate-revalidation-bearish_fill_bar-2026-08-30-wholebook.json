@@ -1,0 +1,212 @@
+{
+  "prereg_id": "GATE-RECENCY-REVALIDATION-2026-08-30-WHOLEBOOK",
+  "answers": "GATE-REVALIDATION-FILING-2026-08-21.md section 2's own pre-registration ('an A/B that replays the whole book path, not the refused cohort in isolation') -- queue.md GATE-RECENCY-REVALIDATION item (2), the last open sub-item as of the 2026-08-29T04:16 ET conductor-weekend fire.",
+  "does_not_supersede": [
+    "analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-08.json",
+    "analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-23-extended.json"
+  ],
+  "method": "day-level, one-seat-at-a-time competition between TAKEN_BEAR/TAKEN_BULL/REFUSED_GATE events replayed via the SAME sound engine (walk_exit_manager). Book A = only taken-type events eligible (models today's live GATE-ON behaviour). Book B = all three kinds compete for one seat per day (models GATE-OFF, including the downstream NOT_FLAT bump effect). improvement_per_day = Book B total - Book A total.",
+  "window": "2026-06-25..2026-08-27",
+  "n_candidate_events": {
+    "TAKEN_BEAR": 45,
+    "TAKEN_BULL": 35,
+    "REFUSED_GATE": 58
+  },
+  "n_unwalkable": 0,
+  "n_days_with_candidate_events": 34,
+  "n_gate_refused_events_let_in_under_book_b": 35,
+  "n_taken_events_bumped_out_under_book_b": 14,
+  "book_a_total_gate_on_reality_replayed": 1551.7,
+  "book_b_total_gate_off_counterfactual": 1737.0,
+  "raw_delta_book_b_minus_book_a": 185.3,
+  "improvement_per_day_cohort": {
+    "n": 34,
+    "total": 185.3,
+    "mean": 5.45,
+    "wr_pct": 23.5,
+    "drop_top3": -1182.5,
+    "n_dropped_for_drop_top3": 3,
+    "best": 900.0,
+    "worst": -530.0
+  },
+  "improvement_is_half": {
+    "n": 17,
+    "total": -27.7,
+    "mean": -1.63,
+    "wr_pct": 23.5,
+    "drop_top3": -1395.5,
+    "n_dropped_for_drop_top3": 3,
+    "best": 900.0,
+    "worst": -530.0
+  },
+  "improvement_oos_half": {
+    "n": 17,
+    "total": 213.0,
+    "mean": 12.53,
+    "wr_pct": 23.5,
+    "drop_top3": 15.0,
+    "n_dropped_for_drop_top3": 3,
+    "best": 108.0,
+    "worst": 0.0
+  },
+  "one_sample_p": 0.8828,
+  "bh_fdr_significant": false,
+  "g_battery": {
+    "gates": {
+      "G_mean": true,
+      "G_oos": true,
+      "G_drop3": false,
+      "G_bhfdr": false,
+      "G_n": true
+    },
+    "verdict": "NOT-UNBLOCK-ELIGIBLE",
+    "pval": 0.8828
+  },
+  "kill_criterion": "NOT APPLICABLE -- did not clear the auto-ratify bar this pass; no live flip is proposed. If a future re-run DOES clear the bar: cell-attributable net <= -$150 over the first 5 live sessions after the flip -> revert same day (one-line aggressive/params.json diff back to true).",
+  "guard_test_snippet": "def test_require_bearish_fill_bar_unchanged_pending_reratification():\n    # GATE-RECENCY-REVALIDATION-2026-08-30-WHOLEBOOK: still NOT-UNBLOCK-ELIGIBLE\n    # on the whole-book A/B (accounts for the NOT_FLAT downstream effect the\n    # 2026-08-21 filing named -- see gate-revalidation-bearish_fill_bar-2026-08-30-\n    # wholebook.json). Pins the CURRENT (correct) value.\n    import json\n    params = json.loads(open('automation/state/aggressive/params.json', encoding='utf-8').read())\n    assert params['require_bearish_fill_bar'] is True",
+  "params_diff": {
+    "key": "require_bearish_fill_bar",
+    "current": true,
+    "proposed": false,
+    "recommendation": "DO NOT FLIP -- fails G_drop3/G_bhfdr (whole-book A/B)"
+  },
+  "day_level_deltas": [
+    {
+      "pnl": -530.0,
+      "date": "2026-06-25"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-06-26"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-01"
+    },
+    {
+      "pnl": 181.5,
+      "date": "2026-07-02"
+    },
+    {
+      "pnl": -417.5,
+      "date": "2026-07-07"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-08"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-10"
+    },
+    {
+      "pnl": -148.0,
+      "date": "2026-07-13"
+    },
+    {
+      "pnl": -30.0,
+      "date": "2026-07-14"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-15"
+    },
+    {
+      "pnl": 286.3,
+      "date": "2026-07-17"
+    },
+    {
+      "pnl": 145.0,
+      "date": "2026-07-20"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-21"
+    },
+    {
+      "pnl": -145.0,
+      "date": "2026-07-23"
+    },
+    {
+      "pnl": -270.0,
+      "date": "2026-07-27"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-28"
+    },
+    {
+      "pnl": 900.0,
+      "date": "2026-07-29"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-07-30"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-04"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-05"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-06"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-07"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-10"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-11"
+    },
+    {
+      "pnl": 75.0,
+      "date": "2026-08-12"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-13"
+    },
+    {
+      "pnl": 15.0,
+      "date": "2026-08-14"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-17"
+    },
+    {
+      "pnl": 108.0,
+      "date": "2026-08-18"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-19"
+    },
+    {
+      "pnl": 15.0,
+      "date": "2026-08-20"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-21"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-25"
+    },
+    {
+      "pnl": 0.0,
+      "date": "2026-08-27"
+    }
+  ],
+  "generated_at": "2026-08-30T01:20:48.020057"
+}

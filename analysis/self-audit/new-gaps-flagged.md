@@ -1113,3 +1113,64 @@ additive only). -->
 - Both imply that unchecked violations could lead to Rule 9/Rule 10 breaches (mid‑session parameter changes or disallowed trades) and erode operator trust.
 - – Because Perspective 5 supplies verifiable, timestamped evidence and a broader systems view, it is the more rigorous take; Perspective 2’s scenario, while valid, is narrower and less substantiated.
 <!-- DONE 2026-08-27T05:30 ET conductor AFTERHOURS -- concentration-guard gap actioned via queue.md MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS: live_readiness.py fixed 2026-08-26 (commit 650ef9c8), 5 more candidates audited-clear 2026-08-27 (desk_allocator/chop_meter/shadow-summary writers/entry_quality_ledger/ladder-shadow-nightly), doctrine folded into BACKTESTING-PLAYBOOK.md#4.3. Item downgraded HIGH->MED, residual scope narrowed to a named 14-file hygiene sweep, not closed outright. -->
+
+## 2026-08-28T17:31:46 -- 4 new gap(s) Gamma self-identified
+- The system lacks rigorous, automated validation of its models and strategy candidates (drift detection for Core Recency/Regime Stamp + walk‑forward/test‑gate for new candidates).
+- Regime‑stamp reliability is a problem – either the stamp is stale/unvalidated (Perspective 2) or it is consistently late (Perspective 3), which corrupts downstream bias and entry decisions.
+- Intra‑session risk controls are insufficient; the daily‑premium‑budget gate alone does not prevent large intra‑session losses or gamma/vega blow‑outs.
+- State management needs improvement – snapshots/rollback or a clear graduation path for shadow systems are missing.
+
+## 2026-08-30T00:21:47 -- 12 new gap(s) Gamma self-identified
+- Futures premarket producer NEVER fired This is explicitly called out. Gamma_FuturesPremarket has NEVER fired (rc=267011, no successor). This means no premarket analysis for futures.
+- No post-trade autopsy for futures Explicitly called out as "none exists"
+- record_mistake() is dead code 0 call sites, journal/futures/mistakes.md absent. The learning loop is broken.
+- Futures absent from go_live_gate.py Can't go live even if paper works
+- Quiet mode blacks out Sunday 18:00 ET session open every week This is a known issue with a recommended fix (essential exemption for wscript chain)
+- 6 pre-existing test failures from risky-3 retirement - stale fixtures in accounts.json, test_six_account_routing.py and test_arm_display_names.py
+- No live trading yet Everything is paper only. The risk-gate status says "PAPER ONLY — no live arming, no secret rotation"
+- Secret rotation not implemented Mentioned as not done
+- The -$400 daily stop uses equity_f/start_of_day_equity_f instead of realized_pnl_today This is a design choice but could be a gap if equity includes unrealized
+- Bold account's tighter boundary ($2.00 vs $3.33) binds 3% of history Known but not addressed
+- Futures health is fail-open "fail-open" means it passes if checks fail? That's dangerous
+- No integration between 0DTE and futures risk systems They seem separate
+
+<!-- DONE 2026-08-30 ~03:20 ET conductor (AFTERHOURS): TRIAGED, all 12 disposed -- live-checked
+against queue.md, not re-derived. Items 1-4 (futures premarket producer never fired,
+post-trade autopsy missing, record_mistake() dead code, futures absent from go_live_gate.py)
+are ALREADY FILED as their own named queue.md items from the SAME 2026-08-29 Fable futures
+parity audit this batch is summarizing: FUTURES-PREMARKET-PRODUCER-MISSING (HIGH),
+FUTURES-POST-TRADE-AUTOPSY-MISSING (LOW-MED), FUTURES-MISTAKES-LEDGER-IS-DEAD-CODE (MED),
+FUTURES-ABSENT-FROM-GO-LIVE-GATE (MED) -- this batch is a compressed re-summary of that same
+audit, not new information. Item 5 (quiet mode blacks out Sunday 18:00 ET futures open) is
+ALSO already filed: QUIET-MODE-BLACKS-OUT-THE-SUNDAY-FUTURES-OPEN (HIGH). Item 6 (6
+pre-existing test failures from risky-3 retirement) is the SAME known, already-flagged
+item noted in the 2026-08-29T12:21 ET STATUS.md PREREG-TIGHT-LADDER entry ("OPEN, not fixed
+here... self-contained, unrelated to this ship, next session picks up") -- not re-spawned
+per standing correction (feedback_no_menu_of_options / J doesn't click chips), left as a
+known open item. Item 7 ("no live trading yet, paper only") and item 8 ("secret rotation not
+implemented") are BY-DESIGN doctrine statements, not gaps -- OP-0's four things-that-route-to-J
+are exactly "arm live money" and "rotate/expose a secret"; the risk-gate's own status string
+IS the doctrine working correctly, not a defect. Item 9 (the -$400 daily stop uses
+equity_f/start_of_day_equity_f, not realized_pnl_today) was ALREADY explicitly verified safe
+in the 2026-08-29T12:21 ET PREREG-TIGHT-LADDER STATUS.md ship ("reuses equity_f/
+start_of_day_equity_f (already-mandatory, already-validated on every existing check_order
+caller)... cannot newly deny every order the way a fresh required kwarg would") -- reviewed,
+not a gap. Item 10 (Bold's tighter $2.00 boundary binds ~3% of history) was ALSO already
+quantified and disclosed in that same ship ("worth flagging... confirms the prereg's own
+'conflict never yet occurred' but reveals Bold's tighter effective boundary would have bound
+a real, non-trivial ~3%") -- known, disclosed, not a new gap. Item 11 ("futures health is
+fail-open -- that's dangerous") is a MISREADING of this project's fail-open convention,
+checked against `setup/scripts/futures_health.py` live this fire: fail-open here means
+"never crash the scheduler, never raise into it, degrade to an honest UNKNOWN/YELLOW instead
+of a false confident verdict" (module docstring: "unparseable -- we cannot tell (fail-open,
+never a crash). YELLOW is reserved for..."), and the module is a READ-ONLY visibility
+instrument with zero code path into order placement (same class as self_check.py, OP-25 rail
+2 -- visibility never blocks/never silently passes a trading decision). Not a gap; the
+concern describes a system this project deliberately does not have (a blocking gate) rather
+than a defect in the one it does have. Item 12 ("no integration between 0DTE and futures risk
+systems") is accurate and intentional -- the two lanes use fully separate risk_gate
+instances/kill-switches by design (per-account isolation, Rule 5), a shared risk system was
+never proposed anywhere in the futures build and is out of scope without a concrete failure
+mode. No new code action needed beyond what queue.md already tracks; this triage closes the
+loop so the batch stops reading as open. -->
+

@@ -1,3 +1,27 @@
+## [2026-08-30T03:2x ET] conductor: OK — GATE-RECENCY-REVALIDATION fully CLOSED (whole-book A/B built), GOAL-COCKPIT-BUILD flagged STALLED, commit pending
+
+**Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/4 fires, AFTERHOURS mode) + market closed (Sunday 03:12 ET) + engine-health.json GREEN (19/19) + self_check.py BROKEN 4 non-load-bearing problems (untracked-candidates count, 2 masked-exit log flags, futures fills-recency RED already tracked in queue.md) + `fill_funnel.py` IDLE as expected (weekend). Checked `active-goal.json` first per STAGE 1 clause 2a: `GOAL-COCKPIT-BUILD-2026-08-29` has all 8 build-order steps `[x]` and both remaining QUEUE items are `[B-J]` (genuinely blocked on a J side-effect — a real cross-session message / a real card click). Per the conductor's own instruction ("every item is `[x]`/`[B]`/`[B-J]` → flag, fall through to #3") this goal is DONE-except-J, not silently skipped — flagging here, no action taken on it (nothing self-actionable remains).**
+
+**Fell through to `task_scorer.py --top` → `GATE-RECENCY-REVALIDATION` (HIGH, filed 2026-08-08) — its own advisory said re-verify against current reality first; did, and it held up: the 2026-08-29T04:16 ET conductor-weekend fire's own closing note named exactly one remaining sub-item, "require_bearish_fill_bar (Bold) whole-book A/B, pre-registered in GATE-REVALIDATION-FILING-2026-08-21.md, still unbuilt."**
+
+**Why the two prior studies (08-08, 08-23-extended) were incomplete, per the 08-21 filing's own words:** both scored the REFUSED cohort in isolation ("if these 37-38 refused bear entries had been taken, what would each have earned, independently?"). The filing's section 2 named the flaw: "The checker replays refused signals through the exit core. It does NOT model what else would have changed had those trades been taken — most importantly NOT_FLAT, which would have blocked later entries in the same wave... A refused-cohort P&L is an upper bound on a gate's cost, never its true cost." Pre-registered fix: "an A/B that replays the whole book path, not the refused cohort in isolation."
+
+**Built `backtest/tools/gate_revalidation_bearish_fill_bar_wholebook_2026_08_30.py`.** Every Bold candidate event since 2026-06-25 (229 raw `ENTER_BEAR` + 227 raw `ENTER_BULL` fires, clustered to 45+35 distinct events; 268 raw `SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY` fires, clustered to 58 events) replayed through the SAME sound engine this whole family already validated (`walk_exit_manager`, never `simulator_real` — the 2026-08-08 SOUNDNESS_AUDIT this lineage inherits). Then walked chronologically, day by day, through TWO one-seat-at-a-time books that COMPETE for the single Bold position: **Book A (GATE ON, today's reality)** — only taken-type events eligible; **Book B (GATE OFF, counterfactual)** — all three kinds (taken-bear/taken-bull/refused-gate) compete for the seat, whichever is chronologically first and finds the book flat wins it. This is the exact mechanism the filing named: a gate-refused bear entry let in under Book B can occupy the seat and bump out a later taken entry that happened for real under Book A.
+
+**Result, quoted (OP-33): Book A $1,551.70 vs Book B $1,737.00 over n=34 trading days with ≥1 candidate event — raw delta +$185.30 (35 of 58 refused-gate events got let in under B; 14 real taken events got bumped out by them).** Scored the per-day improvement distribution (Book B − Book A) with the SAME G-battery convention every sibling in this family uses: `G_mean=True G_oos=True G_n=True` but **`G_drop3=False G_bhfdr=False`** (one-sample p=0.883; dropping the 3 biggest winning days flips the total to **−$1,182.50** — 3 days carry all of the apparent edge). **VERDICT: NOT-UNBLOCK-ELIGIBLE — DO NOT FLIP.** This is the THIRD independent method (refused-cohort 08-08, refused-cohort-extended 08-23, now whole-book 08-30) to reach the identical conclusion, and it is the first one to correctly price the NOT_FLAT downstream effect the isolated-cohort methods structurally could not see. Filed `analysis/recommendations/gate-revalidation-bearish_fill_bar-2026-08-30-wholebook.json`.
+
+**Guard test built (not just a JSON snippet — an actual pytest file, first in this family):** `backtest/tests/test_gate_revalidation_wholebook_2026_08_30.py`, 9 tests. Extracted the book-competition state machine into a pure function (`simulate_book_competition`, no I/O/option-data dependency) specifically so it could be unit-tested on synthetic fixtures — the inline version in the first draft could not be. **RED-proofed live, and it caught a real bug:** patching the state machine back to the original inline logic (which incremented the "bumped" diagnostic counter for ANY taken event blocked in Book A, including ordinary same-book NOT_FLAT collisions that have nothing to do with Book B) failed `test_two_taken_events_same_day_not_falsely_counted_as_bumped` with `assert 1 == 0`; the fix dropped the diagnostic count from 26→14 (the headline G-battery numbers were unaffected — only the human-readable "bumped" count was wrong). Also added a pin: `require_bearish_fill_bar is True` in `automation/state/aggressive/params.json`. `run_safety_gate.py` → **59 passed, PASS**.
+
+**Also closed a loop: the 2026-08-30T00:21:47 self-audit gap batch (12 items, un-actioned) was fully triaged this fire** — all 12 either duplicate already-filed queue.md items from the SAME 2026-08-29 Fable futures audit (items 1-6), are by-design doctrine statements not gaps (items 7-8), were already independently verified/disclosed in the 2026-08-29 PREREG-TIGHT-LADDER ship (items 9-10), or are misreadings of this project's fail-open convention / already-intentional design (items 11-12). DONE marker filed in `analysis/self-audit/new-gaps-flagged.md`, no new code action needed beyond what's already tracked.
+
+**`queue.md` updated: `GATE-RECENCY-REVALIDATION` marked `[x]` CLOSED — all 3 original sub-items now answered (structure_veto DO NOT FLIP 08-23, require_bearish_fill_bar DO NOT FLIP 08-30, filter_10_min_triggers_bull STRUCTURAL-NULL pre-existing) plus the 2 RETIRE-CANDIDATE param bundles removed 08-29. Nothing open under this HIGH item.**
+
+**Rail (analysis-only fire — no `params.json`/`aggressive/params.json` file touched, no flip proposed, no live behaviour changed):** guard is the 9 new pytest tests + `run_safety_gate.py` 59/59 above (a); revert is `git revert <this commit>` (4 files: the new tool, the new test, `queue.md`, `analysis/self-audit/new-gaps-flagged.md` — all additive) (b); this STATUS entry is the REVOKE report (c).
+
+**OPEN for J (unchanged from the 2026-08-29T16:34 ET entry, restated so it isn't lost under new fires):** `GOAL-COCKPIT-BUILD-2026-08-29`'s two remaining items (VERIFY-A: message one of your live windows and name it, or fire any cockpit action card — either satisfies both remaining verifies in one action) are genuinely blocked on a J-side action, not on more autonomous work; nothing else in this fire's scope needs J.
+
+---
+
 ## [2026-08-29T12:21 ET] risk-gate: OK — PREREG-TIGHT-LADDER-2026-08-28 5 controls shipped (max 5 contracts, $1,000/position, skip-conflict, 4 entries/day, -$400 daily stop), commit `4245d4ce`
 
 **Picked because the tight-ladder forward window opens 2026-09-01 09:30 ET and the prereg it's measured against described controls the engine did not enforce — a pre-registration describing controls the engine lacks is worthless. Clock verified `2026-08-29 12:21:51 Saturday EDT market_hours=False` (`et_clock.py`) before touching anything. PAPER ONLY — no live arming, no secret rotation.**
@@ -209,227 +233,12 @@
 
 Pathspec-committed throughout (`314f12fc`, `6349d8fa`, `c8664d4a`, `d1032d9c`, `35df7a4a`, `065df4e4`, `9a6bd1c1`, `c732f214`) — this checkout is live and shared; 3 of these files were reverted mid-session by an untraced `git reset` and had to be reapplied + committed immediately, confirmed via `git status`/`git reflog` before continuing (C34 scar, live again).
 
-## [2026-08-28T17:52 ET] conductor: OK — QUOTE-RECORDER RED fixed at the root (missing keepalive), commit `69e6c1bf`
 
-**Picked via STAGE 0 budget gate PROCEED ($5.40/$30, 2/4 fires, AFTERHOURS mode) + market-hours gate closed (17:42 ET, weekday, well after 15:55) + `self_check.py` FUNCTION-FIRST priority: verdict=BROKEN, 5 problems, worst being `QUOTE-RECORDER RED: status file 21m stale ... Gamma_QuoteRecorderKeepalive has stopped`.**
-
-**Root cause:** `quote_recorder.py` (Task B1's independent exit-quote NBBO side-channel, built earlier the same day — "we log NBBO on ~25 of 128 entry events and ZERO on exits; every slippage number is an assumption") was verified working but never given an always-on scheduled task; its own `check_quote_recorder_alive` docstring said arming one was "J's call" and stopped there. It had been started manually once (~17:18 ET) and the moment that process exits, the staleness check has no way to distinguish "never armed" from "armed and died" — it reads RED forever.
-
-**Fixed:** `quote_recorder_keepalive.py` (pid-liveness probe cross-checked against the live process table via `wmic`, matched on the literal `quote_recorder.py` filename — a bare substring match would false-positive on the keepalive's own filename or any `test_quote_recorder_*` file) + `install-quote-recorder-keepalive.ps1`, same proven `wscript -> run_exe_hidden.vbs -> run_cmd_hidden.py -> pythonw` chain as `Gamma_WindowLeakDetectorKeepalive`. Launches with a bounded 24h `--duration-sec` (2026-08-13 wedge lesson: unbounded runtime is a liability even for a light poller) so the process self-recycles daily. **Registered live: `Gamma_QuoteRecorderKeepalive`, `State=Ready`, every 5 min 24/7** — manually fired once this fire to close the gap immediately rather than waiting for the first scheduled tick.
-
-**Verified, quoted:** `self_check.py` verdict **BROKEN → DEGRADED** (QUOTE-RECORDER RED cleared; remaining 4 problems are pre-existing/non-load-bearing, already flagged in earlier fires today — trendline-draw stale, chart-drawing stale, two masked-exit log counts). Fresh `quote-recorder-status.json` confirmed with new `pid=27940`, `last_cycle_ok=true`, correctly idling off-RTH. `pytest backtest/tests/test_quote_recorder_keepalive_2026_08_28.py -q` → `11 passed`. `backtest/tests/run_safety_gate.py` → `59 passed, PASS`.
-
-**De-dupe note:** a parallel session (commit `9a6bd1c1`, unrelated Task B3 go-live-gate work) hit the same `test_every_installed_task_is_documented` gate concurrently and had already documented this task in `SCHEDULED-TASKS.md` with its own shorter row before this fire's edit staged — this fire's redundant duplicate row was found and removed before commit, not shipped. Normal "parallel Claudes, don't clobber" surface — no conflict, no lost work either direction.
-
-**Rail 4 (paper-infra monitoring fix, not a live-money/secret/CLAUDE.md surface):** guard test is the regression check (a); revert is `git revert 69e6c1bf` then `install-quote-recorder-keepalive.ps1 -Uninstall` to unregister the live task (source revert alone doesn't touch already-registered Task Scheduler state) (b); this STATUS entry is the REVOKE report (c).
-
-**Not fixed this fire (out of scope, already flagged / non-load-bearing):** TRENDLINE-DRAW STALE (since 2026-08-27), CHART-DRAWING STALE (since 2026-06-29, ~2 months — candidate for a future fire if `desk_allocator`/`task_scorer` don't surface something higher-value first), the two RUN-CMD/RUN-PS1-HIDDEN masked-exit log counts (cumulative-log-rollover artifacts per the 05:30 fire's note).
-
-**Autonomy metric:** `conductor_outcome.py metric` reads `trend=regressing` (cost/drained $2.16 over the trailing 20 fires). This fire was loop-closing (a RED root-caused and fixed, guard-tested, live-verified) per the trend-aware priority the instructions call for; next fire should prefer another closing item over a new artifact.
-
-## [2026-08-28T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-28 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 188 tick(s) showed in_trade>0. 57 real fill(s) dated 2026-08-28: safe-2@10:21, bold-2@10:21, safe-2@10:22, bold-2@10:22, safe-3@10:22, risky-1@10:22, risky-3@10:22, safe-2@10:23, bold-2@10:23, safe-2@10:24, bold-2@10:24, safe-2@10:25, bold-2@… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-28, generated_at_et=2026-08-28T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-28, regime_context.stamp_date=2026-08-28 (present=True, dates_match=True). one_liner='Yesterday 2026-08-27 (Thu) = gap-go (range 0.68%, gap +0.32%, clo… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 61 distinct near-price levels. Worst: 769.49 flipped 7x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 41 time(s) across 6 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-28 window_end=2026-08-27 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=28 (delta +18 vs baseline n=10) exp=$-5.89/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=37 exp=$14.92/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-28T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 384 theta-clock row(s) dated 2026-08-28 across 6 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=384, unavailable=0. sti… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-28 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-28`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-28 14:30 ET] J-DIRECTED BUILD - daily premium budget: battery run, rule built INERT, **3-of-4 OP-11 gates - needs J's call**
-
-**J asked "how do we spend less and still hit our daily target".** Answering the second half first, because it
-reframes the first: **we do not have a daily-target edge.** Under every policy tested the median arm-day is
-NEGATIVE (-$41 at best) and only 24% of arm-days clear +$100. The top 10 arm-days carry 154% of all profit; the
-other 120 sum to -$1,658. $100-200/arm/DAY is not a quota this edge can fill - it is a monthly average. Judging
-single days against it will produce cut winners and chased losers.
-
-**What CAN be fixed is the carrying cost of waiting for that tail.** 42 days, T1 broker-truth tape, net of A1
-fees: the book turned over **$141,641** of premium to net **+$1,317** (0.93%). **205 of 427 entries (48%) were
-placed while that arm was already RED on the day.**
-
-**READ THAT NUMBER CORRECTLY:** $141,641 is cumulative TURNOVER across 428 entries x 42 days x ~5 arms -- the
-same ~$5k per arm recycled ~8x. It is NOT capital at risk. Actual peak concurrent open premium per arm per
-day: median **$350 (7.0% of a $5k account)**, p90 $774 (15.5%), worst-ever $1,880 (37.6%) -- inside the Rule 6
-caps throughout. Per-entry ticket: median $276. **Position sizing was never the problem; churn is.** This rule
-caps turnover, not size, which is why its benefit lands as drawdown reduction rather than lower exposure.
-
-**Built + battery-run:** `check_daily_premium_budget()` in `backtest/lib/risk_gate.py`, two shapes.
-`C_loss_armed` @ $700/arm/session - the cap binds ONLY after the arm books a losing exit that session:
-net **+1317 -> +5161**, deployed **$141,641 -> $87,744**, maxDD **4908 -> 2544**, PF **1.08 -> 1.51**,
-worst day **-2694 -> -1573**. Per-arm: risky-3 -590->+1310, safe-2 -233->+952, safe-3 +824->+1723,
-bold-2 +309->+344, risky-1 +1257->+1084 (-173, the only arm it hurts).
-
-**OP-11 gate: 3 of 4.** PASS oos_positive (+2536 on 17 OOS days), sub_window_stable (all 3 windows positive),
-anchor_no_regression (-5.3%). **FAIL wf_median_ge_0.70** (median -0.068; folds [1.0, -0.0676, -0.8921]).
-The obvious flat-cap variant is the mirror image - passes WF, **fails anchor at -32.3%** because a flat cap trims
-size on exactly the trend days the right-tail edge lives on. **Neither auto-ratifies, so nothing shipped armed.**
-WF here is 3 folds of 5 trading days on n=42; the scorecard discloses WF as corroborating-not-decisive at this n,
-and the flat cap's WF "pass" comes from two folds clipping to 1.0. That is context, not a reason to waive a gate.
-
-**Verified, quoted:** `pytest backtest/tests/test_daily_premium_budget_2026_08_28.py -q` -> `25 passed`;
-`pytest backtest/tests/test_risk_gate.py -q` -> `96 passed`; 5 consumer suites (cap_admission,
-entry_block_watch_risk_deny, fast_path_pdt_gap, core_entry_idempotency, fill_funnel_why) -> `58 passed`;
-`run_safety_gate.py` -> `59/59 PASS`; **`pytest backtest/tests/test_graduated_guards.py -q` ->
-`129 passed, 1 skipped in 1102.73s (0:18:22)`, real pytest `exit=0`.**
-
-**CORRECTION to commit `4b636ee3`'s message (which is immutable, hence this note).** That message says the full
-graduated-guards suite was "NOT run -- it hangs on an unrelated tree-scanning test." Both halves are wrong. It
-does not hang: it takes **18m22s**, and my 600s/900s command timeouts kept killing it mid-run. It has now been
-run to completion and PASSES. The reason I wrongly believed it had passed once, then wrongly believed it hung,
-is the same defect both times: the runs were piped (`pytest ... | tail -12`), and bash returns the LAST pipeline
-stage's exit status -- so the `exit code 0` the harness reported was `tail`'s, not pytest's. Demonstrated:
-`python -c "import sys; sys.exit(3)" | tail -1` -> `0`, unpiped -> `3`. The re-run above was unpiped
-(`> file 2>&1; echo "exit=$?"`) and carries a real summary line. This is the repo's own C7 class and is
-mechanically identical to `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT`; the rule (quote the `N passed` line, never the
-exit code) is filed at `_lesson-inbox/2026-08-28-piping-pytest-to-tail-masks-the-exit-code.md`.
-
-Three self-caught errors worth recording: (1) my first variant-C sweep returned a flat no-op because I passed
-`(date, arm)` into a function taking `(arm, date)` - caught by a sanity assert on the armed population, re-run
-corrected; (2) the risky-3 replay test asserted 2 surviving entries when the gate correctly allows only 1
-($395 + $340 = $735 > $700). The gate was right and my expectation was wrong - the test was corrected, not the gate;
-(3) the piped-exit-code error described in the CORRECTION above, which produced a false "the guards suite passed"
-claim to J that had to be retracted, then a false "it hangs" claim that also had to be retracted.
-
-**RULE IS OFF.** `daily_premium_budget_dollars` is absent from every params file, so the gate returns None on
-every call and `check_order` is byte-identical to its pre-today behavior - the FIRST test class pins exactly that.
-Arming is a one-key params edit and is an after-hours action under Rule 9.
-
-**J's call, filed as `DAILY-PREMIUM-BUDGET-J-CALL` in queue.md:** arm on 3-of-4 plus the mechanism argument, or
-hold for more OOS data. Recommendation: arm risky-3 + safe-2 first (the two arms it flips negative->positive),
-leave risky-1 alone. Revalidation clock: re-run the battery weekly; if WF clears it becomes auto-ratifiable.
-
-**Also surfaced, NOT acted on (out of scope this fire):** conviction tiers do not predict outcomes
-(SUPER 0-for-7, LEVEL 0-for-1, ELITE 24.2% WR / +2.5% ROI) - worth its own audit. And risky-3 went 0-for-5 today
-(-$410 on $1,735 deployed); it is the premium-stop control cell re-proving a June-settled question (C2,
-chart-stop-primary). Closing that cell is J's REVOKE, not mine.
-
-Scorecard: `analysis/recommendations/daily-premium-budget.json`.
-Battery: `backtest/autoresearch/daily_premium_budget_battery.py`.
-Prior coverage read BEFORE building (Obsidian-brain rule): B3-loss-anatomy, B3-bounded-config, A1-cost-rebuild.
-Revert: `git revert 4b636ee3` (6 files -- risk_gate.py + guard + battery + scorecard + queue.md + STATUS.md;
-risk_gate.py changes are additive plus one call site). ("4 files" in the original draft of this entry was wrong.)
-
-## [2026-08-28 13:06 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
-
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 3 passed in 0.32s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-28 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
-
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 3 passed in 4.55s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
-## [2026-08-28T05:30 ET] conductor: OK — GITHUB-AUDIT-FALSE-RED-DAYS-INTERVAL fixed at the monitoring-instrument root, commit `fcfeaf74`
-
-**Picked via STAGE 0 budget gate PROCEED ($3.78/$30, 1/4 fires, AFTERHOURS mode) + market-hours gate closed (05:30 ET, weekday, pre-open) + `desk_allocator.py` SPY-0DTE #1 ("NEXT FIRE" — 80pts BROKEN, `self-check-last.json=DEGRADED`, futures desk confirmed `armable=false` no proven edge) + `self-check-last.json` (FUNCTION-FIRST priority): `RUN-CMD-HIDDEN MASKED EXIT ... unattended_health.py (exit=[1], 19x)`.**
-
-**Traced past the symptom to the real cause (not the masked-exit surface):** `unattended_health.py`'s exit=1 was itself just a side-effect of its own **RED verdict** on the `github-audit` unit (`Gamma_GitHubAudit: HAS NOT FIRED in 2.2d -- daily trigger, budget 2.0d`). Read `automation/state/unattended-health.json` directly (not just self_check's summary) to find the actual RED. `Get-ScheduledTaskInfo`: last run 8/25 22:46, `NumberOfMissedRuns=1`, `NextRunTime` skipped to 8/29 (not 8/27) — the SAME evening-reboot-window pattern (Kernel-Power reboots 18:00-22:00 MT) already root-caused for `Gamma_DressRehearsal` on 2026-08-26. But then went one layer deeper: the task's live trigger is `DaysInterval=2` ("every 2 days"), and `unattended_health.py::expected_gap_minutes()` **never reads DaysInterval at all** — it scores every `DailyTrigger` at a flat 1440min cadence regardless of N, so the module's own `_MULT_DAILY_PLUS=2.0` design (stated intent: "tolerates EXACTLY ONE missed run") collapsed to a 2.0-day budget for an every-2-day task — i.e. ZERO real slack for a single missed run, contradicting the module's own documented design. This is a genuine monitoring-instrument bug, not a task-scheduling bug: any current or future every-N-day (N>=2) Gamma task would get the same false-RED treatment on its first missed run.
-
-**Fixed both layers:** `_list-gamma-tasks-json.ps1` now emits `days_interval` for `DailyTrigger` entries (previously dropped silently); `expected_gap_minutes()` multiplies cadence by it (`n>1 -> cadence=1440*n`), defaulting to `n=1` (byte-identical behavior) when absent. Swept live for other N>1 DailyTrigger tasks (only `Gamma_GitHubAudit`) and N>1 `WeeksInterval` on WeeklyTrigger (none) — both verified via live `Get-ScheduledTask` queries, not assumed.
-
-**Verified, quoted:** `pytest backtest/tests/test_unattended_health.py -q` → `37 passed` (34 pre-existing + 3 new: every-N-day cadence correct, missing-field default unchanged, budget tolerates one missed run). Live re-run `python setup/scripts/unattended_health.py --json`: `github-audit` unit RED → GREEN, overall verdict RED → YELLOW (all other units byte-identical). Curated safety gate (`run_safety_gate.py`) 59/59 PASS. `git show fcfeaf74 --stat --name-status`: exactly the 4 intended files.
-
-**Not fully cleared:** `self_check.py` still reads DEGRADED this run (`RUN-CMD-HIDDEN MASKED EXIT ... 22x`) — that count is the CUMULATIVE non-zero-exit tally already written to today's `run-cmd-hidden-2026-08-28.log` from BEFORE this fix landed (10 more ticks fired while I was diagnosing); it cannot retroactively un-write history and will clear naturally once today's log rolls over, or once enough fresh GREEN ticks land. This is expected log-rollover lag, not a residual bug — the underlying cause (the false RED itself) is fixed and verified live.
-
-**Lesson filed:** `_lesson-inbox/2026-08-28-daily-trigger-cadence-ignored-days-interval.md` — generalizable: any instrument classifying a Windows scheduled task purely by CimClassName without reading its interval-refining property (DaysInterval/WeeksInterval) will mis-budget any "every N" task. Flags the WeeksInterval blind spot as latent-but-currently-inert (verified empty).
-
-**Rail (infra/monitoring fix, zero live-trading-path touch — no params/heartbeat_core/filters/placement/exit code edited):** guard tests are the regression check (a) — 3 new + 34 preserved; revert is `git revert fcfeaf74` (4 files, fully additive except the one `elif "Daily"` branch, verified reversible) (b); this STATUS entry + the matching queue.md item are the REVOKE report (c).
-
-**Next fire should pick up:** whatever `task_scorer.py --top` / `desk_allocator.py` return fresh — `self_check.py` DEGRADED should read GREEN again once today's `run-cmd-hidden` log stops accumulating historical exit=1 lines (check, don't assume); `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` is CLOSED (prior fire) so should no longer resurface; `MONITORING-INSTRUMENTS-LACK-CONCENTRATION-GUARDS` (MED, residual scope: 14 named `setup/scripts` files + `backtest/autoresearch/`) remains a reasonable next pick if nothing higher-value surfaces.
-
----
-
-## [2026-08-28T01:15 ET] conductor: OK — VBS-WRAPPER-EXIT-CODE-BLIND-SPOT CLOSED (SEVENTH PASS), commit `fc739d03`
-
-**Picked via STAGE 0 budget gate PROCEED ($0/$30, 0/4 fires, AFTERHOURS mode) + market-hours gate closed + engine_health.json GREEN (19/19) + `self_check.py` GREEN (0 problems) + `desk_allocator.py` SPY-0DTE #1 (NEXT FIRE, futures desk checked and correctly `armable=false` -- no proven edge) + `task_scorer.py --top` returned `VBS-WRAPPER-EXIT-CODE-BLIND-SPOT` for the 4th consecutive fire (08-25/26/27/28) with the advisory "trace before executing."**
-
-**Traced properly this time (not just the top-line description):** the item's own THIRD PASS (2026-08-07) already ran the `/fable-blast-radius` audit the opening paragraph names as the blocker, and reached a real verdict (blanket vbs flip NOT RECOMMENDED; per-task relay migration is the standing safer path) -- the last 3 fires re-punted on a stale top-line read instead of walking the full dated-pass history. Live-reconciled all 31 originally-named tasks via `Get-ScheduledTask`/`Get-ScheduledTaskInfo` (not prose): 29 already done (19 FOURTH PASS + 9 FIFTH PASS template-fixes + CryptoTwin). `Gamma_JIntentExecutor` is already live on the `run_py_venv_hidden.py` relay (never actually a gap). `Gamma_EodFlattenCore` is still direct wscript->pythonw with no relay, BUT `preopen_readiness.py::assess_eod_flatten_reality` already gives it a bespoke, arguably-stronger per-arm JSONL outcome check (fails-toward-RED on missing evidence, `critical=True`) -- no fix needed, a generic relay migration would be a fidelity downgrade. The one genuine gap: `Gamma_RegimeShadow` (live since 2026-08-11, correctly on the relay) had ZERO install script anywhere in the repo -- the exact no-declarative-source-of-truth risk this whole guard exists to prevent.
-
-**Fixed:** created `setup/scripts/install-regime-shadow.ps1` (reproduces the live registration byte-for-byte, verified via `Get-ScheduledTaskInfo` BEFORE writing -- pure safety net, not a behavior change), registered it in `EXPECTED_RELAY_TASKS`, and fixed 2 doc-registry gaps the curated safety gate caught live: `SCHEDULED-TASKS.md` was missing this task's Active-table row entirely, and its stated count (134) had drifted from the table (135 after adding the row).
-
-**Verified, quoted:** `pytest backtest/tests/test_install_script_relay_wiring_drift.py backtest/tests/test_scheduled_tasks_doc.py -q` → `50 passed, 1 skipped`. Curated safety gate (`run_safety_gate.py`): FAILED first run (both doc-registry gaps) → `59 passed` after fixes. `self_check.py`: GREEN, 0 problems, before and after. `git show fc739d03 --stat --name-status` + `git ls-tree HEAD`: exactly the 3 intended files landed (`install-regime-shadow.ps1`, `test_install_script_relay_wiring_drift.py`, `SCHEDULED-TASKS.md`).
-
-**Item CLOSED** in queue.md (`status:pending` → `status:done`) — no further named gap remains; every tracked task is either on a relay with a matching install template, or deliberately excluded with a stated, verified reason. `task_scorer.py --top` re-confirmed post-fix: no longer returns this item (now `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, correctly dormant per its own 2026-08-27 verdict, not re-picked this fire).
-
-**Lesson filed:** `strategy/candidates/_lesson-inbox/2026-08-28-long-queue-item-blocking-subclaim-goes-stale.md` — a long multi-pass queue item's top-line description can go stale relative to its own later PASS history, causing repeated fires to re-derive the same superseded conclusion; generalizable fix (not applied this fire) is for each new PASS to update the item's own opening status line rather than relying on the next reader to walk the full history.
-
-**Rail 4 (infra/scheduler hygiene, zero live-trading-path touch — pure documentation/template fix, verified behavior-identical to live state):** guard test is the regression check (a); revert is `git revert fc739d03` (3 files, additive + 2-line count bump, fully reversible) (b); this STATUS entry is the REVOKE report (c).
-
-**Next fire should pick up:** whatever `task_scorer.py --top` returns fresh (currently `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, dormant — check its equity-floor re-trigger condition before treating it as ready); the FULL-SUITE RED logged below (2026-08-27T23:41 ET, 11 failures) has not yet been triaged by a conductor fire and may be higher priority than continuing down the task_scorer list.
-
----
-
-## Known broken
-
-- [2026-08-29T05:38+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-08-29T05:22+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-08-28T22:53:06] GRADUATED-GUARDS-SLOW FAIL :: 1 failed, 35 passed, 124 deselected in 1383.61s (0:23:03) :: re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -m slow -q
-- [2026-08-28 23:46 ET] FULL-SUITE RED :: 10336 passed, 15 failed, 11 skipped :: tests/test_book_exposure_2026_08_18.py::test_live_snapshot_contains_only_roster_arms, tests/test_cost_model.py::test_load_roster_matches_the_5_active_real_fills_arms, tests/test_day_summary_2026_08_19.py::test_active_arms_are_derived_from_accounts_json_not_hardcoded, tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541587Z], tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541602+00:00], tests/test_discord_bridge_staleness_2026_08_12.py::test_all_three_on_disk_timestamp_formats_parse[2026-08-29T02:45:08.541606], tests/test_dojo_engine_step.py::test_fleet_arms_reflect_their_own_gate_strictness, tests/test_engine_contract_drift.py::test_no_drift_vs_committed, tests/test_eod_flatten_coverage_2026_08_18.py::test_the_three_fleet_arms_specifically_are_covered, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_journal_calendar.py::test_load_roster_matches_current_accounts_json_active_pa_arms, tests/test_premarket_readiness.py::test_fetch_active_arms_excludes_retired_safe1_and_pending_futures :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
-- [2026-08-27 23:41 ET] FULL-SUITE RED :: 10165 passed, 11 failed, 12 skipped :: tests/test_dataset_integrity_2026_08_15.py::test_current_tree_verifies_clean, tests/test_dataset_integrity_append_only_2026_08_21.py::test_the_real_tree_verifies_clean_today, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_kitchen_reviewer_ladder_fallback_2026_08_20.py::test_unparseable_pool_result_falls_through_to_ladder, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_vwap_continuation_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_gap_and_go_flag_on_calls_detector, tests/test_setup_dispatch.py::TestFlagOnMockedDetector::test_dispatch_extra_setups_serializes_fired_signal, tests/test_setup_dispatch.py::TestDetectorError::test_detector_exception_returns_skip_error, tests/test_setup_dispatch.py::TestDetectorError::test_dispatch_extra_setups_never_raises, tests/test_state_contracts.py::test_live_json_file_validates[automation/state/loop-state.json], tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
-
-### DEGRADED: self-check 2026-08-29T02:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 3x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T02:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 9 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 9x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T03:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 15x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T03:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 21 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 21x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T04:00:27
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 25 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 25x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T04:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 27 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 27x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T04:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 33 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 33x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+### BROKEN: self-check 2026-08-30T03:12:29
+- CANDIDATES-UNTRACKED: 26 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-08-30.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- unattended_health.py (exit=[1], 3x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-30.log shows 6 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 6x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-08-14 (10 session(s) since in the read window); 23 ENTER_REFUSED row(s) across 5/5 recent session(s) ['2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/5 recent probe(s) show transport errors (rate 60%), 5 excluded as session-closed -- newest 2026-08-29T23:05:05 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl not present yet (its producer had not landed as of this build) -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle)
 
 ## Kitchen
-Kitchen: alive, queue 47 pending, last cook 0 min ago, today $0.00, model=grinder-python
-
-### DEGRADED: self-check 2026-08-29T05:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 39 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 39x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T05:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 45 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 45x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-- [2026-08-29 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-08-29 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-29.md
-
-### DEGRADED: self-check 2026-08-29T06:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 51 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 51x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-- [2026-08-29 04:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 78.95% in last 24h (30/38) | stage v15_three_source_parity.live pass rate dropped to 89.47% in last 24h (34/38) :: see crypto/data/scorecards/drift_report.json
-
-### DEGRADED: self-check 2026-08-29T06:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 57 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 57x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T07:09:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 63 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 63x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### DEGRADED: self-check 2026-08-29T07:39:56
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 69 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 69x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-
-### BROKEN: self-check 2026-08-29T16:19:48
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-08-29.log shows 74 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-dashboard-keepalive.ps1 (exit=[1], 74x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] can_enter: MES pending_entry STUCK 21929.0m (>30m) since 2026-08-14T10:50:04 -- GHOST-ORDER DEADLOCK signature (outage #1, 2026-08-14): the lane cannot open a new position while this row exists; [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-08-14 (10 session(s) since in the read window); 23 ENTER_REFUSED row(s) across 5/5 recent session(s) ['2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as session-closed -- newest 2026-08-29T16:18:01 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl present, 4 row(s), schema not yet recognized (no ok/success/error field)
+Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
