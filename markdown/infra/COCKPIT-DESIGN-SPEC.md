@@ -730,3 +730,34 @@ component code loginless-ly via the saved token: `npx 21st search/get/theme`.
   stacking all three is reserved for the single hero number per view.
 - Multi-series rule (recorded): blue+orange for 2 simultaneous series
   (deuteranopia-safe); red/green are reserved for P&L sign, NEVER series identity.
+
+---
+
+## External reference dossier (opened 2026-08-30 — APPEND per pass, never fork)
+
+> Exists because of an 8x-repeated J correction (memory:
+> `design-starts-at-external-reference`): every design pass STARTS by pulling
+> references and extracting the TECHNIQUE. Each shipped design commit cites the
+> entry that drove it. An entry is a technique, never a vibe.
+
+| # | Reference | Extracted technique |
+|---|---|---|
+| R1 | [Magic UI — AnimatedBeam](https://magicui.design/docs/components/animated-beam) | Beam = SVG path computed **between two DOM element rects** inside a shared container (refs → getBoundingClientRect → quadratic bézier with a `curvature` scalar), animated by a travelling `linearGradient` along the path; `reverse` flips direction (return mail), `duration`/`delay` stagger multiple beams. KEY: nodes are real HTML — text never scales down; only the connector layer is SVG. |
+| R2 | [W3C Activity Streams / GetStream feed guide](https://getstream.io/blog/designing-activity-stream-newsfeed-w3c-spec/) | Every feed line is **actor + verb + object (+ target) + relative time** — "Agent 1 reported results to the orchestrator · 5m ago". Human-readable strings are GENERATED from event data by construction rules (tense, preposition), never piped raw. Keep lines one clause; link out for detail. |
+| R3 | [Aceternity — Glowing Effect](https://ui.aceternity.com/components) | Cursor-style border glow that adapts to any card — presence for the ONE hero element (the orchestrator), not for every card. Also: Spotlight (attention), Animated Tooltip (hover detail), Text Generate Effect (status lines that type in). Restraint rule: one glowing thing per screen. |
+| R4 | [LangGraph Studio](https://www.langchain.com/blog/langgraph-studio-the-first-agent-ide) | The canonical agent-IDE layout: **graph visualization + interaction box on the same screen**; execution streams step-by-step in real time ("agent decides → calls tool → loops" visible as it happens). Validates: org graph on top, console below, one page; the feed is a STEP STREAM, not a log dump. |
+| R5 | [AgentOps / LangGraph observability](https://docs.agentops.ai/v2/integrations/langgraph) | Agent dashboards show per-node state (active/paused/failed) as the PRIMARY visual channel; metrics (durations, completion rates) secondary. State first, numbers second — same law as the lanes rail. |
+| R6 | [claudedirectory — design plugins](https://www.claudedirectory.org/plugins/topic/design) | Installable Claude plugins that exist for exactly this work: **Frontend Design** (production-grade distinctive frontends), **Design Review** (7-phase review incl. visual polish + WCAG), **Wondelai Refactoring UI** (practical hierarchy/spacing rules), **Wondelai Top Design** (custom animation + dramatic typography), **KPI Dashboard Design**. Surface to J for install rather than self-wiring. |
+| R7 | 21st.dev harvest (2026-08-30 04:44–07:06 session) | The five ratified components (ai-assistant chat, prediction-market card, jelly hero, sign-in, dashboard-1 agent cards) + card/menu/bento browsing. Standing rule: when a surface feels stock, pull the matching 21st.dev category BEFORE styling by hand. |
+| R8 | Refactoring UI (via plugin R6; book principles) | Label/value hierarchy: the VALUE is big and dark, the label small and muted — never the reverse; don't communicate with grey text alone on dark ground, use size + weight; every font size on the glass belongs to a scale, minimum ~12–13px real pixels for glanceable text. |
+| R9 | Trading-terminal convention (TradingView/Bloomberg lineage) | Semantic colour is RESERVED: green/red = P&L direction only; state uses its own hues (cyan alive, amber held/stale, violet actionable). Already ratified in this spec — the dossier restates it so external pulls never re-introduce green=good. |
+| R10 | [Flowise](https://github.com/FlowiseAI/Flowise) (source fetched 2026-08-30 — repo now reads "**has been archived**") | Agent-builder canvases in the field are built on **[xyflow/react-flow](https://reactflow.dev)** (Flowise's own `packages/ui/package.json` pins `reactflow ^11.5.6`) — free-form node-drag + `animated:true` dashed edges for "data flowing," zoom/pan/minimap for free. CAVEAT, disclosed not glossed over: Flowise itself is dead product (real finding, not fabricated) — cite it for the LIBRARY technique (a fixed-position beam is simpler than a full graph-canvas lib when nodes never move, which is our case), not as a product to imitate. |
+| R11 | [GitHub Primer — Timeline](https://github.com/primer/react/blob/main/packages/react/src/Timeline/Timeline.module.css) (source fetched 2026-08-30) | The connecting rail down an activity feed is **N separate 2px `::before` pseudo-elements**, one per `<li>`, each spanning `top:0; bottom:0` of its OWN row — not one continuous SVG/div line threading every item. Badge (avatar/icon) top-offset is computed against the same spacing token as the row padding so it centers on the rail exactly. `clip-sidebar="start"/"end"` trims the half-segment at the list's first/last item so the rail doesn't visually dead-end mid-row. Directly reusable for the "on its own" / activity feed rail — cheaper than SVG, no resize-observer needed since each segment is sized by its own row's CSS box. |
+| GAP | Linear / Vercel activity-feed markup specifically | Not independently verified — Linear's app and Vercel's dashboard are closed-source; no public component source found within this pass's budget (unlike GitHub Primer, which is open). Disclosed as an honest gap rather than a citation to something unread. R2 (W3C Activity Streams / GetStream) + R11 (Primer rail) already cover the generic pattern this item asked for; do not re-open this line item to chase Linear/Vercel specifically without a concrete need the existing two don't answer. |
+
+**Hard rules distilled (apply before any styling commit):**
+1. Text on the glass is HTML at ≥12–13px computed; SVG is for strokes, never labels.
+2. One hero glow (the orchestrator). Everything else earns emphasis by size/weight.
+3. Feed lines are generated actor-verb-object sentences; raw commit subjects, task
+   codes, and file paths never render on the glass (hover/expand for raw detail).
+4. Message flow = beam packet + feed sentence from the SAME event, or it's decoration.
