@@ -47,7 +47,7 @@ function armyHumanAct(detail){
     return script?('Running '+script.split(/[\/]/).pop()):'Running python';
   }
   if(/pytest/.test(cmd))return 'Running tests';
-  if(/^git/.test(cmd))return 'git '+(cmd.split(/\s+/)[1]||'');
+  if(/^git\b/.test(cmd))return 'git '+(cmd.split(/\s+/)[1]||'');
   return tool ? ('Running '+tool) : d;
 }
 

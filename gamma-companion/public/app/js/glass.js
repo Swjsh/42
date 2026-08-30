@@ -165,7 +165,15 @@
           '">' + esc(bias.ribbon) + '</span>' : '');
       tapeSub = (fresh ? '<i class="g-live"></i>live · ' : 'stale · ') +
         (age != null ? esc(age < 90 ? age + 's old' : Math.round(age / 60) + 'm old') : '') +
-        (bias.vix != null ? ' · VIX ' + esc(Number(bias.vix).toFixed(2)) : '');
+        // VIX comes from the last core DECISION, not from the beacon -- on a weekend
+        // that can be days older than the price beside it. Printing it inside the
+        // "live" clause implied a freshness it does not have, so it is labelled with
+        // its own timestamp instead of borrowing the tape's.
+        (bias.vix != null
+          ? ' · VIX ' + esc(Number(bias.vix).toFixed(2)) +
+            (bias.at ? ' <span class="g-asof">as of ' + esc(String(bias.at).slice(5, 10)) +
+              '</span>' : '')
+          : '');
     } else {
       tapeVal = dash((bias.tape_source || {}).path || 'sight-beacon.json');
       tapeSub = 'beacon not reporting';

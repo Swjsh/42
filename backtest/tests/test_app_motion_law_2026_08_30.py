@@ -95,16 +95,31 @@ class TestMoneyColoursAreReserved:
     # They live in different regions: money colours carry figures in the trading band; an
     # alarm dot in the rails sits beside the literal word BROKEN. What is forbidden is a
     # HEALTHY or NEUTRAL state wearing a money colour.
-    NEUTRAL_STATE = ("org__beacon", "g-live", "auto__dot", "org__dot",
-                     'lane[data-t="ok"]', 'lane[data-t="warn"]')
+    # This test originally EXCLUDED the broken-lane dot, on the reasoning that a red dot
+    # beside the literal word BROKEN could not be mistaken for a figure. An adversarial
+    # review rejected that and was right: --neg was also doing duty for engine health,
+    # memory pressure, the stop button and error rows, which made the stated guarantee
+    # ("a red thing on this page always means money lost") literally false -- and worse,
+    # a GREEN health chip could read as profit. State now has its own ramp: --live cyan
+    # healthy, --warn amber degraded, --alarm broken (hue 45, sitting between the P&L
+    # crimson at 25 and the amber at 80). The law is enforced with no exceptions.
+    MONEY_SURFACES = ("panel__delta", "g-big", "garm__net", "garm__bar", "gcal__net",
+                      "gcal__f", "g-spark", "flashUp", "flashDn", "--pos:", "--neg:")
 
-    def test_neutral_state_indicators_do_not_use_money_colours(self, css):
+    def test_money_colours_appear_only_on_money_surfaces(self, css):
         bad = []
         for line in css.splitlines():
-            if any(sel in line for sel in self.NEUTRAL_STATE) and \
-               re.search(r"var\(--(pos|neg)\)", line):
-                bad.append(line.strip()[:110])
-        assert not bad, "neutral machine state borrowed a P&L colour: " + " | ".join(bad)
+            t = line.strip()
+            if t.startswith(("*", "/*", "//")):
+                continue
+            if re.search(r"var\(--(pos|neg)\)", t) and \
+               not any(k in t for k in self.MONEY_SURFACES):
+                bad.append(t[:110])
+        assert not bad, "a P&L colour escaped the money surfaces: " + " | ".join(bad)
+
+    def test_state_has_its_own_ramp(self, css):
+        assert "--alarm:" in css, "the state ramp lost its broken colour"
+        assert "--live:" in css and "--warn:" in css
 
     def test_position_unknown_is_amber_not_red(self, css):
         m = re.search(r'\.g-state\[data-t="warn"\]\{([^}]*)\}', css)
@@ -169,3 +184,45 @@ class TestReadabilityFloor:
                 line = css[:m.start()].count("\n") + 1
                 bad.append("line {}: {}px".format(line, m.group(1)))
         assert not bad, "sub-12px type on the glass: " + ", ".join(bad)
+
+
+class TestNoMangledEscapes:
+    """A whole class of SILENTLY DEAD regexes, found 2026-08-30.
+
+    A `\b` written through a shell heredoc can arrive as a literal 0x08 BACKSPACE
+    byte instead of the two characters backslash-b. The file still parses, the regex
+    still compiles, and it matches nothing -- because it now requires a real backspace
+    character in the input.
+
+    It hid for a long time because every tool that displays it renders 0x08 as "\b":
+    grep, JSON.stringify, and a terminal all showed exactly the source that was
+    intended. It was only caught by dumping raw bytes after a regex that "obviously"
+    matched refused to fire.
+
+    Three real instances were live when this test was written: the activity wire's
+    failure detector (so a Traceback read as "did some work"), the army view's git
+    labeller, and a gamma_home output filter. All three were no-ops.
+    """
+
+    ROOTS = ("gamma-companion/public/app", "setup/scripts")
+
+    def test_no_control_bytes_in_source(self):
+        offenders = []
+        for rel in self.ROOTS:
+            base = ROOT / rel
+            if not base.exists():
+                continue
+            for f in list(base.rglob("*.js")) + list(base.rglob("*.css")) + list(base.rglob("*.py")):
+                if "node_modules" in str(f) or "__pycache__" in str(f):
+                    continue
+                try:
+                    raw = f.read_bytes()
+                except OSError:
+                    continue
+                # tab(9) newline(10) carriage-return(13) are legitimate; nothing else is
+                stray = sorted({b for b in raw if b < 32 and b not in (9, 10, 13)})
+                if stray:
+                    offenders.append("{} {}".format(f.name, [hex(b) for b in stray]))
+        assert not offenders, (
+            "stray control bytes -- almost certainly a mangled regex escape: " +
+            ", ".join(offenders))

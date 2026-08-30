@@ -36,6 +36,24 @@ const DENY_WRITE = [
   /(^|[\\/])\.vapid\.json$/i,
   /(^|[\\/])push-subscriptions\.json$/i,
   /(^|[\\/])\.approve-hmac\.key$/i,
+
+  // ---- THE LIVE TRADING PATH (added 2026-08-30 after an adversarial review) ----
+  // This array is the ONLY hard enforcement of the project's config freeze, and it
+  // was missing three of the five files that freeze names. Confirmed by running the
+  // regexes against real repo paths: setup/scripts/heartbeat_core.py (the live
+  // deterministic engine — a .py OUTSIDE automation/prompts/, so the heartbeat*.md
+  // pattern never reached it), backtest/lib/risk_gate.py (only its neighbour
+  // filters.py was denied), and everything under automation/state/fleet/ (the
+  // params*.json pattern is anchored one directory above it) were all ALLOWED.
+  //
+  // Why that mattered: /api/orchestrator-chat runs a real Claude Code session on the
+  // raw typed message with full Write/Edit/Bash and no confirmation step, so an
+  // ordinary "fix the sizing bug in the fleet executor" could have edited the live
+  // reward function during a freeze — silently, because only the already-listed
+  // paths produce a visible "Blocked" refusal.
+  /(^|[\\/])heartbeat_core\.py$/i,
+  /(^|[\\/])risk_gate\.py$/i,
+  /automation[\\/]state[\\/]fleet[\\/]/i,
 ];
 
 // Tools the companion's Claude may NEVER call (live order management).
@@ -75,6 +93,11 @@ const BASH_PROTECTED = [
   /\.vapid\.json/i,
   /\.approve-hmac\.key/i,
   /push-subscriptions\.json/i,
+  // The same three trading-path classes as DENY_WRITE above. A denylist that blocks
+  // the Write tool but leaves `sed -i` open is not a denylist.
+  /heartbeat_core\.py/i,
+  /risk_gate\.py/i,
+  /state[\\/]fleet[\\/]/i,
 ];
 
 // Write-ish shell operators that can clobber/move/edit a file in place.

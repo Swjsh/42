@@ -41,10 +41,31 @@ def _read_json(path: Path):
         return None
 
 
+def _ever_fired(path: Path) -> bool:
+    """Did this ledger EVER record a fire? A whole-file question, answered by streaming.
+
+    The caller only holds the last 40 rows, which is right for "what happened lately"
+    and wrong for "has this never fired" -- 41 consecutive refusals would have flipped
+    the answer. Streamed line by line so an append-only ledger cannot cost memory.
+    """
+    try:
+        with path.open("r", encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                if '"fired"' in line:
+                    return True
+    except OSError:
+        return False
+    return False
+
+
 def _read_jsonl(path: Path, tail: int = 40) -> list:
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()[-tail:]
-    except OSError:
+        # errors="replace": a torn write landing mid-multibyte-sequence raises
+        # UnicodeDecodeError, which is a ValueError and NOT caught by OSError -- it
+        # took the whole autonomy slice down rather than dropping one line. The two
+        # sibling modules already read this way.
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()[-tail:]
+    except (OSError, ValueError):
         return []
     out = []
     for ln in lines:
@@ -127,7 +148,11 @@ def build(now: dt.datetime | None = None) -> dict:
     today = now.strftime("%Y-%m-%d")
     fired_today = [r for r in fire_rows
                    if r.get("date_et") == today and r.get("decision") == "fired"]
-    ever_fired = any(r.get("decision") == "fired" for r in fire_rows)
+    # "has never fired" is a claim about the WHOLE ledger, and fire_rows is only the
+    # last 40 lines -- so 41 refusals in a row would have reported a card-firer that
+    # had fired many times as one that never had. Scan the file for the claim.
+    ever_fired = _ever_fired(STATE / "autofire-ledger.jsonl") or any(
+        r.get("decision") == "fired" for r in fire_rows)
 
     outcomes = _read_jsonl(STATE / "conductor-outcomes.jsonl", tail=12)
 

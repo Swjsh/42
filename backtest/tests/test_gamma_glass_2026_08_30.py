@@ -96,11 +96,29 @@ class TestPositionHonesty:
         monkeypatch.setattr(gg, "_today_fills", lambda: [])
         assert gg.group_position()["state"] == "flat"
 
-    def test_fresh_with_status_is_open(self, monkeypatch):
+    @pytest.mark.parametrize("status", ["long_call", "short_put", "open", "LONG"])
+    def test_fresh_with_a_real_status_is_open(self, monkeypatch, status):
         monkeypatch.setattr(gg, "_age_h", lambda p: 0.1)
-        monkeypatch.setattr(gg, "_read", lambda p: {"status": "long_call"})
+        monkeypatch.setattr(gg, "_read", lambda p: {"status": status})
         monkeypatch.setattr(gg, "_today_fills", lambda: [])
         assert gg.group_position()["state"] == "open"
+
+    @pytest.mark.parametrize("status", ["flat", "FLAT", "closed", "none", " out "])
+    def test_a_flat_WORD_is_flat_not_open(self, monkeypatch, status):
+        """`if d.get("status")` treated ANY truthy string as a position, so the
+        literal "flat" rendered IN A TRADE. Flagged by an adversarial review."""
+        monkeypatch.setattr(gg, "_age_h", lambda p: 0.1)
+        monkeypatch.setattr(gg, "_read", lambda p: {"status": status})
+        monkeypatch.setattr(gg, "_today_fills", lambda: [])
+        assert gg.group_position()["state"] == "flat"
+
+    def test_no_file_at_all_is_unknown_not_flat(self, monkeypatch):
+        """Nobody has told us anything. That is not the same as being flat."""
+        monkeypatch.setattr(gg, "_age_h", lambda p: None)
+        monkeypatch.setattr(gg, "_read", lambda p: None)
+        monkeypatch.setattr(gg, "_today_fills", lambda: [])
+        out = gg.group_position()
+        assert out["state"] == "unknown" and out["note"]
 
     def test_real_call_returns_a_known_state(self):
         assert gg.group_position()["state"] in {"open", "flat", "unknown"}

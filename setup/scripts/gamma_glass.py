@@ -55,6 +55,9 @@ BOOK_VIEW = "BOOK"
 # Treating a stale file as truth is how a dashboard reports flat while a position is open.
 POSITION_STALE_H = 24.0
 
+# Statuses that mean "not in a trade". Anything else non-empty is a POSITION.
+FLAT_WORDS = {"flat", "closed", "none", "no_position", "nopos", "out"}
+
 
 def _read(path: Path):
     try:
@@ -178,12 +181,7 @@ def _today_fills() -> list:
     """Only today's rows. The ledger is ~0.5MB; a reverse scan keeps this a tail read."""
     today = dt.datetime.now(ET).strftime("%Y-%m-%d")
     out = []
-    try:
-        with FILLS_FILE.open("r", encoding="utf-8", errors="replace") as fh:
-            lines = fh.readlines()[-400:]
-    except OSError:
-        return out
-    for line in lines:
+    for line in _tail_lines(FILLS_FILE, 400):
         try:
             r = json.loads(line)
         except ValueError:
@@ -205,23 +203,32 @@ def group_position() -> dict:
     d = _read(POSITION_FILE)
     fills = _today_fills()
     last = None
-    try:
-        with FILLS_FILE.open("r", encoding="utf-8", errors="replace") as fh:
-            tail = [x for x in fh.readlines()[-40:] if x.strip()]
-        for line in reversed(tail):
-            try:
-                r = json.loads(line)
-            except ValueError:
-                continue
-            last = {"symbol": r.get("symbol"), "arm": r.get("arm"), "side": r.get("side"),
-                    "qty": r.get("qty"), "price": r.get("price"), "ts_et": r.get("ts_et")}
-            break
-    except OSError:
-        pass
+    for line in reversed(_tail_lines(FILLS_FILE, 40)):
+        try:
+            r = json.loads(line)
+        except ValueError:
+            continue
+        last = {"symbol": r.get("symbol"), "arm": r.get("arm"), "side": r.get("side"),
+                "qty": r.get("qty"), "price": r.get("price"), "ts_et": r.get("ts_et")}
+        break
 
-    if age is not None and age > POSITION_STALE_H:
+    if age is None:
+        # No file at all. That is not flat -- nobody has told us anything.
+        return {"ok": True, "state": "unknown",
+                "note": "no position file has ever been written",
+                "raw_status": None, "fills_today": len(fills), "last_fill": last,
+                "source": _src(POSITION_FILE), "fills_source": _src(FILLS_FILE)}
+    if age > POSITION_STALE_H:
         state = "unknown"
         note = "position file is {:.0f}h old -- the engine is not writing it".format(age)
+    elif isinstance(d, dict) and str(d.get("status") or "").strip().lower() in FLAT_WORDS:
+        # The original test was `if d.get("status")` -- ANY truthy string -- so the
+        # literal "flat" or "closed" would have rendered IN A TRADE. Named flat-words
+        # rather than an open-word whitelist: the engine writes real statuses like
+        # "long_call" that no whitelist would have guessed, and being wrong in the
+        # open->flat direction is the dangerous one.
+        state = "flat"
+        note = None
     elif isinstance(d, dict) and d.get("status"):
         state = "open"
         note = None
@@ -238,6 +245,56 @@ def group_position() -> dict:
 
 # --- what the engine thinks -------------------------------------------------------------
 
+def _tail_lines(path: Path, n: int = 30, block: int = 65536) -> list:
+    """Last n lines WITHOUT reading the file into memory.
+
+    core-decisions.jsonl is 88 MB and /api/desk is polled every 30 seconds; the
+    previous `fh.readlines()[-30:]` pulled all 88 MB into RAM on every poll to keep
+    thirty lines. Seek from the end in blocks instead. Found by an adversarial review
+    2026-08-30 and confirmed against the file's real size.
+    """
+    try:
+        with path.open("rb") as fh:
+            fh.seek(0, 2)
+            end = fh.tell()
+            buf, chunks = b"", 0
+            while end > 0 and buf.count(b"\n") <= n and chunks < 64:
+                step = min(block, end)
+                end -= step
+                fh.seek(end)
+                buf = fh.read(step) + buf
+                chunks += 1
+    except OSError:
+        return []
+    return [x for x in buf.decode("utf-8", "replace").splitlines() if x.strip()][-n:]
+
+
+def _beacon_age_s(beacon: dict):
+    """How old the tape ACTUALLY is, from wall clock vs the beacon's own timestamp.
+
+    NEVER `beacon["age_s"]`. sight_beacon.py writes that field as a literal constant
+    0 on every successful snapshot -- it is baked in at write time and never updated,
+    so a beacon that died three hours ago still reports age_s 0. The glass trusted it
+    (`fresh = age < 120`) and therefore rendered "live - 0s old" unconditionally,
+    beside a SPY price and ribbon that could be arbitrarily stale.
+
+    Caught by an adversarial review pass 2026-08-30 and confirmed by measurement: the
+    field said 0 while the file was 47.3 seconds old. This is the single most dangerous
+    lie this page can tell -- "the engine is watching the market" when it is not -- so
+    the freshness is computed here from ts_et, mirroring engine_health.check_sight_beacon.
+    """
+    ts = (beacon or {}).get("ts_et") or (beacon or {}).get("ts_utc")
+    if not ts:
+        return None
+    try:
+        when = dt.datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=ET)
+    return max(0, int((dt.datetime.now(ET) - when).total_seconds()))
+
+
 def _last_core_decision() -> dict:
     """The engine's most recent per-tick verdict, from its own ledger.
 
@@ -245,12 +302,7 @@ def _last_core_decision() -> dict:
     and coding against it returned None for every field until this was run. This reads
     core-decisions.jsonl, which is what the live engine actually appends to.
     """
-    try:
-        with CORE_DEC_FILE.open("r", encoding="utf-8", errors="replace") as fh:
-            tail = [x for x in fh.readlines()[-30:] if x.strip()]
-    except OSError:
-        return {}
-    for line in reversed(tail):
+    for line in reversed(_tail_lines(CORE_DEC_FILE, 30)):
         try:
             return json.loads(line)
         except ValueError:
@@ -299,7 +351,7 @@ def group_bias() -> dict:
         "ribbon": beacon.get("ribbon_stack") or dec.get("ribbon"),
         "spread_cents": beacon.get("spread_cents"),
         "vix": dec.get("vix"),
-        "tape_age_s": beacon.get("age_s"),
+        "tape_age_s": _beacon_age_s(beacon),
         "tape_at": beacon.get("ts_et"),
         "engine_health": health.get("verdict"),
         "source": _src(BIAS_FILE),

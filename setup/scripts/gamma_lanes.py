@@ -157,6 +157,8 @@ def lane_kitchen() -> dict:
     tasks = _task_states(("Kitchen",))
     alive = bool(d.get("daemon_alive"))
     doing = (recent[0].get("task") or "")[:110] if recent else None
+    spend = d.get("today_cost_usd_paid_tier")
+    cap = d.get("today_cost_cap_usd")
     return {
         "id": "kitchen", "label": "Kitchen", "kind": "R&D",
         "state": "HELD" if _held(tasks) else _state_for("kitchen", age, broken=not alive),
@@ -164,8 +166,13 @@ def lane_kitchen() -> dict:
             q.get("pending", 0), q.get("completed", 0)),
         "doing": doing,
         "last_at": _iso(p),
-        "metric": "${:.2f} / ${:.0f}".format(
-            d.get("today_cost_usd_paid_tier", 0) or 0, d.get("today_cost_cap_usd", 0) or 0),
+        # Sourced or absent. `.get(key, 0)` printed a confident "$0.00 / $3" from a
+        # kitchen-status file that had failed to load -- a fabricated dollar figure
+        # sitting next to a BROKEN badge, which is the one thing this project's
+        # no-invented-numbers law exists to prevent.
+        "metric": ("${:.2f} / ${:.0f}".format(spend, cap)
+                   if isinstance(spend, (int, float)) and isinstance(cap, (int, float))
+                   else None),
         "metric_label": "spend today",
         "tasks": tasks,
     }

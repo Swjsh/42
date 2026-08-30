@@ -59,7 +59,10 @@
   function commit(subject) {
     var raw = String(subject || '');
     var m = /^(\w+)(?:\(([^)]*)\))?!?:\s*(.+)$/.exec(raw);
-    if (!m) return { verb: 'shipped', text: cap(scrub(raw)) || raw, raw: raw };
+    // `|| raw` was the leak: when scrub() emptied a subject that was nothing BUT a
+    // path, the unscrubbed original went straight to the glass. Fall back to a
+    // generic label instead -- the raw text still lives in the row's title.
+    if (!m) return { verb: 'shipped', text: cap(scrub(raw)) || 'a change', raw: raw };
     var verb = VERB[m[1].toLowerCase()] || 'shipped';
     var scope = (m[2] || '').replace(/[_-]+/g, ' ').trim();
     var text = cap(scrub(m[3]));
@@ -141,12 +144,32 @@
     else if (ev === 'done' || ev === 'result') did = 'reported back';
     else if (ev === 'say') did = 'sent a message';
     else did = 'did some work';
+
+    /* A FAILURE MUST NEVER READ AS PROGRESS. The generic fallback above turned a
+       real, repeated tool error into "did some work" in the live wire -- the feed
+       reassuring J while the agent was stuck in a loop. Failure signatures are
+       checked FIRST and win over the verb, and the row is tagged so the renderer
+       can tone it. (Found by an adversarial review, 2026-08-30.) */
+    if (/\b(error|failed|failure|traceback|exception|denied|refused|timed out|timeout)\b/i.test(d)) {
+      return { text: who + ' hit an error', bad: true,
+               raw: (ev ? ev + ': ' : '') + d };
+    }
     return { text: who + ' ' + did, raw: (ev ? ev + ': ' : '') + d };
   }
 
   /* "5m" — relative time for feed rows; absolute time is hover detail. */
   function ago(iso) {
-    var t = Date.parse(iso || '');
+    /* The rig writes naive ET stamps ("2026-08-30T14:12:02") with no offset, and
+       Date.parse treats those as the VIEWER's local time. This box runs Mountain,
+       so every relative age was off by the ET-local delta -- "2h ago" for something
+       that just happened. If there is no offset in the string, pin it to ET (-04:00
+       EDT / -05:00 EST) rather than letting the browser guess. */
+    var raw = String(iso || '');
+    if (raw && !/(Z|[+-]\d{2}:?\d{2})$/.test(raw)) {
+      var mo = Number(raw.slice(5, 7));
+      raw += (mo >= 3 && mo <= 11) ? '-04:00' : '-05:00';
+    }
+    var t = Date.parse(raw);
     if (!isFinite(t)) return '';
     var m = Math.round((Date.now() - t) / 60000);
     if (m < 1) return 'just now';

@@ -273,7 +273,7 @@ def _signature_lines(n: int = 6) -> tuple:
             continue
         c = _clean(s)
         # Skip the generator's own provenance stamp - it is not a finding.
-        if not c or re.match(r"^Generated", c) or "pure Python" in c:
+        if not c or re.match(r"^Generated\b", c) or "pure Python" in c:
             continue
         out.append(c)
         if len(out) >= n:

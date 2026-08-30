@@ -44,6 +44,7 @@
    * same event that writes the feed sentence. One event, two faces (dossier rule
    * 4: message flow = beam packet + feed sentence from the SAME event). */
   let orgRef = null;   // the mounted org box; packet() needs its live paths
+  let orgRO = null;    // ONE ResizeObserver, re-pointed rather than re-created
 
   function orgCard(s, workers) {
     const live = (s.worker_active || 0) > 0 || s.activity === 'active';
@@ -214,8 +215,12 @@
       if (++tries < 25) setTimeout(arm, 80);
     })();
     if (window.ResizeObserver) {
-      const ro = new ResizeObserver(function () { drawWire(box); });
-      ro.observe(box);
+      // ONE observer for the page, re-pointed at the current box. refreshDesk()
+      // replaces the org on every data tick, so constructing a fresh observer here
+      // leaked one per tick -- each still holding a detached node and still firing.
+      if (orgRO) { try { orgRO.disconnect(); } catch (_) { /* already gone */ } }
+      orgRO = new ResizeObserver(function () { drawWire(box); });
+      orgRO.observe(box);
     }
     return box;
   }
@@ -228,12 +233,28 @@
    * session so a busy agent reads as a heartbeat, not a machine gun. */
   const pulseSt = { cursor: '', lastPkt: {}, lastLine: {}, timer: 0 };
 
-  function feedLine(sentence, whenIso, raw) {
+  /* Sessions come and go all day, and these two maps kept a key for every one that
+     ever pulsed -- unbounded for the life of the tab. Trim to the sessions the
+     roster still knows about, plus anything touched in the last ten minutes. */
+  function trimPulseState(liveIds) {
+    const cutoff = Date.now() - 600000;
+    ['lastPkt', 'lastLine'].forEach(function (k) {
+      const m = pulseSt[k];
+      Object.keys(m).forEach(function (id) {
+        if (!liveIds[id] && m[id] < cutoff) delete m[id];
+      });
+    });
+  }
+
+  function feedLine(sentence, whenIso, raw, bad) {
     const feed = document.querySelector('.rail--r .feed');
     if (!feed) return;
     const n = el('ev ev--wire');
     if (raw) n.title = raw;
-    n.innerHTML = '<span class="ev__k">mail</span>' +
+    // A failure must LOOK like one. humanize.pulse() flags it; without this the row
+    // reads in the same neutral tone as "ran a check".
+    if (bad) n.setAttribute('data-t', 'neg');
+    n.innerHTML = '<span class="ev__k">' + (bad ? 'error' : 'mail') + '</span>' +
       '<span class="ev__t">' + esc(sentence) + '</span>' +
       '<span class="ev__w mono">' + esc(G.human.ago(whenIso)) + '</span>';
     const head = feed.querySelector('.feed__h');
@@ -260,6 +281,7 @@
       const names = {};
       (((D.S.army || {}).sessions) || []).forEach(function (x) {
         names[x.session_id] = x.name; });
+      trimPulseState(names);
       const orcId = ((D.S.army || {}).orchestrator || {}).session_id;
       (j.rows || []).slice(-12).forEach(function (row) {
         const sid = row.session_id || '';
@@ -272,7 +294,7 @@
         if ((now - (pulseSt.lastLine[sid] || 0)) > 20000) {
           const who = sid === orcId ? 'Gamma' : (names[sid] || 'an agent');
           const h = G.human.pulse(row, who);
-          feedLine(h.text, row.ts, h.raw);
+          feedLine(h.text, row.ts, h.raw, h.bad);
           pulseSt.lastLine[sid] = now;
         }
       });

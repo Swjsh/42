@@ -43,9 +43,20 @@
   --live:oklch(79% .125 207);          /* ALIVE — cyan, its own hue */
   --live-wash:color-mix(in oklch,var(--live) 14%,transparent);
 
+  /* MONEY. These two are reserved for FIGURES that are dollars, nothing else.
+     An adversarial review 2026-08-30 found --neg doing duty for engine health, lane
+     breakage, context pressure, stop buttons and error rows -- which made the stated
+     guarantee ("a red thing on this page always means money lost") literally false,
+     and meant a glance at a green health chip could read as profit. */
   --pos:oklch(72% .19 152);            /* P&L ONLY */
-  --neg:oklch(68% .21 25);
+  --neg:oklch(68% .21 25);             /* P&L ONLY */
+
+  /* STATE. Its own ramp, deliberately NOT the money one: cyan healthy, amber
+     degraded, orange-red broken. --alarm sits at hue 45, between the P&L crimson
+     (25) and the amber (80), so it reads as an alarm without being mistakable for
+     a loss at a glance. */
   --warn:oklch(78% .17 80);
+  --alarm:oklch(70% .19 45);
 
   /* 4px base unit, closed set — no arbitrary values */
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;--s9:96px;
@@ -256,7 +267,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .card__top{display:flex;align-items:center;gap:8px;padding:var(--s4) var(--s4) 0}
 .tag{padding:5px 10px;border-radius:8px;font:700 12px/1 var(--sans);letter-spacing:.1em;
   text-transform:uppercase;background:var(--bg-3);color:var(--ink-3)}
-.tag[data-sev="red"]{background:color-mix(in oklch,var(--neg) 20%,transparent);color:var(--neg)}
+.tag[data-sev="red"]{background:color-mix(in oklch,var(--alarm) 20%,transparent);color:var(--alarm)}
 .tag[data-sev="amber"]{background:color-mix(in oklch,var(--warn) 18%,transparent);color:var(--warn)}
 .tag[data-sev="act"]{background:var(--acc-wash);color:var(--acc)}
 .card__age{margin-left:auto;font:600 12px/1 var(--mono);letter-spacing:.06em;color:var(--ink-4);
@@ -282,7 +293,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .card__fire[data-armed]{background:var(--bg-3);color:var(--warn);box-shadow:inset 0 0 0 1px
   color-mix(in oklch,var(--warn) 40%,transparent)}
 .card__rail{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--line-2)}
-.card__rail[data-sev="red"]{background:linear-gradient(90deg,var(--neg),color-mix(in oklch,var(--neg) 30%,transparent))}
+.card__rail[data-sev="red"]{background:linear-gradient(90deg,var(--alarm),color-mix(in oklch,var(--alarm) 30%,transparent))}
 .card__rail[data-sev="amber"]{background:linear-gradient(90deg,var(--warn),color-mix(in oklch,var(--warn) 30%,transparent))}
 .card__rail[data-sev="act"]{background:linear-gradient(90deg,var(--acc),color-mix(in oklch,var(--acc) 25%,transparent))}
 
@@ -317,7 +328,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .seg i{flex:1;border-radius:1px;background:var(--line-2)}
 .seg i[data-on]{background:var(--acc)}
 .seg i[data-on="warn"]{background:var(--warn)}
-.seg i[data-on="neg"]{background:var(--neg)}
+.seg i[data-on="neg"]{background:var(--alarm)}   /* memory pressure, not money */
 .legend{margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;
   font:500 12px/1 var(--sans);color:var(--ink-4)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
@@ -378,8 +389,8 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   background:var(--bg-2);border:1px solid var(--line)}
 .turn__steps{display:flex;flex-direction:column;gap:3px;margin-top:2px}
 .turn__step{font:500 12px/1.5 var(--mono);color:var(--ink-4)}
-.turn__step[data-t="ok"]{color:var(--pos)}
-.turn__step[data-t="bad"]{color:var(--neg)}
+.turn__step[data-t="ok"]{color:var(--live)}      /* a step succeeded, not a profit */
+.turn__step[data-t="bad"]{color:var(--alarm)}
 .chat__foot{display:flex;gap:var(--s3);align-items:flex-end;padding:var(--s4) var(--s5) var(--s5);
   border-top:1px solid var(--line)}
 .chat__in{flex:1;min-height:46px;max-height:150px;padding:13px 18px;border-radius:var(--r4);
@@ -485,9 +496,9 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   letter-spacing:.04em;cursor:pointer}
 .msel:focus{outline:none;border-color:var(--acc-line)}
 .chat__bar .pill{margin-left:0}
-.chat__stop{background:var(--bg-3);color:var(--neg);
-  box-shadow:inset 0 0 0 1px color-mix(in oklch,var(--neg) 42%,transparent)}
-.chat__stop:hover{background:color-mix(in oklch,var(--neg) 16%,var(--bg-3))}
+.chat__stop{background:var(--bg-3);color:var(--alarm);
+  box-shadow:inset 0 0 0 1px color-mix(in oklch,var(--alarm) 42%,transparent)}
+.chat__stop:hover{background:color-mix(in oklch,var(--alarm) 16%,var(--bg-3))}
 .chat__hint{display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap;
   padding:0 var(--s5) var(--s4);font:500 12px/1 var(--sans);color:var(--ink-4)}
 .chat__hint-r{margin-left:auto;color:var(--ink-4)}
@@ -507,8 +518,8 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .tl__r[data-k="agent"] .tl__d{background:var(--acc);box-shadow:0 0 8px -1px var(--acc)}
 .tl__r[data-k="ok"]{color:var(--live)}
 .tl__r[data-k="ok"] .tl__d{background:var(--live)}
-.tl__r[data-k="bad"]{color:var(--neg)}
-.tl__r[data-k="bad"] .tl__d{background:var(--neg)}
+.tl__r[data-k="bad"]{color:var(--alarm)}
+.tl__r[data-k="bad"] .tl__d{background:var(--alarm)}
 .tl__r[data-k="dim"]{opacity:.62}
 /* A rule that fired is the loudest thing on the page. The guards exist so J can
    trust the thing; a silently-blocked action is the failure mode, not the block. */
@@ -636,7 +647,7 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .ev:last-child{border-bottom:none}
 .ev__k{flex:none;width:52px;font:700 12px/1.6 var(--sans);letter-spacing:.1em;
   text-transform:uppercase;color:var(--acc)}
-.ev[data-t="neg"] .ev__k{color:var(--neg)}
+.ev[data-t="neg"] .ev__k{color:var(--alarm)}
 .ev[data-t="warn"] .ev__k{color:var(--warn)}
 .ev[data-auto] .ev__k{color:var(--ink-4)}
 .ev[data-auto] .ev__t{color:var(--ink-4)}
@@ -655,7 +666,7 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .triage__p{font-size:12.5px;color:var(--ink-3)}
 .triage__p b{font-size:20px;font-weight:600;letter-spacing:-.03em;color:var(--ink);
   margin-right:6px;font-variant-numeric:tabular-nums}
-.triage__p[data-t="red"] b{color:var(--neg)}
+.triage__p[data-t="red"] b{color:var(--alarm)}
 .triage__p[data-t="amber"] b{color:var(--warn)}
 .triage__first{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);
   font-size:13.5px;color:var(--ink-2);line-height:1.5}
@@ -818,9 +829,9 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .lane[data-t="warn"] .lane__dot{background:var(--warn)}
 .lane[data-t="warn"] .lane__s{color:var(--warn)}
 .lane[data-t="warn"] {border-color:color-mix(in oklch,var(--warn) 26%,var(--line))}
-.lane[data-t="neg"]  .lane__dot{background:var(--neg)}
-.lane[data-t="neg"]  .lane__s{color:var(--neg)}
-.lane[data-t="neg"]  {border-color:color-mix(in oklch,var(--neg) 30%,var(--line))}
+.lane[data-t="neg"]  .lane__dot{background:var(--alarm)}
+.lane[data-t="neg"]  .lane__s{color:var(--alarm)}
+.lane[data-t="neg"]  {border-color:color-mix(in oklch,var(--alarm) 30%,var(--line))}
 
 /* A working lane breathes, so "alive" is legible without reading a word. */
 @media (prefers-reduced-motion:no-preference){
@@ -933,7 +944,7 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .org__ostats{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
 .org__omem{font-size:13px;font-weight:600;color:var(--ink-3)}
-.org__omem[data-t="warn"]{color:var(--warn)} .org__omem[data-t="neg"]{color:var(--neg)}
+.org__omem[data-t="warn"]{color:var(--warn)} .org__omem[data-t="neg"]{color:var(--alarm)}
 .org__oag{font-size:12.5px;color:var(--ink-4)}
 .org__oag.is-on{color:var(--live);font-weight:650}
 
@@ -968,7 +979,7 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   background:color-mix(in oklch,white 8%,transparent)}
 .org__mem i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--acc)}
 .org__mem[data-t="warn"] i{background:var(--warn)}
-.org__mem[data-t="neg"] i{background:var(--neg)}
+.org__mem[data-t="neg"] i{background:var(--alarm)}
 .org__mem .num{position:absolute;right:0;top:-17px;font-size:12px;color:var(--ink-4)}
 .org__none{position:relative;z-index:1;text-align:center;font-size:13px;color:var(--ink-4);
   padding:var(--s5) 0}
@@ -1046,7 +1057,7 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .gmind__hp{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--ink-4)}
 .gmind__hp[data-t="green"]{color:var(--live)}
 .gmind__hp[data-t="yellow"]{color:var(--warn)}
-.gmind__hp[data-t="red"]{color:var(--neg)}
+.gmind__hp[data-t="red"]{color:var(--alarm)}
 .gmind__why{font-size:12.5px;line-height:1.45;color:var(--ink-2)}
 .gmind__scores{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   font-size:12px;color:var(--ink-4)}
@@ -1197,8 +1208,8 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
    re-added: two consecutive up-ticks would otherwise flash once. */
 @keyframes flashUp1{from{background:color-mix(in oklch,var(--pos) 20%,transparent)}to{background:transparent}}
 @keyframes flashUp2{from{background:color-mix(in oklch,var(--pos) 20%,transparent)}to{background:transparent}}
-@keyframes flashDn1{from{background:color-mix(in oklch,var(--neg) 20%,transparent)}to{background:transparent}}
-@keyframes flashDn2{from{background:color-mix(in oklch,var(--neg) 20%,transparent)}to{background:transparent}}
+@keyframes flashDn1{from{background:color-mix(in oklch,var(--alarm) 20%,transparent)}to{background:transparent}}
+@keyframes flashDn2{from{background:color-mix(in oklch,var(--alarm) 20%,transparent)}to{background:transparent}}
 .flash-up1{animation:flashUp1 700ms var(--ease)}
 .flash-up2{animation:flashUp2 700ms var(--ease)}
 .flash-dn1{animation:flashDn1 700ms var(--ease)}
@@ -1288,3 +1299,6 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .gcard__go:hover:not(:disabled){background:color-mix(in oklch,var(--acc) 34%,transparent)}
 .gcard__go:disabled{opacity:.6;cursor:default}
 @media (prefers-reduced-motion:no-preference){ .gcard{animation:rowIn 300ms var(--ease)} }
+/* A figure from a different, older source than the one the row's freshness dot
+   describes must carry its own timestamp -- see the VIX note in glass.js. */
+.g-asof{color:var(--ink-4);font-size:12px}
