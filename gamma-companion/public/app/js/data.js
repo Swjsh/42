@@ -48,6 +48,27 @@
        that has no `sessions`, so the Agents panel read "no data yet" while the
        data sat in memory. Verified against the live endpoint 2026-08-30. */
     S.army = (S.payload || {}).army || null;
+
+    /* LIVE OVERLAY. payload.json is only rewritten when gamma_home.py runs on its
+       schedule, and that task is disabled during quiet hours -- measured at 32
+       minutes stale while this polled twice a minute. The roster and the autonomy
+       state are the two things that change minute to minute, so they come fresh from
+       the companion and overwrite the baked copies. Failure is silent BY DESIGN here
+       and only here: the payload copy is a real answer, just an older one, and
+       S.live_at records which it is so the page can say so. */
+    try {
+      const tok = (document.querySelector('meta[name="gamma-token"]') || {}).content;
+      const r = await fetch('/api/desk', { cache: 'no-store',
+        headers: tok ? { 'x-gamma-token': tok } : {} });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && j.ok) {
+          if (j.army) S.army = j.army;
+          if (j.autonomy && S.payload) S.payload.autonomy = j.autonomy;
+          S.live_at = Date.now();
+        }
+      }
+    } catch (_) { /* fall back to the baked copy, which is old but true */ }
     /* Announce every load so the chrome reacts to THIS load rather than to the next
        poll tick. Polling for the answer meant the offline banner could linger up to
        30s after the companion came back -- a stale "we are down" is the same class

@@ -115,6 +115,7 @@ function authed(req) {
 }
 
 const ROOT = process.env.GAMMA_WORKSPACE || path.resolve(__dirname, "..");
+let deskCache = { at: 0, data: null };
 const PORT = Number(process.env.GAMMA_COMPANION_PORT || 4317);
 const PUBLIC = path.join(__dirname, "public");
 
@@ -1195,6 +1196,46 @@ const server = http.createServer((req, res) => {
       if (!saved) return sendJSON(res, 400, { ok: false, error: "need { endpoint, keys:{p256dh,auth} }" });
       return sendJSON(res, 200, { ok: true, subscribed: true });
     });
+  }
+
+  // ── Live desk slice ───────────────────────────────────────────────────────
+  // The app polls payload.json, which is only rewritten when gamma_home.py runs on
+  // its schedule -- and that task is disabled during quiet hours. Measured 2026-08-30:
+  // the file was 32 MINUTES old while the page re-read it twice a minute, so the desk
+  // felt live while the roster underneath was half an hour behind. That is a stale
+  // number wearing a live cadence, which is worse than an obviously old one.
+  //
+  // Only the two fast, fast-moving slices are served fresh (~0.5s combined); the
+  // slow-moving rest of the payload stays on the scheduled path. Cached briefly so a
+  // reopened tab or two panes cannot spawn a python process per poll.
+  if (req.method === "GET" && u === "/api/desk") {
+    if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
+    const now = Date.now();
+    if (deskCache.at && now - deskCache.at < 4000) {
+      return sendJSON(res, 200, Object.assign({ ok: true, cached: true }, deskCache.data));
+    }
+    const script = path.join(ROOT, "setup", "scripts", "desk_live.py");
+    let out = "", child;
+    try {
+      child = spawn(PY, [script], { cwd: ROOT, windowsHide: true });
+    } catch {
+      return sendJSON(res, 200, { ok: false, error: "python not found" });
+    }
+    const timer = setTimeout(() => { try { child.kill(); } catch { /* already gone */ } }, 15000);
+    child.stdout.on("data", (d) => { out += d.toString(); });
+    child.on("close", () => {
+      clearTimeout(timer);
+      try {
+        const parsed = JSON.parse(out);
+        deskCache = { at: Date.now(), data: parsed };
+        return sendJSON(res, 200, Object.assign({ ok: true, cached: false }, parsed));
+      } catch (e) {
+        // A parse failure must report itself; serving the last good slice silently
+        // would recreate the exact staleness this endpoint exists to remove.
+        return sendJSON(res, 200, { ok: false, error: "desk_live output unparseable" });
+      }
+    });
+    return undefined;
   }
 
   // ── Firebase web config for the app's sign-in ─────────────────────────────
