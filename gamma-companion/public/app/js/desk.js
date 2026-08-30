@@ -472,7 +472,14 @@
       });
     };
     bar.appendChild(halt); bar.appendChild(runb); bar.appendChild(say);
-    wrap.appendChild(bar);
+    /* The control bar joins the STATE LINE rather than sitting under the fold.
+       Measured before this change: the autonomy block ran 185px of the centre
+       column -- the most valuable space on the page -- to say "yes, still
+       running" plus two buttons. As one row it says the same in ~44px, and the
+       height goes to the org graph and the console, which are what J actually
+       watches. The diagnostic detail is unchanged, one disclosure away. */
+    const headRow = wrap.querySelector('.auto__head');
+    if (headRow) headRow.appendChild(bar); else wrap.appendChild(bar);
 
     // The "what it did on its own" list used to hang off the bottom of this panel.
     // It moved to the activity rail (2026-08-30): it is PAST tense, and leaving it

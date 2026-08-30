@@ -761,3 +761,32 @@ component code loginless-ly via the saved token: `npx 21st search/get/theme`.
 3. Feed lines are generated actor-verb-object sentences; raw commit subjects, task
    codes, and file paths never render on the glass (hover/expand for raw detail).
 4. Message flow = beam packet + feed sentence from the SAME event, or it's decoration.
+
+### Pass 2 — the trading command center (2026-08-30, GOAL-COMMAND-CENTER)
+
+Sweep: 6 lenses, 51 findings, 17 adversarially verified, 0 refuted. Full agent spec in
+the run transcript; the entries below are the ones that drove shipped code.
+
+| # | Reference | Extracted technique | Where it shipped |
+|---|---|---|---|
+| R12 | [Magic UI AnimatedBeam / n8n canvas](https://deepwiki.com/n8n-io/n8n/6.2-workflow-canvas-and-node-management) | Two-layer canvas: SVG for strokes ONLY, absolutely-positioned HTML for every label. Never let a label live in a scaled viewBox. | `desk.js` org stage |
+| R13 | [Duplicate-keyframe flash](https://gist.github.com/jasonmerecki/984b5d132077e7a370567c130c1922d9) | A CSS animation does NOT restart when an already-present class is re-added. Byte-identical keyframe PAIRS, alternated per tick, with a forced reflow between remove and add. | `motion.js` M1, proven `flash-dn1`→`flash-dn2` |
+| R14 | [MDN SVG gradients](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorials/SVG_from_scratch/Gradients) | Equity curve = area fill under the path with a vertical alpha gradient + an emphasized endpoint dot. Baseline drawn ONLY when the series crosses zero. | `glass.js` `spark()` |
+| R15 | [Easy SVG sparklines](https://alexplescan.com/posts/2023/07/08/easy-svg-sparklines/) | `preserveAspectRatio="none"` is correct for a pure trend shape with no glyphs — and only there. It is what lets the strip be any width. | `glass.js` `spark()` |
+| R16 | [GitHub heatmap in CSS grid](https://ngjackson.com/build-github-contributions-with-css-grid/) | Session heatmap as `grid-auto-flow:column; grid-auto-columns:1fr` — no horizontal scrollbar at any session count. Intensity via `color-mix` on a token. Use a **sqrt** ramp: a linear one lets two outliers flatten every ordinary day to invisible. | `glass.js` `calendar()` |
+| R17 | [@property animated conic border](https://codetv.dev/blog/animated-css-gradient-border) | `@property --angle{syntax:"<angle>"}` + double background (`padding-box` fill, `border-box` conic) rotates a highlight around a border. Without `@property` the angle jumps instead of animating. | `app.css` M6, live session cards |
+| R18 | [Dark-cockpit alerting](https://www.lean.org/the-lean-post/articles/the-dark-cockpit-what-aviation-can-teach-lean-leaders/) | Two tiers: one master state chip in the always-visible band, local indicators on the tiles. Silence means healthy — nothing lights unless it needs a human. | trading band + lane/arm tiles |
+| R19 | [W3C Activity Streams](https://getstream.io/blog/designing-activity-stream-newsfeed-w3c-spec/) | Feed lines are GENERATED actor-verb-object sentences, never raw records; the raw record lives in the hover title. | `humanize.js` |
+
+**Rule added by this pass, learned by measurement — now enforced by an automated sweep:**
+
+> **NEVER ANIMATE A PROPERTY WHOSE FROM-STATE IS INVISIBLE, AND NEVER LET MOTION OWN A
+> VALUE.** During an animation's *active period* the animated value applies regardless of
+> `animation-fill-mode`, and a SUSPENDED animation (hidden tab, headless capture, paused
+> compositor) never leaves that period — so `from{opacity:0}` pins the element at
+> invisible forever. The same holds in JS: an rAF number-roll left a stale figure on a
+> trading cell when frames stopped. **The base state must BE the truth; motion is pure
+> enhancement.** Entrances start at `opacity:.25`, never `0`; `roll()` writes the final
+> value synchronously before interpolating. Verify with the styleSheets sweep in
+> `test`-style form: walk every `CSSKeyframesRule` and assert no `from`/`0%` sets
+> `opacity: 0`.

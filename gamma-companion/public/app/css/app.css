@@ -1296,3 +1296,12 @@ kbd{font-size:12px;padding:3px 6px}
   .garm{animation:rowIn 300ms var(--ease)}
   .lane{animation:rowIn 300ms var(--ease)}
 }
+
+/* The autonomy block is one state LINE plus a disclosure, not three stacked
+   bands. It was 185px of the centre column; the reclaimed height goes to the org
+   graph and the console. */
+.deskmain .auto{padding:var(--s3) var(--s4)}
+.deskmain .auto__head{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.deskmain .auto__sub{flex:1 1 220px;min-width:0}
+.deskmain .auto__bar{margin:0 0 0 auto;padding:0;border:0;flex:0 0 auto}
+.deskmain .auto__fold{margin-top:var(--s2);padding-top:var(--s2)}
