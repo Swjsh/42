@@ -14,8 +14,13 @@ import importlib.util
 import json
 import os
 import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# Windows spawns a console window for every child process unless told not to -- and a
+# console that appears while J is gaming steals focus mid-match (2026-08-29 incident).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 import pytest
 
@@ -48,20 +53,21 @@ def _wire(monkeypatch, repo: Path) -> None:
 
 
 def _init_git_repo(path: Path) -> None:
-    subprocess.run(["git", "init", "-q"], cwd=str(path), check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(path), check=True)
-    subprocess.run(["git", "config", "user.name", "Test"], cwd=str(path), check=True)
+    subprocess.run(["git", "init", "-q"], cwd=str(path), check=True, creationflags=_CREATE_NO_WINDOW)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(path), check=True, creationflags=_CREATE_NO_WINDOW)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=str(path), check=True, creationflags=_CREATE_NO_WINDOW)
 
 
 def _git_commit(path: Path, filename: str, content: str, message: str, when: datetime) -> None:
     f = path / filename
     f.parent.mkdir(parents=True, exist_ok=True)
     f.write_text(content, encoding="utf-8")
-    subprocess.run(["git", "add", "-A"], cwd=str(path), check=True)
+    subprocess.run(["git", "add", "-A"], cwd=str(path), check=True, creationflags=_CREATE_NO_WINDOW)
     env = dict(os.environ)
     env["GIT_AUTHOR_DATE"] = when.isoformat()
     env["GIT_COMMITTER_DATE"] = when.isoformat()
-    subprocess.run(["git", "commit", "-q", "-m", message], cwd=str(path), check=True, env=env)
+    subprocess.run(["git", "commit", "-q", "-m", message], cwd=str(path), check=True, env=env,
+                   creationflags=_CREATE_NO_WINDOW)
 
 
 def _write_marker(repo: Path, since: datetime) -> None:

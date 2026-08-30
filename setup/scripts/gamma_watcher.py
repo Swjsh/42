@@ -37,6 +37,10 @@ import sys
 import time
 from pathlib import Path
 
+# Windows spawns a console window for every child process unless told not to -- and a
+# console that appears while J is gaming steals focus mid-match (2026-08-29 incident).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _STATE = _REPO / "automation" / "state"
 _REPORT = _STATE / "watcher-report.json"
@@ -237,6 +241,7 @@ def act(findings: list[dict], drive: bool) -> dict:
                 proc = subprocess.run(
                     [_PY, str(runner), "--live"],
                     capture_output=True, text=True, timeout=120, cwd=str(_REPO),
+                    creationflags=_CREATE_NO_WINDOW,
                 )
                 report["autofire"] = {
                     "exit": proc.returncode,

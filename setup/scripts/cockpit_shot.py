@@ -23,6 +23,10 @@ import sys
 import time
 from pathlib import Path
 
+# Windows spawns a console window for every child process unless told not to -- and a
+# console that appears while J is gaming steals focus mid-match (2026-08-29 incident).
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _SHOTS = _REPO / "analysis" / "home" / "_shots"
 
@@ -62,7 +66,8 @@ def shoot(url: str, out: Path, width: int, height: int, wait_ms: int) -> bool:
         url,
     ]
     started = time.time()
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120,
+                          creationflags=_CREATE_NO_WINDOW)
     if not out.is_file():
         print("screenshot failed rc=%s" % proc.returncode)
         print((proc.stderr or proc.stdout or "")[-800:])

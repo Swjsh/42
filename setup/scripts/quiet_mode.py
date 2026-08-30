@@ -42,6 +42,7 @@ ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = ROOT / "automation" / "state"
 RESTORE_FILE = STATE_DIR / "quiet-mode-restore.json"
 STATUS_FILE = STATE_DIR / "quiet-mode.json"
+HOLD_FILE = STATE_DIR / "quiet-hold.json"
 LOG_FILE = STATE_DIR / "quiet-mode.log"
 
 # ET comes from et_clock, never zoneinfo: this box runs Mountain time, and the system
@@ -244,6 +245,114 @@ def _stop_heavy_processes() -> list[str]:
     return killed
 
 
+# === PRESENCE GATE (J 2026-08-29) =======================================================
+# The 23:00 ET maintenance band assumes J is asleep. On 2026-08-29 at 23:30 ET he was
+# gaming: the blackout lifted, ~68 tasks fired at once, and two of them flashed a console
+# window that stole focus mid-match. The clock was never the real constraint -- "is J at
+# the machine" is. This holds the blackout while a fullscreen app owns the foreground.
+#
+# FAIL-OPEN: every path here returns "no hold" on error, so a broken detector degrades to
+# exactly the clock-only behaviour that shipped before it.
+GWL_STYLE = -16
+WS_CAPTION = 0x00C00000
+WS_THICKFRAME = 0x00040000
+
+
+def _foreground_fullscreen() -> str | None:
+    """Return the foreground exe name if it is genuinely fullscreen, else None.
+
+    The discriminator is window STYLE, not size. A merely MAXIMISED window (browser,
+    terminal, editor) keeps WS_CAPTION/WS_THICKFRAME and its rect also covers the
+    monitor -- matching on geometry alone would hold the blackout forever and starve
+    the nightly maintenance band. Fullscreen and borderless-fullscreen games drop both
+    styles, which is what this tests.
+    """
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        hwnd = user32.GetForegroundWindow()
+        if not hwnd:
+            return None
+
+        style = user32.GetWindowLongW(hwnd, GWL_STYLE)
+        if style & (WS_CAPTION | WS_THICKFRAME):
+            return None  # framed window -> not a fullscreen app
+
+        rect = wintypes.RECT()
+        if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+            return None
+
+        class MONITORINFO(ctypes.Structure):
+            _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT),
+                        ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+
+        mi = MONITORINFO()
+        mi.cbSize = ctypes.sizeof(MONITORINFO)
+        mon = user32.MonitorFromWindow(hwnd, 2)  # MONITOR_DEFAULTTONEAREST
+        if not user32.GetMonitorInfoW(mon, ctypes.byref(mi)):
+            return None
+        m = mi.rcMonitor
+        if (rect.left, rect.top, rect.right, rect.bottom) != (m.left, m.top, m.right, m.bottom):
+            return None
+
+        # Name it for the log -- diagnosing "why did quiet mode hold" needs the culprit.
+        pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        name = f"pid {pid.value}"
+        try:
+            kernel32 = ctypes.windll.kernel32
+            h = kernel32.OpenProcess(0x1000, False, pid.value)  # QUERY_LIMITED_INFORMATION
+            if h:
+                buf = ctypes.create_unicode_buffer(512)
+                size = wintypes.DWORD(512)
+                if kernel32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(size)):
+                    name = os.path.basename(buf.value) or name
+                kernel32.CloseHandle(h)
+        except Exception:  # noqa: BLE001 -- naming is a nicety, the hold is the point
+            pass
+        return name
+    except Exception as exc:  # noqa: BLE001
+        _log(f"WARN fullscreen probe failed ({exc}) -- no presence hold")
+        return None
+
+
+def _manual_hold() -> str | None:
+    """Honour an explicit `--hold` until its expiry."""
+    if not HOLD_FILE.exists():
+        return None
+    try:
+        until = dt.datetime.fromisoformat(
+            json.loads(HOLD_FILE.read_text(encoding="utf-8"))["until"])
+    except (OSError, ValueError, KeyError) as exc:
+        _log(f"WARN unreadable hold file ({exc}) -- clearing")
+        HOLD_FILE.unlink(missing_ok=True)
+        return None
+    if dt.datetime.now(ET) >= until:
+        HOLD_FILE.unlink(missing_ok=True)
+        return None
+    return f"manual hold until {until:%H:%M %Z}"
+
+
+def _in_trading_band(now: dt.datetime | None = None) -> bool:
+    """Weekday 08:00-18:00 ET. A presence hold must NEVER reach into the trading day."""
+    now = now or dt.datetime.now(ET)
+    return now.weekday() < 5 and MAINTENANCE_END_HOUR <= now.hour < QUIET_START_HOUR
+
+
+def presence_hold(now: dt.datetime | None = None) -> str | None:
+    """Reason to stay quiet despite the clock saying LOUD, or None."""
+    if _in_trading_band(now):
+        return None
+    manual = _manual_hold()
+    if manual:
+        return manual
+    app = _foreground_fullscreen()
+    return f"fullscreen app in foreground ({app})" if app else None
+# ========================================================================================
+
+
 def _write_status(active: bool, detail: dict) -> None:
     STATUS_FILE.write_text(json.dumps({
         "quiet_active": active,
@@ -301,6 +410,9 @@ def main() -> int:
     g.add_argument("--enforce", action="store_true", help="apply whatever the clock says")
     g.add_argument("--on", action="store_true", help="force quiet now")
     g.add_argument("--off", action="store_true", help="force restore now")
+    g.add_argument("--hold", type=float, metavar="HOURS", nargs="?", const=4.0,
+                   help="stay quiet for HOURS (default 4) regardless of the clock")
+    g.add_argument("--release", action="store_true", help="clear a manual hold")
     g.add_argument("--status", action="store_true")
     args = ap.parse_args()
 
@@ -308,17 +420,35 @@ def main() -> int:
         now = dt.datetime.now(ET)
         print(f"ET now      : {now:%Y-%m-%d %H:%M:%S %a}")
         print(f"quiet window: {in_quiet_window(now)}")
+        print(f"presence hold: {presence_hold(now) or 'none'}")
         print(f"held down   : {len(_load_restore_list())} tasks")
         if STATUS_FILE.exists():
             print(STATUS_FILE.read_text(encoding="utf-8"))
         return 0
 
     try:
+        if args.hold is not None:
+            until = dt.datetime.now(ET) + dt.timedelta(hours=args.hold)
+            HOLD_FILE.write_text(json.dumps({"until": until.isoformat()}, indent=2),
+                                 encoding="utf-8")
+            _log(f"HOLD set until {until.isoformat()}")
+            return go_quiet()
+        if args.release:
+            HOLD_FILE.unlink(missing_ok=True)
+            _log("HOLD cleared")
+            return go_loud() if not in_quiet_window() else go_quiet()
         if args.on:
             return go_quiet()
         if args.off:
+            HOLD_FILE.unlink(missing_ok=True)
             return go_loud()
-        return go_quiet() if in_quiet_window() else go_loud()
+        if in_quiet_window():
+            return go_quiet()
+        held = presence_hold()
+        if held:
+            _log(f"QUIET HELD past the clock: {held}")
+            return go_quiet()
+        return go_loud()
     except Exception as exc:  # noqa: BLE001
         # FAIL OPEN: never leave the rig disabled because the enforcer broke.
         _log(f"ERROR enforcer failed ({exc}) -- restoring")
