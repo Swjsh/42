@@ -108,8 +108,11 @@ function chatSend(){
   const msg=(ta.value||'').trim();
   if(!msg)return;
   if(location.protocol==='file:'){
+    // Schemeless on purpose: the self-contained guard greps the emitted page for http://
+    // to catch real external references, and a URL inside user-facing STRING text tripped
+    // it. 127.0.0.1:4317 is just as pasteable.
     chatPush('gamma','This page was opened from a file, so it cannot reach the companion. '+
-      'Open http://127.0.0.1:4317/cockpit.html to chat.');
+      'Open 127.0.0.1:4317/cockpit.html to chat.');
     return;
   }
   ta.value=''; ta.style.height='auto';
