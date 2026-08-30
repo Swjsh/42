@@ -81,6 +81,17 @@ What it shows that a chat does not:
 - **Model switch**, which starts a fresh session — resuming a conversation onto a
   different model would be a lie about continuity.
 
+### Keyboard
+
+`Ctrl`/`Cmd`+`K` opens the command palette from anywhere — fuzzy-matched (prefix, then
+substring, then subsequence, so `tp` finds *Total profit*), arrows + Enter, click-outside
+to dismiss. Two kinds of entry: **GO** switches view instantly; **ASK** loads a question
+into the composer and *deliberately does not send it* — a palette entry that starts a
+Claude run on the shared Max pool from one keystroke is a footgun, and one keystroke is
+exactly how it would get pressed by accident.
+
+In the console: `Enter` sends, `Shift`+`Enter` newlines, `Esc` stops the current run.
+
 `md.js` is hand-written because every usable markdown library arrives over a CDN. Its
 order is **escape-then-format**: the input is a model reply that may contain anything a
 user pasted, so it is HTML-escaped first and formatting applied afterwards. Verified in
