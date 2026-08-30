@@ -31,7 +31,27 @@ if ($Uninstall) {
 }
 
 $scriptPath = "C:\Users\jackw\Desktop\42\setup\scripts\run-autofire-cards.ps1"
-$vbsWrapper = "C:\Users\jackw\Desktop\42\setup\scripts\run_hidden.vbs"
+
+# WINDOW-LEAK CHAIN (fixed 2026-08-30, J: "first priority is stopping all popups").
+# This task was the LAST one on this box still using run_hidden.vbs, which builds
+# `powershell.exe -WindowStyle Hidden ...` and hands it to WScript.Shell.Run -- i.e.
+# ShellExecute, which routes through the Windows 11 default-terminal handler and leaks a
+# visible `WindowsTerminal -Embedding` window. `-WindowStyle Hidden` does NOT prevent that
+# (LESSONS-LEARNED: WT ignores it when WT is the default terminal app); it is the same
+# chain that made Gamma_DiscordBridge pop a window every 5 min for weeks.
+# Canonical replacement, per run_ps1_hidden.py's own docstring -- every hop is either
+# GUI-subsystem or spawned with CREATE_NO_WINDOW, so no console is ever allocated:
+#   wscript -> run_exe_hidden.vbs -> sys pythonw -> run_ps1_hidden.py -> the .ps1
+# Flagged by audit_window_leak_compliance.py check (4) TASK_VISIBLE_WINDOW while the task
+# sat un-fired (LastTaskResult 267011 = "has never run"). Its first real unattended fire is
+# 2026-08-31 21:30 local, so this lands before it rather than after.
+$vbsWrapper   = "C:\Users\jackw\Desktop\42\setup\scripts\run_exe_hidden.vbs"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPs1Hidden = "C:\Users\jackw\Desktop\42\setup\scripts\run_ps1_hidden.py"
+
+foreach ($p in @($scriptPath, $vbsWrapper, $sysPythonw, $runPs1Hidden)) {
+    if (-not (Test-Path $p)) { throw "required launcher-chain file missing: $p" }
+}
 
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
@@ -54,7 +74,7 @@ $trigger = New-ScheduledTaskTrigger -Weekly `
     -At "21:30"
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-    -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""
+    -Argument "//nologo `"$vbsWrapper`" `"$sysPythonw`" `"$runPs1Hidden`" `"$scriptPath`""
 
 $settings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `

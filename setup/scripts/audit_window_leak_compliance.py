@@ -54,6 +54,7 @@ from __future__ import annotations
 import json
 import re
 import shlex
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path, PurePath
@@ -97,6 +98,49 @@ HOOK_CONFIG_SOURCES = [
     HOME / ".claude" / "settings.json",
     HOME / ".claude" / "settings.local.json",
 ]
+
+# --- SURFACE 6: INSTALLED-PLUGIN HOOKS (added 2026-08-30) ------------------------------
+# The 2026-08-09 lesson that shipped check (5) ended with an explicit prediction: "The next
+# recurrence will be surface #6 -- likely plugin- or marketplace-supplied hooks." That was
+# correct. A plugin ships its own hooks/hooks.json, Claude Code registers those hooks for
+# every session, and NONE of the four settings paths above ever names that file -- so a
+# plugin hook running a bare console launcher is invisible to this audit exactly the way
+# the global `npx` PreToolUse hook was in August.
+#
+# Verified live on this box 2026-08-30: ralph-loop@claude-plugins-official 1.0.0 declares a
+# Stop hook whose command is `bash "${CLAUDE_PLUGIN_ROOT}/hooks/stop-hook.sh"` -- `bash` is
+# already in HOOK_CONSOLE_LAUNCHERS -- and btsc@bradgladdd 0.4.3 declares three, including
+# a PostToolUse hook matching `Bash`, i.e. one spawn per Bash tool call.
+#
+# Only INSTALLED plugins are scanned, resolved from installed_plugins.json's own
+# installPath. Everything under plugins/marketplaces/ is a catalog of things NOT installed;
+# scanning those would flag hooks that never run and train the reader to ignore this audit.
+PLUGINS_MANIFEST = HOME / ".claude" / "plugins" / "installed_plugins.json"
+
+
+def _installed_plugin_hook_files() -> list[Path]:
+    """hooks/hooks.json for every INSTALLED plugin, from the manifest's own installPath."""
+    out: list[Path] = []
+    try:
+        manifest = json.loads(PLUGINS_MANIFEST.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return out
+    for entries in (manifest.get("plugins") or {}).values():
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            install_path = entry.get("installPath")
+            if not isinstance(install_path, str) or not install_path.strip():
+                continue
+            hooks_json = Path(install_path) / "hooks" / "hooks.json"
+            if hooks_json.is_file():
+                out.append(hooks_json)
+    return out
+
+
+HOOK_CONFIG_SOURCES.extend(_installed_plugin_hook_files())
 # A hook command is compliant when it is launched by pythonw (GUI subsystem -> no console of
 # its own) AND routed through a wrapper that applies CREATE_NO_WINDOW to the real child.
 HOOK_APPROVED_WRAPPERS = {"run_hook_hidden.py", "hidden_hook.py"}
@@ -127,6 +171,12 @@ PY_AUDIT_ROOTS = [
     REPO / "backtest" / "lib",
     REPO / "crypto",
     REPO / "eod_deep",
+    # setup/mcp added 2026-08-30: it was the ONE directory on this box whose entire job is
+    # spawning child processes (the stdio-MCP hidden shim) and it was not in this list, so
+    # every subprocess call in it was unchecked. Its files happen to be compliant today --
+    # the point is that nothing was enforcing that, which is the same "the surface was
+    # never enumerated" shape as the 2026-08-09 hook incident.
+    REPO / "setup" / "mcp",
 ]
 PY_EXCLUDE_PARTS = {"venv", ".venv", "__pycache__", "node_modules", ".git"}
 
@@ -211,6 +261,26 @@ def _audit_py_missing_creationflags() -> list[dict]:
                         break
             call_text = tail[:end]
             if "creationflags" in call_text:
+                continue
+            # A call may pass its flags through a kwargs helper: `Popen(real, **_spawn_kwargs())`.
+            # That IS compliant when the helper sets creationflags, but a substring scan of the
+            # call site alone cannot see it -- setup/mcp/mcp_stdio_hidden.py, the one file on
+            # this box whose entire job is spawning children WITHOUT a window, was flagged by
+            # exactly this gap the moment setup/mcp entered PY_AUDIT_ROOTS (2026-08-30).
+            #
+            # Resolve it honestly rather than allowlisting the file: find `**name` in the call,
+            # then require that a `def name(` in this same module assigns creationflags. Same
+            # module only -- a cross-file helper is not something this scanner can verify, and
+            # claiming otherwise would turn a false positive into a false negative, which is
+            # strictly worse (a popup ships and the audit says GREEN).
+            kwargs_helpers = re.findall(r"\*\*(\w+)\s*\(", call_text)
+            if kwargs_helpers and any(
+                re.search(
+                    r"def\s+" + re.escape(h) + r"\s*\([^)]*\)[^:]*:[\s\S]*?creationflags",
+                    text,
+                )
+                for h in kwargs_helpers
+            ):
                 continue
             # Skip subprocess.DEVNULL constants (they appear in "subprocess.DEVNULL" alone)
             line_no = text.count("\n", 0, start) + 1
@@ -362,6 +432,103 @@ def _audit_live_task_registry() -> list[dict]:
     return flags
 
 
+# --- LIVE hider-liveness check (6) ----------------------------------------------------
+# WHY THIS CHECK EXISTS (2026-08-30, J: "first priority is stopping all popups").
+#
+# Checks 1-5 all ask "could a popup be spawned?". None of them asked the complementary
+# question: "if one IS spawned, is anything still awake to hide it?" Two hiders defend this
+# box -- window-leak-detector.py (0.5s poll, hides LATE) and window_leak_hook.py
+# (SetWinEventHook, hides within a frame). On 2026-08-30 the hook was found dead since
+# 2026-08-10: its pid file named a process that no longer existed, and NO scheduled task on
+# the box referenced it at all. This audit read RED that day for two unrelated flags and
+# would have read GREEN with them fixed -- while J watched windows flash, because the only
+# surviving hider leaves each one visible for up to half a second.
+#
+# This is the third occurrence of the monitor-of-monitors shape on this subsystem (the
+# detector itself went dark ~2 months in 2026-05..07). Checks 1-5 close popup INSTANCES;
+# this one closes the "the fix silently stopped running" class. A dead hider is RED.
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
+# (label, pid-file, cmdline marker, keepalive task name, why it matters)
+HIDERS = [
+    ("window_leak_hook", "window-leak-hook.pid", "window_leak_hook",
+     "Gamma_WindowLeakHookKeepalive",
+     "event-driven pre-paint hider -- without it a leak is visible for up to 0.5s"),
+    ("window-leak-detector", "window-leak-detector.pid", "window-leak-detector",
+     "Gamma_WindowLeakDetectorKeepalive",
+     "0.5s poller -- the backstop hider and the only source of window-leaks.jsonl evidence"),
+]
+
+
+def _pid_cmdline(pid: int) -> str:
+    """Command line of a live PID, or "" if it is not running/unreadable."""
+    try:
+        out = subprocess.check_output(
+            ["wmic", "process", "where", f"ProcessId={pid}", "get", "CommandLine",
+             "/FORMAT:LIST"],
+            stderr=subprocess.DEVNULL, timeout=10, creationflags=_CREATE_NO_WINDOW,
+        )
+        return out.decode("utf-8", errors="ignore")
+    except Exception:
+        return ""
+
+
+def _registered_task_names() -> "set[str] | None":
+    """Live Gamma_* task names, or None if the registry could not be read (unknown !=
+    empty -- an unreadable registry must not be reported as 'no keepalive registered')."""
+    try:
+        out = subprocess.check_output(
+            ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command",
+             "Get-ScheduledTask | Where-Object { $_.TaskName -like 'Gamma*' } | "
+             "ForEach-Object { $_.TaskName }"],
+            stderr=subprocess.DEVNULL, timeout=60, creationflags=_CREATE_NO_WINDOW,
+        ).decode("utf-8", errors="ignore")
+        names = {ln.strip() for ln in out.splitlines() if ln.strip()}
+        return names or None
+    except Exception:
+        return None
+
+
+def _audit_hiders_running() -> list[dict]:
+    flags: list[dict] = []
+    if sys.platform != "win32":
+        return flags
+    task_names = _registered_task_names()
+    for label, pid_name, marker, keepalive, why in HIDERS:
+        pid_file = REPO / "automation" / "state" / pid_name
+        alive = False
+        pid_val = None
+        if pid_file.exists():
+            try:
+                pid_val = int(pid_file.read_text(encoding="utf-8").strip())
+                # Marker match, not bare liveness: a recycled PID belonging to some other
+                # process must not read as "hider alive".
+                alive = marker in _pid_cmdline(pid_val)
+            except Exception:
+                alive = False
+        if not alive:
+            flags.append({
+                "file": f"automation/state/{pid_name}", "line": 0,
+                "flag": "HIDER_NOT_RUNNING",
+                "detail": f"{label} is NOT running (pid file: "
+                          f"{pid_val if pid_val is not None else 'absent'}). {why}.",
+                "fix": f"Run setup/scripts/{keepalive.replace('Gamma_WindowLeak', '')} "
+                       f"keepalive, or start it directly; confirm {keepalive} is registered.",
+            })
+        # A hider with no keepalive WILL eventually die unnoticed -- that is exactly how the
+        # hook was dark for 20 days. Absent registry read = unknown, not a violation.
+        if task_names is not None and keepalive not in task_names:
+            flags.append({
+                "file": "scheduled-task-registry", "line": 0,
+                "flag": "HIDER_NO_KEEPALIVE",
+                "detail": f"{label} has no keepalive task registered ({keepalive} absent). "
+                          f"Nothing on this box will restart it when it dies.",
+                "fix": f"Run setup/scripts/install-{keepalive.replace('Gamma_', '')}.ps1 "
+                       f"(see the install script for the exact name).",
+            })
+    return flags
+
+
 def _scan_coverage() -> dict:
     """Independent counts of what the static scans actually touched, so `main()` can
     tell 'scanned everything, found nothing' apart from 'scanned nothing' -- the two
@@ -457,6 +624,7 @@ def main() -> int:
     mcp_flags = _audit_mcp_configs()
     task_flags = _audit_live_task_registry()
     hook_flags, hooks_scanned = _audit_hook_commands()
+    hider_flags = _audit_hiders_running()
     coverage = _scan_coverage()
     coverage["hook_commands_scanned"] = hooks_scanned
 
@@ -490,7 +658,8 @@ def main() -> int:
             "fix": "Verify HOOK_CONFIG_SOURCES paths resolve and the settings files parse.",
         })
 
-    all_flags = ps1_flags + py_flags + mcp_flags + task_flags + hook_flags + empty_scan_flags
+    all_flags = (ps1_flags + py_flags + mcp_flags + task_flags + hook_flags
+                 + hider_flags + empty_scan_flags)
     report = {
         "audited_at": datetime.now(timezone.utc).isoformat(),
         "health": "RED" if all_flags else "GREEN",
@@ -499,6 +668,7 @@ def main() -> int:
         "mcp_unwrapped_launcher_count": len(mcp_flags),
         "live_task_registry_count": len(task_flags),
         "hook_bare_console_count": len(hook_flags),
+        "hider_not_running_count": len(hider_flags),
         "scan_coverage": coverage,
         "flags": all_flags,
     }
@@ -517,6 +687,8 @@ def main() -> int:
     print(f"  LIVE task registry violations:    {report['live_task_registry_count']}")
     print(f"  Hook cmds w/o hidden wrapper:     {report['hook_bare_console_count']} "
           f"({coverage['hook_commands_scanned']} scanned)")
+    print(f"  Live hiders down / unkept:        {report['hider_not_running_count']} "
+          f"(of {len(HIDERS)} hiders)")
     if all_flags:
         print(f"\n  FLAGS ({len(all_flags)}):")
         for f in all_flags[:25]:
