@@ -25,190 +25,260 @@
     for (const k in (a || {})) e.setAttribute(k, a[k]);
     return e;
   };
-  const txt = (x, y, str, fill, size, weight, anchor) => {
-    const e = mk('text', {
-      x, y, fill: fill || 'var(--ink-2)', 'font-size': size || 12,
-      'font-weight': weight || 500, 'text-anchor': anchor || 'start',
-      'font-family': 'var(--sans)', 'letter-spacing': '-0.01em',
-    });
-    e.textContent = str == null ? '' : String(str);
-    return e;
-  };
-
-  /* SVG <text> neither wraps nor ellipsizes, so an overlong label paints straight
-     across its neighbour. Estimate from the font size and cut on a word boundary. */
-  function fit(str, px, size, mono) {
-    const s = String(str || ''), per = size * (mono ? 0.6 : 0.52);
-    if (s.length * per <= px) return s;
-    const cap = Math.max(1, Math.floor(px / per) - 1), cut = s.slice(0, cap);
-    const sp = cut.lastIndexOf(' ');
-    return (sp > cap * 0.6 ? cut.slice(0, sp) : cut).replace(/[ ,;:.\-]+$/, '') + '…';
-  }
-
   const shortType = (t) => t === 'general-purpose' ? 'general'
     : t === 'workflow-subagent' ? 'workflow' : (t || 'agent');
 
+  /* ---- the org: orchestrator hero + agent cards, wired by live beams -------
+   *
+   * REBUILT 2026-08-30 against dossier R1 (Magic UI AnimatedBeam). Root cause of
+   * J's "literally size two font", stated once: the old stage drew every label as
+   * SVG <text> inside viewBox="0 0 1000 H", and the CSS height cap made
+   * preserveAspectRatio meet-scale the whole drawing by the letterbox ratio, so a
+   * "10.5px" label rendered ~6 real pixels. That is structural -- text inside a
+   * scaled viewBox cannot hold a size -- so the nodes are HTML now (text lays out
+   * at real pixel sizes, can never shrink) and SVG keeps only what it is good at:
+   * beam strokes drawn BETWEEN the DOM rects, AnimatedBeam-style.
+   *
+   * The beams are also no longer decoration: packet() sends a dot down a beam,
+   * and the pulse poller below fires it from REAL companion pulse rows -- the
+   * same event that writes the feed sentence. One event, two faces (dossier rule
+   * 4: message flow = beam packet + feed sentence from the SAME event). */
+  let orgRef = null;   // the mounted org box; packet() needs its live paths
+
+  function orgCard(s, workers) {
+    const live = (s.worker_active || 0) > 0 || s.activity === 'active';
+    const card = document.createElement('article');
+    card.className = 'org__card' + (live ? ' is-live' : '');
+    card.setAttribute('data-sid', s.session_id || '');
+
+    const liveN = s.worker_active || 0, everN = s.worker_count || 0;
+    const mine = workers.filter((w) => w.session_id === s.session_id)
+      .sort((x, y) => (y.active ? 1 : 0) - (x.active ? 1 : 0) ||
+        String(y.last_write || '').localeCompare(String(x.last_write || '')));
+
+    let agRows = '';
+    mine.slice(0, 3).forEach((w) => {
+      // scrub: workflow rows fall back to task text that is often a raw path --
+      // the hover title keeps the record, the glass gets English (dossier rule 3)
+      const what = G.human.scrub(w.purpose || w.description || w.task || '') || 'working';
+      agRows += '<div class="org__ag' + (w.active ? ' is-on' : '') + '" title="' +
+        esc(w.task || '') + '"><i></i><b>' + esc(shortType(w.agent_type)) + '</b>' +
+        '<span>' + esc(what) + '</span></div>';
+    });
+    if (everN > 3) agRows += '<div class="org__agmore">+' + (everN - 3) + ' more</div>';
+
+    let mem = '';
+    if (typeof s.context_pct === 'number' && s.context_source !== 'unknown') {
+      const pct = Math.max(0, Math.min(100, s.context_pct));
+      const tone = pct >= 90 ? 'neg' : (pct >= 75 ? 'warn' : '');
+      mem = '<div class="org__mem" data-t="' + tone + '">' +
+        '<i style="width:' + Math.round(pct) + '%"></i>' +
+        '<span class="num">' + Math.round(pct) + '%</span></div>';
+    }
+
+    card.innerHTML =
+      '<header class="org__ch"><span class="org__dot"></span>' +
+        '<b class="org__ct">' + esc(s.title || 'Untitled chat') + '</b></header>' +
+      '<span class="org__ck">' + esc(s.name || '') +
+        (s.entrypoint || s.kind ? ' · ' + esc(s.entrypoint || s.kind) : '') + '</span>' +
+      '<div class="org__cs' + (liveN ? ' is-on' : '') + '">' +
+        (liveN ? liveN + ' agent' + (liveN === 1 ? '' : 's') + ' working'
+               : (everN ? 'resting · ' + everN + ' finished' : 'no agents yet')) + '</div>' +
+      '<div class="org__ags">' + agRows + '</div>' + mem;
+    return card;
+  }
+
+  function drawWire(box) {
+    const wire = box.querySelector('.org__wire');
+    const hero = box.querySelector('.org__orc');
+    if (!wire || !hero || !box.isConnected) return;
+    const bb = box.getBoundingClientRect();
+    if (!bb.width) return;
+    wire.setAttribute('viewBox', '0 0 ' + bb.width + ' ' + bb.height);
+    wire.setAttribute('width', bb.width); wire.setAttribute('height', bb.height);
+    while (wire.firstChild) wire.removeChild(wire.firstChild);
+    const defs = mk('defs'); wire.appendChild(defs);
+    box._paths = {};
+
+    const hb = hero.getBoundingClientRect();
+    const cards = box.querySelectorAll('.org__card');
+    cards.forEach((card, i) => {
+      const cb = card.getBoundingClientRect();
+      const x2 = cb.left + cb.width / 2 - bb.left;
+      const y2 = cb.top - bb.top - 2;
+      // fan the start anchors along the hero's bottom edge toward each card, so
+      // the beams read as separate conversations rather than one bus bar
+      const x1 = Math.max(hb.left - bb.left + 28,
+        Math.min(hb.right - bb.left - 28, x2));
+      const y1 = hb.bottom - bb.top + 2;
+      const midY = (y1 + y2) / 2;
+      const d = 'M ' + x1 + ' ' + y1 + ' C ' + x1 + ' ' + midY + ', ' +
+        x2 + ' ' + midY + ', ' + x2 + ' ' + y2;
+
+      wire.appendChild(mk('path', { d: d, fill: 'none',
+        stroke: 'var(--ink)', 'stroke-width': 1, opacity: '.09' }));
+
+      const live = card.classList.contains('is-live');
+      const gid = 'wb' + i;
+      const g = mk('linearGradient', { id: gid, gradientUnits: 'userSpaceOnUse',
+        x1: x1, y1: y1, x2: x2, y2: y2 });
+      [['0%', 'var(--live)', '0'], ['18%', 'var(--live)', '.95'],
+       ['55%', 'var(--acc)', '.95'], ['100%', 'var(--acc)', '0']]
+        .forEach(function (st) { g.appendChild(mk('stop',
+          { offset: st[0], 'stop-color': st[1], 'stop-opacity': st[2] })); });
+      defs.appendChild(g);
+      const beam = mk('path', { d: d, fill: 'none', stroke: 'url(#' + gid + ')',
+        'stroke-width': 2.2, 'stroke-linecap': 'round', class: 'beam' });
+      beam.style.animationDuration = live ? '2.4s' : '6.5s';
+      beam.style.animationDelay = (i * 0.5) + 's';
+      beam.style.opacity = live ? '1' : '.35';
+      wire.appendChild(beam);
+      box._paths[card.getAttribute('data-sid')] = d;
+    });
+  }
+
+  /* One dot, one journey. reverse=true is the agent REPORTING BACK up the wire.
+     SMIL animateMotion: starts on insert, needs no rAF bookkeeping, and is
+     removed once the trip is over. */
+  function packet(sessionId, reverse) {
+    // Resolve from the DOCUMENT, not module memory: refreshDesk swaps the org
+    // box on every data tick, and a packet aimed at the pre-swap reference
+    // lands on a detached node -- fired into nothing, invisibly. The direct-
+    // call mechanism test passed while natural traffic showed no dots; this
+    // removes that whole class of stale-reference loss.
+    const box = document.querySelector('.org') || orgRef;
+    if (!box || !box.isConnected || !box._paths || !box._paths[sessionId]) return false;
+    const wire = box.querySelector('.org__wire');
+    const dot = mk('circle', { r: 3.4, class: 'org__pkt',
+      fill: reverse ? 'var(--live)' : 'var(--acc)' });
+    const mo = mk('animateMotion', { dur: '1.1s', fill: 'freeze',
+      path: box._paths[sessionId],
+      keyPoints: reverse ? '1;0' : '0;1', keyTimes: '0;1', calcMode: 'linear' });
+    dot.appendChild(mo);
+    wire.appendChild(dot);
+    setTimeout(function () { try { wire.removeChild(dot); } catch (_) { /* gone */ } }, 1300);
+    return true;
+  }
+
   function stage(army) {
-    const sessions = (army.sessions || []).filter((s) => !s.is_orchestrator &&
-      s.activity !== 'stale').slice(0, 4);
+    const sessions = (army.sessions || []).filter(function (x) {
+      return !x.is_orchestrator && x.activity !== 'stale'; }).slice(0, 4);
     const orc = army.orchestrator;
     const workers = army.workers || [];
 
-    const PAD = 24, ORC_H = 84, GAP = 18, TOP = 214, BH = 168;
-    const cols = Math.max(1, sessions.length || 1);
-    const W = 1000;                               // viewBox units; scales to the box
-    const bw = (W - PAD * 2 - GAP * (cols - 1)) / cols;
-    const H = sessions.length ? TOP + BH + PAD : ORC_H + PAD * 2;
-
-    const svg = mk('svg', {
-      viewBox: '0 0 ' + W + ' ' + H, width: '100%',
-      // height is set from the viewBox ratio by CSS aspect-ratio; preserve keeps
-      // the strip full-width rather than letterboxing it on a wide card.
-      preserveAspectRatio: 'xMidYMid meet', class: 'stage__svg',
-    });
-
-    const defs = mk('defs');
-    svg.appendChild(defs);
-
-    /* ---- the orchestrator strip ---- */
-    const og = mk('g', { class: 'nodein' });
-    og.appendChild(mk('rect', {
-      x: PAD, y: 16, width: W - PAD * 2, height: ORC_H, rx: 16,
-      fill: 'var(--bg-2)', stroke: 'var(--line-2)', 'stroke-width': 1,
-    }));
-    const grad = mk('linearGradient', { id: 'orcg', x1: '0', y1: '0', x2: '0', y2: '1' });
-    grad.appendChild(mk('stop', { offset: '0%', 'stop-color': 'var(--acc-deep)', 'stop-opacity': '.55' }));
-    grad.appendChild(mk('stop', { offset: '75%', 'stop-color': 'var(--acc-deep)', 'stop-opacity': '0' }));
-    defs.appendChild(grad);
-    og.appendChild(mk('rect', {
-      x: PAD, y: 16, width: W - PAD * 2, height: ORC_H, rx: 16,
-      fill: 'url(#orcg)', 'pointer-events': 'none',
-    }));
+    const box = el('org');
     const orcLive = (orc && orc.worker_active) || 0;
-    og.appendChild(mk('circle', {
-      cx: PAD + 28, cy: 46, r: 7, fill: orcLive ? 'var(--live)' : 'var(--ink-3)',
-      class: orcLive ? 'beacon' : '',
-    }));
-    og.appendChild(txt(PAD + 48, 51, orc ? orc.name : '—', 'var(--ink)', 20, 700));
-    og.appendChild(txt(PAD + 48 + (orc ? orc.name.length * 12 + 14 : 30), 51,
-      'ORCHESTRATOR — your Claude window. The console below is its own session.',
-      'var(--acc)', 11.5, 600));
-    og.appendChild(txt(PAD + 48, 74,
-      fit(orc && orc.title ? orc.title : 'no title yet', W - PAD * 2 - 300, 12.5),
-      'var(--ink-4)', 12.5, 500));
-    /* Its own load, on its own face — J asked to see context without hunting. */
+
+    /* The hero. The ONE glowing element on the page (dossier R3 restraint rule):
+       Gamma itself, big enough to read from across the room. */
+    const hero = el('org__orc' + (orcLive ? ' is-live' : ''));
+    let memHtml = '';
     if (orc && typeof orc.context_pct === 'number' && orc.context_source !== 'unknown') {
-      og.appendChild(txt(W - PAD - 20, 46, Math.round(orc.context_pct) + '% memory',
-        orc.context_pct >= 90 ? 'var(--neg)' : (orc.context_pct >= 75 ? 'var(--warn)' : 'var(--ink-3)'),
-        12.5, 600, 'end'));
+      const pct = Math.round(orc.context_pct);
+      const tone = pct >= 90 ? 'neg' : (pct >= 75 ? 'warn' : '');
+      memHtml = '<span class="org__omem num" data-t="' + tone + '">' + pct + '% memory</span>';
     }
-    og.appendChild(txt(W - PAD - 20, 70,
-      orcLive ? orcLive + ' agent' + (orcLive === 1 ? '' : 's') + ' running now' : 'no agents running',
-      orcLive ? 'var(--live)' : 'var(--ink-4)', 12, 600, 'end'));
-    svg.appendChild(og);
+    hero.innerHTML =
+      '<span class="org__beacon' + (orcLive ? ' is-on' : '') + '"></span>' +
+      '<div class="org__id">' +
+        '<b class="org__name">' + esc(orc ? orc.name : 'Gamma') + '</b>' +
+        '<span class="org__role">Gamma · the orchestrator</span>' +
+        '<p class="org__doing">' + esc(orc && orc.title ? orc.title : 'quiet right now') + '</p>' +
+      '</div>' +
+      '<div class="org__ostats">' + memHtml +
+        '<span class="org__oag' + (orcLive ? ' is-on' : '') + '">' +
+        (orcLive ? orcLive + ' agent' + (orcLive === 1 ? '' : 's') + ' out working'
+                 : 'no agents out') + '</span></div>';
+    box.appendChild(hero);
 
-    /* ---- a beam per session, then the session card ---- */
-    sessions.forEach((s, i) => {
-      const L = PAD + i * (bw + GAP), T = TOP, cx = L + bw / 2;
-      const y0 = 16 + ORC_H;
-      const d = 'M ' + cx + ' ' + y0 + ' C ' + cx + ' ' + ((y0 + T) / 2) + ', ' +
-        cx + ' ' + ((y0 + T) / 2) + ', ' + cx + ' ' + T;
+    const wire = mk('svg', { class: 'org__wire', 'aria-hidden': 'true' });
+    box.appendChild(wire);
 
-      // the rail: present but silent until something moves along it
-      svg.appendChild(mk('path', {
-        d, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1, opacity: '.09',
-      }));
+    if (sessions.length) {
+      const grid = el('org__grid');
+      sessions.forEach(function (x) { grid.appendChild(orgCard(x, workers)); });
+      box.appendChild(grid);
+    } else {
+      box.appendChild(el('org__none',
+        'No other Claude windows are open — Gamma is working alone right now.'));
+    }
 
-      // the comet. A per-edge gradient in user space so the dash samples real colour
-      // as it travels, rather than a flat stroke sliding along.
-      const gid = 'beam' + i;
-      const bg = mk('linearGradient', {
-        id: gid, gradientUnits: 'userSpaceOnUse', x1: cx, y1: y0, x2: cx, y2: T,
-      });
-      [['0%', 'var(--live)', '0'], ['18%', 'var(--live)', '.95'],
-       ['55%', 'var(--acc)', '.95'], ['100%', 'var(--acc)', '0']]
-        .forEach(([o, c, op]) => bg.appendChild(
-          mk('stop', { offset: o, 'stop-color': c, 'stop-opacity': op })));
-      defs.appendChild(bg);
-      const beam = mk('path', {
-        d, fill: 'none', stroke: 'url(#' + gid + ')', 'stroke-width': 2.2,
-        'stroke-linecap': 'round', class: 'beam',
-      });
-      // Live sessions get a fast, bright beam; quiet ones a slow dim one, so the
-      // motion itself encodes who is actually talking rather than decorating all.
-      const live = (s.worker_active || 0) > 0 || s.activity === 'active';
-      beam.style.animationDuration = live ? '2.4s' : '6.5s';
-      beam.style.animationDelay = (i * 0.5) + 's';
-      beam.style.opacity = live ? '1' : '.4';
-      svg.appendChild(beam);
-
-      const g = mk('g', { class: 'node nodein' });
-      g.style.animationDelay = (140 + i * 70) + 'ms';
-      g.appendChild(mk('rect', {
-        x: L, y: T, width: bw, height: BH, rx: 14,
-        fill: 'var(--bg-1)', stroke: 'var(--line)', 'stroke-width': 1,
-      }));
-      g.appendChild(mk('circle', {
-        cx: L + 22, cy: T + 26, r: 5.5,
-        fill: live ? 'var(--live)' : 'var(--ink-4)', class: live ? 'beacon' : '',
-      }));
-      g.appendChild(txt(L + 38, T + 31, fit(s.title || 'Untitled chat', bw - 60, 14),
-        'var(--ink)', 14, 600));
-      g.appendChild(txt(L + 38, T + 49, s.name + ' · ' + (s.entrypoint || s.kind || ''),
-        'var(--ink-4)', 10.5, 500));
-
-      const liveN = s.worker_active || 0, everN = s.worker_count || 0;
-      g.appendChild(txt(L + 18, T + 76,
-        liveN ? liveN + ' agent' + (liveN === 1 ? '' : 's') + ' running'
-              : (everN ? 'idle · ' + everN + ' finished' : 'no agents'),
-        liveN ? 'var(--live)' : 'var(--ink-3)', 11.5, liveN ? 700 : 500));
-
-      // the agents themselves, named — the thing J asked about three times
-      const mine = workers.filter((w) => w.session_id === s.session_id)
-        .sort((a, b) => (b.active ? 1 : 0) - (a.active ? 1 : 0) ||
-          String(b.last_write || '').localeCompare(String(a.last_write || '')));
-      mine.slice(0, 3).forEach((w, j) => {
-        const ry = T + 98 + j * 17;
-        g.appendChild(mk('circle', {
-          cx: L + 22, cy: ry - 4, r: 2.8,
-          fill: w.active ? 'var(--live)' : 'var(--ink-4)',
-        }));
-        g.appendChild(txt(L + 32, ry, fit(shortType(w.agent_type), 58, 9.5, true),
-          w.active ? 'var(--ink-2)' : 'var(--ink-4)', 9.5, 600));
-        g.appendChild(txt(L + 96, ry, fit(w.purpose || w.task || '', bw - 114, 10.5),
-          w.active ? 'var(--ink-3)' : 'var(--ink-4)', 10.5, 400));
-      });
-      if (everN > 3) {
-        g.appendChild(txt(L + 32, T + 98 + 3 * 17, '+' + (everN - Math.min(3, mine.length)) +
-          ' more', 'var(--ink-4)', 10, 500));
-      }
-
-      // memory meter across the foot
-      if (typeof s.context_pct === 'number' && s.context_source !== 'unknown') {
-        const pct = Math.max(0, Math.min(100, s.context_pct));
-        const col = pct >= 90 ? 'var(--neg)' : (pct >= 75 ? 'var(--warn)' : 'var(--acc)');
-        const segs = 12, lit = Math.max(1, Math.round((pct / 100) * segs));
-        const sw = (bw - 36 - 2 * (segs - 1)) / segs;
-        for (let k = 0; k < segs; k++) {
-          g.appendChild(mk('rect', {
-            x: L + 18 + k * (sw + 2), y: T + BH - 16, width: sw, height: 5, rx: 1,
-            fill: k < lit ? col : 'color-mix(in oklch,white 9%,transparent)',
-          }));
-        }
-        g.appendChild(txt(L + bw - 18, T + BH - 22, Math.round(pct) + '%',
-          col, 10, 600, 'end'));
-      }
-      svg.appendChild(g);
-    });
-
-    const box = el('div', ''); box.className = 'stage';
-    box.appendChild(svg);
-    if (!sessions.length) {
-      box.appendChild(el('div', 'No other sessions are open — this is the only one running.'))
-        .className = 'stage__none';
+    orgRef = box;
+    /* The box is built BEFORE the router mounts it, so the first rAF sees a
+       disconnected 0-width element and the ResizeObserver's initial fire does
+       too — measured live: beams=0 forever. Retry until real layout exists,
+       then let the observer own resizes. */
+    let tries = 0;
+    (function arm() {
+      if (box.isConnected && box.getBoundingClientRect().width) return drawWire(box);
+      if (++tries < 25) setTimeout(arm, 80);
+    })();
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(function () { drawWire(box); });
+      ro.observe(box);
     }
     return box;
   }
+
+  /* ---- the live wire: real pulses -> packet on the beam + feed sentence ----
+   * Polls the companion's pulse delta feed (7s, only while the desk is the
+   * visible route -- a hidden tab spends nothing). Each fresh row is ONE event
+   * rendered twice from the same source: a dot travelling the session's beam,
+   * and an actor-verb line at the top of the activity rail. Throttled per
+   * session so a busy agent reads as a heartbeat, not a machine gun. */
+  const pulseSt = { cursor: '', lastPkt: {}, lastLine: {}, timer: 0 };
+
+  function feedLine(sentence, whenIso, raw) {
+    const feed = document.querySelector('.rail--r .feed');
+    if (!feed) return;
+    const n = el('ev ev--wire');
+    if (raw) n.title = raw;
+    n.innerHTML = '<span class="ev__k">mail</span>' +
+      '<span class="ev__t">' + esc(sentence) + '</span>' +
+      '<span class="ev__w mono">' + esc(G.human.ago(whenIso)) + '</span>';
+    const head = feed.querySelector('.feed__h');
+    feed.insertBefore(n, head ? head.nextSibling : feed.firstChild);
+    const rows = feed.querySelectorAll('.ev--wire');
+    if (rows.length > 8) feed.removeChild(rows[rows.length - 1]);
+  }
+
+  async function pollPulses() {
+    if ((location.hash || '#/desk') !== '#/desk') return;
+    // A hidden tab cannot show the wire, so it does not poll for it. __wireForce
+    // is the verification override -- headless checks have no visible tab.
+    if (document.hidden && !window.__wireForce) return;
+    try {
+      const tok = (document.querySelector('meta[name="gamma-token"]') || {}).content;
+      const r = await fetch('/api/army?since=' + encodeURIComponent(pulseSt.cursor),
+        { cache: 'no-store', headers: tok ? { 'x-gamma-token': tok } : {} });
+      if (!r.ok) return;
+      const j = await r.json();
+      if (!j || !j.ok) return;
+      const first = !pulseSt.cursor;
+      pulseSt.cursor = j.cursor || pulseSt.cursor;
+      if (first) return;                        // baseline only; no replay flood
+      const names = {};
+      (((D.S.army || {}).sessions) || []).forEach(function (x) {
+        names[x.session_id] = x.name; });
+      const orcId = ((D.S.army || {}).orchestrator || {}).session_id;
+      (j.rows || []).slice(-12).forEach(function (row) {
+        const sid = row.session_id || '';
+        const now = Date.now();
+        if (sid && sid !== orcId && (now - (pulseSt.lastPkt[sid] || 0)) > 4000) {
+          if (packet(sid, row.event === 'done' || row.event === 'result')) {
+            pulseSt.lastPkt[sid] = now;
+          }
+        }
+        if ((now - (pulseSt.lastLine[sid] || 0)) > 20000) {
+          const who = sid === orcId ? 'Gamma' : (names[sid] || 'an agent');
+          const h = G.human.pulse(row, who);
+          feedLine(h.text, row.ts, h.raw);
+          pulseSt.lastLine[sid] = now;
+        }
+      });
+    } catch (_) { /* the 30s desk poll still keeps the page truthful */ }
+  }
+  if (!pulseSt.timer) pulseSt.timer = setInterval(pollPulses, 7000);
 
   /* ---- IS GAMMA AWAKE, AND WHAT IS IT ABOUT TO DO -------------------------
      J: "where is the autonomy, how do we have gamma be alive and on the page and
@@ -422,8 +492,10 @@
     f.innerHTML = '<h4>What Gamma did on its own · last ' + rows.length + ' runs</h4>';
     rows.forEach((r) => {
       const row = el('div'); row.className = 'auto__f';
+      const h = G.human.fire(String(r.note || r.task || ''));
+      row.title = h.raw;
       row.innerHTML = '<span class="mono">' + esc(String(r.at || '').slice(11, 16)) + '</span>' +
-        '<span class="auto__fn">' + esc(String(r.note || r.task || '').slice(0, 150)) + '</span>' +
+        '<span class="auto__fn">' + esc(h.text) + '</span>' +
         '<span class="auto__fd">' + esc(String(r.drained == null ? '' : r.drained)) + '</span>';
       f.appendChild(row);
     });
@@ -455,20 +527,32 @@
     wrap.appendChild(head);
 
     const rows = [];
-    const push = (kind, when, text, tone) => rows.push({ kind, when, text, tone });
+    const push = (kind, when, text, tone, raw) =>
+      rows.push({ kind, when, text, tone, raw });
 
+    /* Every row through the humanizer (dossier R2): the glass gets an
+       actor-verb sentence, the raw record survives one hover away in title. */
     (((sec.commits || {}).top) || []).slice(0, 14).forEach((c) => {
       const t = String(c.subject || '');
-      // auto-commits are noise in a "what did you do" feed; they are machine
-      // bookkeeping, not decisions, so they are labelled rather than hidden.
-      push(/^chore: auto-commit/.test(t) ? 'auto' : 'shipped',
-        String(c.date || '').slice(11, 16), t, null);
+      const auto = /^chore: auto-commit/.test(t);
+      if (auto) {
+        // machine bookkeeping, labelled rather than hidden -- and translated:
+        // "chore: auto-commit 19 strategy/candidates/ changes" is not English.
+        const n = (/auto-commit (\d+)/.exec(t) || [])[1];
+        push('auto', String(c.date || '').slice(11, 16),
+          'Auto-saved research work' + (n ? ' (' + n + ' files)' : ''), null, t);
+      } else {
+        const h = G.human.commit(t);
+        push(h.verb, String(c.date || '').slice(11, 16), h.text, null, h.raw);
+      }
     });
     (((sec.known_broken || {}).top) || []).slice(0, 4).forEach((b) => {
-      push('broken', String(b.ts || '').slice(11, 16), String(b.text || ''), 'neg');
+      const h = G.human.broken(String(b.text || ''));
+      push('broken', String(b.ts || '').slice(11, 16), h.text, 'neg', h.raw);
     });
     (((sec.scheduled_task_failures || {}).top) || []).slice(0, 4).forEach((f) => {
-      push('task', '', (f.name || f.id || 'task') + ' — ' + (f.status || 'failed'), 'warn');
+      const h = G.human.task(f.name || f.id || 'task', f.status || 'failed');
+      push('task', '', h.text, 'warn', h.raw);
     });
 
     if (!rows.length) { wrap.appendChild(D.miss('Nothing recorded', 'whats_changed.py')); return wrap; }
@@ -477,6 +561,7 @@
       const n = el('div'); n.className = 'ev';
       if (r.tone) n.setAttribute('data-t', r.tone);
       if (r.kind === 'auto') n.setAttribute('data-auto', '');
+      if (r.raw && r.raw !== r.text) n.title = r.raw;
       n.innerHTML = '<span class="ev__k">' + esc(r.kind) + '</span>' +
         '<span class="ev__t">' + esc(r.text) + '</span>' +
         '<span class="ev__w mono">' + esc(r.when || '') + '</span>';
@@ -601,5 +686,40 @@
     return s;
   }
 
-  G.desk = { view };
+  /* ---- keep the desk ALIVE between route changes ---------------------------
+   * Found verifying the wire (2026-08-30): the view rendered ONCE, so the org
+   * chart froze at load-time state -- two long-dead sessions wore cards while
+   * the sessions actually pulsing had none. A dashboard whose roster is a
+   * screenshot of load time is the 32-minute-stale payload bug wearing a new
+   * face. On every data refresh the org, autonomy strip and lanes rail are
+   * rebuilt IN PLACE; the chat pane is deliberately left alone -- rebuilding it
+   * would wipe J's conversation mid-typing. */
+  function refreshDesk() {
+    const root = document.querySelector('.deskv');
+    if (!root) return;
+    const army = D.S.army || {};
+    const oldOrg = root.querySelector('.org, .empty--org');
+    if (oldOrg) {
+      let next;
+      if ((army.sessions || []).length) {
+        next = stage(army);
+      } else {
+        next = D.miss('No sessions found', '~/.claude/sessions/*.json');
+        next.classList.add('empty--org');
+      }
+      oldOrg.replaceWith(next);
+    }
+    const oldAuto = root.querySelector('.auto');
+    if (oldAuto) oldAuto.replaceWith(autonomy((D.S.payload || {}).autonomy));
+    const oldLanes = document.querySelector('.rail--l .rail__body');
+    if (oldLanes) {
+      const next = lanes((D.S.payload || {}).lanes);
+      oldLanes.replaceWith(next);
+    }
+  }
+  addEventListener('gamma:data', refreshDesk);
+
+  // _packet: debug affordance -- lets a verification session fire the SMIL
+  // mechanism directly instead of waiting for traffic timing to line up.
+  G.desk = { view, _packet: packet };
 })(window.G = window.G || {});

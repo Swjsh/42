@@ -892,3 +892,125 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   .deskmain{padding:var(--s3) var(--s4);gap:var(--s3)}
   .deskmain .stage{min-height:96px}
 }
+
+/* === THE ORG (2026-08-30 rebuild — dossier R1/R3) ==========================
+   Nodes are HTML so text holds real pixel sizes; the SVG underneath carries only
+   the beam strokes, drawn between the DOM rects. This replaces the old .stage
+   SVG whose viewBox letterboxing shrank every label — J's "size two font". */
+.org{position:relative;display:flex;flex-direction:column;gap:44px;
+  flex:1 1 auto;min-height:170px;padding:2px}
+.org__wire{position:absolute;inset:0;pointer-events:none;z-index:0}
+.org__pkt{filter:drop-shadow(0 0 6px var(--acc))}
+
+/* The hero — the ONE glowing element on the page (R3 restraint rule). */
+.org__orc{position:relative;z-index:1;display:flex;align-items:center;gap:var(--s4);
+  padding:var(--s4) var(--s5);border-radius:var(--r3);
+  background:linear-gradient(180deg,
+    color-mix(in oklch,var(--acc-deep) 42%,var(--bg-2)),var(--bg-2) 78%);
+  border:1px solid color-mix(in oklch,var(--acc) 34%,var(--line-2));
+  box-shadow:0 0 34px color-mix(in oklch,var(--acc) 13%,transparent)}
+.org__orc.is-live{border-color:color-mix(in oklch,var(--live) 40%,var(--line-2));
+  box-shadow:0 0 44px color-mix(in oklch,var(--live) 16%,transparent)}
+.org__beacon{width:11px;height:11px;border-radius:50%;background:var(--ink-3);flex:0 0 auto}
+.org__beacon.is-on{background:var(--live);
+  box-shadow:0 0 0 4px color-mix(in oklch,var(--live) 20%,transparent)}
+@media (prefers-reduced-motion:no-preference){
+  .org__beacon.is-on{animation:lanepulse 2.2s var(--ease) infinite}
+  .org__orc.is-live{animation:orcbreathe 3.6s var(--ease) infinite}
+}
+@keyframes orcbreathe{
+  0%,100%{box-shadow:0 0 44px color-mix(in oklch,var(--live) 16%,transparent)}
+  50%    {box-shadow:0 0 60px color-mix(in oklch,var(--live) 24%,transparent)}
+}
+.org__id{min-width:0;flex:1 1 auto}
+.org__name{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.org__role{margin-left:10px;font-size:12px;font-weight:650;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--acc)}
+.org__doing{margin-top:3px;font-size:15.5px;color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.org__ostats{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
+.org__omem{font-size:13px;font-weight:600;color:var(--ink-3)}
+.org__omem[data-t="warn"]{color:var(--warn)} .org__omem[data-t="neg"]{color:var(--neg)}
+.org__oag{font-size:12.5px;color:var(--ink-4)}
+.org__oag.is-on{color:var(--live);font-weight:650}
+
+/* Session cards. Everything readable: titles 14.5, body 12.5+ — real pixels. */
+.org__grid{position:relative;z-index:1;display:grid;gap:var(--s3);
+  grid-template-columns:repeat(auto-fit,minmax(225px,1fr))}
+.org__card{display:flex;flex-direction:column;gap:6px;min-width:0;
+  padding:var(--s3) var(--s4);border-radius:var(--r2);
+  background:var(--bg-1);border:1px solid var(--line);
+  transition:border-color var(--t) var(--ease)}
+.org__card.is-live{border-color:color-mix(in oklch,var(--live) 30%,var(--line))}
+.org__ch{display:flex;align-items:center;gap:8px;min-width:0}
+.org__dot{width:8px;height:8px;border-radius:50%;background:var(--ink-4);flex:0 0 auto}
+.org__card.is-live .org__dot{background:var(--live)}
+@media (prefers-reduced-motion:no-preference){
+  .org__card.is-live .org__dot{animation:lanepulse 2.4s var(--ease) infinite}
+}
+.org__ct{font-size:14.5px;font-weight:640;letter-spacing:-.01em;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.org__ck{font-size:12px;color:var(--ink-4)}
+.org__cs{font-size:12.5px;color:var(--ink-3)}
+.org__cs.is-on{color:var(--live);font-weight:650}
+.org__ags{display:flex;flex-direction:column;gap:3px;min-width:0}
+.org__ag{display:flex;align-items:center;gap:7px;min-width:0;font-size:12.5px;color:var(--ink-4)}
+.org__ag i{width:5px;height:5px;border-radius:50%;background:var(--ink-4);flex:0 0 auto}
+.org__ag.is-on{color:var(--ink-2)}
+.org__ag.is-on i{background:var(--live)}
+.org__ag b{font-weight:640;flex:0 0 auto}
+.org__ag span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.org__agmore{font-size:12px;color:var(--ink-4)}
+.org__mem{position:relative;height:5px;margin-top:4px;border-radius:3px;
+  background:color-mix(in oklch,white 8%,transparent)}
+.org__mem i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--acc)}
+.org__mem[data-t="warn"] i{background:var(--warn)}
+.org__mem[data-t="neg"] i{background:var(--neg)}
+.org__mem .num{position:absolute;right:0;top:-17px;font-size:12px;color:var(--ink-4)}
+.org__none{position:relative;z-index:1;text-align:center;font-size:13px;color:var(--ink-4);
+  padding:var(--s5) 0}
+
+/* === READABILITY FLOOR (goal DONE-WHEN a: nothing on the desk under 12px) ===
+   J, three separate times, ending with "literally size two font". Micro-type is
+   a habit, so the floor is enforced here at the END of the sheet where it wins
+   the cascade over every earlier 10-11px declaration on desk surfaces. */
+.lane__k,.lane__w,.lane__s,.lane__ml,.lane__do{font-size:12px}
+.lane__d{font-size:12.5px}
+.lane__m{font-size:13.5px}
+.rail__t{font-size:12.5px}
+.rail__s{font-size:12px}
+.auto__foldt{font-size:12px}
+.auto__state{font-size:15.5px}
+.auto__sub{font-size:13px}
+.ev__k{font-size:12px}
+.ev__t{font-size:12.5px}
+.ev__w{font-size:12px}
+.auto__f,.auto__fn{font-size:12.5px}
+.auto__fires h4{font-size:12px}
+.feed__h{font-size:13px}
+.ev--wire .ev__k{color:var(--acc)}
+
+/* Floor sweep, round two: the first pass raised what the LAYOUT rebuild touched;
+   the DOM assertion then found 46 survivors from earlier sheets (brand line 9px,
+   panel labels 9.5px, kbd 10px...). All raised here at the end of the cascade —
+   the assertion in the goal file is the arbiter, not the eye. */
+.brand__sub{font-size:12px;letter-spacing:.15em}
+.auto__l{font-size:12px;letter-spacing:.1em}
+.auto__why{font-size:12px}
+.auto__f .mono{font-size:12px}
+.auto__fd{font-size:12px}
+.auto__foldt::before{font-size:12px}
+.ev__w{font-size:12px}
+.card__stat b{font-size:12px;letter-spacing:.08em}
+.cal__v{font-size:12px}
+.auth__note,.triage__note{font-size:12px}
+kbd{font-size:12px;padding:3px 6px}
+.chat__hint{font-size:12.5px}
+.top .mono,.top__status,.top span{font-size:12px}
+
+/* Floor sweep, final: the chat pane's own micro-type (found by the DOM
+   assertion after round two — "You"/"Gamma" turn labels at 9.5, status pill at
+   10.5, timeline note at 11.5). */
+.turn__w{font-size:12px}
+.tl__r{font-size:12px}
+.chat__status,.chat__head span,.chat .pill{font-size:12px}

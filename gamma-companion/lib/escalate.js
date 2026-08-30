@@ -181,6 +181,47 @@ const SOUL =
   "You run inside a hard guard (lib/guard.js): you may build/edit code, run backtests, and use the project MCP servers, but you must NEVER write CLAUDE.md / params*.json / heartbeat*.md / filters.py / *.key and NEVER place, cancel, or close live orders — propose those as TEXT instead. Act autonomously within that boundary, verify your own work, and never claim unverified work is done. " +
   "When you REPORT BACK, keep it in Gamma's voice — warm, sharp, brief — and terse + scannable on J's phone: LEAD WITH THE RESULT (no preamble, no filler), then markdown the phone renders — **bold** a short mini-header, '- ' bullets for what changed, and `inline code` (backticks) for paths / values / commands. Default to a few tight bullets, not a wall of text. You can drop ONE fitting emoji where it lands (✅ shipped, 🔧 built/fixed, 📈 a market read, ⚡ fast) — but keep the work itself precise, never let flavor blur a fact, and stay clean (no emoji) on anything about a loss, a risk, or a refusal.";
 
+// ── Live trading context, injected into the SYSTEM prompt per call ──
+// J (2026-08-30): "when I'm trading, I wanna just be talking to the thing on the
+// website... It should know every single thing that's going on with trading."
+// The session CAN read any file, but J should never have to ask it to go look up
+// its own positions -- so the freshest state rides in with the soul. Each read is
+// individually fail-soft: a missing file drops its one line, never the block.
+function liveTradingContext(root) {
+  const path2 = require("path"), fs2 = require("fs");
+  const lines = [];
+  const read = (rel) => {
+    try {
+      return JSON.parse(fs2.readFileSync(path2.join(root, ...rel.split("/")), "utf8"));
+    } catch { return null; }
+  };
+  try {
+    const pos = read("automation/state/current-position.json");
+    lines.push("Position: " + (pos && pos.status ? JSON.stringify(pos).slice(0, 220) : "FLAT (no open position)"));
+    const bias = read("automation/state/today-bias.json");
+    if (bias && bias.bias) {
+      lines.push("Bias (" + (bias.date || "?") + "): " + bias.bias +
+        (bias.bias_note ? " -- " + String(bias.bias_note).slice(0, 200) : ""));
+    }
+    const quiet = read("automation/state/quiet-mode.json");
+    if (quiet) {
+      lines.push("Rig band: " + (quiet.band || (quiet.quiet_active ? "quiet (blackout)" : "loud")) +
+        (quiet.total_held_down ? " · " + quiet.total_held_down + " tasks held" : ""));
+    }
+    const fut = read("automation/state/futures/health.json");
+    if (fut && fut.verdict) lines.push("Futures lane health: " + fut.verdict);
+    const kit = read("automation/state/kitchen-status.json");
+    if (kit && kit.queue_summary) {
+      const q = kit.queue_summary.by_status || {};
+      lines.push("Kitchen: " + (kit.daemon_alive ? "alive" : "DOWN") + " · " +
+        (q.pending || 0) + " pending · $" + (kit.today_cost_usd_paid_tier || 0) + " spent today");
+    }
+  } catch { /* whole block is optional */ }
+  if (!lines.length) return "";
+  return "\n\nLIVE TRADING STATE (auto-injected " + new Date().toISOString() +
+    " -- trust files over this if they disagree):\n- " + lines.join("\n- ");
+}
+
 // Hard wall-clock cap for one escalation. A query() that hangs without throwing
 // or yielding a `result` (e.g. a network stall to Anthropic) would otherwise pin
 // the inflight slot forever; this fires ac.abort() so it always lands on the
@@ -364,7 +405,7 @@ async function runEscalation(root, { id, model, task, origin, card_id, resume })
         // soul ('project' is required to load CLAUDE.md per the SDK type defs).
         // SUBSCRIPTION AUTH: no apiKey is set anywhere — the SDK uses J's Claude
         // Code Max login. maxTurns bounds a runaway loop on the shared Max pool.
-        systemPrompt: { type: "preset", preset: "claude_code", append: SOUL },
+        systemPrompt: { type: "preset", preset: "claude_code", append: SOUL + liveTradingContext(root) },
         settingSources: ["user", "project"],
         // RESUME: turns a one-shot escalation into a CONTINUOUS conversation. The cockpit
         // chat pane passes the sessionId returned by the previous turn, so the orchestrator
