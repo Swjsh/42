@@ -426,7 +426,29 @@
    * attribute. */
   function cards(payload) {
     const c = (payload || {}).cards || {};
-    const rows = (c.cards || []).slice(0, 6);
+    /* Dedupe then cap at FOUR. Six cards filled the entire rail and pushed the
+       activity feed off the page, and two of them were the same earnings-feed
+       staleness reported at 52.8h and 53.3h -- the generator emits one per STATUS
+       line, so the same defect recurs as it ages. Dark-cockpit rule (dossier R18):
+       only what needs a human lights up. The rest stay in action-cards.json and on
+       the /cards route; nothing is lost, it is just not shouting. */
+    const seen = Object.create(null);
+    const rows = [];
+    (c.cards || []).forEach(function (card) {
+      // key on the leading CODE or the first few words, which is what makes two
+      // ages of the same defect the same defect
+      const t = String(card.title || '');
+      const key = (t.match(/^[A-Z][A-Z0-9-]{3,}(?:\s+[A-Z][A-Z0-9-]*)*/) ||
+                   [t.split(/\s+/).slice(0, 4).join(' ')])[0].toLowerCase();
+      if (seen[key]) return;
+      seen[key] = 1;
+      rows.push(card);
+    });
+    // THREE, not four. Measured: four cards plus their headers pushed the first
+    // activity row below the fold of an 790px rail, and "what happened" is the
+    // block J said was missing in the first place. Three decisions is also about
+    // what a person actually triages in one sitting.
+    rows.length = Math.min(rows.length, 3);
     const wrap = el('gcards');
     if (!rows.length) {
       wrap.appendChild(D.miss('No decisions queued', 'automation/state/action-cards.json'));
@@ -449,14 +471,16 @@
         '</div>';
       const btn = document.createElement('button');
       btn.className = 'gcard__go';
-      btn.textContent = 'Run it';
+      btn.textContent = 'Run';
       btn.addEventListener('click', function () {
         btn.disabled = true;
         btn.textContent = 'Sending…';
         if (G.fireCard) G.fireCard(card, btn);
         else { btn.textContent = 'unavailable'; btn.disabled = false; }
       });
-      n.appendChild(btn);
+      // The button rides the meta row: on its own line it cost ~30px per card and
+      // four cards is the whole rail's budget.
+      (n.querySelector('.gcard__m') || n).appendChild(btn);
       wrap.appendChild(n);
     });
     if (G.motion) G.motion.stagger(wrap.children, 40);
