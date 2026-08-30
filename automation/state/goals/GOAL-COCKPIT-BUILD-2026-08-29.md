@@ -183,3 +183,25 @@ survey (2026-08-29 ~17:36 ET) and WILL be stale within the hour if other lanes a
 landing work concurrently. Any fire that picks up this goal's top open item
 (currently Step 2) should re-check file existence fresh before trusting this
 QUEUE's checkmarks, exactly as this fire did for the checkmarks it inherited.
+
+---
+
+## HONEST STATE — CLOSED 2026-08-30 03:46 ET
+
+**DONE-WHEN: MET.** All 8 build-order steps shipped, each independently revertible,
+each with its own verify command run and quoted at the time it was ticked.
+
+**What remains, and it is not mine to close:** the two `[B-J]` items below never
+became `[ ]` items because neither can be verified without J at the machine —
+VERIFY-A needs a real cross-session message sent while someone watches the Army
+view, and VERIFY-B needs a human clicking a card twice. They carry forward to
+GOAL-APP-REBUILD-2026-08-30's J-DECISIONS rather than being silently dropped.
+
+**Superseded, deliberately.** J's 2026-08-30 directive — *"completely redesign the
+site from scratch using these things"*, then *"i want this to be my daily driver"* —
+replaces this goal's surface. The cockpit at `analysis/home/index.html` still builds
+and is still the generated Obsidian surface; the new app at
+`gamma-companion/public/app/` is where the daily-driver work now lands. This is a
+close, not an abandonment: the machinery this goal shipped (pulse telemetry, the army
+payload, action cards, the fire path, the Stop-hook continuation) is exactly what the
+new app consumes.

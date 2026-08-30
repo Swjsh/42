@@ -1,10 +1,1 @@
-{
-  "id": "GOAL-COCKPIT-BUILD-2026-08-29",
-  "active": true,
-  "opened_at_et": "2026-08-29T17:36:34-04:00",
-  "expires_at_et": "2026-09-05",
-  "file": "automation/state/goals/GOAL-COCKPIT-BUILD-2026-08-29.md",
-  "queue_id": "GOAL-COCKPIT-BUILD-2026-08-29",
-  "max_continuations_per_session": 3,
-  "last_next_item": null
-}
+{"id": "GOAL-APP-REBUILD-2026-08-30", "active": true, "opened_at_et": "2026-08-30T03:46:00-04:00", "expires_at_et": "2026-09-04", "file": "automation/state/goals/GOAL-APP-REBUILD-2026-08-30.md", "queue_id": "GOAL-APP-REBUILD-2026-08-30", "max_continuations_per_session": 3, "last_next_item": null}
