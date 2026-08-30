@@ -54,6 +54,7 @@ function chatTurnNode(t){
 }
 
 function chatPush(role,text,model){
+  const em=document.getElementById('chatempty'); if(em)em.remove();
   const t={id:'t'+Date.now()+Math.random().toString(36).slice(2,6),role,text:text||'',model,status:'live'};
   chatState.turns.push(t);
   const box=chatEl(); if(box){ box.appendChild(chatTurnNode(t)); chatScroll(box); }
@@ -182,6 +183,20 @@ function chatPane(){
   wrap.appendChild(head);
 
   const box=el('div','chatbody'); box.id='chatbody';
+  /* Empty state: a black void reads as broken. Say what this is and hand J three one-click
+     starters; each chip fills the input so the first message costs one click + Enter. */
+  const empty=el('div','chatempty'); empty.id='chatempty';
+  empty.appendChild(el('div','chatempty-t','Talk to the orchestrator'));
+  empty.appendChild(el('div','chatempty-s','A real Claude session that runs in this page and remembers the conversation.'));
+  const sug=el('div','chatempty-chips');
+  ['What changed while I was away?','Status of the September freeze?','What should I look at first?']
+    .forEach(t=>{
+      const c=document.createElement('button'); c.type='button'; c.className='sugchip'; c.textContent=t;
+      c.onclick=()=>{ const ta=document.getElementById('chatinput'); if(ta){ta.value=t; ta.focus();} };
+      sug.appendChild(c);
+    });
+  empty.appendChild(sug);
+  box.appendChild(empty);
   wrap.appendChild(box);
   chatWatchScroll(box);
 

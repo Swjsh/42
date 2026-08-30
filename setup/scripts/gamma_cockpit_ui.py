@@ -44,19 +44,31 @@ CSS = r"""
      "purple UI"; the hue is still 300 so every neutral sits in the SAME family as the
      accent and the greys look chosen instead of inherited. The boldness is spent in one
      place -- --acc -- and nowhere else. */
-  --bg-canvas:oklch(10% .012 300); --bg-1:oklch(14.5% .014 300); --bg-2:oklch(18% .016 300);
-  --bg-3:oklch(23% .018 300); --bg-inset:oklch(8% .010 300);
-  --bd-subtle:color-mix(in oklch, white 6%, transparent);
-  --bd:color-mix(in oklch, white 11%, transparent);
-  --bd-strong:color-mix(in oklch, white 19%, transparent);
-  --tx-1:oklch(97% .006 300); --tx-2:oklch(79% .011 300);
-  --tx-3:oklch(60% .013 300); --tx-4:oklch(44% .012 300);
+  /* Rebuilt 2026-08-30 from MEASURED production values, not taste. 21st.dev's live
+     tokens (read via computed styles in a real browser): canvas oklch(14.1% .004) --
+     near-ZERO chroma neutrals -- and a deep saturated primary oklch(48.5% .291) used as
+     a FILL with white text. Linear's live card recipe: rgb(16,17,18) surface, 1px
+     rgba(255,255,255,.08) hairline, a faint white top-light gradient, and a black ring.
+     The old palette carried chroma .012-.018 in every neutral, which read as a purple
+     wash; production dark UIs keep the neutrals clean and spend colour ONLY on the
+     accent. */
+  --bg-canvas:oklch(11% .004 300); --bg-1:oklch(15% .005 300); --bg-2:oklch(18.5% .006 300);
+  --bg-3:oklch(23% .007 300); --bg-inset:oklch(8.5% .003 300);
+  --bd-subtle:rgba(255,255,255,.05);
+  --bd:rgba(255,255,255,.08);
+  --bd-strong:rgba(255,255,255,.14);
+  --topline:inset 0 1px 0 rgba(255,255,255,.05);
+  --ring:0 0 0 1px rgba(0,0,0,.35);
+  --tx-1:oklch(96.8% .003 300); --tx-2:oklch(78% .006 300);
+  --tx-3:oklch(60% .008 300); --tx-4:oklch(45% .008 300);
   /* pos/neg stay where they are: red and green are RESERVED for P&L in this cockpit, so
      the accent must never be able to be mistaken for either. */
   --pos:oklch(72% .19 152); --pos-dim:color-mix(in oklch,var(--pos) 16%,transparent);
   --neg:oklch(68% .21 25);  --neg-dim:color-mix(in oklch,var(--neg) 16%,transparent);
   --warn:oklch(78% .17 80); --warn-dim:color-mix(in oklch,var(--warn) 16%,transparent);
-  --acc:oklch(67% .21 300); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
+  --acc:oklch(70% .19 300); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
+  /* deep form for FILLS (21st.dev primary shape: dark, saturated, white text on top) */
+  --acc-deep:oklch(48% .27 300); --acc-deep-hi:oklch(56% .27 300);
   --acc-soft:color-mix(in oklch,var(--acc) 9%,transparent);
   --acc-line:color-mix(in oklch,var(--acc) 42%,transparent);
   /* Coloured elevation: a violet-tinted glow reads as light coming off the accent rather
@@ -83,8 +95,10 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
 .num,td.n,.big,.mid,.stat{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 /* ambient wash + subliminal grain (kills gradient banding) */
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(900px 520px at 10% -10%,color-mix(in oklch,var(--acc) 12%,transparent),transparent 62%),
-             radial-gradient(720px 440px at 94% 2%,color-mix(in oklch,var(--pos) 7%,transparent),transparent 64%)}
+  background:
+    radial-gradient(1100px 600px at 18% -12%,color-mix(in oklch,var(--acc-deep) 26%,transparent),transparent 60%),
+    radial-gradient(800px 500px at 100% 0%,color-mix(in oklch,var(--acc) 7%,transparent),transparent 60%),
+    radial-gradient(900px 700px at 50% 118%,color-mix(in oklch,var(--acc-deep) 10%,transparent),transparent 55%)}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.035;
   mix-blend-mode:overlay;background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)"/></svg>')}
 a{color:var(--acc);text-decoration:none}
@@ -106,10 +120,12 @@ a:hover{text-decoration:underline}
 .brand b{font-size:15px;font-weight:600;letter-spacing:-.015em}
 .brand small{display:block;color:var(--tx-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
 .nav{display:flex;flex-direction:column;gap:1px}
-.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--r-md);color:var(--tx-2);
-  font-size:14px;font-weight:500;position:relative;transition:background .14s var(--e-hover),color .14s var(--e-hover)}
-.nav a:hover{background:var(--bg-1);color:var(--tx-1);text-decoration:none}
-.nav a.on{background:var(--bg-2);color:var(--tx-1)}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:var(--r-md);color:var(--tx-3);
+  font-size:13.5px;font-weight:500;position:relative;border:1px solid transparent;
+  transition:background .14s var(--e-hover),color .14s var(--e-hover),border-color .14s var(--e-hover)}
+.nav a:hover{background:rgba(255,255,255,.03);color:var(--tx-1);text-decoration:none}
+.nav a.on{background:linear-gradient(rgba(255,255,255,.03),rgba(255,255,255,0)),var(--bg-2);
+  color:var(--tx-1);border-color:var(--bd);box-shadow:var(--topline)}
 .nav a.on::before{content:"";position:absolute;left:-12px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;
   background:var(--acc);box-shadow:0 0 12px var(--acc)}
 .nav .ic{width:17px;text-align:center;font-size:13px;opacity:.9}
@@ -154,9 +170,9 @@ section+section{margin-top:var(--s8)}
 .shead{display:flex;align-items:baseline;gap:var(--s4);margin-bottom:var(--s5)}
 .shead h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
 
-.card{background:var(--bg-1);border:1px solid var(--bd-subtle);border-radius:var(--r-lg);
-  padding:var(--s6);box-shadow:var(--sh-2);position:relative;container-type:inline-size;
-  transition:box-shadow .16s var(--e-hover),border-color .16s var(--e-hover),transform .16s var(--e-hover)}
+.card{background:linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,0) 42%),var(--bg-1);
+  border:1px solid var(--bd);border-radius:var(--r-lg);padding:var(--s6);
+  box-shadow:var(--topline),var(--ring),var(--sh-2);position:relative}
 .card h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);
   margin-bottom:var(--s4)}
 .card.click{cursor:pointer}
@@ -302,8 +318,13 @@ section+section{margin-top:var(--s8)}
 .chathead select{margin-left:auto;font:600 11.5px/1 var(--mono);padding:6px 10px;
   border-radius:var(--r-sm);border:1px solid var(--bd);background:var(--bg-2);color:var(--tx-2);cursor:pointer}
 .chatbody{min-height:120px;max-height:22vh;overflow:auto;display:flex;flex-direction:column;
-  gap:var(--s5);padding:var(--s5);border:1px solid var(--bd-subtle);border-radius:var(--r-md);
-  background:var(--bg-inset)}
+  gap:var(--s4);padding:var(--s5);border:1px solid var(--bd-subtle);border-radius:var(--r-md);
+  background:rgba(0,0,0,.28);box-shadow:inset 0 1px 4px rgba(0,0,0,.4)}
+.chatturn{padding:10px 14px;border-radius:10px;border:1px solid transparent}
+.chatturn-gamma{background:linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,0)),var(--bg-1);
+  border-color:var(--bd-subtle);box-shadow:var(--topline)}
+.chatturn-user{background:color-mix(in oklch,var(--acc-deep) 14%,transparent);
+  border-color:color-mix(in oklch,var(--acc) 18%,transparent)}
 .chatturn{display:flex;flex-direction:column;gap:var(--s2);animation:chatin .24s var(--e-open)}
 @keyframes chatin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .chatwho{font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx-4)}
@@ -321,19 +342,35 @@ section+section{margin-top:var(--s8)}
   outline:none;transition:border-color .16s var(--e-hover),box-shadow .16s var(--e-hover)}
 .chatfoot textarea:focus{border-color:var(--acc-line);box-shadow:var(--glow-soft)}
 .chatfoot textarea:disabled{opacity:.55}
-#chatsend{font:700 13px/1 var(--font);padding:12px 20px;border-radius:var(--r-md);cursor:pointer;
-  border:1px solid var(--acc);background:var(--acc-dim);color:var(--acc);
+#chatsend{font:700 13px/1 var(--font);padding:12px 22px;border-radius:9px;cursor:pointer;color:#fff;
+  border:1px solid color-mix(in oklch,var(--acc) 45%,transparent);
+  background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,0) 45%),var(--acc-deep);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 20px -8px var(--acc-deep);
   transition:all .16s var(--e-hover)}
-#chatsend:hover:not(:disabled){background:var(--acc);color:var(--bg-canvas)}
+#chatsend:hover:not(:disabled){background:linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,0) 45%),var(--acc-deep-hi);
+  transform:translateY(-1px)}
 #chatsend:disabled{opacity:.5;cursor:default}
 .chatnote{color:var(--tx-4)}
+.chatempty{margin:auto;text-align:center;padding:18px 0}
+.chatempty-t{font:650 15px/1.3 var(--font);color:var(--tx-2);letter-spacing:-.01em}
+.chatempty-s{font:400 12px/1.5 var(--font);color:var(--tx-4);margin-top:4px}
+.chatempty-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.sugchip{font:500 12px/1 var(--font);padding:8px 14px;border-radius:999px;cursor:pointer;
+  color:var(--tx-2);border:1px solid var(--bd);background:rgba(255,255,255,.03);
+  transition:all .16s var(--e-hover)}
+.sugchip:hover{border-color:var(--acc-line);color:var(--tx-1);background:var(--acc-soft);
+  transform:translateY(-1px)}
 
 /* ---------------- fire button: show what clicking does ---------------- */
 .firewhat{font-size:12.5px;line-height:1.5;color:var(--tx-2);margin:0 0 10px}
 .firewhat b{color:var(--acc);font-weight:600}
-.firebtn{font:700 13px/1 var(--font);padding:12px 20px;border-radius:8px;cursor:pointer;
-  border:1px solid var(--acc);background:var(--acc-dim);color:var(--acc);transition:all .16s var(--e-hover)}
-.firebtn:hover:not(:disabled){background:var(--acc);color:var(--bg-canvas)}
+.firebtn{font:700 13px/1 var(--font);padding:12px 22px;border-radius:9px;cursor:pointer;color:#fff;
+  border:1px solid color-mix(in oklch,var(--acc) 45%,transparent);
+  background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,0) 45%),var(--acc-deep);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 20px -8px var(--acc-deep),var(--ring);
+  transition:all .16s var(--e-hover)}
+.firebtn:hover:not(:disabled){background:linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,0) 45%),var(--acc-deep-hi);
+  transform:translateY(-1px)}
 .firebtn:disabled{opacity:.5;cursor:default;border-color:var(--bd);background:transparent;color:var(--tx-4)}
 /* armed = second click will actually spend. It PULSES so it reads as hot, not idle. */
 .firebtn.armed{background:var(--acc);color:var(--bg-canvas);border-color:var(--acc);

@@ -21,6 +21,24 @@ ARMY_JS = r"""
    hooks the shared router to make that true. */
 let armyState=null;
 
+function armyHumanAct(detail){
+  /* A raw "Ran: cd C:/Users/jackw/Desktop/42 && backtest/.venv/..." is developer noise on
+     a glance-surface. Reduce it to what a person reads: the verb + the object. */
+  const d=String(detail||'').trim();
+  if(/^Editing /.test(d))return d;                      // already clean
+  const m=d.match(/^Ran:\s*(.+)/);
+  if(!m)return d;
+  let cmd=m[1].replace(/^cd\s+\S+\s*(?:&&|;)\s*/,'');  // drop a leading cd
+  const tool=cmd.split(/\s+/)[0].split(/[\/]/).pop();  // basename of the exe
+  if(/python|pythonw/.test(tool)){
+    const script=(cmd.match(/([\w./\-]+\.py)/)||[])[1];
+    return script?('Running '+script.split(/[\/]/).pop()):'Running python';
+  }
+  if(/pytest/.test(cmd))return 'Running tests';
+  if(/^git/.test(cmd))return 'git '+(cmd.split(/\s+/)[1]||'');
+  return tool ? ('Running '+tool) : d;
+}
+
 function armySvg(a){
   const ns='http://www.w3.org/2000/svg';
   const mk=(t,attrs)=>{const e=document.createElementNS(ns,t);for(const k in (attrs||{}))e.setAttribute(k,attrs[k]);return e};
@@ -101,12 +119,27 @@ function armySvg(a){
   svg.style.cssText='display:block;margin:0 auto;width:100%;height:100%;'+
     'min-height:'+MIN_GRAPH_H+'px;max-width:'+W+'px';
 
+  /* Paint defs, once per render. cardGrad is Linear's measured top-light (a 2-4% white
+     wash fading by mid-card) as an SVG gradient; orcGrad is the same idea with the deep
+     accent bleeding in from the top so the hero box reads as LIT, not outlined. */
+  const defs=mk('defs',{});
+  const g1=mk('linearGradient',{id:'cardGrad',x1:'0',y1:'0',x2:'0',y2:'1'});
+  g1.appendChild(mk('stop',{offset:'0%','stop-color':'rgba(255,255,255,.035)'}));
+  g1.appendChild(mk('stop',{offset:'45%','stop-color':'rgba(255,255,255,0)'}));
+  defs.appendChild(g1);
+  const g2=mk('linearGradient',{id:'orcGrad',x1:'0',y1:'0',x2:'0',y2:'1'});
+  g2.appendChild(mk('stop',{offset:'0%','stop-color':'color-mix(in oklch,var(--acc-deep) 55%,transparent)'}));
+  g2.appendChild(mk('stop',{offset:'70%','stop-color':'rgba(255,255,255,0)'}));
+  defs.appendChild(g2);
+  svg.appendChild(defs);
+
   const centers={}, edges={};
   const ocx=W/2;
   centers.orc={x:ocx,y:ocy};
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node',id:'army-orc'});
-  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--acc)','stroke-width':2}));
+  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
+  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'url(#orcGrad)',stroke:'var(--acc)','stroke-width':1.5,opacity:.9}));
   og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--acc)',class:'army-ring'}));
   og.appendChild(ltxt(ocx-150,ocy-8,orc?orc.name:'—','var(--tx-1)',21,700));
   og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',11.5,600));
@@ -139,7 +172,8 @@ function armySvg(a){
 
     const g=mk('g',{class:'army-node','data-sid':s.session_id});
     g.style.cursor='pointer';
-    g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1.4}));
+    g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
+    g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
     const dot=mk('circle',{cx:L+22,cy:T+27,r:6,fill:armyDotColour(s,lastSeen)});
     dot.id='armydot-'+s.session_id;
     g.appendChild(dot);
@@ -168,7 +202,9 @@ function armySvg(a){
     const wc=(byWorkerSession[s.session_id]||[]).length;
     g.appendChild(ltxt(L+18,T+100,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
       (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
-    const actEl=ltxt(L+18,T+120,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id; g.appendChild(actEl);
+    const actEl=ltxt(L+18,T+120,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id;
+    actEl.setAttribute('data-humanize','1');   // armyApplyRow reads this and trims shell noise
+    g.appendChild(actEl);
     /* CONTEXT GAUGE along the base of the card. J asked for "a context bar that changes in
        real time for every card that is a session".
 
@@ -387,7 +423,7 @@ function armyApplyRow(row,animate){
   const dot=document.getElementById('armydot-'+row.session_id);
   if(dot&&s)dot.setAttribute('fill',armyDotColour(s,st.lastSeen));
   const actEl=document.getElementById('armyact-'+row.session_id);
-  if(actEl&&row.detail)actEl.textContent=row.detail.slice(0,34);
+  if(actEl&&row.detail)actEl.textContent=armyHumanAct(row.detail).slice(0,36);
   armyLedgerRow(row);
   if(!animate)return;
   if(row.event==='act'){armyGlow(row);return}
@@ -512,8 +548,10 @@ function armyPaintCards(){
     // Radius/padding from the two independently-sourced token scales the research found
     // agreeing (Linear + Geist): 12px container radius, 4px-base spacing, hairline border
     // for elevation rather than a shadow.
-    it.style.cssText='padding:12px 14px 12px 18px;margin:0 0 8px;cursor:pointer;border-radius:12px;'+
-      'border:1px solid '+(open?'var(--acc)':'var(--bd)')+';background:var(--bg-1);'+
+    it.style.cssText='padding:11px 13px 11px 17px;margin:0 0 8px;cursor:pointer;border-radius:12px;'+
+      'border:1px solid '+(open?'var(--acc)':'var(--bd)')+';'+
+      'background:linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,0) 45%),var(--bg-1);'+
+      'box-shadow:var(--topline),var(--ring);'+
       (open?'opacity:.45;':'');
     if(!open)it.style.viewTransitionName=armyCardVtName(c.id);
     it.onclick=()=>armySelectCard(c.id);
@@ -526,8 +564,14 @@ function armyPaintCards(){
     const edge=document.createElement('i');
     edge.style.cssText='position:absolute;left:0;top:0;bottom:0;width:3px;background:'+sev+';opacity:.85';
     it.appendChild(edge);
-    const r=el('div','micro'); r.textContent='#'+c.rank+' · '+src;
-    r.style.color='var(--tx-4)';
+    const r=el('div'); r.style.cssText='display:flex;align-items:center;gap:8px';
+    const rk=el('span'); rk.textContent=String(c.rank);
+    rk.style.cssText='font:700 10.5px/1 var(--mono);min-width:20px;height:20px;display:inline-grid;'+
+      'place-items:center;border-radius:6px;background:rgba(255,255,255,.06);color:var(--tx-2);'+
+      'border:1px solid var(--bd-subtle)';
+    const srcEl=el('span'); srcEl.textContent=src.replace(/\.(md|json)$/,'');
+    srcEl.style.cssText='font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tx-4)';
+    r.appendChild(rk); r.appendChild(srcEl);
     const t=el('div'); t.textContent=String(c.title||'').slice(0,84);
     t.style.cssText='font:600 13.5px/1.35 var(--font);color:var(--tx-1);margin-top:4px';
     it.appendChild(r); it.appendChild(t);
@@ -574,8 +618,11 @@ function armySelectCard(id){
 function vArmy(h){
   const a=D.army||{sessions:[],workers:[],pulses:[],orchestrator:null,source:{}};
   const live=location.protocol!=='file:';
+  /* The topbar already says "Army" -- repeating it as an h2 directly underneath was the
+     view introducing itself twice. One slim status line carries what is actually new. */
   h.appendChild(el('div','shead',
-    `<h2>Army</h2><span class="dim">${live?'LIVE':'SNAPSHOT'} · ${esc(a.scope_note||'')}</span>`));
+    `<span class="chip ${live?'ok':''}"><i class="dot"></i>${live?'LIVE':'SNAPSHOT'}</span>`+
+    `<span class="dim" style="font-size:11.5px">${esc(a.scope_note||'')}</span>`));
 
   /* Two-column shell. align-self:start is load-bearing, not cosmetic: grid's default
      `stretch` makes the short rail column match its taller sibling's height, which
