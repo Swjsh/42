@@ -21,6 +21,10 @@ const { spawn, spawnSync } = require("child_process");
 const { buildState, summarize } = require("./lib/state");
 const { resolveApproval, isCardSnoozed } = require("./lib/approvals");
 const { runEscalation, getTasks, getTaskStatus, cancelTask, subscribeAskStream, unsubscribeAskStream, askFeedPath } = require("./lib/escalate");
+// isHalted was referenced by the orchestrator-chat route but NEVER imported -- the
+// resulting ReferenceError was swallowed by readBody's old catch and re-surfaced as a
+// fake "empty message" (see readBody's comment). Root cause of the 2026-08-29 chat bug.
+const { isHalted } = require("./lib/guard");
 const { loadOpenAIKey } = require("./lib/openai_key");
 const { checkObligations } = require("./lib/obligations");
 const { queueSummary, readQueue } = require("./lib/autobuild");
@@ -326,11 +330,15 @@ function readBody(req, res, cb) {
   });
   req.on("end", () => {
     if (aborted) return;
-    try {
-      cb(JSON.parse(body || "{}"));
-    } catch {
-      cb({});
-    }
+    // Parse and callback are guarded SEPARATELY, deliberately. The old single
+    // try{cb(JSON.parse(body))}catch{cb({})} swallowed exceptions thrown INSIDE the
+    // handler and re-invoked it with {} -- so a ReferenceError in a route surfaced as
+    // "empty message", which cost a full debugging session (2026-08-29/30). A parse
+    // failure is bad INPUT -> cb({}). A handler failure is a bad ROUTE -> let it
+    // propagate to the crash logger; do not run the handler twice.
+    let parsed = {};
+    try { parsed = JSON.parse(body || "{}"); } catch { parsed = {}; }
+    cb(parsed);
   });
   req.on("error", () => {
     // A socket error after we already 413'd is expected (we destroyed it); only

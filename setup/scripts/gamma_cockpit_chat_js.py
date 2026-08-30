@@ -62,19 +62,23 @@ function chatPush(role,text,model){
 
 /* Streamed text is buffered and flushed once per animation frame. One DOM write per token on
    a fast stream causes visible jank; one per frame does not, and the user cannot tell. */
-let chatBuf={}, chatRaf=null;
+/* setTimeout, NOT requestAnimationFrame: RAF never fires in a hidden/backgrounded tab, so a
+   pure-RAF flush froze the reply text whenever the pane was not visible -- found 2026-08-30
+   when every completed turn read back with EMPTY text while the tab was hidden. 16ms keeps
+   the one-write-per-tick batching that was the point of the buffer. */
+let chatBuf={}, chatTick=null;
+function chatFlush(){
+  chatTick=null;
+  for(const id in chatBuf){
+    const node=document.getElementById('chattext-'+id);
+    if(node)node.textContent+=chatBuf[id];
+  }
+  chatBuf={};
+  const box=chatEl(); if(box)chatScroll(box);
+}
 function chatAppendText(turnId,chunk){
   chatBuf[turnId]=(chatBuf[turnId]||'')+chunk;
-  if(chatRaf)return;
-  chatRaf=requestAnimationFrame(()=>{
-    chatRaf=null;
-    for(const id in chatBuf){
-      const node=document.getElementById('chattext-'+id);
-      if(node)node.textContent+=chatBuf[id];
-    }
-    chatBuf={};
-    const box=chatEl(); if(box)chatScroll(box);
-  });
+  if(!chatTick)chatTick=setTimeout(chatFlush,16);
 }
 function chatAppendStep(turnId,label,cls){
   const host=document.getElementById('chatsteps-'+turnId);
@@ -132,8 +136,14 @@ function chatSend(){
         // Captured so the NEXT turn resumes this session instead of starting cold.
         chatState.session=d.sessionId;
         chatAppendStep(turn.id,(j.resumed?'↻ resumed':'● session')+' '+String(d.sessionId).slice(0,8),'dim');
-      } else if(d.step==='text'||d.step==='delta'){
+      } else if(d.step==='delta'){
+        turn.sawDelta=true;
         chatAppendText(turn.id,d.text||'');
+      } else if(d.step==='text'){
+        // The server emits BOTH streamed deltas and the final assembled text block for the
+        // same words; rendering both doubled every reply ("chat workschat works"). Deltas
+        // win when they streamed; the text frame is the fallback when they did not.
+        if(!turn.sawDelta)chatAppendText(turn.id,d.text||'');
       } else if(d.step==='thinking'){
         chatAppendStep(turn.id,'thinking…','dim');
       } else if(d.step==='tool'||d.step==='tool_start'){
