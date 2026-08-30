@@ -180,7 +180,7 @@
          session was doing. The server already returns a stream_token here and
          chat.js already renders that stream as a live tool timeline. */
       const watching = G.chat && G.chat.adopt &&
-        G.chat.adopt(j.escalated, j.stream_token, cardLabel(card));
+        G.chat.adopt(j.escalated, j.stream_token, cardLabel(card), j.model || card.model);
       say(watching ? 'Running ↓' : 'Working…', 'live');
       btn.title = watching
         ? 'Running now — watch it in the console below.'

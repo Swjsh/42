@@ -1,12 +1,12 @@
 {
-  "id": "GOAL-COMMAND-CENTER-2026-08-30",
+  "id": "GOAL-DESK-LEGIBILITY-2026-08-30",
   "active": false,
-  "opened_at_et": "2026-08-30T13:28:00-04:00",
+  "opened_at_et": "2026-08-30T15:05:00-04:00",
   "expires_at_et": "2026-09-06",
-  "file": "automation/state/goals/GOAL-COMMAND-CENTER-2026-08-30.md",
-  "queue_id": "GOAL-COMMAND-CENTER-2026-08-30",
+  "file": "automation/state/goals/GOAL-DESK-LEGIBILITY-2026-08-30.md",
+  "queue_id": "GOAL-DESK-LEGIBILITY-2026-08-30",
   "max_continuations_per_session": 3,
-  "last_next_item": "C1 \u2014 Trading data slice: `setup/scripts/gamma_glass.py` \u2014 book equity + today/WTD",
-  "closed_at_et": "2026-08-30T14:35:00-04:00",
-  "closed_reason": "C1-C7 shipped and verified at both mandated viewports; 21/21 review findings fixed"
+  "last_next_item": "D1 \u2014 Session jobs: join session_id -> {objective, card, model, status, lastStep}",
+  "closed_at_et": "2026-08-30T15:20:00-04:00",
+  "closed_reason": "D1-D6 shipped+verified at both viewports; org re-tiered per J's mid-goal note"
 }

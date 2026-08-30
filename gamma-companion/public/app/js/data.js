@@ -94,6 +94,25 @@
           [].concat(c.running || [], c.recent || []).forEach(function (t) {
             if (t && t.card_id && !byCard[t.card_id]) byCard[t.card_id] = t;
           });
+          /* SESSION -> JOB. The companion knows which Claude session is running
+             which task (sessionId <-> card_id <-> task), and the org card was
+             printing "Untitled chat" over a session actively root-causing a
+             STATUS.md entry. Every fact needed to name it was one join away. */
+          const jobs = {};
+          [].concat(c.running || [], c.recent || []).forEach(function (t) {
+            if (!t || !t.sessionId) return;
+            const prev = jobs[t.sessionId];
+            // a RUNNING job always wins over a finished one for the same session
+            if (prev && prev.status === 'running' && t.status !== 'running') return;
+            jobs[t.sessionId] = {
+              id: t.id, task: t.task, card_id: t.card_id || null,
+              model: t.model, status: t.status, ok: t.ok,
+              started: t.started, finished: t.finished,
+              lastStep: t.lastStep, lastTool: t.lastTool, origin: t.origin,
+            };
+          });
+          G.sessionJobs = jobs;
+
           // Merge: durable says IT RAN (survives restarts), memory says HOW IT WENT.
           // A card whose run is only in the ledger shows "ran <time>" with no
           // outcome rather than pretending it never happened.

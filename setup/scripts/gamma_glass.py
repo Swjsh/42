@@ -220,7 +220,8 @@ def group_position() -> dict:
                 "source": _src(POSITION_FILE), "fills_source": _src(FILLS_FILE)}
     if age > POSITION_STALE_H:
         state = "unknown"
-        note = "position file is {:.0f}h old -- the engine is not writing it".format(age)
+        note = ("nobody has written the position file in {:.0f}h, so I cannot say "
+                "whether we are flat").format(age)
     elif isinstance(d, dict) and str(d.get("status") or "").strip().lower() in FLAT_WORDS:
         # The original test was `if d.get("status")` -- ANY truthy string -- so the
         # literal "flat" or "closed" would have rendered IN A TRADE. Named flat-words

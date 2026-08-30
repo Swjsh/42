@@ -250,7 +250,7 @@ def lane_spy() -> dict:
     return {
         "id": "spy", "label": "SPY 0DTE core", "kind": "live engine",
         "state": _state_for("spy", age),
-        "detail": ("market closed -- weekend" if dt.datetime.now(ET).weekday() >= 5
+        "detail": ("market closed for the weekend" if dt.datetime.now(ET).weekday() >= 5
                    else "heartbeat cadence 1min 09:30-15:55 ET"),
         "doing": (newest.name if newest else None),
         "last_at": _iso(newest),

@@ -32,6 +32,9 @@
       .replace(/`([^`]+)`/g, '$1')
       // commit-hash noise
       .replace(/\b[0-9a-f]{7,40}\b/g, '')
+      // " -- " is source punctuation. Upstream health/status text is written for a
+      // terminal and reaches the glass verbatim; an em dash is what a reader expects.
+      .replace(/\s--\s/g, ' — ')
       .replace(/\s{2,}/g, ' ')
       .replace(/\s+([,.;:])/g, '$1')
       .trim();
@@ -157,6 +160,37 @@
     return { text: who + ' ' + did, raw: (ev ? ev + ': ' : '') + d };
   }
 
+
+  /* ---- an escalation's live step, in English ----
+     The SDK's step vocabulary is fixed and machine-shaped: queued, session,
+     thinking, tool_start, tool, tool_result, result. "tool_result" appeared
+     verbatim on an agent card, which is exactly the machine-speak this file
+     exists to stop. `lastTool` already carries the server's humanised label for
+     the call ("Reading self_check.py"), so prefer it and translate the rest. */
+  var STEP_WORDS = {
+    queued: 'queued', session: 'starting up', thinking: 'thinking',
+    tool_start: 'working', tool: 'working', tool_result: 'reading the result',
+    result: 'wrapping up',
+  };
+  /* A BARE TOOL NAME IS NOT AN ACTIVITY. The server usually sends a humanised
+     label ("Reading self_check.py"), but for some calls it sends only the tool --
+     and "Bash" appeared verbatim as a session's live activity line. */
+  var BARE_TOOL = {
+    bash: 'running a command', read: 'reading a file', write: 'writing a file',
+    edit: 'editing a file', glob: 'looking for files', grep: 'searching the code',
+    task: 'sending out an agent', webfetch: 'reading a page',
+    websearch: 'searching the web', todowrite: 'updating its plan',
+  };
+  function step(stepName, toolLabel) {
+    var t = String(toolLabel || '').trim();
+    if (t) {
+      var bare = BARE_TOOL[t.toLowerCase()];
+      // only when the label IS just the tool name -- a real sentence passes through
+      return bare && t.indexOf(' ') === -1 ? bare : t;
+    }
+    return STEP_WORDS[String(stepName || '')] || 'working';
+  }
+
   /* "5m" — relative time for feed rows; absolute time is hover detail. */
   function ago(iso) {
     /* The rig writes naive ET stamps ("2026-08-30T14:12:02") with no offset, and
@@ -178,6 +212,6 @@
     return h < 48 ? h + 'h ago' : Math.round(h / 24) + 'd ago';
   }
 
-  G.human = { commit: commit, broken: broken, fire: fire, task: task,
+  G.human = { commit: commit, broken: broken, fire: fire, task: task, step: step,
               pulse: pulse, scrub: scrub, deCode: deCode, ago: ago, cap: cap };
 })(window.G = window.G || {});

@@ -1358,3 +1358,49 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .gcard:hover .gcard__x,.gcard__x:focus-visible{opacity:1}
 .gcard__x:hover{background:var(--bg-2);color:var(--ink)}
 .gcard[data-gone]{opacity:0;transform:translateX(10px);transition:opacity .2s,transform .2s}
+
+/* --- the agent card, filled -----------------------------------------------
+   J: "we need to see something in the agent card like you have all that space
+   and no visuals". A session mid-task emits a step every second or two and none
+   of it reached the card. This is the live step, what kind of job it is, and how
+   long it has been going. */
+.org__badge{margin-left:7px;font-size:12px;font-weight:640;letter-spacing:.05em;
+  padding:1px 6px;border-radius:5px}
+.org__badge[data-t="card"]{color:var(--acc);background:color-mix(in oklch,var(--acc) 16%,transparent)}
+.org__badge[data-t="console"]{color:var(--ink-3);background:color-mix(in oklch,white 8%,transparent)}
+.org__job{display:flex;align-items:center;gap:7px;min-width:0;margin-top:2px;
+  padding:5px 8px;border-radius:8px;background:color-mix(in oklch,white 4%,transparent);
+  font-size:12.5px;color:var(--ink-3)}
+.org__job.is-on{background:color-mix(in oklch,var(--live) 10%,transparent);color:var(--ink-2)}
+.org__jt{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.org__je{flex:0 0 auto;color:var(--ink-4);font-size:12px}
+/* A spinner is the one honest "something is happening right now" affordance on a
+   card whose text only changes every second or two. */
+.org__spin{width:9px;height:9px;flex:0 0 auto;border-radius:50%;
+  border:1.5px solid color-mix(in oklch,var(--live) 35%,transparent);
+  border-top-color:var(--live)}
+@media (prefers-reduced-motion:no-preference){
+  .org__spin{animation:orgspin .9s linear infinite}
+}
+@keyframes orgspin{to{transform:rotate(360deg)}}
+/* The turn label now carries WHO, so it needs room for a kind chip beside the model. */
+.turn__k{font-style:normal;font-size:12px;font-weight:640;letter-spacing:.05em;
+  margin-left:6px;padding:1px 6px;border-radius:5px;text-transform:none}
+.turn__k[data-t="card"]{color:var(--acc);background:color-mix(in oklch,var(--acc) 16%,transparent)}
+
+/* --- the other windows, as chips ------------------------------------------
+   J: "the ollama one needs re thought. maybe a smaller persistent card in the
+   corner cause its not a subagnet?" Right: a window he happens to have open on
+   an unrelated question was wearing the same card as a session Gamma actually
+   dispatched, which is a false claim about who works for whom. Gamma's work
+   keeps the cards; everything else is context and gets one line. */
+.org__chips{position:relative;z-index:1;display:flex;align-items:center;gap:6px;
+  flex-wrap:wrap;margin-top:auto;padding-top:var(--s3)}
+.org__chipl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4)}
+.org__chip{display:inline-flex;align-items:center;gap:6px;max-width:230px;
+  padding:3px 9px;border-radius:999px;font-size:12px;color:var(--ink-3);
+  background:var(--bg-1);border:1px solid var(--line);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:help}
+.org__chip:hover{border-color:var(--line-2);color:var(--ink-2)}
+.org__chip i{width:5px;height:5px;border-radius:50%;background:var(--ink-4);flex:0 0 auto}
+.org__chip b{color:var(--ink-4);font-weight:600;font-size:12px}

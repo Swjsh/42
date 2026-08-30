@@ -96,11 +96,15 @@
   }
 
   /* ---- one cell of the strip ---------------------------------------------- */
-  function cell(label, valueHtml, sub, cls) {
+  function cell(label, valueHtml, sub, cls, subTitle) {
+    /* The sub-line ellipsises, and a clipped sentence with no title is a fact the
+       reader cannot finish: "position file is 2115h old -- the engine..." stopped
+       exactly where the reason began. Found by the second drive. */
+    const t = subTitle ? ' title="' + esc(subTitle) + '"' : '';
     return '<div class="g-cell' + (cls ? ' ' + cls : '') + '">' +
       '<span class="g-lab">' + esc(label) + '</span>' +
       '<div class="g-val">' + valueHtml + '</div>' +
-      (sub ? '<span class="g-sub">' + sub + '</span>' : '') + '</div>';
+      (sub ? '<span class="g-sub"' + t + '>' + sub + '</span>' : '') + '</div>';
   }
 
   /* ---- POSITION: the first thing a trader looks for ----------------------- */
@@ -115,7 +119,9 @@
       ? esc(p && p.note ? p.note : 'no fresh position file')
       : (fills ? fills + ' fill' + (fills === 1 ? '' : 's') + ' today' : 'no fills today');
     return cell('Position',
-      '<b class="g-state" data-t="' + t + '">' + word + '</b>', sub, 'g-cell--pos');
+      '<b class="g-state" data-t="' + t + '">' + word + '</b>', sub, 'g-cell--pos',
+      // the untruncated reason, so a clipped explanation is still recoverable
+      st === 'unknown' ? (p && p.note ? p.note : 'no fresh position file') : null);
   }
 
   /* ---- THE STRIP ---------------------------------------------------------- */
@@ -479,7 +485,11 @@
       let state = 'new', line = auto ? 'safe to auto-run' : 'needs you';
       if (run && run.status === 'running') {
         state = 'running';
-        line = 'running now' + (run.lastStep ? ' · ' + run.lastStep : '');
+        // the same humanised step the org card uses -- "running now - tool" was the
+        // bare SDK event name leaking onto the decision queue
+        line = 'running now' + ((run.lastStep || run.lastTool)
+          ? ' · ' + (G.human ? G.human.step(run.lastStep, run.lastTool)
+                                  : (run.lastTool || run.lastStep)) : '');
       } else if (run) {
         state = run.ok === false ? 'failed' : 'ran';
         const when = String(run.finished || run.started || '').slice(11, 16);

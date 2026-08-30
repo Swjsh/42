@@ -64,14 +64,36 @@
   function scroll() { const b = body(); if (b && st.pinned) b.scrollTop = b.scrollHeight; }
 
   /* ---- turns -------------------------------------------------------------- */
-  function push(role, text) {
+  /* WHO IS TALKING. J: "it said Opus then its working so idk if its orchestrator
+     or a sonnet agent like i would expect". The label rendered st.model -- the
+     PICKER's value -- while a sonnet CARD RUN was streaming underneath it. The
+     picker is a preference; this line has to be a fact, so a turn may carry its
+     own `who` and only falls back to the picker for turns the picker started. */
+  /* Wire ids ("claude-sonnet-4-6") are not words. Only the family carries meaning
+     in a turn label. */
+  function shortModel(m) {
+    const t = String(m || '').toLowerCase();
+    if (t.indexOf('opus') >= 0) return 'opus';
+    if (t.indexOf('sonnet') >= 0) return 'sonnet';
+    if (t.indexOf('haiku') >= 0) return 'haiku';
+    if (t.indexOf('fable') >= 0) return 'fable';
+    return m || '';
+  }
+
+  function push(role, text, who) {
     const e = document.getElementById('cempty'); if (e) e.remove();
     const t = { id: 't' + st.turns.length + '_' + Date.now(), role, text: text || '', steps: 0 };
     st.turns.push(t);
     const b = body(); if (!b) return t;
     const n = el('div'); n.className = 'turn turn--' + role;
+    const label = role === 'me' ? 'You'
+      : (who
+          ? esc(who.name) + ' <i>' + esc(shortModel(who.model)) + '</i>' +
+            (who.kind ? '<em class="turn__k" data-t="' + esc(who.kind) + '">' +
+              esc(who.kind === 'card' ? 'action card' : who.kind) + '</em>' : '')
+          : 'Gamma <i>' + esc(st.model) + '</i>');
     n.innerHTML =
-      '<div class="turn__w">' + (role === 'me' ? 'You' : 'Gamma <i>' + esc(st.model) + '</i>') + '</div>' +
+      '<div class="turn__w">' + label + '</div>' +
       (role === 'gamma' ? '<div class="tl" id="tl-' + t.id + '"></div>' : '') +
       '<div class="turn__b md" id="b-' + t.id + '"></div>';
     b.appendChild(n);
@@ -137,6 +159,34 @@
     return r;
   }
 
+  /* The header pill. "WORKING" alone left J unable to tell an orchestrator turn
+     from a card run; it now names whichever is actually streaming. */
+  function setWho(who) {
+    // #cstate, not .chat__state -- I wrote the latter from memory and it matched
+    // nothing, which would have made this a silent no-op.
+    st.who = who || null;
+    const pill = document.getElementById('cstate');
+    if (!pill) return;
+    pill.title = who ? (who.name + ' · ' + (who.model || '')) : 'the orchestrator';
+    paintPill(st.busy);
+  }
+
+  /* The pill said "working" for everything, so an orchestrator turn and a sonnet
+     card run were indistinguishable at a glance -- which is exactly what J could
+     not tell. It names whichever is actually streaming. */
+  function paintPill(on) {
+    const pill = document.getElementById('cstate');
+    if (!pill) return;
+    const w = st.who;
+    const label = on
+      ? (w ? (w.kind === 'card' ? 'card · ' + shortModel(w.model) : shortModel(w.model) || 'working')
+           : st.model)
+      : 'ready';
+    const span = pill.querySelector('span');
+    if (span) span.textContent = label;
+    if (on) pill.setAttribute('data-on', ''); else pill.removeAttribute('data-on');
+  }
+
   function busy(on) {
     st.busy = on;
     const s = document.getElementById('csend'), i = document.getElementById('cin'),
@@ -144,10 +194,9 @@
     if (s) s.hidden = on;
     if (stop) stop.hidden = !on;
     if (i) i.disabled = false;              // stay typable: queue the next thought
-    if (pill) {
-      pill.querySelector('span').textContent = on ? 'working' : 'ready';
-      if (on) pill.setAttribute('data-on', ''); else pill.removeAttribute('data-on');
-    }
+    st.busy = on;
+    if (!on) st.who = null;     // a finished run no longer owns the header
+    paintPill(on);
   }
 
   /* ---- send / stop -------------------------------------------------------- */
@@ -281,15 +330,18 @@
    * adopt() is that join: it opens a turn in the console with the card's title,
    * attaches the same EventSource the chat uses, and from there a fired card is
    * watched exactly like something typed. */
-  function adopt(askId, streamToken, label) {
+  function adopt(askId, streamToken, label, model) {
     if (!askId || !streamToken) return false;
     const me = push('me', label || 'Running an action card');
     const b = document.getElementById('b-' + me.id);
     if (b) b.innerHTML = '<span class="turn__card">card fired</span> ' + esc(label || '');
-    const turn = push('gamma', '');
+    /* Name the RUN, not the picker: a card fires on the card's own model, which is
+       routinely sonnet while the console picker sits on opus. */
+    const turn = push('gamma', '', { name: 'Card run', model: model || 'sonnet', kind: 'card' });
     step(turn.id, 'picked up the card — watching it run', 'dim');
     busy(true);
     st.askId = askId;
+    setWho({ name: 'Card run', model: model || 'sonnet', kind: 'card' });
     openStream(turn, { ask_id: askId, stream_token: streamToken });
     scroll();
     return true;

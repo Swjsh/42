@@ -46,11 +46,59 @@
   let orgRef = null;   // the mounted org box; packet() needs its live paths
   let orgRO = null;    // ONE ResizeObserver, re-pointed rather than re-created
 
+  /* An objective is a paragraph; a card headline is four words. Take the first
+     clause, drop the OBJECTIVE: preamble the card prompts all start with, and let
+     the full text live in the hover. */
+  function jobHeadline(task) {
+    let t = String(task || '').replace(/^\s*OBJECTIVE:\s*/i, '').trim();
+    t = t.split(/(?:\.\s|\n|;| -- )/)[0];
+    /* Card prompts quote the STATUS.md line they came from, so the guard code rode
+       INSIDE the objective: "resolve the STATUS.md entry 'EARNINGS-CALENDAR STALE
+       (RED): ...'". broken() only strips a code at the START of a string, so it
+       survived into the headline. Lift the quoted part out and humanise that -- it
+       is the actual subject of the sentence. */
+    const quoted = /'([^']{8,})'/.exec(t);
+    if (quoted && G.human) {
+      const inner = G.human.broken(quoted[1]).text;
+      if (inner) t = (t.slice(0, quoted.index).trim() + ' ' + inner).trim();
+    }
+    if (G.human) t = G.human.cap(G.human.scrub(t));
+    return t.length > 92 ? t.slice(0, 90).replace(/\s\S*$/, '') + '…' : t;
+  }
+
+  /* "claude-sonnet-4-6" is the wire id, not a word. The card has ~46 characters of
+     meta line and the family name is the only part that carries meaning. */
+  function shortModel(m) {
+    const t = String(m || '').toLowerCase();
+    if (t.indexOf('opus') >= 0) return 'opus';
+    if (t.indexOf('sonnet') >= 0) return 'sonnet';
+    if (t.indexOf('haiku') >= 0) return 'haiku';
+    if (t.indexOf('fable') >= 0) return 'fable';
+    return m || '';
+  }
+
+  function elapsed(startedIso) {
+    const t = Date.parse(startedIso || '');
+    if (!isFinite(t)) return '';
+    const sec = Math.max(0, Math.round((Date.now() - t) / 1000));
+    if (sec < 60) return sec + 's';
+    const m = Math.round(sec / 60);
+    return m < 60 ? m + 'm' : Math.round(m / 60) + 'h';
+  }
+
   function orgCard(s, workers) {
-    const live = (s.worker_active || 0) > 0 || s.activity === 'active';
+    /* THE JOB. J: "where it says untitled chat needs to say the task goal". That
+       session was root-causing a STATUS.md entry at the time, and the companion's
+       registry knew it -- sessionId <-> card_id <-> task. Every fact needed to name
+       the card was one join away, and the card printed "Untitled chat". */
+    const job = (G.sessionJobs || {})[s.session_id] || null;
+    const jobRunning = !!(job && job.status === 'running');
+    const live = (s.worker_active || 0) > 0 || s.activity === 'active' || jobRunning;
+
     const card = document.createElement('article');
     card.className = 'org__card' + (live ? ' is-live' : '');
     card.setAttribute('data-sid', s.session_id || '');
+    if (job) card.setAttribute('data-job', job.card_id ? 'card' : 'console');
 
     const liveN = s.worker_active || 0, everN = s.worker_count || 0;
     const mine = workers.filter((w) => w.session_id === s.session_id)
@@ -59,14 +107,34 @@
 
     let agRows = '';
     mine.slice(0, 3).forEach((w) => {
-      // scrub: workflow rows fall back to task text that is often a raw path --
-      // the hover title keeps the record, the glass gets English (dossier rule 3)
       const what = G.human.scrub(w.purpose || w.description || w.task || '') || 'working';
       agRows += '<div class="org__ag' + (w.active ? ' is-on' : '') + '" title="' +
         esc(w.task || '') + '"><i></i><b>' + esc(shortType(w.agent_type)) + '</b>' +
         '<span>' + esc(what) + '</span></div>';
     });
     if (everN > 3) agRows += '<div class="org__agmore">+' + (everN - 3) + ' more</div>';
+
+    /* THE WORK. J: "we need to see something in the agent card like you have all
+       that space and no visuals". A session mid-task emits a step every second or
+       two and none of it reached the card -- it showed a title, an id, "no agents
+       yet" and a memory bar. This is the live step and what it is holding. */
+    let doing = '';
+    if (job) {
+      // lastTool first: the server already humanised the CALL ("Reading self_check.py"),
+      // and the bare step name is a fallback, never the headline. Rendering
+      // job.lastStep raw is how "tool_result" reached the card.
+      const stepTxt = jobRunning || job.lastStep
+        ? (G.human ? G.human.step(job.lastStep, job.lastTool) : (job.lastTool || 'working'))
+        : null;
+      doing =
+        '<div class="org__job' + (jobRunning ? ' is-on' : '') + '">' +
+          (jobRunning ? '<span class="org__spin"></span>' : '') +
+          '<span class="org__jt">' + esc(stepTxt || (job.ok === false ? 'failed' : 'finished')) +
+          '</span>' +
+          '<span class="org__je mono">' +
+            esc(jobRunning ? elapsed(job.started) : '') + '</span>' +
+        '</div>';
+    }
 
     let mem = '';
     if (typeof s.context_pct === 'number' && s.context_source !== 'unknown') {
@@ -78,11 +146,24 @@
         '<span class="num">' + Math.round(pct) + '% memory</span></div>';
     }
 
+    // the headline: the JOB if we know it, the session's own title otherwise
+    const headline = job ? jobHeadline(job.task) : (s.title || 'Untitled chat');
+    const badge = job
+      ? '<span class="org__badge" data-t="' + (job.card_id ? 'card' : 'console') + '">' +
+        (job.card_id ? 'action card' : 'console') + '</span>'
+      : '';
+
     card.innerHTML =
       '<header class="org__ch"><span class="org__dot"></span>' +
-        '<b class="org__ct">' + esc(s.title || 'Untitled chat') + '</b></header>' +
+        '<b class="org__ct" title="' + esc(job ? job.task : (s.title || '')) + '">' +
+        esc(headline) + '</b></header>' +
       '<span class="org__ck">' + esc(s.name || '') +
-        (s.entrypoint || s.kind ? ' · ' + esc(s.entrypoint || s.kind) : '') + '</span>' +
+        // "sdk-ts" is a runtime id, and it is redundant the moment the badge beside
+        // it says "action card". Show the entrypoint only when nothing better names
+        // this session.
+        (!job && (s.entrypoint || s.kind) ? ' · ' + esc(s.entrypoint || s.kind) : '') +
+        (job && job.model ? ' · ' + esc(shortModel(job.model)) : '') + badge + '</span>' +
+      doing +
       '<div class="org__cs' + (liveN ? ' is-on' : '') + '">' +
         (liveN ? liveN + ' agent' + (liveN === 1 ? '' : 's') + ' working'
                : (everN ? 'resting · ' + everN + ' finished' : 'no agents yet')) + '</div>' +
@@ -178,7 +259,15 @@
     if (orc && typeof orc.context_pct === 'number' && orc.context_source !== 'unknown') {
       const pct = Math.round(orc.context_pct);
       const tone = pct >= 90 ? 'neg' : (pct >= 75 ? 'warn' : '');
-      memHtml = '<span class="org__omem num" data-t="' + tone + '">' + pct + '% memory</span>';
+      /* At 100% the session is about to COMPACT -- it will drop detail and keep
+         going, which is a thing J should be told in words rather than left to infer
+         from a colour. A number that has hit its ceiling and says nothing about the
+         consequence is the same omission as "Untitled chat". */
+      const memNote = pct >= 98 ? ' · compacting soon'
+        : (pct >= 90 ? ' · nearly full' : '');
+      memHtml = '<span class="org__omem num" data-t="' + tone + '" title="how full ' +
+        'this session’s context window is — at 100% it compacts, dropping ' +
+        'detail to keep going">' + pct + '% memory' + memNote + '</span>';
     }
     hero.innerHTML =
       '<span class="org__beacon' + (orcLive ? ' is-on' : '') + '"></span>' +
@@ -197,22 +286,42 @@
     const wire = mk('svg', { class: 'org__wire', 'aria-hidden': 'true' });
     box.appendChild(wire);
 
-    if (sessions.length) {
-      /* J: "some things idk what i am looking at". These cards are the OTHER
-         Claude windows open on this machine -- obvious once you know, invisible
-         until someone says it. One line, above the grid, rather than a legend
-         box that would cost more height than it explains. */
+    /* TWO TIERS. J: "the ollama one needs re thought. maybe a smaller persistent
+       card in the corner cause its not a subagnet?"
+       Exactly right, and the old grid was making a false claim: it gave a window
+       he happens to have open on an unrelated question the same weight as a
+       session Gamma actually dispatched. Only sessions running a KNOWN GAMMA JOB
+       are Gamma's work; everything else is context, and context gets a chip. */
+    const working = sessions.filter(function (x) { return !!(G.sessionJobs || {})[x.session_id]; });
+    const others = sessions.filter(function (x) { return !(G.sessionJobs || {})[x.session_id]; });
+
+    if (working.length) {
       const cap = el('org__cap');
-      cap.innerHTML = '<b>' + sessions.length + ' other Claude window' +
-        (sessions.length === 1 ? '' : 's') + '</b> open on this machine · ' +
-        'a line lights up when one talks to Gamma';
+      cap.innerHTML = '<b>' + working.length + ' session' + (working.length === 1 ? '' : 's') +
+        '</b> Gamma has work running in · a line lights up when one reports back';
       box.appendChild(cap);
       const grid = el('org__grid');
-      sessions.forEach(function (x) { grid.appendChild(orgCard(x, workers)); });
+      working.forEach(function (x) { grid.appendChild(orgCard(x, workers)); });
       box.appendChild(grid);
     } else {
       box.appendChild(el('org__none',
-        'No other Claude windows are open — Gamma is working alone right now.'));
+        'Gamma has nothing running right now — fire a card or ask it something below.'));
+    }
+
+    /* The other windows: named, alive, and one line tall. They are not subagents,
+       so they no longer wear a subagent's card. */
+    if (others.length) {
+      const chips = el('org__chips');
+      chips.innerHTML = '<span class="org__chipl">also open</span>' +
+        others.slice(0, 6).map(function (x) {
+          const pct = (typeof x.context_pct === 'number' && x.context_source !== 'unknown')
+            ? Math.round(x.context_pct) : null;
+          return '<span class="org__chip" title="' + esc((x.title || 'Untitled chat') +
+            ' — your own Claude window, not something Gamma started') + '">' +
+            '<i></i>' + esc(x.title || 'Untitled chat') +
+            (pct != null ? '<b>' + pct + '%</b>' : '') + '</span>';
+        }).join('');
+      box.appendChild(chips);
     }
 
     orgRef = box;
@@ -406,9 +515,14 @@
 
     grid.appendChild(cell('Self-check', w.checked_at
       ? esc(String(w.checked_at).slice(11, 16)) + ' · ' +
-        (w.ok ? 'all clear' : (w.findings || []).length + ' finding(s)') +
+        (w.ok ? 'all clear' : (w.findings || []).length +
+          ((w.findings || []).length === 1 ? ' finding' : ' findings')) +
         '<div class="auto__why">' +
-        ((w.findings || []).map((f) => esc(f.message)).join('<br>') || 'Nothing flagged.') +
+        // self-check findings are written for a terminal; the same display funnel
+        // every other upstream string on this page goes through
+        ((w.findings || []).map((f) =>
+           esc(G.human ? G.human.scrub(f.message) : f.message)).join('<br>')
+           || 'Nothing flagged.') +
         '</div>'
       : '<span class="dim">never run</span>', w.ok === false ? 'warn' : ''));
 
@@ -681,7 +795,8 @@
           '<span class="lane__w mono">' + esc(ago(l.last_at)) + '</span>' +
         '</header>' +
         '<div class="lane__s">' + esc(l.state || '?') + '</div>' +
-        '<p class="lane__d">' + esc(l.detail || '') + '</p>' +
+        '<p class="lane__d" title="' + esc(l.detail || '') + '">' +
+          esc(G.human ? G.human.scrub(l.detail || '') : (l.detail || '')) + '</p>' +
         (l.doing ? '<p class="lane__do" title="' + esc(l.doing) + '">' +
                      esc(l.doing) + '</p>' : '') +
         '<footer class="lane__f">' +
