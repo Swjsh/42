@@ -45,7 +45,22 @@ function armySvg(a){
      "look how tiny it is... i have no idea what im even looking at."
      Now the viewBox width is FIXED near the real column width and rows wrap, so box
      size and type size never depend on how many sessions are alive. */
-  const COLS=3, BW=330, BH=132, GAPX=26, GAPY=30, PAD=34;
+  /* COLUMN COUNT IS MEASURED, NOT FIXED. Adding the 340px cards rail cut the canvas to
+     ~622px in a narrow window, and a fixed 3-column (1110px) graph squeezed into that
+     scales to 0.56 -- which is the exact tininess this layout was rewritten to kill. So
+     pick the widest column count that still FITS, and let the graph get taller instead of
+     smaller. Falls back to 3 when the width cannot be read (file:// pre-layout). */
+  const BW=330, BH=132, GAPX=26, GAPY=30, PAD=34;
+  const fitCols=(avail)=>{
+    for(let c=3;c>1;c--){ if(PAD*2+c*BW+(c-1)*GAPX<=avail) return c; }
+    return 1;
+  };
+  let availW=0;
+  try{
+    const host=document.getElementById('view')||document.body;
+    availW=host.clientWidth-380;               // rail (340) + grid gap + card padding
+  }catch(_){}
+  const COLS=availW>200?fitCols(availW):3;
   const MAX_BOXES=9;
   /* The orchestrator was ALSO drawn in the grid below itself, so 42-dd appeared twice and
      the page silently implied there was one more window than exists. J: "wtf is 42-dd?
@@ -343,21 +358,123 @@ function armyPoll(){
     .finally(()=>{setTimeout(armyPoll,1000)});
 }
 
+/* ---------- cards rail: list on the right, promote into the canvas ----------
+   J: "put the Cards in a vertical column on the right side of the army page, then when I
+   click a card, we see the card go from the column on to the actual page itself."
+
+   The card is NOT moved through the DOM. The rail and the canvas are two independent
+   render targets reading one selected-id, and the visual morph is the View Transitions
+   API: the same `view-transition-name` is on the rail item while collapsed and on the
+   promoted panel while open -- never both at once -- so the browser interpolates position
+   and size between them by itself. Chromium 111+, which is the only target this page has,
+   so there is no FLIP math and no fallback branch beyond reduced-motion. */
+let armyCardSel=null;
+
+function armyCardVtName(id){ return 'acard-'+String(id||'').replace(/[^A-Za-z0-9_-]/g,''); }
+
+function armyPaintCards(){
+  const rail=document.getElementById('armyrail');
+  const stage=document.getElementById('armystage');
+  if(!rail||!stage)return;
+  const cards=((D.cards&&D.cards.cards)||D.action_cards||[]);
+  rail.innerHTML='';
+  stage.innerHTML='';
+
+  const sel=cards.find(c=>c.id===armyCardSel)||null;
+  if(sel){
+    const p=el('div','card acard-open');
+    p.style.viewTransitionName=armyCardVtName(sel.id);
+    p.style.cssText+=';border-color:var(--acc);margin:0 0 16px';
+    const head=el('div','row');
+    head.innerHTML='<span class="chip">RANK '+esc(String(sel.rank))+'</span>'+
+      (sel.gated?'<span class="chip warn">GATED</span>':'')+
+      '<span class="chip">'+esc(sel.model||'sonnet')+'</span>';
+    const close=document.createElement('button');
+    close.type='button'; close.textContent='Close ✕';
+    close.style.cssText='margin-left:auto;font:600 12px/1 var(--font);padding:7px 12px;border-radius:6px;'+
+      'border:1px solid var(--bd);background:var(--bg-2);color:var(--tx-2);cursor:pointer';
+    close.onclick=()=>armySelectCard(sel.id);
+    head.appendChild(close);
+    p.appendChild(head);
+    const t=el('h3'); t.textContent=sel.title; t.style.cssText='margin:12px 0 8px;font-size:20px;line-height:1.2';
+    p.appendChild(t);
+    (sel.why||[]).slice(0,4).forEach(w=>p.appendChild(el('div','micro','• '+esc(String(w).slice(0,220)))));
+    p.appendChild(srcRow([sel.source_path].filter(Boolean)));
+    const act=el('div','row'); act.style.marginTop='12px';
+    const btn=document.createElement('button');
+    btn.type='button'; btn.className='btn'; btn.dataset.state='idle';
+    btn.textContent=cardFireLabel(rthNowClient()); btn.disabled=rthNowClient();
+    btn.style.cssText='font:700 13px/1 var(--font);padding:11px 18px;border-radius:8px;cursor:pointer;'+
+      'border:1px solid var(--acc);background:var(--acc-dim);color:var(--acc)';
+    const msg=el('div','micro');
+    btn.onclick=()=>fireCard(sel,btn,msg);
+    act.appendChild(btn); p.appendChild(act); p.appendChild(msg);
+    stage.appendChild(p);
+  }
+
+  const head=el('div','micro'); head.textContent='ACTION CARDS · '+cards.length+' ranked, worst first';
+  head.style.cssText='letter-spacing:.1em;margin:0 0 10px;color:var(--tx-4)';
+  rail.appendChild(head);
+
+  cards.forEach(c=>{
+    const open=(c.id===armyCardSel);
+    const it=el('div','card acard-item');
+    // Radius/padding from the two independently-sourced token scales the research found
+    // agreeing (Linear + Geist): 12px container radius, 4px-base spacing, hairline border
+    // for elevation rather than a shadow.
+    it.style.cssText='padding:12px 14px;margin:0 0 8px;cursor:pointer;border-radius:12px;'+
+      'border:1px solid '+(open?'var(--acc)':'var(--bd)')+';background:var(--bg-1);'+
+      (open?'opacity:.45;':'');
+    if(!open)it.style.viewTransitionName=armyCardVtName(c.id);
+    it.onclick=()=>armySelectCard(c.id);
+    const r=el('div','micro'); r.textContent='#'+c.rank+' · '+(c.source_path||'').split('/').pop();
+    r.style.color='var(--tx-4)';
+    const t=el('div'); t.textContent=String(c.title||'').slice(0,84);
+    t.style.cssText='font:600 13.5px/1.35 var(--font);color:var(--tx-1);margin-top:4px';
+    it.appendChild(r); it.appendChild(t);
+    rail.appendChild(it);
+  });
+
+  if(!cards.length)rail.appendChild(el('div','micro','No cards right now — nothing is flagged.'));
+}
+
+function armySelectCard(id){
+  const go=()=>{ armyCardSel=(armyCardSel===id?null:id); armyPaintCards(); };
+  if(document.startViewTransition && !RM){ document.startViewTransition(go); } else { go(); }
+}
+
 function vArmy(h){
   const a=D.army||{sessions:[],workers:[],pulses:[],orchestrator:null,source:{}};
   const live=location.protocol!=='file:';
   h.appendChild(el('div','shead',
     `<h2>Army</h2><span class="dim">${live?'LIVE':'SNAPSHOT'} · ${esc(a.scope_note||'')}</span>`));
+
+  /* Two-column shell. align-self:start is load-bearing, not cosmetic: grid's default
+     `stretch` makes the short rail column match its taller sibling's height, which
+     silently defeats position:sticky. */
+  const shell=el('div','armyshell');
+  shell.style.cssText='display:grid;grid-template-columns:1fr minmax(300px,340px);'+
+    'gap:20px;align-items:start';
+
+  const main=el('div');
+  const stage=el('div'); stage.id='armystage'; main.appendChild(stage);
+
   const card=el('div','card');
   const built=armySvg(a);
   card.appendChild(built.wrap);
-  if(a.session_overflow)card.appendChild(el('div','micro',`+${a.session_overflow} more session(s) not shown`));
-  const legend=el('div','micro',esc(a.legend||'')); legend.style.marginTop='var(--s5)'; card.appendChild(legend);
   const ledger=el('div','armyledger'); ledger.id='armyledger'; card.appendChild(ledger);
   card.appendChild(srcRow([a.source&&a.source.pulse,a.source&&a.source.sessions].filter(Boolean)));
   if(a.error)card.appendChild(el('div','micro warnc','army payload error: '+esc(a.error)));
-  h.appendChild(card);   // attached to the document NOW -- ids below become queryable
+  main.appendChild(card);
+  shell.appendChild(main);
 
+  const rail=el('div'); rail.id='armyrail';
+  rail.style.cssText='position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto';
+  shell.appendChild(rail);
+
+  h.appendChild(shell);   // attached to the document NOW -- ids below become queryable
+
+  armyPaintCards();
   armyState=built.state;
   (a.pulses||[]).forEach(r=>armyApplyRow(r,false));
   armyState.cursor=(a.pulses&&a.pulses.length)?a.pulses[a.pulses.length-1].ts:'';
