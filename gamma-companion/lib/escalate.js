@@ -267,7 +267,7 @@ function appendResult(root, rec) {
   });
 }
 
-async function runEscalation(root, { id, model, task, origin, card_id }) {
+async function runEscalation(root, { id, model, task, origin, card_id, resume }) {
   const fullModel = MODEL_MAP[model] || MODEL_MAP.sonnet;
   const started = new Date().toISOString();
   const shortTask = String(task || "").replace(/\s+/g, " ").trim().slice(0, 160);
@@ -337,6 +337,12 @@ async function runEscalation(root, { id, model, task, origin, card_id }) {
         // Code Max login. maxTurns bounds a runaway loop on the shared Max pool.
         systemPrompt: { type: "preset", preset: "claude_code", append: SOUL },
         settingSources: ["user", "project"],
+        // RESUME: turns a one-shot escalation into a CONTINUOUS conversation. The cockpit
+        // chat pane passes the sessionId returned by the previous turn, so the orchestrator
+        // remembers what was said instead of starting cold on every message -- which is the
+        // whole difference between a chat and a series of unrelated escalations. Absent for
+        // card fires, which are deliberately one-shot and must not inherit chat history.
+        ...(resume ? { resume: String(resume) } : {}),
         maxTurns: 60,
         canUseTool: makeCanUseTool(root, org),
         abortController: ac,

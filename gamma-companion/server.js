@@ -1034,6 +1034,48 @@ const server = http.createServer((req, res) => {
     });
   }
 
+  // POST /api/chat -- the cockpit's orchestrator chat pane.
+  //
+  // J: "the terminal looking thing at the bottom needs to just be the main claude opus
+  // orchestrator window that i can type into and its an actual claude chat."
+  //
+  // This is a REAL Claude session, not a log tail: same Agent SDK query() the card-fire path
+  // uses, same claude_code preset, same SOUL appended to the SYSTEM prompt, same canUseTool
+  // guard, same halt flag. The one addition is `resume` -- passing back the sessionId from
+  // the previous turn makes it a CONTINUOUS conversation instead of a series of amnesiac
+  // one-shots, which is the entire difference between a chat and a queue of escalations.
+  //
+  // Honest limit, stated because the UI must not imply otherwise: this is its own session.
+  // It is NOT an attach to one of J's open Desktop windows -- a web page cannot join another
+  // process's session. It does appear in the Army view as its own box, which is the thing he
+  // actually wanted: everything on one page.
+  // NOTE the route name: /api/chat was ALREADY taken by the free-model "face" route above
+  // (line ~856), which answers conversationally on a free model and only sometimes escalates.
+  // Registering a second /api/chat made this handler dead code -- first match wins -- and the
+  // smoke test came back with the face's reply shape and a null ask_id. Caught by testing the
+  // pipe instead of trusting that the route was live.
+  if (req.method === "POST" && u === "/api/orchestrator-chat") {
+    if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
+    return readBody(req, res, (b) => {
+      const message = String((b && b.message) || "").slice(0, 8000).trim();
+      if (!message) return sendJSON(res, 400, { ok: false, error: "empty message" });
+      if (isHalted(ROOT)) return sendJSON(res, 409, { ok: false, error: "halted" });
+      // Model is clamped to the known set exactly like the card path; an unknown value
+      // silently becomes sonnet rather than being forwarded to the SDK.
+      const model = ["opus", "sonnet", "haiku"].indexOf(String((b && b.model) || "")) >= 0 ? b.model : "opus";
+      const resume = (b && typeof b.resume === "string" && /^[A-Za-z0-9-]{8,64}$/.test(b.resume)) ? b.resume : null;
+      const askId = mintAskId("chat");
+      logAsk({ id: askId, model, task: message, ts: new Date().toISOString(), origin: "cockpit-chat" });
+      runEscalation(ROOT, { id: askId, model, task: message, origin: "cockpit-chat", resume })
+        .catch((e) => logCrash("runEscalation/chat", e));
+      return sendJSON(res, 200, {
+        ok: true, ask_id: askId, model, resumed: !!resume,
+        stream_token: push.mintStreamToken(ROOT, askId),
+      });
+    });
+  }
+
+
   // Cancel a running Claude escalation by id (Gamma's control over Claude).
   if (req.method === "POST" && u === "/api/cancel-task") {
     if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });

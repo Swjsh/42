@@ -526,7 +526,29 @@ function vArmy(h){
   const card=el('div','card');
   const built=armySvg(a);
   card.appendChild(built.wrap);
-  const ledger=el('div','armyledger'); ledger.id='armyledger'; card.appendChild(ledger);
+  /* BOTTOM PANEL: chat first, the raw event ledger behind a tab. J asked for the terminal
+     to BE the orchestrator window; the ledger is still useful telemetry, so it moves rather
+     than dies. */
+  const tabs=el('div','chattabs');
+  const ledger=el('div','armyledger'); ledger.id='armyledger'; ledger.style.display='none';
+  const chat=chatPane();
+  const mkTab=(label,on)=>{
+    const b=document.createElement('button');
+    b.type='button'; b.textContent=label; b.className='chattab'+(on?' on':'');
+    return b;
+  };
+  const tChat=mkTab('Chat',true), tAct=mkTab('Activity',false);
+  const pick=(chatOn)=>{
+    chat.style.display=chatOn?'':'none';
+    ledger.style.display=chatOn?'none':'';
+    tChat.className='chattab'+(chatOn?' on':'');
+    tAct.className='chattab'+(chatOn?'':' on');
+  };
+  tChat.onclick=()=>pick(true); tAct.onclick=()=>pick(false);
+  tabs.appendChild(tChat); tabs.appendChild(tAct);
+  card.appendChild(tabs);
+  card.appendChild(chat);
+  card.appendChild(ledger);
   card.appendChild(srcRow([a.source&&a.source.pulse,a.source&&a.source.sessions].filter(Boolean)));
   if(a.error)card.appendChild(el('div','micro warnc','army payload error: '+esc(a.error)));
   main.appendChild(card);
