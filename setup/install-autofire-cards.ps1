@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Install Gamma_AutofireCards scheduled task -- fires daily at 20:30 ET (Mon-Fri),
+  Install Gamma_AutofireCards scheduled task -- fires daily at 23:30 ET (Mon-Fri),
   evening only, well outside 09:30-15:55 ET market hours. Runs autofire_cards.py
   --live, which fires ONLY cockpit action cards gamma_cockpit_cards.py already
   classified autofire_safe (read-and-report objectives, no action verb anywhere
@@ -41,9 +41,17 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 # the After-4pm work block, well clear of the 09:30-15:55 ET trading window and
 # of Gamma_ShadowEval (16:05 ET) / Gamma_EodBrief. MT (Mountain) = ET - 2h
 # during MDT, so 20:30 ET = 18:30 MT. Windows Task Scheduler uses LOCAL time.
+# 21:30 LOCAL (this box runs Mountain) = 23:30 ET.
+# ROOT CAUSE OF "NEVER RAN" (2026-08-30): this was 18:30 local = 20:30 ET, which sits
+# INSIDE the weekday quiet window (18:00-23:00 ET). quiet-mode disables every task it
+# holds down, so the trigger was muted before it could ever fire -- last result 267011
+# ("has never run") since registration, and both autofire-ledger rows read
+# "refused: quiet-mode". 23:30 ET is inside the LOUD maintenance band (23:00-08:00 ET),
+# so the task is actually enabled when its trigger comes round, and it is still far
+# outside 09:30-15:55 ET market hours.
 $trigger = New-ScheduledTaskTrigger -Weekly `
     -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday `
-    -At "18:30"
+    -At "21:30"
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
     -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""
@@ -62,7 +70,7 @@ Register-ScheduledTask -TaskName $taskName -Trigger $trigger -Action $action `
     "objectives, classified by gamma_cockpit_cards.py). Refuses during 09:30-15:55 ET, " +
     "while companion-halt.flag exists, or while quiet-mode.json is active (unless " +
     "--allow-quiet). Capped 2/run, 6/day, ledgered in automation/state/autofire-ledger.jsonl " +
-    "across restarts. Fires 20:30 ET weekdays.") | Out-Null
+    "across restarts. Fires 23:30 ET weekdays, inside the LOUD band so quiet-mode cannot mute it.") | Out-Null
 
 $info = Get-ScheduledTask -TaskName $taskName | Get-ScheduledTaskInfo
 Write-Host "Registered $taskName. Next run: $($info.NextRunTime)"

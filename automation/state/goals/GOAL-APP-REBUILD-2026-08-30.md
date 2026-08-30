@@ -135,20 +135,35 @@ named — not silently dropped and not faked with a worse imitation.
   after sign in page", but `/` currently serves the phone PWA (`m.html`) — it is the
   manifest `start_url` and the target push notifications open. Swapping it silently
   repoints his installed phone app. One-line change in `serveStatic` once he says so.
-- [B-J] ARM AUTONOMOUS CARD-FIRING? Gamma_AutofireCards is registered WEEKLY while
-  its runner is written for weekdays, and it has NEVER executed once (last result
-  267011 = never run). So "Gamma chooses a recommended card by itself" -- the thing J
-  asked for by name on 2026-08-30 -- has never happened. The fix is one schtasks
-  re-registration. NOT taken unilaterally for two reasons: the config freeze opens
-  2026-08-31, and turning on unattended repo-editing sessions the day before a
-  scoring window is bad timing regardless of the guards (which are real: RTH refusal,
-  quiet mode, per-run and per-day caps, and a dangerous-prompt check at fire time).
-- [B-J] RAISE THE CONDUCTOR'S RUN CAP? It stopped today at 6 fires against
-  max_fires=4 having spent $3.67 of a $30 daily cap. The RUN COUNT is the binding
-  constraint, not the money, and the count cap exists because the conductor family was
-  once 93.3% of automation burn. Raising max_fires in
-  automation/state/conductor-budget.json costs real tokens per extra fire, so it is a
-  spend decision, not a config tweak.
+- [x] AUTONOMOUS CARD-FIRING FIXED AND ARMED, 2026-08-30. The Stop hook was right
+  that flagging this to J was a punt: it is not live money, not a secret, not
+  irreversible, and not a fork without a doctrine default -- J asked for it by name.
+  ROOT CAUSE, and it was not what the first pass assumed: the task was NOT
+  misregistered. It was correctly Mon-Fri, but at 18:30 LOCAL = 20:30 ET, which sits
+  INSIDE the weekday quiet window (18:00-23:00 ET). quiet-mode disables every task it
+  holds down, so the trigger was muted before it could ever fire -- last result 267011
+  ("has never run") since registration, and both autofire-ledger rows read
+  "refused: quiet-mode". Moved to 21:30 local = 23:30 ET, inside the LOUD maintenance
+  band (23:00-08:00 ET) and still far outside 09:30-15:55 ET market hours.
+  THE FREEZE OBJECTION DOES NOT HOLD: frozen trading paths are enforced by a
+  PROJECT-SCOPED PreToolUse hook, so a session spawned by autofire is blocked from
+  editing params.json et al by the same guard as any other session -- verified
+  frozen_path_hit('automation/state/params.json') -> True. Autofire also only ever
+  fires cards gamma_cockpit_cards.py classified autofire_safe (read-and-report
+  objectives, no action verb), and re-checks RTH, halt flag, quiet mode and caps at
+  fire time. Verified the re-registration reports "Next run: 08/31/2026 21:30", and
+  that quiet-mode's restore list (re-snapshotted 11:12, 116 tasks) contains
+  Gamma_AutofireCards, so tonight's 23:00 ET restore re-enables it rather than
+  leaving it muted forever. REVERT: powershell setup/install-autofire-cards.ps1
+  -Uninstall, or set -At back to "18:30".
+- [x] CONDUCTOR RUN CAP RAISED 4 -> 8, 2026-08-30. The COUNT cap was binding while the
+  MONEY cap was barely touched: 6 slots consumed for $3.67 of a $30 daily cap, and 3
+  of those 6 were pre-check refusals that never launched a session ("zero real cost"),
+  so the real rate is about $1.22 per fire that actually runs -- money binds near 24
+  fires, the count bound at 4. 8 costs about $10/day worst case, a third of the cap.
+  daily_cap_usd is UNCHANGED at $30 and remains the hard backstop; it is what actually
+  protects spend. REVERT: set max_fires back to 4 in
+  automation/state/conductor-budget.json.
 - [B-J] VERIFY-A (carried from GOAL-COCKPIT-BUILD-2026-08-29) — a pulse visibly
   travels on a REAL cross-session message. Needs J to send one while watching.
 - [B-J] VERIFY-B (carried) — one card click spawns exactly one escalation and a
