@@ -538,3 +538,40 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   color:var(--ink-2);white-space:pre}
 .md .cb[data-l]::after{content:attr(data-l);position:absolute;top:7px;right:11px;
   font:700 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
+/* An agent still in flight. Without this a spawned agent's row looks identical to a
+   finished one, so an orchestration fan-out reads as one long unexplained pause. */
+.tl__r[data-run] .tl__d{animation:runpulse 1.15s ease-in-out infinite}
+.tl__r[data-run] .tl__t::after{content:"";display:inline-block;width:2px;height:2px;
+  margin-left:7px;border-radius:50%;box-shadow:0 0 0 0 var(--acc);
+  animation:runpulse 1.15s ease-in-out infinite}
+@keyframes runpulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+
+/* --- command palette ------------------------------------------------------ */
+.pal{position:fixed;inset:0;z-index:90;display:grid;place-items:start center;
+  padding-top:14vh;background:oklch(0% 0 0/.62);backdrop-filter:blur(5px);
+  animation:palin .18s var(--ease)}
+@keyframes palin{from{opacity:0}}
+.pal__box{width:min(600px,92vw);border-radius:var(--r2);overflow:hidden;
+  background:var(--bg-1);border:1px solid var(--line-3);
+  box-shadow:0 40px 90px -40px oklch(0% 0 0/.95);animation:rise .26s var(--jelly)}
+.pal__in{width:100%;padding:17px 20px;font-size:15.5px;background:none;color:var(--ink);
+  border-bottom:1px solid var(--line)}
+.pal__in::placeholder{color:var(--ink-4)}
+.pal__list{max-height:min(50vh,420px);overflow-y:auto;padding:7px}
+.pal__i{display:flex;align-items:center;gap:12px;width:100%;padding:11px 13px;
+  border-radius:9px;text-align:left;font-size:13.5px;color:var(--ink-2)}
+.pal__i[aria-selected="true"]{background:var(--bg-3);color:var(--ink)}
+.pal__i small{margin-left:auto;font:500 10.5px/1 var(--mono);color:var(--ink-4)}
+.pal__none{padding:22px;text-align:center;color:var(--ink-4);font-size:13px}
+
+.kbtn{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:var(--pill);
+  border:1px solid var(--line-2);background:var(--bg-1);font:600 11px/1 var(--sans);
+  color:var(--ink-4);transition:all var(--t-fast) var(--ease)}
+.kbtn:hover{color:var(--ink-2);border-color:var(--line-3)}
+.kbtn kbd{background:var(--bg-3)}
+@media (max-width:720px){.kbtn,.top__clock{display:none}}
+
+/* [hidden] is only a default of display:none, so ANY display declaration beats it.
+   .chat__send sets display:grid, so the stop button rendered beside send at all
+   times -- caught in a screenshot, not by reading the code. */
+[hidden]{display:none!important}

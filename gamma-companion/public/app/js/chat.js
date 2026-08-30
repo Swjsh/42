@@ -192,6 +192,7 @@
     catch (_) { step(turn.id, 'stream unavailable', 'bad'); busy(false); return; }
     st.es = es;
     let lastTool = null, pending = null;
+    const running = [];   // agent rows still in flight, in call order
 
     es.onmessage = (ev) => {
       let d; try { d = JSON.parse(ev.data); } catch (_) { return; }
@@ -224,10 +225,19 @@
         const label = d.label || human(d.name, d.input);
         if (d.step === 'tool' && pending && pending.name === String(d.name || '')) {
           pending.row.querySelector('.tl__t').textContent = label;
+          if (isAgent) pending.row.setAttribute('data-k', 'agent');
           pending = null;
         } else {
           lastTool = step(turn.id, label, isAgent ? 'agent' : 'tool');
           pending = (d.step === 'tool_start') ? { name: String(d.name || ''), row: lastTool } : null;
+        }
+        /* AGENT ORCHESTRATION, visible. A spawned agent runs for minutes; without a
+           running state the row looks identical to a finished one and a fan-out reads
+           as one long pause. Rows are queued in call order because tool results come
+           back in that order, so the right row gets marked done. */
+        if (isAgent) {
+          const row = (pending && pending.row) || lastTool;
+          if (row) { row.setAttribute('data-run', ''); running.push(row); }
         }
 
       } else if (d.step === 'tool_result') {
@@ -242,6 +252,8 @@
         } else if (lastTool && prev) {
           lastTool.setAttribute('title', prev.slice(0, 400));
         }
+        const doneRow = running.shift();
+        if (doneRow) doneRow.removeAttribute('data-run');
 
       } else if (d.step === 'result') {
         const ok = d.ok !== false;
@@ -249,6 +261,7 @@
           ok ? 'ok' : 'bad');
         if (!ok && /error|timeout/.test(d.subtype || '') && j.resumed) st.session = null;
         pending = null;
+        running.splice(0).forEach((r) => r.removeAttribute('data-run'));
         save(); stop(true);
       }
     };
