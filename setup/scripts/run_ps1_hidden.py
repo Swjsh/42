@@ -74,7 +74,33 @@ def main(argv: list[str]) -> int:
 
     _log(f"launching: {ps1_path.name} args={extra_args}")
     try:
-        # CREATE_NO_WINDOW guarantees Windows does not allocate a console/conhost.
+        # CREATE_NO_WINDOW suppresses the WINDOW. It does NOT prevent the console.
+        #
+        # Corrected 2026-08-30 -- the previous comment here claimed it "guarantees Windows
+        # does not allocate a console/conhost", and that is measurably false. Measured A/B on
+        # this box, same powershell.exe command, counting conhost children of the child pid:
+        #     CREATE_NO_WINDOW   -> conhost_children=1, stdout captured
+        #     DETACHED_PROCESS   -> conhost_children=0, stdout EMPTY
+        #     CNW | DETACHED     -> conhost_children=0, stdout EMPTY
+        # So a console IS allocated here; it simply has no window of its own. On Windows 11
+        # that console still goes through the default-terminal delegation broker, which is
+        # what produces the `WindowsTerminal.exe -Embedding` / `OpenConsole.exe -Embedding`
+        # windows recorded in automation/state/window-leaks.jsonl -- captured live at
+        # 2026-08-30T20:00:02Z alongside the :00 burst of task fires that all route through
+        # this launcher.
+        #
+        # DETACHED_PROCESS is therefore NOT a drop-in fix, tempting as the 0 above looks: it
+        # silences PowerShell's output completely (empty even when redirected to a real file
+        # handle, not just a pipe), which would blind every task log that depends on the
+        # STDOUT/STDERR lines written below. Trading C7 ("silent success is failure; audit
+        # outputs, not exit codes") for a flash is a bad trade -- a task that fails quietly
+        # costs far more than a window that blinks.
+        #
+        # The window itself is handled downstream by window_leak_hook.py, which SW_HIDEs a
+        # service-rooted console-host window on EVENT_OBJECT_SHOW (kept alive by
+        # Gamma_WindowLeakHookKeepalive). The durable upstream fix is to stop putting
+        # PowerShell in these chains at all -- the pattern window_leak_detector_keepalive.py
+        # already used to kill this exact leak by rewriting its .ps1 runner in Python.
         # Capture stdout/stderr so they don't trip WT allocation on first write.
         proc = subprocess.run(
             cmd,
