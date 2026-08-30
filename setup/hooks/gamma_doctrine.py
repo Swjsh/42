@@ -476,9 +476,23 @@ def _handle_pre_tool(payload: dict) -> int:
                     f"A pre-registered kill-type reduction carries {D.FREEZE_OVERRIDE_TOKEN}.",
                 )
 
+    # Subagent spawns: WARN, never deny. The rule most likely to be broken in this repo is
+    # a spawn with no boundaries -- Anthropic names vague task descriptions as the cause of
+    # duplicated subagent work, and the cost lands in the WORKER's tokens, so nothing at the
+    # spawn site makes it visible. A block here would be the OP-32 fail-closed mistake: a
+    # boundaryless spawn is a quality problem, not an irreversible one, and this layer's one
+    # forbidden failure mode is stopping legitimate work.
+    spawn_note = None
+    if tool in D.SPAWN_TOOLS:
+        spawn_note = D.spawn_boundary_note(D.spawn_prompt_text(tin))
+
     # Emit the army-view edge only for calls that survived the guards: a DENIED edit must
     # not pulse as though it happened.
     P.record_tool(payload)
+    if spawn_note:
+        # additionalContext, not a permissionDecision: the call proceeds either way.
+        _emit("PreToolUse", _ascii_safe(spawn_note))
+        _log({"event": "PreToolUse", "guard": "spawn_boundaries", "tool": tool}, payload)
     return _ALLOW
 
 

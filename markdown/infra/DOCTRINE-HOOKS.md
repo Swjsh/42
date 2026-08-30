@@ -54,7 +54,7 @@ no model call anywhere in the layer.
 |---|---|---|
 | `SessionStart` | Injects a ~250-token prime card: ET clock, market state, freeze countdown, 5 load-bearing facts | Survives `/compact` — the matcher includes `compact`, which is exactly where in-session doctrine used to die |
 | `UserPromptSubmit` | Keyword-routes **one** situational rule; silent by default | Situational beats always-on. A rule that arrives when relevant gets read; one that arrives every turn is wallpaper |
-| `PreToolUse` | **Hard block**: frozen trading path, generated surfaces, scarred shell commands | Freeze integrity, OP-22, L214/C34, `et_clock` |
+| `PreToolUse` | **Hard block**: frozen trading path, generated surfaces, scarred shell commands. **Warn-only**: a subagent spawn with no boundaries | Freeze integrity, OP-22, L214/C34, `et_clock`; the delegation contract |
 | `PostToolUseFailure` | 2nd identical failure → names the loop and the external-kill signature | `debugging.md` "stop repeating the failing action" |
 | `Stop` | **Hard block**: turn ends on a permission question, or claims success with zero tool calls | **OP-0** and **OP-33** — J's #1 and #2 documented frustrations |
 | `SubagentStart` | Injects the prime card | Built-in `Explore`/`Plan` agents **skip CLAUDE.md entirely** — they had been running doctrine-blind |
@@ -74,6 +74,20 @@ no model call anywhere in the layer.
 3. **Scarred shell commands.** `TZ=America/New_York` (returns UTC on this Mountain-time box —
    the original OP-32 lockout cause), tree-wide `git checkout .` / `git reset --hard`
    (reverts live decision-gating state backward, L214), `git push --force` (OP-0 #3).
+
+### The one warn-only guard — spawn boundaries
+
+`Task`/`Agent` spawns are read, never blocked. A spawn whose prompt is under ~200 characters,
+or which contains none of *objective / return / do not / never / schema*, gets a note injected
+via `additionalContext` naming the four fields the delegation contract requires
+([`AGENT-ORCHESTRATION.md`](../doctrine/AGENT-ORCHESTRATION.md), soul file
+[`automation/prompts/orchestrator.md`](../../automation/prompts/orchestrator.md)).
+
+It warns rather than denies because a boundaryless spawn is a **quality** problem — nothing
+irreversible, no live money, no secret, no generated surface — and the cost lands in the
+*worker's* tokens, where the spawning session never sees it. Failing closed on a quality
+signal is the OP-32 shape this layer is not allowed to have. Guards:
+[`test_spawn_boundary_guard.py`](../../setup/hooks/test_spawn_boundary_guard.py).
 
 ---
 

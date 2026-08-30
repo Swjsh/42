@@ -155,7 +155,9 @@ capped instead of estimated.
    own boundary, and it is about answer *quality*, not cost.
 3. **Every delegation carries the four things**: objective · exact return schema · which
    tools/files · what NOT to touch. No boundaries → no spawn. Vague scopes are the documented
-   cause of duplicated work.
+   cause of duplicated work. The working form an orchestrating session loads is
+   [`automation/prompts/orchestrator.md`](../../automation/prompts/orchestrator.md); a
+   `PreToolUse` hook warns (never blocks) on a spawn that carries none of them.
 4. **Size to the task, not to a constant.** 1 agent for a fact; 10+ for a real sweep.
 5. **Every autonomous fire states its $/day before it is scheduled** (OP-3) — now *measurable*,
    not estimated, via `--output-format json` → `total_cost_usd`.

@@ -251,6 +251,99 @@ def shell_write_hit(command: str) -> str | None:
     return None
 
 
+# --------------------------------------------------------------------------------------
+# Subagent spawn boundaries (PreToolUse, WARN-only).
+#
+# AGENT-ORCHESTRATION.md ratifies Anthropic's delegation contract: every spawn carries
+# "an objective, an output format, guidance on the tools and sources to use, and clear
+# task boundaries", and vague task descriptions are the DOCUMENTED cause of duplicated
+# subagent work ("subagent work duplication from vague task descriptions"). That is the
+# rule in this repo most likely to be broken, because a boundaryless spawn costs the
+# orchestrator nothing at spawn time and only shows up as wasted worker tokens later.
+#
+# This guard WARNS and ALLOWS. It never denies. A bad spawn is a QUALITY problem, not a
+# safety one -- there is nothing irreversible about it, no live money, no secret, no
+# generated surface. Blocking it would be the OP-32 fail-closed mistake (the 2026-05-22
+# market-hours firewall that locked J out), which is the single failure mode this hook
+# layer is not allowed to have. The signal has to arrive where it is actionable, not as
+# a wall.
+#
+# Two independent triggers, either one is enough:
+#   1. The prompt is shorter than SPAWN_MIN_PROMPT_CHARS. A spawn spec that carries four
+#      fields does not fit in 200 characters.
+#   2. None of the boundary markers appear. Their absence is not proof of a bad spawn and
+#      their presence is not proof of a good one -- this is a cheap textual smell test on
+#      a $0 deterministic path, deliberately not a model call.
+# --------------------------------------------------------------------------------------
+SPAWN_TOOLS = ("Task", "Agent")
+SPAWN_MIN_PROMPT_CHARS = 200
+SPAWN_BOUNDARY_MARKERS = (
+    "objective",
+    "return",
+    "do not",
+    "don't",
+    "never",
+    "schema",
+)
+# Keys a spawn tool may carry its instructions under. Read them all rather than assuming
+# one: Task uses `prompt` (+ a short `description` label), and a differently-shaped spawn
+# tool that stored its brief under another key would otherwise be silently un-guarded.
+SPAWN_PROMPT_KEYS = ("prompt", "task", "instructions", "message", "description")
+
+
+def spawn_prompt_text(tool_input) -> str:
+    """The instruction text a spawn call carries, across the keys a spawn tool may use."""
+    if not isinstance(tool_input, dict):
+        return ""
+    parts = [
+        tool_input[key]
+        for key in SPAWN_PROMPT_KEYS
+        if isinstance(tool_input.get(key), str) and tool_input[key].strip()
+    ]
+    return "\n".join(parts)
+
+
+def spawn_boundary_gaps(prompt: str) -> list[str]:
+    """Which halves of the boundary check this spawn prompt fails. Empty == clean."""
+    text = (prompt or "").strip()
+    gaps: list[str] = []
+    if len(text) < SPAWN_MIN_PROMPT_CHARS:
+        gaps.append(
+            f"it is {len(text)} characters (under {SPAWN_MIN_PROMPT_CHARS}), which is "
+            f"shorter than a four-field spec fits in"
+        )
+    lowered = text.lower()
+    if not any(marker in lowered for marker in SPAWN_BOUNDARY_MARKERS):
+        gaps.append(
+            "none of objective / return / do not / never / schema appear in it, so the "
+            "return shape and the not-touch list are unstated"
+        )
+    return gaps
+
+
+def spawn_boundary_note(prompt: str) -> str | None:
+    """The additionalContext warning for an under-specified spawn, or None.
+
+    Phrased as facts about the delegation contract rather than as a command: text framed
+    as an out-of-band system instruction is the register Anthropic's own guidance says can
+    trigger prompt-injection defenses and get discounted.
+    """
+    gaps = spawn_boundary_gaps(prompt)
+    if not gaps:
+        return None
+    return (
+        "Delegation contract (automation/prompts/orchestrator.md section 2, ratified in "
+        "markdown/doctrine/AGENT-ORCHESTRATION.md): a spawn carries four things -- the "
+        "objective with a done-test, the exact return schema, which files/tools are in "
+        "scope, and what not to touch. This spawn is under-specified because "
+        + "; and ".join(gaps)
+        + ". Vague task descriptions are Anthropic's documented cause of duplicated "
+        "subagent work, and a subagent inherits neither this conversation nor auto-memory, "
+        "so anything left unstated is unknown to it. Nothing is blocked here -- a spawn "
+        "with boundaries costs the same as one without."
+    )
+
+
 # Turn-ending framings that OP-0 names as the failed-turn shape.
 _ASK_PATTERNS = re.compile(
     r"(?:"
