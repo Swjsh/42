@@ -130,8 +130,9 @@
   function profit() {
     const cal = D.calendar();
     const s = page('Total <b>profit</b>',
-      cal ? 'Net of costs, per trading day. Green is a day that finished up; the height of ' +
-            'the bar is how big the day was relative to the biggest one in the window.'
+      cal ? 'Net of costs, by trading day. Green finished up, red finished down, and the ' +
+            'stronger the colour the bigger the day. Faded squares had no scored trades — ' +
+            'an absence, not a flat session.'
           : '');
     if (!cal) { s.appendChild(D.miss('No scored days yet', 'analysis/journal/calendar-data.json')); return s; }
 
@@ -162,27 +163,121 @@
     });
     s.appendChild(sw);
 
-    const bars = el('div');
-    bars.style.cssText = 'margin-top:var(--s5);display:flex;align-items:flex-end;gap:2px;' +
-      'height:190px;padding:var(--s4);border-radius:var(--r2);background:var(--bg-1);' +
-      'border:1px solid var(--line);overflow-x:auto';
-    cal.rows.forEach((r, i) => {
-      const b = document.createElement('div');
-      const h = Math.max(3, (Math.abs(r.net) / cal.max) * 150);
-      b.style.cssText = 'flex:1 0 7px;height:' + h + 'px;border-radius:2px;' +
-        'background:var(--' + (r.net >= 0 ? 'pos' : 'neg') + ');opacity:.82;' +
-        'transition:opacity .16s;animation:rise .5s var(--jelly) backwards;' +
-        'animation-delay:' + Math.min(i * 12, 400) + 'ms';
-      b.title = r.date + '  ' + D.money(r.net) + '  ·  ' + r.trades + ' trade' +
-        (r.trades === 1 ? '' : 's');
-      b.onmouseenter = () => { b.style.opacity = '1'; };
-      b.onmouseleave = () => { b.style.opacity = '.82'; };
-      bars.appendChild(b);
-    });
-    s.appendChild(bars);
-    s.appendChild(el('div', 'Hover a bar for its date, net and trade count. Source: ' +
-      '<span class="mono">analysis/journal/calendar-data.json</span>')).className = 'srcrow';
+    s.appendChild(calendarGrid(cal));
     return s;
+  }
+
+  /* --- THE CALENDAR, behind Total Profit -----------------------------------
+     J asked for "the calendar page" behind Total Profit; the first pass shipped a
+     day-bar strip, which answers "how big were the days" but not "WHICH days" --
+     and the day of the week is half of what a 0DTE desk reads a month for.
+
+     THE RAMP IS CLAMPED, deliberately. One +$2,813 day against a median near zero
+     would flatten every other day to the same near-black if the scale were linear
+     to the max, so the month would look like one green square and 38 empty ones.
+     The clamp is the 80th percentile of |net|, days past it are drawn at full
+     intensity, and the true extremes are annotated underneath -- the same contract
+     the cockpit calendar already honours, so the two surfaces cannot disagree. */
+  /* A day cell is about 50px wide, so -$2,067 clipped to "-$2,06" -- worse than
+     useless, because a clipped number still reads as a number. Thousands collapse to
+     one decimal; the exact figure is in the cell's title and in the stat band above. */
+  function compactMoney(n) {
+    const a = Math.abs(n), sign = n < 0 ? '-' : '';
+    if (a >= 1000) return sign + '$' + (a / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return sign + '$' + Math.round(a);
+  }
+
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December'];
+
+  function calendarGrid(cal) {
+    const wrap = el('div');
+    wrap.style.cssText = 'margin-top:var(--s5);display:grid;gap:var(--s5);' +
+      'grid-template-columns:repeat(auto-fit,minmax(300px,1fr))';
+
+    const by = {};
+    cal.rows.forEach((r) => {
+      const key = r.date.slice(0, 7);
+      (by[key] = by[key] || {})[r.date] = r;
+    });
+
+    // clamp = 80th percentile of |net|, so a single outlier cannot own the scale
+    const mags = cal.rows.map((r) => Math.abs(r.net)).sort((a, b) => a - b);
+    const clamp = mags[Math.floor(mags.length * 0.8)] || mags[mags.length - 1] || 1;
+
+    Object.keys(by).sort().forEach((key, mi) => {
+      const [y, m] = key.split('-').map(Number);
+      const first = new Date(y, m - 1, 1);
+      const days = new Date(y, m, 0).getDate();
+      // Monday-first: a trading week reads Mon-Fri, so a Sunday-first grid puts the
+      // weekend in the middle of the eye's path for no reason.
+      const lead = (first.getDay() + 6) % 7;
+
+      const box = el('div');
+      box.style.cssText = 'padding:var(--s5);border-radius:var(--r2);background:var(--bg-1);' +
+        'border:1px solid var(--line);animation:rise .5s var(--jelly) backwards;' +
+        'animation-delay:' + (mi * 90) + 'ms';
+      const monthNet = Object.values(by[key]).reduce((n, r) => n + r.net, 0);
+      box.innerHTML =
+        '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:var(--s4)">' +
+          '<b style="font-size:15px;letter-spacing:-.02em">' + MONTHS[m - 1] + ' ' + y + '</b>' +
+          '<span class="num" style="margin-left:auto;font-size:14px;font-weight:600;color:var(--' +
+            (monthNet >= 0 ? 'pos' : 'neg') + ')">' + D.money(monthNet) + '</span>' +
+        '</div>';
+
+      const grid = el('div'); grid.className = 'cal';
+      ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach((d, i) => {
+        const h = el('div', d); h.className = 'cal__hd';
+        h.style.gridColumn = String(i + 1);
+        grid.appendChild(h);
+      });
+      for (let i = 0; i < lead; i++) grid.appendChild(el('div'));
+
+      for (let d = 1; d <= days; d++) {
+        const iso = key + '-' + String(d).padStart(2, '0');
+        const row = by[key][iso];
+        const cell = el('div'); cell.className = 'cal__d';
+        if (!row) {
+          // A day with no scored trades is NOT a zero day -- it is an absence, and
+          // painting it neutral-green would invent a flat session that never happened.
+          cell.style.opacity = '.32';
+          cell.innerHTML = '<span class="cal__n">' + d + '</span>';
+        } else {
+          const t = Math.min(1, Math.abs(row.net) / clamp);
+          const hue = row.net >= 0 ? 'var(--pos)' : 'var(--neg)';
+          /* ALPHA, not a mix toward the card colour. Mixing a bright green
+             (oklch 72% .19 152) toward near-black drags lightness down through a
+             low-light mid-chroma region that renders OLIVE -- every winning day
+             under about $600 read brown. Compositing the same hue at partial alpha
+             over the card keeps the hue and only varies presence. */
+          cell.style.background = 'color-mix(in oklch,' + hue + ' ' +
+            (14 + t * 58).toFixed(0) + '%,transparent)';
+          cell.style.borderColor = 'color-mix(in oklch,' + hue + ' ' +
+            (24 + t * 40).toFixed(0) + '%,transparent)';
+          cell.innerHTML = '<span class="cal__n">' + d + '</span>' +
+            '<span class="cal__v num" style="color:' +
+              (t > 0.45 ? 'var(--ink)' : 'var(--ink-2)') + '">' +
+              esc(compactMoney(row.net)) + '</span>';
+          cell.title = iso + '  ' + D.money(row.net) + '  ·  ' + row.trades +
+            ' trade' + (row.trades === 1 ? '' : 's');
+        }
+        grid.appendChild(cell);
+      }
+      box.appendChild(grid);
+      wrap.appendChild(box);
+    });
+
+    const note = el('div');
+    note.className = 'srcrow';
+    note.style.gridColumn = '1/-1';
+    note.innerHTML = 'Colour is clamped at ' + esc(D.money(clamp).replace('+', '')) +
+      ' so one outlier cannot flatten the month · true range ' +
+      '<b style="color:var(--neg)">' + esc(D.money(cal.worst)) + '</b> to ' +
+      '<b style="color:var(--pos)">' + esc(D.money(cal.best)) + '</b> · ' +
+      'faded days had no scored trades · <span class="mono">' +
+      'analysis/journal/calendar-data.json</span>';
+    wrap.appendChild(note);
+    return wrap;
   }
 
   /* --- ACTION CARDS (prediction-market-card port) --------------------------- */

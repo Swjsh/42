@@ -75,16 +75,35 @@ named — not silently dropped and not faked with a worse imitation.
 - [x] Make the orchestrator a console, not a chat. DONE-WHEN: a real message runs a
   real tool and renders markdown as markup. VERIFIED twice 2026-08-30: resumed the
   stored session, ran Glob, returned an actual `<ul>`, "Done in 12.8s".
-- [ ] Total Profit opens a real CALENDAR, not a bar chart. J asked for "the calendar
-  page" behind Total Profit; what shipped is a day-bar strip. DONE-WHEN: `#/profit`
-  renders a month grid of trading days coloured by net, the ramp is CLAMPED so one
-  blowout day cannot wash out the month, the true min/max are annotated, and a
-  headless shot at 1600px shows a recognisable calendar.
-- [ ] Card firing works end to end from the new app. DONE-WHEN: clicking Fire on a
-  card in `#/cards` produces exactly ONE new row in
-  `automation/state/companion-ask-results.jsonl` with `origin:"app-card"`, and a
-  second click within the confirm window produces none extra. Currently UNVERIFIED —
-  the button is wired to `/api/ask` but has never been fired from this app.
+- [x] Total Profit opens a real CALENDAR, not a bar chart. VERIFIED 2026-08-30 03:51
+  by headless shot at 1600px (`analysis/home/_shots/web/app-cal3.png`): three month
+  grids (June/July/August 2026), Monday-first, each with its own month net, days
+  coloured by net, faded squares where no trades were scored, and the annotation
+  naming the clamp ($754 = 80th percentile of |net|) plus the true range
+  -$2,067..+$2,813. Three defects fixed in the same pass, each caught by looking:
+  values over $1k clipped to "-$2,06" (now compact "-$2.1k"); the lead paragraph and
+  a source line still described the bar strip that no longer existed; and every
+  winning day under ~$600 rendered OLIVE, because mixing a bright green toward
+  near-black in OKLCH drags lightness through a muddy region -- cells now composite
+  the hue at partial alpha instead.
+- [x] Card firing works end to end from the new app. VERIFIED 2026-08-30 03:53 by
+  actually pressing it. Fired "CANDIDATES-UNTRACKED" from `#/cards`:
+  companion-ask-results.jsonl went 82 -> 83, exactly ONE row, `origin:"card"` with
+  `card_id` naming the fired card, and exactly one new `ask-*` feed file in the
+  window. A second fire on the same card returned "Already fired" and spawned no
+  second session. The spawned run was cancelled immediately rather than left to edit
+  the repo unattended while J slept; the cancel landed mid-tool ("Stream closed").
+  DEVIATION FROM THE WRITTEN CHECK, stated: this item predicted `origin:"app-card"`,
+  but the server sets origin itself on the approve path and writes `"card"` -- the
+  producer owns that field, not the caller, and the check was wrong, not the code.
+  THE BUG THIS FOUND: the button posted to `/api/ask`, which DOES NOT EXIST on the
+  companion -- there is no POST /api/ask route at all, so J's first real click would
+  have 404'd. It read plausible because "the cockpit already fires cards", but the
+  cockpit posts an APPROVAL decision to /api/approve and the server distinguishes a
+  card fire by `id` naming a row in action-cards.json. Now also honours the two
+  server behaviours the cockpit does: the RTH gate (fires refused 09:30-15:55 ET) and
+  idempotency (a repeat approve returns ok WITHOUT an `escalated` id, which is a
+  double-tap absorbed, not a success).
 - [ ] The app degrades honestly when the companion is down. DONE-WHEN: with the
   companion stopped, every view still renders and says the companion is unreachable
   rather than showing a blank region or a stale number presented as current.
@@ -123,6 +142,11 @@ named — not silently dropped and not faked with a worse imitation.
   views shipped and verified; console verified end-to-end twice. Opened with three
   open items rather than a blank queue because the work was already underway when J
   invoked the skill — the ledger is catching up to the work, not starting it.
+
+- 2026-08-30 03:51 ET — calendar shipped.
+- 2026-08-30 03:54 ET — card firing verified by pressing it; found and fixed a
+  404 (the button pointed at a route that does not exist). Next: honest
+  degradation when the companion is down.
 
 ## HONEST STATE
 

@@ -65,22 +65,56 @@
     });
   }
 
-  /* --- firing a card -------------------------------------------------------- */
+  /* --- firing a card --------------------------------------------------------
+     THE ENDPOINT IS /api/approve, NOT /api/ask. There is no POST /api/ask on the
+     companion at all -- this button was wired to a route that does not exist and
+     would have 404'd on J's first real click. It read plausible because the cockpit
+     "already fires cards", but the cockpit posts an APPROVAL decision, and the
+     server distinguishes a card fire from every other caller of that route by `id`
+     naming a row in action-cards.json. Caught by grepping the routes rather than
+     trusting the shape.
+
+     Two server behaviours the cockpit honours and this must too:
+       · RTH GATE — fires are refused 09:30-15:55 ET (rth-fire-disabled), checked
+         BEFORE the idempotency slot is consumed so a refused card can be retried.
+       · IDEMPOTENCY — a second approve for the same id returns ok WITHOUT an
+         `escalated` id. That is a double-tap being absorbed, not a failure, and
+         reporting it as success would imply a second session that never spawned. */
   G.fireCard = function (card, btn) {
     const tok = (document.querySelector('meta[name="gamma-token"]') || {}).content || '';
-    fetch('/api/ask', {
+    const say = (text, tone) => {
+      btn.textContent = text;
+      btn.style.color = tone ? 'var(--' + tone + ')' : '';
+    };
+    fetch('/api/approve', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-gamma-token': tok },
-      body: JSON.stringify({ task: card.prompt || card.title, model: card.model || 'sonnet',
-                             card_id: card.id, origin: 'app-card' }),
+      body: JSON.stringify({
+        id: card.id,
+        decision: 'approve',
+        action: { type: 'escalate', model: card.model, task: card.prompt },
+      }),
     }).then((r) => r.json()).then((j) => {
-      const ok = j && j.ok !== false;
-      btn.textContent = ok ? 'Working…' : 'Failed';
-      btn.style.color = ok ? 'var(--live)' : 'var(--neg)';
-      if (ok) setTimeout(() => { btn.textContent = 'Sent'; }, 1500);
+      if (!j || j.ok === false) {
+        const rth = j && j.error === 'rth-fire-disabled';
+        say(rth ? 'Market hours' : 'Failed', 'neg');
+        btn.disabled = false;
+        btn.title = rth
+          ? 'Fires are disabled 09:30-15:55 ET so a card cannot edit the repo mid-session.'
+          : ((j && j.error) || 'the companion refused this');
+        return;
+      }
+      if (!j.escalated) {
+        say('Already fired', 'warn');
+        btn.title = 'This card was already actioned — no second session was spawned.';
+        return;
+      }
+      say('Working…', 'live');
+      btn.title = 'ask ' + String(j.escalated).slice(0, 14);
     }).catch(() => {
-      btn.textContent = 'No companion'; btn.disabled = false;
-      btn.style.color = 'var(--neg)';
+      say('No companion', 'neg');
+      btn.disabled = false;
+      btn.title = 'Could not reach the companion on 127.0.0.1:4317.';
     });
   };
 
