@@ -274,15 +274,13 @@ function armySvg(a){
     d.innerHTML='<b style="color:var(--tx-1);font-weight:700">'+strong+'</b> '+rest;
     return d;
   };
-  legend.appendChild(li('Top box = this page.',
-    'The Claude session you are talking to right now.'));
-  legend.appendChild(li(shown.length+' box'+(shown.length===1?'':'es')+' below =',
-    'other Claude sessions on this machine. Not subagents.'+
-    (staleCount&&!armyShowStale?' <em>'+staleCount+' old chat'+(staleCount===1?'':'s')+' hidden.</em>':'')));
-  legend.appendChild(li(wct+' worker'+(wct===1?'':'s')+' =',
-    'the small circles. <em>Those</em> are the subagents.'));
-  legend.appendChild(li('Click any box',
-    'to see what it is doing.'));
+  /* Two glanceable lines, not four. J: "am i gonna read 30 lines of text and know what to
+     do?" The old legend was a paragraph; this is a scan. */
+  legend.appendChild(li('Boxes = Claude sessions.',
+    'Top one is this page. Small circles inside a box are its subagents ('+wct+' total).'+
+    (staleCount&&!armyShowStale?' '+staleCount+' idle chat'+(staleCount===1?'':'s')+' hidden.':'')));
+  legend.appendChild(li('Cards on the right = things to do.',
+    'Click one to open it, then Fire to spawn a worker that handles it.'));
   wrap.appendChild(legend);
   wrap.appendChild(svg);
   return {wrap,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
@@ -468,14 +466,38 @@ function armyPaintCards(){
     p.appendChild(t);
     (sel.why||[]).slice(0,4).forEach(w=>p.appendChild(el('div','micro','• '+esc(String(w).slice(0,220)))));
     p.appendChild(srcRow([sel.source_path].filter(Boolean)));
-    const act=el('div','row'); act.style.marginTop='12px';
+    /* WHAT HAPPENS WHEN I CLICK GO. J: "am i going to realize what happens when I click go?"
+       The fire button is now a two-step confirm that SAYS the consequence before it happens,
+       and the second click plays a spawn animation so the cause (this card) and the effect
+       (a new box on the graph) are visibly the same event. */
+    const rth=rthNowClient();
+    const act=el('div'); act.style.marginTop='14px';
+    const what=el('div','firewhat');
+    what.innerHTML=rth
+      ? 'Market hours (09:30-15:55 ET) - firing is disabled so cockpit work never competes with the heartbeat.'
+      : 'Clicking spawns a <b>'+esc(sel.model||'sonnet')+'</b> worker to do this. '+
+        'It appears as a new box on the graph above and streams its work into Chat.';
+    act.appendChild(what);
     const btn=document.createElement('button');
-    btn.type='button'; btn.className='btn'; btn.dataset.state='idle';
-    btn.textContent=cardFireLabel(rthNowClient()); btn.disabled=rthNowClient();
-    btn.style.cssText='font:700 13px/1 var(--font);padding:11px 18px;border-radius:8px;cursor:pointer;'+
-      'border:1px solid var(--acc);background:var(--acc-dim);color:var(--acc)';
-    const msg=el('div','micro');
-    btn.onclick=()=>fireCard(sel,btn,msg);
+    btn.type='button'; btn.className='firebtn'; btn.dataset.state='idle'; btn.disabled=rth;
+    btn.textContent=rth?'Disabled during market hours':'Fire this worker';
+    const msg=el('div','micro'); msg.style.marginTop='8px';
+    btn.onclick=()=>{
+      if(btn.dataset.state==='idle'){
+        btn.dataset.state='armed';
+        btn.textContent='Click again to confirm — spawns a worker';
+        btn.classList.add('armed');
+        msg.textContent='One more click actually starts it. Click anywhere else to cancel.';
+        return;
+      }
+      armyFireAnimation(sel.id);          // the visible cause->effect
+      fireCard(sel,btn,msg);
+    };
+    // Clicking away from an armed button cancels it -- an armed destructive control that
+    // stays armed silently is a foot-gun.
+    p.addEventListener('click',(e)=>{ if(e.target!==btn && btn.dataset.state==='armed'){
+      btn.dataset.state='idle'; btn.classList.remove('armed');
+      btn.textContent='Fire this worker'; msg.textContent=''; } });
     act.appendChild(btn); p.appendChild(act); p.appendChild(msg);
     stage.appendChild(p);
   }
@@ -513,6 +535,35 @@ function armyPaintCards(){
   });
 
   if(!cards.length)rail.appendChild(el('div','micro','No cards right now — nothing is flagged.'));
+}
+
+function armyFireAnimation(id){
+  /* Make the cause visible. A pulse leaves the fired card panel and travels to the
+     orchestrator node, which flashes -- so "I clicked this card" and "a worker is being
+     born up there" read as one motion, not two disconnected events. A toast says it in
+     words for anyone who missed the motion, and both respect prefers-reduced-motion. */
+  try{
+    const panel=document.querySelector('.acard-open');
+    const orc=document.getElementById('army-orc');
+    const svg=document.getElementById('armysvg');
+    // toast, always (this is the words-fallback and the reduced-motion path)
+    let toast=document.getElementById('firetoast');
+    if(!toast){ toast=el('div'); toast.id='firetoast'; toast.className='firetoast'; document.body.appendChild(toast); }
+    toast.textContent='Spawning a worker — watch the top box';
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'),2600);
+    if(orc){ orc.classList.add('orc-spawn'); setTimeout(()=>orc.classList.remove('orc-spawn'),1400); }
+    if(RM||!panel||!svg)return;
+    const a=panel.getBoundingClientRect(), b=svg.getBoundingClientRect();
+    const dot=el('div'); dot.className='firecomet';
+    dot.style.left=(a.left+20)+'px'; dot.style.top=(a.top+20)+'px';
+    document.body.appendChild(dot);
+    requestAnimationFrame(()=>{
+      dot.style.transform='translate('+((b.left+b.width/2)-(a.left+20))+'px,'+((b.top+70)-(a.top+20))+'px) scale(.4)';
+      dot.style.opacity='0';
+    });
+    setTimeout(()=>{ try{dot.remove()}catch(_){}} ,900);
+  }catch(_){/* animation must never break the actual fire */}
 }
 
 function armySelectCard(id){

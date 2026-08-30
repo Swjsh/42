@@ -327,6 +327,36 @@ section+section{margin-top:var(--s8)}
 #chatsend:hover:not(:disabled){background:var(--acc);color:var(--bg-canvas)}
 #chatsend:disabled{opacity:.5;cursor:default}
 .chatnote{color:var(--tx-4)}
+
+/* ---------------- fire button: show what clicking does ---------------- */
+.firewhat{font-size:12.5px;line-height:1.5;color:var(--tx-2);margin:0 0 10px}
+.firewhat b{color:var(--acc);font-weight:600}
+.firebtn{font:700 13px/1 var(--font);padding:12px 20px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--acc);background:var(--acc-dim);color:var(--acc);transition:all .16s var(--e-hover)}
+.firebtn:hover:not(:disabled){background:var(--acc);color:var(--bg-canvas)}
+.firebtn:disabled{opacity:.5;cursor:default;border-color:var(--bd);background:transparent;color:var(--tx-4)}
+/* armed = second click will actually spend. It PULSES so it reads as hot, not idle. */
+.firebtn.armed{background:var(--acc);color:var(--bg-canvas);border-color:var(--acc);
+  animation:firearm 1s ease-in-out infinite}
+@keyframes firearm{0%,100%{box-shadow:0 0 0 0 var(--acc-dim)}50%{box-shadow:0 0 0 6px transparent}}
+/* the comet: card -> graph, so cause and effect are one motion */
+.firecomet{position:fixed;z-index:9999;width:14px;height:14px;border-radius:50%;
+  background:var(--acc);box-shadow:0 0 12px var(--acc),0 0 26px var(--acc);pointer-events:none;
+  transition:transform .85s cubic-bezier(.16,1,.3,1),opacity .85s ease-out}
+/* orchestrator flashes when a worker is being born under it */
+.orc-spawn rect{animation:orcspawn 1.4s var(--e-hover)}
+@keyframes orcspawn{0%{stroke:var(--acc);filter:drop-shadow(0 0 4px var(--acc))}
+  30%{filter:drop-shadow(0 0 16px var(--acc))}100%{filter:none}}
+.firetoast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);
+  z-index:10000;background:var(--acc);color:var(--bg-canvas);font:700 13px/1 var(--font);
+  padding:12px 20px;border-radius:10px;box-shadow:var(--glow);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--e-hover),transform .25s var(--e-hover)}
+.firetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){
+  .firebtn.armed,.orc-spawn rect{animation:none}
+  .firecomet{display:none}
+  .firetoast{transition:opacity .01s}
+}
 @media (prefers-reduced-motion:reduce){.chatturn{animation:none}}
 .armyledger{max-height:240px;overflow:auto;margin-top:var(--s5);padding-top:var(--s4);
   border-top:1px solid var(--bd-subtle);font-size:11px;color:var(--tx-3)}
